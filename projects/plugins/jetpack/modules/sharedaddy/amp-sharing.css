@@ -37,92 +37,92 @@ amp-social-share::before,
 	color: #656565;
 }
 
-amp-social-share[type='email'] {
+amp-social-share[type="email"] {
 	background: #e9e9e9;
 	color: #656565;
 }
 
-amp-social-share[type='email']::before {
+amp-social-share[type="email"]::before {
 	content: '\f410';
 }
 
-amp-social-share[type='tumblr'] {
+amp-social-share[type="tumblr"] {
 	background: #2c4762;
 }
 
-amp-social-share[type='tumblr']::before {
+amp-social-share[type="tumblr"]::before {
 	content: '\f607';
 }
 
-amp-social-share[type='facebook'] {
+amp-social-share[type="facebook"] {
 	background: #0866ff;
 }
 
-amp-social-share[type='facebook']::before {
+amp-social-share[type="facebook"]::before {
 	content: '\f203';
 }
 
-amp-social-share[type='twitter'] {
+amp-social-share[type="twitter"] {
 	background: #000;
 }
 
-amp-social-share[type='twitter']::before {
+amp-social-share[type="twitter"]::before {
 	content: '\f10e';
 }
 
-amp-social-share[type='pinterest'] {
+amp-social-share[type="pinterest"] {
 	background: #ca1f27;
 }
 
-amp-social-share[type='pinterest']::before {
+amp-social-share[type="pinterest"]::before {
 	content: '\f210';
 }
 
-amp-social-share[type='telegram'] {
+amp-social-share[type="telegram"] {
 	background: #08c;
 }
 
-amp-social-share[type='telegram']::before {
+amp-social-share[type="telegram"]::before {
 	content: '\f606';
 }
 
-amp-social-share[type='linkedin'] {
+amp-social-share[type="linkedin"] {
 	background: #0077b5;
 }
 
-amp-social-share[type='linkedin']::before {
+amp-social-share[type="linkedin"]::before {
 	content: '\f207';
 }
 
-amp-social-share[type='pocket'] {
+amp-social-share[type="pocket"] {
 	background: #ee4056;
 }
 
-amp-social-share[type='pocket']::before {
+amp-social-share[type="pocket"]::before {
 	content: '\f224';
 }
 
-amp-social-share[type='reddit'] {
+amp-social-share[type="reddit"] {
 	background: #cee3f8;
 	color: #555;
 }
 
-amp-social-share[type='reddit']::before {
+amp-social-share[type="reddit"]::before {
 	content: '\f222';
 }
 
-amp-social-share[type='skype'] {
+amp-social-share[type="skype"] {
 	background: #00AFF0;
 }
 
-amp-social-share[type='skype']::before {
+amp-social-share[type="skype"]::before {
 	content: '\f220';
 }
 
-amp-social-share[type='whatsapp'] {
+amp-social-share[type="whatsapp"] {
 	background: #43d854;
 }
 
-amp-social-share[type='whatsapp']::before {
+amp-social-share[type="whatsapp"]::before {
 	content: '\f608';
 }

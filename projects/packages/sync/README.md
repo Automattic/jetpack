@@ -87,6 +87,7 @@ $config->ensure(
 
 It's important to note that we consider a list of certain options required for Sync to properly function, therefore the following options will be synced no matter the configuration:
 
+- `jetpack_sync_active_modules`, // Sync related option
 - `jetpack_sync_non_blocking`, // Sync related option
 - `jetpack_sync_non_public_post_stati`, // Sync related option
 - `jetpack_sync_settings_comment_meta_whitelist`, // Sync related option
@@ -147,6 +148,7 @@ It's important to note that we consider a list of certain callables required for
 - `wp_max_upload_size`
 - `wp_version`
 - `jetpack_connection_active_plugins` // Connection related callable
+- `jetpack_package_versions` // Connection related callable
 
 Passing a list of callables will result in syncing those callables plus the required ones.
 

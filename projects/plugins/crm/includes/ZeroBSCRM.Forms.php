@@ -267,7 +267,7 @@ function jpcrm_simple_form_html( $formid = -1, $formObject = array() ) {
 		<div class="zbscrmFrontEndForm" id="zbs_form_<?php echo esc_attr( $formid ); ?>">
 			<div id="zbs_form_ajax_action" data-zbsformajax="<?php echo esc_url( admin_url('admin-ajax.php') ); ?>"></div>
 			<div class="embed">
-				<div class="simple" style="border:0px !important">
+				<div class="simple" style="border:0 !important">
 					<div class="content">
 						<h1><?php echo !empty($formObject['label_header']) ? esc_html( $formObject['label_header'] ) : esc_html__("Want to find out more?",'zero-bs-crm'); ?></h1>
 						<h3><?php echo !empty($formObject['label_subheader']) ? esc_html( $formObject['label_subheader'] ) : esc_html__("Drop us a line. We follow up on all contacts",'zero-bs-crm'); ?></h3>
@@ -315,7 +315,7 @@ function jpcrm_naked_form_html( $formid = -1, $formObject = array() ) {
 		<div class="zbscrmFrontEndForm" id="zbs_form_<?php echo esc_attr( $formid ); ?>">
 			<div id="zbs_form_ajax_action" data-zbsformajax="<?php echo esc_url( admin_url('admin-ajax.php') ); ?>"></div>
 			<div class="embed">
-				<div class="naked" style="border:0px !important">
+				<div class="naked" style="border:0 !important">
 					<div class="content">
 						<div class="form-wrapper zbsFormWrap">
 							<input class="input" type="text" id="zbs_fname" name="zbs_fname" placeholder="<?php echo !empty($formObject['label_firstname']) ? esc_attr( $formObject['label_firstname'] ) : esc_attr__("First Name",'zero-bs-crm'); ?>" value=""/>
@@ -361,7 +361,7 @@ function jpcrm_content_form_html( $formid = -1, $formObject = array() ) {
 		<div class="zbscrmFrontEndForm" id="zbs_form_<?php echo esc_attr( $formid ); ?>">
 			<div id="zbs_form_ajax_action" data-zbsformajax="<?php echo esc_url( admin_url('admin-ajax.php') ); ?>"></div>
 			<div class="embed">
-				<div class="cgrab" style="border:0px !important">
+				<div class="cgrab" style="border:0 !important">
 					<div class="content">
 						<h1><?php echo !empty($formObject['label_header']) ? esc_html( $formObject['label_header'] ) : esc_html__("Want to find out more?",'zero-bs-crm'); ?></h1>
 						<h3><?php echo !empty($formObject['label_subheader']) ? esc_html( $formObject['label_subheader'] ) : esc_html__("Drop us a line. We follow up on all contacts",'zero-bs-crm'); ?></h3>

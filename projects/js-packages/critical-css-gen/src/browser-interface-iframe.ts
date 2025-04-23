@@ -62,7 +62,7 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 
 		// Create iframe itself.
 		this.iframe = document.createElement( 'iframe' );
-		this.iframe.setAttribute( 'style', 'max-width: none; max-height: none; border: 0px;' );
+		this.iframe.setAttribute( 'style', 'max-width: none; max-height: none; border: 0;' );
 		this.iframe.setAttribute( 'aria-hidden', 'true' );
 		this.iframe.setAttribute(
 			'sandbox',

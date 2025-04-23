@@ -263,7 +263,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 }
 
 @mixin debug(){
-	box-shadow: 0px 0px 10px $alert-red inset;
+	box-shadow: 0 0 10px $alert-red inset;
 }
 
 @mixin stats-fade-text($toColor) {
@@ -288,7 +288,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 
 // Creates a fading overlay to signify that the content is longer
 // than the space allows.
-@mixin long-content-fade( $direction: right, $size: 20%, $color: #fff, $edge: 0px, $z-index: false) {
+@mixin long-content-fade( $direction: right, $size: 20%, $color: #fff, $edge: 0, $z-index: false) {
 	content: '';
 	display: block;
 	position: absolute;

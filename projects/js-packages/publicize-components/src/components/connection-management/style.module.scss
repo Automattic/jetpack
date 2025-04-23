@@ -18,7 +18,7 @@
 	align-items: center;
 
 	:global(.components-spinner) {
-		margin-top: 0px;
+		margin-top: 0;
 	}
 
 	span.profile-link,
@@ -62,13 +62,13 @@
 }
 
 .connection-panel.connection-panel {
-	border: 0px;
+	border: 0;
 	margin-left: 3rem;
 
 	:global(.components-panel__body) {
-		border-top: 0px;
-		border-bottom: 0px;
-		padding: 0px;
+		border-top: 0;
+		border-bottom: 0;
+		padding: 0;
 	}
 
 	:global(.components-panel__body.is-opened) {
@@ -92,7 +92,7 @@
 	}
 
 	.connection-list-item {
-		margin-bottom: 0px;
+		margin-bottom: 0;
 		padding: 1rem;
 
 		&:not(:last-child) {

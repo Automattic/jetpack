@@ -116,7 +116,7 @@ button,select {
     text-transform:none
 }
 
-button,html input[type=button],input[type=reset],input[type=submit] {
+button,html input[type="button"],input[type="reset"],input[type="submit"] {
     -webkit-appearance:button;
     cursor:pointer
 }
@@ -134,20 +134,20 @@ input {
     line-height:normal
 }
 
-input[type=checkbox],input[type=radio] {
+input[type="checkbox"],input[type="radio"] {
     box-sizing:border-box;
     padding:0
 }
 
-input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button {
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button {
     height:auto
 }
 
-input[type=search] {
+input[type="search"] {
     -webkit-appearance:textfield
 }
 
-input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration {
+input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration {
     -webkit-appearance:none
 }
 
@@ -615,13 +615,13 @@ th {
     background-color:#f5f5f5
 }
 
-table col[class*=col-] {
+table col[class*="col-"] {
     position:static;
     float:none;
     display:table-column
 }
 
-table td[class*=col-],table th[class*=col-] {
+table td[class*="col-"],table th[class*="col-"] {
     position:static;
     float:none;
     display:table-cell
@@ -729,22 +729,22 @@ label {
     font-weight:700
 }
 
-input[type=search] {
+input[type="search"] {
     -webkit-box-sizing:border-box;
     -moz-box-sizing:border-box;
     box-sizing:border-box
 }
 
-input[type=checkbox],input[type=radio] {
+input[type="checkbox"],input[type="radio"] {
     margin:4px 0 0;
     line-height:normal
 }
 
-input[type=file] {
+input[type="file"] {
     display:block
 }
 
-input[type=range] {
+input[type="range"] {
     display:block;
     width:100%
 }
@@ -753,7 +753,7 @@ select[multiple],select[size] {
     height:auto
 }
 
-input[type=checkbox]:focus,input[type=file]:focus,input[type=radio]:focus {
+input[type="checkbox"]:focus,input[type="file"]:focus,input[type="radio"]:focus {
     outline:thin dotted;
     outline:5px auto -webkit-focus-ring-color;
     outline-offset:-2px
@@ -819,7 +819,7 @@ textarea.form-control {
     height:auto
 }
 
-input[type=date] {
+input[type="date"] {
     line-height:34px
 }
 
@@ -841,7 +841,7 @@ input[type=date] {
     cursor:pointer
 }
 
-.checkbox input[type=checkbox],.checkbox-inline input[type=checkbox],.radio input[type=radio],.radio-inline input[type=radio] {
+.checkbox input[type="checkbox"],.checkbox-inline input[type="checkbox"],.radio input[type="radio"],.radio-inline input[type="radio"] {
     float:left;
     margin-left:-20px
 }
@@ -864,7 +864,7 @@ input[type=date] {
     margin-left:10px
 }
 
-.checkbox-inline[disabled],.checkbox[disabled],.radio-inline[disabled],.radio[disabled],fieldset[disabled] .checkbox,fieldset[disabled] .checkbox-inline,fieldset[disabled] .radio,fieldset[disabled] .radio-inline,fieldset[disabled] input[type=checkbox],fieldset[disabled] input[type=radio],input[type=checkbox][disabled],input[type=radio][disabled] {
+.checkbox-inline[disabled],.checkbox[disabled],.radio-inline[disabled],.radio[disabled],fieldset[disabled] .checkbox,fieldset[disabled] .checkbox-inline,fieldset[disabled] .radio,fieldset[disabled] .radio-inline,fieldset[disabled] input[type="checkbox"],fieldset[disabled] input[type="radio"],input[type="checkbox"][disabled],input[type="radio"][disabled] {
     cursor:not-allowed
 }
 
@@ -1037,7 +1037,7 @@ input[type=date] {
     vertical-align:middle
 }
 
-.form-inline .checkbox input[type=checkbox],.form-inline .radio input[type=radio],.navbar-form .checkbox input[type=checkbox],.navbar-form .radio input[type=radio] {
+.form-inline .checkbox input[type="checkbox"],.form-inline .radio input[type="radio"],.navbar-form .checkbox input[type="checkbox"],.navbar-form .radio input[type="radio"] {
     float:none;
     margin-left:0
 }
@@ -1351,7 +1351,7 @@ input[type=date] {
     margin-top:5px
 }
 
-input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-block {
+input[type="button"].btn-block,input[type="reset"].btn-block,input[type="submit"].btn-block {
     width:100%
 }
 
@@ -1711,7 +1711,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
     width:100%
 }
 
-[data-toggle=buttons]>.btn>input[type=checkbox],[data-toggle=buttons]>.btn>input[type=radio] {
+[data-toggle="buttons"]>.btn>input[type="checkbox"],[data-toggle="buttons"]>.btn>input[type="radio"] {
     display:none
 }
 
@@ -1721,7 +1721,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
     border-collapse:separate
 }
 
-.input-group[class*=col-] {
+.input-group[class*="col-"] {
     float:none;
     padding-left:0;
     padding-right:0
@@ -1771,7 +1771,7 @@ input[type=button].btn-block,input[type=reset].btn-block,input[type=submit].btn-
     border-radius:6px
 }
 
-.input-group-addon input[type=checkbox],.input-group-addon input[type=radio] {
+.input-group-addon input[type="checkbox"],.input-group-addon input[type="radio"] {
     margin-top:0
 }
 
@@ -3844,7 +3844,7 @@ button.close {
     background-color: #f5f5f5;
 }
 
-table [class*=span],.row-fluid table [class*=span] {
+table [class*="span"],.row-fluid table [class*="span"] {
     display: table-cell;
     float: none;
     margin-left: 0;
@@ -4647,9 +4647,9 @@ th.column-ID {
         background: #c8fbe9;
         text-align: center;
         border-radius: 5px;
-        -webkit-box-shadow: 0px 2px 17px -4px rgba(0,0,0,0.52);
-        -moz-box-shadow: 0px 2px 17px -4px rgba(0,0,0,0.52);
-        box-shadow: 0px 2px 17px -4px rgba(0,0,0,0.52);
+        -webkit-box-shadow: 0 2px 17px -4px rgba(0,0,0,0.52);
+        -moz-box-shadow: 0 2px 17px -4px rgba(0,0,0,0.52);
+        box-shadow: 0 2px 17px -4px rgba(0,0,0,0.52);
 
         .zbs-co-img {
 

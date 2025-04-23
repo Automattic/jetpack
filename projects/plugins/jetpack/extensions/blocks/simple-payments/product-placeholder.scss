@@ -81,7 +81,7 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-details p {
 	margin-right: 10px;
 }
 
-input[type='number'].jetpack-simple-payments-items-number {
+input[type="number"].jetpack-simple-payments-items-number {
 	background: $white;
 	font-size: 16px;
 	line-height: 1;
@@ -89,8 +89,8 @@ input[type='number'].jetpack-simple-payments-items-number {
 	padding: 4px 8px !important;
 }
 
-input[type=number].jetpack-simple-payments-items-number::-webkit-inner-spin-button,
-input[type=number].jetpack-simple-payments-items-number::-webkit-outer-spin-button {
+input[type="number"].jetpack-simple-payments-items-number::-webkit-inner-spin-button,
+input[type="number"].jetpack-simple-payments-items-number::-webkit-outer-spin-button {
   opacity: 1;
 }
 
