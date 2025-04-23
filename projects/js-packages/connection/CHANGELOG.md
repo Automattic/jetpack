@@ -5,7 +5,7 @@
 ## [0.39.11] - 2025-04-14
 ### Fixed
 - Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
-- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Clean up various Stylelint violations. [#43010]
 - Linting: Use double colon notation for pseudo-element selectors. [#43019]
 
 ## [0.39.10] - 2025-04-07

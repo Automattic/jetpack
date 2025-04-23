@@ -7,12 +7,15 @@
 
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
 use Automattic\Jetpack\Sync\Settings;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Testing Table Checksum.
  *
  * @group jetpack-sync
  */
+#[Group( 'jetpack-sync' )]
 class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -83,6 +86,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 * @param string  $table    Table name.
 	 * @param boolean $is_valid Is it a valid table name.
 	 */
+	#[DataProvider( 'table_provider' )]
 	public function test_checksum_validate_table_name( $table, $is_valid ) {
 		if ( ! $is_valid ) {
 			// Exception expected if not a valid table name.
@@ -105,6 +109,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 * @param array  $enabled_modules Array of classnames of Sync enabled modules.
 	 * @param bool   $is_valid        Whether the checksum is valid. If not, an exception is expected.
 	 */
+	#[DataProvider( 'table_modules_provider' )]
 	public function test_checksum_with_disabled_sync_modules( $table, $enabled_modules, $is_valid ) {
 		$this->markTestSkipped( 'Test breaks state needed by other tests' );
 		// @phan-suppress-next-line PhanPluginUnreachableCode
@@ -216,6 +221,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 * @param boolean $is_valid             Is this a valid field name.
 	 * @param ?string $field                Field under test.
 	 */
+	#[DataProvider( 'field_validation_provider' )]
 	public function test_checksum_validate_fields( $table_configurations, $is_valid, $field ) {
 
 		$this->allowed_tables = $table_configurations;
@@ -313,6 +319,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 * @param boolean $is_valid             Is this a valid field name.
 	 * @param ?string $field                Field under test.
 	 */
+	#[DataProvider( 'field_table_validation_provider' )]
 	public function test_checksum_validate_fields_against_table( $table_configurations, $is_valid, $field ) {
 		global $wpdb;
 
@@ -400,6 +407,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 * @param int $disallow_index Index of generated post to be of disallowed post_type.
 	 * @param int $expected_count expected number of posts to be returned.
 	 */
+	#[DataProvider( 'get_field_ranges_posts_provider' )]
 	public function test_get_range_edges_posts( $num_posts, $disallow_index, $expected_count ) {
 
 		// Generate Test Content.
@@ -533,6 +541,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 * @param int|null $range_to_offset     Offset to set on the range_to based on last post.
 	 * @param int|null $limit               limit to be passed to get_range_edges.
 	 */
+	#[DataProvider( 'get_field_ranges_posts_args_provider' )]
 	public function test_get_range_edges_posts_args( $num_posts, $expected_item_count, $range_from_offset, $range_to_offset, $limit ) {
 
 		// Generate Test Content.

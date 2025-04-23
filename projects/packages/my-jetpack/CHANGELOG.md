@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Connection: Add check for mismatched WordPress/WordPress.com user email. [#42674]
 
 ### Fixed
-- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Clean up various Stylelint violations. [#43010]
 - Linting: Format SCSS imports consistently. [#43018]
 - Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
 - Linting: Use double colon notation for pseudo-element selectors. [#43019]

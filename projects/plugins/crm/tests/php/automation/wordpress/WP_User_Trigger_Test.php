@@ -5,6 +5,8 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Triggers\WP_User_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -13,6 +15,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\WP_User_Created
  */
+#[CoversClass( WP_User_Created::class )]
 class WP_User_Trigger_Test extends JPCRM_Base_Integration_TestCase {
 
 	/** @var Automation_Faker */
@@ -26,6 +29,7 @@ class WP_User_Trigger_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test the create WP User trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the create WP User trigger executes the workflow with an action' )]
 	public function test_wp_user_created_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/wp_user_created' );

@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.2",
-		"automattic/wordbless": "^0.5.3",
+		"automattic/wordbless": "^0.6.0",
 		"yoast/phpunit-polyfills": "^3.0.0"
 	},
 	"scripts": {

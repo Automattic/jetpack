@@ -11,6 +11,8 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Brain\Monkey;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,6 +20,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Blocks
  */
+#[CoversClass( Blocks::class )]
 class Blocks_Test extends TestCase {
 
 	/**
@@ -146,6 +149,7 @@ class Blocks_Test extends TestCase {
 	 * @param string $extension_slug      Block / Extension name.
 	 * @param string $expected_short_slug Extension name without Jetpack prefix.
 	 */
+	#[DataProvider( 'get_extension_name_provider' )]
 	public function test_remove_extension_prefix( $extension_slug, $expected_short_slug ) {
 		$short_slug = Blocks::remove_extension_prefix( $extension_slug );
 

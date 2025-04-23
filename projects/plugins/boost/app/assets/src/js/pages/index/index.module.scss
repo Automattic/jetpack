@@ -5,10 +5,17 @@
 
 .tooltip-wrapper {
 	margin: 1em 0;
-}
 
-.tooltip-wrapper p {
-	display: inline;
+	p {
+		display: inline;
+	}
+
+	:global(.icon-tooltip-content) {
+
+		p {
+			display: block;
+		}
+	}
 }
 
 @media (max-width: 768px) {

@@ -293,6 +293,11 @@ class Contact_Form_Plugin {
 
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
+		if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			// Register Unauthenticated file download hooks.
+			require_once JETPACK__PLUGIN_DIR . 'unauth-file-upload.php';
+		}
+
 		self::register_contact_form_blocks();
 	}
 

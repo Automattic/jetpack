@@ -9,12 +9,15 @@ use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 /**
  * Test Automation Workflow functionalities
  *
  * @covers Automattic\Jetpack\CRM\Automation\Actions\Add_Contact_Log
  */
+#[CoversClass( Add_Contact_Log::class )]
 class Add_Contact_Log_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
@@ -38,6 +41,7 @@ class Add_Contact_Log_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test that the 'adding a log to a contact' action executes the action.
 	 */
+	#[TestDox( 'Test that the \'adding a log to a contact\' action executes the action.' )]
 	public function test_add_contact_log_action() {
 		global $zbs;
 
@@ -80,6 +84,7 @@ class Add_Contact_Log_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test that the 'adding a log to a contact' action executes the action, within a workflow.
 	 */
+	#[TestDox( 'Test that the \'adding a log to a contact\' action executes the action, within a workflow.' )]
 	public function test_add_contact_log_action_with_workflow() {
 		global $zbs;
 
