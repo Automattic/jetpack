@@ -26,6 +26,7 @@ import InboxResponse from '../response';
 import { getPath } from '../utils.js';
 import {
 	viewAction,
+	viewActionModal,
 	markAsSpamAction,
 	markAsNotSpamAction,
 	moveToTrashAction,
@@ -258,14 +259,27 @@ export default function InboxView() {
 		[ filterOptions, dateSettings.formats.date ]
 	);
 
-	const actions = [
-		markAsSpamAction,
-		markAsNotSpamAction,
-		moveToTrashAction,
-		restoreAction,
-		deleteAction,
-		viewAction,
-	];
+	const actions = useMemo( () => {
+		const _actions = [
+			markAsSpamAction,
+			markAsNotSpamAction,
+			moveToTrashAction,
+			restoreAction,
+			deleteAction,
+		];
+		if ( isMobile ) {
+			_actions.unshift( viewActionModal );
+		} else {
+			_actions.unshift( {
+				...viewAction,
+				callback( items ) {
+					const [ item ] = items;
+					setSidePanelItem( item );
+				},
+			} );
+		}
+		return _actions;
+	}, [ isMobile ] );
 
 	return (
 		<HStack

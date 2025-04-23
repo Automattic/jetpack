@@ -14,10 +14,13 @@ export const BULK_ACTIONS = {
 
 export const viewAction = {
 	id: 'view-response',
-	label: __( 'View response', 'jetpack-forms' ),
-	isPrimary: true,
 	icon: <Icon icon={ commentContent } />,
-	modalHeader: __( 'Response', 'jetpack-forms' ),
+	isPrimary: true,
+	label: __( 'View response', 'jetpack-forms' ),
+};
+
+export const viewActionModal = {
+	...viewAction,
 	RenderModal: ( { items } ) => {
 		const [ item ] = items;
 		return <InboxResponse isLoading={ false } response={ item } />;
