@@ -274,12 +274,13 @@ export default function InboxView() {
 				...viewAction,
 				callback( items ) {
 					const [ item ] = items;
-					setSidePanelItem( item );
+					const selectedId = item.id.toString();
+					onChangeSelection( [ ...selection, selectedId ] );
 				},
 			} );
 		}
 		return _actions;
-	}, [ isMobile ] );
+	}, [ isMobile, onChangeSelection, selection ] );
 
 	return (
 		<HStack
