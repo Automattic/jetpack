@@ -61,7 +61,7 @@ class REST_AI {
 	public static function get_openai_jwt() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			"/sites/$blog_id/jetpack-openai-query/jwt",
 			'2',
 			array(
