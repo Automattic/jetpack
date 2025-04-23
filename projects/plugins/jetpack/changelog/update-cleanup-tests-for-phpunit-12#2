@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: `->getMockBuilder()` no longer creates specifically-named classes. And we don't really need a mock here anyway, just for some class by the name to exist.
+
+
