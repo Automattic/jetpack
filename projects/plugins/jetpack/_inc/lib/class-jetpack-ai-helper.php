@@ -428,7 +428,9 @@ class Jetpack_AI_Helper {
 
 		$request_path = sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id );
 
-		$wpcom_request = Client::wpcom_json_api_request_as_blog(
+		// This is the only request to an AI endpoint that is made as a user and it should stay that way because of the
+		// permission checks in get_status_permission_check().
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
 			$request_path,
 			'v2',
 			array(
