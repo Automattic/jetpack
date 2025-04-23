@@ -42,7 +42,7 @@
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build:esm && pnpm run build:cjs",
 		"build:esm": "tsc --declarationDir dist/types --outDir dist/mjs",
-		"build:cjs": "tsc --module CommonJS --moduleResolution node10 --declaration false --outDir dist/cjs",
+		"build:cjs": "cp package.cjs.json src/package.json && tsc --declaration false --outDir dist/cjs; rm src/package.json",
 		"clean": "rm -rf dist",
 		"compile-ts": "tsc --pretty",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",

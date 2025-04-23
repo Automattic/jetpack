@@ -3,8 +3,7 @@
 	"compilerOptions": {
 		"typeRoots": [ "./node_modules/@types/", "src/*" ],
 		"target": "ES2024",
-		"importHelpers": true, // Import helpers from `tslib` instead of inlining them
-		"customConditions": null // CommonJS build fails when customConditions are defined and this package doesn't need them anyway
+		"importHelpers": true // Import helpers from `tslib` instead of inlining them
 	},
 	"include": [ "./src/index.ts" ]
 }
