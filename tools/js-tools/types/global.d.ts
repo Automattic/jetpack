@@ -55,8 +55,5 @@ interface Window {
 		};
 		siteFragment?: string;
 	};
-	myJetpackInitialState?: {
-		adminUrl?: string;
-	};
 	wpcomFetch: function;
 }
