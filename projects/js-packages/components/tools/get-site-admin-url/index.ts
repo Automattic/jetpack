@@ -3,7 +3,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 /**
  * Returns the site admin URL.
  *
- * @deprecated Please use getAdminUrl from @automattic/jetpack-script-data instead.
+ * @deprecated use `getAdminUrl` from `@automattic/jetpack-script-data` instead.
  *
  * @return {?string} The site admin URL or null if not available.
  */
