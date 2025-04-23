@@ -14,7 +14,9 @@ class Garbage_Collection {
 	 */
 	public static function setup() {
 		add_action( self::ACTION, array( self::class, 'garbage_collect' ) );
-		add_action( self::ACTION, array( Logger::class, 'delete_old_logs' ) );
+
+		// Clear old log files when garbage collection is run. Do not pass the $older_than parameter to the method as it's not supported.
+		add_action( self::ACTION, array( Logger::class, 'delete_old_logs' ), 10, 0 );
 	}
 
 	public static function schedule_single_garbage_collection() {
