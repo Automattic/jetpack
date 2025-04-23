@@ -261,6 +261,38 @@ class REST_Connector {
 			)
 		);
 
+		// Provider-specific authorization URL endpoint
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/authorize_url/(?P<provider>[a-zA-Z]+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'connection_authorize_url_provider' ),
+				'permission_callback' => __CLASS__ . '::user_connection_data_permission_check',
+				'args'                => array(
+					'provider'      => array(
+						'description' => __( 'Authentication provider (google, github, apple, link)', 'jetpack-connection' ),
+						'type'        => 'string',
+						'required'    => true,
+						'enum'        => array( 'google', 'github', 'apple', 'link' ),
+					),
+					'redirect_uri'  => array(
+						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
+						'type'        => 'string',
+					),
+					'email_address' => array(
+						'description' => __( 'Email address for magic link authentication', 'jetpack-connection' ),
+						'type'        => 'string',
+						'format'      => 'email',
+					),
+					'from'          => array(
+						'description' => __( 'Optional "from" arg to distinguish where (which flow) the user is coming from when connecting', 'jetpack-connection' ),
+						'type'        => 'string',
+					),
+				),
+			)
+		);
+
 		register_rest_route(
 			'jetpack/v4',
 			'/user-token',
@@ -476,6 +508,7 @@ class REST_Connector {
 				/** This filter is documented in packages/status/src/class-status.php */
 				'filter'          => ( apply_filters( 'jetpack_development_mode', false ) || apply_filters( 'jetpack_offline_mode', false ) ), // jetpack_development_mode is deprecated.
 				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
+				'option'          => (bool) get_option( 'jetpack_offline_mode' ),
 			),
 			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 		);
@@ -642,15 +675,22 @@ class REST_Connector {
 		)
 		: false );
 
+		// Check for possible account errors between the local user and WPCOM account.
+		$possible_errors = array();
+		if ( $is_user_connected && ! empty( $wpcom_user_data['email'] ) ) {
+			$user_account_status = new \Automattic\Jetpack\Connection\User_Account_Status();
+			$possible_errors     = $user_account_status->check_account_errors( $current_user->user_email, $wpcom_user_data['email'] );
+		}
+
 		$current_user_connection_data = array(
-			'isConnected' => $is_user_connected,
-			'isMaster'    => $is_master_user,
-			'username'    => $current_user->user_login,
-			'id'          => $current_user->ID,
-			'blogId'      => $blog_id,
-			'wpcomUser'   => $wpcom_user_data,
-			'gravatar'    => get_avatar_url( $current_user->ID ),
-			'permissions' => array(
+			'isConnected'           => $is_user_connected,
+			'isMaster'              => $is_master_user,
+			'username'              => $current_user->user_login,
+			'id'                    => $current_user->ID,
+			'blogId'                => $blog_id,
+			'wpcomUser'             => $wpcom_user_data,
+			'gravatar'              => get_avatar_url( $current_user->ID ),
+			'permissions'           => array(
 				'connect'        => current_user_can( 'jetpack_connect' ),
 				'connect_user'   => current_user_can( 'jetpack_connect_user' ),
 				// This is a mapped capability
@@ -659,6 +699,7 @@ class REST_Connector {
 				'disconnect'     => current_user_can( 'jetpack_disconnect' ),
 				'manage_options' => current_user_can( 'manage_options' ),
 			),
+			'possibleAccountErrors' => $possible_errors,
 		);
 
 		/**
@@ -681,67 +722,6 @@ class REST_Connector {
 		}
 
 		return $response;
-	}
-
-	/**
-	 * Permission check for the connection/data endpoint
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function user_connection_data_permission_check() {
-		if ( current_user_can( 'jetpack_connect_user' ) ) {
-			return true;
-		}
-
-		return new WP_Error(
-			'invalid_user_permission_user_connection_data',
-			self::get_user_permissions_error_msg(),
-			array( 'status' => rest_authorization_required_code() )
-		);
-	}
-
-	/**
-	 * Verifies if the request was signed with the Jetpack Debugger key
-	 *
-	 * @param string|null $pub_key The public key used to verify the signature. Default is the Jetpack Debugger key. This is used for testing purposes.
-	 *
-	 * @return bool
-	 */
-	public static function is_request_signed_by_jetpack_debugger( $pub_key = null ) {
-		 // phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['signature'] ) || ! isset( $_GET['timestamp'] ) || ! isset( $_GET['url'] ) || ! isset( $_GET['rest_route'] ) ) {
-			return false;
-		}
-
-		// signature timestamp must be within 5min of current time.
-		if ( abs( time() - (int) $_GET['timestamp'] ) > 300 ) {
-			return false;
-		}
-
-		$signature = base64_decode( filter_var( wp_unslash( $_GET['signature'] ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-
-		$signature_data = wp_json_encode(
-			array(
-				'rest_route' => filter_var( wp_unslash( $_GET['rest_route'] ) ),
-				'timestamp'  => (int) $_GET['timestamp'],
-				'url'        => filter_var( wp_unslash( $_GET['url'] ) ),
-			)
-		);
-
-		if (
-			! function_exists( 'openssl_verify' )
-			|| 1 !== openssl_verify(
-				$signature_data,
-				$signature,
-				$pub_key ? $pub_key : static::JETPACK__DEBUGGER_PUBLIC_KEY
-			)
-		) {
-			return false;
-		}
-
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-		return true;
 	}
 
 	/**
@@ -1109,5 +1089,116 @@ class REST_Connector {
 		return Rest_Authentication::is_signed_with_blog_token()
 			? true
 			: new WP_Error( 'invalid_permission_connection_check', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Provider-specific authorization URL endpoint
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function connection_authorize_url_provider( $request ) {
+		$provider     = $request['provider'];
+		$redirect_uri = $request['redirect_uri'] ?? '';
+		$from         = $request['from'] ?? false;
+
+		// Validate magic link parameters if provider is 'link'
+		if ( 'link' === $provider ) {
+			if ( empty( $request['email_address'] ) ) {
+				return new WP_Error(
+					'missing_email',
+					__( 'Email address is required for magic link authentication.', 'jetpack-connection' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			// Sanitize email address
+			$email = sanitize_email( $request['email_address'] );
+			if ( ! is_email( $email ) ) {
+				return new WP_Error(
+					'invalid_email',
+					__( 'Invalid email address format.', 'jetpack-connection' ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url(
+			$redirect_uri,
+			$from,
+			false,
+			$provider,
+			array(
+				'email_address' => $email ?? '',
+			)
+		);
+
+		return rest_ensure_response(
+			array(
+				'authorizeUrl' => $authorize_url,
+			)
+		);
+	}
+
+	/**
+	 * Permission check for the connection/data endpoint
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function user_connection_data_permission_check() {
+		if ( current_user_can( 'jetpack_connect_user' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_user_connection_data',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Verifies if the request was signed with the Jetpack Debugger key
+	 *
+	 * @param string|null $pub_key The public key used to verify the signature. Default is the Jetpack Debugger key. This is used for testing purposes.
+	 *
+	 * @return bool
+	 */
+	public static function is_request_signed_by_jetpack_debugger( $pub_key = null ) {
+		 // phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['signature'] ) || ! isset( $_GET['timestamp'] ) || ! isset( $_GET['url'] ) || ! isset( $_GET['rest_route'] ) ) {
+			return false;
+		}
+
+		// signature timestamp must be within 5min of current time.
+		if ( abs( time() - (int) $_GET['timestamp'] ) > 300 ) {
+			return false;
+		}
+
+		$signature = base64_decode( filter_var( wp_unslash( $_GET['signature'] ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+
+		$signature_data = wp_json_encode(
+			array(
+				'rest_route' => filter_var( wp_unslash( $_GET['rest_route'] ) ),
+				'timestamp'  => (int) $_GET['timestamp'],
+				'url'        => filter_var( wp_unslash( $_GET['url'] ) ),
+			)
+		);
+
+		if (
+			! function_exists( 'openssl_verify' )
+			|| 1 !== openssl_verify(
+				$signature_data,
+				$signature,
+				$pub_key ? $pub_key : static::JETPACK__DEBUGGER_PUBLIC_KEY
+			)
+		) {
+			return false;
+		}
+
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		return true;
 	}
 }

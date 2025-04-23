@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Subscribers_Dashboard;
 
 use Automattic\Jetpack\Status\Cache;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,23 +16,22 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers Automattic\Jetpack\Subscribers_Dashboard\Dashboard
  */
+#[CoversClass( Dashboard::class )]
 class Subscribers_Dashboard_Test extends TestCase {
 
 	/**
 	 * Setup runs before each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		add_filter( 'jetpack_wp_admin_subscriber_management_enabled', '__return_true' );
 	}
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		remove_filter( 'jetpack_wp_admin_subscriber_management_enabled', '__return_true' );
 		Cache::clear();
 	}

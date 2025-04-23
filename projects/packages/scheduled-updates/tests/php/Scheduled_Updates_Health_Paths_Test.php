@@ -7,12 +7,16 @@
 
 use Automattic\Jetpack\Scheduled_Updates;
 use Automattic\Jetpack\Scheduled_Updates_Health_Paths;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Test class for Scheduled_Updates_Health_Paths.
  *
- * @coversDefaultClass Automattic\Jetpack\Scheduled_Updates_Health_Paths
+ * @covers \Automattic\Jetpack\Scheduled_Updates_Health_Paths
+ * @covers \WPCOM_REST_API_V2_Endpoint_Update_Schedules
  */
+#[CoversClass( Scheduled_Updates_Health_Paths::class )]
+#[CoversClass( WPCOM_REST_API_V2_Endpoint_Update_Schedules::class )]
 class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 	/**
@@ -31,8 +35,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		parent::set_up_wordbless();
@@ -56,8 +58,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Clean up after test
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		wp_delete_user( $this->admin_id );
@@ -67,8 +67,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test logging events and retrieving logs for a specific schedule ID.
-	 *
-	 * @covers ::validate
 	 */
 	public function test_validate() {
 		$site_url     = get_site_url();
@@ -116,8 +114,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test create item with paths.
-	 *
-	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::create_item
 	 */
 	public function test_create_item_with_no_paths() {
 		$plugins = array( 'gutenberg/gutenberg.php' );
@@ -144,8 +140,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test create item with paths.
-	 *
-	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::create_item
 	 */
 	public function test_create_item_with_various_paths() {
 		$plugins = array( 'gutenberg/gutenberg.php' );
@@ -189,8 +183,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test create item with too many paths.
-	 *
-	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::create_item
 	 */
 	public function test_create_item_with_too_many_paths() {
 		$plugins = array( 'gutenberg/gutenberg.php' );
@@ -214,8 +206,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test remove item with paths.
-	 *
-	 * @covers WPCOM_REST_API_V2_Endpoint_Update_Schedules::create_item
 	 */
 	public function test_remove_item_with_paths() {
 		$plugins = array( 'gutenberg/gutenberg.php' );

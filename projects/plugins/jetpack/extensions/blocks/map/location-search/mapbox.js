@@ -87,6 +87,7 @@ export class MapboxLocationSearch extends Component {
 								aria-activedescendant={ activeId }
 								onKeyDown={ onKeyDown }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						) }
 					</Lookup>

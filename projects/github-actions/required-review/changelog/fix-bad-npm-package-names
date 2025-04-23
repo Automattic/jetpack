@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Remove unused "name" field from package.json. This is not published and is not the target of an intra-monorepo JS dependency.
-
-

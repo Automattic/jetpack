@@ -7,12 +7,14 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\Jetpack_WPCOM_Block_Editor;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Class Jetpack_WPCOM_Block_Editor.
  *
  * @covers Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\Jetpack_WPCOM_Block_Editor
  */
+#[CoversClass( Jetpack_WPCOM_Block_Editor::class )]
 class Jetpack_WPCOM_Block_Editor_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * User ID.

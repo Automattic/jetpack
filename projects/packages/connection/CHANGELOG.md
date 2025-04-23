@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.11.0] - 2025-04-14
+### Added
+- Add check for mismatched WordPress/WordPress.com user email. [#42674]
+
+### Changed
+- Add Jetpack package version info to Heartbeat. [#43060]
+
+### Fixed
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
+## [6.10.3] - 2025-04-07
+### Changed
+- Linting: First pass of style coding standards. [#42734]
+
+## [6.10.2] - 2025-04-01
+### Changed
+- Update package dependencies. [#42809]
+
+## [6.10.1] - 2025-04-01
+### Changed
+- Update dependencies.
+
+## [6.10.0] - 2025-03-31
+### Added
+- IDC: Add "Offline Mode" flag to secret check endpoint. [#42779]
+
+## [6.9.0] - 2025-03-26
+### Added
+- Connection: Allow pre-selected login providers. [#42662]
+- Indicate when Offline Mode is enabled via DB option. [#42630]
+
+### Changed
+- Connection: Register assets absolutely. [#42468]
+
+## [6.8.1] - 2025-03-24
+### Changed
+- Update dependencies.
+
+## [6.8.0] - 2025-03-24
+### Added
+- Add support for provider-specific authentication. [#42602]
+
 ## [6.7.7] - 2025-03-21
 ### Changed
 - Internal updates.
@@ -1362,6 +1405,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.11.0]: https://github.com/Automattic/jetpack-connection/compare/v6.10.3...v6.11.0
+[6.10.3]: https://github.com/Automattic/jetpack-connection/compare/v6.10.2...v6.10.3
+[6.10.2]: https://github.com/Automattic/jetpack-connection/compare/v6.10.1...v6.10.2
+[6.10.1]: https://github.com/Automattic/jetpack-connection/compare/v6.10.0...v6.10.1
+[6.10.0]: https://github.com/Automattic/jetpack-connection/compare/v6.9.0...v6.10.0
+[6.9.0]: https://github.com/Automattic/jetpack-connection/compare/v6.8.1...v6.9.0
+[6.8.1]: https://github.com/Automattic/jetpack-connection/compare/v6.8.0...v6.8.1
+[6.8.0]: https://github.com/Automattic/jetpack-connection/compare/v6.7.7...v6.8.0
 [6.7.7]: https://github.com/Automattic/jetpack-connection/compare/v6.7.6...v6.7.7
 [6.7.6]: https://github.com/Automattic/jetpack-connection/compare/v6.7.5...v6.7.6
 [6.7.5]: https://github.com/Automattic/jetpack-connection/compare/v6.7.4...v6.7.5

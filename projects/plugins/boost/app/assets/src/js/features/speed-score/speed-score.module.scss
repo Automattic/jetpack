@@ -2,6 +2,7 @@
 @import '$css/main/mixins';
 
 .speed-scores {
+
 	p {
 		margin: 1em 0;
 	}
@@ -53,6 +54,7 @@
 }
 
 @include breakpoint(xs) {
+
 	.speed-scores :global(.icon-tooltip-helper.is-wide .components-popover) {
 		left: -60px !important;
 	}

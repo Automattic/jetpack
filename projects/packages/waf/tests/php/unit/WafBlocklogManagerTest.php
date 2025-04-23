@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * BlocklogManager test suite.
@@ -16,6 +17,7 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @runInSeparateProcess
 	 */
+	#[RunInSeparateProcess]
 	public function testWriteBlocklog() {
 		$tmp_dir      = sys_get_temp_dir();
 		$waf_log_path = $tmp_dir . '/waf-blocklog';

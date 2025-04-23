@@ -20,10 +20,9 @@ class URL_Secret_Test extends TestCase {
 
 	/**
 	 * Cleanup after each test.
-	 *
-	 * @after
 	 */
-	public static function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Jetpack_Options::delete_option( URL_Secret::OPTION_KEY );
 	}
 

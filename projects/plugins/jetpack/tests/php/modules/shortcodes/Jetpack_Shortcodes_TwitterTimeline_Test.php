@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
@@ -9,14 +11,16 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  *
  * Expected shortcode output:
  * <a class="twitter-timeline" data-partner="jetpack" data-width="100" data-height="100" data-widget-id="297487559557251073" href="https://twitter.com/wordpressdotcom">Tweets by @wordpressdotcom</a>
+ *
+ * @covers ::twitter_timeline_shortcode
  */
+#[CoversFunction( 'twitter_timeline_shortcode' )]
 class Jetpack_Shortcodes_TwitterTimeline_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::twitter_timeline_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_twitter_timeline_exists() {
@@ -25,7 +29,6 @@ class Jetpack_Shortcodes_TwitterTimeline_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::twitter_timeline_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_twitter_timeline() {

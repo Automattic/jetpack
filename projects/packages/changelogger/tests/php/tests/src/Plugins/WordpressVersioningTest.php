@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Changelogger\Tests\Plugins;
 use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelogger\Plugins\WordpressVersioning;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -21,6 +23,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
  *
  * @covers \Automattic\Jetpack\Changelogger\Plugins\WordpressVersioning
  */
+#[CoversClass( WordpressVersioning::class )]
 class WordpressVersioningTest extends TestCase {
 
 	/**
@@ -43,6 +46,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param string|InvalidArgumentException $expect Expected parse result.
 	 * @param string|null                     $normalized Normalized value, if different from `$version`.
 	 */
+	#[DataProvider( 'provideParseVersion' )]
 	public function testParseVersion( $version, $expect, $normalized = null ) {
 		$obj = new WordpressVersioning();
 		if ( $expect instanceof InvalidArgumentException ) {
@@ -183,6 +187,16 @@ class WordpressVersioningTest extends TestCase {
 				),
 			),
 			array(
+				'1.2-beta.2',
+				array(
+					'major'      => 1.2,
+					'point'      => 0,
+					'prerelease' => 'beta.2',
+					'buildinfo'  => null,
+					'version'    => '1.2',
+				),
+			),
+			array(
 				'1.2.3-rc',
 				array(
 					'major'      => 1.2,
@@ -273,6 +287,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param string|InvalidArgumentException $expect Expected result.
 	 * @param array                           $extra Extra, if any.
 	 */
+	#[DataProvider( 'provideNormalizeVersion' )]
 	public function testNormalizeVersion( $version, $expect, $extra = array() ) {
 		$obj = new WordpressVersioning();
 		if ( $expect instanceof InvalidArgumentException ) {
@@ -334,6 +349,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param string|InvalidArgumentException $expect Expected result.
 	 * @param string                          $expectPoint Expected result for a point release.
 	 */
+	#[DataProvider( 'provideNextVersion' )]
 	public function testNextVersion( $version, array $changes, array $extra, $expect, $expectPoint = null ) {
 		$obj = new WordpressVersioning();
 
@@ -487,6 +503,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param string $expect Expected result converted to a string, '>', '==', or '<'.
 	 * @param string $b Version B.
 	 */
+	#[DataProvider( 'provideCompareVersions' )]
 	public function testCompareVersions( $a, $expect, $b ) {
 		$obj = new WordpressVersioning();
 		$ret = $obj->compareVersions( $a, $b );
@@ -515,6 +532,8 @@ class WordpressVersioningTest extends TestCase {
 			array( '1.1.1-alpha', '<', '1.1.1-beta' ),
 			array( '1.1.1-dev', '<', '1.1.1-alpha' ),
 			array( '1.1.1-alpha9', '<', '1.1.1-beta1' ),
+			array( '1.1.1-beta', '<', '1.1.1-beta.2' ),
+			array( '1.1.1-beta.2', '==', '1.1.1-beta.2' ),
 			array( '1.1.1-beta9', '>', '1.1.1-beta1' ),
 			array( '1.1.1-beta9', '==', '1.1.1-beta9' ),
 			array( '1.1.1-alpha', '==', '1.1.1-alpha0' ),
@@ -535,6 +554,7 @@ class WordpressVersioningTest extends TestCase {
 	 * @param array                           $extra Extra components.
 	 * @param string|InvalidArgumentException $expect Expected result.
 	 */
+	#[DataProvider( 'provideFirstVersion' )]
 	public function testFirstVersion( array $extra, $expect ) {
 		$obj = new WordpressVersioning();
 

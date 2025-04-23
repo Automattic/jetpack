@@ -11,6 +11,7 @@ use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -47,30 +48,29 @@ class REST_Endpoints_Test extends TestCase {
 	/**
 	 * The current user id.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	private static $user_id;
 
 	/**
 	 * The secondary user id.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	private static $secondary_user_id;
 
 	/**
 	 * ID of a non-admin user
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	private static $non_admin_user_id;
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
@@ -84,7 +84,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		self::$user_id = wp_insert_user(
 			array(
-				'user_login' => 'test_user',
+				'user_login' => 'endpoints_test_user',
 				'user_pass'  => '123',
 				'role'       => 'administrator',
 			)
@@ -105,7 +105,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		self::$secondary_user_id = wp_insert_user(
 			array(
-				'user_login' => 'test_is_user_connected_with_user_id_logged_in',
+				'user_login' => 'endpoints_test_secondary_user',
 				'user_pass'  => '123',
 				'role'       => 'administrator',
 			)
@@ -113,7 +113,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		self::$non_admin_user_id = wp_insert_user(
 			array(
-				'user_login' => 'test_non_admin_user',
+				'user_login' => 'endpoints_test_non_admin_user',
 				'user_pass'  => '123',
 				'role'       => 'editor',
 			)
@@ -134,21 +134,55 @@ class REST_Endpoints_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		remove_action( 'jetpack_disabled_raw_options', array( $this, 'bypass_raw_options' ) );
 
+		// Only remove caps if user is still valid
 		$user = wp_get_current_user();
-		$user->remove_cap( 'jetpack_reconnect' );
-		$user->remove_cap( 'jetpack_connect' );
-		$user->remove_cap( 'jetpack_disconnect' );
-		$user->remove_cap( 'jetpack_connect_user' );
-		$user->remove_cap( 'jetpack_unlink_user' );
+		if ( $user && $user->ID ) {
+			$user->remove_cap( 'jetpack_reconnect' );
+			$user->remove_cap( 'jetpack_connect' );
+			$user->remove_cap( 'jetpack_disconnect' );
+			$user->remove_cap( 'jetpack_connect_user' );
+			$user->remove_cap( 'jetpack_unlink_user' );
+		}
 
-		$non_admin_user = get_user_by( 'id', self::$non_admin_user_id );
-		$non_admin_user->remove_cap( 'jetpack_unlink_user' );
+		// Only remove cap if non-admin user is still valid
+		if ( ! is_wp_error( self::$non_admin_user_id ) ) {
+			$non_admin_user = get_user_by( 'id', self::$non_admin_user_id );
+			if ( $non_admin_user ) {
+				$non_admin_user->remove_cap( 'jetpack_unlink_user' );
+			}
+		}
+
+		// Reset current user
+		wp_set_current_user( 0 );
+
+		// Explicitly delete the users we created
+		if ( isset( self::$user_id ) && ! is_wp_error( self::$user_id ) ) {
+			wp_delete_user( self::$user_id );
+			self::$user_id = null;
+		}
+
+		if ( isset( self::$secondary_user_id ) && ! is_wp_error( self::$secondary_user_id ) ) {
+			wp_delete_user( self::$secondary_user_id );
+			self::$secondary_user_id = null;
+		}
+
+		if ( isset( self::$non_admin_user_id ) && ! is_wp_error( self::$non_admin_user_id ) ) {
+			wp_delete_user( self::$non_admin_user_id );
+			self::$non_admin_user_id = null;
+		}
+
+		// Also clean up any other users that might have been created
+		$users = get_users();
+		foreach ( $users as $user ) {
+			if ( $user->ID > 0 ) {
+				wp_delete_user( $user->ID );
+			}
+		}
 
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $this->api_host_original;
 
@@ -162,6 +196,15 @@ class REST_Endpoints_Test extends TestCase {
 
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		$this->reset_connection_status();
+
+		// Clean up user meta and options
+		global $wpdb;
+		if ( isset( $wpdb->usermeta ) ) {
+			$wpdb->query( "DELETE FROM $wpdb->usermeta" );
+		}
+		if ( isset( $wpdb->users ) ) {
+			$wpdb->query( "DELETE FROM $wpdb->users" );
+		}
 	}
 
 	/**
@@ -801,6 +844,7 @@ class REST_Endpoints_Test extends TestCase {
 	 * @param string $jp_version    The Jetpack plugin version.
 	 * @param bool   $is_registered Whether the route should be registered or not.
 	 */
+	#[DataProvider( 'get_user_connection_data_route_is_registered_with_jp_version_provider' )]
 	public function test_get_user_connection_data_route_is_registered_with_jp_version( $jp_version, $is_registered ) {
 		global $wp_rest_server;
 
@@ -854,21 +898,22 @@ class REST_Endpoints_Test extends TestCase {
 
 		$expected = array(
 			'currentUser'     => array(
-				'isConnected' => false,
-				'isMaster'    => false,
-				'username'    => $user->user_login,
-				'id'          => $user->ID,
-				'blogId'      => false,
-				'wpcomUser'   => array(
+				'isConnected'           => false,
+				'isMaster'              => false,
+				'username'              => $user->user_login,
+				'id'                    => $user->ID,
+				'blogId'                => false,
+				'wpcomUser'             => array(
 					'avatar' => false,
 				),
-				'permissions' => array(
+				'permissions'           => array(
 					'connect'        => true,
 					'connect_user'   => true,
 					'unlink_user'    => true,
 					'disconnect'     => true,
 					'manage_options' => true,
 				),
+				'possibleAccountErrors' => array(),
 			),
 			'connectionOwner' => null,
 			'isRegistered'    => false,
@@ -900,21 +945,22 @@ class REST_Endpoints_Test extends TestCase {
 
 		$expected = array(
 			'currentUser'     => array(
-				'isConnected' => false,
-				'isMaster'    => false,
-				'username'    => $user->user_login,
-				'id'          => $user->ID,
-				'blogId'      => self::BLOG_ID,
-				'wpcomUser'   => array(
+				'isConnected'           => false,
+				'isMaster'              => false,
+				'username'              => $user->user_login,
+				'id'                    => $user->ID,
+				'blogId'                => self::BLOG_ID,
+				'wpcomUser'             => array(
 					'avatar' => false,
 				),
-				'permissions' => array(
+				'permissions'           => array(
 					'connect'        => true,
 					'connect_user'   => true,
 					'unlink_user'    => true,
 					'disconnect'     => true,
 					'manage_options' => true,
 				),
+				'possibleAccountErrors' => array(),
 			),
 			'connectionOwner' => null,
 			'isRegistered'    => true,
@@ -938,6 +984,7 @@ class REST_Endpoints_Test extends TestCase {
 		$dummy_wpcom_user_data = array(
 			'ID'           => 999,
 			'email'        => 'jane.doe@foobar.com',
+			'login'        => 'janedoe',
 			'display_name' => 'Jane Doe',
 		);
 		$transient_key         = 'jetpack_connected_user_data_' . self::$user_id;
@@ -954,19 +1001,20 @@ class REST_Endpoints_Test extends TestCase {
 
 		$expected = array(
 			'currentUser'     => array(
-				'isConnected' => true,
-				'isMaster'    => true,
-				'username'    => $user->user_login,
-				'id'          => $user->ID,
-				'blogId'      => self::BLOG_ID,
-				'wpcomUser'   => $dummy_wpcom_user_data,
-				'permissions' => array(
+				'isConnected'           => true,
+				'isMaster'              => true,
+				'username'              => $user->user_login,
+				'id'                    => $user->ID,
+				'blogId'                => self::BLOG_ID,
+				'wpcomUser'             => $dummy_wpcom_user_data,
+				'permissions'           => array(
 					'connect'        => true,
 					'connect_user'   => true,
 					'unlink_user'    => true,
 					'disconnect'     => true,
 					'manage_options' => true,
 				),
+				'possibleAccountErrors' => array(),
 			),
 			'connectionOwner' => $user->user_login,
 			'isRegistered'    => true,

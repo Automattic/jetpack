@@ -4,7 +4,7 @@ Tags: Security, backup, malware, scan, performance
 Stable tag: 14.4
 Requires at least: 6.6
 Requires PHP: 7.2
-Tested up to: 6.7
+Tested up to: 6.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -326,14 +326,25 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.5-a.7 - 2025-03-18
+### 14.6-a.7 - 2025-04-21
 #### Enhancements
-- Forms: Add quick link in the admin bar for form entries.
+- Forms: Add new integrations setup modal.
+- Forms: Reduce default padding in form patterns.
+- User: Allow user to delete themselves through the endpoint.
+
+#### Improved compatibility
+- Forms: Ensure styles are loaded when expected, preventing console warnings.
 
 #### Bug fixes
-- Forms: Add a default label for textarea fields.
-- Forms: Remove Google Drive beta badge.
-- Forms: Remove Salesforce beta badge.
+- Add translation context to Search menu item.
+- Block editor: Hide blocks from non-admins when feature is not active.
+- Blogroll block: Prevent console warnings and block validation issues when adding new items to the blogroll.
+- Dashboard: Avoid layout issues with "Apply" button on sites using a localized version of WordPress.
+- Forms: Update form responses link on editor sidebar.
+- Open Graph: Ensure scaled images are used when specific registered image files exist on a site.
+- Related Posts: Ensure the block is properly displayed in the editor regardless of user role.
+- Slideshow block: Ensure block preview doesn't generate an invalid API request.
+- VideoPress: Avoid suggesting transforming unsupported Video blocks into VideoPress blocks.
 
 --------
 

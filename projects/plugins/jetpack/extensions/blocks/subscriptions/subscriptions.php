@@ -10,8 +10,8 @@ namespace Automattic\Jetpack\Extensions\Subscriptions;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
-use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
@@ -44,10 +44,10 @@ function register_block() {
 		return;
 	}
 
-	/**
+	/*
 	 * Do not proceed if the newsletter feature (Subscriptions module) is not enabled
 	 */
-	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+	if ( ! ( new Modules() )->is_active( 'subscriptions' ) ) {
 		return;
 	}
 
@@ -626,7 +626,7 @@ function get_color_from_slug( $slug ) {
  */
 function render_block( $attributes ) {
 	// If the Subscriptions module is not active, don't render the block.
-	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+	if ( ! ( new Modules() )->is_active( 'subscriptions' ) ) {
 		return '';
 	}
 
@@ -641,10 +641,11 @@ function render_block( $attributes ) {
 		return '';
 	}
 
+	// Prefill the email field with the current user's email if they are logged in via Memberships premium content token
 	$subscribe_email = Jetpack_Memberships::get_current_user_email();
 
-	/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
-	if ( is_wpcom() || false !== apply_filters( 'jetpack_auto_fill_logged_in_user', false ) ) {
+	// If no email, then prefill the email field with the current user's email if they are logged in
+	if ( empty( $subscribe_email ) ) {
 		$current_user = wp_get_current_user();
 		if ( ! empty( $current_user->user_email ) ) {
 			$subscribe_email = $current_user->user_email;
@@ -695,7 +696,12 @@ function render_block( $attributes ) {
 		'preselected_newsletter_categories' => get_attribute( $attributes, 'preselectNewsletterCategories', false ),
 	);
 
-	if ( ! jetpack_is_frontend() ) {
+	// Only render the email version in non-frontend contexts.
+	if ( is_feed() || wp_is_xml_request() ||
+		( defined( 'REST_REQUEST' ) && REST_REQUEST && ! wp_is_json_request() ) ||
+		( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
+		( defined( 'WP_CLI' ) && WP_CLI ) ||
+		wp_is_jsonp_request() ) {
 		return render_for_email( $data, $styles );
 	}
 

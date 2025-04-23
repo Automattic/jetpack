@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -41,10 +42,9 @@ class Product_Multiple_Filenames_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		if ( file_exists( WP_PLUGIN_DIR . '/jetpack/jetpack.php' ) ) {
 			unlink( WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
 			rmdir( WP_PLUGIN_DIR . '/jetpack' );
@@ -83,10 +83,9 @@ class Product_Multiple_Filenames_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		WorDBless_Options::init()->clear_options();
 	}
 
@@ -128,6 +127,7 @@ class Product_Multiple_Filenames_Test extends TestCase {
 	 *
 	 * @dataProvider installed_plugin_filename_data
 	 */
+	#[DataProvider( 'installed_plugin_filename_data' )]
 	public function test_installed_plugin_filename( $folder, $success = true ) {
 		$this->uninstall_mock_plugins();
 		$this->install_mock_plugin( $folder );
@@ -145,6 +145,7 @@ class Product_Multiple_Filenames_Test extends TestCase {
 	 *
 	 * @dataProvider activate_data
 	 */
+	#[DataProvider( 'activate_data' )]
 	public function test_activate( $folder ) {
 		$this->uninstall_mock_plugins();
 		$this->install_mock_plugin( $folder );

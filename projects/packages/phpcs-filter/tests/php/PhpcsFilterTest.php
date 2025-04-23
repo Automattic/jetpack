@@ -12,6 +12,7 @@ use PHP_CodeSniffer\Config;
 use PHP_CodeSniffer\Files\FileList;
 use PHP_CodeSniffer\Files\LocalFile;
 use PHP_CodeSniffer\Ruleset;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -30,20 +31,18 @@ class PhpcsFilterTest extends TestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->oldcwd = getcwd();
 		Config::setConfigData( 'jetpack-filter-basedir', null, true );
 	}
 
 	/**
 	 * Tear down.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		chdir( $this->oldcwd );
 	}
 
@@ -188,6 +187,7 @@ class PhpcsFilterTest extends TestCase {
 	 * @dataProvider provideRun
 	 * @param string $path Fixture path.
 	 */
+	#[DataProvider( 'provideRun' )]
 	public function testRun( $path ) {
 		$path = realpath( $path );
 		chdir( $path );

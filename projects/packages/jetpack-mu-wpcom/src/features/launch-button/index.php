@@ -60,7 +60,8 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 			'title'  => '<span class="ab-icon">' . $icon . '</span><span class="ab-label">' . __( 'Launch site', 'jetpack-mu-wpcom' ) . '</span>',
 			'href'   => 'https://wordpress.com/start/launch-site?siteSlug=' . $blog_domain,
 			'meta'   => array(
-				'class' => 'launch-site',
+				// Use `admin-color-modern` to keep the button always in blueberry (modern scheme).
+				'class' => 'launch-site admin-color-modern',
 			),
 		)
 	);

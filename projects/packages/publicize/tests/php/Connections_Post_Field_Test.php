@@ -81,10 +81,9 @@ class Connections_Post_Field_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $publicize;
 		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'refresh_connections', 'test_connection' ) )->getMock();
 
@@ -168,10 +167,9 @@ class Connections_Post_Field_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		unregister_post_type( 'example-with' );
 		unregister_post_type( 'example-without' );
 		$publicizeable_post_types = array();

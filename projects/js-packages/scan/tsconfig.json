@@ -4,6 +4,8 @@
 	"compilerOptions": {
 		"typeRoots": [ "./node_modules/@types/", "src/*" ],
 		"sourceMap": false,
-		"outDir": "./build/"
+		"outDir": "./build/",
+		"rootDir": "./src",
+		"target": "esnext"
 	}
 }

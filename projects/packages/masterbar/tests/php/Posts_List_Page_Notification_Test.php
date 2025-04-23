@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,6 +15,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers Automattic\Jetpack\Masterbar\Posts_List_Page_Notification
  */
+#[CoversClass( Posts_List_Page_Notification::class )]
 class Posts_List_Page_Notification_Test extends TestCase {
 
 	/**

@@ -1,10 +1,14 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\Group;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
  * @covers ::shortcode_ted
  */
+#[CoversFunction( 'shortcode_ted' )]
 class Jetpack_Shortcodes_Ted_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -101,7 +105,6 @@ BODY;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_exists() {
@@ -110,7 +113,6 @@ BODY;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted() {
@@ -123,7 +125,6 @@ BODY;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_id() {
@@ -148,7 +149,6 @@ BODY;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_width_height() {
@@ -174,7 +174,6 @@ BODY;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_lang() {
@@ -201,10 +200,10 @@ BODY;
 	 *
 	 * @see ::set_up()
 	 * @author scotchfield
-	 * @covers ::shortcode_ted
 	 * @group external-http
 	 * @since 7.4.0
 	 */
+	#[Group( 'external-http' )]
 	public function test_shortcodes_ted_id_via_oembed_http_request() {
 		$ted_id  = '1969';
 		$content = '[ted id=' . $ted_id . ']';

@@ -8,32 +8,36 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Provides unit tests for the methods in the Utils class.
+ *
+ * @covers \Automattic\Jetpack\Connection\Utils
  */
+#[CoversClass( Utils::class )]
 class UtilsTest extends TestCase {
 
 	/**
 	 * This method is called after each test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Constants::clear_constants();
 	}
 
 	/**
 	 * Tests the Utils::jetpack_api_constant_filter() method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Utils::jetpack_api_constant_filter
 	 * @dataProvider jetpack_api_constant_filter_data_provider
 	 *
 	 * @param mixed  $constant_value The constant value.
 	 * @param string $constant_name The constant name.
 	 * @param mixed  $expected_output The expected output of Utils::get_jetpack_api_constant.
 	 */
+	#[DataProvider( 'jetpack_api_constant_filter_data_provider' )]
 	public function test_jetpack_api_constant_filter( $constant_value, $constant_name, $expected_output ) {
 		$this->assertEquals( $expected_output, Utils::jetpack_api_constant_filter( $constant_value, $constant_name ) );
 	}

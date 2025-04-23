@@ -10,13 +10,13 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import './style.scss';
-import errorExclamation from '../../icons/error-exclamation.js';
-import { ERROR_QUOTA_EXCEEDED } from '../../types.js';
-import AiFeedbackThumbs from '../ai-feedback/index.js';
+import errorExclamation from '../../icons/error-exclamation.tsx';
+import { ERROR_QUOTA_EXCEEDED } from '../../types.ts';
+import AiFeedbackThumbs from '../ai-feedback/index.tsx';
 /**
  * Types
  */
-import type { SuggestionErrorCode } from '../../types.js';
+import type { SuggestionErrorCode } from '../../types.ts';
 import type React from 'react';
 
 export const MESSAGE_SEVERITY_WARNING = 'warning';

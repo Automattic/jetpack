@@ -1239,11 +1239,11 @@ final class ZeroBSCRM {
 
 		// } Metaboxes v3.0
 
-			// Root classes
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBox.php';
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Logs.php';
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Tags.php';
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.ExternalSources.php';
+		// Root classes
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBox.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Logs.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Tags.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.ExternalSources.php';
 
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Contacts.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Companies.php';
@@ -1393,9 +1393,6 @@ final class ZeroBSCRM {
 		// Admin init - should condition this per page..
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
-		// Add thumbnail support?
-		add_action( 'after_setup_theme', array( $this, 'setup_environment' ) );
-
 		// Extension links
 		add_filter( 'plugin_action_links_' . plugin_basename( ZBS_ROOTFILE ), array( $this, 'add_action_links' ) );
 
@@ -1517,10 +1514,6 @@ final class ZeroBSCRM {
 		}
 		// =================== / General Perf Testing =========================
 		// ====================================================================
-	}
-
-	public function setup_environment() {
-		// Don't think we need this $this->add_thumbnail_support();  //add thumbnail support
 	}
 
 	public function add_action_links( $links ) {
@@ -1690,9 +1683,6 @@ final class ZeroBSCRM {
 		// } ^^ can probably include this via free extension manager class (longer term tidier?)
 		// WH addition: this was firing PRE init (you weren't seeing because no PHP warnings...needs to fire after)
 
-		// Retrieve settings
-		// $zbsCRMTempSettings = $zbs->settings->getAll(); use zeroBSCRM_isExtensionInstalled
-
 		// } free extensions setup (needs to be post settings)
 		zeroBSCRM_freeExtensionsInit();
 
@@ -1758,13 +1748,10 @@ final class ZeroBSCRM {
 		// } As well where extensions put their settings too
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 
-		// } WH MOVED these from being added on init_hooks, to just calling them here, was legacy mess.
-		// no longer used (now notifyme) add_action('init', array($this,'admin_noticies') ); #} load the admin noticies etc..
-		// add_action('init', array($this,'include_updater') ); #} load the auto-updater class
 		$this->include_updater();
-		// add_action('init', 'zeroBSCRM_wooCommerceRemoveBlock'); #}  Admin unlock for ZBS users if WooCommerce installed
+		// Admin unlock for ZBS users if WooCommerce installed
 		zeroBSCRM_wooCommerceRemoveBlock();
-		// add_action('init', array($this, 'post_init_plugins_loaded')); #} Registers stuff that needs settings etc.
+		// Registers stuff that needs settings etc.
 		$this->post_init_plugins_loaded();
 
 		// run migrations
@@ -1779,10 +1766,6 @@ final class ZeroBSCRM {
 			// This function outputs JSON-encoded companies and exits.
 			zeroBSCRM_cojson();
 		}
-
-		// } Brutal override for inv previews
-		// No longer req. v3.0 + this is delivered via HASH URL
-		// if (isset($_GET['zbs_invid']) && wp_verify_nonce($_GET['_wpnonce'], 'zbsinvpreview') && is_user_logged_in() && zeroBSCRM_permsInvoices()){ exit(zeroBSCRM_invoice_generateInvoiceHTML((int)sanitize_text_field($_GET['zbs_invid']),false)); }
 
 		// } Catch Dashboard + redir (if override mode)
 		// } but not for wp admin (wptakeovermodeforall)

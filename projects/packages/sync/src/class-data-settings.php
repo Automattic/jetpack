@@ -30,12 +30,14 @@ class Data_Settings {
 			'get_plugins'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
 			'get_themes'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 			'jetpack_connection_active_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_connection_active_plugins' ),
+			'jetpack_package_versions'          => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_package_versions' ),
 			'paused_plugins'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
 			'paused_themes'                     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
 			'timezone'                          => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_timezone' ),
 			'wp_get_environment_type'           => 'wp_get_environment_type',
 			'wp_max_upload_size'                => 'wp_max_upload_size',
 			'wp_version'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+			'jetpack_sync_active_modules'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_sync_active_modules' ),
 		),
 		'jetpack_sync_constants_whitelist' => array(
 			'ABSPATH',
@@ -72,10 +74,6 @@ class Data_Settings {
 			'jetpack_sync_settings_dedicated_sync_enabled',
 			'jetpack_sync_settings_custom_queue_table_enabled',
 			'jetpack_sync_settings_wpcom_rest_api_enabled',
-			/**
-			 * Connection related options
-			 */
-			'jetpack_package_versions',
 			/**
 			 * Generic site options
 			 */

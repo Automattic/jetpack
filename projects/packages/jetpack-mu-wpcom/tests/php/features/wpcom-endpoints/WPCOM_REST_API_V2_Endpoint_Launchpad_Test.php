@@ -10,13 +10,16 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/launchpad/launchpad.php';
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WpOrg\Requests\Requests;
 
 /**
  * Test class for WPCOM_REST_API_V2_Endpoint_Launchpad.
  *
- * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_Launchpad
+ * @covers \WPCOM_REST_API_V2_Endpoint_Launchpad
  */
+#[CoversClass( WPCOM_REST_API_V2_Endpoint_Launchpad::class )]
 class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Admin user ID.
@@ -53,8 +56,6 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 	/**
 	 * Test get_data.
-	 *
-	 * @covers ::get_data
 	 */
 	public function test_get_data() {
 		wp_set_current_user( $this->admin_id );
@@ -73,8 +74,6 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 	/**
 	 * Test can_access.
-	 *
-	 * @covers ::can_access
 	 */
 	public function test_can_access() {
 		// GET.
@@ -156,8 +155,6 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 	/**
 	 * Test updating checklist_statuses.
-	 *
-	 * @covers ::update_site_options
 	 */
 	public function test_update_checklist_statuses() {
 		wp_set_current_user( $this->admin_id );
@@ -221,8 +218,6 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 	/**
 	 * Test updating multiple options.
-	 *
-	 * @covers ::update_site_options
 	 */
 	public function test_update_multiple_options() {
 		wp_set_current_user( $this->admin_id );
@@ -339,6 +334,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	 * @param mixed $initial_option_value The initial value for the wpcom_launchpad_config option.
 	 * @param mixed $expected_option_value The expected value for the wpcom_launchpad_config option.
 	 */
+	#[DataProvider( 'provide_hide_fse_next_steps_modal_test_cases' )]
 	public function test_set_hide_fse_next_steps_modal( $flag_in_api, $initial_option_value, $expected_option_value ) {
 		wp_set_current_user( $this->admin_id );
 
@@ -404,8 +400,8 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	 * @param array $site_goals List of goals that the user selected during onboarding.
 	 * @param mixed $enable_checklist_for_goals Flags used to enable/disable a specific tasklist (usually set by a client-side feature flag or experiment).
 	 * @param mixed $expected_tasklist_slug Slug for the tasklist we expect to be returned (e.g. wpcom_launchpad_get_task_list_definitions()).
-	 * @covers ::get_data
 	 */
+	#[DataProvider( 'provide_get_tasklist_using_goals_test_cases' )]
 	public function test_get_tasklist_using_goals( $site_goals, $enable_checklist_for_goals, $expected_tasklist_slug ) {
 		\Brain\Monkey\Functions\when( 'get_blog_count_for_user' )->justReturn( 1 );
 		\Mockery::mock( 'alias:Email_Verification' )->shouldReceive( 'is_email_unverified' )->andReturn( true );
@@ -446,8 +442,6 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 	/**
 	 * Tests calling the /wpcom/v2/launchpad endpoint with the use_goals flag explicitly set to false.
-	 *
-	 * @covers ::get_data
 	 */
 	public function test_get_tasklist_when_use_goals_is_false() {
 		wp_set_current_user( $this->admin_id );

@@ -6,7 +6,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
@@ -33,7 +33,7 @@ const LibraryType = {
 
 type LibraryType = ( typeof LibraryType )[ keyof typeof LibraryType ];
 
-const VideoLibraryWrapper = ( {
+export const VideoLibraryWrapper = ( {
 	children,
 	totalVideos = 0,
 	libraryType = LibraryType.List,
@@ -50,12 +50,14 @@ const VideoLibraryWrapper = ( {
 	title?: string;
 	disabled?: boolean;
 } ) => {
-	const { isFetching } = useVideos();
+	const { isFetching, search } = useVideos();
 	const searchParams = useSearchParams();
 
-	const onSearchHandler = searchQuery => {
-		// clear the pagination, setting it back to page 1
-		searchParams.deleteParam( 'page' );
+	const onSearchHandler = ( searchQuery: string, clearPagination = true ) => {
+		if ( clearPagination ) {
+			// Clear the pagination, setting it back to page 1
+			searchParams.deleteParam( 'page' );
+		}
 
 		if ( searchQuery ) {
 			searchParams.setParam( 'q', searchQuery );
@@ -66,8 +68,15 @@ const VideoLibraryWrapper = ( {
 		searchParams.update();
 	};
 
-	const searchParamsSearchQuery = searchParams.getParam( 'q', '' );
-	const [ searchQuery, setSearchQuery ] = useState( searchParamsSearchQuery );
+	const [ searchQuery, setSearchQuery ] = useState( searchParams.getParam( 'q', '' ) );
+
+	// Sync search state with URL
+	useEffect( () => {
+		if ( search && search !== searchQuery ) {
+			onSearchHandler( search, false );
+			setSearchQuery( search );
+		}
+	}, [ search ] );
 
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 

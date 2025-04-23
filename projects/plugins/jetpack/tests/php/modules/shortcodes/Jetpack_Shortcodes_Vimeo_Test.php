@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Shortcodes need external HTML requests to be converted to valid embed code (using smartframe's oembed endpoint)
  */
@@ -12,7 +15,16 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
  * Test our Vimeo embed feature (shortcode as well as embed code).
+ *
+ * @covers ::jetpack_shortcode_get_vimeo_id
+ * @covers ::jetpack_shortcode_get_vimeo_dimensions
+ * @covers ::vimeo_shortcode
+ * @covers ::vimeo_embed_to_shortcode
  */
+#[CoversFunction( 'jetpack_shortcode_get_vimeo_dimensions' )]
+#[CoversFunction( 'jetpack_shortcode_get_vimeo_id' )]
+#[CoversFunction( 'vimeo_embed_to_shortcode' )]
+#[CoversFunction( 'vimeo_shortcode' )]
 class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -31,7 +43,6 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 * Test whether the shortcode is registered and can be used.
 	 *
 	 * @author scotchfield
-	 * @covers ::vimeo_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vimeo_exists() {
@@ -42,7 +53,6 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 * Test whether a shortcode without any attributes doesn't get output in the content.
 	 *
 	 * @author scotchfield
-	 * @covers ::vimeo_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vimeo() {
@@ -113,6 +123,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 * @param string $attribute_string     A string of shortcode attributes.
 	 * @param array  $extracted_attributes Expected extracted attributes.
 	 */
+	#[DataProvider( 'get_sample_shortcode_attributes' )]
 	public function test_shortcode_attributes( $attribute_string, $extracted_attributes ) {
 		$content           = '[vimeo ' . $attribute_string . ']';
 		$shortcode_content = do_shortcode( $content );
@@ -170,12 +181,12 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_vimeo_urls
 	 *
-	 * @covers ::vimeo_shortcode
 	 * @since 3.9
 	 *
 	 * @param string $url      The URL to test.
 	 * @param string $video_id The expected video ID.
 	 */
+	#[DataProvider( 'get_vimeo_urls' )]
 	public function test_shortcodes_vimeo_replace_url_with_iframe_in_the_content( $url, $video_id ) {
 		if (
 			( defined( 'IS_WPCOM' ) && IS_WPCOM )
@@ -211,7 +222,6 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 * Test replacing vimeo content in comments.
 	 *
 	 * @author Automattic
-	 * @covers ::vimeo_shortcode
 	 * @since 4.0.0
 	 */
 	public function test_replace_in_comments() {
@@ -277,6 +287,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 * @param string $embed_code The embed code to test.
 	 * @param string $expected The expected shortcode output.
 	 */
+	#[DataProvider( 'get_embed_to_shortcode_data' )]
 	public function test_vimeo_embed_to_shortcode_1( $embed_code, $expected ) {
 		$shortcode = vimeo_embed_to_shortcode( $embed_code );
 		$this->assertEquals( $expected, $shortcode );
@@ -316,6 +327,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 * @param array  $attr The shortcode attributes.
 	 * @param string $expected The expected return value.
 	 */
+	#[DataProvider( 'get_amp_vimeo_shortcode_data' )]
 	public function test_jetpack_amp_vimeo_shortcode( $attr, $expected ) {
 		// Test AMP version. On AMP views, we only show a link.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -392,11 +404,10 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 * Tests jetpack_shortcode_get_vimeo_dimensions, when there is no global $content_width.
 	 *
 	 * @dataProvider get_vimeo_dimensions_data
-	 * @covers ::jetpack_shortcode_get_vimeo_dimensions()
-	 *
 	 * @param array $attr The shortcode attributes.
 	 * @param array $expected The expected dimensions.
 	 */
+	#[DataProvider( 'get_vimeo_dimensions_data' )]
 	public function test_jetpack_shortcode_get_vimeo_dimensions_no_global_content_width( $attr, $expected ) {
 		unset( $GLOBALS['content_width'] );
 		$this->assertEquals( $expected, jetpack_shortcode_get_vimeo_dimensions( $attr ) );
@@ -404,8 +415,6 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 
 	/**
 	 * Tests jetpack_shortcode_get_vimeo_dimensions, when there is a global $content_width.
-	 *
-	 * @covers ::jetpack_shortcode_get_vimeo_dimensions()
 	 */
 	public function test_jetpack_shortcode_get_vimeo_dimensions_with_global_content_width() {
 		$width                    = 500;

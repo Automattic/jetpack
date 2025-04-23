@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2025-04-21
+### Added
+- Sync: Add `jetpack_sync_active_modules` callable to whitelist of must-sync callables. [#43134]
+
+## [4.0.22] - 2025-04-14
+### Fixed
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
+## [4.0.21] - 2025-04-07
+### Changed
+- Linting: First pass of style coding standards. [#42734]
+
+## [4.0.20] - 2025-04-03
+### Changed
+- Update package dependencies. [#42762] [#42809]
+
+## [4.0.19] - 2025-03-31
+### Changed
+- Update dependencies. [#42678]
+
+## [4.0.18] - 2025-03-24
+### Changed
+- Update dependencies. [#42565]
+
 ## [4.0.17] - 2025-03-18
 ### Changed
 - Update package dependencies. [#42511]
@@ -812,6 +837,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.1.0]: https://github.com/Automattic/jetpack-backup/compare/v4.0.22...v4.1.0
+[4.0.22]: https://github.com/Automattic/jetpack-backup/compare/v4.0.21...v4.0.22
+[4.0.21]: https://github.com/Automattic/jetpack-backup/compare/v4.0.20...v4.0.21
+[4.0.20]: https://github.com/Automattic/jetpack-backup/compare/v4.0.19...v4.0.20
+[4.0.19]: https://github.com/Automattic/jetpack-backup/compare/v4.0.18...v4.0.19
+[4.0.18]: https://github.com/Automattic/jetpack-backup/compare/v4.0.17...v4.0.18
 [4.0.17]: https://github.com/Automattic/jetpack-backup/compare/v4.0.16...v4.0.17
 [4.0.16]: https://github.com/Automattic/jetpack-backup/compare/v4.0.15...v4.0.16
 [4.0.15]: https://github.com/Automattic/jetpack-backup/compare/v4.0.14...v4.0.15

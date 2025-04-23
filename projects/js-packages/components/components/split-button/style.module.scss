@@ -4,6 +4,11 @@
     height: var(--actions-size);
     border-radius: var(--jp-border-radius);
 
+	:global(.components-button-group) {
+		display: flex;
+		height: 100%;
+	}
+
     & > .button:first-child {
         border-radius: var(--jp-border-radius) 0 0 var(--jp-border-radius);
     }

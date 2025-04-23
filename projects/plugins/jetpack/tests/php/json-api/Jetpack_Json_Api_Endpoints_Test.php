@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
 if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/module-extras.php';
 }
@@ -13,7 +16,10 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
  * Tests for /sites/%s/categories/slug:%s
+ *
+ * @covers \WPCOM_JSON_API_Get_Taxonomy_Endpoint
  */
+#[CoversClass( WPCOM_JSON_API_Get_Taxonomy_Endpoint::class )]
 class Jetpack_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -73,9 +79,9 @@ class Jetpack_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	 * Tests get term feed url with pretty permalinks.
 	 *
 	 * @author nylen
-	 * @covers WPCOM_JSON_API_Get_Taxonomy_Endpoint
 	 * @group json-api
 	 */
+	#[Group( 'json-api' )]
 	public function test_get_term_feed_url_pretty_permalinks() {
 		global $blog_id;
 
@@ -103,9 +109,9 @@ class Jetpack_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	 * Tests get term feed url with ugly permalinks.
 	 *
 	 * @author nylen
-	 * @covers WPCOM_JSON_API_Get_Taxonomy_Endpoint
 	 * @group json-api
 	 */
+	#[Group( 'json-api' )]
 	public function test_get_term_feed_url_ugly_permalinks() {
 		global $blog_id;
 

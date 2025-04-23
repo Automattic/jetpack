@@ -1,9 +1,15 @@
 <?php
+
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Class with PHPUnit tests for Open Graph functions.
  *
  * @since 3.9.2
+ * @covers ::jetpack_og_get_image
  */
+#[CoversFunction( 'jetpack_og_get_image' )]
 class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
 	private $icon_id;
@@ -35,7 +41,6 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
 	/**
 	 * @author automattic
-	 * @covers ::jetpack_og_get_image
 	 * @since  3.9.2
 	 */
 	public function test_jetpack_og_get_image_default() {
@@ -45,7 +50,6 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
 	/**
 	 * @author automattic
-	 * @covers ::jetpack_og_get_image
 	 * @since  3.9.2
 	 */
 	public function test_jetpack_og_get_site_icon_and_logo_url() {
@@ -87,6 +91,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	 * @param string $description Post description.
 	 * @param string $cleaned_description Description cleaned up and ready to be used.
 	 */
+	#[DataProvider( 'jetpack_og_get_description_data_provider' )]
 	public function test_jetpack_og_get_description_default( $description, $cleaned_description ) {
 		// A test shortcode that should be removed from descriptions.
 		add_shortcode(
@@ -207,7 +212,6 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	 * Test if jetpack_og_get_image returns the correct image for a post with image blocks.
 	 *
 	 * @author automattic
-	 * @covers ::jetpack_og_get_image
 	 * @since  9.2.0
 	 */
 	public function test_jetpack_og_get_image_from_post_order() {
@@ -238,7 +242,6 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	 * Test if jetpack_og_get_image returns the correct default alt text.
 	 *
 	 * @author automattic
-	 * @covers ::jetpack_og_get_image
 	 * @since 10.4
 	 */
 	public function test_jetpack_og_get_image_alt_text_default() {
@@ -253,7 +256,6 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	 * Test if jetpack_og_get_image returns the correct filtered alt text.
 	 *
 	 * @author automattic
-	 * @covers ::jetpack_og_get_image
 	 * @since 10.4
 	 */
 	public function test_jetpack_og_get_image_alt_text_filter() {
@@ -270,7 +272,6 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	 * Test if jetpack_og_get_image returns the correct alt text when set.
 	 *
 	 * @author automattic
-	 * @covers ::jetpack_og_get_image
 	 * @since 10.4
 	 */
 	public function test_jetpack_og_get_image_alt_text_when_set() {

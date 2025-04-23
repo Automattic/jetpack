@@ -8,12 +8,14 @@
 namespace Automattic\Jetpack\Stats;
 
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Class to test the XMLRPC_Provider class.
  *
  * @covers Automattic\Jetpack\Stats\XMLRPC_Provider
  */
+#[CoversClass( XMLRPC_Provider::class )]
 class XMLRPC_Provider_Test extends StatsBaseTestCase {
 	/**
 	 * An instance of XMLRPC_Provider class.
@@ -24,8 +26,6 @@ class XMLRPC_Provider_Test extends StatsBaseTestCase {
 
 	/**
 	 * Set up before each test
-	 *
-	 * @before
 	 */
 	protected function set_up() {
 		parent::set_up();
@@ -35,8 +35,6 @@ class XMLRPC_Provider_Test extends StatsBaseTestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		parent::tear_down();

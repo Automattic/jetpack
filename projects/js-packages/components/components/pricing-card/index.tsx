@@ -2,8 +2,8 @@ import { getCurrencyObject } from '@automattic/format-currency';
 import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
-import TermsOfService from '../terms-of-service/index.js';
-import type { PricingCardProps } from './types.js';
+import TermsOfService from '../terms-of-service/index.tsx';
+import type { PricingCardProps } from './types.ts';
 import type { CurrencyObject } from '@automattic/format-currency/src/types.js';
 import type React from 'react';
 

@@ -1,10 +1,18 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
+/**
+ * @covers \Jetpack_JSON_API_Plugins_Install_Endpoint
+ * @covers \Jetpack_JSON_API_Plugins_Modify_Endpoint
+ */
+#[CoversClass( Jetpack_JSON_API_Plugins_Install_Endpoint::class )]
+#[CoversClass( Jetpack_JSON_API_Plugins_Modify_Endpoint::class )]
 class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -33,9 +41,9 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author lezama
-	 * @covers Jetpack_JSON_API_Plugins_Modify_Endpoint
 	 * @group external-http
 	 */
+	#[Group( 'external-http' )]
 	public function test_Jetpack_JSON_API_Plugins_Modify_Endpoint() {
 		$endpoint = new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 			array(
@@ -105,9 +113,9 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 	 * Verify plugin update endpoint adheres to lock.
 	 *
 	 * @author mdbitz
-	 * @covers Jetpack_JSON_API_Plugins_Modify_Endpoint
 	 * @group external-http
 	 */
+	#[Group( 'external-http' )]
 	public function test_Jetpack_JSON_API_Plugins_Modify_Endpoint_locked() {
 		$endpoint = new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 			array(
@@ -187,9 +195,9 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 	 * Verify plugin update endpoint ignores auto_updater lock if not an autoupdate request.
 	 *
 	 * @author mdbitz
-	 * @covers Jetpack_JSON_API_Plugins_Modify_Endpoint
 	 * @group external-http
 	 */
+	#[Group( 'external-http' )]
 	public function test_Jetpack_JSON_API_Plugins_Modify_Endpoint_locked_not_autoupdate() {
 		$endpoint = new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 			array(
@@ -267,10 +275,10 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Jetpack_API_Plugins_Install_Endpoint
 	 * @group external-http
 	 */
-	public function test_Jetpack_API_Plugins_Install_Endpoint() {
+	#[Group( 'external-http' )]
+	public function test_Jetpack_JSON_API_Plugins_Install_Endpoint() {
 		if ( is_multisite() ) {
 			wp_set_current_user( self::$super_admin_user_id );
 		}

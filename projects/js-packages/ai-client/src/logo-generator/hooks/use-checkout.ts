@@ -10,11 +10,11 @@ import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { STORE_NAME } from '../store/index.js';
+import { STORE_NAME } from '../store/index.ts';
 /**
  * Types
  */
-import type { Selectors } from '../store/types.js';
+import type { Selectors } from '../store/types.ts';
 
 export const useCheckout = () => {
 	const { nextTier, tierPlansEnabled } = useSelect( select => {

@@ -3,6 +3,7 @@
 @import "@wordpress/base-styles/mixins";
 
 .wpcom-global-styles-modal {
+
 	.components-modal__content {
 		padding: 0;
 		margin-top: 0;
@@ -46,6 +47,7 @@
 		flex-direction: column;
 
 		@include break-small {
+
 			@media (min-height: #{ ($break-small) }) {
 				padding: 64px 48px;
 			}
@@ -61,6 +63,7 @@
 		margin-bottom: 16px;
 
 		@include break-small {
+
 			@media (min-height: #{ ($break-small) }) {
 				font-size: 2rem;
 				line-height: 40px;

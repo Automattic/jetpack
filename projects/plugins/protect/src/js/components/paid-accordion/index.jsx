@@ -1,10 +1,5 @@
-import {
-	IconTooltip,
-	Spinner,
-	Text,
-	ThreatSeverityBadge,
-	useBreakpointMatch,
-} from '@automattic/jetpack-components';
+import { IconTooltip, Spinner, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
 import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';

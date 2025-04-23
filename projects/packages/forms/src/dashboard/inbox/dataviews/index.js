@@ -23,6 +23,7 @@ import { useSearchParams } from 'react-router-dom';
  */
 import { store as dashboardStore } from '../../store';
 import InboxResponse from '../response';
+import { getPath } from '../utils.js';
 import {
 	viewAction,
 	markAsSpamAction,
@@ -37,16 +38,6 @@ const EMPTY_ARRAY = [];
 const EMPTY_OBJECT = {};
 const MOBILE_BREAKPOINT = 780;
 const getItemId = item => item.id.toString();
-
-// Function to get the URL of the page or post where the form was submitted.
-const getPath = item => {
-	try {
-		const url = new URL( item.entry_permalink );
-		return url.pathname;
-	} catch {
-		return '';
-	}
-};
 
 const formatFieldName = fieldName => {
 	const match = fieldName.match( /^(\d+_)?(.*)/i );
@@ -87,15 +78,9 @@ function getStatusFilter( urlStatus ) {
 export default function InboxView() {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useSearchParams();
-	const [ containerWidth, setContainerWidth ] = useState( 0 );
 	const [ queryArgs, setQueryArgs ] = useState( EMPTY_OBJECT );
 	const dateSettings = getDateSettings();
-	const containerRef = useResizeObserver(
-		resizeObserverEntries => {
-			setContainerWidth( resizeObserverEntries[ 0 ].borderBoxSize[ 0 ].inlineSize );
-		},
-		{ box: 'border-box' }
-	);
+	const [ resizeListener, { width: containerWidth } ] = useResizeObserver();
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const selectedResponses = searchParams.get( 'r' );
@@ -151,7 +136,12 @@ export default function InboxView() {
 				 * 3. Normalize the values to handle the case where the value is an array or if is empty.
 				 */
 				fields: Object.entries( record.fields || {} ).reduce( ( accumulator, [ key, value ] ) => {
-					const _key = formatFieldName( key );
+					let _key = formatFieldName( key );
+					let counter = 2;
+					while ( accumulator[ _key ] ) {
+						_key = `${ formatFieldName( key ) } (${ counter })`;
+						counter++;
+					}
 					accumulator[ _key ] = formatFieldValue( decodeEntities( value ) );
 					return accumulator;
 				}, {} ),
@@ -285,9 +275,9 @@ export default function InboxView() {
 			spacing={ 5 }
 			alignment="top"
 			justify="flex-start"
-			ref={ containerRef }
 			className="jp-forms__inbox__dataviews__container"
 		>
+			{ resizeListener }
 			<div className="jp-forms__inbox__dataviews">
 				<DataViews
 					paginationInfo={ paginationInfo }

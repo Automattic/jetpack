@@ -13,10 +13,9 @@ export default class Sidebar extends WpPage {
 	}
 
 	async selectJetpackSubMenuItem() {
-		const jetpackMenuSelector = '#toplevel_page_jetpack';
-		const menuItemSelector = '#toplevel_page_jetpack .wp-submenu a[href$="admin.php?page=jetpack"]';
-
-		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
+		// This is a workaround for the Jetpack submenu item not being visible, but
+		// these tests will be changed to test the new onboarding flow in MARTECH-66.
+		return await this.page.goto( '/wp-admin/admin.php?page=jetpack' );
 	}
 
 	async selectJetpackBoost() {
@@ -62,6 +61,20 @@ export default class Sidebar extends WpPage {
 
 		if ( ! classes.includes( 'wp-menu-open' ) && ! classes.includes( 'wp-has-current-submenu' ) ) {
 			await menuElement.click();
+		}
+
+		return await this.click( menuItemSelector );
+	}
+
+	// Fixing parent menu click redirecting to the new onboarding flow (until more detailed tests are added.
+	async _selectJetpackMenuItem( menuSelector, menuItemSelector ) {
+		const menuElement = await this.waitForElementToBeVisible( menuSelector );
+		const classes = await this.page
+			.locator( menuSelector )
+			.evaluate( e => e.getAttribute( 'class' ) );
+
+		if ( ! classes.includes( 'wp-menu-open' ) && ! classes.includes( 'wp-has-current-submenu' ) ) {
+			await menuElement.hover();
 		}
 
 		return await this.click( menuItemSelector );

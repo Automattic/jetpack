@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Add a function_exists guard for a function
-
-

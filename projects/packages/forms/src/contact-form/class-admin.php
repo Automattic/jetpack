@@ -64,11 +64,11 @@ class Admin {
 		add_filter( 'views_edit-feedback', array( $this, 'grunion_admin_view_tabs' ) );
 		add_filter( 'manage_feedback_posts_columns', array( $this, 'grunion_post_type_columns_filter' ) );
 
-		add_action( 'manage_pages_custom_column', array( $this, 'grunion_manage_post_columns' ), 10, 2 );
+		add_action( 'manage_posts_custom_column', array( $this, 'grunion_manage_post_columns' ), 10, 2 );
 		add_action( 'restrict_manage_posts', array( $this, 'grunion_source_filter' ) );
 		add_action( 'pre_get_posts', array( $this, 'grunion_source_filter_results' ) );
 
-		add_filter( 'page_row_actions', array( $this, 'grunion_manage_post_row_actions' ), 10, 2 );
+		add_filter( 'post_row_actions', array( $this, 'grunion_manage_post_row_actions' ), 10, 2 );
 
 		add_action( 'wp_ajax_grunion_shortcode', array( $this, 'grunion_ajax_shortcode' ) );
 		add_action( 'wp_ajax_grunion_shortcode_to_json', array( $this, 'grunion_ajax_shortcode_to_json' ) );
@@ -84,27 +84,6 @@ class Admin {
 
 		add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
 		add_action( 'wp_ajax_grunion_gdrive_connection', array( $this, 'test_gdrive_connection' ) );
-
-		add_action( 'pre_get_posts', array( $this, 'change_feedback_list_order' ) );
-	}
-
-	/**
-	 * Change the `orderby` to `date` and `order` to `desc` of the feedback list.
-	 * This was needed since we made the `feedback` post type `hierarchical`
-	 * and the default order was changed.
-	 *
-	 * This is fine for now because the wp-admin list is going to be removed soon and
-	 * additionally it doesn't provide any sorting option in any of the columns.
-	 *
-	 * @param \WP_Query $query Current query.
-	 *
-	 * @return void
-	 */
-	public function change_feedback_list_order( $query ) {
-		if ( $query->get( 'post_type' ) === 'feedback' ) {
-			$query->set( 'orderby', 'date' );
-			$query->set( 'order', 'desc' );
-		}
 	}
 
 	/**
@@ -183,7 +162,7 @@ class Admin {
 			|| ! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
 		) {
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack-forms' ),
+				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -350,7 +329,7 @@ class Admin {
 			! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
 		) {
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack-forms' ),
+				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -708,14 +687,11 @@ class Admin {
 		$content      = explode( '<!--more-->', $post_content );
 		$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
 		$chunks       = explode( "\nJSON_DATA", $content );
+		// Get content fields.
+		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post->ID );
 
-		$response_fields = array();
-
-		if ( is_array( $chunks ) && isset( $chunks[1] ) ) {
-			$rearray = json_decode( $chunks[1], true );
-			if ( is_array( $rearray ) && isset( $rearray['feedback_id'] ) ) {
-				$response_fields = $rearray;
-			}
+		if ( empty( $content_fields ) ) {
+			return;
 		}
 
 		if ( empty( $response_fields ) ) {
@@ -754,17 +730,46 @@ class Admin {
 
 		echo '<hr class="feedback_response__mobile-separator" />';
 		echo '<div class="feedback_response__item">';
-		foreach ( $response_fields as $key => $value ) {
-			if ( is_array( $value ) ) {
-				$value = implode( ', ', $value );
+
+		foreach ( $response_fields as $key => $display_value ) {
+			if ( Contact_Form::is_file_upload_field( $display_value ) ) {
+				printf(
+					'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value"><div>',
+					esc_html( preg_replace( '#^\d+_#', '', $key ) )
+				);
+
+				// Get the files array from the new structure
+				$files = $display_value['files'];
+
+				foreach ( $files as $file_data ) {
+					// If we have a valid URL, show the file link with additional details
+					$file_name = isset( $file_data['name'] ) ? $file_data['name'] : __( 'Attached file', 'jetpack-forms' );
+					$file_size = isset( $file_data['size'] ) ? size_format( $file_data['size'] ) : '';
+					$file_id   = absint( $file_data['file_id'] );
+					$file_url  = \apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
+					$file_info = empty( $file_size ) ? $file_name : $file_name . ' (' . $file_size . ')';
+
+					printf(
+						'<div><a href="%s" target="_blank">%s</a></div>',
+						esc_url( $file_url ),
+						esc_html( $file_info )
+					);
+				}
+
+				echo '</div></div>';
+				continue;
+			} elseif ( is_array( $display_value ) ) {
+				// Regular array, format it nicely for display
+				$display_value = Contact_Form_Plugin::format_value_for_display( $display_value );
 			}
 
 			printf(
 				'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">%s</div>',
 				esc_html( preg_replace( '#^\d+_#', '', $key ) ),
-				nl2br( esc_html( $value ) )
+				nl2br( esc_html( $display_value ) )
 			);
 		}
+
 		echo '</div>';
 		echo '<hr />';
 
@@ -862,8 +867,13 @@ class Admin {
 			return;
 		}
 
-		// Don't apply to the filter dropdown query
-		if ( $query->query_vars['fields'] === 'id=>parent' ) {
+		/**
+		 * In the wp-admin list we perform two queries that trigger the `pre_get_posts` hook.
+		 * One is for the main list and the other is for the `source` dropdown filter.
+		 * We need to explicitly check one unique parameter between the two queries to avoid
+		 * filtering the dropdown query. The dropdown query is in `get_all_parent_post_ids`.
+		 */
+		if ( $query->query_vars['posts_per_page'] === 100000 ) {
 			return;
 		}
 
@@ -1438,7 +1448,7 @@ class Admin {
 			|| ! wp_verify_nonce( sanitize_key( $_POST[ 'jetpack_check_feedback_spam_' . (string) $blog_id ] ), 'grunion_recheck_queue' )
 		) {
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack-forms' ),
+				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -1447,7 +1457,7 @@ class Admin {
 
 		if ( ! current_user_can( 'delete_others_posts' ) ) {
 			wp_send_json_error(
-				__( 'You don’t have permission to do that.', 'jetpack-forms' ),
+				__( 'You don\'t have permission to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -1511,7 +1521,7 @@ class Admin {
 	public function grunion_delete_spam_feedbacks() {
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'jetpack_delete_spam_feedbacks' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- core doesn't sanitize nonce checks either.
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack-forms' ),
+				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -1520,7 +1530,7 @@ class Admin {
 
 		if ( ! current_user_can( 'delete_others_posts' ) ) {
 			wp_send_json_error(
-				__( 'You don’t have permission to do that.', 'jetpack-forms' ),
+				__( 'You don\'t have permission to do that.', 'jetpack-forms' ),
 				403
 			);
 

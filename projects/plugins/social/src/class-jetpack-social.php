@@ -100,7 +100,6 @@ class Jetpack_Social {
 
 		// Add REST routes.
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
-		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Social_Note_Controller(), 'register_rest_routes' ) );
 
 		// Adds the review prompt initial state.
 		add_action( 'jetpack_social_admin_script_data', array( $this, 'add_review_initial_state' ), 10, 1 );

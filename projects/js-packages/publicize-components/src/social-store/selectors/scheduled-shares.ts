@@ -1,5 +1,6 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
+import { EMPTY_ARRAY } from '../constants';
 import { ScheduledShare } from '../types';
 
 /**
@@ -10,14 +11,14 @@ import { ScheduledShare } from '../types';
  * @return The list of services.
  */
 export const getScheduledSharesForPost = createRegistrySelector( select => {
-	return ( state: unknown, post_id: number ) => {
+	return ( state: unknown, post_id: number ): Array< ScheduledShare > => {
 		const data = select( coreStore ).getEntityRecords< ScheduledShare >(
 			'wpcom/v2',
 			'publicize/scheduled-actions',
 			{ post_id }
 		);
 
-		return data ?? [];
+		return data ?? EMPTY_ARRAY;
 	};
 } );
 

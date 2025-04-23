@@ -12,7 +12,6 @@ use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -74,16 +73,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$this->add_my_home_menu();
 		$this->remove_gutenberg_menu();
 
-		// We don't need the `My Mailboxes` when the interface is set to wp-admin or the site is a staging site,
-		if ( ! $this->use_wp_admin_interface() && ! get_option( 'wpcom_is_staging_site' ) ) {
-			if ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && ! wpcom_is_duplicate_views_experiment_enabled() ) {
-				$this->add_my_mailboxes_menu();
-			}
-		}
-
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
-			$this->add_site_card_menu();
 			$this->add_new_site_link();
 		}
 
@@ -223,75 +214,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds site card component.
-	 */
-	public function add_site_card_menu() {
-		$default        = plugins_url( 'globe-icon.svg', __FILE__ );
-		$icon           = get_site_icon_url( 32, $default );
-		$blog_name      = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
-		$is_coming_soon = ( new Status() )->is_coming_soon();
-
-		$badge = '';
-
-		if ( get_option( 'wpcom_is_staging_site' ) ) {
-			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack-masterbar' ) . '</span>';
-		}
-
-		if ( ( function_exists( '\Private_Site\site_is_private' ) && \Private_Site\site_is_private() ) || $is_coming_soon ) {
-			$badge .= sprintf(
-				'<span class="site__badge site__badge-private">%s</span>',
-				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack-masterbar' ) : esc_html__( 'Private', 'jetpack-masterbar' )
-			);
-		}
-
-		$site_card = '
-<div class="site__info">
-	<div class="site__title">%1$s</div>
-	<div class="site__domain">%2$s</div>
-	%3$s
-</div>';
-
-		$site_card = sprintf(
-			$site_card,
-			$blog_name,
-			$this->domain,
-			$badge
-		);
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( 'site-card', $site_card, 'read', get_home_url(), null, $icon, 1 );
-		add_filter( 'add_menu_classes', array( $this, 'set_site_card_menu_class' ) );
-	}
-
-	/**
-	 * Adds a custom element class and id for Site Card's menu item.
-	 *
-	 * @param array $menu Associative array of administration menu items.
-	 *
-	 * @return array
-	 */
-	public function set_site_card_menu_class( array $menu ) {
-		foreach ( $menu as $key => $menu_item ) {
-			if ( 'site-card' !== $menu_item[3] ) {
-				continue;
-			}
-
-			$classes = ' toplevel_page_site-card';
-
-			// webclip.png is the default on WoA sites. Anything other than that means we have a custom site icon.
-			if ( has_site_icon() && 'https://s0.wp.com/i/webclip.png' !== get_site_icon_url( 512 ) ) {
-				$classes .= ' has-site-icon';
-			}
-
-			$menu[ $key ][4] = $menu_item[4] . $classes;
-			$menu[ $key ][5] = 'toplevel_page_site_card';
-			break;
-		}
-
-		return $menu;
-	}
-
-	/**
 	 * Returns the first available upsell nudge.
 	 *
 	 * @return array
@@ -416,21 +338,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
-		if ( Jetpack_Plan::supports( 'security-settings' ) &&
-			function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) &&
-			! wpcom_is_duplicate_views_experiment_enabled()
-		) {
-			add_submenu_page(
-				'options-general.php',
-				esc_attr__( 'Security', 'jetpack-masterbar' ),
-				__( 'Security', 'jetpack-masterbar' ),
-				'manage_options',
-				'https://wordpress.com/settings/security/' . $this->domain,
-				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-				2
-			);
-		}
-
 		$has_feature_atomic = function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::ATOMIC );
 		add_submenu_page(
 			'options-general.php',
@@ -441,14 +348,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			11
 		);
-
-		// The calypso based Performance screen is no longer linked from wp-admin and no longer conflicts with the Page Optimize "Performance"submenu item.
-		if ( function_exists( 'wpcom_is_duplicate_views_experiment_enabled' ) && ! wpcom_is_duplicate_views_experiment_enabled() ) {
-			// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
-			// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
-			// performance settings already have a link to Page Optimize settings page.
-			$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
-		}
 
 		// Hide Settings > Performance when the interface is set to wp-admin.
 		// This is due to these settings are mostly also available in Jetpack > Settings, in the Performance tab.

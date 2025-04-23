@@ -5,12 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [5.8.0] - 2025-03-21
+## [5.12.0] - 2025-04-14
 ### Added
-- My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
+- Add more error logging. [#42959]
+- Add My Jetpack tour. [#42880]
+- Connection: Add check for mismatched WordPress/WordPress.com user email. [#42674]
 
 ### Fixed
-- Enable screen readers to read Boost score [#42306]
+- Linting: Clean up various Stylelint violations. [#43010]
+- Linting: Format SCSS imports consistently. [#43018]
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
+## [5.11.2] - 2025-04-07
+### Fixed
+- Linting: Clean up style rule violations that made it in before requiring Stylelint. [#42944]
+
+## [5.11.1] - 2025-04-07
+### Changed
+- Linting: First pass of style coding standards. [#42734]
+- Improve Jetpack onboarding styles. [#42910]
+
+## [5.11.0] - 2025-04-03
+### Changed
+- Replace generic testimonial CSS class to prevent collisions and set font-family. [#42793]
+- Update package dependencies. [#42806] [#42809]
+
+### Fixed
+- Fix several copy issues on onboarding testimonials. [#42827]
+
+## [5.10.1] - 2025-04-01
+### Changed
+- Update package dependencies. [#42762]
+
+## [5.10.0] - 2025-03-31
+### Added
+- Add error handling to onboarding form. [#42753]
+- Add an option for the new onboarding tour. [#42684]
+- Add a Testimonials component to onboarding screen. [#42625]
+- Show onboarding screen to disconnected that explains Jetpack. [#42757]
+
+## [5.9.2] - 2025-03-26
+### Added
+- Add support for OAuth social login. [#42700]
+- Connect the frontend of the magic link input with the backend (for use on new onboarding screen). [#42662]
+
+### Changed
+- Add Account Protection to Protect product details. [#40925]
+
+## [5.9.1] - 2025-03-24
+### Changed
+- Update dependencies. [#38910]
+
+## [5.9.0] - 2025-03-24
+### Added
+- Add an email input to the social login form, allowing users to log into Jetpack seamlessly through a magic link. [#42600]
+- Add a new social login form to the onboarding screen for first-time Jetpack connections. [#42561]
+
+## [5.8.0] - 2025-03-21
+### Added
+- Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
+
+### Fixed
+- Enable screen readers to read Boost score. [#42306]
 
 ## [5.7.3] - 2025-03-19
 ### Changed
@@ -2044,6 +2101,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.11.2...5.12.0
+[5.11.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.11.1...5.11.2
+[5.11.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.11.0...5.11.1
+[5.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.10.1...5.11.0
+[5.10.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.10.0...5.10.1
+[5.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.9.2...5.10.0
+[5.9.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.9.1...5.9.2
+[5.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.9.0...5.9.1
+[5.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.8.0...5.9.0
 [5.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.3...5.8.0
 [5.7.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.2...5.7.3
 [5.7.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.7.1...5.7.2

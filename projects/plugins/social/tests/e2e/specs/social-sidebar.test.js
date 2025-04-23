@@ -14,7 +14,7 @@ test.beforeEach( async ( { page } ) => {
 		.build();
 } );
 
-test( 'Jetpack Social sidebar', async ( { page, editor, admin } ) => {
+test( 'Jetpack Social sidebar', async ( { page, admin } ) => {
 	await test.step( 'Connect wordpress.com account', async () => {
 		await connect( page );
 	} );
@@ -23,11 +23,7 @@ test( 'Jetpack Social sidebar', async ( { page, editor, admin } ) => {
 
 	await test.step( 'Goto post edit page', async () => {
 		logger.action( 'Create new post' );
-		await admin.createNewPost();
-
-		await editor.canvas
-			.locator( 'role=textbox[name="Add title"i]' )
-			.fill( 'Jetpack Social test post' );
+		await admin.createNewPost( { title: 'Jetpack Social test post' } );
 	} );
 
 	await test.step( 'Check Social sidebar', async () => {

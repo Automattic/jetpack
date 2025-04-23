@@ -8,8 +8,8 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { GuidelineMessage, ErrorMessage, UpgradeMessage } from '../../message/index.js';
-import { AIControl } from '../index.js';
+import { GuidelineMessage, ErrorMessage, UpgradeMessage } from '../../message/index.tsx';
+import { AIControl } from '../index.tsx';
 
 export default {
 	title: 'JS Packages/AI Client/AI Control',

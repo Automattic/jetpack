@@ -16,6 +16,7 @@
 
 .is-error {
 	color: var( --jp-red );
+
 	.icon {
 		fill: var( --jp-red );
 	}
@@ -23,6 +24,7 @@
 
 .is-warning {
 	color: var( --jp-yellow-40 );
+
 	.icon {
 		fill: var( --jp-yellow-40 );
 	}
@@ -30,6 +32,7 @@
 
 .is-info {
 	color: var( --jp-blue-40 );
+
 	.icon {
 		fill: var( --jp-blue-40 );
 	}
@@ -37,6 +40,7 @@
 
 .is-success {
 	color: var( --jp-green );
+
 	.icon {
 		fill: var( --jp-green );
 	}

@@ -69,6 +69,7 @@
 	}
 
 	.learn-more {
+
 		&:global(.components-button) {
 			padding-inline: 6px;
 			font-size: 14px;
@@ -167,6 +168,7 @@
 
 
 	.disconnect {
+
 		&:global(.components-button.is-tertiary) {
 			font-size: 1rem;
 			font-weight: 400;
@@ -189,6 +191,7 @@
 	width: 100%;
 
 	.connect-button {
+
 		&:global(.components-button) {
 			padding: 6px 16px;
 			font-size: 14px;
@@ -218,11 +221,13 @@
 		flex-direction: column;
 		gap: 0.5rem;
 		flex-basis: 100%;
+
 		@include break-medium {
 			flex-basis: 50%;
 		}
 
 		@include break-small {
+
 			button {
 				align-self: flex-end;
 			}
@@ -238,7 +243,7 @@
 		height: auto;
 		font-size: var(--font-body);
 		line-height: 22px;
-		padding: var(--spacing-base) calc(var(--spacing-base)* 3); // To make the inputs of the same size as the Connect button
+		padding: var(--spacing-base) calc(var(--spacing-base) * 3); // To make the inputs of the same size as the Connect button
 
 		// Override the default input styles for small screens
 		@media (max-width: #{ ($break-medium) }) {

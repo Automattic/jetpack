@@ -10,13 +10,16 @@ namespace Automattic\Jetpack;
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class Terms_Of_Service_Test
  *
  * @package Automattic\Jetpack
+ * @covers \Automattic\Jetpack\Terms_Of_Service
  */
+#[CoversClass( Terms_Of_Service::class )]
 class Terms_Of_Service_Test extends TestCase {
 	use MockeryPHPUnitIntegration;
 
@@ -29,10 +32,9 @@ class Terms_Of_Service_Test extends TestCase {
 
 	/**
 	 * Test setup.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\setUp();
 		$this->terms_of_service = $this->createPartialMock(
 			__NAMESPACE__ . '\\Terms_Of_Service',
@@ -42,17 +44,14 @@ class Terms_Of_Service_Test extends TestCase {
 
 	/**
 	 * Test teardown.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 	}
 
 	/**
 	 * Tests the agree function.
-	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_agree() {
 		Functions\expect( 'do_action' )->once()->with( 'jetpack_agreed_to_terms_of_service' );
@@ -64,8 +63,6 @@ class Terms_Of_Service_Test extends TestCase {
 
 	/**
 	 * Tests the revoke function.
-	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_revoke() {
 		Functions\expect( 'do_action' )->never();
@@ -77,8 +74,6 @@ class Terms_Of_Service_Test extends TestCase {
 
 	/**
 	 * Tests if has_agreed returns correctly if TOS not agreed to.
-	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_returns_false_if_not_agreed() {
 		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( false );
@@ -87,8 +82,6 @@ class Terms_Of_Service_Test extends TestCase {
 
 	/**
 	 * Tests if has_agreed returns corrected if agreed but in dev mode.
-	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_returns_false_if_has_agreed_but_is_offline_mode() {
 		// is_offline_mode.

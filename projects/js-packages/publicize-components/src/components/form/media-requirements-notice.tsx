@@ -47,7 +47,7 @@ export const MediaRequirementsNotice: React.FC< MediaRequirementsNoticeProps > =
 		<Notice type={ 'warning' }>
 			<p>
 				{ __(
-					'The selected media cannot be share to some social media platforms.',
+					'The selected media cannot be shared to some social media platforms.',
 					'jetpack-publicize-components'
 				) }
 			</p>

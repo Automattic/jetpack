@@ -8,6 +8,8 @@ use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 class Jetpack_JITM_Test extends TestCase {
@@ -15,10 +17,9 @@ class Jetpack_JITM_Test extends TestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		Monkey\setUp();
 
 		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
@@ -30,14 +31,15 @@ class Jetpack_JITM_Test extends TestCase {
 
 	/**
 	 * Tear down.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Monkey\tearDown();
 	}
 
 	public function test_jitm_enabled_by_default() {
+		Functions\when( 'get_option' )->justReturn( false );
+
 		Functions\expect( 'apply_filters' )
 			->once()
 			->with( 'jetpack_just_in_time_msgs', true )
@@ -64,6 +66,7 @@ class Jetpack_JITM_Test extends TestCase {
 	 *
 	 * @runInSeparateProcess
 	 */
+	#[RunInSeparateProcess]
 	public function test_prepare_jitms_enqueues_assets() {
 		$mock_assets = \Mockery::mock( 'alias:Automattic\Jetpack\Assets' );
 
@@ -106,6 +109,7 @@ class Jetpack_JITM_Test extends TestCase {
 	 * @param string $screen_id The screen ID to test.
 	 * @param bool   $expected  Whether the JITM should be enqueued.
 	 */
+	#[DataProvider( 'data_test_is_a8c_admin_page' )]
 	public function test_is_a8c_admin_page( $screen_id, $expected ) {
 		$jitm = new JITM();
 
@@ -119,6 +123,8 @@ class Jetpack_JITM_Test extends TestCase {
 	 * method is called.
 	 */
 	public function test_register_jitm_action_fires_once() {
+		Functions\expect( 'get_option' )->with( 'jetpack_offline_mode' )->andReturn( false );
+
 		Functions\expect( 'get_option' )
 			->with( 'id' )
 			->andReturn( 123 );

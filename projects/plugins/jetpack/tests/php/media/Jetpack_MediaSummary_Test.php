@@ -1,15 +1,20 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-summary.php';
 }
 
+/**
+ * @covers \Jetpack_Media_Summary
+ */
+#[CoversClass( Jetpack_Media_Summary::class )]
 class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::get
 	 * @since 3.2
 	 * @todo find a better way to test this large function
 	 */
@@ -23,7 +28,6 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::https
 	 * @since 3.2
 	 */
 	public function test_mediasummary_https() {
@@ -35,7 +39,6 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::ssl_img
 	 * @since 3.2
 	 */
 	public function test_mediasummary_ssl_img() {
@@ -47,7 +50,6 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::ssl_img
 	 * @since 3.2
 	 */
 	public function test_mediasummary_ssl_img_wordpress_domain() {
@@ -59,7 +61,6 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::clean_text
 	 * @since 3.2
 	 */
 	public function test_mediasummary_clean_text_empty() {
@@ -70,7 +71,6 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::clean_text
 	 * @since 3.2
 	 */
 	public function test_mediasummary_clean_text_simple() {
@@ -86,7 +86,6 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::get_word_count
 	 * @since 3.2
 	 */
 	public function test_mediasummary_get_word_count_empty() {
@@ -97,7 +96,6 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::get_word_count
 	 * @since 3.2
 	 */
 	public function test_mediasummary_get_word_count_sample() {
@@ -108,7 +106,6 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::get_link_count
 	 * @since 3.2
 	 */
 	public function test_mediasummary_get_link_count_empty() {
@@ -119,7 +116,6 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::get_link_count
 	 * @since 3.2
 	 */
 	public function test_mediasummary_get_link_count_simple() {
@@ -130,7 +126,6 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Media_Summary::get_link_count
 	 * @since 3.2
 	 */
 	public function test_mediasummary_get_link_count_invalid_tag() {

@@ -1,0 +1,18 @@
+/* This file was automatically generated on Feb 08 2022 10:34:13 */
+
+.customize-control .actions .create-logo-button {
+    display: block !important;
+    text-align: center;
+    border-color: #6BA774;
+    color: #6BA774;
+    font-size: 14px;
+}
+
+.customize-control .actions .create-logo-button:focus {
+    box-shadow: 0 0 0 1px #6BA774;
+}
+
+.create-logo-button .external-link-icon {
+    vertical-align: text-bottom;
+    margin-left: 4px;
+}

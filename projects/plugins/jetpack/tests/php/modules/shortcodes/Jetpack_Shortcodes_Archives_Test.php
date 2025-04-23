@@ -1,15 +1,21 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-amp-support.php';
 require_once __DIR__ . '/trait.http-request-cache.php';
 
+/**
+ * @covers ::archives_shortcode
+ */
+#[CoversFunction( 'archives_shortcode' )]
 class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_exists() {
@@ -18,7 +24,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives() {
@@ -31,7 +36,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_default() {
@@ -65,12 +69,12 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_data_archives_format_option
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 *
 	 * @param bool   $is_amp Whether this is an AMP endpoint.
 	 * @param string $expected The expected return value of the shortcode callback.
 	 */
+	#[DataProvider( 'get_data_archives_format_option' )]
 	public function test_shortcodes_archives_format_option( $is_amp, $expected ) {
 		if ( $is_amp && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
@@ -96,7 +100,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_format_html() {
@@ -112,7 +115,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_yearly() {
@@ -132,7 +134,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_monthly() {
@@ -152,7 +153,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_weekly() {
@@ -172,7 +172,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_daily() {
@@ -192,7 +191,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_limit_one() {
@@ -210,7 +208,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_limit_zero_is_all() {
@@ -228,7 +225,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_showcount() {
@@ -254,7 +250,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_before() {
@@ -273,7 +268,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_after() {
@@ -292,7 +286,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_order_asc() {
@@ -319,7 +312,6 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_order_desc() {

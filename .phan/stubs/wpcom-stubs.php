@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit b09ff6236a0ff02858c8e057ff1d3e0a3992ba9e.
+ * Stubs automatically generated from WordPress.com commit 188f89b7be0067125e8640caa70618606da95896.
  */
 
 namespace {
@@ -465,7 +465,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false, int $timeout = 120)
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false, int $timeout = 120, $parallel_tool_calls = \true)
         {
         }
         /**
@@ -588,6 +588,19 @@ namespace {
      */
     function get_user_following_recommendations($user, $number_of_recommendations)
     {
+    }
+    /**
+     * @param int $site_id
+     * @return string|false
+     */
+    function wpcom_get_media_export_url($site_id)
+    {
+    }
+    class WPCOM_User
+    {
+        public static function get_types()
+        {
+        }
     }
     /**
      * @param string $url

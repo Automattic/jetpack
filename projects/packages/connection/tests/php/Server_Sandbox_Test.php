@@ -5,6 +5,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Constants;
 use Brain\Monkey;
 use Brain\Monkey\Actions;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -53,6 +54,7 @@ class Server_Sandbox_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_server_sandbox_request_parameters
 	 */
+	#[DataProvider( 'data_provider_test_server_sandbox_request_parameters' )]
 	public function test_server_sandbox_request_parameters( $sandbox, $url, $headers, $expected_output ) {
 		$result = ( new Server_Sandbox() )->server_sandbox_request_parameters( $sandbox, $url, $headers );
 		$this->assertSame( $expected_output, $result );
@@ -137,6 +139,7 @@ class Server_Sandbox_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_server_sandbox
 	 */
+	#[DataProvider( 'data_provider_test_server_sandbox' )]
 	public function test_server_sandbox( $sandbox_constant, $url, $expected_url, $expected_headers ) {
 		Constants::set_constant( 'JETPACK__SANDBOX_DOMAIN', $sandbox_constant );
 		$headers = array();
@@ -194,6 +197,7 @@ class Server_Sandbox_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_server_sandbox_with_xdebug
 	 */
+	#[DataProvider( 'data_provider_test_server_sandbox_with_xdebug' )]
 	public function test_server_sandbox_with_xdebug( $url, $expected_url, $add_filter = true ) {
 		Constants::set_constant( 'JETPACK__SANDBOX_DOMAIN', 'example.com' );
 		( new Tokens() )->update_blog_token( 'asdasd.qweqwe' );
@@ -288,6 +292,7 @@ class Server_Sandbox_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_extract_authorization_headers
 	 */
+	#[DataProvider( 'data_provider_test_extract_authorization_headers' )]
 	public function test_extract_authorization_headers( $headers, $expected ) {
 		$this->assertSame( $expected, ( new Server_Sandbox() )->extract_authorization_headers( $headers ) );
 	}

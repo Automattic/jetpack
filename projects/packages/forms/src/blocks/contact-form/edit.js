@@ -30,6 +30,7 @@ import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeh
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
+import IntegrationControls from './components/jetpack-integration-controls';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
@@ -126,6 +127,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			'contact-form/salesforce-lead-form'
 		];
 
+	const isFormModalEnabled = !! window?.jpFormsBlocks?.defaults?.isFormModalEnabled;
+
 	let elt;
 
 	if ( ! isModuleActive ) {
@@ -153,10 +156,14 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		elt = (
 			<>
 				<InspectorControls>
-					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
+					<PanelBody
+						title={ __( 'Manage responses', 'jetpack-forms' ) }
+						className="jetpack-contact-form__manage-responses-panel"
+						initialOpen={ false }
+					>
 						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
 					</PanelBody>
-					<PanelBody title={ __( 'Submission Settings', 'jetpack-forms' ) } initialOpen={ false }>
+					<PanelBody title={ __( 'Action after submit', 'jetpack-forms' ) } initialOpen={ false }>
 						<InspectorHint>
 							{ __( 'Customize the view after form submission:', 'jetpack-forms' ) }
 						</InspectorHint>
@@ -208,7 +215,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							</div>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Email Connection', 'jetpack-forms' ) }>
+					<PanelBody title={ __( 'Email connection', 'jetpack-forms' ) } initialOpen={ false }>
 						<JetpackEmailConnectionSettings
 							emailAddress={ to }
 							emailSubject={ subject }
@@ -218,6 +225,10 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						/>
 					</PanelBody>
 
+					{ isFormModalEnabled && (
+						<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
+					) }
+
 					{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
 						<SalesforceLeadFormSettings
 							salesforceData={ salesforceData }
@@ -225,25 +236,15 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							instanceId={ instanceId }
 						/>
 					) }
-					{ ! isSimpleSite() && (
+					{ ! isFormModalEnabled && ! isSimpleSite() && canUserInstallPlugins && (
 						<>
-							{ canUserInstallPlugins && (
-								<>
-									<AkismetPanel />
-									<PanelBody
-										title={ __( 'CRM Connection', 'jetpack-forms' ) }
-										initialOpen={ false }
-									>
-										<CRMIntegrationSettings
-											jetpackCRM={ jetpackCRM }
-											setAttributes={ setAttributes }
-										/>
-									</PanelBody>
-									<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
-										<NewsletterIntegrationSettings />
-									</PanelBody>
-								</>
-							) }
+							<AkismetPanel />
+							<PanelBody title={ __( 'CRM connection', 'jetpack-forms' ) } initialOpen={ false }>
+								<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
+							</PanelBody>
+							<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
+								<NewsletterIntegrationSettings />
+							</PanelBody>
 						</>
 					) }
 				</InspectorControls>

@@ -6,8 +6,8 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import AudioDurationDisplay from '../../../components/audio-duration-display/index.js';
-import useMediaRecording from '../index.js';
+import AudioDurationDisplay from '../../../components/audio-duration-display/index.tsx';
+import useMediaRecording from '../index.ts';
 /**
  * Types
  */
@@ -72,7 +72,7 @@ const RecorderComponent = ( { timeslice } ) => {
 
 interface AIControlStoryMeta extends Meta< typeof RecorderComponent > {
 	title?: string;
-	component?: React.ReactElement;
+	component?: React.ComponentType;
 }
 
 const meta: AIControlStoryMeta = {
@@ -85,7 +85,7 @@ const meta: AIControlStoryMeta = {
 			},
 		},
 	},
-} as Meta< typeof RecorderComponent >;
+} satisfies Meta< typeof RecorderComponent >;
 
 const Template = args => <RecorderComponent { ...args } />;
 

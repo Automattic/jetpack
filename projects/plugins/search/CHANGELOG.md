@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2025-04-04
+### Added
+- Add Account Protection initialization. [#40925]
+- Connection: Disconnect all other users before disconnecting connection owner account. [#41923]
+- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process. [#42757]
+- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
+
+### Changed
+- Code: Use function-style `exit()` and `die()` with a default status code of 0. [#41167]
+- Connection: Allow pre-selected login providers. [#42662]
+- Connection: Display connection status on Users page independent of the SSO module. [#41794]
+- General: Indicate compatibility with WordPress 6.8. [#42701]
+- Update composer.lock [#40863]
+- Update package dependencies. [#40980] [#41659] [#42180] [#42815]
+- Update the unowned section from a product grid to a product list [#41312]
+
+### Fixed
+- Search: Ensure the count of returned results is shown after searching. [#42570]
+
 ## [4.0.0] - 2025-01-10
 ### Added
 - Enable test coverage. [#39961]
@@ -174,6 +193,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [1.1.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.0.0...1.1.0-beta
 [1.2.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.1.0...1.2.0-beta
+[4.1.0]: https://github.com/Automattic/jetpack-search-plugin/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/Automattic/jetpack-search-plugin/compare/3.0.1...4.0.0
 [3.0.1]: https://github.com/Automattic/jetpack-search-plugin/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/Automattic/jetpack-search-plugin/compare/2.1.0...3.0.0

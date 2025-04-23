@@ -210,6 +210,7 @@ const UploaderProgress = ( {
 				value={ title }
 				placeholder={ filename }
 				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 
 			<UploadingEditor

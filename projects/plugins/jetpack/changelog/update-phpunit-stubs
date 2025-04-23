@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: PHPUnit: Replace deprecated `->addMethods()` and `->returnValue()`, and update phan suppressions.
-
-

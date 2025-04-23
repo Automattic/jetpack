@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Status;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -19,6 +20,7 @@ require_once __DIR__ . '/data/admin-menu.php';
  *
  * @covers Automattic\Jetpack\Masterbar\Domain_Only_Admin_Menu
  */
+#[CoversClass( Domain_Only_Admin_Menu::class )]
 class Domain_Only_Admin_Menu_Test extends TestCase {
 
 	/**
@@ -58,10 +60,9 @@ class Domain_Only_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Set up each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $menu, $submenu;
 
 		static::$domain       = ( new Status() )->get_site_suffix();
@@ -86,10 +87,9 @@ class Domain_Only_Admin_Menu_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}

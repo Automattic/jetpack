@@ -39,11 +39,13 @@ $whatsapp: #2ab318;
 			background: transparent;
 			color: var(--jp-gray-50);
 		}
+
 		svg {
 			padding: calc(var(--spacing-base) / 2 );
 			width: calc(var(--spacing-base) * 3);
 			height: calc(var(--spacing-base) * 3);
 		}
+
 		&:focus {
 			border: 0;
 			outline: none;

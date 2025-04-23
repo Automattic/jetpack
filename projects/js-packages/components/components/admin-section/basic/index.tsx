@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './style.module.scss';
-import type { AdminSectionBaseProps } from '../types.js';
+import type { AdminSectionBaseProps } from '../types.ts';
 
 /**
  * This is the wrapper component to build sections within your admin page.

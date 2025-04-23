@@ -8,10 +8,15 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Connection Manager functionality testing.
+ *
+ * @covers \Automattic\Jetpack\Connection\Manager
  */
+#[CoversClass( Manager::class )]
 class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 	/**
@@ -32,8 +37,6 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
@@ -56,13 +59,13 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	/**
 	 * Test the `is_connected' method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_connected
 	 * @dataProvider is_connected_data_provider
 	 *
 	 * @param object|boolean $blog_token The blog token. False if the blog token does not exist.
 	 * @param int|boolean    $blog_id The blog id. False if the blog id does not exist.
 	 * @param boolean        $expected_output The expected output.
 	 */
+	#[DataProvider( 'is_connected_data_provider' )]
 	public function test_is_connected( $blog_token, $blog_id, $expected_output ) {
 		if ( $blog_token ) {
 			\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
@@ -280,6 +283,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 * @param bool|object $expected_token If success is expected, the expected token object.
 	 * @return void
 	 */
+	#[DataProvider( 'get_access_token_data_provider' )]
 	public function test_get_access_token( $create_blog_token, $create_user_tokens, $master_user, $user_id_query, $token_key_query, $expected_error_code, $expected_token ) {
 
 		// Set up.
@@ -488,7 +492,6 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	/**
 	 * Test the `is_site_connection' method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_site_connection
 	 * @dataProvider data_provider_for_test_is_site_connection
 	 *
 	 * @param boolean $is_connected              If the blog is connected.
@@ -496,6 +499,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 * @param boolean $master_user_option_is_set If the master_user option is set.
 	 * @param boolean $expected                  The expected output.
 	 */
+	#[DataProvider( 'data_provider_for_test_is_site_connection' )]
 	public function test_is_site_connection( $is_connected, $has_connected_user, $master_user_option_is_set, $expected ) {
 		$id_admin = wp_insert_user(
 			array(
@@ -577,12 +581,12 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	/**
 	 * Test that User tokens behave according to expectations after attempting to disconnect a user.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user
 	 * @dataProvider get_disconnect_user_outcomes
 	 *
 	 * @param bool $remote_response           Response from the unlink_user XML-RPC request.
 	 * @param int  $expected_user_token_count Number of user tokens left on site after Manager::disconnect_user has completed.
 	 */
+	#[DataProvider( 'get_disconnect_user_outcomes' )]
 	public function test_disconnect_user( $remote_response, $expected_user_token_count ) {
 		$master_user_id = wp_insert_user(
 			array(

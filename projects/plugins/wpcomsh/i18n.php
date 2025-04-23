@@ -96,7 +96,7 @@ add_filter(
 	function ( $file, $handle, $domain ) {
 		global $wp_scripts;
 
-		if ( in_array( $domain, array( 'jetpack-mu-wpcom' ), true ) ) {
+		if ( in_array( $domain, array( 'jetpack-mu-wpcom', 'wpcomsh' ), true ) ) {
 			return WP_LANG_DIR . '/mu-plugins/' . basename( $file );
 		}
 

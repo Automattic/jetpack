@@ -54,6 +54,7 @@ export default function DetailsControl( { isRequestingVideoItem } ) {
 				placeholder={ __( 'Video title', 'jetpack' ) }
 				onChange={ setTitleAttribute }
 				disabled={ isRequestingVideoItem }
+				__next40pxDefaultSize={ true }
 			/>
 
 			<TextareaControl

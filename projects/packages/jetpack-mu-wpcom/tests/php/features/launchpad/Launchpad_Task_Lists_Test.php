@@ -5,11 +5,18 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Test class for Launchpad_Task_Lists.
  *
- * @coversDefaultClass Launchpad_Task_Lists
+ * @covers \Launchpad_Task_Lists
+ * @covers ::wpcom_launchpad_is_task_list_dismissed
  */
+#[CoversClass( Launchpad_Task_Lists::class )]
+#[CoversFunction( 'wpcom_launchpad_is_task_list_dismissed' )]
 class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Set up.
@@ -29,8 +36,6 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Make sure that ::build() doesn't create a PHP warning when it doesn't get a valid ID.
-	 *
-	 * @covers ::build
 	 */
 	public function test_build_creates_no_PHP_warnings() {
 		$result = Launchpad_Task_Lists::get_instance()->build( '' );
@@ -41,8 +46,6 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Filter out tasks with the task list callback.
-	 *
-	 * @covers ::build
 	 */
 	public function test_task_list_is_visible_callback() {
 		wpcom_register_launchpad_task(
@@ -165,6 +168,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 * @param bool  $expected          Expected result of wpcom_launchpad_is_task_list_completed().
 	 * @param array $task_list_options Optional. Array of options to pass to wpcom_register_launchpad_task_list().
 	 */
+	#[DataProvider( 'provider_test_task_list_is_completed' )]
 	public function test_task_list_is_completed( $tasks, $expected, $task_list_options = array() ) {
 		$task_ids = array();
 		foreach ( $tasks as $key => $task ) {
@@ -294,6 +298,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 * @param int   $expected_target_repetitions The expected target_repetitions value.
 	 * @param int   $expected_repetition_count   The expected repetition_count value.
 	 */
+	#[DataProvider( 'provide_repetition_counting_task_list_test_cases' )]
 	public function test_repetition_counting_task_list( $task, $expected_target_repetitions, $expected_repetition_count ) {
 		wpcom_register_launchpad_task( $task );
 
@@ -389,6 +394,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 * @param bool  $initial_task_completion_status The status to set up for the task at the beginning of the test.
 	 * @return void
 	 */
+	#[DataProvider( 'provide_wpcom_launchpad_is_repeated_task_complete_test_cases' )]
 	public function test_wpcom_launchpad_is_repeated_task_complete( $task, $expected_completion_status, $initial_task_completion_status ) {
 		delete_option( 'launchpad_checklist_tasks_statuses' );
 
@@ -484,6 +490,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 * @param string|null $expected_path        The path we expect to be returned.
 	 * @return void
 	 */
+	#[DataProvider( 'provide_get_calypso_path_validation_test_cases' )]
 	public function test_get_calypso_path_validation( $calypso_path_to_test, $expected_path ) {
 		wpcom_register_launchpad_task(
 			array(
@@ -525,8 +532,6 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test dismiss temporally a task list when a date in future is used
-	 *
-	 * @covers wpcom_launchpad_is_task_list_dismissed
 	 */
 	public function test_temporary_dismiss_task_when_date_is_in_the_future() {
 		wpcom_register_launchpad_task(
@@ -555,8 +560,6 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test remove the dismiss status when the temporary dismiss date is expired
-	 *
-	 * @covers wpcom_launchpad_is_task_list_dismissed
 	 */
 	public function test_remove_temporary_dismiss_when_date_is_in_the_past() {
 		wpcom_register_launchpad_task(
@@ -621,6 +624,7 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 * @param int    $blog_count_for_user Number of blogs for the user.
 	 * @param string $should_be_visible 'should-be-visible' or something else (like 'should-NOT-be-visible').
 	 */
+	#[DataProvider( 'provide_verify_email_task_visibility_test_cases' )]
 	public function test_verify_email_task_visibility( $user_verification_status, $blog_count_for_user, $should_be_visible ) {
 		\Brain\Monkey\Functions\when( 'get_blog_count_for_user' )->justReturn( $blog_count_for_user );
 		\Mockery::mock( 'alias:Email_Verification' )->shouldReceive( 'is_email_unverified' )->andReturn( $user_verification_status === 'unverified' );

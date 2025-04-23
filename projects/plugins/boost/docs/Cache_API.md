@@ -38,7 +38,7 @@ Parameter: the URL of the cache page to be deleted
 
 Usage:
 ```php
-do_action( 'jetpack_boost_clear_page_cache_url', 'https://example.com/' );
+do_action( 'jetpack_boost_clear_page_cache_url', 'https://example.com/example-page/' );
 ```
 
 ### Delete the cache for a specific post, including paged comments

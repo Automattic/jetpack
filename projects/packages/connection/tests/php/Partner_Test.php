@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,16 +17,16 @@ use PHPUnit\Framework\TestCase;
  * @package Automattic\jetpack-connection
  * @covers Automattic\Jetpack\Partner
  */
+#[CoversClass( Partner::class )]
 class Partner_Test extends TestCase {
 
 	const TEST_CODE = 'abc-123';
 
 	/**
 	 * Reset the environment after each test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		Partner::reset();
 	}
 
@@ -67,6 +69,7 @@ class Partner_Test extends TestCase {
 	 *
 	 * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
+	#[DataProvider( 'code_provider' )]
 	public function test_partner_code_is_empty_by_default( $code_type, $option_name ) {
 		$call_counter  = 0;
 		$option_filter = function () use ( &$call_counter ) {
@@ -94,6 +97,7 @@ class Partner_Test extends TestCase {
 	 *
 	 * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
+	#[DataProvider( 'code_provider' )]
 	public function test_partner_code_is_set_via_option( $code_type, $option_name ) {
 		$call_counter  = 0;
 		$option_filter = function () use ( &$call_counter ) {
@@ -121,6 +125,7 @@ class Partner_Test extends TestCase {
 	 *
 	 * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
+	#[DataProvider( 'code_provider' )]
 	public function test_partner_code_is_set_via_filter( $code_type, $option_name ) {
 		$call_counter  = 0;
 		$option_filter = function () use ( &$call_counter ) {

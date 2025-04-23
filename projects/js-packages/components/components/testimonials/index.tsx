@@ -1,7 +1,7 @@
 import { useState, useCallback } from '@wordpress/element';
-import Gridicon from '../gridicon/index.js';
-import { Testimonial } from './testimonial.js';
-import { TestimonialsType } from './types.js';
+import Gridicon from '../gridicon/index.tsx';
+import { Testimonial } from './testimonial.tsx';
+import { TestimonialsType } from './types.ts';
 
 const Testimonials: TestimonialsType = ( { testimonials } ) => {
 	const [ currentTestimonialIndex, setcurrentTestimonialIndex ] = useState( 0 );

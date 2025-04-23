@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.8] - 2025-04-14
+### Changed
+- Social Menus: Update the Twitter sharing button to use the X logo. [#42813]
+
+### Fixed
+- Linting: Update stylesheets to use WordPress rules for fonts. [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
+## [0.11.7] - 2025-04-07
+### Changed
+- Linting: First pass of style coding standards. [#42734]
+
+## [0.11.6] - 2025-04-02
+### Changed
+- Update dependencies. [#42820]
+- Update package dependencies. [#42809]
+
+## [0.11.5] - 2025-03-24
+### Changed
+- Internal updates.
+
 ## [0.11.4] - 2025-03-18
 ### Changed
 - Update package dependencies. [#42511]
@@ -244,6 +265,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.11.8]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.7...v0.11.8
+[0.11.7]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.6...v0.11.7
+[0.11.6]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.5...v0.11.6
+[0.11.5]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.4...v0.11.5
 [0.11.4]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.3...v0.11.4
 [0.11.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.2...v0.11.3
 [0.11.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.1...v0.11.2

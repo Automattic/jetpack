@@ -1,3 +1,9 @@
+import {
+	setSimpleFieldError,
+	clearInputError,
+	createInputErrorContainer,
+	createError,
+} from './form-errors';
 /**
  * @file Overwrites native form validation to provide an accessible experience to all users.
  *
@@ -6,7 +12,6 @@
  * represents a question of a form and can hold multiple inputs, such as the Single Choice
  * (multiple radio buttons) or Multiple Choice fields (multiple checkboxes).
  */
-
 import { validateDate } from './validate-helper';
 
 document.addEventListener( 'DOMContentLoaded', () => {
@@ -31,6 +36,7 @@ const L10N = {
 	submittingForm: __( 'Submitting form', 'jetpack-forms' ),
 	/* translators: generic error message */
 	genericError: __( 'Please correct this field', 'jetpack-forms' ),
+	fileRequired: __( 'A file is required.', 'jetpack-forms' ),
 	/* translators: error message shown when no field has been filled out */
 	emptyForm: __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 	errorCount: d =>
@@ -60,8 +66,8 @@ function isFormEmpty( form ) {
 		select.value = form.querySelector( `select[id="${ select.id }"` )?.value;
 	} );
 	// Remove hidden fields from the cloned form.
-	Array.from( clonedForm.querySelectorAll( 'input[type="hidden"]' ) ).forEach( input =>
-		input.remove()
+	Array.from( clonedForm.querySelectorAll( 'input[type="hidden"]:not(.include-hidden)' ) ).forEach(
+		input => input.remove()
 	);
 	const formData = new FormData( clonedForm );
 	return ! Array.from( formData.values() ).some( value =>
@@ -128,9 +134,7 @@ const initForm = form => {
  * @returns {boolean}
  */
 const isFormValid = form => {
-	let isValid = form.checkValidity();
-
-	if ( ! isValid ) {
+	if ( ! form.checkValidity() ) {
 		return false;
 	}
 
@@ -153,7 +157,16 @@ const isFormValid = form => {
 		}
 	}
 
-	return isValid;
+	// Handle the File Field
+	const fileDropzone = getFileDropzones( form );
+	for ( const field of fileDropzone ) {
+		if ( hasFileFiledError( field ) ) {
+			return false;
+		} else if ( isFileFieldRequiredEmpty( field ) ) {
+			return false;
+		}
+	}
+	return true;
 };
 
 /**
@@ -330,6 +343,22 @@ const getMultipleChoiceFields = form => {
 	return Array.from( form.querySelectorAll( '.grunion-checkbox-multiple-options' ) );
 };
 
+const getFileDropzones = form => {
+	return Array.from( form.querySelectorAll( '.jetpack-form-file-field__container' ) );
+};
+
+const hasFileFiledError = field => {
+	return ! ( Array.from( field.querySelectorAll( '.is-error' ) ).length === 0 );
+};
+
+const isFileFieldRequiredEmpty = field => {
+	if ( field.dataset.isRequired === '1' ) {
+		return Array.from( field.querySelectorAll( '.jetpack-form-file-field__hidden' ) ).length === 0;
+	}
+
+	return false;
+};
+
 /**
  * Return the Date Picker fields of a form.
  * @param {HTMLFormElement} form Form element
@@ -402,6 +431,9 @@ const getFormFields = form => {
 		}
 	}
 
+	// File Upload Fields
+	fields.fileFields = getFileDropzones( form );
+
 	return fields;
 };
 
@@ -455,54 +487,6 @@ const createSpinner = () => {
 };
 
 /**
- * Create a new warning icon.
- * @returns {HTMLSpanElement} Warning icon
- */
-const createWarningIcon = () => {
-	const elt = document.createElement( 'span' );
-	const srOnly = document.createElement( 'span' );
-	const icon = document.createElement( 'i' );
-
-	srOnly.textContent = L10N.warning;
-	srOnly.classList.add( 'visually-hidden' );
-
-	icon.setAttribute( 'aria-hidden', true );
-
-	elt.classList.add( 'contact-form__warning-icon' );
-	elt.appendChild( srOnly );
-	elt.appendChild( icon );
-
-	return elt;
-};
-
-/**
- * Create a new error text element.
- * @param {string} str Error message
- * @returns {HTMLSpanElement} Error text element
- */
-const createErrorText = str => {
-	const elt = document.createElement( 'span' );
-
-	elt.textContent = str;
-
-	return elt;
-};
-
-/**
- * Create a new error fragment.
- * @param {string} str Error message
- * @returns {DocumentFragment} Error fragment
- */
-const createError = str => {
-	const fragment = document.createDocumentFragment();
-
-	fragment.appendChild( createWarningIcon() );
-	fragment.appendChild( createErrorText( str ) );
-
-	return fragment;
-};
-
-/**
  * Create a list of links to the invalid fields of a form.
  * @param {HTMLFormElement} form          Form element
  * @param {HTMLElement[]}   invalidFields Invalid fields
@@ -551,20 +535,6 @@ const createFormErrorContainer = () => {
 	const elt = document.createElement( 'div' );
 
 	elt.classList.add( 'contact-form__error' );
-
-	return elt;
-};
-
-/**
- * Create a new error container for a form input.
- * @param {string} errorId Error element ID
- * @returns {HTMLDivElement} Error container
- */
-const createInputErrorContainer = errorId => {
-	const elt = document.createElement( 'div' );
-
-	elt.id = errorId;
-	elt.classList.add( 'contact-form__input-error' );
 
 	return elt;
 };
@@ -683,30 +653,6 @@ const clearGroupInputError = fieldset => {
 	}
 };
 
-/**
- * Empty the error element a simple field (unique input) and mark it as valid.
- * @param {HTMLElement} input Input element
- * @param {object}      opts  Form options
- */
-const clearInputError = ( input, opts ) => {
-	input.removeAttribute( 'aria-invalid' );
-	input.removeAttribute( 'aria-describedby' );
-
-	const fieldWrap = input.closest(
-		opts.hasInsetLabel ? '.contact-form__inset-label-wrap' : '.grunion-field-wrap'
-	);
-
-	if ( ! fieldWrap ) {
-		return;
-	}
-
-	const error = fieldWrap.querySelector( '.contact-form__input-error' );
-
-	if ( error ) {
-		error.replaceChildren();
-	}
-};
-
 /******************************************************************************
  * SUBMISSION
  ******************************************************************************/
@@ -754,6 +700,25 @@ const invalidateForm = ( form, opts ) => {
 	return listenToInvalidFields( form, opts );
 };
 
+const isFileField = field => {
+	return field.classList.contains( 'jetpack-form-file-field__container' );
+};
+
+const listenToInvalidFileField = ( field, eventCb ) => {
+	const callback = mutationList => {
+		for ( const mutation of mutationList ) {
+			if ( mutation.type === 'attributes' ) {
+				if ( mutation.attributeName === 'aria-invalid' ) {
+					eventCb();
+				}
+			}
+		}
+	};
+
+	const observer = new MutationObserver( callback );
+	observer.observe( field, { attributes: true } );
+};
+
 /**
  * Trigger the fields revalidation on a form inputs blur.
  * @param {HTMLFormElement} form Form element
@@ -772,6 +737,8 @@ const listenToInvalidFields = ( form, opts ) => {
 			obj = listenToInvalidSingleChoiceField( field, eventCb, form, opts );
 		} else if ( isMultipleChoiceField( field ) && isMultipleChoiceFieldRequired( field ) ) {
 			obj = listenToInvalidMultipleChoiceField( field, eventCb, form, opts );
+		} else if ( isFileField( field ) ) {
+			obj = listenToInvalidFileField( field, eventCb, form, opts );
 		} else {
 			obj = listenToInvalidSimpleField( field, eventCb, form, opts );
 		}
@@ -985,7 +952,7 @@ const updateFormErrorMessage = form => {
  */
 const setFieldErrors = ( form, opts ) => {
 	const invalidFields = [];
-	const { simple, singleChoice, multipleChoice } = getFormFields( form );
+	const { simple, singleChoice, multipleChoice, fileFields } = getFormFields( form );
 
 	for ( const field of simple ) {
 		if ( ! isSimpleFieldValid( field ) ) {
@@ -1011,36 +978,17 @@ const setFieldErrors = ( form, opts ) => {
 		}
 	}
 
-	return invalidFields;
-};
-
-/**
- * Set the error element of a simple field (single input) and mark it as invalid.
- * @param {HTMLElement}     input Input element
- * @param {HTMLFormElement} form  Parent form element
- * @param {object}          opts  Form options
- */
-const setSimpleFieldError = ( input, form, opts ) => {
-	const errorId = `${ input.name }-error`;
-
-	let error = form.querySelector( `#${ errorId }` );
-
-	if ( ! error ) {
-		error = createInputErrorContainer( errorId );
-
-		const wrap = input.closest(
-			opts.hasInsetLabel ? '.contact-form__inset-label-wrap' : '.grunion-field-wrap'
-		);
-
-		if ( wrap ) {
-			wrap.appendChild( error );
+	for ( const field of fileFields ) {
+		if ( isFileFieldRequiredEmpty( field ) ) {
+			setSimpleFieldError( field, form, opts, L10N.fileRequired );
+			invalidFields.push( field );
+		} else if ( hasFileFiledError( field ) ) {
+			setSimpleFieldError( field, form, opts, L10N.genericError );
+			invalidFields.push( field );
 		}
 	}
 
-	error.replaceChildren( createError( input.validationMessage ) );
-
-	input.setAttribute( 'aria-invalid', 'true' );
-	input.setAttribute( 'aria-describedby', errorId );
+	return invalidFields;
 };
 
 /**

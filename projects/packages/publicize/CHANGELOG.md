@@ -5,20 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.62.2] - 2025-03-21
-### Added
-- Social | Add wpcom/v2 endpoint for Social Image Generator token generation [#42534]
+## [0.64.1] - 2025-04-21
+### Changed
+- Remove a stale comment in connections post field. [#43061]
+- Social: Re-enable resharing in classic editor on Simple sites. [#43005]
 
-### Deprecated
-- Social: Deprecate jetpack/v4 endpoint for SIG token [#42574]
+## [0.64.0] - 2025-04-17
+### Changed
+- Publicize: Improve package initialization. [#42737]
+- Re-enable unit tests for share status. [#43099]
 
 ### Fixed
-- Keyring Helper: Moved the initialization to pre_initialization to let it work even when Publicize is off. [#42604]
-- Social: Fix permission check for connection url [#42572]
+- Do not load the module on private WordPress.com sites. [#43078]
+
+## [0.63.0] - 2025-04-14
+### Added
+- Add share status support for WordPress.com sites. [#42593]
+
+### Changed
+- Improved the logic for share status. [#42978]
+
+### Fixed
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+- Social: Always register the product info endpoint regardless of Publicize being active. [#42812]
+- Social: Do not load in the editor if module is off. [#43006]
+
+## [0.62.5] - 2025-04-07
+### Changed
+- Update dependencies. [#42820]
+- Update package dependencies. [#42809]
+
+## [0.62.4] - 2025-03-31
+### Changed
+- Internal updates.
+
+## [0.62.3] - 2025-03-24
+### Fixed
+- Publicize: Update the Jetpack plugin version check. [#42649]
+
+## [0.62.2] - 2025-03-21
+### Added
+- Social: Add `wpcom/v2` endpoint for Social Image Generator token generation. [#42534]
+
+### Deprecated
+- Social: Deprecate `jetpack/v4` endpoint for Social Image Generator token. [#42574]
+
+### Fixed
+- Keyring Helper: Move initialization to pre_initialization to let it work even when Publicize is off. [#42604]
+- Social: Fix permission check for connection url. [#42572]
 
 ## [0.62.1] - 2025-03-19
 ### Changed
-- Update dependencies [#42564]
+- Update dependencies. [#42564]
 
 ## [0.62.0] - 2025-03-18
 ### Changed
@@ -944,6 +982,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.64.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.0...v0.64.1
+[0.64.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.63.0...v0.64.0
+[0.63.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.5...v0.63.0
+[0.62.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.4...v0.62.5
+[0.62.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.3...v0.62.4
+[0.62.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.2...v0.62.3
 [0.62.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.1...v0.62.2
 [0.62.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.0...v0.62.1
 [0.62.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.61.5...v0.62.0

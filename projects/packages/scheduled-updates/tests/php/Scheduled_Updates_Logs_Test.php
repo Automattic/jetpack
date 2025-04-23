@@ -7,11 +7,14 @@
 
 namespace Automattic\Jetpack;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 /**
  * Test class for Scheduled_Updates_Logs.
  *
- * @coversDefaultClass Automattic\Jetpack\Scheduled_Updates_Logs
+ * @covers \Automattic\Jetpack\Scheduled_Updates_Logs
  */
+#[CoversClass( Scheduled_Updates_Logs::class )]
 class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 	/**
@@ -32,7 +35,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 	 * Set up before class.
 	 *
 	 * @see Restrictions here: https://github.com/php-mock/php-mock-phpunit?tab=readme-ov-file#restrictions
-	 * @beforeClass
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
@@ -42,8 +44,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
 	protected function set_up() {
 		parent::set_up_wordbless();
@@ -67,8 +67,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Clean up after test
-	 *
-	 * @after
 	 */
 	protected function tear_down() {
 		delete_option( Scheduled_Updates_Logs::OPTION_NAME );
@@ -77,9 +75,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test logging events and retrieving logs for a specific schedule ID.
-	 *
-	 * @covers ::log
-	 * @covers ::get
 	 */
 	public function test_log_and_get_logs() {
 		$schedule_id = $this->create_schedule( 1 );
@@ -108,9 +103,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test that only the last MAX_RUNS_PER_SCHEDULE runs are kept when logging events.
-	 *
-	 * @covers ::log
-	 * @covers ::get
 	 */
 	public function test_max_runs_per_schedule() {
 		$schedule_id = $this->create_schedule( 1 );
@@ -134,8 +126,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test logging to a non-existent schedule ID.
-	 *
-	 * @covers ::get
 	 */
 	public function test_log_non_existent_schedule() {
 		$schedule_id = 'non_existent_schedule';
@@ -150,8 +140,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test retrieving logs for a non-existent schedule ID.
-	 *
-	 * @covers ::get
 	 */
 	public function test_get_logs_non_existent_schedule() {
 		$schedule_id = 'non_existent_schedule';
@@ -166,9 +154,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test retrieving logs for multiple schedules.
-	 *
-	 * @covers ::log
-	 * @covers ::get
 	 */
 	public function test_get_all_logs() {
 		$schedule_id_1 = $this->create_schedule( 1 );
@@ -196,10 +181,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test clearing logs for a specific schedule ID and clearing all logs.
-	 *
-	 * @covers ::log
-	 * @covers ::clear
-	 * @covers ::get
 	 */
 	public function test_clear_logs() {
 		$schedule_id_1 = $this->create_schedule( 1 );
@@ -233,8 +214,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test clearing logs for a non-existent schedule ID.
-	 *
-	 * @covers ::get
 	 */
 	public function test_clear_logs_non_existent_schedule() {
 		$schedule_id = 'non_existent_schedule';
@@ -248,8 +227,6 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Test deleting logs after scheduled update deletion.
-	 *
-	 * @covers ::get
 	 */
 	public function test_delete_logs_after_scheduled_update_deletion() {
 		$schedule_id = $this->create_schedule( 1 );

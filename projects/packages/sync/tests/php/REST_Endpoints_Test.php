@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WP_REST_Request;
@@ -34,10 +35,9 @@ class REST_Endpoints_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
@@ -58,10 +58,9 @@ class REST_Endpoints_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $this->api_host_original;
 
@@ -296,6 +295,7 @@ class REST_Endpoints_Test extends TestCase {
 	 * @param string $method   Request Method (get, post, etc).
 	 * @param string $data      Data to be set to body.
 	 */
+	#[DataProvider( 'endpoint_provider' )]
 	public function test_no_access_response( $endpoint, $method, $data = null ) {
 
 		$request = new WP_REST_Request( $method, '/jetpack/v4/' . $endpoint );

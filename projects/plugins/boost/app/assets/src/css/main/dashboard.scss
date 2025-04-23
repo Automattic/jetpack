@@ -27,6 +27,7 @@
 	margin-right: auto;
 
 	&--narrow {
+
 		@extend .jb-container;
 		max-width: 744px;
 	}
@@ -40,6 +41,7 @@
 }
 
 .jb-dashboard-footer {
+
 	@extend .jb-container;
 
 	display: flex;
@@ -47,6 +49,7 @@
 	align-items: center;
 	margin-top: $padding;
 	margin-bottom: $padding;
+
 	@include breakpoint( xs ) {
 		flex-direction: column;
 		justify-content: flex-start;
@@ -54,6 +57,7 @@
 }
 
 .jb-warning-modal {
+
 	&__actions {
 		display: flex;
 		justify-content: flex-end;

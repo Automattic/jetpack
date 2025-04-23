@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Blog_Privacy;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/blog-privacy/blog-privacy.php';
 
@@ -130,6 +131,7 @@ AI_BLOCKS;
 	 * @param mixed|null $wpcom_data_sharing_opt_out The value of the wpcom_data_sharing_opt_out option (null if the option is not set).
 	 * @param string     $expected The expected output for robots.txt.
 	 */
+	#[DataProvider( 'provide_robots_txt' )]
 	public function test_robots_txt( $blog_public, $wpcom_data_sharing_opt_out, string $expected ) {
 		if ( null === $wpcom_data_sharing_opt_out ) {
 			\delete_option( 'wpcom_data_sharing_opt_out' );

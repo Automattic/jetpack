@@ -1,14 +1,20 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
+/**
+ * @covers ::scribd_shortcode_handler
+ */
+#[CoversFunction( 'scribd_shortcode_handler' )]
 class Jetpack_Shortcodes_Scribd_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::scribd_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_scribd_exists() {
@@ -40,13 +46,13 @@ class Jetpack_Shortcodes_Scribd_Test extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_data_shortcodes_scribd
 	 * @author scotchfield
-	 * @covers ::scribd_shortcode_handler
 	 * @since 3.2
 	 *
 	 * @param string $shortcode The shortcode string.
 	 * @param bool   $is_amp    Whether this is an AMP endpoint.
 	 * @param string $expected  The expected return of the shortcode callback.
 	 */
+	#[DataProvider( 'get_data_shortcodes_scribd' )]
 	public function test_shortcodes_scribd( $shortcode, $is_amp, $expected ) {
 		if ( $is_amp && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );

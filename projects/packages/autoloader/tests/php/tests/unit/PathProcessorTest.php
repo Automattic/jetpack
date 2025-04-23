@@ -24,10 +24,9 @@ class PathProcessorTest extends TestCase {
 
 	/**
 	 * Setup runs before each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->processor = new Path_Processor();
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
@@ -36,10 +35,9 @@ class PathProcessorTest extends TestCase {
 
 	/**
 	 * Teardown runs after each test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@unlink( WP_PLUGIN_DIR . '/current_symlink' );
 	}

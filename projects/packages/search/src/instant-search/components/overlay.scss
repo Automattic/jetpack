@@ -1,4 +1,4 @@
-@import '../lib/styles/_helper.scss';
+@import '../lib/styles/helper';
 
 $overlay-vertical-padding-sm: 0;
 $overlay-vertical-padding-md: 3em;
@@ -48,6 +48,7 @@ $overlay-horizontal-padding-lg: 3em;
 	h4,
 	h5,
 	h6 {
+
 		@include remove-header-styling();
 	}
 
@@ -58,14 +59,15 @@ $overlay-horizontal-padding-lg: 3em;
 	}
 
 	*,
-	*:before,
-	*:after {
+	*::before,
+	*::after {
 		box-sizing: inherit;
 	}
 }
 
 // Ensure the hidden overlay doesn't add whitespace to printed pages
 @media print {
+
 	.jetpack-instant-search__overlay.is-hidden {
 		display: none;
 	}
@@ -73,6 +75,7 @@ $overlay-horizontal-padding-lg: 3em;
 
 // Only show animation to users who have not chosen reduced motion
 @media ( prefers-reduced-motion: no-preference ) {
+
 	.jetpack-instant-search__overlay {
 		transition: opacity 0.1s ease-in;
 	}

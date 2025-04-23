@@ -287,11 +287,12 @@ export function getApiRootUrl( state ) {
 /**
  * Returns the registration nonce.
  *
- * @param {object} state - Global state tree
- * @return {string} The registration nonce
+ * @deprecated since 14.5
+ *
+ * @return {string} The empty string for backward compatibility.
  */
-export function getRegistrationNonce( state ) {
-	return get( state.jetpack.initialState, 'registrationNonce' );
+export function getRegistrationNonce() {
+	return '';
 }
 
 /**
@@ -777,7 +778,7 @@ export function isSubscriptionSiteEnabled( state ) {
  * @param {object} state - Global state tree.
  * @return {string} Newsletter date example.
  */
-export function getNewsetterDateExample( state ) {
+export function getNewsletterDateExample( state ) {
 	return state.jetpack.initialState.newsletterDateExample;
 }
 

@@ -136,6 +136,7 @@ const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
 			onChange={ handleDeviceChange }
 			value={ selectedDevice }
 			isBlock
+			__next40pxDefaultSize={ true }
 		>
 			{ getAvailableDevices().map( device => (
 				<ToggleGroupControlOptionIcon
@@ -182,6 +183,7 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 			value={ selectedAccess }
 			isBlock
 			isAdaptiveWidth
+			__next40pxDefaultSize={ true }
 		>
 			{ accessOptionsList.map( access =>
 				isSmall ? (

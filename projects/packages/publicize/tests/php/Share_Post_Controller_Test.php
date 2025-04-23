@@ -6,6 +6,8 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Publicize\REST_API\Share_Post_Controller;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -17,8 +19,9 @@ use WpOrg\Requests\Requests;
 /**
  * Class Test_Share_Post_Controller
  *
- * @coversDefaultClass Automattic\Jetpack\Publicize\REST_API\Share_Post_Controller
+ * @covers \Automattic\Jetpack\Publicize\REST_API\Share_Post_Controller
  */
+#[CoversClass( Share_Post_Controller::class )]
 class Share_Post_Controller_Test extends TestCase {
 
 	/**
@@ -51,10 +54,9 @@ class Share_Post_Controller_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
@@ -100,10 +102,9 @@ class Share_Post_Controller_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		wp_set_current_user( 0 );
 
 		WorDBless_Options::init()->clear_options();
@@ -129,8 +130,6 @@ class Share_Post_Controller_Test extends TestCase {
 
 	/**
 	 * Test if the user has a valid token for this blog.
-	 *
-	 * @covers ::permissions_check
 	 */
 	public function test_publicize_share_post_permissions_check_wrong_user() {
 		wp_set_current_user( 0 );
@@ -150,8 +149,6 @@ class Share_Post_Controller_Test extends TestCase {
 
 	/**
 	 * Test if the user can publish posts on this blog.
-	 *
-	 * @covers ::permissions_check
 	 */
 	public function test_publicize_share_post_permissions_check_wrong_role() {
 		wp_set_current_user( static::$user_id_subscriber );
@@ -179,6 +176,7 @@ class Share_Post_Controller_Test extends TestCase {
 	 *
 	 * @param array $input The test post content to parse.
 	 */
+	#[DataProvider( 'rest_invalid_params' )]
 	public function test_publicize_share_post_rest_invalid_param( $input ) {
 		wp_set_current_user( static::$user_id_subscriber );
 
@@ -198,6 +196,7 @@ class Share_Post_Controller_Test extends TestCase {
 	 *
 	 * @param array $input The test post content to parse.
 	 */
+	#[DataProvider( 'rest_missing_callback_params' )]
 	public function test_publicize_share_post_rest_missing_callback_param( $input ) {
 		wp_set_current_user( static::$user_id_subscriber );
 

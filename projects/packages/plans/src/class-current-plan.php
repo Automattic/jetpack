@@ -135,7 +135,9 @@ class Current_Plan {
 				'wooexpress-medium-bundle-monthly',
 				'wp_com_hundred_year_bundle_centennially',
 			),
-			'supports' => array(),
+			'supports' => array(
+				'ai-seo-enhancer',
+			),
 		),
 
 		'complete' => array(
