@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as StatusCache;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -305,6 +306,7 @@ class ManagerTest extends TestCase {
 	 * @param string $custom_cap The custom capability that is being tested.
 	 * @param array  $expected_caps The expected output.
 	 */
+	#[DataProvider( 'jetpack_connection_custom_caps_data_provider' )]
 	public function test_jetpack_connection_custom_caps( $in_offline_mode, $owner_exists, $custom_cap, $expected_caps ) {
 		// Mock the apply_filters( 'jetpack_offline_mode', ) call in Status::is_offline_mode.
 		StatusCache::clear();
@@ -390,6 +392,7 @@ class ManagerTest extends TestCase {
 	 * @param bool $local    Was the remote disconnection successful.
 	 * @param bool $expected Expected outcome.
 	 */
+	#[DataProvider( 'get_disconnect_user_scenarios' )]
 	public function test_disconnect_user( $remote, $local, $expected ) {
 		$editor_id = wp_insert_user(
 			array(
@@ -729,6 +732,7 @@ class ManagerTest extends TestCase {
 	 * @param String $error_code the returned error code.
 	 * @return void
 	 */
+	#[DataProvider( 'signature_data_provider' )]
 	public function test_verify_xml_rpc_signature_malformed_user_id( $token, $signature, $error_code ) {
 		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
 
@@ -757,6 +761,7 @@ class ManagerTest extends TestCase {
 	 * @param bool $local    Was the local disconnection successful.
 	 * @param bool $expected Expected outcome.
 	 */
+	#[DataProvider( 'get_disconnect_user_force_scenarios' )]
 	public function test_disconnect_user_force( $remote, $local, $expected ) {
 		$owner_id = wp_insert_user(
 			array(

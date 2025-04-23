@@ -10,6 +10,7 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -509,6 +510,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_check_response_for_idc_no_error_code
 	 */
+	#[DataProvider( 'data_provider_test_check_response_for_idc_no_error_code' )]
 	public function test_check_response_for_idc_no_error_code( $input ) {
 		// Delete option before each test.
 		Jetpack_Options::delete_option( 'sync_error_idc' );
@@ -549,6 +551,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_check_response_for_idc_with_error_code
 	 */
+	#[DataProvider( 'data_provider_test_check_response_for_idc_with_error_code' )]
 	public function test_check_response_for_idc_with_error_code( $input, $option_updated ) {
 		// Delete option before each test.
 		Jetpack_Options::delete_option( 'sync_error_idc' );
@@ -636,6 +639,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_check_http_response_for_idc_detected_invalid_input
 	 */
+	#[DataProvider( 'data_provider_test_check_http_response_for_idc_detected_invalid_input' )]
 	public function test_check_http_response_for_idc_detected_invalid_input( $input ) {
 		$this->assertFalse( Identity_Crisis::init()->check_http_response_for_idc_detected( $input ) );
 	}
@@ -675,6 +679,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_check_http_response_for_idc_detected_idc_detected
 	 */
+	#[DataProvider( 'data_provider_test_check_http_response_for_idc_detected_idc_detected' )]
 	public function test_check_http_response_for_idc_detected_idc_detected( $input ) {
 		$this->assertTrue( Identity_Crisis::init()->check_http_response_for_idc_detected( $input ) );
 	}
@@ -757,6 +762,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_has_identity_crisis
 	 */
+	#[DataProvider( 'data_provider_test_has_identity_crisis' )]
 	public function test_has_identity_crisis( $check_identity_crisis, $safe_mode_confirmed, $expected_result ) {
 		if ( $check_identity_crisis ) {
 			$this->check_identity_crisis_return_error( array( 'test' ) );
@@ -815,6 +821,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_get_mismatched_urls
 	 */
+	#[DataProvider( 'data_provider_test_get_mismatched_urls' )]
 	public function test_get_mismatched_urls( $idc_error, $expected_result ) {
 		$this->check_identity_crisis_return_error( $idc_error );
 		$result = Identity_Crisis::get_mismatched_urls();

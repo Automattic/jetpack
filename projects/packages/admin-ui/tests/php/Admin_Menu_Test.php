@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,6 +25,7 @@ class Admin_Menu_Test extends TestCase {
 	 *
 	 * @dataProvider page_suffix_matches_data
 	 */
+	#[DataProvider( 'page_suffix_matches_data' )]
 	public function test_page_suffix_matches( $menu_slug ) {
 
 		static $top_registered = false;

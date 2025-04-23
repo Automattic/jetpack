@@ -11,6 +11,7 @@ use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -843,6 +844,7 @@ class REST_Endpoints_Test extends TestCase {
 	 * @param string $jp_version    The Jetpack plugin version.
 	 * @param bool   $is_registered Whether the route should be registered or not.
 	 */
+	#[DataProvider( 'get_user_connection_data_route_is_registered_with_jp_version_provider' )]
 	public function test_get_user_connection_data_route_is_registered_with_jp_version( $jp_version, $is_registered ) {
 		global $wp_rest_server;
 

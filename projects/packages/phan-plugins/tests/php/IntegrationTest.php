@@ -9,6 +9,7 @@ use Phan\CLIBuilder;
 use Phan\CodeBase;
 use Phan\Output\Printer\CapturingJSONPrinter;
 use Phan\Phan;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -130,6 +131,7 @@ class IntegrationTest extends TestCase {
 	/**
 	 * @dataProvider provideIntegration
 	 */
+	#[DataProvider( 'provideIntegration' )]
 	public function testIntegration( $dir ) {
 		$this->runPhan( $dir, false, false );
 	}
@@ -137,6 +139,7 @@ class IntegrationTest extends TestCase {
 	/**
 	 * @dataProvider provideIntegration
 	 */
+	#[DataProvider( 'provideIntegration' )]
 	public function testIntegration_Polyfill( $dir ) {
 		$this->runPhan( $dir, true, false );
 	}
@@ -144,6 +147,7 @@ class IntegrationTest extends TestCase {
 	/**
 	 * @dataProvider provideIntegration
 	 */
+	#[DataProvider( 'provideIntegration' )]
 	public function testIntegration_AnalyzeTwice( $dir ) {
 		$this->runPhan( $dir, false, true );
 	}
@@ -151,6 +155,7 @@ class IntegrationTest extends TestCase {
 	/**
 	 * @dataProvider provideIntegration
 	 */
+	#[DataProvider( 'provideIntegration' )]
 	public function testIntegration_Polyfill_AnalyzeTwice( $dir ) {
 		$this->runPhan( $dir, true, true );
 	}

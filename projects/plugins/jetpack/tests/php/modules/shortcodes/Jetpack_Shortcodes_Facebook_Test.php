@@ -1,5 +1,8 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
@@ -7,6 +10,9 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * @covers ::jetpack_facebook_shortcode_handler
  * @covers ::jetpack_facebook_embed_reversal
  */
+#[CoversFunction( 'jetpack_facebook_embed_handler' )]
+#[CoversFunction( 'jetpack_facebook_shortcode_handler' )]
+#[CoversFunction( 'jetpack_facebook_embed_reversal' )]
 class Jetpack_Shortcodes_Facebook_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -130,6 +136,7 @@ class Jetpack_Shortcodes_Facebook_Test extends WP_UnitTestCase {
 	 * @param string $embed The embed code to test.
 	 * @param string $expected The expected result.
 	 */
+	#[DataProvider( 'data_provider_embed_to_url' )]
 	public function test_embed_to_url( $embed, $expected ) {
 		$result = jetpack_facebook_embed_reversal( $embed );
 		$this->assertEquals( $expected, $result );

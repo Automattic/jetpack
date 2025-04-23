@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Constants;
 use DateTime;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
@@ -19,6 +20,7 @@ use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
  *
  * @covers \Automattic\Jetpack\Connection\Tokens
  */
+#[CoversClass( Tokens::class )]
 class TokensTest extends TestCase {
 
 	/**

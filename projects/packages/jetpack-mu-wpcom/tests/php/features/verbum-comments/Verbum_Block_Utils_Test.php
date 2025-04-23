@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use PHPUnit\Framework\Attributes\CoversClass;
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/verbum-comments/assets/class-verbum-block-utils.php';
 
 /**
@@ -13,6 +14,7 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/verbum-comments/assets/cl
  *
  * @covers \Verbum_Block_Utils
  */
+#[CoversClass( Verbum_Block_Utils::class )]
 class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Ensure string comments are not modified when 'render_verbum_blocks' is applied
