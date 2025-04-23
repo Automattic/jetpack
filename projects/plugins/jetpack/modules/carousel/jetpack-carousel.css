@@ -720,17 +720,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	right: 0;
 }
 
-@-webkit-keyframes load8 {
-
-	0% {
-		transform: rotate( 0deg );
-	}
-
-	100% {
-		transform: rotate( 360deg );
-	}
-}
-
 @keyframes load8 {
 
 	0% {
