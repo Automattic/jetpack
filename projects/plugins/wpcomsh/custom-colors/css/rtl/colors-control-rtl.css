@@ -327,7 +327,7 @@ a.revert {
 }
 
 .choose-pattern {
-	background-image: url('../../images/pattern-default.png');
+	background-image: url(../../images/pattern-default.png);
 	background-size: 70px 70px;
 }
 
@@ -717,15 +717,15 @@ input#iris {
 }
 
 .noticon-tile-none {
-	background-image: url('../../images/tile-none.png');
+	background-image: url(../../images/tile-none.png);
 }
 
 .noticon-tile-horizontally {
-	background-image: url('../../images/tile-horizontally.png');
+	background-image: url(../../images/tile-horizontally.png);
 }
 
 .noticon-tile-vertically {
-	background-image: url('../../images/tile-vertically.png');
+	background-image: url(../../images/tile-vertically.png);
 }
 
 .background-options .iris-picker {

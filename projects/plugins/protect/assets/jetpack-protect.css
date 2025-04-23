@@ -1,10 +1,10 @@
 @font-face {
 	font-family: jetpack-protect;
-	src:  url('fonts/jetpack-protect.eot?31wpn');
-	src:  url('fonts/jetpack-protect.eot?31wpn#iefix') format('embedded-opentype'),
-	  url('fonts/jetpack-protect.ttf?31wpn') format('truetype'),
-	  url('fonts/jetpack-protect.woff?31wpn') format('woff'),
-	  url('fonts/jetpack-protect.svg?31wpn#jetpack-protect') format('svg');
+	src:  url(fonts/jetpack-protect.eot?31wpn);
+	src:  url(fonts/jetpack-protect.eot?31wpn#iefix) format('embedded-opentype'),
+	  url(fonts/jetpack-protect.ttf?31wpn) format('truetype'),
+	  url(fonts/jetpack-protect.woff?31wpn) format('woff'),
+	  url(fonts/jetpack-protect.svg?31wpn#jetpack-protect) format('svg');
 	font-weight: 400;
 	font-style: normal;
 	font-display: block;

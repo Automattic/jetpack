@@ -39,7 +39,6 @@ const baseConfig = {
 		// Disable all other rules for now.
 		'declaration-block-no-duplicate-properties': null,
 		'declaration-property-unit-allowed-list': null,
-		'function-url-quotes': null,
 		'no-descending-specificity': null,
 		'no-duplicate-selectors': null,
 		'property-no-unknown': null,
