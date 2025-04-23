@@ -879,7 +879,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$attributes          = array(
 			'label'         => 'fun',
 			'type'          => 'checkbox-multiple',
-			'class'         => 'lalala',
+			'class'         => 'is-style-greenish lalala',
 			'default'       => 'option 1',
 			'id'            => 'funID',
 			'options'       => array( 'option 1', 'option 2' ),
@@ -902,7 +902,13 @@ class Contact_Form_Test extends BaseTestCase {
 			),
 		);
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
-		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
+
+		/*
+		 * The third argument are the extra classes for the wrapper div.
+		 * For checkbox-multiple fields, we need to add the block style classes to the wrapper div.
+		 * See Contact_Form_Field::render_field() for more details.
+		 */
+		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes, ' wp-block-jetpack-field-checkbox-multiple is-style-greenish' );
 	}
 
 	/**
@@ -912,7 +918,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$attributes = array(
 			'label'   => 'fun',
 			'type'    => 'radio',
-			'class'   => 'lalala',
+			'class'   => 'is-style-blah is-style-blah--2 lalala',
 			'default' => 'option 1',
 			'id'      => 'funID',
 			'options' => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
@@ -920,7 +926,13 @@ class Contact_Form_Test extends BaseTestCase {
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'radio' ) );
-		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
+
+		/*
+		 * The third argument are the extra classes for the wrapper div.
+		 * For radio fields, we need to add the block style classes to the wrapper div.
+		 * See Contact_Form_Field::render_field() for more details.
+		 */
+		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes, ' wp-block-jetpack-field-radio is-style-blah is-style-blah--2' );
 	}
 
 	/**
@@ -987,8 +999,9 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @param DOMElement $wrapper_div The wrapper div.
 	 * @param array      $attributes An associative array containing the field's attributes.
+	 * @param string     $extra_wrapper_classes Extra classes to add to the wrapper div.
 	 */
-	public function assertFieldClasses( $wrapper_div, $attributes ) {
+	public function assertFieldClasses( $wrapper_div, $attributes, $extra_wrapper_classes = '' ) {
 		if ( 'date' === $attributes['type'] ) {
 			$attributes['class'] = 'jp-contact-form-date';
 		}
@@ -1017,10 +1030,20 @@ class Contact_Form_Test extends BaseTestCase {
 			}
 		}
 
-		$css_class = "grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap{$input_classes_wrap}{$options_classes_wrap} grunion-field-wrap";
+		// Multiple classes are also added to the wrapper div with the -wrap suffix.
+		$classes_wrap = '';
+		if ( isset( $attributes['class'] ) ) {
+			$wrapper_classes = explode( ' ', $attributes['class'] );
+			foreach ( $wrapper_classes as $wrapper_class ) {
+				$classes_wrap .= " {$wrapper_class}-wrap";
+			}
+		}
+
+		$css_class         = "grunion-field-{$attributes['type']}-wrap{$classes_wrap}{$input_classes_wrap}{$options_classes_wrap} grunion-field-wrap{$extra_wrapper_classes}";
+		$wrapper_div_class = $wrapper_div->getAttribute( 'class' );
 
 		$this->assertEquals(
-			$wrapper_div->getAttribute( 'class' ),
+			$wrapper_div_class,
 			$css_class,
 			'div class attribute doesn\'t match'
 		);
@@ -1058,9 +1081,21 @@ class Contact_Form_Test extends BaseTestCase {
 			}
 		}
 
+		// Multiple classes are also added to the input element, with the exception of is-style-* classes.
+		$classes_input = '';
+		if ( isset( $attributes['class'] ) ) {
+			$input_classes = explode( ' ', $attributes['class'] );
+			foreach ( $input_classes as $input_class ) {
+				if ( strpos( $input_class, 'is-style-' ) !== false ) {
+					continue;
+				}
+				$classes_input .= " {$input_class}";
+			}
+		}
+
 		$this->assertEquals(
 			$input->getAttribute( 'class' ),
-			$attributes['type'] . ' ' . $attributes['class'] . $input_classes_input . $options_classes_input . ' grunion-field',
+			$attributes['type'] . $classes_input . $input_classes_input . $options_classes_input . ' grunion-field',
 			'input class attribute doesn\'t match'
 		);
 	}
@@ -1221,11 +1256,12 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @param string $html The html string.
 	 * @param array  $attributes An associative array containing the field's attributes.
+	 * @param string $extra_wrapper_classes Extra classes to add to the wrapper div.
 	 */
-	public function assertValidFieldMultiField( $html, $attributes ) {
+	public function assertValidFieldMultiField( $html, $attributes, $extra_wrapper_classes = '' ) {
 
 		$wrapper_div = $this->getCommonDiv( $html );
-		$this->assertFieldClasses( $wrapper_div, $attributes );
+		$this->assertFieldClasses( $wrapper_div, $attributes, $extra_wrapper_classes );
 
 		// Inputs.
 		if ( 'select' === $attributes['type'] ) {

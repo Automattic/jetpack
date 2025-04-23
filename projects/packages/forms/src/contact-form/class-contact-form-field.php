@@ -1480,17 +1480,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$wrap_classnames = $class . ' grunion-field'; // Classes for $shell_field_class wrapper.
 
 		/*
-		 * For the checkbox-multiple and radio fields, we need to add the attribute classes to the wrapper div
-		 * but not the input elements.
+		 * For the checkbox-multiple and radio fields, we need to add the `is-style-*` classes to the wrapper div
+		 * but not the input elements. This ensures any updates to block style in the theme
+		 * are applied to the wrapper div, not the input elements.
 		 */
-		if ( $trimmed_type === 'checkbox-multiple' ) {
-			$block_classes .= ' wp-block-jetpack-field-checkbox-multiple ' . $class;
-			$class          = ''; // Remove incoming classes for $field_class input elements.
-		}
+		$block_style_classes = $this->get_block_style_classes( $class );
+		if ( ! empty( $block_style_classes['block_style_classes'] ) ) {
+			if ( $trimmed_type === 'checkbox-multiple' ) {
+				$block_classes .= ' wp-block-jetpack-field-checkbox-multiple ' . $block_style_classes['block_style_classes'];
+				// Remove block style classes in the $class variable.
+				$class = $block_style_classes['classes'];
+			}
 
-		if ( $trimmed_type === 'radio' ) {
-			$block_classes .= ' wp-block-jetpack-field-radio ' . $class;
-			$class          = ''; // Remove incoming classes for $field_class input elements.
+			if ( $trimmed_type === 'radio' ) {
+				$block_classes .= ' wp-block-jetpack-field-radio ' . $block_style_classes['block_style_classes'];
+				$class          = $block_style_classes['classes'];
+			}
 		}
 
 		$class .= ' grunion-field';
@@ -1685,6 +1690,37 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$class_name = $this->form->get_attribute( 'className' );
 		preg_match( '/is-style-([^\s]+)/i', $class_name, $matches );
 		return count( $matches ) >= 2 ? $matches[1] : null;
+	}
+
+	/**
+	 * Returns an array containing the block style classes and the remaining classes from the given class name.
+	 *
+	 * @param string $classname The class name.
+	 *
+	 * @return array {
+	 *     @type string $block_style_classes        The block style classes (is-style-* classes).
+	 *     @type string $classes_without_block_style The remaining classes without block style classes.
+	 * }
+	 */
+	private function get_block_style_classes( $classname = '' ) {
+		if ( ! $classname ) {
+			return array(
+				'block_style_classes' => '',
+				'classes'             => '',
+			);
+		}
+
+		preg_match_all( '/is-style-([^\s]+)/i', $classname, $matches );
+
+		$block_style_classes = empty( $matches[0] ) ? '' : implode( ' ', $matches[0] );
+
+		// Remove block style classes from the original classname
+		$classes_without_block_style = trim( preg_replace( '/is-style-([^\s]+)/i', '', $classname ) );
+
+		return array(
+			'block_style_classes' => $block_style_classes,
+			'classes'             => $classes_without_block_style,
+		);
 	}
 
 	/**
