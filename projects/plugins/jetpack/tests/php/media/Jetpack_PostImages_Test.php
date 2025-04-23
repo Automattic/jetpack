@@ -1,11 +1,16 @@
 <?php
 use Automattic\Jetpack\Image_CDN\Image_CDN;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/slideshow.php';
 
 /**
  * @covers Jetpack_PostImages
  * @covers Jetpack_PostImages::from_thumbnail
  */
+#[CoversClass( Jetpack_PostImages::class )]
+#[CoversMethod( Jetpack_PostImages::class, 'from_thumbnail' )]
 class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -813,6 +818,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 *
 	 * @param int|string|null $post_id  The post ID.
 	 */
+	#[DataProvider( 'provider_gravatar_invalid_posts' )]
 	public function test_from_gravatar_invalid( $post_id ) {
 		$image_details = Jetpack_PostImages::from_gravatar( $post_id );
 		$this->assertEquals( array(), $image_details );
@@ -1005,6 +1011,7 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 * @param int   $original_height Height of the original image.
 	 * @param array $expected Expected dimensions after resize.
 	 */
+	#[DataProvider( 'provide_thumbnail_sizes_for_photon' )]
 	public function test_determine_thumbnail_size_for_photon( $original_width, $original_height, $expected ) {
 		$max_dimension = Jetpack_PostImages::get_max_thumbnail_dimension();
 		if ( 1200 !== $max_dimension ) {

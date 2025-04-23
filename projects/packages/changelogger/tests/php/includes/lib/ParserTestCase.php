@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Changelog\Tests;
 use Automattic\Jetpack\Changelog\Changelog;
 use Automattic\Jetpack\Changelog\Parser;
 use Exception;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -169,6 +170,7 @@ abstract class ParserTestCase extends TestCase {
 	 * @param string $filename Fixture file name.
 	 * @throws Exception On all sorts of failures. Duh.
 	 */
+	#[DataProvider( 'provideFixture' )]
 	public function testFixture( $filename ) {
 		// Load fixture file. The important parts are the bits delimited with `~~~~~~~~`, the rest is ignored.
 		$contents = file_get_contents( $filename );

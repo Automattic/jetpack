@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\StubGenerator\Tests;
 
 use Automattic\Jetpack\StubGenerator\Application;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -18,6 +20,8 @@ use Symfony\Component\Console\Tester\CommandTester;
  * @covers \Automattic\Jetpack\StubGenerator\Application
  * @covers \Automattic\Jetpack\StubGenerator\PhpParser\StripDocsNodeVisitor
  */
+#[CoversClass( Application::class )]
+#[CoversClass( \Automattic\Jetpack\StubGenerator\PhpParser\StripDocsNodeVisitor::class )]
 class IntegrationTest extends TestCase {
 
 	/**
@@ -78,6 +82,7 @@ class IntegrationTest extends TestCase {
 	 * @param int      $expectExitCode Expected exit code.
 	 * @param array[]  $expect Output expectations.
 	 */
+	#[DataProvider( 'provideExecute' )]
 	public function testExecute( array $args, array $options, $expectExitCode, $expect ) {
 		$options += array(
 			'capture_stderr_separately' => true,

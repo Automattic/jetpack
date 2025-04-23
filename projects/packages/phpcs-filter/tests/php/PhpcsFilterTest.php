@@ -12,6 +12,7 @@ use PHP_CodeSniffer\Config;
 use PHP_CodeSniffer\Files\FileList;
 use PHP_CodeSniffer\Files\LocalFile;
 use PHP_CodeSniffer\Ruleset;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -186,6 +187,7 @@ class PhpcsFilterTest extends TestCase {
 	 * @dataProvider provideRun
 	 * @param string $path Fixture path.
 	 */
+	#[DataProvider( 'provideRun' )]
 	public function testRun( $path ) {
 		$path = realpath( $path );
 		chdir( $path );

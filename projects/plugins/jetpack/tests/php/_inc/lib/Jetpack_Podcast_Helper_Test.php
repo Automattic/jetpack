@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once __DIR__ . '/mocks/simplepie.php';
 require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
 
@@ -13,6 +15,7 @@ require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
  *
  * @covers \Jetpack_Podcast_Helper
  */
+#[CoversClass( Jetpack_Podcast_Helper::class )]
 class Jetpack_Podcast_Helper_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

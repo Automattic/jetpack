@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_Http;
 use WP_REST_Request;
@@ -19,6 +20,7 @@ use WpOrg\Requests\Requests;
  *
  * @covers Automattic\Jetpack\Masterbar\Admin_Color_Schemes
  */
+#[CoversClass( Admin_Color_Schemes::class )]
 class Admin_Color_Schemes_Test extends BaseTestCase {
 
 	/**

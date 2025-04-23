@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Wpadmin_Page_View;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
 // Needed to load Class "WPCOMSH_Support_Session_Detect"
@@ -19,6 +23,8 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-wpadmin-page-view/w
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 	/**
 	 * Tests that the wpcom_nosara_track_admin_page_views function does not track admin page views for Automatticians.
@@ -31,6 +37,9 @@ class WPCOM_WPAdmin_Page_View_Test extends TestCase {
 	 * @param bool|null $is_automattician Whether the user is an Automattician.
 	 * @param bool|null $is_network_admin Whether the user is a network admin.
 	 */
+	#[DataProvider( 'wpcom_nosara_track_admin_page_views_does_not_track_a11ns_provider' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_wpcom_nosara_track_admin_page_views_does_not_track_a11ns(
 		$is_wpcom,
 		$is_automattician,

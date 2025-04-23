@@ -7,6 +7,9 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\Group;
+
 /**
  * Shortcodes need external HTML requests to be converted to valid embed code (using smartframe's oembed endpoint)
  */
@@ -17,6 +20,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  *
  * @covers ::jetpack_smartframe_shortcode
  */
+#[CoversFunction( 'jetpack_smartframe_shortcode' )]
 class Jetpack_Shortcodes_SmartFrame_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -81,6 +85,7 @@ class Jetpack_Shortcodes_SmartFrame_Test extends WP_UnitTestCase {
 	 *
 	 * @since 10.2.0
 	 */
+	#[Group( 'external-http' )]
 	public function test_smartframe_shortcode() {
 		$parsed = do_shortcode( self::SMARTFRAME_SHORTCODE );
 
@@ -112,6 +117,7 @@ class Jetpack_Shortcodes_SmartFrame_Test extends WP_UnitTestCase {
 	 *
 	 * @since 10.2.0
 	 */
+	#[Group( 'external-http' )]
 	public function test_shortcodes_smartframe_image_via_oembed_http_request() {
 		$image_id          = self::SMARTFRAME_IDENTIFIER;
 		$script_id         = self::SMARTFRAME_SCRIPT_ID;
