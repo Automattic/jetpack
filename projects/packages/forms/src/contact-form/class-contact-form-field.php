@@ -350,6 +350,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		if ( $has_block_support_styles ) {
 			// Do any of the block support classes need to be applied at the field wrapper level? Do we need to make the classes etc filterable as per the field classes?
+			// Yes, I think so: checkbox-multiple and field-radio wrapper require this, also to prevent the classes from being applied to the input/option elements in these cases.
 
 			// Classes.
 			if ( ! empty( $label_classes ) ) {
@@ -1474,6 +1475,24 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return '';
 		}
 
+		$trimmed_type    = trim( esc_attr( $type ) );
+		$block_classes   = '';
+		$wrap_classnames = $class . ' grunion-field'; // Classes for $shell_field_class wrapper.
+
+		/*
+		 * For the checkbox-multiple and radio fields, we need to add the attribute classes to the wrapper div
+		 * but not the input elements.
+		 */
+		if ( $trimmed_type === 'checkbox-multiple' ) {
+			$block_classes .= ' wp-block-jetpack-field-checkbox-multiple ' . $class;
+			$class          = ''; // Remove incoming classes for $field_class input elements.
+		}
+
+		if ( $trimmed_type === 'radio' ) {
+			$block_classes .= ' wp-block-jetpack-field-radio ' . $class;
+			$class          = ''; // Remove incoming classes for $field_class input elements.
+		}
+
 		$class .= ' grunion-field';
 
 		$form_style = $this->get_form_style();
@@ -1481,35 +1500,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			if ( ! isset( $placeholder ) || '' === $placeholder ) {
 				$placeholder .= ' ';
 			} else {
-				$class .= ' has-placeholder';
+				$class           .= ' has-placeholder';
+				$wrap_classnames .= ' has-placeholder';
 			}
 		}
 
-		$trimmed_type      = trim( esc_attr( $type ) );
+		// Field classes.
 		$field_placeholder = ( '' !== $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . $trimmed_type . ' ' . esc_attr( $class ) . "' ";
-		$wrap_classes      = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap'; // this adds
-		$has_inset_label   = $this->has_inset_label();
+
+		// Shell wrapper classes. Add -wrap to each class.
+		$wrap_classes = empty( $wrap_classnames ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $wrap_classnames ) ) ) . '-wrap';
 
 		if ( empty( $label ) ) {
 			$wrap_classes .= ' no-label';
 		}
 
-		$shell_field_class = "class='grunion-field-" . $trimmed_type . '-wrap ' . esc_attr( $wrap_classes );
-
-		// @TODO - this is a hack to get the correct class for the checkbox-multiple and radio fields
-		// @TODO - is there a better way to do this?
-		// @TODO - add tests.
-		if ( $trimmed_type === 'checkbox-multiple' ) {
-			$shell_field_class .= ' wp-block-jetpack-field-checkbox-multiple';
-		}
-
-		if ( $trimmed_type === 'radio' ) {
-			$shell_field_class .= ' wp-block-jetpack-field-radio';
-		}
-
-		// End the classname string.
-		$shell_field_class .= "' ";
+		$shell_field_class = "class='grunion-field-" . $trimmed_type . '-wrap ' . esc_attr( $wrap_classes ) . esc_attr( $block_classes ) . "' ";
 
 		/**
 		 * Filter the Contact Form required field text
@@ -1522,9 +1529,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 */
 		$required_field_text = wp_kses_post( apply_filters( 'jetpack_required_field_text', $required_field_text ) );
 
-		$block_style = 'style="' . $this->block_styles . '"';
-
-		$field = '';
+		$block_style     = 'style="' . $this->block_styles . '"';
+		$has_inset_label = $this->has_inset_label();
+		$field           = '';
 
 		// Fields with an inset label need an extra wrapper to show the error message below the input.
 		if ( $has_inset_label ) {
