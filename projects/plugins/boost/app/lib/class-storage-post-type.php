@@ -96,6 +96,19 @@ class Storage_Post_Type {
 		} else {
 			wp_insert_post( $data_post_data );
 		}
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete(
+			$wpdb->options,
+			array( 'option_name' => '_transient_' . $this->post_type_slug() . '_' . $key ),
+			array( '%s' )
+		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete(
+			$wpdb->options,
+			array( 'option_name' => '_transient_timeout_' . $this->post_type_slug() . '_' . $key ),
+			array( '%s' )
+		);
 	}
 
 	/**
