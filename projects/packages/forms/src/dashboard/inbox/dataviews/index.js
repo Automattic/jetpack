@@ -275,7 +275,8 @@ export default function InboxView() {
 				callback( items ) {
 					const [ item ] = items;
 					const selectedId = item.id.toString();
-					onChangeSelection( [ ...selection, selectedId ] );
+					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
+					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
 				},
 			} );
 		}
