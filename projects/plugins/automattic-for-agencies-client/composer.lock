@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "754bda631b2d8f783a1adf358107eb88",
+    "content-hash": "d9d3dc949263965e9c503e1823c6942c",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "5c10fd1a50834e9d28af3136f79a35617b497dae"
+                "reference": "68b92cc77ac41309dbf2f7a16eecd4e0c9cb03a9"
             },
             "require": {
                 "php": ">=7.2"
@@ -20,7 +20,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -66,7 +66,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "5faef0e6453cac07042d46af33d9a5318c353ca1"
+                "reference": "fee1504bb96380c418e439af5696ba75fbfc0d96"
             },
             "require": {
                 "php": ">=7.2"
@@ -76,7 +76,7 @@
                 "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -126,7 +126,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "110b0ff2aa88f9904c6260c3e399dbfdd7544fa6"
+                "reference": "89a768257b402fb6abeefe5b6c0855f946187fab"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -137,7 +137,7 @@
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -196,7 +196,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "54d6c42f16aec2a60a4dc0133f0444fe1b164a33"
+                "reference": "68901f3b3a256085ebd939a3461ee833be10f86d"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
@@ -206,7 +206,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "composer/composer": "^2.2",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "type": "composer-plugin",
             "extra": {
@@ -265,7 +265,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "16772cbb568bc8fc8550671a1bd12aa4705738dc"
+                "reference": "eb028c7425d0591689e2a0b3047c278d8ff2395e"
             },
             "require": {
                 "composer-plugin-api": "^2.2",
@@ -275,7 +275,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "composer/composer": "^2.2",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "type": "composer-plugin",
             "extra": {
@@ -400,7 +400,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "8b6fb10f12a15323a4af26c97ed28e3cd98327bd"
+                "reference": "1d0e8466e6188a79ff302ba975d3c2ffc691090b"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -419,7 +419,7 @@
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -487,7 +487,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "e6cbca1d3b01d10d771d2af899cd6ffb65090549"
+                "reference": "378a5d122aedfc25d3aa42ab913803c85a8c857b"
             },
             "require": {
                 "php": ">=7.2"
@@ -496,7 +496,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -542,7 +542,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "ab83ce4e4fa0bcc7fa87600a8b60c7dab8bfe191"
+                "reference": "4c8f48266f1fe2551103c6293e2957e185f87a94"
             },
             "require": {
                 "php": ">=7.2"
@@ -551,7 +551,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -601,7 +601,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "63e9b52f2c3a5b69c30115e21c02ecf7e4a23e00"
+                "reference": "33cc919e4b75e07ed12975588c42ae2ea723a9a4"
             },
             "require": {
                 "php": ">=7.2"
@@ -610,7 +610,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -657,7 +657,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugin-deactivation",
-                "reference": "3096c8cde89bb702f5eeb12d0e69200601745f58"
+                "reference": "d94810e1882aa3353325ca5f1154c2082cf13283"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -666,7 +666,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -726,7 +726,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "4738fce156b0b8008bdea47fb52d8c5d3d24e2ae"
+                "reference": "44d6ec93e4d3b3db6287bf82f316a294d7ef868d"
             },
             "require": {
                 "automattic/jetpack-status": "@dev",
@@ -736,7 +736,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -782,7 +782,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
-                "reference": "0606b853fc28d9fbcc013187c626d0a8e2de84b6"
+                "reference": "f7098eb11833c5fddfff032427d8576039aa3521"
             },
             "require": {
                 "php": ">=7.2"
@@ -791,7 +791,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -837,7 +837,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "fc91e61469f31cdab849571507a1aed68a14fafd"
+                "reference": "2af0799e498773ebeafed5e8e5c1a2b4d543a44a"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -850,7 +850,7 @@
                 "automattic/jetpack-plans": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -902,7 +902,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "d69fff7e02a1bfe9045907867d7d59e4c1814de6"
+                "reference": "9846e5fd84a40e97d5b9a0a2b4821968469a87d8"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -919,7 +919,7 @@
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/jetpack-waf": "@dev",
                 "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -977,7 +977,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "06b85c8f44fdccebce0bb12823f2d3f1e87e037a"
+                "reference": "30dd97f47c89ca7ec88c3659ef92464965a8e5e8"
             },
             "require": {
                 "composer-runtime-api": "^2.2.0",
@@ -988,7 +988,7 @@
             "require-dev": {
                 "automattic/phpunit-select-config": "@dev",
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "bin": [
                 "bin/changelogger"
@@ -1061,7 +1061,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/test-environment",
-                "reference": "acf2c63d65d9aab5bfff95da40ee011acc66fa04"
+                "reference": "4ebfacd0d0ff37aed8d38faaad374a2b39042154"
             },
             "require": {
                 "php": ">=7.2"
@@ -1069,7 +1069,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1114,7 +1114,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/phpunit-select-config",
-                "reference": "ee8b1e53bfd922accf326802e7c8b8d7b26bf54f"
+                "reference": "3f16352a5a43bdd583b78d895d092a1e1b74c397"
             },
             "require": {
                 "composer-runtime-api": "^2.2.2",
@@ -1124,7 +1124,7 @@
             "require-dev": {
                 "antecedent/patchwork": "^2.2",
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "^3.0.0"
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "bin": [
                 "bin/phpunit-select-config"
@@ -3622,21 +3622,21 @@
         },
         {
             "name": "yoast/phpunit-polyfills",
-            "version": "3.1.2",
+            "version": "4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Yoast/PHPUnit-Polyfills.git",
-                "reference": "9cf2ccd990eadfc4a1e390592d4731e590b2c618"
+                "reference": "134921bfca9b02d8f374c48381451da1d98402f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/9cf2ccd990eadfc4a1e390592d4731e590b2c618",
-                "reference": "9cf2ccd990eadfc4a1e390592d4731e590b2c618",
+                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/134921bfca9b02d8f374c48381451da1d98402f9",
+                "reference": "134921bfca9b02d8f374c48381451da1d98402f9",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.0",
-                "phpunit/phpunit": "^6.4.4 || ^7.0 || ^8.0 || ^9.0 || ^11.0"
+                "php": ">=7.1",
+                "phpunit/phpunit": "^7.5 || ^8.0 || ^9.0 || ^11.0 || ^12.0"
             },
             "require-dev": {
                 "php-parallel-lint/php-console-highlighter": "^1.0.0",
@@ -3681,7 +3681,7 @@
                 "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2025-02-09T18:36:24+00:00"
+            "time": "2025-02-09T18:58:54+00:00"
         }
     ],
     "aliases": [],
