@@ -4,15 +4,6 @@ declare module '*.jpeg';
 declare module '*.jpg';
 declare module '*.scss';
 
-// These libraries don't have types, this suppresses the TypeScript errors
-declare module '@wordpress/components';
-declare module '@wordpress/compose';
-declare module '@wordpress/icons';
-declare module '@automattic/jetpack-connection';
-declare module '@wordpress/url';
-declare module '@wordpress/i18n';
-declare module '@wordpress/element';
-
 type ProductStatus =
 	| 'active'
 	| 'inactive'
