@@ -76,7 +76,10 @@ const mapAPIResponseToMembershipProductsStoreData = ( response, registry, dispat
 
 const fetchSubscriberCounts = async () => {
 	const response = await apiFetch( {
-		path: '/wpcom/v2/subscribers/counts',
+		path: addQueryArgs( '/wpcom/v2/subscribers/counts', {
+			subscription_status: 'email_subscriber',
+			subscriber_status: 'active_subscriber',
+		} ),
 	} );
 
 	if ( ! response || typeof response !== 'object' ) {
