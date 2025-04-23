@@ -1,7 +1,7 @@
 import { Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { commentContent, trash, backup } from '@wordpress/icons';
+import { seen, trash, backup } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
@@ -14,7 +14,7 @@ export const BULK_ACTIONS = {
 
 export const viewAction = {
 	id: 'view-response',
-	icon: <Icon icon={ commentContent } />,
+	icon: <Icon icon={ seen } />,
 	isPrimary: true,
 	label: __( 'View response', 'jetpack-forms' ),
 };
