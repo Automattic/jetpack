@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack_Boost\Tests\Lib\Utils;
 
 use Automattic\Jetpack_Boost\Lib\Utils\SVG_Sanitizer;
+use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
 /**
@@ -16,6 +17,7 @@ use WorDBless\BaseTestCase;
  * @package automattic\jetpack-boost
  * @covers \Automattic\Jetpack_Boost\Lib\Utils\SVG_Sanitizer
  */
+#[CoversClass( SVG_Sanitizer::class )]
 class SVG_Sanitizer_Test extends BaseTestCase {
 	/**
 	 * Test basic SVG with allowed elements

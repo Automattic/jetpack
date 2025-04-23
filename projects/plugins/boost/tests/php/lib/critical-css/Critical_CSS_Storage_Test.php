@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack_Boost\Tests\Lib\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
+use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
 /**
@@ -15,6 +16,7 @@ use WorDBless\BaseTestCase;
  *
  * @covers \Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage
  */
+#[CoversClass( Critical_CSS_Storage::class )]
 class Critical_CSS_Storage_Test extends BaseTestCase {
 
 	/**
