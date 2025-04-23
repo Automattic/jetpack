@@ -1,5 +1,5 @@
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
@@ -111,7 +111,9 @@ const fetchTotalEmailsSentCount = async () => {
 	}
 
 	const response = await apiFetch( {
-		path: `/rest/v1.1/sites/${ siteId }/stats/opens/emails/${ postId }/rate`,
+		path: isSimpleSite()
+			? `/rest/v1.1/sites/${ siteId }/stats/opens/emails/${ postId }/rate`
+			: `/jetpack/v4/stats-app/sites/${ siteId }/stats/opens/emails/${ postId }`,
 	} );
 
 	if ( ! response || typeof response !== 'object' ) {
@@ -313,7 +315,7 @@ export const getTotalEmailsSentCount =
 		const lock = executionLock.acquire( TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY );
 		try {
 			const response = await fetchTotalEmailsSentCount();
-			dispatch( setTotalEmailsSentCount( response.total_sends ) );
+			dispatch( setTotalEmailsSentCount( response.opens_rate?.total_sends ) );
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );
