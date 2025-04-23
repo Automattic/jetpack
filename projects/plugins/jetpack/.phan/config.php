@@ -42,7 +42,7 @@ $config = make_phan_config(
 	)
 );
 
-// For the WP 6.6 SimplePie stuff if nothing else.
+// For alias support if needed.
 $config['enable_class_alias_support'] = true;
 
 return $config;
