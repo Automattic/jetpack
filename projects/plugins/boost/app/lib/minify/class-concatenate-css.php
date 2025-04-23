@@ -197,10 +197,9 @@ class Concatenate_CSS extends WP_Styles {
 					continue;
 				} elseif ( count( $css ) > 0 ) {
 					// Split the CSS into groups of max files, we are also chunking the handles to match the CSS groups and depending on order to be maintained.
-					$css_groups    = array_chunk( $css, jetpack_boost_minify_concat_max_files() );
-					$handle_groups = array_chunk( array_keys( $css ), jetpack_boost_minify_concat_max_files() );
+					$css_groups = array_chunk( $css, jetpack_boost_minify_concat_max_files(), true );
 
-					foreach ( $css_groups as $index => $css_group ) {
+					foreach ( $css_groups as $css_group ) {
 						$file_name = jetpack_boost_page_optimize_generate_concat_path( $css_group, $this->dependency_path_mapping );
 
 						if ( get_site_option( 'jetpack_boost_static_minification' ) ) {
@@ -209,8 +208,7 @@ class Concatenate_CSS extends WP_Styles {
 							$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $file_name;
 						}
 
-						$handles = $handle_groups[ $index ];
-						$this->print_style_tag( $href, $handles, $media );
+						$this->print_style_tag( $href, array_keys( $css_group ), $media );
 					}
 				}
 			}
