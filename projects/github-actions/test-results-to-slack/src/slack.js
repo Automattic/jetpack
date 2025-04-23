@@ -25,9 +25,8 @@ async function postOrUpdateMessage( client, update, options ) {
 		// The expectation is that chunks with files will only have one element
 		if ( chunk[ 0 ].type === 'file' ) {
 			if ( ! fs.existsSync( chunk[ 0 ].path ) ) {
-				const err = new Error( 'File not found: ' + chunk[ 0 ].path );
-				error( err );
-				throw err;
+				error( 'File not found: ' + chunk[ 0 ].path );
+				continue;
 			}
 
 			try {
@@ -37,13 +36,8 @@ async function postOrUpdateMessage( client, update, options ) {
 					file: chunk[ 0 ].path,
 					filename: path.basename( chunk[ 0 ].path ),
 				} );
-
-				if ( ! response.ok ) {
-					throw new Error( 'Failed to upload file' );
-				}
 			} catch ( err ) {
 				error( err );
-				throw err;
 			}
 		} else {
 			try {
@@ -58,13 +52,8 @@ async function postOrUpdateMessage( client, update, options ) {
 					unfurl_links: false,
 					unfurl_media: false,
 				} );
-
-				if ( ! response.ok ) {
-					throw new Error( `Failed to ${ method } message` );
-				}
 			} catch ( err ) {
 				error( err );
-				throw err;
 			}
 		}
 	}
