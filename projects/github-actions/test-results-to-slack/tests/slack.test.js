@@ -4,10 +4,10 @@ const { WebClient } = require( '@slack/web-api' );
 jest.mock( '@slack/web-api', () => {
 	const slack = {
 		chat: {
-			postMessage: jest.fn().mockResolvedValue( { ok: true } ),
-			update: jest.fn().mockResolvedValue( { ok: true } ),
+			postMessage: jest.fn(),
+			update: jest.fn(),
 		},
-		filesUploadV2: jest.fn().mockResolvedValue( { ok: true } ),
+		filesUploadV2: jest.fn(),
 		conversations: {
 			history: jest.fn(),
 		},
