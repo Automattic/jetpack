@@ -138,5 +138,20 @@ describe( 'Generate Critical CSS', () => {
 				},
 			] );
 		} );
+
+		// eslint-disable-next-line jest/expect-expect
+		it( 'Includes SVG background with correct attributes', async () => {
+			await runTestSet( [
+				{
+					shouldContain: [
+						'data:image/svg+xml;utf8,<svg',
+						'http://www.w3.org/2000/svg',
+						'<polygon',
+						'points=',
+						'10,0',
+					],
+				},
+			] );
+		} );
 	} );
 } );
