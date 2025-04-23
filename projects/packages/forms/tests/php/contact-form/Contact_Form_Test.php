@@ -918,6 +918,30 @@ class Contact_Form_Test extends BaseTestCase {
 		$attributes = array(
 			'label'   => 'fun',
 			'type'    => 'radio',
+			'class'   => 'lalala',
+			'default' => 'option 1',
+			'id'      => 'funID',
+			'options' => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
+			'values'  => array( 'option 1', 'option 2', 'option [34]', '\\' ),
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'radio' ) );
+
+		/*
+		 * The third argument are the extra classes for the wrapper div.
+		 * For radio fields, we need to add the block style classes to the wrapper div.
+		 * See Contact_Form_Field::render_field() for more details.
+		 */
+		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes, ' wp-block-jetpack-field-radio' );
+	}
+
+	/**
+	 * Test for radio field_renders with block style classes.
+	 */
+	public function test_make_sure_radio_field_renders_as_expected_with_block_style_classes() {
+		$attributes = array(
+			'label'   => 'fun',
+			'type'    => 'radio',
 			'class'   => 'is-style-blah is-style-blah--2 lalala',
 			'default' => 'option 1',
 			'id'      => 'funID',

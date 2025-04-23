@@ -1486,14 +1486,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 */
 		if ( $trimmed_type === 'checkbox-multiple' ) {
 			$block_style_classes = $this->get_block_style_classes( $class );
-			$block_classes      .= ' wp-block-jetpack-field-checkbox-multiple ' . $block_style_classes['block_style_classes'];
+			$spacer              = ! empty( $block_style_classes['block_style_classes'] ) ? ' ' : '';
+			$block_classes      .= ' wp-block-jetpack-field-checkbox-multiple' . $spacer . $block_style_classes['block_style_classes'];
 			// Remove block style classes in the $class variable.
 			$class = $block_style_classes['classes'];
 		}
 
 		if ( $trimmed_type === 'radio' ) {
 			$block_style_classes = $this->get_block_style_classes( $class );
-			$block_classes      .= ' wp-block-jetpack-field-radio ' . $block_style_classes['block_style_classes'];
+			$spacer              = ! empty( $block_style_classes['block_style_classes'] ) ? ' ' : '';
+			$block_classes      .= ' wp-block-jetpack-field-radio' . $spacer . $block_style_classes['block_style_classes'];
 			$class               = $block_style_classes['classes'];
 		}
 
