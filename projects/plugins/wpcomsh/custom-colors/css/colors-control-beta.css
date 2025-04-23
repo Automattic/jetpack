@@ -290,7 +290,6 @@ a.button.right-pill {
 	background: #f1f1f1;
 	border: 3px solid rgba(0,0,0,0.1);
 	font-size: 0;
-	display: block;
 	margin: 0 10px 15px;
 	float: left;
 	list-style-type: none;

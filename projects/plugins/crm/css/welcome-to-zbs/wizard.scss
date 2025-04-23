@@ -229,7 +229,6 @@ input[type="checkbox"], input[type="radio"]{
   -webkit-border-radius: 3px;
   border-radius: 3px; /* border radius */
   background-color: #fff; /* layer fill content */
-  height: auto;
   float: left;
   margin: 0;
   margin-right: 2%;
@@ -242,7 +241,6 @@ input[type="checkbox"], input[type="radio"]{
 }
 
 .ck_form.ck_minimal .ck_subscribe_button {
-    width: 100%;
     color: #fff;
     margin: 0;
     padding:  11px 0;

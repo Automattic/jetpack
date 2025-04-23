@@ -150,11 +150,9 @@
 }
 
 #wpadminbar .wp-admin-bar__info-badges {
-	display: flex;
 	flex-wrap: wrap;
 	gap: 4px;
 	background-color: rgba(255, 255, 255, 0.1);
-	border-radius: 4px;
 	box-sizing: border-box;
 	padding: 0 8px;
 	min-height: 24px;

@@ -10,7 +10,6 @@
 
 	#form-embed, #form-preview{
 		min-height: 50px;
-	    background: #fff;
 	    margin-bottom: 20px;
 	    border: 1px solid #e5e5e5;
 	    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.04);
@@ -67,7 +66,6 @@
 		font-size: 15px;
 		text-align:center;
 		color: #999;
-		padding: 5px;
 		text-transform: uppercase;
 		font-weight: 100;	
 		padding: 0;
@@ -80,14 +78,10 @@
 	}
 
 	#zbs-form-pre{
-		white-space: pre;
 		display: block;
 		unicode-bidi: embed;
-		 white-space: pre-wrap;       /* css-3 */
-		 white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-		 white-space: -pre-wrap;      /* Opera 4-6 */
-		 white-space: -o-pre-wrap;    /* Opera 7 */
-		 word-wrap: break-word;       /* Internet Explorer 5.5+ */
+		white-space: pre-wrap;
+		overflow-wrap: break-word;
 	}
 
 	pre {
