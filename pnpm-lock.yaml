@@ -2665,6 +2665,12 @@ importers:
       '@automattic/typography':
         specifier: 1.0.0
         version: 1.0.0
+      '@gravatar-com/hovercards':
+        specifier: 0.10.8
+        version: 0.10.8
+      '@gravatar-com/quick-editor':
+        specifier: 0.8.0
+        version: 0.8.0
       '@popperjs/core':
         specifier: ^2.11.8
         version: 2.11.8
@@ -6698,6 +6704,14 @@ packages:
 
   '@formatjs/intl-localematcher@0.6.1':
     resolution: {integrity: sha512-ePEgLgVCqi2BBFnTMWPfIghu6FkbZnnBVhO2sSxvLfrdFw7wCHAHiDoM2h4NRgjbaY7+B7HgOLZGkK187pZTZg==}
+
+  '@gravatar-com/hovercards@0.10.8':
+    resolution: {integrity: sha512-P/PYqIF8SDlPiG3TgFKsTFJDwqahx8ojX+d4Cb9ThA3+0Nw5olNtKexklRafJBKDSySMEOttu+EGgigtxiE8dw==}
+    engines: {node: '>=20'}
+
+  '@gravatar-com/quick-editor@0.8.0':
+    resolution: {integrity: sha512-z9t6aOaP9i3x5aJGtQUfaXoO7YxHZd+h49E13qZFJQ4RNId8Qe7FcoT+TFXuvVry6+dqL44aYtUXiGl+890oxw==}
+    engines: {node: '>=20'}
 
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
@@ -17270,6 +17284,10 @@ snapshots:
   '@formatjs/intl-localematcher@0.6.1':
     dependencies:
       tslib: 2.8.1
+
+  '@gravatar-com/hovercards@0.10.8': {}
+
+  '@gravatar-com/quick-editor@0.8.0': {}
 
   '@hapi/hoek@9.3.0': {}
 
