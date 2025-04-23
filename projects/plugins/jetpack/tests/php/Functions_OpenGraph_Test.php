@@ -1,10 +1,15 @@
 <?php
+
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Class with PHPUnit tests for Open Graph functions.
  *
  * @since 3.9.2
  * @covers ::jetpack_og_get_image
  */
+#[CoversFunction( 'jetpack_og_get_image' )]
 class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
 	private $icon_id;
@@ -86,6 +91,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	 * @param string $description Post description.
 	 * @param string $cleaned_description Description cleaned up and ready to be used.
 	 */
+	#[DataProvider( 'jetpack_og_get_description_data_provider' )]
 	public function test_jetpack_og_get_description_default( $description, $cleaned_description ) {
 		// A test shortcode that should be removed from descriptions.
 		add_shortcode(

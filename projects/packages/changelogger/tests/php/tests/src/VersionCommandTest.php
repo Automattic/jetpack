@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Changelogger\Tests;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -14,6 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @covers \Automattic\Jetpack\Changelogger\VersionCommand
  */
+#[CoversClass( \Automattic\Jetpack\Changelogger\VersionCommand::class )]
 class VersionCommandTest extends CommandTestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
@@ -37,6 +40,7 @@ class VersionCommandTest extends CommandTestCase {
 	 * @param int      $expectExitCode Expected exit code.
 	 * @param string   $expectOutput Expected output.
 	 */
+	#[DataProvider( 'provideExecute' )]
 	public function testExecute( array $args, array $options, $expectExitCode, $expectOutput ) {
 		if ( isset( $options['composer.json'] ) ) {
 			file_put_contents( 'composer.json', json_encode( array( 'extra' => array( 'changelogger' => $options['composer.json'] ) ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );

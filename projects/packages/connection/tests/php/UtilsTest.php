@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,6 +17,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Connection\Utils
  */
+#[CoversClass( Utils::class )]
 class UtilsTest extends TestCase {
 
 	/**
@@ -34,6 +37,7 @@ class UtilsTest extends TestCase {
 	 * @param string $constant_name The constant name.
 	 * @param mixed  $expected_output The expected output of Utils::get_jetpack_api_constant.
 	 */
+	#[DataProvider( 'jetpack_api_constant_filter_data_provider' )]
 	public function test_jetpack_api_constant_filter( $constant_value, $constant_name, $expected_output ) {
 		$this->assertEquals( $expected_output, Utils::jetpack_api_constant_filter( $constant_value, $constant_name ) );
 	}

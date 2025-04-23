@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\CRM\Tests;
 
 use Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
 use WP_REST_Request;
 use WP_REST_Server;
 use zbsDAL_contacts;
@@ -14,6 +15,7 @@ require_once __DIR__ . '/../class-rest-base-testcase.php';
  *
  * @covers \Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller
  */
+#[CoversClass( \Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller::class )]
 class REST_Contacts_Controller_Test extends REST_Base_TestCase {
 
 	/**

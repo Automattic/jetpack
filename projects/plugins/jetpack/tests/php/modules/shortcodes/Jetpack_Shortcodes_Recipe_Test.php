@@ -1,5 +1,8 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
@@ -7,6 +10,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  *
  * @covers Jetpack_Recipes
  */
+#[CoversClass( Jetpack_Recipes::class )]
 class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -430,6 +434,7 @@ EOT;
 	 * @dataProvider get_data_recipe_amp
 	 * @since 8.5.0
 	 */
+	#[DataProvider( 'get_data_recipe_amp' )]
 	public function test_shortcodes_recipe_amp( $shortcode, $expected ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );

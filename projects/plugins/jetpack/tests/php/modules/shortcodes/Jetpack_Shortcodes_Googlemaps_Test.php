@@ -1,10 +1,14 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
  * @covers ::jetpack_googlemaps_shortcode
  */
+#[CoversFunction( 'jetpack_googlemaps_shortcode' )]
 class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -53,6 +57,7 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 	 * @param bool   $is_amp    Whether this is an AMP endpoint.
 	 * @param string $expected  The expected rendered shortcode.
 	 */
+	#[DataProvider( 'get_shortcode_googlemaps_data' )]
 	public function test_shortcodes_googlemaps( $shortcode, $is_amp, $expected ) {
 		if ( $is_amp && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );

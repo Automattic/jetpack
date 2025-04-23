@@ -1,4 +1,7 @@
 <?php
+
+use PHPUnit\Framework\Attributes\BeforeClass;
+
 /**
  * Adds WooCommerce phpunit dependencies once, before all tests of the class
  * using this trait are run.
@@ -14,6 +17,7 @@ trait WooCommerceTestTrait {
 	/**
 	 * @beforeClass
 	 **/
+	#[BeforeClass]
 	public static function set_up_woo_before_class() {
 		if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 			return;
