@@ -6,8 +6,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boos
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
 class Garbage_Collection {
-	const ACTION        = 'jetpack_boost_cache_garbage_collection';
-	const INTERVAL_NAME = 'jetpack_boost_cache_gc_interval';
+	const ACTION = 'jetpack_boost_cache_garbage_collection';
 
 	/**
 	 * Register hooks.
