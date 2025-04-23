@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -15,6 +17,7 @@ use WorDBless\BaseTestCase;
  *
  * @covers \Automattic\Jetpack\Blaze
  */
+#[CoversClass( Blaze::class )]
 class Blaze_Test extends BaseTestCase {
 	/**
 	 * Admin user id
@@ -158,6 +161,7 @@ class Blaze_Test extends BaseTestCase {
 	 * @param bool   $is_user_admin  Whether the current user is an admin or not.
 	 * @param bool   $should_enqueue Whether we should enqueue Blaze assets or not.
 	 */
+	#[DataProvider( 'get_enqueue_scenarios' )]
 	public function test_enqueue_block_editor_assets( $hook, $blaze_enabled, $is_user_admin, $should_enqueue ) {
 		// Confirm that our script is not added by default.
 		$this->assertFalse( wp_script_is( Blaze::SCRIPT_HANDLE, 'registered' ) );
@@ -193,6 +197,7 @@ class Blaze_Test extends BaseTestCase {
 	 * @param array $eligibility_details  Details about the site status and the expected response.
 	 * @param bool  $expected_eligibility The expected result of the Blaze eligibility check.
 	 */
+	#[DataProvider( 'get_blaze_eligibility_responses' )]
 	public function test_site_supports_blaze( $eligibility_details, $expected_eligibility ) {
 		$remote_request_happened = false;
 		$has_transient           = ! empty( $eligibility_details['transient'] );

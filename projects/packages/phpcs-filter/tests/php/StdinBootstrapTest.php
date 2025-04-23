@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PhpcsFilter\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -71,6 +72,7 @@ class StdinBootstrapTest extends TestCase {
 	/**
 	 * @dataProvider provideFiles
 	 */
+	#[DataProvider( 'provideFiles' )]
 	public function testStdinPath( $file, $contents, $expect ) {
 		$ret = $this->runPhpcs(
 			array(
@@ -85,6 +87,7 @@ class StdinBootstrapTest extends TestCase {
 	/**
 	 * @dataProvider provideFiles
 	 */
+	#[DataProvider( 'provideFiles' )]
 	public function testOldMethod( $file, $contents, $expect ) {
 		$ret = $this->runPhpcs(
 			array(),

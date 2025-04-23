@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Replicastore;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -165,6 +166,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_checksum_with_id_range( $store ) {
 		$post           = self::$factory->post( 5 );
 		$second_post    = self::$factory->post( 10 );
@@ -216,6 +218,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_does_not_checksum_spam_comments( $store ) {
 		$comment       = self::$factory->comment( 3, 1 );
 		$spam_comment  = self::$factory->comment( 6, 1, array( 'comment_approved' => 'spam' ) );
@@ -235,6 +238,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_strips_non_ascii_chars_for_checksum( $store ) {
 		$utf8_post     = self::$factory->post( 1, array( 'post_content' => 'Panamá' ) );
 		$ascii_post    = self::$factory->post( 1, array( 'post_content' => 'Panam' ) );
@@ -270,6 +274,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_checksum_histogram( $store ) {
 
 		$min_post_id           = 1000000;
@@ -340,6 +345,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_checksum_posts_return_different_values_on_enej_case( $store ) {
 		$store->reset();
 		$post = self::$factory->post( 807 );
@@ -364,6 +370,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_histogram_accepts_columns( $store ) {
 		for ( $i = 1; $i <= 20; $i++ ) {
 			$post = self::$factory->post( $i, array( 'post_content' => "Test post $i" ) );
@@ -383,6 +390,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_histogram_detects_missing_columns( $store ) {
 		global $wpdb;
 		$suppressed            = $wpdb->suppress_errors;
@@ -411,6 +419,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_upsert_post( $store ) {
 		$this->assertSame( 0, $store->post_count() );
 
@@ -440,6 +449,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_get_posts( $store ) {
 		$store->upsert_post( self::$factory->post( 1, array( 'post_status' => 'draft' ) ) );
 		$store->upsert_post( self::$factory->post( 2, array( 'post_status' => 'publish' ) ) );
@@ -464,6 +474,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_checksum_posts( $store ) {
 		$before_checksum = $store->posts_checksum();
 
@@ -481,6 +492,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_upsert_comment( $store ) {
 		$this->assertSame( 0, $store->comment_count() );
 
@@ -508,6 +520,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_checksum_comments( $store ) {
 		$before_checksum = $store->comments_checksum();
 
@@ -521,6 +534,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_get_comments( $store ) {
 		$post_id = 1;
 		self::$factory->post( $post_id, array( 'post_status' => 'publish' ) );
@@ -543,6 +557,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_update_option( $store ) {
 		$option_name  = 'blogdescription';
 		$option_value = (string) rand();
@@ -555,6 +570,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_delete_option( $store ) {
 		$option_name  = 'test_replicastore_' . rand();
 		$option_value = (string) rand();
@@ -568,6 +584,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_set_theme_support( $store ) {
 
 		if ( $store instanceof Replicastore ) {
@@ -677,6 +694,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_reset_preserves_internal_keys( $store ) {
 		if ( $store instanceof Jetpack_Sync_Test_Replicastore ) {
 			$this->markTestIncomplete( 'Test replicastore resets fully every time - this is only necessary on WPCOM' );
@@ -700,6 +718,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_update_meta( $store ) {
 		$store->upsert_post( self::$factory->post( 1 ) );
 
@@ -715,6 +734,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_update_meta_array( $store ) {
 		$meta_array = array(
 			'trees' => 'green',
@@ -736,6 +756,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_set_constant( $store ) {
 		$this->assertNull( $store->get_constant( 'FOO' ) );
 
@@ -751,6 +772,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_set_updates( $store ) {
 		$this->assertNull( $store->get_updates( 'core' ) );
 
@@ -766,6 +788,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_set_callables( $store ) {
 		if ( $store instanceof Replicastore ) {
 			$this->markTestIncomplete( "The WP replicastore doesn't support setting callables directly" );
@@ -785,6 +808,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_set_site_options( $store ) {
 		$this->assertFalse( $store->get_site_option( 'foo' ), 'Site option Not empty.' );
 
@@ -796,6 +820,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_delete_site_option( $store ) {
 		$store->update_site_option( 'to_delete', 'me' );
 
@@ -813,6 +838,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_update_users( $store ) {
 		if ( $store instanceof Replicastore ) {
 			$this->markTestIncomplete( "The WP replicastore doesn't support setting users" );
@@ -854,6 +880,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_get_allowed_mime_types( $store ) {
 		if ( $store instanceof Replicastore ) {
 			$this->markTestIncomplete( "The WP replicastore doesn't support setting users" );
@@ -874,6 +901,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_update_terms( $store ) {
 		$taxonomy = 'test_shadow_taxonomy_term';
 
@@ -901,6 +929,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_delete_terms( $store ) {
 		$taxonomy = 'test_shadow_taxonomy_term';
 
@@ -926,6 +955,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_update_post_terms( $store ) {
 		$taxonomy = 'test_shadow_taxonomy_term';
 		$this->ensure_synced_taxonomy( $store, $taxonomy );
@@ -960,6 +990,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
+	#[DataProvider( 'store_provider' )]
 	public function test_replica_delete_post_terms( $store ) {
 		$this->markTestIncomplete( 'contains SQL' );
 		// @phan-suppress-next-line PhanPluginUnreachableCode

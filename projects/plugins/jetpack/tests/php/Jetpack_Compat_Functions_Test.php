@@ -5,6 +5,8 @@
  * @package Automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Testing class.
  */
@@ -14,6 +16,7 @@ class Jetpack_Compat_Functions_Test extends WP_UnitTestCase {
 	/**
 	 * @dataProvider provider_wp_startswith
 	 */
+	#[DataProvider( 'provider_wp_startswith' )]
 	public function test_wp_startswith( $haystack, $needle, $expected ) {
 		$this->assertEquals( $expected, wp_startswith( $haystack, $needle ) );
 	}
@@ -32,6 +35,7 @@ class Jetpack_Compat_Functions_Test extends WP_UnitTestCase {
 	/**
 	 * @dataProvider provider_wp_endswith
 	 */
+	#[DataProvider( 'provider_wp_endswith' )]
 	public function test_wp_endswith( $haystack, $needle, $expected ) {
 		$this->assertEquals( $expected, wp_endswith( $haystack, $needle ) );
 	}
@@ -50,6 +54,7 @@ class Jetpack_Compat_Functions_Test extends WP_UnitTestCase {
 	/**
 	 * @dataProvider provider_wp_in
 	 */
+	#[DataProvider( 'provider_wp_in' )]
 	public function test_wp_in( $haystack, $needle, $expected ) {
 		$this->assertEquals( $expected, wp_in( $needle, $haystack ) );
 	}

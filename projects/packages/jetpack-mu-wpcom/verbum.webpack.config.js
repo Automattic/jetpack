@@ -26,6 +26,7 @@ module.exports = [
 			...jetpackConfig.output,
 			filename: '[name]/[name].js',
 			path: path.resolve( __dirname, 'src/build' ),
+			chunkFilename: 'verbum-comments/[name].js',
 			environment: {
 				module: true,
 				dynamicImport: true,
@@ -33,6 +34,16 @@ module.exports = [
 		},
 		optimization: {
 			...jetpackConfig.optimization,
+			splitChunks: {
+				cacheGroups: {
+					verbumComments: {
+						name: 'verbum-gravatar',
+						test: /[\\/]node_modules[\\/](@gravatar-com)[\\/]/,
+						chunks: 'all',
+						enforce: true,
+					},
+				},
+			},
 		},
 		resolve: {
 			...jetpackConfig.resolve,

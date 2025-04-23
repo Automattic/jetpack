@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+General: run feature activation routines for active features when the plugin is deactivated, then reactivated.

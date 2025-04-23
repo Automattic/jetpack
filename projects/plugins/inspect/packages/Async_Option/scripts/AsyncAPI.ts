@@ -4,7 +4,6 @@ import { maybeStringify } from './utils';
 type RequestParams = string | { [ key: string ]: any };
 
 export default class AsyncAPI {
-	// eslint-disable-next-line
 	constructor(
 		private baseUrl: string,
 		private restNonce: string

@@ -6,6 +6,9 @@
  * @since 4.7.0
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-constants.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-librarian.php';
 
@@ -15,6 +18,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-librarian.php';
  * @covers Jetpack_Sitemap_Librarian
  * @since 4.7.0
  */
+#[CoversClass( Jetpack_Sitemap_Librarian::class )]
 class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -24,6 +28,7 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_librarian_constructor() {
 		$librarian = new Jetpack_Sitemap_Librarian(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->assertTrue( true );
@@ -35,6 +40,7 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_librarian_get_unset_row_is_null() {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$row       = $librarian->read_sitemap_data( 'unset', 'unset' );
@@ -47,6 +53,7 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_librarian_delete_unset_row_returns_false() {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$result    = $librarian->delete_sitemap_data( 'unset', 'unset' );
@@ -59,6 +66,7 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_librarian_delete_set_row_returns_true() {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, 'contents', '1970-01-01 00:00:00' );
@@ -72,6 +80,7 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_librarian_set_then_get_is_identity() {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$contents  = '<wrapper>These are the times that try men\'s <a href="http://example.com/soul">souls</a>.</wrapper>';
@@ -117,6 +126,7 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_librarian_set_then_get_text_is_identity() {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$contents  = 'These are the times that try men\'s souls.';
@@ -137,6 +147,7 @@ class Jetpack_Sitemap_Librarian_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_librarian_delete_contiguously_named_rows() {
 		$librarian = new Jetpack_Sitemap_Librarian();
 
