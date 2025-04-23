@@ -38,7 +38,7 @@ module.exports = [
 				cacheGroups: {
 					verbumComments: {
 						name: 'verbum-gravatar',
-						test: /[\\/]node_modules[\\/](@gravatar-com)[\\/]/,
+						test: /[\\/]node_modules[\\/](@gravatar-com)[\\/].*?[\\/]dist[\\/].*?\.(js|mjs)/,
 						chunks: 'all',
 						enforce: true,
 					},
