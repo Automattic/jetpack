@@ -29,7 +29,6 @@ const baseConfig = {
 			'lower',
 			{
 				ignoreProperties: [ /^(--|\$)/ ], // Ignore CSS and SCSS vars.
-				ignoreKeywords: [ 'customLoadingSpinner' ],
 				camelCaseSvgKeywords: true, // This is the overwhelming convention in our codebase and in core.
 			},
 		],
