@@ -1484,18 +1484,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * but not the input elements. This ensures any updates to block style in the theme
 		 * are applied to the wrapper div, not the input elements.
 		 */
-		$block_style_classes = $this->get_block_style_classes( $class );
-		if ( ! empty( $block_style_classes['block_style_classes'] ) ) {
-			if ( $trimmed_type === 'checkbox-multiple' ) {
-				$block_classes .= ' wp-block-jetpack-field-checkbox-multiple ' . $block_style_classes['block_style_classes'];
-				// Remove block style classes in the $class variable.
-				$class = $block_style_classes['classes'];
-			}
+		if ( $trimmed_type === 'checkbox-multiple' ) {
+			$block_style_classes = $this->get_block_style_classes( $class );
+			$block_classes      .= ' wp-block-jetpack-field-checkbox-multiple ' . $block_style_classes['block_style_classes'];
+			// Remove block style classes in the $class variable.
+			$class = $block_style_classes['classes'];
+		}
 
-			if ( $trimmed_type === 'radio' ) {
-				$block_classes .= ' wp-block-jetpack-field-radio ' . $block_style_classes['block_style_classes'];
-				$class          = $block_style_classes['classes'];
-			}
+		if ( $trimmed_type === 'radio' ) {
+			$block_style_classes = $this->get_block_style_classes( $class );
+			$block_classes      .= ' wp-block-jetpack-field-radio ' . $block_style_classes['block_style_classes'];
+			$class               = $block_style_classes['classes'];
 		}
 
 		$class .= ' grunion-field';
