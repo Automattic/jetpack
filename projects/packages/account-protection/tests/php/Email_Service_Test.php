@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Account_Protection;
 
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -18,6 +19,7 @@ class Email_Service_Test extends BaseTestCase {
 	/**
 	 * @dataProvider email_masking_data_provider
 	 */
+	#[DataProvider( 'email_masking_data_provider' )]
 	public function test_mask_email_address_masks_correctly( $plain_email, $expected_masked_email ): void {
 		$sut = new Email_Service();
 		$this->assertEquals( $expected_masked_email, $sut->mask_email_address( $plain_email ) );

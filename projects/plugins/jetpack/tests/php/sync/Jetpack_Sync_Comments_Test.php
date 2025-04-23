@@ -1,6 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Sync\Modules;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 
@@ -10,6 +12,8 @@ require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
  * @group jetpack-sync
  * @covers \Automattic\Jetpack\Sync\Modules\Comments
  */
+#[Group( 'jetpack-sync' )]
+#[CoversClass( Modules\Comments::class )]
 class Jetpack_Sync_Comments_Test extends Jetpack_Sync_TestBase {
 
 	protected $comment;

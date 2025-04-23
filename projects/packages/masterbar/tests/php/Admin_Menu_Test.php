@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Status;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -19,6 +21,7 @@ require_once __DIR__ . '/data/admin-menu.php';
  *
  * @covers Automattic\Jetpack\Masterbar\Admin_Menu
  */
+#[CoversClass( Admin_Menu::class )]
 class Admin_Menu_Test extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
@@ -409,6 +412,7 @@ class Admin_Menu_Test extends TestCase {
 	 * @param array $submenu_items The mock submenu array.
 	 * @param array $expected The expected result.
 	 */
+	#[DataProvider( 'hide_menu_based_on_submenu_provider' )]
 	public function test_if_it_hides_menu_based_on_submenu( $menu_items, $submenu_items, $expected ) {
 		global $submenu, $menu;
 

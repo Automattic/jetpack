@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -42,6 +44,7 @@ class User_Account_Status_Test extends TestCase {
 	 *
 	 * @before
 	 */
+	#[Before]
 	public function set_up() {
 		// Make sure WorDBless is initialized
 		WorDBless_Options::init()->clear_options();
@@ -88,6 +91,7 @@ class User_Account_Status_Test extends TestCase {
 	 *
 	 * @after
 	 */
+	#[After]
 	public function tear_down() {
 		// Reset current user
 		wp_set_current_user( 0 );

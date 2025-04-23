@@ -2,6 +2,9 @@
 // phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
 // phpcs:disable Squiz.Commenting.FunctionComment.Missing
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\UsesMethod;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,6 +20,12 @@ use PHPUnit\Framework\TestCase;
  * @uses \Xyz2::foo
  */
 #[Attribute]
+#[CoversClass( Abc::class )]
+#[CoversClass( CovClass::class )]
+#[CoversClass( Xyz::class )]
+#[UsesClass( Abc2::class )]
+#[UsesMethod( UseClass::class, 'bar' )]
+#[UsesMethod( Xyz2::class, 'foo' )]
 class PhpunitMethodCoversDefaultClassTest extends TestCase {
 	public function testFoo() {
 	}
