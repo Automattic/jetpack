@@ -5,17 +5,21 @@ namespace Automattic\Jetpack\CRM\Entities\Tests;
 use Automattic\Jetpack\CRM\Entities\Factories\Invoice_Factory;
 use Automattic\Jetpack\CRM\Entities\Invoice;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 /**
  * Test Event Manager system.
  *
  * @covers Automattic\Jetpack\CRM\Entities\Invoice
  */
+#[CoversClass( Invoice::class )]
 class Invoice_Entity_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * @testdox Test that invoice entity is created from input data.
 	 */
+	#[TestDox( 'Test that invoice entity is created from input data.' )]
 	public function test_invoice_entity_from_input_data() {
 
 		$invoice_data = $this->generate_invoice_data();
@@ -37,6 +41,7 @@ class Invoice_Entity_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test create invoice entity from input data and insert in DB via DAL.
 	 */
+	#[TestDox( 'Test create invoice entity from input data and insert in DB via DAL.' )]
 	public function test_create_invoice_from_input_data_and_insert_into_DB() {
 
 		$invoice_data = $this->generate_invoice_data();

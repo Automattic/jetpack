@@ -6,6 +6,9 @@
  * @since $$next-version$$
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-constants.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-xmlwriter.php';
@@ -26,6 +29,12 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-master-xmlwr
  * @covers \Jetpack_Sitemap_Buffer_Video_XMLWriter
  * @covers \Jetpack_Sitemap_Buffer_XMLWriter
  */
+#[CoversClass( Jetpack_Sitemap_Buffer_Image_XMLWriter::class )]
+#[CoversClass( Jetpack_Sitemap_Buffer_Master_XMLWriter::class )]
+#[CoversClass( Jetpack_Sitemap_Buffer_News_XMLWriter::class )]
+#[CoversClass( Jetpack_Sitemap_Buffer_Page_XMLWriter::class )]
+#[CoversClass( Jetpack_Sitemap_Buffer_Video_XMLWriter::class )]
+#[CoversClass( Jetpack_Sitemap_Buffer_XMLWriter::class )]
 class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -35,6 +44,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_page_sitemap_buffer() {
 		$buffer = new Jetpack_Sitemap_Buffer_Page_XMLWriter(
 			JP_SITEMAP_MAX_ITEMS,
@@ -70,6 +80,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_image_sitemap_buffer() {
 		$buffer = new Jetpack_Sitemap_Buffer_Image_XMLWriter(
 			JP_SITEMAP_MAX_ITEMS,
@@ -131,6 +142,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_video_sitemap_buffer() {
 		$buffer = new Jetpack_Sitemap_Buffer_Video_XMLWriter(
 			JP_SITEMAP_MAX_ITEMS,
@@ -173,6 +185,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_news_sitemap_buffer() {
 		$buffer = new Jetpack_Sitemap_Buffer_News_XMLWriter(
 			JP_SITEMAP_MAX_ITEMS,
@@ -218,6 +231,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_master_sitemap_buffer() {
 		$buffer = new Jetpack_Sitemap_Buffer_Master_XMLWriter(
 			JP_SITEMAP_MAX_ITEMS,
@@ -249,6 +263,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_buffer_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer_Page_XMLWriter(
 			2, // Max items
@@ -281,6 +296,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since $$next-version$$
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_last_modified_tracking() {
 		$buffer = new Jetpack_Sitemap_Buffer_Page_XMLWriter(
 			2,

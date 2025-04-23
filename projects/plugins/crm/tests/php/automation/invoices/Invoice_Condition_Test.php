@@ -8,6 +8,8 @@ use Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Status_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Invoice_Data;
 use Automattic\Jetpack\CRM\Entities\Invoice;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -17,6 +19,8 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Status_Changed
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Field_Contains
  */
+#[CoversClass( Invoice_Field_Contains::class )]
+#[CoversClass( Invoice_Status_Changed::class )]
 class Invoice_Condition_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
@@ -56,6 +60,7 @@ class Invoice_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the update invoice status condition for the is operator.
 	 */
+	#[TestDox( 'Test the update invoice status condition for the is operator.' )]
 	public function test_status_changed_is_operator() {
 		$invoice_status_changed_condition = $this->get_invoice_status_changed_condition( 'is', 'paid' );
 
@@ -77,6 +82,7 @@ class Invoice_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the update invoice status condition for the is_not operator.
 	 */
+	#[TestDox( 'Test the update invoice status condition for the is_not operator.' )]
 	public function test_status_changed_is_not_operator() {
 		$invoice_status_changed_condition = $this->get_invoice_status_changed_condition( 'is_not', 'paid' );
 
@@ -98,6 +104,7 @@ class Invoice_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test if an exception is being correctly thrown for wrong operators.
 	 */
+	#[TestDox( 'Test if an exception is being correctly thrown for wrong operators.' )]
 	public function test_status_changed_invalid_operator_throws_exception() {
 		$invoice_status_changed_condition = $this->get_invoice_status_changed_condition( 'wrong_operator', 'paid' );
 
@@ -114,6 +121,7 @@ class Invoice_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the update invoice field contains condition for the contains operator.
 	 */
+	#[TestDox( 'Test the update invoice field contains condition for the contains operator.' )]
 	public function test_field_contains_contains_operator() {
 		$invoice_field_contains_condition = $this->get_invoice_field_contains_condition( 'status', 'contains', 'ai' );
 
@@ -135,6 +143,7 @@ class Invoice_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the update invoice field contains condition for the does_not_contain operator.
 	 */
+	#[TestDox( 'Test the update invoice field contains condition for the does_not_contain operator.' )]
 	public function test_field_contains_does_not_contain_operator() {
 		$invoice_field_contains_condition = $this->get_invoice_field_contains_condition( 'status', 'does_not_contain', 'ai' );
 
@@ -156,6 +165,7 @@ class Invoice_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test if an exception is being correctly thrown for wrong operators.
 	 */
+	#[TestDox( 'Test if an exception is being correctly thrown for wrong operators.' )]
 	public function test_field_contains_invalid_operator_throws_exception() {
 		$invoice_field_contains_condition = $this->get_invoice_field_contains_condition( 'status', 'wrong_operator', 'paid' );
 

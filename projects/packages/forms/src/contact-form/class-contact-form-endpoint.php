@@ -75,6 +75,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_all_integrations_status' ),
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'args'                => array(
+					'version' => array(
+						'type'              => 'integer',
+						'default'           => 1,
+						'sanitize_callback' => 'absint',
+						'validate_callback' => function ( $param ) {
+							$version = absint( $param );
+							return in_array( $version, array( 1, 2 ), true );
+						},
+					),
+				),
 			)
 		);
 
@@ -585,15 +596,24 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
 	 * Get status for all supported integrations.
 	 *
+	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
-	public function get_all_integrations_status() {
+	public function get_all_integrations_status( $request ) {
+		$version      = absint( $request->get_param( 'version' ) );
 		$integrations = array();
 
 		foreach ( array_keys( $this->get_supported_integrations() ) as $slug ) {
-			// For now, we only have plugin integrations.
-			// When needed, handle other integration types here.
-			$integrations[ $slug ] = $this->get_plugin_status( $slug );
+			$plugin_status = $this->get_plugin_status( $slug );
+
+			if ( 1 === $version ) {
+				$integrations[ $slug ] = $plugin_status;
+			} else {
+				$integrations[] = array_merge(
+					array( 'id' => $slug ),
+					$plugin_status
+				);
+			}
 		}
 
 		return rest_ensure_response( $integrations );

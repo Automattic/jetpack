@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Waf\Waf_Standalone_Bootstrap;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
@@ -27,6 +28,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @runInSeparateProcess
 	 */
+	#[RunInSeparateProcess]
 	public function testConstructingTheBootstrapWithoutAbspathConstantThrowsException() {
 		$this->assertFalse( defined( 'ABSPATH' ) );
 		$this->expectExceptionMessage( 'Cannot generate the WAF bootstrap if we are not running in WordPress context.' );
@@ -38,6 +40,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @runInSeparateProcess
 	 */
+	#[RunInSeparateProcess]
 	public function testConstructingTheBootstrapDefinesRequiredWafConstants() {
 		define( 'ABSPATH', '/pseudo' );
 		define( 'WP_CONTENT_DIR', '/pseudo/dir' );
@@ -56,6 +59,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @runInSeparateProcess
 	 */
+	#[RunInSeparateProcess]
 	public function testGenerateThrowsAnExceptionIfFilesystemIsNotInitialized() {
 		define( 'ABSPATH', '/pseudo' );
 		define( 'WP_CONTENT_DIR', '/pseudo/dir' );
@@ -73,6 +77,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @runInSeparateProcess
 	 */
+	#[RunInSeparateProcess]
 	public function testGenerateGeneratesTheBootstrapFileSuccessfully() {
 		define( 'ABSPATH', '/awesome' );
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
@@ -123,6 +128,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @runInSeparateProcess
 	 */
+	#[RunInSeparateProcess]
 	public function testGenerateThrowsAnExceptionIfUnableToWriteBootstrapFile() {
 		define( 'ABSPATH', '/foo' );
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
@@ -157,6 +163,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @runInSeparateProcess
 	 */
+	#[RunInSeparateProcess]
 	public function testGenerateCreatesTheJetpackWafDirectoryIfItDoesNotExistYet() {
 		define( 'ABSPATH', '/awesome' );
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );
@@ -195,6 +202,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @runInSeparateProcess
 	 */
+	#[RunInSeparateProcess]
 	public function testGenerateThrowsAnExceptionIfUnableToCreateJetpackWafDirectory() {
 		define( 'ABSPATH', '/awesome' );
 		define( 'WP_CONTENT_DIR', '/awesome/dir' );

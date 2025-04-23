@@ -10,6 +10,9 @@ namespace Automattic\Jetpack;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,6 +20,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Status
  */
+#[CoversClass( Status::class )]
 class Status_Test extends TestCase {
 	/**
 	 * Default site URL.
@@ -194,6 +198,7 @@ class Status_Test extends TestCase {
 	 *
 	 * @runInSeparateProcess
 	 */
+	#[RunInSeparateProcess]
 	public function test_is_offline_mode_constant() {
 		Functions\expect( 'get_option' )->never();
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( true )->andReturn( true );
@@ -332,6 +337,7 @@ class Status_Test extends TestCase {
 	 * @param string $site_url Site URL.
 	 * @param bool   $expected_response Expected response.
 	 */
+	#[DataProvider( 'get_is_local_site_known_tld' )]
 	public function test_is_local_site_for_known_tld( $site_url, $expected_response ) {
 		$this->site_url = $site_url;
 		$result         = $this->status_obj->is_local_site();
@@ -388,6 +394,7 @@ class Status_Test extends TestCase {
 	 * @param string $site     Given site URL.
 	 * @param string $expected Site suffix.
 	 */
+	#[DataProvider( 'get_site_suffix_examples' )]
 	public function test_jetpack_get_site_suffix( $site, $expected ) {
 		Functions\when( 'home_url' )->justReturn( $this->site_url );
 		Functions\when( 'get_option' )->justReturn();
@@ -444,6 +451,7 @@ class Status_Test extends TestCase {
 	 * @param string|null $one_call Method that should be called only once.
 	 * @param string|null $one_filter Filter that should be called only once.
 	 */
+	#[DataProvider( 'provide_cached' )]
 	public function test_cached( $func, $one_call, $one_filter ) {
 		if ( $one_call ) {
 			Functions\expect( $one_call )->once();
@@ -485,6 +493,7 @@ class Status_Test extends TestCase {
 	 * @param int  $wpcom_public_coming_soon wpcom_public_coming_soon option value.
 	 * @param bool $expected                 Expected result.
 	 */
+	#[DataProvider( 'get_coming_soon_status' )]
 	public function test_is_coming_soon( $site_is_coming_soon, $wpcom_public_coming_soon, $expected ) {
 		Functions\when( 'site_is_coming_soon' )->justReturn( $site_is_coming_soon );
 		Functions\when( 'get_option' )->justReturn( $wpcom_public_coming_soon );

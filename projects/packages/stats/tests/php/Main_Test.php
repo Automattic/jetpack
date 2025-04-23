@@ -10,12 +10,14 @@ namespace Automattic\Jetpack\Stats;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\Main as Stats;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Class to test the Main class.
  *
  * @covers Automattic\Jetpack\Stats\Main
  */
+#[CoversClass( Stats::class )]
 class Main_Test extends StatsBaseTestCase {
 	/**
 	 * An instance of Main class.
