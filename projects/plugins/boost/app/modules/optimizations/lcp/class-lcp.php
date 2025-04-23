@@ -22,11 +22,22 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	const TYPE_IMAGE = 'img';
 
 	/**
+	 * LCP storage class instance.
+	 *
+	 * @var LCP_Storage
+	 */
+	protected $storage;
+
+	/**
 	 * Utility class that supports output filtering.
 	 *
 	 * @var Output_Filter
 	 */
 	private $output_filter = null;
+
+	public function __construct() {
+		$this->storage = new LCP_Storage();
+	}
 
 	/**
 	 * @since 3.13.1
@@ -128,7 +139,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @since 3.13.1
 	 */
 	public function start_output_filtering() {
-		if ( apply_filters( 'jetpack_boost_should_optimize_lcp', $this->should_skip_optimization() ) ) {
+		if ( $this->should_skip_optimization_with_filter() ) {
 			return;
 		}
 
@@ -141,12 +152,11 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @since $$next-version$$
 	 */
 	public function add_preload_links_to_head() {
-		if ( apply_filters( 'jetpack_boost_should_optimize_lcp', $this->should_skip_optimization() ) ) {
+		if ( $this->should_skip_optimization_with_filter() ) {
 			return;
 		}
 
-		$storage     = new LCP_Storage();
-		$lcp_storage = $storage->get_current_request_lcp();
+		$lcp_storage = $this->storage->get_current_request_lcp();
 
 		if ( empty( $lcp_storage ) ) {
 			return;
@@ -188,7 +198,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @return bool True if optimization should be skipped, false otherwise.
 	 */
 	private function should_skip_optimization() {
-		$lcp_storage = ( new LCP_Storage() )->get_current_request_lcp();
+		$lcp_storage = $this->storage->get_current_request_lcp();
 		// Early return if we don't have any LCP data
 		if ( empty( $lcp_storage ) ) {
 			return true;
@@ -251,6 +261,24 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	}
 
 	/**
+	 * Applies the jetpack_boost_should_optimize_lcp filter along with the logic from $this->should_skip_optimization().
+	 *
+	 * @see $this->should_skip_optimization()
+	 * @since $$next-version$$
+	 * @return bool True if optimization should be skipped, false otherwise.
+	 */
+	private function should_skip_optimization_with_filter() {
+		/**
+		 * Filters whether LCP optimization should be skipped for the current request.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $skip True if optimization should be skipped, false otherwise.
+		 */
+		return apply_filters( 'jetpack_boost_should_optimize_lcp', $this->should_skip_optimization() );
+	}
+
+	/**
 	 * Optimize the HTML content by finding the LCP image and adding required attributes.
 	 *
 	 * @param string $buffer_start First part of the buffer.
@@ -261,7 +289,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @since 3.13.1
 	 */
 	public function optimize( $buffer_start, $buffer_end ) {
-		$lcp_storage = ( new LCP_Storage() )->get_current_request_lcp();
+		$lcp_storage = $this->storage->get_current_request_lcp();
 
 		// Combine the buffers for processing
 		$combined_buffer = $buffer_start . $buffer_end;
