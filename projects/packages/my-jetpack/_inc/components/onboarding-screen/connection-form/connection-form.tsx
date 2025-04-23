@@ -1,13 +1,13 @@
 import { JetpackLogo, TermsOfService, Text } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { Button, Spinner, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import preventWidows from '../../../utils/prevent-widows';
 import styles from './styles.module.scss';
 
 const ConnectionForm = () => {
 	const { userIsConnecting, siteIsRegistering, handleRegisterSite, registrationError } =
-		useMyJetpackConnection();
+		useConnection( { from: 'jetpack-onboarding' } );
 
 	const isConnecting = userIsConnecting || siteIsRegistering;
 
