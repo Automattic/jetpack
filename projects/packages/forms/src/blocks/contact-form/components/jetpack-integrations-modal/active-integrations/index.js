@@ -1,6 +1,7 @@
 import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
-import { Spinner } from '@wordpress/components';
+import { Spinner, Tooltip } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import AkismetIcon from '../../../../../icons/akismet-icon';
 import './style.scss';
 
@@ -11,12 +12,20 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 		switch ( integration.id ) {
 			case 'akismet':
 				if ( integration.isConnected ) {
-					acc.push( { ...integration, icon: <AkismetIcon width={ 30 } height={ 30 } /> } );
+					acc.push( {
+						...integration,
+						icon: <AkismetIcon width={ 30 } height={ 30 } />,
+						tooltip: __( 'Akismet is connected for this form', 'jetpack-forms' ),
+					} );
 				}
 				break;
 			case 'zero-bs-crm':
 				if ( integration.isActive && integration.details?.hasExtension && attributes.jetpackCRM ) {
-					acc.push( { ...integration, icon: <JetpackIcon size={ 30 } color={ COLOR_JETPACK } /> } );
+					acc.push( {
+						...integration,
+						icon: <JetpackIcon size={ 30 } color={ COLOR_JETPACK } />,
+						tooltip: __( 'Jetpack CRM is connected for this form', 'jetpack-forms' ),
+					} );
 				}
 				break;
 		}
@@ -38,10 +47,12 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 	return (
 		<div className="jetpack-forms-active-integrations">
 			{ activeIntegrations.map( integration => (
-				<span key={ integration.id } className="jetpack-forms-active-integrations__item">
-					{ integration.icon }
-					<span className="jetpack-forms-active-integrations__status" />
-				</span>
+				<Tooltip key={ integration.id } text={ integration.tooltip }>
+					<span className="jetpack-forms-active-integrations__item">
+						{ integration.icon }
+						<span className="jetpack-forms-active-integrations__status" />
+					</span>
+				</Tooltip>
 			) ) }
 		</div>
 	);
