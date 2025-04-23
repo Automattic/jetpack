@@ -25,7 +25,7 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 
 	if ( isLoading ) {
 		return (
-			<div className="active-integrations">
+			<div className="jetpack-forms-active-integrations">
 				<Spinner />
 			</div>
 		);
@@ -36,11 +36,11 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 	}
 
 	return (
-		<div className="active-integrations">
+		<div className="jetpack-forms-active-integrations">
 			{ activeIntegrations.map( integration => (
-				<span key={ integration.id } className="active-integrations__item">
+				<span key={ integration.id } className="jetpack-forms-active-integrations__item">
 					{ integration.icon }
-					<span className="active-integrations__status" />
+					<span className="jetpack-forms-active-integrations__status" />
 				</span>
 			) ) }
 		</div>
