@@ -1480,7 +1480,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$wrap_classnames = $class . ' grunion-field'; // Classes for $shell_field_class wrapper.
 
 		/*
-		 * For the checkbox-multiple and radio fields, we need to add the `is-style-*` classes to the wrapper div
+		 * For the checkbox-multiple and radio fields, we need to add the `wp-block-jetpack-field-*` and `is-style-*` classes to the wrapper div
 		 * but not the input elements. This ensures any updates to block style in the theme
 		 * are applied to the wrapper div, not the input elements.
 		 */
