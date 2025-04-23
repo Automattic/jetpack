@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -21,6 +22,7 @@ class CommonTest extends TestCase {
 	 *
 	 * @dataProvider provider_test_get_iso_639_locale
 	 */
+	#[DataProvider( 'provider_test_get_iso_639_locale' )]
 	public function test_get_iso_639_locale( $language, $expected ) {
 		$this->assertEquals( $expected, Common\get_iso_639_locale( $language ) );
 	}

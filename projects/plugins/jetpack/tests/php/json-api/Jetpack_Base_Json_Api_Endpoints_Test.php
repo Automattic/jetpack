@@ -8,6 +8,9 @@
  * @phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
@@ -15,6 +18,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
  *
  * @covers \Jetpack_JSON_API_Endpoint
  */
+#[CoversClass( Jetpack_JSON_API_Endpoint::class )]
 class Jetpack_Base_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -86,6 +90,7 @@ class Jetpack_Base_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	 * @author zaerl
 	 * @group json-api
 	 */
+	#[Group( 'json-api' )]
 	public function test_get_author_should_trigger_error_if_a_user_not_exists() {
 		// Force the error handler to return null.
 		set_error_handler( '__return_null' );
@@ -103,6 +108,7 @@ class Jetpack_Base_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	 * @author zaerl
 	 * @group json-api
 	 */
+	#[Group( 'json-api' )]
 	public function test_get_author_should_return_the_same_user() {
 		$endpoint = $this->get_dummy_endpoint();
 		$author   = $endpoint->get_author( self::$super_admin_user_id );
@@ -115,6 +121,7 @@ class Jetpack_Base_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	 * @author zaerl
 	 * @group json-api
 	 */
+	#[Group( 'json-api' )]
 	public function test_get_author_should_return_the_same_user_if_user_meta_is_set() {
 		$endpoint = $this->get_dummy_endpoint();
 
@@ -141,6 +148,7 @@ class Jetpack_Base_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	/**
 	 * @group json-api
 	 */
+	#[Group( 'json-api' )]
 	public function test_get_author_should_provide_additional_data_when_user_id_is_specified() {
 		$endpoint                            = $this->get_dummy_endpoint();
 		$commment_data                       = new stdClass();

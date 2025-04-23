@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
 
 /**
@@ -12,6 +14,7 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-sta
  *
  * @covers \Jetpack_Redux_State_Helper
  */
+#[CoversClass( Jetpack_Redux_State_Helper::class )]
 class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

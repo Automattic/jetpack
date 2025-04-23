@@ -1,11 +1,15 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-amp-support.php';
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
  * @covers ::archives_shortcode
  */
+#[CoversFunction( 'archives_shortcode' )]
 class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -70,6 +74,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	 * @param bool   $is_amp Whether this is an AMP endpoint.
 	 * @param string $expected The expected return value of the shortcode callback.
 	 */
+	#[DataProvider( 'get_data_archives_format_option' )]
 	public function test_shortcodes_archives_format_option( $is_amp, $expected ) {
 		if ( $is_amp && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );

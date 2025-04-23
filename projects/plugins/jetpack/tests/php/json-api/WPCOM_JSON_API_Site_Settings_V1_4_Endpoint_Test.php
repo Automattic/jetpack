@@ -6,6 +6,8 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
@@ -79,6 +81,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 * @param string $setting_name The setting lookup key.
 	 * @param string $expected_default_value The default value we expect when no value is explicitly set.
 	 */
+	#[DataProvider( 'setting_default_key_values' )]
 	public function test_get_settings_contains_key_defaults( $setting_name, $expected_default_value ) {
 		$response = $this->make_get_request();
 		$settings = $response['settings'];
@@ -94,6 +97,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 * @param string $setting_name The setting lookup key.
 	 * @param string $setting_value The setting value to test.
 	 */
+	#[DataProvider( 'setting_value_pairs_get_request' )]
 	public function test_get_settings_contains_keys_values( $option_name, $setting_name, $setting_value ) {
 		update_option( $option_name, $setting_value );
 
@@ -111,6 +115,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 * @param string $setting_value The setting value to test.
 	 * @param string $expected_value The expected sanitized value.
 	 */
+	#[DataProvider( 'setting_value_pairs_post_request' )]
 	public function test_post_settings_sets_key_values( $setting_name, $setting_value, $expected_value ) {
 		$setting  = wp_json_encode( array( $setting_name => $setting_value ) );
 		$response = $this->make_post_request( $setting );

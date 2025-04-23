@@ -11,6 +11,8 @@ use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Updated;
 use Automattic\Jetpack\CRM\Entities\Quote;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -23,6 +25,11 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Quote_Status_Updated
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Quote_Updated
  */
+#[CoversClass( Quote_Accepted::class )]
+#[CoversClass( Quote_Created::class )]
+#[CoversClass( Quote_Deleted::class )]
+#[CoversClass( Quote_Status_Updated::class )]
+#[CoversClass( Quote_Updated::class )]
 class Quote_Trigger_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
@@ -35,6 +42,7 @@ class Quote_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the quote updated trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the quote updated trigger executes the workflow with an action' )]
 	public function test_quote_updated_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/quote_updated' );
@@ -69,6 +77,7 @@ class Quote_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the quote status updated trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the quote status updated trigger executes the workflow with an action' )]
 	public function test_quote_status_updated_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/quote_status_updated' );
@@ -103,6 +112,7 @@ class Quote_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the quote created trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the quote created trigger executes the workflow with an action' )]
 	public function test_quote_created_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/quote_created' );
@@ -137,6 +147,7 @@ class Quote_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the quote new trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the quote new trigger executes the workflow with an action' )]
 	public function test_quote_accepted_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/quote_accepted' );
@@ -171,6 +182,7 @@ class Quote_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the quote deleted trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the quote deleted trigger executes the workflow with an action' )]
 	public function test_quote_deleted_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/quote_deleted' );

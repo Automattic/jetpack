@@ -1,9 +1,13 @@
 <?php
+
+use PHPUnit\Framework\Attributes\CoversClass;
+
 /**
  * Tests for Jetpack_Client_Server.
  *
  * @covers Jetpack_Client_Server
  */
+#[CoversClass( Jetpack_Client_Server::class )]
 class Jetpack_Client_Server_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
