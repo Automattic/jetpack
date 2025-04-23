@@ -756,22 +756,13 @@
 
 			.notched-label__leading {
 				width: var(--notch-width);
-				border: var(--jetpack--contact-form--border);
-				border-color: var(--jetpack--contact-form--border-color);
-				border-style: var(--jetpack--contact-form--border-style);
-				border-width: var(--jetpack--contact-form--border-size);
 				border-right: none;
-				border-radius: var(--jetpack--contact-form--border-radius);
 				border-top-right-radius: unset;
 				border-bottom-right-radius: unset;
 			}
 
 			.notched-label__notch {
 				border-radius: unset;
-				border: var(--jetpack--contact-form--border);
-				border-color: var(--jetpack--contact-form--border-color);
-				border-style: var(--jetpack--contact-form--border-style);
-				border-width: var(--jetpack--contact-form--border-size);
 				padding: 0 4px;
 				transition: border 150ms linear;
 			}
@@ -798,16 +789,11 @@
 
 			.notched-label__trailing {
 				flex-grow: 1;
-				border: var(--jetpack--contact-form--border);
-				border-color: var(--jetpack--contact-form--border-color);
-				border-style: var(--jetpack--contact-form--border-style);
-				border-width: var(--jetpack--contact-form--border-size);
 				border-left: none;
-				border-radius: var(--jetpack--contact-form--border-radius);
 				border-top-left-radius: unset;
 				border-bottom-left-radius: unset;
 			}
-
+			
 			&.jetpack-field-textarea .notched-label__label {
 				top: var(--jetpack--contact-form--input-padding-top, 16px);
 				transform: unset;
@@ -986,6 +972,32 @@
 			display: flex;
 			flex-direction: column-reverse;
 		}
+	}
+}
+
+:where(.jetpack-contact-form .is-style-outlined) {
+
+	.notched-label__leading {
+		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
+		border-radius: var(--jetpack--contact-form--border-radius);
+	}
+	
+	.notched-label__notch {
+		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
+	}
+	
+	.notched-label__trailing {
+		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
+		border-radius: var(--jetpack--contact-form--border-radius);
 	}
 }
 

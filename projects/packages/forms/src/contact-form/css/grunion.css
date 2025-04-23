@@ -458,11 +458,6 @@
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__leading {
 	width: var(--notch-width);
-	border-radius: var(--jetpack--contact-form--border-radius);
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
 	border-right: none;
 	border-top-right-radius: unset;
 	border-bottom-right-radius: unset;
@@ -470,10 +465,6 @@
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__notch {
 	border-radius: unset;
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
 	padding: 0 4px;
 	transition: border 150ms linear;
 }
@@ -509,14 +500,35 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__trailing {
 	flex-grow: 1;
-	border-radius: var(--jetpack--contact-form--border-radius);
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
 	border-left: none;
 	border-top-left-radius: unset;
 	border-bottom-left-radius: unset;
+}
+
+:where(.contact-form .is-style-outlined) {
+
+	.notched-label__leading {
+		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
+		border-radius: var(--jetpack--contact-form--border-radius);
+	}
+	
+	.notched-label__notch {
+		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
+	}
+	
+	.notched-label__trailing {
+		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
+		border-radius: var(--jetpack--contact-form--border-radius);
+	}
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__notch,
