@@ -380,6 +380,42 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Returns an array containing the block style classes, the remaining classes without block style classes, and the wrap classes.
+	 * The wrap classes are used for the wrapper div around the field.
+	 *
+	 * @param string $classname The class name.
+	 *
+	 * @return array {
+	 *     @type string $block_style_classes         The block style classes (is-style-* classes).
+	 *     @type string $classes_without_block_style The remaining classes without block style classes.
+	 *     @type string $wrap_classes                The wrap classes.
+	 * }
+	 */
+	private static function get_block_style_classes( $classname = '' ) {
+		if ( ! $classname ) {
+			return array(
+				'block_style_classes' => '',
+				'classes'             => '',
+				'wrap_classes'        => '',
+			);
+		}
+
+		preg_match_all( '/is-style-([^\s]+)/i', $classname, $matches );
+
+		$block_style_classes = empty( $matches[0] ) ? '' : implode( ' ', $matches[0] );
+		$wrap_classes        = ! empty( $matches[0] ) ? implode( '-wrap ', $matches[0] ) . '-wrap' : '';
+
+		// Remove block style classes from the original classname
+		$classes_without_block_style = trim( preg_replace( '/is-style-([^\s]+)/i', '', $classname ) );
+
+		return array(
+			'block_style_classes' => $block_style_classes,
+			'classes'             => $classes_without_block_style,
+			'wrap_classes'        => $wrap_classes,
+		);
+	}
+
+	/**
 	 * Turn block attribute to shortcode attributes.
 	 *
 	 * @param array         $atts  - the block attributes.
@@ -402,6 +438,20 @@ class Contact_Form_Plugin {
 
 		// Process inner blocks to shortcode attributes.
 		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
+			/*
+			 * Add the `wp-block-jetpack-field-*` and `is-style-*` classes to the field wrapper div
+			 * This ensures any updates to field block styles in theme.json or global styles are
+			 * correctly applied.
+			 */
+			$atts['fieldwrapperclasses'] = 'wp-block-jetpack-field-' . $type;
+			if ( ! empty( $atts['class'] ) ) {
+				$block_style_classes          = self::get_block_style_classes( $atts['class'] );
+				$spacer                       = ! empty( $block_style_classes['block_style_classes'] ) ? ' ' : '';
+				$atts['fieldwrapperclasses'] .= $spacer . $block_style_classes['block_style_classes'] . $spacer . $block_style_classes['wrap_classes'];
+				// Return the rest of the classes without the block style classes.
+				$atts['class'] = ! empty( $block_style_classes['classes'] ) ? $block_style_classes['classes'] : '';
+			}
+
 			foreach ( $block->parsed_block['innerBlocks'] as $inner_block ) {
 				$block_name = $inner_block['blockName'] ?? '';
 
