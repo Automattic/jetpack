@@ -42,7 +42,7 @@ function BlankImage( { children, isDotted = false, contentClassName = '' }: Blan
 	const blankImage = (
 		<img
 			className="ai-assistant-image__carrousel-image"
-			src="data:image/svg+xml;utf8,<svg viewBox='0 0 1 1' width='1024' height='768' xmlns='http://www.w3.org/2000/svg'><path d='M0 0 L1 0 L1 1 L0 1 L0 0 Z' fill='none' /></svg>"
+			src="data:image/svg+xml,<svg viewBox='0 0 1 1' width='1024' height='768' xmlns='http://www.w3.org/2000/svg'><path d='M0 0 L1 0 L1 1 L0 1 L0 0 Z' fill='none' /></svg>"
 			alt=""
 		/>
 	);
