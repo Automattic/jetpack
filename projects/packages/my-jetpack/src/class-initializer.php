@@ -46,6 +46,9 @@ class Initializer {
 	 */
 	private const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
 
+	// Auto-reconnect option name for WoA sites
+	private const AUTO_RECONNECT_OPTION = 'jetpack_woa_auto_reconnect';
+
 	public const JETPACK_PLUGIN_SLUGS = array(
 		'jetpack-backup',
 		'jetpack-boost',
@@ -175,16 +178,20 @@ class Initializer {
 	 */
 	public static function admin_init() {
 		$connection = new Connection_Manager();
+		$host       = new Status_Host();
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
-		// If the user is not connected, redirect to the onboarding page
-		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
+		// If the user is not connected, redirect to the appropriate onboarding page
+		if ( ! $connection->is_connected() && $step !== 'onboarding' && $step !== 'woa-onboarding' ) {
+			// For WoA sites, use a special onboarding page
+			$onboarding_step = $host->is_woa_site() ? 'woa-onboarding' : 'onboarding';
+
 			$admin_page = add_query_arg(
 				array(
 					'page' => 'my-jetpack',
-					'step' => 'onboarding',
+					'step' => $onboarding_step,
 				),
 				admin_url( 'admin.php' )
 			);
@@ -199,7 +206,7 @@ class Initializer {
 		}
 
 		// If the user reaches the onboarding page, add a class to the body
-		if ( $step === 'onboarding' ) {
+		if ( $step === 'onboarding' || $step === 'woa-onboarding' ) {
 			add_filter( 'admin_body_class', array( __CLASS__, 'add_onboarding_admin_body_class' ) );
 		}
 
@@ -448,7 +455,7 @@ class Initializer {
 	 */
 	public static function admin_page() {
 		$step          = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$is_onboarding = $step === 'onboarding';
+		$is_onboarding = $step === 'onboarding' || $step === 'woa-onboarding';
 
 		// Add data attribute for onboarding, otherwise render normal container
 		echo '<div id="my-jetpack-container" ' . ( $is_onboarding ? 'data-route="onboarding"' : '' ) . '></div>';
@@ -487,6 +494,35 @@ class Initializer {
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::dismiss_welcome_banner',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+
+		// Add endpoint for WoA auto-reconnect setting
+		register_rest_route(
+			'my-jetpack/v1',
+			'site/woa-auto-reconnect',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_woa_auto_reconnect',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+				'args'                => array(
+					'enabled' => array(
+						'required'    => true,
+						'type'        => 'boolean',
+						'description' => __( 'Whether to enable auto-reconnect for WoA sites', 'jetpack-my-jetpack' ),
+					),
+				),
+			)
+		);
+
+		// Add endpoint to try reconnecting
+		register_rest_route(
+			'my-jetpack/v1',
+			'site/try-reconnect',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::try_reconnect',
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
@@ -739,5 +775,56 @@ class Initializer {
 		arsort( $recommendations_evaluation ); // Sort by scores in descending order
 
 		return array_keys( $recommendations_evaluation ); // Get only module names
+	}
+
+	/**
+	 * Update the WoA auto-reconnect setting.
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @return WP_REST_Response
+	 */
+	public static function update_woa_auto_reconnect( $request ) {
+		$enabled = $request['enabled'];
+		\Jetpack_Options::update_option( self::AUTO_RECONNECT_OPTION, $enabled );
+		return rest_ensure_response( array( 'success' => true ) );
+	}
+
+	/**
+	 * Try to reconnect the site.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function try_reconnect() {
+		$connection = new Connection_Manager();
+		$result     = $connection->restore();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		if ( is_string( $result ) && $result === 'authorize' ) {
+			return rest_ensure_response(
+				array(
+					'success'      => true,
+					'status'       => 'in_progress',
+					'authorizeUrl' => $connection->get_authorization_url(),
+				)
+			);
+		}
+
+		if ( $result === true ) {
+			return rest_ensure_response(
+				array(
+					'success' => true,
+					'status'  => 'completed',
+				)
+			);
+		}
+
+		return new \WP_Error(
+			'reconnect_failed',
+			__( 'Reconnection failed', 'jetpack-my-jetpack' ),
+			array( 'status' => 500 )
+		);
 	}
 }

@@ -1,0 +1,98 @@
+:global(body) {
+	font-family: -apple-system, BlinkMacSystemFont, "Avenir Next", Avenir, "Segoe UI", "Helvetica Neue", Helvetica, Cantarell, Ubuntu, Roboto, "Noto Sans", Arial, sans-serif;
+}
+
+:global(#wpwrap) {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+}
+
+.jetpack-logo {
+	position: absolute;
+}
+
+.woa-onboarding-screen {
+	// override the default max-container-width since otherwise the container will be only 1128px
+	--max-container-width: 100%;
+	width: 100%;
+	min-height: 100vh;
+	overflow-y: hidden;
+	background-color: var(--jp-white, #fff);
+}
+
+.column {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+
+	@media screen and (max-width: 600px) {
+		justify-content: flex-start;
+		padding-top: 72px;
+	}
+}
+
+.testimonials {
+	max-height: 100%;
+	border-radius: 12px;
+
+	@media screen and (max-width: 600px) {
+		display: none;
+	}
+}
+
+.connection-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	width: 100%;
+	max-width: 450px;
+}
+
+.title {
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 40px;
+}
+
+.description {
+	margin-bottom: 20px;
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 24px;
+	color: var(--jp-gray-100, #101517);
+}
+
+.reconnectButton {
+	margin-top: 20px;
+	width: 100%;
+}
+
+.autoReconnectOption {
+	margin-top: 20px;
+}
+
+.settingError {
+	margin-top: 8px;
+	color: var(--jp-red-50, #d63638);
+	font-size: 14px;
+}
+
+.errorMessage {
+	margin-top: 16px;
+	padding: 12px;
+	border-radius: 4px;
+	background-color: var(--jp-red-0, #fcf0f1);
+	color: var(--jp-red-50, #d63638);
+}
+
+.successMessage {
+	margin-top: 16px;
+	padding: 12px;
+	border-radius: 4px;
+	background-color: var(--jp-green-0, #f0f6ec);
+	color: var(--jp-green-60, #008a20);
+	text-align: center;
+} 

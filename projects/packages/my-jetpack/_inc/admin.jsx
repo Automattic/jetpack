@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { createRoot } from '@wordpress/element';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
 import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 /**
  * Internal dependencies
@@ -30,10 +30,11 @@ import {
 } from './components/product-interstitial';
 import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/product-page';
 import RedeemTokenScreen from './components/redeem-token-screen';
+import WoaOnboardingScreen from './components/woa-onboarding-screen';
 import { MyJetpackRoutes } from './constants';
 import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
-import './style.module.scss';
 import Providers from './providers';
+import './style.module.scss';
 
 /**
  * Component to scroll window to top on route change.
@@ -50,13 +51,17 @@ function ScrollToTop() {
 const MyJetpack = () => {
 	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();
 	const container = document.getElementById( 'my-jetpack-container' );
-	const isOnboarding = container?.dataset?.route === 'onboarding';
+	const routeParam = container?.dataset?.route;
+	const isOnboarding = routeParam === 'onboarding' || routeParam === 'woa-onboarding';
 
-	// If we're on the onboarding route, render just the onboarding screen
+	// If we're on the onboarding route, render the appropriate onboarding screen
 	if ( isOnboarding ) {
+		// For WoA sites, use the WoA-specific onboarding screen
+		const OnboardComponent =
+			routeParam === 'woa-onboarding' ? WoaOnboardingScreen : OnboardingScreen;
 		return (
 			<Providers>
-				<OnboardingScreen />
+				<OnboardComponent />
 			</Providers>
 		);
 	}
@@ -95,7 +100,7 @@ const MyJetpack = () => {
 					<Route path={ MyJetpackRoutes.AddComplete } element={ <CompleteInterstitial /> } />
 					<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
 					{ /* Fallback route. Required to prevent visiting `?page=my-jetpack#wpbody-content` from raising an exception. */ }
-					<Route path="*" element={ <MyJetpackScreen /> } />
+					<Route path="*" element={ <Navigate replace to={ MyJetpackRoutes.Home } /> } />
 				</Routes>
 			</HashRouter>
 		</Providers>
