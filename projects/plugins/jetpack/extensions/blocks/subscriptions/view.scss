@@ -143,6 +143,8 @@
 :where(.wp-block-jetpack-subscriptions input[type="email"]) {
 	font-size: 16px;
 	padding: 15px 23px 15px 23px;
-	border-radius: 0px;
+	border-radius: 0;
 	border-width: 1px;
+	// This is needed because border width is no longer inline and html :where([style*="border-width"]) no longer applies
+	border-style: solid;
 }
