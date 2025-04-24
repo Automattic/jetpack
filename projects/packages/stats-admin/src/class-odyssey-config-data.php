@@ -1,6 +1,6 @@
 <?php
 /**
- * Stats Initial State
+ * Stats Initial State.
  *
  * @package automattic/jetpack-stats-admin
  */

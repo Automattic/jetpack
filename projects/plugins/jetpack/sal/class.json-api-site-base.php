@@ -6,7 +6,7 @@
  * to be used in the context of a single request for a single user.
  * Also note that at present this class _assumes_ you've "switched to"
  * the site in question, and functions like `get_bloginfo( 'name' )` will
- * therefore return the correct value.
+ * therefore return the correct value .
  *
  * @package automattic/jetpack
  **/
