@@ -295,6 +295,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 * @param array  $inner_blocks The inner blocks of the block.
 	 * @param string $type The type of the field.
 	 */
+	#[DataProvider( 'data_provider_block_attributes_to_shortcode_attributes_with_styles' )]
 	public function test_block_attributes_to_shortcode_attributes_with_styles( $expected, $inner_blocks, $type = 'text' ) {
 		$block                = array(
 			'blockName'   => 'jetpack/field-name',
