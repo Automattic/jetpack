@@ -12,7 +12,7 @@
 	}
 
 	const { registerPlugin } = wp.plugins;
-	const { PluginDocumentSettingPanel } = wp.editPost;
+	const { PluginDocumentSettingPanel } = wp.editor;
 	const { Fragment, useState, useEffect } = wp.element;
 	const { Button, TextControl, ClipboardButton, Notice } = wp.components;
 	const { select, subscribe } = wp.data;

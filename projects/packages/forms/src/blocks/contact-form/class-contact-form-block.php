@@ -284,15 +284,6 @@ class Contact_Form_Block {
 			)
 		);
 
-		// Register the fullscreen link generator script
-		wp_enqueue_script(
-			'jetpack-forms-fullscreen-link-generator',
-			plugins_url( 'util/fullscreen-link-generator.js', __FILE__ ),
-			array( 'wp-element', 'wp-components', 'wp-data', 'wp-i18n', 'wp-editor', 'wp-blocks', 'wp-plugins', 'wp-edit-post' ),
-			\Automattic\Jetpack\Forms\Jetpack_Forms::PACKAGE_VERSION,
-			true
-		);
-
 		$data = array(
 			'defaults' => array(
 				'to'                   => $defaults['to'],

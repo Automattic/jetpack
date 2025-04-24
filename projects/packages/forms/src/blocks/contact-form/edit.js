@@ -36,6 +36,7 @@ import NewsletterIntegrationSettings from './components/jetpack-newsletter-integ
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
+import './util/fullscreen-link-generator.js';
 
 const validFields = filter( childBlocks, ( { settings } ) => {
 	return (
