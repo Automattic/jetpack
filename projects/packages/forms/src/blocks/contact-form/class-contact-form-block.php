@@ -199,15 +199,14 @@ class Contact_Form_Block {
 			'jetpack/field-file',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
+				'plan_check'      => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
 			)
 		);
 
 		add_action(
 			'jetpack_register_gutenberg_extensions',
 			function () {
-				if ( apply_filters( 'jetpack_unauth_file_upload_plan_check', true ) ) {
-					\Jetpack_Gutenberg::set_availability_for_plan( 'field-file' );
-				} else {
+				if ( ! apply_filters( 'jetpack_unauth_file_upload_plan_check', true ) ) {
 					\Jetpack_Gutenberg::set_extension_available( 'field-file' );
 				}
 			}
