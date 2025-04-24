@@ -10,6 +10,17 @@ class LCP_Analyzer {
 	/** @var LCP_State */
 	private $state;
 
+	/** @var LCP_Storage */
+	private $storage;
+
+	/**
+	 * @since $$next-version$$
+	 */
+	public function __construct() {
+		$this->state   = new LCP_State();
+		$this->storage = new LCP_Storage();
+	}
+
 	/**
 	 * Start the LCP analysis process
 	 *
@@ -20,7 +31,6 @@ class LCP_Analyzer {
 		$pages = $this->get_cornerstone_pages();
 
 		// Store those pages in the LCP State
-		$this->state = new LCP_State();
 		$this->state->prepare_request()
 				->set_pending_pages( $pages )
 				->save();
@@ -32,8 +42,7 @@ class LCP_Analyzer {
 		$this->analyze_pages( $pages );
 
 		// Clear previous LCP analysis data from storage
-		$storage = new LCP_Storage();
-		$storage->clear();
+		$this->storage->clear();
 
 		return $data;
 	}
@@ -77,5 +86,14 @@ class LCP_Analyzer {
 	 */
 	public function get_state() {
 		return $this->state;
+	}
+
+	/**
+	 * Get the storage instance
+	 *
+	 * @return LCP_Storage
+	 */
+	public function get_storage() {
+		return $this->storage;
 	}
 }

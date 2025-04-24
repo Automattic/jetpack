@@ -5,7 +5,7 @@
 	border-radius: 4px;
 
 	.service-list-item {
-		margin-bottom: 0px;
+		margin-bottom: 0;
 
 		&:not(:last-child) {
 			border-bottom: 1px solid var(--jp-gray-5);
@@ -83,12 +83,12 @@
 	}
 
 	.service-panel {
-		border: 0px;
+		border: 0;
 
 		:global(.components-panel__body) {
-			border-top: 0px;
-			border-bottom: 0px;
-			padding: 0px;
+			border-top: 0;
+			border-bottom: 0;
+			padding: 0;
 		}
 
 		:global(.components-panel__body.is-opened) {
@@ -102,7 +102,7 @@
 	}
 
 	.broken-connection-alert {
-		margin-block: 0px;
+		margin-block: 0;
 		font-size: var(--font-body-small);
 	}
 

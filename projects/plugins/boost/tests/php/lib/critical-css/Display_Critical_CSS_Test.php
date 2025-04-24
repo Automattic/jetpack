@@ -3,7 +3,7 @@
  * Tests for Display_Critical_CSS class.
  *
  * @package automattic/jetpack-boost
- * @since $$next-version$$
+ * @since 3.13.1
  */
 
 namespace Automattic\Jetpack_Boost\Tests\Lib\Critical_CSS;
@@ -16,7 +16,7 @@ use WorDBless\BaseTestCase;
 /**
  * Class Display_Critical_CSS_Test
  *
- * @since $$next-version$$
+ * @since 3.13.1
  */
 class Display_Critical_CSS_Test extends BaseTestCase {
 

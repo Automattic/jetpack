@@ -30,7 +30,7 @@
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
-		"eslint": "9.22.0",
+		"eslint": "9.25.1",
 		"husky": "9.1.7",
 		"jetpack-cli": "workspace:*",
 		"jetpack-js-tools": "workspace:*",
@@ -50,7 +50,8 @@
 			"core-js",
 			"esbuild",
 			"svelte-preprocess",
-			"swiper"
+			"swiper",
+			"unrs-resolver"
 		]
 	}
 }

@@ -30,7 +30,7 @@ import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeh
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
-import IntegrationPanel from './components/jetpack-integration-panel';
+import IntegrationControls from './components/jetpack-integration-controls';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
@@ -225,14 +225,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						/>
 					</PanelBody>
 
-					{ isFormModalEnabled && ! isSimpleSite() && (
-						<PanelBody
-							title={ __( 'Manage integrations', 'jetpack-forms' ) }
-							className="jetpack-contact-form__integrations-panel"
-							initialOpen={ false }
-						>
-							<IntegrationPanel attributes={ attributes } setAttributes={ setAttributes } />
-						</PanelBody>
+					{ isFormModalEnabled && (
+						<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
 					) }
 
 					{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (

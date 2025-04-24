@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -17,6 +18,7 @@ use WorDBless\Users as WorDBless_Users;
  *
  * @covers Automattic\Jetpack\Masterbar\WPCOM_User_Profile_Fields_Revert
  */
+#[CoversClass( WPCOM_User_Profile_Fields_Revert::class )]
 class WPCOM_User_Profile_Fields_Revert_Test extends TestCase {
 
 	/**

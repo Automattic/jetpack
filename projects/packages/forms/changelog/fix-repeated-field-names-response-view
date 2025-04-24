@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: avoid overwriting form values when field names are repeated

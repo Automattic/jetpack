@@ -7,6 +7,8 @@ use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
 
@@ -15,6 +17,7 @@ require_once __DIR__ . '/tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation\Automation_Engine
  */
+#[CoversClass( Automation_Engine::class )]
 class Automation_Engine_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
@@ -27,6 +30,7 @@ class Automation_Engine_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Automation Engine get singleton instance
 	 */
+	#[TestDox( 'Automation Engine get singleton instance' )]
 	public function test_automation_engine_instance() {
 		$automation_1 = Automation_Engine::instance();
 
@@ -41,6 +45,7 @@ class Automation_Engine_Test extends JPCRM_Base_TestCase {
 	 * @testdox Register a trigger to the automation engine
 	 * @throws Automation_Exception
 	 */
+	#[TestDox( 'Register a trigger to the automation engine' )]
 	public function test_automation_register_trigger() {
 		$automation = new Automation_Engine();
 
@@ -60,6 +65,7 @@ class Automation_Engine_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Register an empty trigger slug to the automation engine
 	 */
+	#[TestDox( 'Register an empty trigger slug to the automation engine' )]
 	public function test_automation_register_empty_trigger_slug() {
 		$automation = new Automation_Engine();
 
@@ -72,6 +78,7 @@ class Automation_Engine_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Register a duplicated trigger class to the automation engine
 	 */
+	#[TestDox( 'Register a duplicated trigger class to the automation engine' )]
 	public function test_automation_register_duplicated_trigger() {
 		$automation = new Automation_Engine();
 
@@ -85,6 +92,7 @@ class Automation_Engine_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Register an invalid trigger class to the automation engine
 	 */
+	#[TestDox( 'Register an invalid trigger class to the automation engine' )]
 	public function test_automation_register_invalid_trigger() {
 		$automation = new Automation_Engine();
 

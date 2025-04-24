@@ -34,7 +34,7 @@ class WPCOM_REST_API_V2_Endpoint_Related_Posts extends WP_REST_Controller {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_options' ),
 				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
+					return current_user_can( 'edit_posts' );
 				},
 			)
 		);

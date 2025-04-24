@@ -1,0 +1,136 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.FunctionComment.Missing
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+// phpcs:disable Jetpack.PHPUnit.TestClassName.DoesNotMatchFileName
+
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Large;
+use PHPUnit\Framework\Attributes\Medium;
+use PHPUnit\Framework\Attributes\Small;
+use PHPUnit\Framework\Attributes\Ticket;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @group foo
+ * @group bar
+ * @ticket xyz
+ * @small
+ * @medium
+ * @large
+ */
+#[Group( 'foo' )]
+#[Group( 'bar' )]
+#[Ticket( 'xyz' )]
+#[Small]
+#[Medium]
+#[Large]
+class AnnotationsTest extends TestCase {
+	/**
+	 * @group foo
+	 * @group bar
+	 * @ticket xyz
+	 * @small
+	 * @medium
+	 * @large
+	 */
+	#[Group( 'foo' )]
+	#[Group( 'bar' )]
+	#[Ticket( 'xyz' )]
+	#[Group( 'small' )]
+	#[Group( 'medium' )]
+	#[Group( 'large' )]
+	public function testMethodAnnotations() {
+	}
+}
+
+/**
+ * @group foo
+ * @group bar
+ * @ticket xyz
+ * @small
+ * @medium
+ * @large
+ */
+#[Group( 'foo' )]
+#[Group( 'bar' )]
+#[Ticket( 'xyz' )]
+#[Small]
+#[Medium]
+#[Large]
+class AttributesTest extends TestCase {
+	/**
+	 * @group foo
+	 * @group bar
+	 * @ticket xyz
+	 * @small
+	 * @medium
+	 * @large
+	 */
+	#[Group( 'foo' )]
+	#[Group( 'bar' )]
+	#[Ticket( 'xyz' )]
+	#[Group( 'small' )]
+	#[Group( 'medium' )]
+	#[Group( 'large' )]
+	public function testMethodAttributes() {
+	}
+
+	#[Group()]
+	#[Ticket( 42 )]
+	public function bad() {
+	}
+}
+
+/**
+ * @small
+ * @medium
+ * @large
+ */
+#[Group( 'small' )]
+#[Group( 'medium' )]
+#[Group( 'large' )]
+class Aliases1Test extends TestCase {
+}
+
+/**
+ * @group small
+ * @group medium
+ * @group large
+ */
+#[Small]
+#[Medium]
+#[Large]
+class Aliases2Test extends TestCase {
+}
+
+/**
+ * @ticket small
+ * @ticket medium
+ * @ticket large
+ * @small
+ * @medium
+ * @large
+ */
+#[Small]
+#[Medium]
+#[Large]
+#[Ticket( 'small' )]
+#[Ticket( 'medium' )]
+#[Ticket( 'large' )]
+class Aliases3Test extends TestCase {
+}
+
+/**
+ * The `@author` annotation was an alias for `@group` in PHPUnit 9 and earlier, but that was removed in PHPUnit 10.
+ * Since people may want to use it anyway to indicate authorship, we ignore it by default.
+ *
+ * @author ignored
+ */
+class AuthorTest extends TestCase {
+	/**
+	 * @author ignored
+	 */
+	public function testMethodAnnotations() {
+	}
+}

@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,6 +16,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Connection\REST_Connector
  */
+#[CoversClass( REST_Connector::class )]
 class XMLRPC_Connector_Test extends TestCase {
 
 	/**
@@ -66,6 +69,7 @@ class XMLRPC_Connector_Test extends TestCase {
 	 * @dataProvider is_request_signed_by_jetpack_debugger_data
 	 * @return void
 	 */
+	#[DataProvider( 'is_request_signed_by_jetpack_debugger_data' )]
 	public function test_is_request_signed_by_jetpack_debugger( $get_params, $expected ) {
 
 		if ( isset( $get_params['signature'] ) && '__VALID__' === $get_params['signature'] ) {

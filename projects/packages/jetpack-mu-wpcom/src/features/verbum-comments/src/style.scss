@@ -110,7 +110,7 @@
 
 						&:focus,
 						&:active {
-							box-shadow: inset 0 0 0 0px var(--verbum-focus-background-color),
+							box-shadow: inset 0 0 0 0 var(--verbum-focus-background-color),
 								0 0 0 var(--verbum-border-focus-width) var(--verbum-focus-color);
 						}
 					}
@@ -597,7 +597,6 @@
         border-top: 2px solid #3498db;
         width: 16px;
         height: 16px;
-        -webkit-animation: customLoadingSpinner 2s linear infinite;
         animation: customLoadingSpinner 2s linear infinite;
     }
 

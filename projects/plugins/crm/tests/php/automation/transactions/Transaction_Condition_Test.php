@@ -7,6 +7,8 @@ use Automattic\Jetpack\CRM\Automation\Conditions\Transaction_Field;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Transaction_Data;
 use Automattic\Jetpack\CRM\Entities\Transaction;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -15,6 +17,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Transaction_Field
  */
+#[CoversClass( Transaction_Field::class )]
 class Transaction_Condition_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
@@ -41,6 +44,7 @@ class Transaction_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the update transaction field condition for the is operator.
 	 */
+	#[TestDox( 'Test the update transaction field condition for the is operator.' )]
 	public function test_field_changed_is_operator() {
 		$transaction_field_changed_condition = $this->get_transaction_field_condition( 'is', 'paid' );
 
@@ -62,6 +66,7 @@ class Transaction_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the update transaction field condition for the is_not operator.
 	 */
+	#[TestDox( 'Test the update transaction field condition for the is_not operator.' )]
 	public function test_field_changed_is_not_operator() {
 		$transaction_field_changed_condition = $this->get_transaction_field_condition( 'is_not', 'paid' );
 
@@ -83,6 +88,7 @@ class Transaction_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the update transaction field condition for the contains operator.
 	 */
+	#[TestDox( 'Test the update transaction field condition for the contains operator.' )]
 	public function test_field_changed_contains_operator() {
 		$transaction_field_changed_condition = $this->get_transaction_field_condition( 'contains', 'ai' );
 
@@ -104,6 +110,7 @@ class Transaction_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the update transaction field condition for the does_not_contain operator.
 	 */
+	#[TestDox( 'Test the update transaction field condition for the does_not_contain operator.' )]
 	public function test_field_changed_does_not_contain_operator() {
 		$transaction_field_changed_condition = $this->get_transaction_field_condition( 'does_not_contain', 'ai' );
 
@@ -125,6 +132,7 @@ class Transaction_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test if an exception is being correctly thrown for wrong operators.
 	 */
+	#[TestDox( 'Test if an exception is being correctly thrown for wrong operators.' )]
 	public function test_field_changed_invalid_operator_throws_exception() {
 		$transaction_field_changed_condition = $this->get_transaction_field_condition( 'wrong_operator', 'paid' );
 

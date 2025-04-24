@@ -9,7 +9,7 @@ const CreativeMailIcon = props => (
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
 	>
-		<G clip-path="url(#clip0)">
+		<G clipPath="url(#clip0)">
 			<Rect width="258" height="258" fill="#F2EFF8" />
 			<Path
 				d="M473.616 242.393C286.085 103.281 -48.1297 232.191 -99.1903 253.521L-170.675 265.578L-322 187.675L-273.725 -72L572.952 -57.1614C602.351 89.0605 623.642 353.682 473.616 242.393Z"

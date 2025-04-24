@@ -57,7 +57,7 @@ jQuery( function () {
 				.parent()
 				.next()
 				.children( 'a' ),
-			curInputs = curStep.find( "input[type='text'],input[type='url']" );
+			curInputs = curStep.find( 'input[type="text"],input[type="url"]' );
 		let isValid = true;
 		jQuery( '.form-group' ).removeClass( 'has-error' );
 		for ( let i = 0; i < curInputs.length; i++ ) {

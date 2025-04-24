@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds support for SQLite via WorDBless
