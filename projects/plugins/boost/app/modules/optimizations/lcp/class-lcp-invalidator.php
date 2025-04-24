@@ -37,7 +37,10 @@ class LCP_Invalidator {
 	public static function reset_and_analyze() {
 		self::reset_data();
 
-		( new LCP_Analyzer() )->start();
+		/**
+		 * Indicate that the latest LCP analysis data has been invalidated.
+		 */
+		do_action( 'jetpack_boost_lcp_invalidated' );
 	}
 
 	/**
@@ -47,12 +50,7 @@ class LCP_Invalidator {
 	 */
 	public static function handle_environment_change( $is_major_change ) {
 		if ( $is_major_change ) {
-			self::reset_data();
-
-			/**
-			 * Indicate that the latest LCP analysis data has been invalidated.
-			 */
-			do_action( 'jetpack_boost_lcp_invalidated' );
+			self::reset_and_analyze();
 		}
 	}
 }
