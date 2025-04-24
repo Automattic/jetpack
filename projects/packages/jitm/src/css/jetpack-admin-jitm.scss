@@ -425,11 +425,13 @@ $jp-gray-20:             #a7aaad;
 	.jitm-banner__title {
 		font-size: rem( 15px );
 		font-weight: 700;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 136%;
 	}
 
 	.jitm-banner__description {
 		font-size: rem( 13px );
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 150%;
 		margin-top: rem( 2px );
 	}

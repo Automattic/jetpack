@@ -20,6 +20,7 @@
 			background: url(\$images/check.svg) no-repeat;
 			background-position: 0 2px;
 			background-size: 1.5em;
+			// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 			line-height: 1.5em;
 			list-style-type: none;
 		}

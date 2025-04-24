@@ -56,6 +56,7 @@
 .jp-apps-card__paragraph {
 	margin: 14px 0 0 0;
 	font-size: 17px;
+	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 145%;
 	color: var( --gray-100 );
 	letter-spacing: -0.24px;
