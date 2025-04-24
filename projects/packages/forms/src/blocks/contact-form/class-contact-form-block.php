@@ -269,16 +269,19 @@ class Contact_Form_Block {
 		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
 		$preferred_view          = $dashboard_view_switch->get_preferred_view();
 
-		$asset_file   = include plugin_dir_path( __FILE__ ) . 'js/editor.asset.php';
-		$dependencies = $asset_file['dependencies'];
-		$version      = $asset_file['version'];
+		$handle = 'jp-forms-blocks';
 
-		wp_enqueue_script(
-			'jetpack-instant-forms',
-			plugins_url( 'js/editor.js', __FILE__ ),
-			$dependencies,
-			$version,
-			true
+		Assets::register_script(
+			$handle,
+			'../../../dist/blocks/editor.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-forms',
+				'enqueue'    => true,
+				// Editor styles are loaded separately, see load_editor_styles().
+				'css_path'   => null,
+			)
 		);
 
 		// Register the fullscreen link generator script
@@ -303,7 +306,7 @@ class Contact_Form_Block {
 			),
 		);
 
-		wp_add_inline_script( 'jetpack-instant-forms', 'window.jpFormsBlocks = ' . wp_json_encode( $data ) . ';', 'before' );
+		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data ) . ';', 'before' );
 	}
 
 	/**
