@@ -2,6 +2,8 @@ import { JetpackLogo, TermsOfService, Text } from '@automattic/jetpack-component
 import { useConnection } from '@automattic/jetpack-connection';
 import { Button, Spinner, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { useCallback, useEffect } from 'react';
+import useAnalytics from '../../../hooks/use-analytics';
 import preventWidows from '../../../utils/prevent-widows';
 import styles from './styles.module.scss';
 
@@ -10,6 +12,21 @@ const ConnectionForm = () => {
 		useConnection( { from: 'jetpack-onboarding' } );
 
 	const isConnecting = userIsConnecting || siteIsRegistering;
+
+	const { recordEvent } = useAnalytics();
+
+	const onClickConnect = useCallback( () => {
+		recordEvent( 'jetpack_my_jetpack_onboarding_click' );
+		handleRegisterSite();
+	}, [ recordEvent, handleRegisterSite ] );
+
+	useEffect( () => {
+		if ( registrationError ) {
+			recordEvent( 'jetpack_my_jetpack_onboarding_error', {
+				error: registrationError,
+			} );
+		}
+	}, [ registrationError, recordEvent ] );
 
 	return (
 		<div className={ styles[ 'connection-form' ] }>
@@ -32,7 +49,7 @@ const ConnectionForm = () => {
 				className={ styles[ 'submit-button' ] }
 				disabled={ isConnecting }
 				aria-busy={ isConnecting }
-				onClick={ handleRegisterSite }
+				onClick={ onClickConnect }
 			>
 				{ isConnecting ? (
 					<Spinner className={ styles.spinner } />
