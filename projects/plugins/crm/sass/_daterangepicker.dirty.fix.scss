@@ -20,16 +20,13 @@
 
 table {
     border-collapse:collapse;
-    border-spacing:0
+    border-spacing:0;
+    max-width:100%;
+    background-color:transparent;
 }
 
 td,th {
     padding:0
-}
-
-table {
-    max-width:100%;
-    background-color:transparent
 }
 
 th {

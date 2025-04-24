@@ -60,12 +60,12 @@
 	}
 
 	.zbs-sentence {
-
-	    font-size: 1.1em;
-	    color: #5d4949;
-	    padding-left: 2em;
-	    padding-top: 0.2em;
-	    padding-bottom: 0.2em;
+		padding-top: 0.2em;
+		padding-bottom: 0.2em;
+		padding-left:0;
+		color: #000;
+		margin-top:5px;
+		font-size:14px;
 	}
 
 	// NOTE this is also in contact edit metabox! copy any changes if made:
@@ -227,15 +227,9 @@ font-size:14px;
 display:none !important;
 }
 
-.zbs-view-card .zbs-sentence{
-padding-left:0;
-color: #000;
-margin-top:5px;
-font-size:14px;
-}
-
 .zbs-sentence{
-line-height: 21px;
+	line-height: 21px;
+	width:80%;
 }
 
 .zbs-contact-owner{
@@ -261,12 +255,6 @@ margin-top: -15px !important;
 margin-top:10px !important;
 margin-right:10px !important;
 }
-
-.zbs-sentence{
-width:80%;
-}
-
-
 
 // === Pinned notes
 #jpcrm-pinned-logs-header {

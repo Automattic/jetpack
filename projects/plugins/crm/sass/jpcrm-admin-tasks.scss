@@ -67,11 +67,6 @@
     background: #edf8ff !important;
 }
 
-.fc-event{
-    background: #fff;
-    border: 1px solid #ddd;
-}
-
 .fc-content{
     color: #000;
 }
@@ -210,6 +205,10 @@ background: #fff;
 
 .no-owner{
     float: left;
+    position: relative;
+    border: 1px solid #ccc;
+    border-radius: 0.2em;
+    z-index: 0;
 }
 
 .no-task-date{
@@ -274,20 +273,10 @@ background: #fff;
     border: 0;
 }
 
-
-
 .select2-container--default .select2-selection--single{
     border: 0 solid !important;
     font-size:20px;
 }
-
-.no-owner{
-    position: relative;
-    border: 1px solid #ccc;
-    border-radius: 0.2em;
-    z-index: 0;
-}
-
 
 .task-comp{
     width: 19%;
