@@ -47,16 +47,30 @@ function ScrollToTop() {
 	return null;
 }
 
+/**
+ * Check if the current site is a WordPress.com on Atomic site.
+ *
+ * @return {boolean} True if the site is a WordPress.com on Atomic site.
+ */
+function isWoASite() {
+	// Get connection data using the recommended approach
+	const connectionData = getMyJetpackWindowInitialState()?.connectionStatus || {};
+
+	// Check if site is explicitly marked as Atomic
+	return connectionData.isAtomicSite === true;
+}
+
 const MyJetpack = () => {
 	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();
 	const container = document.getElementById( 'my-jetpack-container' );
 	const isOnboarding = container?.dataset?.route === 'onboarding';
+	const isAtomic = isWoASite();
 
 	// If we're on the onboarding route, render just the onboarding screen
 	if ( isOnboarding ) {
 		return (
 			<Providers>
-				<OnboardingScreen />
+				<OnboardingScreen isAtomic={ isAtomic } />
 			</Providers>
 		);
 	}
