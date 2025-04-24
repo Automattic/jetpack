@@ -1,7 +1,7 @@
 import { useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
 import { Nudge } from '@automattic/jetpack-shared-extension-utils/components';
 import { __ } from '@wordpress/i18n';
-import './style.scss';
+import './style.scss'; // TODO: decide if we want to look good or we want just use default nudge
 
 export const UpsellNudge = ( { requiredPlan } ) => {
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting ] = useUpgradeFlow( requiredPlan );

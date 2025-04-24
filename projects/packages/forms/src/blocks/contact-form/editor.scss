@@ -50,6 +50,10 @@
 		flex-direction: row;
 		gap: var(--wp--style--block-gap, 1.5rem);
 
+		& > div {
+			flex: 1 1 100%;
+		}
+
 		.wp-block {
 			flex: 0 0 100%;
 			margin-top: 0;

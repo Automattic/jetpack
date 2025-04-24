@@ -368,6 +368,7 @@ class WPCOM_Features {
 	public const EMAIL_PROFESSIONAL                = 'email-professional';
 	public const EMAIL_SUBSCRIPTION                = 'email-subscription';
 	public const EMAIL_FORWARDS_EXTENDED_LIMIT     = 'email-forwards-extended-limit';
+	public const FIELD_FILE                        = 'field-file';
 	public const FREE_BLOG                         = 'free-blog';
 	public const FULL_ACTIVITY_LOG                 = 'full-activity-log';
 	public const GLOBAL_STYLES                     = 'global-styles';
@@ -703,6 +704,10 @@ class WPCOM_Features {
 			self::BUNDLE_ENTERPRISE,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+		),
+		self::FIELD_FILE                        => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::FREE_BLOG                         => array(
 			self::WPCOM_ALL_SITES,
