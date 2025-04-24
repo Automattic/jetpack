@@ -11,6 +11,7 @@
 // are installed, or in some other cases).
 namespace Automattic\Jetpack\Backup\V0005;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class Storage_Addon_Upsell_Test extends TestCase {
@@ -43,6 +44,7 @@ class Storage_Addon_Upsell_Test extends TestCase {
 	 * @param string $expected_addon Product slug of expected storage addon.
 	 * @dataProvider storage_addon_upsell_provider
 	 */
+	#[DataProvider( 'storage_addon_upsell_provider' )]
 	public function test_storage_addon_upsell_offer( $storage_used, $storage_limit, $expected_addon ) {
 		$this->assertEquals(
 			$expected_addon,

@@ -1,9 +1,13 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+
 /**
  * @covers ::jetpack_get_youtube_id
  * @covers ::youtube_sanitize_url
  */
+#[CoversFunction( 'jetpack_get_youtube_id' )]
+#[CoversFunction( 'youtube_sanitize_url' )]
 class Functions_Compat_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

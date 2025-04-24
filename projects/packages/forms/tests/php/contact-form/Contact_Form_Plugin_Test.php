@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -14,12 +16,14 @@ use WorDBless\BaseTestCase;
  *
  * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
  */
+#[CoversClass( Contact_Form_Plugin::class )]
 class Contact_Form_Plugin_Test extends BaseTestCase {
 	/**
 	 * Test that ::revert_that_print works correctly
 	 *
 	 * @dataProvider arrayReversals
 	 */
+	#[DataProvider( 'arrayReversals' )]
 	public function testStaticPrintReversal( $array, $decode_html ) {
 		$print = print_r( $array, true );
 		$this->assertSame( $array, Contact_Form_Plugin::reverse_that_print( $print, $decode_html ) );

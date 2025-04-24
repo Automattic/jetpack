@@ -25,7 +25,7 @@
 	align-items: center;
 	flex-direction: row;
 	justify-content: flex-end;
-	padding: 10px 0px;
+	padding: 10px 0;
 	gap: 10px;
 
 	& > *:first-child {
@@ -74,7 +74,7 @@
 		width: 100%;
 
 		& > *:first-child {
-			margin-left: 0px; /* gap not needed anymore as the divs are centered */
+			margin-left: 0; /* gap not needed anymore as the divs are centered */
 		}
 	}
 }

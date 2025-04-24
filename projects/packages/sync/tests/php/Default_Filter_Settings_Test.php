@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,6 +25,7 @@ class Default_Filter_Settings_Test extends TestCase {
 	 *
 	 * @dataProvider data_provider_test_get_default_settings_invalid_input
 	 */
+	#[DataProvider( 'data_provider_test_get_default_settings_invalid_input' )]
 	public function test_get_default_settings_invalid_input( $input ) {
 		$this->assertFalse( ( new Default_Filter_Settings() )->get_default_settings( $input ) );
 	}
@@ -50,6 +52,7 @@ class Default_Filter_Settings_Test extends TestCase {
 	 *
 	 * @dataProvider data_provider_test_get_default_settings_valid_input
 	 */
+	#[DataProvider( 'data_provider_test_get_default_settings_valid_input' )]
 	public function test_get_default_settings_valid_input( $input, $output ) {
 		$this->assertSame( $output, ( new Default_Filter_Settings() )->get_default_settings( $input ) );
 	}

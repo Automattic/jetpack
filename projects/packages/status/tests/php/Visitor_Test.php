@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Status;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,6 +16,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Status\Visitor
  */
+#[CoversClass( Visitor::class )]
 class Visitor_Test extends TestCase {
 	/**
 	 * Testing object.
@@ -55,6 +58,7 @@ class Visitor_Test extends TestCase {
 	 * @param  array  $headers           An array of headers.
 	 * @param  string $expected_ip       The expected result after calling `get_ip`.
 	 */
+	#[DataProvider( 'get_ip_data_provider' )]
 	public function test_get_ip( $check_all_headers, $headers, $expected_ip ) {
 		foreach ( $headers as $header_name => $header_value ) {
 			$_SERVER[ $header_name ] = $header_value;

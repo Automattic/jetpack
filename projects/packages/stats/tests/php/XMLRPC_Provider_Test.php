@@ -8,12 +8,14 @@
 namespace Automattic\Jetpack\Stats;
 
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Class to test the XMLRPC_Provider class.
  *
  * @covers Automattic\Jetpack\Stats\XMLRPC_Provider
  */
+#[CoversClass( XMLRPC_Provider::class )]
 class XMLRPC_Provider_Test extends StatsBaseTestCase {
 	/**
 	 * An instance of XMLRPC_Provider class.

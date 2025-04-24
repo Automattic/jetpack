@@ -13,7 +13,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const cardData = {
 		...data,
 		showHeaderToggle: true,
-		headerToggleValue: data?.isConnected,
+		headerToggleValue: akismetActiveWithKey,
 		isHeaderToggleEnabled: false,
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,

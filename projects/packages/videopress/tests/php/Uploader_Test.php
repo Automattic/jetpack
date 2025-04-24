@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -42,6 +43,7 @@ class Uploader_Test extends BaseTestCase {
 	 * @dataProvider provideUrlPresentData
 	 * @param string $url The oembed url to test.
 	 */
+	#[DataProvider( 'provideUrlPresentData' )]
 	public function test_video_enqueue_bridge_when_oembed_present_enqueue_script_with_valid_urls( $url ) {
 		$mock = \Mockery::mock( 'alias:Automattic\Jetpack\VideoPress\Jwt_Token_Bridge' );
 		$mock->expects( 'enqueue_jwt_token_bridge' )->once();

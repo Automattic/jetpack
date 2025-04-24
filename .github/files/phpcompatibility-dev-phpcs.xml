@@ -8,5 +8,6 @@
 	<rule ref="PHPCompatibilityWP">
 		<!-- Doesn't hurt anything, earlier versions ignore attributes. -->
 		<exclude name="PHPCompatibility.Attributes.NewAttributes.Found" />
+		<exclude name="PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound" />
 	</rule>
 </ruleset>

@@ -129,7 +129,7 @@
    box-sizing: border-box !important;
 
     h1 {
-       margin-top: 0px;
+       margin-top: 0;
     }
 
 }
@@ -142,7 +142,7 @@
 }
 
 .zbs-portal-wrapper-sin h1 {
-   margin-top: 0px;
+   margin-top: 0;
 }
 
 .zbs-alert-danger {
@@ -167,7 +167,7 @@
       margin-bottom: 50px;
       margin-top: 20px;
     
-      input[type='text'], input[type='password'] {
+      input[type="text"], input[type="password"] {
          width: 100%;
       }
 
@@ -297,8 +297,8 @@
 
   .zbs-invoice-portal-inner .zbs-invoice-box .zbs-invoice-paid {
      position: absolute;
-     right: 0px;
-     top: 0px;
+     right: 0;
+     top: 0;
      padding: 30px;
      margin-right: 50px;
      color: #038d24;
@@ -387,7 +387,7 @@
 /* Few tweaks as provided by Alvaro in slack ... wh selectively added those which made sense for multi-theme userbase JIRA-ZBS-531 */
 .zbs-portal-wrapper {
 
-   .zbs-portal-login .login-form input[type='text'], .zbs-portal-login .login-form input[type='password'], .form-control.widetext, .form-control.zbs-tel, .form-control.zbs-email, .form-control.zbs-date, input[type=text], input[type=password], input[type=tel], input[type=email], input.text, input.title, textarea, select {
+   .zbs-portal-login .login-form input[type="text"], .zbs-portal-login .login-form input[type="password"], .form-control.widetext, .form-control.zbs-tel, .form-control.zbs-email, .form-control.zbs-date, input[type="text"], input[type="password"], input[type="tel"], input[type="email"], input.text, input.title, textarea, select {
        padding-left: 1em;
        padding-right: 1em;
        margin-bottom: 1em;
@@ -452,7 +452,6 @@
            vertical-align: baseline;
            font-style: normal;
            min-height: 17px;
-           font-size: 1rem;
            line-height: 17px;
            min-width: 17px;
            // good if these match the above checkbox labels ^^ label {
@@ -477,7 +476,7 @@
    .zbs-portal-wrapper{
        padding:20px;
        box-shadow: 1px 1px 1px 1px #ccc;
-       border-radius: 0px 7px 7px 0px;
+       border-radius: 0 7px 7px 0;
        min-height:650px !important;
        position:relative;
        flex: 1;
@@ -485,15 +484,15 @@
   }
 
    #zbs-nav-tabs{
-       margin: 0px;
-       padding-left:0px;
-       box-shadow: 0px 1px 0px 1px #ccc;
-       border-radius: 7px 0px 0px 7px;
+       margin: 0;
+       padding-left:0;
+       box-shadow: 0 1px 0 1px #ccc;
+       border-radius: 7px 0 0 7px;
        padding-top:7px;
        flex: 1;
 
        li{
-           padding:0px;
+           padding:0;
 
            a{
                padding:10px;
@@ -625,7 +624,7 @@
   }
 
   #zbs-nav-tabs {
-    padding: 0px;
+    padding: 0;
   }
 
   #zbs-nav-tabs li {
@@ -673,7 +672,7 @@
 
   label {
     display: block;
-    margin: 0px;
+    margin: 0;
   }
 
   .zbs-radio label, .zbs-cf-checkbox label {
@@ -690,7 +689,7 @@
     margin-top: 2rem;
   }
 
-  input:not([type=checkbox]):not([type=radio]), select, textarea, .jpcrm-inline-file-input {
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea, .jpcrm-inline-file-input {
     width: 95%;
   }
 

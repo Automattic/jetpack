@@ -1,8 +1,11 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 /**
  * @covers \Jetpack_Heartbeat
  */
+#[CoversClass( Jetpack_Heartbeat::class )]
 class Jetpack_Heartbeat_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

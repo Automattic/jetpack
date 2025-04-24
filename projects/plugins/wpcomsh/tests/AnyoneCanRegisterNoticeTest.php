@@ -5,6 +5,8 @@
  * @package wpcomsh
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Class AnyoneCanRegisterNoticeTest.
  */
@@ -34,6 +36,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 * @param string $role role to test.
 	 * @dataProvider role_provider_show
 	 */
+	#[DataProvider( 'role_provider_show' )]
 	public function test_anyone_register_warning_added_for_administrator( $role ) {
 		add_role( 'shop_manager', 'Shop Manager' ); // adding here because it's not a default role; added by WooCommerce generally
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
@@ -63,6 +66,7 @@ class AnyoneCanRegisterNoticeTest extends WP_UnitTestCase {
 	 * @param string $role role to test.
 	 * @dataProvider role_provider_hide
 	 */
+	#[DataProvider( 'role_provider_hide' )]
 	public function test_anyone_register_warning_displays_for_specific_roles( $role ) {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		update_option( 'users_can_register', true );
