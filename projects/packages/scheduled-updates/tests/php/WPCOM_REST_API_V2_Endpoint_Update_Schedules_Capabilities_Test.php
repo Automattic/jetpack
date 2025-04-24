@@ -6,12 +6,14 @@
  */
 
 use Automattic\Jetpack\Scheduled_Updates;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Test class for WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities.
  *
  * @covers \WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities
  */
+#[CoversClass( WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities::class )]
 class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Admin user ID.

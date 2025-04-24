@@ -76,6 +76,10 @@ configure_wp_env() {
 	$BASE_CMD wp option set permalink_structure ""
 	$BASE_CMD wp jetpack module deactivate sso
 
+	# Disable modules that may interfere with login flow.
+	$BASE_CMD wp jetpack module deactivate account-protection
+	$BASE_CMD wp jetpack module deactivate protect
+
 	echo
 	$BASE_CMD wp plugin status
 	echo

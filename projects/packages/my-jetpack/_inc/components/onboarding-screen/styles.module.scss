@@ -8,10 +8,6 @@
 	text-rendering: optimizeLegibility;
 }
 
-.jetpack-logo {
-	position: absolute;
-}
-
 .onboarding-screen {
 	// override the default max-container-width since otherwise the container will be only 1128px
 	--max-container-width: 100%;

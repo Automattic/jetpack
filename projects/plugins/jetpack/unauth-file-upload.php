@@ -40,7 +40,7 @@ function handle_file_download() {
 	/**
 	 * Check if the file is availabe for download.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 *
 	 * @param array $data The script data.
 	 */
@@ -69,7 +69,7 @@ function handle_file_download() {
 	/**
 	 * Get the file content that we send to the user to download.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 *
 	 * @param array $file_content The file content.
 	 * @param string $file_id The file ID.

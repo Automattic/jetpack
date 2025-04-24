@@ -35,7 +35,7 @@
 			}
 
 			.verbum-simple-subscribe-modal__iframe-container {
-				background-image: url( 'https://s0.wp.com/i/loading/dark-200.gif' );
+				background-image: url( https://s0.wp.com/i/loading/dark-200.gif );
 				background-size: 50px;
 				background-repeat: no-repeat;
 				background-position: center 150px;
@@ -65,7 +65,7 @@
 
 	p {
 		margin-top: 4px;
-		margin-bottom: 0px;
+		margin-bottom: 0;
 		padding: 0 60px;
 		font-size: clamp(14px, 0.875rem + ((1vw - 3.2px) * 0.147), 15px);
 		color: #333;
@@ -101,7 +101,7 @@
 			font-size: 16px;
 			line-height: 28px;
 			padding: 15px 23px 15px 23px;
-			margin: 0px;
+			margin: 0;
 			margin-left: 10px;
 			border-radius: 50px;
 			border-width: 1px !important;

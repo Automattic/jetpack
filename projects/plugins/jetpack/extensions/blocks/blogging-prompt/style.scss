@@ -7,7 +7,7 @@
 	padding: 24px;
 
 	&__label {
-		background: no-repeat url('./icon.svg');
+		background: no-repeat url(./icon.svg);
 		background-position: -5px center;
 		background-size: 24px 24px;
 		font-size: 14px;
@@ -15,8 +15,8 @@
 		padding-inline-start: 22px;
 
 		&.is-bloganuary-icon {
-			background: no-repeat url('./bloganuary-icon.svg');
-			background-position: 0px center;
+			background: no-repeat url(./bloganuary-icon.svg);
+			background-position: 0 center;
 			padding-inline-start: 26px;
 		}
 	}

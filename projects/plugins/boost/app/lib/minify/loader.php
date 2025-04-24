@@ -1,12 +1,21 @@
 <?php
 
-// Load minify library code.
-require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/class-utils.php';
-require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/class-config.php';
-require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/class-dependency-path-mapping.php';
-require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
-require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-service-fallback.php';
-require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-service.php';
+/**
+ * Load minify library code.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function jetpack_boost_minify_load_library(): void {
+	require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/class-utils.php';
+	require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/class-config.php';
+	require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/class-dependency-path-mapping.php';
+	require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
+	require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-service-fallback.php';
+	require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-service.php';
+}
+jetpack_boost_minify_load_library();
 
 add_action(
 	'template_redirect',

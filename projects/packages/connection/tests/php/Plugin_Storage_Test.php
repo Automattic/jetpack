@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -19,6 +20,7 @@ use WorDBless\Options as WorDBless_Options;
  * @see \Automattic\Jetpack\Connection\Plugin_Storage
  * @covers \Automattic\Jetpack\Connection\Plugin_Storage
  */
+#[CoversClass( Plugin_Storage::class )]
 class Plugin_Storage_Test extends TestCase {
 
 	/**

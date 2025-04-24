@@ -1,7 +1,7 @@
 import { Button, ProductPrice, getRedirectUrl } from '@automattic/jetpack-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
@@ -92,10 +92,10 @@ const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	} else if ( productTerm === 'year' ) {
 		priceDescription = __( '/month, paid yearly', 'jetpack-my-jetpack' );
 	} else {
-		priceDescription = __(
+		priceDescription = _x(
 			'/month',
-			'jetpack-my-jetpack',
-			/* dummy arg to avoid bad minification */ 0
+			'Price description representing "per month" price',
+			'jetpack-my-jetpack'
 		);
 	}
 

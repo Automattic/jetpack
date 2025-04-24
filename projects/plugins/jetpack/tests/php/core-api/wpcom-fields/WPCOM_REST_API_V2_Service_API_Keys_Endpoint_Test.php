@@ -1,11 +1,15 @@
 <?php
 
+use PHPUnit\Framework\Attributes\Group;
+
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
 /**
  * @group publicize
  * @group rest-api
  */
+#[Group( 'publicize' )]
+#[Group( 'rest-api' )]
 class WPCOM_REST_API_V2_Service_API_Keys_Endpoint_Test extends Jetpack_REST_TestCase {
 
 	public static $editor_user_id;

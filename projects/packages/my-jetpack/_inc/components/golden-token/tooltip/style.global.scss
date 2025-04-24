@@ -14,11 +14,11 @@ $arrow-color: var( --jp-gray );
 	/*
 	* Fix arrow placement - section start
 	*/
-	.components-popover:not([data-y-axis=middle])[data-x-axis=left] .components-popover__content {
+	.components-popover:not([data-y-axis="middle"])[data-x-axis="left"] .components-popover__content {
 		margin-right: -62px;
 	}
 
-	.components-popover:not([data-y-axis=middle])[data-x-axis=right] .components-popover__content {
+	.components-popover:not([data-y-axis="middle"])[data-x-axis="right"] .components-popover__content {
 		margin-left: -62px;
 	}
 
@@ -29,27 +29,27 @@ $arrow-color: var( --jp-gray );
 	/*
 	* Fix arrow position for legacy position option - section start
 	*/
-	.components-popover[data-y-axis=bottom] .components-popover__content {
+	.components-popover[data-y-axis="bottom"] .components-popover__content {
 		top: 2px !important;
 	}
 
-	.components-popover:not(.is-without-arrow)[data-y-axis=bottom]::before {
+	.components-popover:not(.is-without-arrow)[data-y-axis="bottom"]::before {
 		top: -6px !important;
 	}
 
-	.components-popover:not(.is-without-arrow)[data-y-axis=bottom]::after {
+	.components-popover:not(.is-without-arrow)[data-y-axis="bottom"]::after {
 		top: -4px !important;
 	}
 
-	.components-popover[data-y-axis=top] .components-popover__content {
+	.components-popover[data-y-axis="top"] .components-popover__content {
 		bottom: 10px !important;
 	}
 
-	.components-popover:not(.is-without-arrow)[data-y-axis=top]::before {
+	.components-popover:not(.is-without-arrow)[data-y-axis="top"]::before {
 		bottom: 3px;
 	}
 
-	.components-popover:not(.is-without-arrow)[data-y-axis=top]::after {
+	.components-popover:not(.is-without-arrow)[data-y-axis="top"]::after {
 		bottom: 4px;
 	}
 

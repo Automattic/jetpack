@@ -132,7 +132,7 @@
 	padding: 7px 20px 9px 0;
 
 	@include breakpoint( "<480px" ) {
-		padding: 0px;
+		padding: 0;
 		margin-bottom: 15px;
 	}
 }
@@ -277,7 +277,7 @@
 
 	.dops-button {
 		margin-top: 16px;
-		margin-right: 0px;
+		margin-right: 0;
 		float: right;
 	}
 }

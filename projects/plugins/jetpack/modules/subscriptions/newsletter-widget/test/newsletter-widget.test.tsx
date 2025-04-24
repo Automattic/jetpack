@@ -52,22 +52,15 @@ describe( 'NewsletterWidget', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'displays the learn more link with correct href', () => {
-		render( <NewsletterWidget { ...defaultProps } /> );
-		const learnMoreLink = screen.getByText( 'Learn more' );
-		expect( learnMoreLink ).toHaveAttribute(
-			'href',
-			getRedirectUrl(
-				'https://wordpress.com/learn/courses/newsletters-101/wordpress-com-newsletter'
-			)
-		);
-	} );
-
 	it( 'renders correct quick links when hosted on WordPress.com', () => {
 		const redirectDomain = 'wordpress.com';
 		render( <NewsletterWidget { ...defaultProps } /> );
 
 		const expectedLinks = [
+			{
+				text: 'Learn more',
+				href: 'https://wordpress.com/learn/courses/newsletters-101/wordpress-com-newsletter',
+			},
 			{
 				text: 'Publish your next post',
 				href: 'https://example.com/wp-admin/post-new.php',
@@ -112,6 +105,10 @@ describe( 'NewsletterWidget', () => {
 		render( <NewsletterWidget { ...defaultProps } isWpcomSite={ false } /> );
 
 		const expectedLinks = [
+			{
+				text: 'Learn more',
+				href: `https://jetpack.com/support/newsletter`,
+			},
 			{
 				text: 'Publish your next post',
 				href: `https://${ defaultProps.site }/wp-admin/post-new.php`,

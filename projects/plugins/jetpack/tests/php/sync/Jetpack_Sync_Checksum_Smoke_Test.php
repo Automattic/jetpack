@@ -6,12 +6,15 @@
  */
 
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Testing Table Checksum
  *
  * @group jetpack-sync
  */
+#[Group( 'jetpack-sync' )]
 class Jetpack_Sync_Checksum_Smoke_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -87,6 +90,7 @@ class Jetpack_Sync_Checksum_Smoke_Test extends WP_UnitTestCase {
 	 *
 	 * @param string $table Table name.
 	 */
+	#[DataProvider( 'table_provider' )]
 	public function test_checksum_validate_table_name( $table ) {
 
 		$tc  = new Table_Checksum( $table );

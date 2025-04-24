@@ -321,10 +321,8 @@
 	.mark-as-paid{
 		margin-left: 10px;
 		background-color: #008000;
-		text-transform: uppercase;
 		color: #fff;
 		padding: 7px;
-		font-weight: 900;
 		font-size: 25px;
 	    text-transform: uppercase;
 	    font-weight: 900;
@@ -479,8 +477,8 @@
 				}
 
 				td{
-					border:0px;
-					padding:0px;
+					border:0;
+					padding:0;
 				}
 			}
 
@@ -613,10 +611,10 @@
 			}
 
 			.tapad{
-				padding: 0px 0px 0px 10px;
+				padding: 0 0 0 10px;
 			}
 
-			input[type=number] {
+			input[type="number"] {
 			    height: 36px;
 			    line-height: 1;
 			    box-shadow: none;
@@ -650,7 +648,7 @@
 		.zbs-item-name{
 		    width: 100%;
 		    height: 28px;
-		    border: 0px;
+		    border: 0;
 		    box-shadow: none;
 		}
 
@@ -679,11 +677,11 @@
 		}
 
 		.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th{
-			border-top: 0px solid #fff !important;
+			border-top: 0 solid #fff !important;
 		}
 
 		.add-row{
-			border-left: 0px solid #fff;
+			border-left: 0 solid #fff;
 		}
 
 		.zbs-row-actions{
@@ -754,7 +752,7 @@
 	        color: #fff;
 		    background-color: #428bca;
 		    border: 1px solid #428bca;
-		    border-width: 0px;
+		    border-width: 0;
 		    font-size: 15px;
 		    padding: 7px;
 		    font-weight: 300;
@@ -764,7 +762,7 @@
 	    .btn-secondary{
 	    	background: #ddd;
 	    	border: 1px solid #ddd;
-			border-width: 0px;
+			border-width: 0;
 		    font-size: 15px;
 		    padding: 7px;
 		    font-weight: 300;
@@ -797,7 +795,7 @@
 
 		.handlediv {
 		    display: none;
-		    border-bottom: 0px solid #fff;
+		    border-bottom: 0 solid #fff;
 		}
 	}
 
@@ -1051,7 +1049,7 @@
 	    transition: border-color ease-in-out 0.15s,box-shadow ease-in-out 0.15s;
 	}
 
-	input[type=checkbox]{		
+	input[type="checkbox"]{		
 	    margin-right: 0.7em;
 	    vertical-align: middle;
 	    line-height: 1em;

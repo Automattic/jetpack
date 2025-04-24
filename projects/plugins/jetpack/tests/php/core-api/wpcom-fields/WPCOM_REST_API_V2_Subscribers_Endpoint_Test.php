@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\Group;
+
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
 if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {
@@ -11,6 +13,8 @@ if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR'
  * @group publicize
  * @group rest-api
  */
+#[Group( 'publicize' )]
+#[Group( 'rest-api' )]
 class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase {
 
 	public static $editor_user_id;

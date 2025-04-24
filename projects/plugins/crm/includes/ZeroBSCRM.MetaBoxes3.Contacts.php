@@ -268,13 +268,13 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 				if ( $show_addresses !== 1 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					continue;
 				} elseif ( $field_group === '' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-					echo '<div class="jpcrm-form-grid" style="padding:0px;grid-template-columns: 1fr;">';
+					echo '<div class="jpcrm-form-grid" style="padding:0;grid-template-columns: 1fr;">';
 					echo '<div class="jpcrm-form-group"><label>';
 					echo esc_html__( $field_value['area'], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText
 					echo '</label></div>';
 				} elseif ( $field_group !== $field_value['area'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					echo '</div>';
-					echo '<div class="jpcrm-form-grid" style="padding:0px;grid-template-columns: 1fr;">';
+					echo '<div class="jpcrm-form-grid" style="padding:0;grid-template-columns: 1fr;">';
 					echo '<div class="jpcrm-form-group"><label>';
 					echo $show_field ? esc_html( $second_address_label ) : '';
 					echo '</label></div>';
@@ -2356,25 +2356,6 @@ class zeroBS__Metabox_ContactCompany extends zeroBS__Metabox{
 
         return $contact;
     }
-}
-
-/* DEPRECATED! */
-function zbsCustomer_companyDropdown( $default = '', $companies = array() ) {
-
-    echo 'zbsCustomer_companyDropdown is Deprecated!<br />';
-
-  foreach ($companies as $co){
-    echo "\n\t" . '<option value="'. esc_attr( $co['id'] ) .'"';
-    if ($co['id'] == $default) echo ' selected="selected"';
-    //echo '>'.$co['meta']['coname'].'</option>';
-    $coName = '';
-    if (isset($co) && isset($co['meta']) && isset($co['meta']['coname'])) $coName = $co['meta']['coname'];
-    # Shouldn't need this? WH attempted fix for caching, not here tho..
-    if (empty($coName) && isset($co['coname'])) $coName = $co['coname'];
-    if (empty($coName)) $coName = jpcrm_label_company().' #'.$co['id'];
-    echo '>'. esc_html( $coName ) .'</option>';
-  }
-
 }
 
 /* ======================================================

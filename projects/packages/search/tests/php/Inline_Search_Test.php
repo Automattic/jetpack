@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -187,6 +188,7 @@ class Inline_Search_Test extends TestCase {
 	 * @param array $wp_query_args     Input, WP_Query arguments.
 	 * @param array $expected_api_args Output, expected API arguments.
 	 */
+	#[DataProvider( 'data_provider' )]
 	public function test_search( array $wp_query_args, array $expected_api_args ) {
 		$search = Inline_Search::instance( 0 );
 		$search->do_search( new \WP_Query( $wp_query_args ) );

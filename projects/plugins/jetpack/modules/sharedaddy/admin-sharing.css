@@ -43,8 +43,8 @@
 }
 
 #available-services h3, #enabled-services h3, #live-preview h3 {
-	padding: 0px;
-	margin-top: 0px;
+	padding: 0;
+	margin-top: 0;
 	margin-bottom: 1em;
 }
 
@@ -59,7 +59,7 @@ body.settings_page_sharing .description p {
 }
 
 body.settings_page_sharing .services {
-	padding: 0px 20px;
+	padding: 0 20px;
 	vertical-align: top;
 }
 
@@ -234,7 +234,7 @@ div.sd-social-icon ul.preview li.preview-item.preview-custom a span {
 
 #enabled-services h2{
 	font-size:20px;
-	padding-top:0px;
+	padding-top:0;
 	font-weight: 400 !important;
 	color: #999;
 }
@@ -273,7 +273,7 @@ body.settings_page_sharing .utility {
 	font-size: 10px;
 }
 
-body.settings_page_sharing .advanced input[type=submit] {
+body.settings_page_sharing .advanced input[type="submit"] {
 	float: left;
 	margin-top:10px;
 	margin-right: 10px;
@@ -313,7 +313,7 @@ body.settings_page_sharing .advanced input[type=submit] {
 
 /* Official button previews */
 .preview li.preview-item {
-	background-position: 0px 5px;
+	background-position: 0 5px;
 	cursor: default;
 }
 
@@ -426,8 +426,8 @@ body.settings_page_sharing .advanced input[type=submit] {
 .sharing-hidden li.share-end {
 	clear: both;
 	height: 0;
-	padding: 0px !important;
-	margin: 0px !important;
+	padding: 0 !important;
+	margin: 0 !important;
 	width: 0;
 	visibility: hidden;
 	float: none;
@@ -442,7 +442,7 @@ body.settings_page_sharing .advanced input[type=submit] {
 #services-config a.remove {
 	background: #dcdcde;
 	color: #fff;
-	padding: 0px 4px 2px;
+	padding: 0 4px 2px;
 	border-radius: 15px;
 	-moz-border-radius: 15px;
 	-webkit-border-radius: 15px;
