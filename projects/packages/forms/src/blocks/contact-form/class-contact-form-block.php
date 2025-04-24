@@ -292,7 +292,6 @@ class Contact_Form_Block {
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
-				'isFormModalEnabled'   => true, // Disable or enable integrations modal and use sidebar panels instead
 				'preferredView'        => $preferred_view,
 			),
 		);
