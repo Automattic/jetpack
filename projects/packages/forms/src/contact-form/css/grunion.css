@@ -702,19 +702,16 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-radio-label {
 	display: inline-flex;
-  align-items: center;
-
+	align-items: center;
 	padding: var(--jetpack--contact-form--button-outline--padding);
-
 	background: var(--jetpack--contact-form--button-outline--background-color);
 	border: var(--jetpack--contact-form--button-outline--border);
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
 	color: var(--jetpack--contact-form--button-outline--text-color);
-
 	line-height: var(--jetpack--contact-form--button-outline--line-height);
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button {
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio {
 
 	/* visually-hidden */
 	clip: rect(0 0 0 0);
@@ -741,7 +738,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	outline-offset: 2px;
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple.is-style-button {
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple {
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
 	color: var(--jetpack--contact-form--button-outline--text-color);
 
@@ -752,7 +749,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	outline-width: 0; /* focus style defined on parent */
 }
 
-.contact-form input.grunion-field.is-style-button + .grunion-field-text::before {
+.contact-form .is-style-button input.grunion-field + .grunion-field-text::before {
 	background: var(--jetpack--contact-form--button-outline--background-color);
 	border: var(--jetpack--contact-form--button-outline--border);
 	border-color: currentColor;
@@ -768,7 +765,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	z-index: -1;
 }
 
-.contact-form input.grunion-field.is-style-button {
+.contact-form .is-style-button input.grunion-field {
 	color: var(--jetpack--contact-form--button-outline--color);
 }
 
