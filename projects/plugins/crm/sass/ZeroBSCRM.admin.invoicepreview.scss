@@ -67,7 +67,7 @@
 	}
 
 	.tapad{
-		padding: 0px 0px 0px 7px;
+		padding: 0 0 0 7px;
 	}
 
 	thead{
@@ -80,7 +80,7 @@
 	    padding: 8px;
 	    line-height: 1.42857;
 	    vertical-align: top;
-	    border-top: 0px solid #ddd;
+	    border-top: 0 solid #ddd;
 	}
 
 	.bottom-row{
@@ -216,8 +216,8 @@
 				}
 
 				td{
-					border:0px;
-					padding:0px;
+					border:0;
+					padding:0;
 				}
 			}
 
@@ -335,19 +335,19 @@
 			textarea{
 			    width: 100%;
 			    height: 30px;
-			    border: 0px;
+			    border: 0;
 			    box-shadow: none;
-			    padding: 0px;
-			    margin: 0px;
+			    padding: 0;
+			    margin: 0;
 			    vertical-align: middle;
 			    margin-top: 10px;
 			}
 
 			.tapad{
-				padding: 0px 0px 0px 10px;
+				padding: 0 0 0 10px;
 			}
 
-			input[type=number] {
+			input[type="number"] {
 			    height: 28px;
 			    line-height: 1;
 			    box-shadow: none;
@@ -379,7 +379,7 @@
 		.zbs-item-name{
 		    width: 100%;
 		    height: 28px;
-		    border: 0px;
+		    border: 0;
 		    box-shadow: none;
 		}
 
@@ -449,7 +449,7 @@
 	        color: #fff;
 		    background-color: #428bca;
 		    border: 1px solid #428bca;
-		    border-width: 0px;
+		    border-width: 0;
 		    font-size: 15px;
 		    padding: 7px;
 		    font-weight: 300;
@@ -459,7 +459,7 @@
 	    .btn-secondary{
 	    	background: #ddd;
 	    	border: 1px solid #ddd;
-			border-width: 0px;
+			border-width: 0;
 		    font-size: 15px;
 		    padding: 7px;
 		    font-weight: 300;

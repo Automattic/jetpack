@@ -42,10 +42,10 @@
 
 	&.transparent-bg {
 		font-weight: 500;
-		border: 0px;
+		border: 0;
 		background: transparent;
 		color: var(--jp-black);
-		padding: 8px 0px;
+		padding: 8px 0;
 
 		&:hover {
 			background: transparent;
@@ -54,6 +54,6 @@
 	}
 
 	&.zero-padding {
-		padding: 0px;
+		padding: 0;
 	}
 }

@@ -26,6 +26,7 @@ import InboxResponse from '../response';
 import { getPath } from '../utils.js';
 import {
 	viewAction,
+	viewActionModal,
 	markAsSpamAction,
 	markAsNotSpamAction,
 	moveToTrashAction,
@@ -257,6 +258,7 @@ export default function InboxView() {
 		],
 		[ filterOptions, dateSettings.formats.date ]
 	);
+
 	const actions = useMemo( () => {
 		const _actions = [
 			markAsSpamAction,
@@ -266,10 +268,21 @@ export default function InboxView() {
 			deleteAction,
 		];
 		if ( isMobile ) {
-			_actions.unshift( viewAction );
+			_actions.unshift( viewActionModal );
+		} else {
+			_actions.unshift( {
+				...viewAction,
+				callback( items ) {
+					const [ item ] = items;
+					const selectedId = item.id.toString();
+					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
+					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+				},
+			} );
 		}
 		return _actions;
-	}, [ isMobile ] );
+	}, [ isMobile, onChangeSelection, selection ] );
+
 	return (
 		<HStack
 			spacing={ 5 }

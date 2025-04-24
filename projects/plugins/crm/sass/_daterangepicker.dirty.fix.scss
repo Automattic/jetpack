@@ -85,13 +85,13 @@ th {
     background-color:#f5f5f5
 }
 
-table col[class*=col-] {
+table col[class*="col-"] {
     position:static;
     float:none;
     display:table-column
 }
 
-table td[class*=col-],table th[class*=col-] {
+table td[class*="col-"],table th[class*="col-"] {
     position:static;
     float:none;
     display:table-cell
