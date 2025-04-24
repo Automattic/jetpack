@@ -753,12 +753,13 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_text_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'text',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
+			'label'               => 'fun',
+			'type'                => 'text',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-text',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
@@ -770,12 +771,13 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_email_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'email',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
+			'label'               => 'fun',
+			'type'                => 'email',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-email',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'email' ) );
@@ -787,12 +789,13 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_url_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'url',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
+			'label'               => 'fun',
+			'type'                => 'url',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-url',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
@@ -804,12 +807,13 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_telephone_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'telephone',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
+			'label'               => 'fun',
+			'type'                => 'telephone',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-telephone',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'tel' ) );
@@ -821,13 +825,14 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_date_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'date',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
-			'format'      => '(YYYY-MM-DD)',
+			'label'               => 'fun',
+			'type'                => 'date',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-date',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
+			'format'              => '(YYYY-MM-DD)',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
@@ -839,12 +844,13 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_textarea_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'textarea',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
+			'label'               => 'fun',
+			'type'                => 'textarea',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-textarea',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'textarea' ) );
@@ -856,16 +862,17 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_checkbox_field_renders_as_expected() {
 		$attributes = array(
-			'label'         => 'fun',
-			'type'          => 'checkbox',
-			'class'         => 'lalala',
-			'default'       => 'foo',
-			'placeholder'   => 'PLACEHOLDTHIS!',
-			'id'            => 'funID',
-			'optionclasses' => 'option-tomato option-lettuce',
-			'optionstyles'  => 'color:cheese;font-size:11px;',
-			'labelclasses'  => 'label-tomato label-lettuce',
-			'labelstyles'   => 'color:beef;font-size:22px;',
+			'label'               => 'fun',
+			'type'                => 'checkbox',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-checkbox',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
+			'optionclasses'       => 'option-tomato option-lettuce',
+			'optionstyles'        => 'color:cheese;font-size:11px;',
+			'labelclasses'        => 'label-tomato label-lettuce',
+			'labelstyles'         => 'color:beef;font-size:22px;',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
@@ -877,16 +884,17 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_checkbox_multiple_field_renders_as_expected() {
 		$attributes          = array(
-			'label'         => 'fun',
-			'type'          => 'checkbox-multiple',
-			'class'         => 'lalala',
-			'default'       => 'option 1',
-			'id'            => 'funID',
-			'options'       => array( 'option 1', 'option 2' ),
-			'values'        => array( 'option 1', 'option 2' ),
-			'optionclasses' => 'option-cheese option-ham',
-			'inputclasses'  => 'input-tomato input-lettuce',
-			'optionsdata'   => wp_json_encode(
+			'label'               => 'fun',
+			'type'                => 'checkbox-multiple',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-checkbox-multiple',
+			'class'               => 'lalala',
+			'default'             => 'option 1',
+			'id'                  => 'funID',
+			'options'             => array( 'option 1', 'option 2' ),
+			'values'              => array( 'option 1', 'option 2' ),
+			'optionclasses'       => 'option-cheese option-ham',
+			'inputclasses'        => 'input-tomato input-lettuce',
+			'optionsdata'         => wp_json_encode(
 				array(
 					array(
 						'label' => 'option 1',
@@ -902,6 +910,12 @@ class Contact_Form_Test extends BaseTestCase {
 			),
 		);
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
+
+		/*
+		 * The third argument are the extra classes for the wrapper div.
+		 * For checkbox-multiple fields, we need to add the block style classes to the wrapper div.
+		 * See Contact_Form_Field::render_field() for more details.
+		 */
 		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
@@ -910,16 +924,48 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_radio_field_renders_as_expected() {
 		$attributes = array(
-			'label'   => 'fun',
-			'type'    => 'radio',
-			'class'   => 'lalala',
-			'default' => 'option 1',
-			'id'      => 'funID',
-			'options' => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
-			'values'  => array( 'option 1', 'option 2', 'option [34]', '\\' ),
+			'label'               => 'fun',
+			'type'                => 'radio',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-radio',
+			'class'               => 'lalala',
+			'default'             => 'option 1',
+			'id'                  => 'funID',
+			'options'             => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
+			'values'              => array( 'option 1', 'option 2', 'option [34]', '\\' ),
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'radio' ) );
+
+		/*
+		 * The third argument are the extra classes for the wrapper div.
+		 * For radio fields, we need to add the block style classes to the wrapper div.
+		 * See Contact_Form_Field::render_field() for more details.
+		 */
+		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	/**
+	 * Test for radio field_renders with block style classes.
+	 */
+	public function test_make_sure_radio_field_renders_as_expected_with_block_style_classes() {
+		$attributes = array(
+			'label'               => 'fun',
+			'type'                => 'radio',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-radio',
+			'class'               => 'lalala',
+			'default'             => 'option 1',
+			'id'                  => 'funID',
+			'options'             => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
+			'values'              => array( 'option 1', 'option 2', 'option [34]', '\\' ),
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'radio' ) );
+
+		/*
+		 * The third argument are the extra classes for the wrapper div.
+		 * For radio fields, we need to add the block style classes to the wrapper div.
+		 * See Contact_Form_Field::render_field() for more details.
+		 */
 		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
@@ -928,13 +974,14 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_select_field_renders_as_expected() {
 		$attributes = array(
-			'label'   => 'fun',
-			'type'    => 'select',
-			'class'   => 'lalala',
-			'default' => 'option 1',
-			'id'      => 'funID',
-			'options' => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
-			'values'  => array( 'option 1', 'option 2', 'option [34]', '\\' ),
+			'label'               => 'fun',
+			'type'                => 'select',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-select',
+			'class'               => 'lalala',
+			'default'             => 'option 1',
+			'id'                  => 'funID',
+			'options'             => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
+			'values'              => array( 'option 1', 'option 2', 'option [34]', '\\' ),
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'select' ) );
@@ -1017,10 +1064,20 @@ class Contact_Form_Test extends BaseTestCase {
 			}
 		}
 
-		$css_class = "grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap{$input_classes_wrap}{$options_classes_wrap} grunion-field-wrap";
+		// Multiple classes are also added to the wrapper div with the -wrap suffix.
+		$classes_wrap = '';
+		if ( isset( $attributes['class'] ) ) {
+			$wrapper_classes = explode( ' ', $attributes['class'] );
+			foreach ( $wrapper_classes as $wrapper_class ) {
+				$classes_wrap .= " {$wrapper_class}-wrap";
+			}
+		}
+
+		$css_class         = "wp-block-jetpack-field-{$attributes['type']} grunion-field-{$attributes['type']}-wrap{$classes_wrap}{$input_classes_wrap}{$options_classes_wrap} grunion-field-wrap";
+		$wrapper_div_class = $wrapper_div->getAttribute( 'class' );
 
 		$this->assertEquals(
-			$wrapper_div->getAttribute( 'class' ),
+			$wrapper_div_class,
 			$css_class,
 			'div class attribute doesn\'t match'
 		);
@@ -1058,9 +1115,21 @@ class Contact_Form_Test extends BaseTestCase {
 			}
 		}
 
+		// Multiple classes are also added to the input element, with the exception of is-style-* classes.
+		$classes_input = '';
+		if ( isset( $attributes['class'] ) ) {
+			$input_classes = explode( ' ', $attributes['class'] );
+			foreach ( $input_classes as $input_class ) {
+				if ( strpos( $input_class, 'is-style-' ) !== false ) {
+					continue;
+				}
+				$classes_input .= " {$input_class}";
+			}
+		}
+
 		$this->assertEquals(
 			$input->getAttribute( 'class' ),
-			$attributes['type'] . ' ' . $attributes['class'] . $input_classes_input . $options_classes_input . ' grunion-field',
+			$attributes['type'] . $classes_input . $input_classes_input . $options_classes_input . ' grunion-field',
 			'input class attribute doesn\'t match'
 		);
 	}
