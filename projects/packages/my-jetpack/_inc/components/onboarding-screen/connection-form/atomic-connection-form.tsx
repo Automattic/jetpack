@@ -19,6 +19,11 @@ const AtomicConnectionForm = () => {
 		setAutoReconnect( prevState => ! prevState );
 	}, [] );
 
+	// Define button text strings separately to avoid ternary inside __()
+	const reconnectingText = __( 'Reconnecting…', 'jetpack-my-jetpack' );
+	const reconnectText = __( 'Reconnect', 'jetpack-my-jetpack' );
+	const buttonText = isRestoringConnection ? reconnectingText : reconnectText;
+
 	// Display error if there's any
 	const errorMessage = restoreConnectionError ? (
 		<Text className={ styles[ 'error-message' ] }>
@@ -51,9 +56,7 @@ const AtomicConnectionForm = () => {
 				disabled={ isRestoringConnection }
 				isLoading={ isRestoringConnection }
 			>
-				{ isRestoringConnection
-					? __( 'Reconnecting…', 'jetpack-my-jetpack' )
-					: __( 'Reconnect', 'jetpack-my-jetpack' ) }
+				{ buttonText }
 			</Button>
 
 			<div className={ styles.tos }>
@@ -64,6 +67,7 @@ const AtomicConnectionForm = () => {
 						'Enable auto-reconnect. This feature will auto create owner user account if missing.',
 						'jetpack-my-jetpack'
 					) }
+					disabled={ isRestoringConnection }
 				/>
 			</div>
 		</div>
