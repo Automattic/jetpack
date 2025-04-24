@@ -66,6 +66,7 @@ class Publicize_Script_Data {
 			$data['site']['plan']['features'] = Current_Plan::get_simple_site_specific_features();
 		}
 
+		$data['site']['wpcom']['blog_id'] = Manager::get_site_id( true );
 		if ( ! isset( $data['site']['host'] ) ) {
 			$data['site']['host'] = ( new Host() )->get_known_host_guess( false );
 		}

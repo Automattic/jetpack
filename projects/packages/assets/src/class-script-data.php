@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Assets;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -128,7 +127,7 @@ class Script_Data {
 				'wp_version'        => $wp_version,
 				'wpcom'             => array(
 					// This should contain the connected site details like blog_id, is_atomic etc.
-					'blog_id' => Manager::get_site_id( true ),
+					'blog_id' => 0,
 				),
 			),
 			'user' => array(
