@@ -54,7 +54,6 @@ const baseConfig = {
 		],
 
 		// Disable all other rules for now.
-		'declaration-property-unit-allowed-list': null,
 		'no-duplicate-selectors': null,
 		'scss/at-extend-no-missing-placeholder': null,
 		'scss/comment-no-empty': null,
