@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
@@ -293,6 +294,55 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		// Add loading="eager" if not present
 		if ( ! preg_match( '/loading\s*=\s*["\']eager["\']/i', $tag ) ) {
 			$tag = preg_replace( '/<img\s/i', '<img loading="eager" ', $tag );
+		}
+
+		$tag = $this->optimize_image_tag_srcset( $tag );
+
+		return $tag;
+	}
+
+	/**
+	 * Optimize an image tag by adding srcset and sizes attributes.
+	 *
+	 * @param string $tag The original image tag.
+	 * @return string The optimized image tag.
+	 *
+	 * @since $$next-version$$
+	 */
+	private function optimize_image_tag_srcset( $tag ) {
+		if ( preg_match( '/src\s*=\s*["\']([^"\']+)["\']/i', $tag, $matches ) ) {
+			$image_url = $matches[1];
+
+			$image_sizes = array( 300, 600, 900, 1200, 1600 );
+			$sizes       = array();
+			foreach ( $image_sizes as $size ) {
+				$sizes[ $size ] = array( 'w' => $size );
+			}
+
+			// Generate srcset
+			$srcset = array();
+			foreach ( $sizes as $width => $args ) {
+				$srcset[] = Image_CDN_Core::cdn_url( $image_url, $args ) . ' ' . $width . 'w';
+			}
+
+			// Add srcset attribute
+			if ( ! preg_match( '/srcset\s*=\s*["\'][^"\']*["\']/i', $tag ) ) {
+				$tag = preg_replace( '/<img\s/i', '<img srcset="' . esc_attr( implode( ', ', $srcset ) ) . '" ', $tag );
+			}
+
+			// Add sizes attribute if not present
+			if ( ! preg_match( '/sizes\s*=\s*["\'][^"\']*["\']/i', $tag ) ) {
+				$sizes_string = '';
+				foreach ( $sizes as $width => $args ) {
+					$sizes_string .= '(max-width: ' . $width . 'px) 100vw, ';
+				}
+				$sizes_string = rtrim( $sizes_string, ', ' );
+				$tag          = preg_replace( '/<img\s/i', '<img sizes="' . esc_attr( $sizes_string ) . '" ', $tag );
+			}
+
+			// Update the src attribute with the CDN URL
+			$optimized_url = Image_CDN_Core::cdn_url( $image_url );
+			$tag           = str_replace( $image_url, $optimized_url, $tag );
 		}
 
 		return $tag;
