@@ -6,7 +6,7 @@
 // this is extended throughout 
 .zbs-tasks-field {
 
-    line-height: 1em;
+    line-height: 1;
     border: 1px solid #ccc;
     border-radius: 0.2em;
      box-shadow: inset 0 1px 2px rgba(0,0,0,.07);
@@ -135,7 +135,7 @@ background: #fff;
     font-weight: 400;
     min-height: 0;
     padding: 0.2em 0.5em;
-    line-height: 1.4em;
+    line-height: 1.4;
 }
 
 .fc-event{
@@ -172,7 +172,7 @@ background: #fff;
 
     label {
         font-size: 14px;
-		  line-height: 1.4em;
+		  line-height: 1.4;
         font-weight: 400 !important;
     }
 }
