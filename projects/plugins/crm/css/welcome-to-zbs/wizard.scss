@@ -127,7 +127,7 @@ body {
   line-height:30px !important;
 }
 
-input[type=checkbox], input[type=radio]{
+input[type="checkbox"], input[type="radio"]{
   width:20px;
 }
 
@@ -171,14 +171,14 @@ input[type=checkbox], input[type=radio]{
   -moz-box-shadow: none;
   box-shadow: none;
   clear: both;
-  margin: 20px 0px;
+  margin: 20px 0;
   text-align: center;
 }
 
 
 .ck_form.ck_minimal h3.ck_form_title {
   text-align: center;
-  margin: 0px 0px 10px;
+  margin: 0 0 10px;
   font-size: 28px;
 }
 
@@ -188,12 +188,12 @@ input[type=checkbox], input[type=radio]{
   text-transform: uppercase;
   font-size: 18px;
   font-weight: 400;
-  padding-top: 0px;
-  margin-top: 0px;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .ck_form.ck_minimal p {
-  padding: 0px;
+  padding: 0;
 }
 
 .ck_form, .ck_form * {
@@ -215,7 +215,7 @@ input[type=checkbox], input[type=radio]{
 }
 
 #ck_success_msg {
-  padding: 10px 10px 0px;
+  padding: 10px 10px 0;
   border: solid 1px #ddd;
   background: #eee;
 }
@@ -229,9 +229,8 @@ input[type=checkbox], input[type=radio]{
   -webkit-border-radius: 3px;
   border-radius: 3px; /* border radius */
   background-color: #fff; /* layer fill content */
-  height: auto;
   float: left;
-  margin: 0px;
+  margin: 0;
   margin-right: 2%;
   height: 42px;
 }
@@ -242,10 +241,9 @@ input[type=checkbox], input[type=radio]{
 }
 
 .ck_form.ck_minimal .ck_subscribe_button {
-    width: 100%;
     color: #fff;
-    margin: 0px;
-    padding:  11px 0px;
+    margin: 0;
+    padding:  11px 0;
     font-size: 18px;
     background: $jetpack_green;
     -moz-border-radius: 3px;
@@ -264,7 +262,7 @@ input[type=checkbox], input[type=radio]{
   color: #626262;
   font-size: 12px;
   text-align: center;
-  padding: 15px 0px 0px;
+  padding: 15px 0 0;
   display: block;
   clear: both;
 }
@@ -325,7 +323,7 @@ input[type=checkbox], input[type=radio]{
 
 .ck_form_v6 #ck_success_msg {
   margin-top: 15px;
-  padding: 0px 10px;
+  padding: 0 10px;
 }
 
 .ck_slide_up.ck_form_v6 .ck_minimal + .ck_close_link {
@@ -437,7 +435,7 @@ $darkenColor: darken($activeColor, 20%);
   margin: 20px auto !important;
   position: relative !important;
   border-radius: 50px !important;
-  box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2) !important;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.2) !important;
 
   &::after {
     content: 'OFF' !important;
@@ -447,7 +445,7 @@ $darkenColor: darken($activeColor, 20%);
     z-index: 0 !important;
     font: 12px/26px Arial, sans-serif !important;
     font-weight: 700 !important;
-    text-shadow: 1px 1px 0px rgba(255,255,255,.15) !important;
+    text-shadow: 1px 1px 0 rgba(255,255,255,.15) !important;
   }
 
   &::before {
@@ -474,10 +472,10 @@ $darkenColor: darken($activeColor, 20%);
     background: linear-gradient(to bottom, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%) !important;
     border-radius: 50px !important;
     transition: all 0.4s ease !important;
-    box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.3) !important;
   }
 
-  input[type=checkbox] {
+  input[type="checkbox"] {
     visibility: hidden !important;
 
     &:checked + label {

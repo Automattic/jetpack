@@ -22,7 +22,7 @@ export default class EventbriteBlock extends EditorCanvas {
 
 	async addEmbed() {
 		const inputSelector = this.getSelector( '.components-placeholder__input' );
-		const descriptionSelector = this.getSelector( "button[type='submit']" );
+		const descriptionSelector = this.getSelector( 'button[type="submit"]' );
 
 		await this.canvas().fill( inputSelector, this.embedUrl() );
 		await this.canvas().click( descriptionSelector );

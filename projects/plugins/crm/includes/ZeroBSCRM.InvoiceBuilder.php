@@ -988,7 +988,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	// due to withTotals parameter on get above, we now don't need ot calc anything here, just expose
 	$totals_table = '';
 
-	$totals_table .= '<table id="invoice_totals" class="table-totals striped" style="width: 100%;;margin-left:0px;"><tbody>';
+	$totals_table .= '<table id="invoice_totals" class="table-totals striped" style="width: 100%;;margin-left:0;"><tbody>';
 	if ( $invsettings['invtax'] != 0 || $invsettings['invpandp'] != 0 || $invsettings['invdis'] != 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 		$totals_table .= '<tr class="total-top">';
 		$totals_table .= '<td  class="bord bord-l" style="text-align:right; width: 80%; text-transform: uppercase;">' . esc_html__( 'Subtotal', 'zero-bs-crm' ) . '</td>';
@@ -1081,7 +1081,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	}
 
 	$totals_table .= '<tr class="zbs_grand_total" style="line-height:30px;">
-		<td class="bord-l"  style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-total">' . __( 'Total', 'zero-bs-crm' ) . '</span></td>
+		<td class="bord-l"  style="text-align:right; font-weight:bold;  border-radius: 0;"><span class="zbs-total">' . __( 'Total', 'zero-bs-crm' ) . '</span></td>
 		<td class="row-amount" style="text-align:right; font-weight:bold;"><span class="zbs-total">';
 	if ( isset( $invoice['total'] ) && ! empty( $invoice['total'] ) ) {
 		$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['total'] ) );
@@ -1107,7 +1107,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	if ( is_array( $partials ) && count( $partials ) > 0 ) {
 
 		// header
-		$partials_table .= '<tr><td colspan="2" style="text-align:center;font-weight:bold;  border-radius: 0px;"><span class="zbs-total">' . esc_html__( 'Payments', 'zero-bs-crm' ) . '</span></td></tr>';
+		$partials_table .= '<tr><td colspan="2" style="text-align:center;font-weight:bold;  border-radius: 0;"><span class="zbs-total">' . esc_html__( 'Payments', 'zero-bs-crm' ) . '</span></td></tr>';
 
 		foreach ( $partials as $partial ) {
 
@@ -1145,7 +1145,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	}
 
 	$partials_table .= '<tr class="zbs_grand_total' . $balance_hide . '">';
-	$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</span></td>';
+	$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</span></td>';
 	$partials_table .= '<td class="bord row-amount"  style="text-align:right;font-weight:bold;"><span class="zbs-subtotal-value">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</span></td>';
 	$partials_table .= '</tr>';
 	$partials_table .= '</table>';

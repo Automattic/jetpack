@@ -778,11 +778,11 @@ button.dops-foldable-card__action {
 	right: 0;
 }
 
-.dops-search.is-pinned .dops-search__input[type='search'] {
+.dops-search.is-pinned .dops-search__input[type="search"] {
 	height: 100%;
 }
 
-.dops-search__input[type='search'] {
+.dops-search__input[type="search"] {
 	width: 100%;
 	display: none;
 	position: absolute;
@@ -802,18 +802,18 @@ button.dops-foldable-card__action {
 
 @media ( max-width: 660px ) {
 
-	.dops-search__input[type='search'] {
+	.dops-search__input[type="search"] {
 		opacity: 0;
 		left: 0;
 		padding-left: 50px;
 	}
 }
 
-.dops-search__input[type='search']::-webkit-search-cancel-button {
+.dops-search__input[type="search"]::-webkit-search-cancel-button {
 	-webkit-appearance: none;
 }
 
-.dops-search__input[type='search']:focus {
+.dops-search__input[type="search"]:focus {
 	box-shadow: none;
 	border: none;
 }

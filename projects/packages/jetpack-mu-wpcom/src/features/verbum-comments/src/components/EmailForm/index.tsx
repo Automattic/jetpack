@@ -12,6 +12,7 @@ import { EmailFormCookieConsent } from './email-form-cookie-consent';
 import { getProfile } from './profile-get';
 import type { ChangeEvent } from 'preact/compat';
 import './style.scss';
+import '@gravatar-com/hovercards/dist/style.css';
 
 interface EmailFormProps {
 	shouldShowEmailForm: boolean;
