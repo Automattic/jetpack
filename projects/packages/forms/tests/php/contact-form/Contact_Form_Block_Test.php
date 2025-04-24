@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_Block;
 use WP_Block_Type_Registry;
@@ -17,7 +19,7 @@ use WP_Block_Type_Registry;
  *
  * @covers \Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block
  */
-#[CoversClass( \Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block )]
+#[CoversClass( \Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block::class )]
 class Contact_Form_Block_Test extends BaseTestCase {
 	/**
 	 * Test that ::find_nested_html_block works correctly.
