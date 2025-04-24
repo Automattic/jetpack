@@ -977,16 +977,6 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
                               return $contact_id;
                             } // end if
 
-                            /* Switched out for WH Perms model 19/02/16 
-                            if('page' == $_POST['post_type']) { 
-                              if(!current_user_can('edit_page', $contact_id)) {
-                                return $contact_id;
-                              } // end if
-                            } else { 
-                                if(!current_user_can('edit_page', $contact_id)) { 
-                                    return $contact_id;
-                                } // end if
-                            } // end if */
                             if (!zeroBSCRM_permsCustomers()){
                                 return $contact_id;
                             }
@@ -1053,7 +1043,6 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
                                             ///update_post_meta($contact_id, 'zbs_customer_files', $zbsCustomerFiles);  
                                             zeroBSCRM_updateCustomerFiles($contact_id,$zbsCustomerFiles);                                            
 
-                                                // actually got wrappers now :) $zbs->updateMeta(ZBS_TYPE_CONTACT,$contact_id,'cfile_'.$cfSubKey,$upload['file']);
                                                 // this'll override any prev in that slot, too
                                                 zeroBSCRM_fileslots_addToSlot($cfSubKey,$upload['file'],$contact_id,ZBS_TYPE_CONTACT,true);        
 
@@ -1088,11 +1077,6 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
 /* ======================================================
   Contact Files Metabox
    ====================================================== */
-/*
-function zeroBS__addCustomerMetaBoxes() {   
-    add_meta_box('zerobs-customer-files', __('Contact Files',"zero-bs-crm"), 'zeroBS__MetaboxFilesOther', 'zerobs_customer', 'normal', 'low');  
-}
-add_action('add_meta_boxes', 'zeroBS__addCustomerMetaBoxes');  */
 
     class zeroBS__Metabox_ContactFiles extends zeroBS__Metabox{
 
@@ -1334,17 +1318,7 @@ add_action('add_meta_boxes', 'zeroBS__addCustomerMetaBoxes');  */
             if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
               return $id;
             } // end if
-               
-            /* Switched out for WH Perms model 19/02/16 
-            if('page' == $_POST['post_type']) { 
-              if(!current_user_can('edit_page', $id)) {
-                return $id;
-              } // end if
-            } else { 
-                if(!current_user_can('edit_page', $id)) { 
-                    return $id;
-                } // end if
-            } // end if */
+
             if (!zeroBSCRM_permsCustomers()){
                 return $contact_id;
             }
