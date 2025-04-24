@@ -8,6 +8,7 @@
 namespace Automattic\RedefineExit\Tests;
 
 use Automattic\RedefineExit\ExitException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -22,6 +23,7 @@ class RedefinitionTest extends TestCase {
 	 * @param string          $expectMessage Expected exception message.
 	 * @param int             $expectCode Expected exception code.
 	 */
+	#[DataProvider( 'provideRedefinition' )]
 	public function testRedefinition( $func, $arg, $expectMessage, $expectCode ) {
 		try {
 			$this->assertThat( $func, $this->logicalOr( 'exit', 'die' ) );

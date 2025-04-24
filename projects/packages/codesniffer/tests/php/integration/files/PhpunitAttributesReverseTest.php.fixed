@@ -1,0 +1,125 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.ClassComment.Missing
+// phpcs:disable Squiz.Commenting.FunctionComment.Missing
+// phpcs:disable MediaWiki.AlternativeSyntax.UnicodeEscape
+// phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired
+
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BackupGlobals;
+use PHPUnit\Framework\Attributes\BackupStaticProperties;
+use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\BeforeClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use PHPUnit\Framework\Attributes\PostCondition;
+use PHPUnit\Framework\Attributes\PreCondition;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @backupGlobals enabled
+ * @backupStaticAttributes enabled
+ * @coversNothing
+ * @doesNotPerformAssertions
+ * @preserveGlobalState enabled
+ * @runClassInSeparateProcess
+ * @testdox Some weird thing.
+ */
+#[BackupGlobals]
+#[BackupStaticProperties]
+#[CoversNothing]
+#[DoesNotPerformAssertions]
+#[PreserveGlobalState( true )]
+#[RunClassInSeparateProcess]
+#[TestDox( 'Some weird thing.' )]
+class PhpunitAttributesReverseTest extends TestCase {
+	/**
+	 * @after
+	 * @afterClass
+	 * @before
+	 * @beforeClass
+	 * @postCondition
+	 * @preCondition
+	 * @runInSeparateProcess
+	 * @test
+	 * @backupGlobals enabled
+	 * @backupStaticAttributes enabled
+	 * @coversNothing
+	 * @doesNotPerformAssertions
+	 * @preserveGlobalState enabled
+	 * @testdox Another weird thing.
+	 */
+	#[After]
+	#[AfterClass]
+	#[Before]
+	#[BeforeClass]
+	#[PostCondition]
+	#[PreCondition]
+	#[RunInSeparateProcess]
+	#[Test]
+	#[BackupGlobals]
+	#[BackupStaticProperties]
+	#[CoversNothing]
+	#[DoesNotPerformAssertions]
+	#[PreserveGlobalState( true )]
+	#[TestDox( 'Another weird thing.' )]
+	public function testMethodAnnotations() {
+	}
+
+	/**
+	 * @testdox Escape test: 'foo' \bar\?
+	 */
+	#[TestDox( 'Escape test: \'foo\' \\bar\?' )]
+	public function testSingleQuotedString() {
+	}
+
+	/**
+	 * @testdox Escape test:
+	 *  Literals: \ $ " \?
+	 *  Octal: O
+	 *  Hex: Oo
+	 *  Unicode: 🎉 🎉
+	 */
+	#[TestDox( "Escape test:\nLiterals: \\ \$ \" \?\nOctal: \117\nHex: \x4f\x6F\nUnicode: \u{1f389} \u{1F389}" )]
+	public function testDoubleQuotedString() {
+	}
+
+	/**
+	 * @preserveGlobalState disabled
+	 */
+	#[PreserveGlobalState( false )]
+	public function disabledStuff() {
+	}
+
+	#[TestDox()]
+	#[TestDox( 42 )]
+	#[TestDox( "interpolated $var" )]
+	#[PreserveGlobalState]
+	public function bad() {
+	}
+
+	/**
+	 * @preserveGlobalState disabled
+	 */
+	#[PreserveGlobalState( null )]
+	#[PreserveGlobalState( 0 )]
+	#[PreserveGlobalState( "" )]
+	#[PreserveGlobalState( '' )]
+	#[PreserveGlobalState( "0" )]
+	#[PreserveGlobalState( '0' )]
+	public function weird() {
+	}
+
+	/**
+	 * @preserveGlobalState enabled
+	 */
+	#[PreserveGlobalState( 1 )]
+	public function weird2() {
+	}
+}

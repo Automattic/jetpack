@@ -68,8 +68,8 @@ body div.jetpack-slideshow-window * img {
 
 .jetpack-slideshow-line-height-hack {
 	overflow: hidden;
-	width: 0px;
-	font-size: 0px;
+	width: 0;
+	font-size: 0;
 }
 
 .jetpack-slideshow-slide-caption {
@@ -114,7 +114,7 @@ body div div.jetpack-slideshow-controls a:hover {
 	border:2px solid rgba(255,255,255,0.1) !important;
 	background-color: #000 !important;
 	background-color: rgba(0,0,0,0.6) !important;
-	background-image: url('../img/slideshow-controls.png') !important;
+	background-image: url(../img/slideshow-controls.png) !important;
 	background-repeat: no-repeat;
 	background-size: 142px 16px !important;
 	background-position: -34px 8px !important;
@@ -142,7 +142,7 @@ body div div.jetpack-slideshow-controls a:hover {
 
 	body div div.jetpack-slideshow-controls a,
 	body div div.jetpack-slideshow-controls a:hover {
-		background-image: url('../img/slideshow-controls-2x.png') !important;
+		background-image: url(../img/slideshow-controls-2x.png) !important;
 	}
 }
 

@@ -8,12 +8,15 @@
 use Automattic\Jetpack\IP\Utils;
 use Brain\Monkey;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Utils class test suite.
  *
  * @covers \Automattic\Jetpack\IP\Utils
  */
+#[CoversClass( Utils::class )]
 final class UtilsTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Set up.
@@ -41,6 +44,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	 * @param array        $server Data for `$_SERVER`.
 	 * @param object|null  $trusted_header_data Trusted header data.
 	 */
+	#[DataProvider( 'provide_get_ip' )]
 	public function test_get_ip( $expect, $server, $trusted_header_data ) {
 		Functions\expect( 'get_site_option' )
 			->once()

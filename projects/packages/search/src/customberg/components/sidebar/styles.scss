@@ -31,7 +31,6 @@
 
 .components-button.jp-search-configure-sidebar__panel-tab {
 	border-radius: 0;
-	height: 50px - $border-width;
 	background: transparent;
 	border: none;
 	box-shadow: none;
@@ -165,13 +164,13 @@
 		cursor: not-allowed;
 	}
 
-	input[type='checkbox'],
-	input[type='radio'] {
+	input[type="checkbox"],
+	input[type="radio"] {
 		background: $gray-300;
 		border-color: $gray-300;
 	}
 
-	.components-radio-control__input[type='radio']:checked {
+	.components-radio-control__input[type="radio"]:checked {
 		background: $gray-400;
 		border-color: $gray-400;
 	}

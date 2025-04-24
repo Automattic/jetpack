@@ -5,12 +5,17 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\Group;
+
 /**
  * Plugin uninstall test case.
  *
  * @group uninstall
  * @covers ::jetpack_uninstall
  */
+#[Group( 'uninstall' )]
+#[CoversFunction( 'jetpack_uninstall' )]
 class Unistall_Jetpack_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

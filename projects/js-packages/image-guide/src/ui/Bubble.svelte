@@ -149,7 +149,7 @@
 		.bubble {
 			width: 10px;
 			height: 10px;
-			font-size: 0px;
+			font-size: 0;
 			border: 1px solid hsl( 0deg 0% 100% / 0.3 );
 			:global( svg ) {
 				display: none;

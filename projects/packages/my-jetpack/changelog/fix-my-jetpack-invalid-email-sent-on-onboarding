@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Onboarding: Avoid sending invalid email along with social login request

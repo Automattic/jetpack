@@ -82,6 +82,7 @@
 		padding: 20px;
 
 		&::before {
+			// stylelint-disable-next-line function-url-quotes -- quotes are required here. Bug report: https://github.com/stylelint/stylelint/issues/8544
 			background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4.125 12A7.875 7.875 0 0 1 12 4.124a7.875 7.875 0 1 1-7.875 7.874ZM12 3a9 9 0 1 0 0 17.999A9 9 0 1 0 12 3Zm.041 5.28c.31 0 .563.253.563.563v4.5a.562.562 0 0 1-1.125 0v-4.5c0-.31.252-.562.562-.562Zm-.562 7.313c0-.31.252-.563.562-.563h.011a.562.562 0 0 1 0 1.125h-.01a.562.562 0 0 1-.563-.562Z' fill='%231E2935'/%3E%3C/svg%3E%0A");
 			background-position: center top;
 			background-repeat: no-repeat;
@@ -200,6 +201,7 @@ html[amp] {
 
 
 			&::before {
+				// stylelint-disable-next-line function-url-quotes -- quotes are required here. Bug report: https://github.com/stylelint/stylelint/issues/8544
 				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M1.5 3.5v11h11V10H14v5a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5v1.5H1.5Z' fill='%231E2935'/%3E%3Cpath d='m15.922 1.178-8.907 8.907-1.06-1.06L14.86.118l1.06 1.06Z' fill='%231E2935'/%3E%3Cpath d='M7.5 0H16v1.5H7.5V0Z' fill='%231E2935'/%3E%3Cpath d='M16 0v8.5h-1.5V0H16Z' fill='%231E2935'/%3E%3C/svg%3E");
 				background-size: 12px;
 				height: 12px;

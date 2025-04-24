@@ -5,6 +5,9 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
 
@@ -13,11 +16,13 @@ require_once __DIR__ . '/tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository
  */
+#[CoversClass( Workflow_Repository::class )]
 class Workflow_Repository_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * @testdox Workflow Repository instance creation
 	 */
+	#[TestDox( 'Workflow Repository instance creation' )]
 	public function test_workflow_repository_instance() {
 		$workflow_repo = new Workflow_Repository();
 
@@ -27,6 +32,7 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Persist a Workflow instance to the DB
 	 */
+	#[TestDox( 'Persist a Workflow instance to the DB' )]
 	public function test_persist_workflow() {
 
 		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
@@ -44,6 +50,7 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Retrieve all the Workflows
 	 */
+	#[TestDox( 'Retrieve all the Workflows' )]
 	public function test_retrieve_all_workflows() {
 		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
 		$workflow_1    = new Automation_Workflow( $workflow_data );
@@ -78,6 +85,7 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Delete a Workflow by ID
 	 */
+	#[TestDox( 'Delete a Workflow by ID' )]
 	public function test_delete_workflow() {
 		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
 		$workflow      = new Automation_Workflow( $workflow_data );
@@ -102,6 +110,7 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Find by active workflows using a criteria.
 	 */
+	#[TestDox( 'Find by active workflows using a criteria.' )]
 	public function test_find_by_with_one_criteria() {
 		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
 		$workflow_1    = new Automation_Workflow( $workflow_data );
@@ -146,6 +155,7 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Find by workflows using two criterias.
 	 */
+	#[TestDox( 'Find by workflows using two criterias.' )]
 	public function test_find_by_with_two_criterias() {
 		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
 		$workflow_1    = new Automation_Workflow( $workflow_data );
@@ -239,6 +249,7 @@ class Workflow_Repository_Test extends JPCRM_Base_Integration_TestCase {
 	 * @param array $args Dynamic criteria for pagination.
 	 * @param int   $expected_count The expected number of returned workflows.
 	 */
+	#[DataProvider( 'dataprovider_pagination_criteria' )]
 	public function test_find_by_pagination( array $args, int $expected_count ) {
 		$workflow_data = Automation_Faker::instance()->workflow_with_condition_action();
 		$repo          = new Workflow_Repository();

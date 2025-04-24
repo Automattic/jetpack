@@ -6,12 +6,15 @@
  */
 
 use Automattic\Jetpack\Status\Cache as StatusCache;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Test module related methods in Jetpack and Jetpack_Admin class.
  *
  * @covers \Jetpack_Admin
  */
+#[CoversClass( Jetpack_Admin::class )]
 class Get_Modules_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -86,6 +89,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	 * @param null|bool $value_requires_user_connection Value to be used in the requires_user_connection filter.
 	 * @return void
 	 */
+	#[DataProvider( 'get_test_connection_filters_data' )]
 	public function test_filter_by_require_connection( $value_requires_connection, $value_requires_user_connection ) {
 		$modules = Jetpack::get_available_modules( false, false, $value_requires_connection, $value_requires_user_connection );
 		$found   = array();

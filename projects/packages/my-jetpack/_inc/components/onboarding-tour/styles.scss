@@ -66,7 +66,7 @@ $tour-footer-spacing: 16px;
         }
 
         /* Applying Jetpack colors to the tour */
-        li[aria-current=step] {
+        li[aria-current="step"] {
             // carousel button color
             svg {
                 fill: var(--jp-green-60);

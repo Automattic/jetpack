@@ -66,8 +66,8 @@ function isFormEmpty( form ) {
 		select.value = form.querySelector( `select[id="${ select.id }"` )?.value;
 	} );
 	// Remove hidden fields from the cloned form.
-	Array.from( clonedForm.querySelectorAll( 'input[type="hidden"]' ) ).forEach( input =>
-		input.remove()
+	Array.from( clonedForm.querySelectorAll( 'input[type="hidden"]:not(.include-hidden)' ) ).forEach(
+		input => input.remove()
 	);
 	const formData = new FormData( clonedForm );
 	return ! Array.from( formData.values() ).some( value =>

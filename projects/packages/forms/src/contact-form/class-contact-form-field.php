@@ -863,7 +863,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		);
 
 		$global_config = array(
-			'i18n'     => array(
+			'i18n'          => array(
 				'language'           => get_bloginfo( 'language' ),
 				'fileSizeUnits'      => $file_size_units,
 				'zeroBytes'          => __( '0 Bytes', 'jetpack-forms' ),
@@ -875,7 +875,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'maxFiles'           => __( 'You have exeeded the number of files that you can upload.', 'jetpack-forms' ),
 				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
 			),
-			'endpoint' => $this->get_unauth_endpoint_url(),
+			'endpoint'      => $this->get_unauth_endpoint_url(),
+			'maxUploadSize' => $max_file_size,
 		);
 
 		wp_interactivity_config( 'jetpack/field-file', $global_config );
@@ -883,9 +884,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$context = array(
 			'isDropping'       => false,
 			'files'            => array(),
-			'hasFiles'         => false,
 			'allowedMimeTypes' => $accepted_file_types,
-			'maxUploadSize'    => $max_file_size,
 			'maxFiles'         => $max_files, // max number of files.
 			'hasMaxFiles'      => false,
 		);
@@ -920,7 +919,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			<div class="jetpack-form-file-field__preview-wrap" name="file-field-<?php echo esc_attr( $id ); ?>" data-wp-class--is-active="state.hasFiles">
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
 					<div class="jetpack-form-file-field__preview" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.isUploaded">
-						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" class="jetpack-form-file-field__hidden" data-wp-bind--value='context.file.fileJson' value="">
+						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" class="jetpack-form-file-field__hidden include-hidden" data-wp-bind--value='context.file.fileJson' value="">
 						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress">
 							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
 							<div class="jetpack-form-file-field__progress-bar" ></div>

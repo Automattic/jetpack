@@ -64,8 +64,8 @@ $icon-background-color: #fff;
 		margin-bottom: 12px;
 	}
 
-	&.wp-block[data-align=right],
-	&.wp-block[data-align=left] {
+	&.wp-block[data-align="right"],
+	&.wp-block[data-align="left"] {
 
 		.jetpack-upgrade-plan-banner__wrapper {
 			max-width: $content-width;

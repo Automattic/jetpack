@@ -226,6 +226,22 @@ class Jetpack_Boost {
 		if ( $page_cache_status->get() && Boost_Cache_Settings::get_instance()->get_enabled() ) {
 			Page_Cache_Setup::run_setup();
 		}
+
+		$modules_setup = new Modules_Setup();
+
+		/*
+		 * Check what modules are already active (from a previous activation for example).
+		 * If there are active modules, we need to ensure each module-related event is triggered again.
+		 */
+		$active_modules = $modules_setup->get_status();
+		if (
+			! empty( $active_modules )
+			&& ( new Connection() )->is_connected()
+		) {
+			foreach ( $active_modules as $module => $status ) {
+				$modules_setup->on_module_status_update( $module, true );
+			}
+		}
 	}
 
 	/**

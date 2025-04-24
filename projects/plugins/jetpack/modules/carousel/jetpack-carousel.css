@@ -284,7 +284,6 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-close-hint {
-	cursor: default;
 	letter-spacing: 0 !important;
 	position: fixed;
 	top: 20px;
@@ -729,7 +728,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 #jp-carousel-comment-form-spinner {
 	display: none;
 	float: left;
-	margin: 22px 0 0 10px;
 	font-size: 10px;
 	position: absolute; /* relative to .jp-carousel-comment-form-container */
 	text-indent: -9999em;
@@ -871,8 +869,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-radius: 2px;
 	font: 13px/1.4 'Helvetica Neue', sans-serif !important;
 	border: 1px solid var(--jp-carousel-border-color);
-	-webkit-box-shadow: inset 0px 0px 5px 0px rgba( 0, 0, 0, 0.2 );
-	box-shadow: inset 0px 0px 5px 0px rgba( 0, 0, 0, 0.2 );
+	-webkit-box-shadow: inset 0 0 5px 0 rgba( 0, 0, 0, 0.2 );
+	box-shadow: inset 0 0 5px 0 rgba( 0, 0, 0, 0.2 );
 }
 
 .jp-carousel-comment-post-error {
