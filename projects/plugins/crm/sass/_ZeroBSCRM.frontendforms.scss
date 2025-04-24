@@ -10,7 +10,6 @@
 
 	#form-embed, #form-preview{
 		min-height: 50px;
-	    background: #fff;
 	    margin-bottom: 20px;
 	    border: 1px solid #e5e5e5;
 	    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.04);
@@ -40,7 +39,7 @@
 
 		p{
 			text-align:center;
-			margin:0px;
+			margin:0;
 		}
 
 		.shorty{
@@ -67,11 +66,10 @@
 		font-size: 15px;
 		text-align:center;
 		color: #999;
-		padding: 5px;
 		text-transform: uppercase;
 		font-weight: 100;	
-		padding: 0px;
-    	margin: 0px;
+		padding: 0;
+    	margin: 0;
     	margin-bottom: 24px;
 	}
 
@@ -80,27 +78,23 @@
 	}
 
 	#zbs-form-pre{
-		white-space: pre;
 		display: block;
 		unicode-bidi: embed;
-		 white-space: pre-wrap;       /* css-3 */
-		 white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-		 white-space: -pre-wrap;      /* Opera 4-6 */
-		 white-space: -o-pre-wrap;    /* Opera 7 */
-		 word-wrap: break-word;       /* Internet Explorer 5.5+ */
+		white-space: pre-wrap;
+		overflow-wrap: break-word;
 	}
 
 	pre {
 	  display:block;
-	  font:400 12px/22px Monaco,Monospace !important;
+	  font:400 12px/22px Monaco,monospace !important;
 	  color:#CFDBEC;
 	  background-color:#2f2f2f;
-	  background-image:-webkit-repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
-	  background-image:-moz-repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
-	  background-image:-ms-repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
-	  background-image:-o-repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
-	  background-image:repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
-	  padding:0em 1em;
+	  background-image:-webkit-repeating-linear-gradient(top, #444 0, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
+	  background-image:-moz-repeating-linear-gradient(top, #444 0, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
+	  background-image:-ms-repeating-linear-gradient(top, #444 0, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
+	  background-image:-o-repeating-linear-gradient(top, #444 0, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
+	  background-image:repeating-linear-gradient(top, #444 0, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
+	  padding:0 1em;
 	  overflow:auto;
 	}
 
@@ -364,7 +358,7 @@
 	}
 
 	iframe{
-		border: 0px solid;
+		border: 0 solid;
 	}
 
 
@@ -457,7 +451,7 @@
 						float:left;
 						text-align: center;
 						line-height:12px;
-					    border: 0px;
+					    border: 0;
 					}
 				}
 
@@ -555,7 +549,7 @@
 						float:left;
 						text-align: center;
 						line-height:12px;
-					    border: 0px;
+					    border: 0;
 					}
 				}
 
@@ -628,7 +622,7 @@
 						float:left;
 						text-align: center;
 						line-height:12px;
-					    border: 0px;
+					    border: 0;
 					}
 				}
 			}

@@ -31,9 +31,9 @@ $show_nav = ( $portal->is_user_enabled() || ! $portal->access_is_via_hash( ZBS_T
 ?>
 <style>
 .stripe-button-el{
-  background: none !important;
-  border: 0px !important;
-  box-shadow: none !important;
+	background: none !important;
+	border: 0 !important;
+	box-shadow: none !important;
 }
 .zbs-back-to-invoices a:hover{
   text-decoration:none;

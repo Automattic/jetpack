@@ -1,9 +1,12 @@
 <?php
+
+use PHPUnit\Framework\Attributes\CoversFunction;
 require __DIR__ . '/../../../../modules/verification-tools/verification-tools-utils.php';
 
 /**
  * @covers ::jetpack_verification_validate
  */
+#[CoversFunction( 'jetpack_verification_validate' )]
 class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

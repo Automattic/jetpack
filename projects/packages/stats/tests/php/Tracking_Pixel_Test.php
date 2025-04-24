@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use WP_Query;
 
 /**
@@ -14,6 +15,7 @@ use WP_Query;
  *
  * @covers \Automattic\Jetpack\Stats\Tracking_Pixel
  */
+#[CoversClass( Tracking_Pixel::class )]
 class Tracking_Pixel_Test extends StatsBaseTestCase {
 	/**
 	 * Set up

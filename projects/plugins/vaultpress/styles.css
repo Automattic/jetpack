@@ -894,9 +894,6 @@ Progress Bars
 }
 
 .vp_graphs .completed .bar span {
-	background: rgb(41,154,11);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(41,154,11,1)), color-stop(100%,rgba(41,154,11,1)));
-	background: -webkit-linear-gradient(top, rgba(41,154,11,1) 0%,rgba(41,154,11,1) 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#299a0b', endColorstr='#299a0b',GradientType=0 );
 	background: linear-gradient(to bottom, rgba(41,154,11,1) 0%,rgba(41,154,11,1) 100%);
 }
@@ -939,9 +936,6 @@ Progress Bars
 #vp_progress .bar span {
 	float: left;
 	height: 22px;
-	background: #63b6db;
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#63b6db), color-stop(100%,#309dcf));
-	background: -webkit-linear-gradient(top, #63b6db 0%,#309dcf 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#63b6db', endColorstr='#309dcf',GradientType=0 );
 	background: linear-gradient(to bottom, #63b6db 0%,#309dcf 100%);
 	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);

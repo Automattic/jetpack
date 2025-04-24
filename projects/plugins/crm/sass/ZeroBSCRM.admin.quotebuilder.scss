@@ -79,7 +79,7 @@
         transition: border-color ease-in-out 0.15s,box-shadow ease-in-out 0.15s;
     }
 
-    input[type=checkbox]{       
+    input[type="checkbox"]{       
         margin-right: 0.7em;
         vertical-align: middle;
         line-height: 1em;
@@ -93,8 +93,8 @@
 .jpcrm-override-typeahead-padding {
 
 	.zbstypeaheadwrap {
-		padding-top: 0px;
-		padding-bottom: 0px;
+		padding-top: 0;
+		padding-bottom: 0;
 	}
 
 }

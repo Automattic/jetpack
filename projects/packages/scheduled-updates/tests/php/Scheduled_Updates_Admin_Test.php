@@ -7,11 +7,15 @@
 
 namespace Automattic\Jetpack;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Test class for Scheduled_Updates_Admin.
  *
  * @covers \Automattic\Jetpack\Scheduled_Updates_Admin
  */
+#[CoversClass( Scheduled_Updates_Admin::class )]
 class Scheduled_Updates_Admin_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Test get_scheduled_update_text.
@@ -20,6 +24,7 @@ class Scheduled_Updates_Admin_Test extends \WorDBless\BaseTestCase {
 	 * @param object $schedule The schedule object.
 	 * @param string $expected The expected text.
 	 */
+	#[DataProvider( 'update_text_provider' )]
 	public function test_get_scheduled_update_text( $schedule, $expected ) {
 		$this->assertSame( $expected, Scheduled_Updates_Admin::get_scheduled_update_text( $schedule ) );
 	}

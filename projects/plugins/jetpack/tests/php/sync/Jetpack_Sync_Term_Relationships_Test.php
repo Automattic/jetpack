@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Modules;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 
@@ -9,6 +10,7 @@ require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
  *
  * @group legacy-full-sync
  */
+#[Group( 'legacy-full-sync' )]
 class Jetpack_Sync_Term_Relationships_Test extends Jetpack_Sync_TestBase {
 	protected $post_id;
 	protected $term_object;

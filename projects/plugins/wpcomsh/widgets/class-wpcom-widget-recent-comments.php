@@ -79,36 +79,36 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 			}
 
 			table.recentcommentsavatartop img.avatar, table.recentcommentsavatarend img.avatar {
-				border: 0px;
+				border: 0;
 				margin: 0;
 			}
 
 			table.recentcommentsavatartop a, table.recentcommentsavatarend a {
-				border: 0px !important;
+				border: 0 !important;
 				background-color: transparent !important;
 			}
 
 			td.recentcommentsavatarend, td.recentcommentsavatartop {
-				padding: 0px 0px 1px 0px;
-				margin: 0px;
+				padding: 0 0 1px 0;
+				margin: 0;
 			}
 
 			td.recentcommentstextend {
 				border: none !important;
-				padding: 0px 0px 2px 10px;
+				padding: 0 0 2px 10px;
 			}
 
 			.rtl td.recentcommentstextend {
-				padding: 0px 10px 2px 0px;
+				padding: 0 10px 2px 0;
 			}
 
 			td.recentcommentstexttop {
 				border: none;
-				padding: 0px 0px 0px 10px;
+				padding: 0 0 0 10px;
 			}
 
 			.rtl td.recentcommentstexttop {
-				padding: 0px 10px 0px 0px;
+				padding: 0 10px 0 0;
 			}
 		</style>
 		<?php

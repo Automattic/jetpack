@@ -38,7 +38,7 @@ export default class ConnectionsPage extends WpPage {
 		// Locators
 		const mcUsernameSelector = '#login #username';
 		const mcPasswordSelector = '#login #password';
-		const mcSubmitSelector = "#login input[type='submit']";
+		const mcSubmitSelector = '#login input[type="submit"]';
 
 		await mcPopupPage.fill( mcUsernameSelector, credentials.username );
 		await mcPopupPage.fill( mcPasswordSelector, credentials.password );

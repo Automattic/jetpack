@@ -5,17 +5,21 @@ namespace Automattic\Jetpack\CRM\Entities\Tests;
 use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Entities\Factories\Contact_Factory;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 /**
  * Test Event Manager system.
  *
  * @covers Automattic\Jetpack\CRM\Entities\Contact
  */
+#[CoversClass( Contact::class )]
 class Contact_Entity_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * @testdox Test that contact entity is created from input data.
 	 */
+	#[TestDox( 'Test that contact entity is created from input data.' )]
 	public function test_contact_entity_from_input_data() {
 
 		$contact_data = $this->generate_contact_data();
@@ -37,6 +41,7 @@ class Contact_Entity_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test create contact entity from input data and insert in DB via DAL.
 	 */
+	#[TestDox( 'Test create contact entity from input data and insert in DB via DAL.' )]
 	public function test_create_contact_from_input_data_and_insert_into_DB() {
 
 		$contact_data = $this->generate_contact_data();

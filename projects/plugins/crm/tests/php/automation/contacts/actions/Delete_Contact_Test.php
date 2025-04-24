@@ -10,12 +10,15 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
 use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 /**
  * Test Automation Workflow functionalities
  *
  * @covers Automattic\Jetpack\CRM\Automation\Actions\Delete_Contact
  */
+#[CoversClass( Delete_Contact::class )]
 class Delete_Contact_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
@@ -39,6 +42,7 @@ class Delete_Contact_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test the delete contact action executes the action.
 	 */
+	#[TestDox( 'Test the delete contact action executes the action.' )]
 	public function test_delete_contact_action() {
 		global $zbs;
 
@@ -68,6 +72,7 @@ class Delete_Contact_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test the delete contact action executes the action, within a workflow
 	 */
+	#[TestDox( 'Test the delete contact action executes the action, within a workflow' )]
 	public function test_delete_contact_action_with_workflow() {
 		global $zbs;
 

@@ -97,7 +97,7 @@
 	background: #f1f1f1;
 	border: 5px solid rgba(0,0,0,0.1);
 	border-width: 1px 1px 5px;
-	font-size: 0px;
+	font-size: 0;
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
@@ -106,11 +106,11 @@
 	list-style-type: none;
 	height: 50px;
 	width: 80px;
-	margin: 0px 13px 12px;
+	margin: 0 13px 12px;
 }
 
 .color-grid li a {
-	font-size: 0px;
+	font-size: 0;
 }
 
 .color-grid li:hover {
@@ -289,8 +289,7 @@ a.button.right-pill {
 .color-suggestions li {
 	background: #f1f1f1;
 	border: 3px solid rgba(0,0,0,0.1);
-	font-size: 0px;
-	display: block;
+	font-size: 0;
 	margin: 0 10px 15px;
 	float: left;
 	list-style-type: none;
@@ -352,7 +351,7 @@ a.button.right-pill {
 .choose-pattern {
 	border: 3px solid #fff;
 	border-radius: 50%;
-	font-size: 0px;
+	font-size: 0;
 	box-shadow: 0 1px 2px #aaa;
 	display: block;
 	height: 70px;
@@ -361,7 +360,7 @@ a.button.right-pill {
 }
 
 .choose-pattern {
-	background-image: url('../images/pattern-default.png');
+	background-image: url(../images/pattern-default.png);
 	background-size: 70px 70px;
 }
 
@@ -371,7 +370,7 @@ a.button.right-pill {
 .colour-lovers {
 	border-radius: 4px;
 	float: left;
-	margin: 0px 18px 18px 0;
+	margin: 0 18px 18px 0;
 	height: 50px;
 	width: 72px;
 	position: relative;
@@ -531,7 +530,7 @@ a.button.right-pill {
 }
 
 .customize-image-picker {
-	margin: 0px -20px 10px;
+	margin: 0 -20px 10px;
 	padding: 0 20px 20px;
 }
 
@@ -618,7 +617,7 @@ input#iris {
 /* Header text color */
 
 .customize-control-header-text-color {
-	margin: 0px -20px 10px;
+	margin: 0 -20px 10px;
 	padding: 0 20px 20px;
 }
 
@@ -744,15 +743,15 @@ input#iris {
 }
 
 .noticon-tile-none {
-	background-image: url('../images/tile-none.png');
+	background-image: url(../images/tile-none.png);
 }
 
 .noticon-tile-horizontally {
-	background-image: url('../images/tile-horizontally.png');
+	background-image: url(../images/tile-horizontally.png);
 }
 
 .noticon-tile-vertically {
-	background-image: url('../images/tile-vertically.png');
+	background-image: url(../images/tile-vertically.png);
 }
 
 .background-options .iris-picker {

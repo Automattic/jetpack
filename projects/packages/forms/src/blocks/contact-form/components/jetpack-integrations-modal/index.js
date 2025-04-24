@@ -31,6 +31,8 @@ const IntegrationsModal = ( {
 		} ) );
 	};
 
+	const findIntegrationById = id => integrationsData?.find( integration => integration.id === id );
+
 	return (
 		<Modal
 			title={ __( 'Manage integrations', 'jetpack-forms' ) }
@@ -41,7 +43,7 @@ const IntegrationsModal = ( {
 				<AkismetCard
 					isExpanded={ expandedCards.akismet }
 					onToggle={ () => toggleCard( 'akismet' ) }
-					data={ integrationsData?.akismet }
+					data={ findIntegrationById( 'akismet' ) }
 					refreshStatus={ refreshIntegrations }
 				/>
 				<JetpackCRMCard
@@ -49,13 +51,13 @@ const IntegrationsModal = ( {
 					onToggle={ () => toggleCard( 'crm' ) }
 					jetpackCRM={ attributes.jetpackCRM }
 					setAttributes={ setAttributes }
-					data={ integrationsData?.[ 'zero-bs-crm' ] }
+					data={ findIntegrationById( 'zero-bs-crm' ) }
 					refreshStatus={ refreshIntegrations }
 				/>
 				<CreativeMailCard
 					isExpanded={ expandedCards.creativemail }
 					onToggle={ () => toggleCard( 'creativemail' ) }
-					data={ integrationsData?.[ 'creative-mail-by-constant-contact' ] }
+					data={ findIntegrationById( 'creative-mail-by-constant-contact' ) }
 					refreshStatus={ refreshIntegrations }
 				/>
 			</VStack>
