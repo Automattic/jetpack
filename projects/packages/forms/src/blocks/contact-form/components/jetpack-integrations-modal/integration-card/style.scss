@@ -84,31 +84,10 @@
 		line-height: 1.4;
 	}
 
-	&__actions {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-	}
-
 	&__links {
 		display: flex;
 		align-items: center;
 		gap: 8px;
-	}
-
-	.is-spinning {
-		animation: rotation 2s infinite linear;
-	}
-	
-	@keyframes rotation {
-
-		from {
-			transform: rotate(0deg);
-		}
-
-		to {
-			transform: rotate(359deg);
-		}
 	}
 
 	.components-button .components-spinner {
@@ -120,4 +99,4 @@
 	.components-card__body {
 		padding-bottom: 30px;
 	}
-} 
+}

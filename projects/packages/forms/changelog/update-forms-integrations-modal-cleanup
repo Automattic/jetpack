@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: use componentry instead of CSS for some elements in integrations modal.

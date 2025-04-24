@@ -144,8 +144,6 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 }
 
 @mixin border-box {
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 }
 
@@ -216,18 +214,10 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 
 // courtesy: http://codeboxers.com/sass-mixin-for-transitions/
 @mixin transition($transition-property, $transition-time, $method) {
-	-webkit-transition: $transition-property $transition-time $method;
-	-moz-transition: $transition-property $transition-time $method;
-	-ms-transition: $transition-property $transition-time $method;
-	-o-transition: $transition-property $transition-time $method;
 	transition: $transition-property $transition-time $method;
 }
 
 @mixin box-shadow($shadows...) {
-	-webkit-box-shadow: $shadows;
-	-moz-box-shadow: $shadows;
-	-ms-box-shadow: $shadows;
-	-o-box-shadow: $shadows;
 	box-shadow: $shadows;
 }
 

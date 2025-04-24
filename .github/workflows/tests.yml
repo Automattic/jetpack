@@ -210,6 +210,10 @@ jobs:
                     elif composer --working-dir="$DIR" check-platform-reqs --lock; then
                       echo 'Platform reqs pass, running `composer install`'
                       composer --working-dir="$DIR" install
+                      if [[ "$TEST_SCRIPT" == "test-php" ]] && composer info --locked phpunit/phpunit &>/dev/null; then
+                        echo 'Updating PHPUnit in case a newer version than locked is usable'
+                        composer --working-dir="$DIR" update -W phpunit/phpunit
+                      fi
                     else
                       echo 'Platform reqs failed, running `composer update`'
                       composer --working-dir="$DIR" update

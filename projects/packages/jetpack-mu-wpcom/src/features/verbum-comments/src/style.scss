@@ -124,7 +124,6 @@
 
 			// Fixes the alt text for the close button
 			.screen-reader-text {
-				clip: rect(1px 1px 1px 1px);
 
 				/* IE6, IE7 */
 				clip: rect(1px, 1px, 1px, 1px);
@@ -603,14 +602,7 @@
 	@keyframes customLoadingSpinner {
 
         to {
-          -webkit-transform: rotate(360deg);
-        }
-    }
-
-    @-webkit-keyframes customLoadingSpinner {
-
-        to {
-          -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
         }
     }
 }
