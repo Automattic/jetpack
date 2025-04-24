@@ -130,3 +130,201 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--button-outline--line-height': buttonOutlineLineHeight,
 	};
 };
+
+// Add fullscreen form styles
+const fullscreenStyles = `
+.jetpack-contact-form-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999999;
+  background-color: rgba(255, 255, 255, 0.98);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: auto;
+  padding: 2rem;
+}
+
+.jetpack-contact-form-fullscreen .contact-form {
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 40px;
+  background: #fff;
+  position: relative;
+}
+
+.jetpack-contact-form-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background-color: #0675c4;
+  transition: width 0.3s ease;
+}
+
+.jetpack-contact-form-step {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.jetpack-contact-form-step:not(:first-child) {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.jetpack-contact-form-step:not(.is-active) {
+  animation: slide-in 0.4s forwards;
+}
+
+@keyframes slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.jetpack-contact-form-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.jetpack-contact-form-prev,
+.jetpack-contact-form-next {
+  background-color: #0675c4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.jetpack-contact-form-prev:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.jetpack-contact-form-prev:not(:disabled):hover,
+.jetpack-contact-form-next:hover {
+  background-color: #055c9d;
+}
+
+.jetpack-contact-form-close {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 50%;
+  font-size: 24px;
+  line-height: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  z-index: 1000000;
+}
+
+.jetpack-contact-form-close:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.jetpack-contact-form-fullscreen .grunion-field-wrap label {
+  font-size: 1.2em;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.jetpack-contact-form-fullscreen .grunion-field-wrap input[type="text"],
+.jetpack-contact-form-fullscreen .grunion-field-wrap input[type="email"],
+.jetpack-contact-form-fullscreen .grunion-field-wrap input[type="url"],
+.jetpack-contact-form-fullscreen .grunion-field-wrap input[type="tel"],
+.jetpack-contact-form-fullscreen .grunion-field-wrap textarea,
+.jetpack-contact-form-fullscreen .grunion-field-wrap select {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.jetpack-contact-form-fullscreen .grunion-field-submit-wrap input[type="submit"] {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 4px;
+  background-color: #0675c4;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.jetpack-contact-form-fullscreen .grunion-field-submit-wrap input[type="submit"]:hover {
+  background-color: #055c9d;
+}
+
+/* Validation styling */
+.jetpack-contact-form-error-message {
+  color: #d63638;
+  font-size: 14px;
+  margin-top: 5px;
+  padding: 5px 0;
+  font-weight: 500;
+}
+
+.jetpack-contact-form-fullscreen .grunion-field-wrap input.has-error,
+.jetpack-contact-form-fullscreen .grunion-field-wrap textarea.has-error,
+.jetpack-contact-form-fullscreen .grunion-field-wrap select.has-error {
+  border-color: #d63638;
+  box-shadow: 0 0 0 1px #d63638;
+}
+
+.jetpack-contact-form-validation-errors {
+  background-color: #fcf0f1;
+  border-left: 4px solid #d63638;
+  color: #d63638;
+  margin: 0 0 15px 0;
+  padding: 8px 12px;
+  display: none;
+}
+
+.jetpack-contact-form-fullscreen input[type="checkbox"].has-error + label,
+.jetpack-contact-form-fullscreen input[type="radio"].has-error + label {
+  color: #d63638;
+}
+
+/* Field animation */
+.jetpack-contact-form-step {
+  animation: form-field-appear 0.3s forwards;
+}
+
+@keyframes form-field-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+`;
+
+const style = document.createElement( 'style' );
+style.appendChild( document.createTextNode( fullscreenStyles ) );
+document.head.appendChild( style );
