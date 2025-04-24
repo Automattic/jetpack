@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Search;
 
-use Automattic\Jetpack\Assets;
-
 /**
  * Inline Search class
  */
@@ -19,6 +17,13 @@ class Inline_Search extends Classic_Search {
 	 * @var Inline_Search
 	 */
 	private static $instance;
+
+	/**
+	 * The search correction instance.
+	 *
+	 * @var Inline_Search_Correction
+	 */
+	private $correction;
 
 	/**
 	 * Returns whether this class should be used instead of Classic_Search.
@@ -42,8 +47,11 @@ class Inline_Search extends Classic_Search {
 			self::$instance = new static();
 			self::$instance->setup( $blog_id );
 
+			// Initialize search correction handling
+			self::$instance->correction = new Inline_Search_Correction();
+
 			// Add hooks for displaying corrected query notice
-			add_action( 'pre_get_posts', array( self::$instance, 'setup_corrected_query_hooks' ) );
+			add_action( 'pre_get_posts', array( self::$instance->correction, 'setup_corrected_query_hooks' ) );
 		}
 
 		return self::$instance;
@@ -425,116 +433,5 @@ class Inline_Search extends Classic_Search {
 		$raw = false // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	) {
 		return $this->search_result;
-	}
-
-	/**
-	 * Setup hooks for displaying corrected query notice.
-	 *
-	 * @param \WP_Query $query The current query.
-	 */
-	public function setup_corrected_query_hooks( $query ) {
-		if ( ! $query->is_search() || ! $query->is_main_query() ) {
-			return;
-		}
-
-		add_filter( 'get_search_query', array( $this, 'maybe_use_corrected_query' ) );
-		add_action( 'wp_footer', array( $this, 'register_corrected_query_script' ) );
-	}
-
-	/**
-	 * Register and configure the JavaScript for displaying the corrected query notice.
-	 *
-	 * @since $$next-version$$
-	 */
-	public function register_corrected_query_script() {
-		$corrected_query_html = $this->get_corrected_query_html();
-		if ( empty( $corrected_query_html ) ) {
-			return;
-		}
-
-		$handle = 'jetpack-search-inline-corrected-query';
-
-		Assets::register_script(
-			$handle,
-			'js/corrected-query.js',
-			__FILE__,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-search-pkg',
-				'enqueue'    => true,
-			)
-		);
-
-		wp_localize_script(
-			$handle,
-			'JetpackSearchCorrectedQuery',
-			array(
-				'html'      => $corrected_query_html,
-				'selectors' => $this->get_title_selectors(),
-				'i18n'      => array(
-					'error' => esc_html__( 'Error displaying search correction', 'jetpack-search-pkg' ),
-				),
-			)
-		);
-	}
-
-	/**
-	 * Replaces the search query with the corrected query in the title.
-	 *
-	 * @param string $query The original search query.
-	 * @return string The corrected query if available, otherwise the original query.
-	 */
-	public function maybe_use_corrected_query( $query ) {
-		if ( ! empty( $this->search_result['corrected_query'] ) && ! empty( $this->search_result['results'] ) ) {
-			return $this->search_result['corrected_query'];
-		}
-
-		return $query;
-	}
-
-	/**
-	 * Get selectors where corrected query notice will be displayed.
-	 *
-	 * @since $$next-version$$
-	 * @return array CSS selectors for search title elements.
-	 */
-	private function get_title_selectors() {
-		$default_selectors = array(
-			'.wp-block-query-title',
-			'.page-title',
-			'.archive-title',
-		);
-
-		/**
-		 * Filter the selectors where corrected query notice appears.
-		 *
-		 * @since $$next-version$$
-		 * @param array $default_selectors CSS selectors for search title elements.
-		 */
-		return apply_filters( 'jetpack_search_title_selectors', $default_selectors );
-	}
-
-	/**
-	 * Generate the HTML for the corrected query notice.
-	 *
-	 * @return string The HTML for the corrected query notice or empty string if none.
-	 */
-	private function get_corrected_query_html() {
-		$original_query = sanitize_text_field( wp_unslash( $_GET['s'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a search query.
-
-		if ( empty( $this->search_result['corrected_query'] ) || empty( $this->search_result['results'] ) ) {
-			return '';
-		}
-
-		$message = sprintf(
-			/* translators: %s: Original search term the user entered */
-			esc_html__( 'No results for %s', 'jetpack-search-pkg' ),
-			esc_html( $original_query )
-		);
-
-		return sprintf(
-			'<h2 class="jetpack-search-corrected-query">%s</h2>',
-			$message
-		);
 	}
 }
