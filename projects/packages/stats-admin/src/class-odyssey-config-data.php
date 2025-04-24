@@ -194,6 +194,7 @@ class Odyssey_Config_Data {
 		$plan = Jetpack_Plan::get();
 		unset( $plan['features'] );
 		unset( $plan['supports'] );
+		unset( $plan['not_there'] );
 		return $plan;
 	}
 
