@@ -42,7 +42,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 		return;
 	}
 
-	if ( $current_blog_id === 1 ) {
+	if ( $current_blog_id === 1 && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		return;
 	}
 
