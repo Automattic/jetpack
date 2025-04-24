@@ -15,7 +15,6 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
 use Jetpack;
-use Jetpack_Gutenberg;
 
 /**
  * Contact Form block render callback.
@@ -207,9 +206,9 @@ class Contact_Form_Block {
 			'jetpack_register_gutenberg_extensions',
 			function () {
 				if ( apply_filters( 'jetpack_unauth_file_upload_plan_check', true ) ) {
-					Jetpack_Gutenberg::set_availability_for_plan( 'field-file' );
+					\Jetpack_Gutenberg::set_availability_for_plan( 'field-file' );
 				} else {
-					Jetpack_Gutenberg::set_extension_available( 'field-file' );
+					\Jetpack_Gutenberg::set_extension_available( 'field-file' );
 				}
 			}
 		);
