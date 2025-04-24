@@ -1,10 +1,13 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
  * @covers ::jetpack_vr_viewer_shortcode
  */
+#[CoversFunction( 'jetpack_vr_viewer_shortcode' )]
 class Jetpack_Shortcodes_VR_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;

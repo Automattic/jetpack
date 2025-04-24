@@ -23,7 +23,7 @@
 	display: flex;
 	justify-content: center;
 	position: absolute;
-	bottom: 0px;
+	bottom: 0;
 	left: 0;
 	right: 0;
 	z-index: 1;
@@ -64,7 +64,7 @@
 	border-radius: 50%;
 	width: 6px;
 	height: 6px;
-	padding: 0px;
+	padding: 0;
 	background-color: var(--jp-white-off);
 
 	&:hover {

@@ -5,17 +5,21 @@ namespace Automattic\Jetpack\CRM\Entities\Tests;
 use Automattic\Jetpack\CRM\Entities\Company;
 use Automattic\Jetpack\CRM\Entities\Factories\Company_Factory;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 /**
  * Test Event Manager system.
  *
  * @covers Automattic\Jetpack\CRM\Entities\Company
  */
+#[CoversClass( Company::class )]
 class Company_Entity_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * @testdox Test that company entity is created from input data.
 	 */
+	#[TestDox( 'Test that company entity is created from input data.' )]
 	public function test_company_entity_from_input_data() {
 
 		$company_data = $this->generate_company_data();
@@ -37,6 +41,7 @@ class Company_Entity_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test create company entity from input data and insert in DB via DAL.
 	 */
+	#[TestDox( 'Test create company entity from input data and insert in DB via DAL.' )]
 	public function test_create_company_from_input_data_and_insert_into_DB() {
 
 		$company_data = $this->generate_company_data();

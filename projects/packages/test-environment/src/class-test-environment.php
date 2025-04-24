@@ -53,9 +53,11 @@ class Test_Environment {
 	 * This ensures we only load WordPress once across all packages.
 	 *
 	 * @param string|null $package_slug Optional package slug for custom upload directory.
+	 * @param string      $db_engine Optional database engine to use. Current options are 'dbless' and 'sqlite'.
+	 *
 	 * @throws \RuntimeException If WordPress test environment fails to initialize.
 	 */
-	public static function init( $package_slug = null ) {
+	public static function init( $package_slug = null, $db_engine = 'dbless' ) {
 		if ( self::$initialized ) {
 			return;
 		}
@@ -73,7 +75,7 @@ class Test_Environment {
 				define( 'dbless_UPLOADS', 'uploads-' . $package_slug ); // phpcs:ignore Generic.NamingConventions.UpperCaseConstantName.ConstantNotUpperCase
 			}
 
-			\WorDBless\Load::load();
+			\WorDBless\Load::load( $db_engine, true ); // persist the database across tests so with sqlite tests concurrency is possible without accidental deletions.
 		} catch ( \Exception $e ) {
 			throw new \RuntimeException( 'Failed to initialize WordPress test environment: ' . $e->getMessage() );
 		}

@@ -78,7 +78,7 @@
 	max-width: 135px;
 }
 
-.vp-setting input[type='radio'] {
+.vp-setting input[type="radio"] {
 	float: left;
 	margin-top: 9px;
 	width: auto;

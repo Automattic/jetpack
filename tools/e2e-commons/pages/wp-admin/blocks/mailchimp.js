@@ -137,8 +137,8 @@ export default class MailchimpBlock extends EditorCanvas {
 	 */
 	static async isRendered( page ) {
 		const containerSelector = '.wp-block-jetpack-mailchimp';
-		const emailSelector = containerSelector + " input[type='email']";
-		const submitSelector = containerSelector + " button[type='submit']";
+		const emailSelector = containerSelector + ' input[type="email"]';
+		const submitSelector = containerSelector + ' button[type="submit"]';
 		const consentSelector = containerSelector + ' #wp-block-jetpack-mailchimp_consent-text';
 
 		await page.locator( containerSelector ).waitFor();

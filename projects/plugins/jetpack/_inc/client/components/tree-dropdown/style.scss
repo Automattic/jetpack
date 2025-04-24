@@ -75,7 +75,7 @@
 		&.active {
 			animation: unset;
 			border-color: var(--jp-green);
-			box-shadow: 0px 0px 0px 2px var(--jp-green-5), 0px 7px 15px 0px #00000026;
+			box-shadow: 0 0 0 2px var(--jp-green-5), 0 7px 15px 0 #00000026;
 			border-radius: 4px 4px 0 0;
 		}
 
@@ -148,7 +148,7 @@
 				border: solid 1px var(--jp-green);
 				border-top: none;
 				border-radius: 0 0 4px 4px;
-				box-shadow: 0px 0px 0px 2px var(--jp-green-5), 0px 10px 15px 0px #00000026;
+				box-shadow: 0 0 0 2px var(--jp-green-5), 0 10px 15px 0 #00000026;
 
 				&::before {
 					content: '';

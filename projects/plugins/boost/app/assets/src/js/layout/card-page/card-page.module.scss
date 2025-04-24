@@ -3,7 +3,7 @@
 @import "$css/main/common";
 
 .card {
-	background: #FFF url("$images/color-shift.svg") no-repeat top right;
+	background: #FFF url(\$images/color-shift.svg) no-repeat top right;
 	border: 1px solid #DCDCDE;
 	border-radius: $border-radius;
 
@@ -17,8 +17,8 @@
 			padding-bottom: 6px;
 			padding-left: 2em;
 			vertical-align: middle;
-			background: url("$images/check.svg") no-repeat;
-			background-position: 0px 2px;
+			background: url(\$images/check.svg) no-repeat;
+			background-position: 0 2px;
 			background-size: 1.5em;
 			line-height: 1.5em;
 			list-style-type: none;

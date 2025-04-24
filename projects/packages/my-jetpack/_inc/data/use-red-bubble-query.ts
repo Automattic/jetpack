@@ -8,7 +8,7 @@ const useRedBubbleQuery = () => {
 		.filter( cookie => cookie.includes( '_dismissed' ) );
 
 	const {
-		data = {},
+		data = {} as RedBubbleAlerts,
 		isLoading,
 		isError,
 		refetch,

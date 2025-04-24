@@ -13,7 +13,7 @@ body[class*='zbs'] {
 	p.jpcrm-export-success,
 	p.jpcrm-export-complete {
 		max-width: 21rem;
-		margin: 0rem auto 2rem;
+		margin: 0 auto 2rem;
 	}
 }
 
@@ -34,6 +34,6 @@ body[class*='zbs'] {
 		left: 0;
 		z-index: 0;
 		display: block;
-		top: 0px;
+		top: 0;
 	}
 }

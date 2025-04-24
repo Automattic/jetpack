@@ -5,6 +5,8 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Conditions\Entity_Tag;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Tag_List_Data;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -13,6 +15,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Entity_Tag
  */
+#[CoversClass( Entity_Tag::class )]
 class Tag_Condition_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
@@ -39,6 +42,7 @@ class Tag_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test tag added condition.
 	 */
+	#[TestDox( 'Test tag added condition.' )]
 	public function test_tag_added() {
 		$tag_condition = $this->get_tag_condition( 'tag_added', 'Tag Added' );
 		$tag_data      = $this->automation_faker->tag_list();
@@ -75,6 +79,7 @@ class Tag_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test tag removed condition.
 	 */
+	#[TestDox( 'Test tag removed condition.' )]
 	public function test_tag_removed() {
 		$tag_condition = $this->get_tag_condition( 'tag_removed', 'Tag to be removed' );
 		$tag_data      = $this->automation_faker->tag_list();
@@ -108,6 +113,7 @@ class Tag_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test tag list has tag condition.
 	 */
+	#[TestDox( 'Test tag list has tag condition.' )]
 	public function test_tag_list_has_tag() {
 		$tag_condition = $this->get_tag_condition( 'has_tag', 'Some Tag' );
 		$tag_data      = $this->automation_faker->tag_list();
@@ -135,6 +141,7 @@ class Tag_Condition_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test tag list does not have ('not has') tag condition.
 	 */
+	#[TestDox( 'Test tag list does not have (\'not has\') tag condition.' )]
 	public function test_tag_list_not_has_tag() {
 		$tag_condition = $this->get_tag_condition( 'not_has_tag', 'Some Tag' );
 		$tag_data      = $this->automation_faker->tag_list();

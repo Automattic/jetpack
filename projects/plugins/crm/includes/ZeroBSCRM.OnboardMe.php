@@ -106,27 +106,27 @@ function zeroBS_onboardme_helper(){
     global $zbs; ?>
 <style type="text/css">
 .tour-wrapper-footer {
-    position: fixed;
-    bottom: 10px;
-    right: 20px;
-    font-size: 50px;
-    border-radius: 50%;
-    height: 52px;
-    width: 44px;
-    padding: 0px;
-    margin: 0px;
-    line-height: 50px;
-    cursor: pointer;
+	position: fixed;
+	bottom: 10px;
+	right: 20px;
+	font-size: 50px;
+	border-radius: 50%;
+	height: 52px;
+	width: 44px;
+	padding: 0;
+	margin: 0;
+	line-height: 50px;
+	cursor: pointer;
 }
 .tour-wrapper-footer a, .tour-wrapper-footer:hover a, .feedback-popup .title {
     color: #3f4347 !important;
 }
 .tour-wrapper-footer .fa {
-    border-radius: 50%;
-    height: 44px;
-    width: 43px;
-    padding: 0px;
-    margin: 0px;
+	border-radius: 50%;
+	height: 44px;
+	width: 43px;
+	padding: 0;
+	margin: 0;
 }
 .tour-wrapper-footer a:focus{
     outline: none !important;

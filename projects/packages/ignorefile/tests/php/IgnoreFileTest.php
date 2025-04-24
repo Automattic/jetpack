@@ -12,6 +12,7 @@ use Automattic\IgnoreFile;
 use Automattic\IgnoreFile\InvalidPatternException;
 use Exception;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
@@ -29,6 +30,7 @@ class IgnoreFileTest extends TestCase {
 	 * @param string|string[]                                  $patterns Patterns to test.
 	 * @param array<string,array{ignored:bool,unignored:bool}> $pathmap Paths to test.
 	 */
+	#[DataProvider( 'provideCases' )]
 	public function testCases( $patterns, $pathmap ) {
 		$ignore = new IgnoreFile();
 		$ignore->add( $patterns );
@@ -140,6 +142,7 @@ class IgnoreFileTest extends TestCase {
 	 * @throws RuntimeException If subprocess spawning fails.
 	 * @throws Exception If a PHPUnit exception fails 🙄 .
 	 */
+	#[DataProvider( 'provideCasesGit' )]
 	public function testCasesGit( $patterns, $pathmap, $skip = false ) {
 		$tmpdir = $this->mktempdir();
 		try {
@@ -412,6 +415,7 @@ class IgnoreFileTest extends TestCase {
 	 * @dataProvider provideBadPattern
 	 * @param string $pattern Pattern.
 	 */
+	#[DataProvider( 'provideBadPattern' )]
 	public function testBadPattern( $pattern ) {
 		$ignore = new IgnoreFile();
 		$ignore->add( array( 'aaa', $pattern, 'bbb' ) );
@@ -426,6 +430,7 @@ class IgnoreFileTest extends TestCase {
 	 * @param string $pattern Pattern.
 	 * @param string $msg Exception message.
 	 */
+	#[DataProvider( 'provideBadPattern' )]
 	public function testBadPattern_strictMode( $pattern, $msg ) {
 		$ignore             = new IgnoreFile();
 		$ignore->strictMode = true;
