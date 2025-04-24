@@ -751,6 +751,7 @@ select[multiple],select[size] {
 }
 
 input[type="checkbox"]:focus,input[type="file"]:focus,input[type="radio"]:focus {
+    outline:thin dotted;
     outline:5px auto -webkit-focus-ring-color;
     outline-offset:-2px
 }
@@ -1096,6 +1097,7 @@ input[type="date"] {
 }
 
 .btn:focus {
+    outline:thin dotted;
     outline:5px auto -webkit-focus-ring-color;
     outline-offset:-2px
 }
