@@ -835,23 +835,34 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
                         $filePerma = $zbs->DAL->makeSlug($thisFileSlotName);
                     }
 
+				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$zbsFiles = array();
+				if ( $contact ) {
+					// retrieve - shouldn't these vars be "other files"... confusing
+					$zbsFiles = zeroBSCRM_getCustomerFiles( $contact['id'] );
 
-                    #} retrieve - shouldn't these vars be "other files"... confusing
-                    $zbsFiles = zeroBSCRM_getCustomerFiles($contact['id']);
+					// This specifically looks for $args['title'] file
+					$fileSlotSrc = zeroBSCRM_fileslots_fileInSlot( $filePerma, $contact['id'], ZBS_TYPE_CONTACT );
 
-                    // This specifically looks for $args['title'] file :)
-                    //$fileSlotSrc = get_post_meta($contact['id'],'cfile_'.$filePerma,true);
-                    $fileSlotSrc = zeroBSCRM_fileslots_fileInSlot($filePerma,$contact['id'],ZBS_TYPE_CONTACT);
+					// check for file + only show that
+					$zbsFilesArr = array();
+					if ( $fileSlotSrc !== '' && is_array( $zbsFiles ) && count( $zbsFiles ) > 0 ) {
+						foreach ( $zbsFiles as $f ) {
+							if ( $f['file'] === $fileSlotSrc ) {
+								$zbsFilesArr[] = $f;
+							}
+						}
+					}
+					$zbsFiles = $zbsFilesArr;
+				}
 
-
-                    // check for file + only show that
-                    $zbsFilesArr = array(); 
-                    if ($fileSlotSrc !== '' && is_array($zbsFiles) && count($zbsFiles) > 0) foreach ($zbsFiles as $f) if ($f['file'] == $fileSlotSrc) $zbsFilesArr[] = $f;
-                    $zbsFiles = $zbsFilesArr;
-
-                    // while we only have 1 file per slot, we can do this:
-                    // *js uses this to empty if deleted elsewhere (other metabox)
-                    $fileSlotURL = ''; if (is_array($zbsFiles) && count($zbsFiles) == 1) $fileSlotURL = $zbsFiles[0]['url'];
+				// while we only have 1 file per slot, we can do this:
+				// *js uses this to empty if deleted elsewhere (other metabox)
+				$fileSlotURL = '';
+				if ( is_array( $zbsFiles ) && count( $zbsFiles ) === 1 ) {
+					$fileSlotURL = $zbsFiles[0]['url'];
+				}
+				// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                     ?>
                             <table class="form-table wh-metatab wptbp zbsFileSlotTable" data-sloturl="<?php echo esc_attr( $fileSlotURL ); ?>" id="<?php echo esc_attr( $this->metaboxID ); ?>-tab">
