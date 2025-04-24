@@ -1,10 +1,11 @@
 import { Button, Container, Col, JetpackLogo, Text } from '@automattic/jetpack-components';
-import { ConnectionStatus } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useCallback } from 'react';
+import { getMyJetpackWindowRestState } from '../../data/utils/get-my-jetpack-window-state';
 import { useFullScreen } from '../../hooks/use-fullscreen';
+import ConnectionStatusCard from '../connection-status-card';
 import Testimonials from '../testimonials';
 import styles from './styles.module.scss';
 import type { FC } from 'react';
@@ -110,7 +111,10 @@ const WoaOnboardingScreen: FC = () => {
 						) }
 					</Text>
 
-					<ConnectionStatus />
+					<ConnectionStatusCard
+						apiRoot={ getMyJetpackWindowRestState().apiRoot }
+						apiNonce={ getMyJetpackWindowRestState().apiNonce }
+					/>
 
 					{ reconnectStatus === 'completed' ? (
 						<div className={ styles.successMessage }>
