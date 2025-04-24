@@ -144,6 +144,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'min'                    => null,
 				'max'                    => null,
 				'maxfiles'               => null,
+				'fieldwrapperclasses'    => null,
 			),
 			$attributes,
 			'contact-field'
@@ -350,7 +351,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		if ( $has_block_support_styles ) {
 			// Do any of the block support classes need to be applied at the field wrapper level? Do we need to make the classes etc filterable as per the field classes?
-			// Yes, I think so: checkbox-multiple and field-radio wrapper require this, also to prevent the classes from being applied to the input/option elements in these cases.
 
 			// Classes.
 			if ( ! empty( $label_classes ) ) {
@@ -675,6 +675,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$extra_attrs_string .= sprintf( '%s="%s" ', esc_attr( $attr ), esc_attr( $val ) );
 			}
 		}
+
 		return "<input
 					type='" . esc_attr( $type ) . "'
 					name='" . esc_attr( $id ) . "'
@@ -1475,54 +1476,30 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return '';
 		}
 
-		$trimmed_type    = trim( esc_attr( $type ) );
-		$block_classes   = '';
-		$wrap_classnames = $class . ' grunion-field'; // Classes for $shell_field_class wrapper.
-
-		/*
-		 * For the checkbox-multiple and radio fields, we need to add the `wp-block-jetpack-field-*` and `is-style-*` classes to the wrapper div
-		 * but not the input elements. This ensures any updates to block style in the theme
-		 * are applied to the wrapper div, not the input elements.
-		 */
-		if ( $trimmed_type === 'checkbox-multiple' ) {
-			$block_style_classes = $this->get_block_style_classes( $class );
-			$spacer              = ! empty( $block_style_classes['block_style_classes'] ) ? ' ' : '';
-			$block_classes      .= ' wp-block-jetpack-field-checkbox-multiple' . $spacer . $block_style_classes['block_style_classes'];
-			// Remove block style classes in the $class variable.
-			$class = $block_style_classes['classes'];
-		}
-
-		if ( $trimmed_type === 'radio' ) {
-			$block_style_classes = $this->get_block_style_classes( $class );
-			$spacer              = ! empty( $block_style_classes['block_style_classes'] ) ? ' ' : '';
-			$block_classes      .= ' wp-block-jetpack-field-radio' . $spacer . $block_style_classes['block_style_classes'];
-			$class               = $block_style_classes['classes'];
-		}
-
-		$class .= ' grunion-field';
+		$trimmed_type = trim( esc_attr( $type ) );
+		$class       .= ' grunion-field';
 
 		$form_style = $this->get_form_style();
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
 			if ( ! isset( $placeholder ) || '' === $placeholder ) {
 				$placeholder .= ' ';
 			} else {
-				$class           .= ' has-placeholder';
-				$wrap_classnames .= ' has-placeholder';
+				$class .= ' has-placeholder';
 			}
 		}
 
 		// Field classes.
-		$field_placeholder = ( '' !== $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
-		$field_class       = "class='" . $trimmed_type . ' ' . esc_attr( $class ) . "' ";
+		$field_class = "class='" . $trimmed_type . ' ' . esc_attr( $class ) . "' ";
 
 		// Shell wrapper classes. Add -wrap to each class.
-		$wrap_classes = empty( $wrap_classnames ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $wrap_classnames ) ) ) . '-wrap';
+		$wrap_classes          = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap';
+		$field_wrapper_classes = $this->get_attribute( 'fieldwrapperclasses' ) ?? '';
 
 		if ( empty( $label ) ) {
 			$wrap_classes .= ' no-label';
 		}
 
-		$shell_field_class = "class='grunion-field-" . $trimmed_type . '-wrap ' . esc_attr( $wrap_classes ) . esc_attr( $block_classes ) . "' ";
+		$shell_field_class = "class='" . $field_wrapper_classes . ' grunion-field-' . $trimmed_type . '-wrap ' . esc_attr( $wrap_classes ) . "' ";
 
 		/**
 		 * Filter the Contact Form required field text
@@ -1535,9 +1512,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 */
 		$required_field_text = wp_kses_post( apply_filters( 'jetpack_required_field_text', $required_field_text ) );
 
-		$block_style     = 'style="' . $this->block_styles . '"';
-		$has_inset_label = $this->has_inset_label();
-		$field           = '';
+		$block_style       = 'style="' . $this->block_styles . '"';
+		$has_inset_label   = $this->has_inset_label();
+		$field             = '';
+		$field_placeholder = ( '' !== $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 
 		// Fields with an inset label need an extra wrapper to show the error message below the input.
 		if ( $has_inset_label ) {
@@ -1691,37 +1669,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$class_name = $this->form->get_attribute( 'className' );
 		preg_match( '/is-style-([^\s]+)/i', $class_name, $matches );
 		return count( $matches ) >= 2 ? $matches[1] : null;
-	}
-
-	/**
-	 * Returns an array containing the block style classes and the remaining classes from the given class name.
-	 *
-	 * @param string $classname The class name.
-	 *
-	 * @return array {
-	 *     @type string $block_style_classes        The block style classes (is-style-* classes).
-	 *     @type string $classes_without_block_style The remaining classes without block style classes.
-	 * }
-	 */
-	private function get_block_style_classes( $classname = '' ) {
-		if ( ! $classname ) {
-			return array(
-				'block_style_classes' => '',
-				'classes'             => '',
-			);
-		}
-
-		preg_match_all( '/is-style-([^\s]+)/i', $classname, $matches );
-
-		$block_style_classes = empty( $matches[0] ) ? '' : implode( ' ', $matches[0] );
-
-		// Remove block style classes from the original classname
-		$classes_without_block_style = trim( preg_replace( '/is-style-([^\s]+)/i', '', $classname ) );
-
-		return array(
-			'block_style_classes' => $block_style_classes,
-			'classes'             => $classes_without_block_style,
-		);
 	}
 
 	/**

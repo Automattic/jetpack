@@ -696,15 +696,12 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-radio-label {
 	display: inline-flex;
-  align-items: center;
-
+	align-items: center;
 	padding: var(--jetpack--contact-form--button-outline--padding);
-
 	background: var(--jetpack--contact-form--button-outline--background-color);
 	border: var(--jetpack--contact-form--button-outline--border);
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
 	color: var(--jetpack--contact-form--button-outline--text-color);
-
 	line-height: var(--jetpack--contact-form--button-outline--line-height);
 }
 
