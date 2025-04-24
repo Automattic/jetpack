@@ -144,6 +144,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'min'                    => null,
 				'max'                    => null,
 				'maxfiles'               => null,
+				'fieldwrapperclasses'    => null,
 			),
 			$attributes,
 			'contact-field'
@@ -674,6 +675,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$extra_attrs_string .= sprintf( '%s="%s" ', esc_attr( $attr ), esc_attr( $val ) );
 			}
 		}
+
 		return "<input
 					type='" . esc_attr( $type ) . "'
 					name='" . esc_attr( $id ) . "'
@@ -1472,7 +1474,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return '';
 		}
 
-		$class .= ' grunion-field';
+		$trimmed_type = trim( esc_attr( $type ) );
+		$class       .= ' grunion-field';
 
 		$form_style = $this->get_form_style();
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
@@ -1483,16 +1486,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
-		$field_placeholder = ( '' !== $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
-		$field_class       = "class='" . trim( esc_attr( $type ) . ' ' . esc_attr( $class ) ) . "' ";
-		$wrap_classes      = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap'; // this adds
-		$has_inset_label   = $this->has_inset_label();
+		// Field classes.
+		$field_class = "class='" . $trimmed_type . ' ' . esc_attr( $class ) . "' ";
+
+		// Shell wrapper classes. Add -wrap to each class.
+		$wrap_classes          = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap';
+		$field_wrapper_classes = $this->get_attribute( 'fieldwrapperclasses' ) ?? '';
 
 		if ( empty( $label ) ) {
 			$wrap_classes .= ' no-label';
 		}
 
-		$shell_field_class = "class='grunion-field-" . trim( esc_attr( $type ) . '-wrap ' . esc_attr( $wrap_classes ) ) . "' ";
+		$shell_field_class = "class='" . $field_wrapper_classes . ' grunion-field-' . $trimmed_type . '-wrap ' . esc_attr( $wrap_classes ) . "' ";
 
 		/**
 		 * Filter the Contact Form required field text
@@ -1505,9 +1510,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 */
 		$required_field_text = wp_kses_post( apply_filters( 'jetpack_required_field_text', $required_field_text ) );
 
-		$block_style = 'style="' . $this->block_styles . '"';
-
-		$field = '';
+		$block_style       = 'style="' . $this->block_styles . '"';
+		$has_inset_label   = $this->has_inset_label();
+		$field             = '';
+		$field_placeholder = ( '' !== $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 
 		// Fields with an inset label need an extra wrapper to show the error message below the input.
 		if ( $has_inset_label ) {
