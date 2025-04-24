@@ -96,13 +96,7 @@ export default function MyJetpackScreen() {
 		variation: 'control',
 	} );
 	useNotificationWatcher();
-	const {
-		isAtomic = false,
-		adminUrl,
-		sandboxedDomain,
-		isDevVersion,
-		userIsAdmin,
-	} = getMyJetpackWindowInitialState();
+	const { adminUrl, sandboxedDomain, isDevVersion, userIsAdmin } = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
@@ -276,7 +270,7 @@ export default function MyJetpackScreen() {
 						<PlansSection />
 					</Col>
 					<Col sm={ 4 } md={ 4 } lg={ 6 }>
-						{ ! isAtomic && <ConnectionsSection /> }
+						<ConnectionsSection />
 					</Col>
 				</Container>
 			</AdminSection>

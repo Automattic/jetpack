@@ -1,4 +1,5 @@
 import { Button, Text } from '@automattic/jetpack-components';
+import { useRestoreConnection } from '@automattic/jetpack-connection';
 import { CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useCallback } from 'react';
@@ -7,14 +8,23 @@ import styles from './styles.module.scss';
 
 const AtomicConnectionForm = () => {
 	const [ autoReconnect, setAutoReconnect ] = useState( false );
+	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
+		useRestoreConnection();
 
 	const handleReconnect = useCallback( () => {
-		// This is a placeholder - no functionality yet
-	}, [] );
+		restoreConnection( autoReconnect );
+	}, [ autoReconnect, restoreConnection ] );
 
 	const handleCheckboxChange = useCallback( () => {
 		setAutoReconnect( prevState => ! prevState );
 	}, [] );
+
+	// Display error if there's any
+	const errorMessage = restoreConnectionError ? (
+		<Text className={ styles[ 'error-message' ] }>
+			{ __( 'Connection error. Please try again.', 'jetpack-my-jetpack' ) }
+		</Text>
+	) : null;
 
 	return (
 		<div className={ styles[ 'connection-form' ] }>
@@ -31,20 +41,29 @@ const AtomicConnectionForm = () => {
 				) }
 			</Text>
 
+			{ errorMessage }
+
 			<Button
 				fullWidth
 				variant="primary"
 				onClick={ handleReconnect }
 				className={ styles[ 'submit-button' ] }
+				disabled={ isRestoringConnection }
+				isLoading={ isRestoringConnection }
 			>
-				{ __( 'Reconnect', 'jetpack-my-jetpack' ) }
+				{ isRestoringConnection
+					? __( 'Reconnecting…', 'jetpack-my-jetpack' )
+					: __( 'Reconnect', 'jetpack-my-jetpack' ) }
 			</Button>
 
 			<div className={ styles.tos }>
 				<CheckboxControl
 					checked={ autoReconnect }
 					onChange={ handleCheckboxChange }
-					label={ __( 'Auto-reconnect in the future', 'jetpack-my-jetpack' ) }
+					label={ __(
+						'Enable auto-reconnect. This feature will auto create owner user account if missing.',
+						'jetpack-my-jetpack'
+					) }
 				/>
 			</div>
 		</div>

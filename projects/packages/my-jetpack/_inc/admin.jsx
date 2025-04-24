@@ -56,8 +56,6 @@ const MyJetpack = () => {
 	if ( isOnboarding ) {
 		return (
 			<Providers>
-				<OnboardingScreen isAtomic={ true } />
-				{ /* Remove after testing */ }
 				<OnboardingScreen />
 			</Providers>
 		);
