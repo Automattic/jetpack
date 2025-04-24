@@ -71,7 +71,11 @@ class Verbum_Gutenberg_Editor {
 	 * In case the page is singular and has comment closed or front page with comments closed we avoid the enqueueing
 	 */
 	public function enqueue_assets() {
-		if ( ! $this->should_enqueue_assets ) {
+		if (
+			! ( is_singular() && comments_open() )
+			&& ! ( is_front_page() && is_page() && comments_open() )
+			&& ! $this->should_enqueue_assets
+		) {
 			return;
 		}
 

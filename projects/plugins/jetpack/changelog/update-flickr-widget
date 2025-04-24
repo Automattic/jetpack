@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Widgets: deprecate the Flickr widget. Flickr no longer supports fetching recent images from an RSS feed.

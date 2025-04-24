@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Changelog\Tests;
 use Automattic\Jetpack\Changelog\Changelog;
 use Automattic\Jetpack\Changelog\ChangelogEntry;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,6 +19,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Changelog\Changelog
  */
+#[CoversClass( Changelog::class )]
 class ChangelogTest extends TestCase {
 
 	/**
@@ -94,6 +97,7 @@ class ChangelogTest extends TestCase {
 	 * @param string           $json JSON data.
 	 * @param Changelog|string $changelog Changelog, or error message if decoding should fail.
 	 */
+	#[DataProvider( 'provideJson' )]
 	public function testJson( $json, $changelog ) {
 		if ( is_string( $changelog ) ) {
 			$this->expectException( InvalidArgumentException::class );

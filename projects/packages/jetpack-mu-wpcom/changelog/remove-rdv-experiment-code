@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Removed remaining Jetpack RDV experiment code now that the reshare feature is live.

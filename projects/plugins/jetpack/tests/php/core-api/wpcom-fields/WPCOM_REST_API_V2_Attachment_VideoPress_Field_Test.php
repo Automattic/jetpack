@@ -3,6 +3,7 @@
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
 use Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Field;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests that Attachments do have VideoPress data in REST API
@@ -11,6 +12,8 @@ use Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Field;
  * @group videopress
  * @group rest-api
  */
+#[Group( 'videopress' )]
+#[Group( 'rest-api' )]
 class WPCOM_REST_API_V2_Attachment_VideoPress_Field_Test extends Jetpack_REST_TestCase {
 	/**
 	 * Checks that the jetpack_videopress_guid field is included in the schema

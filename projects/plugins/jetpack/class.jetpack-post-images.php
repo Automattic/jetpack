@@ -1107,7 +1107,7 @@ class Jetpack_PostImages {
 	 * Determine the size to use with Photon for a thumbnail image.
 	 * Images larger than the maximum thumbnail dimension in either dimension are resized to maintain aspect ratio.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @see https://github.com/Automattic/jetpack/issues/40349
 	 *
 	 * @param int $width Original image width.
@@ -1151,7 +1151,7 @@ class Jetpack_PostImages {
 	 * Function to provide the maximum dimension for a thumbnail image.
 	 * Filterable via the `jetpack_post_images_max_dimension` filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @see https://github.com/Automattic/jetpack/issues/40349
 	 *
 	 * @return int The maximum dimension for a thumbnail image.
@@ -1161,7 +1161,7 @@ class Jetpack_PostImages {
 		 * Filter the maximum dimension allowed for a thumbnail image.
 		 * The default value is 1200 pixels.
 		 *
-		 * @since $$next-version$$
+		 * @since 14.6
 		 *
 		 * @param int $max_dimension Maximum dimension in pixels.
 		 */

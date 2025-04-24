@@ -25,6 +25,14 @@ if ( explode( '.', \PHPUnit\Runner\Version::id() )[0] >= 10 ) {
 				'class'  => AnnotationRegistry::getInstance()->forClassName( static::class )->symbolAnnotations(),
 			);
 		}
+
+		/**
+		 * Obsolete method where PHPUnit is mis-processing the doc comment to see a `@group` that doesn't exist.
+		 * This redefinition hides the "bad" doc comment from PHPUnit.
+		 */
+		protected function checkRequirements() { // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found, WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+			parent::checkRequirements();
+		}
 	}
 
 	// Also define these removed classes that nothing uses except a `class_alias()` from core's `tests/phpunit/includes/phpunit6/compat.php`.

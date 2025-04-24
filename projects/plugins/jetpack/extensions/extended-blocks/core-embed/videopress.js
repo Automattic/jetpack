@@ -31,9 +31,7 @@ export const withVideoPressSettings = createHigherOrderComponent( BlockEdit => {
 				/^https?:\/\/(?:video\.wordpress\.com\/[ve]\/|videopress\.com\/[ve]\/)[a-zA-Z\d]{8}/
 			) ||
 			// Check provider name
-			attributes?.providerNameSlug === 'videopress' ||
-			// Check if it's a VideoPress block
-			attributes?.type === 'video';
+			attributes?.providerNameSlug === 'videopress';
 
 		if ( ! isVideoPress ) {
 			return <BlockEdit { ...props } />;

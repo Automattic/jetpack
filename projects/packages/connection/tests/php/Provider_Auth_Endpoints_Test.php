@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -208,6 +209,7 @@ class Provider_Auth_Endpoints_Test extends TestCase {
 	 * @dataProvider provider_auth_url_provider
 	 * @param string $provider The authentication provider.
 	 */
+	#[DataProvider( 'provider_auth_url_provider' )]
 	public function test_provider_auth_urls( $provider ) {
 		$request = new WP_REST_Request( 'GET', "/jetpack/v4/connection/authorize_url/{$provider}" );
 		$request->set_param( 'redirect_uri', '/wp-admin/admin.php?page=jetpack' );

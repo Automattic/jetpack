@@ -7,6 +7,8 @@
 
 // Comment to make phpcs happy.
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+
 require_once __DIR__ . '/class-launchpad-jetpack-connection-client-mock.php';
 
 /**
@@ -14,6 +16,7 @@ require_once __DIR__ . '/class-launchpad-jetpack-connection-client-mock.php';
  *
  * @covers ::wpcom_launchpad_request_user_attributes
  */
+#[CoversFunction( 'wpcom_launchpad_request_user_attributes' )]
 class Launchpad_WPCOM_Requests_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Test that the request to the WPCOM api returns the expected result.

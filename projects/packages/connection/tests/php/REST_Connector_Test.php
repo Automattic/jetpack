@@ -11,6 +11,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 // WorDBless Classes are used in the tests but may trigger lint errors in some environments.
@@ -46,6 +48,7 @@ class REST_Connector_Test extends TestCase {
 	 *
 	 * @before
 	 */
+	#[Before]
 	public function set_up() {
 		// Make sure WorDBless is initialized
 		// These calls may produce linter errors but are required for testing
@@ -84,6 +87,7 @@ class REST_Connector_Test extends TestCase {
 	 *
 	 * @after
 	 */
+	#[After]
 	public function tear_down() {
 		// Reset current user
 		wp_set_current_user( 0 );

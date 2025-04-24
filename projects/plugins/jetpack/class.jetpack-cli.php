@@ -1323,9 +1323,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @param array $assoc_args Named args.
 	 */
 	public function sitemap( $args, $assoc_args ) {
-		if ( ! Jetpack::is_connection_ready() ) {
-			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
-		}
 		if ( ! Jetpack::is_module_active( 'sitemaps' ) ) {
 			WP_CLI::error( __( 'Jetpack Sitemaps module is not currently active. Activate it first if you want to work with sitemaps.', 'jetpack' ) );
 		}
@@ -1336,6 +1333,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( isset( $assoc_args['purge'] ) && $assoc_args['purge'] ) {
 			$librarian = new Jetpack_Sitemap_Librarian();
 			$librarian->delete_all_stored_sitemap_data();
+
+			// Clear sitemap-related transients
+			delete_transient( 'jetpack_news_sitemap_xml' );
+			delete_transient( 'jetpack-sitemap-state-lock' );
+			WP_CLI::success( 'Purged all sitemap data and cleared sitemap transients.' );
 		}
 
 		$sitemap_builder = new Jetpack_Sitemap_Builder();

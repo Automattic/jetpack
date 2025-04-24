@@ -3,8 +3,8 @@ import { FC, ReactNode } from 'react';
 type WelcomeTourImageProps = {
 	nonAnimatedSrc: string | ReactNode;
 	nonAnimatedSrc2x: string | ReactNode;
-	animatedSrc: string | ReactNode;
-	animatedSrc2x: string | ReactNode;
+	animatedSrc: string;
+	animatedSrc2x: string;
 	width?: number;
 	height?: number;
 	className?: string;

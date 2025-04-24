@@ -1,5 +1,8 @@
 <?php
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+
 class Example_WPCOM_REST_API_V2_Field_Controller extends WPCOM_REST_API_V2_Field_Controller {
 	protected $object_type = 'example';
 	protected $field_name  = 'example';
@@ -22,10 +25,11 @@ class Example_WPCOM_REST_API_V2_Field_Controller extends WPCOM_REST_API_V2_Field
 }
 
 /**
- * @group rest-api
- *
  * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+ *
+ * @group rest-api
  */
+#[Group( 'rest-api' )]
 class WPCOM_REST_API_V2_Field_Controller_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -56,6 +60,7 @@ class WPCOM_REST_API_V2_Field_Controller_Test extends WP_UnitTestCase {
 	/**
 	 * @dataProvider provide_type_defaults()
 	 */
+	#[DataProvider( 'provide_type_defaults' )]
 	public function test_default_value_guessed_from_type( $type, $expected ) {
 		$schema = array(
 			'type' => $type,

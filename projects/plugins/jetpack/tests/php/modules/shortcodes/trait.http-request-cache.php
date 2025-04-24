@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Tests;
 
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\BeforeClass;
 use ReflectionClass;
 use UnexpectedValueException;
 use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
@@ -70,6 +73,7 @@ trait HttpRequestCacheTrait {
 	 *
 	 * @beforeClass
 	 */
+	#[BeforeClass]
 	public static function setup_http_request_cache_before_class() {
 		if ( ! static::$update_cache ) {
 			$filename = self::get_http_request_cache_filename();
@@ -84,6 +88,7 @@ trait HttpRequestCacheTrait {
 	 *
 	 * @afterClass
 	 */
+	#[AfterClass]
 	public static function teardown_http_request_cache_after_class() {
 		if ( static::$update_cache ) {
 			$filename = self::get_http_request_cache_filename();
@@ -103,6 +108,7 @@ trait HttpRequestCacheTrait {
 	 *
 	 * @before
 	 */
+	#[Before]
 	public function setup_http_request_cache() {
 		// This gets called before WP_UnitTestCase_Base::set_up(), so make sure the hooks are saved before we start adding some
 		// so they'll get removed correctly by WP_UnitTestCase_Base::tear_down().

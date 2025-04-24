@@ -6,6 +6,9 @@
  * @since 4.7.0
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-stylist.php';
 
 /**
@@ -14,6 +17,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-stylist.php';
  * @since 4.7.0
  * @covers \Jetpack_Sitemap_Stylist
  */
+#[CoversClass( Jetpack_Sitemap_Stylist::class )]
 class Jetpack_Sitemap_Stylist_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -23,6 +27,7 @@ class Jetpack_Sitemap_Stylist_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_stylist_sitemap_xsl_is_valid() {
 		// The sitemap xsl.
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::sitemap_xsl() );
@@ -37,6 +42,7 @@ class Jetpack_Sitemap_Stylist_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_stylist_sitemap_xsl_is_xsl_stylesheet() {
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::sitemap_xsl() );
 
@@ -53,6 +59,7 @@ class Jetpack_Sitemap_Stylist_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_stylist_sitemap_index_xsl_is_valid() {
 		// The sitemap index xsl.
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::sitemap_index_xsl() );
@@ -67,6 +74,7 @@ class Jetpack_Sitemap_Stylist_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_stylist_sitemap_index_xsl_is_xsl_stylesheet() {
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::sitemap_index_xsl() );
 
@@ -83,6 +91,7 @@ class Jetpack_Sitemap_Stylist_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_stylist_image_sitemap_xsl_is_valid() {
 		// The image sitemap xsl.
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::image_sitemap_xsl() );
@@ -97,6 +106,7 @@ class Jetpack_Sitemap_Stylist_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_stylist_image_sitemap_xsl_is_xsl_stylesheet() {
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::image_sitemap_xsl() );
 
@@ -113,6 +123,7 @@ class Jetpack_Sitemap_Stylist_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_stylist_news_sitemap_xsl_is_valid() {
 		// The news sitemap xsl.
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::news_sitemap_xsl() );
@@ -127,6 +138,7 @@ class Jetpack_Sitemap_Stylist_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_stylist_news_sitemap_xsl_is_xsl_stylesheet() {
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::news_sitemap_xsl() );
 

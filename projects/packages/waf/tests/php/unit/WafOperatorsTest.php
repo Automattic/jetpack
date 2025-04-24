@@ -6,6 +6,8 @@
  */
 
 use Automattic\Jetpack\Waf\Waf_Operators;
+use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Operators test suite.
@@ -23,6 +25,7 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @before
 	 */
+	#[Before]
 	protected function before() {
 		$this->o = new Waf_Operators();
 	}
@@ -35,6 +38,7 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @dataProvider transformDataProvider
 	 */
+	#[DataProvider( 'transformDataProvider' )]
 	public function testOperators( $ofn, ...$tests ) {
 		$n = 1;
 		for ( $i = 0, $z = count( $tests ); $i < $z; $i += 3 ) {

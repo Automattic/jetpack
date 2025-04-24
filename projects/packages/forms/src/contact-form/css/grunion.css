@@ -3,7 +3,7 @@
 	--jetpack--contact-form--border-color: #8c8f94;
 	--jetpack--contact-form--border-size: 1px;
 	--jetpack--contact-form--border-style: solid;
-	--jetpack--contact-form--border-radius: 0px;
+	--jetpack--contact-form--border-radius: 0;
 	--jetpack--contact-form--input-padding: 16px;
 	--jetpack--contact-form--font-size: 16px;
 	--jetpack--contact-form--error-color: #b32d2e;
@@ -31,11 +31,11 @@
 	allowing themes to easily override these styles
  */
 :where(
-	.contact-form input[type='text'],
-	.contact-form input[type='email'],
-	.contact-form input[type='tel'],
-	.contact-form input[type='url'],
-	.contact-form input[type='number'],
+	.contact-form input[type="text"],
+	.contact-form input[type="email"],
+	.contact-form input[type="tel"],
+	.contact-form input[type="url"],
+	.contact-form input[type="number"],
 	.contact-form textarea
 ) {
 	box-sizing: border-box;
@@ -66,14 +66,14 @@
 	min-width: 150px;
 }
 
-.contact-form input[type='radio'],
-.contact-form input[type='checkbox'] {
+.contact-form input[type="radio"],
+.contact-form input[type="checkbox"] {
 	width: 1rem;
 	height: 1rem;
 	margin: 0 0.75rem 0 0;
 }
 
-.contact-form input[type='checkbox'] {
+.contact-form input[type="checkbox"] {
 	top: 0;
 	margin-left: 0;
 	border-radius: 4px;
@@ -207,23 +207,23 @@
 	color: var(--jetpack--contact-form--error-color);
 }
 
-.textwidget .contact-form input[type='text'],
-.textwidget .contact-form input[type='email'],
-.textwidget .contact-form input[type='tel'],
-.textwidget .contact-form input[type='url'],
-.textwidget .contact-form input[type='number'],
+.textwidget .contact-form input[type="text"],
+.textwidget .contact-form input[type="email"],
+.textwidget .contact-form input[type="tel"],
+.textwidget .contact-form input[type="url"],
+.textwidget .contact-form input[type="number"],
 .textwidget .contact-form textarea,
-.wp-block-column .contact-form input[type='text'],
-.wp-block-column .contact-form input[type='email'],
-.wp-block-column .contact-form input[type='tel'],
-.wp-block-column .contact-form input[type='url'],
-.wp-block-column .contact-form input[type='number'],
+.wp-block-column .contact-form input[type="text"],
+.wp-block-column .contact-form input[type="email"],
+.wp-block-column .contact-form input[type="tel"],
+.wp-block-column .contact-form input[type="url"],
+.wp-block-column .contact-form input[type="number"],
 .wp-block-column .contact-form textarea {
 	width: 100%;
 }
 
 #jetpack-check-feedback-spam {
-	margin: 1px 8px 0px 0px;
+	margin: 1px 8px 0 0;
 }
 
 .jetpack-check-feedback-spam-spinner {
@@ -320,11 +320,11 @@
 
 @media only screen and ( min-width: 600px ) {
 
-	.contact-form input[type='text'],
-	.contact-form input[type='email'],
-	.contact-form input[type='tel'],
-	.contact-form input[type='url'],
-	.contact-form input[type='number'] {
+	.contact-form input[type="text"],
+	.contact-form input[type="email"],
+	.contact-form input[type="tel"],
+	.contact-form input[type="url"],
+	.contact-form input[type="number"] {
 		width: 50%;
 	}
 
@@ -333,11 +333,11 @@
 	 * designs, but newer users using the contact
 	 * form block get 100% width.
 	 */
-	.wp-block-jetpack-contact-form input[type='text'],
-	.wp-block-jetpack-contact-form input[type='email'],
-	.wp-block-jetpack-contact-form input[type='tel'],
-	.wp-block-jetpack-contact-form input[type='url'],
-	.wp-block-jetpack-contact-form input[type='number'] {
+	.wp-block-jetpack-contact-form input[type="text"],
+	.wp-block-jetpack-contact-form input[type="email"],
+	.wp-block-jetpack-contact-form input[type="tel"],
+	.wp-block-jetpack-contact-form input[type="url"],
+	.wp-block-jetpack-contact-form input[type="number"] {
 		width: 100%;
 	}
 }

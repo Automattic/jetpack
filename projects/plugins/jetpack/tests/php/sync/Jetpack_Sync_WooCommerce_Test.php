@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Modules;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 require_once __DIR__ . '/../trait-woo-tests.php';
@@ -10,6 +11,7 @@ require_once __DIR__ . '/../trait-woo-tests.php';
  *
  * @group woocommerce
  */
+#[Group( 'woocommerce' )]
 class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	/**
 	 * Using the WooCommerceTestTrait to include WooCommerce related dependencies for the unit tests.

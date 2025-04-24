@@ -11,6 +11,10 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use DOMDocument;
 use DOMElement;
+use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\BeforeClass;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts;
 
@@ -22,6 +26,10 @@ use WorDBless\Posts;
  * @covers \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
  * @covers \Automattic\Jetpack\Forms\ContactForm\Util
  */
+#[CoversClass( Contact_Form::class )]
+#[CoversClass( Contact_Form_Field::class )]
+#[CoversClass( Contact_Form_Plugin::class )]
+#[CoversClass( Util::class )]
 class Contact_Form_Test extends BaseTestCase {
 
 	private $post;
@@ -35,6 +43,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @beforeClass
 	 */
+	#[BeforeClass]
 	public static function set_up_class() {
 		define( 'DOING_AJAX', true ); // Defined so that 'exit' is not called in process_submission.
 
@@ -58,6 +67,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @before
 	 */
+	#[Before]
 	public function set_up_test_case() {
 		// Avoid actually trying to send any mail.
 		add_filter( 'pre_wp_mail', '__return_true', PHP_INT_MAX );
@@ -1196,6 +1206,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @group csvexport
 	 */
+	#[Group( 'csvexport' )]
 	public function test_get_export_data_for_posts_fully_valid_data() {
 		/**
 		 * Contact_Form_Plugin mock object.
@@ -1315,6 +1326,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @group csvexport
 	 */
+	#[Group( 'csvexport' )]
 	public function test_get_export_data_for_posts_invalid_single_entry_meta() {
 		/**
 		 * Contact_Form_Plugin mock object.
@@ -1419,6 +1431,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @group csvexport
 	 */
+	#[Group( 'csvexport' )]
 	public function test_get_export_data_for_posts_invalid_all_entries_meta() {
 		/**
 		 * Contact_Form_Plugin mock object.
@@ -1508,6 +1521,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @group csvexport
 	 */
+	#[Group( 'csvexport' )]
 	public function test_get_export_data_for_posts_single_invalid_entry_for_parse_fields() {
 		/**
 		 * Contact_Form_Plugin mock object.
@@ -1620,6 +1634,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @group csvexport
 	 */
+	#[Group( 'csvexport' )]
 	public function test_get_export_data_for_posts_all_entries_for_parse_fields_invalid() {
 		/**
 		 * Contact_Form_Plugin mock object.
@@ -1662,6 +1677,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @group csvexport
 	 */
+	#[Group( 'csvexport' )]
 	public function test_map_parsed_field_contents_of_post_to_field_names() {
 
 		$input_data = array(

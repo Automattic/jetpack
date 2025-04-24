@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack;
 
 use Brain\Monkey;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,6 +17,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Tracking
  */
+#[CoversClass( Tracking::class )]
 class Tracking_Test extends TestCase {
 
 	/**
@@ -60,6 +63,7 @@ class Tracking_Test extends TestCase {
 	 *
 	 * @dataProvider data_provider_test_should_enable_tracking
 	 */
+	#[DataProvider( 'data_provider_test_should_enable_tracking' )]
 	public function test_should_enable_tracking( $inputs, $expected_output ) {
 		$tos = $this->getMockBuilder( 'Automattic\Jetpack\Terms_Of_Service' )
 			->onlyMethods( array( 'has_agreed' ) )
