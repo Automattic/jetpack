@@ -13,16 +13,18 @@ $light-gray-700:         #c3c4c7;
 $gray-original:          #87a6bc;
 $gray:                   desaturate( $gray-original, 100% ); // Intermediary transform to match dotcom's colors
 
-// $gray color functions:
-//
-// lighten( $gray, 10% )
-// lighten( $gray, 20% )
-// lighten( $gray, 30% )
-// darken( $gray, 10% )
-// darken( $gray, 20% )
-// darken( $gray, 30% )
-//
-// See wordpress.com/design-handbook/colors/ for more info.
+/**
+ * $gray color functions:
+ *
+ *   lighten( $gray, 10% )
+ *   lighten( $gray, 20% )
+ *   lighten( $gray, 30% )
+ *   darken( $gray, 10% )
+ *   darken( $gray, 20% )
+ *   darken( $gray, 30% )
+ *
+ * See wordpress.com/design-handbook/colors/ for more info.
+ */
 
 $gray-light:             lighten( $gray, 33% ); //#f6f6f6
 $gray-dark:              darken( $gray, 38% ); //#404040

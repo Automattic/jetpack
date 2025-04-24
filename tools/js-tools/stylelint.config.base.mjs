@@ -56,7 +56,6 @@ const baseConfig = {
 		// Disable all other rules for now.
 		'no-duplicate-selectors': null,
 		'scss/at-extend-no-missing-placeholder': null,
-		'scss/comment-no-empty': null,
 		'scss/no-global-function-names': null,
 		'scss/selector-no-redundant-nesting-selector': null,
 		'selector-id-pattern': null,

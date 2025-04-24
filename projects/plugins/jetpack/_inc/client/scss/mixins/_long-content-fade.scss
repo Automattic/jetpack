@@ -1,9 +1,9 @@
-// ==========================================================================
-// Long content fade mixin
-//
-// Creates a fading overlay to signify that the content is longer
-// than the space allows.
-// ==========================================================================
+/**
+ * Long content fade mixin
+ *
+ * Creates a fading overlay to signify that the content is longer
+ * than the space allows.
+ */
 
 @mixin long-content-fade( $direction: right, $size: 20%, $color: #fff, $edge: 0, $z-index: false) {
 	content: '';
