@@ -140,7 +140,8 @@
 	}
 }
 
-:where(.wp-block-jetpack-subscriptions input[type="email"]) {
+:where(.wp-block-jetpack-subscriptions) .wp-block-button__link,
+:where(.wp-block-jetpack-subscriptions) input[type="email"] {
 	font-size: 16px;
 	padding: 15px 23px 15px 23px;
 	border-radius: 0;
