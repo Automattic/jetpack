@@ -17,6 +17,7 @@ use WP_Block_Type_Registry;
  *
  * @covers \Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block
  */
+#[CoversClass( \Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block )]
 class Contact_Form_Block_Test extends BaseTestCase {
 	/**
 	 * Test that ::find_nested_html_block works correctly.
@@ -42,6 +43,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_register_child_blocks
 	 */
+	#[DataProvider( 'data_provider_test_register_child_blocks' )]
 	public function test_register_child_blocks( $block_name, $expected_supports = array() ) {
 		Contact_Form_Block::register_child_blocks();
 		$registry   = WP_Block_Type_Registry::get_instance();
