@@ -257,18 +257,21 @@ class Contact_Form_Block {
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_checkbox_multiple' ),
 			)
 		);
+
 		Blocks::jetpack_register_block(
 			'jetpack/field-option-checkbox',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_option' ),
 			)
 		);
+
 		Blocks::jetpack_register_block(
 			'jetpack/field-radio',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_radio' ),
 			)
 		);
+
 		Blocks::jetpack_register_block(
 			'jetpack/field-option-radio',
 			array(
@@ -294,6 +297,30 @@ class Contact_Form_Block {
 			array(
 				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_number' ),
 				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+			)
+		);
+
+		/**
+		 * The blocks 'jetpack/field-checkbox-multiple' and 'jetpack/field-radio' are wrapper blocks.
+		 * Styles must be registered so that they are available to be overridden by the theme or global styles.
+		 * Form field blocks define the block style via the settings in their index.js files.
+		 * A follow up issue is to update them to use block.json files, which can be reused
+		 * in both JS and PHP block registration.
+		 */
+		register_block_style(
+			array( 'jetpack/field-checkbox-multiple', 'jetpack/field-radio' ),
+			array(
+				'name'       => 'list',
+				'label'      => __( 'List', 'jetpack-forms' ),
+				'is_default' => true,
+			)
+		);
+
+		register_block_style(
+			array( 'jetpack/field-checkbox-multiple', 'jetpack/field-radio' ),
+			array(
+				'name'  => 'button',
+				'label' => __( 'Button', 'jetpack-forms' ),
 			)
 		);
 
