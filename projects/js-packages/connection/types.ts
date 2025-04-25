@@ -17,7 +17,6 @@ export type ConnectionScriptData = {
 			wpLocalConstant: boolean;
 		};
 		isPublic: boolean;
-		isAtomicSite?: boolean;
 	};
 	userConnectionData: {
 		currentUser: {
