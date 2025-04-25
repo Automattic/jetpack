@@ -10,20 +10,6 @@ export function getScriptData() {
 }
 
 /**
- * Get the blog ID from the script data.
- *
- * @return {number|null} The blog ID or null if not available.
- */
-export function getJetpackBlogId(): number | null {
-	const site = getScriptData()?.site;
-	if ( ! site ) {
-		return null;
-	}
-
-	return site.wpcom?.blog_id ?? null;
-}
-
-/**
  * Get the site data from the script data.
  *
  * @return {import('./types').SiteData} The site data.
