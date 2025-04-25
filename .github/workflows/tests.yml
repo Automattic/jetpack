@@ -502,7 +502,7 @@ jobs:
             elif [[ -n "$SLUG" ]]; then
               PROJECTS+=( "$SLUG" )
             else
-              echo "::error file=$f::This Phan baseline has changed and should be updated. This Action was unable to determine the command needed to update it; please report this to the Garage team."
+              echo "::error file=$f::This Phan baseline has changed and should be updated. This Action was unable to determine the command needed to update it; please report this to the Monorepo team."
             fi
           done
           if [[ ${#PROJECTS[@]} -gt 0 ]]; then
