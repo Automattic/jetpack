@@ -497,9 +497,8 @@ class Blocks_Test extends TestCase {
 	 * @param string      $expected      Expected variation value.
 	 * @param string|null $constant_name Name of the constant to set, if any.
 	 * @param mixed|null  $constant_val  Value of the constant to set, if any.
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_variation
 	 */
+	#[DataProvider( 'get_variation_constants' )]
 	public function test_get_variation_with_constants( $expected, $constant_name, $constant_val ) {
 		if ( $constant_name ) {
 			Jetpack_Constants::set_constant( $constant_name, $constant_val );
@@ -560,9 +559,8 @@ class Blocks_Test extends TestCase {
 	 *
 	 * @param string $expected    Expected variation value.
 	 * @param string $filter_name Name of the filter to add.
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_variation
 	 */
+	#[DataProvider( 'get_variation_deprecated_filters' )]
 	public function test_get_variation_with_filters( $expected, $filter_name ) {
 		add_filter( $filter_name, '__return_true' );
 		try {
@@ -596,8 +594,6 @@ class Blocks_Test extends TestCase {
 	 * Test getting block variation with jetpack_blocks_variation filter.
 	 *
 	 * @since $$next-version$$
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_variation
 	 */
 	public function test_get_variation_with_new_filter() {
 		$filter = function () {
