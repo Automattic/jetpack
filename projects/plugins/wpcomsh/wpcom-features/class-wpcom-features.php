@@ -705,6 +705,8 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
+		// FIELD_FILE - Premium block/feature (jetpack/field-file) for uploading files with cloud backend.
+		// See: https://github.com/Automattic/jetpack/pull/43177 / https://github.a8c.com/Automattic/wpcom/pull/179247
 		self::FIELD_FILE                        => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
