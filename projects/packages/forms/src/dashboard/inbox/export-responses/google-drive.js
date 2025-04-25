@@ -4,7 +4,7 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { tap } from 'lodash';
@@ -12,16 +12,17 @@ import { tap } from 'lodash';
  * Internal dependencies
  */
 import { config } from '../..';
-import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view';
+import { PARTIAL_RESPONSES_PATH, PREFERRED_VIEW } from '../../../util/get-preferred-responses-view';
 
-const GoogleDriveExport = ( { onExport } ) => {
-	const [ isConnectedToGoogleDrive, setIsConnectedToGoogleDrive ] = useState(
-		config( 'gdriveConnection' )
-	);
+const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
+	const [ isConnectedToGoogleDrive, setIsConnectedToGoogleDrive ] = useState( false );
 	const { tracks } = useAnalytics();
+	const connectButtonRef = useRef( null );
+	const [ hasAutoConnected, setHasAutoConnected ] = useState( false );
 
 	const { isUserConnected, handleConnectUser, userIsConnecting, isOfflineMode } = useConnection( {
-		redirectUri: PARTIAL_RESPONSES_PATH,
+		redirectUri:
+			PARTIAL_RESPONSES_PATH + ( PREFERRED_VIEW === 'classic' ? '' : '&connect-gdrive=true' ),
 	} );
 
 	const pollForConnection = useCallback( () => {
@@ -71,6 +72,17 @@ const GoogleDriveExport = ( { onExport } ) => {
 			screen: 'form-responses-inbox',
 		} );
 	}, [ tracks, pollForConnection ] );
+
+	useEffect( () => {
+		if ( autoConnect && ! hasAutoConnected ) {
+			// Wait for the button to be rendered so the ref is available
+			setTimeout( () => {
+				connectButtonRef.current?.click();
+			}, 1000 );
+
+			setHasAutoConnected( true );
+		}
+	}, [ autoConnect, handleConnectClick, hasAutoConnected ] );
 
 	if ( isOfflineMode ) {
 		return null;
@@ -145,6 +157,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 							rel="noopener noreferrer"
 							target="_blank"
 							onClick={ handleConnectClick }
+							ref={ connectButtonRef }
 						>
 							{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
 						</Button>
