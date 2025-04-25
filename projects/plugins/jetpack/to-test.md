@@ -13,3 +13,31 @@
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 
 **Thank you for all your help!**
+
+### Onboarding
+
+PR: https://github.com/Automattic/jetpack/pull/43203
+
+There have been lots of changes to the onboarding page, and we want to make sure there aren't any issues before we roll this out.
+
+1. Ensure your site is not connected to Jetpack.
+2. Go to My Jetpack.
+3. Click on "Supercharge my site".
+
+Verify things connect without any errors or friction.
+
+### Forms
+
+Jetpack Forms underwent a refactor aimed at aligning code with modern block editor standards and best practices. Of note are the following changes:
+
+* Add new base blocks for form fields: Input, Label, Option, Options
+* Migrate all form fields to use new base blocks
+* Include block deprecations to gracefully upgrade existing blocks
+* Fix various minor forms bugs on trunk (undo loops, minor style conflicts, etc.)
+* Change consent and checkbox fields to share option styles instead of label/input styles for better consistency across fields
+
+The single most important thing to test is to confirm that forms created with the trunk or production version of Jetpack continue to render correctly when updated to the newer, refactored version. You can do that by creating forms on Jetpack 14.5, and then updating your site. Test the frontend with and without visiting the block editor (which will trigger the block migration/deprecation process).
+
+### Stylelint
+
+We've been progressively fixing and enabling various Stylelint rules. Doing a click-through and checking for any visual regressions would be appreciated!
