@@ -12,6 +12,7 @@ import { tap } from 'lodash';
  * Internal dependencies
  */
 import { config } from '../..';
+import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view';
 
 const GoogleDriveExport = ( { onExport } ) => {
 	const [ isConnectedToGoogleDrive, setIsConnectedToGoogleDrive ] = useState(
@@ -20,7 +21,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 	const { tracks } = useAnalytics();
 
 	const { isUserConnected, handleConnectUser, userIsConnecting, isOfflineMode } = useConnection( {
-		redirectUri: location.href.split( 'wp-admin/' )[ 1 ],
+		redirectUri: PARTIAL_RESPONSES_PATH,
 	} );
 
 	const pollForConnection = useCallback( () => {
