@@ -38,6 +38,9 @@ const baseConfig = {
 		// Disabled until a valid pattern has been decided on: https://github.com/WordPress/gutenberg/issues/28616
 		'selector-class-pattern': null,
 
+		// Disabled due to widespread inconsistent patterns throughout that would require coordinated changes across CSS, JS, and PHP across multiple repos.
+		'selector-id-pattern': null,
+
 		'selector-pseudo-class-no-unknown': [
 			true,
 			{
@@ -56,7 +59,6 @@ const baseConfig = {
 		// Disable all other rules for now.
 		'scss/no-global-function-names': null,
 		'scss/selector-no-redundant-nesting-selector': null,
-		'selector-id-pattern': null,
 	},
 };
 
