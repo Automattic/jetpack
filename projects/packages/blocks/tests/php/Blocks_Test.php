@@ -520,7 +520,7 @@ class Blocks_Test extends TestCase {
 	 *
 	 * @return array[] Test parameters
 	 */
-	public function get_variation_constants() {
+	public static function get_variation_constants() {
 		return array(
 			'default'                          => array(
 				'expected'      => 'production',
@@ -577,7 +577,7 @@ class Blocks_Test extends TestCase {
 	 *
 	 * @return array[] Test parameters
 	 */
-	public function get_variation_deprecated_filters() {
+	public static function get_variation_deprecated_filters() {
 		return array(
 			'deprecated beta filter'         => array(
 				'expected'    => 'beta',
