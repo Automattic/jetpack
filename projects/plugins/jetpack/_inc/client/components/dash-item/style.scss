@@ -19,6 +19,11 @@
 		a:hover {
 			text-decoration: underline;
 		}
+
+		.dops-notice {
+			margin-top: rem( -1px );
+			margin-bottom: rem( -1px );
+		}
 	}
 }
 
@@ -125,17 +130,6 @@
 	}
 }
 
-.jp-dash-item {
-
-	.dops-section-header__actions {
-
-		.dops-notice {
-			margin-top: rem( -1px );
-			margin-bottom: rem( -1px );
-		}
-	}
-}
-
 .jp-dash-item__active-label {
 	display: inline-block;
 	color: darken( $gray, 10% );
@@ -149,18 +143,6 @@
 .jp-at-a-glance__right {
 
 	.jp-dash-item__is-inactive {
-
-		.dops-banner__content {
-			height: 100%;
-		}
-	}
-}
-
-// conditional styles for content when items are inactive
-.jp-dash-item__is-inactive {
-
-	.jp-at-a-glance__left &,
-	.jp-at-a-glance__right & {
 		border: 1px solid $gray-5;
 		background: #F9F9F6;
 		box-shadow: none;
@@ -172,7 +154,15 @@
 				background: none;
 			}
 		}
+
+		.dops-banner__content {
+			height: 100%;
+		}
 	}
+}
+
+// conditional styles for content when items are inactive
+.jp-dash-item__is-inactive {
 
 	.dops-card.dops-banner {
 		flex-grow: unset;

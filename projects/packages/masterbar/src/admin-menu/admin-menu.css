@@ -1,5 +1,7 @@
 #adminmenu {
 	margin: 0;
+	display: flex;
+	flex-direction: column;
 }
 
 /**
@@ -343,12 +345,6 @@
 
 .screen-switcher__button:focus > strong, .screen-switcher__button:hover > strong, a.screen-switcher__button:focus > strong, a.screen-switcher__button:hover > strong {
 	color:var(--wp-admin-theme-color)
-}
-
-/** Add new site button **/
-#adminmenu {
-	display: flex;
-	flex-direction: column;
 }
 
 #adminmenu .menu-top[class*="/start?ref=calypso-sidebar"] {

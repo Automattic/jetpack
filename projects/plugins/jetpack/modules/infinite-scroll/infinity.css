@@ -38,6 +38,7 @@
 	height: 12px;
 	border-radius: 3px / 6px;
 	transform-origin: 3px 26px;
+	box-sizing: content-box;
 }
 
 .infinite-loader .spinner-inner div:nth-child(1) {
@@ -127,10 +128,6 @@
 	transform: translateZ(0) scale(0.28);
 	backface-visibility: hidden;
 	transform-origin: 0 0; /* see note above */
-}
-
-.infinite-loader .spinner-inner div {
-	box-sizing: content-box;
 }
 
 /**
@@ -225,12 +222,6 @@
 	width: 40%;
 }
 
-#infinite-footer .blog-credits {
-	font-weight: 400;
-	float: right;
-	width: 60%;
-}
-
 #infinite-footer .blog-info a {
 	color: #111;
 	font-size: 14px;
@@ -238,6 +229,9 @@
 }
 
 #infinite-footer .blog-credits {
+	font-weight: 400;
+	float: right;
+	width: 60%;
 	color: #888;
 	font-size: 12px;
 	text-align: right;

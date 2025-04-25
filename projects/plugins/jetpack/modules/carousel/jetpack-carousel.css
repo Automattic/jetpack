@@ -398,9 +398,6 @@ div.jp-carousel-buttons a:hover {
 	font-size: 16px;
 	margin: 25px 0;
 	width: 100%;
-}
-
-.jp-carousel-photo-description {
 	overflow: hidden;
 	overflow-wrap: break-word;
 }

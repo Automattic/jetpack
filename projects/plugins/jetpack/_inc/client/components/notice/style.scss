@@ -49,6 +49,12 @@
 
 	.dops-notice__dismiss {
 		overflow: hidden;
+		color: $gray-lighten-10;
+
+		&:hover,
+		&:focus {
+			color: $white;
+		}
 	}
 
 	&.is-success,
@@ -166,15 +172,6 @@
 		.gridicon {
 			width: 24px;
 			height: 24px;
-		}
-	}
-
-	.dops-notice & {
-		color: $gray-lighten-10;
-
-		&:hover,
-		&:focus {
-			color: $white;
 		}
 	}
 }

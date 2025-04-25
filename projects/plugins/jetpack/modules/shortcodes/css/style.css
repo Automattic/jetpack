@@ -36,6 +36,7 @@ body.presentation-wrapper-fullscreen-parent {
 
 .presentation-wrapper-fullscreen .nav-fullscreen-button {
 	z-index: 20002;
+	background-image: url(../images/collapse.png);
 }
 
 
@@ -130,10 +131,6 @@ body.presentation-wrapper-fullscreen-parent {
 
 .presentation:hover .nav-fullscreen-button {
 	opacity: 0.8;
-}
-
-.presentation-wrapper-fullscreen .nav-fullscreen-button {
-	background-image: url(../images/collapse.png);
 }
 
 /**

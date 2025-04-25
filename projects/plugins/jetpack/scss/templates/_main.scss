@@ -59,12 +59,6 @@
 	};
 }
 
-.footer nav {
-	max-width: 550px;
-	margin: 0 auto;
-}
-
-
 // ==========================================================================
 // Main navigation
 // ==========================================================================
@@ -400,6 +394,7 @@
 }
 
 .footer nav {
+	margin: 0 auto;
 	max-width: 100%;
 
 	a,
@@ -578,13 +573,6 @@
 		}
 	}
 
-	.squeezer {
-
-		h2 {
-			font-size: 1em;
-		}
-	}
-
 	h2 {
 		color: #fff;
 		margin: 0;
@@ -612,6 +600,10 @@
 			position: absolute;
 			top: 23px;
 			top: calc( 50% - 22px );
+		}
+
+		h2 {
+			font-size: 1em;
 		}
 
 		@include breakpoint(large-phone){

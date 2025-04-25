@@ -472,10 +472,6 @@
 	}
 }
 
-.jp-connection-settings__info {
-	display: flex;
-}
-
 .jp-connection-settings__text {
 	margin-left: rem( 16px );
 	word-break: break-word;
@@ -490,6 +486,7 @@
 }
 
 .jp-connection-settings__info {
+	display: flex;
 
 	.gridicon {
 		opacity: 0.6;

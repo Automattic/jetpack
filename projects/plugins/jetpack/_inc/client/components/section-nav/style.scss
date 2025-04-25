@@ -49,6 +49,10 @@
 
 	@include breakpoint( "<660px" ) {
 		margin-bottom: 9px;
+
+		.dops-search.is-pinned {
+			height: 46px;
+		}
 	}
 }
 
@@ -417,16 +421,5 @@
 
 	.dops-segmented-control__link {
 		padding: 3px 16px 5px;
-	}
-}
-
-// -------- Search --------
-.dops-section-nav {
-
-	@include breakpoint( "<660px" ) {
-
-		.dops-search.is-pinned {
-			height: 46px;
-		}
 	}
 }

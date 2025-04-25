@@ -83,9 +83,6 @@ $gutter-m: 15px !default;
 	.mejs-time-float {
 		color: $jetpack-audio-player-background;
 		color: var( --jetpack-audio-player-background );
-	}
-
-	.mejs-time-float {
 		background: $jetpack-audio-player-primary;
 		background: var( --jetpack-audio-player-primary );
 		border-color: $jetpack-audio-player-primary;

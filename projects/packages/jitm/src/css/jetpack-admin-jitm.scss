@@ -190,11 +190,6 @@ $jp-gray-20:             #a7aaad;
 	margin: rem( 40px ) 1.5385em 0 auto;
 }
 
-// if JITM appears directly below WordPress hello dolly adjust margins
-#dolly+.jitm-card {
-  margin: 3rem 1rem 0 auto;
-}
-
 // remove right margin for jitms in the editor
 .post-php .jitm-card {
 	margin-right: 0;
@@ -534,6 +529,7 @@ $jp-gray-20:             #a7aaad;
 	margin-left: rem( 10px );
 }
 
+// if JITM appears directly below WordPress hello dolly adjust margins
 #dolly + .jitm-card {
   margin: 3rem 1rem 0 auto;
 }
