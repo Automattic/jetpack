@@ -298,7 +298,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_jetpack_gutenberg_extensions_allowed_list() {
 		$preset_extensions_manifest = ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) ? array() : self::get_preset();
-		$blocks_variation           = Blocks::get_variation();
+		$blocks_variation           = self::blocks_variation();
 
 		return self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation );
 	}
@@ -671,7 +671,7 @@ class Jetpack_Gutenberg {
 		}
 
 		$blocks_dir       = self::get_blocks_directory();
-		$blocks_variation = Blocks::get_variation();
+		$blocks_variation = self::blocks_variation();
 
 		if ( 'production' !== $blocks_variation ) {
 			$blocks_env = '-' . esc_attr( $blocks_variation );
@@ -856,13 +856,91 @@ class Jetpack_Gutenberg {
 	 *
 	 * @since 8.1.0
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Blocks::get_variation instead. Requires the blocks pacakge.
-	 *
 	 * @return string $block_varation production|beta|experimental
 	 */
 	public static function blocks_variation() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Blocks::get_variation' );
-		return Blocks::get_variation();
+		// Default to production blocks.
+		$block_varation = 'production';
+
+		/*
+		 * Prefer to use this JETPACK_BLOCKS_VARIATION constant
+		 * or the jetpack_blocks_variation filter
+		 * to set the block variation in your code.
+		 */
+		$default = Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' );
+		if ( ! empty( $default ) && in_array( $default, array( 'beta', 'experimental', 'production' ), true ) ) {
+			$block_varation = $default;
+		}
+
+		/**
+		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
+		*
+		* @since 6.9.0
+		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
+		*
+		* @param boolean
+		*/
+		$is_beta = apply_filters_deprecated(
+			'jetpack_load_beta_blocks',
+			array( false ),
+			'jetpack-11.8.0',
+			'jetpack_blocks_variation'
+		);
+
+		/*
+		 * Switch to beta blocks if you use the JETPACK_BETA_BLOCKS constant
+		 * or the deprecated jetpack_load_beta_blocks filter.
+		 * This only applies when not using the newer JETPACK_BLOCKS_VARIATION constant.
+		 */
+		if (
+			empty( $default )
+			&& (
+				$is_beta
+				|| Constants::is_true( 'JETPACK_BETA_BLOCKS' )
+			)
+		) {
+			$block_varation = 'beta';
+		}
+
+		/**
+		* Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
+		*
+		* @since 6.9.0
+		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
+		*
+		* @param boolean
+		*/
+		$is_experimental = apply_filters_deprecated(
+			'jetpack_load_experimental_blocks',
+			array( false ),
+			'jetpack-11.8.0',
+			'jetpack_blocks_variation'
+		);
+
+		/*
+		 * Switch to experimental blocks if you use the JETPACK_EXPERIMENTAL_BLOCKS constant
+		 * or the deprecated jetpack_load_experimental_blocks filter.
+		 * This only applies when not using the newer JETPACK_BLOCKS_VARIATION constant.
+		 */
+		if (
+			empty( $default )
+			&& (
+				$is_experimental
+				|| Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' )
+			)
+		) {
+			$block_varation = 'experimental';
+		}
+
+		/**
+		 * Allow customizing the variation of blocks in use on a site.
+		 * Overwrites any previously set values, whether by constant or filter.
+		 *
+		 * @since 8.1.0
+		 *
+		 * @param string $block_variation Can be beta, experimental, and production. Defaults to production.
+		 */
+		return apply_filters( 'jetpack_blocks_variation', $block_varation );
 	}
 
 	/**
