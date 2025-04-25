@@ -79,7 +79,6 @@ class Current_Plan {
 				'akismet',
 				'payments',
 				'videopress',
-				'field-file', // Forms
 			),
 		),
 		'premium'  => array(
