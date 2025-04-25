@@ -4,7 +4,7 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
-import { useCallback, useState, useEffect, useRef } from '@wordpress/element';
+import { useCallback, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { tap } from 'lodash';
@@ -15,10 +15,11 @@ import { config } from '../..';
 import { PARTIAL_RESPONSES_PATH, PREFERRED_VIEW } from '../../../util/get-preferred-responses-view';
 
 const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
-	const [ isConnectedToGoogleDrive, setIsConnectedToGoogleDrive ] = useState( false );
+	const [ isConnectedToGoogleDrive, setIsConnectedToGoogleDrive ] = useState(
+		config( 'gdriveConnection' )
+	);
 	const { tracks } = useAnalytics();
-	const connectButtonRef = useRef( null );
-	const [ hasAutoConnected, setHasAutoConnected ] = useState( false );
+	const autoConnectOpened = useRef( false );
 
 	const { isUserConnected, handleConnectUser, userIsConnecting, isOfflineMode } = useConnection( {
 		redirectUri:
@@ -72,17 +73,6 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 			screen: 'form-responses-inbox',
 		} );
 	}, [ tracks, pollForConnection ] );
-
-	useEffect( () => {
-		if ( autoConnect && ! hasAutoConnected ) {
-			// Wait for the button to be rendered so the ref is available
-			setTimeout( () => {
-				connectButtonRef.current?.click();
-			}, 1000 );
-
-			setHasAutoConnected( true );
-		}
-	}, [ autoConnect, handleConnectClick, hasAutoConnected ] );
 
 	if ( isOfflineMode ) {
 		return null;
@@ -157,7 +147,12 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 							rel="noopener noreferrer"
 							target="_blank"
 							onClick={ handleConnectClick }
-							ref={ connectButtonRef }
+							ref={ el => {
+								if ( autoConnect && ! autoConnectOpened.current ) {
+									el?.click();
+									autoConnectOpened.current = true;
+								}
+							} }
 						>
 							{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
 						</Button>
