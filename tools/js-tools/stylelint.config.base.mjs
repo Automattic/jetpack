@@ -54,7 +54,6 @@ const baseConfig = {
 		],
 
 		// Disable all other rules for now.
-		'scss/at-extend-no-missing-placeholder': null,
 		'scss/no-global-function-names': null,
 		'scss/selector-no-redundant-nesting-selector': null,
 		'selector-id-pattern': null,

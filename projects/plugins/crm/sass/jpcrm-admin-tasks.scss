@@ -4,7 +4,7 @@
  */
 
 // this is extended throughout 
-.zbs-tasks-field {
+%zbs-tasks-field {
 
     line-height: 1;
     border: 1px solid #ccc;
@@ -121,7 +121,7 @@ background: #fff;
 #zbs-task-title{
 
     // take general rounding etc. from this
-    @extend .zbs-tasks-field;
+    @extend %zbs-tasks-field;
 
     width:80%;
     float:left;
@@ -148,7 +148,7 @@ background: #fff;
 .no-owner, .no-task-date, .task-reminders, .no-contact, .show-on-calendar, .remind_task{
 
     // take general rounding etc. from this
-    @extend .zbs-tasks-field;
+    @extend %zbs-tasks-field;
 
     width: 100%;
     font-size: 14px;
@@ -218,7 +218,7 @@ background: #fff;
 .zbs-task-desc textarea{
 
     // take general rounding etc. from this
-    @extend .zbs-tasks-field;
+    @extend %zbs-tasks-field;
 
     width: 100%;
     height:200px;

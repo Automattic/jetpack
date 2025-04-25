@@ -7,7 +7,7 @@
 	transition: all .1s ease-in-out;
 }
 
-.jp-button {
+%jp-button {
 	display: inline-block;
 	position: relative;
 	padding: em(10px, 13px) em(19px, 13px);
@@ -35,9 +35,14 @@
 	}
 }
 
+.jp-button {
+
+	@extend %jp-button;
+}
+
 .jp-button--settings {
 
-	@extend .jp-button;
+	@extend %jp-button;
 	background: #93b45f;
 	color: #e8eedf;
 
