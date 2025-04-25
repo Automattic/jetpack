@@ -462,11 +462,11 @@ class Blocks {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string $block_varation production|beta|experimental
+	 * @return string $block_variation production|beta|experimental
 	 */
 	public static function get_variation() {
 		// Default to production blocks.
-		$block_varation = 'production';
+		$block_variation = 'production';
 
 		/*
 		 * Prefer to use this JETPACK_BLOCKS_VARIATION constant
@@ -475,7 +475,7 @@ class Blocks {
 		 */
 		$default = Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' );
 		if ( ! empty( $default ) && in_array( $default, array( 'beta', 'experimental', 'production' ), true ) ) {
-			$block_varation = $default;
+			$block_variation = $default;
 		}
 
 		/**
@@ -504,7 +504,7 @@ class Blocks {
 					|| Constants::is_true( 'JETPACK_BETA_BLOCKS' )
 				)
 			) {
-			$block_varation = 'beta';
+			$block_variation = 'beta';
 		}
 
 		/**
@@ -533,7 +533,7 @@ class Blocks {
 				|| Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' )
 			)
 			) {
-			$block_varation = 'experimental';
+			$block_variation = 'experimental';
 		}
 
 		/**
@@ -544,6 +544,6 @@ class Blocks {
 		 *
 		 * @param string $block_variation Can be beta, experimental, and production. Defaults to production.
 		 */
-		return apply_filters( 'jetpack_blocks_variation', $block_varation );
+		return apply_filters( 'jetpack_blocks_variation', $block_variation );
 	}
 }
