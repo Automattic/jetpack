@@ -114,10 +114,17 @@ class SearchResults extends Component {
 					corrected_query
 				);
 			}
+			// Always include the search query if one exists
 			return sprintf(
-				/* translators: %s: number of results. */
-				_n( 'Found %s result', 'Found %s results', total, 'jetpack-search-pkg' ),
-				num
+				/* translators: %1$s: number of results. %2$s: the search query. */
+				_n(
+					'Found %1$s result for "%2$s"',
+					'Found %1$s results for "%2$s"',
+					total,
+					'jetpack-search-pkg'
+				),
+				num,
+				this.props.searchQuery
 			);
 		}
 
