@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Account_Protection;
 
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
-use WP_User;
 
 /**
  * Class Password_Detection
@@ -48,7 +47,9 @@ class Password_Detection {
 	 * @return \WP_User|\WP_Error|null The user object, error object, or null.
 	 */
 	public function login_form_password_detection( $user, string $password ) {
-		if ( is_wp_error( $user ) || $user === null || ! ( $user instanceof WP_User ) ) {
+		// First check if the user object is valid. Third-party plugins might pass
+		// incompatible types to authentication hooks, so we need this extra check.
+		if ( is_wp_error( $user ) || ! ( $user instanceof \WP_User ) ) {
 			return $user;
 		}
 
