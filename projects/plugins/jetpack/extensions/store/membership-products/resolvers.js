@@ -77,8 +77,8 @@ const mapAPIResponseToMembershipProductsStoreData = ( response, registry, dispat
 const fetchSubscriberCounts = async () => {
 	const response = await apiFetch( {
 		path: addQueryArgs( '/wpcom/v2/subscribers/counts', {
-			subscription_status: 'email_subscriber',
-			subscriber_status: 'active_subscriber',
+			subscriber_status: 'active',
+			subscription_status: 'active',
 		} ),
 	} );
 
