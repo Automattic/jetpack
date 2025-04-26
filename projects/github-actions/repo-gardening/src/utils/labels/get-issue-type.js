@@ -18,7 +18,7 @@ async function getIssueType( octokit, owner, repo, number ) {
 
 	// Extract type labels, and return them all in a new array, but without the [Type] prefix.
 	const typeLabels = labels
-		.filter( label => label.startsWith( '[Type]' ) )
+		.filter( label => label.startsWith( '[Type]' ) || label === 'Bug' )
 		.map( label => label.replace( '[Type] ', '' ) );
 
 	// If there are multiple types defined in the issue, we cannot extract a specific type.

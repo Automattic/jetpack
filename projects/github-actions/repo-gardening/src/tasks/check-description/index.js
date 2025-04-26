@@ -259,7 +259,7 @@ async function getStatusChecks( payload, octokit ) {
 			if ( label.match( /^\[Status\].*(?<!Author Reply)$/ ) ) {
 				acc.hasStatusLabels = true;
 			}
-			if ( label.match( /^\[Type\]/ ) ) {
+			if ( label.match( /^\[Type\]/ ) || label === 'Bug' ) {
 				acc.hasTypeLabels = true;
 			}
 			return acc;

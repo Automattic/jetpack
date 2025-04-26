@@ -25,7 +25,7 @@ async function hasEscalatedLabel( octokit, owner, repo, number, escalatedLabel )
  * Send a Slack Notification if the issue is important.
  *
  * We define an important issue when meeting all of the following criteria:
- * - A bug (includes a "[Type] Bug" label, or a "[Type] Bug" label is added to the issue right now)
+ * - A bug (includes a "Bug" label, or a "Bug" label is added to the issue right now)
  * - The issue is still opened
  * - The issue is not escalated yet (no label indicating that it was previously escalated to that team)
  * - The issue is either a high priority or a blocker (inferred from the existing labels or from the issue body)
