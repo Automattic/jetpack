@@ -1122,13 +1122,13 @@ importers:
   projects/js-packages/number-formatters:
     dependencies:
       '@wordpress/date':
-        specifier: 5.19.0
-        version: 5.19.0
+        specifier: ^5.19.0
+        version: 5.21.0
       debug:
-        specifier: 4.4.0
+        specifier: ^4.4.0
         version: 4.4.0
       tslib:
-        specifier: 2.5.0
+        specifier: ^2.5.0
         version: 2.5.0
     devDependencies:
       '@babel/core':
@@ -8875,10 +8875,6 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18.0.0
-
-  '@wordpress/date@5.19.0':
-    resolution: {integrity: sha512-EZ31S8za/SRpUhgLSbKePaWIFuuLy5YzU0k9pdbxw3bc6qjC8Yfl72Envw0oMqgBbylYNGJa+hfeNEBWzDBKMA==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/date@5.21.0':
     resolution: {integrity: sha512-8Ve5sSaaOOPpkIU7qppXBZZ8ZR1sVUIy1s+MXYkSPRyKYKj5dpIT00n+Znj97FV4B1riaWnLp+hKV3p0vZ28ew==}
@@ -21094,13 +21090,6 @@ snapshots:
       - '@emotion/is-prop-valid'
       - '@types/react'
       - supports-color
-
-  '@wordpress/date@5.19.0':
-    dependencies:
-      '@babel/runtime': 7.26.10
-      '@wordpress/deprecated': 4.21.0
-      moment: 2.30.1
-      moment-timezone: 0.5.48
 
   '@wordpress/date@5.21.0':
     dependencies:
