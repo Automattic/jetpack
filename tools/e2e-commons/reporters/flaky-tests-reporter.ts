@@ -9,7 +9,7 @@
  * - If it fail all 3 times, then it's a **failed** test.
  */
 import fs from 'fs';
-import { fileNameFormatter } from '../helpers/utils-helper';
+import { fileNameFormatter } from '../helpers/utils-helper.js';
 import type { Reporter, TestCase, TestResult } from '@playwright/test/reporter';
 
 type FormattedTestResult = Omit< TestResult, 'steps' >;
