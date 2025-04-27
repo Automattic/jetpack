@@ -17,9 +17,7 @@ runs:
       env:
         INPUT_NODE: ${{ inputs.node }}
         INPUT_PHP: ${{ inputs.php }}
-      # The apt-get is due to a change in label in a PPA used by playwright. Can probably be removed in a week or two. 2025-04-27 -- kraftbj
       run: |
-        sudo apt-get update --allow-releaseinfo-change
         # Read tool versions
         . .github/versions.sh
 
