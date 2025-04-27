@@ -14,10 +14,8 @@ if ( ! defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) ) {
 }
 
 // Load minify library code.
-require_once __DIR__ . '/app/lib/minify/class-utils.php';
-require_once __DIR__ . '/app/lib/minify/class-config.php';
-require_once __DIR__ . '/app/lib/minify/class-dependency-path-mapping.php';
-require_once __DIR__ . '/app/lib/minify/functions-helpers.php';
-require_once __DIR__ . '/app/lib/minify/functions-service-fallback.php';
+if ( ! function_exists( 'jetpack_boost_minify_load_library' ) ) {
+	require_once __DIR__ . '/app/lib/minify/loader.php';
+}
 
 jetpack_boost_page_optimize_service_request();

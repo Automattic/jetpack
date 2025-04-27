@@ -2,6 +2,7 @@
 @import './common';
 
 .editor-styles-wrapper .wp-block-jetpack-donations {
+
 	.donations__amount {
 		cursor: text;
 
@@ -46,7 +47,7 @@
 }
 
 .jetpack-donations__currency-toggle {
-	font-weight: bold;
+	font-weight: 700;
 	line-height: 100%;
 	width: max-content;
 }

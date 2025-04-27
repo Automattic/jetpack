@@ -1,5 +1,5 @@
 $black: #101517;
-$white: #ffffff;
+$white: #fff;
 
 .jb-graph-annotations {
 	pointer-events: none;
@@ -12,7 +12,6 @@ $white: #ffffff;
 
 	&__line {
 		position: absolute;
-		width: 10px;
 		height: 100%;
 		transform: translateX(-50%);
 		pointer-events: all;
@@ -33,6 +32,7 @@ $white: #ffffff;
 		}
 
 		&:hover {
+
 			&::after {
 				background: rgba(146, 175, 215, 1);
 			}
@@ -40,6 +40,7 @@ $white: #ffffff;
 	}
 
 	&__annotation {
+
 		&::after {
 			content: '';
 			width: 0;
@@ -63,7 +64,7 @@ $white: #ffffff;
 		border-radius: 4px;
 		font-size: 14px;
 		position: absolute;
-		box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 		text-align: center;
 		transform: translateX(-50%);
 		z-index: 2;

@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/widgets/social-icons.php';
 
 /**
@@ -7,6 +9,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/widgets/social-icons.php';
  *
  * @covers Jetpack_Widget_Social_Icons
  */
+#[CoversClass( Jetpack_Widget_Social_Icons::class )]
 class Social_Icons_Widget_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -23,8 +26,6 @@ class Social_Icons_Widget_Test extends WP_UnitTestCase {
 	/**
 	 * Verifies that the target and url attributes in the icon urls are correct when the new tab setting
 	 * is enabled.
-	 *
-	 * @covers Jetpack_Widget_Social_Icons::widget
 	 */
 	public function test_widget_icon_urls_new_tab() {
 		$args = array(
@@ -54,8 +55,6 @@ class Social_Icons_Widget_Test extends WP_UnitTestCase {
 	/**
 	 * Verifies that the target and url attributes in the icon urls are correct when the new tab setting
 	 * is disabled.
-	 *
-	 * @covers Jetpack_Widget_Social_Icons::widget
 	 */
 	public function test_widget_icon_urls_same_tab() {
 		$args = array(

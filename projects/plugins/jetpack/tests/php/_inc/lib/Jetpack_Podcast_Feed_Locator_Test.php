@@ -10,8 +10,6 @@ require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-feed-locator
 
 /**
  * Class for testing the Jetpack_Podcast_Feed_Locator class.
- *
- * @coversDefaultClass Jetpack_Podcast_Feed_Locator
  */
 class Jetpack_Podcast_Feed_Locator_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -21,10 +19,10 @@ class Jetpack_Podcast_Feed_Locator_Test extends WP_UnitTestCase {
 	 * class, e.g. `$feed->set_locator_class( 'Jetpack_Podcast_Feed_Locator' )`.
 	 */
 	public function test_extends_simple_pie_locator() {
-		$file    = new Jetpack\SimplePie\File( '<?xml version="1.0" encoding="UTF-8"?>' );
+		$file    = new SimplePie\File( '<?xml version="1.0" encoding="UTF-8"?>' );
 		$locator = new Jetpack_Podcast_Feed_Locator( $file );
 
-		$this->assertInstanceOf( Jetpack\SimplePie\Locator::class, $locator );
+		$this->assertInstanceOf( SimplePie\Locator::class, $locator );
 	}
 
 	public function test_does_not_find_podcast_feed_with_itunes_ns() {
@@ -32,7 +30,7 @@ class Jetpack_Podcast_Feed_Locator_Test extends WP_UnitTestCase {
 <?xml version="1.0" encoding="UTF-8"?>
 <rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"></rss>
 FEED;
-		$file = new Jetpack\SimplePie\File( $rss );
+		$file = new SimplePie\File( $rss );
 
 		$locator = new Jetpack_Podcast_Feed_Locator( $file );
 
@@ -50,7 +48,7 @@ FEED;
 	</channel>
 </rss>
 FEED;
-		$file = new Jetpack\SimplePie\File( $rss );
+		$file = new SimplePie\File( $rss );
 
 		$locator = new Jetpack_Podcast_Feed_Locator( $file );
 
@@ -68,7 +66,7 @@ FEED;
 	</channel>
 </rss>
 FEED;
-		$file = new Jetpack\SimplePie\File( $rss );
+		$file = new SimplePie\File( $rss );
 
 		$locator = new Jetpack_Podcast_Feed_Locator( $file );
 
@@ -86,7 +84,7 @@ FEED;
 	</channel>
 </rss>
 FEED;
-		$file = new Jetpack\SimplePie\File( $rss );
+		$file = new SimplePie\File( $rss );
 
 		$locator = new Jetpack_Podcast_Feed_Locator( $file );
 

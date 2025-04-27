@@ -1,7 +1,7 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
 Tags: social media automation, social media scheduling, auto share, social sharing, social media marketing
-Requires at least: 6.6
+Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.8
 Stable tag: 4.5.1
@@ -104,9 +104,23 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 6.3.0 - 2025-03-21
+### 6.4.0 - 2025-04-17
 #### Added
-- My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack.
+- Added more error logging.
+- Added Share status support for WPCOM sites
+- Adding My Jetpack tour.
+- Adds Account Protection initialization
+- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
+
+#### Changed
+- Connection: Allow pre-selected login providers
+- General: indicate compatibility with the upcoming version of WordPress - 6.8.
+- Improved the logic for share status
+- Update package dependencies.
+
+#### Fixed
+- Do not load in the editor if sharing is disabled
+- Fix arguments for jetpack_open_graph_tags filter
 
 == Upgrade Notice ==
 

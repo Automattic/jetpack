@@ -7,12 +7,12 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import AiStatusIndicator from '../ai-status-indicator/index.js';
+import AiStatusIndicator from '../ai-status-indicator/index.tsx';
 import './style.scss';
 /**
  * Types
  */
-import type { RequestingStateProp } from '../../types.js';
+import type { RequestingStateProp } from '../../types.ts';
 import type { ReactElement } from 'react';
 
 type AIControlProps = {

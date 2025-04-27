@@ -14,7 +14,7 @@
 
 .videopress-modal {
 	padding: 10px 20px;
-	background: white;
+	background: #fff;
 	position: absolute;
 	top: 0;
 	width: 440px;
@@ -23,8 +23,6 @@
 	margin-left: -220px;
 	z-index: 101;
 	box-shadow: 2px 2px 5px 2px rgba( 0, 0, 0, 0.5 );
-	-webkit-border-bottom-right-radius: 2px;
-	-webkit-border-bottom-left-radius: 2px;
 	border-bottom-right-radius: 2px;
 	border-bottom-left-radius: 2px;
 }
@@ -39,7 +37,7 @@
 	float: right;
 	width: 65%;
 	margin-top: 18px;
-	background: black;
+	background: #000;
 	min-height: 97px;
 	text-decoration: none;
 }
@@ -59,7 +57,7 @@
 .videopress-preview span {
 	display: block;
 	padding-top: 40px;
-	color: white !important;
+	color: #fff !important;
 	text-align: center;
 }
 
@@ -78,7 +76,7 @@
 	max-width: 135px;
 }
 
-.vp-setting input[type='radio'] {
+.vp-setting input[type="radio"] {
 	float: left;
 	margin-top: 9px;
 	width: auto;

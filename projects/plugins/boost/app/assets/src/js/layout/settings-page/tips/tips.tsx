@@ -3,6 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './tips.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import { ExternalLink } from '@wordpress/components';
 
 const Tips = () => {
 	const pingdomLink = getRedirectUrl( 'jetpack-boost-pingdom' );
@@ -24,12 +25,9 @@ const Tips = () => {
 									),
 									{
 										link: (
-											// eslint-disable-next-line jsx-a11y/anchor-has-content
-											<a
+											<ExternalLink
 												onClick={ () => recordBoostEvent( 'pingdom_link_clicked', {} ) }
 												href={ pingdomLink }
-												target="_blank"
-												rel="noopener noreferrer"
 											/>
 										),
 									}
@@ -46,12 +44,9 @@ const Tips = () => {
 									),
 									{
 										link: (
-											// eslint-disable-next-line jsx-a11y/anchor-has-content
-											<a
+											<ExternalLink
 												onClick={ () => recordBoostEvent( 'why_speed_link_clicked', {} ) }
 												href={ whySpeedLink }
-												target="_blank"
-												rel="noopener noreferrer"
 											/>
 										),
 									}

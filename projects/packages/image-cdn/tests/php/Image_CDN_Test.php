@@ -1,11 +1,18 @@
 <?php
 
 use Automattic\Jetpack\Image_CDN\Image_CDN;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 if ( ! defined( 'WP_TESTS_DOMAIN' ) ) {
 	define( 'WP_TESTS_DOMAIN', 'example.org' );
 }
 
+/**
+ * @covers \Automattic\Jetpack\Image_CDN\Image_CDN
+ */
+#[CoversClass( Image_CDN::class )]
 class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 
 	/**
@@ -183,7 +190,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests that Image CDN creates an Image CDN instance.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::instance
 	 * @since 3.2
 	 */
 	public function test_image_cdn_instance() {
@@ -194,7 +200,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests that Image_CDN creates a singleton.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::instance
 	 * @since 3.2
 	 */
 	public function test_image_cdn_instance_singleton() {
@@ -207,7 +212,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Image CDN's HTML parsing when there is nothing to parse.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_images_from_html_empty() {
@@ -238,7 +242,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_images_from_html_a_tags_without_images() {
@@ -251,7 +254,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author biskobe
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_the_content
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_images_from_html_a_tags_with_hash_in_href() {
@@ -272,7 +274,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_images_from_html_empty_a_tag() {
@@ -285,7 +286,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_images_from_html_extra_attributes() {
@@ -298,7 +298,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_images_from_html_minimum_multiple_with_links() {
@@ -311,7 +310,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_images_from_html_minimum_multiple() {
@@ -324,7 +322,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_images_from_html_minimum() {
@@ -337,7 +334,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests that Photon will parse a multiline html snippet.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_images_from_html_multiline() {
@@ -350,7 +346,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon's parse of the src attribute.
 	 *
 	 * @author ccprog
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_images_from_html
 	 */
 	public function test_image_cdn_parse_images_from_html_src_attribute() {
 		list( $sample_html, $expected ) = $this->get_image_cdn_sample_content( 'src-attribute.html' );
@@ -362,7 +357,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon will parse the dimensions from a filename when there is no value.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_dimensions_from_filename_no_dimensions() {
@@ -375,7 +369,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon will parse the dimensions from a filename for an invalid value.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_dimensions_from_filename_no_dimensions_letter() {
@@ -388,7 +381,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon will parse the dimensions from a filename for an invalid value.
 	 *
 	 * @author scotchfield
-	 * @coverAutomattic\Jetpack\Image_CDN\Image_CDN::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_dimensions_from_filename_invalid_dimensions() {
@@ -401,7 +393,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon will parse the dimensions from a filename for a small value.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_dimensions_from_filename_valid_dimensions() {
@@ -412,8 +403,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 
 	/**
 	 * Tests Photon will parse the dimensions from a filename that contains query parameters.
-	 *
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_dimensions_from_filename
 	 */
 	public function test_image_cdn_parse_dimensions_from_filename_with_query_parameters() {
 		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-148x148.jpg?foo=bar&baz=qux';
@@ -425,7 +414,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon will parse the dimensions from a filename for a large value.
 	 *
 	 * @author scotchfield
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_dimensions_from_filename_valid_large_dimensions() {
@@ -438,7 +426,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for a full-size image.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_full_size_dimensions() {
@@ -458,7 +445,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for a known size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_large_size_dimensions() {
@@ -481,7 +467,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for a known size.
 	 *
 	 * @author emilyatmobtown
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 */
 	public function test_image_cdn_return_medium_large_size_dimensions() {
 		global $content_width;
@@ -503,7 +488,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for a known size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_jetpack_soft_defined_size_dimensions() {
@@ -526,7 +510,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for a known size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_jetpack_soft_undefined_size_dimensions() {
@@ -549,7 +532,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for an known size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_jetpack_soft_undefined_zero_size_dimensions() {
@@ -572,7 +554,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for a known size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_jetpack_hard_defined_size_dimensions() {
@@ -595,7 +576,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_jetpack_hard_undefined_size_dimensions() {
@@ -618,7 +598,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for a known size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_jetpack_hard_undefined_zero_size_dimensions() {
@@ -641,7 +620,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_jetpack_soft_defined_after_upload_size_dimensions() {
@@ -665,7 +643,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_jetpack_soft_undefined_after_upload_size_dimensions() {
@@ -692,7 +669,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_jetpack_soft_undefined_zero_after_upload_size_dimensions() {
@@ -719,7 +695,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_jetpack_hard_defined_after_upload_size_dimensions() {
@@ -743,7 +718,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_jetpack_hard_undefined_after_upload_size_dimensions() {
@@ -767,7 +741,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_jetpack_hard_undefined_zero_after_upload_size_dimensions() {
@@ -791,7 +764,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon image_downsize will return a custom-size image.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_image_cdn_return_custom_size_array_dimensions() {
@@ -813,7 +785,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	/**
 	 * Tests Photon image_downsize will return a cropped image for custom size if the custom size matches a registered size.
 	 *
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 0.4.3
 	 */
 	public function test_image_cdn_return_custom_size_array_uses_registered_crop() {
@@ -832,7 +803,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	/**
 	 * Tests Photon image_downsize will return a cropped image for custom size if the custom size matches a registered size.
 	 *
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 0.4.3
 	 */
 	public function test_image_cdn_return_false_for_image_with_null_size() {
@@ -847,7 +817,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests that Photon will not return an image larger than the original via image_downsize.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_image_cdn_return_custom_size_array_dimensions_larger_than_original() {
@@ -870,7 +839,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests image_downsize filter for a defined size with no meta.
 	 *
 	 * @author dereksmart
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_image_cdn_return_jetpack_soft_defined_size_dimensions_no_meta() {
@@ -893,7 +861,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests image_downsize filter for a soft crop for an existing oversized image size.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_image_cdn_return_jetpack_soft_oversized() {
@@ -917,7 +884,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests image_downsize filter for a soft crop for an undefined size.
 	 *
 	 * @author dereksmart
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_image_cdn_return_jetpack_soft_undefined_size_dimensions_no_meta() {
@@ -940,7 +906,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests image_downsize filter for a soft crop after upload.
 	 *
 	 * @author kraftbj
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_image_cdn_return_jetpack_soft_oversized_after_upload() {
@@ -964,7 +929,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon's image_downsize on a known image size.
 	 *
 	 * @author dereksmart
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_image_cdn_return_jetpack_hard_defined_size_dimensions_no_meta() {
@@ -987,7 +951,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon's image_downsize filter with an undefined size.
 	 *
 	 * @author dereksmart
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_image_cdn_return_jetpack_hard_undefined_size_dimensions_no_meta() {
@@ -1010,7 +973,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests image_downsize filter when there is no meta information available.
 	 *
 	 * @author dereksmart
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_image_cdn_return_custom_size_array_dimensions_no_meta() {
@@ -1033,7 +995,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon's filtering of the_content when both height/width are known.
 	 *
 	 * @author ebinnion
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_the_content
 	 * @since 5.6.0
 	 */
 	public function test_image_cdn_filter_the_content_does_not_remove_width_height_when_both_known() {
@@ -1054,7 +1015,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Test Photon's filtering of the_content when either width/height is not known.
 	 *
 	 * @author ebinnion
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_the_content
 	 * @since 5.6.0
 	 */
 	public function test_image_cdn_filter_the_content_does_not_have_width_height_when_at_least_one_not_known() {
@@ -1071,7 +1031,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon's filtering of the_content with filtered args.
 	 *
 	 * @author ebinnion
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_the_content
 	 * @dataProvider photon_attributes_when_filtered_data_provider
 	 * @since 5.6.0
 	 *
@@ -1080,6 +1039,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @param int      $width Image width in pixels.
 	 * @param int      $height Image height in pixels.
 	 */
+	#[DataProvider( 'photon_attributes_when_filtered_data_provider' )]
 	public function test_image_cdn_filter_the_content_width_height_attributes_when_image_args_filtered( $filter_callback, $has_attributes, $width, $height ) {
 		list( $sample_html ) = $this->get_image_cdn_sample_content( 'a-tags-without-images.html' );
 
@@ -1107,7 +1067,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Checks that Photon ignores data-width and data-height attributes when parsing the attributes.
 	 *
 	 * @author mmtr
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_the_content
 	 * @since 8.0.0
 	 */
 	public function test_image_cdn_filter_the_content_ignores_data_width_and_data_height_attributes() {
@@ -1124,7 +1083,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Checks that Photon parses correctly the width and height attributes when they are not preceded by a space.
 	 *
 	 * @author mmtr
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_the_content
 	 * @since 8.0.0
 	 */
 	public function test_image_cdn_filter_the_content_parses_width_height_when_no_spaces_between_attributes() {
@@ -1207,8 +1165,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 
 	/**
 	 * Tests that Photon ignores percentage dimensions. It should fall back to e.g. a "size-foo" class.
-	 *
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_the_content
 	 */
 	public function test_image_cdn_filter_the_content_percentage_width_and_height() {
 		$sample_html      = '<img src="http://example.com/test.png" class="test size-large" width="45%" height="55%" />';
@@ -1228,8 +1184,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 
 	/**
 	 * Tests that Photon ignores empty dimensions. It should fall back to e.g. a "size-foo" class.
-	 *
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_the_content
 	 */
 	public function test_image_cdn_filter_the_content_empty_width_and_height() {
 		$sample_html      = '<img src="http://example.com/test.png" class="test size-large" width="" height="" />';
@@ -1249,8 +1203,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 
 	/**
 	 * Tests that Photon ignores bogus dimensions. It should fall back to e.g. a "size-foo" class.
-	 *
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_the_content
 	 */
 	public function test_image_cdn_filter_the_content_bogus_width_and_height() {
 		$sample_html      = '<img src="http://example.com/test.png" class="test size-large" width="1vh" height="1vh" />';
@@ -1272,13 +1224,13 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests that Photon will filter for an AMP response.
 	 *
 	 * @author westonruter
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_the_content
 	 * @dataProvider photon_attributes_when_amp_response
 	 * @since 7.6.0
 	 *
 	 * @param string $sample_html Sample HTML.
 	 * @param string $photon_src  Photon URL suffix (after the subdomain).
 	 */
+	#[DataProvider( 'photon_attributes_when_amp_response' )]
 	public function test_image_cdn_filter_the_content_for_amp_responses( $sample_html, $photon_src ) {
 		if ( ! class_exists( 'Jetpack_AMP_Support' ) ) {
 			$this->markTestSkipped( 'Jetpack_AMP_Support class not found' );
@@ -1315,8 +1267,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests that Photon will filter for AMP stories.
 	 *
 	 * @author westonruter
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::filter_the_content
-	 * @covers Jetpack_AMP_Support::filter_image_cdn_post_image_args_for_stories
 	 * @since 7.6.0
 	 * @todo Move to Jetpack
 	 */
@@ -1356,6 +1306,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 *
 	 * @group rest-api
 	 */
+	#[Group( 'rest-api' )]
 	public function test_image_cdn_cdn_in_rest_response_with_view_context() {
 		$test_image = $this->helper_get_image();
 
@@ -1380,6 +1331,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 *
 	 * @group rest-api
 	 */
+	#[Group( 'rest-api' )]
 	public function test_image_cdn_cdn_in_rest_response_with_view_context_from_editor() {
 		$test_image = $this->helper_get_image();
 
@@ -1421,6 +1373,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 *
 	 * @group rest-api
 	 */
+	#[Group( 'rest-api' )]
 	public function test_image_cdn_in_rest_response_with_edit_context() {
 		$test_image = $this->helper_get_image();
 
@@ -1470,6 +1423,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @author kraftbj
 	 * @group rest-api
 	 */
+	#[Group( 'rest-api' )]
 	public function test_image_cdn_cdn_in_rest_response_with_created_item() {
 		$filename = __DIR__ . '/sample-content/test-image-large.png';
 
@@ -1504,6 +1458,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @author ebinnion
 	 * @group rest-api
 	 */
+	#[Group( 'rest-api' )]
 	public function test_image_cdn_in_rest_response_external_media() {
 		$this->markTestSkipped( 'Skipping the test as the endpoint is currently missing' );
 		// @phan-suppress-next-line PhanPluginUnreachableCode
@@ -1562,8 +1517,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 
 	/**
 	 * Tests that Photon will not strip the dimensions from an external URL.
-	 *
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::strip_image_dimensions_maybe
 	 */
 	public function test_image_cdn_strip_image_dimensions_maybe_ignores_external_files() {
 		$ext_domain = 'https://some.domain/wp-content/uploads/2019/1/test-image-300x300.jpg';
@@ -1573,8 +1526,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 
 	/**
 	 * Tests Photon stripping the image dimensions from filename.
-	 *
-	 * @covers Automattic\Jetpack\Image_CDN\Image_CDN::strip_image_dimensions_maybe
 	 */
 	public function test_image_cdn_strip_image_dimensions_maybe_strips_resized_string() {
 		$orig_filename = 'test-image-large.png';
@@ -1604,10 +1555,10 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @param bool   $expected If is valid Photon-able URL.
 	 *
 	 * @author kraftbj
-	 * @covers       Automattic\Jetpack\Image_CDN\Image_CDN::validate_image_url
 	 * @dataProvider get_test_image_cdn_validate_image_url_file_types_data_provider
 	 * @since 10.0.0
 	 */
+	#[DataProvider( 'get_test_image_cdn_validate_image_url_file_types_data_provider' )]
 	public function test_image_cdn_validate_image_url_file_types( $url, $expected ) {
 		$testable                    = new ReflectionClass( Image_CDN::class );
 		$testable_validate_image_url = $testable->getMethod( 'validate_image_url' );

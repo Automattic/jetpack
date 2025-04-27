@@ -11,11 +11,16 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Brain\Monkey;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class Blocks_Test
+ *
+ * @covers \Automattic\Jetpack\Blocks
  */
+#[CoversClass( Blocks::class )]
 class Blocks_Test extends TestCase {
 
 	/**
@@ -51,8 +56,6 @@ class Blocks_Test extends TestCase {
 	 * Test the different inputs and matching output for Classes.
 	 *
 	 * @since 9.0.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::classes
 	 */
 	public function test_block_classes() {
 		$block_name = 'foo';
@@ -79,8 +82,6 @@ class Blocks_Test extends TestCase {
 	 * Test for invalid alignment values.
 	 *
 	 * @since 9.0.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::classes
 	 */
 	public function test_block_classes_invalid_align() {
 		$attr          = array( 'align' => 'test' );
@@ -93,8 +94,6 @@ class Blocks_Test extends TestCase {
 	 * Test whether we can detect an AMP view.
 	 *
 	 * @since 9.0.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_amp_request
 	 */
 	public function test_is_amp_request() {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -109,8 +108,6 @@ class Blocks_Test extends TestCase {
 	 * Test whether we can detect an AMP view.
 	 *
 	 * @since 9.0.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_amp_request
 	 */
 	public function test_is_not_amp_request() {
 		$this->assertFalse( Blocks::is_amp_request() );
@@ -118,8 +115,6 @@ class Blocks_Test extends TestCase {
 
 	/**
 	 * Test WordPress and Gutenberg version requirements.
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_gutenberg_version_available
 	 */
 	public function test_returns_false_if_core_wp_version_less_than_minimum() {
 		$version_gated = Blocks::is_gutenberg_version_available(
@@ -134,8 +129,6 @@ class Blocks_Test extends TestCase {
 
 	/**
 	 * Test WordPress and Gutenberg version requirements.
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_gutenberg_version_available
 	 */
 	public function test_returns_true_if_core_wp_version_greater_or_equal_to_minimum() {
 		$version_gated = Blocks::is_gutenberg_version_available(
@@ -151,13 +144,12 @@ class Blocks_Test extends TestCase {
 	/**
 	 * Testing removing the Jetpack prefix from a block slug.
 	 *
-	 * @covers Automattic\Jetpack\Blocks::remove_extension_prefix
-	 *
 	 * @dataProvider get_extension_name_provider
 	 *
 	 * @param string $extension_slug      Block / Extension name.
 	 * @param string $expected_short_slug Extension name without Jetpack prefix.
 	 */
+	#[DataProvider( 'get_extension_name_provider' )]
 	public function test_remove_extension_prefix( $extension_slug, $expected_short_slug ) {
 		$short_slug = Blocks::remove_extension_prefix( $extension_slug );
 
@@ -188,8 +180,6 @@ class Blocks_Test extends TestCase {
 
 	/**
 	 * Test to ensure that an extension is returned as registered.
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_registered
 	 */
 	public function test_is_extension_registered() {
 		// Test for the block that is registered for all tests here.
@@ -200,8 +190,6 @@ class Blocks_Test extends TestCase {
 
 	/**
 	 * Ensure blocks cannot be registered twice.
-	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
 	public function test_jetpack_register_block_twice() {
 		$result = Blocks::jetpack_register_block( $this->block_name );
@@ -212,7 +200,6 @@ class Blocks_Test extends TestCase {
 	 * Test to ensure blocks without a Jetpack prefix are registered, but with a jetpack prefix.
 	 *
 	 * @expectedIncorrectUsage Automattic\Jetpack\Blocks::jetpack_register_block
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
 	public function test_jetpack_register_block_without_jetpack() {
 		$result = Blocks::jetpack_register_block( 'doing-it-wrong' );
@@ -223,8 +210,6 @@ class Blocks_Test extends TestCase {
 	 * Test that we can detect an FSE theme.
 	 *
 	 * @since 9.8.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_fse_theme
 	 */
 	public function test_is_not_fse_theme() {
 		$this->assertFalse( Blocks::is_fse_theme() );
@@ -234,8 +219,6 @@ class Blocks_Test extends TestCase {
 	 * Test that we can detect an FSE theme using the provided filter.
 	 *
 	 * @since 9.8.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_fse_theme
 	 */
 	public function test_is_fse_theme_via_filter() {
 		add_filter( 'jetpack_is_fse_theme', '__return_true' );
@@ -250,8 +233,6 @@ class Blocks_Test extends TestCase {
 	 * Test that by default we are not running in a Jetpack plugin context.
 	 *
 	 * @since 9.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
 	 */
 	public function test_is_standalone_block() {
 		$this->assertTrue( Blocks::is_standalone_block() );
@@ -262,8 +243,6 @@ class Blocks_Test extends TestCase {
 	 * as a standalone block.
 	 *
 	 * @since 9.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
 	 */
 	public function test_is_not_standalone_block() {
 		add_filter( 'jetpack_is_standalone_block', '__return_false' );
@@ -279,8 +258,6 @@ class Blocks_Test extends TestCase {
 	 * when the Jetpack_Gutenberg class is not available.
 	 *
 	 * @since 9.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
 	public function test_jetpack_register_block_without_editor_style() {
 		$result = Blocks::jetpack_register_block( 'jetpack/block-without-editor-style' );
@@ -293,8 +270,6 @@ class Blocks_Test extends TestCase {
 	 * when the Jetpack_Gutenberg class is available.
 	 *
 	 * @since 9.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
 	public function test_jetpack_register_block_with_editor_style() {
 		add_filter( 'jetpack_is_standalone_block', '__return_false' );
@@ -312,8 +287,6 @@ class Blocks_Test extends TestCase {
 	 * when the Jetpack_Gutenberg class is available.
 	 *
 	 * @since 9.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
 	public function test_jetpack_register_block_with_existing_editor_style() {
 		add_filter( 'jetpack_is_standalone_block', '__return_false' );
@@ -335,8 +308,6 @@ class Blocks_Test extends TestCase {
 	 * Test registering a block by specifying the path to its metadata file.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_jetpack_register_block_from_metadata_file() {
 		$result = Blocks::jetpack_register_block( __DIR__ . '/fixtures/test-block/block.json' );
@@ -348,8 +319,6 @@ class Blocks_Test extends TestCase {
 	 * Test reading metadata from a block.json file by specifying its path.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_get_block_metadata_from_file() {
 		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/test-block/block.json' );
@@ -362,8 +331,6 @@ class Blocks_Test extends TestCase {
 	 * Test reading metadata from a block.json file by specifying its folder.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_get_block_metadata_from_folder() {
 		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/test-block' );
@@ -376,8 +343,6 @@ class Blocks_Test extends TestCase {
 	 * Test reading metadata from a file that doesn't exist.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_get_block_metadata_from_wrong_file() {
 		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/ghost-folder/block.json' );
@@ -390,8 +355,6 @@ class Blocks_Test extends TestCase {
 	 * Test reading the name of a block from its metadata.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_metadata
 	 */
 	public function test_get_block_name_from_metadata() {
 		$name   = 'jetpack/test-block';
@@ -408,8 +371,6 @@ class Blocks_Test extends TestCase {
 	 * Test reading the feature name of a block from its metadata.
 	 *
 	 * @since 1.5.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_metadata
 	 */
 	public function test_get_block_feature_from_metadata() {
 		$feature = 'test-block';
@@ -427,8 +388,6 @@ class Blocks_Test extends TestCase {
 	 * Test getting the path to a block's metadata file.
 	 *
 	 * @since 1.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_path_to_block_metadata
 	 */
 	public function test_get_path_to_block_metadata() {
 		$base_dir  = __DIR__ . '/fixtures';
@@ -462,8 +421,6 @@ class Blocks_Test extends TestCase {
 	 * Test getting the block name.
 	 *
 	 * @since 1.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_name
 	 */
 	public function test_get_block_name() {
 		// Pass metadata
@@ -487,8 +444,6 @@ class Blocks_Test extends TestCase {
 	 * Test getting the block feature name.
 	 *
 	 * @since 1.6.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_feature
 	 */
 	public function test_get_block_feature() {
 		// Pass metadata
@@ -512,8 +467,6 @@ class Blocks_Test extends TestCase {
 	 * Test getting the block name from path convention.
 	 *
 	 * @since 1.x.x
-	 *
-	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_path_convention
 	 */
 	public function test_get_block_name_from_path_convention() {
 		/**
@@ -531,6 +484,126 @@ class Blocks_Test extends TestCase {
 		foreach ( $test_cases as $path => $expected ) {
 			$result = Blocks::get_block_name_from_path_convention( $path );
 			$this->assertEquals( $expected, $result, "Failed for path: $path" );
+		}
+	}
+
+	/**
+	 * Test getting block variation with various constants.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @dataProvider get_variation_constants
+	 *
+	 * @param string      $expected      Expected variation value.
+	 * @param string|null $constant_name Name of the constant to set, if any.
+	 * @param mixed|null  $constant_val  Value of the constant to set, if any.
+	 */
+	#[DataProvider( 'get_variation_constants' )]
+	public function test_get_variation_with_constants( $expected, $constant_name, $constant_val ) {
+		if ( $constant_name ) {
+			Jetpack_Constants::set_constant( $constant_name, $constant_val );
+		}
+
+		try {
+			$this->assertEquals( $expected, Blocks::get_variation() );
+		} finally {
+			if ( $constant_name ) {
+				Jetpack_Constants::clear_constants();
+			}
+		}
+	}
+
+	/**
+	 * Data provider for testing block variations with constants.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array[] Test parameters
+	 */
+	public static function get_variation_constants() {
+		return array(
+			'default'                          => array(
+				'expected'      => 'production',
+				'constant_name' => null,
+				'constant_val'  => null,
+			),
+			'valid constant'                   => array(
+				'expected'      => 'beta',
+				'constant_name' => 'JETPACK_BLOCKS_VARIATION',
+				'constant_val'  => 'beta',
+			),
+			'invalid constant'                 => array(
+				'expected'      => 'production',
+				'constant_name' => 'JETPACK_BLOCKS_VARIATION',
+				'constant_val'  => 'invalid',
+			),
+			'old beta blocks constant'         => array(
+				'expected'      => 'beta',
+				'constant_name' => 'JETPACK_BETA_BLOCKS',
+				'constant_val'  => true,
+			),
+			'old experimental blocks constant' => array(
+				'expected'      => 'experimental',
+				'constant_name' => 'JETPACK_EXPERIMENTAL_BLOCKS',
+				'constant_val'  => true,
+			),
+		);
+	}
+
+	/**
+	 * Test getting block variation with various filters.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @dataProvider get_variation_deprecated_filters
+	 *
+	 * @param string $expected    Expected variation value.
+	 * @param string $filter_name Name of the filter to add.
+	 */
+	#[DataProvider( 'get_variation_deprecated_filters' )]
+	public function test_get_variation_with_filters( $expected, $filter_name ) {
+		add_filter( $filter_name, '__return_true' );
+		try {
+			$this->assertEquals( $expected, Blocks::get_variation() );
+		} finally {
+			remove_filter( $filter_name, '__return_true' );
+		}
+	}
+
+	/**
+	 * Data provider for testing block variations with filters.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array[] Test parameters
+	 */
+	public static function get_variation_deprecated_filters() {
+		return array(
+			'deprecated beta filter'         => array(
+				'expected'    => 'beta',
+				'filter_name' => 'jetpack_load_beta_blocks',
+			),
+			'deprecated experimental filter' => array(
+				'expected'    => 'experimental',
+				'filter_name' => 'jetpack_load_experimental_blocks',
+			),
+		);
+	}
+
+	/**
+	 * Test getting block variation with jetpack_blocks_variation filter.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_get_variation_with_new_filter() {
+		$filter = function () {
+			return 'beta';
+		};
+		add_filter( 'jetpack_blocks_variation', $filter );
+		try {
+			$this->assertEquals( 'beta', Blocks::get_variation() );
+		} finally {
+			remove_filter( 'jetpack_blocks_variation', $filter );
 		}
 	}
 }

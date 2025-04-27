@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/widget-visibility/widget-conditions.php';
 
 /**
@@ -9,6 +11,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/widget-visibility/widget-conditions.
  *
  * @covers Jetpack_Widget_Conditions
  */
+#[CoversClass( Jetpack_Widget_Conditions::class )]
 class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -23,8 +26,6 @@ class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
 	 *
 	 * Expects to see the same paragraph block for (1) and (3),
 	 * and false for (2).
-	 *
-	 * @covers Jetpack_Widget_Conditions::filter_widget
 	 */
 	public function test_filter_widget() {
 		// Block with rule for "Display only when logged out" (Will pass during unit tests).

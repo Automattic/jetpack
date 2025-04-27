@@ -1,4 +1,4 @@
-.add-new-h2, .view-switch, body.no-js .tablenav select[name^=action], body.no-js #doaction, body.no-js #doaction2 {
+.add-new-h2, .view-switch, body.no-js .tablenav select[name^="action"], body.no-js #doaction, body.no-js #doaction2 {
 	display: none
 }
 
@@ -13,6 +13,7 @@
 .widefat .column-feedback_source {
 	width: 17%;
 }
+
 .widefat .column-feedback_response {
 	width: 100%;
 }
@@ -22,6 +23,7 @@
 }
 
 @media screen and (max-width: 782px) {
+
 	.widefat .column-feedback_response {
 		padding-left: 8px !important;
 	}
@@ -41,14 +43,16 @@
 	grid-template-columns: 35% 1fr;
 	grid-row-gap: 8px;
 }
+
 .column-feedback_response .feedback_response__item-key,
 .column-feedback_response .feedback_response__item-value {
 	align-items: flex-start;
 	display: flex;
 	word-break: break-word;
 }
+
 .column-feedback_response .feedback_response__item-value {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 .column-feedback_response .feedback_response__mobile-separator {
@@ -56,6 +60,7 @@
 }
 
 @media screen and (min-width: 783px) {
+
 	.column-feedback_response .feedback_response__mobile-separator {
 		display: none;
 	}
@@ -100,6 +105,7 @@
 .feedback-export-modal__wrapper {
 	display: flex;
 	flex-direction: column;
+
 	/* These strange paddings to add 48px with TB defaults */
 	padding: 0 33px 9px 33px;
 	width: 100%;
@@ -123,7 +129,7 @@
 	font-size: 16px;
 	line-height: 24px;
 	letter-spacing: -0.02em;
-	color: #000000;
+	color: #000;
 	padding: 0;
 	margin-top: 8px;
 }
@@ -132,7 +138,7 @@
 	display: flex;
 	flex-grow: 1;
 	flex-direction: column;
-	padding: 0px;
+	padding: 0;
 	gap: 32px;
 }
 
@@ -186,7 +192,7 @@
 	font-size: 14px;
 	line-height: 24px;
 	letter-spacing: -0.02em;
-	color: #000000;
+	color: #000;
 	max-width: 60%;
 }
 
@@ -202,8 +208,8 @@
 	font-style: normal;
 	font-weight: 400;
 	letter-spacing: -0.01em;
-	color: #FFFFFF;
-	background: #000000;
-	border: 1px solid #FFFFFF;
+	color: #FFF;
+	background: #000;
+	border: 1px solid #FFF;
 	border-radius: 4px;
 }

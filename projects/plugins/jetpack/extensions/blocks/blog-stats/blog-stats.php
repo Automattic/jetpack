@@ -11,9 +11,15 @@ namespace Automattic\Jetpack\Extensions\Blog_Stats;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+use Jetpack_Blog_Stats_Helper;
 use Jetpack_Gutenberg;
+
+if ( ! class_exists( 'Jetpack_Blog_Stats_Helper' ) ) {
+	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-blog-stats-helper.php';
+}
 
 /**
  * Registers the block for use in Gutenberg.
@@ -21,7 +27,22 @@ use Jetpack_Gutenberg;
  * registration if we need to.
  */
 function register_block() {
-	if ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() ) {
+	/*
+	 * The block is available even when the module is not active,
+	 * so we can display a nudge to activate the module instead of the block.
+	 * However, since non-admins cannot activate modules, we do not display the empty block for them.
+	 */
+	if ( ! ( new Modules() )->is_active( 'stats' ) && ! current_user_can( 'jetpack_activate_modules' ) ) {
+		return;
+	}
+
+	if (
+		( new Host() )->is_wpcom_simple()
+		|| (
+			( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
+			&& ! ( new Status() )->is_offline_mode()
+		)
+	) {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
@@ -46,7 +67,7 @@ function load_assets( $attributes ) {
 	}
 
 	// For when Stats has been disabled subsequent to inserting the block.
-	if ( ! \Jetpack::is_module_active( 'stats' ) ) {
+	if ( ! ( new Modules() )->is_active( 'stats' ) ) {
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			return sprintf(
 				'<p>%s</p>',
@@ -76,37 +97,7 @@ function load_assets( $attributes ) {
 		return;
 	}
 
-	$stats       = 0;
-	$wpcom_stats = new WPCOM_Stats();
-
-	if ( $attributes['statsOption'] === 'post' ) {
-		// Cache in post meta to prevent wp_options blowing up when retrieving views
-		// for multiple posts simultaneously (eg. when inserted into template).
-		$cache_in_meta = true;
-		$data          = $wpcom_stats->convert_stats_array_to_object(
-			$wpcom_stats->get_post_views(
-				get_the_ID(),
-				array( 'fields' => 'views' ),
-				$cache_in_meta
-			)
-		);
-
-		if ( isset( $data->views ) ) {
-			$stats = $data->views;
-		}
-	} else {
-		$data = $wpcom_stats->convert_stats_array_to_object(
-			$wpcom_stats->get_stats( array( 'fields' => 'stats' ) )
-		);
-
-		if ( $attributes['statsData'] === 'views' && isset( $data->stats->views ) ) {
-			$stats = $data->stats->views;
-		}
-
-		if ( $attributes['statsData'] === 'visitors' && isset( $data->stats->visitors ) ) {
-			$stats = $data->stats->visitors;
-		}
-	}
+	$stats = Jetpack_Blog_Stats_Helper::get_stats( $attributes );
 
 	$fallback_label = $attributes['statsData'] === 'visitors' ? esc_html(
 		/* Translators: Number of visitors */

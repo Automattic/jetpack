@@ -30,6 +30,7 @@
 	}
 
 	&__card {
+
 		@include card( $borderless: true );
 
 		box-shadow: 0 0 40px rgba( 0, 0, 0, 0.08 );
@@ -43,14 +44,14 @@
 		height: 112px;
 		padding: 1rem;
 
-		background-image: url( './header-background.jpg' );
+		background-image: url( ./header-background.jpg );
 		background-image: -webkit-image-set(
-			url( './header-background.jpg' ) 1x,
-			url( './header-background-2x.jpg' ) 2x
+			url( ./header-background.jpg ) 1x,
+			url( ./header-background-2x.jpg ) 2x
 		);
 		background-image: image-set(
-			url( './header-background.jpg' ) 1x,
-			url( './header-background-2x.jpg' ) 2x
+			url( ./header-background.jpg ) 1x,
+			url( ./header-background-2x.jpg ) 2x
 		);
 		background-repeat: no-repeat;
 		background-position: center center;
@@ -76,6 +77,7 @@
 	}
 
 	&__feature-list {
+
 		@include features-list;
 	}
 

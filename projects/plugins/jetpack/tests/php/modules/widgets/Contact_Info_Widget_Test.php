@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/widgets/contact-info.php';
 
 /**
@@ -7,6 +9,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/widgets/contact-info.php';
  *
  * @covers Jetpack_Contact_Info_Widget
  */
+#[CoversClass( Jetpack_Contact_Info_Widget::class )]
 class Contact_Info_Widget_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -25,8 +28,6 @@ class Contact_Info_Widget_Test extends WP_UnitTestCase {
 
 	/**
 	 * No filter callback is set. The API key field should be displayed.
-	 *
-	 * @covers Jetpack_Contact_Info_Widget::form
 	 */
 	public function test_form_apikey_field_with_no_filter() {
 		ob_start();

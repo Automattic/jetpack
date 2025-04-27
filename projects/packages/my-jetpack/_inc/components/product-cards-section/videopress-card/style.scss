@@ -51,6 +51,7 @@ p.description {
     }
 
     &__previous-value.increase {
+
         * {
             color: var( --jp-green-50 );
             fill: var( --jp-green-50 );
@@ -58,6 +59,7 @@ p.description {
     }
 
     &__previous-value.decrease {
+
         * {
             color: var( --jp-red-50 );
             fill: var( --jp-red-50 );
@@ -72,6 +74,7 @@ p.description {
 }
 
 .videopress-card__no-video-tooltip {
+
     .info-tooltip__button {
         display: inline;
         vertical-align: middle;

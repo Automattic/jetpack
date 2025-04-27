@@ -3,6 +3,8 @@
  * Tests for /wpcom/v2/external-media endpoints.
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WpOrg\Requests\Requests;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
@@ -10,8 +12,9 @@ require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 /**
  * Class WPCOM_REST_API_V2_Endpoint_External_Media_Test
  *
- * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_External_Media
+ * @covers \WPCOM_REST_API_V2_Endpoint_External_Media
  */
+#[CoversClass( WPCOM_REST_API_V2_Endpoint_External_Media::class )]
 class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCase {
 
 	/**
@@ -276,8 +279,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 
 	/**
 	 * Tests delete connection response for Google Photos.
-	 *
-	 * @covers ::delete_connection
 	 */
 	public function test_delete_connection_google_photos() {
 		add_filter( 'rest_pre_dispatch', array( $this, 'mock_wpcom_api_response_delete_connection_google_photos' ), 10, 3 );
@@ -296,10 +297,9 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 	 * Tests delete connection response for Google Photos.
 	 *
 	 * @dataProvider google_photos_request_methods
-	 * @covers ::delete_connection
-	 *
 	 * @param string $method Request method.
 	 */
+	#[DataProvider( 'google_photos_request_methods' )]
 	public function test_connection_google_photos_with_error( $method ) {
 		add_filter( 'rest_pre_dispatch', array( $this, 'mock_wpcom_api_external_media_connection_response_with_error' ), 10, 3 );
 

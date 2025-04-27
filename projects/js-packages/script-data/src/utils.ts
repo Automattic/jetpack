@@ -1,4 +1,4 @@
-import { CurrentUserData } from './types.js';
+import { CurrentUserData } from './types.ts';
 
 /**
  * Get the script data from the window object.
@@ -106,7 +106,7 @@ export function isWoASite() {
  * @return Whether the site is a WordPress.com site.
  */
 export function isWpcomPlatformSite() {
-	return isSimpleSite() || isWoASite();
+	return getScriptData().site?.is_wpcom_platform;
 }
 
 /**

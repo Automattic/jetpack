@@ -11,6 +11,10 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use DOMDocument;
 use DOMElement;
+use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\BeforeClass;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts;
 
@@ -18,7 +22,14 @@ use WorDBless\Posts;
  * Test class for Contact_Form
  *
  * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form
+ * @covers \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
+ * @covers \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
+ * @covers \Automattic\Jetpack\Forms\ContactForm\Util
  */
+#[CoversClass( Contact_Form::class )]
+#[CoversClass( Contact_Form_Field::class )]
+#[CoversClass( Contact_Form_Plugin::class )]
+#[CoversClass( Util::class )]
 class Contact_Form_Test extends BaseTestCase {
 
 	private $post;
@@ -32,6 +43,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @beforeClass
 	 */
+	#[BeforeClass]
 	public static function set_up_class() {
 		define( 'DOING_AJAX', true ); // Defined so that 'exit' is not called in process_submission.
 
@@ -55,6 +67,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @before
 	 */
+	#[Before]
 	public function set_up_test_case() {
 		// Avoid actually trying to send any mail.
 		add_filter( 'pre_wp_mail', '__return_true', PHP_INT_MAX );
@@ -593,7 +606,6 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Tests that 'grunion_delete_old_spam()' deletes an old post that is marked as spam.
 	 *
 	 * @author tonykova
-	 * @covers \Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_deletes_an_old_post_marked_as_spam() {
 		// grunion_Delete_old_spam performs direct DB queries which cannot be tested outside of a working WP install.
@@ -615,7 +627,6 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Tests that 'grunion_delete_old_spam' does not delete a new post that is marked as spam.
 	 *
 	 * @author tonykova
-	 * @covers \Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_does_not_delete_a_new_post_marked_as_spam() {
 		$post_id = wp_insert_post(
@@ -635,7 +646,6 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Tests that token is left intact when there is not matching field.
 	 *
 	 * @author tonykova
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
 	 */
 	public function test_token_left_intact_when_no_matching_field() {
 		$plugin       = Contact_Form_Plugin::init();
@@ -651,7 +661,6 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Tests that token is replaced with an empty string when there is not value in field.
 	 *
 	 * @author tonykova
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
 	 */
 	public function test_replaced_with_empty_string_when_no_value_in_field() {
 		$plugin       = Contact_Form_Plugin::init();
@@ -667,7 +676,6 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
 	 *
 	 * @author tonykova
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
 	 */
 	public function test_token_can_replace_entire_subject_with_token_field_whose_name_has_whitespace() {
 		$plugin       = Contact_Form_Plugin::init();
@@ -683,7 +691,6 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Tests that token with curly brackets is replaced with value.
 	 *
 	 * @author tonykova
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
 	 */
 	public function test_token_with_curly_brackets_can_be_replaced() {
 		$plugin       = Contact_Form_Plugin::init();
@@ -727,8 +734,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Tests shortcode with commas and brackets.
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_array_values_with_commas_and_brackets() {
 		$shortcode = "[contact-field type='radio' options='\"foo\",bar&#044; baz,&#091;b&#092;rackets&#093;' label='fun &#093;&#091; times'/]";
@@ -738,8 +743,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Tests Gutenblock input with commas and brackets.
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_array_values_with_commas_and_brackets_from_gutenblock() {
 		$attr = array(
@@ -753,8 +756,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Test for text field_renders
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_make_sure_text_field_renders_as_expected() {
 		$attributes = array(
@@ -772,8 +773,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Test for email field_renders
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_make_sure_email_field_renders_as_expected() {
 		$attributes = array(
@@ -791,8 +790,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Test for url field_renders
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_make_sure_url_field_renders_as_expected() {
 		$attributes = array(
@@ -810,8 +807,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Test for telephone field_renders
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_make_sure_telephone_field_renders_as_expected() {
 		$attributes = array(
@@ -829,8 +824,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Test for date field_renders
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_make_sure_date_field_renders_as_expected() {
 		$attributes = array(
@@ -849,8 +842,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Test for textarea field_renders
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_make_sure_textarea_field_renders_as_expected() {
 		$attributes = array(
@@ -868,8 +859,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Test for checkbox field_renders
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_make_sure_checkbox_field_renders_as_expected() {
 		$attributes = array(
@@ -887,8 +876,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Multiple fields
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_make_sure_checkbox_multiple_field_renders_as_expected() {
 		$attributes = array(
@@ -907,8 +894,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Test for radio field_renders
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_make_sure_radio_field_renders_as_expected() {
 		$attributes = array(
@@ -927,8 +912,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Test for select field_renders
-	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
 	 */
 	public function test_make_sure_select_field_renders_as_expected() {
 		$attributes = array(
@@ -1221,9 +1204,9 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * Test get_export_data_for_posts with fully vaid data input.
 	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
 	 * @group csvexport
 	 */
+	#[Group( 'csvexport' )]
 	public function test_get_export_data_for_posts_fully_valid_data() {
 		/**
 		 * Contact_Form_Plugin mock object.
@@ -1341,9 +1324,9 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * Test get_export_data_for_posts with single invalid entry for post meta
 	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
 	 * @group csvexport
 	 */
+	#[Group( 'csvexport' )]
 	public function test_get_export_data_for_posts_invalid_single_entry_meta() {
 		/**
 		 * Contact_Form_Plugin mock object.
@@ -1446,9 +1429,9 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * Test get_export_data_for_posts with invalid all entries for post meta
 	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
 	 * @group csvexport
 	 */
+	#[Group( 'csvexport' )]
 	public function test_get_export_data_for_posts_invalid_all_entries_meta() {
 		/**
 		 * Contact_Form_Plugin mock object.
@@ -1536,9 +1519,9 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * Test get_export_data_for_posts with single invalid entry for parsed fields.
 	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
 	 * @group csvexport
 	 */
+	#[Group( 'csvexport' )]
 	public function test_get_export_data_for_posts_single_invalid_entry_for_parse_fields() {
 		/**
 		 * Contact_Form_Plugin mock object.
@@ -1649,9 +1632,9 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * Test get_export_data_for_posts with all entries for parsed fields invalid.
 	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
 	 * @group csvexport
 	 */
+	#[Group( 'csvexport' )]
 	public function test_get_export_data_for_posts_all_entries_for_parse_fields_invalid() {
 		/**
 		 * Contact_Form_Plugin mock object.
@@ -1692,9 +1675,9 @@ class Contact_Form_Test extends BaseTestCase {
 	/**
 	 * Test map_parsed_field_contents_of_post_to_field_names
 	 *
-	 * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin
 	 * @group csvexport
 	 */
+	#[Group( 'csvexport' )]
 	public function test_map_parsed_field_contents_of_post_to_field_names() {
 
 		$input_data = array(

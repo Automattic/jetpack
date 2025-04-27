@@ -28,12 +28,12 @@ li.jp-tree-item {
 		margin: 0;
 	}
 
-	.components-checkbox-control__input[type=checkbox]:checked, .components-checkbox-control__input[type=checkbox]:indeterminate {
+	.components-checkbox-control__input[type="checkbox"]:checked, .components-checkbox-control__input[type="checkbox"]:indeterminate {
 		background: var(--jp-green);
 		border-color: var(--jp-green);
 	}
 
-	.components-checkbox-control__input[type=checkbox]:focus {
+	.components-checkbox-control__input[type="checkbox"]:focus {
 		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #fff, 0 0 0 calc(var(--wp-admin-border-width-focus) * 2) var(--jp-green);
 		border-color: var(--jp-green);
 	}

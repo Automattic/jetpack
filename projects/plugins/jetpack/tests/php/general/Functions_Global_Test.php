@@ -1,21 +1,29 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Tests for functions in functions.global.php
+ *
+ * @covers ::jetpack_get_future_removed_version
+ * @covers ::jetpack_get_vary_headers
  */
+#[CoversFunction( 'jetpack_get_future_removed_version' )]
+#[CoversFunction( 'jetpack_get_vary_headers' )]
 class Functions_Global_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Test string returned by jetpack_deprecated_function
 	 *
-	 * @covers ::jetpack_get_future_removed_version
 	 * @since 8.8.0
 	 * @dataProvider jetpack_deprecated_function_versions
 	 *
 	 * @param string $version  Version number passed to the function.
 	 * @param string $expected Expected removed version number.
 	 */
+	#[DataProvider( 'jetpack_deprecated_function_versions' )]
 	public function test_jetpack_get_future_removed_version( $version, $expected ) {
 		$removed_version = jetpack_get_future_removed_version( $version );
 
@@ -64,11 +72,10 @@ class Functions_Global_Test extends WP_UnitTestCase {
 	 * Test jetpack_get_vary_headers.
 	 *
 	 * @dataProvider get_test_headers
-	 * @covers ::jetpack_get_vary_headers
-	 *
 	 * @param array $headers  Array of headers.
 	 * @param array $expected Expected array of headers, to be used as Vary header.
 	 */
+	#[DataProvider( 'get_test_headers' )]
 	public function test_jetpack_get_vary_headers( $headers, $expected ) {
 		$vary_header_parts = jetpack_get_vary_headers( $headers );
 

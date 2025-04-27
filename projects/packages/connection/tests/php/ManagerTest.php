@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as StatusCache;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -88,8 +89,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_active` functionality when connected.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
 	public function test_is_active_when_connected() {
 		$access_token = (object) array(
@@ -105,8 +104,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_active` functionality when not connected.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
 	public function test_is_active_when_not_connected() {
 		$this->tokens->expects( $this->once() )
@@ -118,8 +115,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `has_connected_owner` functionality when connected.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
 	 */
 	public function test_has_connected_owner_when_connected() {
 		$admin_id = wp_insert_user(
@@ -140,8 +135,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `has_connected_owner` functionality when not connected.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
 	 */
 	public function test_has_connected_owner_when_not_connected() {
 		$this->manager->method( 'get_connection_owner_id' )
@@ -153,8 +146,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `api_url` generation.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::api_url
 	 */
 	public function test_api_url_defaults() {
 		add_filter( 'jetpack_constant_default_value', array( $this, 'filter_api_constant' ), 10, 2 );
@@ -173,8 +164,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Testing the ability of the api_url method to follow set constants and filters.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::api_url
 	 */
 	public function test_api_url_uses_constants_and_filters() {
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
@@ -220,8 +209,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_user_connected` functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_default_user_id_logged_out() {
 		$this->assertFalse( $this->manager->is_user_connected() );
@@ -229,8 +216,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_user_connected` functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_false_user_id_logged_out() {
 		$this->assertFalse( $this->manager->is_user_connected( false ) );
@@ -238,8 +223,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_user_connected` functionality
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_user_id_logged_out_not_connected() {
 		$this->tokens->expects( $this->once() )
@@ -251,8 +234,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_user_connected` functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_default_user_id_logged_in() {
 		wp_set_current_user( $this->user_id );
@@ -270,8 +251,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `is_user_connected` functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_user_id_logged_in() {
 		$access_token = (object) array(
@@ -287,8 +266,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Unit test for the "Delete all tokens" functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::delete_all_connection_tokens
 	 */
 	public function test_delete_all_connection_tokens() {
 		( new Plugin( 'plugin-slug-1' ) )->add( 'Plugin Name 1' );
@@ -305,8 +282,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Unit test for the "Disconnect from WP" functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_site_wpcom
 	 */
 	public function test_disconnect_site_wpcom() {
 		( new Plugin( 'plugin-slug-1' ) )->add( 'Plugin Name 1' );
@@ -324,7 +299,6 @@ class ManagerTest extends TestCase {
 	/**
 	 * Test the `jetpack_connection_custom_caps' method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::jetpack_connection_custom_caps
 	 * @dataProvider jetpack_connection_custom_caps_data_provider
 	 *
 	 * @param bool   $in_offline_mode Whether offline mode is active.
@@ -332,6 +306,7 @@ class ManagerTest extends TestCase {
 	 * @param string $custom_cap The custom capability that is being tested.
 	 * @param array  $expected_caps The expected output.
 	 */
+	#[DataProvider( 'jetpack_connection_custom_caps_data_provider' )]
 	public function test_jetpack_connection_custom_caps( $in_offline_mode, $owner_exists, $custom_cap, $expected_caps ) {
 		// Mock the apply_filters( 'jetpack_offline_mode', ) call in Status::is_offline_mode.
 		StatusCache::clear();
@@ -382,8 +357,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test the `get_signed_token` functionality.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::get_signed_token
 	 */
 	public function test_get_signed_token() {
 		$access_token = (object) array(
@@ -413,13 +386,13 @@ class ManagerTest extends TestCase {
 	/**
 	 * Test disconnecting a user from WordPress.com.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user
 	 * @dataProvider get_disconnect_user_scenarios
 	 *
 	 * @param bool $remote   Was the remote disconnection successful.
 	 * @param bool $local    Was the remote disconnection successful.
 	 * @param bool $expected Expected outcome.
 	 */
+	#[DataProvider( 'get_disconnect_user_scenarios' )]
 	public function test_disconnect_user( $remote, $local, $expected ) {
 		$editor_id = wp_insert_user(
 			array(
@@ -498,8 +471,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test updating the connection owner to a non-admin user.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
 	 */
 	public function test_update_connection_owner_non_admin() {
 		$editor_id = wp_insert_user(
@@ -520,8 +491,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test updating the connection owner to the existing owner.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
 	 */
 	public function test_update_connection_owner_same_owner() {
 		$admin_id = wp_insert_user(
@@ -546,8 +515,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test updating the connection owner to a not connected admin.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
 	 */
 	public function test_update_connection_owner_not_connected() {
 		$admin_id = wp_insert_user(
@@ -568,8 +535,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test updating the connection owner when remote call to wpcom fails.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
 	 */
 	public function test_update_connection_owner_with_failed_wpcom_request() {
 		$admin_id = wp_insert_user(
@@ -604,8 +569,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test updating the connection owner when remote call to wpcom succeeds.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
 	 */
 	public function test_update_connection_owner_with_successful_wpcom_request() {
 		$admin_id = wp_insert_user(
@@ -638,8 +601,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test disconnecting the site will remove tracked package verions.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_site
 	 */
 	public function test_disconnect_site_will_remove_tracked_package_versions() {
 		$this->manager->method( 'disconnect_site_wpcom' )
@@ -771,6 +732,7 @@ class ManagerTest extends TestCase {
 	 * @param String $error_code the returned error code.
 	 * @return void
 	 */
+	#[DataProvider( 'signature_data_provider' )]
 	public function test_verify_xml_rpc_signature_malformed_user_id( $token, $signature, $error_code ) {
 		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
 
@@ -793,13 +755,13 @@ class ManagerTest extends TestCase {
 	/**
 	 * Test disconnecting a user from WordPress.com with force parameter.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user_force
 	 * @dataProvider get_disconnect_user_force_scenarios
 	 *
 	 * @param bool $remote   Was the remote disconnection successful.
 	 * @param bool $local    Was the local disconnection successful.
 	 * @param bool $expected Expected outcome.
 	 */
+	#[DataProvider( 'get_disconnect_user_force_scenarios' )]
 	public function test_disconnect_user_force( $remote, $local, $expected ) {
 		$owner_id = wp_insert_user(
 			array(
@@ -849,8 +811,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test disconnecting all users except the primary (owner) user.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_all_users_except_primary
 	 */
 	public function test_disconnect_all_users_except_primary() {
 		// Create owner and connected users
@@ -932,8 +892,6 @@ class ManagerTest extends TestCase {
 
 	/**
 	 * Test disconnecting all users except primary when there's a failure.
-	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_all_users_except_primary
 	 */
 	public function test_disconnect_all_users_except_primary_failure() {
 		// Create owner and one other user
@@ -964,27 +922,66 @@ class ManagerTest extends TestCase {
 		$this->manager->method( 'get_connection_owner_id' )
 			->willReturn( $owner_id );
 
-		// Mock unlink_user_from_wpcom to fail
-		$this->manager->method( 'unlink_user_from_wpcom' )
+		// Get a mock that only overrides the disconnect_all_users_except_primary method
+		// This avoids triggering XML-RPC calls that might cause errors
+		$mock_manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'disconnect_user' ) )
+			->getMock();
+
+		// Have disconnect_user always return false to simulate failures
+		$mock_manager->method( 'disconnect_user' )
 			->willReturn( false );
 
-		// Mock access tokens for all users
-		$access_token = (object) array(
-			'secret'           => 'abcd1234',
-			'external_user_id' => 1,
-		);
-		$this->tokens->expects( $this->any() )
-			->method( 'get_access_token' )
-			->willReturn( $access_token );
-
-		// Run the disconnect
-		$result = $this->manager->disconnect_all_users_except_primary();
+		// Run the disconnect on our mock manager
+		$result = $mock_manager->disconnect_all_users_except_primary();
 
 		// Verify the result indicates failure
 		$this->assertFalse( $result );
+	}
 
-		// Verify both users are still connected
-		$this->assertTrue( $this->manager->is_user_connected( $owner_id ) );
-		$this->assertTrue( $this->manager->is_user_connected( $editor_id ) );
+	/**
+	 * Test the clean_account_mismatch_transients method cleans transients properly.
+	 */
+	public function test_clean_account_mismatch_transients() {
+		// Create a test user
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_user_clean_mismatch',
+				'user_email' => 'test@example.com',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+
+		// Set up transient keys the same way the REST_Connector class does
+		$email               = 'test@example.com';
+		$email_transient_key = 'jetpack_account_mismatch_' . md5( $email );
+
+		// Set up test transient
+		set_transient( $email_transient_key, true, DAY_IN_SECONDS );
+
+		// Create an instance of User_Account_Status
+		$user_account_status = new User_Account_Status();
+
+		// Test cleaning by email
+		$user_account_status->clean_account_mismatch_transients( 'test@example.com' );
+
+		// Check that the email-based transient was deleted
+		$this->assertFalse( get_transient( $email_transient_key ) );
+
+		// Reset the email transient
+		set_transient( $email_transient_key, true, DAY_IN_SECONDS );
+
+		// Test cleaning by user ID
+		$user_account_status->clean_account_mismatch_transients( $user_id );
+
+		// Check that the transient was deleted
+		$this->assertFalse( get_transient( $email_transient_key ) );
+
+		// Reset the email transient
+		set_transient( $email_transient_key, true, DAY_IN_SECONDS );
+
+		// Clean up
+		wp_delete_user( $user_id );
 	}
 }

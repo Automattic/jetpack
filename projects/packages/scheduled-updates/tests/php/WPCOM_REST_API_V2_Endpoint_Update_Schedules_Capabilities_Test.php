@@ -6,12 +6,14 @@
  */
 
 use Automattic\Jetpack\Scheduled_Updates;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Test class for WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities.
  *
- * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities
+ * @covers \WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities
  */
+#[CoversClass( WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities::class )]
 class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Admin user ID.
@@ -41,8 +43,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities_Test extends \Wor
 
 	/**
 	 * Make sure unauthorized users can't get in to capabilities.
-	 *
-	 * @covers ::get_items
 	 */
 	public function test_non_admin_user_capabilities() {
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/capabilities' );
@@ -53,8 +53,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Capabilities_Test extends \Wor
 
 	/**
 	 * Make sure authorized users can see data for capabilities
-	 *
-	 * @covers ::get_items
 	 */
 	public function test_admin_user_capabilities() {
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/update-schedules/capabilities' );

@@ -8,6 +8,7 @@
 // this was all cloned from customer.edit.scss 10/03/18
 
 .post-type-zerobs_customer{
+
   .zbs-hide-add{
     display:none;
   }
@@ -58,6 +59,7 @@
   }
 
 }
+
 .zbs-aka-alias.hovering button.ui.mini.zbs-aka-alias-remove {
 
     // default
@@ -70,9 +72,11 @@
 
 
 }
+
 #zbs-aka-alias-input-wrap {
   text-align:center;
 }
+
 .zbs-aka-alias-input {
   font-size: 14px !important;
   line-height: 1.4em !important;
@@ -90,6 +94,7 @@
   margin-bottom:1em;
   margin-top:1em;
 }
+
 .zbs-customerportal-activeuser-actions button.ui {
   margin-top:0.5em;
 }

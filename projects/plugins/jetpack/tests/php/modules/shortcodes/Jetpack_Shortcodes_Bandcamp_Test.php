@@ -1,14 +1,19 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
+/**
+ * @covers ::shortcode_handler_bandcamp
+ */
+#[CoversFunction( 'shortcode_handler_bandcamp' )]
 class Jetpack_Shortcodes_Bandcamp_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * @author scotchfield
-	 * @covers ::shortcode_handler_bandcamp
 	 * @since 3.2
 	 */
 	public function test_shortcodes_bandcamp_exists() {
@@ -17,7 +22,6 @@ class Jetpack_Shortcodes_Bandcamp_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::shortcode_handler_bandcamp
 	 * @since 3.2
 	 */
 	public function test_shortcodes_bandcamp() {

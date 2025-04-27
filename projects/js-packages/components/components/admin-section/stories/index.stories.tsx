@@ -1,8 +1,8 @@
-import AdminPage from '../../admin-page/index.js';
-import Col from '../../layout/col/index.js';
-import Container from '../../layout/container/index.js';
-import AdminSection from '../basic/index.js';
-import AdminSectionHero from '../hero/index.js';
+import AdminPage from '../../admin-page/index.tsx';
+import Col from '../../layout/col/index.tsx';
+import Container from '../../layout/container/index.tsx';
+import AdminSection from '../basic/index.tsx';
+import AdminSectionHero from '../hero/index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
 const meta: Meta< typeof AdminSection > = {

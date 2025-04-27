@@ -18,7 +18,7 @@
 		h1 {
 			margin: 0;
 			font-size: var( --font-title-large );
-			font-weight: bold;
+			font-weight: 700;
 			line-height: 1.2;
 		}
 	}
@@ -34,7 +34,7 @@
 
 	&__actions{
 		background: var( --jp-white );
-		margin:0px !important;
+		margin:0 !important;
 		border-top: 1px solid var( --jp-gray );
 		max-width: 1200px !important;
 		padding: calc( var( --spacing-base ) * 4 ) calc( var( --spacing-base ) * 5 );
@@ -84,7 +84,7 @@
 			float:right;
 		}
 
-		&.disabled:before {
+		&.disabled::before {
 			content: '';
 			display: block;
 			position: absolute;
@@ -122,6 +122,7 @@
 	}
 
 	.components-modal {
+
 		&__header {
 			display: none;
 		}

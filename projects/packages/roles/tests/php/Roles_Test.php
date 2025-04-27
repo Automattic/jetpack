@@ -10,13 +10,16 @@ namespace Automattic\Jetpack;
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class Roles_Test
  *
  * @package Automattic\Jetpack
+ * @covers \Automattic\Jetpack\Roles
  */
+#[CoversClass( Roles::class )]
 class Roles_Test extends TestCase {
 	use MockeryPHPUnitIntegration;
 
@@ -46,8 +49,6 @@ class Roles_Test extends TestCase {
 
 	/**
 	 * Tests the current user by role.
-	 *
-	 * @covers Automattic\Jetpack\Roles::translate_current_user_to_role
 	 */
 	public function test_current_user_to_role_with_role() {
 		Functions\when( 'current_user_can' )->alias(
@@ -61,8 +62,6 @@ class Roles_Test extends TestCase {
 
 	/**
 	 * Tests the current user by capability.
-	 *
-	 * @covers Automattic\Jetpack\Roles::translate_current_user_to_role
 	 */
 	public function test_current_user_to_role_with_capability() {
 		Functions\when( 'current_user_can' )->alias(
@@ -82,8 +81,6 @@ class Roles_Test extends TestCase {
 
 	/**
 	 * Test current user with no match.
-	 *
-	 * @covers Automattic\Jetpack\Roles::translate_current_user_to_role
 	 */
 	public function test_current_user_to_role_with_no_match() {
 		Functions\when( 'current_user_can' )->justReturn( false );
@@ -93,11 +90,11 @@ class Roles_Test extends TestCase {
 
 	/**
 	 * Test translating an user to a role by role.
-	 *
-	 * @covers Automattic\Jetpack\Roles::translate_user_to_role
 	 */
 	public function test_user_to_role_with_role() {
-		$user_mock = $this->getMockBuilder( 'WP_User' )->getMock();
+		$user_mock = (object) array();
+		'@phan-var \WP_User $user_mock'; // Not really, but it doesn't matter.
+
 		Functions\when( 'user_can' )->alias(
 			function ( $user, $cap ) use ( $user_mock ) {
 				return $user_mock === $user && 'administrator' === $cap;
@@ -109,11 +106,11 @@ class Roles_Test extends TestCase {
 
 	/**
 	 * Test translating an user to a role by capablity.
-	 *
-	 * @covers Automattic\Jetpack\Roles::translate_user_to_role
 	 */
 	public function test_user_to_role_with_capability() {
-		$user_mock = $this->getMockBuilder( 'WP_User' )->getMock();
+		$user_mock = (object) array();
+		'@phan-var \WP_User $user_mock'; // Not really, but it doesn't matter.
+
 		Functions\when( 'user_can' )->alias(
 			function ( $user, $cap ) use ( $user_mock ) {
 				return $user_mock === $user && 'edit_others_posts' === $cap;
@@ -125,11 +122,11 @@ class Roles_Test extends TestCase {
 
 	/**
 	 * Test translating an user to a role with no match.
-	 *
-	 * @covers Automattic\Jetpack\Roles::translate_user_to_role
 	 */
 	public function test_user_to_role_with_no_match() {
-		$user_mock = $this->getMockBuilder( 'WP_User' )->getMock();
+		$user_mock = (object) array();
+		'@phan-var \WP_User $user_mock'; // Not really, but it doesn't matter.
+
 		Functions\when( 'user_can' )->justReturn( false );
 
 		$this->assertFalse( $this->roles->translate_user_to_role( $user_mock ) );
@@ -137,8 +134,6 @@ class Roles_Test extends TestCase {
 
 	/**
 	 * Test translating a role to a cap with an existing role.
-	 *
-	 * @covers Automattic\Jetpack\Roles::translate_role_to_cap
 	 */
 	public function test_role_to_cap_existing_role() {
 		$this->assertEquals( 'edit_others_posts', $this->roles->translate_role_to_cap( 'editor' ) );
@@ -146,8 +141,6 @@ class Roles_Test extends TestCase {
 
 	/**
 	 * Test translating a role to a cap with a non-existing role.
-	 *
-	 * @covers Automattic\Jetpack\Roles::translate_role_to_cap
 	 */
 	public function test_role_to_cap_non_existing_role() {
 		$this->assertFalse( $this->roles->translate_role_to_cap( 'follower' ) );

@@ -34,7 +34,7 @@ addEventListener( 'DOMContentLoaded', () => {
 		}
 
 		.jetpack-deprecate-dismissible .notice-dismiss::after {
-			background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="%23555" d="M12 10.586L6.343 4.93 4.93 6.343 10.586 12l-5.657 5.657 1.414 1.414L12 13.414l5.657 5.657 1.414-1.414L13.414 12l5.657-5.657-1.414-1.414L12 10.586z"/></svg>'); /* Inline SVG as background image */
+			background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="%23555" d="M12 10.586L6.343 4.93 4.93 6.343 10.586 12l-5.657 5.657 1.414 1.414L12 13.414l5.657 5.657 1.414-1.414L13.414 12l5.657-5.657-1.414-1.414L12 10.586z"/></svg>'); /* Inline SVG as background image */
 			background-repeat: no-repeat;
 			background-size: contain;
 			content: '';

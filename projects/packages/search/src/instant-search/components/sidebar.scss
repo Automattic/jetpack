@@ -1,9 +1,10 @@
-@import '../lib/styles/_helper.scss';
+@import '../lib/styles/helper';
 
 .jetpack-instant-search__sidebar {
 	padding-top: 14px;
 
 	.jetpack-instant-search__widget-area {
+
 		> .widget {
 			border: none;
 			padding: 0;

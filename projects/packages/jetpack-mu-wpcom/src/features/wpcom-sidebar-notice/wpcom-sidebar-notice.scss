@@ -5,29 +5,35 @@
 	display: flex;
 	align-items: center;
 }
-#wpadminbar .wp-admin-bar-all-sites a.ab-item:before {
+
+#wpadminbar .wp-admin-bar-all-sites a.ab-item::before {
 	content: "";
 	width: 16px;
 	height: 16px;
 	background-color: currentColor;
+
 	/**
 		* Using inline SVG since there is no equivalent dashicon.
 		* SVG is from https://github.com/WordPress/gutenberg/blob/ad487383ce80e0c762200e83ec2c372463ecc940/packages/icons/src/library/category.js
 		*/
-	mask-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSI+PHBhdGggZD0iTTYgNS41aDNhLjUuNSAwIDAxLjUuNXYzYS41LjUgMCAwMS0uNS41SDZhLjUuNSAwIDAxLS41LS41VjZhLjUuNSAwIDAxLjUtLjV6TTQgNmEyIDIgMCAwMTItMmgzYTIgMiAwIDAxMiAydjNhMiAyIDAgMDEtMiAySDZhMiAyIDAgMDEtMi0yVjZ6bTExLS41aDNhLjUuNSAwIDAxLjUuNXYzYS41LjUgMCAwMS0uNS41aC0zYS41LjUgMCAwMS0uNS0uNVY2YS41LjUgMCAwMS41LS41ek0xMyA2YTIgMiAwIDAxMi0yaDNhMiAyIDAgMDEyIDJ2M2EyIDIgMCAwMS0yIDJoLTNhMiAyIDAgMDEtMi0yVjZ6bTUgOC41aC0zYS41LjUgMCAwMC0uNS41djNhLjUuNSAwIDAwLjUuNWgzYS41LjUgMCAwMC41LS41di0zYS41LjUgMCAwMC0uNS0uNXpNMTUgMTNhMiAyIDAgMDAtMiAydjNhMiAyIDAgMDAyIDJoM2EyIDIgMCAwMDItMnYtM2EyIDIgMCAwMC0yLTJoLTN6bS05IDEuNWgzYS41LjUgMCAwMS41LjV2M2EuNS41IDAgMDEtLjUuNUg2YS41LjUgMCAwMS0uNS0uNXYtM2EuNS41IDAgMDEuNS0uNXpNNCAxNWEyIDIgMCAwMTItMmgzYTIgMiAwIDAxMiAydjNhMiAyIDAgMDEtMiAySDZhMiAyIDAgMDEtMi0ydi0zeiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiPjwvcGF0aD48L3N2Zz4=");
+	mask-image: url(data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSI+PHBhdGggZD0iTTYgNS41aDNhLjUuNSAwIDAxLjUuNXYzYS41LjUgMCAwMS0uNS41SDZhLjUuNSAwIDAxLS41LS41VjZhLjUuNSAwIDAxLjUtLjV6TTQgNmEyIDIgMCAwMTItMmgzYTIgMiAwIDAxMiAydjNhMiAyIDAgMDEtMiAySDZhMiAyIDAgMDEtMi0yVjZ6bTExLS41aDNhLjUuNSAwIDAxLjUuNXYzYS41LjUgMCAwMS0uNS41aC0zYS41LjUgMCAwMS0uNS0uNVY2YS41LjUgMCAwMS41LS41ek0xMyA2YTIgMiAwIDAxMi0yaDNhMiAyIDAgMDEyIDJ2M2EyIDIgMCAwMS0yIDJoLTNhMiAyIDAgMDEtMi0yVjZ6bTUgOC41aC0zYS41LjUgMCAwMC0uNS41djNhLjUuNSAwIDAwLjUuNWgzYS41LjUgMCAwMC41LS41di0zYS41LjUgMCAwMC0uNS0uNXpNMTUgMTNhMiAyIDAgMDAtMiAydjNhMiAyIDAgMDAyIDJoM2EyIDIgMCAwMDItMnYtM2EyIDIgMCAwMC0yLTJoLTN6bS05IDEuNWgzYS41LjUgMCAwMS41LjV2M2EuNS41IDAgMDEtLjUuNUg2YS41LjUgMCAwMS0uNS0uNXYtM2EuNS41IDAgMDEuNS0uNXpNNCAxNWEyIDIgMCAwMTItMmgzYTIgMiAwIDAxMiAydjNhMiAyIDAgMDEtMiAySDZhMiAyIDAgMDEtMi0ydi0zeiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiPjwvcGF0aD48L3N2Zz4=);
 	mask-position: center;
 	mask-repeat: no-repeat;
 }
+
 @media (max-width: 782px) {
+
 	#wpadminbar .wp-admin-bar-all-sites {
 		display: flex;
 	}
+
 	#wpadminbar .wp-admin-bar-all-sites a.ab-item {
 		justify-content: center;
 		text-indent: 0;
 		font-size: 0;
 	}
-	#wpadminbar .wp-admin-bar-all-sites a.ab-item:before {
+
+	#wpadminbar .wp-admin-bar-all-sites a.ab-item::before {
 		width: 36px;
 		height: 36px;
 		margin: 0 8px;
@@ -39,7 +45,9 @@
  * Sidebar notice
  */
 #adminmenu li.toplevel_page_site-notices {
+
 	a {
+
 		&:hover,
 		&:focus {
 			box-shadow: none;
@@ -87,7 +95,9 @@
 }
 
 @mixin folded {
+
 	#adminmenu li.toplevel_page_site-notices {
+
 		a {
 			height: 42px;
 		}
@@ -114,6 +124,7 @@
 }
 
 .folded {
+
 	@include folded;
 }
 
@@ -123,7 +134,9 @@
 }
 
 @media only screen and (max-width: 960px) and (min-width: 783px) {
+
 	.auto-fold {
+
 		@include folded;
 	}
 }

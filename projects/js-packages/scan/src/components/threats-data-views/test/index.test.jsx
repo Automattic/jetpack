@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import ThreatsDataViews from '../index.js';
+import ThreatsDataViews from '../index.tsx';
 
 const data = [
 	// Scan API Data

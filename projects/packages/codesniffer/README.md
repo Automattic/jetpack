@@ -27,7 +27,7 @@ You should then include the Jetpack rules in your `.phpcs.xml.dist`, like
 ```
 You will also likely want to set some configuration for other included rulesets:
 ```xml
-<config name="minimum_supported_wp_version" value="6.6" />
+<config name="minimum_supported_wp_version" value="6.7" />
 <config name="testVersion" value="7.2-"/>
 ```
 
@@ -40,6 +40,11 @@ The Jetpack standard includes the following other standards:
 * [WordPress-Core, WordPress-Docs, and WordPress-Extra](https://packagist.org/packages/wp-coding-standards/wpcs)
 * [VariableAnalysis](https://packagist.org/packages/sirbrillig/phpcs-variable-analysis)
 * Selected sniffs from [MediaWiki](https://packagist.org/packages/mediawiki/mediawiki-codesniffer)
+
+Included Sniffs
+---------------
+
+Custom sniffs defined by this standard are documented in [the docs subdirectory](./docs).
 
 Per-dir Compatibility
 ---------------------

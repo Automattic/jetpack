@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import RadioControl from '../index.js';
+import RadioControl from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/Radio Control',

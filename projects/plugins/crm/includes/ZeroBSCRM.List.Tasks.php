@@ -60,7 +60,7 @@ function zeroBSCRM_render_tasks_calendar_page() {
 			<?php
 			if ( $show_tasks_users ) {
 				?>
-				<div style="clear:both;height: 0px;"></div><?php } ?>
+				<div style="clear:both;height: 0;"></div><?php } ?>
 
 		<?php
 

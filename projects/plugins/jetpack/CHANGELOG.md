@@ -2,186 +2,260 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.5-beta.2 - 2025-04-01
-### Bug fixes
-- Add a default value for the error param in the `wp_login_failed` action callback. [#42819]
-- Fix potential `wp_login_failed` action conflicts. [#42825]
+## 14.6-a.7 - 2025-04-21
+### Enhancements
+- Forms: Add new integrations setup modal. [#43057]
+- Forms: Reduce default padding in form patterns. [#43124]
+- User: Allow user to delete themselves through the endpoint. [#43065]
 
-## 14.5-beta - 2025-03-31
+### Improved compatibility
+- Forms: Ensure styles are loaded when expected, preventing console warnings. [#42751]
+
+### Bug fixes
+- Add translation context to Search menu item. [#43094]
+- Block editor: Hide blocks from non-admins when feature is not active. [#40209]
+- Blogroll block: Prevent console warnings and block validation issues when adding new items to the blogroll. [#43042]
+- Dashboard: Avoid layout issues with "Apply" button on sites using a localized version of WordPress. [#42950]
+- Forms: Update form responses link on editor sidebar. [#43143]
+- Open Graph: Ensure scaled images are used when specific registered image files exist on a site. [#43026]
+- Related Posts: Ensure the block is properly displayed in the editor regardless of user role. [#42967]
+- Slideshow block: Ensure block preview doesn't generate an invalid API request. [#43083]
+- VideoPress: Avoid suggesting transforming unsupported Video blocks into VideoPress blocks. [#43161]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Button Block: Prevent TypeError when handling border attributes. [#42987]
+- E2E: Fix Jetpack editor smoke test. [#43103]
+- E2E: Fix tests following WP 6.8 release. [#43105]
+- Jetpack SEO Enhancer: Ensure more performant practices when getting enabled features. [#43109]
+- Newsletters: Fix editor crash for contributors when using categories for newsletters. [#43137]
+- Resolve PHP warnings when the thumbnail is really close to 1200px (e.g. 1201px). [#43095]
+- SAL: Cast `gmt_offset` to float when retrieving offset from option to prevent type errors. [#43123]
+- Social: Remove the unused endpoint for connections post field. [#43061]
+- Theme compat: Remove duplicated code that is now served by the Classic Theme Helper package. [#43062]
+- Update package dependencies. [#43071]
+- Widgets: Deprecate the Flickr widget, as Flickr no longer supports fetching recent images from an RSS feed. [#43138]
+- Widgets: Fix warning in Upcoming Events wiget when `$event['SUMMARY']` does not exist. [#43111]
+- Write Brief: Remove partial Harper integration. [#43089]
+
+## 14.6-a.5 - 2025-04-15
+### Bug fixes
+- Stats: Fix PHP TypeError. [#43072]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Story block will use a placeholder if used outside the loop. [#41135]
+
+## 14.6-a.3 - 2025-04-14
+### Enhancements
+- Add My Jetpack tour. [#42880]
+- Admin Menu: Update the icon of WooCommerce for the Woo installation. [#43029]
+- Button block: Add support for border width, style, and color. [#41147]
+- Forms: Close block panels by default. [#42953]
+- Sharing buttons: Update legacy Twitter logos to use the X logo. [#42813]
+
+### Improved compatibility
+- Add Share status support for WordPress.com sites. [#42593]
+
+### Bug fixes
+- Forms: Ensure `render_field` returns string. [#43011]
+- Social: Do not load in the Classic editor if module is off. [#43006]
+- Subscriptions: Only display the dashboard widget to site admins when the Subscriptions feature is active. [#42951] [#42964]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add more error logging. [#42959]
+- Block Editor: Use allow list in assets endpoint to control the allowed blocks types and assets enqueued. [#42835]
+- Blog Stats block: Support WordPress.com simple sites. [#43000]
+- Color Scheme: Clean up `*-rgb` CSS variables. [#42960]
+- Fix accessibility of sharing buttons. [#42824]
+- Infinite Scroll: Catch an obscure PHP error when AMP is enabled. [#43022]
+- Jetpack SEO: Remove all SEO Assistant Wizard code and feature filters. [#42991]
+- Jetpack SEO Enhancer: Cancel meta and alt-text edits if auto-generation requests come back and the post status is publish(ed). [#42955]
+- Jetpack SEO Enhancer: Ensure more performant practices when getting enabled features. [#43031]
+- Jetpack SEO Enhancer: Move feature to production. [#42947]
+- Likes: Remove unused liked/like CSS class. [#42936]
+- Likes: Unify `likes-master` rendering between WordPress.com and Jetpack. [#42912]
+- Linting: Clean up various Stylelint violations. [#43010]
+- Linting: Format SCSS imports consistently. [#43018]
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+- Remove the Jetpack submenu item. [#43012]
+- Social: Remove the unused share status endpoint. [#42963]
+- Subscriptions: Set the featured image in email option to true on module activation. [#42844]
+- Subscriptions block: Improve check for email-specific context to render the email version when actually in an email. [#42989]
+- Write Brief: Fix Harper integration for complex blocks. [#42975]
+
+## 14.6-a.1 - 2025-04-07
+### Enhancements
+- Replace video embed with VideoPress block in Media & Text block. [#42522]
+- Forms: Add custom hooks for integrations. [#42822]
+- Forms: Add endpoint for all integrations. [#42878]
+- Forms: Update default forms view to dataviews. [#42329]
+- Newsletter Widget: Improve the display of links in the Newsletter widget. [#42645]
+
+### Improved compatibility
+- Blocks: Ensure all child blocks use the latest version of the Blocks API. [#42929]
+
+### Bug fixes
+- Reset access level of the post to everyone when a paywall is removed. [#42788]
+- Slideshow: Prevent images from appearing stuck to the mouse in block-based themes. [#42778]
+- Star Rating: Fix padding and improve panel copy. [#42601]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Block editor: Add REST API endpoint for retrieving editor scripts and stylesheets. [#42314]
+- Dashboard: Update WordPress logo color. [#42811]
+- Fix type checking in the monorepo. [#42817]
+- Forms: Change path and return for form integrations endpoint. [#42826]
+- Jetpack SEO: Change title and description for textarea placeholder and update over-limit message. [#42925]
+- Jetpack SEO: Fix bug where auto-generation would only trigger the last enabled features set by user on manual mode. [#42907]
+- Jetpack SEO Enhancer: Cancel metas/alt-text updates if the post has been published. [#42904]
+- Jetpack SEO Enhancer: List only remaining tasks in the to-do list for the auto-generation feature. [#42805]
+- Jetpack SEO Enhancer: Trigger the auto-generation process when enabling the toggle on PrePublish sidebar. [#42797]
+- Jetpack SEO Enhancer: Remove post publish panel loading status and fix summaries and styles. [#42899]
+- Linting: First pass of style coding standards. [#42734]
+- Newsletters: Fix selector name typo. [#42841]
+- Reset to-test.md for Jetpack 14.6. [#42871]
+- Subscribe block: Match the frontend wrapping behavior when editing. [#42869]
+- Tests: Prevent warning when asset file doesn't exist. [#42875]
+- Update package dependencies. [#42762] [#42809] [#42815]
+- Write Brief: Initial Harper linting. [#42905]
+
+## 14.5 - 2025-04-02
 ### Enhancements
 - Add page view count in the post and page list. [#42218]
 - Add the Account Protection module toggle. [#40925]
+- AI Assistant: Add image block extension with alt text and caption generation. [#42160]
+- AI Assistant: Use base64 on image extension requests. [#42211]
+- Connection: Add modal for disconnecting owner account in Dashboard. [#42074]
 - Connection: Allow pre-selected login providers. [#42662]
+- Feature suggestions: Improve the design of cards to better match WordPress Core's design. [#42301]
+- Forms: Add Akismet panel to Form Block. [#41826]
 - Forms: Add block integrations modal with feature flag. [#42747]
+- Forms: Add quick link in the admin bar for form entries. [#42474]
 - Forms: Add third-party integration endpoint. [#42730]
 - Improve the onboarding experience of Jetpack. [#42757]
+- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
+- Newsletter Dashboard Widget: Remove feature flag and enable widget. [#42276]
+- Publicize Components: Add a schedule button. [#42313]
+- Sharing block: Improve the description of the "Native Share" feature. [#42336]
+- Social: Add "Schedule" functionality to the Share Post modal. [#42376]
+- Social: Move resharing into the Share Post modal. [#42224]
 
 ### Improved compatibility
+- AI Assistant: Improve performance by optimizing state management in the AI feature hook. [#42536]
+- Carousel: Enable core lightbox on single image blocks. [#42089]
+- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42576]
 - Components: Update controls to prevent more deprecation notices. [#42677]
+- VideoPress: Add block sidebar notice to transform embed into a block. [#42443]
 
 ### Bug fixes
+- Add a default value for the error param in the `wp_login_failed` action callback. [#42819]
+- Admin Color Scheme: Fix colors in the Aquatic color scheme. [#42632]
+- Button: Fix contrast checker for user-specified colors. [#41294]
 - Fix display name when listing gravatar accounts. [#42791]
+- Fix error with videos uploaded through the Video block. [#42400]
+- Fix potential `wp_login_failed` action conflicts. [#42825]
+- Forms: Add a default label for textarea fields. [#42480]
+- Forms: Fix core list bullets not showing. [#42440]
+- Forms: Remove default padding around form block. [#42340]
+- Forms: Remove Google Drive beta badge. [#42481]
+- Forms: Remove Salesforce beta badge. [#42482]
+- Forms: Update the variation previews to match the current structures. [#42366]
 - Map block: Increase compatibility of components, preventing console warnings. [#42627]
 - Newsletter: Ensure aria-label attribute on dashboard welcome message section is correctly spelled. [#42727]
-- Stats: Fix date processing for "At a Glance" chart. [#42711]
-- Story block: Avoid PHP warnings when using video files. [#42783]
-- Video: Fix auto-reload after upload completes. [#42655]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Autofill logged-in email. [#42626]
-- Changes to File Field block (in beta). [#42695]
-- Clean up the remnants of the registration nonce we no longer use. [#42552]
-- Display proper Offline Mode notices if enabled via DB option. [#42630]
-- E2E Tests: Add test coverage for Account Protection features. [#40925]
-- General: Indicate compatibility with WordPress 6.8. [#42701]
-- Jetpack SEO Enhancer: Add Business plan restriction. [#42731]
-- Jetpack SEO Enhancer: Add placement prop for component and track event/ [#42768]
-- Jetpack SEO Enhancer: Normalize vertical spacing throughout Jetpack sidebar, pre and post publish panels. [#42686]
-- Jetpack SEO Enhancer: Track settings change and triggers. [#42682]
-- Likes: Fix compatibility with WP.com locales. [#42668]
-- Likes: Do not set display:block style on the placeholder when unloading. [#42739]
-- Move donation modal links to Jetpack redirect service. [#42680]
-- Newsletter Widget: Add Tracks events. [#42660]
-- SEO Enhancer: Count requests for image alt text. [#42659]
-- SEO Enhancer: Enable SEO summary when auto-enhance is disabled. [#42709]
-- Shortcodes: Proxy Twitter/X oEmbed through WordPress.com to minimize 404 errors. [#42315]
-- Social: Replace the Social UI in Sharing settings with a link to the Social admin page. [#42761]
-- Social: Update recommendation CTAs to point to social admin page. [#42690]
-- Testing: Add instructions prior to Jetpack 14.5 release. [#42679]
-- Use jetpack-config package for Account Protection initialization. [#40925]
-- Use jetpack-logo package for Account Protection logos. [#40925]
-- Utilities: Change from Post Editor to Site Editor for better compatibility and to prevent console warnings. [#42652]
-
-## 14.5-a.9 - 2025-03-24
-### Enhancements
-- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
-
-### Improved compatibility
-- VideoPress: Add block sidebar notice to transform embed into a block. [#42443]
-- AI Assistant: Improve performance by optimizing state management in the AI feature hook. [#42536]
-- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls. [#42576]
-
-### Bug fixes
-- Admin Color Scheme: Fix colors in the Aquatic color scheme. [#42632]
 - Newsletter: Ensure external links are marked as such in the Newsletter widget. [#42571]
 - Search: Ensure the count of returned results is shown after searching. [#42570]
 - Site Badge: Update styles of the Coming Soon badge. [#42496]
 - Site Verification: Fix auto-verification via Google when Social is disabled. [#42604]
-- Stats: Ensure the Stats widget is automatically disabled when the Stats module is disabled. [#42603]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- AI Controls: Prevent console warnings by increasing compatibility of buttons. [#42636]
-- Compatibility: Ensuring performance best practices and reducing console warnings. [#42435]
-- Fix bug with blogging prompt. [#42539]
-- Jetpack SEO Enhancer: Hide trigger button when auto-generate toggle is on. [#42653]
-- Likes: Make module compatible with WordPress.com Simple sites. [#42515]
-- Reader: Add repost functionality to Jetpack editor extension.
-- Rename the JITM endpoint from v2, which already exists, to v3, which is new. [#42568]
-- SEO Enhancer: Add post-publish summary. [#42557]
-- SEO Enhancer: Disable auto-enhance and toggle on WordPress.com Simple sites. [#42597]
-- SEO Enhancer: Do not request Jetpack modules data on WordPress.com Simple sites. [#42650]
-- Update dependencies. [#42564]
-
-## 14.5-a.7 - 2025-03-18
-### Enhancements
-- Forms: Add quick link in the admin bar for form entries. [#42474]
-
-### Bug fixes
-- Forms: Add a default label for textarea fields. [#42480]
-- Forms: Remove Google Drive beta badge. [#42481]
-- Forms: Remove Salesforce beta badge. [#42482]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Backup: Prevent PHP warnings by moving admin menu addition to a function hooked into `admin_menu`. [#42396]
-- OpenTable block: Remove the ability to search restaurants by name. [#41162]
-- SEO Enhancer: Persist features on store and update UI. [#42491]
-- SEO Enhancer: Respect alt text feature toggle and only request alt text on URL change. [#42518]
-- Update package dependencies. [#42511]
-
-## 14.5-a.5 - 2025-03-17
-### Enhancements
-- Social: Add "Schedule" functionality to the Share Post modal. [#42376]
-
-### Bug fixes
-- Forms: Fix core list bullets not showing. [#42440]
 - Slideshow: Fix misaligned controls in site editor. [#42370]
 - Social: Resolve connection issues with LinkedIn company pages and Tumblr additional blogs. [#42352]
+- Stats: Ensure the Stats widget is automatically disabled when the Stats module is disabled. [#42603]
+- Stats: Fix date processing for "At a Glance" chart. [#42711]
+- Story block: Avoid PHP warnings when using video files. [#42783]
 - Twitter Timeline Widget: Prevent broken links when using Twitter's deprecated data-widget-id approach. [#42398]
+- Video: Fix auto-reload after upload completes. [#42655]
 - VideoPress Block: Fix broken undo functionality. [#42332]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Add subscribers in WP Admin starting page. [#42066]
-- Fix Publicize unit test. [#42451]
-- JSON API: Add REST support for `/users` endpoint. [#42475]
-- Like Block: Fix layout shift when loading. [#42361]
-- Newsletter: Add spacing to settings. [#42373]
-- SEO Enhancer: Auto-generate alt text for images if enabled. [#42445]
-- SEO Enhancer: Auto-run on pre-publish if enabled. [#42407]
-- SEO Enhancer: Fix function call on P2. [#42431]
-- Social: Move the URL query param handling for opening sidebar to Publicize package. [#42364]
-- Social: Remove the old unused initial state. [#42390]
-- Use `wpcom/v2/jitm` endpoint as a consistent way to fetch JITMs from the WordPress.com public API. [#41993]
-
-## 14.5-a.3 - 2025-03-12
-### Enhancements
-- Publicize Components: Add a schedule button. [#42313]
-- Sharing block: Improve the description of the "Native Share" feature. [#42336]
-
-### Bug fixes
-- Button: Fix contrast checker for user-specified colors. [#41294]
-- Fix error with videos uploaded through the Video block. [#42400]
-- Forms: Remove default padding around form block. [#42340]
-- Forms: Update the variation previews to match the current structures. [#42366]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Donation block: Add additional information about accepting donations. [#42214]
-- Handle singular/plural forms of labels. [#42319]
-- Jetpack SEO: Add action trigger when toggle is off. [#42331]
-- Jetpack SEO: Add settings toggle for automated SEO props generation. [#42350]
-- Jetpack SEO Enhancer: Add global setting toggle on the sidebar.
-- JSON API: Add REST support to `site` endpoint. [#42382]
-- JSON API: Fix post encoding. [#42377]
-- Provide connection data to footer component. [#42000]
-- SEO Enhancer: Add SEO requests. [#42383]
-- SEO Enhancer: Update UI. [#42347]
-- Tiled Gallery: Ensure custom links aren't restricted to just URLs - allows anchor links as well. [#42363]
-- Update package dependencies. [#42384]
-- Allow API authorization with Jetpack token. [#42300]
-
-## 14.5-a.1 - 2025-03-10
-### Enhancements
-- AI Assistant: Add image block extension with alt text and caption generation. [#42160]
-- AI Assistant: Use base64 on image extension requests. [#42211]
-- Connection: Add modal for disconnecting owner account in Dashboard. [#42074]
-- Feature suggestions: Improve the design of cards to better match WordPress Core's design. [#42301]
-- Forms: Add Akismet panel to Form Block. [#41826]
-- Social: Move resharing into the Share Post modal. [#42224]
-- Newsletter Dashboard Widget: Remove feature flag and enable widget. [#42276]
-
-### Improved compatibility
-- Carousel: Enable core lightbox on single image blocks. [#42089]
-
-### Bug fixes
 - VideoPress Block: Fix error in the core Video block. [#42216]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add subscribers in WP Admin starting page. [#42066]
 - AI Assistant: Add image index information on caption generation request. [#42274]
 - AI Assistant: Remove image data from contextual content for image extension features. [#42269]
+- AI Controls: Prevent console warnings by increasing compatibility of buttons. [#42636]
+- Allow API authorization with Jetpack token. [#42300]
+- Autofill logged-in email. [#42626]
+- Backup: Prevent PHP warnings by moving admin menu addition to a function hooked into `admin_menu`. [#42396]
+- Changes to File Field block (in beta). [#42695]
 - Check for user currency when getting currency code in Dashboard products. [#42189]
+- Clean up the remnants of the registration nonce we no longer use. [#42552]
+- Compatibility: Ensuring performance best practices and reducing console warnings. [#42435]
 - Components: Add margins to elements which had spacing issues due to the __nextHasNoMarginBottom property. [#42075]
+- Display proper Offline Mode notices if enabled via DB option. [#42630]
+- Donation block: Add additional information about accepting donations. [#42214]
+- E2E Tests: Add test coverage for Account Protection features. [#40925]
 - Fix bug where subscription was showing incorrectly as expired in certain timezones. [#42240]
+- Fix bug with blogging prompt. [#42539]
+- Fix Publicize unit test. [#42451]
+- General: Indicate compatibility with WordPress 6.8. [#42701]
+- Handle singular/plural forms of labels. [#42319]
 - Jetpack AI: Handle image URL errors on AI vision requests and notify the user about the error. [#42191]
+- Jetpack SEO: Add action trigger when toggle is off. [#42331]
 - Jetpack SEO: Add first draft for SEO enhancer on Jetpack sidebar and pre-publish. [#42310]
+- Jetpack SEO: Add settings toggle for automated SEO props generation. [#42350]
 - Jetpack SEO: Revert filter `ai_seo_assistant_enabled` default state back to false. [#42238]
+- Jetpack SEO Enhancer: Add Business plan restriction. [#42731]
+- Jetpack SEO Enhancer: Add global setting toggle on the sidebar.
+- Jetpack SEO Enhancer: Add placement prop for component and track event/ [#42768]
+- Jetpack SEO Enhancer: Hide trigger button when auto-generate toggle is on. [#42653]
+- Jetpack SEO Enhancer: Normalize vertical spacing throughout Jetpack sidebar, pre and post publish panels. [#42686]
+- Jetpack SEO Enhancer: Track settings change and triggers. [#42682]
 - JSON API: Activate REST for posts fetching endpoint. [#42311]
+- JSON API: Add REST support for `/users` endpoint. [#42475]
+- JSON API: Add REST support to `site` endpoint. [#42382]
+- JSON API: Fix post encoding. [#42377]
+- Like Block: Fix layout shift when loading. [#42361]
+- Likes: Do not set display:block style on the placeholder when unloading. [#42739]
+- Likes: Fix compatibility with WP.com locales. [#42668]
+- Likes: Make module compatible with WordPress.com Simple sites. [#42515]
+- Move donation modal links to Jetpack redirect service. [#42680]
 - Move `useUpgradeFlow` hook to shared-extension-utils package. [#41836]
+- Newsletter: Add spacing to settings. [#42373]
 - Newsletter Dashboard Widget: Update href to import subscribers. [#42239]
+- Newsletter Widget: Add Tracks events. [#42660]
 - Newsletter Widget: Fix type imports. [#42277]
 - Newsletter Widget: Update newsletter widget default placement in Dashboard. [#42304]
 - Notifications: Update link URL to wordpress.com. [#42295]
+- OpenTable block: Remove the ability to search restaurants by name. [#41162]
+- Provide connection data to footer component. [#42000]
+- Reader: Add repost functionality to Jetpack editor extension.
+- Rename the JITM endpoint from v2, which already exists, to v3, which is new. [#42568]
+- SEO Enhancer: Add post-publish summary. [#42557]
+- SEO Enhancer: Add SEO requests. [#42383]
+- SEO Enhancer: Auto-generate alt text for images if enabled. [#42445]
+- SEO Enhancer: Auto-run on pre-publish if enabled. [#42407]
+- SEO Enhancer: Count requests for image alt text. [#42659]
+- SEO Enhancer: Disable auto-enhance and toggle on WordPress.com Simple sites. [#42597]
+- SEO Enhancer: Do not request Jetpack modules data on WordPress.com Simple sites. [#42650]
+- SEO Enhancer: Enable SEO summary when auto-enhance is disabled. [#42709]
+- SEO Enhancer: Fix function call on P2. [#42431]
+- SEO Enhancer: Persist features on store and update UI. [#42491]
+- SEO Enhancer: Respect alt text feature toggle and only request alt text on URL change. [#42518]
+- SEO Enhancer: Update UI. [#42347]
+- Shortcodes: Proxy Twitter/X oEmbed through WordPress.com to minimize 404 errors. [#42315]
 - Social: Move JS editor code from Jetpack and Social to Publicize package. [#41836]
 - Social: Move share post endpoint from Jetpack to Publicize package. [#42179]
+- Social: Move the URL query param handling for opening sidebar to Publicize package. [#42364]
+- Social: Remove the old unused initial state. [#42390]
+- Social: Replace the Social UI in Sharing settings with a link to the Social admin page. [#42761]
+- Social: Update recommendation CTAs to point to social admin page. [#42690]
+- Testing: Add instructions prior to Jetpack 14.5 release. [#42679]
+- Tiled Gallery: Ensure custom links aren't restricted to just URLs - allows anchor links as well. [#42363]
 - Tweak subscribers counts endpoint to return aggregated data based on a query param. [#42103]
+- Update dependencies. [#42564]
+- Update package dependencies. [#42384]
+- Update package dependencies. [#42511]
+- Use jetpack-config package for Account Protection initialization. [#40925]
+- Use jetpack-logo package for Account Protection logos. [#40925]
+- Use `wpcom/v2/jitm` endpoint as a consistent way to fetch JITMs from the WordPress.com public API. [#41993]
+- Utilities: Change from Post Editor to Site Editor for better compatibility and to prevent console warnings. [#42652]
 
 ## 14.4.1 - 2025-03-12
 ### Bug fixes

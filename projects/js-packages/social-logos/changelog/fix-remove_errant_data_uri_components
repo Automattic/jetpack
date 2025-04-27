@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Code: Use modern font MIME types for inline fonts.

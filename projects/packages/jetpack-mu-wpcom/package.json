@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-mu-wpcom",
-	"version": "6.1.0",
+	"version": "6.3.1",
 	"description": "Enhances your site with features powered by WordPress.com",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/jetpack-mu-wpcom/#readme",
 	"bugs": {
@@ -34,7 +34,7 @@
 		"@babel/plugin-transform-react-jsx": "7.25.9",
 		"@babel/preset-react": "7.26.3",
 		"@babel/runtime": "7.26.10",
-		"@playwright/test": "1.48.2",
+		"@playwright/test": "1.51.1",
 		"@types/node": "^20.4.2",
 		"@types/react": "^18.2.28",
 		"@types/react-dom": "18.3.5",
@@ -55,6 +55,8 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/launchpad": "1.1.0",
 		"@automattic/typography": "1.0.0",
+		"@gravatar-com/hovercards": "0.10.8",
+		"@gravatar-com/quick-editor": "0.8.0",
 		"@popperjs/core": "^2.11.8",
 		"@preact/signals": "1.2.2",
 		"@sentry/browser": "8.33.0",

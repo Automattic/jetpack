@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
 /**
@@ -14,6 +15,7 @@ use WorDBless\BaseTestCase;
  *
  * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form
  */
+#[CoversClass( Contact_Form::class )]
 class Contact_Form_Field_Test extends BaseTestCase {
 
 	protected function setUp(): void {

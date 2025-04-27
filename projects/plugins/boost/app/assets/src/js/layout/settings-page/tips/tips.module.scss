@@ -1,5 +1,5 @@
-@import '$css/main/variables.scss';
-@import '$css/main/mixins.scss';
+@import '$css/main/variables';
+@import '$css/main/mixins';
 
 .tips {
 	margin: 0 auto;
@@ -9,6 +9,7 @@
 	}
 
 	.tips-items {
+
 		@include breakpoint(md) {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
@@ -17,6 +18,7 @@
 	}
 
 	.item {
+
 		@include breakpoint(sm) {
 			display: grid;
 			grid-template-columns: 80px 1fr;
@@ -51,7 +53,6 @@
 
 			a {
 				color: $gray_90;
-				text-decoration: underline;
 			}
 		}
 	}

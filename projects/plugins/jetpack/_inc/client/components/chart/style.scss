@@ -51,6 +51,7 @@
 .dops-chart__bar-marker,
 .dops-chart__y-axis-label,
 .dops-chart .dops-chart__y-axis-marker {
+
 	&.is-fifty {
 		top: 50%;
 	}
@@ -129,7 +130,6 @@
 	height: 200px;
 	text-align: center;
 	overflow: hidden;
-	display: -ms-flex;
 	display: flex;
 }
 
@@ -141,9 +141,7 @@
 	display: inline-block;
 	position: relative; // 1
 	height: 200px;
-	-ms-flex-grow: 1;
 	flex-grow: 1;
-	-ms-flex-shrink: 1;
 	flex-shrink: 1;
 
 
@@ -229,6 +227,7 @@
 // 1: L/R matches padding of y-axis labels in chart
 
 .dops-chart__legend {
+
 	@include clear-fix;
 	margin-bottom: -8px;
 }
@@ -299,6 +298,7 @@
 }
 
 @include breakpoint( "<480px" ) {
+
 	.dops-chart__legend-option:first-child .dops-chart__legend-color {
 		margin-left: 2px; // 2
 	}
@@ -351,12 +351,13 @@
 		font-size: inherit;
 
 		&::before {
+
 			@include noticons;
 			content: '\f456';
 			position: absolute;
 				top: 23px;
 				left: 20px;
-			margin: -12px 0px 0 -8px;
+			margin: -12px 0 0 -8px;
 			font-size: 24px;
 			line-height: 1;
 		}
@@ -375,6 +376,7 @@
 		text-align: left;
 
 		ul {
+
 			@include clear-fix;
 			list-style: none;
 			margin: 0;
@@ -391,7 +393,6 @@
 
 				.dops-wrapper {
 					display: block;
-					line-height: inherit;
 					line-height: 24px;
 					clear: both;
 				}
@@ -446,9 +447,10 @@
 					}
 
 					.post-count {
-						font-weight: bold;
+						font-weight: 700;
 					}
 				}
+
 				.value {
 					float: none;
 				}
@@ -463,7 +465,7 @@
 		font-size: 11px;
 		margin-bottom: 2px;
 		text-transform: uppercase;
-		font-weight: bold;
+		font-weight: 700;
 		border-bottom: 1px solid darken( $gray, 27% );
 		padding-bottom: 2px;
 	}

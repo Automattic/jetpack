@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Linting: Format SCSS imports consistently.

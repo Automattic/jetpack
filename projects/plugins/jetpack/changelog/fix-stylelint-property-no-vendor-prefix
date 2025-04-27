@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Linting: Remove outdated vendor prefixes in stylesheets.

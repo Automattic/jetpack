@@ -4,6 +4,7 @@
 	flex: 1;
 
 	.icon {
+
 		img {
 			margin-top: 24px;
 			height: 24px;
@@ -14,7 +15,7 @@
 
 	.label {
 		flex: 1;
-		font-weight: bold;
+		font-weight: 700;
 	}
 
 	.value {
@@ -23,14 +24,14 @@
 
 	.large-text {
 		font-size: 2em;
-		font-weight: bold;
+		font-weight: 700;
 	}
 }
 
 .backup__card {
 	padding: 24px;
 	background:var( --jp-white );
-	box-shadow: 0px 0px 40px rgba( 0, 0, 0, 0.08 );
+	box-shadow: 0 0 40px rgba( 0, 0, 0, 0.08 );
 	border-radius: var( --jp-border-radius );
 }
 

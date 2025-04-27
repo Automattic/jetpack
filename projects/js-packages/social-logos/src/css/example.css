@@ -2,7 +2,7 @@
 	max-width: 900px;
 	margin: 100px auto;
 	color: #767676;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	line-height: 1.15;
 
 	a:link, a:visited {
@@ -18,7 +18,7 @@
 		font-size: 24pt;
 	}
 
-	[type=checkbox] {
+	[type="checkbox"] {
 		margin: 0;
 	}
 
@@ -93,20 +93,20 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		border: 2px solid gray;
+		border: 2px solid #808080;
 		border-radius: 10px;
 		transition: .4s;
 		box-sizing: border-box;
 	}
 
-	.handle:before {
+	.handle::before {
 		position: absolute;
 		content: "";
 		height: 12px;
 		width: 12px;
 		left: 2px;
 		bottom: 2px;
-		background: gray;
+		background: #808080;
 		border-radius: 50%;
 		transition: .4s;
 	}
@@ -115,7 +115,7 @@
 		border-color: #3AA662;
 	}
 
-	input:checked + .handle:before {
+	input:checked + .handle::before {
 		background: #3AA662;
 		transform: translateX(20px);
 	}

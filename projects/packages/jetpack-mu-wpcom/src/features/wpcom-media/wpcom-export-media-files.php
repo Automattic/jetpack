@@ -57,14 +57,14 @@ function wpcom_render_export_media_files_page() {
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Export Media Files', 'jetpack-mu-wpcom' ); ?></h1>
-		
+
 		<?php if ( $media_export_url ) : ?>
 			<p><?php esc_html_e( 'Download all the media library files (images, videos, audio, and documents) from your site.', 'jetpack-mu-wpcom' ); ?>
-			<a href="https://wordpress.com/support/export/#exporting-media-library" target="_blank"><?php esc_html_e( 'Learn more', 'jetpack-mu-wpcom' ); ?></a></p>
-						
+			<a href="https://wordpress.com/support/export-your-media-library/" target="_blank"><?php esc_html_e( 'Learn more', 'jetpack-mu-wpcom' ); ?></a></p>
+
 			<p><a href="<?php echo esc_url( $media_export_url ); ?>" class="button button-primary"><?php esc_html_e( 'Download', 'jetpack-mu-wpcom' ); ?></a></p>
-			
-			<p><?php esc_html_e( 'To export your entire site content—including posts and pages—please use the', 'jetpack-mu-wpcom' ); ?> 
+
+			<p><?php esc_html_e( 'To export your entire site content—including posts and pages—please use the', 'jetpack-mu-wpcom' ); ?>
 			<a href="<?php echo esc_url( admin_url( 'export.php' ) ); ?>"><?php esc_html_e( 'Export tool', 'jetpack-mu-wpcom' ); ?></a>.</p>
 		<?php else : ?>
 			<p><?php esc_html_e( 'Your site does not have any media files to export.', 'jetpack-mu-wpcom' ); ?></p>

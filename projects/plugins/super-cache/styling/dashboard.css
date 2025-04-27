@@ -1,13 +1,16 @@
 /* TODO: Migrate to SCSS after adding build step to WPSC */
+
 /* TODO: Migrate CSS from wp-cache.php */
 
 #wpwrap {
+
 	/* Declare JP CSS variables */
+
 	/* TODO: Integrate root-variables.scss from base-styles package */
-	--jp-black: #000000;
+	--jp-black: #000;
 	--jp-gray: #dcdcde;
 	--jp-white-off: #f9f9f6;
-	--jp-white: #ffffff;
+	--jp-white: #fff;
 	--font-headline-medium: 48px;
 	--font-headline-small: 36px;
 	--font-title-medium: 24px;
@@ -34,6 +37,7 @@
 }
 
 #wpsc-dashboard {
+
 	/* Remove default wp-admin spacing */
 	margin-left: -20px;
 	padding-top: 20px;
@@ -103,7 +107,7 @@
 .wpsc-nav-tab:hover,
 .wpsc-nav-tab:focus,
 .wpsc-nav-tab.wpsc-nav-tab-selected {
-	box-shadow: inset 0px -1px 0px rgb(0, 0, 0);
+	box-shadow: inset 0 -1px 0 rgb(0, 0, 0);
 }
 
 .wpsc-nav-tab a {

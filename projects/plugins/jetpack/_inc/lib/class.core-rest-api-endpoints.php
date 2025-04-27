@@ -2935,6 +2935,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_alphanum',
 				'jp_group'          => 'google-analytics',
 			),
+			'jetpack_wga'                               => array(
+				'description' => esc_html__( 'Google Analytics', 'jetpack' ),
+				'type'        => 'object',
+				'jp_group'    => 'settings',
+			),
 
 			// Stats.
 			'admin_bar'                                 => array(
@@ -3095,9 +3100,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 		);
 
-		// SEO Tools - SEO Enhancer. Only available to Automatticians.
-		// TODO: either remove this or make it available to all users by moving it to the main options array.
-		if ( apply_filters( 'ai_seo_enhancer_enabled', false ) || apply_filters( 'ai_seo_enhancer_enabled_unrestricted', false ) ) {
+		// SEO Tools - SEO Enhancer.
+		// TODO: move this to the main options array? The filter was there while developing the feature.
+		// It might come in handy to hold its availability behind the filter since it still depends on AI to be available.
+		if ( apply_filters( 'ai_seo_enhancer_enabled', true ) ) {
 			$options['ai_seo_enhancer_enabled'] = array(
 				'description'       => esc_html__( 'Automatically generate SEO title, SEO description, and image alt text for new posts.', 'jetpack' ),
 				'type'              => 'boolean',

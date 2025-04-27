@@ -38,6 +38,7 @@
 }
 
 @media screen and (max-width: 782px) {
+
 	.jp-ms-data-time input[type="text"],
 	.jp-ms-data-time .year[type="text"] {
 		width: 2.8em;

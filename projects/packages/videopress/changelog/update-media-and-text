@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed warning when core/media-text filter ran on a block without a post_id
+
+

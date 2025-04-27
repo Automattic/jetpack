@@ -7,12 +7,14 @@
 
 use Automattic\Jetpack\Scheduled_Updates;
 use Automattic\Jetpack\Scheduled_Updates_Logs;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Test class for WPCOM_REST_API_V2_Endpoint_Update_Schedules.
  *
- * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_Update_Schedules
+ * @covers \WPCOM_REST_API_V2_Endpoint_Update_Schedules
  */
+#[CoversClass( WPCOM_REST_API_V2_Endpoint_Update_Schedules::class )]
 class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Admin user ID.
@@ -112,8 +114,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Test get_items.
-	 *
-	 * @covers ::get_items
 	 */
 	public function test_get_items() {
 		// Unauthenticated request.
@@ -186,8 +186,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Test create item.
-	 *
-	 * @covers ::create_item
 	 */
 	public function test_create_item() {
 		$plugins = array(
@@ -248,8 +246,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Test create multiple item.
-	 *
-	 * @covers ::create_item
 	 */
 	public function test_create_multiple_item() {
 		$plugins = array(
@@ -304,8 +300,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Can't have multiple schedules for the same time.
-	 *
-	 * @covers ::validate_schedule
 	 */
 	public function test_creating_schedules_for_same_time() {
 		$plugins = array(
@@ -336,8 +330,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Can't submit a schedule without plugins parameter.
-	 *
-	 * @covers ::register_routes
 	 */
 	public function test_creating_schedule_without_plugins_parameter() {
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
@@ -353,8 +345,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Removes plugins from the autoupdate list when creating a schedule.
-	 *
-	 * @covers ::create_item
 	 */
 	public function test_updating_autoupdate_plugins_on_create() {
 		$unscheduled_plugins = array( 'hello-dolly/hello-dolly.php' );
@@ -384,8 +374,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Can't have more than two schedules.
-	 *
-	 * @covers ::create_item
 	 */
 	public function test_empty_last_run() {
 		$plugins = array( 'gutenberg/gutenberg.php' );
@@ -433,8 +421,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Include over 10 plugins when creating a schedule.
-	 *
-	 * @covers ::create_item
 	 */
 	public function test_creating_schedule_with_more_than_ten_plugins() {
 		$plugins = array(
@@ -470,8 +456,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Test get item.
-	 *
-	 * @covers ::get_item
 	 */
 	public function test_get_item() {
 		$plugins     = array(
@@ -522,8 +506,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Test get_item with invalid schedule ID.
-	 *
-	 * @covers ::get_item
 	 */
 	public function test_get_invalid_item() {
 		wp_set_current_user( $this->admin_id );
@@ -540,8 +522,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Test update item.
-	 *
-	 * @covers ::update_item
 	 */
 	public function test_update_item() {
 		$plugins     = array(
@@ -590,8 +570,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Test update item.
-	 *
-	 * @covers ::update_item
 	 */
 	public function test_update_item_with_status() {
 		$plugins   = array(
@@ -663,8 +641,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Test update_item with invalid schedule ID.
-	 *
-	 * @covers ::update_item
 	 */
 	public function test_update_invalid_item() {
 		wp_set_current_user( $this->admin_id );
@@ -687,8 +663,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Test delete item.
-	 *
-	 * @covers ::delete_item
 	 */
 	public function test_delete_item() {
 		$plugins     = array(
@@ -734,8 +708,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Test delete_item with invalid schedule ID.
-	 *
-	 * @covers ::delete_item
 	 */
 	public function test_delete_invalid_item() {
 		wp_set_current_user( $this->admin_id );
@@ -752,8 +724,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * Adds plugins to the autoupdate list when deleting a schedule.
-	 *
-	 * @covers ::delete_item
 	 */
 	public function test_updating_autoupdate_plugins_on_delete() {
 		wp_set_current_user( $this->admin_id );
@@ -790,11 +760,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * A CRUD cycle should sync only three times.
-	 *
-	 * @covers ::create_item
-	 * @covers ::get_item
-	 * @covers ::update_item
-	 * @covers ::delete_item
 	 */
 	public function test_crud_should_sync_only_three_times() {
 		wp_set_current_user( $this->admin_id );
@@ -872,10 +837,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 
 	/**
 	 * A staging environment must be blocked.
-	 *
-	 * @covers ::create_item
-	 * @covers ::update_item
-	 * @covers ::delete_item
 	 */
 	public function test_crud_should_be_blocked_on_staging() {
 		update_option( 'wpcom_is_staging_site', true );

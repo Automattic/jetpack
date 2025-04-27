@@ -9,6 +9,7 @@ use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Subscriptions\register_block as register_subscription_block;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
@@ -283,6 +284,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	 *
 	 * @dataProvider matrix_access
 	 */
+	#[DataProvider( 'matrix_access' )]
 	public function test_subscriber_access_level( $type_user_id, $logged, $token_set, $post_access_level, $should_email_be_sent, $should_user_access_post, $subscription_end_date = null, $status = null ) {
 		if ( $type_user_id !== null ) {
 			$user_id = $this->{$type_user_id};
@@ -346,8 +348,6 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	/**
 	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
 	 *
-	 * @covers \Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
-	 *
 	 * @return void
 	 */
 	public function test_comments_are_not_displaying_on_not_pages() {
@@ -361,8 +361,6 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 	/**
 	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
-	 *
-	 * @covers \Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
 	 *
 	 * @return void
 	 */
@@ -396,8 +394,6 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 	/**
 	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
-	 *
-	 * @covers \Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
 	 *
 	 * @return void
 	 */

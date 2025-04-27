@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.2] - 2025-04-21
+### Changed
+- Editor extensions: Handle status of the VideoPress module when the Jetpack plugin is active. [#40209]
+
+## [0.28.1] - 2025-04-14
+### Fixed
+- Linting: Clean up various Stylelint violations. [#43010]
+- Linting: Format SCSS imports consistently. [#43018]
+- Linting: Update stylesheets to use WordPress rules for colors. [#42920]
+
+## [0.28.0] - 2025-04-07
+### Added
+- Replace video embed with VideoPress block in Media & Text block. [#42522]
+
+### Changed
+- Linting: First pass of style coding standards. [#42734]
+- Update package dependencies. [#42762] [#42809]
+
 ## [0.27.6] - 2025-03-31
 ### Fixed
 - Admin Menu: Ensure Akismet menu item shows alongside standalone plugin menus. [#42776]
@@ -1594,6 +1612,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.28.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.28.1...v0.28.2
+[0.28.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.28.0...v0.28.1
+[0.28.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.6...v0.28.0
 [0.27.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.5...v0.27.6
 [0.27.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.4...v0.27.5
 [0.27.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.3...v0.27.4

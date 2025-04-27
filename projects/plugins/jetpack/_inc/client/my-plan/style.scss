@@ -33,6 +33,7 @@
 	}
 
 	.dops-card:nth-last-child(2) {
+
 		@include breakpoint( "<960px" ) {
 			border-bottom: 0;
 		}
@@ -50,7 +51,7 @@
 		&:focus {
 			text-decoration-line: none;
 			border-radius: 2px;
-			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #000;
 			outline: 3px solid transparent;
 		}
 	}
@@ -70,6 +71,7 @@
 	justify-content: center;
 
 	span {
+
 		@include breakpoint( "<660px" ) {
 			display: none;
 		}
@@ -112,6 +114,7 @@
 
 		@include breakpoint( "<660px" ) {
 			justify-content: space-around;
+
 			a {
 				margin: 0;
 
@@ -129,7 +132,7 @@
 	padding: 7px 20px 9px 0;
 
 	@include breakpoint( "<480px" ) {
-		padding: 0px;
+		padding: 0;
 		margin-bottom: 15px;
 	}
 }
@@ -238,6 +241,7 @@
 }
 
 .jp-landing__plan-features-card:nth-child(odd) {
+
 	@include breakpoint( "<660px" ) {
 		margin-right: 8px;
 	}
@@ -270,9 +274,10 @@
 }
 
 .jp-landing__plan-features-header-jetpack-license {
+
 	.dops-button {
 		margin-top: 16px;
-		margin-right: 0px;
+		margin-right: 0;
 		float: right;
 	}
 }

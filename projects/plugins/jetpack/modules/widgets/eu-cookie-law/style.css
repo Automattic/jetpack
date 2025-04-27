@@ -12,7 +12,9 @@
 }
 
 @keyframes fadeIn {
+
 	from { opacity: 0; visibility: hidden; }
+
 	to { opacity: 1; visibility: visible; }
 }
 
@@ -89,9 +91,7 @@ amp-consent.widget_eu_cookie_law_widget.widget.top {
 #eu-cookie-law input:focus {
 	background: #f3f3f3;
 	border: 1px solid #dedede;
-	border-radius: 4px;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
+	border-radius: 3px;
 	color: #2e4453;
 	cursor: pointer;
 	display: inline;
@@ -115,9 +115,11 @@ amp-consent.widget_eu_cookie_law_widget.widget.top {
 }
 
 @media ( max-width: 600px ) {
+
 	#eu-cookie-law {
 		padding-bottom: 55px;
 	}
+
 	#eu-cookie-law input.accept {
 		bottom: 8px;
 		position: absolute;

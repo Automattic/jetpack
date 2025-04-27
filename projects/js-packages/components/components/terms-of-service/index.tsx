@@ -1,9 +1,10 @@
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { getRedirectUrl } from '../../../components/index.js';
-import Text from '../text/index.js';
-import type { TermsOfServiceProps } from './types.js';
+import { getRedirectUrl } from '../../index.ts';
+import Text from '../text/index.tsx';
+import type { TermsOfServiceProps } from './types.ts';
 import './styles.scss';
 
 const TermsOfService: React.FC< TermsOfServiceProps > = ( {
@@ -92,14 +93,9 @@ const TermsOfServiceTextOnly = () =>
 	);
 
 const Link: React.FC< { slug: string; children?: React.ReactNode } > = ( { slug, children } ) => (
-	<a
-		className="terms-of-service__link"
-		href={ getRedirectUrl( slug ) }
-		rel="noopener noreferrer"
-		target="_blank"
-	>
+	<ExternalLink className="terms-of-service__link" href={ getRedirectUrl( slug ) }>
 		{ children }
-	</a>
+	</ExternalLink>
 );
 
 export default TermsOfService;

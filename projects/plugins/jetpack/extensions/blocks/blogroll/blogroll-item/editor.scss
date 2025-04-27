@@ -28,7 +28,7 @@
 				align-self: flex-start;
 
 				&.empty-site-icon {
-					background: url('../placeholder-site-icon.svg');
+					background: url(../placeholder-site-icon.svg);
 					background-size: cover;
 
 					.blogroll-item-image {
@@ -46,7 +46,7 @@
 
 		p.jetpack-blogroll-item-title.rich-text {
 			color: inherit;
-			font-weight: bold;
+			font-weight: 700;
 			margin: 0;
 		}
 

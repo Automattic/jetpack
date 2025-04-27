@@ -22,12 +22,14 @@
 }
 
 @keyframes indeterminate_progress_bar__animation {
+
 	0% {
 		background-position: 136px 0;
 	}
 }
 
 @media (prefers-reduced-motion: no-preference) {
+
 	.indeterminate-progress-bar {
 		animation: indeterminate_progress_bar__animation 2000ms infinite linear;
 	}

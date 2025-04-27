@@ -1,14 +1,22 @@
 <?php
-
+use Automattic\Jetpack\Image_CDN\Image_CDN;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/slideshow.php';
 
+/**
+ * @covers Jetpack_PostImages
+ * @covers Jetpack_PostImages::from_thumbnail
+ */
+#[CoversClass( Jetpack_PostImages::class )]
+#[CoversMethod( Jetpack_PostImages::class, 'from_thumbnail' )]
 class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @author blobaugh
 	 * @author Alda Vigdís <alda.vigdis@automattic.com>
-	 * @covers Jetpack_PostImages::from_html
 	 * @since 2.7
 	 */
 	public function test_from_html_single_quotes() {
@@ -26,7 +34,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * @author blobaugh
 	 * @author Alda Vigdís <alda.vigdis@automattic.com>
-	 * @covers Jetpack_PostImages::from_html
 	 * @since 2.7
 	 */
 	public function test_from_html_double_quotes() {
@@ -57,8 +64,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test image size extract in src filename
-	 *
-	 * @covers Jetpack_PostImages::from_html
 	 */
 	public function test_from_html_size() {
 		$s = "<img src='img-2300x1300.jpg' />";
@@ -73,8 +78,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test ignoring unrealistic image sizes from src filename
-	 *
-	 * @covers Jetpack_PostImages::from_html
 	 */
 	public function test_from_html_no_size() {
 		$s = "<img src='img-851958915511220x220.jpg' />";
@@ -84,9 +87,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 		$this->assertEquals( array(), $result );
 	}
 
-	/**
-	 * @covers Jetpack_PostImages::from_html
-	 */
 	public function test_from_html_alt_utf8() {
 		$s = '<img src="bob.jpg" width="200" height="200" alt="Ḽơᶉëᶆ ȋṕšᶙṁ ḍỡḽǭᵳ ʂǐť ӓṁệẗ" />';
 
@@ -99,7 +99,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_PostImages::from_slideshow
 	 * @since 3.2
 	 */
 	public function test_from_slideshow_is_array() {
@@ -178,7 +177,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_PostImages::from_gallery
 	 * @since 3.2
 	 */
 	public function test_from_gallery_is_array() {
@@ -191,7 +189,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author robfelty
-	 * @covers Jetpack_PostImages::from_gallery
 	 * @since 13.2
 	 */
 	public function test_from_gallery_is_correct_array() {
@@ -214,7 +211,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * @author scotchfield
 	 * @author Alda Vigdís <alda.vigdis@automattic.com>
-	 * @covers Jetpack_PostImages::from_attachment
 	 * @since 3.2
 	 */
 	public function test_from_attachment_is_correct_array() {
@@ -258,7 +254,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author robfelty
-	 * @covers Jetpack_PostImages::from_attachment
 	 * @since 13.2
 	 */
 	public function test_from_attachment_without_meta_is_correct_array() {
@@ -358,7 +353,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if an array of images can be extracted from Image blocks in the new block editor.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
 	public function test_from_image_block_from_post_id_is_array() {
@@ -377,7 +371,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if the array extracted from Image blocks include the image URL and alt text.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
 	public function test_from_image_block_from_post_id_is_correct_array() {
@@ -399,7 +392,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if an image block with an externally hosted image is not extracted by Post Images.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
 	public function test_from_image_block_from_html_is_empty_array() {
@@ -485,7 +477,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if the array extracted from Gallery blocks include the image URL.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
 	public function test_from_gallery_block_from_post_id_is_correct_array() {
@@ -507,7 +498,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if the array extracted from Gallery blocks include the image URL.
 	 *
-	 * @covers Jetpack_PostImages::get_attachment_data
 	 * @since 6.9.0
 	 */
 	public function test_get_attachment_data_returns_false_on_unavailable_data() {
@@ -578,8 +568,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if an array of images can be extracted from column blocks in the new block editor.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
-	 *
 	 * @since 7.8.0
 	 */
 	public function test_from_columns_block_from_post_id_is_array() {
@@ -597,8 +585,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test if the array extracted from Colunms blocks include the image URL and alt text.
-	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 *
 	 * @since 7.8.0
 	 */
@@ -621,7 +607,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if a Colunms block with an externally hosted image is not extracted by Post Images.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 6.9.0
 	 */
 	public function test_from_columns_block_from_html_is_empty_array() {
@@ -750,7 +735,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if the array extracted from a Story block includes the correct image URLs.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 9.1.0
 	 */
 	public function test_from_story_block_from_post_id_is_correct_array_no_videopress() {
@@ -776,7 +760,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 *
 	 * For this test we simulate VideoPress being enabled for the site.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 9.1.0
 	 */
 	public function test_from_story_block_from_post_id_is_correct_array_videopress() {
@@ -804,7 +787,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	 *
 	 * For this test we simulate 'WP.com mode' for VideoPress, which has a different structure for attachment meta.
 	 *
-	 * @covers Jetpack_PostImages::from_blocks
 	 * @since 9.1.0
 	 */
 	public function test_from_story_block_from_post_id_is_correct_array_videopress_wpcom() {
@@ -830,13 +812,13 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if the array extracted is empty in case post_id is invalid.
 	 *
-	 * @covers Jetpack_PostImages::from_gravatar
 	 * @dataProvider provider_gravatar_invalid_posts
 	 *
 	 * @since 11.4
 	 *
 	 * @param int|string|null $post_id  The post ID.
 	 */
+	#[DataProvider( 'provider_gravatar_invalid_posts' )]
 	public function test_from_gravatar_invalid( $post_id ) {
 		$image_details = Jetpack_PostImages::from_gravatar( $post_id );
 		$this->assertEquals( array(), $image_details );
@@ -862,7 +844,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	/**
 	 * Test if the array extracted has a valid image when sending a valid post.
 	 *
-	 * @covers Jetpack_PostImages::from_gravatar
 	 * @since 11.4
 	 */
 	public function test_from_gravatar_returns_valid_image() {
@@ -879,5 +860,200 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 		$this->assertEquals( 96, $images[0]['src_height'] );
 		$this->assertNotEmpty( $images[0]['href'] );
 		$this->assertSame( '', $images[0]['alt_text'] );
+	}
+
+	/**
+	 * Test image resizing with Photon when image is too large.
+	 *
+	 * @since 14.6
+	 * @see https://github.com/Automattic/jetpack/issues/40349
+	 */
+	public function test_from_thumbnail_resizes_large_image_with_photon() {
+		// Mock photon being active
+		add_filter(
+			'jetpack_active_modules',
+			function ( $modules ) {
+				$modules[] = 'photon';
+				return $modules;
+			}
+		);
+
+		Image_CDN::instance();
+
+		// Create test image attachment
+		$filename = dirname( __DIR__ ) . '/files/large-featured-image.png';
+		$contents = file_get_contents( $filename );
+
+		$upload = wp_upload_bits( basename( $filename ), null, $contents );
+		$this->assertFalse( $upload['error'] );
+
+		$attachment_id = $this->make_attachment( $upload );
+
+		// Create post and set featured image
+		$post_id = self::factory()->post->create();
+		set_post_thumbnail( $post_id, $attachment_id );
+
+		// Get image data
+		$images = Jetpack_PostImages::from_thumbnail( $post_id );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( 1200, $images[0]['src_width'] );
+		$this->assertEquals( 800, $images[0]['src_height'] );
+		$this->assertStringContainsString( 'i0.wp.com', $images[0]['src'], 'Image URL should be transformed by Photon' );
+
+		remove_all_filters( 'jetpack_active_modules' );
+	}
+
+	/**
+	 * Test image resizing with Photon when custom image size exists.
+	 *
+	 * @since 14.6
+	 * @see https://github.com/Automattic/jetpack/issues/40349
+	 */
+	public function test_from_thumbnail_resizes_large_image_with_photon_and_custom_size() {
+		// Mock photon being active
+		add_filter(
+			'jetpack_active_modules',
+			function ( $modules ) {
+				$modules[] = 'photon';
+				return $modules;
+			}
+		);
+
+		Image_CDN::instance();
+
+		// Add custom image size with hard crop.
+		add_image_size( 'test-size', 1200, 1200, true );
+
+		// Create test image attachment
+		$filename = dirname( __DIR__ ) . '/files/large-featured-image.png';
+		$contents = file_get_contents( $filename );
+
+		$upload = wp_upload_bits( basename( $filename ), null, $contents );
+		$this->assertFalse( $upload['error'] );
+
+		$attachment_id = $this->make_attachment( $upload );
+
+		// Create post and set featured image
+		$post_id = self::factory()->post->create();
+		set_post_thumbnail( $post_id, $attachment_id );
+
+		// Get image data
+		$images = Jetpack_PostImages::from_thumbnail( $post_id );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( 1200, $images[0]['src_width'] );
+		$this->assertEquals( 800, $images[0]['src_height'] );
+		$this->assertStringContainsString( 'i0.wp.com', $images[0]['src'], 'Image URL should be transformed by Photon' );
+
+		// Cleanup
+		remove_image_size( 'test-size' );
+		remove_all_filters( 'jetpack_active_modules' );
+	}
+
+	/**
+	 * Data provider for test_determine_thumbnail_size_for_photon.
+	 *
+	 * @return array Test cases with original dimensions and expected output.
+	 */
+	public static function provide_thumbnail_sizes_for_photon() {
+		return array(
+			'landscape_image'           => array(
+				2000, // Original width
+				1333, // Original height
+				array(
+					'width'  => 1200,
+					'height' => 800,
+				), // Expected dimensions
+			),
+			'portrait_image'            => array(
+				1333, // Original width
+				2000, // Original height
+				array(
+					'width'  => 800,
+					'height' => 1200,
+				), // Expected dimensions
+			),
+			'square_image'              => array(
+				2000, // Original width
+				2000, // Original height
+				array(
+					'width'  => 1200,
+					'height' => 1200,
+				), // Expected dimensions
+			),
+			'small_image'               => array(
+				800, // Original width
+				600, // Original height
+				array(
+					'width'  => 800,
+					'height' => 600,
+				), // Expected dimensions - no resize needed
+			),
+			'image_virtually_same_size' => array(
+				1201, // Original width
+				672, // Original height
+				array(
+					'width'  => 1201,
+					'height' => 672,
+				), // Close enough to 1200 to not resize.
+			),
+		);
+	}
+
+	/**
+	 * Tests if the ::determine_thumbnail_size_for_photon method returns the correct size.
+	 *
+	 * @since 14.6
+	 * @see https://github.com/Automattic/jetpack/issues/40349
+	 * @dataProvider provide_thumbnail_sizes_for_photon
+	 * @param int   $original_width Width of the original image.
+	 * @param int   $original_height Height of the original image.
+	 * @param array $expected Expected dimensions after resize.
+	 */
+	#[DataProvider( 'provide_thumbnail_sizes_for_photon' )]
+	public function test_determine_thumbnail_size_for_photon( $original_width, $original_height, $expected ) {
+		$max_dimension = Jetpack_PostImages::get_max_thumbnail_dimension();
+		if ( 1200 !== $max_dimension ) {
+			$this->markTestSkipped( 'Max dimension is not 1200px, skipping test as the data provider assumes 1200px max dimension.' );
+		}
+		$this->assertSame( $expected, Jetpack_PostImages::determine_thumbnail_size_for_photon( $original_width, $original_height ) );
+	}
+
+	/**
+	 * Helper function to create an attachment
+	 *
+	 * @param array $upload Upload data array.
+	 * @return int Attachment ID.
+	 */
+	protected function make_attachment( $upload ) {
+		$type = '';
+		if ( ! empty( $upload['type'] ) ) {
+			$type = $upload['type'];
+		} else {
+			$mime = wp_check_filetype( $upload['file'] );
+			if ( $mime ) {
+				$type = $mime['type'];
+			}
+		}
+
+		$attachment = array(
+			'post_title'     => basename( $upload['file'] ),
+			'post_content'   => '',
+			'post_type'      => 'attachment',
+			'post_parent'    => 0,
+			'post_mime_type' => $type,
+			'guid'           => $upload['url'],
+		);
+
+		$id = wp_insert_attachment( $attachment, $upload['file'] );
+
+		// Make sure wp_generate_attachment_metadata creates the intermediate sizes
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+		$metadata = wp_generate_attachment_metadata( $id, $upload['file'] );
+
+		wp_update_attachment_metadata( $id, $metadata );
+
+		return $id;
 	}
 } // end class

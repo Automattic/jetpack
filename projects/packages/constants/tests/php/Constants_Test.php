@@ -8,11 +8,15 @@
 use Automattic\Jetpack\Constants;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class Constants_Test
+ *
+ * @covers \Automattic\Jetpack\Constants
  */
+#[CoversClass( Constants::class )]
 class Constants_Test extends TestCase {
 	/**
 	 * Sets up the test.
@@ -36,8 +40,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests when a constant is defined via class.
-	 *
-	 * @covers Automattic\Jetpack\Constants::is_defined
 	 */
 	public function test_jetpack_constants_is_defined_when_constant_set_via_class() {
 		Constants::set_constant( 'TEST', 'hello' );
@@ -46,8 +48,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests when a constant is not set.
-	 *
-	 * @covers Automattic\Jetpack\Constants::is_defined
 	 */
 	public function test_jetpack_constants_is_defined_false_when_constant_not_set() {
 		$this->assertFalse( Constants::is_defined( 'UNDEFINED' ) );
@@ -55,8 +55,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests when a constant is defined as true.
-	 *
-	 * @covers Automattic\Jetpack\Constants::is_defined
 	 */
 	public function test_jetpack_constants_is_defined_true_when_set_with_define() {
 		$this->assertTrue( Constants::is_defined( 'JETPACK__VERSION' ) );
@@ -64,8 +62,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests when a constant is defined as null.
-	 *
-	 * @covers Automattic\Jetpack\Constants::is_defined
 	 */
 	public function test_jetpack_constants_is_defined_when_constant_set_to_null() {
 		Constants::set_constant( 'TEST', null );
@@ -74,8 +70,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests when a constant defaults to a constant.
-	 *
-	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_default_to_constant() {
 		Filters\expectApplied( 'jetpack_constant_default_value' )->never();
@@ -87,8 +81,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests that null is returned when a constant is not set.
-	 *
-	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_get_constant_null_when_not_set() {
 		$test_constant_name = 'UNDEFINED';
@@ -102,8 +94,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests that the class can override an existing constant.
-	 *
-	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_can_override_previously_defined_constant() {
 		Filters\expectApplied( 'jetpack_constant_default_value' )->never();
@@ -116,8 +106,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests that an override to null returns null.
-	 *
-	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_override_to_null_gets_null() {
 		Filters\expectApplied( 'jetpack_constant_default_value' )->never();
@@ -129,8 +117,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests that constant will use the filter value.
-	 *
-	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_get_constant_use_filter_value() {
 		$test_constant_name  = 'TEST_CONSTANT';
@@ -145,8 +131,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests that a constant can add to an array.
-	 *
-	 * @covers Automattic\Jetpack\Constants::set_constant
 	 */
 	public function test_jetpack_constants_set_constants_adds_to_set_constants_array() {
 		$key = 'TEST';
@@ -157,8 +141,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests that all constants can be cleared.
-	 *
-	 * @covers Automattic\Jetpack\Constants::clear_constants
 	 */
 	public function test_jetpack_constants_can_clear_all_constants() {
 		Constants::set_constant( 'JETPACK__VERSION', '1.0.0' );
@@ -168,8 +150,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests that a single constant can be cleared.
-	 *
-	 * @covers Automattic\Jetpack\Constants::clear_single_constant
 	 */
 	public function test_jetpack_constants_can_clear_single_constant() {
 		Constants::set_constant( 'FIRST', '1' );
@@ -185,8 +165,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests that a single constant can be cleared with null.
-	 *
-	 * @covers Automattic\Jetpack\Constants::clear_single_constant
 	 */
 	public function test_jetpack_constants_can_clear_single_constant_when_null() {
 		Constants::set_constant( 'TEST', null );
@@ -199,8 +177,6 @@ class Constants_Test extends TestCase {
 
 	/**
 	 * Tests is_true.
-	 *
-	 * @covers Automattic\Jetpack\Constants::is_true
 	 */
 	public function test_jetpack_constants_is_true_method() {
 		$this->assertFalse( Constants::is_true( 'FOO' ), 'unset constant returns true' );

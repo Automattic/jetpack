@@ -5,21 +5,22 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once __DIR__ . '/mocks/simplepie.php';
 require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
 
 /**
  * Class for testing the Jetpack_Podcast_Helper class.
  *
- * @coversDefaultClass Jetpack_Podcast_Helper
+ * @covers \Jetpack_Podcast_Helper
  */
+#[CoversClass( Jetpack_Podcast_Helper::class )]
 class Jetpack_Podcast_Helper_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * Tests get_track_data() when the feed cannot be retrieved.
-	 *
-	 * @covers ::get_track_data
 	 */
 	public function test_get_track_data_feed_error() {
 		$podcast_helper = $this->getMockBuilder( 'Jetpack_Podcast_Helper' )
@@ -39,8 +40,6 @@ class Jetpack_Podcast_Helper_Test extends WP_UnitTestCase {
 
 	/**
 	 * Tests get_track_data() finds the given episode.
-	 *
-	 * @covers ::get_track_data
 	 */
 	public function test_get_track_data_find_episode() {
 		$podcast_helper = $this->getMockBuilder( 'Jetpack_Podcast_Helper' )
@@ -48,7 +47,7 @@ class Jetpack_Podcast_Helper_Test extends WP_UnitTestCase {
 			->onlyMethods( array( 'load_feed', 'setup_tracks_callback' ) )
 			->getMock();
 
-		$track = $this->getMockBuilder( Jetpack\SimplePie\Item::class )
+		$track = $this->getMockBuilder( SimplePie\Item::class )
 			->disableOriginalConstructor()
 			->onlyMethods( array( 'get_id' ) )
 			->getMock();
@@ -57,7 +56,7 @@ class Jetpack_Podcast_Helper_Test extends WP_UnitTestCase {
 			->method( 'get_id' )
 			->willReturn( '1' );
 
-		$rss = $this->getMockBuilder( Jetpack\SimplePie\SimplePie::class )
+		$rss = $this->getMockBuilder( SimplePie\SimplePie::class )
 			->disableOriginalConstructor()
 			->onlyMethods( array( 'get_items' ) )
 			->getMock();

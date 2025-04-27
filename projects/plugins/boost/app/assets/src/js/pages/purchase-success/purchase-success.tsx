@@ -105,10 +105,7 @@ const PurchaseSuccess: React.FC = () => {
 									'jetpack-boost'
 								),
 								{
-									link: (
-										// eslint-disable-next-line jsx-a11y/anchor-has-content
-										<a className="action" href={ wpcomPricingUrl } />
-									),
+									link: <ExternalLink href={ wpcomPricingUrl } />,
 									strong: <strong />,
 								}
 						  )

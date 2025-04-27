@@ -1,6 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Sync\Modules;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 
@@ -8,7 +10,10 @@ require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
  * Testing CRUD on Comments
  *
  * @group jetpack-sync
+ * @covers \Automattic\Jetpack\Sync\Modules\Comments
  */
+#[Group( 'jetpack-sync' )]
+#[CoversClass( Modules\Comments::class )]
 class Jetpack_Sync_Comments_Test extends Jetpack_Sync_TestBase {
 
 	protected $comment;
@@ -391,9 +396,6 @@ class Jetpack_Sync_Comments_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( $synced_comment, $retrieved_comment );
 	}
 
-	/**
-	 * @covers Automattic\Jetpack\Sync\Modules\Comments::get_whitelisted_comment_types()
-	 */
 	public function test_allows_custom_comment_types() {
 		$comments_sync_module = Modules::get_module( 'comments' );
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Comments $comments_sync_module';

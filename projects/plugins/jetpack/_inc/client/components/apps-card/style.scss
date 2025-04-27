@@ -6,6 +6,7 @@
 }
 
 .jp-apps-card__content {
+
 	@include dashboard-card-shadow;
 
 	display: flex;
@@ -20,7 +21,7 @@
 		font-style: italic;
 	}
 
-	&:after {
+	&::after {
 		content: none;
 	}
 
@@ -113,6 +114,7 @@
 	align-items: center;
 
 	@include breakpoint( '<480px' ) {
+
 		.apps-badge:first-child {
 			margin-right: 0;
 		}
