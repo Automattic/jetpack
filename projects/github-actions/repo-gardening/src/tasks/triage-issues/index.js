@@ -149,7 +149,7 @@ async function triageIssues( payload, octokit ) {
 		}
 
 		// If AI Labeling is enabled, use OpenAI to automatically add labels to issues.
-		if ( getInput( 'ai_labeling_enabled' ) ) {
+		if ( getInput( 'ai_labeling_enabled' ) === 'true' ) {
 			const issueLabels = await aiLabeling( payload, octokit );
 
 			// At this point, if we still miss a [Type] label, a [Feature] label, or a [Pri] label, ask the author to add it.
