@@ -87,6 +87,7 @@ The action relies on the following parameters.
 - (Optional) `labels_team_assignments` is a list of features you can provide, with matching team names, as specified in the "Team" field of your GitHub Project Board used for the `triageIssues` task, and lists of labels in use in your repository.
 - (Optional) `ai_labeling_enabled` is a boolean value that allows you to enable or disable the AI labeling of issues. The default value is `false`.
 - (Optional) `openai_api_key` is the API key for OpenAI. This is required if you want to use the `triageIssues` task to automatically add labels to your issues. **Note**: this option is only available for Automattic-hosted repositories.
+
 #### How to create a Slack bot and get your SLACK_TOKEN
 
 To create a bot and get your `SLACK_TOKEN`, follow [the general instructions here](https://slack.com/intl/en-hu/help/articles/115005265703-Create-a-bot-for-your-workspace):
