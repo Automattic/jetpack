@@ -16,9 +16,9 @@ class JetpackCompatibilityTest extends WP_UnitTestCase {
 	 */
 	public function test_wpcomsh_my_jetpack_rest_apis_available() {
 		// Check if the REST API routes are registered if Boost is included.
-		$plugins = getenv( 'INTEGRATION_PLUGINS' );
+		$plugins = getenv( 'JP_MONO_INTEGRATION_PLUGINS' );
 		if ( ! $plugins || strpos( $plugins, 'boost' ) === false ) {
-			$this->markTestSkipped( 'Jetpack Boost plugin is not included in INTEGRATION_PLUGINS.' );
+			$this->markTestSkipped( 'Jetpack Boost plugin is not included in JP_MONO_INTEGRATION_PLUGINS.' );
 		}
 
 		$routes = rest_get_server()->get_routes();
