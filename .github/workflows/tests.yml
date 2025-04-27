@@ -371,6 +371,8 @@ jobs:
         if: steps.changed.outputs.any == 'true'
         run: |
           cd projects/js-packages/storybook
+          # This is due to a change in label in a PPA used by playwright. Can probably be removed in a week or two. 2025-04-27 -- kraftbj
+          apt-get update --allow-releaseinfo-change
           pnpm exec playwright install --with-deps chromium
 
       - name: Test storybook
