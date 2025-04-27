@@ -36,6 +36,13 @@ if ! docker image inspect jetpack-monorepo:latest >/dev/null 2>&1; then
     fi
 fi
 
+# If the user's .gitconfig exists, mount it into the container for git passthrough commands (jp git ...)
+if [ -f "$HOME/.gitconfig" ]; then
+    GITCONFIG_MOUNT="-v $HOME/.gitconfig:/root/.gitconfig:ro"
+else
+    GITCONFIG_MOUNT=""
+fi
+
 # Run the command in the container
 docker run --rm -it \
     -v "$MONOREPO_ROOT:/workspace" \
@@ -51,5 +58,6 @@ docker run --rm -it \
     -e NPM_CONFIG_CACHE=/root/.npm \
     -e PNPM_HOME=/root/.local/share/pnpm \
     -e PNPM_STORE_DIR=/root/.pnpm-store \
+    $GITCONFIG_MOUNT \
     jetpack-monorepo:latest \
     "$@"

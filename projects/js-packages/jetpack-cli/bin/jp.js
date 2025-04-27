@@ -306,6 +306,24 @@ const main = async () => {
 			}
 		}
 
+		// Handle git passthrough: run git commands inside the container for pre-commit hooks, etc.
+		if ( args[ 0 ] === 'git' ) {
+			// This allows: jp git commit -m "msg" (runs inside container, so hooks/tools are consistent)
+			// Always disable GPG signing in the container to avoid missing key errors.
+			const result = spawnSync(
+				resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
+				[ 'git', '-c', 'commit.gpgSign=false', ...args.slice( 1 ) ],
+				{
+					stdio: 'inherit',
+					cwd: monorepoRoot,
+				}
+			);
+			if ( result.status !== 0 ) {
+				throw new Error( `Git command failed with status ${ result.status }` );
+			}
+			return;
+		}
+
 		// Run the monorepo script with the original arguments
 		const result = spawnSync(
 			resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
