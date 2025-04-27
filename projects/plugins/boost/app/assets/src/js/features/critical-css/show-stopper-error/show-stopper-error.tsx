@@ -1,3 +1,4 @@
+import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import FoldingElement from '../folding-element/folding-element';
 import { ErrorSet, getPrimaryErrorSet } from '../lib/critical-css-errors';
@@ -119,11 +120,8 @@ const DocumentationSection = ( {
 		<p>
 			{ createInterpolateElement( message, {
 				link: (
-					// eslint-disable-next-line jsx-a11y/anchor-has-content
-					<a
+					<ExternalLink
 						href={ getSupportLinkCriticalCss( errorType ) }
-						target="_blank"
-						rel="noopener noreferrer"
 						onClick={ () => {
 							recordBoostEvent( 'critical_css_learn_more', {} );
 						} }
@@ -206,17 +204,15 @@ const OtherErrors = ( { cssState, supportLink }: ShowStopperErrorTypes ) => {
 							{ __( 'Refresh', 'jetpack-boost' ) }
 						</button>
 					) : (
-						<a
+						<ExternalLink
 							className="button button-secondary"
 							href={ supportLink }
-							target="_blank"
-							rel="noreferrer"
 							onClick={ () => {
 								recordBoostEvent( 'critical_css_contact_support', {} );
 							} }
 						>
 							{ __( 'Contact Support', 'jetpack-boost' ) }
-						</a>
+						</ExternalLink>
 					) }
 				</>
 			) }

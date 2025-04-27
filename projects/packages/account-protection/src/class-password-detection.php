@@ -41,13 +41,19 @@ class Password_Detection {
 	/**
 	 * Check if the password is safe after login.
 	 *
-	 * @param \WP_User|\WP_Error $user The user or error object.
-	 * @param string             $password The password.
+	 * @param \WP_User|\WP_Error|null $user The user or error object, or null.
+	 * @param string                  $password The password.
 	 *
-	 * @return \WP_User|\WP_Error The user object.
+	 * @return \WP_User|\WP_Error|null The user object, error object, or null.
 	 */
 	public function login_form_password_detection( $user, string $password ) {
-		if ( is_wp_error( $user ) || ! $this->user_requires_protection( $user, $password ) ) {
+		// First check if the user object is valid. Third-party plugins might pass
+		// incompatible types to authentication hooks, so we need this extra check.
+		if ( is_wp_error( $user ) || ! ( $user instanceof \WP_User ) ) {
+			return $user;
+		}
+
+		if ( ! $this->user_requires_protection( $user, $password ) ) {
 			return $user;
 		}
 

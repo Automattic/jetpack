@@ -270,7 +270,7 @@
 		}
 
 		&.is-selected {
-			box-shadow: inset 0px -1px 0px $black;
+			box-shadow: inset 0 -1px 0 $black;
 		}
 	}
 }
@@ -342,7 +342,7 @@
 
 		&:hover {
 			color: $black;
-			box-shadow: inset 0px -1px 0px $black;
+			box-shadow: inset 0 -1px 0 $black;
 		}
 
 		.is-selected & {

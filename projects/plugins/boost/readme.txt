@@ -2,10 +2,10 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, lsarsfield, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 6.6
+Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 3.13.0
+Stable tag: 3.13.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

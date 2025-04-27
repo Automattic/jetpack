@@ -2935,6 +2935,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_alphanum',
 				'jp_group'          => 'google-analytics',
 			),
+			'jetpack_wga'                               => array(
+				'description' => esc_html__( 'Google Analytics', 'jetpack' ),
+				'type'        => 'object',
+				'jp_group'    => 'settings',
+			),
 
 			// Stats.
 			'admin_bar'                                 => array(

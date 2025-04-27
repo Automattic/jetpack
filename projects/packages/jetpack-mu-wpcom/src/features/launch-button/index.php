@@ -42,6 +42,10 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 		return;
 	}
 
+	if ( $current_blog_id === 1 && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return;
+	}
+
 	$icon = '<svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path
 							fill-rule="evenodd"

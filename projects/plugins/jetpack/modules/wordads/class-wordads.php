@@ -109,7 +109,7 @@ class WordAds {
 	 *
 	 * @var string
 	 */
-	public static $solo_unit_css = 'float:left;margin-right:5px;margin-top:0px;';
+	public static $solo_unit_css = 'float:left;margin-right:5px;margin-top:0;';
 
 	/**
 	 * Checks for AMP support and returns true iff active & AMP request

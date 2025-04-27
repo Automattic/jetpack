@@ -1,0 +1,19 @@
+.jetpack-forms-active-integrations {
+	margin: 8px 0 10px;
+
+	&__item {
+		position: relative;
+		margin-right: 8px;
+	}
+
+	&__status {
+		position: absolute;
+		bottom: 1px;
+		right: 1px;
+		width: 9px;
+		height: 9px;
+		background-color: #4AB866;
+		box-shadow: 0 0 0 1px #fff;
+		border-radius: 50%;
+	}
+} 

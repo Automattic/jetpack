@@ -19,6 +19,7 @@ const defaultScriptData = {
 	site: {
 		admin_url: 'https://example.com/wp-admin/',
 		suffix: 'example.com',
+		is_wpcom_platform: true,
 	},
 } as JetpackScriptData;
 

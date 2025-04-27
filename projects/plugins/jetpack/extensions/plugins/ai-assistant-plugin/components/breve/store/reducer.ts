@@ -9,7 +9,7 @@ import features from '../features';
 /**
  * Types
  */
-import type { Anchor, BreveState, GrammarLint, LintState } from '../types';
+import type { Anchor, BreveState } from '../types';
 
 const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-breve-enabled' );
 const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
@@ -242,42 +242,4 @@ export function suggestions(
 	return state;
 }
 
-export function lints(
-	state: LintState = {},
-	action: {
-		type: string;
-		text: string;
-		feature?: string;
-		blockId: string;
-		lints?: Array< GrammarLint >;
-		richTextIdentifier?: string;
-	}
-) {
-	switch ( action.type ) {
-		case 'SET_LINTS': {
-			const result = {
-				...state,
-				[ action.blockId ]: {
-					...( state[ action.blockId ] ?? {} ),
-					features: {
-						...( state[ action.blockId ]?.features ?? {} ),
-						[ action.feature ]: {
-							// When richTextIdentifier is 'content' we can assume that text is being replaced, so we remove all other texts for this block/feature
-							...( action.richTextIdentifier === 'content'
-								? {}
-								: ( state[ action.blockId ]?.features ?? {} )[ action.feature ] ?? {} ),
-							[ action.text ]: action?.lints,
-						},
-					},
-					version: Date.now(),
-				},
-			};
-
-			return result;
-		}
-	}
-
-	return state;
-}
-
-export default combineReducers( { popover, configuration, suggestions, lints } );
+export default combineReducers( { popover, configuration, suggestions } );

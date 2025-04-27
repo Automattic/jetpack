@@ -46,7 +46,7 @@ function zeroBSCRM_render_add_or_edit_file() {
 			if ( $avatar_mode == '2' || $avatar_mode == '3' ) {
 				$avatar_url           = $zbs->DAL->contacts->getContactAvatar( $customer );
 				$view_url_contact     = jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ) . $customer;
-				$file_owner_html     .= '<h4 class="ui image header" style="margin:0px;">';
+				$file_owner_html     .= '<h4 class="ui image header" style="margin:0;">';
 				$file_owner_html     .= '<img src="' . esc_attr( $avatar_url ) . '" id="profile-picture-img" class="ui mini rounded image" />';
 				$file_owner_html     .= '<div class="content"><a href="' . esc_url( $view_url_contact ) . '">' . esc_html( $crm_contact['fullname'] ) . '</a>';
 					$file_owner_html .= ! empty( $crm_contact['email'] ) ? '<div class="sub header">' . esc_html( $crm_contact['email'] ) . '</div>' : '';

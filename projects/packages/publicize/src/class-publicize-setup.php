@@ -54,7 +54,7 @@ class Publicize_Setup {
 		/**
 		 * Filters the flag to decide whether to load the Publicize module.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.64.0
 		 *
 		 * @param bool $should_load Whether to load the Publicize module.
 		 */

@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/widget-visibility/widget-conditions.php';
 
 /**
@@ -9,6 +11,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/widget-visibility/widget-conditions.
  *
  * @covers Jetpack_Widget_Conditions
  */
+#[CoversClass( Jetpack_Widget_Conditions::class )]
 class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

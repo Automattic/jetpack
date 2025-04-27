@@ -121,7 +121,7 @@
 	background: $white;
 	appearance: none;
 	box-sizing: border-box;
-	padding: 0px;
+	padding: 0;
 	-webkit-appearance: none;
 
 	&::-webkit-search-cancel-button {
@@ -190,8 +190,8 @@
 	font: inherit;
 	width: 100%;
 	height: 100%;
-	top: 0px;
-	left: 0px;
+	top: 0;
+	left: 0;
 	z-index: z-index( '.dops-search', '.dops-search__input' ) + 1;
 }
 

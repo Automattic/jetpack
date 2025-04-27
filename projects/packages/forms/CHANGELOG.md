@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.49.0] - 2025-04-21
+### Added
+- Forms: Add new integrations setup modal. [#43057]
+
+### Changed
+- Block registration: Do not display the block in the editor for non-admins when the feature is not active. [#40209]
+- Add entry to integations modal in block toolbar. [#43126]
+- Add tooltips to integration modal plugin CTAs. [#43102]
+- Add tooltips to the toggle in integrations modal. [#43080]
+- Remove colon after question mark for form labels. [#43133]
+- Hide integrations modal CTA in the sidebar for Simple sites. [#43079]
+- Reduce default padding in form patterns. [#43124]
+- Update modal to use `VStack` and WP icons. [#43084]
+- Inbox: Render source consistently in list and details view. [#43131]
+- Load editor styles from metadata file. [#42751]
+
+### Fixed
+- Fix Creative Mail SVG issue. [#43112]
+- Prevent Google Drive connection attempt without Jetpack user account connection. [#43121]
+- Update form responses link on editor sidebar. [#43143]
+
 ## [0.48.0] - 2025-04-15
 ### Changed
 - Polish integrations modal. [#43064]
@@ -20,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ensure form field hook returns string. [#43011]
 - Fix IntegrationCardHeader toggle styles. [#42942]
 - Fix integration modal tracks events. [#42945]
-- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Clean up various Stylelint violations. [#43010]
 - Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
 - Linting: Use double colon notation for pseudo-element selectors. [#43019]
 
@@ -978,6 +999,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.49.0]: https://github.com/automattic/jetpack-forms/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/automattic/jetpack-forms/compare/v0.47.0...v0.48.0
 [0.47.0]: https://github.com/automattic/jetpack-forms/compare/v0.46.0...v0.47.0
 [0.46.0]: https://github.com/automattic/jetpack-forms/compare/v0.45.0...v0.46.0

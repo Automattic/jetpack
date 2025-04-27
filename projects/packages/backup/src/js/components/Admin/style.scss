@@ -127,6 +127,7 @@
 	background: var(--jp-white-off);
 
 	&.is-backup-performing {
+		// stylelint-disable-next-line function-url-quotes -- quotes are required here. Bug report: https://github.com/stylelint/stylelint/issues/8544
 		background-image: url("data:image/svg+xml,%3Csvg width='624' height='400' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M624 88.387C575.321 34.082 504.674 0 426 0 323.405 0 234.3 58.22 189.925 143.42 83.07 154.78 0 245.305 0 355c0 38.16 10.072 73.999 27.698 105H624V88.387z' fill='%23fff'/%3E%3C/svg%3E");
 		background-position: 100% 100%;
 		background-repeat: no-repeat;

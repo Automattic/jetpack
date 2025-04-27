@@ -36,15 +36,6 @@ class Share_Status_Test extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		/**
-		 * This test is disabled because of a bug in the WorDBless library.
-		 *
-		 * @see https://github.com/Automattic/wordbless/issues/76
-		 *
-		 * TODO: Remove this comment when the bug is fixed.
-		 */
-		$this->markTestIncomplete();
-
 		static::$admin_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_admin',

@@ -178,7 +178,6 @@
 	"projects/plugins/crm/includes/jpcrm-dependency-checker.php",
 	"projects/plugins/crm/includes/jpcrm-feature-sniffer.php",
 	"projects/plugins/crm/includes/jpcrm-fonts.php",
-	"projects/plugins/crm/includes/jpcrm-language.php",
 	"projects/plugins/crm/includes/jpcrm-learn-menu-legacy-functions.php",
 	"projects/plugins/crm/includes/jpcrm-mail-templating.php",
 	"projects/plugins/crm/includes/jpcrm-segment-conditions.php",

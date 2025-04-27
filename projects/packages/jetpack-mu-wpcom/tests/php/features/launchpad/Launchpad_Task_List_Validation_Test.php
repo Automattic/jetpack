@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Test class for Launchpad_Task_Lists.
  */
@@ -107,6 +109,7 @@ class Launchpad_Task_List_Validation_Test extends \WorDBless\BaseTestCase {
 	 * @param bool  $expected_result Expected validation result.
 	 * @dataProvider provide_validate_task_list_test_cases
 	 */
+	#[DataProvider( 'provide_validate_task_list_test_cases' )]
 	public function test_validate_task_list( $task_list, $expected_result ) {
 		$result = Launchpad_Task_Lists::validate_task_list( $task_list );
 

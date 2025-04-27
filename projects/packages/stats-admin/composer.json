@@ -6,6 +6,7 @@
 	"require": {
 		"php": ">=7.2",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-blaze": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-stats": "@dev",
@@ -13,7 +14,7 @@
 		"automattic/jetpack-jitm": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^3.0.0",
+		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"

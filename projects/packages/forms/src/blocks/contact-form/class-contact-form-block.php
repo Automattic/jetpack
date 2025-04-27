@@ -22,9 +22,9 @@ use Jetpack;
 class Contact_Form_Block {
 	/**
 	 * Register the Contact Form block.
-	 * We are core block only wether jetpack contact form plugin
+	 * We are core block dependent only on whether the jetpack contact form plugin
 	 * is active or not. This is allowing us to make it more discoverable
-	 * and enable plugin in one click
+	 * and enable the plugin in one click
 	 */
 	public static function register_block() {
 		/*
@@ -232,6 +232,26 @@ class Contact_Form_Block {
 	}
 
 	/**
+	 * Load editor styles for the block.
+	 * These are loaded via enqueue_block_assets to ensure proper loading in the editor iframe context.
+	 */
+	public static function load_editor_styles() {
+
+		$handle = 'jp-forms-blocks';
+
+		Assets::register_script(
+			$handle,
+			'../../../dist/blocks/editor.js',
+			__FILE__,
+			array(
+				'css_path'   => '../../../dist/blocks/editor.css',
+				'textdomain' => 'jetpack-forms',
+			)
+		);
+		wp_enqueue_style( 'jp-forms-blocks' );
+	}
+
+	/**
 	 * Loads scripts
 	 */
 	public static function load_editor_scripts() {
@@ -250,15 +270,19 @@ class Contact_Form_Block {
 				'in_footer'  => true,
 				'textdomain' => 'jetpack-forms',
 				'enqueue'    => true,
+				// Editor styles are loaded separately, see load_editor_styles().
+				'css_path'   => null,
 			)
 		);
 
 		// Create a Contact_Form instance to get the default values
+		$dashboard_view_switch   = new Dashboard_View_Switch();
 		$contact_form            = new Contact_Form( array() );
 		$defaults                = $contact_form->defaults;
-		$admin_url               = ( new Dashboard_View_Switch() )->get_forms_admin_url( 'spam' );
+		$admin_url               = $dashboard_view_switch->get_forms_admin_url( 'spam' );
 		$akismet_active_with_key = Jetpack::is_akismet_active();
 		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
+		$preferred_view          = $dashboard_view_switch->get_preferred_view();
 
 		$data = array(
 			'defaults' => array(
@@ -268,7 +292,7 @@ class Contact_Form_Block {
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
-				'isFormModalEnabled'   => true, // Disable or enable integrations modal and use sidebar panels instead
+				'preferredView'        => $preferred_view,
 			),
 		);
 
@@ -304,7 +328,7 @@ class Contact_Form_Block {
 	 * This is only useful when the Contact Form package is used within the Jetpack plugin,
 	 * where the module logic exists.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.49.0
 	 *
 	 * @return bool
 	 */
@@ -313,7 +337,7 @@ class Contact_Form_Block {
 			/**
 			 * Allow third-parties to override the form block's visibility.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.49.0
 			 *
 			 * @module contact-form
 			 *

@@ -31,6 +31,14 @@ class Verbum_Comments {
 	public $blog_id;
 
 	/**
+	 * Comment forms can appear anywhere (page, post, query loop, etc), there is no reliable way to determine if there are comments on the page,
+	 * So we hook into `comment_form_before` and set this flag to true when a comment form is found.
+	 *
+	 * @var bool
+	 */
+	public $should_enqueue_assets = false;
+
+	/**
 	 * Class constructor
 	 */
 	public function __construct() {
@@ -42,6 +50,13 @@ class Verbum_Comments {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$this->blog_id = intval( $_GET['blogid'] );
 		}
+
+		add_action(
+			'comment_form_before',
+			function () {
+				$this->should_enqueue_assets = true;
+			}
+		);
 
 		// Selfishly remove everything from the existing comment form
 		add_filter( 'comment_form_field_comment', '__return_false', 11 );
@@ -115,6 +130,7 @@ class Verbum_Comments {
 		if (
 			! ( is_singular() && comments_open() )
 			&& ! ( is_front_page() && is_page() && comments_open() )
+			&& ! $this->should_enqueue_assets
 		) {
 			return;
 		}
@@ -138,6 +154,8 @@ class Verbum_Comments {
 				'in_footer' => true,
 			)
 		);
+
+		wp_enqueue_script( 'wp-i18n' );
 
 		wp_enqueue_style( 'verbum' );
 		\WP_Enqueue_Dynamic_Script::enqueue_script( 'verbum' );
@@ -189,6 +207,17 @@ class Verbum_Comments {
 		$vbe_cache_buster = max( $js_mtime, $css_mtime );
 		$color_scheme     = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 
+		$hovercard_i18n = array(
+			'Edit your profile →'    => __( 'Edit your profile →', 'jetpack-mu-wpcom' ),
+			'View profile →'         => __( 'View profile →', 'jetpack-mu-wpcom' ),
+			'Contact'                => __( 'Contact', 'jetpack-mu-wpcom' ),
+			'Send money'             => __( 'Send money', 'jetpack-mu-wpcom' ),
+			'Profile not found.'     => __( 'Profile not found.', 'jetpack-mu-wpcom' ),
+			'Too Many Requests.'     => __( 'Too Many Requests.', 'jetpack-mu-wpcom' ),
+			'Internal Server Error.' => __( 'Internal Server Error.', 'jetpack-mu-wpcom' ),
+			'Sorry, we are unable to load this Gravatar profile.' => __( 'Sorry, we are unable to load this Gravatar profile.', 'jetpack-mu-wpcom' ),
+		);
+
 		wp_add_inline_script(
 			'verbum-settings',
 			'window.VerbumComments = ' . wp_json_encode(
@@ -235,6 +264,7 @@ class Verbum_Comments {
 					'Subscribe'                          => __( 'Subscribe', 'jetpack-mu-wpcom' ),
 					'Comment sent successfully'          => __( 'Comment sent successfully', 'jetpack-mu-wpcom' ),
 					'Save my name, email, and website in this browser for the next time I comment.' => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-mu-wpcom' ),
+					'hovercardi18n'                      => $hovercard_i18n,
 					'siteId'                             => $this->blog_id,
 					'postId'                             => $post_id,
 					'mustLogIn'                          => $comment_registration_enabled && ! is_user_logged_in(),

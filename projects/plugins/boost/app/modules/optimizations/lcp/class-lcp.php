@@ -114,6 +114,8 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 				)
 			)
 		);
+
+		$instance->register_action( 'lcp_state', 'request-analyze', Schema::as_void(), new Optimize_LCP_Endpoint() );
 	}
 
 	/**

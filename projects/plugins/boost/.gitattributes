@@ -27,6 +27,7 @@ vendor/wikimedia/aho-corasick/**                production-include
 /vendor/automattic/jetpack-autoloader/**        production-exclude
 /vendor/automattic/jetpack-changelogger/**      production-exclude
 /vendor/automattic/jetpack-composer-plugin/**   production-exclude
+/vendor/automattic/jetpack-test-environment/**  production-exclude
 /.editorconfig                                  production-exclude
 /.gitattributes                                 production-exclude
 /.gitignore                                     production-exclude

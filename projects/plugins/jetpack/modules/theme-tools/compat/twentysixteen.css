@@ -233,7 +233,6 @@
 }
 
 .widget_top-posts .widgets-list-layout-links {
-	width: -webkit-calc(100% - 3.375em);
 	width: calc(100% - 3.375em);
 }
 
@@ -263,7 +262,6 @@
 	color: inherit;
 	display: block;
 	font-family: Montserrat, "Helvetica Neue", sans-serif;
-	font-size: 13px;
 	font-size: 0.8125rem;
 	font-weight: 400;
 	letter-spacing: 0.076923077em;
@@ -337,7 +335,6 @@
 /* Mixclound */
 iframe[src^="http://api.mixcloud.com/"] {
 	margin-left: -8px;
-	max-width: -webkit-calc(100% + 8px);
 	max-width: calc(100% + 8px);
 }
 
@@ -391,7 +388,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 
 .entry-content .portfolio-entry-meta,
 .entry-content .portfolio-entry-content p {
-	font-size: 13px;
 	font-size: 0.8125em;
 	line-height: 1.615384615;
 }
@@ -482,7 +478,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 
 .entry-content .testimonial-entry-title,
 .entry-content .testimonial-entry-content p {
-	font-size: 13px;
 	font-size: 0.8125em;
 	line-height: 1.615384615;
 	margin: 0;
@@ -553,7 +548,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
 	color: inherit;
 	font-family: Montserrat, "Helvetica Neue", sans-serif;
-	font-size: 13px;
 	font-size: 0.8125rem;
 	font-weight: 400;
 	line-height: 1;
@@ -598,7 +592,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 
 .entry-content #jp-relatedposts .jp-relatedposts-items p,
 .entry-content #jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title {
-	font-size: 13px;
 	font-size: 0.8125rem;
 	letter-spacing: 0;
 	line-height: 1.615384615;
@@ -687,7 +680,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 .hentry h3.sd-title {
 	color: inherit;
 	font-family: Montserrat, "Helvetica Neue", sans-serif;
-	font-size: 13px;
 	font-size: 0.8125rem;
 	font-weight: 400;
 	line-height: 1;
@@ -779,7 +771,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 	}
 
 	.widget_top-posts .widgets-list-layout-links {
-		width: -webkit-calc(100% - 4.153846154em);
 		width: calc(100% - 4.153846154em);
 	}
 

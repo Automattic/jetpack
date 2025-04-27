@@ -42,7 +42,6 @@ function hasEmptyChildList( node: csstree.CssNode ): boolean {
  * methods for pruning and rearranging it.
  */
 export class StyleAST {
-	// eslint-disable-next-line no-useless-constructor
 	constructor(
 		private css: string,
 		private ast: csstree.CssNode,
