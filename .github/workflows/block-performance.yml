@@ -6,6 +6,11 @@ on:
   workflow_dispatch:
   pull_request:
 
+env:
+  # Prevent wp-scripts from downloading extra Playwright browsers,
+  # since Chromium will be installed in its dedicated step already.
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
+
 jobs:
   block-performance:
     name: "Performance tests"
