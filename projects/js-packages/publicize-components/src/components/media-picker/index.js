@@ -58,10 +58,6 @@ export default function MediaPicker( {
 	const renderPreview = useCallback(
 		open => {
 			const renderVideoPreview = isVideo( mime );
-			if ( renderVideoPreview && ! length ) {
-				return null;
-			}
-
 			return (
 				<div className={ clsx( styles[ 'preview-wrapper' ], wrapperClassName ) }>
 					<button className={ styles.remove } onClick={ onRemoveMedia }>

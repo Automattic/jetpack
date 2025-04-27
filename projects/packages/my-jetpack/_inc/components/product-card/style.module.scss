@@ -4,10 +4,12 @@ $status-size: 8px;
 .container {
 	position: relative;
 	min-height: 200px;
+
 	&.has-error {
 		border-width: 1px;
 		border-color: var( --jp-red-50 );
 	}
+
 	&.has-warning {
 		border-width: 1px;
 		border-color: #DEB100;
@@ -20,6 +22,7 @@ $status-size: 8px;
 
 .actions {
 	display: flex;
+	flex-direction: row-reverse;
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
@@ -78,7 +81,7 @@ $status-size: 8px;
 	display: flex;
 	align-items: center;
 
-	&:before {
+	&::before {
 		content: "";
 		display: inline-block;
 		width: $status-size;
@@ -91,7 +94,7 @@ $status-size: 8px;
 	$statuses: (
 		"active": "--jp-green-50",
 		"inactive": "--jp-gray-50",
-		"warning": "--jp-yellow-40",
+		"warning": "--jp-yellow-50",
 		"error": "--jp-red-60"
 	);
 
@@ -100,26 +103,31 @@ $status-size: 8px;
 
 		&.#{$status} {
 			color: $color;
-			&:before {
+
+			&::before {
 				background: $color;
 			}
 		}
 	}
 
 	&.is-fetching {
-		&:before {
+
+		&::before {
 			animation: blink-animation 0.5s linear infinite;
 		}
 	}
 }
 
 @keyframes blink-animation{
+
 	0%{
 		opacity: 0;
 	}
+
 	50%{
 		opacity: 0.5;
 	}
+
 	100%{
 		opacity: 0;
 	}

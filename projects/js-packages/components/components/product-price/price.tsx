@@ -1,8 +1,8 @@
 import { getCurrencyObject } from '@automattic/format-currency';
 import clsx from 'clsx';
-import Text from '../text';
+import Text from '../text/index.tsx';
 import styles from './style.module.scss';
-import type { PriceProps } from './types';
+import type { PriceProps } from './types.ts';
 import type React from 'react';
 
 /**

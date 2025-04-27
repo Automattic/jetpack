@@ -1,7 +1,3 @@
-import {
-	getSocialScriptData,
-	hasSocialPaidFeatures,
-} from '@automattic/jetpack-publicize-components';
 import { __ } from '@wordpress/i18n';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -31,8 +27,6 @@ import { ShareButtons } from './share-buttons';
 
 class Sharing extends Component {
 	render() {
-		const { useAdminUiV1 } = getSocialScriptData().feature_flags;
-
 		const commonProps = {
 			settings: this.props.settings,
 			getModule: this.props.module,
@@ -46,11 +40,9 @@ class Sharing extends Component {
 			siteAdminUrl: this.props.siteAdminUrl,
 			userCanManageModules: this.props.userCanManageModules,
 			activeFeatures: this.props.activeFeatures,
-			hasPaidFeatures: this.props.hasPaidFeatures,
 			isAtomicSite: this.props.isAtomicSite,
 			hasSharingBlock: this.props.hasSharingBlock,
 			isBlockTheme: this.props.isBlockTheme,
-			useAdminUiV1,
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -99,7 +91,6 @@ export default connect( state => {
 		blogID: getSiteId( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 		activeFeatures: getActiveFeatures( state ),
-		hasPaidFeatures: hasSocialPaidFeatures(),
 		userCanManageModules: userCanManageModules( state ),
 		isAtomicSite: isAtomicSite( state ),
 		hasSharingBlock: isSharingBlockAvailable( state ),

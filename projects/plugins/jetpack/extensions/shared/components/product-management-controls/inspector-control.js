@@ -120,6 +120,7 @@ export default function ProductManagementInspectorControl() {
 								} }
 								value={ title }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						</PanelRow>
 						<PanelRow className="product-management-control-inspector__product-price">
@@ -129,6 +130,7 @@ export default function ProductManagementInspectorControl() {
 								options={ CURRENCY_OPTIONS }
 								value={ currency }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 							<TextControl
 								label={ __( 'Price', 'jetpack' ) }
@@ -136,6 +138,7 @@ export default function ProductManagementInspectorControl() {
 								type="number"
 								value={ price }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						</PanelRow>
 						<PanelRow className="plan-interval">
@@ -145,6 +148,7 @@ export default function ProductManagementInspectorControl() {
 								options={ intervalOptions }
 								value={ interval }
 								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
 							/>
 						</PanelRow>
 						<PanelRow className="custom-amount">

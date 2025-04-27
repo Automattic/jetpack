@@ -1,4 +1,4 @@
-import DonutMeter, { DonutMeterProps } from '../index';
+import DonutMeter, { DonutMeterProps } from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/DonutMeter',

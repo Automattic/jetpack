@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Removed default pages (About and Contact) for legacy-fse themes.

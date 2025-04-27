@@ -7,15 +7,15 @@
 .post-type-zerobs_form, .zbscrmFrontEndForm, // <3.0
 .zbs-edit-wrap-form // v3+
 {
+
 	#form-embed, #form-preview{
 		min-height: 50px;
-	    background: white;
 	    margin-bottom: 20px;
 	    border: 1px solid #e5e5e5;
-	    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.04);
 	    box-shadow: 0 1px 1px rgba(0,0,0,.04);
 	    background: #fff;
 	    padding:10px;
+
 	    h1{
 	    	margin-top: 5px;
 	    }
@@ -31,68 +31,68 @@
 	    margin-bottom: 20px;
 	    margin-left: 20px;
 	    margin-right: 20px;
-	    background: aliceblue;
+	    background: #f0f8ff;
 	    padding: 12px;
 	    border: 1px solid #00A0D3;
 	    border-radius: 4px;
+
 		p{
 			text-align:center;
-			margin:0px;
+			margin:0;
 		}
+
 		.shorty{
 			font-weight: 900;
 			margin-top:5px;
 		}
 	}
+
 	.caption{
 	    text-align: center;
 	    margin-top: 7px;
 	    color: #999;
 	    font-weight: 100;
 	}
+
 	.welcomeh1{
 		font-size: 26px;
 		text-align:center;
 		padding: 5px;
 		font-weight: 900;
 	}
+
 	.welcomeh3{
 		font-size: 15px;
 		text-align:center;
 		color: #999;
-		padding: 5px;
 		text-transform: uppercase;
 		font-weight: 100;	
-		padding: 0px;
-    	margin: 0px;
+		padding: 0;
+    	margin: 0;
     	margin-bottom: 24px;
 	}
+
 	#zbs-field-chooser{
 		width:50%;
 	}
+
 	#zbs-form-pre{
-		white-space: pre;
 		display: block;
 		unicode-bidi: embed;
-		 white-space: pre-wrap;       /* css-3 */
-		 white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-		 white-space: -pre-wrap;      /* Opera 4-6 */
-		 white-space: -o-pre-wrap;    /* Opera 7 */
-		 word-wrap: break-word;       /* Internet Explorer 5.5+ */
+		white-space: pre-wrap;
+		overflow-wrap: break-word;
 	}
+
 	pre {
 	  display:block;
-	  font:normal 12px/22px Monaco,Monospace !important;
+	  font:400 12px/22px Monaco,monospace !important;
 	  color:#CFDBEC;
 	  background-color:#2f2f2f;
-	  background-image:-webkit-repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
-	  background-image:-moz-repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
-	  background-image:-ms-repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
-	  background-image:-o-repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
-	  background-image:repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
-	  padding:0em 1em;
+	  background-image:repeating-linear-gradient(top, #444 0, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
+	  padding:0 1em;
 	  overflow:auto;
 	}
+
 	.zbs_msg{
 	    text-align: center;
 	    margin-top: -20px;
@@ -110,25 +110,32 @@
 		margin-right:1.5%;
 		float:left;
 		cursor: pointer;
+
 		.selected{
 			border: 4px solid #ddd !important;
 		}
+
 		.simple, .naked, .cgrab{
 			border: 1px solid #ddd;
 		}
+
 		.cgrab{
 			position:relative;
+
 			.blobby{
+
 				p{
 					color: #ddd;
 					background: #ddd;
 					line-height:15px;
 				}
+
 				.br{
-					color: white;
-					background:white;
+					color: #fff;
+					background: #fff;
 				}
 			}
+
 			.content{
 			    background: #eee;
 			    padding-bottom: 30px;
@@ -138,11 +145,13 @@
 				position:relative;
 				text-align:center;
 				margin-bottom: 8px;
+
 				h1{
-					color: black;
+					color: #000;
 					font-size: 20px;
 					padding: 5px;
 				}
+
 				h3{
 				    text-transform: uppercase;
 				    color: #999;
@@ -150,10 +159,12 @@
 				    font-size: 12px;
 				    margin-top: -5px;
 				}
+
 				.form-wrapper{
 				    margin: 0 auto;
 				    position: relative;
 				    margin-left: 6%;
+
 				    .input{
 						width:90%;
 						float:left;
@@ -163,8 +174,9 @@
 						text-align:left;
 						color: #ccc;
 						font-weight: 100;
-						background:white;
+						background: #fff;
 					}
+
 					.textarea{
 						width:90%;
 						float:left;
@@ -174,20 +186,22 @@
 						text-align:left;
 						color: #ccc;
 						font-weight: 100;
-						background:white;		
+						background: #fff;		
 						height: 200px;
 						margin-bottom:10px;				
 					}
+
 					.send{
 						width: 20%;
 						background: #0d6db8;
-						color:white;
+						color: #fff;
 						height: 30px;
 						float:left;
 						text-align: center;
 						line-height:30px;
 					}
 				}
+
 				.trailer{
 				    margin-top: 5px;
 				    font-size: 11px;
@@ -203,17 +217,21 @@
 
 		.simple{
 			position:relative;
+
 			.blobby{
+
 				p{
 					color: #ddd;
 					background: #ddd;
 					line-height:15px;
 				}
+
 				.br{
-					color: white;
-					background:white;
+					color: #fff;
+					background: #fff;
 				}
 			}
+
 			.content{
 			    background: #eee;
 			    padding-bottom: 30px;
@@ -223,11 +241,13 @@
 				position:relative;
 				text-align:center;
 				margin-bottom: 8px;
+
 				h1{
-					color: black;
+					color: #000;
 					font-size: 20px;
 					padding: 5px;
 				}
+
 				h3{
 				    text-transform: uppercase;
 				    color: #999;
@@ -235,10 +255,12 @@
 				    font-size: 12px;
 				    margin-top: -5px;
 				}
+
 				.form-wrapper{
 				    margin: 0 auto;
 				    position: relative;
 				    margin-left: 6%;
+
 				    .input{
 						width:70%;
 						float:left;
@@ -248,18 +270,20 @@
 						text-align:left;
 						color: #ccc;
 						font-weight: 100;
-						background:white;
+						background: #fff;
 					}
+
 					.send{
 						width: 20%;
 						background: #0d6db8;
-						color:white;
+						color: #fff;
 						height: 30px;
 						float:left;
 						text-align: center;
 						line-height:30px;
 					}
 				}
+
 				.trailer{
 				    margin-top: 5px;
 				    font-size: 11px;
@@ -276,25 +300,31 @@
 
 		.naked{
 			position:relative;
+
 			.blobby{
+
 				p{
 					color: #ddd;
 					background: #ddd;
 					line-height:15px;
 				}
+
 				.br{
-					color: white;
-					background:white;
+					color: #fff;
+					background: #fff;
 				}
 			}
+
 			.content{
 				padding-bottom:45px;
 				margin: 0 auto;
 				position:relative;
+
 				.form-wrapper{
 				    margin: 0 auto;
 				    position: relative;
 				    margin-left: 3%;
+
 			    	.input{
 						width:33%;
 						float:left;
@@ -304,10 +334,11 @@
 						color: #ccc;
 						font-weight: 100;
 					}
+
 					.send{
 						width: 20%;
 						background: #0d6db8;
-						color:white;
+						color: #fff;
 						height: 30px;
 						float:left;
 						text-align: center;
@@ -322,38 +353,47 @@
 	}
 
 	iframe{
-		border: 0px solid;
+		border: 0 solid;
 	}
 
 
 
 
 	.embed{
+
 		.zbs_poweredby{
 			font-size: 11px;
 		}
+
 		.selected{
 			border: 4px solid #ddd !important;
 		}
+
 		.simple, .naked, .cgrab{
 			border: 1px solid #ddd;
 		}
+
 		.zbsForm_success{
 			display:none;
 		}
+
 		.simple{
 			position:relative;
+
 			.blobby{
+
 				p{
 					color: #ddd;
 					background: #ddd;
 					line-height:16px;
 				}
+
 				.br{
-					color: white;
-					background:white;
+					color: #fff;
+					background: #fff;
 				}
 			}
+
 			.content{
 			    background: #eee;
 			    padding-bottom: 30px;
@@ -363,11 +403,13 @@
 				position:relative;
 				text-align:center;
 				margin-bottom: 8px;
+
 				h1{
-					color: black;
+					color: #000;
 					font-size: 20px;
 					padding: 5px;
 				}
+
 				h3{
 				    text-transform: uppercase;
 				    color: #999;
@@ -375,13 +417,16 @@
 				    font-size: 12px;
 				    margin-top: -5px;
 				}
+
 				br{
 					display:none;
 				}
+
 				.form-wrapper{
 				    margin: 0 auto;
 				    position: relative;
 				    margin-left: 6%;
+
 				    .input{
 						width:70%;
 						float:left;
@@ -390,17 +435,18 @@
 						padding: 5px;
 						text-align:left;
 						font-weight: 100;
-						background:white;
+						background: #fff;
 					}
+
 					.send, input[type="submit"]{
 						width: 20%;
 						background: #0d6db8;
-						color:white;
+						color: #fff;
 						height: 33px;
 						float:left;
 						text-align: center;
 						line-height:12px;
-					    border: 0px;
+					    border: 0;
 					}
 				}
 
@@ -422,17 +468,21 @@
 
 		.cgrab{
 			position:relative;
+
 			.blobby{
+
 				p{
 					color: #ddd;
 					background: #ddd;
 					line-height:16px;
 				}
+
 				.br{
-					color: white;
-					background:white;
+					color: #fff;
+					background: #fff;
 				}
 			}
+
 			.content{
 			    background: #eee;
 			    padding-bottom: 30px;
@@ -442,11 +492,13 @@
 				position:relative;
 				text-align:center;
 				margin-bottom: 8px;
+
 				h1{
-					color: black;
+					color: #000;
 					font-size: 20px;
 					padding: 5px;
 				}
+
 				h3{
 				    text-transform: uppercase;
 				    color: #999;
@@ -454,10 +506,12 @@
 				    font-size: 12px;
 				    margin-top: -5px;
 				}
+
 				.form-wrapper{
 				    margin: 0 auto;
 				    position: relative;
 				    margin-left: 6%;
+
 				    .input{
 						width:90%;
 						float:left;
@@ -466,8 +520,9 @@
 						padding: 5px;
 						text-align:left;
 						font-weight: 100;
-						background:white;
+						background: #fff;
 					}
+
 					.textarea{
 						width:90%;
 						float:left;
@@ -476,21 +531,23 @@
 						padding: 5px;
 						text-align:left;
 						font-weight: 100;
-						background:white;		
+						background: #fff;		
 						height: 200px;
 						margin-bottom:10px;				
 					}
+
 					.send, input[type="submit"]{
 						width: 20%;
 						background: #0d6db8;
-						color:white;
+						color: #fff;
 						height: 33px;
 						float:left;
 						text-align: center;
 						line-height:12px;
-					    border: 0px;
+					    border: 0;
 					}
 				}
+
 				.trailer{
 				    margin-top: 5px;
 				    font-size: 11px;
@@ -505,36 +562,44 @@
 		}
 
 		.naked{
+
 			.zbs_poweredby{
 			    font-size: 11px;
 			    text-align: right;
 			    margin-top: 8px;
 			}
+
 			.zbsForm_success{
 				text-align: center;
 			    margin-top: 10px;
 			    font-size: 14px;
 			}
 			position:relative;
+
 			.blobby{
+
 				p{
 					color: #ddd;
 					background: #ddd;
 					line-height:16px;
 				}
+
 				.br{
-					color: white;
-					background:white;
+					color: #fff;
+					background: #fff;
 				}
 			}
+
 			.content{
 				padding-bottom:45px;
 				margin: 0 auto;
 				position:relative;
+
 				.form-wrapper{
 				    margin: 0 auto;
 				    position: relative;
 				    margin-left: 3%;
+
 			    	.input{
 						width:33%;
 						float:left;
@@ -543,15 +608,16 @@
 						padding: 5px;
 						font-weight: 100;
 					}
+
 					.send, input[type="submit"]{
 						width: 20%;
 						background: #0d6db8;
-						color:white;
+						color: #fff;
 						height: 33px;
 						float:left;
 						text-align: center;
 						line-height:12px;
-					    border: 0px;
+					    border: 0;
 					}
 				}
 			}

@@ -5,7 +5,6 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo, useState, useCallback, useRef } from 'react';
 import useProduct from '../../../data/products/use-product';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { InfoTooltip } from '../../info-tooltip';
@@ -14,19 +13,22 @@ import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
 import ShieldSuccess from './assets/shield-success.svg';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
+import type { FC } from 'react';
 
-export const ScanAndThreatStatus = () => {
+interface ScanAndThreatStatusProps {
+	data: ProtectData;
+}
+
+export const ScanAndThreatStatus: FC< ScanAndThreatStatusProps > = ( { data } ) => {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false, hasPaidPlanForProduct: hasProtectPaidPlan } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
-	const {
-		protect: { scanData },
-	} = getMyJetpackWindowInitialState();
-	const { plugins, themes, num_threats: numThreats = 0 } = scanData || {};
+
+	const { plugins, themes, num_threats: numThreats = 0 } = data?.scanData || {};
 
 	const criticalScanThreatCount = useMemo( () => {
-		const { core, database, files, num_plugins_threats, num_themes_threats } = scanData || {};
+		const { core, database, files, num_plugins_threats, num_themes_threats } = data?.scanData || {};
 		const pluginsThreats = num_plugins_threats
 			? plugins.reduce( ( accum, plugin ) => accum.concat( plugin.threats ), [] )
 			: [];
@@ -37,56 +39,51 @@ export const ScanAndThreatStatus = () => {
 			...pluginsThreats,
 			...themesThreats,
 			...( core?.threats ?? [] ),
-			...database,
-			...files,
+			...( database ?? [] ),
+			...( files ?? [] ),
 		];
 		return allThreats.reduce(
 			( accum, threat ) => ( threat.severity >= 5 ? ( accum += 1 ) : accum ),
 			0
 		);
-	}, [ plugins, themes, scanData ] );
+	}, [ plugins, themes, data?.scanData ] );
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( hasProtectPaidPlan ) {
 			if ( numThreats ) {
 				return (
-					<ThreatStatus numThreats={ numThreats } criticalThreatCount={ criticalScanThreatCount } />
+					<ThreatStatus
+						data={ data }
+						numThreats={ numThreats }
+						criticalThreatCount={ criticalScanThreatCount }
+					/>
 				);
 			}
-			return <ScanStatus status="success" />;
+			return <ScanStatus data={ data } status="success" />;
 		}
 		return numThreats ? (
-			<ThreatStatus numThreats={ numThreats } />
+			<ThreatStatus data={ data } numThreats={ numThreats } />
 		) : (
-			<ScanStatus status="partial" />
+			<ScanStatus data={ data } status="partial" />
 		);
 	}
 
-	return <ScanStatus status="off" />;
+	return <ScanStatus data={ data } status="off" />;
 };
 
-/**
- * ThreatStatus component
- *
- * @param props                     - The component props
- * @param props.numThreats          - The number of threats
- * @param props.criticalThreatCount - The number of critical threats
- *
- * @return  rendered component
- */
-function ThreatStatus( {
-	numThreats,
-	criticalThreatCount,
-}: {
+interface ThreatStatusProps {
+	data: ProtectData;
 	numThreats: number;
 	criticalThreatCount?: number;
-} ) {
+}
+
+const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThreatCount } ) => {
 	const { recordEvent } = useAnalytics();
 	const useTooltipRef = useRef< HTMLButtonElement >();
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const [ isPopoverVisible, setIsPopoverVisible ] = useState( false );
 
-	const tooltipContent = useProtectTooltipCopy();
+	const tooltipContent = useProtectTooltipCopy( data );
 	const { scanThreatsTooltip } = tooltipContent;
 
 	const toggleTooltip = useCallback(
@@ -177,18 +174,15 @@ function ThreatStatus( {
 			</div>
 		</>
 	);
+};
+
+interface ScanStatusProps {
+	data: ProtectData;
+	status: 'success' | 'partial' | 'off';
 }
 
-/**
- * ScanStatus component
- *
- * @param props        - The component props
- * @param props.status - The number of threats
- *
- * @return  rendered component
- */
-function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
-	const tooltipContent = useProtectTooltipCopy();
+const ScanStatus: FC< ScanStatusProps > = ( { data, status } ) => {
+	const tooltipContent = useProtectTooltipCopy( data );
 	const { scanThreatsTooltip } = tooltipContent;
 
 	if ( status === 'success' ) {
@@ -259,4 +253,4 @@ function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 			</div>
 		</>
 	);
-}
+};

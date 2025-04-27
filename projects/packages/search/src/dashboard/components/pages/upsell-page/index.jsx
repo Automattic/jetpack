@@ -16,6 +16,7 @@ import {
 	ThemeProvider,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -97,6 +98,7 @@ export default function UpsellPage( { isLoading = false } ) {
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						header={ <Header /> }
 						moduleNameHref={ JETPACK_SEARCH__LINK }
+						useInternalLinks={ shouldUseInternalLinks() }
 					>
 						<AdminSectionHero>
 							{ isNewPricing ? (

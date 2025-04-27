@@ -80,7 +80,7 @@ html[class*='wordpress_com'] .jetpack-social-icons-widget-item.ui-sortable-helpe
 	color: #f00;
 }
 
-.jetpack-social-icons-add-button:before {
+.jetpack-social-icons-add-button::before {
 	content: "\f132";
 	display: inline-block;
 	position: relative;

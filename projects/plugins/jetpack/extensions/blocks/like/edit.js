@@ -45,7 +45,7 @@ function LikeEdit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<div className="wpl-likebox wpl-new-layout">
+			<div className="wpl-likebox">
 				{ isSimpleSite() && showReblogButton && (
 					<div className="wpl-button reblog">
 						<a

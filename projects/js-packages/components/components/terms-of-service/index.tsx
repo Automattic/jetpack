@@ -1,25 +1,35 @@
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { getRedirectUrl } from '../../../components';
-import Text from '../text';
-import type { TermsOfServiceProps } from './types';
+import { getRedirectUrl } from '../../index.ts';
+import Text from '../text/index.tsx';
+import type { TermsOfServiceProps } from './types.ts';
 import './styles.scss';
 
 const TermsOfService: React.FC< TermsOfServiceProps > = ( {
 	className,
 	multipleButtons,
 	agreeButtonLabel,
+	isTextOnly,
 	...textProps
-} ) => (
-	<Text className={ clsx( className, 'terms-of-service' ) } { ...textProps }>
-		{ multipleButtons ? (
-			<MultipleButtonsText multipleButtonsLabels={ multipleButtons } />
-		) : (
-			<SingleButtonText agreeButtonLabel={ agreeButtonLabel } />
-		) }
-	</Text>
-);
+} ) => {
+	const getTOSContent = () => {
+		if ( isTextOnly ) {
+			return <TermsOfServiceTextOnly />;
+		}
+		if ( multipleButtons ) {
+			return <MultipleButtonsText multipleButtonsLabels={ multipleButtons } />;
+		}
+		return <SingleButtonText agreeButtonLabel={ agreeButtonLabel } />;
+	};
+
+	return (
+		<Text className={ clsx( className, 'terms-of-service' ) } { ...textProps }>
+			{ getTOSContent() }
+		</Text>
+	);
+};
 
 const MultipleButtonsText = ( { multipleButtonsLabels } ) => {
 	if ( Array.isArray( multipleButtonsLabels ) && multipleButtonsLabels.length > 1 ) {
@@ -70,15 +80,22 @@ const SingleButtonText = ( { agreeButtonLabel } ) =>
 		}
 	);
 
+const TermsOfServiceTextOnly = () =>
+	createInterpolateElement(
+		__(
+			'By continuing you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site’s data</shareDetailsLink> with us. We’ll check if that email is linked to an existing WordPress.com account or create a new one instantly.',
+			'jetpack-components'
+		),
+		{
+			tosLink: <Link slug="wpcom-tos" />,
+			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+		}
+	);
+
 const Link: React.FC< { slug: string; children?: React.ReactNode } > = ( { slug, children } ) => (
-	<a
-		className="terms-of-service__link"
-		href={ getRedirectUrl( slug ) }
-		rel="noopener noreferrer"
-		target="_blank"
-	>
+	<ExternalLink className="terms-of-service__link" href={ getRedirectUrl( slug ) }>
 		{ children }
-	</a>
+	</ExternalLink>
 );
 
 export default TermsOfService;

@@ -20,9 +20,9 @@ return [
     'file_suppressions' => [
         'src/types/class-type-assoc-array.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturn'],
         'src/types/class-type-string.php' => ['PhanImpossibleTypeComparison'],
-        'tests/php/integration/test-integration-fallback-values.php' => ['PhanNonClassMethodCall'],
-        'tests/php/integration/test-integration-parsing-errors.php' => ['PhanNonClassMethodCall', 'PhanParamTooFew'],
-        'tests/php/type/test-type-assoc-array.php' => ['PhanTypeMismatchArgumentProbablyReal'],
+        'tests/php/integration/Integration_Fallback_Values_Test.php' => ['PhanNonClassMethodCall'],
+        'tests/php/integration/Integration_Parsing_Errors_Test.php' => ['PhanNonClassMethodCall', 'PhanParamTooFew'],
+        'tests/php/type/Type_Assoc_Array_Test.php' => ['PhanTypeMismatchArgumentProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

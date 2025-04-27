@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import JetpackVideoPressLogo from '../index';
+import JetpackVideoPressLogo from '../index.tsx';
 
 describe( 'JetpackVideoPressLogo', () => {
 	const testProps = {

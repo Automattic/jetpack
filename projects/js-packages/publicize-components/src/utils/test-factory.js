@@ -1,5 +1,5 @@
 import { render, renderHook } from '@testing-library/react';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import ConnectionManagement from '../components/connection-management';
 import { ConnectionManagementPageObject } from '../components/connection-management/tests/pageObjects/ConnectionManagementPage';
 import useSocialMediaConnections from '../hooks/use-social-media-connections';
@@ -26,6 +26,10 @@ export const setup = ( {
 } = {} ) => {
 	let storeSelect;
 	renderHook( () => useSelect( select => ( storeSelect = select( store ) ) ) );
+	jest
+		.spyOn( storeSelect, 'getServicesList' )
+		.mockReset()
+		.mockReturnValue( SUPPORTED_SERVICES_MOCK );
 	jest.spyOn( storeSelect, 'getConnections' ).mockReset().mockReturnValue( connections );
 	jest
 		.spyOn( storeSelect, 'getDeletingConnections' )
@@ -54,13 +58,6 @@ export const setup = ( {
 	useSocialMediaConnections.mockReturnValue( {
 		refresh: jest.fn(),
 	} );
-
-	global.JetpackScriptData = {
-		...global.JetpackScriptData,
-		social: {
-			supported_services: SUPPORTED_SERVICES_MOCK,
-		},
-	};
 
 	return {
 		stubDeleteConnectionById,

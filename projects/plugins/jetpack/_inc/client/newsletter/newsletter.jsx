@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -15,6 +15,7 @@ import {
 	isOfflineMode,
 	hasConnectedOwner,
 } from 'state/connection';
+import { isWpAdminSubscriberManagementEnabled, getSiteAdminUrl } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
@@ -32,13 +33,17 @@ function Newsletter( props ) {
 	const {
 		siteRawUrl,
 		blogID,
-		toggleModuleNow,
 		isSavingAnyOption,
 		isLinked,
 		isSubscriptionsActive,
 		unavailableInOfflineMode,
 		subscriptions,
 		siteHasConnectedUser,
+		wpAdminSubscriberManagementEnabled,
+		siteAdminUrl,
+		updateOptions,
+		getOptionValue,
+		refreshSettings,
 	} = props;
 
 	const getSubClickableCard = () => {
@@ -51,9 +56,13 @@ function Newsletter( props ) {
 				compact
 				className="jp-settings-card__configure-link"
 				onClick={ trackViewSubsClick }
-				href={ getRedirectUrl( 'jetpack-settings-jetpack-manage-subscribers', {
-					site: blogID ?? siteRawUrl,
-				} ) }
+				href={
+					wpAdminSubscriberManagementEnabled
+						? siteAdminUrl + 'admin.php?page=subscribers'
+						: getRedirectUrl( 'jetpack-settings-jetpack-manage-subscribers', {
+								site: blogID ?? siteRawUrl,
+						  } )
+				}
 				target="_blank"
 				rel="noopener noreferrer"
 			>
@@ -61,6 +70,26 @@ function Newsletter( props ) {
 			</Card>
 		);
 	};
+
+	const toggleModule = useCallback(
+		module => {
+			const status = getOptionValue( module );
+			// Track the toggle (analytics)
+			analytics.tracks.recordEvent( 'jetpack_wpa_settings_toggle', {
+				module: module,
+				setting: module,
+				toggled: status ? 'off' : 'on',
+			} );
+
+			updateOptions( { [ module ]: ! status } ).then( () => {
+				// Refresh settings if the module is being activated
+				if ( ! status ) {
+					refreshSettings();
+				}
+			} );
+		},
+		[ getOptionValue, updateOptions, refreshSettings ]
+	);
 
 	return (
 		<SettingsCard
@@ -89,7 +118,7 @@ function Newsletter( props ) {
 					disabled={ ! siteHasConnectedUser || unavailableInOfflineMode }
 					activated={ isSubscriptionsActive }
 					toggling={ isSavingAnyOption( SUBSCRIPTIONS_MODULE_NAME ) }
-					toggleModule={ toggleModuleNow }
+					toggleModule={ toggleModule }
 				>
 					<span className="jp-form-toggle-explanation">
 						{ __(
@@ -114,6 +143,8 @@ export default withModuleSettingsFormHelpers(
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			subscriptions: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			siteHasConnectedUser: hasConnectedOwner( state ),
+			wpAdminSubscriberManagementEnabled: isWpAdminSubscriberManagementEnabled( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
 		};
 	} )( Newsletter )
 );

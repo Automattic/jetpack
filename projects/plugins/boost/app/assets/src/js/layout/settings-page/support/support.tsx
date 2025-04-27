@@ -1,12 +1,12 @@
 import { __ } from '@wordpress/i18n';
-import { Button } from '@automattic/jetpack-components';
+import { Button, getRedirectUrl } from '@automattic/jetpack-components';
 import styles from './support.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
 
 const Support = () => {
 	const openPaidSupport = () => {
 		recordBoostEvent( 'support_contact_us_clicked', {} );
-		const supportUrl = 'https://jetpackme.wordpress.com/contact-support/';
+		const supportUrl = getRedirectUrl( 'jetpack-boost-premium-support' );
 		window.open( supportUrl, '_blank' );
 	};
 
@@ -18,13 +18,13 @@ const Support = () => {
 						<h3 className={ styles.title }>{ __( "We're here to help", 'jetpack-boost' ) }</h3>
 						<p>
 							{ __(
-								'Your paid plan gives you access to prioritized Jetpack Boost support',
+								'Your paid plan gives you access to prioritized Jetpack Boost support.',
 								'jetpack-boost'
 							) }
 						</p>
 					</div>
 					<div className={ styles.cta }>
-						<Button variant="secondary" onClick={ openPaidSupport }>
+						<Button variant="secondary" onClick={ openPaidSupport } isExternalLink={ true }>
 							{ __( 'Contact Us', 'jetpack-boost' ) }
 						</Button>
 					</div>

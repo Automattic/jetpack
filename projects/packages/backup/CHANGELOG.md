@@ -5,9 +5,76 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2025-04-21
+### Added
+- Sync: Add `jetpack_sync_active_modules` callable to whitelist of must-sync callables. [#43134]
+
+## [4.0.22] - 2025-04-14
+### Fixed
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
+## [4.0.21] - 2025-04-07
+### Changed
+- Linting: First pass of style coding standards. [#42734]
+
+## [4.0.20] - 2025-04-03
+### Changed
+- Update package dependencies. [#42762] [#42809]
+
+## [4.0.19] - 2025-03-31
+### Changed
+- Update dependencies. [#42678]
+
+## [4.0.18] - 2025-03-24
+### Changed
+- Update dependencies. [#42565]
+
+## [4.0.17] - 2025-03-18
+### Changed
+- Update package dependencies. [#42511]
+
+### Fixed
+- Admin menu: Prevent PHP warnings by moving backup admin menu addition to a function hooked into `admin_menu`. [#42396]
+
+## [4.0.16] - 2025-03-17
+### Changed
+- Update dependencies. [#42498]
+
+## [4.0.15] - 2025-03-12
+### Added
+- Provide connection data to footer component. [#42000]
+
+### Changed
+- Update package dependencies. [#42384]
+
+## [4.0.14] - 2025-03-10
+### Changed
+- Internal updates.
+
+## [4.0.13] - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+## [4.0.12] - 2025-02-24
+### Changed
+- Update dependencies. [#39855]
+
+## [4.0.11] - 2025-02-17
+### Changed
+- Update dependencies. [#39855]
+
+## [4.0.10] - 2025-02-11
+### Changed
+- Update dependencies. [#39855]
+
+## [4.0.9] - 2025-02-10
+### Changed
+- Update package dependencies. [#41491] [#41577]
+
 ## [4.0.8] - 2025-02-03
 ### Changed
-- Updated package dependencies. [#41286]
+- Update package dependencies. [#41286]
 
 ## [4.0.7] - 2025-01-20
 ### Changed
@@ -770,6 +837,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.1.0]: https://github.com/Automattic/jetpack-backup/compare/v4.0.22...v4.1.0
+[4.0.22]: https://github.com/Automattic/jetpack-backup/compare/v4.0.21...v4.0.22
+[4.0.21]: https://github.com/Automattic/jetpack-backup/compare/v4.0.20...v4.0.21
+[4.0.20]: https://github.com/Automattic/jetpack-backup/compare/v4.0.19...v4.0.20
+[4.0.19]: https://github.com/Automattic/jetpack-backup/compare/v4.0.18...v4.0.19
+[4.0.18]: https://github.com/Automattic/jetpack-backup/compare/v4.0.17...v4.0.18
+[4.0.17]: https://github.com/Automattic/jetpack-backup/compare/v4.0.16...v4.0.17
+[4.0.16]: https://github.com/Automattic/jetpack-backup/compare/v4.0.15...v4.0.16
+[4.0.15]: https://github.com/Automattic/jetpack-backup/compare/v4.0.14...v4.0.15
+[4.0.14]: https://github.com/Automattic/jetpack-backup/compare/v4.0.13...v4.0.14
+[4.0.13]: https://github.com/Automattic/jetpack-backup/compare/v4.0.12...v4.0.13
+[4.0.12]: https://github.com/Automattic/jetpack-backup/compare/v4.0.11...v4.0.12
+[4.0.11]: https://github.com/Automattic/jetpack-backup/compare/v4.0.10...v4.0.11
+[4.0.10]: https://github.com/Automattic/jetpack-backup/compare/v4.0.9...v4.0.10
+[4.0.9]: https://github.com/Automattic/jetpack-backup/compare/v4.0.8...v4.0.9
 [4.0.8]: https://github.com/Automattic/jetpack-backup/compare/v4.0.7...v4.0.8
 [4.0.7]: https://github.com/Automattic/jetpack-backup/compare/v4.0.6...v4.0.7
 [4.0.6]: https://github.com/Automattic/jetpack-backup/compare/v4.0.5...v4.0.6

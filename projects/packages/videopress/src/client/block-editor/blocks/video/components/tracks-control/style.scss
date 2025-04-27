@@ -71,6 +71,7 @@
 	display: flex;
 	gap: 16px;
 	align-items: center;
+	margin-top: 10px;
 
 	&:not( .track-exists ) {
 		justify-content: flex-end;

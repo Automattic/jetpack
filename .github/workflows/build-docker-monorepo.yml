@@ -18,21 +18,71 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build and publish Jetpack Monorepo Environment
+  prepare:
+    name: Prepare
     runs-on: ubuntu-latest
     permissions:
-      packages: write
       contents: read
-    timeout-minutes: 60
+    timeout-minutes: 5  # 2025-03-04: Takes just a few seconds.
+    outputs:
+      php-version: ${{ steps.buildargs.outputs.php-version }}
+      composer-version: ${{ steps.buildargs.outputs.composer-version }}
+      node-version: ${{ steps.buildargs.outputs.node-version }}
+      pnpm-version: ${{ steps.buildargs.outputs.pnpm-version }}
+      labels: ${{ steps.buildargs.outputs.labels }}
+      tags: ${{ steps.buildargs.outputs.tags }}
+      images: ${{ steps.buildargs.outputs.images }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up qemu
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
+      - name: Fetch build args
+        id: buildargs
+        env:
+          LABELS: |
+            org.opencontainers.image.title=Jetpack Monorepo Environment
+            org.opencontainers.image.description=Environment for building and testing the Jetpack Monorepo.
+            org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}/blob/trunk/tools/docker/README.md
+        run: |
+          source .github/versions.sh
+          source .github/files/gh-funcs.sh
+
+          gh_set_output php-version "$PHP_VERSION"
+          gh_set_output composer-version "$COMPOSER_VERSION"
+          gh_set_output node-version "$NODE_VERSION"
+          gh_set_output pnpm-version "$PNPM_VERSION"
+          gh_set_output labels "$LABELS"
+
+          # We're not git-tagging for the env. Just tag all trunk builds as latest.
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            gh_set_output tags "type=raw,latest"
+            gh_set_output images $'automattic/jetpack-monorepo\nghcr.io/automattic/jetpack-monorepo'
+          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            gh_set_output tags "type=ref,event=pr"
+            gh_set_output images "ghcr.io/automattic/jetpack-monorepo"
+          else
+            echo "Unknown GITHUB_EVENT_NAME $GITHUB_EVENT_NAME"
+            exit 1
+          fi
+
+  build:
+    name: Build Jetpack Monorepo Environment (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    needs: prepare
+    permissions:
+      packages: write
+      contents: read
+    timeout-minutes: 15  # 2025-03-04: Arm64 build takes about 5 minutes, amd64 build about 3.
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            platform: amd64
+          - runner: ubuntu-24.04-arm
+            platform: arm64
+
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -50,51 +100,103 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch build args
-        id: buildargs
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          flavor: latest=false
+          images: ${{ needs.prepare.outputs.images }}
+          labels: ${{ needs.prepare.outputs.labels }}
+
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: tools/docker
+          file: tools/docker/Dockerfile.monorepo
+          platforms: linux/${{ matrix.platform }}
+          # For push by digest, the "tags" are just the images. We tag later.
+          tags: ${{ needs.prepare.outputs.images }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+          build-args: |
+            PHP_VERSION=${{ needs.prepare.outputs.php-version }}
+            COMPOSER_VERSION=${{ needs.prepare.outputs.composer-version }}
+            NODE_VERSION=${{ needs.prepare.outputs.node-version }}
+            PNPM_VERSION=${{ needs.prepare.outputs.pnpm-version }}
+
+      - name: Export digest
+        env:
+          TEMP: ${{ runner.temp }}
+          DIGEST: ${{ steps.build.outputs.digest }}
         run: |
-          source .github/versions.sh
-          source .github/files/gh-funcs.sh
+          mkdir -p "$TEMP/digests"
+          touch "$TEMP/digests/${DIGEST#sha256:}"
 
-          gh_set_output php-version "$PHP_VERSION"
-          gh_set_output composer-version "$COMPOSER_VERSION"
-          gh_set_output node-version "$NODE_VERSION"
-          gh_set_output pnpm-version "$PNPM_VERSION"
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-linux-${{ matrix.platform }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
 
-          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-            gh_set_output tags "type=raw,latest"
-            gh_set_output images $'automattic/jetpack-monorepo\nghcr.io/automattic/jetpack-monorepo'
-          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            gh_set_output tags "type=ref,event=pr"
-            gh_set_output images "ghcr.io/automattic/jetpack-monorepo"
-          else
-            echo "Unknown GITHUB_EVENT_NAME $GITHUB_EVENT_NAME"
-            exit 1
-          fi
+  merge:
+    name: Merge and publish Jetpack Monorepo Environment
+    runs-on: ubuntu-latest
+    needs: [ prepare, build ]
+    permissions:
+      packages: write
+      contents: read
+    timeout-minutes: 5  # 2025-03-04: Merge takes less than a minute.
+
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: matticbot
+          password: ${{ secrets.DOCKER_HUB_MATTICBOT_TOKEN }}
+
+      - name: Log in to GitHub Packages
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           flavor: latest=false
-          tags: ${{ steps.buildargs.outputs.tags }}
-          images: ${{ steps.buildargs.outputs.images }}
-          labels: |
-            org.opencontainers.image.title=Jetpack Monorepo Environment
-            org.opencontainers.image.description=Environment for building and testing the Jetpack Monorepo.
-            org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}/blob/trunk/tools/docker/README.md
+          tags: ${{ needs.prepare.outputs.tags }}
+          images: ${{ needs.prepare.outputs.images }}
+          labels: ${{ needs.prepare.outputs.labels }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: tools/docker
-          file: tools/docker/Dockerfile.monorepo
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/arm64,linux/amd64
-          build-args: |
-            PHP_VERSION=${{ steps.buildargs.outputs.php-version }}
-            COMPOSER_VERSION=${{ steps.buildargs.outputs.composer-version }}
-            NODE_VERSION=${{ steps.buildargs.outputs.node-version }}
-            PNPM_VERSION=${{ steps.buildargs.outputs.pnpm-version }}
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          while IFS= read -r IMAGE; do
+            echo "=== $IMAGE ==="
+            docker buildx imagetools create $(jq -cr --arg IMG "$IMAGE" '.tags | map( select( startswith( $IMG + ":" ) ) | "-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+              $(printf "$IMAGE@sha256:%s " *)
+          done < <( jq -r '.tags[] | sub( ":.*"; "" )' <<< "$DOCKER_METADATA_OUTPUT_JSON" )
+
+      - name: Inspect image
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          while IFS= read -r IMAGE; do
+            echo "=== $IMAGE ==="
+            docker buildx imagetools inspect "$IMAGE:$VERSION"
+          done < <( jq -r '.tags[] | sub( ":.*"; "" )' <<< "$DOCKER_METADATA_OUTPUT_JSON" )

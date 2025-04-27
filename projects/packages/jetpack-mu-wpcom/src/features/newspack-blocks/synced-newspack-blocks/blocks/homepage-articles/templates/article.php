@@ -153,7 +153,7 @@ call_user_func(
 			if ( $attributes['showFullContent'] && ! $attributes['showExcerpt'] ) :
 				the_content();
 			endif;
-			if ( $post_link && ( $attributes['showReadMore'] ) ) :
+			if ( $post_link && ! $attributes['showFullContent'] && $attributes['showReadMore'] ) :
 				?>
 				<a class="more-link" href="<?php echo esc_url( $post_link ); ?>" rel="bookmark">
 					<?php echo esc_html( $attributes['readMoreLabel'] ); ?>

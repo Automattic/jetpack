@@ -11,31 +11,31 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 /**
  * Internal dependencies
  */
-import AiModalFooter from '../../components/ai-modal-footer/index.js';
+import AiModalFooter from '../../components/ai-modal-footer/index.tsx';
 import {
 	DEFAULT_LOGO_COST,
 	EVENT_MODAL_OPEN,
 	EVENT_FEEDBACK,
 	EVENT_MODAL_CLOSE,
 	EVENT_GENERATE,
-} from '../constants.js';
-import { useCheckout } from '../hooks/use-checkout.js';
-import useLogoGenerator from '../hooks/use-logo-generator.js';
-import useRequestErrors from '../hooks/use-request-errors.js';
-import { isLogoHistoryEmpty, clearDeletedMedia } from '../lib/logo-storage.js';
-import { STORE_NAME } from '../store/index.js';
-import { FeatureFetchFailureScreen } from './feature-fetch-failure-screen.js';
-import { FirstLoadScreen } from './first-load-screen.js';
-import { HistoryCarousel } from './history-carousel.js';
-import { LogoPresenter } from './logo-presenter.js';
-import { Prompt } from './prompt.js';
-import { UpgradeScreen } from './upgrade-screen.js';
-import { VisitSiteBanner } from './visit-site-banner.js';
+} from '../constants.ts';
+import { useCheckout } from '../hooks/use-checkout.ts';
+import useLogoGenerator from '../hooks/use-logo-generator.ts';
+import useRequestErrors from '../hooks/use-request-errors.ts';
+import { isLogoHistoryEmpty, clearDeletedMedia } from '../lib/logo-storage.ts';
+import { STORE_NAME } from '../store/index.ts';
+import { FeatureFetchFailureScreen } from './feature-fetch-failure-screen.tsx';
+import { FirstLoadScreen } from './first-load-screen.tsx';
+import { HistoryCarousel } from './history-carousel.tsx';
+import { LogoPresenter } from './logo-presenter.tsx';
+import { Prompt } from './prompt.tsx';
+import { UpgradeScreen } from './upgrade-screen.tsx';
+import { VisitSiteBanner } from './visit-site-banner.tsx';
 import './generator-modal.scss';
 /**
  * Types
  */
-import type { GeneratorModalProps } from '../types.js';
+import type { GeneratorModalProps } from '../types.ts';
 import type React from 'react';
 
 const debug = debugFactory( 'jetpack-ai-calypso:generator-modal' );

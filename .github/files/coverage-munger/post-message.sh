@@ -3,9 +3,9 @@
 ## Environment used by this script:
 #
 # Required:
-# - API_TOKEN_GITHUB: GitHub API token.
 # - GITHUB_API_URL: GitHub API URL.
 # - GITHUB_REPOSITORY: GitHub repo.
+# - POST_MESSAGE_TOKEN: GitHub API token.
 # - PR_HEAD: SHA for the PR head commit (versus GITHUB_SHA which is a merge commit)
 # - PR_ID: PR number or "trunk".
 #
@@ -15,7 +15,11 @@
 
 set -eo pipefail
 
-SKIPLABEL="I don't care about code coverage for this PR"
+SKIPLABELS=(
+	"Covered by non-unit tests"
+	"Coverage tests to be added later"
+	"I don't care about code coverage for this PR"
+)
 
 ID=$( jq --arg V "$PR_ID" -nr '$V | @uri' )
 COMMIT=$( jq --arg V "$PR_HEAD" -nr '$V | @uri' )
@@ -51,7 +55,7 @@ if [[ -z "$STATUS" ]]; then
 	while true; do
 		J=$( curl -v -L fail \
 			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/commits/${COMMIT}/check-runs?per_page=100&page=$PAGE" \
-			--header "authorization: Bearer $API_TOKEN_GITHUB"
+			--header "authorization: Bearer $POST_MESSAGE_TOKEN"
 		)
 		R=$( jq --argjson R "$R" '[ ( $R, .check_runs[] ) | select( .name == "Code coverage" ) ] | sort_by( .completed_at // "running" ) | last' <<<"$J" )
 		if jq -e '.check_runs | length < 100' <<<"$J" &>/dev/null; then
@@ -68,7 +72,7 @@ echo "Last run status is $STATUS"
 echo '::group::Checking labels for PR'
 LABELS=$( curl -v -L --fail \
 	--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${ID}/labels?per_page=100" \
-	--header "authorization: Bearer $API_TOKEN_GITHUB"
+	--header "authorization: Bearer $POST_MESSAGE_TOKEN"
 )
 jq . <<<"$LABELS"
 echo "::endgroup::"
@@ -86,18 +90,21 @@ fi
 if [[ "$STATUS" == 'in_progress' ]]; then
 	COVINFO=$( jq '.state |= "pending" | .description |= "Waiting for tests to pass" | .msg |= ""' <<<"$COVINFO" )
 fi
-# If the "I don't care" label is set, override the status.
-if jq -e --arg LABEL "$SKIPLABEL" '.[] | select( .name == $LABEL )' <<<"$LABELS" &>/dev/null; then
-	COVINFO=$( jq --arg REPO "$GITHUB_REPOSITORY" --arg LABEL "$SKIPLABEL" '.state |= "success" | .description |= "Overridden by label" | .footer += "\n\n<sub>Coverage check overridden by https://github.com/\( $REPO | @uri | gsub("%2F"; "/") )/labels/\( $LABEL | @uri ).</sub>"' <<<"$COVINFO" )
-fi
-# If the check will be error or failing, add a note to the footer about the "I don't care" label.
+# If an override label is set, override the status.
+for SKIPLABEL in "${SKIPLABELS[@]}"; do
+	if jq -e --arg LABEL "$SKIPLABEL" '.[] | select( .name == $LABEL )' <<<"$LABELS" &>/dev/null; then
+		COVINFO=$( jq --arg REPO "$GITHUB_REPOSITORY" --arg LABEL "$SKIPLABEL" '.state |= "success" | .description |= "Overridden by label" | .footer += "\n\n<sub>Coverage check overridden by https://github.com/\( $REPO | @uri | gsub("%2F"; "/") )/labels/\( $LABEL | @uri ).</sub>"' <<<"$COVINFO" )
+		break
+	fi
+done
+# If the check will be error or failing, add a note to the footer about the override labels.
 if jq -e '.state == "error" or .state == "failure"' <<<"$COVINFO" &>/dev/null; then
-	COVINFO=$( jq --arg REPO "$GITHUB_REPOSITORY" --arg LABEL "$SKIPLABEL" '.footer += "\n\n<sub>Add label https://github.com/\( $REPO | @uri | gsub("%2F"; "/") )/labels/\( $LABEL | @uri ) to override the failing coverage check.</sub>"' <<<"$COVINFO" )
+	COVINFO=$( jq --arg REPO "$GITHUB_REPOSITORY" --argjson LABELS "$( jq -nc '$ARGS.positional' --args "${SKIPLABELS[@]}" )" '.footer += "\n\n<sub>If appropriate, add one of these labels to override the failing coverage check: \( $LABELS | map( "https://github.com/\( $REPO | @uri | gsub("%2F"; "/") )/labels/\( . | @uri )" ) | join( " " ) )</sub>"' <<<"$COVINFO" )
 fi
 jq . <<<"$COVINFO"
 curl -v -L --fail \
 	--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/$( jq --arg V "$PR_HEAD" -nr '$V | @uri' )" \
-	--header "authorization: Bearer $API_TOKEN_GITHUB" \
+	--header "authorization: Bearer $POST_MESSAGE_TOKEN" \
 	--header 'content-type: application/json' \
 	--data "$( jq -c --arg PR "$PR_ID" '{
 		context: "Code coverage requirement",
@@ -113,9 +120,9 @@ PAGE=1
 while true; do
 	J=$( curl -v -L fail \
 		--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${ID}/comments?per_page=100&page=$PAGE" \
-		--header "authorization: Bearer $API_TOKEN_GITHUB"
+		--header "authorization: Bearer $POST_MESSAGE_TOKEN"
 	)
-	CID=$( jq -r --arg CID "$CID" '[ { id: $CID }, ( .[] | select( .user.login == "github-actions[bot]" ) | select( .body | test( "^### Code Coverage Summary" ) ) ) ] | last | .id' <<<"$J" )
+	CID=$( jq -r --arg CID "$CID" '[ { id: $CID }, ( .[] | select( .user.login == "jp-launch-control[bot]" ) | select( .body | test( "^### Code Coverage Summary" ) ) ) ] | last | .id' <<<"$J" )
 	if jq -e 'length < 100' <<<"$J" &>/dev/null; then
 		break
 	fi
@@ -134,7 +141,7 @@ if jq -e '.msg != ""' <<<"$COVINFO" &>/dev/null; then
 		curl -v -L --fail \
 			-X PATCH \
 			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/comments/${CID}" \
-			--header "authorization: Bearer $API_TOKEN_GITHUB" \
+			--header "authorization: Bearer $POST_MESSAGE_TOKEN" \
 			--header 'content-type: application/json' \
 			--data "$( jq -c '{
 				body: "### Code Coverage Summary\n\n\( .msg )\n\n\( .footer )",
@@ -145,7 +152,7 @@ if jq -e '.msg != ""' <<<"$COVINFO" &>/dev/null; then
 		curl -v -L --fail \
 			-X POST \
 			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${ID}/comments" \
-			--header "authorization: Bearer $API_TOKEN_GITHUB" \
+			--header "authorization: Bearer $POST_MESSAGE_TOKEN" \
 			--header 'content-type: application/json' \
 			--data "$( jq -c '{
 				body: "### Code Coverage Summary\n\n\( .msg )\n\n\( .footer )",
@@ -158,6 +165,6 @@ elif [[ -n "$CID" ]]; then
 	curl -v -L --fail \
 		-X DELETE \
 		--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/comments/${CID}" \
-		--header "authorization: Bearer $API_TOKEN_GITHUB"
+		--header "authorization: Bearer $POST_MESSAGE_TOKEN"
 	echo "::endgroup::"
 fi

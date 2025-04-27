@@ -18,12 +18,13 @@
 		h1 {
 			margin: 0;
 			font-size: var( --font-title-large );
-			font-weight: bold;
+			font-weight: 700;
 			line-height: 1.2;
 		}
 	}
 
-	&__large-text {
+	// shorthand intentionally not used here for overriding the .reset class
+	.jp-connection__manage-dialog__large-text {
 		margin-top: calc( var( --spacing-base ) * 3 );
 		margin-bottom: calc( var( --spacing-base ) * 4 );
 		max-width: 60%;
@@ -33,7 +34,7 @@
 
 	&__actions{
 		background: var( --jp-white );
-		margin:0px !important;
+		margin:0 !important;
 		border-top: 1px solid var( --jp-gray );
 		max-width: 1200px !important;
 		padding: calc( var( --spacing-base ) * 4 ) calc( var( --spacing-base ) * 5 );
@@ -70,6 +71,7 @@
 		margin: var( --spacing-base ) auto;
 		text-align: left;
 		border: none;
+		position: relative;
 
 		&__card-headline {
 			font-size: var( --font-body );
@@ -82,7 +84,20 @@
 			float:right;
 		}
 
-		.transfer {
+		&.disabled::before {
+			content: '';
+			display: block;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			opacity: 25%;
+			border-radius: 3px;
+			background: var( --jp-black );
+		}
+
+		.transfer, .unlink {
 			color:var( --jp-black );
 			fill: var( --jp-black );
 		}
@@ -91,9 +106,23 @@
 			color: var( --jp-red );
 			fill: var( --jp-red );
 		}
+
+		.check-users {
+			color: var( --jp-black );
+			fill: var( --jp-black );
+		}
+
+	}
+
+	.components-notice {
+		width: 750px;
+		max-width: 100%;
+		margin: var( --spacing-base ) auto;
+		text-align: left;
 	}
 
 	.components-modal {
+
 		&__header {
 			display: none;
 		}

@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredProperty : 30+ occurrences
+    // PhanUndeclaredProperty : 25+ occurrences
     // PhanTypeMismatchArgument : 8 occurrences
     // PhanPossiblyUndeclaredVariable : 7 occurrences
     // PhanParamSignatureMismatch : 6 occurrences
@@ -36,7 +36,6 @@ return [
         'scripts/core-definitions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
         'scripts/example.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'scripts/jetpack-svn.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
-        'src/Declarations/class-declaration.php' => ['PhanUndeclaredProperty'],
         'src/Differences/class-class-const-missing.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/Differences/class-class-const-moved.php' => ['PhanTypeMismatchArgument'],
         'src/Differences/class-class-method-deprecated.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal'],
@@ -48,7 +47,7 @@ return [
         'src/api/class-analyze-controller.php' => ['PhanPluginUseReturnValueInternalKnown'],
         'src/api/class-controller.php' => ['PhanUndeclaredMethod'],
         'src/api/class-model.php' => ['PhanTypeArraySuspiciousNullable'],
-        'src/api/class-plugin-downloader.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanUndeclaredProperty'],
+        'src/api/class-plugin-downloader.php' => ['PhanPluginDuplicateExpressionAssignmentOperation'],
         'src/class-declarations.php' => ['PhanPluginDuplicateCatchStatementBody'],
         'src/class-differences.php' => ['PhanNonClassMethodCall', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable'],
         'src/class-invocations.php' => ['PhanPluginDuplicateCatchStatementBody'],

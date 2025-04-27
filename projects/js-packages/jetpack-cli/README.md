@@ -1,12 +1,8 @@
-# Jetpack
+# Jetpack CLI
 
+This adds the `jp` command to the monorepo. It is a development tool that runs commands in a Docker container so you don't have to deal with mismatched node/pnpm/PHP versions.
 
-## How to install Jetpack plugin on your site
-### Installation From Git Repo
-
-## Contribute
-
-## Get Help
+In large part this is a wrapper for the older `jetpack` command, but runs its commands in a Docker container.
 
 ## Security
 

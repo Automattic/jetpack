@@ -1,7 +1,7 @@
 /*
  * Internal dependencies
  */
-import { formatTime } from './lib/media.js';
+import { formatTime } from './lib/media.ts';
 /*
  * Types
  */

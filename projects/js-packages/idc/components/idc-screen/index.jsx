@@ -93,7 +93,7 @@ const IDCScreen = props => {
 
 IDCScreen.propTypes = {
 	/** The screen logo. */
-	logo: PropTypes.object,
+	logo: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ),
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
 	/** The original site URL. */

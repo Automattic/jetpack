@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelogger\PluginTrait;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Wikimedia\TestingAccessWrapper;
@@ -17,13 +18,16 @@ use Wikimedia\TestingAccessWrapper;
  *
  * @covers \Automattic\Jetpack\Changelogger\PluginTrait
  */
+#[CoversTrait( PluginTrait::class )]
 class PluginTraitTest extends TestCase {
 
 	/**
 	 * Test the trait.
 	 */
 	public function testTrait() {
-		$mock = $this->getMockBuilder( PluginTrait::class )->getMockForTrait();
+		$mock = new class() {
+			use PluginTrait;
+		};
 		$w    = TestingAccessWrapper::newFromObject( $mock );
 
 		$this->assertSame( array(), $mock->getOptions() );

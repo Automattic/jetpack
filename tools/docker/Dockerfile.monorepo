@@ -74,16 +74,12 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 
 # Set up PNPM global directory
 RUN mkdir -p "${PNPM_HOME}" \
-    && chmod 777 "${PNPM_HOME}"
+    && chmod 755 "${PNPM_HOME}"
 
 RUN npm install --global pnpm@$PNPM_VERSION \
     && SHELL=/bin/bash pnpm setup
 
 WORKDIR /workspace
-
-# Add entrypoint script
-COPY bin/monorepo-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/monorepo-entrypoint.sh
 
 # Set up locale
 RUN locale-gen en_US.UTF-8 \
@@ -91,5 +87,4 @@ RUN locale-gen en_US.UTF-8 \
     && find /var/ -name '*-old' -delete \
     && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
-ENTRYPOINT ["/usr/local/bin/monorepo-entrypoint.sh"]
 CMD ["bash"]

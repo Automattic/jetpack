@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+SAL_Site: Remove sites[].capabilities.view_hosting field (no longer used by Calypso)

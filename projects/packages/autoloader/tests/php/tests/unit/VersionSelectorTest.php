@@ -8,6 +8,9 @@
 // We live in the namespace of the test autoloader to avoid many use statements.
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,10 +27,9 @@ class VersionSelectorTest extends TestCase {
 
 	/**
 	 * This is called before each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->version_selector = new Version_Selector();
 	}
 
@@ -43,6 +45,8 @@ class VersionSelectorTest extends TestCase {
 	 * @dataProvider is_version_update_required_provider
 	 * @dataProvider is_version_update_required_without_dev_constant_provider
 	 */
+	#[DataProvider( 'is_version_update_required_provider' )]
+	#[DataProvider( 'is_version_update_required_without_dev_constant_provider' )]
 	public function test_is_version_update_required( $selected_version, $compare_version, $expected ) {
 		$this->assertEquals( $expected, $this->version_selector->is_version_update_required( $selected_version, $compare_version ) );
 	}
@@ -61,6 +65,10 @@ class VersionSelectorTest extends TestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[DataProvider( 'is_version_update_required_provider' )]
+	#[DataProvider( 'is_version_update_required_with_dev_constant_provider' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_is_version_update_required_with_dev_constant( $selected_version, $compare_version, $expected ) {
 		define( 'JETPACK_AUTOLOAD_DEV', true );
 		$this->assertEquals( $expected, $this->version_selector->is_version_update_required( $selected_version, $compare_version ) );
@@ -112,7 +120,7 @@ class VersionSelectorTest extends TestCase {
 	 *
 	 * @return Array The test data.
 	 */
-	public function is_version_update_required_with_dev_constant_provider() {
+	public static function is_version_update_required_with_dev_constant_provider() {
 		return array(
 			'selected dev, compare stable' => array( 'dev-test', '1.0', false ),
 			'selected stable, compare dev' => array( '1.0', 'dev-test', true ),

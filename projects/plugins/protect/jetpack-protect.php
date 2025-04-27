@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Protect
  * Plugin URI: https://wordpress.org/plugins/jetpack-protect
  * Description: Security tools that keep your site safe and sound, from posts to plugins.
- * Version: 3.1.1
+ * Version: 4.0.0
  * Author: Automattic - Jetpack Security team
  * Author URI: https://jetpack.com/protect/
  * License: GPLv2 or later
@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-define( 'JETPACK_PROTECT_VERSION', '3.1.1' );
+define( 'JETPACK_PROTECT_VERSION', '4.0.0' );
 define( 'JETPACK_PROTECT_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_PROTECT_ROOT_FILE', __FILE__ );
 define( 'JETPACK_PROTECT_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );

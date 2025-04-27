@@ -1,4 +1,4 @@
-import { BrowserInterface, BrowserRunnable } from './browser-interface.js';
+import { BrowserInterface, BrowserRunnable } from './browser-interface.ts';
 import {
 	CrossDomainError,
 	HttpError,
@@ -7,9 +7,10 @@ import {
 	UrlVerifyError,
 	UnknownError,
 	XFrameDenyError,
+	InvalidURLError,
 	UrlError,
-} from './errors.js';
-import { Viewport, NullableViewport } from './types.js';
+} from './errors.ts';
+import { Viewport, NullableViewport } from './types.ts';
 
 const defaultLoadTimeout = 60 * 1000;
 
@@ -61,7 +62,7 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 
 		// Create iframe itself.
 		this.iframe = document.createElement( 'iframe' );
-		this.iframe.setAttribute( 'style', 'max-width: none; max-height: none; border: 0px;' );
+		this.iframe.setAttribute( 'style', 'max-width: none; max-height: none; border: 0;' );
 		this.iframe.setAttribute( 'aria-hidden', 'true' );
 		this.iframe.setAttribute(
 			'sandbox',
@@ -96,13 +97,12 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 		return method( { innerWindow: this.iframe.contentWindow, args } );
 	}
 
-	addGetParameters( rawUrl: string ): string {
-		const urlObject = new URL( rawUrl );
+	addGetParameters( url: URL ): string {
 		for ( const key of Object.keys( this.requestGetParameters ) ) {
-			urlObject.searchParams.append( key, this.requestGetParameters[ key ] );
+			url.searchParams.append( key, this.requestGetParameters[ key ] );
 		}
 
-		return urlObject.toString();
+		return url.toString();
 	}
 
 	async diagnoseUrlError( url: string ): Promise< UrlError | null > {
@@ -131,6 +131,12 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 		}
 	}
 
+	async is404Page( url: string ): Promise< boolean > {
+		const response = await this.fetch( url, { redirect: 'manual' }, 'html' );
+
+		return response.status === 404;
+	}
+
 	sameOrigin( url: string ): boolean {
 		return new URL( url ).origin === window.location.origin;
 	}
@@ -140,7 +146,16 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 			return;
 		}
 
-		const fullUrl = this.addGetParameters( rawUrl );
+		// Make sure URL is valid.
+		let url;
+		try {
+			url = new URL( rawUrl );
+		} catch ( err ) {
+			this.trackUrlError( rawUrl, err );
+			throw new InvalidURLError( { url: rawUrl } );
+		}
+
+		const fullUrl = this.addGetParameters( url );
 
 		return new Promise( ( resolve, rawReject ) => {
 			// Track all URL errors.
@@ -166,6 +181,12 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 				try {
 					this.iframe.onload = null;
 					clearTimeout( timeoutId );
+
+					// Check HTTP status code first.
+					const is404 = await this.is404Page( fullUrl );
+					if ( is404 ) {
+						throw new HttpError( { url: fullUrl, code: 404 } );
+					}
 
 					// Verify the inner document is readable.
 					if ( ! this.iframe.contentDocument || ! this.iframe.contentWindow ) {

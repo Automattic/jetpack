@@ -14,17 +14,17 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import './style.scss';
-import useAiFeature from '../../hooks/use-ai-feature/index.js';
-import usePostContent from '../../hooks/use-post-content.js';
-import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library.js';
-import AiImageModal from './components/ai-image-modal.js';
-import useAiImage from './hooks/use-ai-image.js';
-import useSiteType from './hooks/use-site-type.js';
+import useAiFeature from '../../hooks/use-ai-feature/index.ts';
+import usePostContent from '../../hooks/use-post-content.ts';
+import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library.ts';
+import AiImageModal from './components/ai-image-modal.tsx';
+import useAiImage from './hooks/use-ai-image.ts';
+import useSiteType from './hooks/use-site-type.ts';
 import {
 	IMAGE_GENERATION_MODEL_STABLE_DIFFUSION,
 	IMAGE_GENERATION_MODEL_DALL_E_3,
 	GENERAL_IMAGE_FEATURE_NAME,
-} from './types.js';
+} from './types.ts';
 
 /**
  * The type for the callback function that is called when the user selects an image.
@@ -54,7 +54,7 @@ export default function GeneralPurposeImage( {
 }: GeneralPurposeImageProps ) {
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( true );
 	const siteType = useSiteType();
-	const postContent = usePostContent();
+	const { getPostContent } = usePostContent();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
@@ -111,17 +111,20 @@ export default function GeneralPurposeImage( {
 				site_type: siteType,
 				style,
 			} );
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests, style } ).catch(
-				error => {
-					recordEvent( 'jetpack_ai_general_image_generation_error', {
-						placement,
-						error: error?.message,
-						model: generalImageActiveModel,
-						site_type: siteType,
-						style,
-					} );
-				}
-			);
+			processImageGeneration( {
+				userPrompt,
+				postContent: getPostContent(),
+				notEnoughRequests,
+				style,
+			} ).catch( error => {
+				recordEvent( 'jetpack_ai_general_image_generation_error', {
+					placement,
+					error: error?.message,
+					model: generalImageActiveModel,
+					site_type: siteType,
+					style,
+				} );
+			} );
 		},
 		[
 			recordEvent,
@@ -129,7 +132,7 @@ export default function GeneralPurposeImage( {
 			generalImageActiveModel,
 			siteType,
 			processImageGeneration,
-			postContent,
+			getPostContent,
 			notEnoughRequests,
 		]
 	);
@@ -146,16 +149,19 @@ export default function GeneralPurposeImage( {
 			} );
 
 			setCurrent( crrt => crrt + 1 );
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests, style } ).catch(
-				error => {
-					recordEvent( 'jetpack_ai_general_image_generation_error', {
-						placement,
-						error: error?.message,
-						model: generalImageActiveModel,
-						site_type: siteType,
-					} );
-				}
-			);
+			processImageGeneration( {
+				userPrompt,
+				postContent: getPostContent(),
+				notEnoughRequests,
+				style,
+			} ).catch( error => {
+				recordEvent( 'jetpack_ai_general_image_generation_error', {
+					placement,
+					error: error?.message,
+					model: generalImageActiveModel,
+					site_type: siteType,
+				} );
+			} );
 		},
 		[
 			recordEvent,
@@ -163,7 +169,7 @@ export default function GeneralPurposeImage( {
 			generalImageActiveModel,
 			siteType,
 			processImageGeneration,
-			postContent,
+			getPostContent,
 			notEnoughRequests,
 			setCurrent,
 		]
@@ -180,16 +186,19 @@ export default function GeneralPurposeImage( {
 				style,
 			} );
 
-			processImageGeneration( { userPrompt, postContent, notEnoughRequests, style } ).catch(
-				error => {
-					recordEvent( 'jetpack_ai_general_image_generation_error', {
-						placement,
-						error: error?.message,
-						model: generalImageActiveModel,
-						site_type: siteType,
-					} );
-				}
-			);
+			processImageGeneration( {
+				userPrompt,
+				postContent: getPostContent(),
+				notEnoughRequests,
+				style,
+			} ).catch( error => {
+				recordEvent( 'jetpack_ai_general_image_generation_error', {
+					placement,
+					error: error?.message,
+					model: generalImageActiveModel,
+					site_type: siteType,
+				} );
+			} );
 		},
 		[
 			recordEvent,
@@ -197,7 +206,7 @@ export default function GeneralPurposeImage( {
 			generalImageActiveModel,
 			siteType,
 			processImageGeneration,
-			postContent,
+			getPostContent,
 			notEnoughRequests,
 		]
 	);
@@ -266,7 +275,6 @@ export default function GeneralPurposeImage( {
 
 	return (
 		<AiImageModal
-			postContent={ true }
 			images={ images }
 			currentIndex={ current }
 			title={ __( 'Generate an image with AI', 'jetpack-ai-client' ) }

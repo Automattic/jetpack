@@ -127,3 +127,57 @@ function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) 
 
 	return $asset_handle;
 }
+
+/**
+ * Returns the WP.com blog ID for the current site.
+ *
+ * @return int|false The WP.com blog ID, or false if the site does not have a WP.com blog ID.
+ */
+function get_wpcom_blog_id() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return get_current_blog_id();
+	}
+
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		/*
+		 * Atomic sites have the WP.com blog ID stored as a Jetpack option. This
+		 * code deliberately doesn't use `Jetpack_Options::get_option` so it
+		 * works even when Jetpack has not been loaded.
+		 */
+		$jetpack_options = get_option( 'jetpack_options' );
+		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
+			return (int) $jetpack_options['id'];
+		}
+
+		return get_current_blog_id();
+	}
+
+	return false;
+}
+
+/**
+ * Check if the site is a WordPress.com Atomic site.
+ *
+ * @return bool
+ */
+function is_woa_site() {
+	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
+		return false;
+	}
+	$host = new Automattic\Jetpack\Status\Host();
+	return $host->is_woa_site();
+}
+
+/**
+ * Whether the current user is connected to WordPress.com.
+ *
+ * @param int $user_id the user identifier. Default is the current user.
+ * @return bool Boolean is the user connected?
+ */
+function is_user_connected( $user_id ) {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return true;
+	}
+
+	return ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
+}

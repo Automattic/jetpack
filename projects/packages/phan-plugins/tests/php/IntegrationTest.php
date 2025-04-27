@@ -9,6 +9,7 @@ use Phan\CLIBuilder;
 use Phan\CodeBase;
 use Phan\Output\Printer\CapturingJSONPrinter;
 use Phan\Phan;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -19,24 +20,24 @@ class IntegrationTest extends TestCase {
 	/** @var CodeBase|null */
 	private $codeBase = null;
 
-	/**
-	 * @before
-	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		// Do what Phan does in its own CodeBaseAwareTest class.
 		// They say it's slow to create. Also I find reconstructing it seems to raise PHP constant deprecations on subsequent runs.
 		static $codeBase = null;
 		if ( ! $codeBase ) {
 			$codeBase = require __DIR__ . '/../../vendor/phan/phan/src/codebase.php';
+
+			// PHPUnit 11+ doesn't like that Phan registers error and exception handlers. And we don't seem to need them for the tests.
+			restore_error_handler();
+			restore_exception_handler();
 		}
 
 		$this->codeBase = $codeBase->shallowClone();
 	}
 
-	/**
-	 * @after
-	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		$this->codeBase = null;
 	}
 
@@ -130,6 +131,7 @@ class IntegrationTest extends TestCase {
 	/**
 	 * @dataProvider provideIntegration
 	 */
+	#[DataProvider( 'provideIntegration' )]
 	public function testIntegration( $dir ) {
 		$this->runPhan( $dir, false, false );
 	}
@@ -137,6 +139,7 @@ class IntegrationTest extends TestCase {
 	/**
 	 * @dataProvider provideIntegration
 	 */
+	#[DataProvider( 'provideIntegration' )]
 	public function testIntegration_Polyfill( $dir ) {
 		$this->runPhan( $dir, true, false );
 	}
@@ -144,6 +147,7 @@ class IntegrationTest extends TestCase {
 	/**
 	 * @dataProvider provideIntegration
 	 */
+	#[DataProvider( 'provideIntegration' )]
 	public function testIntegration_AnalyzeTwice( $dir ) {
 		$this->runPhan( $dir, false, true );
 	}
@@ -151,11 +155,12 @@ class IntegrationTest extends TestCase {
 	/**
 	 * @dataProvider provideIntegration
 	 */
+	#[DataProvider( 'provideIntegration' )]
 	public function testIntegration_Polyfill_AnalyzeTwice( $dir ) {
 		$this->runPhan( $dir, true, true );
 	}
 
-	public function provideIntegration() {
+	public static function provideIntegration() {
 		$iterator = new DirectoryIterator( __DIR__ . '/integration' );
 
 		foreach ( $iterator as $dir ) {

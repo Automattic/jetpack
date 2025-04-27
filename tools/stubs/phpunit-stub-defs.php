@@ -2,7 +2,7 @@
 /**
  * Stub config for PHPUnit.
  *
- * PHPUnit 9.6 that we currently use has various annotations for Psalm that Phan doesn't read but would be useful.
+ * PHPUnit 11.5 that we currently use has some stuff that doesn't work with Phan.
  * So we extract the stubs and then munge them appropriately.
  *
  * @package automattic/jetpack-monorepo
@@ -16,10 +16,10 @@ if ( ! is_dir( $work_dir ) ) {
 }
 
 chdir( "$work_dir/phpunit" );
-if ( ! preg_match( '/^PHPUnit (\d+\.\d+\.\d+) /', (string) shell_exec( 'vendor/bin/phpunit --version' ), $m ) ) {
+$version = trim( (string) shell_exec( 'composer info phpunit/phpunit --format=json | jq -r \'.versions[0]\'' ) );
+if ( ! preg_match( '/^(\d+\.\d+\.\d+)$/', $version ) ) {
 	throw new RuntimeException( 'Failed to determine PHPUnit version' );
 }
-$version = $m[1];
 
 $config = array(
 	'header'  => <<<HEAD

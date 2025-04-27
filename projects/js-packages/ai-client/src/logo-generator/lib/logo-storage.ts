@@ -1,9 +1,9 @@
 /**
  * Types
  */
-import { Logo } from '../store/types.js';
-import { RemoveFromStorageProps, SaveToStorageProps, UpdateInStorageProps } from '../types.js';
-import { mediaExists } from './media-exists.js';
+import { Logo } from '../store/types.ts';
+import { RemoveFromStorageProps, SaveToStorageProps, UpdateInStorageProps } from '../types.ts';
+import { mediaExists } from './media-exists.ts';
 
 const MAX_LOGOS = 10;
 

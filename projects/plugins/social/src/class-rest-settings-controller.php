@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Social;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Publicize\Publicize_Utils;
 use Jetpack_Social;
 use WP_Error;
 use WP_REST_Controller;
@@ -28,6 +29,24 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	public function register_rest_routes() {
 		register_rest_route(
 			'jetpack/v4',
+			'/social/review-dismiss',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_review_dismissed' ),
+					'permission_callback' => array( $this, 'require_publish_posts_permission_callback' ),
+					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
+				),
+			)
+		);
+
+		if ( Publicize_Utils::should_use_jetpack_module_endpoint() ) {
+			return;
+		}
+
+		// If the site has an older version of Jetpack we still need to register the route.
+		register_rest_route(
+			'jetpack/v4',
 			'/social/settings',
 			array(
 				array(
@@ -40,18 +59,6 @@ class REST_Settings_Controller extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_item' ),
 					'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
-					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
-				),
-			)
-		);
-		register_rest_route(
-			'jetpack/v4',
-			'/social/review-dismiss',
-			array(
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'update_review_dismissed' ),
-					'permission_callback' => array( $this, 'require_publish_posts_permission_callback' ),
 					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
 				),
 			)

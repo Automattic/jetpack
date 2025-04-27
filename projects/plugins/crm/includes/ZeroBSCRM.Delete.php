@@ -14,6 +14,13 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 class zeroBSCRM_Delete{
 
     private $objID = false;
+
+	/**
+	 * Contact object array if retrievable, otherwise false.
+	 *
+	 * @var array|false
+	 */
+	private $obj;
     private $objTypeID = false; // ZBS_TYPE_CONTACT - v3.0+
 
     // following now FILLED OUT by objTypeID above, v3.0+

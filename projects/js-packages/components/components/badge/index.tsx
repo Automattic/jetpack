@@ -19,7 +19,7 @@ type BadgeProps = {
  *
  * @return {React.ReactElement} The `Badge` component.
  */
-const Badge: React.FC< BadgeProps > = ( { children, className, variant = 'info', ...props } ) => {
+const Badge: React.FC< BadgeProps > = ( { children, className, variant, ...props } ) => {
 	const classes = clsx(
 		styles.badge,
 		{

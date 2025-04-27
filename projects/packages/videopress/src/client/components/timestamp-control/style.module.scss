@@ -10,6 +10,7 @@
 		flex-grow: 2;
 
 		:global {
+
 			.components-base-control__field {
 				margin-bottom: 0;
 			}
@@ -22,6 +23,7 @@
 	}
 	
 	:global {
+
 		.components-range-control__marks {
 			top: 13px;
 		}
@@ -36,7 +38,7 @@
 	border-style: solid;
 	justify-content: space-around;
 	border-width: 1px;
-	padding: 0px;
+	padding: 0;
 
 	.timestamp-control-input {
 		padding: 0 1px;
@@ -52,6 +54,7 @@
 
 		/* For TextControl fallback */
 		:global {
+
 			.components-base-control__field {
 				margin-bottom: 0;
 
@@ -65,6 +68,7 @@
 	}
 
 	:global {
+
 		.components-input-control:last-child {
 			margin-bottom: 0;
 		}
@@ -83,7 +87,7 @@
 				 -webkit-appearance: none;
 			 }
  
-			 &[type=number] {
+			 &[type="number"] {
 				 appearance: textfield;
 				 -moz-appearance: textfield;
 			 }

@@ -44,30 +44,30 @@ export type PromptProp = PromptMessagesProp | string;
 /*
  * Data Flow types
  */
-export type { UseAiContextOptions } from './data-flow/use-ai-context.js';
+export type { UseAiContextOptions } from './data-flow/use-ai-context.ts';
 
 /*
  * Hook types
  */
-export type { RequestingErrorProps } from './hooks/use-ai-suggestions/index.js';
+export type { RequestingErrorProps } from './hooks/use-ai-suggestions/index.ts';
 export type {
 	UseAudioTranscriptionProps,
 	UseAudioTranscriptionReturn,
-} from './hooks/use-audio-transcription/index.js';
+} from './hooks/use-audio-transcription/index.ts';
 export type {
 	UseTranscriptionPostProcessingProps,
 	UseTranscriptionPostProcessingReturn,
 	PostProcessingAction,
-} from './hooks/use-transcription-post-processing/index.js';
+} from './hooks/use-transcription-post-processing/index.ts';
 export type {
 	UseAudioValidationReturn,
 	ValidatedAudioInformation,
-} from './hooks/use-audio-validation/index.js';
+} from './hooks/use-audio-validation/index.ts';
 
 /*
  * Hook constants
  */
-export { TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT } from './hooks/use-transcription-post-processing/index.js';
+export { TRANSCRIPTION_POST_PROCESSING_ACTION_SIMPLE_DRAFT } from './hooks/use-transcription-post-processing/index.ts';
 
 /*
  * Requests types
@@ -99,7 +99,7 @@ export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo_16K | typeof AI_MODE
 /*
  * Media recording types
  */
-export type { RecordingState } from './hooks/use-media-recording/index.js';
+export type { RecordingState } from './hooks/use-media-recording/index.ts';
 
 /*
  * Utility types
@@ -125,10 +125,53 @@ export type TranscriptionState = RecordingState | 'validating' | 'processing' | 
 /*
  * Lib types
  */
-export type { RenderHTMLRules } from './libs/index.js';
+export type { RenderHTMLRules } from './libs/index.ts';
 
 export interface BlockEditorStore {
 	selectors: {
 		[ key in keyof typeof BlockEditorSelectors ]: ( typeof BlockEditorSelectors )[ key ];
 	};
+}
+
+declare global {
+	interface Window {
+		translation?: {
+			canTranslate: ( options: {
+				sourceLanguage: string;
+				targetLanguage: string;
+			} ) => Promise< 'no' | 'yes' | string >;
+			createTranslator: ( options: {
+				sourceLanguage: string;
+				targetLanguage: string;
+			} ) => Promise< {
+				translate: ( text: string ) => Promise< string >;
+			} >;
+		};
+		ai?: {
+			languageDetector: {
+				create: () => Promise< {
+					detect: ( text: string ) => Promise<
+						{
+							detectedLanguage: string;
+							confidence: number;
+						}[]
+					>;
+				} >;
+			};
+			summarizer?: {
+				capabilities: () => Promise< {
+					available: 'no' | 'yes' | 'after-download';
+				} >;
+				create: ( options: {
+					sharedContext?: string;
+					type?: string;
+					format?: string;
+					length?: string;
+				} ) => Promise< {
+					ready: Promise< void >;
+					summarize: ( text: string, summarizeOptions?: { context?: string } ) => Promise< string >;
+				} >;
+			};
+		};
+	}
 }

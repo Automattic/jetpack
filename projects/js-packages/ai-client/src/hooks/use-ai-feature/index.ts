@@ -6,6 +6,7 @@ import {
 	usePlanType as getPlanType,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
 import type { WordPressPlansSelectors } from '@automattic/jetpack-shared-extension-utils/store/wordpress-com';
 
 /**
@@ -13,35 +14,19 @@ import type { WordPressPlansSelectors } from '@automattic/jetpack-shared-extensi
  * @return {object} - Object containing properties for AiFeature.
  */
 export default function useAiFeature() {
-	const { data, loading, requestsLimit, requestsCount } = useSelect( select => {
-		const { getAiAssistantFeature, getIsRequestingAiAssistantFeature } = select(
-			'wordpress-com/plans'
-		) as WordPressPlansSelectors;
+	const data = useSelect(
+		select =>
+			( select( 'wordpress-com/plans' ) as WordPressPlansSelectors ).getAiAssistantFeature(),
+		[]
+	);
 
-		const featureData = getAiAssistantFeature();
-
-		const {
-			currentTier,
-			usagePeriod,
-			requestsCount: allTimeRequestsCount,
-			requestsLimit: freeRequestsLimit,
-		} = featureData;
-
-		const planType = getPlanType( currentTier );
-
-		const currentTierLimit = currentTier?.limit || freeRequestsLimit;
-
-		const actualRequestsCount =
-			planType === PLAN_TYPE_FREE ? allTimeRequestsCount : usagePeriod?.requestsCount;
-		const actualRequestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTierLimit;
-
-		return {
-			data: featureData,
-			loading: getIsRequestingAiAssistantFeature(),
-			requestsCount: actualRequestsCount,
-			requestsLimit: actualRequestsLimit,
-		};
-	}, [] );
+	const loading = useSelect(
+		select =>
+			(
+				select( 'wordpress-com/plans' ) as WordPressPlansSelectors
+			 ).getIsRequestingAiAssistantFeature(),
+		[]
+	);
 
 	const {
 		fetchAiAssistantFeature: loadFeatures,
@@ -49,14 +34,24 @@ export default function useAiFeature() {
 		dequeueAiAssistantFeatureAsyncRequest: dequeueAsyncRequest,
 	} = useDispatch( 'wordpress-com/plans' );
 
-	return {
-		...data,
-		requestsCount,
-		requestsLimit,
-		loading,
-		error: null, // @todo: handle error at store level
-		refresh: loadFeatures,
-		increaseRequestsCount,
-		dequeueAsyncRequest,
-	};
+	return useMemo( () => {
+		const planType = getPlanType( data?.currentTier );
+		const currentTierLimit = data?.currentTier?.limit || data?.requestsLimit;
+
+		const requestsCount =
+			planType === PLAN_TYPE_FREE ? data?.requestsCount : data?.usagePeriod?.requestsCount;
+
+		const requestsLimit = planType === PLAN_TYPE_FREE ? data?.requestsLimit : currentTierLimit;
+
+		return {
+			...data,
+			requestsCount,
+			requestsLimit,
+			loading,
+			error: null, // @todo: handle error at store level
+			refresh: loadFeatures,
+			increaseRequestsCount,
+			dequeueAsyncRequest,
+		};
+	}, [ data, loading, loadFeatures, increaseRequestsCount, dequeueAsyncRequest ] );
 }

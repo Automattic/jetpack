@@ -81,7 +81,6 @@ function getPlanData(
 			upload_files: false,
 			delete_users: false,
 			remove_users: false,
-			view_hosting: false,
 			view_stats: false,
 		},
 		jetpack: true,

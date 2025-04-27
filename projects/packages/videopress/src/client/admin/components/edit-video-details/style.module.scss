@@ -1,5 +1,6 @@
 
 .header-wrapper {
+
 	&:not( .small ) {
 		display: flex;
 		align-items: center;
@@ -69,12 +70,15 @@
 }
 
 .rating {
+
 	:global {
+
 		.components-base-control__field div {
 			flex-direction: row;
 			justify-content: flex-start;
 
 			.components-radio-control__input[type="radio"] {
+
 				&:checked  {
 					background: var( --jp-green-40 );
 					border-color: var( --jp-green-40 );
@@ -98,7 +102,8 @@
 	text-transform: uppercase;
 }
 
-.side-fields input[type='checkbox'] {
+.side-fields input[type="checkbox"] {
+
 	&:checked {
 		background: var( --jp-green-40 );
 		border-color: var( --jp-green-40 );
@@ -133,15 +138,23 @@
 
 // JITM
 :global {
+
 	#wpbody-content {
+
 		& > .notice {
 			display: none;
 		}
 	}
+
+	#jetpack-videopress-root .jp-admin-page-header {
+		display: block;
+	}
 }
 
 .jetpack-videopress-jitm-card {
+
 	:global {
+
 		.jitm-card {
 			margin-right: 0;
 			margin-top: 0;

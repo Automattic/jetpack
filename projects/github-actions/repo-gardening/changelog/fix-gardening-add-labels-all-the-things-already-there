@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add labels: Avoid trying to add no labels when "[Project] All the things!" is triggered.

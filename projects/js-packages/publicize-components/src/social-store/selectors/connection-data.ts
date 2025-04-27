@@ -1,8 +1,9 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { store as coreStore } from '@wordpress/core-data';
-import { createRegistrySelector } from '@wordpress/data';
+import { createRegistrySelector, createSelector } from '@wordpress/data';
 import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
-import type { Connection, SocialStoreState } from '../types';
+import { EMPTY_ARRAY } from '../constants';
+import type { Connection, ConnectionData, SocialStoreState } from '../types';
 
 /**
  * Returns the connections list from the store.
@@ -11,8 +12,8 @@ import type { Connection, SocialStoreState } from '../types';
  *
  * @return The connections list
  */
-export function getConnections( state: SocialStoreState ) {
-	return state.connectionData?.connections ?? [];
+export function getConnections( state: SocialStoreState ): Array< Connection > {
+	return state.connectionData?.connections ?? EMPTY_ARRAY;
 }
 
 /**
@@ -36,11 +37,14 @@ export function getConnectionById(
  * @param state - State object.
  * @return List of broken connections.
  */
-export function getBrokenConnections( state: SocialStoreState ) {
-	return getConnections( state ).filter( connection => {
-		return connection.status === 'broken';
-	} );
-}
+export const getBrokenConnections = createSelector(
+	( state: SocialStoreState ) => {
+		const connections = getConnections( state );
+
+		return connections.filter( connection => 'broken' === connection.status );
+	},
+	( state: SocialStoreState ) => [ state.connectionData?.connections ]
+);
 
 /**
  * Returns connections by service name/ID.
@@ -50,9 +54,12 @@ export function getBrokenConnections( state: SocialStoreState ) {
  *
  * @return  The connections.
  */
-export function getConnectionsByService( state: SocialStoreState, serviceName: string ) {
-	return getConnections( state ).filter( ( { service_name } ) => service_name === serviceName );
-}
+export const getConnectionsByService = createSelector(
+	( state: SocialStoreState, serviceName: string ) => {
+		return getConnections( state ).filter( ( { service_name } ) => service_name === serviceName );
+	},
+	( state: SocialStoreState ) => [ state.connectionData?.connections ]
+);
 
 /**
  * Returns whether there are connections in the store.
@@ -69,11 +76,14 @@ export function hasConnections( state: SocialStoreState ) {
  * @param state - State object.
  * @return List of connections.
  */
-export function getFailedConnections( state: SocialStoreState ) {
-	const connections = getConnections( state );
+export const getFailedConnections = createSelector(
+	( state: SocialStoreState ) => {
+		const connections = getConnections( state );
 
-	return connections.filter( connection => 'broken' === connection.status );
-}
+		return connections.filter( connection => 'broken' === connection.status );
+	},
+	( state: SocialStoreState ) => [ state.connectionData?.connections ]
+);
 
 /**
  * Returns a list of Publicize connection service names that require reauthentication from users.
@@ -82,12 +92,15 @@ export function getFailedConnections( state: SocialStoreState ) {
  * @param state - State object.
  * @return List of service names that need reauthentication.
  */
-export function getMustReauthConnections( state: SocialStoreState ) {
-	const connections = getConnections( state );
-	return connections
-		.filter( connection => 'must_reauth' === connection.status )
-		.map( connection => connection.service_name );
-}
+export const getMustReauthConnections = createSelector(
+	( state: SocialStoreState ) => {
+		const connections = getConnections( state );
+		return connections
+			.filter( connection => 'must_reauth' === connection.status )
+			.map( connection => connection.service_name );
+	},
+	( state: SocialStoreState ) => [ state.connectionData?.connections ]
+);
 
 /**
  * Returns the Publicize connections that are enabled.
@@ -96,9 +109,12 @@ export function getMustReauthConnections( state: SocialStoreState ) {
  *
  * @return List of enabled connections.
  */
-export function getEnabledConnections( state: SocialStoreState ) {
-	return getConnections( state ).filter( connection => connection.enabled );
-}
+export const getEnabledConnections = createSelector(
+	( state: SocialStoreState ) => {
+		return getConnections( state ).filter( connection => connection.enabled );
+	},
+	( state: SocialStoreState ) => [ state.connectionData?.connections ]
+);
 
 /**
  * Returns the Publicize connections that are disabled.
@@ -107,9 +123,12 @@ export function getEnabledConnections( state: SocialStoreState ) {
  *
  * @return List of disabled connections.
  */
-export function getDisabledConnections( state: SocialStoreState ) {
-	return getConnections( state ).filter( connection => ! connection.enabled );
-}
+export const getDisabledConnections = createSelector(
+	( state: SocialStoreState ) => {
+		return getConnections( state ).filter( connection => ! connection.enabled );
+	},
+	( state: SocialStoreState ) => [ state.connectionData?.connections ]
+);
 
 /**
  * Get the connections being deleted.
@@ -117,8 +136,10 @@ export function getDisabledConnections( state: SocialStoreState ) {
  * @param state - State object.
  * @return The connection being deleted.
  */
-export function getDeletingConnections( state: SocialStoreState ) {
-	return state.connectionData?.deletingConnections ?? [];
+export function getDeletingConnections(
+	state: SocialStoreState
+): ConnectionData[ 'deletingConnections' ] {
+	return state.connectionData?.deletingConnections ?? EMPTY_ARRAY;
 }
 
 /**
@@ -127,8 +148,10 @@ export function getDeletingConnections( state: SocialStoreState ) {
  * @param state - State object.
  * @return The connection being updated.
  */
-export function getUpdatingConnections( state: SocialStoreState ) {
-	return state.connectionData?.updatingConnections ?? [];
+export function getUpdatingConnections(
+	state: SocialStoreState
+): ConnectionData[ 'updatingConnections' ] {
+	return state.connectionData?.updatingConnections ?? EMPTY_ARRAY;
 }
 
 /**
@@ -149,8 +172,11 @@ export function getReconnectingAccount( state: SocialStoreState ) {
  *
  * @return  The abort controllers.
  */
-export function getAbortControllers( state: SocialStoreState, requestType = REQUEST_TYPE_DEFAULT ) {
-	return state.connectionData?.abortControllers?.[ requestType ] ?? [];
+export function getAbortControllers(
+	state: SocialStoreState,
+	requestType = REQUEST_TYPE_DEFAULT
+): Array< AbortController > {
+	return state.connectionData?.abortControllers?.[ requestType ] ?? EMPTY_ARRAY;
 }
 
 /**

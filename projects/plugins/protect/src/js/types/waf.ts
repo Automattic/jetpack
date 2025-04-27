@@ -16,9 +16,6 @@ export type WafStatus = {
 	/** Whether the "waf" module is enabled. */
 	isEnabled: boolean;
 
-	/** Whether the current user viewed the firewall UI. */
-	isSeen: boolean;
-
 	/** Stats. */
 	stats: boolean;
 

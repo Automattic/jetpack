@@ -14,6 +14,7 @@ import {
 	WPContentNotWritableNotice,
 } from './error-notices';
 import SwitchToBoost from '../switch-to-boost/switch-to-boost';
+import { isWoaHosting } from '$lib/utils/hosting';
 
 type HealthProps = {
 	error?: PageCacheError;
@@ -42,6 +43,10 @@ const Health = ( { cacheSetup, error, setError }: HealthProps ) => {
 			setDoingRevert( false );
 		}
 	}, [ doingRevert, setDoingRevert, setModuleState ] );
+
+	if ( isWoaHosting() ) {
+		return null;
+	}
 
 	if ( ! error || error.dismissed ) {
 		return null;

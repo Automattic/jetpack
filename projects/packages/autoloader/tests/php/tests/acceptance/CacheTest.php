@@ -5,13 +5,18 @@
  * @package automattic/jetpack-autoloader
  */
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
 /**
  * Test suite class for verifying the functionality of the current autoloader's cache mechanism.
  *
  * @runTestsInSeparateProcesses Ensure each test has a fresh process as if it was a real request.
  * @preserveGlobalState disabled
  */
-class CacheTest extends Acceptance_Test_Case {
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
+class CacheTest extends Acceptance_TestCase {
 
 	/**
 	 * Tests that the autoloader erases the cache if the shutdown action happens before plugins are finished loading.

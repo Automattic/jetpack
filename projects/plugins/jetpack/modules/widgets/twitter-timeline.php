@@ -43,7 +43,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			)
 		);
 
-		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
+		if ( is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		}
 
@@ -105,7 +105,9 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		// Twitter deprecated `data-widget-id` on 2018-05-25,
 		// with cease support deadline on 2018-07-27.
-		if ( isset( $instance['type'] ) && 'widget-id' === $instance['type'] ) {
+		$explicit_widget_id = isset( $instance['type'] ) && 'widget-id' === $instance['type'];
+		$implicit_widget_id = empty( $instance['type'] ) && ! empty( $instance['widget-id'] ) && is_numeric( $instance['widget-id'] );
+		if ( $explicit_widget_id || $implicit_widget_id ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				$output .= $args['before_widget']
 				. $args['before_title'] . esc_html__( 'Twitter Timeline', 'jetpack' ) . $args['after_title']
@@ -117,6 +119,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
+
+		$this->enqueue_scripts();
 
 		$instance['lang'] = substr( strtoupper( get_locale() ), 0, 2 );
 

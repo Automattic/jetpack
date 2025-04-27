@@ -12,7 +12,6 @@ use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Publicize\Services as Publicize_Services;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
@@ -68,9 +67,8 @@ class Publicize_Script_Data {
 		}
 
 		$data['site']['wpcom']['blog_id'] = Manager::get_site_id( true );
-		$data['site']['suffix']           = ( new Status() )->get_site_suffix();
 		if ( ! isset( $data['site']['host'] ) ) {
-			$data['site']['host'] = ( new Host() )->get_known_host_guess();
+			$data['site']['host'] = ( new Host() )->get_known_host_guess( false );
 		}
 
 		self::set_wpcom_user_data( $data['user']['current_user'] );
@@ -213,7 +211,7 @@ class Publicize_Script_Data {
 
 		// get_post_share_status is not available on WPCOM yet.
 		if ( Utils::should_block_editor_have_social() && $post && self::has_feature_flag( 'share-status' ) ) {
-			$share_status[ $post->ID ] = self::publicize()->get_post_share_status( $post->ID );
+			$share_status[ $post->ID ] = Share_Status::get_post_share_status( $post->ID );
 		}
 
 		$should_have_connections = self::has_feature_flag( 'connections-management' ) || self::has_feature_flag( 'editor-preview' );
@@ -285,13 +283,7 @@ class Publicize_Script_Data {
 	 * @return array List of external services and their settings.
 	 */
 	public static function get_supported_services() {
-		/**
-		 * Disable caching for now to avoid nonce errors
-		 * for secondary users trying to connect an account
-		 *
-		 * @link https://github.com/Automattic/jetpack/pull/41149
-		 */
-		return Publicize_Services::get_all( true /* Ignore cache */ );
+		return Publicize_Services::get_all();
 	}
 
 	/**
@@ -301,28 +293,12 @@ class Publicize_Script_Data {
 	 */
 	public static function get_api_paths() {
 
-		$is_wpcom = ( new Host() )->is_wpcom_platform();
-
-		$commom_paths = array(
+		return array(
 			'refreshConnections' => '/wpcom/v2/publicize/connections?test_connections=1',
 			// The complete path will be like `/jetpack/v4/social/settings`.
-			'socialToggleBase'   => class_exists( 'Jetpack' ) ? 'settings' : 'social/settings',
+			'socialToggleBase'   => Utils::should_use_jetpack_module_endpoint() ? 'settings' : 'social/settings',
+			'resharePost'        => '/wpcom/v2/publicize/share-post/{postId}',
 		);
-
-		$specific_paths = array();
-
-		if ( $is_wpcom ) {
-
-			$specific_paths = array(
-				'resharePost' => '/wpcom/v2/posts/{postId}/publicize',
-			);
-		} else {
-			$specific_paths = array(
-				'resharePost' => '/jetpack/v4/publicize/{postId}',
-			);
-		}
-
-		return array_merge( $commom_paths, $specific_paths );
 	}
 
 	/**
@@ -333,9 +309,7 @@ class Publicize_Script_Data {
 	public static function get_urls() {
 
 		$urls = array(
-			'connectionsManagementPage' => self::publicize()->publicize_connections_url(
-				'jetpack-social-connections-admin-page'
-			),
+			'connectionsManagementPage' => self::publicize()->publicize_connections_url(),
 		);
 
 		// Escape the URLs.

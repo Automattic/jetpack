@@ -3,18 +3,19 @@ import { useContext, useEffect } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useAnalytics from '../use-analytics';
+import type { NoticeHookType } from './types';
 import type { NoticeOptions } from '../../context/notices/types';
 
-type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
-
-const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
+const useBadInstallNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) => {
 	const { setNotice } = useContext( NoticeContext );
 	const { recordEvent } = useAnalytics();
 
 	useEffect( () => {
-		const badInstallAlerts = Object.keys( redBubbleAlerts ).filter( key =>
-			key.endsWith( '-bad-installation' )
-		) as Array< `${ string }-bad-installation` >;
+		const badInstallAlerts = isLoading
+			? []
+			: ( Object.keys( redBubbleAlerts ).filter( key =>
+					key.endsWith( '-bad-installation' )
+			  ) as Array< `${ string }-bad-installation` > );
 
 		if ( badInstallAlerts.length === 0 ) {
 			return;
@@ -54,11 +55,13 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
-		setNotice( {
-			message: errorMessage,
-			options: noticeOptions,
-		} );
-	}, [ redBubbleAlerts, setNotice, recordEvent ] );
+		if ( ! isLoading ) {
+			setNotice( {
+				message: errorMessage,
+				options: noticeOptions,
+			} );
+		}
+	}, [ redBubbleAlerts, setNotice, recordEvent, isLoading ] );
 };
 
 export default useBadInstallNotice;

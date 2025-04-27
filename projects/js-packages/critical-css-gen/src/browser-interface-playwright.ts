@@ -1,8 +1,8 @@
 import { BrowserContext, Page } from 'playwright-core';
-import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface.js';
-import { HttpError } from './errors.js';
-import { objectPromiseAll } from './object-promise-all.js';
-import { Viewport } from './types.js';
+import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface.ts';
+import { HttpError } from './errors.ts';
+import { objectPromiseAll } from './object-promise-all.ts';
+import { Viewport } from './types.ts';
 
 export type Tab = { page: Page; statusCode: number | null };
 export type TabsByUrl = { [ url: string ]: Tab };
@@ -23,6 +23,15 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 		private urls: string[]
 	) {
 		super();
+	}
+
+	async cleanup() {
+		if ( this.tabs ) {
+			await Promise.all(
+				Object.values( this.tabs ).map( tab => tab.page.close().catch( () => {} ) )
+			);
+		}
+		this.tabs = undefined;
 	}
 
 	private async getTabs() {
@@ -59,19 +68,25 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 * @return {Promise<Page>} Promise resolving to the page instance.
 	 */
 	private async newTab( browserContext: BrowserContext, url: string ): Promise< Tab > {
-		const tab = {
-			page: await browserContext.newPage(),
-			statusCode: null,
-		};
-		tab.page.on( 'response', async response => {
-			if ( response.url() === url ) {
-				tab.statusCode = response.status();
-			}
-		} );
+		const page = await browserContext.newPage();
+		try {
+			const tab = {
+				page,
+				statusCode: null,
+			};
 
-		await tab.page.goto( url, { timeout: PAGE_GOTO_TIMEOUT_MS } );
+			tab.page.on( 'response', async response => {
+				if ( response.url() === url ) {
+					tab.statusCode = response.status();
+				}
+			} );
 
-		return tab;
+			await tab.page.goto( url, { timeout: PAGE_GOTO_TIMEOUT_MS } );
+			return tab;
+		} catch ( error ) {
+			await page.close().catch( () => {} ); // Cleanup on error
+			throw error;
+		}
 	}
 
 	async runInPage< ReturnType >(

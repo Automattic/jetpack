@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack\Protect;
 
+use Automattic\Jetpack\Account_Protection\Account_Protection;
+use Automattic\Jetpack\Account_Protection\Settings as Account_Protection_Settings;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Protect_Status\REST_Controller as Protect_Status_REST_Controller;
@@ -119,6 +121,30 @@ class REST_Controller {
 
 		register_rest_route(
 			'jetpack-protect/v1',
+			'toggle-account-protection',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::api_toggle_account_protection',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'account-protection',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::api_get_account_protection',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
 			'toggle-waf',
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
@@ -135,30 +161,6 @@ class REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::api_get_waf',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
-			'waf-seen',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::api_get_waf_seen_status',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
-			'waf-seen',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::api_set_waf_seen_status',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -341,6 +343,47 @@ class REST_Controller {
 	}
 
 	/**
+	 * Toggles the Account Protection module on or off for the API endpoint
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function api_toggle_account_protection() {
+		$account_protection = Account_Protection::instance();
+		if ( $account_protection->is_enabled() ) {
+			$disabled = $account_protection->disable();
+			if ( ! $disabled ) {
+				return new WP_Error(
+					'account_protection_disable_failed',
+					__( 'An error occurred disabling account protection.', 'jetpack-protect' ),
+					array( 'status' => 500 )
+				);
+			}
+
+			return rest_ensure_response( true );
+		}
+
+		$enabled = $account_protection->enable();
+		if ( ! $enabled ) {
+			return new WP_Error(
+				'account_protection_enable_failed',
+				__( 'An error occurred enabling account protection.', 'jetpack-protect' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response( true );
+	}
+
+	/**
+	 * Get Account Protection data for the API endpoint
+	 *
+	 * @return WP_Rest_Response
+	 */
+	public static function api_get_account_protection() {
+		return new WP_REST_Response( ( new Account_Protection_Settings() )->get() );
+	}
+
+	/**
 	 * Toggles the WAF module on or off for the API endpoint
 	 *
 	 * @return WP_REST_Response|WP_Error
@@ -384,7 +427,6 @@ class REST_Controller {
 			array(
 				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
-				'isSeen'              => Jetpack_Protect::get_waf_seen_status(),
 				'upgradeIsSeen'       => Jetpack_Protect::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => Jetpack_Protect::get_waf_upgrade_badge_display_status(),
 				'isEnabled'           => Waf_Runner::is_enabled(),
@@ -393,24 +435,6 @@ class REST_Controller {
 				'globalStats'         => Waf_Stats::get_global_stats(),
 			)
 		);
-	}
-
-	/**
-	 * Get WAF "Seen" status for the API endpoint
-	 *
-	 * @return bool Whether the current user has viewed the WAF screen.
-	 */
-	public static function api_get_waf_seen_status() {
-		return Jetpack_Protect::get_waf_seen_status();
-	}
-
-	/**
-	 * Set WAF "Seen" status for the API endpoint
-	 *
-	 * @return bool True if seen status updated to true, false on failure.
-	 */
-	public static function api_set_waf_seen_status() {
-		return Jetpack_Protect::set_waf_seen_status();
 	}
 
 	/**

@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Changelogger\Tests\Plugins;
 use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelogger\Plugins\SemverVersioning;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -19,8 +21,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
  *
  * @covers \Automattic\Jetpack\Changelogger\Plugins\SemverVersioning
  */
+#[CoversClass( SemverVersioning::class )]
 class SemverVersioningTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Test parseVersion and normalizeVersion.
@@ -30,6 +32,7 @@ class SemverVersioningTest extends TestCase {
 	 * @param string|InvalidArgumentException $expect Expected parse result.
 	 * @param string|null                     $normalized Normalized value, if different from `$version`.
 	 */
+	#[DataProvider( 'provideParseVersion' )]
 	public function testParseVersion( $version, $expect, $normalized = null ) {
 		$obj = new SemverVersioning();
 		if ( $expect instanceof InvalidArgumentException ) {
@@ -184,6 +187,7 @@ class SemverVersioningTest extends TestCase {
 	 * @param string|InvalidArgumentException $expect Expected result.
 	 * @param array                           $extra Extra, if any.
 	 */
+	#[DataProvider( 'provideNormalizeVersion' )]
 	public function testNormalizeVersion( $version, $expect, $extra = array() ) {
 		$obj = new SemverVersioning();
 		if ( $expect instanceof InvalidArgumentException ) {
@@ -252,16 +256,23 @@ class SemverVersioningTest extends TestCase {
 	 * @param string|InvalidArgumentException $expect Expected result.
 	 * @param string                          $expectOutput Expected output.
 	 */
+	#[DataProvider( 'provideNextVersion' )]
 	public function testNextVersion( $version, array $changes, array $extra, $expect, $expectOutput = '' ) {
 		$obj = new SemverVersioning();
 
-		$out1 = $this->getMockBuilder( BufferedOutput::class )
-			->addMethods( array( 'getErrorOutput' ) )
-			->getMock();
-		$out2 = new BufferedOutput();
-		$out1->method( 'getErrorOutput' )->willReturn( $out2 );
+		$out = new class() extends BufferedOutput {
+			public $err;
 
-		$obj->setIO( new ArrayInput( array() ), $out1 );
+			public function __construct() {
+				$this->err = new BufferedOutput();
+			}
+
+			public function getErrorOutput() {
+				return $this->err;
+			}
+		};
+
+		$obj->setIO( new ArrayInput( array() ), $out );
 
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );
@@ -269,8 +280,8 @@ class SemverVersioningTest extends TestCase {
 			$obj->nextVersion( $version, $changes, $extra );
 		} else {
 			$this->assertSame( $expect, $obj->nextVersion( $version, $changes, $extra ) );
-			$this->assertSame( '', $out1->fetch() );
-			$this->assertSame( $expectOutput, $out2->fetch() );
+			$this->assertSame( '', $out->fetch() );
+			$this->assertSame( $expectOutput, $out->err->fetch() );
 		}
 	}
 
@@ -415,6 +426,7 @@ class SemverVersioningTest extends TestCase {
 	 * @param string $expect Expected result converted to a string, '>', '==', or '<'.
 	 * @param string $b Version B.
 	 */
+	#[DataProvider( 'provideCompareVersions' )]
 	public function testCompareVersions( $a, $expect, $b ) {
 		$obj = new SemverVersioning();
 		$ret = $obj->compareVersions( $a, $b );
@@ -461,6 +473,7 @@ class SemverVersioningTest extends TestCase {
 	 * @param array                           $extra Extra components.
 	 * @param string|InvalidArgumentException $expect Expected result.
 	 */
+	#[DataProvider( 'provideFirstVersion' )]
 	public function testFirstVersion( array $extra, $expect ) {
 		$obj = new SemverVersioning();
 

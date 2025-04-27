@@ -100,13 +100,6 @@ export const variations = [
 		icon: <SocialLogo icon={ 'x' } size={ 24 } />,
 	},
 	{
-		name: 'twitter',
-		attributes: { service: 'twitter', label: 'Twitter' },
-		keywords: [ 'twitter' ],
-		title: 'Twitter',
-		icon: <SocialLogo icon={ 'twitter' } size={ 24 } />,
-	},
-	{
 		name: 'nextdoor',
 		attributes: { service: 'nextdoor', label: 'Nextdoor' },
 		title: 'Nextdoor',
@@ -122,9 +115,8 @@ export const variations = [
 		// translators: option to share the content - a verb labelling a button.
 		title: __( 'Native Share', 'jetpack' ),
 		icon: <SocialLogo icon={ 'share' } size={ 24 } />,
-		//TODO: we can add link in the future to proper documentation
 		description: __(
-			'Share with native tools on users device or copy to clipboard otherwise',
+			'Share the post using your phone’s built-in sharing menu, or copy the link to the clipboard on desktop.',
 			'jetpack'
 		),
 	},

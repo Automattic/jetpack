@@ -6,7 +6,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import apiFetch from '../api-fetch/index.js';
+import apiFetch from '../api-fetch/index.ts';
 /*
  * Types & constants
  */

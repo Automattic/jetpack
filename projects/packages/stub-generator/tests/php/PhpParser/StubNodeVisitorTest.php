@@ -15,6 +15,8 @@ use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\NodeVisitor\ParentConnectingVisitor;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter_Standard;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -24,6 +26,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
  *
  * @covers \Automattic\Jetpack\StubGenerator\PhpParser\StubNodeVisitor
  */
+#[CoversClass( StubNodeVisitor::class )]
 class StubNodeVisitorTest extends TestCase {
 
 	/**
@@ -36,6 +39,7 @@ class StubNodeVisitorTest extends TestCase {
 	 * @param int          $verbosity Output verbosity.
 	 * @param string       $expectOutput Expected console output.
 	 */
+	#[DataProvider( 'provideIntegration' )]
 	public function testIntegration( string $input, $defs, string $expect, int $verbosity = BufferedOutput::VERBOSITY_NORMAL, string $expectOutput = '' ) {
 		$output    = new BufferedOutput( $verbosity );
 		$parser    = ( new ParserFactory() )->createForHostVersion();
@@ -69,7 +73,7 @@ class StubNodeVisitorTest extends TestCase {
 	/**
 	 * Data provider for testIntegration.
 	 */
-	public function provideIntegration() {
+	public static function provideIntegration() {
 		return array(
 			'Extract some functions, defs = *'            => array(
 				<<<'PHP'
@@ -1624,6 +1628,7 @@ class StubNodeVisitorTest extends TestCase {
 	 * @param string $input Input PHP class contents.
 	 * @param string $expect Expected exception message.
 	 */
+	#[DataProvider( 'provideIntegration_NoParent' )]
 	public function testIntegration_NoParent( string $input, string $expect ) {
 		$this->expectException( RuntimeException::class );
 		$this->expectExceptionMessage( $expect );
@@ -1645,7 +1650,7 @@ class StubNodeVisitorTest extends TestCase {
 	/**
 	 * Data provider for testIntegration_NoParent.
 	 */
-	public function provideIntegration_NoParent() {
+	public static function provideIntegration_NoParent() {
 		return array(
 			'ClassConst'  => array(
 				'const C = "C";',

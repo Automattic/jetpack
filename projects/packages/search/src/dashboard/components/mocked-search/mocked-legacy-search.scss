@@ -1,4 +1,4 @@
-@import 'scss/_variables.scss';
+@import 'scss/variables';
 
 $color-modal-background: $studio-white;
 $search-box-size: 60px;
@@ -10,13 +10,15 @@ $search-box-size: 60px;
 
 	user-select: none;
 }
+
 .jp-mocked-legacy-search__search-controls {
 	display: flex;
 	flex-flow: row nowrap;
 	width: 100%;
 	background: $color-modal-background;
-	box-shadow: rgba( 0, 0, 0, 0.35 ) 0px 5px 25px;
+	box-shadow: rgba( 0, 0, 0, 0.35 ) 0 5px 25px;
 }
+
 .jp-mocked-legacy-search__search-icon {
 	display: flex;
 	justify-content: center;
@@ -24,6 +26,7 @@ $search-box-size: 60px;
 	width: $search-box-size;
 	height: $search-box-size;
 }
+
 .jp-mocked-legacy-search__search-input {
 	width: 100%;
 	display: flex;

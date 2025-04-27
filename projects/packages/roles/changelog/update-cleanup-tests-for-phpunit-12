@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: `->getMockBuilder()` no longer creates specifically-named classes. And we don't need one here, just an arbitrary object to be passed through.
+
+

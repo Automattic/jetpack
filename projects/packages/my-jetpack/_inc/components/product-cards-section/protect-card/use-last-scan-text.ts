@@ -4,23 +4,19 @@ import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { timeSince } from '../../../utils/time-since';
 
-export const useLastScanText = () => {
+export const useLastScanText = ( data: ProtectData ) => {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false } = detail || {};
-	const {
-		plugins,
-		themes,
-		protect: { scanData },
-	} = getMyJetpackWindowInitialState();
+	const { plugins, themes } = getMyJetpackWindowInitialState();
 	const {
 		plugins: fromScanPlugins,
 		themes: fromScanThemes,
 		last_checked: lastScanTime = null,
-	} = scanData || {};
+	} = data?.scanData || {};
 
-	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
-	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
+	const pluginsCount = fromScanPlugins?.length || Object.keys( plugins ).length;
+	const themesCount = fromScanThemes?.length || Object.keys( themes ).length;
 
 	const timeSinceLastScan = lastScanTime ? timeSince( Date.parse( lastScanTime ) ) : false;
 

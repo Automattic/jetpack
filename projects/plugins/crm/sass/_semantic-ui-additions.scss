@@ -8,7 +8,9 @@
 .ui.steps.floated.right {
     float: right;
     margin-right: 0.5em;
-}.ui.steps.floated.left {
+}
+
+.ui.steps.floated.left {
     float: left;
     margin-left: 0.5em;
 }
@@ -16,7 +18,7 @@
 .ui.dropdown .menu .left.menu {
     left: auto !important;
     right: 100%;
-    margin: 0em 0em 0em 0em !important;
+    margin: 0 0 0 0 !important;
     border-radius: 0.28571429rem !important;
 }
 
@@ -25,7 +27,7 @@
 }
 
 .ui.inverted.menu .active.item, .ui.inverted.menu .active.item:hover{
-    color: black !important;
+    color: #000 !important;
 }
 
 
@@ -46,7 +48,7 @@
 .ui.button.woopink {
 
     background: #674399 !important;
-    color: #FFFFFF !important;
+    color: #FFF !important;
     border: 0 !important;
     
 }

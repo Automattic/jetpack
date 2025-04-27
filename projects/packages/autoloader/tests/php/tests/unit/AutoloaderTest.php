@@ -8,6 +8,8 @@
 // We live in the namespace of the test autoloader to avoid many use statements.
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Test_Plugin_Factory;
 
@@ -17,6 +19,8 @@ use Test_Plugin_Factory;
  * @runTestsInSeparateProcesses Ensure that each test loads class files new.
  * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class AutoloaderTest extends TestCase {
 
 	/**
@@ -34,10 +38,9 @@ class AutoloaderTest extends TestCase {
 
 	/**
 	 * Setup before class runs before the class.
-	 *
-	 * @beforeClass
 	 */
-	public static function set_up_before_class() {
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
 		self::$older_plugin_dir = Test_Plugin_Factory::create_test_plugin( false, self::OLDER_VERSION )->make();
 	}
 

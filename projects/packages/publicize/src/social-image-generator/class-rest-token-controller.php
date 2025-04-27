@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
+use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
@@ -43,6 +44,14 @@ class REST_Token_Controller extends WP_REST_Controller {
 	 * @return array|WP_Error The token or an error.
 	 */
 	public function generate_preview_token( $request ) {
+
+		Utils::endpoint_deprecated_warning(
+			__METHOD__,
+			'jetpack-14.5, jetpack-social-6.2.3',
+			'jetpack/v4/social-image-generator/generate-preview-token',
+			'wpcom/v2/publicize/social-image-generator/generate-token'
+		);
+
 		$text      = $request->get_param( 'text' );
 		$image_url = $request->get_param( 'image_url' );
 		$template  = $request->get_param( 'template' );

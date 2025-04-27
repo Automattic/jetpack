@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
 use Automattic\Jetpack\AutoloaderTesting\Current\UniqueTestClass;
 use Classmap_Test_Class;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Test_Plugin_Factory;
 
@@ -27,10 +29,9 @@ class VersionLoadingFromManifestTest extends TestCase {
 
 	/**
 	 * Setup runs before each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->manifest_handler = new Manifest_Reader( new Version_Selector() );
 	}
 
@@ -86,6 +87,8 @@ class VersionLoadingFromManifestTest extends TestCase {
 	 * @preserveGlobalState disabled
 	 * @runInSeparateProcess
 	 */
+	#[PreserveGlobalState( false )]
+	#[RunInSeparateProcess]
 	public function test_filemap() {
 		$path_map = array();
 		$this->manifest_handler->read_manifests(

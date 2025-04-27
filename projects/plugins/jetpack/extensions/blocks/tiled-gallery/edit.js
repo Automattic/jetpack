@@ -88,7 +88,21 @@ const TiledGalleryEdit = ( {
 	};
 
 	const onSelectImages = files => {
-		setImages( files.map( pickRelevantMediaFiles ) );
+		const newImages = files.map( file => {
+			const existingImage = images.find(
+				img => parseInt( img.id, 10 ) === parseInt( file.id, 10 )
+			);
+
+			if ( existingImage?.customLink ) {
+				return {
+					...pickRelevantMediaFiles( file ),
+					customLink: existingImage.customLink,
+				};
+			}
+			return pickRelevantMediaFiles( file );
+		} );
+
+		setImages( newImages );
 		setAttributes( { columns: columns ? Math.min( files.length, columns ) : columns } );
 
 		setChanged( true );
@@ -176,6 +190,8 @@ const TiledGalleryEdit = ( {
 					layoutStyle={ layoutStyle }
 					images={ images }
 					columns={ columns }
+					selectedImage={ selectedImage }
+					setImageAttributes={ setImageAttributes }
 					onColumnsChange={ value => setAttributes( { columns: value } ) }
 					roundedCorners={ roundedCorners }
 					onRoundedCornersChange={ value => setAttributes( { roundedCorners: value } ) }
@@ -211,6 +227,7 @@ const TiledGalleryEdit = ( {
 								onChange={ uploadFromFiles }
 								accept="image/*"
 								icon="insert"
+								__next40pxDefaultSize={ true }
 							>
 								{ __( 'Upload an image', 'jetpack' ) }
 							</FormFileUpload>

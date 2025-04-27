@@ -89,7 +89,6 @@ export const automatticAssignments = {
 			'[Plugin] VaultPress',
 			'[Feature] Backup & Scan',
 			'[Feature] Backups',
-			'[Feature] Scan',
 			'[Package] Backup',
 			'[Package] Transport Helper',
 		],
@@ -126,9 +125,9 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/524',
 	},
 	'Monorepo tooling': {
-		team: 'Jetpack Garage',
+		team: 'Jetpack Monorepo',
 		labels: [ '[Tools] Development CLI', 'Actions', '[Package] Autoloader' ],
-		slack_id: 'CBG1CP4EN',
+		slack_id: 'C05Q5HSS013', // #jetpack-monorepo
 		board_id: 'https://github.com/orgs/Automattic/projects/599',
 	},
 	'My Jetpack': {

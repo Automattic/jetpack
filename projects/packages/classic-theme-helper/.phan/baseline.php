@@ -9,8 +9,8 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassMethod : 20+ occurrences
     // PhanTypeMismatchArgumentInternal : 10+ occurrences
+    // PhanUndeclaredClassMethod : 10+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 8 occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 6 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
@@ -31,7 +31,6 @@ return [
         'src/custom-post-types/class-jetpack-portfolio.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredClassMethod'],
         'src/custom-post-types/class-jetpack-testimonial.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredClassMethod'],
         'src/custom-post-types/class-nova-restaurant.php' => ['PhanTypeSuspiciousNonTraversableForeach'],
-        'src/site-breadcrumbs.php' => ['PhanUndeclaredClassMethod'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

@@ -10,8 +10,7 @@
 return [
     // # Issue statistics:
     // PhanPluginDuplicateConditionalNullCoalescing : 20+ occurrences
-    // PhanUndeclaredProperty : 8 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 7 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 9 occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
     // PhanTypeArraySuspicious : 6 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
@@ -42,7 +41,6 @@ return [
         'src/class-block-editor-content.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-block-editor-extensions.php' => ['PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-data.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn'],
-        'src/class-divi.php' => ['PhanUndeclaredProperty'],
         'src/class-initializer.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-jwt-token-bridge.php' => ['PhanTypeMismatchReturn'],
         'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal'],
@@ -57,10 +55,10 @@ return [
         'src/tus/class-tus-client.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
         'src/tus/class-tus-file.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],
         'src/utility-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/videopress-divi/class-videopress-divi-extension.php' => ['PhanCommentOverrideOnNonOverrideMethod', 'PhanUndeclaredClass', 'PhanUndeclaredClassMethod', 'PhanUndeclaredExtendedClass', 'PhanUndeclaredMethod', 'PhanUndeclaredMethodInCallable', 'PhanUndeclaredProperty'],
-        'src/videopress-divi/class-videopress-divi-module.php' => ['PhanUndeclaredExtendedClass', 'PhanUndeclaredProperty'],
-        'tests/php/test-class-initializer.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/test-uploader.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
+        'src/videopress-divi/class-videopress-divi-extension.php' => ['PhanCommentOverrideOnNonOverrideMethod', 'PhanUndeclaredClass', 'PhanUndeclaredClassMethod', 'PhanUndeclaredExtendedClass', 'PhanUndeclaredMethod', 'PhanUndeclaredMethodInCallable'],
+        'src/videopress-divi/class-videopress-divi-module.php' => ['PhanUndeclaredExtendedClass'],
+        'tests/php/Uploader_Test.php' => ['PhanTypeMismatchArgumentProbablyReal'],
+        'tests/php/VideoPress_Uploader_Test.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

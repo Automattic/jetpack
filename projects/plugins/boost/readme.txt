@@ -2,10 +2,10 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, lsarsfield, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 6.6
-Tested up to: 6.7
+Requires at least: 6.7
+Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 3.8.0
+Stable tag: 3.13.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,21 +183,13 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.8.0 - 2025-01-23
-#### Added
-- Critical CSS: Flag a site-health issue for Critical CSS when a page from the Cornerstone Pages list is modified.
-- Page Cache: Add extra PHP file the site owner can use to modify how the cache works.
-- Page Cache: Filter cookies and GET parameters so they do not cause a cache miss.
-
-#### Changed
-- Critical CSS: Reduce unnecessary regenerations.
-
+### 3.13.1 - 2025-04-16
 #### Fixed
-- Page Cache: Clear Page Cache when Image CDN Auto Resize Lazy Images is toggled.
-- Page Cache: Fix issue where exceptions were incorrectly applied to the entire URL.
-- Concatenate JS: Improve compatibility with WooCommerce Shipping.
-- Concatenate CSS: Fix cases where minification might cause a file to load slower.
-- Image CDN: Ensure that double encoding doesn't happen.
+- Critical CSS: Fix cases where dismissing a recommendation would dismiss multiple ones.
+- Critical CSS: Fix not showing status code when generation fails for some pages.
+- Image Guide: Fix front-end state not being in sync with Boost settings.
+- Page Cache: Fix garbage collection and clear cache functionality leaving empty directories behind.
+- Page Cache: Fix not clearing up some events on deactivation.
 
 --------
 

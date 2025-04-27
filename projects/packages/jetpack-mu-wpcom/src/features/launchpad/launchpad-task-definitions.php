@@ -21,6 +21,15 @@ function wpcom_launchpad_should_use_wp_admin_link() {
 }
 
 /**
+ * Returns whether the site was created through the onboarding flow.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_has_site_been_created_through_onboarding_flow() {
+	return get_option( 'site_creation_flow' ) === 'onboarding';
+}
+
+/**
  * Get the task definitions for the Launchpad.
  *
  * @return Task[]
@@ -47,9 +56,14 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
+					return '/themes/' . $data['site_slug_encoded'];
+				}
+
 				$flow = get_option( 'site_intent' );
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'] . '&flow=' . $flow;
 			},
+			'is_disabled_callback' => 'wpcom_launchpad_is_design_step_enabled',
 		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
@@ -58,6 +72,10 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => '__return_true',
 			'is_disabled_callback' => 'wpcom_launchpad_is_design_step_enabled',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
+					return '/themes/' . $data['site_slug_encoded'];
+				}
+
 				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
@@ -97,24 +115,15 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
-			'get_calypso_path'      => function ( $task, $default, $data ) {
-				$is_blog_onboarding_flow = in_array( get_option( 'site_intent' ), array( 'start-writing', 'design-first' ), true );
-				$use_wp_admin_link = wpcom_launchpad_should_use_wp_admin_link() || $is_blog_onboarding_flow;
+			'get_calypso_path'      => function () {
 				$latest_draft_id = wpcom_launchpad_get_latest_draft_id();
 
 				if ( is_int( $latest_draft_id ) ) {
 					// There is a draft post, redirect the user to the draft instead of making a fresh post.
-					if ( $use_wp_admin_link ) {
-						return admin_url( 'post.php?action=edit&post=' . rawurlencode( $latest_draft_id ) );
-					}
-					return '/post/' . $data['site_slug_encoded'] . '/' . rawurlencode( $latest_draft_id );
+					return admin_url( 'post.php?action=edit&post=' . rawurlencode( $latest_draft_id ) );
 				}
 
-				$base_path = $use_wp_admin_link
-					? admin_url( 'post-new.php' )
-					: '/post/' . $data['site_slug_encoded'];
-
-				return $base_path;
+				return admin_url( 'post-new.php' );
 			},
 		),
 		'generate_content'                => array(
@@ -155,11 +164,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_disabled_callback' => '__return_true',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'options-general.php' );
-				}
-				return '/settings/general/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'options-general.php' );
 			},
 		),
 		'site_launched'                   => array(
@@ -177,6 +183,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_email_verified',
 			'is_disabled_callback' => 'wpcom_launchpad_is_email_verified',
+			'is_visible_callback'  => 'wpcom_launchpad_is_email_task_visible',
 			'get_calypso_path'     => function () {
 				return '/me/account';
 			},
@@ -191,11 +198,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
-			'get_calypso_path'      => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post-new.php' );
-				}
-				return '/post/' . $data['site_slug_encoded'];
+			'get_calypso_path'      => function () {
+				return admin_url( 'post-new.php' );
 			},
 		),
 		'newsletter_plan_created'         => array(
@@ -213,11 +217,8 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Personalize newsletter', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'options-general.php' );
-				}
-				return '/settings/general/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'options-general.php' );
 			},
 		),
 		'set_up_payments'                 => array(
@@ -293,15 +294,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return admin_url( 'site-editor.php' );
 			},
 		),
-		'setup_link_in_bio'               => array(
-			'get_title'            => function () {
-				return __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => '__return_true',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/setup/link-in-bio-post-setup/linkInBioPostSetup?siteSlug=' . $data['site_slug_encoded'];
-			},
-		),
 
 		// Videopress tasks.
 		'videopress_launched'             => array(
@@ -327,13 +319,10 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'add_attachment', 'wpcom_launchpad_track_video_uploaded_task' );
 			},
-			'get_calypso_path'      => function ( $task, $default, $data ) {
+			'get_calypso_path'      => function () {
 				$page_on_front = get_option( 'page_on_front', false );
 				if ( $page_on_front ) {
-					if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-						return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
-					}
-					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+					return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
 				}
 				return admin_url( 'site-editor.php?canvas=edit' );
 			},
@@ -365,21 +354,20 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Personalize your site', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'options-general.php' );
-				}
-				return '/settings/general/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'options-general.php' );
 			},
 		),
 
-		// Write tasks.
-		'setup_write'                     => array(
+		// Publish a Blog tasks.
+		'complete_profile'                => array(
 			'get_title'            => function () {
-				return __( 'Set up your site', 'jetpack-mu-wpcom' );
+				return __( 'Complete your profile', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => '__return_true',
+			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'get_calypso_path'     => function () {
+				return '/me#complete-your-profile';
+			},
 		),
 
 		// Keep Building tasks.
@@ -389,11 +377,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_site_title_task_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'options-general.php' );
-				}
-				return '/settings/general/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'options-general.php' );
 			},
 		),
 
@@ -412,11 +397,8 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Add a new page', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post-new.php?post_type=page' );
-				}
-				return '/page/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'post-new.php?post_type=page' );
 			},
 		),
 
@@ -431,11 +413,8 @@ function wpcom_launchpad_get_task_definitions() {
 					'about_page_id' => wpcom_launchpad_get_site_about_page_id(),
 				);
 			},
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post.php?post=' . wpcom_launchpad_get_site_about_page_id() . '&action=edit' );
-				}
-				return '/page/' . $data['site_slug_encoded'] . '/' . wpcom_launchpad_get_site_about_page_id();
+			'get_calypso_path'     => function () {
+				return admin_url( 'post.php?post=' . wpcom_launchpad_get_site_about_page_id() . '&action=edit' );
 			},
 		),
 
@@ -445,11 +424,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_edit_page_task_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'edit.php?post_type=page' );
-				}
-				return '/pages/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'edit.php?post_type=page' );
 			},
 		),
 
@@ -529,11 +505,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'repetition_count_callback' => 'wpcom_launchpad_get_write_3_posts_repetition_count',
 			'target_repetitions'        => 3,
-			'get_calypso_path'          => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post-new.php' );
-				}
-				return '/post/' . $data['site_slug_encoded'];
+			'get_calypso_path'          => function () {
+				return admin_url( 'post-new.php' );
 			},
 		),
 		'manage_subscribers'              => array(
@@ -571,11 +544,8 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_about_page_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'post-new.php?post_type=page' );
-				}
-				return '/page/' . $data['site_slug_encoded'];
+			'get_calypso_path'     => function () {
+				return admin_url( 'post-new.php?post_type=page' );
 			},
 		),
 
@@ -618,7 +588,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'themes.php' );
 				}
-				return '/themes/' . $data['site_slug_encoded'];
+				return '/themes/' . $data['site_slug_encoded'] . '#theme-selected';
 			},
 		),
 		'install_custom_plugin'           => array(
@@ -630,7 +600,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'plugins.php' );
 				}
-				return '/plugins/' . $data['site_slug_encoded'];
+				return '/plugins/' . $data['site_slug_encoded'] . '#install-plugin';
 			},
 		),
 		'setup_ssh'                       => array(
@@ -648,7 +618,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/site-monitoring/' . $data['site_slug_encoded'];
+				return '/site-monitoring/' . $data['site_slug_encoded'] . '#site-monitoring';
 			},
 		),
 		'import_subscribers'              => array(
@@ -662,26 +632,14 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
 			},
 		),
-		'add_first_subscribers'           => array(
-			// We do not want this mapped to the 'subscribers_added' task, since this task supports
-			// being marked as complete in situations where subscribers are not added.
-			'get_title'            => function () {
-				return __( 'Add your first subscribers', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_launchpad_is_add_first_subscribers_completed',
-			'is_visible_callback'  => '__return_true',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/subscribers/' . $data['site_slug_encoded'] . '#add-subscribers';
-			},
-		),
 		'add_subscribe_block'             => array(
 			'get_title'            => function () {
 				return __( 'Add the Subscribe Block to your site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_has_added_subscribe_block',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
-			'get_calypso_path'     => function () {
-				return admin_url( 'site-editor.php?canvas=edit&help-center=subscribe-block' );
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/newsletter/' . $data['site_slug_encoded'];
 			},
 		),
 		'mobile_app_installed'            => array(
@@ -708,13 +666,10 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_front_page_updated_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
+			'get_calypso_path'     => function () {
 				$page_on_front = get_option( 'page_on_front', false );
 				if ( $page_on_front ) {
-					if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-						return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
-					}
-					return '/page/' . $data['site_slug_encoded'] . '/' . $page_on_front;
+					return admin_url( 'post.php?post=' . $page_on_front . '&action=edit' );
 				}
 				return admin_url( 'site-editor.php?canvas=edit' );
 			},
@@ -1109,7 +1064,12 @@ function wpcom_launchpad_update_task_status( $new_statuses ) {
 		// Use the requested task ID for completion tracking.
 		$requested_task_id = $option_map[ $task_id ];
 
-		wpcom_launchpad_track_completed_task( $requested_task_id );
+		wpcom_launchpad_track_completed_task(
+			$requested_task_id,
+			array(
+				'goals' => wpcom_get_current_site_goals_for_tracks(),
+			)
+		);
 	}
 
 	return $response_statuses;
@@ -1179,7 +1139,12 @@ add_action( 'init', 'wpcom_launchpad_init_task_definitions', 11 );
  */
 function wpcom_launchpad_mark_launchpad_task_complete_if_active( $task_id ) {
 	if ( wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id ) ) {
-		wpcom_launchpad_track_completed_task( $task_id );
+		wpcom_launchpad_track_completed_task(
+			$task_id,
+			array(
+				'goals' => wpcom_get_current_site_goals_for_tracks(),
+			)
+		);
 		return true;
 	}
 
@@ -1202,6 +1167,10 @@ function wpcom_launchpad_track_edit_site_task() {
  * @return boolean
  */
 function wpcom_launchpad_is_design_step_enabled() {
+	if ( wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
+		return false;
+	}
+
 	return ! wpcom_can_update_design_selected_task();
 }
 
@@ -1732,6 +1701,10 @@ function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
  * @return bool True if the option for the task is marked as complete, false otherwise.
  */
 function wpcom_launchpad_is_task_option_completed( $task ) {
+	if ( 'design_completed' === $task['id'] && wpcom_launchpad_has_site_been_created_through_onboarding_flow() ) {
+		return true;
+	}
+
 	$checklist = get_option( 'launchpad_checklist_tasks_statuses', array() );
 	if ( ! empty( $checklist[ $task['id'] ] ) ) {
 		return true;
@@ -1910,9 +1883,39 @@ function wpcom_launchpad_mark_verify_email_complete( $user_id ) {
 	if ( empty( $user ) ) {
 		return;
 	}
-	wpcom_launchpad_track_completed_task( 'verify_email', array(), $user );
+
+	// Completed task events usually have a `goals` prop, however verifying email isn't associated
+	// with a specific site, so can't be associated with site goals.
+	$extra_props = array();
+
+	wpcom_launchpad_track_completed_task( 'verify_email', $extra_props, $user );
 }
 add_action( 'wpcom_email_verification_complete', 'wpcom_launchpad_mark_verify_email_complete' );
+
+/**
+ * Callback to determine email verification visibility.
+ * This uses a heuristic to determine whether it's likely that the user needed to
+ * verify their email at the time the site was created. That way we're not showing
+ * the completed task to users who were verified before creating this site.
+ *
+ * @return bool True when the email verification task should be visible.
+ */
+function wpcom_launchpad_is_email_task_visible() {
+	if ( ! class_exists( 'Email_Verification' ) ) {
+		// Don't show the task if we don't have the ability to complete it
+		return false;
+	}
+
+	if ( Email_Verification::is_email_unverified() ) {
+		return true;
+	}
+
+	if ( ! function_exists( 'get_blog_count_for_user' ) ) {
+		return true;
+	}
+
+	return get_blog_count_for_user() < 2;
+}
 
 /**
  * If the site has a paid-subscriber goal.
@@ -2352,7 +2355,11 @@ function wpcom_launchpad_is_front_page_updated_visible() {
  */
 function wpcom_launchpad_is_site_title_task_visible() {
 	// Hide the task if it's already completed on write intent
-	if ( get_option( 'site_intent' ) === 'write' && wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_title' ) ) ) {
+	if (
+		( 'launched' === get_option( 'launch-status' ) ) &&
+		get_option( 'site_intent' ) === 'write' &&
+		wpcom_launchpad_is_task_option_completed( array( 'id' => 'site_title' ) )
+	) {
 		return false;
 	}
 	return true;
@@ -2727,25 +2734,6 @@ function wpcom_launchpad_is_domain_customize_completed( $task, $default ) {
 }
 
 /**
- * Determines whether the add_first_subscribers task is complete by checking both the task option
- * and related tasks like subscribers_added and import_subscribers.
- *
- * This exists because we need a 1-way relationship between these tasks: completion of other
- * subscriber tasks implies add_first_subscribers is completed, but completion of
- * add_first_subscribers does not imply completion of other subscriber tasks. This is because
- * add_first_subscribers is allowed to be marked complete at times when no subscribers are actually
- * added, and why using id_map here will not work since it creates a 2-way relationship.
- *
- * @param Task $task    The Task object.
- * @return bool True if either condition is met.
- */
-function wpcom_launchpad_is_add_first_subscribers_completed( $task ) {
-	return wpcom_launchpad_is_task_option_completed( $task )
-		|| wpcom_is_checklist_task_complete( 'subscribers_added' )
-		|| wpcom_is_checklist_task_complete( 'import_subscribers' );
-}
-
-/**
  * Mark `domain_claim`, `domain_upsell`, and `domain_upsell_deferred` tasks complete
  * when a domain product is activated.
  *
@@ -2901,4 +2889,38 @@ function wpcom_launchpad_is_primary_domain_wpcom() {
 
 	// If site_slug ends with .wpcomstaging.com return true
 	return str_ends_with( $host, '.wpcomstaging.com' );
+}
+
+/**
+ * Returns the goals for the current site to be used as a prop for the
+ * 'wpcom_launchpad_mark_task_complete' event.
+ *
+ * Ensures the current user actually owns the current site, to make sure we
+ * aren't recording goals for random sites like public-api.wordpress.com
+ * (the action which triggers this event could have been triggered by a
+ * public-api call.
+ *
+ * @return string Command separated list of goals.
+ */
+function wpcom_get_current_site_goals_for_tracks() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return '';
+	}
+
+	$site_goals = get_option( 'site_goals', array() );
+	return implode( ',', $site_goals );
+}
+
+/**
+ * Checks if the subscribe block has been added or enabled.
+ *
+ * @return bool True if the task is completed, false otherwise.
+ */
+function wpcom_launchpad_has_added_subscribe_block() {
+
+	if ( get_option( 'jetpack_subscriptions_subscribe_post_end_enabled', false ) || get_option( 'jetpack_subscriptions_subscribe_navigation_enabled', false ) ) {
+		return true;
+	}
+
+	return wpcom_launchpad_is_task_option_completed( array( 'id' => 'add_subscribe_block' ) );
 }

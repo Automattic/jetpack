@@ -1,8 +1,8 @@
 import { Icon, plus } from '@wordpress/icons';
 import React, { Fragment } from 'react';
-import { getIconBySlug } from '../icons/index';
+import { getIconBySlug } from '../icons/index.tsx';
 import styles from './style.module.scss';
-import { IconsCardProps } from './types';
+import { IconsCardProps } from './types.ts';
 
 /**
  * Icons composition for a bundle product,

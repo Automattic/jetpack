@@ -10,6 +10,7 @@ import {
 	getRedirectUrl,
 	Notice,
 } from '@automattic/jetpack-components';
+import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Card, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -26,7 +27,8 @@ import { useGoBack } from '../../../hooks/use-go-back';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../../go-back-link';
-import { ProductInterstitialPlugin } from '../../product-interstitial-modal';
+import LoadingBlock from '../../loading-block';
+import { ProductInterstitialMyJetpack } from '../../product-interstitial-modal';
 import styles from './style.module.scss';
 
 const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-page' );
@@ -37,7 +39,7 @@ const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-
  */
 export default function () {
 	const { onClickGoBack } = useGoBack( 'jetpack-ai' );
-	const { detail } = useProduct( 'jetpack-ai' );
+	const { detail, isLoading } = useProduct( 'jetpack-ai' );
 	const { description, aiAssistantFeature } = detail;
 	const [ showNotice, setShowNotice ] = useState( false );
 	const { isRegistered } = useMyJetpackConnection();
@@ -209,7 +211,11 @@ export default function () {
 	);
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ true }>
+		<AdminPage
+			showHeader={ false }
+			showBackground={ true }
+			useInternalLinks={ shouldUseInternalLinks() }
+		>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
@@ -230,7 +236,14 @@ export default function () {
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__hero-section' ] }>
 						<div className={ styles[ 'product-interstitial__hero-content' ] }>
-							<h1 className={ styles[ 'product-interstitial__hero-heading' ] }>{ description }</h1>
+							{ isLoading ? (
+								<LoadingBlock height="80px" width="100%" />
+							) : (
+								<h1 className={ styles[ 'product-interstitial__hero-heading' ] }>
+									{ description }
+								</h1>
+							) }
+
 							<div className={ styles[ 'product-interstitial__hero-sub-heading' ] }>
 								{ __(
 									'Draft, transform, translate, and alter both new and existing content leveraging the capabilities of AI, inside the block editor.',
@@ -239,10 +252,10 @@ export default function () {
 							</div>
 							{ ! shouldContactUs && ! hasUnlimited && (
 								<>
-									<ProductInterstitialPlugin
+									<ProductInterstitialMyJetpack
 										slug="jetpack-ai"
 										onOpen={ upgradeClickHandlerModal }
-										triggerButton={ __( 'Get more requests', 'jetpack-my-jetpack' ) }
+										modalTriggerButtonLabel={ __( 'Get more requests', 'jetpack-my-jetpack' ) }
 										buttonLabel={ __( 'Upgrade', 'jetpack-my-jetpack' ) }
 										isWithVideo
 										secondaryColumn={

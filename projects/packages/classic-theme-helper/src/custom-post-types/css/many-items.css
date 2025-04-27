@@ -6,9 +6,6 @@
 	width: 100%;
 }
 
-.many-items-table input[type=file] {
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-ms-box-sizing: border-box;
+.many-items-table input[type="file"] {
 	box-sizing: border-box;
 }

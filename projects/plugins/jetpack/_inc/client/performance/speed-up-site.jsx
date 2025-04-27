@@ -2,7 +2,6 @@ import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -12,8 +11,6 @@ import analytics from 'lib/analytics';
 import { isOfflineMode } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { isAtomicSite } from '../state/initial-state';
-import { isPluginActive } from '../state/site/plugins';
 
 const SpeedUpSite = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -290,17 +287,6 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 									) }
 								</FormFieldset>
 							</SettingsGroup>
-							{ this.props.isAtomicSite && this.props.isPageOptimizeActive && (
-								<CompactCard
-									className="jp-settings-card__configure-link"
-									href={ `${ this.props.siteAdminUrl }admin.php?page=page-optimize` }
-								>
-									{ __(
-										'Optimize JS and CSS for faster page load and render in the browser.',
-										'jetpack'
-									) }
-								</CompactCard>
-							) }
 						</>
 					) }
 				</SettingsCard>
@@ -315,7 +301,5 @@ export default connect( state => {
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		isAtomicSite: isAtomicSite( state ),
-		isPageOptimizeActive: isPluginActive( state, 'page-optimize/page-optimize.php' ),
 	};
 } )( SpeedUpSite );

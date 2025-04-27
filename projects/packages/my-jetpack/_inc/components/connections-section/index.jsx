@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import { useAllProducts } from '../../data/products/use-all-products';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
@@ -13,9 +14,15 @@ import ConnectionStatusCard from '../connection-status-card';
 export default function ConnectionsSection() {
 	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins } = useMyJetpackConnection();
 	const navigate = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
-	const products = useAllProducts();
+	const { data: products, isLoading, isError } = useAllProducts();
 	const onDisconnected = () => document?.location?.reload( true ); // TODO: replace with a better experience.
-	const productsThatRequireUserConnection = getProductSlugsThatRequireUserConnection( products );
+	const productsThatRequireUserConnection = useMemo( () => {
+		if ( isLoading || isError ) {
+			return [];
+		}
+
+		return getProductSlugsThatRequireUserConnection( products );
+	}, [ products, isLoading, isError ] );
 
 	return (
 		<ConnectionStatusCard

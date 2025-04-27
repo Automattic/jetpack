@@ -1,13 +1,15 @@
-import AdminPage from '../../admin-page';
-import Col from '../../layout/col';
-import Container from '../../layout/container';
-import AdminSection from '../basic';
-import AdminSectionHero from '../hero';
+import AdminPage from '../../admin-page/index.tsx';
+import Col from '../../layout/col/index.tsx';
+import Container from '../../layout/container/index.tsx';
+import AdminSection from '../basic/index.tsx';
+import AdminSectionHero from '../hero/index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof AdminSection > = {
 	title: 'JS Packages/Components/Admin Sections',
-} as Meta< typeof AdminSection >;
+};
+
+export default meta;
 
 // Export additional stories using pre-defined values
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

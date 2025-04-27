@@ -5,13 +5,18 @@
  * @package automattic/jetpack-autoloader
  */
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
 /**
  * Test suite class for verifying the functionality of the current autoloader.
  *
  * @runTestsInSeparateProcesses Ensure each test has a fresh process as if it was a real request.
  * @preserveGlobalState disabled
  */
-class AutoloaderTest extends Acceptance_Test_Case {
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
+class AutoloaderTest extends Acceptance_TestCase {
 
 	/**
 	 * Tests that the autoloader works properly in the standard case.

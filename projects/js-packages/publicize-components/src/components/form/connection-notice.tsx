@@ -30,7 +30,7 @@ export const ConnectionNotice: React.FC = () => {
 	if ( ! hasConnections ) {
 		return (
 			<PanelRow>
-				<p>
+				<div>
 					<span className={ styles[ 'no-connections-text' ] }>
 						{ __(
 							'Sharing is disabled because there are no social media accounts connected.',
@@ -38,7 +38,7 @@ export const ConnectionNotice: React.FC = () => {
 						) }
 					</span>
 					<SettingsButton label={ __( 'Connect an account', 'jetpack-publicize-components' ) } />
-				</p>
+				</div>
 			</PanelRow>
 		);
 	}

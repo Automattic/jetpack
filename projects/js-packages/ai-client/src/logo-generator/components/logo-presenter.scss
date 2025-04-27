@@ -6,6 +6,7 @@
 	gap: 8px;
 
 	.components-button {
+
 		&:focus:not(:disabled):not(.is-primary) {
 			box-shadow: 0 0 0 2px var(--color-link, #3858e9);
 		}

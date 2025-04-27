@@ -1,5 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import PricingTable, { PricingTableColumn, PricingTableHeader, PricingTableItem } from '../index';
+import PricingTable, {
+	PricingTableColumn,
+	PricingTableHeader,
+	PricingTableItem,
+} from '../index.tsx';
 
 describe( 'PricingTable', () => {
 	const testProps = {

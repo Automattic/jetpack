@@ -15,7 +15,7 @@
 		text-decoration: none;
 
 		&:any-link,
-		&[role=button] {
+		&[role="button"] {
 			color: inherit;
 		}
 
@@ -25,6 +25,11 @@
 		}
 
 		&:focus {
+			box-shadow: none;
+			outline-width: 0;
+		}
+
+		&:focus-visible {
 			border-radius: 2px;
 			box-shadow: none;
 			outline: 1.5px solid currentColor;
@@ -33,6 +38,7 @@
 	}
 
 	&.is-sm {
+
 		> ul {
 			flex-direction: column;
 			align-items: flex-start;
@@ -72,13 +78,13 @@
 }
 
 .jp-dashboard-footer__accessible-external-link {
-	border: 0px;
+	border: 0;
     clip: rect(1px, 1px, 1px, 1px);
     clip-path: inset(50%);
     height: 1px;
     margin: -1px;
     overflow: hidden;
-    padding: 0px;
+    padding: 0;
     position: absolute;
     width: 1px;
     overflow-wrap: normal;
@@ -95,6 +101,7 @@
 }
 
 .jp-dashboard-footer__a8c-item {
+
 	.jp-dashboard-footer.is-lg & {
 		margin-inline-start: auto;
 	}
@@ -106,6 +113,7 @@
 
 .jp-dashboard-footer__jp-item,
 .jp-dashboard-footer__a8c-item {
+
 	> a {
 		text-decoration: none; // Logos typically have no hover effect
 	}

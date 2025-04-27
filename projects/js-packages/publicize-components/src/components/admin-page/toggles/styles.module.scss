@@ -11,6 +11,7 @@
 	}
 
 	@supports ( display: grid ) {
+
 		> * + * {
 			margin-top: 0;
 		}
@@ -23,6 +24,14 @@
 	@media ( min-width: 960px ) {
 		column-gap: calc( var( --spacing-base ) * 6 );
 		grid-column: 3 / span 8;
+	}
+}
+
+.column.notoggle {
+	grid-template-columns: 1fr 0;
+
+	> * {
+		grid-column: span 2;
 	}
 }
 
@@ -44,6 +53,7 @@
 	}
 	// Specific, "ugly" selector is required to overwrite the default styling
 	:global {
+
 		.components-base-control__field {
 			--wp-admin-theme-color: var( --jp-green-40 );
 			margin-bottom: 0;

@@ -125,7 +125,6 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'jetpack_post_date_in_email'                => '(bool) Whether to show date in the email byline',
 			'wpcom_newsletter_categories'               => '(array) Array of post category ids that are marked as newsletter categories',
 			'wpcom_newsletter_categories_enabled'       => '(bool) Whether the newsletter categories are enabled or not',
-			'wpcom_newsletter_categories_modal_hidden'  => '(bool) Whether the newsletter categories modal is hidden or not',
 			'sm_enabled'                                => '(bool) Whether the newsletter Subscribe Modal is enabled or not',
 			'jetpack_subscribe_overlay_enabled'         => '(bool) Whether the newsletter Subscribe Overlay is enabled or not',
 			'jetpack_subscribe_floating_button_enabled' => '(bool) Whether the newsletter floating subscribe button is enabled or not',
@@ -148,6 +147,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'highlander_comment_form_prompt'            => '(string) The prompt for the comment form',
 			'jetpack_comment_form_color_scheme'         => '(string) The color scheme for the comment form',
 			'is_fully_managed_agency_site'              => '(bool) Whether the site is a fully managed agency site',
+			'wpcom_hide_action_bar'                     => '(bool) Whether to hide the Action bar',
 		),
 
 		'response_format' => array(

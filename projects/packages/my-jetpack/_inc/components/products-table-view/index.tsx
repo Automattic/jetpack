@@ -2,7 +2,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAllProducts } from '../../data/products/use-all-products';
 import useAnalytics from '../../hooks/use-analytics';
@@ -34,7 +34,7 @@ import type {
 	Operator,
 	Option,
 } from '@wordpress/dataviews';
-import type { FC, MouseEvent } from 'react';
+import type { FC } from 'react';
 
 import './style.scss';
 
@@ -97,16 +97,18 @@ const getCategories: (
 	return categoryOptions;
 };
 
+export const getProductTitleId = ( slug: JetpackModule ) => `product-title-${ slug }`;
+
 const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 	const getItemId = useCallback( ( item: ProductData ) => item.product.slug, [] );
 	const onChangeView = useCallback( ( newView: View ) => {
 		setView( newView );
 	}, [] );
-	const isItemClickable = useCallback( () => false, [] );
-	const allProductData = useAllProducts();
+	const { data: allProductData, isLoading, isError } = useAllProducts();
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const navigate = useNavigate();
 	const { recordEvent } = useAnalytics();
+	const [ categories, setCategories ] = useState< Option[] >( [] );
 
 	const baseView: ViewList = {
 		sort: {
@@ -129,18 +131,29 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		},
 	};
 
-	const categories = useMemo(
-		() => getCategories( products, allProductData ),
-		[ products, allProductData ]
-	);
+	useEffect( () => {
+		if ( ! isError && ! isLoading && ! categories.length ) {
+			setCategories( getCategories( products, allProductData ) );
+		}
+	}, [ isError, isLoading, categories, allProductData, products ] );
 
 	const navigateToInterstitial = useCallback(
-		( slug: string ) => ( event: MouseEvent< HTMLButtonElement > ) => {
-			event.preventDefault();
+		( slug: string ) => {
 			recordEvent( `jetpack_myjetpack_product_list_item_${ slug }_learnmore_mobile_click` );
 			navigate( `add-${ slug }` );
 		},
 		[ navigate, recordEvent ]
+	);
+
+	const onChangeSelection = useCallback(
+		( items: JetpackModule[] ) => {
+			if ( isMobileViewport ) {
+				const slug = items[ 0 ];
+
+				navigateToInterstitial( slug );
+			}
+		},
+		[ navigateToInterstitial, isMobileViewport ]
 	);
 
 	const fields = useMemo( () => {
@@ -155,7 +168,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 				},
 				render: ( { item }: { item: ProductData } ) => {
 					const { product } = item;
-					return <div>{ product.name }</div>;
+					return <div id={ getProductTitleId( product.slug ) }>{ product.name }</div>;
 				},
 			},
 			{
@@ -211,10 +224,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 
 					if ( isMobileViewport ) {
 						return (
-							<button
-								onClick={ navigateToInterstitial( slug ) }
-								className="product-list-item-chevron"
-							>
+							<button className="product-list-item-chevron">
 								<Icon icon={ chevronRight } size={ 24 } />
 							</button>
 						);
@@ -225,6 +235,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 							className="product-list-item-cta"
 							slug={ slug }
 							tracksIdentifier="product_list_item"
+							labelSuffixId={ getProductTitleId( slug ) }
 						/>
 					);
 				},
@@ -234,7 +245,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		// and a 'jumping' of the CTA buttons. Having categories as a dependency here is unnecessary
 		// and leaving it out doesn't cause the values to be incorrect.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ isMobileViewport, navigateToInterstitial ] );
+	}, [ isMobileViewport, navigateToInterstitial, categories ] );
 
 	const [ view, setView ] = useState< View >( {
 		type: 'list',
@@ -261,7 +272,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 			paginationInfo={ paginationInfo }
 			onChangeView={ onChangeView }
 			defaultLayouts={ defaultLayouts }
-			isItemClickable={ isItemClickable }
+			onChangeSelection={ onChangeSelection }
 		/>
 	);
 };

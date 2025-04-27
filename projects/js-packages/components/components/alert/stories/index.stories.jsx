@@ -1,5 +1,5 @@
 import React from 'react';
-import Alert from '../index';
+import Alert from '../index.tsx';
 
 export default {
 	title: 'JS Packages/Components/Alert',

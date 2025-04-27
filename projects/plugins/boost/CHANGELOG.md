@@ -5,6 +5,105 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.13.1] - 2025-04-16
+### Fixed
+- Critical CSS: Fix cases where dismissing a recommendation would dismiss multiple ones. [#43047]
+- Critical CSS: Fix not showing status code when generation fails for some pages. [#42856]
+- Image Guide: Fix front-end state not being in sync with Boost settings. [#42891]
+- Page Cache: Fix garbage collection and clear cache functionality leaving empty directories behind. [#42789]
+- Page Cache: Fix not clearing up some events on deactivation. [#43066]
+
+## [3.13.0] - 2025-04-01
+### Added
+- Cornerstone Pages: Add speculation rules toggle to prerender those URLs [#42374]
+- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process. [#42757]
+- Speculation rules: Add Cornerstone Pages to the WP speculation rules for displaying [#42428]
+
+### Changed
+- General: Update interstitial modal secondary button to use URL from Jetpack Redirect [#42490]
+- Critical CSS: Improve reliability of generation by running hooks after saving the state. [#42723]
+- General: Indicate compatibility with the upcoming version of WordPress - 6.8. [#42701]
+- General: Update Class/Interface file names to adhere to WordPress Convention [#42784]
+- UI: Show module loading errors with details. [#42707]
+- Update package dependencies. [#42762]
+
+### Fixed
+- Admin Menu: Ensure Akismet menu item display alongside standalone. [#42776]
+- Misc: Fix incorrectly registering plugin text domain. [#42792]
+
+## [3.12.1] - 2025-03-27
+### Fixed
+- General: Fixed intermittent error during module loading. [#42742]
+
+## [3.12.0] - 2025-03-27
+### Added
+- Cache: Add Page Cache Preloading for Cornerstone Pages [#42549]
+- Add Account Protection initialization [#40925]
+- My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
+
+### Changed
+- Connection: Allow pre-selected login providers [#42662]
+
+### Removed
+- Compatibility: Remove redundant compatibility code. [#42629]
+
+### Fixed
+- Critical CSS: Prevent the generation process from failing when an individual page fails to load. [#42613]
+
+## [3.11.0] - 2025-03-19
+### Added
+- Page Cache: Add more cookies to the ignore-list for better caching. [#42365]
+
+### Changed
+- Cache: Hide conflicting notice about cache setup on WoA. [#42466]
+- Concatenate JS/CSS: Ensure delivery method tester is only tested once per network on Multisite. [#41918]
+- UI: Change style of pills. [#42460]
+- UI: Upgrade CTAs on the Jetpack Boost admin now opens a modal instead of navigating to the upgrade page. [#42309] [#42416]
+- Update package dependencies. [#42511] [#42509]
+
+### Fixed
+- Critical CSS: Prevent the process from failing when a single provider fails storing its CSS. [#42110]
+
+## [3.10.4] - 2025-03-12
+### Fixed
+- Critical CSS: Mask CSS to prevent WAF false-positives during generation. [#42320]
+
+## [3.10.3] - 2025-03-06
+### Fixed
+- Critical CSS: Fix generation. [#42263]
+
+## [3.10.2] - 2025-03-06
+### Fixed
+- Critical CSS: Fix fatal error during generation. [#42261]
+
+## [3.10.1] - 2025-03-06
+### Added
+- Concatenate JS/CSS: Show a notice if legacy files are being served. [#41604]
+
+### Changed
+- Concatenate JS/CSS: Improved handling of minification settings. [#41716]
+- General: Improved the way modules are configured internally [#39859] [#41673]
+- Update package dependencies. [#41955] [#42163] [#42180]
+
+### Fixed
+- Critical CSS: Implement a workaround for WAF interfering with generation. [#42245]
+- Critical CSS: Fix showing empty error in some cases, when generation failed. [#42026]
+- Critical CSS: Prevent invalid URLs from breaking the whole process. [#41946]
+
+## [3.9.0] - 2025-02-17
+### Added
+- Cloud CSS: Handle prioritized cloud CSS regeneration for cornerstone pages updates. [#41516]
+- Concatenate JS: Add compatibility with "Depay Payments for WooCommerce". [#41571]
+- Speed Scores: Add tracking for speed score pop-out CTA. [#41556]
+
+### Changed
+- Admin Panel: Cleanup CSS styles. [#41371]
+- Concatenate JS/CSS: Update concatenated assets to be stored on the server as files. [#41056]
+- Updated package dependencies. [#41286] [#41491] [#41577] [#41659]
+
+### Fixed
+- UI: Fix UI discrepancy in Boost settings page upon toggling multiple Modules at same time. [#41472]
+
 ## [3.8.0] - 2025-01-23
 ### Added
 - Critical CSS: Flag a site-health issue for Critical CSS when a page from the Cornerstone Pages list is modified. [#41006]
@@ -583,6 +682,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.13.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.0...3.13.1
+[3.13.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.12.1...3.13.0
+[3.12.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.12.0...3.12.1
+[3.12.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.11.0...3.12.0
+[3.11.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.10.4...3.11.0
+[3.10.4]: https://github.com/Automattic/jetpack-boost-production/compare/3.10.3...3.10.4
+[3.10.3]: https://github.com/Automattic/jetpack-boost-production/compare/3.10.2...3.10.3
+[3.10.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.10.1...3.10.2
+[3.10.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.9.0...3.10.1
+[3.9.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.8.0...3.9.0
 [3.8.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.7.0...3.8.0
 [3.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.6.1...3.7.0
 [3.6.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.6.0...3.6.1

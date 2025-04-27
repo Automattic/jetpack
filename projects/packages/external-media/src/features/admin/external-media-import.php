@@ -27,10 +27,6 @@ function is_current_user_connected() {
  * Register the Jetpack external media page to Media > Import.
  */
 function add_jetpack_external_media_import_page() {
-	if ( empty( $_GET['jetpack_external_media_import_page'] ) && empty( $_GET['untangling-media'] ) ) { // phpcs:disable WordPress.Security.NonceVerification.Recommended
-		return;
-	}
-
 	/**
 	 * The feature is enabled only when the current user is connected to WordPress.com.
 	 */
@@ -75,7 +71,7 @@ function enqueue_jetpack_external_media_import_button() {
 		$asset_name,
 		'JETPACK_EXTERNAL_MEDIA_IMPORT_BUTTON',
 		array(
-			'href' => admin_url( 'upload.php?page=jetpack_external_media_import_page&untangling-media=true' ),
+			'href' => admin_url( 'upload.php?page=jetpack_external_media_import_page' ),
 		)
 	);
 }

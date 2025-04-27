@@ -32,7 +32,7 @@ function jetpack_boost_page_optimize_service_request() {
 	$cache_file_meta = '';
 
 	if ( $use_cache ) {
-		$cache_dir = Config::get_cache_dir_path();
+		$cache_dir = Config::get_legacy_cache_dir_path();
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		$request_uri      = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
 		$request_uri_hash = md5( $request_uri );

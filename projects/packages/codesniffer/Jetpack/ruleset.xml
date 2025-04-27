@@ -16,7 +16,14 @@
 	<rule ref="MediaWiki.PHPUnit.AssertEquals" />
 	<rule ref="MediaWiki.PHPUnit.AssertionOrder" />
 	<rule ref="MediaWiki.PHPUnit.MockBoilerplate" />
+	<rule ref="MediaWiki.PHPUnit.PHPUnitTypeHints" />
 	<rule ref="MediaWiki.PHPUnit.SpecificAssertions" />
+	<!-- Too many hits for now. <rule ref="MediaWiki.PHPUnit.AssertEmpty" /> -->
+	<!-- The following are obsolete or covered by Phan. Listing here so we don't keep re-evaluating.
+	<rule ref="MediaWiki.PHPUnit.DeprecatedPHPUnitMethods" />
+	<rule ref="MediaWiki.PHPUnit.PHPUnitClassUsage" />
+	<rule ref="MediaWiki.PHPUnit.SetMethods" />
+	-->
 	<rule ref="MediaWiki.Usage.InArrayUsage" />
 	<rule ref="MediaWiki.Usage.MagicConstantClosure" />
 	<rule ref="MediaWiki.Usage.NestedFunctions" />

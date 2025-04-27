@@ -11,8 +11,8 @@ import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
-	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi;
-	if ( pricingForUi.tiers ) {
+	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi || {};
+	if ( tiers ) {
 		const {
 			discountPrice,
 			fullPrice,
@@ -27,8 +27,8 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 			wpcomFreeProductSlug,
 			wpcomProductSlug: ! quantity ? wpcomProductSlug : `${ wpcomProductSlug }:-q-${ quantity }`,
 			discountPrice: hasDiscount && eligibleForIntroDiscount ? discountPrice / 12 : null,
-			fullPrice: fullPrice / 12,
-			currencyCode,
+			fullPrice: fullPrice ? fullPrice / 12 : 0,
+			currencyCode: currencyCode ?? 'USD',
 		};
 	}
 
@@ -39,7 +39,7 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 		fullPricePerMonth,
 		currencyCode,
 		wpcomProductSlug,
-	} = pricingForUi;
+	} = pricingForUi || {};
 	const hasDiscount = discountPrice && discountPrice !== fullPrice;
 	const eligibleForIntroDiscount = ! introductoryOffer?.reason;
 	return {
@@ -48,8 +48,8 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 		discountPrice:
 			// Only display discount if site is elgible
 			hasDiscount && eligibleForIntroDiscount ? discountPricePerMonth : null,
-		fullPrice: fullPricePerMonth,
-		currencyCode,
+		fullPrice: fullPricePerMonth ?? 0,
+		currencyCode: currencyCode ?? 'USD',
 	};
 };
 
@@ -89,7 +89,7 @@ const getPrimaryAction = (
 		detail.status === PRODUCT_STATUSES.ACTIVE &&
 		( detail.isUpgradableByBundle.length || detail.isUpgradable );
 	const upgradeHasPrice =
-		detail.pricingForUi.fullPrice || detail.pricingForUi.tiers?.upgraded?.fullPrice;
+		detail?.pricingForUi?.fullPrice || detail?.pricingForUi?.tiers?.upgraded?.fullPrice;
 
 	if ( detail.status === PRODUCT_STATUSES.CAN_UPGRADE || isUpgradable ) {
 		if ( upgradeHasPrice ) {

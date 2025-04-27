@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useAnalytics from '../../hooks/use-analytics';
+import LoadingBlock from '../loading-block';
 import { JetpackModuleToProductCard } from '../product-cards-section/all';
 import styles from './style.module.scss';
 import type { FC, RefObject } from 'react';
@@ -13,7 +14,7 @@ import type { FC, RefObject } from 'react';
 const EvaluationRecommendations: FC = () => {
 	const containerRef = useRef( null );
 	const { recordEvent } = useAnalytics();
-	const { recommendedModules, redoEvaluation, removeEvaluationResult } =
+	const { recommendedModules, redoEvaluation, removeEvaluationResult, isProductOwnershipLoading } =
 		useEvaluationRecommendations();
 	const [ isAtStart, setIsAtStart ] = useState( true );
 	const [ isAtEnd, setIsAtEnd ] = useState( false );
@@ -133,6 +134,13 @@ const EvaluationRecommendations: FC = () => {
 					{ recommendedModules.map( module => {
 						const moduleName = module.replace( 'feature_', '' );
 						const Card = JetpackModuleToProductCard[ moduleName ];
+						if ( isProductOwnershipLoading ) {
+							return (
+								<Col tagName="li" key={ module } lg={ 4 }>
+									<LoadingBlock width="100%" height="200px" />
+								</Col>
+							);
+						}
 						return (
 							Card && (
 								<Col tagName="li" key={ module } lg={ 4 }>

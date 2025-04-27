@@ -23,7 +23,7 @@
 		'bubble category category'
 		'bubble status status';
 
-	a {
+	a:global(.jb-navigator-link) {
 		text-decoration: none;
 	}
 }

@@ -3,14 +3,10 @@
 ## Environment used by this script:
 #
 # Required:
-# - API_TOKEN_GITHUB: GitHub API token.
-# - GITHUB_API_URL: GitHub API URL.
-# - GITHUB_REPOSITORY: GitHub repo.
 # - GITHUB_SHA: Commit SHA.
-# - PR_HEAD: SHA for the PR head commit (versus GITHUB_SHA which is a merge commit)
 # - PR_ID: PR number or "trunk".
 # - SECRET: Shared secret.
-# - STATUS: Status of the coverage run.
+# - For non-trunk runs, anything needed by post-message.sh
 
 set -eo pipefail
 
@@ -22,6 +18,12 @@ fi
 mkdir coverage-data
 cp coverage/summary.tsv coverage-data/summary.tsv
 gzip -9 coverage-data/summary.tsv
+
+# We only need the combined coverage data serialized object for trunk.
+if [[ "$PR_ID" == "trunk" ]]; then
+	cp coverage/php-combined.cov coverage-data/php-combined.cov
+	gzip -9 coverage-data/php-combined.cov
+fi
 
 if [[ -f coverage/js-combined.json ]]; then
 	echo '::group::Pnpm install'

@@ -12,6 +12,7 @@ use Automattic\IgnoreFile;
 use Automattic\IgnoreFile\InvalidPatternException;
 use Exception;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
@@ -21,7 +22,6 @@ use SplFileInfo;
 
 /** Tests for IgnoreFile. */
 class IgnoreFileTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
 	 * Run test cases from IgnoreFileTestData.jsonc.
@@ -30,6 +30,7 @@ class IgnoreFileTest extends TestCase {
 	 * @param string|string[]                                  $patterns Patterns to test.
 	 * @param array<string,array{ignored:bool,unignored:bool}> $pathmap Paths to test.
 	 */
+	#[DataProvider( 'provideCases' )]
 	public function testCases( $patterns, $pathmap ) {
 		$ignore = new IgnoreFile();
 		$ignore->add( $patterns );
@@ -56,7 +57,7 @@ class IgnoreFileTest extends TestCase {
 	}
 
 	/** Data provider for testCases(). */
-	public function provideCases() {
+	public static function provideCases() {
 		$map = array(
 			'nomatch'              => array(
 				'ignored'   => false,
@@ -141,6 +142,7 @@ class IgnoreFileTest extends TestCase {
 	 * @throws RuntimeException If subprocess spawning fails.
 	 * @throws Exception If a PHPUnit exception fails 🙄 .
 	 */
+	#[DataProvider( 'provideCasesGit' )]
 	public function testCasesGit( $patterns, $pathmap, $skip = false ) {
 		$tmpdir = $this->mktempdir();
 		try {
@@ -182,7 +184,7 @@ class IgnoreFileTest extends TestCase {
 				$this->assertEquals( $expect, $actual, "Testing $path" );
 			}
 			if ( $skip ) {
-				$this->addWarning( 'This test is marked as "nogit" but passes. Maybe the "nogit" can be removed?' );
+				trigger_error( 'This test is marked as "nogit" but passes. Maybe the "nogit" can be removed?', E_USER_WARNING );
 			}
 		} catch ( Exception $ex ) {
 			if ( $skip && $ex instanceof ExpectationFailedException ) {
@@ -196,10 +198,10 @@ class IgnoreFileTest extends TestCase {
 	}
 
 	/** Data provider for testCasesGit(). */
-	public function provideCasesGit() {
+	public static function provideCasesGit() {
 		$git = shell_exec( 'command -v git 2>/dev/null' );
 		if ( ! $git ) {
-			$this->markTestSkipped( 'Git (or a POSIX shell) is unavailable' );
+			self::markTestSkipped( 'Git (or a POSIX shell) is unavailable' );
 		}
 
 		$map = array(
@@ -413,6 +415,7 @@ class IgnoreFileTest extends TestCase {
 	 * @dataProvider provideBadPattern
 	 * @param string $pattern Pattern.
 	 */
+	#[DataProvider( 'provideBadPattern' )]
 	public function testBadPattern( $pattern ) {
 		$ignore = new IgnoreFile();
 		$ignore->add( array( 'aaa', $pattern, 'bbb' ) );
@@ -427,6 +430,7 @@ class IgnoreFileTest extends TestCase {
 	 * @param string $pattern Pattern.
 	 * @param string $msg Exception message.
 	 */
+	#[DataProvider( 'provideBadPattern' )]
 	public function testBadPattern_strictMode( $pattern, $msg ) {
 		$ignore             = new IgnoreFile();
 		$ignore->strictMode = true;
@@ -436,7 +440,7 @@ class IgnoreFileTest extends TestCase {
 	}
 
 	/** Data provider for testBadPattern(). */
-	public function provideBadPattern() {
+	public static function provideBadPattern() {
 		return array(
 			'Collating symbol'             => array( 'foo[[.-.]]bar', 'Collating symbols (`[.` inside a bracket expression) are not supported (in pattern at index 0)' ),
 			'Collating symbol (2)'         => array( 'foo[x[.-.]y]bar', 'Collating symbols (`[.` inside a bracket expression) are not supported (in pattern at index 0)' ),

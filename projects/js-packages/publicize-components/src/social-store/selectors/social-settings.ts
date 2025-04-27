@@ -1,3 +1,4 @@
+import { currentUserCan } from '@automattic/jetpack-script-data';
 import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector } from '@wordpress/data';
 import { SocialSettings } from '../../types';
@@ -15,7 +16,9 @@ export const isSavingSiteSettings = createRegistrySelector( select => () => {
  * Returns the social settings.
  */
 export const getSocialSettings = createRegistrySelector( select => () => {
-	const data = select( coreStore ).getEntityRecord< SocialSettingsFields >( 'root', 'site' );
+	const data = currentUserCan( 'manage_options' )
+		? select( coreStore ).getEntityRecord< SocialSettingsFields >( 'root', 'site' )
+		: null;
 
 	const { settings } = getSocialScriptData();
 

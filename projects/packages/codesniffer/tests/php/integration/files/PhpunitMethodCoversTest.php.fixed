@@ -1,0 +1,67 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.FunctionComment.Missing
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\UsesFunction;
+use PHPUnit\Framework\Attributes\UsesMethod;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * A test class
+ *
+ * @covers Foo
+ * @covers Bar::barbar
+ * @covers ::some_function
+ * @covers \Bar
+ * @covers \Baz
+ * @covers \Oof
+ * @uses Oof
+ * @uses Rab::rabrab
+ * @uses ::noitcnuf_emos
+ * @uses \Foo
+ * @uses \Rab::rab2
+ * @uses \Zab
+ */
+#[Attribute]
+#[CoversClass( Foo::class )]
+#[CoversMethod( Bar::class, 'barbar' )]
+#[UsesClass( Oof::class )]
+#[UsesMethod( Rab::class, 'rabrab' )]
+#[CoversClass( Bar::class )]
+#[CoversClass( Baz::class )]
+#[CoversClass( Oof::class )]
+#[CoversFunction( 'some_function' )]
+#[UsesClass( Foo::class )]
+#[UsesClass( Zab::class )]
+#[UsesFunction( 'noitcnuf_emos' )]
+#[UsesMethod( Rab::class, 'rab2' )]
+class PhpunitMethodCoversTest extends TestCase {
+	/**
+	 * @dataProvider provideFoo
+	 */
+	#[DataProvider( 'provideFoo' )]
+	public function testFoo() {
+	}
+
+	public function testBar() {
+	}
+
+	public function testSomething() {
+	}
+
+	/** @dataProvider provideSomething2 */
+	#[DataProvider( 'provideSomething2' )]
+	public function testSomething2() {
+	}
+
+	public function testBaz1() {
+	}
+
+	public function testBaz2() {
+	}
+}

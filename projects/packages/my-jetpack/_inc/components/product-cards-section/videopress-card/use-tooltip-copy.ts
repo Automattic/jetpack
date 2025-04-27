@@ -2,13 +2,11 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { createElement, useCallback } from 'react';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 
-const useTooltipCopy = () => {
+const useTooltipCopy = ( data: VideopressData ) => {
 	const { recordEvent } = useAnalytics();
-	const { videopress: data } = getMyJetpackWindowInitialState();
-	const { featuredStats, videoCount } = data || {};
+	const { featuredStats, videoCount = 0 } = data || {};
 	const { period } = featuredStats || {};
 	const hostingRedirectLink = getRedirectUrl( 'jetpack-videopress-my-jetpack-tooltip' );
 

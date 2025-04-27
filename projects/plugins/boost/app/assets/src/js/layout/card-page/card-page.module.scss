@@ -1,13 +1,14 @@
-@import "$css/main/variables.scss";
-@import "$css/main/mixins.scss";
-@import "$css/main/common.scss";
+@import "$css/main/variables";
+@import "$css/main/mixins";
+@import "$css/main/common";
 
 .card {
-	background: #FFFFFF url("$images/color-shift.svg") no-repeat top right;
+	background: #FFF url(\$images/color-shift.svg) no-repeat top right;
 	border: 1px solid #DCDCDE;
 	border-radius: $border-radius;
 
 	.content {
+
 		@extend .p-4;
 		color: $primary-black;
 
@@ -16,8 +17,8 @@
 			padding-bottom: 6px;
 			padding-left: 2em;
 			vertical-align: middle;
-			background: url("$images/check.svg") no-repeat;
-			background-position: 0px 2px;
+			background: url(\$images/check.svg) no-repeat;
+			background-position: 0 2px;
 			background-size: 1.5em;
 			line-height: 1.5em;
 			list-style-type: none;
@@ -25,12 +26,14 @@
 	}
 
 	.cta {
+
 		svg, img {
 			max-width: 100%;
 		}
 	}
 
 	@include breakpoint( xs ) {
+
 		.content {
 			padding: $spacing-unit * 3;
 		}

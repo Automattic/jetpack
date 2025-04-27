@@ -70,24 +70,17 @@
 	    border: none;
 	    vertical-align: baseline;
 	    //background: #E0E1E2 none;
-	    color: rgba(0,0,0,0.6);
-	    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
-	    margin: 0em 0.25em 0em 0em;
+	    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+	    margin: 0 0.25em 0 0;
 	    padding: 0.78571429em 1.5em 0.78571429em;
-	    text-transform: none;
-	    text-shadow: none;
-	    font-weight: bold;
 	    line-height: 1em;
 	    font-style: normal;
 	    text-align: center;
 	    text-decoration: none;
-	    border-radius: 0.28571429rem;
-	    box-shadow: 0px 0px 0px 1px transparent inset, 0px 0em 0px 0px rgba(34,36,38,0.15) inset;
 	    -webkit-user-select: none;
 	    -moz-user-select: none;
 	    -ms-user-select: none;
 	    user-select: none;
-	    -webkit-transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
 	    transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
 	    will-change: '';
 	    -webkit-tap-highlight-color: transparent;
@@ -95,14 +88,12 @@
 	    font-size: 1rem;
 
 	    //background: transparent none !important;
-	    color: rgba(0,0,0,0.6) !important;
-	    font-weight: normal;
+	    font-weight: 400;
 	    border-radius: 0.28571429rem;
 	    text-transform: none;
 	    text-shadow: none !important;
-	    box-shadow: 0px 0px 0px 1px rgba(34,36,38,0.15) inset;
 
-	    box-shadow: 0px 0px 0px 1px #21BA45 inset !important;
+	    box-shadow: 0 0 0 1px #21BA45 inset !important;
 	    color: #21BA45 !important;
 
 	    background: #FFF !important;
@@ -131,24 +122,25 @@
 			margin-top: 1em;
 			margin-bottom: 0.4em;
 		}
+
 		.ui.label {
 
     		margin-bottom: 0.4em;
 		}
-		.zbsTagSuggestion {
 
-		}
 		.zbsTagSuggestion:hover
 		 {
 			cursor: pointer;
 			color: #000 !important;
 		}
+
 		#zbs-tag-suggestions-show-more:hover,
 		#zbs-tag-suggestions-show-less:hover {
 			cursor: pointer;
 			color: #2284d1 !important;
 
 		}
+
 		#zbs-tag-suggestions-more-wrap {
 
 			display:none; // init
@@ -173,7 +165,7 @@
     margin-bottom: 5em;
     margin-top: 4em;
     margin-left: auto;
-    margin-right: Auto;
+    margin-right: auto;
     
 }
 
@@ -206,6 +198,7 @@
 // fix for zbs-hide not working at high res's
 // JIRA-ZBS-960
 @media (min-width: 1500px){
+
 	.zbs-hide,
 	tr.zbs-field-group-tr .zbs-field-group.zbs-hide {
 		display:none !important;

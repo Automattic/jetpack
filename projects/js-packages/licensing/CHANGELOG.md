@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.14.23 - 2025-04-14
+### Fixed
+- Linting: Update stylesheets to use WordPress rules for fonts. [#42928]
+- Linting: Clean up various Stylelint violations. [#43010]
+
+## 0.14.22 - 2025-04-07
+### Changed
+- Linting: First pass of style coding standards. [#42734]
+
+## 0.14.21 - 2025-04-02
+### Changed
+- Update package dependencies. [#42809]
+
+## 0.14.20 - 2025-04-01
+### Fixed
+- Fix Typescript configuration [#42762]
+
+## 0.14.19 - 2025-03-31
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.18 - 2025-03-26
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.17 - 2025-03-24
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.16 - 2025-03-24
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.15 - 2025-03-18
+### Changed
+- Update package dependencies. [#42511]
+
+## 0.14.14 - 2025-03-17
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.13 - 2025-03-12
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.12 - 2025-03-10
+### Fixed
+- My Jetpack: Add a margin between select and input license fields and titles. [#42075]
+
+## 0.14.11 - 2025-03-05
+### Changed
+- Update Golden Token modal to clarify optional properties. [#42154]
+
+## 0.14.10 - 2025-03-03
+### Changed
+- Update package dependencies. [#42163]
+
+## 0.14.9 - 2025-02-24
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.8 - 2025-02-17
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.7 - 2025-02-11
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.6 - 2025-02-10
+### Changed
+- Updated package dependencies. [#41491] [#41577]
+
 ## 0.14.5 - 2025-01-23
 ### Changed
 - Internal updates.

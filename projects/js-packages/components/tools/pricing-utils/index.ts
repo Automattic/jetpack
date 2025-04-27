@@ -1,4 +1,4 @@
-import { IntroOffer } from './types';
+import { IntroOffer } from './types.ts';
 
 /**
  * Returns whether an Introductory Offer is a first month trial

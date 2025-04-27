@@ -12,6 +12,7 @@ namespace MediaWiki\Sniffs\PHPUnit;
 use PHP_CodeSniffer\Files\DummyFile;
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Util\Tokens;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Check if a class is a test class
@@ -29,8 +30,8 @@ trait PHPUnitTestTrait {
 		'MediaWikiUnitTestCase' => 'MediaWikiUnitTestCase',
 		'MediaWikiIntegrationTestCase' => 'MediaWikiIntegrationTestCase',
 		'PHPUnit_Framework_TestCase' => 'PHPUnit_Framework_TestCase',
-		// This class may be 'use'd, but checking for that would be complicated
-		'PHPUnit\\Framework\\TestCase' => 'PHPUnit\\Framework\\TestCase',
+		// This class may be 'used', but checking for that would be complicated
+		TestCase::class => TestCase::class,
 		// HACK: Add WordPress classes
 		'WP_UnitTestCase' => 'WP_UnitTestCase',
 		'WP_UnitTestCase_Base' => 'WP_UnitTestCase_Base',
@@ -47,7 +48,7 @@ trait PHPUnitTestTrait {
 	 *
 	 * @return bool
 	 */
-	private function isTestFile( File $phpcsFile, $stackPtr = false ) {
+	private function isTestFile( File $phpcsFile, $stackPtr = false ): bool {
 		$fileName = $phpcsFile->getFilename();
 
 		if ( !isset( self::$isTestFile[$fileName] ) ) {
@@ -72,7 +73,7 @@ trait PHPUnitTestTrait {
 	 *
 	 * @return bool
 	 */
-	private function isTestClass( File $phpcsFile, $classToken ) {
+	private function isTestClass( File $phpcsFile, $classToken ): bool {
 		$tokens = $phpcsFile->getTokens();
 		if ( !$classToken || $tokens[$classToken]['code'] !== T_CLASS ) {
 			return false;
@@ -95,7 +96,7 @@ trait PHPUnitTestTrait {
 	 * @param int $functionToken Token position of the function declaration
 	 * @return bool
 	 */
-	private function isTestFunction( File $phpcsFile, $functionToken ) {
+	private function isTestFunction( File $phpcsFile, $functionToken ): bool {
 		return $this->isTestClass( $phpcsFile, $this->getClassToken( $phpcsFile, $functionToken ) )
 			&& preg_match( '/^(?:test|provide)|Provider$/', $phpcsFile->getDeclarationName( $functionToken ) );
 	}

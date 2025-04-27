@@ -40,13 +40,6 @@
 				    margin-left: auto;
 				    margin-right: auto;
 
-				    h4 {
-
-				    }
-
-				    .zbs-crm-customerfilter-preview-line {
-				    	
-				    }
 			    }
 
 		}
@@ -72,26 +65,27 @@
 
 
 		}
+
 		label.zbs-full-line {
 			display:block;
 		}
 
 		// fields: Input text
-		input[type=text]{
+		input[type="text"]{
     		
     		margin: 4px 8px;
 
 		}
 
 		// fields: Input checkbox
-		input[type=checkbox]{
+		input[type="checkbox"]{
     		
     		margin: 4px 8px;
 
 		}
 
 		// fields: Input radio
-		input[type=radio]{
+		input[type="radio"]{
     		
     		margin: 4px 8px;
 
@@ -136,7 +130,7 @@
 			}
 
 			// float these right :)
-			input[type=checkbox]{
+			input[type="checkbox"]{
 
     			//float: right;
 
@@ -206,6 +200,7 @@
     display: inline-block;
     vertical-align: middle;
 }
+
 .zbs-crm-customerfilter-valuerange {
 
 	// "To" label

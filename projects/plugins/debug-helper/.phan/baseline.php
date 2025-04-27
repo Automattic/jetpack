@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassMethod : 60+ occurrences
+    // PhanUndeclaredClassMethod : 65+ occurrences
     // PhanNoopNew : 15+ occurrences
     // PhanPluginSimplifyExpressionBool : 9 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
@@ -20,7 +20,6 @@ return [
     // PhanUndeclaredMethod : 3 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanUndeclaredClass : 2 occurrences
-    // PhanUndeclaredProperty : 2 occurrences
     // PhanEmptyForeach : 1 occurrence
     // PhanNonClassMethodCall : 1 occurrence
     // PhanSuspiciousValueComparison : 1 occurrence
@@ -40,7 +39,7 @@ return [
         'modules/class-jetpack-sync-debug-helper.php' => ['PhanNonClassMethodCall'],
         'modules/class-mocker.php' => ['PhanNoopNew'],
         'modules/class-modules-helper.php' => ['PhanNoopNew', 'PhanUndeclaredClassMethod'],
-        'modules/class-protect-helper.php' => ['PhanNoopNew', 'PhanPluginSimplifyExpressionBool', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty', 'PhanUndeclaredProperty'],
+        'modules/class-protect-helper.php' => ['PhanNoopNew', 'PhanPluginSimplifyExpressionBool', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty'],
         'modules/class-rest-api-tester.php' => ['PhanNoopNew'],
         'modules/class-scan-helper.php' => ['PhanNoopNew', 'PhanSuspiciousValueComparison', 'PhanTypeConversionFromArray', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/class-sync-data-settings-tester.php' => ['PhanNoopNew', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClass'],

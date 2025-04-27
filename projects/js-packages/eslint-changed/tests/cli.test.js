@@ -338,11 +338,51 @@ describe( 'bin/eslint-changed.js', () => {
 		// Apparently eslint deprecated a bunch of rules still in eslint:recommended.
 		const usedDeprecatedRules = [
 			{
-				replacedBy: [],
+				info: {
+					availableUntil: '10.0.0',
+					deprecatedSince: '8.53.0',
+					message: 'Formatting rules are being moved out of ESLint core.',
+					replacedBy: [
+						{
+							message: 'ESLint Stylistic now maintains deprecated stylistic core rules.',
+							plugin: {
+								name: '@stylistic/eslint-plugin-js',
+								url: 'https://eslint.style/packages/js',
+							},
+							rule: {
+								name: 'quotes',
+								url: 'https://eslint.style/rules/js/quotes',
+							},
+							url: 'https://eslint.style/guide/migration',
+						},
+					],
+					url: 'https://eslint.org/blog/2023/10/deprecating-formatting-rules/',
+				},
+				replacedBy: [ '@stylistic/js/quotes' ],
 				ruleId: 'quotes',
 			},
 			{
-				replacedBy: [],
+				info: {
+					availableUntil: '10.0.0',
+					deprecatedSince: '8.53.0',
+					message: 'Formatting rules are being moved out of ESLint core.',
+					replacedBy: [
+						{
+							message: 'ESLint Stylistic now maintains deprecated stylistic core rules.',
+							plugin: {
+								name: '@stylistic/eslint-plugin-js',
+								url: 'https://eslint.style/packages/js',
+							},
+							rule: {
+								name: 'semi',
+								url: 'https://eslint.style/rules/js/semi',
+							},
+							url: 'https://eslint.style/guide/migration',
+						},
+					],
+					url: 'https://eslint.org/blog/2023/10/deprecating-formatting-rules/',
+				},
+				replacedBy: [ '@stylistic/js/semi' ],
 				ruleId: 'semi',
 			},
 		];
@@ -637,6 +677,19 @@ describe( 'bin/eslint-changed.js', () => {
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
+							suggestions: [
+								{
+									data: {
+										varName: 'x',
+									},
+									desc: "Remove unused variable 'x'.",
+									fix: {
+										range: [ 0, 6 ],
+										text: '',
+									},
+									messageId: 'removeVar',
+								},
+							],
 						},
 					],
 					errorCount: 1,
@@ -691,6 +744,19 @@ describe( 'bin/eslint-changed.js', () => {
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
+							suggestions: [
+								{
+									data: {
+										varName: 'x',
+									},
+									desc: "Remove unused variable 'x'.",
+									fix: {
+										range: [ 0, 10 ],
+										text: '',
+									},
+									messageId: 'removeVar',
+								},
+							],
 						},
 					],
 					errorCount: 1,
@@ -786,6 +852,19 @@ describe( 'bin/eslint-changed.js', () => {
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
+							suggestions: [
+								{
+									data: {
+										varName: 'y',
+									},
+									desc: "Remove unused variable 'y'.",
+									fix: {
+										range: [ 0, 24 ],
+										text: '',
+									},
+									messageId: 'removeVar',
+								},
+							],
 						},
 						{
 							ruleId: 'no-undef',
@@ -852,6 +931,19 @@ describe( 'bin/eslint-changed.js', () => {
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
+							suggestions: [
+								{
+									data: {
+										varName: 'y',
+									},
+									desc: "Remove unused variable 'y'.",
+									fix: {
+										range: [ 0, 24 ],
+										text: '',
+									},
+									messageId: 'removeVar',
+								},
+							],
 						},
 					],
 					errorCount: 1,
@@ -876,6 +968,19 @@ describe( 'bin/eslint-changed.js', () => {
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
+							suggestions: [
+								{
+									data: {
+										varName: 'y',
+									},
+									desc: "Remove unused variable 'y'.",
+									fix: {
+										range: [ 0, 24 ],
+										text: '',
+									},
+									messageId: 'removeVar',
+								},
+							],
 						},
 					],
 					errorCount: 1,
@@ -934,6 +1039,19 @@ describe( 'bin/eslint-changed.js', () => {
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
+							suggestions: [
+								{
+									data: {
+										varName: 'y',
+									},
+									desc: "Remove unused variable 'y'.",
+									fix: {
+										range: [ 0, 24 ],
+										text: '',
+									},
+									messageId: 'removeVar',
+								},
+							],
 						},
 					],
 					errorCount: 1,
@@ -978,6 +1096,19 @@ describe( 'bin/eslint-changed.js', () => {
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
+							suggestions: [
+								{
+									data: {
+										varName: 'y',
+									},
+									desc: "Remove unused variable 'y'.",
+									fix: {
+										range: [ 0, 24 ],
+										text: '',
+									},
+									messageId: 'removeVar',
+								},
+							],
 						},
 					],
 					errorCount: 1,
@@ -1122,7 +1253,16 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: 'console.log( "Hello, world?" );\n',
 					suppressedMessages: [],
-					usedDeprecatedRules,
+					usedDeprecatedRules: [
+						{
+							replacedBy: [],
+							ruleId: 'quotes',
+						},
+						{
+							replacedBy: [],
+							ruleId: 'semi',
+						},
+					],
 				},
 			];
 			expect( output ).toEqual( expectOutput );

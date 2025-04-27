@@ -13,7 +13,7 @@ import { TRANSFORMABLE_BLOCKS, transformToAIAssistantBlock } from '../../transfo
  * Types
  */
 import type { AiAssistantDropdownOnChangeOptionsArgProps } from '../../components/ai-assistant-toolbar-dropdown/dropdown-content';
-import type { ExtendedBlockProp } from '../../extensions/constants';
+import type { ExtendedBlockProp } from '../../extensions/text-blocks/constants';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { Block } from '@automattic/jetpack-ai-client';
 

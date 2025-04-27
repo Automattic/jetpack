@@ -14,8 +14,9 @@ import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
-import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
+import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { useNotices } from '$features/notice/context';
+import { ExternalLink } from '@wordpress/components';
 const Meta = () => {
 	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
 	const [ cornerstonePages, setCornerstonePages ] = useCornerstonePages();
@@ -88,11 +89,8 @@ const Meta = () => {
 						),
 						{
 							link: (
-								// eslint-disable-next-line jsx-a11y/anchor-has-content
-								<a
+								<ExternalLink
 									href={ getSupportLink() }
-									target="_blank"
-									rel="noopener noreferrer"
 									onClick={ () => {
 										recordBoostEvent( 'cornerstone_pages_properties_failed', {} );
 									} }
@@ -115,11 +113,8 @@ const Meta = () => {
 					),
 					{
 						link: (
-							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a
+							<ExternalLink
 								href={ cornerstonePagesSupportLink }
-								target="_blank"
-								rel="noopener noreferrer"
 								onClick={ () => {
 									recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );
 								} }
@@ -143,6 +138,29 @@ type ListProps = {
 	inputRows?: number;
 };
 
+export const CornerstonePagesUpgradeCTA = () => {
+	const cornerstonePagesProperties = useCornerstonePagesProperties();
+	const premiumFeatures = usePremiumFeatures();
+	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
+
+	if ( isPremium || ! cornerstonePagesProperties ) {
+		return null;
+	}
+
+	return (
+		<div className={ styles.wrapper }>
+			<InterstitialModalCTA
+				identifier="cornerstone-10-pages"
+				description={ sprintf(
+					/* translators: %d is the number of cornerstone pages. */
+					__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
+					cornerstonePagesProperties.max_pages_premium
+				) }
+			/>
+		</div>
+	);
+};
+
 const List: React.FC< ListProps > = ( {
 	items,
 	setItems,
@@ -154,9 +172,6 @@ const List: React.FC< ListProps > = ( {
 	const [ inputValue, setInputValue ] = useState( items );
 	const [ inputInvalid, setInputInvalid ] = useState( false );
 	const [ validationError, setValidationError ] = useState< Error | null >( null );
-	const premiumFeatures = usePremiumFeatures();
-	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
-	const cornerstonePagesProperties = useCornerstonePagesProperties();
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
 		try {
@@ -258,19 +273,6 @@ const List: React.FC< ListProps > = ( {
 					{ __( 'Load default pages', 'jetpack-boost' ) }
 				</Button>
 			</div>
-			{ ! isPremium && cornerstonePagesProperties && (
-				<div className={ styles.wrapper }>
-					<UpgradeCTA
-						eventName="cornerstone_pages_upgrade_link_clicked"
-						identifier="cornerstone-10-pages"
-						description={ sprintf(
-							/* translators: %d is the number of cornerstone pages. */
-							__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
-							cornerstonePagesProperties.max_pages_premium
-						) }
-					/>
-				</div>
-			) }
 		</>
 	);
 };

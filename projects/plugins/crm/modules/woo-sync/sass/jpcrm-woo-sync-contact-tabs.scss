@@ -5,11 +5,13 @@
  */
 
  .woo-sync-subs, .woo-sync-mem, .woo-sync-book{
+
      .label{
         text-transform: capitalize !important;
      }
+
      .active, .paid, .completed{
-         color:white !important;
+         color:#fff !important;
          background: #21ba46 !important;
      }
  }

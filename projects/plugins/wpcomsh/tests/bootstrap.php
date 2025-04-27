@@ -43,6 +43,15 @@ foreach ( new RegexIterator( $lib, '/^.*\.php$/', RegexIterator::GET_MATCH ) as 
 // Give access to tests_add_filter() function.
 require_once $_tests_dir . '/includes/functions.php';
 
+// Speed things up by turning down the password hashing cost.
+tests_add_filter(
+	'wp_hash_password_options',
+	function ( $options ) {
+		$options['cost'] = 4;
+		return $options;
+	}
+);
+
 /**
  * Manually load the plugin being tested.
  */
@@ -60,6 +69,9 @@ tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
 	define( 'WP_TESTS_CONFIG_FILE_PATH', getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
 }
+
+// Load trait for WP_UnitTestCase PHPUnit 10 compat.
+require_once __DIR__ . '/WP_UnitTestCase_Fix.php';
 
 // Start up the WP testing environment.
 require_once $_tests_dir . '/includes/bootstrap.php';

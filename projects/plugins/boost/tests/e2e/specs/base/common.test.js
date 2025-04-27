@@ -39,10 +39,19 @@ test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommend
 		.withActiveModules( [ 'critical_css' ] )
 		.build();
 	const jetpackBoostPage = await JetpackBoostPage.visit( page );
+
+	// Wait for generation progress UI first
+	expect(
+		await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
+		'Critical CSS generation progress indicator should be visible'
+	).toBeTruthy();
+
+	// Then wait for meta info to be visible
 	expect(
 		await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
 		'Critical CSS meta info should be visible'
 	).toBeTruthy();
+
 	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import JetpackVaultPressBackupLogo from '../index';
+import JetpackVaultPressBackupLogo from '../index.tsx';
 
 describe( 'JetpackVaultPressBackupLogo', () => {
 	const testProps = {

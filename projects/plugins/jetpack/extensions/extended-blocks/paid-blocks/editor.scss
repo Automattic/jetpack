@@ -6,6 +6,7 @@ $icon-background-color: #fff;
 
 // Upgrade Banner.
 .jetpack-upgrade-plan-banner {
+
 	.jetpack-upgrade-plan-banner__wrapper {
 		display: flex;
 		justify-content: space-between;
@@ -13,7 +14,7 @@ $icon-background-color: #fff;
 		font-size: 14px;
 		font-family: $default-font;
 		text-transform: none;
-		background: black;
+		background: #000;
 		padding: 0 20px;
 		border-radius: 2px;
 		box-shadow: 0 0 1px inset $studio-white;
@@ -48,6 +49,7 @@ $icon-background-color: #fff;
 				&:hover {
 					background: $studio-pink-30;
 				}
+
 				&.is-busy {
 					background-size: 100px 100%;
 					background-image: linear-gradient(-45deg, $studio-pink-40 28%, $studio-pink-60 28%, $studio-pink-60 72%, $studio-pink-40 72%);
@@ -62,8 +64,9 @@ $icon-background-color: #fff;
 		margin-bottom: 12px;
 	}
 
-	&.wp-block[data-align=right],
-	&.wp-block[data-align=left] {
+	&.wp-block[data-align="right"],
+	&.wp-block[data-align="left"] {
+
 		.jetpack-upgrade-plan-banner__wrapper {
 			max-width: $content-width;
 			width: 100%;
@@ -131,6 +134,6 @@ $icon-background-color: #fff;
 	background-color: transparent;
 }
 
-.block-editor-block-list__layout .block-editor-block-list__block.is-upgradable:focus:after {
+.block-editor-block-list__layout .block-editor-block-list__block.is-upgradable:focus::after {
 	box-shadow: none;
 }

@@ -25,6 +25,7 @@
 	}
 
 	&.is-primary {
+
 		> * {
 			background: var(--jp-white);
 			position: relative;
@@ -37,7 +38,7 @@
 				right: 0;
 				bottom: 0;
 				z-index: -1;
-				box-shadow: 0px 4px 24px rgba(0, 0, 0, 0.05);
+				box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
 			}
 		}
 	}
@@ -78,6 +79,7 @@
 			left: var(--padding);
 			right: var(--padding);
 			height: 1px;
+
 			.is-viewport-large & {
 				width: calc(100% + var(--gap));
 				left: 0;
@@ -140,7 +142,7 @@
 	width: fit-content;
 
 	> a {
-		color: black;
+		color: #000;
 	}
 
 	.is-viewport-large & {

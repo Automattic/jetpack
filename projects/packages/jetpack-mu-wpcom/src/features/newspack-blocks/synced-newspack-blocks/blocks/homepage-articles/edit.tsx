@@ -22,7 +22,7 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Component, Fragment, RawHTML } from '@wordpress/element';
 import {
 	BlockControls,
@@ -33,32 +33,32 @@ import {
 	AlignmentControl,
 } from '@wordpress/block-editor';
 import {
+	BaseControl,
 	Button,
 	ButtonGroup,
 	PanelBody,
-	PanelRow,
+	Path,
+	Placeholder,
 	RangeControl,
+	Spinner,
+	SVG,
 	Toolbar,
 	ToggleControl,
 	TextControl,
-	Placeholder,
-	Spinner,
-	BaseControl,
-	Path,
-	SVG,
 } from '@wordpress/components';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 import { decodeEntities } from '@wordpress/html-entities';
 import {
-	Icon,
-	formatListBullets,
 	fullscreen,
 	grid,
 	image,
+	list,
 	postFeaturedImage,
 	pullLeft,
 	pullRight,
+	sidesAll,
+	textColor as typeScaleIcon,
 } from '@wordpress/icons';
 
 let IS_SUBTITLE_SUPPORTED_IN_THEME: boolean;
@@ -267,7 +267,7 @@ class Edit extends Component< HomepageArticlesProps > {
 	};
 
 	renderInspectorControls = () => {
-		const { attributes, setAttributes, textColor, setTextColor } = this.props;
+		const { attributes, setAttributes } = this.props;
 
 		const {
 			authors,
@@ -277,7 +277,6 @@ class Edit extends Component< HomepageArticlesProps > {
 			includeSubcategories,
 			customTaxonomies,
 			columns,
-			colGap,
 			postType,
 			showImage,
 			showCaption,
@@ -293,7 +292,6 @@ class Edit extends Component< HomepageArticlesProps > {
 			readMoreLabel,
 			excerptLength,
 			showSubtitle,
-			typeScale,
 			showDate,
 			showAuthor,
 			showAvatar,
@@ -336,37 +334,33 @@ class Edit extends Component< HomepageArticlesProps > {
 			},
 		];
 
-		const colGapOptions = [
-			{
-				value: 1,
-				label: /* translators: label for small size option */ __( 'Small', 'jetpack-mu-wpcom' ),
-				shortName: /* translators: abbreviation for small size */ __( 'S', 'jetpack-mu-wpcom' ),
-			},
-			{
-				value: 2,
-				label: /* translators: label for medium size option */ __( 'Medium', 'jetpack-mu-wpcom' ),
-				shortName: /* translators: abbreviation for medium size */ __( 'M', 'jetpack-mu-wpcom' ),
-			},
-			{
-				value: 3,
-				label: /* translators: label for large size option */ __( 'Large', 'jetpack-mu-wpcom' ),
-				shortName: /* translators: abbreviation for large size */ __( 'L', 'jetpack-mu-wpcom' ),
-			},
-		];
-
 		const handleAttributeChange = ( key: HomepageArticlesAttributesKey ) => ( value: any ) =>
 			setAttributes( { [ key ]: value } );
 
 		return (
 			<Fragment>
-				<PanelBody title={ __( 'Display Settings', 'jetpack-mu-wpcom' ) } initialOpen={ true }>
+				{ postLayout === 'grid' && (
+					<PanelBody title={ __( 'Grid', 'jetpack-mu-wpcom' ) }>
+						<RangeControl
+							label={ __( 'Columns', 'jetpack-mu-wpcom' ) }
+							value={ columns }
+							onChange={ handleAttributeChange( 'columns' ) }
+							min={ 2 }
+							max={ 6 }
+							required
+							__next40pxDefaultSize
+						/>
+					</PanelBody>
+				) }
+				<PanelBody title={ __( 'Content', 'jetpack-mu-wpcom' ) } className="newspack-block__panel is-content">
 					<QueryControls
 						numberOfItems={ postsToShow }
 						onNumberOfItemsChange={ ( _postsToShow: number ) =>
 							setAttributes( { postsToShow: _postsToShow || 1 } )
 						}
 						specificMode={ specificMode }
-						onSpecificModeChange={ handleAttributeChange( 'specificMode' ) }
+						onSpecificModeChange={ () => setAttributes( { specificMode: true } ) }
+						onLoopModeChange={ () => setAttributes( { specificMode: false } ) }
 						specificPosts={ specificPosts }
 						onSpecificPostsChange={ handleAttributeChange( 'specificPosts' ) }
 						authors={ authors }
@@ -387,45 +381,15 @@ class Edit extends Component< HomepageArticlesProps > {
 						onCustomTaxonomyExclusionsChange={ handleAttributeChange( 'customTaxonomyExclusions' ) }
 						postType={ postType }
 					/>
-					{ postLayout === 'grid' && (
-						<Fragment>
-							<RangeControl
-								label={ __( 'Columns', 'jetpack-mu-wpcom' ) }
-								value={ columns }
-								onChange={ handleAttributeChange( 'columns' ) }
-								min={ 2 }
-								max={ 6 }
-								required
-							/>
-
-							<BaseControl
-								label={ __( 'Columns Gap', 'jetpack-mu-wpcom' ) }
-								id="newspackcolumns-col-gap"
-							>
-								<PanelRow>
-									<ButtonGroup
-										id="newspackcolumns-col-gap"
-										aria-label={ __( 'Columns Gap', 'jetpack-mu-wpcom' ) }
-									>
-										{ colGapOptions.map( option => {
-											const isCurrent = colGap === option.value;
-											return (
-												<Button
-													isPrimary={ isCurrent }
-													aria-pressed={ isCurrent }
-													aria-label={ option.label }
-													key={ option.value }
-													onClick={ () => setAttributes( { colGap: option.value } ) }
-												>
-													{ option.shortName }
-												</Button>
-											);
-										} ) }
-									</ButtonGroup>
-								</PanelRow>
-							</BaseControl>
-						</Fragment>
-					) }
+					<ToggleControl
+						label={ __( 'Allow duplicate stories', 'jetpack-mu-wpcom' ) }
+						help={ __(
+							"Exclude this block from the page's deduplication logic.",
+							'jetpack-mu-wpcom'
+						) }
+						checked={ ! attributes.deduplicate }
+						onChange={ ( value: boolean ) => setAttributes( { deduplicate: ! value } ) }
+					/>
 					{ ! specificMode && isBlogPrivate() ? (
 						/*
 						 * Hide the "Load more posts" button option on private sites.
@@ -434,107 +398,163 @@ class Edit extends Component< HomepageArticlesProps > {
 						 * which is not provided in the current implementation.
 						 * See https://github.com/Automattic/newspack-blocks/issues/306.
 						 */
-						<i>
-							{ __(
-								'This blog is private, therefore the "Load more posts" feature is not active.',
-								'jetpack-mu-wpcom'
-							) }
-						</i>
+						<ToggleControl
+							label={ __( 'Show "Load more posts" button', 'jetpack-mu-wpcom' ) }
+							help={ __( 'This site is private, therefore this feature is not active.', 'jetpack-mu-wpcom' ) }
+							disabled={ true }
+						/>
 					) : (
 						! specificMode && (
 							<>
 								<ToggleControl
-									label={ __( 'Show "Load more posts" Button', 'jetpack-mu-wpcom' ) }
+									label={ __( 'Show "Load more posts" button', 'jetpack-mu-wpcom' ) }
 									checked={ moreButton }
 									onChange={ () => setAttributes( { moreButton: ! moreButton } ) }
 								/>
-								{ moreButton && (
-									<ToggleControl
-										label={ __( 'Infinite Scroll', 'jetpack-mu-wpcom' ) }
-										checked={ infiniteScroll }
-										onChange={ () => setAttributes( { infiniteScroll: ! infiniteScroll } ) }
-									/>
-								) }
+								<ToggleControl
+									label={ __( 'Infinite scroll', 'jetpack-mu-wpcom' ) }
+									checked={ infiniteScroll }
+									disabled={ ! moreButton }
+									onChange={ () => setAttributes( { infiniteScroll: ! infiniteScroll } ) }
+								/>
 							</>
 						)
 					) }
-					<ToggleControl
-						label={ __( 'Allow duplicate stories', 'jetpack-mu-wpcom' ) }
-						help={ __(
-							"If checked, this block will be excluded from the page's de-duplication logic. Duplicate stories may appear.",
-							'jetpack-mu-wpcom'
-						) }
-						checked={ ! attributes.deduplicate }
-						onChange={ ( value: boolean ) => setAttributes( { deduplicate: ! value } ) }
-						className="newspack-blocks-deduplication-toggle"
-					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Featured Image Settings', 'jetpack-mu-wpcom' ) }>
-					<PanelRow>
-						<ToggleControl
-							label={ __( 'Show Featured Image', 'jetpack-mu-wpcom' ) }
-							checked={ showImage }
-							onChange={ () => setAttributes( { showImage: ! showImage } ) }
+				<PanelBody title={ __( 'Display', 'jetpack-mu-wpcom' ) } className="newspack-block__panel">
+					<BaseControl
+						label={ __( 'Text', 'jetpack-mu-wpcom' ) }
+						id="newspack-block__content-display"
+						className="newspack-block__button-group"
+					>
+						<ButtonGroup>
+							<Button
+								variant={ ! showExcerpt && ! showFullContent && 'primary' }
+								aria-pressed={ ! showExcerpt && ! showFullContent }
+								onClick={ () => {
+									setAttributes( {
+										showExcerpt: false,
+										showFullContent: false
+									} )
+								} }
+							>
+								{ __( 'None', 'jetpack-mu-wpcom' ) }
+							</Button>
+							<Button
+								variant={ showExcerpt && ! showFullContent && 'primary' }
+								aria-pressed={ showExcerpt && ! showFullContent }
+								onClick={ () => {
+									setAttributes( {
+										showExcerpt: ! showExcerpt,
+										showFullContent: showFullContent ? false : showFullContent
+									} )
+								} }
+							>
+								{ __( 'Excerpt', 'jetpack-mu-wpcom' ) }
+							</Button>
+							<Button
+								variant={ ! showExcerpt && showFullContent && 'primary' }
+								aria-pressed={ ! showExcerpt && showFullContent }
+								onClick={ () => {
+									setAttributes( {
+										showFullContent: ! showFullContent,
+										showExcerpt: showExcerpt ? false : showExcerpt
+									} )
+								} }
+							>
+								{ __( 'Full Post', 'jetpack-mu-wpcom' ) }
+							</Button>
+						</ButtonGroup>
+					</BaseControl>
+					{ showExcerpt && (
+						<RangeControl
+							label={ __( 'Max number of words in excerpt', 'jetpack-mu-wpcom' ) }
+							value={ excerptLength }
+							onChange={ ( value: number ) => setAttributes( { excerptLength: value } ) }
+							min={ 10 }
+							max={ 100 }
+							__next40pxDefaultSize
 						/>
-					</PanelRow>
-
-					{ showImage && (
+					) }
+					{ ! showFullContent && (
+						<ToggleControl
+							label={
+								sprintf(
+									// translators: %s is the read more label'.
+									__( 'Show "%s" link', 'jetpack-mu-wpcom' ),
+									readMoreLabel ? readMoreLabel : __( 'Keep reading', 'jetpack-mu-wpcom' )
+								)
+							}
+							checked={ showReadMore }
+							onChange={ () => setAttributes( { showReadMore: ! showReadMore } ) }
+						/>
+					) }
+					{ ! showFullContent && showReadMore && (
+						<TextControl
+							label={
+								sprintf(
+									// translators: %s is the read more label'.
+									__( '"%s" link text', 'jetpack-mu-wpcom' ),
+									readMoreLabel ? readMoreLabel : __( 'Keep reading', 'jetpack-mu-wpcom' )
+								)
+							}
+							hideLabelFromVision={ true }
+							value={ readMoreLabel }
+							placeholder={ readMoreLabel }
+							onChange={ ( value: string ) => setAttributes( { readMoreLabel: value } ) }
+							__next40pxDefaultSize
+						/>
+					) }
+				</PanelBody>
+				<PanelBody title={ __( 'Featured Image', 'jetpack-mu-wpcom' ) } className="newspack-block__panel">
+					<ToggleControl
+						label={ __( 'Show featured image', 'jetpack-mu-wpcom' ) }
+						checked={ showImage }
+						onChange={ () => setAttributes( { showImage: ! showImage } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show caption', 'jetpack-mu-wpcom' ) }
+						checked={ showCaption }
+						onChange={ () => setAttributes( { showCaption: ! showCaption } ) }
+						disabled={ ! showImage }
+					/>
+					<ToggleControl
+						label={ __( 'Show credit', 'jetpack-mu-wpcom' ) }
+						checked={ showCredit }
+						onChange={ () => setAttributes( { showCredit: ! showCredit } ) }
+						disabled={ ! showImage }
+					/>
+					{ showImage && mediaPosition !== 'top' && mediaPosition !== 'behind' && (
 						<>
-							<PanelRow>
-								<ToggleControl
-									label={ __( 'Show Featured Image Caption', 'jetpack-mu-wpcom' ) }
-									checked={ showCaption }
-									onChange={ () => setAttributes( { showCaption: ! showCaption } ) }
-								/>
-							</PanelRow>
-							<PanelRow>
-								<ToggleControl
-									label={ __( 'Show Featured Image Credit', 'jetpack-mu-wpcom' ) }
-									checked={ showCredit }
-									onChange={ () => setAttributes( { showCredit: ! showCredit } ) }
-								/>
-							</PanelRow>
+							<ToggleControl
+								label={ __( 'Stack on mobile', 'jetpack-mu-wpcom' ) }
+								checked={ mobileStack }
+								onChange={ () => setAttributes( { mobileStack: ! mobileStack } ) }
+							/>
+							<BaseControl
+								label={ __( 'Size', 'jetpack-mu-wpcom' ) }
+								id="newspack-block__featured-image-size"
+								className="newspack-block__button-group"
+							>
+								<ButtonGroup>
+									{ imageSizeOptions.map( option => {
+										const isCurrent = imageScale === option.value;
+										return (
+											<Button
+												variant={ isCurrent && 'primary' }
+												aria-pressed={ isCurrent }
+												aria-label={ option.label }
+												key={ option.value }
+												onClick={ () => setAttributes( { imageScale: option.value } ) }
+											>
+												{ option.shortName }
+											</Button>
+										);
+									} ) }
+								</ButtonGroup>
+							</BaseControl>
 						</>
 					) }
-
-					{ showImage && mediaPosition !== 'top' && mediaPosition !== 'behind' && (
-						<Fragment>
-							<PanelRow>
-								<ToggleControl
-									label={ __( 'Stack on mobile', 'jetpack-mu-wpcom' ) }
-									checked={ mobileStack }
-									onChange={ () => setAttributes( { mobileStack: ! mobileStack } ) }
-								/>
-							</PanelRow>
-							<BaseControl
-								label={ __( 'Featured Image Size', 'jetpack-mu-wpcom' ) }
-								id="newspackfeatured-image-size"
-							>
-								<PanelRow>
-									<ButtonGroup
-										id="newspackfeatured-image-size"
-										aria-label={ __( 'Featured Image Size', 'jetpack-mu-wpcom' ) }
-									>
-										{ imageSizeOptions.map( option => {
-											const isCurrent = imageScale === option.value;
-											return (
-												<Button
-													isPrimary={ isCurrent }
-													aria-pressed={ isCurrent }
-													aria-label={ option.label }
-													key={ option.value }
-													onClick={ () => setAttributes( { imageScale: option.value } ) }
-												>
-													{ option.shortName }
-												</Button>
-											);
-										} ) }
-									</ButtonGroup>
-								</PanelRow>
-							</BaseControl>
-						</Fragment>
-					) }
-
 					{ showImage && mediaPosition === 'behind' && (
 						<RangeControl
 							label={ __( 'Minimum height', 'jetpack-mu-wpcom' ) }
@@ -547,124 +567,98 @@ class Edit extends Component< HomepageArticlesProps > {
 							min={ 0 }
 							max={ 100 }
 							required
+							__next40pxDefaultSize
 						/>
 					) }
 				</PanelBody>
-				<PanelBody title={ __( 'Post Control Settings', 'jetpack-mu-wpcom' ) }>
+				<PanelBody title={ __( 'Post Meta', 'jetpack-mu-wpcom' ) }>
+					<ToggleControl
+						label={ __( 'Show category', 'jetpack-mu-wpcom' ) }
+						checked={ showCategory }
+						onChange={ () => setAttributes( { showCategory: ! showCategory } ) }
+					/>
 					{ IS_SUBTITLE_SUPPORTED_IN_THEME && (
-						<PanelRow>
-							<ToggleControl
-								label={ __( 'Show Subtitle', 'jetpack-mu-wpcom' ) }
-								checked={ showSubtitle }
-								onChange={ () => setAttributes( { showSubtitle: ! showSubtitle } ) }
-							/>
-						</PanelRow>
-					) }
-					<PanelRow>
 						<ToggleControl
-							label={ __( 'Show Excerpt', 'jetpack-mu-wpcom' ) }
-							checked={ showExcerpt }
-							onChange={ () => {
-								setAttributes({
-									showExcerpt: !showExcerpt,
-									showFullContent: showFullContent ? false : showFullContent
-								})
-							} }
-						/>
-					</PanelRow>
-					{ showExcerpt && (
-						<PanelRow>
-							<RangeControl
-								label={ __( 'Max number of words in excerpt', 'jetpack-mu-wpcom' ) }
-								value={ excerptLength }
-								onChange={ ( value: number ) => setAttributes( { excerptLength: value } ) }
-								min={ 10 }
-								max={ 100 }
-							/>
-						</PanelRow>
-					) }
-					<PanelRow>
-						<ToggleControl
-							label={ __( 'Show Full Content', 'jetpack-mu-wpcom' ) }
-							checked={ showFullContent }
-							onChange={ () => {
-								setAttributes({
-									showFullContent: !showFullContent,
-									showExcerpt: showExcerpt ? false : showExcerpt
-								})
-							} }
-						/>
-					</PanelRow>
-					<PanelRow>
-						<ToggleControl
-							label={ __( 'Add a "Read More" link', 'jetpack-mu-wpcom' ) }
-							checked={ showReadMore }
-							onChange={ () => setAttributes( { showReadMore: ! showReadMore } ) }
-						/>
-					</PanelRow>
-					{ showReadMore && (
-						<TextControl
-							label={ __( '"Read More" link text', 'jetpack-mu-wpcom' ) }
-							value={ readMoreLabel }
-							placeholder={ readMoreLabel }
-							onChange={ ( value: string ) => setAttributes( { readMoreLabel: value } ) }
+							label={ __( 'Show subtitle', 'jetpack-mu-wpcom' ) }
+							checked={ showSubtitle }
+							onChange={ () => setAttributes( { showSubtitle: ! showSubtitle } ) }
 						/>
 					) }
-					<RangeControl
-						className="type-scale-slider"
-						label={ __( 'Type Scale', 'jetpack-mu-wpcom' ) }
-						value={ typeScale }
-						onChange={ ( _typeScale: number ) => setAttributes( { typeScale: _typeScale } ) }
-						min={ 1 }
-						max={ 10 }
-						required
+					<ToggleControl
+						label={ __( 'Show author', 'jetpack-mu-wpcom' ) }
+						checked={ showAuthor }
+						onChange={ () => setAttributes( { showAuthor: ! showAuthor } ) }
+					/>
+					<ToggleControl
+						label={ __( 'Show avatar', 'jetpack-mu-wpcom' ) }
+						checked={ showAvatar }
+						onChange={ () => setAttributes( { showAvatar: ! showAvatar } ) }
+						disabled={ ! showAuthor }
+					/>
+					<ToggleControl
+						label={ __( 'Show date', 'jetpack-mu-wpcom' ) }
+						checked={ showDate }
+						onChange={ () => setAttributes( { showDate: ! showDate } ) }
 					/>
 				</PanelBody>
+				<PostTypesPanel attributes={ attributes } setAttributes={ setAttributes } />
+				<PostStatusesPanel attributes={ attributes } setAttributes={ setAttributes } />
+			</Fragment>
+		);
+	};
+
+	renderStylesInspectorControls = () => {
+		const { attributes, setAttributes, textColor, setTextColor } = this.props;
+
+		const { colGap, postLayout, typeScale } = attributes;
+
+		return (
+			<Fragment>
 				<PanelColorSettings
-					title={ __( 'Color Settings', 'jetpack-mu-wpcom' ) }
-					initialOpen={ true }
+					title={ __( 'Color', 'jetpack-mu-wpcom' ) }
 					colorSettings={ [
 						{
 							value: textColor.color,
 							onChange: setTextColor,
-							label: __( 'Text Color', 'jetpack-mu-wpcom' ),
+							label: __( 'Text', 'jetpack-mu-wpcom' ),
 						},
 					] }
 				/>
-				<PanelBody title={ __( 'Post Meta Settings', 'jetpack-mu-wpcom' ) }>
-					<PanelRow>
-						<ToggleControl
-							label={ __( 'Show Date', 'jetpack-mu-wpcom' ) }
-							checked={ showDate }
-							onChange={ () => setAttributes( { showDate: ! showDate } ) }
-						/>
-					</PanelRow>
-					<PanelRow>
-						<ToggleControl
-							label={ __( 'Show Category', 'jetpack-mu-wpcom' ) }
-							checked={ showCategory }
-							onChange={ () => setAttributes( { showCategory: ! showCategory } ) }
-						/>
-					</PanelRow>
-					<PanelRow>
-						<ToggleControl
-							label={ __( 'Show Author', 'jetpack-mu-wpcom' ) }
-							checked={ showAuthor }
-							onChange={ () => setAttributes( { showAuthor: ! showAuthor } ) }
-						/>
-					</PanelRow>
-					{ showAuthor && (
-						<PanelRow>
-							<ToggleControl
-								label={ __( 'Show Author Avatar', 'jetpack-mu-wpcom' ) }
-								checked={ showAvatar }
-								onChange={ () => setAttributes( { showAvatar: ! showAvatar } ) }
-							/>
-						</PanelRow>
-					) }
+				<PanelBody
+					title={ __( 'Typography', 'jetpack-mu-wpcom' ) }
+					className="newpack-block__panel"
+				>
+					<RangeControl
+						label={ __( 'Type Scale', 'jetpack-mu-wpcom' ) }
+						beforeIcon={ typeScaleIcon }
+						className="spacing-sizes-control"
+						value={ typeScale }
+						onChange={ ( _typeScale: number ) => setAttributes( { typeScale: _typeScale } ) }
+						min={ 1 }
+						max={ 10 }
+						marks={ true }
+						withInputField={ false }
+						__nextHasNoMarginBottom={ true }
+						required
+					/>
 				</PanelBody>
-				<PostTypesPanel attributes={ attributes } setAttributes={ setAttributes } />
-				<PostStatusesPanel attributes={ attributes } setAttributes={ setAttributes } />
+				{ postLayout === 'grid' && (
+					<PanelBody title={ __( 'Dimensions', 'jetpack-mu-wpcom' ) }>
+						<RangeControl
+							label={ __( 'Grid Spacing', 'jetpack-mu-wpcom' ) }
+							beforeIcon={ sidesAll }
+							className="spacing-sizes-control"
+							value={ colGap }
+							onChange={ ( _colGap: number ) => setAttributes( { colGap: _colGap } ) }
+							min={ 1 }
+							max={ 3 }
+							marks={ true }
+							withInputField={ false }
+							__nextHasNoMarginBottom={ true }
+							required
+						/>
+					</PanelBody>
+				) }
 			</Fragment>
 		);
 	};
@@ -727,14 +721,14 @@ class Edit extends Component< HomepageArticlesProps > {
 
 		const blockControls = [
 			{
-				icon: <Icon icon={ formatListBullets } />,
-				title: __( 'List View', 'jetpack-mu-wpcom' ),
+				icon: list,
+				title: __( 'List view', 'jetpack-mu-wpcom' ),
 				onClick: () => setAttributes( { postLayout: 'list' } ),
 				isActive: postLayout === 'list',
 			},
 			{
-				icon: <Icon icon={ grid } />,
-				title: __( 'Grid View', 'jetpack-mu-wpcom' ),
+				icon: grid,
+				title: __( 'Grid view', 'jetpack-mu-wpcom' ),
 				onClick: () => setAttributes( { postLayout: 'grid' } ),
 				isActive: postLayout === 'grid',
 			},
@@ -742,25 +736,25 @@ class Edit extends Component< HomepageArticlesProps > {
 
 		const blockControlsImages = [
 			{
-				icon: <Icon icon={ postFeaturedImage } />,
+				icon: postFeaturedImage,
 				title: __( 'Show media on top', 'jetpack-mu-wpcom' ),
 				isActive: mediaPosition === 'top',
 				onClick: () => setAttributes( { mediaPosition: 'top' } ),
 			},
 			{
-				icon: <Icon icon={ pullLeft } />,
+				icon: pullLeft,
 				title: __( 'Show media on left', 'jetpack-mu-wpcom' ),
 				isActive: mediaPosition === 'left',
 				onClick: () => setAttributes( { mediaPosition: 'left' } ),
 			},
 			{
-				icon: <Icon icon={ pullRight } />,
+				icon: pullRight,
 				title: __( 'Show media on right', 'jetpack-mu-wpcom' ),
 				isActive: mediaPosition === 'right',
 				onClick: () => setAttributes( { mediaPosition: 'right' } ),
 			},
 			{
-				icon: <Icon icon={ image } />,
+				icon: image,
 				title: __( 'Show media behind', 'jetpack-mu-wpcom' ),
 				isActive: mediaPosition === 'behind',
 				onClick: () => setAttributes( { mediaPosition: 'behind' } ),
@@ -770,24 +764,24 @@ class Edit extends Component< HomepageArticlesProps > {
 		const blockControlsImageShape = [
 			{
 				icon: landscapeIcon,
-				title: __( 'Landscape Image Shape', 'jetpack-mu-wpcom' ),
+				title: __( 'Landscape image shape', 'jetpack-mu-wpcom' ),
 				isActive: imageShape === 'landscape',
 				onClick: () => setAttributes( { imageShape: 'landscape' } ),
 			},
 			{
 				icon: portraitIcon,
-				title: __( 'portrait Image Shape', 'jetpack-mu-wpcom' ),
+				title: __( 'portrait image shape', 'jetpack-mu-wpcom' ),
 				isActive: imageShape === 'portrait',
 				onClick: () => setAttributes( { imageShape: 'portrait' } ),
 			},
 			{
 				icon: squareIcon,
-				title: __( 'Square Image Shape', 'jetpack-mu-wpcom' ),
+				title: __( 'Square image shape', 'jetpack-mu-wpcom' ),
 				isActive: imageShape === 'square',
 				onClick: () => setAttributes( { imageShape: 'square' } ),
 			},
 			{
-				icon: <Icon icon={ fullscreen } />,
+				icon: fullscreen,
 				title: __( 'Uncropped', 'jetpack-mu-wpcom' ),
 				isActive: imageShape === 'uncropped',
 				onClick: () => setAttributes( { imageShape: 'uncropped' } ),
@@ -860,6 +854,7 @@ class Edit extends Component< HomepageArticlesProps > {
 					{ showImage && <Toolbar controls={ blockControlsImageShape } /> }
 				</BlockControls>
 				<InspectorControls>{ this.renderInspectorControls() }</InspectorControls>
+				<InspectorControls group="styles">{ this.renderStylesInspectorControls() }</InspectorControls>
 			</Fragment>
 		);
 	}

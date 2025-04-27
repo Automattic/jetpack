@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: fixes the date format input if multiple date pickers are used with different date formats.

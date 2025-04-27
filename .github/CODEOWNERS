@@ -3,6 +3,10 @@
 #  or disavow any section of the codebase. #
 ############################################
 
+# Actions
+
+/projects/github-actions/repo-gardening/ @jeherve
+
 # Packages
 /projects/packages/search/src/wpes @Automattic/prometheus
 

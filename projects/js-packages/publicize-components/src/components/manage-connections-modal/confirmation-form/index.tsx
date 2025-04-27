@@ -17,7 +17,7 @@ import styles from './style.module.scss';
 type ConfirmationFormProps = {
 	keyringResult: KeyringResult;
 	onComplete: VoidFunction;
-	isAdmin?: boolean;
+	canMarkAsShared?: boolean;
 };
 
 type AccountOption = { label: string; value: string; profile_picture?: string };
@@ -50,9 +50,13 @@ function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
  *
  * @param {ConfirmationFormProps} props - Component props
  *
- * @return {import('react').ReactNode} Connection confirmation component
+ * @return Connection confirmation component
  */
-export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: ConfirmationFormProps ) {
+export function ConfirmationForm( {
+	keyringResult,
+	onComplete,
+	canMarkAsShared,
+}: ConfirmationFormProps ) {
 	const supportedServices = useSupportedServices();
 	const { existingConnections, reconnectingAccount } = useSelect( select => {
 		const store = select( socialStore );
@@ -66,16 +70,16 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 	const { createErrorNotice } = useGlobalNotices();
 
 	const service = supportedServices.find(
-		supportedService => supportedService.ID === keyringResult.service
+		supportedService => supportedService.id === keyringResult.service
 	);
 	const isAlreadyConnected = useCallback(
 		( externalID: string ) => {
 			return existingConnections.some(
 				connection =>
-					connection.service_name === service?.ID && connection.external_id === externalID
+					connection.service_name === service?.id && connection.external_id === externalID
 			);
 		},
-		[ existingConnections, service.ID ]
+		[ existingConnections, service.id ]
 	);
 
 	const accounts = useMemo( () => {
@@ -90,7 +94,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 		const options: Array< AccountOption > = [];
 
 		// If user account is supported, add it to the list
-		if ( ! service.external_users_only ) {
+		if ( ! service.supports.additional_users_only ) {
 			options.push( {
 				label: keyringResult.external_display || keyringResult.external_name,
 				value: keyringResult.external_ID,
@@ -98,10 +102,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 			} );
 		}
 
-		if (
-			service.multiple_external_user_ID_support &&
-			keyringResult.additional_external_users?.length
-		) {
+		if ( service.supports.additional_users && keyringResult.additional_external_users?.length ) {
 			for ( const user of keyringResult.additional_external_users ) {
 				options.push( {
 					label: user.external_name,
@@ -144,7 +145,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 			}
 
 			const data = {
-				external_user_ID: service.multiple_external_user_ID_support ? external_user_ID : undefined,
+				external_user_ID: service.supports.additional_users ? external_user_ID : undefined,
 				keyring_connection_ID: keyringResult.ID,
 				shared: formData.get( 'shared' ) === '1' ? true : undefined,
 			};
@@ -161,7 +162,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 			createConnection( data, {
 				display_name: accountInfo?.label,
 				profile_picture: accountInfo?.profile_picture,
-				service_name: service.ID,
+				service_name: service.id,
 				external_id: external_user_ID.toString(),
 			} );
 
@@ -174,8 +175,8 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 			createErrorNotice,
 			keyringResult.ID,
 			onComplete,
-			service.multiple_external_user_ID_support,
-			service.ID,
+			service.supports,
+			service.id,
 			accounts.not_connected,
 		]
 	);
@@ -236,7 +237,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 								// If we are reconnecting an account, preselect it,
 								// otherwise, preselect the first account
 								const defaultChecked = reconnectingAccount
-									? reconnectingAccount.service_name === service?.ID &&
+									? reconnectingAccount.service_name === service?.id &&
 									  reconnectingAccount.external_id === option.value
 									: index === 0;
 
@@ -265,7 +266,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 							} ) }
 						</div>
 
-						{ isAdmin ? (
+						{ canMarkAsShared ? (
 							<BaseControl
 								__nextHasNoMarginBottom={ true }
 								id="mark-connection-as-shared"

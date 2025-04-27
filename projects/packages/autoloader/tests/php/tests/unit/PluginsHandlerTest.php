@@ -8,6 +8,8 @@
 // We live in the namespace of the test autoloader to avoid many use statements.
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -16,8 +18,9 @@ use PHPUnit\Framework\TestCase;
  * @runTestsInSeparateProcesses Ensure that each test has no previously autoloaded files.
  * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class PluginsHandlerTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * A dependency mock for the handler.
@@ -42,10 +45,9 @@ class PluginsHandlerTest extends TestCase {
 
 	/**
 	 * Setup runs before each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
 		$this->plugin_locator  = $this->getMockBuilder( Plugin_Locator::class )
 			->disableOriginalConstructor()
 			->getMock();
@@ -57,10 +59,9 @@ class PluginsHandlerTest extends TestCase {
 
 	/**
 	 * Teardown runs after each test.
-	 *
-	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void {
+		parent::tearDown();
 		cleanup_test_wordpress_data();
 	}
 

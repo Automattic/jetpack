@@ -1,5 +1,8 @@
 import * as connectionData from './connection-data';
 import * as pricingPageSettings from './pricing-page';
+import * as scheduledSharesActions from './scheduled-shares';
+import * as servicesActions from './services';
+import * as sharePost from './share-post';
 import * as shareStatus from './share-status';
 import * as sigActions from './social-image-generator';
 import * as socialModuleSettings from './social-module-settings';
@@ -8,12 +11,15 @@ import * as utmActions from './utm-settings';
 
 const actions = {
 	...shareStatus,
+	...sharePost,
 	...connectionData,
 	...sigActions,
 	...utmActions,
 	...socialNoteSettings,
 	...pricingPageSettings,
 	...socialModuleSettings,
+	...servicesActions,
+	...scheduledSharesActions,
 };
 
 export default actions;

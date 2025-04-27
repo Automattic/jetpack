@@ -468,7 +468,7 @@ class Modules {
 			ob_start();
 			$module_path = $this->get_path( $module );
 			if ( file_exists( $module_path ) ) {
-				require $this->get_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+				require_once $this->get_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 			}
 
 			$active[] = $module;

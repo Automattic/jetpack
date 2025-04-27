@@ -18,6 +18,7 @@ import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
+import LoadingBlock from '../loading-block';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -95,7 +96,7 @@ const ProductDetailCard = ( {
 		myJetpackCheckoutUri = '',
 	} = getMyJetpackWindowInitialState();
 
-	const { detail } = useProduct( slug );
+	const { detail, isLoading: isProductLoading } = useProduct( slug );
 
 	const {
 		name,
@@ -125,7 +126,7 @@ const ProductDetailCard = ( {
 		wpcomFreeProductSlug,
 		introductoryOffer,
 		productTerm,
-	} = pricingForUi;
+	} = pricingForUi || {};
 
 	const { recordEvent } = useAnalytics();
 
@@ -306,20 +307,30 @@ const ProductDetailCard = ( {
 				<ProductIcon slug={ slug } />
 
 				<H3>{ productMoniker }</H3>
-				<Text mb={ 3 }>{ longDescription }</Text>
+				{ isProductLoading ? (
+					<LoadingBlock width="100%" height="75px" spaceBelow />
+				) : (
+					<Text mb={ 3 }>{ longDescription }</Text>
+				) }
 
-				<ul
-					className={ clsx( styles.features, {
-						[ styles[ 'highlight-last-feature' ] ]: highlightLastFeature,
-					} ) }
-				>
-					{ features.map( ( feature, id ) => (
-						<Text component="li" key={ `feature-${ id }` } variant="body">
-							<Icon icon={ check } size={ 24 } />
-							{ feature }
-						</Text>
-					) ) }
-				</ul>
+				{ isProductLoading ? (
+					<LoadingBlock width="100%" height="250px" spaceBelow />
+				) : (
+					<ul
+						className={ clsx( styles.features, {
+							[ styles[ 'highlight-last-feature' ] ]: highlightLastFeature,
+						} ) }
+					>
+						{ features.map( ( feature, id ) => (
+							<Text component="li" key={ `feature-${ id }` } variant="body">
+								<Icon icon={ check } size={ 24 } />
+								{ feature }
+							</Text>
+						) ) }
+					</ul>
+				) }
+
+				{ isProductLoading && <LoadingBlock width="100%" height="70px" spaceBelow /> }
 
 				{ needsPurchase && productPrice && (
 					<>

@@ -1,12 +1,15 @@
 .editor-styles-wrapper .wp-block-jetpack-payment-buttons {
 	--jetpack-payment-buttons-gap: 0.5em;
+
 	&.is-layout-flex {
 		gap: var(--jetpack-payment-buttons-gap);
 		display: flex;
 	}
+
 	&.is-layout-flex .is-layout-flex {
 		display:flex;
 	}
+
 	.wp-block-jetpack-recurring-payments {
 		width: auto;
 		margin: 0;

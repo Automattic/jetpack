@@ -22,8 +22,10 @@ export const prepareProductData = ( product: ProductSnakeCase ) => {
 	camelProduct.features = camelProduct.features || [];
 	camelProduct.supportedProducts = camelProduct.supportedProducts || [];
 
-	camelProduct.pricingForUi.fullPricePerMonth = getFullPricePerMonth( camelProduct );
-	camelProduct.pricingForUi.discountPricePerMonth = getDiscountPricePerMonth( camelProduct );
+	if ( camelProduct.pricingForUi ) {
+		camelProduct.pricingForUi.fullPricePerMonth = getFullPricePerMonth( camelProduct );
+		camelProduct.pricingForUi.discountPricePerMonth = getDiscountPricePerMonth( camelProduct );
+	}
 
 	return camelProduct;
 };

@@ -376,6 +376,12 @@ export const blockInfoWithVariations: {
 			postId: 150414,
 		},
 	},
+	'core/group': {
+		'group-grid': {
+			link: 'https://wordpress.com/support/wordpress-editor/blocks/grid-block/',
+			postId: 339584,
+		},
+	},
 };
 
 export const childrenBlockInfoWithDifferentUrl: {

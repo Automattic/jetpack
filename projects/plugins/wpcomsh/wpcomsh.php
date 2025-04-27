@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 6.0.0
+ * Version: 6.1.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '6.0.0' );
+define( 'WPCOMSH_VERSION', '6.1.0' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -45,15 +45,12 @@ require_once __DIR__ . '/customizer-fixes/customizer-fixes.php';
 
 require_once __DIR__ . '/class-wpcomsh-log.php';
 require_once __DIR__ . '/safeguard/plugins.php';
-require_once __DIR__ . '/logo-tool/logo-tool.php';
 require_once __DIR__ . '/jetpack-token-error-header/class-atomic-record-jetpack-token-errors.php';
 
 /**
  * WP.com Widgets (in alphabetical order)
  */
-require_once __DIR__ . '/widgets/class-aboutme-widget.php';
 require_once __DIR__ . '/widgets/class-gravatar-widget.php';
-require_once __DIR__ . '/widgets/class-jetpack-i-voted-widget.php';
 require_once __DIR__ . '/widgets/class-jetpack-posts-i-like-widget.php';
 require_once __DIR__ . '/widgets/class-music-player-widget.php';
 require_once __DIR__ . '/widgets/class-widget-authors-grid.php';
@@ -103,7 +100,6 @@ require_once __DIR__ . '/feature-plugins/sensei-pro-mods.php';
 require_once __DIR__ . '/feature-plugins/smtp-email-priority.php';
 require_once __DIR__ . '/feature-plugins/staging-sites.php';
 require_once __DIR__ . '/feature-plugins/stats.php';
-require_once __DIR__ . '/feature-plugins/theme-homepage-switch.php';
 require_once __DIR__ . '/feature-plugins/woocommerce.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
 
@@ -257,6 +253,21 @@ function wpcomsh_bypass_jetpack_sso_login() {
 add_filter( 'jetpack_sso_bypass_login_forward_wpcom', 'wpcomsh_bypass_jetpack_sso_login' );
 
 /**
+ * Add 'loggedout' to the list of actions that allow the wpcom login form to be used.
+ *
+ * This means that the login screen the user sees immediately after logging out is consistent
+ * with the login screen the user sees when they are not logged in: the wpcom login form.
+ *
+ * @param array $allowed_actions The allowed actions.
+ * @return array The modified allowed actions.
+ */
+function wpcomsh_modify_jetpack_sso_allowed_actions( $allowed_actions ) {
+	$allowed_actions[] = 'loggedout';
+	return $allowed_actions;
+}
+add_filter( 'jetpack_sso_allowed_actions', 'wpcomsh_modify_jetpack_sso_allowed_actions' );
+
+/**
  * Overwrite the default value of SSO "Match by Email" setting.
  * p9o2xV-2zY-p2
  */
@@ -290,6 +301,7 @@ function wpcomsh_allow_custom_wp_options( $options ) {
 	$options[] = 'jetpack_fonts';
 	$options[] = 'site_logo';
 	$options[] = 'footercredit';
+	$options[] = 'wpcomsh_at_managed_plugins';
 
 	return $options;
 }
@@ -307,21 +319,6 @@ function check_site_has_pending_automated_transfer() {
 }
 
 add_filter( 'jetpack_site_pending_automated_transfer', 'check_site_has_pending_automated_transfer' );
-
-/**
- * Provides a fallback Google Maps API key when otherwise not configured by the
- * user. This is subject to a usage quota.
- *
- * @see p5j4vm-1gT-p2
- *
- * @param string $api_key Google Maps API key.
- * @return string Google Maps API key
- */
-function wpcomsh_google_maps_api_key( $api_key ) {
-	// Fall back to the dotcom API key if the user has not set their own.
-	return ( empty( $api_key ) ) ? 'AIzaSyCq4vWNv6eCGe2uvhPRGWQlv80IQp8dwTE' : $api_key;
-}
-add_filter( 'jetpack_google_maps_api_key', 'wpcomsh_google_maps_api_key' );
 
 /**
  * We have some instances where `track_number` of an audio attachment is `??0` and shows up as type string.
@@ -541,6 +538,49 @@ function wpcom_hide_scan_threats_from_api( $response ) {
 add_filter( 'rest_post_dispatch', 'wpcom_hide_scan_threats_from_api' );
 
 /**
+ * Returns a standardized timezone string.
+ *
+ * `wp_timezone_string()` sometimes returns offsets (e.g. "-07:00"), which are
+ * a non-standard representation of a UTC offset that only works in PHP.
+ * This function returns a standardized timezone string instead, of the form
+ * "Etc/GMT+7" for integer hour offsets, or a matching "<Area>/<City>" form for
+ * fractional hour offsets (used e.g. in India).
+ */
+function wpcomsh_stats_timezone_string() {
+	$wp_tz = wp_timezone_string();
+
+	// Did we get back an offset?
+	if ( preg_match( '/^([+-])?(\d{1,2}):(\d{2})$/', $wp_tz, $matches ) ) {
+		$sign    = $matches[1] === '-' ? -1 : 1;
+		$hours   = intval( $matches[2], 10 );
+		$minutes = intval( $matches[3], 10 );
+
+		// For fractional hour offsets, use `timezone_name_from_abbr` to get a
+		// matching "<Area>/<City>" timezone.
+		if ( $minutes > 0 ) {
+			$offset  = $sign * ( $hours * 3600 + $minutes * 60 );
+			$city_tz = timezone_name_from_abbr( '', $offset, 0 );
+
+			if ( ! empty( $city_tz ) ) {
+				return $city_tz;
+			}
+		}
+
+		// For integer hour offsets, use "Etc/GMT(+|-)<offset>".
+		// The sign is flipped, to match how the `Etc` area is specced.
+		//
+		// This codepath is also followed if no city exists to match a
+		// fractional offset, by simply discarding the fractional part.
+		// This isn't ideal, but there's no standard way of describing
+		// these offsets, and is likely to be an extreme edge case.
+		return 'Etc/GMT' . ( $sign === -1 ? '+' : '-' ) . $hours;
+	}
+
+	// For anything that's not an offset, return the string we got from WP.
+	return $wp_tz;
+}
+
+/**
  * Collect RUM performance data
  * p9o2xV-XY-p2
  */
@@ -571,11 +611,17 @@ function wpcomsh_footer_rum_js() {
 		$rum_kv = '';
 	}
 
+	$data_site_tz = 'data-site-tz="' . esc_attr( wpcomsh_stats_timezone_string() ) . '"';
+
 	printf(
-		'<script defer id="bilmur" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s src="%4$s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		'<meta id="bilmur" property="bilmur:data" content="" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s %4$s >' . "\n",
 		$rum_kv, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		esc_attr( $service ),
 		wp_kses_post( $allow_iframe ),
+		$data_site_tz // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	);
+	printf(
+		'<script defer src="%s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) )
 	);
 }
@@ -602,6 +648,20 @@ function wpcomsh_get_woo_rum_data( $rum_kv = array() ) {
 
 add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 add_action( 'admin_footer', 'wpcomsh_footer_rum_js' );
+
+/**
+ * Adds Atomic site ID to WooCommerce tracker data.
+ *
+ * @param array $data The WooCommerce tracker data.
+ *
+ * @return array The WooCommerce tracker data with Atomic site ID added.
+ */
+function wpcomsh_woocommerce_tracker_data( $data ) {
+	$data['atomic_site_id'] = wpcomsh_get_atomic_site_id();
+	return $data;
+}
+
+add_filter( 'woocommerce_tracker_data', 'wpcomsh_woocommerce_tracker_data' );
 
 add_filter( 'amp_dev_tools_user_default_enabled', '__return_false' );
 

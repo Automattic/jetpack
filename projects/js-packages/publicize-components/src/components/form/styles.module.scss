@@ -2,7 +2,6 @@
 
 .connections-list {
 	list-style-type: none;
-	display: inherit;
 	margin: 0;
 	width: 100%;
 	display: flex;
@@ -39,7 +38,8 @@
 }
 
 .broken-connection-btn {
-	&:global(.components-button.is-link) {
+
+	&:global(.components-button.is-link.components-button.is-link) {
 		font-size: inherit;
 		font-weight: inherit;
 
@@ -50,8 +50,9 @@
 }
 
 .broken-connection-service {
+
 	.broken-connection {
-		font-weight: bold;
+		font-weight: 700;
 		font-style: italic;
 		word-wrap: break-word;
 	}
@@ -64,4 +65,9 @@
 
 .share-post-form__media-section {
 	margin-top: 1rem;
+}
+
+.unsupported-connections-list {
+	margin-inline-start: 1rem;
+	list-style-type: disc;
 }

@@ -4,6 +4,7 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
+import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, lifesaver } from '@wordpress/icons';
@@ -18,6 +19,8 @@ const SupportSection = () => {
 	if ( ! hasSocialPaidFeatures() ) {
 		return null;
 	}
+
+	const isJetpackSite = isJetpackSelfHostedSite();
 
 	return (
 		<Container
@@ -38,7 +41,13 @@ const SupportSection = () => {
 					) }
 				</Text>
 				<Text className={ styles.link }>
-					<ExternalLink href={ getRedirectUrl( 'jetpack-contact-support' ) }>
+					<ExternalLink
+						href={
+							isJetpackSite
+								? getRedirectUrl( 'jetpack-contact-support' )
+								: getRedirectUrl( 'wpcom-contact-support' )
+						}
+					>
 						{ __( 'Contact Support', 'jetpack-publicize-components' ) }
 					</ExternalLink>
 				</Text>

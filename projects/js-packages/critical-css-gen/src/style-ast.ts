@@ -1,5 +1,5 @@
 import * as csstree from 'css-tree';
-import { AtRuleFilter, FilterSpec, PropertiesFilter } from './types.js';
+import { AtRuleFilter, FilterSpec, PropertiesFilter } from './types.ts';
 
 const validMediaTypes = [ 'all', 'print', 'screen', 'speech' ];
 const base64Pattern = /data:[^,]*;base64,/;
@@ -42,7 +42,6 @@ function hasEmptyChildList( node: csstree.CssNode ): boolean {
  * methods for pruning and rearranging it.
  */
 export class StyleAST {
-	// eslint-disable-next-line no-useless-constructor
 	constructor(
 		private css: string,
 		private ast: csstree.CssNode,

@@ -50,7 +50,7 @@ async function hasProgressLabel( octokit, owner, repo, number ) {
  * @return {Promise<string>} Promise resolving to info about the release (code freeze, release date).
  */
 async function getMilestoneDates( plugin, nextMilestone ) {
-	let releaseDate = 'none scheduled';
+	let releaseDate;
 	let codeFreezeDate;
 	if ( nextMilestone && Object.hasOwn( nextMilestone, 'due_on' ) && nextMilestone.due_on ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
@@ -76,22 +76,29 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		// Spaces between words.
 		.join( ' ' );
 
+	let pluginMessage = '';
+	if ( ! releaseDate ) {
+		pluginMessage = `No scheduled milestone found for this plugin.`;
+	} else if ( plugin === 'jetpack' ) {
+		pluginMessage = `The Jetpack plugin has different release cadences depending on the platform:
+
+- WordPress.com Simple releases happen as soon as you deploy your changes after merging this PR (PCYsg-Jjm-p2).
+- WoA releases happen weekly.
+- Releases to self-hosted sites happen monthly:
+    - Scheduled release: _${ releaseDate }_
+${ codeFreezeDate ? `    - Code freeze: _${ codeFreezeDate }_` : '' }
+`;
+	} else {
+		pluginMessage = `- Next scheduled release: _${ releaseDate }_
+${ codeFreezeDate ? `- Code freeze: _${ codeFreezeDate }_` : '' }`;
+	}
+
 	return `
 ******
 
 **${ capitalizedName } plugin:**
 
-${
-	'Jetpack' === capitalizedName
-		? `The Jetpack plugin has different release cadences depending on the platform:
-
-- WordPress.com Simple releases happen semi-continuously (PCYsg-Jjm-p2).
-- WoA releases happen weekly.
-- Releases to self-hosted sites happen monthly. The next release is scheduled for _${ releaseDate }_ (scheduled code freeze on _${ codeFreezeDate }_).`
-		: `
-- Next scheduled release: _${ releaseDate }_.
-${ codeFreezeDate ? `- Scheduled code freeze: _${ codeFreezeDate }_.\n` : '' }`
-}
+${ pluginMessage }
 
 If you have any questions about the release process, please ask in the #jetpack-releases channel on Slack.
 `;
@@ -291,7 +298,7 @@ function renderStatusChecks( statusChecks ) {
 		debug( `check-description: this PR has a Status label: ${ statusChecks.hasStatusLabels }` );
 		checks += statusEntry(
 			! statusChecks.hasStatusLabels,
-			'Add a "[Status]" label (In Progress, Needs Team Review, ...).'
+			'Add a "[Status]" label (In Progress, Needs Review, ...).'
 		);
 	}
 
@@ -492,12 +499,6 @@ This comment will be updated as you work on your PR and make changes. If you thi
 
 ******`;
 
-	comment += `
-
-The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e-reports/${ number }/report/). Please note that it can take a few minutes after the e2e tests checks are complete for the report to be available.
-
-******`;
-
 	comment += renderRecommendations( statusChecks );
 
 	// Display extra info for Automatticians (who can handle labels and who created the PR without a fork).
@@ -507,19 +508,11 @@ The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e
 **Follow this PR Review Process:**
 
 1. Ensure all required checks appearing at the bottom of this PR are passing.
-2. Choose a review path based on your changes:
-    - **A. Team Review:** add the "[Status] Needs Team Review" label
-        - For most changes, including minor cross-team impacts.
-        - Example: Updating a team-specific component or a small change to a shared library.
-    - **B. Crew Review:** add the "[Status] Needs Review" label
-        - For significant changes to core functionality.
-        - Example: Major updates to a shared library or complex features.
-    - **C. Both:** Start with Team, then request Crew
-        - For complex changes or when you need extra confidence.
-        - Example: Refactor affecting multiple systems.
-3. Get at least one approval before merging.
+2. Make sure to test your changes on all platforms that it applies to. *You're responsible for the quality of the code you ship*.
+3. You can use [GitHub's Reviewers functionality](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/requesting-a-pull-request-review) to request a review.
+4. When it's reviewed and merged, you will be pinged in Slack to deploy the changes to WordPress.com simple once the build is done.
 
-Still unsure? Reach out in #jetpack-developers for guidance!`;
+If you have questions about anything, reach out in #jetpack-developers for guidance!`;
 	}
 
 	// Gather info about the next release for that plugin.

@@ -11,6 +11,7 @@ use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelog\Changelog;
 use Automattic\Jetpack\Changelog\ChangelogEntry;
 use Automattic\Jetpack\Changelog\Parser;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,6 +19,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Changelog\Parser
  */
+#[CoversClass( Parser::class )]
 class ParserTest extends TestCase {
 
 	/**
@@ -26,7 +28,9 @@ class ParserTest extends TestCase {
 	 * @return Parser&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private function getMockParser() {
-		return $this->getMockBuilder( Parser::class )->getMockForAbstractClass();
+		return $this->getMockBuilder( Parser::class )
+			->onlyMethods( array( 'parse', 'format' ) )
+			->getMock();
 	}
 
 	/**

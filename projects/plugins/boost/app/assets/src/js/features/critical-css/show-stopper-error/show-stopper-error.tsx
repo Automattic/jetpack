@@ -1,3 +1,4 @@
+import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import FoldingElement from '../folding-element/folding-element';
 import { ErrorSet, getPrimaryErrorSet } from '../lib/critical-css-errors';
@@ -12,6 +13,7 @@ import formatErrorSetUrls from '$lib/utils/format-error-set-urls';
 import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useRetryRegenerate } from '../lib/use-retry-regenerate';
+import RawError from '../raw-error/raw-error';
 
 type ShowStopperErrorTypes = {
 	supportLink?: string;
@@ -35,6 +37,7 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 				{ showLearnSection ? (
 					<>
 						<Description errorSet={ primaryErrorSet } />
+						<RawError errorSet={ primaryErrorSet } />
 						<FoldingElement
 							labelExpandedText={ __( 'Learn what to do', 'jetpack-boost' ) }
 							labelCollapsedText={ __( 'Learn what to do', 'jetpack-boost' ) }
@@ -63,24 +66,28 @@ const Description = ( { errorSet }: { errorSet: ErrorSet } ) => {
 	const displayUrls = formatErrorSetUrls( errorSet );
 
 	return (
-		<p>
-			{ createInterpolateElement( describeErrorSet( errorSet ), {
-				b: <b />,
-			} ) }{ ' ' }
-			{ displayUrls.map( ( { href, label }, index ) => (
-				<a
-					onClick={ () => {
-						recordBoostEvent( 'critical_css_error_link_clicked', {} );
-					} }
-					href={ href }
-					target="_blank"
-					rel="noreferrer"
-					key={ index }
-				>
-					{ label }
-				</a>
-			) ) }
-		</p>
+		<>
+			<p>
+				{ createInterpolateElement( describeErrorSet( errorSet ), {
+					b: <b />,
+				} ) }
+			</p>
+			<p>
+				{ displayUrls.map( ( { href, label }, index ) => (
+					<a
+						onClick={ () => {
+							recordBoostEvent( 'critical_css_error_link_clicked', {} );
+						} }
+						href={ href }
+						target="_blank"
+						rel="noreferrer"
+						key={ index }
+					>
+						{ label }
+					</a>
+				) ) }
+			</p>
+		</>
 	);
 };
 
@@ -113,11 +120,8 @@ const DocumentationSection = ( {
 		<p>
 			{ createInterpolateElement( message, {
 				link: (
-					// eslint-disable-next-line jsx-a11y/anchor-has-content
-					<a
+					<ExternalLink
 						href={ getSupportLinkCriticalCss( errorType ) }
-						target="_blank"
-						rel="noopener noreferrer"
 						onClick={ () => {
 							recordBoostEvent( 'critical_css_learn_more', {} );
 						} }
@@ -200,17 +204,15 @@ const OtherErrors = ( { cssState, supportLink }: ShowStopperErrorTypes ) => {
 							{ __( 'Refresh', 'jetpack-boost' ) }
 						</button>
 					) : (
-						<a
+						<ExternalLink
 							className="button button-secondary"
 							href={ supportLink }
-							target="_blank"
-							rel="noreferrer"
 							onClick={ () => {
 								recordBoostEvent( 'critical_css_contact_support', {} );
 							} }
 						>
 							{ __( 'Contact Support', 'jetpack-boost' ) }
-						</a>
+						</ExternalLink>
 					) }
 				</>
 			) }

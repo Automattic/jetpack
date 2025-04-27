@@ -24,15 +24,14 @@ describe( 'controls', () => {
 
 	describe( 'REGISTER_SITE', () => {
 		it( 'resolves with result', async () => {
-			const registrationNonce = 'REGISTRATION_NONCE';
 			const redirectUri = 'REDIRECT_URI';
 			const from = 'FROM';
 			const fakeResult = {};
 			stubRegisterSite.mockResolvedValue( fakeResult );
 
-			const result = await registerSite( { registrationNonce, redirectUri, from } );
+			const result = await registerSite( { redirectUri, from } );
 			expect( result ).toEqual( fakeResult );
-			expect( stubRegisterSite ).toHaveBeenCalledWith( registrationNonce, redirectUri, from );
+			expect( stubRegisterSite ).toHaveBeenCalledWith( null, redirectUri, from );
 		} );
 
 		it( 'resolves with error', async () => {

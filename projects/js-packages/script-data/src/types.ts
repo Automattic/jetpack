@@ -20,6 +20,7 @@ export interface AdminSiteData {
 	date_format: string;
 	host?: 'woa' | 'atomic' | 'newspack' | 'vip' | 'wpcom' | 'unknown';
 	is_multisite: boolean;
+	is_wpcom_platform: boolean;
 	plan: SitePlan;
 	rest_nonce: string;
 	rest_root: string;
@@ -30,9 +31,15 @@ export interface AdminSiteData {
 
 export interface SiteData extends PublicSiteData, Partial< AdminSiteData > {}
 
+export interface UserCapabilities {
+	manage_options: boolean;
+	manage_modules: boolean;
+}
+
 export interface CurrentUserData {
 	id: number;
 	display_name: string;
+	capabilities: UserCapabilities;
 	wpcom?: {
 		ID: number;
 		login: string;

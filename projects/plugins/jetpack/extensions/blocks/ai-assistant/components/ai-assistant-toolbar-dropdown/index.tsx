@@ -21,7 +21,7 @@ import './style.scss';
  * Types and constants
  */
 import type { AiAssistantDropdownOnChangeOptionsArgProps } from './dropdown-content';
-import type { ExtendedBlockProp } from '../../extensions/constants';
+import type { ExtendedBlockProp } from '../../extensions/text-blocks/constants';
 import type { PromptTypeProp } from '../../lib/prompt';
 
 const debug = debugFactory( 'jetpack-ai-assistant:dropdown' );

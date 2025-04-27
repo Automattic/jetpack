@@ -1,5 +1,5 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store } from '../../social-store';
@@ -40,7 +40,7 @@ export type RequestAccessOptions = {
  * Hook to request access to a service.
  *
  * @param {RequestAccessOptions} options - Options
- * @return {(formData: FormData) => void} - Function to request access
+ * @return - Function to request access
  */
 export function useRequestAccess( { service, onConfirm }: RequestAccessOptions ) {
 	const { createErrorNotice } = useGlobalNotices();
@@ -55,11 +55,27 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 		[]
 	);
 
-	return useCallback(
-		( formData: FormData ) => {
-			const url = new URL( service.connect_URL );
+	const { refreshServicesList } = useDispatch( store );
 
-			switch ( service.ID ) {
+	const { getService } = useSelect( select => select( store ), [] );
+
+	return useCallback(
+		async ( formData: FormData ) => {
+			let connectUrl = service.url;
+
+			if ( ! connectUrl ) {
+				await refreshServicesList();
+				// Wait until the services list is refreshed
+				do {
+					await new Promise( resolve => setTimeout( resolve, 100 ) );
+
+					connectUrl = getService( service.id )?.url;
+				} while ( ! connectUrl );
+			}
+
+			const url = new URL( connectUrl );
+
+			switch ( service.id ) {
 				case 'mastodon': {
 					const instance = formData.get( 'instance' ).toString().trim();
 
@@ -115,11 +131,12 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 		},
 		[
 			createErrorNotice,
+			getService,
 			isBlueskyAccountAlreadyConnected,
 			isMastodonAlreadyConnected,
 			onConfirm,
-			service.ID,
-			service.connect_URL,
+			refreshServicesList,
+			service,
 		]
 	);
 }

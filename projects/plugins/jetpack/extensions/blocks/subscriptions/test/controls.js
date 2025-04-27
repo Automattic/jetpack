@@ -75,6 +75,13 @@ const defaultProps = {
 	spacing: 0,
 	subscriberCount: 100,
 	textColor: '#000000',
+	areNewsletterCategoriesEnabled: true,
+	availableNewsletterCategories: [
+		{ id: 1, name: 'Category 1' },
+		{ id: 2, name: 'Category 2' },
+	],
+	preselectNewsletterCategories: false,
+	selectedNewsletterCategoryIds: [],
 };
 
 beforeEach( () => {
@@ -141,7 +148,7 @@ describe( 'Inspector controls', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			await user.click( screen.getByRole( 'button', { name: 'Typography' } ) );
 			await user.click( screen.getByRole( 'button', { name: 'Set custom size' } ) );
-			await user.type( screen.getByRole( 'spinbutton', { name: 'Custom' } ), '18' );
+			await user.type( screen.getByRole( 'spinbutton', { name: 'Font size' } ), '18' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
 				fontSize: 18,
@@ -216,6 +223,42 @@ describe( 'Inspector controls', () => {
 				spacing: 5,
 			} );
 		} );
+
+		test( 'toggles place button on new line if width set to 100%', async () => {
+			const user = userEvent.setup();
+			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+			await user.click( screen.getByText( 'Spacing' ), { selector: 'button' } );
+			await user.click( screen.getByLabelText( '100%' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonWidth: '100%',
+				buttonOnNewLine: true,
+			} );
+		} );
+
+		test( 'toggles place button on new line if width set to 50%', async () => {
+			const user = userEvent.setup();
+			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+			await user.click( screen.getByText( 'Spacing' ), { selector: 'button' } );
+			await user.click( screen.getByLabelText( '50%' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonWidth: '50%',
+				buttonOnNewLine: false,
+			} );
+		} );
+
+		test( 'Does not toggle place button on new line if width set to 50% and new line setting enabled', async () => {
+			const user = userEvent.setup();
+			render( <SubscriptionsInspectorControls { ...defaultProps } buttonOnNewLine={ true } /> );
+			await user.click( screen.getByText( 'Spacing' ), { selector: 'button' } );
+			await user.click( screen.getByLabelText( '50%' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				buttonWidth: '50%',
+				buttonOnNewLine: true,
+			} );
+		} );
 	} );
 
 	describe( 'Display settings panel', () => {
@@ -255,6 +298,136 @@ describe( 'Inspector controls', () => {
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
 				buttonOnNewLine: true,
+			} );
+		} );
+
+		describe( 'Pre-select newsletter categories', () => {
+			test( 'displays newsletter category controls when enabled', async () => {
+				const user = userEvent.setup();
+				render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				expect( screen.getByText( 'Pre-select categories' ) ).toBeInTheDocument();
+			} );
+
+			test( 'does not render controls when newsletter categories are disabled', async () => {
+				const user = userEvent.setup();
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						areNewsletterCategoriesEnabled={ false }
+					/>
+				);
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				expect( screen.queryByText( 'Pre-select categories' ) ).not.toBeInTheDocument();
+				expect( screen.queryByText( 'Categories' ) ).not.toBeInTheDocument();
+			} );
+
+			test( 'does not render controls when there are no categories', async () => {
+				const user = userEvent.setup();
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						availableNewsletterCategories={ [] }
+					/>
+				);
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+
+				expect( screen.queryByText( 'Pre-select categories' ) ).not.toBeInTheDocument();
+				expect( screen.queryByText( 'Categories' ) ).not.toBeInTheDocument();
+			} );
+
+			test( 'selects categories', async () => {
+				const user = userEvent.setup();
+				render(
+					<SubscriptionsInspectorControls { ...defaultProps } preselectNewsletterCategories />
+				);
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+				await user.click( screen.getByLabelText( 'Category 1' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					selectedNewsletterCategoryIds: [ defaultProps.availableNewsletterCategories[ 0 ].id ],
+				} );
+			} );
+
+			test( 'toggles category selection', async () => {
+				const user = userEvent.setup();
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						preselectNewsletterCategories
+						selectedNewsletterCategoryIds={ [
+							defaultProps.availableNewsletterCategories[ 0 ].id,
+							defaultProps.availableNewsletterCategories[ 1 ].id,
+						] }
+					/>
+				);
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+				await user.click( screen.getByLabelText( 'Category 1' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					selectedNewsletterCategoryIds: [ defaultProps.availableNewsletterCategories[ 1 ].id ],
+				} );
+			} );
+
+			test( 'toggles pre-select control when all categories are unchecked', async () => {
+				const user = userEvent.setup();
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						preselectNewsletterCategories
+						selectedNewsletterCategoryIds={ [ defaultProps.availableNewsletterCategories[ 0 ].id ] }
+					/>
+				);
+
+				await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+				await user.click( screen.getByLabelText( 'Category 1' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					selectedNewsletterCategoryIds: [],
+					preselectNewsletterCategories: false,
+				} );
+			} );
+
+			test( 'filters out invalid selected IDs', () => {
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						selectedNewsletterCategoryIds={ [
+							defaultProps.availableNewsletterCategories[ 0 ].id,
+							defaultProps.availableNewsletterCategories[ 1 ].id,
+							3,
+						] }
+					/>
+				);
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					selectedNewsletterCategoryIds: [
+						defaultProps.availableNewsletterCategories[ 0 ].id,
+						defaultProps.availableNewsletterCategories[ 1 ].id,
+					],
+				} );
+			} );
+
+			test( 'disables pre-select option if no valid categories remain selected', () => {
+				render(
+					<SubscriptionsInspectorControls
+						{ ...defaultProps }
+						selectedNewsletterCategoryIds={ [ 3 ] }
+						preselectNewsletterCategories
+					/>
+				);
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					selectedNewsletterCategoryIds: [],
+					preselectNewsletterCategories: false,
+				} );
 			} );
 		} );
 	} );

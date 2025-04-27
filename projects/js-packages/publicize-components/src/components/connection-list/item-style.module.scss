@@ -1,0 +1,23 @@
+.wrapper {
+	display: flex;
+	justify-content: space-between;
+	padding: 0.5rem;
+
+	.content {
+		display: flex;
+		flex-wrap: wrap;
+		min-height: 1.5rem;
+		padding: 0.25rem;
+		align-items: center;
+		gap: .875rem;
+	}
+
+	.display-name {
+		text-overflow: ellipsis;
+	}
+
+	.toggle {
+		margin-top: auto;
+		margin-bottom: auto;
+	}
+}

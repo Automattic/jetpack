@@ -1,6 +1,6 @@
 # Assign Issues
 
-Adds assignee for issues which are being worked on, and adds the "[Status] In Progress" label.
+Adds assignee for issues which are being worked on.
 
 ## Rationale
 

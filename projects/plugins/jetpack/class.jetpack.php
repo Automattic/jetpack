@@ -754,6 +754,7 @@ class Jetpack {
 			array(
 				'jitm',
 				'sync',
+				'account_protection',
 				'waf',
 				'videopress',
 				'stats',
@@ -844,8 +845,7 @@ class Jetpack {
 		if ( $is_connection_ready ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
-			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
+			add_action( 'rest_api_init', array( $this, 'maybe_initialize_rest_jsonapi' ) );
 		}
 	}
 
@@ -1021,14 +1021,6 @@ class Jetpack {
 	 */
 	public function jetpack_custom_caps( $caps, $cap ) {
 		switch ( $cap ) {
-			case 'jetpack_manage_modules':
-			case 'jetpack_activate_modules':
-			case 'jetpack_deactivate_modules':
-				$caps = array( 'manage_options' );
-				break;
-			case 'jetpack_configure_modules':
-				$caps = array( 'manage_options' );
-				break;
 			case 'jetpack_manage_autoupdates':
 				$caps = array(
 					'manage_options',
@@ -1511,6 +1503,8 @@ class Jetpack {
 			/** This filter is documented in packages/status/src/class-status.php */
 		} elseif ( has_filter( 'jetpack_development_mode' ) && apply_filters( 'jetpack_development_mode', false ) ) { // This is a deprecated filter name.
 			$notice = __( 'The jetpack_development_mode filter is set to true.', 'jetpack' );
+		} elseif ( get_option( 'jetpack_offline_mode' ) ) {
+			$notice = __( 'The jetpack_offline_mode option is set to true.', 'jetpack' );
 		} else {
 			$notice = __( 'The jetpack_offline_mode filter is set to true.', 'jetpack' );
 		}
@@ -6113,6 +6107,21 @@ endif;
 		 * @since 13.9
 		 */
 		do_action( 'jetpack_initialize_tracking' );
+	}
+
+	/**
+	 * Initialize REST jsonAPI if needed.
+	 *
+	 * @return void
+	 */
+	public function maybe_initialize_rest_jsonapi() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_GET['jsonapi'] ) && ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) ) {
+			require_once ABSPATH . 'wp-admin/includes/admin.php'; // JSON API relies on WP functionality not autoloaded in REST.
+
+			define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
+			require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
+		}
 	}
 
 	/**

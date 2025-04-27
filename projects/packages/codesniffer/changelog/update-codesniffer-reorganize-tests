@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Reorganize tests dir, and add attributes for PHPUnit 11.
+
+

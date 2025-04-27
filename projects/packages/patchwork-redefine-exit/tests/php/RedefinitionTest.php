@@ -8,13 +8,13 @@
 namespace Automattic\RedefineExit\Tests;
 
 use Automattic\RedefineExit\ExitException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test the redefinition functionality.
  */
 class RedefinitionTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * @dataProvider provideRedefinition
@@ -23,6 +23,7 @@ class RedefinitionTest extends TestCase {
 	 * @param string          $expectMessage Expected exception message.
 	 * @param int             $expectCode Expected exception code.
 	 */
+	#[DataProvider( 'provideRedefinition' )]
 	public function testRedefinition( $func, $arg, $expectMessage, $expectCode ) {
 		try {
 			$this->assertThat( $func, $this->logicalOr( 'exit', 'die' ) );
@@ -53,10 +54,15 @@ class RedefinitionTest extends TestCase {
 	}
 
 	public function testRemoval() {
-		if ( PHP_VERSION_ID >= 70400 ) {
-			$cmd = array( __DIR__ . '/../../vendor/bin/phpunit', __DIR__ . '/fixtures/RedefinitionTestChild.php' );
-		} else {
-			$cmd = __DIR__ . '/../../vendor/bin/phpunit ' . escapeshellarg( __DIR__ . '/fixtures/RedefinitionTestChild.php' );
+		$cmd = array(
+			__DIR__ . '/../../vendor/bin/phpunit-select-config',
+			__DIR__ . '/../../phpunit.#.xml.dist',
+			__DIR__ . '/fixtures/RedefinitionTestChild.php',
+		);
+		if ( PHP_VERSION_ID < 70400 ) {
+			$cmdarr = $cmd;
+			$cmd    = array_shift( $cmdarr );
+			$cmd   .= ' ' . implode( ' ', array_map( 'escapeshellarg', $cmdarr ) );
 		}
 
 		$p = proc_open(

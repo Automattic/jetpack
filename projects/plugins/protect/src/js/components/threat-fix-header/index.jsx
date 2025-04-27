@@ -1,4 +1,5 @@
-import { Text, ThreatSeverityBadge } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
+import { ThreatSeverityBadge } from '@automattic/jetpack-scan';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import React, { useState, useCallback } from 'react';
@@ -15,11 +16,17 @@ export const getFixerMessage = fixable => {
 			if ( fixable.target ) {
 				return sprintf(
 					/* translators: %s: Version that the plugin will be upgraded to  */
-					__( 'Jetpack Scan will update to a newer version %s.', 'jetpack-protect' ),
+					__(
+						'Jetpack Scan will update the vulnerable extension to a newer version %s.',
+						'jetpack-protect'
+					),
 					fixable.target
 				);
 			}
-			return __( 'Jetpack Scan will update to a newer version.', 'jetpack-protect' );
+			return __(
+				'Jetpack Scan will update the vulnerable extension to a newer version.',
+				'jetpack-protect'
+			);
 		case 'edit':
 			return __( 'Jetpack Scan will edit the affected file or directory.', 'jetpack-protect' );
 		case 'rollback':

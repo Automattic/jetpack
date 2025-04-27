@@ -8,6 +8,8 @@
 // We live in the namespace of the test autoloader to avoid many use statements.
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -16,6 +18,8 @@ use PHPUnit\Framework\TestCase;
  * @runClassInSeparateProcess
  * @preserveGlobalState disabled
  */
+#[RunClassInSeparateProcess]
+#[PreserveGlobalState( false )]
 class AutoloaderHandlerTest extends TestCase {
 
 	/**
@@ -48,10 +52,10 @@ class AutoloaderHandlerTest extends TestCase {
 
 	/**
 	 * Setup runs before each test.
-	 *
-	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void {
+		parent::setUp();
+
 		$this->php_autoloader     = $this->getMockBuilder( PHP_Autoloader::class )
 			->disableOriginalConstructor()
 			->getMock();
