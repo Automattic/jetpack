@@ -442,7 +442,7 @@ const buildExecCmd = argv => {
 		};
 		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
 	} else if ( cmd === 'phpunit-integration' ) {
-		// Only run tests for wpcomsh and jetpack, but always set INTEGRATION_PLUGINS to the full list
+		// Only run tests for wpcomsh and jetpack, but always set JP_MONO_INTEGRATION_PLUGINS to the full list
 		const plugins = argv.plugins || argv._.slice( 2 );
 		const integrationPluginsEnv = plugins.join( ',' );
 		const allCmds = [];
@@ -450,7 +450,7 @@ const buildExecCmd = argv => {
 		const testablePlugins = [ 'wpcomsh', 'jetpack' ];
 		for ( const plugin of testablePlugins ) {
 			if ( ! plugins.includes( plugin ) ) continue;
-			let envVars = [ `INTEGRATION_PLUGINS=${ integrationPluginsEnv }` ];
+			let envVars = [ `JP_MONO_INTEGRATION_PLUGINS=${ integrationPluginsEnv }` ];
 			if ( plugin === 'wpcomsh' ) {
 				envVars = envVars.concat( [
 					'WP_TESTS_DIR=/tmp/wordpress-develop/tests/phpunit',

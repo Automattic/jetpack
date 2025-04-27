@@ -69,8 +69,8 @@ tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
  * Add the various plugins to the active options array.
  */
 function _manually_load_other_plugins( $active_plugins ) {
-	// Get the INTEGRATION_PLUGINS env var to include other plugins.
-	$plugins = getenv( 'INTEGRATION_PLUGINS' );
+	// Get the JP_MONO_INTEGRATION_PLUGINS env var to include other plugins.
+	$plugins = getenv( 'JP_MONO_INTEGRATION_PLUGINS' );
 	if ( $plugins ) {
 		$plugins = explode( ',', $plugins );
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';

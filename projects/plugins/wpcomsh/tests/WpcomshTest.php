@@ -69,7 +69,7 @@ class WpcomshTest extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_is_jetpack_boost_active() {
-		$plugins = getenv( 'INTEGRATION_PLUGINS' );
+		$plugins = getenv( 'JP_MONO_INTEGRATION_PLUGINS' );
 		if ( $plugins && strpos( $plugins, 'boost' ) !== false ) {
 			$this->assertTrue( is_plugin_active( 'boost/jetpack-boost.php' ) );
 			return;
