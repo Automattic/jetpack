@@ -292,7 +292,6 @@ class Contact_Form_Block {
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
-				'isFormModalEnabled'   => true, // Disable or enable integrations modal and use sidebar panels instead
 				'preferredView'        => $preferred_view,
 			),
 		);
@@ -329,7 +328,7 @@ class Contact_Form_Block {
 	 * This is only useful when the Contact Form package is used within the Jetpack plugin,
 	 * where the module logic exists.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.49.0
 	 *
 	 * @return bool
 	 */
@@ -338,7 +337,7 @@ class Contact_Form_Block {
 			/**
 			 * Allow third-parties to override the form block's visibility.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.49.0
 			 *
 			 * @module contact-form
 			 *

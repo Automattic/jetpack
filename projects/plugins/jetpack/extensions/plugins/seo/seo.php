@@ -53,7 +53,7 @@ add_filter(
 /**
  * SEO tools should be hidden from non-admins if the module is not active.
  *
- * @since $$next-version$$
+ * @since 14.6
  *
  * @return bool
  */

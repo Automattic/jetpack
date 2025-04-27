@@ -244,7 +244,6 @@ input[type="checkbox"] {
 	display: inline-block;
 	box-sizing: border-box;
 	margin: 2px 0 0;
-	padding: 7px 14px;
 	width: 16px;
 	height: 16px;
 	float: left;
@@ -324,7 +323,7 @@ input[type="checkbox"] + span {
 ** ======================================================================== */
 
 .radio-button,
-input[type=radio] {
+input[type="radio"] {
 	color: #2e4453;
 	font-size: 16px;
 	border: 1px solid #c8d7e1;
@@ -335,7 +334,6 @@ input[type=radio] {
 	clear: none;
 	cursor: pointer;
 	display: inline-block;
-	line-height: 0;
 	height: 16px;
 	margin: 2px 4px 0 0;
 	float: left;
@@ -538,12 +536,6 @@ select:-moz-focusring {
 ** ======================================================================== */
 
 input[type="submit"] {
-	padding: 0;
-	font-size: 14px;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	vertical-align: baseline;
 	background: #fff;
 	border-color: #c8d7e1;
 	border-style: solid;

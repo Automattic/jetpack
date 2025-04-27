@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Code: Remove unneeded `data:` URI components.

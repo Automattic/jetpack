@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 // cache HTTP requests.
 require_once __DIR__ . '/trait.http-request-cache.php';
 
@@ -13,6 +16,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  *
  * @covers ::github_gist_shortcode
  */
+#[CoversFunction( 'github_gist_shortcode' )]
 class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -58,6 +62,7 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	 * @param string $expected     Expected returned output.
 	 * @param string $expected_amp Expected returned output for AMP.
 	 */
+	#[DataProvider( 'gist_embed_data' )]
 	public function test_gist_embeds( $content, $expected, $expected_amp ) {
 		global $post;
 
@@ -127,6 +132,7 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	 * @param string $expected     Expected returned output.
 	 * @param string $expected_amp Expected returned output for AMP.
 	 */
+	#[DataProvider( 'gist_shortcode_data' )]
 	public function test_gist_shortcode( $content, $expected, $expected_amp = null ) {
 		/*
 		 * If we did not specify an expected AMP output,

@@ -1,4 +1,4 @@
-.add-new-h2, .view-switch, body.no-js .tablenav select[name^=action], body.no-js #doaction, body.no-js #doaction2 {
+.add-new-h2, .view-switch, body.no-js .tablenav select[name^="action"], body.no-js #doaction, body.no-js #doaction2 {
 	display: none
 }
 
@@ -138,7 +138,7 @@
 	display: flex;
 	flex-grow: 1;
 	flex-direction: column;
-	padding: 0px;
+	padding: 0;
 	gap: 32px;
 }
 

@@ -679,7 +679,7 @@ function zbscrm_JS_draw_customise( res ) {
 	let html = '';
 
 	html += '<div id="zbs-invoice-customiser">';
-	html += '<div class="ui grid" style="margin: 0em 0.5em;">';
+	html += '<div class="ui grid" style="margin: 0 0.5em;">';
 	html += '<div class="eight wide column" style="padding:0">';
 	html +=
 		'<span class="header" style="float:left;">' + zbscrm_JS_invoice_lang( 'customise' ) + '</span>';
@@ -1255,7 +1255,7 @@ function zbscrm_JS_bind_row_actions() {
 		} );
 
 	//if a number has changed (i.e. item or quantity.)
-	jQuery( '.zbs-item-block input[type=number]' ).on( 'keyup mouseup', function () {
+	jQuery( '.zbs-item-block input[type="number"]' ).on( 'keyup mouseup', function () {
 		const zbs_row_to_up = jQuery( this ).data( 'zbsr' );
 		let quan = 0;
 		let price = 0;
@@ -1268,7 +1268,7 @@ function zbscrm_JS_bind_row_actions() {
 		jQuery( this )
 			.parent()
 			.siblings()
-			.find( 'input[type=number]' )
+			.find( 'input[type="number"]' )
 			.each( function ( index, value ) {
 				if ( jQuery( value ).hasClass( 'quan' ) ) {
 					quan = value.value;
@@ -1305,7 +1305,7 @@ function zbscrm_JS_calculate_invoice_row_subtotals() {
 		let zbs_row_to_up = 1;
 		jQuery( pvalue )
 			.children()
-			.find( 'input[type=number]' )
+			.find( 'input[type="number"]' )
 			.each( function () {
 				zbs_row_to_up = jQuery( this ).data( 'zbsr' );
 				if ( jQuery( this ).hasClass( 'quan' ) ) {

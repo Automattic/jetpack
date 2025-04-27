@@ -1,7 +1,7 @@
 {
 	extends: [ 'config:recommended', 'group:definitelyTyped' ],
 	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
-	reviewers: [ 'team:jetpack-garage' ],
+	reviewers: [ 'team:jetpack-monorepo' ],
 	prHourlyLimit: 1,
 	timezone: 'UTC',
 	schedule: [ '* 0-2 1 * *' ],
