@@ -206,9 +206,9 @@ class Jetpack_Plugin_Compatibility {
 			'jetpack_my_jetpack_should_initialize',
 			function () {
 				$should_init = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-				if ( ! $should_init ) {
+				if ( ! $should_init && class_exists( '\Automattic\Jetpack\My_Jetpack\Initializer' ) ) {
 					// My Jetpack REST API endpoints are used for more than just My Jetpack UI.
-					add_action( 'rest_api_init', array( '\Automattic\Jetpack\My_Jetpack\Initializer', 'register_rest_endpoints' ) );
+					add_action( 'rest_api_init', array( '\Automattic\Jetpack\My_Jetpack\Initializer', 'register_rest_endpoints' ) ); // @phan-suppress-current-line PhanUndeclaredClassInCallable
 				}
 				return $should_init;
 			}
