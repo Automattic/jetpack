@@ -1,0 +1,4 @@
+Significance: patch
+Type: deprecated
+
+Migrate format-currency to number-formatters package
