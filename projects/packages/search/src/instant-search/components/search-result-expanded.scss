@@ -56,8 +56,8 @@ $image-square-size: 128px;
 		display: none;
 	}
 
-// Aspect ratio box trick
-// See https://css-tricks.com/aspect-ratio-boxes/
+	// Aspect ratio box trick
+	// See https://css-tricks.com/aspect-ratio-boxes/
 	position: relative;
 
 	&::before {
