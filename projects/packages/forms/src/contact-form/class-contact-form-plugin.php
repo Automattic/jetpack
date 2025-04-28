@@ -512,13 +512,15 @@ class Contact_Form_Plugin {
 			 * This ensures any updates to field block styles in theme.json or global styles are
 			 * correctly applied.
 			 */
-			if ( ! empty( $atts['class'] ) && $add_block_style_classes_to_field_wrapper ) {
-				$atts['fieldwrapperclasses']  = 'wp-block-jetpack-field-' . $type;
-				$block_style_classes          = self::get_block_style_classes( $atts['class'] );
-				$spacer                       = ! empty( $block_style_classes['block_style_classes'] ) ? ' ' : '';
-				$atts['fieldwrapperclasses'] .= $spacer . $block_style_classes['block_style_classes'] . $spacer . $block_style_classes['wrap_classes'];
-				// Return the rest of the classes without the block style classes.
-				$atts['class'] = ! empty( $block_style_classes['classes'] ) ? $block_style_classes['classes'] : '';
+			if ( $add_block_style_classes_to_field_wrapper ) {
+				$atts['fieldwrapperclasses'] = 'wp-block-jetpack-field-' . $type;
+				if ( ! empty( $atts['class'] ) ) {
+					$block_style_classes          = self::get_block_style_classes( $atts['class'] );
+					$spacer                       = ! empty( $block_style_classes['block_style_classes'] ) ? ' ' : '';
+					$atts['fieldwrapperclasses'] .= $spacer . $block_style_classes['block_style_classes'] . $spacer . $block_style_classes['wrap_classes'];
+					// Return the rest of the classes without the block style classes.
+					$atts['class'] = ! empty( $block_style_classes['classes'] ) ? $block_style_classes['classes'] : '';
+				}
 			}
 		}
 
