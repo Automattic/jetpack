@@ -38,7 +38,14 @@ class Jetpack_Top_Posts_Helper {
 			'period'    => 'day',
 		);
 
-		$data = ( new WPCOM_Stats() )->get_top_posts( $query_args, $override_cache );
+		// Atomic or self-hosted sites via WPCOM public v1.1 endpoint.
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			$data = ( new WPCOM_Stats() )->get_top_posts( $query_args, $override_cache );
+		} else {
+			// Directly access posts on WPCOM, as Simple sites run on the same environment.
+			require_lib( 'jetpack-stats' );
+			$data = ( new Top_Posts() )->get_top_posts( get_current_blog_id(), $query_args );
+		}
 
 		if ( is_wp_error( $data ) ) {
 			$data = array( 'summary' => array( 'postviews' => array() ) );
