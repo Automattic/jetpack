@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Posts: Prevent deprecation warning when updating post meta with null values.

@@ -1062,7 +1062,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/test-environment",
-                "reference": "4ebfacd0d0ff37aed8d38faaad374a2b39042154"
+                "reference": "5781c6ce1734076b2fdd68c2fe89c7a80abbca5c"
             },
             "require": {
                 "php": ">=7.2"
@@ -1078,7 +1078,7 @@
             "type": "jetpack-library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "textdomain": "jetpack-test-environment",
                 "version-constants": {

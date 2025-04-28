@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed an issue where authentication could fail with a fatal error when other authentication plugins are active.

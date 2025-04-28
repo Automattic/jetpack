@@ -28,13 +28,12 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/448',
 	},
 	'Site Migrations': {
-		team: 'Serenity',
+		team: 'Avalon',
 		labels: [ '[Feature] Site Migration' ],
-		slack_id: 'C0Q664T29',
-		board_id: 'https://github.com/orgs/Automattic/projects/964/',
+		slack_id: 'C02G2HLNB1R',
 	},
 	Themes: {
-		team: 'Marvel',
+		team: 'T-Rex',
 		labels: [
 			'[Feature Group] Appearance & Themes',
 			'[Feature] Global Styles',
@@ -47,8 +46,7 @@ export const automatticAssignments = {
 			'[Feature] Headstart',
 			'[Feature] Google Fonts',
 		],
-		slack_id: 'C048CUFRGFQ',
-		board_id: 'https://github.com/orgs/Automattic/projects/1106/',
+		slack_id: 'C04DZ8M0GHW',
 	},
 	ActivityPub: {
 		team: 'Fediverse',
@@ -64,7 +62,7 @@ export const automatticAssignments = {
 	},
 	// Jetpack Division.
 	'AI Tools': {
-		team: 'Agora',
+		team: 'Zap',
 		labels: [
 			'[Block] AI Assistant',
 			'[Extension] AI Content Lens',
@@ -83,7 +81,7 @@ export const automatticAssignments = {
 		slack_id: 'C029E4HPT',
 	},
 	Backups: {
-		team: 'Backup',
+		team: 'Bastion',
 		labels: [
 			'[Plugin] Backup',
 			'[Plugin] VaultPress',
@@ -131,7 +129,7 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/599',
 	},
 	'My Jetpack': {
-		team: 'Jetpack MarTech',
+		team: 'Triforce',
 		labels: [ '[Package] My Jetpack' ],
 		slack_id: 'C06CVN9QVFY',
 		board_id: 'https://github.com/orgs/Automattic/projects/724',
@@ -172,7 +170,7 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/408',
 	},
 	'Social tools': {
-		team: 'Reach',
+		team: 'Triforce',
 		labels: [
 			'[Plugin] Social',
 			'[Extension] Publicize',
@@ -180,8 +178,7 @@ export const automatticAssignments = {
 			'[Package] Publicize',
 			'[Feature] Publicize',
 		],
-		slack_id: 'C02JJ910CNL',
-		board_id: 'https://github.com/orgs/Automattic/projects/742',
+		slack_id: 'C08PN0LHCCT',
 	},
 	Stats: {
 		team: 'Red',
@@ -203,16 +200,9 @@ export const automatticAssignments = {
 		board_id: 'https://github.com/orgs/Automattic/projects/548',
 	},
 	Verbum: {
-		team: 'Vertex',
+		team: 'T-Rex',
 		labels: [ '[mu wpcom Feature] Verbum Comments' ],
-		slack_id: 'C02T4NVL4JJ',
-		board_id: 'https://github.com/orgs/Automattic/projects/908/views/1',
-	},
-	VideoPress: {
-		team: 'Nexus',
-		labels: [ '[Package] VideoPress', '[Feature] VideoPress', '[Plugin] VideoPress' ],
-		slack_id: 'C02LT75D3',
-		board_id: 'https://github.com/orgs/Automattic/projects/460',
+		slack_id: 'C04DZ8M0GHW',
 	},
 	// Let this be the last item. It will act as a catch-all for any issues that haven't been matched until now.
 	'Jetpack plugin': {

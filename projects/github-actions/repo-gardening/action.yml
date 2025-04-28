@@ -56,6 +56,10 @@ inputs:
     description: "Mapping of team assignments for labels"
     required: false
     default: ""
+  ai_labeling_enabled:
+    description: "Enable AI labeling of issues"
+    required: false
+    default: "false"
   openai_api_key:
     description: "OpenAI API key"
     required: false

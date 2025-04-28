@@ -326,25 +326,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.6-a.7 - 2025-04-21
-#### Enhancements
-- Forms: Add new integrations setup modal.
-- Forms: Reduce default padding in form patterns.
-- User: Allow user to delete themselves through the endpoint.
+### 14.6-a.9 - 2025-04-28
+#### Major Enhancements
+- General: Update minimum WordPress version to 6.7.
 
-#### Improved compatibility
-- Forms: Ensure styles are loaded when expected, preventing console warnings.
+#### Enhancements
+- Featured Content: Add messaging to clarify that the tag name is case sensitive.
+- Forms: Update the email notification template.
+- My Jetpack: Update the onboarding UI to show a single button on initial page.
+- Shortcode: Convert an embed code from Facebook.com to an oEmbeddable URL.
+- Sitemaps: Use XMLWriter for a more performant sitemap generation when available.
 
 #### Bug fixes
-- Add translation context to Search menu item.
-- Block editor: Hide blocks from non-admins when feature is not active.
-- Blogroll block: Prevent console warnings and block validation issues when adding new items to the blogroll.
-- Dashboard: Avoid layout issues with "Apply" button on sites using a localized version of WordPress.
-- Forms: Update form responses link on editor sidebar.
-- Open Graph: Ensure scaled images are used when specific registered image files exist on a site.
-- Related Posts: Ensure the block is properly displayed in the editor regardless of user role.
-- Slideshow block: Ensure block preview doesn't generate an invalid API request.
-- VideoPress: Avoid suggesting transforming unsupported Video blocks into VideoPress blocks.
+- Image Compare block: Ensure sticky menus hide the compare line.
+- My Jetpack: Prevent social login from getting stuck when email input is not empty.
 
 --------
 
