@@ -1,5 +1,30 @@
-.jp-inline-search-corrected-query-notice {
-	font-size: 0.9em;
-	margin-top: 10px;
-	padding-top: 0;
+/**
+ * Twenty Twenty-Four theme specific styles for search correction
+ */
+.wp-theme-twentythirteen {
+
+    .jetpack-search-corrected-query {
+        margin: 0 auto;
+        max-width: 1040px;
+        padding: 0 0 30px 0;
+        width: 100%;
+    }
 }
+
+.wp-theme-twentyfifteen {
+
+    .jetpack-search-corrected-query {
+        margin-left: -7px;
+    }
+}
+
+.wp-theme-twentytwentythree,
+.wp-theme-twentytwentyfour {
+
+    .jetpack-search-corrected-query {
+        margin-top: -1em;
+        max-width: var(--wp--style--global--wide-size);
+    }
+}
+
+

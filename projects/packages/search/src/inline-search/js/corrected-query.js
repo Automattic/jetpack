@@ -13,13 +13,5 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
-	const notice = document.createElement( 'div' );
-	notice.innerHTML = html;
-
-	notice.className = `${ titleElement.className } ${ notice.className } jp-inline-search-corrected-query-notice`;
-
-	notice.setAttribute( 'role', 'status' );
-	notice.setAttribute( 'aria-live', 'polite' );
-
-	titleElement.insertAdjacentElement( 'afterend', notice );
+	titleElement.insertAdjacentHTML( 'afterend', html );
 } );

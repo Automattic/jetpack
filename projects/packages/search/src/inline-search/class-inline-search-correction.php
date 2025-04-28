@@ -26,7 +26,24 @@ class Inline_Search_Correction {
 		}
 
 		add_filter( 'get_search_query', array( $this, 'maybe_use_corrected_query' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		add_action( 'wp_footer', array( $this, 'register_corrected_query_script' ) );
+	}
+
+	/**
+	 * Enqueue theme-specific styles for the search correction.
+	 * This is hooked to wp_enqueue_scripts to ensure styles load properly in the head.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function enqueue_styles() {
+		$corrected_query_html = $this->get_corrected_query_html();
+		if ( empty( $corrected_query_html ) ) {
+			return;
+		}
+
+		$handle = 'jetpack-search-inline-corrected-query';
+		$this->register_corrected_query_style( $handle );
 	}
 
 	/**
@@ -63,6 +80,42 @@ class Inline_Search_Correction {
 					'error' => esc_html__( 'Error displaying search correction', 'jetpack-search-pkg' ),
 				),
 			)
+		);
+	}
+
+	/**
+	 * Register and enqueue theme-specific styles for corrected query.
+	 *
+	 * @since $$next-version$$
+	 * @param string $handle The script handle to use for the stylesheet.
+	 */
+	private function register_corrected_query_style( $handle ) {
+		$css_path      = 'build/inline-search/';
+		$css_file      = 'corrected-query.css';
+		$full_css_path = $css_path . $css_file;
+		$package_path  = Package::get_installed_path();
+		$css_full_path = $package_path . '/' . $full_css_path;
+
+		// Verify the CSS file exists before trying to enqueue it
+		if ( ! file_exists( $css_full_path ) ) {
+			return;
+		}
+
+		// Use the Jetpack Assets class to get the file URL properly
+		$file_url = Assets::get_file_url_for_environment(
+			$full_css_path,
+			$full_css_path,
+			$package_path
+		);
+
+		// Use the file's modification time for more precise cache busting
+		$file_version = file_exists( $css_full_path ) ? filemtime( $css_full_path ) : Package::VERSION;
+
+		wp_enqueue_style(
+			$handle,
+			$file_url,
+			array(),
+			$file_version // Use file modification time for cache busting
 		);
 	}
 
@@ -118,12 +171,12 @@ class Inline_Search_Correction {
 
 		$message = sprintf(
 			/* translators: %s: Original search term the user entered */
-			esc_html__( 'No results for %s', 'jetpack-search-pkg' ),
+			esc_html__( 'No results for "%s"', 'jetpack-search-pkg' ),
 			esc_html( $original_query )
 		);
 
 		return sprintf(
-			'<h2 class="jetpack-search-corrected-query">%s</h2>',
+			'<p class="jetpack-search-corrected-query">%s</p>',
 			$message
 		);
 	}
