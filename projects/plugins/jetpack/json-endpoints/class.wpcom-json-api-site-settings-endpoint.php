@@ -462,13 +462,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
-						'wpcom_featured_image_in_email'    => ( function () use ( $site ) {
-							$option = get_option( 'wpcom_featured_image_in_email', null );
-							if ( null === $option && method_exists( $site, 'is_simple_site' ) && $site->is_simple_site() ) {
-								return true;
-							}
-							return (bool) $option;
-						} )(),
+						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
 						'jetpack_gravatar_in_email'        => (bool) get_option( 'jetpack_gravatar_in_email', true ),
 						'jetpack_author_in_email'          => (bool) get_option( 'jetpack_author_in_email', true ),
 						'jetpack_post_date_in_email'       => (bool) get_option( 'jetpack_post_date_in_email', true ),
