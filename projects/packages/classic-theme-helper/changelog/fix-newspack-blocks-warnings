@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Newspack Blocks: Fix Warnings in Newspack_Blocks::get_term_classes
+
+
