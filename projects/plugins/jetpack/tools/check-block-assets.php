@@ -86,6 +86,9 @@ $allowed = array(
 		'wp-plugins',
 		'wp-primitives',
 	),
+	'donations'      => array(
+		'wp-date',
+	),
 );
 
 chdir( dirname( __DIR__ ) );
