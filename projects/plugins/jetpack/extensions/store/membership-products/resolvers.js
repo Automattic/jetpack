@@ -1,5 +1,5 @@
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
@@ -102,17 +102,14 @@ const fetchSubscriberCounts = async () => {
 	return response;
 };
 
-const fetchTotalEmailsSentCount = async () => {
-	const { blog_id: siteId } = getSiteData()?.wpcom ?? {};
-	const postId = window.wp.data.select( 'core/editor' ).getCurrentPostId();
-
-	if ( ! siteId || ! postId ) {
+const fetchTotalEmailsSentCount = async ( blogId, postId ) => {
+	if ( ! blogId || ! postId ) {
 		return;
 	}
 
 	const baseUrl = isSimpleSite() ? '/rest/v1.1/sites/' : '/jetpack/v4/stats-app/sites/';
 	const response = await apiFetch( {
-		path: baseUrl + `${ siteId }/stats/opens/emails/${ postId }/rate`,
+		path: baseUrl + `${ blogId }/stats/opens/emails/${ postId }/rate`,
 	} );
 
 	if ( ! response || typeof response !== 'object' ) {
@@ -307,13 +304,13 @@ export const getSubscriberCounts =
 	};
 
 export const getTotalEmailsSentCount =
-	() =>
+	( blogId, postId ) =>
 	async ( { dispatch, registry } ) => {
 		await executionLock.blockExecution( TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY );
 
 		const lock = executionLock.acquire( TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY );
 		try {
-			const response = await fetchTotalEmailsSentCount();
+			const response = await fetchTotalEmailsSentCount( blogId, postId );
 			dispatch( setTotalEmailsSentCount( response?.total_sends ) );
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );

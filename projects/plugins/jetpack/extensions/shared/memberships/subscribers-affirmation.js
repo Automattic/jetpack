@@ -187,20 +187,30 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			.some( block => block.name === paywallBlockMetadata.name )
 	);
 
-	const { isScheduledPost, postCategories, postMeta } = useSelect( select => {
-		const { isCurrentPostScheduled, getEditedPostAttribute } = select( editorStore );
-		return {
-			isScheduledPost: isCurrentPostScheduled(),
-			postCategories: getEditedPostAttribute( 'categories' ),
-			postMeta: getEditedPostAttribute( 'meta' ),
-		};
-	} );
+	const { isScheduledPost, isPostOlderThanADay, postCategories, postId, postMeta } = useSelect(
+		select => {
+			const { isCurrentPostScheduled, getEditedPostAttribute, getCurrentPost } =
+				select( editorStore );
+			const status = getCurrentPost()?.status;
+			const publishTime = new Date( getCurrentPost()?.date );
+			const time24HoursAgo = new Date( Date.now() - 24 * 60 * 60 * 1000 );
+
+			return {
+				isScheduledPost: isCurrentPostScheduled(),
+				isPostOlderThanADay: status === 'publish' && publishTime < time24HoursAgo,
+				postCategories: getEditedPostAttribute( 'categories' ),
+				postId: getCurrentPost()?.id,
+				postMeta: getEditedPostAttribute( 'meta' ),
+			};
+		}
+	);
 
 	const isSendEmailEnabled = () => {
 		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
 		return ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
 	};
 
+	const { blog_id: blogId } = getSiteData()?.wpcom ?? {};
 	const {
 		emailSubscribersCount,
 		hasFinishedLoading,
@@ -208,7 +218,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		newsletterCategoriesEnabled,
 		newsletterCategorySubscriberCount,
 		paidSubscribersCount,
-		totalEmailsSentCount,
+		totalEmailsSentCount, // To display stats from Jetpack. It is necessary to provide the accurate count for historical posts.
 	} = useSelect( select => {
 		const {
 			getNewsletterCategories,
@@ -234,7 +244,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
 			newsletterCategorySubscriberCount: getNewsletterCategoriesSubscriptionsCount(),
 			paidSubscribersCount: paidSubscribers,
-			totalEmailsSentCount: getTotalEmailsSentCount(),
+			totalEmailsSentCount: isPostOlderThanADay ? getTotalEmailsSentCount( blogId, postId ) : null,
 		};
 	} );
 
@@ -251,10 +261,6 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	}
 
 	const isPaidPost = accessLevel === accessOptions.paid_subscribers.key;
-	const { status, date_gmt } = window.wp.data.select( 'core/editor' ).getCurrentPost();
-	// To display stats from Jetpack. It is necessary to provide the accurate count for historical posts.
-	const isPostOlderThanADay =
-		status === 'publish' && new Date( date_gmt ) < new Date( Date.now() - 24 * 60 * 60 * 1000 );
 
 	// Show all copy in future tense
 	const futureTense = prePublish || isScheduledPost;
@@ -297,17 +303,22 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		<p>
 			{ createInterpolateElement( text, {
 				strong: <strong />,
-				link: <a href={ getJetpackEmailStatsLink() } />,
+				link: <a href={ getJetpackEmailStatsLink( blogId, postId ) } />,
 			} ) }
 		</p>
 	);
 }
 
-function getJetpackEmailStatsLink() {
-	const { blog_id: siteId } = getSiteData()?.wpcom ?? {};
-	const postId = window.wp.data.select( 'core/editor' ).getCurrentPostId();
-
-	return `/wp-admin/admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ siteId }`;
+/**
+ * Get the Jetpack email stats link for the given post ID.
+ *
+ * @param {number} blogId - The ID of the blog.
+ * @param {number} postId - The ID of the post.
+ *
+ * @return {string} - The Jetpack email stats link for the given post.
+ */
+function getJetpackEmailStatsLink( blogId, postId ) {
+	return `/wp-admin/admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ blogId }`;
 }
 
 export default SubscribersAffirmation;
