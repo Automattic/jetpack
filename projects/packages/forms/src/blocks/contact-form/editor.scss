@@ -335,19 +335,21 @@
 
 	.jetpack-field__input, .jetpack-field__textarea {
 		width: 100%;
-		font: inherit;
 		box-sizing: border-box;
 		box-shadow: unset;
 		padding: 16px;
 		margin: 0;
 	}
 
+	// Reduced specificity to 0,1,0 so that global styles can override it.
 	:where( .jetpack-field__input, .jetpack-field__textarea ) {
+		font: inherit;
 		border: 1px solid #8c8f94;
 		border-radius: 0;
 	}
 
-	.jetpack-field__textarea {
+	// Reduced specificity to 0,1,0 so that global styles can override it.
+	:where( .jetpack-field__textarea ) {
 		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
 		border-color: var(--jetpack--contact-form--border-color, #8c8f94);
 		border-style: var(--jetpack--contact-form--border-style, solid);
@@ -367,20 +369,26 @@
 
 	.jetpack-option__type.jetpack-option__type {
 		align-items: center;
-		all: initial;
 		appearance: none;
-		color: var(--jetpack--contact-form--text-color);
 		display: flex;
-		border: none;
-		font-size: var(--jetpack--contact-form--font-size, 16px );
-		font-family: var(--jetpack--contact-form--font-family);
-		height: var(--jetpack--contact-form--font-size, 16px );
 		justify-content: center;
 		margin: 0 10px 0 0;
 		outline: none;
 		position: relative;
-		width: var(--jetpack--contact-form--font-size, 16px);
 		pointer-events: none;
+	}
+
+	:where(.jetpack-option__type) {
+		all: initial;
+		color: var(--jetpack--contact-form--text-color);
+		border: none;
+		// Inherit the font size from the parent element, this needs
+		// to override the `all: initial` above.
+		// Set the height and width to 1em, so that the input scales
+		// with the font size.
+		font-size: inherit;
+		height: 1em;
+		width: 1em;
 
 		&::after, &::before {
 			all: initial;
@@ -399,76 +407,14 @@
 			content: ' ';
 			display: flex;
 			font-weight: 700;
-			height: var(--jetpack--contact-form--font-size, 16px);
+			height: 1em;
 			justify-content: center;
-			width: var(--jetpack--contact-form--font-size, 16px);
+			width: 1em;
 		}
 
 		&[type="radio"]::before {
 			border-radius: 50%;
 			transform: translateY(15%);
-		}
-	}
-
-	&.jetpack-field-multiple {
-
-		&.is-style-button {
-
-			.jetpack-field-option,
-			.wp-block-jetpack-field-option-checkbox,
-			.wp-block-jetpack-field-option-radio {
-				background: var(--jetpack--contact-form--button-outline--background-color);
-				color: var(--jetpack--contact-form--button-outline--text-color);
-				border: var(--jetpack--contact-form--button-outline--border);
-				border-width: var(--jetpack--contact-form--button-outline--border-size);
-				border-color: currentColor;
-				border-radius: var(--jetpack--contact-form--button-outline--border-radius);
-				padding: var(--jetpack--contact-form--button-outline--padding);
-				line-height: var(--jetpack--contact-form--button-outline--line-height);
-				align-items: center;
-
-				&.field-option-radio {
-					position: relative;
-					flex-direction: row-reverse;
-					gap: 16px;
-
-					.jetpack-option__type {
-						display: none;
-					}
-				}
-
-				.jetpack-option__type {
-					color: var(--jetpack--contact-form--button-outline--color);
-				}
-			}
-
-			.wp-block-jetpack-field-option-radio {
-
-				.jetpack-option__type {
-					display: none;
-				}
-			}
-		}
-
-		.jetpack-field-multiple__add-option {
-			margin: 0;
-			padding: 0;
-
-			.dashicon {
-				width: 1rem;
-				height: 1rem;
-				display: flex;
-				margin-left: 0;
-				margin-right: 0.75rem;
-
-				&::before {
-					font-size: 1rem;
-				}
-			}
-
-			svg {
-				margin-right: 12px;
-			}
 		}
 	}
 
@@ -508,6 +454,73 @@
 	}
 }
 
+.jetpack-field-multiple:where(.is-style-button) {
+	// Reduced specificity to 0,1,0 so that global styles can override it.
+	:where(.jetpack-field-option) {
+		background: var(--jetpack--contact-form--button-outline--background-color);
+		color: var(--jetpack--contact-form--button-outline--text-color);
+		border: var(--jetpack--contact-form--button-outline--border);
+		border-width: var(--jetpack--contact-form--button-outline--border-size);
+		border-color: currentColor;
+		border-radius: var(--jetpack--contact-form--button-outline--border-radius);
+		font-size: var(--jetpack--contact-form--font-size, 16px );
+		font-family: var(--jetpack--contact-form--font-family);
+		padding: var(--jetpack--contact-form--button-outline--padding);
+		line-height: var(--jetpack--contact-form--button-outline--line-height);
+	}
+
+	// Increase specificity to override the `align-items: baseline` from the `jetpack-field-option` class.
+	.jetpack-field-option.jetpack-field-option {
+		align-items: center;
+	}
+
+	.jetpack-field-option.field-option-radio {
+		// TODO - Investigate if this is needed.
+		position: relative;
+		flex-direction: row-reverse;
+		gap: 16px;
+
+		// Hide the radio input when in the button style.
+		// TODO - Check why this isn't done for the checkboxes.
+		.jetpack-option__type {
+			display: none;
+		}
+	}
+
+	.jetpack-field-option .jetpack-option__type {
+		color: inherit;
+	}
+
+	.wp-block-jetpack-field-option-radio {
+
+		.jetpack-option__type {
+			display: none;
+		}
+	}
+}
+
+// TODO - See if we can find usage of this class. It's possibly a dead style.
+.jetpack-field-multiple .jetpack-field-multiple__add-option {
+	margin: 0;
+	padding: 0;
+
+	.dashicon {
+		width: 1rem;
+		height: 1rem;
+		display: flex;
+		margin-left: 0;
+		margin-right: 0.75rem;
+
+		&::before {
+			font-size: 1rem;
+		}
+	}
+
+	svg {
+		margin-right: 12px;
+	}
+}
+
 :where(:not(.contact-form)) > .jetpack-field {
 
 	.jetpack-field__input, .jetpack-field__textarea {
@@ -531,6 +544,7 @@
 		display: none;
 	}
 
+	// TODO - This looks like dead code, it looks like field select can't contain a multiple list.
 	// TODO: make this a class, @enej
 	[data-type='jetpack/field-select'] & {
 		border: 1px solid rgba( 0, 0, 0, 0.4 );
@@ -549,6 +563,7 @@
 	margin-top: 0;
 }
 
+// TODO - This looks like dead code, along with the `JetpackOption` component.
 // Duplicated to elevate specificity in order to overwrite core styles
 .jetpack-option__input.jetpack-option__input.jetpack-option__input {
 	color: inherit;
@@ -573,6 +588,7 @@
 	font-size: inherit;
 }
 
+// TODO - This is possibly dead CSS.
 // Duplicated to elevate specificity in order to overwrite calypso styles
 .jetpack-option__remove.jetpack-option__remove {
 	padding: 6px;
