@@ -194,10 +194,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "89a768257b402fb6abeefe5b6c0855f946187fab"
+                "reference": "e337881fd728cb23c043e71ca800a9d2a8e0af4e"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {

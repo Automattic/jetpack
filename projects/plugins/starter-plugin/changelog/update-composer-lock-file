@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+jetpack-assets now requires jetpack-status so updating composer lock files.
