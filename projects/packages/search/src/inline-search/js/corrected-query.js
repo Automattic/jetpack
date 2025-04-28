@@ -16,8 +16,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const notice = document.createElement( 'div' );
 	notice.innerHTML = html;
 
-	notice.className = `${ titleElement.className } ${ notice.className }`;
-	notice.style.cssText = 'font-size: 0.9em; margin-top: 10px; padding-top: 0;';
+	notice.className = `${ titleElement.className } ${ notice.className } jp-inline-search-corrected-query-notice`;
 
 	notice.setAttribute( 'role', 'status' );
 	notice.setAttribute( 'aria-live', 'polite' );

@@ -44,8 +44,8 @@ class Inline_Search_Correction {
 
 		Assets::register_script(
 			$handle,
-			'js/corrected-query.js',
-			__FILE__,
+			'build/inline-search/jp-search-inline.js',
+			Package::get_installed_path() . '/src',
 			array(
 				'in_footer'  => true,
 				'textdomain' => 'jetpack-search-pkg',

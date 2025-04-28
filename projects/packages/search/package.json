@@ -6,10 +6,11 @@
 		"test": "tests"
 	},
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-instant && pnpm run build-customberg && pnpm run build-dashboard",
+		"build": "pnpm run clean && pnpm run build-instant && pnpm run build-customberg && pnpm run build-dashboard && pnpm run build-inline",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build",
 		"build-instant": "webpack --config ./tools/webpack.instant.config.js",
+		"build-inline": "webpack --config ./tools/webpack.inline.config.js",
 		"build-customberg": "webpack --config ./tools/webpack.customberg.config.js",
 		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
 		"clean": "rm -rf build/ .cache/",
@@ -18,7 +19,7 @@
 		"test-scripts": "jest --passWithNoTests",
 		"test-size": "NODE_ENV=production BABEL_ENV=production pnpm run build-instant && size-limit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
-		"watch": "concurrently 'pnpm:build-instant --watch' 'pnpm:build-customberg --watch' 'pnpm:build-dashboard --watch'"
+		"watch": "concurrently 'pnpm:build-instant --watch' 'pnpm:build-customberg --watch' 'pnpm:build-dashboard --watch' 'pnpm:build-inline --watch'"
 	},
 	"repository": {
 		"type": "git",
