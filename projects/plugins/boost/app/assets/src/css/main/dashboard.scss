@@ -20,7 +20,7 @@
 	z-index: 15;
 }
 
-%jb-container {
+.jb-container, %jb-container {
 	width: 87.5%;
 	max-width: 1320px;
 	margin-left: auto;
@@ -38,11 +38,6 @@
 		padding-left: 24px;
 		padding-right: 24px;
 	}
-}
-
-.jb-container {
-
-	@extend %jb-container;
 }
 
 .jb-dashboard-footer {

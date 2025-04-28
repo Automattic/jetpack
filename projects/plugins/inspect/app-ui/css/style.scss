@@ -7,7 +7,7 @@
 	font-size: 11px;
 }
 
-%button-effects {
+.button-effects, %button-effects {
 
 	&:hover {
 		opacity: 0.8;
@@ -21,12 +21,7 @@
 	}
 }
 
-.button-effects {
-
-	@extend %button-effects;
-}
-
-%ji-button {
+.ji-button, %ji-button {
 	display: inline-block;
 	padding: 9px 21px;
 	font-size: 0.75rem;
@@ -38,11 +33,6 @@
 	cursor: pointer;
 
 	@extend %button-effects;
-}
-
-.ji-button {
-
-	@extend %ji-button;
 }
 
 .ji-button--alt {
