@@ -66,6 +66,9 @@ $allowed = array(
 		'wp-compose',
 		'wp-element',
 	),
+	'donations'      => array(
+		'wp-date',
+	),
 	'podcast-player' => array(
 		'lodash',
 		'react',
@@ -85,9 +88,6 @@ $allowed = array(
 		'wp-keycodes',
 		'wp-plugins',
 		'wp-primitives',
-	),
-	'donations'      => array(
-		'wp-date',
 	),
 );
 
