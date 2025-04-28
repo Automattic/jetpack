@@ -802,7 +802,7 @@ class Newspack_Blocks {
 		$tags = get_the_terms( $post_id, 'post_tag' );
 		if ( ! empty( $tags ) ) {
 			foreach ( $tags as $tag ) {
-				if ( $tag && isset( $tag->slug ) ) {
+				if ( ! empty( $tag->slug ) ) {
 					$classes[] = 'tag-' . $tag->slug;
 				}
 			}
@@ -811,7 +811,7 @@ class Newspack_Blocks {
 		$categories = get_the_terms( $post_id, 'category' );
 		if ( ! empty( $categories ) ) {
 			foreach ( $categories as $cat ) {
-				if ( $cat && isset( $cat->slug ) ) {
+				if ( ! empty( $cat->slug ) ) {
 					$classes[] = 'category-' . $cat->slug;
 				}
 			}
@@ -821,7 +821,7 @@ class Newspack_Blocks {
 			$terms = get_the_terms( $post_id, $tax['slug'] );
 			if ( ! empty( $terms ) ) {
 				foreach ( $terms as $term ) {
-					if ( $term && isset( $term->taxonomy ) && isset( $term->slug ) ) {
+					if ( ! empty( $term->taxonomy ) && ! empty( $term->slug ) ) {
 						$classes[] = $term->taxonomy . '-' . $term->slug;
 					}
 				}
