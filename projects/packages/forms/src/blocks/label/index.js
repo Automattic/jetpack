@@ -1,4 +1,6 @@
+import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import renderMaterialIcon from '../contact-form/util/render-material-icon';
 import edit from './edit';
 import save from './save';
 
@@ -8,6 +10,11 @@ const settings = {
 	title: __( 'Label', 'jetpack-forms' ),
 	description: __( 'A label for a form field', 'jetpack-forms' ),
 	category: 'contact-form',
+	icon: {
+		src: renderMaterialIcon(
+			<Path d="M12.9 6H10.9L6.90002 17H8.80002L9.90002 14H14.1L15.2 17H17.1L12.9 6ZM10.4 12.5L11.9 7.6L13.6 12.5H10.4Z" />
+		),
+	},
 	parent: [
 		'jetpack/field-date',
 		'jetpack/field-email',
