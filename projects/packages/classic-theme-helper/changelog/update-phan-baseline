@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Removed "src/site-breadcrumbs.php" from phan file suppressions.

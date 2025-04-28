@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Newsletter: Remove extra `admin_init` function from `Jetpack_Newsletter_Dashboard_Widget` class.

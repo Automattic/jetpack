@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Avoid a PHP8 fatal error on some invalid REST API requests.
