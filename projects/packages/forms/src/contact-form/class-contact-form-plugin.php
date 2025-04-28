@@ -435,30 +435,20 @@ class Contact_Form_Plugin {
 
 		// Process inner blocks to shortcode attributes.
 		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
-			/*
-			 * Add the `wp-block-jetpack-field-*` and `is-style-*` classes to the field wrapper div
-			 * This ensures any updates to field block styles in theme.json or global styles are
-			 * correctly applied.
-			 */
-			$atts['fieldwrapperclasses'] = 'wp-block-jetpack-field-' . $type;
-			if ( ! empty( $atts['class'] ) ) {
-				$block_style_classes          = self::get_block_style_classes( $atts['class'] );
-				$spacer                       = ! empty( $block_style_classes['block_style_classes'] ) ? ' ' : '';
-				$atts['fieldwrapperclasses'] .= $spacer . $block_style_classes['block_style_classes'] . $spacer . $block_style_classes['wrap_classes'];
-				// Return the rest of the classes without the block style classes.
-				$atts['class'] = ! empty( $block_style_classes['classes'] ) ? $block_style_classes['classes'] : '';
-			}
+			// Only apply the block style classes to the field wrapper if the field is one of the new inner block types.
+			$add_block_style_classes_to_field_wrapper = false;
 
 			foreach ( $block->parsed_block['innerBlocks'] as $inner_block ) {
 				$block_name = $inner_block['blockName'] ?? '';
 
 				if ( 'jetpack/label' === $block_name ) {
-					$atts['label']         = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
-					$atts['requiredText']  = $inner_block['attrs']['requiredText'] ?? null;
-					$label_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
-					$atts['labelclasses']  = 'wp-block-jetpack-label';
-					$atts['labelclasses'] .= isset( $label_attrs['class'] ) ? ' ' . $label_attrs['class'] : '';
-					$atts['labelstyles']   = $label_attrs['style'] ?? null;
+					$atts['label']                            = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
+					$atts['requiredText']                     = $inner_block['attrs']['requiredText'] ?? null;
+					$label_attrs                              = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
+					$atts['labelclasses']                     = 'wp-block-jetpack-label';
+					$atts['labelclasses']                    .= isset( $label_attrs['class'] ) ? ' ' . $label_attrs['class'] : '';
+					$atts['labelstyles']                      = $label_attrs['style'] ?? null;
+					$add_block_style_classes_to_field_wrapper = true;
 				}
 
 				if ( 'jetpack/input' === $block_name ) {
@@ -473,14 +463,16 @@ class Contact_Form_Plugin {
 					if ( 'jetpack/field-select' === $block->name ) {
 						$atts['togglelabel'] = $inner_block['attrs']['placeholder'];
 					}
+					$add_block_style_classes_to_field_wrapper = true;
 				}
 
 				// The following handles when option blocks are a direct inner block for a field e.g. singular checkbox field.
 				if ( 'jetpack/option' === $block_name ) {
-					$atts['label']         = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
-					$option_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
-					$atts['optionclasses'] = isset( $option_attrs['class'] ) ? ' ' . $option_attrs['class'] : '';
-					$atts['optionstyles']  = $option_attrs['style'] ?? null;
+					$atts['label']                            = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
+					$option_attrs                             = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
+					$atts['optionclasses']                    = isset( $option_attrs['class'] ) ? ' ' . $option_attrs['class'] : '';
+					$atts['optionstyles']                     = $option_attrs['style'] ?? null;
+					$add_block_style_classes_to_field_wrapper = true;
 				}
 
 				// The following handles choice fields such as; Single Choice Field (radio) or Multiple Choice Field (checkbox).
@@ -508,9 +500,25 @@ class Contact_Form_Plugin {
 						}
 					}
 
-					$atts['options']     = implode( ',', $options );
-					$atts['optionsdata'] = \wp_json_encode( $options_data );
+					$atts['options']                          = implode( ',', $options );
+					$atts['optionsdata']                      = \wp_json_encode( $options_data );
+					$add_block_style_classes_to_field_wrapper = true;
 				}
+			}
+
+			/*
+			 * Add the `wp-block-jetpack-field-*` and `is-style-*` classes to the field wrapper div
+			 * for fields that are one of the new inner block types.
+			 * This ensures any updates to field block styles in theme.json or global styles are
+			 * correctly applied.
+			 */
+			if ( ! empty( $atts['class'] ) && $add_block_style_classes_to_field_wrapper ) {
+				$atts['fieldwrapperclasses']  = 'wp-block-jetpack-field-' . $type;
+				$block_style_classes          = self::get_block_style_classes( $atts['class'] );
+				$spacer                       = ! empty( $block_style_classes['block_style_classes'] ) ? ' ' : '';
+				$atts['fieldwrapperclasses'] .= $spacer . $block_style_classes['block_style_classes'] . $spacer . $block_style_classes['wrap_classes'];
+				// Return the rest of the classes without the block style classes.
+				$atts['class'] = ! empty( $block_style_classes['classes'] ) ? $block_style_classes['classes'] : '';
 			}
 		}
 
