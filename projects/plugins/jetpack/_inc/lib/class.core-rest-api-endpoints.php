@@ -3795,7 +3795,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_module_requested( $route = '/module/(?P<slug>[a-z\-]+)' ) {
 
-		if ( empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
+		if ( empty( $GLOBALS['wp']->query_vars['rest_route'] ) || ! is_string( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
 			return '';
 		}
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: Redirect to /responses from /landing if there are form responses

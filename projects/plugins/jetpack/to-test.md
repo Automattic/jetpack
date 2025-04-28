@@ -13,3 +13,19 @@
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 
 **Thank you for all your help!**
+
+### Onboarding
+
+PR: https://github.com/Automattic/jetpack/pull/43203
+
+There have been lots of changes to the onboarding page, and we want to make sure there aren't any issues before we roll this out.
+
+1. Ensure your site is not connected to Jetpack.
+2. Go to My Jetpack.
+3. Click on "Supercharge my site".
+
+Verify things connect without any errors or friction.
+
+### Stylelint
+
+We've been progressively fixing and enabling various Stylelint rules. Doing a click-through and checking for any visual regressions would be appreciated!

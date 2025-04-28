@@ -486,4 +486,124 @@ class Blocks_Test extends TestCase {
 			$this->assertEquals( $expected, $result, "Failed for path: $path" );
 		}
 	}
+
+	/**
+	 * Test getting block variation with various constants.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @dataProvider get_variation_constants
+	 *
+	 * @param string      $expected      Expected variation value.
+	 * @param string|null $constant_name Name of the constant to set, if any.
+	 * @param mixed|null  $constant_val  Value of the constant to set, if any.
+	 */
+	#[DataProvider( 'get_variation_constants' )]
+	public function test_get_variation_with_constants( $expected, $constant_name, $constant_val ) {
+		if ( $constant_name ) {
+			Jetpack_Constants::set_constant( $constant_name, $constant_val );
+		}
+
+		try {
+			$this->assertEquals( $expected, Blocks::get_variation() );
+		} finally {
+			if ( $constant_name ) {
+				Jetpack_Constants::clear_constants();
+			}
+		}
+	}
+
+	/**
+	 * Data provider for testing block variations with constants.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array[] Test parameters
+	 */
+	public static function get_variation_constants() {
+		return array(
+			'default'                          => array(
+				'expected'      => 'production',
+				'constant_name' => null,
+				'constant_val'  => null,
+			),
+			'valid constant'                   => array(
+				'expected'      => 'beta',
+				'constant_name' => 'JETPACK_BLOCKS_VARIATION',
+				'constant_val'  => 'beta',
+			),
+			'invalid constant'                 => array(
+				'expected'      => 'production',
+				'constant_name' => 'JETPACK_BLOCKS_VARIATION',
+				'constant_val'  => 'invalid',
+			),
+			'old beta blocks constant'         => array(
+				'expected'      => 'beta',
+				'constant_name' => 'JETPACK_BETA_BLOCKS',
+				'constant_val'  => true,
+			),
+			'old experimental blocks constant' => array(
+				'expected'      => 'experimental',
+				'constant_name' => 'JETPACK_EXPERIMENTAL_BLOCKS',
+				'constant_val'  => true,
+			),
+		);
+	}
+
+	/**
+	 * Test getting block variation with various filters.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @dataProvider get_variation_deprecated_filters
+	 *
+	 * @param string $expected    Expected variation value.
+	 * @param string $filter_name Name of the filter to add.
+	 */
+	#[DataProvider( 'get_variation_deprecated_filters' )]
+	public function test_get_variation_with_filters( $expected, $filter_name ) {
+		add_filter( $filter_name, '__return_true' );
+		try {
+			$this->assertEquals( $expected, Blocks::get_variation() );
+		} finally {
+			remove_filter( $filter_name, '__return_true' );
+		}
+	}
+
+	/**
+	 * Data provider for testing block variations with filters.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array[] Test parameters
+	 */
+	public static function get_variation_deprecated_filters() {
+		return array(
+			'deprecated beta filter'         => array(
+				'expected'    => 'beta',
+				'filter_name' => 'jetpack_load_beta_blocks',
+			),
+			'deprecated experimental filter' => array(
+				'expected'    => 'experimental',
+				'filter_name' => 'jetpack_load_experimental_blocks',
+			),
+		);
+	}
+
+	/**
+	 * Test getting block variation with jetpack_blocks_variation filter.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_get_variation_with_new_filter() {
+		$filter = function () {
+			return 'beta';
+		};
+		add_filter( 'jetpack_blocks_variation', $filter );
+		try {
+			$this->assertEquals( 'beta', Blocks::get_variation() );
+		} finally {
+			remove_filter( 'jetpack_blocks_variation', $filter );
+		}
+	}
 }

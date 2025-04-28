@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Compatibility: Replace a deprecated function to check user capabilities, with the currently expected function.

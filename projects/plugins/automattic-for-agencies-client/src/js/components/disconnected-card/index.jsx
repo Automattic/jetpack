@@ -22,7 +22,8 @@ export default function DisconnectedCard() {
 
 	// Use the highest-level error message.
 	const errorMessage = useMemo( () => {
-		return Object.values( connectionErrors )?.shift()?.shift()?.error_message;
+		const errorObject = Object.values( connectionErrors );
+		return errorObject ? Object.values( errorObject )?.shift()?.error_message : null;
 	}, [ connectionErrors ] );
 
 	return (
