@@ -5,7 +5,6 @@
 		"test": "tests"
 	},
 	"dependencies": {
-		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-my-jetpack": "workspace:*",
 		"@automattic/jetpack-react-data-sync-client": "workspace:*",

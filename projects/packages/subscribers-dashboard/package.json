@@ -29,7 +29,6 @@
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/components": "2.2.0",
-		"@automattic/format-currency": "1.0.1",
 		"@automattic/i18n-utils": "1.2.3",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
