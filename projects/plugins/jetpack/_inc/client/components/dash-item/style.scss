@@ -132,7 +132,7 @@
 
 .jp-dash-item__active-label {
 	display: inline-block;
-	color: darken( $gray, 10% );
+	color: color.adjust( $gray, $lightness: -10% );
 	color: $gray;
 	font-size: rem( 12px );
 	font-weight: 400;

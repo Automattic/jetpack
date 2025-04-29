@@ -3,7 +3,7 @@
 
 	margin-top: 30vh;
 	margin-bottom: 25vh;
-	color: lighten( $gray, 20% );
+	color: color.adjust( $gray, $lightness: 20% );
 	font-size: $size;
 	text-align: center;
 

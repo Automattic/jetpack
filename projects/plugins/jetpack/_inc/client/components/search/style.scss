@@ -139,7 +139,7 @@
 	width: 100%;
 
 	.dops-search__open-icon {
-		color: darken( $gray, 30% );
+		color: color.adjust( $gray, $lightness: -30% );
 	}
 
 	.dops-search__close-icon {

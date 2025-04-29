@@ -55,9 +55,6 @@ const baseConfig = {
 				camelCaseSvgKeywords: true, // This is the overwhelming convention in our codebase and in core.
 			},
 		],
-
-		// Disable all other rules for now.
-		'scss/no-global-function-names': null,
 	},
 };
 

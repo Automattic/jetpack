@@ -10,7 +10,7 @@
  */
 @use "sass:math";
 
-@function em($value, $context: map-get($root-font, font-size)) {
+@function em($value, $context: map.get($root-font, font-size)) {
 
 	@return (math.div($value, $context) * 1em);
 }

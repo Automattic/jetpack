@@ -64,7 +64,7 @@
 	display: inline-block;
 	min-width: rem( 40px );
 	text-align: center;
-	color: darken( $gray, 10% );
+	color: color.adjust( $gray, $lightness: -10% );
 
 	&:focus {
 		outline: 0;
