@@ -104,14 +104,15 @@
 	display: none;
 }
 
-.contact-form label.checkbox {
+.contact-form :where(label.checkbox-multiple),
+.contact-form :where(label.radio),
+.contact-form :where(label.checkbox) {
 	font-weight: 400;
 }
 
 .contact-form label.checkbox-multiple,
 .contact-form label.radio {
 	margin-bottom: 0;
-	font-weight: 400;
 	flex: 1;
 }
 
