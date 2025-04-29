@@ -36,10 +36,14 @@ function jpcrm_onboardme_scripts() {
 
 	$zbs_tour_root = admin_url();
 
+	$license_info      = zeroBSCRM_getSetting( 'license_key' );
+	$has_valid_license = $license_info['validity'] === 'true';
+
 	$zbs_tour = array(
-		'admin_url' => $zbs_tour_root,
-		'cta_url'   => $zbs->urls['upgrade'],
-		'lang'      => array(
+		'admin_url'         => $zbs_tour_root,
+		'cta_url'           => $zbs->urls['upgrade'],
+		'has_valid_license' => $has_valid_license,
+		'lang'              => array(
 			'step1'  => array(
 				'title'   => __( 'Welcome to your Jetpack CRM', 'zero-bs-crm' ),
 				'content' => __( 'This quick tour will guide you through the basics.', 'zero-bs-crm' ) . '<hr />' . __( 'Clicking this logo will switch to full-screen mode. Try it!', 'zero-bs-crm' ),
@@ -78,8 +82,8 @@ function jpcrm_onboardme_scripts() {
 			),
 			'step9'  => array(
 				'title'     => __( 'Paid extensions', 'zero-bs-crm' ),
-				'content'   => __( 'Here are our paid extensions. Want them all? You can take advantage of our Entrepreneur bundle.', 'zero-bs-crm' ),
-				'cta_label' => __( 'Upgrade to PRO', 'zero-bs-crm' ),
+				'content'   => __( 'Here are our paid extensions. The Entrepreneur bundle gives full access to all these extensions.', 'zero-bs-crm' ),
+				'cta_label' => __( 'Upgrade NOW', 'zero-bs-crm' ),
 			),
 			'step10' => array(
 				'title'   => __( 'Jetpack CRM Settings', 'zero-bs-crm' ),
