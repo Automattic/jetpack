@@ -89,10 +89,13 @@
 	font-weight: 700;
 }
 
-.contact-form label.consent {
+.contact-form :where(label.consent) {
 	font-size: 13px;
 	font-weight: 400;
 	text-transform: uppercase;
+}
+
+.contact-form label.consent {
 	display: flex;
 	align-items: center;
 }
