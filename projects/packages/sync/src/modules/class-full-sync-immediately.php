@@ -486,13 +486,18 @@ class Full_Sync_Immediately extends Module {
 	}
 
 	/**
-	 * Send 'jetpack_full_sync_end' and update 'finished' status.
+	 *  Sends the `jetpack_full_sync_end` action and updates the status when the full sync end action is processed.
 	 *
 	 * @access public
 	 */
 	public function send_full_sync_end() {
 		$range = $this->get_content_range( $this->get_status()['config'] );
 
+		$result = $this->send_action( 'jetpack_full_sync_end', array( '', $range ) );
+
+		if ( is_wp_error( $result ) ) { // Do not set finished status if we get an error.
+			return;
+		}
 		/**
 		 * Fires when a full sync ends. This action is serialized
 		 * and sent to the server.
@@ -505,7 +510,6 @@ class Full_Sync_Immediately extends Module {
 		 * @since-jetpack 7.3.0 Added $range arg.
 		 */
 		do_action( 'jetpack_full_sync_end', '', $range );
-		$this->send_action( 'jetpack_full_sync_end', array( '', $range ) );
 
 		// Setting autoload to true means that it's faster to check whether we should continue enqueuing.
 		$this->update_status( array( 'finished' => time() ) );
