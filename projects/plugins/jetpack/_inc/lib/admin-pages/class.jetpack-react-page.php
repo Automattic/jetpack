@@ -92,7 +92,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		) {
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
-		remove_submenu_page( 'jetpack', 'jetpack' );
 	}
 
 	/**
