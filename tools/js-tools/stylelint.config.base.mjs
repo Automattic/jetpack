@@ -58,7 +58,6 @@ const baseConfig = {
 
 		// Disable all other rules for now.
 		'scss/no-global-function-names': null,
-		'scss/selector-no-redundant-nesting-selector': null,
 	},
 };
 

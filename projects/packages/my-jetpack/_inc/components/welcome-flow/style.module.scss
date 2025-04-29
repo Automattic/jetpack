@@ -3,7 +3,7 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 .banner {
 	position: relative;
 
-	& > .banner-card {
+	> .banner-card {
 		padding: 0;
 		overflow: hidden;
 
@@ -23,7 +23,7 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 		}
 	}
 
-	& > .dismiss {
+	> .dismiss {
 		position: absolute;
 		top: 16px;
 		right: 16px;

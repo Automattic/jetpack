@@ -51,7 +51,7 @@
 			height: 0;
 			position: absolute;
 
-			&+label span {
+			+label span {
 				border: 1px solid transparent;
 				box-shadow: none;
 				padding: 0 12px;

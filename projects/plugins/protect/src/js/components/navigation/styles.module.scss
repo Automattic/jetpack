@@ -29,15 +29,15 @@
 	&.selected {
 		background-color: var( --jp-black );
 
-		& .navigation-item-label {
+		.navigation-item-label {
 			color: var( --jp-white )
 		}
 
-		& .navigation-item-icon {
+		.navigation-item-icon {
 			fill: var( --jp-white );
 		}
 
-		& .navigation-item-badge {
+		.navigation-item-badge {
 			border: 1px solid var( --jp-red );
 			background-color: var( --jp-red );
 			color: var( --jp-white );

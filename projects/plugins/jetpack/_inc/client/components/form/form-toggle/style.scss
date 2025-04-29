@@ -73,7 +73,7 @@
 		}
 	}
 
-	& + .form-toggle__label .form-toggle__switch {
+	+ .form-toggle__label .form-toggle__switch {
 		background: lighten( $gray, 10% );
 	}
 

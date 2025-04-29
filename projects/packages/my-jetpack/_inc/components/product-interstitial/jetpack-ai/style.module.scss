@@ -106,7 +106,7 @@
 		}
 
 		// the card uses an internal wrapper for the content
-		& > div:first-child {
+		> div:first-child {
 			display: flex;
 			flex-direction: column;
 			justify-content: space-between;

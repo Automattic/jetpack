@@ -26,7 +26,7 @@ $tablet-width: 760px;
 	will-change: height;
 
 	// Hacky override for to target core's modal component .components-modal__content.
-	& > div:first-child {
+	> div:first-child {
 		padding: 0;
 	}
 
