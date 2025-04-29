@@ -154,7 +154,7 @@ function jpcrm_verify_license_with_server() {
  */
 function jpcrm_is_license_valid() {
 	$license_info = zeroBSCRM_getSetting( 'license_key' );
-	$is_valid     = $license_info['validity'] === 'true';
+	$is_valid     = isset( $license_info['validity'] ) && $license_info['validity'] === 'true';
 	return $is_valid;
 }
 
