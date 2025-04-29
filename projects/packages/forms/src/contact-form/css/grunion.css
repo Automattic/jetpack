@@ -165,8 +165,8 @@
 	margin: 0;
 }
 
-.contact-form label span.required,
-.grunion-label-required {
+.contact-form :where(label span.required),
+.contact-form :where(.grunion-label-required) {
 	font-size: 85%;
 	margin-left: 0.25em;
 	font-weight: 400;
@@ -379,13 +379,13 @@
 	inset-inline-end: 20px;
 	top: 50%;
 
-  content: "";
-  display: block;
+	content: "";
+	display: block;
 	width: 8px;
 	height: 8px;
 
 	border-bottom: 2px solid;
-  border-right: 2px solid;
+	border-right: 2px solid;
 
 	transform: translateY(-50%) rotate(45deg);
 	transform-origin: center center;
