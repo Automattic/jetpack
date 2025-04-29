@@ -80,7 +80,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Remove the main Jetpack submenu if a site is in offline mode or connected.
+	 * Remove the main Jetpack submenu if a site is in offline mode or connected
+	 * or if My Jetpack is available.
 	 * At that point, admins can access the Jetpack Dashboard instead.
 	 *
 	 * @since 13.8
@@ -89,6 +90,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if (
 			( new Status() )->is_offline_mode()
 			|| Jetpack::is_connection_ready()
+			|| ( class_exists( 'Automattic\Jetpack\My_Jetpack\Initializer' ) &&
+				method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'should_initialize' ) &&
+				\Automattic\Jetpack\My_Jetpack\Initializer::should_initialize() )
 		) {
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}

@@ -10,12 +10,10 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchDefault : 1 occurrence
-    // PhanUndeclaredClassMethod : 1 occurrence
-    // PhanUndeclaredClassReference : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-admin-menu.php' => ['PhanTypeMismatchDefault', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
+        'src/class-admin-menu.php' => ['PhanTypeMismatchDefault'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
