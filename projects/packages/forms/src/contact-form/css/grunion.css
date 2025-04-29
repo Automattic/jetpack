@@ -717,6 +717,10 @@ on production builds, the attributes are being reordered, causing side-effects
 	display: inline-flex;
 	align-items: center;
 	padding: var(--jetpack--contact-form--button-outline--padding);
+}
+
+.contact-form :where(.grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field),
+.contact-form :where(.grunion-field-wrap.is-style-button-wrap .grunion-radio-label) {
 	background: var(--jetpack--contact-form--button-outline--background-color);
 	border: var(--jetpack--contact-form--button-outline--border);
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
@@ -751,10 +755,9 @@ on production builds, the attributes are being reordered, causing side-effects
 	outline-offset: 2px;
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple {
+.contact-form :where(.grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple) {
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
 	color: var(--jetpack--contact-form--button-outline--text-color);
-
 	font-family: var(--wp--preset--font-family--body);
 }
 
@@ -762,7 +765,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	outline-width: 0; /* focus style defined on parent */
 }
 
-.contact-form .is-style-button-wrap input.grunion-field + .grunion-field-text::before {
+/* TODO - is this style used anywhere? if not, remove it */
+.contact-form :where(.is-style-button-wrap input.grunion-field + .grunion-field-text::before) {
 	background: var(--jetpack--contact-form--button-outline--background-color);
 	border: var(--jetpack--contact-form--button-outline--border);
 	border-color: currentColor;
@@ -778,16 +782,16 @@ on production builds, the attributes are being reordered, causing side-effects
 	z-index: -1;
 }
 
-.contact-form .is-style-button-wrap input.grunion-field {
+.contact-form :where(.is-style-button-wrap input.grunion-field) {
 	color: var(--jetpack--contact-form--button-outline--color);
 }
 
-.contact-form .is-style-button-wrap input.grunion-field:checked,
-.contact-form .is-style-button-wrap input.grunion-field:checked + .grunion-field-text {
+.contact-form :where(.is-style-button-wrap input.grunion-field:checked),
+.contact-form :where(.is-style-button-wrap input.grunion-field:checked + .grunion-field-text) {
 	color: var(--jetpack--contact-form--button-outline--background-color-fallback);
 }
 
-.contact-form .is-style-button-wrap input.grunion-field:checked + .grunion-field-text::before {
+.contact-form :where(.is-style-button-wrap input.grunion-field:checked + .grunion-field-text::before) {
 	background: var(--jetpack--contact-form--button-outline--text-color);
 	border-color: var(--jetpack--contact-form--button-outline--text-color);
 }
