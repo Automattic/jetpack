@@ -188,7 +188,7 @@ function jpcrm_multisite_get_site_list() {
  * @param object $site_row The site row data to tidy up.
  * @return array|false The tidied site data or false if invalid.
  */
-function jpcrm_tidy_multisite_site( $site_row = array() ) {
+function jpcrm_tidy_multisite_site( $site_row ) {
 
 	if ( isset( $site_row->blog_id ) ) {
 
