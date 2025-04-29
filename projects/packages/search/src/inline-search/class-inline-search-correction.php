@@ -144,6 +144,9 @@ class Inline_Search_Correction {
 			'.wp-block-query-title',
 			'.page-title',
 			'.archive-title',
+			'.entry-title',
+			'.nv-page-title',
+			'.page-subheading',
 		);
 
 		/**
