@@ -492,7 +492,10 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$post = get_post( $post_id );
 
 	$video_info                  = new stdClass();
-	$video_info->post_id         = $post_id;
+	$video_info->post_id         = 0;
+	$video_info->description     = '';
+	$video_info->title           = '';
+	$video_info->caption         = '';
 	$video_info->blog_id         = $blog_id;
 	$video_info->guid            = null;
 	$video_info->finish_date_gmt = '0000-00-00 00:00:00';
@@ -503,6 +506,7 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 		return $video_info;
 	}
 
+	$video_info->post_id     = $post_id;
 	$video_info->description = $post->post_content;
 	$video_info->title       = $post->post_title;
 	$video_info->caption     = $post->post_excerpt;
