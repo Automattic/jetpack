@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Only remove the Jetpack submenu if My-Jetpack is present
