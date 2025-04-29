@@ -66,15 +66,13 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function start( $full_sync_config = null, $context = null ) {
 		// There was a full sync in progress.
-		if ( $this->is_started() && ! $this->is_finished() ) {
-			/**
-			 * Fires when a full sync is cancelled.
-			 *
-			 * @since 1.6.3
-			 * @since-jetpack 4.2.0
-			 */
-			do_action( 'jetpack_full_sync_cancelled' );
-			$this->send_action( 'jetpack_full_sync_cancelled' );
+		if ( $this->get_status()['start_action_processed'] && ! $this->is_finished() ) {
+			// Mark that we must send 'cancelled' action.
+			$this->update_status(
+				array(
+					'cancelled_action_processed' => false,
+				)
+			);
 		}
 
 		// Remove all evidence of previous full sync items and status.
@@ -131,12 +129,13 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function get_status() {
 		$default = array(
-			'start_action_processed' => false,
-			'started'                => false,
-			'finished'               => false,
-			'progress'               => array(),
-			'config'                 => array(),
-			'context'                => null,
+			'start_action_processed'     => false,
+			'cancelled_action_processed' => true, // true by default to avoid sending the action when there is no need,
+			'started'                    => false,
+			'finished'                   => false,
+			'progress'                   => array(),
+			'config'                     => array(),
+			'context'                    => null,
 		);
 
 		return wp_parse_args( \Jetpack_Options::get_raw_option( self::STATUS_OPTION ), $default );
@@ -373,6 +372,10 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function send() {
 
+		if ( ! $this->maybe_send_cancelled_action() ) {
+			return false;
+		}
+
 		if ( ! $this->maybe_send_full_sync_start() ) {
 			return false;
 		}
@@ -482,6 +485,35 @@ class Full_Sync_Immediately extends Module {
 			)
 		);
 
+		return true;
+	}
+
+	/**
+	 * Sends the `jetpack_full_sync_cancelled` action if it hasn't been processed yet.
+	 *
+	 * @return bool True if the action was successfully sent or already processed, false on failure.
+	 */
+	private function maybe_send_cancelled_action() {
+		$status = $this->get_status();
+
+		if ( true === $status['cancelled_action_processed'] ) {
+			return true;
+		}
+
+		$result = $this->send_action( 'jetpack_full_sync_cancelled' );
+
+		if ( is_wp_error( $result ) ) {
+			return false;
+		}
+
+		/**
+		 * Fires when a full sync is cancelled.
+		 *
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
+		 */
+		do_action( 'jetpack_full_sync_cancelled' );
+		$this->update_status( array( 'cancelled_action_processed' => true ) );
 		return true;
 	}
 
