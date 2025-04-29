@@ -30,11 +30,20 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-tabs {
+	flex: 1 1 auto; /* Flex, and grow */
+
+	/* Continue flexing downwards from here. */
+	display: flex;
+	flex-direction: column;
+
+	/* Important to pair with flex-shrink */
+	min-height: 0;;
 
 	.components-tab-panel__tabs {
 		margin: 0;
 		padding: 16px 48px 0;
 		z-index: 1;
+		flex: 0 1 auto;
 
 		@media (max-width: 600px) {
 			top: 0;
@@ -75,17 +84,6 @@ $action-bar-height: 88px;
 	padding: 0 6px;
 }
 
-.jp-forms__inbox-response {
-	border: 1px solid #dcdcde;
-	border-radius: 8px;
-	box-sizing: border-box;
-	display: flex;
-	flex-direction: column;
-	min-height: 300px;
-	overflow: hidden;
-	width: 100%;
-}
-
 @keyframes jp-forms__slide-in {
 
 	from {
@@ -105,6 +103,14 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-response {
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	min-height: 300px;
+	overflow: hidden;
+	width: 100%;
 	background-color: #fff;
 	position: relative;
 
@@ -361,21 +367,6 @@ $action-bar-height: 88px;
 	.jp-forms__layout-header {
 		flex: 0 1 auto; /* Flex, but don't grow */
 	}
-}
-
-.jp-forms__inbox-tabs {
-	flex: 1 1 auto; /* Flex, and grow */
-
-	/* Continue flexing downwards from here. */
-	display: flex;
-	flex-direction: column;
-
-	/* Important to pair with flex-shrink */
-	min-height: 0;;
-}
-
-.jp-forms__inbox-tabs .components-tab-panel__tabs {
-	flex: 0 1 auto;
 }
 
 .jp-forms__inbox-tabs .components-tab-panel__tab-content {

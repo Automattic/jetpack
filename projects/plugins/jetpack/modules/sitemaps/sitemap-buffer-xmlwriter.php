@@ -2,14 +2,14 @@
 /**
  * XMLWriter implementation of the sitemap buffer.
  *
- * @since $$next-version$$
+ * @since 14.6
  * @package automattic/jetpack
  */
 
 /**
  * A buffer for constructing sitemap xml files using XMLWriter.
  *
- * @since $$next-version$$
+ * @since 14.6
  */
 abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 
@@ -17,7 +17,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * Largest number of items the buffer can hold.
 	 *
 	 * @access protected
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @var int $item_capacity The item capacity.
 	 */
 	protected $item_capacity;
@@ -26,7 +26,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * Largest number of bytes the buffer can hold.
 	 *
 	 * @access protected
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @var int $byte_capacity The byte capacity.
 	 */
 	protected $byte_capacity;
@@ -35,7 +35,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * Flag which detects when the buffer is full.
 	 *
 	 * @access protected
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @var bool $is_full_flag The flag value.
 	 */
 	protected $is_full_flag;
@@ -44,7 +44,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * The most recent timestamp seen by the buffer.
 	 *
 	 * @access protected
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @var string $timestamp Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	protected $timestamp;
@@ -53,7 +53,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * The XMLWriter instance used to construct the XML.
 	 *
 	 * @access protected
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @var XMLWriter $writer
 	 */
 	protected $writer;
@@ -61,7 +61,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
 	 * Helper class to construct sitemap paths.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @protected
 	 * @var Jetpack_Sitemap_Finder
 	 */
@@ -71,7 +71,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * The XML content as a string.
 	 *
 	 * @access protected
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @var string $content
 	 */
 	protected $content = '';
@@ -79,7 +79,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
 	 * Construct a new Jetpack_Sitemap_Buffer_XMLWriter.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 *
 	 * @param int    $item_limit The maximum size of the buffer in items.
 	 * @param int    $byte_limit The maximum size of the buffer in bytes.
@@ -106,14 +106,14 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * This should be implemented by child classes.
 	 *
 	 * @access protected
-	 * @since $$next-version$$
+	 * @since 14.6
 	 */
 	abstract protected function initialize_buffer();
 
 	/**
 	 * Append an item to the buffer.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 *
 	 * @param array $array The item to be added.
 	 * @return bool True if the append succeeded, False if not.
@@ -157,7 +157,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * This should be implemented by child classes.
 	 *
 	 * @access protected
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @param array $array The item to be added.
 	 */
 	abstract protected function append_item( $array );
@@ -165,7 +165,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
 	 * Retrieve the contents of the buffer.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @return string The contents of the buffer.
 	 */
 	public function contents() {
@@ -184,7 +184,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
 	 * Detect whether the buffer is full.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @return bool True if the buffer is full, false otherwise.
 	 */
 	public function is_full() {
@@ -194,7 +194,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
 	 * Detect whether the buffer is empty.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @return bool True if the buffer is empty, false otherwise.
 	 */
 	public function is_empty() {
@@ -206,7 +206,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
 	 * Update the timestamp of the buffer.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @param string $new_time A datetime string in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	public function view_time( $new_time ) {
@@ -216,7 +216,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	/**
 	 * Retrieve the timestamp of the buffer.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @return string A datetime string in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	public function last_modified() {
@@ -227,7 +227,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * Compatibility method for the old DOMDocument implementation.
 	 * This is only here to satisfy the jetpack_print_sitemap filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.6
 	 * @return null
 	 */
 	public function get_document() {

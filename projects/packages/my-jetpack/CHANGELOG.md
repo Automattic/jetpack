@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.13.0] - 2025-04-28
+### Added
+- Onboarding: Add tracking back to onboarding UIs. [#43224]
+
+### Changed
+- Onboarding: Change the connection UI to a single button. [#43203]
+
+### Fixed
+- Fix TypeScript type checking and the corresponding errors. [#43205]
+- Linting: Fix more Stylelint violations. [#43213]
+- Onboarding: Avoid sending invalid email along with social login request. [#43158]
+
 ## [5.12.0] - 2025-04-14
 ### Added
 - Add more error logging. [#42959]
@@ -2101,6 +2113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.12.0...5.13.0
 [5.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.11.2...5.12.0
 [5.11.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.11.1...5.11.2
 [5.11.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.11.0...5.11.1

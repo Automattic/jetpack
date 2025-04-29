@@ -1,11 +1,11 @@
-// These styles are copied directly from @wordpress/interface
-// in order to remove our dependency on this experimental package.
+/**
+ * These styles are copied directly from @wordpress/interface
+ * in order to remove our dependency on this experimental package.
+ *
+ * TODO: Replace these styles with our own styles.
+ */
 
-// TODO: Replace these styles with our own styles.
-
-//
 // complementary-area-header
-//
 .components-panel__header.interface-complementary-area-header__small {
 	background: $white;
 	padding-right: $grid-unit-05;
@@ -27,9 +27,7 @@
 	padding-right: $grid-unit-05;
 }
 
-//
 // complementary-area
-//
 .interface-complementary-area {
 	background: $white;
 	color: $gray-900;
@@ -98,9 +96,7 @@
 	}
 }
 
-//
 // fullscreen-mode
-//
 body.js.is-fullscreen-mode {
 
 	@include break-medium {
@@ -121,9 +117,8 @@ body.js.is-fullscreen-mode {
 	}
 }
 
-//
 // interface-skeleton
-//
+
 // On Mobile devices, swiping the HTML element should not scroll.
 // By making it fixed, we prevent that.
 html.interface-interface-skeleton__html-container {
@@ -258,9 +253,7 @@ html.interface-interface-skeleton__html-container {
 	}
 }
 
-//
 // more-menu-dropdown
-//
 .interface-more-menu-dropdown {
 	margin-left: -4px;
 
@@ -297,9 +290,7 @@ html.interface-interface-skeleton__html-container {
 	z-index: z-index( '.components-popover.interface-more-menu__content' );
 }
 
-//
 // pinned-items
-//
 .interface-pinned-items {
 	display: flex;
 

@@ -742,6 +742,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	}
 
 	.widget_jetpack_display_posts_widget .jetpack-display-remote-posts p {
+		/* stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values */
 		line-height: 1.615384615em !important;
 		margin: 0 0 1.615384615em !important;
 	}

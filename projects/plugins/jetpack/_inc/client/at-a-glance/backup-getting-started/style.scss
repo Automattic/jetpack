@@ -46,12 +46,14 @@
 .dash-backup-getting-started__header {
     margin: 0 0 0.5rem;
     font-size: 1.25rem;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
     line-height: 1.75rem;
 }
 
 .dash-backup-getting-started__text {
     margin: 0;
     font-size: 0.75rem;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
     line-height: 1rem;
     letter-spacing: -0.02em;
 }

@@ -42,6 +42,10 @@ $tour-footer-spacing: 16px;
                     height: 14px;
                 }
             }
+
+            button {
+                color: var(--jp-gray-0);
+            }
         }
 
         .components-guide__footer {
@@ -99,13 +103,6 @@ $tour-footer-spacing: 16px;
                 &:active {
                     color: var(--jp-gray-100);
                 }
-            }
-        }
-
-        .components-modal__header {
-
-            button {
-                color: var(--jp-gray-0);
             }
         }
     }

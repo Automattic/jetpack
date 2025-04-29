@@ -45,8 +45,8 @@
 	}
 
 	#billing-to{
-		//width:80% !important;
 		width:90% !important;
+		float:left;
 
 		.inv-to-form{
 			float: left;
@@ -74,6 +74,12 @@
 		// fix for typeahead splaying out
 		.wh-large select, .wh-large input, input.typeahead {
 			max-width: 100%;
+		}
+
+		th{
+			vertical-align:middle;
+			font-size:18px;
+			font-weight:100;
 		}
 	}
 
@@ -361,17 +367,6 @@
 		outline: 0 !important;
 	}
 
-	#billing-to{
-		width:50%;
-		float:left;
-
-		th{
-			vertical-align:middle;
-			font-size:18px;
-			font-weight:100;
-		}
-	}
-
 	#assign-to{
 		width:50%;
 		float:right;
@@ -564,6 +559,7 @@
 
 	    .bord-l{
 	    	text-align:right;
+	    	border-left: 2px solid #ccc !important;
 	    }
 
 	    td.bord{
@@ -578,10 +574,6 @@
 		    height:20px;
 		    text-align:right;
 		    border-right: 2px solid #ccc !important;
-	    }
-
-	    .bord-l{
-	    	border-left: 2px solid #ccc !important;
 	    }
 	}
 
@@ -632,6 +624,11 @@
 
 		.zbs-row-actions{
 			cursor:pointer;
+			border: 1px solid #ccc;
+			color: #999;
+			font-size: 13px;
+			font-weight: 100;
+			text-align:center;
 		}
 
 		.padding{
@@ -682,14 +679,6 @@
 
 		.add-row{
 			border-left: 0 solid #fff;
-		}
-
-		.zbs-row-actions{
-			border: 1px solid #ccc;
-			color: #999;
-			font-size: 13px;
-			font-weight: 100;
-			text-align:center;
 		}
 	}
 
@@ -847,6 +836,9 @@
 		width:100%;
 		position:relative;
 		display:none;
+		margin-top: 20px;
+		margin-bottom: 20px;
+		margin-left: 12px;
 
 		.zbs-remove, .zbs-update{
 			cursor:pointer;
@@ -870,12 +862,6 @@
 			    padding: 2px 4px;
 		    }
 		}
-	}
-
-	.wh-logo-set{
-	    margin-top: 20px;
-	    margin-bottom: 20px;
-	    margin-left: 12px;
 	}
 
 	.wh-logo-set:hover{
@@ -1050,7 +1036,7 @@
 	input[type="checkbox"]{		
 	    margin-right: 0.7em;
 	    vertical-align: middle;
-	    line-height: 1em;
+	    line-height: 1;
 	}
 
 	label {

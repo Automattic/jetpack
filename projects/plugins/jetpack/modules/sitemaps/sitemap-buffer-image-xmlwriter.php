@@ -2,14 +2,14 @@
 /**
  * XMLWriter implementation of the image sitemap buffer.
  *
- * @since $$next-version$$
+ * @since 14.6
  * @package automattic/jetpack
  */
 
 /**
  * A buffer for constructing sitemap image xml files using XMLWriter.
  *
- * @since $$next-version$$
+ * @since 14.6
  */
 class Jetpack_Sitemap_Buffer_Image_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWriter {
 	/**

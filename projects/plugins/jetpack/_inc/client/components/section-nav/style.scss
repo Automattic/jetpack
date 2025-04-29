@@ -421,6 +421,7 @@
 }
 
 // -------- Search --------
+// stylelint-disable-next-line no-duplicate-selectors -- This is a styling section for a distinct purpose.
 .dops-section-nav {
 
 	@include breakpoint( "<660px" ) {

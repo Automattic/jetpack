@@ -78,6 +78,11 @@
 			display: flex;
 			justify-content: center;
 		}
+
+		// Mastodon
+		.mastodon-preview {
+			max-width: 578px;
+		}
 	}
 
 	@media ( min-width: $break-small ) {
@@ -100,18 +105,8 @@
 	}
 
 	// Facebook
-
 	.facebook-preview {
 		width: 100%;
-	}
-
-	// Mastodon
-
-	.components-tab-panel__tab-content {
-
-		.mastodon-preview {
-			max-width: 578px;
-		}
 	}
 }
 

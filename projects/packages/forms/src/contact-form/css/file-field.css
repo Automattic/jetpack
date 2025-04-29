@@ -265,14 +265,11 @@
 
 .jetpack-form-file-field__success {
 	color: #008A20;
+	display: none;
 }
 
 .jetpack-form-file-field__error {
 	color: #b32d2e;
-}
-
-.jetpack-form-file-field__success {
-	display: none;
 }
 
 .jetpack-form-file-field__preview.is-error .jetpack-form-file-field__uploading,

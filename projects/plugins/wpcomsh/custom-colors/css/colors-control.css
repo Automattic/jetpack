@@ -752,6 +752,7 @@ input#iris {
 
 /* Restored CSS from wp.com theme customizer updates */
 
+/* stylelint-disable no-duplicate-selectors -- Preserving sectioning. */
 .colour-lovers {
 	border-radius: 2px;
 	overflow: hidden;
@@ -793,6 +794,7 @@ input#iris {
 .the-picker p {
 	margin-top: 30px;
 }
+/* stylelint-enable no-duplicate-selectors */
 
 .the-picker p a {
 	font-weight: 700;

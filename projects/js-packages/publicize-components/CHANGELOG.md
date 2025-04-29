@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.85.2] - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+
 ## [0.85.1] - 2025-04-21
 ### Fixed
 - Social: Fix a typo in media requirements notice. [#43127]
@@ -1228,6 +1232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.85.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.1...v0.85.2
 [0.85.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.0...v0.85.1
 [0.85.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.5...v0.85.0
 [0.84.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.4...v0.84.5
