@@ -135,6 +135,9 @@ class Admin_Menu {
 
 		if ( ! $jetpack_plugin_present ) {
 			remove_submenu_page( 'jetpack', 'jetpack' );
+		} elseif ( class_exists( '\Automattic\Jetpack\My_Jetpack\Initializer' ) && \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize() ) {
+			// Remove the Jetpack submenu item when My Jetpack is available
+			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
 
 		if ( ! $can_see_toplevel_menu ) {

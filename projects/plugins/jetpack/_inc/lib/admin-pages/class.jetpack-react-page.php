@@ -80,16 +80,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Remove the main Jetpack submenu as it is not needed since the user centric onboarding.
-	 * The admins can access the Jetpack Dashboard or My-Jetpack menus instead.
-	 *
-	 * @since 13.8
-	 */
-	public function remove_jetpack_menu() {
-		remove_submenu_page( 'jetpack', 'jetpack' );
-	}
-
-	/**
 	 * Add Jetpack Dashboard sub-link and point it to AAG if the user can view stats, manage modules or if Protect is active.
 	 *
 	 * Works in Dev Mode or when user is connected.
