@@ -728,12 +728,12 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	/* visually-hidden */
 	clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  height: 1px;
-  overflow: hidden;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
 }
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio:checked + .grunion-radio-label {
