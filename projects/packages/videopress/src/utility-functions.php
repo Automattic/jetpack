@@ -486,7 +486,7 @@ function videopress_make_resumable_upload_path( $blog_id ) {
  *
  * @param int $blog_id Blog ID.
  * @param int $post_id Post ID.
- * @return bool|stdClass
+ * @return stdClass
  */
 function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$post = get_post( $post_id );
