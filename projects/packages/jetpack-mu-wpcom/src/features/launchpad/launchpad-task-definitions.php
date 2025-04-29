@@ -240,7 +240,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'subscribers_added'               => array(
 			'get_title'            => function () {
-				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
+				return __( 'Import subscribers', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
@@ -250,7 +250,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'migrate_content'                 => array(
 			'get_title'            => function () {
-				return __( 'Migrate content', 'jetpack-mu-wpcom' );
+				return __( 'Import content', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
