@@ -136,9 +136,9 @@ function jpcrm_show_admin_nag_modal( $message = '' ) {
  */
 
 /**
- * Force an update check (and update keys
+ * Force an update check (and update keys)
  */
-function jpcrm_license_check() {
+function jpcrm_verify_license_with_server() {
 	global $zbs;
 	$plugin_updater = new zeroBSCRM_Plugin_Updater( $zbs->urls['api'], $zbs->api_ver, 'zero-bs-crm' );
 	$zbs_transient  = new stdClass();

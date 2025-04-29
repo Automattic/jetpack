@@ -36,7 +36,7 @@ if ( isset( $_POST['editwplflicense'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	$sbupdated = true;
 
 	// } Also, should also recheck the validity of the key and show message if not valid
-	jpcrm_license_check();
+	jpcrm_verify_license_with_server();
 
 }
 
