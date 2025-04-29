@@ -7,7 +7,7 @@
 	transition: all .1s ease-in-out;
 }
 
-.jp-button {
+.jp-button, %jp-button {
 	display: inline-block;
 	position: relative;
 	padding: em(10px, 13px) em(19px, 13px);
@@ -37,7 +37,7 @@
 
 .jp-button--settings {
 
-	@extend .jp-button;
+	@extend %jp-button;
 	background: #93b45f;
 	color: #e8eedf;
 
@@ -91,7 +91,7 @@
 	&:active {
 		top: 6px;
 		box-shadow:
-			0 0px 0 #3e6c20,
+			0 0 0 #3e6c20,
 			0 0 0 rgba(0,0,0,.4);
 
 		&::after {
@@ -109,7 +109,7 @@
 		width: 30px;
 		height: 30px;
 		vertical-align: middle;
-		background: url('../images/connect-plug.svg') center center no-repeat;
+		background: url(../images/connect-plug.svg) center center no-repeat;
 		background-size: 100%;
 	}
 

@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  */
 class Test_Environment {
 
-	const PACKAGE_VERSION = '0.1.5';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * Whether the environment has been initialized.
@@ -53,9 +53,11 @@ class Test_Environment {
 	 * This ensures we only load WordPress once across all packages.
 	 *
 	 * @param string|null $package_slug Optional package slug for custom upload directory.
+	 * @param string      $db_engine Optional database engine to use. Current options are 'dbless' and 'sqlite'.
+	 *
 	 * @throws \RuntimeException If WordPress test environment fails to initialize.
 	 */
-	public static function init( $package_slug = null ) {
+	public static function init( $package_slug = null, $db_engine = 'dbless' ) {
 		if ( self::$initialized ) {
 			return;
 		}
@@ -73,11 +75,29 @@ class Test_Environment {
 				define( 'dbless_UPLOADS', 'uploads-' . $package_slug ); // phpcs:ignore Generic.NamingConventions.UpperCaseConstantName.ConstantNotUpperCase
 			}
 
-			\WorDBless\Load::load();
+			\WorDBless\Load::load( $db_engine, true ); // persist the database across tests so with sqlite tests concurrency is possible without accidental deletions.
 		} catch ( \Exception $e ) {
 			throw new \RuntimeException( 'Failed to initialize WordPress test environment: ' . $e->getMessage() );
 		}
 
+		// For various tests using WorDBless, speed things up by reducing the password hashing cost.
+		add_filter( 'wp_hash_password_options', array( __CLASS__, 'reduce_password_cost' ) );
+
 		self::$initialized = true;
+	}
+
+	/**
+	 * Hook for `wp_hash_password_options` to reduce the password hashing cost.
+	 *
+	 * Since WordPress 6.8, `wp_hash_password` uses PHP's `password_hash`, which has settings that use a lot
+	 * of CPU power to hash passwords to make them harder to crack. We don't care about password security for
+	 * the dummy users created in tests using WorDBless, so turn it way down to speed up the test runs.
+	 *
+	 * @param array $options Password options.
+	 * @return array Modified options.
+	 */
+	public static function reduce_password_cost( $options ) {
+		$options['cost'] = 4;
+		return $options;
 	}
 }

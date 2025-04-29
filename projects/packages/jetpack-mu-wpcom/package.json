@@ -55,6 +55,8 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/launchpad": "1.1.0",
 		"@automattic/typography": "1.0.0",
+		"@gravatar-com/hovercards": "0.10.8",
+		"@gravatar-com/quick-editor": "0.8.0",
 		"@popperjs/core": "^2.11.8",
 		"@preact/signals": "1.2.2",
 		"@sentry/browser": "8.33.0",

@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelogger\Utils;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -18,6 +20,7 @@ use Wikimedia\TestingAccessWrapper;
  *
  * @covers \Automattic\Jetpack\Changelogger\AddCommand
  */
+#[CoversClass( \Automattic\Jetpack\Changelogger\AddCommand::class )]
 class AddCommandTest extends CommandTestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
@@ -136,6 +139,7 @@ class AddCommandTest extends CommandTestCase {
 	 * @param string|null $expectFile Expected change file contents, or null if no file should exist.
 	 * @param string[]    $expectOutputRegexes Regexes to run against the output.
 	 */
+	#[DataProvider( 'provideExecute' )]
 	public function testExecute( array $args, array $options, array $inputs, $expectExitCode, $expectFile, $expectOutputRegexes = array() ) {
 		if ( isset( $options['composer.json'] ) ) {
 			file_put_contents( 'composer.json', json_encode( $options['composer.json'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );

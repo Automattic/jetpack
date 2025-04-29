@@ -138,13 +138,16 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 	case 'pull_request':
 	case 'push': {
 		const changedProjects = JSON.parse(
-			execSync( '.github/files/list-changed-projects.sh' ).toString()
+			execSync( '.github/files/list-changed-projects.sh', {
+				env: { ...process.env, EXTRA: 'e2e' },
+			} ).toString()
 		);
 
 		for ( const project of projects ) {
 			if ( ! project.targets ) {
 				// If no targets are defined, run the tests
 				matrix.push( project );
+				continue;
 			}
 
 			const targets = execSync(

@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Waf\Waf_Operators;
 use Automattic\Jetpack\Waf\Waf_Runtime;
 use Automattic\Jetpack\Waf\Waf_Transforms;
+use PHPUnit\Framework\Attributes\Before;
 
 /**
  * Runtime test suite.
@@ -25,6 +26,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @before
 	 */
+	#[Before]
 	protected function before() {
 		$this->runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 	}

@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { isWoaHosting } from '$lib/utils/hosting';
 import { useNotices } from '$features/notice/context';
 import { createInterpolateElement } from '@wordpress/element';
+import { ExternalLink } from '@wordpress/components';
 
 type ModuleProps = {
 	title: React.ReactNode;
@@ -129,10 +130,7 @@ export default ( props: ModuleProps ) => {
 										),
 										{
 											link: (
-												// eslint-disable-next-line jsx-a11y/anchor-has-content
-												<a
-													target="_blank"
-													rel="noopener noreferrer"
+												<ExternalLink
 													href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
 												/>
 											),

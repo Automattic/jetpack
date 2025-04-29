@@ -50,8 +50,8 @@ class Util {
 				'title'      => __( 'Contact Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
-				'content'    => '<!-- wp:jetpack/contact-form {"style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
-                    <div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
+				'content'    => '<!-- wp:jetpack/contact-form -->
+                    <div class="wp-block-jetpack-contact-form">
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-textarea /-->
@@ -63,8 +63,8 @@ class Util {
 				'title'      => __( 'Lead Capture Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
-				'content'    => '<!-- wp:jetpack/contact-form {"style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
-                    <div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
+				'content'    => '<!-- wp:jetpack/contact-form -->
+                    <div class="wp-block-jetpack-contact-form">
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-consent /-->
@@ -76,8 +76,8 @@ class Util {
 				'title'      => __( 'RSVP Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
-				'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new RSVP from your website","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
-                    <div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
+				'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new RSVP from your website"} -->
+                    <div class="wp-block-jetpack-contact-form">
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-radio {"label":"Attending?","required":true,"options":["Yes","No"]} /-->
@@ -90,8 +90,8 @@ class Util {
 				'title'      => __( 'Registration Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
-				'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new registration from your website","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
-                    <div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
+				'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new registration from your website"} -->
+                    <div class="wp-block-jetpack-contact-form">
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-telephone {"label":"Phone Number"} /-->
@@ -105,8 +105,8 @@ class Util {
 				'title'      => __( 'Appointment Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
-				'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new appointment booked from your website","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
-                    <div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
+				'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new appointment booked from your website"} -->
+                    <div class="wp-block-jetpack-contact-form">
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-telephone {"required":true} /-->
@@ -121,8 +121,8 @@ class Util {
 				'title'      => __( 'Feedback Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
-				'content'    => '<!-- wp:jetpack/contact-form {"subject":"New feedback received from your website","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
-                    <div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
+				'content'    => '<!-- wp:jetpack/contact-form {"subject":"New feedback received from your website"} -->
+                    <div class="wp-block-jetpack-contact-form">
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-radio {"label":"Please rate our website","required":true,"options":["1 - Very Bad","2 - Poor","3 - Average","4 - Good","5 - Excellent"]} /-->

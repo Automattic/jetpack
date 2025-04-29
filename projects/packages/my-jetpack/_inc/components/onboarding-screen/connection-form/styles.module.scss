@@ -20,118 +20,41 @@
 	color: var(--jp-gray-100, #101517);
 }
 
-.social-button {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	align-self: stretch;
-	margin-bottom: 0;
-	padding: 14px 16px;
-	width: 100%;
-	border: 1px solid #ccc;
-	box-shadow: none;
-	border-radius: var( --jp-button-radius );
-	background: transparent;
 
-	&:hover {
-		cursor: pointer;
+.jetpack-logo {
+	align-self: flex-start;
+	margin-bottom: 1rem;
+}
+
+.submit-button:global(.components-button) {
+	width: 100%;
+	padding: 12px 16px;
+	min-height: 48px;
+	font-weight: 500;
+	font-size: 16px;
+	line-height: 24px;
+	border: 1px solid var(--jp-green-60, #007117);
+	border-radius: var(--jp-button-radius);
+	box-sizing: border-box;
+	color: var(--jp-white, #fff);
+	background: var(--jp-green-60, #007117);
+	justify-content: center;
+
+	&:hover,
+	&:focus {
+		background: var(--jp-green-70, #00801a);
+		color: var(--jp-white, #fff);
+	}
+
+	&:focus {
+		border-color: var(--jp-white, #FFF);
+		outline: 2px solid var(--jp-green-60, #007117);
 	}
 
 	&:disabled {
 		background: var(--jp-gray, #dcdcde);
 		border-color: var(--jp-gray, #dcdcde);
 		color: var(--jp-gray-50, #646970);
-		cursor: unset;
-	}
-
-	img {
-		min-width: 20px;
-		min-height: 20px;
-	}
-}
-
-.social-button-text {
-	margin-left: -20px;
-	width: 100%;
-	color: var(--jp-gray-80, #2c3338);
-	font-size: 15px;
-	font-style: normal;
-	font-weight: 500;
-	line-height: 20px;
-	text-align: center;
-	max-height: 20px;
-}
-
-.separator {
-	display: flex;
-	align-items: center;
-	width: 100%;
-	margin: 20px 0;
-	text-transform: uppercase;
-
-	span {
-		color: var(--jp-gray-60, #50575E);
-		margin: 0 16px;
-		white-space: nowrap;
-	}
-
-	.line {
-		flex: 1;
-		height: 1px;
-		background: rgba(0, 0, 0, 0.1);
-	}
-}
-
-.email-input-container {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-
-	.email-input {
-		width: 100%;
-		margin: 0;
-		padding: 12px 16px;
-		border: 1px solid var(--jp-gray-60, #949494);
-		border-radius: var( --jp-button-radius );
-		box-sizing: border-box;
-		font-size: 15px;
-		line-height: 20px;
-		color: var(--jp-gray-50, #646970);
-
-		&.email-input-error {
-			border-color: var(--jp-red-50, #d63638);
-			background-color: var(--jp-red-0, #fcf0f1);
-		}
-	}
-
-	.submit-button {
-		width: 100%;
-		padding: 12px 16px;
-		border: 1px solid var(--jp-green-60, #007117);
-		border-radius: var( --jp-button-radius );
-		box-sizing: border-box;
-		font-size: 16px;
-		font-weight: 500;
-		line-height: 24px;
-		color: var(--jp-white, #fff);
-		background: var(--jp-green-60, #007117);
-
-		&:hover, &:focus {
-			background: var(--jp-green-70, #00801a);
-			cursor: pointer;
-		}
-
-		&:focus {
-			border-color: var(--jp-white, #FFF);
-			outline: 2px solid var(--jp-green-60, #007117);
-		}
-
-		&:disabled {
-			background: var(--jp-gray, #dcdcde);
-			border-color: var(--jp-gray, #dcdcde);
-			color: var(--jp-gray-50, #646970);
-			cursor: unset;
-		}
 	}
 }
 
@@ -147,19 +70,6 @@
 	}
 }
 
-.error-message {
-	color: var(--jp-red-50, #d63638);
-	font-size: var(--font-body-small);
-	line-height: 20px;
-	margin-top: -8px;
-}
-
 svg.spinner {
 	margin: 0;
-	vertical-align: middle;
-	bottom: 2px;
-}
-
-.capitalize {
-	text-transform: capitalize;
 }

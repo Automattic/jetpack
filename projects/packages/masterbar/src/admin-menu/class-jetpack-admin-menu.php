@@ -190,7 +190,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		parent::add_jetpack_menu();
 
 		/* translators: Jetpack sidebar menu item. */
-		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack-masterbar' ), __( 'Search', 'jetpack-masterbar' ), 'manage_options', 'jetpack-search', admin_url( 'admin.php?page=jetpack-search' ), 4 );
+		add_submenu_page( 'jetpack', esc_attr_x( 'Search', 'Jetpack product name', 'jetpack-masterbar' ), _x( 'Search', 'Jetpack product name', 'jetpack-masterbar' ), 'manage_options', 'jetpack-search', admin_url( 'admin.php?page=jetpack-search' ), 4 );
 
 		// Place "Scan" submenu after Backup.
 		$position = 0;

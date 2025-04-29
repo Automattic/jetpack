@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0] - 2025-04-28
+### Removed
+- Remove unused Phan exception. [#43063]
+
+### Fixed
+- Code: Remove unneeded `data:` URI components. [#43227]
+- Linting: Fix more Stylelint violations. [#43213]
+
+## [0.16.1] - 2025-04-21
+### Fixed
+- Add translation context to Search menu item. [#43094]
+
 ## [0.16.0] - 2025-04-14
 ### Changed
 - Admin Menu: Update the icon of WooCommerce for the Woo installation. [#43029]
@@ -14,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove the site card from the admin sidebar. [#42499]
 
 ### Fixed
-- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Clean up various Stylelint violations. [#43010]
 - Linting: Format SCSS imports consistently. [#43018]
 - Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
 - Linting: Use double colon notation for pseudo-element selectors. [#43019]
@@ -300,6 +312,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.17.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.16.1...v0.17.0
+[0.16.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.15.1...v0.16.0
 [0.15.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.14.4...v0.15.0

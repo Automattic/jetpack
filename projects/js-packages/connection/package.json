@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.39.11",
+	"version": "0.39.12",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {

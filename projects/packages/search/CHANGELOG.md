@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.23] - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
+
 ## [0.47.22] - 2025-04-14
 ### Fixed
 - Fix errors caused by malformed order arguments. [#42897]
@@ -1193,6 +1198,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.47.23]: https://github.com/Automattic/jetpack-search/compare/v0.47.22...v0.47.23
 [0.47.22]: https://github.com/Automattic/jetpack-search/compare/v0.47.21...v0.47.22
 [0.47.21]: https://github.com/Automattic/jetpack-search/compare/v0.47.20...v0.47.21
 [0.47.20]: https://github.com/Automattic/jetpack-search/compare/v0.47.19...v0.47.20

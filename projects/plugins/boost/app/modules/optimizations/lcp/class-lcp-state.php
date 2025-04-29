@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
+use WP_Error;
+
 class LCP_State {
 	const ANALYSIS_STATES = array(
 		'not_analyzed' => 'not_analyzed',
@@ -16,10 +18,33 @@ class LCP_State {
 		'error'   => 'error',
 	);
 
-	public $state;
+	/**
+	 * LCP analysis state data
+	 *
+	 * @var array
+	 */
+	public $state = array();
+
+	/**
+	 * Retrieves and validates the LCP state
+	 *
+	 * @param bool $refresh Whether to refresh the state from storage.
+	 * @return array The validated state
+	 * @since 3.13.1
+	 */
+	private function get_state( $refresh = false ) {
+		if ( $refresh ) {
+			$stored_state = jetpack_boost_ds_get( 'lcp_state' );
+			$this->state  = is_array( $stored_state ) ? $stored_state : array();
+		} elseif ( ! is_array( $this->state ) ) {
+			$this->state = array();
+		}
+
+		return $this->state;
+	}
 
 	public function __construct() {
-		$this->state = jetpack_boost_ds_get( 'lcp_state' );
+		$this->get_state( true );
 	}
 
 	public function clear() {
@@ -47,6 +72,65 @@ class LCP_State {
 		$this->state['status']       = self::ANALYSIS_STATES['error'];
 
 		return $this;
+	}
+
+	/**
+	 * Update a page's state. The page must already exist in the state to be updated.
+	 *
+	 * @param string $page_key The page key.
+	 * @param array  $state    An array to overlay over the current state.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
+	 */
+	public function update_page_state( $page_key, $state ) {
+		if ( empty( $this->state['pages'] ) ) {
+			return new WP_Error( 'invalid_page_key', 'No pages exist' );
+		}
+
+		$page_index = array_search( $page_key, array_column( $this->state['pages'], 'key' ), true );
+		if ( $page_index === false ) {
+			return new WP_Error( 'invalid_page_key', 'Invalid page key' );
+		}
+
+		$this->state['pages'][ $page_index ] = array_merge(
+			$this->state['pages'][ $page_index ],
+			$state
+		);
+
+		$this->maybe_set_analyzed();
+
+		return true;
+	}
+
+	/**
+	 * Set a page's state to success.
+	 *
+	 * @param string $page_key The page key.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
+	 */
+	public function set_page_success( $page_key ) {
+		return $this->update_page_state(
+			$page_key,
+			array(
+				'status' => self::PAGE_STATES['success'],
+			)
+		);
+	}
+
+	/**
+	 * Set the state to analyzed if all pages are done. Should be called wherever
+	 * a page's state is updated.
+	 */
+	private function maybe_set_analyzed() {
+		if ( empty( $this->state['pages'] ) ) {
+			return;
+		}
+
+		$page_states = array_column( $this->state['pages'], 'status' );
+		$is_done     = ! in_array( self::PAGE_STATES['pending'], $page_states, true );
+
+		if ( $is_done ) {
+			$this->state['status'] = self::ANALYSIS_STATES['analyzed'];
+		}
 	}
 
 	public function is_analyzed() {
@@ -82,9 +166,11 @@ class LCP_State {
 
 	/**
 	 * Get fresh state
+	 *
+	 * @return array Current LCP state
+	 * @since 3.13.1
 	 */
 	public function get() {
-		$this->state = jetpack_boost_ds_get( 'lcp_state' );
-		return $this->state;
+		return $this->get_state( true );
 	}
 }

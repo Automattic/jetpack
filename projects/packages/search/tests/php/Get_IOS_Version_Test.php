@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Search;
 require_once __DIR__ . '/../../compatibility/unsupported-browsers.php';
 
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Unit tests for the get_ios_version_from_user_agent.
@@ -41,6 +42,7 @@ class Get_IOS_Version_Test extends Search_TestCase {
 	 *
 	 * @dataProvider user_agents_data_provider
 	 */
+	#[DataProvider( 'user_agents_data_provider' )]
 	public function test_ios_version( $user_agent, $expected ) {
 		$result = \Automattic\Jetpack\Search\Compatibility\get_ios_version_from_user_agent( $user_agent );
 		$this->assertEquals( $expected, $result );

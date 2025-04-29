@@ -110,7 +110,7 @@
 
 						&:focus,
 						&:active {
-							box-shadow: inset 0 0 0 0px var(--verbum-focus-background-color),
+							box-shadow: inset 0 0 0 0 var(--verbum-focus-background-color),
 								0 0 0 var(--verbum-border-focus-width) var(--verbum-focus-color);
 						}
 					}
@@ -124,7 +124,6 @@
 
 			// Fixes the alt text for the close button
 			.screen-reader-text {
-				clip: rect(1px 1px 1px 1px);
 
 				/* IE6, IE7 */
 				clip: rect(1px, 1px, 1px, 1px);
@@ -597,21 +596,13 @@
         border-top: 2px solid #3498db;
         width: 16px;
         height: 16px;
-        -webkit-animation: customLoadingSpinner 2s linear infinite;
         animation: customLoadingSpinner 2s linear infinite;
     }
 
 	@keyframes customLoadingSpinner {
 
         to {
-          -webkit-transform: rotate(360deg);
-        }
-    }
-
-    @-webkit-keyframes customLoadingSpinner {
-
-        to {
-          -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
         }
     }
 }

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.12] - 2025-04-28
+### Changed
+- Internal updates.
+
 ## [0.7.11] - 2025-04-14
 ### Changed
 - Internal updates.
@@ -198,6 +202,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add image CDN package. [#29561]
 
+[0.7.12]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.11...v0.7.12
 [0.7.11]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.10...v0.7.11
 [0.7.10]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.9...v0.7.10
 [0.7.9]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.8...v0.7.9

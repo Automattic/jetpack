@@ -1,8 +1,3 @@
-/**
- * Types
- */
-import type { Suggestion } from 'harper.js';
-
 export type BreveControls = () => React.JSX.Element;
 
 export type Anchor = {
@@ -10,27 +5,6 @@ export type Anchor = {
 	virtual: {
 		getBoundingClientRect: () => DOMRect;
 		contextElement?: HTMLElement;
-	};
-};
-
-export type GrammarLint = {
-	text: string;
-	message: string;
-	startIndex: number;
-	endIndex: number;
-	suggestions: Array< Suggestion >;
-	numSuggestions: number;
-	kind: string; // TODO: List all possible values
-};
-
-export type LintState = {
-	[ blockId: string ]: {
-		version: number;
-		features: {
-			[ feature: string ]: {
-				[ text: string ]: Array< GrammarLint >;
-			};
-		};
 	};
 };
 
@@ -60,7 +34,6 @@ export type BreveState = {
 			};
 		};
 	};
-	lints?: LintState;
 };
 
 export type BreveSelect = {
@@ -96,19 +69,6 @@ export type BreveSelect = {
 	};
 	getIgnoredSuggestions: ( { blockId }: { blockId: string } ) => Array< string >;
 	getReloadFlag: () => boolean;
-	getLintFeatures: ( blockId: string ) => {
-		[ feature: string ]: {
-			[ text: string ]: Array< GrammarLint >;
-		};
-	};
-	getLintFeatureTexts: (
-		blockId: string,
-		feature: string
-	) => {
-		[ text: string ]: Array< GrammarLint >;
-	};
-	getLints: ( blockId: string, feature: string, text: string ) => Array< GrammarLint >;
-	getLintVersion: ( blockId: string ) => number;
 };
 
 export type BreveDispatch = {
@@ -132,19 +92,6 @@ export type BreveDispatch = {
 		blockId: string;
 		occurrence: string;
 	} ) => void;
-	setLints: ( {
-		text,
-		lints,
-		feature,
-		blockId,
-		richTextIdentifier,
-	}: {
-		text: string;
-		lints: Array< GrammarLint >;
-		feature: string;
-		blockId: string;
-		richTextIdentifier?: string;
-	} ) => void;
 };
 
 export type PlansSelect = {
@@ -166,11 +113,7 @@ export type BreveFeatureConfig = {
 
 export type BreveFeature = {
 	config: BreveFeatureConfig;
-	highlight: (
-		text: string,
-		blockClientId: string,
-		richTextIdentifier?: string
-	) => Array< HighlightedText >;
+	highlight: ( text: string ) => Array< HighlightedText >;
 	dictionary?: { [ key: string ]: string };
 	description: string;
 };

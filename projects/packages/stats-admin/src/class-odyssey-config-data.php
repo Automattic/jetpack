@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
@@ -39,6 +40,8 @@ class Odyssey_Config_Data {
 
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		$host    = new Host();
+
+		$can_blaze = class_exists( 'Automattic\Jetpack\Blaze' ) && Blaze::should_initialize()['can_init'];
 
 		return array(
 			'admin_page_base'                => $this->get_admin_path(),
@@ -96,6 +99,7 @@ class Odyssey_Config_Data {
 								'jetpack_version'       => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
 								'stats_admin_version'   => Main::VERSION,
 								'software_version'      => $wp_version,
+								'can_blaze'             => $can_blaze,
 							),
 						),
 					),
@@ -219,16 +223,6 @@ class Odyssey_Config_Data {
 			'delete_users'        => current_user_can( 'delete_users' ),
 			'remove_users'        => current_user_can( 'remove_users' ),
 			'own_site'            => current_user_can( 'manage_options' ), // Administrators are considered owners on site.
-			/**
-			 * Filter whether the Hosting section in Calypso should be available for site.
-			 *
-			 * @module json-api
-			 *
-			 * @since 8.2.0
-			 *
-			 * @param bool $view_hosting Can site access Hosting section. Default to false.
-			 */
-			'view_hosting'        => apply_filters( 'jetpack_json_api_site_can_view_hosting', false ),
 			'view_stats'          => current_user_can( 'view_stats' ),
 			'activate_plugins'    => current_user_can( 'activate_plugins' ),
 		);

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
 /**
@@ -14,6 +15,7 @@ use WorDBless\BaseTestCase;
  *
  * @covers Automattic\Jetpack\Sync\Modules\Module
  */
+#[CoversClass( Modules\Module::class )]
 class Module_Test extends BaseTestCase {
 
 	/**

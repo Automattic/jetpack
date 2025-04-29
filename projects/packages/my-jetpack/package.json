@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "5.12.0",
+	"version": "5.13.0",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
@@ -20,7 +20,8 @@
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
 		"test": "jest --config=tests/jest.config.js",
-		"test-coverage": "pnpm run test --coverage"
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
