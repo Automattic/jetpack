@@ -1491,13 +1491,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		// Shell wrapper classes. Add -wrap to each class.
 		$wrap_classes          = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap';
-		$field_wrapper_classes = $this->get_attribute( 'fieldwrapperclasses' ) ?? '';
+		$field_wrapper_classes = $this->get_attribute( 'fieldwrapperclasses' ) ? $this->get_attribute( 'fieldwrapperclasses' ) . ' ' : '';
 
 		if ( empty( $label ) ) {
 			$wrap_classes .= ' no-label';
 		}
 
-		$shell_field_class = "class='" . $field_wrapper_classes . ' grunion-field-' . $trimmed_type . '-wrap ' . esc_attr( $wrap_classes ) . "' ";
+		$shell_field_class = "class='" . $field_wrapper_classes . 'grunion-field-' . $trimmed_type . '-wrap ' . esc_attr( $wrap_classes ) . "' ";
 
 		/**
 		 * Filter the Contact Form required field text
