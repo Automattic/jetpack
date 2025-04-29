@@ -113,7 +113,7 @@ function wpcom_launchpad_get_task_definitions() {
 						: __( 'Continue to write your first post', 'jetpack-mu-wpcom' );
 			},
 			'add_listener_callback' => function () {
-				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
+				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task', 10, 2 );
 			},
 			'get_calypso_path'      => function () {
 				$latest_draft_id = wpcom_launchpad_get_latest_draft_id();
@@ -196,7 +196,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Start writing', 'jetpack-mu-wpcom' );
 			},
 			'add_listener_callback' => function () {
-				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
+				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task', 10, 2 );
 			},
 			'get_calypso_path'      => function () {
 				return admin_url( 'post-new.php' );
@@ -1627,11 +1627,28 @@ function wpcom_launchpad_get_membership_settings() {
  *
  * @return void
  */
-function wpcom_launchpad_track_publish_first_post_task() {
+function wpcom_launchpad_track_publish_first_post_task( $post_id, $post ) {
 	// Ensure that Headstart posts don't mark this as complete.
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return;
 	}
+
+	// Sanity check: Make sure it's a post and published.
+	if ( ! $post instanceof WP_Post || 'publish' !== $post->post_status ) {
+		return;
+	}
+
+	// Consider only posts published in the last 5 minutes as "new". Otherwise importing old posts
+	// may complete the task prematurely.
+	$publish_time = strtotime( $post->post_date_gmt );
+	$now = time();
+	$five_minutes = 5 * MINUTE_IN_SECONDS;
+
+	if ( ( $now - $publish_time ) > $five_minutes ) {
+		// Post is too old; likely migrated or backdated. Skip.
+		return;
+	}
+
 	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published' );
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published_newsletter' );
