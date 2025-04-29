@@ -87,13 +87,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 13.8
 	 */
 	public function remove_jetpack_menu() {
-		if (
-			( new Status() )->is_offline_mode()
-			|| Jetpack::is_connection_ready()
-			|| ( class_exists( 'Automattic\Jetpack\My_Jetpack\Initializer' ) &&
-				method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'should_initialize' ) &&
-				\Automattic\Jetpack\My_Jetpack\Initializer::should_initialize() )
-		) {
+		$is_offline_mode = ( new Status() )->is_offline_mode();
+		$has_my_jetpack  = (
+			class_exists( 'Automattic\Jetpack\My_Jetpack\Initializer' ) &&
+			method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'should_initialize' ) &&
+			\Automattic\Jetpack\My_Jetpack\Initializer::should_initialize()
+		);
+
+		if ( $is_offline_mode || $has_my_jetpack || Jetpack::is_connection_ready() ) {
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
 	}
