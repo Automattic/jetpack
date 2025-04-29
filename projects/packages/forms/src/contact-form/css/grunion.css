@@ -646,13 +646,24 @@ on production builds, the attributes are being reordered, causing side-effects
 	padding-top: 8px;
 }
 
+.contact-form :where(.grunion-checkbox-multiple-options .contact-form-field),
+.contact-form :where(.grunion-radio-options .contact-form-field) {
+
+	/* Back compat for the old css vars used in the old radio and checkbox styles */
+	font-size: var(--jetpack--contact-form--font-size);
+}
+
 .contact-form .grunion-field-wrap input.checkbox-multiple,
 .contact-form .grunion-field-wrap input.radio {
 	position: relative;
 
 	box-sizing: border-box;
-	width: var(--jetpack--contact-form--font-size);
-	height: var(--jetpack--contact-form--font-size);
+
+	/* Inherit the font size from the parent element. This allows the input to scale with the font size
+	   set from global styles or from block styles */
+	font-size: inherit;
+	width: 1em;
+	height: 1em;
 	margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
 	padding: 0;
 
@@ -670,14 +681,16 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .grunion-field-wrap input.checkbox-multiple:checked::before {
 	content: "\2713";
-
 	position: absolute;
-	top: calc(var(--jetpack--contact-form--font-size) / 2);
-	left: calc(var(--jetpack--contact-form--font-size) / 2);
+
+	/* Inherit the font size from the parent element. This allows the input to scale with the font size
+	   set from global styles or from block styles */
+	font-size: inherit;
+	top: calc(1em / 2);
+	left: calc(1em / 2);
 
 	display: block;
 
-	font-size: var(--jetpack--contact-form--font-size);
 	line-height: 1;
 
   transform: translate(-50%, -50%);
@@ -687,12 +700,16 @@ on production builds, the attributes are being reordered, causing side-effects
 	background: currentColor;
 	border-radius: 50%;
 	content: '';
-	height: calc(var(--jetpack--contact-form--font-size) / 2);
+
+	/* Inherit the font size from the parent element. This allows the input to scale with the font size
+	   set from global styles or from block styles */
+	font-size: inherit;
+	height: calc(1em / 2);
+	width: calc(1em / 2);
 	margin-left: 50%;
 	margin-top: 50%;
 	position: absolute;
 	transform: translate(-50%, -50%);
-	width: calc(var(--jetpack--contact-form--font-size) / 2);
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,

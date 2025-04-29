@@ -819,11 +819,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 					$used_html_ids[ $radio_id ] = true;
 
-					$default_classes = 'wp-block-jetpack-option grunion-radio-label radio';
+					$default_classes = 'grunion-radio-label radio';
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . $option['style'] . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'];
 
-					$field .= "<p class='contact-form-field'>";
+					$field .= "<p class='contact-form-field wp-block-jetpack-option'>";
 					$field .= "<input
 									id='" . esc_attr( $radio_id ) . "'
 									type='radio'
@@ -1175,11 +1175,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 					$used_html_ids[ $checkbox_id ] = true;
 
-					$default_classes = 'wp-block-jetpack-option grunion-checkbox-multiple-label checkbox-multiple';
+					$default_classes = 'grunion-checkbox-multiple-label checkbox-multiple';
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . $option['style'] . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'];
 
-					$field .= "<p class='contact-form-field'>";
+					$field .= "<p class='contact-form-field wp-block-jetpack-option'>";
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
 								type='checkbox'
