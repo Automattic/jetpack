@@ -3,7 +3,6 @@ import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import getHovercard from '../quick-editor';
 import { CommentUser } from './profile-get';
-import '@gravatar-com/hovercards/dist/style.css';
 
 const getAvatarUrl = ( profile: CommentUser, cacheBuster: number ) => {
 	if ( ! profile.avatarUrl ) {
