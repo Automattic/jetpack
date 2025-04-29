@@ -1,15 +1,9 @@
 import { Hovercards } from '@gravatar-com/hovercards';
-import { GravatarQuickEditorCore } from '@gravatar-com/quick-editor';
 import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'preact/hooks';
+import getHovercard from '../quick-editor';
 import { CommentUser } from './profile-get';
-
-const UPDATE_DELAY = 2000; // Some time for the caches to clear
-const LOCALE_MAP = {
-	en: '',
-	zh_TW: 'zh-TW',
-	fr_ca: 'fr-CA',
-};
+import '@gravatar-com/hovercards/dist/style.css';
 
 const getAvatarUrl = ( profile: CommentUser, cacheBuster: number ) => {
 	if ( ! profile.avatarUrl ) {
@@ -17,15 +11,6 @@ const getAvatarUrl = ( profile: CommentUser, cacheBuster: number ) => {
 	}
 
 	return `${ profile.avatarUrl }?v=${ cacheBuster }`;
-};
-
-const getLocale = ( locale: string ) => {
-	// Convert special locales to Gravatar locales
-	if ( LOCALE_MAP[ locale ] ) {
-		return LOCALE_MAP[ locale ];
-	}
-
-	return locale.replace( /_.*$/, '' );
 };
 
 const ProfileImage = ( { profile } ) => {
@@ -38,24 +23,12 @@ const ProfileImage = ( { profile } ) => {
 
 	const openEditor = () => {
 		if ( ! quickEditorRef.current ) {
-			quickEditorRef.current = new GravatarQuickEditorCore( {
-				scope: [ 'avatars' ],
-				email: profile?.email,
-				locale: getLocale( VerbumComments?.currentLocale || '' ),
-				utm: 'jetpack-comments',
-				onProfileUpdated: () => {
-					setIsLoading( true );
-
-					clearTimeout( timerRef.current );
-
-					// Reload the new avatar
-					timerRef.current = setTimeout( () => {
-						setIsLoading( false );
-						setCacheBuster( new Date().getTime() );
-						timerRef.current = null;
-					}, UPDATE_DELAY );
-				},
-			} );
+			quickEditorRef.current = getHovercard(
+				profile?.email,
+				setIsLoading,
+				setCacheBuster,
+				timerRef.current
+			);
 		}
 
 		quickEditorRef.current.open();
