@@ -126,6 +126,6 @@ class Utility_Functions_Test extends BaseTestCase {
 		$this->assertSame( 'G', $video_info->rating );
 		$this->assertSame( 1, $video_info->allow_download );
 		$this->assertSame( 1, $video_info->display_embed );
-		$this->assertSame( 1, $video_info->privacy_setting ); // 2 = Private
+		$this->assertSame( 1, $video_info->privacy_setting ); // 1 = Private
 	}
 }
