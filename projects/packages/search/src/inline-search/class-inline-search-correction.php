@@ -101,11 +101,10 @@ class Inline_Search_Correction {
 			return;
 		}
 
-		// Use the Jetpack Assets class to get the file URL properly
-		$file_url = Assets::get_file_url_for_environment(
+		// We need to use plugins_url for reliable URL generation
+		$file_url = plugins_url(
 			$full_css_path,
-			$full_css_path,
-			$package_path
+			$package_path . '/package.json'
 		);
 
 		// Use the file's modification time for more precise cache busting

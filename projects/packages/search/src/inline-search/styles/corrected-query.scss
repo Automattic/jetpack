@@ -1,7 +1,12 @@
 /**
- * Twenty Twenty-Four theme specific styles for search correction
+ * Jetpack Search - Corrected Query Styles
+ *
+ * Theme-specific styles for the search correction functionality.
  */
-.wp-theme-twentythirteen {
+
+/* Twenty Theme Family */
+.wp-theme-twentythirteen,
+.wp-theme-pubtwentythirteen {
 
     .jetpack-search-corrected-query {
         margin: 0 auto;
@@ -11,7 +16,8 @@
     }
 }
 
-.wp-theme-twentyfifteen {
+.wp-theme-twentyfifteen,
+.wp-theme-pubtwentyfifteen {
 
     .jetpack-search-corrected-query {
         margin-left: -7px;
@@ -19,7 +25,9 @@
 }
 
 .wp-theme-twentytwentythree,
-.wp-theme-twentytwentyfour {
+.wp-theme-pubtwentytwentythree,
+.wp-theme-twentytwentyfour,
+.wp-theme-pubtwentytwentyfour {
 
     .jetpack-search-corrected-query {
         margin-top: -1em;
@@ -27,4 +35,61 @@
     }
 }
 
+/* Center-aligned themes */
+.wp-theme-pubassembler,
+.wp-theme-assembler-wpcom,
+.wp-child-theme-maywood-wpcom,
+.wp-child-theme-pubmaywood,
+.wp-child-theme-hever-wpcom,
+.wp-child-theme-pubhever,
+.wp-child-theme-pubexford,
+.wp-child-theme-exford-wpcom {
 
+    .jetpack-search-corrected-query {
+        text-align: center;
+    }
+}
+
+/* Dara theme */
+.wp-theme-pubdara,
+.wp-theme-dara-wpcom {
+
+    @media screen and (min-width: 1000px) {
+
+        .jetpack-search-corrected-query {
+            padding-left: 211px;
+        }
+    }
+}
+
+/* Morden theme */
+.wp-child-theme-pubmorden,
+.wp-child-theme-morden-wpcom {
+
+    .jetpack-search-corrected-query {
+        background: var(--wp--preset--color--background-high-contrast);
+        text-align: center;
+        padding-bottom: 32px;
+
+        @media screen and (min-width: 560px) {
+            margin-top: -96px;
+            padding-bottom: 64px;
+        }
+    }
+}
+
+/* Baskerville theme */
+.wp-theme-baskerville-2-wpcom {
+
+    .jetpack-search-corrected-query {
+        margin-top: 1em;
+
+        @media screen and (max-width: 1440px) {
+            margin-top: -3%;
+        }
+
+        @media screen and (max-width: 600px) {
+            margin-top: -15px;
+        }
+    }
+}
