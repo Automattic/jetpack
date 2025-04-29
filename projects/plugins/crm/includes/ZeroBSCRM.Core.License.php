@@ -148,6 +148,8 @@ function jpcrm_verify_license_with_server() {
 /**
  * Checks if license is valid based on stored settings.
  *
+ * Best used for simple checks like upsells.
+ *
  * @return bool Whether license is valid.
  */
 function jpcrm_is_license_valid() {
