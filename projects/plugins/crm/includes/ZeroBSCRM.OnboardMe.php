@@ -36,13 +36,10 @@ function jpcrm_onboardme_scripts() {
 
 	$zbs_tour_root = admin_url();
 
-	$license_info      = zeroBSCRM_getSetting( 'license_key' );
-	$has_valid_license = $license_info['validity'] === 'true';
-
 	$zbs_tour = array(
 		'admin_url'         => $zbs_tour_root,
 		'cta_url'           => $zbs->urls['upgrade'],
-		'has_valid_license' => $has_valid_license,
+		'has_valid_license' => jpcrm_is_license_valid(),
 		'lang'              => array(
 			'step1'  => array(
 				'title'   => __( 'Welcome to your Jetpack CRM', 'zero-bs-crm' ),

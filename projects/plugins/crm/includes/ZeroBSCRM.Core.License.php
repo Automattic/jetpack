@@ -146,6 +146,17 @@ function jpcrm_verify_license_with_server() {
 }
 
 /**
+ * Checks if license is valid based on stored settings.
+ *
+ * @return bool Whether license is valid.
+ */
+function jpcrm_is_license_valid() {
+	$license_info = zeroBSCRM_getSetting( 'license_key' );
+	$is_valid     = $license_info['validity'] === 'true';
+	return $is_valid;
+}
+
+/**
  * Gets a list of multi site
  */
 function jpcrm_multisite_get_site_list() {
