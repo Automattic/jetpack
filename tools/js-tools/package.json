@@ -32,11 +32,11 @@
 		"eslint": "9.25.1",
 		"eslint-config-prettier": "10.1.2",
 		"eslint-import-resolver-typescript": "3.10.1",
-		"eslint-plugin-es-x": "8.6.1",
+		"eslint-plugin-es-x": "8.6.2",
 		"eslint-plugin-import": "2.31.0",
 		"eslint-plugin-jest": "28.11.0",
 		"eslint-plugin-jest-dom": "5.5.0",
-		"eslint-plugin-jsdoc": "50.6.9",
+		"eslint-plugin-jsdoc": "50.6.11",
 		"eslint-plugin-jsx-a11y": "6.10.2",
 		"eslint-plugin-lodash": "8.0.0",
 		"eslint-plugin-n": "17.17.0",
@@ -64,7 +64,7 @@
 		"svelte": "4.2.19",
 		"svelte-eslint-parser": "0.39.2",
 		"typescript": "5.8.2",
-		"typescript-eslint": "8.31.0",
+		"typescript-eslint": "8.31.1",
 		"yaml": "2.2.2"
 	}
 }
