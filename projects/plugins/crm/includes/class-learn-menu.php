@@ -1,10 +1,13 @@
-<?php 
-/*!
+<?php
+/**
  * Jetpack CRM
  * https://jetpackcrm.com
  *
  * Learn menus
+ *
+ * @package automattic/jetpack-crm
  */
+
 namespace Automattic\JetpackCRM;
 
 // block direct access
@@ -929,14 +932,14 @@ class Learn_Menu {
 				'content'     => '<p>' . __( 'Add a new form and choose your form layout.', 'zero-bs-crm' ) . '</p><p>' . __( 'Each form has its views and submissions tracked.', 'zero-bs-crm' ) . '</p><p>' . __( 'The more information asked for on a form, the lower the submission rate. Only ask for what you need and keep your contact list growing fast.', 'zero-bs-crm' ) . '</p>',
 				'back_slug'   => $zbs->slugs['manageformscrm'],
 			),
-			'manage-tasks'      => array(
+			'manage-tasks'       => array(
 				'title'           => __( 'Task Calendar', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/tasks/',
 				'img'             => 'learn-task-calendar.png',
 				'content'         => '<p>' . __( 'Tasks are our internal word for managing things to do related to contacts.', 'zero-bs-crm' ) . '</p><p>' . __( 'They are not intended to be a full appointment system operatable from the front end. They are useful to schedule short appointments and if using Client Portal Pro your clients can add them to their Calendar.', 'zero-bs-crm' ) . '</p>',
 				'filter_function' => 'jpcrm_taskcalendar_learn_menu',
 			),
-			'manage-tasks-list' => array(
+			'manage-tasks-list'  => array(
 				'title'           => __( 'Task List', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/tasks/',
 				'img'             => 'learn-task-calendar.png',
