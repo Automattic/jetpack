@@ -100,30 +100,13 @@ class Full_Sync_Immediately extends Module {
 			$full_sync_config['users'] = $users_module->get_initial_sync_user_config();
 		}
 
-		$range = $this->get_content_range( $full_sync_config );
-
 		$this->update_status(
 			array(
-				'started'  => time(),
-				'config'   => $full_sync_config,
-				'progress' => $this->get_initial_progress( $full_sync_config, $range ),
+				'started' => time(),
+				'config'  => $full_sync_config,
+				'context' => $context,
 			)
 		);
-		/**
-		 * Fires when a full sync begins. This action is serialized
-		 * and sent to the server so that it knows a full sync is coming.
-		 *
-		 * @param array $full_sync_config Sync configuration for all sync modules.
-		 * @param array $range Range of the sync items, containing min and max IDs for some item types.
-		 * @param mixed $context The context where the full sync was initiated from.
-		 *
-		 * @since 1.6.3
-		 * @since-jetpack 4.2.0
-		 * @since-jetpack 7.3.0 Added $range arg.
-		 * @since 4.4.0 Added $context arg.
-		 */
-		do_action( 'jetpack_full_sync_start', $full_sync_config, $range );
-		$this->send_action( 'jetpack_full_sync_start', array( $full_sync_config, $range, $context ) );
 
 		return true;
 	}
@@ -148,10 +131,12 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function get_status() {
 		$default = array(
-			'started'  => false,
-			'finished' => false,
-			'progress' => array(),
-			'config'   => array(),
+			'start_action_processed' => false,
+			'started'                => false,
+			'finished'               => false,
+			'progress'               => array(),
+			'config'                 => array(),
+			'context'                => null,
 		);
 
 		return wp_parse_args( \Jetpack_Options::get_raw_option( self::STATUS_OPTION ), $default );
@@ -387,6 +372,10 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 */
 	public function send() {
+
+		if ( ! $this->maybe_send_full_sync_start() ) {
+			return false;
+		}
 		$config = $this->get_status()['config'];
 
 		$max_duration = Settings::get_setting( 'full_sync_send_duration' );
@@ -442,6 +431,58 @@ class Full_Sync_Immediately extends Module {
 			}
 		}
 		return $remaining_modules;
+	}
+
+	/**
+	 * Sends the `jetpack_full_sync_start` action if it hasn't been processed yet.
+	 *
+	 * Prepares the full sync start action, sends it to WordPress.com, fires the local action,
+	 * and updates the sync status to reflect that the start action has been processed.
+	 *
+	 * @return bool True if the action was successfully sent or already processed, false on failure.
+	 */
+	private function maybe_send_full_sync_start() {
+		$status = $this->get_status();
+
+		// If already processed, nothing to do.
+		if ( ! $status['start_action_processed'] ) {
+			return true;
+		}
+
+		$config  = $status['config'];
+		$context = $status['context'];
+		$range   = $this->get_content_range( $config );
+
+		$result = $this->send_action( 'jetpack_full_sync_start', array( $config, $range, $context ) );
+
+		// If the action failed on WordPress.com, return false.
+		if ( is_wp_error( $result ) ) {
+			return false;
+		}
+
+		/**
+		 * Fires when a full sync begins. This action is serialized
+		 * and sent to the server so that it knows a full sync is coming.
+		 *
+		 * @param array $config Sync configuration for all sync modules.
+		 * @param array $range Range of the sync items, containing min and max IDs for some item types.
+		 * @param mixed $context The context where the full sync was initiated from.
+		 *
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
+		 * @since-jetpack 7.3.0 Added $range arg.
+		 * @since 4.4.0 Added $context arg.
+		 */
+		do_action( 'jetpack_full_sync_start', $config, $range );
+
+		$this->update_status(
+			array(
+				'start_action_processed' => true,
+				'progress'               => $this->get_initial_progress( $config, $range ),
+			)
+		);
+
+		return true;
 	}
 
 	/**
