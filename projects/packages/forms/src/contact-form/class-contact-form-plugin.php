@@ -404,7 +404,7 @@ class Contact_Form_Plugin {
 
 		if ( ! empty( $block_style_classes ) ) {
 			$wrap_classes          = ! empty( $matches[0] ) ? ' ' . implode( '-wrap ', $matches[0] ) . '-wrap' : '';
-			$field_wrapper_classes = ' ' . $block_style_classes . $wrap_classes;
+			$field_wrapper_classes = " $block_style_classes $wrap_classes";
 			// Remove block style classes from the original classname.
 			$classes_without_block_style = trim( preg_replace( '/is-style-([^\s]+)/i', '', $classname ) );
 		}
