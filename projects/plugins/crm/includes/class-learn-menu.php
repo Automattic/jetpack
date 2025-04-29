@@ -1098,7 +1098,7 @@ class Learn_Menu {
 				'url'             => 'https://jetpackcrm.com/pricing/',
 				'img'             => 'learn-extensions-list.png',
 				'video'           => false,
-				'content'         => '<p>' . sprintf( __( 'The core of the CRM is free to use, and you can manage your core modules (extensions) <a href="%s">here</a>; this page lets you manage premium extensions.', 'zero-bs-crm' ), admin_url( 'admin.php?page=' . $zbs->slugs['modules'] ) ) . '</p><p>' . __( '<b>Premium Extensions</b> Want all the extensions? Purchase our Entrepeneur Bundle to get access to them all.', 'zero-bs-crm' ) . '</p>', // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+				'content'         => '<p>' . sprintf( __( 'The core of the CRM is free to use, and you can  <a href="%s">manage your core modules here</a>; this page lets you manage premium extensions.', 'zero-bs-crm' ), admin_url( 'admin.php?page=' . $zbs->slugs['modules'] ) ) . '</p>' . ( jpcrm_is_license_valid() ? '' : '<p>' . __( '<b>Premium Extensions</b> Want all the extensions? Purchase our Entrepeneur Bundle to get access to them all.', 'zero-bs-crm' ) . '</p>' ), // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
 				'filter_function' => 'jpcrm_extensions_learn_menu',
 			),
 			'managecompanies'    => array(
