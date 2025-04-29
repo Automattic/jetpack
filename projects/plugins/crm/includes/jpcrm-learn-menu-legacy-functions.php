@@ -453,7 +453,7 @@ function jpcrm_settings_learn_menu( $learn_menu ) {
 		$learn_menu['right_buttons'] = ' <a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) . '" class="jpcrm-button white-bg font-14px" id="manage-features">' . __( 'Manage modules', 'zero-bs-crm' ) . '</a>';
 	}
 
-	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:10:5")) { hopscotch.startTour(window.zbsTour);}';
+	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:10:5")) { hopscotch.startTour(zbsTour);}';
 	return $learn_menu;
 }
 
@@ -515,7 +515,7 @@ function jpcrm_delete_learn_menu() {
  * @return array
  */
 function jpcrm_notifications_learn_menu( $learn_menu ) {
-	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && hopscotch.getState() === "zbs-welcome-tour:4") { hopscotch.startTour(window.zbsTour);}';
+	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && hopscotch.getState() === "zbs-welcome-tour:4") { hopscotch.startTour(zbsTour);}';
 	return $learn_menu;
 }
 
@@ -527,7 +527,7 @@ function jpcrm_notifications_learn_menu( $learn_menu ) {
  * @return array
  */
 function jpcrm_extensions_learn_menu( $learn_menu ) {
-	$learn_menu['extra_js'] = 'if (hopscotch && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:9:5")) { hopscotch.startTour(window.zbsTour);}';
+	$learn_menu['extra_js'] = 'if (hopscotch && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:9:5")) { hopscotch.startTour(zbsTour);}';
 	return $learn_menu;
 }
 
