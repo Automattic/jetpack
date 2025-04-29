@@ -1,5 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
-/*!
+/**
  * Jetpack CRM - Onboard Me
  * https://jetpackcrm.com
  * V1.20
@@ -16,18 +16,19 @@
  * this seems the BEST one for multi page tours
  * tried bootstrap tour, but this struggles (and has redirect issues)
  * also hopscotch can re position bubbles when elements clicked (such as the hide WP menu nav bar)
- * can work on the tour steps TOGETHER as don't want to overload them but also want to tour them 
+ * can work on the tour steps TOGETHER as don't want to overload them but also want to tour them
  * around the CRM so that they don't miss important features.
  */
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
-
-function zeroBS_onboardme_scripts(){
+/**
+ * Enqueues and preps welcome tour stuff.
+ */
+function jpcrm_onboardme_scripts() {
 
 	global $zbs;
 
-	// Changed from bootstrap tour to hopscotch
 	wp_enqueue_script( 'jquery' );
 	wp_enqueue_script( 'onboardme-front', ZEROBSCRM_URL . 'js/lib/hopscotch.min.js', array( 'jquery' ), $zbs::VERSION, true );
 	wp_enqueue_style( 'onboardme-css', ZEROBSCRM_URL . 'css/lib/hopscotch.min.css', array(), $zbs::VERSION );
@@ -98,12 +99,16 @@ function zeroBS_onboardme_scripts(){
 	wp_localize_script( 'tour-front', 'zbs_tour', $zbs_tour );
 }
 // restricted this to admins in core.php so is safe to bluntly add here
-add_action( 'zbs-global-admin-styles', 'zeroBS_onboardme_scripts' );
+add_action( 'zbs-global-admin-styles', 'jpcrm_onboardme_scripts' );
 
-add_action('admin_footer','zeroBS_onboardme_helper');
-function zeroBS_onboardme_helper(){ 
+add_action( 'admin_footer', 'jpcrm_onboardme_helper' );
 
-    global $zbs; ?>
+/**
+ * Adds styles for welcome tour.
+ */
+function jpcrm_onboardme_helper() {
+
+	?>
 <style type="text/css">
 .tour-wrapper-footer {
 	position: fixed;
@@ -119,7 +124,7 @@ function zeroBS_onboardme_helper(){
 	cursor: pointer;
 }
 .tour-wrapper-footer a, .tour-wrapper-footer:hover a, .feedback-popup .title {
-    color: #3f4347 !important;
+	color: #3f4347 !important;
 }
 .tour-wrapper-footer .fa {
 	border-radius: 50%;
@@ -129,18 +134,16 @@ function zeroBS_onboardme_helper(){
 	margin: 0;
 }
 .tour-wrapper-footer a:focus{
-    outline: none !important;
-    border: none;
-    outline-width: 0;
-    box-shadow: none;
+	outline: none !important;
+	border: none;
+	outline-width: 0;
+	box-shadow: none;
 }
 .hopscotch-cta {
-    background: #ffa502 !important;
-    border-color: #af9163 !important;
+	background: #ffa502 !important;
+	border-color: #af9163 !important;
 }
 </style>
 
-
-
-<?php
+	<?php
 }

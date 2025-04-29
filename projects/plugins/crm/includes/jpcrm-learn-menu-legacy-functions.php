@@ -1,20 +1,23 @@
-<?php 
-/*!
+<?php
+/**
  * Jetpack CRM
  * https://jetpackcrm.com
  *
  * Legacy Learn menu functions
- * 	This file contains function-based learn menu rendering, where generically rendered learn menus
- *	were moved into the new class (`Learn_Menu`), these will need modernising individually
+ * This file contains function-based learn menu rendering, where generically rendered learn menus
+ * were moved into the new class (`Learn_Menu`), these will need modernising individually
+ *
+ * @package automattic/jetpack-crm
  */
 
-
-/*
-* Wrapper for newly formed Learn_Menu evolution
-* This provides backward compatibility for extensions using this function.
-* ... but is really deprecated
-*/
-function zeroBS_genericLearnMenu(
+// phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag
+/**
+ * Wrapper for newly formed Learn_Menu evolution
+ *
+ * This provides backward compatibility for extensions using this function.
+ * ... but is really deprecated
+ */
+function zeroBS_genericLearnMenu( // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
 	$page_title = '',
 	$left_buttons = '',
 	$right_buttons = '',
