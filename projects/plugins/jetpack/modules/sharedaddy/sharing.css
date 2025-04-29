@@ -48,6 +48,8 @@ body.highlander-dark h3.sd-title::before {
 
 .sd-content ul li {
 	display: inline-block;
+	margin: 0 8px 12px 0;
+	padding: 0;
 }
 
 .sd-content ul li.share-deprecated {
@@ -215,11 +217,6 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 	.sd-social-official ul li a.sd-button::before {
 		top: 0;
 	}
-}
-
-.sd-content ul li {
-	margin: 0 8px 12px 0;
-	padding: 0;
 }
 
 /* Add more pading on touch devices */
@@ -470,7 +467,6 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social .sd-button .share-count {
 	background: #2ea2cc;
 	color: #fff;
-	-moz-border-radius: 10px;
 	border-radius: 10px;
 	display: inline-block;
 	text-align: center;
@@ -576,9 +572,6 @@ body .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button.share-icon.n
 
 body .sd-social-icon .sd-content li.share-custom a span {
 	width: 0;
-}
-
-body .sd-social-icon .sd-content li.share-custom a span {
 	padding-left: 16px !important;
 }
 
@@ -591,8 +584,6 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	padding: 10px;
 	background: #fff;
 	box-shadow: 0 5px 20px rgba(0,0,0,.2);
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 2px;
 	border-radius: 2px;
 	margin-top: 5px;
 	max-width: 400px;
@@ -643,7 +634,6 @@ body .sd-social-icon .sd-content li.share-custom a span {
 .sd-social-icon .sd-content ul li[class*='share-'] a:hover,
 .sd-social-icon .sd-content ul li[class*='share-'] div.option a {
 	border-radius: 50%;
-	-webkit-border-radius: 50%;
 	border: 0;
 	box-shadow: none;
 	padding: 7px;

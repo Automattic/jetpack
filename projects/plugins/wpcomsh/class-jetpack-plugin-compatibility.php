@@ -137,7 +137,6 @@ class Jetpack_Plugin_Compatibility {
 
 		// Cloning/staging.
 		'flo-launch/flo-launch.php'                        => 'Staging plugins delete data necessary to manage your site and are not supported on WordPress.com. flo-launch has been deactivated.',
-		'wp-staging/wp-staging.php'                        => 'Staging plugins delete data necessary to manage your site and are not supported on WordPress.com. wp-staging has been deactivated.',
 
 		// Misc.
 		'adult-mass-photos-downloader/adult-mass-photos-downloader.php' => '"adult-mass-photos-downloader" is not supported on WordPress.com.',

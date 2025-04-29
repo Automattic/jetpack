@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stats: avoid PHP warning when we have no views data about a specific post.

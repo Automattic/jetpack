@@ -2,14 +2,14 @@
 /**
  * XMLWriter implementation of the master sitemap buffer.
  *
- * @since $$next-version$$
+ * @since 14.6
  * @package automattic/jetpack
  */
 
 /**
  * A buffer for constructing master sitemap xml files using XMLWriter.
  *
- * @since $$next-version$$
+ * @since 14.6
  */
 class Jetpack_Sitemap_Buffer_Master_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWriter {
 

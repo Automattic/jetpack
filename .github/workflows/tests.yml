@@ -143,7 +143,9 @@ jobs:
         env:
           FORCE_PACKAGE_TESTS: ${{ matrix.force-package-tests && 'true' || 'false' }}
           CHANGED: ${{ steps.changed.outputs.projects }}
+        # The apt-get is due to a change in label in a PPA used by playwright. Can probably be removed in a week or two. 2025-04-27 -- kraftbj
         run: |
+          sudo apt-get update --allow-releaseinfo-change
           EXIT=0
           declare -A PIDS
           PIDS=()
@@ -210,6 +212,10 @@ jobs:
                     elif composer --working-dir="$DIR" check-platform-reqs --lock; then
                       echo 'Platform reqs pass, running `composer install`'
                       composer --working-dir="$DIR" install
+                      if [[ "$TEST_SCRIPT" == "test-php" ]] && composer info --locked phpunit/phpunit &>/dev/null; then
+                        echo 'Updating PHPUnit in case a newer version than locked is usable'
+                        composer --working-dir="$DIR" update -W phpunit/phpunit
+                      fi
                     else
                       echo 'Platform reqs failed, running `composer update`'
                       composer --working-dir="$DIR" update
@@ -365,8 +371,10 @@ jobs:
 
       - name: Install playwright
         if: steps.changed.outputs.any == 'true'
+        # The apt-get is due to a change in label in a PPA used by playwright. Can probably be removed in a week or two. 2025-04-27 -- kraftbj
         run: |
           cd projects/js-packages/storybook
+          sudo apt-get update --allow-releaseinfo-change
           pnpm exec playwright install --with-deps chromium
 
       - name: Test storybook
@@ -498,7 +506,7 @@ jobs:
             elif [[ -n "$SLUG" ]]; then
               PROJECTS+=( "$SLUG" )
             else
-              echo "::error file=$f::This Phan baseline has changed and should be updated. This Action was unable to determine the command needed to update it; please report this to the Garage team."
+              echo "::error file=$f::This Phan baseline has changed and should be updated. This Action was unable to determine the command needed to update it; please report this to the Monorepo team."
             fi
           done
           if [[ ${#PROJECTS[@]} -gt 0 ]]; then

@@ -79,19 +79,6 @@
 		width: calc(100% - 48px); // Help with the margin on the row.
 	}
 
-	&__content{
-		background: var( --jp-white-off );
-		margin: 0;
-		padding: 2rem 1rem;
-		border-radius: 4px;
-		text-align: center;
-		flex-grow: 1;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-	}
-
 	&__actions{
 		background: var( --jp-white );
 		padding: 2rem 0;
@@ -157,9 +144,19 @@
 	}
 }
 
-// When the screen height is shorter, hide the decorative cards to show the text and controls without scrolling.
 .jp-connection__disconnect-dialog__content {
+	background: var( --jp-white-off );
+	margin: 0;
+	padding: 2rem 1rem;
+	border-radius: 4px;
+	text-align: center;
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 
+	// When the screen height is shorter, hide the decorative cards to show the text and controls without scrolling.
 	@media (max-height: 900px) {
 
 		.jp-components__decorative-card {

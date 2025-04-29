@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.12.23 - 2025-04-28
+### Changed
+- Update dependencies.
+
 ## 0.12.22 - 2025-04-14
 ### Fixed
 - Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]

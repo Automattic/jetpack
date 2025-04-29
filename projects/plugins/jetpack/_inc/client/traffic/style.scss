@@ -43,6 +43,7 @@
 .jp-form-input-with-prefix-bottom-message {
 	top: rem( -20px );
 	position: relative;
+	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 2em;
 	margin-top: 5px;
 }

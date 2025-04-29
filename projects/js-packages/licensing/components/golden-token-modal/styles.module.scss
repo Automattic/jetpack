@@ -68,10 +68,12 @@ $tablet-width: 760px;
 .headline {
 	margin-bottom: 8px;
 	font-weight: 500;
+	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 110%;
 }
 
 .paragraph {
+	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 140%;
 }
 

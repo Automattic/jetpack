@@ -13,7 +13,6 @@
 		transform-style: preserve-3d;
 
 		&:hover {
-			-webkit-transform: rotateX(90deg);
 			transform: rotateX(90deg); /* Text bleed at 90º */
 		}
 		
@@ -23,7 +22,6 @@
 			text-align: center;
 
 			&.side1 {
-				-webkit-transform: translateZ(20px);
 				transform: translateZ(20px);
 
 				img {
@@ -34,7 +32,6 @@
 
 			&.side2 {
 				font-size: 40px;
-				-webkit-transform: rotateX(-90deg) translateZ(-20px);
 				transform: rotateX(-90deg) translateZ(-20px);
 			}
 		}

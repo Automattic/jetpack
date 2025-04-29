@@ -8,7 +8,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-factory.php'
 /**
  * Test class for Jetpack_Sitemap_Buffer_Factory
  *
- * @since $$next-version$$
+ * @since 14.6
  * @package automattic/jetpack
  * @covers Jetpack_Sitemap_Buffer_Factory
  */

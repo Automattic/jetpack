@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.14.24 - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+- My Jetpack: Fix TypeScript type checking and the corresponding errors. [#43205]
+
 ## 0.14.23 - 2025-04-14
 ### Fixed
 - Linting: Update stylesheets to use WordPress rules for fonts. [#42928]

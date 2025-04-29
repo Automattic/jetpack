@@ -27,14 +27,24 @@ const baseConfig = {
 		// https://github.com/stylelint/stylelint/issues/7844#issuecomment-2230857428
 		'no-descending-specificity': null,
 
+		'property-no-unknown': [
+			true,
+			{
+				ignoreSelectors: [ ':export' ], // Ignore selector used by CSS Modules.
+				ignoreProperties: [ 'shadow-color' ], // Ignore property used by React Native.
+			},
+		],
+
 		// Disabled until a valid pattern has been decided on: https://github.com/WordPress/gutenberg/issues/28616
 		'selector-class-pattern': null,
 
-		// Allow some pseudo-classes that are needed for CSS modules.
+		// Disabled due to widespread inconsistent patterns throughout that would require coordinated changes across CSS, JS, and PHP across multiple repos.
+		'selector-id-pattern': null,
+
 		'selector-pseudo-class-no-unknown': [
 			true,
 			{
-				ignorePseudoClasses: [ 'export', 'global' ],
+				ignorePseudoClasses: [ 'export', 'global' ], // Ignore pseudo-classes used by CSS Modules.
 			},
 		],
 
@@ -47,14 +57,8 @@ const baseConfig = {
 		],
 
 		// Disable all other rules for now.
-		'declaration-property-unit-allowed-list': null,
-		'no-duplicate-selectors': null,
-		'property-no-unknown': null,
-		'scss/at-extend-no-missing-placeholder': null,
-		'scss/comment-no-empty': null,
 		'scss/no-global-function-names': null,
 		'scss/selector-no-redundant-nesting-selector': null,
-		'selector-id-pattern': null,
 	},
 };
 

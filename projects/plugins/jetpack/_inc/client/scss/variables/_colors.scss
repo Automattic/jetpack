@@ -27,15 +27,18 @@ $blue-dark-text: #2e4453;
 $gray-text: $gray-dark;
 $gray-text-min: darken( $gray, 18% ); //#537994
 
-// $gray color functions:
-// lighten( $gray, 10% )
-// lighten( $gray, 20% )
-// lighten( $gray, 30% )
-// darken( $gray, 10% )
-// darken( $gray, 20% )
-// darken( $gray, 30% )
-//
-// See wordpress.com/design-handbook/colors/ for more info.
+/**
+ * $gray color functions:
+ *
+ *   lighten( $gray, 10% )
+ *   lighten( $gray, 20% )
+ *   lighten( $gray, 30% )
+ *   darken( $gray, 10% )
+ *   darken( $gray, 20% )
+ *   darken( $gray, 30% )
+ *
+ * See wordpress.com/design-handbook/colors/ for more info.
+ */
 
 // Product types
 $color-product: #3895ba; // $studio-wordpress-blue-30
