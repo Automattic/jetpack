@@ -29,7 +29,7 @@ class Utility_Functions_Test extends BaseTestCase {
 	 */
 	public function test_video_get_info_by_blogpostid_invalid_post_id() {
 		$blog_id = 1;
-		$post_id = null;
+		$post_id = -1;
 
 		$video_info = video_get_info_by_blogpostid( $blog_id, $post_id );
 
