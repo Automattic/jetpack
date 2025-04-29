@@ -26,9 +26,23 @@ class Inline_Search extends Classic_Search {
 	private $correction;
 
 	/**
+	 * The query parameter that triggers inline search.
+	 *
+	 * @var string
+	 */
+	private static $inline_search_param = 'inline-search';
+
+	/**
 	 * Returns whether this class should be used instead of Classic_Search.
 	 */
 	public static function should_replace_classic_search(): bool {
+		// Check for the inline search query parameter
+		// @TODO: Remove this once we go live with the new inline search
+		if ( isset( $_GET[ self::$inline_search_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+
+		// Otherwise use the filter
 		return (bool) apply_filters( 'jetpack_search_replace_classic', false );
 	}
 
