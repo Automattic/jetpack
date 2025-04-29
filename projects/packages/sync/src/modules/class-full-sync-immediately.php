@@ -445,7 +445,7 @@ class Full_Sync_Immediately extends Module {
 		$status = $this->get_status();
 
 		// If already processed, nothing to do.
-		if ( ! $status['start_action_processed'] ) {
+		if ( true === $status['start_action_processed'] ) {
 			return true;
 		}
 
