@@ -499,7 +499,7 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$video_info->rating          = null;
 	$video_info->privacy_setting = VIDEOPRESS_PRIVACY::SITE_DEFAULT;
 
-	if ( ! post || is_wp_error( $post ) ) {
+	if ( ! $post ) {
 		return $video_info;
 	}
 
