@@ -150,19 +150,6 @@ export const getCopyForSubscribers = ( {
 			reachCountString
 		);
 	}
-	// Paid post sent only to paid subscribers, post is already published
-	if ( isPaidPost && ! postHasPaywallBlock ) {
-		return sprintf(
-			/* translators: %s is the number of subscribers */
-			_n(
-				'This post was sent to <link>%s paid subscriber</link> only.',
-				'This post was sent to <link>%s paid subscribers</link> only.',
-				reachCount,
-				'jetpack'
-			),
-			reachCountString
-		);
-	}
 
 	// Paid post with paywall or Free post, sent to all subscribers, post is already published
 	return sprintf(
