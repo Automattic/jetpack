@@ -1653,15 +1653,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			apply_filters(
 				'jetpack_forms_response_email_footer',
 				array(
-					'<br />',
-					'<hr />',
 					'<span style="font-size: 12px">',
 					$footer_time . '<br />',
 					$footer_ip ? $footer_ip . '<br />' : null,
 					$footer_url . '<br />',
 					$sent_by_text,
 					'</span>',
-					'<hr />',
 				)
 			)
 		);
@@ -1897,6 +1894,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$template = '';
+		$style    = '';
 
 		/**
 		 * Filter the filename of the template HTML surrounding the response email. The PHP file will return the template in a variable called $template.
@@ -1920,7 +1918,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$body,
 			'',
 			'',
-			$footer
+			$footer,
+			$style
 		);
 
 		return $html_message;
