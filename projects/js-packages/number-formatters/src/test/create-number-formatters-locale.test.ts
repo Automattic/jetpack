@@ -32,7 +32,7 @@ await jest.unstable_mockModule( '@wordpress/date', () => ( {
 } ) );
 
 // Now dynamically import all dependencies after mocks are set up
-const { default: createNumberFormatters } = await import( '../create-number-formatters' );
+const { default: createNumberFormatters } = await import( '../create-number-formatters.ts' );
 
 describe( 'createNumberFormatters() - locale resolution/fallback', () => {
 	const numberFormatters = createNumberFormatters();

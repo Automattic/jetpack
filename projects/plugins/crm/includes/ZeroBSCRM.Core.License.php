@@ -1,5 +1,5 @@
-<?php
-/*
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+/**
 !
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -10,23 +10,17 @@
  * Date: 05/02/2017
  */
 
-/*
-======================================================
-	Breaking Checks ( stops direct access )
-	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit( 0 );
 }
-/*
-======================================================
-	/ Breaking Checks
-	====================================================== */
 
-// } System Nag messages for license key and upgrades
+// System Nag messages for license key and upgrades
 
-add_action( 'wp_after_admin_bar_render', 'zeroBSCRM_admin_nag_footer', 12 );
-// } This will nag if there's anytihng amiss with the settings
-function zeroBSCRM_admin_nag_footer() {
+add_action( 'wp_after_admin_bar_render', 'jpcrm_admin_nag_footer', 12 );
+/**
+ * This will nag if there's anytihng amiss with the settings.
+ */
+function jpcrm_admin_nag_footer() {
 
 	global $zbs;
 
@@ -41,14 +35,14 @@ function zeroBSCRM_admin_nag_footer() {
 		if ( ! zeroBSCRM_isLocal( true ) ) {
 
 			// on one of our pages except settings
-			if ( zeroBSCRM_isAdminPage() && ( ( isset( $_GET['page'] ) && $_GET['page'] != 'zerobscrm-plugin-settings' ) || ( ! isset( $_GET['page'] ) ) ) ) {
+			if ( zeroBSCRM_isAdminPage() && ( ( isset( $_GET['page'] ) && $_GET['page'] !== 'zerobscrm-plugin-settings' ) || ( ! isset( $_GET['page'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 				// retrieve license
 				$license = zeroBSCRM_getSetting( 'license_key' );
 				if ( isset( $license ) && ! empty( $license ) ) {
 
 					// License key is empty
-					if ( ( isset( $license['key'] ) && $license['key'] == '' ) || ! isset( $license['key'] ) ) {
+					if ( ( isset( $license['key'] ) && $license['key'] === '' ) || ! isset( $license['key'] ) ) {
 
 						// build message
 						$message  = '<h3>' . __( 'License Key Needed', 'zero-bs-crm' ) . '</h3>';
@@ -56,16 +50,13 @@ function zeroBSCRM_admin_nag_footer() {
 						$message .= '<p><a href="' . esc_url_raw( $zbs->urls['licensekeys'] ) . '" class="ui button green" target="_blank">' . __( 'Retrieve License Key', 'zero-bs-crm' ) . '</a>&nbsp;&nbsp;&nbsp;<a href="' . jpcrm_esc_link( $zbs->slugs['settings'] . '&tab=license' ) . '" class="ui button blue">' . __( 'License Settings', 'zero-bs-crm' ) . '</a></p>';
 
 						// output modal
-						zeroBSCRM_show_admin_nag_modal( $message );
+						jpcrm_show_admin_nag_modal( $message );
 						return;
 
 					}
 
 					// License key is not valid
-					if ( $license['validity'] == false && $license['extensions_updated'] != false ) {
-
-						// $message = __('Your License Key is Incorrect. Please update your license key for this site.', 'zero-bs-crm');
-						// zeroBSCRM_show_admin_bottom_nag($message);
+					if ( ! $license['validity'] && $license['extensions_updated'] ) {
 
 						// build message
 						$message  = '<h3>' . __( 'License Key Incorrect', 'zero-bs-crm' ) . '</h3>';
@@ -73,44 +64,34 @@ function zeroBSCRM_admin_nag_footer() {
 						$message .= '<p><a href="' . $zbs->urls['kblicensefaq'] . '" class="ui button blue" target="_blank">' . __( 'Read about license keys', 'zero-bs-crm' ) . '</a>&nbsp;&nbsp;&nbsp;<a href="' . $zbs->urls['licensekeys'] . '" target="_blank" class="ui button green">' . __( 'Retrieve License Key', 'zero-bs-crm' ) . '</a></p>';
 
 						// output modal
-						zeroBSCRM_show_admin_nag_modal( $message );
+						jpcrm_show_admin_nag_modal( $message );
 						return;
 					}
 
 					// Extensions need updating
-					if ( isset( $license['extensions_updated'] ) && $license['extensions_updated'] == false ) {
-
-						// $message = __('You are running extension versions which are not supported. Please update immediately to avoid any issues.', 'zero-bs-crm');
-						// zeroBSCRM_show_admin_bottom_nag($message);
+					if ( isset( $license['extensions_updated'] ) && ! $license['extensions_updated'] ) {
 
 						// build message
 						$message = '<h3>' . __( 'Extension Update Required', 'zero-bs-crm' ) . '</h3>';
-						if ( $license['validity'] == 'empty' ) {
+						if ( $license['validity'] === 'empty' ) {
 
 							// no license
 							$message .= '<p>' . __( 'You are running extension versions which are not supported. Please enter your license key to enable updates.', 'zero-bs-crm' ) . '</p>';
 							$message .= '<p><a href="' . $zbs->urls['licensekeys'] . '" class="ui button green" target="_blank">' . __( 'Retrieve License Key', 'zero-bs-crm' ) . '</a>&nbsp;&nbsp;&nbsp;<a href="' . jpcrm_esc_link( $zbs->slugs['settings'] . '&tab=license' ) . '" class="ui button blue">' . __( 'License Settings', 'zero-bs-crm' ) . '</a></p>';
 
 							// output modal
-							zeroBSCRM_show_admin_nag_modal( $message );
+							jpcrm_show_admin_nag_modal( $message );
 							return;
 
-						} elseif ( $license['validity'] == false ) {
+						} elseif ( ! $license['validity'] ) {
 
 							// invalid license
 							$message .= '<p>' . __( 'You are running extension versions which are not supported. Please enter a valid license key to enable updates.', 'zero-bs-crm' ) . '</p>';
 							$message .= '<p><a href="' . $zbs->urls['kblicensefaq'] . '" class="ui button blue" target="_blank">' . __( 'Read about license keys', 'zero-bs-crm' ) . '</a>&nbsp;&nbsp;&nbsp;<a href="' . $zbs->urls['licensekeys'] . '" target="_blank" class="ui button green">' . __( 'Retrieve License Key', 'zero-bs-crm' ) . '</a></p>';
 
 							// output modal
-							zeroBSCRM_show_admin_nag_modal( $message );
+							jpcrm_show_admin_nag_modal( $message );
 							return;
-
-						} else {
-
-							// valid license
-							// Suppressing here because it came across as a bit intense
-							// $message .= '<p>'.__('You are running extension versions which are not supported. Please update your extension plugins immediately.', 'zero-bs-crm').'</p>';
-							// $message .= '<p><button class="jpcrm-licensing-modal-set-transient-and-go ui button green" data-href="'.esc_url(admin_url('plugins.php')).'">'.__('Update Plugins','zero-bs-crm').'</button></p>';
 
 						}
 					}
@@ -121,16 +102,12 @@ function zeroBSCRM_admin_nag_footer() {
 	}
 }
 
-function zeroBSCRM_show_admin_bottom_nag( $message = '' ) {
-
-	?><div class='zbs_nf'>
-		<i class='ui icon warning'></i><?php echo $message; ?>
-	</div>
-	<?php
-}
-
-// Show admin nag modal (e.g. if no license, but extensions)
-function zeroBSCRM_show_admin_nag_modal( $message = '' ) {
+/**
+ * Show admin nag modal (e.g. if no license, but extensions)
+ *
+ * @param string $message The message to display in the modal.
+ */
+function jpcrm_show_admin_nag_modal( $message = '' ) {
 
 	if ( ! get_transient( 'jpcrm-license-modal' ) ) {
 
@@ -143,7 +120,9 @@ function zeroBSCRM_show_admin_nag_modal( $message = '' ) {
 			<div class='zbs-message-body'>
 				<img style="max-width:350px;margin-bottom:1.4em" src="<?php echo esc_url( jpcrm_get_logo( false, 'white' ) ); ?>" alt="" style="cursor:pointer;" />
 				<div class='zbs-message'>
-					<?php echo $message; ?>
+					<?php
+					echo $message; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					?>
 				</div>
 			</div>
 		</div>
@@ -153,33 +132,49 @@ function zeroBSCRM_show_admin_nag_modal( $message = '' ) {
 }
 
 /*
-======================================================
-	License related funcs
-	====================================================== */
+ * License related funcs
+ */
 
-function zeroBSCRM_license_check() {
+/**
+ * Force an update check (and update keys)
+ */
+function jpcrm_verify_license_with_server() {
 	global $zbs;
-	// this should force an update check (and update keys)
-	$pluginUpdater = new zeroBSCRM_Plugin_Updater( $zbs->urls['api'], $zbs->api_ver, 'zero-bs-crm' );
-	$zbs_transient = new stdClass();
-	$pluginUpdater->check_update( $zbs_transient );
+	$plugin_updater = new zeroBSCRM_Plugin_Updater( $zbs->urls['api'], $zbs->api_ver, 'zero-bs-crm' );
+	$zbs_transient  = new stdClass();
+	$plugin_updater->check_update( $zbs_transient );
 }
 
-	// } gets a list of multi site
-function zeroBSCRM_multisite_getSiteList() {
+/**
+ * Checks if license is valid based on stored settings.
+ *
+ * Best used for simple checks like upsells.
+ *
+ * @return bool Whether license is valid.
+ */
+function jpcrm_is_license_valid() {
+	$license_info = zeroBSCRM_getSetting( 'license_key' );
+	$is_valid     = isset( $license_info['validity'] ) && $license_info['validity'] === 'true';
+	return $is_valid;
+}
+
+/**
+ * Gets a list of multi site
+ */
+function jpcrm_multisite_get_site_list() {
 	global $wpdb;
 	$sites = array();
 	$table = $wpdb->prefix . 'blogs';
-	if ( $wpdb->get_var( "SHOW TABLES LIKE '$table'" ) == $table ) {
+	if ( $wpdb->get_var( "SHOW TABLES LIKE '$table'" ) === $table ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$sql   = "SELECT * FROM $table";
-		$sites = $wpdb->get_results( $sql );
+		$sites = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
 	}
 
 	// clean up (reduce bandwidth of pass/avoid overburdening)
 	if ( is_array( $sites ) && count( $sites ) > 0 ) {
 		$ret = array();
 		foreach ( $sites as $site ) {
-			$ret[] = zeroBSCRM_tidy_multisite_site( $site );
+			$ret[] = jpcrm_tidy_multisite_site( $site );
 		}
 		$sites = $ret;
 	}
@@ -187,45 +182,45 @@ function zeroBSCRM_multisite_getSiteList() {
 	return $sites;
 }
 
-function zeroBSCRM_tidy_multisite_site( $siteRow = array() ) {
+/**
+ * Tidies up a multisite site row for processing.
+ *
+ * @param object $site_row The site row data to tidy up.
+ * @return array|false The tidied site data or false if invalid.
+ */
+function jpcrm_tidy_multisite_site( $site_row ) {
 
-	if ( isset( $siteRow->blog_id ) ) {
+	if ( isset( $site_row->blog_id ) ) {
 
 		// active if not archived, spam, deleted
-		$isActive = 1;
-		if ( $siteRow->archived ) {
-			$isActive = -1;
+		$is_active = 1;
+		if ( $site_row->archived ) {
+			$is_active = -1;
 		}
-		if ( $siteRow->spam ) {
-			$isActive = -1;
+		if ( $site_row->spam ) {
+			$is_active = -1;
 		}
-		if ( $siteRow->deleted ) {
-			$isActive = -1;
+		if ( $site_row->deleted ) {
+			$is_active = -1;
 		}
 
 		return array(
 
 			// not req. always same??
-			'site_id'  => $siteRow->site_id,
-			'blog_id'  => $siteRow->blog_id,
+			'site_id'  => $site_row->site_id,
+			'blog_id'  => $site_row->blog_id,
 
-			'domain'   => $siteRow->domain,
-			'path'     => $siteRow->path,
+			'domain'   => $site_row->domain,
+			'path'     => $site_row->path,
 
 			// active if not archived, spam, deleted
-			'active'   => $isActive,
+			'active'   => $is_active,
 
 			// log these (useful)
-			'deleted'  => $siteRow->deleted,
-			'archived' => $siteRow->archived,
-			'spam'     => $siteRow->spam,
-			'lang_id'  => $siteRow->lang_id,
-
-				// not req. / not useful
-				// 'mature' => $siteRow->mature,
-				// 'public' => $siteRow->public,
-				// 'registered' => $siteRow->registered,
-				// 'last_updated' => $siteRow->last_updated,
+			'deleted'  => $site_row->deleted,
+			'archived' => $site_row->archived,
+			'spam'     => $site_row->spam,
+			'lang_id'  => $site_row->lang_id,
 
 		);
 
@@ -233,8 +228,3 @@ function zeroBSCRM_tidy_multisite_site( $siteRow = array() ) {
 
 	return false;
 }
-
-/*
-======================================================
-	/ License related funcs
-	====================================================== */
