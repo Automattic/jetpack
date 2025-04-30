@@ -73,7 +73,6 @@
 		"@babel/preset-env": "7.26.9",
 		"@babel/preset-react": "7.26.3",
 		"@babel/preset-typescript": "7.26.0",
-		"@jest/globals": "^29.0.0",
 		"@rollup/plugin-commonjs": "26.0.1",
 		"@rollup/plugin-json": "6.1.0",
 		"@rollup/plugin-node-resolve": "15.3.0",
