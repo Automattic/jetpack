@@ -113,7 +113,7 @@ function wpcom_launchpad_get_task_definitions() {
 						: __( 'Continue to write your first post', 'jetpack-mu-wpcom' );
 			},
 			'add_listener_callback' => function () {
-				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task', 10, 2 );
+				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function () {
 				$latest_draft_id = wpcom_launchpad_get_latest_draft_id();
@@ -196,7 +196,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Start writing', 'jetpack-mu-wpcom' );
 			},
 			'add_listener_callback' => function () {
-				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task', 10, 2 );
+				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function () {
 				return admin_url( 'post-new.php' );
