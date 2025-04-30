@@ -20,10 +20,10 @@ do_action( 'zbs_enqueue_scripts_and_styles' );
 <div class="alignwide zbs-site-main">
 
 	<div class="zbs-portal-content">
-		<h2><?php esc_html_e("Access Disabled", "zero-bs-crm"); ?></h2>
-		<div class='zbs-entry-content' style="position:relative;">
+		<h2><?php esc_html_e( 'Access Disabled', 'zero-bs-crm' ); ?></h2>
+		<div class="zbs-entry-content" style="position:relative;">
 		<p>
-		<?php esc_html_e("Currently your client portal access is disabled.", "zero-bs-crm"); ?>
+		<?php esc_html_e( 'Currently your client portal access is disabled.', 'zero-bs-crm' ); ?>
 		</p>
 		</div>
 	</div>
