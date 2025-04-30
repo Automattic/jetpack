@@ -66,6 +66,7 @@ const settings = {
 		{ name: 'list', label: __( 'List', 'jetpack-forms' ), isDefault: true },
 		{ name: 'button', label: __( 'Button', 'jetpack-forms' ) },
 	],
+	usesContext: [ 'jetpack/form-className' ],
 };
 
 export default {

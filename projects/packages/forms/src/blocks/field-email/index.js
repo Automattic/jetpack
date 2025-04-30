@@ -36,6 +36,7 @@ const settings = {
 			},
 		],
 	},
+	usesContext: [ 'jetpack/form-className' ],
 };
 
 export default {

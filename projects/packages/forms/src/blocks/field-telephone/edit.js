@@ -20,6 +20,7 @@ export default function TelephoneFieldEdit( props ) {
 			width={ props.attributes.width }
 			attributes={ props.attributes }
 			insertBlocksAfter={ props.insertBlocksAfter }
+			context={ props.context }
 		/>
 	);
 }
