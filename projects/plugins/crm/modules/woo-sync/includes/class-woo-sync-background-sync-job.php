@@ -1258,8 +1258,8 @@ class Woo_Sync_Background_Sync_Job {
 
 	        		if ( 
 	        			
-	        			// name
-	        			sprintf( __( '%s (From WooCommerce)', 'zero-bs-crm' ), $tax_label ) == $tax_rate_detail['name']
+						// name
+						$tax_label === $tax_rate_detail['name']
 	        			&&
 	        			// rate
 	        			$tax_rate == $tax_rate_detail['rate']
@@ -1282,7 +1282,7 @@ class Woo_Sync_Background_Sync_Job {
 
 							//'id'   => -1,
 							'data' => array(
-								'name' => sprintf( __( '%s (From WooCommerce)', 'zero-bs-crm' ), $tax_label ),
+								'name' => $tax_label,
 								'rate' => (float)$tax_rate,
 							),
 						)
@@ -1612,8 +1612,7 @@ class Woo_Sync_Background_Sync_Job {
 					$tax_label = $tax_items_labels[ $rate_id ];
 
 					foreach ( $tax_rates_table as $tax_rate_id => $tax_rate_detail ) {
-						// Translators: %s = tax rate name
-						if ( sprintf( __( '%s (From WooCommerce)', 'zero-bs-crm' ), $tax_label ) === $tax_rate_detail['name'] ) {
+						if ( $tax_label === $tax_rate_detail['name'] ) {
 							$shipping_tax_id = $tax_rate_id;
 							break;
 						}
@@ -1661,7 +1660,7 @@ class Woo_Sync_Background_Sync_Job {
 			        	// match tax label to tax in our crm tax table (should have been added by the logic above here, even if new)
 			        	foreach ( $tax_rates_table as $tax_rate_id => $tax_rate_detail ){
 
-			        		if ( sprintf( __( '%s (From WooCommerce)', 'zero-bs-crm' ), $tax_label ) == $tax_rate_detail['name'] ){
+							if ( $tax_label === $tax_rate_detail['name'] ) {
 
 			        			// this tax is applied to this line item
 			        			$item_tax_rate_ids[] = $tax_rate_id;
