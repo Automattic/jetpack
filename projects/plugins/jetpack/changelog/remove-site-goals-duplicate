@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: WPCOM_JSON_API_GET_Site_Endpoint: Stop fetching site_goals twice
+
+

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import createNumberFormatters from '../create-number-formatters';
+import createNumberFormatters from '../create-number-formatters.ts';
 
 type IntlType = typeof Intl & {
 	NumberFormat: typeof Intl.NumberFormat;

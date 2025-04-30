@@ -207,7 +207,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_difm_lite_in_progress',
 		'site_intent',
 		'site_partner_bundle',
-		'site_goals',
 		'onboarding_segment',
 		'site_vertical_id',
 		'blogging_prompts_settings',
