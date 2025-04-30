@@ -40,7 +40,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@babel/core": "7.26.10",
 		"@babel/preset-react": "7.26.3",
-		"@jest/globals": "29.4.3",
+		"@jest/globals": "29.7.0",
 		"@storybook/addon-actions": "8.6.7",
 		"@storybook/blocks": "8.6.7",
 		"@storybook/react": "8.6.7",
