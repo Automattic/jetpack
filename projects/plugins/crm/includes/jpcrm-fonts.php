@@ -331,86 +331,93 @@ class JPCRM_Fonts {
 	 */
 	public function install_font_family($dompdf, $fontname, $normal, $bold = null, $italic = null, $bold_italic = null, $debug = false) {
 
-	  try {
+		try {
 
-			$fontMetrics = $dompdf->getFontMetrics();
+			$font_metrics = $dompdf->getFontMetrics();
 
 			// Check if the base filename is readable
-			if ( !is_readable($normal) ) {
-				throw new Exception("Unable to read '$normal'.");
+			if ( ! is_readable( $normal ) ) {
+				throw new Exception( "Unable to read '$normal'." );
 			}
 
-			$dir = dirname($normal);
-			$basename = basename($normal);
-			$last_dot = strrpos($basename, '.');
-			if ($last_dot !== false) {
-				$file = substr($basename, 0, $last_dot);
-				$ext = strtolower(substr($basename, $last_dot));
+			$dir      = dirname( $normal );
+			$basename = basename( $normal );
+			$last_dot = strrpos( $basename, '.' );
+			if ( $last_dot !== false ) {
+				$file = substr( $basename, 0, $last_dot );
+				$ext  = strtolower( substr( $basename, $last_dot ) );
 			} else {
 				$file = $basename;
-				$ext = '';
+				$ext  = '';
 			}
 
 			// dompdf will eventually support .otf, but for now limit to .ttf
-			if ( !in_array($ext, array(".ttf")) ) {
-				throw new Exception("Unable to process fonts of type '$ext'.");
+			if ( ! in_array( $ext, array( '.ttf' ), true ) ) {
+				throw new Exception( "Unable to process fonts of type '$ext'." );
 			}
 
 			// Try $file_Bold.$ext etc.
 			$path = "$dir/$file";
 
 			$patterns = array(
-				"bold"        => array("_Bold", "b", "B", "bd", "BD"),
-				"italic"      => array("_Italic", "i", "I"),
-				"bold_italic" => array("_Bold_Italic", "bi", "BI", "ib", "IB"),
+				'bold'        => array( '_Bold', 'b', 'B', 'bd', 'BD' ),
+				'italic'      => array( '_Italic', 'i', 'I' ),
+				'bold_italic' => array( '_Bold_Italic', 'bi', 'BI', 'ib', 'IB' ),
 			);
 
-			foreach ($patterns as $type => $_patterns) {
-				if ( !isset($$type) || !is_readable($$type) ) {
-					foreach($_patterns as $_pattern) {
-						if ( is_readable("$path$_pattern$ext") ) {
+			foreach ( $patterns as $type => $_patterns ) {
+				if ( ! isset( $$type ) || ! is_readable( $$type ) ) {
+					foreach ( $_patterns as $_pattern ) {
+						if ( is_readable( "$path$_pattern$ext" ) ) {
 							$$type = "$path$_pattern$ext";
 							break;
 						}
 					}
 
-					if ( is_null($$type) )
-						if ($debug) echo ("Unable to find $type face file.\n");
+					if ( $$type === null ) {
+						if ( $debug ) {
+							echo esc_html( "Unable to find $type face file.\n" );
+						}
+					}
 				}
 			}
 
-			$fonts = compact("normal", "bold", "italic", "bold_italic");
+			$fonts = compact( 'normal', 'bold', 'italic', 'bold_italic' );
 			$entry = array();
 
 			// Copy the files to the font directory.
-			foreach ($fonts as $var => $src) {
-				if ( is_null($src) ) {
-					$entry[$var] = $dompdf->getOptions()->get('fontDir') . '/' . mb_substr(basename($normal), 0, -4);
+			foreach ( $fonts as $var => $src ) {
+				if ( $src === null ) {
+					$entry[ $var ] = $dompdf->getOptions()->get( 'fontDir' ) . '/' . mb_substr( basename( $normal ), 0, -4 );
 					continue;
 				}
 
 				// Verify that the fonts exist and are readable
-				if ( !is_readable($src) ) {
-					throw new Exception("Requested font '$src' is not readable");
+				if ( ! is_readable( $src ) ) {
+					throw new Exception( "Requested font '$src' is not readable" );
 				}
 
-				$dest = $dompdf->getOptions()->get('fontDir') . '/' . basename($src);
+				$dest = $dompdf->getOptions()->get( 'fontDir' ) . '/' . basename( $src );
 
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable, Generic.WhiteSpace.ScopeIndent.IncorrectExact -- TODO: Fix these.
 				if ( ! is_writable( dirname( $dest ) ) ) {
-					throw new Exception("Unable to write to destination '$dest'.");
+					throw new Exception( "Unable to write to destination '$dest'." );
 				}
 
-				if ($debug) echo "Copying $src to $dest...\n";
-
-				if ( !copy($src, $dest) ) {
-					throw new Exception("Unable to copy '$src' to '$dest'");
+				if ( $debug ) {
+					echo esc_html( "Copying $src to $dest...\n" );
 				}
 
-				$entry_name = mb_substr($dest, 0, -4);
-				
-				if ($debug) echo "Generating Adobe Font Metrics for $entry_name...\n";
-				
+				if ( ! copy( $src, $dest ) ) {
+					throw new Exception( "Unable to copy '$src' to '$dest'" );
+				}
+
+				$entry_name = mb_substr( $dest, 0, -4 );
+
+				if ( $debug ) {
+					echo esc_html( "Generating Adobe Font Metrics for $entry_name...\n" );
+				}
+
 				try {
 					$font_obj = Font::load( $dest );
 					if ( $font_obj === null ) {
@@ -429,10 +436,10 @@ class JPCRM_Fonts {
 			}
 
 			// Store the fonts in the lookup table
-			$fontMetrics->setFontFamily($fontname, $entry);
+			$font_metrics->setFontFamily( $fontname, $entry );
 
 			// Save the changes
-			$fontMetrics->saveFontFamilies();
+			$font_metrics->saveFontFamilies();
 
 			// Fini
 			return true;
@@ -444,7 +451,6 @@ class JPCRM_Fonts {
 		}
 
 		return false;
-
 	}
 
 	/*
