@@ -851,7 +851,7 @@ importers:
         version: 4.4.0
       semver:
         specifier: ^7.3.5
-        version: 7.6.3
+        version: 7.7.1
     devDependencies:
       '@wordpress/browserslist-config':
         specifier: 6.21.0
@@ -2555,8 +2555,8 @@ importers:
         specifier: 1.64.1
         version: 1.64.1
       semver:
-        specifier: 7.6.3
-        version: 7.6.3
+        specifier: 7.7.1
+        version: 7.7.1
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -4674,8 +4674,8 @@ importers:
         specifier: 1.64.1
         version: 1.64.1
       semver:
-        specifier: 7.6.3
-        version: 7.6.3
+        specifier: 7.7.1
+        version: 7.7.1
       social-logos:
         specifier: workspace:*
         version: link:../../js-packages/social-logos
@@ -5288,8 +5288,8 @@ importers:
         specifier: 0.11.10
         version: 0.11.10
       semver:
-        specifier: 7.6.3
-        version: 7.6.3
+        specifier: 7.7.1
+        version: 7.7.1
       sprintf-js:
         specifier: 1.1.2
         version: 1.1.2
@@ -5493,8 +5493,8 @@ importers:
         specifier: 3.3.2
         version: 3.3.2(svelte@4.2.19)(wp-prettier@3.0.3)
       semver:
-        specifier: 7.6.3
-        version: 7.6.3
+        specifier: 7.7.1
+        version: 7.7.1
       sort-package-json:
         specifier: 1.50.0
         version: 1.50.0
@@ -14485,11 +14485,6 @@ packages:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
 
-  semver@7.6.3:
-    resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
-    engines: {node: '>=10'}
-    hasBin: true
-
   semver@7.7.1:
     resolution: {integrity: sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==}
     engines: {node: '>=10'}
@@ -17097,7 +17092,7 @@ snapshots:
       chalk: 4.1.2
       find-root: 1.1.0
       lodash.groupby: 4.6.0
-      semver: 7.6.3
+      semver: 7.7.1
       webpack: 5.94.0(webpack-cli@6.0.1)
 
   '@colors/colors@1.6.0': {}
@@ -18004,7 +17999,7 @@ snapshots:
       extract-zip: 2.0.1
       progress: 2.0.3
       proxy-agent: 6.5.0
-      semver: 7.6.3
+      semver: 7.7.1
       tar-fs: 3.0.8
       unbzip2-stream: 1.4.3
       yargs: 17.7.2
@@ -18771,7 +18766,7 @@ snapshots:
       magic-string: 0.30.17
       path-browserify: 1.0.1
       process: 0.11.10
-      semver: 7.6.3
+      semver: 7.7.1
       storybook: 8.6.7
       style-loader: 3.3.4(webpack@5.94.0)
       terser-webpack-plugin: 5.3.3(webpack@5.94.0)
@@ -18823,7 +18818,7 @@ snapshots:
       jsdoc-type-pratt-parser: 4.1.0
       process: 0.11.10
       recast: 0.23.11
-      semver: 7.6.3
+      semver: 7.7.1
       util: 0.12.5
       ws: 8.18.1
     transitivePeerDependencies:
@@ -18874,7 +18869,7 @@ snapshots:
       react-docgen: 7.1.1
       react-dom: 18.3.1(react@18.3.1)
       resolve: 1.22.10
-      semver: 7.6.3
+      semver: 7.7.1
       storybook: 8.6.7
       tsconfig-paths: 4.2.0
       webpack: 5.94.0(webpack-cli@6.0.1)
@@ -19650,7 +19645,7 @@ snapshots:
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 2.1.0(typescript@5.8.2)
       typescript: 5.8.2
     transitivePeerDependencies:
@@ -23268,7 +23263,7 @@ snapshots:
       postcss-modules-scope: 3.2.1(postcss@8.4.47)
       postcss-modules-values: 4.0.0(postcss@8.4.47)
       postcss-value-parser: 4.2.0
-      semver: 7.6.3
+      semver: 7.7.1
     optionalDependencies:
       webpack: 5.94.0(webpack-cli@6.0.1)
 
@@ -23281,7 +23276,7 @@ snapshots:
       postcss-modules-scope: 3.2.1(postcss@8.4.47)
       postcss-modules-values: 4.0.0(postcss@8.4.47)
       postcss-value-parser: 4.2.0
-      semver: 7.6.3
+      semver: 7.7.1
       webpack: 5.94.0(webpack-cli@6.0.1)
 
   css-minimizer-webpack-plugin@5.0.1(webpack@5.94.0):
@@ -23979,12 +23974,12 @@ snapshots:
   eslint-compat-utils@0.5.1(eslint@9.25.1):
     dependencies:
       eslint: 9.25.1
-      semver: 7.6.3
+      semver: 7.7.1
 
   eslint-compat-utils@0.6.5(eslint@9.25.1):
     dependencies:
       eslint: 9.25.1
-      semver: 7.6.3
+      semver: 7.7.1
 
   eslint-config-prettier@10.1.2(eslint@9.25.1):
     dependencies:
@@ -24090,7 +24085,7 @@ snapshots:
       espree: 10.3.0
       esquery: 1.6.0
       parse-imports-exports: 0.2.4
-      semver: 7.6.3
+      semver: 7.7.1
       spdx-expression-parse: 4.0.0
     transitivePeerDependencies:
       - supports-color
@@ -24129,7 +24124,7 @@ snapshots:
       globals: 15.13.0
       ignore: 5.3.2
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.1
 
   eslint-plugin-playwright@2.2.0(eslint@9.25.1):
     dependencies:
@@ -24181,7 +24176,7 @@ snapshots:
       postcss: 8.5.3
       postcss-load-config: 3.1.4(postcss@8.5.3)
       postcss-safe-parser: 7.0.1(postcss@8.5.3)
-      semver: 7.6.3
+      semver: 7.7.1
       svelte-eslint-parser: 1.1.3(svelte@4.2.19)
     optionalDependencies:
       svelte: 4.2.19
@@ -24595,7 +24590,7 @@ snapshots:
       minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
-      semver: 7.6.3
+      semver: 7.7.1
       tapable: 2.2.1
       typescript: 5.8.2
       webpack: 5.94.0(webpack-cli@6.0.1)
@@ -24612,7 +24607,7 @@ snapshots:
       minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
-      semver: 7.6.3
+      semver: 7.7.1
       tapable: 2.2.1
       typescript: 5.8.2
       webpack: 5.94.0(webpack-cli@6.0.1)
@@ -25391,7 +25386,7 @@ snapshots:
       '@babel/parser': 7.27.0
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
-      semver: 7.6.3
+      semver: 7.7.1
     transitivePeerDependencies:
       - supports-color
 
@@ -25817,7 +25812,7 @@ snapshots:
       jest-util: 29.7.0
       natural-compare: 1.4.0
       pretty-format: 29.7.0
-      semver: 7.6.3
+      semver: 7.7.1
     transitivePeerDependencies:
       - supports-color
 
@@ -26321,7 +26316,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   make-error@1.3.6: {}
 
@@ -26826,7 +26821,7 @@ snapshots:
   normalize-package-data@6.0.2:
     dependencies:
       hosted-git-info: 7.0.2
-      semver: 7.6.3
+      semver: 7.7.1
       validate-npm-package-license: 3.0.4
 
   normalize-path@3.0.0: {}
@@ -27362,7 +27357,7 @@ snapshots:
       cosmiconfig: 7.1.0
       klona: 2.0.6
       postcss: 8.4.47
-      semver: 7.6.3
+      semver: 7.7.1
       webpack: 5.94.0(webpack-cli@6.0.1)
 
   postcss-loader@7.3.4(postcss@8.4.47)(typescript@5.8.2)(webpack@5.94.0):
@@ -27370,7 +27365,7 @@ snapshots:
       cosmiconfig: 8.3.6(typescript@5.8.2)
       jiti: 1.21.7
       postcss: 8.4.47
-      semver: 7.6.3
+      semver: 7.7.1
       webpack: 5.94.0(webpack-cli@6.0.1)
     transitivePeerDependencies:
       - typescript
@@ -28458,8 +28453,6 @@ snapshots:
 
   semver@6.3.1: {}
 
-  semver@7.6.3: {}
-
   semver@7.7.1: {}
 
   send@0.19.0:
@@ -29344,7 +29337,7 @@ snapshots:
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.6.3
+      semver: 7.7.1
       typescript: 5.8.2
       yargs-parser: 21.1.1
 

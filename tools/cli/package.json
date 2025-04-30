@@ -41,7 +41,7 @@
 		"path-name": "1.0.0",
 		"pluralize": "8.0.0",
 		"process": "0.11.10",
-		"semver": "7.6.3",
+		"semver": "7.7.1",
 		"sprintf-js": "1.1.2",
 		"tmp": "0.2.3",
 		"yargs": "17.6.2"
