@@ -30,7 +30,7 @@
 
 		&.is-open {
 			box-shadow: 0 0 0 1px $gray,
-				0 2px 4px color.adjust( $gray, $lightness: 20 );
+				0 2px 4px color.adjust( $gray, $lightness: 20% );
 		}
 	}
 
@@ -176,7 +176,7 @@
 }
 
 .dops-section-nav__hr {
-	background: color.adjust( $gray, $lightness: 30 );
+	background: color.adjust( $gray, $lightness: 30% );
 }
 
 // -------- Labels --------

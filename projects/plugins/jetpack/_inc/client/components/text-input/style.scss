@@ -34,18 +34,18 @@
 		}
 
 		&.is-valid {
-			box-shadow: 0 0 0 2px color.adjust( $alert-green, $lightness: 35 );
+			box-shadow: 0 0 0 2px color.adjust( $alert-green, $lightness: 35% );
 
 			&:hover {
-				box-shadow: 0 0 0 2px color.adjust( $alert-green, $lightness: 25 );
+				box-shadow: 0 0 0 2px color.adjust( $alert-green, $lightness: 25% );
 			}
 		}
 
 		&.is-error {
-			box-shadow: 0 0 0 2px color.adjust( $alert-red, $lightness: 35 );
+			box-shadow: 0 0 0 2px color.adjust( $alert-red, $lightness: 35% );
 
 			&:hover {
-				box-shadow: 0 0 0 2px color.adjust( $alert-red, $lightness: 25 );
+				box-shadow: 0 0 0 2px color.adjust( $alert-red, $lightness: 25% );
 			}
 		}
 	}
@@ -74,7 +74,7 @@
 		border-color: $alert-green;
 
 		&:hover {
-			border-color: color.adjust( $alert-green, $lightness: -10 );
+			border-color: color.adjust( $alert-green, $lightness: -10% );
 		}
 	}
 
@@ -83,7 +83,7 @@
 		border-color: $alert-red;
 
 		&:hover {
-			border-color: color.adjust( $alert-red, $lightness: -10 );
+			border-color: color.adjust( $alert-red, $lightness: -10% );
 		}
 	}
 }
