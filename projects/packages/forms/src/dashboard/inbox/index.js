@@ -108,8 +108,7 @@ const Inbox = () => {
 	return (
 		<>
 			<div className="jp-forms__layout-header">
-				<HStack justify="space-between">
-					<div></div>
+				<HStack justify="flex-end">
 					<ExportResponsesButton />
 				</HStack>
 			</div>
