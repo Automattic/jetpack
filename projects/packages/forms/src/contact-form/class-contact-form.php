@@ -1606,7 +1606,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @param string the title of the email
 		 */
-		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', $subject );
+		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
 		$message = self::get_compiled_form_for_email( $post_id, $this );
 
 		if ( is_user_logged_in() ) {
