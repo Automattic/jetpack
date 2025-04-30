@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Current_Plan as Plan;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
@@ -531,11 +530,6 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the file upload field.
 	 */
 	public static function gutenblock_render_field_file( $atts, $content ) {
-		if ( apply_filters( 'jetpack_unauth_file_upload_plan_check', true ) && ! Plan::supports( 'field-file' ) ) {
-			// if the plan does not support the field-file, return null on the frontend
-			return null;
-		}
-
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file' );
 
 		// Create wrapper div for the file field
