@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sitemaps: reduce default limit of items per sitemap to 1000, previously 2000.

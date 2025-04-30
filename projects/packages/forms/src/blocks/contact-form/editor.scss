@@ -777,6 +777,7 @@
 
 			// For some reason, when keeping the rule below together with the above selector,
 			// on production builds, the attributes are being reordered, causing side-effects
+			// stylelint-disable-next-line no-duplicate-selectors
 			.notched-label__notch {
 				border-left: none;
 				border-right: none;

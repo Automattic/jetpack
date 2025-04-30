@@ -398,9 +398,6 @@ div.jp-carousel-buttons a:hover {
 	font-size: 16px;
 	margin: 25px 0;
 	width: 100%;
-}
-
-.jp-carousel-photo-description {
 	overflow: hidden;
 	overflow-wrap: break-word;
 }
@@ -481,6 +478,7 @@ div.jp-carousel-buttons a:hover {
 	background: none !important;
 	border: none !important;
 	font-weight: 400 !important;
+	/* stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values */
 	line-height: 1.3em !important;
 }
 

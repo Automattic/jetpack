@@ -62,6 +62,7 @@ body {
     display: table-cell;
     text-align: center;
     position: relative;
+    width:25%;
 }
 
 .btn-circle {
@@ -114,16 +115,12 @@ body {
 
 #zbs_other_details{
   display:none;
+  height:150px;
+  margin-bottom:20px;
 }
 
 .setup-content textarea{
   width:90%;
-}
-
-.setup-content select{
-  width:90%;
-  height:30px !important;
-  line-height:30px !important;
 }
 
 input[type="checkbox"], input[type="radio"]{
@@ -145,23 +142,13 @@ input[type="checkbox"], input[type="radio"]{
     color: #fff;
 }
 
-#zbs_other_details{
-  height:150px;
-  margin-bottom:20px;
-}
-
-
-/* WAS A BUNCH OF HTML HERE?! */
-
-
-
 /* Layout */
   .ck_form.ck_minimal {
 
   /* divider image */
   background: #f9f9f9;
   font-family: 'Helvetica Neue', Helvetica, Arial, Verdana, sans-serif;
-  line-height: 1.5em;
+  line-height: 1.5;
   overflow: hidden;
   color: #666;
   font-size: 16px;
@@ -339,11 +326,9 @@ input[type="checkbox"], input[type="radio"]{
 }
 
 .setup-content h3 {
-
     font-size: 22px;
-    margin-top: 22px;
     margin-bottom: 26px;
-
+    margin-top:10px !important;
 }
 
 .setup-content select {
@@ -500,15 +485,6 @@ $darkenColor: darken($activeColor, 20%);
     .container {
         width: 100%;
     }
-}
-
-
-.setup-content h3 {
-    margin-top:10px !important;
-}
-
-.stepwizard-step {
-    width:25%;
 }
 
 .wizopt {

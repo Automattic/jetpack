@@ -885,7 +885,7 @@ Progress Bars
 	margin: 0;
 	padding: 15px 30px;
 	width: 100%;
-	line-height: 100%;
+	line-height: 1;
 	border-top: 1px solid rgba(0,0,0,0.3);
 	border-bottom: 1px solid rgba(255,255,255,0.05);
 }
@@ -988,7 +988,7 @@ Progress Bars
 	color: #777;
 	margin: 0 0 15px 0;
 	font-size: 12px;
-	line-height: 160%;
+	line-height: 1.6;
 }
 
 .vp_progress-description strong {
@@ -999,7 +999,7 @@ Progress Bars
 	font-size: 12px;
 	color: #999;
 	font-style: italic;
-	line-height: 160%;
+	line-height: 1.6;
 	margin: 0 0 30px 0;
 }
 

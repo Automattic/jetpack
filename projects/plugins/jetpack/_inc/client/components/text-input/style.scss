@@ -18,6 +18,7 @@
 	background-color: $white;
 	transition: all .15s ease-in-out, box-shadow 0s;
 	box-shadow: none;
+	-webkit-appearance: none;
 
 	&::placeholder {
 		color: $gray;
@@ -29,6 +30,22 @@
 
 		&::-ms-clear {
 			display: none;
+		}
+
+		&.is-valid {
+			box-shadow: 0 0 0 2px lighten( $alert-green, 35 );
+
+			&:hover {
+				box-shadow: 0 0 0 2px lighten( $alert-green, 25 );
+			}
+		}
+
+		&.is-error {
+			box-shadow: 0 0 0 2px lighten( $alert-red, 35 );
+
+			&:hover {
+				box-shadow: 0 0 0 2px lighten( $alert-red, 25 );
+			}
 		}
 	}
 
@@ -51,10 +68,6 @@
 			color: lighten( $gray, 10% );
 		}
 	}
-}
-
-.dops-text-input.dops-text-input { // input is needed to override the default styles
-	-webkit-appearance: none;
 
 	&.is-valid {
 		border-color: $alert-green;
@@ -70,25 +83,6 @@
 
 		&:hover {
 			border-color: darken( $alert-red, 10 );
-		}
-	}
-
-	&:focus {
-
-		&.is-valid {
-			box-shadow: 0 0 0 2px lighten( $alert-green, 35 );
-
-			&:hover {
-				box-shadow: 0 0 0 2px lighten( $alert-green, 25 );
-			}
-		}
-
-		&.is-error {
-			box-shadow: 0 0 0 2px lighten( $alert-red, 35 );
-
-			&:hover {
-				box-shadow: 0 0 0 2px lighten( $alert-red, 25 );
-			}
 		}
 	}
 }

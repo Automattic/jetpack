@@ -490,7 +490,7 @@ class Blocks_Test extends TestCase {
 	/**
 	 * Test getting block variation with various constants.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.1.0
 	 *
 	 * @dataProvider get_variation_constants
 	 *
@@ -516,7 +516,7 @@ class Blocks_Test extends TestCase {
 	/**
 	 * Data provider for testing block variations with constants.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.1.0
 	 *
 	 * @return array[] Test parameters
 	 */
@@ -553,7 +553,7 @@ class Blocks_Test extends TestCase {
 	/**
 	 * Test getting block variation with various filters.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.1.0
 	 *
 	 * @dataProvider get_variation_deprecated_filters
 	 *
@@ -573,7 +573,7 @@ class Blocks_Test extends TestCase {
 	/**
 	 * Data provider for testing block variations with filters.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.1.0
 	 *
 	 * @return array[] Test parameters
 	 */
@@ -593,7 +593,7 @@ class Blocks_Test extends TestCase {
 	/**
 	 * Test getting block variation with jetpack_blocks_variation filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.1.0
 	 */
 	public function test_get_variation_with_new_filter() {
 		$filter = function () {

@@ -18,6 +18,7 @@
 	.jetpack-ai-assistant__message-content {
 		flex-grow: 2;
 		margin: 0 8px;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 1.4em;
 		display: flex;
 		gap: 4px;

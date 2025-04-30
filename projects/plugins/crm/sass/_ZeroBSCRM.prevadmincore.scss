@@ -135,7 +135,9 @@ input {
 
 input[type="checkbox"],input[type="radio"] {
     box-sizing:border-box;
-    padding:0
+    padding:0;
+    margin:4px 0 0;
+    line-height:normal;
 }
 
 input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button {
@@ -143,7 +145,8 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 }
 
 input[type="search"] {
-    -webkit-appearance:textfield
+    -webkit-appearance:textfield;
+    box-sizing:border-box;
 }
 
 input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration {
@@ -160,7 +163,9 @@ optgroup {
 
 table {
     border-collapse:collapse;
-    border-spacing:0
+    border-spacing:0;
+    max-width:100%;
+    background-color:transparent;
 }
 
 td,th {
@@ -556,11 +561,6 @@ address {
     line-height:1.42857
 }
 
-table {
-    max-width:100%;
-    background-color:transparent
-}
-
 th {
     text-align:left
 }
@@ -726,15 +726,6 @@ label {
     display:inline-block;
     margin-bottom:5px;
     font-weight:700
-}
-
-input[type="search"] {
-    box-sizing:border-box
-}
-
-input[type="checkbox"],input[type="radio"] {
-    margin:4px 0 0;
-    line-height:normal
 }
 
 input[type="file"] {
@@ -4025,7 +4016,7 @@ table [class*="span"],.row-fluid table [class*="span"] {
     outline-offset: -2px;
 }
 
-#ZeroBSCRMAdminPage .btn.active,#ZeroBSCRMAdminPage .btn:active {
+#ZeroBSCRMAdminPage .btn.active {
     background-color: #d9d9d9 \9;
     background-image: none;
     outline: 0;
@@ -4281,11 +4272,11 @@ input[type="submit"]#ZeroBSCRMAdminPage .btn-block,input[type="reset"]#ZeroBSCRM
     cursor: pointer;
 }
 
-#ZeroBSCRMAdminPage .clearfix,#ZeroBSCRMAdminPage .clearfix {
+#ZeroBSCRMAdminPage .clearfix {
     zoom: 1;
 }
 
-#ZeroBSCRMAdminPage .clearfix::after,#ZeroBSCRMAdminPage .clearfix::after {
+#ZeroBSCRMAdminPage .clearfix::after {
     clear: both;
 }
 
@@ -4317,6 +4308,7 @@ th.column-ID {
 
 #sbSubPage {
     max-width: 800px;
+    margin-top:18px;
 }
 
 
@@ -4330,6 +4322,7 @@ th.column-ID {
     background: #FFF;
     border-radius: 10px;
     margin-bottom:10px;
+		font-size:18px;
 }
 
 .sbhomep.imp {
@@ -4460,19 +4453,10 @@ th.column-ID {
     height: 54px;
 }
 
-.whide {
-    display: none;
-}
-
 /* style tweaks 26/11 */
 #sbDesc {    
     padding: 18px 10px 0 10px;
 }
-
-#sbSubPage {
-    margin-top:18px;
-}
-
 
 .whclpActionMsg, .lle580 {
     background:#FFF;
@@ -4586,15 +4570,10 @@ th.column-ID {
 
 
 
-.zbs-admin-label {
+%zbs-admin-label {
     
     font-weight:800; 
 
-}
-
-
-.sbhomep {
-    font-size:18px;
 }
 
 // for small column metaboxes

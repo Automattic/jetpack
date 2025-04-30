@@ -29,7 +29,6 @@
 		"config": "3.3.12",
 		"localtunnel": "2.0.2",
 		"lodash-es": "4.17.21",
-		"node-fetch": "2.6.7",
 		"shell-escape": "0.2.0",
 		"winston": "3.8.1",
 		"yargs": "17.6.2"

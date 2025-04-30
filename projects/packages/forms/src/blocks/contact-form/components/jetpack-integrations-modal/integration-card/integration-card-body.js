@@ -10,8 +10,12 @@ const IntegrationCardBody = ( { isExpanded, children, cardData = {} } ) => {
 	return (
 		<CardBody>
 			{ isLoading && <Spinner /> }
-			{ ! isLoading && ! isInstalled && <p>{ notInstalledMessage }</p> }
-			{ ! isLoading && isInstalled && ! isActive && <p>{ notActivatedMessage }</p> }
+			{ ! isLoading && ! isInstalled && (
+				<p className="integration-card__description">{ notInstalledMessage }</p>
+			) }
+			{ ! isLoading && isInstalled && ! isActive && (
+				<p className="integration-card__description">{ notActivatedMessage }</p>
+			) }
 			{ ! isLoading && isInstalled && isActive && children }
 		</CardBody>
 	);

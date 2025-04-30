@@ -42,14 +42,12 @@
 		word-wrap: normal !important;
 	}
 
-	// The !important is necessary to override the inline style.
-	> span {
-		display: inline-flex !important;
-	}
-
-	// Put the star together.
 	// This immediate span is a whole star.
-	> span { // Frontend.
+	> span {
+		// The !important is necessary to override the inline style.
+		display: inline-flex !important;
+
+		// Put the star together.
 		margin-inline-end: 0.3em;
 	}
 
@@ -86,9 +84,5 @@
 		.is-rating-unfilled {
 			fill: transparent;
 		}
-	}
-
-	.jetpack-ratings-button {
-		margin-inline-end: 0.3em;
 	}
 }

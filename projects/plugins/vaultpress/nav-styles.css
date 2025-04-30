@@ -50,6 +50,7 @@
 
 .dops-notice .dops-notice__dismiss {
 	overflow: hidden;
+	color: #bbb;
 }
 
 .dops-notice.is-success .dops-notice__dismiss, .dops-notice.is-error .dops-notice__dismiss, .dops-notice.is-warning .dops-notice__dismiss, .dops-notice.is-info .dops-notice__dismiss {
@@ -156,10 +157,6 @@
 		width: 24px;
 		height: 24px;
 	}
-}
-
-.dops-notice .dops-notice__dismiss {
-	color: #bbb;
 }
 
 .dops-notice .dops-notice__dismiss:hover, .dops-notice .dops-notice__dismiss:focus {

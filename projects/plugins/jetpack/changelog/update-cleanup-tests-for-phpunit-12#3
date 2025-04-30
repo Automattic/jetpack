@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: PHPUnit 12 makes `TestCase::__construct()` final. Use `set_up()` instead.
-
-
