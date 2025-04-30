@@ -721,11 +721,12 @@ class zeroBSCRM_Plugin_Updater {
 		);
 
 		// sites
-		$sites['sites'] 	= zeroBSCRM_multisite_getSiteList();
+		$sites          = array();
+		$sites['sites'] = jpcrm_multisite_get_site_list();
 
 		// combine sites list, our package, and any passed $data
-		$api_params = array_merge($api_params, $sites);
-		$api_params = array_merge($api_params, $data);
+		$api_params = array_merge( $api_params, $sites );
+		$api_params = array_merge( $api_params, $data );
 
 		// got cache? (we don't cache ext_info)
 		global $zbsExtUpdateCache;
