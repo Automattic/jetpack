@@ -1,4 +1,4 @@
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { getSiteData, getAdminUrl } from '@automattic/jetpack-script-data';
 import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -305,7 +305,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
  * @return {string} - The Jetpack email stats link for the given post.
  */
 function getJetpackEmailStatsLink( blogId, postId ) {
-	return `/wp-admin/admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ blogId }`;
+	return getAdminUrl( `admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ blogId }` );
 }
 
 export default SubscribersAffirmation;
