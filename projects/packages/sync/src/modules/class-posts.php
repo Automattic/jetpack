@@ -312,7 +312,7 @@ class Posts extends Module {
 		// Explicitly truncate meta_value when it exceeds limit.
 		// Large content will cause OOM issues and break Sync.
 		$serialized_value = maybe_serialize( $meta_value );
-		if ( strlen( $serialized_value ) >= self::MAX_META_LENGTH ) {
+		if ( $serialized_value === null || strlen( $serialized_value ) >= self::MAX_META_LENGTH ) {
 			$meta_value = '';
 		}
 		return array( $meta_id, $object_id, $meta_key, $meta_value );

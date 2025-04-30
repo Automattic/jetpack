@@ -636,10 +636,10 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Add the Subscribe Block to your site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_has_added_subscribe_block',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
-			'get_calypso_path'     => function () {
-				return admin_url( 'site-editor.php?canvas=edit&help-center=subscribe-block' );
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/newsletter/' . $data['site_slug_encoded'];
 			},
 		),
 		'mobile_app_installed'            => array(
@@ -2909,4 +2909,18 @@ function wpcom_get_current_site_goals_for_tracks() {
 
 	$site_goals = get_option( 'site_goals', array() );
 	return implode( ',', $site_goals );
+}
+
+/**
+ * Checks if the subscribe block has been added or enabled.
+ *
+ * @return bool True if the task is completed, false otherwise.
+ */
+function wpcom_launchpad_has_added_subscribe_block() {
+
+	if ( get_option( 'jetpack_subscriptions_subscribe_post_end_enabled', false ) || get_option( 'jetpack_subscriptions_subscribe_navigation_enabled', false ) ) {
+		return true;
+	}
+
+	return wpcom_launchpad_is_task_option_completed( array( 'id' => 'add_subscribe_block' ) );
 }

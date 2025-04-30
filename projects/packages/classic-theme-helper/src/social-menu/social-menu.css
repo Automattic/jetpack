@@ -48,10 +48,8 @@ Genericons
 	text-decoration: inherit;
 	vertical-align: top;
 	width: 1em;
-}
 
-/* Default */
-.jetpack-social-navigation-genericons a::before {
+	/* Default */
 	content: "\f415";
 }
 

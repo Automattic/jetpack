@@ -213,6 +213,8 @@ jobs:
           PROJECT_NAME: ${{ matrix.project }}
           HOST_CWD: ${{ github.workspace }}
         run: |
+          # The apt-get is due to a change in label in a PPA used by playwright. Can probably be removed in a week or two. 2025-04-27 -- kraftbj
+          sudo apt-get update --allow-releaseinfo-change
           echo "::group::Decrypt config"
           pnpm run config:decrypt
           echo "::endgroup::"

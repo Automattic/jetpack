@@ -45,8 +45,8 @@
 	}
 
 	#billing-to{
-		//width:80% !important;
 		width:90% !important;
+		float:left;
 
 		.inv-to-form{
 			float: left;
@@ -74,6 +74,12 @@
 		// fix for typeahead splaying out
 		.wh-large select, .wh-large input, input.typeahead {
 			max-width: 100%;
+		}
+
+		th{
+			vertical-align:middle;
+			font-size:18px;
+			font-weight:100;
 		}
 	}
 
@@ -321,10 +327,8 @@
 	.mark-as-paid{
 		margin-left: 10px;
 		background-color: #008000;
-		text-transform: uppercase;
 		color: #fff;
 		padding: 7px;
-		font-weight: 900;
 		font-size: 25px;
 	    text-transform: uppercase;
 	    font-weight: 900;
@@ -361,17 +365,6 @@
 
 	#zbs_invoice_send_test2:focus{
 		outline: 0 !important;
-	}
-
-	#billing-to{
-		width:50%;
-		float:left;
-
-		th{
-			vertical-align:middle;
-			font-size:18px;
-			font-weight:100;
-		}
 	}
 
 	#assign-to{
@@ -479,8 +472,8 @@
 				}
 
 				td{
-					border:0px;
-					padding:0px;
+					border:0;
+					padding:0;
 				}
 			}
 
@@ -566,6 +559,7 @@
 
 	    .bord-l{
 	    	text-align:right;
+	    	border-left: 2px solid #ccc !important;
 	    }
 
 	    td.bord{
@@ -580,10 +574,6 @@
 		    height:20px;
 		    text-align:right;
 		    border-right: 2px solid #ccc !important;
-	    }
-
-	    .bord-l{
-	    	border-left: 2px solid #ccc !important;
 	    }
 	}
 
@@ -613,10 +603,10 @@
 			}
 
 			.tapad{
-				padding: 0px 0px 0px 10px;
+				padding: 0 0 0 10px;
 			}
 
-			input[type=number] {
+			input[type="number"] {
 			    height: 36px;
 			    line-height: 1;
 			    box-shadow: none;
@@ -634,6 +624,11 @@
 
 		.zbs-row-actions{
 			cursor:pointer;
+			border: 1px solid #ccc;
+			color: #999;
+			font-size: 13px;
+			font-weight: 100;
+			text-align:center;
 		}
 
 		.padding{
@@ -650,7 +645,7 @@
 		.zbs-item-name{
 		    width: 100%;
 		    height: 28px;
-		    border: 0px;
+		    border: 0;
 		    box-shadow: none;
 		}
 
@@ -679,19 +674,11 @@
 		}
 
 		.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th{
-			border-top: 0px solid #fff !important;
+			border-top: 0 solid #fff !important;
 		}
 
 		.add-row{
-			border-left: 0px solid #fff;
-		}
-
-		.zbs-row-actions{
-			border: 1px solid #ccc;
-			color: #999;
-			font-size: 13px;
-			font-weight: 100;
-			text-align:center;
+			border-left: 0 solid #fff;
 		}
 	}
 
@@ -754,7 +741,7 @@
 	        color: #fff;
 		    background-color: #428bca;
 		    border: 1px solid #428bca;
-		    border-width: 0px;
+		    border-width: 0;
 		    font-size: 15px;
 		    padding: 7px;
 		    font-weight: 300;
@@ -764,7 +751,7 @@
 	    .btn-secondary{
 	    	background: #ddd;
 	    	border: 1px solid #ddd;
-			border-width: 0px;
+			border-width: 0;
 		    font-size: 15px;
 		    padding: 7px;
 		    font-weight: 300;
@@ -797,7 +784,7 @@
 
 		.handlediv {
 		    display: none;
-		    border-bottom: 0px solid #fff;
+		    border-bottom: 0 solid #fff;
 		}
 	}
 
@@ -849,6 +836,9 @@
 		width:100%;
 		position:relative;
 		display:none;
+		margin-top: 20px;
+		margin-bottom: 20px;
+		margin-left: 12px;
 
 		.zbs-remove, .zbs-update{
 			cursor:pointer;
@@ -872,12 +862,6 @@
 			    padding: 2px 4px;
 		    }
 		}
-	}
-
-	.wh-logo-set{
-	    margin-top: 20px;
-	    margin-bottom: 20px;
-	    margin-left: 12px;
 	}
 
 	.wh-logo-set:hover{
@@ -1045,16 +1029,14 @@
 	    background-image: none;
 	    border: 1px solid #ccc;
 	    border-radius: 4px;
-	    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
 	    box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
-	    -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 	    transition: border-color ease-in-out 0.15s,box-shadow ease-in-out 0.15s;
 	}
 
-	input[type=checkbox]{		
+	input[type="checkbox"]{		
 	    margin-right: 0.7em;
 	    vertical-align: middle;
-	    line-height: 1em;
+	    line-height: 1;
 	}
 
 	label {

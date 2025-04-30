@@ -6,3 +6,12 @@ declare module '@automattic/jetpack-script-data' {
 		connection: ConnectionScriptData;
 	}
 }
+
+declare global {
+	interface Window {
+		/**
+		 * @deprecated In favor of getScriptData from @automattic/jetpack-script-data
+		 */
+		JP_CONNECTION_INITIAL_STATE: ConnectionScriptData;
+	}
+}

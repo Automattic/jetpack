@@ -118,6 +118,7 @@
 		margin: 0;
 		font-size: 15px;
 		font-weight: 700;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 136%;
 		color: $black;
 	}
@@ -471,10 +472,6 @@
 	}
 }
 
-.jp-connection-settings__info {
-	display: flex;
-}
-
 .jp-connection-settings__text {
 	margin-left: rem( 16px );
 	word-break: break-word;
@@ -489,6 +486,7 @@
 }
 
 .jp-connection-settings__info {
+	display: flex;
 
 	.gridicon {
 		opacity: 0.6;
@@ -538,6 +536,7 @@
 		margin: rem( 16px ) rem( 24px ) 0;
 		font-size: $font-body;
 		font-weight: 400;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 1.5em;
 		color: $blue-heading;
 	}

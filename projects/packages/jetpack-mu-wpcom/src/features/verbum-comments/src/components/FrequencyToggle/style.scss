@@ -24,6 +24,24 @@
 		label.label-wrapper {
 			// protect the button from style leaks from the site; reset all.
 			all: unset;
+
+			background-color: var(--verbum-border-color);
+			padding: 2px 0;
+			cursor: pointer;
+			display: inline-flex;
+			border: 1px solid transparent;
+
+			&:first-of-type {
+				border-top-left-radius: 8px;
+				border-bottom-left-radius: 8px;
+				padding-left: 2px;
+			}
+
+			&:last-of-type {
+				border-top-right-radius: 8px;
+				border-bottom-right-radius: 8px;
+				padding-right: 2px;
+			}
 		}
 
 		input {
@@ -58,26 +76,6 @@
 			backdrop-filter: none;
 			color: var(--verbum-border-color);
 			box-shadow: none;
-		}
-
-		label.label-wrapper {
-			background-color: var(--verbum-border-color);
-			padding: 2px 0;
-			cursor: pointer;
-			display: inline-flex;
-			border: 1px solid transparent;
-
-			&:first-of-type {
-				border-top-left-radius: 8px;
-				border-bottom-left-radius: 8px;
-				padding-left: 2px;
-			}
-
-			&:last-of-type {
-				border-top-right-radius: 8px;
-				border-bottom-right-radius: 8px;
-				padding-right: 2px;
-			}
 		}
 
 		span {

@@ -6,6 +6,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -25,6 +26,15 @@ import WordpressSVG from './svg/wordpress-svg';
 import './style.scss';
 
 const LandingPage = () => {
+	const navigate = useNavigate();
+
+	// If a user has responses, redirect them to the inbox.
+	useEffect( () => {
+		if ( config( 'hasFeedback' ) ) {
+			navigate( '/responses' );
+		}
+	}, [ navigate ] );
+
 	const ASSETS_URL = config( 'pluginAssetsURL' );
 	useEffect( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_display' );

@@ -78,17 +78,11 @@ class Page_Cache implements Feature, Has_Deactivate, Has_Data_Sync, Optimization
 	}
 
 	public function handle_page_output_change() {
-		$this->invalidate_cache();
+		Garbage_Collection::schedule_single_garbage_collection();
 
 		// Remove the action so it doesn't run again during the same request.
 		remove_action( 'jetpack_boost_page_output_changed', array( $this, 'handle_page_output_change' ) );
 	}
-
-	private function invalidate_cache() {
-		$cache = new Boost_Cache();
-		$cache->delete_recursive( home_url() );
-	}
-
 	/**
 	 * Runs cleanup when the feature is deactivated.
 	 */

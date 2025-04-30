@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove dependency on `node-fetch`, Node has native fetch now.
+
+

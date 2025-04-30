@@ -13,7 +13,7 @@
 		padding: 10px;
 		background: hsl( 25, 94%, 94% );
 		color: #000;
-		margin: 0px;
+		margin: 0;
 		margin-bottom: 20px;
 	}
 </style>

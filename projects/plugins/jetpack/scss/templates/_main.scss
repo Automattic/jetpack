@@ -399,6 +399,7 @@
 	};
 }
 
+// stylelint-disable-next-line no-duplicate-selectors -- This is part of the larger footer nav section.
 .footer nav {
 	max-width: 100%;
 
@@ -578,13 +579,6 @@
 		}
 	}
 
-	.squeezer {
-
-		h2 {
-			font-size: 1em;
-		}
-	}
-
 	h2 {
 		color: #fff;
 		margin: 0;
@@ -612,6 +606,10 @@
 			position: absolute;
 			top: 23px;
 			top: calc( 50% - 22px );
+		}
+
+		h2 {
+			font-size: 1em;
 		}
 
 		@include breakpoint(large-phone){

@@ -1,16 +1,17 @@
-// ==========================================================================
-// Breakpoint Mixin
-//
-// Uses Sass Maps which requires Sass v3.3.0 or newer
-//
-//
-// EXAMPLE
-//
-// body {
-// 	@include breakpoint(tablet){
-// 		font-size: 14px;
-// 	};
-// }
+/**
+ * Breakpoint Mixin
+ *
+ * Uses Sass Maps which requires Sass v3.3.0 or newer
+ *
+ *
+ * EXAMPLE
+ *
+ * body {
+ * 	@include breakpoint(tablet){
+ * 		font-size: 14px;
+ * 	};
+ * }
+ */
 
 // ==========================================================================
 
