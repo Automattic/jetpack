@@ -3991,9 +3991,6 @@ importers:
       '@wordpress/components':
         specifier: 29.7.0
         version: 29.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      babel-jest:
-        specifier: 29.7.0
-        version: 29.7.0(@babel/core@7.26.10)
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -4245,9 +4242,6 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.21.0
         version: 6.21.0
-      babel-jest:
-        specifier: 29.7.0
-        version: 29.7.0(@babel/core@7.26.10)
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -4366,9 +4360,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.5
         version: 18.3.5(@types/react@18.3.18)
-      babel-jest:
-        specifier: 29.7.0
-        version: 29.7.0(@babel/core@7.26.10)
       css-loader:
         specifier: 6.5.1
         version: 6.5.1(webpack@5.94.0)
@@ -5059,9 +5050,6 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.21.0
         version: 6.21.0
-      babel-jest:
-        specifier: 29.7.0
-        version: 29.7.0(@babel/core@7.26.10)
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -5212,9 +5200,6 @@ importers:
       '@babel/preset-env':
         specifier: ^7.5.5
         version: 7.26.9(@babel/core@7.26.10)
-      babel-jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@babel/core@7.26.10)
       jest:
         specifier: ^29.7.0
         version: 29.7.0
