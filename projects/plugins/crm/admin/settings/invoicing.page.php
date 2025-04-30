@@ -33,129 +33,125 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	// check nonce
 	check_admin_referer( 'zbs-update-settings-invbuilder' );
 
-	/*
-	Moved to bizinfo settings page 16/7/18
-	#} Invoice Logo
-		$updatedSettings['invoicelogourl'] = ''; if (isset($_POST['wpzbscrm_invoicelogourl']) && !empty($_POST['wpzbscrm_invoicelogourl'])) $updatedSettings['invoicelogourl'] = sanitize_text_field($_POST['wpzbscrm_invoicelogourl']);
+	$updated_settings = array();
 
-	#} Invoice Chunks
-	$updatedSettings['businessname'] = ''; if (isset($_POST['businessname'])) $updatedSettings['businessname'] = zeroBSCRM_textProcess($_POST['businessname']);
-	$updatedSettings['businessyourname'] = ''; if (isset($_POST['businessyourname'])) $updatedSettings['businessyourname'] = zeroBSCRM_textProcess($_POST['businessyourname']);
-	$updatedSettings['businessyouremail'] = ''; if (isset($_POST['businessyouremail'])) $updatedSettings['businessyouremail'] = zeroBSCRM_textProcess($_POST['businessyouremail']);
-	$updatedSettings['businessyoururl'] = ''; if (isset($_POST['businessyoururl'])) $updatedSettings['businessyoururl'] = zeroBSCRM_textProcess($_POST['businessyoururl']);
-	*/
-
-	$updatedSettings['reftype']    = '';
-	$updatedSettings['defaultref'] = '';
-	$updatedSettings['refprefix']  = '';
-	$updatedSettings['refnextnum'] = '';
-	$updatedSettings['refsuffix']  = '';
-	$updatedSettings['reflabel']   = '';
+	$updated_settings['reftype']    = '';
+	$updated_settings['defaultref'] = '';
+	$updated_settings['refprefix']  = '';
+	$updated_settings['refnextnum'] = '';
+	$updated_settings['refsuffix']  = '';
+	$updated_settings['reflabel']   = '';
 
 	if ( isset( $_POST['reftype'] ) ) {
-		$updatedSettings['reftype'] = zeroBSCRM_textProcess( $_POST['reftype'] );
+		$updated_settings['reftype'] = sanitize_text_field( wp_unslash( $_POST['reftype'] ) );
 	}
 
 	if ( isset( $_POST['defaultref'] ) ) {
-		$updatedSettings['defaultref'] = zeroBSCRM_textProcess( $_POST['defaultref'] );
+		$updated_settings['defaultref'] = sanitize_text_field( wp_unslash( $_POST['defaultref'] ) );
 	}
 
 	if ( isset( $_POST['refprefix'] ) ) {
-		$updatedSettings['refprefix'] = zeroBSCRM_textProcess( $_POST['refprefix'] );
+		$updated_settings['refprefix'] = sanitize_text_field( wp_unslash( $_POST['refprefix'] ) );
 	}
 	if ( isset( $_POST['refsuffix'] ) ) {
-		$updatedSettings['refsuffix'] = zeroBSCRM_textProcess( $_POST['refsuffix'] );
+		$updated_settings['refsuffix'] = sanitize_text_field( wp_unslash( $_POST['refsuffix'] ) );
 	}
 	if ( isset( $_POST['refnextnum'] ) ) {
-		$updatedSettings['refnextnum'] = zeroBSCRM_textProcess( $_POST['refnextnum'] );
+		$updated_settings['refnextnum'] = sanitize_text_field( wp_unslash( $_POST['refnextnum'] ) );
 	}
 
 	if ( isset( $_POST['reflabel'] ) ) {
-		$updatedSettings['reflabel'] = zeroBSCRM_textProcess( $_POST['reflabel'] );
+		$updated_settings['reflabel'] = sanitize_text_field( wp_unslash( $_POST['reflabel'] ) );
 	}
 
-	$updatedSettings['businessextra'] = '';
+	$updated_settings['businessextra'] = '';
 	if ( isset( $_POST['businessextra'] ) ) {
-		$updatedSettings['businessextra'] = zeroBSCRM_textProcess( $_POST['businessextra'] );
+		$updated_settings['businessextra'] = sanitize_text_field( wp_unslash( $_POST['businessextra'] ) );
 	}
-	$updatedSettings['paymentinfo'] = '';
+	$updated_settings['paymentinfo'] = '';
 	if ( isset( $_POST['paymentinfo'] ) ) {
-		$updatedSettings['paymentinfo'] = zeroBSCRM_textProcess( $_POST['paymentinfo'] );
+		$updated_settings['paymentinfo'] = sanitize_text_field( wp_unslash( $_POST['paymentinfo'] ) );
 	}
-	$updatedSettings['paythanks'] = '';
+	$updated_settings['paythanks'] = '';
 	if ( isset( $_POST['paythanks'] ) ) {
-		$updatedSettings['paythanks'] = zeroBSCRM_textProcess( $_POST['paythanks'] );
+		$updated_settings['paythanks'] = sanitize_text_field( wp_unslash( $_POST['paythanks'] ) );
 	}
 
 	// } Invoice sending settings
-	$updatedSettings['invfromemail'] = '';
+	$updated_settings['invfromemail'] = '';
 	if ( isset( $_POST['invfromemail'] ) ) {
-		$updatedSettings['invfromemail'] = zeroBSCRM_textProcess( $_POST['invfromemail'] );
+		$updated_settings['invfromemail'] = sanitize_text_field( wp_unslash( $_POST['invfromemail'] ) );
 	}
-	$updatedSettings['invfromname'] = '';
+	$updated_settings['invfromname'] = '';
 	if ( isset( $_POST['invfromname'] ) ) {
-		$updatedSettings['invfromname'] = zeroBSCRM_textProcess( $_POST['invfromname'] );
+		$updated_settings['invfromname'] = sanitize_text_field( wp_unslash( $_POST['invfromname'] ) );
 	}
 
 	// } Hide Invoice ID
-	$updatedSettings['invid'] = 0;
+	$updated_settings['invid'] = 0;
 	if ( isset( $_POST['wpzbscrm_invid'] ) && ! empty( $_POST['wpzbscrm_invid'] ) ) {
-		$updatedSettings['invid'] = 1;
+		$updated_settings['invid'] = 1;
 	}
 
 	// } Allow Invoice Hash (view and pay without being logged into the portal)
-	// moved to client portal settings 3.0 - $updatedSettings['invhash'] = 0; if (isset($_POST['wpzbscrm_invhash']) && !empty($_POST['wpzbscrm_invhash'])) $updatedSettings['invhash'] = 1;
+	// moved to client portal settings 3.0 - $updated_settings['invhash'] = 0; if (isset($_POST['wpzbscrm_invhash']) && !empty($_POST['wpzbscrm_invhash'])) $updated_settings['invhash'] = 1;
 
 	// } Tax etc
-	$updatedSettings['invtax'] = 0;
+	$updated_settings['invtax'] = 0;
 	if ( isset( $_POST['wpzbscrm_invtax'] ) && ! empty( $_POST['wpzbscrm_invtax'] ) ) {
-		$updatedSettings['invtax'] = 1;
+		$updated_settings['invtax'] = 1;
 	}
-	$updatedSettings['invdis'] = 0;
+	$updated_settings['invdis'] = 0;
 	if ( isset( $_POST['wpzbscrm_invdis'] ) && ! empty( $_POST['wpzbscrm_invdis'] ) ) {
-		$updatedSettings['invdis'] = 1;
+		$updated_settings['invdis'] = 1;
 	}
-	$updatedSettings['invpandp'] = 0;
+	$updated_settings['invpandp'] = 0;
 	if ( isset( $_POST['wpzbscrm_invpandp'] ) && ! empty( $_POST['wpzbscrm_invpandp'] ) ) {
-		$updatedSettings['invpandp'] = 1;
+		$updated_settings['invpandp'] = 1;
+	}
+
+	// } Disable Partial Payments
+	$updated_settings['invoicing_disable_partial_payments'] = 0;
+	if ( isset( $_POST['wpzbscrm_invoicing_disable_partial_payments'] ) && ! empty( $_POST['wpzbscrm_invoicing_disable_partial_payments'] ) ) {
+		$updated_settings['invoicing_disable_partial_payments'] = 1;
 	}
 
 	// } Statements
-	$updatedSettings['statementextra'] = '';
+	$updated_settings['statementextra'] = '';
 	if ( isset( $_POST['zbsi_statementextra'] ) ) {
-		$updatedSettings['statementextra'] = zeroBSCRM_textProcess( $_POST['zbsi_statementextra'] );
+		$updated_settings['statementextra'] = sanitize_text_field( wp_unslash( $_POST['zbsi_statementextra'] ) );
 	}
 
 	// templating
-	$updatedSettings['inv_pdf_template'] = '';
+	$updated_settings['inv_pdf_template'] = '';
 	if ( isset( $_POST['inv_pdf_template'] ) && jpcrm_template_file_path( $_POST['inv_pdf_template'] ) ) {
-		$updatedSettings['inv_pdf_template'] = zeroBSCRM_textProcess( $_POST['inv_pdf_template'] );
+		$updated_settings['inv_pdf_template'] = sanitize_text_field( wp_unslash( $_POST['inv_pdf_template'] ) );
 	}
-	$updatedSettings['inv_portal_template'] = '';
+	$updated_settings['inv_portal_template'] = '';
 	if ( isset( $_POST['inv_portal_template'] ) && jpcrm_template_file_path( $_POST['inv_portal_template'] ) ) {
-		$updatedSettings['inv_portal_template'] = zeroBSCRM_textProcess( $_POST['inv_portal_template'] );
+		$updated_settings['inv_portal_template'] = sanitize_text_field( wp_unslash( $_POST['inv_portal_template'] ) );
 	}
-	$updatedSettings['statement_pdf_template'] = '';
+	$updated_settings['statement_pdf_template'] = '';
 	if ( isset( $_POST['statement_pdf_template'] ) && jpcrm_template_file_path( $_POST['statement_pdf_template'] ) ) {
-		$updatedSettings['statement_pdf_template'] = zeroBSCRM_textProcess( $_POST['statement_pdf_template'] );
+		$updated_settings['statement_pdf_template'] = sanitize_text_field( wp_unslash( $_POST['statement_pdf_template'] ) );
 	}
 
 	// template additions, custom fields:
-	$updatedSettings['invcustomfields'] = '';
+	$updated_settings['invcustomfields'] = '';
 	if ( isset( $_POST['jpcrm_invcustomfields'] ) ) {
-		$updatedSettings['invcustomfields'] = zeroBSCRM_textProcess( $_POST['jpcrm_invcustomfields'] );
+		$updated_settings['invcustomfields'] = sanitize_text_field( wp_unslash( $_POST['jpcrm_invcustomfields'] ) );
 	}
-	$updatedSettings['contactcustomfields'] = '';
+	$updated_settings['contactcustomfields'] = '';
 	if ( isset( $_POST['jpcrm_contactcustomfields'] ) ) {
-		$updatedSettings['contactcustomfields'] = zeroBSCRM_textProcess( $_POST['jpcrm_contactcustomfields'] );
+		$updated_settings['contactcustomfields'] = sanitize_text_field( wp_unslash( $_POST['jpcrm_contactcustomfields'] ) );
 	}
-	$updatedSettings['companycustomfields'] = '';
+	$updated_settings['companycustomfields'] = '';
 	if ( isset( $_POST['jpcrm_companycustomfields'] ) ) {
-		$updatedSettings['companycustomfields'] = zeroBSCRM_textProcess( $_POST['jpcrm_companycustomfields'] );
+		$updated_settings['companycustomfields'] = sanitize_text_field( wp_unslash( $_POST['jpcrm_companycustomfields'] ) );
 	}
 
 	// } Brutal update
-	foreach ( $updatedSettings as $k => $v ) {
+	foreach ( $updated_settings as $k => $v ) {
 		$zbs->settings->update( $k, $v );
 	}
 
@@ -268,6 +264,15 @@ if ( isset( $sbupdated ) ) {
 				<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_invpandp" id="wpzbscrm_invpandp" value="1"
 				<?php
 				if ( isset( $settings['invpandp'] ) && $settings['invpandp'] == '1' ) {
+					echo ' checked="checked"';}
+				?>
+				/></td>
+			</tr>
+			<tr>
+				<td class="wfieldname"><label for="wpzbscrm_invoicing_disable_partial_payments"><?php esc_html_e( 'Disable Partial Payments:', 'zero-bs-crm' ); ?></label><br /><?php esc_html_e( 'Tick to hide partial payment options on invoices (editor, portal, PDF).', 'zero-bs-crm' ); ?></td>
+				<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_invoicing_disable_partial_payments" id="wpzbscrm_invoicing_disable_partial_payments" value="1"
+				<?php
+				if ( isset( $settings['invoicing_disable_partial_payments'] ) && $settings['invoicing_disable_partial_payments'] === '1' ) {
 					echo ' checked="checked"';}
 				?>
 				/></td>
