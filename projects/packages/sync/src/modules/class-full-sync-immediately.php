@@ -65,18 +65,19 @@ class Full_Sync_Immediately extends Module {
 	 * @return bool Always returns true at success.
 	 */
 	public function start( $full_sync_config = null, $context = null ) {
-		// There was a full sync in progress.
-		if ( $this->get_status()['start_action_processed'] && ! $this->is_finished() ) {
-			// Mark that we must send 'cancelled' action.
+		// Check if there was a full sync in progress already before resetting the data.
+		$should_process_cancelled_action = $this->get_status()['start_action_processed'] && ! $this->is_finished() ? true : false;
+		// Remove all evidence of previous full sync items and status.
+		$this->reset_data();
+
+		// Update status to indicate that a new full sync is starting and need to cancel previous one.
+		if ( $should_process_cancelled_action ) {
 			$this->update_status(
 				array(
 					'cancelled_action_processed' => false,
 				)
 			);
 		}
-
-		// Remove all evidence of previous full sync items and status.
-		$this->reset_data();
 
 		if ( ! is_array( $full_sync_config ) ) {
 			/*
