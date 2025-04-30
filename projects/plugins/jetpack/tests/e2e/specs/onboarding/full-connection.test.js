@@ -42,6 +42,10 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 	} );
 
 	await test.step( 'Onboarding tour', async () => {
+		// For some reason, E2E test sites do not have the onboarding tour param after redirect
+		// to My Jetpack page. So we are adding it manually to test the onboarding tour.
+		await admin.visitAdminPage( 'admin.php', 'page=my-jetpack&from=jetpack-onboarding' );
+
 		logger.action( 'Navigate thourgh the onboardign tour.' );
 
 		const dialog = page.getByRole( 'dialog', { name: 'Welcome to Jetpack' } );
