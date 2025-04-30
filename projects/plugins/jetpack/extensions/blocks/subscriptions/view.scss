@@ -1,3 +1,5 @@
+@use 'sass:string';
+
 @function x($var-name, $fallback) {
 
 	@return string.unquote("var(#{$var-name}, #{$fallback})");

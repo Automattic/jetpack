@@ -1,4 +1,7 @@
+@use 'sass:color';
+@use 'sass:list';
 @use "sass:math";
+@use 'sass:meta';
 
 $full-width:	960px;
 $one-col:		660px;

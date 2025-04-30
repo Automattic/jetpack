@@ -4,6 +4,7 @@
  *
  * @see https://github.com/WordPress/gutenberg/blob/HEAD/packages/base-styles/_mixins.scss
  */
+@use 'sass:color';
 
 body {
 	--wp-admin-theme-color: #{$highlight-color};

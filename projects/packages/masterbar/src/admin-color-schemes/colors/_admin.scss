@@ -5,6 +5,8 @@
  * 2. An import of the overrides necessary to match Calypso color schemes.
  */
 
+@use 'sass:color';
+@use 'sass:string';
 @import 'variables';
 @import 'mixins';
 

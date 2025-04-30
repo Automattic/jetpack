@@ -28,6 +28,7 @@
  * For a refresher on stacking contexts see:
  * https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Positioning/Understanding_z_index/The_stacking_context
  */
+@use 'sass:map';
 
 $z-layers: (
 	'root': (
