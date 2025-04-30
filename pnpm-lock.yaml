@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-Im6fz8zi+Kez392Q6e7Qm808ogqh3bUx7FN30aHZ560=
+pnpmfileChecksum: sha256-gGNXe8rPCT2HDKhrF95pBlZ5hl0DPJwG+GN4Cv72hdE=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -5713,6 +5713,13 @@ packages:
     resolution: {integrity: sha512-vMqyb7XCDMPvJFFOaT9kxtiRh42GwlZEg1/uIgtZshS5a/8OaduUfCi7kynKgc3Tw/6Uo2D+db9qBttghhmxwQ==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/eslint-parser@7.27.1':
+    resolution: {integrity: sha512-q8rjOuadH0V6Zo4XLMkJ3RMQ9MSBqwaDByyYB0izsYdaIWGNLmEblbCOf1vyFHICcg16CD7Fsi51vcQnYxmt6Q==}
+    engines: {node: ^10.13.0 || ^12.13.0 || >=14.0.0}
+    peerDependencies:
+      '@babel/core': ^7.11.0
+      eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
+
   '@babel/generator@7.27.0':
     resolution: {integrity: sha512-VybsKvpiN1gU1sdMZIp7FcqphVVKEwcuj02x73uvcHE0PTihx1nlBcowYWhDwjpoAXRv43+gDzyggGnn1XZhVw==}
     engines: {node: '>=6.9.0'}
@@ -6903,6 +6910,9 @@ packages:
 
   '@napi-rs/wasm-runtime@0.2.9':
     resolution: {integrity: sha512-OKRBiajrrxB9ATokgEQoG87Z25c67pCpYcCwmXYX8PBftC9pBfN18gnm/fh1wurSLEKIAt+QRFLFCQISrb66Jg==}
+
+  '@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1':
+    resolution: {integrity: sha512-54/JRvkLIzzDWshCWfuhadfrfZVPiElY8Fcgmg1HroEly/EDSszzhBAsarCux+D/kOslTRquNzuyGSmUSTTHGg==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -8904,7 +8914,6 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       '@babel/core': '>=7'
-      '@babel/eslint-parser': '>=7.25.7'
       '@typescript-eslint/eslint-plugin': '>=6.4.1'
       '@typescript-eslint/parser': '>=6.4.1'
       eslint: '>=8'
@@ -8920,8 +8929,6 @@ packages:
       prettier: '>=3'
       typescript: '>=5'
     peerDependenciesMeta:
-      '@babel/eslint-parser':
-        optional: true
       '@typescript-eslint/eslint-plugin':
         optional: true
       '@typescript-eslint/parser':
@@ -10909,6 +10916,10 @@ packages:
   eslint-scope@8.3.0:
     resolution: {integrity: sha512-pUNxi75F8MJ/GdeKtVLSbYg4ZI34J6C0C7sbL4YOp2exGwen7ZsuBqKzUhXd0qMQ362yET3z+uPwKeg/0C2XCQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  eslint-visitor-keys@2.1.0:
+    resolution: {integrity: sha512-0rSmRBzXgDzIsD6mGdJgevzgezI534Cer5L/vyMX0kHzT/jiB43jRhd9YUlMGYLQy2zprNmoT8qasCGtY+QaKw==}
+    engines: {node: '>=10'}
 
   eslint-visitor-keys@3.4.3:
     resolution: {integrity: sha512-wpc+LXeiyiisxPlEkUzU6svyS1frIO3Mgxj1fdy7Pm8Ygzguax2N3Fa/D/ag1WqbOprdI+uY6wMUl8/a2G+iag==}
@@ -16295,6 +16306,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/eslint-parser@7.27.1(@babel/core@7.26.10)(eslint@9.25.1)':
+    dependencies:
+      '@babel/core': 7.26.10
+      '@nicolo-ribaudo/eslint-scope-5-internals': 5.1.1-v1
+      eslint: 9.25.1
+      eslint-visitor-keys: 2.1.0
+      semver: 6.3.1
+
   '@babel/generator@7.27.0':
     dependencies:
       '@babel/parser': 7.27.0
@@ -17750,6 +17769,10 @@ snapshots:
       '@emnapi/runtime': 1.4.3
       '@tybys/wasm-util': 0.9.0
     optional: true
+
+  '@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1':
+    dependencies:
+      eslint-scope: 5.1.1
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -21343,6 +21366,7 @@ snapshots:
   '@wordpress/eslint-plugin@22.7.0(@babel/core@7.26.10)(eslint-config-prettier@10.1.2(eslint@9.25.1))(eslint-plugin-import@2.31.0)(eslint-plugin-jest@28.11.0(eslint@9.25.1)(jest@29.7.0)(typescript@5.8.2))(eslint-plugin-jsdoc@50.6.11(eslint@9.25.1))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.25.1))(eslint-plugin-playwright@2.2.0(eslint@9.25.1))(eslint-plugin-prettier@5.2.6(eslint-config-prettier@10.1.2(eslint@9.25.1))(eslint@9.25.1)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.25.1))(eslint-plugin-react@7.37.5(eslint@9.25.1))(eslint@9.25.1)(typescript@5.8.2)(wp-prettier@3.0.3)':
     dependencies:
       '@babel/core': 7.26.10
+      '@babel/eslint-parser': 7.27.1(@babel/core@7.26.10)(eslint@9.25.1)
       '@wordpress/babel-preset-default': 8.21.0
       '@wordpress/prettier-config': 4.21.0(wp-prettier@3.0.3)
       cosmiconfig: 7.1.0
@@ -24179,6 +24203,8 @@ snapshots:
     dependencies:
       esrecurse: 4.3.0
       estraverse: 5.3.0
+
+  eslint-visitor-keys@2.1.0: {}
 
   eslint-visitor-keys@3.4.3: {}
 
