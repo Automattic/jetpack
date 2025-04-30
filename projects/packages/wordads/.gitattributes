@@ -9,7 +9,10 @@ package.json      export-ignore
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
-.gitignore        production-exclude
-changelog/**      production-exclude
-.phpcs.dir.xml    production-exclude
-tests/**          production-exclude
+.gitignore           production-exclude
+changelog/**         production-exclude
+.phpcs.dir.xml       production-exclude
+tests/**             production-exclude
+src/dashboard/*.jsx  production-exclude
+src/dashboard/*.md   production-exclude
+src/dashboard/*.scss production-exclude

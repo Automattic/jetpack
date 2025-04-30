@@ -23,6 +23,7 @@
 # Remember to end all directories with `/**` to properly tag every file.
 /.gitattributes                                          production-exclude
 /.gitignore                                              production-exclude
+/global.d.ts                                             production-exclude
 /.phpcsignore                                            production-exclude
 /.phpcs.dir.xml                                          production-exclude
 /.sass-cache/**                                          production-exclude
@@ -53,6 +54,7 @@
 /jetpack_vendor/automattic/**/src/css/*.scss             production-exclude
 /jetpack_vendor/automattic/**/composer.json              production-exclude
 /modules/**/test/**                                      production-exclude
+/modules/subscriptions/newsletter-widget/src/**          production-exclude
 /modules/widgets/follow-button.php                       production-exclude
 /modules/widget-visibility/editor/**                     production-exclude
 /node_modules/**                                         production-exclude

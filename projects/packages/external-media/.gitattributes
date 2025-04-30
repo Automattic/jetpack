@@ -16,3 +16,5 @@ changelog/**      production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
 .phpcsignore      production-exclude
+src/features/**   production-exclude
+src/shared/**     production-exclude
