@@ -45,7 +45,7 @@ class Jetpack_Top_Posts_Helper {
 			// Directly access posts on WPCOM, as Simple sites run on the same environment.
 			require_lib( 'jetpack-stats' );
 			if ( class_exists( '\Jetpack\Stats\Top_Posts' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredClass
+				// @phan-suppress-next-line PhanUndeclaredClassMethod
 				$data = ( new \Jetpack\Stats\Top_Posts() )->get_top_posts( get_current_blog_id(), $query_args );
 			} else {
 				$data = array( 'summary' => array( 'postviews' => array() ) );
