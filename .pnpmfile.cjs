@@ -115,7 +115,8 @@ async function fixDeps( pkg ) {
 				dep.endsWith( '/eslint-plugin' ) ||
 				dep.startsWith( 'eslint-config-' ) ||
 				dep.endsWith( '/eslint-config' ) ||
-				dep.startsWith( '@typescript-eslint/' )
+				dep.startsWith( '@typescript-eslint/' ) ||
+				dep === '@babel/eslint-parser'
 			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
@@ -124,6 +125,7 @@ async function fixDeps( pkg ) {
 
 		// Doesn't really need these at all with eslint 9 and our config.
 		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta[ '@babel/eslint-parser' ] = { optional: true };
 		pkg.peerDependenciesMeta[ '@typescript-eslint/eslint-plugin' ] = { optional: true };
 		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
 	}
