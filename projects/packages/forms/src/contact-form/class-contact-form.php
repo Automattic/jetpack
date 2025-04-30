@@ -2049,7 +2049,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	private static function maybe_add_colon_to_label( $label ) {
 		$formatted_label = $label ? $label : '';
-		$formatted_label = wp_endswith( $formatted_label, '?' ) ? $formatted_label : $formatted_label . ':';
+		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : $formatted_label . ':';
 
 		return $formatted_label;
 	}
