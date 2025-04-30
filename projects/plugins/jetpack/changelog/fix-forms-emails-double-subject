@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: fixes the double subject in the response emails
