@@ -41,8 +41,7 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 		await waitForMyJetpackPage;
 	} );
 
-	// TODO investigate why onboarding tour is not shown on E2E sites.
-	await test.step.skip( 'Onboarding tour', async () => {
+	await test.step( 'Onboarding tour', async () => {
 		logger.action( 'Navigate thourgh the onboardign tour.' );
 
 		const dialog = page.getByRole( 'dialog', { name: 'Welcome to Jetpack' } );
