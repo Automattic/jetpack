@@ -47,6 +47,8 @@ class Jetpack_Top_Posts_Helper {
 			if ( class_exists( '\Jetpack\Stats\Top_Posts' ) ) {
 				// @phan-suppress-next-line PhanUndeclaredClass
 				$data = ( new \Jetpack\Stats\Top_Posts() )->get_top_posts( get_current_blog_id(), $query_args );
+			} else {
+				$data = array( 'summary' => array( 'postviews' => array() ) );
 			}
 		}
 
