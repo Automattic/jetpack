@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Onboarding: Ensure that the CTA has a label when it's disabled
