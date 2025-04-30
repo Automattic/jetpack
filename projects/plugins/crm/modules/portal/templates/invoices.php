@@ -2,13 +2,11 @@
 /**
  * Invoice List Page
  *
- * The list of Invoices for the Portal 
+ * The list of Invoices for the Portal
  *
- * @author 		ZeroBSCRM
- * @package 	Templates/Portal/Invoices
- * @see			https://jetpackcrm.com/kb/
- * @version     3.0
- * 
+ * @package automattic/jetpack-crm
+ * @see     https://jetpackcrm.com/kb/
+ * @version 3.0
  */
 
 defined( 'ABSPATH' ) || exit( 0 ); // Don't allow direct access

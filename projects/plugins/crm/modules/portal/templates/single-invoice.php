@@ -4,12 +4,11 @@
  *
  * The single invoice template
  *
- * @author 		ZeroBSCRM
- * @package 	Templates/Portal/Invoice
- * @see			https://kb.jetpackcrm.com/
- * @version     3.0
- * 
+ * @package automattic/jetpack-crm
+ * @see     https://kb.jetpackcrm.com/
+ * @version 3.0
  */
+
 defined( 'ABSPATH' ) || exit( 0 ); // Don't allow direct access
 
 global $zbs;

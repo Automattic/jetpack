@@ -4,14 +4,11 @@
  *
  * This is used as the main dashboard page of the portal
  *
- * @author 		ZeroBSCRM
- * @package 	Templates/Portal/Dashboard
- * @see			https://jetpackcrm.com/kb/
- * @version     3.0
- * 
+ * @package automattic/jetpack-crm
+ * @see     https://jetpackcrm.com/kb/
+ * @version 3.0
  */
 
- 
 defined( 'ABSPATH' ) || exit( 0 ); // Don't allow direct access
 
 global $zbs;

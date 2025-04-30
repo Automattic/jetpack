@@ -4,11 +4,9 @@
  *
  * This is used as a 'Payment Cancelled' page following a cancelled payment
  *
- * @author 		ZeroBSCRM
- * @package 	Templates/Portal/Cancelled
- * @see			https://jetpackcrm.com/kb/
- * @version     3.0
- * 
+ * @package automattic/jetpack-crm
+ * @see     https://jetpackcrm.com/kb/
+ * @version 3.0
  */
 
 defined( 'ABSPATH' ) || exit( 0 ); // Don't allow direct access

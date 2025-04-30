@@ -4,11 +4,9 @@
  *
  * This displays the users details for editing
  *
- * @author 		ZeroBSCRM
- * @package 	Templates/Portal/Details
- * @see			https://kb.jetpackcrm.com/
- * @version     3.0
- * 
+ * @package automattic/jetpack-crm
+ * @see     https://kb.jetpackcrm.com/
+ * @version 3.0
  */
 
 defined( 'ABSPATH' ) || exit( 0 ); // Don't allow direct access

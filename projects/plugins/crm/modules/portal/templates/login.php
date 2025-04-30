@@ -4,10 +4,9 @@
  *
  * This is the login page for the Portal
  *
- * @author 		ZeroBSCRM
- * @package 	Templates/Portal/Login
- * @see			https://jetpackcrm.com/kb/
- * @version     3.0
+ * @package automattic/jetpack-crm
+ * @see     https://jetpackcrm.com/kb/
+ * @version 3.0
  */
 
 defined( 'ABSPATH' ) || exit( 0 );

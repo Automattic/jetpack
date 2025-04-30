@@ -2,13 +2,11 @@
 /**
  * Single Quote Template
  *
- * The Single Quote Portal Page 
+ * The Single Quote Portal Page
  *
- * @author 		ZeroBSCRM
- * @package 	Templates/Portal/Quote
- * @see			https://kb.jetpackcrm.com/
- * @version     3.0
- * 
+ * @package automattic/jetpack-crm
+ * @see     https://kb.jetpackcrm.com/
+ * @version 3.0
  */
 
 // Don't allow direct access

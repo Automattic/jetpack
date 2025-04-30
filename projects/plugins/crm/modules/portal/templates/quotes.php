@@ -4,10 +4,9 @@
  *
  * This list of Quotes for the Portal
  *
- * @author 		ZeroBSCRM
- * @package 	Templates/Portal/Quotes
- * @see			https://jetpackcrm.com/kb/
- * @version     3.0
+ * @package automattic/jetpack-crmotes
+ * @see     https://jetpackcrm.com/kb/
+ * @version 3.0
  */
 
 defined( 'ABSPATH' ) || exit( 0 );

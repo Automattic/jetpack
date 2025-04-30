@@ -4,11 +4,9 @@
  *
  * This is used as a 'Payment Confirmation' when payment success
  *
- * @author 		ZeroBSCRM
- * @package 	Templates/Portal/Thanks
- * @see			https://jetpackcrm.com/kb/
- * @version     3.0
- * 
+ * @package automattic/jetpack-crm
+ * @see     https://jetpackcrm.com/kb/
+ * @version 3.0
  */
 
 defined( 'ABSPATH' ) || exit( 0 ); // Don't allow direct access
