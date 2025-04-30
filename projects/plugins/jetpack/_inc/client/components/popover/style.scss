@@ -237,7 +237,7 @@
 
 	// with gridicons
 	.gridicon {
-		color: color.adjust( $gray, $lightness: 10 );
+		color: color.adjust( $gray, $lightness: 10% );
 		vertical-align: bottom;
 		margin-right: 8px;
 	}
@@ -245,5 +245,5 @@
 
 .dops-popover__hr {
 	margin: 8px 0;
-	background: color.adjust( $gray, $lightness: 30 );
+	background: color.adjust( $gray, $lightness: 30% );
 }

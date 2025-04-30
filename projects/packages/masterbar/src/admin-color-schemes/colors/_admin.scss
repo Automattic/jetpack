@@ -237,14 +237,14 @@ textarea:focus {
 	}
 
 	.wrap .page-title-action:hover {
-		color: color.adjust($highlight-color, $lightness: -10);
-		border-color: color.adjust($highlight-color, $lightness: -10);
+		color: color.adjust($highlight-color, $lightness: -10%);
+		border-color: color.adjust($highlight-color, $lightness: -10%);
 	}
 
 	.wrap .page-title-action:focus {
-		border-color: color.adjust($highlight-color, $lightness: 10);
-		color: color.adjust($highlight-color, $lightness: -20);;
-		box-shadow: 0 0 0 1px color.adjust($highlight-color, $lightness: 10);
+		border-color: color.adjust($highlight-color, $lightness: 10%);
+		color: color.adjust($highlight-color, $lightness: -20%);
+		box-shadow: 0 0 0 1px color.adjust($highlight-color, $lightness: 10%);
 	}
 }
 
@@ -714,7 +714,7 @@ div#wp-responsive-toggle a::before {
 .menu-item-bar .item-delete:focus::before,
 #available-menu-items .item-add:focus::before {
 	box-shadow:
-		0 0 0 1px color.adjust($highlight-color, $lightness: 10),
+		0 0 0 1px color.adjust($highlight-color, $lightness: 10%),
 		0 0 2px 1px $highlight-color;
 }
 
@@ -770,7 +770,7 @@ div#wp-responsive-toggle a::before {
 .wp-full-overlay .collapse-sidebar:hover .collapse-sidebar-arrow,
 .wp-full-overlay .collapse-sidebar:focus .collapse-sidebar-arrow {
 	box-shadow:
-		0 0 0 1px color.adjust($highlight-color, $lightness: 10),
+		0 0 0 1px color.adjust($highlight-color, $lightness: 10%),
 		0 0 2px 1px $highlight-color;
 }
 
