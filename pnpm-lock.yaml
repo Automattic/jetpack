@@ -4673,9 +4673,6 @@ importers:
       sass:
         specifier: 1.64.1
         version: 1.64.1
-      semver:
-        specifier: 7.7.1
-        version: 7.7.1
       social-logos:
         specifier: workspace:*
         version: link:../../js-packages/social-logos
