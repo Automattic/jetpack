@@ -111,8 +111,9 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	}
 
 	// } Disable Partial Payments
-	$updated_settings['invoicing_disable_partial_payments'] = 0;
-	if ( isset( $_POST['wpzbscrm_invoicing_disable_partial_payments'] ) && ! empty( $_POST['wpzbscrm_invoicing_disable_partial_payments'] ) ) {
+	$updated_settings['invoicing_disable_partial_payments'] = 0; // Default to 0 (unchecked)
+	// If the checkbox name exists in POST, it means it was checked.
+	if ( isset( $_POST['wpzbscrm_invoicing_disable_partial_payments'] ) ) {
 		$updated_settings['invoicing_disable_partial_payments'] = 1;
 	}
 
@@ -272,7 +273,8 @@ if ( isset( $sbupdated ) ) {
 				<td class="wfieldname"><label for="wpzbscrm_invoicing_disable_partial_payments"><?php esc_html_e( 'Disable Partial Payments:', 'zero-bs-crm' ); ?></label><br /><?php esc_html_e( 'Tick to hide partial payment options on invoices (editor, portal, PDF).', 'zero-bs-crm' ); ?></td>
 				<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_invoicing_disable_partial_payments" id="wpzbscrm_invoicing_disable_partial_payments" value="1"
 				<?php
-				if ( isset( $settings['invoicing_disable_partial_payments'] ) && $settings['invoicing_disable_partial_payments'] === '1' ) {
+				// Revert to loose comparison for flexibility
+				if ( isset( $settings['invoicing_disable_partial_payments'] ) && $settings['invoicing_disable_partial_payments'] === 1 ) {
 					echo ' checked="checked"';}
 				?>
 				/></td>
