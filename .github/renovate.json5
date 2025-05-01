@@ -96,10 +96,9 @@
 			prPriority: 1,
 			// Teams using DataViews in their projects
 			additionalReviewers: [
-				'team:jetpack-reach', // Publicize
+				'team:triforce', // Publicize, My Jetpack
 				'team:loop', // Newsletter subscriber management
-				'team:jetpack-martech', // My Jetpack
-				'team:waffle-makers', // Scan
+				'team:bastion', // Scan
 				'team:zap', // Forms
 			],
 		},
