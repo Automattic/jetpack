@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sitemap: Prevent PHP notice when generating sitemaps for videos.
