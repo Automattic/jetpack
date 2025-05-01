@@ -107,7 +107,9 @@
 .contact-form :where(label.checkbox-multiple),
 .contact-form :where(label.radio),
 .contact-form :where(label.checkbox) {
-	font-weight: 400;
+
+	/* Inherit the font weight from the parent 'option' block wrapper */
+	font-weight: inherit;
 }
 
 .contact-form label.checkbox-multiple,
@@ -644,6 +646,12 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options,
 .contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-radio-options {
 	padding-top: 8px;
+}
+
+.contact-form :where(.grunion-checkbox-multiple-options .contact-form-field),
+.contact-form :where(.grunion-radio-options .contact-form-field),
+.contact-form :where(.grunion-checkbox .contact-form-field) {
+	font-weight: 400;
 }
 
 .contact-form :where(.grunion-checkbox-multiple-options .contact-form-field),
