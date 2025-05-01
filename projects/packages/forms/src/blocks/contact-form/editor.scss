@@ -665,12 +665,6 @@
 	}
 
 	&__toggle {
-		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
-		border-color: var(--jetpack--contact-form--border-color, #8c8f94);
-		border-style: var(--jetpack--contact-form--border-style, solid);
-		border-width: var(--jetpack--contact-form--border-size, 1px);
-		border-radius: var(--jetpack--contact-form--border-radius);
-		background-color: var(--jetpack--contact-form--input-background, #fff);
 		color: var(--jetpack--contact-form--text-color);
 		font-size: var(--jetpack--contact-form--font-size, 16px);
 		line-height: var(--jetpack--contact-form--line-height);
@@ -753,11 +747,11 @@
 		}
 
 		.jetpack-field {
-			--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 			margin-top: 8px;
 			box-sizing: border-box;
 
 			.notched-label {
+				--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 				position: absolute;
 				top: 0;
 				left: 0;
@@ -772,31 +766,19 @@
 
 			.notched-label__leading {
 				width: var(--notch-width);
-				border: var(--jetpack--contact-form--border);
-				border-color: var(--jetpack--contact-form--border-color);
-				border-style: var(--jetpack--contact-form--border-style);
-				border-width: var(--jetpack--contact-form--border-size);
-				border-right: none;
-				border-radius: var(--jetpack--contact-form--border-radius);
-				border-top-right-radius: unset;
-				border-bottom-right-radius: unset;
+				border-right: none !important;
+				border-top-right-radius: unset !important;
+				border-bottom-right-radius: unset !important;
 			}
 
 			.notched-label__notch {
-				border-radius: unset;
-				border: var(--jetpack--contact-form--border);
-				border-color: var(--jetpack--contact-form--border-color);
-				border-style: var(--jetpack--contact-form--border-style);
-				border-width: var(--jetpack--contact-form--border-size);
+				border-radius: unset !important;
 				padding: 0 4px;
 				transition: border 150ms linear;
-			}
-
-			// For some reason, when keeping the rule below together with the above selector,
-			// on production builds, the attributes are being reordered, causing side-effects
-			.notched-label__notch {
-				border-left: none;
-				border-right: none;
+				// For some reason, when keeping the rule below together with the above selector,
+				// on production builds, the attributes are being reordered, causing side-effects
+				border-left: none !important;
+				border-right: none !important;
 			}
 
 			.notched-label__label {
@@ -814,14 +796,9 @@
 
 			.notched-label__trailing {
 				flex-grow: 1;
-				border: var(--jetpack--contact-form--border);
-				border-color: var(--jetpack--contact-form--border-color);
-				border-style: var(--jetpack--contact-form--border-style);
-				border-width: var(--jetpack--contact-form--border-size);
-				border-left: none;
-				border-radius: var(--jetpack--contact-form--border-radius);
-				border-top-left-radius: unset;
-				border-bottom-left-radius: unset;
+				border-left: none !important;
+				border-top-left-radius: unset !important;
+				border-bottom-left-radius: unset !important;
 			}
 
 			&.jetpack-field-textarea .notched-label__label {
@@ -832,7 +809,7 @@
 			&.is-selected, &.has-placeholder {
 
 				.notched-label__notch {
-					border-top-color: transparent;
+					border-top-color: transparent !important;
 				}
 
 				.notched-label__label {
@@ -1002,6 +979,44 @@
 			display: flex;
 			flex-direction: column-reverse;
 		}
+	}
+}
+
+:where( .wp-block-jetpack-contact-form.is-style-outlined ) {
+	.notched-label__leading {
+		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
+		border-radius: var(--jetpack--contact-form--border-radius);
+		width: var(--notch-width);
+		border-right: none !important;
+		border-top-right-radius: unset !important;
+		border-bottom-right-radius: unset !important;
+	}
+	.notched-label__notch {
+		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
+		border-radius: unset !important;
+		padding: 0 4px;
+		transition: border 150ms linear;
+		// For some reason, when keeping the rule below together with the above selector,
+		// on production builds, the attributes are being reordered, causing side-effects
+		border-left: none !important;
+		border-right: none !important;
+	}
+	.notched-label__trailing {
+		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
+		border-radius: var(--jetpack--contact-form--border-radius);
+		flex-grow: 1;
+		border-left: none !important;
+		border-top-left-radius: unset !important;
+		border-bottom-left-radius: unset !important;
 	}
 }
 

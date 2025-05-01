@@ -2524,6 +2524,9 @@ importers:
       copy-webpack-plugin:
         specifier: 11.0.0
         version: 11.0.0(webpack@5.94.0)
+      deepmerge:
+        specifier: ^4.3.1
+        version: 4.3.1
       email-validator:
         specifier: 2.0.4
         version: 2.0.4
