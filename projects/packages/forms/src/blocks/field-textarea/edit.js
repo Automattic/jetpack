@@ -45,7 +45,7 @@ export default function TextareaFieldEdit( props ) {
 		outlinedBorderStyles = {
 			'--jetpack--contact-form--border-size': isNumber( inputBorderStyles?.width )
 				? `${ inputBorderStyles?.width }px`
-				: null,
+				: inputBorderStyles?.width,
 			'--jetpack--contact-form--border-color': inputBorderStyles?.color,
 			'--jetpack--contact-form--border-radius': inputBorderStyles?.radius,
 			'--jetpack--contact-form--border-style': inputBorderStyles?.style,

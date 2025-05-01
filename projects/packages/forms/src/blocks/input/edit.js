@@ -45,7 +45,7 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 		},
 		[ setAttributes ]
 	);
-
+	console.log( 'InputEdit attributes', attributes );
 	if ( type === 'dropdown' ) {
 		return (
 			<div { ...blockProps }>

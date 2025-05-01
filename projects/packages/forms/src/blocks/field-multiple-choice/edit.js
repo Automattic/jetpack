@@ -20,6 +20,35 @@ export default function MultipleChoiceFieldEdit( props ) {
 	useFormWrapper( props );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
+	const firstInputBlock = useSelect(
+		select => {
+			const { getBlock } = select( blockEditorStore );
+
+			// Get the current (parent) block
+			const parentBlock = getBlock( clientId );
+			if ( ! parentBlock ) return null;
+
+			// Find first input block within the innerBlocks
+			return parentBlock.innerBlocks.find( block => block.name === 'jetpack/options' );
+		},
+		[ clientId ]
+	);
+
+	// Access the input block's attributes
+	const inputBorderStyles = firstInputBlock?.attributes?.style?.border;
+	const isOutlined = getBlockStyle( context?.[ 'jetpack/form-className' ] ) === FORM_STYLE.OUTLINED;
+	let outlinedBorderStyles = {};
+	if ( isOutlined && !! inputBorderStyles ) {
+		outlinedBorderStyles = {
+			'--jetpack--contact-form--border-size': isNumber( inputBorderStyles?.width )
+				? `${ inputBorderStyles?.width }px`
+				: inputBorderStyles?.width,
+			'--jetpack--contact-form--border-color': inputBorderStyles?.color,
+			'--jetpack--contact-form--border-radius': inputBorderStyles?.radius,
+			'--jetpack--contact-form--border-style': inputBorderStyles?.style,
+		};
+	}
+
 	const innerBlocks = useSelect(
 		select => select( blockEditorStore ).getBlock( clientId ).innerBlocks,
 		[ clientId ]
@@ -34,9 +63,10 @@ export default function MultipleChoiceFieldEdit( props ) {
 		className: classes,
 		style: {
 			...blockStyle,
+			...outlinedBorderStyles,
 		},
 	} );
-	console.log( 'MultipleChoiceFieldEdit', attributes, blockStyle );
+	console.log( 'MultipleChoiceFieldEdit', attributes, blockStyle, outlinedBorderStyles );
 	const innerBlockProps = useInnerBlocksProps( blockProps, {
 		template: [
 			[

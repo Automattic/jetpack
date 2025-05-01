@@ -23,12 +23,25 @@ const settings = {
 		},
 	},
 	allowedBlocks: [ 'jetpack/field-options' ],
+	usesContext: [ 'jetpack/field-share-attributes' ],
 	providesContext: {
 		'jetpack/field-options-type': 'type',
 	},
 	supports: {
 		spacing: {
 			blockGap: false,
+		},
+		__experimentalBorder: {
+			color: true,
+			radius: true,
+			style: true,
+			width: true,
+			__experimentalDefaultControls: {
+				color: true,
+				radius: true,
+				style: true,
+				width: true,
+			},
 		},
 	},
 	edit,

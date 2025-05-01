@@ -47,6 +47,8 @@ export function SyncedAttributeProvider( { children } ) {
 function useSyncedAttributesForBlock( name, contextValue ) {
 	const [ syncedAttributes, setSyncedAttributes ] = contextValue;
 
+	console.log( 'useSyncedAttributesForBlock', { name, syncedAttributes } );
+
 	return useMemo( () => {
 		return [ syncedAttributes[ name ], attributes => setSyncedAttributes( { name, attributes } ) ];
 	}, [ name, setSyncedAttributes, syncedAttributes ] );
@@ -124,6 +126,14 @@ export function useSyncedAttributes(
 		name,
 		contextValue
 	);
+
+	console.log( 'useSyncedAttributes', {
+		name,
+		isSynced,
+		syncedAttributeKeys,
+		attributes,
+		setOwnAttributes,
+	} );
 
 	// The own attributes belong to the current block that this hook operates on.
 	// If these change and the block is synced, the synced attributes will be updated on the parent form using

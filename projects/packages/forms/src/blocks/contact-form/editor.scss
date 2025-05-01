@@ -869,6 +869,13 @@
 				padding-top: calc(var(--jetpack--contact-form--input-padding, 16px) + 4px);
 				border-top: none;
 
+				.wp-block-jetpack-options {
+					border-radius: unset !important;
+					border: none !important;
+					border-color: transparent !important;
+					border-style: none !important;
+				}
+
 				.notched-label {
 					height: unset;
 

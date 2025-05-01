@@ -2,6 +2,7 @@ import {
 	useBlockProps,
 	store as blockEditorStore,
 	useInnerBlocksProps,
+	__experimentalGetBorderClassesAndStyles as getBorderClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -47,17 +48,18 @@ const JetpackField = props => {
 	);
 
 	// Access the input block's attributes
-	const inputBorderStyles = firstInputBlock?.attributes?.style?.border;
+	const inputBorderStyles = getBorderClassesAndStyles( firstInputBlock?.attributes ?? {} );
 	const isOutlined = getBlockStyle( context?.[ 'jetpack/form-className' ] ) === FORM_STYLE.OUTLINED;
+	console.log( 'JetpackField inputBorderStyles', inputBorderStyles );
 	let outlinedBorderStyles = {};
-	if ( isOutlined && !! inputBorderStyles ) {
+	if ( isOutlined && !! inputBorderStyles?.style ) {
 		outlinedBorderStyles = {
-			'--jetpack--contact-form--border-size': isNumber( inputBorderStyles?.width )
-				? `${ inputBorderStyles?.width }px`
-				: null,
-			'--jetpack--contact-form--border-color': inputBorderStyles?.color,
-			'--jetpack--contact-form--border-radius': inputBorderStyles?.radius,
-			'--jetpack--contact-form--border-style': inputBorderStyles?.style,
+			'--jetpack--contact-form--border-size': isNumber( inputBorderStyles?.style?.borderWidth )
+				? `${ inputBorderStyles?.style?.borderWidth }px`
+				: inputBorderStyles?.style?.borderWidth,
+			'--jetpack--contact-form--border-color': inputBorderStyles?.style?.borderColor,
+			'--jetpack--contact-form--border-radius': inputBorderStyles?.style?.borderRadius,
+			'--jetpack--contact-form--border-style': inputBorderStyles?.style?.borderStyle,
 		};
 	}
 
@@ -65,6 +67,7 @@ const JetpackField = props => {
 		className: clsx( 'jetpack-field', {
 			'is-selected': isSelected || isInnerBlockSelected,
 			'has-placeholder': hasPlaceholder,
+			[ inputBorderStyles?.className ]: !! inputBorderStyles?.className,
 		} ),
 		style: {
 			...blockStyle,
