@@ -1681,10 +1681,23 @@ class Woo_Sync_Background_Sync_Job {
 					'price'    => $price,
 					'total'    => $item_data['total'],
 					'title'    => $item_data['name'],
-					'desc'     => $item_data['name'] . ' (#' . $item_data['product_id'] . ')',
+					'desc'     => '', // Placeholder, will be set below.
 					'tax'      => $item_data['total_tax'],
 					'shipping' => 0,
 				);
+
+				// Get product short description for line item description.
+				$product_id_to_fetch = $item_data['product_id'];
+				if ( isset( $item_data['variation_id'] ) && $item_data['variation_id'] > 0 ) {
+					$product_id_to_fetch = $item_data['variation_id'];
+				}
+				$product               = wc_get_product( $product_id_to_fetch );
+				$line_item_description = $product ? $product->get_short_description() : '';
+				// If short description is empty or product not found, fall back to the product name.
+				if ( empty( $line_item_description ) ) {
+					$line_item_description = $item_data['name'];
+				}
+				$new_line_item['desc'] = $line_item_description;
 
 				// add taxes, where present
 				if ( is_array( $item_tax_rate_ids ) && count( $item_tax_rate_ids ) > 0 ) {
