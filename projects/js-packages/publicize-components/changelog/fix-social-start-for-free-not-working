@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix start for free not working when module is OFF
