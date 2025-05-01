@@ -44,8 +44,6 @@ const SalesforceCard = ( {
 
 	const cardData = {
 		...data,
-		title: __( 'Salesforce', 'jetpack-forms' ),
-		icon: <SalesforceIcon width={ 32 } height={ 22 } />,
 		showHeaderToggle: true,
 		headerToggleValue: salesforceData?.sendToSalesforce || false,
 		isHeaderToggleEnabled: true,
@@ -57,8 +55,9 @@ const SalesforceCard = ( {
 
 	return (
 		<IntegrationCard
-			title={ cardData.title }
-			icon={ cardData.icon }
+			title={ __( 'Salesforce', 'jetpack-forms' ) }
+			description={ __( 'Send form contacts to Salesforce', 'jetpack-forms' ) }
+			icon={ <SalesforceIcon width={ 32 } height={ 22 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 			cardData={ cardData }
@@ -67,7 +66,7 @@ const SalesforceCard = ( {
 				{ ! isValidSalesforceOrgId( salesforceData.organizationId ) && (
 					<p style={ { marginBottom: '20px' } }>
 						{ __(
-							'To connect this form to Salesforce, first add a valid Salesforce organization ID.',
+							'To connect this form to Salesforce, first add the valid Salesforce organization ID where you want to send leads.',
 							'jetpack-forms'
 						) }
 					</p>
@@ -78,7 +77,6 @@ const SalesforceCard = ( {
 					placeholder={ __( 'Enter your Organization ID', 'jetpack-forms' ) }
 					onBlur={ onBlurOrgIdField }
 					onChange={ setOrganizationId }
-					help={ __( 'Enter the Salesforce organization ID to send leads to.', 'jetpack-forms' ) }
 					__nextHasNoMarginBottom={ true }
 					__next40pxDefaultSize={ true }
 				/>
