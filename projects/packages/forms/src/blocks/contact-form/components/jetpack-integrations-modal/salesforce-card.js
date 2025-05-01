@@ -5,6 +5,10 @@ import SalesforceIcon from '../../../../icons/salesforce';
 import HelpMessage from '../help-message';
 import IntegrationCard from './integration-card';
 
+function isValidSalesforceOrgId( id ) {
+	return typeof id === 'string' && /^[a-zA-Z0-9]{15,18}$/.test( id.trim() );
+}
+
 const SalesforceCard = ( {
 	isExpanded,
 	onToggle,
@@ -14,10 +18,6 @@ const SalesforceCard = ( {
 	setAttributes,
 } ) => {
 	const [ organizationIdError, setOrganizationIdError ] = useState( false );
-	const isValidOrgId = !! (
-		salesforceData.organizationId &&
-		salesforceData.organizationId.trim().match( /^[a-zA-Z0-9]{15,18}$/ )
-	);
 
 	const onHeaderToggleChange = value => {
 		setAttributes( {
@@ -39,7 +39,7 @@ const SalesforceCard = ( {
 	};
 
 	const onBlurOrgIdField = e => {
-		setOrganizationIdError( ! e.target.value.trim().match( /^[a-zA-Z0-9]{15,18}$/ ) );
+		setOrganizationIdError( ! isValidSalesforceOrgId( e.target.value ) );
 	};
 
 	const cardData = {
@@ -50,7 +50,7 @@ const SalesforceCard = ( {
 		headerToggleValue: salesforceData?.sendToSalesforce || false,
 		isHeaderToggleEnabled: true,
 		onHeaderToggleChange,
-		isConnected: isValidOrgId,
+		isConnected: isValidSalesforceOrgId( salesforceData.organizationId ),
 		isLoading: typeof data.isInstalled === 'undefined',
 		refreshStatus,
 	};

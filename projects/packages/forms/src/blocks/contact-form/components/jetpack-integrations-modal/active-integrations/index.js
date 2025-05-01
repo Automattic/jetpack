@@ -4,6 +4,7 @@ import { Spinner, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import AkismetIcon from '../../../../../icons/akismet';
 import SalesforceIcon from '../../../../../icons/salesforce';
+import { isValidSalesforceOrgId } from '../salesforce-card';
 import './style.scss';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
@@ -33,7 +34,7 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 				if (
 					attributes.salesforceData?.sendToSalesforce &&
 					attributes.salesforceData?.organizationId &&
-					/^[a-zA-Z0-9]{15,18}$/.test( attributes.salesforceData.organizationId.trim() )
+					isValidSalesforceOrgId( attributes.salesforceData.organizationId )
 				) {
 					acc.push( {
 						...integration,
