@@ -65,20 +65,18 @@ class Jetpack_Sitemap_Buffer_Video_XMLWriter extends Jetpack_Sitemap_Buffer_XMLW
 
 			// Add URL elements
 			foreach ( $array['url'] as $tag => $value ) {
-				if ( $tag !== 'videos' ) {
+				if ( $tag !== 'video:video' ) {
 					$this->writer->writeElement( $tag, strval( $value ) );
 				}
 			}
 
-			// Add video:video elements
-			if ( ! empty( $array['url']['videos'] ) ) {
-				foreach ( $array['url']['videos'] as $video ) {
-					$this->writer->startElement( 'video:video' );
-					foreach ( $video as $tag => $value ) {
-						$this->writer->writeElement( "video:$tag", strval( $value ) );
-					}
-					$this->writer->endElement(); // video:video
+			// Add video:video element and its children.
+			if ( ! empty( $array['url']['video:video'] ) ) {
+				$this->writer->startElement( 'video:video' );
+				foreach ( $array['url']['video:video'] as $tag => $value ) {
+					$this->writer->writeElement( $tag, strval( $value ) );
 				}
+				$this->writer->endElement(); // video:video
 			}
 
 			$this->writer->endElement(); // url
