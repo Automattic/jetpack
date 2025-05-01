@@ -823,7 +823,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . $option['style'] . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'];
 
-					$field .= "<p class='{$option_classes}'>";
+					$field .= "<p {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
 									id='" . esc_attr( $radio_id ) . "'
 									type='radio'
@@ -833,7 +833,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 									. checked( $option_label, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
 									. '/> ';
-					$field .= "<label for='" . esc_attr( $radio_id ) . "' {$option_styles} class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$field .= "<label for='" . esc_attr( $radio_id ) . "' class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
 					$field .= '</label>';
 					$field .= '</p>';
@@ -1179,7 +1179,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . $option['style'] . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'];
 
-					$field .= "<p class='{$option_classes}'>";
+					$field .= "<p {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
 								type='checkbox'
@@ -1188,7 +1188,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								. $class
 								. checked( in_array( $option_label, (array) $value, true ), true, false )
 								. ' /> ';
-					$field .= "<label for='" . esc_attr( $checkbox_id ) . "' {$option_styles} class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$field .= "<label for='" . esc_attr( $checkbox_id ) . "' class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
 					$field .= '</label>';
 					$field .= '</p>';
