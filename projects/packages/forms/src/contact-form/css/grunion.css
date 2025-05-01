@@ -724,6 +724,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	background: var(--jetpack--contact-form--button-outline--background-color);
 	border: var(--jetpack--contact-form--button-outline--border);
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
+	color: var(--jetpack--contact-form--button-outline--text-color);
 	line-height: var(--jetpack--contact-form--button-outline--line-height);
 }
 
