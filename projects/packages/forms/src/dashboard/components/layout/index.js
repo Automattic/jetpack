@@ -1,7 +1,7 @@
-/* eslint-disable react/jsx-no-bind */
 import { JetpackFooter } from '@automattic/jetpack-components';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { TabPanel } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -30,12 +30,15 @@ const Layout = ( { className, showFooter } ) => {
 		},
 	];
 
-	const handleTabSelect = tabName => {
-		if ( ! tabName ) {
-			tabName = config( 'hasFeedback' ) ? 'responses' : 'about';
-		}
-		navigate( `/${ tabName }` );
-	};
+	const handleTabSelect = useCallback(
+		tabName => {
+			if ( ! tabName ) {
+				tabName = config( 'hasFeedback' ) ? 'responses' : 'about';
+			}
+			navigate( `/${ tabName }` );
+		},
+		[ navigate ]
+	);
 
 	return (
 		<div className={ clsx( 'jp-forms__layout', className ) }>
