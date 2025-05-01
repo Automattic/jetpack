@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 $color__border: #dcdcde;
 $color__back-link: #787c82;
 
@@ -26,7 +28,7 @@ $color__back-link: #787c82;
 
 		&:hover,
 		&:active {
-			color: darken( $color__back-link, 30% );
+			color: color.adjust( $color__back-link, $lightness: -30% );
 		}
 
 		svg {
@@ -195,8 +197,8 @@ $color__back-link: #787c82;
 	  text-decoration: underline;
 	}
 
-  	& :hover {
-	  text-decoration-thickness: 3px;
+		:hover {
+		text-decoration-thickness: 3px;
 	}
 }
 

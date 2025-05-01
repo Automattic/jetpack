@@ -63,7 +63,6 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.26.10",
 		"@babel/preset-env": "7.26.9",
-		"@jest/globals": "29.7.0",
 		"@storybook/react": "8.6.7",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/jest-dom": "6.6.3",

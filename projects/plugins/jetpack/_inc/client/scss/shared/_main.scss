@@ -4,6 +4,7 @@
 
 // Utilities
 // TODO Extract into other files
+@use 'sass:color';
 
 .jp-hidden-on-mobile {
 
@@ -49,7 +50,7 @@
 		font-size: rem( 12px );
 		font-style: italic;
 		color: $gray;
-		border-bottom: 1px lighten( $gray, 30% ) solid;
+		border-bottom: 1px color.adjust( $gray, $lightness: 30% ) solid;
 
 		@include breakpoint( "<660px" ) {
 			display: none;
@@ -114,12 +115,12 @@
 
 .is-placeholder {
 	animation: pulse-light 0.8s ease-in-out infinite;
-	background: lighten( $gray, 20% );
+	background: color.adjust( $gray, $lightness: 20% );
 }
 
 @keyframes pulse-light {
 
-	50% { background-color: lighten( $gray, 30% ); }
+	50% { background-color: color.adjust( $gray, $lightness: 30% ); }
 }
 
 .blur {

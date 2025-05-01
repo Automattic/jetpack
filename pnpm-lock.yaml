@@ -389,9 +389,6 @@ importers:
       '@babel/preset-typescript':
         specifier: 7.26.0
         version: 7.26.0(@babel/core@7.26.10)
-      '@jest/globals':
-        specifier: ^29.0.0
-        version: 29.7.0
       '@rollup/plugin-commonjs':
         specifier: 26.0.1
         version: 26.0.1(rollup@3.29.5)
@@ -592,8 +589,8 @@ importers:
         specifier: 7.26.3
         version: 7.26.3(@babel/core@7.26.10)
       '@jest/globals':
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       '@storybook/addon-actions':
         specifier: 8.6.7
         version: 8.6.7(storybook@8.6.7)
@@ -851,7 +848,7 @@ importers:
         version: 4.4.0
       semver:
         specifier: ^7.3.5
-        version: 7.6.3
+        version: 7.7.1
     devDependencies:
       '@wordpress/browserslist-config':
         specifier: 6.21.0
@@ -863,8 +860,8 @@ importers:
         specifier: 8.6.2
         version: 8.6.2(eslint@9.25.1)
       globals:
-        specifier: 15.4.0
-        version: 15.4.0
+        specifier: 16.0.0
+        version: 16.0.0
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -1138,8 +1135,8 @@ importers:
         specifier: 7.26.3
         version: 7.26.3(@babel/core@7.26.10)
       '@jest/globals':
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       '@knighted/duel':
         specifier: 2.1.4
         version: 2.1.4(typescript@5.8.2)
@@ -1365,8 +1362,8 @@ importers:
         specifier: 5.21.0
         version: 5.21.0(@babel/core@7.26.10)
       babel-jest:
-        specifier: 29.4.3
-        version: 29.4.3(@babel/core@7.26.10)
+        specifier: 29.7.0
+        version: 29.7.0(@babel/core@7.26.10)
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -1483,9 +1480,6 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
     devDependencies:
-      '@jest/globals':
-        specifier: 29.7.0
-        version: 29.7.0
       '@storybook/addon-actions':
         specifier: 8.6.7
         version: 8.6.7(storybook@8.6.7)
@@ -1613,8 +1607,8 @@ importers:
         specifier: 5.21.0
         version: 5.21.0(@babel/core@7.26.10)
       babel-jest:
-        specifier: 29.3.1
-        version: 29.3.1(@babel/core@7.26.10)
+        specifier: 29.7.0
+        version: 29.7.0(@babel/core@7.26.10)
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -2555,8 +2549,8 @@ importers:
         specifier: 1.64.1
         version: 1.64.1
       semver:
-        specifier: 7.6.3
-        version: 7.6.3
+        specifier: 7.7.1
+        version: 7.7.1
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -2981,9 +2975,6 @@ importers:
       '@babel/preset-env':
         specifier: 7.26.9
         version: 7.26.9(@babel/core@7.26.10)
-      '@jest/globals':
-        specifier: 29.7.0
-        version: 29.7.0
       '@storybook/react':
         specifier: 8.6.7
         version: 8.6.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.7)(typescript@5.8.2)
@@ -3297,8 +3288,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
       babel-jest:
-        specifier: 29.4.3
-        version: 29.4.3(@babel/core@7.26.10)
+        specifier: 29.7.0
+        version: 29.7.0(@babel/core@7.26.10)
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -3455,9 +3446,6 @@ importers:
       '@babel/runtime':
         specifier: 7.26.10
         version: 7.26.10
-      '@jest/globals':
-        specifier: 29.7.0
-        version: 29.7.0
       '@storybook/react':
         specifier: 8.6.7
         version: 8.6.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.7)(typescript@5.8.2)
@@ -3627,8 +3615,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1(postcss@8.4.47)
       '@jest/globals':
-        specifier: 29.4.3
-        version: 29.4.3
+        specifier: 29.7.0
+        version: 29.7.0
       '@storybook/addon-actions':
         specifier: 8.6.7
         version: 8.6.7(storybook@8.6.7)
@@ -3835,8 +3823,8 @@ importers:
         specifier: 6.21.0
         version: 6.21.0
       babel-jest:
-        specifier: 29.4.3
-        version: 29.4.3(@babel/core@7.26.10)
+        specifier: 29.7.0
+        version: 29.7.0(@babel/core@7.26.10)
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -3991,9 +3979,6 @@ importers:
       '@wordpress/components':
         specifier: 29.7.0
         version: 29.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      babel-jest:
-        specifier: 29.4.3
-        version: 29.4.3(@babel/core@7.26.10)
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -4245,9 +4230,6 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.21.0
         version: 6.21.0
-      babel-jest:
-        specifier: 29.4.3
-        version: 29.4.3(@babel/core@7.26.10)
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -4366,9 +4348,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.5
         version: 18.3.5(@types/react@18.3.18)
-      babel-jest:
-        specifier: 29.3.1
-        version: 29.3.1(@babel/core@7.26.10)
       css-loader:
         specifier: 6.5.1
         version: 6.5.1(webpack@5.94.0)
@@ -4673,9 +4652,6 @@ importers:
       sass:
         specifier: 1.64.1
         version: 1.64.1
-      semver:
-        specifier: 7.6.3
-        version: 7.6.3
       social-logos:
         specifier: workspace:*
         version: link:../../js-packages/social-logos
@@ -4786,8 +4762,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
       babel-jest:
-        specifier: 29.4.3
-        version: 29.4.3(@babel/core@7.26.10)
+        specifier: 29.7.0
+        version: 29.7.0(@babel/core@7.26.10)
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -5062,9 +5038,6 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.21.0
         version: 6.21.0
-      babel-jest:
-        specifier: 29.4.3
-        version: 29.4.3(@babel/core@7.26.10)
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -5215,9 +5188,6 @@ importers:
       '@babel/preset-env':
         specifier: ^7.5.5
         version: 7.26.9(@babel/core@7.26.10)
-      babel-jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@babel/core@7.26.10)
       jest:
         specifier: ^29.7.0
         version: 29.7.0
@@ -5288,11 +5258,11 @@ importers:
         specifier: 0.11.10
         version: 0.11.10
       semver:
-        specifier: 7.6.3
-        version: 7.6.3
+        specifier: 7.7.1
+        version: 7.7.1
       sprintf-js:
-        specifier: 1.1.2
-        version: 1.1.2
+        specifier: 1.1.3
+        version: 1.1.3
       tmp:
         specifier: 0.2.3
         version: 0.2.3
@@ -5397,8 +5367,8 @@ importers:
         specifier: 23.13.0
         version: 23.13.0(postcss@8.4.47)(stylelint@16.16.0(typescript@5.8.2))
       babel-jest:
-        specifier: 29.4.3
-        version: 29.4.3(@babel/core@7.26.10)
+        specifier: 29.7.0
+        version: 29.7.0(@babel/core@7.26.10)
       chalk:
         specifier: 5.4.1
         version: 5.4.1
@@ -5463,8 +5433,8 @@ importers:
         specifier: 11.0.0
         version: 11.0.0
       globals:
-        specifier: 15.13.0
-        version: 15.13.0
+        specifier: 16.0.0
+        version: 16.0.0
       ignore:
         specifier: 7.0.0
         version: 7.0.0
@@ -5493,8 +5463,8 @@ importers:
         specifier: 3.3.2
         version: 3.3.2(svelte@4.2.19)(wp-prettier@3.0.3)
       semver:
-        specifier: 7.6.3
-        version: 7.6.3
+        specifier: 7.7.1
+        version: 7.7.1
       sort-package-json:
         specifier: 1.50.0
         version: 1.50.0
@@ -6779,10 +6749,6 @@ packages:
 
   '@jest/fake-timers@29.7.0':
     resolution: {integrity: sha512-q4DH1Ha4TTFPdxLsqDXK1d3+ioSL7yL5oCMJZgDYm6i+6CygW5E5xVr/D1HdsGxjt1ZWSfUAs9OxSB/BNelWrQ==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-
-  '@jest/globals@29.4.3':
-    resolution: {integrity: sha512-8BQ/5EzfOLG7AaMcDh7yFCbfRLtsc+09E1RQmRBI4D6QQk4m6NSK/MXo+3bJrBN0yU8A2/VIcqhvsOLFmziioA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
   '@jest/globals@29.7.0':
@@ -9453,18 +9419,6 @@ packages:
   b4a@1.6.7:
     resolution: {integrity: sha512-OnAYlL5b7LEkALw87fUVafQw5rVR9RjwGd4KUwNQ6DrrNmaVaUCgLipfVlzrPQ4tWOR9P0IXGNOx50jYCCdSJg==}
 
-  babel-jest@29.3.1:
-    resolution: {integrity: sha512-aard+xnMoxgjwV70t0L6wkW/3HQQtV+O0PEimxKgzNqCJnbYmroPojdP2tqKSOAt8QAKV/uSZU8851M7B5+fcA==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    peerDependencies:
-      '@babel/core': ^7.8.0
-
-  babel-jest@29.4.3:
-    resolution: {integrity: sha512-o45Wyn32svZE+LnMVWv/Z4x0SwtLbh4FyGcYtR20kIWd+rdrDZ9Fzq8Ml3MYLD+mZvEdzCjZsCnYZ2jpJyQ+Nw==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    peerDependencies:
-      '@babel/core': ^7.8.0
-
   babel-jest@29.7.0:
     resolution: {integrity: sha512-BrvGY3xZSwEcCzKvKsCi2GgHqDqsYkOP4/by5xCgIwGXQxIEh+8ew3gmrE1y7XRR6LHZIj6yLYnUi/mm2KXKBg==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -11435,8 +11389,8 @@ packages:
     resolution: {integrity: sha512-49TewVEz0UxZjr1WYYsWpPrhyC/B/pA8Bq0fUmet2n+eR7yn0IvNzNaoBwnK6mdkzcN+se7Ez9zUgULTz2QH4g==}
     engines: {node: '>=18'}
 
-  globals@15.4.0:
-    resolution: {integrity: sha512-unnwvMZpv0eDUyjNyh9DH/yxUaRYrEjW/qK4QcdrHg3oO11igUQrCSgODHEqxlKg8v2CD2Sd7UkqqEBoz5U7TQ==}
+  globals@16.0.0:
+    resolution: {integrity: sha512-iInW14XItCXET01CQFqudPOWP2jYMl7T+QRQT+UNcR/iQncN/F0UNpgd76iFkBPgNQb4+X3LV9tLJYzwh+Gl3A==}
     engines: {node: '>=18'}
 
   globalthis@1.0.4:
@@ -14485,11 +14439,6 @@ packages:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
 
-  semver@7.6.3:
-    resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
-    engines: {node: '>=10'}
-    hasBin: true
-
   semver@7.7.1:
     resolution: {integrity: sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==}
     engines: {node: '>=10'}
@@ -14700,9 +14649,6 @@ packages:
 
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
-
-  sprintf-js@1.1.2:
-    resolution: {integrity: sha512-VE0SOVEHCk7Qc8ulkWw3ntAzXuqf7S2lvwQaDLRnUeIEaKNQJzV6BwmLKhOqT61aGhfUMrXeaBk+oDGCzvhcug==}
 
   sprintf-js@1.1.3:
     resolution: {integrity: sha512-Oo+0REFV59/rz3gfJNKQiBlwfHaSESl1pcGyABQsnnIfWOFt6JNj5gCog2U6MLZ//IGYD+nA8nI+mTShREReaA==}
@@ -17097,7 +17043,7 @@ snapshots:
       chalk: 4.1.2
       find-root: 1.1.0
       lodash.groupby: 4.6.0
-      semver: 7.6.3
+      semver: 7.7.1
       webpack: 5.94.0(webpack-cli@6.0.1)
 
   '@colors/colors@1.6.0': {}
@@ -17565,15 +17511,6 @@ snapshots:
       jest-mock: 29.7.0
       jest-util: 29.7.0
 
-  '@jest/globals@29.4.3':
-    dependencies:
-      '@jest/environment': 29.7.0
-      '@jest/expect': 29.7.0
-      '@jest/types': 29.6.3
-      jest-mock: 29.7.0
-    transitivePeerDependencies:
-      - supports-color
-
   '@jest/globals@29.7.0':
     dependencies:
       '@jest/environment': 29.7.0
@@ -18004,7 +17941,7 @@ snapshots:
       extract-zip: 2.0.1
       progress: 2.0.3
       proxy-agent: 6.5.0
-      semver: 7.6.3
+      semver: 7.7.1
       tar-fs: 3.0.8
       unbzip2-stream: 1.4.3
       yargs: 17.7.2
@@ -18771,7 +18708,7 @@ snapshots:
       magic-string: 0.30.17
       path-browserify: 1.0.1
       process: 0.11.10
-      semver: 7.6.3
+      semver: 7.7.1
       storybook: 8.6.7
       style-loader: 3.3.4(webpack@5.94.0)
       terser-webpack-plugin: 5.3.3(webpack@5.94.0)
@@ -18823,7 +18760,7 @@ snapshots:
       jsdoc-type-pratt-parser: 4.1.0
       process: 0.11.10
       recast: 0.23.11
-      semver: 7.6.3
+      semver: 7.7.1
       util: 0.12.5
       ws: 8.18.1
     transitivePeerDependencies:
@@ -18874,7 +18811,7 @@ snapshots:
       react-docgen: 7.1.1
       react-dom: 18.3.1(react@18.3.1)
       resolve: 1.22.10
-      semver: 7.6.3
+      semver: 7.7.1
       storybook: 8.6.7
       tsconfig-paths: 4.2.0
       webpack: 5.94.0(webpack-cli@6.0.1)
@@ -19650,7 +19587,7 @@ snapshots:
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 2.1.0(typescript@5.8.2)
       typescript: 5.8.2
     transitivePeerDependencies:
@@ -21548,7 +21485,7 @@ snapshots:
       '@wordpress/hooks': 4.21.0
       gettext-parser: 1.4.0
       memize: 2.1.0
-      sprintf-js: 1.1.2
+      sprintf-js: 1.1.3
       tannin: 1.2.0
 
   '@wordpress/icons@10.21.0(react@18.3.1)':
@@ -22433,32 +22370,6 @@ snapshots:
 
   b4a@1.6.7: {}
 
-  babel-jest@29.3.1(@babel/core@7.26.10):
-    dependencies:
-      '@babel/core': 7.26.10
-      '@jest/transform': 29.7.0
-      '@types/babel__core': 7.20.5
-      babel-plugin-istanbul: 6.1.1
-      babel-preset-jest: 29.6.3(@babel/core@7.26.10)
-      chalk: 4.1.2
-      graceful-fs: 4.2.11
-      slash: 3.0.0
-    transitivePeerDependencies:
-      - supports-color
-
-  babel-jest@29.4.3(@babel/core@7.26.10):
-    dependencies:
-      '@babel/core': 7.26.10
-      '@jest/transform': 29.7.0
-      '@types/babel__core': 7.20.5
-      babel-plugin-istanbul: 6.1.1
-      babel-preset-jest: 29.6.3(@babel/core@7.26.10)
-      chalk: 4.1.2
-      graceful-fs: 4.2.11
-      slash: 3.0.0
-    transitivePeerDependencies:
-      - supports-color
-
   babel-jest@29.7.0(@babel/core@7.26.10):
     dependencies:
       '@babel/core': 7.26.10
@@ -23268,7 +23179,7 @@ snapshots:
       postcss-modules-scope: 3.2.1(postcss@8.4.47)
       postcss-modules-values: 4.0.0(postcss@8.4.47)
       postcss-value-parser: 4.2.0
-      semver: 7.6.3
+      semver: 7.7.1
     optionalDependencies:
       webpack: 5.94.0(webpack-cli@6.0.1)
 
@@ -23281,7 +23192,7 @@ snapshots:
       postcss-modules-scope: 3.2.1(postcss@8.4.47)
       postcss-modules-values: 4.0.0(postcss@8.4.47)
       postcss-value-parser: 4.2.0
-      semver: 7.6.3
+      semver: 7.7.1
       webpack: 5.94.0(webpack-cli@6.0.1)
 
   css-minimizer-webpack-plugin@5.0.1(webpack@5.94.0):
@@ -23979,12 +23890,12 @@ snapshots:
   eslint-compat-utils@0.5.1(eslint@9.25.1):
     dependencies:
       eslint: 9.25.1
-      semver: 7.6.3
+      semver: 7.7.1
 
   eslint-compat-utils@0.6.5(eslint@9.25.1):
     dependencies:
       eslint: 9.25.1
-      semver: 7.6.3
+      semver: 7.7.1
 
   eslint-config-prettier@10.1.2(eslint@9.25.1):
     dependencies:
@@ -24090,7 +24001,7 @@ snapshots:
       espree: 10.3.0
       esquery: 1.6.0
       parse-imports-exports: 0.2.4
-      semver: 7.6.3
+      semver: 7.7.1
       spdx-expression-parse: 4.0.0
     transitivePeerDependencies:
       - supports-color
@@ -24129,7 +24040,7 @@ snapshots:
       globals: 15.13.0
       ignore: 5.3.2
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.1
 
   eslint-plugin-playwright@2.2.0(eslint@9.25.1):
     dependencies:
@@ -24181,7 +24092,7 @@ snapshots:
       postcss: 8.5.3
       postcss-load-config: 3.1.4(postcss@8.5.3)
       postcss-safe-parser: 7.0.1(postcss@8.5.3)
-      semver: 7.6.3
+      semver: 7.7.1
       svelte-eslint-parser: 1.1.3(svelte@4.2.19)
     optionalDependencies:
       svelte: 4.2.19
@@ -24595,7 +24506,7 @@ snapshots:
       minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
-      semver: 7.6.3
+      semver: 7.7.1
       tapable: 2.2.1
       typescript: 5.8.2
       webpack: 5.94.0(webpack-cli@6.0.1)
@@ -24612,7 +24523,7 @@ snapshots:
       minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
-      semver: 7.6.3
+      semver: 7.7.1
       tapable: 2.2.1
       typescript: 5.8.2
       webpack: 5.94.0(webpack-cli@6.0.1)
@@ -24826,7 +24737,7 @@ snapshots:
 
   globals@15.13.0: {}
 
-  globals@15.4.0: {}
+  globals@16.0.0: {}
 
   globalthis@1.0.4:
     dependencies:
@@ -25391,7 +25302,7 @@ snapshots:
       '@babel/parser': 7.27.0
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
-      semver: 7.6.3
+      semver: 7.7.1
     transitivePeerDependencies:
       - supports-color
 
@@ -25817,7 +25728,7 @@ snapshots:
       jest-util: 29.7.0
       natural-compare: 1.4.0
       pretty-format: 29.7.0
-      semver: 7.6.3
+      semver: 7.7.1
     transitivePeerDependencies:
       - supports-color
 
@@ -26321,7 +26232,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   make-error@1.3.6: {}
 
@@ -26826,7 +26737,7 @@ snapshots:
   normalize-package-data@6.0.2:
     dependencies:
       hosted-git-info: 7.0.2
-      semver: 7.6.3
+      semver: 7.7.1
       validate-npm-package-license: 3.0.4
 
   normalize-path@3.0.0: {}
@@ -27362,7 +27273,7 @@ snapshots:
       cosmiconfig: 7.1.0
       klona: 2.0.6
       postcss: 8.4.47
-      semver: 7.6.3
+      semver: 7.7.1
       webpack: 5.94.0(webpack-cli@6.0.1)
 
   postcss-loader@7.3.4(postcss@8.4.47)(typescript@5.8.2)(webpack@5.94.0):
@@ -27370,7 +27281,7 @@ snapshots:
       cosmiconfig: 8.3.6(typescript@5.8.2)
       jiti: 1.21.7
       postcss: 8.4.47
-      semver: 7.6.3
+      semver: 7.7.1
       webpack: 5.94.0(webpack-cli@6.0.1)
     transitivePeerDependencies:
       - typescript
@@ -28458,8 +28369,6 @@ snapshots:
 
   semver@6.3.1: {}
 
-  semver@7.6.3: {}
-
   semver@7.7.1: {}
 
   send@0.19.0:
@@ -28722,8 +28631,6 @@ snapshots:
       jpeg-js: 0.4.4
 
   sprintf-js@1.0.3: {}
-
-  sprintf-js@1.1.2: {}
 
   sprintf-js@1.1.3: {}
 
@@ -29344,7 +29251,7 @@ snapshots:
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.6.3
+      semver: 7.7.1
       typescript: 5.8.2
       yargs-parser: 21.1.1
 

@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../../scss/layout';
 @import '../../scss/variables/colors';
 @import '../../scss/color-functions';
@@ -85,7 +86,7 @@
 		transition: all 100ms ease-in-out;
 
 		&.is-card-link {
-			box-shadow: 0 0 0 1px $gray, 0 2px 4px lighten( $gray, 20% );
+			box-shadow: 0 0 0 1px $gray, 0 2px 4px color.adjust( $gray, $lightness: 20% );
 		}
 
 		.dops-card__link-indicator {

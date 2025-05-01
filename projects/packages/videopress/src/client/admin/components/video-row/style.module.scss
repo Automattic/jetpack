@@ -138,12 +138,12 @@
 	align-items: center;
 	gap: calc( var( --spacing-base ) * 3 ); // 24px
 
-	& > * {
+	> * {
 		flex: 1;
 		min-width: 50px;
 	}
 
-	& > .upload {
+	> .upload {
 		min-width: 166px;
 		width: fit-content;
 		white-space: nowrap;
@@ -155,12 +155,12 @@
 		margin-bottom: var( --spacing-base ); // 8px
 		gap: 0;
 
-		& > * {
+		> * {
 			display: flex;
 			width: 100%;
 			margin-bottom: var( --spacing-base ); // 8px
 
-			& > * {
+			> * {
 				flex: 1;
 			}
 		}

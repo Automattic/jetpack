@@ -27,6 +27,7 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/3rd-party/class.jetpack-amp-support.php',    // class Jetpack_AMP_Support
 			__DIR__ . '/../../../plugins/jetpack/functions.global.php',                       // function jetpack_is_frontend
 			__DIR__ . '/../../../plugins/jetpack/_inc/lib/core-api/load-wpcom-endpoints.php', // function wpcom_rest_api_v2_load_plugin
+			__DIR__ . '/../../../plugins/jetpack/class.jetpack-gutenberg.php',                // class Jetpack_Gutenberg
 		),
 	)
 );

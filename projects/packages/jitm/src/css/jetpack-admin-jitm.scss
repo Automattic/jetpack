@@ -1,4 +1,5 @@
 // Just in Time Messaging - message prompts
+@use 'sass:color';
 
 // TODO: Switch to using the `@automattic/jetpack-base-styles` package when its ready.
 @import '../../plugins/jetpack/_inc/client/scss/functions/rem';
@@ -257,7 +258,7 @@ $jp-gray-20:             #a7aaad;
 		transition: all 100ms ease-in-out;
 
 		&.is-card-link {
-			box-shadow: 0 0 0 1px $gray, 0 2px 4px lighten( $gray, 20% );
+			box-shadow: 0 0 0 1px $gray, 0 2px 4px color.adjust( $gray, $lightness: 20% );
 		}
 
 		.jitm-card__link-indicator {
@@ -500,7 +501,7 @@ $jp-gray-20:             #a7aaad;
 	margin-bottom: auto;
 
 	&::before {
-		color: darken($gray, 20%);
+		color: color.adjust( $gray, $lightness: -20%);
 		font: 400 20px/1 dashicons;
 		content: '\f335';
 	}
