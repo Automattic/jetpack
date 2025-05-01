@@ -1,5 +1,6 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { Onboarding } from '_jetpack-e2e-commons/flows/index.js';
 
 test.beforeEach( async ( { page, admin } ) => {
 	await prerequisitesBuilder( page ).withCleanEnv().withLoggedIn( true ).build();
@@ -8,6 +9,8 @@ test.beforeEach( async ( { page, admin } ) => {
 } );
 
 test( 'Onboarding landing page', async ( { page } ) => {
+	const onboarding = new Onboarding( page );
+
 	await test.step( 'is full-screen', async () => {
 		await expect( page.getByRole( 'navigation', { name: 'Main menu' } ), {
 			message: 'Admin main menu should not be visible',
@@ -51,17 +54,9 @@ test( 'Onboarding landing page', async ( { page } ) => {
 	} );
 
 	await test.step( 'CTA should trigger the connection', async () => {
-		const cta = page.getByRole( 'button', { name: 'Supercharge my site' } );
+		await onboarding.start();
 
-		const apiCallPromise = page.waitForResponse( response => {
-			return response.url().includes( 'jetpack/v4/connection/register' );
-		} );
-
-		await cta.click();
-
-		await expect( cta, { message: 'CTA should be disabled' } ).toBeDisabled();
-		await expect( cta ).toHaveAttribute( 'aria-busy', 'true' );
-
-		await apiCallPromise;
+		await expect( onboarding.CTA, { message: 'CTA should be disabled' } ).toBeDisabled();
+		await expect( onboarding.CTA ).toHaveAttribute( 'aria-busy', 'true' );
 	} );
 } );

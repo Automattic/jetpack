@@ -1,5 +1,6 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { Onboarding } from '_jetpack-e2e-commons/flows/index.js';
 
 test.beforeEach( async ( { page, admin } ) => {
 	await prerequisitesBuilder( page ).withCleanEnv().withLoggedIn( true ).build();
@@ -8,16 +9,10 @@ test.beforeEach( async ( { page, admin } ) => {
 } );
 
 test( 'Site only connection', async ( { page, admin } ) => {
+	const onboarding = new Onboarding( page );
+
 	await test.step( 'Connect site', async () => {
-		const cta = page.getByRole( 'button', { name: 'Supercharge my site' } );
-
-		const apiCallPromise = page.waitForResponse( response => {
-			return response.url().includes( 'jetpack/v4/connection/register' );
-		} );
-
-		await cta.click();
-
-		await apiCallPromise;
+		await Promise.all( [ onboarding.start(), onboarding.waitForSiteConnection() ] );
 	} );
 
 	await test.step( 'Verify site connection', async () => {

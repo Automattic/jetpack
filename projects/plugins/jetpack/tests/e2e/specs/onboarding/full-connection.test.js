@@ -1,5 +1,6 @@
 import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { Onboarding } from '_jetpack-e2e-commons/flows/index.js';
 import logger from '_jetpack-e2e-commons/logger.js';
 
 test.beforeEach( async ( { page } ) => {
@@ -11,6 +12,8 @@ test.beforeEach( async ( { page } ) => {
 } );
 
 test( 'Full connection - Site and User', async ( { page, requestUtils, admin } ) => {
+	const onboarding = new Onboarding( page );
+
 	await test.step( 'Goto My Jetpack', async () => {
 		await admin.visitAdminPage( 'admin.php', 'page=my-jetpack' );
 
@@ -19,26 +22,8 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 		} ).toHaveURL( url => url.searchParams.get( 'step' ) === 'onboarding' );
 	} );
 
-	await test.step( 'Connect', async () => {
-		const waitForWpcomAuthPage = page.waitForURL(
-			'https://wordpress.com/jetpack/connect/authorize**'
-		);
-
-		logger.action( 'Click on the CTA and wait for redirect to WPCOM' );
-		await page.getByRole( 'button', { name: 'Supercharge my site' } ).click();
-		await waitForWpcomAuthPage;
-
-		const waitForMyJetpackPage = page.waitForURL( url => {
-			return (
-				url.origin === requestUtils.baseURL &&
-				url.pathname.includes( 'wp-admin/admin.php' ) &&
-				url.searchParams.get( 'page' ) === 'my-jetpack'
-			);
-		} );
-
-		logger.action( 'Click on "Approve" button and wait for redirect to My Jetpack' );
-		await page.getByRole( 'button', { name: 'Approve', exact: true } ).click();
-		await waitForMyJetpackPage;
+	await test.step( 'Complete onboarding', async () => {
+		await onboarding.onboardUser( requestUtils.baseURL );
 	} );
 
 	await test.step( 'Onboarding tour', async () => {
@@ -46,32 +31,36 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 		// to My Jetpack page. So we are adding it manually to test the onboarding tour.
 		await admin.visitAdminPage( 'admin.php', 'page=my-jetpack&from=jetpack-onboarding' );
 
-		logger.action( 'Navigate thourgh the onboardign tour.' );
+		logger.action( 'Navigate thourgh the onboarding tour.' );
 
 		const dialog = page.getByRole( 'dialog', { name: 'Welcome to Jetpack' } );
 
 		await expect( dialog, { message: 'Should have the onboarding dialog' } ).toBeVisible();
 
-		await expect( page.getByRole( 'button', { name: 'Close' } ), {
+		await expect( dialog.getByRole( 'button', { name: 'Close' } ), {
 			message: 'Should have the close button',
 		} ).toBeVisible();
 
 		const tourSlides = [
-			[ 'stats', 'Simple, yet powerful stats' ],
-			[ 'speed', 'Making your site super fast' ],
-			[ 'app', 'Your site goes wherever you go' ],
+			'Simple, yet powerful stats',
+			'Making your site super fast',
+			'Your site goes wherever you go',
 		];
 
-		for ( const [ id, heading ] of tourSlides ) {
+		for ( const heading of tourSlides ) {
 			await expect( dialog.getByRole( 'heading', { level: 1, name: heading } ), {
 				message: `Should have the heading "${ heading }"`,
 			} ).toBeVisible();
 
-			// eslint-disable-next-line playwright/no-conditional-in-test
-			const name = id === 'app' ? 'Done' : 'Next';
+			const nextButton = dialog.getByRole( 'button', { name: 'Next', exact: true } );
 
-			await dialog.getByRole( 'button', { name, exact: true } ).click();
+			// eslint-disable-next-line playwright/no-conditional-in-test
+			if ( await nextButton.isVisible() ) {
+				await nextButton.click();
+			}
 		}
+
+		await onboarding.closeOnboardingTour();
 	} );
 
 	await test.step( 'Verify site and user connection', async () => {
