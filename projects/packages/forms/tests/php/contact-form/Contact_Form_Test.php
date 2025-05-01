@@ -1393,8 +1393,10 @@ class Contact_Form_Test extends BaseTestCase {
 					}
 					// @phan-suppress-next-line PhanUndeclaredMethod
 					if ( ! empty( $item_label->getAttribute( 'class' ) ) ) {
+						// Classes are applied to the option wrapper, not the label.
+						$option = $item_label->parentNode;  //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 						// @phan-suppress-next-line PhanUndeclaredMethod
-						$this->assertContains( $label_style->class, explode( ' ', $item_label->getAttribute( 'class' ) ), 'Class doesn\'t match' );
+						$this->assertContains( $label_style->class, explode( ' ', $option->getAttribute( 'class' ) ), 'Class doesn\'t match' );
 					}
 				}
 			}
