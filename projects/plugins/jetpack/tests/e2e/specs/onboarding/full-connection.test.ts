@@ -31,7 +31,7 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 		// to My Jetpack page. So we are adding it manually to test the onboarding tour.
 		await admin.visitAdminPage( 'admin.php', 'page=my-jetpack&from=jetpack-onboarding' );
 
-		logger.info( 'Navigate thourgh the onboarding tour.' );
+		logger.info( 'Navigate through the onboarding tour.' );
 
 		const dialog = page.getByRole( 'dialog', { name: 'Welcome to Jetpack' } );
 
