@@ -26,6 +26,13 @@ class Inline_Search extends Classic_Search {
 	private $correction;
 
 	/**
+	 * The colophon instance.
+	 *
+	 * @var Inline_Search_Colophon
+	 */
+	private $colophon;
+
+	/**
 	 * The query parameter that triggers inline search.
 	 *
 	 * @var string
@@ -64,8 +71,14 @@ class Inline_Search extends Classic_Search {
 			// Initialize search correction handling
 			self::$instance->correction = new Inline_Search_Correction();
 
+			// Initialize colophon handling
+			self::$instance->colophon = new Inline_Search_Colophon();
+
 			// Add hooks for displaying corrected query notice
 			add_action( 'pre_get_posts', array( self::$instance->correction, 'setup_corrected_query_hooks' ) );
+
+			// Add hooks for displaying the Jetpack colophon
+			add_action( 'pre_get_posts', array( self::$instance->colophon, 'setup_colophon_hooks' ) );
 		}
 
 		return self::$instance;

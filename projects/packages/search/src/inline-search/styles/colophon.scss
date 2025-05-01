@@ -1,0 +1,130 @@
+$colophon-color: #555;
+$colophon-hover-color: #069E08;
+$colophon-margin-top: 2rem;
+$colophon-margin-bottom: 2rem;
+$colophon-padding-top: 1rem;
+$colophon-padding-bottom: 1rem;
+$colophon-font-size: 0.8rem;
+$colophon-logo-margin-right: 4px;
+
+.jetpack-search-inline-colophon {
+	display: flex;
+	justify-content: center;
+	margin-top: $colophon-margin-top;
+	margin-bottom: $colophon-margin-bottom;
+	padding-top: $colophon-padding-top;
+	padding-bottom: $colophon-padding-bottom;
+	font-size: $colophon-font-size;
+
+	&-link {
+		display: flex;
+		align-items: center;
+		text-decoration: none;
+		color: $colophon-color;
+
+		&:hover {
+			color: $colophon-hover-color;
+		}
+	}
+
+	&-logo {
+		margin-right: $colophon-logo-margin-right;
+	}
+}
+
+.wp-theme-pubdara,
+.wp-theme-dara-wpcom,
+.wp-theme-radcliffe-2-wpcom,
+.wp-theme-pubradcliffe,
+.wp-theme-twentyfifteen,
+.wp-theme-pubtwentyfifteen,
+.wp-theme-twentytwenty,
+.wp-theme-pubtwentytwenty,
+.wp-theme-oceanwp {
+
+	.jetpack-search-inline-colophon {
+		font-size: 1.25rem;
+	}
+}
+
+.wp-theme-varia-wpcom,
+.wp-theme-pubvaria,
+.wp-theme-lodestar-wpcom,
+.wp-theme-publodestar,
+.wp-theme-creatio-2-wpcom,
+.wp-theme-pubcreatio-2,
+.wp-theme-twentytwentythree,
+.wp-theme-pubtwentytwentythree,
+.wp-theme-twentytwentyfour,
+.wp-theme-pubtwentytwentyfour {
+
+	.jetpack-search-inline-colophon {
+		justify-content: flex-start;
+	}
+}
+
+.wp-theme-varia-wpcom,
+.wp-theme-pubvaria {
+	@media only screen and (min-width: 768px) {
+		.jetpack-search-inline-colophon {
+			margin: 0 auto;
+			max-width: calc(782px - 32px);
+		}
+	}
+}
+
+.wp-theme-twentysixteen,
+.wp-theme-pubtwentysixteen {
+
+	.jetpack-search-inline-colophon {
+		margin-top: 0;
+		padding-top: 0;
+
+		@media screen and (min-width: 56.875em) {
+			float: left;
+			justify-content: flex-start;
+			margin-right: -100px;
+			width: 70%;
+		}
+	}
+}
+.wp-theme-twentynineteen,
+.wp-theme-pubtwentynineteen {
+
+	.jetpack-search-inline-colophon {
+		justify-content: flex-start;
+		margin: 1rem 1rem calc(3 * 1rem);
+
+		@media only screen and (min-width: 768px) {
+			margin: 0 calc(10% + 60px) calc(3 * 1rem);
+			max-width: 80%;
+		}
+	}
+}
+
+.wp-theme-karuna-wpcom,
+.wp-theme-pubkaruna {
+
+	.jetpack-search-inline-colophon {
+		justify-content: flex-start;
+
+		@media only screen and (min-width: 768px) {
+			margin: 0 40% 0 0;
+		}
+	}
+}
+
+.wp-theme-generatepress {
+	.jetpack-search-inline-colophon {
+		display: block;
+		margin-top: 2rem;
+		clear: both;
+	}
+}
+.wp-theme-hevor {
+	.jetpack-search-inline-colophon {
+		justify-content: flex-start;
+		max-width: var(--wp--style--global--wide-size);
+	}
+}
+

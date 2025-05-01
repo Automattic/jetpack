@@ -1,6 +1,6 @@
 /**
  * Entry point for inline search styles.
- * This file imports the CSS and the modules for inline search.
+ * This file imports the modules for inline search.
  */
-import '../styles/corrected-query.scss';
-import './corrected-query';
+import '../styles/index.scss';
+import './inline-search';
