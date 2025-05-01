@@ -68,7 +68,8 @@ body.toplevel_page_jetpack-forms {
 			background-color: var(--jp-forms-white-off);
 		}
 	}
-	// Temporary to adjust spacing for export button
+	// TODO: This is to adjust export button position.
+	// Can remove when we update Export button location.
 	.jp-forms__layout-header {
 		position: absolute;
 	}
