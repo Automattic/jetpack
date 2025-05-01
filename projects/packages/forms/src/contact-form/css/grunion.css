@@ -458,11 +458,6 @@
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__leading {
 	width: var(--notch-width);
-	border-radius: var(--jetpack--contact-form--border-radius);
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
 	border-right: none;
 	border-top-right-radius: unset;
 	border-bottom-right-radius: unset;
@@ -470,20 +465,51 @@
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__notch {
 	border-radius: unset;
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
 	padding: 0 4px;
 	transition: border 150ms linear;
 }
+
+
+:where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__leading {
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	border-radius: var(--jetpack--contact-form--border-radius);
+	width: var(--notch-width);
+	border-right: none !important;
+	border-top-right-radius: unset !important;
+	border-bottom-right-radius: unset !important;
+}
+
+:where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__notch {
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	border-radius: unset !important;
+	padding: 0 4px;
+	transition: border 150ms linear;
+	border-left: none !important;
+	border-right: none !important;
+}
+
+:where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__trailing {
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	border-radius: var(--jetpack--contact-form--border-radius);
+	flex-grow: 1;
+	border-left: none !important;
+	border-top-left-radius: unset !important;
+	border-bottom-left-radius: unset !important;
+}
+
 
 /*
 For some reason, when keeping the rule below together with the above selector,
 on production builds, the attributes are being reordered, causing side-effects
 */
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__notch {
-	border-left: none;
+	border-left: none !important;
 	border-right: none;
 }
 
@@ -509,14 +535,9 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__trailing {
 	flex-grow: 1;
-	border-radius: var(--jetpack--contact-form--border-radius);
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
-	border-left: none;
-	border-top-left-radius: unset;
-	border-bottom-left-radius: unset;
+	border-left: none !important;
+	border-top-left-radius: unset !important;
+	border-bottom-left-radius: unset !important;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__notch,
@@ -526,7 +547,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__notch
 {
-	border-top-color: transparent;
+	border-top-color: transparent !important;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__label,
@@ -536,7 +557,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label
 {
-	top: calc(var(--jetpack--contact-form--border-size) * -1);
+	top: calc(var(--jetpack--contact-form--border-size) * -1 / 2);
 	transform: translateY(-50%);
 	font-size: 0.8em;
 }

@@ -145,6 +145,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'max'                    => null,
 				'maxfiles'               => null,
 				'fieldwrapperclasses'    => null,
+				'outlinestylesdata'      => array(),
 			),
 			$attributes,
 			'contact-field'
@@ -1391,20 +1392,54 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$classes .= $this->is_error() ? ' form-error' : '';
 		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
 
+		$style_attrs    = '';
+		$label_css_vars = '';
+		$outline_styles = $this->get_attribute( 'outlinestylesdata' );
+
+		if ( ! empty( $outline_styles ) ) {
+			$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
+			$input_styles   = $this->get_attribute( 'inputstyles' );
+
+			if ( ! empty( $input_styles ) ) {
+				$style_attrs = ' style="' . esc_attr( $input_styles ) . '"';
+			}
+
+			$global_styles = wp_get_global_styles(
+				array( 'border' ),
+				array(
+					'block_name' => 'jetpack/input',
+					'transforms' => array( 'resolve-variables' ),
+				)
+			);
+
+			$border_size = $outline_styles['width'] ??
+				$outline_styles['top']['width'] ??
+				$global_styles['width'] ??
+				$global_styles['top']['width'];
+
+			$border_radius = $outline_styles['radius'] ??
+				$outline_styles['left']['radius'] ??
+				$global_styles['radius'] ??
+				$global_styles['left']['radius'];
+
+			$label_css_vars  = $border_size ? ';--jetpack--contact-form--border-size: ' . $border_size . ';' : '';
+			$label_css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
+		}
+
 		return '
 			<div class="notched-label">
-				<div class="notched-label__leading"></div>
-				<div class="notched-label__notch">
+				<div class="notched-label__leading"' . $style_attrs . '></div>
+				<div class="notched-label__notch"' . $style_attrs . '>
 					<label
 						for="' . esc_attr( $id ) . '"
 						class=" ' . $classes . '"
-						style="' . $this->label_styles . '"
+						style="' . $this->label_styles . $label_css_vars . '"
 					>'
 			. esc_html( $label )
 			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>
 				</div>
-				<div class="notched-label__trailing"></div>
+				<div class="notched-label__trailing"' . $style_attrs . '></div>
 			</div>';
 	}
 
