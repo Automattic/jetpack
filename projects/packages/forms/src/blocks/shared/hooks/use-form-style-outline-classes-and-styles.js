@@ -22,7 +22,7 @@ function mergeBaseAndUserConfigs( base, user ) {
 	} );
 }
 
-export default function useFormStyleOutlinedStyles( clientId, innerBlockName ) {
+export default function useFormStyleOutlineClassesAndStyles( clientId, innerBlockName ) {
 	const { userConfig, baseConfig } = useSelect( select => {
 		const {
 			__experimentalGetCurrentGlobalStylesId,
@@ -33,15 +33,14 @@ export default function useFormStyleOutlinedStyles( clientId, innerBlockName ) {
 		if ( ! globalStylesId ) {
 			return null;
 		}
-		const _userConfig = getEditedEntityRecord( 'root', 'globalStyles', globalStylesId );
-		const _baseConfig = __experimentalGetCurrentThemeBaseGlobalStyles();
+
 		return {
-			userConfig: _userConfig,
-			baseConfig: _baseConfig,
+			userConfig: getEditedEntityRecord( 'root', 'globalStyles', globalStylesId ),
+			baseConfig: __experimentalGetCurrentThemeBaseGlobalStyles(),
 		};
 	}, [] );
 
-	const mergedStyles = useMemo(
+	const mergedGlobalBlockStyles = useMemo(
 		() => mergeBaseAndUserConfigs( baseConfig?.styles?.blocks, userConfig?.styles?.blocks ),
 		[ baseConfig?.styles?.blocks, userConfig?.styles?.blocks ]
 	);
@@ -63,28 +62,30 @@ export default function useFormStyleOutlinedStyles( clientId, innerBlockName ) {
 		[ clientId, innerBlockName ]
 	);
 
-	const mergedAttributes = useMemo(
-		() => ( {
-			...inputBlock?.attributes,
-			style: {
-				...inputBlock?.attributes?.style,
-				...mergedStyles?.[ innerBlockName ],
-			},
-		} ),
-		[ innerBlockName, inputBlock?.attributes, mergedStyles ]
-	);
-
-	/*
-    
-    All this to correctly set the values of top: calc(var(--jetpack--contact-form--border-size) * -1) for .notched-label__label and 
-        --notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)); for .notched-label
-        :(
-    
-    */
-	console.log( 'mergedStyles', { baseConfig, userConfig, mergedStyles, mergedAttributes } );
-
-	// TODO merge the styles from the base config with the styles from the user config
-
 	// Access the input block's attributes
-	return getBorderClassesAndStyles( mergedAttributes ?? {} );
+	const blockClassesAndStyles = getBorderClassesAndStyles( inputBlock?.attributes ?? {} );
+	const globalClassesAndStyles = getBorderClassesAndStyles( {
+		style: mergedGlobalBlockStyles?.[ innerBlockName ],
+	} );
+
+	return {
+		border: {
+			className: blockClassesAndStyles?.className,
+			style: blockClassesAndStyles?.style,
+			cssVars: {
+				// Sets the value of top: calc(var(--jetpack--contact-form--border-size) * -1) for .notched-label__label.
+				'--jetpack--contact-form--border-size':
+					blockClassesAndStyles?.style?.borderWidth ||
+					blockClassesAndStyles?.style?.borderTopWidth ||
+					globalClassesAndStyles?.style?.borderWidth ||
+					globalClassesAndStyles?.style?.borderTopWidth,
+				// Sets the value of --notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)); for .notched-label.
+				'--jetpack--contact-form--border-radius':
+					blockClassesAndStyles?.style?.borderRadius ||
+					blockClassesAndStyles?.style?.borderLeftRadius ||
+					globalClassesAndStyles?.style?.borderRadius ||
+					globalClassesAndStyles?.style?.borderLeftRadius,
+			},
+		},
+	};
 }

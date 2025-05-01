@@ -466,6 +466,16 @@ class Contact_Form_Plugin {
 					if ( 'jetpack/field-select' === $block->name ) {
 						$atts['togglelabel'] = $inner_block['attrs']['placeholder'];
 					}
+
+					/*
+						If the form style is outline*, set some styles for the
+						Contact_Form_Field::notched-label__notch element()
+						set in Contact_Form_Field::render()
+
+						*We only know this in Contact_Form_Field::get_form_style()
+					*/
+					$atts['outlinestylesdata'] = isset( $inner_block['attrs']['style']['border'] ) ? \wp_json_encode( $inner_block['attrs']['style']['border'] ) : null;
+
 					$add_block_style_classes_to_field_wrapper = true;
 				}
 
