@@ -14,11 +14,6 @@ const Layout = ( { className, showFooter } ) => {
 	const location = useLocation();
 	const navigate = useNavigate();
 
-	const getCurrentTab = () => {
-		const path = location.pathname.split( '/' )[ 1 ];
-		return path || ( config( 'hasFeedback' ) ? 'responses' : 'about' );
-	};
-
 	const tabs = [
 		{
 			name: 'responses',
@@ -29,6 +24,15 @@ const Layout = ( { className, showFooter } ) => {
 			title: __( 'About', 'jetpack-forms' ),
 		},
 	];
+
+	const getCurrentTab = () => {
+		const path = location.pathname.split( '/' )[ 1 ];
+		const validTabNames = tabs.map( tab => tab.name );
+		if ( validTabNames.includes( path ) ) {
+			return path;
+		}
+		return config( 'hasFeedback' ) ? 'responses' : 'about';
+	};
 
 	const handleTabSelect = useCallback(
 		tabName => {
