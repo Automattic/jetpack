@@ -5,7 +5,7 @@ import SalesforceIcon from '../../../../icons/salesforce';
 import HelpMessage from '../help-message';
 import IntegrationCard from './integration-card';
 
-function isValidSalesforceOrgId( id ) {
+export function isValidSalesforceOrgId( id ) {
 	return typeof id === 'string' && /^[a-zA-Z0-9]{15,18}$/.test( id.trim() );
 }
 
@@ -64,18 +64,26 @@ const SalesforceCard = ( {
 			cardData={ cardData }
 		>
 			<BaseControl __nextHasNoMarginBottom={ true }>
+				{ ! isValidSalesforceOrgId( salesforceData.organizationId ) && (
+					<p style={ { marginBottom: '20px' } }>
+						{ __(
+							'To connect this form to Salesforce, first add a valid Salesforce organization ID.',
+							'jetpack-forms'
+						) }
+					</p>
+				) }
 				<TextControl
 					label={ __( 'Organization ID', 'jetpack-forms' ) }
 					value={ salesforceData.organizationId || '' }
 					placeholder={ __( 'Enter your Organization ID', 'jetpack-forms' ) }
 					onBlur={ onBlurOrgIdField }
 					onChange={ setOrganizationId }
-					help={ __( 'Enter the Salesforce organization ID to send Leads to.', 'jetpack-forms' ) }
+					help={ __( 'Enter the Salesforce organization ID to send leads to.', 'jetpack-forms' ) }
 					__nextHasNoMarginBottom={ true }
 					__next40pxDefaultSize={ true }
 				/>
 				{ organizationIdError && (
-					<HelpMessage isError>
+					<HelpMessage isError style={ { marginTop: '8px' } }>
 						{ __(
 							'Invalid Organization ID. Should be a 15 – 18 characters long alphanumeric string.',
 							'jetpack-forms'
