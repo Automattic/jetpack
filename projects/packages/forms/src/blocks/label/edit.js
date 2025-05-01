@@ -2,6 +2,7 @@ import { RichText, store as blockEditorStore, useBlockProps } from '@wordpress/b
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
+import useFormStyleOutlinedStyles from '../shared/hooks/use-form-style-outlined-styles.js';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
 import { ALLOWED_FORMATS, DATE_FORMATS, FORM_STYLE } from '../shared/util/constants.js';
 import getBlockStyle from '../shared/util/get-block-style.js';
@@ -17,13 +18,25 @@ const getLabelOrFallback = ( label, placeholder ) => {
 	return label ?? placeholder;
 };
 
-const WithNotchedWrapper = ( { formStyle, children } ) => {
+const WithNotchedWrapper = ( { formStyle, styles, className, children } ) => {
 	if ( formStyle === FORM_STYLE.OUTLINED ) {
+		const notchedLabelClassName = clsx( 'notched-label', {
+			'notched-label--has-border-fallback': ! styles?.borderWidth,
+		} );
 		return (
-			<div className="notched-label">
-				<div className="notched-label__leading" />
-				<div className="notched-label__notch">{ children }</div>
-				<div className="notched-label__trailing" />
+			<div
+				className={ notchedLabelClassName }
+				style={
+					styles?.borderRadius
+						? { '--jetpack--contact-form--border-radius': styles.borderRadius }
+						: {}
+				}
+			>
+				<div className={ clsx( 'notched-label__leading', className ) } style={ styles } />
+				<div className={ clsx( 'notched-label__notch', className ) } style={ styles }>
+					{ children }
+				</div>
+				<div className={ clsx( 'notched-label__trailing', className ) } style={ styles } />
 			</div>
 		);
 	}
@@ -31,7 +44,7 @@ const WithNotchedWrapper = ( { formStyle, children } ) => {
 	return <>{ children }</>;
 };
 
-const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
+const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => {
 	const {
 		'jetpack/form-className': formClassName,
 		'jetpack/field-required': required,
@@ -53,6 +66,9 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 		'animated-label__label': formStyle === FORM_STYLE.ANIMATED,
 		'below-label__label': formStyle === FORM_STYLE.BELOW,
 	} );
+
+	const inputBorderStyles = useFormStyleOutlinedStyles( clientId, 'jetpack/input' );
+
 	const blockProps = useBlockProps( { className } );
 
 	// The label value to use for the RichText field must manually fall back to the
@@ -63,7 +79,11 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 	const labelValue = isPreviewMode ? getLabelOrFallback( label, defaultPlaceholder ) : label;
 
 	return (
-		<WithNotchedWrapper formStyle={ formStyle }>
+		<WithNotchedWrapper
+			formStyle={ formStyle }
+			styles={ inputBorderStyles?.style }
+			className={ inputBorderStyles?.className }
+		>
 			<div { ...blockProps }>
 				<RichText
 					allowedFormats={ ALLOWED_FORMATS }

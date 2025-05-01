@@ -119,6 +119,9 @@ class Contact_Form_Block {
 						'__experimentalLetterSpacing'  => true,
 					),
 				),
+				'selectors'    => array(
+					'border' => '.wp-block-jetpack-input, .is-style-outlined .notched-label > *',
+				),
 				'uses_context' => array( 'jetpack/field-defaultValue' ),
 			)
 		);
