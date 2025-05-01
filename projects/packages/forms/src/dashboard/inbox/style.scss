@@ -22,7 +22,7 @@ $action-bar-height: 88px;
 
 	.components-tab-panel__tabs {
 		margin: 0;
-		padding: 16px 48px 0;
+		padding: 10px 48px 10px;
 		z-index: 1;
 		flex: 0 1 auto;
 
@@ -30,7 +30,7 @@ $action-bar-height: 88px;
 			top: 0;
 		}
 
-		@media (max-width: 660px) {
+		@media (max-width: 520px) {
 			padding: 0 24px;
 		}
 	}
@@ -293,10 +293,6 @@ $action-bar-height: 88px;
 	padding: 0 35px 35px 35px;
 	box-sizing: border-box;
 	min-height: 400px;
-
-	@media (max-width: 660px) {
-		padding: 24px;
-	}
 }
 
 .jp-forms__inbox__dataviews {
