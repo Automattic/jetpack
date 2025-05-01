@@ -152,15 +152,13 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 
 		$url_data = array(
 			'url' => array(
-				'loc'     => 'https://example.com/test-page',
-				'lastmod' => '2024-03-31 12:00:00',
-				'videos'  => array(
-					array(
-						'title'         => 'Test Video',
-						'description'   => 'A test video description',
-						'thumbnail_loc' => 'https://example.com/thumbnail.jpg',
-						'content_loc'   => 'https://example.com/video.mp4',
-					),
+				'loc'         => 'https://example.com/test-page',
+				'lastmod'     => '2024-03-31 12:00:00',
+				'video:video' => array(
+					'video:title'         => 'Test Video',
+					'video:description'   => 'A test video description',
+					'video:thumbnail_loc' => 'https://example.com/thumbnail.jpg',
+					'video:content_loc'   => 'https://example.com/video.mp4',
 				),
 			),
 		);
