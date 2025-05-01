@@ -15,7 +15,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"clean": "rm -rf dist",
-		"test": "jest --config=tests/jest.config.cjs",
+		"test": "TZ=UTC jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
 		"compile-ts": "tsc --pretty",
