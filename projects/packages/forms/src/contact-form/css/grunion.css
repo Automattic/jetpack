@@ -723,17 +723,17 @@ on production builds, the attributes are being reordered, causing side-effects
   width: 1px;
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:checked + .grunion-radio-label {
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio:checked + .grunion-radio-label {
 	display: inline-flex;
 	gap: 0.5em;
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:checked + .grunion-radio-label::before {
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio:checked + .grunion-radio-label::before {
 	content: "\2713";
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field:focus-within,
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:focus + .grunion-radio-label {
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio:focus + .grunion-radio-label {
 	outline: var(--jetpack--contact-form--button-outline--border);
 	outline-offset: 2px;
 }
@@ -745,11 +745,11 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-family: var(--wp--preset--font-family--body);
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple.is-style-button:focus {
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple:focus {
 	outline-width: 0; /* focus style defined on parent */
 }
 
-.contact-form .is-style-button input.grunion-field + .grunion-field-text::before {
+.contact-form .is-style-button-wrap input.grunion-field + .grunion-field-text::before {
 	background: var(--jetpack--contact-form--button-outline--background-color);
 	border: var(--jetpack--contact-form--button-outline--border);
 	border-color: currentColor;
@@ -765,16 +765,16 @@ on production builds, the attributes are being reordered, causing side-effects
 	z-index: -1;
 }
 
-.contact-form .is-style-button input.grunion-field {
+.contact-form .is-style-button-wrap input.grunion-field {
 	color: var(--jetpack--contact-form--button-outline--color);
 }
 
-.contact-form input.grunion-field.is-style-button:checked,
-.contact-form input.grunion-field.is-style-button:checked + .grunion-field-text {
+.contact-form .is-style-button-wrap input.grunion-field:checked,
+.contact-form .is-style-button-wrap input.grunion-field:checked + .grunion-field-text {
 	color: var(--jetpack--contact-form--button-outline--background-color-fallback);
 }
 
-.contact-form input.grunion-field.is-style-button:checked + .grunion-field-text::before {
+.contact-form .is-style-button-wrap input.grunion-field:checked + .grunion-field-text::before {
 	background: var(--jetpack--contact-form--button-outline--text-color);
 	border-color: var(--jetpack--contact-form--button-outline--text-color);
 }
