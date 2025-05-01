@@ -457,10 +457,12 @@
 						align-items: center;
 						padding: 0;
 						display: flex;
-						border: 1px solid var(--verbum-border-color);
 						overflow: hidden;
+						// Because of the overlap & focus we need to adjust things a bit so it looks the same
+						margin: -2px 0 -2px -2px;
 
 						button {
+							box-sizing: content-box;
 							width: 37px;
 							height: 37px;
 							margin: 2px;
@@ -468,6 +470,7 @@
 							border: none;
 							cursor: pointer;
 							background-color: var(--verbum-content-background-color);
+							overflow: hidden;
 
 							&:focus {
 								outline: 2px solid var(--verbum-focus-color);
@@ -483,10 +486,14 @@
 
 						button:first-of-type {
 							border-radius: 4px 0 0 4px;
+							border: 1px solid var(--verbum-border-color);
+							border-width: 1px 0 1px 1px;
 						}
 
 						button:last-of-type {
 							border-radius: 0 4px 4px 0;
+							border: 1px solid var(--verbum-border-color);
+							border-width: 1px 1px 1px 0;
 						}
 
 						img,
@@ -497,8 +504,8 @@
 						}
 
 						img {
-							height: 100%;
-							border-radius: 4px 0 0 4px;
+							height: 37px;
+							width: 37px;
 						}
 
 						svg {
