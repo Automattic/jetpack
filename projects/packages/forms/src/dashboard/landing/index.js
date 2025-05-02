@@ -3,7 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -28,7 +28,7 @@ import './style.scss';
 
 const LandingPage = () => {
 	const navigate = useNavigate();
-	const isJetpackSite = isJetpackSelfHostedSite();
+	const isWpcomSite = isWpcomPlatformSite();
 
 	// If a user has responses, redirect them to the inbox.
 	useEffect( () => {
@@ -243,7 +243,7 @@ const LandingPage = () => {
 							'jetpack-forms'
 						) }
 					</Details>
-					{ isJetpackSite && (
+					{ ! isWpcomSite && (
 						<Details summary={ __( 'How much does Jetpack Forms cost?', 'jetpack-forms' ) }>
 							{ __(
 								'Jetpack Forms is currently free and comes by default with your Jetpack plugin.',
@@ -272,10 +272,10 @@ const LandingPage = () => {
 								'jetpack-forms'
 							),
 							{
-								a: isJetpackSite ? (
-									<ExternalLink href={ getRedirectUrl( 'jetpack-contact-support' ) } />
-								) : (
+								a: isWpcomSite ? (
 									<a href={ getRedirectUrl( 'wpcom-contact-support' ) } />
+								) : (
+									<ExternalLink href={ getRedirectUrl( 'jetpack-contact-support' ) } />
 								),
 							}
 						) }
