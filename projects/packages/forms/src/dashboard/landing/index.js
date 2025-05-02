@@ -238,15 +238,10 @@ const LandingPage = () => {
 				<div className="jp-forms__landing-content">
 					<h1 className="mb-6">{ __( 'Frequently Asked Questions', 'jetpack-forms' ) }</h1>
 					<Details summary={ __( 'What do I need to use Jetpack Forms?', 'jetpack-forms' ) }>
-						{ isJetpackSite
-							? __(
-									'Jetpack Forms is activated by default, so it\'s already fully functional. To get started, simply open the WordPress editor and search for the "Form" block in the block library. You can then add the form block and its corresponding child blocks, such as the text input field or multiple choice block, to your website. You can easily manage incoming form responses within the WP-Admin area.',
-									'jetpack-forms'
-							  )
-							: __(
-									'To get started, simply open the WordPress editor and search for the "Form" block in the block library. You can then add the form block and its corresponding child blocks, such as the text input field or multiple choice block, to your website. You can easily manage incoming form responses within the WP-Admin area.',
-									'jetpack-forms'
-							  ) }
+						{ __(
+							'To get started, simply open the WordPress editor and search for the "Form" block in the block library. You can then add the form block and its corresponding child blocks, such as the text input field or multiple choice block, to your website. You can easily manage incoming form responses within the WP-Admin area.',
+							'jetpack-forms'
+						) }
 					</Details>
 					{ isJetpackSite && (
 						<Details summary={ __( 'How much does Jetpack Forms cost?', 'jetpack-forms' ) }>
