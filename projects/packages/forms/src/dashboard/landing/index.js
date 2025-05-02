@@ -277,14 +277,10 @@ const LandingPage = () => {
 								'jetpack-forms'
 							),
 							{
-								a: (
-									<ExternalLink
-										href={
-											isJetpackSite
-												? getRedirectUrl( 'jetpack-contact-support' )
-												: getRedirectUrl( 'wpcom-contact-support' )
-										}
-									/>
+								a: isJetpackSite ? (
+									<ExternalLink href={ getRedirectUrl( 'jetpack-contact-support' ) } />
+								) : (
+									<a href={ getRedirectUrl( 'wpcom-contact-support' ) } />
 								),
 							}
 						) }
