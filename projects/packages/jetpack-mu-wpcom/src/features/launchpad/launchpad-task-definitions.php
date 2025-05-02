@@ -1650,10 +1650,17 @@ function wpcom_launchpad_track_publish_first_post_task() {
  * @return void
  */
 function wpcom_launchpad_track_migrate_content_task() {
+	// Ensure that Headstart posts don't mark this as complete.
+	// Headstart also enables WP_IMPORTING, so it is necessary to check both.
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
 	// Only mark this complete when importing content.
 	if ( ! defined( 'WP_IMPORTING' ) || ! WP_IMPORTING ) {
 		return;
 	}
+	// Check the option to prevent firing this repeatedly during imports, spamming tracks and extra
+	// unnecessary logic.
 	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'migrate_content' ) ) ) {
 		return;
 	}
