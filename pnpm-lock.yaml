@@ -1389,11 +1389,11 @@ importers:
         specifier: workspace:*
         version: link:../webpack-config
       '@tanstack/react-query':
-        specifier: 5.0.5
-        version: 5.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: 5.0.5
-        version: 5.0.5(@tanstack/react-query@5.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(@tanstack/react-query@5.75.1(react@18.3.1))(react@18.3.1)
       jest:
         specifier: '*'
         version: 29.7.0
@@ -2029,8 +2029,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
       '@tanstack/react-query':
-        specifier: 5.20.5
-        version: 5.20.5(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -2679,7 +2679,7 @@ importers:
         version: 8.33.0
       '@tanstack/react-query':
         specifier: ^5.15.5
-        version: 5.20.5(react@18.3.1)
+        version: 5.75.1(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -2918,8 +2918,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
       '@tanstack/react-query':
-        specifier: 5.20.5
-        version: 5.20.5(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -3380,8 +3380,8 @@ importers:
         specifier: 1.0.1
         version: 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
-        specifier: 5.20.5
-        version: 5.20.5(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -4279,8 +4279,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
       '@tanstack/react-query':
-        specifier: 4.35.3
-        version: 4.35.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 4.36.1
+        version: 4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -4843,11 +4843,11 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/scan
       '@tanstack/react-query':
-        specifier: 5.20.5
-        version: 5.20.5(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: 5.20.5
-        version: 5.20.5(@tanstack/react-query@5.20.5(react@18.3.1))(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(@tanstack/react-query@5.75.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -7978,36 +7978,23 @@ packages:
   '@tannin/sprintf@1.2.0':
     resolution: {integrity: sha512-T0ORaQrH6kNFGzTg285RVPK+NCYZxOoA+r0QfKgHqK+yk5RuYPSKDa18XCLtycCNq+VWKpfyDpzGUGhYgCV+kw==}
 
-  '@tanstack/query-core@4.35.3':
-    resolution: {integrity: sha512-PS+WEjd9wzKTyNjjQymvcOe1yg8f3wYc6mD+vb6CKyZAKvu4sIJwryfqfBULITKCla7P9C4l5e9RXePHvZOZeQ==}
+  '@tanstack/query-core@4.36.1':
+    resolution: {integrity: sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==}
 
-  '@tanstack/query-core@5.0.5':
-    resolution: {integrity: sha512-MThCETMkHDHTnFZHp71L+SqTtD5d6XHftFCVR1xRJdWM3qGrlQ2VCXaj0SKVcyJej2e1Opa2c7iknu1llxCDNQ==}
+  '@tanstack/query-core@5.75.0':
+    resolution: {integrity: sha512-rk8KQuCdhoRkzjRVF3QxLgAfFUyS0k7+GCQjlGEpEGco+qazJ0eMH6aO1DjDjibH7/ik383nnztua3BG+lOnwg==}
 
-  '@tanstack/query-core@5.20.5':
-    resolution: {integrity: sha512-T1W28gGgWn0A++tH3lxj3ZuUVZZorsiKcv+R50RwmPYz62YoDEkG4/aXHZELGkRp4DfrW07dyq2K5dvJ4Wl1aA==}
+  '@tanstack/query-devtools@5.74.7':
+    resolution: {integrity: sha512-nSNlfuGdnHf4yB0S+BoNYOE1o3oAH093weAYZolIHfS2stulyA/gWfSk/9H4ZFk5mAAHb5vNqAeJOmbdcGPEQw==}
 
-  '@tanstack/query-devtools@5.0.5':
-    resolution: {integrity: sha512-xjuOhOrrO50sPoJ4WG9yPe3imQ0Ds/nutnmwdTqjM2ZTIkflh//p7q2iB6IxFBY9sB106h+PULlma8sgTuOKAQ==}
-
-  '@tanstack/query-devtools@5.20.2':
-    resolution: {integrity: sha512-BZfSjhk/NGPbqte5E3Vc1Zbj28uWt///4I0DgzAdWrOtMVvdl0WlUXK23K2daLsbcyfoDR4jRI4f2Z5z/mMzuw==}
-
-  '@tanstack/react-query-devtools@5.0.5':
-    resolution: {integrity: sha512-vJyS7HXx2zw43TQjm3m4uyaNUgGizOpK2SZL9Lc+DZSuhFbuZ55UEYJTz8yudCbHdLXlkuVZwo6TWWOhXWJFeA==}
+  '@tanstack/react-query-devtools@5.75.1':
+    resolution: {integrity: sha512-6S71fJRBlb0adlG5z/OHRqZqtHoPYVCklf/KCnOoZ3vdx9O/K9BLvqeeDeMUkZ6Rak/IupbEbvBsFoUiMHwZiQ==}
     peerDependencies:
-      '@tanstack/react-query': ^5.0.5
-      react: ^18.0.0
-      react-dom: ^18.0.0
+      '@tanstack/react-query': ^5.75.1
+      react: ^18 || ^19
 
-  '@tanstack/react-query-devtools@5.20.5':
-    resolution: {integrity: sha512-Wl7IzNuKCb4h41a5iH/YXNwalHItqJPCAr4r8+0iUYOLHNOf3E9P0G4kzZ9sqDoWKxY04qst6Vrij9bwPzLQRQ==}
-    peerDependencies:
-      '@tanstack/react-query': ^5.20.5
-      react: ^18.0.0
-
-  '@tanstack/react-query@4.35.3':
-    resolution: {integrity: sha512-UgTPioip/rGG3EQilXfA2j4BJkhEQsR+KAbF+KIuvQ7j4MkgnTCJF01SfRpIRNtQTlEfz/+IL7+jP8WA8bFbsw==}
+  '@tanstack/react-query@4.36.1':
+    resolution: {integrity: sha512-y7ySVHFyyQblPl3J3eQBWpXZkliroki3ARnBKsdJchlgt7yJLRDUcf4B8soufgiYt3pEQIkBWBx1N9/ZPIeUWw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -8018,22 +8005,10 @@ packages:
       react-native:
         optional: true
 
-  '@tanstack/react-query@5.0.5':
-    resolution: {integrity: sha512-ZG0Q4HZ0iuI8mWiZ2/MdVYPHbrmAVhMn7+gLOkxJh6zLIgCL4luSZlohzN5Xt4MjxfxxWioO1nemwpudaTsmQg==}
+  '@tanstack/react-query@5.75.1':
+    resolution: {integrity: sha512-tN+gG+eXCHYm+VpmdXUP1rfE9LUrRzgYozTkBZtJV1/WFM3vwWNKQC8G6b2RKcs+2cPg+hdToZHZfjL3bF4yIQ==}
     peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-
-  '@tanstack/react-query@5.20.5':
-    resolution: {integrity: sha512-6MHwJ8G9cnOC/XKrwt56QMc91vN7hLlAQNUA0ubP7h9Jj3a/CmkUwT6ALdFbnVP+PsYdhW3WONa8WQ4VcTaSLQ==}
-    peerDependencies:
-      react: ^18.0.0
+      react: ^18 || ^19
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -16036,7 +16011,7 @@ snapshots:
       '@automattic/load-script': 1.0.0
       '@automattic/oauth-token': 1.0.1
       '@automattic/shopping-cart': 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@tanstack/react-query': 5.20.5(react@18.3.1)
+      '@tanstack/react-query': 5.75.1(react@18.3.1)
       '@wordpress/api-fetch': 7.22.0
       '@wordpress/data': 10.22.0(react@18.3.1)
       '@wordpress/data-controls': 4.21.0(react@18.3.1)
@@ -16114,7 +16089,7 @@ snapshots:
       '@automattic/i18n-utils': 1.2.3
       '@automattic/typography': 1.0.0
       '@automattic/viewport': 1.1.0
-      '@tanstack/react-query': 5.20.5(react@18.3.1)
+      '@tanstack/react-query': 5.75.1(react@18.3.1)
       '@wordpress/base-styles': 5.22.0
       '@wordpress/components': 28.13.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.22.0(react@18.3.1)
@@ -19076,47 +19051,29 @@ snapshots:
 
   '@tannin/sprintf@1.2.0': {}
 
-  '@tanstack/query-core@4.35.3': {}
+  '@tanstack/query-core@4.36.1': {}
 
-  '@tanstack/query-core@5.0.5': {}
+  '@tanstack/query-core@5.75.0': {}
 
-  '@tanstack/query-core@5.20.5': {}
+  '@tanstack/query-devtools@5.74.7': {}
 
-  '@tanstack/query-devtools@5.0.5': {}
-
-  '@tanstack/query-devtools@5.20.2': {}
-
-  '@tanstack/react-query-devtools@5.0.5(@tanstack/react-query@5.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.75.1(@tanstack/react-query@5.75.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/query-devtools': 5.0.5
-      '@tanstack/react-query': 5.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
-  '@tanstack/react-query-devtools@5.20.5(@tanstack/react-query@5.20.5(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@tanstack/query-devtools': 5.20.2
-      '@tanstack/react-query': 5.20.5(react@18.3.1)
+      '@tanstack/query-devtools': 5.74.7
+      '@tanstack/react-query': 5.75.1(react@18.3.1)
       react: 18.3.1
 
-  '@tanstack/react-query@4.35.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query@4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 4.35.3
+      '@tanstack/query-core': 4.36.1
       react: 18.3.1
       use-sync-external-store: 1.5.0(react@18.3.1)
     optionalDependencies:
       react-dom: 18.3.1(react@18.3.1)
 
-  '@tanstack/react-query@5.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query@5.75.1(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.0.5
-      react: 18.3.1
-    optionalDependencies:
-      react-dom: 18.3.1(react@18.3.1)
-
-  '@tanstack/react-query@5.20.5(react@18.3.1)':
-    dependencies:
-      '@tanstack/query-core': 5.20.5
+      '@tanstack/query-core': 5.75.0
       react: 18.3.1
 
   '@testing-library/dom@10.4.0':

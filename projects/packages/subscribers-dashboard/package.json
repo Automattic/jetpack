@@ -41,7 +41,7 @@
 		"@automattic/jetpack-explat": "workspace:*",
 		"@automattic/jetpack-licensing": "workspace:*",
 		"@automattic/viewport-react": "1.0.1",
-		"@tanstack/react-query": "5.20.5",
+		"@tanstack/react-query": "5.75.1",
 		"@wordpress/api-fetch": "7.22.0",
 		"@wordpress/base-styles": "5.22.0",
 		"@automattic/color-studio": "4.1.0",
