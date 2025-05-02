@@ -681,8 +681,8 @@ function youtube_link( $content ) {
 	return jetpack_youtube_link( $content );
 }
 
-function youtube_link_callback( $content ) {
-	return jetpack_youtube_link_callback( $content );
+function youtube_link_callback( $matches ) {
+	return jetpack_youtube_link_callback( $matches );
 }
 
 function youtube_embed_to_short_code( $content ) {
