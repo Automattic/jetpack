@@ -663,32 +663,3 @@ function jetpack_fix_youtube_shortcode_display_filter( $content ) {
 	return $content;
 }
 add_filter( 'the_content', 'jetpack_fix_youtube_shortcode_display_filter', 7 );
-
-/**
- * Temporary wrapper functions while purging other codebases of the non-prefixed variants.
- * TODO: Remove these after verifying they're not called elsewhere.
- */
-// phpcs:disable Squiz.Commenting.FunctionComment
-function youtube_id( $url ) {
-	return jetpack_youtube_id( $url );
-}
-
-function youtube_shortcode( $atts ) {
-	return jetpack_youtube_shortcode( $atts );
-}
-
-function youtube_link( $content ) {
-	return jetpack_youtube_link( $content );
-}
-
-function youtube_link_callback( $matches ) {
-	return jetpack_youtube_link_callback( $matches );
-}
-
-function youtube_embed_to_short_code( $content ) {
-	return jetpack_youtube_embed_to_short_code( $content );
-}
-
-function youtube_sanitize_url( $url ) {
-	return jetpack_youtube_sanitize_url( $url );
-}
