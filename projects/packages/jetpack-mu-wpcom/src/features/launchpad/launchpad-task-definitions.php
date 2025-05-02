@@ -1659,8 +1659,8 @@ function wpcom_launchpad_track_migrate_content_task() {
 	if ( ! defined( 'WP_IMPORTING' ) || ! WP_IMPORTING ) {
 		return;
 	}
-	// Check the option to prevent firing this repeatedly during imports, spamming tracks and extra
-	// unnecessary logic.
+	// Check the option to prevent setting this repeatedly during imports, which could spam tracks
+	// and run extra unnecessary logic.
 	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'migrate_content' ) ) ) {
 		return;
 	}
