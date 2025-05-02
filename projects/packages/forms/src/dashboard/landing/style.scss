@@ -92,6 +92,10 @@
 	&.features-block {
 		padding-bottom: 40px;
 	}
+
+	&:first-of-type {
+		padding-bottom: 10px;
+	}
 }
 
 .jp-forms__landing-content {

@@ -96,13 +96,13 @@ const IntegrationCardHeader = ( {
 							trackEventName={ cardData.trackEventName }
 						/>
 					) }
-					{ ( isActive || isConnected ) && showHeaderToggle && (
+					{ ! showPluginAction && showHeaderToggle && (
 						<Tooltip text={ getTooltipText( headerToggleValue ) }>
 							<span className="integration-card__toggle-tooltip-wrapper">
 								<ToggleControl
-									checked={ headerToggleValue }
+									checked={ headerToggleValue && ( isActive || isConnected ) }
 									onChange={ handleToggleChange }
-									disabled={ ! isHeaderToggleEnabled }
+									disabled={ ! isHeaderToggleEnabled || ! ( isActive || isConnected ) }
 									__nextHasNoMarginBottom={ true }
 								/>
 							</span>
