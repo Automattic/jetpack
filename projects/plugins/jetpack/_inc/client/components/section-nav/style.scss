@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../../scss/calypso-colors';
 @import '../../scss/z-index';
 @import '../../scss/functions/rem';
@@ -29,7 +30,7 @@
 
 		&.is-open {
 			box-shadow: 0 0 0 1px $gray,
-				0 2px 4px lighten( $gray, 20 );
+				0 2px 4px color.adjust( $gray, $lightness: 20% );
 		}
 	}
 
@@ -121,7 +122,7 @@
 
 		.dops-section-nav.is-open & {
 			padding-bottom: 15px;
-			border-top: solid 1px lighten( $gray, 20% );
+			border-top: solid 1px color.adjust( $gray, $lightness: 20% );
 			background: linear-gradient(to bottom, $gray-light 0%, $white 4px);
 		}
 	}
@@ -141,7 +142,7 @@
 	position: relative;
 	margin-top: 16px;
 	padding-top: 16px;
-	border-top: solid 1px lighten( $gray, 20% );
+	border-top: solid 1px color.adjust( $gray, $lightness: 20% );
 
 	&:first-child {
 		padding-top: 0;
@@ -175,7 +176,7 @@
 }
 
 .dops-section-nav__hr {
-	background: lighten( $gray, 30 );
+	background: color.adjust( $gray, $lightness: 30% );
 }
 
 // -------- Labels --------
@@ -296,7 +297,7 @@
 
 	&[disabled],
 	.notouch &[disabled]:hover {
-		color: lighten( $black, 30% );
+		color: color.adjust( $black, $lightness: 30% );
 		cursor: default;
 	}
 

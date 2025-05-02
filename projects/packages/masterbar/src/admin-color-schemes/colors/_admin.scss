@@ -5,12 +5,14 @@
  * 2. An import of the overrides necessary to match Calypso color schemes.
  */
 
+@use 'sass:color';
+@use 'sass:string';
 @import 'variables';
 @import 'mixins';
 
 @function url-friendly-colour( $color ) {
 
-	@return '%23' + str-slice( '#{ $color }', 2, -1 );
+	@return '%23' + string.slice( '#{ $color }', 2, -1 );
 }
 
 body {
@@ -117,20 +119,20 @@ textarea:focus {
 	.button:hover,
 	.button.focus,
 	.button:focus {
-		border-color: darken( #7e8993, 5% );
-		color: darken( #32373c, 5% );
+		border-color: color.adjust( #7e8993, $lightness: -5% );
+		color: color.adjust( #32373c, $lightness: -5% );
 	}
 
 	.button.focus,
 	.button:focus {
 		border-color: #7e8993;
-		color: darken( #32373c, 5% );
+		color: color.adjust( #32373c, $lightness: -5% );
 		box-shadow: 0 0 0 1px #32373c;
 	}
 
 	.button:active {
 		border-color: #7e8993;
-		color: darken( #32373c, 5% );
+		color: color.adjust( #32373c, $lightness: -5% );
 		box-shadow: none;
 	}
 
@@ -138,7 +140,7 @@ textarea:focus {
 	.button.active:focus,
 	.button.active:hover {
 		border-color: $button-color;
-		color: darken( #32373c, 5% );
+		color: color.adjust( #32373c, $lightness: -5% );
 		box-shadow: inset 0 2px 5px -3px $button-color;
 	}
 
@@ -157,16 +159,16 @@ textarea:focus {
 		.button.hover,
 		.button:hover,
 		.button-secondary:hover{
-			border-color: darken($highlight-color, 10);
-			color: darken($highlight-color, 10);
+			border-color: color.adjust($highlight-color, $lightness: -10%);
+			color: color.adjust($highlight-color, $lightness: -10%);
 		}
 
 		.button.focus,
 		.button:focus,
 		.button-secondary:focus {
-			border-color: lighten($highlight-color, 10);
-			color: darken($highlight-color, 20);;
-			box-shadow: 0 0 0 1px lighten($highlight-color, 10);
+			border-color: color.adjust($highlight-color, $lightness: 10%);
+			color: color.adjust($highlight-color, $lightness: -20%);
+			box-shadow: 0 0 0 1px color.adjust($highlight-color, $lightness: 10%);
 		}
 
 		.button-primary {
@@ -235,14 +237,14 @@ textarea:focus {
 	}
 
 	.wrap .page-title-action:hover {
-		color: darken($highlight-color, 10);
-		border-color: darken($highlight-color, 10);
+		color: color.adjust($highlight-color, $lightness: -10%);
+		border-color: color.adjust($highlight-color, $lightness: -10%);
 	}
 
 	.wrap .page-title-action:focus {
-		border-color: lighten($highlight-color, 10);
-		color: darken($highlight-color, 20);;
-		box-shadow: 0 0 0 1px lighten($highlight-color, 10);
+		border-color: color.adjust($highlight-color, $lightness: 10%);
+		color: color.adjust($highlight-color, $lightness: -20%);
+		box-shadow: 0 0 0 1px color.adjust($highlight-color, $lightness: 10%);
 	}
 }
 
@@ -551,7 +553,7 @@ ul#adminmenu > li.current > a.current::after {
 
 .wp-pointer .wp-pointer-content h3 {
 	background-color: $highlight-color;
-	border-color: darken( $highlight-color, 5% );
+	border-color: color.adjust($highlight-color, $lightness: -5% );
 }
 
 .wp-pointer .wp-pointer-content h3::before {
@@ -712,7 +714,7 @@ div#wp-responsive-toggle a::before {
 .menu-item-bar .item-delete:focus::before,
 #available-menu-items .item-add:focus::before {
 	box-shadow:
-		0 0 0 1px lighten($highlight-color, 10),
+		0 0 0 1px color.adjust($highlight-color, $lightness: 10%),
 		0 0 2px 1px $highlight-color;
 }
 
@@ -768,7 +770,7 @@ div#wp-responsive-toggle a::before {
 .wp-full-overlay .collapse-sidebar:hover .collapse-sidebar-arrow,
 .wp-full-overlay .collapse-sidebar:focus .collapse-sidebar-arrow {
 	box-shadow:
-		0 0 0 1px lighten($highlight-color, 10),
+		0 0 0 1px color.adjust($highlight-color, $lightness: 10%),
 		0 0 2px 1px $highlight-color;
 }
 

@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../functions/colors';
 
 // ==========================================================================
@@ -12,10 +13,10 @@ $blue-dark: #005082;
 
 // Grays
 $gray-original: #87a6bc;
-$gray: desaturate( $gray-original, 100% ); // Intermediary transform to match dotcom's colors
+$gray: color.adjust( $gray-original, $saturation: -100% ); // Intermediary transform to match dotcom's colors
 
-$gray-light: lighten( $gray, 33% ); //#f6f6f6
-$gray-dark: darken( $gray, 38% ); //#404040
+$gray-light: color.adjust( $gray, $lightness: 33% ); //#f6f6f6
+$gray-dark: color.adjust( $gray, $lightness: -38% ); //#404040
 
 // Text blues
 $blue-heading: #668eaa;
@@ -25,17 +26,17 @@ $blue-dark-text: #2e4453;
 // $gray-text: ideal for standard, non placeholder text
 // $gray-text-min: minimum contrast needed for WCAG 2.0 AA on white background
 $gray-text: $gray-dark;
-$gray-text-min: darken( $gray, 18% ); //#537994
+$gray-text-min: color.adjust( $gray, $lightness: -18% ); //#537994
 
 /**
  * $gray color functions:
  *
- *   lighten( $gray, 10% )
- *   lighten( $gray, 20% )
- *   lighten( $gray, 30% )
- *   darken( $gray, 10% )
- *   darken( $gray, 20% )
- *   darken( $gray, 30% )
+ *   color.adjust( $gray, $lightness: 10% )
+ *   color.adjust( $gray, $lightness: 20% )
+ *   color.adjust( $gray, $lightness: 30% )
+ *   color.adjust( $gray, $lightness: -10% )
+ *   color.adjust( $gray, $lightness: -20% )
+ *   color.adjust( $gray, $lightness: -30% )
  *
  * See wordpress.com/design-handbook/colors/ for more info.
  */
@@ -70,7 +71,7 @@ $border-ultra-light-gray: #e8f0f5;
 
 // Layout
 $masterbar-color: $blue-wordpress;
-$sidebar-bg-color: lighten( $gray, 30% );
+$sidebar-bg-color: color.adjust( $gray, $lightness: 30% );
 $sidebar-text-color: $gray-dark;
 $sidebar-selected-color: $gray;
 

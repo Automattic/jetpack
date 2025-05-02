@@ -21,7 +21,7 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
-		"@wordpress/i18n": "5.21.0",
+		"@wordpress/i18n": "5.22.0",
 		"zod": "3.22.3"
 	},
 	"devDependencies": {

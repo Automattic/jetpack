@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 $jetpack_green: #069E08;
 $jetpack_hover: #007017;
 $background: #069E08;
@@ -386,7 +388,7 @@ p.sbhomep {
 
 /* $activeColor: #c0392b; //red */
 $activeColor: #27ae60; //green
-$darkenColor: darken($activeColor, 20%);
+$darkenColor: color.adjust($activeColor, $lightness: -20%);
 
 #switchBox {
 

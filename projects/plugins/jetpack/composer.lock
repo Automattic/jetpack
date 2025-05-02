@@ -1360,13 +1360,14 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "479049196c8106ce0504af8ecc004bd9875066af"
+				"reference": "81106b759baae4f2b16bcb31d2864a3abc3d13d5"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
 				"automattic/jetpack-blocks": "@dev",
 				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-logo": "@dev",
+				"automattic/jetpack-plans": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"automattic/jetpack-sync": "@dev",
 				"php": ">=7.2"
