@@ -5,6 +5,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import ExportResponsesButton from '../../inbox/export-responses';
 import { config } from '../../index';
 import JetpackFormsLogo from '../logo';
 
@@ -49,8 +50,11 @@ const Layout = ( { className, showFooter } ) => {
 
 	return (
 		<div className={ clsx( 'jp-forms__layout', className ) }>
-			<div className="jp-forms__logo-wrapper">
-				<JetpackFormsLogo />
+			<div className="jp-forms__layout-header">
+				<div className="jp-forms__logo-wrapper">
+					<JetpackFormsLogo />
+				</div>
+				<ExportResponsesButton />
 			</div>
 			<TabPanel
 				className="jp-forms__dashboard-tabs"
