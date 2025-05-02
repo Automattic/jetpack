@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-simple-payments",
+	"name": "automattic/jetpack-paypal-payments",
 	"description": "Add PayPal, credit, and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
@@ -45,12 +45,12 @@
 			"dev-trunk": "0.1.x-dev"
 		},
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-simple-payments/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-paypal-payments/compare/v${old}...v${new}"
 		},
-		"mirror-repo": "Automattic/jetpack-simple-payments",
-		"textdomain": "jetpack-simple-payments",
+		"mirror-repo": "Automattic/jetpack-paypal-payments",
+		"textdomain": "jetpack-paypal-payments",
 		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-simple-payments.php"
+			"::PACKAGE_VERSION": "src/class-paypal-payments.php"
 		}
 	},
 	"suggest": {

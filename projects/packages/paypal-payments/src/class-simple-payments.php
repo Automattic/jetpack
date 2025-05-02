@@ -2,7 +2,7 @@
 /**
  * Package description here
  *
- * @package automattic/jetpack-simple-payments
+ * @package automattic/jetpack-paypal-payments
  */
 
 namespace Automattic\Jetpack;

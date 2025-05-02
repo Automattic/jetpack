@@ -1,8 +1,8 @@
-# simple-payments
+# paypal-payments
 
 Add PayPal, credit, and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.
 
-## How to install simple-payments
+## How to install paypal-payments
 
 ### Installation From Git Repo
 
@@ -20,5 +20,5 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-simple-payments is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+paypal-payments is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
 
