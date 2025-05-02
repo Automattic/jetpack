@@ -59,7 +59,7 @@
 		"debug": "4.4.0",
 		"gridicons": "3.4.1",
 		"prop-types": "15.8.1",
-		"react-router-dom": "6.28.1",
+		"react-router-dom": "6.30.0",
 		"wpcom-proxy-request": "^7.0.3"
 	},
 	"exports": {
