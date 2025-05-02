@@ -494,13 +494,13 @@ class Universal {
 	/**
 	 * Save createaccount post data to be used in $this->order_process.
 	 *
-	 * @param array $data post data from the checkout page.
+	 * @param array|null $data post data from the checkout page.
 	 *
-	 * @return array
+	 * @return array|null
 	 */
-	public function save_checkout_post_data( array $data ) {
+	public function save_checkout_post_data( ?array $data ) {
 		$session = WC()->session;
-		if ( is_object( $session ) ) {
+		if ( is_object( $session ) && is_array( $data ) ) {
 			if ( isset( $data['createaccount'] ) && ! empty( $data['createaccount'] ) ) {
 				$session->set( 'wc_checkout_createaccount_used', true );
 				$session->save_data();
