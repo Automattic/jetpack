@@ -3045,6 +3045,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
 
+  projects/packages/paypal-payments: {}
+
   projects/packages/plans: {}
 
   projects/packages/plugin-deactivation:
@@ -3335,8 +3337,6 @@ importers:
       webpack-cli:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
-
-  projects/packages/simple-payments: {}
 
   projects/packages/stats-admin: {}
 
