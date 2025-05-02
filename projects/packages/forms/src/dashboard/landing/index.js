@@ -258,7 +258,7 @@ const LandingPage = () => {
 								'jetpack-forms'
 							),
 							{
-								a: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
+								a: <ExternalLink href={ getRedirectUrl( 'a8c-privacy' ) } />,
 							}
 						) }
 					</Details>
