@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-mark migrate subscribers task complete when importing content
+launchpad checklists: mark migrate content task complete when importing content
