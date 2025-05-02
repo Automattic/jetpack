@@ -116,7 +116,7 @@ add_filter( 'pre_kses', 'youtube_embed_to_short_code' );
  * @return string The content with embeds instead of URLs
  */
 function jetpack_youtube_link( $content ) {
-	return jetpack_preg_replace_callback_outside_tags( '!(?:\n|\A)https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $content, 'youtube.com/' );
+	return jetpack_preg_replace_callback_outside_tags( '!(?:\n|\A)https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'jetpack_youtube_link_callback', $content, 'youtube.com/' );
 }
 
 /**
@@ -125,7 +125,7 @@ function jetpack_youtube_link( $content ) {
  *
  * @param array $matches An array containing a YouTube URL.
  */
-function youtube_link_callback( $matches ) {
+function jetpack_youtube_link_callback( $matches ) {
 	return "\n" . jetpack_youtube_id( $matches[0] ) . "\n";
 }
 
@@ -679,4 +679,8 @@ function youtube_shortcode( $atts ) {
 
 function youtube_link( $content ) {
 	return jetpack_youtube_link( $content );
+}
+
+function youtube_link_callback( $content ) {
+	return jetpack_youtube_link_callback( $content );
 }
