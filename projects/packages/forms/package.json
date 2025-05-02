@@ -60,7 +60,7 @@
 		"react-redux": "7.2.8",
 		"react-router-dom": "6.28.1",
 		"react-transition-group": "^4.4.5",
-		"redux": "4.0.5",
+		"redux": "4.2.1",
 		"redux-thunk": "2.3.0",
 		"sass": "1.64.1",
 		"semver": "7.7.1",
