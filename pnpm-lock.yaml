@@ -4485,8 +4485,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2
       '@automattic/request-external-access':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.0.1
+        version: 1.0.1
       '@automattic/social-previews':
         specifier: 2.1.0-beta.10
         version: 2.1.0-beta.10(@babel/runtime@7.26.10)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5625,9 +5625,6 @@ packages:
 
   '@automattic/popup-monitor@1.0.2':
     resolution: {integrity: sha512-Y4LMfdkV8iDmezu/7Ov/18JaFJ0QAy5vCntiP0S5AhLt4R/kjLtBt4ifNXNbdKTthGxlL17+LJ1bNtHBVCzPwg==}
-
-  '@automattic/request-external-access@1.0.0':
-    resolution: {integrity: sha512-vhN72lwPFzhCVMP1l2ODBqt7fI5jfeJz1JyBnq/AUCg9PpsJfdk4vZxhSOLhSSds8VMkU5WaNnaztkYfkkYOiA==}
 
   '@automattic/request-external-access@1.0.1':
     resolution: {integrity: sha512-i7q2yhhQ5V1iLzkVxGG+oCkPIBgkZEfLj0mqCky5qeIleUk+XSXcOFJ1IerOmNeAYxho596rpqlfUyD2evWuLA==}
@@ -16179,10 +16176,6 @@ snapshots:
     dependencies:
       events: 3.3.0
       lodash: 4.17.21
-
-  '@automattic/request-external-access@1.0.0':
-    dependencies:
-      '@automattic/popup-monitor': 1.0.2
 
   '@automattic/request-external-access@1.0.1':
     dependencies:
