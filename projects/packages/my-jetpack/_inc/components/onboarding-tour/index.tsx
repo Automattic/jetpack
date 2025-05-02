@@ -77,7 +77,7 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 									</h1>
 									<p className="myjetpack-onboarding-welcome-tour__text">
 										{ __(
-											'Make your site faster and more user-friendly by boosting loading speeds and SEO in minutes.',
+											'Make your site faster and more user-friendly by boosting loading speeds and SEO in seconds.',
 											'jetpack-my-jetpack'
 										) }
 									</p>
