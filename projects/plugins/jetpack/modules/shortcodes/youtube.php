@@ -126,7 +126,7 @@ function youtube_link( $content ) {
  * @param array $matches An array containing a YouTube URL.
  */
 function youtube_link_callback( $matches ) {
-	return "\n" . youtube_id( $matches[0] ) . "\n";
+	return "\n" . jetpack_youtube_id( $matches[0] ) . "\n";
 }
 
 /**
@@ -179,7 +179,7 @@ endif;
  *
  * @param string $url Youtube URL.
  */
-function youtube_id( $url ) {
+function jetpack_youtube_id( $url ) {
 	$id = jetpack_get_youtube_id( $url );
 
 	if ( ! $id ) {
@@ -443,7 +443,7 @@ function jetpack_shortcode_youtube_args( $url ) {
  */
 function youtube_shortcode( $atts ) {
 	$url = ( isset( $atts[0] ) ) ? ltrim( $atts[0], '=' ) : shortcode_new_to_old_params( $atts );
-	return youtube_id( $url );
+	return jetpack_youtube_id( $url );
 }
 add_shortcode( 'youtube', 'youtube_shortcode' );
 
@@ -532,7 +532,7 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
  * @param string $url     Requested URL to be embedded.
  */
 function wpcom_youtube_embed_crazy_url( $matches, $attr, $url ) {
-	return youtube_id( $url );
+	return jetpack_youtube_id( $url );
 }
 
 /**
@@ -581,7 +581,7 @@ function wpcom_youtube_filter_pre_oembed_result( $result, $url, $args ) {
 	}
 
 	// Fallback to the custom handler if the oembed result is not found, especially for the private video.
-	return youtube_id( $url );
+	return jetpack_youtube_id( $url );
 }
 add_filter( 'pre_oembed_result', 'wpcom_youtube_filter_pre_oembed_result', 10, 3 );
 
@@ -663,3 +663,12 @@ function jetpack_fix_youtube_shortcode_display_filter( $content ) {
 	return $content;
 }
 add_filter( 'the_content', 'jetpack_fix_youtube_shortcode_display_filter', 7 );
+
+// phpcs:disable Squiz.Commenting.FunctionComment
+/**
+ * Temporary wrapper functions while purging other codebases of the non-prefixed variants.
+ * TODO: Remove these after verifying they're not called elsewhere.
+ */
+function youtube_id( $url ) {
+	return jetpack_youtube_id( $url );
+}
