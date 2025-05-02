@@ -55,7 +55,7 @@ const SalesforceCard = ( {
 
 	return (
 		<IntegrationCard
-			title="Salesforce"
+			title={ __( 'Salesforce', 'jetpack-forms' ) }
 			description={ __( 'Send form contacts to Salesforce', 'jetpack-forms' ) }
 			icon={ <SalesforceIcon width={ 32 } height={ 32 } /> }
 			isExpanded={ isExpanded }
