@@ -249,12 +249,15 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 		),
 		'migrate_content'                 => array(
-			'get_title'            => function () {
+			'get_title'             => function () {
 				return __( 'Import content', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
+			'is_complete_callback'  => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'   => 'wpcom_launchpad_has_goal_import_subscribers',
+			'add_listener_callback' => function () {
+				add_action( 'save_post', 'wpcom_launchpad_track_migrate_content_task' );
+			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'import.php' );
 				}
@@ -1639,6 +1642,24 @@ function wpcom_launchpad_track_publish_first_post_task() {
 	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published' );
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published_newsletter' );
+}
+
+/**
+ * Callback for completing migrate content task.
+ *
+ * @return void
+ */
+function wpcom_launchpad_track_migrate_content_task() {
+	// Only mark this complete when importing content.
+	if ( ! defined( 'WP_IMPORTING' ) || ! WP_IMPORTING ) {
+		return;
+	}
+	// Prevent firing this repeatedly during imports by tracking the transient.
+	if ( get_transient( 'wpcom_launchpad_migrated_content_task_marked' ) ) {
+		return;
+	}
+	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'migrate_content' );
+	set_transient( 'wpcom_launchpad_migrated_content_task_marked', true, 10 * MINUTE_IN_SECONDS );
 }
 
 /**
