@@ -13,28 +13,72 @@ body.toplevel_page_jetpack-forms {
 	margin: 0;
 	padding: 0;
 	width: 100%;
+	min-height: 100%;
 
-	&.jp-forms__landing {
-
-		.jp-forms__logo {
-			margin: 40px 64px;
-			width: 330px;
-
-			@media (max-width: 660px) {
-				margin: 40px 24px;
-			}
-		}
+	.jp-forms__logo-wrapper,
+	.jp-forms__layout-header {
+		flex: 0 1 auto; /* Flex, but don't grow */
 	}
 
-	&.jp-forms__inbox {
+	.jp-forms__logo {
+		margin: 20px 48px;
+		width: 200px;
 
-		.jp-forms__logo {
-			margin: 20px 48px;
-			width: 200px;
+		@media (max-width: 660px) {
+			margin: 20px 24px;
+		}
+	}
+}
+
+#jp-forms-dashboard .jp-forms__layout {
+
+	.jp-forms__dashboard-tabs {
+		min-height: 100%;
+
+		> .components-tab-panel__tabs {
+			margin: 0;
+			padding: 0 48px;
+			border-bottom: 1px solid #dcdcde;
+
+			.components-tab-panel__tabs-item {
+				border-bottom: 2px solid transparent;
+				font-size: var(--jp-forms-font-size-regular);
+				font-weight: 400;
+				height: 40px;
+				padding: 8px 16px;
+
+				&.is-active {
+					border-color: var(--jp-green-50);
+					font-weight: 500;
+
+					&::after {
+						display: none;
+					}
+				}
+			}
+
+			@media (max-width: 600px) {
+				top: 0;
+			}
 
 			@media (max-width: 660px) {
-				margin: 20px 24px;
+				padding: 0 24px;
 			}
+		}
+
+		.components-tab-panel__tab-content {
+			background-color: var(--jp-forms-white-off);
+			min-height: 100%;
+		}
+	}
+	// TODO: This is to adjust export button position.
+	// Can remove when we update Export button location.
+	.jp-forms__layout-header {
+		position: absolute;
+
+		@media (max-width: 520px) {
+			position: static;
+			padding: 20px;
 		}
 	}
 }
@@ -44,10 +88,6 @@ body.toplevel_page_jetpack-forms {
 	margin: 0;
 	padding: 16px 48px 0;
 	width: 100%;
-
-	@media (max-width: 660px) {
-		padding: 48px 24px 32px;
-	}
 }
 
 .jp-forms__layout-title {

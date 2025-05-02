@@ -1632,6 +1632,10 @@ function wpcom_launchpad_track_publish_first_post_task() {
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return;
 	}
+	// Ensure that Imports don't mark this as complete.
+	if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
+		return;
+	}
 	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published' );
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published_newsletter' );
