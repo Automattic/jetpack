@@ -110,7 +110,7 @@
 		position: absolute;
 		top: -10px;
 		background: var( --jp-yellow-20 );
-		padding: 0px var( --spacing-base ); // 0 | 8px
+		padding: 0 var( --spacing-base ); // 0 | 8px
 		font-size: var( --font-body-extra-small );
 		border-radius: 4px;
 		line-height: 20px;
@@ -138,12 +138,12 @@
 	align-items: center;
 	gap: calc( var( --spacing-base ) * 3 ); // 24px
 
-	& > * {
+	> * {
 		flex: 1;
 		min-width: 50px;
 	}
 
-	& > .upload {
+	> .upload {
 		min-width: 166px;
 		width: fit-content;
 		white-space: nowrap;
@@ -155,12 +155,12 @@
 		margin-bottom: var( --spacing-base ); // 8px
 		gap: 0;
 
-		& > * {
+		> * {
 			display: flex;
 			width: 100%;
 			margin-bottom: var( --spacing-base ); // 8px
 
-			& > * {
+			> * {
 				flex: 1;
 			}
 		}

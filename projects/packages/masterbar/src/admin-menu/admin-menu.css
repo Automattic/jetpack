@@ -78,7 +78,7 @@
 	background-color: #fff;
 }
 
-#adminmenu .toplevel_page_site-notices .wp-menu-image:before {
+#adminmenu .toplevel_page_site-notices .wp-menu-image::before {
 	content: '\f534';
 	font-family: dashicons;
 	font-size: 20px;
@@ -90,7 +90,7 @@
 	padding: 0;
 }
 
-#adminmenu .toplevel_page_site-notices:hover .wp-menu-image:before {
+#adminmenu .toplevel_page_site-notices:hover .wp-menu-image::before {
 	color: #fff;
 }
 
@@ -262,10 +262,10 @@
 		margin-left: 0;
 	}
 
-	ul#adminmenu a.wp-has-current-submenu:after,
-	ul#adminmenu>li.current>a.current:after,
-	ul#adminmenu li:hover a.wp-has-current-submenu:after,
-	.auto-fold ul#adminmenu li:hover a.wp-has-current-submenu:after {
+	ul#adminmenu a.wp-has-current-submenu::after,
+	ul#adminmenu>li.current>a.current::after,
+	ul#adminmenu li:hover a.wp-has-current-submenu::after,
+	.auto-fold ul#adminmenu li:hover a.wp-has-current-submenu::after {
 		display: none;
 	}
 }
@@ -346,6 +346,8 @@
 }
 
 /** Add new site button **/
+
+/* stylelint-disable-next-line no-duplicate-selectors -- This is part of a larger section of changes. */
 #adminmenu {
 	display: flex;
 	flex-direction: column;
@@ -361,7 +363,7 @@ body:not(.folded) #adminmenu .menu-top[class*="/start?ref=calypso-sidebar"] {
 }
 
 body:not(.folded) #adminmenu .menu-top[class*="/start?ref=calypso-sidebar"] a {
-	border-color: var(--transparent-button-text-color, currentcolor);
+	border-color: var(--transparent-button-text-color, currentColor);
 	display: flex;
 	justify-content: center;
 	background: transparent;

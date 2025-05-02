@@ -114,8 +114,6 @@
 			justify-content: center;
 			align-items: center;
 			padding: 6px 24px;
-
-			width: 93px;
 			height: 40px;
 			background: $white;
 			border: 1.5px solid $black;
@@ -261,7 +259,7 @@
 			display: block;
 			position: static;
 
-			input[type='search'] {
+			input[type="search"] {
 				border: 1px solid $gray-5;
 				border-radius: 4px;
 				padding: 8px 16px 8px 40px;
@@ -272,7 +270,7 @@
 				font-weight: 400;
 				height: 40px;
 				width: 100%;
-				background-image: url( '../images/icon-search.svg' );
+				background-image: url( ../images/icon-search.svg );
 				background-repeat: no-repeat;
 				background-position: 8px center;
 				float: none;

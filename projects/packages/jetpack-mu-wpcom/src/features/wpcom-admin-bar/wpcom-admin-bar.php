@@ -83,8 +83,8 @@ CSS
 	wp_add_inline_style(
 		'wpcom-admin-bar',
 		<<<CSS
-			#wpadminbar.mobile .quicklinks li:not(#wpwrap.wp-responsive-open #wp-admin-bar-menu-toggle) .ab-icon:before,
-			#wpadminbar.mobile .quicklinks li:not(#wpwrap.wp-responsive-open #wp-admin-bar-menu-toggle) .ab-item:before {
+			#wpadminbar.mobile .quicklinks li:not(#wpwrap.wp-responsive-open #wp-admin-bar-menu-toggle) .ab-icon::before,
+			#wpadminbar.mobile .quicklinks li:not(#wpwrap.wp-responsive-open #wp-admin-bar-menu-toggle) .ab-item::before {
 				color: $admin_icon_color !important;
 			}
 CSS
@@ -393,7 +393,7 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 	} elseif ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'trial' ) ) {
 		// Check for trial site
 		$badge_text = __( 'Trial', 'jetpack-mu-wpcom' );
-	} elseif ( ( get_option( 'launch-status' ) !== 'launched' ) || $status->is_coming_soon() ) {
+	} elseif ( get_option( 'launch-status' ) === 'unlaunched' || $status->is_coming_soon() ) {
 		// Check for Coming Soon site
 		$badge_text = __( 'Coming Soon', 'jetpack-mu-wpcom' );
 	} elseif ( $status->is_private_site() ) {

@@ -1,11 +1,11 @@
 
-// ======================================================================
-// Rem function
-//
-// Convert px to rem in a readable fashion.
-//
-// Example: font-size: rem( 21px );
-// ======================================================================
+/**
+ * Rem function
+ *
+ * Convert px to rem in a readable fashion.
+ *
+ * Example: font-size: rem( 21px );
+ */
 
 @use "sass:math";
 

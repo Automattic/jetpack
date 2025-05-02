@@ -124,13 +124,13 @@
 	margin: 0 0 -0.4375em;
 }
 
-.widget.widget_wpcom_social_media_icons_widget ul:before,
-.widget.widget_wpcom_social_media_icons_widget ul:after {
+.widget.widget_wpcom_social_media_icons_widget ul::before,
+.widget.widget_wpcom_social_media_icons_widget ul::after {
 	content: "";
 	display: table;
 }
 
-.widget.widget_wpcom_social_media_icons_widget ul:after {
+.widget.widget_wpcom_social_media_icons_widget ul::after {
 	clear: both;
 }
 
@@ -149,15 +149,15 @@
 	width: 35px;
 }
 
-.widget.widget_wpcom_social_media_icons_widget li a:before {
+.widget.widget_wpcom_social_media_icons_widget li a::before {
 	height: 33px;
 	line-height: 33px;
 	text-align: center;
 	width: 33px;
 }
 
-.widget.widget_wpcom_social_media_icons_widget li a:hover:before,
-.widget.widget_wpcom_social_media_icons_widget li a:focus:before {
+.widget.widget_wpcom_social_media_icons_widget li a:hover::before,
+.widget.widget_wpcom_social_media_icons_widget li a:focus::before {
 	opacity: 0.8;
 }
 
@@ -166,13 +166,13 @@
 	margin: 0 0 -0.4375em;
 }
 
-.widget.jetpack_widget_social_icons ul:before,
-.widget.jetpack_widget_social_icons ul:after {
+.widget.jetpack_widget_social_icons ul::before,
+.widget.jetpack_widget_social_icons ul::after {
 	content: "";
 	display: table;
 }
 
-.widget.jetpack_widget_social_icons ul:after {
+.widget.jetpack_widget_social_icons ul::after {
 	clear: both;
 }
 
@@ -233,7 +233,6 @@
 }
 
 .widget_top-posts .widgets-list-layout-links {
-	width: -webkit-calc(100% - 3.375em);
 	width: calc(100% - 3.375em);
 }
 
@@ -263,7 +262,6 @@
 	color: inherit;
 	display: block;
 	font-family: Montserrat, "Helvetica Neue", sans-serif;
-	font-size: 13px;
 	font-size: 0.8125rem;
 	font-weight: 400;
 	letter-spacing: 0.076923077em;
@@ -337,7 +335,6 @@
 /* Mixclound */
 iframe[src^="http://api.mixcloud.com/"] {
 	margin-left: -8px;
-	max-width: -webkit-calc(100% + 8px);
 	max-width: calc(100% + 8px);
 }
 
@@ -391,7 +388,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 
 .entry-content .portfolio-entry-meta,
 .entry-content .portfolio-entry-content p {
-	font-size: 13px;
 	font-size: 0.8125em;
 	line-height: 1.615384615;
 }
@@ -482,7 +478,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 
 .entry-content .testimonial-entry-title,
 .entry-content .testimonial-entry-content p {
-	font-size: 13px;
 	font-size: 0.8125em;
 	line-height: 1.615384615;
 	margin: 0;
@@ -533,8 +528,8 @@ iframe[src^="http://api.mixcloud.com/"] {
 	position: relative;
 }
 
-.jp-relatedposts:before,
-.jp-relatedposts:last-child:after {
+.jp-relatedposts::before,
+.jp-relatedposts:last-child::after {
 	background-color: currentColor;
 	content: "";
 	height: 1px;
@@ -545,7 +540,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	width: 100%;
 }
 
-.jp-relatedposts:last-child:after {
+.jp-relatedposts:last-child::after {
 	bottom: 0;
 	top: auto;
 }
@@ -553,14 +548,13 @@ iframe[src^="http://api.mixcloud.com/"] {
 .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
 	color: inherit;
 	font-family: Montserrat, "Helvetica Neue", sans-serif;
-	font-size: 13px;
 	font-size: 0.8125rem;
 	font-weight: 400;
 	line-height: 1;
 	margin-bottom: 1.076923077em;
 }
 
-.entry-content #jp-relatedposts h3.jp-relatedposts-headline em:before {
+.entry-content #jp-relatedposts h3.jp-relatedposts-headline em::before {
 	display: none;
 }
 
@@ -568,13 +562,13 @@ iframe[src^="http://api.mixcloud.com/"] {
 	font-weight: 400;
 }
 
-.jp-relatedposts-items:before,
-.jp-relatedposts-items:after {
+.jp-relatedposts-items::before,
+.jp-relatedposts-items::after {
 	content: "";
 	display: table;
 }
 
-.jp-relatedposts-items:after {
+.jp-relatedposts-items::after {
 	clear: both;
 }
 
@@ -598,7 +592,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 
 .entry-content #jp-relatedposts .jp-relatedposts-items p,
 .entry-content #jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title {
-	font-size: 13px;
 	font-size: 0.8125rem;
 	letter-spacing: 0;
 	line-height: 1.615384615;
@@ -659,8 +652,8 @@ iframe[src^="http://api.mixcloud.com/"] {
 	position: relative;
 }
 
-.sharedaddy:before,
-.sharedaddy:last-child:after {
+.sharedaddy::before,
+.sharedaddy:last-child::after {
 	background-color: currentColor;
 	content: "";
 	height: 1px;
@@ -670,7 +663,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	width: 100%;
 }
 
-.sharedaddy:last-child:after {
+.sharedaddy:last-child::after {
 	bottom: 0;
 	top: auto;
 }
@@ -687,14 +680,13 @@ iframe[src^="http://api.mixcloud.com/"] {
 .hentry h3.sd-title {
 	color: inherit;
 	font-family: Montserrat, "Helvetica Neue", sans-serif;
-	font-size: 13px;
 	font-size: 0.8125rem;
 	font-weight: 400;
 	line-height: 1;
 	margin-bottom: 1.076923077em;
 }
 
-.hentry div.sharedaddy h3.sd-title:before {
+.hentry div.sharedaddy h3.sd-title::before {
 	display: none;
 }
 
@@ -750,6 +742,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	}
 
 	.widget_jetpack_display_posts_widget .jetpack-display-remote-posts p {
+		/* stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values */
 		line-height: 1.615384615em !important;
 		margin: 0 0 1.615384615em !important;
 	}
@@ -779,7 +772,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 	}
 
 	.widget_top-posts .widgets-list-layout-links {
-		width: -webkit-calc(100% - 4.153846154em);
 		width: calc(100% - 4.153846154em);
 	}
 
@@ -805,8 +797,8 @@ iframe[src^="http://api.mixcloud.com/"] {
 		padding-bottom: 0;
 	}
 
-	body:not(.search-results) article:not(.type-page) .sharedaddy:last-child:after,
-	body:not(.search-results) article:not(.type-page) .jp-relatedposts:last-child:after {
+	body:not(.search-results) article:not(.type-page) .sharedaddy:last-child::after,
+	body:not(.search-results) article:not(.type-page) .jp-relatedposts:last-child::after {
 		display: none;
 	}
 

@@ -1,5 +1,6 @@
-@import '../_inc/client/scss/variables/_colors.scss';
-@import '../_inc/client/scss/calypso-colors.scss';
+@use 'sass:color';
+@import '../_inc/client/scss/variables/colors';
+@import '../_inc/client/scss/calypso-colors';
 
 #TB_window.jetpack-disconnect-modal {
 
@@ -20,14 +21,14 @@
 	}
 
 	#TB_ajaxWindowTitle {
-		padding-left: 0px;
+		padding-left: 0;
 		margin-top: -2px; // compensate line height and vertical align the title
 	}
 
 	#TB_ajaxContent {
 
 		width: auto !important;
-		padding: 0px;
+		padding: 0;
 		max-height: 435px;
 
 		@media screen and (min-width: 661px) {
@@ -37,7 +38,7 @@
 		.jetpack_deactivation_dialog_content {
 			padding: 24px;
 			padding-bottom: 80px;
-			margin-top: 0px;
+			margin-top: 0;
 
 			@media screen and (min-width: 661px) {
 				padding-bottom: 24px;
@@ -46,7 +47,7 @@
 			p {
 				font-size: 16px;
 				line-height: 24px;
-				margin-top: 0px;
+				margin-top: 0;
 			}
 
 			ul {
@@ -80,7 +81,7 @@
 		color: $wpui-dark-medium-gray;
 		top: 22px;
 
-		&:after {
+		&::after {
 			content: '\f335';
 			font: 400 32px/29px dashicons;
 			-webkit-font-smoothing: antialiased;
@@ -101,7 +102,7 @@
 
 	.jetpack_deactivation_dialog_content__buttons-row-container {
 		position: absolute;
-		bottom: 0px;
+		bottom: 0;
 		width: 100%;
 		border-top: 1px solid $light-gray-700;
 		background-color: $white;
@@ -123,10 +124,9 @@
 		p {
 			font-size: 13px;
 			line-height: 1.5;
-			margin-top: auto;
-			margin-bottom: 0px;
-			margin-top: 0px;
-			padding-top: 0px;
+			margin-bottom: 0;
+			margin-top: 0;
+			padding-top: 0;
 
 			@media screen and (min-width: 661px) {
 				padding-top: 5px;
@@ -147,7 +147,6 @@
 				margin: 0;
 				outline: 0;
 				overflow: hidden;
-				font-size: 14px;
 				text-overflow: ellipsis;
 				text-decoration: none;
 				vertical-align: top;
@@ -162,20 +161,20 @@
 				margin-bottom: 18px;
 
 				@media screen and (min-width: 661px) {
-					margin-bottom: 0px;
+					margin-bottom: 0;
 					margin-left: 18px;
 					width: auto;
 				}
 
 				&#jetpack_deactivation_dialog_content__button-deactivate {
 					background: $alert-red;
-					border-color: darken( $alert-red, 20% );
+					border-color: color.adjust( $alert-red, $lightness: -20% );
 					color: $white;
-					margin-bottom: 0px;
+					margin-bottom: 0;
 
 					&[disabled],
 					&:disabled {
-						background: lighten( $alert-red, 20% );
+						background: color.adjust( $alert-red, $lightness: 20% );
 						border-color: tint( $alert-red, 30% );
 					}
 				}

@@ -11,7 +11,8 @@ import type { Dimensions, Weight } from '../MeasurableImage.ts';
  * accessible in the components.
  */
 export class MeasurableImageStore {
-	readonly fileSize: Writable< Dimensions & Weight >;
+	readonly fileSize: Writable< Dimensions >;
+	readonly fileWeight: Writable< Weight >;
 	readonly sizeOnPage: Writable< Dimensions >;
 	readonly potentialSavings: Readable< number | null >;
 	readonly expectedSize: Readable< Dimensions >;
@@ -22,16 +23,17 @@ export class MeasurableImageStore {
 	readonly image: MeasurableImage;
 	readonly node: MeasurableImage[ 'node' ];
 
+	private weightMap: Record< string, number > = {};
+
 	private currentSrc = '';
 
 	constructor( measurableImage: MeasurableImage ) {
 		this.image = measurableImage;
 		this.node = measurableImage.node;
 
-		const initialFileSize: Dimensions & Weight = {
+		const initialFileSize: Dimensions = {
 			width: 0,
 			height: 0,
-			weight: 0,
 		};
 
 		const initialSizeOnPage: Dimensions = {
@@ -41,6 +43,9 @@ export class MeasurableImageStore {
 
 		this.url = writable( measurableImage.getURL() );
 		this.fileSize = writable( initialFileSize );
+		this.fileWeight = writable( { weight: -1 }, () => {
+			this.maybeUpdateWeight();
+		} );
 		this.sizeOnPage = writable( initialSizeOnPage );
 		this.potentialSavings = this.derivePotentialSavings();
 		this.oversizedRatio = this.deriveOversizedRatio();
@@ -60,18 +65,21 @@ export class MeasurableImageStore {
 	}
 
 	private derivePotentialSavings() {
-		return derived( [ this.fileSize, this.sizeOnPage ], ( [ fileSize, sizeOnPage ] ) => {
-			return this.image.getPotentialSavings( fileSize, sizeOnPage );
-		} );
+		return derived(
+			[ this.fileSize, this.fileWeight, this.sizeOnPage ],
+			( [ fileSize, fileWeight, sizeOnPage ] ) => {
+				return this.image.getPotentialSavings( fileSize, fileWeight, sizeOnPage );
+			}
+		);
 	}
 
 	public async updateDimensions() {
 		const sizeOnPage = this.image.getSizeOnPage();
 		this.sizeOnPage.set( sizeOnPage );
-		await this.maybeUpdateWeight();
+		await this.updateFileDimensions();
 	}
 
-	private async maybeUpdateWeight() {
+	private async updateFileDimensions() {
 		/**
 		 * Current source can change when resizing screen.
 		 * If the URL has changed since last update,
@@ -80,7 +88,6 @@ export class MeasurableImageStore {
 		if ( this.image.getURL() === this.currentSrc ) {
 			return;
 		}
-		this.loading.set( true );
 
 		this.currentSrc = this.image.getURL();
 		let fileSize;
@@ -89,7 +96,6 @@ export class MeasurableImageStore {
 			fileSize = await this.image.getFileSize( this.currentSrc );
 		} catch {
 			fileSize = {
-				weight: -1,
 				height: -1,
 				width: -1,
 			};
@@ -97,6 +103,24 @@ export class MeasurableImageStore {
 
 		this.url.set( this.currentSrc );
 		this.fileSize.set( fileSize );
+	}
+
+	private async maybeUpdateWeight() {
+		const url = this.currentSrc;
+
+		if ( this.weightMap[ url ] !== undefined ) {
+			this.fileWeight.set( { weight: this.weightMap[ url ] } );
+			return;
+		}
+
+		this.loading.set( true );
+		try {
+			const weight = await this.image.getWeight( url );
+			this.weightMap[ url ] = weight;
+			this.fileWeight.set( { weight } );
+		} catch {
+			this.fileWeight.set( { weight: -1 } );
+		}
 		this.loading.set( false );
 	}
 }

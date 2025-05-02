@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Third_Party;
 
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/class-domain-mapping.php';
 
@@ -34,6 +35,7 @@ class MockDomainMapping extends Domain_Mapping {
  * @package automattic/jetpack
  * @covers \Automattic\Jetpack\Third_Party\Domain_Mapping
  */
+#[CoversClass( Domain_Mapping::class )]
 class Domain_Mapping_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

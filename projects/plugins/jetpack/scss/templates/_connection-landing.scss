@@ -24,6 +24,7 @@
 
 	h1 {
 		font-weight: 400;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 1.75em;
 		position: relative;
 		z-index: 3;
@@ -40,12 +41,12 @@
 		margin-top: 0;
 		background-image: none;
 
-		&:before {
+		&::before {
 			height: inherit;
 		}
 	}
 
-	.more-info:before {
+	.more-info::before {
 		content: none;
 	}
 } //.jp-content

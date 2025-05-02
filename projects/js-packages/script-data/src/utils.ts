@@ -106,7 +106,7 @@ export function isWoASite() {
  * @return Whether the site is a WordPress.com site.
  */
 export function isWpcomPlatformSite() {
-	return isSimpleSite() || isWoASite();
+	return getScriptData().site?.is_wpcom_platform;
 }
 
 /**

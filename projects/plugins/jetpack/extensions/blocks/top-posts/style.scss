@@ -2,7 +2,7 @@
  * Styles for Top Posts
  */
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-@import '../../shared/styles/jetpack-variables.scss';
+@import '../../shared/styles/jetpack-variables';
 
 .wp-block-jetpack-top-posts {
 	margin-bottom: $jetpack-block-margin-bottom;

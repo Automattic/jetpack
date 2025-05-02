@@ -2,7 +2,6 @@ import { execSync, exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import config from 'config';
-import fetch from 'node-fetch';
 import logger from '../logger.js';
 const { E2E_DEBUG } = process.env;
 export const BASE_DOCKER_CMD = 'pnpm jetpack docker --type e2e --name t1';

@@ -728,7 +728,8 @@ class Jetpack_Gutenberg {
 
 		$screen_base = null;
 		if ( function_exists( 'get_current_screen' ) ) {
-			$screen_base = get_current_screen()->base;
+			$current_screen = get_current_screen();
+			$screen_base    = $current_screen ? $current_screen->base : null;
 		}
 
 		$modules = array();

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.5] - 2025-04-28
+### Changed
+- Internal updates.
+
 ## [4.0.4] - 2025-03-21
 ### Changed
 - Internal updates.
@@ -134,6 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added the Jetpack Installer package.
 
+[4.0.5]: https://github.com/Automattic/jetpack-composer-plugin/compare/v4.0.4...v4.0.5
 [4.0.4]: https://github.com/Automattic/jetpack-composer-plugin/compare/v4.0.3...v4.0.4
 [4.0.3]: https://github.com/Automattic/jetpack-composer-plugin/compare/v4.0.2...v4.0.3
 [4.0.2]: https://github.com/Automattic/jetpack-composer-plugin/compare/v4.0.1...v4.0.2

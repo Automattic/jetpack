@@ -12,7 +12,7 @@
 		"automattic/jetpack-connection": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^3.0.0",
+		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"php-mock/php-mock-phpunit": "^2.10",

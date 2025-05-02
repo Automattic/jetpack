@@ -8,14 +8,13 @@ import {
 } from '@wordpress/components';
 import { useEntityRecords } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement, useCallback, useEffect, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 /**
  * Internal dependencies
  */
 import { config } from '../';
-import Layout from '../components/layout';
 import { store as dashboardStore } from '../store';
 import InboxView from './dataviews';
 import ExportResponsesButton from './export-responses';
@@ -96,25 +95,6 @@ const Inbox = () => {
 		navigate( '/landing' );
 	}, [ navigate ] );
 
-	const title = <span className="title">{ __( 'Responses', 'jetpack-forms' ) }</span>;
-
-	const subtitle = (
-		<span className="subtitle">
-			{ createInterpolateElement(
-				__( 'Collect and manage responses from your audience. <a>Learn more</a>', 'jetpack-forms' ),
-				{
-					a: (
-						<a
-							href="https://jetpack.com/support/jetpack-blocks/contact-form/"
-							rel="noreferrer noopener"
-							target="_blank"
-						/>
-					),
-				}
-			) }
-		</span>
-	);
-
 	const onTabSelect = useCallback(
 		newStatusValue => {
 			setSearchParams( previousSearchParams => {
@@ -126,13 +106,11 @@ const Inbox = () => {
 		[ setSearchParams ]
 	);
 	return (
-		<Layout className="jp-forms__inbox">
+		<>
 			<div className="jp-forms__layout-header">
-				<HStack justify="space-between">
-					<h2 className="jp-forms__layout-title">{ title }</h2>
+				<HStack justify="flex-end">
 					<ExportResponsesButton />
 				</HStack>
-				<p className="jp-forms__header-subtext">{ subtitle }</p>
 			</div>
 			<TabPanel
 				className="jp-forms__inbox-tabs"
@@ -143,7 +121,7 @@ const Inbox = () => {
 			>
 				{ () => <InboxView /> }
 			</TabPanel>
-		</Layout>
+		</>
 	);
 };
 

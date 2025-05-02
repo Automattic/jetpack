@@ -25,7 +25,7 @@
 	color: #4f94d4;
 }
 
-.mce-videopress-checkbox .mce-i-checkbox:before {
+.mce-videopress-checkbox .mce-i-checkbox::before {
 	display: inline-block;
 	vertical-align: middle;
 	width: 16px;
@@ -37,11 +37,11 @@
 	content: "\f147";
 }
 
-.mce-videopress-checkbox .mce-i-checkbox.mce-checked:before {
+.mce-videopress-checkbox .mce-i-checkbox.mce-checked::before {
 	content: "\f147";
 }
 
-div[class*=mce-videopress-field] input[type=number] {
+div[class*="mce-videopress-field"] input[type="number"] {
 	width: 70px !important;
 	left: 120px !important;
 }

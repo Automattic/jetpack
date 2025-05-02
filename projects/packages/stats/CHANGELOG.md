@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.2] - 2025-04-28
+### Changed
+- Internal updates.
+
+## [0.16.1] - 2025-04-15
+### Fixed
+- Fix PHP TypeError. [#43072]
+
+## [0.16.0] - 2025-04-14
+### Added
+- Support tracking of archived pages and searches in tracking pixel. [#42368]
+
+### Changed
+- Update home tracking pixel to match archive ones. [#43043]
+
 ## [0.15.9] - 2025-03-31
 ### Changed
 - Internal updates.
@@ -242,6 +257,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.16.2]: https://github.com/Automattic/jetpack-stats/compare/v0.16.1...v0.16.2
+[0.16.1]: https://github.com/Automattic/jetpack-stats/compare/v0.16.0...v0.16.1
+[0.16.0]: https://github.com/Automattic/jetpack-stats/compare/v0.15.9...v0.16.0
 [0.15.9]: https://github.com/Automattic/jetpack-stats/compare/v0.15.8...v0.15.9
 [0.15.8]: https://github.com/Automattic/jetpack-stats/compare/v0.15.7...v0.15.8
 [0.15.7]: https://github.com/Automattic/jetpack-stats/compare/v0.15.6...v0.15.7

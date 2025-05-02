@@ -6,11 +6,11 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
 import Details from '../components/details';
-import Layout from '../components/layout';
 import { config } from '../index';
 import AkismetSVG from './svg/akismet-svg';
 import CheckSVG from './svg/check-svg';
@@ -25,6 +25,15 @@ import WordpressSVG from './svg/wordpress-svg';
 import './style.scss';
 
 const LandingPage = () => {
+	const navigate = useNavigate();
+
+	// If a user has responses, redirect them to the inbox.
+	useEffect( () => {
+		if ( config( 'hasFeedback' ) ) {
+			navigate( '/responses' );
+		}
+	}, [ navigate ] );
+
 	const ASSETS_URL = config( 'pluginAssetsURL' );
 	useEffect( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_display' );
@@ -66,7 +75,7 @@ const LandingPage = () => {
 	};
 
 	return (
-		<Layout className="jp-forms__landing" showFooter>
+		<div className="jp-forms__landing">
 			<section className="jp-forms__landing-section bg-white-off">
 				<div className="jp-forms__landing-content">
 					<h1 className="mb-2">{ __( 'Building forms made easy', 'jetpack-forms' ) }</h1>
@@ -276,7 +285,7 @@ const LandingPage = () => {
 					</Details>
 				</div>
 			</section>
-		</Layout>
+		</div>
 	);
 };
 

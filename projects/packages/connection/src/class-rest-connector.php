@@ -169,7 +169,7 @@ class REST_Connector {
 
 		// Disconnect/unlink user from WordPress.com servers.
 		// this endpoint is set to override the older endpoint that was previously in the Jetpack plugin
-		// Override is here in case an older version of the Jetpack plugin is installed alongside an updated standalone
+		// Override is here in case an older version of the Jetpack plugin is installed alongside an updated standalone.
 		register_rest_route(
 			'jetpack/v4',
 			'/connection/user',
@@ -178,7 +178,7 @@ class REST_Connector {
 				'callback'            => __CLASS__ . '::unlink_user',
 				'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
 			),
-			true // override other implementations
+			true // override other implementations.
 		);
 
 		// We are only registering this route if Jetpack-the-plugin is not active or it's version is ge 10.0-alpha.
@@ -255,38 +255,6 @@ class REST_Connector {
 				'args'                => array(
 					'redirect_uri' => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
-						'type'        => 'string',
-					),
-				),
-			)
-		);
-
-		// Provider-specific authorization URL endpoint
-		register_rest_route(
-			'jetpack/v4',
-			'/connection/authorize_url/(?P<provider>[a-zA-Z]+)',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'connection_authorize_url_provider' ),
-				'permission_callback' => __CLASS__ . '::user_connection_data_permission_check',
-				'args'                => array(
-					'provider'      => array(
-						'description' => __( 'Authentication provider (google, github, apple, link)', 'jetpack-connection' ),
-						'type'        => 'string',
-						'required'    => true,
-						'enum'        => array( 'google', 'github', 'apple', 'link' ),
-					),
-					'redirect_uri'  => array(
-						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
-						'type'        => 'string',
-					),
-					'email_address' => array(
-						'description' => __( 'Email address for magic link authentication', 'jetpack-connection' ),
-						'type'        => 'string',
-						'format'      => 'email',
-					),
-					'from'          => array(
-						'description' => __( 'Optional "from" arg to distinguish where (which flow) the user is coming from when connecting', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
 				),
@@ -1089,56 +1057,6 @@ class REST_Connector {
 		return Rest_Authentication::is_signed_with_blog_token()
 			? true
 			: new WP_Error( 'invalid_permission_connection_check', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
-	}
-
-	/**
-	 * Provider-specific authorization URL endpoint
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return \WP_REST_Response|WP_Error
-	 */
-	public function connection_authorize_url_provider( $request ) {
-		$provider     = $request['provider'];
-		$redirect_uri = $request['redirect_uri'] ?? '';
-		$from         = $request['from'] ?? false;
-
-		// Validate magic link parameters if provider is 'link'
-		if ( 'link' === $provider ) {
-			if ( empty( $request['email_address'] ) ) {
-				return new WP_Error(
-					'missing_email',
-					__( 'Email address is required for magic link authentication.', 'jetpack-connection' ),
-					array( 'status' => 400 )
-				);
-			}
-
-			// Sanitize email address
-			$email = sanitize_email( $request['email_address'] );
-			if ( ! is_email( $email ) ) {
-				return new WP_Error(
-					'invalid_email',
-					__( 'Invalid email address format.', 'jetpack-connection' ),
-					array( 'status' => 400 )
-				);
-			}
-		}
-
-		$authorize_url = ( new Authorize_Redirect( $this->connection ) )->build_authorize_url(
-			$redirect_uri,
-			$from,
-			false,
-			$provider,
-			array(
-				'email_address' => $email ?? '',
-			)
-		);
-
-		return rest_ensure_response(
-			array(
-				'authorizeUrl' => $authorize_url,
-			)
-		);
 	}
 
 	/**

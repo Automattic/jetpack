@@ -13,6 +13,7 @@ use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Modules;
 use Jetpack;
 
 /**
@@ -21,11 +22,20 @@ use Jetpack;
 class Contact_Form_Block {
 	/**
 	 * Register the Contact Form block.
-	 * We are core block only wether jetpack contact form plugin
+	 * We are core block dependent only on whether the jetpack contact form plugin
 	 * is active or not. This is allowing us to make it more discoverable
-	 * and enable plugin in one click
+	 * and enable the plugin in one click
 	 */
 	public static function register_block() {
+		/*
+		 * The block is available even when the module is not active,
+		 * so we can display a nudge to activate the module instead of the block.
+		 * However, since non-admins cannot activate modules, we do not display the empty block for them.
+		 */
+		if ( ! self::can_manage_block() ) {
+			return;
+		}
+
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
 			array(
@@ -77,6 +87,11 @@ class Contact_Form_Block {
 	 * We are registering child blocks only when Contact Form plugin is Active
 	 */
 	public static function register_child_blocks() {
+		// Bail early if the user cannot manage the block.
+		if ( ! self::can_manage_block() ) {
+			return;
+		}
+
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
@@ -184,8 +199,23 @@ class Contact_Form_Block {
 			'jetpack/field-file',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
+				'plan_check'      => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
 			)
 		);
+
+		add_action(
+			'jetpack_register_gutenberg_extensions',
+			array( __CLASS__, 'set_file_field_extension_available' )
+		);
+	}
+
+	/**
+	 * Set field-file extension available hook handler
+	 */
+	public static function set_file_field_extension_available() {
+		if ( ! apply_filters( 'jetpack_unauth_file_upload_plan_check', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'field-file' );
+		}
 	}
 
 	/**
@@ -197,8 +227,8 @@ class Contact_Form_Block {
 	 * @return string
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
-		// We should not render block is module is disabled
-		if ( ! Jetpack::is_module_active( 'contact-form' ) ) {
+		// We should not render block if the module is disabled on a site using the Jetpack plugin.
+		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) ) {
 			return '';
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
@@ -217,9 +247,33 @@ class Contact_Form_Block {
 	}
 
 	/**
+	 * Load editor styles for the block.
+	 * These are loaded via enqueue_block_assets to ensure proper loading in the editor iframe context.
+	 */
+	public static function load_editor_styles() {
+
+		$handle = 'jp-forms-blocks';
+
+		Assets::register_script(
+			$handle,
+			'../../../dist/blocks/editor.js',
+			__FILE__,
+			array(
+				'css_path'   => '../../../dist/blocks/editor.css',
+				'textdomain' => 'jetpack-forms',
+			)
+		);
+		wp_enqueue_style( 'jp-forms-blocks' );
+	}
+
+	/**
 	 * Loads scripts
 	 */
 	public static function load_editor_scripts() {
+		// Bail early if the user cannot manage the block.
+		if ( ! self::can_manage_block() ) {
+			return;
+		}
 
 		$handle = 'jp-forms-blocks';
 
@@ -231,15 +285,19 @@ class Contact_Form_Block {
 				'in_footer'  => true,
 				'textdomain' => 'jetpack-forms',
 				'enqueue'    => true,
+				// Editor styles are loaded separately, see load_editor_styles().
+				'css_path'   => null,
 			)
 		);
 
 		// Create a Contact_Form instance to get the default values
+		$dashboard_view_switch   = new Dashboard_View_Switch();
 		$contact_form            = new Contact_Form( array() );
 		$defaults                = $contact_form->defaults;
-		$admin_url               = ( new Dashboard_View_Switch() )->get_forms_admin_url( 'spam' );
+		$admin_url               = $dashboard_view_switch->get_forms_admin_url( 'spam' );
 		$akismet_active_with_key = Jetpack::is_akismet_active();
 		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
+		$preferred_view          = $dashboard_view_switch->get_preferred_view();
 
 		$data = array(
 			'defaults' => array(
@@ -249,7 +307,7 @@ class Contact_Form_Block {
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
-				'isFormModalEnabled'   => Contact_Form_Plugin::is_form_modal_enabled(),
+				'preferredView'        => $preferred_view,
 			),
 		);
 
@@ -275,5 +333,40 @@ class Contact_Form_Block {
 				'enqueue'    => true,
 			)
 		);
+	}
+
+	/**
+	 * Check if the current user can view the block.
+	 * Every user can see it if the Contact Form module is active,
+	 * but if it is inactive, only admins can see it.
+	 *
+	 * This is only useful when the Contact Form package is used within the Jetpack plugin,
+	 * where the module logic exists.
+	 *
+	 * @since 0.49.0
+	 *
+	 * @return bool
+	 */
+	public static function can_manage_block() {
+		if (
+			/**
+			 * Allow third-parties to override the form block's visibility.
+			 *
+			 * @since 0.49.0
+			 *
+			 * @module contact-form
+			 *
+			 * @param bool $can_manage_block Whether the current user can manage the block.
+			 */
+			apply_filters( 'jetpack_contact_form_can_manage_block', false )
+		) {
+			return true;
+		}
+
+		if ( ! class_exists( 'Jetpack' ) ) {
+			return true;
+		}
+
+		return ( new Modules() )->is_active( 'contact-form' ) || current_user_can( 'jetpack_activate_modules' );
 	}
 }

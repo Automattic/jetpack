@@ -2,7 +2,6 @@ import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
 import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import logger from '_jetpack-e2e-commons/logger.js';
-import { BlockEditorPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import {
 	enableSync,
 	disableSync,
@@ -46,11 +45,15 @@ test.describe( 'Sync', () => {
 		} );
 	} );
 
-	test( 'Normal Sync flow', async ( { page } ) => {
-		const postTitle = `Normal Sync ${ Date.now() }`;
+	test( 'Normal Sync flow', async ( { admin, editor, page } ) => {
+		const title = `Normal Sync ${ Date.now() }`;
 
 		await test.step( 'Publish a post', async () => {
-			await publishPost( postTitle, page );
+			await admin.createNewPost( { title } );
+			const postId = await editor.publishPost();
+
+			// Visit the post
+			await page.goto( `/?p=${ postId }` );
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
@@ -65,22 +68,26 @@ test.describe( 'Sync', () => {
 				'Previously created post should be present in the synced posts'
 			).toContainEqual(
 				expect.objectContaining( {
-					title: postTitle,
+					title,
 				} )
 			);
 		} );
 	} );
 
-	test( 'Disabled Sync Flow', async ( { page } ) => {
+	test( 'Disabled Sync Flow', async ( { admin, editor, page } ) => {
 		await test.step( 'Disabled Sync', async () => {
 			const syncDisabled = await disableSync();
 			expect( syncDisabled ).toMatch( 'Sync Disabled' );
 		} );
 
-		const postTitle = `Disabled Sync ${ Date.now() }`;
+		const title = `Disabled Sync ${ Date.now() }`;
 
 		await test.step( 'Publish a post', async () => {
-			await publishPost( postTitle, page );
+			await admin.createNewPost( { title } );
+			const postId = await editor.publishPost();
+
+			// Visit the post
+			await page.goto( `/?p=${ postId }` );
 		} );
 
 		await test.step( 'Assert post is not synced', async () => {
@@ -93,22 +100,26 @@ test.describe( 'Sync', () => {
 				'Previously created post should NOT be present in the synced posts'
 			).toContainEqual(
 				expect.not.objectContaining( {
-					title: postTitle,
+					title,
 				} )
 			);
 		} );
 	} );
 
-	test( 'Dedicated Sync Flow', async ( { page } ) => {
+	test( 'Dedicated Sync Flow', async ( { admin, editor, page } ) => {
 		await test.step( 'Enable Dedicated Sync', async () => {
 			const dedicatedSyncEnabled = await enableDedicatedSync();
 			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
 		} );
 
-		const postTitle = `Dedicated Sync ${ Date.now() }`;
+		const title = `Dedicated Sync ${ Date.now() }`;
 
 		await test.step( 'Publish a post', async () => {
-			await publishPost( postTitle, page );
+			await admin.createNewPost( { title } );
+			const postId = await editor.publishPost();
+
+			// Visit the post
+			await page.goto( `/?p=${ postId }` );
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
@@ -123,28 +134,11 @@ test.describe( 'Sync', () => {
 				'Previously created post should be present in the synced posts'
 			).toContainEqual(
 				expect.objectContaining( {
-					title: postTitle,
+					title,
 				} )
 			);
 		} );
 	} );
-
-	/**
-	 * Publish a new post.
-	 * @param {string} title - Post title.
-	 * @param {page}   page  - Playwright page instance.
-	 */
-	async function publishPost( title, page ) {
-		logger.sync( 'Publishing new post' );
-		const blockEditor = await BlockEditorPage.visit( page );
-		await blockEditor.closeWelcomeGuide();
-		await blockEditor.setTitle( title );
-		await blockEditor.selectPostTitle();
-		await blockEditor.publishPost();
-		logger.sync( `Post published: ${ title }` );
-		await blockEditor.viewPost();
-		logger.sync( `Post visited: ${ title }` );
-	}
 
 	/**
 	 * Assert sync queue is empty

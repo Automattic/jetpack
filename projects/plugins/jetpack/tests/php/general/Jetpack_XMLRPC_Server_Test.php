@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Tokens;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class Jetpack_XMLRPC_Server_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -23,6 +24,7 @@ class Jetpack_XMLRPC_Server_Test extends WP_UnitTestCase {
 	 *
 	 * @dataProvider data_xmlrpc_methods_exist
 	 */
+	#[DataProvider( 'data_xmlrpc_methods_exist' )]
 	public function test_xmlrpc_methods_exist( $method ) {
 		$methods = ( new Jetpack_XMLRPC_Server() )->xmlrpc_methods( array() );
 		$this->assertArrayHasKey( $method, $methods );

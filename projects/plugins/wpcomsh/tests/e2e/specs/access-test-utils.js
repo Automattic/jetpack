@@ -2,7 +2,6 @@
  * External dependencies
  */
 const { get, merge } = require( 'lodash' );
-const fetch = require( 'node-fetch' );
 
 const envVars = get( global, 'process.env', {} );
 

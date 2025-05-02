@@ -22,11 +22,11 @@
 
 	&:hover {
 
-		& .icon {
+		.icon {
 			transform: translateX( calc( var(--spacing-base) * 2 ) );
 		}
 
-		& .cta {
+		.cta {
 			text-decoration: underline;
 			text-decoration-thickness: 2px;
 		}
@@ -44,7 +44,7 @@
 
 .emojisPseudo {
 
-	&:after {
+	&::after {
 		font-size:xx-large;
 		content: "\01F600"; // 😀
 	}
@@ -52,7 +52,7 @@
 	&:hover,
 	&:focus {
 
-		&:after {
+		&::after {
 		content: "\01F60D"; // 😍
 		}
 	}

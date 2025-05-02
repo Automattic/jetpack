@@ -3,7 +3,7 @@
  * Class to check for account errors in the Jetpack Connection.
  *
  * @package automattic/jetpack-connection
- * @since $$next-version$$
+ * @since 6.11.0
  */
 
 namespace Automattic\Jetpack\Connection;
@@ -15,7 +15,7 @@ class User_Account_Status {
 	/**
 	 * Check for possible account errors between the local user and WPCOM account.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @param string $current_user_email The email of the current WordPress user.
 	 * @param string $wpcom_user_email The email of the connected WordPress.com account.
@@ -41,7 +41,7 @@ class User_Account_Status {
 		/**
 		 * Filters the account errors.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.11.0
 		 *
 		 * @param array  $errors             The array of account errors.
 		 * @param string $current_user_email The email of the current WordPress user.
@@ -53,7 +53,7 @@ class User_Account_Status {
 	/**
 	 * Check if there is a possible account mismatch between the local user and WPCOM account.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @param string $current_user_email The email of the current WordPress user.
 	 * @param string $wpcom_user_email The email of the connected WordPress.com account.
@@ -89,7 +89,7 @@ class User_Account_Status {
 	/**
 	 * Clears account mismatch transients for a user when they update their email or are deleted.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @param string|int $user_id_or_email User ID or email address.
 	 * @return void

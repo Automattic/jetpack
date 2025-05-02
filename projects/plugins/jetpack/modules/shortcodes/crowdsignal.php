@@ -396,9 +396,9 @@ if (
 						$float = sprintf( 'float: %s;', $attributes['align'] );
 
 						if ( 'left' === $attributes['align'] ) {
-							$margins = 'margin: 0px 10px 0px 0px;';
+							$margins = 'margin: 0 10px 0 0;';
 						} elseif ( 'right' === $attributes['align'] ) {
-							$margins = 'margin: 0px 0px 0px 10px';
+							$margins = 'margin: 0 0 0 10px';
 						}
 					}
 

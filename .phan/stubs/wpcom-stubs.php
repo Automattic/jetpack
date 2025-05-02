@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit ef5f6b904036b358955cab7358dae634b1ec9c37.
+ * Stubs automatically generated from WordPress.com commit ba79053e7e8c86d875b500110bcb219b372baffd.
  */
 
 namespace {
@@ -465,7 +465,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false, int $timeout = 120)
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false, int $timeout = 120, $parallel_tool_calls = \true)
         {
         }
         /**
@@ -1174,9 +1174,13 @@ namespace {
     {
     }
     /**
+     * @param bool $include_paid_subscribers
+     * @param array $args
+     * @param string|null $args
+     * @param string|null $args
      * @return array
      **/
-    function wpcom_fetch_subs_counts($include_paid_subscribers = \false)
+    function wpcom_fetch_subs_counts($include_paid_subscribers, $args = array())
     {
     }
     /**

@@ -1,4 +1,12 @@
-import { CardHeader, Icon, ToggleControl } from '@wordpress/components';
+import {
+	CardHeader,
+	Icon,
+	ToggleControl,
+	Tooltip,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { chevronDown, chevronUp } from '@wordpress/icons';
 import PluginActionButton from './plugin-action-button';
 
 const IntegrationCardHeader = ( {
@@ -8,6 +16,7 @@ const IntegrationCardHeader = ( {
 	isExpanded,
 	onToggle,
 	cardData = {},
+	toggleTooltip,
 } ) => {
 	const {
 		isInstalled,
@@ -21,6 +30,20 @@ const IntegrationCardHeader = ( {
 	} = cardData;
 	const showPluginAction = type === 'plugin' && ( ! isInstalled || ! isActive );
 	const showConnectedBadge = isActive && isConnected;
+	const disableFormText = __( 'Disable for this form', 'jetpack-forms' );
+	const enableFormText = __( 'Enable for this form', 'jetpack-forms' );
+
+	const getTooltipText = checked => {
+		if ( toggleTooltip ) {
+			return toggleTooltip;
+		}
+
+		if ( checked ) {
+			return disableFormText;
+		}
+
+		return enableFormText;
+	};
 
 	const handleToggleChange = value => {
 		if ( onHeaderToggleChange ) {
@@ -40,15 +63,21 @@ const IntegrationCardHeader = ( {
 		<CardHeader onClick={ handleHeaderClick } className="integration-card__header">
 			<div className="integration-card__header-content">
 				<div className="integration-card__header-main">
-					<Icon icon={ icon } className="integration-card__service-icon" size={ 30 } />
+					<div className="integration-card__service-icon-container">
+						<Icon icon={ icon } className="integration-card__service-icon" size={ 30 } />
+					</div>
 					<div className="integration-card__title-section">
 						<div className="integration-card__title-row">
 							<h3 className="integration-card__title">{ title }</h3>
-							{ showPluginAction && <span className="integration-card__plugin-badge">Plugin</span> }
+							{ showPluginAction && (
+								<span className="integration-card__plugin-badge">
+									{ __( 'Plugin', 'jetpack-forms' ) }
+								</span>
+							) }
 							{ showConnectedBadge && (
 								<span className="integration-card__connected-badge">
 									<Icon icon="yes-alt" size={ 16 } />
-									Connected
+									{ __( 'Connected', 'jetpack-forms' ) }
 								</span>
 							) }
 						</div>
@@ -57,7 +86,7 @@ const IntegrationCardHeader = ( {
 						) }
 					</div>
 				</div>
-				<div className="integration-card__actions">
+				<HStack spacing="3" alignment="center" justify="end" expanded={ false }>
 					{ showPluginAction && (
 						<PluginActionButton
 							slug={ cardData.slug }
@@ -67,18 +96,20 @@ const IntegrationCardHeader = ( {
 							trackEventName={ cardData.trackEventName }
 						/>
 					) }
-					{ ( isActive || isConnected ) && showHeaderToggle && (
-						<ToggleControl
-							checked={ headerToggleValue }
-							onChange={ handleToggleChange }
-							disabled={ ! isHeaderToggleEnabled }
-						/>
+					{ ! showPluginAction && showHeaderToggle && (
+						<Tooltip text={ getTooltipText( headerToggleValue ) }>
+							<span className="integration-card__toggle-tooltip-wrapper">
+								<ToggleControl
+									checked={ headerToggleValue && ( isActive || isConnected ) }
+									onChange={ handleToggleChange }
+									disabled={ ! isHeaderToggleEnabled || ! ( isActive || isConnected ) }
+									__nextHasNoMarginBottom={ true }
+								/>
+							</span>
+						</Tooltip>
 					) }
-					<Icon
-						icon={ isExpanded ? 'arrow-up-alt2' : 'arrow-down-alt2' }
-						className="integration-card__toggle-icon"
-					/>
-				</div>
+					<Icon icon={ isExpanded ? chevronUp : chevronDown } />
+				</HStack>
 			</div>
 		</CardHeader>
 	);

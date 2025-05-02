@@ -106,39 +106,17 @@ class Authorize_Redirect {
 	 * @param bool|string $redirect URL to redirect to.
 	 * @param bool|string $from     If not false, adds 'from=$from' param to the connect URL.
 	 * @param bool        $raw If true, URL will not be escaped.
-	 * @param string|null $provider The authentication provider (google, github, apple, link).
-	 * @param array|null  $provider_args Additional provider-specific arguments.
 	 *
 	 * @todo Update default value for redirect since the called function expects a string.
 	 *
 	 * @return mixed|void
 	 */
-	public function build_authorize_url( $redirect = false, $from = false, $raw = false, $provider = null, $provider_args = null ) {
+	public function build_authorize_url( $redirect = false, $from = false, $raw = false ) {
 
 		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 
 		$url = $this->connection->get_authorization_url( wp_get_current_user(), $redirect, $from, $raw );
-
-		// If a provider is specified, modify the URL to use the provider-specific endpoint
-		if ( $provider && in_array( $provider, array( 'google', 'github', 'apple', 'link' ), true ) ) {
-			// Preserve the query parameters
-			$query_params = array();
-
-			$query_params['redirect_to'] = $url;
-
-			// Add magic link specific parameters if provider is 'link'
-			if ( 'link' === $provider && is_array( $provider_args ) && ! empty( $provider_args['email_address'] ) ) {
-				$query_params['email_address'] = $provider_args['email_address'];
-				// Add flag to trigger magic link flow
-				$query_params['auto_trigger'] = '1';
-			}
-
-			// URL encode all parameter values
-			$query_params = array_map( 'rawurlencode', $query_params );
-
-			$url = add_query_arg( $query_params, 'https://wordpress.com/log-in/jetpack/' . $provider );
-		}
 
 		remove_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
@@ -148,14 +126,11 @@ class Authorize_Redirect {
 		 *
 		 * @since jetpack-8.9.0
 		 * @since 2.7.6 Added $raw parameter.
-		 * @since 6.8.0 Added $provider and $provider_args parameters.
 		 *
 		 * @param string      $url           Connection URL.
 		 * @param bool        $raw           If true, URL will not be escaped.
-		 * @param string|null $provider      The authentication provider if specified.
-		 * @param array|null  $provider_args Additional provider-specific arguments.
 		 */
-		return apply_filters( 'jetpack_build_authorize_url', $url, $raw, $provider, $provider_args );
+		return apply_filters( 'jetpack_build_authorize_url', $url, $raw );
 	}
 
 	/**

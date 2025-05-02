@@ -13,7 +13,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const cardData = {
 		...data,
 		showHeaderToggle: true,
-		headerToggleValue: data?.isConnected,
+		headerToggleValue: akismetActiveWithKey,
 		isHeaderToggleEnabled: false,
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
@@ -28,7 +28,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			}
 		),
 		notActivatedMessage: __(
-			'Akismet is installed! Just activate the plugin to start blocking spam.',
+			'Akismet is installed. Just activate the plugin to start blocking spam.',
 			'jetpack-forms'
 		),
 	};
@@ -41,13 +41,14 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 			cardData={ cardData }
+			toggleTooltip={ __( 'We keep your forms protected', 'jetpack-forms' ) }
 		>
 			{ ! akismetActiveWithKey ? (
 				<div>
-					<p>
+					<p className="integration-card__description">
 						{ createInterpolateElement(
 							__(
-								'Akismet is active! There is one step left. Please add your <a>Akismet key</a>.',
+								'Akismet is active. There is one step left. Please add your <a>Akismet key</a>.',
 								'jetpack-forms'
 							),
 							{
@@ -67,7 +68,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 				</div>
 			) : (
 				<div>
-					<p>{ __( 'Your forms are automatically protected with Akismet!', 'jetpack-forms' ) }</p>
+					<p>{ __( 'Your forms are automatically protected with Akismet.', 'jetpack-forms' ) }</p>
 					<div className="integration-card__links">
 						<Button
 							variant="link"

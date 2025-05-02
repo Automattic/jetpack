@@ -23,8 +23,10 @@ import { useSearchParams } from 'react-router-dom';
  */
 import { store as dashboardStore } from '../../store';
 import InboxResponse from '../response';
+import { getPath } from '../utils.js';
 import {
 	viewAction,
+	viewActionModal,
 	markAsSpamAction,
 	markAsNotSpamAction,
 	moveToTrashAction,
@@ -37,16 +39,6 @@ const EMPTY_ARRAY = [];
 const EMPTY_OBJECT = {};
 const MOBILE_BREAKPOINT = 780;
 const getItemId = item => item.id.toString();
-
-// Function to get the URL of the page or post where the form was submitted.
-const getPath = item => {
-	try {
-		const url = new URL( item.entry_permalink );
-		return url.pathname;
-	} catch {
-		return '';
-	}
-};
 
 const formatFieldName = fieldName => {
 	const match = fieldName.match( /^(\d+_)?(.*)/i );
@@ -145,7 +137,12 @@ export default function InboxView() {
 				 * 3. Normalize the values to handle the case where the value is an array or if is empty.
 				 */
 				fields: Object.entries( record.fields || {} ).reduce( ( accumulator, [ key, value ] ) => {
-					const _key = formatFieldName( key );
+					let _key = formatFieldName( key );
+					let counter = 2;
+					while ( accumulator[ _key ] ) {
+						_key = `${ formatFieldName( key ) } (${ counter })`;
+						counter++;
+					}
 					accumulator[ _key ] = formatFieldValue( decodeEntities( value ) );
 					return accumulator;
 				}, {} ),
@@ -261,6 +258,7 @@ export default function InboxView() {
 		],
 		[ filterOptions, dateSettings.formats.date ]
 	);
+
 	const actions = useMemo( () => {
 		const _actions = [
 			markAsSpamAction,
@@ -270,10 +268,21 @@ export default function InboxView() {
 			deleteAction,
 		];
 		if ( isMobile ) {
-			_actions.unshift( viewAction );
+			_actions.unshift( viewActionModal );
+		} else {
+			_actions.unshift( {
+				...viewAction,
+				callback( items ) {
+					const [ item ] = items;
+					const selectedId = item.id.toString();
+					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
+					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+				},
+			} );
 		}
 		return _actions;
-	}, [ isMobile ] );
+	}, [ isMobile, onChangeSelection, selection ] );
+
 	return (
 		<HStack
 			spacing={ 5 }

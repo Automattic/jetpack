@@ -82,7 +82,7 @@
 		"ai-assistant-backend-prompts",
 		"ai-list-to-table-transform",
 		"ai-use-chrome-ai-sometimes",
-		"ai-proofread-harper"
+		"field-file"
 	],
 	"experimental": [],
 	"no-post-editor": [

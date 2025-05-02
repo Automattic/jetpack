@@ -2,7 +2,7 @@
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
 Stable tag: 14.4
-Requires at least: 6.6
+Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.8
 License: GPLv2 or later
@@ -326,21 +326,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.6-a.1 - 2025-04-07
-#### Enhancements
-- Replace video embed with VideoPress block in Media & Text block.
-- Forms: Add custom hooks for integrations.
-- Forms: Add endpoint for all integrations.
-- Forms: Update default forms view to dataviews.
-- Newsletter Widget: Improve the display of links in the Newsletter widget.
+### 14.6-a.9 - 2025-04-28
+#### Major Enhancements
+- General: Update minimum WordPress version to 6.7.
 
-#### Improved compatibility
-- Blocks: Ensure all child blocks use the latest version of the Blocks API.
+#### Enhancements
+- Featured Content: Add messaging to clarify that the tag name is case sensitive.
+- Forms: Update the email notification template.
+- My Jetpack: Update the onboarding UI to show a single button on initial page.
+- Shortcode: Convert an embed code from Facebook.com to an oEmbeddable URL.
+- Sitemaps: Use XMLWriter for a more performant sitemap generation when available.
 
 #### Bug fixes
-- Reset access level of the post to everyone when a paywall is removed.
-- Slideshow: Prevent images from appearing stuck to the mouse in block-based themes.
-- Star Rating: Fix padding and improve panel copy.
+- Image Compare block: Ensure sticky menus hide the compare line.
+- My Jetpack: Prevent social login from getting stuck when email input is not empty.
 
 --------
 

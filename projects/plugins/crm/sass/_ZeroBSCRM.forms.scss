@@ -15,9 +15,6 @@
 	display:none;
 
 	// fade in
-	-webkit-transition: all 1s ease-in-out;
-	-moz-transition: all 1s ease-in-out;
-	-o-transition: all 1s ease-in-out;
 	transition: all 1s ease-in-out;
 
 }
@@ -85,7 +82,7 @@ input.zbs-prominent {
 
     font-size: 14px !important;
     color: #008000 !important;
-    line-height: 1.4em;
+    line-height: 1.4;
     height: 38px !important;
 }
 
@@ -138,13 +135,13 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 }
 
 // Needed for custom contact avatars add/edit pages
-.jpcrm-customer-file-upload:before {
+.jpcrm-customer-file-upload::before {
   content: "\f0ee"; 
   display: inline-block;
   font-family: FontAwesome;
 }
 
-.jpcrm-customer-file-upload-remove:before {
+.jpcrm-customer-file-upload-remove::before {
   content: "\f00d"; 
   display: inline-block;
   font-family: FontAwesome;
@@ -182,5 +179,5 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 
 #zbs-add-tag-value {
   font-size: 14px;
-  line-height: 1.4em;
+  line-height: 1.4;
 }

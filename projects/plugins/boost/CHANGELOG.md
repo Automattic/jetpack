@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.13.1] - 2025-04-16
+### Fixed
+- Critical CSS: Fix cases where dismissing a recommendation would dismiss multiple ones. [#43047]
+- Critical CSS: Fix not showing status code when generation fails for some pages. [#42856]
+- Image Guide: Fix front-end state not being in sync with Boost settings. [#42891]
+- Page Cache: Fix garbage collection and clear cache functionality leaving empty directories behind. [#42789]
+- Page Cache: Fix not clearing up some events on deactivation. [#43066]
+
 ## [3.13.0] - 2025-04-01
 ### Added
 - Cornerstone Pages: Add speculation rules toggle to prerender those URLs [#42374]
@@ -674,6 +682,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.13.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.0...3.13.1
 [3.13.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.12.1...3.13.0
 [3.12.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.12.0...3.12.1
 [3.12.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.11.0...3.12.0

@@ -504,4 +504,15 @@ class Password_Detection_Test extends BaseTestCase {
 		$this->expectOutputRegex( '@' . $error['message'] . '@' );
 		$sut->render_content( $user, 'my_cool_token' );
 	}
+
+	/**
+	 * Tests that login_form_password_detection handles a NULL user gracefully without causing fatal errors.
+	 */
+	public function test_login_form_password_detection_handles_null_user_gracefully(): void {
+		$sut    = new Password_Detection();
+		$return = $sut->login_form_password_detection( null, 'password' );
+
+		// Assert that we reached this point (no fatal error occurred) and that NULL is returned
+		$this->assertNull( $return, 'NULL should be returned when a NULL user is provided.' );
+	}
 }

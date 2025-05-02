@@ -2062,7 +2062,7 @@ class The_Neverending_Home_Page {
 	protected static function amp_get_max_pages() {
 		global $wp_query;
 
-		return (int) $wp_query->max_num_pages - $wp_query->query_vars['paged'];
+		return (int) $wp_query->max_num_pages - (int) $wp_query->query_vars['paged'];
 	}
 
 	/**

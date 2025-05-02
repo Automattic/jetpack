@@ -3,17 +3,9 @@ const fs = require( 'fs' );
 
 const projects = [
 	{
-		project: 'Jetpack connection',
+		project: 'Jetpack onboarding',
 		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ 'specs/connection' ],
-		targets: [ 'plugins/jetpack' ],
-		suite: '',
-		buildGroup: 'jetpack-core',
-	},
-	{
-		project: 'Jetpack pre-connection',
-		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ 'specs/pre-connection' ],
+		testArgs: [ 'specs/onboarding' ],
 		targets: [ 'plugins/jetpack', 'monorepo' ],
 		suite: '',
 		buildGroup: 'jetpack-core',
@@ -138,13 +130,16 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 	case 'pull_request':
 	case 'push': {
 		const changedProjects = JSON.parse(
-			execSync( '.github/files/list-changed-projects.sh' ).toString()
+			execSync( '.github/files/list-changed-projects.sh', {
+				env: { ...process.env, EXTRA: 'e2e' },
+			} ).toString()
 		);
 
 		for ( const project of projects ) {
 			if ( ! project.targets ) {
 				// If no targets are defined, run the tests
 				matrix.push( project );
+				continue;
 			}
 
 			const targets = execSync(

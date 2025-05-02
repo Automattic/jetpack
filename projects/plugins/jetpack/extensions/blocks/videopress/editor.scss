@@ -58,11 +58,11 @@
 	display: flex;
 	margin-top: $grid-unit-15;
 
-	& > .components-base-control {
+	> .components-base-control {
 		width: 50%;
 	}
 
-	& > .components-base-control:first-child {
+	> .components-base-control:first-child {
 		margin-right: $grid-unit-20;
 	}
 }

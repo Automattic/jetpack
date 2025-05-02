@@ -87,7 +87,7 @@
 	padding: 6px 12px;
 }
 
-.wpcom-gifting-banner__more-info-button:before {
+.wpcom-gifting-banner__more-info-button::before {
 	background: url(../../images/gridicons-help-outline.svg) no-repeat center;
 	content: '';
 	height: 16px;

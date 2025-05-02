@@ -46,7 +46,7 @@
 	}
 
 	/* Widget settings */
-	.js-toggle-stats_dashboard_widget_control .toggle-indicator:before {
+	.js-toggle-stats_dashboard_widget_control .toggle-indicator::before {
 		content: "\f111";
 		display: inline-block;
 		font: 400 20px/1 dashicons;

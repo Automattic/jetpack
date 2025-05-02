@@ -7,11 +7,129 @@
 
 declare( strict_types = 1 );
 
-	/**
-	 * Core class used to retrieve the block editor assets via the REST API.
-	 */
+/**
+ * Core class used to retrieve the block editor assets via the REST API.
+ */
 class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller {
 	const CACHE_BUSTER = '2025-02-28';
+
+	/**
+	 * List of allowed plugins whose assets should be preserved.
+	 * Each entry should be a unique identifier that appears in the asset URL.
+	 *
+	 * @var array
+	 */
+	const ALLOWED_PLUGINS = array(
+		'/plugins/gutenberg/',
+		'/plugins/gutenberg-core/', // WPCOM Simple site
+		'/plugins/jetpack/',
+		'/mu-plugins/jetpack-mu-wpcom-plugin/', // WPCOM Simple site
+	);
+
+	/**
+	 * List of core-provided handles that should never be unregistered.
+	 *
+	 * @var array
+	 */
+	const PROTECTED_HANDLES = array(
+		'jquery',
+		'mediaelement',
+	);
+
+	/**
+	 * List of allowed plugin-provided, non-core block types.
+	 *
+	 * @var array
+	 */
+	const ALLOWED_PLUGIN_BLOCKS = array(
+		'a8c/blog-posts',
+		'a8c/posts-carousel',
+		'jetpack/address',
+		'jetpack/ai-assistant',
+		'jetpack/ai-chat',
+		'jetpack/blogging-prompt',
+		'jetpack/blogroll',
+		'jetpack/blogroll-item',
+		'jetpack/business-hours',
+		'jetpack/button',
+		'jetpack/calendly',
+		'jetpack/contact-form',
+		'jetpack/contact-info',
+		'jetpack/cookie-consent',
+		'jetpack/donations',
+		'jetpack/email',
+		'jetpack/event-countdown',
+		'jetpack/eventbrite',
+		'jetpack/field-checkbox',
+		'jetpack/field-checkbox-multiple',
+		'jetpack/field-consent',
+		'jetpack/field-date',
+		'jetpack/field-email',
+		'jetpack/field-name',
+		'jetpack/field-number',
+		'jetpack/field-option-checkbox',
+		'jetpack/field-option-radio',
+		'jetpack/field-radio',
+		'jetpack/field-select',
+		'jetpack/field-telephone',
+		'jetpack/field-text',
+		'jetpack/field-textarea',
+		'jetpack/field-url',
+		'jetpack/gif',
+		'jetpack/goodreads',
+		'jetpack/google-calendar',
+		'jetpack/image-compare',
+		'jetpack/instagram-gallery',
+		'jetpack/like',
+		'jetpack/mailchimp',
+		'jetpack/map',
+		'jetpack/markdown',
+		'jetpack/nextdoor',
+		'jetpack/opentable',
+		'jetpack/payment-buttons',
+		'jetpack/payments-intro',
+		'jetpack/paywall',
+		'jetpack/phone',
+		'jetpack/pinterest',
+		'jetpack/podcast-player',
+		'jetpack/rating-star',
+		'jetpack/recurring-payments',
+		'jetpack/related-posts',
+		'jetpack/repeat-visitor',
+		'jetpack/send-a-message',
+		'jetpack/sharing-button',
+		'jetpack/sharing-buttons',
+		'jetpack/simple-payments',
+		'jetpack/slideshow',
+		'jetpack/story',
+		'jetpack/subscriber-login',
+		'jetpack/subscriptions',
+		'jetpack/tiled-gallery',
+		'jetpack/timeline',
+		'jetpack/timeline-item',
+		'jetpack/tock',
+		'jetpack/whatsapp-button',
+		'premium-content/buttons',
+		'premium-content/container',
+		'premium-content/logged-out-view',
+		'premium-content/login-button',
+		'premium-content/subscriber-view',
+		'syntaxhighlighter/code',
+	);
+
+	/**
+	 * Get the list of allowed core block types.
+	 *
+	 * @return array List of core block types.
+	 */
+	private function get_core_block_types() {
+		return array_filter(
+			array_keys( WP_Block_Type_Registry::get_instance()->get_all_registered() ),
+			function ( $block_name ) {
+				return strpos( $block_name, 'core/' ) === 0;
+			}
+		);
+	}
 
 	/**
 	 * Constructor.
@@ -43,6 +161,69 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	}
 
 	/**
+	 * Unregisters all assets except those from core or allowed plugins.
+	 */
+	private function unregister_disallowed_plugin_assets() {
+		global $wp_scripts, $wp_styles;
+
+		// Helper function to check if an asset is from an allowed plugin
+		$is_allowed_plugin_asset = function ( $src ) {
+			if ( ! is_string( $src ) || empty( $src ) ) {
+				return false;
+			}
+
+			foreach ( self::ALLOWED_PLUGINS as $allowed_plugin ) {
+				if ( strpos( $src, $allowed_plugin ) !== false ) {
+					return true;
+				}
+			}
+
+			return false;
+		};
+
+			// Helper function to check if an asset is a core asset
+			$is_core_asset = function ( $src ) {
+				if ( ! is_string( $src ) ) {
+					return false;
+				}
+
+				return empty( $src ) ||
+					$src[0] === '/' ||
+					strpos( $src, 'wp-includes/' ) !== false ||
+					strpos( $src, 'wp-admin/' ) !== false;
+			};
+
+			// Helper function to check if a handle should be protected
+			$is_protected_handle = function ( $handle ) {
+				return in_array( $handle, self::PROTECTED_HANDLES, true );
+			};
+
+			// Unregister disallowed plugin scripts
+		foreach ( $wp_scripts->registered as $handle => $script ) {
+			// Skip core scripts and protected handles
+			if ( $is_core_asset( $script->src ) || $is_protected_handle( $handle ) ) {
+				continue;
+			}
+
+			if ( ! $is_allowed_plugin_asset( $script->src ) ) {
+				unset( $wp_scripts->registered[ $handle ] );
+			}
+		}
+
+			// Unregister disallowed plugin styles
+		foreach ( $wp_styles->registered as $handle => $style ) {
+			// Skip core styles and protected handles
+			if ( $is_core_asset( $style->src ) || $is_protected_handle( $handle ) ) {
+				continue;
+			}
+
+			if ( ! $is_allowed_plugin_asset( $style->src ) ) {
+				unset( $wp_styles->registered[ $handle ] );
+			}
+		}
+	}
+
+	/**
 	 * Retrieves a collection of items.
 	 *
 	 * @param WP_REST_Request $request The request object.
@@ -61,6 +242,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 
 		// Trigger an action frequently used by plugins to enqueue assets.
 		do_action( 'wp_loaded' );
+
+		// Unregister disallowed plugin assets before proceeding with asset collection
+		$this->unregister_disallowed_plugin_assets();
 
 		// We generally do not need reset styles for the block editor. However, if
 		// it's a classic theme, margins will be added to every block, which is
@@ -135,8 +319,12 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 
 		return rest_ensure_response(
 			array(
-				'styles'  => $styles,
-				'scripts' => $scripts,
+				'allowed_block_types' => array_merge(
+					$this->get_core_block_types(),
+					self::ALLOWED_PLUGIN_BLOCKS
+				),
+				'scripts'             => $scripts,
+				'styles'              => $styles,
 			)
 		);
 	}
@@ -179,12 +367,19 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$schema = array(
 			'type'       => 'object',
 			'properties' => array(
-				'styles'  => array(
-					'description' => esc_html__( 'Style link tags for the block editor.', 'jetpack' ),
+				'allowed_block_types' => array(
+					'description' => esc_html__( 'List of allowed block types for the editor.', 'jetpack' ),
+					'type'        => 'array',
+					'items'       => array(
+						'type' => 'string',
+					),
+				),
+				'scripts'             => array(
+					'description' => esc_html__( 'Script tags for the block editor.', 'jetpack' ),
 					'type'        => 'string',
 				),
-				'scripts' => array(
-					'description' => esc_html__( 'Script tags for the block editor.', 'jetpack' ),
+				'styles'              => array(
+					'description' => esc_html__( 'Style link tags for the block editor.', 'jetpack' ),
 					'type'        => 'string',
 				),
 			),

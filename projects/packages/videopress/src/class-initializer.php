@@ -345,6 +345,19 @@ class Initializer {
 	 * @return void
 	 */
 	public static function register_videopress_video_block() {
+		/*
+		 * If only Jetpack is active, and if the VideoPress module is not active,
+		 * we can register the block just to display a placeholder to turn on the module.
+		 * That invitation is only useful for admins though.
+		 */
+		if (
+			Status::is_jetpack_plugin_without_videopress_module_active()
+			&& ! Status::is_standalone_plugin_active()
+			&& ! current_user_can( 'jetpack_activate_modules' )
+		) {
+			return;
+		}
+
 		$videopress_video_metadata_file        = __DIR__ . '/../build/block-editor/blocks/video/block.json';
 		$videopress_video_metadata_file_exists = file_exists( $videopress_video_metadata_file );
 		if ( ! $videopress_video_metadata_file_exists ) {

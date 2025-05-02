@@ -33,7 +33,7 @@ body {
 	background: #f6f7f7;
 }
 
-.card:after {
+.card::after {
 	content: ".";
 	display: block;
 	height: 0;
@@ -244,7 +244,6 @@ input[type="checkbox"] {
 	display: inline-block;
 	box-sizing: border-box;
 	margin: 2px 0 0;
-	padding: 7px 14px;
 	width: 16px;
 	height: 16px;
 	float: left;
@@ -264,8 +263,8 @@ input[type="checkbox"] {
 	cursor: pointer;
 }
 
-.checkbox:checked:before,
-input[type="checkbox"]:checked:before {
+.checkbox:checked::before,
+input[type="checkbox"]:checked::before {
 	content: '\f147';
 	font-family: dashicons;
 	margin: -3px 0 0 -4px;
@@ -281,8 +280,8 @@ input[type="checkbox"]:checked:before {
 	color: #00aadc;
 }
 
-.checkbox:disabled:checked:before,
-input[type="checkbox"]:disabled:checked:before {
+.checkbox:disabled:checked::before,
+input[type="checkbox"]:disabled:checked::before {
 	color: #a8bece;
 }
 
@@ -324,7 +323,7 @@ input[type="checkbox"] + span {
 ** ======================================================================== */
 
 .radio-button,
-input[type=radio] {
+input[type="radio"] {
 	color: #2e4453;
 	font-size: 16px;
 	border: 1px solid #c8d7e1;
@@ -335,7 +334,6 @@ input[type=radio] {
 	clear: none;
 	cursor: pointer;
 	display: inline-block;
-	line-height: 0;
 	height: 16px;
 	margin: 2px 4px 0 0;
 	float: left;
@@ -367,8 +365,8 @@ input[type="radio"]:focus::-ms-clear {
 	display: none;
 }
 
-.radio-button:checked:before,
-input[type="radio"]:checked:before {
+.radio-button:checked::before,
+input[type="radio"]:checked::before {
 	float: left;
 	display: inline-block;
 	content: '\2022';
@@ -402,7 +400,7 @@ input[type="radio"]:disabled::placeholder {
 }
 
 .radio-button:disabled:checked::before,
-input[type="radio"]:disabled:checked:before {
+input[type="radio"]:disabled:checked::before {
 	background: #e9eff3;
 }
 
@@ -538,12 +536,6 @@ select:-moz-focusring {
 ** ======================================================================== */
 
 input[type="submit"] {
-	padding: 0;
-	font-size: 14px;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	vertical-align: baseline;
 	background: #fff;
 	border-color: #c8d7e1;
 	border-style: solid;
@@ -627,10 +619,6 @@ input[type="submit"].button-primary[disabled],
 input[type="submit"].button-primary:disabled {
 	background: #bceefd;
 	border-color: #8cc9e2;
-	color: #fff;
-}
-
-input[type="submit"].button-primary {
 	color: #fff;
 }
 
@@ -729,8 +717,8 @@ input[type="submit"].button-primary {
 	flex-grow: 0;
 }
 
-.delete-option:before,
-.delete-field:before {
+.delete-option::before,
+.delete-field::before {
 	font-family: dashicons;
 
 /*	content: "\f158"; /* This is the bolder X */

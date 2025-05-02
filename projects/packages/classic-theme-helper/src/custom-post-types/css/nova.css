@@ -24,7 +24,6 @@
 	background-color: #f0f0f1;
 	color: #111;
 	border: 0 none;
-	-webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
 	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
 }
 
@@ -38,7 +37,6 @@
 }
 
 .ui-sortable .type-nova_menu_item.ui-sortable-helper {
-	-webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
 	box-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
@@ -66,10 +64,7 @@
 	width: 100%;
 }
 
-.many-items-table input[type=file] {
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-ms-box-sizing: border-box;
+.many-items-table input[type="file"] {
 	box-sizing: border-box;
 }
 
@@ -81,22 +76,22 @@
 	padding-top: 15px;
 }
 
-.nova-move-menu-up:before,
-.nova-move-menu-down:before {
+.nova-move-menu-up::before,
+.nova-move-menu-down::before {
 	margin-right: 5px;
 	font: 400 10px/1 dashicons !important;
 	speak: none;
 }
 
-.nova-move-menu-up:before {
+.nova-move-menu-up::before {
 	content: "\f342";
 }
 
-.nova-move-menu-down:before {
+.nova-move-menu-down::before {
 	content: "\f346";
 }
 
-.dashicon:before {
+.dashicon::before {
 	font: 400 20px/1 dashicons;
 	speak: none;
 	top: 5px;
@@ -108,11 +103,11 @@
 	vertical-align: top;
 }
 
-.dashicon-plus:before {
+.dashicon-plus::before {
 	content: "\f132";
 }
 
-.dashicon-edit:before {
+.dashicon-edit::before {
 	margin: 2px 5px 0 10px;
 	content: "\f327";
 	font-size: 10px;

@@ -20,6 +20,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './index.module.scss';
 import LcpModule from '$features/lcp/lcp';
+import { ExternalLink } from '@wordpress/components';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -58,16 +59,7 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									link: (
-										// eslint-disable-next-line jsx-a11y/anchor-has-content
-										<a
-											href={ criticalCssLink }
-											target="_blank"
-											onClick={ handleCriticalCssLink }
-											style={ { cursor: 'pointer' } }
-											rel="noopener noreferrer"
-										/>
-									),
+									link: <ExternalLink href={ criticalCssLink } onClick={ handleCriticalCssLink } />,
 								}
 							) }
 						</p>
@@ -116,16 +108,7 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									link: (
-										// eslint-disable-next-line jsx-a11y/anchor-has-content
-										<a
-											href={ criticalCssLink }
-											target="_blank"
-											onClick={ handleCriticalCssLink }
-											style={ { cursor: 'pointer' } }
-											rel="noopener noreferrer"
-										/>
-									),
+									link: <ExternalLink href={ criticalCssLink } onClick={ handleCriticalCssLink } />,
 								}
 							) }
 						</p>
@@ -159,12 +142,9 @@ const Index = () => {
 							),
 							{
 								link: (
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									<a
+									<ExternalLink
 										onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
 										href={ deferJsLink }
-										target="_blank"
-										rel="noopener noreferrer"
 									/>
 								),
 							}
