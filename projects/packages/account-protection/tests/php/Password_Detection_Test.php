@@ -517,7 +517,7 @@ class Password_Detection_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Tests that login_form_password_detection handles a NULL user gracefully without causing fatal errors.
+	 * Tests that login_form_password_detection handles a NULL password gracefully without causing fatal errors.
 	 */
 	public function test_login_form_password_detection_handles_null_password_gracefully(): void {
 		$sut       = new Password_Detection();
