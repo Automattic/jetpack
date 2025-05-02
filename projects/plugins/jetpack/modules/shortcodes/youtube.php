@@ -33,7 +33,7 @@
  * @param string $content HTML content.
  * @return string The content with YouTube embeds replaced with YouTube shortcodes.
  */
-function youtube_embed_to_short_code( $content ) {
+function jetpack_youtube_embed_to_short_code( $content ) {
 	if ( ! is_string( $content ) || ! str_contains( $content, 'youtube.com' ) ) {
 		return $content;
 	}
@@ -106,7 +106,7 @@ function youtube_embed_to_short_code( $content ) {
 
 	return $content;
 }
-add_filter( 'pre_kses', 'youtube_embed_to_short_code' );
+add_filter( 'pre_kses', 'jetpack_youtube_embed_to_short_code' );
 
 /**
  * Replaces plain-text links to YouTube videos with YouTube embeds.
@@ -683,4 +683,8 @@ function youtube_link( $content ) {
 
 function youtube_link_callback( $content ) {
 	return jetpack_youtube_link_callback( $content );
+}
+
+function youtube_embed_to_short_code( $content ) {
+	return jetpack_youtube_embed_to_short_code( $content );
 }
