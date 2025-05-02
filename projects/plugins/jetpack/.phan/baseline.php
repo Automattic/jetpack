@@ -13,7 +13,7 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 250+ occurrences
     // PhanNoopNew : 200+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 190+ occurrences
-    // PhanTypeMismatchReturn : 150+ occurrences
+    // PhanTypeMismatchReturn : 140+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 130+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 95+ occurrences
     // PhanRedundantCondition : 65+ occurrences
@@ -139,7 +139,6 @@ return [
         '_inc/lib/debugger/class-jetpack-debug-data.php' => ['PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeMismatchArgument'],
         '_inc/lib/debugger/class-jetpack-debugger.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         '_inc/lib/debugger/debug-functions.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        '_inc/lib/functions.wp-notify.php' => ['PhanTypeMismatchReturn'],
         '_inc/lib/icalendar-reader.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
         '_inc/lib/markdown/extra.php' => ['PhanImpossibleConditionInLoop', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn'],
         '_inc/lib/plans.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
