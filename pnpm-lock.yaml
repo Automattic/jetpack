@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-gGNXe8rPCT2HDKhrF95pBlZ5hl0DPJwG+GN4Cv72hdE=
+pnpmfileChecksum: sha256-ozmk+1ERT3UYkoZzUGDLPQ8g4gvntrZJMtaxrmvGT4k=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -5351,6 +5351,9 @@ importers:
       '@octokit/rest':
         specifier: 21.1.1
         version: 21.1.1
+      '@tanstack/eslint-plugin-query':
+        specifier: 5.74.7
+        version: 5.74.7(eslint@9.25.1)(typescript@5.8.2)
       '@testing-library/jest-dom':
         specifier: 6.6.3
         version: 6.6.3
@@ -7971,6 +7974,12 @@ packages:
 
   '@tannin/sprintf@1.2.0':
     resolution: {integrity: sha512-T0ORaQrH6kNFGzTg285RVPK+NCYZxOoA+r0QfKgHqK+yk5RuYPSKDa18XCLtycCNq+VWKpfyDpzGUGhYgCV+kw==}
+
+  '@tanstack/eslint-plugin-query@5.74.7':
+    resolution: {integrity: sha512-EeHuaaYiCOD+XOGyB7LMNEx9OEByAa5lkgP+S3ZggjKJpmIO6iRWeoIYYDKo2F8uc3qXcVhTfC7pn7NddQiNtA==}
+    peerDependencies:
+      eslint: ^8.57.0 || ^9.0.0
+      typescript: '*'
 
   '@tanstack/query-core@4.36.1':
     resolution: {integrity: sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==}
@@ -19022,6 +19031,14 @@ snapshots:
   '@tannin/postfix@1.1.0': {}
 
   '@tannin/sprintf@1.2.0': {}
+
+  '@tanstack/eslint-plugin-query@5.74.7(eslint@9.25.1)(typescript@5.8.2)':
+    dependencies:
+      '@typescript-eslint/utils': 8.31.1(eslint@9.25.1)(typescript@5.8.2)
+      eslint: 9.25.1
+      typescript: 5.8.2
+    transitivePeerDependencies:
+      - supports-color
 
   '@tanstack/query-core@4.36.1': {}
 
