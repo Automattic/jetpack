@@ -115,7 +115,7 @@ add_filter( 'pre_kses', 'youtube_embed_to_short_code' );
  *
  * @return string The content with embeds instead of URLs
  */
-function youtube_link( $content ) {
+function jetpack_youtube_link( $content ) {
 	return jetpack_preg_replace_callback_outside_tags( '!(?:\n|\A)https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $content, 'youtube.com/' );
 }
 
@@ -642,7 +642,7 @@ if (
 	 * so the iframe gets filtered out.
 	 * Higher priority because we need it before auto-link and autop get to it.
 	 */
-	add_filter( 'comment_text', 'youtube_link', 1 );
+	add_filter( 'comment_text', 'jetpack_youtube_link', 1 );
 }
 
 /**
@@ -675,4 +675,8 @@ function youtube_id( $url ) {
 
 function youtube_shortcode( $atts ) {
 	return jetpack_youtube_shortcode( $atts );
+}
+
+function youtube_link( $content ) {
+	return jetpack_youtube_link( $content );
 }
