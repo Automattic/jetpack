@@ -499,11 +499,7 @@ class Universal {
 	 * @return array|null
 	 */
 	public function save_checkout_post_data( ?array $data ) {
-		if (
-			is_object( WC()->session )
-			&& is_array( $data )
-			&& ! empty( $data['createaccount'] )
-		) {
+		if ( is_object( WC()->session ) && ! empty( $data['createaccount'] ) ) {
 			WC()->session->set( 'wc_checkout_createaccount_used', true );
 			WC()->session->save_data();
 		}
