@@ -10,13 +10,13 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * @covers ::jetpack_shortcode_youtube_dimensions
  * @covers ::wpcom_youtube_oembed_fetch_url
  * @covers ::jetpack_youtube_id
- * @covers ::youtube_shortcode
+ * @covers ::jetpack_youtube_shortcode
  */
 #[CoversFunction( 'jetpack_shortcode_youtube_args' )]
 #[CoversFunction( 'jetpack_shortcode_youtube_dimensions' )]
 #[CoversFunction( 'wpcom_youtube_oembed_fetch_url' )]
 #[CoversFunction( 'jetpack_youtube_id' )]
-#[CoversFunction( 'youtube_shortcode' )]
+#[CoversFunction( 'jetpack_youtube_shortcode' )]
 class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;

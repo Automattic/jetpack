@@ -441,11 +441,11 @@ function jetpack_shortcode_youtube_args( $url ) {
  *
  * @return string The rendered shortcode.
  */
-function youtube_shortcode( $atts ) {
+function jetpack_youtube_shortcode( $atts ) {
 	$url = ( isset( $atts[0] ) ) ? ltrim( $atts[0], '=' ) : shortcode_new_to_old_params( $atts );
 	return jetpack_youtube_id( $url );
 }
-add_shortcode( 'youtube', 'youtube_shortcode' );
+add_shortcode( 'youtube', 'jetpack_youtube_shortcode' );
 
 /**
  * Gets the dimensions of the [youtube] shortcode.
@@ -664,11 +664,15 @@ function jetpack_fix_youtube_shortcode_display_filter( $content ) {
 }
 add_filter( 'the_content', 'jetpack_fix_youtube_shortcode_display_filter', 7 );
 
-// phpcs:disable Squiz.Commenting.FunctionComment
 /**
  * Temporary wrapper functions while purging other codebases of the non-prefixed variants.
  * TODO: Remove these after verifying they're not called elsewhere.
  */
+// phpcs:disable Squiz.Commenting.FunctionComment
 function youtube_id( $url ) {
 	return jetpack_youtube_id( $url );
+}
+
+function youtube_shortcode( $atts ) {
+	return jetpack_youtube_shortcode( $atts );
 }
