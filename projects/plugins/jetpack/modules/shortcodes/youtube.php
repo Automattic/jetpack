@@ -33,7 +33,7 @@
  * @param string $content HTML content.
  * @return string The content with YouTube embeds replaced with YouTube shortcodes.
  */
-function youtube_embed_to_short_code( $content ) {
+function jetpack_youtube_embed_to_short_code( $content ) {
 	if ( ! is_string( $content ) || ! str_contains( $content, 'youtube.com' ) ) {
 		return $content;
 	}
@@ -106,7 +106,7 @@ function youtube_embed_to_short_code( $content ) {
 
 	return $content;
 }
-add_filter( 'pre_kses', 'youtube_embed_to_short_code' );
+add_filter( 'pre_kses', 'jetpack_youtube_embed_to_short_code' );
 
 /**
  * Replaces plain-text links to YouTube videos with YouTube embeds.
@@ -115,8 +115,8 @@ add_filter( 'pre_kses', 'youtube_embed_to_short_code' );
  *
  * @return string The content with embeds instead of URLs
  */
-function youtube_link( $content ) {
-	return jetpack_preg_replace_callback_outside_tags( '!(?:\n|\A)https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $content, 'youtube.com/' );
+function jetpack_youtube_link( $content ) {
+	return jetpack_preg_replace_callback_outside_tags( '!(?:\n|\A)https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'jetpack_youtube_link_callback', $content, 'youtube.com/' );
 }
 
 /**
@@ -125,8 +125,8 @@ function youtube_link( $content ) {
  *
  * @param array $matches An array containing a YouTube URL.
  */
-function youtube_link_callback( $matches ) {
-	return "\n" . youtube_id( $matches[0] ) . "\n";
+function jetpack_youtube_link_callback( $matches ) {
+	return "\n" . jetpack_youtube_id( $matches[0] ) . "\n";
 }
 
 /**
@@ -135,13 +135,13 @@ function youtube_link_callback( $matches ) {
  * @param string|array $url Youtube URL.
  * @return string|false The normalized URL or false if input is invalid.
  */
-if ( ! function_exists( 'youtube_sanitize_url' ) ) :
+if ( ! function_exists( 'jetpack_youtube_sanitize_url' ) ) :
 	/**
 	 * Clean up Youtube URL to match a single format.
 	 *
 	 * @param string|array $url Youtube URL.
 	 */
-	function youtube_sanitize_url( $url ) {
+	function jetpack_youtube_sanitize_url( $url ) {
 		if ( is_array( $url ) && isset( $url['url'] ) ) {
 			$url = $url['url'];
 		}
@@ -153,7 +153,7 @@ if ( ! function_exists( 'youtube_sanitize_url' ) ) :
 		$url = trim( $url );
 		$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
 
-		// Replace any extra question marks with ampersands - the result of a URL like "http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US" being passed in.
+		// Replace any extra question marks with ampersands - the result of a URL like "https://www.youtube.com/v/dQw4w9WgXcQ?fs=1&hl=en_US" being passed in.
 		$query_string_start = strpos( $url, '?' );
 
 		if ( false !== $query_string_start ) {
@@ -179,14 +179,14 @@ endif;
  *
  * @param string $url Youtube URL.
  */
-function youtube_id( $url ) {
+function jetpack_youtube_id( $url ) {
 	$id = jetpack_get_youtube_id( $url );
 
 	if ( ! $id ) {
 		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: bad URL entered', 'jetpack' ) );
 	}
 
-	$url = youtube_sanitize_url( $url );
+	$url = jetpack_youtube_sanitize_url( $url );
 	$url = wp_parse_url( $url );
 
 	$thumbnail = "https://i.ytimg.com/vi/$id/hqdefault.jpg";
@@ -441,11 +441,11 @@ function jetpack_shortcode_youtube_args( $url ) {
  *
  * @return string The rendered shortcode.
  */
-function youtube_shortcode( $atts ) {
+function jetpack_youtube_shortcode( $atts ) {
 	$url = ( isset( $atts[0] ) ) ? ltrim( $atts[0], '=' ) : shortcode_new_to_old_params( $atts );
-	return youtube_id( $url );
+	return jetpack_youtube_id( $url );
 }
-add_shortcode( 'youtube', 'youtube_shortcode' );
+add_shortcode( 'youtube', 'jetpack_youtube_shortcode' );
 
 /**
  * Gets the dimensions of the [youtube] shortcode.
@@ -532,7 +532,7 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
  * @param string $url     Requested URL to be embedded.
  */
 function wpcom_youtube_embed_crazy_url( $matches, $attr, $url ) {
-	return youtube_id( $url );
+	return jetpack_youtube_id( $url );
 }
 
 /**
@@ -581,7 +581,7 @@ function wpcom_youtube_filter_pre_oembed_result( $result, $url, $args ) {
 	}
 
 	// Fallback to the custom handler if the oembed result is not found, especially for the private video.
-	return youtube_id( $url );
+	return jetpack_youtube_id( $url );
 }
 add_filter( 'pre_oembed_result', 'wpcom_youtube_filter_pre_oembed_result', 10, 3 );
 
@@ -642,7 +642,7 @@ if (
 	 * so the iframe gets filtered out.
 	 * Higher priority because we need it before auto-link and autop get to it.
 	 */
-	add_filter( 'comment_text', 'youtube_link', 1 );
+	add_filter( 'comment_text', 'jetpack_youtube_link', 1 );
 }
 
 /**
@@ -663,3 +663,32 @@ function jetpack_fix_youtube_shortcode_display_filter( $content ) {
 	return $content;
 }
 add_filter( 'the_content', 'jetpack_fix_youtube_shortcode_display_filter', 7 );
+
+/**
+ * Temporary wrapper functions while purging other codebases of the non-prefixed variants.
+ * TODO: Remove these after verifying they're not called elsewhere.
+ */
+// phpcs:disable Squiz.Commenting.FunctionComment
+function youtube_id( $url ) {
+	return jetpack_youtube_id( $url );
+}
+
+function youtube_shortcode( $atts ) {
+	return jetpack_youtube_shortcode( $atts );
+}
+
+function youtube_link( $content ) {
+	return jetpack_youtube_link( $content );
+}
+
+function youtube_link_callback( $matches ) {
+	return jetpack_youtube_link_callback( $matches );
+}
+
+function youtube_embed_to_short_code( $content ) {
+	return jetpack_youtube_embed_to_short_code( $content );
+}
+
+function youtube_sanitize_url( $url ) {
+	return jetpack_youtube_sanitize_url( $url );
+}
