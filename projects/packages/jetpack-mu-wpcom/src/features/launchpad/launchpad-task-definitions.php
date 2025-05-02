@@ -1654,12 +1654,10 @@ function wpcom_launchpad_track_migrate_content_task() {
 	if ( ! defined( 'WP_IMPORTING' ) || ! WP_IMPORTING ) {
 		return;
 	}
-	// Prevent firing this repeatedly during imports by tracking the transient.
-	if ( get_transient( 'wpcom_launchpad_migrated_content_task_marked' ) ) {
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'migrate_content' ) ) ) {
 		return;
 	}
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'migrate_content' );
-	set_transient( 'wpcom_launchpad_migrated_content_task_marked', true, 10 * MINUTE_IN_SECONDS );
 }
 
 /**
