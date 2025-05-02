@@ -46,8 +46,8 @@ importers:
         specifier: 6.0.0
         version: 6.0.0
       '@slack/web-api':
-        specifier: 7.7.0
-        version: 7.7.0
+        specifier: 7.9.1
+        version: 7.9.1
       compare-versions:
         specifier: 6.1.1
         version: 6.1.1
@@ -99,8 +99,8 @@ importers:
         specifier: 6.0.0
         version: 6.0.0
       '@slack/web-api':
-        specifier: 7.3.2
-        version: 7.3.2
+        specifier: 7.9.1
+        version: 7.9.1
       glob:
         specifier: 11.0.0
         version: 11.0.0
@@ -1768,8 +1768,8 @@ importers:
         specifier: 0.3.2
         version: 0.3.2
       css-loader:
-        specifier: 6.5.1
-        version: 6.5.1(webpack@5.94.0)
+        specifier: 6.11.0
+        version: 6.11.0(webpack@5.94.0)
       esbuild-loader:
         specifier: 4.3.0
         version: 4.3.0(webpack@5.94.0)
@@ -1939,8 +1939,8 @@ importers:
         specifier: 3.38.1
         version: 3.38.1
       css-loader:
-        specifier: 6.5.1
-        version: 6.5.1(webpack@5.94.0)
+        specifier: 6.11.0
+        version: 6.11.0(webpack@5.94.0)
       css-minimizer-webpack-plugin:
         specifier: 5.0.1
         version: 5.0.1(webpack@5.94.0)
@@ -2540,11 +2540,11 @@ importers:
         specifier: ^4.4.5
         version: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       redux:
-        specifier: 4.0.5
-        version: 4.0.5
+        specifier: 4.2.1
+        version: 4.2.1
       redux-thunk:
         specifier: 2.3.0
-        version: 2.3.0(redux@4.0.5)
+        version: 2.3.0(redux@4.2.1)
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -3227,8 +3227,8 @@ importers:
         specifier: 7.2.8
         version: 7.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       redux:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.2.1
+        version: 4.2.1
       refx:
         specifier: 3.1.1
         version: 3.1.1
@@ -3774,8 +3774,8 @@ importers:
         specifier: 7.2.8
         version: 7.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       redux:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.2.1
+        version: 4.2.1
       refx:
         specifier: 3.1.1
         version: 3.1.1
@@ -4349,8 +4349,8 @@ importers:
         specifier: 18.3.5
         version: 18.3.5(@types/react@18.3.18)
       css-loader:
-        specifier: 6.5.1
-        version: 6.5.1(webpack@5.94.0)
+        specifier: 6.11.0
+        version: 6.11.0(webpack@5.94.0)
       glob:
         specifier: 11.0.0
         version: 11.0.0
@@ -4485,8 +4485,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2
       '@automattic/request-external-access':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.0.1
+        version: 1.0.1
       '@automattic/social-previews':
         specifier: 2.1.0-beta.10
         version: 2.1.0-beta.10(@babel/runtime@7.26.10)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4638,11 +4638,11 @@ importers:
         specifier: 6.28.0
         version: 6.28.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       redux:
-        specifier: 4.0.5
-        version: 4.0.5
+        specifier: 4.2.1
+        version: 4.2.1
       redux-thunk:
         specifier: 2.3.0
-        version: 2.3.0(redux@4.0.5)
+        version: 2.3.0(redux@4.2.1)
       refx:
         specifier: 3.1.1
         version: 3.1.1
@@ -5283,8 +5283,8 @@ importers:
         specifier: 1.51.1
         version: 1.51.1
       '@slack/web-api':
-        specifier: 7.3.2
-        version: 7.3.2
+        specifier: 7.9.1
+        version: 7.9.1
       '@types/lodash-es':
         specifier: 4.17.12
         version: 4.17.12
@@ -5625,9 +5625,6 @@ packages:
 
   '@automattic/popup-monitor@1.0.2':
     resolution: {integrity: sha512-Y4LMfdkV8iDmezu/7Ov/18JaFJ0QAy5vCntiP0S5AhLt4R/kjLtBt4ifNXNbdKTthGxlL17+LJ1bNtHBVCzPwg==}
-
-  '@automattic/request-external-access@1.0.0':
-    resolution: {integrity: sha512-vhN72lwPFzhCVMP1l2ODBqt7fI5jfeJz1JyBnq/AUCg9PpsJfdk4vZxhSOLhSSds8VMkU5WaNnaztkYfkkYOiA==}
 
   '@automattic/request-external-access@1.0.1':
     resolution: {integrity: sha512-i7q2yhhQ5V1iLzkVxGG+oCkPIBgkZEfLj0mqCky5qeIleUk+XSXcOFJ1IerOmNeAYxho596rpqlfUyD2evWuLA==}
@@ -7571,12 +7568,8 @@ packages:
     resolution: {integrity: sha512-n0EGm7ENQRxlXbgKSrQZL69grzg1gHLAVd+GlRVQJ1NSORo0FrApR7wql/gaKdu2n4TO83Sq/AmeUOqD60aXUA==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
 
-  '@slack/web-api@7.3.2':
-    resolution: {integrity: sha512-hyxwSsUhpOEVN5ORB3ne7TAXQwXl0wxBAyNTCfp4Qc/o9rpEEvY4kfsx7mZF5AhYPcdEeI1XP2bSFrh3W/HGKQ==}
-    engines: {node: '>= 18', npm: '>= 8.6.0'}
-
-  '@slack/web-api@7.7.0':
-    resolution: {integrity: sha512-DtRyjgQi0mObA2uC6H8nL2OhAISKDhvtOXgRjGRBnBhiaWb6df5vPmKHsOHjpweYALBMHtiqE5ajZFkDW/ag8Q==}
+  '@slack/web-api@7.9.1':
+    resolution: {integrity: sha512-qMcb1oWw3Y/KlUIVJhkI8+NcQXq1lNymwf+ewk93ggZsGd6iuz9ObQsOEbvlqlx1J+wd8DmIm3DORGKs0fcKdg==}
     engines: {node: '>= 18', npm: '>= 8.6.0'}
 
   '@storybook/addon-a11y@8.6.7':
@@ -9416,6 +9409,9 @@ packages:
   axios@1.8.2:
     resolution: {integrity: sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==}
 
+  axios@1.9.0:
+    resolution: {integrity: sha512-re4CqKTJaURpzbLHtIi6XpDv20/CnpXOtjRY5/CU32L8gU8ek9UIivcfvSWvmKEngmVbrUtPpdDwWDWL7DNHvg==}
+
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
     engines: {node: '>= 0.4'}
@@ -10070,12 +10066,6 @@ packages:
         optional: true
       webpack:
         optional: true
-
-  css-loader@6.5.1:
-    resolution: {integrity: sha512-gEy2w9AnJNnD9Kuo4XAP9VflW/ujKoS9c/syO+uWMlm5igc7LysKzPXaDoR2vroROkSwsTS2tGr1yGGEbZOYZQ==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      webpack: ^5.0.0
 
   css-minimizer-webpack-plugin@5.0.1:
     resolution: {integrity: sha512-3caImjKFQkS+ws1TGcFn0V1HyDJFq1Euy589JlD6/3rV2kj+w7r5G9WDMgSHvpvXHNZ2calVypZWuEDQd9wfLg==}
@@ -13991,12 +13981,6 @@ packages:
     peerDependencies:
       redux: ^4.0.0
 
-  redux@4.0.5:
-    resolution: {integrity: sha512-VSz1uMAH24DM6MF72vcojpYPtrTUu3ByVWfPL1nPfVRb5mZVTve5GnNCUV53QM/BZ66xfWrm0CTWoM+Xlz8V1w==}
-
-  redux@4.1.1:
-    resolution: {integrity: sha512-hZQZdDEM25UY2P493kPYuKqviVwZ58lEmGQNeQ+gXa+U0gYPUBf7NKYazbe3m+bs/DzM/ahN12DbF+NG8i0CWw==}
-
   redux@4.2.1:
     resolution: {integrity: sha512-LAUYz4lc+Do8/g7aeRa8JkyDErK6ekstQaqWQrNRW//MY1TvCEpMtpTWvlQ+FPbWCx+Xixu/6SHt5N0HR+SB4w==}
 
@@ -16179,10 +16163,6 @@ snapshots:
     dependencies:
       events: 3.3.0
       lodash: 4.17.21
-
-  '@automattic/request-external-access@1.0.0':
-    dependencies:
-      '@automattic/popup-monitor': 1.0.2
 
   '@automattic/request-external-access@1.0.1':
     dependencies:
@@ -18557,30 +18537,13 @@ snapshots:
 
   '@slack/types@2.14.0': {}
 
-  '@slack/web-api@7.3.2':
+  '@slack/web-api@7.9.1':
     dependencies:
       '@slack/logger': 4.0.0
       '@slack/types': 2.14.0
       '@types/node': 20.17.30
       '@types/retry': 0.12.0
-      axios: 1.8.2
-      eventemitter3: 5.0.1
-      form-data: 4.0.2
-      is-electron: 2.2.2
-      is-stream: 2.0.1
-      p-queue: 6.6.2
-      p-retry: 4.6.2
-      retry: 0.13.1
-    transitivePeerDependencies:
-      - debug
-
-  '@slack/web-api@7.7.0':
-    dependencies:
-      '@slack/logger': 4.0.0
-      '@slack/types': 2.14.0
-      '@types/node': 20.17.30
-      '@types/retry': 0.12.0
-      axios: 1.8.2
+      axios: 1.9.0
       eventemitter3: 5.0.1
       form-data: 4.0.2
       is-electron: 2.2.2
@@ -22461,6 +22424,14 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
+  axios@1.9.0:
+    dependencies:
+      follow-redirects: 1.15.9
+      form-data: 4.0.2
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
   axobject-query@4.1.0: {}
 
   b4a@1.6.7: {}
@@ -23276,18 +23247,6 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.7.1
     optionalDependencies:
-      webpack: 5.94.0(webpack-cli@6.0.1)
-
-  css-loader@6.5.1(webpack@5.94.0):
-    dependencies:
-      icss-utils: 5.1.0(postcss@8.4.47)
-      postcss: 8.4.47
-      postcss-modules-extract-imports: 3.1.0(postcss@8.4.47)
-      postcss-modules-local-by-default: 4.2.0(postcss@8.4.47)
-      postcss-modules-scope: 3.2.1(postcss@8.4.47)
-      postcss-modules-values: 4.0.0(postcss@8.4.47)
-      postcss-value-parser: 4.2.0
-      semver: 7.7.1
       webpack: 5.94.0(webpack-cli@6.0.1)
 
   css-minimizer-webpack-plugin@5.0.1(webpack@5.94.0):
@@ -28026,18 +27985,9 @@ snapshots:
     dependencies:
       '@redux-saga/core': 1.3.0
 
-  redux-thunk@2.3.0(redux@4.0.5):
+  redux-thunk@2.3.0(redux@4.2.1):
     dependencies:
-      redux: 4.0.5
-
-  redux@4.0.5:
-    dependencies:
-      loose-envify: 1.4.0
-      symbol-observable: 1.2.0
-
-  redux@4.1.1:
-    dependencies:
-      '@babel/runtime': 7.26.10
+      redux: 4.2.1
 
   redux@4.2.1:
     dependencies:
