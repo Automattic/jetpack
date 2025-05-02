@@ -11,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
  * Internal dependencies
  */
 import Details from '../components/details';
-import Layout from '../components/layout';
 import { config } from '../index';
 import AkismetSVG from './svg/akismet-svg';
 import CheckSVG from './svg/check-svg';
@@ -76,7 +75,7 @@ const LandingPage = () => {
 	};
 
 	return (
-		<Layout className="jp-forms__landing" showFooter>
+		<div className="jp-forms__landing">
 			<section className="jp-forms__landing-section bg-white-off">
 				<div className="jp-forms__landing-content">
 					<h1 className="mb-2">{ __( 'Building forms made easy', 'jetpack-forms' ) }</h1>
@@ -286,7 +285,7 @@ const LandingPage = () => {
 					</Details>
 				</div>
 			</section>
-		</Layout>
+		</div>
 	);
 };
 

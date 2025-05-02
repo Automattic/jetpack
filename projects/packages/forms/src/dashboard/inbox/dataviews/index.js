@@ -79,9 +79,15 @@ function getStatusFilter( urlStatus ) {
 export default function InboxView() {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useSearchParams();
+	const [ containerWidth, setContainerWidth ] = useState( 0 );
 	const [ queryArgs, setQueryArgs ] = useState( EMPTY_OBJECT );
 	const dateSettings = getDateSettings();
-	const [ resizeListener, { width: containerWidth } ] = useResizeObserver();
+	const containerRef = useResizeObserver(
+		resizeObserverEntries => {
+			setContainerWidth( resizeObserverEntries[ 0 ].borderBoxSize[ 0 ].inlineSize );
+		},
+		{ box: 'border-box' }
+	);
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const selectedResponses = searchParams.get( 'r' );
@@ -288,9 +294,9 @@ export default function InboxView() {
 			spacing={ 5 }
 			alignment="top"
 			justify="flex-start"
+			ref={ containerRef }
 			className="jp-forms__inbox__dataviews__container"
 		>
-			{ resizeListener }
 			<div className="jp-forms__inbox__dataviews">
 				<DataViews
 					paginationInfo={ paginationInfo }

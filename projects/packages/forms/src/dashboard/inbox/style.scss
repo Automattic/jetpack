@@ -16,32 +16,13 @@ $action-bar-height: 88px;
 			font-size: var(--jp-forms-font-size-regular);
 		}
 	}
-
-	span.title {
-		display: inline-flex !important;
-	}
-
-	span.subtitle {
-		padding-left: 0;
-		white-space: pre;
-		display: inline-flex !important;
-		flex-wrap: wrap;
-	}
 }
 
 .jp-forms__inbox-tabs {
-	flex: 1 1 auto; /* Flex, and grow */
-
-	/* Continue flexing downwards from here. */
-	display: flex;
-	flex-direction: column;
-
-	/* Important to pair with flex-shrink */
-	min-height: 0;;
 
 	.components-tab-panel__tabs {
 		margin: 0;
-		padding: 16px 48px 0;
+		padding: 10px 48px 10px;
 		z-index: 1;
 		flex: 0 1 auto;
 
@@ -49,21 +30,19 @@ $action-bar-height: 88px;
 			top: 0;
 		}
 
-		@media (max-width: 660px) {
+		@media (max-width: 520px) {
 			padding: 0 24px;
 		}
 	}
 }
 
 .jp-forms__inbox-tab-item {
-	border-bottom: 2px solid transparent;
 	font-size: var(--jp-forms-font-size-regular);
 	font-weight: 400;
 	height: $tab-item-height;
 	padding: 8px 16px;
 
 	&.active-tab {
-		border-color: #000;
 		font-weight: 600;
 	}
 }
@@ -311,15 +290,9 @@ $action-bar-height: 88px;
 
 .jp-forms__inbox__dataviews__container {
 	height: 100%;
-	border-top: 1px solid #dcdcde;
-	background-color: #f9f9f9;
-	padding: 35px;
+	padding: 0 35px 35px 35px;
 	box-sizing: border-box;
 	min-height: 400px;
-
-	@media (max-width: 660px) {
-		padding: 24px;
-	}
 }
 
 .jp-forms__inbox__dataviews {
@@ -363,7 +336,6 @@ $action-bar-height: 88px;
 
 .jp-forms__layout.jp-forms__inbox {
 
-	.jp-forms__logo-wrapper,
 	.jp-forms__layout-header {
 		flex: 0 1 auto; /* Flex, but don't grow */
 	}

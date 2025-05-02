@@ -50,6 +50,8 @@ const ConnectionForm = () => {
 				disabled={ isConnecting }
 				aria-busy={ isConnecting }
 				onClick={ onClickConnect }
+				// Ensure that we have the label when the button is disabled
+				aria-label={ __( 'Supercharge my site', 'jetpack-my-jetpack' ) }
 			>
 				{ isConnecting ? (
 					<Spinner className={ styles.spinner } />

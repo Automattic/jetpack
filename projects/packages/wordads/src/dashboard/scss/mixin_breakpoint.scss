@@ -2,12 +2,14 @@
 // Breakpoint Mixin
 // See https://wpcalypso.wordpress.com/devdocs/docs/coding-guidelines/css.md#media-queries
 // ==========================================================================
+@use 'sass:list';
+@use 'sass:meta';
 
 $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding a new breakpoint
 
 @mixin breakpoint( $size ){
 
-	@if type-of($size) == string {
+	@if meta.type-of($size) == string {
 	  $approved-value: 0;
 
 		@each $breakpoint in $breakpoints {
@@ -52,7 +54,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 				$sizes: $sizes + " " + $breakpoint;
 			}
 			// TODO - change this to use @error, when it is supported by node-sass
-			@warn "ERROR in breakpoint( #{ $size } ): You can only use these sizes[ #{$sizes} ] using the following syntax [ <#{ nth( $breakpoints, 1 ) } >#{ nth( $breakpoints, 1 ) } #{ nth( $breakpoints, 1 ) }-#{ nth( $breakpoints, 2 ) } ]";
+			@warn "ERROR in breakpoint( #{ $size } ): You can only use these sizes[ #{$sizes} ] using the following syntax [ <#{ list.nth( $breakpoints, 1 ) } >#{ list.nth( $breakpoints, 1 ) } #{ list.nth( $breakpoints, 1 ) }-#{ list.nth( $breakpoints, 2 ) } ]";
 		}
 	} @else {
 		$sizes: "";
@@ -61,6 +63,6 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 			$sizes: $sizes + " " + $breakpoint;
 		}
 		// TODO - change this to use @error, when it is supported by node-sass
-		@warn "ERROR in breakpoint( #{ $size } ): Please wrap the breakpoint $size in parenthesis. You can use these sizes[ #{$sizes} ] using the following syntax [ <#{ nth( $breakpoints, 1 ) } >#{ nth( $breakpoints, 1 ) } #{ nth( $breakpoints, 1 ) }-#{ nth( $breakpoints, 2 ) } ]";
+		@warn "ERROR in breakpoint( #{ $size } ): Please wrap the breakpoint $size in parenthesis. You can use these sizes[ #{$sizes} ] using the following syntax [ <#{ list.nth( $breakpoints, 1 ) } >#{ list.nth( $breakpoints, 1 ) } #{ list.nth( $breakpoints, 1 ) }-#{ list.nth( $breakpoints, 2 ) } ]";
 	}
 }

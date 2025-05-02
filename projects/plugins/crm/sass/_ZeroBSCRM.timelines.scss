@@ -1,8 +1,9 @@
 // lovingly adapted from
 // https://codepen.io/brady_wright/pen/NNOvrW
+@use 'sass:color';
 
 $primary-color: #000;
-$primary-color-hover: scale-color($primary-color, $lightness: 32%);
+$primary-color-hover: color.scale($primary-color, $lightness: 32%);
 
 /*==================================
     TIMELINE

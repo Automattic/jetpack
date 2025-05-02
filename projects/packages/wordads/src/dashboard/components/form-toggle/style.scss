@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import 'scss/calypso-colors';
 // ==========================================================================
 // FormToggle
@@ -68,14 +69,14 @@
 		}
 	}
 
-	& + .form-toggle__label .form-toggle__switch {
-		background: lighten( $gray, 10% );
+	+ .form-toggle__label .form-toggle__switch {
+		background: color.adjust( $gray, $lightness: 10% );
 	}
 
 	&:not( :disabled ) {
 
 		+ .form-toggle__switch:hover {
-			background: lighten( $gray, 20% );
+			background: color.adjust( $gray, $lightness: 20% );
 		}
 	}
 
@@ -116,7 +117,7 @@
 	&:checked {
 
 		+ .form-toggle__switch {
-			background: lighten( $gray, 20% );
+			background: color.adjust( $gray, $lightness: 20% );
 		}
 	}
 }

@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../../scss/calypso-colors';
 @import '../../scss/functions/rem';
 
@@ -14,7 +15,7 @@
 	color: $gray-dark;
 	font-size: 1rem;
 	line-height: 1.5;
-	border: 1px solid lighten( $gray, 20% );
+	border: 1px solid color.adjust( $gray, $lightness: 20% );
 	background-color: $white;
 	transition: all .15s ease-in-out, box-shadow 0s;
 	box-shadow: none;
@@ -25,7 +26,7 @@
 	}
 
 	&:focus {
-		border-color: lighten( $gray, 20% );
+		border-color: color.adjust( $gray, $lightness: 20% );
 		box-shadow: 0 0 0 2px #fff, 0 0 0 4px #069e08;
 
 		&::-ms-clear {
@@ -33,39 +34,39 @@
 		}
 
 		&.is-valid {
-			box-shadow: 0 0 0 2px lighten( $alert-green, 35 );
+			box-shadow: 0 0 0 2px color.adjust( $alert-green, $lightness: 35% );
 
 			&:hover {
-				box-shadow: 0 0 0 2px lighten( $alert-green, 25 );
+				box-shadow: 0 0 0 2px color.adjust( $alert-green, $lightness: 25% );
 			}
 		}
 
 		&.is-error {
-			box-shadow: 0 0 0 2px lighten( $alert-red, 35 );
+			box-shadow: 0 0 0 2px color.adjust( $alert-red, $lightness: 35% );
 
 			&:hover {
-				box-shadow: 0 0 0 2px lighten( $alert-red, 25 );
+				box-shadow: 0 0 0 2px color.adjust( $alert-red, $lightness: 25% );
 			}
 		}
 	}
 
 	&:hover,
 	&:focus:hover {
-		border-color: lighten( $gray, 10% );
+		border-color: color.adjust( $gray, $lightness: 10% );
 	}
 
 	&:disabled {
 		background: $gray-light;
-		border-color: lighten( $gray, 30% );
-		color: lighten( $gray, 10% );
-		-webkit-text-fill-color: lighten( $gray, 10% );
+		border-color: color.adjust( $gray, $lightness: 30% );
+		color: color.adjust( $gray, $lightness: 10% );
+		-webkit-text-fill-color: color.adjust( $gray, $lightness: 10% );
 
 		&:hover {
 			cursor: default;
 		}
 
 		&::placeholder {
-			color: lighten( $gray, 10% );
+			color: color.adjust( $gray, $lightness: 10% );
 		}
 	}
 
@@ -73,7 +74,7 @@
 		border-color: $alert-green;
 
 		&:hover {
-			border-color: darken( $alert-green, 10 );
+			border-color: color.adjust( $alert-green, $lightness: -10% );
 		}
 	}
 
@@ -82,7 +83,7 @@
 		border-color: $alert-red;
 
 		&:hover {
-			border-color: darken( $alert-red, 10 );
+			border-color: color.adjust( $alert-red, $lightness: -10% );
 		}
 	}
 }

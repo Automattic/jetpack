@@ -5,7 +5,7 @@
 
 	// This keeps images at their intrinsic size (eg. a 50px
 	// image will never be wider than 50px).
-	& :global( .components-responsive-wrapper__content ) {
+	:global( .components-responsive-wrapper__content ) {
 		width: auto;
 	}
 }

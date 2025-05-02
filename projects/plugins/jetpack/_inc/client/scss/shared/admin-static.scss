@@ -72,12 +72,12 @@
 					margin-bottom: 0;
 				}
 
-				& > ul {
+				> ul {
 					list-style: inside disc;
 					padding: 0 0 0 10px;
 					margin: 0;
 
-					& li {
+					li {
 						padding: 0;
 						margin: 0;
 					}
@@ -107,7 +107,7 @@
 					box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.06);
 				}
 
-				& .notice-icon-wrapper {
+				.notice-icon-wrapper {
 					position: absolute;
 					top: 24px;
 					left: 24px;

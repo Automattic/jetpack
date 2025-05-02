@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../../scss/mixins/ui';
 
 .jp-support-card {
@@ -37,7 +38,7 @@
 		display: block;
 		width: 100%;
 		padding: rem( 10px ) 0;
-		border-top: 1px transparentize( lighten( $gray, 20% ), .5 ) solid;
+		border-top: 1px color.adjust( $gray, $lightness: 20%, $alpha: -.5 ) solid;
 
 		&::first-letter {
 			text-transform: capitalize;
@@ -63,7 +64,7 @@
 }
 
 .jp-support-card__social {
-	background-color: lighten( $gray, 35% );
+	background-color: color.adjust( $gray, $lightness: 35% );
 	padding: rem( 16px );
 
 		@include breakpoint( "<660px" ) {

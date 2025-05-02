@@ -86,7 +86,7 @@
 					padding-right: 0;
 					height: 24px;
 
-					& > svg,
+					> svg,
 					path {
 						fill: #0277a8;
 					}
@@ -112,7 +112,7 @@
 
 			.jetpack-ai-breve__spelling-suggestion {
 
-				& + .jetpack-ai-breve__spelling-suggestion {
+				+ .jetpack-ai-breve__spelling-suggestion {
 					border-top: 1px solid #dcdcde;
 				}
 

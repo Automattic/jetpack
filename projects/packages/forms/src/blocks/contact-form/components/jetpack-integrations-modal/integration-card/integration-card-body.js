@@ -5,18 +5,32 @@ const IntegrationCardBody = ( { isExpanded, children, cardData = {} } ) => {
 		return null;
 	}
 
-	const { notInstalledMessage, notActivatedMessage, isInstalled, isActive, isLoading } = cardData;
+	const { notInstalledMessage, notActivatedMessage, isInstalled, isActive, isLoading, type } =
+		cardData;
+
+	const isPlugin = type === 'plugin';
+	const isService = type === 'service';
+	const showPluginInstallMessage = isPlugin && ! isInstalled;
+	const showPluginActivateMessage = isPlugin && isInstalled && ! isActive;
+	const showContent = ( isPlugin && isInstalled && isActive ) || isService;
+
+	if ( isLoading ) {
+		return (
+			<CardBody>
+				<Spinner />
+			</CardBody>
+		);
+	}
 
 	return (
 		<CardBody>
-			{ isLoading && <Spinner /> }
-			{ ! isLoading && ! isInstalled && (
+			{ showPluginInstallMessage && (
 				<p className="integration-card__description">{ notInstalledMessage }</p>
 			) }
-			{ ! isLoading && isInstalled && ! isActive && (
+			{ showPluginActivateMessage && (
 				<p className="integration-card__description">{ notActivatedMessage }</p>
 			) }
-			{ ! isLoading && isInstalled && isActive && children }
+			{ showContent && children }
 		</CardBody>
 	);
 };

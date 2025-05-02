@@ -9,8 +9,8 @@
 	display: inline-block;
 	position: relative;
 
-	& > .is-style-wide,
-	& > .is-placeholder {
+	> .is-style-wide,
+	> .is-placeholder {
 		display: block;
 	}
 
@@ -125,7 +125,7 @@
 		}
 	}
 
-	& > .is-style-button {
+	> .is-style-button {
 
 		&.has-no-margin {
 
