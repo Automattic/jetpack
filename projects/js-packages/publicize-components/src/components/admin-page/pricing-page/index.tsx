@@ -11,7 +11,7 @@ import {
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useProductInfo from '../../../hooks/use-product-info';
 import { store as socialStore } from '../../../social-store';
@@ -154,7 +154,11 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 					>
 						{ isEnablingSocial
 							? __( 'Please wait…', 'jetpack-publicize-components' )
-							: __( 'Start for free', 'jetpack-publicize-components' ) }
+							: _x(
+									'Start for free',
+									'Pricing page CTA for Social admin page',
+									'jetpack-publicize-components'
+							  ) }
 					</Button>
 				</PricingTableHeader>
 				<PricingTableItem isIncluded={ false } />
