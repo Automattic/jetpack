@@ -110,14 +110,6 @@ amp-social-share[type="reddit"]::before {
 	content: '\f222';
 }
 
-amp-social-share[type="skype"] {
-	background: #00AFF0;
-}
-
-amp-social-share[type="skype"]::before {
-	content: '\f220';
-}
-
 amp-social-share[type="whatsapp"] {
 	background: #43d854;
 }

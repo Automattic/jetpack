@@ -249,12 +249,15 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 		),
 		'migrate_content'                 => array(
-			'get_title'            => function () {
+			'get_title'             => function () {
 				return __( 'Import content', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
+			'is_complete_callback'  => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'   => 'wpcom_launchpad_has_goal_import_subscribers',
+			'add_listener_callback' => function () {
+				add_action( 'save_post', 'wpcom_launchpad_track_migrate_content_task' );
+			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'import.php' );
 				}
@@ -1639,6 +1642,29 @@ function wpcom_launchpad_track_publish_first_post_task() {
 	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published' );
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published_newsletter' );
+}
+
+/**
+ * Callback for completing migrate content task.
+ *
+ * @return void
+ */
+function wpcom_launchpad_track_migrate_content_task() {
+	// Ensure that Headstart posts don't mark this as complete.
+	// Headstart also enables WP_IMPORTING, so it is necessary to check both.
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+	// Only mark this complete when importing content.
+	if ( ! defined( 'WP_IMPORTING' ) || ! WP_IMPORTING ) {
+		return;
+	}
+	// Check the option to prevent setting this repeatedly during imports, which could spam tracks
+	// and run extra unnecessary logic.
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'migrate_content' ) ) ) {
+		return;
+	}
+	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'migrate_content' );
 }
 
 /**
