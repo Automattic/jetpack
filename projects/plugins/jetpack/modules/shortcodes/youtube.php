@@ -135,13 +135,13 @@ function jetpack_youtube_link_callback( $matches ) {
  * @param string|array $url Youtube URL.
  * @return string|false The normalized URL or false if input is invalid.
  */
-if ( ! function_exists( 'youtube_sanitize_url' ) ) :
+if ( ! function_exists( 'jetpack_youtube_sanitize_url' ) ) :
 	/**
 	 * Clean up Youtube URL to match a single format.
 	 *
 	 * @param string|array $url Youtube URL.
 	 */
-	function youtube_sanitize_url( $url ) {
+	function jetpack_youtube_sanitize_url( $url ) {
 		if ( is_array( $url ) && isset( $url['url'] ) ) {
 			$url = $url['url'];
 		}
@@ -186,7 +186,7 @@ function jetpack_youtube_id( $url ) {
 		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: bad URL entered', 'jetpack' ) );
 	}
 
-	$url = youtube_sanitize_url( $url );
+	$url = jetpack_youtube_sanitize_url( $url );
 	$url = wp_parse_url( $url );
 
 	$thumbnail = "https://i.ytimg.com/vi/$id/hqdefault.jpg";
@@ -687,4 +687,8 @@ function youtube_link_callback( $content ) {
 
 function youtube_embed_to_short_code( $content ) {
 	return jetpack_youtube_embed_to_short_code( $content );
+}
+
+function youtube_sanitize_url( $url ) {
+	return jetpack_youtube_sanitize_url( $url );
 }

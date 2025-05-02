@@ -29,7 +29,7 @@ function jetpack_get_youtube_id( $url ) {
 		$url = reset( $url );
 	}
 
-	$url = youtube_sanitize_url( $url );
+	$url = jetpack_youtube_sanitize_url( $url );
 	$url = wp_parse_url( $url );
 	$id  = false;
 
@@ -54,14 +54,14 @@ function jetpack_get_youtube_id( $url ) {
 	return $id;
 }
 
-if ( ! function_exists( 'youtube_sanitize_url' ) ) :
+if ( ! function_exists( 'jetpack_youtube_sanitize_url' ) ) :
 	/**
 	 * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
 	 *
 	 * @param string|array $url YouTube URL.
 	 * @return string|array The normalized URL or false if input is invalid.
 	 */
-	function youtube_sanitize_url( $url ) {
+	function jetpack_youtube_sanitize_url( $url ) {
 		if ( is_array( $url ) && isset( $url['url'] ) ) {
 			$url = $url['url'];
 		}
