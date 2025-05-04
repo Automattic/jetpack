@@ -3,6 +3,8 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
@@ -26,6 +28,7 @@ import './style.scss';
 
 const LandingPage = () => {
 	const navigate = useNavigate();
+	const isWpcomSite = isWpcomPlatformSite();
 
 	// If a user has responses, redirect them to the inbox.
 	useEffect( () => {
@@ -236,16 +239,18 @@ const LandingPage = () => {
 					<h1 className="mb-6">{ __( 'Frequently Asked Questions', 'jetpack-forms' ) }</h1>
 					<Details summary={ __( 'What do I need to use Jetpack Forms?', 'jetpack-forms' ) }>
 						{ __(
-							'Jetpack Forms is activated by default, so it\'s already fully functional. To get started, simply open the WordPress editor and search for the "Form" block in the block library. You can then add the form block and its corresponding child blocks, such as the text input field or multiple choice block, to your website. You can easily manage incoming form responses within the WP-Admin area.',
+							'To get started, simply open the WordPress editor and search for the "Form" block in the block library. You can then add the form block and its corresponding child blocks, such as the text input field or multiple choice block, to your website. You can easily manage incoming form responses within the WP-Admin area.',
 							'jetpack-forms'
 						) }
 					</Details>
-					<Details summary={ __( 'How much does Jetpack Forms cost?', 'jetpack-forms' ) }>
-						{ __(
-							'Jetpack Forms is currently free and comes by default with your Jetpack plugin.',
-							'jetpack-forms'
-						) }
-					</Details>
+					{ ! isWpcomSite && (
+						<Details summary={ __( 'How much does Jetpack Forms cost?', 'jetpack-forms' ) }>
+							{ __(
+								'Jetpack Forms is currently free and comes by default with your Jetpack plugin.',
+								'jetpack-forms'
+							) }
+						</Details>
+					) }
 					<Details summary={ __( 'Is Jetpack Forms GDPR compliant?', 'jetpack-forms' ) }>
 						{ createInterpolateElement(
 							__(
@@ -253,13 +258,7 @@ const LandingPage = () => {
 								'jetpack-forms'
 							),
 							{
-								a: (
-									<a
-										href="https://automattic.com/privacy/"
-										rel="noreferrer noopener"
-										target="_blank"
-									/>
-								),
+								a: <ExternalLink href={ getRedirectUrl( 'a8c-privacy' ) } />,
 							}
 						) }
 					</Details>
@@ -273,12 +272,10 @@ const LandingPage = () => {
 								'jetpack-forms'
 							),
 							{
-								a: (
-									<a
-										href="https://jetpack.com/contact-support/"
-										rel="noreferrer noopener"
-										target="_blank"
-									/>
+								a: isWpcomSite ? (
+									<a href={ getRedirectUrl( 'wpcom-contact-support' ) } />
+								) : (
+									<ExternalLink href={ getRedirectUrl( 'jetpack-contact-support' ) } />
 								),
 							}
 						) }

@@ -20,7 +20,7 @@
 	},
 	"devDependencies": {
 		"@playwright/test": "1.51.1",
-		"@slack/web-api": "7.3.2",
+		"@slack/web-api": "7.9.1",
 		"@types/lodash-es": "4.17.12",
 		"@wordpress/e2e-test-utils-playwright": "1.22.0",
 		"allure-playwright": "2.9.2",
