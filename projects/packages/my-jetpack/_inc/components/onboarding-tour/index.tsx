@@ -7,8 +7,6 @@ import TourImage1x2 from './images/jp_onboarding_tour_1-2x.png';
 import TourImage1 from './images/jp_onboarding_tour_1.png';
 import TourImage2x2 from './images/jp_onboarding_tour_2-2x.png';
 import TourImage2 from './images/jp_onboarding_tour_2.png';
-// import TourImage3x2 from './images/jp_onboarding_tour_3-2x.png';
-// import TourImage3 from './images/jp_onboarding_tour_3.png';
 import TourImage4x2 from './images/jp_onboarding_tour_4-2x.png';
 import TourImage4 from './images/jp_onboarding_tour_4.png';
 import './styles.scss';
