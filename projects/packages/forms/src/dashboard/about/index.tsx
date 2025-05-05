@@ -119,7 +119,9 @@ const About = () => {
 					{ patterns.map( pattern => (
 						<Card key={ pattern.title } className="section-patterns__grid-card">
 							<CardBody>
-								<img src={ pattern.image } alt={ pattern.title } />
+								<div className="section-patterns__grid-card-body-wrapper">
+									<img src={ pattern.image } alt={ pattern.title } />
+								</div>
 							</CardBody>
 							<CardFooter>
 								<div className="section-patterns__grid-card-footer">

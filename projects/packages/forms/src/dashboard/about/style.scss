@@ -2,6 +2,10 @@
 	--section-spacing-horizontal: calc( var(--spacing-base) * 9 ); // 72px
 	--content-max-width: 1280px;
 
+	@media (max-width: 600px) {
+		--section-spacing-horizontal: calc( var(--spacing-base) * 4 ); // 32px
+	}
+
 	background-color: var(--jp-white);
 
 	h1 {
@@ -79,11 +83,21 @@
 			gap: 24px;
 			margin-top: 72px;
 
+			@media (max-width: 600px) {
+				grid-template-columns: 1fr;
+			}
+
 			&-card {
 				overflow: hidden;
 
-				img {
-					width: 315px;
+				&-body-wrapper {
+					display: flex;
+					justify-content: center;
+
+					img {
+						width: 315px;
+						max-width: round(up, 100%, 1px);
+					}
 				}
 
 				&-title {
@@ -114,6 +128,10 @@
 			gap: 24px;
 			grid-template-columns: repeat(12, 1fr);
 			margin-top: 48px;
+
+			@media (max-width: 600px) {
+				grid-template-columns: 1fr;
+			}
 
 			&-feature {
 				background-color: var(--jp-forms-white);
@@ -172,6 +190,19 @@
 
 				.validation-icons-wrapper {
 					display: flex;
+				}
+			}
+
+			.feature-connect,
+			.feature-data,
+			.feature-akismet,
+			.feature-export,
+			.feature-notifications,
+			.feature-dependencies,
+			.feature-validation {
+
+				@media (max-width: 600px) {
+					grid-column: span 1/span 1;
 				}
 			}
 		}
