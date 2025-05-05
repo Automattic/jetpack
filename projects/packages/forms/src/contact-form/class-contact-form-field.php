@@ -145,7 +145,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'max'                    => null,
 				'maxfiles'               => null,
 				'fieldwrapperclasses'    => null,
-				'outlinestylesdata'      => array(),
+				'outlinestyledata'       => array(),
+				'outlinestyleclasses'    => null,
 			),
 			$attributes,
 			'contact-field'
@@ -1392,9 +1393,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$classes .= $this->is_error() ? ' form-error' : '';
 		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
 
-		$style_attrs    = '';
-		$label_css_vars = '';
-		$outline_styles = $this->get_attribute( 'outlinestylesdata' );
+		$style_attrs     = '';
+		$label_css_vars  = '';
+		$outline_styles  = $this->get_attribute( 'outlinestyledata' );
+		$outline_classes = $this->get_attribute( 'outlinestyleclasses' );
 
 		if ( ! empty( $outline_styles ) ) {
 			$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
@@ -1412,12 +1414,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				)
 			);
 
-			$border_size = $outline_styles['width'] ??
+			$legacy_border_size   = ( isset( $outline_styles['width'] ) && is_numeric( $outline_styles['width'] ) ) ? $outline_styles['width'] . 'px' : null;
+			$legacy_border_radius = ( isset( $outline_styles['radius'] ) && is_numeric( $outline_styles['radius'] ) ) ? $outline_styles['radius'] . 'px' : null;
+
+			$border_size = $legacy_border_size ??
 				$outline_styles['top']['width'] ??
 				$global_styles['width'] ??
 				$global_styles['top']['width'];
 
-			$border_radius = $outline_styles['radius'] ??
+			$border_radius = $legacy_border_radius ??
 				$outline_styles['left']['radius'] ??
 				$global_styles['radius'] ??
 				$global_styles['left']['radius'];
@@ -1428,8 +1433,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		return '
 			<div class="notched-label">
-				<div class="notched-label__leading"' . $style_attrs . '></div>
-				<div class="notched-label__notch"' . $style_attrs . '>
+				<div class="notched-label__leading ' . $outline_classes . '"' . $style_attrs . '></div>
+				<div class="notched-label__notch ' . $outline_classes . '"' . $style_attrs . '>
 					<label
 						for="' . esc_attr( $id ) . '"
 						class=" ' . $classes . '"
@@ -1439,7 +1444,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>
 				</div>
-				<div class="notched-label__trailing"' . $style_attrs . '></div>
+				<div class="notched-label__trailing ' . $outline_classes . '"' . $style_attrs . '></div>
 			</div>';
 	}
 
