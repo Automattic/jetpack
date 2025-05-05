@@ -183,8 +183,13 @@ class Tiled_Gallery {
 		: Jetpack::is_module_active( 'carousel' );
 
 		if ( $is_module_active ) {
-			$aria_label_content = 'Open image ' . $image_index . ' of ' . $number_images . 'in full-screen';
-			$img_element        = '<img data-amp-layout="responsive" role="button" tabindex="0" aria-label="' . esc_attr( $aria_label_content ) . '"';
+			$aria_label_content = sprintf(
+				/* Translators: %1$d is the current image index, %2$d is the total number of images. */
+				__( 'Open image %1$d of %2$d in full-screen', 'jetpack' ),
+				$image_index,
+				$number_images
+			);
+			$img_element = '<img data-amp-layout="responsive" role="button" tabindex="0" aria-label="' . esc_attr( $aria_label_content ) . '"';
 		} else {
 			$img_element = '<img data-amp-layout="responsive" ';
 		}
