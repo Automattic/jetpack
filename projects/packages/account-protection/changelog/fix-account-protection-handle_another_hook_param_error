@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent PHP error from errant third-party hook params.

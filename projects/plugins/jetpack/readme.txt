@@ -326,20 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.6-a.9 - 2025-04-28
-#### Major Enhancements
-- General: Update minimum WordPress version to 6.7.
-
+### 14.6-beta - 2025-05-05
 #### Enhancements
-- Featured Content: Add messaging to clarify that the tag name is case sensitive.
-- Forms: Update the email notification template.
-- My Jetpack: Update the onboarding UI to show a single button on initial page.
-- Shortcode: Convert an embed code from Facebook.com to an oEmbeddable URL.
-- Sitemaps: Use XMLWriter for a more performant sitemap generation when available.
+- Forms: Add tabs to forms dashboard.
+
+#### Improved compatibility
+- Enable the Top Posts block in WP Admin for Simple Sites.
+- Sharing: Remove deprecated Skype sharing button.
 
 #### Bug fixes
-- Image Compare block: Ensure sticky menus hide the compare line.
-- My Jetpack: Prevent social login from getting stuck when email input is not empty.
+- Image Compare block: Ensure block does not overlap navigation submenu items.
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
+- Social: Fix "Start for free" not working when module is OFF.
 
 --------
 

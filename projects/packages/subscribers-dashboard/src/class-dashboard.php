@@ -17,7 +17,7 @@ use Automattic\Jetpack\Status\Host;
  * @package jetpack-subscribers
  */
 class Dashboard {
-	const VERSION = '0.1.8';
+	const VERSION = '0.1.9';
 	/**
 	 * Whether the class has been initialized
 	 *
