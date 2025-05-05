@@ -139,7 +139,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @since 3.13.1
 	 */
 	public function start_output_filtering() {
-		if ( $this->should_skip_optimization_with_filter() ) {
+		if ( $this->should_skip_optimization() ) {
 			return;
 		}
 
@@ -152,7 +152,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @since $$next-version$$
 	 */
 	public function add_preload_links_to_head() {
-		if ( $this->should_skip_optimization_with_filter() ) {
+		if ( $this->should_skip_optimization() ) {
 			return;
 		}
 
@@ -198,6 +198,21 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @return bool True if optimization should be skipped, false otherwise.
 	 */
 	private function should_skip_optimization() {
+		/**
+		 * Filters whether to short-circuit LCP optimization.
+		 *
+		 * Returning a value other than null from the filter will short-circuit
+		 * the optimization check, returning that value instead.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param null|bool $skip Whether to skip optimization. Default null.
+		 */
+		$pre = apply_filters( 'jetpack_boost_pre_should_skip_lcp_optimization', null );
+		if ( null !== $pre ) {
+			return $pre;
+		}
+
 		// Disable in robots.txt.
 		if ( isset( $_SERVER['REQUEST_URI'] ) && strpos( home_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'robots.txt' ) !== false ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 			return true;
@@ -252,24 +267,6 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		}
 
 		return false;
-	}
-
-	/**
-	 * Applies the jetpack_boost_should_optimize_lcp filter along with the logic from $this->should_skip_optimization().
-	 *
-	 * @see $this->should_skip_optimization()
-	 * @since $$next-version$$
-	 * @return bool True if optimization should be skipped, false otherwise.
-	 */
-	private function should_skip_optimization_with_filter() {
-		/**
-		 * Filters whether LCP optimization should be skipped for the current request.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $skip True if optimization should be skipped, false otherwise.
-		 */
-		return apply_filters( 'jetpack_boost_should_optimize_lcp', $this->should_skip_optimization() );
 	}
 
 	/**
