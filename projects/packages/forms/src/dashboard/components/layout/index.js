@@ -39,10 +39,9 @@ const Layout = ( { className, showFooter } ) => {
 			if ( ! tabName ) {
 				tabName = config( 'hasFeedback' ) ? 'responses' : 'about';
 			}
-			// Preserve query params when navigating
 			navigate( {
 				pathname: `/${ tabName }`,
-				search: location.search,
+				search: tabName === 'responses' ? location.search : '',
 			} );
 		},
 		[ navigate, location.search ]
