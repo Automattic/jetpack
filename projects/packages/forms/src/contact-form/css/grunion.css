@@ -557,7 +557,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label
 {
-	top: calc(var(--jetpack--contact-form--border-size) * -1 / 2);
+	top: calc(var(--jetpack--contact-form--border-size) * -1 );
 	transform: translateY(-50%);
 	font-size: 0.8em;
 }
