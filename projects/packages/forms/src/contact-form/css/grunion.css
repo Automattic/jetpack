@@ -386,27 +386,36 @@
 
 .contact-form .contact-form__select-wrapper {
 	position: relative;
+
+	/*
+	 * Remove padding set on .grunion-field. We want the nested input to have no space around it.
+	 * Instead the padding is added to the `select` element itself.
+	 */
+	padding: 0;
 }
 
 .contact-form .contact-form__select-wrapper::after {
 	position: absolute;
-	inset-inline-end: 20px;
-	top: 50%;
-	color: var(--jetpack--contact-form--text-color);
-	content: "";
-	display: block;
-	width: 8px;
-	height: 8px;
-	z-index: 1;
-	border-bottom: 2px solid;
-	border-right: 2px solid;
-	transform: translateY(-50%) rotate(45deg);
-	transform-origin: center center;
-	pointer-events: none;
-	right: calc(var(--jetpack--contact-form--border-right-size, 1px) + 16px);
+    inset-inline-end: 20px;
+    top: 50%;
+    content: "";
+    display: block;
+    width: calc(1em / 2.5);
+    height: calc(1em / 2.5);
+    border-bottom: calc(1em / 10) solid;
+    border-right: calc(1em / 10) solid;
+
+	/*
+	 * The translateY is to center the arrow vertically.
+	 * It's set to -75% to account for the fact that only the bottom-half of the element is visible.
+	 * If we set it to -50%, the element would be centered, but not the visible part of the arrow.
+	 */
+    transform: translateY(-75%) rotate(45deg);
+    transform-origin: center center;
+    pointer-events: none;
 }
 
-.contact-form :where( .contact-form__select-wrapper select ) {
+.contact-form :where( .contact-form__select-wrapper ) {
 	background-color: var(--jetpack--contact-form--input-background);
 	border: var(--jetpack--contact-form--border);
 	border-color: var(--jetpack--contact-form--border-color);
@@ -416,9 +425,20 @@
 	color: var(--jetpack--contact-form--text-color);
 	font-family: var(--jetpack--contact-form--font-family);
 	font-size: var(--jetpack--contact-form--font-size);
-	line-height: var(--jetpack--contact-form--line-height);
-	padding-inline-end: calc(var(--jetpack--contact-form--input-padding) * 3);
-	padding: var(--jetpack--contact-form--input-padding);
+
+}
+
+.contact-form :where( .contact-form__select-wrapper select ) {
+	background: transparent !important;
+	font-family: inherit;
+	font-size: inherit;
+	color: inherit;
+
+	/*
+	 * Remove border width from select element, border should be added by the wrapper.
+	 * Radius is retained to ensure the select element has the same radius as the wrapper.
+	 */
+	border-width: 0 !important;
 }
 
 .contact-form .contact-form__select-wrapper select {
@@ -427,7 +447,7 @@
 	appearance: none;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	padding: var(--jetpack--contact-form--input-padding);
+	padding: var(--jetpack--contact-form--input-padding, 16px);
 }
 
 .contact-form .is-style-outlined,
