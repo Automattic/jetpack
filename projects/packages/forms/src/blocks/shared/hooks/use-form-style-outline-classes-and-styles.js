@@ -22,11 +22,18 @@ function mergeBaseAndUserConfigs( base, user ) {
 	} );
 }
 
+/**
+ * Returns the value of the CSS var if it is a number, otherwise null.
+ * Match behaviour in projects/packages/forms/src/blocks/shared/hooks/use-jetpack-field-styles.js.
+ *
+ * @param {*} value - A value from the legacy form block attributes.
+ * @return {string|null} The value of the CSS var if it is a number, otherwise null.
+ */
 function getCSSVarValue( value ) {
-	if ( isNumber( value ) ) {
+	if ( typeof value !== 'undefined' && isNumber( value ) ) {
 		return `${ value }px`;
 	}
-	return value;
+	return null;
 }
 
 export default function useFormStyleOutlineClassesAndStyles( clientId, innerBlockName ) {

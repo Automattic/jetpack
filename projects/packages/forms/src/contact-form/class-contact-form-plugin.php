@@ -474,8 +474,8 @@ class Contact_Form_Plugin {
 
 						*We only know this in Contact_Form_Field::get_form_style()
 					*/
-					$atts['outlinestylesdata'] = isset( $inner_block['attrs']['style']['border'] ) ? \wp_json_encode( $inner_block['attrs']['style']['border'] ) : null;
-
+					$atts['outlinestyledata']                 = isset( $inner_block['attrs']['style']['border'] ) ? \wp_json_encode( $inner_block['attrs']['style']['border'] ) : null;
+					$atts['outlinestyleclasses']              = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
 					$add_block_style_classes_to_field_wrapper = true;
 				}
 
