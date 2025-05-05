@@ -5,12 +5,10 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useEntityRecords } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './style.scss';
-import { store as dashboardStore } from '../../store';
 
 /**
  * Returns a formatted tab label with count.
@@ -25,13 +23,15 @@ function getTabLabel( label, count ) {
 }
 
 /**
+ * Renders the status toggle for the inbox view.
  *
+ * @param {object} props              - The component props.
+ * @param {object} props.currentQuery - The current query args from the parent.
+ * @return {JSX.Element} The status toggle component.
  */
-export default function InboxStatusToggle() {
+export default function InboxStatusToggle( { currentQuery } ) {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const status = searchParams.get( 'status' ) || 'inbox';
-
-	const currentQuery = useSelect( select => select( dashboardStore ).getCurrentQuery(), [] );
 	const queryBase = { search: '', page: 1, ...currentQuery, per_page: 1, _fields: 'id' };
 
 	const { totalItems: totalItemsInbox } = useEntityRecords( 'postType', 'feedback', {

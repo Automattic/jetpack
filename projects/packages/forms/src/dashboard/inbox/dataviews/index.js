@@ -311,7 +311,7 @@ export default function InboxView() {
 					onChangeSelection={ onChangeSelection }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
-					header={ <InboxStatusToggle /> }
+					header={ <InboxStatusToggle currentQuery={ queryArgs } /> }
 				/>
 			</div>
 			<SingleResponse
