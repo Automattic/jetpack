@@ -89,10 +89,13 @@
 	font-weight: 700;
 }
 
-.contact-form label.consent {
+.contact-form :where(label.consent) {
 	font-size: 13px;
 	font-weight: 400;
 	text-transform: uppercase;
+}
+
+.contact-form label.consent {
 	display: flex;
 	align-items: center;
 }
@@ -101,14 +104,17 @@
 	display: none;
 }
 
-.contact-form label.checkbox {
-	font-weight: 400;
+.contact-form :where(label.checkbox-multiple),
+.contact-form :where(label.radio),
+.contact-form :where(label.checkbox) {
+
+	/* Inherit the font weight from the parent 'option' block wrapper */
+	font-weight: inherit;
 }
 
 .contact-form label.checkbox-multiple,
 .contact-form label.radio {
 	margin-bottom: 0;
-	font-weight: 400;
 	flex: 1;
 }
 
@@ -145,8 +151,6 @@
 }
 
 .contact-form .is-style-outlined .grunion-checkbox-multiple-options legend,
-
-.contact-form .is-style-outlined .grunion-checkbox-multiple-options legend,
 .contact-form .is-style-outlined .grunion-radio-options legend {
 	margin: 0 0 -0.75em;
 	padding: 0 0.25em;
@@ -163,8 +167,8 @@
 	margin: 0;
 }
 
-.contact-form label span.required,
-.grunion-label-required {
+.contact-form :where(label span.required),
+.contact-form :where(.grunion-label-required) {
 	font-size: 85%;
 	margin-left: 0.25em;
 	font-weight: 400;
@@ -382,13 +386,13 @@
 	inset-inline-end: 20px;
 	top: 50%;
 
-  content: "";
-  display: block;
+	content: "";
+	display: block;
 	width: 8px;
 	height: 8px;
 
 	border-bottom: 2px solid;
-  border-right: 2px solid;
+	border-right: 2px solid;
 
 	transform: translateY(-50%) rotate(45deg);
 	transform-origin: center center;
@@ -650,13 +654,30 @@ on production builds, the attributes are being reordered, causing side-effects
 	padding-top: 8px;
 }
 
+.contact-form :where(.grunion-checkbox-multiple-options .contact-form-field),
+.contact-form :where(.grunion-radio-options .contact-form-field),
+.contact-form :where(.grunion-checkbox .contact-form-field) {
+	font-weight: 400;
+}
+
+.contact-form :where(.grunion-checkbox-multiple-options .contact-form-field),
+.contact-form :where(.grunion-radio-options .contact-form-field) {
+
+	/* Back compat for the old css vars used in the old radio and checkbox styles */
+	font-size: var(--jetpack--contact-form--font-size);
+}
+
 .contact-form .grunion-field-wrap input.checkbox-multiple,
 .contact-form .grunion-field-wrap input.radio {
 	position: relative;
 
 	box-sizing: border-box;
-	width: var(--jetpack--contact-form--font-size);
-	height: var(--jetpack--contact-form--font-size);
+
+	/* Inherit the font size from the parent element. This allows the input to scale with the font size
+	   set from global styles or from block styles */
+	font-size: inherit;
+	width: 1em;
+	height: 1em;
 	margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
 	padding: 0;
 
@@ -674,14 +695,16 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .grunion-field-wrap input.checkbox-multiple:checked::before {
 	content: "\2713";
-
 	position: absolute;
-	top: calc(var(--jetpack--contact-form--font-size) / 2);
-	left: calc(var(--jetpack--contact-form--font-size) / 2);
+
+	/* Inherit the font size from the parent element. This allows the input to scale with the font size
+	   set from global styles or from block styles */
+	font-size: inherit;
+	top: calc(1em / 2);
+	left: calc(1em / 2);
 
 	display: block;
 
-	font-size: var(--jetpack--contact-form--font-size);
 	line-height: 1;
 
   transform: translate(-50%, -50%);
@@ -691,19 +714,27 @@ on production builds, the attributes are being reordered, causing side-effects
 	background: currentColor;
 	border-radius: 50%;
 	content: '';
-	height: calc(var(--jetpack--contact-form--font-size) / 2);
+
+	/* Inherit the font size from the parent element. This allows the input to scale with the font size
+	   set from global styles or from block styles */
+	font-size: inherit;
+	height: calc(1em / 2);
+	width: calc(1em / 2);
 	margin-left: 50%;
 	margin-top: 50%;
 	position: absolute;
 	transform: translate(-50%, -50%);
-	width: calc(var(--jetpack--contact-form--font-size) / 2);
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-radio-label {
+.contact-form .grunion-field-wrap.grunion-field-radio-wrap.is-style-button-wrap .contact-form-field {
 	display: inline-flex;
 	align-items: center;
 	padding: var(--jetpack--contact-form--button-outline--padding);
+}
+
+.contact-form :where(.grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field),
+.contact-form :where(.grunion-field-wrap.grunion-field-radio-wrap.is-style-button-wrap .contact-form-field) {
 	background: var(--jetpack--contact-form--button-outline--background-color);
 	border: var(--jetpack--contact-form--button-outline--border);
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
@@ -715,12 +746,12 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	/* visually-hidden */
 	clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  height: 1px;
-  overflow: hidden;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
 }
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio:checked + .grunion-radio-label {
@@ -738,10 +769,9 @@ on production builds, the attributes are being reordered, causing side-effects
 	outline-offset: 2px;
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple {
+.contact-form :where(.grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple) {
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
 	color: var(--jetpack--contact-form--button-outline--text-color);
-
 	font-family: var(--wp--preset--font-family--body);
 }
 
@@ -749,7 +779,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	outline-width: 0; /* focus style defined on parent */
 }
 
-.contact-form .is-style-button-wrap input.grunion-field + .grunion-field-text::before {
+/* TODO - is this style used anywhere? if not, remove it */
+.contact-form :where(.is-style-button-wrap input.grunion-field + .grunion-field-text::before) {
 	background: var(--jetpack--contact-form--button-outline--background-color);
 	border: var(--jetpack--contact-form--button-outline--border);
 	border-color: currentColor;
@@ -765,16 +796,16 @@ on production builds, the attributes are being reordered, causing side-effects
 	z-index: -1;
 }
 
-.contact-form .is-style-button-wrap input.grunion-field {
+.contact-form :where(.is-style-button-wrap input.grunion-field) {
 	color: var(--jetpack--contact-form--button-outline--color);
 }
 
-.contact-form .is-style-button-wrap input.grunion-field:checked,
-.contact-form .is-style-button-wrap input.grunion-field:checked + .grunion-field-text {
+.contact-form :where(.is-style-button-wrap input.grunion-field:checked),
+.contact-form :where(.is-style-button-wrap input.grunion-field:checked + .grunion-field-text) {
 	color: var(--jetpack--contact-form--button-outline--background-color-fallback);
 }
 
-.contact-form .is-style-button-wrap input.grunion-field:checked + .grunion-field-text::before {
+.contact-form :where(.is-style-button-wrap input.grunion-field:checked + .grunion-field-text::before) {
 	background: var(--jetpack--contact-form--button-outline--text-color);
 	border-color: var(--jetpack--contact-form--button-outline--text-color);
 }
