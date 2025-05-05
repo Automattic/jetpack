@@ -198,12 +198,6 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @return bool True if optimization should be skipped, false otherwise.
 	 */
 	private function should_skip_optimization() {
-		$lcp_storage = $this->storage->get_current_request_lcp();
-		// Early return if we don't have any LCP data
-		if ( empty( $lcp_storage ) ) {
-			return true;
-		}
-
 		// Disable in robots.txt.
 		if ( isset( $_SERVER['REQUEST_URI'] ) && strpos( home_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'robots.txt' ) !== false ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 			return true;
@@ -290,6 +284,9 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 */
 	public function optimize( $buffer_start, $buffer_end ) {
 		$lcp_storage = $this->storage->get_current_request_lcp();
+		if ( empty( $lcp_storage ) ) {
+			return array( $buffer_start, $buffer_end );
+		}
 
 		// Combine the buffers for processing
 		$combined_buffer = $buffer_start . $buffer_end;
