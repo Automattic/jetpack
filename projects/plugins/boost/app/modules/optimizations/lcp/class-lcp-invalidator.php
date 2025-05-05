@@ -11,7 +11,6 @@ class LCP_Invalidator {
 
 	public static function init() {
 		add_action( 'jetpack_boost_deactivate', array( self::class, 'reset_data' ) );
-		add_action( 'update_option_jetpack_boost_ds_cornerstone_pages_list', array( self::class, 'reset_and_analyze' ) );
 
 		add_action( 'jetpack_boost_environment_changed', array( self::class, 'handle_environment_change' ) );
 	}
@@ -30,27 +29,18 @@ class LCP_Invalidator {
 	}
 
 	/**
-	 * Reset the LCP analysis data, and analyze the pages again.
-	 *
-	 * @since $$next-version$$
-	 */
-	public static function reset_and_analyze() {
-		self::reset_data();
-
-		/**
-		 * Indicate that the latest LCP analysis data has been invalidated.
-		 */
-		do_action( 'jetpack_boost_lcp_invalidated' );
-	}
-
-	/**
 	 * Respond to environment changes; deciding whether or not to clear LCP analysis data.
 	 *
 	 * @since $$next-version$$
 	 */
 	public static function handle_environment_change( $is_major_change ) {
 		if ( $is_major_change ) {
-			self::reset_and_analyze();
+			self::reset_data();
+
+			/**
+			 * Indicate that the latest LCP analysis data has been invalidated.
+			 */
+			do_action( 'jetpack_boost_lcp_invalidated' );
 		}
 	}
 }
