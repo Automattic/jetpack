@@ -54,7 +54,7 @@ const Layout = ( { className, showFooter } ) => {
 				<div className="jp-forms__logo-wrapper">
 					<JetpackFormsLogo />
 				</div>
-				<ExportResponsesButton />
+				{ getCurrentTab() === 'responses' && <ExportResponsesButton /> }
 			</div>
 			<TabPanel
 				className="jp-forms__dashboard-tabs"
