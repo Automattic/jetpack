@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -14,12 +14,12 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 class zeroBSCRM_Edit{
 
     private $objID = false;
-    private $obj = false; 
+    private $obj = false;
     private $objTypeID = false; // ZBS_TYPE_CONTACT - v3.0+
 
     // following now FILLED OUT by objTypeID above, v3.0+
     private $objType = false; // 'contact'
-    private $singular = false; 
+    private $singular = false;
     private $plural = false;
     // renamed listViewSlug v3.0+ private $postPage = false;
     private $listViewSlug = false;
@@ -52,7 +52,7 @@ class zeroBSCRM_Edit{
             'listViewSlug' => false,    //manage-transactions
 
             'langLabels' => array(
-                    
+
             ),
             'extraBoxes' => '' // html for extra boxes e.g. upsells :)
 
@@ -99,7 +99,7 @@ class zeroBSCRM_Edit{
         if ($this->objID !== -1 && !$this->isNewRecord && isset($this->objTypeID) && !is_array($this->obj)) $this->isGhostRecord = true;
 
         // anything to save?
-        $this->catchPost(); 
+        $this->catchPost();
 
         // include any 'post learn menu' code
         add_action( 'zerobscrm-subtop-menu', array( $this, 'post_learn_menu_output' ) );
@@ -150,7 +150,7 @@ class zeroBSCRM_Edit{
         }
     }
 
-    // check ownership, access etc. 
+    // check ownership, access etc.
     public function preChecks(){
 
         global $zbs;
@@ -262,7 +262,7 @@ class zeroBSCRM_Edit{
         if (empty($this->objType) || empty($this->listViewSlug) || empty($this->singular) || empty($this->plural)){
 
 
-            echo zeroBSCRM_UI2_messageHTML('warning','Error Retrieving '.$this->singular,'There has been a problem retrieving your '.$this->singular.', if this issue persists, please contact support.','disabled warning sign','zbsCantLoadData');  
+            echo zeroBSCRM_UI2_messageHTML('warning','Error Retrieving '.$this->singular,'There has been a problem retrieving your '.$this->singular.', if this issue persists, please contact support.','disabled warning sign','zbsCantLoadData');
             return false;
 
         }
@@ -273,8 +273,8 @@ class zeroBSCRM_Edit{
             // brutal hide, then msg #ghostrecord
             ?><style type="text/css">#zbs-edit-save, #zbs-nav-view, #zbs-nav-prev, #zbs-nav-next { display:none; }</style>
             <div id="zbs-edit-warnings-wrap"><?php
-            echo zeroBSCRM_UI2_messageHTML('warning','Error Retrieving '.$this->singular,'There does not appear to be a '.$this->singular.' with this ID.','disabled warning sign','zbsCantLoadData');  
-            ?></div><?php  
+            echo zeroBSCRM_UI2_messageHTML('warning','Error Retrieving '.$this->singular,'There does not appear to be a '.$this->singular.' with this ID.','disabled warning sign','zbsCantLoadData');
+            ?></div><?php
             return false;
 
         }
@@ -283,7 +283,7 @@ class zeroBSCRM_Edit{
         if ($this->isNewRecord){
 
             // just hide button via css. Should just stop this via learn in time
-            ?><style type="text/css">#zbs-nav-view { display:none; }</style><?php  
+            ?><style type="text/css">#zbs-nav-view { display:none; }</style><?php
 
         }
 
@@ -296,11 +296,11 @@ class zeroBSCRM_Edit{
         ?><div id="zbs-edit-master-wrap"><form method="post" id="zbs-edit-form" enctype="multipart/form-data"><input type="hidden" name="zbs-edit-form-master" value="<?php echo esc_attr( $this->objType ); ?>" />
 
             <div id="zbs-edit-warnings-wrap">
-                <?php #} Pre-loaded msgs, because I wrote the helpers in php first... should move helpers to js and fly these 
+                <?php #} Pre-loaded msgs, because I wrote the helpers in php first... should move helpers to js and fly these
 
                 echo zeroBSCRM_UI2_messageHTML('warning hidden','Error Retrieving '.$this->plural,'There has been a problem retrieving your '.$this->singular.', if this issue persists, please ask your administrator to reach out to Jetpack CRM.','disabled warning sign','zbsCantLoadData');
                 echo zeroBSCRM_UI2_messageHTML('warning hidden','Error Retrieving '.$this->singular,'There has been a problem retrieving your '.$this->singular.', if this issue persists, please ask your administrator to reach out to Jetpack CRM.','disabled warning sign','zbsCantLoadDataSingle');
-              
+
                 ?>
             </div>
             <!-- main view: list + sidebar -->
@@ -309,7 +309,7 @@ class zeroBSCRM_Edit{
                 <?php
 
                     if (count($zbs->pageMessages) > 0){
-                
+
                         #} Updated Msgs
                         // was doing like this, but need control over styling
                         // do_action( 'zerobs_updatemsg_contact');
@@ -337,7 +337,7 @@ class zeroBSCRM_Edit{
                     <!-- record list -->
                     <div class="twelve wide column" id="zbs-edit-table-wrap">
 
-                        <?php 
+                        <?php
                             #} Main Metaboxes
                             zeroBSCRM_do_meta_boxes( 'zbs-add-edit-'.$this->objType.'-edit', 'normal', $this->obj );
                         ?>
@@ -345,7 +345,7 @@ class zeroBSCRM_Edit{
                     </div>
                     <!-- side bar -->
                     <div class="four wide column" id="zbs-edit-sidebar-wrap">
-                        <?php 
+                        <?php
 
                             #} Sidebar metaboxes
                             zeroBSCRM_do_meta_boxes( 'zbs-add-edit-'.$this->objType.'-edit', 'side', $this->obj );
@@ -358,7 +358,7 @@ class zeroBSCRM_Edit{
                     </div>
                 </div>
 
-                <!-- could use this for mobile variant?) 
+                <!-- could use this for mobile variant?)
                 <div class="two column mobile only row" style="display:none"></div>
                 -->
             </div> <!-- / mainlistview wrap -->
@@ -369,7 +369,7 @@ class zeroBSCRM_Edit{
             jQuery(function($){
 
                 console.log("======= EDIT VIEW UI =========");
-                
+
                 jQuery('.show-more-tags').on("click",function(e){
                     jQuery('.more-tags').show();
                     jQuery(this).hide();
@@ -394,8 +394,7 @@ class zeroBSCRM_Edit{
             var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
             var zbsListViewLink = '<?php echo jpcrm_esc_link( $this->listViewSlug ); ?>';
 
-            
-            var zbsClick2CallType = parseInt('<?php echo esc_html( zeroBSCRM_getSetting('clicktocalltype') ); ?>');
+
             var zbsEditViewLangLabels = {
 
                     'today': '<?php echo esc_html( zeroBSCRM_slashOut(__('Today',"zero-bs-crm")) ); ?>',
@@ -403,7 +402,7 @@ class zeroBSCRM_Edit{
                     'contact': '<?php echo esc_html( zeroBSCRM_slashOut(__('Contact',"zero-bs-crm")) ); ?>',
                     'company': '<?php echo esc_html( zeroBSCRM_slashOut(jpcrm_label_company()) ); ?>',
 
-                    <?php $labelCount = 0; 
+                    <?php $labelCount = 0;
                     if (count($this->langLabels) > 0) foreach ($this->langLabels as $labelK => $labelV){
 
                         if ($labelCount > 0) echo ',';

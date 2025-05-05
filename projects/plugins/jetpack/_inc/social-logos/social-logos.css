@@ -211,11 +211,6 @@
 }
 
 
-.social-logo__skype::before {
-	content:"\f220";
-}
-
-
 .social-logo__sms::before {
 	content: "\f110";
 }
