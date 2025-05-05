@@ -822,7 +822,7 @@
 				}
 
 				.notched-label__label {
-					top: calc(var(--jetpack--contact-form--border-size) * -1 / 2);
+					top: calc(var(--jetpack--contact-form--border-size) * -1 );
 					transform: translateY(-50%);
 					font-size: 0.8em;
 				}
@@ -992,6 +992,7 @@
 }
 
 :where( .wp-block-jetpack-contact-form.is-style-outlined ) {
+
 	.notched-label__leading {
 		// border: var(--jetpack--contact-form--border);
 		border-color: var(--jetpack--contact-form--border-color);
@@ -1003,6 +1004,7 @@
 		border-top-right-radius: unset !important;
 		border-bottom-right-radius: unset !important;
 	}
+
 	.notched-label__notch {
 		// border: var(--jetpack--contact-form--border);
 		border-color: var(--jetpack--contact-form--border-color);
@@ -1016,6 +1018,7 @@
 		border-left: none !important;
 		border-right: none !important;
 	}
+
 	.notched-label__trailing {
 		// border: var(--jetpack--contact-form--border);
 		border-color: var(--jetpack--contact-form--border-color);
