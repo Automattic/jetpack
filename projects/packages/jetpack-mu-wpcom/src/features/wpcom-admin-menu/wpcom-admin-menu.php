@@ -254,6 +254,15 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
+	add_submenu_page(
+		'jetpack',
+		__( 'Jetpack Forms', 'jetpack-mu-wpcom' ),
+		__( 'Forms', 'jetpack-mu-wpcom' ),
+		'edit_pages',
+		'jetpack-forms-admin',
+		null
+	);
+
 	// Re-order menu.
 	global $submenu;
 	if ( ! isset( $submenu['jetpack'] ) ) {
@@ -264,6 +273,7 @@ function wpcom_add_jetpack_submenu() {
 		'my-jetpack',
 		'stats',
 		$activity_log_url,
+		'jetpack-forms-admin',
 		$vaultpress_url,
 		'akismet-key-config',
 		'jetpack-search',
