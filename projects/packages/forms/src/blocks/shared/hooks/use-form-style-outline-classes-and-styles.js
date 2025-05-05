@@ -1,6 +1,8 @@
 import {
 	store as blockEditorStore,
 	__experimentalGetBorderClassesAndStyles as getBorderClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalGetColorClassesAndStyles as getColorClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	getTypographyClassesAndStyles,
 } from '@wordpress/block-editor';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -27,13 +29,13 @@ function mergeBaseAndUserConfigs( base, user ) {
  * Match behaviour in projects/packages/forms/src/blocks/shared/hooks/use-jetpack-field-styles.js.
  *
  * @param {*} value - A value from the legacy form block attributes.
- * @return {string|null} The value of the CSS var if it is a number, otherwise null.
+ * @return {string|*} The value of the CSS var if it is a number, otherwise the value itself.
  */
 function getCSSVarValue( value ) {
 	if ( typeof value !== 'undefined' && isNumber( value ) ) {
 		return `${ value }px`;
 	}
-	return null;
+	return value;
 }
 
 export default function useFormStyleOutlineClassesAndStyles( clientId, innerBlockName ) {
@@ -76,29 +78,43 @@ export default function useFormStyleOutlineClassesAndStyles( clientId, innerBloc
 		[ clientId, innerBlockName ]
 	);
 
-	// Access the input block's attributes
-	const blockClassesAndStyles = getBorderClassesAndStyles( inputBlock?.attributes ?? {} );
-	const globalClassesAndStyles = getBorderClassesAndStyles( {
+	// Access the input block's attributes.
+	const blockBorderClassesAndStyles = getBorderClassesAndStyles( inputBlock?.attributes ?? {} );
+	const globalBorderClassesAndStyles = getBorderClassesAndStyles( {
 		style: mergedGlobalBlockStyles?.[ innerBlockName ],
 	} );
 
+	const blockColorClassesAndStyles = getColorClassesAndStyles( inputBlock?.attributes ?? {} );
+	const blockTypographyClassesAndStyles = getTypographyClassesAndStyles(
+		inputBlock?.attributes ?? {}
+	);
+
 	return {
 		border: {
-			className: blockClassesAndStyles?.className,
-			style: blockClassesAndStyles?.style,
+			className:
+				blockBorderClassesAndStyles?.className +
+				' ' +
+				blockColorClassesAndStyles?.className +
+				' ' +
+				blockTypographyClassesAndStyles?.className,
+			style: {
+				...blockBorderClassesAndStyles?.style,
+				...blockColorClassesAndStyles?.style,
+				...blockTypographyClassesAndStyles?.style,
+			},
 			cssVars: {
 				// Sets the value of top: calc(var(--jetpack--contact-form--border-size) * -1) for .notched-label__label.
 				'--jetpack--contact-form--border-size':
-					getCSSVarValue( blockClassesAndStyles?.style?.borderWidth ) ||
-					blockClassesAndStyles?.style?.borderTopWidth ||
-					globalClassesAndStyles?.style?.borderWidth ||
-					globalClassesAndStyles?.style?.borderTopWidth,
+					getCSSVarValue( blockBorderClassesAndStyles?.style?.borderWidth ) ||
+					blockBorderClassesAndStyles?.style?.borderTopWidth ||
+					globalBorderClassesAndStyles?.style?.borderWidth ||
+					globalBorderClassesAndStyles?.style?.borderTopWidth,
 				// Sets the value of --notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)); for .notched-label.
 				'--jetpack--contact-form--border-radius':
-					getCSSVarValue( blockClassesAndStyles?.style?.borderRadius ) ||
-					blockClassesAndStyles?.style?.borderLeftRadius ||
-					globalClassesAndStyles?.style?.borderRadius ||
-					globalClassesAndStyles?.style?.borderLeftRadius,
+					getCSSVarValue( blockBorderClassesAndStyles?.style?.borderRadius ) ||
+					blockBorderClassesAndStyles?.style?.borderLeftRadius ||
+					globalBorderClassesAndStyles?.style?.borderRadius ||
+					globalBorderClassesAndStyles?.style?.borderLeftRadius,
 			},
 		},
 	};

@@ -586,6 +586,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	outline: none;
 	padding-left: calc(var(--notch-width) + 4px);
 	padding-right: calc(var(--notch-width) + 4px);
+	clip-path: padding-box;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap textarea {
