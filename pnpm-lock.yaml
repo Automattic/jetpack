@@ -3342,14 +3342,7 @@ importers:
         version: 4.1.0
       '@automattic/components':
         specifier: 2.2.0
-<<<<<<< HEAD
         version: 2.2.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.22.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
-=======
-        version: 2.2.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.21.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
->>>>>>> a326acb8f9 (lockfile)
       '@automattic/i18n-utils':
         specifier: 1.2.3
         version: 1.2.3
@@ -12876,7 +12869,6 @@ packages:
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
-    deprecated: Use your platform's native DOMException instead
 
   node-fetch@2.6.7:
     resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==}
