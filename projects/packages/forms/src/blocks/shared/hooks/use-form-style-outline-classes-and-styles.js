@@ -6,7 +6,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import deepmerge from 'deepmerge';
-import { isPlainObject } from 'lodash';
+import { isPlainObject, isNumber } from 'lodash';
 // TODO probably an overkill.
 function mergeBaseAndUserConfigs( base, user ) {
 	if ( ! base || ! user ) {
@@ -20,6 +20,13 @@ function mergeBaseAndUserConfigs( base, user ) {
 		 */
 		isMergeableObject: isPlainObject,
 	} );
+}
+
+function getCSSVarValue( value ) {
+	if ( isNumber( value ) ) {
+		return `${ value }px`;
+	}
+	return value;
 }
 
 export default function useFormStyleOutlineClassesAndStyles( clientId, innerBlockName ) {
@@ -75,13 +82,13 @@ export default function useFormStyleOutlineClassesAndStyles( clientId, innerBloc
 			cssVars: {
 				// Sets the value of top: calc(var(--jetpack--contact-form--border-size) * -1) for .notched-label__label.
 				'--jetpack--contact-form--border-size':
-					blockClassesAndStyles?.style?.borderWidth ||
+					getCSSVarValue( blockClassesAndStyles?.style?.borderWidth ) ||
 					blockClassesAndStyles?.style?.borderTopWidth ||
 					globalClassesAndStyles?.style?.borderWidth ||
 					globalClassesAndStyles?.style?.borderTopWidth,
 				// Sets the value of --notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)); for .notched-label.
 				'--jetpack--contact-form--border-radius':
-					blockClassesAndStyles?.style?.borderRadius ||
+					getCSSVarValue( blockClassesAndStyles?.style?.borderRadius ) ||
 					blockClassesAndStyles?.style?.borderLeftRadius ||
 					globalClassesAndStyles?.style?.borderRadius ||
 					globalClassesAndStyles?.style?.borderLeftRadius,
