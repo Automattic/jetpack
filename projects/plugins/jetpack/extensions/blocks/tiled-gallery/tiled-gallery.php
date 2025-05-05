@@ -184,9 +184,9 @@ class Tiled_Gallery {
 
 		if ( $is_module_active ) {
 			$aria_label_content = 'Open image ' . $image_index . ' of ' . $number_images . 'in full-screen';
-			$img_element        = '<img role="button" tabindex="0" aria-label="' . esc_attr( $aria_label_content ) . '"';
+			$img_element        = '<img data-amp-layout="responsive" role="button" tabindex="0" aria-label="' . esc_attr( $aria_label_content ) . '"';
 		} else {
-			$img_element = '<img ';
+			$img_element = '<img data-amp-layout="responsive" ';
 		}
 		return $img_element;
 	}
