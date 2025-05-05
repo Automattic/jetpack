@@ -46,6 +46,9 @@ class Package_Version_Tracker_Test extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		Sync_Settings::update_settings( array( 'disable' => true ) );
 		$this->reset_connection_status();
@@ -59,6 +62,8 @@ class Package_Version_Tracker_Test extends TestCase {
 		global $wp_actions;
 		// Restore `init` in global $wp_actions.
 		$wp_actions['init'] = true;
+
+		unset( $_SERVER['REQUEST_METHOD'] );
 
 		$this->http_request_attempted = false;
 		Constants::clear_constants();
@@ -292,6 +297,33 @@ class Package_Version_Tracker_Test extends TestCase {
 		global $wp_actions;
 		// Remove `init` from global $wp_actions.
 		unset( $wp_actions['init'] );
+
+		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
+			->onlyMethods( array( 'update_package_versions_option' ) )
+			->getMock();
+
+		update_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, self::PACKAGE_VERSIONS );
+
+		add_filter(
+			'jetpack_package_versions',
+			function () {
+				return self::CHANGED_VERSIONS;
+			}
+		);
+
+		$tracker->expects( $this->never() )
+			->method( 'update_package_versions_option' );
+
+		$tracker->maybe_update_package_versions();
+
+		$this->assertSame( self::PACKAGE_VERSIONS, get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
+	}
+
+	/**
+	 * Tests the maybe_update_package_versions method on non POST requests.
+	 */
+	public function test_maybe_update_package_versions_with_non_post_request() {
+		unset( $_SERVER['REQUEST_METHOD'] );
 
 		$tracker = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Package_Version_Tracker' )
 			->onlyMethods( array( 'update_package_versions_option' ) )

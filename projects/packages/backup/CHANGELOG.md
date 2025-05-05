@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.1] - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
+
 ## [4.1.0] - 2025-04-21
 ### Added
 - Sync: Add `jetpack_sync_active_modules` callable to whitelist of must-sync callables. [#43134]
@@ -837,6 +842,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.1.1]: https://github.com/Automattic/jetpack-backup/compare/v4.1.0...v4.1.1
 [4.1.0]: https://github.com/Automattic/jetpack-backup/compare/v4.0.22...v4.1.0
 [4.0.22]: https://github.com/Automattic/jetpack-backup/compare/v4.0.21...v4.0.22
 [4.0.21]: https://github.com/Automattic/jetpack-backup/compare/v4.0.20...v4.0.21

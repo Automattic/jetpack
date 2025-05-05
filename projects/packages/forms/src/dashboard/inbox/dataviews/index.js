@@ -26,6 +26,7 @@ import InboxResponse from '../response';
 import { getPath } from '../utils.js';
 import {
 	viewAction,
+	viewActionModal,
 	markAsSpamAction,
 	markAsNotSpamAction,
 	moveToTrashAction,
@@ -78,9 +79,15 @@ function getStatusFilter( urlStatus ) {
 export default function InboxView() {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useSearchParams();
+	const [ containerWidth, setContainerWidth ] = useState( 0 );
 	const [ queryArgs, setQueryArgs ] = useState( EMPTY_OBJECT );
 	const dateSettings = getDateSettings();
-	const [ resizeListener, { width: containerWidth } ] = useResizeObserver();
+	const containerRef = useResizeObserver(
+		resizeObserverEntries => {
+			setContainerWidth( resizeObserverEntries[ 0 ].borderBoxSize[ 0 ].inlineSize );
+		},
+		{ box: 'border-box' }
+	);
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const selectedResponses = searchParams.get( 'r' );
@@ -257,6 +264,7 @@ export default function InboxView() {
 		],
 		[ filterOptions, dateSettings.formats.date ]
 	);
+
 	const actions = useMemo( () => {
 		const _actions = [
 			markAsSpamAction,
@@ -266,18 +274,29 @@ export default function InboxView() {
 			deleteAction,
 		];
 		if ( isMobile ) {
-			_actions.unshift( viewAction );
+			_actions.unshift( viewActionModal );
+		} else {
+			_actions.unshift( {
+				...viewAction,
+				callback( items ) {
+					const [ item ] = items;
+					const selectedId = item.id.toString();
+					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
+					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+				},
+			} );
 		}
 		return _actions;
-	}, [ isMobile ] );
+	}, [ isMobile, onChangeSelection, selection ] );
+
 	return (
 		<HStack
 			spacing={ 5 }
 			alignment="top"
 			justify="flex-start"
+			ref={ containerRef }
 			className="jp-forms__inbox__dataviews__container"
 		>
-			{ resizeListener }
 			<div className="jp-forms__inbox__dataviews">
 				<DataViews
 					paginationInfo={ paginationInfo }

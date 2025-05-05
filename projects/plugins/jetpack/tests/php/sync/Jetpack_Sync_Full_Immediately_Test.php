@@ -97,16 +97,16 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 	public function test_sync_start_resets_previous_sync_and_sends_full_sync_cancelled() {
 		self::factory()->post->create();
 		$this->full_sync->start();
-
-		// if we start again, it should reset the status back to its original state,
-		// plus a "full_sync_cancelled" action
+		$this->sender->do_full_sync();
+		// fake the last sync being in progress
+		$this->full_sync->update_status( array( 'finished' => false ) );
 		$this->full_sync->start();
 
 		$this->sender->do_full_sync();
 
-		$cancelled_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_cancelled' );
+		$cancelled_event = $this->server_event_storage->get_all_events( 'jetpack_full_sync_cancelled' );
 
-		$this->assertTrue( $cancelled_event !== false );
+		$this->assertNotEmpty( $cancelled_event );
 	}
 
 	public function test_full_sync_lock_has_one_hour_timeout() {
@@ -115,7 +115,7 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 		add_action( 'jetpack_full_sync_start', array( $this, 'count_full_sync_start' ) );
 
 		$this->full_sync->start();
-
+		$this->sender->do_full_sync();
 		$this->assertSame( 1, $this->started_sync_count );
 
 		// fake the last sync being over an hour ago
@@ -123,6 +123,7 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 		update_option( "{$prefix}_started", time() - 3700 );
 
 		$this->full_sync->start();
+		$this->sender->do_full_sync();
 
 		$this->assertEquals( 2, $this->started_sync_count );
 	}
@@ -849,13 +850,14 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 		}
 
 		$this->full_sync->start();
+		$this->sender->do_full_sync();
 
 		$this->assertEquals( $standard_config, $this->full_sync_start_config );
 
 		$custom_config = array( 'posts' => $post_ids );
 
 		$this->full_sync->start( $custom_config );
-
+		$this->sender->do_full_sync();
 		$this->assertEquals( $custom_config, $this->full_sync_start_config );
 	}
 
@@ -932,10 +934,13 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 
 		$this->assertEquals(
 			array(
-				'started'  => false,
-				'finished' => false,
-				'progress' => array(),
-				'config'   => array(),
+				'started'                    => false,
+				'finished'                   => false,
+				'progress'                   => array(),
+				'config'                     => array(),
+				'start_action_processed'     => false,
+				'cancelled_action_processed' => true,
+				'context'                    => null,
 			),
 			$full_sync_status
 		);
@@ -950,8 +955,6 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 
 		$this->assertIsInt( $full_sync_status['started'] );
 		$this->assertFalse( $full_sync_status['finished'] );
-		$this->assertIsArray( $full_sync_status['progress'] );
-		$this->assertEquals( count( \Automattic\Jetpack\Sync\Defaults::get_constants_whitelist() ), $full_sync_status['progress']['constants']['total'] );
 	}
 
 	public function test_full_sync_status_after_end() {

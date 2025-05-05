@@ -1,8 +1,8 @@
-// ==========================================================================
-// RNA mixins
-//
-// See https://jetpackdesignhandbook.wordpress.com/rna-components/
-// ==========================================================================
+/**
+ * RNA mixins
+ *
+ * See https://jetpackdesignhandbook.wordpress.com/rna-components/
+ */
 
 @mixin rna-link( $has-focus-state: true ) {
 	$resting-shadow: 0 1px 0 0 currentColor;

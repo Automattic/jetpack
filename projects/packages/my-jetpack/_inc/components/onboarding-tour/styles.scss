@@ -42,6 +42,10 @@ $tour-footer-spacing: 16px;
                     height: 14px;
                 }
             }
+
+            button {
+                color: var(--jp-gray-0);
+            }
         }
 
         .components-guide__footer {
@@ -51,7 +55,7 @@ $tour-footer-spacing: 16px;
             padding: 0 $tour-footer-spacing;
             margin-bottom: $tour-footer-spacing;
 
-            & > button {
+            > button {
                 position: relative;
                 top: 0;
                 right: 0;
@@ -66,7 +70,7 @@ $tour-footer-spacing: 16px;
         }
 
         /* Applying Jetpack colors to the tour */
-        li[aria-current=step] {
+        li[aria-current="step"] {
             // carousel button color
             svg {
                 fill: var(--jp-green-60);
@@ -99,13 +103,6 @@ $tour-footer-spacing: 16px;
                 &:active {
                     color: var(--jp-gray-100);
                 }
-            }
-        }
-
-        .components-modal__header {
-
-            button {
-                color: var(--jp-gray-0);
             }
         }
     }

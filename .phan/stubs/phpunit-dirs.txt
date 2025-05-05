@@ -5,8 +5,6 @@ vendor/phpunit/php-text-template
 vendor/phpunit/php-timer
 vendor/phpunit/phpunit
 vendor/sebastian/cli-parser
-vendor/sebastian/code-unit
-vendor/sebastian/code-unit-reverse-lookup
 vendor/sebastian/comparator
 vendor/sebastian/complexity
 vendor/sebastian/diff

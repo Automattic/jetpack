@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Shortcodes: Prevent redeclared function names with YouTube shortcode.

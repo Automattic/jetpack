@@ -42,7 +42,7 @@ if ( ! defined( 'JP_SITEMAP_MAX_BYTES' ) ) {
  * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_MAX_ITEMS' ) ) {
-	define( 'JP_SITEMAP_MAX_ITEMS', 2000 );
+	define( 'JP_SITEMAP_MAX_ITEMS', 1000 );
 }
 
 /**

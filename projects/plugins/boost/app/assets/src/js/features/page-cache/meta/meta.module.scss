@@ -14,7 +14,7 @@
 			border-radius: 4px;
 			background-color: var(--gray-0);
 
-			& ~ .section {
+			~ .section {
 				margin-top: 16px;
 			}
 

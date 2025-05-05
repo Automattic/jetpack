@@ -57,7 +57,7 @@ export default class SearchConfigure extends WpPage {
 	}
 
 	async isFormatProduct() {
-		const productFormatSelector = 'input[type=radio][value="product"]';
+		const productFormatSelector = 'input[type="radio"][value="product"]';
 		return await this.page.locator( productFormatSelector ).evaluate( e => e.checked );
 	}
 

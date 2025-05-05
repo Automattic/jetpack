@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Full Sync: Update status properly when sending non-chunked full sync actions, and ensure response is not an error before marking the module as finished

@@ -13,8 +13,6 @@
  *    - When connected to WordPress.com.
  */
 $tools = array(
-	// Always loaded, but only registered if theme supports it.
-	'geo-location.php',
 	// Those oEmbed providers are always available.
 	'shortcodes/facebook.php',
 	'shortcodes/others.php',

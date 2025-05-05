@@ -1,4 +1,5 @@
 // Just in Time Messaging - message prompts
+@use 'sass:color';
 
 // TODO: Switch to using the `@automattic/jetpack-base-styles` package when its ready.
 @import '../../plugins/jetpack/_inc/client/scss/functions/rem';
@@ -156,7 +157,7 @@ $jp-gray-20:             #a7aaad;
 	background-color: $white;
 	border: 1px solid $white;
 	border-radius: 2px;
-	box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
 
 	@include clear-fix;
 
@@ -188,11 +189,6 @@ $jp-gray-20:             #a7aaad;
 // if JITM appears directly below WordPress "help" menu adjust margins
 #screen-meta-links+.jitm-card {
 	margin: rem( 40px ) 1.5385em 0 auto;
-}
-
-// if JITM appears directly below WordPress hello dolly adjust margins
-#dolly+.jitm-card {
-  margin: 3rem 1rem 0 auto;
 }
 
 // remove right margin for jitms in the editor
@@ -262,7 +258,7 @@ $jp-gray-20:             #a7aaad;
 		transition: all 100ms ease-in-out;
 
 		&.is-card-link {
-			box-shadow: 0 0 0 1px $gray, 0 2px 4px lighten( $gray, 20% );
+			box-shadow: 0 0 0 1px $gray, 0 2px 4px color.adjust( $gray, $lightness: 20% );
 		}
 
 		.jitm-card__link-indicator {
@@ -373,7 +369,7 @@ $jp-gray-20:             #a7aaad;
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background-image: url( "../images/background.png" );
+	background-image: url( ../images/background.png );
 	background-repeat: no-repeat;
 	background-position: right center;
 	z-index: -1;
@@ -425,11 +421,13 @@ $jp-gray-20:             #a7aaad;
 	.jitm-banner__title {
 		font-size: rem( 15px );
 		font-weight: 700;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 136%;
 	}
 
 	.jitm-banner__description {
 		font-size: rem( 13px );
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 150%;
 		margin-top: rem( 2px );
 	}
@@ -503,7 +501,7 @@ $jp-gray-20:             #a7aaad;
 	margin-bottom: auto;
 
 	&::before {
-		color: darken($gray, 20%);
+		color: color.adjust( $gray, $lightness: -20%);
 		font: 400 20px/1 dashicons;
 		content: '\f335';
 	}
@@ -532,6 +530,7 @@ $jp-gray-20:             #a7aaad;
 	margin-left: rem( 10px );
 }
 
+// if JITM appears directly below WordPress hello dolly adjust margins
 #dolly + .jitm-card {
   margin: 3rem 1rem 0 auto;
 }

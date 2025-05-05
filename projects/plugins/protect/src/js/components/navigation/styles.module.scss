@@ -1,6 +1,6 @@
 .navigation {
 	background-color: var( --jp-white );
-	box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.08);
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	border-radius: var( --jp-border-radius );
 	margin: 0;
 }
@@ -29,15 +29,15 @@
 	&.selected {
 		background-color: var( --jp-black );
 
-		& .navigation-item-label {
+		.navigation-item-label {
 			color: var( --jp-white )
 		}
 
-		& .navigation-item-icon {
+		.navigation-item-icon {
 			fill: var( --jp-white );
 		}
 
-		& .navigation-item-badge {
+		.navigation-item-badge {
 			border: 1px solid var( --jp-red );
 			background-color: var( --jp-red );
 			color: var( --jp-white );
