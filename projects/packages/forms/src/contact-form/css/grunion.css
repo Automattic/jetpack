@@ -125,12 +125,15 @@
 
 	margin: 0;
 	padding: 0;
+}
 
+.contact-form :where( .grunion-checkbox-multiple-options ),
+.contact-form :where( .grunion-radio-options ) {
 	border: none;
 }
 
-.contact-form .is-style-outlined .grunion-checkbox-multiple-options,
-.contact-form .is-style-outlined .grunion-radio-options {
+.contact-form :where( .is-style-outlined .grunion-checkbox-multiple-options ),
+.contact-form :where( .is-style-outlined .grunion-radio-options ) {
 	border: solid 1px var( --jetpack--contact-form--border-color );
 }
 
