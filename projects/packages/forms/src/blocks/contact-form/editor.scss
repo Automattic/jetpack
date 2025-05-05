@@ -770,6 +770,7 @@
 				border-right: none !important;
 				border-top-right-radius: unset !important;
 				border-bottom-right-radius: unset !important;
+				box-sizing: content-box;
 			}
 
 			.notched-label__notch {
@@ -780,6 +781,7 @@
 				// on production builds, the attributes are being reordered, causing side-effects
 				border-left: none !important;
 				border-right: none !important;
+				box-sizing: content-box;
 			}
 
 			.notched-label__label {
@@ -800,6 +802,7 @@
 				border-left: none !important;
 				border-top-left-radius: unset !important;
 				border-bottom-left-radius: unset !important;
+				box-sizing: content-box;
 			}
 
 			&.jetpack-field-textarea .notched-label__label {
@@ -814,7 +817,7 @@
 				}
 
 				.notched-label__label {
-					top: calc(var(--jetpack--contact-form--border-size) * -1 );
+					top: calc(var(--jetpack--contact-form--border-size) * -1);
 					transform: translateY(-50%);
 					font-size: 0.8em;
 				}
