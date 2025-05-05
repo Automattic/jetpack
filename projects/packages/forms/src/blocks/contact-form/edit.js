@@ -32,6 +32,7 @@ import JetpackEmailConnectionSettings from './components/jetpack-email-connectio
 import IntegrationControls from './components/jetpack-integration-controls';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
+import { useHasDeprecatedFormStyle } from './util/form';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
 const validFields = filter( childBlocks, ( { settings } ) => {
@@ -103,6 +104,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const innerRef = useRef();
 	const blockProps = useBlockProps( { ref: wrapperRef } );
 	const formClassnames = clsx( className, 'jetpack-contact-form' );
+	const hasUpdatedFormStyle = useHasDeprecatedFormStyle( clientId );
+	console.log( 'hasUpdatedFormStyle', hasUpdatedFormStyle );
 	const innerBlocksProps = useInnerBlocksProps(
 		{
 			ref: innerRef,

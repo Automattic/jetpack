@@ -3,6 +3,7 @@ import { createBlock } from '@wordpress/blocks';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import TokenList from '@wordpress/token-list';
 
 const FORM_BLOCK_NAME = 'jetpack/contact-form';
 
@@ -60,4 +61,36 @@ export const useFormStyle = clientId => {
 	} );
 
 	return getBlockStyle( formBlockAttributes?.className ) || FORM_STYLE.DEFAULT;
+};
+
+export const useHasDeprecatedFormStyle = formBlockClientId => {
+	const block = useSelect(
+		select => {
+			return select( blockEditorStore ).getBlock( formBlockClientId );
+		},
+		[ formBlockClientId ]
+	);
+
+	const { updateBlockAttributes } = useDispatch( blockEditorStore );
+
+	if ( ! block ) {
+		return false;
+	}
+
+	const blockStyle = getBlockStyle( block?.attributes?.className );
+
+	if ( ! blockStyle ) {
+		return false;
+	}
+
+	const classList = new TokenList( blockStyle );
+
+	if ( classList.contains( FORM_STYLE.OUTLINED ) || classList.contains( FORM_STYLE.ANIMATED ) ) {
+		classList.remove( FORM_STYLE.OUTLINED );
+		classList.remove( FORM_STYLE.ANIMATED );
+		updateBlockAttributes( formBlockClientId, { className: classList.value } );
+		return true;
+	}
+
+	return false;
 };

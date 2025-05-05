@@ -52,6 +52,7 @@
 		"@wordpress/interactivity": "6.22.0",
 		"@wordpress/notices": "5.22.0",
 		"@wordpress/primitives": "4.22.0",
+		"@wordpress/token-list": "3.21.0",
 		"clsx": "2.1.1",
 		"copy-webpack-plugin": "11.0.0",
 		"email-validator": "2.0.4",
