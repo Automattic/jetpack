@@ -11,7 +11,6 @@ class LCP_Invalidator {
 
 	public static function init() {
 		add_action( 'jetpack_boost_deactivate', array( self::class, 'reset_data' ) );
-
 		add_action( 'jetpack_boost_environment_changed', array( self::class, 'handle_environment_change' ) );
 	}
 
