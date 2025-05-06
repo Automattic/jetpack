@@ -307,6 +307,10 @@ $action-bar-height: 88px;
 
 		.dataviews__view-actions {
 			align-items: center;
+
+			@media (max-width: 660px) {
+				flex-direction: column;
+			}
 		}
 	}
 }
