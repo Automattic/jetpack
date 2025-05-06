@@ -887,7 +887,7 @@
 
 			.jetpack-field__input, .jetpack-field__textarea {
 				display: flex;
-				clip-path: padding-box;
+				clip-path: content-box;
 
 				/*
 				 * For the Outlined block style, labels render the input border styles,
