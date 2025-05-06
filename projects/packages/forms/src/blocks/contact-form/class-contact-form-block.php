@@ -199,8 +199,23 @@ class Contact_Form_Block {
 			'jetpack/field-file',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
+				'plan_check'      => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
 			)
 		);
+
+		add_action(
+			'jetpack_register_gutenberg_extensions',
+			array( __CLASS__, 'set_file_field_extension_available' )
+		);
+	}
+
+	/**
+	 * Set field-file extension available hook handler
+	 */
+	public static function set_file_field_extension_available() {
+		if ( ! apply_filters( 'jetpack_unauth_file_upload_plan_check', true ) ) {
+			\Jetpack_Gutenberg::set_extension_available( 'field-file' );
+		}
 	}
 
 	/**
@@ -292,7 +307,6 @@ class Contact_Form_Block {
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
-				'isFormModalEnabled'   => true, // Disable or enable integrations modal and use sidebar panels instead
 				'preferredView'        => $preferred_view,
 			),
 		);
@@ -329,7 +343,7 @@ class Contact_Form_Block {
 	 * This is only useful when the Contact Form package is used within the Jetpack plugin,
 	 * where the module logic exists.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.49.0
 	 *
 	 * @return bool
 	 */
@@ -338,7 +352,7 @@ class Contact_Form_Block {
 			/**
 			 * Allow third-parties to override the form block's visibility.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.49.0
 			 *
 			 * @module contact-form
 			 *

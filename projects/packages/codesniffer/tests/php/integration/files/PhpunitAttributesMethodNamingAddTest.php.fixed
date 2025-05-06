@@ -1,0 +1,27 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.FunctionComment.Missing
+
+use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+use Some\Other\Test;
+
+class PhpunitAttributesMethodNamingAddTest extends TestCase {
+
+	/**
+	 * @dataProvider x
+	 */
+	#[DataProvider( 'x' )]
+	function foo( Test $l ) {}
+
+	/**
+	 * @test
+	 * @coversNothing
+	 * @dataProvider x
+	 */
+	#[\PHPUnit\Framework\Attributes\Test]
+	#[CoversNothing]
+	#[DataProvider( 'x' )]
+	function foo2( Test $l ) {}
+}

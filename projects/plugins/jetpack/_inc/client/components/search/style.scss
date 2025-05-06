@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../../scss/calypso-colors';
 @import '../../scss/z-index';
 @import '../../scss/mixin_breakpoint';
@@ -121,7 +122,7 @@
 	background: $white;
 	appearance: none;
 	box-sizing: border-box;
-	padding: 0px;
+	padding: 0;
 	-webkit-appearance: none;
 
 	&::-webkit-search-cancel-button {
@@ -139,7 +140,7 @@
 	width: 100%;
 
 	.dops-search__open-icon {
-		color: darken( $gray, 30% );
+		color: color.adjust( $gray, $lightness: -30% );
 	}
 
 	.dops-search__close-icon {
@@ -190,8 +191,8 @@
 	font: inherit;
 	width: 100%;
 	height: 100%;
-	top: 0px;
-	left: 0px;
+	top: 0;
+	left: 0;
 	z-index: z-index( '.dops-search', '.dops-search__input' ) + 1;
 }
 

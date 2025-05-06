@@ -1,4 +1,4 @@
-import formatCurrency from '@automattic/format-currency';
+import { formatCurrency } from '@automattic/number-formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';

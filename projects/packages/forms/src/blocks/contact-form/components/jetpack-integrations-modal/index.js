@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import AkismetCard from './akismet-card';
 import CreativeMailCard from './creative-mail-card';
 import JetpackCRMCard from './jetpack-crm-card';
+import './style.scss';
 
 const IntegrationsModal = ( {
 	isOpen,
@@ -31,17 +32,20 @@ const IntegrationsModal = ( {
 		} ) );
 	};
 
+	const findIntegrationById = id => integrationsData?.find( integration => integration.id === id );
+
 	return (
 		<Modal
 			title={ __( 'Manage integrations', 'jetpack-forms' ) }
 			onRequestClose={ onClose }
 			style={ { width: '700px' } }
+			className="jetpack-forms-integrations-modal"
 		>
 			<VStack spacing="4">
 				<AkismetCard
 					isExpanded={ expandedCards.akismet }
 					onToggle={ () => toggleCard( 'akismet' ) }
-					data={ integrationsData?.akismet }
+					data={ findIntegrationById( 'akismet' ) }
 					refreshStatus={ refreshIntegrations }
 				/>
 				<JetpackCRMCard
@@ -49,14 +53,15 @@ const IntegrationsModal = ( {
 					onToggle={ () => toggleCard( 'crm' ) }
 					jetpackCRM={ attributes.jetpackCRM }
 					setAttributes={ setAttributes }
-					data={ integrationsData?.[ 'zero-bs-crm' ] }
+					data={ findIntegrationById( 'zero-bs-crm' ) }
 					refreshStatus={ refreshIntegrations }
 				/>
 				<CreativeMailCard
 					isExpanded={ expandedCards.creativemail }
 					onToggle={ () => toggleCard( 'creativemail' ) }
-					data={ integrationsData?.[ 'creative-mail-by-constant-contact' ] }
+					data={ findIntegrationById( 'creative-mail-by-constant-contact' ) }
 					refreshStatus={ refreshIntegrations }
+					borderBottom={ false }
 				/>
 			</VStack>
 		</Modal>

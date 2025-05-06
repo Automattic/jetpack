@@ -1,5 +1,6 @@
 .wp-block-jetpack-map__delete-btn {
 	padding: 0;
+	margin-top: 10px;
 
 	svg {
 		margin-right: 0.4em;
@@ -39,7 +40,7 @@
 
 	.mapboxgl-popup-close-button {
 		font-size: 21px;
-		padding: 0px 10px 5px 9px;
+		padding: 0 10px 5px 9px;
 	}
 
 	.wp-block-jetpack-map__map_wrapper {
@@ -64,10 +65,6 @@
 }
 
 .wp-block-jetpack-map__marker-caption {
-	margin-top: 10px;
- }
-
- .wp-block-jetpack-map__delete-btn {
 	margin-top: 10px;
  }
 

@@ -2935,6 +2935,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_alphanum',
 				'jp_group'          => 'google-analytics',
 			),
+			'jetpack_wga'                               => array(
+				'description' => esc_html__( 'Google Analytics', 'jetpack' ),
+				'type'        => 'object',
+				'jp_group'    => 'settings',
+			),
 
 			// Stats.
 			'admin_bar'                                 => array(
@@ -3790,7 +3795,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_module_requested( $route = '/module/(?P<slug>[a-z\-]+)' ) {
 
-		if ( empty( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
+		if ( empty( $GLOBALS['wp']->query_vars['rest_route'] ) || ! is_string( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
 			return '';
 		}
 

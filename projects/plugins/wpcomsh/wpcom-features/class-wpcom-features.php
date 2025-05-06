@@ -368,6 +368,7 @@ class WPCOM_Features {
 	public const EMAIL_PROFESSIONAL                = 'email-professional';
 	public const EMAIL_SUBSCRIPTION                = 'email-subscription';
 	public const EMAIL_FORWARDS_EXTENDED_LIMIT     = 'email-forwards-extended-limit';
+	public const FIELD_FILE                        = 'field-file';
 	public const FREE_BLOG                         = 'free-blog';
 	public const FULL_ACTIVITY_LOG                 = 'full-activity-log';
 	public const GLOBAL_STYLES                     = 'global-styles';
@@ -703,6 +704,12 @@ class WPCOM_Features {
 			self::BUNDLE_ENTERPRISE,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+		),
+		// FIELD_FILE - Premium block/feature (jetpack/field-file) for uploading files with cloud backend.
+		// See: https://github.com/Automattic/jetpack/pull/43177 / https://github.a8c.com/Automattic/wpcom/pull/179247
+		self::FIELD_FILE                        => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::FREE_BLOG                         => array(
 			self::WPCOM_ALL_SITES,

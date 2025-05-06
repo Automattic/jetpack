@@ -57,7 +57,14 @@ export const clearInputError = ( input, opts ) => {
 	const error = fieldWrap.querySelector( '.contact-form__input-error' );
 
 	if ( error ) {
-		error.replaceChildren();
+		error.remove();
+	}
+
+	const form = input.closest( 'form' );
+	const inputErrors = form.querySelectorAll( '.contact-form__input-error' );
+	const mainErrorDiv = form.querySelector( '.contact-form__error' );
+	if ( mainErrorDiv && inputErrors.length === 0 ) {
+		mainErrorDiv.remove();
 	}
 };
 

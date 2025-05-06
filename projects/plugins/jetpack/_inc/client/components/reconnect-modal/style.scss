@@ -18,6 +18,7 @@
 		margin: rem( 16px ) rem( 24px ) 0;
 		font-size: rem( 16px );
 		font-weight: 400;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 1.5em;
 		color: $blue-heading;
 	}

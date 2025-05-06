@@ -4,15 +4,6 @@ declare module '*.jpeg';
 declare module '*.jpg';
 declare module '*.scss';
 
-// These libraries don't have types, this suppresses the TypeScript errors
-declare module '@wordpress/components';
-declare module '@wordpress/compose';
-declare module '@wordpress/icons';
-declare module '@automattic/jetpack-connection';
-declare module '@wordpress/url';
-declare module '@wordpress/i18n';
-declare module '@wordpress/element';
-
 type ProductStatus =
 	| 'active'
 	| 'inactive'
@@ -664,60 +655,6 @@ interface Window {
 		isDevVersion: boolean;
 		userIsAdmin: string;
 		isWelcomeTourActive: boolean;
-	};
-	JP_CONNECTION_INITIAL_STATE: {
-		apiRoot: string;
-		apiNonce: string;
-		registrationNonce: string;
-		connectionStatus: {
-			isActive: boolean;
-			isStaging: boolean;
-			isRegistered: boolean;
-			isUserConnected: boolean;
-			hasConnectedOwner: boolean;
-			offlineMode: {
-				isActive: boolean;
-				constant: boolean;
-				url: boolean;
-				filter: boolean;
-				wpLocalConstant: boolean;
-			};
-			isPublic: boolean;
-		};
-		userConnectionData: {
-			currentUser: {
-				isConnected: boolean;
-				isMaster: boolean;
-				username: string;
-				id: number;
-				blogId: number;
-				wpcomUser: {
-					avatar: boolean;
-					display_name: string;
-					email: string;
-				};
-				gravatar: string;
-				permissions: {
-					admin_page?: boolean;
-					connect: boolean;
-					connect_user: boolean;
-					disconnect: boolean;
-					edit_posts?: boolean;
-					manage_modules?: boolean;
-					manage_options?: boolean;
-					manage_plugins?: boolean;
-					network_admin?: boolean;
-					network_sites_page?: boolean;
-					publish_posts?: boolean;
-					view_stats?: boolean;
-				};
-			};
-			connectionOwner: null;
-		};
-		connectedPlugins: object;
-		wpVersion: string;
-		siteSuffix: string;
-		connectionErrors: Array< string | object >;
 	};
 	myJetpackRest?: {
 		apiRoot: string;

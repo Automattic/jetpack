@@ -1,4 +1,10 @@
-import { CardHeader, Icon, ToggleControl, Tooltip } from '@wordpress/components';
+import {
+	CardHeader,
+	Icon,
+	ToggleControl,
+	Tooltip,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
 import PluginActionButton from './plugin-action-button';
@@ -80,7 +86,7 @@ const IntegrationCardHeader = ( {
 						) }
 					</div>
 				</div>
-				<div className="integration-card__actions">
+				<HStack spacing="3" alignment="center" justify="end" expanded={ false }>
 					{ showPluginAction && (
 						<PluginActionButton
 							slug={ cardData.slug }
@@ -90,19 +96,20 @@ const IntegrationCardHeader = ( {
 							trackEventName={ cardData.trackEventName }
 						/>
 					) }
-					{ ( isActive || isConnected ) && showHeaderToggle && (
+					{ ! showPluginAction && showHeaderToggle && (
 						<Tooltip text={ getTooltipText( headerToggleValue ) }>
 							<span className="integration-card__toggle-tooltip-wrapper">
 								<ToggleControl
-									checked={ headerToggleValue }
+									checked={ headerToggleValue && ( isActive || isConnected ) }
 									onChange={ handleToggleChange }
-									disabled={ ! isHeaderToggleEnabled }
+									disabled={ ! isHeaderToggleEnabled || ! ( isActive || isConnected ) }
+									__nextHasNoMarginBottom={ true }
 								/>
 							</span>
 						</Tooltip>
 					) }
 					<Icon icon={ isExpanded ? chevronUp : chevronDown } />
-				</div>
+				</HStack>
 			</div>
 		</CardHeader>
 	);

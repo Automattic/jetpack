@@ -1,14 +1,22 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
  * @covers ::jetpack_shortcode_youtube_args
  * @covers ::jetpack_shortcode_youtube_dimensions
  * @covers ::wpcom_youtube_oembed_fetch_url
- * @covers ::youtube_id
- * @covers ::youtube_shortcode
+ * @covers ::jetpack_youtube_id
+ * @covers ::jetpack_youtube_shortcode
  */
+#[CoversFunction( 'jetpack_shortcode_youtube_args' )]
+#[CoversFunction( 'jetpack_shortcode_youtube_dimensions' )]
+#[CoversFunction( 'wpcom_youtube_oembed_fetch_url' )]
+#[CoversFunction( 'jetpack_youtube_id' )]
+#[CoversFunction( 'jetpack_youtube_shortcode' )]
 class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -74,8 +82,9 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	 * @param string $url The YouTube URL.
 	 * @param string $expected The expected iframe parameter output.
 	 */
+	#[DataProvider( 'get_youtube_id_options' )]
 	public function test_shortcodes_youtube_id_options( $url, $expected ) {
-		$output = youtube_id( $url );
+		$output = jetpack_youtube_id( $url );
 
 		$this->assertStringContainsString( $expected, $output );
 	}
@@ -172,12 +181,13 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	 * @param array      $url The parsed URL in which to look for query args.
 	 * @param array|bool $expected The expected return value of the tested function.
 	 */
+	#[DataProvider( 'get_youtube_args_data' )]
 	public function test_jetpack_shortcode_youtube_args( $url, $expected ) {
 		$this->assertEquals( $expected, jetpack_shortcode_youtube_args( $url ) );
 	}
 
 	/**
-	 * Gets the test data for youtube_id().
+	 * Gets the test data for jetpack_youtube_id().
 	 *
 	 * @return array[] The test data.
 	 */
@@ -236,13 +246,14 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test youtube_id.
+	 * Test jetpack_youtube_id().
 	 *
 	 * @dataProvider get_amp_youtube_data
 	 * @param string $url             The shortcode URL.
 	 * @param string $expected_amp    The expected shortcode returned from the function on AMP pages.
 	 * @param string $expected_nonamp The expected shortcode returned from the function on non-AMP pages.
 	 */
+	#[DataProvider( 'get_amp_youtube_data' )]
 	public function test_youtube_id( $url, $expected_amp, $expected_nonamp ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
@@ -250,10 +261,10 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 		}
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$this->assertEquals( $expected_amp, youtube_id( $url ) );
+		$this->assertEquals( $expected_amp, jetpack_youtube_id( $url ) );
 
 		remove_filter( 'jetpack_is_amp_request', '__return_true' );
-		$this->assertEquals( $expected_nonamp, youtube_id( $url ) );
+		$this->assertEquals( $expected_nonamp, jetpack_youtube_id( $url ) );
 	}
 
 	/**
@@ -286,12 +297,13 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test youtube_id.
+	 * Test jetpack_youtube_id().
 	 *
 	 * @dataProvider get_amp_youtube_shortcode_data
 	 * @param array  $query_args The query args to pass to the function.
 	 * @param string $expected The expected return value.
 	 */
+	#[DataProvider( 'get_amp_youtube_shortcode_data' )]
 	public function test_jetpack_shortcode_youtube_dimensions( $query_args, $expected ) {
 		$GLOBALS['content_width'] = self::CONTENT_WIDTH;
 		$this->assertEquals( $expected, jetpack_shortcode_youtube_dimensions( $query_args ) );
@@ -325,6 +337,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	 * @param string $original The original YouTube provider URL.
 	 * @param string $expected The final YouTube provider URL after wpcom_youtube_oembed_fetch_url.
 	 */
+	#[DataProvider( 'get_youtube_urls' )]
 	public function test_youtube_oembed_fetch_url( $original, $expected ) {
 		$provider_url = apply_filters(
 			'oembed_fetch_url',

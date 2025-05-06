@@ -88,6 +88,7 @@
 		on:mouseleave={closeDetails}
 	>
 		<div class="previews">
+			<!-- eslint-disable-next-line svelte/require-each-key -- What's a good key here? -->
 			{#each stores as store, index}
 				<Bubble {index} {store} on:hover={hover} />
 			{/each}

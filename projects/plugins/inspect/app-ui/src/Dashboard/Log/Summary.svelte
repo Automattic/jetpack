@@ -5,7 +5,7 @@
 	import StatusIcon from './StatusIcon.svelte';
 	import type { LogEntry } from '../../utils/ZodSchema';
 
-	const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher< { retry: LogEntry } >();
 
 	export let item: LogEntry;
 	export let icon: 'in' | 'out' | 'bug';

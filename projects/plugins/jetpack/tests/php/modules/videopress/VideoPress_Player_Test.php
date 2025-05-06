@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/videopress/class.videopress-player.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/videopress/class.videopress-video.php';
 
@@ -15,6 +18,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/videopress/class.videopress-video.ph
  *
  * @covers \VideoPress_Player
  */
+#[CoversClass( VideoPress_Player::class )]
 class VideoPress_Player_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -49,6 +53,7 @@ class VideoPress_Player_Test extends WP_UnitTestCase {
 	 * @param array  $options The player options.
 	 * @param string $expected The expected generated content.
 	 */
+	#[DataProvider( 'get_html_test_data' )]
 	public function test_output_html5_dynamic_next( $options, $expected ) {
 		$player = new VideoPress_Player( 'testguid', 0, $options );
 		$this->assertEquals( $expected, $player->html5_dynamic_next() );

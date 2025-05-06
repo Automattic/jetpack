@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -44,6 +45,7 @@ class Data_Settings_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_add_settings_list_default_inputs
 	 */
+	#[DataProvider( 'data_provider_test_add_settings_list_default_inputs' )]
 	public function test_add_settings_list_modules_inputs( $settings ) {
 		$this->data_settings->add_settings_list( $settings );
 
@@ -94,6 +96,7 @@ class Data_Settings_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_add_settings_list_with_one_input
 	 */
+	#[DataProvider( 'data_provider_test_add_settings_list_with_one_input' )]
 	public function test_add_settings_list_with_one_input( $test_data ) {
 		$this->data_settings->add_settings_list( $test_data['input'] );
 
@@ -164,6 +167,7 @@ class Data_Settings_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_provider_test_add_settings_list_with_two_inputs
 	 */
+	#[DataProvider( 'data_provider_test_add_settings_list_with_two_inputs' )]
 	public function test_add_settings_list_with_two_inputs( $test_data ) {
 		$this->data_settings->add_settings_list( $test_data['input_1'] );
 		$this->data_settings->add_settings_list( $test_data['input_2'] );

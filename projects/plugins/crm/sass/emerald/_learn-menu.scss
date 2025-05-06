@@ -25,10 +25,10 @@
 	align-items: center;
 	flex-direction: row;
 	justify-content: flex-end;
-	padding: 10px 0px;
+	padding: 10px 0;
 	gap: 10px;
 
-	& > *:first-child {
+	> *:first-child {
 		margin-left: 16px; /* keep the gap between the divs when subdiv-25 is shrunk down */
 	}
 }
@@ -73,8 +73,8 @@
 		flex-direction: column;
 		width: 100%;
 
-		& > *:first-child {
-			margin-left: 0px; /* gap not needed anymore as the divs are centered */
+		> *:first-child {
+			margin-left: 0; /* gap not needed anymore as the divs are centered */
 		}
 	}
 }

@@ -55,11 +55,9 @@ $image-square-size: 128px;
 	.jetpack-instant-search__search-result-expanded--no-image & {
 		display: none;
 	}
-}
 
-// Aspect ratio box trick
-// See https://css-tricks.com/aspect-ratio-boxes/
-.jetpack-instant-search__search-result-expanded__image-container {
+	// Aspect ratio box trick
+	// See https://css-tricks.com/aspect-ratio-boxes/
 	position: relative;
 
 	&::before {
@@ -79,9 +77,6 @@ $image-square-size: 128px;
 	height: 100%;
 	object-fit: cover;
 	width: 100%;
-}
-
-.jetpack-instant-search__search-result-expanded__image {
 	border-radius: 5px;
 }
 
@@ -116,6 +111,7 @@ $image-square-size: 128px;
 	font-style: normal;
 	font-weight: 600;
 	font-size: 13px;
+	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 180%;
 }
 

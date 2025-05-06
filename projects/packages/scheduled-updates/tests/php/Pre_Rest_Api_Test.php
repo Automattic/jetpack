@@ -8,12 +8,14 @@
  */
 
 use Automattic\Jetpack\Scheduled_Updates;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Test class for behavior that runs outside REST API requests.
  *
  * @covers \Automattic\Jetpack\Scheduled_Updates
  */
+#[CoversClass( Scheduled_Updates::class )]
 class Pre_Rest_Api_Test extends \WorDBless\BaseTestCase {
 
 	/**

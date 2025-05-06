@@ -22,8 +22,6 @@ $config = make_phan_config(
 			'tests/php/lib/mock-functions.php',
 			// Temporary duplicated defintions of classes.
 			'_inc/lib/class.color.php',
-			// One or the other of the SimplePie alias files.
-			'_inc/lib/jp-simplepie-alias-' . ( getenv( 'NO_PHAN_UNUSED_SUPPRESSION' ) ? 'new' : 'old' ) . '.php',
 			// We have a stub for this because the real file has duplicate trait definitions.
 			'tests/php/WP_UnitTestCase_Fix.php',
 		),
@@ -44,7 +42,7 @@ $config = make_phan_config(
 	)
 );
 
-// For the WP 6.6 SimplePie stuff if nothing else.
+// For alias support if needed.
 $config['enable_class_alias_support'] = true;
 
 return $config;

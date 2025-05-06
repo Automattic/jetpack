@@ -50,6 +50,10 @@
 		flex-direction: row;
 		gap: var(--wp--style--block-gap, 1.5rem);
 
+		> div {
+			flex: 1 1 100%;
+		}
+
 		.wp-block {
 			flex: 0 0 100%;
 			margin-top: 0;
@@ -87,7 +91,7 @@
 
 			@media (max-width: #{ ($break-mobile) }) {
 
-				&[class*=jetpack-field__width-] {
+				&[class*="jetpack-field__width-"] {
 					flex-basis: 100%;
 					max-width: none;
 				}
@@ -141,7 +145,7 @@
 .jetpack-contact-form .components-placeholder {
 	padding: 24px;
 
-	input[type='text'] {
+	input[type="text"] {
 		width: 100%;
 		outline-width: 0;
 		outline-style: none;
@@ -250,7 +254,7 @@
 	min-width: auto;
 }
 
-.jetpack-contact-form__thankyou-redirect-url input[type='text'] {
+.jetpack-contact-form__thankyou-redirect-url input[type="text"] {
 	width: 100%;
 }
 
@@ -777,6 +781,7 @@
 
 			// For some reason, when keeping the rule below together with the above selector,
 			// on production builds, the attributes are being reordered, causing side-effects
+			// stylelint-disable-next-line no-duplicate-selectors
 			.notched-label__notch {
 				border-left: none;
 				border-right: none;

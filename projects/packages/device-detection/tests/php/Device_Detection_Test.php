@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Device_Detection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,6 +25,7 @@ class Device_Detection_Test extends TestCase {
 	 *
 	 * @dataProvider ua_provider
 	 */
+	#[DataProvider( 'ua_provider' )]
 	public function test_is_mobile( $ua, array $expected_types, $expected_ua_returned ) {
 		$_SERVER['HTTP_USER_AGENT'] = $ua;
 
@@ -56,6 +58,7 @@ class Device_Detection_Test extends TestCase {
 	 *
 	 * @dataProvider ua_provider
 	 */
+	#[DataProvider( 'ua_provider' )]
 	public function test_get_browser( string $ua, array $expected_types, $expected_ua_returned, string $expected_browser ) {
 		$_SERVER['HTTP_USER_AGENT'] = $ua;
 
@@ -73,6 +76,7 @@ class Device_Detection_Test extends TestCase {
 	 *
 	 * @dataProvider ua_desktop_provider
 	 */
+	#[DataProvider( 'ua_desktop_provider' )]
 	public function test_get_desktop_platform( string $ua, string $expected_platform ) {
 		$_SERVER['HTTP_USER_AGENT'] = $ua;
 

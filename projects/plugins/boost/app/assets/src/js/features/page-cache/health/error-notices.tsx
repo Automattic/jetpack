@@ -4,6 +4,7 @@ import styles from './health.module.scss';
 import { __, sprintf } from '@wordpress/i18n';
 import { PageCacheError } from '$lib/stores/page-cache';
 import { ReactNode } from 'react';
+import { ExternalLink } from '@wordpress/components';
 
 type NoticeProps = {
 	onClose: () => void;
@@ -27,14 +28,7 @@ export const FailedSettingsWriteNotice = ( { onClose }: NoticeProps ) => {
 						'jetpack-boost'
 					),
 					{
-						link: (
-							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a
-								href={ cacheIssuesLink( 'failed-settings-write' ) }
-								target="_blank"
-								rel="noopener noreferrer"
-							/>
-						),
+						link: <ExternalLink href={ cacheIssuesLink( 'failed-settings-write' ) } />,
 					}
 				) }
 			</p>
@@ -65,14 +59,7 @@ export const WPContentNotWritableNotice = ( { onClose }: NoticeProps ) => {
 					),
 					{
 						code: <code className={ styles.nowrap } />,
-						link: (
-							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a
-								href={ cacheIssuesLink( 'wp-content-not-writable' ) }
-								target="_blank"
-								rel="noopener noreferrer"
-							/>
-						),
+						link: <ExternalLink href={ cacheIssuesLink( 'wp-content-not-writable' ) } />,
 					}
 				) }
 			</p>
@@ -90,18 +77,11 @@ export const NotUsingPermalinksNotice = ( { onClose }: NoticeProps ) => {
 			<p>
 				{ createInterpolateElement(
 					__(
-						'To activate this feature, your site needs to use a different URL structure instead of the current Plain (default) permalinks. To learn more, please <link>please click here.</link>',
+						'To activate this feature, your site needs to use a different URL structure instead of the current Plain (default) permalinks. To learn more, please <link>click here.</link>',
 						'jetpack-boost'
 					),
 					{
-						link: (
-							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a
-								href={ cacheIssuesLink( 'not-using-permalinks' ) }
-								target="_blank"
-								rel="noopener noreferrer"
-							/>
-						),
+						link: <ExternalLink href={ cacheIssuesLink( 'not-using-permalinks' ) } />,
 					}
 				) }
 			</p>
@@ -123,14 +103,7 @@ export const AdvancedCacheIncompatibleNotice = ( { onClose }: NoticeProps ) => {
 						'jetpack-boost'
 					),
 					{
-						link: (
-							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a
-								href={ cacheIssuesLink( 'advanced-cache-incompatible' ) }
-								target="_blank"
-								rel="noopener noreferrer"
-							/>
-						),
+						link: <ExternalLink href={ cacheIssuesLink( 'advanced-cache-incompatible' ) } />,
 					}
 				) }
 			</p>
@@ -161,14 +134,7 @@ export const AdvancedCacheForSuperCacheNotice = ( {
 					),
 					{
 						code: <code className={ styles.nowrap } />,
-						link: (
-							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a
-								href={ cacheIssuesLink( 'advanced-cache-for-super-cache' ) }
-								target="_blank"
-								rel="noopener noreferrer"
-							/>
-						),
+						link: <ExternalLink href={ cacheIssuesLink( 'advanced-cache-for-super-cache' ) } />,
 					}
 				) }
 			</p>
@@ -190,14 +156,7 @@ export const UnableToWriteToAdvancedCacheNotice = ( { onClose }: NoticeProps ) =
 						'jetpack-boost'
 					),
 					{
-						link: (
-							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a
-								href={ cacheIssuesLink( 'unable-to-write-to-advanced-cache' ) }
-								target="_blank"
-								rel="noopener noreferrer"
-							/>
-						),
+						link: <ExternalLink href={ cacheIssuesLink( 'unable-to-write-to-advanced-cache' ) } />,
 					}
 				) }
 			</p>
@@ -225,14 +184,7 @@ export const WPCacheDefinedNotTrueNotice = ( { onClose }: NoticeProps ) => {
 					),
 					{
 						code: <code className={ styles.nowrap } />,
-						link: (
-							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a
-								href={ cacheIssuesLink( 'wp-cache-defined-not-true' ) }
-								target="_blank"
-								rel="noopener noreferrer"
-							/>
-						),
+						link: <ExternalLink href={ cacheIssuesLink( 'wp-cache-defined-not-true' ) } />,
 					}
 				) }
 			</p>
@@ -285,14 +237,7 @@ export const WPConfigNotWritableNotice = ( { onClose }: NoticeProps ) => {
 					),
 					{
 						code: <code className={ styles.nowrap } />,
-						link: (
-							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a
-								href={ cacheIssuesLink( 'wp-config-not-writable' ) }
-								target="_blank"
-								rel="noopener noreferrer"
-							/>
-						),
+						link: <ExternalLink href={ cacheIssuesLink( 'wp-config-not-writable' ) } />,
 					}
 				) }
 			</p>

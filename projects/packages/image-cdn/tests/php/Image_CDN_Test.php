@@ -1,6 +1,9 @@
 <?php
 
 use Automattic\Jetpack\Image_CDN\Image_CDN;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 if ( ! defined( 'WP_TESTS_DOMAIN' ) ) {
 	define( 'WP_TESTS_DOMAIN', 'example.org' );
@@ -9,6 +12,7 @@ if ( ! defined( 'WP_TESTS_DOMAIN' ) ) {
 /**
  * @covers \Automattic\Jetpack\Image_CDN\Image_CDN
  */
+#[CoversClass( Image_CDN::class )]
 class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 
 	/**
@@ -377,7 +381,6 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * Tests Photon will parse the dimensions from a filename for an invalid value.
 	 *
 	 * @author scotchfield
-	 * @coverAutomattic\Jetpack\Image_CDN\Image_CDN::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
 	public function test_image_cdn_parse_dimensions_from_filename_invalid_dimensions() {
@@ -1036,6 +1039,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @param int      $width Image width in pixels.
 	 * @param int      $height Image height in pixels.
 	 */
+	#[DataProvider( 'photon_attributes_when_filtered_data_provider' )]
 	public function test_image_cdn_filter_the_content_width_height_attributes_when_image_args_filtered( $filter_callback, $has_attributes, $width, $height ) {
 		list( $sample_html ) = $this->get_image_cdn_sample_content( 'a-tags-without-images.html' );
 
@@ -1226,6 +1230,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @param string $sample_html Sample HTML.
 	 * @param string $photon_src  Photon URL suffix (after the subdomain).
 	 */
+	#[DataProvider( 'photon_attributes_when_amp_response' )]
 	public function test_image_cdn_filter_the_content_for_amp_responses( $sample_html, $photon_src ) {
 		if ( ! class_exists( 'Jetpack_AMP_Support' ) ) {
 			$this->markTestSkipped( 'Jetpack_AMP_Support class not found' );
@@ -1301,6 +1306,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 *
 	 * @group rest-api
 	 */
+	#[Group( 'rest-api' )]
 	public function test_image_cdn_cdn_in_rest_response_with_view_context() {
 		$test_image = $this->helper_get_image();
 
@@ -1325,6 +1331,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 *
 	 * @group rest-api
 	 */
+	#[Group( 'rest-api' )]
 	public function test_image_cdn_cdn_in_rest_response_with_view_context_from_editor() {
 		$test_image = $this->helper_get_image();
 
@@ -1366,6 +1373,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 *
 	 * @group rest-api
 	 */
+	#[Group( 'rest-api' )]
 	public function test_image_cdn_in_rest_response_with_edit_context() {
 		$test_image = $this->helper_get_image();
 
@@ -1415,6 +1423,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @author kraftbj
 	 * @group rest-api
 	 */
+	#[Group( 'rest-api' )]
 	public function test_image_cdn_cdn_in_rest_response_with_created_item() {
 		$filename = __DIR__ . '/sample-content/test-image-large.png';
 
@@ -1449,6 +1458,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @author ebinnion
 	 * @group rest-api
 	 */
+	#[Group( 'rest-api' )]
 	public function test_image_cdn_in_rest_response_external_media() {
 		$this->markTestSkipped( 'Skipping the test as the endpoint is currently missing' );
 		// @phan-suppress-next-line PhanPluginUnreachableCode
@@ -1548,6 +1558,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @dataProvider get_test_image_cdn_validate_image_url_file_types_data_provider
 	 * @since 10.0.0
 	 */
+	#[DataProvider( 'get_test_image_cdn_validate_image_url_file_types_data_provider' )]
 	public function test_image_cdn_validate_image_url_file_types( $url, $expected ) {
 		$testable                    = new ReflectionClass( Image_CDN::class );
 		$testable_validate_image_url = $testable->getMethod( 'validate_image_url' );

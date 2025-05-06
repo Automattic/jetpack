@@ -13,6 +13,7 @@ use Automattic\Jetpack\Protect_Models\Extension_Model;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Models\Threat_Model;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -459,6 +460,7 @@ class Scan_Status_Test extends BaseTestCase {
 	 * @param int  $cache_timestamp The cache timestamp.
 	 * @dataProvider is_cache_expired_data
 	 */
+	#[DataProvider( 'is_cache_expired_data' )]
 	public function test_is_cache_expired( $expected, $cache_timestamp ) {
 		update_option( Scan_Status::OPTION_TIMESTAMP_NAME, $cache_timestamp );
 		$this->assertSame( $expected, Scan_Status::is_cache_expired() );
@@ -495,6 +497,7 @@ class Scan_Status_Test extends BaseTestCase {
 	 * @param int  $status The status object.
 	 * @dataProvider get_cache_end_date_by_status_data
 	 */
+	#[DataProvider( 'get_cache_end_date_by_status_data' )]
 	public function test_get_cache_end_date_by_status( $check_type, $status ) {
 		$timestamp = Scan_Status::get_cache_end_date_by_status( $status );
 		if ( ! is_object( $status ) || 'initial' === $check_type ) {

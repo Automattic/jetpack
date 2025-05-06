@@ -81,12 +81,12 @@
 				gap: 4px;
 
 				.jetpack-ai-breve__suggest.components-button {
-					padding-top: 0px;
-					padding-bottom: 0px;
-					padding-right: 0px;
+					padding-top: 0;
+					padding-bottom: 0;
+					padding-right: 0;
 					height: 24px;
 
-					& > svg,
+					> svg,
 					path {
 						fill: #0277a8;
 					}
@@ -112,7 +112,7 @@
 
 			.jetpack-ai-breve__spelling-suggestion {
 
-				& + .jetpack-ai-breve__spelling-suggestion {
+				+ .jetpack-ai-breve__spelling-suggestion {
 					border-top: 1px solid #dcdcde;
 				}
 
@@ -159,7 +159,7 @@
 			}
 
 			.components-button {
-				padding: 0px;
+				padding: 0;
 				color: #646970;
 			}
 

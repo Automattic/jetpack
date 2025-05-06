@@ -10,6 +10,7 @@
 
 namespace Automattic\Jetpack\Post_List;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 /**
  * PHPUnit tests for the Post_Thumbnail class.
@@ -25,6 +26,7 @@ class Post_Thumbnail_Test extends TestCase {
 	 *
 	 * @param string $input The test post content to parse.
 	 */
+	#[DataProvider( 'invalid_post_content' )]
 	public function test_get_first_image_id_from_invalid_post_content( $input ) {
 		$attachment_id = Post_Thumbnail::get_first_image_id_from_post_content( $input );
 		$this->assertNull( $attachment_id );
@@ -58,6 +60,7 @@ class Post_Thumbnail_Test extends TestCase {
 	 * @param int    $expected_result The expected image attachment ID.
 	 * @param string $input The test post content to parse.
 	 */
+	#[DataProvider( 'valid_post_content' )]
 	public function test_get_first_image_id_from_valid_post_content( $expected_result, $input ) {
 		$attachment_id = Post_Thumbnail::get_first_image_id_from_post_content( $input );
 		$this->assertSame( $expected_result, $attachment_id );

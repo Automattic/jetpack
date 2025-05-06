@@ -108,7 +108,13 @@ class Admin_Post_List_Column {
 
 				$current_locale = get_bloginfo( 'language' );
 
-				$formatted_views = class_exists( '\NumberFormatter' ) ? $this->get_formatter( $current_locale )->format( $views ) : $this->get_fallback_format_to_compact_version( $views );
+				if ( null !== $views ) {
+					$formatted_views = class_exists( '\NumberFormatter' )
+						? $this->get_formatter( $current_locale )->format( $views )
+						: $this->get_fallback_format_to_compact_version( $views );
+				} else {
+					$formatted_views = '';
+				}
 
 				?>
 				<a href="<?php echo esc_url( $stats_post_url ); ?>"
