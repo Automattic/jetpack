@@ -1040,9 +1040,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$field_ids['email_marketing_consent'] = null;
 
 		foreach ( $this->fields as $id => $field ) {
+			$type = $field->get_attribute( 'type' );
+
+			// If the field is not renderable, skip it.
+			if ( ! $field->is_field_renderable( $type ) ) {
+				continue;
+			}
+
 			$field_ids['all'][] = $id;
 
-			$type = $field->get_attribute( 'type' );
 			if ( isset( $field_ids[ $type ] ) ) {
 				// This type of field is already present in our allowed list of "standard" fields for this form
 				// Put it in extra
