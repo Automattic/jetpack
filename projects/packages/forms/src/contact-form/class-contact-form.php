@@ -508,7 +508,22 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static function success_message( $feedback_id, $form ) {
 
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
-			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
+			$raw_message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
+			// Add more allowed HTML elements for file download links
+			$allowed_html = array(
+				'br'         => array(),
+				'blockquote' => array( 'class' => array() ),
+				'p'          => array(),
+				'div'        => array(
+					'class' => array(),
+					'style' => array(),
+				),
+				'span'       => array(
+					'class' => array(),
+					'style' => array(),
+				),
+			);
+			$message      = wp_kses( $raw_message, $allowed_html );
 		} else {
 			$compiled_form = self::get_compiled_form( $feedback_id, $form );
 			$message       = '<p>' . implode( '</p><p>', $compiled_form ) . '</p>';
