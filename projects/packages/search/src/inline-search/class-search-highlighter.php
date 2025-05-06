@@ -117,12 +117,6 @@ class Search_Highlighter {
 			return $this->highlighted_content[ $post_id ]['title'];
 		}
 
-		// Fallback: Even though the API should provide highlighted titles,
-		// in some cases it doesn't, so we need to apply our own highlighting
-		if ( ! empty( $this->search_term ) ) {
-			return $this->apply_highlight_patterns( $title, $this->search_term );
-		}
-
 		return $title;
 	}
 
@@ -143,11 +137,6 @@ class Search_Highlighter {
 
 		if ( ! empty( $this->highlighted_content[ $post_id ]['content'] ) ) {
 			return $this->highlighted_content[ $post_id ]['content'];
-		}
-
-		// If we don't have highlighted content, manually highlight the search term
-		if ( ! empty( $this->search_term ) ) {
-			return $this->apply_highlight_patterns( $content, $this->search_term );
 		}
 
 		return $content;
@@ -172,12 +161,7 @@ class Search_Highlighter {
 			return $comment_text;
 		}
 
-		// Simple check to see if this comment contains our search term
-		if ( ! empty( $this->search_term ) && stripos( $comment_text, $this->search_term ) !== false ) {
-			return $this->apply_highlight_patterns( $comment_text, $this->search_term );
-		}
-
-		return $comment_text;
+		return $this->highlighted_content[ $post_id ]['comments'];
 	}
 
 	/**
@@ -201,51 +185,6 @@ class Search_Highlighter {
 			'content'  => $content,
 			'comments' => $comments,
 		);
-
-		// If we don't have highlighted content, create some by highlighting the search term.
-		if ( empty( $title ) && ! empty( $result['fields']['title'] ) ) {
-			// First use the original search term
-			if ( ! empty( $this->search_term ) ) {
-				$title_with_highlights = $this->apply_highlight_patterns(
-					$result['fields']['title'],
-					$this->search_term,
-					false // Don't use corrected term yet
-				);
-
-				// Then apply the corrected term if available
-				if ( ! empty( $this->corrected_search_term ) && $this->corrected_search_term !== $this->search_term ) {
-					$title_with_highlights = $this->apply_highlight_patterns(
-						$title_with_highlights,
-						$this->corrected_search_term,
-						false // Don't recursively apply correction
-					);
-				}
-
-				$this->highlighted_content[ $post_id ]['title'] = $title_with_highlights;
-			}
-		}
-
-		if ( empty( $content ) && ! empty( $result['fields']['content'] ) ) {
-			// First use the original search term
-			if ( ! empty( $this->search_term ) ) {
-				$content_with_highlights = $this->apply_highlight_patterns(
-					$result['fields']['content'],
-					$this->search_term,
-					false // Don't use corrected term yet
-				);
-
-				// Then apply the corrected term if available
-				if ( ! empty( $this->corrected_search_term ) && $this->corrected_search_term !== $this->search_term ) {
-					$content_with_highlights = $this->apply_highlight_patterns(
-						$content_with_highlights,
-						$this->corrected_search_term,
-						false // Don't recursively apply correction
-					);
-				}
-
-				$this->highlighted_content[ $post_id ]['content'] = $content_with_highlights;
-			}
-		}
 	}
 
 	/**
@@ -267,42 +206,6 @@ class Search_Highlighter {
 		}
 
 		return '';
-	}
-
-	/**
-	 * Apply highlight markup to content
-	 *
-	 * @param string $content The content to highlight.
-	 * @param string $search_term The search term to highlight.
-	 * @param bool   $use_corrected Whether to also use the corrected search term.
-	 * @return string The highlighted content.
-	 */
-	private function apply_highlight_patterns( $content, $search_term, $use_corrected = true ) {
-		$highlighted = $content;
-
-		// Highlight the original search term
-		if ( ! empty( $search_term ) ) {
-			$highlighted = $this->add_mark_tags( $highlighted, $search_term );
-		}
-
-		// Also highlight corrected search term if available and requested
-		if ( $use_corrected && ! empty( $this->corrected_search_term ) && $this->corrected_search_term !== $search_term ) {
-			$highlighted = $this->add_mark_tags( $highlighted, $this->corrected_search_term );
-		}
-
-		return $highlighted;
-	}
-
-	/**
-	 * Add mark tags around search terms in content
-	 *
-	 * @param string $content The content to search within.
-	 * @param string $term The term to highlight.
-	 * @return string The content with highlighted terms.
-	 */
-	private function add_mark_tags( $content, $term ) {
-		$pattern = '/(' . preg_quote( $term, '/' ) . ')/i';
-		return preg_replace( $pattern, '<mark>$1</mark>', $content );
 	}
 
 	/**

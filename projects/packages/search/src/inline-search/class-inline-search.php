@@ -314,14 +314,11 @@ class Inline_Search extends Classic_Search {
 			}
 		}
 
-		$highlight_options = array(
-			'pre_tags'  => array( '__MARK__' ),
-			'post_tags' => array( '__/MARK__' ),
-			'fields'    => array(
-				'title',
-				'content',
-				'comments',
-			),
+		// The API endpoint expects highlight_fields array instead of a full highlight configuration
+		$highlight_fields = array(
+			'title',
+			'content',
+			'comments',
 		);
 
 		$fields = array(
@@ -333,16 +330,16 @@ class Inline_Search extends Classic_Search {
 		);
 
 		return array(
-			'blog_id'      => $this->jetpack_blog_id,
-			'size'         => absint( $args['posts_per_page'] ),
-			'from'         => min( $from, Helper::get_max_offset() ),
-			'fields'       => $fields,
-			'highlight'    => $highlight_options,
-			'query'        => $args['query'] ?? '',
-			'sort'         => $sort,
-			'aggregations' => empty( $aggregations ) ? null : $aggregations,
-			'langs'        => $this->get_langs(),
-			'filter'       => array(
+			'blog_id'          => $this->jetpack_blog_id,
+			'size'             => absint( $args['posts_per_page'] ),
+			'from'             => min( $from, Helper::get_max_offset() ),
+			'fields'           => $fields,
+			'highlight_fields' => $highlight_fields,
+			'query'            => $args['query'] ?? '',
+			'sort'             => $sort,
+			'aggregations'     => empty( $aggregations ) ? null : $aggregations,
+			'langs'            => $this->get_langs(),
+			'filter'           => array(
 				'bool' => array(
 					'must' => $this->build_es_filters( $args ),
 				),
@@ -463,6 +460,7 @@ class Inline_Search extends Classic_Search {
 		$post_ids              = array();
 		$search_term           = $query->get( 's' );
 		$corrected_search_term = '';
+		$highlighted_results   = array();
 
 		// Store corrected query if available
 		if ( ! empty( $this->search_result['corrected_query'] ) ) {
@@ -472,12 +470,33 @@ class Inline_Search extends Classic_Search {
 		foreach ( $this->search_result['results'] as $result ) {
 			$post_id    = (int) ( $result['fields']['post_id'] ?? 0 );
 			$post_ids[] = $post_id;
+
+			// Store the highlight data keyed by post ID for later use
+			if ( ! empty( $result['highlight'] ) ) {
+				$highlighted_results[ $post_id ] = $result['highlight'];
+			}
 		}
 
 		$this->search_result_ids = $post_ids;
 
-		// Initialize the highlighter with search data and process results in one step
-		$this->highlighter = new Search_Highlighter( $search_term, $corrected_search_term, $post_ids, $this->search_result['results'] );
+		// Initialize the highlighter with search data and highlight results
+		$this->highlighter = new Search_Highlighter( $search_term, $corrected_search_term, $post_ids );
+
+		// Process results if we have highlight data
+		if ( ! empty( $highlighted_results ) ) {
+			// Process the API highlighted results to prepare them for the highlighter
+			$processed_results = array();
+			foreach ( $highlighted_results as $post_id => $highlight_data ) {
+				$processed_results[] = array(
+					'fields'    => array(
+						'post_id' => $post_id,
+					),
+					'highlight' => $highlight_data,
+				);
+			}
+			$this->highlighter->process_results( $processed_results );
+		}
+
 		$this->highlighter->setup();
 	}
 
