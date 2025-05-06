@@ -21,7 +21,7 @@ class Inline_Search extends Classic_Search {
 	/**
 	 * The Search Highlighter instance.
 	 *
-	 * @var Search_Highlighter
+	 * @var Search_Highlighter|null
 	 * @since $$next-version$$
 	 */
 	private $highlighter;
@@ -314,7 +314,6 @@ class Inline_Search extends Classic_Search {
 			}
 		}
 
-		// The API endpoint expects highlight_fields array instead of a full highlight configuration
 		$highlight_fields = array(
 			'title',
 			'content',

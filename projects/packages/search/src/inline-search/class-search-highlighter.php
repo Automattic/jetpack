@@ -225,6 +225,6 @@ class Search_Highlighter {
 	 * @return array|null The highlighted content array or null if not found.
 	 */
 	public function get_highlighted_content( $post_id ) {
-		return isset( $this->highlighted_content[ $post_id ] ) ? $this->highlighted_content[ $post_id ] : null;
+		return $this->highlighted_content[ $post_id ] ?? null;
 	}
 }
