@@ -631,13 +631,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 				$i = 0;
 				foreach ( $field_ids['extra'] as $field_id ) {
-					$field       = $form->fields[ $field_id ];
-					$field_index = array_search( $field_id, $field_ids['all'], true );
-					$field_label = $field->get_attribute( 'label' );
-
+					$field                    = $form->fields[ $field_id ];
+					$field_index              = array_search( $field_id, $field_ids['all'], true );
+					$field_label              = $field->get_attribute( 'label' );
+					$value                    = isset( $extra_field_keys[ $i ] ) && isset( $extra_fields[ $extra_field_keys[ $i ] ] ) ? $extra_fields[ $extra_field_keys[ $i ] ] : '';
 					$raw_data[ $field_index ] = array(
 						'label' => $field_label,
-						'value' => $extra_fields[ $extra_field_keys[ $i ] ],
+						'value' => $value,
 					);
 					++$i;
 				}
