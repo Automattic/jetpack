@@ -68,7 +68,7 @@ class Dashboard {
 	 * @param string $hook The current admin page.
 	 */
 	public function load_admin_scripts( $hook ) {
-		if ( 'toplevel_page_jetpack-forms' !== $hook ) {
+		if ( ! in_array( $hook, Dashboard_View_Switch::MODERN_SCREEN_IDS, true ) ) {
 			return;
 		}
 
@@ -108,6 +108,8 @@ class Dashboard {
 	public function add_admin_submenu() {
 		if ( $this->switch->get_preferred_view() === Dashboard_View_Switch::CLASSIC_VIEW ) {
 			// We still need to register the jetpack forms page so it can be accessed manually.
+			// NOTE: adding submenu this (parent = '') way DOESN'T SHOW ANYWHERE,
+			// it's done just so the page URL doesn't break.
 			add_submenu_page(
 				'',
 				__( 'Form Responses', 'jetpack-forms' ),
@@ -120,16 +122,17 @@ class Dashboard {
 			return;
 		}
 
-		remove_menu_page( 'feedback' );
+		// MODERN VIEW -- remove the old submenu and add the new one.
+		remove_submenu_page( 'feedback', 'edit.php?post_type=feedback' );
 
-		add_menu_page(
+		add_submenu_page(
+			'feedback',
 			__( 'Form Responses', 'jetpack-forms' ),
-			_x( 'Feedback', 'post type name shown in menu', 'jetpack-forms' ),
+			_x( 'Form Responses', 'post type name shown in menu', 'jetpack-forms' ),
 			'edit_pages',
 			'jetpack-forms',
 			array( $this, 'render_dashboard' ),
-			'dashicons-feedback',
-			25 // Places 'Feedback' under 'Comments' in the menu
+			0 // as far top as we can go since responses are the default feedback page.
 		);
 	}
 
