@@ -37,6 +37,10 @@ body.toplevel_page_jetpack-forms {
 		align-items: center;
 		justify-content: space-between;
 		padding: 20px 150px 0 0;
+
+		@media (max-width: 660px) {
+			padding-top: 30px;
+		}
 	}
 
 	.jp-forms__dashboard-tabs {
