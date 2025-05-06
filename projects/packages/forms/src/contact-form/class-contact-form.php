@@ -531,6 +531,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		foreach ( $compiled_form as $field_index => $data ) {
 			$safe_display_value = self::escape_and_sanitize_field_value( $data['value'] );
+
+			if ( '' === $safe_display_value ) {
+				unset( $compiled_form[ $field_index ] );
+				continue;
+			}
+
 			if ( ! empty( $data['label'] ) ) {
 				$safe_display_label            = self::escape_and_sanitize_field_label( $data['label'] );
 				$compiled_form[ $field_index ] = sprintf(
