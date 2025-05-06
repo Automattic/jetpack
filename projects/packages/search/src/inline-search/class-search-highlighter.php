@@ -136,7 +136,8 @@ class Search_Highlighter {
 		}
 
 		if ( ! empty( $this->highlighted_content[ $post_id ]['content'] ) ) {
-			return $this->highlighted_content[ $post_id ]['content'];
+			// Apply wpautop to maintain paragraph formatting
+			return wpautop( $this->highlighted_content[ $post_id ]['content'] );
 		}
 
 		return $content;
