@@ -309,7 +309,7 @@ $action-bar-height: 88px;
 			align-items: center;
 
 			@media (max-width: 782px) {
-				flex-direction: column;
+				flex-direction: column-reverse;
 			}
 
 			> div {
@@ -317,6 +317,13 @@ $action-bar-height: 88px;
 				@media (max-width: 782px) {
 					width: 100%;
 					justify-content: space-between;
+				}
+
+				&:nth-of-type(2) {
+
+					@media (max-width: 782px) {
+						justify-content: flex-end;
+					}
 				}
 			}
 		}
