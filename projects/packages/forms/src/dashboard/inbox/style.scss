@@ -311,6 +311,14 @@ $action-bar-height: 88px;
 			@media (max-width: 782px) {
 				flex-direction: column;
 			}
+
+			> div {
+
+				@media (max-width: 782px) {
+					width: 100%;
+					justify-content: space-between;
+				}
+			}
 		}
 	}
 }
