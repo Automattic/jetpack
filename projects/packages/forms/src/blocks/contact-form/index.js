@@ -96,16 +96,6 @@ export const settings = {
 			},
 		],
 	},
-	//styles: [
-	//{ name: 'default', label: __( 'Default', 'jetpack-forms' ), isDefault: true },
-	// @deprecated
-	// { name: 'animated', label: __( 'Animated', 'jetpack-forms' ) },
-	// @deprecated
-	// { name: 'outlined', label: __( 'Outlined', 'jetpack-forms' ) },
-	// @TODO check if this is needed. It was added 2 years ago and never activated. Time to delete associated styles?
-	// Need to figure out some details. Putting on hold for now
-	// { name: 'below', label: 'Below' },
-	//],
 	variations,
 	category: 'contact-form',
 	transforms,

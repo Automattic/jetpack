@@ -1067,3 +1067,22 @@
 .jetpack-field-dropdown__toggle .rich-text {
 	flex-grow: 1;
 }
+
+.jetpack-contact-form__deprecate-style {
+	padding: 10px;
+	font-size: 12px;
+
+	h2, p {
+		margin: 0 0 10px 0;
+		
+	}
+
+	h2 {
+		font-weight: 700;
+		font-size: 14px;
+	}
+
+	button {
+		margin-left: 0 !important;
+	}
+}

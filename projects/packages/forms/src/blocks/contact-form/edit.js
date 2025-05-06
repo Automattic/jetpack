@@ -14,12 +14,13 @@ import {
 	SelectControl,
 	TextareaControl,
 	TextControl,
+	Notice,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef } from '@wordpress/element';
+import { useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
@@ -104,8 +105,9 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const innerRef = useRef();
 	const blockProps = useBlockProps( { ref: wrapperRef } );
 	const formClassnames = clsx( className, 'jetpack-contact-form' );
-	const hasUpdatedFormStyle = useHasDeprecatedFormStyle( clientId );
-	console.log( 'hasUpdatedFormStyle', hasUpdatedFormStyle );
+	const [ canFormStyleBeDeprecated, migrateFormStyle ] = useHasDeprecatedFormStyle( clientId );
+	const [ showStyleDeprecationNotice, setShowStyleDeprecationNotice ] =
+		useState( canFormStyleBeDeprecated );
 	const innerBlocksProps = useInnerBlocksProps(
 		{
 			ref: innerRef,
@@ -251,6 +253,36 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						{ __( 'Read more.', 'jetpack-forms' ) }
 					</ExternalLink>
 				</InspectorAdvancedControls>
+				{ showStyleDeprecationNotice && (
+					<div className="jetpack-contact-form__deprecate-style">
+						<Notice
+							className="jetpack-contact-form__deprecate-style--notice"
+							status="warning"
+							politeness="politeness"
+							onDismiss={ () => setShowStyleDeprecationNotice( false ) }
+							actions={ [
+								{
+									label: __( 'Migrate', 'jetpack-forms' ),
+									variant: 'primary',
+									onClick: () => {
+										migrateFormStyle();
+										setShowStyleDeprecationNotice( false );
+									},
+								},
+							] }
+						>
+							<h2>
+								{ __( 'Jetpack forms has been upgraded to use global styles.', 'jetpack-forms' ) }
+							</h2>
+							<p>
+								{ __(
+									'Unfortunately, this means the "Outlined" and "Animated" form styles have been deprecated. Your site’s forms will continue to work and look the same, but saving them in the editor will migrate them to the default style. To migrate this form, click the "Migrate" button below.',
+									'jetpack-forms'
+								) }
+							</p>
+						</Notice>
+					</div>
+				) }
 				<div { ...innerBlocksProps } />
 			</>
 		);

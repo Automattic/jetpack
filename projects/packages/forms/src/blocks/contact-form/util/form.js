@@ -64,6 +64,7 @@ export const useFormStyle = clientId => {
 };
 
 export const useHasDeprecatedFormStyle = formBlockClientId => {
+	const hasDeprecatedStyle = false;
 	const block = useSelect(
 		select => {
 			return select( blockEditorStore ).getBlock( formBlockClientId );
@@ -74,23 +75,26 @@ export const useHasDeprecatedFormStyle = formBlockClientId => {
 	const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
 	if ( ! block ) {
-		return false;
+		return [ hasDeprecatedStyle, null ];
 	}
 
 	const blockStyle = getBlockStyle( block?.attributes?.className );
 
 	if ( ! blockStyle ) {
-		return false;
+		return [ hasDeprecatedStyle, null ];
 	}
 
 	const classList = new TokenList( blockStyle );
 
 	if ( classList.contains( FORM_STYLE.OUTLINED ) || classList.contains( FORM_STYLE.ANIMATED ) ) {
-		classList.remove( FORM_STYLE.OUTLINED );
-		classList.remove( FORM_STYLE.ANIMATED );
-		updateBlockAttributes( formBlockClientId, { className: classList.value } );
-		return true;
+		const migrateFormStyle = () => {
+			classList.remove( FORM_STYLE.OUTLINED );
+			classList.remove( FORM_STYLE.ANIMATED );
+			updateBlockAttributes( formBlockClientId, { className: classList.value } );
+			return true;
+		};
+		return [ true, migrateFormStyle ];
 	}
 
-	return false;
+	return [ hasDeprecatedStyle, null ];
 };
