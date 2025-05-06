@@ -326,20 +326,60 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.6-a.9 - 2025-04-28
+### 14.6-beta - 2025-05-05
 #### Major Enhancements
 - General: Update minimum WordPress version to 6.7.
 
 #### Enhancements
+- Add My Jetpack tour.
+- Admin Menu: Update the icon of WooCommerce for the Woo installation.
+- Button block: Add support for border width, style, and color.
 - Featured Content: Add messaging to clarify that the tag name is case sensitive.
+- Forms: Add custom hooks for integrations.
+- Forms: Add endpoint for all integrations.
+- Forms: Add new integrations setup modal.
+- Forms: Add tabs to forms dashboard.
+- Forms: Close block panels by default.
+- Forms: Reduce default padding in form patterns.
+- Forms: Update default forms view to dataviews.
 - Forms: Update the email notification template.
 - My Jetpack: Update the onboarding UI to show a single button on initial page.
+- Newsletter Widget: Improve the display of links in the Newsletter widget.
+- Replace video embed with VideoPress block in Media & Text block.
+- Sharing buttons: Update legacy Twitter logos to use the X logo.
 - Shortcode: Convert an embed code from Facebook.com to an oEmbeddable URL.
 - Sitemaps: Use XMLWriter for a more performant sitemap generation when available.
+- User: Allow user to delete themselves through the endpoint.
+
+#### Improved compatibility
+- Add Share status support for WordPress.com sites.
+- Blocks: Ensure all child blocks use the latest version of the Blocks API.
+- Enable the Top Posts block in WP Admin for Simple Sites.
+- Forms: Ensure styles are loaded when expected, preventing console warnings.
+- Sharing: Remove deprecated Skype sharing button.
 
 #### Bug fixes
+- Add translation context to Search menu item.
+- Block editor: Hide blocks from non-admins when feature is not active.
+- Blogroll block: Prevent console warnings and block validation issues when adding new items to the blogroll.
+- Dashboard: Avoid layout issues with "Apply" button on sites using a localized version of WordPress.
+- Forms: Ensure `render_field` returns string.
+- Forms: Update form responses link on editor sidebar.
+- Image Compare block: Ensure block does not overlap navigation submenu items.
 - Image Compare block: Ensure sticky menus hide the compare line.
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
 - My Jetpack: Prevent social login from getting stuck when email input is not empty.
+- Open Graph: Ensure scaled images are used when specific registered image files exist on a site.
+- Related Posts: Ensure the block is properly displayed in the editor regardless of user role.
+- Reset access level of the post to everyone when a paywall is removed.
+- Slideshow: Prevent images from appearing stuck to the mouse in block-based themes.
+- Slideshow block: Ensure block preview doesn't generate an invalid API request.
+- Social: Do not load in the Classic editor if module is off.
+- Social: Fix "Start for free" not working when module is OFF.
+- Star Rating: Fix padding and improve panel copy.
+- Stats: Fix PHP TypeError.
+- Subscriptions: Only display the dashboard widget to site admins when the Subscriptions feature is active.
+- VideoPress: Avoid suggesting transforming unsupported Video blocks into VideoPress blocks.
 
 --------
 

@@ -1,5 +1,6 @@
 // This document contains styles that influence the styles of Stats & At a Glance, overall.
 // For more precise styles, dig into the styles of each component. ie. dash-item
+@use 'sass:color';
 @import '../scss/calypso-colors';
 
 .jp-at-a-glance {
@@ -555,11 +556,11 @@
 		display: block;
 		margin: 0;
 		padding: rem( 16px ) rem( 8px ) rem( 16px ) rem( 44px );
-		border-bottom: 1px solid lighten( $gray, 25% );
+		border-bottom: 1px solid color.adjust( $gray, $lightness: 25% );
 		text-align: left;
 
 		&:first-of-type {
-			border-top: 1px solid lighten( $gray, 25% );
+			border-top: 1px solid color.adjust( $gray, $lightness: 25% );
 		}
 	}
 

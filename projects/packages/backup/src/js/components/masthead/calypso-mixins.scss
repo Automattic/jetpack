@@ -1,4 +1,7 @@
+@use 'sass:color';
+@use "sass:list";
 @use "sass:math";
+@use "sass:meta";
 
 $full-width:	960px;
 $one-col:		660px;
@@ -43,7 +46,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 
 @mixin breakpoint( $size ){
 
-	@if type-of($size) == string {
+	@if meta.type-of($size) == string {
 	  $approved-value: 0;
 
 		@each $breakpoint in $breakpoints {
@@ -88,7 +91,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 				$sizes: $sizes + " " + $breakpoint;
 			}
 			// TODO - change this to use @error, when it is supported by node-sass
-			@warn "ERROR in breakpoint( #{ $size } ): You can only use these sizes[ #{$sizes} ] using the following syntax [ <#{ nth( $breakpoints, 1 ) } >#{ nth( $breakpoints, 1 ) } #{ nth( $breakpoints, 1 ) }-#{ nth( $breakpoints, 2 ) } ]";
+			@warn "ERROR in breakpoint( #{ $size } ): You can only use these sizes[ #{$sizes} ] using the following syntax [ <#{ list.nth( $breakpoints, 1 ) } >#{ list.nth( $breakpoints, 1 ) } #{ list.nth( $breakpoints, 1 ) }-#{ list.nth( $breakpoints, 2 ) } ]";
 		}
 	} @else {
 		$sizes: "";
@@ -97,7 +100,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 			$sizes: $sizes + " " + $breakpoint;
 		}
 		// TODO - change this to use @error, when it is supported by node-sass
-		@warn "ERROR in breakpoint( #{ $size } ): Please wrap the breakpoint $size in parenthesis. You can use these sizes[ #{$sizes} ] using the following syntax [ <#{ nth( $breakpoints, 1 ) } >#{ nth( $breakpoints, 1 ) } #{ nth( $breakpoints, 1 ) }-#{ nth( $breakpoints, 2 ) } ]";
+		@warn "ERROR in breakpoint( #{ $size } ): Please wrap the breakpoint $size in parenthesis. You can use these sizes[ #{$sizes} ] using the following syntax [ <#{ list.nth( $breakpoints, 1 ) } >#{ list.nth( $breakpoints, 1 ) } #{ list.nth( $breakpoints, 1 ) }-#{ list.nth( $breakpoints, 2 ) } ]";
 	}
 }
 
@@ -227,7 +230,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 	width: $size;
 	height: $size;
 	overflow: hidden;
-	background: lighten( $gray, 20% );
+	background: color.adjust( $gray, $lightness: 20% );
 
 	&::before {
 		content: '\f475';
@@ -335,7 +338,7 @@ $breakpoints: 480px, 660px, 960px, 1040px; // Think very carefully before adding
 
 @mixin placeholder( $lighten-percentage: 30% ) {
 	animation: loading-fade 1.6s ease-in-out infinite;
-	background-color: lighten( $gray, $lighten-percentage );
+	background-color: color.adjust( $gray, $lightness: $lighten-percentage );
 	color: transparent;
 
 	&::after {

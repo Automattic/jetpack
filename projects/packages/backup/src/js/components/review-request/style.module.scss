@@ -22,11 +22,11 @@
 
 	&:hover {
 
-		& .icon {
+		.icon {
 			transform: translateX( calc( var(--spacing-base) * 2 ) );
 		}
 
-		& .cta {
+		.cta {
 			text-decoration: underline;
 			text-decoration-thickness: 2px;
 		}

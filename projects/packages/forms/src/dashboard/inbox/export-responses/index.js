@@ -7,6 +7,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { download } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -68,7 +69,12 @@ const ExportResponsesButton = () => {
 
 	return (
 		<>
-			<Button className="export-button" variant="primary" onClick={ openModal }>
+			<Button
+				className="export-button jp-forms__export-button--large-green"
+				variant="secondary"
+				icon={ download }
+				onClick={ openModal }
+			>
 				{ __( 'Export', 'jetpack-forms' ) }
 			</Button>
 			{ showExportModal && (

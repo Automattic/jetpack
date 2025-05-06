@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Concatenate JS/CSS: Gracefully handle if there are too many files to concat.
