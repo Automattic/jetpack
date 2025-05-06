@@ -514,24 +514,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$message       = '<p>' . implode( '</p><p>', $compiled_form ) . '</p>';
 		}
 
-		// Add more allowed HTML elements for file download links
-		$allowed_html = array(
-			'br'         => array(),
-			'blockquote' => array( 'class' => array() ),
-			'p'          => array(),
-			'div'        => array(
-				'class' => array(),
-				'style' => array(),
-			),
-			'span'       => array(
-				'class' => array(),
-				'style' => array(),
-			),
-		);
-
-		$filtered_message = wp_kses( $message, $allowed_html );
-
-		return $filtered_message;
+		return $message;
 	}
 
 	/**
@@ -548,11 +531,22 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$compiled_form     = array();
 
 		foreach ( $raw_compiled_form as $field_index => $data ) {
-			$compiled_form[ $field_index ] = sprintf(
-				'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
-				wp_kses( $data['label'], array() ),
-				self::escape_and_sanitize_field_value( $data['value'] )
-			);
+			$safe_display_label = self::get_formatted_display_label( $data['label'] );
+			$safe_display_value = self::escape_and_sanitize_field_value( $data['value'] );
+
+			if ( ! empty( $safe_display_label ) ) {
+				$compiled_form[ $field_index ] = sprintf(
+					'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
+					$safe_display_label,
+					$safe_display_value
+				);
+			} else {
+				// If there is no label, only output the field value, wrapped in its div.
+				$compiled_form[ $field_index ] = sprintf(
+					'<div class="field-value">%s</div>',
+					$safe_display_value
+				);
+			}
 		}
 
 		// Sorting lines by the field index
@@ -664,15 +658,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form_for_email( $feedback_id, $form ) {
-		$raw_compiled_data = self::_get_raw_compiled_form_data( $feedback_id, $form );
-		$compiled_form     = array();
-
-		foreach ( $raw_compiled_data as $field_index => $data ) {
-			$compiled_form[ $field_index ] = array(
-				wp_kses( $data['label'], array() ),
-				self::escape_and_sanitize_field_value( $data['value'] ),
-			);
-		}
+		$compiled_form = self::get_raw_compiled_form_data( $feedback_id, $form );
 
 		/**
 		 * This filter allows a site owner to customize the response to be emailed, by adding their own HTML around it for example.
@@ -691,11 +677,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} else {
 			// add styling to the array
 			foreach ( $compiled_form as $key => $value ) {
-				$compiled_form[ $key ] = sprintf(
-					'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
-					$value[0],
-					$value[1]
-				);
+				$safe_display_label = self::get_formatted_display_label( $value[0] );
+				$safe_display_value = self::escape_and_sanitize_field_value( $value[1] );
+
+				if ( ! empty( $safe_display_label ) ) {
+					$compiled_form[ $key ] = sprintf(
+						'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
+						$safe_display_label,
+						$safe_display_value
+					);
+				} else {
+					$compiled_form[ $key ] = sprintf(
+						'<p><span>%s</span></p>',
+						$safe_display_value
+					);
+				}
 			}
 		}
 
@@ -2006,5 +2002,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : rtrim( $formatted_label, ':' ) . ':';
 
 		return $formatted_label;
+	}
+
+	/**
+	 * Helper method to format a raw label string for display, including kses sanitization.
+	 *
+	 * @param string|null $raw_label The raw label input.
+	 * @return string The formatted and kses'd label string, or an empty string if raw_label is empty.
+	 */
+	private static function get_formatted_display_label( $raw_label ) {
+		if ( empty( $raw_label ) ) {
+			return ''; // kses the empty string
+		}
+		$display_label   = (string) $raw_label;
+		$formatted_label = str_ends_with( $display_label, '?' ) ? $display_label : rtrim( $display_label, ':' ) . ':';
+		return wp_kses( $formatted_label, array() );
 	}
 }
