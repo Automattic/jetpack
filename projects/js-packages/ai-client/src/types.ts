@@ -141,20 +141,8 @@ export interface BlockEditorStore {
 
 declare global {
 	interface Window {
-		translation?: {
-			canTranslate: ( options: {
-				sourceLanguage: string;
-				targetLanguage: string;
-			} ) => Promise< 'no' | 'yes' | string >;
-			createTranslator: ( options: {
-				sourceLanguage: string;
-				targetLanguage: string;
-			} ) => Promise< {
-				translate: ( text: string ) => Promise< string >;
-			} >;
-		};
 		ai?: {
-			languageDetector: {
+			languageDetector?: {
 				create: () => Promise< {
 					detect: ( text: string ) => Promise<
 						{
@@ -163,6 +151,19 @@ declare global {
 						}[]
 					>;
 				} >;
+				availability: () => Promise<
+					'unavailable' | 'available' | 'downloadable' | 'downloading' | string
+				>;
+			};
+			translator?: {
+				create: ( options: {
+					sourceLanguage: string;
+					targetLanguage: string;
+				} ) => Promise< { translate: ( text: string ) => Promise< string > } >;
+				availability: ( options: {
+					sourceLanguage: string;
+					targetLanguage: string;
+				} ) => Promise< 'unavailable' | 'available' | 'downloadable' | 'downloading' | string >;
 			};
 			summarizer?: {
 				capabilities: () => Promise< {

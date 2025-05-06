@@ -110,11 +110,11 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// use the Chrome AI translator
 	async translate( text: string, target: string, source: string = '' ) {
-		if ( ! ( 'translation' in self ) ) {
+		if ( ! ( 'ai' in self ) || ! ( 'translator' in self.ai ) ) {
 			return;
 		}
 
-		const translator = await self.translation.createTranslator( {
+		const translator = await self.ai.translator.create( {
 			sourceLanguage: source,
 			targetLanguage: target,
 		} );
@@ -125,6 +125,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 		try {
 			const translation = await translator.translate( renderHTMLFromMarkdown( { content: text } ) );
+
 			this.processEvent( {
 				id: '',
 				event: 'translation',
@@ -169,9 +170,9 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 			return;
 		}
 
-		const options = this.getSummarizerOptions( tone, wordCount );
+		const summarizerOptions = this.getSummarizerOptions( tone, wordCount );
 
-		const summarizer = await self.ai.summarizer.create( options );
+		const summarizer = await self.ai.summarizer.create( summarizerOptions );
 
 		if ( available === 'after-download' ) {
 			await summarizer.ready;

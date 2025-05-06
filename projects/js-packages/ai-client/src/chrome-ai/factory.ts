@@ -79,9 +79,10 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		const [ language ] = context.language.split( ' ' );
 
 		if (
-			! ( 'translation' in self ) ||
-			! self.translation.createTranslator ||
-			! self.translation.canTranslate
+			! ( 'ai' in self ) ||
+			! ( 'translator' in self.ai ) ||
+			! self.ai.translator.create ||
+			! self.ai.translator.availability
 		) {
 			return false;
 		}
@@ -108,9 +109,9 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 			}
 		}
 
-		const canTranslate = await self.translation.canTranslate( languageOpts );
+		const translationAvailability = await self.ai.translator.availability( languageOpts );
 
-		if ( canTranslate === 'no' ) {
+		if ( translationAvailability === 'unavailable' ) {
 			return false;
 		}
 
