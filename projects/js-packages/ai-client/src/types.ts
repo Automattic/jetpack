@@ -93,8 +93,14 @@ export type RequestingStateProp = ( typeof REQUESTING_STATES )[ number ];
  */
 export const AI_MODEL_GPT_3_5_Turbo_16K = 'gpt-3.5-turbo-16k' as const;
 export const AI_MODEL_GPT_4 = 'gpt-4' as const;
+export const AI_MODEL_DEFAULT = 'default' as const;
+export const AI_MODEL_GEMINI_NANO = 'gemini-nano' as const;
 
-export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo_16K | typeof AI_MODEL_GPT_4;
+export type AiModelTypeProp =
+	| typeof AI_MODEL_GPT_3_5_Turbo_16K
+	| typeof AI_MODEL_GPT_4
+	| typeof AI_MODEL_GEMINI_NANO
+	| typeof AI_MODEL_DEFAULT;
 
 /*
  * Media recording types
