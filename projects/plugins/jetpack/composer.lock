@@ -1363,6 +1363,7 @@
 				"reference": "08f17c79ceca2c91d89cb5538a0eacdfacc1118e"
 			},
 			"require": {
+				"automattic/jetpack-admin-ui": "@dev",
 				"automattic/jetpack-assets": "@dev",
 				"automattic/jetpack-blocks": "@dev",
 				"automattic/jetpack-connection": "@dev",
