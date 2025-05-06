@@ -43,6 +43,7 @@ $white: #fff;
     &__date {
         font-size: 1em;
         font-weight: 600;
+        // stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
         line-height: 1.6em;
     }
 

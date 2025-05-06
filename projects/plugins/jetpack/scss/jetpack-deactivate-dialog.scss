@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../_inc/client/scss/variables/colors';
 @import '../_inc/client/scss/calypso-colors';
 
@@ -167,13 +168,13 @@
 
 				&#jetpack_deactivation_dialog_content__button-deactivate {
 					background: $alert-red;
-					border-color: darken( $alert-red, 20% );
+					border-color: color.adjust( $alert-red, $lightness: -20% );
 					color: $white;
 					margin-bottom: 0;
 
 					&[disabled],
 					&:disabled {
-						background: lighten( $alert-red, 20% );
+						background: color.adjust( $alert-red, $lightness: 20% );
 						border-color: tint( $alert-red, 30% );
 					}
 				}

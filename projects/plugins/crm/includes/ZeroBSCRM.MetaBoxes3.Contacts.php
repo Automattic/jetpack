@@ -835,23 +835,34 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
                         $filePerma = $zbs->DAL->makeSlug($thisFileSlotName);
                     }
 
+				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$zbsFiles = array();
+				if ( $contact ) {
+					// retrieve - shouldn't these vars be "other files"... confusing
+					$zbsFiles = zeroBSCRM_getCustomerFiles( $contact['id'] );
 
-                    #} retrieve - shouldn't these vars be "other files"... confusing
-                    $zbsFiles = zeroBSCRM_getCustomerFiles($contact['id']);
+					// This specifically looks for $args['title'] file
+					$fileSlotSrc = zeroBSCRM_fileslots_fileInSlot( $filePerma, $contact['id'], ZBS_TYPE_CONTACT );
 
-                    // This specifically looks for $args['title'] file :)
-                    //$fileSlotSrc = get_post_meta($contact['id'],'cfile_'.$filePerma,true);
-                    $fileSlotSrc = zeroBSCRM_fileslots_fileInSlot($filePerma,$contact['id'],ZBS_TYPE_CONTACT);
+					// check for file + only show that
+					$zbsFilesArr = array();
+					if ( $fileSlotSrc !== '' && is_array( $zbsFiles ) && count( $zbsFiles ) > 0 ) {
+						foreach ( $zbsFiles as $f ) {
+							if ( $f['file'] === $fileSlotSrc ) {
+								$zbsFilesArr[] = $f;
+							}
+						}
+					}
+					$zbsFiles = $zbsFilesArr;
+				}
 
-
-                    // check for file + only show that
-                    $zbsFilesArr = array(); 
-                    if ($fileSlotSrc !== '' && is_array($zbsFiles) && count($zbsFiles) > 0) foreach ($zbsFiles as $f) if ($f['file'] == $fileSlotSrc) $zbsFilesArr[] = $f;
-                    $zbsFiles = $zbsFilesArr;
-
-                    // while we only have 1 file per slot, we can do this:
-                    // *js uses this to empty if deleted elsewhere (other metabox)
-                    $fileSlotURL = ''; if (is_array($zbsFiles) && count($zbsFiles) == 1) $fileSlotURL = $zbsFiles[0]['url'];
+				// while we only have 1 file per slot, we can do this:
+				// *js uses this to empty if deleted elsewhere (other metabox)
+				$fileSlotURL = '';
+				if ( is_array( $zbsFiles ) && count( $zbsFiles ) === 1 ) {
+					$fileSlotURL = $zbsFiles[0]['url'];
+				}
+				// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                     ?>
                             <table class="form-table wh-metatab wptbp zbsFileSlotTable" data-sloturl="<?php echo esc_attr( $fileSlotURL ); ?>" id="<?php echo esc_attr( $this->metaboxID ); ?>-tab">
@@ -966,16 +977,6 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
                               return $contact_id;
                             } // end if
 
-                            /* Switched out for WH Perms model 19/02/16 
-                            if('page' == $_POST['post_type']) { 
-                              if(!current_user_can('edit_page', $contact_id)) {
-                                return $contact_id;
-                              } // end if
-                            } else { 
-                                if(!current_user_can('edit_page', $contact_id)) { 
-                                    return $contact_id;
-                                } // end if
-                            } // end if */
                             if (!zeroBSCRM_permsCustomers()){
                                 return $contact_id;
                             }
@@ -1042,7 +1043,6 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
                                             ///update_post_meta($contact_id, 'zbs_customer_files', $zbsCustomerFiles);  
                                             zeroBSCRM_updateCustomerFiles($contact_id,$zbsCustomerFiles);                                            
 
-                                                // actually got wrappers now :) $zbs->updateMeta(ZBS_TYPE_CONTACT,$contact_id,'cfile_'.$cfSubKey,$upload['file']);
                                                 // this'll override any prev in that slot, too
                                                 zeroBSCRM_fileslots_addToSlot($cfSubKey,$upload['file'],$contact_id,ZBS_TYPE_CONTACT,true);        
 
@@ -1077,11 +1077,6 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
 /* ======================================================
   Contact Files Metabox
    ====================================================== */
-/*
-function zeroBS__addCustomerMetaBoxes() {   
-    add_meta_box('zerobs-customer-files', __('Contact Files',"zero-bs-crm"), 'zeroBS__MetaboxFilesOther', 'zerobs_customer', 'normal', 'low');  
-}
-add_action('add_meta_boxes', 'zeroBS__addCustomerMetaBoxes');  */
 
     class zeroBS__Metabox_ContactFiles extends zeroBS__Metabox{
 
@@ -1323,17 +1318,7 @@ add_action('add_meta_boxes', 'zeroBS__addCustomerMetaBoxes');  */
             if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
               return $id;
             } // end if
-               
-            /* Switched out for WH Perms model 19/02/16 
-            if('page' == $_POST['post_type']) { 
-              if(!current_user_can('edit_page', $id)) {
-                return $id;
-              } // end if
-            } else { 
-                if(!current_user_can('edit_page', $id)) { 
-                    return $id;
-                } // end if
-            } // end if */
+
             if (!zeroBSCRM_permsCustomers()){
                 return $contact_id;
             }

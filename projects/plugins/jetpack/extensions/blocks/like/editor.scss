@@ -14,6 +14,8 @@
 /* Fetched below from https://widgets.wp.com/likes/style.css at 2024-06-11T14:41:11.500Z */
 .wpl-likebox {
 	container-type:inline-size;
+	display:flex;
+	align-items:center;
 }
 
 .wpl-likebox,.wpl-follow a,.wpl-count a {
@@ -24,6 +26,7 @@
 .wpl-button {
 	min-width:40px;
 	overflow:hidden;
+	float:left;
 }
 
 .wpl-button a {
@@ -129,10 +132,6 @@
 	font-size:12px!important;
 }
 
-.wpl-button {
-	float:left;
-}
-
 .rtl .wpl-button {
 	float:right;
 }
@@ -214,11 +213,6 @@ a.comment-like-link.loading::before {
 	opacity:0;
 }
 
-.wpl-likebox {
-	display:flex;
-	align-items:center;
-}
-
 .wpl-likebox .wpl-avatars {
 	display:inline-flex;
 	flex-direction:row-reverse;
@@ -270,7 +264,7 @@ a.comment-like-link.loading::before {
 	white-space:nowrap;
 }
 
-/* Overrides to fix CSS conflicts within editor. */
+// stylelint-disable no-duplicate-selectors -- Overrides to fix CSS conflicts within editor.
 .wpl-likebox {
 	// Prevents color and outline conflict by
 	// .wp-block-post-content a:where(:not(.wp-element-button))
@@ -329,6 +323,7 @@ a.comment-like-link.loading::before {
 		background-image:url("data:image/svg+xml,%3Csvg fill='none' height='16' viewBox='0 0 18 16' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m9.00081 2 1.95699 4.26814h4.3763l-3.6666 3.39117 1.2473 4.34069-3.91399-2.25-3.914 2.25 1.24734-4.34069-3.66667-3.39117h2.18817 2.18816z' stroke='%232c3338' stroke-linecap='round' stroke-width='1.5'/%3E%3C/svg%3E");
 	}
 }
+// stylelint-enable no-duplicate-selectors
 
 // Format buttons correctly when displayed in columns
 @container (max-width: 320px) {

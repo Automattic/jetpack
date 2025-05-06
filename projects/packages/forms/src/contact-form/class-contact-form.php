@@ -590,7 +590,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				}
 
 				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
-				$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
+				$field_label = self::maybe_add_colon_to_label( $field->get_attribute( 'label' ) );
 
 				$compiled_form[ $field_index ] = sprintf(
 					'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
@@ -616,7 +616,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$field       = $form->fields[ $field_id ];
 					$field_index = array_search( $field_id, $field_ids['all'], true );
 
-					$label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
+					$label = self::maybe_add_colon_to_label( $field->get_attribute( 'label' ) );
 
 					$compiled_form[ $field_index ] = sprintf(
 						'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
@@ -683,7 +683,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				}
 
 				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
-				$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
+				$field_label = self::maybe_add_colon_to_label( $field->get_attribute( 'label' ) );
 
 				$compiled_form[ $field_index ] = array(
 					wp_kses( $field_label, array() ),
@@ -709,7 +709,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$field       = $form->fields[ $field_id ];
 					$field_index = array_search( $field_id, $field_ids['all'], true );
 
-					$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
+					$field_label = self::maybe_add_colon_to_label( $field->get_attribute( 'label' ) );
 
 					$compiled_form[ $field_index ] = array(
 						wp_kses( $field_label, array() ),
@@ -2041,5 +2041,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'field_id' => $field_id,
 			'files'    => $file_data_array,
 		);
+	}
+
+	/**
+	 * Ensures a field label ends with a colon, unless it ends with a question mark.
+	 *
+	 * @param string $label The field label.
+	 * @return string The formatted label.
+	 */
+	private static function maybe_add_colon_to_label( $label ) {
+		$formatted_label = $label ? $label : '';
+		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : $formatted_label . ':';
+
+		return $formatted_label;
 	}
 }

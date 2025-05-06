@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import CreativeMailIcon from '../../../../icons/creative-mail-icon';
 import IntegrationCard from './integration-card';
 
-const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
+const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus, borderBottom = true } ) => {
 	const { settingsUrl = '' } = data || {};
 
 	const selectedBlock = useSelect( select => select( blockEditorStore ).getSelectedBlock(), [] );
@@ -32,7 +32,7 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			'jetpack-forms'
 		),
 		notActivatedMessage: __(
-			'Creative Mail is installed! To start sending email campaigns, simply activate the plugin.',
+			'Creative Mail is installed. To start sending email campaigns, simply activate the plugin.',
 			'jetpack-forms'
 		),
 	};
@@ -57,9 +57,15 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 			cardData={ cardData }
+			borderBottom={ borderBottom }
 		>
 			<div>
-				<p>{ __( "You're all setup for email marketing with Creative Mail.", 'jetpack-forms' ) }</p>
+				<p>
+					{ __(
+						"You're all setup for email marketing with Creative Mail. Please manage your marketing from Creative Mail panel.",
+						'jetpack-forms'
+					) }
+				</p>
 				{ hasEmailBlock && (
 					<ToggleControl
 						label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
@@ -67,7 +73,13 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						onChange={ toggleConsent }
 					/>
 				) }
-				<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
+				<Button
+					variant="link"
+					href={ settingsUrl }
+					target="_blank"
+					rel="noopener noreferrer"
+					className="jetpack-forms-creative-mail-settings-button"
+				>
 					{ __( 'Open Creative Mail settings', 'jetpack-forms' ) }
 				</Button>
 			</div>

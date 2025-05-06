@@ -1,7 +1,5 @@
 .wp-customizer  .expanded .widget-conditional .widget-conditional-inner {
 	width: 98%;
-	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 	box-sizing: border-box;
 }
 
@@ -67,10 +65,6 @@
 
 .widget-conditional .conditions-rule-has-children {
 	display: block;
-}
-
-.widget-conditional .condition .actions {
-	margin-top: -28px;
 }
 
 .widget-conditional .condition .actions {

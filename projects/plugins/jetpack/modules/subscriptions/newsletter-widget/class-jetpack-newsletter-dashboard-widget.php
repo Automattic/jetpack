@@ -132,22 +132,6 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	/**
 	 * Load the admin scripts for the Jetpack Newsletter widget.
 	 *
-	 * @return void
-	 */
-	public static function admin_init() {
-		static::load_admin_scripts(
-			'jp-newsletter-widget',
-			'newsletter-widget',
-			array(
-				'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
-				'config_data'          => static::get_config_data(),
-			)
-		);
-	}
-
-	/**
-	 * Load the admin scripts for the Jetpack Newsletter widget.
-	 *
 	 * @param string $asset_handle The handle of the asset.
 	 * @param string $asset_name The name of the asset.
 	 * @param array  $options The options for the asset.

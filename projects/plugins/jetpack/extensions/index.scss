@@ -1,13 +1,6 @@
 @import '@automattic/jetpack-base-styles/style';
 
 .is-beta-extension {
-	position: relative;
-	box-shadow: 0 0 0 15px #fff, 0 0 0 16px var( --jp-green-30 );
-	transition: 0.5s box-shadow linear;
-
-	&.inset-shadow {
-		box-shadow: inset 0 0 3px var( --jp-green-30 );
-	}
 
 	&::before {
 		content: 'BETA';
@@ -30,7 +23,6 @@
 
 	&:focus,
 	&:hover {
-		box-shadow: none;
 
 		&::before {
 			opacity: 0;

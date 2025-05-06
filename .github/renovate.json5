@@ -1,7 +1,7 @@
 {
 	extends: [ 'config:recommended', 'group:definitelyTyped' ],
 	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
-	reviewers: [ 'team:jetpack-garage' ],
+	reviewers: [ 'team:jetpack-monorepo' ],
 	prHourlyLimit: 1,
 	timezone: 'UTC',
 	schedule: [ '* 0-2 1 * *' ],
@@ -96,10 +96,9 @@
 			prPriority: 1,
 			// Teams using DataViews in their projects
 			additionalReviewers: [
-				'team:jetpack-reach', // Publicize
+				'team:triforce', // Publicize, My Jetpack
 				'team:loop', // Newsletter subscriber management
-				'team:jetpack-martech', // My Jetpack
-				'team:waffle-makers', // Scan
+				'team:bastion', // Scan
 				'team:zap', // Forms
 			],
 		},

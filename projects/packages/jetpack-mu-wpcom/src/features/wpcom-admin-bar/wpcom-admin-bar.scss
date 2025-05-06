@@ -167,6 +167,7 @@
 /**
  * Profile section of the admin bar
  */
+// stylelint-disable-next-line no-duplicate-selectors -- disabling due to the complexity of combining the two selectors
 #wpadminbar {
 	// Add background color to the right side of the admin bar for the mobile view
 	.quicklinks {

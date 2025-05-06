@@ -121,7 +121,7 @@ class Jetpack_Boost {
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
-		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
+		add_action( 'jetpack_boost_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
 
 		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
 

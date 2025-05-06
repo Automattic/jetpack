@@ -1,4 +1,4 @@
-import { getCurrencyObject } from '@automattic/format-currency';
+import { getCurrencyObject } from '@automattic/number-formatters';
 import { jest } from '@jest/globals';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';

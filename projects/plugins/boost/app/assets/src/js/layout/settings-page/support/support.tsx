@@ -18,13 +18,13 @@ const Support = () => {
 						<h3 className={ styles.title }>{ __( "We're here to help", 'jetpack-boost' ) }</h3>
 						<p>
 							{ __(
-								'Your paid plan gives you access to prioritized Jetpack Boost support',
+								'Your paid plan gives you access to prioritized Jetpack Boost support.',
 								'jetpack-boost'
 							) }
 						</p>
 					</div>
 					<div className={ styles.cta }>
-						<Button variant="secondary" onClick={ openPaidSupport }>
+						<Button variant="secondary" onClick={ openPaidSupport } isExternalLink={ true }>
 							{ __( 'Contact Us', 'jetpack-boost' ) }
 						</Button>
 					</div>

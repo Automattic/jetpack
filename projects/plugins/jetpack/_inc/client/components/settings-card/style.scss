@@ -4,16 +4,16 @@
 	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	border-radius: rem( 4px );
 
-	& + .jp-at-a-glance__stats-card {
+	+ .jp-at-a-glance__stats-card {
 		margin-bottom: rem(24px);
 	}
 
-	& > :first-child {
+	> :first-child {
 		border-top-left-radius: rem( 4px );
 		border-top-right-radius: rem( 4px );
 	}
 
-	& > :last-child {
+	> :last-child {
 		border-bottom-left-radius: rem( 4px );
 		border-bottom-right-radius: rem( 4px );
 	}
