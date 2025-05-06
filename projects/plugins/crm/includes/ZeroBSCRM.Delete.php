@@ -1,4 +1,4 @@
-<?php
+<?php 
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -25,7 +25,7 @@ class zeroBSCRM_Delete{
 
     // following now FILLED OUT by objTypeID above, v3.0+
     private $objType = false; // 'contact'
-    private $singular = false;
+    private $singular = false; 
     private $plural = false;
     private $listViewSlug = false;
     private $langLabels = false;
@@ -52,7 +52,7 @@ class zeroBSCRM_Delete{
             'plural' => false,      //Transactions
             'listViewSlug' => false,    //manage-transactions
             'langLabels' => array(
-
+                    
             )
 
         ); foreach ($defaultArgs as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
@@ -264,11 +264,11 @@ class zeroBSCRM_Delete{
                 <form method="post" id="zbs-delete-form">
 
             <div id="zbs-edit-warnings-wrap">
-                <?php #} Pre-loaded msgs, because I wrote the helpers in php first... should move helpers to js and fly these
+                <?php #} Pre-loaded msgs, because I wrote the helpers in php first... should move helpers to js and fly these 
 
                 echo zeroBSCRM_UI2_messageHTML('warning hidden','Error Retrieving '.$this->plural,'There has been a problem retrieving your '.$this->singular.', if this issue persists, please ask your administrator to reach out to Jetpack CRM.','disabled warning sign','zbsCantLoadData');
                 echo zeroBSCRM_UI2_messageHTML('warning hidden','Error Retrieving '.$this->singular,'There has been a problem retrieving your '.$this->singular.', if this issue persists, please ask your administrator to reach out to Jetpack CRM.','disabled warning sign','zbsCantLoadDataSingle');
-
+              
                 ?>
             </div>
             <!-- main view: list + sidebar -->
@@ -277,7 +277,7 @@ class zeroBSCRM_Delete{
                 <?php
 
                     if (count($zbs->pageMessages) > 0){
-
+                
                         #} Updated Msgs
                         // was doing like this, but need control over styling
                         // do_action( 'zerobs_updatemsg_contact');
@@ -301,7 +301,7 @@ class zeroBSCRM_Delete{
 
                 <div class="row">
 
-                    <?php
+                    <?php 
 
                         if (!$this->canDelete){
 
@@ -316,11 +316,11 @@ class zeroBSCRM_Delete{
                             <?php
 
                         } else {
-
+                        
                             // switch based on stage
                             switch ($this->stage){
 
-                                case 2:
+                                case 2: 
 
                                     // deleted ?>
 
@@ -342,7 +342,7 @@ class zeroBSCRM_Delete{
 
                                                     // output
                                                     echo '<a href="'.esc_url( $backUrl ).'" class="ui green button right floated">'. esc_html__('Back to','zero-bs-crm').' '. esc_html( $this->plural ).'</a>';
-
+                                                    
                                             ?></p>
                                           </div>
                                         </div>
@@ -351,7 +351,7 @@ class zeroBSCRM_Delete{
                                     <div class="two wide column"></div>
 
                                     <?php
-
+                                    
 
                                     break;
 
@@ -415,7 +415,7 @@ class zeroBSCRM_Delete{
                                                     // output
                                                     echo '<button type="submit" class="ui orange button right floated"><i class="trash alternate icon"></i> '. esc_html__('Delete','zero-bs-crm').' '. esc_html( $this->singular ) .'</button>';
                                                     echo '<a href="'. esc_url( $backUrl ) .'" class="ui green button right floated"><i class="angle double left icon"></i> '. esc_html__('Back to','zero-bs-crm').' '. esc_html( $this->singular ).' ('. esc_html__('Cancel','zero-bs-crm').')</a>';
-
+                                                    
                                             ?></p>
                                           </div>
                                         </div>
@@ -444,7 +444,7 @@ class zeroBSCRM_Delete{
 
                 </div>
 
-                <!-- could use this for mobile variant?)
+                <!-- could use this for mobile variant?) 
                 <div class="two column mobile only row" style="display:none"></div>
                 -->
             </div> <!-- / mainlistview wrap -->
@@ -469,11 +469,12 @@ class zeroBSCRM_Delete{
             var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>';
             var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
             var zbsListViewLink = '<?php echo jpcrm_esc_link($this->listViewSlug ); ?>';
+            var zbsClick2CallType = parseInt('<?php echo esc_html( zeroBSCRM_getSetting('clicktocalltype') ); ?>');
             var zbsEditViewLangLabels = {
 
                     'today': '<?php echo esc_html( zeroBSCRM_slashOut(__('Today',"zero-bs-crm")) ); ?>',
 
-                    <?php $labelCount = 0;
+                    <?php $labelCount = 0; 
                     if (count($this->langLabels) > 0) foreach ($this->langLabels as $labelK => $labelV){
 
                         if ($labelCount > 0) echo ',';

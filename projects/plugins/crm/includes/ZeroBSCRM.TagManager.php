@@ -1,4 +1,4 @@
-<?php
+<?php 
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -38,11 +38,11 @@ class zeroBSCRM_TagManager{
             'objType'   => false,   //transaction
             'singular'   => false,  //Transaction
             'plural' => false,      //Transactions
-            //'postType' => false,    //zerobs_transaction - removed v3.0 +
+            //'postType' => false,    //zerobs_transaction - removed v3.0 + 
             // renamed 'listViewSlug' v3.0+ 'postPage' => false,    //manage-transactions-tags
             'listViewSlug' => false,
             'langLabels' => array(
-
+                    
             ),
             'extraBoxes' => '' // html for extra boxes e.g. upsells :)
 
@@ -90,7 +90,7 @@ class zeroBSCRM_TagManager{
             do_action('zerobs_save_'.$this->objType.'_tags', $this->objID, $this->obj);
 
         }
-
+        
     }
 
     public function drawTagView(){
@@ -107,7 +107,7 @@ class zeroBSCRM_TagManager{
         <style>
 
         </style>
-        <?php   // left in for later :)
+        <?php   // left in for later :) 
                 $currentFields = array(); $allFields = array(); ?>
             <!-- field editor -->
             <div id="zbs-edit-field-editor" class="ui segment secondary hidden">
@@ -130,7 +130,7 @@ class zeroBSCRM_TagManager{
                             <h4><?php esc_html_e('Current Fields',"zero-bs-crm"); ?></h4>
 
 
-                            <div id="zbs-column-manager-current-fields" class="ui segment zbs-column-manager-connected">
+                            <div id="zbs-column-manager-current-fields" class="ui segment zbs-column-manager-connected"> 
                                 <?php if (is_array($currentFields)) foreach ($currentFields as $colKey => $col){
 
                                     ?><div id="zbs-column-manager-field-<?php echo esc_attr( $colKey ); ?>" class="ui basic button zbs-column-manager-field" data-key="<?php echo esc_attr( $colKey ); ?>"><?php esc_html_e($col[0],"zero-bs-crm"); ?></div><?php
@@ -143,11 +143,11 @@ class zeroBSCRM_TagManager{
 
                             <h4><?php esc_html_e('Available Fields',"zero-bs-crm"); ?></h4>
 
-                            <div id="zbs-column-manager-available-fields" class="ui segment zbs-column-manager-connected">
+                            <div id="zbs-column-manager-available-fields" class="ui segment zbs-column-manager-connected"> 
                                 <?php if (is_array($allFields)) foreach ($allFields as $colKey => $col){
 
                                     if (!array_key_exists($colKey, $currentColumns)){
-
+                                        
                                         ?><div id="zbs-column-manager-field-<?php echo esc_attr( $colKey ); ?>" class="ui basic button zbs-column-manager-field" data-key="<?php echo esc_attr( $colKey ); ?>"><?php esc_html_e($col[0],"zero-bs-crm"); ?></div><?php
 
                                     }
@@ -167,10 +167,10 @@ class zeroBSCRM_TagManager{
             <!-- field manager -->
 
             <div id="zbs-edit-warnings-wrap">
-                <?php #} Pre-loaded msgs, because I wrote the helpers in php first... should move helpers to js and fly these
+                <?php #} Pre-loaded msgs, because I wrote the helpers in php first... should move helpers to js and fly these 
 
                 echo zeroBSCRM_UI2_messageHTML('warning hidden','Error Retrieving '.$this->plural,'There has been a problem retrieving your '.$this->singular.', if this issue persists, please contact support.','disabled warning sign','zbsCantLoadData');
-
+              
                 ?>
             </div>
             <!-- main view: list + sidebar -->
@@ -179,7 +179,7 @@ class zeroBSCRM_TagManager{
                 <?php
 
                     if (count($zbs->pageMessages) > 0){
-
+                
                         #} Updated Msgs
                         // was doing like this, but need control over styling
                         // do_action( 'zerobs_updatemsg_contact');
@@ -207,7 +207,7 @@ class zeroBSCRM_TagManager{
                     <!-- record list -->
                     <div class="twelve wide column" id="zbs-edit-table-wrap">
 
-                        <?php
+                        <?php 
                             #} Main Metaboxes
                             zeroBSCRM_do_meta_boxes( 'zerobs_edit_tags', 'normal', $this->objType );
                         ?>
@@ -215,7 +215,7 @@ class zeroBSCRM_TagManager{
                     </div>
                     <!-- side bar -->
                     <div class="four wide column" id="zbs-edit-sidebar-wrap">
-                        <?php
+                        <?php 
 
                             #} Sidebar metaboxes
                             zeroBSCRM_do_meta_boxes( 'zerobs_edit_tags', 'side', $this->objType );
@@ -228,7 +228,7 @@ class zeroBSCRM_TagManager{
                     </div>
                 </div>
 
-                <!-- could use this for mobile variant?)
+                <!-- could use this for mobile variant?) 
                 <div class="two column mobile only row" style="display:none"></div>
                 -->
             </div> <!-- / mainlistview wrap -->
@@ -280,11 +280,12 @@ class zeroBSCRM_TagManager{
             var zbsObjectEditLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>';
             var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
             var zbsListViewLink = '<?php echo jpcrm_esc_link( $this->listViewSlug ); ?>';
+            var zbsClick2CallType = parseInt('<?php echo esc_html( zeroBSCRM_getSetting('clicktocalltype') ); ?>');
             var zbsEditViewLangLabels = {
 
                     'today': '<?php echo esc_html( zeroBSCRM_slashOut(__('Today',"zero-bs-crm")) ); ?>',
 
-                    <?php $labelCount = 0;
+                    <?php $labelCount = 0; 
                     if (is_array($this->langLabels) && count($this->langLabels) > 0) foreach ($this->langLabels as $labelK => $labelV){
 
                         if ($labelCount > 0) echo ',';

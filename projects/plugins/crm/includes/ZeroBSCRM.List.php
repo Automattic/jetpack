@@ -1,4 +1,4 @@
-<?php
+<?php 
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -27,7 +27,7 @@ class zeroBSCRM_list{
     private $extraBoxes = '';
     private $extraJS = '';
     private $messages = false;
-        #} All messages need params to match this func:
+        #} All messages need params to match this func: 
         #} ... zeroBSCRM_UI2_messageHTML($msgClass='',$msgHeader='',$msg='',$iconClass='',$id='')
 
 	/**
@@ -149,7 +149,7 @@ class zeroBSCRM_list{
 
             // set it whether legit? what'll this do on error urls people make up?
             // v2.2+ hone this + add multi-filter
-            // v2.99.5 - ALWAYS lowercase :)
+            // v2.99.5 - ALWAYS lowercase :) 
 					$possible_quick_filters          = sanitize_text_field( $_GET['quickfilters'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 					$listViewFilters['quickfilters'] = array( $possible_quick_filters ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
@@ -164,7 +164,7 @@ class zeroBSCRM_list{
         $sortOrder = false; if (isset($_GET['sortdirection']) && ($_GET['sortdirection'] == 'asc' || $_GET['sortdirection'] == 'desc')) $sortOrder = sanitize_text_field($_GET['sortdirection']);
 
 
-        # SCAFFOLDING - TO BE RE-ARRANGED :)
+        # SCAFFOLDING - TO BE RE-ARRANGED :) 
         #} NOTE SECOND FIELD IN THESE ARE NOW IGNORED!?!? (30/7)
 
             #} Centralised into ZeroBSCRM.List.Columns.php 30/7/17
@@ -211,7 +211,7 @@ class zeroBSCRM_list{
                   <i class="list layout icon"></i>
                   <?php echo esc_html( sprintf(__('%s List View Options',"zero-bs-crm"),$this->singular) ); ?>
                 </h4>
-
+    
                 <?php if (zeroBSCRM_isZBSAdminOrAdmin()){ // only admin can manage columns (globally) ?>
                 <div id="zbs-list-view-options-wrap" class="ui divided grid">
 
@@ -225,7 +225,7 @@ class zeroBSCRM_list{
                             <h4><?php esc_html_e('Current Columns',"zero-bs-crm"); ?></h4>
 
 
-                            <div id="zbs-column-manager-current-cols" class="ui segment zbs-column-manager-connected">
+                            <div id="zbs-column-manager-current-cols" class="ui segment zbs-column-manager-connected"> 
                                 <?php if (is_array($currentColumns)) foreach ($currentColumns as $colKey => $col){
 
                                     ?><div id="zbs-column-manager-col-<?php echo esc_attr( $colKey ); ?>" class="ui compact tiny basic button zbs-column-manager-col" data-key="<?php echo esc_attr( $colKey ); ?>"><?php esc_html_e($col[0],"zero-bs-crm"); ?></div><?php
@@ -238,7 +238,7 @@ class zeroBSCRM_list{
 
                             <h4><?php esc_html_e('Available Columns',"zero-bs-crm"); ?></h4>
 
-                            <div id="zbs-column-manager-available-cols" class="ui segment">
+                            <div id="zbs-column-manager-available-cols" class="ui segment"> 
                                 <?php if (is_array($allColumns)) {
 
                                     // here we split them into groups, where there is. This allows a seperation of 'base fields' and compute fields (e.g. total value)
@@ -280,7 +280,7 @@ class zeroBSCRM_list{
                                                         $title = __('Fields','zero-bs-crm');
                                                         break;
 
-                                                    default:
+                                                    default: 
                                                         $title = __('Extra Fields','zero-bs-crm');
                                                         break;
                                                 }
@@ -295,7 +295,7 @@ class zeroBSCRM_list{
                                             foreach ($columns as $colKey => $col){
 
                                                 if (!array_key_exists($colKey, $currentColumns)){
-
+                                                    
                                                     ?><div id="zbs-column-manager-col-<?php echo esc_attr( $colKey ); ?>" class="ui compact tiny basic button zbs-column-manager-col" data-key="<?php echo esc_attr( $colKey ); ?>"><?php esc_html_e($col[0],"zero-bs-crm"); ?></div><?php
 
                                                 }
@@ -480,7 +480,7 @@ class zeroBSCRM_list{
             // Vars for zbs list view drawer
             var zbsListViewParams = <?php echo wp_json_encode( $list_view_parameters ) ?>;
 
-            var zbsSortables = [<?php
+            var zbsSortables = [<?php 
 
                 $c = 0; if (count($this->sortables) > 0) foreach ($this->sortables as $sortableStr) {
 
@@ -489,8 +489,8 @@ class zeroBSCRM_list{
                             echo "'". esc_html( $sortableStr ) ."'";
 
                             $c++;
-
-                }
+                            
+                } 
 
             ?>]; // for v2.2 this is only lot that will show sort, until we redo db this'll be hard
             var zbsBulkActions = [<?php $bulkCount = 0; if (count($this->bulkActions) > 0) foreach ($this->bulkActions as $bulkActionStr) {
@@ -508,7 +508,7 @@ class zeroBSCRM_list{
             var zbsDrawListViewColUpdateBlocker = false;
             var zbsDrawListViewColUpdateAJAXBlocker = false;
 
-            var zbsObjectEmailLinkPrefix = '<?php
+            var zbsObjectEmailLinkPrefix = '<?php 
 
                 // this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol)
                 echo jpcrm_esc_link( 'email',-1,'zerobs_customer',true );
@@ -576,9 +576,10 @@ class zeroBSCRM_list{
 
 
 
-                }
+                } 
 
             ?>';
+            var zbsClick2CallType = parseInt('<?php echo esc_url( zeroBSCRM_getSetting('clicktocalltype') ); ?>');
 
 			<?php
 			$jpcrm_listview_lang_labels = array();
