@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFieldSelected from '../shared/hooks/use-field-selected';
+import useFormStyleOutlineClassesAndStyles from '../shared/hooks/use-form-style-outline-classes-and-styles.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { ALLOWED_INNER_BLOCKS, DATE_FORMAT_OPTIONS } from '../shared/util/constants';
@@ -39,7 +40,11 @@ export default function DateFieldEdit( props ) {
 		template,
 		templateLock: 'all',
 	} );
-
+	const inputStyles = useFormStyleOutlineClassesAndStyles( {
+		clientId,
+		relativeTo: 'parent',
+		innerBlockName: 'jetpack/input',
+	} );
 	const onChange = useCallback(
 		value => {
 			setAttributes( { dateFormat: value } );
@@ -49,7 +54,7 @@ export default function DateFieldEdit( props ) {
 
 	return (
 		<>
-			<div { ...innerBlocksProps } />
+			<div { ...innerBlocksProps } style={ inputStyles?.cssVars } />
 			<JetpackFieldControls
 				id={ id }
 				required={ required }

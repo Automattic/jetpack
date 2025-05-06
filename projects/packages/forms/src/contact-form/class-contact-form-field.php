@@ -377,6 +377,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			if ( ! empty( $option_styles ) ) {
 				$this->option_styles .= esc_attr( $option_styles );
 			}
+
+			// For Outline style support.
+			$form_style = $this->get_form_style();
+			if ( 'outlined' === $form_style || 'animated' === $form_style ) {
+				$output_data = $this->get_outline_styles();
+
+				$this->block_styles .= $output_data['css_vars'];
+
+			}
 		} else {
 			if ( is_numeric( $this->get_attribute( 'borderradius' ) ) ) {
 				$this->block_styles .= '--jetpack--contact-form--border-radius: ' . esc_attr( $this->get_attribute( 'borderradius' ) ) . 'px;';
@@ -1393,8 +1402,37 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$classes .= $this->is_error() ? ' form-error' : '';
 		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
 
+		$output_data = $this->get_outline_styles();
+
+		return '
+			<div class="notched-label">
+				<div class="notched-label__leading ' . $output_data['class_name'] . '"' . $output_data['style'] . '></div>
+				<div class="notched-label__notch ' . $output_data['class_name'] . '"' . $output_data['style'] . '>
+					<label
+						for="' . esc_attr( $id ) . '"
+						class=" ' . $classes . '"
+						style="' . $this->label_styles . $output_data['css_vars'] . '"
+					>'
+			. esc_html( $label )
+			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+			'</label>
+				</div>
+				<div class="notched-label__trailing ' . $output_data['class_name'] . '"' . $output_data['style'] . '></div>
+			</div>';
+	}
+
+	/**
+	 * Returns the styles, classes and CSS variables associated with the outline style.
+	 *
+	 * @return array {
+	 *     @type string $style_attrs The style attributes.
+	 *     @type string $css_vars The CSS variables.
+	 *     @type string $class_name The class name.
+	 * }
+	 */
+	private function get_outline_styles() {
 		$style_attrs     = '';
-		$label_css_vars  = '';
+		$css_vars        = '';
 		$outline_styles  = $this->get_attribute( 'outlinestyledata' );
 		$outline_classes = $this->get_attribute( 'outlinestyleclasses' );
 
@@ -1414,8 +1452,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				)
 			);
 
-			$legacy_border_size   = ( isset( $outline_styles['width'] ) && is_numeric( $outline_styles['width'] ) ) ? $outline_styles['width'] . 'px' : null;
-			$legacy_border_radius = ( isset( $outline_styles['radius'] ) && is_numeric( $outline_styles['radius'] ) ) ? $outline_styles['radius'] . 'px' : null;
+			$legacy_border_size   = ( isset( $outline_styles['width'] ) && is_numeric( $outline_styles['width'] ) ) ? $outline_styles['width'] . 'px' : $outline_styles['width'];
+			$legacy_border_radius = ( isset( $outline_styles['radius'] ) && is_numeric( $outline_styles['radius'] ) ) ? $outline_styles['radius'] . 'px' : $outline_styles['radius'];
 
 			$border_size = $legacy_border_size ??
 				$outline_styles['top']['width'] ??
@@ -1427,25 +1465,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$global_styles['radius'] ??
 				$global_styles['left']['radius'];
 
-			$label_css_vars  = $border_size ? ';--jetpack--contact-form--border-size: ' . $border_size . ';' : '';
-			$label_css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
+			$css_vars  = $border_size ? '--jetpack--contact-form--border-size: ' . $border_size . ';' : '';
+			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
 		}
 
-		return '
-			<div class="notched-label">
-				<div class="notched-label__leading ' . $outline_classes . '"' . $style_attrs . '></div>
-				<div class="notched-label__notch ' . $outline_classes . '"' . $style_attrs . '>
-					<label
-						for="' . esc_attr( $id ) . '"
-						class=" ' . $classes . '"
-						style="' . $this->label_styles . $label_css_vars . '"
-					>'
-			. esc_html( $label )
-			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
-			'</label>
-				</div>
-				<div class="notched-label__trailing ' . $outline_classes . '"' . $style_attrs . '></div>
-			</div>';
+		return array(
+			'style'      => $style_attrs,
+			'css_vars'   => $css_vars,
+			'class_name' => $outline_classes,
+		);
 	}
 
 	/**

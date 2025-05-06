@@ -11,6 +11,7 @@ import { useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
+import useFormStyleOutlineClassesAndStyles from '../shared/hooks/use-form-style-outline-classes-and-styles.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { getCaretPosition } from '../shared/util/caret';
@@ -63,7 +64,11 @@ export default function DropdownFieldEdit( props ) {
 			templateLock: 'all',
 		}
 	);
-
+	const inputStyles = useFormStyleOutlineClassesAndStyles( {
+		clientId,
+		relativeTo: 'parent',
+		innerBlockName: 'jetpack/input',
+	} );
 	// Note: Border styles aren't rendered on the frontend select dropdown so are
 	// omitted from the styles applied to the dropdown options wrapper here.
 	const inputColorStyles = getColorClassesAndStyles( inputBlockAttributes ?? {} );
@@ -159,7 +164,7 @@ export default function DropdownFieldEdit( props ) {
 	};
 
 	return (
-		<div { ...blockProps }>
+		<div { ...blockProps } style={ inputStyles?.cssVars }>
 			<div { ...innerBlocksProps } />
 			{ ( isSelected || isInnerBlockSelected ) && (
 				<div ref={ optionsWrapper } { ...optionWrapperStyles }>

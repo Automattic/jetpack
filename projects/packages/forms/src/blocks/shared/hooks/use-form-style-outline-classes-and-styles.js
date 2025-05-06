@@ -9,6 +9,8 @@ import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import deepmerge from 'deepmerge';
 import { isPlainObject, isNumber } from 'lodash';
+import { useFormStyle, FORM_STYLE } from '../../contact-form/util/form';
+
 // TODO probably an overkill.
 function mergeBaseAndUserConfigs( base, user ) {
 	if ( ! base || ! user ) {
@@ -38,7 +40,12 @@ function getCSSVarValue( value ) {
 	return value;
 }
 
-export default function useFormStyleOutlineClassesAndStyles( clientId, innerBlockName ) {
+export default function useFormStyleOutlineClassesAndStyles( {
+	clientId,
+	innerBlockName,
+	relativeTo,
+} ) {
+	const formStyle = useFormStyle( clientId );
 	const { userConfig, baseConfig } = useSelect( select => {
 		const {
 			__experimentalGetCurrentGlobalStylesId,
@@ -64,19 +71,26 @@ export default function useFormStyleOutlineClassesAndStyles( clientId, innerBloc
 	const inputBlock = useSelect(
 		select => {
 			const { getBlock, getBlockRootClientId } = select( blockEditorStore );
-
-			// Get the parent block's clientId
-			const parentClientId = getBlockRootClientId( clientId );
-			if ( ! parentClientId ) return [];
-
+			let parentClientId;
+			if ( relativeTo === 'sibling' ) {
+				// Get the parent block's clientId
+				parentClientId = getBlockRootClientId( clientId );
+				if ( ! parentClientId ) return [];
+			} else {
+				parentClientId = clientId;
+			}
 			// Get the parent block
 			const parentBlock = getBlock( parentClientId );
 			if ( ! parentBlock ) return [];
-
 			return parentBlock.innerBlocks.find( block => block.name === innerBlockName );
 		},
-		[ clientId, innerBlockName ]
+		[ clientId, relativeTo, innerBlockName ]
 	);
+
+	// Only return styles for outlined and animated forms.
+	if ( formStyle !== FORM_STYLE.OUTLINED && formStyle !== FORM_STYLE.ANIMATED ) {
+		return null;
+	}
 
 	// Access the input block's attributes.
 	const blockBorderClassesAndStyles = getBorderClassesAndStyles( inputBlock?.attributes ?? {} );
@@ -90,32 +104,30 @@ export default function useFormStyleOutlineClassesAndStyles( clientId, innerBloc
 	);
 
 	return {
-		border: {
-			className:
-				blockBorderClassesAndStyles?.className +
-				' ' +
-				blockColorClassesAndStyles?.className +
-				' ' +
-				blockTypographyClassesAndStyles?.className,
-			style: {
-				...blockBorderClassesAndStyles?.style,
-				...blockColorClassesAndStyles?.style,
-				...blockTypographyClassesAndStyles?.style,
-			},
-			cssVars: {
-				// Sets the value of top: calc(var(--jetpack--contact-form--border-size) * -1) for .notched-label__label.
-				'--jetpack--contact-form--border-size':
-					getCSSVarValue( blockBorderClassesAndStyles?.style?.borderWidth ) ||
-					blockBorderClassesAndStyles?.style?.borderTopWidth ||
-					globalBorderClassesAndStyles?.style?.borderWidth ||
-					globalBorderClassesAndStyles?.style?.borderTopWidth,
-				// Sets the value of --notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)); for .notched-label.
-				'--jetpack--contact-form--border-radius':
-					getCSSVarValue( blockBorderClassesAndStyles?.style?.borderRadius ) ||
-					blockBorderClassesAndStyles?.style?.borderLeftRadius ||
-					globalBorderClassesAndStyles?.style?.borderRadius ||
-					globalBorderClassesAndStyles?.style?.borderLeftRadius,
-			},
+		className:
+			blockBorderClassesAndStyles?.className +
+			' ' +
+			blockColorClassesAndStyles?.className +
+			' ' +
+			blockTypographyClassesAndStyles?.className,
+		style: {
+			...blockBorderClassesAndStyles?.style,
+			...blockColorClassesAndStyles?.style,
+			...blockTypographyClassesAndStyles?.style,
+		},
+		cssVars: {
+			// Sets the value of top: calc(var(--jetpack--contact-form--border-size) * -1) for .notched-label__label.
+			'--jetpack--contact-form--border-size':
+				getCSSVarValue( blockBorderClassesAndStyles?.style?.borderWidth ) ||
+				blockBorderClassesAndStyles?.style?.borderTopWidth ||
+				globalBorderClassesAndStyles?.style?.borderWidth ||
+				globalBorderClassesAndStyles?.style?.borderTopWidth,
+			// Sets the value of --notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)); for .notched-label.
+			'--jetpack--contact-form--border-radius':
+				getCSSVarValue( blockBorderClassesAndStyles?.style?.borderRadius ) ||
+				blockBorderClassesAndStyles?.style?.borderLeftRadius ||
+				globalBorderClassesAndStyles?.style?.borderRadius ||
+				globalBorderClassesAndStyles?.style?.borderLeftRadius,
 		},
 	};
 }

@@ -419,7 +419,9 @@
 }
 
 .contact-form .is-style-outlined,
-.contact-form .is-style-animated {
+.contact-form .is-style-animated,
+.contact-form .is-style-outlined .grunion-field-wrap,
+.contact-form .is-style-animated .grunion-field-wrap {
 	--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 }
 

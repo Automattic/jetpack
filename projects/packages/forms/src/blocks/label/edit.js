@@ -18,10 +18,10 @@ const getLabelOrFallback = ( label, placeholder ) => {
 	return label ?? placeholder;
 };
 
-const WithNotchedWrapper = ( { formStyle, styles, className, cssVars, children } ) => {
+const WithNotchedWrapper = ( { formStyle, styles, className, children } ) => {
 	if ( formStyle === FORM_STYLE.OUTLINED ) {
 		return (
-			<div className="notched-label" style={ cssVars }>
+			<div className="notched-label">
 				<div className={ clsx( 'notched-label__leading', className ) } style={ styles } />
 				<div className={ clsx( 'notched-label__notch', className ) } style={ styles }>
 					{ children }
@@ -57,13 +57,12 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 		'below-label__label': formStyle === FORM_STYLE.BELOW,
 	} );
 
-	const inputStyles = useFormStyleOutlineClassesAndStyles( clientId, 'jetpack/input' );
-	const blockProps = useBlockProps( {
-		className,
-		style: {
-			...inputStyles?.border?.cssVars,
-		},
+	const inputStyles = useFormStyleOutlineClassesAndStyles( {
+		clientId,
+		relativeTo: 'sibling',
+		innerBlockName: 'jetpack/input',
 	} );
+	const blockProps = useBlockProps( { className } );
 
 	// The label value to use for the RichText field must manually fall back to the
 	// placeholder to be rendered in previews.
@@ -71,19 +70,14 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 		return select( blockEditorStore ).getSettings().isPreviewMode;
 	}, [] );
 	const labelValue = isPreviewMode ? getLabelOrFallback( label, defaultPlaceholder ) : label;
-	console.log( 'blockProps', blockProps );
+
 	return (
 		<WithNotchedWrapper
 			formStyle={ formStyle }
-			styles={ inputStyles?.border?.style }
-			className={ inputStyles?.border?.className }
+			styles={ inputStyles?.style }
+			className={ inputStyles?.className }
 		>
-			<div
-				{ ...blockProps }
-				style={ {
-					...inputStyles?.border?.cssVars,
-				} }
-			>
+			<div { ...blockProps }>
 				<RichText
 					allowedFormats={ ALLOWED_FORMATS }
 					className="jetpack-field-label__input"
