@@ -21,6 +21,7 @@ import { useSearchParams } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import InboxStatusToggle from '../../components/InboxStatusToggle';
 import { store as dashboardStore } from '../../store';
 import InboxResponse from '../response';
 import { getPath } from '../utils.js';
@@ -74,7 +75,7 @@ function getStatusFilter( urlStatus ) {
 /**
  * The DataViews implementation.
  *
- * @return {React.ReactElement} The DataViews component.
+ * @return {JSX.Element} The DataViews component.
  */
 export default function InboxView() {
 	const [ view, setView ] = useView();
@@ -310,6 +311,7 @@ export default function InboxView() {
 					onChangeSelection={ onChangeSelection }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
+					header={ <InboxStatusToggle currentQuery={ queryArgs } /> }
 				/>
 			</div>
 			<SingleResponse

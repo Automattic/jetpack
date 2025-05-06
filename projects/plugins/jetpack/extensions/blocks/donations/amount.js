@@ -1,4 +1,5 @@
-import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
+import { CURRENCIES } from '@automattic/format-currency';
+import { formatCurrency } from '@automattic/number-formatters';
 import { RichText } from '@wordpress/block-editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import clsx from 'clsx';

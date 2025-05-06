@@ -43,7 +43,7 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 
 		const tourSlides = [
 			'Simple, yet powerful stats',
-			'Making your site super fast',
+			'Make your site super fast',
 			'Your site goes wherever you go',
 		];
 

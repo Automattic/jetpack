@@ -12,7 +12,10 @@ test( 'Site only connection', async ( { page, admin } ) => {
 	const onboarding = new Onboarding( page );
 
 	await test.step( 'Connect site', async () => {
-		await Promise.all( [ onboarding.start(), onboarding.waitForSiteConnection() ] );
+		const siteConnectionPromise = onboarding.waitForSiteConnection();
+		await onboarding.start();
+		await siteConnectionPromise;
+		await onboarding.waitForRedirectToWpcom();
 	} );
 
 	await test.step( 'Verify site connection', async () => {
