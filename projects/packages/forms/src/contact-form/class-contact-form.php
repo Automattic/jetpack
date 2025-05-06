@@ -675,8 +675,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} else {
 			// add styling to the array
 			foreach ( $compiled_form as $key => $value ) {
-				$safe_display_label = self::escape_and_sanitize_field_label( $value[0] );
-				$safe_display_value = self::escape_and_sanitize_field_value( $value[1] );
+				$safe_display_label = self::escape_and_sanitize_field_label( $value['label'] );
+				$safe_display_value = self::escape_and_sanitize_field_value( $value['value'] );
 
 				if ( ! empty( $safe_display_label ) ) {
 					$compiled_form[ $key ] = sprintf(
