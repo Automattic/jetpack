@@ -110,6 +110,26 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Add the appearance menu.
+	 *
+	 * @return string
+	 */
+	public function add_appearance_menu() {
+		$customize_url                 = parent::add_appearance_menu();
+		$should_display_additional_css = current_user_can( 'customize' ) && ! wp_is_block_theme();
+
+		if ( ! $should_display_additional_css ) {
+			return $customize_url;
+		}
+
+		$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => 'custom_css' ) ), $customize_url );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		add_submenu_page( 'themes.php', esc_attr__( 'Additional CSS', 'jetpack-masterbar' ), __( 'Additional CSS', 'jetpack-masterbar' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
+
+		return $customize_url;
+	}
+
+	/**
 	 * Adds Users menu.
 	 */
 	public function add_users_menu() {

@@ -18,6 +18,7 @@
 		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "^7",
 		"@wordpress/browserslist-config": "6.22.0",
 		"@wordpress/components": "29.8.0",

@@ -527,6 +527,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../number-formatters
       '@babel/runtime':
         specifier: ^7
         version: 7.26.10
@@ -2010,9 +2013,6 @@ importers:
 
   projects/packages/backup:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -2028,6 +2028,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@tanstack/react-query':
         specifier: 5.75.1
         version: 5.75.1(react@18.3.1)
@@ -2887,9 +2890,6 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -2917,6 +2917,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@tanstack/react-query':
         specifier: 5.75.1
         version: 5.75.1(react@18.3.1)
@@ -3154,9 +3157,6 @@ importers:
       '@automattic/color-studio':
         specifier: 4.1.0
         version: 4.1.0
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3175,6 +3175,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@wordpress/base-styles':
         specifier: 5.22.0
         version: 5.22.0
@@ -3340,9 +3343,6 @@ importers:
       '@automattic/components':
         specifier: 2.2.0
         version: 2.2.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.22.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/i18n-utils':
         specifier: 1.2.3
         version: 1.2.3
@@ -4018,9 +4018,6 @@ importers:
 
   projects/plugins/boost:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
@@ -4030,6 +4027,9 @@ importers:
       '@automattic/jetpack-react-data-sync-client':
         specifier: workspace:*
         version: link:../../js-packages/react-data-sync-client
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@react-spring/core':
         specifier: 9.7.5
         version: 9.7.5(react@18.3.1)
@@ -4481,6 +4481,9 @@ importers:
       '@automattic/jetpack-subscribers-dashboard':
         specifier: workspace:*
         version: link:../../packages/subscribers-dashboard
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@automattic/popup-monitor':
         specifier: 1.0.2
         version: 1.0.2

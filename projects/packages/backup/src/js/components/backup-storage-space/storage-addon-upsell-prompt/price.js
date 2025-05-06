@@ -1,4 +1,4 @@
-import { getCurrencyObject } from '@automattic/format-currency';
+import { getCurrencyObject } from '@automattic/number-formatters';
 
 const Price = ( { fullPrice, discountedPrice, currency, hidePriceFraction } ) => {
 	const finalPrice = discountedPrice > 0 ? discountedPrice : fullPrice;
