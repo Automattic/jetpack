@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.6-beta - 2025-05-05
+## 14.6 - 2025-05-06
 ### Enhancements
 - Forms: Add tabs to forms dashboard. [#43280]
 
