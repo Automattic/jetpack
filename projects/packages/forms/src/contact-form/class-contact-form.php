@@ -544,6 +544,32 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form( $feedback_id, $form ) {
+		$raw_compiled_form = self::get_raw_compiled_form_data( $feedback_id, $form );
+		$compiled_form     = array();
+
+		foreach ( $raw_compiled_form as $field_index => $data ) {
+			$compiled_form[ $field_index ] = sprintf(
+				'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
+				wp_kses( $data['label'], array() ),
+				self::escape_and_sanitize_field_value( $data['value'] )
+			);
+		}
+
+		// Sorting lines by the field index
+		ksort( $compiled_form );
+
+		return $compiled_form;
+	}
+
+	/**
+	 * Retrieves raw compiled form data.
+	 *
+	 * @param int          $feedback_id - the feedback ID.
+	 * @param Contact_Form $form - the form.
+	 *
+	 * @return array $raw_data Associative array where keys are field_index and values are arrays with 'label' and 'value'.
+	 */
+	private static function get_raw_compiled_form_data( $feedback_id, $form ) {
 		$feedback       = get_post( $feedback_id );
 		$field_ids      = $form->get_field_ids();
 		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $feedback_id );
@@ -557,12 +583,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'textarea' => false, // not a post_meta key.  This is stored in post_content
 		);
 
-		$compiled_form = array();
+		$raw_data = array();
 
 		// "Standard" field allowed list.
 		foreach ( $field_value_map as $type => $meta_key ) {
 			if ( isset( $field_ids[ $type ] ) ) {
 				$field = $form->fields[ $field_ids[ $type ] ];
+				$value = null;
 
 				if ( $meta_key ) {
 					if ( isset( $content_fields[ "_feedback_{$meta_key}" ] ) ) {
@@ -578,10 +605,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
+					$current_value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
 									$feedback->post_content : '';
-					list( $value ) = explode( '<!--more-->', $value );
-					$value         = trim( $value );
+					list( $current_value ) = explode( '<!--more-->', $current_value );
+					$value                 = trim( $current_value );
 				}
 
 				// If we still do not have any value, bail.
@@ -592,10 +619,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
 				$field_label = self::maybe_add_colon_to_label( $field->get_attribute( 'label' ) );
 
-				$compiled_form[ $field_index ] = sprintf(
-					'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
-					wp_kses( $field_label, array() ),
-					self::escape_and_sanitize_field_value( $value )
+				$raw_data[ $field_index ] = array(
+					'label' => $field_label,
+					'value' => $value,
 				);
 			}
 		}
@@ -615,24 +641,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 				foreach ( $field_ids['extra'] as $field_id ) {
 					$field       = $form->fields[ $field_id ];
 					$field_index = array_search( $field_id, $field_ids['all'], true );
+					$field_label = self::maybe_add_colon_to_label( $field->get_attribute( 'label' ) );
 
-					$label = self::maybe_add_colon_to_label( $field->get_attribute( 'label' ) );
-
-					$compiled_form[ $field_index ] = sprintf(
-						'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
-						wp_kses( $label, array() ),
-						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
+					$raw_data[ $field_index ] = array(
+						'label' => $field_label,
+						'value' => $extra_fields[ $extra_field_keys[ $i ] ],
 					);
-
 					++$i;
 				}
 			}
 		}
-
-		// Sorting lines by the field index
-		ksort( $compiled_form );
-
-		return $compiled_form;
+		return $raw_data;
 	}
 
 	/**
@@ -645,80 +664,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form_for_email( $feedback_id, $form ) {
-		$feedback       = get_post( $feedback_id );
-		$field_ids      = $form->get_field_ids();
-		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $feedback_id );
+		$raw_compiled_data = self::_get_raw_compiled_form_data( $feedback_id, $form );
+		$compiled_form     = array();
 
-		// Maps field_ids to post_meta keys
-		$field_value_map = array(
-			'name'     => 'author',
-			'email'    => 'author_email',
-			'url'      => 'author_url',
-			'subject'  => 'subject',
-			'textarea' => false, // not a post_meta key.  This is stored in post_content
-		);
-
-		$compiled_form = array();
-
-		// "Standard" field allowed list.
-		foreach ( $field_value_map as $type => $meta_key ) {
-			if ( isset( $field_ids[ $type ] ) ) {
-				$field = $form->fields[ $field_ids[ $type ] ];
-
-				if ( $meta_key ) {
-					if ( isset( $content_fields[ "_feedback_{$meta_key}" ] ) ) {
-						$value = $content_fields[ "_feedback_{$meta_key}" ];
-					}
-				} else {
-					// The feedback content is stored as the first "half" of post_content
-					$value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
-									$feedback->post_content : '';
-					list( $value ) = explode( '<!--more-->', $value );
-					$value         = trim( $value );
-				}
-
-				// If we still do not have any value, bail.
-				if ( empty( $value ) ) {
-					continue;
-				}
-
-				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
-				$field_label = self::maybe_add_colon_to_label( $field->get_attribute( 'label' ) );
-
-				$compiled_form[ $field_index ] = array(
-					wp_kses( $field_label, array() ),
-					self::escape_and_sanitize_field_value( $value ),
-				);
-			}
-		}
-
-		// "Non-standard" fields
-		if ( $field_ids['extra'] ) {
-			// array indexed by field label (not field id)
-			$extra_fields = get_post_meta( $feedback_id, '_feedback_extra_fields', true );
-
-			/**
-			 * Only get data for the compiled form if `$extra_fields` is a valid and non-empty array.
-			 */
-			if ( is_array( $extra_fields ) && ! empty( $extra_fields ) ) {
-
-				$extra_field_keys = array_keys( $extra_fields );
-
-				$i = 0;
-				foreach ( $field_ids['extra'] as $field_id ) {
-					$field       = $form->fields[ $field_id ];
-					$field_index = array_search( $field_id, $field_ids['all'], true );
-
-					$field_label = self::maybe_add_colon_to_label( $field->get_attribute( 'label' ) );
-
-					$compiled_form[ $field_index ] = array(
-						wp_kses( $field_label, array() ),
-						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] ),
-					);
-
-					++$i;
-				}
-			}
+		foreach ( $raw_compiled_data as $field_index => $data ) {
+			$compiled_form[ $field_index ] = array(
+				wp_kses( $data['label'], array() ),
+				self::escape_and_sanitize_field_value( $data['value'] ),
+			);
 		}
 
 		/**
@@ -2050,7 +2003,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	private static function maybe_add_colon_to_label( $label ) {
 		$formatted_label = $label ? $label : '';
-		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : $formatted_label . ':';
+		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : rtrim( $formatted_label, ':' ) . ':';
 
 		return $formatted_label;
 	}
