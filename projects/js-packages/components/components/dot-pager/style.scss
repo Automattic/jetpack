@@ -50,6 +50,11 @@
 
 .dot-pager__control-choose-page {
 	cursor: pointer;
+	border-radius: 50%;
+	width: 6px;
+	height: 6px;
+	padding: 0;
+	background-color: var(--jp-white-off);
 
 	&:disabled {
 		cursor: default;
@@ -58,14 +63,6 @@
 	&:focus-visible {
 		box-shadow: 0 0 0 2px var(--jp-gray-90);
 	}
-}
-
-.dot-pager__control-choose-page {
-	border-radius: 50%;
-	width: 6px;
-	height: 6px;
-	padding: 0;
-	background-color: var(--jp-white-off);
 
 	&:hover {
 		background-color: var(--jp-gray-20);
@@ -76,9 +73,6 @@
 	}
 }
 
-.dot-pager {
-
-	&__button {
-		margin-right: 10px;
-	}
+.dot-pager__button {
+	margin-right: 10px;
 }

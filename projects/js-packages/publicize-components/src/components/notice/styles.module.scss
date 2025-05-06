@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .notice {
@@ -22,12 +23,12 @@
 }
 
 .notice--warning {
-	background-color: lighten( $alert-yellow, 35% );
+	background-color: color.adjust( $alert-yellow, $lightness: 35% );
 	border-left: 2px solid $alert-yellow;
 }
 
 .notice--error {
-	background-color: lighten( $alert-red, 35% );
+	background-color: color.adjust( $alert-red, $lightness: 35% );
 	border-left: 2px solid $alert-red;
 }
 

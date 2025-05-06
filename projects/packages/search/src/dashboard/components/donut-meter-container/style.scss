@@ -24,6 +24,7 @@
 	.donut-info-primary {
 		margin: 0 0 8px 0;
 		font-size: 1em;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 1em;
 		font-weight: 700;
 	}
@@ -32,6 +33,7 @@
 		color: $studio-gray-60;
 		margin: 0;
 		font-size: 0.7em;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 0.7em;
 
 		.info-link {

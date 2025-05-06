@@ -2,6 +2,64 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.6-beta - 2025-05-05
+### Enhancements
+- Forms: Add tabs to forms dashboard. [#43280]
+
+### Improved compatibility
+- Enable the Top Posts block in WP Admin for Simple Sites. [#43275]
+- Sharing: Remove deprecated Skype sharing button. [#43311]
+
+### Bug fixes
+- Image Compare block: Ensure block does not overlap navigation submenu items. [#43302]
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
+- Social: Fix "Start for free" not working when module is OFF. [#43331]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Full Sync: Update tests related to changes in the Sync package. [#43287]
+- Jetpack Forms: Add field-file to beta blocks variation. [#43177]
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+- My Jetpack: Add E2E tests for onboarding. [#43305]
+- Newsletter settings: Default featured image in email to true for new sites. [#43024]
+- Remove the Jetpack submenu only if My-Jetpack is present. [#43282]
+- Return site slug in the REST /sites/%s endpoint. [#43308]
+- Shortcodes: Prevent redeclared function names with YouTube shortcode. [#43351]
+- Sitemap: Prevent PHP notice when generating sitemaps for videos. [#43333]
+- Sitemap: Reduce default limit of items per sitemap to 1000, previously 2000. [#43289]
+- Update package dependencies. [#43314] [#43320] [#43326] [#43347] [#43350] [#43355]
+
+## 14.6-a.9 - 2025-04-28
+### Major Enhancements
+- General: Update minimum WordPress version to 6.7. [#43192]
+
+### Enhancements
+- Featured Content: Add messaging to clarify that the tag name is case sensitive. [#43165]
+- Forms: Update the email notification template. [#43093]
+- My Jetpack: Update the onboarding UI to show a single button on initial page. [#43203]
+- Shortcode: Convert an embed code from Facebook.com to an oEmbeddable URL. [#43132]
+- Sitemaps: Use XMLWriter for a more performant sitemap generation when available. [#42767]
+
+### Bug fixes
+- Image Compare block: Ensure sticky menus hide the compare line. [#43187]
+- My Jetpack: Prevent social login from getting stuck when email input is not empty. [#43158]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Avoid an error on some invalid REST API requests when using PHP 8. [#41662]
+- Code: Remove unneeded `data:` URI components. [#43227]
+- Compatibility: Replace a deprecated function to check user capabilities. [#43246]
+- Forms: Remove unused integrations code. [#43211]
+- Geolocation: Remove module requirement. [#43159]
+- Linting: Fix more Stylelint violations. [#43213]
+- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
+- Newsletter: Remove extra `admin_init` function from `Jetpack_Newsletter_Dashboard_Widget` class. [#43085]
+- Newsletter: Update learn more link for self hosted websites. [#43212]
+- SAL_Site: Remove unused `view_hosting` field. [#43237]
+- Show the Google Analytics settings form inline under Jetpack -> Settings -> Traffic -> Google Analytics. [#43210]
+- Testing: Add more testing instructions for Jetpack 14.6. [#43273]
+- Testing: Add testing instructions prior to 14.6 release. [#43249]
+- WPCOM_JSON_API_Update_Post_v1_1_Endpoint: Fix warning when `$input['type']` does not exist. [#43180]
+
 ## 14.6-a.7 - 2025-04-21
 ### Enhancements
 - Forms: Add new integrations setup modal. [#43057]

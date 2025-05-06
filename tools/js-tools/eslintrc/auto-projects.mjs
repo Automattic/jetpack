@@ -15,6 +15,19 @@ const debug = makeDebug( 'eslintrc/auto-projects' );
 const autoProjects = [];
 const reactProjects = [];
 
+/**
+ * Test if a file exists.
+ *
+ * @param {string} file - File to test.
+ * @return {boolean} Whether the file exists.
+ */
+async function fileExists( file ) {
+	return await fs.access( file ).then(
+		() => true,
+		() => false
+	);
+}
+
 for ( const dir of ( await glob( 'projects/*/*/composer.json', { cwd } ) )
 	.map( path.dirname )
 	.sort() ) {
@@ -48,12 +61,27 @@ for ( const dir of ( await glob( 'projects/*/*/composer.json', { cwd } ) )
 		];
 	}
 
-	if (
-		await fs.access( path.join( cwd, dir, 'package.json' ) ).then(
-			() => true,
-			() => false
-		)
-	) {
+	if ( await fileExists( path.join( cwd, dir, 'tsconfig.json' ) ) ) {
+		any = true;
+		cfg.settings = {
+			'import/resolver': {
+				typescript: {
+					project: path.join( dir, 'tsconfig.json' ),
+				},
+			},
+		};
+	} else if ( await fileExists( path.join( cwd, dir, 'jsconfig.json' ) ) ) {
+		any = true;
+		cfg.settings = {
+			'import/resolver': {
+				typescript: {
+					project: path.join( dir, 'jsconfig.json' ),
+				},
+			},
+		};
+	}
+
+	if ( await fileExists( path.join( cwd, dir, 'package.json' ) ) ) {
 		const packageJson = JSON.parse( await fs.readFile( path.join( cwd, dir, 'package.json' ) ) );
 		if (
 			packageJson.dependencies?.react ??

@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Add one more method to `WP_UnitTestCase_Fix` to work around PHPUnit seeing a `@group` annotation that doesn't really exist, and configure PHPUnit 11 to report and fail on deprecations.
-
-

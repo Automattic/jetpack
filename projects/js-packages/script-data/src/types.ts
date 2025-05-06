@@ -20,6 +20,7 @@ export interface AdminSiteData {
 	date_format: string;
 	host?: 'woa' | 'atomic' | 'newspack' | 'vip' | 'wpcom' | 'unknown';
 	is_multisite: boolean;
+	is_wpcom_platform: boolean;
 	plan: SitePlan;
 	rest_nonce: string;
 	rest_root: string;

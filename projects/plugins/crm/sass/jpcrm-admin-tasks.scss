@@ -4,9 +4,9 @@
  */
 
 // this is extended throughout 
-.zbs-tasks-field {
+%zbs-tasks-field {
 
-    line-height: 1em;
+    line-height: 1;
     border: 1px solid #ccc;
     border-radius: 0.2em;
      box-shadow: inset 0 1px 2px rgba(0,0,0,.07);
@@ -67,11 +67,6 @@
     background: #edf8ff !important;
 }
 
-.fc-event{
-    background: #fff;
-    border: 1px solid #ddd;
-}
-
 .fc-content{
     color: #000;
 }
@@ -126,7 +121,7 @@ background: #fff;
 #zbs-task-title{
 
     // take general rounding etc. from this
-    @extend .zbs-tasks-field;
+    @extend %zbs-tasks-field;
 
     width:80%;
     float:left;
@@ -135,7 +130,7 @@ background: #fff;
     font-weight: 400;
     min-height: 0;
     padding: 0.2em 0.5em;
-    line-height: 1.4em;
+    line-height: 1.4;
 }
 
 .fc-event{
@@ -153,7 +148,7 @@ background: #fff;
 .no-owner, .no-task-date, .task-reminders, .no-contact, .show-on-calendar, .remind_task{
 
     // take general rounding etc. from this
-    @extend .zbs-tasks-field;
+    @extend %zbs-tasks-field;
 
     width: 100%;
     font-size: 14px;
@@ -172,7 +167,7 @@ background: #fff;
 
     label {
         font-size: 14px;
-		  line-height: 1.4em;
+		  line-height: 1.4;
         font-weight: 400 !important;
     }
 }
@@ -210,6 +205,10 @@ background: #fff;
 
 .no-owner{
     float: left;
+    position: relative;
+    border: 1px solid #ccc;
+    border-radius: 0.2em;
+    z-index: 0;
 }
 
 .no-task-date{
@@ -219,7 +218,7 @@ background: #fff;
 .zbs-task-desc textarea{
 
     // take general rounding etc. from this
-    @extend .zbs-tasks-field;
+    @extend %zbs-tasks-field;
 
     width: 100%;
     height:200px;
@@ -274,20 +273,10 @@ background: #fff;
     border: 0;
 }
 
-
-
 .select2-container--default .select2-selection--single{
     border: 0 solid !important;
     font-size:20px;
 }
-
-.no-owner{
-    position: relative;
-    border: 1px solid #ccc;
-    border-radius: 0.2em;
-    z-index: 0;
-}
-
 
 .task-comp{
     width: 19%;

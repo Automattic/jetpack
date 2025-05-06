@@ -58,7 +58,6 @@
  */
 .jetpack-subscription-modal__modal-content p {
     text-wrap: pretty;
-    text-wrap: pretty;
 }
 
 @media screen and (max-width: 640px) {

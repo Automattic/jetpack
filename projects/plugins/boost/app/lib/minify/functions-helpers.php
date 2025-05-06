@@ -16,6 +16,19 @@ function jetpack_boost_minify_cache_buster() {
 }
 
 /**
+ * Get the number of maximum files that can be concatenated in a group.
+ */
+function jetpack_boost_minify_concat_max_files() {
+
+	/**
+	 * Filter the number of maximum files that can be concatenated in a group.
+	 *
+	 * @param int $max_files The maximum number of files that can be concatenated.
+	 */
+	return apply_filters( 'jetpack_boost_minify_concat_max_files', 150 );
+}
+
+/**
  * This ensures that the cache cleanup cron job is only run once per day, espicially for multisite.
  */
 function jetpack_boost_should_run_daily_network_cron_job( $hook ) {

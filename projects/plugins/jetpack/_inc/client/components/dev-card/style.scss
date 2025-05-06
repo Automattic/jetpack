@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .jp-dev-card.jp-dev-card {
 	position: fixed;
 	bottom: 10px;
@@ -30,7 +32,7 @@
 
 .jp-dev-card__subheading {
 	font-size: 11px;
-	color: darken( $gray, 10% );
+	color: color.adjust( $gray, $lightness: -10% );
 }
 
 .jp-dev-card__close {
