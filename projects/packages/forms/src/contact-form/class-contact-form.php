@@ -533,8 +533,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$safe_display_value = self::escape_and_sanitize_field_value( $data['value'] );
 
 			if ( '' === $safe_display_value ) {
-				unset( $compiled_form[ $field_index ] );
-				continue;
+				$safe_display_value = '-';
 			}
 
 			if ( ! empty( $data['label'] ) ) {
@@ -607,11 +606,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 									$feedback->post_content : '';
 					list( $current_value ) = explode( '<!--more-->', $current_value );
 					$value                 = trim( $current_value );
-				}
-
-				// If we still do not have any value, bail.
-				if ( empty( $value ) ) {
-					continue;
 				}
 
 				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
