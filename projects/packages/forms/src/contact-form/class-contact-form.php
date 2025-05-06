@@ -527,17 +527,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form( $feedback_id, $form ) {
-		$raw_compiled_form = self::get_raw_compiled_form_data( $feedback_id, $form );
-		$compiled_form     = array();
+		$compiled_form = self::get_raw_compiled_form_data( $feedback_id, $form );
 
-		foreach ( $raw_compiled_form as $field_index => $data ) {
-			$safe_display_label = self::get_formatted_display_label( $data['label'] );
+		foreach ( $compiled_form as $field_index => $data ) {
 			$safe_display_value = self::escape_and_sanitize_field_value( $data['value'] );
-
-			if ( ! empty( $safe_display_label ) ) {
+			if ( ! empty( $data['label'] ) ) {
+				$safe_display_label            = self::escape_and_sanitize_field_label( $data['label'] );
 				$compiled_form[ $field_index ] = sprintf(
 					'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
-					$safe_display_label,
+					self::maybe_add_colon_to_label( $safe_display_label ),
 					$safe_display_value
 				);
 			} else {
@@ -611,7 +609,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				}
 
 				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
-				$field_label = self::maybe_add_colon_to_label( $field->get_attribute( 'label' ) );
+				$field_label = $field->get_attribute( 'label' );
 
 				$raw_data[ $field_index ] = array(
 					'label' => $field_label,
@@ -635,7 +633,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				foreach ( $field_ids['extra'] as $field_id ) {
 					$field       = $form->fields[ $field_id ];
 					$field_index = array_search( $field_id, $field_ids['all'], true );
-					$field_label = self::maybe_add_colon_to_label( $field->get_attribute( 'label' ) );
+					$field_label = $field->get_attribute( 'label' );
 
 					$raw_data[ $field_index ] = array(
 						'label' => $field_label,
@@ -677,13 +675,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} else {
 			// add styling to the array
 			foreach ( $compiled_form as $key => $value ) {
-				$safe_display_label = self::get_formatted_display_label( $value[0] );
+				$safe_display_label = self::escape_and_sanitize_field_label( $value[0] );
 				$safe_display_value = self::escape_and_sanitize_field_value( $value[1] );
 
 				if ( ! empty( $safe_display_label ) ) {
 					$compiled_form[ $key ] = sprintf(
 						'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
-						$safe_display_label,
+						self::maybe_add_colon_to_label( $safe_display_label ),
 						$safe_display_value
 					);
 				} else {
@@ -2010,12 +2008,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string|null $raw_label The raw label input.
 	 * @return string The formatted and kses'd label string, or an empty string if raw_label is empty.
 	 */
-	private static function get_formatted_display_label( $raw_label ) {
+	private static function escape_and_sanitize_field_label( $raw_label ) {
 		if ( empty( $raw_label ) ) {
 			return ''; // kses the empty string
 		}
-		$display_label   = (string) $raw_label;
-		$formatted_label = str_ends_with( $display_label, '?' ) ? $display_label : rtrim( $display_label, ':' ) . ':';
-		return wp_kses( $formatted_label, array() );
+		return wp_kses( (string) $raw_label, array() );
 	}
 }
