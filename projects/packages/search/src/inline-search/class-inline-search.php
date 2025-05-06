@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Search;
 
-require_once __DIR__ . '/class-search-highlighter.php';
-
 /**
  * Inline Search class
  */
