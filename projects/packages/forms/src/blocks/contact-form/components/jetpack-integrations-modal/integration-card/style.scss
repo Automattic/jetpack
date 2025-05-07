@@ -26,7 +26,7 @@
 	&__title-row {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: 10px;
 	}
 
 	&__service-icon-container {
@@ -46,18 +46,17 @@
 
 	&__title {
 		margin: 0;
-		font-size: var(--font-body);
-		font-weight: 600;
+		font-size: 15px;
+		font-weight: 400;
 		line-height: 1.4;
 	}
 
 	&__plugin-badge,
 	&__connected-badge {
-		font-size: 11px;
+		font-size: 12px;
 		padding: 4px 8px;
 		border-radius: 3px;
-		margin-left: 8px;
-		font-weight: 500;
+		font-weight: 400;
 		line-height: 16px;
 	}
 
@@ -81,7 +80,7 @@
 	&__description {
 		color: var(--jp-gray-50);
 		font-size: 13px;
-		line-height: 1.4;
+		line-height: 1.5;
 	}
 
 	&__links {
@@ -98,5 +97,16 @@
 
 	.components-card__body {
 		padding-bottom: 30px;
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.components-card-header {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.jetpack-forms-creative-mail-settings-button {
+		margin-top: 12px;
 	}
 }

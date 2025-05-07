@@ -17,8 +17,6 @@
 }
 
 .jetpack-slideshow-window, .jetpack-slideshow-window * {
-	-moz-box-sizing: content-box;
-	-webkit-box-sizing: content-box;
 	box-sizing: content-box;
 }
 
@@ -40,8 +38,6 @@ body div.jetpack-slideshow-window * img {
 	max-height: 100%;
 	padding: 0 !important;
 	position: relative;
-	-webkit-transform: translateY(-50%);
-	-ms-transform: translateY(-50%);
 	transform: translateY(-50%);
 	top: 50%;
 }
@@ -99,8 +95,6 @@ body div.jetpack-slideshow-window * img {
 
 	/*rtl:ignore*/
 	direction:ltr;
-	-webkit-transition: 300ms opacity ease-out;
-	-moz-transition: 300ms opacity ease-out;
 	transition: 300ms opacity ease-out;
 }
 
@@ -112,7 +106,6 @@ body div.jetpack-slideshow-window * img {
 body div div.jetpack-slideshow-controls a,
 body div div.jetpack-slideshow-controls a:hover {
 	border:2px solid rgba(255,255,255,0.1) !important;
-	background-color: #000 !important;
 	background-color: rgba(0,0,0,0.6) !important;
 	background-image: url(../img/slideshow-controls.png) !important;
 	background-repeat: no-repeat;
@@ -122,19 +115,12 @@ body div div.jetpack-slideshow-controls a:hover {
 	margin: 0 5px !important;
 	padding: 0 !important;
 	display: inline-block !important;
-	*display: inline;
 	zoom: 1;
 	height: 32px !important;
 	width: 32px !important;
 	line-height: 32px !important;
 	text-align: center !important;
-	-khtml-border-radius: 10em !important;
-	-webkit-border-radius: 10em !important;
-	-moz-border-radius: 10em !important;
 	border-radius: 10em !important;
-	-webkit-transition: 300ms border-color ease-out;
-	-moz-transition: 300ms border-color ease-out;
-	-o-transition: 300ms border-color ease-out;
 	transition: 300ms border-color ease-out;
 }
 

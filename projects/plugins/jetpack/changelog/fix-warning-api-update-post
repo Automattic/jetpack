@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-WPCOM_JSON_API_Update_Post_v1_1_Endpoint: Fix warning when `$input['type']` does not exist

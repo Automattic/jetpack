@@ -12,11 +12,11 @@ function import_page_customizations_init() {
 	$screen = get_current_screen();
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
-	$has_import_param = ! isset( $_GET['import'] );
+	$is_main_import_page = ! isset( $_GET['import'] );
 
-	if ( $screen && $screen->id === 'import' && $has_import_param ) {
-			add_action( 'admin_notices', 'import_admin_banner' );
-			add_action( 'admin_enqueue_scripts', 'import_admin_banner_css' );
+	if ( $screen && $screen->id === 'import' && $is_main_import_page ) {
+		add_action( 'admin_notices', 'import_admin_banner' );
+		add_action( 'admin_enqueue_scripts', 'import_admin_banner_css' );
 	}
 }
 

@@ -12,34 +12,53 @@
 
 // Import JS CSS vars
 @import '../../../sass/emerald/jp_vars';
-
-// 17/10/19 - started to clean up this file as was a bit of a mess.  ¯\_(ツ)_/¯
-// had lost it's scss virtues, partly now restored
-
  
 .zbs-client-portal-wrap {
    position: relative;
    min-height:650px !important;
+   display: flex;
 
   #zbs-nav-tabs {
      list-style-type: none;
      width: 30%;
      float: left;
-     padding-left: 20px;
      min-height:650px;
+		 margin: 0;
+		 padding-left:0;
+		 box-shadow: 0 1px 0 1px #ccc;
+		 border-radius: 7px 0 0 7px;
+		 padding-top:7px;
+		 flex: 1;
 
-    li {
-       list-style: none;
-       // wh not a fan border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-       position: relative;
-       padding: 5px;
-    }
+		li {
+			list-style: none;
+			position: relative;
+			padding:0;
 
-    li a {
-       padding: .875em 0;
-       display: block;
-    }
+			a {
+				display: block;
+				padding:10px;
+				box-shadow:none;
+			}
 
+			a:hover{
+				box-shadow:none;
+				background: #000;
+				color: #fff;
+			}
+		}
+
+		a{
+			color: #ccc;
+		}
+
+		a:hover{
+			color:#ccc !important;
+		}
+
+		.fa{
+			margin-right: 0.5em;
+		}
   }
 
   #zbs_invoice_logos img {
@@ -74,6 +93,16 @@
     margin-left: auto;
     margin-right: auto;
   }
+
+	.zbs-portal-wrapper{
+		padding:20px;
+		box-shadow: 1px 1px 1px 1px #ccc;
+		border-radius: 0 7px 7px 0;
+		min-height:650px !important;
+		position:relative;
+		flex: 1;
+		flex-grow: 3;
+	}
 }
 
 .zbs-client-portal-pro-note {
@@ -122,16 +151,71 @@
 }
 
 .zbs-portal-wrapper {
-   padding-left: 20px;
-   padding-right: 20px;
-   float: right;
-   width: 70%;
-   box-sizing: border-box !important;
+	padding-left: 20px;
+	padding-right: 20px;
+	float: right;
+	width: 70%;
+	box-sizing: border-box !important;
 
-    h1 {
-       margin-top: 0;
-    }
+	h1 {
+			margin-top: 0;
+	}
 
+	.zbs-field-checkbox-wrap {
+		// overall padding margin: 0.5em 1em 1em;
+		.zbs-cf-checkbox {
+				margin-top: 0;
+				margin-bottom: 0;
+		}
+
+		.zbs-cf-checkbox label {
+			padding: 0 0 0 23px !important;
+		}
+
+		.zbs-cf-checkbox:first-of-type {
+			padding-left:0 !important;
+		}
+
+		.zbs-cf-checkbox label, .zbs-cf-checkbox+label {
+			font-size: 16px !important;
+			font-weight: 400;
+		}
+	}
+	// edit pages radio custom fields 
+	.zbs-field-radio-wrap {
+		// overall padding margin: 0.5em 1em 1em;
+		text-align:left;
+
+		.zbs-radio {
+			margin: 0;
+			padding: 0;
+			-webkit-backface-visibility: hidden;
+			backface-visibility: hidden;
+			outline: none;
+			vertical-align: baseline;
+			font-style: normal;
+			min-height: 17px;
+			line-height: 17px;
+			min-width: 17px;
+			// good if these match the above checkbox labels ^^ label {
+			font-size: 16px !important;
+			font-weight: 400;
+		}
+	}
+
+	/* Few tweaks as provided by Alvaro in slack ... wh selectively added those which made sense for multi-theme userbase JIRA-ZBS-531 */
+	.zbs-portal-login .login-form input[type="text"], .zbs-portal-login .login-form input[type="password"], .form-control.widetext, .form-control.zbs-tel, .form-control.zbs-email, .form-control.zbs-date, input[type="text"], input[type="password"], input[type="tel"], input[type="email"], input.text, input.title, textarea, select {
+		padding-left: 1em;
+		padding-right: 1em;
+		margin-bottom: 1em;
+		width: 100%;
+		height:50px;
+	}
+
+	/* Fixes for Astra Theme and general poor display on WP.org themes */
+	label{
+		clear: left;
+	}
 }
 
 .zbs-portal-wrapper-sin {
@@ -346,11 +430,6 @@
 
 }
 
-.zbs-client-portal-wrap #zbs_invoice_logos img {
-   max-width: 50%;
-   max-height: 100px;
-}
-
 .zbs-fieldgroup-main_address, .zbs-fieldgroup-second_address{
    width: 48%;
    float: left;
@@ -384,83 +463,6 @@
    margin-top:2em 
 }
 
-/* Few tweaks as provided by Alvaro in slack ... wh selectively added those which made sense for multi-theme userbase JIRA-ZBS-531 */
-.zbs-portal-wrapper {
-
-   .zbs-portal-login .login-form input[type="text"], .zbs-portal-login .login-form input[type="password"], .form-control.widetext, .form-control.zbs-tel, .form-control.zbs-email, .form-control.zbs-date, input[type="text"], input[type="password"], input[type="tel"], input[type="email"], input.text, input.title, textarea, select {
-       padding-left: 1em;
-       padding-right: 1em;
-       margin-bottom: 1em;
-       width: 100%;
-       height:50px;
-  }
-}
-
-/* Fixes for Astra Theme and general poor display on WP.org themes */
-.zbs-portal-wrapper{
-
-   label{
-     clear: left;
-   }
-}
-
-/* WH added for Your details page additions of checkbox radio buttons 2.98.5 */
-// edit pages checkbox custom fields 
-.zbs-portal-wrapper {
-
-   .zbs-field-checkbox-wrap {
-       // overall padding margin: 0.5em 1em 1em;
-       .zbs-cf-checkbox {
-           margin-top: 0;
-           margin-bottom: 0;
-      }
-
-       .zbs-cf-checkbox label {
-           padding: 0 0 0 23px !important;
-      }
-
-       .zbs-cf-checkbox:first-of-type {
-           padding-left:0 !important;
-      }
-
-       .zbs-cf-checkbox label, .zbs-cf-checkbox+label {
-           font-size: 16px !important;
-           font-weight: 400;
-      }
-  }
-   // edit pages radio custom fields 
-   .zbs-field-radio-wrap {
-       // overall padding margin: 0.5em 1em 1em;
-       text-align:left;
-
-       .zbs-radio:first-of-type {
-           //padding-left:0 !important;
-      }
-
-       .zbs-radio {
-           // cloned from ui checkbox 12/3/19 border: none;
-           margin: 0;
-           padding: 0;
-           //padding-left: 20px;
-           //margin-top: 10px;
-           //margin-bottom: 10px;
-           //position: relative;
-           //display: inline-block;
-           -webkit-backface-visibility: hidden;
-           backface-visibility: hidden;
-           outline: none;
-           vertical-align: baseline;
-           font-style: normal;
-           min-height: 17px;
-           line-height: 17px;
-           min-width: 17px;
-           // good if these match the above checkbox labels ^^ label {
-               font-size: 16px !important;
-               font-weight: 400;
-          }
-    }
-}
-
 //hide the title from the Portal Page 
 .entry-title{
    display:none !important;
@@ -468,56 +470,6 @@
 //for the invoice hashes. No portal nav for these. 
 .fullW{
    width: 100% !important;
-}
-//newer styles 
-.zbs-client-portal-wrap{
-   display: flex;
-
-   .zbs-portal-wrapper{
-       padding:20px;
-       box-shadow: 1px 1px 1px 1px #ccc;
-       border-radius: 0 7px 7px 0;
-       min-height:650px !important;
-       position:relative;
-       flex: 1;
-       flex-grow: 3;
-  }
-
-   #zbs-nav-tabs{
-       margin: 0;
-       padding-left:0;
-       box-shadow: 0 1px 0 1px #ccc;
-       border-radius: 7px 0 0 7px;
-       padding-top:7px;
-       flex: 1;
-
-       li{
-           padding:0;
-
-           a{
-               padding:10px;
-               box-shadow:none;
-          }
-
-           a:hover{
-               box-shadow:none;
-               background: #000;
-               color: #fff;
-          }
-      }
-
-       a{
-           color: #ccc;
-      }
-
-       a:hover{
-           color:#ccc !important;
-      }
-
-       .fa{
-           margin-right: 0.5em;
-      }
-  }
 }
 
 .zbs-line-info-title {
@@ -585,14 +537,10 @@
 
       td::before {
         position: absolute;
-        top: 6px;
         left: 6px;
         width: 45%;
         padding-right: 10px;
         white-space: nowrap;
-      }
-
-      td::before {
         content: attr(data-title);
         top: 50%;
         transform: translateY(-50%);

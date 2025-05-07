@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../../scss/calypso-colors';
 
 .dops-tooltip.dops-popover {
@@ -11,7 +12,7 @@
 	&.is-bottom {
 
 		.dops-popover__arrow {
-			border-bottom-color: darken( $gray, 30% );
+			border-bottom-color: color.adjust( $gray, $lightness: -30% );
 			top: 4px;
 			right: 10px;
 
@@ -47,7 +48,7 @@
 	&.is-top-right {
 
 		.dops-popover__arrow {
-			border-top-color: darken( $gray, 30% );
+			border-top-color: color.adjust( $gray, $lightness: -30% );
 			bottom: 4px;
 			right: 10px;
 
@@ -124,7 +125,7 @@
 
 		.dops-popover__arrow {
 			margin-right: 4px;
-			border-left-color: darken( $gray, 30% );
+			border-left-color: color.adjust( $gray, $lightness: -30% );
 		}
 	}
 
@@ -132,7 +133,7 @@
 
 		.dops-popover__arrow {
 			margin-left: 4px;
-			border-right-color: darken( $gray, 30% );
+			border-right-color: color.adjust( $gray, $lightness: -30% );
 		}
 	}
 
@@ -141,7 +142,7 @@
 		box-shadow: none;
 		border-radius: 2px;
 		color: $white;
-		background: darken( $gray, 30% );
+		background: color.adjust( $gray, $lightness: -30% );
 		font-size: 12px;
 		padding: 6px 10px;
 		text-align: left;

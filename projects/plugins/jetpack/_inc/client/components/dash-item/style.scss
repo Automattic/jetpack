@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../../scss/calypso-colors';
 @import '../../scss/mixins/ui';
 
@@ -18,6 +19,11 @@
 
 		a:hover {
 			text-decoration: underline;
+		}
+
+		.dops-notice {
+			margin-top: rem( -1px );
+			margin-bottom: rem( -1px );
 		}
 	}
 }
@@ -125,35 +131,13 @@
 	}
 }
 
-.jp-dash-item {
-
-	.dops-section-header__actions {
-
-		.dops-notice {
-			margin-top: rem( -1px );
-			margin-bottom: rem( -1px );
-		}
-	}
-}
-
 .jp-dash-item__active-label {
 	display: inline-block;
-	color: darken( $gray, 10% );
+	color: color.adjust( $gray, $lightness: -10% );
 	color: $gray;
 	font-size: rem( 12px );
 	font-weight: 400;
 	text-transform: uppercase;
-}
-
-.jp-at-a-glance__left,
-.jp-at-a-glance__right {
-
-	.jp-dash-item__is-inactive {
-
-		.dops-banner__content {
-			height: 100%;
-		}
-	}
 }
 
 // conditional styles for content when items are inactive
@@ -171,6 +155,10 @@
 			.dops-section-header__label-text::before {
 				background: none;
 			}
+		}
+
+		.dops-banner__content {
+			height: 100%;
 		}
 	}
 

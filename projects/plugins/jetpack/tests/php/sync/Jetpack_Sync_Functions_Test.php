@@ -1300,8 +1300,8 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 		$this->assertFalse( $functions->get_hosting_provider_by_known_class() );
 
 		// Fake that the class exists for the test.
-		// @phan-suppress-next-line PhanUndeclaredClassReference
-		$this->getMockBuilder( '\\WPaaS\\Plugin' )->getMock();
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- We're defining it here, Phan. 🙄
+		class_alias( static::class, \WPaaS\Plugin::class );
 
 		$this->assertEquals( 'gd-managed-wp', $functions->get_hosting_provider_by_known_class() );
 	}

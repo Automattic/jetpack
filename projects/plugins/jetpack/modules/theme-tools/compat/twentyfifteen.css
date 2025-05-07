@@ -290,6 +290,7 @@ iframe[id*="twitter-widget-"] {
 .comment-subscription-form {
 	font-size: 12px;
 	font-size: 1.2rem;
+	/* stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values */
 	line-height: 1.5em;
 	margin: 2em 0 0;
 }
@@ -559,6 +560,7 @@ iframe[id*="twitter-widget-"] {
 	.hentry div#jp-relatedposts div.jp-relatedposts-items p {
 		font-size: 1.6rem;
 		font-size: 16px;
+		/* stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values */
 		line-height: 1.5em;
 	}
 
@@ -779,6 +781,7 @@ iframe[id*="twitter-widget-"] {
 	.hentry div#jp-relatedposts div.jp-relatedposts-items p {
 		font-size: 16px;
 		font-size: 1.6rem;
+		/* stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values */
 		line-height: 1.5em;
 	}
 

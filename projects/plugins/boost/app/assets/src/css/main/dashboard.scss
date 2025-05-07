@@ -20,7 +20,7 @@
 	z-index: 15;
 }
 
-.jb-container {
+.jb-container, %jb-container {
 	width: 87.5%;
 	max-width: 1320px;
 	margin-left: auto;
@@ -28,7 +28,7 @@
 
 	&--narrow {
 
-		@extend .jb-container;
+		@extend %jb-container;
 		max-width: 744px;
 	}
 
@@ -42,7 +42,7 @@
 
 .jb-dashboard-footer {
 
-	@extend .jb-container;
+	@extend %jb-container;
 
 	display: flex;
 	justify-content: space-between;

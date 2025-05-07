@@ -622,10 +622,6 @@ input[type="submit"].button-primary:disabled {
 	color: #fff;
 }
 
-input[type="submit"].button-primary {
-	color: #fff;
-}
-
 
 /* ==========================================================================
 ** Inline editor styles

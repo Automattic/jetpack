@@ -4,7 +4,7 @@
 
 .notice {
 
-	& > div {
+	> div {
 		position: relative;
 		margin: 0;
 		font-size: 16px;
@@ -12,7 +12,7 @@
 		background-color: var( --jp-white );
 
 		// notice content
-		& :global(.components-notice__content) {
+		:global(.components-notice__content) {
 			display: flex;
 			margin: 0;
 			padding: 12px 4px;
@@ -25,7 +25,7 @@
 		}
 
 		// action button
-		& :global(.is-link) {
+		:global(.is-link) {
 			color: var( --jp-black );
 			font-size: 16px;
 			font-weight: 600;
@@ -34,11 +34,11 @@
 		}
 
 		// X close button
-		& :global(.components-notice__dismiss) {
+		:global(.components-notice__dismiss) {
 			align-self: center;
 		}
 
-		& :global(.components-notice__action) {
+		:global(.components-notice__action) {
 			color: var( --jp-white );
 			font-weight: 600;
 			font-size: 16px;
@@ -62,13 +62,13 @@
 
 		&.bigger-than-medium {
 
-			& :global(.components-notice__action) {
+			:global(.components-notice__action) {
 				margin-left: 0;
 				margin-top: 0;
 				white-space: nowrap;
 			}
 
-			& :global(.components-notice__content) {
+			:global(.components-notice__content) {
 				flex-direction: row;
 				align-items: center;
 			}
@@ -78,7 +78,7 @@
 			padding-top: 24px;
 
 			// this is the selector for `.icon-wrapper` in the .notice component
-			& > div:has(svg) {
+			> div:has(svg) {
 				position: initial;
 			}
 		}
@@ -104,13 +104,13 @@
 		}
 	}
 
-	& :global(.terms-of-service) {
+	:global(.terms-of-service) {
 		font-size: var(--font-body-small);
 		color: var( --jp-gray-70 );
 	}
 
 	// left icon
-	& > svg {
+	> svg {
 		fill: var( --jp-red-60 );
 		flex-shrink: 0;
 		align-self: flex-start;
@@ -121,10 +121,10 @@
 		}
 	}
 
-	& :global(.products-list) {
+	:global(.products-list) {
 		margin: 10px 0;
 
-		& :global(.product-badge) {
+		:global(.product-badge) {
 			display: inline-block;
 			padding: 2px 8px;
 			margin: 4px 8px 4px 0;
@@ -133,9 +133,9 @@
 		}
 	}
 
-	& :global(.plugins-list) {
+	:global(.plugins-list) {
 
-		& :global(.plugin-item) {
+		:global(.plugin-item) {
 
 			> span {
 				font-size: calc( var( --font-body-extra-small ) + 1px );

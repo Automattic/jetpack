@@ -1419,27 +1419,6 @@ class Share_LinkedIn_Block extends Sharing_Source_Block {
 }
 
 /**
- * Skype sharing service.
- */
-class Share_Skype_Block extends Sharing_Source_Block {
-	/**
-	 * Service short name.
-	 *
-	 * @var string
-	 */
-	public $shortname = 'skype';
-
-	/**
-	 * Service name.
-	 *
-	 * @return string
-	 */
-	public function get_name() {
-		return __( 'Skype', 'jetpack' );
-	}
-}
-
-/**
  * Threads sharing button.
  */
 class Share_Threads_Block extends Sharing_Source_Block {

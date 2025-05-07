@@ -1,4 +1,3 @@
-import { getCurrencyObject } from '@automattic/format-currency';
 import {
 	CheckmarkIcon,
 	getIconBySlug,
@@ -9,6 +8,7 @@ import {
 	TermsOfService,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { getCurrencyObject } from '@automattic/number-formatters';
 import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus } from '@wordpress/icons';

@@ -82,14 +82,6 @@ export const salesforceLeadFormVariation = {
 			organizationId: '',
 			sendToSalesforce: true,
 		},
-		style: {
-			spacing: {
-				padding: {
-					top: '16px',
-					bottom: '16px',
-				},
-			},
-		},
 	},
 	example: {
 		innerBlocks: [

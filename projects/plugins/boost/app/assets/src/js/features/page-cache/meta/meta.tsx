@@ -13,6 +13,7 @@ import ErrorBoundary from '$features/error-boundary/error-boundary';
 import ErrorNotice from '$features/error-notice/error-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
+import { ExternalLink } from '@wordpress/components';
 
 const Meta = () => {
 	const pageCache = usePageCache();
@@ -235,8 +236,7 @@ const BypassPatterns = ( {
 					__( '<help>See an example</help> or <link>learn more</link>.', 'jetpack-boost' ),
 					{
 						help: <BypassPatternsExample />, // children are passed after the interpolation.
-						// eslint-disable-next-line jsx-a11y/anchor-has-content
-						link: <a href={ exclusionsLink } target="_blank" rel="noreferrer" />,
+						link: <ExternalLink href={ exclusionsLink } />,
 					}
 				) }
 			</div>
