@@ -124,14 +124,39 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		return chromeAI;
 	}
 
-	// TODO: consider also using ChromeAI for ai-assistant-summarize
 	if ( promptType.startsWith( 'ai-content-lens' ) ) {
+		if ( ! ( 'ai' in self ) || ! ( 'summarizer' in self.ai ) ) {
+			return false;
+		}
+
+		if ( context.language ) {
+			if ( context.language !== 'en (English)' ) {
+				return false;
+			}
+		}
+
+		if ( 'ai' in self && self.ai.languageDetector ) {
+			// Detect if the content is in English and fallback if it's not otherwise the model will respond with mixed language
+			const detector = await self.ai.languageDetector.create();
+			const confidences = await detector.detect( context.content );
+
+			for ( const confidence of confidences ) {
+				// 75% confidence is just a value that was picked. Generally
+				// 80% of higher is pretty safe, but the source language is
+				// required for the translator to work at all, which is also
+				// why en is the default language.
+				if ( confidence.confidence > 0.75 && confidence.detectedLanguage !== 'en' ) {
+					return false;
+				}
+			}
+		}
+
+		// if we can't detect the language, we'll assume it's English
 		const summaryOpts = {
 			tone: tone,
 			wordCount: wordCount,
 		};
 
-		// TODO: detect if the content is in English and fallback if it's not
 		return new ChromeAISuggestionsEventSource( {
 			content: context.content,
 			promptType: PROMPT_TYPE_SUMMARIZE,
