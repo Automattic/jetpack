@@ -5,13 +5,6 @@
 	}
 }
 
-@mixin tablet {
-
-	@media (min-width: 600px) and (max-width: 960px) {
-		@content;
-	}
-}
-
 .jp-forms__about {
 	--section-spacing-horizontal: calc( var(--spacing-base) * 9 ); // 72px
 	--content-max-width: 1280px;
@@ -97,7 +90,7 @@
 			gap: 24px;
 			margin-top: 72px;
 
-			@include tablet {
+			@media (min-width: 600px) and (max-width: 960px) {
 				grid-template-columns: 1fr 1fr;
 			}
 
@@ -161,7 +154,7 @@
 					"va";
 			}
 
-			@include tablet {
+			@media (min-width: 600px) and (max-width: 1200px) {
 				grid-template-areas:
 					"co co co"
 					"da da ak"
@@ -215,6 +208,10 @@
 
 			.feature-export {
 				grid-area: ex;
+
+				svg {
+					margin-left: -32px;
+				}
 			}
 
 			.feature-notifications {

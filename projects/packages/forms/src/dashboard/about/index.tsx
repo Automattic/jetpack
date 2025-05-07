@@ -128,10 +128,12 @@ const About = () => {
 									<div className="section-patterns__grid-card-title">
 										<h4>{ pattern.title }</h4>
 										{ pattern.recommended && (
-											<span className="section-patterns__grid-card-recommended-badge">
-												<Dashicon icon="yes-alt" size={ 16 } />
-												{ __( 'Recommended', 'jetpack-forms' ) }
-											</span>
+											<div>
+												<span className="section-patterns__grid-card-recommended-badge">
+													<Dashicon icon="yes-alt" size={ 16 } />
+													{ __( 'Recommended', 'jetpack-forms' ) }
+												</span>
+											</div>
 										) }
 									</div>
 									<p>{ pattern.description }</p>
