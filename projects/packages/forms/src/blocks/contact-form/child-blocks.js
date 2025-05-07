@@ -949,6 +949,11 @@ export const childBlocks = [
 					padding: true,
 					margin: true,
 				},
+				color: {
+					gradients: true,
+					background: true,
+					text: false,
+				},
 			},
 			title: __( 'Progress Indicator', 'jetpack-forms' ),
 			description: __(

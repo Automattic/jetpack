@@ -1,7 +1,6 @@
 .jetpack-form-progress-indicator {
 	display: block;
 	border-radius: 4px;
-	background-color: var(--jetpack--contact-form--background-color);
 	filter: invert(15%);
 	height: 8px;
 	margin: 0 auto;
@@ -12,10 +11,14 @@
 		content: '';
 		display: block;
 		height: 100%;
-		background-color: var(--jetpack--contact-form--background-color);
-		filter: invert(35%);
+		background-color: #333;
+		opacity: 75%;
+		filter: invert( 85%);
 		border-radius: 4px;
 		width: var(--progress, 1%);
-
 	}
+}
+
+.wp-block-jetpack-form-progress-indicator {
+	border-radius: 4px;
 }
