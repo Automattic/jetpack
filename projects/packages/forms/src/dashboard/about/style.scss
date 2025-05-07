@@ -1,8 +1,22 @@
+@mixin mobile {
+
+	@media (max-width: 600px) {
+		@content;
+	}
+}
+
+@mixin tablet {
+
+	@media (min-width: 600px) and (max-width: 960px) {
+		@content;
+	}
+}
+
 .jp-forms__about {
 	--section-spacing-horizontal: calc( var(--spacing-base) * 9 ); // 72px
 	--content-max-width: 1280px;
 
-	@media (max-width: 600px) {
+	@include mobile {
 		--section-spacing-horizontal: calc( var(--spacing-base) * 4 ); // 32px
 	}
 
@@ -83,7 +97,11 @@
 			gap: 24px;
 			margin-top: 72px;
 
-			@media (max-width: 600px) {
+			@include tablet {
+				grid-template-columns: 1fr 1fr;
+			}
+
+			@include mobile {
 				grid-template-columns: 1fr;
 			}
 
@@ -126,11 +144,29 @@
 		&__features {
 			display: grid;
 			gap: 24px;
-			grid-template-columns: repeat(12, 1fr);
 			margin-top: 48px;
 
-			@media (max-width: 600px) {
-				grid-template-columns: 1fr;
+			grid-template-areas:
+				"co co co co co da da da da ak ak ak"
+				"ex ex ex no no no no de de de va va";
+
+			@include mobile {
+				grid-template-areas:
+					"co"
+					"da"
+					"ak"
+					"ex"
+					"no"
+					"de"
+					"va";
+			}
+
+			@include tablet {
+				grid-template-areas:
+					"co co co"
+					"da da ak"
+					"ex no no"
+					"de de va";
 			}
 
 			&-feature {
@@ -146,7 +182,7 @@
 			}
 
 			.feature-connect {
-				grid-column: span 5/span 5;
+				grid-area: co;
 
 				.app-icons-wrapper {
 					height: 32px;
@@ -160,7 +196,11 @@
 			}
 
 			.feature-data {
-				grid-column: span 4/span 4;
+				grid-area: da;
+
+				h1 {
+					z-index: 1;
+				}
 
 				svg {
 					position: absolute;
@@ -170,39 +210,26 @@
 			}
 
 			.feature-akismet {
-				grid-column: span 3/span 3;
+				grid-area: ak;
 			}
 
 			.feature-export {
-				grid-column: span 3/span 3;
+				grid-area: ex;
 			}
 
 			.feature-notifications {
-				grid-column: span 4/span 4;
+				grid-area: no;
 			}
 
 			.feature-dependencies {
-				grid-column: span 3/span 3;
+				grid-area: de;
 			}
 
 			.feature-validation {
-				grid-column: span 2/span 2;
+				grid-area: va;
 
 				.validation-icons-wrapper {
 					display: flex;
-				}
-			}
-
-			.feature-connect,
-			.feature-data,
-			.feature-akismet,
-			.feature-export,
-			.feature-notifications,
-			.feature-dependencies,
-			.feature-validation {
-
-				@media (max-width: 600px) {
-					grid-column: span 1/span 1;
 				}
 			}
 		}
