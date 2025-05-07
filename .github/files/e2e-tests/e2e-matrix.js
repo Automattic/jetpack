@@ -3,17 +3,9 @@ const fs = require( 'fs' );
 
 const projects = [
 	{
-		project: 'Jetpack connection',
+		project: 'Jetpack onboarding',
 		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ 'specs/connection' ],
-		targets: [ 'plugins/jetpack' ],
-		suite: '',
-		buildGroup: 'jetpack-core',
-	},
-	{
-		project: 'Jetpack pre-connection',
-		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ 'specs/pre-connection' ],
+		testArgs: [ 'specs/onboarding' ],
 		targets: [ 'plugins/jetpack', 'monorepo' ],
 		suite: '',
 		buildGroup: 'jetpack-core',

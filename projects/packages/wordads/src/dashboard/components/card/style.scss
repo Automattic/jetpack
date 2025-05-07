@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import 'scss/layout';
 @import 'scss/typography';
 @import 'scss/calypso-colors';
@@ -49,7 +50,7 @@ h2.dops-card-title {
 
 // Clickable Card
 .dops-card__link-indicator {
-	color: lighten( $gray, 20% );
+	color: color.adjust( $gray, $lightness: 20% );
 	display: block;
 	height: 100%;
 	position: absolute;
@@ -60,7 +61,7 @@ h2.dops-card-title {
 a.dops-card:hover {
 
 	.dops-card__link-indicator {
-		color: lighten( $gray, 10% );
+		color: color.adjust( $gray, $lightness: 10% );
 	}
 }
 

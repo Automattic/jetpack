@@ -1,3 +1,6 @@
+@use 'sass:color';
+@use 'sass:meta';
+@use 'sass:string';
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 //Set the default values
@@ -124,13 +127,13 @@ $gutter-m: 15px !default;
 	 */
 	@function encodecolor( $string ) {
 
-		@if type-of( $string ) == 'color' {
-			$hex: str-slice( ie-hex-str( $string ), 4 );
-			$string: unquote( '#{$hex}' );
-		}
-		$string: '%23' + $string;
+			@if meta.type-of( $string ) == 'color' {
+				$hex: string.slice( color.ie-hex-str( $string ), 4 );
+				$string: string.unquote( '#{$hex}' );
+			}
+			$string: '%23' + $string;
 
-		@return $string;
+			@return $string;
 	}
 
 	/**

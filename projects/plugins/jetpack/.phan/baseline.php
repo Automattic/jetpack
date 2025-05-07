@@ -195,7 +195,7 @@ return [
         'extensions/blocks/top-posts/top-posts.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'extensions/blocks/wordads/wordads.php' => ['PhanNonClassMethodCall', 'PhanTypeExpectedObjectPropAccessButGotNull', 'PhanTypeMismatchArgument'],
         'extensions/plugins/sharing/sharing.php' => ['PhanRedundantCondition'],
-        'functions.compat.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturn'],
+        'functions.compat.php' => ['PhanRedefineFunction'],
         'functions.global.php' => ['PhanRedefineFunction', 'PhanRedundantCondition', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument'],
         'functions.opengraph.php' => ['PhanTypeArraySuspicious'],
         'json-endpoints/class.wpcom-json-api-add-widget-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],

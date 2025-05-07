@@ -8,9 +8,10 @@
  * 1. font-size: em(14px);
  * 2. font-size: em(30px/14px);
  */
-@use "sass:math";
+ @use 'sass:map';
+ @use "sass:math";
 
-@function em($value, $context: map-get($root-font, font-size)) {
+@function em($value, $context: map.get($root-font, font-size)) {
 
 	@return (math.div($value, $context) * 1em);
 }

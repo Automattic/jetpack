@@ -7,6 +7,7 @@
  * %3$s is a link to the response page in wp-admin
  * %4$s is a link to the embedded form to allow the site owner to edit it to change their email address.
  * %5$s is the footer HTML.
+ * %6$s style HTML tag.
  *
  * @package automattic/jetpack
  */

@@ -81,7 +81,8 @@
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
 		"ai-list-to-table-transform",
-		"ai-use-chrome-ai-sometimes"
+		"ai-use-chrome-ai-sometimes",
+		"field-file"
 	],
 	"experimental": [],
 	"no-post-editor": [

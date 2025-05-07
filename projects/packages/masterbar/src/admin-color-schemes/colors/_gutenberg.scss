@@ -4,11 +4,12 @@
  *
  * @see https://github.com/WordPress/gutenberg/blob/HEAD/packages/base-styles/_mixins.scss
  */
+@use 'sass:color';
 
 body {
 	--wp-admin-theme-color: #{$highlight-color};
 
 	// Darker shades.
-	--wp-admin-theme-color-darker-10: #{darken($highlight-color, 5%)};
-	--wp-admin-theme-color-darker-20: #{darken($highlight-color, 10%)};
+	--wp-admin-theme-color-darker-10: #{color.adjust($highlight-color, $lightness: -5%)};
+	--wp-admin-theme-color-darker-20: #{color.adjust($highlight-color, $lightness: -10%)};
 }

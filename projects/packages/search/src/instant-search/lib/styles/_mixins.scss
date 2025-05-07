@@ -1,3 +1,5 @@
+@use 'sass:map';
+@use 'sass:string';
 @import './variables';
 
 // Mixins
@@ -5,11 +7,11 @@
 // @breakpoint is a string prefixed with < or > followed by a breakpoint size.
 // (e.g. ">sm" or "<large").
 @mixin break( $breakpoint-string ) {
-	$breakpoint: map-get( $breakpoints, to-lower-case( str-slice( $breakpoint-string, 2 ) ) );
+	$breakpoint: map.get( $breakpoints, string.to-lower-case( string.slice( $breakpoint-string, 2 ) ) );
 
 	$predicate: max-width;
 
-	@if str-slice( $breakpoint-string, 1, 1 ) == '>' {
+	@if string.slice( $breakpoint-string, 1, 1 ) == '>' {
 		$predicate: min-width;
 	} @else {
 		$breakpoint: $breakpoint - 0.02px;

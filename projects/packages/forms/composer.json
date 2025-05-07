@@ -9,6 +9,7 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-logo": "@dev",
+		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev"
 	},
@@ -67,7 +68,7 @@
 			"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.50.x-dev"
+			"dev-trunk": "0.51.x-dev"
 		},
 		"textdomain": "jetpack-forms",
 		"version-constants": {

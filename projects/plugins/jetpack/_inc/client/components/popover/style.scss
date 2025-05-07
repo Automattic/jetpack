@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../../scss/z-index';
 @import '../../scss/calypso-colors';
 
@@ -15,7 +16,7 @@
 
 	.dops-popover__inner {
 		background-color: $white;
-		border: 1px solid lighten( $gray, 20% );
+		border: 1px solid color.adjust( $gray, $lightness: 20% );
 		border-radius: 4px;
 		box-shadow: 0 2px 5px rgba( 0, 0, 0, 0.1 ), 0 0 56px rgba( 0, 0, 0, 0.075 );
 		text-align: center;
@@ -39,7 +40,7 @@
 	}
 
 	.dops-popover__arrow {
-		border: 10px dashed lighten( $gray, 20% );
+		border: 10px dashed color.adjust( $gray, $lightness: 20% );
 		height: 0;
 		line-height: 0;
 		position: absolute;
@@ -236,7 +237,7 @@
 
 	// with gridicons
 	.gridicon {
-		color: lighten( $gray, 10 );
+		color: color.adjust( $gray, $lightness: 10% );
 		vertical-align: bottom;
 		margin-right: 8px;
 	}
@@ -244,5 +245,5 @@
 
 .dops-popover__hr {
 	margin: 8px 0;
-	background: lighten( $gray, 30 );
+	background: color.adjust( $gray, $lightness: 30% );
 }
