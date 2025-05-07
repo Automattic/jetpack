@@ -307,6 +307,25 @@ $action-bar-height: 88px;
 
 		.dataviews__view-actions {
 			align-items: center;
+
+			@media (max-width: 782px) {
+				flex-direction: column-reverse;
+			}
+
+			> div {
+
+				@media (max-width: 782px) {
+					width: 100%;
+					justify-content: space-between;
+				}
+
+				&:nth-of-type(2) {
+
+					@media (max-width: 782px) {
+						justify-content: flex-end;
+					}
+				}
+			}
 		}
 	}
 }

@@ -19,6 +19,13 @@ class Inline_Search extends Classic_Search {
 	private static $instance;
 
 	/**
+	 * The search correction instance.
+	 *
+	 * @var Inline_Search_Correction
+	 */
+	private $correction;
+
+	/**
 	 * Returns whether this class should be used instead of Classic_Search.
 	 */
 	public static function should_replace_classic_search(): bool {
@@ -39,6 +46,12 @@ class Inline_Search extends Classic_Search {
 			}
 			self::$instance = new static();
 			self::$instance->setup( $blog_id );
+
+			// Initialize search correction handling
+			self::$instance->correction = new Inline_Search_Correction();
+
+			// Add hooks for displaying corrected query notice
+			add_action( 'pre_get_posts', array( self::$instance->correction, 'setup_corrected_query_hooks' ) );
 		}
 
 		return self::$instance;
