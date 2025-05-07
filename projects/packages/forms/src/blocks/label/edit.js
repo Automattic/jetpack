@@ -18,15 +18,15 @@ const getLabelOrFallback = ( label, placeholder ) => {
 	return label ?? placeholder;
 };
 
-const WithNotchedWrapper = ( { formStyle, styles, children } ) => {
+const WithNotchedWrapper = ( { formStyle, styles, className, children } ) => {
 	if ( formStyle === FORM_STYLE.OUTLINED ) {
 		return (
 			<div className="notched-label">
-				<div className="notched-label__leading" style={ styles } />
-				<div className="notched-label__notch" style={ styles }>
+				<div className={ clsx( 'notched-label__leading', className ) } style={ styles } />
+				<div className={ clsx( 'notched-label__notch', className ) } style={ styles }>
 					{ children }
 				</div>
-				<div className="notched-label__trailing" style={ styles } />
+				<div className={ clsx( 'notched-label__trailing', className ) } style={ styles } />
 			</div>
 		);
 	}

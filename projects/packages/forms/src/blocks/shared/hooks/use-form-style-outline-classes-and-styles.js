@@ -33,7 +33,7 @@ function mergeBaseAndUserConfigs( base, user ) {
  * @param {*} value - A value from the legacy form block attributes.
  * @return {string|*} The value of the CSS var if it is a number, otherwise the value itself.
  */
-function getCSSVarValue( value ) {
+function getIntAsPxValue( value ) {
 	if ( typeof value !== 'undefined' && isNumber( value ) ) {
 		return `${ value }px`;
 	}
@@ -110,7 +110,6 @@ export default function useFormStyleOutlineClassesAndStyles( {
 	]
 		.filter( Boolean )
 		.join( ' ' );
-
 	return {
 		className: filteredBlockColorClassesAndStyles,
 		style: {
@@ -119,15 +118,23 @@ export default function useFormStyleOutlineClassesAndStyles( {
 			...blockTypographyClassesAndStyles?.style,
 		},
 		cssVars: {
+			'--jetpack--contact-form--input-background':
+				blockColorClassesAndStyles?.style?.backgroundColor ||
+				globalBorderClassesAndStyles?.style?.backgroundColor ||
+				'rgb(255, 255, 255)',
+			'--jetpack--contact-form--input-color':
+				blockColorClassesAndStyles?.style?.color ||
+				globalBorderClassesAndStyles?.style?.color ||
+				'rgb(0, 0, 0)',
 			// Sets the value of top: calc(var(--jetpack--contact-form--border-size) * -1) for .notched-label__label.
 			'--jetpack--contact-form--border-size':
-				getCSSVarValue( blockBorderClassesAndStyles?.style?.borderWidth ) ||
+				getIntAsPxValue( blockBorderClassesAndStyles?.style?.borderWidth ) ||
 				blockBorderClassesAndStyles?.style?.borderTopWidth ||
 				globalBorderClassesAndStyles?.style?.borderWidth ||
 				globalBorderClassesAndStyles?.style?.borderTopWidth,
 			// Sets the value of --notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)); for .notched-label.
 			'--jetpack--contact-form--border-radius':
-				getCSSVarValue( blockBorderClassesAndStyles?.style?.borderRadius ) ||
+				getIntAsPxValue( blockBorderClassesAndStyles?.style?.borderRadius ) ||
 				blockBorderClassesAndStyles?.style?.borderLeftRadius ||
 				globalBorderClassesAndStyles?.style?.borderRadius ||
 				globalBorderClassesAndStyles?.style?.borderLeftRadius,

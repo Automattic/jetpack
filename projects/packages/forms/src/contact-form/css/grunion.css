@@ -380,12 +380,12 @@
 	position: absolute;
 	inset-inline-end: 20px;
 	top: 50%;
-
+	color: var(--jetpack--contact-form--text-color);
 	content: "";
 	display: block;
 	width: 8px;
 	height: 8px;
-
+	z-index: 1;
 	border-bottom: 2px solid;
 	border-right: 2px solid;
 
@@ -591,6 +591,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	padding-right: calc(var(--notch-width) + 4px);
 	z-index: 1;
 	clip-path: padding-box;
+	position: relative;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap textarea {

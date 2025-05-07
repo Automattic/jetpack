@@ -844,6 +844,7 @@
 						padding-left: calc(var(--notch-width) + 4px);
 						padding-right: calc(var(--notch-width) + 4px);
 					}
+
 					.jetpack-field-dropdown__toggle .jetpack-field-dropdown__icon,
 					.jetpack-field-dropdown__toggle .rich-text {
 						z-index: 1;
@@ -891,6 +892,7 @@
 
 			.jetpack-field__input, .jetpack-field__textarea {
 				display: flex;
+
 				/*
 				 * For the Outlined block style, labels render the input border styles,
 				 * unfortuntely, the !important rule is required to overcome the inline
@@ -1097,4 +1099,12 @@
 
 .jetpack-field-dropdown__toggle .rich-text {
 	flex-grow: 1;
+}
+
+.jetpack-field-dropdown__popover {
+	// The editor should not render the border styles for the dropdown toggle.
+	// The frontend renders a default select box. 
+	background-color: #fff;
+	border: none;
+	border-radius: unset;
 }
