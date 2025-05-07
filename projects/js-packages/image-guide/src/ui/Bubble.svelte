@@ -24,7 +24,7 @@
 	};
 
 	let bubble: HTMLElement;
-	const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher< { hover: unknown } >();
 	function onHover() {
 		const rect = bubble.getBoundingClientRect();
 		dispatch( 'hover', {

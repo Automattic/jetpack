@@ -1,4 +1,4 @@
-import { getCurrencyObject } from '@automattic/format-currency';
+import { getCurrencyObject } from '@automattic/number-formatters';
 import clsx from 'clsx';
 import Text from '../text/index.tsx';
 import styles from './style.module.scss';

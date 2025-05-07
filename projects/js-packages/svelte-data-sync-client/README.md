@@ -1,4 +1,7 @@
-# Data Sync Client for Svelte
+> [!WARNING]  
+> The package is deprecated. Do not use it!
+
+# [Deprecated] Data Sync Client for Svelte
 
 This package is intended to be used together with the [`@jetpack/packages/wp-js-data-sync`](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/wp-js-data-sync/) package.
 

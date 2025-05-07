@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.9] - 2025-04-28
+### Changed
+- Internal updates.
+
 ## [0.4.8] - 2025-04-14
 ### Changed
 - Internal updates.
@@ -98,6 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add jetpack-ip package functionality [#28846]
 - Initialized the package. [#28765]
 
+[0.4.9]: https://github.com/automattic/jetpack-ip/compare/v0.4.8...v0.4.9
 [0.4.8]: https://github.com/automattic/jetpack-ip/compare/v0.4.7...v0.4.8
 [0.4.7]: https://github.com/automattic/jetpack-ip/compare/v0.4.6...v0.4.7
 [0.4.6]: https://github.com/automattic/jetpack-ip/compare/v0.4.5...v0.4.6

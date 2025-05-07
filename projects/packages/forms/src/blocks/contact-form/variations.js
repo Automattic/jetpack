@@ -7,17 +7,6 @@ import { salesforceLeadFormVariation } from './components/jetpack-salesforce-lea
 import { getIconColor } from './util/block-icons';
 import renderMaterialIcon from './util/render-material-icon';
 
-const defaultBlockStyling = {
-	style: {
-		spacing: {
-			padding: {
-				top: '16px',
-				bottom: '16px',
-			},
-		},
-	},
-};
-
 const variations = compact( [
 	{
 		name: 'contact-form',
@@ -53,9 +42,7 @@ const variations = compact( [
 				},
 			],
 		],
-		attributes: {
-			...defaultBlockStyling,
-		},
+		attributes: {},
 	},
 	{
 		name: 'rsvp-form',
@@ -100,7 +87,6 @@ const variations = compact( [
 			],
 		],
 		attributes: {
-			...defaultBlockStyling,
 			subject: __( 'A new RSVP from your website', 'jetpack-forms' ),
 		},
 		example: {
@@ -186,7 +172,6 @@ const variations = compact( [
 			],
 		],
 		attributes: {
-			...defaultBlockStyling,
 			subject: __( 'A new registration from your website', 'jetpack-forms' ),
 		},
 		example: {
@@ -279,7 +264,6 @@ const variations = compact( [
 			],
 		],
 		attributes: {
-			...defaultBlockStyling,
 			subject: __( 'A new appointment booked from your website', 'jetpack-forms' ),
 		},
 		example: {
@@ -383,7 +367,6 @@ const variations = compact( [
 			],
 		],
 		attributes: {
-			...defaultBlockStyling,
 			subject: __( 'New feedback received from your website', 'jetpack-forms' ),
 		},
 		example: {
@@ -451,9 +434,7 @@ const variations = compact( [
 				},
 			],
 		],
-		attributes: {
-			...defaultBlockStyling,
-		},
+		attributes: {},
 		example: {
 			innerBlocks: [
 				{

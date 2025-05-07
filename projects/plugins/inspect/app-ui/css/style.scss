@@ -4,13 +4,10 @@
 .info code {
 	background-color: hsla(0, 0%, 92%, 100%);
 	border-radius: 3px;
-}
-
-.info code {
 	font-size: 11px;
 }
 
-.button-effects {
+.button-effects, %button-effects {
 
 	&:hover {
 		opacity: 0.8;
@@ -24,7 +21,7 @@
 	}
 }
 
-.ji-button {
+.ji-button, %ji-button {
 	display: inline-block;
 	padding: 9px 21px;
 	font-size: 0.75rem;
@@ -35,19 +32,19 @@
 	font-weight: 400;
 	cursor: pointer;
 
-	@extend .button-effects;
+	@extend %button-effects;
 }
 
 .ji-button--alt {
 
-	@extend .ji-button;
+	@extend %ji-button;
 	background-color: hsl(77, 43%, 90%);
 	color: var(--jetpack_green_40);
 }
 
 .ji-button--altii {
 
-	@extend .ji-button;
+	@extend %ji-button;
 	background-color: hsl(77, 43%, 90%);
 	color: var(--jetpack_green_40);
 }

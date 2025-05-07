@@ -395,7 +395,6 @@ html {
 }
 
 .form-toggle__label:focus {
-	-webkit-box-shadow: none;
 	box-shadow: none;
 }
 
@@ -421,7 +420,6 @@ html {
 	top: 2px;
 	border-radius: 50%;
 	background: #fff;
-	-webkit-transition: all 0.2s ease;
 	transition: all 0.2s ease;
 	width: 12px;
 	height: 12px;
@@ -475,7 +473,6 @@ html {
 	width: 100%;
 	padding: 16px;
 	box-sizing: border-box;
-	display: -ms-flexbox;
 	display: flex;
 	-ms-flex-align: center;
 	align-items: center;
@@ -545,16 +542,13 @@ button.dops-foldable-card__action {
 	align-items: center;
 	width: 100%;
 	margin-right: 5px;
-	-ms-flex: 1 1;
 	flex: 1 1;
 }
 
 .dops-foldable-card__secondary {
-	display: -ms-flexbox;
 	display: flex;
 	-ms-flex-align: center;
 	align-items: center;
-	-ms-flex: 0 1;
 	flex: 0 1;
 	-ms-flex-pack: end;
 	justify-content: flex-end;
@@ -566,7 +560,6 @@ button.dops-foldable-card__action {
 
 .dops-foldable-card__expand .gridicon {
 	fill: #87a6bc;
-	display: -ms-flexbox;
 	display: flex;
 	-ms-flex-align: center;
 	align-items: center;
@@ -644,7 +637,6 @@ button.dops-foldable-card__action {
 .dops-foldable-card.has-expanded-summary .dops-foldable-card__summary,
 .dops-foldable-card.has-expanded-summary .dops-foldable-card__summary_expanded {
 	transition: none;
-	-ms-flex: 2;
 	flex: 2;
 	text-align: right;
 }
@@ -920,7 +912,6 @@ button.dops-foldable-card__action {
 }
 
 .dops-section-nav__mobile-header {
-	display: -ms-flexbox;
 	display: flex;
 	padding: 15px;
 	font-size: 14px;
@@ -967,7 +958,6 @@ button.dops-foldable-card__action {
 
 .dops-section-nav__mobile-header-text {
 	width: 0;
-	-ms-flex: 1 0 auto;
 	flex: 1 0 auto;
 	overflow: hidden;
 	white-space: nowrap;
@@ -984,7 +974,6 @@ button.dops-foldable-card__action {
 
 .dops-section-nav.has-pinned-items .dops-section-nav__mobile-header-text {
 	width: auto;
-	-ms-flex: 0 1 auto;
 	flex: 0 1 auto;
 }
 
@@ -1005,7 +994,6 @@ button.dops-foldable-card__action {
 @media ( min-width: 481px ) {
 
 	.dops-section-nav__panel {
-		display: -ms-flexbox;
 		display: flex;
 		-ms-flex-align: center;
 		align-items: center;
@@ -1013,7 +1001,6 @@ button.dops-foldable-card__action {
 
 	.dops-section-nav__panel:first-child {
 		width: 0;
-		-ms-flex: 1 0 auto;
 		flex: 1 0 auto;
 	}
 }
@@ -1050,10 +1037,8 @@ button.dops-foldable-card__action {
 	}
 
 	.dops-section-nav-group:first-child {
-		display: -ms-flexbox;
 		display: flex;
 		width: 0;
-		-ms-flex: 1 0 auto;
 		flex: 1 0 auto;
 	}
 }
@@ -1099,14 +1084,12 @@ button.dops-foldable-card__action {
 
 	.dops-section-nav-tabs {
 		width: 0;
-		-ms-flex: 1 0 auto;
 		flex: 1 0 auto;
 	}
 
 	.dops-section-nav-tabs.is-dropdown {
 		position: relative;
 		width: auto;
-		-ms-flex: 0 1 auto;
 		flex: 0 1 auto;
 		margin: 8px;
 	}
@@ -1120,7 +1103,6 @@ button.dops-foldable-card__action {
 @media ( min-width: 481px ) {
 
 	.dops-section-nav-tabs__list {
-		display: -ms-flexbox;
 		display: flex;
 		width: 100%;
 		overflow: hidden;
@@ -1139,7 +1121,6 @@ button.dops-foldable-card__action {
 
 	.dops-section-nav-tab {
 		width: auto;
-		-ms-flex: none;
 		flex: none;
 		border-bottom: 2px solid transparent;
 		border-top: none;
@@ -1159,7 +1140,6 @@ button.dops-foldable-card__action {
 }
 
 .dops-section-nav-tab__link {
-	display: -ms-flexbox;
 	display: flex;
 	-ms-flex-align: center;
 	align-items: center;
@@ -1240,7 +1220,6 @@ button.dops-foldable-card__action {
 
 .dops-section-nav-tab__text {
 	display: block;
-	-ms-flex: 1 0 auto;
 	flex: 1 0 auto;
 	width: 0;
 	color: inherit;
@@ -1250,7 +1229,6 @@ button.dops-foldable-card__action {
 
 	.dops-section-nav-tab__text {
 		display: inline;
-		-ms-flex: none;
 		flex: none;
 		width: auto;
 	}
@@ -1293,7 +1271,6 @@ button.dops-foldable-card__action {
 .jpbeta-file-list > li > .container {
 	width: 100%;
 	box-sizing: border-box;
-	display: -ms-flexbox;
 	display: flex;
 	-ms-flex-align: center;
 	align-items: center;
@@ -1302,7 +1279,6 @@ button.dops-foldable-card__action {
 }
 
 .jpbeta-file-list > li > .container > span {
-	-ms-flex: 0 0 auto;
 	flex: 0 0 auto;
 }
 

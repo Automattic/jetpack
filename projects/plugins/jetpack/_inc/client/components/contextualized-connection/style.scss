@@ -51,7 +51,7 @@
 		}
 	}
 
-	& .jp-action-button--button.is-primary,
+	.jp-action-button--button.is-primary,
 	.jp-contextualized-connection__button.is-primary {
 		// It doesn't have display: flex, but `.components-button` does
 		// so the content in this button is centered

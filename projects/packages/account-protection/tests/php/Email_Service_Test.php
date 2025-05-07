@@ -70,8 +70,6 @@ class Email_Service_Test extends BaseTestCase {
 
 		$result = $sut->resend_auth_email( $user->ID, $transient_data, $my_token );
 
-		error_log( print_r( $result, true ) );
-
 		// Verify the mail was sent
 		$this->assertTrue( $result, 'Resending auth mail should return true as success indicator.' );
 

@@ -58,5 +58,6 @@
 .category {
 	grid-area: category;
 	display: flex;
+	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 1.6rem;
 }
