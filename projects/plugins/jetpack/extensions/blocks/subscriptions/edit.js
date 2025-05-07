@@ -1,4 +1,5 @@
-import { numberFormat, ThemeProvider } from '@automattic/jetpack-components';
+import { ThemeProvider } from '@automattic/jetpack-components';
+import { formatNumberCompact } from '@automattic/number-formatters';
 import {
 	BlockControls,
 	InspectorControls,
@@ -117,7 +118,7 @@ export function SubscriptionEdit( props ) {
 			subscriberCountString: sprintf(
 				/* translators: Placeholder is a number of subscribers. */
 				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
-				numberFormat( count, { notation: 'compact', maximumFractionDigits: 1 } )
+				formatNumberCompact( count, { numberFormatOptions: { maximumFractionDigits: 1 } } )
 			),
 		};
 	} );
