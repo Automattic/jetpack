@@ -1,13 +1,16 @@
+import { __ } from '@wordpress/i18n';
 import { Defs, G, Path, Rect, SVG, SVGProps } from '@wordpress/primitives';
 
-const AkismetSvg = ( props: SVGProps ) => {
+const AkismetSvg = ( props: SVGProps & { width?: number; height?: number } ) => {
 	return (
 		<SVG
-			width="46"
-			height="46"
+			width={ props.width || 46 }
+			height={ props.height || 46 }
 			viewBox="0 0 46 46"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			role="img"
+			aria-label={ __( 'Akismet icon', 'jetpack-forms' ) }
 			{ ...props }
 		>
 			<Rect width="46" height="46" rx="8" fill="#357B49" />

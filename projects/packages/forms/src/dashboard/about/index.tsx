@@ -126,10 +126,7 @@ const About = () => {
 					<div className="section-data__features">
 						<div className="section-data__features-feature feature-connect">
 							<div className="app-icons-wrapper">
-								<img
-									src={ `${ ASSETS_URL }/images/akismet-icon.png` }
-									alt={ __( 'Akismet icon', 'jetpack-forms' ) }
-								/>
+								<AkismetSVG width={ 32 } height={ 32 } className="akismet-icon" />
 								<img
 									src={ `${ ASSETS_URL }/images/jetpack-icon.png` }
 									alt={ __( 'Jetpack icon', 'jetpack-forms' ) }
