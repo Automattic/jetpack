@@ -47,10 +47,6 @@
 		}
 	}
 
-	.dops-notice__dismiss {
-		overflow: hidden;
-	}
-
 	&.is-success,
 	&.is-error,
 	&.is-warning,
@@ -166,6 +162,7 @@
 	}
 
 	.dops-notice & {
+		overflow: hidden;
 		color: $gray-lighten-10;
 
 		&:hover,

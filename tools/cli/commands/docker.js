@@ -441,6 +441,31 @@ const buildExecCmd = argv => {
 			],
 		};
 		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
+	} else if ( cmd === 'phpunit-integration' ) {
+		// Only run tests for wpcomsh and jetpack, but always set JP_MONO_INTEGRATION_PLUGINS to the full list
+		const plugins = argv.plugins || argv._.slice( 2 );
+		const integrationPluginsEnv = plugins.join( ',' );
+		const allCmds = [];
+		// Only run for these plugins
+		const testablePlugins = [ 'wpcomsh', 'jetpack' ];
+		for ( const plugin of testablePlugins ) {
+			if ( ! plugins.includes( plugin ) ) continue;
+			let envVars = [ `JP_MONO_INTEGRATION_PLUGINS=${ integrationPluginsEnv }` ];
+			if ( plugin === 'wpcomsh' ) {
+				envVars = envVars.concat( [
+					'WP_TESTS_DIR=/tmp/wordpress-develop/tests/phpunit',
+					'WP_CORE_DIR=/var/www/html',
+					'WP_CONTENT_DIR=/var/www/html/wp-content',
+				] );
+			}
+			const unitTestArgs = {
+				plugin,
+				envVars,
+			};
+			const pluginOpts = buildPhpUnitTestCmd( argv, [ 'exec', 'wordpress' ], unitTestArgs );
+			allCmds.push( buildComposeFiles().concat( pluginOpts ) );
+		}
+		return allCmds;
 	} else if ( cmd === 'wp' ) {
 		const wpArgs = argv._.slice( 2 );
 		// Ugly solution to allow interactive shell work in dev context
@@ -839,6 +864,33 @@ export function dockerDefine( yargs ) {
 					builder: yargCmd => defaultOpts( yargCmd ),
 					handler: async argv => {
 						await generateConfig( argv );
+					},
+				} )
+				.command( {
+					command: 'phpunit-integration <plugins...>',
+					description:
+						'Run PHPUnit for each specified plugin with all specified plugins activated (integration mode)',
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).positional( 'plugins', {
+							describe: 'Plugin slugs to activate and test',
+							type: 'string',
+							array: true,
+						} ),
+					handler: argv => {
+						// Get all the commands to run
+						const allCmds = buildExecCmd( argv );
+						let hasFailure = false;
+						for ( const opts of allCmds ) {
+							try {
+								composeExecutor( argv, opts, buildEnv( argv ) );
+							} catch ( e ) {
+								console.error( chalk.bgRed( `Error: ` ) + e );
+								hasFailure = true;
+							}
+						}
+						if ( hasFailure ) {
+							process.exit( 1 );
+						}
 					},
 				} );
 		},

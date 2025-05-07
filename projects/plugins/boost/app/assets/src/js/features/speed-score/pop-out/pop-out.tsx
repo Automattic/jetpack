@@ -93,8 +93,7 @@ export const VanillaPopOut = ( { message, onClose, onDismiss, isVisible }: Vanil
 				<Button
 					variant="primary"
 					href={ message?.ctaLink }
-					target="_blank"
-					rel="noreferrer"
+					isExternalLink={ true }
 					onClick={ onDismiss }
 				>
 					{ message.cta }

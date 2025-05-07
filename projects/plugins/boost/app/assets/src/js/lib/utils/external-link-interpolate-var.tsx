@@ -1,3 +1,5 @@
+import { ExternalLink } from '@wordpress/components';
+
 /**
  * Generates an Interpolate var for an external link (with target and rel
  * attributes appropriate set).
@@ -7,7 +9,6 @@
  */
 export default function externalLinkInterpolateVar( href: string, elementKey = 'link' ) {
 	return {
-		// eslint-disable-next-line jsx-a11y/anchor-has-content
-		[ elementKey ]: <a href={ href } target="_blank" rel="noopener noreferrer" />,
+		[ elementKey ]: <ExternalLink href={ href } />,
 	};
 }

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix tests on hosts configured with a negative offset from UTC by setting the `TZ` environment variable.
+
+

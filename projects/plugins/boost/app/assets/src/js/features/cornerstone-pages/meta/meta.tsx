@@ -16,6 +16,9 @@ import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/store
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { useNotices } from '$features/notice/context';
+import { useOptimizeLcpAction } from '$features/lcp/lib/stores/lcp-state';
+import { ExternalLink } from '@wordpress/components';
+
 const Meta = () => {
 	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
 	const [ cornerstonePages, setCornerstonePages ] = useCornerstonePages();
@@ -24,6 +27,7 @@ const Meta = () => {
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
 	const regenerateAction = useRegenerateCriticalCssAction();
+	const optimizeLcpAction = useOptimizeLcpAction();
 	const { setNotice } = useNotices();
 
 	const updateCornerstonePages = ( newValue: string ) => {
@@ -39,6 +43,7 @@ const Meta = () => {
 			if ( isPremium ) {
 				regenerateAction.mutate();
 			}
+			optimizeLcpAction.mutate();
 		} );
 	};
 
@@ -88,11 +93,8 @@ const Meta = () => {
 						),
 						{
 							link: (
-								// eslint-disable-next-line jsx-a11y/anchor-has-content
-								<a
+								<ExternalLink
 									href={ getSupportLink() }
-									target="_blank"
-									rel="noopener noreferrer"
 									onClick={ () => {
 										recordBoostEvent( 'cornerstone_pages_properties_failed', {} );
 									} }
@@ -115,11 +117,8 @@ const Meta = () => {
 					),
 					{
 						link: (
-							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							<a
+							<ExternalLink
 								href={ cornerstonePagesSupportLink }
-								target="_blank"
-								rel="noopener noreferrer"
 								onClick={ () => {
 									recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );
 								} }

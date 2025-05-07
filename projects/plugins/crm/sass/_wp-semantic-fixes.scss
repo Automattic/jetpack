@@ -52,7 +52,6 @@ i.card {
     padding: 0;
     min-width: auto;
     border: 0;
-    -webkit-box-shadow: none;
     box-shadow: none;
     background: none;
 
@@ -79,7 +78,7 @@ i.card {
 
     text-align: center;
     font-size: 3em;
-    line-height: 1em;
+    line-height: 1;
     padding-top: 1em;
     padding-bottom: 0.5em;
     
@@ -135,7 +134,7 @@ i.alternate {
     text-transform: none;
     text-shadow: none;
     font-weight: 500;
-    line-height: 1em;
+    line-height: 1;
     font-style: normal;
     text-align: center;
     text-decoration: none;
@@ -145,7 +144,6 @@ i.alternate {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    -webkit-transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
     transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
     will-change: '';
     -webkit-tap-highlight-color: transparent;

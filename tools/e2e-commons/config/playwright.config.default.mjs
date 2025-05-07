@@ -2,7 +2,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { defineConfig, devices } from '@playwright/test';
 import config from 'config';
-import { resolveSiteUrl, setWpEnvVars } from '../helpers/utils-helper';
+import { resolveSiteUrl, setWpEnvVars } from '../helpers/utils-helper.js';
 
 const reporter = [
 	[ 'list' ],

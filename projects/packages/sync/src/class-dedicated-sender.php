@@ -97,7 +97,7 @@ class Dedicated_Sender {
 		 * We want to check it too, to make sure we managed to cover more cases and be more certain we actually
 		 * catch calls to the endpoint.
 		 */
-		if ( ! isset( $_GET['rest_route'] ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['rest_route'] ) || ! is_string( $_GET['rest_route'] ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 

@@ -305,7 +305,7 @@ $jetpack-podcast-player-error: $alert-red;
 		font-weight: 400;
 		color: $jetpack-podcast-player-error;
 
-		& > span {
+		> span {
 			color: var( --jetpack-podcast-player-secondary );
 
 			&:not( .has-secondary ) {

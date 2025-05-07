@@ -741,7 +741,7 @@ class Functions {
 	/**
 	 * Return the list of Jetpack package versions.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.11.1
 	 *
 	 * @return array
 	 */

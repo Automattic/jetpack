@@ -59,3 +59,10 @@
 .jp-forms__export-modal-card-body-cta {
 	align-self: flex-end;
 }
+
+.jp-forms__export-button--large-green.jp-forms__export-button--large-green,
+.jp-forms__export-button--large-green.jp-forms__export-button--large-green:hover:not(:disabled,[aria-disabled="true"],.is-pressed) {
+	color: var(--jp-green-50);
+	border-color: var(--jp-green-50);
+	box-shadow: inset 0 0 0 1px var(--jp-green-50), 0 0 0 currentColor;
+}

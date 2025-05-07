@@ -123,12 +123,12 @@ button.jp-form-input-suffix {
 		margin-bottom: 0;
 	}
 
-	& > .jp-form-fieldset,
-	& > .jp-form-setting-explanation {
+	> .jp-form-fieldset,
+	> .jp-form-setting-explanation {
 		margin-left: rem( 36px );
 	}
 
-	& > .jp-form-fieldset {
+	> .jp-form-fieldset {
 		margin-bottom: rem( 16px );
 	}
 }

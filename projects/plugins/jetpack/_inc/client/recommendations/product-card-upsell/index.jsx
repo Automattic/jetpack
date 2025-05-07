@@ -1,5 +1,5 @@
-import { getCurrencyObject } from '@automattic/format-currency';
 import { isFirstMonthTrial } from '@automattic/jetpack-components';
+import { getCurrencyObject } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';

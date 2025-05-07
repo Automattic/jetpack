@@ -223,16 +223,6 @@ class Odyssey_Config_Data {
 			'delete_users'        => current_user_can( 'delete_users' ),
 			'remove_users'        => current_user_can( 'remove_users' ),
 			'own_site'            => current_user_can( 'manage_options' ), // Administrators are considered owners on site.
-			/**
-			 * Filter whether the Hosting section in Calypso should be available for site.
-			 *
-			 * @module json-api
-			 *
-			 * @since 8.2.0
-			 *
-			 * @param bool $view_hosting Can site access Hosting section. Default to false.
-			 */
-			'view_hosting'        => apply_filters( 'jetpack_json_api_site_can_view_hosting', false ),
 			'view_stats'          => current_user_can( 'view_stats' ),
 			'activate_plugins'    => current_user_can( 'activate_plugins' ),
 		);

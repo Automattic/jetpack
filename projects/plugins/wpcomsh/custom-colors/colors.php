@@ -13,8 +13,6 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
-define( 'WPCOM_USE_CACHED_COLORS', false );
-
 /**
  * The common color manager class.
  */
@@ -1351,9 +1349,6 @@ class Colors_Manager_Common {
 	 * @return array
 	 */
 	public static function sanitize_colors_on_save( $set_colors ) {
-		// since this function only gets called if the colors changed,
-		// we can safely invalidate without further checks
-		add_action( 'shutdown', array( __CLASS__, 'delete_cached_css_on_shutdown_because_reasons' ) );
 		return self::sanitize_colors( $set_colors );
 	}
 
@@ -1385,23 +1380,6 @@ class Colors_Manager_Common {
 			}
 		}
 		return $colors_wanted;
-	}
-
-	/**
-	 * Goodbye, cache!
-	 */
-	private static function delete_cached_css() {
-		$colors_manager           = (array) get_theme_mod( 'colors_manager' );
-		$colors_manager['cached'] = false;
-		set_theme_mod( 'colors_manager', $colors_manager );
-	}
-
-	/**
-	 * Goodbye, cache. Because reasons.
-	 */
-	public static function delete_cached_css_on_shutdown_because_reasons() {
-		remove_all_filters( 'theme_mod_colors_manager' );
-		self::delete_cached_css();
 	}
 
 	/**
@@ -1479,19 +1457,12 @@ class Colors_Manager_Common {
 	 * Return theme CSS.
 	 */
 	public static function get_theme_css() {
-		$opts       = get_theme_mod(
+		$opts   = get_theme_mod(
 			'colors_manager',
 			array(
 				'colors' => false,
-				'cached' => false,
 			)
 		);
-		$has_cached = isset( $opts['cached'] ) && $opts['cached'];
-
-		if ( $has_cached && WPCOM_USE_CACHED_COLORS ) {
-			return $opts['cached'];
-		}
-
 		$colors = $opts['colors'];
 
 		// extra colors/CSS: always on
@@ -1512,9 +1483,6 @@ class Colors_Manager_Common {
 		// Minify & cache for future use.
 		$minifier = new tubalmartin\CssMin\Minifier();
 		$css      = $minifier->run( $css );
-
-		$opts['cached'] = $css;
-		set_theme_mod( 'colors_manager', $opts );
 
 		return $css;
 	}
