@@ -122,9 +122,11 @@ class Dashboard {
 			return;
 		}
 
+		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
 		// MODERN VIEW -- remove the old submenu and add the new one.
 		// Check if Polldaddy/Crowdsignal plugin is active
-		if ( ! is_plugin_active( 'polldaddy/polldaddy.php' ) ) {
+		if ( ! $is_wpcom && ! is_plugin_active( 'polldaddy/polldaddy.php' ) ) {
 			remove_menu_page( 'feedback' );
 
 			add_menu_page(
