@@ -437,7 +437,7 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== $response['response']['code'] ) {
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return null;
 		}
 
@@ -462,7 +462,7 @@ class Jetpack_Backup {
 
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'rewind_state_fetch_failed' );
 		}
 
@@ -534,7 +534,7 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( 200 !== $response['response']['code'] ) {
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return null;
 		}
 
