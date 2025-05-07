@@ -7,13 +7,6 @@ if [[ -z "$CI" ]]; then
 	exit 1
 fi
 
-# Codeception is broken on PHP 8.1
-# See https://github.com/Codeception/Codeception/issues/6854
-if [[ "$PHP_VERSION" == "8.1" ]]; then
-	echo "Skipping this test, as Codeception is broken with PHP 8.1."
-	exit
-fi
-
 : "${WORDPRESS_DIR:?WORDPRESS_DIR needs to be set and non-empty.}"
 
 # Point output dir to the CI artifacts dir.
