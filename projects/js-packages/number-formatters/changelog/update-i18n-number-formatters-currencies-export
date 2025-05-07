@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Export the internally used currency-overrides object
