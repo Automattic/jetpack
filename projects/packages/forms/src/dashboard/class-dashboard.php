@@ -65,11 +65,9 @@ class Dashboard {
 
 	/**
 	 * Load JavaScript for the dashboard.
-	 *
-	 * @param string $hook The current admin page.
 	 */
-	public function load_admin_scripts( $hook ) {
-		if ( ! in_array( $hook, Dashboard_View_Switch::MODERN_SCREEN_IDS, true ) ) {
+	public function load_admin_scripts() {
+		if ( ! ( new Dashboard_View_Switch() )->is_modern_view() ) {
 			return;
 		}
 
