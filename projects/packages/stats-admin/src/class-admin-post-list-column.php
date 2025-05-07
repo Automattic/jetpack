@@ -232,7 +232,7 @@ class Admin_Post_List_Column {
 	 *
 	 * @return string The validated locale.
 	 */
-	protected function get_validated_locale( string $locale ): string {
+	public function get_validated_locale( string $locale ): string {
 		if ( isset( $this->locale ) ) {
 			return $this->locale;
 		}
