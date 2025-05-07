@@ -1,16 +1,15 @@
 /**
  * External dependencies
  */
-import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { Button, Card, CardBody, CardFooter, Dashicon, ExternalLink } from '@wordpress/components';
-import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
+import { Card, CardBody, CardFooter, Dashicon, ExternalLink } from '@wordpress/components';
+import { createInterpolateElement, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, create } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import CreateFormButton from '../components/create-form-button';
 import Details from '../components/details';
 import { config } from '../index';
 import AkismetSVG from './svg/akismet-svg';
@@ -82,26 +81,6 @@ const About = () => {
 
 	const isWpcomSite = isWpcomPlatformSite();
 
-	const onButtonClickHandler = useCallback(
-		( showPatterns: boolean ) => async () => {
-			const data = new FormData();
-
-			data.append( 'action', 'create_new_form' );
-			data.append( 'newFormNonce', config( 'newFormNonce' ) );
-
-			const response = await fetch( window.ajaxurl, { method: 'POST', body: data } );
-			const { post_url } = await response.json();
-
-			if ( post_url ) {
-				jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
-					button: 'forms',
-				} );
-				window.open( `${ post_url }${ showPatterns ? '&showJetpackFormsPatterns' : '' }` );
-			}
-		},
-		[]
-	);
-
 	return (
 		<div className="jp-forms__about">
 			<div className="section-patterns">
@@ -110,10 +89,7 @@ const About = () => {
 					<p className="section-patterns__header-description">
 						{ __( 'Start with one of many patterns, customize to your needs', 'jetpack-forms' ) }
 					</p>
-					<Button variant="primary" onClick={ onButtonClickHandler( true ) }>
-						<Icon icon={ create } />
-						{ __( 'Create a free form', 'jetpack-forms' ) }
-					</Button>
+					<CreateFormButton showPatterns />
 				</div>
 				<div className="section-patterns__grid">
 					{ patterns.map( pattern => (
@@ -202,10 +178,7 @@ const About = () => {
 			<div className="section-trust">
 				<h3>{ __( 'You are in good company', 'jetpack-forms' ) }</h3>
 				<h1>{ __( 'Trusted by more than 5 million WordPress sites', 'jetpack-forms' ) }</h1>
-				<Button variant="primary" onClick={ onButtonClickHandler( false ) }>
-					<Icon icon={ create } />
-					{ __( 'Create form', 'jetpack-forms' ) }
-				</Button>
+				<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
 			</div>
 			<div className="section-faq">
 				<div className="section-faq__container">
