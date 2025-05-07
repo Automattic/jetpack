@@ -167,7 +167,7 @@ class Inline_Search_Correction {
 		$original_query = sanitize_text_field( wp_unslash( $_GET['s'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a search query.
 		$search_result  = $this->get_search_result();
 
-		if ( empty( $search_result['corrected_query'] ) || empty( $search_result['results'] ) ) {
+		if ( ! is_array( $search_result) || empty( $search_result['corrected_query'] ) || empty( $search_result['results'] ) ) {
 			return '';
 		}
 
