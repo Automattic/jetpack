@@ -855,25 +855,9 @@
 			}
 
 			&.jetpack-field-multiple {
-				background-color: var(--jetpack--contact-form--input-background);
-				border-radius: var(--jetpack--contact-form--border-radius);
-				border: var(--jetpack--contact-form--border);
-				border-color: var(--jetpack--contact-form--border-color);
-				border-style: var(--jetpack--contact-form--border-style);
-				border-width: var(--jetpack--contact-form--border-size);
+				border-top: none;
 				padding: var(--jetpack--contact-form--input-padding, 16px);
 				padding-top: calc(var(--jetpack--contact-form--input-padding, 16px) + 4px);
-				border-top: none;
-
-				.notched-label {
-					height: unset;
-
-					&__leading, &__notch, &__trailing {
-						border-bottom: none;
-						border-left: none;
-						border-right: none;
-					}
-				}
 			}
 
 			&.jetpack-field-checkbox {
