@@ -166,15 +166,17 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 		}
 		const available = ( await self.ai.summarizer.capabilities() ).available;
 
-		if ( available === 'no' ) {
+		if ( available === 'unavailable' ) {
 			return;
 		}
 
 		const summarizerOptions = this.getSummarizerOptions( tone, wordCount );
 
-		const summarizer = await self.ai.summarizer.create( summarizerOptions );
-
-		if ( available === 'after-download' ) {
+		let summarizer;
+		if ( available === 'available' ) {
+			summarizer = await self.ai.summarizer.create( summarizerOptions );
+		} else {
+			summarizer = await self.ai.summarizer.create( summarizerOptions );
 			await summarizer.ready;
 		}
 

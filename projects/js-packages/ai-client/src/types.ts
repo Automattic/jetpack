@@ -167,7 +167,7 @@ declare global {
 			};
 			summarizer?: {
 				capabilities: () => Promise< {
-					available: 'no' | 'yes' | 'after-download';
+					available: 'unavailable' | 'available' | 'downloadable' | 'downloading' | string;
 				} >;
 				create: ( options: {
 					sharedContext?: string;
