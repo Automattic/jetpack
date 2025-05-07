@@ -1,5 +1,5 @@
-import { formatNumber } from '@automattic/number-formatters';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { formatNumber } from '@automattic/number-formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls, RichText, useBlockProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';

@@ -1,9 +1,9 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
 import React, { useMemo, useRef, useCallback } from 'react';
 import uPlot from 'uplot';
 import UplotReact from 'uplot-react';
 import { getUserLocale } from '../../lib/locale/index.ts';
-import { formatNumber } from '@automattic/number-formatters';
 import { annotationsPlugin } from './annotations-plugin.ts';
 import { dayHighlightPlugin } from './day-highlight-plugin.ts';
 import getDateFormat from './get-date-format.ts';

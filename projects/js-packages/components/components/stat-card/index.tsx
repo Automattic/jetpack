@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
+import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
 import { Tooltip } from '@wordpress/components';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
 import Text from '../text/index.tsx';
 import styles from './style.module.scss';
 import { StatCardProps } from './types.ts';

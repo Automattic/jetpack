@@ -1,5 +1,5 @@
-import { formatNumberCompact } from '@automattic/number-formatters';
 import { isSimpleSite, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { formatNumberCompact } from '@automattic/number-formatters';
 import {
 	ContrastChecker,
 	PanelColorSettings,

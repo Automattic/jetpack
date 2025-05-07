@@ -1,7 +1,7 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
-import { formatNumber } from '@automattic/number-formatters';
 
 import './style.scss';
 
