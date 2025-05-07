@@ -427,11 +427,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'maxSteps'    => $max_steps,
 			);
 
-			$wrapper_attributes = get_block_wrapper_attributes(
-				array( 'class' => $form_classes )
-			);
-
-			$r .= "<form action='" . esc_url( $url ) . "' data-wp-interactive='jetpack/form' $wrapper_attributes " . wp_interactivity_data_wp_context( $context ) . " method='post' $form_aria_label novalidate>\n";
+			$r .= "<form action='" . esc_url( $url ) . "' data-wp-interactive='jetpack/form' class='" . esc_attr( $form_classes ) . "' " . wp_interactivity_data_wp_context( $context ) . " method='post' $form_aria_label novalidate>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
