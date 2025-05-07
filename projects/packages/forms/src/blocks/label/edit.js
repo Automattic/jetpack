@@ -44,7 +44,6 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
 	const { label, defaultLabel, requiredText } = attributes;
-
 	const defaultPlaceholder = __( 'Add label…', 'jetpack-forms' );
 	const placeholder = emptyToNull( defaultLabel ) ?? emptyToNull( label ) ?? defaultPlaceholder;
 	const suffix = dateFormat
@@ -60,8 +59,9 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 	const inputStyles = useFormStyleOutlineClassesAndStyles( {
 		clientId,
 		relativeTo: 'sibling',
-		innerBlockName: 'jetpack/input',
+		isSynced,
 	} );
+	console.log( 'label', { isSynced, label, context } );
 	const blockProps = useBlockProps( { className } );
 
 	// The label value to use for the RichText field must manually fall back to the

@@ -25,8 +25,6 @@ export default function TextareaFieldEdit( props ) {
 	} );
 	const inputStyles = useFormStyleOutlineClassesAndStyles( {
 		clientId,
-		relativeTo: 'parent',
-		innerBlockName: 'jetpack/input',
 	} );
 	const defaultLabel = __( 'Message', 'jetpack-forms' );
 

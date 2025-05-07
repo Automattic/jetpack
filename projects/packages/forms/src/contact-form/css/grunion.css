@@ -388,10 +388,8 @@
 	z-index: 1;
 	border-bottom: 2px solid;
 	border-right: 2px solid;
-
 	transform: translateY(-50%) rotate(45deg);
 	transform-origin: center center;
-
 	pointer-events: none;
 }
 

@@ -43,8 +43,6 @@ const JetpackField = props => {
 	}, [ label, defaultLabel, required, requiredText, type ] );
 	const inputStyles = useFormStyleOutlineClassesAndStyles( {
 		clientId,
-		relativeTo: 'parent',
-		innerBlockName: 'jetpack/input',
 	} );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,

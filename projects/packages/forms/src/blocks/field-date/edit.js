@@ -42,8 +42,6 @@ export default function DateFieldEdit( props ) {
 	} );
 	const inputStyles = useFormStyleOutlineClassesAndStyles( {
 		clientId,
-		relativeTo: 'parent',
-		innerBlockName: 'jetpack/input',
 	} );
 	const onChange = useCallback(
 		value => {

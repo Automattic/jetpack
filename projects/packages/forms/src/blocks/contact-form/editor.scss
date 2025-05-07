@@ -689,6 +689,8 @@
 		border: 2px solid transparent;
 		overflow: visible;
 		margin-right: 4px;
+		// Match the frontend.
+		color: var(--jetpack--contact-form--text-color);
 	}
 
 	&__icon::after {
@@ -771,6 +773,7 @@
 
 			.notched-label__leading {
 				width: var(--notch-width);
+				border: var(--jetpack--contact-form--border);
 				border-right: none !important;
 				border-top-right-radius: unset !important;
 				border-bottom-right-radius: unset !important;
@@ -778,15 +781,13 @@
 			}
 
 			.notched-label__notch {
+				border: var(--jetpack--contact-form--border);
 				border-radius: unset !important;
 				padding: 0 4px;
 				transition: border 150ms linear;
-			}
-
-			// For some reason, when keeping the rule below together with the above selector,
-			// on production builds, the attributes are being reordered, causing side-effects
-			// stylelint-disable-next-line no-duplicate-selectors
-			.notched-label__notch {
+				// For some reason, when keeping the rule below together with the above selector,
+				// on production builds, the attributes are being reordered, causing side-effects
+				// stylelint-disable-next-line no-duplicate-selectors
 				border-left: none !important;
 				border-right: none !important;
 				box-sizing: content-box;
@@ -806,6 +807,7 @@
 			}
 
 			.notched-label__trailing {
+				border: var(--jetpack--contact-form--border);
 				flex-grow: 1;
 				border-left: none !important;
 				border-top-left-radius: unset !important;

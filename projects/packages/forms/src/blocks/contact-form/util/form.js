@@ -4,7 +4,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-const FORM_BLOCK_NAME = 'jetpack/contact-form';
+export const FORM_BLOCK_NAME = 'jetpack/contact-form';
 
 export const FORM_STYLE = {
 	ANIMATED: 'animated',

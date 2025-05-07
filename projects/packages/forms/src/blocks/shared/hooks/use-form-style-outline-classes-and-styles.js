@@ -2,7 +2,6 @@ import {
 	store as blockEditorStore,
 	__experimentalGetBorderClassesAndStyles as getBorderClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalGetColorClassesAndStyles as getColorClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	getTypographyClassesAndStyles,
 } from '@wordpress/block-editor';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -42,8 +41,9 @@ function getIntAsPxValue( value ) {
 
 export default function useFormStyleOutlineClassesAndStyles( {
 	clientId,
-	innerBlockName,
-	relativeTo,
+	innerBlockName = 'jetpack/input',
+	relativeTo = 'parent',
+	isSynced,
 } ) {
 	const formStyle = useFormStyle( clientId );
 	const { userConfig, baseConfig } = useSelect( select => {
@@ -70,21 +70,39 @@ export default function useFormStyleOutlineClassesAndStyles( {
 
 	const inputBlock = useSelect(
 		select => {
-			const { getBlock, getBlockRootClientId } = select( blockEditorStore );
+			const { getBlock, getBlockRootClientId, getBlocksByName } = select( blockEditorStore );
+
 			let parentClientId;
 			if ( relativeTo === 'sibling' ) {
-				// Get the parent block's clientId
+				// Get the parent block's clientId.
 				parentClientId = getBlockRootClientId( clientId );
-				if ( ! parentClientId ) return [];
+				if ( ! parentClientId ) {
+					return [];
+				}
 			} else {
 				parentClientId = clientId;
 			}
 			// Get the parent block
 			const parentBlock = getBlock( parentClientId );
-			if ( ! parentBlock ) return [];
+			if ( ! parentBlock ) {
+				return [];
+			}
+			// if (
+			// 	isSynced &&
+			// 	( parentBlock.name === 'jetpack/field-radio' ||
+			// 		parentBlock.name === 'jetpack/field-checkbox-multiple' )
+			// ) {
+			// 	const inputs = getBlocksByName( innerBlockName );
+			// 	if ( inputs.length === 0 ) {
+			// 		return [];
+			// 	}
+			// 	console.log( 'inputs', { isSynced, input: inputs[ 0 ] } );
+			// 	return getBlock( inputs[ 0 ] );
+			// }
+
 			return parentBlock.innerBlocks.find( block => block.name === innerBlockName );
 		},
-		[ clientId, relativeTo, innerBlockName ]
+		[ clientId, relativeTo, innerBlockName, isSynced ]
 	);
 
 	// Only return styles for outlined and animated forms.
@@ -98,15 +116,25 @@ export default function useFormStyleOutlineClassesAndStyles( {
 		style: mergedGlobalBlockStyles?.[ innerBlockName ],
 	} );
 
-	const blockColorClassesAndStyles = getColorClassesAndStyles( inputBlock?.attributes ?? {} );
-	const blockTypographyClassesAndStyles = getTypographyClassesAndStyles(
-		inputBlock?.attributes ?? {}
-	);
+	// Notched HTML only needs the background color and associated classes.
+	const attributesWithBackgroundColor = inputBlock?.attributes
+		? {
+				backgroundColor: inputBlock?.attributes?.backgroundColor,
+				style: {
+					color: {
+						background: inputBlock?.attributes?.style?.color?.background,
+					},
+				},
+		  }
+		: {};
+	const blockColorClassesAndStyles = getColorClassesAndStyles( attributesWithBackgroundColor );
 
+	/**
+	 * Remove undefined classname values.
+	 */
 	const filteredBlockColorClassesAndStyles = [
 		blockBorderClassesAndStyles?.className,
 		blockColorClassesAndStyles?.className,
-		blockTypographyClassesAndStyles?.className,
 	]
 		.filter( Boolean )
 		.join( ' ' );
@@ -114,18 +142,10 @@ export default function useFormStyleOutlineClassesAndStyles( {
 		className: filteredBlockColorClassesAndStyles,
 		style: {
 			...blockBorderClassesAndStyles?.style,
-			...blockColorClassesAndStyles?.style,
-			...blockTypographyClassesAndStyles?.style,
+			// Only background here.
+			backgroundColor: blockColorClassesAndStyles?.style?.backgroundColor,
 		},
 		cssVars: {
-			'--jetpack--contact-form--input-background':
-				blockColorClassesAndStyles?.style?.backgroundColor ||
-				globalBorderClassesAndStyles?.style?.backgroundColor ||
-				'rgb(255, 255, 255)',
-			'--jetpack--contact-form--input-color':
-				blockColorClassesAndStyles?.style?.color ||
-				globalBorderClassesAndStyles?.style?.color ||
-				'rgb(0, 0, 0)',
 			// Sets the value of top: calc(var(--jetpack--contact-form--border-size) * -1) for .notched-label__label.
 			'--jetpack--contact-form--border-size':
 				getIntAsPxValue( blockBorderClassesAndStyles?.style?.borderWidth ) ||
