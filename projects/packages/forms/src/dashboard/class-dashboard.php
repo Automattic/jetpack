@@ -15,6 +15,7 @@ use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -122,7 +123,7 @@ class Dashboard {
 			return;
 		}
 
-		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$is_wpcom = ( new Host() )->is_wpcom_simple();
 
 		// MODERN VIEW -- remove the old submenu and add the new one.
 		// Check if Polldaddy/Crowdsignal plugin is active
