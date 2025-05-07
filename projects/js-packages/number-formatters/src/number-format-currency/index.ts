@@ -1,7 +1,7 @@
 import debugFactory from 'debug';
 import { FALLBACK_CURRENCY } from '../constants.ts';
 import { getCachedFormatter } from '../get-cached-formatter.ts';
-import { defaultCurrencyOverrides } from './currencies.ts';
+import { CURRENCY_OVERRIDES } from './currencies.ts';
 import type { CurrencyOverride, CurrencyObject, NumberFormatCurrencyParams } from '../types.ts';
 
 const debug = debugFactory( 'number-formatters:number-format-currency' );
@@ -20,7 +20,7 @@ function getCurrencyOverride(
 	if ( currency === 'USD' && geoLocation && geoLocation !== '' && geoLocation !== 'US' ) {
 		return { symbol: 'US$' };
 	}
-	return defaultCurrencyOverrides[ currency ];
+	return CURRENCY_OVERRIDES[ currency ];
 }
 
 /**

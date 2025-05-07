@@ -1,4 +1,5 @@
 import createNumberFormatters from './create-number-formatters.ts';
+import { CURRENCY_OVERRIDES } from './number-format-currency/currencies.ts';
 
 const defaultFormatter = createNumberFormatters();
 
@@ -13,7 +14,6 @@ export const {
 
 export { createNumberFormatters };
 
-export type * from './types.ts';
+export { CURRENCY_OVERRIDES };
 
-// We can optionally export the formatters individually if we want to use them in a more granular way.
-// export { numberFormat, numberFormatCompact, numberFormatCurrency, getCurrencyObject };
+export type * from './types.ts';

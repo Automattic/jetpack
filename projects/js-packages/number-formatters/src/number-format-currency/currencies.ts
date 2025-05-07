@@ -1,6 +1,6 @@
 import type { CurrencyOverride } from '../types.ts';
 
-export const defaultCurrencyOverrides: Record< string, CurrencyOverride > = {
+export const CURRENCY_OVERRIDES: Record< string, CurrencyOverride > = {
 	AED: {
 		symbol: 'د.إ.‏',
 	},
