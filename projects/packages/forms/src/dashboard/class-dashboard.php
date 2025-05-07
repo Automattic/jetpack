@@ -113,7 +113,7 @@ class Dashboard {
 			add_submenu_page(
 				'',
 				__( 'Form Responses', 'jetpack-forms' ),
-				_x( 'Feedback', 'post type name shown in menu', 'jetpack-forms' ),
+				_x( 'Form Responses', 'menu label for form responses', 'jetpack-forms' ),
 				'edit_pages',
 				'jetpack-forms',
 				array( $this, 'render_dashboard' )
@@ -123,17 +123,32 @@ class Dashboard {
 		}
 
 		// MODERN VIEW -- remove the old submenu and add the new one.
-		remove_submenu_page( 'feedback', 'edit.php?post_type=feedback' );
+		// Check if Polldaddy/Crowdsignal plugin is active
+		if ( ! is_plugin_active( 'polldaddy/polldaddy.php' ) ) {
+			remove_menu_page( 'feedback' );
 
-		add_submenu_page(
-			'feedback',
-			__( 'Form Responses', 'jetpack-forms' ),
-			_x( 'Form Responses', 'post type name shown in menu', 'jetpack-forms' ),
-			'edit_pages',
-			'jetpack-forms',
-			array( $this, 'render_dashboard' ),
-			0 // as far top as we can go since responses are the default feedback page.
-		);
+			add_menu_page(
+				__( 'Form Responses', 'jetpack-forms' ),
+				_x( 'Feedback', 'post type name shown in menu', 'jetpack-forms' ),
+				'edit_pages',
+				'jetpack-forms',
+				array( $this, 'render_dashboard' ),
+				'dashicons-feedback',
+				25 // Places 'Feedback' under 'Comments' in the menu
+			);
+		} else {
+			remove_submenu_page( 'feedback', 'edit.php?post_type=feedback' );
+
+			add_submenu_page(
+				'feedback',
+				__( 'Form Responses', 'jetpack-forms' ),
+				_x( 'Form Responses', 'menu label for form responses', 'jetpack-forms' ),
+				'edit_pages',
+				'jetpack-forms',
+				array( $this, 'render_dashboard' ),
+				0 // as far top as we can go since responses are the default feedback page.
+			);
+		}
 	}
 
 	/**
