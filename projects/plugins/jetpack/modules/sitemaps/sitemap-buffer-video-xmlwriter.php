@@ -60,28 +60,28 @@ class Jetpack_Sitemap_Buffer_Video_XMLWriter extends Jetpack_Sitemap_Buffer_XMLW
 	 * @param array $array The URL item to append.
 	 */
 	protected function append_item( $array ) {
-		if ( ! empty( $array['url'] ) ) {
-			$this->writer->startElement( 'url' );
-
-			// Add URL elements
-			foreach ( $array['url'] as $tag => $value ) {
-				if ( $tag !== 'videos' ) {
-					$this->writer->writeElement( $tag, strval( $value ) );
-				}
-			}
-
-			// Add video:video elements
-			if ( ! empty( $array['url']['videos'] ) ) {
-				foreach ( $array['url']['videos'] as $video ) {
-					$this->writer->startElement( 'video:video' );
-					foreach ( $video as $tag => $value ) {
-						$this->writer->writeElement( "video:$tag", strval( $value ) );
-					}
-					$this->writer->endElement(); // video:video
-				}
-			}
-
-			$this->writer->endElement(); // url
+		// Return early if missing fundamental data.
+		if ( empty( $array['url']['video:video'] ) ) {
+			return;
 		}
+
+		$this->writer->startElement( 'url' );
+
+		// Add URL elements
+		foreach ( $array['url'] as $url_tag => $url_value ) {
+			if ( $url_tag === 'video:video' ) {
+				// Add video:video element and its children.
+				$this->writer->startElement( 'video:video' );
+				foreach ( $array['url']['video:video'] as $video_tag => $video_value ) {
+					$this->writer->writeElement( $video_tag, strval( $video_value ) );
+				}
+				$this->writer->endElement(); // video
+			} else {
+				// Add other eleents.
+				$this->writer->writeElement( $url_tag, strval( $url_value ) );
+			}
+		}
+
+		$this->writer->endElement(); // url
 	}
 }

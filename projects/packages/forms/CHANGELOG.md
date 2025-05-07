@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.51.0] - 2025-05-05
+### Added
+- File Upload field: Add registration with plan check. [#43177]
+- Add tabs to forms dashboard. [#43280]
+
+### Changed
+- Don't show colon after question mark for form labels. [#43307]
+- Polish integration modal style and copy. [#43252]
+- Remove default spacing from variations. [#43342]
+- Use WordPress.com specific URLs at about page. [#43341]
+- Update package dependencies. [#43314] [#43326] [#43350] [#43355]
+
+### Deprecated
+- Drop WP 6.6 support in Inbox by using new format for useResizeObserver. [#43343]
+
+### Fixed
+- Ensure forms modal handles services. [#43336]
+- Fix Google Drive connection button style and streamline connection. [#43245]
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+
 ## [0.50.0] - 2025-04-28
 ### Added
 - Add integration status to block sidebar. [#43178]
@@ -1024,6 +1045,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.51.0]: https://github.com/automattic/jetpack-forms/compare/v0.50.0...v0.51.0
 [0.50.0]: https://github.com/automattic/jetpack-forms/compare/v0.49.0...v0.50.0
 [0.49.0]: https://github.com/automattic/jetpack-forms/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/automattic/jetpack-forms/compare/v0.47.0...v0.48.0

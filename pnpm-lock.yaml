@@ -46,8 +46,8 @@ importers:
         specifier: 6.0.0
         version: 6.0.0
       '@slack/web-api':
-        specifier: 7.7.0
-        version: 7.7.0
+        specifier: 7.9.1
+        version: 7.9.1
       compare-versions:
         specifier: 6.1.1
         version: 6.1.1
@@ -99,8 +99,8 @@ importers:
         specifier: 6.0.0
         version: 6.0.0
       '@slack/web-api':
-        specifier: 7.3.2
-        version: 7.3.2
+        specifier: 7.9.1
+        version: 7.9.1
       glob:
         specifier: 11.0.0
         version: 11.0.0
@@ -320,8 +320,8 @@ importers:
         specifier: 7.26.10
         version: 7.26.10
       '@react-spring/web':
-        specifier: 9.7.3
-        version: 9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 9.7.5
+        version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@visx/axis':
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
@@ -360,7 +360,7 @@ importers:
         version: 3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@visx/xychart':
         specifier: 3.12.0
-        version: 3.12.0(@react-spring/web@9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -527,6 +527,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../number-formatters
       '@babel/runtime':
         specifier: ^7
         version: 7.26.10
@@ -1389,11 +1392,11 @@ importers:
         specifier: workspace:*
         version: link:../webpack-config
       '@tanstack/react-query':
-        specifier: 5.0.5
-        version: 5.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: 5.0.5
-        version: 5.0.5(@tanstack/react-query@5.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(@tanstack/react-query@5.75.1(react@18.3.1))(react@18.3.1)
       jest:
         specifier: '*'
         version: 29.7.0
@@ -1768,8 +1771,8 @@ importers:
         specifier: 0.3.2
         version: 0.3.2
       css-loader:
-        specifier: 6.5.1
-        version: 6.5.1(webpack@5.94.0)
+        specifier: 6.11.0
+        version: 6.11.0(webpack@5.94.0)
       esbuild-loader:
         specifier: 4.3.0
         version: 4.3.0(webpack@5.94.0)
@@ -1939,8 +1942,8 @@ importers:
         specifier: 3.38.1
         version: 3.38.1
       css-loader:
-        specifier: 6.5.1
-        version: 6.5.1(webpack@5.94.0)
+        specifier: 6.11.0
+        version: 6.11.0(webpack@5.94.0)
       css-minimizer-webpack-plugin:
         specifier: 5.0.1
         version: 5.0.1(webpack@5.94.0)
@@ -2010,9 +2013,6 @@ importers:
 
   projects/packages/backup:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -2028,9 +2028,12 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@tanstack/react-query':
-        specifier: 5.20.5
-        version: 5.20.5(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -2268,7 +2271,7 @@ importers:
         version: link:../../js-packages/idc
       '@wordpress/data':
         specifier: 10.22.0
-        version: 10.22.0(react@18.2.0)
+        version: 10.22.0(react@18.3.1)
       '@wordpress/element':
         specifier: 6.22.0
         version: 6.22.0
@@ -2292,11 +2295,11 @@ importers:
         specifier: 11.0.0
         version: 11.0.0
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -2534,17 +2537,17 @@ importers:
         specifier: 7.2.8
         version: 7.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-router-dom:
-        specifier: 6.28.1
-        version: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 6.30.0
+        version: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-transition-group:
         specifier: ^4.4.5
         version: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       redux:
-        specifier: 4.0.5
-        version: 4.0.5
+        specifier: 4.2.1
+        version: 4.2.1
       redux-thunk:
         specifier: 2.3.0
-        version: 2.3.0(redux@4.0.5)
+        version: 2.3.0(redux@4.2.1)
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -2679,7 +2682,7 @@ importers:
         version: 8.33.0
       '@tanstack/react-query':
         specifier: ^5.15.5
-        version: 5.20.5(react@18.3.1)
+        version: 5.75.1(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -2887,9 +2890,6 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -2917,9 +2917,12 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@tanstack/react-query':
-        specifier: 5.20.5
-        version: 5.20.5(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -2963,8 +2966,8 @@ importers:
         specifier: 15.8.1
         version: 15.8.1
       react-router-dom:
-        specifier: 6.28.1
-        version: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 6.30.0
+        version: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -3154,9 +3157,6 @@ importers:
       '@automattic/color-studio':
         specifier: 4.1.0
         version: 4.1.0
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3175,6 +3175,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@wordpress/base-styles':
         specifier: 5.22.0
         version: 5.22.0
@@ -3227,8 +3230,8 @@ importers:
         specifier: 7.2.8
         version: 7.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       redux:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.2.1
+        version: 4.2.1
       refx:
         specifier: 3.1.1
         version: 3.1.1
@@ -3340,9 +3343,6 @@ importers:
       '@automattic/components':
         specifier: 2.2.0
         version: 2.2.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.22.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/i18n-utils':
         specifier: 1.2.3
         version: 1.2.3
@@ -3380,8 +3380,8 @@ importers:
         specifier: 1.0.1
         version: 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
-        specifier: 5.20.5
-        version: 5.20.5(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -3428,8 +3428,8 @@ importers:
         specifier: 15.8.1
         version: 15.8.1
       react-router-dom:
-        specifier: 6.28.1
-        version: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 6.30.0
+        version: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       wpcom-proxy-request:
         specifier: ^7.0.3
         version: 7.0.6
@@ -3593,8 +3593,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-router-dom:
-        specifier: 6.28.1
-        version: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 6.30.0
+        version: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tus-js-client:
         specifier: 4.2.3
         version: 4.2.3
@@ -3774,8 +3774,8 @@ importers:
         specifier: 7.2.8
         version: 7.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       redux:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.2.1
+        version: 4.2.1
       refx:
         specifier: 3.1.1
         version: 3.1.1
@@ -4018,9 +4018,6 @@ importers:
 
   projects/plugins/boost:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
@@ -4030,12 +4027,15 @@ importers:
       '@automattic/jetpack-react-data-sync-client':
         specifier: workspace:*
         version: link:../../js-packages/react-data-sync-client
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@react-spring/core':
         specifier: 9.7.5
         version: 9.7.5(react@18.3.1)
       '@react-spring/web':
-        specifier: 9.7.3
-        version: 9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 9.7.5
+        version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react':
         specifier: 18.3.18
         version: 18.3.18
@@ -4058,8 +4058,8 @@ importers:
         specifier: 5.3.0
         version: 5.3.0
       react-router-dom:
-        specifier: 6.28.1
-        version: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 6.30.0
+        version: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-use-measure:
         specifier: 2.1.1
         version: 2.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4279,8 +4279,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
       '@tanstack/react-query':
-        specifier: 4.35.3
-        version: 4.35.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 4.36.1
+        version: 4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -4315,8 +4315,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-router-dom:
-        specifier: 6.28.1
-        version: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 6.30.0
+        version: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -4349,8 +4349,8 @@ importers:
         specifier: 18.3.5
         version: 18.3.5(@types/react@18.3.18)
       css-loader:
-        specifier: 6.5.1
-        version: 6.5.1(webpack@5.94.0)
+        specifier: 6.11.0
+        version: 6.11.0(webpack@5.94.0)
       glob:
         specifier: 11.0.0
         version: 11.0.0
@@ -4481,12 +4481,15 @@ importers:
       '@automattic/jetpack-subscribers-dashboard':
         specifier: workspace:*
         version: link:../../packages/subscribers-dashboard
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@automattic/popup-monitor':
         specifier: 1.0.2
         version: 1.0.2
       '@automattic/request-external-access':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.0.1
+        version: 1.0.1
       '@automattic/social-previews':
         specifier: 2.1.0-beta.10
         version: 2.1.0-beta.10(@babel/runtime@7.26.10)(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4635,14 +4638,14 @@ importers:
         specifier: 7.2.8
         version: 7.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-router-dom:
-        specifier: 6.28.0
-        version: 6.28.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 6.30.0
+        version: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       redux:
-        specifier: 4.0.5
-        version: 4.0.5
+        specifier: 4.2.1
+        version: 4.2.1
       redux-thunk:
         specifier: 2.3.0
-        version: 2.3.0(redux@4.0.5)
+        version: 2.3.0(redux@4.2.1)
       refx:
         specifier: 3.1.1
         version: 3.1.1
@@ -4843,11 +4846,11 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/scan
       '@tanstack/react-query':
-        specifier: 5.20.5
-        version: 5.20.5(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: 5.20.5
-        version: 5.20.5(@tanstack/react-query@5.20.5(react@18.3.1))(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(@tanstack/react-query@5.75.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -4891,8 +4894,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-router-dom:
-        specifier: 6.28.1
-        version: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 6.30.0
+        version: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -5283,8 +5286,8 @@ importers:
         specifier: 1.51.1
         version: 1.51.1
       '@slack/web-api':
-        specifier: 7.3.2
-        version: 7.3.2
+        specifier: 7.9.1
+        version: 7.9.1
       '@types/lodash-es':
         specifier: 4.17.12
         version: 4.17.12
@@ -5625,9 +5628,6 @@ packages:
 
   '@automattic/popup-monitor@1.0.2':
     resolution: {integrity: sha512-Y4LMfdkV8iDmezu/7Ov/18JaFJ0QAy5vCntiP0S5AhLt4R/kjLtBt4ifNXNbdKTthGxlL17+LJ1bNtHBVCzPwg==}
-
-  '@automattic/request-external-access@1.0.0':
-    resolution: {integrity: sha512-vhN72lwPFzhCVMP1l2ODBqt7fI5jfeJz1JyBnq/AUCg9PpsJfdk4vZxhSOLhSSds8VMkU5WaNnaztkYfkkYOiA==}
 
   '@automattic/request-external-access@1.0.1':
     resolution: {integrity: sha512-i7q2yhhQ5V1iLzkVxGG+oCkPIBgkZEfLj0mqCky5qeIleUk+XSXcOFJ1IerOmNeAYxho596rpqlfUyD2evWuLA==}
@@ -7335,12 +7335,6 @@ packages:
   '@react-spring/types@9.7.5':
     resolution: {integrity: sha512-HVj7LrZ4ReHWBimBvu2SKND3cDVUPWKLqRTmWe/fNY6o1owGOX0cAHbdPDTMelgBlVbrTKrre6lFkhqGZErK/g==}
 
-  '@react-spring/web@9.7.3':
-    resolution: {integrity: sha512-BXt6BpS9aJL/QdVqEIX9YoUy8CE6TJrU0mNCqSoxdXlIeNcEBWOfIyE6B14ENNsyQKS3wOWkiJfco0tCr/9tUg==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-
   '@react-spring/web@9.7.5':
     resolution: {integrity: sha512-lmvqGwpe+CSttsWNZVr+Dg62adtKhauGwLyGE/RRyZ8AAMLgb9x3NDMA5RMElXo+IMyTkPp7nxTB8ZQlmhb6JQ==}
     peerDependencies:
@@ -7365,8 +7359,8 @@ packages:
   '@redux-saga/types@1.2.1':
     resolution: {integrity: sha512-1dgmkh+3so0+LlBWRhGA33ua4MYr7tUOj+a9Si28vUi0IUFNbff1T3sgpeDJI/LaC75bBYnQ0A3wXjn0OrRNBA==}
 
-  '@remix-run/router@1.21.0':
-    resolution: {integrity: sha512-xfSkCAchbdG5PnbrKqFWwia4Bi61nH+wm8wLEqfHDyp7Y3dZzgqS2itV8i4gAq9pC2HsTpwyBC6Ds8VHZ96JlA==}
+  '@remix-run/router@1.23.0':
+    resolution: {integrity: sha512-O3rHJzAQKamUz1fvE0Qaw0xSFqsA/yafi2iqeE0pvdFtCO1viYx8QL6f3Ln/aCCTLxs68SLf0KPM9eSeM8yBnA==}
     engines: {node: '>=14.0.0'}
 
   '@rollup/plugin-babel@6.0.4':
@@ -7571,12 +7565,8 @@ packages:
     resolution: {integrity: sha512-n0EGm7ENQRxlXbgKSrQZL69grzg1gHLAVd+GlRVQJ1NSORo0FrApR7wql/gaKdu2n4TO83Sq/AmeUOqD60aXUA==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
 
-  '@slack/web-api@7.3.2':
-    resolution: {integrity: sha512-hyxwSsUhpOEVN5ORB3ne7TAXQwXl0wxBAyNTCfp4Qc/o9rpEEvY4kfsx7mZF5AhYPcdEeI1XP2bSFrh3W/HGKQ==}
-    engines: {node: '>= 18', npm: '>= 8.6.0'}
-
-  '@slack/web-api@7.7.0':
-    resolution: {integrity: sha512-DtRyjgQi0mObA2uC6H8nL2OhAISKDhvtOXgRjGRBnBhiaWb6df5vPmKHsOHjpweYALBMHtiqE5ajZFkDW/ag8Q==}
+  '@slack/web-api@7.9.1':
+    resolution: {integrity: sha512-qMcb1oWw3Y/KlUIVJhkI8+NcQXq1lNymwf+ewk93ggZsGd6iuz9ObQsOEbvlqlx1J+wd8DmIm3DORGKs0fcKdg==}
     engines: {node: '>= 18', npm: '>= 8.6.0'}
 
   '@storybook/addon-a11y@8.6.7':
@@ -7985,36 +7975,23 @@ packages:
   '@tannin/sprintf@1.2.0':
     resolution: {integrity: sha512-T0ORaQrH6kNFGzTg285RVPK+NCYZxOoA+r0QfKgHqK+yk5RuYPSKDa18XCLtycCNq+VWKpfyDpzGUGhYgCV+kw==}
 
-  '@tanstack/query-core@4.35.3':
-    resolution: {integrity: sha512-PS+WEjd9wzKTyNjjQymvcOe1yg8f3wYc6mD+vb6CKyZAKvu4sIJwryfqfBULITKCla7P9C4l5e9RXePHvZOZeQ==}
+  '@tanstack/query-core@4.36.1':
+    resolution: {integrity: sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==}
 
-  '@tanstack/query-core@5.0.5':
-    resolution: {integrity: sha512-MThCETMkHDHTnFZHp71L+SqTtD5d6XHftFCVR1xRJdWM3qGrlQ2VCXaj0SKVcyJej2e1Opa2c7iknu1llxCDNQ==}
+  '@tanstack/query-core@5.75.0':
+    resolution: {integrity: sha512-rk8KQuCdhoRkzjRVF3QxLgAfFUyS0k7+GCQjlGEpEGco+qazJ0eMH6aO1DjDjibH7/ik383nnztua3BG+lOnwg==}
 
-  '@tanstack/query-core@5.20.5':
-    resolution: {integrity: sha512-T1W28gGgWn0A++tH3lxj3ZuUVZZorsiKcv+R50RwmPYz62YoDEkG4/aXHZELGkRp4DfrW07dyq2K5dvJ4Wl1aA==}
+  '@tanstack/query-devtools@5.74.7':
+    resolution: {integrity: sha512-nSNlfuGdnHf4yB0S+BoNYOE1o3oAH093weAYZolIHfS2stulyA/gWfSk/9H4ZFk5mAAHb5vNqAeJOmbdcGPEQw==}
 
-  '@tanstack/query-devtools@5.0.5':
-    resolution: {integrity: sha512-xjuOhOrrO50sPoJ4WG9yPe3imQ0Ds/nutnmwdTqjM2ZTIkflh//p7q2iB6IxFBY9sB106h+PULlma8sgTuOKAQ==}
-
-  '@tanstack/query-devtools@5.20.2':
-    resolution: {integrity: sha512-BZfSjhk/NGPbqte5E3Vc1Zbj28uWt///4I0DgzAdWrOtMVvdl0WlUXK23K2daLsbcyfoDR4jRI4f2Z5z/mMzuw==}
-
-  '@tanstack/react-query-devtools@5.0.5':
-    resolution: {integrity: sha512-vJyS7HXx2zw43TQjm3m4uyaNUgGizOpK2SZL9Lc+DZSuhFbuZ55UEYJTz8yudCbHdLXlkuVZwo6TWWOhXWJFeA==}
+  '@tanstack/react-query-devtools@5.75.1':
+    resolution: {integrity: sha512-6S71fJRBlb0adlG5z/OHRqZqtHoPYVCklf/KCnOoZ3vdx9O/K9BLvqeeDeMUkZ6Rak/IupbEbvBsFoUiMHwZiQ==}
     peerDependencies:
-      '@tanstack/react-query': ^5.0.5
-      react: ^18.0.0
-      react-dom: ^18.0.0
+      '@tanstack/react-query': ^5.75.1
+      react: ^18 || ^19
 
-  '@tanstack/react-query-devtools@5.20.5':
-    resolution: {integrity: sha512-Wl7IzNuKCb4h41a5iH/YXNwalHItqJPCAr4r8+0iUYOLHNOf3E9P0G4kzZ9sqDoWKxY04qst6Vrij9bwPzLQRQ==}
-    peerDependencies:
-      '@tanstack/react-query': ^5.20.5
-      react: ^18.0.0
-
-  '@tanstack/react-query@4.35.3':
-    resolution: {integrity: sha512-UgTPioip/rGG3EQilXfA2j4BJkhEQsR+KAbF+KIuvQ7j4MkgnTCJF01SfRpIRNtQTlEfz/+IL7+jP8WA8bFbsw==}
+  '@tanstack/react-query@4.36.1':
+    resolution: {integrity: sha512-y7ySVHFyyQblPl3J3eQBWpXZkliroki3ARnBKsdJchlgt7yJLRDUcf4B8soufgiYt3pEQIkBWBx1N9/ZPIeUWw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -8025,22 +8002,10 @@ packages:
       react-native:
         optional: true
 
-  '@tanstack/react-query@5.0.5':
-    resolution: {integrity: sha512-ZG0Q4HZ0iuI8mWiZ2/MdVYPHbrmAVhMn7+gLOkxJh6zLIgCL4luSZlohzN5Xt4MjxfxxWioO1nemwpudaTsmQg==}
+  '@tanstack/react-query@5.75.1':
+    resolution: {integrity: sha512-tN+gG+eXCHYm+VpmdXUP1rfE9LUrRzgYozTkBZtJV1/WFM3vwWNKQC8G6b2RKcs+2cPg+hdToZHZfjL3bF4yIQ==}
     peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-
-  '@tanstack/react-query@5.20.5':
-    resolution: {integrity: sha512-6MHwJ8G9cnOC/XKrwt56QMc91vN7hLlAQNUA0ubP7h9Jj3a/CmkUwT6ALdFbnVP+PsYdhW3WONa8WQ4VcTaSLQ==}
-    peerDependencies:
-      react: ^18.0.0
+      react: ^18 || ^19
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -9416,6 +9381,9 @@ packages:
   axios@1.8.2:
     resolution: {integrity: sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==}
 
+  axios@1.9.0:
+    resolution: {integrity: sha512-re4CqKTJaURpzbLHtIi6XpDv20/CnpXOtjRY5/CU32L8gU8ek9UIivcfvSWvmKEngmVbrUtPpdDwWDWL7DNHvg==}
+
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
     engines: {node: '>= 0.4'}
@@ -10070,12 +10038,6 @@ packages:
         optional: true
       webpack:
         optional: true
-
-  css-loader@6.5.1:
-    resolution: {integrity: sha512-gEy2w9AnJNnD9Kuo4XAP9VflW/ujKoS9c/syO+uWMlm5igc7LysKzPXaDoR2vroROkSwsTS2tGr1yGGEbZOYZQ==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      webpack: ^5.0.0
 
   css-minimizer-webpack-plugin@5.0.1:
     resolution: {integrity: sha512-3caImjKFQkS+ws1TGcFn0V1HyDJFq1Euy589JlD6/3rV2kj+w7r5G9WDMgSHvpvXHNZ2calVypZWuEDQd9wfLg==}
@@ -13797,11 +13759,6 @@ packages:
     resolution: {integrity: sha512-hlSJDQ2synMPKFZOsKo9Hi8WWZTC7POR8EmWvTSjow+VDgKzkmjQvFm2fk0tmRw+f0vTOIYKlarR0iL4996pdg==}
     engines: {node: '>=16.14.0'}
 
-  react-dom@18.2.0:
-    resolution: {integrity: sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==}
-    peerDependencies:
-      react: ^18.2.0
-
   react-dom@18.3.1:
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
@@ -13879,28 +13836,15 @@ packages:
       '@types/react':
         optional: true
 
-  react-router-dom@6.28.0:
-    resolution: {integrity: sha512-kQ7Unsl5YdyOltsPGl31zOjLrDv+m2VcIEcIHqYYD3Lp0UppLjrzcfJqDJwXxFw3TH/yvapbnUvPlAj7Kx5nbg==}
+  react-router-dom@6.30.0:
+    resolution: {integrity: sha512-x30B78HV5tFk8ex0ITwzC9TTZMua4jGyA9IUlH1JLQYQTFyxr/ZxwOJq7evg1JX1qGVUcvhsmQSKdPncQrjTgA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  react-router-dom@6.28.1:
-    resolution: {integrity: sha512-YraE27C/RdjcZwl5UCqF/ffXnZDxpJdk9Q6jw38SZHjXs7NNdpViq2l2c7fO7+4uWaEfcwfGCv3RSg4e1By/fQ==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      react: '>=16.8'
-      react-dom: '>=16.8'
-
-  react-router@6.28.0:
-    resolution: {integrity: sha512-HrYdIFqdrnhDw0PqG/AKjAqEqM7AvxCz0DQ4h2W8k6nqmc5uRBYDag0SBxx9iYz5G8gnuNVLzUe13wl9eAsXXg==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      react: '>=16.8'
-
-  react-router@6.28.1:
-    resolution: {integrity: sha512-2omQTA3rkMljmrvvo6WtewGdVh45SpL9hGiCI9uUrwGGfNFDIvGK4gYJsKlJoNVi6AQZcopSCballL+QGOm7fA==}
+  react-router@6.30.0:
+    resolution: {integrity: sha512-D3X8FyH9nBcTSHGdEKurK7r8OYE1kKFn3d/CF+CoxbSHkxU7o37+Uh7eAHRXr6k2tSExXYO++07PeXJtA/dEhQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
@@ -13932,10 +13876,6 @@ packages:
     peerDependencies:
       react: '>=16.13'
       react-dom: '>=16.13'
-
-  react@18.2.0:
-    resolution: {integrity: sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==}
-    engines: {node: '>=0.10.0'}
 
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
@@ -13990,12 +13930,6 @@ packages:
     resolution: {integrity: sha512-km6dclyFnmcvxhAcrQV2AkZmPQjzPDjgVlQtR0EQjxZPyJ0BnMf3in1ryuR8A2qU0HldVRfxYXbFSKlI3N7Slw==}
     peerDependencies:
       redux: ^4.0.0
-
-  redux@4.0.5:
-    resolution: {integrity: sha512-VSz1uMAH24DM6MF72vcojpYPtrTUu3ByVWfPL1nPfVRb5mZVTve5GnNCUV53QM/BZ66xfWrm0CTWoM+Xlz8V1w==}
-
-  redux@4.1.1:
-    resolution: {integrity: sha512-hZQZdDEM25UY2P493kPYuKqviVwZ58lEmGQNeQ+gXa+U0gYPUBf7NKYazbe3m+bs/DzM/ahN12DbF+NG8i0CWw==}
 
   redux@4.2.1:
     resolution: {integrity: sha512-LAUYz4lc+Do8/g7aeRa8JkyDErK6ekstQaqWQrNRW//MY1TvCEpMtpTWvlQ+FPbWCx+Xixu/6SHt5N0HR+SB4w==}
@@ -16035,7 +15969,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-modal: 3.16.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-router-dom: 6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router-dom: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-slider: 2.0.5(@babel/runtime@7.26.10)(react@18.3.1)
       utility-types: 3.11.0
       uuid: 9.0.1
@@ -16061,7 +15995,7 @@ snapshots:
       '@automattic/load-script': 1.0.0
       '@automattic/oauth-token': 1.0.1
       '@automattic/shopping-cart': 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@tanstack/react-query': 5.20.5(react@18.3.1)
+      '@tanstack/react-query': 5.75.1(react@18.3.1)
       '@wordpress/api-fetch': 7.22.0
       '@wordpress/data': 10.22.0(react@18.3.1)
       '@wordpress/data-controls': 4.21.0(react@18.3.1)
@@ -16139,7 +16073,7 @@ snapshots:
       '@automattic/i18n-utils': 1.2.3
       '@automattic/typography': 1.0.0
       '@automattic/viewport': 1.1.0
-      '@tanstack/react-query': 5.20.5(react@18.3.1)
+      '@tanstack/react-query': 5.75.1(react@18.3.1)
       '@wordpress/base-styles': 5.22.0
       '@wordpress/components': 28.13.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.22.0(react@18.3.1)
@@ -16179,10 +16113,6 @@ snapshots:
     dependencies:
       events: 3.3.0
       lodash: 4.17.21
-
-  '@automattic/request-external-access@1.0.0':
-    dependencies:
-      '@automattic/popup-monitor': 1.0.2
 
   '@automattic/request-external-access@1.0.1':
     dependencies:
@@ -18294,15 +18224,6 @@ snapshots:
 
   '@react-spring/types@9.7.5': {}
 
-  '@react-spring/web@9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@react-spring/animated': 9.7.5(react@18.3.1)
-      '@react-spring/core': 9.7.5(react@18.3.1)
-      '@react-spring/shared': 9.7.5(react@18.3.1)
-      '@react-spring/types': 9.7.5
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
   '@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@react-spring/animated': 9.7.5(react@18.3.1)
@@ -18337,7 +18258,7 @@ snapshots:
 
   '@redux-saga/types@1.2.1': {}
 
-  '@remix-run/router@1.21.0': {}
+  '@remix-run/router@1.23.0': {}
 
   '@rollup/plugin-babel@6.0.4(@babel/core@7.26.10)(rollup@3.29.5)':
     dependencies:
@@ -18557,30 +18478,13 @@ snapshots:
 
   '@slack/types@2.14.0': {}
 
-  '@slack/web-api@7.3.2':
+  '@slack/web-api@7.9.1':
     dependencies:
       '@slack/logger': 4.0.0
       '@slack/types': 2.14.0
       '@types/node': 20.17.30
       '@types/retry': 0.12.0
-      axios: 1.8.2
-      eventemitter3: 5.0.1
-      form-data: 4.0.2
-      is-electron: 2.2.2
-      is-stream: 2.0.1
-      p-queue: 6.6.2
-      p-retry: 4.6.2
-      retry: 0.13.1
-    transitivePeerDependencies:
-      - debug
-
-  '@slack/web-api@7.7.0':
-    dependencies:
-      '@slack/logger': 4.0.0
-      '@slack/types': 2.14.0
-      '@types/node': 20.17.30
-      '@types/retry': 0.12.0
-      axios: 1.8.2
+      axios: 1.9.0
       eventemitter3: 5.0.1
       form-data: 4.0.2
       is-electron: 2.2.2
@@ -19122,47 +19026,29 @@ snapshots:
 
   '@tannin/sprintf@1.2.0': {}
 
-  '@tanstack/query-core@4.35.3': {}
+  '@tanstack/query-core@4.36.1': {}
 
-  '@tanstack/query-core@5.0.5': {}
+  '@tanstack/query-core@5.75.0': {}
 
-  '@tanstack/query-core@5.20.5': {}
+  '@tanstack/query-devtools@5.74.7': {}
 
-  '@tanstack/query-devtools@5.0.5': {}
-
-  '@tanstack/query-devtools@5.20.2': {}
-
-  '@tanstack/react-query-devtools@5.0.5(@tanstack/react-query@5.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.75.1(@tanstack/react-query@5.75.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/query-devtools': 5.0.5
-      '@tanstack/react-query': 5.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
-  '@tanstack/react-query-devtools@5.20.5(@tanstack/react-query@5.20.5(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@tanstack/query-devtools': 5.20.2
-      '@tanstack/react-query': 5.20.5(react@18.3.1)
+      '@tanstack/query-devtools': 5.74.7
+      '@tanstack/react-query': 5.75.1(react@18.3.1)
       react: 18.3.1
 
-  '@tanstack/react-query@4.35.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query@4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 4.35.3
+      '@tanstack/query-core': 4.36.1
       react: 18.3.1
       use-sync-external-store: 1.5.0(react@18.3.1)
     optionalDependencies:
       react-dom: 18.3.1(react@18.3.1)
 
-  '@tanstack/react-query@5.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query@5.75.1(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.0.5
-      react: 18.3.1
-    optionalDependencies:
-      react-dom: 18.3.1(react@18.3.1)
-
-  '@tanstack/react-query@5.20.5(react@18.3.1)':
-    dependencies:
-      '@tanstack/query-core': 5.20.5
+      '@tanstack/query-core': 5.75.0
       react: 18.3.1
 
   '@testing-library/dom@10.4.0':
@@ -19773,18 +19659,6 @@ snapshots:
 
   '@visx/point@3.12.0': {}
 
-  '@visx/react-spring@3.12.0(@react-spring/web@9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@react-spring/web': 9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/react': 18.3.18
-      '@visx/axis': 3.12.0(react@18.3.1)
-      '@visx/grid': 3.12.0(react@18.3.1)
-      '@visx/scale': 3.12.0
-      '@visx/text': 3.12.0(react@18.3.1)
-      classnames: 2.5.1
-      prop-types: 15.8.1
-      react: 18.3.1
-
   '@visx/react-spring@3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@react-spring/web': 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -19875,34 +19749,6 @@ snapshots:
       d3-voronoi: 1.1.4
       prop-types: 15.8.1
       react: 18.3.1
-
-  '@visx/xychart@3.12.0(@react-spring/web@9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@react-spring/web': 9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/lodash': 4.17.16
-      '@types/react': 18.3.18
-      '@visx/annotation': 3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@visx/axis': 3.12.0(react@18.3.1)
-      '@visx/event': 3.12.0
-      '@visx/glyph': 3.12.0(react@18.3.1)
-      '@visx/grid': 3.12.0(react@18.3.1)
-      '@visx/react-spring': 3.12.0(@react-spring/web@9.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
-      '@visx/responsive': 3.12.0(react@18.3.1)
-      '@visx/scale': 3.12.0
-      '@visx/shape': 3.12.0(react@18.3.1)
-      '@visx/text': 3.12.0(react@18.3.1)
-      '@visx/tooltip': 3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@visx/vendor': 3.12.0
-      '@visx/voronoi': 3.12.0(react@18.3.1)
-      classnames: 2.5.1
-      d3-interpolate-path: 2.2.1
-      d3-shape: 2.1.0
-      lodash: 4.17.21
-      mitt: 2.1.0
-      prop-types: 15.8.1
-      react: 18.3.1
-    transitivePeerDependencies:
-      - react-dom
 
   '@visx/xychart@3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -20670,23 +20516,6 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@wordpress/compose@7.22.0(react@18.2.0)':
-    dependencies:
-      '@babel/runtime': 7.26.10
-      '@types/mousetrap': 1.6.15
-      '@wordpress/deprecated': 4.22.0
-      '@wordpress/dom': 4.22.0
-      '@wordpress/element': 6.22.0
-      '@wordpress/is-shallow-equal': 5.22.0
-      '@wordpress/keycodes': 4.22.0
-      '@wordpress/priority-queue': 3.22.0
-      '@wordpress/undo-manager': 1.22.0
-      change-case: 4.1.2
-      clipboard: 2.0.11
-      mousetrap: 1.6.5
-      react: 18.2.0
-      use-memo-one: 1.1.3(react@18.2.0)
-
   '@wordpress/compose@7.22.0(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.26.10
@@ -20865,25 +20694,6 @@ snapshots:
       '@wordpress/data': 10.22.0(react@18.3.1)
       '@wordpress/deprecated': 4.22.0
       react: 18.3.1
-
-  '@wordpress/data@10.22.0(react@18.2.0)':
-    dependencies:
-      '@babel/runtime': 7.26.10
-      '@wordpress/compose': 7.22.0(react@18.2.0)
-      '@wordpress/deprecated': 4.22.0
-      '@wordpress/element': 6.22.0
-      '@wordpress/is-shallow-equal': 5.22.0
-      '@wordpress/priority-queue': 3.22.0
-      '@wordpress/private-apis': 1.22.0
-      '@wordpress/redux-routine': 5.22.0(redux@5.0.1)
-      deepmerge: 4.3.1
-      equivalent-key-map: 0.2.2
-      is-plain-object: 5.0.0
-      is-promise: 4.0.0
-      react: 18.2.0
-      redux: 5.0.1
-      rememo: 4.0.2
-      use-memo-one: 1.1.3(react@18.2.0)
 
   '@wordpress/data@10.22.0(react@18.3.1)':
     dependencies:
@@ -22461,6 +22271,14 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
+  axios@1.9.0:
+    dependencies:
+      follow-redirects: 1.15.9
+      form-data: 4.0.2
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
   axobject-query@4.1.0: {}
 
   b4a@1.6.7: {}
@@ -23276,18 +23094,6 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.7.1
     optionalDependencies:
-      webpack: 5.94.0(webpack-cli@6.0.1)
-
-  css-loader@6.5.1(webpack@5.94.0):
-    dependencies:
-      icss-utils: 5.1.0(postcss@8.4.47)
-      postcss: 8.4.47
-      postcss-modules-extract-imports: 3.1.0(postcss@8.4.47)
-      postcss-modules-local-by-default: 4.2.0(postcss@8.4.47)
-      postcss-modules-scope: 3.2.1(postcss@8.4.47)
-      postcss-modules-values: 4.0.0(postcss@8.4.47)
-      postcss-value-parser: 4.2.0
-      semver: 7.7.1
       webpack: 5.94.0(webpack-cli@6.0.1)
 
   css-minimizer-webpack-plugin@5.0.1(webpack@5.94.0):
@@ -27801,12 +27607,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  react-dom@18.2.0(react@18.2.0):
-    dependencies:
-      loose-envify: 1.4.0
-      react: 18.2.0
-      scheduler: 0.23.2
-
   react-dom@18.3.1(react@18.3.1):
     dependencies:
       loose-envify: 1.4.0
@@ -27898,28 +27698,16 @@ snapshots:
       use-callback-ref: 1.3.3(react@18.3.1)
       use-sidecar: 1.1.3(react@18.3.1)
 
-  react-router-dom@6.28.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-router-dom@6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@remix-run/router': 1.21.0
+      '@remix-run/router': 1.23.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      react-router: 6.28.0(react@18.3.1)
+      react-router: 6.30.0(react@18.3.1)
 
-  react-router-dom@6.28.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-router@6.30.0(react@18.3.1):
     dependencies:
-      '@remix-run/router': 1.21.0
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-router: 6.28.1(react@18.3.1)
-
-  react-router@6.28.0(react@18.3.1):
-    dependencies:
-      '@remix-run/router': 1.21.0
-      react: 18.3.1
-
-  react-router@6.28.1(react@18.3.1):
-    dependencies:
-      '@remix-run/router': 1.21.0
+      '@remix-run/router': 1.23.0
       react: 18.3.1
 
   react-slider@2.0.5(@babel/runtime@7.26.10)(react@18.3.1):
@@ -27956,10 +27744,6 @@ snapshots:
       debounce: 1.2.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-
-  react@18.2.0:
-    dependencies:
-      loose-envify: 1.4.0
 
   react@18.3.1:
     dependencies:
@@ -28026,18 +27810,9 @@ snapshots:
     dependencies:
       '@redux-saga/core': 1.3.0
 
-  redux-thunk@2.3.0(redux@4.0.5):
+  redux-thunk@2.3.0(redux@4.2.1):
     dependencies:
-      redux: 4.0.5
-
-  redux@4.0.5:
-    dependencies:
-      loose-envify: 1.4.0
-      symbol-observable: 1.2.0
-
-  redux@4.1.1:
-    dependencies:
-      '@babel/runtime': 7.26.10
+      redux: 4.2.1
 
   redux@4.2.1:
     dependencies:
@@ -29648,10 +29423,6 @@ snapshots:
   use-debounce@3.4.3(react@18.3.1):
     dependencies:
       react: 18.3.1
-
-  use-memo-one@1.1.3(react@18.2.0):
-    dependencies:
-      react: 18.2.0
 
   use-memo-one@1.1.3(react@18.3.1):
     dependencies:

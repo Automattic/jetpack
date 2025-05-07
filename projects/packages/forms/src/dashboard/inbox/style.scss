@@ -290,14 +290,11 @@ $action-bar-height: 88px;
 
 .jp-forms__inbox__dataviews__container {
 	height: 100%;
-	padding: 0 35px 35px 35px;
 	box-sizing: border-box;
 	min-height: 400px;
 }
 
 .jp-forms__inbox__dataviews {
-	border: 1px solid #dcdcde;
-	border-radius: 8px;
 	display: flex;
 	flex-direction: column;
 	height: 100%;
@@ -307,6 +304,10 @@ $action-bar-height: 88px;
 	.dataviews-wrapper {
 		background: #fff;
 		border-radius: 8px;
+
+		.dataviews__view-actions {
+			align-items: center;
+		}
 	}
 }
 

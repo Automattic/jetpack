@@ -212,6 +212,12 @@ class Concatenate_JS extends WP_Scripts {
 			$do_concat = apply_filters( 'js_do_concat', $do_concat, $handle );
 
 			if ( true === $do_concat ) {
+
+				// If the number of files in the group is greater than the maximum, start a new group.
+				if ( isset( $javascripts[ $level ] ) && count( $javascripts[ $level ]['handles'] ) >= jetpack_boost_minify_concat_max_files() ) {
+					++$level;
+				}
+
 				if ( ! isset( $javascripts[ $level ] ) ) {
 					$javascripts[ $level ]['type'] = 'concat';
 				}
