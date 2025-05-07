@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Tests: Fix Codeception tests on PHP 8.1.
+Phan: Exclude generated file from analysis.
