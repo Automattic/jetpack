@@ -8,8 +8,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-import './editor.scss';
-
 const PREVIOUS_BUTTON_TEMPLATE = [
 	'jetpack/button',
 	{
