@@ -844,6 +844,10 @@
 						padding-left: calc(var(--notch-width) + 4px);
 						padding-right: calc(var(--notch-width) + 4px);
 					}
+					.jetpack-field-dropdown__toggle .jetpack-field-dropdown__icon,
+					.jetpack-field-dropdown__toggle .rich-text {
+						z-index: 1;
+					}
 				}
 			}
 
@@ -887,18 +891,19 @@
 
 			.jetpack-field__input, .jetpack-field__textarea {
 				display: flex;
-				clip-path: padding-box;
-
 				/*
 				 * For the Outlined block style, labels render the input border styles,
 				 * unfortuntely, the !important rule is required to overcome the inline
 				 * border styles that block supports apply for block instance styles.
 				 */
 				border-color: transparent !important;
+				background: transparent !important;
 				border-radius: 0 !important;
 				outline: none;
 				padding-left: calc(var(--notch-width) + 4px);
 				padding-right: calc(var(--notch-width) + 4px);
+				z-index: 1;
+				clip-path: padding-box;
 			}
 		}
 	}
@@ -1000,9 +1005,9 @@
 	.notched-label__leading {
 		// border: var(--jetpack--contact-form--border);
 		border-color: var(--jetpack--contact-form--border-color);
-		border-style: var(--jetpack--contact-form--border-style);
+		//border-style: var(--jetpack--contact-form--border-style);
 		// border-width: var(--jetpack--contact-form--border-size);
-		border-radius: var(--jetpack--contact-form--border-radius);
+		//border-radius: var(--jetpack--contact-form--border-radius);
 		width: var(--notch-width);
 		border-right: none !important;
 		border-top-right-radius: unset !important;
