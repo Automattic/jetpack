@@ -230,6 +230,14 @@ class Admin_Post_List_Column {
 			return $this->formatter[ $locale ];
 		}
 
+		/*
+		 * Check if the locale is valid and available.
+		 * If not, fallback to en_US.
+		 */
+		if ( ! in_array( $locale, \IntlCalendar::getAvailableLocales(), true ) ) {
+			$locale = 'en_US';
+		}
+
 		/**
 		 * PHP's NumberFormatter is just a wrapper over the ICU C library. The library does support decimal compact short formatter, but PHP doesn't have a stub for it (=< PHP 8.4).
 		 *
