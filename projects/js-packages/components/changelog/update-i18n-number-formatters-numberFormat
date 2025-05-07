@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Replace number-format component with number-formatters package
