@@ -103,13 +103,16 @@ export default function useFormStyleOutlineClassesAndStyles( {
 		inputBlock?.attributes ?? {}
 	);
 
+	const filteredBlockColorClassesAndStyles = [
+		blockBorderClassesAndStyles?.className,
+		blockColorClassesAndStyles?.className,
+		blockTypographyClassesAndStyles?.className,
+	]
+		.filter( Boolean )
+		.join( ' ' );
+
 	return {
-		className:
-			blockBorderClassesAndStyles?.className +
-			' ' +
-			blockColorClassesAndStyles?.className +
-			' ' +
-			blockTypographyClassesAndStyles?.className,
+		className: filteredBlockColorClassesAndStyles,
 		style: {
 			...blockBorderClassesAndStyles?.style,
 			...blockColorClassesAndStyles?.style,
