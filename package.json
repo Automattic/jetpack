@@ -52,6 +52,9 @@
 			"svelte-preprocess",
 			"swiper",
 			"unrs-resolver"
+		],
+		"onlyBuiltDependencies": [
+			"@parcel/watcher"
 		]
 	}
 }
