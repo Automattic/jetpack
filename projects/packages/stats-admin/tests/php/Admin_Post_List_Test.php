@@ -267,6 +267,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 		$this->assertEquals( $output, $instance->get_validated_locale( $input ) );
 
 		// Test caching behavior
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- This is done on purpose to ensure the second call will return the cached value.
 		$this->assertEquals( $output, $instance->get_validated_locale( $input ) );
 	}
 
