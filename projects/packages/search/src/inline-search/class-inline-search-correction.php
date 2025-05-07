@@ -186,7 +186,7 @@ class Inline_Search_Correction {
 	/**
 	 * Get the search result from the Inline_Search instance.
 	 *
-	 * @return array|null The search result or null if not available.
+	 * @return array|\WP_Error|null The search result or null if not available.
 	 */
 	private function get_search_result() {
 		$inline_search = Inline_Search::instance();
