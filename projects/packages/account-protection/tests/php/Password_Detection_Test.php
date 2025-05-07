@@ -515,4 +515,16 @@ class Password_Detection_Test extends BaseTestCase {
 		// Assert that we reached this point (no fatal error occurred) and that NULL is returned
 		$this->assertNull( $return, 'NULL should be returned when a NULL user is provided.' );
 	}
+
+	/**
+	 * Tests that login_form_password_detection handles a NULL password gracefully without causing fatal errors.
+	 */
+	public function test_login_form_password_detection_handles_null_password_gracefully(): void {
+		$sut       = new Password_Detection();
+		$some_user = new \WP_User();
+		$return    = $sut->login_form_password_detection( $some_user, null );
+
+		// Assert that that \WP_User is returned.
+		$this->assertSame( $some_user, $return, 'User should be returned when a NULL password is provided.' );
+	}
 }

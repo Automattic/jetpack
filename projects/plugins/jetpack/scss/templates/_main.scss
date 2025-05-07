@@ -1,6 +1,7 @@
 // ==========================================================================
 // Main Layout
 // ==========================================================================
+@use 'sass:color';
 
 .configure .frame.top.fixed {
 
@@ -540,8 +541,8 @@
 // ==========================================================================
 
 .jetpack-message {
-	background: lighten($green, 5%);
-	border: 1px solid darken($green, 5%);
+	background: color.adjust($green, $lightness: 5%);
+	border: 1px solid color.adjust($green, $lightness: -5%);
 	margin: 33px auto 0;
 	max-width: 90%;
 	position: relative;

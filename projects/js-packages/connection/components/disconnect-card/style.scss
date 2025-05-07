@@ -47,7 +47,7 @@
 		// smaller screens
 		@media only screen and (max-width: 782px) {
 			// When a headline is above a stats block, add some space.
-			& + .jp-disconnect-card__card-stat-block {
+			+ .jp-disconnect-card__card-stat-block {
 				margin-top: 0.5rem;
 			}
 		}

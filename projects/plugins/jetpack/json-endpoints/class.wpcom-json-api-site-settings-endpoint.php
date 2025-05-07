@@ -462,7 +462,17 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
-						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
+						'wpcom_featured_image_in_email'    => ( function () use ( $site ) {
+							if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+								$registered_date = method_exists( $site, 'get_registered_date' ) ? $site->get_registered_date() : '';
+								// Compare to May 2, 2025 (ISO 8601 format)
+								if ( $registered_date && $registered_date !== '0000-00-00T00:00:00+00:00' && strtotime( $registered_date ) >= strtotime( '2025-05-02T00:00:00+00:00' ) ) {
+									return (bool) get_option( 'wpcom_featured_image_in_email', true );
+								}
+							}
+							// For all other sites, use the saved value or default to false for legacy behavior.
+							return (bool) get_option( 'wpcom_featured_image_in_email', false );
+						} )(),
 						'jetpack_gravatar_in_email'        => (bool) get_option( 'jetpack_gravatar_in_email', true ),
 						'jetpack_author_in_email'          => (bool) get_option( 'jetpack_author_in_email', true ),
 						'jetpack_post_date_in_email'       => (bool) get_option( 'jetpack_post_date_in_email', true ),

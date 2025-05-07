@@ -33,19 +33,19 @@
 	flex-grow: 1;
 	overflow-x: visible;
 
-	& div,
-	& del,
-	& ins {
+	div,
+	del,
+	ins {
 		padding: 0 var( --spacing-base ); // 0px | 8px
 		text-decoration: none;
 	}
 
-	& del {
+	del {
 		background-color: var( --jp-red-0 );
 		color: var( --jp-red-60 );
 	}
 
-	& ins {
+	ins {
 		background-color: var( --jp-green-5 );
 		color: var( --jp-green-60 );
 	}

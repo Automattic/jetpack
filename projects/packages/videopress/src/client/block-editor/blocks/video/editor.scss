@@ -48,7 +48,7 @@
 		}
 	}
 
-	& > .components-placeholder {
+	> .components-placeholder {
 		min-height: 170px;
 	}
 }
@@ -64,7 +64,7 @@
 	justify-content: center;
 	min-height: 70px;
 
-	& > svg {
+	> svg {
 		margin-top: 0;
 	}
 }

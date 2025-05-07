@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import "../../scss/calypso-colors";
 @import "../../scss/color-functions";
 @import "../../scss/functions/rem";
@@ -36,9 +37,9 @@
 
 	&[disabled],
 	&:disabled {
-		color: lighten( $gray, 30% );
+		color: color.adjust( $gray, $lightness: 30% );
 		background: $white;
-		border-color: lighten( $gray, 30% );
+		border-color: color.adjust( $gray, $lightness: 30% );
 		cursor: default;
 	}
 
@@ -53,7 +54,7 @@
 		font-size: $font-body-extra-small;
 
 		&:disabled {
-			color: lighten( $gray, 30% );
+			color: color.adjust( $gray, $lightness: 30% );
 		}
 
 		.gridicon {
@@ -125,36 +126,36 @@
   }
 
   &:focus {
-	box-shadow: 0 0 0 2px lighten( $alert-red, 20% );
+	box-shadow: 0 0 0 2px color.adjust( $alert-red, $lightness: 20% );
   }
 
   &[disabled],
   &:disabled {
-	color: lighten( $alert-red, 30% );
-	border-color: lighten( $gray, 30% );
+	color: color.adjust( $alert-red, $lightness: 30% );
+	border-color: color.adjust( $gray, $lightness: 30% );
   }
 }
 
 .dops-button.is-primary.is-scary {
   background: $alert-red;
-  border-color: darken( $alert-red, 20% );
+  border-color: color.adjust( $alert-red, $lightness: -20% );
   color: $white;
 
   &:hover,
   &:focus {
-	border-color: darken( $alert-red, 40% );
+	border-color: color.adjust( $alert-red, $lightness: -40% );
   }
 
   &[disabled],
   &:disabled {
-	background: lighten( $alert-red, 20% );
+	background: color.adjust( $alert-red, $lightness: 20% );
 	border-color: tint( $alert-red, 30% );
   }
 }
 
 .dops-button.is-borderless {
   box-shadow: none;
-  color: darken( $gray, 10% );
+  color: color.adjust( $gray, $lightness: -10% );
   padding-left: 0;
   padding-right: 0;
 
@@ -178,7 +179,7 @@
 
   &[disabled],
   &:disabled {
-	color: lighten( $gray, 30% );
+	color: color.adjust( $gray, $lightness: 30% );
 	background: $white;
 	cursor: default;
 
@@ -192,11 +193,11 @@
 
 	&:hover,
 	&:focus {
-	  color: darken( $alert-red, 20% );
+	  color: color.adjust( $alert-red, $lightness: -20% );
 	}
 
 	&[disabled] {
-	  color: lighten( $alert-red, 30% );
+	  color: color.adjust( $alert-red, $lightness: 30% );
 	}
   }
 

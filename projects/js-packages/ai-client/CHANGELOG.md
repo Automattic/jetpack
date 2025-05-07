@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.10] - 2025-05-05
+### Changed
+- Update package dependencies. [#43326]
+
+### Fixed
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+
 ## [0.27.9] - 2025-04-28
 ### Fixed
 - Code: Remove unneeded `data:` URI components. [#43227]
@@ -596,6 +604,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.27.10]: https://github.com/Automattic/jetpack-ai-client/compare/v0.27.9...v0.27.10
 [0.27.9]: https://github.com/Automattic/jetpack-ai-client/compare/v0.27.8...v0.27.9
 [0.27.8]: https://github.com/Automattic/jetpack-ai-client/compare/v0.27.7...v0.27.8
 [0.27.7]: https://github.com/Automattic/jetpack-ai-client/compare/v0.27.6...v0.27.7

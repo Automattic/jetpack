@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.12.0] - 2025-05-05
+### Added
+- Full Sync: Ensure procesing of start, end, and cancelled actions. [#43287]
+
+### Changed
+- Full Sync: Update status properly when sending non-chunked full sync actions. [#43229]
+
+### Fixed
+- Jetpack Sync: Fix checksum support for 'woocommerce_order_itemeta' table. [#43281]
+
 ## [4.11.1] - 2025-04-28
 ### Changed
 - Jetpack Sync: Switch `jetpack_package_version` to a callable. [#43188]
@@ -1458,6 +1468,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.12.0]: https://github.com/Automattic/jetpack-sync/compare/v4.11.1...v4.12.0
 [4.11.1]: https://github.com/Automattic/jetpack-sync/compare/v4.11.0...v4.11.1
 [4.11.0]: https://github.com/Automattic/jetpack-sync/compare/v4.10.1...v4.11.0
 [4.10.1]: https://github.com/Automattic/jetpack-sync/compare/v4.10.0...v4.10.1

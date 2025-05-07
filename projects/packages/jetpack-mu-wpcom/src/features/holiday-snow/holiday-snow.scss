@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+@use 'sass:list';
+
 $grid_width: 600;
 $snow_density: 10;
 $snow_speed: 9s;
@@ -23,9 +25,9 @@ html {
 	);
 
 	@for $i from 0 to $snow_density {
-		$v: nth($snow_sizes, $i + 1);
-		$alpha: nth($snow_alphas, $i + 1);
-		$grad: $grad, radial-gradient($v + px $v + px at (round(nth($snow_positions, $i * 2 + 1) * ($grid_width - $v * 2)) + $v) + px (round(nth($snow_positions, $i * 2 + 2) * ($grid_width - $v * 2)) + $v) + px,
+		$v: list.nth($snow_sizes, $i + 1);
+		$alpha: list.nth($snow_alphas, $i + 1);
+		$grad: $grad, radial-gradient($v + px $v + px at (round(list.nth($snow_positions, $i * 2 + 1) * ($grid_width - $v * 2)) + $v) + px (round(list.nth($snow_positions, $i * 2 + 2) * ($grid_width - $v * 2)) + $v) + px,
 				rgba(255, 255, 255, $alpha) 50%,
 				rgba(0, 0, 0, 0));
 	}

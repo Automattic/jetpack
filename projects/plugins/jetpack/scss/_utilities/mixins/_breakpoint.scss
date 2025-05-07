@@ -12,8 +12,7 @@
  * 	};
  * }
  */
-
-// ==========================================================================
+@use 'sass:map';
 
 // Add or remove breakpoints as you desire
 $breakpoints:(
@@ -31,7 +30,7 @@ $breakpoints:(
 
 		@if $size == $breakpoint {
 
-			@media (max-width: map-get($breakpoints, $breakpoint)){
+			@media (max-width: map.get($breakpoints, $breakpoint)){
 				@content;
 			}
 		}
@@ -45,7 +44,7 @@ $breakpoints:(
 
 		@if $size == $breakpoint {
 
-			@media (min-width: map-get($breakpoints, $breakpoint)){
+			@media (min-width: map.get($breakpoints, $breakpoint)){
 				@content;
 			}
 		}

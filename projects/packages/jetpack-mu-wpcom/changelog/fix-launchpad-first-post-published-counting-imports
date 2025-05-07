@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+prevent import processes from marking the first post published tasks complete in launchpad

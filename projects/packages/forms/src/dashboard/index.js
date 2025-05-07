@@ -7,6 +7,7 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import Layout from './components/layout';
 import Inbox from './inbox';
 import LandingPage from './landing';
 import DashboardNotices from './notices-list';
@@ -24,16 +25,22 @@ window.addEventListener( 'load', () => {
 
 	const router = createHashRouter( [
 		{
-			path: '/landing',
-			element: <LandingPage />,
-		},
-		{
-			path: '/responses',
-			element: <Inbox />,
-		},
-		{
 			path: '/',
-			element: <Navigate to="/responses" />,
+			element: <Layout />,
+			children: [
+				{
+					index: true,
+					element: <Navigate to={ config( 'hasFeedback' ) ? '/responses' : '/about' } />,
+				},
+				{
+					path: 'responses',
+					element: <Inbox />,
+				},
+				{
+					path: 'about',
+					element: <LandingPage />,
+				},
+			],
 		},
 	] );
 
