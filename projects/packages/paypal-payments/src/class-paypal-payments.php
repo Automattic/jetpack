@@ -1,6 +1,6 @@
 <?php
 /**
- * Package description here
+ * PayPal Payments package.
  *
  * @package automattic/jetpack-paypal-payments
  */
@@ -8,9 +8,9 @@
 namespace Automattic\Jetpack;
 
 /**
- * Class description.
+ * Class PayPal_Payments.
  */
-class Simple_Payments {
+class PayPal_Payments {
 
 	const PACKAGE_VERSION = '0.1.0-alpha';
 }
