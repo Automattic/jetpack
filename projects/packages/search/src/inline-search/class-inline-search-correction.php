@@ -126,7 +126,7 @@ class Inline_Search_Correction {
 	 */
 	public function maybe_use_corrected_query( $query ) {
 		$search_result = $this->get_search_result();
-		if ( ! empty( $search_result['corrected_query'] ) && ! empty( $search_result['results'] ) ) {
+		if ( is_array( $search_result) && ! empty( $search_result['corrected_query'] ) && ! empty( $search_result['results'] ) ) {
 			return $search_result['corrected_query'];
 		}
 
