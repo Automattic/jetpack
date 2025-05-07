@@ -5,12 +5,11 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, create } from '@wordpress/icons';
+import { create } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import { config } from '../../index';
-import './styles.scss';
 
 type CreateFormButtonProps = {
 	label?: string;
@@ -48,12 +47,7 @@ export default function CreateFormButton( {
 	}, [ showPatterns ] );
 
 	return (
-		<Button
-			variant="primary"
-			onClick={ onButtonClickHandler }
-			className="jp-forms__create-form-button"
-		>
-			<Icon icon={ create } className="jp-forms__create-form-button-icon" />
+		<Button variant="primary" onClick={ onButtonClickHandler } icon={ create }>
 			{ label }
 		</Button>
 	);
