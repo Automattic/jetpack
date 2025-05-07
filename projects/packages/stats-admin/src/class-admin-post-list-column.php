@@ -113,7 +113,7 @@ class Admin_Post_List_Column {
 
 				$views = $post_views[ $post_id ] ?? null;
 
-				$current_locale = get_bloginfo( 'language' );
+				$current_locale = get_locale();
 
 				if ( null !== $views ) {
 					$formatted_views = class_exists( '\NumberFormatter' )
