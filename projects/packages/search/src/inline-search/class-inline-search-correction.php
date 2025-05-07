@@ -126,7 +126,7 @@ class Inline_Search_Correction {
 	 */
 	public function maybe_use_corrected_query( $query ) {
 		$search_result = $this->get_search_result();
-		if ( is_array( $search_result) && ! empty( $search_result['corrected_query'] ) && ! empty( $search_result['results'] ) ) {
+		if ( is_array( $search_result ) && ! empty( $search_result['corrected_query'] ) && ! empty( $search_result['results'] ) ) {
 			return $search_result['corrected_query'];
 		}
 
@@ -164,10 +164,11 @@ class Inline_Search_Correction {
 	 * @return string The HTML for the corrected query notice or empty string if none.
 	 */
 	private function get_corrected_query_html() {
-		$original_query = sanitize_text_field( wp_unslash( $_GET['s'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a search query.
+		global $wp_query;
+		$original_query = $wp_query->get( 's' );
 		$search_result  = $this->get_search_result();
 
-		if ( ! is_array( $search_result) || empty( $search_result['corrected_query'] ) || empty( $search_result['results'] ) ) {
+		if ( ! is_array( $search_result ) || empty( $search_result['corrected_query'] ) || empty( $search_result['results'] ) ) {
 			return '';
 		}
 
