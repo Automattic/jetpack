@@ -151,6 +151,14 @@ const About = () => {
 						<div className="section-data__features-feature feature-connect">
 							<div className="app-icons-wrapper">
 								<img
+									src={ `${ ASSETS_URL }/images/akismet-icon.png` }
+									alt={ __( 'Akismet icon', 'jetpack-forms' ) }
+								/>
+								<img
+									src={ `${ ASSETS_URL }/images/jetpack-icon.png` }
+									alt={ __( 'Jetpack icon', 'jetpack-forms' ) }
+								/>
+								<img
 									src={ `${ ASSETS_URL }/images/google-sheets-icon.png` }
 									alt={ __( 'Google Sheets icon', 'jetpack-forms' ) }
 								/>
