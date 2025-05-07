@@ -47,11 +47,9 @@ window.addEventListener( 'load', () => {
 
 	const root = createRoot( container );
 	root.render(
-		<>
-			<ThemeProvider>
-				<RouterProvider router={ router } />
-				<DashboardNotices />
-			</ThemeProvider>
-		</>
+		<ThemeProvider>
+			<RouterProvider router={ router } />
+			<DashboardNotices />
+		</ThemeProvider>
 	);
 } );
