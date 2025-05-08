@@ -186,8 +186,13 @@
 						height: 100%;
 					}
 
-					.akismet-icon {
+					.akismet-icon,
+					.creative-mail-icon {
 						clip-path: circle(16px at center);
+					}
+
+					.jetpack-icon {
+						fill: var(--jp-green-40);
 					}
 				}
 			}

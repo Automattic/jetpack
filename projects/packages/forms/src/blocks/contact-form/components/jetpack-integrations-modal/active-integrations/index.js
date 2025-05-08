@@ -2,7 +2,7 @@ import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
 import { Spinner, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import AkismetIcon from '../../../../../icons/akismet-icon';
+import AkismetIcon from '../../../../../icons/akismet';
 import './style.scss';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
