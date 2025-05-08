@@ -48,10 +48,10 @@ function useSiblingBlock( clientId ) {
 	return inputBlock;
 }
 
-const WithNotchedWrapper = ( { formStyle, styles, className, children } ) => {
+const WithNotchedWrapper = ( { formStyle, styles, cssVars, className, children } ) => {
 	if ( formStyle === FORM_STYLE.OUTLINED ) {
 		return (
-			<div className="notched-label">
+			<div className="notched-label" style={ cssVars }>
 				<div className={ clsx( 'notched-label__leading', className ) } style={ styles } />
 				<div className={ clsx( 'notched-label__notch', className ) } style={ styles }>
 					{ children }
@@ -92,7 +92,10 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 		inputBlockName: inputBlock?.name,
 		inputBlockAttributes: inputBlock?.attributes,
 	} );
-	const blockProps = useBlockProps( { className } );
+	const blockProps = useBlockProps( {
+		className,
+		style: inputStyles?.cssVars,
+	} );
 
 	// The label value to use for the RichText field must manually fall back to the
 	// placeholder to be rendered in previews.
@@ -104,7 +107,8 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 	return (
 		<WithNotchedWrapper
 			formStyle={ formStyle }
-			styles={ { ...inputStyles?.style, ...inputStyles?.cssVars } }
+			styles={ inputStyles?.style }
+			cssVars={ inputStyles?.cssVars }
 			className={ inputStyles?.className }
 		>
 			<div { ...blockProps }>

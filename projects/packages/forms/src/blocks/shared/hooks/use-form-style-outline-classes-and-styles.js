@@ -88,6 +88,25 @@ export default function useFormStyleOutlineClassesAndStyles( {
 			.filter( Boolean )
 			.join( ' ' );
 
+		let styleSpecificCssVars = {};
+
+		if ( formStyle === FORM_STYLE.OUTLINED ) {
+			styleSpecificCssVars = {
+				'--jetpack--contact-form--notch-width':
+					'max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius))',
+			};
+		}
+		if ( formStyle === FORM_STYLE.ANIMATED ) {
+			styleSpecificCssVars = {
+				'--jetpack--contact-form--left-offset':
+					'calc(var(--jetpack--contact-form--input-padding-left, 16px) + var(--jetpack--contact-form--border-size))',
+				'--jetpack--contact-form--label-left':
+					'max(var(--jetpack--contact-form--left-offset), var(--jetpack--contact-form--border-radius))',
+				'--jetpack--contact-form--field-padding':
+					'calc(var(--jetpack--contact-form--label-left) - var(--jetpack--contact-form--border-size))',
+			};
+		}
+
 		return {
 			className: filteredBlockColorClassesAndStyles,
 			style: {
@@ -108,8 +127,7 @@ export default function useFormStyleOutlineClassesAndStyles( {
 					blockBorderClassesAndStyles?.style?.borderLeftRadius ||
 					globalBorderClassesAndStyles?.style?.borderRadius ||
 					globalBorderClassesAndStyles?.style?.borderLeftRadius,
-				'--jetpack--contact-form--notch-width':
-					'max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius))',
+				...styleSpecificCssVars,
 			},
 		};
 	}, [ inputBlockAttributes, mergedGlobalBlockStyles, inputBlockName, formStyle ] );
