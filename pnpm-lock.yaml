@@ -2470,6 +2470,9 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
@@ -2549,8 +2552,8 @@ importers:
         specifier: 2.3.0
         version: 2.3.0(redux@4.2.1)
       sass:
-        specifier: 1.64.1
-        version: 1.64.1
+        specifier: 1.67.0
+        version: 1.67.0
       semver:
         specifier: 7.7.1
         version: 7.7.1
@@ -2629,7 +2632,7 @@ importers:
         version: 6.2.0(postcss@8.4.47)(webpack@5.94.0)
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.64.1)(webpack@5.94.0)
+        version: 12.4.0(sass@1.67.0)(webpack@5.94.0)
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -3613,6 +3616,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@babel/core':
         specifier: 7.26.10
         version: 7.26.10
@@ -14354,6 +14360,11 @@ packages:
 
   sass@1.64.1:
     resolution: {integrity: sha512-16rRACSOFEE8VN7SCgBu1MpYCyN7urj9At898tyzdXFhC+a+yOX5dXwAR7L8/IdPJ1NB8OYoXmD55DM30B2kEQ==}
+    engines: {node: '>=14.0.0'}
+    hasBin: true
+
+  sass@1.67.0:
+    resolution: {integrity: sha512-SVrO9ZeX/QQyEGtuZYCVxoeAL5vGlYjJ9p4i4HFuekWl8y/LtJ7tJc10Z+ck1c8xOuoBm2MYzcLfTAffD0pl/A==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -28161,6 +28172,14 @@ snapshots:
     optionalDependencies:
       sass: 1.64.1
 
+  sass-loader@12.4.0(sass@1.67.0)(webpack@5.94.0):
+    dependencies:
+      klona: 2.0.6
+      neo-async: 2.6.2
+      webpack: 5.94.0(webpack-cli@6.0.1)
+    optionalDependencies:
+      sass: 1.67.0
+
   sass-loader@13.3.3(sass-embedded@1.87.0)(sass@1.64.1)(webpack@5.94.0):
     dependencies:
       neo-async: 2.6.2
@@ -28170,6 +28189,12 @@ snapshots:
       sass-embedded: 1.87.0
 
   sass@1.64.1:
+    dependencies:
+      chokidar: 3.6.0
+      immutable: 4.3.7
+      source-map-js: 1.2.0
+
+  sass@1.67.0:
     dependencies:
       chokidar: 3.6.0
       immutable: 4.3.7
