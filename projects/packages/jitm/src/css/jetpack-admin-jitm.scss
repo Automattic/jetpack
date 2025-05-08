@@ -2,10 +2,10 @@
 @use 'sass:color';
 
 // TODO: Switch to using the `@automattic/jetpack-base-styles` package when its ready.
-@import '../../plugins/jetpack/_inc/client/scss/functions/rem';
-@import '../../plugins/jetpack/_inc/client/scss/variables/colors';
-@import '../../plugins/jetpack/_inc/client/scss/mixins/breakpoints';
-@import '../../plugins/jetpack/_inc/client/scss/calypso-colors';
+@import '../../../../plugins/jetpack/_inc/client/scss/functions/rem';
+@import '../../../../plugins/jetpack/_inc/client/scss/variables/colors';
+@import '../../../../plugins/jetpack/_inc/client/scss/mixins/breakpoints';
+@import '../../../../plugins/jetpack/_inc/client/scss/calypso-colors';
 
 @mixin clear-fix {
 
