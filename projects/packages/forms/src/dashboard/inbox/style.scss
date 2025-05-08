@@ -339,11 +339,17 @@ $action-bar-height: 88px;
 
 
 /* We need to make the available canvas 100% tall. Without this, no flex values will work, they will only use the available space. */
-.toplevel_page_jetpack-forms #wpwrap,
-.toplevel_page_jetpack-forms #wpcontent,
-.toplevel_page_jetpack-forms #wpbody,
-.toplevel_page_jetpack-forms #wpbody-content {
-	height: 100%;
+body.toplevel_page_jetpack-forms,
+body.feedback_page_jetpack-forms,
+body.jetpack_page_jetpack-forms,
+body.admin_page_jetpack-forms {
+
+	#wpwrap,
+	#wpcontent,
+	#wpbody,
+	#wpbody-content {
+		height: 100%;
+	}
 }
 
 #jp-forms-dashboard,

@@ -1,5 +1,4 @@
-import { CURRENCIES } from '@automattic/format-currency';
-import { formatCurrency } from '@automattic/number-formatters';
+import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
 import { RichText } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { minimumTransactionAmountForCurrency } from '../../../../shared/currencies';

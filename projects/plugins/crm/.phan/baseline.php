@@ -85,12 +85,12 @@ return [
     // PhanTypeMissingReturn : 4 occurrences
     // PhanTypeVoidAssignment : 4 occurrences
     // PhanUndeclaredFunctionInCallable : 4 occurrences
-    // PhanUndeclaredTrait : 4 occurrences
     // PhanCommentVarInsteadOfParam : 3 occurrences
     // PhanMisspelledAnnotation : 3 occurrences
     // PhanParamSignaturePHPDocMismatchTooFewParameters : 3 occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 3 occurrences
     // PhanTypeMismatchDimAssignment : 3 occurrences
+    // PhanUndeclaredTrait : 3 occurrences
     // PhanParamTooFew : 2 occurrences
     // PhanParamTooManyInternal : 2 occurrences
     // PhanPluginDuplicateExpressionAssignment : 2 occurrences
@@ -319,7 +319,7 @@ return [
         'src/rest-api/v4/class-rest-automation-workflows-controller.php' => ['PhanParamSignatureMismatch', 'PhanPluginMixedKeyNoKey'],
         'src/rest-api/v4/class-rest-base-controller.php' => ['PhanTypeMismatchDeclaredReturnNullable'],
         'src/rest-api/v4/class-rest-contacts-controller.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeComparisonFromArray'],
-        'tests/codeception/_support/AcceptanceTester.php' => ['PhanParamSignatureMismatch', 'PhanParamSignaturePHPDocMismatchReturnType', 'PhanParamSignaturePHPDocMismatchTooFewParameters', 'PhanUndeclaredTrait'],
+        'tests/codeception/_support/AcceptanceTester.php' => ['PhanParamSignatureMismatch', 'PhanParamSignaturePHPDocMismatchReturnType', 'PhanParamSignaturePHPDocMismatchTooFewParameters'],
         'tests/codeception/_support/FunctionalTester.php' => ['PhanParamSignatureMismatch', 'PhanParamSignaturePHPDocMismatchReturnType', 'PhanParamSignaturePHPDocMismatchTooFewParameters', 'PhanUndeclaredTrait'],
         'tests/codeception/_support/Helper/RunProcess.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassCatch'],
         'tests/codeception/_support/Module/WPBrowserMethods.php' => ['PhanTraitParentReference', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod'],
