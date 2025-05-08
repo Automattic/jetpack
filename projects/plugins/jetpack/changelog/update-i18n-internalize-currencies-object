@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Internalise CURRENCIES object from format-currency to replace legacy v1 uses of format-currency. These should migrate to number-formatters package but the internal object differs
