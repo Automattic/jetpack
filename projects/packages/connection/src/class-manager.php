@@ -1,6 +1,6 @@
 <?php
 /**
- * The Jetpack Connection manager class file.
+ * The Jetpack Connection Manager class file.
  *
  * @package automattic/jetpack-connection
  */
@@ -55,6 +55,13 @@ class Manager {
 	 * @var Error_Handler
 	 */
 	public $error_handler = null;
+
+	/**
+	 * Protected owner error handler object.
+	 *
+	 * @var Protected_Owner_Error_Handler
+	 */
+	public $protected_owner_error_handler = null;
 
 	/**
 	 * Jetpack_XMLRPC_Server object
@@ -130,7 +137,11 @@ class Manager {
 			$manager->verify_xml_rpc_signature()
 		);
 
+		// Initialize error handler classes
 		$manager->error_handler = Error_Handler::get_instance();
+		// Manually require the Protected Owner Error Handler class
+		require_once __DIR__ . '/class-protected-owner-error-handler.php';
+		$manager->protected_owner_error_handler = Protected_Owner_Error_Handler::get_instance();
 
 		if ( $manager->is_connected() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );

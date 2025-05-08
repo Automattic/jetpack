@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Connection;
 
+// Manually require the base class until the autoloader includes it.
+require_once __DIR__ . '/class-base-error-handler.php';
+
 /**
  * The Jetpack Connection Errors that handles errors
  *
@@ -40,7 +43,7 @@ namespace Automattic\Jetpack\Connection;
  *
  * @since 1.14.2
  */
-class Error_Handler {
+class Error_Handler extends Base_Error_Handler {
 
 	/**
 	 * The name of the option that stores the errors
@@ -134,6 +137,8 @@ class Error_Handler {
 	private function __construct() {
 		defined( 'JETPACK__ERRORS_PUBLIC_KEY' ) || define( 'JETPACK__ERRORS_PUBLIC_KEY', 'KdZY80axKX+nWzfrOcizf0jqiFHnrWCl9X8yuaClKgM=' );
 
+		parent::__construct();
+
 		add_action( 'rest_api_init', array( $this, 'register_verify_error_endpoint' ) );
 
 		// Handle verified errors on admin pages.
@@ -209,10 +214,7 @@ class Error_Handler {
 	 */
 	public function report_error( \WP_Error $error, $force = false, $skip_wpcom_verification = false ) {
 		if ( in_array( $error->get_error_code(), $this->known_errors, true ) && $this->should_report_error( $error ) || $force ) {
-			$stored_error = $this->store_error( $error );
-			if ( $stored_error ) {
-				$skip_wpcom_verification ? $this->verify_error( $stored_error ) : $this->send_error_to_wpcom( $stored_error );
-			}
+			parent::report_error( $error, $force, $skip_wpcom_verification );
 		}
 	}
 
@@ -227,7 +229,7 @@ class Error_Handler {
 	 * @return boolean $should_report True if gate is open and the error should be reported.
 	 */
 	public function should_report_error( \WP_Error $error ) {
-		if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
+		if ( defined( 'JETPACK_DEV_DEBUG' ) && constant( 'JETPACK_DEV_DEBUG' ) ) {
 			return true;
 		}
 
@@ -340,9 +342,7 @@ class Error_Handler {
 	 * @return bool
 	 */
 	public function send_error_to_wpcom( $error_array ) {
-
-		$blog_id = \Jetpack_Options::get_option( 'id' );
-
+		$blog_id        = \Jetpack_Options::get_option( 'id' );
 		$encrypted_data = $this->encrypt_data_to_wpcom( $error_array );
 
 		if ( false === $encrypted_data ) {
@@ -355,9 +355,12 @@ class Error_Handler {
 			),
 		);
 
-		// send encrypted data to WP.com Public-API v2.
-		wp_remote_post( "https://public-api.wordpress.com/wpcom/v2/sites/{$blog_id}/jetpack-report-error/", $args );
-		return true;
+		return \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+			"/wpcom/v2/sites/{$blog_id}/jetpack-report-error/",
+			'2',
+			$args,
+			'wpcom'
+		);
 	}
 
 	/**
@@ -458,7 +461,7 @@ class Error_Handler {
 	 * @param array $errors array of errors as stored in the database.
 	 * @return array
 	 */
-	private function garbage_collector( $errors ) {
+	protected function garbage_collector( $errors ) {
 		foreach ( $errors as $error_code => $users ) {
 			foreach ( $users as $user_id => $error ) {
 				if ( self::ERROR_LIFE_TIME < time() - (int) $error['timestamp'] ) {
@@ -776,5 +779,42 @@ class Error_Handler {
 		);
 
 		$this->report_error( $error, false, true );
+	}
+
+	/**
+	 * Register REST API routes
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function register_rest_routes() {
+		$this->register_verify_error_endpoint();
+	}
+
+	/**
+	 * Get a user-friendly error message
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $error_type The type of error.
+	 * @return string The error message.
+	 */
+	protected function get_error_message( $error_type ) {
+		// Default message for all error types
+		$message = __( 'There was an error with the Jetpack Connection. Please disconnect and reconnect.', 'jetpack-connection' );
+
+		/**
+		 * Fires when an error message is being generated.
+		 *
+		 * This can be used for debugging in a way that's compatible with WordPress coding standards.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $error_type The error type being handled.
+		 */
+		do_action( 'jetpack_connection_error_message_generated', $error_type );
+
+		return $message;
 	}
 }
