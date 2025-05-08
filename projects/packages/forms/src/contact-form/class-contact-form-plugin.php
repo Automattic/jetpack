@@ -604,7 +604,7 @@ class Contact_Form_Plugin {
 			$processed_content = do_blocks( $content );
 		}
 
-		return '<div data-wp-interactive="jetpack/form" class="jetpack-form-step" data-wp-class--is-current-step="state.isCurrentStep" ' . wp_interactivity_data_wp_context( array( 'step' => $step ) ) . ' >'
+		return '<div data-wp-interactive="jetpack/form" class="jetpack-form-step" data-wp-class--is-before-current="state.isBeforeCurrent" data-wp-class--is-after-current="state.isAfterCurrent" data-wp-class--is-current-step="state.isCurrentStep" ' . wp_interactivity_data_wp_context( array( 'step' => $step ) ) . ' >'
 				. $processed_content
 			. '</div>';
 	}
