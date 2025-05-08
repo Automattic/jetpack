@@ -316,7 +316,7 @@
 
 .jetpack-field-label__input {
 	min-height: unset;
-
+    pointer-events: auto;
 	padding: 0;
 }
 
@@ -708,11 +708,10 @@
 
 	&__popover {
 		// The editor should not render the border styles for the dropdown toggle.
-		// The frontend renders a default select box. 
+		// The frontend renders a default select box.
 		font-size: var(--jetpack--contact-form--font-size, 16px);
 		max-height: 165px;
 		overflow: auto;
-		padding: 0;
 		line-height: normal;
 		margin-top: 8px;
 		background-color: #fff;
@@ -720,6 +719,7 @@
 		border: 1px solid #000;
 		padding: 10px;
 		border-radius: unset;
+
 		.rich-text {
 			margin: 10px;
 		}
@@ -754,8 +754,6 @@
 		.jetpack-field {
 			margin-top: 8px;
 			box-sizing: border-box;
-			--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
-
 
 			.notched-label {
 				position: absolute;
@@ -861,6 +859,7 @@
 			}
 
 			.jetpack-field-dropdown {
+
 				&__icon {
 					margin-right: 0;
 				}
@@ -1056,10 +1055,6 @@
 .notched-label__leading,
 .notched-label__trailing {
     pointer-events: none;
-}
-
-.jetpack-field-label__input {
-    pointer-events: auto;
 }
 
 :where(.wp-block-jetpack-label) {

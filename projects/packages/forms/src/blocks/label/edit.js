@@ -88,7 +88,9 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 
 	const inputBlock = useSiblingBlock( clientId );
 	const inputStyles = useFormStyleOutlineClassesAndStyles( {
-		inputBlock,
+		clientId,
+		inputBlockName: inputBlock?.name,
+		inputBlockAttributes: inputBlock?.attributes,
 	} );
 	const blockProps = useBlockProps( { className } );
 
@@ -102,7 +104,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 	return (
 		<WithNotchedWrapper
 			formStyle={ formStyle }
-			styles={ inputStyles?.style }
+			styles={ { ...inputStyles?.style, ...inputStyles?.cssVars } }
 			className={ inputStyles?.className }
 		>
 			<div { ...blockProps }>

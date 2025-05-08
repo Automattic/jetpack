@@ -22,7 +22,11 @@ function getIntAsPxValue( value ) {
 	return value;
 }
 
-export default function useFormStyleOutlineClassesAndStyles( { clientId, inputBlock } ) {
+export default function useFormStyleOutlineClassesAndStyles( {
+	clientId,
+	inputBlockName,
+	inputBlockAttributes,
+} ) {
 	const formStyle = useFormStyle( clientId );
 	const { userConfig, baseConfig } = useSelect( select => {
 		const {
@@ -41,7 +45,6 @@ export default function useFormStyleOutlineClassesAndStyles( { clientId, inputBl
 		};
 	}, [] );
 
-	const inputBlockName = inputBlock?.name;
 	const mergedGlobalBlockStyles = useMemo(
 		() =>
 			merge(
@@ -57,18 +60,18 @@ export default function useFormStyleOutlineClassesAndStyles( { clientId, inputBl
 			return null;
 		}
 		// Access the input block's attributes.
-		const blockBorderClassesAndStyles = getBorderClassesAndStyles( inputBlock?.attributes ?? {} );
+		const blockBorderClassesAndStyles = getBorderClassesAndStyles( inputBlockAttributes ?? {} );
 		const globalBorderClassesAndStyles = getBorderClassesAndStyles( {
 			style: mergedGlobalBlockStyles?.[ inputBlockName ],
 		} );
 
 		// Notched HTML only needs the background color and associated classes.
-		const attributesWithBackgroundColor = inputBlock?.attributes
+		const attributesWithBackgroundColor = inputBlockAttributes
 			? {
-					backgroundColor: inputBlock?.attributes?.backgroundColor,
+					backgroundColor: inputBlockAttributes?.backgroundColor,
 					style: {
 						color: {
-							background: inputBlock?.attributes?.style?.color?.background,
+							background: inputBlockAttributes?.style?.color?.background,
 						},
 					},
 			  }
@@ -109,5 +112,5 @@ export default function useFormStyleOutlineClassesAndStyles( { clientId, inputBl
 					'max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius))',
 			},
 		};
-	}, [ inputBlock?.attributes, mergedGlobalBlockStyles, inputBlockName, formStyle ] );
+	}, [ inputBlockAttributes, mergedGlobalBlockStyles, inputBlockName, formStyle ] );
 }
