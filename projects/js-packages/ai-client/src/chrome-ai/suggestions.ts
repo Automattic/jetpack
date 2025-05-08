@@ -141,9 +141,9 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// Helper function to format summarizer options
 	private getSummarizerOptions( tone?: string, wordCount?: number ) {
-		let sharedContext = `The summary you write should contain approximately ${
+		let sharedContext = `The summary you write should contain strictly less than ${
 			wordCount ?? 50
-		} words long. Strive for precision in word count without compromising clarity and significance`;
+		} words. Strive for precision in word count without compromising clarity and significance`;
 
 		if ( tone ) {
 			sharedContext += `\n - Write with a ${ tone } tone.\n`;
@@ -182,7 +182,14 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 		try {
 			const context = `Write with a ${ tone } tone.`;
-			const summary = await summarizer.summarize( text, { context: context } );
+			let summary = await summarizer.summarize( text, { context: context } );
+
+			wordCount = wordCount ?? 50;
+
+			if ( summary.split( ' ' ).length > wordCount ) {
+				summary = await summarizer.summarize( summary, { context: context } );
+			}
+
 			this.processEvent( {
 				id: '',
 				event: 'summary',
