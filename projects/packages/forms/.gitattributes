@@ -23,3 +23,6 @@ tools/**                 production-exclude
 /src/dashboard/**/*.scss production-exclude
 /src/blocks/**/*.js      production-exclude
 /src/blocks/**/*.scss    production-exclude
+tsconfig.json            production-exclude
+declarations.d.ts        production-exclude
+globals.d.ts             production-exclude

@@ -36,9 +36,10 @@ module.exports = [
 			...jetpackConfig.optimization,
 			splitChunks: {
 				cacheGroups: {
+					// Split out hovercards
 					verbumComments: {
 						name: 'verbum-gravatar',
-						test: /[\\/]node_modules[\\/](@gravatar-com)[\\/].*?[\\/]dist[\\/].*?\.(js|mjs)/,
+						test: /[\\/]node_modules[\\/](@gravatar-com)[\\/]hovercards[\\/]dist[\\/].*?\.(js|mjs)/,
 						chunks: 'all',
 						enforce: true,
 					},

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blocks: Ensure there is enough time for styles to load, preventing console warnings

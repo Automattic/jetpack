@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: prevent submenu manipulation to mess with Crowdsignal/Polldaddy submenu items
