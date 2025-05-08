@@ -423,7 +423,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$context = array(
 				'formId'      => $id,
 				'formHash'    => $form->hash,
-				'currentStep' => isset( $_GET['step'] ) ? absint( $_GET['step'] ) : 1,
+				'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1,
 				'maxSteps'    => $max_steps,
 			);
 
