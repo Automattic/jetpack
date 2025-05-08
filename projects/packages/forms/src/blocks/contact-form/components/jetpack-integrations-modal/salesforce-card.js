@@ -76,7 +76,11 @@ const SalesforceCard = ( {
 				) }
 				<TextControl
 					label={ __( 'Organization ID', 'jetpack-forms' ) }
-					value={ salesforceData.organizationId || '' }
+					value={
+						salesforceData && typeof salesforceData.organizationId === 'string'
+							? salesforceData.organizationId
+							: ''
+					}
 					placeholder={ __( 'Enter your Organization ID', 'jetpack-forms' ) }
 					onBlur={ onBlurOrgIdField }
 					onChange={ setOrganizationId }
