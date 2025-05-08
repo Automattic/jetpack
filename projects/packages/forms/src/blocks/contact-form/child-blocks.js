@@ -1,6 +1,7 @@
 import { InnerBlocks, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Path, Icon } from '@wordpress/components';
+import { select } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import {
 	globe,
@@ -399,19 +400,24 @@ const EditNumber = props => {
 	);
 };
 
+/**
+ * Determines if the current block selection is within a contact form.
+ *
+ * @return {boolean} Whether the selection is within a contact form
+ */
 const isWithinContactForm = () => {
-	const select = window?.wp?.data?.select( 'core/block-editor' );
-	if ( ! select ) {
+	const blockEditor = select( 'core/block-editor' );
+	if ( ! blockEditor ) {
 		return false;
 	}
 
-	const selectedBlockClientIds = select.getSelectedBlockClientIds();
+	const selectedBlockClientIds = blockEditor.getSelectedBlockClientIds();
 	if ( ! selectedBlockClientIds?.length ) {
 		return false;
 	}
 
 	return selectedBlockClientIds.some( blockId => {
-		const parentBlocks = select.getBlockParentsByBlockName( blockId, 'jetpack/contact-form' );
+		const parentBlocks = blockEditor.getBlockParentsByBlockName( blockId, 'jetpack/contact-form' );
 		return parentBlocks.length > 0;
 	} );
 };
@@ -880,19 +886,19 @@ export const childBlocks = [
 						isMatch: isWithinContactForm,
 						transform: () => {
 							try {
-								const select = window?.wp?.data?.select( 'core/block-editor' );
-								if ( ! select ) {
+								const blockEditor = select( 'core/block-editor' );
+								if ( ! blockEditor ) {
 									return [ createBlock( 'jetpack/form-step', {} ) ];
 								}
 
-								const selectedIds = select.getSelectedBlockClientIds();
+								const selectedIds = blockEditor.getSelectedBlockClientIds();
 								if ( ! selectedIds?.length ) {
 									return [ createBlock( 'jetpack/form-step', {} ) ];
 								}
 
 								const newBlocks = [];
 								for ( const id of selectedIds ) {
-									const block = select.getBlock( id );
+									const block = blockEditor.getBlock( id );
 									if ( block && block.name ) {
 										newBlocks.push( createBlock( block.name, { ...block.attributes } ) );
 									}
