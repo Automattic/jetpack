@@ -127,9 +127,9 @@ const About = () => {
 					<div className="section-data__features">
 						<div className="section-data__features-feature feature-connect">
 							<div className="app-icons-wrapper">
-								<AkismetIcon width={ 32 } height={ 32 } className="akismet-icon" />
+								<AkismetIcon width={ 32 } height={ 32 } className="icon-round" />
 								<JetpackIcon size={ 32 } className="jetpack-icon" />
-								<CreativeMailIcon width={ 32 } height={ 32 } className="creative-mail-icon" />
+								<CreativeMailIcon width={ 32 } height={ 32 } className="icon-round" />
 								<img
 									src={ `${ ASSETS_URL }/images/google-sheets-icon.png` }
 									alt={ __( 'Google Sheets icon', 'jetpack-forms' ) }

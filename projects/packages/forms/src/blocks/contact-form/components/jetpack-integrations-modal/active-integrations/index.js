@@ -14,7 +14,7 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 				if ( integration.isConnected ) {
 					acc.push( {
 						...integration,
-						icon: <AkismetIcon width={ 30 } height={ 30 } />,
+						icon: <AkismetIcon width={ 30 } height={ 30 } className="icon-round" />,
 						tooltip: __( 'Akismet is connected for this form', 'jetpack-forms' ),
 					} );
 				}
