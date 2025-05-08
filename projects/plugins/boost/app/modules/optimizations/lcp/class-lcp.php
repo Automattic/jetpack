@@ -378,7 +378,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 			$tag = preg_replace( '/<img\s/i', '<img loading="eager" ', $tag );
 		}
 
-		$tag = $this->optimize_image_tag_srcset( $tag );
+		$tag = $this->add_responsive_image_attributes( $tag );
 
 		return $tag;
 	}
@@ -391,7 +391,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 *
 	 * @since $$next-version$$
 	 */
-	private function optimize_image_tag_srcset( $tag ) {
+	private function add_responsive_image_attributes( $tag ) {
 		if ( preg_match( '/src\s*=\s*["\']([^"\']+)["\']/i', $tag, $matches ) ) {
 			$image_url = $matches[1];
 
