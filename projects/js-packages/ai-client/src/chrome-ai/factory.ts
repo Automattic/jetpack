@@ -86,6 +86,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 	// If the languageDetector is not available, we can't use the translation or summary features—it's safer to fall back
 	// to the default AI model than to risk an unexpected error.
 	if (
+		! ( 'ai' in self ) ||
 		! ( 'languageDetector' in self.ai ) ||
 		! self.ai.languageDetector.create ||
 		! self.ai.languageDetector.availability
