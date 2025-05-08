@@ -955,7 +955,7 @@ export const childBlocks = [
 					text: false,
 				},
 			},
-			title: __( 'Progress Indicator', 'jetpack-forms' ),
+			title: __( 'Progress indicator', 'jetpack-forms' ),
 			description: __(
 				'Show a visual indicator of progress through multi-step forms.',
 				'jetpack-forms'
