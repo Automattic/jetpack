@@ -6,24 +6,8 @@ import {
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
-import deepmerge from 'deepmerge';
-import { isPlainObject, isNumber } from 'lodash';
+import { isNumber, merge } from 'lodash';
 import { useFormStyle, FORM_STYLE } from '../../contact-form/util/form';
-
-// TODO probably an overkill.
-function mergeBaseAndUserConfigs( base, user ) {
-	if ( ! base || ! user ) {
-		return null;
-	}
-	return deepmerge( base, user, {
-		/*
-		 * We only pass as arrays the presets,
-		 * in which case we want the new array of values
-		 * to override the old array (no merging).
-		 */
-		isMergeableObject: isPlainObject,
-	} );
-}
 
 /**
  * Returns the value of the CSS var if it is a number, otherwise null.
@@ -64,13 +48,13 @@ export default function useFormStyleOutlineClassesAndStyles( {
 	}, [] );
 
 	const mergedGlobalBlockStyles = useMemo(
-		() => mergeBaseAndUserConfigs( baseConfig?.styles?.blocks, userConfig?.styles?.blocks ),
+		() => merge( baseConfig?.styles?.blocks, userConfig?.styles?.blocks ),
 		[ baseConfig?.styles?.blocks, userConfig?.styles?.blocks ]
 	);
 
 	const inputBlock = useSelect(
 		select => {
-			const { getBlock, getBlockRootClientId, getBlocksByName } = select( blockEditorStore );
+			const { getBlock, getBlockRootClientId /*, getBlocksByName*/ } = select( blockEditorStore );
 
 			let parentClientId;
 			if ( relativeTo === 'sibling' ) {
@@ -104,7 +88,7 @@ export default function useFormStyleOutlineClassesAndStyles( {
 
 			return parentBlock.innerBlocks.find( block => block.name === innerBlockName );
 		},
-		[ clientId, relativeTo, innerBlockName, isSynced ]
+		[ clientId, relativeTo, innerBlockName /*, isSynced*/ ]
 	);
 
 	// Only return styles for outlined and animated forms.
