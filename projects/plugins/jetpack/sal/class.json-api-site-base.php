@@ -61,6 +61,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Returns the site slug.
+	 *
+	 * @return string
+	 */
+	public function get_slug() {
+		return ( new Status() )->get_site_suffix();
+	}
+
+	/**
 	 * Returns the site name.
 	 *
 	 * @return string

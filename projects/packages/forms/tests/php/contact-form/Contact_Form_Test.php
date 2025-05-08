@@ -164,6 +164,133 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test the success_message method when customThankyou is set to 'message'.
+	 */
+	public function test_success_message_with_custom_thankyou_message() {
+		// Create a form with customThankyou = 'message'
+		$form = new Contact_Form(
+			array(
+				'customThankyou'        => 'message',
+				'customThankyouMessage' => 'Thank you <span class="highlight" style="color:green">very much</span> for your submission!',
+			)
+		);
+
+		// Call the method
+		$success_message = Contact_Form::success_message( 1, $form );
+
+		// Verify that the message contains our custom thank you with allowed HTML elements
+		$this->assertStringContainsString( '<span class="highlight" style="color:green">very much</span>', $success_message );
+		$this->assertStringContainsString( 'Thank you', $success_message );
+		$this->assertStringContainsString( 'for your submission', $success_message );
+	}
+
+	/**
+	 * Test the success_message method when customThankyou is not set to 'message'.
+	 * This test uses a real form submission and relies on get_compiled_form.
+	 */
+	public function test_success_message_with_compiled_form() {
+		// Create a form submission
+		$this->add_field_values(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Test message',
+			)
+		);
+
+		// Create a contact form
+		$form = new Contact_Form(
+			array(
+				'customThankyou' => 'redirect', // Any value that's not 'message'
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Process the submission to create a feedback post
+		$result = $form->process_submission();
+		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+
+		// Get the feedback ID from the most recent post
+		$feedback_id = end( Posts::init()->posts )->ID;
+
+		// Call the success_message method
+		$success_message = Contact_Form::success_message( $feedback_id, $form );
+
+		// Verify the success message format
+		$this->assertStringContainsString( '<div class="field-name">Name:</div>', $success_message );
+		$this->assertStringContainsString( '<div class="field-value">John Doe</div>', $success_message );
+		$this->assertStringContainsString( '<div class="field-name">Email:</div>', $success_message );
+		$this->assertStringContainsString( '<div class="field-value">john@example.com</div>', $success_message );
+	}
+
+	/**
+	 * Test the escape_and_sanitize_field_value method.
+	 */
+	public function test_escape_and_sanitize_field_value() {
+		// Test empty value
+		$this->assertSame( '', Contact_Form::escape_and_sanitize_field_value( '' ) );
+		$this->assertSame( '', Contact_Form::escape_and_sanitize_field_value( null ) );
+
+		// Test file upload field structure
+		$file_upload_value = array(
+			'field_id' => 'test_upload',
+			'files'    => array(
+				array(
+					'file_id' => '12345',
+					'name'    => 'test-document.pdf',
+					'size'    => 1024,
+				),
+				array(
+					'file_id' => '67890',
+					'name'    => 'another-document.docx',
+					'size'    => 2048,
+				),
+			),
+		);
+
+		$result = Contact_Form::escape_and_sanitize_field_value( $file_upload_value );
+		$this->assertStringContainsString( 'test-document.pdf', $result );
+		$this->assertStringContainsString( 'another-document.docx', $result );
+		$this->assertStringContainsString( '<span class="jetpack-forms-file-size">', $result );
+		$this->assertStringContainsString( '(1 KB)', $result );
+		$this->assertStringContainsString( '(2 KB)', $result );
+
+		// Test empty file upload field
+		$empty_file_upload = array(
+			'field_id' => 'test_upload',
+			'files'    => array(),
+		);
+		$this->assertSame( '', Contact_Form::escape_and_sanitize_field_value( $empty_file_upload ) );
+
+		// Test regular array values
+		$array_value = array( 'option 1', 'option 2', 'option 3' );
+		$this->assertEquals( 'option 1, option 2, option 3', Contact_Form::escape_and_sanitize_field_value( $array_value ) );
+
+		// Test value with brackets (should be escaped)
+		$bracket_value = 'This is a [test] with brackets';
+		$result        = Contact_Form::escape_and_sanitize_field_value( $bracket_value );
+		$this->assertEquals( 'This is a &#091;test&#093; with brackets', $result );
+
+		// Test value with HTML (should be stripped)
+		$html_value = 'This has <strong>HTML</strong> tags';
+		$result     = Contact_Form::escape_and_sanitize_field_value( $html_value );
+		$this->assertEquals( 'This has HTML tags', $result );
+
+		// Test value with newlines (should be converted to <br>)
+		$multiline_value = "Line 1\nLine 2\nLine 3";
+		$result          = Contact_Form::escape_and_sanitize_field_value( $multiline_value );
+		$this->assertEquals( "Line 1<br />\nLine 2<br />\nLine 3", $result );
+
+		// Test deeply nested array
+		$nested_array = array(
+			array( 'item1', 'item2' ),
+			array( 'item3', 'item4' ),
+		);
+		$result       = Contact_Form::escape_and_sanitize_field_value( $nested_array );
+		$this->assertEquals( 'item1, item2, item3, item4', $result );
+	}
+
+	/**
 	 * Tests that the submission as a whole will produce something in the
 	 * database when required information is provided.
 	 *

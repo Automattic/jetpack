@@ -96,11 +96,11 @@ const BLOCKS_TEMPLATE = [
 ];
 
 const JetpackFieldFile = props => {
-	const { attributes, clientId, isSelected, setAttributes } = props;
+	const { attributes, clientId, isSelected, setAttributes, name } = props;
 	const { id, label, required, requiredText, width } = attributes;
 	const fieldFileAvailability = getJetpackExtensionAvailability( 'field-file' );
 
-	useFormWrapper( { attributes, clientId } );
+	useFormWrapper( { attributes, clientId, name } );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
 	const blockProps = useBlockProps( {

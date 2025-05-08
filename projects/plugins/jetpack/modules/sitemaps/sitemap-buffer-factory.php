@@ -26,8 +26,21 @@ class Jetpack_Sitemap_Buffer_Factory {
 	 * @return Jetpack_Sitemap_Buffer|null The created buffer or null if type is invalid.
 	 */
 	public static function create( $type, $item_limit, $byte_limit, $time = '1970-01-01 00:00:00' ) {
+
+		/**
+		 * Hook to allow for XMLWriter usage.
+		 *
+		 * Temporary filter to disallow XMLWriter usage.
+		 *
+		 * @since $$next-version$$
+		 * @module sitemaps
+		 *
+		 * @param bool $use_xmlwriter Whether to use XMLWriter. Current default is false.
+		 */
+		$use_xmlwriter = apply_filters( 'jetpack_sitemap_use_xmlwriter', false );
+
 		// First try XMLWriter if available
-		if ( class_exists( 'XMLWriter' ) ) {
+		if ( $use_xmlwriter && class_exists( 'XMLWriter' ) ) {
 			$class_name = 'Jetpack_Sitemap_Buffer_' . ucfirst( $type ) . '_XMLWriter';
 			if ( class_exists( $class_name ) ) {
 				return new $class_name( $item_limit, $byte_limit, $time );

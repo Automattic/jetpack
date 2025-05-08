@@ -9,14 +9,14 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * @covers ::jetpack_shortcode_youtube_args
  * @covers ::jetpack_shortcode_youtube_dimensions
  * @covers ::wpcom_youtube_oembed_fetch_url
- * @covers ::youtube_id
- * @covers ::youtube_shortcode
+ * @covers ::jetpack_youtube_id
+ * @covers ::jetpack_youtube_shortcode
  */
 #[CoversFunction( 'jetpack_shortcode_youtube_args' )]
 #[CoversFunction( 'jetpack_shortcode_youtube_dimensions' )]
 #[CoversFunction( 'wpcom_youtube_oembed_fetch_url' )]
-#[CoversFunction( 'youtube_id' )]
-#[CoversFunction( 'youtube_shortcode' )]
+#[CoversFunction( 'jetpack_youtube_id' )]
+#[CoversFunction( 'jetpack_youtube_shortcode' )]
 class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -84,7 +84,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'get_youtube_id_options' )]
 	public function test_shortcodes_youtube_id_options( $url, $expected ) {
-		$output = youtube_id( $url );
+		$output = jetpack_youtube_id( $url );
 
 		$this->assertStringContainsString( $expected, $output );
 	}
@@ -187,7 +187,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Gets the test data for youtube_id().
+	 * Gets the test data for jetpack_youtube_id().
 	 *
 	 * @return array[] The test data.
 	 */
@@ -246,7 +246,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test youtube_id.
+	 * Test jetpack_youtube_id().
 	 *
 	 * @dataProvider get_amp_youtube_data
 	 * @param string $url             The shortcode URL.
@@ -261,10 +261,10 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 		}
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$this->assertEquals( $expected_amp, youtube_id( $url ) );
+		$this->assertEquals( $expected_amp, jetpack_youtube_id( $url ) );
 
 		remove_filter( 'jetpack_is_amp_request', '__return_true' );
-		$this->assertEquals( $expected_nonamp, youtube_id( $url ) );
+		$this->assertEquals( $expected_nonamp, jetpack_youtube_id( $url ) );
 	}
 
 	/**
@@ -297,7 +297,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test youtube_id.
+	 * Test jetpack_youtube_id().
 	 *
 	 * @dataProvider get_amp_youtube_shortcode_data
 	 * @param array  $query_args The query args to pass to the function.
