@@ -65,7 +65,9 @@ $colophon-logo-margin-right: 4px;
 
 .wp-theme-varia-wpcom,
 .wp-theme-pubvaria {
+
 	@media only screen and (min-width: 768px) {
+
 		.jetpack-search-inline-colophon {
 			margin: 0 auto;
 			max-width: calc(782px - 32px);
@@ -88,6 +90,7 @@ $colophon-logo-margin-right: 4px;
 		}
 	}
 }
+
 .wp-theme-twentynineteen,
 .wp-theme-pubtwentynineteen {
 
@@ -115,16 +118,18 @@ $colophon-logo-margin-right: 4px;
 }
 
 .wp-theme-generatepress {
+
 	.jetpack-search-inline-colophon {
 		display: block;
 		margin-top: 2rem;
 		clear: both;
 	}
 }
+
 .wp-theme-hevor {
+
 	.jetpack-search-inline-colophon {
 		justify-content: flex-start;
 		max-width: var(--wp--style--global--wide-size);
 	}
 }
-
