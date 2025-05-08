@@ -37,7 +37,7 @@ function wpcomTrackQuickLinksClicks( target: HTMLElement ) {
 		return;
 	}
 
-	wpcomTrackEvent( 'wpcom_post_list_quick_link_click', {
+	wpcomTrackEvent( 'wpcom_post_list_quick_link_clicked', {
 		link_name: span.className,
 		post_type: wpcomPostListData.postType,
 	} );
@@ -55,7 +55,7 @@ function wpcomTrackStatsIconClicks( target: HTMLElement ) {
 		return;
 	}
 
-	wpcomTrackEvent( 'wpcom_post_list_stats_icon_click', {
+	wpcomTrackEvent( 'wpcom_post_list_stats_icon_clicked', {
 		post_type: wpcomPostListData.postType,
 	} );
 }
