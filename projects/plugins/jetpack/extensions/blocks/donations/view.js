@@ -1,4 +1,4 @@
-import { formatCurrency } from '@automattic/number-formatters';
+import formatCurrency from '@automattic/format-currency';
 import domReady from '@wordpress/dom-ready';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
