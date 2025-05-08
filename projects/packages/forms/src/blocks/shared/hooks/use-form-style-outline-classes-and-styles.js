@@ -97,13 +97,16 @@ export default function useFormStyleOutlineClassesAndStyles( {
 			};
 		}
 		if ( formStyle === FORM_STYLE.ANIMATED ) {
+			const borderLeftSize =
+				getIntAsPxValue( blockBorderClassesAndStyles?.style?.borderWidth ) ||
+				blockBorderClassesAndStyles?.style?.borderLeftWidth ||
+				globalBorderClassesAndStyles?.style?.borderWidth ||
+				globalBorderClassesAndStyles?.style?.borderLeftWidth;
 			styleSpecificCssVars = {
-				'--jetpack--contact-form--left-offset':
-					'calc(var(--jetpack--contact-form--input-padding-left, 16px) + var(--jetpack--contact-form--border-size))',
+				'--jetpack--contact-form--left-offset': `calc(var(--jetpack--contact-form--input-padding-left, 16px) + ${ borderLeftSize })`,
 				'--jetpack--contact-form--label-left':
 					'max(var(--jetpack--contact-form--left-offset), var(--jetpack--contact-form--border-radius))',
-				'--jetpack--contact-form--field-padding':
-					'calc(var(--jetpack--contact-form--label-left) - var(--jetpack--contact-form--border-size))',
+				'--jetpack--contact-form--field-padding': `calc(var(--jetpack--contact-form--label-left) - ${ borderLeftSize })`,
 			};
 		}
 
