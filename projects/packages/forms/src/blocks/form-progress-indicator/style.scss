@@ -17,18 +17,18 @@
 	border-radius: calc( var( --progress-height ) / 2 );
 
 	// Progress bar element
-	&::before {
+	.jetpack-form-progress-indicator-bar  {
 		content: '';
 		display: block;
 		position: absolute;
 		top: 0;
 		left: 0;
 		height: 100%;
-		width: var( --progress, 0% );
+		width: 1%;
 		min-width: var( --progress-height );
 		transition: width 0.3s ease-in-out;
 		z-index: 1;
 		background-color: var( --wp--preset--color--primary, var( --wp--preset--color--accent, var( --jp-form-progress-color, var( --progress-color ) ) ) );
 		border-radius: calc( var( --progress-height ) / 2 );
 	}
-} 
+}
