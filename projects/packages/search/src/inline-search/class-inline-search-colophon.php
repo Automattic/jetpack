@@ -46,6 +46,14 @@ class Inline_Search_Colophon extends Inline_Search_Component {
 	public function register_colophon_script() {
 		$this->register_inline_search_script();
 
+		// Don't localize if already localized to prevent duplication
+		if ( wp_script_is( self::SCRIPT_HANDLE, 'data' ) ) {
+			$localized_data = wp_scripts()->get_data( self::SCRIPT_HANDLE, 'data' );
+			if ( $localized_data && strpos( $localized_data, 'JetpackSearchColophon' ) !== false ) {
+				return;
+			}
+		}
+
 		// Only localize the script, don't register it again as it's handled by the base class
 		wp_localize_script(
 			self::SCRIPT_HANDLE,

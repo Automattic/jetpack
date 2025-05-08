@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.1.3
+ * Stubs automatically generated from PHPUnit 12.1.4
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -5412,6 +5412,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type array.
      *
+     * @phan-assert iterable<array<mixed>> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5421,6 +5423,8 @@ abstract class Assert
     }
     /**
      * Asserts that a haystack contains only values of type bool.
+     *
+     * @phan-assert iterable<bool> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5432,6 +5436,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type callable.
      *
+     * @phan-assert iterable<callable> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5441,6 +5447,8 @@ abstract class Assert
     }
     /**
      * Asserts that a haystack contains only values of type float.
+     *
+     * @phan-assert iterable<float> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5452,6 +5460,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type int.
      *
+     * @phan-assert iterable<int> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5461,6 +5471,8 @@ abstract class Assert
     }
     /**
      * Asserts that a haystack contains only values of type iterable.
+     *
+     * @phan-assert iterable<iterable<mixed>> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5472,6 +5484,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type null.
      *
+     * @phan-assert iterable<null> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5481,6 +5495,8 @@ abstract class Assert
     }
     /**
      * Asserts that a haystack contains only values of type numeric.
+     *
+     * @phan-assert iterable<numeric> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5492,6 +5508,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type object.
      *
+     * @phan-assert iterable<object> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5501,6 +5519,8 @@ abstract class Assert
     }
     /**
      * Asserts that a haystack contains only values of type resource.
+     *
+     * @phan-assert iterable<resource> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5512,6 +5532,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type closed resource.
      *
+     * @phan-assert iterable<resource> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5521,6 +5543,8 @@ abstract class Assert
     }
     /**
      * Asserts that a haystack contains only values of type scalar.
+     *
+     * @phan-assert iterable<scalar> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5532,6 +5556,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type string.
      *
+     * @phan-assert iterable<string> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5542,7 +5568,11 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only instances of a specified interface or class name.
      *
-     * @param class-string    $className
+     * @template T
+     *
+     * @phan-assert iterable<T> $haystack
+     *
+     * @param class-string<T> $className
      * @param iterable<mixed> $haystack
      *
      * @throws Exception
@@ -7263,6 +7293,8 @@ function assertContainsOnly(string $type, iterable $haystack, ?bool $isNativeTyp
 /**
  * Asserts that a haystack contains only values of type array.
  *
+ * @phan-assert iterable<array<mixed>> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7276,6 +7308,8 @@ function assertContainsOnlyArray(iterable $haystack, string $message = '', ...$f
 }
 /**
  * Asserts that a haystack contains only values of type bool.
+ *
+ * @phan-assert iterable<bool> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7291,6 +7325,8 @@ function assertContainsOnlyBool(iterable $haystack, string $message = '', ...$fu
 /**
  * Asserts that a haystack contains only values of type callable.
  *
+ * @phan-assert iterable<callable> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7304,6 +7340,8 @@ function assertContainsOnlyCallable(iterable $haystack, string $message = '', ..
 }
 /**
  * Asserts that a haystack contains only values of type float.
+ *
+ * @phan-assert iterable<float> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7319,6 +7357,8 @@ function assertContainsOnlyFloat(iterable $haystack, string $message = '', ...$f
 /**
  * Asserts that a haystack contains only values of type int.
  *
+ * @phan-assert iterable<int> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7332,6 +7372,8 @@ function assertContainsOnlyInt(iterable $haystack, string $message = '', ...$fun
 }
 /**
  * Asserts that a haystack contains only values of type iterable.
+ *
+ * @phan-assert iterable<iterable<mixed>> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7347,6 +7389,8 @@ function assertContainsOnlyIterable(iterable $haystack, string $message = '', ..
 /**
  * Asserts that a haystack contains only values of type null.
  *
+ * @phan-assert iterable<null> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7360,6 +7404,8 @@ function assertContainsOnlyNull(iterable $haystack, string $message = '', ...$fu
 }
 /**
  * Asserts that a haystack contains only values of type numeric.
+ *
+ * @phan-assert iterable<numeric> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7375,6 +7421,8 @@ function assertContainsOnlyNumeric(iterable $haystack, string $message = '', ...
 /**
  * Asserts that a haystack contains only values of type object.
  *
+ * @phan-assert iterable<object> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7388,6 +7436,8 @@ function assertContainsOnlyObject(iterable $haystack, string $message = '', ...$
 }
 /**
  * Asserts that a haystack contains only values of type resource.
+ *
+ * @phan-assert iterable<resource> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7403,6 +7453,8 @@ function assertContainsOnlyResource(iterable $haystack, string $message = '', ..
 /**
  * Asserts that a haystack contains only values of type closed resource.
  *
+ * @phan-assert iterable<resource> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7416,6 +7468,8 @@ function assertContainsOnlyClosedResource(iterable $haystack, string $message = 
 }
 /**
  * Asserts that a haystack contains only values of type scalar.
+ *
+ * @phan-assert iterable<scalar> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7431,6 +7485,8 @@ function assertContainsOnlyScalar(iterable $haystack, string $message = '', ...$
 /**
  * Asserts that a haystack contains only values of type string.
  *
+ * @phan-assert iterable<string> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7445,7 +7501,11 @@ function assertContainsOnlyString(iterable $haystack, string $message = '', ...$
 /**
  * Asserts that a haystack contains only instances of a specified interface or class name.
  *
- * @param class-string    $className
+ * @template T
+ *
+ * @phan-assert iterable<T> $haystack
+ *
+ * @param class-string<T> $className
  * @param iterable<mixed> $haystack
  *
  * @throws Exception
@@ -18347,7 +18407,10 @@ final class CodeCoverage
     public function codeCoverage(): \SebastianBergmann\CodeCoverage\CodeCoverage
     {
     }
-    public function driver(): \SebastianBergmann\CodeCoverage\Driver\Driver
+    /**
+     * @return non-empty-string
+     */
+    public function driverNameAndVersion(): string
     {
     }
     public function start(\PHPUnit\Framework\TestCase $test): void
@@ -20702,7 +20765,7 @@ final class Help
  */
 final readonly class ShellExitCodeCalculator
 {
-    public function calculate(bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, \PHPUnit\TestRunner\TestResult\TestResult $result): int
+    public function calculate(bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, \PHPUnit\TestRunner\TestResult\TestResult $result): int
     {
     }
 }
@@ -20774,7 +20837,7 @@ final readonly class Configuration
      * @param ?non-empty-list<non-empty-string>                    $coverageFilter
      * @param ?non-empty-list<non-empty-string>                    $extensions
      */
-    public function __construct(array $arguments, ?string $atLeastVersion, ?bool $backupGlobals, ?bool $backupStaticProperties, ?bool $beStrictAboutChangesToGlobalState, ?string $bootstrap, ?string $cacheDirectory, ?bool $cacheResult, bool $checkVersion, ?string $colors, null|int|string $columns, ?string $configurationFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4J, ?string $coverageHtml, ?string $coveragePhp, ?string $coverageText, ?bool $coverageTextShowUncoveredFiles, ?bool $coverageTextShowOnlySummary, ?string $coverageXml, ?bool $pathCoverage, bool $warmCoverageCache, ?int $defaultTimeLimit, ?bool $disableCodeCoverageIgnore, ?bool $disallowTestOutput, ?bool $enforceTimeLimit, ?array $excludeGroups, ?int $executionOrder, ?int $executionOrderDefects, ?bool $failOnDeprecation, ?bool $failOnPhpunitDeprecation, ?bool $failOnPhpunitNotice, ?bool $failOnEmptyTestSuite, ?bool $failOnIncomplete, ?bool $failOnNotice, ?bool $failOnRisky, ?bool $failOnSkipped, ?bool $failOnWarning, ?bool $stopOnDefect, ?bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, ?bool $stopOnError, ?bool $stopOnFailure, ?bool $stopOnIncomplete, ?bool $stopOnNotice, ?bool $stopOnRisky, ?bool $stopOnSkipped, ?bool $stopOnWarning, ?string $filter, ?string $excludeFilter, ?string $generateBaseline, ?string $useBaseline, bool $ignoreBaseline, bool $generateConfiguration, bool $migrateConfiguration, ?array $groups, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, bool $help, ?string $includePath, ?array $iniSettings, ?string $junitLogfile, bool $listGroups, bool $listSuites, bool $listTestFiles, bool $listTests, ?string $listTestsXml, ?bool $noCoverage, ?bool $noExtensions, ?bool $noOutput, ?bool $noProgress, ?bool $noResults, ?bool $noLogging, ?bool $processIsolation, ?int $randomOrderSeed, ?bool $reportUselessTests, ?bool $resolveDependencies, ?bool $reverseList, ?bool $stderr, ?bool $strictCoverage, ?string $teamcityLogfile, ?string $testdoxHtmlFile, ?string $testdoxTextFile, ?array $testSuffixes, ?string $testSuite, ?string $excludeTestSuite, bool $useDefaultConfiguration, ?bool $displayDetailsOnIncompleteTests, ?bool $displayDetailsOnSkippedTests, ?bool $displayDetailsOnTestsThatTriggerDeprecations, ?bool $displayDetailsOnPhpunitDeprecations, ?bool $displayDetailsOnPhpunitNotices, ?bool $displayDetailsOnTestsThatTriggerErrors, ?bool $displayDetailsOnTestsThatTriggerNotices, ?bool $displayDetailsOnTestsThatTriggerWarnings, bool $version, ?array $coverageFilter, ?string $logEventsText, ?string $logEventsVerboseText, ?bool $printerTeamCity, ?bool $testdoxPrinter, ?bool $testdoxPrinterSummary, bool $debug, ?array $extensions)
+    public function __construct(array $arguments, ?string $atLeastVersion, ?bool $backupGlobals, ?bool $backupStaticProperties, ?bool $beStrictAboutChangesToGlobalState, ?string $bootstrap, ?string $cacheDirectory, ?bool $cacheResult, bool $checkVersion, ?string $colors, null|int|string $columns, ?string $configurationFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4J, ?string $coverageHtml, ?string $coveragePhp, ?string $coverageText, ?bool $coverageTextShowUncoveredFiles, ?bool $coverageTextShowOnlySummary, ?string $coverageXml, ?bool $pathCoverage, bool $warmCoverageCache, ?int $defaultTimeLimit, ?bool $disableCodeCoverageIgnore, ?bool $disallowTestOutput, ?bool $enforceTimeLimit, ?array $excludeGroups, ?int $executionOrder, ?int $executionOrderDefects, ?bool $failOnAllIssues, ?bool $failOnDeprecation, ?bool $failOnPhpunitDeprecation, ?bool $failOnPhpunitNotice, ?bool $failOnEmptyTestSuite, ?bool $failOnIncomplete, ?bool $failOnNotice, ?bool $failOnRisky, ?bool $failOnSkipped, ?bool $failOnWarning, ?bool $stopOnDefect, ?bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, ?bool $stopOnError, ?bool $stopOnFailure, ?bool $stopOnIncomplete, ?bool $stopOnNotice, ?bool $stopOnRisky, ?bool $stopOnSkipped, ?bool $stopOnWarning, ?string $filter, ?string $excludeFilter, ?string $generateBaseline, ?string $useBaseline, bool $ignoreBaseline, bool $generateConfiguration, bool $migrateConfiguration, ?array $groups, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, bool $help, ?string $includePath, ?array $iniSettings, ?string $junitLogfile, bool $listGroups, bool $listSuites, bool $listTestFiles, bool $listTests, ?string $listTestsXml, ?bool $noCoverage, ?bool $noExtensions, ?bool $noOutput, ?bool $noProgress, ?bool $noResults, ?bool $noLogging, ?bool $processIsolation, ?int $randomOrderSeed, ?bool $reportUselessTests, ?bool $resolveDependencies, ?bool $reverseList, ?bool $stderr, ?bool $strictCoverage, ?string $teamcityLogfile, ?string $testdoxHtmlFile, ?string $testdoxTextFile, ?array $testSuffixes, ?string $testSuite, ?string $excludeTestSuite, bool $useDefaultConfiguration, ?bool $displayDetailsOnAllIssues, ?bool $displayDetailsOnIncompleteTests, ?bool $displayDetailsOnSkippedTests, ?bool $displayDetailsOnTestsThatTriggerDeprecations, ?bool $displayDetailsOnPhpunitDeprecations, ?bool $displayDetailsOnPhpunitNotices, ?bool $displayDetailsOnTestsThatTriggerErrors, ?bool $displayDetailsOnTestsThatTriggerNotices, ?bool $displayDetailsOnTestsThatTriggerWarnings, bool $version, ?array $coverageFilter, ?string $logEventsText, ?string $logEventsVerboseText, ?bool $printerTeamCity, ?bool $testdoxPrinter, ?bool $testdoxPrinterSummary, bool $debug, ?array $extensions)
     {
     }
     /**
@@ -21127,6 +21190,18 @@ final readonly class Configuration
      * @throws Exception
      */
     public function executionOrderDefects(): int
+    {
+    }
+    /**
+     * @phpstan-assert-if-true !null $this->failOnAllIssues
+     */
+    public function hasFailOnAllIssues(): bool
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function failOnAllIssues(): bool
     {
     }
     /**
@@ -21805,6 +21880,18 @@ final readonly class Configuration
     {
     }
     /**
+     * @phpstan-assert-if-true !null $this->displayDetailsOnAllIssues
+     */
+    public function hasDisplayDetailsOnAllIssues(): bool
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function displayDetailsOnAllIssues(): bool
+    {
+    }
+    /**
      * @phpstan-assert-if-true !null $this->displayDetailsOnIncompleteTests
      */
     public function hasDisplayDetailsOnIncompleteTests(): bool
@@ -22255,7 +22342,7 @@ final readonly class Configuration
      * @param null|non-empty-string                                                       $generateBaseline
      * @param non-negative-int                                                            $shortenArraysForExportThreshold
      */
-    public function __construct(array $cliArguments, ?string $configurationFile, ?string $bootstrap, bool $cacheResult, ?string $cacheDirectory, ?string $coverageCacheDirectory, \PHPUnit\TextUI\Configuration\Source $source, string $testResultCacheFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4j, int $coverageCrap4jThreshold, ?string $coverageHtml, int $coverageHtmlLowUpperBound, int $coverageHtmlHighLowerBound, string $coverageHtmlColorSuccessLow, string $coverageHtmlColorSuccessMedium, string $coverageHtmlColorSuccessHigh, string $coverageHtmlColorWarning, string $coverageHtmlColorDanger, ?string $coverageHtmlCustomCssFile, ?string $coveragePhp, ?string $coverageText, bool $coverageTextShowUncoveredFiles, bool $coverageTextShowOnlySummary, ?string $coverageXml, bool $pathCoverage, bool $ignoreDeprecatedCodeUnitsFromCodeCoverage, bool $disableCodeCoverageIgnore, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, bool $outputToStandardErrorStream, int $columns, bool $noExtensions, ?string $pharExtensionDirectory, array $extensionBootstrappers, bool $backupGlobals, bool $backupStaticProperties, bool $beStrictAboutChangesToGlobalState, bool $colors, bool $processIsolation, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, bool $reportUselessTests, bool $strictCoverage, bool $disallowTestOutput, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, bool $noProgress, bool $noResults, bool $noOutput, int $executionOrder, int $executionOrderDefects, bool $resolveDependencies, ?string $logfileTeamcity, ?string $logfileJunit, ?string $logfileTestdoxHtml, ?string $logfileTestdoxText, ?string $logEventsText, ?string $logEventsVerboseText, bool $teamCityOutput, bool $testDoxOutput, bool $testDoxOutputSummary, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, ?string $filter, ?string $excludeFilter, array $groups, array $excludeGroups, int $randomOrderSeed, bool $includeUncoveredFiles, \PHPUnit\TextUI\Configuration\TestSuiteCollection $testSuite, string $includeTestSuite, string $excludeTestSuite, ?string $defaultTestSuite, array $testSuffixes, \PHPUnit\TextUI\Configuration\Php $php, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, ?string $generateBaseline, bool $debug, int $shortenArraysForExportThreshold)
+    public function __construct(array $cliArguments, ?string $configurationFile, ?string $bootstrap, bool $cacheResult, ?string $cacheDirectory, ?string $coverageCacheDirectory, \PHPUnit\TextUI\Configuration\Source $source, string $testResultCacheFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4j, int $coverageCrap4jThreshold, ?string $coverageHtml, int $coverageHtmlLowUpperBound, int $coverageHtmlHighLowerBound, string $coverageHtmlColorSuccessLow, string $coverageHtmlColorSuccessMedium, string $coverageHtmlColorSuccessHigh, string $coverageHtmlColorWarning, string $coverageHtmlColorDanger, ?string $coverageHtmlCustomCssFile, ?string $coveragePhp, ?string $coverageText, bool $coverageTextShowUncoveredFiles, bool $coverageTextShowOnlySummary, ?string $coverageXml, bool $pathCoverage, bool $ignoreDeprecatedCodeUnitsFromCodeCoverage, bool $disableCodeCoverageIgnore, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, bool $outputToStandardErrorStream, int $columns, bool $noExtensions, ?string $pharExtensionDirectory, array $extensionBootstrappers, bool $backupGlobals, bool $backupStaticProperties, bool $beStrictAboutChangesToGlobalState, bool $colors, bool $processIsolation, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, bool $reportUselessTests, bool $strictCoverage, bool $disallowTestOutput, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, bool $noProgress, bool $noResults, bool $noOutput, int $executionOrder, int $executionOrderDefects, bool $resolveDependencies, ?string $logfileTeamcity, ?string $logfileJunit, ?string $logfileTestdoxHtml, ?string $logfileTestdoxText, ?string $logEventsText, ?string $logEventsVerboseText, bool $teamCityOutput, bool $testDoxOutput, bool $testDoxOutputSummary, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, ?string $filter, ?string $excludeFilter, array $groups, array $excludeGroups, int $randomOrderSeed, bool $includeUncoveredFiles, \PHPUnit\TextUI\Configuration\TestSuiteCollection $testSuite, string $includeTestSuite, string $excludeTestSuite, ?string $defaultTestSuite, array $testSuffixes, \PHPUnit\TextUI\Configuration\Php $php, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, ?string $generateBaseline, bool $debug, int $shortenArraysForExportThreshold)
     {
     }
     /**
@@ -22465,6 +22552,9 @@ final readonly class Configuration
     public function coverageXml(): string
     {
     }
+    public function failOnAllIssues(): bool
+    {
+    }
     public function failOnDeprecation(): bool
     {
     }
@@ -22597,6 +22687,9 @@ final readonly class Configuration
     {
     }
     public function disallowTestOutput(): bool
+    {
+    }
+    public function displayDetailsOnAllIssues(): bool
     {
     }
     public function displayDetailsOnIncompleteTests(): bool
@@ -25228,7 +25321,7 @@ final readonly class PHPUnit
      * @param ?non-empty-string $extensionsDirectory
      * @param non-negative-int  $shortenArraysForExportThreshold
      */
-    public function __construct(?string $cacheDirectory, bool $cacheResult, int|string $columns, string $colors, bool $stderr, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, ?string $bootstrap, bool $processIsolation, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, ?string $extensionsDirectory, bool $beStrictAboutChangesToGlobalState, bool $beStrictAboutOutputDuringTests, bool $beStrictAboutTestsThatDoNotTestAnything, bool $beStrictAboutCoverageMetadata, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, ?string $defaultTestSuite, int $executionOrder, bool $resolveDependencies, bool $defectsFirst, bool $backupGlobals, bool $backupStaticProperties, bool $testdoxPrinter, bool $testdoxPrinterSummary, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, int $shortenArraysForExportThreshold)
+    public function __construct(?string $cacheDirectory, bool $cacheResult, int|string $columns, string $colors, bool $stderr, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, ?string $bootstrap, bool $processIsolation, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, ?string $extensionsDirectory, bool $beStrictAboutChangesToGlobalState, bool $beStrictAboutOutputDuringTests, bool $beStrictAboutTestsThatDoNotTestAnything, bool $beStrictAboutCoverageMetadata, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, ?string $defaultTestSuite, int $executionOrder, bool $resolveDependencies, bool $defectsFirst, bool $backupGlobals, bool $backupStaticProperties, bool $testdoxPrinter, bool $testdoxPrinterSummary, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, int $shortenArraysForExportThreshold)
     {
     }
     /**
@@ -25253,6 +25346,9 @@ final readonly class PHPUnit
     {
     }
     public function stderr(): bool
+    {
+    }
+    public function displayDetailsOnAllIssues(): bool
     {
     }
     public function displayDetailsOnIncompleteTests(): bool
@@ -25298,6 +25394,9 @@ final readonly class PHPUnit
     {
     }
     public function processIsolation(): bool
+    {
+    }
+    public function failOnAllIssues(): bool
     {
     }
     public function failOnDeprecation(): bool
@@ -26711,6 +26810,12 @@ final class NoCodeCoverageDriverWithPathCoverageSupportAvailableException extend
 final class ParserException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
 {
 }
+final class PathExistsButIsNotDirectoryException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct(string $path)
+    {
+    }
+}
 final class ReflectionException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
 {
 }
@@ -26741,6 +26846,12 @@ final class UnintentionallyCoveredCodeException extends \RuntimeException implem
      * @return list<string>
      */
     public function getUnintentionallyCoveredUnits(): array
+    {
+    }
+}
+final class WriteOperationFailedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct(string $path)
     {
     }
 }
@@ -26911,32 +27022,22 @@ namespace SebastianBergmann\CodeCoverage\Driver;
 abstract class Driver
 {
     /**
-     * @var int
-     *
      * @see http://xdebug.org/docs/code_coverage
      */
     public const LINE_NOT_EXECUTABLE = -2;
     /**
-     * @var int
-     *
      * @see http://xdebug.org/docs/code_coverage
      */
     public const LINE_NOT_EXECUTED = -1;
     /**
-     * @var int
-     *
      * @see http://xdebug.org/docs/code_coverage
      */
     public const LINE_EXECUTED = 1;
     /**
-     * @var int
-     *
      * @see http://xdebug.org/docs/code_coverage
      */
     public const BRANCH_NOT_HIT = 0;
     /**
-     * @var int
-     *
      * @see http://xdebug.org/docs/code_coverage
      */
     public const BRANCH_HIT = 1;
@@ -27059,21 +27160,9 @@ final class XdebugDriver extends \SebastianBergmann\CodeCoverage\Driver\Driver
     {
     }
 }
-final class PathExistsButIsNotDirectoryException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct(string $path)
-    {
-    }
-}
 final class PcovNotAvailableException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
 {
     public function __construct()
-    {
-    }
-}
-final class WriteOperationFailedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct(string $path)
     {
     }
 }
@@ -27341,7 +27430,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
  * @phpstan-import-type TestType from \SebastianBergmann\CodeCoverage\CodeCoverage
- * @phpstan-import-type LinesType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
+ * @phpstan-import-type LinesType from \SebastianBergmann\CodeCoverage\StaticAnalysis\AnalysisResult
  *
  * @phan-type ProcessedFunctionType array{
  *     functionName: string,
@@ -27541,7 +27630,7 @@ namespace SebastianBergmann\CodeCoverage\Report;
 final class Clover
 {
     /**
-     * @throws \SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
     {
@@ -27550,7 +27639,7 @@ final class Clover
 final class Cobertura
 {
     /**
-     * @throws \SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null): string
     {
@@ -27562,7 +27651,7 @@ final readonly class Crap4j
     {
     }
     /**
-     * @throws \SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
     {
@@ -27995,7 +28084,10 @@ final readonly class Unit
 }
 namespace SebastianBergmann\CodeCoverage\StaticAnalysis;
 
-final class CacheWarmer
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class CacheWarmer
 {
     /**
      * @return array{cacheHits: non-negative-int, cacheMisses: non-negative-int}
@@ -28005,234 +28097,124 @@ final class CacheWarmer
     }
 }
 /**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- *
- * @phan-type CachedDataForFile array{
- *   interfacesIn: array<string, Interface_>,
- *   classesIn: array<string, Class_>,
- *   traitsIn: array<string, Trait_>,
- *   functionsIn: array<string, Function_>,
- *   linesOfCodeFor: LinesOfCode,
- *   ignoredLinesFor: LinesType,
- *   executableLinesIn: LinesType
- * }
- *
- * @phpstan-import-type LinesType from FileAnalyser
+ * @internal This interface is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class CachingFileAnalyser implements \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
+final class CachingSourceAnalyser implements \SebastianBergmann\CodeCoverage\StaticAnalysis\SourceAnalyser
 {
-    public function __construct(string $directory, \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser $analyser, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode)
+    public function __construct(string $directory, \SebastianBergmann\CodeCoverage\StaticAnalysis\SourceAnalyser $sourceAnalyser)
     {
     }
     /**
-     * @return array<string, Interface_>
+     * @param non-empty-string $sourceCodeFile
      */
-    public function interfacesIn(string $filename): array
+    public function analyse(string $sourceCodeFile, string $sourceCode, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode): \SebastianBergmann\CodeCoverage\StaticAnalysis\AnalysisResult
     {
     }
     /**
-     * @return array<string, Class_>
+     * @return non-negative-int
      */
-    public function classesIn(string $filename): array
+    public function cacheHits(): int
     {
     }
     /**
-     * @return array<string, Trait_>
+     * @return non-negative-int
      */
-    public function traitsIn(string $filename): array
-    {
-    }
-    /**
-     * @return array<string, Function_>
-     */
-    public function functionsIn(string $filename): array
-    {
-    }
-    public function linesOfCodeFor(string $filename): \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode
-    {
-    }
-    /**
-     * @return LinesType
-     */
-    public function executableLinesIn(string $filename): array
-    {
-    }
-    /**
-     * @return LinesType
-     */
-    public function ignoredLinesFor(string $filename): array
-    {
-    }
-    /**
-     * @return array{cacheHits: non-negative-int, cacheMisses: non-negative-int}
-     */
-    public function process(string $filename): array
+    public function cacheMisses(): int
     {
     }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class CodeUnitFindingVisitor extends \PhpParser\NodeVisitorAbstract
+final class FileAnalyser
+{
+    public function __construct(\SebastianBergmann\CodeCoverage\StaticAnalysis\SourceAnalyser $sourceAnalyser, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode)
+    {
+    }
+    /**
+     * @param non-empty-string $sourceCodeFile
+     */
+    public function analyse(string $sourceCodeFile): \SebastianBergmann\CodeCoverage\StaticAnalysis\AnalysisResult
+    {
+    }
+}
+/**
+ * @internal This interface is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class ParsingSourceAnalyser implements \SebastianBergmann\CodeCoverage\StaticAnalysis\SourceAnalyser
 {
     /**
-     * @param non-empty-string $file
+     * @param non-empty-string $sourceCodeFile
      */
-    public function __construct(string $file)
+    public function analyse(string $sourceCodeFile, string $sourceCode, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode): \SebastianBergmann\CodeCoverage\StaticAnalysis\AnalysisResult
     {
     }
-    public function enterNode(\PhpParser\Node $node): null
-    {
-    }
-    public function leaveNode(\PhpParser\Node $node): null
+}
+/**
+ * @internal This interface is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+interface SourceAnalyser
+{
+    /**
+     * @param non-empty-string $sourceCodeFile
+     */
+    public function analyse(string $sourceCodeFile, string $sourceCode, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode): \SebastianBergmann\CodeCoverage\StaticAnalysis\AnalysisResult;
+}
+/**
+ * @phan-type LinesType array<int, int>
+ *
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class AnalysisResult
+{
+    /**
+     * @param array<string, Interface_> $interfaces
+     * @param array<string, Class_>     $classes
+     * @param array<string, Trait_>     $traits
+     * @param array<string, Function_>  $functions
+     * @param LinesType                 $executableLines
+     * @param LinesType                 $ignoredLines
+     */
+    public function __construct(array $interfaces, array $classes, array $traits, array $functions, \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode $linesOfCode, array $executableLines, array $ignoredLines)
     {
     }
     /**
-     * @return array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Interface_>
+     * @return array<string, Interface_>
      */
     public function interfaces(): array
     {
     }
     /**
-     * @return array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Class_>
+     * @return array<string, Class_>
      */
     public function classes(): array
     {
     }
     /**
-     * @return array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Trait_>
+     * @return array<string, Trait_>
      */
     public function traits(): array
     {
     }
     /**
-     * @return array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Function_>
+     * @return array<string, Function_>
      */
     public function functions(): array
     {
     }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- *
- * @phpstan-import-type LinesType from FileAnalyser
- */
-final class ExecutableLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
-{
-    public function __construct(string $source)
-    {
-    }
-    public function enterNode(\PhpParser\Node $node): null
-    {
-    }
-    public function afterTraverse(array $nodes): null
+    public function linesOfCode(): \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode
     {
     }
     /**
      * @return LinesType
      */
-    public function executableLinesGroupedByBranch(): array
+    public function executableLines(): array
     {
     }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- *
- * @phan-type LinesType array<int, int>
- */
-interface FileAnalyser
-{
-    /**
-     * @return array<string, Interface_>
-     */
-    public function interfacesIn(string $filename): array;
-    /**
-     * @return array<string, Class_>
-     */
-    public function classesIn(string $filename): array;
-    /**
-     * @return array<string, Trait_>
-     */
-    public function traitsIn(string $filename): array;
-    /**
-     * @return array<string, Function_>
-     */
-    public function functionsIn(string $filename): array;
-    public function linesOfCodeFor(string $filename): \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode;
     /**
      * @return LinesType
-     */
-    public function executableLinesIn(string $filename): array;
-    /**
-     * @return LinesType
-     */
-    public function ignoredLinesFor(string $filename): array;
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- */
-final class IgnoredLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
-{
-    public function __construct(bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecated)
-    {
-    }
-    public function enterNode(\PhpParser\Node $node): null
-    {
-    }
-    /**
-     * @return array<int>
      */
     public function ignoredLines(): array
-    {
-    }
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- *
- * @phpstan-import-type LinesType from FileAnalyser
- */
-final class ParsingFileAnalyser implements \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
-{
-    public function __construct(bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode)
-    {
-    }
-    /**
-     * @return array<string, Interface_>
-     */
-    public function interfacesIn(string $filename): array
-    {
-    }
-    /**
-     * @return array<string, Class_>
-     */
-    public function classesIn(string $filename): array
-    {
-    }
-    /**
-     * @return array<string, Trait_>
-     */
-    public function traitsIn(string $filename): array
-    {
-    }
-    /**
-     * @return array<string, Function_>
-     */
-    public function functionsIn(string $filename): array
-    {
-    }
-    public function linesOfCodeFor(string $filename): \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode
-    {
-    }
-    /**
-     * @return LinesType
-     */
-    public function executableLinesIn(string $filename): array
-    {
-    }
-    /**
-     * @return LinesType
-     */
-    public function ignoredLinesFor(string $filename): array
     {
     }
 }
@@ -28574,6 +28556,110 @@ final readonly class Trait_
      * @return array<non-empty-string, Method>
      */
     public function methods(): array
+    {
+    }
+}
+/**
+ * Visitor that connects a child node to its parent node optimized for Attribute nodes.
+ *
+ * On the child node, the parent node can be accessed through
+ * <code>$node->getAttribute('parent')</code>.
+ */
+final class AttributeParentConnectingVisitor implements \PhpParser\NodeVisitor
+{
+    public function beforeTraverse(array $nodes): null
+    {
+    }
+    public function enterNode(\PhpParser\Node $node): null
+    {
+    }
+    public function leaveNode(\PhpParser\Node $node): null
+    {
+    }
+    public function afterTraverse(array $nodes): null
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class CodeUnitFindingVisitor extends \PhpParser\NodeVisitorAbstract
+{
+    /**
+     * @param non-empty-string $file
+     */
+    public function __construct(string $file)
+    {
+    }
+    public function enterNode(\PhpParser\Node $node): null
+    {
+    }
+    public function leaveNode(\PhpParser\Node $node): null
+    {
+    }
+    /**
+     * @return array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Interface_>
+     */
+    public function interfaces(): array
+    {
+    }
+    /**
+     * @return array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Class_>
+     */
+    public function classes(): array
+    {
+    }
+    /**
+     * @return array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Trait_>
+     */
+    public function traits(): array
+    {
+    }
+    /**
+     * @return array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Function_>
+     */
+    public function functions(): array
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @phpstan-import-type LinesType from AnalysisResult
+ */
+final class ExecutableLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
+{
+    public function __construct(string $source)
+    {
+    }
+    public function enterNode(\PhpParser\Node $node): null
+    {
+    }
+    public function afterTraverse(array $nodes): null
+    {
+    }
+    /**
+     * @return LinesType
+     */
+    public function executableLinesGroupedByBranch(): array
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class IgnoredLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
+{
+    public function __construct(bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecated)
+    {
+    }
+    public function enterNode(\PhpParser\Node $node): null
+    {
+    }
+    /**
+     * @return array<int>
+     */
+    public function ignoredLines(): array
     {
     }
 }

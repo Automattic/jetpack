@@ -65,20 +65,19 @@ class Full_Sync_Immediately extends Module {
 	 * @return bool Always returns true at success.
 	 */
 	public function start( $full_sync_config = null, $context = null ) {
-		// There was a full sync in progress.
-		if ( $this->is_started() && ! $this->is_finished() ) {
-			/**
-			 * Fires when a full sync is cancelled.
-			 *
-			 * @since 1.6.3
-			 * @since-jetpack 4.2.0
-			 */
-			do_action( 'jetpack_full_sync_cancelled' );
-			$this->send_action( 'jetpack_full_sync_cancelled' );
-		}
-
+		// Check if there was a full sync in progress already before resetting the data.
+		$should_process_cancelled_action = $this->get_status()['start_action_processed'] && ! $this->is_finished() ? true : false;
 		// Remove all evidence of previous full sync items and status.
 		$this->reset_data();
+
+		// Update status to indicate that a new full sync is starting and need to cancel previous one.
+		if ( $should_process_cancelled_action ) {
+			$this->update_status(
+				array(
+					'cancelled_action_processed' => false,
+				)
+			);
+		}
 
 		if ( ! is_array( $full_sync_config ) ) {
 			/*
@@ -100,30 +99,13 @@ class Full_Sync_Immediately extends Module {
 			$full_sync_config['users'] = $users_module->get_initial_sync_user_config();
 		}
 
-		$range = $this->get_content_range( $full_sync_config );
-
 		$this->update_status(
 			array(
-				'started'  => time(),
-				'config'   => $full_sync_config,
-				'progress' => $this->get_initial_progress( $full_sync_config, $range ),
+				'started' => time(),
+				'config'  => $full_sync_config,
+				'context' => $context,
 			)
 		);
-		/**
-		 * Fires when a full sync begins. This action is serialized
-		 * and sent to the server so that it knows a full sync is coming.
-		 *
-		 * @param array $full_sync_config Sync configuration for all sync modules.
-		 * @param array $range Range of the sync items, containing min and max IDs for some item types.
-		 * @param mixed $context The context where the full sync was initiated from.
-		 *
-		 * @since 1.6.3
-		 * @since-jetpack 4.2.0
-		 * @since-jetpack 7.3.0 Added $range arg.
-		 * @since 4.4.0 Added $context arg.
-		 */
-		do_action( 'jetpack_full_sync_start', $full_sync_config, $range );
-		$this->send_action( 'jetpack_full_sync_start', array( $full_sync_config, $range, $context ) );
 
 		return true;
 	}
@@ -148,10 +130,13 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function get_status() {
 		$default = array(
-			'started'  => false,
-			'finished' => false,
-			'progress' => array(),
-			'config'   => array(),
+			'start_action_processed'     => false,
+			'cancelled_action_processed' => true, // true by default to avoid sending the action when there is no need,
+			'started'                    => false,
+			'finished'                   => false,
+			'progress'                   => array(),
+			'config'                     => array(),
+			'context'                    => null,
 		);
 
 		return wp_parse_args( \Jetpack_Options::get_raw_option( self::STATUS_OPTION ), $default );
@@ -387,6 +372,14 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 */
 	public function send() {
+
+		if ( ! $this->maybe_send_cancelled_action() ) {
+			return false;
+		}
+
+		if ( ! $this->maybe_send_full_sync_start() ) {
+			return false;
+		}
 		$config = $this->get_status()['config'];
 
 		$max_duration = Settings::get_setting( 'full_sync_send_duration' );
@@ -445,13 +438,99 @@ class Full_Sync_Immediately extends Module {
 	}
 
 	/**
-	 * Send 'jetpack_full_sync_end' and update 'finished' status.
+	 * Sends the `jetpack_full_sync_start` action if it hasn't been processed yet.
+	 *
+	 * Prepares the full sync start action, sends it to WordPress.com, fires the local action,
+	 * and updates the sync status to reflect that the start action has been processed.
+	 *
+	 * @return bool True if the action was successfully sent or already processed, false on failure.
+	 */
+	private function maybe_send_full_sync_start() {
+		$status = $this->get_status();
+
+		// If already processed, nothing to do.
+		if ( true === $status['start_action_processed'] ) {
+			return true;
+		}
+
+		$config  = $status['config'];
+		$context = $status['context'];
+		$range   = $this->get_content_range( $config );
+
+		$result = $this->send_action( 'jetpack_full_sync_start', array( $config, $range, $context ) );
+
+		// If the action failed on WordPress.com, return false.
+		if ( is_wp_error( $result ) ) {
+			return false;
+		}
+
+		/**
+		 * Fires when a full sync begins. This action is serialized
+		 * and sent to the server so that it knows a full sync is coming.
+		 *
+		 * @param array $config Sync configuration for all sync modules.
+		 * @param array $range Range of the sync items, containing min and max IDs for some item types.
+		 * @param mixed $context The context where the full sync was initiated from.
+		 *
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
+		 * @since-jetpack 7.3.0 Added $range arg.
+		 * @since 4.4.0 Added $context arg.
+		 */
+		do_action( 'jetpack_full_sync_start', $config, $range );
+
+		$this->update_status(
+			array(
+				'start_action_processed' => true,
+				'progress'               => $this->get_initial_progress( $config, $range ),
+			)
+		);
+
+		return true;
+	}
+
+	/**
+	 * Sends the `jetpack_full_sync_cancelled` action if it hasn't been processed yet.
+	 *
+	 * @return bool True if the action was successfully sent or already processed, false on failure.
+	 */
+	private function maybe_send_cancelled_action() {
+		$status = $this->get_status();
+
+		if ( true === $status['cancelled_action_processed'] ) {
+			return true;
+		}
+
+		$result = $this->send_action( 'jetpack_full_sync_cancelled' );
+
+		if ( is_wp_error( $result ) ) {
+			return false;
+		}
+
+		/**
+		 * Fires when a full sync is cancelled.
+		 *
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
+		 */
+		do_action( 'jetpack_full_sync_cancelled' );
+		$this->update_status( array( 'cancelled_action_processed' => true ) );
+		return true;
+	}
+
+	/**
+	 *  Sends the `jetpack_full_sync_end` action and updates the status when the full sync end action is processed.
 	 *
 	 * @access public
 	 */
 	public function send_full_sync_end() {
 		$range = $this->get_content_range( $this->get_status()['config'] );
 
+		$result = $this->send_action( 'jetpack_full_sync_end', array( '', $range ) );
+
+		if ( is_wp_error( $result ) ) { // Do not set finished status if we get an error.
+			return;
+		}
 		/**
 		 * Fires when a full sync ends. This action is serialized
 		 * and sent to the server.
@@ -464,7 +543,6 @@ class Full_Sync_Immediately extends Module {
 		 * @since-jetpack 7.3.0 Added $range arg.
 		 */
 		do_action( 'jetpack_full_sync_end', '', $range );
-		$this->send_action( 'jetpack_full_sync_end', array( '', $range ) );
 
 		// Setting autoload to true means that it's faster to check whether we should continue enqueuing.
 		$this->update_status( array( 'finished' => time() ) );

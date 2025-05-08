@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'url';
-import fetch from 'node-fetch';
 
 // Below call should be BEFORE requiring config, so library wil pick it up.
 process.env.NODE_CONFIG_DIR = fileURLToPath( new URL( '../config', import.meta.url ) );

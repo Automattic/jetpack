@@ -33,23 +33,9 @@ class Inline_Search extends Classic_Search {
 	private $colophon;
 
 	/**
-	 * The query parameter that triggers inline search.
-	 *
-	 * @var string
-	 */
-	private static $inline_search_param = 'inline-search';
-
-	/**
 	 * Returns whether this class should be used instead of Classic_Search.
 	 */
 	public static function should_replace_classic_search(): bool {
-		// Check for the inline search query parameter
-		// @TODO: Remove this once we go live with the new inline search
-		if ( isset( $_GET[ self::$inline_search_param ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return true;
-		}
-
-		// Otherwise use the filter
 		return (bool) apply_filters( 'jetpack_search_replace_classic', false );
 	}
 
@@ -74,10 +60,10 @@ class Inline_Search extends Classic_Search {
 			// Initialize colophon handling
 			self::$instance->colophon = new Inline_Search_Colophon();
 
-			// Add hooks for displaying corrected query notice
+			// Add hooks for displaying corrected query notice - only once
 			add_action( 'pre_get_posts', array( self::$instance->correction, 'setup_corrected_query_hooks' ) );
 
-			// Add hooks for displaying the Jetpack colophon
+			// Add hooks for displaying the Jetpack colophon - only once
 			add_action( 'pre_get_posts', array( self::$instance->colophon, 'setup_colophon_hooks' ) );
 		}
 

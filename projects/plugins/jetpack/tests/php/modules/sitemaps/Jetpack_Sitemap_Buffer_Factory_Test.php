@@ -16,6 +16,17 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-factory.php'
 class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
+	/** Test Setup */
+	public function set_up() {
+		parent::set_up();
+		add_filter( 'jetpack_sitemap_use_xmlwriter', '__return_true' );
+	}
+
+	public function tear_down() {
+		parent::tear_down();
+		remove_filter( 'jetpack_sitemap_use_xmlwriter', '__return_true' );
+	}
+
 	/**
 	 * Test creating a page buffer with XMLWriter.
 	 *

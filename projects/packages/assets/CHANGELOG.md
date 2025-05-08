@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.20] - 2025-05-05
+### Changed
+- Update package dependencies. [#43326]
+
 ## [4.0.19] - 2025-04-28
 ### Fixed
 - Newsletters: Show newsletter widget on P2s. [#43085]
@@ -612,6 +616,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[4.0.20]: https://github.com/Automattic/jetpack-assets/compare/v4.0.19...v4.0.20
 [4.0.19]: https://github.com/Automattic/jetpack-assets/compare/v4.0.18...v4.0.19
 [4.0.18]: https://github.com/Automattic/jetpack-assets/compare/v4.0.17...v4.0.18
 [4.0.17]: https://github.com/Automattic/jetpack-assets/compare/v4.0.16...v4.0.17

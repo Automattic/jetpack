@@ -6,6 +6,7 @@ module.exports = {
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		'jp-search-inline': path.join( __dirname, '../src/inline-search/js/index.js' ),
+		'corrected-query': path.join( __dirname, '../src/inline-search/styles/corrected-query.scss' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,

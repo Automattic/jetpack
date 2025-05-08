@@ -7,19 +7,21 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Class for handling search correction display
  *
  * @since $$next-version$$
  */
-class Inline_Search_Correction extends Inline_Search_Component {
+class Inline_Search_Correction {
 	/**
 	 * Setup hooks for displaying corrected query notice.
 	 *
 	 * @param \WP_Query $query The current query.
 	 */
 	public function setup_corrected_query_hooks( $query ) {
-		if ( ! $this->is_valid_search_query( $query ) ) {
+		if ( ! $query->is_search() || ! $query->is_main_query() ) {
 			return;
 		}
 
@@ -41,7 +43,7 @@ class Inline_Search_Correction extends Inline_Search_Component {
 		}
 
 		$handle = 'jetpack-search-inline-corrected-query';
-		$this->register_component_style( $handle, 'corrected-query.css' );
+		$this->register_corrected_query_style( $handle );
 	}
 
 	/**
@@ -55,10 +57,29 @@ class Inline_Search_Correction extends Inline_Search_Component {
 			return;
 		}
 
-		$this->register_inline_search_script();
+		$handle = 'jetpack-search-inline-corrected-query';
+
+		// Don't localize if already localized to prevent duplication
+		if ( wp_script_is( $handle, 'data' ) ) {
+			$localized_data = wp_scripts()->get_data( $handle, 'data' );
+			if ( $localized_data && strpos( $localized_data, 'JetpackSearchCorrectedQuery' ) !== false ) {
+				return;
+			}
+		}
+
+		Assets::register_script(
+			$handle,
+			'build/inline-search/jp-search-inline.js',
+			Package::get_installed_path() . '/src',
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-search-pkg',
+				'enqueue'    => true,
+			)
+		);
 
 		wp_localize_script(
-			self::SCRIPT_HANDLE,
+			$handle,
 			'JetpackSearchCorrectedQuery',
 			array(
 				'html'      => $corrected_query_html,
@@ -71,6 +92,41 @@ class Inline_Search_Correction extends Inline_Search_Component {
 	}
 
 	/**
+	 * Register and enqueue theme-specific styles for corrected query.
+	 *
+	 * @since $$next-version$$
+	 * @param string $handle The script handle to use for the stylesheet.
+	 */
+	private function register_corrected_query_style( $handle ) {
+		$css_path      = 'build/inline-search/';
+		$css_file      = 'corrected-query.css';
+		$full_css_path = $css_path . $css_file;
+		$package_path  = Package::get_installed_path();
+		$css_full_path = $package_path . '/' . $full_css_path;
+
+		// Verify the CSS file exists before trying to enqueue it
+		if ( ! file_exists( $css_full_path ) ) {
+			return;
+		}
+
+		// We need to use plugins_url for reliable URL generation
+		$file_url = plugins_url(
+			$full_css_path,
+			$package_path . '/package.json'
+		);
+
+		// Use the file's modification time for more precise cache busting
+		$file_version = file_exists( $css_full_path ) ? filemtime( $css_full_path ) : Package::VERSION;
+
+		wp_enqueue_style(
+			$handle,
+			$file_url,
+			array(),
+			$file_version // Use file modification time for cache busting
+		);
+	}
+
+	/**
 	 * Replaces the search query with the corrected query in the title.
 	 *
 	 * @param string $query The original search query.
@@ -78,7 +134,7 @@ class Inline_Search_Correction extends Inline_Search_Component {
 	 */
 	public function maybe_use_corrected_query( $query ) {
 		$search_result = $this->get_search_result();
-		if ( ! empty( $search_result['corrected_query'] ) && ! empty( $search_result['results'] ) ) {
+		if ( is_array( $search_result ) && ! empty( $search_result['corrected_query'] ) && ! empty( $search_result['results'] ) ) {
 			return $search_result['corrected_query'];
 		}
 
@@ -116,10 +172,11 @@ class Inline_Search_Correction extends Inline_Search_Component {
 	 * @return string The HTML for the corrected query notice or empty string if none.
 	 */
 	private function get_corrected_query_html() {
-		$original_query = sanitize_text_field( wp_unslash( $_GET['s'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a search query.
+		global $wp_query;
+		$original_query = $wp_query->get( 's' );
 		$search_result  = $this->get_search_result();
 
-		if ( empty( $search_result['corrected_query'] ) || empty( $search_result['results'] ) ) {
+		if ( ! is_array( $search_result ) || empty( $search_result['corrected_query'] ) || empty( $search_result['results'] ) ) {
 			return '';
 		}
 
@@ -133,5 +190,15 @@ class Inline_Search_Correction extends Inline_Search_Component {
 			'<p class="jetpack-search-corrected-query">%s</p>',
 			$message
 		);
+	}
+
+	/**
+	 * Get the search result from the Inline_Search instance.
+	 *
+	 * @return array|\WP_Error|null The search result or null if not available.
+	 */
+	private function get_search_result() {
+		$inline_search = Inline_Search::instance();
+		return $inline_search->get_search_result();
 	}
 }

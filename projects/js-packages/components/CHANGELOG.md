@@ -2,6 +2,15 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.72.6] - 2025-05-05
+### Changed
+- Update package dependencies. [#43320] [#43326]
+
+### Fixed
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+
 ## [0.72.5] - 2025-04-28
 ### Changed
 - Connection: Mark external links as external. [#43152]
@@ -1376,6 +1385,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.72.6]: https://github.com/Automattic/jetpack-components/compare/0.72.5...0.72.6
 [0.72.5]: https://github.com/Automattic/jetpack-components/compare/0.72.4...0.72.5
 [0.72.4]: https://github.com/Automattic/jetpack-components/compare/0.72.3...0.72.4
 [0.72.3]: https://github.com/Automattic/jetpack-components/compare/0.72.2...0.72.3

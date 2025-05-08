@@ -139,9 +139,7 @@
 			<!-- Add additional lines for any files or directories outside of src/ that need coverage. -->
 			<file>class.frame-nonce-preview.php</file>
 			<file>class.jetpack-admin.php</file>
-			<file>class.jetpack-affiliate.php</file>
 			<file>class.jetpack-autoupdate.php</file>
-			<file>class.jetpack-bbpress-json-api.compat.php</file>
 			<file>class.jetpack-client-server.php</file>
 			<file>class.jetpack-cli.php</file>
 			<file>class-jetpack-connection-status.php</file>

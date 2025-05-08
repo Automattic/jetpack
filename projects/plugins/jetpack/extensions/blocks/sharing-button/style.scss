@@ -22,7 +22,7 @@ a.jetpack-sharing-button__button {
 	align-items: center;
 	color: inherit;
 
-	& svg {
+	svg {
 		width: 1.5em;
 		height: 1.5em;
 		fill: currentColor;
@@ -58,8 +58,6 @@ a.jetpack-sharing-button__button {
 		&.share-print { background: #c5c2c2; }
 
 		&.share-reddit { background: var( --color-reddit ); }
-
-		&.share-skype { background: var( --color-skype ); }
 
 		&.share-facebook { background: var( --color-facebook ); }
 

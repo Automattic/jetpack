@@ -3,7 +3,7 @@
 </script>
 
 {#if error}
-	{#each error._errors as message}
+	{#each error._errors as message (message)}
 		<div class="err">{message}</div>
 	{/each}
 {/if}

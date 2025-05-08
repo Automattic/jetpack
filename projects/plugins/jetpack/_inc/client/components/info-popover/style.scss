@@ -1,9 +1,10 @@
+@use 'sass:color';
 @import '../../scss/calypso-colors';
 
 .dops-info-popover-button {
 	background: transparent;
 	border: none;
-	color: darken( $gray, 10% );
+	color: color.adjust( $gray, $lightness: -10% );
 	padding: 0;
 
 	&:hover {
@@ -21,7 +22,7 @@
 
 .dops-info-popover .gridicon {
 	cursor: pointer;
-	color: lighten( $gray, 15% );
+	color: color.adjust( $gray, $lightness: 15% );
 
 	&:hover {
 		color: $gray-dark;
@@ -35,7 +36,7 @@
 .dops-popover.dops-info-popover__tooltip {
 
 	.dops-popover__inner {
-		color: darken( $gray, 20% );
+		color: color.adjust( $gray, $lightness: -20% );
 		font-size: 13px;
 		max-width: 220px;
 		padding: 16px;
