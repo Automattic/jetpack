@@ -7,7 +7,7 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\SimplePayments;
+namespace Automattic\Jetpack\PayPalPayments\SimplePayments;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Simple_Payments;

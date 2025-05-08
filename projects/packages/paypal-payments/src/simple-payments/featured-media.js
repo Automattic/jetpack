@@ -18,7 +18,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 			<MediaPlaceholder
 				icon={ <BlockIcon icon={ 'format-image' } /> }
 				labels={ {
-					title: __( 'Product Image', 'jetpack' ),
+					title: __( 'Product Image', 'jetpack-paypal-payments' ),
 				} }
 				accept="image/*"
 				allowedTypes={ [ 'image' ] }
@@ -39,14 +39,17 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 									allowedTypes={ [ 'image' ] }
 									value={ featuredMediaId }
 									render={ ( { open } ) => (
-										<EditButton label={ __( 'Edit Image', 'jetpack' ) } onClick={ open } />
+										<EditButton
+											label={ __( 'Edit Image', 'jetpack-paypal-payments' ) }
+											onClick={ open }
+										/>
 									) }
 								/>
 							) }
 						</ToolbarItem>
 						<ToolbarButton
 							icon={ 'trash' }
-							title={ __( 'Remove Image', 'jetpack' ) }
+							title={ __( 'Remove Image', 'jetpack-paypal-payments' ) }
 							onClick={ () =>
 								setAttributes( {
 									featuredMediaId: null,

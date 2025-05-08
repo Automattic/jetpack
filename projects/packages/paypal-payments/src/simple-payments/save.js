@@ -2,6 +2,11 @@ import { useBlockProps } from '@wordpress/block-editor';
 import clsx from 'clsx';
 import { formatPrice } from './utils';
 
+/**
+ *
+ * @param root0
+ * @param root0.attributes
+ */
 export default function Save( { attributes } ) {
 	const {
 		content,

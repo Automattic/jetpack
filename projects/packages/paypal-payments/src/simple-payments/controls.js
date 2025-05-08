@@ -1,19 +1,25 @@
 import { PanelBody, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
+/**
+ *
+ * @param root0
+ * @param root0.setAttributes
+ * @param root0.postLinkText
+ */
 export function PanelControls( { setAttributes, postLinkText } ) {
 	return (
-		<PanelBody title={ __( 'Settings', 'jetpack' ) } initialOpen={ false }>
+		<PanelBody title={ __( 'Settings', 'jetpack-paypal-payments' ) } initialOpen={ false }>
 			<TextControl
 				__nextHasNoMarginBottom={ true }
 				__next40pxDefaultSize
-				label={ __( 'Purchase link text', 'jetpack' ) }
+				label={ __( 'Purchase link text', 'jetpack-paypal-payments' ) }
 				help={ __(
 					'Enter the text you want to display on a purchase link used as fallback when the PayPal button cannot be used (e.g. emails, AMP, etc.)',
-					'jetpack'
+					'jetpack-paypal-payments'
 				) }
 				className="jetpack-simple-payments__purchase-link-text"
-				placeholder={ __( 'Click here to purchase', 'jetpack' ) }
+				placeholder={ __( 'Click here to purchase', 'jetpack-paypal-payments' ) }
 				onChange={ newPostLinkText => setAttributes( { postLinkText: newPostLinkText } ) }
 				value={ postLinkText }
 			/>

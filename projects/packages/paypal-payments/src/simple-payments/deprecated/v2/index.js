@@ -23,20 +23,25 @@ const supportLink =
 		: 'https://jetpack.com/support/jetpack-blocks/pay-with-paypal/';
 
 const settings = {
-	title: __( 'Pay with PayPal', 'jetpack' ),
+	title: __( 'Pay with PayPal', 'jetpack-paypal-payments' ),
 
 	description: (
 		<Fragment>
 			<p>
 				{ __(
 					'Lets you add credit and debit card payment buttons with minimal setup.',
-					'jetpack'
+					'jetpack-paypal-payments'
 				) }
 			</p>
 			<p>
-				{ __( 'Good for collecting donations or payments for products and services.', 'jetpack' ) }
+				{ __(
+					'Good for collecting donations or payments for products and services.',
+					'jetpack-paypal-payments'
+				) }
 			</p>
-			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
+			<ExternalLink href={ supportLink }>
+				{ __( 'Support reference', 'jetpack-paypal-payments' ) }
+			</ExternalLink>
 		</Fragment>
 	),
 
@@ -48,14 +53,14 @@ const settings = {
 	category: 'monetize',
 
 	keywords: [
-		_x( 'buy', 'block search term', 'jetpack' ),
-		_x( 'commerce', 'block search term', 'jetpack' ),
-		_x( 'products', 'block search term', 'jetpack' ),
-		_x( 'purchase', 'block search term', 'jetpack' ),
-		_x( 'sell', 'block search term', 'jetpack' ),
-		_x( 'shop', 'block search term', 'jetpack' ),
-		_x( 'simple', 'block search term', 'jetpack' ),
-		_x( 'payments', 'block search term', 'jetpack' ),
+		_x( 'buy', 'block search term', 'jetpack-paypal-payments' ),
+		_x( 'commerce', 'block search term', 'jetpack-paypal-payments' ),
+		_x( 'products', 'block search term', 'jetpack-paypal-payments' ),
+		_x( 'purchase', 'block search term', 'jetpack-paypal-payments' ),
+		_x( 'sell', 'block search term', 'jetpack-paypal-payments' ),
+		_x( 'shop', 'block search term', 'jetpack-paypal-payments' ),
+		_x( 'simple', 'block search term', 'jetpack-paypal-payments' ),
+		_x( 'payments', 'block search term', 'jetpack-paypal-payments' ),
 		'PayPal',
 	],
 
@@ -106,7 +111,7 @@ const settings = {
 			type: 'string',
 			source: 'html',
 			selector: '.jetpack-simple-payments-purchase',
-			default: __( 'Click here to purchase.', 'jetpack' ),
+			default: __( 'Click here to purchase.', 'jetpack-paypal-payments' ),
 		},
 		price: {
 			type: 'number',

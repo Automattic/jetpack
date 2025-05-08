@@ -143,13 +143,13 @@ export const SimplePaymentsEdit = ( {
 					apiErrorKey === 'spay_email'
 						? sprintf(
 								/* translators: Placeholder is an email address. */
-								__( '%s is not a valid email address.', 'jetpack' ),
+								__( '%s is not a valid email address.', 'jetpack-paypal-payments' ),
 								email
 						  )
 						: null
 				);
 				setFieldPriceError(
-					apiErrorKey === 'spay_price' ? __( 'Invalid price.', 'jetpack' ) : null
+					apiErrorKey === 'spay_price' ? __( 'Invalid price.', 'jetpack-paypal-payments' ) : null
 				);
 			} )
 			.finally( () => {
@@ -186,13 +186,16 @@ export const SimplePaymentsEdit = ( {
 	const validatePrice = () => {
 		if ( ! price || parseFloat( price ) === 0 ) {
 			setFieldPriceError(
-				__( 'If you’re selling something, you need a price tag. Add yours here.', 'jetpack' )
+				__(
+					'If you’re selling something, you need a price tag. Add yours here.',
+					'jetpack-paypal-payments'
+				)
 			);
 			return false;
 		}
 
 		if ( Number.isNaN( parseFloat( price ) ) ) {
-			setFieldPriceError( __( 'Invalid price', 'jetpack' ) );
+			setFieldPriceError( __( 'Invalid price', 'jetpack-paypal-payments' ) );
 			return false;
 		}
 
@@ -200,7 +203,7 @@ export const SimplePaymentsEdit = ( {
 			setFieldPriceError(
 				__(
 					'Your price is negative — enter a positive number so people can pay the right amount.',
-					'jetpack'
+					'jetpack-paypal-payments'
 				)
 			);
 			return false;
@@ -212,7 +215,7 @@ export const SimplePaymentsEdit = ( {
 				setFieldPriceError(
 					__(
 						'We know every penny counts, but prices in this currency can’t contain decimal values.',
-						'jetpack'
+						'jetpack-paypal-payments'
 					)
 				);
 				return false;
@@ -225,7 +228,7 @@ export const SimplePaymentsEdit = ( {
 						'The price cannot have more than %d decimal place.',
 						'The price cannot have more than %d decimal places.',
 						precision,
-						'jetpack'
+						'jetpack-paypal-payments'
 					),
 					precision
 				)
@@ -250,7 +253,10 @@ export const SimplePaymentsEdit = ( {
 	const validateEmail = () => {
 		if ( ! email ) {
 			setFieldEmailError(
-				__( 'We want to make sure payments reach you, so please add an email address.', 'jetpack' )
+				__(
+					'We want to make sure payments reach you, so please add an email address.',
+					'jetpack-paypal-payments'
+				)
 			);
 			return false;
 		}
@@ -259,7 +265,7 @@ export const SimplePaymentsEdit = ( {
 			setFieldEmailError(
 				sprintf(
 					/* translators: Placeholder is an email address. */
-					__( '%s is not a valid email address.', 'jetpack' ),
+					__( '%s is not a valid email address.', 'jetpack-paypal-payments' ),
 					email
 				)
 			);
@@ -283,7 +289,10 @@ export const SimplePaymentsEdit = ( {
 	const validateTitle = () => {
 		if ( ! title ) {
 			setFieldTitleError(
-				__( 'Please add a brief title so that people know what they’re paying for.', 'jetpack' )
+				__(
+					'Please add a brief title so that people know what they’re paying for.',
+					'jetpack-paypal-payments'
+				)
 			);
 			return false;
 		}
@@ -388,7 +397,7 @@ export const SimplePaymentsEdit = ( {
 			setAttributes( {
 				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
 				...( shouldUpdatePostLinkText && {
-					postLinkText: __( 'Click here to purchase.', 'jetpack' ),
+					postLinkText: __( 'Click here to purchase.', 'jetpack-paypal-payments' ),
 				} ),
 			} );
 		}
@@ -442,9 +451,9 @@ export const SimplePaymentsEdit = ( {
 						className={ clsx( 'simple-payments__field', 'simple-payments__field-title', {
 							'simple-payments__field-has-error': fieldTitleError,
 						} ) }
-						label={ __( 'Item name', 'jetpack' ) }
+						label={ __( 'Item name', 'jetpack-paypal-payments' ) }
 						onChange={ handleTitleChange }
-						placeholder={ __( 'Item name', 'jetpack' ) }
+						placeholder={ __( 'Item name', 'jetpack-paypal-payments' ) }
 						required
 						type="text"
 						value={ title }
@@ -456,10 +465,10 @@ export const SimplePaymentsEdit = ( {
 					<TextareaControl
 						__nextHasNoMarginBottom={ true }
 						className="simple-payments__field simple-payments__field-content"
-						label={ __( 'Describe your item in a few words', 'jetpack' ) }
+						label={ __( 'Describe your item in a few words', 'jetpack-paypal-payments' ) }
 						onChange={ handleContentChange }
-						placeholder={ __( 'Describe your item in a few words', 'jetpack' ) }
-						aria-label={ __( 'Describe your item in a few words', 'jetpack' ) }
+						placeholder={ __( 'Describe your item in a few words', 'jetpack-paypal-payments' ) }
+						aria-label={ __( 'Describe your item in a few words', 'jetpack-paypal-payments' ) }
 						value={ content }
 					/>
 
@@ -468,7 +477,7 @@ export const SimplePaymentsEdit = ( {
 							__nextHasNoMarginBottom={ true }
 							__next40pxDefaultSize
 							className="simple-payments__field simple-payments__field-currency"
-							label={ __( 'Currency', 'jetpack' ) }
+							label={ __( 'Currency', 'jetpack-paypal-payments' ) }
 							onChange={ handleCurrencyChange }
 							options={ getCurrencyList }
 							value={ currency }
@@ -480,7 +489,7 @@ export const SimplePaymentsEdit = ( {
 							className={ clsx( 'simple-payments__field', 'simple-payments__field-price', {
 								'simple-payments__field-has-error': fieldPriceError,
 							} ) }
-							label={ __( 'Price', 'jetpack' ) }
+							label={ __( 'Price', 'jetpack-paypal-payments' ) }
 							onChange={ handlePriceChange }
 							placeholder={ formatPrice( 0, currency, false ) }
 							required
@@ -497,7 +506,10 @@ export const SimplePaymentsEdit = ( {
 						<ToggleControl
 							__nextHasNoMarginBottom={ true }
 							checked={ Boolean( multiple ) }
-							label={ __( 'Allow people to buy more than one item at a time', 'jetpack' ) }
+							label={ __(
+								'Allow people to buy more than one item at a time',
+								'jetpack-paypal-payments'
+							) }
 							onChange={ handleMultipleChange }
 						/>
 					</div>
@@ -509,9 +521,9 @@ export const SimplePaymentsEdit = ( {
 						className={ clsx( 'simple-payments__field', 'simple-payments__field-email', {
 							'simple-payments__field-has-error': fieldEmailError,
 						} ) }
-						label={ __( 'Email', 'jetpack' ) }
+						label={ __( 'Email', 'jetpack-paypal-payments' ) }
 						onChange={ handleEmailChange }
-						placeholder={ __( 'Email', 'jetpack' ) }
+						placeholder={ __( 'Email', 'jetpack-paypal-payments' ) }
 						required
 						// TODO: switch this back to type="email" once Gutenberg paste handler ignores inputs of type email
 						type="text"
@@ -523,10 +535,10 @@ export const SimplePaymentsEdit = ( {
 					<HelpMessage id={ `${ instanceId }-email-help` }>
 						{ __(
 							'Enter the email address associated with your PayPal account. Don’t have an account?',
-							'jetpack'
+							'jetpack-paypal-payments'
 						) + ' ' }
 						<ExternalLink href="https://www.paypal.com/">
-							{ __( 'Create one on PayPal', 'jetpack' ) }
+							{ __( 'Create one on PayPal', 'jetpack-paypal-payments' ) }
 						</ExternalLink>
 					</HelpMessage>
 				</div>
