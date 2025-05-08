@@ -26,69 +26,45 @@ store( NAMESPACE, {
 			let isValid = true;
 
 			inputs.forEach( input => {
-				if ( input.checkValidity && ! input.checkValidity() ) {
+				if ( ! input.checkValidity() ) {
 					isValid = false;
 					input.reportValidity();
 				}
 			} );
 
-			if ( ! isValid ) {
+			if ( ! isValid ) return;
+
+			if ( context.currentStep >= context.maxSteps ) {
 				return;
 			}
 
-			// Check if this is the last step
-			if ( context.currentStep < context.maxSteps ) {
-				// Update the form with the CSS variable for transition speed
-				const form = event.target.closest( 'form' );
-				if ( form && context.transitionSpeed ) {
-					form.style.setProperty( '--jp-form-transition-speed', context.transitionSpeed );
-				}
+			// Set direction to forward for animation
+			context.direction = 'forward';
 
-				// Set direction for animation
-				context.direction = 'forward';
-				// Update current step
-				context.currentStep++;
-
-				// Update URL with the new step
-				this.callbacks.updateUrl();
-			} else {
-				// This is the last step, so we should submit the form
-				const form = event.target.closest( 'form' );
-				if ( form ) {
-					form.submit();
-				}
-			}
+			// Update step after a small delay to allow animation to complete
+			context.currentStep = context.currentStep + 1;
 		},
 
-		prevStep( event ) {
+		previousStep( event ) {
 			event.preventDefault();
 			const context = getContext();
-
-			// Check if this is the first step
-			if ( context.currentStep > 1 ) {
-				// Update the form with the CSS variable for transition speed
-				const form = event.target.closest( 'form' );
-				if ( form && context.transitionSpeed ) {
-					form.style.setProperty( '--jp-form-transition-speed', context.transitionSpeed );
-				}
-
-				// Set direction for animation
-				context.direction = 'backward';
-				// Update current step
-				context.currentStep--;
-
-				// Update URL with the new step
-				this.callbacks.updateUrl();
+			if ( context.currentStep <= 1 ) {
+				return;
 			}
+
+			// Set direction to backward for animation
+			context.direction = 'backward';
+
+			// Update step
+			context.currentStep = context.currentStep - 1;
 		},
 	},
 	callbacks: {
 		updateUrl: () => {
 			const context = getContext();
-			// update the query string to formId-step=currentStep to match PHP implementation
+			// update the query string ?step to currentStep
 			const url = new URL( window.location.href );
-			const stepParamName = `${ context.formId }-step`;
-			url.searchParams.set( stepParamName, context.currentStep );
+			url.searchParams.set( 'step', context.currentStep );
 			window.history.pushState( {}, '', url );
 		},
 	},

@@ -2,7 +2,6 @@
 
 .jetpack-form-progress-indicator {
 	--jp-form-progress-height: 0.75rem;
-	--jp-form-transition-speed: 0.35s; // Default transition speed
 	
 	// Use theme colors with fallbacks
 	--progress-bg-color: #e0e0e0;
@@ -24,9 +23,11 @@
 		top: 0;
 		left: 0;
 		height: 100%;
-		width: 0; // Will be updated via JS
-		background-color: var( --wp--preset--color--primary, var( --jp-form-progress-color, var( --progress-color ) ) );
+		width: 1%;
+		min-width: var( --jp-form-progress-height );
+		transition: width 0.3s ease-in-out;
+		z-index: 1;
+		background-color: var( --wp--preset--color--primary, var( --wp--preset--color--accent, var( --jp-form-progress-color, var( --progress-color ) ) ) );
 		border-radius: calc( var( --jp-form-progress-height ) / 2 );
-		transition: width var( --jp-form-transition-speed, 0.35s ) ease-out;
 	}
 }
