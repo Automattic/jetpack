@@ -925,7 +925,7 @@ export const childBlocks = [
 					},
 				},
 			},
-			title: __( 'Step Navigation', 'jetpack-forms' ),
+			title: __( 'Step navigation', 'jetpack-forms' ),
 			description: __( 'Responsible for the navigation between steps.', 'jetpack-forms' ),
 			parent: [ 'jetpack/contact-form' ],
 			icon: {
