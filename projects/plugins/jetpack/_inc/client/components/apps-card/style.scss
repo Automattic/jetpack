@@ -1,7 +1,8 @@
+@use '../../scss/functions/rem';
 @import '../../scss/mixins/ui';
 
 .jp-apps-card {
-	margin-top: rem( 24px );
+	margin-top: rem.convert( 24px );
 	margin-bottom: 0;
 }
 
@@ -93,7 +94,7 @@
 
 	.jp-apps-card__caption {
 		font-size: 11px;
-		margin: rem( 10px ) 0 0;
+		margin: rem.convert( 10px ) 0 0;
 		max-width: 220px;
 	}
 
@@ -123,5 +124,5 @@
 }
 
 .jp-themes-card {
-	margin-bottom: rem( 20px );
+	margin-bottom: rem.convert( 20px );
 }

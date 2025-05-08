@@ -1,6 +1,6 @@
 @use 'sass:color';
+@use '../../scss/functions/rem';
 @import '../../scss/calypso-colors';
-@import '../../scss/functions/rem';
 
 // ==========================================================================
 // Text Inputs
@@ -10,11 +10,11 @@
 .dops-textarea {
 	box-sizing: border-box;
 	margin: 0;
-	padding: rem( 7px ) rem( 14px );
-	min-height: rem( 92px );
+	padding: rem.convert( 7px ) rem.convert( 14px );
+	min-height: rem.convert( 92px );
 	width: 100%;
 	color: $gray-dark;
-	font-size: rem( 16px );
+	font-size: rem.convert( 16px );
 	line-height: 1.5;
 	border: 1px solid color.adjust( $gray, $lightness: 20% );
 	background-color: $white;
