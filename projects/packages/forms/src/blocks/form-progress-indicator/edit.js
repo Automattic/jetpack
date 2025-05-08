@@ -43,7 +43,7 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 				{ steps.length > 0 ? (
 					<div
 						className="jetpack-form-progress-indicator"
-						style={ { '--progress': `${ progress }%` } }
+						style={ { '--jp-form-progress-value': `${ progress }%` } }
 					></div>
 				) : (
 					<p className="no-steps-message">

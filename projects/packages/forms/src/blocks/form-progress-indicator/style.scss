@@ -1,8 +1,7 @@
 // Frontend styles for the jetpack-form-progress-indicator block
 
 .jetpack-form-progress-indicator {
-	// Use custom property defined in save.js `data-wp-style----progress` which evaluates to `state.getStepProgress` (0-100)
-	--progress-height: var( --jp-form-progress-height, 0.75rem );
+	--jp-form-progress-height: 0.75rem;
 	
 	// Use theme colors with fallbacks
 	--progress-bg-color: #e0e0e0;
@@ -10,11 +9,11 @@
 
 	// Essential structure
 	width: 100%;
-	height: var( --progress-height );
+	height: var( --jp-form-progress-height );
 	position: relative;
 	overflow: hidden;
 	background-color: var( --wp--preset--color--secondary, var( --wp--preset--color--background, var( --jp-form-progress-bg-color, var( --progress-bg-color ) ) ) );
-	border-radius: calc( var( --progress-height ) / 2 );
+	border-radius: calc( var( --jp-form-progress-height ) / 2 );
 
 	// Progress bar element
 	.jetpack-form-progress-indicator-bar  {
@@ -25,10 +24,10 @@
 		left: 0;
 		height: 100%;
 		width: 1%;
-		min-width: var( --progress-height );
+		min-width: var( --jp-form-progress-height );
 		transition: width 0.3s ease-in-out;
 		z-index: 1;
 		background-color: var( --wp--preset--color--primary, var( --wp--preset--color--accent, var( --jp-form-progress-color, var( --progress-color ) ) ) );
-		border-radius: calc( var( --progress-height ) / 2 );
+		border-radius: calc( var( --jp-form-progress-height ) / 2 );
 	}
 }

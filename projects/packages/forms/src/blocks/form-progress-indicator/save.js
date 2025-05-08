@@ -7,7 +7,7 @@ const FormProgressIndicatorSave = () => {
 				className: 'jetpack-form-progress-indicator',
 			} ) }
 			data-wp-interactive="jetpack/form"
-			data-wp-style----progress="state.getStepProgress"
+			data-wp-style----jp-form-progress-value="state.getStepProgress"
 			data-wp-init="actions.initializeProgress"
 		></div>
 	);
