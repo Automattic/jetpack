@@ -1,4 +1,4 @@
-Significance: minor
-Type: deprecated
+Significance: major
+Type: removed
 
-Replace number-format component with number-formatters package
+BREAKING: Removed `numberFormat` function. Use the `@automattic/number-formatters` package instead.
