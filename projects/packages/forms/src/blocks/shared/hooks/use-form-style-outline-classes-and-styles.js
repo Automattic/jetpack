@@ -27,7 +27,6 @@ export default function useFormStyleOutlineClassesAndStyles( {
 	clientId,
 	innerBlockName = 'jetpack/input',
 	relativeTo = 'parent',
-	isSynced,
 } ) {
 	const formStyle = useFormStyle( clientId );
 	const { userConfig, baseConfig } = useSelect( select => {
@@ -58,7 +57,7 @@ export default function useFormStyleOutlineClassesAndStyles( {
 
 	const inputBlock = useSelect(
 		select => {
-			const { getBlock, getBlockRootClientId /*, getBlocksByName*/ } = select( blockEditorStore );
+			const { getBlock, getBlockRootClientId } = select( blockEditorStore );
 
 			let parentClientId;
 			if ( relativeTo === 'sibling' ) {
@@ -75,24 +74,10 @@ export default function useFormStyleOutlineClassesAndStyles( {
 			if ( ! parentBlock ) {
 				return [];
 			}
-			/*
-			// Could be a path to syncing the styles with the multiple choice fields.
-			if (
-				isSynced &&
-				( parentBlock.name === 'jetpack/field-radio' ||
-					parentBlock.name === 'jetpack/field-checkbox-multiple' )
-			) {
-				const inputs = getBlocksByName( innerBlockName );
-				if ( inputs.length === 0 ) {
-					return [];
-				}
-				return getBlock( inputs[ 0 ] );
-			}
-			*/
 
 			return parentBlock.innerBlocks.find( block => block.name === innerBlockName );
 		},
-		[ clientId, relativeTo, innerBlockName /*, isSynced*/ ]
+		[ clientId, relativeTo, innerBlockName ]
 	);
 
 	return useMemo( () => {
