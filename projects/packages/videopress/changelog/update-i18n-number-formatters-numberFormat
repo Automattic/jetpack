@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+refactored numberFormat use from jetpack-components package to formatNumber from number-formatters package

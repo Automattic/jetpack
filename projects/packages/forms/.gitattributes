@@ -25,4 +25,4 @@ tools/**                 production-exclude
 /src/blocks/**/*.scss    production-exclude
 tsconfig.json            production-exclude
 declarations.d.ts        production-exclude
-globals.d.ts             production-exclude
+global.d.ts              production-exclude

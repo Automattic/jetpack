@@ -1,5 +1,6 @@
 import restApi from '@automattic/jetpack-api';
-import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x } from '@wordpress/i18n';
 import { get, isArray, noop } from 'lodash';
@@ -308,7 +309,7 @@ class DashScan extends Component {
 			<>
 				{ renderActiveCard( [
 					<h2 key="header" className="jp-dash-item__count is-alert">
-						{ numberFormat( numberOfThreats ) }
+						{ formatNumber( numberOfThreats ) }
 					</h2>,
 					<p key="description" className="jp-dash-item__description">
 						{ createInterpolateElement(

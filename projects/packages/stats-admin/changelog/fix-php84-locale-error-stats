@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stats column: avoid PHP fatal when a locale is not available

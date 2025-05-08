@@ -2470,6 +2470,9 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
@@ -3045,6 +3048,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
 
+  projects/packages/paypal-payments: {}
+
   projects/packages/plans: {}
 
   projects/packages/plugin-deactivation:
@@ -3611,6 +3616,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@babel/core':
         specifier: 7.26.10
         version: 7.26.10
@@ -23074,7 +23082,7 @@ snapshots:
   css-tree@2.2.1:
     dependencies:
       mdn-data: 2.0.28
-      source-map-js: 1.2.1
+      source-map-js: 1.2.0
 
   css-tree@2.3.1:
     dependencies:
@@ -23084,7 +23092,7 @@ snapshots:
   css-tree@3.1.0:
     dependencies:
       mdn-data: 2.12.2
-      source-map-js: 1.2.1
+      source-map-js: 1.2.0
 
   css-what@6.1.0: {}
 
@@ -28156,7 +28164,7 @@ snapshots:
     dependencies:
       chokidar: 3.6.0
       immutable: 4.3.7
-      source-map-js: 1.2.1
+      source-map-js: 1.2.0
 
   sax@1.4.1: {}
 
