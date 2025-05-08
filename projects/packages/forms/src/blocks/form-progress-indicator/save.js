@@ -8,6 +8,7 @@ const FormProgressIndicatorSave = () => {
 			} ) }
 			data-wp-interactive="jetpack/form"
 			data-wp-style----progress="state.getStepProgress"
+			data-wp-init="actions.initializeProgress"
 		></div>
 	);
 };
