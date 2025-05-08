@@ -48,8 +48,12 @@ export default function useFormStyleOutlineClassesAndStyles( {
 	}, [] );
 
 	const mergedGlobalBlockStyles = useMemo(
-		() => merge( baseConfig?.styles?.blocks, userConfig?.styles?.blocks ),
-		[ baseConfig?.styles?.blocks, userConfig?.styles?.blocks ]
+		() =>
+			merge(
+				baseConfig?.styles?.blocks?.[ innerBlockName ],
+				userConfig?.styles?.blocks?.[ innerBlockName ]
+			),
+		[ baseConfig?.styles?.blocks, userConfig?.styles?.blocks, innerBlockName ]
 	);
 
 	const inputBlock = useSelect(
@@ -91,59 +95,61 @@ export default function useFormStyleOutlineClassesAndStyles( {
 		[ clientId, relativeTo, innerBlockName /*, isSynced*/ ]
 	);
 
-	// Only return styles for outlined and animated forms.
-	if ( formStyle !== FORM_STYLE.OUTLINED && formStyle !== FORM_STYLE.ANIMATED ) {
-		return null;
-	}
+	return useMemo( () => {
+		// Only return styles for outlined and animated forms.
+		if ( formStyle !== FORM_STYLE.OUTLINED && formStyle !== FORM_STYLE.ANIMATED ) {
+			return null;
+		}
+		// Access the input block's attributes.
+		const blockBorderClassesAndStyles = getBorderClassesAndStyles( inputBlock?.attributes ?? {} );
+		const globalBorderClassesAndStyles = getBorderClassesAndStyles( {
+			style: mergedGlobalBlockStyles?.[ innerBlockName ],
+		} );
 
-	// Access the input block's attributes.
-	const blockBorderClassesAndStyles = getBorderClassesAndStyles( inputBlock?.attributes ?? {} );
-	const globalBorderClassesAndStyles = getBorderClassesAndStyles( {
-		style: mergedGlobalBlockStyles?.[ innerBlockName ],
-	} );
-
-	// Notched HTML only needs the background color and associated classes.
-	const attributesWithBackgroundColor = inputBlock?.attributes
-		? {
-				backgroundColor: inputBlock?.attributes?.backgroundColor,
-				style: {
-					color: {
-						background: inputBlock?.attributes?.style?.color?.background,
+		// Notched HTML only needs the background color and associated classes.
+		const attributesWithBackgroundColor = inputBlock?.attributes
+			? {
+					backgroundColor: inputBlock?.attributes?.backgroundColor,
+					style: {
+						color: {
+							background: inputBlock?.attributes?.style?.color?.background,
+						},
 					},
-				},
-		  }
-		: {};
-	const blockColorClassesAndStyles = getColorClassesAndStyles( attributesWithBackgroundColor );
+			  }
+			: {};
+		const blockColorClassesAndStyles = getColorClassesAndStyles( attributesWithBackgroundColor );
 
-	/**
-	 * Remove undefined classname values.
-	 */
-	const filteredBlockColorClassesAndStyles = [
-		blockBorderClassesAndStyles?.className,
-		blockColorClassesAndStyles?.className,
-	]
-		.filter( Boolean )
-		.join( ' ' );
-	return {
-		className: filteredBlockColorClassesAndStyles,
-		style: {
-			...blockBorderClassesAndStyles?.style,
-			// Only background here.
-			backgroundColor: blockColorClassesAndStyles?.style?.backgroundColor,
-		},
-		cssVars: {
-			// Sets the value of top: calc(var(--jetpack--contact-form--border-size) * -1) for .notched-label__label.
-			'--jetpack--contact-form--border-size':
-				getIntAsPxValue( blockBorderClassesAndStyles?.style?.borderWidth ) ||
-				blockBorderClassesAndStyles?.style?.borderTopWidth ||
-				globalBorderClassesAndStyles?.style?.borderWidth ||
-				globalBorderClassesAndStyles?.style?.borderTopWidth,
-			// Sets the value of --notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)); for .notched-label.
-			'--jetpack--contact-form--border-radius':
-				getIntAsPxValue( blockBorderClassesAndStyles?.style?.borderRadius ) ||
-				blockBorderClassesAndStyles?.style?.borderLeftRadius ||
-				globalBorderClassesAndStyles?.style?.borderRadius ||
-				globalBorderClassesAndStyles?.style?.borderLeftRadius,
-		},
-	};
+		/**
+		 * Remove undefined classname values.
+		 */
+		const filteredBlockColorClassesAndStyles = [
+			blockBorderClassesAndStyles?.className,
+			blockColorClassesAndStyles?.className,
+		]
+			.filter( Boolean )
+			.join( ' ' );
+
+		return {
+			className: filteredBlockColorClassesAndStyles,
+			style: {
+				...blockBorderClassesAndStyles?.style,
+				// Only background here.
+				backgroundColor: blockColorClassesAndStyles?.style?.backgroundColor,
+			},
+			cssVars: {
+				// Sets the value of top: calc(var(--jetpack--contact-form--border-size) * -1) for .notched-label__label.
+				'--jetpack--contact-form--border-size':
+					getIntAsPxValue( blockBorderClassesAndStyles?.style?.borderWidth ) ||
+					blockBorderClassesAndStyles?.style?.borderTopWidth ||
+					globalBorderClassesAndStyles?.style?.borderWidth ||
+					globalBorderClassesAndStyles?.style?.borderTopWidth,
+				// Sets the value of --notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)); for .notched-label.
+				'--jetpack--contact-form--border-radius':
+					getIntAsPxValue( blockBorderClassesAndStyles?.style?.borderRadius ) ||
+					blockBorderClassesAndStyles?.style?.borderLeftRadius ||
+					globalBorderClassesAndStyles?.style?.borderRadius ||
+					globalBorderClassesAndStyles?.style?.borderLeftRadius,
+			},
+		};
+	}, [ inputBlock?.attributes, mergedGlobalBlockStyles, innerBlockName, formStyle ] );
 }

@@ -120,7 +120,7 @@ class Contact_Form_Block {
 					),
 				),
 				'selectors'    => array(
-					'border' => '.wp-block-jetpack-input, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-input) > *',
+					'border' => '.wp-block-jetpack-input, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-input) > *,.is-style-outlined .wp-block-jetpack-input + .notched-label > *, .is-style-outlined .wp-block-jetpack-field-select .notched-label > *',
 				),
 				'uses_context' => array( 'jetpack/field-defaultValue' ),
 			)

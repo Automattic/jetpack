@@ -673,6 +673,7 @@
 		font-size: var(--jetpack--contact-form--font-size, 16px);
 		line-height: var(--jetpack--contact-form--line-height);
 		padding: var(--jetpack--contact-form--input-padding, 16px);
+		border-color: var(--jetpack--contact-form--border-color);
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -706,23 +707,21 @@
 	}
 
 	&__popover {
-		border: var(--jetpack--contact-form--border);
-		border-color: var(--jetpack--contact-form--border-color);
-		border-style: var(--jetpack--contact-form--border-style);
-		border-width: var(--jetpack--contact-form--border-size);
-		border-radius: var(--jetpack--contact-form--border-radius);
-		background-color: var(--jetpack--contact-form--input-background);
-		color: var(--jetpack--contact-form--text-color);
+		// The editor should not render the border styles for the dropdown toggle.
+		// The frontend renders a default select box. 
 		font-size: var(--jetpack--contact-form--font-size, 16px);
 		max-height: 165px;
 		overflow: auto;
 		padding: 0;
 		line-height: normal;
 		margin-top: 8px;
-		box-shadow: 0 2px 6px rgb(0 0 0 / 5%);
-
+		background-color: #fff;
+		color: #000;
+		border: 1px solid #000;
+		padding: 10px;
+		border-radius: unset;
 		.rich-text {
-			padding: var(--jetpack--contact-form--input-padding);
+			margin: 10px;
 		}
 	}
 }
@@ -773,7 +772,6 @@
 
 			.notched-label__leading {
 				width: var(--notch-width);
-				border: var(--jetpack--contact-form--border);
 				border-right: none !important;
 				border-top-right-radius: unset !important;
 				border-bottom-right-radius: unset !important;
@@ -781,7 +779,6 @@
 			}
 
 			.notched-label__notch {
-				border: var(--jetpack--contact-form--border);
 				border-radius: unset !important;
 				padding: 0 4px;
 				transition: border 150ms linear;
@@ -806,8 +803,7 @@
 				}
 			}
 
-			.notched-label__trailing {
-				border: var(--jetpack--contact-form--border);
+			:where(.notched-label__trailing) {
 				flex-grow: 1;
 				border-left: none !important;
 				border-top-left-radius: unset !important;
@@ -865,12 +861,6 @@
 			}
 
 			.jetpack-field-dropdown {
-
-				&__popover .rich-text {
-					padding-left: calc(var(--notch-width) + 4px);
-					padding-right: calc(var(--notch-width) + 4px);
-				}
-
 				&__icon {
 					margin-right: 0;
 				}
@@ -885,12 +875,10 @@
 				 * border styles that block supports apply for block instance styles.
 				 */
 				border-color: transparent !important;
-				background: transparent !important;
 				border-radius: 0 !important;
 				outline: none;
 				padding-left: calc(var(--notch-width) + 4px);
 				padding-right: calc(var(--notch-width) + 4px);
-				z-index: 1;
 				clip-path: padding-box;
 			}
 		}
@@ -919,17 +907,6 @@
 				padding-top: 1.4em;
 				padding-left: var(--field-padding);
 				padding-right: var(--field-padding);
-			}
-
-			&.jetpack-field-dropdown {
-
-				.jetpack-field-dropdown__popover {
-
-					.rich-text {
-						padding-left: var(--field-padding);
-						padding-right: var(--field-padding);
-					}
-				}
 			}
 
 			&.jetpack-field-multiple {
@@ -986,6 +963,12 @@
 			flex-direction: column-reverse;
 		}
 	}
+}
+
+:where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__leading),
+:where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__notch),
+:where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__trailing) {
+	border: var(--jetpack--contact-form--border);
 }
 
 :where( .wp-block-jetpack-contact-form.is-style-outlined ) {
@@ -1087,10 +1070,3 @@
 	flex-grow: 1;
 }
 
-.jetpack-field-dropdown__popover {
-	// The editor should not render the border styles for the dropdown toggle.
-	// The frontend renders a default select box. 
-	background-color: #fff;
-	border: none;
-	border-radius: unset;
-}
