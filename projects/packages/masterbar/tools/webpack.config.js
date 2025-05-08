@@ -50,7 +50,7 @@ const sharedWebpackConfig = {
 						options: {
 							sassOptions: {
 								// The minifier will minify if necessary.
-								outputStyle: 'expanded',
+								style: 'expanded',
 							},
 						},
 					},
