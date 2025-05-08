@@ -1,4 +1,3 @@
-import { getCurrencyDefaults } from '@automattic/format-currency';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
 	Disabled,
@@ -16,6 +15,7 @@ import { getWidgetIdFromBlock } from '@wordpress/widgets';
 import clsx from 'clsx';
 import emailValidator from 'email-validator';
 import { get, isEmpty, pick, trimEnd } from 'lodash';
+import { getCurrencyDefaults } from '../../shared/currencies';
 import HelpMessage from '../../shared/help-message';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, SUPPORTED_CURRENCY_LIST } from './constants';
 import { PanelControls } from './controls';
