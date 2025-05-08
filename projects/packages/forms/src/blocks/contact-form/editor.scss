@@ -874,11 +874,9 @@
 				 * border styles that block supports apply for block instance styles.
 				 */
 				border-color: transparent !important;
-				border-radius: 0 !important;
 				outline: none;
 				padding-left: calc(var(--jetpack--contact-form--notch-width) + 4px);
 				padding-right: calc(var(--jetpack--contact-form--notch-width) + 4px);
-				clip-path: padding-box;
 			}
 		}
 	}
