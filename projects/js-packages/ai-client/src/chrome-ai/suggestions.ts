@@ -172,12 +172,11 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 		const summarizerOptions = this.getSummarizerOptions( tone, wordCount );
 
-		let summarizer;
-		summarizer = await self.ai.summarizer.create( summarizerOptions );
+		const summarizer = await self.ai.summarizer.create( summarizerOptions );
 
 		if ( available !== 'available' ) {
 			await summarizer.ready;
-		} 
+		}
 
 		try {
 			const context = `Write with a ${ tone } tone.`;
