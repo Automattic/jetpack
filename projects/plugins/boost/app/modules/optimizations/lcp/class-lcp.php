@@ -418,7 +418,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		// Add sizes attribute if not present
 		if ( ! preg_match( '/sizes\s*=\s*["\'][^"\']*["\']/i', $tag ) ) {
 			$sizes_string = '';
-			foreach ( $sizes as $width => $args ) {
+			foreach ( $image_sizes as $width ) {
 				$sizes_string .= '(max-width: ' . $width . 'px) 100vw, ';
 			}
 			$sizes_string = rtrim( $sizes_string, ', ' );
