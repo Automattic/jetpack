@@ -46,11 +46,14 @@ const SalesforceCard = ( {
 		...data,
 		showHeaderToggle: true,
 		headerToggleValue: salesforceData?.sendToSalesforce || false,
-		isHeaderToggleEnabled: true,
+		isHeaderToggleEnabled: isValidSalesforceOrgId( salesforceData.organizationId ),
 		onHeaderToggleChange,
 		isConnected: isValidSalesforceOrgId( salesforceData.organizationId ),
 		isLoading: typeof data.isInstalled === 'undefined',
 		refreshStatus,
+		toggleDisabledTooltip: ! isValidSalesforceOrgId( salesforceData.organizationId )
+			? __( 'Enter a Salesforce Organization ID to enable.', 'jetpack-forms' )
+			: undefined,
 	};
 
 	return (
@@ -66,7 +69,7 @@ const SalesforceCard = ( {
 				{ ! isValidSalesforceOrgId( salesforceData.organizationId ) && (
 					<p style={ { marginBottom: '20px' } }>
 						{ __(
-							'To connect this form to Salesforce, first add the valid Salesforce organization ID where you want to send leads.',
+							'Enter the Salesforce organization ID where you want to send leads.',
 							'jetpack-forms'
 						) }
 					</p>
@@ -80,7 +83,7 @@ const SalesforceCard = ( {
 					__nextHasNoMarginBottom={ true }
 					__next40pxDefaultSize={ true }
 				/>
-				{ organizationIdError && (
+				{ salesforceData.organizationId && organizationIdError && (
 					<HelpMessage isError style={ { marginTop: '8px' } }>
 						{ __(
 							'Invalid Organization ID. Should be a 15 – 18 characters long alphanumeric string.',
@@ -88,9 +91,11 @@ const SalesforceCard = ( {
 						) }
 					</HelpMessage>
 				) }
-				<ExternalLink href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
-					{ __( 'Where to find your Salesforce Organization ID', 'jetpack-forms' ) }
-				</ExternalLink>
+				<p>
+					<ExternalLink href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
+						{ __( 'Where to find your Salesforce Organization ID', 'jetpack-forms' ) }
+					</ExternalLink>
+				</p>
 			</BaseControl>
 		</IntegrationCard>
 	);
