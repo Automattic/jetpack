@@ -4,7 +4,6 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFieldSelected from '../shared/hooks/use-field-selected';
-import useFormStyleOutlineClassesAndStyles from '../shared/hooks/use-form-style-outline-classes-and-styles.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
@@ -22,9 +21,6 @@ export default function TextareaFieldEdit( props ) {
 			'has-placeholder': hasPlaceholder,
 		} ),
 		style: blockStyle,
-	} );
-	const inputStyles = useFormStyleOutlineClassesAndStyles( {
-		clientId,
 	} );
 	const defaultLabel = __( 'Message', 'jetpack-forms' );
 
@@ -44,7 +40,7 @@ export default function TextareaFieldEdit( props ) {
 
 	return (
 		<>
-			<div { ...innerBlocksProps } style={ inputStyles?.cssVars } />
+			<div { ...innerBlocksProps } />
 			<JetpackFieldControls
 				id={ id }
 				required={ required }

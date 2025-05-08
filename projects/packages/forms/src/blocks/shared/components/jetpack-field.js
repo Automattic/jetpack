@@ -5,7 +5,6 @@ import { useMemo } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import clsx from 'clsx';
 import useFieldSelected from '../hooks/use-field-selected';
-import useFormStyleOutlineClassesAndStyles from '../hooks/use-form-style-outline-classes-and-styles.js';
 import useJetpackFieldStyles from '../hooks/use-jetpack-field-styles';
 import { ALLOWED_INNER_BLOCKS } from '../util/constants';
 import JetpackFieldControls from './jetpack-field-controls';
@@ -41,9 +40,6 @@ const JetpackField = props => {
 			[ 'jetpack/input', { type } ],
 		];
 	}, [ label, defaultLabel, required, requiredText, type ] );
-	const inputStyles = useFormStyleOutlineClassesAndStyles( {
-		clientId,
-	} );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,
@@ -52,7 +48,7 @@ const JetpackField = props => {
 
 	return (
 		<>
-			<div { ...innerBlocksProps } style={ inputStyles?.cssVars } />
+			<div { ...innerBlocksProps } />
 			<JetpackFieldControls
 				id={ id }
 				required={ required }

@@ -1,5 +1,4 @@
 import {
-	store as blockEditorStore,
 	__experimentalGetBorderClassesAndStyles as getBorderClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalGetColorClassesAndStyles as getColorClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
@@ -23,11 +22,7 @@ function getIntAsPxValue( value ) {
 	return value;
 }
 
-export default function useFormStyleOutlineClassesAndStyles( {
-	clientId,
-	innerBlockName = 'jetpack/input',
-	relativeTo = 'parent',
-} ) {
+export default function useFormStyleOutlineClassesAndStyles( { clientId, inputBlock } ) {
 	const formStyle = useFormStyle( clientId );
 	const { userConfig, baseConfig } = useSelect( select => {
 		const {
@@ -46,38 +41,14 @@ export default function useFormStyleOutlineClassesAndStyles( {
 		};
 	}, [] );
 
+	const inputBlockName = inputBlock?.name;
 	const mergedGlobalBlockStyles = useMemo(
 		() =>
 			merge(
-				baseConfig?.styles?.blocks?.[ innerBlockName ],
-				userConfig?.styles?.blocks?.[ innerBlockName ]
+				baseConfig?.styles?.blocks?.[ inputBlockName ],
+				userConfig?.styles?.blocks?.[ inputBlockName ]
 			),
-		[ baseConfig?.styles?.blocks, userConfig?.styles?.blocks, innerBlockName ]
-	);
-
-	const inputBlock = useSelect(
-		select => {
-			const { getBlock, getBlockRootClientId } = select( blockEditorStore );
-
-			let parentClientId;
-			if ( relativeTo === 'sibling' ) {
-				// Get the parent block's clientId.
-				parentClientId = getBlockRootClientId( clientId );
-				if ( ! parentClientId ) {
-					return [];
-				}
-			} else {
-				parentClientId = clientId;
-			}
-			// Get the parent block
-			const parentBlock = getBlock( parentClientId );
-			if ( ! parentBlock ) {
-				return [];
-			}
-
-			return parentBlock.innerBlocks.find( block => block.name === innerBlockName );
-		},
-		[ clientId, relativeTo, innerBlockName ]
+		[ baseConfig?.styles?.blocks, userConfig?.styles?.blocks, inputBlockName ]
 	);
 
 	return useMemo( () => {
@@ -88,7 +59,7 @@ export default function useFormStyleOutlineClassesAndStyles( {
 		// Access the input block's attributes.
 		const blockBorderClassesAndStyles = getBorderClassesAndStyles( inputBlock?.attributes ?? {} );
 		const globalBorderClassesAndStyles = getBorderClassesAndStyles( {
-			style: mergedGlobalBlockStyles?.[ innerBlockName ],
+			style: mergedGlobalBlockStyles?.[ inputBlockName ],
 		} );
 
 		// Notched HTML only needs the background color and associated classes.
@@ -134,7 +105,9 @@ export default function useFormStyleOutlineClassesAndStyles( {
 					blockBorderClassesAndStyles?.style?.borderLeftRadius ||
 					globalBorderClassesAndStyles?.style?.borderRadius ||
 					globalBorderClassesAndStyles?.style?.borderLeftRadius,
+				'--notch-width':
+					'max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius))',
 			},
 		};
-	}, [ inputBlock?.attributes, mergedGlobalBlockStyles, innerBlockName, formStyle ] );
+	}, [ inputBlock?.attributes, mergedGlobalBlockStyles, inputBlockName, formStyle ] );
 }

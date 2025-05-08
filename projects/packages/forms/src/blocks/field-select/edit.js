@@ -9,7 +9,6 @@ import { useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useFormStyleOutlineClassesAndStyles from '../shared/hooks/use-form-style-outline-classes-and-styles.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { getCaretPosition } from '../shared/util/caret';
@@ -62,9 +61,6 @@ export default function DropdownFieldEdit( props ) {
 			templateLock: 'all',
 		}
 	);
-	const inputStyles = useFormStyleOutlineClassesAndStyles( {
-		clientId,
-	} );
 
 	const optionWrapperStyles = {
 		className: 'jetpack-field-dropdown__popover',
@@ -148,7 +144,7 @@ export default function DropdownFieldEdit( props ) {
 	};
 
 	return (
-		<div { ...blockProps } style={ inputStyles?.cssVars }>
+		<div { ...blockProps }>
 			<div { ...innerBlocksProps } />
 			{ ( isSelected || isInnerBlockSelected ) && (
 				<div ref={ optionsWrapper } { ...optionWrapperStyles }>

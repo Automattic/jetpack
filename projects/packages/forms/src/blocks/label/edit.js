@@ -18,6 +18,36 @@ const getLabelOrFallback = ( label, placeholder ) => {
 	return label ?? placeholder;
 };
 
+const OPTIONS_FIELDS = [ 'jetpack/field-single-choice', 'jetpack/field-multiple-choice' ];
+
+function useSiblingBlock( clientId ) {
+	const inputBlock = useSelect(
+		select => {
+			const { getBlock, getBlockRootClientId } = select( blockEditorStore );
+
+			// Get the parent block's clientId.
+			const parentClientId = getBlockRootClientId( clientId );
+			if ( ! parentClientId ) {
+				return {};
+			}
+			// Get the parent block
+			const parentBlock = getBlock( parentClientId );
+			if ( ! parentBlock ) {
+				return {};
+			}
+
+			const siblingBlockType = OPTIONS_FIELDS.includes( parentBlock.name )
+				? 'jetpack/option'
+				: 'jetpack/input';
+
+			return parentBlock.innerBlocks.find( block => block.name === siblingBlockType );
+		},
+		[ clientId ]
+	);
+
+	return inputBlock;
+}
+
 const WithNotchedWrapper = ( { formStyle, styles, className, children } ) => {
 	if ( formStyle === FORM_STYLE.OUTLINED ) {
 		return (
@@ -56,12 +86,10 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 		'below-label__label': formStyle === FORM_STYLE.BELOW,
 	} );
 
+	const inputBlock = useSiblingBlock( clientId );
 	const inputStyles = useFormStyleOutlineClassesAndStyles( {
-		clientId,
-		relativeTo: 'sibling',
-		isSynced,
+		inputBlock,
 	} );
-	console.log( 'label', { isSynced, label, context } );
 	const blockProps = useBlockProps( { className } );
 
 	// The label value to use for the RichText field must manually fall back to the
