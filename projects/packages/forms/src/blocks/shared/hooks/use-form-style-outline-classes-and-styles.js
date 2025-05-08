@@ -108,7 +108,7 @@ export default function useFormStyleOutlineClassesAndStyles( {
 					blockBorderClassesAndStyles?.style?.borderLeftRadius ||
 					globalBorderClassesAndStyles?.style?.borderRadius ||
 					globalBorderClassesAndStyles?.style?.borderLeftRadius,
-				'--notch-width':
+				'--jetpack--contact-form--notch-width':
 					'max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius))',
 			},
 		};
