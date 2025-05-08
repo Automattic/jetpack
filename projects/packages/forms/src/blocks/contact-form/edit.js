@@ -78,6 +78,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		formTitle,
 		selectedStepClientId = ALL_STEPS_VALUE,
 		variationName,
+		stepTransition = 'fade-slide',
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 	const {
@@ -301,6 +302,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							clientId={ clientId }
 							selectedStepClientId={ selectedStepClientId }
 							setParentAttributes={ setAttributes }
+							stepTransition={ stepTransition }
 						/>
 					) }
 				</BlockControls>

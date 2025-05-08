@@ -37,6 +37,11 @@ store( NAMESPACE, {
 			if ( context.currentStep >= context.maxSteps ) {
 				return;
 			}
+
+			// Set direction to forward for animation
+			context.direction = 'forward';
+
+			// Update step after a small delay to allow animation to complete
 			context.currentStep = context.currentStep + 1;
 		},
 
@@ -46,6 +51,11 @@ store( NAMESPACE, {
 			if ( context.currentStep <= 1 ) {
 				return;
 			}
+
+			// Set direction to backward for animation
+			context.direction = 'backward';
+
+			// Update step
 			context.currentStep = context.currentStep - 1;
 		},
 	},

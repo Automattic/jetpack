@@ -19,6 +19,14 @@ import { next, previous } from '@wordpress/icons';
 // Define a constant for the "All Steps" option value
 const ALL_STEPS_VALUE = '__all__';
 
+// Transition options
+const TRANSITION_OPTIONS = [
+	{ label: __( 'None', 'jetpack-forms' ), value: 'none' },
+	{ label: __( 'Fade', 'jetpack-forms' ), value: 'fade' },
+	{ label: __( 'Slide', 'jetpack-forms' ), value: 'slide' },
+	{ label: __( 'Fade & Slide', 'jetpack-forms' ), value: 'fade-slide' },
+];
+
 /**
  * Toolbar controls for managing steps within a multi-step form.
  *
@@ -26,9 +34,15 @@ const ALL_STEPS_VALUE = '__all__';
  * @param {string}   props.clientId             - Client ID of the parent contact form block.
  * @param {string}   props.selectedStepClientId - The client ID of the currently selected step (or ALL_STEPS_VALUE).
  * @param {Function} props.setParentAttributes  - Function to set attributes on the parent block.
+ * @param {string}   props.stepTransition       - The current transition style for step animations (none, fade, slide, or fade-slide).
  * @return {JSX.Element} The rendered BlockControls component.
  */
-export default function StepControls( { clientId, selectedStepClientId, setParentAttributes } ) {
+export default function StepControls( {
+	clientId,
+	selectedStepClientId,
+	setParentAttributes,
+	stepTransition = 'fade-slide',
+} ) {
 	const { insertBlock } = useDispatch( blockEditorStore );
 
 	const { steps, isFirstStep, isLastStep, selectedBlockClientId } = useSelect(
@@ -50,6 +64,14 @@ export default function StepControls( { clientId, selectedStepClientId, setParen
 	const handleStepChange = useCallback(
 		newStepClientId => {
 			setParentAttributes( { selectedStepClientId: newStepClientId } );
+		},
+		[ setParentAttributes ]
+	);
+
+	// Handle transition style change
+	const handleTransitionChange = useCallback(
+		newTransitionStyle => {
+			setParentAttributes( { stepTransition: newTransitionStyle } );
 		},
 		[ setParentAttributes ]
 	);
@@ -182,6 +204,11 @@ export default function StepControls( { clientId, selectedStepClientId, setParen
 	const { label: currentStepLabel, index: currentStepIndex } = getCurrentStepInfo();
 	const isPreviewMode = selectedStepClientId !== ALL_STEPS_VALUE;
 
+	// Get the current transition label
+	const currentTransitionLabel =
+		TRANSITION_OPTIONS.find( option => option.value === stepTransition )?.label ||
+		TRANSITION_OPTIONS.find( option => option.value === 'fade-slide' ).label;
+
 	return (
 		<BlockControls>
 			<ToolbarGroup>
@@ -201,6 +228,51 @@ export default function StepControls( { clientId, selectedStepClientId, setParen
 				>
 					{ __( 'Preview', 'jetpack-forms' ) }
 				</ToolbarButton>
+
+				{ /* Add Transition Style Dropdown */ }
+				<DropdownMenu
+					label={ __( 'Transition Style', 'jetpack-forms' ) }
+					icon={ null }
+					toggleProps={ {
+						children: (
+							<>
+								{ __( 'Transition:', 'jetpack-forms' ) }
+								<span style={ { width: '8px' } } /> { /* Spacer */ }
+								{ currentTransitionLabel }
+								<span style={ { width: '8px' } } /> { /* Spacer */ }
+								<SVG
+									xmlns="http://www.w3.org/2000/svg"
+									width="12"
+									height="12"
+									viewBox="0 0 24 24"
+									fill="currentColor"
+								>
+									<Path d="M17.5 11.6L12 16l-5.5-4.4.9-1.2L12 14l4.5-3.6 1 1.2z"></Path>
+								</SVG>
+							</>
+						),
+						showTooltip: false,
+					} }
+					popoverProps={ { placement: 'bottom-start' } }
+				>
+					{ ( { onClose } ) => (
+						<MenuGroup>
+							{ TRANSITION_OPTIONS.map( ( { label, value } ) => (
+								<MenuItem
+									key={ value }
+									onClick={ () => {
+										handleTransitionChange( value );
+										onClose();
+									} }
+									isSelected={ stepTransition === value }
+									icon={ stepTransition === value ? 'yes' : null }
+								>
+									{ label }
+								</MenuItem>
+							) ) }
+						</MenuGroup>
+					) }
+				</DropdownMenu>
 
 				{ /* Step selection dropdown - only shown in Preview mode */ }
 				{ isPreviewMode && (
