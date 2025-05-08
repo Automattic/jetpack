@@ -1,4 +1,4 @@
 Significance: minor
 Type: other
 
-Internalize CURRENCIES object as legacy no longer exported or present in this form from @automattic/format-currency package. These cases should migrate to number-formatters package but the internal object differs
+Internalize CURRENCIES object as legacy no longer exported or present in this form from @automattic/format-currency package. These cases should migrate to @automattic/number-formatters package but the internal object differs.
