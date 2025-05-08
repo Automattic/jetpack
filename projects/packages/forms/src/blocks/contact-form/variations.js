@@ -129,6 +129,8 @@ const variations = compact( [
 		],
 		attributes: {
 			variationName: 'multistep',
+			stepTransition: 'fade-slide',
+			stepTransitionSpeed: '0.35s',
 		},
 		scope: [ 'block', 'inserter', 'transform' ],
 		isActive: attributes => attributes.variationName === 'multistep',

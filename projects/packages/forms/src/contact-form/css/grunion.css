@@ -51,69 +51,52 @@
 
 /* Fade transition */
 [data-wp-context*='"transition":"fade"'] .jetpack-form-step {
-	transition: opacity 0.35s ease-out, visibility 0.35s ease-out;
+	transform: translateY(0);
+	transition: opacity var(--jp-form-transition-speed, 0.35s) ease-out, 
+		visibility var(--jp-form-transition-speed, 0.35s) ease-out;
 }
 
 [data-wp-context*='"transition":"fade"'] .jetpack-form-step.is-current-step {
-	transition: opacity 0.35s ease-out, visibility 0.35s ease-out;
+	transition: opacity var(--jp-form-transition-speed, 0.35s) ease-out, 
+		visibility var(--jp-form-transition-speed, 0.35s) ease-out;
 }
 
 /* Slide transition */
 [data-wp-context*='"transition":"slide"'] .jetpack-form-step {
-	transform: translateY(20px);
-	transition: transform 0.35s ease-out, visibility 0.35s ease-out;
 	opacity: 1;
+	transform: translateY(20px);
+	transition: transform var(--jp-form-transition-speed, 0.35s) ease-out, 
+		visibility var(--jp-form-transition-speed, 0.35s) ease-out;
 }
 
 [data-wp-context*='"transition":"slide"'] .jetpack-form-step.is-current-step {
 	transform: translateY(0);
-	transition: transform 0.35s ease-out, visibility 0.35s ease-out;
+	transition: transform var(--jp-form-transition-speed, 0.35s) ease-out, 
+		visibility var(--jp-form-transition-speed, 0.35s) ease-out;
 }
 
 /* Fade & Slide transition (default) */
 [data-wp-context*='"transition":"fade-slide"'] .jetpack-form-step {
-	opacity: 0;
 	transform: translateY(20px);
-	transition: opacity 0.35s ease-out, transform 0.35s ease-out, visibility 0.35s ease-out;
+	transition: opacity var(--jp-form-transition-speed, 0.35s) ease-out, 
+		transform var(--jp-form-transition-speed, 0.35s) ease-out, 
+		visibility var(--jp-form-transition-speed, 0.35s) ease-out;
 }
 
 [data-wp-context*='"transition":"fade-slide"'] .jetpack-form-step.is-current-step {
-	opacity: 1;
 	transform: translateY(0);
-	transition: opacity 0.35s ease-out, transform 0.35s ease-out, visibility 0.35s ease-out;
+	transition: opacity var(--jp-form-transition-speed, 0.35s) ease-out, 
+		transform var(--jp-form-transition-speed, 0.35s) ease-out, 
+		visibility var(--jp-form-transition-speed, 0.35s) ease-out;
 }
 
-/* Animation direction handling */
-[data-wp-context*='"direction":"forward"'][data-wp-context*='"transition":"slide"'] .jetpack-form-step,
-[data-wp-context*='"direction":"forward"'][data-wp-context*='"transition":"fade-slide"'] .jetpack-form-step {
-	transform: translateY(20px);
-}
-
-[data-wp-context*='"direction":"backward"'][data-wp-context*='"transition":"slide"'] .jetpack-form-step,
-[data-wp-context*='"direction":"backward"'][data-wp-context*='"transition":"fade-slide"'] .jetpack-form-step {
-	transform: translateY(-20px);
-}
-
-[data-wp-context*='"direction":"forward"'] .jetpack-form-step.is-current-step,
-[data-wp-context*='"direction":"backward"'] .jetpack-form-step.is-current-step {
-	transform: translateY(0);
-}
-
-/* Original animation context handling is now redundant, but keeping for backward compatibility */
+/* Direction-based animations */
 [data-wp-context*='"direction":"forward"'] .jetpack-form-step {
 	transform: translateY(20px);
 }
 
-[data-wp-context*='"direction":"forward"'] .jetpack-form-step.is-current-step {
-	transform: translateY(0);
-}
-
 [data-wp-context*='"direction":"backward"'] .jetpack-form-step {
 	transform: translateY(-20px);
-}
-
-[data-wp-context*='"direction":"backward"'] .jetpack-form-step.is-current-step {
-	transform: translateY(0);
 }
 
 .contact-form  button.is-hidden.wp-block-button__link {

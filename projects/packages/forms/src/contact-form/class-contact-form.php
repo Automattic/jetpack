@@ -161,6 +161,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'salesforceData'         => null,
 			'hiddenFields'           => null,
 			'stepTransition'         => 'fade-slide', // The transition style for multi-step forms. Options: none, fade, slide, fade-slide
+			'stepTransitionSpeed'    => '0.35s', // Transition speed for animations
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -422,12 +423,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			$context = array(
-				'formId'      => $id,
-				'formHash'    => $form->hash,
-				'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1,
-				'maxSteps'    => $max_steps,
-				'direction'   => 'forward', // Default direction for animations
-				'transition'  => $form->get_attribute( 'stepTransition' ) ? $form->get_attribute( 'stepTransition' ) : 'fade-slide', // Transition style for step animations
+				'formId'          => $id,
+				'formHash'        => $form->hash,
+				'currentStep'     => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1,
+				'maxSteps'        => $max_steps,
+				'direction'       => 'forward', // Default direction for animations
+				'transition'      => $form->get_attribute( 'stepTransition' ) ? $form->get_attribute( 'stepTransition' ) : 'fade-slide', // Transition style for step animations
+				'transitionSpeed' => $form->get_attribute( 'stepTransitionSpeed' ) ? $form->get_attribute( 'stepTransitionSpeed' ) : '0.35s', // Transition speed for animations
 			);
 
 			$r .= "<form action='" . esc_url( $url ) . "' data-wp-interactive='jetpack/form' class='" . esc_attr( $form_classes ) . "' " . wp_interactivity_data_wp_context( $context ) . " method='post' $form_aria_label novalidate>\n";
