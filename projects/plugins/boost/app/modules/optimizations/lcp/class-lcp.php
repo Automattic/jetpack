@@ -378,7 +378,19 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 			$tag = preg_replace( '/<img\s/i', '<img loading="eager" ', $tag );
 		}
 
-		$tag = $this->add_responsive_image_attributes( $tag );
+		if ( ! preg_match( '/src\s*=\s*["\']([^"\']+)["\']/i', $tag, $matches ) ) {
+			return $tag;
+		}
+
+		$image_url = $matches[1];
+
+		// Update the src attribute with the CDN URL
+		$tag = str_replace(
+			$image_url,
+			Image_CDN_Core::cdn_url( $image_url ),
+			$tag
+		);
+		$tag = $this->add_responsive_image_attributes( $tag, $image_url );
 
 		return $tag;
 	}
@@ -391,13 +403,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 *
 	 * @since $$next-version$$
 	 */
-	private function add_responsive_image_attributes( $tag ) {
-		if ( ! preg_match( '/src\s*=\s*["\']([^"\']+)["\']/i', $tag, $matches ) ) {
-			return $tag;
-		}
-
-		$image_url = $matches[1];
-
+	private function add_responsive_image_attributes( $tag, $image_url ) {
 		$image_sizes = array( 300, 600, 900, 1200, 1600 );
 		$sizes       = array();
 		foreach ( $image_sizes as $size ) {
@@ -424,10 +430,6 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		// Update the sizes attribute
 		$tag = preg_replace( '/sizes\s*=\s*["\'][^"\']*["\']/i', '', $tag );
 		$tag = preg_replace( '/<img\s/i', '<img sizes="' . esc_attr( $sizes_string ) . '" ', $tag );
-
-		// Update the src attribute with the CDN URL
-		$optimized_url = Image_CDN_Core::cdn_url( $image_url );
-		$tag           = str_replace( $image_url, $optimized_url, $tag );
 
 		return $tag;
 	}
