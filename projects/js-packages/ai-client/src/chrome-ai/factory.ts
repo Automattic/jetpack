@@ -129,10 +129,8 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 			return false;
 		}
 
-		if ( context.language ) {
-			if ( context.language !== 'en (English)' ) {
-				return false;
-			}
+		if ( context.language !== 'en (English)' ) {
+			return false;
 		}
 
 		if ( 'ai' in self && self.ai.languageDetector ) {
