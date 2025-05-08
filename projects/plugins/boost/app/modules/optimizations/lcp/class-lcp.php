@@ -411,19 +411,19 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		}
 
 		// Add srcset attribute
-		if ( ! preg_match( '/srcset\s*=\s*["\'][^"\']*["\']/i', $tag ) ) {
-			$tag = preg_replace( '/<img\s/i', '<img srcset="' . esc_attr( implode( ', ', $srcset ) ) . '" ', $tag );
-		}
+		$tag = preg_replace( '/srcset\s*=\s*["\'][^"\']*["\']/i', '', $tag );
+		$tag = preg_replace( '/<img\s/i', '<img srcset="' . esc_attr( implode( ', ', $srcset ) ) . '" ', $tag );
 
-		// Add sizes attribute if not present
-		if ( ! preg_match( '/sizes\s*=\s*["\'][^"\']*["\']/i', $tag ) ) {
-			$sizes_string = '';
-			foreach ( $image_sizes as $width ) {
-				$sizes_string .= '(max-width: ' . $width . 'px) 100vw, ';
-			}
-			$sizes_string = rtrim( $sizes_string, ', ' );
-			$tag          = preg_replace( '/<img\s/i', '<img sizes="' . esc_attr( $sizes_string ) . '" ', $tag );
+		// Add sizes attribute
+		$sizes_string = '';
+		foreach ( $image_sizes as $width ) {
+			$sizes_string .= '(max-width: ' . $width . 'px) 100vw, ';
 		}
+		$sizes_string = rtrim( $sizes_string, ', ' );
+
+		// Update the sizes attribute
+		$tag = preg_replace( '/sizes\s*=\s*["\'][^"\']*["\']/i', '', $tag );
+		$tag = preg_replace( '/<img\s/i', '<img sizes="' . esc_attr( $sizes_string ) . '" ', $tag );
 
 		// Update the src attribute with the CDN URL
 		$optimized_url = Image_CDN_Core::cdn_url( $image_url );
