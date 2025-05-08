@@ -3,7 +3,7 @@
 @import '../../scss/mixin_breakpoint';
 @import '../../scss/typography';
 @import '../../scss/variables/colors';
-@import 'node_modules/@automattic/color-studio/dist/color-variables';
+@import '@automattic/color-studio/dist/color-variables';
 
 .jp-product-card {
 	position: relative;

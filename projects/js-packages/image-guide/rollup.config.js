@@ -37,7 +37,6 @@ export default {
 			preventAssignment: true,
 			delimiters: [ '', '' ],
 			values: {
-				"@import '@automattic": "@import '~@automattic",
 				'process.env.NODE_ENV': '"production"',
 			},
 		} ),
