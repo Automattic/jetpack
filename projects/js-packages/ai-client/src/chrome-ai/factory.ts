@@ -75,6 +75,34 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		}
 	}
 
+	// Early return if the prompt type is not supported.
+	if (
+		! promptType.startsWith( 'ai-assistant-change-language' ) &&
+		! promptType.startsWith( 'ai-content-lens' )
+	) {
+		return false;
+	}
+
+	// If the languageDetector is not available, we can't use the translation or summary features—it's safer to fall back
+	// to the default AI model than to risk an unexpected error.
+	if (
+		! ( 'languageDetector' in self.ai ) ||
+		! self.ai.languageDetector.create ||
+		! self.ai.languageDetector.availability
+	) {
+		return false;
+	}
+
+	const languageDetectorAvailability = await self.ai.languageDetector.availability();
+	if ( languageDetectorAvailability === 'unavailable' ) {
+		return false;
+	}
+
+	const detector = await self.ai.languageDetector.create();
+	if ( languageDetectorAvailability !== 'available' ) {
+		await detector.ready;
+	}
+
 	if ( promptType.startsWith( 'ai-assistant-change-language' ) ) {
 		const [ language ] = context.language.split( ' ' );
 
@@ -92,20 +120,16 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 			targetLanguage: language,
 		};
 
-		// see if we can detect the source language
-		if ( 'ai' in self && self.ai.languageDetector ) {
-			const detector = await self.ai.languageDetector.create();
-			const confidences = await detector.detect( context.content );
+		const confidences = await detector.detect( context.content );
 
-			for ( const confidence of confidences ) {
-				// 75% confidence is just a value that was picked. Generally
-				// 80% of higher is pretty safe, but the source language is
-				// required for the translator to work at all, which is also
-				// why en is the default language.
-				if ( confidence.confidence > 0.75 ) {
-					languageOpts.sourceLanguage = confidence.detectedLanguage;
-					break;
-				}
+		for ( const confidence of confidences ) {
+			// 75% confidence is just a value that was picked. Generally
+			// 80% of higher is pretty safe, but the source language is
+			// required for the translator to work at all, which is also
+			// why en is the default language.
+			if ( confidence.confidence > 0.75 ) {
+				languageOpts.sourceLanguage = confidence.detectedLanguage;
+				break;
 			}
 		}
 
@@ -133,23 +157,19 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 			return false;
 		}
 
-		if ( 'ai' in self && self.ai.languageDetector ) {
-			// Detect if the content is in English and fallback if it's not otherwise the model will respond with mixed language
-			const detector = await self.ai.languageDetector.create();
-			const confidences = await detector.detect( context.content );
+		const confidences = await detector.detect( context.content );
 
-			for ( const confidence of confidences ) {
-				// 75% confidence is just a value that was picked. Generally
-				// 80% of higher is pretty safe, but the source language is
-				// required for the translator to work at all, which is also
-				// why en is the default language.
-				if ( confidence.confidence > 0.75 && confidence.detectedLanguage !== 'en' ) {
-					return false;
-				}
+		// if it doesn't look like the content is in English, we can't use the summary feature
+		for ( const confidence of confidences ) {
+			// 75% confidence is just a value that was picked. Generally
+			// 80% of higher is pretty safe, but the source language is
+			// required for the translator to work at all, which is also
+			// why en is the default language.
+			if ( confidence.confidence > 0.75 && confidence.detectedLanguage !== 'en' ) {
+				return false;
 			}
 		}
 
-		// if we can't detect the language, we'll assume it's English
 		const summaryOpts = {
 			tone: tone,
 			wordCount: wordCount,

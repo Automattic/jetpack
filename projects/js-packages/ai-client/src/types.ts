@@ -150,6 +150,7 @@ declare global {
 							confidence: number;
 						}[]
 					>;
+					ready: Promise< void >;
 				} >;
 				availability: () => Promise<
 					'unavailable' | 'available' | 'downloadable' | 'downloading' | string
