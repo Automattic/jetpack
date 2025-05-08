@@ -780,10 +780,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					}
 				}
 
-				$unslashed_meta_key           = wp_unslash( isset( $meta->key ) ? $meta->key : null ); // should match what the final key will be.
-				$meta->key                    = wp_slash( isset( $meta->key ) ? $meta->key : null );
-				$unslashed_existing_meta_key  = wp_unslash( isset( $existing_meta_item->meta_key ) ? $existing_meta_item->meta_key : null );
-				$existing_meta_item->meta_key = wp_slash( isset( $existing_meta_item->meta_key ) ? $existing_meta_item->meta_key : null );
+				$unslashed_meta_key           = isset( $meta->key ) ? wp_unslash( $meta->key ) : null; // should match what the final key will be.
+				$meta->key                    = isset( $meta->key ) ? wp_slash( $meta->key ) : null;
+				$unslashed_existing_meta_key  = isset( $existing_meta_item->meta_key ) ? wp_unslash( $existing_meta_item->meta_key ) : null;
+				$existing_meta_item->meta_key = isset( $existing_meta_item->meta_key ) ? wp_slash( $existing_meta_item->meta_key ) : null;
 
 				// make sure that the meta id passed matches the existing meta key.
 				if ( ! empty( $meta->id ) && ! empty( $meta->key ) ) {
