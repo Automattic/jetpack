@@ -19,20 +19,6 @@ class Search_Highlighter {
 	private $highlighted_content = array();
 
 	/**
-	 * Stores the search term used in the query.
-	 *
-	 * @var string
-	 */
-	private $search_term;
-
-	/**
-	 * Stores the corrected search term if provided by the API.
-	 *
-	 * @var string
-	 */
-	private $corrected_search_term;
-
-	/**
 	 * Stores the list of post IDs that are actual search results.
 	 *
 	 * @var array
@@ -42,18 +28,14 @@ class Search_Highlighter {
 	/**
 	 * Constructor
 	 *
-	 * @param string $search_term           The original search term.
-	 * @param string $corrected_search_term The corrected search term (if any).
-	 * @param array  $search_result_ids     Array of post IDs from search results.
-	 * @param array  $results               Optional. The search result data from the API to process immediately.
+	 * @param array $search_result_ids Array of post IDs from search results.
+	 * @param array $results          Optional. The search result data from the API to process immediately.
 	 */
-	public function __construct( $search_term = '', $corrected_search_term = '', $search_result_ids = array(), $results = null ) {
-		$this->search_term           = $search_term;
-		$this->corrected_search_term = $corrected_search_term;
-		$this->search_result_ids     = $search_result_ids;
-		$this->highlighted_content   = array();
+	public function __construct( $search_result_ids = array(), $results = null ) {
+		$this->search_result_ids   = $search_result_ids;
+		$this->highlighted_content = array();
 
-		// Process results immediately if provided
+		// Process API results immediately if provided
 		if ( $results !== null ) {
 			$this->process_results( $results );
 		}
@@ -87,16 +69,12 @@ class Search_Highlighter {
 	}
 
 	/**
-	 * Update search terms and result IDs.
+	 * Update search result IDs.
 	 *
-	 * @param string $search_term The original search term.
-	 * @param string $corrected_search_term The corrected search term (if any).
-	 * @param array  $search_result_ids Array of post IDs from search results.
+	 * @param array $search_result_ids Array of post IDs from search results.
 	 */
-	public function update_search_data( $search_term, $corrected_search_term = '', $search_result_ids = array() ) {
-		$this->search_term           = $search_term;
-		$this->corrected_search_term = $corrected_search_term;
-		$this->search_result_ids     = $search_result_ids;
+	public function update_search_data( $search_result_ids = array() ) {
+		$this->search_result_ids = $search_result_ids;
 	}
 
 	/**
@@ -107,12 +85,10 @@ class Search_Highlighter {
 	 * @return string The filtered title.
 	 */
 	public function filter_highlighted_title( $title, $post_id ) {
-		// Only process if this is one of our search results
 		if ( ! $this->is_search_result( $post_id ) ) {
 			return $title;
 		}
 
-		// Check if we have a highlighted title from the API
 		if ( ! empty( $this->highlighted_content[ $post_id ]['title'] ) ) {
 			return $this->highlighted_content[ $post_id ]['title'];
 		}
@@ -127,16 +103,14 @@ class Search_Highlighter {
 	 * @return string The filtered content.
 	 */
 	public function filter_highlighted_content( $content ) {
-		// Get current post ID
 		$post_id = get_the_ID();
 
-		// Only process if this is one of our search results
 		if ( ! $this->is_search_result( $post_id ) ) {
 			return $content;
 		}
 
 		if ( ! empty( $this->highlighted_content[ $post_id ]['content'] ) ) {
-			// Apply wpautop to maintain paragraph formatting
+			// Apply wpautop to maintain paragraph formatting.
 			return wpautop( $this->highlighted_content[ $post_id ]['content'] );
 		}
 
@@ -150,14 +124,12 @@ class Search_Highlighter {
 	 * @return string The filtered comment text.
 	 */
 	public function filter_highlighted_comment( $comment_text ) {
-		// Only process if this is one of our search results and we're in a search context
 		if ( ! is_search() || ! in_the_loop() ) {
 			return $comment_text;
 		}
 
 		$post_id = get_the_ID();
 
-		// Check if this post is a search result and we have highlighted comments for it
 		if ( ! $this->is_search_result( $post_id ) || empty( $this->highlighted_content[ $post_id ]['comments'] ) ) {
 			return $comment_text;
 		}
@@ -176,7 +148,6 @@ class Search_Highlighter {
 			return;
 		}
 
-		// Check for data in various highlight field formats.
 		$title    = $this->extract_highlight_field( $result, 'title' );
 		$content  = $this->extract_highlight_field( $result, 'content' );
 		$comments = $this->extract_highlight_field( $result, 'comments' );
@@ -196,10 +167,14 @@ class Search_Highlighter {
 	 * @return string The extracted highlighted field.
 	 */
 	private function extract_highlight_field( $result, $field ) {
-		// Try all possible field variants in order of likelihood
+		// Try exact match first
+		if ( isset( $result['highlight'][ $field ] ) && is_array( $result['highlight'][ $field ] ) && ! empty( $result['highlight'][ $field ] ) ) {
+			return $result['highlight'][ $field ][0];
+		}
+
+		// Try field variants with suffixes (e.g., 'title.default')
 		foreach ( $result['highlight'] as $key => $value ) {
-			// Check if this key is for our requested field (exact match or with suffix)
-			if ( $key === $field || strpos( $key, $field . '.' ) === 0 ) {
+			if ( strpos( $key, $field . '.' ) === 0 ) {
 				if ( is_array( $value ) && ! empty( $value ) ) {
 					return $value[0];
 				}

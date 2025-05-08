@@ -27,6 +27,14 @@ class Inline_Search extends Classic_Search {
 	private $highlighter;
 
 	/**
+	 * The search correction instance.
+	 *
+	 * @var Inline_Search_Correction|null
+	 * @since $$next-version$$
+	 */
+	private $correction;
+
+	/**
 	 * Stores the list of post IDs that are actual search results.
 	 *
 	 * @var array
@@ -122,7 +130,7 @@ class Inline_Search extends Classic_Search {
 		}
 
 		// Process the search results to extract post IDs and highlighted content.
-		$this->process_search_results( $query );
+		$this->process_search_results();
 
 		// Create a WP_Query to fetch the actual posts.
 		$posts_query = $this->create_posts_query( $query );
@@ -458,38 +466,26 @@ class Inline_Search extends Classic_Search {
 
 	/**
 	 * Process search results to extract post IDs and highlighted content.
-	 *
-	 * @param \WP_Query $query The original WP_Query.
 	 */
-	private function process_search_results( $query ) {
-		$post_ids              = array();
-		$search_term           = $query->get( 's' );
-		$corrected_search_term = '';
-		$highlighted_results   = array();
-
-		// Store corrected query if available
-		if ( ! empty( $this->search_result['corrected_query'] ) ) {
-			$corrected_search_term = $this->search_result['corrected_query'];
-		}
+	private function process_search_results() {
+		$post_ids            = array();
+		$highlighted_results = array();
 
 		foreach ( $this->search_result['results'] as $result ) {
 			$post_id    = (int) ( $result['fields']['post_id'] ?? 0 );
 			$post_ids[] = $post_id;
 
-			// Store the highlight data keyed by post ID for later use
+			// Collect highlight data for processing
 			if ( ! empty( $result['highlight'] ) ) {
 				$highlighted_results[ $post_id ] = $result['highlight'];
 			}
 		}
 
 		$this->search_result_ids = $post_ids;
+		$this->highlighter       = new Search_Highlighter( $post_ids );
 
-		// Initialize the highlighter with search data and highlight results
-		$this->highlighter = new Search_Highlighter( $search_term, $corrected_search_term, $post_ids );
-
-		// Process results if we have highlight data
 		if ( ! empty( $highlighted_results ) ) {
-			// Process the API highlighted results to prepare them for the highlighter
+			// Format highlight data for the highlighter
 			$processed_results = array();
 			foreach ( $highlighted_results as $post_id => $highlight_data ) {
 				$processed_results[] = array(
