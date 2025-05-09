@@ -112,6 +112,19 @@ class Page_Cache implements Feature, Has_Deactivate, Has_Data_Sync, Optimization
 			return false;
 		}
 
+		/*
+		 * Disable Page Cache on sites that run Newfold's caching service.
+		 * Their cache is considered enabled when the endurance_cache_level option is set to 2 or 3.
+		 *
+		 * @link https://github.com/bluehost/endurance-page-cache/blob/59fe9993d2cb8a03d1df6da8325f73ad0851ba0a/endurance-page-cache.php#L343
+		 */
+		if (
+			class_exists( 'Endurance_Page_Cache' )
+			&& 2 <= (int) get_option( 'endurance_cache_level' )
+		) {
+			return false;
+		}
+
 		return true;
 	}
 

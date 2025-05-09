@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Page Cache: improve compatibility with sites using Endurance Page Cache.
