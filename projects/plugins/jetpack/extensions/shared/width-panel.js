@@ -21,7 +21,7 @@ const alignedWidthUnits = [
 	{ value: 'em', label: 'em', default: 10 },
 ];
 
-const predefinedWidths = [ '25%', '50%', '75%', '100%' ];
+const predefinedWidths = [ '25%', '33%', '50%', '75%', '100%' ];
 
 export function WidthPanel( props ) {
 	return (
@@ -69,7 +69,7 @@ export function WidthControl( { align, width, onChange, showLabel = true } ) {
 					<ToggleGroupControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
-						aria-label={ __( 'Percentage Width', 'jetpack' ) }
+						aria-label={ __( 'Percentage width', 'jetpack' ) }
 						isBlock
 						value={ width }
 						onChange={ handleChange }
