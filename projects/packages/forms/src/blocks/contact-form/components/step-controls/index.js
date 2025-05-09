@@ -218,6 +218,36 @@ export default function StepControls( {
 					</>
 				) }
 
+				{ /* Navigation buttons - only shown in Preview mode */ }
+				{ isPreviewMode && (
+					<>
+						<ToolbarButton
+							showTooltip={ true }
+							label={ __( 'Previous Step', 'jetpack-forms' ) }
+							disabled={ isFirstStep }
+							onClick={ () => {
+								if ( currentStepIndex > 0 ) {
+									handleStepChange( steps[ currentStepIndex - 1 ].clientId );
+								}
+							} }
+						>
+							<Icon icon={ previous } />
+						</ToolbarButton>
+						<ToolbarButton
+							showTooltip={ true }
+							label={ __( 'Next Step', 'jetpack-forms' ) }
+							disabled={ isLastStep }
+							onClick={ () => {
+								if ( currentStepIndex < steps.length - 1 ) {
+									handleStepChange( steps[ currentStepIndex + 1 ].clientId );
+								}
+							} }
+						>
+							<Icon icon={ next } />
+						</ToolbarButton>
+					</>
+				) }
+
 				{ /* Step selection dropdown - only shown in Preview mode */ }
 				{ ! onlyNav && isPreviewMode && (
 					<DropdownMenu
@@ -262,36 +292,6 @@ export default function StepControls( {
 							</MenuGroup>
 						) }
 					</DropdownMenu>
-				) }
-
-				{ /* Navigation buttons - only shown in Preview mode */ }
-				{ isPreviewMode && (
-					<>
-						<ToolbarButton
-							showTooltip={ true }
-							label={ __( 'Previous Step', 'jetpack-forms' ) }
-							disabled={ isFirstStep }
-							onClick={ () => {
-								if ( currentStepIndex > 0 ) {
-									handleStepChange( steps[ currentStepIndex - 1 ].clientId );
-								}
-							} }
-						>
-							<Icon icon={ previous } />
-						</ToolbarButton>
-						<ToolbarButton
-							showTooltip={ true }
-							label={ __( 'Next Step', 'jetpack-forms' ) }
-							disabled={ isLastStep }
-							onClick={ () => {
-								if ( currentStepIndex < steps.length - 1 ) {
-									handleStepChange( steps[ currentStepIndex + 1 ].clientId );
-								}
-							} }
-						>
-							<Icon icon={ next } />
-						</ToolbarButton>
-					</>
 				) }
 			</ToolbarGroup>
 			{ ! onlyNav && (
