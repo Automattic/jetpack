@@ -21,7 +21,7 @@ class Inline_Search extends Classic_Search {
 	/**
 	 * The Search Highlighter instance.
 	 *
-	 * @var Search_Highlighter|null
+	 * @var Inline_Search_Highlighter|null
 	 * @since $$next-version$$
 	 */
 	private $highlighter;
@@ -495,7 +495,7 @@ class Inline_Search extends Classic_Search {
 		}
 
 		$this->search_result_ids = $post_ids;
-		$this->highlighter       = new Search_Highlighter( $post_ids );
+		$this->highlighter       = new Inline_Search_Highlighter( $post_ids );
 
 		if ( ! empty( $highlighted_results ) ) {
 			// Format highlight data for the highlighter
