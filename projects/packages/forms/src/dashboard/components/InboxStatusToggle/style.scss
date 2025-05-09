@@ -1,3 +1,7 @@
-.jp-forms__inbox-status-toggle.components-toggle-group-control > div {
-  flex: initial;
+.jp-forms__inbox-status-toggle.components-toggle-group-control {
+	border-color: var(--wp-components-color-gray-700, #757575);
+
+	&::before {
+		left: 0;
+	}
 } 
