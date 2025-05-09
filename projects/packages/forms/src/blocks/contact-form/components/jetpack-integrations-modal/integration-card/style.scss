@@ -90,6 +90,11 @@
 		color: var(--jp-gray-50);
 		font-size: 13px;
 		line-height: 1.5;
+
+		@media (max-width: 782px) {
+			text-wrap: balance;
+			text-wrap: pretty;
+		}
 	}
 
 	&__links {
