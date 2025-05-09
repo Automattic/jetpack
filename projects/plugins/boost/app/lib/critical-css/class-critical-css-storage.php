@@ -37,6 +37,7 @@ class Critical_CSS_Storage {
 	 * @param string $value Critical CSS.
 	 */
 	public function store_css( $key, $value ) {
+		$value = wp_unslash( $value ); // SVG values are slashed from csstree.
 		$this->storage->set(
 			$key,
 			array(
