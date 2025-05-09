@@ -9,23 +9,7 @@ import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFormStyleOutlineClassesAndStyles from '../shared/hooks/use-form-style-outline-classes-and-styles.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
-
-function useInnerOptionsBlock( clientId ) {
-	const inputBlock = useSelect(
-		select => {
-			// Get the parent block
-			const parentBlock = select( blockEditorStore ).getBlock( clientId );
-			if ( ! parentBlock ) {
-				return {};
-			}
-
-			return parentBlock.innerBlocks.find( block => block.name === 'jetpack/options' );
-		},
-		[ clientId ]
-	);
-
-	return inputBlock;
-}
+import useGetInnerBlock from '../shared/hooks/use-get-inner-block';
 
 export default function SingleChoiceFieldEdit( props ) {
 	const { className, clientId, setAttributes, isSelected, attributes } = props;
@@ -43,7 +27,7 @@ export default function SingleChoiceFieldEdit( props ) {
 		'has-placeholder': !! options?.length,
 	} );
 
-	const inputBlock = useInnerOptionsBlock( clientId );
+	const inputBlock = useGetInnerBlock( clientId, 'jetpack/options' );
 	const styles = useFormStyleOutlineClassesAndStyles( {
 		clientId,
 		inputBlockName: inputBlock?.name,
