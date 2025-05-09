@@ -121,6 +121,23 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test storing and retrieving CSS with escaped SVG URL.
+	 *
+	 * The Critical CSS Generator returns SVG values with slashes, but the CSS is stored without slashes.
+	 */
+	public function test_store_and_get_css_with_slashed_svg() {
+		$key           = 'slashed-svg-provider';
+		$css           = ".icon-3 { background: url(data:image/svg+xml;utf8,<svg\ xmlns=\'http://www.w3.org/2000/svg\'\ width=\'10\'\ height=\'10\'\ fill=\'%2328303d\'><polygon\ points=\'0,0\ 10,0\ 5,5\'/></svg>) no-repeat}";
+		$css_unslashed = ".icon-3 { background: url(data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%2328303d'><polygon points='0,0 10,0 5,5'/></svg>) no-repeat}";
+
+		$this->instance->store_css( $key, $css );
+		$result = $this->instance->get_css( array( $key ) );
+
+		$this->assertSame( $key, $result['key'] );
+		$this->assertSame( $css_unslashed, $result['css'] );
+	}
+
+	/**
 	 * Test storing empty CSS.
 	 */
 	public function test_store_empty_css() {
