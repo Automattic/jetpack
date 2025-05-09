@@ -22,48 +22,72 @@ const ALL_STEPS_VALUE = '__all__';
 /**
  * Toolbar controls for managing steps within a multi-step form.
  *
- * @param {object}   props                      - Component props.
- * @param {string}   props.clientId             - Client ID of the parent contact form block.
- * @param {string}   props.selectedStepClientId - The client ID of the currently selected step (or ALL_STEPS_VALUE).
- * @param {Function} props.setParentAttributes  - Function to set attributes on the parent block.
- * @param {boolean}  props.onlyNav              - Flag to indicate if only navigation buttons should be shown.
+ * @param {object}  props          - Component props.
+ * @param {string}  props.clientId - Client ID of the parent contact form block.
+ * @param {boolean} props.onlyNav  - Flag to indicate if only navigation buttons should be shown.
+ * @param {boolean} props.isStep   - Flag to indicate if the current block is a step.
  * @return {JSX.Element} The rendered BlockControls component.
  */
-export default function StepControls( {
-	clientId,
-	selectedStepClientId,
-	setParentAttributes,
-	onlyNav = false,
-} ) {
+export default function StepControls( { clientId, onlyNav = false, isStep = false } ) {
 	const { insertBlock } = useDispatch( blockEditorStore );
 
-	const { steps, isFirstStep, isLastStep, selectedBlockClientId } = useSelect(
-		select => {
-			const { getBlocks, getSelectedBlockClientId } = select( blockEditorStore );
-			const innerBlocks = getBlocks( clientId );
-			let stepBlocks = innerBlocks.filter( block => block.name === 'jetpack/form-step' );
+	const { steps, isFirstStep, isLastStep, selectedBlockClientId, formClientId, selectedStepId } =
+		useSelect(
+			select => {
+				const {
+					getBlocks,
+					getSelectedBlockClientId,
+					getBlockAttributes,
+					getBlockParentsByBlockName,
+				} = select( blockEditorStore );
 
-			if ( stepBlocks.length === 0 ) {
-				const stepContainer = innerBlocks.find( block => block.name === 'jetpack/step-container' );
-				stepBlocks = stepContainer ? getBlocks( stepContainer.clientId ) : [];
+				const parentIds = getBlockParentsByBlockName( clientId, 'jetpack/contact-form' );
+				const formId = parentIds.length ? parentIds[ 0 ] : clientId;
+
+				const { selectedStepClientId } = getBlockAttributes( formId );
+				const innerBlocks = getBlocks( formId );
+
+				let stepBlocks = innerBlocks.filter( block => block.name === 'jetpack/form-step' );
+
+				if ( stepBlocks.length === 0 ) {
+					const stepContainer = innerBlocks.find(
+						block => block.name === 'jetpack/step-container'
+					);
+					stepBlocks = stepContainer ? getBlocks( stepContainer.clientId ) : [];
+				}
+
+				return {
+					steps: stepBlocks,
+					formClientId: formId,
+					selectedStepId: selectedStepClientId || ALL_STEPS_VALUE,
+					isFirstStep: stepBlocks[ 0 ]?.clientId === selectedStepClientId,
+					isLastStep: stepBlocks[ stepBlocks.length - 1 ]?.clientId === selectedStepClientId,
+					selectedBlockClientId: getSelectedBlockClientId(),
+				};
+			},
+			[ clientId ]
+		);
+
+	const { updateBlockAttributes, selectBlock } = useDispatch( 'core/block-editor' );
+
+	const setParentAttributes = useCallback(
+		attributes => {
+			if ( formClientId ) {
+				updateBlockAttributes( formClientId, attributes );
 			}
-
-			return {
-				steps: stepBlocks,
-				isFirstStep: stepBlocks[ 0 ]?.clientId === selectedStepClientId,
-				isLastStep: stepBlocks[ stepBlocks.length - 1 ]?.clientId === selectedStepClientId,
-				selectedBlockClientId: getSelectedBlockClientId(),
-			};
 		},
-		[ clientId, selectedStepClientId ]
+		[ formClientId, updateBlockAttributes ]
 	);
 
 	// Handle step selection change - directly update the parent attribute.
 	const handleStepChange = useCallback(
 		newStepClientId => {
 			setParentAttributes( { selectedStepClientId: newStepClientId } );
+			if ( isStep ) {
+				selectBlock( newStepClientId );
+			}
 		},
-		[ setParentAttributes ]
+		[ setParentAttributes, selectBlock, isStep ]
 	);
 
 	// Create a new step block with the given label
@@ -79,7 +103,7 @@ export default function StepControls( {
 		insertBlock( newStep, steps.length, clientId );
 
 		// Only change view to the new step if not in ALL_STEPS_VALUE view
-		if ( selectedStepClientId !== ALL_STEPS_VALUE ) {
+		if ( selectedStepId !== ALL_STEPS_VALUE ) {
 			setTimeout( () => {
 				setParentAttributes( { selectedStepClientId: newStep.clientId } );
 			}, 0 );
@@ -88,11 +112,11 @@ export default function StepControls( {
 
 	// Function to add a step before the current step
 	const addStepBefore = () => {
-		if ( selectedStepClientId === ALL_STEPS_VALUE ) {
+		if ( selectedStepId === ALL_STEPS_VALUE ) {
 			return;
 		}
 
-		const currentStepIndex = steps.findIndex( step => step.clientId === selectedStepClientId );
+		const currentStepIndex = steps.findIndex( step => step.clientId === selectedStepId );
 		if ( currentStepIndex === -1 ) {
 			return;
 		}
@@ -108,11 +132,11 @@ export default function StepControls( {
 
 	// Function to add a step after the current step
 	const addStepAfter = () => {
-		if ( selectedStepClientId === ALL_STEPS_VALUE ) {
+		if ( selectedStepId === ALL_STEPS_VALUE ) {
 			return;
 		}
 
-		const currentStepIndex = steps.findIndex( step => step.clientId === selectedStepClientId );
+		const currentStepIndex = steps.findIndex( step => step.clientId === selectedStepId );
 		if ( currentStepIndex === -1 ) {
 			return;
 		}
@@ -129,7 +153,11 @@ export default function StepControls( {
 	// Sync List View selection with step preview
 	useEffect( () => {
 		// Don't update if we're in "All Steps" view
-		if ( selectedStepClientId === ALL_STEPS_VALUE ) {
+		if ( selectedStepId === ALL_STEPS_VALUE ) {
+			return;
+		}
+
+		if ( isStep ) {
 			return;
 		}
 
@@ -137,49 +165,40 @@ export default function StepControls( {
 		const isStepSelected = steps.some( step => step.clientId === selectedBlockClientId );
 
 		// If a step is selected in List View but it's different from our current preview, update it
-		if ( isStepSelected && selectedBlockClientId !== selectedStepClientId ) {
-			handleStepChange( selectedBlockClientId );
+		if ( isStepSelected && selectedBlockClientId !== selectedStepId ) {
+			// handleStepChange( selectedBlockClientId );
 		}
-	}, [ selectedBlockClientId, steps, selectedStepClientId, handleStepChange ] );
+	}, [ selectedBlockClientId, steps, selectedStepId, handleStepChange, isStep ] );
 
-	// Effect to validate selectedStepClientId when steps change (e.g., a step is deleted)
+	// Effect to validate selectedStepId when steps change (e.g., a step is deleted)
 	useEffect( () => {
 		if ( ! steps || steps.length === 0 ) {
 			// If we have no steps, and a step selection still exists, clear it.
 			// Keep ALL_STEPS_VALUE if it's already set.
-			if (
-				selectedStepClientId &&
-				selectedStepClientId !== ALL_STEPS_VALUE &&
-				setParentAttributes
-			) {
-				setParentAttributes( { selectedStepClientId: ALL_STEPS_VALUE } );
+			if ( selectedStepId && selectedStepId !== ALL_STEPS_VALUE && setParentAttributes ) {
+				setParentAttributes( { selectedStepId: ALL_STEPS_VALUE } );
 			}
 			return;
 		}
 
 		// Check if the current selection is actually invalid (i.e., not ALL_STEPS and not in the current steps array)
 		const isTrulyInvalidSelection =
-			selectedStepClientId !== ALL_STEPS_VALUE &&
-			! steps.some( step => step.clientId === selectedStepClientId );
+			selectedStepId !== ALL_STEPS_VALUE &&
+			! steps.some( step => step.clientId === selectedStepId );
 
 		// If the current selection is truly invalid (e.g., selected step was deleted), default to the first step.
 		if ( isTrulyInvalidSelection && setParentAttributes ) {
-			setParentAttributes( { selectedStepClientId: steps[ 0 ].clientId } );
+			setParentAttributes( { selectedStepId: steps[ 0 ].clientId } );
 		}
-	}, [ steps, selectedStepClientId, setParentAttributes ] );
-
-	// Don't render controls if there are no steps
-	if ( ! steps || steps.length === 0 ) {
-		return null;
-	}
+	}, [ steps, selectedStepId, setParentAttributes ] );
 
 	// Determine the current step label and index
-	const getCurrentStepInfo = () => {
-		if ( selectedStepClientId === ALL_STEPS_VALUE ) {
+	const getCurrentStepInfo = useCallback( () => {
+		if ( selectedStepId === ALL_STEPS_VALUE ) {
 			return { label: __( 'All Steps', 'jetpack-forms' ), index: -1 };
 		}
 
-		const currentStepIndex = steps.findIndex( step => step.clientId === selectedStepClientId );
+		const currentStepIndex = steps.findIndex( step => step.clientId === selectedStepId );
 		if ( currentStepIndex >= 0 ) {
 			const currentStepLabel = steps[ currentStepIndex ]?.attributes?.stepLabel || '';
 			return {
@@ -189,10 +208,15 @@ export default function StepControls( {
 		}
 
 		return { label: __( 'Select Step', 'jetpack-forms' ), index: -1 };
-	};
+	}, [ selectedStepId, steps ] );
+
+	// Don't render controls if there are no steps
+	if ( ! steps || steps.length === 0 ) {
+		return null;
+	}
 
 	const { label: currentStepLabel, index: currentStepIndex } = getCurrentStepInfo();
-	const isPreviewMode = selectedStepClientId !== ALL_STEPS_VALUE;
+	const isPreviewMode = selectedStepId !== ALL_STEPS_VALUE;
 
 	return (
 		<BlockControls>
@@ -201,17 +225,17 @@ export default function StepControls( {
 					<>
 						<ToolbarButton
 							onClick={ () => handleStepChange( ALL_STEPS_VALUE ) }
-							isPressed={ selectedStepClientId === ALL_STEPS_VALUE }
+							isPressed={ selectedStepId === ALL_STEPS_VALUE }
 						>
 							{ __( 'All Steps', 'jetpack-forms' ) }
 						</ToolbarButton>
 						<ToolbarButton
 							onClick={ () => {
-								if ( selectedStepClientId === ALL_STEPS_VALUE && steps.length > 0 ) {
+								if ( selectedStepId === ALL_STEPS_VALUE && steps.length > 0 ) {
 									handleStepChange( steps[ 0 ].clientId );
 								}
 							} }
-							isPressed={ selectedStepClientId !== ALL_STEPS_VALUE }
+							isPressed={ selectedStepId !== ALL_STEPS_VALUE }
 						>
 							{ __( 'Preview', 'jetpack-forms' ) }
 						</ToolbarButton>{ ' ' }
@@ -238,8 +262,10 @@ export default function StepControls( {
 							label={ __( 'Next Step', 'jetpack-forms' ) }
 							disabled={ isLastStep }
 							onClick={ () => {
-								if ( currentStepIndex < steps.length - 1 ) {
-									handleStepChange( steps[ currentStepIndex + 1 ].clientId );
+								const stepIndex = steps.findIndex( step => step.clientId === selectedStepId );
+								if ( stepIndex !== -1 && stepIndex < steps.length - 1 ) {
+									const nextStepId = steps[ stepIndex + 1 ].clientId;
+									handleStepChange( nextStepId );
 								}
 							} }
 						>
@@ -283,8 +309,8 @@ export default function StepControls( {
 											handleStepChange( step.clientId );
 											onClose();
 										} }
-										isSelected={ selectedStepClientId === step.clientId }
-										icon={ selectedStepClientId === step.clientId ? 'yes' : null }
+										isSelected={ selectedStepId === step.clientId }
+										icon={ selectedStepId === step.clientId ? 'yes' : null }
 									>
 										{ `${ index + 1 }. ${ step?.attributes?.stepLabel }` }
 									</MenuItem>

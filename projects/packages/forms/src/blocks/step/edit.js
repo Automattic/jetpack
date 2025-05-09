@@ -5,6 +5,7 @@ import {
 } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import StepControls from '../contact-form/components/step-controls';
 import AttributesControls from './attributes-controls';
 
 import './editor.scss';
@@ -107,16 +108,19 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const defaultStepName = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
 
 	return (
-		<div { ...blockProps }>
-			{ isAllStepView && <StepBreak stepName={ attributes.stepName || defaultStepName } /> }
-			<div className="jetpack-form-step__container" { ...innerBlocksProps }>
-				{ children }
+		<>
+			<div { ...blockProps }>
+				{ isAllStepView && <StepBreak stepName={ attributes.stepName || defaultStepName } /> }
+				<div className="jetpack-form-step__container" { ...innerBlocksProps }>
+					{ children }
+				</div>
+				<AttributesControls
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					clientId={ clientId }
+				/>
 			</div>
-			<AttributesControls
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				clientId={ clientId }
-			/>
-		</div>
+			<StepControls clientId={ clientId } onlyNav={ true } isStep={ true } />
+		</>
 	);
 }

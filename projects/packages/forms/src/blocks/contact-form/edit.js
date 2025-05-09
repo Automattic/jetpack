@@ -268,23 +268,18 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	// Effect to sync List View selection with StepControls (if not in 'All Steps')
 	useEffect( () => {
 		const prevSelectedBlockClientId = prevSelectedBlockClientIdRef.current;
-		// console.log('[ContactForm Edit Effect] Running. selectedBlockClientId:', selectedBlockClientId, 'prev:', prevSelectedBlockClientId, 'selectedStepClientId:', selectedStepClientId); // LOGGING
 
 		// Only proceed if the selected block changed *and* it's not null/undefined
 		if ( selectedBlockClientId && selectedBlockClientId !== prevSelectedBlockClientId ) {
-			// console.log('[ContactForm Edit Effect] Selected block changed.'); // LOGGING
 			// Ensure we are NOT in 'All Steps' mode before syncing
 			if ( selectedStepClientId !== ALL_STEPS_VALUE && innerBlocks ) {
-				// console.log('[ContactForm Edit Effect] Not in All Steps mode.'); // LOGGING
 				// Check if the newly selected block is one of our direct step children
 				const isSelectedBlockOurStep = innerBlocks.some(
 					block => block.name === 'jetpack/form-step' && block.clientId === selectedBlockClientId
 				);
-				// console.log('[ContactForm Edit Effect] isSelectedBlockOurStep:', isSelectedBlockOurStep); // LOGGING
 
 				// If a step child is selected via List View and it's not already the active step in the dropdown
 				if ( isSelectedBlockOurStep && selectedBlockClientId !== selectedStepClientId ) {
-					// console.log('[ContactForm Edit Effect] Setting selectedStepClientId to:', selectedBlockClientId); // LOGGING
 					setAttributes( { selectedStepClientId: selectedBlockClientId } );
 				}
 			}
@@ -321,15 +316,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	} else {
 		elt = (
 			<>
-				<BlockControls>
-					{ hasStepBlock && (
-						<StepControls
-							clientId={ clientId }
-							selectedStepClientId={ selectedStepClientId }
-							setParentAttributes={ setAttributes }
-						/>
-					) }
-				</BlockControls>
+				<BlockControls>{ hasStepBlock && <StepControls clientId={ clientId } /> }</BlockControls>
 				<InspectorControls>
 					<PanelBody
 						title={ __( 'Manage responses', 'jetpack-forms' ) }
