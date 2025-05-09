@@ -173,6 +173,9 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			true
 		);
 		wp_enqueue_script( $asset_handle );
+		if ( in_array( 'wp-i18n', $dependencies, true ) ) {
+			wp_set_script_translations( $asset_handle, 'jetpack' );
+		}
 
 		// Enqueue the CSS if enabled
 		if ( $options['enqueue_css'] ) {
