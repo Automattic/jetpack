@@ -63,6 +63,7 @@ export default function Edit( { clientId } ) {
 				);
 
 				if ( formContainerBlocks.length === 0 ) {
+					return {
 						navigationBlocks: formBlocks,
 						currentIndex: 1,
 						isFirstStep: false,
