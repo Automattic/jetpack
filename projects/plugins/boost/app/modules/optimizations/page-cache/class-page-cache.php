@@ -10,6 +10,7 @@ use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
+use Automattic\Jetpack_Boost\Lib\Cache_Compatibility;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync\Page_Cache_Entry;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Clear_Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Deactivate_WPSC;
@@ -112,16 +113,8 @@ class Page_Cache implements Feature, Has_Deactivate, Has_Data_Sync, Optimization
 			return false;
 		}
 
-		/*
-		 * Disable Page Cache on sites that run Newfold's caching service.
-		 * Their cache is considered enabled when the endurance_cache_level option is set to 2 or 3.
-		 *
-		 * @link https://github.com/bluehost/endurance-page-cache/blob/59fe9993d2cb8a03d1df6da8325f73ad0851ba0a/endurance-page-cache.php#L343
-		 */
-		if (
-			class_exists( '\\Endurance_Page_Cache' )
-			&& 2 <= (int) get_option( 'endurance_cache_level' )
-		) {
+		// Disable Page Cache on sites that have their own caching service.
+		if ( Cache_Compatibility::has_cache() ) {
 			return false;
 		}
 
