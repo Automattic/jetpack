@@ -22,6 +22,19 @@ function getIntAsPxValue( value ) {
 	return value;
 }
 
+function getBorderRadius( style ) {
+	// A single border radius value for all for corners, this is quicker to check, so it goes first.
+	if ( style?.borderRadius ) {
+		return getIntAsPxValue( style?.borderRadius );
+	}
+	// If corner radii are set on the top-left or bottom-left of the block, take the maximum of the two.
+	// We check the left side due to writing direction—this variable is used to offset text.
+	// TODO: this should factor in RTL languages.
+	if ( style?.borderTopLeftRadius || style?.borderBottomLeftRadius ) {
+		return `max( ${ style?.borderTopLeftRadius ?? 0 }, ${ style?.borderBottomLeftRadius ?? 0 } )`;
+	}
+}
+
 export default function useFormStyleOutlineClassesAndStyles( {
 	clientId,
 	inputBlockName,
@@ -92,6 +105,12 @@ export default function useFormStyleOutlineClassesAndStyles( {
 
 		if ( formStyle === FORM_STYLE.OUTLINED ) {
 			styleSpecificCssVars = {
+				// Set a max-width for the notch (using `min()`) to prevent it from getting too wide.
+				// Users can set very high values for border radius, but css has built-in capping of the radius,
+				// there's no equivalent way to do this for the width, so we choose an arbitrary value.
+				//
+				// To determine the actual max, we'd need to know the height of the input and divide by 2
+				// to get the max border radius. Perhaps it can be a future improvement!
 				'--jetpack--contact-form--notch-width':
 					'max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius))',
 			};
@@ -109,6 +128,7 @@ export default function useFormStyleOutlineClassesAndStyles( {
 				'--jetpack--contact-form--field-padding': `calc(var(--jetpack--contact-form--label-left) - ${ borderLeftSize })`,
 			};
 		}
+
 		return {
 			className: filteredBlockColorClassesAndStyles,
 			style: {
@@ -125,10 +145,8 @@ export default function useFormStyleOutlineClassesAndStyles( {
 					globalBorderClassesAndStyles?.style?.borderTopWidth,
 				// Sets the value of --notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)); for .notched-label.
 				'--jetpack--contact-form--border-radius':
-					getIntAsPxValue( blockBorderClassesAndStyles?.style?.borderRadius ) ||
-					blockBorderClassesAndStyles?.style?.borderLeftRadius ||
-					globalBorderClassesAndStyles?.style?.borderRadius ||
-					globalBorderClassesAndStyles?.style?.borderLeftRadius,
+					getBorderRadius( blockBorderClassesAndStyles.style ) ||
+					getBorderRadius( globalBorderClassesAndStyles.style ),
 				...styleSpecificCssVars,
 			},
 		};
