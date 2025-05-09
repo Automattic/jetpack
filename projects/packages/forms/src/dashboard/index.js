@@ -1,15 +1,16 @@
 /**
  * External dependencies
  */
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { createRoot } from '@wordpress/element';
 import { get } from 'lodash';
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import About from './about';
 import Layout from './components/layout';
 import Inbox from './inbox';
-import LandingPage from './landing';
 import DashboardNotices from './notices-list';
 import './style.scss';
 
@@ -38,7 +39,7 @@ window.addEventListener( 'load', () => {
 				},
 				{
 					path: 'about',
-					element: <LandingPage />,
+					element: <About />,
 				},
 			],
 		},
@@ -46,9 +47,9 @@ window.addEventListener( 'load', () => {
 
 	const root = createRoot( container );
 	root.render(
-		<>
+		<ThemeProvider>
 			<RouterProvider router={ router } />
 			<DashboardNotices />
-		</>
+		</ThemeProvider>
 	);
 } );

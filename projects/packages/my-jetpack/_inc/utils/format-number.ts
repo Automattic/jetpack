@@ -1,4 +1,4 @@
-import { numberFormat } from '@automattic/jetpack-components';
+import { formatNumber as formatNumberFromLib } from '@automattic/number-formatters';
 import type { FormatNumberFunction } from './types';
 
 const defaultConfig: Intl.NumberFormatOptions = {
@@ -11,7 +11,7 @@ const formatNumber: FormatNumberFunction = ( number, config = defaultConfig ) =>
 		return '-';
 	}
 
-	return numberFormat( number, config );
+	return formatNumberFromLib( number, { numberFormatOptions: config } );
 };
 
 export default formatNumber;

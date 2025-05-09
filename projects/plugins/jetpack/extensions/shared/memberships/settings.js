@@ -1,5 +1,5 @@
-import { numberFormat } from '@automattic/jetpack-components';
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
+import { formatNumberCompact } from '@automattic/number-formatters';
 import {
 	Button,
 	Flex,
@@ -175,19 +175,14 @@ export function NewsletterAccessRadioButtons( {
 						  ]
 						: [] ),
 					{
-						label: `${ accessOptions.subscribers.label } (${ numberFormat( subscribersReach, {
-							notation: 'compact',
-							maximumFractionDigits: 1,
-						} ) })`,
+						label: `${ accessOptions.subscribers.label } (${ formatNumberCompact(
+							subscribersReach
+						) })`,
 						value: accessOptions.subscribers.key,
 					},
 					{
-						label: `${ accessOptions.paid_subscribers.label } (${ numberFormat(
-							paidSubscribersReach,
-							{
-								notation: 'compact',
-								maximumFractionDigits: 1,
-							}
+						label: `${ accessOptions.paid_subscribers.label } (${ formatNumberCompact(
+							paidSubscribersReach
 						) })`,
 						value: accessOptions.paid_subscribers.key,
 					},

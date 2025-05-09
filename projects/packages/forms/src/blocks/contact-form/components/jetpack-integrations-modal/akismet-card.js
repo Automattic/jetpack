@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import AkismetIcon from '../../../../icons/akismet-icon';
+import AkismetIcon from '../../../../icons/akismet';
 import IntegrationCard from './integration-card';
 
 const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
@@ -37,7 +37,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		<IntegrationCard
 			title={ __( 'Akismet Spam Protection', 'jetpack-forms' ) }
 			description={ __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ) }
-			icon={ <AkismetIcon /> }
+			icon={ <AkismetIcon width={ 28 } height={ 28 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 			cardData={ cardData }

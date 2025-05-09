@@ -1,4 +1,5 @@
-import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -66,7 +67,7 @@ class DashStatsBottom extends Component {
 								: sprintf(
 										/* Translators: placeholder is a number of views. */
 										_n( '%s View', '%s Views', s.bestDay.count, 'jetpack' ),
-										numberFormat( s.bestDay.count )
+										formatNumber( s.bestDay.count )
 								  ) }
 						</h3>
 						{ s.bestDay.day && (
@@ -80,7 +81,7 @@ class DashStatsBottom extends Component {
 							{ _x( 'All-time views', 'Referring to a number of page views', 'jetpack' ) }
 						</p>
 						<h3 className="jp-at-a-glance__stat-number">
-							{ '-' === s.allTime.views ? '-' : numberFormat( s.allTime.views ) }
+							{ '-' === s.allTime.views ? '-' : formatNumber( s.allTime.views ) }
 						</h3>
 					</div>
 					<div className="jp-at-a-glance__stats-summary-alltime-comments">
@@ -88,7 +89,7 @@ class DashStatsBottom extends Component {
 							{ _x( 'All-time comments', 'Referring to a number of comments', 'jetpack' ) }
 						</p>
 						<h3 className="jp-at-a-glance__stat-number">
-							{ '-' === s.allTime.comments ? '-' : numberFormat( s.allTime.comments ) }
+							{ '-' === s.allTime.comments ? '-' : formatNumber( s.allTime.comments ) }
 						</h3>
 					</div>
 				</div>

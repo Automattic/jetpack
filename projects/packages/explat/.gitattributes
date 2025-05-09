@@ -12,6 +12,8 @@ build/**         production-include
 # Remember to end all directories with `/**` to properly tag every file.
 .gitignore        production-exclude
 changelog/**      production-exclude
+global.d.ts       production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
 .phpcsignore      production-exclude
+src/client/**     production-exclude
