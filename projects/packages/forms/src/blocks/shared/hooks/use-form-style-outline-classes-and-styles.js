@@ -62,7 +62,7 @@ export default function useFormStyleOutlineClassesAndStyles( {
 		// Access the input block's attributes.
 		const blockBorderClassesAndStyles = getBorderClassesAndStyles( inputBlockAttributes ?? {} );
 		const globalBorderClassesAndStyles = getBorderClassesAndStyles( {
-			style: mergedGlobalBlockStyles?.[ inputBlockName ],
+			style: mergedGlobalBlockStyles,
 		} );
 
 		// Notched HTML only needs the background color and associated classes.
@@ -109,7 +109,6 @@ export default function useFormStyleOutlineClassesAndStyles( {
 				'--jetpack--contact-form--field-padding': `calc(var(--jetpack--contact-form--label-left) - ${ borderLeftSize })`,
 			};
 		}
-
 		return {
 			className: filteredBlockColorClassesAndStyles,
 			style: {
@@ -133,5 +132,5 @@ export default function useFormStyleOutlineClassesAndStyles( {
 				...styleSpecificCssVars,
 			},
 		};
-	}, [ inputBlockAttributes, mergedGlobalBlockStyles, inputBlockName, formStyle ] );
+	}, [ inputBlockAttributes, mergedGlobalBlockStyles, formStyle ] );
 }
