@@ -102,13 +102,28 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			const title = getEditedPostAttribute( 'title' );
 			const authorId = getEditedPostAttribute( 'author' );
 			const authorEmail = authorId && getUser( authorId )?.email;
-			const stepBlocks = innerBlocksData.filter( block => block.name === 'jetpack/form-step' );
+
+			let stepBlocks = innerBlocksData.filter( block => block.name === 'jetpack/form-step' );
+			if ( stepBlocks.length === 0 ) {
+				const stepContainerBlock = innerBlocksData.filter(
+					block => block.name === 'jetpack/step-container'
+				)[ 0 ];
+
+				if ( stepContainerBlock ) {
+					const innerstepContainerBlocks = getBlocks( stepContainerBlock.clientId );
+					stepBlocks = innerstepContainerBlocks.filter(
+						block => block.name === 'jetpack/form-step'
+					);
+				}
+			}
+
 			const submitButton = innerBlocksData.find( block => block.name === 'jetpack/button' );
 			const isEveryChildBlockStep = innerBlocksData.every(
 				block =>
 					block.name === 'jetpack/form-step' ||
 					block.name === 'jetpack/form-step-navigation' ||
 					block.name === 'jetpack/form-progress-indicator' ||
+					block.name === 'jetpack/step-container' ||
 					block.name === 'core/paragraph'
 			);
 			if ( submitButton && ! submitButton.attributes.lock ) {

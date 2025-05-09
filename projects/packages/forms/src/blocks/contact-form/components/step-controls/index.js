@@ -49,7 +49,13 @@ export default function StepControls( {
 		select => {
 			const { getBlocks, getSelectedBlockClientId } = select( blockEditorStore );
 			const innerBlocks = getBlocks( clientId );
-			const stepBlocks = innerBlocks.filter( block => block.name === 'jetpack/form-step' );
+			let stepBlocks = innerBlocks.filter( block => block.name === 'jetpack/form-step' );
+
+			if ( stepBlocks.length === 0 ) {
+				const stepContainer = innerBlocks.find( block => block.name === 'jetpack/step-container' );
+				stepBlocks = stepContainer ? getBlocks( stepContainer.clientId ) : [];
+			}
+
 			return {
 				steps: stepBlocks,
 				isFirstStep: stepBlocks[ 0 ]?.clientId === selectedStepClientId,

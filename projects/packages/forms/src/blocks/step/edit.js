@@ -72,13 +72,17 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			let parentClientId = getBlockParentsByBlockName( clientId, [
 				'jetpack/step-container',
 			] )[ 0 ];
+			const formParentClinetId = getBlockParentsByBlockName( clientId, [
+				'jetpack/contact-form',
+			] )[ 0 ];
 
 			if ( ! parentClientId ) {
-				parentClientId = getBlockParentsByBlockName( clientId, [ 'jetpack/contact-form' ] )[ 0 ];
+				parentClientId = formParentClinetId;
 			}
 
 			const parentContainerBlocks = parentClientId ? getBlocks( parentClientId ) : [];
-			const parentAttributes = parentClientId ? getBlockAttributes( parentClientId ) : null;
+
+			const formAttributes = parentClientId ? getBlockAttributes( formParentClinetId ) : null;
 			const parentStepBlocks = parentContainerBlocks.filter(
 				block => block.name === 'jetpack/form-step'
 			);
@@ -86,7 +90,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 			return {
 				currentIndex: currentStepIndex,
-				parentSelectedStepClientId: parentAttributes?.selectedStepClientId ?? ALL_STEPS_VALUE,
+				parentSelectedStepClientId: formAttributes?.selectedStepClientId ?? ALL_STEPS_VALUE,
 				isFirstStep: currentStepIndex === 0,
 				isLastStep: currentStepIndex === parentStepBlocks.length - 1,
 			};
