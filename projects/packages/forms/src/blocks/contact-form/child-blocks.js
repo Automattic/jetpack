@@ -824,7 +824,7 @@ export const childBlocks = [
 		name: 'step-container',
 		settings: {
 			apiVersion: 3,
-			title: __( 'Step Container', 'jetpack-forms' ),
+			title: __( 'Steps', 'jetpack-forms' ),
 			category: 'contact-form',
 			description: __( 'A container that organizes multiple form steps.', 'jetpack-forms' ),
 			icon: {
