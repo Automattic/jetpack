@@ -147,6 +147,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'fieldwrapperclasses'    => null,
 				'outlinestyledata'       => array(),
 				'outlinestyleclasses'    => null,
+				'optionsclasses'         => null,
+				'optionsstyles'          => null,
 			),
 			$attributes,
 			'contact-field'
@@ -810,8 +812,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field  = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="grunion-radio-options">';
-		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+		$options_classes = $this->get_attribute( 'optionsclasses' );
+		$options_styles  = $this->get_attribute( 'optionsstyles' );
+		$field           = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="wp-block-jetpack-options grunion-radio-options' . $options_classes . '" style="' . $options_styles . '">';
+		$field          .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
 		$used_html_ids = array();
@@ -1162,11 +1166,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		$options_classes = $this->get_attribute( 'optionsclasses' );
+		$options_styles  = $this->get_attribute( 'optionsstyles' );
 		// The `data-required` attribute is used in `accessible-form.js` to ensure at least one
 		// checkbox is checked. Unlike radio buttons, for which the required attribute is satisfied if
 		// any of the radio buttons in the group is selected, adding a required attribute directly to
 		// a checkbox means that this specific checkbox must be checked.
-		$field  = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="grunion-checkbox-multiple-options"' . ( $required ? ' data-required' : '' ) . '>';
+
+		$field  = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="wp-block-jetpack-options grunion-checkbox-multiple-options' . $options_classes . '" style="' . $options_styles . '" ' . ( $required ? 'data-required' : '' ) . '>';
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		$options_data  = $this->get_attribute( 'optionsdata' );

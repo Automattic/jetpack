@@ -7,7 +7,25 @@ import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
+import useFormStyleOutlineClassesAndStyles from '../shared/hooks/use-form-style-outline-classes-and-styles.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
+
+function useInnerOptionsBlock( clientId ) {
+	const inputBlock = useSelect(
+		select => {
+			// Get the parent block
+			const parentBlock = select( blockEditorStore ).getBlock( clientId );
+			if ( ! parentBlock ) {
+				return {};
+			}
+
+			return parentBlock.innerBlocks.find( block => block.name === 'jetpack/options' );
+		},
+		[ clientId ]
+	);
+
+	return inputBlock;
+}
 
 export default function MultipleChoiceFieldEdit( props ) {
 	const { className, clientId, setAttributes, isSelected, attributes } = props;
@@ -24,10 +42,14 @@ export default function MultipleChoiceFieldEdit( props ) {
 		'is-selected': isSelected,
 		'has-placeholder': !! options?.length,
 	} );
-
-	const blockProps = useBlockProps( {
-		className: classes,
+	const inputBlock = useInnerOptionsBlock( clientId );
+	const styles = useFormStyleOutlineClassesAndStyles( {
+		clientId,
+		inputBlockName: inputBlock?.name,
+		inputBlockAttributes: inputBlock?.attributes,
 	} );
+
+	const blockProps = useBlockProps( { className: classes, style: styles?.cssVars } );
 
 	const innerBlockProps = useInnerBlocksProps( blockProps, {
 		template: [
@@ -47,7 +69,6 @@ export default function MultipleChoiceFieldEdit( props ) {
 		<>
 			<div { ...innerBlockProps } />
 			<JetpackFieldControls
-				blockClassNames={ classes }
 				clientId={ clientId }
 				id={ id }
 				required={ required }

@@ -128,15 +128,17 @@
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 12px;
-
 	margin: 0;
 	padding: 0;
+}
 
+:where( .contact-form .grunion-checkbox-multiple-options ),
+:where( .contact-form .grunion-radio-options ) {
 	border: none;
 }
 
-.contact-form .is-style-outlined .grunion-checkbox-multiple-options,
-.contact-form .is-style-outlined .grunion-radio-options {
+:where( .contact-form .is-style-outlined .grunion-checkbox-multiple-options ),
+:where( .contact-form .is-style-outlined .grunion-radio-options )  {
 	border: solid 1px var( --jetpack--contact-form--border-color );
 }
 

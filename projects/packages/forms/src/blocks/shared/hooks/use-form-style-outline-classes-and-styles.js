@@ -132,5 +132,5 @@ export default function useFormStyleOutlineClassesAndStyles( {
 				...styleSpecificCssVars,
 			},
 		};
-	}, [ inputBlockAttributes, mergedGlobalBlockStyles, formStyle ] );
+	}, [ inputBlockName, inputBlockAttributes, mergedGlobalBlockStyles, formStyle ] );
 }

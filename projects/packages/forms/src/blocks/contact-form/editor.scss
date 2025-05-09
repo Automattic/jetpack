@@ -751,7 +751,8 @@
 			right: -10px;
 		}
 
-		.jetpack-field {
+		.jetpack-field,
+		wp-block-jetpack-field-checkbox-multiple {
 			margin-top: 8px;
 			box-sizing: border-box;
 
@@ -851,10 +852,10 @@
 				}
 			}
 
-			&.jetpack-field-multiple {
+			&.jetpack-field-multiple .jetpack-field-multiple__list {
 				border-top: none;
-				padding: var(--jetpack--contact-form--input-padding, 16px);
-				padding-top: calc(var(--jetpack--contact-form--input-padding, 16px) + 4px);
+				padding: var(--jetpack--contact-form--notch-width, 16px);
+				padding-top: calc(var(--jetpack--contact-form--notch-width, 16px) + var(--jetpack--contact-form--border-size, 4px));
 			}
 
 			&.jetpack-field-checkbox {
@@ -868,7 +869,7 @@
 				}
 			}
 
-			.jetpack-field__input, .jetpack-field__textarea {
+			.jetpack-field-multiple__list, .jetpack-field__input, .jetpack-field__textarea {
 				display: flex;
 
 				/*

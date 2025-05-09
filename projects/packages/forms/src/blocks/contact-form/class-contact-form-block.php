@@ -148,6 +148,7 @@ class Contact_Form_Block {
 				'uses_context' => array(
 					'jetpack/field-required',
 					'jetpack/field-dateFormat',
+					'jetpack/field-share-input-type',
 				),
 			)
 		);
@@ -155,12 +156,26 @@ class Contact_Form_Block {
 			'jetpack/options',
 			array(
 				'supports'         => array(
-					'spacing' => array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
+					),
+					'color'                => array(
+						'text'       => true,
+						'background' => true,
+						'gradient'   => true,
+					),
+					'spacing'              => array(
 						'blockGap' => false,
 					),
 				),
 				'provides_context' => array(
 					'jetpack/field-options-type' => 'type',
+				),
+				'selectors'        => array(
+					'border' => '.wp-block-jetpack-options, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-options) > *',
 				),
 			)
 		);

@@ -18,7 +18,7 @@ const getLabelOrFallback = ( label, placeholder ) => {
 	return label ?? placeholder;
 };
 
-const OPTIONS_FIELDS = [ 'jetpack/field-single-choice', 'jetpack/field-multiple-choice' ];
+const OPTIONS_FIELDS = [ 'jetpack/field-radio', 'jetpack/field-checkbox-multiple' ];
 
 function useSiblingBlock( clientId ) {
 	const inputBlock = useSelect(
@@ -37,7 +37,7 @@ function useSiblingBlock( clientId ) {
 			}
 
 			const siblingBlockType = OPTIONS_FIELDS.includes( parentBlock.name )
-				? 'jetpack/option'
+				? 'jetpack/options'
 				: 'jetpack/input';
 
 			return parentBlock.innerBlocks.find( block => block.name === siblingBlockType );
@@ -87,11 +87,13 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 	} );
 
 	const inputBlock = useSiblingBlock( clientId );
+
 	const inputStyles = useFormStyleOutlineClassesAndStyles( {
 		clientId,
 		inputBlockName: inputBlock?.name,
 		inputBlockAttributes: inputBlock?.attributes,
 	} );
+	console.log( 'LabelEdit', { inputBlock, inputStyles } );
 	const blockProps = useBlockProps( {
 		className,
 		style: inputStyles?.cssVars,

@@ -26,9 +26,27 @@ const settings = {
 	providesContext: {
 		'jetpack/field-options-type': 'type',
 	},
+	usesContext: [ 'jetpack/field-share-attributes' ],
 	supports: {
 		spacing: {
 			blockGap: false,
+		},
+		color: {
+			text: true,
+			background: true,
+			gradient: true,
+		},
+		__experimentalBorder: {
+			color: true,
+			radius: true,
+			style: true,
+			width: true,
+			__experimentalDefaultControls: {
+				color: true,
+				radius: true,
+				style: true,
+				width: true,
+			},
 		},
 	},
 	edit,

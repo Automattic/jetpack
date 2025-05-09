@@ -468,11 +468,7 @@ class Contact_Form_Plugin {
 					}
 
 					/*
-						If the form style is outline*, set some styles for the
-						Contact_Form_Field::notched-label__notch element()
-						set in Contact_Form_Field::render()
-
-						*We only know this in Contact_Form_Field::get_form_style()
+						Borders for the notched HTML.
 					*/
 					$atts['outlinestyledata']                 = isset( $inner_block['attrs']['style']['border'] ) ? \wp_json_encode( $inner_block['attrs']['style']['border'] ) : null;
 					$atts['outlinestyleclasses']              = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
@@ -490,9 +486,12 @@ class Contact_Form_Plugin {
 
 				// The following handles choice fields such as; Single Choice Field (radio) or Multiple Choice Field (checkbox).
 				if ( 'jetpack/options' === $block_name ) {
-					$option_blocks = $inner_block['innerBlocks'] ?? array();
-					$options       = array();
-					$options_data  = array();
+					$option_blocks          = $inner_block['innerBlocks'] ?? array();
+					$options                = array();
+					$options_data           = array();
+					$options_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
+					$atts['optionsclasses'] = isset( $options_attrs['class'] ) ? ' ' . $options_attrs['class'] : '';
+					$atts['optionsstyles']  = $options_attrs['style'] ?? null;
 
 					foreach ( $option_blocks as $option ) {
 						$option_label = trim( $option['attrs']['label'] ?? '' );
