@@ -54,9 +54,25 @@ export default function Edit( { clientId } ) {
 			const stepId = getBlockParentsByBlockName( clientId, [ 'jetpack/form-step' ] )[ 0 ];
 
 			if ( ! stepId ) {
-				// The Step Navigation block is in a step.
+				const parentFormId = getBlockParentsByBlockName( clientId, [
+					'jetpack/contact-form',
+				] )[ 0 ];
+				const formBlocks = parentFormId ? getBlocks( parentFormId ) : [];
+				const formContainerBlocks = formBlocks.filter(
+					block => block.name === 'jetpack/step-container'
+				);
+
+				if ( formContainerBlocks.length === 0 ) {
+						navigationBlocks: formBlocks,
+						currentIndex: 1,
+						isFirstStep: false,
+						isLastStep: false,
+						saveAll: true,
+					};
+				}
+
 				return {
-					navigationBlocks: getBlocks( clientId ),
+					navigationBlocks: getBlocks( formContainerBlocks[ 0 ].clientId ),
 					currentIndex: 1,
 					isFirstStep: false,
 					isLastStep: false,

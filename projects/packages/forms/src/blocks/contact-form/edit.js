@@ -26,6 +26,7 @@ import { useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
+import { STORE_NAME as PREVIEW_STORE_NAME } from '../../store/preview-store';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
@@ -36,8 +37,6 @@ import JetpackManageResponsesSettings from './components/jetpack-manage-response
 import StepControls from './components/step-controls';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
-
-const ALL_STEPS_VALUE = '__all__';
 
 const validFields = filter( childBlocks, ( { settings } ) => {
 	return (
@@ -76,10 +75,18 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouMessage,
 		customThankyouRedirect,
 		formTitle,
-		selectedStepClientId = ALL_STEPS_VALUE,
 		variationName,
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
+
+	const { selectedStepClientId, isPreview } = useSelect( select => {
+		const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
+		return {
+			selectedStepClientId: getActivePreviewStepId(),
+			isPreview: isPreviewMode(),
+		};
+	}, [] );
+
 	const {
 		postTitle,
 		canUserInstallPlugins,
@@ -156,7 +163,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		'jetpack-contact-form',
 		isFirstStep && 'is-first-step',
 		isLastStep && 'is-last-step',
-		hasStepBlock && selectedBlockClientId !== ALL_STEPS_VALUE && 'is-previewing-step'
+		hasStepBlock && isPreview && 'is-previewing-step'
 	);
 	const innerBlocksProps = useInnerBlocksProps(
 		{
@@ -272,7 +279,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		// Only proceed if the selected block changed *and* it's not null/undefined
 		if ( selectedBlockClientId && selectedBlockClientId !== prevSelectedBlockClientId ) {
 			// Ensure we are NOT in 'All Steps' mode before syncing
-			if ( selectedStepClientId !== ALL_STEPS_VALUE && innerBlocks ) {
+			if ( isPreview && innerBlocks ) {
 				// Check if the newly selected block is one of our direct step children
 				const isSelectedBlockOurStep = innerBlocks.some(
 					block => block.name === 'jetpack/form-step' && block.clientId === selectedBlockClientId
@@ -288,7 +295,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		prevSelectedBlockClientIdRef.current = selectedBlockClientId;
 
 		// Keep dependencies, but logic now filters based on actual selectedBlockClientId changes
-	}, [ selectedBlockClientId, selectedStepClientId, innerBlocks, setAttributes ] );
+	}, [ selectedBlockClientId, selectedStepClientId, innerBlocks, setAttributes, isPreview ] );
 
 	let elt;
 
