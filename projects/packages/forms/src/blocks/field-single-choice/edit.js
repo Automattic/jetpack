@@ -7,9 +7,7 @@ import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useFormStyleOutlineClassesAndStyles from '../shared/hooks/use-form-style-outline-classes-and-styles.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
-import useGetInnerBlock from '../shared/hooks/use-get-inner-block';
 
 export default function SingleChoiceFieldEdit( props ) {
 	const { className, clientId, setAttributes, isSelected, attributes } = props;
@@ -27,14 +25,7 @@ export default function SingleChoiceFieldEdit( props ) {
 		'has-placeholder': !! options?.length,
 	} );
 
-	const inputBlock = useGetInnerBlock( clientId, 'jetpack/options' );
-	const styles = useFormStyleOutlineClassesAndStyles( {
-		clientId,
-		inputBlockName: inputBlock?.name,
-		inputBlockAttributes: inputBlock?.attributes,
-	} );
-
-	const blockProps = useBlockProps( { className: classes, style: styles?.cssVars } );
+	const blockProps = useBlockProps( { className: classes } );
 
 	const innerBlockProps = useInnerBlocksProps( blockProps, {
 		template: [
