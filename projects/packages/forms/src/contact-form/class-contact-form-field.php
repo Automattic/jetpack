@@ -1413,8 +1413,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		return '
 			<div class="notched-label">
-				<div class="notched-label__leading ' . $output_data['class_name'] . '"' . $output_data['style'] . '></div>
-				<div class="notched-label__notch ' . $output_data['class_name'] . '"' . $output_data['style'] . '>
+				<div class="notched-label__leading ' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
+				<div class="notched-label__notch ' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '">
 					<label
 						for="' . esc_attr( $id ) . '"
 						class=" ' . $classes . '"
@@ -1424,7 +1424,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>
 				</div>
-				<div class="notched-label__trailing ' . $output_data['class_name'] . '"' . $output_data['style'] . '></div>
+				<div class="notched-label__trailing ' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
 			</div>';
 	}
 
@@ -1448,7 +1448,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$input_styles   = $this->get_attribute( 'inputstyles' );
 
 			if ( ! empty( $input_styles ) ) {
-				$style_attrs = ' style="' . esc_attr( $input_styles ) . '"';
+				$style_attrs = $input_styles;
 			}
 
 			$global_styles = wp_get_global_styles(
