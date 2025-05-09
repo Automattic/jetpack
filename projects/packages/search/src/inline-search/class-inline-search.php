@@ -329,9 +329,8 @@ class Inline_Search extends Classic_Search {
 		}
 
 		$highlight_fields = array(
-			'title',
-			'content',
-			'comments',
+			'post_title',
+			'post_content',
 		);
 
 		$fields = array(
@@ -343,19 +342,21 @@ class Inline_Search extends Classic_Search {
 		);
 
 		return array(
-			'blog_id'          => $this->jetpack_blog_id,
-			'size'             => absint( $args['posts_per_page'] ),
-			'from'             => min( $from, Helper::get_max_offset() ),
-			'fields'           => $fields,
-			'highlight_fields' => $highlight_fields,
-			'query'            => $args['query'] ?? '',
-			'sort'             => $sort,
-			'aggregations'     => empty( $aggregations ) ? null : $aggregations,
-			'langs'            => $this->get_langs(),
-			'filter'           => array(
+			'blog_id'      => $this->jetpack_blog_id,
+			'size'         => (int) absint( $args['posts_per_page'] ),
+			'from'         => (int) min( $from, Helper::get_max_offset() ),
+			'fields'       => $fields,
+			'query'        => $args['query'] ?? '',
+			'sort'         => $sort,
+			'aggregations' => empty( $aggregations ) ? null : $aggregations,
+			'langs'        => $this->get_langs(),
+			'filter'       => array(
 				'bool' => array(
 					'must' => $this->build_es_filters( $args ),
 				),
+			),
+			'highlight'    => array(
+				'fields' => $highlight_fields,
 			),
 		);
 	}
@@ -482,7 +483,7 @@ class Inline_Search extends Classic_Search {
 		}
 
 		$this->search_result_ids = $post_ids;
-		$this->highlighter       = new Search_Highlighter( $post_ids );
+		$this->highlighter       = new Inline_Search_Highlighter( $post_ids );
 
 		if ( ! empty( $highlighted_results ) ) {
 			// Format highlight data for the highlighter

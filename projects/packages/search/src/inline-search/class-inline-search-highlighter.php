@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Search;
 /**
  * Search Highlighter class
  */
-class Search_Highlighter {
+class Inline_Search_Highlighter {
 	/**
 	 * Stores highlighted content from search results.
 	 *
