@@ -21,7 +21,7 @@ class Inline_Search extends Classic_Search {
 	/**
 	 * The Search Highlighter instance.
 	 *
-	 * @var Search_Highlighter|null
+	 * @var Inline_Search_Highlighter|null
 	 * @since $$next-version$$
 	 */
 	private $highlighter;
