@@ -1,18 +1,23 @@
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-
+import { STORE_NAME as PREVIEW_STORE_NAME } from '../../store/preview-store';
 import './editor.scss';
 
 const FormProgressIndicatorEdit = ( { clientId } ) => {
+	const { selectedStepClientId, isPreview } = useSelect( select => {
+		const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
+		return {
+			selectedStepClientId: getActivePreviewStepId(),
+			isPreview: isPreviewMode(),
+		};
+	}, [] );
+
 	const { steps, progress } = useSelect(
 		select => {
-			const { getBlocks, getBlockParentsByBlockName, getBlockAttributes } =
-				select( blockEditorStore );
+			const { getBlocks, getBlockParentsByBlockName } = select( blockEditorStore );
 
 			const parentFormId = getBlockParentsByBlockName( clientId, [ 'jetpack/contact-form' ] )[ 0 ];
-			const formAttributes = getBlockAttributes( parentFormId );
-			const selectedStepClientId = formAttributes?.selectedStepClientId;
 			const formContainerBlocks = parentFormId ? getBlocks( parentFormId ) : [];
 
 			let formStepBlocks = formContainerBlocks.filter(
@@ -26,24 +31,27 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 
 				formStepBlocks = formStepContainer ? getBlocks( formStepContainer.clientId ) : [];
 			}
+			// So we don't devide by zero.
+			const numberOfSteps = formStepBlocks.length ? formStepBlocks.length : 1;
+
+			if ( ! isPreview ) {
+				return {
+					steps: formStepBlocks,
+					progress: ( 1 / numberOfSteps ) * 100,
+				};
+			}
 
 			// return the index of the selected step
 			const selectedStepIndex = formStepBlocks.findIndex(
 				block => block.clientId === selectedStepClientId
 			);
-			if ( selectedStepIndex === -1 ) {
-				return {
-					steps: formStepBlocks,
-					progress: 1,
-				};
-			}
 
 			return {
 				steps: formStepBlocks,
-				progress: ( ( selectedStepIndex + 1 ) / formStepBlocks.length ) * 100,
+				progress: ( ( selectedStepIndex + 1 ) / numberOfSteps ) * 100,
 			};
 		},
-		[ clientId ]
+		[ clientId, selectedStepClientId, isPreview ]
 	);
 
 	return (

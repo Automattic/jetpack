@@ -1,5 +1,4 @@
 import { BlockControls, store as blockEditorStore } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
 import {
 	ToolbarGroup,
 	DropdownMenu,
@@ -15,9 +14,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { next, previous } from '@wordpress/icons';
-
-// Define a constant for the "All Steps" option value
-const ALL_STEPS_VALUE = '__all__';
+import { ALL_STEPS_VALUE, STORE_NAME as PREVIEW_STORE_NAME } from '../../../../store/preview-store';
 
 /**
  * Toolbar controls for managing steps within a multi-step form.
@@ -29,22 +26,19 @@ const ALL_STEPS_VALUE = '__all__';
  * @return {JSX.Element} The rendered BlockControls component.
  */
 export default function StepControls( { clientId, onlyNav = false, isStep = false } ) {
-	const { insertBlock } = useDispatch( blockEditorStore );
+	const { setActivePreviewStepId } = useDispatch( PREVIEW_STORE_NAME );
 
-	const { steps, isFirstStep, isLastStep, selectedBlockClientId, formClientId, selectedStepId } =
+	const { steps, isFirstStep, isLastStep, selectedBlockClientId, selectedStepId, isPreview } =
 		useSelect(
 			select => {
-				const {
-					getBlocks,
-					getSelectedBlockClientId,
-					getBlockAttributes,
-					getBlockParentsByBlockName,
-				} = select( blockEditorStore );
+				const { getBlocks, getSelectedBlockClientId, getBlockParentsByBlockName } =
+					select( blockEditorStore );
+				const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
 
 				const parentIds = getBlockParentsByBlockName( clientId, 'jetpack/contact-form' );
 				const formId = parentIds.length ? parentIds[ 0 ] : clientId;
 
-				const { selectedStepClientId } = getBlockAttributes( formId );
+				const selectedStepClientId = getActivePreviewStepId();
 				const innerBlocks = getBlocks( formId );
 
 				let stepBlocks = innerBlocks.filter( block => block.name === 'jetpack/form-step' );
@@ -59,7 +53,8 @@ export default function StepControls( { clientId, onlyNav = false, isStep = fals
 				return {
 					steps: stepBlocks,
 					formClientId: formId,
-					selectedStepId: selectedStepClientId || ALL_STEPS_VALUE,
+					selectedStepId: selectedStepClientId,
+					isPreview: isPreviewMode(),
 					isFirstStep: stepBlocks[ 0 ]?.clientId === selectedStepClientId,
 					isLastStep: stepBlocks[ stepBlocks.length - 1 ]?.clientId === selectedStepClientId,
 					selectedBlockClientId: getSelectedBlockClientId(),
@@ -68,92 +63,32 @@ export default function StepControls( { clientId, onlyNav = false, isStep = fals
 			[ clientId ]
 		);
 
-	const { updateBlockAttributes, selectBlock } = useDispatch( 'core/block-editor' );
-
-	const setParentAttributes = useCallback(
-		attributes => {
-			if ( formClientId ) {
-				updateBlockAttributes( formClientId, attributes );
-			}
-		},
-		[ formClientId, updateBlockAttributes ]
-	);
+	const { selectBlock } = useDispatch( 'core/block-editor' );
 
 	// Handle step selection change - directly update the parent attribute.
 	const handleStepChange = useCallback(
 		newStepClientId => {
-			setParentAttributes( { selectedStepClientId: newStepClientId } );
+			setActivePreviewStepId( newStepClientId );
 			if ( isStep ) {
 				selectBlock( newStepClientId );
 			}
 		},
-		[ setParentAttributes, selectBlock, isStep ]
+		[ setActivePreviewStepId, selectBlock, isStep ]
 	);
 
-	// Create a new step block with the given label
-	const createStepBlock = ( label = __( 'New Step', 'jetpack-forms' ) ) => {
-		return createBlock( 'jetpack/form-step', {
-			stepLabel: label,
-		} );
-	};
-
 	// Function to add a new step at the end
-	const addStepAtEnd = () => {
-		const newStep = createStepBlock();
-		insertBlock( newStep, steps.length, clientId );
-
-		// Only change view to the new step if not in ALL_STEPS_VALUE view
-		if ( selectedStepId !== ALL_STEPS_VALUE ) {
-			setTimeout( () => {
-				setParentAttributes( { selectedStepClientId: newStep.clientId } );
-			}, 0 );
-		}
-	};
+	const addStepAtEnd = () => {};
 
 	// Function to add a step before the current step
-	const addStepBefore = () => {
-		if ( selectedStepId === ALL_STEPS_VALUE ) {
-			return;
-		}
-
-		const currentStepIndex = steps.findIndex( step => step.clientId === selectedStepId );
-		if ( currentStepIndex === -1 ) {
-			return;
-		}
-
-		const newStep = createStepBlock();
-		insertBlock( newStep, currentStepIndex, clientId );
-
-		// Select the newly created step
-		setTimeout( () => {
-			setParentAttributes( { selectedStepClientId: newStep.clientId } );
-		}, 0 );
-	};
+	const addStepBefore = () => {};
 
 	// Function to add a step after the current step
-	const addStepAfter = () => {
-		if ( selectedStepId === ALL_STEPS_VALUE ) {
-			return;
-		}
-
-		const currentStepIndex = steps.findIndex( step => step.clientId === selectedStepId );
-		if ( currentStepIndex === -1 ) {
-			return;
-		}
-
-		const newStep = createStepBlock();
-		insertBlock( newStep, currentStepIndex + 1, clientId );
-
-		// Select the newly created step
-		setTimeout( () => {
-			setParentAttributes( { selectedStepClientId: newStep.clientId } );
-		}, 0 );
-	};
+	const addStepAfter = () => {};
 
 	// Sync List View selection with step preview
 	useEffect( () => {
 		// Don't update if we're in "All Steps" view
-		if ( selectedStepId === ALL_STEPS_VALUE ) {
+		if ( ! isPreview ) {
 			return;
 		}
 
@@ -166,17 +101,17 @@ export default function StepControls( { clientId, onlyNav = false, isStep = fals
 
 		// If a step is selected in List View but it's different from our current preview, update it
 		if ( isStepSelected && selectedBlockClientId !== selectedStepId ) {
-			// handleStepChange( selectedBlockClientId );
+			handleStepChange( selectedBlockClientId );
 		}
-	}, [ selectedBlockClientId, steps, selectedStepId, handleStepChange, isStep ] );
+	}, [ selectedBlockClientId, steps, selectedStepId, handleStepChange, isStep, isPreview ] );
 
 	// Effect to validate selectedStepId when steps change (e.g., a step is deleted)
 	useEffect( () => {
 		if ( ! steps || steps.length === 0 ) {
 			// If we have no steps, and a step selection still exists, clear it.
 			// Keep ALL_STEPS_VALUE if it's already set.
-			if ( selectedStepId && selectedStepId !== ALL_STEPS_VALUE && setParentAttributes ) {
-				setParentAttributes( { selectedStepId: ALL_STEPS_VALUE } );
+			if ( isPreview ) {
+				setActivePreviewStepId( ALL_STEPS_VALUE );
 			}
 			return;
 		}
@@ -187,10 +122,10 @@ export default function StepControls( { clientId, onlyNav = false, isStep = fals
 			! steps.some( step => step.clientId === selectedStepId );
 
 		// If the current selection is truly invalid (e.g., selected step was deleted), default to the first step.
-		if ( isTrulyInvalidSelection && setParentAttributes ) {
-			setParentAttributes( { selectedStepId: steps[ 0 ].clientId } );
+		if ( isTrulyInvalidSelection ) {
+			setActivePreviewStepId( steps[ 0 ].clientId );
 		}
-	}, [ steps, selectedStepId, setParentAttributes ] );
+	}, [ steps, selectedStepId, setActivePreviewStepId, isPreview ] );
 
 	// Determine the current step label and index
 	const getCurrentStepInfo = useCallback( () => {
@@ -216,7 +151,6 @@ export default function StepControls( { clientId, onlyNav = false, isStep = fals
 	}
 
 	const { label: currentStepLabel, index: currentStepIndex } = getCurrentStepInfo();
-	const isPreviewMode = selectedStepId !== ALL_STEPS_VALUE;
 
 	return (
 		<BlockControls>
@@ -243,7 +177,7 @@ export default function StepControls( { clientId, onlyNav = false, isStep = fals
 				) }
 
 				{ /* Navigation buttons - only shown in Preview mode */ }
-				{ isPreviewMode && (
+				{ isPreview && (
 					<>
 						<ToolbarButton
 							showTooltip={ true }
@@ -275,7 +209,7 @@ export default function StepControls( { clientId, onlyNav = false, isStep = fals
 				) }
 
 				{ /* Step selection dropdown - only shown in Preview mode */ }
-				{ ! onlyNav && isPreviewMode && (
+				{ ! onlyNav && isPreview && (
 					<DropdownMenu
 						icon={ null }
 						label={ __( 'Select step to preview', 'jetpack-forms' ) }
@@ -323,7 +257,7 @@ export default function StepControls( { clientId, onlyNav = false, isStep = fals
 			{ ! onlyNav && (
 				<ToolbarGroup>
 					{ /* Add step button */ }
-					{ ! isPreviewMode ? (
+					{ ! isPreview ? (
 						<ToolbarButton
 							showTooltip={ true }
 							label={ __( 'Add Step', 'jetpack-forms' ) }

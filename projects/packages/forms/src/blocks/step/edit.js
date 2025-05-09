@@ -5,13 +5,11 @@ import {
 } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import { STORE_NAME as PREVIEW_STORE_NAME } from '../../store/preview-store';
 import StepControls from '../contact-form/components/step-controls';
 import AttributesControls from './attributes-controls';
 
 import './editor.scss';
-
-// Value used by parent controls to signify showing all steps
-const ALL_STEPS_VALUE = '__all__';
 
 // Define allowed blocks directly in this file to break circular dependency
 const ALLOWED_BLOCKS = [
@@ -65,10 +63,11 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		allowedBlocks: ALLOWED_BLOCKS,
 	} );
 
-	const { parentSelectedStepClientId, currentIndex } = useSelect(
+	const { currentIndex, selectedStepClientId, isPreview } = useSelect(
 		select => {
-			const { getBlocks, getBlockParentsByBlockName, getBlockAttributes } =
-				select( blockEditorStore );
+			const { getBlocks, getBlockParentsByBlockName } = select( blockEditorStore );
+
+			const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
 
 			let parentClientId = getBlockParentsByBlockName( clientId, [
 				'jetpack/step-container',
@@ -83,7 +82,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 			const parentContainerBlocks = parentClientId ? getBlocks( parentClientId ) : [];
 
-			const formAttributes = parentClientId ? getBlockAttributes( formParentClinetId ) : null;
 			const parentStepBlocks = parentContainerBlocks.filter(
 				block => block.name === 'jetpack/form-step'
 			);
@@ -91,16 +89,15 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 			return {
 				currentIndex: currentStepIndex,
-				parentSelectedStepClientId: formAttributes?.selectedStepClientId ?? ALL_STEPS_VALUE,
-				isFirstStep: currentStepIndex === 0,
-				isLastStep: currentStepIndex === parentStepBlocks.length - 1,
+				selectedStepClientId: getActivePreviewStepId(),
+				isPreview: isPreviewMode(),
 			};
 		},
 		[ clientId ]
 	);
-	const isAllStepView = ! ( parentSelectedStepClientId !== ALL_STEPS_VALUE );
+
 	// Only render the step content if it's the selected one or if "All Steps" is selected.
-	if ( ! isAllStepView && parentSelectedStepClientId !== clientId ) {
+	if ( isPreview && selectedStepClientId !== clientId ) {
 		return null;
 	}
 
@@ -110,7 +107,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	return (
 		<>
 			<div { ...blockProps }>
-				{ isAllStepView && <StepBreak stepName={ attributes.stepName || defaultStepName } /> }
+				{ ! isPreview && <StepBreak stepName={ attributes.stepName || defaultStepName } /> }
 				<div className="jetpack-form-step__container" { ...innerBlocksProps }>
 					{ children }
 				</div>
