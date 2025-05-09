@@ -27,6 +27,7 @@ declare global {
 			url: string;
 			online: boolean;
 			host: string;
+			hasCache: boolean;
 		};
 		assetPath: string;
 		pluginDirUrl: string;
