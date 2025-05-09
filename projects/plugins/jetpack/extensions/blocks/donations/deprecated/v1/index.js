@@ -1,4 +1,4 @@
-import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
+import { formatCurrency } from '@automattic/number-formatters';
 import { RichText } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { minimumTransactionAmountForCurrency } from '../../../../shared/currencies';
@@ -148,14 +148,12 @@ export default {
 								<>
 									<RichText.Content tagName="p" value={ customAmountText } />
 									<div className="donations__amount donations__custom-amount">
-										{ CURRENCIES[ currency ].symbol }
 										<div
 											className="donations__amount-value"
 											data-currency={ currency }
 											data-empty-text={ formatCurrency(
 												minimumTransactionAmountForCurrency( currency ) * 100,
-												currency,
-												{ symbol: '' }
+												currency
 											) }
 										/>
 									</div>

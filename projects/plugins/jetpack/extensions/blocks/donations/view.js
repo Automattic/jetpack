@@ -1,4 +1,4 @@
-import formatCurrency from '@automattic/format-currency';
+import { formatCurrency } from '@automattic/number-formatters';
 import domReady from '@wordpress/dom-ready';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
@@ -181,9 +181,7 @@ class JetpackDonations {
 			}
 
 			// Formats the entered amount.
-			input.innerHTML = formatCurrency( this.amount, input.dataset.currency, {
-				symbol: '',
-			} );
+			input.innerHTML = formatCurrency( Number( this.amount ), input.dataset.currency );
 		} );
 
 		input.addEventListener( 'input', () => this.updateAmountFromCustomAmountInput() );

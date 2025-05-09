@@ -1,4 +1,4 @@
-import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
+import { formatCurrency } from '@automattic/number-formatters';
 import { RichText } from '@wordpress/block-editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import clsx from 'clsx';
@@ -14,7 +14,7 @@ const Amount = ( {
 	value = '',
 } ) => {
 	const [ editedValue, setEditedValue ] = useState(
-		formatCurrency( value, currency, { symbol: '' } )
+		value ? formatCurrency( Number( value ), currency ) : null
 	);
 	const [ isFocused, setIsFocused ] = useState( false );
 	const [ isInvalid, setIsInvalid ] = useState( false );
@@ -62,7 +62,7 @@ const Amount = ( {
 		const onBlur = () => {
 			setIsFocused( false );
 			if ( ! editedValue ) {
-				setAmount( formatCurrency( defaultValue, currency, { symbol: '' } ) );
+				setAmount( defaultValue ? formatCurrency( Number( defaultValue ), currency ) : null );
 			}
 		};
 
@@ -78,11 +78,11 @@ const Amount = ( {
 		if ( isFocused || isInvalid ) {
 			return;
 		}
-		setEditedValue( formatCurrency( value, currency, { symbol: '' } ) );
+		setEditedValue( value ? formatCurrency( Number( value ), currency ) : null );
 	}, [ currency, isFocused, isInvalid, value ] );
 
 	useEffect( () => {
-		setAmount( formatCurrency( value, currency, { symbol: '' } ) );
+		setAmount( value ? formatCurrency( Number( value ), currency ) : null );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ currency, value ] );
 
@@ -97,17 +97,16 @@ const Amount = ( {
 			onClick={ setFocus }
 			onKeyDown={ setFocus }
 		>
-			{ CURRENCIES[ currency ].symbol }
 			{ disabled ? (
 				<div className="donations__amount-value">
-					{ formatCurrency( value ? value : defaultValue, currency, { symbol: '' } ) }
+					{ formatCurrency( value ? Number( value ) : Number( defaultValue ), currency ) }
 				</div>
 			) : (
 				<RichText
 					allowedFormats={ [] }
 					aria-label={ label }
 					onChange={ amount => setAmount( amount, true ) }
-					placeholder={ formatCurrency( defaultValue, currency, { symbol: '' } ) }
+					placeholder={ defaultValue ? formatCurrency( Number( defaultValue ), currency ) : null }
 					ref={ richTextRef }
 					value={ editedValue }
 					withoutInteractiveFormatting
