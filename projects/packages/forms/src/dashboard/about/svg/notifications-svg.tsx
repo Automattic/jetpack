@@ -8,6 +8,7 @@ const NotificationsSVG = ( props: SVGProps ) => {
 			viewBox="0 0 46 36"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			role="img"
 			{ ...props }
 		>
 			<Path

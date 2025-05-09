@@ -8,6 +8,7 @@ const ExportSVG = ( props: SVGProps ) => {
 			viewBox="0 0 132 50"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			role="img"
 			{ ...props }
 		>
 			<Rect x="25" y="14" width="107" height="4" rx="2" fill="#256EFF" />

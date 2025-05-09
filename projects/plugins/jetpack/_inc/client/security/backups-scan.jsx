@@ -1,4 +1,5 @@
-import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
@@ -169,7 +170,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 								{ sprintf(
 									/* Translators: placeholder is a number (of threats). */
 									_n( 'Uh oh, %s threat found.', 'Uh oh, %s threats found.', threats, 'jetpack' ),
-									numberFormat( threats )
+									formatNumber( threats )
 								) }
 							</strong>
 							<br />

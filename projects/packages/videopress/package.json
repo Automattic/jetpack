@@ -28,6 +28,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
 		"@babel/core": "7.26.10",
 		"@babel/preset-react": "7.26.3",
 		"@csstools/postcss-global-data": "2.1.1",
