@@ -109,4 +109,9 @@
 	.jetpack-forms-creative-mail-settings-button {
 		margin-top: 12px;
 	}
+
+	p {
+		text-wrap: balance; // TODO: remove this fallback once `pretty` is globally supported.
+		text-wrap: pretty;
+	}
 }

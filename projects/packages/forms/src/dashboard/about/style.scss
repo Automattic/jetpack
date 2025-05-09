@@ -186,8 +186,12 @@
 						height: 100%;
 					}
 
-					.akismet-icon {
+					.icon-round {
 						clip-path: circle(16px at center);
+					}
+
+					.jetpack-icon {
+						fill: var(--jp-green-40);
 					}
 				}
 			}

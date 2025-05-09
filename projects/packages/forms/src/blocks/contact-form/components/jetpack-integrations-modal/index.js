@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import AkismetCard from './akismet-card';
 import CreativeMailCard from './creative-mail-card';
 import JetpackCRMCard from './jetpack-crm-card';
+import SalesforceCard from './salesforce-card';
 import './style.scss';
 
 const IntegrationsModal = ( {
@@ -19,6 +20,7 @@ const IntegrationsModal = ( {
 		akismet: false,
 		crm: false,
 		creativemail: false,
+		salesforce: false,
 	} );
 
 	if ( ! isOpen ) {
@@ -55,6 +57,14 @@ const IntegrationsModal = ( {
 					setAttributes={ setAttributes }
 					data={ findIntegrationById( 'zero-bs-crm' ) }
 					refreshStatus={ refreshIntegrations }
+				/>
+				<SalesforceCard
+					isExpanded={ expandedCards.salesforce }
+					onToggle={ () => toggleCard( 'salesforce' ) }
+					data={ findIntegrationById( 'salesforce' ) }
+					refreshStatus={ refreshIntegrations }
+					salesforceData={ attributes.salesforceData }
+					setAttributes={ setAttributes }
 				/>
 				<CreativeMailCard
 					isExpanded={ expandedCards.creativemail }

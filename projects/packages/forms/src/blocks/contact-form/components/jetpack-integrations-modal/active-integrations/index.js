@@ -2,7 +2,9 @@ import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
 import { Spinner, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import AkismetIcon from '../../../../../icons/akismet-icon';
+import AkismetIcon from '../../../../../icons/akismet';
+import SalesforceIcon from '../../../../../icons/salesforce';
+import { isValidSalesforceOrgId } from '../salesforce-card';
 import './style.scss';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
@@ -14,7 +16,7 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 				if ( integration.isConnected ) {
 					acc.push( {
 						...integration,
-						icon: <AkismetIcon width={ 30 } height={ 30 } />,
+						icon: <AkismetIcon width={ 30 } height={ 30 } className="icon-round" />,
 						tooltip: __( 'Akismet is connected for this form', 'jetpack-forms' ),
 					} );
 				}
@@ -25,6 +27,19 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 						...integration,
 						icon: <JetpackIcon size={ 30 } color={ COLOR_JETPACK } />,
 						tooltip: __( 'Jetpack CRM is connected for this form', 'jetpack-forms' ),
+					} );
+				}
+				break;
+			case 'salesforce':
+				if (
+					attributes.salesforceData?.sendToSalesforce &&
+					attributes.salesforceData?.organizationId &&
+					isValidSalesforceOrgId( attributes.salesforceData.organizationId )
+				) {
+					acc.push( {
+						...integration,
+						icon: <SalesforceIcon width={ 30 } height={ 30 } />,
+						tooltip: __( 'Salesforce is connected for this form', 'jetpack-forms' ),
 					} );
 				}
 				break;
