@@ -57,6 +57,13 @@ class Manager {
 	public $error_handler = null;
 
 	/**
+	 * Protected owner error handler object.
+	 *
+	 * @var Protected_Owner_Error_Handler
+	 */
+	public $protected_owner_error_handler = null;
+
+	/**
 	 * Jetpack_XMLRPC_Server object
 	 *
 	 * @var Jetpack_XMLRPC_Server
@@ -131,6 +138,8 @@ class Manager {
 		);
 
 		$manager->error_handler = Error_Handler::get_instance();
+		require_once __DIR__ . '/class-protected-owner-error-handler.php';
+		$manager->protected_owner_error_handler = Protected_Owner_Error_Handler::get_instance();
 
 		if ( $manager->is_connected() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
