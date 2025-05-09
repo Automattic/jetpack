@@ -58,7 +58,7 @@ const SalesforceCard = ( {
 
 	return (
 		<IntegrationCard
-			title={ __( 'Salesforce', 'jetpack-forms' ) }
+			title="Salesforce"
 			description={ __( 'Send form contacts to Salesforce', 'jetpack-forms' ) }
 			icon={ <SalesforceIcon width={ 32 } height={ 32 } /> }
 			isExpanded={ isExpanded }
@@ -90,7 +90,7 @@ const SalesforceCard = ( {
 				{ salesforceData.organizationId && organizationIdError && (
 					<HelpMessage isError style={ { marginTop: '8px' } }>
 						{ __(
-							'Invalid Organization ID. Should be a 15 – 18 characters long alphanumeric string.',
+							'Invalid Organization ID. Should be a 15–18 characters long alphanumeric string.',
 							'jetpack-forms'
 						) }
 					</HelpMessage>
