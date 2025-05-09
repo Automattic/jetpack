@@ -65,7 +65,7 @@ class LCP_Invalidator {
 	 */
 	public static function handle_post_update( int $post_id ) {
 		if ( Cornerstone_Utils::is_cornerstone_page( $post_id ) ) {
-			$url = Cornerstone_Utils::sanitize_url( get_permalink( $post_id ) );
+			$url = get_permalink( $post_id );
 
 			$analyzer = new LCP_Analyzer();
 			$analyzer->start_partial_analysis(
