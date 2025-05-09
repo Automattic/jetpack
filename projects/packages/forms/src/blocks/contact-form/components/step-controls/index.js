@@ -19,14 +19,6 @@ import { next, previous } from '@wordpress/icons';
 // Define a constant for the "All Steps" option value
 const ALL_STEPS_VALUE = '__all__';
 
-// Transition options
-const TRANSITION_OPTIONS = [
-	{ label: __( 'None', 'jetpack-forms' ), value: 'none' },
-	{ label: __( 'Fade', 'jetpack-forms' ), value: 'fade' },
-	{ label: __( 'Slide', 'jetpack-forms' ), value: 'slide' },
-	{ label: __( 'Fade & Slide', 'jetpack-forms' ), value: 'fade-slide' },
-];
-
 /**
  * Toolbar controls for managing steps within a multi-step form.
  *
@@ -34,14 +26,14 @@ const TRANSITION_OPTIONS = [
  * @param {string}   props.clientId             - Client ID of the parent contact form block.
  * @param {string}   props.selectedStepClientId - The client ID of the currently selected step (or ALL_STEPS_VALUE).
  * @param {Function} props.setParentAttributes  - Function to set attributes on the parent block.
- * @param {string}   props.stepTransition       - The current transition style for step animations (none, fade, slide, or fade-slide).
+ * @param {boolean}  props.onlyNav              - Flag to indicate if only navigation buttons should be shown.
  * @return {JSX.Element} The rendered BlockControls component.
  */
 export default function StepControls( {
 	clientId,
 	selectedStepClientId,
 	setParentAttributes,
-	stepTransition = 'fade-slide',
+	onlyNav = false,
 } ) {
 	const { insertBlock } = useDispatch( blockEditorStore );
 
@@ -70,14 +62,6 @@ export default function StepControls( {
 	const handleStepChange = useCallback(
 		newStepClientId => {
 			setParentAttributes( { selectedStepClientId: newStepClientId } );
-		},
-		[ setParentAttributes ]
-	);
-
-	// Handle transition style change
-	const handleTransitionChange = useCallback(
-		newTransitionStyle => {
-			setParentAttributes( { stepTransition: newTransitionStyle } );
 		},
 		[ setParentAttributes ]
 	);
@@ -210,78 +194,32 @@ export default function StepControls( {
 	const { label: currentStepLabel, index: currentStepIndex } = getCurrentStepInfo();
 	const isPreviewMode = selectedStepClientId !== ALL_STEPS_VALUE;
 
-	// Get the current transition label
-	const currentTransitionLabel =
-		TRANSITION_OPTIONS.find( option => option.value === stepTransition )?.label ||
-		TRANSITION_OPTIONS.find( option => option.value === 'fade-slide' ).label;
-
 	return (
 		<BlockControls>
 			<ToolbarGroup>
-				<ToolbarButton
-					onClick={ () => handleStepChange( ALL_STEPS_VALUE ) }
-					isPressed={ selectedStepClientId === ALL_STEPS_VALUE }
-				>
-					{ __( 'All Steps', 'jetpack-forms' ) }
-				</ToolbarButton>
-				<ToolbarButton
-					onClick={ () => {
-						if ( selectedStepClientId === ALL_STEPS_VALUE && steps.length > 0 ) {
-							handleStepChange( steps[ 0 ].clientId );
-						}
-					} }
-					isPressed={ selectedStepClientId !== ALL_STEPS_VALUE }
-				>
-					{ __( 'Preview', 'jetpack-forms' ) }
-				</ToolbarButton>
-
-				{ /* Add Transition Style Dropdown */ }
-				<DropdownMenu
-					label={ __( 'Transition Style', 'jetpack-forms' ) }
-					icon={ null }
-					toggleProps={ {
-						children: (
-							<>
-								{ __( 'Transition:', 'jetpack-forms' ) }
-								<span style={ { width: '8px' } } /> { /* Spacer */ }
-								{ currentTransitionLabel }
-								<span style={ { width: '8px' } } /> { /* Spacer */ }
-								<SVG
-									xmlns="http://www.w3.org/2000/svg"
-									width="12"
-									height="12"
-									viewBox="0 0 24 24"
-									fill="currentColor"
-								>
-									<Path d="M17.5 11.6L12 16l-5.5-4.4.9-1.2L12 14l4.5-3.6 1 1.2z"></Path>
-								</SVG>
-							</>
-						),
-						showTooltip: false,
-					} }
-					popoverProps={ { placement: 'bottom-start' } }
-				>
-					{ ( { onClose } ) => (
-						<MenuGroup>
-							{ TRANSITION_OPTIONS.map( ( { label, value } ) => (
-								<MenuItem
-									key={ value }
-									onClick={ () => {
-										handleTransitionChange( value );
-										onClose();
-									} }
-									isSelected={ stepTransition === value }
-									icon={ stepTransition === value ? 'yes' : null }
-								>
-									{ label }
-								</MenuItem>
-							) ) }
-						</MenuGroup>
-					) }
-				</DropdownMenu>
+				{ ! onlyNav && (
+					<>
+						<ToolbarButton
+							onClick={ () => handleStepChange( ALL_STEPS_VALUE ) }
+							isPressed={ selectedStepClientId === ALL_STEPS_VALUE }
+						>
+							{ __( 'All Steps', 'jetpack-forms' ) }
+						</ToolbarButton>
+						<ToolbarButton
+							onClick={ () => {
+								if ( selectedStepClientId === ALL_STEPS_VALUE && steps.length > 0 ) {
+									handleStepChange( steps[ 0 ].clientId );
+								}
+							} }
+							isPressed={ selectedStepClientId !== ALL_STEPS_VALUE }
+						>
+							{ __( 'Preview', 'jetpack-forms' ) }
+						</ToolbarButton>{ ' ' }
+					</>
+				) }
 
 				{ /* Step selection dropdown - only shown in Preview mode */ }
-				{ isPreviewMode && (
+				{ ! onlyNav && isPreviewMode && (
 					<DropdownMenu
 						icon={ null }
 						label={ __( 'Select step to preview', 'jetpack-forms' ) }
@@ -356,44 +294,46 @@ export default function StepControls( {
 					</>
 				) }
 			</ToolbarGroup>
-			<ToolbarGroup>
-				{ /* Add step button */ }
-				{ ! isPreviewMode ? (
-					<ToolbarButton
-						showTooltip={ true }
-						label={ __( 'Add Step', 'jetpack-forms' ) }
-						onClick={ addStepAtEnd }
-					>
-						{ __( 'Add', 'jetpack-forms' ) }
-					</ToolbarButton>
-				) : (
-					<ToolbarItem>
-						{ () => (
-							<DropdownMenu
-								icon={ null }
-								label={ __( 'Add Step', 'jetpack-forms' ) }
-								toggleProps={ {
-									children: __( 'Add', 'jetpack-forms' ),
-								} }
-								controls={ [
-									{
-										title: __( 'Add Step Before', 'jetpack-forms' ),
-										onClick: addStepBefore,
-									},
-									{
-										title: __( 'Add Step After', 'jetpack-forms' ),
-										onClick: addStepAfter,
-									},
-									{
-										title: __( 'Add Step at End', 'jetpack-forms' ),
-										onClick: addStepAtEnd,
-									},
-								] }
-							/>
-						) }
-					</ToolbarItem>
-				) }
-			</ToolbarGroup>
+			{ ! onlyNav && (
+				<ToolbarGroup>
+					{ /* Add step button */ }
+					{ ! isPreviewMode ? (
+						<ToolbarButton
+							showTooltip={ true }
+							label={ __( 'Add Step', 'jetpack-forms' ) }
+							onClick={ addStepAtEnd }
+						>
+							{ __( 'Add', 'jetpack-forms' ) }
+						</ToolbarButton>
+					) : (
+						<ToolbarItem>
+							{ () => (
+								<DropdownMenu
+									icon={ null }
+									label={ __( 'Add Step', 'jetpack-forms' ) }
+									toggleProps={ {
+										children: __( 'Add', 'jetpack-forms' ),
+									} }
+									controls={ [
+										{
+											title: __( 'Add Step Before', 'jetpack-forms' ),
+											onClick: addStepBefore,
+										},
+										{
+											title: __( 'Add Step After', 'jetpack-forms' ),
+											onClick: addStepAfter,
+										},
+										{
+											title: __( 'Add Step at End', 'jetpack-forms' ),
+											onClick: addStepAtEnd,
+										},
+									] }
+								/>
+							) }
+						</ToolbarItem>
+					) }
+				</ToolbarGroup>
+			) }
 		</BlockControls>
 	);
 }
