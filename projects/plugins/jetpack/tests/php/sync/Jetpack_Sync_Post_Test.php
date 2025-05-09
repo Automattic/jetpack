@@ -1514,11 +1514,18 @@ That was a cool video.';
 	 */
 	public function test_metadata_limit() {
 
-		$metadata = array(
+		$metadata_item_empty = (object) array(
+			'post_id'    => $this->post_id,
+			'meta_key'   => 'test_key',
+			'meta_value' => '',
+			'meta_id'    => 1,
+		);
+		$size_empty_metadata = strlen( maybe_serialize( $metadata_item_empty ) );
+		$metadata            = array(
 			(object) array(
 				'post_id'    => $this->post_id,
 				'meta_key'   => 'test_key',
-				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH - 1 ),
+				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH - $size_empty_metadata - 10 ),
 				'meta_id'    => 1,
 			),
 			(object) array(
@@ -1623,12 +1630,75 @@ That was a cool video.';
 		$posts = array( $post_1, $post_2 );
 
 		$metadata_items_number = Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC / Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH;
+		$metadata_item_empty   = (object) array(
+			'post_id'    => $this->post_id,
+			'meta_key'   => 'test_key',
+			'meta_value' => '',
+			'meta_id'    => 1,
+		);
+		$size_empty_metadata   = strlen( maybe_serialize( $metadata_item_empty ) );
+		$post_metadata_1       = array_map(
+			function ( $x ) use ( $post_id_1, $size_empty_metadata ) {
+				return (object) array(
+					'post_id'    => $post_id_1,
+					'meta_key'   => 'test_key',
+					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH - $size_empty_metadata - 10 ),
+					'meta_id'    => $x,
+				);
+			},
+			range( 0, $metadata_items_number )
+		);
+
+		$post_metadata_2 = array(
+			(object) array(
+				'post_id'    => $post_id_2,
+				'meta_key'   => 'test_key',
+				'meta_value' => 'test_value',
+				'meta_id'    => 3,
+			),
+
+		);
+
+		$metadata = array_merge( $post_metadata_1, $post_metadata_2 );
+
+		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
+		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_objects_and_metadata_by_size(
+			'post',
+			$posts,
+			$metadata,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH,
+			Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC
+		);
+
+		$this->assertEquals( $filtered_post_ids, array( $post_id_1 ) );
+		$this->assertEquals( $filtered_posts, array( $post_1 ) );
+		$this->assertEquals( $filtered_metadata, $post_metadata_1 );
+	}
+
+	public function test_filter_objects_and_metadata_by_size_returns_only_one_post_with_many_meta_value_empty() {
+
+		$post_id_1 = self::factory()->post->create();
+		$post_id_2 = self::factory()->post->create();
+
+		$post_1 = get_post( $post_id_1 );
+		$post_2 = get_post( $post_id_2 );
+
+		$posts                 = array( $post_1, $post_2 );
+		$metadata_item_empty   = (object) array(
+			'post_id'    => $this->post_id,
+			'meta_key'   => 'test_key',
+			'meta_value' => '',
+			'meta_id'    => 1,
+		);
+		$size_empty_metadata   = strlen( maybe_serialize( $metadata_item_empty ) );
+		$metadata_items_number = Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC / $size_empty_metadata + 1;
 		$post_metadata_1       = array_map(
 			function ( $x ) use ( $post_id_1 ) {
 				return (object) array(
 					'post_id'    => $post_id_1,
 					'meta_key'   => 'test_key',
-					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_META_LENGTH - 1 ),
+					'meta_value' => '',
 					'meta_id'    => $x,
 				);
 			},
