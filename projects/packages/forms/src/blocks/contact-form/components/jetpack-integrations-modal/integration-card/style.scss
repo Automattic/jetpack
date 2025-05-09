@@ -13,6 +13,7 @@
 		@media (max-width: 782px) {
 			flex-direction: column;
 			gap: 10px;
+			align-items: flex-end;
 		}
 	}
 
@@ -36,6 +37,12 @@
 		display: flex;
 		align-items: center;
 		gap: 10px;
+
+		@media (max-width: 782px) {
+			gap: 6px;
+			flex-direction: column-reverse;
+			align-items: flex-start;
+		}
 	}
 
 	&__service-icon-container {
@@ -93,7 +100,6 @@
 
 		@media (max-width: 782px) {
 			text-wrap: balance;
-			text-wrap: pretty;
 		}
 	}
 
