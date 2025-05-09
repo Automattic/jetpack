@@ -1,4 +1,7 @@
-body.toplevel_page_jetpack-forms {
+body.toplevel_page_jetpack-forms,
+body.feedback_page_jetpack-forms,
+body.jetpack_page_jetpack-forms,
+body.admin_page_jetpack-forms {
 	background-color: #fff;
 
 	#wpcontent {
@@ -32,6 +35,17 @@ body.toplevel_page_jetpack-forms {
 
 #jp-forms-dashboard .jp-forms__layout {
 
+	.jp-forms__layout-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 30px 30px 0 0;
+
+		@media (max-width: 782px) {
+			padding: 40px 20px 0 0;
+		}
+	}
+
 	.jp-forms__dashboard-tabs {
 		min-height: 100%;
 
@@ -64,21 +78,6 @@ body.toplevel_page_jetpack-forms {
 			@media (max-width: 660px) {
 				padding: 0 24px;
 			}
-		}
-
-		.components-tab-panel__tab-content {
-			background-color: var(--jp-forms-white-off);
-			min-height: 100%;
-		}
-	}
-	// TODO: This is to adjust export button position.
-	// Can remove when we update Export button location.
-	.jp-forms__layout-header {
-		position: absolute;
-
-		@media (max-width: 520px) {
-			position: static;
-			padding: 20px;
 		}
 	}
 }

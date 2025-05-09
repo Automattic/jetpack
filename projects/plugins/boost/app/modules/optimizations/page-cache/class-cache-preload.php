@@ -30,7 +30,7 @@ class Cache_Preload implements Sub_Feature, Has_Activate, Has_Deactivate, Is_Alw
 		add_action( 'jetpack_boost_preload_cornerstone', array( $this, 'preload_cornerstone' ) );
 		add_action( 'jetpack_boost_preload', array( $this, 'preload' ) );
 
-		add_action( 'post_updated', array( $this, 'handle_post_update' ), 10, 1 );
+		add_action( 'post_updated', array( $this, 'handle_post_update' ) );
 		add_action( 'jetpack_boost_invalidate_cache_success', array( $this, 'handle_cache_invalidation' ), 10, 3 );
 	}
 

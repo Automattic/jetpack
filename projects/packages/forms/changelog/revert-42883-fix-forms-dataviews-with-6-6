@@ -1,4 +1,0 @@
-Significance: major
-Type: deprecated
-
-Forms: drop WP 6.6 support in Inbox by using new format for useResizeObserver

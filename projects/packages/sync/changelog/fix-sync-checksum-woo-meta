@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Jetpack Sync: Fix checksum support for 'woocommerce_order_itemeta' table

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stable release management: do not ship source files.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: do not display comment form when comments are closed for a specific media attachment.
