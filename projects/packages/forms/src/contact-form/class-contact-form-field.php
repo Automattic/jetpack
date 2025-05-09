@@ -1459,8 +1459,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				)
 			);
 
-			$legacy_border_size   = ( isset( $outline_styles['width'] ) && is_numeric( $outline_styles['width'] ) ) ? $outline_styles['width'] . 'px' : $outline_styles['width'];
-			$legacy_border_radius = ( isset( $outline_styles['radius'] ) && is_numeric( $outline_styles['radius'] ) ) ? $outline_styles['radius'] . 'px' : $outline_styles['radius'];
+			$legacy_border_size   = $outline_styles['width'] ?? null;
+			$legacy_border_size   = is_numeric( $legacy_border_size ) ? $legacy_border_size . 'px' : $legacy_border_size;
+			$legacy_border_radius = $outline_styles['radius'] ?? null;
+			$legacy_border_radius = is_numeric( $legacy_border_radius ) ? $legacy_border_radius . 'px' : $legacy_border_radius;
 
 			$border_size = $legacy_border_size ??
 				$outline_styles['top']['width'] ??
