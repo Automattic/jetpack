@@ -1,0 +1,9 @@
+.jetpack-contact-form.is-previewing-step .wp-block-jetpack-button:has( .is-submit ),
+.jetpack-contact-form.is-previewing-step.is-last-step .wp-block-jetpack-button:has( .is-next),
+.jetpack-contact-form.is-previewing-step.is-first-step .wp-block-jetpack-button:has( .is-previous) {
+	display: none;
+}
+
+.jetpack-contact-form.is-previewing-step.is-last-step .wp-block-jetpack-button:has( .is-submit ) {
+	display: inline-block;
+}

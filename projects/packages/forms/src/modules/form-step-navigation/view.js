@@ -12,6 +12,11 @@ store( NAMESPACE, {
 			const context = getContext();
 			return context.currentStep === context.maxSteps;
 		},
+
+		get isNotLastStep() {
+			const context = getContext();
+			return context.currentStep !== context.maxSteps;
+		},
 	},
 	actions: {
 		nextStep( event ) {

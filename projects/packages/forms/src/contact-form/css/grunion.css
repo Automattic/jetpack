@@ -44,7 +44,7 @@
 
 /* Transition styles based on form context */
 
-.contact-form  button.is-hidden.wp-block-button__link {
+.contact-form .wp-block-jetpack-button:has( button.is-hidden ) {
 	display: none;
 }
 

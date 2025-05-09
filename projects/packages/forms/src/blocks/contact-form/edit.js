@@ -89,6 +89,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		hasStepBlock,
 		isEveryBlockStep,
 		selectedBlockClientId,
+		isFirstStep,
+		isLastStep,
 		innerBlocks,
 	} = useSelect(
 		select => {
@@ -100,13 +102,14 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			const title = getEditedPostAttribute( 'title' );
 			const authorId = getEditedPostAttribute( 'author' );
 			const authorEmail = authorId && getUser( authorId )?.email;
+			const stepBlocks = innerBlocksData.filter( block => block.name === 'jetpack/form-step' );
 			const submitButton = innerBlocksData.find( block => block.name === 'jetpack/button' );
-			const hasStepBlockChild = innerBlocksData.find( block => block.name === 'jetpack/form-step' );
 			const isEveryChildBlockStep = innerBlocksData.every(
 				block =>
 					block.name === 'jetpack/form-step' ||
 					block.name === 'jetpack/form-step-navigation' ||
-					block.name === 'jetpack/form-progress-indicator'
+					block.name === 'jetpack/form-progress-indicator' ||
+					block.name === 'core/paragraph'
 			);
 			if ( submitButton && ! submitButton.attributes.lock ) {
 				const lock = { move: false, remove: true };
@@ -118,13 +121,15 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				canUserInstallPlugins: canUser( 'create', 'plugins' ),
 				hasAnyInnerBlocks: innerBlocksData.length > 0,
 				postAuthorEmail: authorEmail,
-				hasStepBlock: !! hasStepBlockChild,
+				hasStepBlock: !! stepBlocks.length,
 				isEveryBlockStep: isEveryChildBlockStep,
 				selectedBlockClientId: getSelectedBlockClientId(),
+				isFirstStep: stepBlocks[ 0 ]?.clientId === selectedStepClientId,
+				isLastStep: stepBlocks[ stepBlocks.length - 1 ]?.clientId === selectedStepClientId,
 				innerBlocks: innerBlocksData,
 			};
 		},
-		[ clientId ]
+		[ clientId, selectedStepClientId ]
 	);
 
 	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
@@ -132,7 +137,13 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const wrapperRef = useRef();
 	const innerRef = useRef();
 	const blockProps = useBlockProps( { ref: wrapperRef } );
-	const formClassnames = clsx( className, 'jetpack-contact-form' );
+	const formClassnames = clsx(
+		className,
+		'jetpack-contact-form',
+		isFirstStep && 'is-first-step',
+		isLastStep && 'is-last-step',
+		hasStepBlock && selectedBlockClientId !== ALL_STEPS_VALUE && 'is-previewing-step'
+	);
 	const innerBlocksProps = useInnerBlocksProps(
 		{
 			ref: innerRef,

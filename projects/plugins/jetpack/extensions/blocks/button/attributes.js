@@ -12,6 +12,12 @@ export default {
 	uniqueId: {
 		type: 'string',
 	},
+	customVariant: {
+		type: 'string',
+	},
+	metaName: {
+		type: 'string',
+	},
 	passthroughAttributes: {
 		type: 'object',
 	},

@@ -8,12 +8,16 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
+import './editor.scss';
+
 const PREVIOUS_BUTTON_TEMPLATE = [
 	'jetpack/button',
 	{
 		element: 'button',
 		text: __( 'Previous', 'jetpack-forms' ),
 		uniqueId: 'previous-step',
+		customVariant: 'previous',
+		metaName: __( 'Previous Button', 'jetpack-forms' ),
 	},
 ];
 const NEXT_BUTTON_TEMPLATE = [
@@ -22,6 +26,8 @@ const NEXT_BUTTON_TEMPLATE = [
 		element: 'button',
 		text: __( 'Next', 'jetpack-forms' ),
 		uniqueId: 'next-step',
+		customVariant: 'next',
+		metaName: __( 'Next Button', 'jetpack-forms' ),
 	},
 ];
 
@@ -31,6 +37,8 @@ const SUBMIT_BUTTON_TEMPLATE = [
 		element: 'button',
 		text: __( 'Submit', 'jetpack-forms' ),
 		uniqueId: 'submit-step',
+		customVariant: 'submit',
+		metaName: __( 'Submit Button', 'jetpack-forms' ),
 	},
 ];
 
@@ -39,7 +47,7 @@ export default function Edit( { clientId } ) {
 
 	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
 
-	const { navigationBlocks, currentIndex, isFirstStep, isLastStep } = useSelect(
+	const { navigationBlocks, currentIndex, isFirstStep, isLastStep, saveAll } = useSelect(
 		select => {
 			const { getBlocks, getBlockParentsByBlockName } = select( blockEditorStore );
 
@@ -52,10 +60,12 @@ export default function Edit( { clientId } ) {
 					currentIndex: 1,
 					isFirstStep: false,
 					isLastStep: false,
+					saveAll: true,
 				};
 			}
 
-			const parentFormId = getBlockParentsByBlockName( clientId, [ 'jetpack/contact-form' ] )[ 0 ];
+			const parentFormId = getBlockParentsByBlockName( clientId, [ 'jetpack/form-step' ] )[ 0 ];
+
 			const formContainerBlocks = parentFormId ? getBlocks( parentFormId ) : [];
 			const formStepBlocks = formContainerBlocks.filter(
 				block => block.name === 'jetpack/form-step'
@@ -67,12 +77,16 @@ export default function Edit( { clientId } ) {
 				currentIndex: currentStepIndex,
 				isFirstStep: currentStepIndex === 0,
 				isLastStep: currentStepIndex === formStepBlocks.length - 1,
+				saveAll: false,
 			};
 		},
 		[ clientId ]
 	);
 
 	const template = useMemo( () => {
+		if ( saveAll ) {
+			return [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE, SUBMIT_BUTTON_TEMPLATE ];
+		}
 		let navTemplate = [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE ];
 		if ( isFirstStep ) {
 			navTemplate = isLastStep ? [ SUBMIT_BUTTON_TEMPLATE ] : [ NEXT_BUTTON_TEMPLATE ];
@@ -82,7 +96,7 @@ export default function Edit( { clientId } ) {
 			return [ PREVIOUS_BUTTON_TEMPLATE, SUBMIT_BUTTON_TEMPLATE ];
 		}
 		return navTemplate;
-	}, [ isFirstStep, isLastStep ] );
+	}, [ isFirstStep, isLastStep, saveAll ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: template,

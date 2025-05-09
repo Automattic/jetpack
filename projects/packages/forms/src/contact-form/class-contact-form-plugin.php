@@ -640,6 +640,10 @@ class Contact_Form_Plugin {
 			}
 			if ( 'next-step' === $id ) {
 				$tag->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
+				$tag->set_attribute( 'data-wp-class--is-hidden', 'state.isLastStep' );
+			}
+			if ( 'submit-step' === $id ) {
+				$tag->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
 			}
 		}
 
