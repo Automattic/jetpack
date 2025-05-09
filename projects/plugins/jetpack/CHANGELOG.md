@@ -2,179 +2,140 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.6-beta - 2025-05-05
-### Enhancements
-- Forms: Add tabs to forms dashboard. [#43280]
-
-### Improved compatibility
-- Enable the Top Posts block in WP Admin for Simple Sites. [#43275]
-- Sharing: Remove deprecated Skype sharing button. [#43311]
-
-### Bug fixes
-- Image Compare block: Ensure block does not overlap navigation submenu items. [#43302]
-- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
-- Social: Fix "Start for free" not working when module is OFF. [#43331]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Full Sync: Update tests related to changes in the Sync package. [#43287]
-- Jetpack Forms: Add field-file to beta blocks variation. [#43177]
-- Linting: Address final rules in WordPress Stylelint config. [#43296]
-- Linting: Do additional stylesheet cleanup. [#43247]
-- My Jetpack: Add E2E tests for onboarding. [#43305]
-- Newsletter settings: Default featured image in email to true for new sites. [#43024]
-- Remove the Jetpack submenu only if My-Jetpack is present. [#43282]
-- Return site slug in the REST /sites/%s endpoint. [#43308]
-- Shortcodes: Prevent redeclared function names with YouTube shortcode. [#43351]
-- Sitemap: Prevent PHP notice when generating sitemaps for videos. [#43333]
-- Sitemap: Reduce default limit of items per sitemap to 1000, previously 2000. [#43289]
-- Update package dependencies. [#43314] [#43320] [#43326] [#43347] [#43350] [#43355]
-
-## 14.6-a.9 - 2025-04-28
+## 14.6 - 2025-05-06
 ### Major Enhancements
 - General: Update minimum WordPress version to 6.7. [#43192]
 
 ### Enhancements
+- Add My Jetpack tour. [#42880]
+- Admin Menu: Update the icon of WooCommerce for the Woo installation. [#43029]
+- Button block: Add support for border width, style, and color. [#41147]
 - Featured Content: Add messaging to clarify that the tag name is case sensitive. [#43165]
+- Forms: Add custom hooks for integrations. [#42822]
+- Forms: Add endpoint for all integrations. [#42878]
+- Forms: Add new integrations setup modal. [#43057]
+- Forms: Add tabs to forms dashboard. [#43280]
+- Forms: Close block panels by default. [#42953]
+- Forms: Reduce default padding in form patterns. [#43124]
+- Forms: Update default forms view to dataviews. [#42329]
 - Forms: Update the email notification template. [#43093]
 - My Jetpack: Update the onboarding UI to show a single button on initial page. [#43203]
+- Newsletter Widget: Improve the display of links in the Newsletter widget. [#42645]
+- Replace video embed with VideoPress block in Media & Text block. [#42522]
+- Sharing buttons: Update legacy Twitter logos to use the X logo. [#42813]
 - Shortcode: Convert an embed code from Facebook.com to an oEmbeddable URL. [#43132]
 - Sitemaps: Use XMLWriter for a more performant sitemap generation when available. [#42767]
-
-### Bug fixes
-- Image Compare block: Ensure sticky menus hide the compare line. [#43187]
-- My Jetpack: Prevent social login from getting stuck when email input is not empty. [#43158]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Avoid an error on some invalid REST API requests when using PHP 8. [#41662]
-- Code: Remove unneeded `data:` URI components. [#43227]
-- Compatibility: Replace a deprecated function to check user capabilities. [#43246]
-- Forms: Remove unused integrations code. [#43211]
-- Geolocation: Remove module requirement. [#43159]
-- Linting: Fix more Stylelint violations. [#43213]
-- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
-- Newsletter: Remove extra `admin_init` function from `Jetpack_Newsletter_Dashboard_Widget` class. [#43085]
-- Newsletter: Update learn more link for self hosted websites. [#43212]
-- SAL_Site: Remove unused `view_hosting` field. [#43237]
-- Show the Google Analytics settings form inline under Jetpack -> Settings -> Traffic -> Google Analytics. [#43210]
-- Testing: Add more testing instructions for Jetpack 14.6. [#43273]
-- Testing: Add testing instructions prior to 14.6 release. [#43249]
-- WPCOM_JSON_API_Update_Post_v1_1_Endpoint: Fix warning when `$input['type']` does not exist. [#43180]
-
-## 14.6-a.7 - 2025-04-21
-### Enhancements
-- Forms: Add new integrations setup modal. [#43057]
-- Forms: Reduce default padding in form patterns. [#43124]
 - User: Allow user to delete themselves through the endpoint. [#43065]
 
 ### Improved compatibility
+- Add Share status support for WordPress.com sites. [#42593]
+- Blocks: Ensure all child blocks use the latest version of the Blocks API. [#42929]
+- Enable the Top Posts block in WP Admin for Simple Sites. [#43275]
 - Forms: Ensure styles are loaded when expected, preventing console warnings. [#42751]
+- Sharing: Remove deprecated Skype sharing button. [#43311]
 
 ### Bug fixes
 - Add translation context to Search menu item. [#43094]
 - Block editor: Hide blocks from non-admins when feature is not active. [#40209]
 - Blogroll block: Prevent console warnings and block validation issues when adding new items to the blogroll. [#43042]
 - Dashboard: Avoid layout issues with "Apply" button on sites using a localized version of WordPress. [#42950]
+- Forms: Ensure `render_field` returns string. [#43011]
 - Forms: Update form responses link on editor sidebar. [#43143]
+- Image Compare block: Ensure block does not overlap navigation submenu items. [#43302]
+- Image Compare block: Ensure sticky menus hide the compare line. [#43187]
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
+- My Jetpack: Prevent social login from getting stuck when email input is not empty. [#43158]
 - Open Graph: Ensure scaled images are used when specific registered image files exist on a site. [#43026]
 - Related Posts: Ensure the block is properly displayed in the editor regardless of user role. [#42967]
+- Reset access level of the post to everyone when a paywall is removed. [#42788]
+- Slideshow: Prevent images from appearing stuck to the mouse in block-based themes. [#42778]
 - Slideshow block: Ensure block preview doesn't generate an invalid API request. [#43083]
+- Social: Do not load in the Classic editor if module is off. [#43006]
+- Social: Fix "Start for free" not working when module is OFF. [#43331]
+- Star Rating: Fix padding and improve panel copy. [#42601]
+- Stats: Fix PHP TypeError. [#43072]
+- Subscriptions: Only display the dashboard widget to site admins when the Subscriptions feature is active. [#42951] [#42964]
 - VideoPress: Avoid suggesting transforming unsupported Video blocks into VideoPress blocks. [#43161]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Button Block: Prevent TypeError when handling border attributes. [#42987]
-- E2E: Fix Jetpack editor smoke test. [#43103]
-- E2E: Fix tests following WP 6.8 release. [#43105]
-- Jetpack SEO Enhancer: Ensure more performant practices when getting enabled features. [#43109]
-- Newsletters: Fix editor crash for contributors when using categories for newsletters. [#43137]
-- Resolve PHP warnings when the thumbnail is really close to 1200px (e.g. 1201px). [#43095]
-- SAL: Cast `gmt_offset` to float when retrieving offset from option to prevent type errors. [#43123]
-- Social: Remove the unused endpoint for connections post field. [#43061]
-- Theme compat: Remove duplicated code that is now served by the Classic Theme Helper package. [#43062]
-- Update package dependencies. [#43071]
-- Widgets: Deprecate the Flickr widget, as Flickr no longer supports fetching recent images from an RSS feed. [#43138]
-- Widgets: Fix warning in Upcoming Events wiget when `$event['SUMMARY']` does not exist. [#43111]
-- Write Brief: Remove partial Harper integration. [#43089]
-
-## 14.6-a.5 - 2025-04-15
-### Bug fixes
-- Stats: Fix PHP TypeError. [#43072]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Story block will use a placeholder if used outside the loop. [#41135]
-
-## 14.6-a.3 - 2025-04-14
-### Enhancements
-- Add My Jetpack tour. [#42880]
-- Admin Menu: Update the icon of WooCommerce for the Woo installation. [#43029]
-- Button block: Add support for border width, style, and color. [#41147]
-- Forms: Close block panels by default. [#42953]
-- Sharing buttons: Update legacy Twitter logos to use the X logo. [#42813]
-
-### Improved compatibility
-- Add Share status support for WordPress.com sites. [#42593]
-
-### Bug fixes
-- Forms: Ensure `render_field` returns string. [#43011]
-- Social: Do not load in the Classic editor if module is off. [#43006]
-- Subscriptions: Only display the dashboard widget to site admins when the Subscriptions feature is active. [#42951] [#42964]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add more error logging. [#42959]
+- Avoid an error on some invalid REST API requests when using PHP 8. [#41662]
+- Block editor: Add REST API endpoint for retrieving editor scripts and stylesheets. [#42314]
 - Block Editor: Use allow list in assets endpoint to control the allowed blocks types and assets enqueued. [#42835]
 - Blog Stats block: Support WordPress.com simple sites. [#43000]
+- Button Block: Prevent TypeError when handling border attributes. [#42987]
+- Code: Remove unneeded `data:` URI components. [#43227]
 - Color Scheme: Clean up `*-rgb` CSS variables. [#42960]
-- Fix accessibility of sharing buttons. [#42824]
-- Infinite Scroll: Catch an obscure PHP error when AMP is enabled. [#43022]
-- Jetpack SEO: Remove all SEO Assistant Wizard code and feature filters. [#42991]
-- Jetpack SEO Enhancer: Cancel meta and alt-text edits if auto-generation requests come back and the post status is publish(ed). [#42955]
-- Jetpack SEO Enhancer: Ensure more performant practices when getting enabled features. [#43031]
-- Jetpack SEO Enhancer: Move feature to production. [#42947]
-- Likes: Remove unused liked/like CSS class. [#42936]
-- Likes: Unify `likes-master` rendering between WordPress.com and Jetpack. [#42912]
-- Linting: Clean up various Stylelint violations. [#43010]
-- Linting: Format SCSS imports consistently. [#43018]
-- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
-- Linting: Use double colon notation for pseudo-element selectors. [#43019]
-- Remove the Jetpack submenu item. [#43012]
-- Social: Remove the unused share status endpoint. [#42963]
-- Subscriptions: Set the featured image in email option to true on module activation. [#42844]
-- Subscriptions block: Improve check for email-specific context to render the email version when actually in an email. [#42989]
-- Write Brief: Fix Harper integration for complex blocks. [#42975]
-
-## 14.6-a.1 - 2025-04-07
-### Enhancements
-- Replace video embed with VideoPress block in Media & Text block. [#42522]
-- Forms: Add custom hooks for integrations. [#42822]
-- Forms: Add endpoint for all integrations. [#42878]
-- Forms: Update default forms view to dataviews. [#42329]
-- Newsletter Widget: Improve the display of links in the Newsletter widget. [#42645]
-
-### Improved compatibility
-- Blocks: Ensure all child blocks use the latest version of the Blocks API. [#42929]
-
-### Bug fixes
-- Reset access level of the post to everyone when a paywall is removed. [#42788]
-- Slideshow: Prevent images from appearing stuck to the mouse in block-based themes. [#42778]
-- Star Rating: Fix padding and improve panel copy. [#42601]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Block editor: Add REST API endpoint for retrieving editor scripts and stylesheets. [#42314]
+- Compatibility: Replace a deprecated function to check user capabilities. [#43246]
 - Dashboard: Update WordPress logo color. [#42811]
+- E2E: Fix Jetpack editor smoke test. [#43103]
+- E2E: Fix tests following WP 6.8 release. [#43105]
+- Fix accessibility of sharing buttons. [#42824]
 - Fix type checking in the monorepo. [#42817]
 - Forms: Change path and return for form integrations endpoint. [#42826]
+- Forms: Remove unused integrations code. [#43211]
+- Full Sync: Update tests related to changes in the Sync package. [#43287]
+- Geolocation: Remove module requirement. [#43159]
+- Infinite Scroll: Catch an obscure PHP error when AMP is enabled. [#43022]
+- Jetpack Forms: Add field-file to beta blocks variation. [#43177]
 - Jetpack SEO: Change title and description for textarea placeholder and update over-limit message. [#42925]
 - Jetpack SEO: Fix bug where auto-generation would only trigger the last enabled features set by user on manual mode. [#42907]
+- Jetpack SEO: Remove all SEO Assistant Wizard code and feature filters. [#42991]
+- Jetpack SEO Enhancer: Cancel meta and alt-text edits if auto-generation requests come back and the post status is publish(ed). [#42955]
 - Jetpack SEO Enhancer: Cancel metas/alt-text updates if the post has been published. [#42904]
+- Jetpack SEO Enhancer: Ensure more performant practices when getting enabled features. [#43031]
+- Jetpack SEO Enhancer: Ensure more performant practices when getting enabled features. [#43109]
 - Jetpack SEO Enhancer: List only remaining tasks in the to-do list for the auto-generation feature. [#42805]
-- Jetpack SEO Enhancer: Trigger the auto-generation process when enabling the toggle on PrePublish sidebar. [#42797]
+- Jetpack SEO Enhancer: Move feature to production. [#42947]
 - Jetpack SEO Enhancer: Remove post publish panel loading status and fix summaries and styles. [#42899]
+- Jetpack SEO Enhancer: Trigger the auto-generation process when enabling the toggle on PrePublish sidebar. [#42797]
+- Likes: Remove unused liked/like CSS class. [#42936]
+- Likes: Unify `likes-master` rendering between WordPress.com and Jetpack. [#42912]
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Clean up various Stylelint violations. [#43010]
+- Linting: Do additional stylesheet cleanup. [#43247]
 - Linting: First pass of style coding standards. [#42734]
+- Linting: Fix more Stylelint violations. [#43213]
+- Linting: Format SCSS imports consistently. [#43018]
+- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+- My Jetpack: Add E2E tests for onboarding. [#43305]
+- Newsletter: Remove extra `admin_init` function from `Jetpack_Newsletter_Dashboard_Widget` class. [#43085]
+- Newsletter: Update learn more link for self hosted websites. [#43212]
+- Newsletters: Fix editor crash for contributors when using categories for newsletters. [#43137]
 - Newsletters: Fix selector name typo. [#42841]
+- Newsletter settings: Default featured image in email to true for new sites. [#43024]
+- Remove the Jetpack submenu item. [#43012]
+- Remove the Jetpack submenu only if My-Jetpack is present. [#43282]
 - Reset to-test.md for Jetpack 14.6. [#42871]
+- Resolve PHP warnings when the thumbnail is really close to 1200px (e.g. 1201px). [#43095]
+- Return site slug in the REST /sites/%s endpoint. [#43308]
+- SAL: Cast `gmt_offset` to float when retrieving offset from option to prevent type errors. [#43123]
+- SAL_Site: Remove unused `view_hosting` field. [#43237]
+- Shortcodes: Prevent redeclared function names with YouTube shortcode. [#43351]
+- Show the Google Analytics settings form inline under Jetpack -> Settings -> Traffic -> Google Analytics. [#43210]
+- Sitemap: Prevent PHP notice when generating sitemaps for videos. [#43333]
+- Sitemap: Reduce default limit of items per sitemap to 1000, previously 2000. [#43289]
+- Social: Remove the unused endpoint for connections post field. [#43061]
+- Social: Remove the unused share status endpoint. [#42963]
+- Story block will use a placeholder if used outside the loop. [#41135]
 - Subscribe block: Match the frontend wrapping behavior when editing. [#42869]
+- Subscriptions: Set the featured image in email option to true on module activation. [#42844]
+- Subscriptions block: Improve check for email-specific context to render the email version when actually in an email. [#42989]
+- Testing: Add more testing instructions for Jetpack 14.6. [#43273]
+- Testing: Add testing instructions prior to 14.6 release. [#43249]
 - Tests: Prevent warning when asset file doesn't exist. [#42875]
+- Theme compat: Remove duplicated code that is now served by the Classic Theme Helper package. [#43062]
 - Update package dependencies. [#42762] [#42809] [#42815]
+- Update package dependencies. [#43071]
+- Update package dependencies. [#43314] [#43320] [#43326] [#43347] [#43350] [#43355]
+- Widgets: Deprecate the Flickr widget, as Flickr no longer supports fetching recent images from an RSS feed. [#43138]
+- Widgets: Fix warning in Upcoming Events wiget when `$event['SUMMARY']` does not exist. [#43111]
+- WPCOM_JSON_API_Update_Post_v1_1_Endpoint: Fix warning when `$input['type']` does not exist. [#43180]
+- Write Brief: Fix Harper integration for complex blocks. [#42975]
 - Write Brief: Initial Harper linting. [#42905]
+- Write Brief: Remove partial Harper integration. [#43089]
 
 ## 14.5 - 2025-04-02
 ### Enhancements

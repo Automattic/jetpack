@@ -1,4 +1,4 @@
-import { numberFormat } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import type { FormatNumberFunction } from './types';
 
 const defaultConfig: Intl.NumberFormatOptions = {
@@ -20,7 +20,7 @@ const formatPercentage: FormatNumberFunction = ( number, config = defaultConfig 
 	// Force percentage
 	config.style = 'percent';
 
-	return numberFormat( number, config );
+	return formatNumber( number, { numberFormatOptions: config } );
 };
 
 export default formatPercentage;

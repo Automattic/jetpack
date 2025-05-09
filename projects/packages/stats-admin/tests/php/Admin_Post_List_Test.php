@@ -1,6 +1,7 @@
 <?php
 use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\TestCase as BaseTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class Admin_Post_List_Test extends BaseTestCase {
 	public function test_register_creates_instance() {
@@ -246,5 +247,53 @@ class Admin_Post_List_Test extends BaseTestCase {
 		$this->assertEquals( '1K', $instance->get_fallback_format_to_compact_version( 1000 ) );
 		$this->assertEquals( '1.2K', $instance->get_fallback_format_to_compact_version( 1200 ) );
 		$this->assertSame( '999', $instance->get_fallback_format_to_compact_version( 999 ) );
+	}
+
+	/**
+	 * Test the locale validation and caching.
+	 *
+	 * @dataProvider locale_provider
+	 *
+	 * @param string $input  The input locale.
+	 * @param string $output The expected output locale.
+	 *
+	 * @return void
+	 */
+	#[DataProvider( 'locale_provider' )]
+	public function test_get_validated_locale( $input, $output ) {
+		$instance = new Admin_Post_List_Column();
+
+		// Test first call
+		$this->assertEquals( $output, $instance->get_validated_locale( $input ) );
+
+		// Test caching behavior
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- This is done on purpose to ensure the second call will return the cached value.
+		$this->assertEquals( $output, $instance->get_validated_locale( $input ) );
+	}
+
+	/**
+	 * Data provider for test_get_validated_locale.
+	 *
+	 * @return array
+	 */
+	public static function locale_provider() {
+		return array(
+			'valid locale en_US'            => array(
+				'input'  => 'en_US',
+				'output' => 'en_US',
+			),
+			'invalid locale skr'            => array(
+				'input'  => 'skr',
+				'output' => 'en_US',
+			),
+			'invalid locale invalid_locale' => array(
+				'input'  => 'invalid_locale',
+				'output' => 'en_US',
+			),
+			'valid locale fr_FR'            => array(
+				'input'  => 'fr_FR',
+				'output' => 'fr_FR',
+			),
+		);
 	}
 }

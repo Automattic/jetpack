@@ -13,10 +13,13 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'exclude_file_list' => array(
+		'exclude_analysis_directory_list' => array(
+			'tests/codeception/_support/_generated/AcceptanceTesterActions.php',
+		),
+		'exclude_file_list'               => array(
 			// We have a stub for this because the real file has duplicate trait definitions.
 			'tests/php/WP_UnitTestCase_Fix.php',
 		),
-		'+stubs'            => array( 'woocommerce' ),
+		'+stubs'                          => array( 'woocommerce' ),
 	)
 );

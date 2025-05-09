@@ -96,6 +96,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 				array(
 					'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
 					'config_data'          => static::get_config_data(),
+					'load_minified_js'     => false,
 				)
 			);
 
@@ -142,6 +143,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			'config_data'          => array(),
 			'config_variable_name' => 'configData',
 			'enqueue_css'          => true,
+			'load_minified_js'     => true,
 		);
 		$options         = wp_parse_args( $options, $default_options );
 
@@ -158,10 +160,14 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			$version      = $asset['version'];
 		}
 
+		$file_extension = '.min.js';
+		if ( ! $options['load_minified_js'] ) {
+			$file_extension = '.js';
+		}
 		// Register and enqueue the script
 		wp_register_script(
 			$asset_handle,
-			plugins_url( '_inc/build/' . $asset_name . '.min.js', JETPACK__PLUGIN_FILE ),
+			plugins_url( '_inc/build/' . $asset_name . $file_extension, JETPACK__PLUGIN_FILE ),
 			$dependencies,
 			$version,
 			true

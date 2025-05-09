@@ -75,7 +75,7 @@ function getStatusFilter( urlStatus ) {
 /**
  * The DataViews implementation.
  *
- * @return {JSX.Element} The DataViews component.
+ * @return {React.JSX.Element} The DataViews component.
  */
 export default function InboxView() {
 	const [ view, setView ] = useView();

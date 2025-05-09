@@ -1,5 +1,5 @@
-import { numberFormat } from '@automattic/jetpack-components';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { formatNumber } from '@automattic/number-formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls, RichText, useBlockProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
@@ -75,7 +75,7 @@ function BlogStatsEdit( { attributes, className, setAttributes } ) {
 					<p className="jetpack-blog-stats__loading">{ __( 'Loading stats…', 'jetpack' ) }</p>
 				) : (
 					<p>
-						<span>{ numberFormat( stats ) } </span>
+						<span>{ formatNumber( stats ) } </span>
 						<RichText
 							tagName="span"
 							placeholder={ statsData === 'visitors' ? visitorsPlaceholder : viewsPlaceholder }

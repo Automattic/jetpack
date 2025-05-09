@@ -133,6 +133,17 @@ module.exports = [
 			filename: '[name].min.js', // @todo: Fix this.
 		},
 	},
+	// Build the newsletter widget separately to support translatable strings.
+	{
+		...sharedWebpackConfig,
+		entry: {
+			'newsletter-widget': './modules/subscriptions/newsletter-widget/src/index.tsx',
+		},
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.DependencyExtractionPlugin(),
+		],
+	},
 	// Build admin page JS.
 	{
 		...sharedWebpackConfig,

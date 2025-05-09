@@ -72,7 +72,14 @@ class Environment_Change_Detector {
 	 * @param string $change_type The change type.
 	 */
 	public function do_action( $is_major_change, $change_type ) {
-		do_action( 'jetpack_boost_critical_css_environment_changed', $is_major_change, $change_type );
+		do_action_deprecated(
+			'jetpack_boost_critical_css_environment_changed',
+			array( $is_major_change, $change_type ),
+			'3.20.0',
+			'jetpack_boost_environment_changed'
+		);
+
+		do_action( 'jetpack_boost_environment_changed', $is_major_change, $change_type );
 	}
 
 	public static function get_available_env_change_statuses() {

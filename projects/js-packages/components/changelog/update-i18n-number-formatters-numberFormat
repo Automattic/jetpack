@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+BREAKING: Removed `numberFormat` function. Use the `@automattic/number-formatters` package instead.

@@ -46,7 +46,10 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		$this->output_filter = new Output_Filter();
 
 		add_action( 'template_redirect', array( $this, 'start_output_filtering' ), -999999 );
+		add_action( 'jetpack_boost_lcp_invalidated', array( $this, 'handle_lcp_invalidated' ) );
 		add_action( 'wp_head', array( $this, 'add_preload_links_to_head' ) );
+
+		LCP_Invalidator::init();
 	}
 
 	/**
@@ -95,7 +98,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @return string[]
 	 */
 	public static function get_change_output_action_names() {
-		return array( 'jetpack_boost_lcp_analyzed' );
+		return array( 'jetpack_boost_lcp_invalidated', 'jetpack_boost_lcp_analyzed' );
 	}
 
 	/**
@@ -304,6 +307,13 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		}
 
 		return array( $new_buffer_start, $new_buffer_end );
+	}
+
+	/**
+	 * Handle the LCP invalidated action.
+	 */
+	public function handle_lcp_invalidated() {
+		( new LCP_Analyzer() )->start();
 	}
 
 	/**

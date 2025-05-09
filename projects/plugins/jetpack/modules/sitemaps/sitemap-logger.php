@@ -68,6 +68,10 @@ class Jetpack_Sitemap_Logger {
 		if ( ! $is_error && ! ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) ) {
 			return;
 		}
+		// Append memory usage in MB (human readable)
+		$usage    = memory_get_usage( true );
+		$usage_mb = round( $usage / MB_IN_BYTES, 2 );
+		$message .= ' [Memory usage: ' . $usage_mb . ' MB]';
 		error_log( $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	}
 
