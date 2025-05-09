@@ -112,7 +112,7 @@ export default function useFormStyleOutlineClassesAndStyles( {
 				// To determine the actual max, we'd need to know the height of the input and divide by 2
 				// to get the max border radius. Perhaps it can be a future improvement!
 				'--jetpack--contact-form--notch-width':
-					'min(100px, max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)))',
+					'max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius))',
 			};
 		}
 		if ( formStyle === FORM_STYLE.ANIMATED ) {
