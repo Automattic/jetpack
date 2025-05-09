@@ -6,14 +6,13 @@
 	margin: 0 auto;
 	content: '';
 	width: 100%;
+	background-color: var( --wp--preset--color--secondary, var( --wp--preset--color--background, var( --jp-form-progress-bg-color, var( --progress-bg-color ) ) ) );
 
 	&::before {
 		content: '';
 		display: block;
 		height: 100%;
-		background-color: #333;
-		opacity: 75%;
-		filter: invert( 85%);
+		background-color: var( --wp--preset--color--primary, var( --wp--preset--color--accent, var( --jp-form-progress-color, var( --progress-color ) ) ) );
 		border-radius: 4px;
 		width: var(--jp-form-progress-value, 1%);
 	}
