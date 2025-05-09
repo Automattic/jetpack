@@ -1,13 +1,16 @@
-import { SVG, G, Rect, Path } from '@wordpress/primitives';
+import { __ } from '@wordpress/i18n';
+import { SVG, G, Rect, Path, SVGProps } from '@wordpress/primitives';
 
-const CreativeMailIcon = props => (
+const CreativeMailIcon = ( props: SVGProps & { width?: number; height?: number } ) => (
 	<SVG
 		{ ...props }
-		width="30"
-		height="30"
+		width={ props.width || 30 }
+		height={ props.height || 30 }
 		viewBox="0 0 258 258"
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
+		role="img"
+		aria-label={ __( 'Creative Mail icon', 'jetpack-forms' ) }
 	>
 		<G clipPath="url(#clip0)">
 			<Rect width="258" height="258" fill="#F2EFF8" />

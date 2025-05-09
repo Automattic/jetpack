@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-import { Modal, Button } from '@wordpress/components';
+import { Modal, Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -24,13 +24,7 @@ const FirstTimeModal = ( { onClose } ) => {
 							'jetpack'
 						),
 						{
-							docLink: (
-								<a
-									href={ getRedirectUrl( supportLinkSource ) }
-									target="_blank"
-									rel="noopener noreferrer"
-								/>
-							),
+							docLink: <ExternalLink href={ getRedirectUrl( supportLinkSource ) } />,
 						}
 					) }
 				</p>
@@ -53,10 +47,8 @@ const FirstTimeModal = ( { onClose } ) => {
 						),
 						{
 							requirementsLink: (
-								<a
+								<ExternalLink
 									href={ getRedirectUrl( 'jetpack-support-donation-block-stripe-reqs' ) }
-									target="_blank"
-									rel="noopener noreferrer"
 								/>
 							),
 						}

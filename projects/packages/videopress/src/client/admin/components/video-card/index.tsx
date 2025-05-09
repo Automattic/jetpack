@@ -5,10 +5,10 @@ import {
 	Text,
 	Button,
 	Title,
-	numberFormat,
 	useBreakpointMatch,
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -84,7 +84,7 @@ export const VideoCard = ( {
 		? sprintf(
 				/* translators: placeholder is a number of plays */
 				__( '%s plays', 'jetpack-videopress-pkg' ),
-				numberFormat( plays )
+				formatNumber( plays )
 		  )
 		: '';
 	const [ anchor, setAnchor ] = useState( null );
