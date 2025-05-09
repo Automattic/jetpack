@@ -64,7 +64,11 @@ export default function Edit( { clientId } ) {
 				};
 			}
 
-			const parentFormId = getBlockParentsByBlockName( clientId, [ 'jetpack/form-step' ] )[ 0 ];
+			let parentFormId = getBlockParentsByBlockName( clientId, [ 'jetpack/step-container' ] )[ 0 ];
+
+			if ( ! parentFormId ) {
+				parentFormId = getBlockParentsByBlockName( clientId, [ 'jetpack/contact-form' ] )[ 0 ];
+			}
 
 			const formContainerBlocks = parentFormId ? getBlocks( parentFormId ) : [];
 			const formStepBlocks = formContainerBlocks.filter(

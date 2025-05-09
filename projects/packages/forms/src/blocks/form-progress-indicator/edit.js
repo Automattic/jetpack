@@ -14,9 +14,18 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 			const formAttributes = getBlockAttributes( parentFormId );
 			const selectedStepClientId = formAttributes?.selectedStepClientId;
 			const formContainerBlocks = parentFormId ? getBlocks( parentFormId ) : [];
-			const formStepBlocks = formContainerBlocks.filter(
+
+			let formStepBlocks = formContainerBlocks.filter(
 				block => block.name === 'jetpack/form-step'
 			);
+
+			if ( formStepBlocks.length === 0 ) {
+				const formStepContainer = formContainerBlocks.filter(
+					block => block.name === 'jetpack/step-container'
+				)[ 0 ];
+
+				formStepBlocks = formStepContainer ? getBlocks( formStepContainer.clientId ) : [];
+			}
 
 			// return the index of the selected step
 			const selectedStepIndex = formStepBlocks.findIndex(

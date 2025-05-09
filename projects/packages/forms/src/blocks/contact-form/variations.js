@@ -70,60 +70,69 @@ const variations = compact( [
 				},
 			],
 			[
-				'jetpack/form-step',
-				{ title: __( 'Contact Information', 'jetpack-forms' ) },
-				[
-					[ 'jetpack/field-name', { required: true, label: __( 'Full Name', 'jetpack-forms' ) } ],
-					[
-						'jetpack/field-email',
-						{ required: true, label: __( 'Email Address', 'jetpack-forms' ) },
-					],
-					[ 'jetpack/field-telephone', { label: __( 'Phone Number', 'jetpack-forms' ) } ],
-					[ 'jetpack/form-step-navigation' ],
-				],
-			],
-			[
-				'jetpack/form-step',
-				{ title: __( 'Additional Details', 'jetpack-forms' ) },
+				'jetpack/step-container',
+				{},
 				[
 					[
-						'jetpack/field-select',
-						{
-							label: __( 'How did you hear about us?', 'jetpack-forms' ),
-							options: [
-								__( 'Search Engine', 'jetpack-forms' ),
-								__( 'Social Media', 'jetpack-forms' ),
-								__( 'Recommendation', 'jetpack-forms' ),
-								__( 'Advertisement', 'jetpack-forms' ),
-								__( 'Other', 'jetpack-forms' ),
+						'jetpack/form-step',
+						{ title: __( 'Contact Information', 'jetpack-forms' ) },
+						[
+							[
+								'jetpack/field-name',
+								{ required: true, label: __( 'Full Name', 'jetpack-forms' ) },
 							],
-						},
+							[
+								'jetpack/field-email',
+								{ required: true, label: __( 'Email Address', 'jetpack-forms' ) },
+							],
+							[ 'jetpack/field-telephone', { label: __( 'Phone Number', 'jetpack-forms' ) } ],
+							[ 'jetpack/form-step-navigation' ],
+						],
 					],
 					[
-						'jetpack/field-textarea',
-						{ label: __( 'What can we help you with?', 'jetpack-forms' ), required: true },
+						'jetpack/form-step',
+						{ title: __( 'Additional Details', 'jetpack-forms' ) },
+						[
+							[
+								'jetpack/field-select',
+								{
+									label: __( 'How did you hear about us?', 'jetpack-forms' ),
+									options: [
+										__( 'Search Engine', 'jetpack-forms' ),
+										__( 'Social Media', 'jetpack-forms' ),
+										__( 'Recommendation', 'jetpack-forms' ),
+										__( 'Advertisement', 'jetpack-forms' ),
+										__( 'Other', 'jetpack-forms' ),
+									],
+								},
+							],
+							[
+								'jetpack/field-textarea',
+								{ label: __( 'What can we help you with?', 'jetpack-forms' ), required: true },
+							],
+							[ 'jetpack/form-step-navigation' ],
+						],
 					],
-					[ 'jetpack/form-step-navigation' ],
-				],
-			],
-			[
-				'jetpack/form-step',
-				{ title: __( 'Preferences', 'jetpack-forms' ) },
-				[
 					[
-						'jetpack/field-select',
-						{
-							label: __( 'Preferred contact method', 'jetpack-forms' ),
-							options: [ __( 'Email', 'jetpack-forms' ), __( 'Phone', 'jetpack-forms' ) ],
-						},
+						'jetpack/form-step',
+						{ title: __( 'Preferences', 'jetpack-forms' ) },
+						[
+							[
+								'jetpack/field-select',
+								{
+									label: __( 'Preferred contact method', 'jetpack-forms' ),
+									options: [ __( 'Email', 'jetpack-forms' ), __( 'Phone', 'jetpack-forms' ) ],
+								},
+							],
+							[
+								'jetpack/field-textarea',
+								{
+									label: __( 'Additional notes or preferences', 'jetpack-forms' ),
+								},
+							],
+							[ 'jetpack/form-step-navigation' ],
+						],
 					],
-					[
-						'jetpack/field-textarea',
-						{
-							label: __( 'Additional notes or preferences', 'jetpack-forms' ),
-						},
-					],
-					[ 'jetpack/form-step-navigation' ],
 				],
 			],
 		],

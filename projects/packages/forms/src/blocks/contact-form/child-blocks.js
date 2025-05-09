@@ -17,6 +17,8 @@ import FormProgressIndicatorEdit from '../form-progress-indicator/edit';
 import FormProgressIndicatorSave from '../form-progress-indicator/save';
 import StepEdit from '../step/edit';
 import StepSave from '../step/save';
+import StepContainerEdit from '../step-container/edit';
+import StepContainerSave from '../step-container/save';
 import StepNavigationEdit from '../step-navigation/edit';
 import StepNavigationSave from '../step-navigation/save';
 import JetpackField from './components/jetpack-field';
@@ -819,6 +821,56 @@ export const childBlocks = [
 		},
 	},
 	{
+		name: 'step-container',
+		settings: {
+			apiVersion: 3,
+			title: __( 'Step Container', 'jetpack-forms' ),
+			category: 'contact-form',
+			description: __( 'A container that organizes multiple form steps.', 'jetpack-forms' ),
+			icon: {
+				foreground: getIconColor(),
+				src: renderMaterialIcon(
+					<Path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" />
+				),
+			},
+			parent: [ 'jetpack/contact-form' ],
+			supports: {
+				html: false,
+				reusable: false,
+				align: true,
+				color: {
+					gradients: true,
+					link: true,
+					background: true,
+				},
+				spacing: {
+					padding: true,
+					margin: true,
+				},
+			},
+			attributes: {
+				align: {
+					type: 'string',
+				},
+				backgroundColor: {
+					type: 'string',
+				},
+				gradient: {
+					type: 'string',
+				},
+				textColor: {
+					type: 'string',
+				},
+				style: {
+					type: 'object',
+				},
+			},
+			edit: StepContainerEdit,
+			save: StepContainerSave,
+			example: {},
+		},
+	},
+	{
 		name: 'form-step',
 		settings: {
 			apiVersion: 3,
@@ -829,7 +881,7 @@ export const childBlocks = [
 				foreground: getIconColor(),
 				src: <Icon icon={ pullquote } />,
 			},
-			parent: [ 'jetpack/contact-form' ],
+			parent: [ 'jetpack/contact-form', 'jetpack/step-container' ],
 			supports: {
 				html: false,
 				reusable: false,

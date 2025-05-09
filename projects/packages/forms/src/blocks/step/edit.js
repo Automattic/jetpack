@@ -69,9 +69,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			const { getBlocks, getBlockParentsByBlockName, getBlockAttributes } =
 				select( blockEditorStore );
 
-			const parentClientId = getBlockParentsByBlockName( clientId, [
-				'jetpack/contact-form',
+			let parentClientId = getBlockParentsByBlockName( clientId, [
+				'jetpack/step-container',
 			] )[ 0 ];
+
+			if ( ! parentClientId ) {
+				parentClientId = getBlockParentsByBlockName( clientId, [ 'jetpack/contact-form' ] )[ 0 ];
+			}
+
 			const parentContainerBlocks = parentClientId ? getBlocks( parentClientId ) : [];
 			const parentAttributes = parentClientId ? getBlockAttributes( parentClientId ) : null;
 			const parentStepBlocks = parentContainerBlocks.filter(

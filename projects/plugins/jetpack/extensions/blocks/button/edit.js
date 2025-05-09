@@ -72,7 +72,13 @@ export function ButtonEdit( props ) {
 	} );
 
 	useEffect( () => {
+		if ( ! clientId ) {
+			return;
+		}
 		if ( ! metaName ) {
+			return;
+		}
+		if ( metadata?.name === metaName ) {
 			return;
 		}
 		updateBlockAttributes( clientId, {
