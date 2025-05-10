@@ -87,11 +87,11 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 			return {
 				currentIndex: currentStepIndex,
-				selectedStepClientId: getActivePreviewStepId(),
-				isPreview: isPreviewMode(),
+				selectedStepClientId: getActivePreviewStepId( ancestorFormClientId ),
+				isPreview: isPreviewMode( ancestorFormClientId ),
 			};
 		},
-		[ clientId, allStepsInForm ] // Dependencies updated
+		[ clientId, allStepsInForm, ancestorFormClientId ] // Dependencies updated
 	);
 
 	// Only render the step content if it's the selected one or if "All Steps" is selected.
@@ -115,7 +115,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					clientId={ clientId }
 				/>
 			</div>
-			<StepControls clientId={ clientId } onlyNav={ true } isStep={ true } />
+			<StepControls formClientId={ ancestorFormClientId } onlyNav={ true } isStep={ true } />
 		</>
 	);
 }

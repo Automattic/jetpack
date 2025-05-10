@@ -19,27 +19,25 @@ import { ALL_STEPS_VALUE, STORE_NAME as PREVIEW_STORE_NAME } from '../../../../s
 /**
  * Toolbar controls for managing steps within a multi-step form.
  *
- * @param {object}  props          - Component props.
- * @param {string}  props.clientId - Client ID of the parent contact form block.
- * @param {boolean} props.onlyNav  - Flag to indicate if only navigation buttons should be shown.
- * @param {boolean} props.isStep   - Flag to indicate if the current block is a step.
+ * @param {object}  props              - Component props.
+ * @param {string}  props.formClientId - Client ID of the root contact form block.
+ * @param {boolean} props.onlyNav      - Flag to indicate if only navigation buttons should be shown.
+ * @param {boolean} props.isStep       - Flag to indicate if the current block is a step (controls are for a step).
  * @return {JSX.Element} The rendered BlockControls component.
  */
-export default function StepControls( { clientId, onlyNav = false, isStep = false } ) {
-	const { setActivePreviewStepId } = useDispatch( PREVIEW_STORE_NAME );
+export default function StepControls( { formClientId, onlyNav = false, isStep = false } ) {
+	const { setActivePreviewStepId, showAllSteps } = useDispatch( PREVIEW_STORE_NAME );
 
 	const { steps, isFirstStep, isLastStep, selectedBlockClientId, selectedStepId, isPreview } =
 		useSelect(
 			select => {
-				const { getBlocks, getSelectedBlockClientId, getBlockParentsByBlockName } =
-					select( blockEditorStore );
+				const { getBlocks, getSelectedBlockClientId } = select( blockEditorStore );
 				const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
 
-				const parentIds = getBlockParentsByBlockName( clientId, 'jetpack/contact-form' );
-				const formId = parentIds.length ? parentIds[ 0 ] : clientId;
+				const currentFormId = formClientId;
 
-				const selectedStepClientId = getActivePreviewStepId();
-				const innerBlocks = getBlocks( formId );
+				const selectedStepClientIdForForm = getActivePreviewStepId( currentFormId );
+				const innerBlocks = getBlocks( currentFormId );
 
 				let stepBlocks = innerBlocks.filter( block => block.name === 'jetpack/form-step' );
 
@@ -52,15 +50,14 @@ export default function StepControls( { clientId, onlyNav = false, isStep = fals
 
 				return {
 					steps: stepBlocks,
-					formClientId: formId,
-					selectedStepId: selectedStepClientId,
-					isPreview: isPreviewMode(),
-					isFirstStep: stepBlocks[ 0 ]?.clientId === selectedStepClientId,
-					isLastStep: stepBlocks[ stepBlocks.length - 1 ]?.clientId === selectedStepClientId,
-					selectedBlockClientId: getSelectedBlockClientId(),
+					selectedStepId: selectedStepClientIdForForm,
+					isPreview: isPreviewMode( currentFormId ),
+					isFirstStep: stepBlocks[ 0 ]?.clientId === selectedStepClientIdForForm,
+					isLastStep: stepBlocks[ stepBlocks.length - 1 ]?.clientId === selectedStepClientIdForForm,
+					selectedBlockClientId: getSelectedBlockClientId(), // Global selection
 				};
 			},
-			[ clientId ]
+			[ formClientId ] // Only formClientId is needed for PREVIEW_STORE_NAME related data.
 		);
 
 	const { selectBlock } = useDispatch( 'core/block-editor' );
@@ -68,12 +65,20 @@ export default function StepControls( { clientId, onlyNav = false, isStep = fals
 	// Handle step selection change - directly update the parent attribute.
 	const handleStepChange = useCallback(
 		newStepClientId => {
-			setActivePreviewStepId( newStepClientId );
-			if ( isStep ) {
+			// Pass formClientId to the action
+			if ( newStepClientId === ALL_STEPS_VALUE ) {
+				showAllSteps( formClientId );
+			} else {
+				setActivePreviewStepId( formClientId, newStepClientId );
+			}
+			// If these controls are for a step, and we are changing the preview to this step,
+			// ensure this step block is also selected in the editor's list view.
+			// However, if newStepClientId is ALL_STEPS_VALUE, we don't select a specific block.
+			if ( isStep && newStepClientId !== ALL_STEPS_VALUE ) {
 				selectBlock( newStepClientId );
 			}
 		},
-		[ setActivePreviewStepId, selectBlock, isStep ]
+		[ setActivePreviewStepId, showAllSteps, selectBlock, isStep, formClientId ] // Added formClientId and showAllSteps
 	);
 
 	// Function to add a new step at the end
@@ -87,45 +92,46 @@ export default function StepControls( { clientId, onlyNav = false, isStep = fals
 
 	// Sync List View selection with step preview
 	useEffect( () => {
-		// Don't update if we're in "All Steps" view
-		if ( ! isPreview ) {
+		// Don't update if we're in "All Steps" view or if these controls are part of a step itself.
+		if ( ! isPreview || isStep ) {
 			return;
 		}
 
-		if ( isStep ) {
-			return;
-		}
-
-		// Check if the selected block is one of our steps
+		// Check if the selected block is one of our steps (relevant to the current form)
 		const isStepSelected = steps.some( step => step.clientId === selectedBlockClientId );
 
-		// If a step is selected in List View but it's different from our current preview, update it
+		// If a step is selected in List View but it's different from our current preview for this form, update it
 		if ( isStepSelected && selectedBlockClientId !== selectedStepId ) {
 			handleStepChange( selectedBlockClientId );
 		}
-	}, [ selectedBlockClientId, steps, selectedStepId, handleStepChange, isStep, isPreview ] );
+	}, [
+		selectedBlockClientId,
+		steps,
+		selectedStepId,
+		handleStepChange,
+		isStep,
+		isPreview,
+		formClientId,
+	] ); // Added formClientId
 
 	// Effect to validate selectedStepId when steps change (e.g., a step is deleted)
 	useEffect( () => {
 		if ( ! steps || steps.length === 0 ) {
-			// If we have no steps, and a step selection still exists, clear it.
-			// Keep ALL_STEPS_VALUE if it's already set.
+			// If we have no steps, and a step selection still exists for this form, clear it.
 			if ( isPreview ) {
-				setActivePreviewStepId( ALL_STEPS_VALUE );
+				showAllSteps( formClientId );
 			}
 			return;
 		}
 
-		// Check if the current selection is actually invalid (i.e., not ALL_STEPS and not in the current steps array)
 		const isTrulyInvalidSelection =
 			selectedStepId !== ALL_STEPS_VALUE &&
 			! steps.some( step => step.clientId === selectedStepId );
 
-		// If the current selection is truly invalid (e.g., selected step was deleted), default to the first step.
 		if ( isTrulyInvalidSelection ) {
-			setActivePreviewStepId( steps[ 0 ].clientId );
+			setActivePreviewStepId( formClientId, steps[ 0 ].clientId );
 		}
-	}, [ steps, selectedStepId, setActivePreviewStepId, isPreview ] );
+	}, [ steps, selectedStepId, setActivePreviewStepId, showAllSteps, isPreview, formClientId ] ); // Added formClientId and showAllSteps
 
 	// Determine the current step label and index
 	const getCurrentStepInfo = useCallback( () => {

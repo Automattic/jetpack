@@ -82,13 +82,16 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	const formStepsFromHook = useFormSteps( clientId );
 
-	const { selectedStepClientId, isPreview } = useSelect( select => {
-		const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
-		return {
-			selectedStepClientId: getActivePreviewStepId(),
-			isPreview: isPreviewMode(),
-		};
-	}, [] );
+	const { selectedStepClientId, isPreview } = useSelect(
+		select => {
+			const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
+			return {
+				selectedStepClientId: getActivePreviewStepId( clientId ),
+				isPreview: isPreviewMode( clientId ),
+			};
+		},
+		[ clientId ]
+	);
 
 	const {
 		postTitle,
@@ -248,10 +251,15 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	}, [ innerBlocks, clientId, replaceInnerBlocks, isEveryBlockStep, formStepsFromHook ] );
 
 	useEffect( () => {
-		if ( variationName === 'multistep' ) {
+		// If the current variationName already matches the state of hasStepBlock, do nothing.
+		if (
+			( variationName === 'multistep' && hasStepBlock ) ||
+			( variationName === 'default' && ! hasStepBlock )
+		) {
 			return;
 		}
 
+		// Otherwise, update variationName based on hasStepBlock.
 		if ( hasStepBlock ) {
 			setAttributes( { variationName: 'multistep' } );
 		} else {
@@ -284,7 +292,14 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		prevSelectedBlockClientIdRef.current = selectedBlockClientId;
 
 		// Keep dependencies, but logic now filters based on actual selectedBlockClientId changes
-	}, [ selectedBlockClientId, selectedStepClientId, innerBlocks, setAttributes, isPreview ] );
+	}, [
+		selectedBlockClientId,
+		selectedStepClientId,
+		innerBlocks,
+		setAttributes,
+		isPreview,
+		clientId,
+	] );
 
 	let elt;
 
@@ -312,7 +327,9 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	} else {
 		elt = (
 			<>
-				<BlockControls>{ hasStepBlock && <StepControls clientId={ clientId } /> }</BlockControls>
+				<BlockControls>
+					{ hasStepBlock && <StepControls formClientId={ clientId } /> }
+				</BlockControls>
 				<InspectorControls>
 					<PanelBody
 						title={ __( 'Manage responses', 'jetpack-forms' ) }

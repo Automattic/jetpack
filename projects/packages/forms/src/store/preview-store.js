@@ -4,42 +4,51 @@ import { registerStore } from '@wordpress/data';
 const ALL_STEPS_VALUE = '__all__';
 
 const DEFAULT_STATE = {
-	activePreviewStepId: ALL_STEPS_VALUE,
+	forms: {}, // Store preview state per form
 };
 
 const actions = {
-	setActivePreviewStepId( clientId ) {
+	setActivePreviewStepId( formClientId, stepClientId ) {
 		return {
 			type: 'SET_ACTIVE_PREVIEW_STEP_ID',
-			payload: { clientId },
+			payload: { formClientId, stepClientId },
 		};
 	},
-	showAllSteps() {
+	showAllSteps( formClientId ) {
 		return {
-			type: 'SET_ACTIVE_PREVIEW_STEP_ID', // Same action type, different payload
-			payload: { clientId: ALL_STEPS_VALUE },
+			type: 'SET_ACTIVE_PREVIEW_STEP_ID', // Same action type
+			payload: { formClientId, stepClientId: ALL_STEPS_VALUE },
 		};
 	},
 };
 
 const reducer = ( state = DEFAULT_STATE, action ) => {
 	switch ( action.type ) {
-		case 'SET_ACTIVE_PREVIEW_STEP_ID':
+		case 'SET_ACTIVE_PREVIEW_STEP_ID': {
+			const { formClientId, stepClientId } = action.payload;
 			return {
 				...state,
-				activePreviewStepId: action.payload.clientId,
+				forms: {
+					...state.forms,
+					[ formClientId ]: {
+						...( state.forms[ formClientId ] || {} ),
+						activePreviewStepId: stepClientId,
+					},
+				},
 			};
+		}
 		default:
 			return state;
 	}
 };
 
 const selectors = {
-	getActivePreviewStepId( state ) {
-		return state.activePreviewStepId;
+	getActivePreviewStepId( state, formClientId ) {
+		return state.forms[ formClientId ]?.activePreviewStepId || ALL_STEPS_VALUE;
 	},
-	isPreviewMode( state ) {
-		return state.activePreviewStepId !== ALL_STEPS_VALUE;
+	isPreviewMode( state, formClientId ) {
+		const activeStep = state.forms[ formClientId ]?.activePreviewStepId;
+		return activeStep !== undefined && activeStep !== ALL_STEPS_VALUE;
 	},
 };
 
