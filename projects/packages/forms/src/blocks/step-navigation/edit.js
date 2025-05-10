@@ -7,6 +7,7 @@ import { createBlock } from '@wordpress/blocks';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import useFormSteps from '../../hooks/use-form-steps';
 
 import './editor.scss';
 
@@ -47,33 +48,47 @@ export default function Edit( { clientId } ) {
 
 	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
 
+	const { ancestorStepClientId, ancestorFormClientId } = useSelect(
+		select => {
+			const { getBlockParentsByBlockName } = select( blockEditorStore );
+			const stepParentArray = getBlockParentsByBlockName( clientId, [ 'jetpack/form-step' ] );
+			let formParentClientId = null;
+
+			if ( stepParentArray.length > 0 ) {
+				// Navigation is inside a step, get the form parent of that step
+				const formParentArray = getBlockParentsByBlockName( stepParentArray[ 0 ], [
+					'jetpack/contact-form',
+				] );
+				if ( formParentArray.length > 0 ) {
+					formParentClientId = formParentArray[ 0 ];
+				}
+			} else {
+				// Navigation is not inside a step, get its direct form parent
+				const formParentArray = getBlockParentsByBlockName( clientId, [ 'jetpack/contact-form' ] );
+				if ( formParentArray.length > 0 ) {
+					formParentClientId = formParentArray[ 0 ];
+				}
+			}
+
+			return {
+				ancestorStepClientId: stepParentArray.length > 0 ? stepParentArray[ 0 ] : null,
+				ancestorFormClientId: formParentClientId,
+			};
+		},
+		[ clientId ]
+	);
+
+	const allStepsInForm = useFormSteps( ancestorFormClientId );
+
 	const { navigationBlocks, currentIndex, isFirstStep, isLastStep, saveAll } = useSelect(
 		select => {
-			const { getBlocks, getBlockParentsByBlockName } = select( blockEditorStore );
+			const { getBlocks } = select( blockEditorStore );
+			const currentNavigationBlocks = getBlocks( clientId );
 
-			const stepId = getBlockParentsByBlockName( clientId, [ 'jetpack/form-step' ] )[ 0 ];
-
-			if ( ! stepId ) {
-				const parentFormId = getBlockParentsByBlockName( clientId, [
-					'jetpack/contact-form',
-				] )[ 0 ];
-				const formBlocks = parentFormId ? getBlocks( parentFormId ) : [];
-				const formContainerBlocks = formBlocks.filter(
-					block => block.name === 'jetpack/step-container'
-				);
-
-				if ( formContainerBlocks.length === 0 ) {
-					return {
-						navigationBlocks: formBlocks,
-						currentIndex: 1,
-						isFirstStep: false,
-						isLastStep: false,
-						saveAll: true,
-					};
-				}
-
+			if ( ! ancestorStepClientId ) {
+				// Logic for when navigation is not inside a specific step (saveAll scenario)
 				return {
-					navigationBlocks: getBlocks( formContainerBlocks[ 0 ].clientId ),
+					navigationBlocks: currentNavigationBlocks,
 					currentIndex: 1,
 					isFirstStep: false,
 					isLastStep: false,
@@ -81,27 +96,20 @@ export default function Edit( { clientId } ) {
 				};
 			}
 
-			let parentFormId = getBlockParentsByBlockName( clientId, [ 'jetpack/step-container' ] )[ 0 ];
-
-			if ( ! parentFormId ) {
-				parentFormId = getBlockParentsByBlockName( clientId, [ 'jetpack/contact-form' ] )[ 0 ];
-			}
-
-			const formContainerBlocks = parentFormId ? getBlocks( parentFormId ) : [];
-			const formStepBlocks = formContainerBlocks.filter(
-				block => block.name === 'jetpack/form-step'
+			// Logic for when navigation is inside a step
+			const currentStepIndex = allStepsInForm.findIndex(
+				block => block.clientId === ancestorStepClientId
 			);
-			const currentStepIndex = formStepBlocks.findIndex( block => block.clientId === stepId );
 
 			return {
-				navigationBlocks: getBlocks( clientId ),
+				navigationBlocks: currentNavigationBlocks,
 				currentIndex: currentStepIndex,
 				isFirstStep: currentStepIndex === 0,
-				isLastStep: currentStepIndex === formStepBlocks.length - 1,
+				isLastStep: currentStepIndex === allStepsInForm.length - 1,
 				saveAll: false,
 			};
 		},
-		[ clientId ]
+		[ clientId, allStepsInForm, ancestorStepClientId ] // Updated dependencies
 	);
 
 	const template = useMemo( () => {

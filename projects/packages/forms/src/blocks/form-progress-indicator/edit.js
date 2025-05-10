@@ -1,6 +1,7 @@
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import useFormSteps from '../../hooks/use-form-steps';
 import { STORE_NAME as PREVIEW_STORE_NAME } from '../../store/preview-store';
 import './editor.scss';
 
@@ -13,45 +14,39 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 		};
 	}, [] );
 
-	const { steps, progress } = useSelect(
+	const { parentFormId } = useSelect(
 		select => {
-			const { getBlocks, getBlockParentsByBlockName } = select( blockEditorStore );
+			const { getBlockParentsByBlockName } = select( blockEditorStore );
+			return {
+				parentFormId: getBlockParentsByBlockName( clientId, [ 'jetpack/contact-form' ] )[ 0 ],
+			};
+		},
+		[ clientId ]
+	);
 
-			const parentFormId = getBlockParentsByBlockName( clientId, [ 'jetpack/contact-form' ] )[ 0 ];
-			const formContainerBlocks = parentFormId ? getBlocks( parentFormId ) : [];
+	const steps = useFormSteps( parentFormId );
 
-			let formStepBlocks = formContainerBlocks.filter(
-				block => block.name === 'jetpack/form-step'
-			);
-
-			if ( formStepBlocks.length === 0 ) {
-				const formStepContainer = formContainerBlocks.filter(
-					block => block.name === 'jetpack/step-container'
-				)[ 0 ];
-
-				formStepBlocks = formStepContainer ? getBlocks( formStepContainer.clientId ) : [];
-			}
+	const { progress } = useSelect(
+		() => {
 			// So we don't devide by zero.
-			const numberOfSteps = formStepBlocks.length ? formStepBlocks.length : 1;
+			const numberOfSteps = steps.length ? steps.length : 1;
 
 			if ( ! isPreview ) {
+				// In the editor, when not previewing a specific step,
+				// show progress as if the first step is active.
 				return {
-					steps: formStepBlocks,
 					progress: ( 1 / numberOfSteps ) * 100,
 				};
 			}
 
 			// return the index of the selected step
-			const selectedStepIndex = formStepBlocks.findIndex(
-				block => block.clientId === selectedStepClientId
-			);
+			const selectedStepIndex = steps.findIndex( block => block.clientId === selectedStepClientId );
 
 			return {
-				steps: formStepBlocks,
 				progress: ( ( selectedStepIndex + 1 ) / numberOfSteps ) * 100,
 			};
 		},
-		[ clientId, selectedStepClientId, isPreview ]
+		[ steps, selectedStepClientId, isPreview ] // steps is now a dependency
 	);
 
 	return (

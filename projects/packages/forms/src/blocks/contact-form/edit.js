@@ -26,6 +26,7 @@ import { useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
+import useFormSteps from '../../hooks/use-form-steps';
 import { STORE_NAME as PREVIEW_STORE_NAME } from '../../store/preview-store';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
@@ -79,6 +80,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
+	const formStepsFromHook = useFormSteps( clientId );
+
 	const { selectedStepClientId, isPreview } = useSelect( select => {
 		const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
 		return {
@@ -109,20 +112,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			const authorId = getEditedPostAttribute( 'author' );
 			const authorEmail = authorId && getUser( authorId )?.email;
 
-			let stepBlocks = innerBlocksData.filter( block => block.name === 'jetpack/form-step' );
-			if ( stepBlocks.length === 0 ) {
-				const stepContainerBlock = innerBlocksData.filter(
-					block => block.name === 'jetpack/step-container'
-				)[ 0 ];
-
-				if ( stepContainerBlock ) {
-					const innerstepContainerBlocks = getBlocks( stepContainerBlock.clientId );
-					stepBlocks = innerstepContainerBlocks.filter(
-						block => block.name === 'jetpack/form-step'
-					);
-				}
-			}
-
 			const submitButton = innerBlocksData.find( block => block.name === 'jetpack/button' );
 			const isEveryChildBlockStep = innerBlocksData.every(
 				block =>
@@ -142,15 +131,16 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				canUserInstallPlugins: canUser( 'create', 'plugins' ),
 				hasAnyInnerBlocks: innerBlocksData.length > 0,
 				postAuthorEmail: authorEmail,
-				hasStepBlock: !! stepBlocks.length,
+				hasStepBlock: !! formStepsFromHook.length,
 				isEveryBlockStep: isEveryChildBlockStep,
 				selectedBlockClientId: getSelectedBlockClientId(),
-				isFirstStep: stepBlocks[ 0 ]?.clientId === selectedStepClientId,
-				isLastStep: stepBlocks[ stepBlocks.length - 1 ]?.clientId === selectedStepClientId,
+				isFirstStep: formStepsFromHook[ 0 ]?.clientId === selectedStepClientId,
+				isLastStep:
+					formStepsFromHook[ formStepsFromHook.length - 1 ]?.clientId === selectedStepClientId,
 				innerBlocks: innerBlocksData,
 			};
 		},
-		[ clientId, selectedStepClientId ]
+		[ clientId, selectedStepClientId, formStepsFromHook ]
 	);
 
 	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
@@ -194,8 +184,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			return;
 		}
 
-		const stepBlocks = innerBlocks.filter( block => block.name === 'jetpack/form-step' );
-		const stepBlockCount = stepBlocks.length;
+		const stepBlockCount = formStepsFromHook.length;
 
 		if ( stepBlockCount === 0 ) {
 			return;
@@ -211,7 +200,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			return;
 		}
 
-		const firstStepBlock = stepBlocks[ 0 ];
+		const firstStepBlock = formStepsFromHook[ 0 ];
 		const firstStepBlockIndex = innerBlocks.findIndex(
 			block => block.clientId === firstStepBlock.clientId
 		);
@@ -256,7 +245,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 		replaceInnerBlocks( clientId, finalBlocks );
 		hasStructured.current = true;
-	}, [ innerBlocks, clientId, replaceInnerBlocks, isEveryBlockStep ] );
+	}, [ innerBlocks, clientId, replaceInnerBlocks, isEveryBlockStep, formStepsFromHook ] );
 
 	useEffect( () => {
 		if ( variationName === 'multistep' ) {

@@ -5,6 +5,7 @@ import {
 } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import useFormSteps from '../../hooks/use-form-steps';
 import { STORE_NAME as PREVIEW_STORE_NAME } from '../../store/preview-store';
 import StepControls from '../contact-form/components/step-controls';
 import AttributesControls from './attributes-controls';
@@ -63,29 +64,26 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		allowedBlocks: ALLOWED_BLOCKS,
 	} );
 
+	const { ancestorFormClientId } = useSelect(
+		select => {
+			const { getBlockParentsByBlockName } = select( blockEditorStore );
+			// Find the top-level contact form ancestor for the current step block
+			return {
+				ancestorFormClientId: getBlockParentsByBlockName( clientId, [
+					'jetpack/contact-form',
+				] )[ 0 ],
+			};
+		},
+		[ clientId ]
+	);
+
+	const allStepsInForm = useFormSteps( ancestorFormClientId );
+
 	const { currentIndex, selectedStepClientId, isPreview } = useSelect(
 		select => {
-			const { getBlocks, getBlockParentsByBlockName } = select( blockEditorStore );
-
 			const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
 
-			let parentClientId = getBlockParentsByBlockName( clientId, [
-				'jetpack/step-container',
-			] )[ 0 ];
-			const formParentClinetId = getBlockParentsByBlockName( clientId, [
-				'jetpack/contact-form',
-			] )[ 0 ];
-
-			if ( ! parentClientId ) {
-				parentClientId = formParentClinetId;
-			}
-
-			const parentContainerBlocks = parentClientId ? getBlocks( parentClientId ) : [];
-
-			const parentStepBlocks = parentContainerBlocks.filter(
-				block => block.name === 'jetpack/form-step'
-			);
-			const currentStepIndex = parentStepBlocks.findIndex( block => block.clientId === clientId );
+			const currentStepIndex = allStepsInForm.findIndex( block => block.clientId === clientId );
 
 			return {
 				currentIndex: currentStepIndex,
@@ -93,7 +91,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				isPreview: isPreviewMode(),
 			};
 		},
-		[ clientId ]
+		[ clientId, allStepsInForm ] // Dependencies updated
 	);
 
 	// Only render the step content if it's the selected one or if "All Steps" is selected.
