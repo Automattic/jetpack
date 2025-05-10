@@ -5,6 +5,8 @@ import { __ } from '@wordpress/i18n';
 import AkismetCard from './akismet-card';
 import CreativeMailCard from './creative-mail-card';
 import JetpackCRMCard from './jetpack-crm-card';
+import SalesforceCard from './salesforce-card';
+import './style.scss';
 
 const IntegrationsModal = ( {
 	isOpen,
@@ -18,6 +20,7 @@ const IntegrationsModal = ( {
 		akismet: false,
 		crm: false,
 		creativemail: false,
+		salesforce: false,
 	} );
 
 	if ( ! isOpen ) {
@@ -38,6 +41,7 @@ const IntegrationsModal = ( {
 			title={ __( 'Manage integrations', 'jetpack-forms' ) }
 			onRequestClose={ onClose }
 			style={ { width: '700px' } }
+			className="jetpack-forms-integrations-modal"
 		>
 			<VStack spacing="4">
 				<AkismetCard
@@ -54,11 +58,20 @@ const IntegrationsModal = ( {
 					data={ findIntegrationById( 'zero-bs-crm' ) }
 					refreshStatus={ refreshIntegrations }
 				/>
+				<SalesforceCard
+					isExpanded={ expandedCards.salesforce }
+					onToggle={ () => toggleCard( 'salesforce' ) }
+					data={ findIntegrationById( 'salesforce' ) }
+					refreshStatus={ refreshIntegrations }
+					salesforceData={ attributes.salesforceData }
+					setAttributes={ setAttributes }
+				/>
 				<CreativeMailCard
 					isExpanded={ expandedCards.creativemail }
 					onToggle={ () => toggleCard( 'creativemail' ) }
 					data={ findIntegrationById( 'creative-mail-by-constant-contact' ) }
 					refreshStatus={ refreshIntegrations }
+					borderBottom={ false }
 				/>
 			</VStack>
 		</Modal>

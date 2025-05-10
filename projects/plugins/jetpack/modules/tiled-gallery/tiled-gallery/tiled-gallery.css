@@ -72,7 +72,7 @@
    the jump is a little more obvious than galleries in content. */
 .widget-gallery .tiled-gallery-unresized {
 	visibility: hidden;
-	height: 0px;
+	height: 0;
 	overflow: hidden;
 }
 

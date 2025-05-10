@@ -25,11 +25,6 @@
 		margin-bottom: rem( 4px );
 	}
 
-	.form-toggle__switch {
-		float: left;
-		margin-top: 2px;
-	}
-
 	.jp-form-setting-explanation {
 		color: $gray-text-min;
 		display: block;
@@ -65,11 +60,11 @@
 		top: rem( 18px );
 		right: rem( 28px );
 
-		& + p {
+		+ p {
 			margin-top: 2px;
 		}
 
-		& + span {
+		+ span {
 			padding-top: 2px;
 			display: block;
 		}
@@ -80,7 +75,7 @@
 		margin-top: 2px;
 	}
 
-	& > .dops-card:first-child {
+	> .dops-card:first-child {
 		margin-bottom: 0;
 	}
 

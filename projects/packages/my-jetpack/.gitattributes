@@ -16,3 +16,4 @@ changelog/**        production-exclude
 tests/**            production-exclude
 src/**/*.scss       production-exclude
 src/**/*.jsx        production-exclude
+global.d.ts         production-exclude

@@ -3,7 +3,7 @@
  * Tests for the XMLWriter sitemap buffer implementations.
  *
  * @package automattic/jetpack
- * @since $$next-version$$
+ * @since 14.6
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -21,7 +21,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-master-xmlwr
 /**
  * Test class for XMLWriter sitemap buffer implementations.
  *
- * @since $$next-version$$
+ * @since 14.6
  * @covers \Jetpack_Sitemap_Buffer_Image_XMLWriter
  * @covers \Jetpack_Sitemap_Buffer_Master_XMLWriter
  * @covers \Jetpack_Sitemap_Buffer_News_XMLWriter
@@ -42,7 +42,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * Test page sitemap buffer with XMLWriter.
 	 *
 	 * @group jetpack-sitemap
-	 * @since $$next-version$$
+	 * @since 14.6
 	 */
 	#[Group( 'jetpack-sitemap' )]
 	public function test_page_sitemap_buffer() {
@@ -78,7 +78,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * Test image sitemap buffer with XMLWriter.
 	 *
 	 * @group jetpack-sitemap
-	 * @since $$next-version$$
+	 * @since 14.6
 	 */
 	#[Group( 'jetpack-sitemap' )]
 	public function test_image_sitemap_buffer() {
@@ -140,7 +140,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * Test video sitemap buffer with XMLWriter.
 	 *
 	 * @group jetpack-sitemap
-	 * @since $$next-version$$
+	 * @since 14.6
 	 */
 	#[Group( 'jetpack-sitemap' )]
 	public function test_video_sitemap_buffer() {
@@ -152,15 +152,13 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 
 		$url_data = array(
 			'url' => array(
-				'loc'     => 'https://example.com/test-page',
-				'lastmod' => '2024-03-31 12:00:00',
-				'videos'  => array(
-					array(
-						'title'         => 'Test Video',
-						'description'   => 'A test video description',
-						'thumbnail_loc' => 'https://example.com/thumbnail.jpg',
-						'content_loc'   => 'https://example.com/video.mp4',
-					),
+				'loc'         => 'https://example.com/test-page',
+				'lastmod'     => '2024-03-31 12:00:00',
+				'video:video' => array(
+					'video:title'         => 'Test Video',
+					'video:description'   => 'A test video description',
+					'video:thumbnail_loc' => 'https://example.com/thumbnail.jpg',
+					'video:content_loc'   => 'https://example.com/video.mp4',
 				),
 			),
 		);
@@ -183,7 +181,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * Test news sitemap buffer with XMLWriter.
 	 *
 	 * @group jetpack-sitemap
-	 * @since $$next-version$$
+	 * @since 14.6
 	 */
 	#[Group( 'jetpack-sitemap' )]
 	public function test_news_sitemap_buffer() {
@@ -229,7 +227,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * Test master sitemap buffer with XMLWriter.
 	 *
 	 * @group jetpack-sitemap
-	 * @since $$next-version$$
+	 * @since 14.6
 	 */
 	#[Group( 'jetpack-sitemap' )]
 	public function test_master_sitemap_buffer() {
@@ -261,7 +259,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * Test buffer capacity limits with XMLWriter.
 	 *
 	 * @group jetpack-sitemap
-	 * @since $$next-version$$
+	 * @since 14.6
 	 */
 	#[Group( 'jetpack-sitemap' )]
 	public function test_buffer_capacity() {
@@ -294,7 +292,7 @@ class Jetpack_Sitemap_Buffer_XMLWriter_Test extends WP_UnitTestCase {
 	 * Test last modified tracking with XMLWriter.
 	 *
 	 * @group jetpack-sitemap
-	 * @since $$next-version$$
+	 * @since 14.6
 	 */
 	#[Group( 'jetpack-sitemap' )]
 	public function test_last_modified_tracking() {

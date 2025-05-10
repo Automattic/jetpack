@@ -1,9 +1,9 @@
 @import '../lib/styles/helper';
 
-//
-// Only add styles here that should be shared across different result types (minimal, expanded, product).
-// NOTE: Due to Webpack import order, these styles will apply AFTER minimal/expanded/product styles.
-//
+/**
+ * Only add styles here that should be shared across different result types (minimal, expanded, product).
+ * NOTE: Due to Webpack import order, these styles will apply AFTER minimal/expanded/product styles.
+ */
 .jetpack-instant-search__search-result {
 	margin: 0 0 2em;
 }

@@ -1,14 +1,16 @@
 /**
  * External dependencies
  */
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { createRoot } from '@wordpress/element';
 import { get } from 'lodash';
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import About from './about';
+import Layout from './components/layout';
 import Inbox from './inbox';
-import LandingPage from './landing';
 import DashboardNotices from './notices-list';
 import './style.scss';
 
@@ -24,24 +26,30 @@ window.addEventListener( 'load', () => {
 
 	const router = createHashRouter( [
 		{
-			path: '/landing',
-			element: <LandingPage />,
-		},
-		{
-			path: '/responses',
-			element: <Inbox />,
-		},
-		{
 			path: '/',
-			element: <Navigate to="/responses" />,
+			element: <Layout />,
+			children: [
+				{
+					index: true,
+					element: <Navigate to={ config( 'hasFeedback' ) ? '/responses' : '/about' } />,
+				},
+				{
+					path: 'responses',
+					element: <Inbox />,
+				},
+				{
+					path: 'about',
+					element: <About />,
+				},
+			],
 		},
 	] );
 
 	const root = createRoot( container );
 	root.render(
-		<>
+		<ThemeProvider>
 			<RouterProvider router={ router } />
 			<DashboardNotices />
-		</>
+		</ThemeProvider>
 	);
 } );

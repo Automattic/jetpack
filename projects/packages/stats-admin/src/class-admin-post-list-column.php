@@ -36,6 +36,13 @@ class Admin_Post_List_Column {
 	private $formatter;
 
 	/**
+	 * The current locale.
+	 *
+	 * @var string
+	 */
+	private $locale;
+
+	/**
 	 * The constructor.
 	 */
 	public function __construct() {
@@ -106,9 +113,15 @@ class Admin_Post_List_Column {
 
 				$views = $post_views[ $post_id ] ?? null;
 
-				$current_locale = get_bloginfo( 'language' );
+				$current_locale = get_locale();
 
-				$formatted_views = class_exists( '\NumberFormatter' ) ? $this->get_formatter( $current_locale )->format( $views ) : $this->get_fallback_format_to_compact_version( $views );
+				if ( null !== $views ) {
+					$formatted_views = class_exists( '\NumberFormatter' )
+						? $this->get_formatter( $current_locale )->format( $views )
+						: $this->get_fallback_format_to_compact_version( $views );
+				} else {
+					$formatted_views = '';
+				}
 
 				?>
 				<a href="<?php echo esc_url( $stats_post_url ); ?>"
@@ -213,6 +226,30 @@ class Admin_Post_List_Column {
 	}
 
 	/**
+	 * Get and validate the locale.
+	 *
+	 * @param string $locale The locale to validate.
+	 *
+	 * @return string The validated locale.
+	 */
+	public function get_validated_locale( string $locale ): string {
+		if ( isset( $this->locale ) ) {
+			return $this->locale;
+		}
+
+		/*
+		 * Check if the locale is valid and available.
+		 * If not, fallback to en_US.
+		 */
+		if ( ! in_array( $locale, \IntlCalendar::getAvailableLocales(), true ) ) {
+			$locale = 'en_US';
+		}
+
+		$this->locale = $locale;
+		return $locale;
+	}
+
+	/**
 	 * Get the NumberFormatter instance.
 	 *
 	 * @param string $locale The current locale.
@@ -223,6 +260,8 @@ class Admin_Post_List_Column {
 		if ( isset( $this->formatter[ $locale ] ) ) {
 			return $this->formatter[ $locale ];
 		}
+
+		$locale = $this->get_validated_locale( $locale );
 
 		/**
 		 * PHP's NumberFormatter is just a wrapper over the ICU C library. The library does support decimal compact short formatter, but PHP doesn't have a stub for it (=< PHP 8.4).

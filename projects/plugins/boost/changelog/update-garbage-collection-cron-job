@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Page Cache: Handle garbage collection through cron-job on front-end update.

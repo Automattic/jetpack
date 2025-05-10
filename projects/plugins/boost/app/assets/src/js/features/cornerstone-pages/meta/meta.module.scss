@@ -6,7 +6,7 @@
 		margin-left: 20px !important;
 	}
 
-	& > p:first-child {
+	> p:first-child {
 		margin-top: 0;
 	}
 
@@ -34,7 +34,7 @@
 			border-radius: 4px;
 			background-color: var(--gray-0);
 
-			& ~ .section {
+			~ .section {
 				margin-top: 16px;
 			}
 

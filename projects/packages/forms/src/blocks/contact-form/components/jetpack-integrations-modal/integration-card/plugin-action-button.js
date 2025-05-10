@@ -37,6 +37,7 @@ const PluginActionButton = ( { slug, pluginFile, isInstalled, refreshStatus, tra
 				onClick={ handleAction }
 				disabled={ isInstalling }
 				icon={ isInstalling ? <Spinner /> : undefined }
+				__next40pxDefaultSize
 			>
 				{ getButtonText() }
 			</Button>

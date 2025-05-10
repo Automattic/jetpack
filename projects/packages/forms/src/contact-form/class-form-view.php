@@ -95,9 +95,9 @@ class Form_View {
 			h1 { font-size: 21px; color:#5A5A5A; font-family:Georgia,"Times New Roman",Times,serif; font-weight:normal; margin-bottom: 21px; }
 			h3 { font-size: 13px; color: #646970; margin-bottom: 18px; }
 			input { width: 301px; }
-			input[type='text'] { padding: 3px 5px; margin-right: 4px; -moz-border-radius:3px; border-radius:3px; -webkit-border-radius:3px; }
-			input[type='text']:focus { border: 2px solid #80B8D9; outline: 0 !important; }
-			input[type='checkbox'], input[type='radio'] { width: auto !important; float: left; margin-top: 3px; margin-right: 8px; }
+			input[type="text"] { padding: 3px 5px; margin-right: 4px; -moz-border-radius:3px; border-radius:3px; -webkit-border-radius:3px; }
+			input[type="text"]:focus { border: 2px solid #80B8D9; outline: 0 !important; }
+			input[type="checkbox"], input[type="radio"] { width: auto !important; float: left; margin-top: 3px; margin-right: 8px; }
 			input.fieldError, select.fieldError, textarea.fieldError { border: 2px solid #D56F55; }
 			img { border: none; }
 			label { color: #222; font-weight: bold; display: block; margin-bottom: 4px; }
@@ -122,7 +122,7 @@ class Form_View {
 			.fb-extra-fields { margin-bottom: 2px; }
 			.fb-form-case { background: #FFF; padding: 13px; border: 1px solid #E2E2E2; width: 336px; -moz-border-radius:4px; border-radius:4px; -webkit-border-radius:4px }
 			.fb-form-case a { outline: none; }
-			.fb-form-case input[type='text'], .fb-form-case textarea { background: #E1E1E1; }
+			.fb-form-case input[type="text"], .fb-form-case textarea { background: #E1E1E1; }
 			.fb-radio-label { display: inline-block; float: left; width: 290px; }
 			.fb-new-fields { position: relative; border: 1px dashed #FFF; background: #FFF; padding: 4px 10px 10px; cursor: default; }
 			.fb-new-fields:hover { border: 1px dashed #BBDBEA; background: #F7FBFD; }
@@ -136,19 +136,19 @@ class Form_View {
 			.fb-reorder:hover div { display: block !important; width: 130px !important; position: absolute; top: 0; right: 0; z-index: 200; padding: 5px 10px; color: #555; font-size: 11px; background: #FFF; border: 1px solid #CCC; -moz-border-radius:4px; border-radius:4px; -webkit-border-radius:4px; }
 			.fb-right { position: absolute; right: 0; top: 0; width: 315px; margin: 57px 21px 0 0; }
 			.fb-right .fb-new-fields { border: none; background: #f6f7f7; padding: 0; }
-			.fb-right input[type='text'] { width: 195px; margin-bottom: 14px; }
+			.fb-right input[type="text"] { width: 195px; margin-bottom: 14px; }
 			.fb-right label { color: #444; width: 100px; float: left; font-weight: normal; }
 			.fb-right select { width: 195px !important; margin-bottom: 14px; }
 			.fb-right textarea { margin-bottom: 13px; }
 			.fb-right p { color: #999; line-height: 19px; }
-			.fb-settings input[type='text'], .fb-settings textarea { background-image: none !important; }
+			.fb-settings input[type="text"], .fb-settings textarea { background-image: none !important; }
 			.fb-success { position: absolute; top: -3px; right: 100px; padding: 6px 23px 4px 23px; background: #FFFFE0; font-weight: normal; border: 1px solid #E6DB55; color: #333; -moz-border-radius:4px; border-radius:4px; -webkit-border-radius:4px; }
 			.right { float: right; }
 			/* rtl */
 			body.rtl{ direction: rtl; font-family:Tahoma,Arial,sans-serif}
-			.rtl input[type='text'] { margin-left: 4px; margin-right: 0; }
-			.rtl input[type='checkbox'], .rtl input[type='radio'] { float: right; }
-			.rtl input[type='radio'] { margin-left: 8px; margin-right: 0; }
+			.rtl input[type="text"] { margin-left: 4px; margin-right: 0; }
+			.rtl input[type="checkbox"], .rtl input[type="radio"] { float: right; }
+			.rtl input[type="radio"] { margin-left: 8px; margin-right: 0; }
 			.rtl label.radio { margin: -2px 5px 0 0; }
 			.rtl label span.label-required { margin-right: 4px; margin-left:0 }
 			.rtl #sidemenu {  padding-right:10px; padding-left: 0; left:auto; right: 0; }

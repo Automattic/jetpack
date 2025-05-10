@@ -5,6 +5,7 @@ import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
 import IntegrationsModal from './jetpack-integrations-modal';
+import ActiveIntegrations from './jetpack-integrations-modal/active-integrations';
 import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/useIntegrationsStatus';
 
 /**
@@ -17,7 +18,7 @@ import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/useInt
  */
 export default function IntegrationControls( { attributes, setAttributes } ) {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const { integrations, refreshIntegrations } = useIntegrationsStatus();
+	const { integrations, refreshIntegrations, isLoading } = useIntegrationsStatus();
 	const { tracks } = useAnalytics();
 
 	const handleOpenModal = entry_point => {
@@ -28,10 +29,15 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 	return (
 		<>
 			<PanelBody
-				title={ __( 'Manage integrations', 'jetpack-forms' ) }
+				title={ __( 'Integrations', 'jetpack-forms' ) }
 				className="jetpack-contact-form__integrations-panel"
 				initialOpen={ false }
 			>
+				<ActiveIntegrations
+					integrations={ integrations }
+					attributes={ attributes }
+					isLoading={ isLoading }
+				/>
 				<Button
 					variant="secondary"
 					onClick={ () => handleOpenModal( 'block-sidebar' ) }

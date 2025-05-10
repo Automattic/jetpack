@@ -85,6 +85,10 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	elif composer check-platform-reqs --lock; then
 		echo 'Platform reqs pass, running `composer install`'
 		composer install
+		if [[ "$TEST_SCRIPT" == 'test-php' ]] && composer info --locked phpunit/phpunit &>/dev/null; then
+			echo 'Updating PHPUnit in case a newer version than locked is usable'
+			composer update -W phpunit/phpunit
+		fi
 	else
 		# Composer can't directly tell us which packages are dev deps, but we can get lists of all deps and just the non-dev deps.
 		# So we use `diff` to find which aren't in the non-dev list, and `sed` to extract just the `> ` lines with the actual package names (and remove the `> ` too).

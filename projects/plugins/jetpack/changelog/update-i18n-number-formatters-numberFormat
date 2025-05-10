@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Migrate numberFormat to number-formatters package

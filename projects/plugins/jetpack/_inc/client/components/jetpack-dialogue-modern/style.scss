@@ -103,6 +103,7 @@ h1.jp-dialogue-modern__title {
 
 .jp-dialogue-modern__cta-container {
 	text-align: center;
+	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 200%;
 	padding: rem( 8px ) 0 0;
 

@@ -126,7 +126,7 @@ echo
 info 'Downloading PHPUnit'
 mkdir -p "$WORK_DIR/phpunit"
 jq '{ "require-dev": { "yoast/phpunit-polyfills": .["require-dev"]["yoast/phpunit-polyfills"] } }' "$BASE/tools/cli/skeletons/common/composer.json" > "$WORK_DIR/phpunit/composer.json"
-composer --working-dir="$WORK_DIR/phpunit" update
+composer --ignore-platform-reqs --working-dir="$WORK_DIR/phpunit" update
 
 echo
 info 'Extracting PHPUnit stubs'

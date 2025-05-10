@@ -737,4 +737,15 @@ class Functions {
 		$modules = array_map( 'wp_normalize_path', $modules );
 		return $modules;
 	}
+
+	/**
+	 * Return the list of Jetpack package versions.
+	 *
+	 * @since 4.11.1
+	 *
+	 * @return array
+	 */
+	public static function get_jetpack_package_versions() {
+		return apply_filters( 'jetpack_package_versions', array() );
+	}
 }

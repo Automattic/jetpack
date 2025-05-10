@@ -92,7 +92,9 @@ class Roles_Test extends TestCase {
 	 * Test translating an user to a role by role.
 	 */
 	public function test_user_to_role_with_role() {
-		$user_mock = $this->getMockBuilder( 'WP_User' )->getMock();
+		$user_mock = (object) array();
+		'@phan-var \WP_User $user_mock'; // Not really, but it doesn't matter.
+
 		Functions\when( 'user_can' )->alias(
 			function ( $user, $cap ) use ( $user_mock ) {
 				return $user_mock === $user && 'administrator' === $cap;
@@ -106,7 +108,9 @@ class Roles_Test extends TestCase {
 	 * Test translating an user to a role by capablity.
 	 */
 	public function test_user_to_role_with_capability() {
-		$user_mock = $this->getMockBuilder( 'WP_User' )->getMock();
+		$user_mock = (object) array();
+		'@phan-var \WP_User $user_mock'; // Not really, but it doesn't matter.
+
 		Functions\when( 'user_can' )->alias(
 			function ( $user, $cap ) use ( $user_mock ) {
 				return $user_mock === $user && 'edit_others_posts' === $cap;
@@ -120,7 +124,9 @@ class Roles_Test extends TestCase {
 	 * Test translating an user to a role with no match.
 	 */
 	public function test_user_to_role_with_no_match() {
-		$user_mock = $this->getMockBuilder( 'WP_User' )->getMock();
+		$user_mock = (object) array();
+		'@phan-var \WP_User $user_mock'; // Not really, but it doesn't matter.
+
 		Functions\when( 'user_can' )->justReturn( false );
 
 		$this->assertFalse( $this->roles->translate_user_to_role( $user_mock ) );
