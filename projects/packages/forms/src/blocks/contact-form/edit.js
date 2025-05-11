@@ -27,7 +27,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
 import useFormSteps from '../../hooks/use-form-steps';
-import { STORE_NAME as PREVIEW_STORE_NAME } from '../../store/preview-store';
+import { store as previewStore } from '../../store/preview-store';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
@@ -84,7 +84,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	const { selectedStepClientId, isPreview } = useSelect(
 		select => {
-			const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
+			const { isPreviewMode, getActivePreviewStepId } = select( previewStore );
 			return {
 				selectedStepClientId: getActivePreviewStepId( clientId ),
 				isPreview: isPreviewMode( clientId ),
@@ -269,6 +269,9 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	const prevSelectedBlockClientIdRef = useRef();
 
+	// Get the dispatch function for previewStore
+	const { setActivePreviewStepId } = useDispatch( previewStore );
+
 	// Effect to sync List View selection with StepControls (if not in 'All Steps')
 	useEffect( () => {
 		const prevSelectedBlockClientId = prevSelectedBlockClientIdRef.current;
@@ -284,19 +287,20 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 				// If a step child is selected via List View and it's not already the active step in the dropdown
 				if ( isSelectedBlockOurStep && selectedBlockClientId !== selectedStepClientId ) {
-					setAttributes( { selectedStepClientId: selectedBlockClientId } );
+					// Use the store action instead of directly setting attributes
+					setActivePreviewStepId( clientId, selectedBlockClientId );
 				}
 			}
 		}
 		// Update the ref *after* the logic check for the next render
 		prevSelectedBlockClientIdRef.current = selectedBlockClientId;
 
-		// Keep dependencies, but logic now filters based on actual selectedBlockClientId changes
+		// Keep dependencies, include setActivePreviewStepId
 	}, [
 		selectedBlockClientId,
 		selectedStepClientId,
 		innerBlocks,
-		setAttributes,
+		setActivePreviewStepId,
 		isPreview,
 		clientId,
 	] );

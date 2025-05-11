@@ -1,13 +1,16 @@
-import { registerStore } from '@wordpress/data';
-
-// Ensure this is consistent or imported from a central place if used elsewhere
-const ALL_STEPS_VALUE = '__all__';
+import { createReduxStore, register } from '@wordpress/data';
 
 const DEFAULT_STATE = {
 	forms: {}, // Store preview state per form
 };
 
 const actions = {
+	setPreviewMode( formClientId, previewMode ) {
+		return {
+			type: 'SET_PREVIEW_MODE',
+			payload: { formClientId, previewMode },
+		};
+	},
 	setActivePreviewStepId( formClientId, stepClientId ) {
 		return {
 			type: 'SET_ACTIVE_PREVIEW_STEP_ID',
@@ -16,8 +19,8 @@ const actions = {
 	},
 	showAllSteps( formClientId ) {
 		return {
-			type: 'SET_ACTIVE_PREVIEW_STEP_ID', // Same action type
-			payload: { formClientId, stepClientId: ALL_STEPS_VALUE },
+			type: 'SHOW_ALL_STEPS',
+			payload: { formClientId },
 		};
 	},
 };
@@ -31,8 +34,34 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 				forms: {
 					...state.forms,
 					[ formClientId ]: {
-						...( state.forms[ formClientId ] || {} ),
 						activePreviewStepId: stepClientId,
+						previewMode: true,
+					},
+				},
+			};
+		}
+		case 'SET_PREVIEW_MODE': {
+			const { formClientId, previewMode } = action.payload;
+			return {
+				...state,
+				forms: {
+					...state.forms,
+					[ formClientId ]: {
+						activePreviewStepId: null,
+						previewMode,
+					},
+				},
+			};
+		}
+		case 'SHOW_ALL_STEPS': {
+			const { formClientId } = action.payload;
+			return {
+				...state,
+				forms: {
+					...state.forms,
+					[ formClientId ]: {
+						activePreviewStepId: null,
+						previewMode: false,
 					},
 				},
 			};
@@ -44,24 +73,19 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 
 const selectors = {
 	getActivePreviewStepId( state, formClientId ) {
-		return state.forms[ formClientId ]?.activePreviewStepId || ALL_STEPS_VALUE;
+		return state.forms[ formClientId ]?.activePreviewStepId ?? null;
 	},
 	isPreviewMode( state, formClientId ) {
-		const activeStep = state.forms[ formClientId ]?.activePreviewStepId;
-		return activeStep !== undefined && activeStep !== ALL_STEPS_VALUE;
+		return !! state.forms[ formClientId ]?.previewMode;
 	},
 };
 
-// The unique name for the store
 const STORE_NAME = 'jetpack/forms/preview';
 
-registerStore( STORE_NAME, {
+export const store = createReduxStore( STORE_NAME, {
 	reducer,
 	actions,
 	selectors,
-	// initialState: DEFAULT_STATE, // initialState can be set here or handled by reducer default
 } );
 
-// Exporting constants and store name can be useful for consumers
-export { ALL_STEPS_VALUE, STORE_NAME };
-// No need to export the store object itself from registerStore, it's globally registered.
+register( store );

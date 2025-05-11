@@ -2,18 +2,10 @@ import { useBlockProps, store as blockEditorStore } from '@wordpress/block-edito
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import useFormSteps from '../../hooks/use-form-steps';
-import { STORE_NAME as PREVIEW_STORE_NAME } from '../../store/preview-store';
+import { store as previewStore } from '../../store/preview-store';
 import './editor.scss';
 
 const FormProgressIndicatorEdit = ( { clientId } ) => {
-	const { selectedStepClientId, isPreview } = useSelect( select => {
-		const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
-		return {
-			selectedStepClientId: getActivePreviewStepId(),
-			isPreview: isPreviewMode(),
-		};
-	}, [] );
-
 	const { parentFormId } = useSelect(
 		select => {
 			const { getBlockParentsByBlockName } = select( blockEditorStore );
@@ -22,6 +14,17 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 			};
 		},
 		[ clientId ]
+	);
+
+	const { selectedStepClientId, isPreview } = useSelect(
+		select => {
+			const { isPreviewMode, getActivePreviewStepId } = select( previewStore );
+			return {
+				selectedStepClientId: getActivePreviewStepId( parentFormId ),
+				isPreview: isPreviewMode( parentFormId ),
+			};
+		},
+		[ parentFormId ]
 	);
 
 	const steps = useFormSteps( parentFormId );
@@ -42,8 +45,11 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 			// return the index of the selected step
 			const selectedStepIndex = steps.findIndex( block => block.clientId === selectedStepClientId );
 
+			// If selectedStepClientId is null (All Steps view) or the step wasn't found, show full progress
+			const stepIndex = selectedStepIndex === -1 ? numberOfSteps - 1 : selectedStepIndex;
+
 			return {
-				progress: ( ( selectedStepIndex + 1 ) / numberOfSteps ) * 100,
+				progress: ( ( stepIndex + 1 ) / numberOfSteps ) * 100,
 			};
 		},
 		[ steps, selectedStepClientId, isPreview ] // steps is now a dependency

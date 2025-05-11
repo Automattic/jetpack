@@ -6,7 +6,7 @@ import {
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import useFormSteps from '../../hooks/use-form-steps';
-import { STORE_NAME as PREVIEW_STORE_NAME } from '../../store/preview-store';
+import { store as previewStore } from '../../store/preview-store';
 import StepControls from '../contact-form/components/step-controls';
 import AttributesControls from './attributes-controls';
 
@@ -81,7 +81,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	const { currentIndex, selectedStepClientId, isPreview } = useSelect(
 		select => {
-			const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
+			const { isPreviewMode, getActivePreviewStepId } = select( previewStore );
 
 			const currentStepIndex = allStepsInForm.findIndex( block => block.clientId === clientId );
 

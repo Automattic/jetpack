@@ -8,13 +8,12 @@ import {
 	Path,
 	MenuGroup,
 	MenuItem,
-	ToolbarItem,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { next, previous } from '@wordpress/icons';
-import { ALL_STEPS_VALUE, STORE_NAME as PREVIEW_STORE_NAME } from '../../../../store/preview-store';
+import { store as previewStore } from '../../../../store/preview-store';
 
 /**
  * Toolbar controls for managing steps within a multi-step form.
@@ -26,13 +25,13 @@ import { ALL_STEPS_VALUE, STORE_NAME as PREVIEW_STORE_NAME } from '../../../../s
  * @return {JSX.Element} The rendered BlockControls component.
  */
 export default function StepControls( { formClientId, onlyNav = false, isStep = false } ) {
-	const { setActivePreviewStepId, showAllSteps } = useDispatch( PREVIEW_STORE_NAME );
+	const { setActivePreviewStepId, showAllSteps } = useDispatch( previewStore );
 
 	const { steps, isFirstStep, isLastStep, selectedBlockClientId, selectedStepId, isPreview } =
 		useSelect(
 			select => {
 				const { getBlocks, getSelectedBlockClientId } = select( blockEditorStore );
-				const { isPreviewMode, getActivePreviewStepId } = select( PREVIEW_STORE_NAME );
+				const { isPreviewMode, getActivePreviewStepId } = select( previewStore );
 
 				const currentFormId = formClientId;
 
@@ -57,38 +56,16 @@ export default function StepControls( { formClientId, onlyNav = false, isStep = 
 					selectedBlockClientId: getSelectedBlockClientId(), // Global selection
 				};
 			},
-			[ formClientId ] // Only formClientId is needed for PREVIEW_STORE_NAME related data.
+			[ formClientId ]
 		);
-
-	const { selectBlock } = useDispatch( 'core/block-editor' );
 
 	// Handle step selection change - directly update the parent attribute.
 	const handleStepChange = useCallback(
 		newStepClientId => {
-			// Pass formClientId to the action
-			if ( newStepClientId === ALL_STEPS_VALUE ) {
-				showAllSteps( formClientId );
-			} else {
-				setActivePreviewStepId( formClientId, newStepClientId );
-			}
-			// If these controls are for a step, and we are changing the preview to this step,
-			// ensure this step block is also selected in the editor's list view.
-			// However, if newStepClientId is ALL_STEPS_VALUE, we don't select a specific block.
-			if ( isStep && newStepClientId !== ALL_STEPS_VALUE ) {
-				selectBlock( newStepClientId );
-			}
+			setActivePreviewStepId( formClientId, newStepClientId );
 		},
-		[ setActivePreviewStepId, showAllSteps, selectBlock, isStep, formClientId ] // Added formClientId and showAllSteps
+		[ setActivePreviewStepId, formClientId ]
 	);
-
-	// Function to add a new step at the end
-	const addStepAtEnd = () => {};
-
-	// Function to add a step before the current step
-	const addStepBefore = () => {};
-
-	// Function to add a step after the current step
-	const addStepAfter = () => {};
 
 	// Sync List View selection with step preview
 	useEffect( () => {
@@ -125,8 +102,7 @@ export default function StepControls( { formClientId, onlyNav = false, isStep = 
 		}
 
 		const isTrulyInvalidSelection =
-			selectedStepId !== ALL_STEPS_VALUE &&
-			! steps.some( step => step.clientId === selectedStepId );
+			selectedStepId !== null && ! steps.some( step => step.clientId === selectedStepId );
 
 		if ( isTrulyInvalidSelection ) {
 			setActivePreviewStepId( formClientId, steps[ 0 ].clientId );
@@ -135,7 +111,7 @@ export default function StepControls( { formClientId, onlyNav = false, isStep = 
 
 	// Determine the current step label and index
 	const getCurrentStepInfo = useCallback( () => {
-		if ( selectedStepId === ALL_STEPS_VALUE ) {
+		if ( selectedStepId === null ) {
 			return { label: __( 'All Steps', 'jetpack-forms' ), index: -1 };
 		}
 
@@ -164,18 +140,18 @@ export default function StepControls( { formClientId, onlyNav = false, isStep = 
 				{ ! onlyNav && (
 					<>
 						<ToolbarButton
-							onClick={ () => handleStepChange( ALL_STEPS_VALUE ) }
-							isPressed={ selectedStepId === ALL_STEPS_VALUE }
+							onClick={ () => showAllSteps( formClientId ) }
+							isPressed={ selectedStepId === null }
 						>
 							{ __( 'All Steps', 'jetpack-forms' ) }
 						</ToolbarButton>
 						<ToolbarButton
 							onClick={ () => {
-								if ( selectedStepId === ALL_STEPS_VALUE && steps.length > 0 ) {
+								if ( selectedStepId === null && steps.length > 0 ) {
 									handleStepChange( steps[ 0 ].clientId );
 								}
 							} }
-							isPressed={ selectedStepId !== ALL_STEPS_VALUE }
+							isPressed={ selectedStepId !== null }
 						>
 							{ __( 'Preview', 'jetpack-forms' ) }
 						</ToolbarButton>{ ' ' }
@@ -214,8 +190,7 @@ export default function StepControls( { formClientId, onlyNav = false, isStep = 
 					</>
 				) }
 
-				{ /* Step selection dropdown - only shown in Preview mode */ }
-				{ ! onlyNav && isPreview && (
+				{ isPreview && (
 					<DropdownMenu
 						icon={ null }
 						label={ __( 'Select step to preview', 'jetpack-forms' ) }
@@ -260,46 +235,6 @@ export default function StepControls( { formClientId, onlyNav = false, isStep = 
 					</DropdownMenu>
 				) }
 			</ToolbarGroup>
-			{ ! onlyNav && (
-				<ToolbarGroup>
-					{ /* Add step button */ }
-					{ ! isPreview ? (
-						<ToolbarButton
-							showTooltip={ true }
-							label={ __( 'Add Step', 'jetpack-forms' ) }
-							onClick={ addStepAtEnd }
-						>
-							{ __( 'Add', 'jetpack-forms' ) }
-						</ToolbarButton>
-					) : (
-						<ToolbarItem>
-							{ () => (
-								<DropdownMenu
-									icon={ null }
-									label={ __( 'Add Step', 'jetpack-forms' ) }
-									toggleProps={ {
-										children: __( 'Add', 'jetpack-forms' ),
-									} }
-									controls={ [
-										{
-											title: __( 'Add Step Before', 'jetpack-forms' ),
-											onClick: addStepBefore,
-										},
-										{
-											title: __( 'Add Step After', 'jetpack-forms' ),
-											onClick: addStepAfter,
-										},
-										{
-											title: __( 'Add Step at End', 'jetpack-forms' ),
-											onClick: addStepAtEnd,
-										},
-									] }
-								/>
-							) }
-						</ToolbarItem>
-					) }
-				</ToolbarGroup>
-			) }
 		</BlockControls>
 	);
 }
