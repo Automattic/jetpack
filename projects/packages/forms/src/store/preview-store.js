@@ -5,21 +5,21 @@ const DEFAULT_STATE = {
 };
 
 const actions = {
-	setPreviewMode( formClientId, previewMode ) {
+	enablePreview( formClientId ) {
 		return {
-			type: 'SET_PREVIEW_MODE',
-			payload: { formClientId, previewMode },
+			type: 'ENABLE_PREVIEW',
+			payload: { formClientId },
 		};
 	},
-	setActivePreviewStepId( formClientId, stepClientId ) {
+	setPreviewStep( formClientId, stepClientId ) {
 		return {
-			type: 'SET_ACTIVE_PREVIEW_STEP_ID',
+			type: 'SET_PREVIEW_STEP',
 			payload: { formClientId, stepClientId },
 		};
 	},
-	showAllSteps( formClientId ) {
+	disablePreview( formClientId ) {
 		return {
-			type: 'SHOW_ALL_STEPS',
+			type: 'DISABLE_PREVIEW',
 			payload: { formClientId },
 		};
 	},
@@ -27,40 +27,43 @@ const actions = {
 
 const reducer = ( state = DEFAULT_STATE, action ) => {
 	switch ( action.type ) {
-		case 'SET_ACTIVE_PREVIEW_STEP_ID': {
+		case 'SET_PREVIEW_STEP': {
 			const { formClientId, stepClientId } = action.payload;
+			const currentForm = state.forms[ formClientId ] || {};
 			return {
 				...state,
 				forms: {
 					...state.forms,
 					[ formClientId ]: {
 						activePreviewStepId: stepClientId,
+						previewMode: !! currentForm.previewMode,
+					},
+				},
+			};
+		}
+		case 'ENABLE_PREVIEW': {
+			const { formClientId } = action.payload;
+			const currentForm = state.forms[ formClientId ] || {};
+			return {
+				...state,
+				forms: {
+					...state.forms,
+					[ formClientId ]: {
+						activePreviewStepId: currentForm.activePreviewStepId || null,
 						previewMode: true,
 					},
 				},
 			};
 		}
-		case 'SET_PREVIEW_MODE': {
-			const { formClientId, previewMode } = action.payload;
-			return {
-				...state,
-				forms: {
-					...state.forms,
-					[ formClientId ]: {
-						activePreviewStepId: null,
-						previewMode,
-					},
-				},
-			};
-		}
-		case 'SHOW_ALL_STEPS': {
+		case 'DISABLE_PREVIEW': {
 			const { formClientId } = action.payload;
+			const currentForm = state.forms[ formClientId ] || {};
 			return {
 				...state,
 				forms: {
 					...state.forms,
 					[ formClientId ]: {
-						activePreviewStepId: null,
+						activePreviewStepId: currentForm.activePreviewStepId || null,
 						previewMode: false,
 					},
 				},

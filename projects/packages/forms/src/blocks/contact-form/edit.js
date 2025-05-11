@@ -270,7 +270,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const prevSelectedBlockClientIdRef = useRef();
 
 	// Get the dispatch function for previewStore
-	const { setActivePreviewStepId } = useDispatch( previewStore );
+	const { setPreviewStep } = useDispatch( previewStore );
 
 	// Effect to sync List View selection with StepControls (if not in 'All Steps')
 	useEffect( () => {
@@ -288,19 +288,19 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				// If a step child is selected via List View and it's not already the active step in the dropdown
 				if ( isSelectedBlockOurStep && selectedBlockClientId !== selectedStepClientId ) {
 					// Use the store action instead of directly setting attributes
-					setActivePreviewStepId( clientId, selectedBlockClientId );
+					setPreviewStep( clientId, selectedBlockClientId );
 				}
 			}
 		}
 		// Update the ref *after* the logic check for the next render
 		prevSelectedBlockClientIdRef.current = selectedBlockClientId;
 
-		// Keep dependencies, include setActivePreviewStepId
+		// Keep dependencies, include setPreviewStep
 	}, [
 		selectedBlockClientId,
 		selectedStepClientId,
 		innerBlocks,
-		setActivePreviewStepId,
+		setPreviewStep,
 		isPreview,
 		clientId,
 	] );

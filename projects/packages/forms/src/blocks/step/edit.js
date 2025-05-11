@@ -115,7 +115,11 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					clientId={ clientId }
 				/>
 			</div>
-			<StepControls formClientId={ ancestorFormClientId } onlyNav={ true } isStep={ true } />
+			<StepControls
+				formClientId={ ancestorFormClientId }
+				showToggle={ false }
+				showNavigation={ true }
+			/>
 		</>
 	);
 }
