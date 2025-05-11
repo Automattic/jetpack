@@ -1,11 +1,8 @@
-import {
-	useBlockProps,
-	useInnerBlocksProps,
-	store as blockEditorStore,
-} from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import useFormSteps from '../../hooks/use-form-steps';
+import useParentFormClientId from '../../hooks/useParentFormClientId';
 import { store as previewStore } from '../../store/preview-store';
 import StepControls from '../contact-form/components/step-controls';
 import AttributesControls from './attributes-controls';
@@ -64,18 +61,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		allowedBlocks: ALLOWED_BLOCKS,
 	} );
 
-	const { ancestorFormClientId } = useSelect(
-		select => {
-			const { getBlockParentsByBlockName } = select( blockEditorStore );
-			// Find the top-level contact form ancestor for the current step block
-			return {
-				ancestorFormClientId: getBlockParentsByBlockName( clientId, [
-					'jetpack/contact-form',
-				] )[ 0 ],
-			};
-		},
-		[ clientId ]
-	);
+	// Get the parent form clientId using our custom hook
+	const ancestorFormClientId = useParentFormClientId( clientId );
 
 	const allStepsInForm = useFormSteps( ancestorFormClientId );
 
