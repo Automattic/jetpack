@@ -780,6 +780,7 @@
 				border-top-right-radius: unset !important;
 				border-bottom-right-radius: unset !important;
 				box-sizing: content-box;
+				max-width: 100px;
 			}
 
 			.notched-label__notch {
@@ -807,12 +808,20 @@
 				}
 			}
 
-			:where(.notched-label__trailing) {
+			:where(.notched-label__filler) {
 				flex-grow: 1;
+				border-left: none !important;
+				border-right: none !important;
+				border-radius: unset !important;
+				box-sizing: content-box;
+			}
+
+			:where(.notched-label__trailing) {
 				border-left: none !important;
 				border-top-left-radius: unset !important;
 				border-bottom-left-radius: unset !important;
 				box-sizing: content-box;
+				max-width: 100px;
 			}
 
 			.jetpack-field-label .jetpack-field-label__input {
@@ -959,6 +968,7 @@
 
 :where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__leading),
 :where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__notch),
+:where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__filler),
 :where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__trailing) {
 	border: var(--jetpack--contact-form--border);
 }

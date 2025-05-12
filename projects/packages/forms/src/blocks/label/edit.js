@@ -56,6 +56,7 @@ const WithNotchedWrapper = ( { formStyle, styles, cssVars, className, children }
 				<div className={ clsx( 'notched-label__notch', className ) } style={ styles }>
 					{ children }
 				</div>
+				<div className={ clsx( 'notched-label__filler', className ) } style={ styles } />
 				<div className={ clsx( 'notched-label__trailing', className ) } style={ styles } />
 			</div>
 		);
