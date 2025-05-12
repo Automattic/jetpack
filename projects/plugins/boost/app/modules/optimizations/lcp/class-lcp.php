@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
@@ -176,7 +177,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 			}
 
 			if ( wp_http_validate_url( $lcp_data['elementData']['url'] ) ) {
-				$images_to_preload[] = $lcp_data['elementData']['url'];
+				$images_to_preload[ $lcp_data['elementData']['url'] ] = $lcp_data;
 			}
 		}
 
@@ -184,12 +185,14 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 			return;
 		}
 
-		// Ensure each image URL is unique.
-		$images_to_preload = array_unique( $images_to_preload );
-		foreach ( $images_to_preload as $image_url ) {
+		foreach ( $images_to_preload as $image_url => $lcp_data ) {
+			$lcp_optimizer = new LCP_Optimizer( $lcp_data );
+
 			printf(
-				'<link rel="preload" href="%s" as="image" fetchpriority="high" />' . "\n",
-				esc_url( $image_url )
+				'<link rel="preload" href="%s" as="image" fetchpriority="high" imagesrcset="%s" imagesizes="%s" />' . "\n",
+				esc_url( Image_CDN_Core::cdn_url( $image_url ) ),
+				esc_attr( $lcp_optimizer->get_srcsets( $image_url ) ),
+				esc_attr( $lcp_optimizer->get_sizes() )
 			);
 		}
 	}
