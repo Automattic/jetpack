@@ -985,7 +985,6 @@ export const childBlocks = [
 			},
 			title: __( 'Step navigation', 'jetpack-forms' ),
 			description: __( 'Responsible for the navigation between steps.', 'jetpack-forms' ),
-			parent: [ 'jetpack/contact-form' ],
 			icon: {
 				foreground: getIconColor(),
 				src: <Icon icon={ next } />,
@@ -1013,7 +1012,6 @@ export const childBlocks = [
 				'Show a visual indicator of progress through multi-step forms.',
 				'jetpack-forms'
 			),
-			parent: [ 'jetpack/contact-form' ],
 			icon: {
 				foreground: getIconColor(),
 				src: <Icon icon={ queryPagination } />,
