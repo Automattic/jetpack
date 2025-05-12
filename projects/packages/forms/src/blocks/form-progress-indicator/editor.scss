@@ -1,23 +1,35 @@
 .jetpack-form-progress-indicator {
-	display: block;
-	border-radius: 4px;
-	filter: invert(15%);
-	height: 8px;
-	margin: 0 auto;
-	content: '';
-	width: 100%;
-	background-color: var( --wp--preset--color--secondary, var( --wp--preset--color--background, var( --jp-form-progress-bg-color, var( --progress-bg-color ) ) ) );
+	--jp-form-progress-height: 0.75rem;
+	
+	// Use theme colors with fallbacks
+	--progress-bg-color: #e0e0e0;
+	--progress-color: #1e1e1e;
 
-	&::before {
+	// Essential structure
+	width: 100%;
+	height: var( --jp-form-progress-height );
+	position: relative;
+	overflow: hidden;
+	background-color: var( --wp--preset--color--secondary, var( --wp--preset--color--background, var( --jp-form-progress-bg-color, var( --progress-bg-color ) ) ) );
+	border-radius: calc( var( --jp-form-progress-height ) / 2 );
+
+	// Progress bar element - rendered as a child element to match the frontend
+	.jetpack-form-progress-indicator-bar  {
 		content: '';
 		display: block;
+		position: absolute;
+		top: 0;
+		left: 0;
 		height: 100%;
+		width: 1%;
+		min-width: var( --jp-form-progress-height );
+		transition: width 0.3s ease-in-out;
+		z-index: 1;
 		background-color: var( --wp--preset--color--primary, var( --wp--preset--color--accent, var( --jp-form-progress-color, var( --progress-color ) ) ) );
-		border-radius: 4px;
-		width: var(--jp-form-progress-value, 1%);
+		border-radius: calc( var( --jp-form-progress-height ) / 2 );
 	}
 }
 
 .wp-block-jetpack-form-progress-indicator {
-	border-radius: 4px;
+	border-radius: calc( var( --jp-form-progress-height, 0.75rem ) / 2 );
 }

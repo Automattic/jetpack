@@ -13,10 +13,12 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 		<div { ...useBlockProps() }>
 			<div className="jetpack-form-progress-indicator-editor">
 				{ steps.length > 0 ? (
-					<div
-						className="jetpack-form-progress-indicator"
-						style={ { '--jp-form-progress-value': `${ progress }%` } }
-					></div>
+					<div className="jetpack-form-progress-indicator">
+						<div
+							className="jetpack-form-progress-indicator-bar"
+							style={ { width: `${ progress }%` } }
+						></div>
+					</div>
 				) : (
 					<p className="no-steps-message">
 						{ __( 'Add steps to your form to see the progress indicator', 'jetpack-forms' ) }
