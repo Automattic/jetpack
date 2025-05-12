@@ -748,4 +748,22 @@ class Functions {
 	public static function get_jetpack_package_versions() {
 		return apply_filters( 'jetpack_package_versions', array() );
 	}
+
+	/**
+	 * Get the environment type with support for 'sandbox'.
+	 *
+	 * Extends WordPress core's wp_get_environment_type() to support additional
+	 * environment types like 'sandbox'.
+	 *
+	 * @return string Environment type (local, development, staging, production, or sandbox).
+	 */
+	public static function get_environment_type() {
+		$type = wp_get_environment_type();
+
+		if ( defined( 'WP_ENVIRONMENT_TYPE' ) && 'sandbox' === WP_ENVIRONMENT_TYPE ) {
+			return 'sandbox';
+		}
+
+		return $type;
+	}
 }
