@@ -583,6 +583,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @html-template-var WP_Post[] $product_posts
 		 *
 		 * @param array $instance Previously saved values from database.
+		 * @return string|void
 		 */
 		public function form( $instance ) {
 			$jetpack_simple_payments = Jetpack_Simple_Payments::get_instance();

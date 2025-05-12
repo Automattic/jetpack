@@ -60,7 +60,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 	 *
 	 * @param array $instance Instance configuration.
 	 *
-	 * @return void
+	 * @return string|void
 	 */
 	public function form( $instance ) {
 		$defaults = array(
