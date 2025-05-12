@@ -825,6 +825,7 @@ export const childBlocks = [
 		settings: {
 			apiVersion: 3,
 			title: __( 'Steps', 'jetpack-forms' ),
+			allowedBlocks: [ 'jetpack/form-step' ],
 			category: 'contact-form',
 			description: __( 'A container that organizes multiple form steps.', 'jetpack-forms' ),
 			icon: {
@@ -833,7 +834,6 @@ export const childBlocks = [
 					<Path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" />
 				),
 			},
-			parent: [ 'jetpack/contact-form' ],
 			supports: {
 				html: false,
 				reusable: false,
@@ -881,7 +881,7 @@ export const childBlocks = [
 				foreground: getIconColor(),
 				src: <Icon icon={ pullquote } />,
 			},
-			parent: [ 'jetpack/contact-form', 'jetpack/step-container' ],
+			parent: [ 'jetpack/step-container' ],
 			supports: {
 				html: false,
 				reusable: false,
