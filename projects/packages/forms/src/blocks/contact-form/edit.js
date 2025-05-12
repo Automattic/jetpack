@@ -65,7 +65,6 @@ const ALLOWED_CORE_BLOCKS = [
 ];
 
 const ALLOWED_MULTI_STEP_BLOCKS = [
-	'jetpack/step-container',
 	'jetpack/form-step-navigation',
 	'jetpack/form-progress-indicator',
 ].concat( ALLOWED_CORE_BLOCKS );
