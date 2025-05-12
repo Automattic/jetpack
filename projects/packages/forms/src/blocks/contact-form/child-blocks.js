@@ -826,6 +826,7 @@ export const childBlocks = [
 			apiVersion: 3,
 			title: __( 'Steps', 'jetpack-forms' ),
 			allowedBlocks: [ 'jetpack/form-step' ],
+			ancestor: [ 'jetpack/contact-form' ],
 			category: 'contact-form',
 			description: __( 'A container that organizes multiple form steps.', 'jetpack-forms' ),
 			icon: {
@@ -973,6 +974,7 @@ export const childBlocks = [
 		name: 'form-step-navigation',
 		settings: {
 			...FieldDefaults,
+			ancestor: [ 'jetpack/contact-form' ],
 			supports: {
 				...FieldDefaults.supports,
 				layout: {
@@ -999,6 +1001,7 @@ export const childBlocks = [
 		name: 'form-progress-indicator',
 		settings: {
 			...FieldDefaults,
+			ancestor: [ 'jetpack/contact-form' ],
 			supports: {
 				html: false,
 				reusable: false,
