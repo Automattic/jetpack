@@ -93,7 +93,6 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 		inputBlockName: inputBlock?.name,
 		inputBlockAttributes: inputBlock?.attributes,
 	} );
-	console.log( 'LabelEdit', { inputBlock, inputStyles } );
 	const blockProps = useBlockProps( {
 		className,
 		style: inputStyles?.cssVars,

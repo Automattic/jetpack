@@ -766,7 +766,6 @@
 				display: flex;
 				box-sizing: border-box;
 				text-align: left;
-				z-index: 1;
 			}
 
 			.notched-label__leading {
@@ -775,14 +774,12 @@
 				border-top-right-radius: unset !important;
 				border-bottom-right-radius: unset !important;
 				box-sizing: content-box;
-				background: none !important;
 			}
 
 			.notched-label__notch {
 				border-radius: unset !important;
 				padding: 0 4px;
 				transition: border 150ms linear;
-				background: none !important;
 				// For some reason, when keeping the rule below together with the above selector,
 				// on production builds, the attributes are being reordered, causing side-effects
 				// stylelint-disable-next-line no-duplicate-selectors
@@ -810,7 +807,6 @@
 				border-top-left-radius: unset !important;
 				border-bottom-left-radius: unset !important;
 				box-sizing: content-box;
-				background: none !important;
 			}
 
 			&.jetpack-field-textarea .notched-label__label {
@@ -872,11 +868,13 @@
 			.jetpack-field-multiple__list, .jetpack-field__input, .jetpack-field__textarea {
 				display: flex;
 
-				/*
-				 * For the Outlined block style, labels render the input border styles,
-				 * unfortuntely, the !important rule is required to overcome the inline
-				 * border styles that block supports apply for block instance styles.
+				 /*
+				 * For the Outlined block style, labels render the input background and
+				 * border styles.
+				 * Unfortunately, the !important rule is required to overcome the inline
+				 * styles that block supports apply for block instance styles.
 				 */
+				background: none !important;
 				border-color: transparent !important;
 				outline: none;
 				padding-left: calc(var(--jetpack--contact-form--notch-width) + 4px);
