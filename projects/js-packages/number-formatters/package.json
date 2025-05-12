@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/number-formatters",
-	"version": "Failed to parse changelog: Heading seems to have a linked version, but link was not found: ## [1.0.1] - 2025-05-12. Please ensure this version has a URL defined at the end of the changelog.",
+	"version": "1.0.1",
 	"description": "Number formatting utilities",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
