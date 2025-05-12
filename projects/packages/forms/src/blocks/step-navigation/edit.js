@@ -8,6 +8,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useFormSteps from '../../hooks/use-form-steps';
+import useParentFormClientId from '../../hooks/useParentFormClientId';
 
 import './editor.scss';
 
@@ -48,84 +49,64 @@ export default function Edit( { clientId } ) {
 
 	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
 
-	const { ancestorStepClientId, ancestorFormClientId } = useSelect(
+	const { ancestorStepClientId } = useSelect(
 		select => {
 			const { getBlockParentsByBlockName } = select( blockEditorStore );
 			const stepParentArray = getBlockParentsByBlockName( clientId, [ 'jetpack/form-step' ] );
-			let formParentClientId = null;
-
-			if ( stepParentArray.length > 0 ) {
-				// Navigation is inside a step, get the form parent of that step
-				const formParentArray = getBlockParentsByBlockName( stepParentArray[ 0 ], [
-					'jetpack/contact-form',
-				] );
-				if ( formParentArray.length > 0 ) {
-					formParentClientId = formParentArray[ 0 ];
-				}
-			} else {
-				// Navigation is not inside a step, get its direct form parent
-				const formParentArray = getBlockParentsByBlockName( clientId, [ 'jetpack/contact-form' ] );
-				if ( formParentArray.length > 0 ) {
-					formParentClientId = formParentArray[ 0 ];
-				}
-			}
-
 			return {
 				ancestorStepClientId: stepParentArray.length > 0 ? stepParentArray[ 0 ] : null,
-				ancestorFormClientId: formParentClientId,
 			};
 		},
 		[ clientId ]
 	);
 
-	const allStepsInForm = useFormSteps( ancestorFormClientId );
+	const formClientId = useParentFormClientId( clientId );
+	const allSteps = useFormSteps( formClientId );
 
-	const { navigationBlocks, currentIndex, isFirstStep, isLastStep, saveAll } = useSelect(
+	// Calculate our current position in steps
+	let isFirstStep = false;
+	let isLastStep = false;
+	let currentIndex = 0;
+	const insideStep = ! ancestorStepClientId;
+
+	if ( ! insideStep ) {
+		// Inside a step - determine position
+		const stepIndex = allSteps.findIndex( block => block.clientId === ancestorStepClientId );
+		isFirstStep = stepIndex === 0;
+		isLastStep = stepIndex === allSteps.length - 1;
+		currentIndex = stepIndex;
+	}
+
+	const { navigationBlocks } = useSelect(
 		select => {
 			const { getBlocks } = select( blockEditorStore );
 			const currentNavigationBlocks = getBlocks( clientId );
-
-			if ( ! ancestorStepClientId ) {
-				// Logic for when navigation is not inside a specific step (saveAll scenario)
-				return {
-					navigationBlocks: currentNavigationBlocks,
-					currentIndex: 1,
-					isFirstStep: false,
-					isLastStep: false,
-					saveAll: true,
-				};
-			}
-
-			// Logic for when navigation is inside a step
-			const currentStepIndex = allStepsInForm.findIndex(
-				block => block.clientId === ancestorStepClientId
-			);
-
 			return {
 				navigationBlocks: currentNavigationBlocks,
-				currentIndex: currentStepIndex,
-				isFirstStep: currentStepIndex === 0,
-				isLastStep: currentStepIndex === allStepsInForm.length - 1,
-				saveAll: false,
 			};
 		},
-		[ clientId, allStepsInForm, ancestorStepClientId ] // Updated dependencies
+		[ clientId ]
 	);
 
 	const template = useMemo( () => {
-		if ( saveAll ) {
-			return [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE, SUBMIT_BUTTON_TEMPLATE ];
+		if ( isFirstStep && isLastStep ) {
+			// Single step in form - only show submit button
+			return [ SUBMIT_BUTTON_TEMPLATE ];
 		}
-		let navTemplate = [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE ];
+
 		if ( isFirstStep ) {
-			navTemplate = isLastStep ? [ SUBMIT_BUTTON_TEMPLATE ] : [ NEXT_BUTTON_TEMPLATE ];
+			// First step - only next button
+			return [ NEXT_BUTTON_TEMPLATE ];
 		}
 
 		if ( isLastStep ) {
+			// Last step - previous and submit buttons
 			return [ PREVIOUS_BUTTON_TEMPLATE, SUBMIT_BUTTON_TEMPLATE ];
 		}
-		return navTemplate;
-	}, [ isFirstStep, isLastStep, saveAll ] );
+
+		// Middle steps - previous and next buttons
+		return [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE ];
+	}, [ isFirstStep, isLastStep ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: template,
