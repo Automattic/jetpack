@@ -106,7 +106,7 @@ class Contact_Form_Block {
 					'color'                => array(
 						'text'       => true,
 						'background' => true,
-						'gradient'   => true,
+						'gradients'  => false,
 					),
 					'typography'           => array(
 						'fontSize'                     => true,
@@ -129,7 +129,7 @@ class Contact_Form_Block {
 					'color'      => array(
 						'text'       => true,
 						'background' => false,
-						'gradient'   => false,
+						'gradients'  => false,
 					),
 					'typography' => array(
 						'fontSize'                     => true,
@@ -168,7 +168,7 @@ class Contact_Form_Block {
 					'color'      => array(
 						'text'       => true,
 						'background' => false,
-						'gradient'   => false,
+						'gradients'  => false,
 					),
 					'typography' => array(
 						'fontSize'                     => true,
