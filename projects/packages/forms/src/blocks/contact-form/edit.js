@@ -80,16 +80,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	const steps = useFormSteps( clientId );
 
-	const { isPreview } = useSelect(
-		select => {
-			const { isPreviewMode } = select( previewStore );
-			return {
-				isPreview: isPreviewMode( clientId ),
-			};
-		},
-		[ clientId ]
-	);
-
 	const {
 		postTitle,
 		canUserInstallPlugins,
@@ -128,11 +118,12 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		[ clientId, steps ]
 	);
 
-	const { currentStepInfo } = useSelect(
+	const { currentStepInfo, isPreview } = useSelect(
 		select => {
-			const { getCurrentStepInfo } = select( previewStore );
+			const { getCurrentStepInfo, isPreviewMode } = select( previewStore );
 			return {
 				currentStepInfo: getCurrentStepInfo( clientId, steps ),
+				isPreview: isPreviewMode( clientId ),
 			};
 		},
 		[ clientId, steps ]
