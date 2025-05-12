@@ -855,8 +855,8 @@
 						 */
 						border-color: transparent !important;
 						border-radius: transparent !important;
-						padding-left: calc(var(--jetpack--contact-form--notch-width) + 4px);
-						padding-right: calc(var(--jetpack--contact-form--notch-width) + 4px);
+						padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
+						padding-right: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
 					}
 
 					.jetpack-field-dropdown__toggle .jetpack-field-dropdown__icon,
@@ -888,8 +888,8 @@
 				background: none !important;
 				border-color: transparent !important;
 				outline: none;
-				padding-left: calc(var(--jetpack--contact-form--notch-width) + 4px);
-				padding-right: calc(var(--jetpack--contact-form--notch-width) + 4px);
+				padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
+				padding-right: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
 			}
 		}
 	}
