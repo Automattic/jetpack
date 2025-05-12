@@ -85,13 +85,16 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		return null;
 	}
 
-	// Translators: %d is the step number (1, 2, 3, etc.)
-	const defaultStepName = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
+	let stepName = attributes.stepLabel;
+	if ( attributes.stepLabel === '' || attributes.stepLabel === 'Step' ) {
+		// Translators: %d is the step number (1, 2, 3, etc.)
+		stepName = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
+	}
 
 	return (
 		<>
 			<div { ...blockProps }>
-				{ ! isPreview && <StepBreak stepName={ attributes.stepLabel || defaultStepName } /> }
+				{ ! isPreview && <StepBreak stepName={ stepName } /> }
 				<div className="jetpack-form-step__container" { ...innerBlocksProps }>
 					{ children }
 				</div>
