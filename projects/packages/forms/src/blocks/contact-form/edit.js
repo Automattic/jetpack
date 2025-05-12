@@ -9,14 +9,12 @@ import {
 	store as blockEditorStore,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
 import {
 	ExternalLink,
 	PanelBody,
 	SelectControl,
 	TextareaControl,
 	TextControl,
-	Notice,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
@@ -99,9 +97,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		hasAnyInnerBlocks,
 		postAuthorEmail,
 		hasStepBlock,
-		isEveryBlockStep,
 		selectedBlockClientId,
-		innerBlocks,
 	} = useSelect(
 		select => {
 			const { getBlocks, getSelectedBlockClientId } = select( blockEditorStore );
@@ -114,14 +110,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			const authorEmail = authorId && getUser( authorId )?.email;
 
 			const submitButton = innerBlocksData.find( block => block.name === 'jetpack/button' );
-			const isEveryChildBlockStep = innerBlocksData.every(
-				block =>
-					block.name === 'jetpack/form-step' ||
-					block.name === 'jetpack/form-step-navigation' ||
-					block.name === 'jetpack/form-progress-indicator' ||
-					block.name === 'jetpack/step-container' ||
-					block.name === 'core/paragraph'
-			);
+
 			if ( submitButton && ! submitButton.attributes.lock ) {
 				const lock = { move: false, remove: true };
 				submitButton.attributes.lock = lock;
@@ -133,7 +122,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				hasAnyInnerBlocks: innerBlocksData.length > 0,
 				postAuthorEmail: authorEmail,
 				hasStepBlock: !! steps.length,
-				isEveryBlockStep: isEveryChildBlockStep,
 				selectedBlockClientId: getSelectedBlockClientId(),
 				innerBlocks: innerBlocksData,
 			};
@@ -153,7 +141,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	const { isFirstStep, isLastStep } = currentStepInfo || { isFirstStep: false, isLastStep: false };
 
-	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
 	const { selectBlock } = useDispatch( blockEditorStore );
 
 	const wrapperRef = useRef();
@@ -175,7 +162,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		{
 			allowedBlocks: hasStepBlock
 				? [
-						'jetpack/form-step',
+						'jetpack/step-container',
 						'jetpack/form-step-navigation',
 						'jetpack/form-progress-indicator',
 						'core/paragraph',
@@ -187,76 +174,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	);
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
-
-	const hasStructured = useRef( false );
-
-	useEffect( () => {
-		if ( hasStructured.current ) {
-			return;
-		}
-
-		const stepBlockCount = steps.length;
-
-		if ( stepBlockCount === 0 ) {
-			return;
-		}
-
-		if ( stepBlockCount > 1 ) {
-			hasStructured.current = true;
-			return;
-		}
-
-		if ( isEveryBlockStep ) {
-			hasStructured.current = true;
-			return;
-		}
-
-		const firstStepBlock = steps[ 0 ];
-		const firstStepBlockIndex = innerBlocks.findIndex(
-			block => block.clientId === firstStepBlock.clientId
-		);
-
-		const fieldsBefore = innerBlocks
-			.slice( 0, firstStepBlockIndex )
-			.filter( block => block.name !== 'jetpack/button' );
-
-		const fieldsAfter = innerBlocks
-			.slice( firstStepBlockIndex + 1 )
-			.filter(
-				block =>
-					block.name !== 'jetpack/button' &&
-					block.name !== 'jetpack/form-step' &&
-					block.name !== 'jetpack/form-step-navigation'
-			);
-
-		const finalBlocks = [];
-
-		if ( fieldsBefore.length > 0 ) {
-			finalBlocks.push(
-				createBlock( 'jetpack/form-step', {}, [
-					...fieldsBefore,
-					createBlock( 'jetpack/form-step-navigation' ),
-				] )
-			);
-		}
-
-		finalBlocks.push( firstStepBlock );
-
-		if ( fieldsAfter.length > 0 ) {
-			finalBlocks.push(
-				createBlock( 'jetpack/form-step', {}, [
-					...fieldsAfter,
-					createBlock( 'jetpack/form-step-navigation' ),
-				] )
-			);
-		}
-
-		// Add progress indicator at the beginning of the form
-		finalBlocks.unshift( createBlock( 'jetpack/form-progress-indicator' ) );
-
-		replaceInnerBlocks( clientId, finalBlocks );
-		hasStructured.current = true;
-	}, [ innerBlocks, clientId, replaceInnerBlocks, isEveryBlockStep, steps ] );
 
 	useEffect( () => {
 		// If the current variationName already matches the state of hasStepBlock, do nothing.
@@ -439,14 +356,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						{ __( 'Read more.', 'jetpack-forms' ) }
 					</ExternalLink>
 				</InspectorAdvancedControls>
-				{ hasStepBlock && ! isEveryBlockStep && (
-					<Notice status="warning" isDismissible={ false }>
-						{ __(
-							'This form contains steps. You can add fields to each step, but you cannot add fields outside of the steps.',
-							'jetpack-forms'
-						) }
-					</Notice>
-				) }
+
 				<div { ...innerBlocksProps } />
 			</>
 		);
