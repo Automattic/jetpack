@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-classic-theme-helper",
-	"version": "0.12.1",
+	"version": "0.13.0",
 	"description": "Features used with classic themes",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/classic-theme-helper/#readme",
 	"bugs": {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Site Logo: Prevent PHP fatal when third-party code passes unexpected content to `option_site_logo` filter.

@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Migrate numberFormat to number-formatters package
