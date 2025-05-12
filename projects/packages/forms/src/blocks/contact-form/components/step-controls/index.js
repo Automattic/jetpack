@@ -10,9 +10,11 @@ import {
 	MenuItem,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { next, previous } from '@wordpress/icons';
+import useFormSteps from '../../../../hooks/use-form-steps';
+import useParentFormClientId from '../../../../hooks/useParentFormClientId';
 import { store as previewStore } from '../../../../store/preview-store';
 
 /**
@@ -20,44 +22,43 @@ import { store as previewStore } from '../../../../store/preview-store';
  *
  * @param {object}  props                - Component props.
  * @param {string}  props.formClientId   - Client ID of the root contact form block.
+ * @param {string}  props.clientId       - Client ID of the current block.
  * @param {boolean} props.showToggle     - Flag to indicate if toggle buttons should be shown.
  * @param {boolean} props.showNavigation - Flag to indicate if navigation controls should be shown.
  * @return {JSX.Element} The rendered BlockControls component.
  */
-export default function StepControls( { formClientId, showToggle = true, showNavigation = true } ) {
+export default function StepControls( {
+	formClientId = null,
+	clientId = null,
+	showToggle = true,
+	showNavigation = true,
+} ) {
 	const { setPreviewStep, disablePreview, enablePreview } = useDispatch( previewStore );
 
-	const { steps, isFirstStep, isLastStep, selectedBlockClientId, selectedStepId, isPreview } =
-		useSelect(
-			select => {
-				const { getBlocks, getSelectedBlockClientId } = select( blockEditorStore );
-				const { isPreviewMode, getActivePreviewStepId } = select( previewStore );
+	const parentFormClientId = useParentFormClientId( clientId );
 
-				const currentFormId = formClientId;
+	// Use prop value if provided, otherwise fall back to parent form client ID
+	formClientId = formClientId || parentFormClientId;
 
-				const selectedStepClientIdForForm = getActivePreviewStepId( currentFormId );
-				const innerBlocks = getBlocks( currentFormId );
+	// Get form steps using the dedicated hook
+	const steps = useFormSteps( formClientId );
 
-				let stepBlocks = innerBlocks.filter( block => block.name === 'jetpack/form-step' );
+	const { selectedBlockClientId, selectedStepId, isPreview, currentStepInfo } = useSelect(
+		select => {
+			const { getSelectedBlockClientId } = select( blockEditorStore );
+			const { isPreviewMode, getActivePreviewStepId, getCurrentStepInfo } = select( previewStore );
 
-				if ( stepBlocks.length === 0 ) {
-					const stepContainer = innerBlocks.find(
-						block => block.name === 'jetpack/step-container'
-					);
-					stepBlocks = stepContainer ? getBlocks( stepContainer.clientId ) : [];
-				}
+			const selectedStepClientIdForForm = getActivePreviewStepId( formClientId );
 
-				return {
-					steps: stepBlocks,
-					selectedStepId: selectedStepClientIdForForm,
-					isPreview: isPreviewMode( currentFormId ),
-					isFirstStep: stepBlocks[ 0 ]?.clientId === selectedStepClientIdForForm,
-					isLastStep: stepBlocks[ stepBlocks.length - 1 ]?.clientId === selectedStepClientIdForForm,
-					selectedBlockClientId: getSelectedBlockClientId(), // Global selection
-				};
-			},
-			[ formClientId ]
-		);
+			return {
+				selectedStepId: selectedStepClientIdForForm,
+				isPreview: isPreviewMode( formClientId ),
+				selectedBlockClientId: getSelectedBlockClientId(), // Global selection
+				currentStepInfo: getCurrentStepInfo( formClientId, steps ),
+			};
+		},
+		[ formClientId, steps ]
+	);
 
 	// Sync List View selection with step preview
 	useEffect( () => {
@@ -81,50 +82,42 @@ export default function StepControls( { formClientId, showToggle = true, showNav
 		showNavigation,
 		isPreview,
 		formClientId,
-	] ); // Added formClientId
+	] );
 
-	// Effect to validate selectedStepId when steps change (e.g., a step is deleted)
-	useEffect( () => {
-		if ( ! steps || steps.length === 0 ) {
-			// If we have no steps, and a step selection still exists for this form, clear it.
-			if ( isPreview ) {
-				disablePreview( formClientId );
-			}
-			return;
+	// Helper function to navigate to the next step
+	const navigateToNextStep = () => {
+		const { index, isLastStep } = currentStepInfo;
+		if ( ! isLastStep && index !== -1 ) {
+			const nextStepId = steps[ index + 1 ].clientId;
+			setPreviewStep( formClientId, nextStepId );
 		}
+	};
 
-		const isTrulyInvalidSelection =
-			selectedStepId !== null && ! steps.some( step => step.clientId === selectedStepId );
-
-		if ( isTrulyInvalidSelection ) {
-			setPreviewStep( formClientId, steps[ 0 ].clientId );
+	// Helper function to navigate to the previous step
+	const navigateToPreviousStep = () => {
+		const { index, isFirstStep } = currentStepInfo;
+		if ( ! isFirstStep ) {
+			const prevStepId = steps[ index - 1 ].clientId;
+			setPreviewStep( formClientId, prevStepId );
 		}
-	}, [ steps, selectedStepId, setPreviewStep, disablePreview, isPreview, formClientId ] ); // Added formClientId and disablePreview
-
-	// Determine the current step label and index
-	const getCurrentStepInfo = useCallback( () => {
-		if ( selectedStepId === null ) {
-			return { label: __( 'All Steps', 'jetpack-forms' ), index: -1 };
-		}
-
-		const currentStepIndex = steps.findIndex( step => step.clientId === selectedStepId );
-		if ( currentStepIndex >= 0 ) {
-			const currentStepLabel = steps[ currentStepIndex ]?.attributes?.stepLabel || '';
-			return {
-				label: `${ currentStepIndex + 1 }. ${ currentStepLabel }`,
-				index: currentStepIndex,
-			};
-		}
-
-		return { label: __( 'Select Step', 'jetpack-forms' ), index: -1 };
-	}, [ selectedStepId, steps ] );
+	};
 
 	// Don't render controls if there are no steps
 	if ( ! steps || steps.length === 0 ) {
 		return null;
 	}
 
-	const { label: currentStepLabel, index: currentStepIndex } = getCurrentStepInfo();
+	const { stepLabel, index: currentStepIndex, isFirstStep, isLastStep } = currentStepInfo;
+
+	// Format the display label based on whether we're in preview mode and which step is active
+	let displayLabel;
+	if ( ! isPreview ) {
+		displayLabel = __( 'All Steps', 'jetpack-forms' );
+	} else if ( currentStepIndex >= 0 ) {
+		displayLabel = `${ currentStepIndex + 1 }. ${ stepLabel }`;
+	} else {
+		displayLabel = __( 'Select Step', 'jetpack-forms' );
+	}
 
 	return (
 		<BlockControls>
@@ -162,11 +155,7 @@ export default function StepControls( { formClientId, showToggle = true, showNav
 								showTooltip={ true }
 								label={ __( 'Previous Step', 'jetpack-forms' ) }
 								disabled={ isFirstStep }
-								onClick={ () => {
-									if ( currentStepIndex > 0 ) {
-										setPreviewStep( formClientId, steps[ currentStepIndex - 1 ].clientId );
-									}
-								} }
+								onClick={ navigateToPreviousStep }
 							>
 								<Icon icon={ previous } />
 							</ToolbarButton>
@@ -174,13 +163,7 @@ export default function StepControls( { formClientId, showToggle = true, showNav
 								showTooltip={ true }
 								label={ __( 'Next Step', 'jetpack-forms' ) }
 								disabled={ isLastStep }
-								onClick={ () => {
-									const stepIndex = steps.findIndex( step => step.clientId === selectedStepId );
-									if ( stepIndex !== -1 && stepIndex < steps.length - 1 ) {
-										const nextStepId = steps[ stepIndex + 1 ].clientId;
-										setPreviewStep( formClientId, nextStepId );
-									}
-								} }
+								onClick={ navigateToNextStep }
 							>
 								<Icon icon={ next } />
 							</ToolbarButton>
@@ -192,7 +175,7 @@ export default function StepControls( { formClientId, showToggle = true, showNav
 							toggleProps={ {
 								children: (
 									<>
-										{ currentStepLabel }
+										{ displayLabel }
 										<span style={ { width: '8px' } } />
 										<SVG
 											xmlns="http://www.w3.org/2000/svg"

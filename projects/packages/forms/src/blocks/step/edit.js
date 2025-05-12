@@ -61,7 +61,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		allowedBlocks: ALLOWED_BLOCKS,
 	} );
 
-	// Get the parent form clientId using our custom hook
 	const ancestorFormClientId = useParentFormClientId( clientId );
 
 	const allStepsInForm = useFormSteps( ancestorFormClientId );

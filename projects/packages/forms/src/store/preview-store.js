@@ -31,7 +31,6 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 			const { formClientId, stepClientId } = action.payload;
 			const currentForm = state.forms[ formClientId ] || {};
 			return {
-				...state,
 				forms: {
 					...state.forms,
 					[ formClientId ]: {
@@ -45,7 +44,6 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 			const { formClientId } = action.payload;
 			const currentForm = state.forms[ formClientId ] || {};
 			return {
-				...state,
 				forms: {
 					...state.forms,
 					[ formClientId ]: {
@@ -59,7 +57,6 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 			const { formClientId } = action.payload;
 			const currentForm = state.forms[ formClientId ] || {};
 			return {
-				...state,
 				forms: {
 					...state.forms,
 					[ formClientId ]: {
@@ -80,6 +77,35 @@ const selectors = {
 	},
 	isPreviewMode( state, formClientId ) {
 		return !! state.forms[ formClientId ]?.previewMode;
+	},
+	/**
+	 * Gets information about the current step (label and index) based on the steps array.
+	 * This is a higher-level selector that requires the steps array from the block editor.
+	 *
+	 * @param {object} state        - The store state
+	 * @param {string} formClientId - The ID of the form
+	 * @param {Array}  steps        - The array of step blocks from the block editor
+	 * @return {object} An object with step information
+	 */
+	getCurrentStepInfo( state, formClientId, steps ) {
+		const selectedStepId = selectors.getActivePreviewStepId( state, formClientId );
+		const currentStepIndex = steps.findIndex( step => step.clientId === selectedStepId );
+		if ( currentStepIndex >= 0 ) {
+			const stepLabel = steps[ currentStepIndex ]?.attributes?.stepLabel || '';
+			return {
+				stepLabel,
+				index: currentStepIndex,
+				isFirstStep: currentStepIndex === 0,
+				isLastStep: currentStepIndex === steps.length - 1,
+			};
+		}
+
+		return {
+			stepLabel: '',
+			index: -1,
+			isFirstStep: false,
+			isLastStep: false,
+		};
 	},
 };
 
