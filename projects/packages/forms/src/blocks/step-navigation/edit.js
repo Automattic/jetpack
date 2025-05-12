@@ -113,7 +113,7 @@ export default function Edit( { clientId } ) {
 
 	const template = useMemo( () => {
 		// When outside steps and not in preview mode, show all buttons
-		if ( isOutsideSteps && ! isPreviewMode ) {
+		if ( isOutsideSteps ) {
 			return [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE, SUBMIT_BUTTON_TEMPLATE ];
 		}
 
@@ -134,7 +134,7 @@ export default function Edit( { clientId } ) {
 
 		// Middle steps - previous and next buttons
 		return [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE ];
-	}, [ isFirstStep, isLastStep, isOutsideSteps, isPreviewMode ] );
+	}, [ isFirstStep, isLastStep, isOutsideSteps ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: template,
