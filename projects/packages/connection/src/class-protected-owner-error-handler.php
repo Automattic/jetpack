@@ -335,17 +335,18 @@ class Protected_Owner_Error_Handler {
 		$formatted_errors = array(
 			$error_type => array(
 				$user_id => array(
-					'error_code'    => $error_type,
-					'user_id'       => $user_id,
-					'error_message' => $this->get_error_message( $error_type ),
-					'error_data'    => $error_data,
-					'timestamp'     => $error_data['timestamp'],
-					'nonce'         => wp_generate_password( 10, false ),
-					'error_type'    => 'protected_owner',
+					'error_code' => $error_type,
+					'user_id'    => $user_id,
+					'error_data' => $error_data,
+					'timestamp'  => $error_data['timestamp'],
+					'nonce'      => wp_generate_password( 10, false ),
+					'error_type' => 'protected_owner',
 				),
 			),
 		);
 
+		// Note: This completely replaces any previously stored errors with the new error.
+		// Only one error will be stored at a time.
 		return update_option( self::STORED_ERRORS_OPTION, $formatted_errors );
 	}
 
@@ -357,7 +358,30 @@ class Protected_Owner_Error_Handler {
 	 * @return array|false The stored error or false if no error is stored.
 	 */
 	public function get_error() {
-		return get_option( self::STORED_ERRORS_OPTION, false );
+		$error = get_option( self::STORED_ERRORS_OPTION, false );
+
+		// Return early if no error is stored.
+		if ( ! $error ) {
+			return false;
+		}
+
+		// Check if this is a self-healing error.
+		$error_type         = key( $error );
+		$user_error         = reset( $error[ $error_type ] );
+		$is_self_heal_error = isset( $user_error['error_code'] ) && 'self_heal_protected_owner_missing' === $user_error['error_code'];
+
+		// If this is a self-healing error, check if a master user exists.
+		if ( $is_self_heal_error ) {
+			$master_user_id = \Jetpack_Options::get_option( 'master_user' );
+
+			// If a master user exists, the self-healing error is no longer valid.
+			if ( $master_user_id && get_userdata( $master_user_id ) ) {
+				$this->delete_error();
+				return false;
+			}
+		}
+
+		return $error;
 	}
 
 	/**
@@ -460,27 +484,43 @@ class Protected_Owner_Error_Handler {
 			return $errors;
 		}
 
-		// Get the first error type from the array
+		// Since only one error is stored at a time, we can directly access its components.
 		$error_type = key( $stored_errors );
 		if ( empty( $error_type ) ) {
 			return $errors;
 		}
 
-		// Get the first user's error in this error type
+		// Get the user's error in this error type.
 		$user_error = reset( $stored_errors[ $error_type ] );
 		if ( empty( $user_error ) || ! isset( $user_error['error_code'] ) ) {
 			return $errors;
 		}
 
-		$error_code    = $user_error['error_code'];
-		$error_message = isset( $user_error['error_message'] ) ?
-			$user_error['error_message'] :
-			__( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' );
+		$error_code = $user_error['error_code'];
+		// Generate the error message from the error code
+		$error_message = $this->get_error_message( $error_code );
+
+		/**
+		 * Determine the appropriate action based on error type.
+		 * These actions will be handled by the React frontend to show different UI components:
+		 * - 'reconnect': Standard reconnect flow for general connection errors
+		 * - 'self_heal_action': Specialized UI for self-healing the connection when protected owner account is missing
+		 * - 'protected_owner_action': Specialized UI for fixing protected owner account mismatches
+		 */
+		$action = 'reconnect'; // Default action
+
+		// Self-heal errors get the self_heal_action
+		// Protected owner errors (except self-heal) get the protected_owner_action
+		if ( 'self_heal_protected_owner_missing' === $error_code ) {
+			$action = 'self_heal_action';
+		} elseif ( strpos( $error_code, 'owner_' ) === 0 || strpos( $error_code, 'wrong_owner_' ) === 0 ) {
+			$action = 'protected_owner_action';
+		}
 
 		$errors[] = array(
 			'code'    => 'connection_error',
 			'message' => $error_message,
-			'action'  => 'reconnect',
+			'action'  => $action,
 			'data'    => array( 'api_error_code' => $error_code ),
 		);
 
