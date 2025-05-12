@@ -26,13 +26,16 @@ const useFormSteps = formClientId => {
 				return [];
 			}
 
-			const stepsContainerID =
-				stepContainers.find( stepContainerId => {
-					const parentId = getBlockParentsByBlockName( stepContainerId, [
-						'jetpack/contact-form',
-					] )[ 0 ];
-					return parentId && parentId === formClientId;
-				} )[ 0 ] || [];
+			const stepsContainerID = stepContainers.find( stepContainerId => {
+				const parentId = getBlockParentsByBlockName( stepContainerId, [
+					'jetpack/contact-form',
+				] )[ 0 ];
+				return parentId && parentId === formClientId;
+			} );
+
+			if ( ! stepsContainerID ) {
+				return [];
+			}
 
 			const steps = getBlocks( stepsContainerID );
 			if ( ! steps ) {
