@@ -32,7 +32,7 @@ const settings = {
 		color: {
 			text: true,
 			background: true,
-			gradient: true,
+			gradients: false,
 		},
 		__experimentalBorder: {
 			color: true,
