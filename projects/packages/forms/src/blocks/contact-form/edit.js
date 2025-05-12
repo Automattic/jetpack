@@ -305,6 +305,31 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		clientId,
 	] );
 
+	// Sync List View selection with step preview
+	useEffect( () => {
+		// Only proceed if we have steps and are in preview mode
+		if ( ! formStepsFromHook.length || ! isPreview ) {
+			return;
+		}
+
+		// Check if the selected block is one of our steps
+		const isStepSelected = formStepsFromHook.some(
+			step => step.clientId === selectedBlockClientId
+		);
+
+		// If a step is selected in List View but it's different from our current preview, update it
+		if ( isStepSelected && selectedBlockClientId !== selectedStepClientId ) {
+			setPreviewStep( clientId, selectedBlockClientId );
+		}
+	}, [
+		selectedBlockClientId,
+		formStepsFromHook,
+		selectedStepClientId,
+		setPreviewStep,
+		clientId,
+		isPreview,
+	] );
+
 	let elt;
 
 	if ( ! isModuleActive ) {
