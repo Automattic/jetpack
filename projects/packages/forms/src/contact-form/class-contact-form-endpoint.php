@@ -39,6 +39,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'file'         => 'zero-bs-crm/ZeroBSCRM.php',
 			'settings_url' => 'admin.php?page=zerobscrm-plugin-settings',
 		),
+		'salesforce'                        => array(
+			'type'         => 'internal',
+			'file'         => null,
+			'settings_url' => null,
+		),
 	);
 
 	/**
@@ -603,20 +608,54 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$version      = absint( $request->get_param( 'version' ) );
 		$integrations = array();
 
-		foreach ( array_keys( $this->get_supported_integrations() ) as $slug ) {
-			$plugin_status = $this->get_plugin_status( $slug );
+		foreach ( $this->get_supported_integrations() as $slug => $config ) {
+			$integration_status = ( isset( $config['type'] ) && $config['type'] === 'plugin' )
+				? $this->get_plugin_status( $slug )
+				: $this->get_service_status( $slug );
 
 			if ( 1 === $version ) {
-				$integrations[ $slug ] = $plugin_status;
+				$integrations[ $slug ] = $integration_status;
 			} else {
-				$integrations[] = array_merge(
-					array( 'id' => $slug ),
-					$plugin_status
-				);
+				$integrations[] = array_merge( array( 'id' => $slug ), $integration_status );
 			}
 		}
 
 		return rest_ensure_response( $integrations );
+	}
+
+	/**
+	 * Get status for internal/service integrations.
+	 *
+	 * @param string $slug Service slug.
+	 * @return array Service status data.
+	 */
+	private function get_service_status( $slug ) {
+		switch ( $slug ) {
+			case 'salesforce':
+				return array(
+					'type'        => 'service',
+					'slug'        => 'salesforce',
+					'pluginFile'  => null,
+					'isInstalled' => false,
+					'isActive'    => false,
+					'isConnected' => false,
+					'version'     => null,
+					'settingsUrl' => null,
+					'details'     => array(),
+				);
+			default:
+				return array(
+					'type'        => 'service',
+					'slug'        => $slug,
+					'pluginFile'  => null,
+					'isInstalled' => false,
+					'isActive'    => false,
+					'isConnected' => false,
+					'version'     => null,
+					'settingsUrl' => null,
+					'details'     => array(),
+				);
+		}
 	}
 
 	/**

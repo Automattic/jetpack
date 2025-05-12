@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Defs, G, Path, Rect, SVG, SVGProps } from '@wordpress/primitives';
 
-const AkismetSvg = ( props: SVGProps & { width?: number; height?: number } ) => {
+const AkismetIcon = ( props: SVGProps & { width?: number; height?: number } ) => {
 	return (
 		<SVG
 			width={ props.width || 46 }
@@ -46,4 +46,4 @@ const AkismetSvg = ( props: SVGProps & { width?: number; height?: number } ) => 
 	);
 };
 
-export default AkismetSvg;
+export default AkismetIcon;

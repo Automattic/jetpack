@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
@@ -376,6 +377,59 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		if ( ! preg_match( '/loading\s*=\s*["\']eager["\']/i', $tag ) ) {
 			$tag = preg_replace( '/<img\s/i', '<img loading="eager" ', $tag );
 		}
+
+		if ( ! preg_match( '/src\s*=\s*["\']([^"\']+)["\']/i', $tag, $matches ) ) {
+			return $tag;
+		}
+
+		$image_url = $matches[1];
+
+		// Update the src attribute with the CDN URL
+		$tag = str_replace(
+			$image_url,
+			Image_CDN_Core::cdn_url( $image_url ),
+			$tag
+		);
+		$tag = $this->add_responsive_image_attributes( $tag, $image_url );
+
+		return $tag;
+	}
+
+	/**
+	 * Optimize an image tag by adding srcset and sizes attributes.
+	 *
+	 * @param string $tag The original image tag.
+	 * @return string The optimized image tag.
+	 *
+	 * @since $$next-version$$
+	 */
+	private function add_responsive_image_attributes( $tag, $image_url ) {
+		$image_sizes = array( 300, 600, 900, 1200, 1600 );
+		$sizes       = array();
+		foreach ( $image_sizes as $size ) {
+			$sizes[ $size ] = array( 'w' => $size );
+		}
+
+		// Generate srcset
+		$srcset = array();
+		foreach ( $sizes as $width => $args ) {
+			$srcset[] = Image_CDN_Core::cdn_url( $image_url, $args ) . ' ' . $width . 'w';
+		}
+
+		// Add srcset attribute
+		$tag = preg_replace( '/srcset\s*=\s*["\'][^"\']*["\']/i', '', $tag );
+		$tag = preg_replace( '/<img\s/i', '<img srcset="' . esc_attr( implode( ', ', $srcset ) ) . '" ', $tag );
+
+		// Add sizes attribute
+		$sizes_string = '';
+		foreach ( $image_sizes as $width ) {
+			$sizes_string .= '(max-width: ' . $width . 'px) 100vw, ';
+		}
+		$sizes_string = rtrim( $sizes_string, ', ' );
+
+		// Update the sizes attribute
+		$tag = preg_replace( '/sizes\s*=\s*["\'][^"\']*["\']/i', '', $tag );
+		$tag = preg_replace( '/<img\s/i', '<img sizes="' . esc_attr( $sizes_string ) . '" ', $tag );
 
 		return $tag;
 	}

@@ -4,7 +4,6 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Cornerstone_Provider;
 
 class LCP_Analyzer {
 	/** @var LCP_State */
@@ -31,9 +30,11 @@ class LCP_Analyzer {
 		$pages = $this->get_cornerstone_pages();
 
 		// Store those pages in the LCP State
-		$this->state->prepare_request()
-				->set_pending_pages( $pages )
-				->save();
+		$this->state
+			->prepare_request()
+			->set_pages( $pages )
+			->set_pending_pages( $pages )
+			->save();
 
 		// Get the data
 		$data = $this->state->get();
@@ -48,6 +49,31 @@ class LCP_Analyzer {
 	}
 
 	/**
+	 * Start a partial analysis for the given pages.
+	 * Sets status to pending and updates only the pages that are in the $pages array.
+	 * Pages that are not in the $pages array will not be updated.
+	 *
+	 * @param array $pages The pages to analyze.
+	 * @return array The current state data
+	 */
+	public function start_partial_analysis( $pages ) {
+		$current_pages = $this->state->get_pages();
+
+		$this->state
+			->prepare_request()
+			->set_pages( $current_pages )
+			->set_pending_pages( $pages )
+			->save();
+
+		$this->analyze_pages( $pages );
+
+		// @todo - Clear previous LCP analysis data from storage for pages in the $pages array.
+		// We currently don't have a way to do this.
+
+		return $this->state->get();
+	}
+
+	/**
 	 * Get cornerstone pages for analysis
 	 *
 	 * @return array
@@ -57,10 +83,7 @@ class LCP_Analyzer {
 		$cornerstone_pages_list = Cornerstone_Utils::get_list();
 
 		foreach ( $cornerstone_pages_list as $url ) {
-			$pages[] = array(
-				'key' => Cornerstone_Provider::get_provider_key( $url ),
-				'url' => $url,
-			);
+			$pages[] = Cornerstone_Utils::prepare_provider_data( $url );
 		}
 
 		return $pages;

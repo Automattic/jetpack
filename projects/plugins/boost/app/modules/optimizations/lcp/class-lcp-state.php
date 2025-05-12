@@ -156,11 +156,53 @@ class LCP_State {
 		return $this;
 	}
 
-	public function set_pending_pages( $pages ) {
-		foreach ( $pages as $index => $page ) {
-			$pages[ $index ]['status'] = self::PAGE_STATES['pending'];
-		}
+	/**
+	 * Get the pages from the state.
+	 *
+	 * @return array The pages from the state.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function get_pages() {
+		return $this->state['pages'];
+	}
+
+	/**
+	 * Set the pages in the state.
+	 *
+	 * @param array $pages The pages to set in the state.
+	 * @return $this
+	 *
+	 * @since $$next-version$$
+	 */
+	public function set_pages( $pages ) {
 		$this->state['pages'] = $pages;
+		return $this;
+	}
+
+	/**
+	 * Set the status to pending for the pages that are in the $pages array.
+	 * Pages that are not in the $pages array will not be touched.
+	 *
+	 * @param array $pages The pages to set to pending.
+	 * @return $this
+	 *
+	 * @since $$next-version$$
+	 */
+	public function set_pending_pages( $pages ) {
+		$current_pages = $this->state['pages'];
+
+		foreach ( $pages as $page ) {
+			$page_key = $page['key'];
+			foreach ( $current_pages as $index => $current_page ) {
+				if ( $current_page['key'] === $page_key ) {
+					$current_pages[ $index ]['status'] = self::PAGE_STATES['pending'];
+					break;
+				}
+			}
+		}
+
+		$this->state['pages'] = $current_pages;
 		return $this;
 	}
 
