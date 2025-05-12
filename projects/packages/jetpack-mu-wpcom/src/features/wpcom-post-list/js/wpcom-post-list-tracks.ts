@@ -10,7 +10,7 @@ declare const wpcomPostListData: {
 function wpcomPostListTracks() {
 	document.getElementById( 'the-list' )?.addEventListener( 'click', function ( event ) {
 		const target = event.target as HTMLElement;
-		if ( target.tagName === 'A' ) {
+		if ( target.tagName === 'A' || target.className === 'button-link editinline' ) {
 			wpcomTrackQuickLinksClicks( target );
 			return;
 		}
@@ -37,8 +37,14 @@ function wpcomTrackQuickLinksClicks( target: HTMLElement ) {
 		return;
 	}
 
+	let linkName = span.className;
+
+	if ( linkName === 'inline hide-if-no-js' ) {
+		linkName = 'quick-edit';
+	}
+
 	wpcomTrackEvent( 'wpcom_post_list_quick_link_clicked', {
-		link_name: span.className,
+		link_name: linkName,
 		post_type: wpcomPostListData.postType,
 	} );
 }
