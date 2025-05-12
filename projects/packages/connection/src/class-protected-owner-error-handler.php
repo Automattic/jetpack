@@ -327,7 +327,26 @@ class Protected_Owner_Error_Handler {
 	 * @return bool Whether the error was successfully stored.
 	 */
 	public function store_error( $error_data ) {
-		return update_option( self::STORED_ERRORS_OPTION, $error_data );
+		// Format the error in the same structure as Error_Handler
+		$error_type = $error_data['error_type'];
+		$user_id    = isset( $error_data['authenticated_user_id'] ) ? $error_data['authenticated_user_id'] : '0';
+
+		// Create similar structure to Error_Handler errors
+		$formatted_errors = array(
+			$error_type => array(
+				$user_id => array(
+					'error_code'    => $error_type,
+					'user_id'       => $user_id,
+					'error_message' => $this->get_error_message( $error_type ),
+					'error_data'    => $error_data,
+					'timestamp'     => $error_data['timestamp'],
+					'nonce'         => wp_generate_password( 10, false ),
+					'error_type'    => 'protected_owner',
+				),
+			),
+		);
+
+		return update_option( self::STORED_ERRORS_OPTION, $formatted_errors );
 	}
 
 	/**
@@ -349,7 +368,6 @@ class Protected_Owner_Error_Handler {
 	public function handle_verified_errors() {
 		$error = $this->get_error();
 		if ( $error ) {
-			add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
 			add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
 		}
 	}
@@ -367,11 +385,11 @@ class Protected_Owner_Error_Handler {
 			case 'owner_connected_wrong_wpcom_account':
 				return __( 'The current connection owner has connected with a different WordPress.com account than the protected owner.', 'jetpack-connection' );
 			case 'wrong_owner_protected_owner_exists':
-				return __( 'The protected owner account exists on this site but is not the connection owner.', 'jetpack-connection' );
+				return __( 'The WordPress.com owner account exists on this site but is not the connection owner.', 'jetpack-connection' );
 			case 'wrong_owner_protected_owner_missing':
-				return __( 'The protected owner account does not exist on this site.', 'jetpack-connection' );
+				return __( 'The WordPress.com owner account does not exist on this site.', 'jetpack-connection' );
 			case 'self_heal_protected_owner_missing':
-				return __( 'WordPress.com detected a protected owner account issue that needs attention.', 'jetpack-connection' );
+				return __( 'WordPress.com detected that the owner account is missing.', 'jetpack-connection' );
 			default:
 				return __( 'There is an issue with the protected owner account connection.', 'jetpack-connection' );
 		}
@@ -436,19 +454,34 @@ class Protected_Owner_Error_Handler {
 	 * @return array Updated errors array.
 	 */
 	public function jetpack_react_dashboard_error( $errors ) {
-		$error = $this->get_error();
+		$stored_errors = $this->get_error();
 
-		if ( ! $error || ! isset( $error['error_type'] ) ) {
+		if ( ! $stored_errors || empty( $stored_errors ) ) {
 			return $errors;
 		}
 
-		$error_type = $error['error_type'];
-		$message    = $this->get_error_message( $error_type );
+		// Get the first error type from the array
+		$error_type = key( $stored_errors );
+		if ( empty( $error_type ) ) {
+			return $errors;
+		}
+
+		// Get the first user's error in this error type
+		$user_error = reset( $stored_errors[ $error_type ] );
+		if ( empty( $user_error ) || ! isset( $user_error['error_code'] ) ) {
+			return $errors;
+		}
+
+		$error_code    = $user_error['error_code'];
+		$error_message = isset( $user_error['error_message'] ) ?
+			$user_error['error_message'] :
+			__( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' );
 
 		$errors[] = array(
-			'code'    => 'protected_owner_error',
-			'type'    => $error_type,
-			'message' => $message,
+			'code'    => 'connection_error',
+			'message' => $error_message,
+			'action'  => 'reconnect',
+			'data'    => array( 'api_error_code' => $error_code ),
 		);
 
 		return $errors;

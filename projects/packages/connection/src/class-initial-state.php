@@ -24,6 +24,21 @@ class Initial_State {
 
 		$status = new Status();
 
+		// Initialize with regular connection errors
+		$connection_errors = Error_Handler::get_instance()->get_verified_errors();
+		$all_errors        = $connection_errors;
+
+		// Check for Protected Owner errors
+		$protected_owner_handler = Protected_Owner_Error_Handler::get_instance();
+		$protected_owner_error   = $protected_owner_handler->get_error();
+
+		// If Protected Owner error exists, override regular errors with it
+		if ( $protected_owner_error ) {
+			// Reset errors array and add only the Protected Owner error
+			$all_errors = array();
+			$all_errors = $protected_owner_handler->get_error();
+		}
+
 		return array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
 			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
@@ -33,7 +48,7 @@ class Initial_State {
 			'connectedPlugins'   => REST_Connector::get_connection_plugins( false ),
 			'wpVersion'          => $wp_version,
 			'siteSuffix'         => $status->get_site_suffix(),
-			'connectionErrors'   => Error_Handler::get_instance()->get_verified_errors(),
+			'connectionErrors'   => $all_errors,
 			'isOfflineMode'      => $status->is_offline_mode(),
 			'calypsoEnv'         => ( new Status\Host() )->get_calypso_env(),
 		);
