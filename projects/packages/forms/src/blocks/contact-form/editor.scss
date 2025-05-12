@@ -846,25 +846,13 @@
 
 				&.jetpack-field-dropdown {
 
-					.jetpack-field-dropdown__toggle {
-
-						/*
-						 * For the Outlined block style, labels render the input border styles,
-						 * unfortuntely, the !important rule is required to overcome the inline
-						 * border styles that block supports apply for block instance styles.
-						 */
-						border-color: transparent !important;
-						border-radius: transparent !important;
-						padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
-						padding-right: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
-					}
-
 					.jetpack-field-dropdown__toggle .jetpack-field-dropdown__icon,
 					.jetpack-field-dropdown__toggle .rich-text {
 						z-index: 1;
 					}
 				}
 			}
+
 			&.jetpack-field-checkbox {
 				margin-top: 0;
 			}
@@ -876,7 +864,7 @@
 				}
 			}
 
-			.jetpack-field-multiple__list, .jetpack-field__input, .jetpack-field__textarea {
+			.jetpack-field-multiple__list, .jetpack-field__input, .jetpack-field__textarea, .jetpack-field-dropdown__toggle {
 				display: flex;
 
 				 /*
@@ -887,6 +875,7 @@
 				 */
 				background: none !important;
 				border-color: transparent !important;
+				border-radius: unset !important;
 				outline: none;
 				padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
 				padding-right: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
@@ -935,6 +924,7 @@
 
 
 			&.jetpack-field-multiple {
+
 				.animated-label__label {
 					position: static;
 				}
