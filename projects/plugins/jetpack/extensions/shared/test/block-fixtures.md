@@ -126,7 +126,7 @@ The provided `generate_server_side_rendering_based_on_serialized_fixtures` metho
 To run (or generate) server-rendered fixture tests:
 
 ```sh
-jetpack docker phpunit -- --testsuite=extensions
+jetpack docker phpunit jetpack -- --testsuite=extensions
 ```
 
 To regenerate server-rendered fixtures, delete the fixtures with the `.server-rendered.html` extension and re-run the above command. The tests will fail, and report that the fixtures have been generated. Re-run the command again, and the tests should pass. Be sure to commit any updated or generated fixtures.
