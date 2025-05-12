@@ -91,7 +91,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	return (
 		<>
 			<div { ...blockProps }>
-				{ ! isPreview && <StepBreak stepName={ attributes.stepName || defaultStepName } /> }
+				{ ! isPreview && <StepBreak stepName={ attributes.stepLabel || defaultStepName } /> }
 				<div className="jetpack-form-step__container" { ...innerBlocksProps }>
 					{ children }
 				</div>
