@@ -90,22 +90,47 @@ const selectors = {
 	getCurrentStepInfo( state, formClientId, steps ) {
 		const selectedStepId = selectors.getActivePreviewStepId( state, formClientId );
 		const currentStepIndex = steps.findIndex( step => step.clientId === selectedStepId );
+
+		// Create a cache key based on the current index
+		const cacheKey = `${ formClientId }_${ currentStepIndex }`;
+
+		// Return cached result if it exists and is valid
+		if (
+			state._stepInfoCache?.[ cacheKey ] &&
+			state._stepInfoCache[ cacheKey ].index === currentStepIndex
+		) {
+			return state._stepInfoCache[ cacheKey ];
+		}
+
 		if ( currentStepIndex >= 0 ) {
 			const stepLabel = steps[ currentStepIndex ]?.attributes?.stepLabel || '';
-			return {
+			const result = {
 				stepLabel,
 				index: currentStepIndex,
 				isFirstStep: currentStepIndex === 0,
 				isLastStep: currentStepIndex === steps.length - 1,
 			};
+
+			// Cache the result
+			if ( ! state._stepInfoCache ) state._stepInfoCache = {};
+			state._stepInfoCache[ cacheKey ] = result;
+
+			return result;
 		}
 
-		return {
+		// Default result for invalid step
+		const defaultResult = {
 			stepLabel: '',
 			index: -1,
 			isFirstStep: false,
 			isLastStep: false,
 		};
+
+		// Cache the default result
+		if ( ! state._stepInfoCache ) state._stepInfoCache = {};
+		state._stepInfoCache[ `${ formClientId }_-1` ] = defaultResult;
+
+		return defaultResult;
 	},
 };
 
