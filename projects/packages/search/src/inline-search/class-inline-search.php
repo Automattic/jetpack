@@ -329,8 +329,9 @@ class Inline_Search extends Classic_Search {
 		}
 
 		$highlight_fields = array(
-			'post_title',
-			'post_content',
+			'title',
+			'content',
+			'comments',
 		);
 
 		$fields = array(
@@ -342,20 +343,21 @@ class Inline_Search extends Classic_Search {
 		);
 
 		return array(
-			'blog_id'      => $this->jetpack_blog_id,
-			'size'         => (int) absint( $args['posts_per_page'] ),
-			'from'         => (int) min( $from, Helper::get_max_offset() ),
-			'fields'       => $fields,
-			'query'        => $args['query'] ?? '',
-			'sort'         => $sort,
-			'aggregations' => empty( $aggregations ) ? null : $aggregations,
-			'langs'        => $this->get_langs(),
-			'filter'       => array(
+			'blog_id'          => $this->jetpack_blog_id,
+			'size'             => (int) absint( $args['posts_per_page'] ),
+			'from'             => (int) min( $from, Helper::get_max_offset() ),
+			'fields'           => $fields,
+			'highlight_fields' => $highlight_fields,
+			'query'            => $args['query'] ?? '',
+			'sort'             => $sort,
+			'aggregations'     => empty( $aggregations ) ? null : $aggregations,
+			'langs'            => $this->get_langs(),
+			'filter'           => array(
 				'bool' => array(
 					'must' => $this->build_es_filters( $args ),
 				),
 			),
-			'highlight'    => array(
+			'highlight'        => array(
 				'fields' => $highlight_fields,
 			),
 		);
