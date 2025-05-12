@@ -164,8 +164,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 		if ( ! ( 'Summarizer' in self ) ) {
 			return;
 		}
-		// eslint-disable-next-line no-console
-		console.log( 'Summarizer is available' );
+
 		const availability = await self.Summarizer.availability();
 
 		if ( availability === 'unavailable' ) {
