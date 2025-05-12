@@ -974,7 +974,7 @@ export const childBlocks = [
 		name: 'form-step-navigation',
 		settings: {
 			...FieldDefaults,
-			ancestor: [ 'jetpack/contact-form' ],
+			ancestor: [ 'jetpack/contact-form', 'jetpack/form-step' ],
 			supports: {
 				...FieldDefaults.supports,
 				layout: {
