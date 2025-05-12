@@ -186,6 +186,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 			wordCount = wordCount ?? 50;
 
+			// gemini-nano has a tendency to exceed the word count, so we need to check and summarize again if necessary
 			if ( summary.split( ' ' ).length > wordCount ) {
 				summary = await summarizer.summarize( summary, { context: context } );
 			}
