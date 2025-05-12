@@ -177,14 +177,16 @@ class LCP_Optimizer {
 	 * @since $$next-version$$
 	 */
 	private function add_responsive_image_attributes( $tag, $image_url ) {
-		// Generate srcset
-		$srcset = array();
 		// Add sizes attribute
 		$sizes_string = '';
 
-		foreach ( $this->lcp_data['sizes'] as $size ) {
-			$srcset[]      = Image_CDN_Core::cdn_url( $image_url, array( 'w' => $size['width'] ) ) . ' ' . $size['viewport'] . 'w';
-			$sizes_string .= '(min-width: ' . $size['viewport'] . 'px) 100vw, ';
+		foreach ( $this->lcp_data['sizes'] ?? array() as $size ) {
+			$sizes_string .= '(min-width: ' . $size['viewport'] . 'px) ' . $size['viewportRatio'] . 'vw, ';
+		}
+
+		$srcset = array();
+		foreach ( $this->lcp_data['srcsets'] ?? array() as $width ) {
+			$srcset[] = Image_CDN_Core::cdn_url( $image_url, array( 'w' => $width ) ) . " {$width}w";
 		}
 
 		// Add srcset attribute
