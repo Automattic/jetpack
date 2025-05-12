@@ -63,13 +63,36 @@ export default function Edit( { clientId } ) {
 	const formClientId = useParentFormClientId( clientId );
 	const allSteps = useFormSteps( formClientId );
 
+	// Get the preview mode state and active step
+	const { isPreviewMode, activePreviewStepId } = useSelect(
+		select => {
+			if ( ! formClientId ) return { isPreviewMode: false, activePreviewStepId: null };
+			const formsPreviewStore = select( 'jetpack/forms/preview' );
+			return {
+				isPreviewMode: formsPreviewStore.isPreviewMode( formClientId ),
+				activePreviewStepId: formsPreviewStore.getActivePreviewStepId( formClientId ),
+			};
+		},
+		[ formClientId ]
+	);
+
+	// Check if we're inside a step or standalone
+	const isOutsideSteps = ! ancestorStepClientId;
+
 	// Calculate our current position in steps
 	let isFirstStep = false;
 	let isLastStep = false;
 	let currentIndex = 0;
-	const insideStep = ! ancestorStepClientId;
 
-	if ( ! insideStep ) {
+	if ( isOutsideSteps && isPreviewMode && activePreviewStepId ) {
+		// When outside steps but in preview mode, show buttons based on the active preview step
+		const activeStepIndex = allSteps.findIndex( block => block.clientId === activePreviewStepId );
+		if ( activeStepIndex !== -1 ) {
+			isFirstStep = activeStepIndex === 0;
+			isLastStep = activeStepIndex === allSteps.length - 1;
+			currentIndex = activeStepIndex;
+		}
+	} else if ( ! isOutsideSteps ) {
 		// Inside a step - determine position
 		const stepIndex = allSteps.findIndex( block => block.clientId === ancestorStepClientId );
 		isFirstStep = stepIndex === 0;
@@ -89,6 +112,11 @@ export default function Edit( { clientId } ) {
 	);
 
 	const template = useMemo( () => {
+		// When outside steps and not in preview mode, show all buttons
+		if ( isOutsideSteps && ! isPreviewMode ) {
+			return [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE, SUBMIT_BUTTON_TEMPLATE ];
+		}
+
 		if ( isFirstStep && isLastStep ) {
 			// Single step in form - only show submit button
 			return [ SUBMIT_BUTTON_TEMPLATE ];
@@ -106,7 +134,7 @@ export default function Edit( { clientId } ) {
 
 		// Middle steps - previous and next buttons
 		return [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE ];
-	}, [ isFirstStep, isLastStep ] );
+	}, [ isFirstStep, isLastStep, isOutsideSteps, isPreviewMode ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: template,
