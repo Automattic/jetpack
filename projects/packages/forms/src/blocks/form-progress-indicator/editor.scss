@@ -2,15 +2,15 @@
 	--jp-form-progress-height: 0.75rem;
 	
 	// Use theme colors with fallbacks
-	--progress-bg-color: #e0e0e0;
-	--progress-color: #1e1e1e;
+	--jp-form-progress-bg-color: #e0e0e0;
+	--jp-form-progress-color: #1e1e1e;
 
 	// Essential structure
 	width: 100%;
 	height: var( --jp-form-progress-height );
 	position: relative;
 	overflow: hidden;
-	background-color: var( --wp--preset--color--secondary, var( --wp--preset--color--background, var( --jp-form-progress-bg-color, var( --progress-bg-color ) ) ) );
+	background-color: var( --wp--preset--color--secondary, var( --wp--preset--color--background, var( --jp-form-progress-bg-color ) ) );
 	border-radius: calc( var( --jp-form-progress-height ) / 2 );
 
 	// Progress bar element - rendered as a child element to match the frontend
@@ -25,7 +25,7 @@
 		min-width: var( --jp-form-progress-height );
 		transition: width 0.3s ease-in-out;
 		z-index: 1;
-		background-color: var( --wp--preset--color--primary, var( --wp--preset--color--accent, var( --jp-form-progress-color, var( --progress-color ) ) ) );
+		background-color: var( --wp--preset--color--primary, var( --wp--preset--color--accent, var( --jp-form-progress-color ) ) );
 		border-radius: calc( var( --jp-form-progress-height ) / 2 );
 	}
 }
