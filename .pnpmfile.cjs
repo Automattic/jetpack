@@ -45,6 +45,15 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Broken version, and a fix hasn't been released for a while yet.
+	// p1743531431572359-slack-C02DQP0FP
+	if (
+		pkg.name.startsWith( '@automattic/launchpad' ) &&
+		pkg.dependencies?.[ '@automattic/data-stores' ] === '^3.1.0'
+	) {
+		pkg.dependencies[ '@automattic/data-stores' ] = '3.1.0 || >3.1.1';
+	}
+
 	// Outdated dependency version causing dependabot warnings.
 	// https://github.com/WordPress/gutenberg/issues/69557
 	if (
