@@ -17,32 +17,29 @@ const useFormSteps = formClientId => {
 				return [];
 			}
 
-			const { getBlocks } = select( blockEditorStore );
-			const directChildren = getBlocks( formClientId );
+			const { getBlocks, getBlocksByName, getBlockParentsByBlockName } = select( blockEditorStore );
 
-			if ( ! directChildren ) {
+			// since you can have multiple forms on a page, we need to check if the formClientId is in the parent form
+			const stepContainers = getBlocksByName( 'jetpack/step-container' );
+
+			if ( ! stepContainers || stepContainers.length === 0 ) {
 				return [];
 			}
 
-			// Try to find steps directly under the form
-			let formStepBlocks = directChildren.filter( block => block.name === 'jetpack/form-step' );
+			const stepsContainerID =
+				stepContainers.find( stepContainerId => {
+					const parentId = getBlockParentsByBlockName( stepContainerId, [
+						'jetpack/contact-form',
+					] )[ 0 ];
+					return parentId && parentId === formClientId;
+				} )[ 0 ] || [];
 
-			// If no direct steps, look for a step-container
-			if ( formStepBlocks.length === 0 ) {
-				const stepContainer = directChildren.find(
-					block => block.name === 'jetpack/step-container'
-				);
-
-				if ( stepContainer ) {
-					const blocksInContainer = getBlocks( stepContainer.clientId );
-					if ( blocksInContainer ) {
-						formStepBlocks = blocksInContainer.filter(
-							block => block.name === 'jetpack/form-step'
-						);
-					}
-				}
+			const steps = getBlocks( stepsContainerID );
+			if ( ! steps ) {
+				return [];
 			}
-			return formStepBlocks;
+
+			return steps;
 		},
 		[ formClientId ]
 	);
