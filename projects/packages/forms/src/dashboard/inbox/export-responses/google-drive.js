@@ -4,7 +4,7 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
-import { useCallback, useState, useRef } from '@wordpress/element';
+import { useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { tap } from 'lodash';
@@ -15,9 +15,7 @@ import { config } from '../..';
 import { PARTIAL_RESPONSES_PATH, PREFERRED_VIEW } from '../../../util/get-preferred-responses-view';
 
 const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
-	const [ isConnectedToGoogleDrive, setIsConnectedToGoogleDrive ] = useState(
-		config( 'gdriveConnection' )
-	);
+	const [ isConnectedToGoogleDrive, setIsConnectedToGoogleDrive ] = useState( false );
 	const { tracks } = useAnalytics();
 	const autoConnectOpened = useRef( false );
 
@@ -25,6 +23,13 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 		redirectUri:
 			PARTIAL_RESPONSES_PATH + ( PREFERRED_VIEW === 'classic' ? '' : '&connect-gdrive=true' ),
 	} );
+
+	useEffect( () => {
+		fetch( '/wp-json/jetpack-forms/v1/feedback/integrations/google-drive' )
+			.then( res => res.json() )
+			.then( data => setIsConnectedToGoogleDrive( !! data.isConnected ) )
+			.catch( () => setIsConnectedToGoogleDrive( false ) );
+	}, [] );
 
 	const pollForConnection = useCallback( () => {
 		const interval = setInterval( async () => {
