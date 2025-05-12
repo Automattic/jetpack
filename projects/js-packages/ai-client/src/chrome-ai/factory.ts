@@ -86,20 +86,19 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 	// If the languageDetector is not available, we can't use the translation or summary features—it's safer to fall back
 	// to the default AI model than to risk an unexpected error.
 	if (
-		! ( 'ai' in self ) ||
-		! ( 'languageDetector' in self.ai ) ||
-		! self.ai.languageDetector.create ||
-		! self.ai.languageDetector.availability
+		! ( 'LanguageDetector' in self ) ||
+		! self.LanguageDetector.create ||
+		! self.LanguageDetector.availability
 	) {
 		return false;
 	}
 
-	const languageDetectorAvailability = await self.ai.languageDetector.availability();
+	const languageDetectorAvailability = await self.LanguageDetector.availability();
 	if ( languageDetectorAvailability === 'unavailable' ) {
 		return false;
 	}
 
-	const detector = await self.ai.languageDetector.create();
+	const detector = await self.LanguageDetector.create();
 	if ( languageDetectorAvailability !== 'available' ) {
 		await detector.ready;
 	}
@@ -108,10 +107,9 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		const [ language ] = context.language.split( ' ' );
 
 		if (
-			! ( 'ai' in self ) ||
-			! ( 'translator' in self.ai ) ||
-			! self.ai.translator.create ||
-			! self.ai.translator.availability
+			! ( 'Translator' in self ) ||
+			! self.Translator.create ||
+			! self.Translator.availability
 		) {
 			return false;
 		}
@@ -134,7 +132,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 			}
 		}
 
-		const translationAvailability = await self.ai.translator.availability( languageOpts );
+		const translationAvailability = await self.Translator.availability( languageOpts );
 
 		if ( translationAvailability === 'unavailable' ) {
 			return false;
@@ -150,11 +148,11 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 	}
 
 	if ( promptType.startsWith( 'ai-content-lens' ) ) {
-		if ( ! ( 'ai' in self ) || ! ( 'summarizer' in self.ai ) ) {
+		if ( ! ( 'Summarizer' in self ) ) {
 			return false;
 		}
 
-		if ( context.language !== 'en (English)' ) {
+		if ( context.language && context.language !== 'en (English)' ) {
 			return false;
 		}
 

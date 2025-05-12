@@ -141,45 +141,43 @@ export interface BlockEditorStore {
 
 declare global {
 	interface Window {
-		ai?: {
-			languageDetector?: {
-				create: () => Promise< {
-					detect: ( text: string ) => Promise<
-						{
-							detectedLanguage: string;
-							confidence: number;
-						}[]
-					>;
-					ready: Promise< void >;
-				} >;
-				availability: () => Promise<
-					'unavailable' | 'available' | 'downloadable' | 'downloading' | string
+		LanguageDetector?: {
+			create: () => Promise< {
+				detect: ( text: string ) => Promise<
+					{
+						detectedLanguage: string;
+						confidence: number;
+					}[]
 				>;
-			};
-			translator?: {
-				create: ( options: {
-					sourceLanguage: string;
-					targetLanguage: string;
-				} ) => Promise< { translate: ( text: string ) => Promise< string > } >;
-				availability: ( options: {
-					sourceLanguage: string;
-					targetLanguage: string;
-				} ) => Promise< 'unavailable' | 'available' | 'downloadable' | 'downloading' | string >;
-			};
-			summarizer?: {
-				capabilities: () => Promise< {
-					available: 'unavailable' | 'available' | 'downloadable' | 'downloading' | string;
-				} >;
-				create: ( options: {
-					sharedContext?: string;
-					type?: string;
-					format?: string;
-					length?: string;
-				} ) => Promise< {
-					ready: Promise< void >;
-					summarize: ( text: string, summarizeOptions?: { context?: string } ) => Promise< string >;
-				} >;
-			};
+				ready: Promise< void >;
+			} >;
+			availability: () => Promise<
+				'unavailable' | 'available' | 'downloadable' | 'downloading' | string
+			>;
+		};
+		Translator?: {
+			create: ( options: {
+				sourceLanguage: string;
+				targetLanguage: string;
+			} ) => Promise< { translate: ( text: string ) => Promise< string > } >;
+			availability: ( options: {
+				sourceLanguage: string;
+				targetLanguage: string;
+			} ) => Promise< 'unavailable' | 'available' | 'downloadable' | 'downloading' | string >;
+		};
+		Summarizer?: {
+			availability: () => Promise<
+				'unavailable' | 'available' | 'downloadable' | 'downloading' | string
+			>;
+			create: ( options: {
+				sharedContext?: string;
+				type?: string;
+				format?: string;
+				length?: string;
+			} ) => Promise< {
+				ready: Promise< void >;
+				summarize: ( text: string, summarizeOptions?: { context?: string } ) => Promise< string >;
+			} >;
 		};
 	}
 }

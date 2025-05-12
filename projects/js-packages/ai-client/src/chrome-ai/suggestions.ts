@@ -110,11 +110,11 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// use the Chrome AI translator
 	async translate( text: string, target: string, source: string = '' ) {
-		if ( ! ( 'ai' in self ) || ! ( 'translator' in self.ai ) ) {
+		if ( ! ( 'Translator' in self ) ) {
 			return;
 		}
 
-		const translator = await self.ai.translator.create( {
+		const translator = await self.Translator.create( {
 			sourceLanguage: source,
 			targetLanguage: target,
 		} );
@@ -161,20 +161,22 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// use the Chrome AI summarizer
 	async summarize( text: string, tone?: string, wordCount?: number ) {
-		if ( ! ( 'ai' in self ) || ! ( 'summarizer' in self.ai ) ) {
+		if ( ! ( 'Summarizer' in self ) ) {
 			return;
 		}
-		const available = ( await self.ai.summarizer.capabilities() ).available;
+		// eslint-disable-next-line no-console
+		console.log( 'Summarizer is available' );
+		const availability = await self.Summarizer.availability();
 
-		if ( available === 'unavailable' ) {
+		if ( availability === 'unavailable' ) {
 			return;
 		}
 
 		const summarizerOptions = this.getSummarizerOptions( tone, wordCount );
 
-		const summarizer = await self.ai.summarizer.create( summarizerOptions );
+		const summarizer = await self.Summarizer.create( summarizerOptions );
 
-		if ( available !== 'available' ) {
+		if ( availability !== 'available' ) {
 			await summarizer.ready;
 		}
 
