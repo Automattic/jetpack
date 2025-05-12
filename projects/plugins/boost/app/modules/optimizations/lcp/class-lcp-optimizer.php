@@ -6,18 +6,23 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
 class LCP_Optimizer {
 
+	/**
+	 * Each LCP data is an array that includes the LCP for a certain viewport.
+	 *
+	 * @var array
+	 */
 	private $lcp_data;
 
 	public function __construct( $lcp_data ) {
 		$this->lcp_data = $lcp_data;
 	}
 
-		/**
-		 * Check if LCP optimization should be skipped for the current request.
-		 *
-		 * @since $$next-version$$
-		 * @return bool True if optimization should be skipped, false otherwise.
-		 */
+	/**
+	 * Check if LCP optimization should be skipped for the current request.
+	 *
+	 * @since $$next-version$$
+	 * @return bool True if optimization should be skipped, false otherwise.
+	 */
 	public static function should_skip_optimization() {
 		/**
 		 * Filters whether to short-circuit LCP optimization.
@@ -179,13 +184,13 @@ class LCP_Optimizer {
 	private function add_responsive_image_attributes( $tag, $image_url ) {
 		// Add sizes attribute
 		$sizes_string = '';
-
 		foreach ( $this->lcp_data['sizes'] ?? array() as $size ) {
 			$sizes_string .= '(min-width: ' . $size['viewport'] . 'px) ' . $size['viewportRatio'] . 'vw, ';
 		}
 
 		$srcset = array();
 		foreach ( $this->lcp_data['srcsets'] ?? array() as $width ) {
+			// The srcset "w" measurement is the width of the image in pixels. A DPR of 2 means the image is 2x the width of the original.
 			$srcset[] = Image_CDN_Core::cdn_url( $image_url, array( 'w' => $width ) ) . " {$width}w";
 		}
 
