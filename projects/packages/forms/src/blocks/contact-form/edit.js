@@ -45,8 +45,9 @@ const validFields = filter( childBlocks, ( { settings } ) => {
 	);
 } );
 
-const ALLOWED_BLOCKS = [
-	...map( validFields, block => `jetpack/${ block.name }` ),
+const ALLOWED_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
+
+const ALLOWED_CORE_BLOCKS = [
 	'core/audio',
 	'core/columns',
 	'core/group',
@@ -62,6 +63,14 @@ const ALLOWED_BLOCKS = [
 	'core/subhead',
 	'core/video',
 ];
+
+const ALLOWED_MULTI_STEP_BLOCKS = [
+	'jetpack/step-container',
+	'jetpack/form-step-navigation',
+	'jetpack/form-progress-indicator',
+].concat( ALLOWED_CORE_BLOCKS );
+
+const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( ALLOWED_CORE_BLOCKS );
 
 const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
 
@@ -149,14 +158,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			style: window.jetpackForms.generateStyleVariables( innerRef.current ),
 		},
 		{
-			allowedBlocks: hasStepBlock
-				? [
-						'jetpack/step-container',
-						'jetpack/form-step-navigation',
-						'jetpack/form-progress-indicator',
-						'core/paragraph',
-				  ]
-				: ALLOWED_BLOCKS,
+			allowedBlocks: hasStepBlock ? ALLOWED_MULTI_STEP_BLOCKS : ALLOWED_FORM_BLOCKS,
 			prioritizedInserterBlocks: PRIORITIZED_INSERTER_BLOCKS,
 			templateInsertUpdatesSelection: false,
 		}
