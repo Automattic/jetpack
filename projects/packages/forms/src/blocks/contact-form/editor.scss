@@ -809,7 +809,6 @@
 			}
 
 			:where(.notched-label__filler) {
-				flex-grow: 1;
 				border-left: none !important;
 				border-right: none !important;
 				border-radius: unset !important;
@@ -995,11 +994,23 @@
 		border-right: none !important;
 	}
 
+	.notched-label__filler {
+		flex-grow: 1;
+		// border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		// border-width: var(--jetpack--contact-form--border-size);
+		border-radius: unset !important;
+		border-left: none !important;
+		border-right: none !important;
+	}
+
 	.notched-label__trailing {
+		flex-grow: 1;
+		// border: var(--jetpack--contact-form--border);
 		border-color: var(--jetpack--contact-form--border-color);
 		border-style: var(--jetpack--contact-form--border-style);
 		border-radius: var(--jetpack--contact-form--border-radius);
-		flex-grow: 1;
 		border-left: none !important;
 		border-top-left-radius: unset !important;
 		border-bottom-left-radius: unset !important;
