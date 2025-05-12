@@ -7,7 +7,11 @@ import './editor.scss';
 const FormProgressIndicatorEdit = ( { clientId } ) => {
 	const parentFormId = useParentFormClientId( clientId );
 	const { currentStepInfo, steps } = useStepNavigation( parentFormId );
-	const progress = steps.length ? ( ( currentStepInfo.index + 1 ) / steps.length ) * 100 : 0;
+
+	let progress = steps.length ? ( ( currentStepInfo.index + 1 ) / steps.length ) * 100 : 10;
+	if ( currentStepInfo.index === -1 && steps.length > 0 ) {
+		progress = ( 1 / steps.length ) * 100; // Assume the first step is active
+	}
 
 	return (
 		<div { ...useBlockProps() }>
