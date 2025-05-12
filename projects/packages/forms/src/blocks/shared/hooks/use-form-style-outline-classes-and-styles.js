@@ -120,7 +120,8 @@ export default function useFormStyleOutlineClassesAndStyles( {
 				getIntAsPxValue( blockBorderClassesAndStyles?.style?.borderWidth ) ||
 				blockBorderClassesAndStyles?.style?.borderLeftWidth ||
 				globalBorderClassesAndStyles?.style?.borderWidth ||
-				globalBorderClassesAndStyles?.style?.borderLeftWidth;
+				globalBorderClassesAndStyles?.style?.borderLeftWidth ||
+				'1px';
 			styleSpecificCssVars = {
 				'--jetpack--contact-form--left-offset': `calc(var(--jetpack--contact-form--input-padding-left, 16px) + ${ borderLeftSize })`,
 				'--jetpack--contact-form--label-left':
@@ -150,5 +151,5 @@ export default function useFormStyleOutlineClassesAndStyles( {
 				...styleSpecificCssVars,
 			},
 		};
-	}, [ inputBlockName, inputBlockAttributes, mergedGlobalBlockStyles, formStyle ] );
+	}, [ inputBlockAttributes, mergedGlobalBlockStyles, formStyle ] );
 }

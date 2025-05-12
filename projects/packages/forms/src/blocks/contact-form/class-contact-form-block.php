@@ -165,7 +165,6 @@ class Contact_Form_Block {
 					'color'                => array(
 						'text'       => true,
 						'background' => true,
-						'gradient'   => true,
 					),
 					'spacing'              => array(
 						'blockGap' => false,

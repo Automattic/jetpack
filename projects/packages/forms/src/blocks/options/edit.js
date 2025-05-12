@@ -1,4 +1,5 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+import clsx from 'clsx';
 import useFormStyleOutlineClassesAndStyles from '../shared/hooks/use-form-style-outline-classes-and-styles.js';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
 
@@ -20,9 +21,13 @@ const OptionsEdit = ( { clientId, name, context, attributes, setAttributes } ) =
 		inputBlockAttributes: attributes,
 	} );
 	const blockProps = useBlockProps( {
-		className: 'jetpack-field-multiple__list',
+		className: clsx( 'jetpack-field-multiple__list', {
+			'jetpack-field-multiple__list--has-border':
+				!! attributes?.style?.border?.width || !! attributes?.style?.border?.left?.width,
+		} ),
 		style: styles?.cssVars,
 	} );
+
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: [ `jetpack/option` ],
 		defaultBlock: `jetpack/option`,

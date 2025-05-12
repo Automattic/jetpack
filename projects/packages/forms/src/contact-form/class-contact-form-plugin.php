@@ -466,7 +466,6 @@ class Contact_Form_Plugin {
 					if ( 'jetpack/field-select' === $block->name ) {
 						$atts['togglelabel'] = $inner_block['attrs']['placeholder'];
 					}
-
 					/*
 						Borders for the notched HTML.
 					*/
@@ -491,7 +490,11 @@ class Contact_Form_Plugin {
 					$options_data           = array();
 					$options_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['optionsclasses'] = isset( $options_attrs['class'] ) ? ' ' . $options_attrs['class'] : '';
-					$atts['optionsstyles']  = $options_attrs['style'] ?? null;
+					if ( isset( $inner_block['attrs']['style']['border']['width'] ) || isset( $inner_block['attrs']['style']['border']['left']['width'] ) ) {
+						$atts['optionsclasses'] .= ' jetpack-field-multiple__list--has-border';
+					}
+
+					$atts['optionsstyles'] = $options_attrs['style'] ?? null;
 
 					foreach ( $option_blocks as $option ) {
 						$option_label = trim( $option['attrs']['label'] ?? '' );
@@ -512,8 +515,14 @@ class Contact_Form_Plugin {
 						}
 					}
 
-					$atts['options']                          = implode( ',', $options );
-					$atts['optionsdata']                      = \wp_json_encode( $options_data );
+					$atts['options']     = implode( ',', $options );
+					$atts['optionsdata'] = \wp_json_encode( $options_data );
+
+					/*
+						Borders for the notched HTML.
+					*/
+					$atts['outlinestyledata']                 = isset( $inner_block['attrs']['style']['border'] ) ? \wp_json_encode( $inner_block['attrs']['style']['border'] ) : null;
+					$atts['outlinestyleclasses']              = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
 					$add_block_style_classes_to_field_wrapper = true;
 				}
 			}

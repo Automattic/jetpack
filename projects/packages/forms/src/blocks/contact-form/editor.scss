@@ -336,7 +336,7 @@
 	}
 
 	// Reduced specificity to 0,1,0 so that global styles can override it.
-	:where( .jetpack-field__input, .jetpack-field__textarea ) {
+	:where( .jetpack-field__input, .jetpack-field__textarea, .jetpack-field-dropdown__toggle ) {
 		font: inherit;
 		border: 1px solid #8c8f94;
 		border-radius: 0;
@@ -527,12 +527,18 @@
 .jetpack-field-multiple__list.jetpack-field-multiple__list {
 	list-style-type: none;
 	margin: 0;
-	padding-left: 0;
+	padding: var(--jetpack--contact-form--input-padding-left, 16px) 0;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 12px;
 	flex: 1;
+	border-color: var(--jetpack--contact-form--border-color);
+
+	&.jetpack-field-multiple__list--has-border {
+		padding-left: var(--jetpack--contact-form--input-padding-left, 16px);
+		padding-right: var(--jetpack--contact-form--input-padding-left, 16px);
+	}
 
 	&:empty {
 		display: none;
@@ -752,7 +758,7 @@
 		}
 
 		.jetpack-field,
-		wp-block-jetpack-field-checkbox-multiple {
+		.wp-block-jetpack-field-checkbox-multiple {
 			margin-top: 8px;
 			box-sizing: border-box;
 
@@ -809,6 +815,10 @@
 				box-sizing: content-box;
 			}
 
+			.jetpack-field-label .jetpack-field-label__input {
+				margin-bottom: 0;
+			}
+
 			&.jetpack-field-textarea .notched-label__label {
 				top: var(--jetpack--contact-form--input-padding-top, 16px);
 				transform: unset;
@@ -847,13 +857,6 @@
 					}
 				}
 			}
-
-			&.jetpack-field-multiple .jetpack-field-multiple__list {
-				border-top: none;
-				padding: var(--jetpack--contact-form--notch-width, 16px);
-				padding-top: calc(var(--jetpack--contact-form--notch-width, 16px) + var(--jetpack--contact-form--border-size, 4px));
-			}
-
 			&.jetpack-field-checkbox {
 				margin-top: 0;
 			}
@@ -905,20 +908,6 @@
 				padding-right: var(--jetpack--contact-form--field-padding);
 			}
 
-			&.jetpack-field-multiple {
-				padding-bottom: var(--jetpack--contact-form--input-padding, 16px);
-				padding-top: 1.8em;
-
-				&.has-placeholder {
-
-					.animated-label__label {
-						font-size: 1em;
-						top: 0;
-						left: 0;
-					}
-				}
-			}
-
 			.animated-label__label {
 				position: absolute;
 				z-index: 1;
@@ -933,6 +922,13 @@
 
 				.jetpack-field-label__input {
 					margin: 0;
+				}
+			}
+
+
+			&.jetpack-field-multiple {
+				.animated-label__label {
+					position: static;
 				}
 			}
 
@@ -970,11 +966,7 @@
 :where( .wp-block-jetpack-contact-form.is-style-outlined ) {
 
 	.notched-label__leading {
-		// border: var(--jetpack--contact-form--border);
 		border-color: var(--jetpack--contact-form--border-color);
-		//border-style: var(--jetpack--contact-form--border-style);
-		// border-width: var(--jetpack--contact-form--border-size);
-		//border-radius: var(--jetpack--contact-form--border-radius);
 		width: var(--jetpack--contact-form--notch-width);
 		border-right: none !important;
 		border-top-right-radius: unset !important;
@@ -982,10 +974,8 @@
 	}
 
 	.notched-label__notch {
-		// border: var(--jetpack--contact-form--border);
 		border-color: var(--jetpack--contact-form--border-color);
 		border-style: var(--jetpack--contact-form--border-style);
-		// border-width: var(--jetpack--contact-form--border-size);
 		border-radius: unset !important;
 		padding: 0 4px;
 		transition: border 150ms linear;
@@ -996,10 +986,8 @@
 	}
 
 	.notched-label__trailing {
-		// border: var(--jetpack--contact-form--border);
 		border-color: var(--jetpack--contact-form--border-color);
 		border-style: var(--jetpack--contact-form--border-style);
-		// border-width: var(--jetpack--contact-form--border-size);
 		border-radius: var(--jetpack--contact-form--border-radius);
 		flex-grow: 1;
 		border-left: none !important;

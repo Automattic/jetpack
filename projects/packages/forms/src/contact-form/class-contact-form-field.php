@@ -383,8 +383,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// For Outline style support.
 			$form_style = $this->get_form_style();
 			if ( 'outlined' === $form_style || 'animated' === $form_style ) {
-				$output_data = $this->get_outline_styles();
-
+				$output_data         = $this->get_outline_styles();
 				$this->block_styles .= $output_data['css_vars'];
 
 			}
@@ -812,10 +811,25 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$options_classes = $this->get_attribute( 'optionsclasses' );
-		$options_styles  = $this->get_attribute( 'optionsstyles' );
-		$field           = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="wp-block-jetpack-options grunion-radio-options' . $options_classes . '" style="' . $options_styles . '">';
-		$field          .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+		$options_classes   = $this->get_attribute( 'optionsclasses' );
+		$options_styles    = $this->get_attribute( 'optionsstyles' );
+		$form_style        = $this->get_form_style();
+		$is_animated_style = 'animated' === $form_style;
+		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'";
+
+		if ( $is_animated_style ) {
+			// For animated style: wrap fieldset in a div with styles/classes
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
+		} else {
+			// For non-animated style: just use fieldset with styles/classes
+			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-radio-options " . $options_classes . "' style='" . $options_styles . "'>";
+		}
+
+		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+
+		if ( $is_animated_style ) {
+			$field .= "<div class='wp-block-jetpack-options grunion-radio-options" . $options_classes . "' style='" . $options_styles . "'>";
+		}
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
 		$used_html_ids = array();
@@ -888,6 +902,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
+		if ( $is_animated_style ) {
+			$field .= '</div>';
+		}
 		$field .= '</fieldset>';
 		return $field;
 	}
@@ -1166,15 +1183,31 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$options_classes = $this->get_attribute( 'optionsclasses' );
-		$options_styles  = $this->get_attribute( 'optionsstyles' );
+		$options_classes   = $this->get_attribute( 'optionsclasses' );
+		$options_styles    = $this->get_attribute( 'optionsstyles' );
+		$form_style        = $this->get_form_style();
+		$is_animated_style = 'animated' === $form_style;
+
 		// The `data-required` attribute is used in `accessible-form.js` to ensure at least one
 		// checkbox is checked. Unlike radio buttons, for which the required attribute is satisfied if
 		// any of the radio buttons in the group is selected, adding a required attribute directly to
 		// a checkbox means that this specific checkbox must be checked.
 
-		$field  = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="wp-block-jetpack-options grunion-checkbox-multiple-options' . $options_classes . '" style="' . $options_styles . '" ' . ( $required ? 'data-required' : '' ) . '>';
+		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
+
+		if ( $is_animated_style ) {
+			// For animated style: wrap fieldset in a div with styles/classes
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
+		} else {
+			// For non-animated style: just use fieldset with styles/classes
+			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-checkbox-multiple-options" . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
+		}
+
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+
+		if ( $is_animated_style ) {
+			$field .= "<div class='wp-block-jetpack-options grunion-checkbox-multiple-options" . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
+		}
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
 		$used_html_ids = array();
@@ -1244,7 +1277,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				}
 			}
 		}
-
+		if ( $is_animated_style ) {
+			$field .= '</div>';
+		}
 		$field .= '</fieldset>';
 		return $field;
 	}
@@ -1476,6 +1511,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 			$css_vars  = $border_size ? '--jetpack--contact-form--border-size: ' . $border_size . ';' : '';
 			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
+			$css_vars .= '--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius))';
 		}
 
 		return array(

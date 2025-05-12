@@ -84,6 +84,7 @@
 	display: block;
 }
 
+.contact-form :where(legend.grunion-field-label),
 .contact-form :where(label) {
 	margin-bottom: 0.25em;
 	font-weight: 700;
@@ -152,20 +153,20 @@
 	}
 }
 
+.contact-form .is-style-animated .grunion-checkbox-multiple-options legend,
+.contact-form .is-style-animated .grunion-radio-options legend,
 .contact-form .is-style-outlined .grunion-checkbox-multiple-options legend,
 .contact-form .is-style-outlined .grunion-radio-options legend {
-	margin: 0 0 -0.75em;
-	padding: 0 0.25em;
-
-	font-size: 0.8em;
-	font-weight: 300;
+    margin: 0 0 -0.75em;
+    padding: 0 0.25em 10px 0.25em;
+    cursor: text;
+    pointer-events: auto;
 }
 
 .contact-form .grunion-checkbox-multiple-options .contact-form-field,
 .contact-form .grunion-radio-options .contact-form-field {
 	display: flex;
 	align-items: baseline;
-
 	margin: 0;
 }
 
@@ -584,22 +585,23 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap select {
 	border-color: transparent !important; /* Need to override styles coming from the style attribute*/
 	outline: none;
-	padding-left: calc(var(--notch-width) + 4px);
-	padding-right: calc(var(--notch-width) + 4px);
+	padding-left: calc(var(--jetpack--contact-form--notch-width) + 4px);
+	padding-right: calc(var(--jetpack--contact-form--notch-width) + 4px);
 	clip-path: padding-box;
 	position: relative;
-}
-
-.contact-form .is-style-outlined .grunion-field-wrap textarea {
-	padding: var(--jetpack--contact-form--input-padding, 16px);
-	padding-left: calc(var(--notch-width) + 4px);
-	padding-right: calc(var(--notch-width) + 4px);
 }
 
 .contact-form .is-style-animated .grunion-field-wrap {
 	--left-offset: calc(var(--jetpack--contact-form--input-padding-left, 16px) + var(--jetpack--contact-form--border-size));
 	--label-left: max(var(--left-offset), var(--jetpack--contact-form--border-radius));
 	--field-padding: calc(var(--label-left) - var(--jetpack--contact-form--border-size));
+}
+
+.contact-form .is-style-animated .jetpack-field-multiple__fieldset,
+.contact-form .is-style-animated .jetpack-field-multiple__fieldset legend {
+	padding: 0;
+	border: 0;
+	margin: 0;
 }
 
 .contact-form .is-style-animated .grunion-field-wrap input:not([type="checkbox"]):not([type="radio"]) {
@@ -670,6 +672,16 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options,
 .contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-radio-options {
 	padding-top: 8px;
+}
+
+.contact-form  .wp-block-jetpack-options {
+	padding: var(--jetpack--contact-form--input-padding-left, 16px) 0;
+}
+
+.contact-form  .wp-block-jetpack-options.jetpack-field-multiple__list--has-border {
+	padding-left: var(--jetpack--contact-form--input-padding-left, 16px);
+	padding-right: var(--jetpack--contact-form--input-padding-left, 16px);
+	border-color: var(--jetpack--contact-form--border-color);
 }
 
 .contact-form :where(.grunion-checkbox-multiple-options .contact-form-field),
