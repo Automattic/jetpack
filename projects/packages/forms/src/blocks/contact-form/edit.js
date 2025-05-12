@@ -80,11 +80,10 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	const steps = useFormSteps( clientId );
 
-	const { selectedStepClientId, isPreview } = useSelect(
+	const { isPreview } = useSelect(
 		select => {
-			const { isPreviewMode, getActivePreviewStepId } = select( previewStore );
+			const { isPreviewMode } = select( previewStore );
 			return {
-				selectedStepClientId: getActivePreviewStepId( clientId ),
 				isPreview: isPreviewMode( clientId ),
 			};
 		},
@@ -141,8 +140,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	const { isFirstStep, isLastStep } = currentStepInfo || { isFirstStep: false, isLastStep: false };
 
-	const { selectBlock } = useDispatch( blockEditorStore );
-
 	const wrapperRef = useRef();
 	const innerRef = useRef();
 	const blockProps = useBlockProps( { ref: wrapperRef } );
@@ -153,6 +150,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		isLastStep && 'is-last-step',
 		hasStepBlock && isPreview && 'is-previewing-step'
 	);
+
 	const innerBlocksProps = useInnerBlocksProps(
 		{
 			ref: innerRef,
@@ -172,6 +170,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			templateInsertUpdatesSelection: false,
 		}
 	);
+
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
 
@@ -192,49 +191,25 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		}
 	}, [ hasStepBlock, variationName, setAttributes ] );
 
-	const prevSelectedBlockClientIdRef = useRef();
-
 	// Get the dispatch function for previewStore
 	const { setPreviewStep } = useDispatch( previewStore );
 
-	// Effect to sync List View selection with StepControls (if not in 'All Steps')
+	// Update the selected Step Client ID in the preview store
 	useEffect( () => {
-		const prevSelectedBlockClientId = prevSelectedBlockClientIdRef.current;
-
-		// Only proceed if the selected block changed *and* it's not null/undefined
-		if ( selectedBlockClientId && selectedBlockClientId !== prevSelectedBlockClientId ) {
-			// Ensure we are NOT in 'All Steps' mode before syncing
-			if ( isPreview ) {
-				// Check if the newly selected block is one of our direct step children
-				const isStep = steps.some( step => step.clientId === selectedBlockClientId );
-
-				// If a step child is selected via List View and it's not already the active step in the dropdown
-				if ( isStep && selectedBlockClientId !== selectedStepClientId ) {
-					// Use the store action instead of directly setting attributes
-					setPreviewStep( clientId, selectedBlockClientId );
-				}
-			}
+		if ( ! isPreview ) {
+			return;
 		}
-		// Update the ref *after* the logic check for the next render
-		prevSelectedBlockClientIdRef.current = selectedBlockClientId;
-
-		// Keep dependencies, include setPreviewStep
-	}, [ selectedBlockClientId, selectedStepClientId, setPreviewStep, isPreview, clientId, steps ] );
-
-	// Effect to sync StepControls selection with editor selection
-	useEffect( () => {
-		// Only proceed if we're in preview mode and have a selected block
-		if ( isPreview && selectedBlockClientId ) {
-			// Check if the currently selected block is a step
+		// Check if the selected block is a step
+		if ( selectedBlockClientId && selectedBlockClientId !== clientId ) {
+			// Check if the selected block is a step
 			const isCurrentBlockAStep = steps.some( step => step.clientId === selectedBlockClientId );
-
-			// Only sync if we're currently on a step
-			if ( isCurrentBlockAStep && selectedStepClientId !== selectedBlockClientId ) {
-				// Select the step block in the editor
-				selectBlock( selectedStepClientId );
+			if ( isCurrentBlockAStep ) {
+				// Update the selected step in the preview store
+				setPreviewStep( clientId, selectedBlockClientId );
 			}
 		}
-	}, [ isPreview, selectedStepClientId, selectedBlockClientId, steps, selectBlock ] );
+	}, [ selectedBlockClientId, clientId, steps, setPreviewStep, isPreview ] );
+	// Update the selected block client ID in the preview store
 
 	let elt;
 

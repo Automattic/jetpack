@@ -105,6 +105,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				formClientId={ ancestorFormClientId }
 				showToggle={ false }
 				showNavigation={ true }
+				updateStepSelected={ true }
 			/>
 		</>
 	);

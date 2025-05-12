@@ -19,11 +19,12 @@ import { store as previewStore } from '../../../../store/preview-store';
 /**
  * Toolbar controls for managing steps within a multi-step form.
  *
- * @param {object}  props                - Component props.
- * @param {string}  props.formClientId   - Client ID of the root contact form block.
- * @param {string}  props.clientId       - Client ID of the current block.
- * @param {boolean} props.showToggle     - Flag to indicate if toggle buttons should be shown.
- * @param {boolean} props.showNavigation - Flag to indicate if navigation controls should be shown.
+ * @param {object}  props                    - Component props.
+ * @param {string}  props.formClientId       - Client ID of the root contact form block.
+ * @param {string}  props.clientId           - Client ID of the current block.
+ * @param {boolean} props.showToggle         - Flag to indicate if toggle buttons should be shown.
+ * @param {boolean} props.showNavigation     - Flag to indicate if navigation controls should be shown.
+ * @param {boolean} props.updateStepSelected - Flag to indicate if the step should be selected.
  * @return {JSX.Element} The rendered BlockControls component.
  */
 export default function StepControls( {
@@ -31,14 +32,17 @@ export default function StepControls( {
 	clientId = null,
 	showToggle = true,
 	showNavigation = true,
+	updateStepSelected = false,
 } ) {
 	const { setPreviewStep, disablePreview, enablePreview } = useDispatch( previewStore );
 
 	formClientId = useParentFormClientId( clientId ) || formClientId;
 
 	// Use our custom navigation hook
-	const { navigateToNextStep, navigateToPreviousStep, currentStepInfo, steps } =
-		useStepNavigation( formClientId );
+	const { navigateToNextStep, navigateToPreviousStep, currentStepInfo, steps } = useStepNavigation(
+		formClientId,
+		updateStepSelected
+	);
 
 	const { selectedStepId, isPreview } = useSelect(
 		select => {
