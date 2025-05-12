@@ -21,7 +21,7 @@ const settings = {
 		color: {
 			text: true,
 			background: false,
-			gradient: false,
+			gradients: false,
 		},
 		typography: {
 			fontSize: true,
