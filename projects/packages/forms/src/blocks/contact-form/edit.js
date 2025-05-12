@@ -80,7 +80,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
-	const formStepsFromHook = useFormSteps( clientId );
+	const steps = useFormSteps( clientId );
 
 	const { selectedStepClientId, isPreview } = useSelect(
 		select => {
@@ -101,8 +101,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		hasStepBlock,
 		isEveryBlockStep,
 		selectedBlockClientId,
-		isFirstStep,
-		isLastStep,
 		innerBlocks,
 	} = useSelect(
 		select => {
@@ -134,19 +132,29 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				canUserInstallPlugins: canUser( 'create', 'plugins' ),
 				hasAnyInnerBlocks: innerBlocksData.length > 0,
 				postAuthorEmail: authorEmail,
-				hasStepBlock: !! formStepsFromHook.length,
+				hasStepBlock: !! steps.length,
 				isEveryBlockStep: isEveryChildBlockStep,
 				selectedBlockClientId: getSelectedBlockClientId(),
-				isFirstStep: formStepsFromHook[ 0 ]?.clientId === selectedStepClientId,
-				isLastStep:
-					formStepsFromHook[ formStepsFromHook.length - 1 ]?.clientId === selectedStepClientId,
 				innerBlocks: innerBlocksData,
 			};
 		},
-		[ clientId, selectedStepClientId, formStepsFromHook ]
+		[ clientId, steps ]
 	);
 
+	const { currentStepInfo } = useSelect(
+		select => {
+			const { getCurrentStepInfo } = select( previewStore );
+			return {
+				currentStepInfo: getCurrentStepInfo( clientId, steps ),
+			};
+		},
+		[ clientId, steps ]
+	);
+
+	const { isFirstStep, isLastStep } = currentStepInfo || { isFirstStep: false, isLastStep: false };
+
 	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
+	const { selectBlock } = useDispatch( blockEditorStore );
 
 	const wrapperRef = useRef();
 	const innerRef = useRef();
@@ -187,7 +195,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			return;
 		}
 
-		const stepBlockCount = formStepsFromHook.length;
+		const stepBlockCount = steps.length;
 
 		if ( stepBlockCount === 0 ) {
 			return;
@@ -203,7 +211,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			return;
 		}
 
-		const firstStepBlock = formStepsFromHook[ 0 ];
+		const firstStepBlock = steps[ 0 ];
 		const firstStepBlockIndex = innerBlocks.findIndex(
 			block => block.clientId === firstStepBlock.clientId
 		);
@@ -248,7 +256,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 		replaceInnerBlocks( clientId, finalBlocks );
 		hasStructured.current = true;
-	}, [ innerBlocks, clientId, replaceInnerBlocks, isEveryBlockStep, formStepsFromHook ] );
+	}, [ innerBlocks, clientId, replaceInnerBlocks, isEveryBlockStep, steps ] );
 
 	useEffect( () => {
 		// If the current variationName already matches the state of hasStepBlock, do nothing.
@@ -279,14 +287,12 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		// Only proceed if the selected block changed *and* it's not null/undefined
 		if ( selectedBlockClientId && selectedBlockClientId !== prevSelectedBlockClientId ) {
 			// Ensure we are NOT in 'All Steps' mode before syncing
-			if ( isPreview && innerBlocks ) {
+			if ( isPreview ) {
 				// Check if the newly selected block is one of our direct step children
-				const isSelectedBlockOurStep = innerBlocks.some(
-					block => block.name === 'jetpack/form-step' && block.clientId === selectedBlockClientId
-				);
+				const isStep = steps.some( step => step.clientId === selectedBlockClientId );
 
 				// If a step child is selected via List View and it's not already the active step in the dropdown
-				if ( isSelectedBlockOurStep && selectedBlockClientId !== selectedStepClientId ) {
+				if ( isStep && selectedBlockClientId !== selectedStepClientId ) {
 					// Use the store action instead of directly setting attributes
 					setPreviewStep( clientId, selectedBlockClientId );
 				}
@@ -296,39 +302,22 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		prevSelectedBlockClientIdRef.current = selectedBlockClientId;
 
 		// Keep dependencies, include setPreviewStep
-	}, [
-		selectedBlockClientId,
-		selectedStepClientId,
-		innerBlocks,
-		setPreviewStep,
-		isPreview,
-		clientId,
-	] );
+	}, [ selectedBlockClientId, selectedStepClientId, setPreviewStep, isPreview, clientId, steps ] );
 
-	// Sync List View selection with step preview
+	// Effect to sync StepControls selection with editor selection
 	useEffect( () => {
-		// Only proceed if we have steps and are in preview mode
-		if ( ! formStepsFromHook.length || ! isPreview ) {
-			return;
-		}
+		// Only proceed if we're in preview mode and have a selected block
+		if ( isPreview && selectedBlockClientId ) {
+			// Check if the currently selected block is a step
+			const isCurrentBlockAStep = steps.some( step => step.clientId === selectedBlockClientId );
 
-		// Check if the selected block is one of our steps
-		const isStepSelected = formStepsFromHook.some(
-			step => step.clientId === selectedBlockClientId
-		);
-
-		// If a step is selected in List View but it's different from our current preview, update it
-		if ( isStepSelected && selectedBlockClientId !== selectedStepClientId ) {
-			setPreviewStep( clientId, selectedBlockClientId );
+			// Only sync if we're currently on a step
+			if ( isCurrentBlockAStep && selectedStepClientId !== selectedBlockClientId ) {
+				// Select the step block in the editor
+				selectBlock( selectedStepClientId );
+			}
 		}
-	}, [
-		selectedBlockClientId,
-		formStepsFromHook,
-		selectedStepClientId,
-		setPreviewStep,
-		clientId,
-		isPreview,
-	] );
+	}, [ isPreview, selectedStepClientId, selectedBlockClientId, steps, selectBlock ] );
 
 	let elt;
 
