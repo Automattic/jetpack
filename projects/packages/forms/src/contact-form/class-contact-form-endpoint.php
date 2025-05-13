@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_REST_Request;
@@ -625,7 +626,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * REST callback for /integrations/{slug}
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Response object.
+	 * @return WP_REST_Response|WP_Error Response object or error.
 	 */
 	public function get_single_integration_status( $request ) {
 		$slug         = $request->get_param( 'slug' );
@@ -672,7 +673,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'type'        => $config['type'],
 			'slug'        => $slug,
 			'isConnected' => false,
-			'settingsUrl' => isset( $config['settings_url'] ) ? $config['settings_url'] : null,
+			'settingsUrl' => $config['settings_url'] ?? null,
 			'pluginFile'  => null,
 			'isInstalled' => false,
 			'isActive'    => false,
