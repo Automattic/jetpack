@@ -1828,33 +1828,6 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
 
-  projects/js-packages/svelte-data-sync-client:
-    devDependencies:
-      '@automattic/jetpack-webpack-config':
-        specifier: workspace:*
-        version: link:../webpack-config
-      jest:
-        specifier: 29.7.0
-        version: 29.7.0
-      svelte:
-        specifier: 4.2.19
-        version: 4.2.19
-      tslib:
-        specifier: 2.5.0
-        version: 2.5.0
-      typescript:
-        specifier: 5.8.2
-        version: 5.8.2
-      webpack:
-        specifier: 5.94.0
-        version: 5.94.0(webpack-cli@6.0.1)
-      webpack-cli:
-        specifier: 6.0.1
-        version: 6.0.1(webpack@5.94.0)
-      zod:
-        specifier: 3.22.3
-        version: 3.22.3
-
   projects/js-packages/videopress-core:
     devDependencies:
       '@automattic/jetpack-webpack-config':
