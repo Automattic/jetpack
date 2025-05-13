@@ -22,15 +22,6 @@
 	position: absolute;
 	z-index: -1;
 	opacity: 0;
-	transition: transform 1s cubic-bezier(0.53, 0, 0, 1), opacity 0.5s cubic-bezier(0.53, 0, 0, 1);
-}
-
-.jetpack-form-step.is-before-current {
-	transform: translateX(-100vw);
-}
-
-.jetpack-form-step.is-after-current {
-	transform: translateX(100vw);
 }
 
 .jetpack-form-step.is-current-step {
@@ -40,6 +31,7 @@
 	height: auto;
 	overflow: visible;
 	z-index: 2;
+	display: block;
 }
 
 /* Transition styles based on form context */
