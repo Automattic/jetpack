@@ -182,16 +182,26 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		foreach ( $data as $integration ) {
 			$this->assertArrayHasKey( 'id', $integration );
 			$this->assertArrayHasKey( 'type', $integration );
+			$this->assertArrayHasKey( 'slug', $integration );
 			$this->assertArrayHasKey( 'isInstalled', $integration );
 			$this->assertArrayHasKey( 'isActive', $integration );
 			$this->assertArrayHasKey( 'isConnected', $integration );
+			$this->assertArrayHasKey( 'settingsUrl', $integration );
+			$this->assertArrayHasKey( 'pluginFile', $integration );
+			$this->assertArrayHasKey( 'version', $integration );
+			$this->assertArrayHasKey( 'details', $integration );
 
 			// Verify expected data types
 			$this->assertIsString( $integration['id'] );
 			$this->assertIsString( $integration['type'] );
+			$this->assertIsString( $integration['slug'] );
 			$this->assertIsBool( $integration['isInstalled'] );
 			$this->assertIsBool( $integration['isActive'] );
 			$this->assertIsBool( $integration['isConnected'] );
+			$this->assertTrue( $integration['settingsUrl'] === null || is_string( $integration['settingsUrl'] ) );
+			$this->assertTrue( $integration['pluginFile'] === null || is_string( $integration['pluginFile'] ) );
+			$this->assertTrue( $integration['version'] === null || is_string( $integration['version'] ) );
+			$this->assertIsArray( $integration['details'] );
 		}
 	}
 
@@ -214,9 +224,14 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertArrayHasKey( 'type', $data );
+		$this->assertArrayHasKey( 'slug', $data );
 		$this->assertArrayHasKey( 'isInstalled', $data );
 		$this->assertArrayHasKey( 'isActive', $data );
 		$this->assertArrayHasKey( 'isConnected', $data );
+		$this->assertArrayHasKey( 'settingsUrl', $data );
+		$this->assertArrayHasKey( 'pluginFile', $data );
+		$this->assertArrayHasKey( 'version', $data );
+		$this->assertArrayHasKey( 'details', $data );
 	}
 
 	/**
