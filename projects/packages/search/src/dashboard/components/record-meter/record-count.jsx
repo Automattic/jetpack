@@ -1,4 +1,5 @@
-import { Gridicon, numberFormat } from '@automattic/jetpack-components';
+import { Gridicon } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
@@ -19,11 +20,11 @@ export function RecordCount( props ) {
 	}
 
 	const recordCount =
-		typeof props.recordCount === 'number' ? numberFormat( props.recordCount ) : props.recordCount;
+		typeof props.recordCount === 'number' ? formatNumber( props.recordCount ) : props.recordCount;
 
 	const recordLimit =
 		typeof props.tierMaximumRecords === 'number'
-			? numberFormat( props.tierMaximumRecords )
+			? formatNumber( props.tierMaximumRecords )
 			: props.tierMaximumRecords;
 	let message;
 

@@ -1,9 +1,9 @@
+@use '../../scss/functions/rem';
 @import '../../scss/calypso-colors';
-@import '../../scss/functions/rem';
 @import '../../scss/mixin_breakpoint';
 @import '../../scss/typography';
 @import '../../scss/variables/colors';
-@import 'node_modules/@automattic/color-studio/dist/color-variables';
+@import '@automattic/color-studio/dist/color-variables';
 
 .jp-product-card {
 	position: relative;
@@ -55,7 +55,7 @@
 
 .jp-product-card__description {
 	color: $black;
-	font-size: rem( 15px );
+	font-size: rem.convert( 15px );
 	line-height: 1.5;
 	margin: 0 0 22px;
 }
@@ -127,7 +127,7 @@
 
 .jp-product-card__checkout {
 	align-self: flex-start;
-	font-size: rem( 16px );
+	font-size: rem.convert( 16px );
 	margin-top: 2rem;
 	padding-left: 60px;
 	padding-right: 60px;
@@ -179,7 +179,7 @@
 	padding: 9px 10px;
 	background: $black;
 	color: $white;
-	font-size: rem( 13px );
+	font-size: rem.convert( 13px );
 	font-weight: 600;
 	letter-spacing: 0.3px;
 	border-top-left-radius: 4px;

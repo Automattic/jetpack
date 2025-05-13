@@ -163,7 +163,7 @@
 		"postcss": "8.4.47",
 		"postcss-loader": "6.2.0",
 		"regenerator-runtime": "0.13.9",
-		"sass-loader": "12.4.0",
+		"sass-loader": "16.0.5",
 		"typescript": "5.8.2"
 	},
 	"optionalDependencies": {

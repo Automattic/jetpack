@@ -243,7 +243,6 @@
 	"projects/plugins/crm/modules/woo-sync/jpcrm-woo-sync-init.php",
 	"projects/plugins/debug-helper/modules/inc/mockers/class-nonces-runner.php",
 	"projects/plugins/debug-helper/modules/inc/mockers/class-options-runner.php",
-	"projects/plugins/jetpack/_inc/lib/functions.wp-notify.php",
 	"projects/plugins/jetpack/class.jetpack-cli.php",
 	"projects/plugins/jetpack/class.jetpack.php",
 	"projects/plugins/jetpack/class.json-api-endpoints.php",

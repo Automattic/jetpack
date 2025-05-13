@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove documentation references to deprecated svelte-data-sync-client package.

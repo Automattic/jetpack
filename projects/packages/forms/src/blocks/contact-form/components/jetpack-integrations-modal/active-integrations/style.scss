@@ -16,4 +16,8 @@
 		box-shadow: 0 0 0 1px #fff;
 		border-radius: 50%;
 	}
+
+	.icon-round {
+		clip-path: circle(15px at center);
+	}
 } 

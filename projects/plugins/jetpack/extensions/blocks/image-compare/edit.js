@@ -1,7 +1,7 @@
 import { InspectorControls, RichText, useBlockProps } from '@wordpress/block-editor';
 import { Placeholder } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
-import { useLayoutEffect, useRef } from '@wordpress/element';
+import { useLayoutEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { photonizedImgProps } from '../tiled-gallery/utils';
 import ImageCompareControls from './controls';
@@ -17,9 +17,18 @@ const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
 
 	const blockProps = useBlockProps();
 	const juxtaposeRef = useRef( undefined );
+	const [ containerWidth, setContainerWidth ] = useState( 0 );
 
 	// Let's look for resize so we can trigger the thing.
-	const [ resizeListener, sizes ] = useResizeObserver();
+	const setElement = useResizeObserver(
+		resizeObserverEntries => {
+			const width = resizeObserverEntries[ 0 ]?.contentRect.width;
+			if ( width ) {
+				setContainerWidth( width );
+			}
+		},
+		{ box: 'border-box' }
+	);
 
 	useDebounce(
 		sz => {
@@ -36,7 +45,7 @@ const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
 			}
 		},
 		200,
-		sizes.width
+		containerWidth
 	);
 
 	// Initial state if attributes already set or not.
@@ -47,13 +56,15 @@ const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
 	// Watching for changes to key variables to trigger scan.
 	useLayoutEffect( () => {
 		if ( imageBefore.url && imageAfter.url && typeof juxtapose !== 'undefined' ) {
-			juxtapose.makeSlider( juxtaposeRef?.current );
+			if ( juxtaposeRef.current ) {
+				setElement( juxtaposeRef.current );
+				juxtapose.makeSlider( juxtaposeRef?.current );
+			}
 		}
-	}, [ align, imageBefore, imageAfter, orientation ] );
+	}, [ align, imageBefore, imageAfter, orientation, setElement ] );
 
 	return (
 		<figure { ...blockProps } id={ clientId }>
-			{ resizeListener }
 			<InspectorControls key="controls">
 				<ImageCompareControls { ...{ attributes, setAttributes } } />
 			</InspectorControls>
