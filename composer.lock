@@ -64,7 +64,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "4ce408c62dc4e2ee4ab7bb17c186455d81066839"
+                "reference": "903624342778c13451bc69b9d5e532d61d52b6a8"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -89,7 +89,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.0.x-dev"
+                    "dev-trunk": "6.0.x-dev"
                 }
             },
             "autoload": {
