@@ -58,6 +58,10 @@
 
 .jp-forms__export-modal-card-body-cta {
 	align-self: flex-end;
+
+	a.export-gdrive {
+		display: flex;
+	}
 }
 
 .jp-forms__export-button--large-green.jp-forms__export-button--large-green,

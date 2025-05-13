@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: LCP: Add endpoint for payload. Useful for debugging.
+
+
