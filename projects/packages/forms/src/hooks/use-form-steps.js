@@ -23,7 +23,7 @@ const useFormSteps = formClientId => {
 			const stepContainers = getBlocksByName( 'jetpack/step-container' );
 
 			if ( ! stepContainers || stepContainers.length === 0 ) {
-				return [];
+				return { steps: [], containerId: null };
 			}
 
 			const containerId = stepContainers.find( stepContainerId => {
@@ -34,12 +34,12 @@ const useFormSteps = formClientId => {
 			} );
 
 			if ( ! containerId ) {
-				return [];
+				return { steps: [], containerId: null };
 			}
 
 			const steps = getBlocks( containerId );
 			if ( ! steps ) {
-				return [];
+				return { steps: [], containerId: containerId };
 			}
 
 			return { steps, containerId };
