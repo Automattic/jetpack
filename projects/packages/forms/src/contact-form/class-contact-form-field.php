@@ -814,10 +814,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$options_classes   = $this->get_attribute( 'optionsclasses' );
 		$options_styles    = $this->get_attribute( 'optionsstyles' );
 		$form_style        = $this->get_form_style();
-		$is_animated_style = 'animated' === $form_style;
+		$is_outlined_style = 'outlined' === $form_style;
 		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'";
 
-		if ( $is_animated_style ) {
+		/*
+		 * The label (legend) element is rendered outside the style field for the animated style.
+		 */
+		if ( ! $is_outlined_style ) {
 			// For animated style: wrap fieldset in a div with styles/classes
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
 		} else {
@@ -827,7 +830,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
-		if ( $is_animated_style ) {
+		if ( ! $is_outlined_style ) {
 			$field .= "<div class='wp-block-jetpack-options grunion-radio-options" . $options_classes . "' style='" . $options_styles . "'>";
 		}
 
@@ -902,7 +905,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
-		if ( $is_animated_style ) {
+		if ( ! $is_outlined_style ) {
 			$field .= '</div>';
 		}
 		$field .= '</fieldset>';
@@ -1186,7 +1189,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$options_classes   = $this->get_attribute( 'optionsclasses' );
 		$options_styles    = $this->get_attribute( 'optionsstyles' );
 		$form_style        = $this->get_form_style();
-		$is_animated_style = 'animated' === $form_style;
+		$is_outlined_style = 'outlined' === $form_style;
 
 		// The `data-required` attribute is used in `accessible-form.js` to ensure at least one
 		// checkbox is checked. Unlike radio buttons, for which the required attribute is satisfied if
@@ -1195,7 +1198,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
 
-		if ( $is_animated_style ) {
+		/*
+		 * The label (legend) element is rendered outside the style field for the animated style.
+		 */
+		if ( ! $is_outlined_style ) {
 			// For animated style: wrap fieldset in a div with styles/classes
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
 		} else {
@@ -1205,7 +1211,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
-		if ( $is_animated_style ) {
+		if ( ! $is_outlined_style ) {
 			$field .= "<div class='wp-block-jetpack-options grunion-checkbox-multiple-options" . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
 		}
 
@@ -1277,7 +1283,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				}
 			}
 		}
-		if ( $is_animated_style ) {
+		if ( ! $is_outlined_style ) {
 			$field .= '</div>';
 		}
 		$field .= '</fieldset>';
@@ -1464,7 +1470,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Returns the styles, classes and CSS variables associated with the outline style.
+	 * Returns the styles, classes and CSS variables associated with the outline style,
+	 * taking into account user and base global styles.
 	 *
 	 * @return array {
 	 *     @type string $style_attrs The style attributes.

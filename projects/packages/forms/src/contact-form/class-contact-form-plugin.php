@@ -466,11 +466,13 @@ class Contact_Form_Plugin {
 					if ( 'jetpack/field-select' === $block->name ) {
 						$atts['togglelabel'] = $inner_block['attrs']['placeholder'];
 					}
+
 					/*
-						Borders for the notched HTML.
+						Borders for the outlined notched HTML.
 					*/
-					$atts['outlinestyledata']                 = isset( $inner_block['attrs']['style']['border'] ) ? \wp_json_encode( $inner_block['attrs']['style']['border'] ) : null;
-					$atts['outlinestyleclasses']              = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
+					$outlined_style_data                      = self::get_outlined_style_attributes( $block_name, $inner_block['attrs'] );
+					$atts['outlinestyledata']                 = $outlined_style_data['outlinestyledata'];
+					$atts['outlinestyleclasses']              = $outlined_style_data['outlinestyleclasses'];
 					$add_block_style_classes_to_field_wrapper = true;
 				}
 
@@ -519,10 +521,11 @@ class Contact_Form_Plugin {
 					$atts['optionsdata'] = \wp_json_encode( $options_data );
 
 					/*
-						Borders for the notched HTML.
+						Borders for the outlined notched HTML.
 					*/
-					$atts['outlinestyledata']                 = isset( $inner_block['attrs']['style']['border'] ) ? \wp_json_encode( $inner_block['attrs']['style']['border'] ) : null;
-					$atts['outlinestyleclasses']              = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
+					$outlined_style_data                      = self::get_outlined_style_attributes( $block_name, $inner_block['attrs'] );
+					$atts['outlinestyledata']                 = $outlined_style_data['outlinestyledata'];
+					$atts['outlinestyleclasses']              = $outlined_style_data['outlinestyleclasses'];
 					$add_block_style_classes_to_field_wrapper = true;
 				}
 			}
@@ -547,6 +550,30 @@ class Contact_Form_Plugin {
 		return $atts;
 	}
 
+	/**
+	 * Returns the outlined style attributes.
+	 * This helper function extracts the necessary styles and classes for the outlined style,
+	 * which uses custom HTML to create a border around the field. In this case,
+	 * the control styles are applied to the custom HTML, not the input itself.
+	 *
+	 * @param string $block_name - the block name.
+	 * @param array  $attrs - the block attributes.
+	 *
+	 * @return array
+	 */
+	protected static function get_outlined_style_attributes( $block_name, $attrs ) {
+		$outlined_style_data                        = array();
+		$attributes_for_outlined_style              = array(
+			'backgroundColor' => $attrs['backgroundColor'] ?? null,
+			'style'           => array(
+				'border' => $attrs['style']['border'] ?? null,
+			),
+		);
+		$outlined_attrs                             = self::get_block_support_classes_and_styles( $block_name, $attributes_for_outlined_style );
+		$outlined_style_data['outlinestyledata']    = isset( $attributes_for_outlined_style['style']['border'] ) ? \wp_json_encode( $attributes_for_outlined_style['style']['border'] ) : null;
+		$outlined_style_data['outlinestyleclasses'] = isset( $outlined_attrs['class'] ) ? ' ' . $outlined_attrs['class'] : '';
+		return $outlined_style_data;
+	}
 	/**
 	 * Render the text field.
 	 *

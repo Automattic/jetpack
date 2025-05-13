@@ -536,6 +536,10 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-weight: 300;
 }
 
+.contact-form .is-style-outlined .grunion-field-wrap legend.grunion-field-label {
+	font-weight: 300;
+}
+
 .contact-form .is-style-outlined .grunion-field-textarea-wrap .notched-label .notched-label__label {
 	top: var(--jetpack--contact-form--input-padding-top, 16px);
 	transform: unset;
@@ -597,8 +601,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	--field-padding: calc(var(--label-left) - var(--jetpack--contact-form--border-size));
 }
 
-.contact-form .is-style-animated .jetpack-field-multiple__fieldset,
-.contact-form .is-style-animated .jetpack-field-multiple__fieldset legend {
+.wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset,
+.wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset legend {
 	padding: 0;
 	border: 0;
 	margin: 0;

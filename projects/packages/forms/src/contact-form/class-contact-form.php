@@ -316,7 +316,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// Enqueue the style here instead of printing it, because if some other plugin has run the_post()+rewind_posts(),
 			// (like VideoPress does), the style tag gets "printed" the first time and discarded, leaving the contact form unstyled.
 			// when WordPress does the real loop.
-			wp_enqueue_style( 'grunion.css?123' );
+			wp_enqueue_style( 'grunion.css' );
 			wp_enqueue_script( 'accessible-form' );
 		}
 
