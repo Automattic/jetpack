@@ -86,7 +86,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
-	const { steps } = useFormSteps( clientId );
+	const steps = useFormSteps( clientId );
 
 	const {
 		postTitle,
@@ -202,7 +202,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		}
 	}, [ selectedBlockClientId, clientId, steps, setPreviewStep, isPreview ] );
 	// Update the selected block client ID in the preview store
-
 	let elt;
 
 	if ( ! isModuleActive ) {

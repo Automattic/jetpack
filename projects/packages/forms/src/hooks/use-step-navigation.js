@@ -18,7 +18,7 @@ import useFormSteps from './use-form-steps';
 const useStepNavigation = ( formClientId, updateStepSelected ) => {
 	const { setPreviewStep } = useDispatch( previewStore );
 	const { selectBlock } = useDispatch( blockEditorStore );
-	const { steps } = useFormSteps( formClientId );
+	const steps = useFormSteps( formClientId );
 
 	const { currentStepInfo } = useSelect(
 		select => {

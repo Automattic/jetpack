@@ -64,7 +64,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	} );
 
 	const ancestorFormClientId = useParentFormClientId( clientId );
-	const { steps } = useFormSteps( ancestorFormClientId );
+	const steps = useFormSteps( ancestorFormClientId );
 
 	const { currentIndex, selectedStepClientId, isPreview } = useSelect(
 		select => {

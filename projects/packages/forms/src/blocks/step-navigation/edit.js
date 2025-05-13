@@ -19,7 +19,8 @@ const PREVIOUS_BUTTON_TEMPLATE = [
 		text: __( 'Previous', 'jetpack-forms' ),
 		uniqueId: 'previous-step',
 		customVariant: 'previous',
-		metaName: __( 'Previous Button', 'jetpack-forms' ),
+		className: 'is-style-outline',
+		metaName: __( 'Previous button', 'jetpack-forms' ),
 	},
 ];
 const NEXT_BUTTON_TEMPLATE = [
@@ -29,7 +30,7 @@ const NEXT_BUTTON_TEMPLATE = [
 		text: __( 'Next', 'jetpack-forms' ),
 		uniqueId: 'next-step',
 		customVariant: 'next',
-		metaName: __( 'Next Button', 'jetpack-forms' ),
+		metaName: __( 'Next button', 'jetpack-forms' ),
 	},
 ];
 
@@ -40,7 +41,7 @@ const SUBMIT_BUTTON_TEMPLATE = [
 		text: __( 'Submit', 'jetpack-forms' ),
 		uniqueId: 'submit-step',
 		customVariant: 'submit',
-		metaName: __( 'Submit Button', 'jetpack-forms' ),
+		metaName: __( 'Submit button', 'jetpack-forms' ),
 	},
 ];
 
@@ -61,7 +62,7 @@ export default function Edit( { clientId } ) {
 	);
 
 	const formClientId = useParentFormClientId( clientId );
-	const { steps } = useFormSteps( formClientId );
+	const steps = useFormSteps( formClientId );
 
 	// Get the preview mode state and active step
 	const { isPreviewMode, activePreviewStepId } = useSelect(
