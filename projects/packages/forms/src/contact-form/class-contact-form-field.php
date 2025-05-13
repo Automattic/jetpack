@@ -1477,6 +1477,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>
 				</div>
+				<div class="notched-label__filler ' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
 				<div class="notched-label__trailing ' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
 			</div>';
 	}

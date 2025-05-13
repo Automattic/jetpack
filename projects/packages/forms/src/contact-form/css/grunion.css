@@ -501,6 +501,16 @@
 	border-right: none !important;
 }
 
+:where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__filler {
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	flex-grow: 1;
+	border-left: none !important;
+	border-right: none !important;
+	border-radius: unset !important;
+}
+
 :where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__trailing {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
@@ -545,6 +555,13 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-textarea-wrap .notched-label .notched-label__label {
 	top: var(--jetpack--contact-form--input-padding-top, 16px);
 	transform: unset;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__filler {
+	flex-grow: 1;
+	border-left: none !important;
+	border-right: none !important;
+	border-radius: unset !important;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__trailing {
