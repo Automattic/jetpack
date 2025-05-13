@@ -104,14 +104,18 @@ function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) 
 	$asset_file   = include Jetpack_Mu_Wpcom::BASE_DIR . "build/$asset_name/$asset_name.asset.php";
 
 	if ( in_array( 'js', $asset_types, true ) ) {
-		$js_file = "build/$asset_name/$asset_name.js";
+		$js_file      = "build/$asset_name/$asset_name.js";
+		$dependencies = $asset_file['dependencies'] ?? array();
 		wp_enqueue_script(
 			"jetpack-mu-wpcom-$asset_name",
 			plugins_url( $js_file, Jetpack_Mu_Wpcom::BASE_FILE ),
-			$asset_file['dependencies'] ?? array(),
+			$dependencies,
 			$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $js_file ),
 			true
 		);
+		if ( in_array( 'wp-i18n', $dependencies, true ) ) {
+			wp_set_script_translations( $asset_handle, 'jetpack-mu-wpcom' );
+		}
 	}
 
 	if ( in_array( 'css', $asset_types, true ) ) {

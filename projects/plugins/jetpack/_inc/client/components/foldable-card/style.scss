@@ -1,8 +1,8 @@
 @use 'sass:color';
+@use '../../scss/functions/rem';
 @import '../../scss/calypso-colors';
 @import '../../scss/calypso-mixins';
 @import '../../scss/mixin_clear-fix';
-@import '../../scss/functions/rem';
 
 
 // Multisite
@@ -140,14 +140,14 @@ button.dops-foldable-card__action {
 }
 
 .dops-foldable-card__header-text {
-	font-size: rem( 18px );
+	font-size: rem.convert( 18px );
 	width: 100%;
 }
 
 .dops-foldable-card__subheader {
-	margin-top: rem( 2px );
-	margin-bottom: rem( 2px );
-	font-size: rem( 14px );
+	margin-top: rem.convert( 2px );
+	margin-bottom: rem.convert( 2px );
+	font-size: rem.convert( 14px );
 	color: color.adjust( $gray, $lightness: -20% );
 }
 

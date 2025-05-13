@@ -14,7 +14,6 @@ class LCP_Invalidator {
 	public static function init() {
 		add_action( 'jetpack_boost_deactivate', array( self::class, 'reset_data' ) );
 		add_action( 'update_option_jetpack_boost_ds_cornerstone_pages_list', array( self::class, 'reset_and_analyze' ) );
-
 		add_action( 'jetpack_boost_environment_changed', array( self::class, 'handle_environment_change' ) );
 		add_action( 'post_updated', array( self::class, 'handle_post_update' ) );
 	}
@@ -66,8 +65,14 @@ class LCP_Invalidator {
 	 */
 	public static function handle_post_update( int $post_id ) {
 		if ( Cornerstone_Utils::is_cornerstone_page( $post_id ) ) {
-			// @TODO: Once the Cloud supports individual page analysis, we can invalidate the LCP analysis for the specific page instead of all.
-			self::reset_and_analyze();
+			$url = get_permalink( $post_id );
+
+			$analyzer = new LCP_Analyzer();
+			$analyzer->start_partial_analysis(
+				array(
+					Cornerstone_Utils::prepare_provider_data( $url ),
+				)
+			);
 		}
 	}
 }

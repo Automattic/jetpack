@@ -1,14 +1,15 @@
+@use '../../scss/functions/rem';
 @import '../../scss/calypso-colors';
 
 .jp-masthead {
 	background-color: $white;
 	text-align: center;
 
-	@media (max-width: rem( 782px ) ) {
-		padding: 0 rem( 24px );
+	@media (max-width: rem.convert( 782px ) ) {
+		padding: 0 rem.convert( 24px );
 
 		.jetpack-masterbar & {
-			padding-left: rem( 64px );
+			padding-left: rem.convert( 64px );
 		}
 	}
 }
@@ -17,12 +18,12 @@
 	display: flex;
 	flex-wrap: wrap;
 	width: 100%;
-	padding-bottom: rem( 6px );
+	padding-bottom: rem.convert( 6px );
 }
 
 .jp-masthead-middle .jp-masthead__inside-container {
 	margin: 0 auto;
-	max-width: rem( 1040px );
+	max-width: rem.convert( 1040px );
 
 	@media (max-width: 1360px) {
 		max-width: 95%;
@@ -32,11 +33,11 @@
 .jp-masthead__logo-container {
 	flex-grow: 0;
 	flex-shrink: 0;
-	padding: rem( 40px ) 0 rem( 20px ) 0;
+	padding: rem.convert( 40px ) 0 rem.convert( 20px ) 0;
 
 	@include breakpoint( "<480px" ) {
-		padding: rem( 11px ) 0 0;
-		margin-right: rem( 16px );
+		padding: rem.convert( 11px ) 0 0;
+		margin-right: rem.convert( 16px );
 	}
 }
 
@@ -65,8 +66,8 @@
 	flex-grow: 1;
 	flex-shrink: 0;
 	text-align: right;
-	margin-top: rem( 6px );
-	padding: rem( 4px ) 0;
+	margin-top: rem.convert( 6px );
+	padding: rem.convert( 4px ) 0;
 
 	.dops-button-group {
 		flex-grow: 1;

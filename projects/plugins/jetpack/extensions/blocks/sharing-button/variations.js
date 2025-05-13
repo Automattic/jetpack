@@ -163,9 +163,3 @@ export default variations;
 // 	title: 'Patreon',
 // 	icon: <SocialLogo icon={ 'patreon' } size={ 24 } />,
 // },
-// {
-// 	name: 'skype',
-// 	attributes: { service: 'skype' },
-// 	title: 'Skype',
-// 	icon: <SocialLogo icon={ 'skype' } size={ 24 } />,
-// },

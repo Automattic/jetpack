@@ -1,16 +1,16 @@
 /**
- * Rem function
+ * Rem module
  *
  * Convert px to rem in a readable fashion.
  *
- * Example: font-size: rem( 21px );
+ * Example: font-size: rem.convert( 21px );
  */
 
 @use "sass:math";
 
 $root-font-size: 16px;
 
-@function rem( $pixels, $context: $root-font-size ) {
+@function convert( $pixels, $context: $root-font-size ) {
 
 	@return math.div($pixels, $context) * 1rem;
 }

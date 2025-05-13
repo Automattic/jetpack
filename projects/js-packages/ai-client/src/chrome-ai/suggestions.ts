@@ -110,11 +110,11 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// use the Chrome AI translator
 	async translate( text: string, target: string, source: string = '' ) {
-		if ( ! ( 'translation' in self ) ) {
+		if ( ! ( 'Translator' in self ) ) {
 			return;
 		}
 
-		const translator = await self.translation.createTranslator( {
+		const translator = await self.Translator.create( {
 			sourceLanguage: source,
 			targetLanguage: target,
 		} );
@@ -125,6 +125,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 		try {
 			const translation = await translator.translate( renderHTMLFromMarkdown( { content: text } ) );
+
 			this.processEvent( {
 				id: '',
 				event: 'translation',
@@ -160,20 +161,22 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// use the Chrome AI summarizer
 	async summarize( text: string, tone?: string, wordCount?: number ) {
-		if ( ! ( 'ai' in self ) || ! ( 'summarizer' in self.ai ) ) {
+		if ( ! ( 'Summarizer' in self ) ) {
 			return;
 		}
-		const available = ( await self.ai.summarizer.capabilities() ).available;
+		// eslint-disable-next-line no-console
+		console.log( 'Summarizer is available' );
+		const availability = await self.Summarizer.availability();
 
-		if ( available === 'no' ) {
+		if ( availability === 'unavailable' ) {
 			return;
 		}
 
-		const options = this.getSummarizerOptions( tone, wordCount );
+		const summarizerOptions = this.getSummarizerOptions( tone, wordCount );
 
-		const summarizer = await self.ai.summarizer.create( options );
+		const summarizer = await self.Summarizer.create( summarizerOptions );
 
-		if ( available === 'after-download' ) {
+		if ( availability !== 'available' ) {
 			await summarizer.ready;
 		}
 
