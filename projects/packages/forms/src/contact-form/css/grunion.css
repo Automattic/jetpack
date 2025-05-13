@@ -438,11 +438,6 @@
 	flex-direction: row-reverse;
 }
 
-.contact-form .is-style-outlined .grunion-field-checkbox-multiple-wrap,
-.contact-form .is-style-outlined .grunion-field-radio-wrap {
-	background-color: var(--jetpack--contact-form--input-background);
-}
-
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options
 {
@@ -594,6 +589,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap > input,
 .contact-form .is-style-outlined .grunion-field-wrap > textarea,
 .contact-form .is-style-outlined .grunion-field-wrap select {
+	background: none !important; /* Need to override styles coming from the style attribute*/
 	border-color: transparent !important; /* Need to override styles coming from the style attribute*/
 	outline: none;
 	padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
