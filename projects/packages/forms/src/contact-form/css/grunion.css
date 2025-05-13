@@ -517,6 +517,7 @@
 	border-width: var(--jetpack--contact-form--border-size);
 	border-radius: var(--jetpack--contact-form--border-radius);
 	flex-grow: 1;
+	max-width: 100px;
 	border-left: none !important;
 	border-top-left-radius: unset !important;
 	border-bottom-left-radius: unset !important;
@@ -569,6 +570,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	border-left: none !important;
 	border-top-left-radius: unset !important;
 	border-bottom-left-radius: unset !important;
+	max-width: 100px;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__notch,
