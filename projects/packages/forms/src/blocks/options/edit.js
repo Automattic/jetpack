@@ -20,11 +20,9 @@ const OptionsEdit = ( { clientId, name, context, attributes, setAttributes } ) =
 		inputBlockName: name,
 		inputBlockAttributes: attributes,
 	} );
+
 	const blockProps = useBlockProps( {
-		className: clsx( 'jetpack-field-multiple__list', {
-			'jetpack-field-multiple__list--has-border':
-				!! attributes?.style?.border?.width || !! attributes?.style?.border?.left?.width,
-		} ),
+		className: clsx( 'jetpack-field-multiple__list', styles?.className ),
 		style: styles?.cssVars,
 	} );
 

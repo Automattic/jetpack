@@ -533,7 +533,6 @@
 	align-items: flex-start;
 	gap: 12px;
 	flex: 1;
-	border-color: var(--jetpack--contact-form--border-color);
 
 	&.jetpack-field-multiple__list--has-border {
 		padding-left: var(--jetpack--contact-form--input-padding-left, 16px);
@@ -551,6 +550,11 @@
 		border-radius: 4px;
 		padding: 4px;
 	}
+}
+
+// Ensure global styles can ovewrite the default border color.
+:where(.jetpack-field-multiple__list.jetpack-field-multiple__list) {
+	border-color: var(--jetpack--contact-form--border-color);
 }
 
 .jetpack-option {

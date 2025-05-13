@@ -67,11 +67,25 @@ export default function useFormStyleOutlineClassesAndStyles( {
 		[ baseConfig?.styles?.blocks, userConfig?.styles?.blocks, inputBlockName ]
 	);
 
+	// Add a class to apply padding to option groups that have a border.
+	const customBorderClasses = useMemo( () => {
+		const hasBorder =
+			inputBlockName === 'jetpack/options' &&
+			( !! inputBlockAttributes?.style?.border?.width ||
+				!! inputBlockAttributes?.style?.border?.left?.width ||
+				!! mergedGlobalBlockStyles?.border?.width ||
+				!! mergedGlobalBlockStyles?.border?.left?.width );
+		return hasBorder ? 'jetpack-field-multiple__list--has-border' : '';
+	}, [ inputBlockName, inputBlockAttributes, mergedGlobalBlockStyles ] );
+
 	return useMemo( () => {
 		// Only return styles for outlined and animated forms.
 		if ( formStyle !== FORM_STYLE.OUTLINED && formStyle !== FORM_STYLE.ANIMATED ) {
-			return null;
+			return {
+				className: customBorderClasses,
+			};
 		}
+
 		// Access the input block's attributes.
 		const blockBorderClassesAndStyles = getBorderClassesAndStyles( inputBlockAttributes ?? {} );
 		const globalBorderClassesAndStyles = getBorderClassesAndStyles( {
@@ -97,6 +111,7 @@ export default function useFormStyleOutlineClassesAndStyles( {
 		const filteredBlockColorClassesAndStyles = [
 			blockBorderClassesAndStyles?.className,
 			blockColorClassesAndStyles?.className,
+			customBorderClasses,
 		]
 			.filter( Boolean )
 			.join( ' ' );
@@ -151,5 +166,5 @@ export default function useFormStyleOutlineClassesAndStyles( {
 				...styleSpecificCssVars,
 			},
 		};
-	}, [ inputBlockAttributes, mergedGlobalBlockStyles, formStyle ] );
+	}, [ inputBlockAttributes, mergedGlobalBlockStyles, formStyle, customBorderClasses ] );
 }
