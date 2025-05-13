@@ -587,8 +587,21 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array(), $always_render = false ) {
 		$form_style = $this->get_form_style();
 
-		if ( ! empty( $form_style ) && $form_style !== 'default' && ! $always_render ) {
-			return '';
+		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
+			if ( ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
+				switch ( $form_style ) {
+					case 'outlined':
+						return $this->render_outline_label( $id, $label, $required, $required_field_text );
+					case 'animated':
+						return $this->render_animated_label( $id, $label, $required, $required_field_text );
+					case 'below':
+						return $this->render_below_label( $id, $label, $required, $required_field_text );
+				}
+			}
+
+			if ( ! $always_render ) {
+				return '';
+			}
 		}
 
 		if ( ! empty( $this->label_styles ) ) {
@@ -1696,20 +1709,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
 				break;
-		}
-
-		if ( ! empty( $form_style ) && $form_style !== 'default' && ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
-			switch ( $form_style ) {
-				case 'outlined':
-					$field .= $this->render_outline_label( $id, $label, $required, $required_field_text );
-					break;
-				case 'animated':
-					$field .= $this->render_animated_label( $id, $label, $required, $required_field_text );
-					break;
-				case 'below':
-					$field .= $this->render_below_label( $id, $label, $required, $required_field_text );
-					break;
-			}
 		}
 
 		$field .= "\t</div>\n";

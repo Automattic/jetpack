@@ -559,21 +559,21 @@ on production builds, the attributes are being reordered, causing side-effects
 	border-bottom-left-radius: unset !important;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-checkbox-multiple-options) .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-radio-options) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__notch
 {
 	border-top-color: transparent !important;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-checkbox-multiple-options) .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-radio-options) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label
 {
 	top: calc(var(--jetpack--contact-form--border-size) * -1 );
@@ -582,11 +582,11 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 /* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-checkbox-multiple-options) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-radio-options) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"] {
 	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.8);
 }
@@ -651,9 +651,9 @@ on production builds, the attributes are being reordered, causing side-effects
 	top: var(--jetpack--contact-form--input-padding-top, 16px);
 }
 
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus),
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:not(:placeholder-shown)),
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder),
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label
 {
 	font-size: 0.75em;
@@ -662,15 +662,15 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 /* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field:focus),
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field:not(:placeholder-shown)),
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field.has-placeholder),
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"] {
 	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.75);
 }
 
-.contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options ~ .animated-label__label {
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-checkbox-multiple-options),
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-radio-options) {
 	top: 0;
 	left: 0;
 	transform: translateY(0);
