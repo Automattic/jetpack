@@ -61,7 +61,7 @@ class SimplePaymentsEdit extends Component {
 			setAttributes( {
 				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
 				...( shouldUpdatePostLinkText && {
-					postLinkText: __( 'Click here to purchase.', 'jetpack-paypal-payments' ),
+					postLinkText: __( 'Click here to purchase.', 'jetpack' ),
 				} ),
 			} );
 		}
@@ -94,7 +94,7 @@ class SimplePaymentsEdit extends Component {
 			setAttributes( {
 				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
 				...( shouldUpdatePostLinkText && {
-					postLinkText: __( 'Click here to purchase.', 'jetpack-paypal-payments' ),
+					postLinkText: __( 'Click here to purchase.', 'jetpack' ),
 				} ),
 			} );
 		}
@@ -196,14 +196,12 @@ class SimplePaymentsEdit extends Component {
 							apiErrorKey === 'spay_email'
 								? sprintf(
 										/* translators: placeholder is an email address. */
-										__( '%s is not a valid email address.', 'jetpack-paypal-payments' ),
+										__( '%s is not a valid email address.', 'jetpack' ),
 										email
 								  )
 								: null,
 						fieldPriceError:
-							apiErrorKey === 'spay_price'
-								? __( 'Invalid price.', 'jetpack-paypal-payments' )
-								: null,
+							apiErrorKey === 'spay_price' ? __( 'Invalid price.', 'jetpack' ) : null,
 					} );
 				} )
 				.finally( () => {
@@ -250,7 +248,7 @@ class SimplePaymentsEdit extends Component {
 			this.setState( {
 				fieldPriceError: __(
 					'If you’re selling something, you need a price tag. Add yours here.',
-					'jetpack-paypal-payments'
+					'jetpack'
 				),
 			} );
 			return false;
@@ -258,7 +256,7 @@ class SimplePaymentsEdit extends Component {
 
 		if ( Number.isNaN( parseFloat( price ) ) ) {
 			this.setState( {
-				fieldPriceError: __( 'Invalid price', 'jetpack-paypal-payments' ),
+				fieldPriceError: __( 'Invalid price', 'jetpack' ),
 			} );
 			return false;
 		}
@@ -267,7 +265,7 @@ class SimplePaymentsEdit extends Component {
 			this.setState( {
 				fieldPriceError: __(
 					'Your price is negative — enter a positive number so people can pay the right amount.',
-					'jetpack-paypal-payments'
+					'jetpack'
 				),
 			} );
 			return false;
@@ -279,7 +277,7 @@ class SimplePaymentsEdit extends Component {
 				this.setState( {
 					fieldPriceError: __(
 						'We know every penny counts, but prices in this currency can’t contain decimal values.',
-						'jetpack-paypal-payments'
+						'jetpack'
 					),
 				} );
 				return false;
@@ -292,7 +290,7 @@ class SimplePaymentsEdit extends Component {
 						'The price cannot have more than %d decimal place.',
 						'The price cannot have more than %d decimal places.',
 						precision,
-						'jetpack-paypal-payments'
+						'jetpack'
 					),
 					precision
 				),
@@ -320,7 +318,7 @@ class SimplePaymentsEdit extends Component {
 			this.setState( {
 				fieldEmailError: __(
 					'We want to make sure payments reach you, so please add an email address.',
-					'jetpack-paypal-payments'
+					'jetpack'
 				),
 			} );
 			return false;
@@ -330,7 +328,7 @@ class SimplePaymentsEdit extends Component {
 			this.setState( {
 				fieldEmailError: sprintf(
 					/* translators: placeholder is an email address. */
-					__( '%s is not a valid email address.', 'jetpack-paypal-payments' ),
+					__( '%s is not a valid email address.', 'jetpack' ),
 					email
 				),
 			} );
@@ -357,7 +355,7 @@ class SimplePaymentsEdit extends Component {
 			this.setState( {
 				fieldTitleError: __(
 					'Please add a brief title so that people know what they’re paying for.',
-					'jetpack-paypal-payments'
+					'jetpack'
 				),
 			} );
 			return false;
@@ -412,15 +410,15 @@ class SimplePaymentsEdit extends Component {
 
 	renderSettings = () => (
 		<InspectorControls>
-			<PanelBody title={ __( 'Settings', 'jetpack-paypal-payments' ) } initialOpen={ false }>
+			<PanelBody title={ __( 'Settings', 'jetpack' ) } initialOpen={ false }>
 				<TextControl
-					label={ __( 'Purchase link text', 'jetpack-paypal-payments' ) }
+					label={ __( 'Purchase link text', 'jetpack' ) }
 					help={ __(
 						'Enter the text you want to display on a purchase link used as fallback when the PayPal button cannot be used (e.g. emails, AMP, etc.)',
-						'jetpack-paypal-payments'
+						'jetpack'
 					) }
 					className="jetpack-simple-payments__purchase-link-text"
-					placeholder={ __( 'Click here to purchase', 'jetpack-paypal-payments' ) }
+					placeholder={ __( 'Click here to purchase', 'jetpack' ) }
 					onChange={ newPostLinkText =>
 						this.props.setAttributes( { postLinkText: newPostLinkText } )
 					}
@@ -501,9 +499,9 @@ class SimplePaymentsEdit extends Component {
 						className={ clsx( 'simple-payments__field', 'simple-payments__field-title', {
 							'simple-payments__field-has-error': fieldTitleError,
 						} ) }
-						label={ __( 'Item name', 'jetpack-paypal-payments' ) }
+						label={ __( 'Item name', 'jetpack' ) }
 						onChange={ this.handleTitleChange }
-						placeholder={ __( 'Item name', 'jetpack-paypal-payments' ) }
+						placeholder={ __( 'Item name', 'jetpack' ) }
 						required
 						type="text"
 						value={ title }
@@ -514,9 +512,9 @@ class SimplePaymentsEdit extends Component {
 
 					<TextareaControl
 						className="simple-payments__field simple-payments__field-content"
-						label={ __( 'Describe your item in a few words', 'jetpack-paypal-payments' ) }
+						label={ __( 'Describe your item in a few words', 'jetpack' ) }
 						onChange={ this.handleContentChange }
-						placeholder={ __( 'Describe your item in a few words', 'jetpack-paypal-payments' ) }
+						placeholder={ __( 'Describe your item in a few words', 'jetpack' ) }
 						value={ content }
 					/>
 
@@ -524,7 +522,7 @@ class SimplePaymentsEdit extends Component {
 						<SelectControl
 							__next40pxDefaultSize
 							className="simple-payments__field simple-payments__field-currency"
-							label={ __( 'Currency', 'jetpack-paypal-payments' ) }
+							label={ __( 'Currency', 'jetpack' ) }
 							onChange={ this.handleCurrencyChange }
 							options={ this.getCurrencyList }
 							value={ currency }
@@ -534,7 +532,7 @@ class SimplePaymentsEdit extends Component {
 							className={ clsx( 'simple-payments__field', 'simple-payments__field-price', {
 								'simple-payments__field-has-error': fieldPriceError,
 							} ) }
-							label={ __( 'Price', 'jetpack-paypal-payments' ) }
+							label={ __( 'Price', 'jetpack' ) }
 							onChange={ this.handlePriceChange }
 							placeholder={ formatPriceFallback( 0, currency, false ) }
 							required
@@ -550,10 +548,7 @@ class SimplePaymentsEdit extends Component {
 					<div className="simple-payments__field-multiple">
 						<ToggleControl
 							checked={ Boolean( multiple ) }
-							label={ __(
-								'Allow people to buy more than one item at a time',
-								'jetpack-paypal-payments'
-							) }
+							label={ __( 'Allow people to buy more than one item at a time', 'jetpack' ) }
 							onChange={ this.handleMultipleChange }
 						/>
 					</div>
@@ -563,9 +558,9 @@ class SimplePaymentsEdit extends Component {
 						className={ clsx( 'simple-payments__field', 'simple-payments__field-email', {
 							'simple-payments__field-has-error': fieldEmailError,
 						} ) }
-						label={ __( 'Email', 'jetpack-paypal-payments' ) }
+						label={ __( 'Email', 'jetpack' ) }
 						onChange={ this.handleEmailChange }
-						placeholder={ __( 'Email', 'jetpack-paypal-payments' ) }
+						placeholder={ __( 'Email', 'jetpack' ) }
 						required
 						// TODO: switch this back to type="email" once Gutenberg paste handler ignores inputs of type email
 						type="text"
@@ -577,10 +572,10 @@ class SimplePaymentsEdit extends Component {
 					<HelpMessage id={ `${ instanceId }-email-help` }>
 						{ __(
 							'Enter the email address associated with your PayPal account. Don’t have an account?',
-							'jetpack-paypal-payments'
+							'jetpack'
 						) + ' ' }
 						<ExternalLink href="https://www.paypal.com/">
-							{ __( 'Create one on PayPal', 'jetpack-paypal-payments' ) }
+							{ __( 'Create one on PayPal', 'jetpack' ) }
 						</ExternalLink>
 					</HelpMessage>
 				</div>
