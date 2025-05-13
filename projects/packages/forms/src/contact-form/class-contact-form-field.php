@@ -385,7 +385,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			if ( 'outlined' === $form_style || 'animated' === $form_style ) {
 				$output_data         = $this->get_outline_styles();
 				$this->block_styles .= $output_data['css_vars'];
-
 			}
 		} else {
 			if ( is_numeric( $this->get_attribute( 'borderradius' ) ) ) {
