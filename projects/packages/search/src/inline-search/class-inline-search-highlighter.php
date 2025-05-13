@@ -47,7 +47,10 @@ class Inline_Search_Highlighter {
 	public function setup() {
 		add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
 		add_filter( 'the_content', array( $this, 'filter_highlighted_content' ), 10, 1 );
+		add_filter( 'the_excerpt', array( $this, 'filter_highlighted_content' ), 10, 1 );
 		add_filter( 'comment_text', array( $this, 'filter_highlighted_comment' ), 10, 2 );
+		add_filter( 'render_block_core/post-excerpt', array( $this, 'filter_render_excerpt_block' ), 10, 3 );
+		add_filter( 'render_block_core/post-content', array( $this, 'filter_render_content_block' ), 10, 3 );
 	}
 
 	/**
@@ -190,7 +193,7 @@ class Inline_Search_Highlighter {
 	 * @param int $post_id The post ID to check.
 	 * @return bool Whether the post is a search result.
 	 */
-	private function is_search_result( $post_id ) {
+	public function is_search_result( $post_id ) {
 		return is_search() && in_the_loop() && ! empty( $this->search_result_ids ) && in_array( $post_id, $this->search_result_ids, true );
 	}
 
@@ -202,5 +205,128 @@ class Inline_Search_Highlighter {
 	 */
 	public function get_highlighted_content( $post_id ) {
 		return $this->highlighted_content[ $post_id ] ?? null;
+	}
+
+	/**
+	 * Filter for rendering post excerpts with highlights when available
+	 *
+	 * @since $$next-version$$
+	 * @param string $block_content The block content.
+	 * @param array  $block The block data.
+	 * @param object $instance The block instance.
+	 * @return string The filtered block content.
+	 */
+	public function filter_render_excerpt_block( $block_content, $block, $instance ) {
+		if ( ! isset( $instance->context['postId'] ) || ! $this->is_search_result( $instance->context['postId'] ) ) {
+			return $block_content;
+		}
+
+		$highlighted_content = $this->get_highlighted_content( $instance->context['postId'] );
+
+		// If we don't have any highlighted content or comments, return the original block content
+		if ( empty( $highlighted_content['content'] ) && empty( $highlighted_content['comments'] ) ) {
+			return $block_content;
+		}
+
+		// Start with the content highlights if available
+		if ( ! empty( $highlighted_content['content'] ) ) {
+			$block_content = wpautop( $highlighted_content['content'] );
+		}
+
+		// Append comment highlights if available
+		if ( ! empty( $highlighted_content['comments'] ) ) {
+			$block_content .= ' ... ' . $highlighted_content['comments'];
+		}
+
+		// Handle more text display if needed
+		$more_text = ! empty( $block['attrs']['moreText'] ) ? '<a class="wp-block-post-excerpt__more-text">' . $block['attrs']['moreText'] . '</a>' : '';
+
+		$classes = array();
+		if ( isset( $block['attrs']['textAlign'] ) ) {
+			$classes[] = 'has-text-align-' . $block['attrs']['textAlign'];
+		}
+
+		if ( isset( $block['attrs']['style']['elements']['link']['color']['text'] ) ) {
+			$classes[] = 'has-link-color';
+		}
+
+		$wrapper_attributes = get_block_wrapper_attributes( array( 'class' => implode( ' ', $classes ) ) );
+
+		// Determine if we should show more text on new line based on block attributes
+		$show_more_on_new_line = ! isset( $block['attrs']['showMoreOnNewLine'] ) || $block['attrs']['showMoreOnNewLine'];
+
+		if ( $show_more_on_new_line && ! empty( $more_text ) ) {
+			$block_content .= '</p><p class="wp-block-post-excerpt__more-text">' . $more_text . '</p>';
+		} elseif ( ! empty( $more_text ) ) {
+			$block_content .= " $more_text</p>";
+		}
+
+		return sprintf( '<div %1$s>%2$s</div>', $wrapper_attributes, $block_content );
+	}
+
+	/**
+	 * Filter for rendering post content with highlights when available
+	 *
+	 * @since $$next-version$$
+	 * @param string $block_content The block content.
+	 * @param array  $block The block data.
+	 * @param object $instance The block instance.
+	 * @return string The filtered block content.
+	 */
+	public function filter_render_content_block( $block_content, $block, $instance ) {
+		static $seen_ids = array();
+
+		if ( ! isset( $instance->context['postId'] ) ) {
+			return $block_content;
+		}
+
+		$post_id = $instance->context['postId'];
+
+		// Prevent infinite recursion
+		if ( isset( $seen_ids[ $post_id ] ) ) {
+			$is_debug = WP_DEBUG && WP_DEBUG_DISPLAY;
+			return $is_debug ? __( '[block rendering halted]', 'jetpack-search-pkg' ) : '';
+		}
+
+		$seen_ids[ $post_id ] = true;
+
+		// Only apply highlighting for search results
+		if ( ! $this->is_search_result( $post_id ) ) {
+			unset( $seen_ids[ $post_id ] );
+			return $block_content;
+		}
+
+		$highlighted_content = $this->get_highlighted_content( $post_id );
+
+		// If we don't have any highlighted content, return the original block content
+		if ( empty( $highlighted_content['content'] ) ) {
+			unset( $seen_ids[ $post_id ] );
+			return $block_content;
+		}
+
+		// Get the highlighted content and apply formatting
+		$content = $highlighted_content['content'];
+
+		// Apply content filters like the core function does
+		$content = apply_filters( 'the_content', str_replace( ']]>', ']]&gt;', $content ) );
+		unset( $seen_ids[ $post_id ] );
+
+		if ( empty( $content ) ) {
+			return '';
+		}
+
+		// Create wrapper classes
+		$classes = array( 'entry-content' );
+		if ( isset( $block['attrs']['textAlign'] ) ) {
+			$classes[] = 'has-text-align-' . $block['attrs']['textAlign'];
+		}
+
+		if ( isset( $block['attrs']['style']['elements']['link']['color']['text'] ) ) {
+			$classes[] = 'has-link-color';
+		}
+
+		$wrapper_attributes = get_block_wrapper_attributes( array( 'class' => implode( ' ', $classes ) ) );
+
+		return sprintf( '<div %1$s>%2$s</div>', $wrapper_attributes, $content );
 	}
 }
