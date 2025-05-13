@@ -227,11 +227,11 @@ class LCP_Optimizer {
 	}
 
 	public function get_sizes() {
-		$sizes_string = '';
+		$sizes = array();
 		foreach ( $this->lcp_data['sizes'] ?? array() as $size ) {
-			$sizes_string .= '(min-width: ' . $size['viewport'] . 'px) ' . $size['viewportRatio'] . 'vw, ';
+			$sizes[] = '(min-width: ' . $size['viewport'] . 'px) ' . $size['viewportValue'];
 		}
 
-		return rtrim( $sizes_string, ', ' );
+		return implode( ', ', $sizes );
 	}
 }
