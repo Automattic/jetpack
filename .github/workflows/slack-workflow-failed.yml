@@ -148,7 +148,7 @@ jobs:
           ' <<<"$DATA" )
 
           gh_set_output message_alerts "$( jq -c --arg C "$SLACK_JP_ALERTS_CHANNEL" '.channel |= $C' <<<"$MSG" )"
-          gh_set_output message_releases "$( jq -c --arg C "$SLACK_JP_RELEASES_CHANNEL" '.channel |= $C' <<<"$MSG" )"
+          gh_set_output message_releases "$( jq -c --arg C "$SLACK_RELEASES_CHANNEL" '.channel |= $C' <<<"$MSG" )"
 
       - name: Send message to alerts channel
         uses: slackapi/slack-github-action@v2.1.0
