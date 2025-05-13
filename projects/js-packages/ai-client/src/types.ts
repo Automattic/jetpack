@@ -93,8 +93,14 @@ export type RequestingStateProp = ( typeof REQUESTING_STATES )[ number ];
  */
 export const AI_MODEL_GPT_3_5_Turbo_16K = 'gpt-3.5-turbo-16k' as const;
 export const AI_MODEL_GPT_4 = 'gpt-4' as const;
+export const AI_MODEL_DEFAULT = 'default' as const;
+export const AI_MODEL_GEMINI_NANO = 'gemini-nano' as const;
 
-export type AiModelTypeProp = typeof AI_MODEL_GPT_3_5_Turbo_16K | typeof AI_MODEL_GPT_4;
+export type AiModelTypeProp =
+	| typeof AI_MODEL_GPT_3_5_Turbo_16K
+	| typeof AI_MODEL_GPT_4
+	| typeof AI_MODEL_GEMINI_NANO
+	| typeof AI_MODEL_DEFAULT;
 
 /*
  * Media recording types
@@ -135,43 +141,43 @@ export interface BlockEditorStore {
 
 declare global {
 	interface Window {
-		translation?: {
-			canTranslate: ( options: {
-				sourceLanguage: string;
-				targetLanguage: string;
-			} ) => Promise< 'no' | 'yes' | string >;
-			createTranslator: ( options: {
-				sourceLanguage: string;
-				targetLanguage: string;
-			} ) => Promise< {
-				translate: ( text: string ) => Promise< string >;
+		LanguageDetector?: {
+			create: () => Promise< {
+				detect: ( text: string ) => Promise<
+					{
+						detectedLanguage: string;
+						confidence: number;
+					}[]
+				>;
+				ready: Promise< void >;
 			} >;
+			availability: () => Promise<
+				'unavailable' | 'available' | 'downloadable' | 'downloading' | string
+			>;
 		};
-		ai?: {
-			languageDetector: {
-				create: () => Promise< {
-					detect: ( text: string ) => Promise<
-						{
-							detectedLanguage: string;
-							confidence: number;
-						}[]
-					>;
-				} >;
-			};
-			summarizer?: {
-				capabilities: () => Promise< {
-					available: 'no' | 'yes' | 'after-download';
-				} >;
-				create: ( options: {
-					sharedContext?: string;
-					type?: string;
-					format?: string;
-					length?: string;
-				} ) => Promise< {
-					ready: Promise< void >;
-					summarize: ( text: string, summarizeOptions?: { context?: string } ) => Promise< string >;
-				} >;
-			};
+		Translator?: {
+			create: ( options: {
+				sourceLanguage: string;
+				targetLanguage: string;
+			} ) => Promise< { translate: ( text: string ) => Promise< string > } >;
+			availability: ( options: {
+				sourceLanguage: string;
+				targetLanguage: string;
+			} ) => Promise< 'unavailable' | 'available' | 'downloadable' | 'downloading' | string >;
+		};
+		Summarizer?: {
+			availability: () => Promise<
+				'unavailable' | 'available' | 'downloadable' | 'downloading' | string
+			>;
+			create: ( options: {
+				sharedContext?: string;
+				type?: string;
+				format?: string;
+				length?: string;
+			} ) => Promise< {
+				ready: Promise< void >;
+				summarize: ( text: string, summarizeOptions?: { context?: string } ) => Promise< string >;
+			} >;
 		};
 	}
 }

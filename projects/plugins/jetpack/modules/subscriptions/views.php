@@ -716,6 +716,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * Renders the widget's options form in wp-admin.
 	 *
 	 * @param array $instance Widget instance.
+	 * @return string|void
 	 */
 	public function form( $instance ) {
 		$instance               = wp_parse_args( (array) $instance, static::defaults() );

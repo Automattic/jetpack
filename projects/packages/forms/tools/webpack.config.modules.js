@@ -85,7 +85,7 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 								loader: 'sass-loader',
 								options: {
 									sassOptions: {
-										outputStyle: 'expanded',
+										style: 'expanded',
 									},
 								},
 							},

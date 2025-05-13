@@ -322,6 +322,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	 * Outputs the widget settings form.
 	 *
 	 * @param array $instance Current settings.
+	 * @return string|void
 	 */
 	public function form( $instance ) {
 		$title               = isset( $instance['title'] ) ? $instance['title'] : '';

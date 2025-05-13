@@ -1,3 +1,7 @@
+## [3.2.0] - 2025-05-12
+### Removed
+- Remove Skype since the service no longer exists. [#43375]
+
 ## [3.1.21] - 2025-04-28
 ### Fixed
 - Code: Use modern font MIME types for inline fonts. [#43227]
@@ -216,6 +220,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.2.0]: https://github.com/Automattic/social-logos/compare/v3.1.21...v3.2.0
 [3.1.21]: https://github.com/Automattic/social-logos/compare/v3.1.20...v3.1.21
 [3.1.20]: https://github.com/Automattic/social-logos/compare/v3.1.19...v3.1.20
 [3.1.19]: https://github.com/Automattic/social-logos/compare/v3.1.18...v3.1.19

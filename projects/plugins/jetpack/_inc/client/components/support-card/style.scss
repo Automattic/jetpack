@@ -1,11 +1,12 @@
 @use 'sass:color';
+@use '../../scss/functions/rem';
 @import '../../scss/mixins/ui';
 
 .jp-support-card {
 
 	@include dashboard-card-shadow;
 
-	margin-top: rem( 16px );
+	margin-top: rem.convert( 16px );
 	margin-bottom: 0;
 }
 
@@ -37,7 +38,7 @@
 	@include breakpoint( "<660px" ) {
 		display: block;
 		width: 100%;
-		padding: rem( 10px ) 0;
+		padding: rem.convert( 10px ) 0;
 		border-top: 1px color.adjust( $gray, $lightness: 20%, $alpha: -.5 ) solid;
 
 		&::first-letter {
@@ -58,19 +59,19 @@
 	@include breakpoint( "<660px" ) {
 
 		.jp-support-card__description:first-of-type {
-			margin-bottom: rem( 16px );
+			margin-bottom: rem.convert( 16px );
 		}
 	}
 }
 
 .jp-support-card__social {
 	background-color: color.adjust( $gray, $lightness: 35% );
-	padding: rem( 16px );
+	padding: rem.convert( 16px );
 
 		@include breakpoint( "<660px" ) {
 			background: $white;
-			margin-top: rem( 16px );
-			padding: 0 rem( 16px );
+			margin-top: rem.convert( 16px );
+			padding: 0 rem.convert( 16px );
 	}
 }
 
