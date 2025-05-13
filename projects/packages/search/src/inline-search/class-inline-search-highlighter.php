@@ -28,7 +28,7 @@ class Inline_Search_Highlighter {
 	/**
 	 * Constructor
 	 *
-	 * @param array      $search_result_ids Array of post IDs from search results.
+	 * @param array      $search_result_ids     Array of post IDs from search results.
 	 * @param array|null $results          Optional. The search result data from the API to process immediately.
 	 */
 	public function __construct( array $search_result_ids = array(), array $results = null ) {
@@ -61,7 +61,7 @@ class Inline_Search_Highlighter {
 	public function process_results( array $results ) {
 		$this->highlighted_content = array();
 
-		if ( empty( $results ) || ! is_array( $results ) ) {
+		if ( empty( $results ) ) {
 			return;
 		}
 
@@ -279,30 +279,13 @@ class Inline_Search_Highlighter {
 	 * @since $$next-version$$
 	 */
 	public function filter_render_content_block( string $block_content, array $block, object $instance ): string {
-		// Early return if not in search context
-		if ( ! is_search() ) {
-			return $block_content;
-		}
-
-		if ( ! isset( $instance->context['postId'] ) ) {
-			return $block_content;
-		}
-
-		$post_id = $instance->context['postId'];
-
-		// Only process actual search results
-		if ( ! $this->is_search_result( $post_id ) ) {
-			return $block_content;
-		}
-
 		static $seen_ids = array();
 
-		// Prevent infinite recursion when rendering nested blocks
-		if ( isset( $seen_ids[ $post_id ] ) ) {
-			$is_debug = defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_DISPLAY' ) && WP_DEBUG_DISPLAY;
-			return $is_debug ? sprintf( '[block rendering halted: post %d]', $post_id ) : '';
+		if ( ! isset( $instance->context['postId'] ) || ! $this->is_search_result( $instance->context['postId'] ) ) {
+			return $block_content;
 		}
 
+		$post_id              = $instance->context['postId'];
 		$seen_ids[ $post_id ] = true;
 
 		$highlighted_content = $this->get_highlighted_content( $post_id );
@@ -311,8 +294,6 @@ class Inline_Search_Highlighter {
 			return $block_content;
 		}
 
-		// Extract search terms from highlighted content
-		$terms = array();
 		preg_match_all( '/<mark[^>]*>(.*?)<\/mark>/i', $highlighted_content['content'], $matches );
 
 		if ( empty( $matches[1] ) ) {
@@ -321,51 +302,15 @@ class Inline_Search_Highlighter {
 		}
 
 		$terms = array_unique( $matches[1] );
-
-		// Remove very short terms (1-2 chars) that could cause issues
-		foreach ( $terms as $key => $term ) {
-			if ( strlen( $term ) < 3 ) {
-				unset( $terms[ $key ] );
-			}
-		}
-
 		if ( empty( $terms ) ) {
 			unset( $seen_ids[ $post_id ] );
 			return $block_content;
 		}
 
-		// Simple content splitting to preserve HTML tags
-		$parts  = preg_split( '/(<[^>]+>)/i', $block_content, -1, PREG_SPLIT_DELIM_CAPTURE );
-		$in_tag = false;
-		$result = '';
-
-		foreach ( $parts as $part ) {
-			// If this is an HTML tag
-			if ( preg_match( '/^<[^>]+>$/i', $part ) ) {
-				$result .= $part;
-				// Skip processing inside script/style tags
-				if ( preg_match( '/^<(script|style|textarea|code|mark)/i', $part ) ) {
-					$in_tag = true;
-				} elseif ( preg_match( '/^<\/(script|style|textarea|code|mark)/i', $part ) ) {
-					$in_tag = false;
-				}
-				continue;
-			}
-
-			// Skip processing inside special tags
-			if ( $in_tag ) {
-				$result .= $part;
-				continue;
-			}
-
-			// Highlight terms in text content
-			$highlighted = $part;
-			foreach ( $terms as $term ) {
-				$pattern     = '/\b(' . preg_quote( $term, '/' ) . ')\b/ui';
-				$highlighted = preg_replace( $pattern, '<mark>$1</mark>', $highlighted );
-			}
-
-			$result .= $highlighted;
+		$result = $block_content;
+		foreach ( $terms as $term ) {
+			$pattern = '/\b(' . preg_quote( $term, '/' ) . ')\b/ui';
+			$result  = preg_replace( $pattern, '<mark>$1</mark>', $result );
 		}
 
 		unset( $seen_ids[ $post_id ] );
