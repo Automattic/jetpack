@@ -424,7 +424,11 @@
 .contact-form .is-style-animated,
 .contact-form .is-style-outlined .grunion-field-wrap,
 .contact-form .is-style-animated .grunion-field-wrap {
-	--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+
+	/*
+	 * This is duplicated in class-contact-form-field.php, does it need to be set here? This might be back compat for shortcodes.
+	 */
+	--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap):not(.grunion-field-select-wrap):not(.grunion-field-file-wrap),
@@ -465,7 +469,8 @@
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__leading {
-	width: var(--notch-width);
+	width: var(--jetpack--contact-form--notch-width);
+	max-width: 100px;
 	border-right: none;
 	border-top-right-radius: unset;
 	border-bottom-right-radius: unset;
@@ -483,7 +488,8 @@
 	border-style: var(--jetpack--contact-form--border-style);
 	border-width: var(--jetpack--contact-form--border-size);
 	border-radius: var(--jetpack--contact-form--border-radius);
-	width: var(--notch-width);
+	width: var(--jetpack--contact-form--notch-width);
+	max-width: 100px;
 	border-right: none !important;
 	border-top-right-radius: unset !important;
 	border-bottom-right-radius: unset !important;
@@ -590,8 +596,8 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap select {
 	border-color: transparent !important; /* Need to override styles coming from the style attribute*/
 	outline: none;
-	padding-left: calc(var(--jetpack--contact-form--notch-width, var(--jetpack--contact-form--input-padding-left)) + 4px);
-	padding-right: calc(var(--jetpack--contact-form--notch-width, var(--jetpack--contact-form--input-padding-left)) + 4px);
+	padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
+	padding-right: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
 	clip-path: padding-box;
 	position: relative;
 }
