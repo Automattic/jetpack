@@ -9,12 +9,22 @@
 		align-items: center;
 		justify-content: space-between;
 		width: 100%;
+
+		@media (max-width: 782px) {
+			flex-direction: column;
+			gap: 10px;
+			align-items: flex-end;
+		}
 	}
 
 	&__header-main {
 		display: flex;
 		align-items: center;
 		gap: 16px;
+
+		@media (max-width: 782px) {
+			width: 100%;
+		}
 	}
 
 	&__title-section {
@@ -27,6 +37,12 @@
 		display: flex;
 		align-items: center;
 		gap: 10px;
+
+		@media (max-width: 782px) {
+			gap: 6px;
+			flex-direction: column-reverse;
+			align-items: flex-start;
+		}
 	}
 
 	&__service-icon-container {
@@ -81,6 +97,10 @@
 		color: var(--jp-gray-50);
 		font-size: 13px;
 		line-height: 1.5;
+
+		@media (max-width: 782px) {
+			text-wrap: balance;
+		}
 	}
 
 	&__links {

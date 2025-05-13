@@ -1,7 +1,7 @@
 @use 'sass:color';
+@use "../../scss/functions/rem";
 @import "../../scss/calypso-colors";
 @import "../../scss/color-functions";
-@import "../../scss/functions/rem";
 @import "../../scss/typography";
 
 // ==========================================================================
@@ -219,9 +219,9 @@
 // ==========================================================================
 
 .dops-button.is-rna {
-	font-size: rem( 16px );
-	line-height: rem( 24px );
-	padding: rem( 8px ) rem( 24px );
+	font-size: rem.convert( 16px );
+	line-height: rem.convert( 24px );
+	padding: rem.convert( 8px ) rem.convert( 24px );
 	letter-spacing: -0.01em;
 
 	font-weight: 500;
@@ -244,9 +244,9 @@
 	}
 
 	&.is-compact {
-		font-size: rem( 12px );
-		line-height: rem( 20px );
-		padding: rem( 4px ) rem( 8px );
+		font-size: rem.convert( 12px );
+		line-height: rem.convert( 20px );
+		padding: rem.convert( 4px ) rem.convert( 8px );
 	}
 }
 

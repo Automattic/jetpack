@@ -71,11 +71,11 @@ add_action( 'after_switch_theme', 'jetpack_update_custom_logo_from_site_logo', 1
  *
  * @since 9.9.0
  *
- * @param int|array $site_logo Option.
- * @return int
+ * @param int|array|WP_Error $site_logo Option.
+ * @return int|WP_Error
  */
 function jetpack_site_logo_block_compat( $site_logo ) {
-	if ( isset( $site_logo['id'] ) ) {
+	if ( is_array( $site_logo ) && isset( $site_logo['id'] ) ) {
 		remove_filter( 'option_site_logo', 'jetpack_site_logo_block_compat', 1 );
 		update_option( 'site_logo', $site_logo['id'] );
 		return $site_logo['id'];

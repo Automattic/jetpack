@@ -30,7 +30,6 @@ import {
 } from './hooks';
 import NoBackupCapabilities from './no-backup-capabilities';
 import './style.scss';
-import '../masthead/masthead-style.scss';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {

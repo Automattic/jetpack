@@ -1,6 +1,6 @@
 @import '../../../scss/mixin_breakpoint';
 @import '../../../scss/calypso-colors';
-@import 'node_modules/@automattic/jetpack-base-styles/style';
+@import '@automattic/jetpack-base-styles/style';
 
 .jp-recommendations-question__site-type-checkboxes {
 	display: flex;

@@ -1,3 +1,5 @@
+@use '../scss/functions/rem';
+
 .jp-settings-container {
 
 	a, a:link, a:visited {
@@ -92,7 +94,7 @@
 
 	.jp-no-results {
 		display: none;
-		font-size: rem( 14px );
+		font-size: rem.convert( 14px );
 		line-height: 1.5;
 
 		&:last-of-type {
@@ -116,12 +118,12 @@
 	}
 
 	.jp-settings__section-title {
-		font-size: rem( 24px );
-		line-height: rem( 32px );
+		font-size: rem.convert( 24px );
+		line-height: rem.convert( 32px );
 		font-weight: 500;
 		color: #23282D;
-		margin-top: rem( 48px );
-		margin-bottom: rem( 24px );
+		margin-top: rem.convert( 48px );
+		margin-bottom: rem.convert( 24px );
 	}
 
 	.dops-info-popover-button,

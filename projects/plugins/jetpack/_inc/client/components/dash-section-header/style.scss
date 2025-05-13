@@ -1,12 +1,13 @@
 @use 'sass:color';
+@use '../../scss/functions/rem';
 
 .jp-dash-section-header {
 	display: flex;
 	flex-wrap: wrap;
-	margin: rem( 12px ) 0 rem( 12px );
+	margin: rem.convert( 12px ) 0 rem.convert( 12px );
 
 	@include breakpoint( "<660px" ) {
-		margin-bottom: rem( 24px );
+		margin-bottom: rem.convert( 24px );
 	}
 
 	@include breakpoint( "<480px" ) {
@@ -64,7 +65,7 @@
 
 .jp-dash-section-header__settings {
 	display: inline-block;
-	min-width: rem( 40px );
+	min-width: rem.convert( 40px );
 	text-align: center;
 	color: color.adjust( $gray, $lightness: -10% );
 
@@ -88,13 +89,13 @@
 	font-style: italic;
 
 	@include breakpoint( "<660px" ) {
-		margin-top: rem( 4px );
+		margin-top: rem.convert( 4px );
 	}
 
 	@include breakpoint( "<480px" ) {
 		display: block;
 		width: 100%;
-		// margin-top: rem( 32px );
+		// margin-top: rem.convert( 32px );
 	}
 }
 

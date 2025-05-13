@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Number-formatters: update formatCurrency() and getCurrencyObejct() calls to go through number-formatters package
