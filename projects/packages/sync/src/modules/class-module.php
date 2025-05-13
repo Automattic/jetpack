@@ -737,7 +737,7 @@ abstract class Module {
 		$current_size        = 0;
 
 		foreach ( $objects as $object ) {
-			$object_size      = strlen( maybe_serialize( $object ) );
+			$object_size      = strlen( (string) maybe_serialize( $object ) );
 			$current_metadata = array();
 			$metadata_size    = 0;
 			$id_field         = $this->id_field();
@@ -745,10 +745,10 @@ abstract class Module {
 
 			foreach ( $metadata as $key => $metadata_item ) {
 				if ( (int) $metadata_item->{$type . '_id'} === $object_id ) {
-					$metadata_item_size = strlen( maybe_serialize( $metadata_item ) );
+					$metadata_item_size = strlen( (string) maybe_serialize( $metadata_item ) );
 					if ( $metadata_item_size >= $max_meta_size ) {
 						$metadata_item->meta_value = ''; // Trim metadata if too large.
-						$metadata_item_size        = strlen( maybe_serialize( $metadata_item ) );
+						$metadata_item_size        = strlen( (string) maybe_serialize( $metadata_item ) );
 					}
 					$current_metadata[] = $metadata_item;
 					$metadata_size     += $metadata_item_size;
