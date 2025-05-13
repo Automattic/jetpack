@@ -16,22 +16,22 @@ class Inline_Search_Highlighter {
 	 *
 	 * @var array
 	 */
-	private $highlighted_content = array();
+	private $highlighted_content;
 
 	/**
 	 * Stores the list of post IDs that are actual search results.
 	 *
 	 * @var array
 	 */
-	private $search_result_ids = array();
+	private $search_result_ids;
 
 	/**
 	 * Constructor
 	 *
-	 * @param array $search_result_ids Array of post IDs from search results.
-	 * @param array $results          Optional. The search result data from the API to process immediately.
+	 * @param array      $search_result_ids Array of post IDs from search results.
+	 * @param array|null $results          Optional. The search result data from the API to process immediately.
 	 */
-	public function __construct( $search_result_ids = array(), $results = null ) {
+	public function __construct( array $search_result_ids = array(), array $results = null ) {
 		$this->search_result_ids   = $search_result_ids;
 		$this->highlighted_content = array();
 
@@ -58,7 +58,7 @@ class Inline_Search_Highlighter {
 	 *
 	 * @param array $results The search result data from the API.
 	 */
-	public function process_results( $results ) {
+	public function process_results( array $results ) {
 		$this->highlighted_content = array();
 
 		if ( empty( $results ) || ! is_array( $results ) ) {
@@ -72,22 +72,14 @@ class Inline_Search_Highlighter {
 	}
 
 	/**
-	 * Update search result IDs.
-	 *
-	 * @param array $search_result_ids Array of post IDs from search results.
-	 */
-	public function update_search_data( $search_result_ids = array() ) {
-		$this->search_result_ids = $search_result_ids;
-	}
-
-	/**
 	 * Filter the post title to show highlighted version.
 	 *
 	 * @param string $title The post title.
 	 * @param int    $post_id The post ID.
+	 *
 	 * @return string The filtered title.
 	 */
-	public function filter_highlighted_title( $title, $post_id ) {
+	public function filter_highlighted_title( string $title, int $post_id ): string {
 		if ( ! $this->is_search_result( $post_id ) ) {
 			return $title;
 		}
@@ -103,9 +95,10 @@ class Inline_Search_Highlighter {
 	 * Filter the post content to show highlighted version.
 	 *
 	 * @param string $content The post content.
+	 *
 	 * @return string The filtered content.
 	 */
-	public function filter_highlighted_content( $content ) {
+	public function filter_highlighted_content( string $content ): string {
 		$post_id = get_the_ID();
 
 		if ( ! $this->is_search_result( $post_id ) ) {
@@ -130,9 +123,10 @@ class Inline_Search_Highlighter {
 	 * Filter comment text to show highlighted version.
 	 *
 	 * @param string $comment_text The comment text.
+	 *
 	 * @return string The filtered comment text.
 	 */
-	public function filter_highlighted_comment( $comment_text ) {
+	public function filter_highlighted_comment( string $comment_text ): string {
 		if ( ! is_search() || ! in_the_loop() ) {
 			return $comment_text;
 		}
@@ -152,7 +146,7 @@ class Inline_Search_Highlighter {
 	 * @param array $result  The search result data from the API.
 	 * @param int   $post_id The post ID for this result.
 	 */
-	private function process_result_highlighting( $result, $post_id ) {
+	private function process_result_highlighting( array $result, int $post_id ) {
 		if ( empty( $result['highlight'] ) ) {
 			return;
 		}
@@ -173,11 +167,12 @@ class Inline_Search_Highlighter {
 	 *
 	 * @param array  $result The search result data from the API.
 	 * @param string $field  The field name to extract.
+	 *
 	 * @return string The extracted highlighted field.
 	 */
-	private function extract_highlight_field( $result, $field ) {
+	private function extract_highlight_field( array $result, string $field ): string {
 		// Try exact match first
-		if ( isset( $result['highlight'][ $field ] ) && is_array( $result['highlight'][ $field ] ) && ! empty( $result['highlight'][ $field ] ) ) {
+		if ( isset( $result['highlight'][ $field ] ) && is_array( $result['highlight'][ $field ] ) ) {
 			return $result['highlight'][ $field ][0];
 		}
 
@@ -197,9 +192,10 @@ class Inline_Search_Highlighter {
 	 * Check if the current post is a search result from our API
 	 *
 	 * @param int $post_id The post ID to check.
+	 *
 	 * @return bool Whether the post is a search result.
 	 */
-	public function is_search_result( $post_id ) {
+	public function is_search_result( int $post_id ): bool {
 		return is_search() && in_the_loop() && ! empty( $this->search_result_ids ) && in_array( $post_id, $this->search_result_ids, true );
 	}
 
@@ -207,22 +203,24 @@ class Inline_Search_Highlighter {
 	 * Get the highlighted content for a post.
 	 *
 	 * @param int $post_id The post ID.
+	 *
 	 * @return array|null The highlighted content array or null if not found.
 	 */
-	public function get_highlighted_content( $post_id ) {
+	public function get_highlighted_content( int $post_id ): ?array {
 		return $this->highlighted_content[ $post_id ] ?? null;
 	}
 
 	/**
 	 * Filter for rendering post excerpts with highlights when available
 	 *
-	 * @since $$next-version$$
 	 * @param string $block_content The block content.
 	 * @param array  $block The block data.
 	 * @param object $instance The block instance.
+	 *
 	 * @return string The filtered block content.
+	 * @since $$next-version$$
 	 */
-	public function filter_render_excerpt_block( $block_content, $block, $instance ) {
+	public function filter_render_excerpt_block( string $block_content, array $block, object $instance ): string {
 		if ( ! isset( $instance->context['postId'] ) || ! $this->is_search_result( $instance->context['postId'] ) ) {
 			return $block_content;
 		}
@@ -273,13 +271,14 @@ class Inline_Search_Highlighter {
 	/**
 	 * Filter for rendering post content with highlights when available
 	 *
-	 * @since $$next-version$$
 	 * @param string $block_content The block content.
 	 * @param array  $block The block data.
 	 * @param object $instance The block instance.
+	 *
 	 * @return string The filtered block content.
+	 * @since $$next-version$$
 	 */
-	public function filter_render_content_block( $block_content, $block, $instance ) {
+	public function filter_render_content_block( string $block_content, array $block, object $instance ): string {
 		// Early return if not in search context
 		if ( ! is_search() ) {
 			return $block_content;

@@ -508,9 +508,10 @@ class Inline_Search extends Classic_Search {
 	 * Create a WP_Query to fetch the posts for search results.
 	 *
 	 * @param \WP_Query $original_query The original WP_Query.
+	 *
 	 * @return \WP_Query The new query with posts matching the search results.
 	 */
-	private function create_posts_query( $original_query ) {
+	private function create_posts_query( \WP_Query $original_query ): \WP_Query {
 		$args = array(
 			'post__in'            => $this->search_result_ids,
 			'orderby'             => 'post__in',
