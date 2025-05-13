@@ -1,10 +1,13 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+import useParentFormClientId from '../../hooks/use-parent-form-client-id';
 import StepControls from '../contact-form/components/step-controls';
 
 export default function StepContainerEdit( { clientId } ) {
 	const blockProps = useBlockProps( {
 		className: 'jetpack-form-step-container',
 	} );
+
+	const formClientId = useParentFormClientId( clientId );
 
 	// Ensure we have at least one step if empty
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
@@ -19,7 +22,7 @@ export default function StepContainerEdit( { clientId } ) {
 			<div className="jetpack-form-steps-wrapper">
 				<div { ...innerBlocksProps } />
 			</div>
-			<StepControls clientId={ clientId } showToggle={ false } showNavigation={ true } />
+			<StepControls formClientId={ formClientId } showToggle={ false } showNavigation={ true } />
 		</>
 	);
 }

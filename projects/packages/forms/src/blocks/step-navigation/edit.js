@@ -8,7 +8,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useFormSteps from '../../hooks/use-form-steps';
-import useParentFormClientId from '../../hooks/useParentFormClientId';
+import useParentFormClientId from '../../hooks/use-parent-form-client-id';
 
 import './editor.scss';
 
@@ -61,7 +61,7 @@ export default function Edit( { clientId } ) {
 	);
 
 	const formClientId = useParentFormClientId( clientId );
-	const allSteps = useFormSteps( formClientId );
+	const { steps } = useFormSteps( formClientId );
 
 	// Get the preview mode state and active step
 	const { isPreviewMode, activePreviewStepId } = useSelect(
@@ -86,17 +86,17 @@ export default function Edit( { clientId } ) {
 
 	if ( isOutsideSteps && isPreviewMode && activePreviewStepId ) {
 		// When outside steps but in preview mode, show buttons based on the active preview step
-		const activeStepIndex = allSteps.findIndex( block => block.clientId === activePreviewStepId );
+		const activeStepIndex = steps.findIndex( block => block.clientId === activePreviewStepId );
 		if ( activeStepIndex !== -1 ) {
 			isFirstStep = activeStepIndex === 0;
-			isLastStep = activeStepIndex === allSteps.length - 1;
+			isLastStep = activeStepIndex === steps.length - 1;
 			currentIndex = activeStepIndex;
 		}
 	} else if ( ! isOutsideSteps ) {
 		// Inside a step - determine position
-		const stepIndex = allSteps.findIndex( block => block.clientId === ancestorStepClientId );
+		const stepIndex = steps.findIndex( block => block.clientId === ancestorStepClientId );
 		isFirstStep = stepIndex === 0;
-		isLastStep = stepIndex === allSteps.length - 1;
+		isLastStep = stepIndex === steps.length - 1;
 		currentIndex = stepIndex;
 	}
 

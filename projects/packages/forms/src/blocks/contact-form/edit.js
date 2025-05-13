@@ -86,7 +86,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
-	const steps = useFormSteps( clientId );
+	const { steps } = useFormSteps( clientId );
 
 	const {
 		postTitle,

@@ -2,8 +2,9 @@ import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import useFormSteps from '../../hooks/use-form-steps';
-import useParentFormClientId from '../../hooks/useParentFormClientId';
+import useParentFormClientId from '../../hooks/use-parent-form-client-id';
 import { store as previewStore } from '../../store/preview-store';
+import AddStepControls from '../contact-form/components/add-step-controls';
 import StepControls from '../contact-form/components/step-controls';
 import AttributesControls from './attributes-controls';
 
@@ -25,6 +26,7 @@ const ALLOWED_BLOCKS = [
 	'jetpack/field-option-radio',
 	'jetpack/field-select',
 	'jetpack/field-consent',
+	'jetpack/form-step-navigation',
 	'core/audio',
 	'core/columns',
 	'core/group',
@@ -62,14 +64,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	} );
 
 	const ancestorFormClientId = useParentFormClientId( clientId );
-
-	const allStepsInForm = useFormSteps( ancestorFormClientId );
+	const { steps } = useFormSteps( ancestorFormClientId );
 
 	const { currentIndex, selectedStepClientId, isPreview } = useSelect(
 		select => {
 			const { isPreviewMode, getActivePreviewStepId } = select( previewStore );
 
-			const currentStepIndex = allStepsInForm.findIndex( block => block.clientId === clientId );
+			const currentStepIndex = steps.findIndex( block => block.clientId === clientId );
 
 			return {
 				currentIndex: currentStepIndex,
@@ -77,7 +78,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				isPreview: isPreviewMode( ancestorFormClientId ),
 			};
 		},
-		[ clientId, allStepsInForm, ancestorFormClientId ] // Dependencies updated
+		[ clientId, steps, ancestorFormClientId ] // Dependencies updated
 	);
 
 	// Only render the step content if it's the selected one or if "All Steps" is selected.
@@ -110,6 +111,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				showNavigation={ true }
 				updateStepSelected={ true }
 			/>
+			<AddStepControls clientId={ clientId } formClientId={ ancestorFormClientId } />
 		</>
 	);
 }

@@ -1,7 +1,7 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
+import useParentFormClientId from '../../hooks/use-parent-form-client-id';
 import useStepNavigation from '../../hooks/use-step-navigation';
-import useParentFormClientId from '../../hooks/useParentFormClientId';
 import './editor.scss';
 
 const FormProgressIndicatorEdit = ( { clientId } ) => {
