@@ -1,5 +1,6 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import useParentFormClientId from '../../hooks/use-parent-form-client-id';
+import AddStepControls from '../contact-form/components/add-step-controls';
 import StepControls from '../contact-form/components/step-controls';
 
 export default function StepContainerEdit( { clientId } ) {
@@ -23,6 +24,7 @@ export default function StepContainerEdit( { clientId } ) {
 				<div { ...innerBlocksProps } />
 			</div>
 			<StepControls formClientId={ formClientId } showToggle={ false } showNavigation={ true } />
+			<AddStepControls formClientId={ formClientId } clientId={ clientId } />
 		</>
 	);
 }

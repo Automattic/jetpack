@@ -4,18 +4,16 @@ import { ToolbarGroup, DropdownMenu, MenuGroup, MenuItem } from '@wordpress/comp
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import useContainerId from '../../../../hooks/use-container-id';
 import useFormSteps from '../../../../hooks/use-form-steps';
 import { store as previewStore } from '../../../../store/preview-store';
 
 /**
  * Toolbar controls for managing steps within a multi-step form.
  *
- * @param {object}  props                    - Component props.
- * @param {string}  props.formClientId       - Client ID of the root contact form block.
- * @param {string}  props.clientId           - Client ID of the current block.
- * @param {boolean} props.showToggle         - Flag to indicate if toggle buttons should be shown.
- * @param {boolean} props.showNavigation     - Flag to indicate if navigation controls should be shown.
- * @param {boolean} props.updateStepSelected - Flag to indicate if the step should be selected.
+ * @param {object} props              - Component props.
+ * @param {string} props.formClientId - Client ID of the root contact form block.
+ * @param {string} props.clientId     - Client ID of the current block.
  * @return {JSX.Element} The rendered BlockControls component.
  */
 export default function AddStepControls( { clientId, formClientId } ) {
@@ -23,7 +21,8 @@ export default function AddStepControls( { clientId, formClientId } ) {
 
 	const { insertBlock } = useDispatch( blockEditorStore );
 
-	const { steps, containerId } = useFormSteps( formClientId );
+	const containerId = useContainerId( formClientId );
+	const steps = useFormSteps( formClientId );
 	const { isPreview } = useSelect(
 		select => {
 			const { isPreviewMode } = select( previewStore );
@@ -77,7 +76,7 @@ export default function AddStepControls( { clientId, formClientId } ) {
 										onClose();
 									} }
 								>
-									{ __( 'Add Before Current Step', 'jetpack-forms' ) }
+									{ __( 'Add step before', 'jetpack-forms' ) }
 								</MenuItem>
 							) }
 							{ currentStepIndex !== -1 && (
@@ -87,25 +86,29 @@ export default function AddStepControls( { clientId, formClientId } ) {
 										onClose();
 									} }
 								>
-									{ __( 'Add After Current Step', 'jetpack-forms' ) }
+									{ __( 'Add step after', 'jetpack-forms' ) }
 								</MenuItem>
 							) }
-							<MenuItem
-								onClick={ () => {
-									insertStepAtIndex( containerId, 0, formClientId, isPreview );
-									onClose();
-								} }
-							>
-								{ __( 'Add To Start', 'jetpack-forms' ) }
-							</MenuItem>
-							<MenuItem
-								onClick={ () => {
-									insertStepAtIndex( containerId, steps.length, formClientId, isPreview );
-									onClose();
-								} }
-							>
-								{ __( 'Add To End', 'jetpack-forms' ) }
-							</MenuItem>
+							{ currentStepIndex === -1 && (
+								<MenuItem
+									onClick={ () => {
+										insertStepAtIndex( containerId, 0, formClientId, isPreview );
+										onClose();
+									} }
+								>
+									{ __( 'Add to start', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+							{ currentStepIndex === -1 && (
+								<MenuItem
+									onClick={ () => {
+										insertStepAtIndex( containerId, steps.length, formClientId, isPreview );
+										onClose();
+									} }
+								>
+									{ __( 'Add to end', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
 						</MenuGroup>
 					) }
 				</DropdownMenu>
