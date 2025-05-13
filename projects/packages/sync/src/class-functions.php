@@ -758,12 +758,10 @@ class Functions {
 	 * @return string Environment type (local, development, staging, production, or sandbox).
 	 */
 	public static function get_environment_type() {
-		$type = wp_get_environment_type();
-
 		if ( defined( 'WP_ENVIRONMENT_TYPE' ) && 'sandbox' === WP_ENVIRONMENT_TYPE ) {
 			return 'sandbox';
 		}
 
-		return $type;
+		return wp_get_environment_type();
 	}
 }
