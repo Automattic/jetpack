@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
