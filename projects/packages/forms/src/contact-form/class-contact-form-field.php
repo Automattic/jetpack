@@ -1530,13 +1530,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$global_styles['left']['radius'];
 
 			$css_vars = $border_size ? '--jetpack--contact-form--border-size: ' . $border_size . ';' : '';
-			if ( is_numeric( $border_radius ) ) {
-				$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
-			} elseif ( is_array( $border_radius ) ) {
+			// Check if border radius is split or a single value.
+			if ( is_array( $border_radius ) ) {
 				// If corner radii are set on the top-left or bottom-left of the block, take the maximum of the two.
 				// We check the left side due to writing direction—this variable is used to offset text.
 				// TODO: this should factor in RTL languages.
 				$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: max(' . $border_radius['topLeft'] . ',' . $border_radius['bottomLeft'] . ');' : '';
+			} elseif ( isset( $border_radius ) ) {
+				$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
 			}
 			$css_vars .= '--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius))';
 		}
