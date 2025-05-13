@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.73.0] - 2025-05-12
+### Changed
+- Use `formatCurrency()` and `getCurrencyObject()` functions from the `@automattic/number-formatters` package. [#42796]
+
+### Removed
+- Remove the `numberFormat()` function. This is a breaking change; use the `@automattic/number-formatters` package instead. [#42864]
+
 ## [0.72.6] - 2025-05-05
 ### Changed
 - Update package dependencies. [#43320] [#43326]
@@ -1385,6 +1392,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.73.0]: https://github.com/Automattic/jetpack-components/compare/0.72.6...0.73.0
 [0.72.6]: https://github.com/Automattic/jetpack-components/compare/0.72.5...0.72.6
 [0.72.5]: https://github.com/Automattic/jetpack-components/compare/0.72.4...0.72.5
 [0.72.4]: https://github.com/Automattic/jetpack-components/compare/0.72.3...0.72.4

@@ -5,6 +5,8 @@
  * @package wpcomsh
  */
 
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+
 /**
  * Class PlanNoticesTest.
  */
@@ -22,14 +24,15 @@ class PlanNoticesTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test without data.
+	 * Test without data doesn't throw or raise any warnings or errors.
+	 *
+	 * @doesNotPerformAssertions
 	 */
+	#[DoesNotPerformAssertions]
 	public function test_no_data_plan_notices() {
 		ob_start();
-		$result = wpcomsh_plan_notices();
+		wpcomsh_plan_notices();
 		ob_get_clean();
-
-		$this->assertEmpty( $result );
 	}
 
 	/**

@@ -1,3 +1,5 @@
+@use '../../scss/functions/rem';
+
 .jp-upgrade-notice__content {
 
 	.jp-upgrade-notice__enable-module {
@@ -27,7 +29,7 @@
 	}
 
 	.jp-support-info {
-		top: rem( 15px );
-		right: rem( 15px );
+		top: rem.convert( 15px );
+		right: rem.convert( 15px );
 	}
 }

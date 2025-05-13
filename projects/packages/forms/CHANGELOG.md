@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.52.0] - 2025-05-12
+### Added
+- Add Typescript support. [#43394]
+- Unify icons and add Creative Mail to About page. [#43414]
+- Update the email template for feedback responses. [#43323]
+
+### Changed
+- Move Salesforce to block modal. [#43297]
+- Replace Landing page with About page. [#43361]
+- Update form responses tabs. [#43358]
+- Update list of files distributed in stable version of the package. [#43310]
+- Update package dependencies. [#43400]
+
+### Removed
+- Remove Salesforce Form variation. [#43419]
+
+### Fixed
+- Adjust export button mobile styles. [#43381]
+- Fix block modal mobile styling. [#43422]
+- Fix responses toggle background. [#43377]
+- Preserve responses query parameters. [#43372]
+- Prevent submenu from interfering with Crowdsignal/Polldaddy submenu items. [#43385]
+- Show export button only on responses tab. [#43374]
+- Improve Success and Email messages. [#43380]
+- Remove unused `block.json` for the File field to prevent it from showing in the WP.org blocks list. [#43387]
+
 ## [0.51.0] - 2025-05-05
 ### Added
 - File Upload field: Add registration with plan check. [#43177]
@@ -1045,6 +1071,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.52.0]: https://github.com/automattic/jetpack-forms/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/automattic/jetpack-forms/compare/v0.50.0...v0.51.0
 [0.50.0]: https://github.com/automattic/jetpack-forms/compare/v0.49.0...v0.50.0
 [0.49.0]: https://github.com/automattic/jetpack-forms/compare/v0.48.0...v0.49.0

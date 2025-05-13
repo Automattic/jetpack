@@ -2,6 +2,42 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.7-a.1 - 2025-05-12
+### Enhancements
+- Forms: Move Salesforce to block modal. [#43297]
+- Forms: Remove Salesforce Form variation. [#43419]
+- Forms: Update form responses tabs. [#43358]
+- Forms: Replace Landing page with About page. [#43361]
+- Forms: Update the email template for feedback responses. [#43323]
+
+### Improved compatibility
+- Blocks: Update `useResizeObserver` hook usage to meet new API expectations. [#43334]
+- Remove Skype since the service no longer exists. [#43375]
+- Sitemaps: Disable XMLWriter by default unless enabled by a filter. [#43384]
+
+### Bug fixes
+- Carousel: Do not display comment form when comments are closed for a specific media attachment. [#43379]
+- Forms: Preserve responses query parameters. [#43372]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add `getCurrencyDefaults()` method to allow removal of the `@automattic/format-currency` dependency. [#42456]
+- AI Assistant: Track model used in toolbar extension and AI excerpt features. [#43390]
+- Blank to-test.md for 14.7 release cycle. [#43436]
+- Blocks: Ensure there is enough time for styles to load, preventing console warnings. [#43003]
+- Donations block: Bring back `@automattic/format-currency` temporarily. [#43405]
+- Donations block: Ensure links in modal use the External Link indicator. [#43402]
+- Endpoints: Prevent PHP warnings when using the update post endpoint without keys. [#43404]
+- Fix My Jetpack onboarding E2E tests. [#43370]
+- Forms: Improve Success and Email messages. [#43380]
+- Migrate `numberFormat()` to `number-formatters` package. [#42864]
+- Site Logo: Prevent PHP fatal when third-party code passes unexpected content to `option_site_logo` filter. [#43432]
+- Stable release management: Do not ship source files. [#43310]
+- Subscriptions: Fix newsletter JavaScript string extraction. [#43403]
+- Subscriptions: Load newsletter JavaScript translations. [#43423]
+- Update color on Upsell button to WordPress Blue. [#43406]
+- Update package dependencies. [#43400]
+- Use `formatCurrency()` and `getCurrencyObject()` functions from the `@automattic/number-formatters` package. [#42796]
+
 ## 14.6 - 2025-05-06
 ### Major Enhancements
 - General: Update minimum WordPress version to 6.7. [#43192]

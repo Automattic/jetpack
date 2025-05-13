@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, JetpackIcon } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { Card, CardBody, CardFooter, Dashicon, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useMemo } from '@wordpress/element';
@@ -9,10 +9,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import AkismetIcon from '../../icons/akismet';
+import CreativeMailIcon from '../../icons/creative-mail';
 import CreateFormButton from '../components/create-form-button';
 import Details from '../components/details';
 import { config } from '../index';
-import AkismetSVG from './svg/akismet-svg';
 import CheckSVG from './svg/check-svg';
 import CloseSVG from './svg/close-svg';
 import ExportSVG from './svg/export-svg';
@@ -126,11 +127,9 @@ const About = () => {
 					<div className="section-data__features">
 						<div className="section-data__features-feature feature-connect">
 							<div className="app-icons-wrapper">
-								<AkismetSVG width={ 32 } height={ 32 } className="akismet-icon" />
-								<img
-									src={ `${ ASSETS_URL }/images/jetpack-icon.png` }
-									alt={ __( 'Jetpack icon', 'jetpack-forms' ) }
-								/>
+								<AkismetIcon width={ 32 } height={ 32 } className="icon-round" />
+								<JetpackIcon size={ 32 } className="jetpack-icon" />
+								<CreativeMailIcon width={ 32 } height={ 32 } className="icon-round" />
 								<img
 									src={ `${ ASSETS_URL }/images/google-sheets-icon.png` }
 									alt={ __( 'Google Sheets icon', 'jetpack-forms' ) }
@@ -147,7 +146,7 @@ const About = () => {
 							<WordpressSVG />
 						</div>
 						<div className="section-data__features-feature feature-akismet">
-							<AkismetSVG />
+							<AkismetIcon />
 							<h2>{ __( 'No spam with Akismet', 'jetpack-forms' ) }</h2>
 						</div>
 						<div className="section-data__features-feature feature-export">

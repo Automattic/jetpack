@@ -266,7 +266,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "9fe072d6192b45f389d6cd7d11654198c7876bf4"
+                "reference": "158423f61676f7f2d692c9d27b7e76186d1417e9"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -302,7 +302,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.1.x-dev"
+                    "dev-trunk": "4.2.x-dev"
                 }
             },
             "autoload": {
@@ -1180,7 +1180,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "b91d10ae791fa9d941d0b3018a74adac349b45c6"
+                "reference": "7ea07b9b6a2cddbc52f5e4bf3a14415edfd5cdc1"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1219,7 +1219,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.13.x-dev"
+                    "dev-trunk": "5.14.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"

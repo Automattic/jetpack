@@ -10,6 +10,7 @@ use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
+use Automattic\Jetpack_Boost\Lib\Cache_Compatibility;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync\Page_Cache_Entry;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Clear_Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Deactivate_WPSC;
@@ -109,6 +110,11 @@ class Page_Cache implements Feature, Has_Deactivate, Has_Data_Sync, Optimization
 				return true;
 			}
 
+			return false;
+		}
+
+		// Disable Page Cache on sites that have their own caching service.
+		if ( Cache_Compatibility::has_cache() ) {
 			return false;
 		}
 
