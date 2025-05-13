@@ -14,7 +14,7 @@ class LCP_Utils {
 	 *
 	 * @return array Array of LCP analysis data keyed by page URL.
 	 */
-	public static function get_list() {
+	public static function get_analysis_data() {
 		$cornerstone_pages = Cornerstone_Utils::get_list();
 		$storage           = new LCP_Storage();
 		$analysis_data     = array();

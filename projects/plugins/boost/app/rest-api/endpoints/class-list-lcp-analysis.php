@@ -18,7 +18,7 @@ class List_LCP_Analysis implements Endpoint {
 	}
 
 	public function response( $_request ) {
-		return rest_ensure_response( LCP_Utils::get_list() );
+		return rest_ensure_response( LCP_Utils::get_analysis_data() );
 	}
 
 	public function permissions() {
