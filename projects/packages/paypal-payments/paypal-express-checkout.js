@@ -6,7 +6,7 @@
 
 /* global paypal */
 /* exported PaypalExpressCheckout */
-var PaypalExpressCheckout = {
+const PaypalExpressCheckout = {
 	primaryCssClassName: 'jetpack-simple-payments',
 	messageCssClassName: 'jetpack-simple-payments-purchase-message',
 
@@ -51,13 +51,13 @@ var PaypalExpressCheckout = {
 			return 1;
 		}
 
-		var numberField = document.getElementById( field );
+		const numberField = document.getElementById( field );
 
 		if ( ! numberField ) {
 			return 1;
 		}
 
-		var number = Number( numberField.value );
+		const number = Number( numberField.value );
 
 		if ( isNaN( number ) ) {
 			return 1;
@@ -69,8 +69,8 @@ var PaypalExpressCheckout = {
 	 * Get the DOM element-placeholder used to show message
 	 * about the transaction. If it doesn't exist then the function will create a new one.
 	 *
-	 * @param string domId id of the payment button placeholder
-	 * @return Element the dom element to print the message
+	 * @param {string} domId - domId id of the payment button placeholder
+	 * @return {Element} the dom element to print the message
 	 */
 	getMessageContainer: function ( domId ) {
 		return document.getElementById( domId + '-message-container' );
@@ -81,15 +81,15 @@ var PaypalExpressCheckout = {
 	 * Use this function to give feedback to the user according
 	 * to the transaction result.
 	 *
-	 * @param {String}  message message to show
-	 * @param {String}  domId   paypal-button element dom identifier
-	 * @param {Boolean} [error] defines if it's a message error. Not TRUE as default.
+	 * @param {string}  message   - message to show
+	 * @param {string}  domId     - paypal-button element dom identifier
+	 * @param {boolean} [isError] - defines if it's a message error. Not TRUE as default.
 	 */
 	showMessage: function ( message, domId, isError ) {
-		var domEl = PaypalExpressCheckout.getMessageContainer( domId );
+		const domEl = PaypalExpressCheckout.getMessageContainer( domId );
 
 		// set css classes
-		var cssClasses = PaypalExpressCheckout.messageCssClassName + ' show ';
+		let cssClasses = PaypalExpressCheckout.messageCssClassName + ' show ';
 		cssClasses += isError ? 'error' : 'success';
 
 		// show message 1s after PayPal popup is closed
@@ -104,15 +104,15 @@ var PaypalExpressCheckout = {
 	},
 
 	processErrorMessage: function ( errorResponse ) {
-		var error = errorResponse ? errorResponse.responseJSON : null;
-		var defaultMessage = 'There was an issue processing your payment.';
+		const error = errorResponse ? errorResponse.responseJSON : null;
+		const defaultMessage = 'There was an issue processing your payment.';
 
 		if ( ! error ) {
 			return '<p>' + defaultMessage + '</p>';
 		}
 
 		if ( error.additional_errors ) {
-			var messages = [];
+			const messages = [];
 			error.additional_errors.forEach( function ( additionalError ) {
 				if ( additionalError.message ) {
 					messages.push( '<p>' + additionalError.message.toString() + '</p>' );
@@ -125,8 +125,8 @@ var PaypalExpressCheckout = {
 	},
 
 	processSuccessMessage: function ( successResponse ) {
-		var message = successResponse.message;
-		var defaultMessage = 'Thank you. Your purchase was successful!';
+		const message = successResponse.message;
+		const defaultMessage = 'Thank you. Your purchase was successful!';
 
 		if ( ! message ) {
 			return '<p>' + defaultMessage + '</p>';
@@ -136,19 +136,19 @@ var PaypalExpressCheckout = {
 	},
 
 	cleanAndHideMessage: function ( domId ) {
-		var domEl = PaypalExpressCheckout.getMessageContainer( domId );
+		const domEl = PaypalExpressCheckout.getMessageContainer( domId );
 		domEl.setAttribute( 'class', PaypalExpressCheckout.messageCssClassName );
 		domEl.innerHTML = '';
 	},
 
 	renderButton: function ( blogId, buttonId, domId, enableMultiple ) {
-		var env = PaypalExpressCheckout.getEnvironment();
+		const env = PaypalExpressCheckout.getEnvironment();
 
 		if ( ! paypal ) {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
 		}
 
-		var buttonDomId = domId + '_button';
+		const buttonDomId = domId + '_button';
 
 		paypal.Button.render(
 			{
@@ -166,13 +166,14 @@ var PaypalExpressCheckout = {
 				payment: function () {
 					PaypalExpressCheckout.cleanAndHideMessage( domId );
 
-					var payload = {
+					const payload = {
 						number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
 						buttonId: buttonId,
 						env: env,
 					};
 
 					return new paypal.Promise( function ( resolve, reject ) {
+						// eslint-disable-next-line no-undef
 						jQuery
 							.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
 							.done( function ( paymentResponse ) {
@@ -187,10 +188,11 @@ var PaypalExpressCheckout = {
 								resolve( paymentResponse.id );
 							} )
 							.fail( function ( paymentError ) {
-								var paymentErrorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
+								const paymentErrorMessage =
+									PaypalExpressCheckout.processErrorMessage( paymentError );
 								PaypalExpressCheckout.showError( paymentErrorMessage, domId );
 
-								var code =
+								const code =
 									paymentError.responseJSON && paymentError.responseJSON.code
 										? paymentError.responseJSON.code
 										: 'server_error';
@@ -201,12 +203,13 @@ var PaypalExpressCheckout = {
 				},
 
 				onAuthorize: function ( onAuthData ) {
-					var payload = {
+					const payload = {
 						buttonId: buttonId,
 						payerId: onAuthData.payerID,
 						env: env,
 					};
 					return new paypal.Promise( function ( resolve, reject ) {
+						// eslint-disable-next-line no-undef
 						jQuery
 							.post(
 								PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ),
@@ -228,10 +231,10 @@ var PaypalExpressCheckout = {
 								resolve();
 							} )
 							.fail( function ( authError ) {
-								var authErrorMessage = PaypalExpressCheckout.processErrorMessage( authError );
+								const authErrorMessage = PaypalExpressCheckout.processErrorMessage( authError );
 								PaypalExpressCheckout.showError( authErrorMessage, domId );
 
-								var code =
+								const code =
 									authError.responseJSON && authError.responseJSON.code
 										? authError.responseJSON.code
 										: 'server_error';

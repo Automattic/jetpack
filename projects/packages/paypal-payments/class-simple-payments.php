@@ -4,7 +4,7 @@
  * This is not a proper module yet, because not all the pieces are in place. Until everything is shipped, it can be turned
  * into module that can be enabled/disabled.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-paypal-payments
  */
 
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
@@ -455,7 +455,7 @@ class Jetpack_Simple_Payments {
 
 	/**
 	 * Enable Simple payments custom meta values for access through the REST API.
-	 * Field’s value will be exposed on a .meta key in the endpoint response,
+	 * Field's value will be exposed on a .meta key in the endpoint response,
 	 * and WordPress will handle setting up the callbacks for reading and writing
 	 * to that meta key.
 	 *
@@ -466,7 +466,7 @@ class Jetpack_Simple_Payments {
 			'post',
 			'spay_price',
 			array(
-				'description'       => esc_html__( 'Simple payments; price.', 'jetpack' ),
+				'description'       => esc_html__( 'Simple payments; price.', 'jetpack-paypal-payments' ),
 				'object_subtype'    => self::$post_type_product,
 				'sanitize_callback' => array( $this, 'sanitize_price' ),
 				'show_in_rest'      => true,
@@ -479,7 +479,7 @@ class Jetpack_Simple_Payments {
 			'post',
 			'spay_currency',
 			array(
-				'description'       => esc_html__( 'Simple payments; currency code.', 'jetpack' ),
+				'description'       => esc_html__( 'Simple payments; currency code.', 'jetpack-paypal-payments' ),
 				'object_subtype'    => self::$post_type_product,
 				'sanitize_callback' => array( $this, 'sanitize_currency' ),
 				'show_in_rest'      => true,
@@ -492,7 +492,7 @@ class Jetpack_Simple_Payments {
 			'post',
 			'spay_cta',
 			array(
-				'description'       => esc_html__( 'Simple payments; text with "Buy" or other CTA', 'jetpack' ),
+				'description'       => esc_html__( 'Simple payments; text with "Buy" or other CTA', 'jetpack-paypal-payments' ),
 				'object_subtype'    => self::$post_type_product,
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
@@ -505,7 +505,7 @@ class Jetpack_Simple_Payments {
 			'post',
 			'spay_multiple',
 			array(
-				'description'       => esc_html__( 'Simple payments; allow multiple items', 'jetpack' ),
+				'description'       => esc_html__( 'Simple payments; allow multiple items', 'jetpack-paypal-payments' ),
 				'object_subtype'    => self::$post_type_product,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'show_in_rest'      => true,
@@ -518,7 +518,7 @@ class Jetpack_Simple_Payments {
 			'post',
 			'spay_email',
 			array(
-				'description'       => esc_html__( 'Simple payments button; paypal email.', 'jetpack' ),
+				'description'       => esc_html__( 'Simple payments button; paypal email.', 'jetpack-paypal-payments' ),
 				'object_subtype'    => self::$post_type_product,
 				'sanitize_callback' => 'sanitize_email',
 				'show_in_rest'      => true,
@@ -531,7 +531,7 @@ class Jetpack_Simple_Payments {
 			'post',
 			'spay_status',
 			array(
-				'description'       => esc_html__( 'Simple payments; status.', 'jetpack' ),
+				'description'       => esc_html__( 'Simple payments; status.', 'jetpack-paypal-payments' ),
 				'object_subtype'    => self::$post_type_product,
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
@@ -633,8 +633,8 @@ class Jetpack_Simple_Payments {
 			'read_private_posts' => 'read_private_posts',
 		);
 		$order_args         = array(
-			'label'               => esc_html_x( 'Order', 'noun: a quantity of goods or items purchased or sold', 'jetpack' ),
-			'description'         => esc_html__( 'Simple Payments orders', 'jetpack' ),
+			'label'               => esc_html_x( 'Order', 'noun: a quantity of goods or items purchased or sold', 'jetpack-paypal-payments' ),
+			'description'         => esc_html__( 'Simple Payments orders', 'jetpack-paypal-payments' ),
 			'supports'            => array( 'custom-fields', 'excerpt' ),
 			'hierarchical'        => false,
 			'public'              => false,
@@ -676,8 +676,8 @@ class Jetpack_Simple_Payments {
 			'read_private_posts' => 'read_private_posts',
 		);
 		$product_args         = array(
-			'label'               => esc_html__( 'Product', 'jetpack' ),
-			'description'         => esc_html__( 'Simple Payments products', 'jetpack' ),
+			'label'               => esc_html__( 'Product', 'jetpack-paypal-payments' ),
+			'description'         => esc_html__( 'Simple Payments products', 'jetpack-paypal-payments' ),
 			'supports'            => array( 'title', 'editor', 'thumbnail', 'custom-fields', 'author' ),
 			'hierarchical'        => false,
 			'public'              => false,
