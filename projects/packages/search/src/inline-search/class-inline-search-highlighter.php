@@ -112,6 +112,12 @@ class Inline_Search_Highlighter {
 			return $content;
 		}
 
+		// Skip highlighting if we're in a block theme context
+		// Let the block filters handle it instead
+		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+			return $content;
+		}
+
 		if ( ! empty( $this->highlighted_content[ $post_id ]['content'] ) ) {
 			// Apply wpautop to maintain paragraph formatting.
 			return wpautop( $this->highlighted_content[ $post_id ]['content'] );
@@ -274,7 +280,10 @@ class Inline_Search_Highlighter {
 	 * @return string The filtered block content.
 	 */
 	public function filter_render_content_block( $block_content, $block, $instance ) {
-		static $seen_ids = array();
+		// Early return if not in search context
+		if ( ! is_search() ) {
+			return $block_content;
+		}
 
 		if ( ! isset( $instance->context['postId'] ) ) {
 			return $block_content;
@@ -282,51 +291,85 @@ class Inline_Search_Highlighter {
 
 		$post_id = $instance->context['postId'];
 
-		// Prevent infinite recursion
+		// Only process actual search results
+		if ( ! $this->is_search_result( $post_id ) ) {
+			return $block_content;
+		}
+
+		static $seen_ids = array();
+
+		// Prevent infinite recursion when rendering nested blocks
 		if ( isset( $seen_ids[ $post_id ] ) ) {
-			$is_debug = WP_DEBUG && WP_DEBUG_DISPLAY;
-			return $is_debug ? __( '[block rendering halted]', 'jetpack-search-pkg' ) : '';
+			$is_debug = defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_DISPLAY' ) && WP_DEBUG_DISPLAY;
+			return $is_debug ? sprintf( '[block rendering halted: post %d]', $post_id ) : '';
 		}
 
 		$seen_ids[ $post_id ] = true;
 
-		// Only apply highlighting for search results
-		if ( ! $this->is_search_result( $post_id ) ) {
-			unset( $seen_ids[ $post_id ] );
-			return $block_content;
-		}
-
 		$highlighted_content = $this->get_highlighted_content( $post_id );
-
-		// If we don't have any highlighted content, return the original block content
 		if ( empty( $highlighted_content['content'] ) ) {
 			unset( $seen_ids[ $post_id ] );
 			return $block_content;
 		}
 
-		// Get the highlighted content and apply formatting
-		$content = $highlighted_content['content'];
+		// Extract search terms from highlighted content
+		$terms = array();
+		preg_match_all( '/<mark[^>]*>(.*?)<\/mark>/i', $highlighted_content['content'], $matches );
 
-		// Apply content filters like the core function does
-		$content = apply_filters( 'the_content', str_replace( ']]>', ']]&gt;', $content ) );
+		if ( empty( $matches[1] ) ) {
+			unset( $seen_ids[ $post_id ] );
+			return $block_content;
+		}
+
+		$terms = array_unique( $matches[1] );
+
+		// Remove very short terms (1-2 chars) that could cause issues
+		foreach ( $terms as $key => $term ) {
+			if ( strlen( $term ) < 3 ) {
+				unset( $terms[ $key ] );
+			}
+		}
+
+		if ( empty( $terms ) ) {
+			unset( $seen_ids[ $post_id ] );
+			return $block_content;
+		}
+
+		// Simple content splitting to preserve HTML tags
+		$parts  = preg_split( '/(<[^>]+>)/i', $block_content, -1, PREG_SPLIT_DELIM_CAPTURE );
+		$in_tag = false;
+		$result = '';
+
+		foreach ( $parts as $part ) {
+			// If this is an HTML tag
+			if ( preg_match( '/^<[^>]+>$/i', $part ) ) {
+				$result .= $part;
+				// Skip processing inside script/style tags
+				if ( preg_match( '/^<(script|style|textarea|code|mark)/i', $part ) ) {
+					$in_tag = true;
+				} elseif ( preg_match( '/^<\/(script|style|textarea|code|mark)/i', $part ) ) {
+					$in_tag = false;
+				}
+				continue;
+			}
+
+			// Skip processing inside special tags
+			if ( $in_tag ) {
+				$result .= $part;
+				continue;
+			}
+
+			// Highlight terms in text content
+			$highlighted = $part;
+			foreach ( $terms as $term ) {
+				$pattern     = '/\b(' . preg_quote( $term, '/' ) . ')\b/ui';
+				$highlighted = preg_replace( $pattern, '<mark>$1</mark>', $highlighted );
+			}
+
+			$result .= $highlighted;
+		}
+
 		unset( $seen_ids[ $post_id ] );
-
-		if ( empty( $content ) ) {
-			return '';
-		}
-
-		// Create wrapper classes
-		$classes = array( 'entry-content' );
-		if ( isset( $block['attrs']['textAlign'] ) ) {
-			$classes[] = 'has-text-align-' . $block['attrs']['textAlign'];
-		}
-
-		if ( isset( $block['attrs']['style']['elements']['link']['color']['text'] ) ) {
-			$classes[] = 'has-link-color';
-		}
-
-		$wrapper_attributes = get_block_wrapper_attributes( array( 'class' => implode( ' ', $classes ) ) );
-
-		return sprintf( '<div %1$s>%2$s</div>', $wrapper_attributes, $content );
+		return $result;
 	}
 }
