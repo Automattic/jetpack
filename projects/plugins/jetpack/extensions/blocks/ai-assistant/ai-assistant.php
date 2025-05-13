@@ -88,14 +88,14 @@ function add_chrome_ai_token_headers() {
 			if ( 200 === $response_code ) {
 				$ai_assistant_feature_data = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
 
-				if ( ! empty( $ai_assistant_feature_data['chrome-ai-token'] ) ) {
+				if ( ! empty( $ai_assistant_feature_data['chrome-ai-tokens'] ) && ! empty( $ai_assistant_feature_data['chrome-ai-tokens'][ $token_transient_name ] ) ) {
 					set_transient(
 						$token_transient_name,
-						$ai_assistant_feature_data['chrome-ai-token'],
+						$ai_assistant_feature_data['chrome-ai-tokens'][ $token_transient_name ],
 						3600 // cache for an hour, but this can probably be longer
 					);
 
-					$cached_token = $ai_assistant_feature_data['chrome-ai-token'];
+					$cached_token = $ai_assistant_feature_data['chrome-ai-tokens'][ $token_transient_name ];
 				}
 			}
 		}
