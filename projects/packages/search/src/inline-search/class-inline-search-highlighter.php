@@ -31,7 +31,7 @@ class Inline_Search_Highlighter {
 	 * @param array      $search_result_ids     Array of post IDs from search results.
 	 * @param array|null $results          Optional. The search result data from the API to process immediately.
 	 */
-	public function __construct( array $search_result_ids = array(), array $results = null ) {
+	public function __construct( array $search_result_ids = array(), ?array $results = null ) {
 		$this->search_result_ids   = $search_result_ids;
 		$this->highlighted_content = array();
 
@@ -269,6 +269,29 @@ class Inline_Search_Highlighter {
 	}
 
 	/**
+	 * Apply highlighting to content using the extracted terms
+	 *
+	 * @param string $content The content to highlight.
+	 * @param array  $terms Array of terms to highlight.
+	 *
+	 * @return string The highlighted content.
+	 * @since $$next-version$$
+	 */
+	private function apply_highlighting( string $content, array $terms ): string {
+		if ( empty( $terms ) || empty( $content ) ) {
+			return $content;
+		}
+
+		$result = $content;
+		foreach ( $terms as $term ) {
+			$pattern = '/\b(' . preg_quote( $term, '/' ) . ')\b/ui';
+			$result  = preg_replace( $pattern, '<mark>$1</mark>', $result );
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Filter for rendering post content with highlights when available
 	 *
 	 * @param string $block_content The block content.
@@ -279,41 +302,44 @@ class Inline_Search_Highlighter {
 	 * @since $$next-version$$
 	 */
 	public function filter_render_content_block( string $block_content, array $block, object $instance ): string {
-		static $seen_ids = array();
+		// This static array should only track recursive rendering prevention,
+		// not prevent highlighting multiple instances of the same post in search results.
+		static $processing_ids = array();
 
 		if ( ! isset( $instance->context['postId'] ) || ! $this->is_search_result( $instance->context['postId'] ) ) {
 			return $block_content;
 		}
 
-		$post_id              = $instance->context['postId'];
-		$seen_ids[ $post_id ] = true;
+		$post_id = $instance->context['postId'];
 
-		$highlighted_content = $this->get_highlighted_content( $post_id );
-		if ( empty( $highlighted_content['content'] ) ) {
-			unset( $seen_ids[ $post_id ] );
+		// Skip if we're already processing this post (prevents infinite loops)
+		if ( isset( $processing_ids[ $post_id ] ) ) {
 			return $block_content;
 		}
 
+		// Mark that we're processing this post
+		$processing_ids[ $post_id ] = true;
+
+		$highlighted_content = $this->get_highlighted_content( $post_id );
+		if ( empty( $highlighted_content['content'] ) ) {
+			unset( $processing_ids[ $post_id ] );
+			return $block_content;
+		}
+
+		// Extract highlighted terms from the API response
 		preg_match_all( '/<mark[^>]*>(.*?)<\/mark>/i', $highlighted_content['content'], $matches );
 
 		if ( empty( $matches[1] ) ) {
-			unset( $seen_ids[ $post_id ] );
+			unset( $processing_ids[ $post_id ] );
 			return $block_content;
 		}
 
 		$terms = array_unique( $matches[1] );
-		if ( empty( $terms ) ) {
-			unset( $seen_ids[ $post_id ] );
-			return $block_content;
-		}
 
-		$result = $block_content;
-		foreach ( $terms as $term ) {
-			$pattern = '/\b(' . preg_quote( $term, '/' ) . ')\b/ui';
-			$result  = preg_replace( $pattern, '<mark>$1</mark>', $result );
-		}
+		// Apply highlighting to the entire content, including any nested blocks
+		$result = $this->apply_highlighting( $block_content, $terms );
 
-		unset( $seen_ids[ $post_id ] );
+		unset( $processing_ids[ $post_id ] );
 		return $result;
 	}
 }
