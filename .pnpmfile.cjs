@@ -105,16 +105,6 @@ async function fixDeps( pkg ) {
 		pkg.optionalDependencies[ 'framer-motion' ] += ' <11.5.0';
 	}
 
-	// Missing dep or peer dep. Fixed in main, but needs a release.
-	// https://github.com/actions/toolkit/issues/1993
-	if (
-		pkg.name === '@actions/github' &&
-		! pkg.dependencies?.undici &&
-		! pkg.peerDependencies?.undici
-	) {
-		pkg.dependencies.undici = '*';
-	}
-
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
