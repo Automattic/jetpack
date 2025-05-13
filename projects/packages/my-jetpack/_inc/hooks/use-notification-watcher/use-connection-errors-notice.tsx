@@ -1,6 +1,10 @@
 import restApi from '@automattic/jetpack-api';
 import { Col, Text } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, useRestoreConnection } from '@automattic/jetpack-connection';
+import {
+	useConnectionErrorNotice,
+	useRestoreConnection,
+	useConnection,
+} from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useState, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
@@ -71,6 +75,7 @@ const useConnectionErrorsNotice = () => {
 	const { hasConnectionError, connectionErrorMessage } = useConnectionErrorNotice();
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
+	const { connectionErrors } = useConnection( {} );
 	const { recordEvent } = useAnalytics();
 	const [ isFixing, setIsFixing ] = useState( false );
 	const [ fixingType, setFixingType ] = useState< string | null >( null );
@@ -79,18 +84,15 @@ const useConnectionErrorsNotice = () => {
 	// Track if we have protected owner errors
 	const [ hasProtectedOwnerError, setHasProtectedOwnerError ] = useState( false );
 
-	// Extract the connection error details from the window's initial state
+	// Extract the connection error details from the connection data
 	const getConnectionError = useCallback( () => {
 		// Try to handle the nested error format from protected owner errors
-		const jpErrors = window?.JP_CONNECTION_INITIAL_STATE?.connectionErrors;
-
-		// First check if there are protected owner errors (nested structure)
-		if ( jpErrors && typeof jpErrors === 'object' ) {
+		if ( connectionErrors && typeof connectionErrors === 'object' ) {
 			try {
 				// The error structure is: { error_type: { user_id: { error_details } } }
-				const errorType = Object.keys( jpErrors )[ 0 ];
+				const errorType = Object.keys( connectionErrors )[ 0 ];
 				if ( errorType ) {
-					const userErrors = jpErrors[ errorType ];
+					const userErrors = connectionErrors[ errorType ];
 					const userId = Object.keys( userErrors )[ 0 ];
 					if ( userId ) {
 						const errorDetails = userErrors[ userId ];
@@ -139,7 +141,7 @@ const useConnectionErrorsNotice = () => {
 		}
 
 		return null;
-	}, [] );
+	}, [ connectionErrors ] );
 
 	// Handle protected owner errors (fix once or fix always)
 	const handleProtectedOwnerFix = useCallback(
@@ -234,7 +236,6 @@ const useConnectionErrorsNotice = () => {
 		// Manual check for protected owner errors
 		let foundProtectedOwnerError = false;
 		try {
-			const connectionErrors = window?.JP_CONNECTION_INITIAL_STATE?.connectionErrors;
 			if ( connectionErrors && typeof connectionErrors === 'object' ) {
 				for ( const errorType in connectionErrors ) {
 					const userErrors = connectionErrors[ errorType ];
@@ -434,6 +435,7 @@ const useConnectionErrorsNotice = () => {
 		handleProtectedOwnerFix,
 		handleCreateMissingUser,
 		getConnectionError,
+		connectionErrors,
 	] );
 };
 
