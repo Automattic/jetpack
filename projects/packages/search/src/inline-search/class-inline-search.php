@@ -487,19 +487,9 @@ class Inline_Search extends Classic_Search {
 		$this->search_result_ids = $post_ids;
 		$this->highlighter       = new Inline_Search_Highlighter( $post_ids );
 
-		if ( ! empty( $highlighted_results ) ) {
-			// Format highlight data for the highlighter
-			$processed_results = array();
-			foreach ( $highlighted_results as $post_id => $highlight_data ) {
-				$processed_results[] = array(
-					'fields'    => array(
-						'post_id' => $post_id,
-					),
-					'highlight' => $highlight_data,
-				);
-			}
-			$this->highlighter->process_results( $processed_results );
-		}
+		// Hand the entire results array over; Inline_Search_Highlighter
+		// will pull out `fields.post_id` and `highlight` for each one.
+		$this->highlighter->process_results( $this->search_result['results'] );
 
 		$this->highlighter->setup();
 	}
