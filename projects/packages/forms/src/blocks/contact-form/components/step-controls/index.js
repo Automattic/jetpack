@@ -1,4 +1,4 @@
-import { BlockControls, store as blockEditorStore } from '@wordpress/block-editor';
+import { BlockControls } from '@wordpress/block-editor';
 import {
 	ToolbarGroup,
 	DropdownMenu,
@@ -20,7 +20,6 @@ import { store as previewStore } from '../../../../store/preview-store';
  *
  * @param {object}  props                    - Component props.
  * @param {string}  props.formClientId       - Client ID of the root contact form block.
- * @param {string}  props.clientId           - Client ID of the current block.
  * @param {boolean} props.showToggle         - Flag to indicate if toggle buttons should be shown.
  * @param {boolean} props.showNavigation     - Flag to indicate if navigation controls should be shown.
  * @param {boolean} props.updateStepSelected - Flag to indicate if the step should be selected.
@@ -65,7 +64,13 @@ export default function StepControls( {
 	if ( ! isPreview ) {
 		displayLabel = __( 'All steps', 'jetpack-forms' );
 	} else if ( currentStepIndex >= 0 ) {
-		displayLabel = `${ currentStepIndex + 1 }. ${ stepLabel }`;
+		if ( stepLabel ) {
+			const shorterLabel =
+				stepLabel.length > 12 ? `${ stepLabel.substring( 0, 12 ) }...` : stepLabel;
+			displayLabel = `${ currentStepIndex + 1 } ${ shorterLabel }`;
+		} else {
+			displayLabel = `${ currentStepIndex + 1 } Step`;
+		}
 	} else {
 		displayLabel = __( 'Select step', 'jetpack-forms' );
 	}
@@ -103,7 +108,7 @@ export default function StepControls( {
 					<>
 						<ToolbarButton
 							showTooltip={ true }
-							label={ __( 'Previous Step', 'jetpack-forms' ) }
+							label={ __( 'Previous step', 'jetpack-forms' ) }
 							disabled={ isFirstStep }
 							onClick={ navigateToPreviousStep }
 						>
@@ -111,7 +116,7 @@ export default function StepControls( {
 						</ToolbarButton>
 						<ToolbarButton
 							showTooltip={ true }
-							label={ __( 'Next Step', 'jetpack-forms' ) }
+							label={ __( 'Next step', 'jetpack-forms' ) }
 							disabled={ isLastStep }
 							onClick={ navigateToNextStep }
 						>
