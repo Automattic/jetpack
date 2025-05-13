@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.1.4
+ * Stubs automatically generated from PHPUnit 12.1.5
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -5842,8 +5842,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws GeneratorNotSupportedException
-     *
-     * @phan-assert empty $actual
      */
     final public static function assertEmpty(mixed $actual, string $message = ''): void
     {
@@ -5853,8 +5851,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws GeneratorNotSupportedException
-     *
-     * @phan-assert !empty $actual
      */
     final public static function assertNotEmpty(mixed $actual, string $message = ''): void
     {
@@ -7888,8 +7884,6 @@ function assertObjectNotEquals(object $expected, object $actual, string $method 
  * @throws ExpectationFailedException
  * @throws GeneratorNotSupportedException
  *
- * @phan-assert empty $actual
- *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @see Assert::assertEmpty
@@ -7902,8 +7896,6 @@ function assertEmpty(mixed $actual, string $message = '', ...$func_get_args): vo
  *
  * @throws ExpectationFailedException
  * @throws GeneratorNotSupportedException
- *
- * @phan-assert !empty $actual
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *

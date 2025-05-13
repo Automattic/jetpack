@@ -642,11 +642,19 @@ class Jetpack_Sync_Comments_Test extends Jetpack_Sync_TestBase {
 	 */
 	public function test_metadata_limit() {
 
+		$metadata_item_empty = (object) array(
+			'comment_id' => $this->comment->comment_ID,
+			'meta_key'   => 'test_key',
+			'meta_value' => '',
+			'meta_id'    => 1,
+		);
+		$size_empty_metadata = strlen( maybe_serialize( $metadata_item_empty ) );
+
 		$metadata = array(
 			(object) array(
 				'comment_id' => $this->comment->comment_ID,
 				'meta_key'   => 'test_key',
-				'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Comments::MAX_META_LENGTH - 1 ),
+				'meta_value' => str_repeat( 'X', $size_empty_metadata - 10 ),
 				'meta_id'    => 1,
 			),
 			(object) array(
@@ -749,13 +757,21 @@ class Jetpack_Sync_Comments_Test extends Jetpack_Sync_TestBase {
 
 		$comments = array( $comment_1, $comment_2 );
 
+		$metadata_item_empty = (object) array(
+			'comment_id' => $this->comment->comment_ID,
+			'meta_key'   => 'test_key',
+			'meta_value' => '',
+			'meta_id'    => 1,
+		);
+		$size_empty_metadata = strlen( maybe_serialize( $metadata_item_empty ) );
+
 		$metadata_items_number = Automattic\Jetpack\Sync\Modules\Posts::MAX_SIZE_FULL_SYNC / Automattic\Jetpack\Sync\Modules\Comments::MAX_META_LENGTH;
 		$comment_metadata_1    = array_map(
-			function ( $x ) use ( $comment_id_1 ) {
+			function ( $x ) use ( $comment_id_1, $size_empty_metadata ) {
 				return (object) array(
 					'comment_id' => $comment_id_1,
 					'meta_key'   => 'test_key',
-					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Comments::MAX_META_LENGTH - 1 ),
+					'meta_value' => str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Comments::MAX_META_LENGTH - $size_empty_metadata - 10 ),
 					'meta_id'    => $x,
 				);
 			},

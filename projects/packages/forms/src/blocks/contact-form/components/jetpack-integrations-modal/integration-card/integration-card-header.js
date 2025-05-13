@@ -27,6 +27,7 @@ const IntegrationCardHeader = ( {
 		headerToggleValue,
 		isHeaderToggleEnabled,
 		onHeaderToggleChange,
+		toggleDisabledTooltip,
 	} = cardData;
 	const showPluginAction = type === 'plugin' && ( ! isInstalled || ! isActive );
 	const showConnectedBadge = isActive && isConnected;
@@ -97,7 +98,13 @@ const IntegrationCardHeader = ( {
 						/>
 					) }
 					{ ! showPluginAction && showHeaderToggle && (
-						<Tooltip text={ getTooltipText( headerToggleValue ) }>
+						<Tooltip
+							text={
+								! isHeaderToggleEnabled && toggleDisabledTooltip
+									? toggleDisabledTooltip
+									: getTooltipText( headerToggleValue )
+							}
+						>
 							<span className="integration-card__toggle-tooltip-wrapper">
 								<ToggleControl
 									checked={ headerToggleValue && ( isActive || isConnected ) }

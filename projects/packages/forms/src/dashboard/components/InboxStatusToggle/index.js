@@ -70,6 +70,7 @@ export default function InboxStatusToggle( { currentQuery } ) {
 			className="jp-forms__inbox-status-toggle"
 			value={ status }
 			onChange={ handleChange }
+			isAdaptiveWidth={ true }
 		>
 			{ statusTabs.map( option => (
 				<ToggleGroupControlOption

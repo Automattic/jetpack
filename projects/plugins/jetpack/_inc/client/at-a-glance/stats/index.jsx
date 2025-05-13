@@ -1,4 +1,5 @@
-import { getRedirectUrl, JetpackLogo, numberFormat } from '@automattic/jetpack-components';
+import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import { ExternalLink, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -120,7 +121,7 @@ export class DashStats extends Component {
 						value: sprintf(
 							/* translators: placeholder is a number */
 							__( 'Views: %s', 'jetpack' ),
-							numberFormat( views )
+							formatNumber( views )
 						),
 						className: 'tooltip class',
 					},

@@ -3,7 +3,7 @@ import { createBlock } from '@wordpress/blocks';
 import { ToggleControl, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import CreativeMailIcon from '../../../../icons/creative-mail-icon';
+import CreativeMailIcon from '../../../../icons/creative-mail';
 import IntegrationCard from './integration-card';
 
 const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus, borderBottom = true } ) => {

@@ -166,34 +166,17 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 			return;
 		}
 
-		$images_to_preload = array();
 		foreach ( $lcp_storage as $lcp_data ) {
-			if ( empty( $lcp_data ) || self::TYPE_BACKGROUND_IMAGE !== $lcp_data['type'] ) {
-				continue;
-			}
-
-			if ( empty( $lcp_data['elementData'] ) || empty( $lcp_data['elementData']['url'] ) ) {
-				continue;
-			}
-
-			if ( wp_http_validate_url( $lcp_data['elementData']['url'] ) ) {
-				$images_to_preload[ $lcp_data['elementData']['url'] ] = $lcp_data;
-			}
-		}
-
-		if ( empty( $images_to_preload ) ) {
-			return;
-		}
-
-		foreach ( $images_to_preload as $image_url => $lcp_data ) {
 			$lcp_optimizer = new LCP_Optimizer( $lcp_data );
-
-			printf(
-				'<link rel="preload" href="%s" as="image" fetchpriority="high" imagesrcset="%s" imagesizes="%s" />' . "\n",
-				esc_url( Image_CDN_Core::cdn_url( $image_url ) ),
-				esc_attr( $lcp_optimizer->get_srcsets( $image_url ) ),
-				esc_attr( $lcp_optimizer->get_sizes() )
-			);
+			$image_url     = $lcp_optimizer->get_image_to_preload();
+			if ( ! empty( $image_url ) ) {
+				printf(
+					'<link rel="preload" href="%s" as="image" fetchpriority="high" imagesrcset="%s" imagesizes="%s" />' . "\n",
+					esc_url( Image_CDN_Core::cdn_url( $image_url ) ),
+					esc_attr( $lcp_optimizer->get_srcsets( $image_url ) ),
+					esc_attr( $lcp_optimizer->get_sizes() )
+				);
+			}
 		}
 	}
 

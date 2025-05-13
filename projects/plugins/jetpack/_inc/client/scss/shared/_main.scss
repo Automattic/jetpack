@@ -4,6 +4,7 @@
 
 // Utilities
 // TODO Extract into other files
+@use '../functions/rem';
 @use 'sass:color';
 
 .jp-hidden-on-mobile {
@@ -44,10 +45,10 @@
 		right: 0;
 		left: 0;
 		top: 0;
-		padding: rem( 10px );
+		padding: rem.convert( 10px );
 		text-align: right;
 		background: $white;
-		font-size: rem( 12px );
+		font-size: rem.convert( 12px );
 		font-style: italic;
 		color: $gray;
 		border-bottom: 1px color.adjust( $gray, $lightness: 30% ) solid;
@@ -71,7 +72,7 @@
 	width: 100%;
 
 	.jp-top-inside {
-		max-width: rem(1040px);
+		max-width: rem.convert(1040px);
 		margin: 0 auto;
 
 		@media (max-width: 1360px) {
@@ -91,15 +92,15 @@
 .jp-lower {
 	margin: 32px auto 0;
 	text-align: left;
-	max-width: rem( 1040px );
+	max-width: rem.convert( 1040px );
 
 	&.jp-licensing-screen {
-		 max-width: rem( 1128px );
+		 max-width: rem.convert( 1128px );
 	}
 
 	&.jp-main-connect-screen,
 	&.jp-user-connect-screen, {
-		max-width: rem( 1128px );
+		max-width: rem.convert( 1128px );
 		box-sizing: content-box;
 	}
 

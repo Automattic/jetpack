@@ -30,7 +30,6 @@ import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleto
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import IntegrationControls from './components/jetpack-integration-controls';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
-import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
 
@@ -69,7 +68,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouHeading,
 		customThankyouMessage,
 		customThankyouRedirect,
-		salesforceData,
 		formTitle,
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
@@ -117,11 +115,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	);
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
-
-	const isSalesForceExtensionEnabled =
-		!! window?.Jetpack_Editor_Initial_State?.available_blocks[
-			'contact-form/salesforce-lead-form'
-		];
 
 	let elt;
 
@@ -221,14 +214,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 					{ ! isSimpleSite() && canUserInstallPlugins && (
 						<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
-					) }
-
-					{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
-						<SalesforceLeadFormSettings
-							salesforceData={ salesforceData }
-							setAttributes={ setAttributes }
-							instanceId={ instanceId }
-						/>
 					) }
 				</InspectorControls>
 				<InspectorAdvancedControls>

@@ -34,7 +34,6 @@ Official links:
 - Pocket: https://blog.getpocket.com/press/
 - Quora: https://www.quora.com/
 - Reddit: https://www.redditinc.com/brand
-- Skype: https://www.skype.com/en/legal/brand-guidelines/
 - Snapchat: https://snap.com/brand-guidelines
 - SoundCloud: https://soundcloud.com/
 - Spotify: https://developer.spotify.com/documentation/design

@@ -96,7 +96,7 @@ class LCP_Optimizer {
 	}
 
 	/**
-	 * Optimize a viewport
+	 * Optimize a viewport's LCP HTML.
 	 *
 	 * @param string $buffer The buffer/html to optimize.
 	 * @return string The optimized buffer, or the original buffer if no optimization was needed
@@ -134,6 +134,22 @@ class LCP_Optimizer {
 		}
 
 		return $buffer;
+	}
+
+	public function get_image_to_preload() {
+		if ( empty( $this->lcp_data ) || LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] ) {
+			return null;
+		}
+
+		if ( empty( $this->lcp_data['elementData'] ) || empty( $this->lcp_data['elementData']['url'] ) ) {
+			return null;
+		}
+
+		if ( ! wp_http_validate_url( $this->lcp_data['elementData']['url'] ) ) {
+			return null;
+		}
+
+		return $this->lcp_data['elementData']['url'];
 	}
 
 	/**

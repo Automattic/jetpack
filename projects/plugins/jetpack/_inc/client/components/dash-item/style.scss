@@ -1,4 +1,5 @@
 @use 'sass:color';
+@use '../../scss/functions/rem';
 @import '../../scss/calypso-colors';
 @import '../../scss/mixins/ui';
 
@@ -22,8 +23,8 @@
 		}
 
 		.dops-notice {
-			margin-top: rem( -1px );
-			margin-bottom: rem( -1px );
+			margin-top: rem.convert( -1px );
+			margin-bottom: rem.convert( -1px );
 		}
 	}
 }
@@ -38,7 +39,7 @@
 .jp-dash-item__card {
 	margin: 0;
 	box-shadow: none;
-	padding: rem( 18px ) rem( 24px ) rem( 16px );
+	padding: rem.convert( 18px ) rem.convert( 24px ) rem.convert( 16px );
 }
 
 .jp-dash-item__count {
@@ -52,7 +53,7 @@
 	text-align: center;
 
 	@include breakpoint( "<660px" ) {
-		font-size: rem( 23px );
+		font-size: rem.convert( 23px );
 	}
 
 	+ .jp-dash-item__description {
@@ -78,7 +79,7 @@
 
 .jp-dash-item__description {
 	margin: 0 50px 0 0;
-	font-size: rem( 14px );
+	font-size: rem.convert( 14px );
 	max-width: calc( 100% - 18px ); // For the support icon
 	color: $gray-80;
 	letter-spacing: -0.02em;
@@ -135,7 +136,7 @@
 	display: inline-block;
 	color: color.adjust( $gray, $lightness: -10% );
 	color: $gray;
-	font-size: rem( 12px );
+	font-size: rem.convert( 12px );
 	font-weight: 400;
 	text-transform: uppercase;
 }
@@ -171,7 +172,7 @@
 	}
 
 	.dops-section-header__label {
-		padding-right: rem( 8px );
+		padding-right: rem.convert( 8px );
 	}
 
 	.dops-section-header__label-text {

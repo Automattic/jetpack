@@ -84,7 +84,7 @@ if ( ! function_exists( 'jetpack_author_bio' ) ) {
 					?>
 				</a>
 			</p><!-- .author-bio -->
-		</div><!-- .entry-auhtor -->
+		</div><!-- .entry-author -->
 		<?php
 	}
 
