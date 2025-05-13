@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: Added protected owner error handling.
