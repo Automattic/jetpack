@@ -709,7 +709,7 @@ export function dockerDefine( yargs ) {
 				.command( {
 					command: 'phpunit <target>',
 					description:
-						'Run PHPUnit tests inside container, for plugins that require a WordPress install.\n\nMost projects do not need a WordPress install, and can be tested on the host by using the `jetpack test` command. If you really want to run them inside the container anyway, see docs in docs/development-environment.md.',
+						'Run PHPUnit tests inside container for plugins that require a WordPress install.\n\nMost projects do not need a WordPress install, and can be tested on the host by using the `jetpack test` command. If you really want to run them inside the container anyway, see docs in docs/development-environment.md.',
 					builder: yargCmd =>
 						defaultOpts( yargCmd )
 							.option( 'php', {
