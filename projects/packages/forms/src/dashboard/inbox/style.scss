@@ -89,8 +89,8 @@ $action-bar-height: 88px;
 	flex-direction: column;
 	min-height: 300px;
 	overflow: hidden;
-	width: 100%;
 	background-color: #fff;
+	margin: 20px 20px 20px 0;
 	position: relative;
 
 	&::before {
@@ -303,7 +303,9 @@ $action-bar-height: 88px;
 
 	.dataviews-wrapper {
 		background: #fff;
-		border-radius: 8px;
+		height: auto;
+		overflow: visible;
+		border-right: 1px solid var(--jp-gray-5);
 
 		.dataviews__view-actions {
 			align-items: center;
