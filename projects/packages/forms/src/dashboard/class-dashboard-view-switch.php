@@ -92,20 +92,14 @@ class Dashboard_View_Switch {
 				margin: 0 0 0 6px;
 			}
 
-			.toplevel_page_jetpack-forms :not(#screen-meta-links) > #jetpack-forms__view-link-wrap,
-			.jetpack_page_jetpack-forms :not(#screen-meta-links) > #jetpack-forms__view-link-wrap,
-			.feedback_page_jetpack-forms :not(#screen-meta-links) > #jetpack-forms__view-link-wrap,
-			.admin_page_jetpack-forms :not(#screen-meta-links) > #jetpack-forms__view-link-wrap {
+			body[class*="_page_jetpack-forms"] :not(#screen-meta-links) > #jetpack-forms__view-link-wrap {
 				position: absolute;
 				right: 32px;
 				top: 0;
 				z-index: 179;
 			}
 
-			.toplevel_page_jetpack-forms #jetpack-forms__view-link,
-			.jetpack_page_jetpack-forms #jetpack-forms__view-link,
-			.feedback_page_jetpack-forms #jetpack-forms__view-link,
-			.admin_page_jetpack-forms #jetpack-forms__view-link {
+			body[class*="_page_jetpack-forms"] #jetpack-forms__view-link {
 				background-color: #fff;
 				border: 1px solid #c3c4c7;
 				border-top: none;
@@ -117,10 +111,7 @@ class Dashboard_View_Switch {
 				padding: 3px 6px 3px 16px;
 			}
 
-			.toplevel_page_jetpack-forms #jetpack-forms__view-link::after,
-			.jetpack_page_jetpack-forms #jetpack-forms__view-link::after,
-			.feedback_page_jetpack-forms #jetpack-forms__view-link::after,
-			.admin_page_jetpack-forms #jetpack-forms__view-link::after {
+			body[class*="_page_jetpack-forms"] #jetpack-forms__view-link::after {
 				right: 0;
 				content: "\\f140";
 				font: normal 20px/1 dashicons;
