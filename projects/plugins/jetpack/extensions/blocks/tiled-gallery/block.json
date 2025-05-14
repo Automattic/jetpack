@@ -84,8 +84,8 @@
 					"source": "attribute"
 				},
 				"customLink": {
-					"attribute": "data-custom-link",
-					"selector": "img",
+					"attribute": "href",
+					"selector": "a",
 					"source": "attribute"
 				},
 				"url": {

@@ -31,7 +31,6 @@ export default function GalleryImageSave( props ) {
 			data-id={ id }
 			data-link={ link }
 			data-url={ origUrl }
-			data-custom-link={ customLink }
 			data-width={ width }
 			src={ url }
 		/>
