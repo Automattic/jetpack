@@ -241,8 +241,9 @@ class REST_Controller {
 
 		$module_active          = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
 		$instant_search_enabled = isset( $request_body['instant_search_enabled'] ) ? (bool) $request_body['instant_search_enabled'] : null;
+		$use_new_inline_search  = isset( $request_body['use_new_inline_search'] ) ? (bool) $request_body['use_new_inline_search'] : null;
 
-		$error = $this->validate_search_settings( $module_active, $instant_search_enabled );
+		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $use_new_inline_search );
 
 		if ( is_wp_error( $error ) ) {
 			return $error;
@@ -265,6 +266,13 @@ class REST_Controller {
 			$instant_search_enabled_updated = $this->search_module->update_instant_search_status( $instant_search_enabled );
 			if ( is_wp_error( $instant_search_enabled_updated ) ) {
 				$errors['instant_search_enabled'] = $instant_search_enabled_updated;
+			}
+		}
+
+		if ( $use_new_inline_search !== null ) {
+			$use_new_inline_search_updated = $this->search_module->update_use_new_inline_search( $use_new_inline_search );
+			if ( is_wp_error( $use_new_inline_search_updated ) ) {
+				$errors['use_new_inline_search'] = $use_new_inline_search_updated;
 			}
 		}
 
@@ -291,8 +299,13 @@ class REST_Controller {
 	 *
 	 * @param boolean $module_active - Module status.
 	 * @param boolean $instant_search_enabled - Instant Search status.
+	 * @param boolean $use_new_inline_search - New inline search status.
 	 */
-	protected function validate_search_settings( $module_active, $instant_search_enabled ) {
+	protected function validate_search_settings( $module_active, $instant_search_enabled, $use_new_inline_search ) {
+		if ( $module_active === null && $instant_search_enabled === null && $use_new_inline_search !== null ) {
+			// allow updating 'use_new_inline_search' without updating/validating other settings.
+			return true;
+		}
 		if ( ( true === $instant_search_enabled && false === $module_active ) || ( $module_active === null && $instant_search_enabled === null ) ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
@@ -311,6 +324,7 @@ class REST_Controller {
 			array(
 				'module_active'          => $this->search_module->is_active(),
 				'instant_search_enabled' => $this->search_module->is_instant_search_enabled(),
+				'use_new_inline_search'  => $this->search_module->is_using_new_inline_search(),
 			)
 		);
 	}

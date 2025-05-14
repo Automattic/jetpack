@@ -116,6 +116,7 @@ class REST_Controller_Test extends Search_TestCase {
 		$new_settings = array(
 			'module_active'          => true,
 			'instant_search_enabled' => true,
+			'use_new_inline_search'  => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -134,6 +135,7 @@ class REST_Controller_Test extends Search_TestCase {
 		$new_settings = array(
 			'module_active'          => false,
 			'instant_search_enabled' => true,
+			'use_new_inline_search'  => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -165,6 +167,7 @@ class REST_Controller_Test extends Search_TestCase {
 		$new_settings = array(
 			'module_active'          => false,
 			'instant_search_enabled' => false,
+			'use_new_inline_search'  => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -186,6 +189,7 @@ class REST_Controller_Test extends Search_TestCase {
 		$expected     = array(
 			'module_active'          => false,
 			'instant_search_enabled' => false,
+			'use_new_inline_search'  => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -207,6 +211,51 @@ class REST_Controller_Test extends Search_TestCase {
 		$expected     = array(
 			'module_active'          => true,
 			'instant_search_enabled' => true,
+			'use_new_inline_search'  => false,
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $new_settings ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( $expected, $response->get_data() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
+	 */
+	public function test_update_search_settings_success_enable_inline_search() {
+		wp_set_current_user( $this->admin_id );
+		$new_settings = array(
+			'use_new_inline_search' => true,
+		);
+		$expected     = array(
+			'module_active'          => false,
+			'instant_search_enabled' => false,
+			'use_new_inline_search'  => true,
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $new_settings ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( $expected, $response->get_data() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
+	 */
+	public function test_update_search_settings_success_disable_inline_search() {
+		wp_set_current_user( $this->admin_id );
+		$new_settings = array(
+			'use_new_inline_search' => false,
+		);
+		$expected     = array(
+			'module_active'          => false,
+			'instant_search_enabled' => false,
+			'use_new_inline_search'  => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );

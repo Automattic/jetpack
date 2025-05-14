@@ -29,7 +29,8 @@ class Inline_Search extends Classic_Search {
 	 * Returns whether this class should be used instead of Classic_Search.
 	 */
 	public static function should_replace_classic_search(): bool {
-		return (bool) apply_filters( 'jetpack_search_replace_classic', false );
+		$option_value = get_option( Module_Control::SEARCH_MODULE_USE_NEW_INLINE_SEARCH_OPTION_KEY, false );
+		return (bool) apply_filters( 'jetpack_search_replace_classic', $option_value );
 	}
 
 	/**
