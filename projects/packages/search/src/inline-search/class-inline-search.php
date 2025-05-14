@@ -91,6 +91,7 @@ class Inline_Search extends Classic_Search {
 
 		if ( ! is_array( $this->search_result ) ) {
 			do_action( 'jetpack_search_abort', 'no_search_results_array', $this->search_result );
+
 			return $posts;
 		}
 
@@ -136,6 +137,7 @@ class Inline_Search extends Classic_Search {
 	public function do_search( \WP_Query $query ) {
 		if ( ! $this->should_handle_query( $query ) ) {
 			do_action( 'jetpack_search_abort', 'search_attempted_non_search_query', $query );
+
 			return;
 		}
 
@@ -181,8 +183,8 @@ class Inline_Search extends Classic_Search {
 		 *
 		 * @since  5.0.0
 		 *
-		 * @param array     $wp_query_args The current query args, in WP_Query format.
-		 * @param \WP_Query $query            The original WP_Query object.
+		 * @param array $wp_query_args The current query args, in WP_Query format.
+		 * @param \WP_Query $query The original WP_Query object.
 		 */
 		$wp_query_args = apply_filters( 'jetpack_search_es_wp_query_args', $wp_query_args, $query );
 
@@ -203,15 +205,17 @@ class Inline_Search extends Classic_Search {
 		}
 
 		// Convert the WP-style args into ES args.
-		$es_query_args = $this->convert_wp_query_to_api_args( $wp_query_args );
+		$api_query_args = $this->convert_wp_query_to_api_args( $wp_query_args );
+		$api_query_args = $this->trigger_es_query_args_filter( $api_query_args, $query );
+		$api_query_args = $this->trigger_instant_search_query_args_filter( $api_query_args );
 
 		// Only trust ES to give us IDs, not the content since it is a mirror.
-		$es_query_args['fields'] = array(
+		$api_query_args['fields'] = array(
 			'post_id',
 		);
 
 		// Do the actual search query!
-		$this->search_result = $this->search( $es_query_args );
+		$this->search_result = $this->search( $api_query_args );
 
 		if ( is_wp_error( $this->search_result ) || ! is_array( $this->search_result ) || empty( $this->search_result['results'] ) || ! is_array( $this->search_result['results'] ) ) {
 			$this->found_posts = 0;
@@ -332,6 +336,108 @@ class Inline_Search extends Classic_Search {
 	}
 
 	/**
+	 * Trigger the jetpack_search_es_query_args filter for compatibility with Classic Search.
+	 *
+	 * The arguments can only be simulated, so this is not a 1:1 replacement.
+	 * We support only some modifications, since not all of them are supported by Instant API.
+	 * The goal is to support all common ones.
+	 *
+	 * @param array     $api_query_args Array of API query arguments.
+	 * @param \WP_Query $query The original WP_Query object.
+	 *
+	 * @return array
+	 */
+	private function trigger_es_query_args_filter( array $api_query_args, \WP_Query $query ): array {
+		$es_query_args = array(
+			'blog_id'      => $api_query_args['blog_id'] ?? 1,
+			'size'         => $api_query_args['size'] ?? 10,
+			'from'         => $api_query_args['from'] ?? 0,
+			'sort'         => array(
+				array( '_score' => array( 'order' => 'desc' ) ),
+			),
+			'filter'       => $api_query_args['filter'] ?? array(),
+			'query'        => array(
+				'function_score' => array(
+					'query'      => array(
+						'bool' => array(
+							'must' => array(
+								array(
+									'multi_match' => array(
+										'fields'   => array( 'title.en' ),
+										'query'    => $api_query_args['query'] ?? '',
+										'operator' => 'and',
+									),
+								),
+							),
+						),
+					),
+					'functions'  => array( array( 'gauss' => array( 'date_gmt' => array( 'origin' => '2025-05-13' ) ) ) ),
+					'max_boost'  => 2.0,
+					'score_mode' => 'multiply',
+					'boost_mode' => 'multiply',
+				),
+			),
+			'aggregations' => $api_query_args['aggregations'] ?? array(),
+			'fields'       => $api_query_args['fields'] ?? array(),
+		);
+
+		$es_query_args = apply_filters( 'jetpack_search_es_query_args', $es_query_args, $query );
+
+		if ( ! empty( $es_query_args['aggregations'] ) && is_array( $es_query_args['aggregations'] ) ) {
+			$api_query_args['aggregations'] = $es_query_args['aggregations'];
+		}
+		$api_query_args['filter'] = $es_query_args['filter'] ?? $api_query_args['filter'];
+		$api_query_args['size']   = $es_query_args['size'] ?? $api_query_args['size'];
+		$api_query_args['from']   = $es_query_args['from'] ?? $api_query_args['from'];
+		if ( isset( $es_query_args['query']['bool']['must_not'] ) ) {
+			$api_query_args['filter'] = array(
+				'bool' => array(
+					'must_not' => $es_query_args['query']['bool']['must_not'],
+					'filter'   => array(
+						$api_query_args['filter'],
+					),
+				),
+			);
+		}
+		if ( isset( $es_query_args['query']['bool']['filter'] ) && is_array( $es_query_args['query']['bool']['filter'] ) ) {
+			$new_filter = array(
+				'bool' => array(
+					'filter' => $es_query_args['query']['bool']['filter'],
+				),
+			);
+			if ( ! empty( $api_query_args['filter'] ) ) {
+				$new_filter['bool']['filter'][] = $api_query_args['filter'];
+			}
+			$api_query_args['filter'] = $new_filter;
+		}
+
+		return $api_query_args;
+	}
+
+	/**
+	 * Trigger jetpack_instant_search_options for compatibility with Instant Search.
+	 *
+	 * @param array $api_query_args Array of API query arguments.
+	 *
+	 * @return array
+	 */
+	private function trigger_instant_search_query_args_filter( array $api_query_args ): array {
+		// this will trigger jetpack_instant_search_options filter
+		$options = Helper::generate_initial_javascript_state();
+
+		if ( isset( $options['adminQueryFilter'] ) ) {
+			$api_query_args['filter'] = array(
+				'bool' => array(
+					'filter' => $api_query_args['filter'],
+					'must'   => $options['adminQueryFilter'],
+				),
+			);
+		}
+
+		return $api_query_args;
+	}
+
+	/**
 	 * Return array of languages to search on after executing the dedicated filter.
 	 *
 	 * @return array
@@ -419,6 +525,7 @@ class Inline_Search extends Classic_Search {
 	protected function instant_api( array $es_args ) {
 		$instant_search                  = new Instant_Search();
 		$instant_search->jetpack_blog_id = $this->jetpack_blog_id;
+
 		return $instant_search->instant_api( $es_args );
 	}
 
