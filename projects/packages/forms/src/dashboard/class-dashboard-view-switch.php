@@ -30,18 +30,6 @@ class Dashboard_View_Switch {
 	const MODERN_VIEW = 'modern';
 
 	/**
-	 * Modern screen IDs.
-	 *
-	 * @var array
-	 */
-	const MODERN_SCREEN_IDS = array(
-		'toplevel_page_jetpack-forms',
-		'admin_page_jetpack-forms',
-		'jetpack_page_jetpack-forms',
-		'feedback_page_jetpack-forms',
-	);
-
-	/**
 	 * Initialize the switch.
 	 */
 	public function init() {
@@ -315,12 +303,15 @@ CSS
 	 * @return boolean
 	 */
 	public function is_modern_view() {
-		$screen = get_current_screen();
+		// The menu slug might vary depending on language, but modern view is always a jetpack-forms page.
+		// See: https://a8c.slack.com/archives/C03TY6J1A/p1747148941583849
+		$page_hook_suffix = '_page_jetpack-forms';
+		$screen           = get_current_screen();
 
 		// When classic view is set as preferred, jetpack-forms is registered under different
 		// parents so it doesn't appear in the menu.
 		// Because of this, we need to support these screens.
-		return $screen && in_array( $screen->id, self::MODERN_SCREEN_IDS, true );
+		return $screen && str_ends_with( $screen->id, $page_hook_suffix );
 	}
 
 	/**
