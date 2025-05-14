@@ -105,8 +105,7 @@ class Inline_Search_Highlighter {
 			return $content;
 		}
 
-		// Skip highlighting if we're in a block theme context
-		// Let the block filters handle it instead
+		// Skip highlighting if we're in a block theme context in favour of filter_render_highlighted_block().
 		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
 			return $content;
 		}
