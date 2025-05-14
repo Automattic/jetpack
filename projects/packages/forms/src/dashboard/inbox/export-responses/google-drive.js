@@ -7,11 +7,11 @@ import { Button, Spinner } from '@wordpress/components';
 import { useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { config } from '../..';
-import { useIntegrationStatus } from '../../../blocks/contact-form/components/jetpack-integrations-modal/hooks/useIntegrationStatus';
 /**
  * Internal dependencies
  */
+import { config } from '../..';
+import { useIntegrationStatus } from '../../../blocks/contact-form/components/jetpack-integrations-modal/hooks/useIntegrationStatus';
 import { PARTIAL_RESPONSES_PATH, PREFERRED_VIEW } from '../../../util/get-preferred-responses-view';
 
 const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
