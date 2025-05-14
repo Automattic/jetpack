@@ -250,8 +250,8 @@ class Instant_Search extends Classic_Search {
 		$response_code = wp_remote_retrieve_response_code( $request );
 		$response      = json_decode( wp_remote_retrieve_body( $request ), true );
 
-		if ( isset( $response['revert_to_classic_search'] ) && $response['revert_to_classic_search'] === true ) {
-			update_option( Module_Control::SEARCH_MODULE_USE_NEW_INLINE_SEARCH_OPTION_KEY, false );
+		if ( isset( $response['swap_classic_to_inline_search'] ) && $response['swap_classic_to_inline_search'] === false ) {
+			update_option( Module_Control::SEARCH_MODULE_SWAP_CLASSIC_TO_INLINE_OPTION_KEY, false );
 		}
 
 		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {

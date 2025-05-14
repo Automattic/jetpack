@@ -389,8 +389,8 @@ class Classic_Search {
 		}
 
 		$response = json_decode( wp_remote_retrieve_body( $request ), true );
-		if ( isset( $response['use_new_inline_search'] ) && $response['use_new_inline_search'] === true ) {
-			update_option( Module_Control::SEARCH_MODULE_USE_NEW_INLINE_SEARCH_OPTION_KEY, true );
+		if ( isset( $response['swap_classic_to_inline_search'] ) && $response['swap_classic_to_inline_search'] === true ) {
+			update_option( Module_Control::SEARCH_MODULE_SWAP_CLASSIC_TO_INLINE_OPTION_KEY, true );
 		}
 
 		$took = is_array( $response ) && ! empty( $response['took'] )

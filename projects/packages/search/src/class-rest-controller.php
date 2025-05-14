@@ -239,11 +239,11 @@ class REST_Controller {
 	public function update_settings( $request ) {
 		$request_body = $request->get_json_params();
 
-		$module_active          = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
-		$instant_search_enabled = isset( $request_body['instant_search_enabled'] ) ? (bool) $request_body['instant_search_enabled'] : null;
-		$use_new_inline_search  = isset( $request_body['use_new_inline_search'] ) ? (bool) $request_body['use_new_inline_search'] : null;
+		$module_active                 = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
+		$instant_search_enabled        = isset( $request_body['instant_search_enabled'] ) ? (bool) $request_body['instant_search_enabled'] : null;
+		$swap_classic_to_inline_search = isset( $request_body['swap_classic_to_inline_search'] ) ? (bool) $request_body['swap_classic_to_inline_search'] : null;
 
-		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $use_new_inline_search );
+		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search );
 
 		if ( is_wp_error( $error ) ) {
 			return $error;
@@ -269,10 +269,10 @@ class REST_Controller {
 			}
 		}
 
-		if ( $use_new_inline_search !== null ) {
-			$use_new_inline_search_updated = $this->search_module->update_use_new_inline_search( $use_new_inline_search );
-			if ( is_wp_error( $use_new_inline_search_updated ) ) {
-				$errors['use_new_inline_search'] = $use_new_inline_search_updated;
+		if ( $swap_classic_to_inline_search !== null ) {
+			$swap_classic_to_inline_search_updated = $this->search_module->update_swap_classic_to_inline_search( $swap_classic_to_inline_search );
+			if ( is_wp_error( $swap_classic_to_inline_search_updated ) ) {
+				$errors['swap_classic_to_inline_search'] = $swap_classic_to_inline_search_updated;
 			}
 		}
 
@@ -299,11 +299,11 @@ class REST_Controller {
 	 *
 	 * @param boolean $module_active - Module status.
 	 * @param boolean $instant_search_enabled - Instant Search status.
-	 * @param boolean $use_new_inline_search - New inline search status.
+	 * @param boolean $swap_classic_to_inline_search - New inline search status.
 	 */
-	protected function validate_search_settings( $module_active, $instant_search_enabled, $use_new_inline_search ) {
-		if ( $module_active === null && $instant_search_enabled === null && $use_new_inline_search !== null ) {
-			// allow updating 'use_new_inline_search' without updating/validating other settings.
+	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search ) {
+		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search !== null ) {
+			// allow updating 'swap_classic_to_inline_search' without updating/validating other settings.
 			return true;
 		}
 		if ( ( true === $instant_search_enabled && false === $module_active ) || ( $module_active === null && $instant_search_enabled === null ) ) {
@@ -322,9 +322,9 @@ class REST_Controller {
 	public function get_settings() {
 		return rest_ensure_response(
 			array(
-				'module_active'          => $this->search_module->is_active(),
-				'instant_search_enabled' => $this->search_module->is_instant_search_enabled(),
-				'use_new_inline_search'  => $this->search_module->is_using_new_inline_search(),
+				'module_active'                 => $this->search_module->is_active(),
+				'instant_search_enabled'        => $this->search_module->is_instant_search_enabled(),
+				'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
 			)
 		);
 	}
