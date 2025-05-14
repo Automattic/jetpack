@@ -1216,16 +1216,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
 			}
 
-			if ( isset( $outline_styles['radius'] ) ) {
-				$has_split_radius_values = is_array( $outline_styles['radius'] );
-				$top_left_radius         = $has_split_radius_values ? $outline_styles['radius']['topLeft'] : $outline_styles['radius'];
-				$top_right_radius        = $has_split_radius_values ? $outline_styles['radius']['topRight'] : $outline_styles['radius'];
-				$bottom_left_radius      = $has_split_radius_values ? $outline_styles['radius']['bottomLeft'] : $outline_styles['radius'];
-				$bottom_right_radius     = $has_split_radius_values ? $outline_styles['radius']['bottomRight'] : $outline_styles['radius'];
+			if ( isset( $outline_styles['border']['radius'] ) ) {
+				$radius                  = $outline_styles['border']['radius'];
+				$has_split_radius_values = is_array( $radius );
+				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
+				$top_right_radius        = $has_split_radius_values ? $radius['topRight'] : $radius;
+				$bottom_left_radius      = $has_split_radius_values ? $radius['bottomLeft'] : $radius;
+				$bottom_right_radius     = $has_split_radius_values ? $radius['bottomRight'] : $radius;
 				$outline_border_radius  .= "border-top-left-radius: min( 100px, ${top_left_radius} ) ${top_left_radius};";
 				$outline_border_radius  .= "border-top-right-radius: min( 100px, ${top_right_radius} ) ${top_right_radius};";
 				$outline_border_radius  .= "border-bottom-left-radius: min( 100px, ${bottom_left_radius} ) ${bottom_left_radius};";
 				$outline_border_radius  .= "border-bottom-right-radius: min( 100px, ${bottom_right_radius} ) ${bottom_right_radius};";
+
 			}
 		}
 
