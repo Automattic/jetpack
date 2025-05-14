@@ -378,7 +378,19 @@ async function generatePluginFromStarter( projDir, answers ) {
 	files = files.split( '\n' ).map( str => str.replace( 'projects/plugins/starter-plugin', '' ) );
 	files.forEach( file => {
 		if ( file && ! file.startsWith( 'changelog/' ) ) {
-			copyFile( path.join( projDir, file ), path.join( starterDir, file ) );
+			if ( file === 'tests/php/Jetpack_Starter_Plugin_Test.php' ) {
+				copyFile(
+					path.join(
+						projDir,
+						'tests/php/' + transformToPhpClassName( answers.name, false ) + '_Test.php'
+					),
+					path.join( starterDir, file )
+				);
+			} else if ( file === 'CHANGELOG.md' ) {
+				copyFile( path.join( projDir, file ), 'tools/cli/skeletons/common/CHANGELOG.md' );
+			} else {
+				copyFile( path.join( projDir, file ), path.join( starterDir, file ) );
+			}
 		}
 	} );
 
