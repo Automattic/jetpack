@@ -15,7 +15,7 @@ function wpcom_lm_maybe_add_map_meta_cap_filter() {
 		return;
 	}
 
-	if ( wpcom_site_has_feature( WPCOM_Features::LOCKED_MODE ) && get_option( 'wpcom_locked_mode' ) ) {
+	if ( get_option( 'wpcom_locked_mode' ) && wpcom_site_has_feature( WPCOM_Features::LOCKED_MODE ) ) {
 		add_filter( 'map_meta_cap', 'wpcom_lm_remove_post_capabilities', 10, 2 );
 	} else {
 		remove_filter( 'map_meta_cap', 'wpcom_lm_remove_post_capabilities' );
@@ -199,7 +199,7 @@ function wpcom_lm_remove_post_capabilities( $caps, $cap ) {
  * @param bool $comments_open Whether the current post is open for comments.
  */
 function wpcom_lm_disable_comments( $comments_open ) {
-	if ( wpcom_site_has_feature( WPCOM_Features::LOCKED_MODE ) && get_option( 'wpcom_locked_mode' ) ) {
+	if ( get_option( 'wpcom_locked_mode' ) && wpcom_site_has_feature( WPCOM_Features::LOCKED_MODE ) ) {
 		return false;
 	}
 
