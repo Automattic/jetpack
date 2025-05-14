@@ -319,14 +319,25 @@ if ( jpcrm_do_critical_prerun_checks() ) {
 		zeroBSCRM_performanceTest_startTimer( 'plugin-load' );
 	}
 
-	// Include the main Jetpack CRM class.
-	if ( ! class_exists( 'ZeroBSCRM' ) ) {
-		include_once __DIR__ . '/includes/ZeroBSCRM.Core.php';
-	}
+	add_action(
+		'init',
+		function () {
+			if ( ! class_exists( 'ZeroBSCRM' ) ) {
+				include_once __DIR__ . '/includes/ZeroBSCRM.Core.php';
+			}
+			global $zbs;
+			$zbs = ZeroBSCRM::instance();
+		},
+		0
+	);
 
-	// Initiate ZBS Main Core
-	global $zbs;
-	$zbs = ZeroBSCRM::instance();
+	add_action(
+		'plugins_loaded',
+		function () {
+			load_plugin_textdomain( 'zero-bs-crm', false, ZBS_LANG_DIR );
+		},
+		0
+	);
 
 	// close timer (at this point we'll have perf library)
 	if ( defined( 'ZBSPERFTEST' ) ) {
