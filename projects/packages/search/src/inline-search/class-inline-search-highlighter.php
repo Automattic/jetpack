@@ -49,8 +49,8 @@ class Inline_Search_Highlighter {
 		add_filter( 'the_content', array( $this, 'filter_highlighted_content' ) );
 		add_filter( 'the_excerpt', array( $this, 'filter_highlighted_content' ) );
 		add_filter( 'comment_text', array( $this, 'filter_highlighted_comment' ), 10, 2 );
-		add_filter( 'render_block_core/post-excerpt', array( $this, 'filter_render_excerpt_block' ), 10, 3 );
-		add_filter( 'render_block_core/post-content', array( $this, 'filter_render_excerpt_block' ), 10, 3 );
+		add_filter( 'render_block_core/post-excerpt', array( $this, 'filter_render_highlighted_block' ), 10, 3 );
+		add_filter( 'render_block_core/post-content', array( $this, 'filter_render_highlighted_block' ), 10, 3 );
 	}
 
 	/**
@@ -200,7 +200,7 @@ class Inline_Search_Highlighter {
 	}
 
 	/**
-	 * Filter for rendering post excerpts with highlights when available
+	 * Filter for rendering highlighted content when highlighting is returned from the API.
 	 *
 	 * @param string $block_content The block content.
 	 * @param array  $block The block data.
@@ -209,7 +209,7 @@ class Inline_Search_Highlighter {
 	 * @return string The filtered block content.
 	 * @since $$next-version$$
 	 */
-	public function filter_render_excerpt_block( string $block_content, array $block, object $instance ): string {
+	public function filter_render_highlighted_block( string $block_content, array $block, object $instance ): string {
 		if ( ! isset( $instance->context['postId'] ) || ! $this->is_search_result( $instance->context['postId'] ) ) {
 			return $block_content;
 		}
