@@ -200,17 +200,6 @@ class Inline_Search_Highlighter {
 	}
 
 	/**
-	 * Get the highlighted content for a post.
-	 *
-	 * @param int $post_id The post ID.
-	 *
-	 * @return array|null The highlighted content array or null if not found.
-	 */
-	public function get_highlighted_content( int $post_id ): ?array {
-		return $this->highlighted_content[ $post_id ] ?? null;
-	}
-
-	/**
 	 * Filter for rendering post excerpts with highlights when available
 	 *
 	 * @param string $block_content The block content.
@@ -225,7 +214,7 @@ class Inline_Search_Highlighter {
 			return $block_content;
 		}
 
-		$highlighted_content = $this->get_highlighted_content( $instance->context['postId'] );
+		$highlighted_content = $this->highlighted_content[ $instance->context['postId'] ] ?? null;
 
 		// If we don't have any highlighted content or comments, return the original block content
 		if ( empty( $highlighted_content['content'] ) && empty( $highlighted_content['comments'] ) ) {
@@ -320,7 +309,7 @@ class Inline_Search_Highlighter {
 		// Mark that we're processing this post
 		$processing_ids[ $post_id ] = true;
 
-		$highlighted_content = $this->get_highlighted_content( $post_id );
+		$highlighted_content = $this->highlighted_content[ $instance->context['postId'] ] ?? null;
 		if ( empty( $highlighted_content['content'] ) ) {
 			unset( $processing_ids[ $post_id ] );
 			return $block_content;
