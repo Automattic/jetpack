@@ -556,7 +556,6 @@ class Woo_Sync {
 
 		// WooCommerce My Account
 		wp_register_style( 'jpcrm-woo-sync-my-account', plugins_url( '/css/jpcrm-woo-sync-my-account' . wp_scripts_get_suffix() . '.css', JPCRM_WOO_SYNC_ROOT_FILE ) );
-		wp_register_style( 'jpcrm-woo-sync-fa', plugins_url( '/vendor/fortawesome/font-awesome/css/font-awesome' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ) );
 
 	}
 
