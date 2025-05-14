@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+loads translations at the correct time
