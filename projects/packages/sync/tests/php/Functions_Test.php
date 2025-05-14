@@ -29,12 +29,10 @@ class Functions_Test extends BaseTestCase {
 	public function test_get_environment_type_with_env_variable() {
 		if ( ! function_exists( 'putenv' ) || ! function_exists( 'getenv' ) ) {
 			$this->markTestSkipped( 'putenv() or getenv() functions are not available.' );
-			return;
 		}
 
 		if ( defined( 'WP_ENVIRONMENT_TYPE' ) ) {
 			$this->markTestSkipped( 'WP_ENVIRONMENT_TYPE constant is already defined. Cannot test environment variable handling.' );
-			return;
 		}
 
 		$original_env = getenv( 'WP_ENVIRONMENT_TYPE' );
