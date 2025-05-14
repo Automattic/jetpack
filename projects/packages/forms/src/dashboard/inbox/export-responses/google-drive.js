@@ -133,7 +133,7 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 
 							{ ! isConnectedToGoogleDrive && isUserConnected && (
 								<Button
-									href={ integration?.settingsUrl }
+									href={ config( 'gdriveConnectURL' ) }
 									className={ buttonClasses }
 									variant="primary"
 									rel="noopener noreferrer"
