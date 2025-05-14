@@ -342,6 +342,10 @@
 		border-radius: 0;
 	}
 
+	:where( .jetpack-field-dropdown__toggle ) {
+		background-color: var(--jetpack--contact-form--input-background);
+	}
+
 	// Reduced specificity to 0,1,0 so that global styles can override it.
 	:where( .jetpack-field__textarea ) {
 		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
