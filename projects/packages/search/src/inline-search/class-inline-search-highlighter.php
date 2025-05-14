@@ -46,11 +46,11 @@ class Inline_Search_Highlighter {
 	 */
 	public function setup() {
 		add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
-		add_filter( 'the_content', array( $this, 'filter_highlighted_content' ), 10, 1 );
-		add_filter( 'the_excerpt', array( $this, 'filter_highlighted_content' ), 10, 1 );
+		add_filter( 'the_content', array( $this, 'filter_highlighted_content' ) );
+		add_filter( 'the_excerpt', array( $this, 'filter_highlighted_content' ) );
 		add_filter( 'comment_text', array( $this, 'filter_highlighted_comment' ), 10, 2 );
 		add_filter( 'render_block_core/post-excerpt', array( $this, 'filter_render_excerpt_block' ), 10, 3 );
-		add_filter( 'render_block_core/post-content', array( $this, 'filter_render_content_block' ), 10, 3 );
+		add_filter( 'render_block_core/post-content', array( $this, 'filter_render_excerpt_block' ), 10, 3 );
 	}
 
 	/**
@@ -255,80 +255,5 @@ class Inline_Search_Highlighter {
 		}
 
 		return sprintf( '<div %1$s>%2$s</div>', $wrapper_attributes, $block_content );
-	}
-
-	/**
-	 * Apply highlighting to content using the extracted terms
-	 *
-	 * @param string $content The content to highlight.
-	 * @param array  $terms Array of terms to highlight.
-	 *
-	 * @return string The highlighted content.
-	 * @since $$next-version$$
-	 */
-	private function apply_highlighting( string $content, array $terms ): string {
-		if ( empty( $terms ) || empty( $content ) ) {
-			return $content;
-		}
-
-		$result = $content;
-		foreach ( $terms as $term ) {
-			$pattern = '/\b(' . preg_quote( $term, '/' ) . ')\b/ui';
-			$result  = preg_replace( $pattern, '<mark>$1</mark>', $result );
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Filter for rendering post content with highlights when available
-	 *
-	 * @param string $block_content The block content.
-	 * @param array  $block The block data.
-	 * @param object $instance The block instance.
-	 *
-	 * @return string The filtered block content.
-	 * @since $$next-version$$
-	 */
-	public function filter_render_content_block( string $block_content, array $block, object $instance ): string {
-		// This static array should only track recursive rendering prevention,
-		// not prevent highlighting multiple instances of the same post in search results.
-		static $processing_ids = array();
-
-		if ( ! isset( $instance->context['postId'] ) || ! $this->is_search_result( $instance->context['postId'] ) ) {
-			return $block_content;
-		}
-
-		$post_id = $instance->context['postId'];
-
-		// Skip if we're already processing this post (prevents infinite loops)
-		if ( isset( $processing_ids[ $post_id ] ) ) {
-			return $block_content;
-		}
-
-		// Mark that we're processing this post
-		$processing_ids[ $post_id ] = true;
-
-		$highlighted_content = $this->highlighted_content[ $instance->context['postId'] ] ?? null;
-		if ( empty( $highlighted_content['content'] ) ) {
-			unset( $processing_ids[ $post_id ] );
-			return $block_content;
-		}
-
-		// Extract highlighted terms from the API response
-		preg_match_all( '/<mark[^>]*>(.*?)<\/mark>/i', $highlighted_content['content'], $matches );
-
-		if ( empty( $matches[1] ) ) {
-			unset( $processing_ids[ $post_id ] );
-			return $block_content;
-		}
-
-		$terms = array_unique( $matches[1] );
-
-		// Apply highlighting to the entire content, including any nested blocks
-		$result = $this->apply_highlighting( $block_content, $terms );
-
-		unset( $processing_ids[ $post_id ] );
-		return $result;
 	}
 }
