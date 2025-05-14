@@ -7,7 +7,13 @@
  * @package automattic/jetpack-paypal-payments
  */
 
+namespace Automattic\Jetpack\Paypal_Payments;
+
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Jetpack;
+use Jetpack_Components;
+use Jetpack_Currencies;
+use Jetpack_Options;
 
 /**
  * Jetpack_Simple_Payments
