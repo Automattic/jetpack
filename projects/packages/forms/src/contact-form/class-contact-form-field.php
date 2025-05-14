@@ -1216,6 +1216,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
 			}
 
+			// When there's an outlined style, and border radius is set, we override the inline border radius to apply
+			// a limit of `100px` to the radius on the x axis. This achieves the same look and feel as other fields
+			// that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
 			if ( isset( $outline_styles['border']['radius'] ) ) {
 				$radius                  = $outline_styles['border']['radius'];
 				$has_split_radius_values = is_array( $radius );
