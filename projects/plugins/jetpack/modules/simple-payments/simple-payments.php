@@ -78,6 +78,7 @@ class Jetpack_Simple_Payments {
 	 * Create instance of class.
 	 */
 	public static function get_instance() {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::get_instance' );
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hooks();
@@ -137,6 +138,7 @@ class Jetpack_Simple_Payments {
 	 * Actions that are run on init.
 	 */
 	public function init_hook_action() {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::init_hook_action' );
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
 		if ( ! is_admin() ) {
@@ -152,6 +154,7 @@ class Jetpack_Simple_Payments {
 	 * Enqueue the static assets needed in the frontend.
 	 */
 	public function enqueue_frontend_assets() {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::enqueue_frontend_assets' );
 		if ( ! wp_style_is( 'jetpack-simple-payments', 'enqueued' ) ) {
 			wp_enqueue_style( 'jetpack-simple-payments' );
 		}
@@ -169,6 +172,7 @@ class Jetpack_Simple_Payments {
 	 * @param boolean $is_multiple Whether multiple items of the same product can be purchased.
 	 */
 	public function setup_paypal_checkout_button( $id, $dom_id, $is_multiple ) {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::setup_paypal_checkout_button' );
 		wp_add_inline_script(
 			'jetpack-paypal-express-checkout',
 			sprintf(
@@ -187,6 +191,7 @@ class Jetpack_Simple_Payments {
 	 * @param string $content - the content of the post.
 	 */
 	public function remove_auto_paragraph_from_product_description( $content ) {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::remove_auto_paragraph_from_product_description' );
 		if ( get_post_type() === self::$post_type_product ) {
 			remove_filter( 'the_content', 'wpautop' );
 		}
@@ -196,6 +201,7 @@ class Jetpack_Simple_Payments {
 
 	/** Return the blog ID */
 	public function get_blog_id() {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::get_blog_id' );
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return get_current_blog_id();
 		}
@@ -209,6 +215,7 @@ class Jetpack_Simple_Payments {
 	 * @return bool True if Simple Payments are enabled, false otherwise.
 	 */
 	public function is_enabled_jetpack_simple_payments() {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::is_enabled_jetpack_simple_payments' );
 		/**
 		 * Can be used by plugin authors to disable the conflicting output of Simple Payments.
 		 *
@@ -257,6 +264,7 @@ class Jetpack_Simple_Payments {
 	 * @return string|void
 	 */
 	public function parse_shortcode( $attrs, $content = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::parse_shortcode' );
 		if ( empty( $attrs['id'] ) ) {
 			return;
 		}
@@ -305,6 +313,7 @@ class Jetpack_Simple_Payments {
 	 * @param array $data unused.
 	 */
 	public function output_admin_warning( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::output_admin_warning' );
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
@@ -326,6 +335,7 @@ class Jetpack_Simple_Payments {
 	 * @return string
 	 */
 	public function output_purchase_box( $dom_id, $is_multiple ) {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::output_purchase_box' );
 		$items      = '';
 		$css_prefix = self::$css_classname_prefix;
 
@@ -360,6 +370,7 @@ class Jetpack_Simple_Payments {
 	 * @return string
 	 */
 	public function output_shortcode( $data ) {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::output_shortcode' );
 		$css_prefix = self::$css_classname_prefix;
 
 		$image = '';
@@ -435,6 +446,7 @@ class Jetpack_Simple_Payments {
 	 * @param array $post_meta - the post's meta information.
 	 */
 	public function allow_sync_post_meta( $post_meta ) {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::allow_sync_post_meta' );
 		return array_merge(
 			$post_meta,
 			array(
@@ -462,6 +474,7 @@ class Jetpack_Simple_Payments {
 	 * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
 	 */
 	public function register_meta_fields_in_rest_api() {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::register_meta_fields_in_rest_api' );
 		register_meta(
 			'post',
 			'spay_price',
@@ -558,6 +571,7 @@ class Jetpack_Simple_Payments {
 	 * Discussion: https://github.com/Automattic/wp-calypso/pull/28236
 	 */
 	public static function sanitize_currency( $currency ) {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::sanitize_currency' );
 		$valid_currencies = array(
 			'USD',
 			'EUR',
@@ -603,6 +617,7 @@ class Jetpack_Simple_Payments {
 	 * @return null|string
 	 */
 	public static function sanitize_price( $price ) {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::sanitize_price' );
 		return preg_match( '/^[0-9]{0,10}(\.[0-9]{0,2})?$/', $price ) ? $price : false;
 	}
 
@@ -610,6 +625,8 @@ class Jetpack_Simple_Payments {
 	 * Sets up the custom post types for the module.
 	 */
 	public function setup_cpts() {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::setup_cpts' );
+
 		/*
 		 * ORDER data structure. holds:
 		 * title = customer_name | 4xproduct_name
@@ -707,6 +724,7 @@ class Jetpack_Simple_Payments {
 	 * @return bool
 	 */
 	public function is_valid( $attrs ) {
+		_deprecated_function( __METHOD__, 'Jetpack 14.7.0', '\\Automattic\\Jetpack\\PayPal_Payments\\Jetpack_Simple_Payments::is_valid' );
 		if ( ! $this->validate_paypal_email( $attrs ) ) {
 			return false;
 		}
