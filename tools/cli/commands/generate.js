@@ -266,15 +266,15 @@ export function getQuestions( type ) {
 		{
 			type: 'select',
 			name: 'pluginTemplate',
-			message: 'Create a blank plugin or use the Starter plugin?',
+			message: 'Use the Starter plugin or a blank plugin as a template?',
 			choices: [
-				{
-					message: 'Blank plugin',
-					value: 'blank',
-				},
 				{
 					message: 'Use Jetpack Starter plugin',
 					value: 'starter',
+				},
+				{
+					message: 'Blank plugin',
+					value: 'blank',
 				},
 			],
 		},
