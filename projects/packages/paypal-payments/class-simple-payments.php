@@ -9,17 +9,21 @@
 
 namespace Automattic\Jetpack\Paypal_Payments;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Jetpack;
 use Jetpack_Components;
 use Jetpack_Currencies;
 use Jetpack_Options;
+use WP_Post;
 
 /**
  * Jetpack_Simple_Payments
  */
 class Jetpack_Simple_Payments {
 	// These have to be under 20 chars because that is CPT limit.
+
+	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
 	 * Post type order.
@@ -108,18 +112,22 @@ class Jetpack_Simple_Payments {
 			null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			true
 		);
-		wp_register_script(
+		Assets::register_script(
 			'jetpack-paypal-express-checkout',
-			plugins_url( '/paypal-express-checkout.js', __FILE__ ),
-			array( 'jquery', 'paypal-checkout-js' ),
-			JETPACK__VERSION,
-			false
+			'../dist/paypal-express-checkout.js',
+			__FILE__,
+			array(
+				'dependencies' => array(
+					'jquery',
+					'paypal-checkout-js',
+				),
+			)
 		);
 		wp_register_style(
 			'jetpack-simple-payments',
-			plugins_url( '/simple-payments.css', __FILE__ ),
+			'../dist/simple-payments.css',
 			array( 'dashicons' ),
-			JETPACK__VERSION,
+			self::PACKAGE_VERSION,
 			false
 		);
 	}
