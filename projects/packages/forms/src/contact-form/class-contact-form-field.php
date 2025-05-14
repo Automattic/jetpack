@@ -383,7 +383,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// For Outline style support.
 			$form_style = $this->get_form_style();
 			if ( 'outlined' === $form_style || 'animated' === $form_style ) {
-				$output_data         = $this->get_outline_styles();
+				$output_data         = $this->get_outline_styles( $form_style );
 				$this->block_styles .= $output_data['css_vars'];
 			}
 		} else {
@@ -1223,10 +1223,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$top_right_radius        = $has_split_radius_values ? $radius['topRight'] : $radius;
 				$bottom_left_radius      = $has_split_radius_values ? $radius['bottomLeft'] : $radius;
 				$bottom_right_radius     = $has_split_radius_values ? $radius['bottomRight'] : $radius;
-				$outline_border_radius  .= "border-top-left-radius: min( 100px, ${top_left_radius} ) ${top_left_radius};";
-				$outline_border_radius  .= "border-top-right-radius: min( 100px, ${top_right_radius} ) ${top_right_radius};";
-				$outline_border_radius  .= "border-bottom-left-radius: min( 100px, ${bottom_left_radius} ) ${bottom_left_radius};";
-				$outline_border_radius  .= "border-bottom-right-radius: min( 100px, ${bottom_right_radius} ) ${bottom_right_radius};";
+				$outline_border_radius  .= "border-top-left-radius: min( 100px, {$top_left_radius} ) {$top_left_radius};";
+				$outline_border_radius  .= "border-top-right-radius: min( 100px, {$top_right_radius} ) {$top_right_radius};";
+				$outline_border_radius  .= "border-bottom-left-radius: min( 100px, {$bottom_left_radius} ) {$bottom_left_radius};";
+				$outline_border_radius  .= "border-bottom-right-radius: min( 100px, {$bottom_right_radius} ) {$bottom_right_radius};";
 
 			}
 		}
@@ -1508,13 +1508,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * This function extracts those styles and applies them to the field,
 	 * and ensures any global or theme styles are applied.
 	 *
+	 * @param string $form_style (optional) The form style.
+	 *
 	 * @return array {
 	 *     @type string $style_attrs The style attributes.
 	 *     @type string $css_vars The CSS variables.
 	 *     @type string $class_name The class name.
 	 * }
 	 */
-	private function get_outline_styles() {
+	private function get_outline_styles( $form_style = 'outlined' ) {
 		$style_attrs     = '';
 		$css_vars        = '';
 		$outline_styles  = $this->get_attribute( 'outlinestyledata' );
@@ -1536,20 +1538,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				)
 			);
 
-			$legacy_border_size   = $outline_styles['width'] ?? null;
+			$legacy_border_size   = $outline_styles['border']['width'] ?? null;
 			$legacy_border_size   = is_numeric( $legacy_border_size ) ? $legacy_border_size . 'px' : $legacy_border_size;
-			$legacy_border_radius = $outline_styles['radius'] ?? null;
+			$legacy_border_radius = $outline_styles['border']['radius'] ?? null;
 			$legacy_border_radius = is_numeric( $legacy_border_radius ) ? $legacy_border_radius . 'px' : $legacy_border_radius;
 
 			$border_size = $legacy_border_size ??
-				$outline_styles['top']['width'] ??
+				$outline_styles['border']['top']['width'] ??
 				$global_styles['width'] ??
 				$global_styles['top']['width'];
 
 			$border_radius = $legacy_border_radius ??
-				$outline_styles['border']['radius'] ??
-				$global_styles['radius'] ??
-				$global_styles['border']['radius'];
+				$global_styles['radius'];
 
 			$css_vars = $border_size ? '--jetpack--contact-form--border-size: ' . $border_size . ';' : '';
 			// Check if border radius is split or a single value.
@@ -1561,7 +1561,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			} elseif ( isset( $border_radius ) ) {
 				$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
 			}
-			$css_vars .= '--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius))';
+
+			if ( 'outlined' === $form_style ) {
+				$css_vars .= '--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));';
+			} elseif ( 'animated' === $form_style ) {
+				$legacy_border_left_size = $outline_styles['border']['width'] ?? null;
+				$legacy_border_left_size = is_numeric( $legacy_border_left_size ) ? $legacy_border_left_size . 'px' : $legacy_border_left_size;
+
+				$border_left_size = $legacy_border_left_size ??
+				$outline_styles['border']['left']['width'] ??
+				$global_styles['width'] ??
+				$global_styles['left']['width'];
+
+				$css_vars .= "--jetpack--contact-form--left-offset: calc(var(--jetpack--contact-form--input-padding-left, 16px) + {$border_left_size});";
+				$css_vars .= '--jetpack--contact-form--label-left: max(var(--jetpack--contact-form--left-offset), var(--jetpack--contact-form--border-radius));';
+				$css_vars .= "--jetpack--contact-form--field-padding: calc(var(--jetpack--contact-form--label-left) - {$border_left_size});";
+			}
 		}
 
 		return array(
