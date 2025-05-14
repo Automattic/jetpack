@@ -471,17 +471,11 @@ class Inline_Search extends Classic_Search {
 	 * Process search results to extract post IDs and highlighted content.
 	 */
 	private function process_search_results() {
-		$post_ids            = array();
-		$highlighted_results = array();
+		$post_ids = array();
 
 		foreach ( $this->search_result['results'] as $result ) {
 			$post_id    = (int) ( $result['fields']['post_id'] ?? 0 );
 			$post_ids[] = $post_id;
-
-			// Collect highlight data for processing
-			if ( ! empty( $result['highlight'] ) ) {
-				$highlighted_results[ $post_id ] = $result['highlight'];
-			}
 		}
 
 		$this->search_result_ids = $post_ids;
