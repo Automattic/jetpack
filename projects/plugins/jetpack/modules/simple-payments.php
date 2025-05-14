@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-require_once __DIR__ . '/../packages/paypal-payments/class-simple-payments.php';
-
 /**
  * Disable direct access and execution.
  */
