@@ -2298,27 +2298,6 @@ final class ZeroBSCRM {
 	 *      - WP_LANG_DIR/plugins/woocommerce-LOCALE.mo
 	 */
 
-	public function load_textdomain() {
-
-		// ====================================================================
-		// ==================== General Perf Testing ==========================
-		if ( defined( 'ZBSPERFTEST' ) ) {
-			zeroBSCRM_performanceTest_startTimer( 'loadtextdomain' );
-		}
-		// =================== / General Perf Testing =========================
-		// ====================================================================
-
-		load_plugin_textdomain( 'zero-bs-crm', false, ZBS_LANG_DIR ); // basename( dirname( ZBS_ROOTFILE ) ) . '/languages' ); //plugin_dir_path( ZBS_ROOTFILE ) .'/languages'
-
-		// ====================================================================
-		// ==================== General Perf Testing ==========================
-		if ( defined( 'ZBSPERFTEST' ) ) {
-			zeroBSCRM_performanceTest_closeGlobalTest( 'loadtextdomain' );
-		}
-		// =================== / General Perf Testing =========================
-		// ====================================================================
-	}
-
 	/**
 	 * Get the plugin url.
 	 *

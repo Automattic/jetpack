@@ -32,7 +32,6 @@ if ( ! defined( 'ZBS_ROOTFILE' ) ) {
 	define( 'ZBS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 	define( 'ZBS_ROOTDIR', basename( __DIR__ ) );
 	define( 'ZBS_ROOTPLUGIN', ZBS_ROOTDIR . '/' . basename( ZBS_ROOTFILE ) );
-	define( 'ZBS_LANG_DIR', basename( __DIR__ ) . '/languages' );
 }
 
 /**
@@ -334,7 +333,7 @@ if ( jpcrm_do_critical_prerun_checks() ) {
 	add_action(
 		'plugins_loaded',
 		function () {
-			load_plugin_textdomain( 'zero-bs-crm', false, ZBS_LANG_DIR );
+			load_plugin_textdomain( 'zero-bs-crm', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		},
 		0
 	);
