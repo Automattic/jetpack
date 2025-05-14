@@ -15,7 +15,7 @@ import { useIntegrationStatus } from '../../../blocks/contact-form/components/je
 import { PARTIAL_RESPONSES_PATH, PREFERRED_VIEW } from '../../../util/get-preferred-responses-view';
 
 const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
-	const { integration, isLoading, refreshStatus } = useIntegrationStatus( 'google-drive' );
+	const { integration, refreshStatus } = useIntegrationStatus( 'google-drive' );
 	const isConnectedToGoogleDrive = !! integration?.isConnected;
 	const { tracks } = useAnalytics();
 	const autoConnectOpened = useRef( false );
@@ -104,7 +104,7 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 					</div>
 				</div>
 				<div className="jp-forms__export-modal-card-body-cta">
-					{ isLoading && ! isConnectedToGoogleDrive ? (
+					{ ! integration ? (
 						<Spinner />
 					) : (
 						<>
