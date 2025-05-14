@@ -830,14 +830,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'";
 
 		/*
-		 * The label (legend) element is rendered outside the style field for the animated style.
+		 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 		 */
-		if ( ! $is_outlined_style ) {
-			// For animated style: wrap fieldset in a div with styles/classes
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
-		} else {
-			// For non-animated style: just use fieldset with styles/classes
+		if ( $is_outlined_style ) {
 			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-radio-options " . $options_classes . "' style='" . $options_styles . "'>";
+		} else {
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
@@ -1211,14 +1209,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
 
 		/*
-		 * The label (legend) element is rendered outside the style field for the animated style.
+		 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 		 */
-		if ( ! $is_outlined_style ) {
-			// For animated style: wrap fieldset in a div with styles/classes
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
-		} else {
-			// For non-animated style: just use fieldset with styles/classes
+		if ( $is_outlined_style ) {
 			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-checkbox-multiple-options" . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
+		} else {
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
@@ -1483,8 +1479,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Returns the styles, classes and CSS variables associated with the outline style,
-	 * taking into account user and base global styles.
+	 * Returns the styles, classes and CSS vars necessary to render fields in the "Outlined" style.
+	 * At the block level, the styles are extracted and added to the shortcode attributes in
+	 * Contact_Form_Plugin::get_outlined_style_attributes().
+	 * This function extracts those styles and applies them to the field,
+	 * and ensures any global or theme styles are applied.
 	 *
 	 * @return array {
 	 *     @type string $style_attrs The style attributes.

@@ -551,10 +551,9 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Returns the outlined style attributes.
-	 * This helper function extracts the necessary styles and classes for the outlined style,
-	 * which uses custom HTML to create a border around the field. In this case,
-	 * the control styles are applied to the custom HTML, not the input itself.
+	 * Returns the form "Outlined" style classes and styles.
+	 * Important: The "Outlined" style is somewhat different as it uses custom HTML to create a border around the field.
+	 * When applying styles to the control, background and border styles are applied to the custom HTML, not the input itself.
 	 *
 	 * @param string $block_name - the block name.
 	 * @param array  $attrs - the block attributes.
@@ -574,6 +573,7 @@ class Contact_Form_Plugin {
 		$outlined_style_data['outlinestyleclasses'] = isset( $outlined_attrs['class'] ) ? ' ' . $outlined_attrs['class'] : '';
 		return $outlined_style_data;
 	}
+
 	/**
 	 * Render the text field.
 	 *
