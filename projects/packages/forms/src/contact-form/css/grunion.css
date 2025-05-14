@@ -740,7 +740,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 	appearance: none;
 	border: solid 1px currentColor;
-
+    color: currentColor;
 	outline-offset: 4px;
 }
 
