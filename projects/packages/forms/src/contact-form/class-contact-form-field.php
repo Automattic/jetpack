@@ -1545,9 +1545,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$global_styles['top']['width'];
 
 			$border_radius = $legacy_border_radius ??
-				$outline_styles['left']['radius'] ??
+				$outline_styles['border']['radius'] ??
 				$global_styles['radius'] ??
-				$global_styles['left']['radius'];
+				$global_styles['border']['radius'];
 
 			$css_vars = $border_size ? '--jetpack--contact-form--border-size: ' . $border_size . ';' : '';
 			// Check if border radius is split or a single value.
