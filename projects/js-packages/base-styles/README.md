@@ -17,7 +17,7 @@ npm install @automattic/jetpack-base-styles --save-dev
 In your application's SCSS file, include styles like so:
 
 ```scss
-@import 'node_modules/@automattic/jetpack-base-styles/style';
+@import '@automattic/jetpack-base-styles/style';
 ```
 
 If you use [Webpack](https://webpack.js.org/) for your SCSS pipeline, you can omit `node_modules/`:

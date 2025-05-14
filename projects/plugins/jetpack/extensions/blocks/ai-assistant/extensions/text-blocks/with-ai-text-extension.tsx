@@ -8,6 +8,7 @@ import {
 	useAiSuggestions,
 	useAiFeature,
 } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -39,6 +40,7 @@ import type {
 	PromptMessagesProp,
 	PromptItemProps,
 	RequestingStateProp,
+	AiModelTypeProp,
 } from '@automattic/jetpack-ai-client';
 
 const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' );
@@ -89,6 +91,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const [ action, setAction ] = useState< string >( '' );
 		// The last human-readable action performed by the user, to be used by the thumbs up/down buttons.
 		const [ lastAction, setLastAction ] = useState< string | null >( null );
+		// The last prompt type used by the user, to be used for tracking purposes.
+		const lastPromptType = useRef< string | null >( null );
 		// The last request made by the user, to be used when the user clicks the "Try Again" button.
 		const lastRequest = useRef< RequestOptions | null >( null );
 		// Ref to the requesting state to use it in the hideOnBlockFocus effect.
@@ -122,6 +126,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const focusInput = useCallback( () => {
 			inputRef.current?.focus();
 		}, [] );
+
+		const { tracks } = useAnalytics();
 
 		// Data and functions with block-specific implementations.
 		const {
@@ -214,13 +220,18 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback(
-			( suggestion: string, skipRequestCount?: boolean ) => {
+			( suggestion: string, skipRequestCount?: boolean, modelUsed?: AiModelTypeProp ) => {
 				disableAutoScroll();
 				onBlockDone( suggestion );
 				if ( ! skipRequestCount ) {
 					increaseRequestsCount();
 				}
 				setAction( '' );
+
+				tracks.recordEvent( 'jetpack_ai_assistant_toolbar_extension_generate', {
+					prompt_type: lastPromptType.current,
+					model: modelUsed,
+				} );
 
 				if ( lastRequest.current?.message ) {
 					const assistantMessage = {
@@ -268,6 +279,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				adjustPosition,
 				focusInput,
 				adjustBlockPadding,
+				tracks,
+				lastPromptType,
 			]
 		);
 
@@ -293,6 +306,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			request,
 			stopSuggestion,
 			requestingState,
+			model,
 			error,
 			reset: resetSuggestions,
 		} = useAiSuggestions( {
@@ -319,6 +333,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				if ( requireUpgrade ) {
 					return;
 				}
+
+				lastPromptType.current = promptType;
 
 				const humanText = mapActionToHumanText( promptType, options );
 
@@ -387,10 +403,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called when the user clicks the "Undo" button after a successful request.
 		const handleUndo = useCallback( async () => {
+			tracks.recordEvent( 'jetpack_ai_assistant_toolbar_extension_undo', {
+				prompt_type: lastPromptType.current,
+				model: model,
+			} );
 			await undo();
-
 			handleClose();
-		}, [ undo, handleClose ] );
+		}, [ undo, handleClose, tracks, model, lastPromptType ] );
 
 		// Closes the AI Control if the block is deselected.
 		useEffect( () => {

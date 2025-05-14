@@ -14,7 +14,7 @@ return [
     // PhanNoopNew : 200+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 190+ occurrences
     // PhanTypeMismatchReturn : 140+ occurrences
-    // PhanTypeMismatchReturnProbablyReal : 130+ occurrences
+    // PhanTypeMismatchReturnProbablyReal : 120+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 95+ occurrences
     // PhanRedundantCondition : 65+ occurrences
     // PhanDeprecatedFunction : 60+ occurrences
@@ -25,14 +25,13 @@ return [
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
     // PhanTypeMismatchArgumentInternal : 40+ occurrences
     // PhanTypeExpectedObjectPropAccess : 35+ occurrences
-    // PhanParamSignatureMismatch : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
     // PhanDeprecatedProperty : 20+ occurrences
+    // PhanParamSignatureMismatch : 20+ occurrences
     // PhanPluginSimplifyExpressionBool : 20+ occurrences
     // PhanTypeArraySuspicious : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
-    // PhanTypeMissingReturn : 20+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
@@ -51,6 +50,7 @@ return [
     // PhanPluginRedundantAssignment : 8 occurrences
     // PhanRedefinedClassReference : 8 occurrences
     // PhanTypeComparisonToArray : 8 occurrences
+    // PhanTypeMissingReturn : 8 occurrences
     // PhanTypeInvalidLeftOperandOfNumericOp : 7 occurrences
     // PhanTypeMismatchArgumentInternalReal : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
@@ -386,7 +386,7 @@ return [
         'modules/stats.php' => ['PhanDeprecatedFunction', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/subscriptions.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach'],
         'modules/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php' => ['PhanTypeMismatchReturnNullable'],
-        'modules/subscriptions/views.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset'],
+        'modules/subscriptions/views.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset'],
         'modules/theme-tools/content-options.php' => ['PhanRedefineFunction'],
         'modules/theme-tools/content-options/author-bio.php' => ['PhanRedefineFunction', 'PhanTypeMismatchArgument'],
         'modules/theme-tools/content-options/blog-display.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanRedefineFunction'],
@@ -419,31 +419,28 @@ return [
         'modules/videopress/editor-media-view.php' => ['PhanSuspiciousMagicConstant'],
         'modules/videopress/shortcode.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'modules/widget-visibility/widget-conditions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanTypeComparisonToArray', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach'],
-        'modules/widgets/authors.php' => ['PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
-        'modules/widgets/blog-stats.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument'],
-        'modules/widgets/class-jetpack-eu-cookie-law-widget.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn'],
-        'modules/widgets/class-jetpack-instagram-widget.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset'],
-        'modules/widgets/contact-info.php' => ['PhanParamSignatureMismatch', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
-        'modules/widgets/facebook-likebox.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset'],
-        'modules/widgets/flickr.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMissingReturn'],
+        'modules/widgets/authors.php' => ['PhanTypeMismatchArgument'],
+        'modules/widgets/blog-stats.php' => ['PhanTypeMismatchArgument'],
+        'modules/widgets/class-jetpack-eu-cookie-law-widget.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
+        'modules/widgets/class-jetpack-instagram-widget.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
+        'modules/widgets/contact-info.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
+        'modules/widgets/facebook-likebox.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset'],
+        'modules/widgets/flickr.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable'],
         'modules/widgets/flickr/form.php' => ['PhanTypeMismatchArgument'],
-        'modules/widgets/follow-button.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanTypeMissingReturn'],
-        'modules/widgets/gallery.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
-        'modules/widgets/goodreads.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMissingReturn'],
-        'modules/widgets/google-translate.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMissingReturn'],
-        'modules/widgets/gravatar-profile.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMissingReturn'],
-        'modules/widgets/image-widget.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMissingReturn'],
-        'modules/widgets/internet-defense-league.php' => ['PhanTypeMissingReturn'],
-        'modules/widgets/mailchimp.php' => ['PhanParamSignatureMismatch'],
-        'modules/widgets/milestone/class-milestone-widget.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset'],
+        'modules/widgets/follow-button.php' => ['PhanPluginUseReturnValueInternalKnown'],
+        'modules/widgets/gallery.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
+        'modules/widgets/goodreads.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentInternal'],
+        'modules/widgets/google-translate.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition'],
+        'modules/widgets/gravatar-profile.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
+        'modules/widgets/image-widget.php' => ['PhanTypeMismatchArgumentProbablyReal'],
+        'modules/widgets/milestone/class-milestone-widget.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'modules/widgets/my-community.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'modules/widgets/rsslinks-widget.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal'],
-        'modules/widgets/simple-payments.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
         'modules/widgets/social-icons.php' => ['PhanPluginSimplifyExpressionBool'],
-        'modules/widgets/social-media-icons.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturn'],
-        'modules/widgets/top-posts.php' => ['PhanImpossibleTypeComparison', 'PhanParamSignatureMismatch', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanRedundantConditionInLoop'],
-        'modules/widgets/twitter-timeline.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset'],
-        'modules/widgets/upcoming-events.php' => ['PhanParamSignatureMismatch', 'PhanRedundantConditionInLoop'],
+        'modules/widgets/social-media-icons.php' => ['PhanTypeMismatchReturn'],
+        'modules/widgets/top-posts.php' => ['PhanImpossibleTypeComparison', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanRedundantConditionInLoop'],
+        'modules/widgets/twitter-timeline.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypePossiblyInvalidDimOffset'],
+        'modules/widgets/upcoming-events.php' => ['PhanRedundantConditionInLoop'],
         'modules/widgets/wordpress-post-widget/class.jetpack-display-posts-widget-base.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDimAssignment', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/woocommerce-analytics/class-jetpack-woocommerce-analytics.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction', 'PhanStaticPropIsStaticType', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
         'modules/woocommerce-analytics/classes/class-jetpack-woocommerce-analytics-checkout-flow.php' => ['PhanDeprecatedFunction', 'PhanDeprecatedTrait', 'PhanPluginRedundantAssignment'],

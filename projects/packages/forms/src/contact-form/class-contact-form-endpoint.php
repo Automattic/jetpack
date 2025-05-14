@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Forms\Service\Google_Drive;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -38,6 +42,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'type'         => 'plugin',
 			'file'         => 'zero-bs-crm/ZeroBSCRM.php',
 			'settings_url' => 'admin.php?page=zerobscrm-plugin-settings',
+		),
+		'salesforce'                        => array(
+			'type'         => 'service',
+			'file'         => null,
+			'settings_url' => null,
+		),
+		'google-drive'                      => array(
+			'type'         => 'service',
+			'file'         => null,
+			'settings_url' => null,
 		),
 	);
 
@@ -594,7 +608,37 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Get status for all supported integrations.
+	 * Core logic for a single integration
+	 *
+	 * @param string $slug Integration slug.
+	 * @return array Integration status data.
+	 */
+	private function get_integration( $slug ) {
+		$config       = $this->get_supported_integrations()[ $slug ];
+		$status       = $config['type'] === 'plugin'
+			? $this->get_plugin_status( $slug )
+			: $this->get_service_status( $slug );
+		$status['id'] = $slug;
+		return $status;
+	}
+
+	/**
+	 * REST callback for /integrations/{slug}
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object or error.
+	 */
+	public function get_single_integration_status( $request ) {
+		$slug         = $request->get_param( 'slug' );
+		$integrations = $this->get_supported_integrations();
+		if ( ! isset( $integrations[ $slug ] ) ) {
+			return new \WP_Error( 'rest_integration_not_found', __( 'Integration not found.', 'jetpack-forms' ), array( 'status' => 404 ) );
+		}
+		return rest_ensure_response( $this->get_integration( $slug ) );
+	}
+
+	/**
+	 * REST callback for /integrations
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
@@ -603,16 +647,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$version      = absint( $request->get_param( 'version' ) );
 		$integrations = array();
 
-		foreach ( array_keys( $this->get_supported_integrations() ) as $slug ) {
-			$plugin_status = $this->get_plugin_status( $slug );
-
+		foreach ( $this->get_supported_integrations() as $slug => $config ) {
+			$status = $this->get_integration( $slug );
 			if ( 1 === $version ) {
-				$integrations[ $slug ] = $plugin_status;
+				$integrations[ $slug ] = $status;
 			} else {
-				$integrations[] = array_merge(
-					array( 'id' => $slug ),
-					$plugin_status
-				);
+				$integrations[] = $status;
 			}
 		}
 
@@ -620,17 +660,46 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * REST endpoint handler for single integration status.
+	 * Get status for internal/service integrations.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Response object.
+	 * @param string $slug Service slug.
+	 * @return array Service status data.
 	 */
-	public function get_single_integration_status( $request ) {
-		// Slug validation is handled in endpoint registration.
-		$slug = $request->get_param( 'slug' );
-		// For now, we only have plugin integrations.
-		// When needed, handle other integration types here.
-		return rest_ensure_response( $this->get_plugin_status( $slug ) );
+	private function get_service_status( $slug ) {
+		$config = $this->get_supported_integrations()[ $slug ];
+
+		// Default response for all integrations
+		$response = array(
+			'type'        => $config['type'],
+			'slug'        => $slug,
+			'isConnected' => false,
+			'settingsUrl' => $config['settings_url'] ?? null,
+			'pluginFile'  => null,
+			'isInstalled' => false,
+			'isActive'    => false,
+			'version'     => null,
+			'details'     => array(),
+		);
+
+		// Process settingsUrl to return a full URL if present (for services only)
+		if ( $response['settingsUrl'] ) {
+			$response['settingsUrl'] = esc_url( Redirect::get_url( $response['settingsUrl'] ) );
+		}
+
+		switch ( $slug ) {
+			case 'google-drive':
+				$user_id                 = get_current_user_id();
+				$jetpack_connected       = ( new Host() )->is_wpcom_simple() || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( $user_id );
+				$is_connected            = $jetpack_connected && Google_Drive::has_valid_connection( $user_id );
+				$response['isConnected'] = $is_connected;
+				break;
+			case 'salesforce':
+				// No overrides needed for now; keep defaults.
+				break;
+			// Add other service cases as needed.
+		}
+
+		return $response;
 	}
 
 	/**

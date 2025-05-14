@@ -61,7 +61,7 @@ function load_assets( $attr, $content ) {
  * This ultimately sets an Origin-Trial header with the token.
  */
 function add_chrome_ai_token_headers() {
-	$token_transient_names = array( 'jetpack-ai-chrome-ai-translation-token', 'jetpack-ai-chrome-ai-summarization-token' );
+	$token_transient_names = array( 'jetpack-ai-chrome-ai-translation-token', 'jetpack-ai-chrome-ai-summarization-token', 'jetpack-ai-chrome-ai-language-detection-token' );
 
 	foreach ( $token_transient_names as $token_transient_name ) {
 		$cached_token = get_transient( $token_transient_name );

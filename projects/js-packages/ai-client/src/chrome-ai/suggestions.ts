@@ -110,11 +110,11 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// use the Chrome AI translator
 	async translate( text: string, target: string, source: string = '' ) {
-		if ( ! ( 'translation' in self ) ) {
+		if ( ! ( 'Translator' in self ) ) {
 			return;
 		}
 
-		const translator = await self.translation.createTranslator( {
+		const translator = await self.Translator.create( {
 			sourceLanguage: source,
 			targetLanguage: target,
 		} );
@@ -125,6 +125,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 		try {
 			const translation = await translator.translate( renderHTMLFromMarkdown( { content: text } ) );
+
 			this.processEvent( {
 				id: '',
 				event: 'translation',
@@ -140,9 +141,9 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// Helper function to format summarizer options
 	private getSummarizerOptions( tone?: string, wordCount?: number ) {
-		let sharedContext = `The summary you write should contain approximately ${
+		let sharedContext = `The summary you write should contain strictly less than ${
 			wordCount ?? 50
-		} words long. Strive for precision in word count without compromising clarity and significance`;
+		} words. Strive for precision in word count without compromising clarity and significance`;
 
 		if ( tone ) {
 			sharedContext += `\n - Write with a ${ tone } tone.\n`;
@@ -160,26 +161,35 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// use the Chrome AI summarizer
 	async summarize( text: string, tone?: string, wordCount?: number ) {
-		if ( ! ( 'ai' in self ) || ! ( 'summarizer' in self.ai ) ) {
-			return;
-		}
-		const available = ( await self.ai.summarizer.capabilities() ).available;
-
-		if ( available === 'no' ) {
+		if ( ! ( 'Summarizer' in self ) ) {
 			return;
 		}
 
-		const options = this.getSummarizerOptions( tone, wordCount );
+		const availability = await self.Summarizer.availability();
 
-		const summarizer = await self.ai.summarizer.create( options );
+		if ( availability === 'unavailable' ) {
+			return;
+		}
 
-		if ( available === 'after-download' ) {
+		const summarizerOptions = this.getSummarizerOptions( tone, wordCount );
+
+		const summarizer = await self.Summarizer.create( summarizerOptions );
+
+		if ( availability !== 'available' ) {
 			await summarizer.ready;
 		}
 
 		try {
 			const context = `Write with a ${ tone } tone.`;
-			const summary = await summarizer.summarize( text, { context: context } );
+			let summary = await summarizer.summarize( text, { context: context } );
+
+			wordCount = wordCount ?? 50;
+
+			// gemini-nano has a tendency to exceed the word count, so we need to check and summarize again if necessary
+			if ( summary.split( ' ' ).length > wordCount ) {
+				summary = await summarizer.summarize( summary, { context: context } );
+			}
+
 			this.processEvent( {
 				id: '',
 				event: 'summary',

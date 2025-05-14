@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Blocks: Update useResizeObserver hook usage to meet new API expectations.
