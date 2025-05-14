@@ -2815,7 +2815,7 @@ function wp_cache_clean_cache( $file_prefix, $all = false ) {
 
 function wpsc_delete_post_cache( $id ) {
 	$post = get_post( $id );
-	wpsc_delete_url_cache( get_author_posts_url( $post->post_author ) );
+	wpsc_delete_url_cache( get_author_posts_url( (int) $post->post_author ) );
 	$permalink = get_permalink( $id );
 	if ( $permalink != '' ) {
 		wpsc_delete_url_cache( $permalink );
