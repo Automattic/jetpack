@@ -1,13 +1,12 @@
-<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
+<?php
 /**
  * Simple Payments module loader.
  *
  * @package automattic/jetpack
  */
 
-/**
- * Disable direct access and execution.
- */
+use Automattic\Jetpack\Paypal_Payments\Jetpack_Simple_Payments;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
