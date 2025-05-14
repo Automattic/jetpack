@@ -1208,11 +1208,32 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
 
+		$outline_border_radius = '';
+		if ( $is_outlined_style ) {
+			$outline_styles = $this->get_attribute( 'outlinestyledata' );
+
+			if ( ! empty( $outline_styles ) ) {
+				$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
+			}
+
+			if ( isset( $outline_styles['radius'] ) ) {
+				$has_split_radius_values = is_array( $outline_styles['radius'] );
+				$top_left_radius         = $has_split_radius_values ? $outline_styles['radius']['topLeft'] : $outline_styles['radius'];
+				$top_right_radius        = $has_split_radius_values ? $outline_styles['radius']['topRight'] : $outline_styles['radius'];
+				$bottom_left_radius      = $has_split_radius_values ? $outline_styles['radius']['bottomLeft'] : $outline_styles['radius'];
+				$bottom_right_radius     = $has_split_radius_values ? $outline_styles['radius']['bottomRight'] : $outline_styles['radius'];
+				$outline_border_radius  .= "border-top-left-radius: min( 100px, ${top_left_radius} ) ${top_left_radius};";
+				$outline_border_radius  .= "border-top-right-radius: min( 100px, ${top_right_radius} ) ${top_right_radius};";
+				$outline_border_radius  .= "border-bottom-left-radius: min( 100px, ${bottom_left_radius} ) ${bottom_left_radius};";
+				$outline_border_radius  .= "border-bottom-right-radius: min( 100px, ${bottom_right_radius} ) ${bottom_right_radius};";
+			}
+		}
+
 		/*
 		 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 		 */
 		if ( $is_outlined_style ) {
-			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-checkbox-multiple-options" . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
+			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-checkbox-multiple-options" . $options_classes . "' style='" . $options_styles . $outline_border_radius . "' " . ( $required ? 'data-required' : '' ) . '>';
 		} else {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
 		}
