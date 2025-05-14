@@ -968,6 +968,7 @@
 :where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__filler),
 :where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__trailing) {
 	border: var(--jetpack--contact-form--border);
+	background-color: var(--jetpack--contact-form--input-background);
 }
 
 :where( .wp-block-jetpack-contact-form.is-style-outlined ) {

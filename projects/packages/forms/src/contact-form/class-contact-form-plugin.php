@@ -471,8 +471,8 @@ class Contact_Form_Plugin {
 						Borders for the outlined notched HTML.
 					*/
 					$outlined_style_data                      = self::get_outlined_style_attributes( $block_name, $inner_block['attrs'] );
-					$atts['outlinestyledata']                 = $outlined_style_data['outlinestyledata'];
-					$atts['outlinestyleclasses']              = $outlined_style_data['outlinestyleclasses'];
+					$atts['outlinestyledata']                 = $outlined_style_data['outlinestyledata'] ?? null;
+					$atts['outlinestyleclasses']              = $outlined_style_data['outlinestyleclasses'] ?? null;
 					$add_block_style_classes_to_field_wrapper = true;
 				}
 
@@ -561,15 +561,23 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	protected static function get_outlined_style_attributes( $block_name, $attrs ) {
-		$outlined_style_data                        = array();
-		$attributes_for_outlined_style              = array(
-			'backgroundColor' => $attrs['backgroundColor'] ?? null,
-			'style'           => array(
-				'border' => $attrs['style']['border'] ?? null,
-			),
-		);
+		$outlined_style_data           = array();
+		$attributes_for_outlined_style = array();
+
+		if ( isset( $attrs['backgroundColor'] ) ) {
+			$attributes_for_outlined_style['backgroundColor'] = $attrs['backgroundColor'];
+		}
+
+		if ( isset( $attrs['style']['border'] ) ) {
+			$attributes_for_outlined_style['style']['border'] = $attrs['style']['border'];
+		}
+
+		if ( isset( $attrs['style']['color']['background'] ) ) {
+			$attributes_for_outlined_style['style']['color']['background'] = $attrs['style']['color']['background'];
+		}
+
 		$outlined_attrs                             = self::get_block_support_classes_and_styles( $block_name, $attributes_for_outlined_style );
-		$outlined_style_data['outlinestyledata']    = isset( $attributes_for_outlined_style['style']['border'] ) ? \wp_json_encode( $attributes_for_outlined_style['style']['border'] ) : null;
+		$outlined_style_data['outlinestyledata']    = isset( $attributes_for_outlined_style['style'] ) ? \wp_json_encode( $attributes_for_outlined_style['style'] ) : '';
 		$outlined_style_data['outlinestyleclasses'] = isset( $outlined_attrs['class'] ) ? ' ' . $outlined_attrs['class'] : '';
 		return $outlined_style_data;
 	}
