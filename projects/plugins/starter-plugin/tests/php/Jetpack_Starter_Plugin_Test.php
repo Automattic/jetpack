@@ -2,7 +2,7 @@
 /**
  * Main plugin file testing.
  *
- * @package automattic/jetpack-social-plugin
+ * @package automattic/jetpack-starter-plugin
  */
 
 use WorDBless\BaseTestCase;
