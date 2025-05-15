@@ -34,7 +34,7 @@ class Data_Settings {
 			'paused_plugins'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
 			'paused_themes'                     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
 			'timezone'                          => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_timezone' ),
-			'wp_get_environment_type'           => 'wp_get_environment_type',
+			'wp_get_environment_type'           => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_environment_type' ),
 			'wp_max_upload_size'                => 'wp_max_upload_size',
 			'wp_version'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
 			'jetpack_sync_active_modules'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_sync_active_modules' ),
