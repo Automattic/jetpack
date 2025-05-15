@@ -134,4 +134,8 @@
 		text-wrap: balance; // TODO: remove this fallback once `pretty` is globally supported.
 		text-wrap: pretty;
 	}
+
+	&__service-icon--google-sheets {
+		border-radius: 0 !important;
+	}
 }

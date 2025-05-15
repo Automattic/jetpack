@@ -1,13 +1,13 @@
 import { Button } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import GoogleDriveIcon from '../../../../icons/google-drive';
+import GoogleSheetsIcon from '../../../../icons/google-sheets';
 import IntegrationCard from './integration-card';
 
 const FORM_RESPONSES_URL =
 	window?.jpFormsBlocks?.defaults?.formsResponsesUrl || '/wp-admin/admin.php?page=jetpack-forms';
 
-const GoogleDriveCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
+const GoogleSheetsCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const [ isPolling, setIsPolling ] = useState( false );
 	const pollInterval = useRef( null );
 	const isConnected = !! data?.isConnected;
@@ -15,6 +15,7 @@ const GoogleDriveCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 
 	const cardData = {
 		...data,
+		slug: 'google-sheets',
 		showHeaderToggle: false,
 		isLoading: ! data,
 		refreshStatus,
@@ -52,9 +53,9 @@ const GoogleDriveCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 
 	return (
 		<IntegrationCard
-			title={ __( 'Google Drive', 'jetpack-forms' ) }
+			title={ __( 'Google Sheets', 'jetpack-forms' ) }
 			description={ __( 'Export form responses to Google Sheets.', 'jetpack-forms' ) }
-			icon={ <GoogleDriveIcon /> }
+			icon={ <GoogleSheetsIcon className="google-sheets-icon" /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 			cardData={ cardData }
@@ -63,7 +64,7 @@ const GoogleDriveCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 				<div>
 					<p className="integration-card__description">
 						{ __(
-							'Connect your site to Google Drive to export form responses directly to Google Sheets.',
+							'Connect your site to Google Sheets to export form responses directly to Google Sheets.',
 							'jetpack-forms'
 						) }
 					</p>
@@ -75,14 +76,14 @@ const GoogleDriveCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						__next40pxDefaultSize={ true }
 						disabled={ ! settingsUrl }
 					>
-						{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
+						{ __( 'Connect to Google Sheets', 'jetpack-forms' ) }
 					</Button>
 				</div>
 			) : (
 				<div>
 					<p>
 						{ __(
-							'Google Drive is connected. You can export your form responses from the form responses page.',
+							'Google Sheets is connected. You can export your form responses from the form responses page.',
 							'jetpack-forms'
 						) }
 					</p>
@@ -102,4 +103,4 @@ const GoogleDriveCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	);
 };
 
-export default GoogleDriveCard;
+export default GoogleSheetsCard;
