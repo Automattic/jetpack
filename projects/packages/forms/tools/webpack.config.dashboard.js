@@ -44,12 +44,12 @@ module.exports = {
 			} ),
 
 			/**
-			 * Transpile @wordpress/dataviews in node_modules too.
+			 * Transpile @automattic/dataviews in node_modules too.
 			 *
 			 * @see https://github.com/Automattic/jetpack/issues/39907
 			 */
 			jetpackWebpackConfig.TranspileRule( {
-				includeNodeModules: [ '@wordpress/dataviews/build-wp/' ],
+				includeNodeModules: [ '@automattic/dataviews/dist/wp/' ],
 				babelOpts: {
 					configFile: false,
 					plugins: [
@@ -102,6 +102,14 @@ module.exports = {
 					],
 				},
 			} ),
+
+			// Also set .resolve.fullySpecified = false for @automattic/dataviews.
+			{
+				test: /\/@automattic\/dataviews\//,
+				resolve: {
+					fullySpecified: false,
+				},
+			},
 
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {

@@ -1,4 +1,4 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { FIXER_IS_STALE_THRESHOLD } from '../constants/index.ts';
 import { type ThreatFixStatus } from '../types/fixers.ts';
 import { type Threat } from '../types/threats.ts';
@@ -50,14 +50,14 @@ export const getFixerState = ( fixerStatus: ThreatFixStatus ) => {
 export const getFixerAction = ( threat: Threat ) => {
 	switch ( threat.fixable && threat.fixable.fixer ) {
 		case 'delete':
-			return __( 'Delete', 'jetpack-scan' );
+			return _x( 'Delete', 'Fixer action text', 'jetpack-scan' );
 		case 'update':
-			return __( 'Update', 'jetpack-scan' );
+			return _x( 'Update', 'Fixer action text', 'jetpack-scan' );
 		case 'replace':
 		case 'rollback':
-			return __( 'Replace', 'jetpack-scan' );
+			return _x( 'Replace', 'Fixer action text', 'jetpack-scan' );
 		default:
-			return __( 'Auto-fix', 'jetpack-scan' );
+			return _x( 'Auto-fix', 'Fixer action text', 'jetpack-scan' );
 	}
 };
 

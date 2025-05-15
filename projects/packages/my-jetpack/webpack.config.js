@@ -33,9 +33,9 @@ module.exports = [
 					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
 
-				// Add textdomains (but no other optimizations) for @wordpress/dataviews.
+				// Add textdomains (but no other optimizations) for @automattic/dataviews.
 				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@wordpress/dataviews/' ],
+					includeNodeModules: [ '@automattic/dataviews/' ],
 					babelOpts: {
 						configFile: false,
 						plugins: [
@@ -46,6 +46,14 @@ module.exports = [
 						],
 					},
 				} ),
+
+				// Also set .resolve.fullySpecified = false for @automattic/dataviews.
+				{
+					test: /\/@automattic\/dataviews\//,
+					resolve: {
+						fullySpecified: false,
+					},
+				},
 
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {

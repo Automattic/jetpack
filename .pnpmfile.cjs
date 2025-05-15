@@ -1,4 +1,4 @@
-// Packages we need to copy versions from for `@wordpress/dataviews/wp`.
+// Packages we need to copy versions from for `@automattic/dataviews/wp`.
 const wpPkgs = {
 	'@wordpress/components': [
 		'change-case',
@@ -79,10 +79,10 @@ async function fixDeps( pkg ) {
 		delete pkg.dependencies?.[ '@shopify/web-worker' ];
 	}
 
-	// We need to add the missing deps for `@wordpress/dataviews` because
+	// We need to add the missing deps for `@automattic/dataviews` because
 	// the build fails when using pnpm with hoisting.
 	// @see https://github.com/WordPress/gutenberg/issues/67864
-	if ( pkg.name === '@wordpress/dataviews' ) {
+	if ( pkg.name === '@automattic/dataviews' ) {
 		for ( const fromPkg of Object.keys( wpPkgs ) ) {
 			if ( ! wpPkgFetches[ fromPkg ] ) {
 				wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>

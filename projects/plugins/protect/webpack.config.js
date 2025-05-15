@@ -33,6 +33,28 @@ module.exports = [
 					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
 
+				// Add textdomains (but no other optimizations) for @automattic/dataviews.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@automattic/dataviews/' ],
+					babelOpts: {
+						configFile: false,
+						plugins: [
+							[
+								require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+								{ textdomain: 'jetpack-protect' },
+							],
+						],
+					},
+				} ),
+
+				// Also set .resolve.fullySpecified = false for @automattic/dataviews.
+				{
+					test: /\/@automattic\/dataviews\//,
+					resolve: {
+						fullySpecified: false,
+					},
+				},
+
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],

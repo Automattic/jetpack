@@ -78,7 +78,7 @@
 	:global {
 		// Use import without ".css" extension to avoid it being rendered as URL
 		/* stylelint-disable-next-line no-invalid-position-at-import-rule -- this import is intentionally scoped */
-		@import '@wordpress/dataviews/build-style/style';
+		@import '@automattic/dataviews/build-style/style';
 	}
 
 	// Hide the table actions

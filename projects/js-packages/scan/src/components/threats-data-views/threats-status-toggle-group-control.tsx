@@ -1,8 +1,8 @@
+import { type View } from '@automattic/dataviews';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { type View } from '@wordpress/dataviews';
 import { useMemo, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { type Threat, type ThreatStatus } from '@automattic/jetpack-scan';

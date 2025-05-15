@@ -25,6 +25,7 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@automattic/dataviews": "0.1.1",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
@@ -40,7 +41,6 @@
 		"@wordpress/components": "29.8.0",
 		"@wordpress/compose": "7.22.0",
 		"@wordpress/data": "10.22.0",
-		"@wordpress/dataviews": "4.17.0",
 		"@wordpress/date": "5.22.0",
 		"@wordpress/element": "6.22.0",
 		"@wordpress/i18n": "5.22.0",

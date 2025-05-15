@@ -44,9 +44,9 @@ module.exports = [
 					includeNodeModules: [ '@automattic/' ],
 				} ),
 
-				// Add textdomains (but no other optimizations) for @wordpress/dataviews.
+				// Add textdomains (but no other optimizations) for @automattic/dataviews.
 				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@wordpress/dataviews/' ],
+					includeNodeModules: [ '@automattic/dataviews/' ],
 					babelOpts: {
 						configFile: false,
 						plugins: [
@@ -58,9 +58,9 @@ module.exports = [
 					},
 				} ),
 
-				// Add textdomains (but no other optimizations) for @wordpress/dataviews.
+				// Add textdomains (but no other optimizations) for @automattic/dataviews.
 				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@wordpress/dataviews/build-wp/' ],
+					includeNodeModules: [ '@automattic/dataviews/dist/wp/' ],
 					babelOpts: {
 						configFile: false,
 						plugins: [

@@ -1,4 +1,3 @@
-import { Badge } from '@automattic/jetpack-components';
 import {
 	type Action,
 	type ActionButton,
@@ -10,7 +9,8 @@ import {
 	type View,
 	DataViews,
 	filterSortAndPaginate,
-} from '@wordpress/dataviews';
+} from '@automattic/dataviews';
+import { Badge } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';

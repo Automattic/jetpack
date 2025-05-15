@@ -1,5 +1,5 @@
+import { DataViews, filterSortAndPaginate } from '@automattic/dataviews';
 import { useViewportMatch } from '@wordpress/compose';
-import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { useCallback, useState, useMemo, useEffect } from 'react';
@@ -33,7 +33,7 @@ import type {
 	View,
 	Operator,
 	Option,
-} from '@wordpress/dataviews';
+} from '@automattic/dataviews';
 import type { FC } from 'react';
 
 import './style.scss';

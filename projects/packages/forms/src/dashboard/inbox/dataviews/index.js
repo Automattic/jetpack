@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { DataViews } from '@automattic/dataviews/wp';
 import {
 	ExternalLink,
 	Modal,
@@ -10,7 +11,6 @@ import {
 import { useResizeObserver } from '@wordpress/compose';
 import { useEntityRecords } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';

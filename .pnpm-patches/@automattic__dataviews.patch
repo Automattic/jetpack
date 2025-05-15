@@ -1,0 +1,16 @@
+Hack for https://github.com/WordPress/gutenberg/issues/67897
+
+diff --git a/dist/esm/package.json b/dist/esm/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..5ffd9800b97cf26f3962c0fcda77cdb56cb946a8
+--- /dev/null
++++ b/dist/esm/package.json
+@@ -0,0 +1 @@
++{ "type": "module" }
+diff --git a/dist/wp/package.json b/dist/wp/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..5ffd9800b97cf26f3962c0fcda77cdb56cb946a8
+--- /dev/null
++++ b/dist/wp/package.json
+@@ -0,0 +1 @@
++{ "type": "module" }
