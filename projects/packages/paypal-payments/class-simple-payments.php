@@ -18,9 +18,9 @@ use Jetpack_Options;
 use WP_Post;
 
 /**
- * Jetpack_Simple_Payments
+ * Simple_Payments
  */
-class Jetpack_Simple_Payments {
+class Simple_Payments {
 	// These have to be under 20 chars because that is CPT limit.
 
 	const PACKAGE_VERSION = '0.1.0-alpha';
@@ -63,7 +63,7 @@ class Jetpack_Simple_Payments {
 	/**
 	 * Instance of the class.
 	 *
-	 * @var Jetpack_Simple_Payments
+	 * @var Simple_Payments
 	 */
 	private static $instance;
 
@@ -80,7 +80,7 @@ class Jetpack_Simple_Payments {
 	 * @deprecated 10.8
 	 */
 	public static function getInstance() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		_deprecated_function( __METHOD__, 'Jetpack 10.7.0', 'Jetpack_Simple_Payments::get_instance' );
+		_deprecated_function( __METHOD__, 'Jetpack 10.7.0', 'Simple_Payments::get_instance' );
 		return self::get_instance();
 	}
 
@@ -814,5 +814,21 @@ class Jetpack_Simple_Payments {
 		}
 		return null;
 	}
+
+	/**
+	 * Register Simple_Payments_Widget widget.
+	 */
+	public static function register_widget_simple_payments() {
+		if ( ! class_exists( 'Simple_Payments' ) ) {
+			return;
+		}
+
+		$jetpack_simple_payments = self::get_instance();
+		if ( ! $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
+			return;
+		}
+
+		register_widget( 'Simple_Payments_Widget' );
+	}
 }
-Jetpack_Simple_Payments::get_instance();
+Simple_Payments::get_instance();
