@@ -291,7 +291,9 @@ async function getProjectChangeTypes( needChangelog ) {
 	const types = {};
 	for ( const proj of needChangelog ) {
 		const composerJSON = readComposerJson( proj );
-		if (
+		if ( ! composerJSON ) {
+			process.exit( 1 );
+		} else if (
 			composerJSON.extra &&
 			composerJSON.extra.changelogger &&
 			composerJSON.extra.changelogger.types

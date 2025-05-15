@@ -17,7 +17,10 @@ function readJson( project, packageManager, output ) {
 	try {
 		data = fs.readFileSync( `projects/${ project }/${ file }`, 'utf8' );
 	} catch {
-		output && log( chalk.yellow( `This project does not have a ${ file } file.` ) );
+		output &&
+			log(
+				chalk.yellow( `The '${ project }' project has no ${ file } file. Maybe there was a tpyo?` )
+			);
 		return undefined;
 	}
 
