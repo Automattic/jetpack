@@ -54,7 +54,7 @@ const TemplatePickerModal = ( { onSave, render, template = null, imageId = null 
 			{ isOpen && (
 				<Modal
 					onRequestClose={ closePicker }
-					title={ __( 'Default Template and Image', 'jetpack-publicize-components' ) }
+					title={ __( 'Change default Template and Image', 'jetpack-publicize-components' ) }
 				>
 					<BaseControl
 						id="default-template"
