@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms Dashboard: fix containers height to consistently fit on view, single scrollbar on dataviews
