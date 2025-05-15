@@ -382,7 +382,7 @@ async function generatePluginFromStarter( projDir, answers ) {
 				copyFile(
 					path.join(
 						projDir,
-						'tests/php/' + transformToPhpClassName( answers.name, false ) + '_Test.php'
+						'tests/php/' + transformToPhpClassName( answers.name ) + '_Test.php'
 					),
 					path.join( starterDir, file )
 				);
