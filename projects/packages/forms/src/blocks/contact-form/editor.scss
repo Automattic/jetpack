@@ -525,14 +525,6 @@
 	}
 }
 
-:where(:not(.contact-form)) > .jetpack-field {
-
-	.jetpack-field__input, .jetpack-field__textarea {
-		padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
-		padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
-	}
-}
-
 // Duplicated to elevate specificity in order to overwrite core styles
 .jetpack-field-multiple__list.jetpack-field-multiple__list {
 	list-style-type: none;
@@ -919,15 +911,15 @@
 			.jetpack-field-dropdown__toggle
 			{
 				padding-top: 1.4em;
-				padding-left: var(--jetpack--contact-form--field-padding);
+				padding-left: var(--jetpack--contact-form--animated-left-offset);
 			}
 
 			.animated-label__label {
 				position: absolute;
 				z-index: 1;
 				top: 50%;
-				left: var(--jetpack--contact-form--label-left);
-				width: calc( 100% - var(--jetpack--contact-form--label-left));
+				left: calc(var(--jetpack--contact-form--border-size, 0px) + var(--jetpack--contact-form--animated-left-offset));
+				width: auto;
 				max-width: 100%;
 				box-sizing: border-box;
 				margin: 0;
@@ -939,17 +931,22 @@
 				}
 			}
 
+			.jetpack-field-multiple__list.jetpack-field-multiple__list--has-border {
+				padding-left: var(--jetpack--contact-form--animated-left-offset);
+			}
 
-			&.jetpack-field-multiple {
 
-				.animated-label__label {
-					position: static;
-				}
+			&.jetpack-field-multiple .animated-label__label {
+				position: static;
 			}
 
 			&.jetpack-field-textarea .animated-label__label {
 				transform: unset;
-				top: var(--jetpack--contact-form--input-padding-top, 16px);
+				top: var(--jetpack--contact-form--animated-left-offset);
+			}
+
+			&.jetpack-field-textarea .animated-label__label {
+				top: var(--jetpack--contact-form--border-size);
 			}
 
 			&.is-selected, &.has-placeholder {

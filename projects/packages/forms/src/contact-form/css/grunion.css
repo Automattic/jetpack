@@ -670,10 +670,18 @@ on production builds, the attributes are being reordered, causing side-effects
 	padding-right: var(--field-padding);
 }
 
+/* Fix padding for new forms in animated style */
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > .wp-block-jetpack-input,
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input,
+.contact-form .is-style-animated .wp-block-jetpack-options.jetpack-field-multiple__list--has-border {
+	padding-left: var(--jetpack--contact-form--animated-left-offset);
+	padding-right: var(--jetpack--contact-form--animated-left-offset);
+}
+
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
 	position: absolute;
 	top: 50%;
-	left: var(--label-left);
+	left: calc(var(--jetpack--contact-form--border-size, 0px) + var(--jetpack--contact-form--animated-left-offset));
 	width: 100%;
 	max-width: 100%;
 	box-sizing: border-box;
@@ -686,7 +694,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-textarea-wrap .animated-label__label {
 	transform: unset;
-	top: var(--jetpack--contact-form--input-padding-top, 16px);
+	top: var(--jetpack--contact-form--animated-left-offset);
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus),

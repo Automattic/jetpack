@@ -1590,17 +1590,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			if ( 'outlined' === $form_style ) {
 				$css_vars .= '--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));';
 			} elseif ( 'animated' === $form_style ) {
-				$legacy_border_left_size = $outline_styles['border']['width'] ?? null;
-				$legacy_border_left_size = is_numeric( $legacy_border_left_size ) ? $legacy_border_left_size . 'px' : $legacy_border_left_size;
-
-				$border_left_size = $legacy_border_left_size ??
-				$outline_styles['border']['left']['width'] ??
-				$global_styles['width'] ??
-				$global_styles['left']['width'];
-
-				$css_vars .= "--jetpack--contact-form--left-offset: calc(var(--jetpack--contact-form--input-padding-left, 16px) + {$border_left_size});";
-				$css_vars .= '--jetpack--contact-form--label-left: max(var(--jetpack--contact-form--left-offset), var(--jetpack--contact-form--border-radius));';
-				$css_vars .= "--jetpack--contact-form--field-padding: calc(var(--jetpack--contact-form--label-left) - {$border_left_size});";
+				$css_vars .= '--jetpack--contact-form--animated-left-offset: ' . ( ! empty( $border_radius ) ? '32px' : '16px' ) . ';';
 			}
 		}
 
