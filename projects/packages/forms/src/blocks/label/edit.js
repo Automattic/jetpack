@@ -2,8 +2,8 @@ import { RichText, store as blockEditorStore, useBlockProps } from '@wordpress/b
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
-import useFormStyleOutlineClassesAndStyles from '../shared/hooks/use-form-style-outline-classes-and-styles.js';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
+import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
 import { ALLOWED_FORMATS, DATE_FORMATS, FORM_STYLE } from '../shared/util/constants.js';
 import getBlockStyle from '../shared/util/get-block-style.js';
 
@@ -89,14 +89,14 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 
 	const inputBlock = useSiblingBlock( clientId );
 
-	const inputStyles = useFormStyleOutlineClassesAndStyles( {
+	const variationProps = useVariationStyleProperties( {
 		clientId,
 		inputBlockName: inputBlock?.name,
 		inputBlockAttributes: inputBlock?.attributes,
 	} );
 	const blockProps = useBlockProps( {
 		className,
-		style: inputStyles?.cssVars,
+		style: variationProps?.cssVars,
 	} );
 
 	// The label value to use for the RichText field must manually fall back to the
@@ -109,9 +109,9 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 	return (
 		<WithNotchedWrapper
 			formStyle={ formStyle }
-			styles={ inputStyles?.style }
-			cssVars={ inputStyles?.cssVars }
-			className={ inputStyles?.className }
+			styles={ variationProps?.style }
+			cssVars={ variationProps?.cssVars }
+			className={ variationProps?.className }
 		>
 			<div { ...blockProps }>
 				<RichText

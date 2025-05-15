@@ -1,7 +1,7 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import clsx from 'clsx';
-import useFormStyleOutlineClassesAndStyles from '../shared/hooks/use-form-style-outline-classes-and-styles.js';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
+import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'backgroundColor', 'borderColor', 'style', 'textColor' ];
 
@@ -15,15 +15,15 @@ const OptionsEdit = ( { clientId, name, context, attributes, setAttributes } ) =
 		attributes,
 		setAttributes
 	);
-	const styles = useFormStyleOutlineClassesAndStyles( {
+	const variationProps = useVariationStyleProperties( {
 		clientId,
 		inputBlockName: name,
 		inputBlockAttributes: attributes,
 	} );
 
 	const blockProps = useBlockProps( {
-		className: clsx( 'jetpack-field-multiple__list', styles?.className ),
-		style: styles?.cssVars,
+		className: clsx( 'jetpack-field-multiple__list', variationProps?.className ),
+		style: variationProps?.cssVars,
 	} );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {

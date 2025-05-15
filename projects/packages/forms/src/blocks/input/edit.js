@@ -3,9 +3,9 @@ import { PanelBody, __experimentalNumberControl as NumberControl } from '@wordpr
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
-import useFormStyleOutlineClassesAndStyles from '../shared/hooks/use-form-style-outline-classes-and-styles.js';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
+import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
 import { ALLOWED_FORMATS } from '../shared/util/constants.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [
@@ -33,7 +33,7 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 	const { 'jetpack/field-share-attributes': isSynced } = context;
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 	const { max, min, placeholder, type } = attributes;
-	const styles = useFormStyleOutlineClassesAndStyles( {
+	const variationProps = useVariationStyleProperties( {
 		clientId,
 		inputBlockName: name,
 		inputBlockAttributes: attributes,
@@ -41,7 +41,7 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 	const className = clsx( getInputClass( attributes.type ), {
 		inline: type === 'checkbox' || type === 'radio',
 	} );
-	const blockProps = useBlockProps( { className, style: styles?.cssVars } );
+	const blockProps = useBlockProps( { className, style: variationProps?.cssVars } );
 	const onKeyDown = useInsertAfterOnEnterKeyDown( clientId );
 
 	const onChange = useCallback(
