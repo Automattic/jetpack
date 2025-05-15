@@ -22,7 +22,15 @@ function getIntAsPxValue( value ) {
 	return value;
 }
 
-function getBorderRadius( style ) {
+/**
+ * Returns the value of the CSS var for the border radius for outlined forms, taking into account
+ * that the border radius might be a single or split value.
+ *
+ * @param {object} style - The style object.
+ *
+ * @return {string|undefined} The CSS var for the border radius.
+ */
+function getBorderRadiusCssVar( style ) {
 	// A single border radius value for all for corners, this is quicker to check, so it goes first.
 	if ( style?.borderRadius ) {
 		return getIntAsPxValue( style?.borderRadius );
@@ -125,12 +133,6 @@ export default function useVariationStyleProperties( {
 
 		if ( formStyle === FORM_STYLE.OUTLINED ) {
 			styleSpecificCssVars = {
-				// Set a max-width for the notch (using `min()`) to prevent it from getting too wide.
-				// Users can set very high values for border radius, but css has built-in capping of the radius,
-				// there's no equivalent way to do this for the width, so we choose an arbitrary value.
-				//
-				// To determine the actual max, we'd need to know the height of the input and divide by 2
-				// to get the max border radius. Perhaps it can be a future improvement!
 				'--jetpack--contact-form--notch-width':
 					'max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius))',
 			};
@@ -166,8 +168,8 @@ export default function useVariationStyleProperties( {
 					globalBorderClassesAndStyles?.style?.borderTopWidth,
 				// Sets the value of --notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)); for .notched-label.
 				'--jetpack--contact-form--border-radius':
-					getBorderRadius( blockBorderClassesAndStyles.style ) ||
-					getBorderRadius( globalBorderClassesAndStyles.style ),
+					getBorderRadiusCssVar( blockBorderClassesAndStyles.style ) ||
+					getBorderRadiusCssVar( globalBorderClassesAndStyles.style ),
 				...styleSpecificCssVars,
 			},
 		};
