@@ -538,6 +538,10 @@
 	gap: 12px;
 	flex: 1;
 
+	&.has-background {
+		padding: var(--jetpack--contact-form--input-padding-left, 16px) 16px;
+	}
+
 	&.jetpack-field-multiple__list--has-border {
 		padding-left: var(--jetpack--contact-form--input-padding-left, 16px);
 		padding-right: var(--jetpack--contact-form--input-padding-left, 16px);
@@ -886,7 +890,6 @@
 				border-radius: unset !important;
 				outline: none;
 				padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
-				padding-right: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
 			}
 		}
 	}
@@ -910,7 +913,6 @@
 			{
 				padding-top: 1.4em;
 				padding-left: var(--jetpack--contact-form--field-padding);
-				padding-right: var(--jetpack--contact-form--field-padding);
 			}
 
 			.animated-label__label {

@@ -395,6 +395,7 @@
 	transform: translateY(-50%) rotate(45deg);
 	transform-origin: center center;
 	pointer-events: none;
+	right: calc(var(--jetpack--contact-form--border-size) + 16px);
 }
 
 .contact-form :where( .contact-form__select-wrapper select ) {
@@ -443,7 +444,6 @@
 {
 	padding: var(--jetpack--contact-form--input-padding, 16px);
 	padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
-	flex-grow: 1;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label {
@@ -713,9 +713,13 @@ on production builds, the attributes are being reordered, causing side-effects
 	padding: var(--jetpack--contact-form--input-padding-left, 16px) 0;
 }
 
+:where(.wp-block-jetpack-options.has-background) {
+	padding: var(--jetpack--contact-form--input-padding-left, 16px) 16px;
+}
+
 /* Ensure global styles can ovewrite the default border color. */
 :where(.wp-block-jetpack-options.jetpack-field-multiple__list--has-border) {
-	padding-left: var(--jetpack--contact-form--input-padding-left, 16px);
+	padding-left: calc( var(--jetpack--contact-form--notch-width) - var(--jetpack--contact-form--border-size));
 	padding-right: var(--jetpack--contact-form--input-padding-left, 16px);
 	border-color: var(--jetpack--contact-form--border-color);
 }
