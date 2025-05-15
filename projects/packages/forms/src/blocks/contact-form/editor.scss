@@ -890,6 +890,7 @@
 				border-radius: unset !important;
 				outline: none;
 				padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
+				padding-right: var(--jetpack--contact-form--input-padding-left, 16px);
 			}
 		}
 	}

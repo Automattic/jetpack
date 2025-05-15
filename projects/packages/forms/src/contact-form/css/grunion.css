@@ -166,6 +166,10 @@
 
 .wp-block-jetpack-contact-form.is-style-outlined .wp-block-jetpack-options legend {
 	font-size: 0.8em;
+	padding: 0 0.25em;
+	position: relative;
+	top: calc(var(--jetpack--contact-form--border-size, 1px) / 2 * -1);
+
 }
 
 .contact-form .grunion-checkbox-multiple-options .contact-form-field,
