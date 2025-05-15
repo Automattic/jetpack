@@ -58,13 +58,11 @@ export default function useVariationStyleProperties( {
 		};
 	}, [] );
 
+	const inputBaseGlobalStyles = baseConfig?.styles?.blocks[ inputBlockName ];
+	const inputUserGlobalStyles = userConfig?.styles?.blocks[ inputBlockName ];
 	const mergedGlobalBlockStyles = useMemo(
-		() =>
-			merge(
-				baseConfig?.styles?.blocks?.[ inputBlockName ],
-				userConfig?.styles?.blocks?.[ inputBlockName ]
-			),
-		[ baseConfig?.styles?.blocks, userConfig?.styles?.blocks, inputBlockName ]
+		() => merge( inputBaseGlobalStyles, inputUserGlobalStyles ),
+		[ inputBaseGlobalStyles, inputUserGlobalStyles ]
 	);
 
 	return useMemo( () => {
