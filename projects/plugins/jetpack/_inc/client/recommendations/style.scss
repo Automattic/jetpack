@@ -1,7 +1,7 @@
 @import './mixin';
 @import '../scss/mixin_breakpoint';
 @import '../scss/mixins/rna';
-@import 'node_modules/@automattic/jetpack-base-styles/style';
+@import '@automattic/jetpack-base-styles/style';
 
 .jp-recommendations-question__main {
 	min-height: 480px;

@@ -1,10 +1,11 @@
 // This document contains styles that influence the styles of Stats & At a Glance, overall.
 // For more precise styles, dig into the styles of each component. ie. dash-item
 @use 'sass:color';
+@use '../scss/functions/rem';
 @import '../scss/calypso-colors';
 
 .jp-at-a-glance {
-	margin-bottom: rem( 48px );
+	margin-bottom: rem.convert( 48px );
 
 	&__pinned-bundle {
 		margin-bottom: 1rem;
@@ -30,7 +31,7 @@
 	}
 
 	.dops-banner__title {
-		padding: 0 rem( 8px );
+		padding: 0 rem.convert( 8px );
 	}
 
 	.dops-banner__description {
@@ -50,7 +51,7 @@
 	margin-bottom: 0;
 
 	.jp-dash-section-header__name {
-		margin-bottom: rem(12px);
+		margin-bottom: rem.convert(12px);
 	}
 }
 
@@ -88,7 +89,7 @@
 }
 
 .jp-at-a-glance__stats-inactive {
-	padding: rem( 16px );
+	padding: rem.convert( 16px );
 
 	@include breakpoint( '>660px' ) {
 		display: flex;
@@ -125,12 +126,12 @@
 	}
 
 	@include breakpoint( '<660px' ) {
-		padding: 0 0 rem( 16px );
+		padding: 0 0 rem.convert( 16px );
 	}
 
 	@include breakpoint( '>660px' ) {
 		flex-basis: 50%;
-		padding: 0 rem( 16px );
+		padding: 0 rem.convert( 16px );
 	}
 }
 
@@ -154,7 +155,7 @@
 }
 
 .jp-at-a-glance__stats-chart {
-	padding: rem( 16px ) 0;
+	padding: rem.convert( 16px ) 0;
 	position: relative;
 }
 
@@ -166,7 +167,7 @@
 }
 
 .jp-at-a-glance__stats-bottom {
-	margin: rem( 8px ) 0 0;
+	margin: rem.convert( 8px ) 0 0;
 
 	@include breakpoint( '<480px' ) {
 		box-shadow: 0 0 0 1px $light-gray-700;
@@ -218,7 +219,7 @@
 .jp-at-a-glance__stats-summary-alltime-views,
 .jp-at-a-glance__stats-summary-alltime-comments {
 	flex-basis: 25%;
-	padding: rem( 13px ) 0 rem( 17px );
+	padding: rem.convert( 13px ) 0 rem.convert( 17px );
 }
 
 .jp-at-a-glance__stats-summary-today {
@@ -227,7 +228,7 @@
 	border-color: #DCDCDE;
 
 	@include breakpoint( '<660px' ) {
-		margin-top: rem( -1px );
+		margin-top: rem.convert( -1px );
 	}
 }
 
@@ -237,7 +238,7 @@
 	border-color: #DCDCDE;
 
 	@include breakpoint( '>660px' ) {
-		margin: 0 rem( 1px );
+		margin: 0 rem.convert( 1px );
 	}
 }
 
@@ -258,12 +259,12 @@
 .jp-at-a-glance__stats-summary-alltime-comments {
 
 	@include breakpoint( '<660px' ) {
-		margin-top: rem( 1px );
+		margin-top: rem.convert( 1px );
 	}
 }
 
 .jp-at-a-glance__stats-cta {
-	padding: rem( 12px );
+	padding: rem.convert( 12px );
 
 	@include breakpoint( '>660px' ) {
 		display: flex;
@@ -297,7 +298,7 @@
 	font-size: $font-title-small;
 	line-height: 30px;
 	font-weight: 500;
-	margin: rem( 6px ) 0 rem( 4px );
+	margin: rem.convert( 6px ) 0 rem.convert( 4px );
 }
 
 .jp-at-a-glance__stats-ctas {
@@ -317,7 +318,7 @@
 
 		.dops-button {
 			width: 100%;
-			margin-bottom: rem( 4px );
+			margin-bottom: rem.convert( 4px );
 		}
 	}
 
@@ -328,7 +329,7 @@
 	.dops-button {
 		text-align: center;
 		text-decoration: none;
-		margin: rem( 4px );
+		margin: rem.convert( 4px );
 	}
 }
 
@@ -341,7 +342,7 @@
 	display: inline-block;
 	margin-top: 0;
 	margin-bottom: 0;
-	margin-left: rem(12px);
+	margin-left: rem.convert(12px);
 
 	&:focus {
 		outline: 0;
@@ -349,7 +350,7 @@
 
 	@include breakpoint('<480px') {
 		margin-left: 0;
-		margin-right: rem(16px);
+		margin-right: rem.convert(16px);
 	}
 
 	.jp-at-a-glance__stats-view-link,
@@ -367,7 +368,7 @@
 		&:focus.is-current {
 			color: $black;
 			text-decoration: none;
-			padding-bottom: rem(11px);
+			padding-bottom: rem.convert(11px);
 			border-bottom: 2px solid $black;
 		}
 	}
@@ -394,11 +395,11 @@
 
 	@include breakpoint( '>660px' ) {
 		flex-basis: 50%;
-		margin-bottom: rem( 16px );
+		margin-bottom: rem.convert( 16px );
 	}
 
 	@include breakpoint( '<660px' ) {
-		margin-bottom: rem( 12px );
+		margin-bottom: rem.convert( 12px );
 	}
 
 	> div, // Sorry. not sure how to class this. Thanks, React.
@@ -451,7 +452,7 @@
 	display: flex;
 
 	@include breakpoint( '>660px' ) {
-		margin-right: rem( 16px );
+		margin-right: rem.convert( 16px );
 
 		&:last-child {
 			flex-basis: calc( 50% - 0.5rem ); // rem function doesn't work in calc()
@@ -474,7 +475,7 @@
 }
 
 .jp-connection-settings__text {
-	margin-left: rem( 16px );
+	margin-left: rem.convert( 16px );
 	word-break: break-word;
 	color: $gray-80;
 	font-size: $font-body-small;
@@ -498,12 +499,12 @@
 	.jp-connection-settings__site-icon {
 		background: #c8d7e1;
 		color: #fff;
-		min-width: rem( 64px );
+		min-width: rem.convert( 64px );
 	}
 
 	.jp-connection-settings__gravatar {
 		display: inline-block;
-		min-width: rem( 64px );
+		min-width: rem.convert( 64px );
 		background: $gray;
 		border-radius: 50%;
 		margin-bottom: 0;
@@ -521,20 +522,20 @@
 
 .jp-connection-settings__modal-body {
 	margin: 0;
-	padding: rem( 24px ) rem( 32px );
+	padding: rem.convert( 24px ) rem.convert( 32px );
 	font-size: $font-body-small;
 	color: $blue-dark-text;
 	text-align: center;
 
 	h2 {
-		margin: rem( 32px ) 0 rem( 24px );
+		margin: rem.convert( 32px ) 0 rem.convert( 24px );
 		font-size: $font-title-large;
 		font-weight: 300;
 		color: $blue-dark-text;
 	}
 
 	h4 {
-		margin: rem( 16px ) rem( 24px ) 0;
+		margin: rem.convert( 16px ) rem.convert( 24px ) 0;
 		font-size: $font-body;
 		font-weight: 400;
 		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
@@ -547,7 +548,7 @@
 	}
 
 	ul {
-		margin: rem( 24px ) 0 rem( 36px );
+		margin: rem.convert( 24px ) 0 rem.convert( 36px );
 		color: $blue-text;
 	}
 
@@ -555,7 +556,7 @@
 		position: relative;
 		display: block;
 		margin: 0;
-		padding: rem( 16px ) rem( 8px ) rem( 16px ) rem( 44px );
+		padding: rem.convert( 16px ) rem.convert( 8px ) rem.convert( 16px ) rem.convert( 44px );
 		border-bottom: 1px solid color.adjust( $gray, $lightness: 25% );
 		text-align: left;
 
@@ -566,8 +567,8 @@
 
 	.gridicon {
 		position: absolute;
-		left: rem( 16px );
-		top: rem( 16px );
+		left: rem.convert( 16px );
+		top: rem.convert( 16px );
 		vertical-align: text-bottom;
 		color: $blue-text;
 	}
@@ -599,10 +600,10 @@
 }
 
 .jp-dash-item__videopress-storage {
-	margin-top: rem( 16px );
+	margin-top: rem.convert( 16px );
 
 	span {
-		margin-top: rem( 10px );
+		margin-top: rem.convert( 10px );
 		display: block;
 	}
 }

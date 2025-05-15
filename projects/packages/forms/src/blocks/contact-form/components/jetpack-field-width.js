@@ -5,7 +5,7 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-const PERCENTAGE_WIDTHS = [ 25, 50, 75, 100 ];
+const PERCENTAGE_WIDTHS = [ 25, 33, 50, 75, 100 ];
 
 export default function JetpackFieldWidth( { setAttributes, width } ) {
 	return (

@@ -15,3 +15,11 @@ changelog/**      production-exclude
 .phpcs.dir.xml    production-exclude
 src/client/**     production-exclude
 tests/**          production-exclude
+declarations.d.ts production-exclude
+global.d.ts       production-exclude
+babel.config.js   production-exclude
+eslint.config.js  production-exclude
+jest.config.cjs   production-exclude
+postcss.config.js production-exclude
+tsconfig.json     production-exclude
+webpack.config.js production-exclude

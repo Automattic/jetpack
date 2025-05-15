@@ -1,3 +1,5 @@
+@use '../../scss/functions/rem';
+
 .jp-form-settings-group {
 	position: relative;
 	margin-bottom: 0;
@@ -5,7 +7,7 @@
 	p {
 		font-size: $font-body-small;
 		margin-top: 0;
-		margin-bottom: rem( 24px );
+		margin-bottom: rem.convert( 24px );
 
 		&.jp-settings-card__blocks-description {
 			margin-bottom: 0;
@@ -21,21 +23,21 @@
 	}
 
 	.form-toggle__label {
-		margin-top: rem( 4px );
-		margin-bottom: rem( 4px );
+		margin-top: rem.convert( 4px );
+		margin-bottom: rem.convert( 4px );
 	}
 
 	.jp-form-setting-explanation {
 		color: $gray-text-min;
 		display: block;
-		margin: rem( 5px ) rem( 14px ) rem( 5px ) 0;
+		margin: rem.convert( 5px ) rem.convert( 14px ) rem.convert( 5px ) 0;
 		font-size: $font-body-small;
 		font-style: italic;
 		font-weight: 400;
 		word-break: break-word;
 
 		+ .dops-card {
-			margin-top: rem( 16px );
+			margin-top: rem.convert( 16px );
 		}
 
 		&.is-warning {
@@ -53,12 +55,12 @@
 	}
 
 	.dops-card {
-		padding-right: rem( 72px );
+		padding-right: rem.convert( 72px );
 	}
 
 	.jp-support-info {
-		top: rem( 18px );
-		right: rem( 28px );
+		top: rem.convert( 18px );
+		right: rem.convert( 28px );
 
 		+ p {
 			margin-top: 2px;

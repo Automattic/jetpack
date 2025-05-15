@@ -31,7 +31,7 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
  */
 import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
 import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
-import type { AiModelTypeProp, PromptProp } from '@automattic/jetpack-ai-client';
+import type { PromptProp } from '@automattic/jetpack-ai-client';
 import type { ReactElement } from 'react';
 
 import './style.scss';
@@ -45,7 +45,6 @@ type ContentLensMessageContextProps = {
 	content?: string;
 	language?: LanguageProp;
 	tone?: ToneProp;
-	model?: AiModelTypeProp;
 };
 
 function AiPostExcerpt() {
@@ -71,36 +70,53 @@ function AiPostExcerpt() {
 	const [ reenable, setReenable ] = useState( false );
 	const [ language, setLanguage ] = useState< LanguageProp >();
 	const [ tone, setTone ] = useState< ToneProp >();
-	const [ model, setModel ] = useState< AiModelTypeProp >( null );
 
-	const { request, stopSuggestion, suggestion, requestingState, error, reset } = useAiSuggestions( {
-		onDone: useCallback( () => {
-			/*
-			 * Increase the AI Suggestion counter.
-			 * @todo: move this at store level.
-			 */
-			increaseAiAssistantRequestsCount();
-		}, [ increaseAiAssistantRequestsCount ] ),
-		onError: useCallback(
-			suggestionError => {
-				/*
-				 * Incrses AI Suggestion counter
-				 * only for valid errors.
-				 * @todo: move this at store level.
-				 */
-				if (
-					suggestionError.code === 'error_network' ||
-					suggestionError.code === 'error_quota_exceeded'
-				) {
-					return;
-				}
+	const { request, stopSuggestion, suggestion, requestingState, error, reset, model } =
+		useAiSuggestions( {
+			onDone: useCallback(
+				( _content, skipRequestCount, modelUsed ) => {
+					/*
+					 * Increase the AI Suggestion counter.
+					 * @todo: move this at store level.
+					 */
+					if ( ! skipRequestCount ) {
+						increaseAiAssistantRequestsCount();
+					}
+					tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
+						feature: 'jetpack-ai-content-lens',
+						model: modelUsed,
+					} );
+				},
+				[ increaseAiAssistantRequestsCount, tracks ]
+			),
+			onError: useCallback(
+				suggestionError => {
+					/*
+					 * Incrses AI Suggestion counter
+					 * only for valid errors.
+					 * @todo: move this at store level.
+					 */
+					if (
+						suggestionError.code === 'error_network' ||
+						suggestionError.code === 'error_quota_exceeded'
+					) {
+						return;
+					}
 
-				// Increase the AI Suggestion counter.
-				increaseAiAssistantRequestsCount();
-			},
-			[ increaseAiAssistantRequestsCount ]
-		),
-	} );
+					// Increase the AI Suggestion counter.
+					increaseAiAssistantRequestsCount();
+				},
+				[ increaseAiAssistantRequestsCount ]
+			),
+			onAllErrors: useCallback(
+				( _suggestionError, skipRequestCount ) => {
+					if ( ! skipRequestCount ) {
+						increaseAiAssistantRequestsCount();
+					}
+				},
+				[ increaseAiAssistantRequestsCount ]
+			),
+		} );
 
 	// Cancel and reset AI suggestion when the component is unmounted
 	useEffect( () => {
@@ -179,17 +195,14 @@ ${ postContent }
 		 * when performing a new AI suggestion request.
 		 */
 		dequeueAiAssistantFeatureAsyncRequest();
-
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
-		tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
-			feature: 'jetpack-ai-content-lens',
-		} );
 	}
 
 	function setExcerpt() {
 		editPost( { excerpt: suggestion } );
 		tracks.recordEvent( 'jetpack_ai_assistant_block_accept', {
 			feature: 'jetpack-ai-content-lens',
+			model: model,
 		} );
 		reset();
 	}
@@ -198,6 +211,7 @@ ${ postContent }
 		editPost( { excerpt: excerpt } );
 		tracks.recordEvent( 'jetpack_ai_assistant_block_discard', {
 			feature: 'jetpack-ai-content-lens',
+			model: model,
 		} );
 		reset();
 	}
@@ -252,11 +266,6 @@ ${ postContent }
 					tone={ tone }
 					onToneChange={ newTone => {
 						setTone( newTone );
-						setReenable( true );
-					} }
-					model={ model }
-					onModelChange={ newModel => {
-						setModel( newModel );
 						setReenable( true );
 					} }
 					disabled={ isBusy || requireUpgrade }

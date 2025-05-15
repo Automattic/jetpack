@@ -1,5 +1,5 @@
+@use '../../scss/functions/rem';
 @import '../../scss/calypso-colors';
-@import '../../scss/functions/rem';
 @import '../../scss/mixin_clear-fix';
 @import '../../scss/mixin_long-content-fade';
 
@@ -7,8 +7,8 @@
 	display: flex;
 	flex-wrap: wrap;
 	max-width: 100%;
-	padding-top: rem( 16px );
-	padding-bottom: rem( 15px );
+	padding-top: rem.convert( 16px );
+	padding-bottom: rem.convert( 15px );
 	position: relative;
 	border-bottom: 1px solid #DCDCDE;
 	margin-bottom: 0;
@@ -23,24 +23,24 @@
 	align-items: center;
 	flex-grow: 1;
 	min-width: 0; // weird fix for overflowing items
-	line-height: rem( 30px );
+	line-height: rem.convert( 30px );
 	position: relative;
 	color: $black;
-	font-size: rem( 20px );
+	font-size: rem.convert( 20px );
 	font-weight: 500;
 
 	.dops-count {
-		margin-left: rem( 8px );
+		margin-left: rem.convert( 8px );
 	}
 }
 
 .dops-section-header__label-text {
 	position: relative;
-	margin-right: rem( 8px );
+	margin-right: rem.convert( 8px );
 	white-space: nowrap;
 	overflow: hidden;
 	width: 100%;
-	padding-right: rem( 8px );
+	padding-right: rem.convert( 8px );
 	min-width: 0; // weird fix for overflowing items
 
 	&::before {

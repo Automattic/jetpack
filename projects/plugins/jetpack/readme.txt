@@ -326,20 +326,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.6-a.9 - 2025-04-28
-#### Major Enhancements
-- General: Update minimum WordPress version to 6.7.
-
+### 14.7-a.1 - 2025-05-12
 #### Enhancements
-- Featured Content: Add messaging to clarify that the tag name is case sensitive.
-- Forms: Update the email notification template.
-- My Jetpack: Update the onboarding UI to show a single button on initial page.
-- Shortcode: Convert an embed code from Facebook.com to an oEmbeddable URL.
-- Sitemaps: Use XMLWriter for a more performant sitemap generation when available.
+- Forms: Move Salesforce to block modal.
+- Forms: Remove Salesforce Form variation.
+- Forms: Update form responses tabs.
+- Forms: Replace Landing page with About page.
+- Forms: Update the email template for feedback responses.
+
+#### Improved compatibility
+- Blocks: Update `useResizeObserver` hook usage to meet new API expectations.
+- Remove Skype since the service no longer exists.
+- Sitemaps: Disable XMLWriter by default unless enabled by a filter.
 
 #### Bug fixes
-- Image Compare block: Ensure sticky menus hide the compare line.
-- My Jetpack: Prevent social login from getting stuck when email input is not empty.
+- Carousel: Do not display comment form when comments are closed for a specific media attachment.
+- Forms: Preserve responses query parameters.
 
 --------
 

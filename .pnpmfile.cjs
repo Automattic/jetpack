@@ -45,6 +45,15 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Broken version, and a fix hasn't been released for a while yet.
+	// p1743531431572359-slack-C02DQP0FP
+	if (
+		pkg.name.startsWith( '@automattic/launchpad' ) &&
+		pkg.dependencies?.[ '@automattic/data-stores' ] === '^3.1.0'
+	) {
+		pkg.dependencies[ '@automattic/data-stores' ] = '3.1.0 || >3.1.1';
+	}
+
 	// Outdated dependency version causing dependabot warnings.
 	// https://github.com/WordPress/gutenberg/issues/69557
 	if (
@@ -94,16 +103,6 @@ async function fixDeps( pkg ) {
 		// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
 		// https://github.com/WordPress/gutenberg/issues/60975
 		pkg.optionalDependencies[ 'framer-motion' ] += ' <11.5.0';
-	}
-
-	// Missing dep or peer dep. Fixed in main, but needs a release.
-	// https://github.com/actions/toolkit/issues/1993
-	if (
-		pkg.name === '@actions/github' &&
-		! pkg.dependencies?.undici &&
-		! pkg.peerDependencies?.undici
-	) {
-		pkg.dependencies.undici = '*';
 	}
 
 	// Missing dep or peer dep.

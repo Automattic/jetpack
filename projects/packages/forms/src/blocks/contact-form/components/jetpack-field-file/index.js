@@ -13,8 +13,6 @@ import { UpsellNudge } from '../upsell-nudge';
 import { useJetpackFieldStyles } from '../use-jetpack-field-styles';
 import './editor.css';
 
-const DEFAULT_ICON = `${ window?.jpFormsBlocks?.defaults?.assetsUrl }/images/upload-icon.svg`;
-
 const BLOCKS_TEMPLATE = [
 	[
 		'core/group',
@@ -41,29 +39,11 @@ const BLOCKS_TEMPLATE = [
 		},
 		[
 			[
-				'core/image',
-				{
-					url: DEFAULT_ICON,
-					width: '24px',
-					height: '24px',
-					scale: 'cover',
-					align: 'center',
-					className: 'is-style-default',
-					style: {
-						spacing: {
-							margin: {
-								bottom: '20px',
-							},
-						},
-					},
-				},
-			],
-			[
 				'core/paragraph',
 				{
 					align: 'center',
 					content: __(
-						'<strong><a href="#">Select a file</a></strong> or drag and drop your file here',
+						'<strong><a href="#">Select a file</a></strong> or drag and drop your file here.',
 						'jetpack-forms'
 					),
 					style: {
@@ -79,28 +59,16 @@ const BLOCKS_TEMPLATE = [
 					},
 				},
 			],
-			[
-				'core/paragraph',
-				{
-					align: 'center',
-					content: __( 'JPEG, PNG, PDF, and MP4 formats', 'jetpack-forms' ),
-					style: {
-						typography: {
-							fontSize: '14px',
-						},
-					},
-				},
-			],
 		],
 	],
 ];
 
 const JetpackFieldFile = props => {
-	const { attributes, clientId, isSelected, setAttributes } = props;
+	const { attributes, clientId, isSelected, setAttributes, name } = props;
 	const { id, label, required, requiredText, width } = attributes;
 	const fieldFileAvailability = getJetpackExtensionAvailability( 'field-file' );
 
-	useFormWrapper( { attributes, clientId } );
+	useFormWrapper( { attributes, clientId, name } );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
 	const blockProps = useBlockProps( {
@@ -153,14 +121,6 @@ const JetpackFieldFile = props => {
 					{
 						index: 1,
 						element: (
-							<p key="max-file-size">
-								{ __( 'Maximum file size is set to 20MB', 'jetpack-forms' ) }
-							</p>
-						),
-					},
-					{
-						index: 2,
-						element: (
 							<NumberControl
 								key="maxfiles"
 								label={ __( 'Number of files', 'jetpack-forms' ) }
@@ -176,7 +136,7 @@ const JetpackFieldFile = props => {
 								__nextHasNoMarginBottom={ true }
 								__next40pxDefaultSize={ true }
 								help={ __(
-									'Maximum number of files that the user is able to upload per form submission.',
+									'Maximum number of files that the user is able to upload per form submission. Each file can be up to 20MB.',
 									'jetpack-forms'
 								) }
 							/>

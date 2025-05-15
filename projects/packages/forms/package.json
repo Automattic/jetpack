@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-forms",
-	"version": "0.50.0",
+	"version": "0.52.0",
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
 	"bugs": {
@@ -36,6 +36,7 @@
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/block-editor": "14.17.0",
 		"@wordpress/blocks": "14.11.0",
@@ -62,7 +63,7 @@
 		"react-transition-group": "^4.4.5",
 		"redux": "4.2.1",
 		"redux-thunk": "2.3.0",
-		"sass": "1.64.1",
+		"sass": "1.68.0",
 		"semver": "7.7.1",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"
@@ -76,6 +77,8 @@
 		"@babel/runtime": "7.26.10",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/user-event": "^14.4.3",
+		"@types/react": "18.3.18",
+		"@types/react-dom": "18.3.5",
 		"@wordpress/api-fetch": "7.22.0",
 		"@wordpress/babel-plugin-import-jsx-pragma": "5.22.0",
 		"@wordpress/browserslist-config": "6.22.0",
@@ -89,7 +92,7 @@
 		"postcss": "8.4.47",
 		"postcss-loader": "6.2.0",
 		"sass": "1.64.1",
-		"sass-loader": "12.4.0",
+		"sass-loader": "16.0.5",
 		"typescript": "5.8.2"
 	},
 	"optionalDependencies": {

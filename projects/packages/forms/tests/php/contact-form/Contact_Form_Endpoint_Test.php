@@ -139,12 +139,19 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'akismet', $data );
 		$this->assertArrayHasKey( 'creative-mail-by-constant-contact', $data );
 		$this->assertArrayHasKey( 'zero-bs-crm', $data );
+		$this->assertArrayHasKey( 'google-drive', $data );
 
 		// Verify structure of one integration
 		$this->assertArrayHasKey( 'type', $data['akismet'] );
 		$this->assertArrayHasKey( 'isInstalled', $data['akismet'] );
 		$this->assertArrayHasKey( 'isActive', $data['akismet'] );
 		$this->assertArrayHasKey( 'isConnected', $data['akismet'] );
+
+		// Verify structure of google-drive
+		$this->assertArrayHasKey( 'type', $data['google-drive'] );
+		$this->assertArrayHasKey( 'isInstalled', $data['google-drive'] );
+		$this->assertArrayHasKey( 'isActive', $data['google-drive'] );
+		$this->assertArrayHasKey( 'isConnected', $data['google-drive'] );
 	}
 
 	/**
@@ -169,21 +176,32 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertContains( 'akismet', $integration_ids );
 		$this->assertContains( 'creative-mail-by-constant-contact', $integration_ids );
 		$this->assertContains( 'zero-bs-crm', $integration_ids );
+		$this->assertContains( 'google-drive', $integration_ids );
 
 		// Verify structure of each integration
 		foreach ( $data as $integration ) {
 			$this->assertArrayHasKey( 'id', $integration );
 			$this->assertArrayHasKey( 'type', $integration );
+			$this->assertArrayHasKey( 'slug', $integration );
 			$this->assertArrayHasKey( 'isInstalled', $integration );
 			$this->assertArrayHasKey( 'isActive', $integration );
 			$this->assertArrayHasKey( 'isConnected', $integration );
+			$this->assertArrayHasKey( 'settingsUrl', $integration );
+			$this->assertArrayHasKey( 'pluginFile', $integration );
+			$this->assertArrayHasKey( 'version', $integration );
+			$this->assertArrayHasKey( 'details', $integration );
 
 			// Verify expected data types
 			$this->assertIsString( $integration['id'] );
 			$this->assertIsString( $integration['type'] );
+			$this->assertIsString( $integration['slug'] );
 			$this->assertIsBool( $integration['isInstalled'] );
 			$this->assertIsBool( $integration['isActive'] );
 			$this->assertIsBool( $integration['isConnected'] );
+			$this->assertTrue( $integration['settingsUrl'] === null || is_string( $integration['settingsUrl'] ) );
+			$this->assertTrue( $integration['pluginFile'] === null || is_string( $integration['pluginFile'] ) );
+			$this->assertTrue( $integration['version'] === null || is_string( $integration['version'] ) );
+			$this->assertIsArray( $integration['details'] );
 		}
 	}
 
@@ -193,6 +211,44 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	public function test_get_integrations_returns_401() {
 		wp_set_current_user( 0 );
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test GET feedback/integrations/{slug} with a valid integration
+	 */
+	public function test_get_single_integration_returns_200_and_structure() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/google-drive' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'type', $data );
+		$this->assertArrayHasKey( 'slug', $data );
+		$this->assertArrayHasKey( 'isInstalled', $data );
+		$this->assertArrayHasKey( 'isActive', $data );
+		$this->assertArrayHasKey( 'isConnected', $data );
+		$this->assertArrayHasKey( 'settingsUrl', $data );
+		$this->assertArrayHasKey( 'pluginFile', $data );
+		$this->assertArrayHasKey( 'version', $data );
+		$this->assertArrayHasKey( 'details', $data );
+	}
+
+	/**
+	 * Test GET feedback/integrations/{slug} with an invalid integration
+	 */
+	public function test_get_single_integration_returns_400_for_invalid_slug() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/not-a-real-integration' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+	}
+
+	/**
+	 * Test GET feedback/integrations/{slug} unauthorized access
+	 */
+	public function test_get_single_integration_returns_401_for_unauthorized() {
+		wp_set_current_user( 0 );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/google-drive' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
 	}

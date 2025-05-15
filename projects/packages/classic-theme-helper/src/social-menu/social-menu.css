@@ -153,12 +153,7 @@ Genericons
 	content: "\f413";
 }
 
-/* Skype */
-.jetpack-social-navigation-genericons a[href*="skype:"]::before {
-	content: "\f220";
-}
-
-/* Skype */
+/* SMS */
 .jetpack-social-navigation-genericons a[href*="sms:"]::before {
 	content: "\f110";
 }

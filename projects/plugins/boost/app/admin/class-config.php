@@ -4,6 +4,8 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack_Boost\Lib\Cache_Compatibility;
+
 /**
  * Handle the configuration constants.
  *
@@ -26,10 +28,11 @@ class Config {
 			'assetPath'           => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 			'canResizeImages'     => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
 			'site'                => array(
-				'url'    => get_home_url(),
-				'domain' => ( new Status() )->get_site_suffix(),
-				'online' => ! ( new Status() )->is_offline_mode() && ! ( new Status() )->is_private_site(),
-				'host'   => $this->get_hosting_provider(),
+				'url'      => get_home_url(),
+				'domain'   => ( new Status() )->get_site_suffix(),
+				'online'   => ! ( new Status() )->is_offline_mode() && ! ( new Status() )->is_private_site(),
+				'host'     => $this->get_hosting_provider(),
+				'hasCache' => Cache_Compatibility::has_cache(),
 			),
 			'api'                 => array(
 				'namespace' => JETPACK_BOOST_REST_NAMESPACE,

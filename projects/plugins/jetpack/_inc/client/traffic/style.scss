@@ -1,3 +1,4 @@
+@use '../scss/functions/rem';
 @import "../scss/variables/colors";
 @import "../scss/mixin_breakpoint";
 
@@ -41,7 +42,7 @@
 
 // we want to place.jp-form-input-with-prefix's margin after this element
 .jp-form-input-with-prefix-bottom-message {
-	top: rem( -20px );
+	top: rem.convert( -20px );
 	position: relative;
 	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 2em;
@@ -101,8 +102,8 @@
 	align-content: center;
 
 	.dops-button {
-		margin-left: rem( 8px );
-		margin-right: rem( 8px );
+		margin-left: rem.convert( 8px );
+		margin-right: rem.convert( 8px );
 
 		&:first-child {
 			margin-left: 0;

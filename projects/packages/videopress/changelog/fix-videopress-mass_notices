@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent PHP warnings when post is invalid.
