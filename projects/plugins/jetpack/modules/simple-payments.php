@@ -5,10 +5,10 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Paypal_Payments\Jetpack_Simple_Payments;
+use Automattic\Jetpack\Paypal_Payments\Simple_Payments;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-Jetpack_Simple_Payments::get_instance();
+Simple_Payments::get_instance();
