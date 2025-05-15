@@ -742,6 +742,12 @@ HTML;
 			}
 
 			$loc_id = esc_js( $loc_id );
+
+			$format = $this->get_wordads_format( (int) $width, (int) $height );
+			if ( $format === null ) {
+				return '';
+			}
+
 			return <<<HTML
 			<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
 				<div id="atatags-{$ad_number}">
@@ -755,6 +761,15 @@ HTML;
 							height: {$height}
 						});
 					});
+					if ( '{$format}' !== '' ) {
+						window.tudeMappings = window.tudeMappings || [];
+						window.tudeMappings.push( {
+							divId: 'atatags-{$ad_number}',
+							format: '{$format}',
+							width: {$width},
+							height: {$height},
+						} );
+					}
 					</script>
 				</div>
 			</div>
@@ -769,6 +784,34 @@ HTML;
 		}
 
 		return $this->get_dynamic_ad_snippet( $section_id, $form_factor, $location );
+	}
+
+	/**
+	 * Determine the WordAds format based on the ad dimensions.
+	 *
+	 * @param int $width  The width of the ad slot.
+	 * @param int $height The height of the ad slot.
+	 *
+	 * @return string WordAds Format enum.
+	 */
+	private function get_wordads_format( int $width, int $height ): string {
+		if ( $width === 300 && $height === 250 ) {
+			return 'gutenberg_rectangle';
+		}
+
+		if ( $width === 728 && $height === 90 ) {
+			return 'gutenberg_leaderboard';
+		}
+
+		if ( $width === 320 && $height === 50 ) {
+			return 'gutenberg_mobile_leaderboard';
+		}
+
+		if ( $width === 160 && $height === 600 ) {
+			return 'gutenberg_skyscraper';
+		}
+
+		return '';
 	}
 
 	/**
