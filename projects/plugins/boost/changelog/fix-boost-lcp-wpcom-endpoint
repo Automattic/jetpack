@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: LCP: Fix sending LCP requests to wrong wp.com endpoint.
+
+

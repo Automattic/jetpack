@@ -99,7 +99,7 @@ class LCP_Analyzer {
 			'pages'     => $pages,
 			'requestId' => md5( wp_json_encode( $pages ) . time() ),
 		);
-		return Boost_API::post( 'analyze-lcp', $payload );
+		return Boost_API::post( 'lcp', $payload );
 	}
 
 	/**
