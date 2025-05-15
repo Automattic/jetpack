@@ -104,7 +104,11 @@ class LCP_Optimizer {
 	 * @since $$next-version$$
 	 */
 	public function optimize_buffer( $buffer ) {
-		if ( empty( $this->lcp_data ) || ! isset( $this->lcp_data['success'] ) || ! $this->lcp_data['success'] || empty( $this->lcp_data['html'] ) ) {
+		if ( empty( $this->lcp_data ) || ! is_array( $this->lcp_data ) ) {
+			return $buffer;
+		}
+
+		if ( ! isset( $this->lcp_data['success'] ) || ! $this->lcp_data['success'] ) {
 			return $buffer;
 		}
 
@@ -137,11 +141,23 @@ class LCP_Optimizer {
 	}
 
 	public function get_image_to_preload() {
-		if ( empty( $this->lcp_data ) || ! isset( $this->lcp_data['success'] ) || ! $this->lcp_data['success'] || LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] ) {
+		if ( empty( $this->lcp_data ) || ! is_array( $this->lcp_data ) ) {
 			return null;
 		}
 
-		if ( empty( $this->lcp_data['elementData'] ) || empty( $this->lcp_data['elementData']['url'] ) ) {
+		if ( ! isset( $this->lcp_data['success'] ) || ! $this->lcp_data['success'] ) {
+			return null;
+		}
+
+		if ( LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] ) {
+			return null;
+		}
+
+		if ( empty( $this->lcp_data['elementData'] ) || ! is_array( $this->lcp_data['elementData'] ) ) {
+			return null;
+		}
+
+		if ( empty( $this->lcp_data['elementData']['url'] ) ) {
 			return null;
 		}
 
