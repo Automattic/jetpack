@@ -1,7 +1,7 @@
 {
 	"private": false,
 	"name": "@automattic/jetpack-ai-client",
-	"version": "0.28.0",
+	"version": "0.28.1",
 	"description": "A JS client for consuming Jetpack AI services",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/ai-client/#readme",
 	"bugs": {

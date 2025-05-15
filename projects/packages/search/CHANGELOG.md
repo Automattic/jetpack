@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.49.0] - 2025-05-15
+### Added
+- Add query filters support to Inline Search. [#43441]
+
 ## [0.48.0] - 2025-05-12
 ### Added
 - Surface search corrections when correcting search terms. [#42473]
@@ -1214,6 +1218,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.49.0]: https://github.com/Automattic/jetpack-search/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/Automattic/jetpack-search/compare/v0.47.24...v0.48.0
 [0.47.24]: https://github.com/Automattic/jetpack-search/compare/v0.47.23...v0.47.24
 [0.47.23]: https://github.com/Automattic/jetpack-search/compare/v0.47.22...v0.47.23

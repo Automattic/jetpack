@@ -89,7 +89,6 @@ $action-bar-height: 88px;
 	flex-direction: column;
 	min-height: 300px;
 	overflow: hidden;
-	width: 100%;
 	background-color: #fff;
 	position: relative;
 
@@ -131,6 +130,10 @@ $action-bar-height: 88px;
 				z-index: 1;
 			}
 		}
+	}
+
+	@media (min-width: 816px) {
+		margin: 20px 20px 20px 0;
 	}
 }
 
@@ -298,12 +301,17 @@ $action-bar-height: 88px;
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	max-height: 100vh;
 	flex: 1 1 50%;
 
 	.dataviews-wrapper {
 		background: #fff;
-		border-radius: 8px;
+		height: auto;
+		overflow-y: visible;
+		overflow-x: auto;
+
+		@media (min-width: 782px) {
+			border-right: 1px solid var(--jp-gray-5);
+		}
 
 		.dataviews__view-actions {
 			align-items: center;
