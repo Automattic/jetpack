@@ -1233,7 +1233,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
 
-		$outline_border_radius = '';
 		if ( $is_outlined_style ) {
 			$outline_styles = $this->get_attribute( 'outlinestyledata' );
 
@@ -1241,29 +1240,28 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
 			}
 
-			// When there's an outlined style, and border radius is set, we override the inline border radius to apply
+			// When there's an outlined style, and border radius is set, the existing inline border radius is overridden to apply
 			// a limit of `100px` to the radius on the x axis. This achieves the same look and feel as other fields
 			// that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
+			// It prevents large border radius values from disrupting the look and feel of the fields.
 			if ( isset( $outline_styles['border']['radius'] ) ) {
+				$options_styles          = $options_styles ?? '';
 				$radius                  = $outline_styles['border']['radius'];
 				$has_split_radius_values = is_array( $radius );
 				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
 				$top_right_radius        = $has_split_radius_values ? $radius['topRight'] : $radius;
 				$bottom_left_radius      = $has_split_radius_values ? $radius['bottomLeft'] : $radius;
 				$bottom_right_radius     = $has_split_radius_values ? $radius['bottomRight'] : $radius;
-				$outline_border_radius  .= "border-top-left-radius: min(100px, {$top_left_radius}) {$top_left_radius};";
-				$outline_border_radius  .= "border-top-right-radius: min(100px, {$top_right_radius}) {$top_right_radius};";
-				$outline_border_radius  .= "border-bottom-left-radius: min(100px, {$bottom_left_radius}) {$bottom_left_radius};";
-				$outline_border_radius  .= "border-bottom-right-radius: min(100px, {$bottom_right_radius}) {$bottom_right_radius};";
-
+				$options_styles         .= "border-top-left-radius: min(100px, {$top_left_radius}) {$top_left_radius};";
+				$options_styles         .= "border-top-right-radius: min(100px, {$top_right_radius}) {$top_right_radius};";
+				$options_styles         .= "border-bottom-left-radius: min(100px, {$bottom_left_radius}) {$bottom_left_radius};";
+				$options_styles         .= "border-bottom-right-radius: min(100px, {$bottom_right_radius}) {$bottom_right_radius};";
 			}
-		}
 
-		/*
-		 * For the "outlined" style, the styles and classes are applied to the fieldset element.
-		 */
-		if ( $is_outlined_style ) {
-			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-checkbox-multiple-options" . $options_classes . "' style='" . $options_styles . $outline_border_radius . "' " . ( $required ? 'data-required' : '' ) . '>';
+			/*
+			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
+			 */
+			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-checkbox-multiple-options" . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
 		} else {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
 		}
