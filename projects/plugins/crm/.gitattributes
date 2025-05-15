@@ -9,6 +9,7 @@
 /vendor/composer/**                             production-include
 /vendor/jetpack-autoloader/**                   production-include
 /vendor/dompdf/**                               production-include
+/vendor/fortawesome/font-awesome/file           production-include
 /vendor/fortawesome/font-awesome/css/**         production-include
 /vendor/fortawesome/font-awesome/fonts/**       production-include
 /vendor/phenx/**                                production-include
