@@ -164,6 +164,10 @@
     pointer-events: auto;
 }
 
+.wp-block-jetpack-contact-form.is-style-outlined .wp-block-jetpack-options legend {
+	font-size: 0.8em;
+}
+
 .contact-form .grunion-checkbox-multiple-options .contact-form-field,
 .contact-form .grunion-radio-options .contact-form-field {
 	display: flex;
