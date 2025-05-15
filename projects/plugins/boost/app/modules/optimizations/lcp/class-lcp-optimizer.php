@@ -104,7 +104,7 @@ class LCP_Optimizer {
 	 * @since $$next-version$$
 	 */
 	public function optimize_buffer( $buffer ) {
-		if ( empty( $this->lcp_data ) || empty( $this->lcp_data['html'] ) ) {
+		if ( empty( $this->lcp_data ) || ! isset( $this->lcp_data['success'] ) || ! $this->lcp_data['success'] || empty( $this->lcp_data['html'] ) ) {
 			return $buffer;
 		}
 
@@ -137,7 +137,7 @@ class LCP_Optimizer {
 	}
 
 	public function get_image_to_preload() {
-		if ( empty( $this->lcp_data ) || LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] ) {
+		if ( empty( $this->lcp_data ) || ! isset( $this->lcp_data['success'] ) || ! $this->lcp_data['success'] || LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] ) {
 			return null;
 		}
 
