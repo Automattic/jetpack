@@ -829,11 +829,36 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$is_outlined_style = 'outlined' === $form_style;
 		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'";
 
+		$outline_border_radius = '';
+		if ( $is_outlined_style ) {
+			$outline_styles = $this->get_attribute( 'outlinestyledata' );
+
+			if ( ! empty( $outline_styles ) ) {
+				$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
+			}
+
+			// When there's an outlined style, and border radius is set, we override the inline border radius to apply
+			// a limit of `100px` to the radius on the x axis. This achieves the same look and feel as other fields
+			// that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
+			if ( isset( $outline_styles['border']['radius'] ) ) {
+				$radius                  = $outline_styles['border']['radius'];
+				$has_split_radius_values = is_array( $radius );
+				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
+				$top_right_radius        = $has_split_radius_values ? $radius['topRight'] : $radius;
+				$bottom_left_radius      = $has_split_radius_values ? $radius['bottomLeft'] : $radius;
+				$bottom_right_radius     = $has_split_radius_values ? $radius['bottomRight'] : $radius;
+				$outline_border_radius  .= "border-top-left-radius: min( 100px, {$top_left_radius} ) {$top_left_radius};";
+				$outline_border_radius  .= "border-top-right-radius: min( 100px, {$top_right_radius} ) {$top_right_radius};";
+				$outline_border_radius  .= "border-bottom-left-radius: min( 100px, {$bottom_left_radius} ) {$bottom_left_radius};";
+				$outline_border_radius  .= "border-bottom-right-radius: min( 100px, {$bottom_right_radius} ) {$bottom_right_radius};";
+			}
+		}
+
 		/*
 		 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 		 */
 		if ( $is_outlined_style ) {
-			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-radio-options " . $options_classes . "' style='" . $options_styles . "'>";
+			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-radio-options " . $options_classes . "' style='" . $options_styles . $outline_border_radius . "'>";
 		} else {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
 		}
