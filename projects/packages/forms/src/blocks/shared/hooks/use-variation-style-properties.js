@@ -35,6 +35,28 @@ function getBorderRadius( style ) {
 	}
 }
 
+/**
+ * Returns properties that help achieve the outlined and animated form styles.
+ *
+ * The outlined style in particular requires taking specific style properties (especially border and background)
+ * that the user can configure on the input or options block, and applying them to the label. The label displays
+ * the border rather than the input/options blocks. It requires some smoke and mirrors!
+ *
+ * The animated style requires the border size to calculate how much the label should be offset to give the
+ * appearance that it's within the input.
+ *
+ * This hook first resolves the global styles for the input or options block that the label is the sibling of
+ * and merges them with that block's own styles to get the final resolved style values.
+ *
+ * It uses WordPress core functions to get the generated classnames for those styles, and also calculates
+ * some CSS Vars that are used to achieve the style variations.
+ *
+ * @param {object} props                      - Properties to pass to the hook.
+ * @param {string} props.clientId             - The client ID of the block.
+ * @param {string} props.inputBlockName       - The name of the input or options block.
+ * @param {object} props.inputBlockAttributes - The attributes of the input or options block.
+ * @return {object} The calculated properties that help achieve the outlined and animated form styles.
+ */
 export default function useVariationStyleProperties( {
 	clientId,
 	inputBlockName,
