@@ -64,7 +64,7 @@ const GoogleSheetsCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 				<div>
 					<p className="integration-card__description">
 						{ __(
-							'Connect your site to Google Sheets to export form responses directly to Google Sheets.',
+							'Connect your site to Google Drive to export form responses directly to Google Sheets.',
 							'jetpack-forms'
 						) }
 					</p>
@@ -76,7 +76,7 @@ const GoogleSheetsCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						__next40pxDefaultSize={ true }
 						disabled={ ! settingsUrl }
 					>
-						{ __( 'Connect to Google Sheets', 'jetpack-forms' ) }
+						{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
 					</Button>
 				</div>
 			) : (
