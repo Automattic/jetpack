@@ -269,8 +269,12 @@ class WordAds {
 	 */
 	private function insert_adcode() {
 		add_filter( 'wp_resource_hints', array( $this, 'resource_hints' ), 10, 2 );
+
+		// These 'wp_head' actions add the IPONWEB JavaScript snippets to the page.
+		// We need to remove them whenever
 		add_action( 'wp_head', array( $this, 'insert_head_meta' ), 20 );
 		add_action( 'wp_head', array( $this, 'insert_head_iponweb' ), 30 );
+
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'wordads_ads_txt', array( $this, 'insert_custom_adstxt' ) );
 
