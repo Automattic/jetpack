@@ -444,6 +444,7 @@
 {
 	padding: var(--jetpack--contact-form--input-padding, 16px);
 	padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
+	padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)))
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label {
@@ -719,8 +720,6 @@ on production builds, the attributes are being reordered, causing side-effects
 
 /* Ensure global styles can ovewrite the default border color. */
 :where(.wp-block-jetpack-options.jetpack-field-multiple__list--has-border) {
-	padding-left: calc( var(--jetpack--contact-form--notch-width) - var(--jetpack--contact-form--border-size));
-	padding-right: var(--jetpack--contact-form--input-padding-left, 16px);
 	border-color: var(--jetpack--contact-form--border-color);
 }
 
