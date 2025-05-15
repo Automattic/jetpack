@@ -11,7 +11,7 @@
 // ... which could be updated if / when needs to be, (to largely match this... won't need all)
 
 // Import Color Studio
-@use '../node_modules/@automattic/color-studio/dist/color-variables' as *;
+@use '@automattic/color-studio/dist/color-variables' as *;
 
 // block wp notifications:]
 @import 'wp-hide-admin-notices';
