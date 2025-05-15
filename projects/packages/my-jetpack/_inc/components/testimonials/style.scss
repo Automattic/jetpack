@@ -16,7 +16,13 @@
 
     // Specific testimonial variations
     &--1 {
-        background-image: url(./grow-your-audience.png);
+        background-color: var(--jp-green-90);
+
+        svg {
+            position: absolute;
+            inset-block-start: 0;
+            transform: scale(2);
+        }
     }
 
     &--2 {
