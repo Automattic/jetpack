@@ -572,14 +572,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 		return "<input
-					data-wp-init='callbacks.checkForErrors'
 					type='" . esc_attr( $type ) . "'
 					name='" . esc_attr( $id ) . "'
 					id='" . esc_attr( $id ) . "'
 					value='" . esc_attr( $value ) . "'
-					aria-invalid='state.hasErrors'
+					data-wp-bind--aria-invalid='state.hasErrors'
 					aria-errormessage='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
-					data-wp-on--change='actions.handleChangeField'
+					data-wp-on--input='actions.handleChangeField'
 					data-wp-on--blur='actions.handleBlurField'
 					" . $class . $placeholder . '
 					' . ( $required ? "required aria-required='true'" : '' ) .
@@ -708,10 +707,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
 		$field .= "<textarea
-						data-wp-init='callbacks.checkForErrors'
-						data-wp-on--change='actions.handleChangeField'
+
+						data-wp-on--input='actions.handleChangeField'
 						data-wp-on--blur='actions.handleBlurField'
-						aria-invalid='state.hasErrors'
+						data-wp-bind--aria-invalid='state.hasErrors'
 						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
 		                style='" . $this->field_styles . "'
 		                name='" . esc_attr( $id ) . "'
@@ -738,7 +737,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field = '<fieldset data-wp-init="callbacks.checkForErrors" id="' . esc_attr( "$id-label" ) . '" class="grunion-radio-options">';
+		$field = '<fieldset data-wp-bind--aria-invalid="state.hasErrors" id="' . esc_attr( "$id-label" ) . '" class="grunion-radio-options">';
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
@@ -778,8 +777,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$field .= '</p>';
 			}
 		}
-		$field .= '</fieldset>';
-		return $field . $this->get_error_div( $id, 'radio' );
+		$field .= $this->get_error_div( $id, 'radio' ) . '</fieldset>';
+		return $field;
 	}
 
 	/**
@@ -795,7 +794,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field  = "<div data-wp-init='callbacks.checkForErrors' class='contact-form__checkbox-wrap'>";
+		$field  = "<div class='contact-form__checkbox-wrap'>";
 		$field .= "<input data-wp-on--change='actions.handleChangeField' id='" . esc_attr( $id ) . "' type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
 		$field .= "<label for='" . esc_attr( $id ) . "' class='grunion-field-label checkbox" . ( $this->is_error() ? ' form-error' : '' ) . "' style='" . $this->label_styles . "'>";
 		$field .= wp_kses_post( $label ) . ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
@@ -1051,7 +1050,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// checkbox is checked. Unlike radio buttons, for which the required attribute is satisfied if
 		// any of the radio buttons in the group is selected, adding a required attribute directly to
 		// a checkbox means that this specific checkbox must be checked.
-		$field  = '<fieldset data-wp-init="callbacks.checkForErrors" id="' . esc_attr( "$id-label" ) . '" class="grunion-checkbox-multiple-options"' . ( $required ? 'data-required' : '' ) . '>';
+		$field  = '<fieldset data-wp-bind--aria-invalid="state.hasErrors" id="' . esc_attr( "$id-label" ) . '" class="grunion-checkbox-multiple-options"' . ( $required ? 'data-required' : '' ) . '>';
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		$field_style = 'style="' . $this->option_styles . '"';
@@ -1087,9 +1086,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$field .= '</p>';
 			}
 		}
-		$field .= '</fieldset>';
+		$field .= $this->get_error_div( $id, 'select' ) . '</fieldset>';
 
-		return $field . $this->get_error_div( $id, 'select' );
+		return $field;
 	}
 
 	/**
@@ -1106,8 +1105,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
-		$field .= "<div data-wp-init='callbacks.checkForErrors' class='contact-form__select-wrapper'>";
-		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.handleChangeField' >\n";
+		$field .= "<div class='contact-form__select-wrapper'>";
+		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.handleChangeField' data-wp-bind--aria-invalid='state.hasErrors' >\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
@@ -1384,7 +1383,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'fieldExtra'        => $this->get_field_extra( $type ),
 		);
 
-		$field .= "\n<div data-wp-interactive=\"jetpack/forms\" " . wp_interactivity_data_wp_context( $context ) . " {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
+		$field .= "\n<div data-wp-interactive=\"jetpack/forms\" " . wp_interactivity_data_wp_context( $context ) . " {$block_style} {$shell_field_class} data-wp-init=\"callbacks.initializeField\" >\n"; // new in Jetpack 6.8.0
 
 		switch ( $type ) {
 			case 'email':
