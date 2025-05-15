@@ -326,22 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.7-a.1 - 2025-05-12
+### 14.7-a.3 - 2025-05-15
 #### Enhancements
-- Forms: Move Salesforce to block modal.
-- Forms: Remove Salesforce Form variation.
-- Forms: Update form responses tabs.
-- Forms: Replace Landing page with About page.
-- Forms: Update the email template for feedback responses.
-
-#### Improved compatibility
-- Blocks: Update `useResizeObserver` hook usage to meet new API expectations.
-- Remove Skype since the service no longer exists.
-- Sitemaps: Disable XMLWriter by default unless enabled by a filter.
+- Forms: Add Google to form integrations endpoint.
+- Forms: Add 33% width option to fields and buttons.
 
 #### Bug fixes
-- Carousel: Do not display comment form when comments are closed for a specific media attachment.
-- Forms: Preserve responses query parameters.
+- Forms: Fix a bug preventing responses dashboard from loading (blank screen).
+- Forms: Fix double scrollbars for responses.
 
 --------
 
