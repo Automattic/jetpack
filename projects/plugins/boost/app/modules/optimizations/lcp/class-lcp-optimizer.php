@@ -20,7 +20,7 @@ class LCP_Optimizer {
 	/**
 	 * Check if LCP optimization should be skipped for the current request.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 * @return bool True if optimization should be skipped, false otherwise.
 	 */
 	public static function should_skip_optimization() {
@@ -30,7 +30,7 @@ class LCP_Optimizer {
 		 * Returning a value other than null from the filter will short-circuit
 		 * the optimization check, returning that value instead.
 		 *
-		 * @since $$next-version$$
+		 * @since 4.0.0
 		 *
 		 * @param null|bool $skip Whether to skip optimization. Default null.
 		 */
@@ -101,7 +101,7 @@ class LCP_Optimizer {
 	 * @param string $buffer The buffer/html to optimize.
 	 * @return string The optimized buffer, or the original buffer if no optimization was needed
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public function optimize_buffer( $buffer ) {
 		if ( empty( $this->lcp_data ) || empty( $this->lcp_data['html'] ) ) {
@@ -157,7 +157,7 @@ class LCP_Optimizer {
 	 * @param string $tag The original image tag.
 	 * @return string The optimized image tag.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	private function optimize_image( $tag ) {
 		// Add fetchpriority="high" if not present
@@ -194,7 +194,7 @@ class LCP_Optimizer {
 	 * @param string $image_url The image URL.
 	 * @return string The optimized image tag.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	private function add_responsive_image_attributes( $tag, $image_url ) {
 		$image_sizes = array( 300, 600, 900, 1200, 1600 );
