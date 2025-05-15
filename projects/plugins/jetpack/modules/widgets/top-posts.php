@@ -111,7 +111,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	 *
 	 * @param array $instance Instance configuration.
 	 *
-	 * @return void
+	 * @return string|void
 	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, static::defaults() );

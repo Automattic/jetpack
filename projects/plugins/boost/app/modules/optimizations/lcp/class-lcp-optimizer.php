@@ -206,11 +206,11 @@ class LCP_Optimizer {
 		}
 
 		// Add sizes attribute
-		$sizes_string = $this->get_sizes();
-		if ( ! empty( $sizes_string ) ) {
+		$sizes = $this->get_sizes();
+		if ( ! empty( $sizes ) ) {
 			// Update the sizes attribute
 			$tag = preg_replace( '/sizes\s*=\s*["\'][^"\']*["\']/i', '', $tag );
-			$tag = preg_replace( '/<img\s/i', '<img sizes="' . esc_attr( $sizes_string ) . '" ', $tag );
+			$tag = preg_replace( '/<img\s/i', '<img sizes="' . esc_attr( $sizes ) . '" ', $tag );
 		}
 
 		return $tag;
@@ -218,7 +218,7 @@ class LCP_Optimizer {
 
 	public function get_srcsets( $original_url ) {
 		$srcset = array();
-		foreach ( $this->lcp_data['srcsets'] ?? array() as $width ) {
+		foreach ( $this->lcp_data['srcsets'] as $width ) {
 			// The srcset "w" measurement is the width of the image in pixels. A DPR of 2 means the image is 2x the width of the original.
 			$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $width ) ) . " {$width}w";
 		}
@@ -228,7 +228,7 @@ class LCP_Optimizer {
 
 	public function get_sizes() {
 		$sizes = array();
-		foreach ( $this->lcp_data['sizes'] ?? array() as $size ) {
+		foreach ( $this->lcp_data['sizes'] as $size ) {
 			$sizes[] = '(min-width: ' . $size['viewport'] . 'px) ' . $size['viewportValue'];
 		}
 

@@ -599,6 +599,10 @@ function wpcomsh_footer_rum_js() {
 
 	$rum_kv = array();
 	$rum_kv = wpcomsh_get_woo_rum_data( $rum_kv );
+	// Add user login and theme info.
+	$rum_kv['logged_in']        = is_user_logged_in() ? '1' : '0';
+	$rum_kv['wptheme']          = get_stylesheet();
+	$rum_kv['wptheme_is_block'] = wp_is_block_theme() ? '1' : '0';
 
 	if ( count( $rum_kv ) > 0 ) {
 		$rum_kv = wp_json_encode( $rum_kv, JSON_FORCE_OBJECT );

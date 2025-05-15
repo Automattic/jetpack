@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Forms: fix a bug preventing responses dashboard to load (blank screen)

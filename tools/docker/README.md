@@ -151,7 +151,7 @@ Will stop all of the containers created by this Docker compose configuration and
 These commands require the WordPress container to be running.
 
 ```sh
-jetpack docker phpunit
+jetpack docker phpunit jetpack
 ```
 
 This will run unit tests for Jetpack. You can pass arguments to `phpunit` like so:
@@ -162,10 +162,14 @@ jetpack docker phpunit -- --filter=Protect
 
 This command runs the tests as a multi site install
 ```sh
-jetpack docker phpunit-jp-multisite -- --filter=Protect
+jetpack docker phpunit jp-multisite -- --filter=Protect
 ```
 
-To run tests for specific packages, you can run the tests locally, from within the package's directory:
+To run tests for specific packages, you can run the tests locally. The most straightforward way is to use `jetpack test`, for example
+```sh
+jetpack test -v php packages/assets
+```
+or you can usually run them manually like
 ```sh
 cd projects/packages/assets
 composer phpunit

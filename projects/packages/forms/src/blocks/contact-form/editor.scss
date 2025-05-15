@@ -65,6 +65,7 @@
 			}
 
 			&.jetpack-field__width-25,
+			&.jetpack-field__width-33,
 			&.jetpack-field__width-50,
 			&.jetpack-field__width-75 {
 				box-sizing: border-box;
@@ -77,6 +78,11 @@
 				.jetpack-option__input.jetpack-option__input.jetpack-option__input {
 					width: 70px;
 				}
+			}
+
+			&.jetpack-field__width-33 {
+				flex: 1 1 calc( 33.33% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+				max-width: 33.33%;
 			}
 
 			&.jetpack-field__width-50 {

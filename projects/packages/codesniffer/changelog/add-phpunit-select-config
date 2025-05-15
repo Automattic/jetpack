@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Ignore `WordPress.Security.ValidatedSanitizedInput.MissingUnslash` in `Jetpack-NoWP` ruleset.
