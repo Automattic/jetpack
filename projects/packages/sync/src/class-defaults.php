@@ -351,7 +351,7 @@ class Defaults {
 		'taxonomies'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_taxonomies' ),
 		'theme_support'                     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_theme_support' ),
 		'timezone'                          => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_timezone' ),
-		'wp_get_environment_type'           => 'wp_get_environment_type',
+		'wp_get_environment_type'           => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_environment_type' ),
 		'wp_max_upload_size'                => 'wp_max_upload_size',
 		'wp_version'                        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
 		'active_modules'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_active_modules' ),

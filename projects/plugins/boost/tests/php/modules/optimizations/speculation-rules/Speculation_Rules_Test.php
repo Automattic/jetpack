@@ -91,6 +91,7 @@ class Speculation_Rules_Test extends MockeryTestCase {
 		$wp_speculation_rules = new \WP_Speculation_Rules();
 		$speculation_rules->add_cornerstone_rules( $wp_speculation_rules );
 
+		// @phan-suppress-next-line PhanUndeclaredMethod -- In our polyfill, which this tests, just not core's version.
 		$this->assertEmpty( $wp_speculation_rules->get_rules() );
 	}
 
@@ -133,6 +134,7 @@ class Speculation_Rules_Test extends MockeryTestCase {
 			$test_urls
 		);
 		// Assert that the rule was added correctly
+		// @phan-suppress-next-line PhanUndeclaredMethod -- In our polyfill, which this tests, just not core's version.
 		$rules = $wp_speculation_rules->get_rules();
 		$this->assertCount( 1, $rules );
 		$this->assertEquals( 'prerender', $rules[0]['type'] );

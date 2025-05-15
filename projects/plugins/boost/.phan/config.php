@@ -13,8 +13,12 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'+stubs'          => array( 'amp', 'woocommerce' ),
-		'parse_file_list' => array(
+		'+stubs'            => array( 'amp', 'woocommerce' ),
+		'exclude_file_list' => getenv( 'NO_PHAN_UNUSED_SUPPRESSION' ) ? array() : array(
+			// Polyfill for a class added in WP 6.8.0.
+			'app/modules/optimizations/speculation-rules/class-wp-speculation-rules.php',
+		),
+		'parse_file_list'   => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
 			// Wherever feasible we should really clean up this sort of thing instead of adding stuff here.
 			//

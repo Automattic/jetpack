@@ -632,6 +632,7 @@ class Milestone_Widget extends WP_Widget {
 	 * Form
 	 *
 	 * @param array $instance Widget instance.
+	 * @return string|void
 	 */
 	public function form( $instance ) {
 		$instance = $this->sanitize_instance( $instance );
