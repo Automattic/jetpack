@@ -31,7 +31,7 @@ class WordAds {
 	/**
 	 * Ads parameters.
 	 *
-	 * @var null
+	 * @var WordAds_Params
 	 */
 	public $params = null;
 
