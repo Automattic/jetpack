@@ -81,6 +81,10 @@
 			> div:has(svg) {
 				position: initial;
 			}
+
+			:global(.components-button) {
+				white-space: normal;
+			}
 		}
 	}
 
