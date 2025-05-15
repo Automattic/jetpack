@@ -14,7 +14,7 @@ import {
 	writePackageJson,
 	writeComposerJson,
 } from '../helpers/json.js';
-import mergeDirs, { copyFile } from '../helpers/mergeDirs.js';
+import mergeDirs, { copyFile, copySymlink } from '../helpers/mergeDirs.js';
 import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
 import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
 import {
@@ -388,6 +388,8 @@ async function generatePluginFromStarter( projDir, answers ) {
 				);
 			} else if ( file === 'CHANGELOG.md' ) {
 				copyFile( path.join( projDir, file ), 'tools/cli/skeletons/common/CHANGELOG.md' );
+			} else if ( fs.lstatSync( path.join( starterDir, file ) ).isSymbolicLink() ) {
+				copySymlink( path.join( projDir, file ), path.join( starterDir, file ) );
 			} else {
 				copyFile( path.join( projDir, file ), path.join( starterDir, file ) );
 			}
