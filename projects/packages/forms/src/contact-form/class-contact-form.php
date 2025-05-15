@@ -413,7 +413,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label novalidate>\n";
+			$context = array(
+				'formId'     => $id,
+				'formHash'   => $form->hash,
+				'showErrors' => false, // We toggle this to true when we want to show the user errors right away.
+				'errors'     => array(), // This should be a associative array.
+			);
+
+			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label data-wp-interactive=\"jetpack/forms\"  " . wp_interactivity_data_wp_context( $context ) . " data-wp-on--submit=\"actions.formSubmit\" novalidate>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block

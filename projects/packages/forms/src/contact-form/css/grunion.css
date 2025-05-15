@@ -818,6 +818,15 @@ on production builds, the attributes are being reordered, causing side-effects
 	gap: 0.33em;
 
 	color: var(--jetpack--contact-form--error-color);
+	opacity:0;
+	height: 0;
+	overflow: hidden;
+	transition: opacity 0.3s ease-out, height 0.3s ease-out;
+}
+
+.contact-form__input-error.has-errors {
+	opacity: 1;
+	height: auto;
 }
 
 .contact-form__error:empty,
