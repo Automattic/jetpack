@@ -452,9 +452,10 @@ async function generatePluginFromStarter( projDir, answers ) {
 	composerJson.extra ||= {};
 	composerJson.extra.changelogger ||= {};
 	composerJson.extra.changelogger.versioning = answers.versioningMethod;
-	// Add proposed WP.org slug if we've indicated this is a public plugin.
+	// Add proposed WP.org slug and remove alternative beta slug if we've indicated this is a public plugin.
 	if ( answers.mirrorrepo ) {
 		composerJson.extra[ 'wp-plugin-slug' ] = normalizeSlug( answers.name );
+		delete composerJson.extra[ 'beta-plugin-slug' ];
 	}
 	writeComposerJson( answers.project, composerJson, answers.projDir );
 }
