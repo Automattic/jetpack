@@ -4,6 +4,7 @@ import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import AkismetCard from './akismet-card';
 import CreativeMailCard from './creative-mail-card';
+import GoogleDriveCard from './google-drive-card';
 import JetpackCRMCard from './jetpack-crm-card';
 import SalesforceCard from './salesforce-card';
 import './style.scss';
@@ -18,6 +19,7 @@ const IntegrationsModal = ( {
 } ) => {
 	const [ expandedCards, setExpandedCards ] = useState( {
 		akismet: false,
+		googleDrive: false,
 		crm: false,
 		creativemail: false,
 		salesforce: false,
@@ -48,6 +50,12 @@ const IntegrationsModal = ( {
 					isExpanded={ expandedCards.akismet }
 					onToggle={ () => toggleCard( 'akismet' ) }
 					data={ findIntegrationById( 'akismet' ) }
+					refreshStatus={ refreshIntegrations }
+				/>
+				<GoogleDriveCard
+					isExpanded={ expandedCards.googleDrive }
+					onToggle={ () => toggleCard( 'googleDrive' ) }
+					data={ findIntegrationById( 'google-drive' ) }
 					refreshStatus={ refreshIntegrations }
 				/>
 				<JetpackCRMCard
