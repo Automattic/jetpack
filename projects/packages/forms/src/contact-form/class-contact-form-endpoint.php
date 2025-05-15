@@ -692,6 +692,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				$jetpack_connected       = ( new Host() )->is_wpcom_simple() || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( $user_id );
 				$is_connected            = $jetpack_connected && Google_Drive::has_valid_connection( $user_id );
 				$response['isConnected'] = $is_connected;
+				$response['settingsUrl'] = Redirect::get_url( 'jetpack-forms-responses-connect' );
 				break;
 			case 'salesforce':
 				// No overrides needed for now; keep defaults.

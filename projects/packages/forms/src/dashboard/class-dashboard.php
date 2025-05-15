@@ -9,10 +9,8 @@ namespace Automattic\Jetpack\Forms\Dashboard;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
-use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -163,15 +161,10 @@ class Dashboard {
 		$ai_feature = \Jetpack_AI_Helper::get_ai_assistance_feature();
 		$has_ai     = ! is_wp_error( $ai_feature ) ? $ai_feature['has-feature'] : false;
 
-		$jetpack_connected = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( get_current_user_id() );
-		$user_id           = (int) get_current_user_id();
-
 		$config = array(
 			'blogId'                  => get_current_blog_id(),
 			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
 			'newFormNonce'            => wp_create_nonce( 'create_new_form' ),
-			'gdriveConnection'        => $jetpack_connected && Google_Drive::has_valid_connection( $user_id ),
-			'gdriveConnectURL'        => esc_url( Redirect::get_url( 'jetpack-forms-responses-connect' ) ),
 			'gdriveConnectSupportURL' => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
 			'checkForSpamNonce'       => wp_create_nonce( 'grunion_recheck_queue' ),
 			'pluginAssetsURL'         => Jetpack_Forms::assets_url(),
