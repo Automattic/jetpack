@@ -89,7 +89,7 @@
 		"postcss": "8.4.47",
 		"postcss-custom-properties": "12.1.7",
 		"postcss-loader": "6.2.0",
-		"sass": "1.68.0",
+		"sass": "1.87.0",
 		"sass-loader": "16.0.5",
 		"size-limit": "11.1.6",
 		"webpack": "5.94.0",

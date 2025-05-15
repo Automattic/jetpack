@@ -22,7 +22,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"sass": "1.68.0",
+		"sass": "1.87.0",
 		"sass-loader": "16.0.5",
 		"tslib": "2.5.0",
 		"typescript": "5.8.2",

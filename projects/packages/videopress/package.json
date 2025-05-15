@@ -54,7 +54,7 @@
 		"postcss-custom-properties": "12.1.7",
 		"postcss-loader": "6.2.0",
 		"require-from-string": "2.0.2",
-		"sass": "1.68.0",
+		"sass": "1.87.0",
 		"sass-loader": "16.0.5",
 		"storybook": "8.6.7",
 		"typescript": "5.8.2",

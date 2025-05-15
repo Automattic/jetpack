@@ -28,7 +28,7 @@
 		"@babel/plugin-transform-react-jsx": "7.25.9",
 		"@babel/preset-react": "7.26.3",
 		"jetpack-js-tools": "workspace:*",
-		"sass": "1.68.0",
+		"sass": "1.87.0",
 		"sass-loader": "16.0.5",
 		"typescript": "^5.0.4",
 		"webpack": "5.94.0",

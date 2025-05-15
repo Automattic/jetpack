@@ -489,14 +489,14 @@ importers:
         specifier: 4.0.2
         version: 4.0.2(postcss@8.4.47)
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-embedded:
         specifier: 1.87.0
         version: 1.87.0
       sass-loader:
         specifier: ^16.0.0
-        version: 16.0.5(sass-embedded@1.87.0)(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass-embedded@1.87.0)(sass@1.87.0)(webpack@5.94.0)
       storybook:
         specifier: 8.6.7
         version: 8.6.7
@@ -1019,14 +1019,14 @@ importers:
         specifier: 1.0.0-beta.6
         version: 1.0.0-beta.6(svelte@4.2.19)
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       svelte:
         specifier: 4.2.19
         version: 4.2.19
       svelte-preprocess:
         specifier: 6.0.2
-        version: 6.0.2(@babel/core@7.26.10)(postcss@8.4.47)(sass@1.68.0)(svelte@4.2.19)(typescript@5.8.2)
+        version: 6.0.2(@babel/core@7.26.10)(postcss@8.4.47)(sass@1.87.0)(svelte@4.2.19)(typescript@5.8.2)
       tslib:
         specifier: 2.5.0
         version: 2.5.0
@@ -1801,11 +1801,11 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       storybook:
         specifier: 8.6.7
         version: 8.6.7
@@ -2078,11 +2078,11 @@ importers:
         specifier: 29.7.0
         version: 29.7.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -2151,11 +2151,11 @@ importers:
         specifier: 6.22.0
         version: 6.22.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -2178,11 +2178,11 @@ importers:
         specifier: 6.22.0
         version: 6.22.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -2222,11 +2222,11 @@ importers:
         specifier: 6.2.0
         version: 6.2.0(postcss@8.4.47)(webpack@5.94.0)
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -2274,11 +2274,11 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -2417,11 +2417,11 @@ importers:
         specifier: workspace:*
         version: link:../../../tools/js-tools
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       typescript:
         specifier: ^5.0.4
         version: 5.8.2
@@ -2525,8 +2525,8 @@ importers:
         specifier: 2.3.0
         version: 2.3.0(redux@4.2.1)
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       semver:
         specifier: 7.7.1
         version: 7.7.1
@@ -2605,7 +2605,7 @@ importers:
         version: 6.2.0(postcss@8.4.47)(webpack@5.94.0)
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -2772,11 +2772,11 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       typescript:
         specifier: ^5.0.4
         version: 5.8.2
@@ -2803,11 +2803,11 @@ importers:
         specifier: 6.22.0
         version: 6.22.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -2855,11 +2855,11 @@ importers:
         specifier: 6.2.0
         version: 6.2.0(postcss@8.4.47)(webpack@5.94.0)
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -3003,11 +3003,11 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       storybook:
         specifier: 8.6.7
         version: 8.6.7
@@ -3031,11 +3031,11 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       tslib:
         specifier: 2.5.0
         version: 2.5.0
@@ -3121,11 +3121,11 @@ importers:
         specifier: 6.2.0
         version: 6.2.0(postcss@8.4.47)(webpack@5.94.0)
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -3299,11 +3299,11 @@ importers:
         specifier: 6.2.0
         version: 6.2.0(postcss@8.4.47)(webpack@5.94.0)
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       size-limit:
         specifier: 11.1.6
         version: 11.1.6(@size-limit/preset-app@11.1.6)
@@ -3473,11 +3473,11 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       storybook:
         specifier: 8.6.7
         version: 8.6.7
@@ -3668,11 +3668,11 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       storybook:
         specifier: 8.6.7
         version: 8.6.7
@@ -3825,11 +3825,11 @@ importers:
         specifier: 29.7.0
         version: 29.7.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -3891,11 +3891,11 @@ importers:
         specifier: 6.22.0
         version: 6.22.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -3976,11 +3976,11 @@ importers:
         specifier: 29.7.0
         version: 29.7.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -4127,11 +4127,11 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       storybook:
         specifier: 8.6.7
         version: 8.6.7
@@ -4227,11 +4227,11 @@ importers:
         specifier: 29.7.0
         version: 29.7.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -4348,11 +4348,11 @@ importers:
         specifier: 29.7.0
         version: 29.7.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -4406,14 +4406,14 @@ importers:
         specifier: 7.2.2
         version: 7.2.2(rollup@3.29.5)(svelte@4.2.19)
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       svelte:
         specifier: 4.2.19
         version: 4.2.19
       svelte-preprocess:
         specifier: 6.0.2
-        version: 6.0.2(@babel/core@7.26.10)(postcss@8.4.47)(sass@1.68.0)(svelte@4.2.19)(typescript@5.8.2)
+        version: 6.0.2(@babel/core@7.26.10)(postcss@8.4.47)(sass@1.87.0)(svelte@4.2.19)(typescript@5.8.2)
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -4640,8 +4640,8 @@ importers:
         specifier: 1.5.1
         version: 1.5.1
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       social-logos:
         specifier: workspace:*
         version: link:../../js-packages/social-logos
@@ -4786,7 +4786,7 @@ importers:
         version: 0.13.9
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -4906,11 +4906,11 @@ importers:
         specifier: 7.6.0
         version: 7.6.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -5038,11 +5038,11 @@ importers:
         specifier: 29.7.0
         version: 29.7.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -5143,11 +5143,11 @@ importers:
         specifier: 7.6.0
         version: 7.6.0
       sass:
-        specifier: 1.68.0
-        version: 1.68.0
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.68.0)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -7122,6 +7122,88 @@ packages:
 
   '@oxc-project/types@0.68.1':
     resolution: {integrity: sha512-Q/H52+HXPPxuIHwQnVkEM8GebLnNcokkI4zQQdbxLIZdfxMGhAm9+gEqsMku3t95trN/1titHUmCM9NxbKaE2g==}
+
+  '@parcel/watcher-android-arm64@2.5.1':
+    resolution: {integrity: sha512-KF8+j9nNbUN8vzOFDpRMsaKBHZ/mcjEjMToVMJOhTozkDonQFFrRcfdLWn6yWKCmJKmdVxSgHiYvTCef4/qcBA==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [arm64]
+    os: [android]
+
+  '@parcel/watcher-darwin-arm64@2.5.1':
+    resolution: {integrity: sha512-eAzPv5osDmZyBhou8PoF4i6RQXAfeKL9tjb3QzYuccXFMQU0ruIc/POh30ePnaOyD1UXdlKguHBmsTs53tVoPw==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@parcel/watcher-darwin-x64@2.5.1':
+    resolution: {integrity: sha512-1ZXDthrnNmwv10A0/3AJNZ9JGlzrF82i3gNQcWOzd7nJ8aj+ILyW1MTxVk35Db0u91oD5Nlk9MBiujMlwmeXZg==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@parcel/watcher-freebsd-x64@2.5.1':
+    resolution: {integrity: sha512-SI4eljM7Flp9yPuKi8W0ird8TI/JK6CSxju3NojVI6BjHsTyK7zxA9urjVjEKJ5MBYC+bLmMcbAWlZ+rFkLpJQ==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [x64]
+    os: [freebsd]
+
+  '@parcel/watcher-linux-arm-glibc@2.5.1':
+    resolution: {integrity: sha512-RCdZlEyTs8geyBkkcnPWvtXLY44BCeZKmGYRtSgtwwnHR4dxfHRG3gR99XdMEdQ7KeiDdasJwwvNSF5jKtDwdA==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [arm]
+    os: [linux]
+
+  '@parcel/watcher-linux-arm-musl@2.5.1':
+    resolution: {integrity: sha512-6E+m/Mm1t1yhB8X412stiKFG3XykmgdIOqhjWj+VL8oHkKABfu/gjFj8DvLrYVHSBNC+/u5PeNrujiSQ1zwd1Q==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [arm]
+    os: [linux]
+
+  '@parcel/watcher-linux-arm64-glibc@2.5.1':
+    resolution: {integrity: sha512-LrGp+f02yU3BN9A+DGuY3v3bmnFUggAITBGriZHUREfNEzZh/GO06FF5u2kx8x+GBEUYfyTGamol4j3m9ANe8w==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@parcel/watcher-linux-arm64-musl@2.5.1':
+    resolution: {integrity: sha512-cFOjABi92pMYRXS7AcQv9/M1YuKRw8SZniCDw0ssQb/noPkRzA+HBDkwmyOJYp5wXcsTrhxO0zq1U11cK9jsFg==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@parcel/watcher-linux-x64-glibc@2.5.1':
+    resolution: {integrity: sha512-GcESn8NZySmfwlTsIur+49yDqSny2IhPeZfXunQi48DMugKeZ7uy1FX83pO0X22sHntJ4Ub+9k34XQCX+oHt2A==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [x64]
+    os: [linux]
+
+  '@parcel/watcher-linux-x64-musl@2.5.1':
+    resolution: {integrity: sha512-n0E2EQbatQ3bXhcH2D1XIAANAcTZkQICBPVaxMeaCVBtOpBZpWJuf7LwyWPSBDITb7In8mqQgJ7gH8CILCURXg==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [x64]
+    os: [linux]
+
+  '@parcel/watcher-win32-arm64@2.5.1':
+    resolution: {integrity: sha512-RFzklRvmc3PkjKjry3hLF9wD7ppR4AKcWNzH7kXR7GUe0Igb3Nz8fyPwtZCSquGrhU5HhUNDr/mKBqj7tqA2Vw==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@parcel/watcher-win32-ia32@2.5.1':
+    resolution: {integrity: sha512-c2KkcVN+NJmuA7CGlaGD1qJh1cLfDnQsHjE89E60vUEMlqduHGCdCLJCID5geFVM0dOtA3ZiIO8BoEQmzQVfpQ==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [ia32]
+    os: [win32]
+
+  '@parcel/watcher-win32-x64@2.5.1':
+    resolution: {integrity: sha512-9lHBdJITeNR++EvSQVUcaZoWupyHfXe1jZvGZ06O/5MflPcuPLtEphScIBL+AiCWBO46tDSHzWyD0uDmmZqsgA==}
+    engines: {node: '>= 10.0.0'}
+    cpu: [x64]
+    os: [win32]
+
+  '@parcel/watcher@2.5.1':
+    resolution: {integrity: sha512-dfUnCxiN9H4ap84DvD2ubjw+3vUNpstxa0TneY/Paat8a3R4uQZDLSvWjmznAY/DoahqTHl9V46HF/Zs3F29pg==}
+    engines: {node: '>= 10.0.0'}
 
   '@paulirish/trace_engine@0.0.52':
     resolution: {integrity: sha512-RSIDdpvYRJIaXUSiJfTYxVRtjq3FPjU8FPT5BkpYXS4H7ofExEb4tZBXcqlRoriA8ykVTClgbqabmoI32n5zRQ==}
@@ -10532,6 +10614,11 @@ packages:
     resolution: {integrity: sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==}
     engines: {node: '>=8'}
 
+  detect-libc@1.0.3:
+    resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
+    engines: {node: '>=0.10'}
+    hasBin: true
+
   detect-newline@3.1.0:
     resolution: {integrity: sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==}
     engines: {node: '>=8'}
@@ -11798,9 +11885,6 @@ packages:
   immediate@3.0.6:
     resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
 
-  immutable@4.3.7:
-    resolution: {integrity: sha512-1hqclzwYwjRDFLjcFxOM5AYkkG0rpFPpr1RLPMEuGczoS7YA8gLhy8SWXYRAA/XwfEHpfo3cw5JGioS32fnMRw==}
-
   immutable@5.1.2:
     resolution: {integrity: sha512-qHKXW1q6liAk1Oys6umoaZbDRqjcjgSrbnrifHsfsttza7zcvRAsL7mMV6xWcyhwQy7Xj5v4hhbr6b+iDYwlmQ==}
 
@@ -13059,6 +13143,9 @@ packages:
 
   node-abort-controller@3.1.1:
     resolution: {integrity: sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==}
+
+  node-addon-api@7.1.1:
+    resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
 
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
@@ -14526,8 +14613,8 @@ packages:
       webpack:
         optional: true
 
-  sass@1.68.0:
-    resolution: {integrity: sha512-Lmj9lM/fef0nQswm1J2HJcEsBUba4wgNx2fea6yJHODREoMFnwRpZydBnX/RjyXw2REIwdkbqE4hrTo4qfDBUA==}
+  sass@1.87.0:
+    resolution: {integrity: sha512-d0NoFH4v6SjEK7BoX810Jsrhj7IQSYHAHLi/iSpgqKc7LaIDshFRlSg5LOymf9FqQhxEHs2W5ZQXlvy0KD45Uw==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -18061,6 +18148,67 @@ snapshots:
   '@oxc-project/types@0.66.0': {}
 
   '@oxc-project/types@0.68.1': {}
+
+  '@parcel/watcher-android-arm64@2.5.1':
+    optional: true
+
+  '@parcel/watcher-darwin-arm64@2.5.1':
+    optional: true
+
+  '@parcel/watcher-darwin-x64@2.5.1':
+    optional: true
+
+  '@parcel/watcher-freebsd-x64@2.5.1':
+    optional: true
+
+  '@parcel/watcher-linux-arm-glibc@2.5.1':
+    optional: true
+
+  '@parcel/watcher-linux-arm-musl@2.5.1':
+    optional: true
+
+  '@parcel/watcher-linux-arm64-glibc@2.5.1':
+    optional: true
+
+  '@parcel/watcher-linux-arm64-musl@2.5.1':
+    optional: true
+
+  '@parcel/watcher-linux-x64-glibc@2.5.1':
+    optional: true
+
+  '@parcel/watcher-linux-x64-musl@2.5.1':
+    optional: true
+
+  '@parcel/watcher-win32-arm64@2.5.1':
+    optional: true
+
+  '@parcel/watcher-win32-ia32@2.5.1':
+    optional: true
+
+  '@parcel/watcher-win32-x64@2.5.1':
+    optional: true
+
+  '@parcel/watcher@2.5.1':
+    dependencies:
+      detect-libc: 1.0.3
+      is-glob: 4.0.3
+      micromatch: 4.0.8
+      node-addon-api: 7.1.1
+    optionalDependencies:
+      '@parcel/watcher-android-arm64': 2.5.1
+      '@parcel/watcher-darwin-arm64': 2.5.1
+      '@parcel/watcher-darwin-x64': 2.5.1
+      '@parcel/watcher-freebsd-x64': 2.5.1
+      '@parcel/watcher-linux-arm-glibc': 2.5.1
+      '@parcel/watcher-linux-arm-musl': 2.5.1
+      '@parcel/watcher-linux-arm64-glibc': 2.5.1
+      '@parcel/watcher-linux-arm64-musl': 2.5.1
+      '@parcel/watcher-linux-x64-glibc': 2.5.1
+      '@parcel/watcher-linux-x64-musl': 2.5.1
+      '@parcel/watcher-win32-arm64': 2.5.1
+      '@parcel/watcher-win32-ia32': 2.5.1
+      '@parcel/watcher-win32-x64': 2.5.1
+    optional: true
 
   '@paulirish/trace_engine@0.0.52':
     dependencies:
@@ -24241,6 +24389,9 @@ snapshots:
 
   detect-indent@6.1.0: {}
 
+  detect-libc@1.0.3:
+    optional: true
+
   detect-newline@3.1.0: {}
 
   detect-node-es@1.1.0: {}
@@ -25756,8 +25907,6 @@ snapshots:
   image-ssim@0.2.0: {}
 
   immediate@3.0.6: {}
-
-  immutable@4.3.7: {}
 
   immutable@5.1.2: {}
 
@@ -27467,6 +27616,9 @@ snapshots:
 
   node-abort-controller@3.1.1: {}
 
+  node-addon-api@7.1.1:
+    optional: true
+
   node-domexception@1.0.0: {}
 
   node-fetch@2.7.0:
@@ -29032,26 +29184,28 @@ snapshots:
       sass-embedded-win32-ia32: 1.87.0
       sass-embedded-win32-x64: 1.87.0
 
-  sass-loader@16.0.5(sass-embedded@1.87.0)(sass@1.68.0)(webpack@5.94.0):
+  sass-loader@16.0.5(sass-embedded@1.87.0)(sass@1.87.0)(webpack@5.94.0):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
-      sass: 1.68.0
+      sass: 1.87.0
       sass-embedded: 1.87.0
       webpack: 5.94.0(webpack-cli@6.0.1)
 
-  sass-loader@16.0.5(sass@1.68.0)(webpack@5.94.0):
+  sass-loader@16.0.5(sass@1.87.0)(webpack@5.94.0):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
-      sass: 1.68.0
+      sass: 1.87.0
       webpack: 5.94.0(webpack-cli@6.0.1)
 
-  sass@1.68.0:
+  sass@1.87.0:
     dependencies:
-      chokidar: 3.6.0
-      immutable: 4.3.7
+      chokidar: 4.0.3
+      immutable: 5.1.2
       source-map-js: 1.2.0
+    optionalDependencies:
+      '@parcel/watcher': 2.5.1
 
   sax@1.4.1: {}
 
@@ -29717,13 +29871,13 @@ snapshots:
     optionalDependencies:
       svelte: 4.2.19
 
-  svelte-preprocess@6.0.2(@babel/core@7.26.10)(postcss@8.4.47)(sass@1.68.0)(svelte@4.2.19)(typescript@5.8.2):
+  svelte-preprocess@6.0.2(@babel/core@7.26.10)(postcss@8.4.47)(sass@1.87.0)(svelte@4.2.19)(typescript@5.8.2):
     dependencies:
       svelte: 4.2.19
     optionalDependencies:
       '@babel/core': 7.26.10
       postcss: 8.4.47
-      sass: 1.68.0
+      sass: 1.87.0
       typescript: 5.8.2
 
   svelte@4.2.19:

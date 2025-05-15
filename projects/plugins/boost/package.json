@@ -47,7 +47,7 @@
 		"process": "0.11.10",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"sass": "1.68.0",
+		"sass": "1.87.0",
 		"sass-loader": "16.0.5",
 		"storybook": "8.6.7",
 		"tslib": "2.5.0",
