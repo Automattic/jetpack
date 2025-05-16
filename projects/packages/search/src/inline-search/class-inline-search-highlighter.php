@@ -45,7 +45,8 @@ class Inline_Search_Highlighter {
 	 * Set up the WordPress filters for highlighting.
 	 */
 	public function setup(): void {
-		add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- Temporarily disabled due to incompatibility with P2 theme
+		// add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
 		add_filter( 'the_excerpt', array( $this, 'filter_highlighted_excerpt' ) );
 		add_filter( 'render_block_core/post-excerpt', array( $this, 'filter_render_highlighted_block' ), 10, 3 );
 	}
@@ -71,24 +72,12 @@ class Inline_Search_Highlighter {
 	/**
 	 * Filter the post title to show highlighted version.
 	 *
-	 * @param string   $title   The post title.
-	 * @param int|null $post_id Optional. The post ID. If not provided, attempts to get from current post.
-	 *                          Made optional to handle cases where filters don't pass the second parameter,
-	 *                          though ideally all callers should pass both parameters as per WordPress standards.
+	 * @param string $title The post title.
+	 * @param int    $post_id The post ID.
 	 *
 	 * @return string The filtered title.
 	 */
-	public function filter_highlighted_title( string $title, ?int $post_id = null ): string {
-		// If post_id is not provided, try to get it from the current post
-		if ( $post_id === null ) {
-			$post_id = get_the_ID();
-
-			// If we still don't have a post ID, return the original title
-			if ( ! $post_id ) {
-				return $title;
-			}
-		}
-
+	public function filter_highlighted_title( string $title, int $post_id ): string {
 		if ( ! $this->is_search_result( $post_id ) ) {
 			return $title;
 		}
