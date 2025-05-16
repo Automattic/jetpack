@@ -5,7 +5,8 @@
 		"declarationDir": "dist/types",
 		"typeRoots": [ "./node_modules/@types/", "src/*" ],
 		"target": "ES2024",
-		"importHelpers": true // Import helpers from `tslib` instead of inlining them
+		// Import helpers from `tslib` instead of inlining them
+		"importHelpers": true
 	},
 	"include": [ "./src/index.ts" ]
 }

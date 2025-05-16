@@ -197,20 +197,27 @@ for PROJECT in projects/*/*; do
 	if [[ -e "$PROJECT/tsconfig.json" ]]; then
 		# tsconfig.json files may have comments. Strip those.
 		JSON=$( sed 's#^[ \t]*//.*##' "$PROJECT/tsconfig.json" );
-		if jq -e '.compilerOptions // {} | has( "noEmit" )' <<<"$JSON" >/dev/null; then
+		if ! jq -e <<< "$JSON" &>/dev/null; then
 			EXIT=1
-			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","noEmit"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
-			echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set noEmit directly. Extend tsconfig.base.json if you want it false, or tsconfig.tsc.json or tsconfig.tsc-declaration-only.json if you want it true."
-		fi
-		if jq -e '.compilerOptions // {} | has( "module" )' <<<"$JSON" >/dev/null; then
-			EXIT=1
-			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","module"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
-			echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set module directly. Our base configs already set correct values."
-		fi
-		if jq -e '.compilerOptions // {} | has( "moduleResolution" )' <<<"$JSON" >/dev/null; then
-			EXIT=1
-			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","moduleResolution"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
-			echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set moduleResolution directly. Our base configs already set correct values."
+			# Inline comments are messy; it's easier to hint rather than strip them.
+			inline_comment_hint=$(grep -q '//' "$PROJECT/tsconfig.json" && echo ' Perhaps there are inline comments?' || true)
+			echo "::error file=$PROJECT/tsconfig.json::Unable to parse tsconfig.json.$inline_comment_hint"
+		else
+			if jq -e '.compilerOptions // {} | has( "noEmit" )' <<<"$JSON" >/dev/null; then
+				EXIT=1
+				LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","noEmit"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
+				echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set noEmit directly. Extend tsconfig.base.json if you want it false, or tsconfig.tsc.json or tsconfig.tsc-declaration-only.json if you want it true."
+			fi
+			if jq -e '.compilerOptions // {} | has( "module" )' <<<"$JSON" >/dev/null; then
+				EXIT=1
+				LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","module"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
+				echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set module directly. Our base configs already set correct values."
+			fi
+			if jq -e '.compilerOptions // {} | has( "moduleResolution" )' <<<"$JSON" >/dev/null; then
+				EXIT=1
+				LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","moduleResolution"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
+				echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set moduleResolution directly. Our base configs already set correct values."
+			fi
 		fi
 	fi
 
