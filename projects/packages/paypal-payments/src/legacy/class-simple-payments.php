@@ -10,9 +10,9 @@
 namespace Automattic\Jetpack\Paypal_Payments;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\PayPal_Payments;
-use Jetpack;
 use Jetpack_Components;
 use Jetpack_Currencies;
 use Jetpack_Options;
@@ -223,7 +223,7 @@ class Simple_Payments {
 		}
 
 		return ( ( defined( 'IS_WPCOM' ) && IS_WPCOM )
-			|| Jetpack::is_connection_ready() )
+			|| ( new Manager() )->is_connected() )
 			&&
 			Jetpack_Plan::supports( 'simple-payments' );
 	}
