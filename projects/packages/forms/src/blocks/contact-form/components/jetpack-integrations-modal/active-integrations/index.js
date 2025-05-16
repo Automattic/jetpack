@@ -3,7 +3,7 @@ import { JetpackIcon } from '@automattic/jetpack-components';
 import { Spinner, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import AkismetIcon from '../../../../../icons/akismet';
-import SalesforceIcon from '../../../../../icons/salesforce';
+import SalesforceCircleIcon from '../../../../../icons/salesforce-circle';
 import { isValidSalesforceOrgId } from '../salesforce-card';
 import './style.scss';
 
@@ -38,7 +38,7 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 				) {
 					acc.push( {
 						...integration,
-						icon: <SalesforceIcon width={ 30 } height={ 30 } />,
+						icon: <SalesforceCircleIcon width={ 34 } height={ 34 } />,
 						tooltip: __( 'Salesforce is connected for this form', 'jetpack-forms' ),
 					} );
 				}

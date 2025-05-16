@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
  */
 import AkismetIcon from '../../icons/akismet';
 import CreativeMailIcon from '../../icons/creative-mail';
+import SalesforceIcon from '../../icons/salesforce';
 import CreateFormButton from '../components/create-form-button';
 import Details from '../components/details';
 import { config } from '../index';
@@ -134,10 +135,7 @@ const About = () => {
 									src={ `${ ASSETS_URL }/images/google-sheets-icon.png` }
 									alt={ __( 'Google Sheets icon', 'jetpack-forms' ) }
 								/>
-								<img
-									src={ `${ ASSETS_URL }/images/salesforce-icon.png` }
-									alt={ __( 'Salesforce icon', 'jetpack-forms' ) }
-								/>
+								<SalesforceIcon width={ 32 } height={ 32 } className="icon-round" />
 							</div>
 							<h1>{ __( 'Connect with apps you already work with', 'jetpack-forms' ) }</h1>
 						</div>
