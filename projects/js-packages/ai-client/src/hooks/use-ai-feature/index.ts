@@ -6,7 +6,7 @@ import {
 	usePlanType as getPlanType,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useMemo, useEffect } from '@wordpress/element';
 import type { WordPressPlansSelectors } from '@automattic/jetpack-shared-extension-utils/store/wordpress-com';
 
 /**
@@ -33,6 +33,22 @@ export default function useAiFeature() {
 		increaseAiAssistantRequestsCount: increaseRequestsCount,
 		dequeueAiAssistantFeatureAsyncRequest: dequeueAsyncRequest,
 	} = useDispatch( 'wordpress-com/plans' );
+
+	useEffect( () => {
+		if ( ! loading && data ) {
+			// Check if the meta tag already exists
+			const existingMeta = document.querySelector( 'meta[http-equiv="origin-trial"]' );
+			if ( ! existingMeta && data?.chromeAiTokens ) {
+				// iterate through chromeAiTokens and create a meta tag for each one
+				Object.keys( data.chromeAiTokens ).forEach( token => {
+					const otMeta = document.createElement( 'meta' );
+					otMeta.httpEquiv = 'origin-trial';
+					otMeta.content = data.chromeAiTokens[ token ];
+					document.head.appendChild( otMeta );
+				} );
+			}
+		}
+	}, [ loading, data ] );
 
 	return useMemo( () => {
 		const planType = getPlanType( data?.currentTier );

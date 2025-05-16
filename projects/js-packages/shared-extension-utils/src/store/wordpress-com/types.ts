@@ -91,6 +91,10 @@ export type FeatureControl = {
 
 export type FeaturesControl = { [ key: string ]: FeatureControl };
 
+export type ChromeAiTokens = {
+	[ key: string ]: string;
+};
+
 export type AiFeatureProps = {
 	hasFeature: boolean;
 	isOverLimit: boolean;
@@ -114,6 +118,7 @@ export type AiFeatureProps = {
 		};
 	};
 	featuresControl?: FeaturesControl;
+	chromeAiTokens?: ChromeAiTokens;
 };
 
 // Type used in the `wordpress-com/plans` store.
@@ -158,4 +163,5 @@ export type SiteAIAssistantFeatureEndpointResponseProps = {
 		};
 	};
 	'features-control'?: FeaturesControl;
+	'chrome-ai-tokens'?: ChromeAiTokens;
 };

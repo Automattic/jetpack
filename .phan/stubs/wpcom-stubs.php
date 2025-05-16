@@ -1669,6 +1669,13 @@ namespace WPCOM\Jetpack_AI {
         {
         }
     }
+
+    class Chrome_AI_Tokens
+    {
+        public static function get_tokens(): array
+        {
+        }
+    }
 }
 namespace WPCOM\Jetpack_AI\Usage {
     class Helper
