@@ -857,7 +857,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-radio-options " . $options_classes . "' style='" . $options_styles . "'>";
+			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "'>";
 		} else {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
 		}
@@ -865,7 +865,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		if ( ! $is_outlined_style ) {
-			$field .= "<div class='wp-block-jetpack-options grunion-radio-options" . $options_classes . "' style='" . $options_styles . "'>";
+			$field .= "<div class='wp-block-jetpack-options grunion-radio-options" . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "'>";
 		}
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
