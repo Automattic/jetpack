@@ -733,6 +733,8 @@ on production builds, the attributes are being reordered, causing side-effects
 
 /* Ensure global styles can ovewrite the default border color. */
 :where(.wp-block-jetpack-options.jetpack-field-multiple__list--has-border) {
+	padding-left: var(--jetpack--contact-form--input-padding-left, 16px);
+	padding-right: var(--jetpack--contact-form--input-padding-left, 16px);
 	border-color: var(--jetpack--contact-form--border-color);
 }
 
