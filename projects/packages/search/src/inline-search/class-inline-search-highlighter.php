@@ -116,27 +116,6 @@ class Inline_Search_Highlighter {
 	}
 
 	/**
-	 * Filter comment text to show highlighted version.
-	 *
-	 * @param string $comment_text The comment text.
-	 *
-	 * @return string The filtered comment text.
-	 */
-	public function filter_highlighted_comment( string $comment_text ): string {
-		if ( ! is_search() || ! in_the_loop() ) {
-			return $comment_text;
-		}
-
-		$post_id = get_the_ID();
-
-		if ( ! $this->is_search_result( $post_id ) || empty( $this->highlighted_content[ $post_id ]['comments'] ) ) {
-			return $comment_text;
-		}
-
-		return $this->highlighted_content[ $post_id ]['comments'];
-	}
-
-	/**
 	 * Process highlighting data for a single search result.
 	 *
 	 * @param array $result  The search result data from the API.
@@ -147,14 +126,12 @@ class Inline_Search_Highlighter {
 			return;
 		}
 
-		$title    = $this->extract_highlight_field( $result, 'title' );
-		$content  = $this->extract_highlight_field( $result, 'content' );
-		$comments = $this->extract_highlight_field( $result, 'comments' );
+		$title   = $this->extract_highlight_field( $result, 'title' );
+		$content = $this->extract_highlight_field( $result, 'content' );
 
 		$this->highlighted_content[ $post_id ] = array(
-			'title'    => $title,
-			'content'  => $content,
-			'comments' => $comments,
+			'title'   => $title,
+			'content' => $content,
 		);
 	}
 
