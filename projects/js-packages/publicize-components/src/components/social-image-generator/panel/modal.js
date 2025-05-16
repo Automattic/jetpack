@@ -60,7 +60,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 
 	return (
 		<ThemeProvider targetDom={ document.body }>
-			<Modal onRequestClose={ onClose }>
+			<Modal className={ styles.modal } onRequestClose={ onClose } __experimentalHideHeader>
 				<GeneratedImagePreview
 					className={ styles.preview }
 					imageId={ localImageId }
@@ -121,12 +121,14 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 					</BaseControl.VisualLabel>
 					<TemplatePicker value={ localTemplate } onTemplateSelected={ setEditedTemplate } />
 				</BaseControl>
-				<Button onClick={ onClose } variant="tertiary">
-					{ __( 'Cancel', 'jetpack-publicize-components' ) }
-				</Button>
-				<Button onClick={ saveSettings } variant="primary">
-					{ __( 'Save', 'jetpack-publicize-components' ) }
-				</Button>
+				<div className={ styles.footer }>
+					<Button onClick={ onClose } variant="tertiary">
+						{ __( 'Cancel', 'jetpack-publicize-components' ) }
+					</Button>
+					<Button onClick={ saveSettings } variant="primary">
+						{ __( 'Save', 'jetpack-publicize-components' ) }
+					</Button>
+				</div>
 			</Modal>
 		</ThemeProvider>
 	);
