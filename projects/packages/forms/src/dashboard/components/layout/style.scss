@@ -16,7 +16,7 @@ body.admin_page_jetpack-forms {
 	margin: 0;
 	padding: 0;
 	width: 100%;
-	min-height: 100%;
+	height: 100%;
 
 	.jp-forms__logo-wrapper,
 	.jp-forms__layout-header {
@@ -47,7 +47,9 @@ body.admin_page_jetpack-forms {
 	}
 
 	.jp-forms__dashboard-tabs {
-		min-height: 100%;
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
 
 		> .components-tab-panel__tabs {
 			margin: 0;
@@ -78,6 +80,10 @@ body.admin_page_jetpack-forms {
 			@media (max-width: 660px) {
 				padding: 0 24px;
 			}
+		}
+
+		.components-tab-panel__tab-content {
+			height: 100%;
 		}
 	}
 }

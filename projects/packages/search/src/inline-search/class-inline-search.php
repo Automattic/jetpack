@@ -19,11 +19,27 @@ class Inline_Search extends Classic_Search {
 	private static $instance;
 
 	/**
+	 * The Search Highlighter instance.
+	 *
+	 * @var Inline_Search_Highlighter|null
+	 * @since $$next-version$$
+	 */
+	private $highlighter;
+
+	/**
 	 * The search correction instance.
 	 *
-	 * @var Inline_Search_Correction
+	 * @var Inline_Search_Correction|null
+	 * @since $$next-version$$
 	 */
 	private $correction;
+
+	/**
+	 * Stores the list of post IDs that are actual search results.
+	 *
+	 * @var array
+	 */
+	private $search_result_ids = array();
 
 	/**
 	 * Returns whether this class should be used instead of Classic_Search.
@@ -73,6 +89,17 @@ class Inline_Search extends Classic_Search {
 	}
 
 	/**
+	 * Set up the highlighter.
+	 *
+	 * @param string $blog_id The blog ID to set up for.
+	 */
+	public function setup( $blog_id ) {
+		parent::setup( $blog_id );
+		// The highlighter will be initialized with data during search processing
+		$this->highlighter = null;
+	}
+
+	/**
 	 * Bypass WP search and offload it to 1.3 search API instead.
 	 *
 	 * This is the main hook of the plugin and is responsible for returning the posts that match the search query.
@@ -103,24 +130,11 @@ class Inline_Search extends Classic_Search {
 			return array();
 		}
 
-		$post_ids = array();
+		// Process the search results to extract post IDs and highlighted content.
+		$this->process_search_results();
 
-		foreach ( $this->search_result['results'] as $result ) {
-			$post_ids[] = (int) ( $result['fields']['post_id'] ?? 0 );
-		}
-
-		// Query all posts now.
-		$args = array(
-			'post__in'            => $post_ids,
-			'orderby'             => 'post__in',
-			'perm'                => 'readable',
-			'post_type'           => 'any',
-			'ignore_sticky_posts' => true,
-			'suppress_filters'    => true,
-			'posts_per_page'      => $query->get( 'posts_per_page' ),
-		);
-
-		$posts_query = new \WP_Query( $args );
+		// Create a WP_Query to fetch the actual posts.
+		$posts_query = $this->create_posts_query( $query );
 
 		// WP Core doesn't call the set_found_posts and its filters when filtering posts_pre_query like we do, so need to do these manually.
 		$query->found_posts   = $this->found_posts;
@@ -318,19 +332,37 @@ class Inline_Search extends Classic_Search {
 			}
 		}
 
+		$highlight_fields = array(
+			'title',
+			'content',
+			'comments',
+		);
+
+		$fields = array(
+			'blog_id',
+			'post_id',
+			'title',
+			'content',
+			'comments',
+		);
+
 		return array(
-			'blog_id'      => $this->jetpack_blog_id,
-			'size'         => absint( $args['posts_per_page'] ),
-			'from'         => min( $from, Helper::get_max_offset() ),
-			'fields'       => array( 'blog_id', 'post_id' ),
-			'query'        => $args['query'] ?? '',
-			'sort'         => $sort,
-			'aggregations' => empty( $aggregations ) ? null : $aggregations,
-			'langs'        => $this->get_langs(),
-			'filter'       => array(
+			'blog_id'          => $this->jetpack_blog_id,
+			'size'             => (int) absint( $args['posts_per_page'] ),
+			'from'             => (int) min( $from, Helper::get_max_offset() ),
+			'fields'           => $fields,
+			'highlight_fields' => $highlight_fields,
+			'query'            => $args['query'] ?? '',
+			'sort'             => $sort,
+			'aggregations'     => empty( $aggregations ) ? null : $aggregations,
+			'langs'            => $this->get_langs(),
+			'filter'           => array(
 				'bool' => array(
 					'must' => $this->build_es_filters( $args ),
 				),
+			),
+			'highlight'        => array(
+				'fields' => $highlight_fields,
 			),
 		);
 	}
@@ -540,5 +572,47 @@ class Inline_Search extends Classic_Search {
 		$raw = false // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	) {
 		return $this->search_result;
+	}
+
+	/**
+	 * Process search results to extract post IDs and highlighted content.
+	 */
+	private function process_search_results() {
+		$post_ids = array();
+
+		foreach ( $this->search_result['results'] as $result ) {
+			$post_id    = (int) ( $result['fields']['post_id'] ?? 0 );
+			$post_ids[] = $post_id;
+		}
+
+		$this->search_result_ids = $post_ids;
+		$this->highlighter       = new Inline_Search_Highlighter( $post_ids );
+
+		// Hand the entire results array over; Inline_Search_Highlighter
+		// will pull out `fields.post_id` and `highlight` for each one.
+		$this->highlighter->process_results( $this->search_result['results'] );
+
+		$this->highlighter->setup();
+	}
+
+	/**
+	 * Create a WP_Query to fetch the posts for search results.
+	 *
+	 * @param \WP_Query $original_query The original WP_Query.
+	 *
+	 * @return \WP_Query The new query with posts matching the search results.
+	 */
+	private function create_posts_query( \WP_Query $original_query ): \WP_Query {
+		$args = array(
+			'post__in'            => $this->search_result_ids,
+			'orderby'             => 'post__in',
+			'perm'                => 'readable',
+			'post_type'           => 'any',
+			'ignore_sticky_posts' => true,
+			'suppress_filters'    => true,
+			'posts_per_page'      => $original_query->get( 'posts_per_page' ),
+		);
+
+		return new \WP_Query( $args );
 	}
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Minify CSS/JS: avoid fatal errors on feature activation
