@@ -40,7 +40,6 @@ const JetpackField = props => {
 			[ 'jetpack/input', { type } ],
 		];
 	}, [ label, defaultLabel, required, requiredText, type ] );
-
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,
