@@ -1548,51 +1548,65 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$outline_styles  = $this->get_attribute( 'outlinestyledata' );
 		$outline_classes = $this->get_attribute( 'outlinestyleclasses' );
 
-		if ( ! empty( $outline_styles ) ) {
-			$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
-			$input_styles   = $this->get_attribute( 'inputstyles' );
+		$outline_styles = ! empty( $outline_styles ) ? json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true ) : array();
+		$input_styles   = $this->get_attribute( 'inputstyles' );
 
-			if ( ! empty( $input_styles ) ) {
-				$style_attrs = $input_styles;
-			}
+		if ( ! empty( $input_styles ) ) {
+			$style_attrs = $input_styles;
+		}
 
-			$global_styles = wp_get_global_styles(
-				array( 'border' ),
-				array(
-					'block_name' => 'jetpack/input',
-					'transforms' => array( 'resolve-variables' ),
-				)
-			);
+		$global_styles = wp_get_global_styles(
+			array( 'border' ),
+			array(
+				'block_name' => 'jetpack/input',
+				'transforms' => array( 'resolve-variables' ),
+			)
+		);
 
-			$legacy_border_size   = $outline_styles['border']['width'] ?? null;
-			$legacy_border_size   = is_numeric( $legacy_border_size ) ? $legacy_border_size . 'px' : $legacy_border_size;
-			$legacy_border_radius = $outline_styles['border']['radius'] ?? null;
-			$legacy_border_radius = is_numeric( $legacy_border_radius ) ? $legacy_border_radius . 'px' : $legacy_border_radius;
+		$legacy_border_size   = $outline_styles['border']['width'] ?? null;
+		$legacy_border_size   = is_numeric( $legacy_border_size ) ? $legacy_border_size . 'px' : $legacy_border_size;
+		$legacy_border_radius = $outline_styles['border']['radius'] ?? null;
+		$legacy_border_radius = is_numeric( $legacy_border_radius ) ? $legacy_border_radius . 'px' : $legacy_border_radius;
 
-			$border_size = $legacy_border_size ??
-				$outline_styles['border']['top']['width'] ??
-				$global_styles['width'] ??
-				$global_styles['top']['width'];
+		$border_top_size = $legacy_border_size ??
+			$outline_styles['border']['top']['width'] ??
+			$global_styles['width'] ??
+			$global_styles['top']['width'];
 
-			$border_radius = $legacy_border_radius ??
-				$global_styles['radius'];
+		$border_left_size = $legacy_border_size ??
+			$outline_styles['border']['left']['width'] ??
+			$global_styles['width'] ??
+			$global_styles['left']['width'];
 
-			$css_vars = $border_size ? '--jetpack--contact-form--border-size: ' . $border_size . ';' : '';
-			// Check if border radius is split or a single value.
-			if ( is_array( $border_radius ) ) {
-				// If corner radii are set on the top-left or bottom-left of the block, take the maximum of the two.
-				// We check the left side due to writing direction—this variable is used to offset text.
-				// TODO: this should factor in RTL languages.
-				$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: max(' . $border_radius['topLeft'] . ',' . $border_radius['bottomLeft'] . ');' : '';
-			} elseif ( isset( $border_radius ) ) {
-				$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
-			}
+		$border_right_size = $legacy_border_size ??
+			$outline_styles['border']['right']['width'] ??
+			$global_styles['width'] ??
+			$global_styles['right']['width'];
 
-			if ( 'outlined' === $form_style ) {
-				$css_vars .= '--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));';
-			} elseif ( 'animated' === $form_style ) {
-				$css_vars .= '--jetpack--contact-form--animated-left-offset: ' . ( ! empty( $border_radius ) ? '32px' : '16px' ) . ';';
-			}
+		$border_radius = $legacy_border_radius ??
+			$global_styles['radius'];
+
+		$css_vars  = $border_top_size ? '--jetpack--contact-form--border-size: ' . $border_top_size . ';' : '';
+		$css_vars .= $border_top_size ? '--jetpack--contact-form--border-top-size: ' . $border_top_size . ';' : '';
+		$css_vars .= $border_left_size ? '--jetpack--contact-form--border-left-size: ' . $border_left_size . ';' : '';
+		$css_vars .= $border_right_size ? '--jetpack--contact-form--border-right-size: ' . $border_right_size . ';' : '';
+
+		// Check if border radius is split or a single value.
+		if ( is_array( $border_radius ) ) {
+			// If corner radii are set on the top-left or bottom-left of the block, take the maximum of the two.
+			// We check the left side due to writing direction—this variable is used to offset text.
+			// TODO: this should factor in RTL languages.
+			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: max(' . $border_radius['topLeft'] . ',' . $border_radius['bottomLeft'] . ');' : '';
+		} elseif ( isset( $border_radius ) ) {
+			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
+		}
+
+		if ( 'outlined' === $form_style ) {
+			$css_vars .= '--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));';
+		} elseif ( 'animated' === $form_style ) {
+			$css_vars .= '--jetpack--contact-form--animated-left-offset: 16px;';
+			$css_vars .= '--jetpack--contact-form--animated-top-offset:' . $border_top_size ? 'calc(var(--jetpack--contact-form--border-top-size) + var(--jetpack--contact-form--animated-left-offset));'
+				: '50%;';
 		}
 
 		return array(
