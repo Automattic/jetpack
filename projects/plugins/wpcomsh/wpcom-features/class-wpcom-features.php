@@ -195,6 +195,8 @@ class WPCOM_Features {
 	private const JETPACK_SOCIAL_V1_MONTHLY                   = 'jetpack_social_v1_monthly'; // 2606
 	private const JETPACK_SOCIAL_V1_YEARLY                    = 'jetpack_social_v1_yearly'; // 2605
 	private const JETPACK_SOCIAL_V1_BI_YEARLY                 = 'jetpack_social_v1_bi_yearly'; // 2607
+	private const A4A_WPCOM_BUSINESS_BUNDLE_YEARLY            = 'a4a_wp_bundle_business_yearly'; // 3300
+	private const A4A_WPCOM_BUSINESS_BUNDLE_MONTHLY           = 'a4a_wp_bundle_business_monthly'; // 3301
 
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS           = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
@@ -204,7 +206,7 @@ class WPCOM_Features {
 	private const WPCOM_PRO_PLANS               = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
 	private const WPCOM_MIGRATION_TRIAL_PLANS   = array( self::WPCOM_MIGRATION_TRIAL_BUNDLE_MONTHLY );
 	private const WPCOM_HOSTING_TRIAL_PLANS     = array( self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY );
-	private const WPCOM_BUSINESS_PLANS          = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y, self::WPCOM_MIGRATION_TRIAL_PLANS, self::WPCOM_HUNDRED_YEAR_BUNDLE, self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY );
+	private const WPCOM_BUSINESS_PLANS          = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y, self::WPCOM_MIGRATION_TRIAL_PLANS, self::WPCOM_HUNDRED_YEAR_BUNDLE, self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY, self::A4A_WPCOM_BUSINESS_BUNDLE_YEARLY, self::A4A_WPCOM_BUSINESS_BUNDLE_MONTHLY );
 	private const WPCOM_ECOMMERCE_PLANS         = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y, self::ECOMMERCE_BUNDLE_3Y );
 	private const WPCOM_ECOMMERCE_TRIAL_PLANS   = array( self::ECOMMERCE_TRIAL_BUNDLE_MONTHLY );
 	private const WPCOM_WOOEXPRESS_MEDIUM_PLANS = array( self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_MONTHLY, self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY );
@@ -242,6 +244,7 @@ class WPCOM_Features {
 	private const JETPACK_SOCIAL_PLANS          = array( self::JETPACK_SOCIAL_BASIC_BI_YEARLY, self::JETPACK_SOCIAL_BASIC, self::JETPACK_SOCIAL_BASIC_MONTHLY, self::JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY );
 	private const JETPACK_SOCIAL_ADVANCED_PLANS = array( self::JETPACK_SOCIAL_ADVANCED_BI_YEARLY, self::JETPACK_SOCIAL_ADVANCED, self::JETPACK_SOCIAL_ADVANCED_MONTHLY );
 	private const JETPACK_SOCIAL_V1_PLANS       = array( self::JETPACK_SOCIAL_V1_YEARLY, self::JETPACK_SOCIAL_V1_MONTHLY, self::JETPACK_SOCIAL_V1_BI_YEARLY );
+
 
 	private const JETPACK_STATS_PLANS = array( self::JETPACK_STATS_BI_YEARLY, self::JETPACK_STATS_YEARLY, self::JETPACK_STATS_MONTHLY, self::JETPACK_STATS_PWYW, self::JETPACK_STATS_FREE );
 
@@ -339,6 +342,7 @@ class WPCOM_Features {
 	public const BACKUPS                           = 'backups';
 	public const BACKUPS_DAILY                     = 'backups-daily';
 	public const BACKUPS_RESTORE                   = 'restore';
+	public const BIG_SKY                           = 'big-sky';
 	public const BACKUP_ONE_TIME                   = 'backup-one-time';
 	public const BLOG_DOMAIN_ONLY                  = 'blog-domain-only';
 	public const CALENDLY                          = 'calendly';
@@ -422,10 +426,10 @@ class WPCOM_Features {
 	public const SOCIAL_IMAGE_GENERATOR            = 'social-image-generator';
 	public const SOCIAL_SHARES_1000                = 'social-shares-1000';
 	public const SOCIAL_ENHANCED_PUBLISHING        = 'social-enhanced-publishing';
-	public const SOCIAL_IMAGE_AUTO_CONVERT         = 'social-image-auto-convert';
 	public const SOCIAL_CONNECTIONS_MANAGEMENT     = 'social-connections-management';
 	public const SOCIAL_EDITOR_PREVIEW             = 'social-editor-preview';
 	public const SOCIAL_SHARE_STATUS               = 'social-share-status';
+	public const SOCIAL_IMAGE_AUTO_CONVERT         = 'social-image-auto-convert';
 	public const SPACE                             = 'space';
 	public const SPACE_UPGRADED_STORAGE            = 'space-upgraded-storage';
 	public const SSH                               = 'ssh';
@@ -447,7 +451,11 @@ class WPCOM_Features {
 	public const UPLOAD_SPACE_25GB                 = 'upload-space-25gb';
 	public const UPLOAD_SPACE_50GB                 = 'upload-space-50gb';
 	public const UPLOAD_SPACE_100GB                = 'upload-space-100gb';
+	public const UPLOAD_SPACE_150GB                = 'upload-space-150gb';
 	public const UPLOAD_SPACE_200GB                = 'upload-space-200gb';
+	public const UPLOAD_SPACE_250GB                = 'upload-space-250gb';
+	public const UPLOAD_SPACE_300GB                = 'upload-space-300gb';
+	public const UPLOAD_SPACE_350GB                = 'upload-space-350gb';
 	public const UPLOAD_SPACE_UNLIMITED            = 'upload-space-unlimited';
 	public const UPLOAD_THEMES                     = 'upload-themes';
 	public const UPLOAD_VIDEO_FILES                = 'upload-video-files';
@@ -561,6 +569,10 @@ class WPCOM_Features {
 		 */
 		self::BACKUP_ONE_TIME                   => array(
 			self::JETPACK_BACKUP_ONE_TIME,
+		),
+		self::BIG_SKY                           => array(
+			self::WPCOM_BUSINESS_PLANS,
+			self::WPCOM_PREMIUM_PLANS,
 		),
 		// BLOG_DOMAIN_ONLY - Users on Blogger plan can only purchase .blog domains.
 		self::BLOG_DOMAIN_ONLY                  => array(
@@ -801,7 +813,7 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STARTER_PLANS,
 		),
-		// LIVE_SUPPORT - Monthly plans do not get live support. p7DVsv-a9N-p2.
+		// LIVE_SUPPORT - Monthly plans do not get live support. https://wp.me/p7DVsv-a9N.
 		self::LIVE_SUPPORT                      => array(
 			// Premium (Excluding Monthly).
 			self::BUNDLE_PRO,
@@ -970,7 +982,7 @@ class WPCOM_Features {
 
 		/*
 		 * SCAN_MANAGED - Scan results are managed internally by Atomic guild HEs and not shown in user UI.
-		 * See D57207-code.
+		 * See https://code.a8c.com/D57207.
 		 */
 		self::SCAN_MANAGED                      => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -980,7 +992,7 @@ class WPCOM_Features {
 		/*
 		 * SCHEDULED_UPDATES - Allows users to schedule plugin and (eventually) theme updates for their sites.
 		 *
-		 * @see pcmemI-2O3-p2
+		 * @see https://cariboup2.wordpress.com/2024/02/13/project-thread-plugin-updates-manager/
 		 */
 		self::SCHEDULED_UPDATES                 => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -1077,8 +1089,8 @@ class WPCOM_Features {
 			self::WPCOM_ALL_SITES,
 		),
 		self::SOCIAL_CONNECTIONS_MANAGEMENT     => array(
-			self::JETPACK_ALL_SITES,
 			self::WPCOM_ALL_SITES,
+			self::JETPACK_ALL_SITES,
 		),
 		self::SOCIAL_EDITOR_PREVIEW             => array(
 			self::WPCOM_ALL_SITES,
@@ -1547,7 +1559,6 @@ class WPCOM_Features {
 	 * @return bool If the purchase is included in $products_map and meets any purchase date-range rules.
 	 */
 	public static function purchase_in_products_map( $purchase, $products_map ) {
-
 		// First check if the current purchase is excluded in the product definition.
 		if ( isset( $products_map[ self::EXCLUDE_PLANS ] ) ) {
 			$excluded_plans = $products_map[ self::EXCLUDE_PLANS ] ?? array();
