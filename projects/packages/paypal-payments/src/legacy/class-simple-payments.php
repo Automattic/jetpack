@@ -76,6 +76,15 @@ class Simple_Payments {
 	 * Create instance of class.
 	 */
 	public static function get_instance() {
+		// Check for required dependencies
+		if ( ! class_exists( 'Jetpack_Components' )
+			|| ! class_exists( 'Jetpack_Currencies' )
+			|| ! class_exists( 'Jetpack_Options' )
+			|| ! function_exists( 'jetpack_is_frontend' )
+		) {
+			return null;
+		}
+
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hooks();
