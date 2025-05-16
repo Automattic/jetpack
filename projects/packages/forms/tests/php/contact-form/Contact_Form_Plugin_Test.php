@@ -125,7 +125,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Render the shortcode.
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox_multiple( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="checkbox-multiple" label="Choose several options" labelclasses="wp-block-jetpack-label has-text-color has-swamp-green-color" options="truth,dare" optionsdata="&#091;{&quot;label&quot;:&quot;truth&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:caramel; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;dare&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:gummy; font-size:24px;&quot;}&#093;" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"/]';
+		$expected  = '[contact-field type="checkbox-multiple" label="Choose several options" labelclasses="wp-block-jetpack-label has-text-color has-swamp-green-color" optionsclasses="" options="truth,dare" optionsdata="&#091;{&quot;label&quot;:&quot;truth&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:caramel; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;dare&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:gummy; font-size:24px;&quot;}&#093;" outlinestyledata="" outlinestyleclasses="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"/]';
 
 		$this->assertEquals( $expected, $shortcode, 'Shortcode is not as expected' );
 	}
@@ -209,7 +209,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 		);
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_text( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="text" label="Label" requiredText="Do it" labelclasses="wp-block-jetpack-label has-text-color" labelstyles="color:caramel; font-size:24px;" placeholder="hi!" min="1" max="10" inputclasses="wp-block-jetpack-input has-text-color has-border-color" inputstyles="color:toot; font-size:33rem; border-color:toot;border-width:1px;" fieldwrapperclasses="wp-block-jetpack-field-text"/]';
+		$expected  = '[contact-field type="text" label="Label" requiredText="Do it" labelclasses="wp-block-jetpack-label has-text-color" labelstyles="color:caramel; font-size:24px;" placeholder="hi!" min="1" max="10" inputclasses="wp-block-jetpack-input has-text-color has-border-color" inputstyles="color:toot; font-size:33rem; border-color:toot;border-width:1px;" outlinestyledata="{&quot;border&quot;:{&quot;color&quot;:&quot;toot&quot;&#044;&quot;width&quot;:&quot;1px&quot;}}" outlinestyleclasses=" has-border-color" fieldwrapperclasses="wp-block-jetpack-field-text"/]';
 
 		$this->assertEquals( $expected, $shortcode );
 	}
@@ -282,7 +282,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Render the shortcode.
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_radio( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="radio" label="Radio gaga" labelclasses="wp-block-jetpack-label has-text-color has-turmoil-purple-color" options="freddy,brian" optionsdata="&#091;{&quot;label&quot;:&quot;freddy&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:reddo; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;brian&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:blueo; font-size:100rem;&quot;}&#093;" fieldwrapperclasses="wp-block-jetpack-field-radio"/]';
+		$expected  = '[contact-field type="radio" label="Radio gaga" labelclasses="wp-block-jetpack-label has-text-color has-turmoil-purple-color" optionsclasses="" options="freddy,brian" optionsdata="&#091;{&quot;label&quot;:&quot;freddy&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:reddo; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;brian&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:blueo; font-size:100rem;&quot;}&#093;" outlinestyledata="" outlinestyleclasses="" fieldwrapperclasses="wp-block-jetpack-field-radio"/]';
 
 		$this->assertEquals( $expected, $shortcode, 'Shortcode is not as expected' );
 	}
@@ -339,6 +339,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'max'                 => '10',
 					'type'                => 'text',
 					'fieldwrapperclasses' => 'wp-block-jetpack-field-text',
+					'outlinestyleclasses' => ' has-background has-border-color',
+					'outlinestyledata'    => '{"border":{"color":"swamp-blue","width":"1px","style":"dashed"},"color":{"background":"swamp-red"}}',
 				),
 				'inner_blocks' => array(
 					array(
@@ -432,6 +434,10 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'type'                => 'checkbox-multiple',
 					'requiredText'        => 'Do it again',
 					'fieldwrapperclasses' => 'wp-block-jetpack-field-checkbox-multiple',
+					'optionsclasses'      => ' has-text-color has-background',
+					'optionsstyles'       => 'color:blue-overture;background-color:green-tonight; border-top-width:2px;border-top-color:terrible-red;border-top-style:solid;',
+					'outlinestyleclasses' => ' has-background',
+					'outlinestyledata'    => '{"border":{"top":{"color":"terrible-red","width":"2px","style":"solid","radius":"10px"}},"color":{"background":"green-tonight"}}',
 				),
 				'inner_blocks' => array(
 					array(
@@ -453,7 +459,21 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					array(
 						'blockName'   => 'jetpack/options',
 						'attrs'       => array(
-							'type' => 'radio',
+							'type'  => 'radio',
+							'style' => array(
+								'border' => array(
+									'top' => array(
+										'color'  => 'terrible-red',
+										'width'  => '2px',
+										'style'  => 'solid',
+										'radius' => '10px',
+									),
+								),
+								'color'  => array(
+									'background' => 'green-tonight',
+									'text'       => 'blue-overture',
+								),
+							),
 						),
 						'innerBlocks' => array(
 							array(

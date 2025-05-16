@@ -145,6 +145,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'max'                    => null,
 				'maxfiles'               => null,
 				'fieldwrapperclasses'    => null,
+				'outlinestyledata'       => array(),
+				'outlinestyleclasses'    => null,
+				'optionsclasses'         => null,
+				'optionsstyles'          => null,
 			),
 			$attributes,
 			'contact-field'
@@ -375,6 +379,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			if ( ! empty( $option_styles ) ) {
 				$this->option_styles .= esc_attr( $option_styles );
 			}
+
+			// For Outline style support.
+			$form_style = $this->get_form_style();
+			if ( 'outlined' === $form_style || 'animated' === $form_style ) {
+				$output_data         = $this->get_outline_styles( $form_style );
+				$this->block_styles .= $output_data['css_vars'];
+			}
 		} else {
 			if ( is_numeric( $this->get_attribute( 'borderradius' ) ) ) {
 				$this->block_styles .= '--jetpack--contact-form--border-radius: ' . esc_attr( $this->get_attribute( 'borderradius' ) ) . 'px;';
@@ -576,8 +587,21 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array(), $always_render = false ) {
 		$form_style = $this->get_form_style();
 
-		if ( ! empty( $form_style ) && $form_style !== 'default' && ! $always_render ) {
-			return '';
+		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
+			if ( ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
+				switch ( $form_style ) {
+					case 'outlined':
+						return $this->render_outline_label( $id, $label, $required, $required_field_text );
+					case 'animated':
+						return $this->render_animated_label( $id, $label, $required, $required_field_text );
+					case 'below':
+						return $this->render_below_label( $id, $label, $required, $required_field_text );
+				}
+			}
+
+			if ( ! $always_render ) {
+				return '';
+			}
 		}
 
 		if ( ! empty( $this->label_styles ) ) {
@@ -799,8 +823,50 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field  = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="grunion-radio-options">';
+		$options_classes   = $this->get_attribute( 'optionsclasses' );
+		$options_styles    = $this->get_attribute( 'optionsstyles' );
+		$form_style        = $this->get_form_style();
+		$is_outlined_style = 'outlined' === $form_style;
+		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'";
+
+		if ( $is_outlined_style ) {
+			$outline_styles = $this->get_attribute( 'outlinestyledata' );
+
+			if ( ! empty( $outline_styles ) ) {
+				$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
+			}
+
+			// When there's an outlined style, and border radius is set, the existing inline border radius is overridden to apply
+			// a limit of `100px` to the radius on the x axis. This achieves the same look and feel as other fields
+			// that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
+			// It prevents large border radius values from disrupting the look and feel of the fields.
+			if ( isset( $outline_styles['border']['radius'] ) ) {
+				$options_styles          = $options_styles ?? '';
+				$radius                  = $outline_styles['border']['radius'];
+				$has_split_radius_values = is_array( $radius );
+				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
+				$top_right_radius        = $has_split_radius_values ? $radius['topRight'] : $radius;
+				$bottom_left_radius      = $has_split_radius_values ? $radius['bottomLeft'] : $radius;
+				$bottom_right_radius     = $has_split_radius_values ? $radius['bottomRight'] : $radius;
+				$options_styles         .= "border-top-left-radius: min(100px, {$top_left_radius}) {$top_left_radius};";
+				$options_styles         .= "border-top-right-radius: min(100px, {$top_right_radius}) {$top_right_radius};";
+				$options_styles         .= "border-bottom-left-radius: min(100px, {$bottom_left_radius}) {$bottom_left_radius};";
+				$options_styles         .= "border-bottom-right-radius: min(100px, {$bottom_right_radius}) {$bottom_right_radius};";
+			}
+
+			/*
+			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
+			 */
+			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-radio-options " . $options_classes . "' style='" . $options_styles . "'>";
+		} else {
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
+		}
+
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+
+		if ( ! $is_outlined_style ) {
+			$field .= "<div class='wp-block-jetpack-options grunion-radio-options" . $options_classes . "' style='" . $options_styles . "'>";
+		}
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
 		$used_html_ids = array();
@@ -873,6 +939,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
+		if ( ! $is_outlined_style ) {
+			$field .= '</div>';
+		}
 		$field .= '</fieldset>';
 		return $field;
 	}
@@ -1150,12 +1219,56 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		$options_classes   = $this->get_attribute( 'optionsclasses' );
+		$options_styles    = $this->get_attribute( 'optionsstyles' );
+		$form_style        = $this->get_form_style();
+		$is_outlined_style = 'outlined' === $form_style;
+
 		// The `data-required` attribute is used in `accessible-form.js` to ensure at least one
 		// checkbox is checked. Unlike radio buttons, for which the required attribute is satisfied if
 		// any of the radio buttons in the group is selected, adding a required attribute directly to
 		// a checkbox means that this specific checkbox must be checked.
-		$field  = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="grunion-checkbox-multiple-options"' . ( $required ? ' data-required' : '' ) . '>';
+
+		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
+
+		if ( $is_outlined_style ) {
+			$outline_styles = $this->get_attribute( 'outlinestyledata' );
+
+			if ( ! empty( $outline_styles ) ) {
+				$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
+			}
+
+			// When there's an outlined style, and border radius is set, the existing inline border radius is overridden to apply
+			// a limit of `100px` to the radius on the x axis. This achieves the same look and feel as other fields
+			// that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
+			// It prevents large border radius values from disrupting the look and feel of the fields.
+			if ( isset( $outline_styles['border']['radius'] ) ) {
+				$options_styles          = $options_styles ?? '';
+				$radius                  = $outline_styles['border']['radius'];
+				$has_split_radius_values = is_array( $radius );
+				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
+				$top_right_radius        = $has_split_radius_values ? $radius['topRight'] : $radius;
+				$bottom_left_radius      = $has_split_radius_values ? $radius['bottomLeft'] : $radius;
+				$bottom_right_radius     = $has_split_radius_values ? $radius['bottomRight'] : $radius;
+				$options_styles         .= "border-top-left-radius: min(100px, {$top_left_radius}) {$top_left_radius};";
+				$options_styles         .= "border-top-right-radius: min(100px, {$top_right_radius}) {$top_right_radius};";
+				$options_styles         .= "border-bottom-left-radius: min(100px, {$bottom_left_radius}) {$bottom_left_radius};";
+				$options_styles         .= "border-bottom-right-radius: min(100px, {$bottom_right_radius}) {$bottom_right_radius};";
+			}
+
+			/*
+			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
+			 */
+			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-checkbox-multiple-options" . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
+		} else {
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
+		}
+
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+
+		if ( ! $is_outlined_style ) {
+			$field .= "<div class='wp-block-jetpack-options grunion-checkbox-multiple-options" . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
+		}
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
 		$used_html_ids = array();
@@ -1225,7 +1338,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				}
 			}
 		}
-
+		if ( ! $is_outlined_style ) {
+			$field .= '</div>';
+		}
 		$field .= '</fieldset>';
 		return $field;
 	}
@@ -1390,21 +1505,109 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$classes .= $this->is_error() ? ' form-error' : '';
 		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
 
+		$output_data = $this->get_outline_styles();
+
 		return '
 			<div class="notched-label">
-				<div class="notched-label__leading"></div>
-				<div class="notched-label__notch">
+				<div class="notched-label__leading ' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
+				<div class="notched-label__notch ' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '">
 					<label
 						for="' . esc_attr( $id ) . '"
 						class=" ' . $classes . '"
-						style="' . $this->label_styles . '"
+						style="' . $this->label_styles . $output_data['css_vars'] . '"
 					>'
 			. esc_html( $label )
 			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>
 				</div>
-				<div class="notched-label__trailing"></div>
+				<div class="notched-label__filler ' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
+				<div class="notched-label__trailing ' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
 			</div>';
+	}
+
+	/**
+	 * Returns the styles, classes and CSS vars necessary to render fields in the "Outlined" style.
+	 * At the block level, the styles are extracted and added to the shortcode attributes in
+	 * Contact_Form_Plugin::get_outlined_style_attributes().
+	 * This function extracts those styles and applies them to the field,
+	 * and ensures any global or theme styles are applied.
+	 *
+	 * @param string $form_style (optional) The form style.
+	 *
+	 * @return array {
+	 *     @type string $style_attrs The style attributes.
+	 *     @type string $css_vars The CSS variables.
+	 *     @type string $class_name The class name.
+	 * }
+	 */
+	private function get_outline_styles( $form_style = 'outlined' ) {
+		$style_attrs     = '';
+		$css_vars        = '';
+		$outline_styles  = $this->get_attribute( 'outlinestyledata' );
+		$outline_classes = $this->get_attribute( 'outlinestyleclasses' );
+
+		if ( ! empty( $outline_styles ) ) {
+			$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
+			$input_styles   = $this->get_attribute( 'inputstyles' );
+
+			if ( ! empty( $input_styles ) ) {
+				$style_attrs = $input_styles;
+			}
+
+			$global_styles = wp_get_global_styles(
+				array( 'border' ),
+				array(
+					'block_name' => 'jetpack/input',
+					'transforms' => array( 'resolve-variables' ),
+				)
+			);
+
+			$legacy_border_size   = $outline_styles['border']['width'] ?? null;
+			$legacy_border_size   = is_numeric( $legacy_border_size ) ? $legacy_border_size . 'px' : $legacy_border_size;
+			$legacy_border_radius = $outline_styles['border']['radius'] ?? null;
+			$legacy_border_radius = is_numeric( $legacy_border_radius ) ? $legacy_border_radius . 'px' : $legacy_border_radius;
+
+			$border_size = $legacy_border_size ??
+				$outline_styles['border']['top']['width'] ??
+				$global_styles['width'] ??
+				$global_styles['top']['width'];
+
+			$border_radius = $legacy_border_radius ??
+				$global_styles['radius'];
+
+			$css_vars = $border_size ? '--jetpack--contact-form--border-size: ' . $border_size . ';' : '';
+			// Check if border radius is split or a single value.
+			if ( is_array( $border_radius ) ) {
+				// If corner radii are set on the top-left or bottom-left of the block, take the maximum of the two.
+				// We check the left side due to writing direction—this variable is used to offset text.
+				// TODO: this should factor in RTL languages.
+				$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: max(' . $border_radius['topLeft'] . ',' . $border_radius['bottomLeft'] . ');' : '';
+			} elseif ( isset( $border_radius ) ) {
+				$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
+			}
+
+			if ( 'outlined' === $form_style ) {
+				$css_vars .= '--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));';
+			} elseif ( 'animated' === $form_style ) {
+				$legacy_border_left_size = $outline_styles['border']['width'] ?? null;
+				$legacy_border_left_size = is_numeric( $legacy_border_left_size ) ? $legacy_border_left_size . 'px' : $legacy_border_left_size;
+
+				$border_left_size = $legacy_border_left_size ??
+				$outline_styles['border']['left']['width'] ??
+				$global_styles['width'] ??
+				$global_styles['left']['width'];
+
+				$css_vars .= "--jetpack--contact-form--left-offset: calc(var(--jetpack--contact-form--input-padding-left, 16px) + {$border_left_size});";
+				$css_vars .= '--jetpack--contact-form--label-left: max(var(--jetpack--contact-form--left-offset), var(--jetpack--contact-form--border-radius));';
+				$css_vars .= "--jetpack--contact-form--field-padding: calc(var(--jetpack--contact-form--label-left) - {$border_left_size});";
+			}
+		}
+
+		return array(
+			'style'      => $style_attrs,
+			'css_vars'   => $css_vars,
+			'class_name' => $outline_classes,
+		);
 	}
 
 	/**
@@ -1569,20 +1772,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
 				break;
-		}
-
-		if ( ! empty( $form_style ) && $form_style !== 'default' && ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
-			switch ( $form_style ) {
-				case 'outlined':
-					$field .= $this->render_outline_label( $id, $label, $required, $required_field_text );
-					break;
-				case 'animated':
-					$field .= $this->render_animated_label( $id, $label, $required, $required_field_text );
-					break;
-				case 'below':
-					$field .= $this->render_below_label( $id, $label, $required, $required_field_text );
-					break;
-			}
 		}
 
 		$field .= "\t</div>\n";

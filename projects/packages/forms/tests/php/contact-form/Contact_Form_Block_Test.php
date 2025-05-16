@@ -112,7 +112,17 @@ class Contact_Form_Block_Test extends BaseTestCase {
 			'jetpack/options' => array(
 				'jetpack/options',
 				array(
-					'spacing' => array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
+					),
+					'color'                => array(
+						'text'       => true,
+						'background' => true,
+					),
+					'spacing'              => array(
 						'blockGap' => false,
 					),
 				),
