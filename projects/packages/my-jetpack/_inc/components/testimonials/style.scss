@@ -16,15 +16,21 @@
 
     // Specific testimonial variations
     &--1 {
-        background-image: url(./grow-your-audience.png);
+        background-color: var(--jp-green-90);
+
+        svg {
+            position: absolute;
+            inset-block-start: 0;
+            transform: scale(2);
+        }
     }
 
     &--2 {
-        background-image: url(./sasha-endoh.png);
+        background-image: url(./slide-01-sasha-endoh.jpg);
     }
 
     &--3 {
-        background-image: url(./tim-ferriss-testimonial.png);
+        background-image: url(./slide-02-tim-ferriss.jpg);
     }
 
 	// This is to make the image darker and let read the text
@@ -60,6 +66,7 @@
 
     &__message {
         color: var(--tag-color);
+        font-family: "Sohne Breit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
         font-size: 3.35rem;
         font-weight: 400;
         line-height: 1.1;
