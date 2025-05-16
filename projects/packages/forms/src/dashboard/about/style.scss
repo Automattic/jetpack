@@ -188,6 +188,10 @@
 
 					.icon-round {
 						clip-path: circle(16px at center);
+
+						&.google-sheets-icon {
+							clip-path: none !important;
+						}
 					}
 
 					.jetpack-icon {

@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
  */
 import AkismetIcon from '../../icons/akismet';
 import CreativeMailIcon from '../../icons/creative-mail';
+import GoogleSheetsIcon from '../../icons/google-sheets';
 import SalesforceIcon from '../../icons/salesforce';
 import CreateFormButton from '../components/create-form-button';
 import Details from '../components/details';
@@ -131,9 +132,10 @@ const About = () => {
 								<AkismetIcon width={ 32 } height={ 32 } className="icon-round" />
 								<JetpackIcon size={ 32 } className="jetpack-icon" />
 								<CreativeMailIcon width={ 32 } height={ 32 } className="icon-round" />
-								<img
-									src={ `${ ASSETS_URL }/images/google-sheets-icon.png` }
-									alt={ __( 'Google Sheets icon', 'jetpack-forms' ) }
+								<GoogleSheetsIcon
+									width={ 32 }
+									height={ 32 }
+									className="icon-round google-sheets-icon"
 								/>
 								<SalesforceIcon width={ 32 } height={ 32 } className="icon-round" />
 							</div>

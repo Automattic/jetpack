@@ -1,17 +1,19 @@
 import { SVG, Path, SVGProps } from '@wordpress/primitives';
 
-const GoogleSheetsIcon = ( props: SVGProps ) => (
-	<SVG viewBox="0 0 64 88" width={ 24 } height={ 24 } { ...props }>
-		<Path
-			d="M58,88H6c-3.3,0-6-2.7-6-6V6c0-3.3,2.7-6,6-6h36l22,22v60C64,85.3,61.3,88,58,88z"
-			fill="#0F9D58"
-		/>
-		<Path fill="#FDFFFF" d="M42,0l22,22H42V0z" />
-		<Path
-			fill="#FDFFFF"
-			d="M12,34.5v28h40v-28H12z M17,39.5h12.5V46H17V39.5z M17,51h12.5v6.5H17V51z M47,57.5H34.5V51H47V57.5z M47,46 H34.5v-6.5H47V46z"
-		/>
-	</SVG>
-);
+const GoogleSheetsIcon = ( props: SVGProps & { width?: number; height?: number } ) => {
+	return (
+		<SVG viewBox="0 0 64 88" width={ props.width || 28 } height={ props.height || 28 } { ...props }>
+			<Path d="M 42,0 64,22 53,24 42,22 40,11 Z" fill="#188038" />
+			<Path
+				d="M 42,22 V 0 H 6 C 2.685,0 0,2.685 0,6 v 76 c 0,3.315 2.685,6 6,6 h 52 c 3.315,0 6,-2.685 6,-6 V 22 Z"
+				fill="#34a853"
+			/>
+			<Path
+				d="M 12,34 V 63 H 52 V 34 Z M 29.5,58 H 17 v -7 h 12.5 z m 0,-12 H 17 V 39 H 29.5 Z M 47,58 H 34.5 V 51 H 47 Z M 47,46 H 34.5 V 39 H 47 Z"
+				fill="#fff"
+			/>
+		</SVG>
+	);
+};
 
 export default GoogleSheetsIcon;
