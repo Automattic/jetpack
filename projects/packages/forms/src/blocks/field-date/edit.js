@@ -39,7 +39,6 @@ export default function DateFieldEdit( props ) {
 		template,
 		templateLock: 'all',
 	} );
-
 	const onChange = useCallback(
 		value => {
 			setAttributes( { dateFormat: value } );

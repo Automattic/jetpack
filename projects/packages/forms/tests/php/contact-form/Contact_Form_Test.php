@@ -1048,12 +1048,43 @@ class Contact_Form_Test extends BaseTestCase {
 		);
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
 
-		/*
-		 * The third argument are the extra classes for the wrapper div.
-		 * For checkbox-multiple fields, we need to add the block style classes to the wrapper div.
-		 * See Contact_Form_Field::render_field() for more details.
-		 */
 		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	public function test_make_sure_form_outlined_checkbox_multiple_field_renders_as_expected() {
+		$attributes              = array(
+			'label'               => 'fun',
+			'type'                => 'checkbox-multiple',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-checkbox-multiple',
+			'class'               => 'lalala',
+			'default'             => 'option 1',
+			'id'                  => 'funID',
+			'options'             => array( 'option 1', 'option 2' ),
+			'values'              => array( 'option 1', 'option 2' ),
+			'optionclasses'       => 'option-cheese option-ham',
+			'inputclasses'        => 'input-tomato input-lettuce',
+			'optionsdata'         => wp_json_encode(
+				array(
+					array(
+						'label' => 'option 1',
+						'class' => 'has-text-color',
+						'style' => 'color:caramel; font-size:14px;',
+					),
+					array(
+						'label' => 'option 2',
+						'class' => 'has-text-color',
+						'style' => 'color:gummy; font-size:14px;',
+					),
+				)
+			),
+		);
+		$contact_form_attributes = array(
+			'className' => 'is-style-outlined',
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
+
+		$this->assertValidFieldMultiField( $this->render_field( $attributes, $contact_form_attributes ), $expected_attributes, $contact_form_attributes );
 	}
 
 	/**
@@ -1073,11 +1104,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'radio' ) );
 
-		/*
-		 * The third argument are the extra classes for the wrapper div.
-		 * For radio fields, we need to add the block style classes to the wrapper div.
-		 * See Contact_Form_Field::render_field() for more details.
-		 */
 		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
@@ -1098,11 +1124,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'radio' ) );
 
-		/*
-		 * The third argument are the extra classes for the wrapper div.
-		 * For radio fields, we need to add the block style classes to the wrapper div.
-		 * See Contact_Form_Field::render_field() for more details.
-		 */
 		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
@@ -1129,11 +1150,12 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Renders a Contact_Form_Field.
 	 *
 	 * @param array $attributes An associative array of shortcode attributes.
+	 * @param array $contact_form_attributes An associative array of attributes to pass to the Contact_Form constructor.
 	 *
 	 * @return string The field html string.
 	 */
-	public function render_field( $attributes ) {
-		$form  = new Contact_Form( array() );
+	public function render_field( $attributes, $contact_form_attributes = array() ) {
+		$form  = new Contact_Form( $contact_form_attributes );
 		$field = new Contact_Form_Field( $attributes, '', $form );
 		return $field->render();
 	}
@@ -1142,13 +1164,22 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Gets the first div in the input html.
 	 *
 	 * @param string $html The html string.
+	 * @param array  $contact_form_attributes An associative array containing the contact form's attributes.
 	 *
 	 * @return DOMElement The first div element.
 	 */
-	public function getCommonDiv( $html ) {
+	public function getCommonDiv( $html, $contact_form_attributes = array() ) {
 		$doc = new DOMDocument();
 		$doc->loadHTML( $html );
-		return $this->getFirstElement( $doc, 'div' );
+		$first_el = $this->getFirstElement( $doc, 'div' );
+		/**
+		 * If the contact form has the `is-style-outlined` class name, we need to get the second div element.
+		 * This is because, to achieve the outlined effect, the first div is the wrapper div, and the second div is the field wrapper div.
+		 */
+		if ( isset( $contact_form_attributes['className'] ) && 'is-style-outlined' === $contact_form_attributes['className'] ) {
+			$first_el = $this->getFirstElement( $doc, 'div', 1 );
+		}
+		return $first_el;
 	}
 
 	/**
@@ -1427,10 +1458,10 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @param string $html The html string.
 	 * @param array  $attributes An associative array containing the field's attributes.
+	 * @param array  $contact_form_attributes An associative array containing the contact form's attributes.
 	 */
-	public function assertValidFieldMultiField( $html, $attributes ) {
-
-		$wrapper_div = $this->getCommonDiv( $html );
+	public function assertValidFieldMultiField( $html, $attributes, $contact_form_attributes = array() ) {
+		$wrapper_div = $this->getCommonDiv( $html, $contact_form_attributes );
 		$this->assertFieldClasses( $wrapper_div, $attributes );
 
 		// Inputs.

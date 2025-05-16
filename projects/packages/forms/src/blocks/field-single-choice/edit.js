@@ -25,9 +25,7 @@ export default function SingleChoiceFieldEdit( props ) {
 		'has-placeholder': !! options?.length,
 	} );
 
-	const blockProps = useBlockProps( {
-		className: classes,
-	} );
+	const blockProps = useBlockProps( { className: classes } );
 
 	const innerBlockProps = useInnerBlocksProps( blockProps, {
 		template: [
@@ -47,7 +45,6 @@ export default function SingleChoiceFieldEdit( props ) {
 		<>
 			<div { ...innerBlockProps } />
 			<JetpackFieldControls
-				blockClassNames={ classes }
 				clientId={ clientId }
 				id={ id }
 				required={ required }
