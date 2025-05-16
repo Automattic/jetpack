@@ -188,7 +188,6 @@ $action-bar-height: 88px;
 	.components-button {
 		background-color: #fff;
 		display: inline-block;
-		float: right;
 		height: 28px;
 		margin-left: auto;
 		padding: 4px 8px;
@@ -301,11 +300,13 @@ $action-bar-height: 88px;
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+	max-height: 100%;
 	flex: 1 1 50%;
 
 	.dataviews-wrapper {
 		background: #fff;
-		height: auto;
+		height: 300px;
+		flex-grow: 1;
 		overflow-y: visible;
 		overflow-x: auto;
 
@@ -357,19 +358,17 @@ body[class*="_page_jetpack-forms"] {
 	}
 }
 
-#jp-forms-dashboard,
-.jp-forms__layout.jp-forms__inbox {
+#jp-forms-dashboard {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-}
 
-.jp-forms__layout.jp-forms__inbox {
-
-	.jp-forms__layout-header {
-		flex: 0 1 auto; /* Flex, but don't grow */
+	// This is the ThemeWrapper div, we need to keep it at 100% for the inner content to be full height.
+	> div:first-child {
+		height: 100%;
 	}
+
 }
 
 .jp-forms__inbox-tabs .components-tab-panel__tab-content {
