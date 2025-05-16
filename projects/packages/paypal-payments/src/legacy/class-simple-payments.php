@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Paypal_Payments;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\PayPal_Payments;
 use Jetpack;
 use Jetpack_Components;
 use Jetpack_Currencies;
@@ -21,9 +22,8 @@ use WP_Post;
  * Simple_Payments
  */
 class Simple_Payments {
-	// These have to be under 20 chars because that is CPT limit.
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = PayPal_Payments::PACKAGE_VERSION;
 
 	/**
 	 * Post type order.
@@ -71,18 +71,6 @@ class Simple_Payments {
 	 * Construction function.
 	 */
 	private function __construct() {}
-
-	/**
-	 * Original singleton.
-	 *
-	 * @todo Remove this when nothing calles getInstance anymore.
-	 *
-	 * @deprecated 10.8
-	 */
-	public static function getInstance() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		_deprecated_function( __METHOD__, 'Jetpack 10.7.0', 'Simple_Payments::get_instance' );
-		return self::get_instance();
-	}
 
 	/**
 	 * Create instance of class.
