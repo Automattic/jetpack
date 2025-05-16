@@ -786,11 +786,16 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form__error {
+	display: none;
 	padding: 1em;
 	gap: var(--warning-icon-margin);
 
 	background-color: var(--jetpack--contact-form--error-color);
 	color: var(--jetpack--contact-form--inverted-text-color);
+}
+
+.contact-form__error.show-errors {
+	display: flex;
 }
 
 .contact-form__error ul {

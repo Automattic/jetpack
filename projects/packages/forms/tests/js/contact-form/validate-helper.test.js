@@ -93,22 +93,7 @@ describe( 'validateDate', () => {
 	} );
 } );
 
-// Mock console.log to prevent test output noise
-jest.spyOn( global.console, 'log' ).mockImplementation();
-
-// Mock URL.canParse for url validation tests
-jest.spyOn( global.URL, 'canParse' ).mockImplementation( url => {
-	// Simple implementation for testing
-	return url.startsWith( 'http://' ) || url.startsWith( 'https://' );
-} );
-
 describe( 'validateField', () => {
-	beforeEach( () => {
-		// eslint-disable-next-line no-console
-		console.log.mockClear(); //
-		URL.canParse.mockClear();
-	} );
-
 	describe( 'required field validation', () => {
 		test( 'returns is_required for empty required fields', () => {
 			expect( validateField( 'text', '', true ) ).toBe( 'is_required' );
@@ -155,12 +140,24 @@ describe( 'validateField', () => {
 		test( 'validates correct number formats', () => {
 			expect( validateField( 'number', '123', true ) ).toBe( 'yes' );
 			expect( validateField( 'number', '0', true ) ).toBe( 'yes' );
+			expect( validateField( 'number', '123.45', true ) ).toBe( 'yes' );
+			expect( validateField( 'number', '5', true, { min: 1, max: 10 } ) ).toBe( 'yes' );
+			expect( validateField( 'number', '5', true, { min: 1 } ) ).toBe( 'yes' );
+			expect( validateField( 'number', '5', true, { max: 6 } ) ).toBe( 'yes' );
+			expect( validateField( 'number', '5', true, { min: 5 } ) ).toBe( 'yes' );
+			expect( validateField( 'number', '5', true, { max: 5 } ) ).toBe( 'yes' );
 		} );
 
 		test( 'invalidates incorrect number formats', () => {
-			expect( validateField( 'number', '123.45', true ) ).toBe( 'invalid_number' );
 			expect( validateField( 'number', '123a', true ) ).toBe( 'invalid_number' );
-			expect( validateField( 'number', '-123', true ) ).toBe( 'invalid_number' );
+		} );
+
+		test( 'invalidates incorrect max number formats', () => {
+			expect( validateField( 'number', '11', true, { max: 10 } ) ).toBe( 'invalid_max_number' );
+		} );
+
+		test( 'invalidates incorrect minnumber formats', () => {
+			expect( validateField( 'number', '9', true, { min: 10 } ) ).toBe( 'invalid_min_number' );
 		} );
 	} );
 
@@ -168,11 +165,12 @@ describe( 'validateField', () => {
 		test( 'validates correct url formats', () => {
 			expect( validateField( 'url', 'https://example.com', true ) ).toBe( 'yes' );
 			expect( validateField( 'url', 'http://subdomain.example.co.uk/path', true ) ).toBe( 'yes' );
+			expect( validateField( 'url', 'ftp://example.com', true ) ).toBe( 'yes' );
+			expect( validateField( 'url', 'example.com', true ) ).toBe( 'yes' );
 		} );
 
 		test( 'invalidates incorrect url formats', () => {
-			expect( validateField( 'url', 'example.com', true ) ).toBe( 'invalid_url' );
-			expect( validateField( 'url', 'ftp://example.com', true ) ).toBe( 'invalid_url' );
+			expect( validateField( 'url', 'examplecom', true ) ).toBe( 'invalid_url' );
 		} );
 	} );
 

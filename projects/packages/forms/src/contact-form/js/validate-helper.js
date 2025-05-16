@@ -37,6 +37,26 @@ export const validateDate = ( value, format ) => {
 	return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
 };
 
+function validateNumber( value, extra ) {
+	// Change the regex to accept both integers and decimals
+	const regex = /^-?\d+(\.\d+)?$/;
+	if ( ! regex.test( value ) ) {
+		return 'invalid_number';
+	}
+
+	const numValue = parseFloat( value );
+
+	if ( extra && extra.min !== undefined && numValue < parseFloat( extra.min ) ) {
+		return 'invalid_min_number';
+	}
+
+	if ( extra && extra.max !== undefined && numValue > parseFloat( extra.max ) ) {
+		return 'invalid_max_number';
+	}
+
+	return 'yes';
+}
+
 /**
  * return true or the field error.
  * @param  type
@@ -56,9 +76,6 @@ export const validateField = ( type, value, isRequired, extra = null ) => {
 		return 'yes';
 	}
 
-	if ( 'url' === type ) {
-		return URL.canParse( value ) ? 'yes' : 'invalid_url';
-	}
 	if ( 'checkbox-multiple' === type ) {
 		return value.length !== 0 ? 'yes' : 'is_required';
 	}
@@ -66,8 +83,16 @@ export const validateField = ( type, value, isRequired, extra = null ) => {
 		return validateDate( value, extra ) ? 'yes' : 'invalid_date';
 	}
 
+	if ( 'number' === type ) {
+		return validateNumber( value, extra );
+	}
+
 	let regex = null;
 	switch ( type ) {
+		case 'url':
+			regex =
+				/(?:(?:[Hh][Tt][Tt][Pp][Ss]?|[Ff][Tt][Pp]):\/\/)?(?:\S+(?::\S*)?@|\d{1,3}(?:\.\d{1,3}){3}|(?:(?:[a-zA-Z\d\u00a1-\uffff]+-?)*[a-zA-Z\d\u00a1-\uffff]+)(?:\.(?:[a-zA-Z\d\u00a1-\uffff]+-?)*[a-zA-Z\d\u00a1-\uffff]+)*(?:\.[a-zA-Z\u00a1-\uffff]{2,6}))(?::\d+)?(?:[^\s]*)?/;
+			break;
 		case 'email':
 			regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 			break;

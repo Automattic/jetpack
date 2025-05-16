@@ -424,6 +424,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label data-wp-interactive=\"jetpack/forms\"  " . wp_interactivity_data_wp_context( $context ) . " data-wp-on--submit=\"actions.formSubmit\" novalidate>\n";
 			$r .= $form->body;
 
+			if ( $has_submit_button_block ) {
+				// Place the error wrapper before the button block
+				$r = str_replace( '<div class="wp-block-jetpack-button', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r );
+			}
+
 			// In new versions of the contact form block the button is an inner block
 			// so the button does not need to be constructed server-side.
 			if ( ! $has_submit_button_block ) {
@@ -458,6 +463,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$submit_button_text = $form->get_attribute( 'submit_button_text' );
 				}
 
+				$r .= self::render_error_wrapper();
 				$r .= "\t\t<button type='submit' class='" . esc_attr( $submit_button_class ) . "'";
 				if ( ! empty( $submit_button_styles ) ) {
 					$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
@@ -503,6 +509,24 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string $r The contact form HTML.
 		 */
 		return apply_filters( 'jetpack_contact_form_html', $r );
+	}
+
+	/**
+	 * Helper function that display the error wrapper.
+	 *
+	 * @return string HTML string for the error wrapper.
+	 */
+	private static function render_error_wrapper() {
+		$r .= '<div class="contact-form__error" data-wp-class--show-errors="state.showFromErrors">';
+		$r .= '<span class="contact-form__warning-icon"><span class="visually-hidden">' . __( 'Warning.', 'jetpack-forms' ) . '</span><i aria-hidden="true"></i></span>
+				<span data-wp-text="state.getFormErrorMessage"></span>
+				<ul>
+				<template data-wp-each="state.getErrorList" data-wp-key="context.item.id">
+					<li><a data-wp-bind--href="context.item.anchor" data-wp-text="context.item.label"></a></li>
+				</template>
+				</ul>';
+		$r .= '</div>';
+		return $r;
 	}
 
 	/**

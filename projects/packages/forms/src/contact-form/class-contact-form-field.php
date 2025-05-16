@@ -577,11 +577,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					id='" . esc_attr( $id ) . "'
 					value='" . esc_attr( $value ) . "'
 					data-wp-bind--aria-invalid='state.hasErrors'
+					data-wp-bind--value='state.getFieldValue'
 					aria-errormessage='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
 					data-wp-on--input='actions.handleChangeField'
 					data-wp-on--blur='actions.handleBlurField'
 					" . $class . $placeholder . '
-					' . ( $required ? "required aria-required='true'" : '' ) .
+					' . ( $required ? "required='true' aria-required='true'" : '' ) .
 					$extra_attrs_string .
 					" />\n {$this->get_error_div( $id, $type )}";
 	}
@@ -707,15 +708,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
 		$field .= "<textarea
-
 						data-wp-on--input='actions.handleChangeField'
 						data-wp-on--blur='actions.handleBlurField'
 						data-wp-bind--aria-invalid='state.hasErrors'
 						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
-		                style='" . $this->field_styles . "'
-		                name='" . esc_attr( $id ) . "'
-		                id='contact-form-comment-" . esc_attr( $id ) . "'
-		                rows='20' "
+						style='" . $this->field_styles . "'
+						name='" . esc_attr( $id ) . "'
+						id='contact-form-comment-" . esc_attr( $id ) . "'
+						data-wp-text='state.getFieldValue'
+						rows='20' "
 						. $class
 						. $placeholder
 						. ' ' . ( $required ? "required aria-required='true'" : '' ) .
@@ -1208,6 +1209,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_number_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+		$this->set_invalid_message( 'number', __( 'Please enter a valid number', 'jetpack-forms' ) );
+		if ( isset( $extra_attrs['min'] ) ) {
+			// translators: %d is the minimum value.
+			$this->set_invalid_message( 'min_number', __( 'Please select a value that is no less than %d.', 'jetpack-forms' ) );
+		}
+		if ( isset( $extra_attrs['max'] ) ) {
+			// translators: %d is the maximum value.
+			$this->set_invalid_message( 'max_number', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
+		}
+
 		$field  = $this->render_label( 'number', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'number', $id, $value, $class, $placeholder, $required, $extra_attrs );
 		return $field;
@@ -1376,11 +1387,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$context = array(
 			'fieldId'           => $id,
 			'fieldType'         => $type,
+			'fieldLabel'        => $label,
 			'fieldValue'        => $value,
 			'fieldPlaceholder'  => $placeholder,
 			'fieldIsRequired'   => $required,
 			'fieldErrorMessage' => '',
-			'fieldExtra'        => $this->get_field_extra( $type ),
+			'fieldExtra'        => $this->get_field_extra( $type, $extra_attrs ),
 		);
 
 		$field .= "\n<div data-wp-interactive=\"jetpack/forms\" " . wp_interactivity_data_wp_context( $context ) . " {$block_style} {$shell_field_class} data-wp-init=\"callbacks.initializeField\" >\n"; // new in Jetpack 6.8.0
@@ -1454,16 +1466,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * That are used in field validation.
 	 *
 	 * @param string $type - the field type.
+	 * @param array  $extra_attrs - the extra attributes.
 	 *
 	 * @return string
 	 */
-	private function get_field_extra( $type ) {
+	private function get_field_extra( $type, $extra_attrs ) {
 		if ( 'date' === $type ) {
 			$date_format = $this->get_attribute( 'dateformat' );
 			return isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
 		}
 
-		return '';
+		return $extra_attrs;
 	}
 
 	/**

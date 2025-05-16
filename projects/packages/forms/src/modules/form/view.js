@@ -1,4 +1,4 @@
-import { getContext, store, getConfig } from '@wordpress/interactivity';
+import { getContext, store, getConfig, withSyncEvent } from '@wordpress/interactivity';
 import { validateField } from '../../contact-form/js/validate-helper';
 
 const NAMESPACE = 'jetpack/forms';
@@ -13,17 +13,42 @@ const updateField = ( fieldId, value ) => {
 	}
 };
 
-const registerField = ( fieldId, type, value = '', isRequired = false, extra = null ) => {
+const registerField = (
+	fieldId,
+	type,
+	label = '',
+	value = '',
+	isRequired = false,
+	extra = null
+) => {
 	const context = getContext();
 	if ( ! context.fields[ fieldId ] ) {
+		// console.log( 'registerField', fieldId, type, label, value, isRequired, extra );
 		context.fields[ fieldId ] = {
+			id: fieldId,
 			type,
+			label,
 			value,
 			isRequired,
 			extra,
 			error: validateField( type, value, isRequired, extra ),
 		};
 	}
+};
+
+const getError = field => {
+	const config = getConfig( NAMESPACE );
+	if ( field.type === 'number' ) {
+		if ( field.error === 'invalid_min_number' ) {
+			return config.error_types.invalid_min_number.replace( '%d', field.extra.min );
+		}
+
+		if ( field.error === 'invalid_max_number' ) {
+			return config.error_types.invalid_max_number.replace( '%d', field.extra.max );
+		}
+	}
+
+	return config.error_types && config.error_types[ field.error ];
 };
 
 const { state } = store( NAMESPACE, {
@@ -36,6 +61,16 @@ const { state } = store( NAMESPACE, {
 			return context.showErrors && field.error && field.error !== 'yes';
 		},
 
+		get isSubmitting() {
+			const context = getContext();
+			return context.isSubmitting;
+		},
+
+		get isAriaDisabled() {
+			const context = getContext();
+			return context.isSubmitting;
+		},
+
 		get errorMessage() {
 			const context = getContext();
 			const fieldId = context.fieldId;
@@ -45,34 +80,70 @@ const { state } = store( NAMESPACE, {
 				return '';
 			}
 
-			const config = getConfig( NAMESPACE );
-			return config.error_types && config.error_types[ field.error ];
+			return getError( field );
 		},
 
 		get isFormValid() {
+			// console.log( 'isFormValid' );
 			const context = getContext();
 			return ! Object.values( context.fields ).some( field => field.error !== 'yes' );
+		},
+
+		get showFromErrors() {
+			const context = getContext();
+
+			return ! state.isFormValid && context.showErrors;
+		},
+
+		get getFormErrorMessage() {
+			// console.log( 'getFormErrorMessage' );
+			const config = getConfig( NAMESPACE );
+			return config.error_types.invalid_form;
+		},
+
+		get getErrorList() {
+			const context = getContext();
+			const errors = [];
+			if ( context.showErrors ) {
+				Object.values( context.fields ).forEach( field => {
+					if ( field.error && field.error !== 'yes' ) {
+						errors.push( {
+							anchor: '#' + field.id,
+							label: field.label + ' : ' + getError( field ),
+							id: field.id,
+						} );
+					}
+				} );
+			}
+			return errors;
+		},
+
+		get getFieldValue() {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ];
+			return field.value;
 		},
 	},
 
 	actions: {
-		handleChangeField( event ) {
+		handleChangeField: withSyncEvent( event => {
+			let value = event.target.value;
 			const context = getContext();
 			const fieldId = context.fieldId;
-			let value = event.target.value;
 
 			if ( context.fieldType === 'checkbox' ) {
 				value = event.target.checked ? '1' : '';
 			}
 
 			updateField( fieldId, value );
-		},
+		} ),
 
-		handleOnInputField( event ) {
+		handleOnInputField: withSyncEvent( event => {
+			const value = event.target.value;
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
-			const value = event.target.value;
 
 			if ( field.type === 'checkbox' ) {
 				field.value = event.target.checked ? value : '';
@@ -81,9 +152,9 @@ const { state } = store( NAMESPACE, {
 			}
 
 			field.error = validateField( field.type, field.value, field.isRequired, field.extra );
-		},
+		} ),
 
-		handleMultipleChangeField( event ) {
+		handleMultipleChangeField: withSyncEvent( event => {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
@@ -97,28 +168,31 @@ const { state } = store( NAMESPACE, {
 			}
 
 			updateField( fieldId, newValues );
-		},
+		} ),
 
-		handleBlurField( event ) {
+		handleBlurField: withSyncEvent( event => {
 			const context = getContext();
 			updateField( context.fieldId, event.target.value );
-		},
+		} ),
 
-		formSubmit( event ) {
+		formSubmit: withSyncEvent( event => {
 			const context = getContext();
-			context.showErrors = true;
+
 			if ( ! state.isFormValid ) {
+				context.showErrors = true;
 				event.preventDefault();
 				event.stopPropagation();
+			} else {
+				context.isSubmitting = true;
 			}
-		},
+		} ),
 	},
 
 	callbacks: {
 		initializeField() {
 			const context = getContext();
-			const { fieldId, fieldType, fieldValue, fieldIsRequired, fieldExtra } = context;
-			registerField( fieldId, fieldType, fieldValue, fieldIsRequired, fieldExtra );
+			const { fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
+			registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
 		},
 	},
 } );
