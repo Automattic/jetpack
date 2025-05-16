@@ -284,9 +284,24 @@ class LCP_Optimizer {
 	 * @since $$next-version$$
 	 */
 	public function get_bg_styling( $selector, $url ) {
+		if ( empty( $this->lcp_data['sizes'] ) ) {
+			return array();
+		}
+
 		$styles = array();
 		// We need to reverse the sizes to go from smallest to largest as CSS media queries are evaluated from last to first (unlike sizes which is evaluated from first to last).
 		foreach ( array_reverse( $this->lcp_data['sizes'] ) as  $size ) {
+			if ( empty( $size ) ) {
+				continue;
+			}
+			if ( ! isset( $size['width'] ) || ! is_numeric( $size['width'] ) ) {
+				continue;
+			}
+			if ( ! isset( $size['viewport'] ) || ! is_numeric( $size['viewport'] ) ) {
+				continue;
+			}
+
+			$width            = (int) $size['width'];
 			$image_set_values = array();
 
 			// Generate an image set for DPRs 1, 2, 3.
@@ -294,7 +309,7 @@ class LCP_Optimizer {
 				$cdn_url            = Image_CDN_Core::cdn_url(
 					$url,
 					array(
-						'w' => round( $size['width'] * $dpr ),
+						'w' => round( $width * $dpr ),
 					)
 				);
 				$image_set_values[] = 'url(' . $cdn_url . ') ' . $dpr . 'x';
