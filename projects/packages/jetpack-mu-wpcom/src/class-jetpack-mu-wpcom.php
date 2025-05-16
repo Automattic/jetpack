@@ -281,6 +281,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-hotfixes/wpcom-hotfixes.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
+		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
