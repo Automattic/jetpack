@@ -145,8 +145,8 @@ export default function useVariationStyleProperties( {
 
 		let styleSpecificCssVars = {};
 		const borderRadius =
-			getBorderRadius( blockBorderClassesAndStyles.style ) ||
-			getBorderRadius( globalBorderClassesAndStyles.style );
+			getBorderRadiusCssVar( blockBorderClassesAndStyles.style ) ||
+			getBorderRadiusCssVar( globalBorderClassesAndStyles.style );
 
 		if ( formStyle === FORM_STYLE.OUTLINED ) {
 			styleSpecificCssVars = {
