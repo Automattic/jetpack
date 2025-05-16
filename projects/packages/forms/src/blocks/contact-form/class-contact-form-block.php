@@ -149,7 +149,6 @@ class Contact_Form_Block {
 				'uses_context' => array(
 					'jetpack/field-required',
 					'jetpack/field-dateFormat',
-					'jetpack/field-share-input-type',
 				),
 			)
 		);
