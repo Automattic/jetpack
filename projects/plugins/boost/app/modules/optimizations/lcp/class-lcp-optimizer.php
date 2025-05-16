@@ -235,6 +235,13 @@ class LCP_Optimizer {
 		return $tag;
 	}
 
+	/**
+	 * Check if the LCP data is valid and can be optimized.
+	 *
+	 * @return bool True if the LCP data is valid and can be optimized, false otherwise.
+	 *
+	 * @since $$next-version$$
+	 */
 	private function can_optimize() {
 		if ( empty( $this->lcp_data ) || ! is_array( $this->lcp_data ) ) {
 			return false;
