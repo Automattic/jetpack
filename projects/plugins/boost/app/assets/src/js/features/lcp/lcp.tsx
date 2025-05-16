@@ -6,6 +6,7 @@ import Module from '$features/module/module';
 import { useLcpState, useOptimizeLcpAction } from './lib/stores/lcp-state';
 import TimeAgo from '$features/critical-css/time-ago/time-ago';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import Pill from '$features/ui/pill/pill';
 
 const Status = () => {
 	const [ query ] = useLcpState();
@@ -76,7 +77,12 @@ const Lcp = () => {
 	return (
 		<Module
 			slug="lcp"
-			title={ __( 'Optimize LCP', 'jetpack-boost' ) }
+			title={
+				<>
+					{ __( 'Optimize LCP', 'jetpack-boost' ) }
+					<Pill text={ __( 'Beta', 'jetpack-boost' ) } />
+				</>
+			}
 			description={
 				<p>
 					{ __(
