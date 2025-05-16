@@ -44,13 +44,11 @@ class Inline_Search_Highlighter {
 	/**
 	 * Set up the WordPress filters for highlighting.
 	 */
-	public function setup() {
+	public function setup(): void {
 		add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
-		add_filter( 'the_content', array( $this, 'filter_highlighted_content' ) );
-		add_filter( 'the_excerpt', array( $this, 'filter_highlighted_content' ) );
+		add_filter( 'the_excerpt', array( $this, 'filter_highlighted_excerpt' ) );
 		add_filter( 'comment_text', array( $this, 'filter_highlighted_comment' ), 10, 2 );
 		add_filter( 'render_block_core/post-excerpt', array( $this, 'filter_render_highlighted_block' ), 10, 3 );
-		add_filter( 'render_block_core/post-content', array( $this, 'filter_render_highlighted_block' ), 10, 3 );
 	}
 
 	/**
@@ -58,7 +56,7 @@ class Inline_Search_Highlighter {
 	 *
 	 * @param array $results The search result data from the API.
 	 */
-	public function process_results( array $results ) {
+	public function process_results( array $results ): void {
 		$this->highlighted_content = array();
 
 		if ( empty( $results ) ) {
@@ -98,7 +96,7 @@ class Inline_Search_Highlighter {
 	 *
 	 * @return string The filtered content.
 	 */
-	public function filter_highlighted_content( string $content ): string {
+	public function filter_highlighted_excerpt( string $content ): string {
 		$post_id = get_the_ID();
 
 		if ( ! $this->is_search_result( $post_id ) ) {
@@ -111,7 +109,6 @@ class Inline_Search_Highlighter {
 		}
 
 		if ( ! empty( $this->highlighted_content[ $post_id ]['content'] ) ) {
-			// Apply wpautop to maintain paragraph formatting.
 			return wpautop( $this->highlighted_content[ $post_id ]['content'] );
 		}
 
@@ -145,7 +142,7 @@ class Inline_Search_Highlighter {
 	 * @param array $result  The search result data from the API.
 	 * @param int   $post_id The post ID for this result.
 	 */
-	private function process_result_highlighting( array $result, int $post_id ) {
+	private function process_result_highlighting( array $result, int $post_id ): void {
 		if ( empty( $result['highlight'] ) ) {
 			return;
 		}
@@ -170,14 +167,13 @@ class Inline_Search_Highlighter {
 	 * @return string The extracted highlighted field.
 	 */
 	private function extract_highlight_field( array $result, string $field ): string {
-		// Try exact match first
 		if ( isset( $result['highlight'][ $field ] ) && is_array( $result['highlight'][ $field ] ) ) {
 			return $result['highlight'][ $field ][0];
 		}
 
-		// Try field variants with suffixes (e.g., 'title.default')
+		// Try field variants with suffixes (e.g., 'title.default') if no direct match found.
 		foreach ( $result['highlight'] as $key => $value ) {
-			if ( strpos( $key, $field . '.' ) === 0 ) {
+			if ( str_starts_with( $key, $field . '.' ) ) {
 				if ( is_array( $value ) && ! empty( $value ) ) {
 					return $value[0];
 				}
