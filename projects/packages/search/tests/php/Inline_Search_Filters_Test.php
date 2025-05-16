@@ -122,13 +122,13 @@ class Inline_Search_Filters_Test extends TestCase {
 					return $es_query_args;
 				},
 				'expected_api_args' => array(
-					'size'   => 5,
-					'from'   => 0,
-					'fields' => array( 'post_id' ),
-					'query'  => 'hello_world',
-					'sort'   => 'score_recency',
-					'langs'  => array( 'en_US' ),
-					'filter' => array(
+					'size'             => '5',
+					'from'             => '0',
+					'fields'           => array( 'post_id' ),
+					'query'            => 'hello_world',
+					'sort'             => 'score_recency',
+					'langs'            => array( 'en_US' ),
+					'filter'           => array(
 						'bool' => array(
 							'must_not' => array(
 								array(
@@ -151,6 +151,10 @@ class Inline_Search_Filters_Test extends TestCase {
 								),
 							),
 						),
+					),
+					'highlight_fields' => array( 'title', 'content', 'comments' ),
+					'highlight'        => array(
+						'fields' => array( 'title', 'content', 'comments' ),
 					),
 				),
 			),
@@ -175,13 +179,13 @@ class Inline_Search_Filters_Test extends TestCase {
 					return $es_query_args;
 				},
 				'expected_api_args' => array(
-					'size'   => 5,
-					'from'   => 0,
-					'fields' => array( 'post_id' ),
-					'query'  => 'hello_world',
-					'sort'   => 'score_recency',
-					'langs'  => array( 'en_US' ),
-					'filter' => array(
+					'size'             => '5',
+					'from'             => '0',
+					'fields'           => array( 'post_id' ),
+					'query'            => 'hello_world',
+					'sort'             => 'score_recency',
+					'langs'            => array( 'en_US' ),
+					'filter'           => array(
 						'bool' => array(
 							'must_not' => array(
 								array( 'terms' => array( 'post_id' => array( '3', '4', '5' ) ) ),
@@ -207,6 +211,10 @@ class Inline_Search_Filters_Test extends TestCase {
 							),
 						),
 					),
+					'highlight_fields' => array( 'title', 'content', 'comments' ),
+					'highlight'        => array(
+						'fields' => array( 'title', 'content', 'comments' ),
+					),
 				),
 			),
 			'filter_to_category'  => array(
@@ -228,13 +236,13 @@ class Inline_Search_Filters_Test extends TestCase {
 					return $es_query_args;
 				},
 				'expected_api_args' => array(
-					'size'   => 5,
-					'from'   => 0,
-					'fields' => array( 'post_id' ),
-					'query'  => 'hello_world',
-					'sort'   => 'score_recency',
-					'langs'  => array( 'en_US' ),
-					'filter' => array(
+					'size'             => '5',
+					'from'             => '0',
+					'fields'           => array( 'post_id' ),
+					'query'            => 'hello_world',
+					'sort'             => 'score_recency',
+					'langs'            => array( 'en_US' ),
+					'filter'           => array(
 						'bool' => array(
 							'filter' => array(
 								array( 'terms' => array( 'category.slug' => array( 'include_me1', 'include_me2' ) ) ),
@@ -255,6 +263,10 @@ class Inline_Search_Filters_Test extends TestCase {
 								),
 							),
 						),
+					),
+					'highlight_fields' => array( 'title', 'content', 'comments' ),
+					'highlight'        => array(
+						'fields' => array( 'title', 'content', 'comments' ),
 					),
 				),
 			),
@@ -310,13 +322,13 @@ class Inline_Search_Filters_Test extends TestCase {
 					return $options;
 				},
 				'expected_api_args' => array(
-					'size'   => 5,
-					'from'   => 0,
-					'fields' => array( 'post_id' ),
-					'query'  => 'hello_world',
-					'sort'   => 'score_recency',
-					'langs'  => array( 'en_US' ),
-					'filter' => array(
+					'size'             => '5',
+					'from'             => '0',
+					'fields'           => array( 'post_id' ),
+					'query'            => 'hello_world',
+					'sort'             => 'score_recency',
+					'langs'            => array( 'en_US' ),
+					'filter'           => array(
 						'bool' => array(
 							'filter' => array(
 								'bool' => array(
@@ -343,6 +355,10 @@ class Inline_Search_Filters_Test extends TestCase {
 							),
 						),
 					),
+					'highlight_fields' => array( 'title', 'content', 'comments' ),
+					'highlight'        => array(
+						'fields' => array( 'title', 'content', 'comments' ),
+					),
 				),
 			),
 			'additional_must_not' => array(
@@ -363,13 +379,13 @@ class Inline_Search_Filters_Test extends TestCase {
 					return $options;
 				},
 				'expected_api_args' => array(
-					'size'   => 5,
-					'from'   => 0,
-					'fields' => array( 'post_id' ),
-					'query'  => 'hello_world',
-					'sort'   => 'score_recency',
-					'langs'  => array( 'en_US' ),
-					'filter' => array(
+					'size'             => '5',
+					'from'             => '0',
+					'fields'           => array( 'post_id' ),
+					'query'            => 'hello_world',
+					'sort'             => 'score_recency',
+					'langs'            => array( 'en_US' ),
+					'filter'           => array(
 						'bool' => array(
 							'filter' => array(
 								'bool' => array(
@@ -394,6 +410,10 @@ class Inline_Search_Filters_Test extends TestCase {
 								),
 							),
 						),
+					),
+					'highlight_fields' => array( 'title', 'content', 'comments' ),
+					'highlight'        => array(
+						'fields' => array( 'title', 'content', 'comments' ),
 					),
 				),
 			),
