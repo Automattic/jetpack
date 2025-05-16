@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0-beta] - 2025-05-15
+### Changed
+- Dashboard: Indicate all external links with External icon. [#43152]
+- General: Run feature activation routines for active features when the plugin is deactivated, then reactivated. [#43168]
+- My Jetpack: Updated the onboarding UI, changing it to a single button. [#43203]
+- UI: Updated currency formatting. [#42796]
+- Page Cache: Improve compatibility with sites using Endurance Page Cache. [#43416]
+- Update package dependencies. [#43326] [#43354] [#43355] [#43398] [#43400] [#43425] [#43085]
+
+### Removed
+- General: Update minimum WordPress version to 6.7. [#43192]
+
+### Fixed
+- Concatenate JS/CSS: Gracefully handle if there are too many files to concat. [#43176]
+- Concatenate JS: Ensure compatibility with the WooCommerce Bookings plugin. [#43431]
+- Cornerstone pages: Avoid fatal errors when no pages are set. [#43171]
+- Dashboard: Properly display notice to purchase a plan in Critical CSS modal. [#43153]
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
+- Concatenate JS/CSS: Avoid fatal errors on feature activation. [#43194]
+- My Jetpack: Fix social login getting stuck when email input is not empty. [#43158]
+- Page Cache: Handle garbage collection through cron-job on front-end update. [#42954]
+- Use transients instead of cache to ensure persistence for sites without object caching. [#43139]
+
 ## [3.13.1] - 2025-04-16
 ### Fixed
 - Critical CSS: Fix cases where dismissing a recommendation would dismiss multiple ones. [#43047]
@@ -682,6 +705,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.0.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.1...4.0.0-beta
 [3.13.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.0...3.13.1
 [3.13.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.12.1...3.13.0
 [3.12.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.12.0...3.12.1

@@ -21,7 +21,7 @@ class LCP_Invalidator {
 	/**
 	 * Reset any LCP analysis data (state and storage).
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public static function reset_data() {
 		$state = new LCP_State();
@@ -34,7 +34,7 @@ class LCP_Invalidator {
 	/**
 	 * Reset the LCP analysis data, and analyze the pages again.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public static function reset_and_analyze() {
 		self::reset_data();
@@ -48,7 +48,7 @@ class LCP_Invalidator {
 	/**
 	 * Respond to environment changes; deciding whether or not to clear LCP analysis data.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public static function handle_environment_change( $is_major_change ) {
 		if ( $is_major_change ) {
@@ -59,7 +59,7 @@ class LCP_Invalidator {
 	/**
 	 * Handle post updates to check if the post is a cornerstone page and schedule preload if needed.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 * @param int $post_id The ID of the post being updated.
 	 * @return void
 	 */

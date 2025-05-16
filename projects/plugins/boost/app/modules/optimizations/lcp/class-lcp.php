@@ -152,7 +152,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	/**
 	 * Adds preload links for LCP background images to the <head>.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public function add_preload_links_to_head() {
 		if ( LCP_Optimizer::should_skip_optimization() ) {

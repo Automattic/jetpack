@@ -183,13 +183,28 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.13.1 - 2025-04-16
+### 4.0.0-beta - 2025-05-15
+#### Changed
+- Dashboard: Indicate all external links with External icon.
+- General: Run feature activation routines for active features when the plugin is deactivated, then reactivated.
+- My Jetpack: Updated the onboarding UI, changing it to a single button.
+- UI: Updated currency formatting.
+- Page Cache: Improve compatibility with sites using Endurance Page Cache.
+- Update package dependencies.
+
+#### Removed
+- General: Update minimum WordPress version to 6.7.
+
 #### Fixed
-- Critical CSS: Fix cases where dismissing a recommendation would dismiss multiple ones.
-- Critical CSS: Fix not showing status code when generation fails for some pages.
-- Image Guide: Fix front-end state not being in sync with Boost settings.
-- Page Cache: Fix garbage collection and clear cache functionality leaving empty directories behind.
-- Page Cache: Fix not clearing up some events on deactivation.
+- Concatenate JS/CSS: Gracefully handle if there are too many files to concat.
+- Concatenate JS: Ensure compatibility with the WooCommerce Bookings plugin.
+- Cornerstone pages: Avoid fatal errors when no pages are set.
+- Dashboard: Properly display notice to purchase a plan in Critical CSS modal.
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
+- Concatenate JS/CSS: Avoid fatal errors on feature activation.
+- My Jetpack: Fix social login getting stuck when email input is not empty.
+- Page Cache: Handle garbage collection through cron-job on front-end update.
+- Use transients instead of cache to ensure persistence for sites without object caching.
 
 --------
 
