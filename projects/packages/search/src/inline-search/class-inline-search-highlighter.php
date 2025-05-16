@@ -71,12 +71,24 @@ class Inline_Search_Highlighter {
 	/**
 	 * Filter the post title to show highlighted version.
 	 *
-	 * @param string $title The post title.
-	 * @param int    $post_id The post ID.
+	 * @param string   $title   The post title.
+	 * @param int|null $post_id Optional. The post ID. If not provided, attempts to get from current post.
+	 *                          Made optional to handle cases where filters don't pass the second parameter,
+	 *                          though ideally all callers should pass both parameters as per WordPress standards.
 	 *
 	 * @return string The filtered title.
 	 */
-	public function filter_highlighted_title( string $title, int $post_id ): string {
+	public function filter_highlighted_title( string $title, ?int $post_id = null ): string {
+		// If post_id is not provided, try to get it from the current post
+		if ( $post_id === null ) {
+			$post_id = get_the_ID();
+
+			// If we still don't have a post ID, return the original title
+			if ( ! $post_id ) {
+				return $title;
+			}
+		}
+
 		if ( ! $this->is_search_result( $post_id ) ) {
 			return $title;
 		}
