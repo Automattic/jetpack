@@ -270,10 +270,7 @@ class REST_Controller {
 		}
 
 		if ( $swap_classic_to_inline_search !== null ) {
-			$swap_classic_to_inline_search_updated = $this->search_module->update_swap_classic_to_inline_search( $swap_classic_to_inline_search );
-			if ( is_wp_error( $swap_classic_to_inline_search_updated ) ) {
-				$errors['swap_classic_to_inline_search'] = $swap_classic_to_inline_search_updated;
-			}
+			$this->search_module->update_swap_classic_to_inline_search( $swap_classic_to_inline_search );
 		}
 
 		if ( ! empty( $errors ) ) {
