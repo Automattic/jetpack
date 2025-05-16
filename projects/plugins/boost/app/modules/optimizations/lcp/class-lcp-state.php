@@ -161,7 +161,7 @@ class LCP_State {
 	 *
 	 * @return array The pages from the state.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public function get_pages() {
 		return $this->state['pages'];
@@ -173,7 +173,7 @@ class LCP_State {
 	 * @param array $pages The pages to set in the state.
 	 * @return $this
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public function set_pages( $pages ) {
 		$this->state['pages'] = $pages;
@@ -187,7 +187,7 @@ class LCP_State {
 	 * @param array $pages The pages to set to pending.
 	 * @return $this
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public function set_pending_pages( $pages ) {
 		$current_pages = $this->state['pages'];

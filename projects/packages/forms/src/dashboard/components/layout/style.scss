@@ -52,7 +52,7 @@ body.admin_page_jetpack-forms {
 		> .components-tab-panel__tabs {
 			margin: 0;
 			padding: 0 48px;
-			border-bottom: 1px solid #dcdcde;
+			border-bottom: 1px solid var(--jp-gray-5);
 
 			.components-tab-panel__tabs-item {
 				border-bottom: 2px solid transparent;
