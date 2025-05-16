@@ -104,7 +104,7 @@ class LCP_Optimizer {
 	 * @since 4.0.0
 	 */
 	public function optimize_buffer( $buffer ) {
-		if ( empty( $this->lcp_data ) || empty( $this->lcp_data['html'] ) ) {
+		if ( ! $this->can_optimize() ) {
 			return $buffer;
 		}
 
@@ -137,11 +137,19 @@ class LCP_Optimizer {
 	}
 
 	public function get_image_to_preload() {
-		if ( empty( $this->lcp_data ) || LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] ) {
+		if ( ! $this->can_optimize() ) {
 			return null;
 		}
 
-		if ( empty( $this->lcp_data['elementData'] ) || empty( $this->lcp_data['elementData']['url'] ) ) {
+		if ( LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] ) {
+			return null;
+		}
+
+		if ( empty( $this->lcp_data['elementData'] ) || ! is_array( $this->lcp_data['elementData'] ) ) {
+			return null;
+		}
+
+		if ( empty( $this->lcp_data['elementData']['url'] ) ) {
 			return null;
 		}
 
@@ -225,5 +233,24 @@ class LCP_Optimizer {
 		$tag = preg_replace( '/<img\s/i', '<img sizes="' . esc_attr( $sizes_string ) . '" ', $tag );
 
 		return $tag;
+	}
+
+	/**
+	 * Check if the LCP data is valid and can be optimized.
+	 *
+	 * @return bool True if the LCP data is valid and can be optimized, false otherwise.
+	 *
+	 * @since $$next-version$$
+	 */
+	private function can_optimize() {
+		if ( empty( $this->lcp_data ) || ! is_array( $this->lcp_data ) ) {
+			return false;
+		}
+
+		if ( ! isset( $this->lcp_data['success'] ) || ! $this->lcp_data['success'] ) {
+			return false;
+		}
+
+		return true;
 	}
 }
