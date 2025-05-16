@@ -22,7 +22,6 @@ export default function TextareaFieldEdit( props ) {
 		} ),
 		style: blockStyle,
 	} );
-
 	const defaultLabel = __( 'Message', 'jetpack-forms' );
 
 	const templateLabel = label ?? '';

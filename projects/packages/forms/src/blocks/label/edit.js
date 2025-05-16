@@ -3,6 +3,7 @@ import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
+import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
 import { ALLOWED_FORMATS, DATE_FORMATS, FORM_STYLE } from '../shared/util/constants.js';
 import getBlockStyle from '../shared/util/get-block-style.js';
 
@@ -17,13 +18,46 @@ const getLabelOrFallback = ( label, placeholder ) => {
 	return label ?? placeholder;
 };
 
-const WithNotchedWrapper = ( { formStyle, children } ) => {
+const OPTIONS_FIELDS = [ 'jetpack/field-radio', 'jetpack/field-checkbox-multiple' ];
+
+function useSiblingBlock( clientId ) {
+	const inputBlock = useSelect(
+		select => {
+			const { getBlock, getBlockRootClientId } = select( blockEditorStore );
+
+			// Get the parent block's clientId.
+			const parentClientId = getBlockRootClientId( clientId );
+			if ( ! parentClientId ) {
+				return {};
+			}
+			// Get the parent block
+			const parentBlock = getBlock( parentClientId );
+			if ( ! parentBlock ) {
+				return {};
+			}
+
+			const siblingBlockType = OPTIONS_FIELDS.includes( parentBlock.name )
+				? 'jetpack/options'
+				: 'jetpack/input';
+
+			return parentBlock.innerBlocks.find( block => block.name === siblingBlockType );
+		},
+		[ clientId ]
+	);
+
+	return inputBlock;
+}
+
+const WithNotchedWrapper = ( { formStyle, styles, cssVars, className, children } ) => {
 	if ( formStyle === FORM_STYLE.OUTLINED ) {
 		return (
-			<div className="notched-label">
-				<div className="notched-label__leading" />
-				<div className="notched-label__notch">{ children }</div>
-				<div className="notched-label__trailing" />
+			<div className="notched-label" style={ cssVars }>
+				<div className={ clsx( 'notched-label__leading', className ) } style={ styles } />
+				<div className={ clsx( 'notched-label__notch', className ) } style={ styles }>
+					{ children }
+				</div>
+				<div className={ clsx( 'notched-label__filler', className ) } style={ styles } />
+				<div className={ clsx( 'notched-label__trailing', className ) } style={ styles } />
 			</div>
 		);
 	}
@@ -31,7 +65,7 @@ const WithNotchedWrapper = ( { formStyle, children } ) => {
 	return <>{ children }</>;
 };
 
-const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
+const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => {
 	const {
 		'jetpack/form-className': formClassName,
 		'jetpack/field-required': required,
@@ -41,7 +75,6 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
 	const { label, defaultLabel, requiredText } = attributes;
-
 	const defaultPlaceholder = __( 'Add label…', 'jetpack-forms' );
 	const placeholder = emptyToNull( defaultLabel ) ?? emptyToNull( label ) ?? defaultPlaceholder;
 	const suffix = dateFormat
@@ -53,7 +86,18 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 		'animated-label__label': formStyle === FORM_STYLE.ANIMATED,
 		'below-label__label': formStyle === FORM_STYLE.BELOW,
 	} );
-	const blockProps = useBlockProps( { className } );
+
+	const inputBlock = useSiblingBlock( clientId );
+
+	const variationProps = useVariationStyleProperties( {
+		clientId,
+		inputBlockName: inputBlock?.name,
+		inputBlockAttributes: inputBlock?.attributes,
+	} );
+	const blockProps = useBlockProps( {
+		className,
+		style: variationProps?.cssVars,
+	} );
 
 	// The label value to use for the RichText field must manually fall back to the
 	// placeholder to be rendered in previews.
@@ -63,7 +107,12 @@ const LabelEdit = ( { attributes, name, setAttributes, context } ) => {
 	const labelValue = isPreviewMode ? getLabelOrFallback( label, defaultPlaceholder ) : label;
 
 	return (
-		<WithNotchedWrapper formStyle={ formStyle }>
+		<WithNotchedWrapper
+			formStyle={ formStyle }
+			styles={ variationProps?.style }
+			cssVars={ variationProps?.cssVars }
+			className={ variationProps?.className }
+		>
 			<div { ...blockProps }>
 				<RichText
 					allowedFormats={ ALLOWED_FORMATS }

@@ -3,8 +3,6 @@ import {
 	store as blockEditorStore,
 	useBlockProps,
 	useInnerBlocksProps,
-	__experimentalGetColorClassesAndStyles as getColorClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	getTypographyClassesAndStyles,
 } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { useMemo, useRef } from '@wordpress/element';
@@ -64,21 +62,8 @@ export default function DropdownFieldEdit( props ) {
 		}
 	);
 
-	// Note: Border styles aren't rendered on the frontend select dropdown so are
-	// omitted from the styles applied to the dropdown options wrapper here.
-	const inputColorStyles = getColorClassesAndStyles( inputBlockAttributes ?? {} );
-	const inputTypographyStyles = getTypographyClassesAndStyles( inputBlockAttributes ?? {} );
-
 	const optionWrapperStyles = {
-		className: clsx(
-			'jetpack-field-dropdown__popover',
-			inputColorStyles.className,
-			inputTypographyStyles.className
-		),
-		style: {
-			...inputColorStyles.style,
-			...inputTypographyStyles.style,
-		},
+		className: 'jetpack-field-dropdown__popover',
 	};
 
 	const changeFocus = ( index, cursorToEnd ) =>
