@@ -14,7 +14,7 @@ import {
 	writePackageJson,
 	writeComposerJson,
 } from '../helpers/json.js';
-import mergeDirs, { copyFile } from '../helpers/mergeDirs.js';
+import mergeDirs, { copyFile, copySymlink } from '../helpers/mergeDirs.js';
 import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
 import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
 import {
@@ -266,15 +266,15 @@ export function getQuestions( type ) {
 		{
 			type: 'select',
 			name: 'pluginTemplate',
-			message: 'Create a blank plugin or use the Starter plugin?',
+			message: 'Use the Starter plugin or a blank plugin as a template?',
 			choices: [
-				{
-					message: 'Blank plugin',
-					value: 'blank',
-				},
 				{
 					message: 'Use Jetpack Starter plugin',
 					value: 'starter',
+				},
+				{
+					message: 'Blank plugin',
+					value: 'blank',
 				},
 			],
 		},
@@ -378,7 +378,21 @@ async function generatePluginFromStarter( projDir, answers ) {
 	files = files.split( '\n' ).map( str => str.replace( 'projects/plugins/starter-plugin', '' ) );
 	files.forEach( file => {
 		if ( file && ! file.startsWith( 'changelog/' ) ) {
-			copyFile( path.join( projDir, file ), path.join( starterDir, file ) );
+			if ( file === 'tests/php/Jetpack_Starter_Plugin_Test.php' ) {
+				copyFile(
+					path.join(
+						projDir,
+						'tests/php/' + transformToPhpClassName( answers.name ) + '_Test.php'
+					),
+					path.join( starterDir, file )
+				);
+			} else if ( file === 'CHANGELOG.md' ) {
+				copyFile( path.join( projDir, file ), 'tools/cli/skeletons/common/CHANGELOG.md' );
+			} else if ( fs.lstatSync( path.join( starterDir, file ) ).isSymbolicLink() ) {
+				copySymlink( path.join( projDir, file ), path.join( starterDir, file ) );
+			} else {
+				copyFile( path.join( projDir, file ), path.join( starterDir, file ) );
+			}
 		}
 	} );
 
@@ -440,6 +454,11 @@ async function generatePluginFromStarter( projDir, answers ) {
 	composerJson.extra ||= {};
 	composerJson.extra.changelogger ||= {};
 	composerJson.extra.changelogger.versioning = answers.versioningMethod;
+	// Add proposed WP.org slug and remove alternative beta slug if we've indicated this is a public plugin.
+	if ( answers.mirrorrepo ) {
+		composerJson.extra[ 'wp-plugin-slug' ] = normalizeSlug( answers.name );
+		delete composerJson.extra[ 'beta-plugin-slug' ];
+	}
 	writeComposerJson( answers.project, composerJson, answers.projDir );
 }
 

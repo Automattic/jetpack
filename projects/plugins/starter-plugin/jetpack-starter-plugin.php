@@ -61,7 +61,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		function ( $slugs ) {
 			$slugs['jetpack-starter-plugin-bad-installation'] = array(
 				'data' => array(
-					'plugin' => 'Jetpack Starter',
+					'plugin' => 'Jetpack Starter Plugin',
 				),
 			);
 
@@ -79,7 +79,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 			$message = sprintf(
 				wp_kses(
 					/* translators: Placeholder is a link to a support document. */
-					__( 'Your installation of Jetpack Starter is incomplete. If you installed Jetpack Starter Plugin from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Starter Plugin must have Composer dependencies installed and built via the build command.', 'jetpack-starter-plugin' ),
+					__( 'Your installation of Jetpack Starter Plugin is incomplete. If you installed Jetpack Starter Plugin from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Starter Plugin must have Composer dependencies installed and built via the build command.', 'jetpack-starter-plugin' ),
 					array(
 						'a' => array(
 							'href'   => array(),

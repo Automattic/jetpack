@@ -3,7 +3,7 @@ import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js'
 import { Sidebar, DashboardPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '../playwright.config.mjs';
 
-test.describe( 'Starter plugin!', () => {
+test.describe( 'Classic Theme Helper plugin!', () => {
 	test.beforeEach( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
 		await prerequisitesBuilder( page ).withCleanEnv().withLoggedIn( true ).build();
