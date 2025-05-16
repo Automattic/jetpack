@@ -144,9 +144,8 @@ export default function useVariationStyleProperties( {
 			.join( ' ' );
 
 		let styleSpecificCssVars = {};
-		const borderRadius =
-			getBorderRadiusCssVar( blockBorderClassesAndStyles.style ) ||
-			getBorderRadiusCssVar( globalBorderClassesAndStyles.style );
+		const hasBorderRadius =
+			!! inputBlockAttributes?.style?.border?.radius || !! mergedGlobalBlockStyles?.border?.radius;
 
 		if ( formStyle === FORM_STYLE.OUTLINED ) {
 			styleSpecificCssVars = {
@@ -156,7 +155,7 @@ export default function useVariationStyleProperties( {
 		}
 		if ( formStyle === FORM_STYLE.ANIMATED ) {
 			styleSpecificCssVars = {
-				'--jetpack--contact-form--animated-left-offset': borderRadius ? '32px' : '16px',
+				'--jetpack--contact-form--animated-left-offset': hasBorderRadius ? '32px' : '16px',
 			};
 		}
 
