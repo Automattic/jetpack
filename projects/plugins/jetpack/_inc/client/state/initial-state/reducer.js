@@ -94,17 +94,17 @@ export function getCurrenUserEmailAddress( state ) {
  * Returns the site's raw url.
  *
  * @param {object} state - Global state tree
- * @return {string} The site's raw url.
+ * @return {object} The site's raw url.
  */
 export function getSiteRawUrl( state ) {
 	return get( state.jetpack.initialState, 'rawUrl', {} );
 }
 
 /**
- * Returns the site's raw url.
+ * Returns the site's admin url.
  *
  * @param {object} state - Global state tree
- * @return {string} The site's raw url.
+ * @return {object} The site's admin url.
  */
 export function getSiteAdminUrl( state ) {
 	return get( state.jetpack.initialState, 'adminUrl', {} );
@@ -457,7 +457,6 @@ export function getCalypsoEnv( state ) {
  * Returns the current user tracks data.
  *
  * @param { object } state - Global state tree
- *
  * @return { object } The current user tracks data.
  */
 export function getTracksUserData( state ) {
