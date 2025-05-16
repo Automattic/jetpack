@@ -104,11 +104,10 @@ class LCP_Optimizer {
 	 * @since $$next-version$$
 	 */
 	public function optimize_buffer( $buffer ) {
-		if ( empty( $this->lcp_data ) || empty( $this->lcp_data['html'] ) ) {
+		if ( empty( $this->lcp_data ) ) {
 			return $buffer;
 		}
 
-		// Defensive check to ensure the LCP HTML is not empty.
 		if ( empty( $this->lcp_data['html'] ) ) {
 			return $buffer;
 		}
@@ -133,11 +132,19 @@ class LCP_Optimizer {
 	}
 
 	public function get_image_to_preload() {
-		if ( empty( $this->lcp_data ) || LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] ) {
+		if ( empty( $this->lcp_data ) ) {
 			return null;
 		}
 
-		if ( empty( $this->lcp_data['elementData'] ) || empty( $this->lcp_data['elementData']['url'] ) ) {
+		if ( LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] ) {
+			return null;
+		}
+
+		if ( empty( $this->lcp_data['elementData'] ) ) {
+			return null;
+		}
+
+		if ( empty( $this->lcp_data['elementData']['url'] ) ) {
 			return null;
 		}
 
@@ -221,8 +228,16 @@ class LCP_Optimizer {
 	 * @since $$next-version$$
 	 */
 	public function get_srcsets( $original_url ) {
+		if ( empty( $this->lcp_data['srcsets'] ) ) {
+			return '';
+		}
+
 		$srcset = array();
 		foreach ( $this->lcp_data['srcsets'] as $width ) {
+			if ( ! is_numeric( $width ) ) {
+				continue;
+			}
+			$width = (int) $width;
 			// The srcset "w" measurement is the width of the image in pixels. A DPR of 2 means the image is 2x the width of the original.
 			$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $width ) ) . " {$width}w";
 		}
@@ -238,9 +253,22 @@ class LCP_Optimizer {
 	 * @since $$next-version$$
 	 */
 	public function get_sizes() {
+		if ( empty( $this->lcp_data['sizes'] ) ) {
+			return '';
+		}
+
 		$sizes = array();
 		foreach ( $this->lcp_data['sizes'] as $size ) {
-			$sizes[] = '(min-width: ' . $size['viewport'] . 'px) ' . $size['viewportValue'];
+			if ( empty( $size ) ) {
+				continue;
+			}
+
+			if ( ! isset( $size['viewport'] ) || ! is_numeric( $size['viewport'] ) ) {
+				continue;
+			}
+
+			$viewport = (int) $size['viewport'];
+			$sizes[]  = '(min-width: ' . $viewport . 'px) ' . $size['viewportValue'];
 		}
 
 		return implode( ', ', $sizes );
