@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
  */
 import AkismetIcon from '../../icons/akismet';
 import CreativeMailIcon from '../../icons/creative-mail';
+import SalesforceIcon from '../../icons/salesforce';
 import CreateFormButton from '../components/create-form-button';
 import Details from '../components/details';
 import { config } from '../index';
@@ -122,7 +123,7 @@ const About = () => {
 			</div>
 			<div className="section-data">
 				<div className="section-data__container">
-					<h1>{ __( 'You’re in full control of the data.', 'jetpack-forms' ) }</h1>
+					<h1>{ __( "You're in full control of the data.", 'jetpack-forms' ) }</h1>
 					<h1>{ __( 'Empower your workflow.', 'jetpack-forms' ) }</h1>
 					<div className="section-data__features">
 						<div className="section-data__features-feature feature-connect">
@@ -134,10 +135,7 @@ const About = () => {
 									src={ `${ ASSETS_URL }/images/google-sheets-icon.png` }
 									alt={ __( 'Google Sheets icon', 'jetpack-forms' ) }
 								/>
-								<img
-									src={ `${ ASSETS_URL }/images/salesforce-icon.png` }
-									alt={ __( 'Salesforce icon', 'jetpack-forms' ) }
-								/>
+								<SalesforceIcon width={ 32 } height={ 32 } className="icon-round" />
 							</div>
 							<h1>{ __( 'Connect with apps you already work with', 'jetpack-forms' ) }</h1>
 						</div>
@@ -196,7 +194,7 @@ const About = () => {
 					<Details summary={ __( 'Is Jetpack Forms GDPR compliant?', 'jetpack-forms' ) }>
 						{ createInterpolateElement(
 							__(
-								'Jetpack and its parent company Automattic take data privacy and the GDPR very seriously. We respect the GDPR’s principles of minimizing the amount of data we collect, being transparent about what data we collect and how we use it, complying with EU law in regards to any data that is transferred to non-EU countries, and not keeping data longer than we need it for the purpose it was collected. You can read more about the data we collect, how data is used and shared, and how long data is retained in <a>our Privacy Policy</a>.',
+								"Jetpack and its parent company Automattic take data privacy and the GDPR very seriously. We respect the GDPR's principles of minimizing the amount of data we collect, being transparent about what data we collect and how we use it, complying with EU law in regards to any data that is transferred to non-EU countries, and not keeping data longer than we need it for the purpose it was collected. You can read more about the data we collect, how data is used and shared, and how long data is retained in <a>our Privacy Policy</a>.",
 								'jetpack-forms'
 							),
 							{
@@ -210,7 +208,7 @@ const About = () => {
 					<Details summary={ __( 'What if I would need some help?', 'jetpack-forms' ) }>
 						{ createInterpolateElement(
 							__(
-								'If you have more specific questions about Jetpack and Forms feel free to <a>reach out to us</a> and we’ll be happy to help.',
+								"If you have more specific questions about Jetpack and Forms feel free to <a>reach out to us</a> and we'll be happy to help.",
 								'jetpack-forms'
 							),
 							{
