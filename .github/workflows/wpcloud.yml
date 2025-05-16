@@ -134,7 +134,7 @@ jobs:
           # The test on wpcloud won't use `phpunit-select-config`, select config manually.
           scp projects/plugins/wpcomsh/phpunit.9.xml.dist jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/phpunit.xml.dist
 
-          echo "::engroup::"
+          echo "::endgroup::"
 
           echo "::group::execution"
           ssh jpwpcomsh "/srv/htdocs/wp-content/mu-plugins/wpcomsh/bin/run-phpunit-tests.sh" || CODE=$?
