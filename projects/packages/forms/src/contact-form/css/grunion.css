@@ -694,7 +694,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-textarea-wrap .animated-label__label {
 	transform: unset;
-	top: var(--jetpack--contact-form--animated-left-offset);
+	top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus),
