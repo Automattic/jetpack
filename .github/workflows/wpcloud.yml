@@ -137,7 +137,7 @@ jobs:
           echo "::engroup::"
 
           echo "::group::execution"
-          ssh jpwpcomsh "~/htdocs/github-action-handler.sh" || CODE=$?
+          ssh jpwpcomsh "/srv/htdocs/wp-content/mu-plugins/wpcomsh/bin/run-phpunit-tests.sh" || CODE=$?
           echo "::endgroup::"
 
           echo "::group::teardown"
