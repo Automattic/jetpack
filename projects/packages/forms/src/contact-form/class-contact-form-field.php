@@ -383,7 +383,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// For Outline style support.
 			$form_style = $this->get_form_style();
 			if ( 'outlined' === $form_style || 'animated' === $form_style ) {
-				$output_data         = $this->get_outline_styles( $form_style );
+				$output_data         = $this->get_form_variation_style_properties( $form_style );
 				$this->block_styles .= $output_data['css_vars'];
 			}
 		} else {
@@ -1506,7 +1506,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$classes .= $this->is_error() ? ' form-error' : '';
 		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
 
-		$output_data = $this->get_outline_styles();
+		$output_data = $this->get_form_variation_style_properties();
 
 		return '
 			<div class="notched-label">
@@ -1528,6 +1528,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 	/**
 	 * Returns the styles, classes and CSS vars necessary to render fields in the "Outlined" style.
+	 * The "Animated" style variation shares the CSS vars, which require similar calculations for the left offset and label left position.
 	 * At the block level, the styles are extracted and added to the shortcode attributes in
 	 * Contact_Form_Plugin::get_outlined_style_attributes().
 	 * This function extracts those styles and applies them to the field,
@@ -1541,7 +1542,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *     @type string $class_name The class name.
 	 * }
 	 */
-	private function get_outline_styles( $form_style = 'outlined' ) {
+	private function get_form_variation_style_properties( $form_style = 'outlined' ) {
 		$style_attrs     = '';
 		$css_vars        = '';
 		$outline_styles  = $this->get_attribute( 'outlinestyledata' );
