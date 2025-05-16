@@ -75,7 +75,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 						...( defaultImageId
 							? [
 									{
-										label: __( 'Plugin Default Image', 'jetpack-publicize-components' ),
+										label: __( 'Default Image', 'jetpack-publicize-components' ),
 										value: 'default',
 									},
 							  ]
