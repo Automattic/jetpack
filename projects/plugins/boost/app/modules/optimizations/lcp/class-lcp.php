@@ -166,17 +166,41 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 			return;
 		}
 
+		$selectors = array();
 		foreach ( $lcp_storage as $lcp_data ) {
+			if ( in_array( $lcp_data['element'], $selectors, true ) ) {
+				// If we already printed the styling for this element, skip it.
+				continue;
+			}
+			$selectors[] = $lcp_data['element'];
+
 			$lcp_optimizer = new LCP_Optimizer( $lcp_data );
 			$image_url     = $lcp_optimizer->get_image_to_preload();
-			if ( ! empty( $image_url ) ) {
-				printf(
-					'<link rel="preload" href="%s" as="image" fetchpriority="high" imagesrcset="%s" imagesizes="%s" />' . "\n",
-					esc_url( Image_CDN_Core::cdn_url( $image_url ) ),
-					esc_attr( $lcp_optimizer->get_srcsets( $image_url ) ),
-					esc_attr( $lcp_optimizer->get_sizes() )
-				);
+			if ( empty( $image_url ) ) {
+				continue;
 			}
+
+			printf(
+				'<link rel="preload" href="%s" as="image" fetchpriority="high" imagesrcset="%s" imagesizes="%s" />' . "\n",
+				esc_url( Image_CDN_Core::cdn_url( $image_url ) ),
+				esc_attr( $lcp_optimizer->get_srcsets( $image_url ) ),
+				esc_attr( $lcp_optimizer->get_sizes() )
+			);
+
+			$image_css = sprintf(
+				'%s { background-image: url(%s) !important; }',
+				$lcp_data['element'],
+				esc_url( Image_CDN_Core::cdn_url( $image_url ) )
+			);
+
+			$bg_styling = '<style id="jetpack-boost-lcp-background-image">';
+			// Ensure no </style> tag (or any HTML tags) in output.
+			$bg_styling .= wp_strip_all_tags( $image_css );
+			$bg_styling .= wp_strip_all_tags( implode( '', $lcp_optimizer->get_bg_styling( $lcp_data['element'], $image_url ) ) );
+			$bg_styling .= '</style>';
+
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $bg_styling;
 		}
 	}
 

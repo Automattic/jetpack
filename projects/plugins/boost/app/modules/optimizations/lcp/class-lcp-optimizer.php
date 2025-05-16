@@ -113,8 +113,8 @@ class LCP_Optimizer {
 			return $buffer;
 		}
 
-		// Only optimize if the type is one we know how to handle.
-		if ( ! in_array( $this->lcp_data['type'], array( LCP::TYPE_BACKGROUND_IMAGE, LCP::TYPE_IMAGE ), true ) ) {
+		// Only optimize if the type is one we need to handle.
+		if ( LCP::TYPE_IMAGE !== $this->lcp_data['type'] ) {
 			return $buffer;
 		}
 
@@ -126,14 +126,10 @@ class LCP_Optimizer {
 			return $buffer;
 		}
 
-		if ( $this->lcp_data['type'] === LCP::TYPE_IMAGE ) {
-			// Create the optimized tag with required attributes.
-			$optimized_tag = $this->optimize_image( $lcp_html );
+		// Create the optimized tag with required attributes.
+		$optimized_tag = $this->optimize_image( $lcp_html );
 
-			return str_replace( $lcp_html, $optimized_tag, $buffer );
-		}
-
-		return $buffer;
+		return str_replace( $lcp_html, $optimized_tag, $buffer );
 	}
 
 	public function get_image_to_preload() {
@@ -216,6 +212,14 @@ class LCP_Optimizer {
 		return $tag;
 	}
 
+	/**
+	 * Get the srcsets for an image.
+	 *
+	 * @param string $original_url The original image URL.
+	 * @return string The srcset for the image.
+	 *
+	 * @since $$next-version$$
+	 */
 	public function get_srcsets( $original_url ) {
 		$srcset = array();
 		foreach ( $this->lcp_data['srcsets'] as $width ) {
@@ -226,6 +230,13 @@ class LCP_Optimizer {
 		return implode( ', ', $srcset );
 	}
 
+	/**
+	 * Get the sizes for an image.
+	 *
+	 * @return string The sizes for the image.
+	 *
+	 * @since $$next-version$$
+	 */
 	public function get_sizes() {
 		$sizes = array();
 		foreach ( $this->lcp_data['sizes'] as $size ) {
@@ -233,5 +244,39 @@ class LCP_Optimizer {
 		}
 
 		return implode( ', ', $sizes );
+	}
+
+	/**
+	 * Get the styling for a background image.
+	 *
+	 * @param string $selector The selector for the background image.
+	 * @param string $url The original image URL.
+	 * @return array The styling for the background image.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function get_bg_styling( $selector, $url ) {
+		$styles = array();
+		// We need to reverse the sizes to go from smallest to largest as CSS media queries are evaluated from last to first (unlike sizes which is evaluated from first to last).
+		foreach ( array_reverse( $this->lcp_data['sizes'] ) as  $size ) {
+			$image_set_values = array();
+
+			// Generate an image set for DPRs 1, 2, 3.
+			foreach ( array( 1, 2, 3 ) as $dpr ) {
+				$cdn_url            = Image_CDN_Core::cdn_url(
+					$url,
+					array(
+						'w' => round( $size['width'] * $dpr ),
+					)
+				);
+				$image_set_values[] = 'url(' . $cdn_url . ') ' . $dpr . 'x';
+			}
+
+			$image_set  = 'background-image: -webkit-image-set(' . implode( ', ', $image_set_values ) . ') !important;';
+			$image_set .= 'background-image: image-set(' . implode( ', ', $image_set_values ) . ') !important;';
+
+			$styles[] = '@media (min-width: ' . $size['viewport'] . 'px) { ' . $selector . ' { ' . $image_set . ' } }';
+		}
+		return $styles;
 	}
 }
