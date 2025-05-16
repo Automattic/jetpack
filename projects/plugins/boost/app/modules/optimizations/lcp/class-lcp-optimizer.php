@@ -104,11 +104,7 @@ class LCP_Optimizer {
 	 * @since $$next-version$$
 	 */
 	public function optimize_buffer( $buffer ) {
-		if ( empty( $this->lcp_data ) || ! is_array( $this->lcp_data ) ) {
-			return $buffer;
-		}
-
-		if ( ! isset( $this->lcp_data['success'] ) || ! $this->lcp_data['success'] ) {
+		if ( ! $this->can_optimize() ) {
 			return $buffer;
 		}
 
@@ -141,11 +137,7 @@ class LCP_Optimizer {
 	}
 
 	public function get_image_to_preload() {
-		if ( empty( $this->lcp_data ) || ! is_array( $this->lcp_data ) ) {
-			return null;
-		}
-
-		if ( ! isset( $this->lcp_data['success'] ) || ! $this->lcp_data['success'] ) {
+		if ( ! $this->can_optimize() ) {
 			return null;
 		}
 
@@ -241,5 +233,17 @@ class LCP_Optimizer {
 		$tag = preg_replace( '/<img\s/i', '<img sizes="' . esc_attr( $sizes_string ) . '" ', $tag );
 
 		return $tag;
+	}
+
+	private function can_optimize() {
+		if ( empty( $this->lcp_data ) || ! is_array( $this->lcp_data ) ) {
+			return false;
+		}
+
+		if ( ! isset( $this->lcp_data['success'] ) || ! $this->lcp_data['success'] ) {
+			return false;
+		}
+
+		return true;
 	}
 }
