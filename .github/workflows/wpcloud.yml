@@ -99,7 +99,7 @@ jobs:
         run: |
           pnpm install
 
-      - name: Configure Github to be able to SSH to the Atomic site
+      - name: Configure Github to be able to SSH to the WP Cloud site
         run: |
           echo "::group::Intializing"
 
