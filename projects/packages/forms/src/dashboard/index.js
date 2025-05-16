@@ -11,6 +11,7 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 import About from './about';
 import Layout from './components/layout';
 import Inbox from './inbox';
+import Integrations from './integrations';
 import DashboardNotices from './notices-list';
 import './style.scss';
 
@@ -36,6 +37,10 @@ window.addEventListener( 'load', () => {
 				{
 					path: 'responses',
 					element: <Inbox />,
+				},
+				{
+					path: 'integrations',
+					element: <Integrations />,
 				},
 				{
 					path: 'about',
