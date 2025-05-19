@@ -15,11 +15,16 @@ const Layout = ( { className, showFooter } ) => {
 	const location = useLocation();
 	const navigate = useNavigate();
 
+	const enableIntegrationsTab = config( 'enableIntegrationsTab' );
+
 	const tabs = [
 		{
 			name: 'responses',
 			title: __( 'Responses', 'jetpack-forms' ),
 		},
+		...( enableIntegrationsTab
+			? [ { name: 'integrations', title: __( 'Integrations', 'jetpack-forms' ) } ]
+			: [] ),
 		{
 			name: 'about',
 			title: __( 'About', 'jetpack-forms' ),
