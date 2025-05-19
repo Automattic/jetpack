@@ -1,3 +1,10 @@
+@mixin mobile {
+
+	@media (max-width: 599px) {
+		@content;
+	}
+}
+
 body.toplevel_page_jetpack-forms,
 body.feedback_page_jetpack-forms,
 body.jetpack_page_jetpack-forms,
@@ -21,6 +28,18 @@ body.admin_page_jetpack-forms {
 	.jp-forms__logo-wrapper,
 	.jp-forms__layout-header {
 		flex: 0 1 auto; /* Flex, but don't grow */
+	}
+
+	.jp-forms__logo-wrapper {
+
+		@include mobile {
+			width: 180px;
+		}
+	}
+
+	.jp-forms__layout-header-actions {
+		display: flex;
+		gap: 8px;
 	}
 
 	.jp-forms__logo {
