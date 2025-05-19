@@ -1545,6 +1545,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$css_vars        = '';
 		$outline_styles  = $this->get_attribute( 'outlinestyledata' );
 		$outline_classes = $this->get_attribute( 'outlinestyleclasses' );
+		$block_name      = 'jetpack/input';
+
+		if ( $this->maybe_override_type() === 'radio' || $this->maybe_override_type() === 'checkbox-multiple' ) {
+			$block_name = 'jetpack/options';
+		}
 
 		if ( ! empty( $outline_styles ) ) {
 			$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
@@ -1557,7 +1562,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$global_styles = wp_get_global_styles(
 				array( 'border' ),
 				array(
-					'block_name' => 'jetpack/input',
+					'block_name' => $block_name,
 					'transforms' => array( 'resolve-variables' ),
 				)
 			);
