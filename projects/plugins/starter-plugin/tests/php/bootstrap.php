@@ -2,7 +2,7 @@
 /**
  * Bootstrap.
  *
- * @package automattic/
+ * @package automattic/jetpack-starter-plugin
  */
 
 /**

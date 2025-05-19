@@ -16,7 +16,6 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\Main as Stats;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
@@ -821,22 +820,6 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 	);
 
 	$wp_admin_bar->add_menu( $menu );
-}
-
-/**
- *
- * Deprecated. The stats module should not update blog details. This is handled by Sync.
- *
- * Stats Update Blog.
- *
- * @access public
- * @return void
- *
- * @deprecated since 10.3.
- */
-function stats_update_blog() {
-	_deprecated_function( __METHOD__, 'jetpack-10.3' );
-	XMLRPC_Async_Call::add_call( 'jetpack.updateBlog', 0, stats_get_blog() );
 }
 
 /**
