@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.54.0] - 2025-05-19
+### Added
+- Add Google Drive to integrations modal. [#43479]
+
+### Changed
+- Get Google status with new `useIntegrationStatus` hook. [#43463]
+- Update Google Sheets icon. [#43501]
+- Update Salesforce icons. [#43487]
+- Dashboard: Fix container height to consistently fit on view. [#43485]
+- Update package dependencies. [#43398]
+
 ## [0.53.0] - 2025-05-15
 ### Added
 - Add 33% width option to fields and button. [#43417]
@@ -1085,6 +1096,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.54.0]: https://github.com/automattic/jetpack-forms/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/automattic/jetpack-forms/compare/v0.52.0...v0.53.0
 [0.52.0]: https://github.com/automattic/jetpack-forms/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/automattic/jetpack-forms/compare/v0.50.0...v0.51.0

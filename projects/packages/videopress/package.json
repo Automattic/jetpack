@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-videopress",
-	"version": "0.29.0",
+	"version": "0.29.1",
 	"description": "VideoPress package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/videopress/#readme",
 	"bugs": {
