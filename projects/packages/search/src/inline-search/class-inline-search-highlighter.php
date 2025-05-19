@@ -77,7 +77,13 @@ class Inline_Search_Highlighter {
 	 * @return string The filtered title.
 	 */
 	public function filter_highlighted_title( string $title, ?int $post_id = null ): string {
-		if ( null === $post_id ) {
+		// o2 is currently rendering <mark> tags in post titles, so we need to return the original.
+		$body_class = get_body_class();
+		if ( is_array( $body_class ) && in_array( 'o2', $body_class, true ) ) {
+			return $title;
+		}
+
+		if ( ! $this->is_search_result( $post_id ) ) {
 			return $title;
 		}
 
@@ -167,6 +173,7 @@ class Inline_Search_Highlighter {
 	 * @return bool Whether the post is a search result.
 	 */
 	public function is_search_result( ?int $post_id ): bool {
+		// o2 is initially returning null due to mishandling of the_title() filter.
 		if ( null === $post_id ) {
 			return false;
 		}
