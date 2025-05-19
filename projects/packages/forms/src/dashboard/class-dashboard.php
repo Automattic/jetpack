@@ -79,6 +79,11 @@ class Dashboard {
 	 */
 	public function load_admin_scripts() {
 		if ( ! $this->switch->is_modern_view() && ! $this->switch->is_jetpack_forms_admin_page() ) {
+			if ( Jetpack_Forms::is_legacy_menu_item_retired() ) {
+				wp_admin_notice( 'This page has moved to the Jetpack Forms menu.', array( 'type' => 'info' ) );
+			} elseif ( $this->switch->is_jetpack_forms_admin_page_available() ) {
+				wp_admin_notice( 'This will be moved to the Jetpack Forms menu.', array( 'type' => 'info' ) );
+			}
 			return;
 		}
 
