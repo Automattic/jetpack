@@ -12,6 +12,7 @@ export function Slide01Gradient() {
 			viewBox="0 0 672 521"
 			fill="none"
 			className="jp-gradient"
+			role="presentation"
 		>
 			<g filter="url(#filter_blur)">
 				<path
