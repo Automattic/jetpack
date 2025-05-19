@@ -13,6 +13,7 @@ use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
@@ -560,17 +561,20 @@ class Contact_Form_Plugin {
 	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
-		$slug = 'feedback';
+		$slug     = 'feedback';
+		$is_wpcom = ( new Host() )->is_wpcom_simple();
 
-		add_menu_page(
-			__( 'Feedback', 'jetpack-forms' ),
-			__( 'Feedback', 'jetpack-forms' ),
-			'edit_pages',
-			$slug,
-			null,
-			'dashicons-feedback',
-			45
-		);
+		if ( $is_wpcom || is_plugin_active( 'polldaddy/polldaddy.php' ) || ! Jetpack_Forms::is_legacy_menu_item_retired() ) {
+			add_menu_page(
+				__( 'Feedback', 'jetpack-forms' ),
+				__( 'Feedback', 'jetpack-forms' ),
+				'edit_pages',
+				$slug,
+				null,
+				'dashicons-feedback',
+				45
+			);
+		}
 
 		add_submenu_page(
 			$slug,
@@ -586,6 +590,13 @@ class Contact_Form_Plugin {
 			$slug,
 			$slug
 		);
+
+		if ( Jetpack_Forms::is_legacy_menu_item_retired() ) {
+			remove_submenu_page(
+				$slug,
+				'edit.php?post_type=feedback'
+			);
+		}
 	}
 
 	/**

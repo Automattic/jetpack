@@ -250,8 +250,10 @@ CSS
 		}
 
 		update_user_option( get_current_user_id(), 'jetpack_forms_admin_preferred_view', $view );
-		wp_safe_redirect( remove_query_arg( 'dashboard-preferred-view' ) );
-		exit( 0 );
+		if ( ! Jetpack_Forms::is_legacy_menu_item_retired() ) {
+			wp_safe_redirect( remove_query_arg( 'dashboard-preferred-view' ) );
+			exit( 0 );
+		}
 	}
 
 	/**

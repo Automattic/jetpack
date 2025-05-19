@@ -116,6 +116,10 @@ class Dashboard {
 	 * Register the dashboard admin submenu.
 	 */
 	public function add_admin_submenu() {
+		if ( Jetpack_Forms::is_legacy_menu_item_retired() ) {
+			return;
+		}
+
 		if ( $this->switch->get_preferred_view() === Dashboard_View_Switch::CLASSIC_VIEW ) {
 			// We still need to register the jetpack forms page so it can be accessed manually.
 			// NOTE: adding submenu this (parent = '') way DOESN'T SHOW ANYWHERE,
