@@ -225,6 +225,7 @@ class Dashboard {
 			'hasFeedback'             => $this->has_feedback(),
 			'hasAI'                   => $has_ai,
 			'enableIntegrationsTab'   => self::$show_integrations,
+			'renderMigrationPage'     => $this->switch->is_jetpack_forms_announcing_new_menu(),
 		);
 		if ( ! empty( $extra_config ) ) {
 			$config = array_merge( $config, $extra_config );
