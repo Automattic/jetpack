@@ -45,8 +45,7 @@ class Inline_Search_Highlighter {
 	 * Set up the WordPress filters for highlighting.
 	 */
 	public function setup(): void {
-		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- Temporarily disabled due to incompatibility with P2 theme
-		// add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
+		add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
 		add_filter( 'the_excerpt', array( $this, 'filter_highlighted_excerpt' ) );
 		add_filter( 'render_block_core/post-excerpt', array( $this, 'filter_render_highlighted_block' ), 10, 3 );
 	}
@@ -78,7 +77,7 @@ class Inline_Search_Highlighter {
 	 * @return string The filtered title.
 	 */
 	public function filter_highlighted_title( string $title, ?int $post_id = null ): string {
-		// If no post ID is provided or we're not in a search context, return the title as-is
+		// If no post ID is provided, or we're not in a search context, return the title as-is
 		if ( null === $post_id || ! $this->is_search_result( $post_id ) ) {
 			return $title;
 		}
@@ -172,6 +171,7 @@ class Inline_Search_Highlighter {
 		if ( null === $post_id ) {
 			return false;
 		}
+
 		return is_search() && in_the_loop() && ! empty( $this->search_result_ids ) && in_array( $post_id, $this->search_result_ids, true );
 	}
 
