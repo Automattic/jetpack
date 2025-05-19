@@ -35,6 +35,23 @@
 		// Ensure that selected image outlines are visibile
 		padding-left: 4px;
 		padding-right: 4px;
+
+		.tiled-gallery__gallery {
+			gap: $tiled-gallery-gutter;
+		}
+
+		.tiled-gallery__row {
+			margin: 0;
+
+			.tiled-gallery__col {
+				margin: 0;
+				margin-right: $tiled-gallery-gutter;
+
+				&:last-child {
+					margin-right: 0;
+				}
+			}
+		}
 	}
 
 	.tiled-gallery__item {
