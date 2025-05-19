@@ -55,7 +55,7 @@ class Dashboard {
 	 *
 	 * @param Dashboard_View_Switch $switch Dashboard_View_Switch instance to use.
 	 */
-	public function __construct( Dashboard_View_Switch $switch ) {
+	public function __construct( Dashboard_View_Switch $switch = null ) {
 		$this->switch = $switch ?? new Dashboard_View_Switch();
 
 		// Set the integrations tab feature flag
