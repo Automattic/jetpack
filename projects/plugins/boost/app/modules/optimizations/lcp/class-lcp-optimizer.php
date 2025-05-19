@@ -232,8 +232,8 @@ class LCP_Optimizer {
 			return '';
 		}
 
-		// Cater for 412px devices with a 1.75x DPR.
-		$srcset = array( Image_CDN_Core::cdn_url( $original_url, array( 'w' => 721 ) ) . ' 721w' );
+		// Cater for 412px devices with a 1.75x DPR (721px wide).
+		$widths = array( 721 );
 		foreach ( $this->lcp_data['srcsets'] as $width ) {
 			if ( ! is_numeric( $width ) ) {
 				continue;
@@ -241,21 +241,26 @@ class LCP_Optimizer {
 			$width = (int) $width;
 
 			// For each width, generate srcset entries for 1x and 2x device pixel ratios.
-			if ( ! in_array( $width, $srcset, true ) ) {
-				$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $width ) ) . " {$width}w";
+			if ( ! in_array( $width, $widths, true ) ) {
+				$widths[] = $width;
 			}
 			$dpr_width = $width * 2;
-			if ( ! in_array( $dpr_width, $srcset, true ) ) {
-				$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $dpr_width ) ) . " {$dpr_width}w";
+			if ( ! in_array( $dpr_width, $widths, true ) ) {
+				$widths[] = $dpr_width;
 			}
 
 			if ( $width < 500 ) {
 				// If the width is less than 500, also include entries for 3x DPR.
 				$dpr_width = $width * 3;
-				if ( ! in_array( $dpr_width, $srcset, true ) ) {
-					$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $dpr_width ) ) . " {$dpr_width}w";
+				if ( ! in_array( $dpr_width, $widths, true ) ) {
+					$widths[] = $dpr_width;
 				}
 			}
+		}
+
+		$srcset = array();
+		foreach ( $widths as $width ) {
+			$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $width ) ) . " {$width}w";
 		}
 
 		return implode( ', ', $srcset );
