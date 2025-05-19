@@ -496,7 +496,6 @@
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
 	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
-	border-right-width: var(--jetpack--contact-form--border-right-size, var(--jetpack--contact-form--border-size));
 	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
 	border-left-width: var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 	border-radius: var(--jetpack--contact-form--border-radius);
@@ -512,9 +511,7 @@
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
 	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
-	border-right-width: var(--jetpack--contact-form--border-right-size, var(--jetpack--contact-form--border-size));
 	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
-	border-left-width: var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 	border-radius: unset !important;
 	padding: 0 4px;
 	transition: border 150ms linear;
@@ -527,9 +524,7 @@
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
 	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
-	border-right-width: var(--jetpack--contact-form--border-right-size, var(--jetpack--contact-form--border-size));
 	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
-	border-left-width: var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 	flex-grow: 1;
 	border-left: none !important;
 	border-right: none !important;
@@ -543,7 +538,6 @@
 	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
 	border-right-width: var(--jetpack--contact-form--border-right-size, var(--jetpack--contact-form--border-size));
 	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
-	border-left-width: var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 	border-radius: var(--jetpack--contact-form--border-radius);
 	flex-grow: 1;
 	max-width: 100px;
