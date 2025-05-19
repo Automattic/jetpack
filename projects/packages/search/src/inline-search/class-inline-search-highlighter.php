@@ -77,11 +77,16 @@ class Inline_Search_Highlighter {
 	 * @return string The filtered title.
 	 */
 	public function filter_highlighted_title( string $title, ?int $post_id = null ): string {
-		// If no post ID is provided, or we're not in a search context, return the title as-is
-		if ( null === $post_id || ! $this->is_search_result( $post_id ) ) {
+		// If no post ID is provided, or it's 0, return the title without highlighting
+		if ( null === $post_id ) {
 			return $title;
 		}
 
+		if ( ! $this->is_search_result( $post_id ) ) {
+			return $title;
+		}
+
+		// Only now, if we have highlighted content, return it
 		if ( ! empty( $this->highlighted_content[ $post_id ]['title'] ) ) {
 			return $this->highlighted_content[ $post_id ]['title'];
 		}
