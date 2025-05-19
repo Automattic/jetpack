@@ -38,10 +38,14 @@ window.addEventListener( 'load', () => {
 					path: 'responses',
 					element: <Inbox />,
 				},
-				{
-					path: 'integrations',
-					element: <Integrations />,
-				},
+				...( config( 'enableIntegrationsTab' )
+					? [
+							{
+								path: 'integrations',
+								element: <Integrations />,
+							},
+					  ]
+					: [] ),
 				{
 					path: 'about',
 					element: <About />,
