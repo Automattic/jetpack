@@ -1568,10 +1568,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			)
 		);
 
-		$legacy_border_size   = $outline_styles['border']['width'] ?? null;
-		$legacy_border_size   = is_numeric( $legacy_border_size ) ? $legacy_border_size . 'px' : $legacy_border_size;
-		$legacy_border_radius = $outline_styles['border']['radius'] ?? null;
-		$legacy_border_radius = is_numeric( $legacy_border_radius ) ? $legacy_border_radius . 'px' : $legacy_border_radius;
+		$border_width_attribute = $this->get_attribute( 'borderwidth' );
+		$legacy_border_size     = ! empty( $border_width_attribute ) ? $this->get_attribute( 'borderwidth' ) . 'px' : $outline_styles['border']['width'] ?? null;
+		$legacy_border_size     = is_numeric( $legacy_border_size ) ? $legacy_border_size . 'px' : $legacy_border_size;
+		$legacy_border_radius   = $outline_styles['border']['radius'] ?? null;
+		$legacy_border_radius   = is_numeric( $legacy_border_radius ) ? $legacy_border_radius . 'px' : $legacy_border_radius;
 
 		$border_top_size = $legacy_border_size ??
 			$outline_styles['border']['top']['width'] ??
