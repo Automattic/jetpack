@@ -326,14 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.7-a.3 - 2025-05-15
+### 14.7-a.5 - 2025-05-19
 #### Enhancements
-- Forms: Add Google to form integrations endpoint.
-- Forms: Add 33% width option to fields and buttons.
+- Forms: Add Google Drive to integrations modal.
+- My Jetpack: Optimize the images for onboarding slider for faster page load.
+- Search: Highlight search term in returned search results.
 
 #### Bug fixes
-- Forms: Fix a bug preventing responses dashboard from loading (blank screen).
-- Forms: Fix double scrollbars for responses.
+- Open Graph: Prevent PHP warnings when embedding some Vimeo videos.
 
 --------
 
