@@ -639,11 +639,11 @@ on production builds, the attributes are being reordered, causing side-effects
 	position: relative;
 }
 
-/* .contact-form .is-style-animated .grunion-field-wrap {
+.contact-form .is-style-animated .grunion-field-wrap {
 	--left-offset: calc(var(--jetpack--contact-form--input-padding-left, 16px) + var(--jetpack--contact-form--border-size));
 	--label-left: max(var(--left-offset), var(--jetpack--contact-form--border-radius));
 	--field-padding: calc(var(--label-left) - var(--jetpack--contact-form--border-size));
-} */
+}
 
 .wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset,
 .wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset legend {
@@ -681,7 +681,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
 	position: absolute;
 	top: 50%;
-	left: calc(var(--jetpack--contact-form--border-left-size, 0px) + var(--jetpack--contact-form--animated-left-offset));
+	left: calc(var(--jetpack--contact-form--border-left-size, 0px) + var(--jetpack--contact-form--animated-left-offset, var(--label-left)));
 	width: 100%;
 	max-width: 100%;
 	box-sizing: border-box;
