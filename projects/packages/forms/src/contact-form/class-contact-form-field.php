@@ -1576,20 +1576,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$border_top_size = $legacy_border_size ??
 			$outline_styles['border']['top']['width'] ??
 			$global_styles['width'] ??
-			$global_styles['top']['width'];
+			$global_styles['top']['width'] ?? null;
 
 		$border_left_size = $legacy_border_size ??
 			$outline_styles['border']['left']['width'] ??
 			$global_styles['width'] ??
-			$global_styles['left']['width'];
+			$global_styles['left']['width'] ?? null;
 
 		$border_right_size = $legacy_border_size ??
 			$outline_styles['border']['right']['width'] ??
 			$global_styles['width'] ??
-			$global_styles['right']['width'];
+			$global_styles['right']['width'] ?? null;
 
 		$border_radius = $legacy_border_radius ??
-			$global_styles['radius'];
+			$global_styles['radius'] ?? null;
 
 		$css_vars  = $border_top_size ? '--jetpack--contact-form--border-size: ' . $border_top_size . ';' : '';
 		$css_vars .= $border_top_size ? '--jetpack--contact-form--border-top-size: ' . $border_top_size . ';' : '';
