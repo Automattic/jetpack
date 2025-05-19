@@ -1,6 +1,7 @@
 import { DotPager } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import preventWidows from '../../utils/prevent-widows';
+import { Slide01Content } from './slide-01-content';
 import { Slide01Gradient } from './slide-01-gradient';
 
 import './style.scss';
@@ -13,15 +14,7 @@ const Testimonials: React.FC = () => {
 					<Slide01Gradient />
 					<div className="jetpack-onboarding-testimonial__content">
 						<div className="jetpack-onboarding-testimonial__messages">
-							<p className="jetpack-onboarding-testimonial__message">
-								{ __( 'Grow your audience.', 'jetpack-my-jetpack' ) }
-							</p>
-							<p className="jetpack-onboarding-testimonial__message">
-								{ __( 'Speed up your site.', 'jetpack-my-jetpack' ) }
-							</p>
-							<p className="jetpack-onboarding-testimonial__message">
-								{ __( 'Keep it secure.', 'jetpack-my-jetpack' ) }
-							</p>
+							<Slide01Content />
 						</div>
 					</div>
 				</div>
