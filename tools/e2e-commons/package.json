@@ -14,8 +14,8 @@
 		"tunnel:on": "./bin/tunnel.sh up",
 		"tunnel:reset": "./bin/tunnel.sh reset",
 		"tunnel:off": "./bin/tunnel.sh down",
-		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -d -in ./config/encrypted.enc -out config/local.cjs",
-		"config:encrypt": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc",
+		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -pass env:CONFIG_KEY -d -in ./config/encrypted.enc -out config/local.cjs",
+		"config:encrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc",
 		"jetpack-connect": "node bin/e2e-jetpack-connector.js"
 	},
 	"devDependencies": {
