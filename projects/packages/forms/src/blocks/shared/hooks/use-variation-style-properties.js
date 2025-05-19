@@ -46,10 +46,8 @@ function getBorderRadiusCssVar( style ) {
 /**
  * Returns the border widths for the input block.
  *
- * @param {object} blockAttributes    - The attributes of the input block.
- * @param {object} globalStyles       - The global styles.
- * @param          blockBorderStyles
- * @param          globalBorderStyles
+ * @param {object} blockBorderStyles  - The attributes of the input block.
+ * @param {object} globalBorderStyles - The global styles.
  * @return {object} The border widths.
  */
 function getBorderWidths( blockBorderStyles, globalBorderStyles ) {
