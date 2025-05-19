@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Styling: prevent styling leaking outside of the onboarding screen
