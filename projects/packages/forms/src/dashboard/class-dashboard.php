@@ -171,9 +171,6 @@ class Dashboard {
 		$ai_feature = \Jetpack_AI_Helper::get_ai_assistance_feature();
 		$has_ai     = ! is_wp_error( $ai_feature ) ? $ai_feature['has-feature'] : false;
 
-		// Add feature flag for Integrations tab
-		$enable_integrations_tab = apply_filters( 'jetpack_forms_enable_integrations_tab', false );
-
 		$config = array(
 			'blogId'                  => get_current_blog_id(),
 			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
