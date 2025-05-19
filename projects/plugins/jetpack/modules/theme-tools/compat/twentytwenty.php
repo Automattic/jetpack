@@ -124,7 +124,7 @@ function twentytwenty_infinity_accent_color_css() {
 	}
 	',
 		$color_info['content']['accent'],
-		$color_info['content']['background'],
+		$color_info['content']['background'] ?? '#f5efe0',
 		$color_info['content']['secondary']
 	);
 
