@@ -236,14 +236,30 @@ class LCP_Optimizer {
 			return '';
 		}
 
-		$srcset = array();
+		// Cater for 412px devices with a 1.75x DPR.
+		$srcset = array( Image_CDN_Core::cdn_url( $original_url, array( 'w' => 721 ) ) . ' 721w' );
 		foreach ( $this->lcp_data['srcsets'] as $width ) {
 			if ( ! is_numeric( $width ) ) {
 				continue;
 			}
 			$width = (int) $width;
-			// The srcset "w" measurement is the width of the image in pixels. A DPR of 2 means the image is 2x the width of the original.
-			$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $width ) ) . " {$width}w";
+
+			// For each width, generate srcset entries for 1x and 2x device pixel ratios.
+			if ( ! in_array( $width, $srcset, true ) ) {
+				$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $width ) ) . " {$width}w";
+			}
+			$dpr_width = $width * 2;
+			if ( ! in_array( $dpr_width, $srcset, true ) ) {
+				$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $dpr_width ) ) . " {$dpr_width}w";
+			}
+
+			if ( $width < 500 ) {
+				// If the width is less than 500, also include entries for 3x DPR.
+				$dpr_width = $width * 3;
+				if ( ! in_array( $dpr_width, $srcset, true ) ) {
+					$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $dpr_width ) ) . " {$dpr_width}w";
+				}
+			}
 		}
 
 		return implode( ', ', $srcset );
