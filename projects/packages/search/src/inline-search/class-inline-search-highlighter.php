@@ -179,7 +179,7 @@ class Inline_Search_Highlighter {
 	 * @param object $instance The block instance.
 	 *
 	 * @return string The filtered block content.
-	 * @since $$next-version$$
+	 * @since 0.50.0
 	 */
 	public function filter_render_highlighted_block( string $block_content, array $block, object $instance ): string {
 		if ( ! isset( $instance->context['postId'] ) || ! $this->is_search_result( $instance->context['postId'] ) ) {

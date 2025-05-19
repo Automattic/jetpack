@@ -7,6 +7,7 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo, useEffect } from '@wordpress/element';
+import isChromeAIAvailable from '../../chrome-ai/get-availability.ts';
 import type { WordPressPlansSelectors } from '@automattic/jetpack-shared-extension-utils/store/wordpress-com';
 
 /**
@@ -38,7 +39,7 @@ export default function useAiFeature() {
 		if ( ! loading && data ) {
 			// Check if the meta tag already exists
 			const existingMeta = document.querySelector( 'meta[http-equiv="origin-trial"]' );
-			if ( ! existingMeta && data?.chromeAiTokens ) {
+			if ( isChromeAIAvailable() && ! existingMeta && data?.chromeAiTokens ) {
 				// iterate through chromeAiTokens and create a meta tag for each one
 				Object.keys( data.chromeAiTokens ).forEach( token => {
 					const otMeta = document.createElement( 'meta' );
