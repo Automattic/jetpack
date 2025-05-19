@@ -279,8 +279,9 @@ class LCP_Optimizer {
 			return '';
 		}
 
-		$sizes = array();
-		foreach ( $this->lcp_data['sizes'] as $size ) {
+		$sizes       = array();
+		$sizes_count = count( $this->lcp_data['sizes'] );
+		foreach ( $this->lcp_data['sizes'] as $index => $size ) {
 			if ( empty( $size ) ) {
 				continue;
 			}
@@ -290,7 +291,13 @@ class LCP_Optimizer {
 			}
 
 			$viewport = (int) $size['viewport'];
-			$sizes[]  = '(min-width: ' . $viewport . 'px) ' . $size['viewportValue'];
+
+			// No need to mention min-width for the last size.
+			if ( $sizes_count === $index + 1 ) {
+				$sizes[] = $size['viewportValue'];
+			} else {
+				$sizes[] = '(min-width: ' . $viewport . 'px) ' . $size['viewportValue'];
+			}
 		}
 
 		return implode( ', ', $sizes );
