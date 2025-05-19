@@ -306,6 +306,16 @@ CSS
 	}
 
 	/**
+	 * Returns true if the current screen is the Jetpack Forms admin page.
+	 *
+	 * @return boolean
+	 */
+	public function is_jetpack_forms_admin_page() {
+		$screen = get_current_screen();
+		return $screen && $screen->id === 'jetpack_page_jetpack-forms-admin';
+	}
+
+	/**
 	 * Returns url of forms admin page.
 	 *
 	 * @param string|null $tab Tab to open in the forms admin page.
@@ -313,11 +323,15 @@ CSS
 	 * @return string
 	 */
 	public function get_forms_admin_url( $tab = null ) {
-		$is_classic = $this->get_preferred_view() === self::CLASSIC_VIEW;
+		$is_classic          = $this->get_preferred_view() === self::CLASSIC_VIEW;
+
+		$admin_dashboard_url = $this->is_jetpack_forms_admin_page_available()
+			? 'admin.php?page=jetpack-forms-admin'
+			: 'admin.php?page=jetpack-forms';
 
 		$url = $is_classic
 			? get_admin_url() . 'edit.php?post_type=feedback'
-			: get_admin_url() . 'admin.php?page=jetpack-forms';
+			: get_admin_url() . $admin_dashboard_url;
 
 		// Return url directly to spam tab.
 		if ( $tab === 'spam' ) {
