@@ -32,7 +32,7 @@
 		"autoprefixer": "10.4.20",
 		"glob": "11.0.0",
 		"postcss": "8.4.47",
-		"postcss-loader": "6.2.0",
+		"postcss-loader": "8.1.1",
 		"sass": "1.87.0",
 		"sass-loader": "16.0.5",
 		"webpack": "5.94.0",
