@@ -1568,6 +1568,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			)
 		);
 
+		// The `borderwidth` attribute contains the border value that forms used before the migration to global styles.
+		// Any old forms saved in a post will still use this attribute, so it needs to be factored into the css vars for border
+		// to properly support backwards compatibility.
+		// For newer forms that use global styles or the block supports styles, this value will be empty and is ignored.
 		$border_width_attribute = $this->get_attribute( 'borderwidth' );
 		$legacy_border_size     = ! empty( $border_width_attribute ) ? $this->get_attribute( 'borderwidth' ) . 'px' : $outline_styles['border']['width'] ?? null;
 		$legacy_border_size     = is_numeric( $legacy_border_size ) ? $legacy_border_size . 'px' : $legacy_border_size;
