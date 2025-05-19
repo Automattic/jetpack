@@ -328,4 +328,40 @@ CSS
 
 		return $url;
 	}
+
+	/**
+	 * Returns true if the new Jetpack Forms admin page is available.
+	 *
+	 * @return boolean
+	 */
+	public static function is_jetpack_forms_admin_page_available() {
+		return apply_filters( 'jetpack_forms_use_new_menu_parent', false );
+	}
+
+	/**
+	 * Returns true if the view switch is available.
+	 *
+	 * @return boolean
+	 */
+	public static function is_jetpack_forms_view_switch_available() {
+		return ! apply_filters( 'jetpack_forms_retire_view_switch', false );
+	}
+
+	/**
+	 * Returns true if the new Jetpack Forms admin page is announcing the new menu.
+	 *
+	 * @return boolean
+	 */
+	public static function is_jetpack_forms_announcing_new_menu() {
+		return apply_filters( 'jetpack_forms_announce_new_menu', false );
+	}
+
+	/**
+	 * Returns true if the classic view is available.
+	 *
+	 * @return boolean
+	 */
+	public static function is_classic_view_available() {
+		return ! Jetpack_Forms::is_legacy_menu_item_retired();
+	}
 }

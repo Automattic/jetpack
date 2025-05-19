@@ -67,4 +67,13 @@ class Jetpack_Forms {
 		 */
 		return apply_filters( 'jetpack_forms_dashboard_enable', true );
 	}
+
+	/**
+	 * Returns true if the legacy menu item is retired.
+	 *
+	 * @return boolean
+	 */
+	public static function is_legacy_menu_item_retired() {
+		return apply_filters( 'jetpack_forms_retire_legacy_menu_item', false );
+	}
 }
