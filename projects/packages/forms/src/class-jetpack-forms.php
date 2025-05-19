@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
-use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 /**
  * Understands the Jetpack Forms package.
  */
@@ -24,9 +23,7 @@ class Jetpack_Forms {
 		Util::init();
 
 		if ( is_admin() && self::is_feedback_dashboard_enabled() ) {
-			$view_switch = new Dashboard_View_Switch();
-
-			$dashboard = new Dashboard( $view_switch );
+			$dashboard = new Dashboard();
 			$dashboard->init();
 		}
 

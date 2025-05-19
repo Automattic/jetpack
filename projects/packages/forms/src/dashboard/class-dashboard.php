@@ -55,7 +55,7 @@ class Dashboard {
 	 * @param Dashboard_View_Switch $switch Dashboard_View_Switch instance to use.
 	 */
 	public function __construct( Dashboard_View_Switch $switch ) {
-		$this->switch = $switch;
+		$this->switch = $switch ?? new Dashboard_View_Switch();
 
 		// Set the integrations tab feature flag
 		self::$show_integrations = apply_filters( 'jetpack_forms_enable_integrations_tab', false );
