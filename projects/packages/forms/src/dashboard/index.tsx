@@ -17,7 +17,7 @@ import './style.scss';
 
 let settings = {};
 
-export const config = key => get( settings, key );
+export const config = ( key: string ) => get( settings, key );
 
 window.addEventListener( 'load', () => {
 	const container = document.getElementById( 'jp-forms-dashboard' );
@@ -55,6 +55,7 @@ window.addEventListener( 'load', () => {
 	] );
 
 	const root = createRoot( container );
+
 	root.render(
 		<ThemeProvider>
 			<RouterProvider router={ router } />
