@@ -932,7 +932,8 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		// Generate suggestions for new posts or non-published posts
 		if ( $new || ( isset( $return['status'] ) && 'publish' !== $return['status'] ) ) {
 			$sal_site             = $this->get_sal_post_by( 'ID', $post_id, $args['context'] );
-			$return['other_URLs'] = (object) $sal_site->get_permalink_suggestions( $input['title'] );
+			$title                = isset( $input['title'] ) ? $input['title'] : '';
+			$return['other_URLs'] = (object) $sal_site->get_permalink_suggestions( $title );
 		}
 
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
@@ -1109,7 +1110,8 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		wp_untrash_post( $post->ID );
 		$untrashed_post = get_post( $post->ID );
 		// Lets make sure that we use the reverted the slug.
-		if ( isset( $untrashed_post->post_name ) && $untrashed_post->post_name . '__trashed' === $input['slug'] ) {
+		if ( isset( $input['slug'] ) && isset( $untrashed_post->post_name ) &&
+			$untrashed_post->post_name . '__trashed' === $input['slug'] ) {
 			unset( $input['slug'] );
 		}
 		return $input;
