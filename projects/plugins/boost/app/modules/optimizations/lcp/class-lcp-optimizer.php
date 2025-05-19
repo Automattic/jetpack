@@ -108,6 +108,7 @@ class LCP_Optimizer {
 			return $buffer;
 		}
 
+		// Defensive check to ensure the LCP HTML is not empty.
 		if ( empty( $this->lcp_data['html'] ) ) {
 			return $buffer;
 		}
