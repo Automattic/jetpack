@@ -236,9 +236,9 @@ CSS
 	 */
 	public function handle_preferred_view() {
 		// For simplicity, we only treat this as a valid operation
-		// if it occurs on one of the screens with the switch active.
+		// if it occurs on one of our screens.
 		// phpcs:disable WordPress.Security.NonceVerification
-		if ( ! $this->is_visible() || ! isset( $_GET['dashboard-preferred-view'] ) ) {
+		if ( ( ! $this->is_modern_view() && ! $this->is_classic_view() ) || ! isset( $_GET['dashboard-preferred-view'] ) ) {
 			return;
 		}
 
@@ -271,9 +271,10 @@ CSS
 	 * @return boolean
 	 */
 	public function is_visible() {
-		return Jetpack_Forms::is_feedback_dashboard_enabled() && (
+		return Jetpack_Forms::is_feedback_dashboard_enabled() && $this->is_classic_view_available() &&
+		(
 			$this->is_classic_view() ||
-			$this->is_modern_view()
+			( $this->is_modern_view() && $this->is_jetpack_forms_view_switch_available() )
 		);
 	}
 
@@ -324,18 +325,19 @@ CSS
 	 */
 	public function get_forms_admin_url( $tab = null ) {
 		$is_classic          = $this->get_preferred_view() === self::CLASSIC_VIEW;
+		$switch_is_available = $this->is_jetpack_forms_view_switch_available();
 
 		$admin_dashboard_url = $this->is_jetpack_forms_admin_page_available()
 			? 'admin.php?page=jetpack-forms-admin'
 			: 'admin.php?page=jetpack-forms';
 
-		$url = $is_classic
+		$url = $is_classic && $switch_is_available
 			? get_admin_url() . 'edit.php?post_type=feedback'
 			: get_admin_url() . $admin_dashboard_url;
 
 		// Return url directly to spam tab.
 		if ( $tab === 'spam' ) {
-			$url = $is_classic
+			$url = $is_classic && $switch_is_available
 				? add_query_arg( 'post_status', 'spam', $url )
 				: $url . '#/responses?status=spam';
 		}
