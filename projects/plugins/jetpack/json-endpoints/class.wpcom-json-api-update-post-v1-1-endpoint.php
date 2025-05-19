@@ -522,7 +522,8 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					$discussion[ $discussion_status ] = $is_open ? 'open' : 'closed';
 				}
 
-				if ( in_array( $discussion[ $discussion_status ], array( 'open', 'closed' ), true ) ) {
+				if ( isset( $discussion[ $discussion_status ] ) &&
+					in_array( $discussion[ $discussion_status ], array( 'open', 'closed' ), true ) ) {
 					$insert[ $discussion_status ] = $discussion[ $discussion_status ];
 				}
 			}
