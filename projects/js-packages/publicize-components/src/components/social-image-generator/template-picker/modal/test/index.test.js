@@ -49,7 +49,7 @@ describe( 'TemplatePickerModal', () => {
 	it( 'should open the template picker', async () => {
 		await openTemplatePickerModal();
 
-		expect( screen.getByText( /Change default Template and Image/i ) ).toBeInTheDocument();
+		expect( screen.getByText( /Set default Template and Image/i ) ).toBeInTheDocument();
 	} );
 
 	it( 'should close the template picker', async () => {
@@ -60,7 +60,7 @@ describe( 'TemplatePickerModal', () => {
 		} );
 		await user.click( cancelButton );
 
-		expect( screen.queryByText( /Change default Template and Image/i ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Set default Template and Image/i ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'should render the template picker and pick a template', async () => {
@@ -78,7 +78,7 @@ describe( 'TemplatePickerModal', () => {
 		await user.click( saveButton );
 
 		expect( handleSave ).toHaveBeenCalledWith( { imageId: null, template: 'edge' } );
-		expect( screen.queryByText( /Change default Template and Image/i ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Set default Template and Image/i ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'should not select a template if user presses cancel', async () => {
@@ -96,7 +96,7 @@ describe( 'TemplatePickerModal', () => {
 		await user.click( cancelButton );
 
 		expect( handleSave ).not.toHaveBeenCalled();
-		expect( screen.queryByText( /Change default Template and Image/i ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Set default Template and Image/i ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'should pick a default image', async () => {
@@ -113,6 +113,6 @@ describe( 'TemplatePickerModal', () => {
 		await user.click( saveButton );
 
 		expect( handleSave ).toHaveBeenCalledWith( { imageId, template: null } );
-		expect( screen.queryByText( /Change default Template and Image/i ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Set default Template and Image/i ) ).not.toBeInTheDocument();
 	} );
 } );

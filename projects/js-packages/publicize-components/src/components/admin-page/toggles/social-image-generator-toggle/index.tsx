@@ -60,7 +60,7 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 				disabled={ isUpdating || ! isEnabled }
 				onClick={ open }
 			>
-				{ __( 'Change default Template and Image', 'jetpack-publicize-components' ) }
+				{ __( 'Change defaults', 'jetpack-publicize-components' ) }
 			</Button>
 		),
 		[ isEnabled, isSmall, isUpdating ]
