@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
@@ -477,13 +478,14 @@ add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
  * Adds a submenu item for Jetpack Forms.
  */
 function add_submenu_jetpack_forms() {
-	$has_switch_class = class_exists( 'Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch' );
-	if ( ! $has_switch_class || ! Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch::is_jetpack_forms_admin_page_available() ) {
+	$has_switch_class = class_exists( 'Dashboard_View_Switch' );
+	$has_method       = method_exists( 'Dashboard_View_Switch', 'is_jetpack_forms_admin_page_available' );
+	if ( ! $has_switch_class || ! $has_method || ! Dashboard_View_Switch::is_jetpack_forms_admin_page_available() ) {
 		return;
 	}
 
 	$handler = $has_switch_class
-		? ( new Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch() )->get_forms_admin_url()
+		? ( new Dashboard_View_Switch() )->get_forms_admin_url()
 		: 'edit.php?post_type=feedback';
 
 	add_submenu_page(
