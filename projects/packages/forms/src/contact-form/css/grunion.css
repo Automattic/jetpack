@@ -694,7 +694,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-textarea-wrap .animated-label__label {
 	transform: unset;
-	top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
+	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus),
@@ -704,7 +704,7 @@ on production builds, the attributes are being reordered, causing side-effects
 {
 	font-size: 0.75em;
 	transform: translateY(0);
-	top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
+	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
 }
 
 /* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
