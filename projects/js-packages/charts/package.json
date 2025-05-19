@@ -98,7 +98,7 @@
 		"jest-extended": "4.0.2",
 		"mini-css-extract-plugin": "^2.7.0",
 		"postcss": "8.4.47",
-		"postcss-loader": "^7.0.0",
+		"postcss-loader": "^8.0.0",
 		"postcss-modules": "6.0.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
