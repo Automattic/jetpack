@@ -1,16 +1,7 @@
-import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.ts';
 import { PromptProp, PromptItemProps } from '../types.ts';
+import { isChromeAIAvailable } from './get-availability.ts';
 import ChromeAISuggestionsEventSource from './suggestions.ts';
-
-/**
- * Check for the feature flag.
- *
- * @return boolean
- */
-function shouldUseChromeAI() {
-	return getJetpackExtensionAvailability( 'ai-use-chrome-ai-sometimes' ).available === true;
-}
 
 interface PromptContext {
 	type?: string;
@@ -27,7 +18,7 @@ interface PromptContext {
  * @return ChromeAISuggestionsEventSource | bool
  */
 export default async function ChromeAIFactory( promptArg: PromptProp ) {
-	if ( ! shouldUseChromeAI() ) {
+	if ( ! isChromeAIAvailable() ) {
 		return false;
 	}
 

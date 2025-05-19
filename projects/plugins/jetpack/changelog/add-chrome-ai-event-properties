@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+AI Assistant: Added tracking events to know when we're using built-in AI models in some requests and adapted to Chrome AI API changes
