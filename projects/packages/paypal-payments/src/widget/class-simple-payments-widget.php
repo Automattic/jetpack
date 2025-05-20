@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Paypal_Payments\Widgets;
 
+use Automattic\Jetpack\PayPal_Payments;
 use Automattic\Jetpack\Paypal_Payments\Simple_Payments;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
@@ -27,6 +28,13 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 	 * Display a Pay with PayPal button as a Widget.
 	 */
 	class Simple_Payments_Widget extends WP_Widget {
+		/**
+		 * The package version.
+		 *
+		 * @var string
+		 */
+		private $package_version = PayPal_Payments::PACKAGE_VERSION;
+
 		/**
 		 * Currencies should be supported by PayPal:
 		 *
@@ -168,7 +176,7 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 				'simple-payments-widget-customizer',
 				plugins_url( 'simple-payments/customizer.css', __FILE__ ),
 				array(),
-				JETPACK__VERSION
+				$this->package_version
 			);
 		}
 
@@ -181,7 +189,7 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 					'simple-payments-widget-customizer',
 					plugins_url( '/simple-payments/customizer.js', __FILE__ ),
 					array( 'jquery' ),
-					JETPACK__VERSION,
+					$this->package_version,
 					true
 				);
 				wp_localize_script(
