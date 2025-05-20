@@ -1,13 +1,18 @@
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import SalesforceIcon from '../../icons/salesforce';
+import type { IntegrationCardProps } from './types';
 
-const SalesforceDashboardCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
+const SalesforceDashboardCard = ( {
+	isExpanded,
+	onToggle,
+	data,
+	refreshStatus,
+}: IntegrationCardProps ) => {
 	const cardData = {
 		...data,
 		showHeaderToggle: false, // Always off for dashboard
-		isLoading: typeof data.isInstalled === 'undefined',
+		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 	};
 
@@ -15,6 +20,7 @@ const SalesforceDashboardCard = ( { isExpanded, onToggle, data, refreshStatus } 
 		<IntegrationCard
 			title={ __( 'Salesforce', 'jetpack-forms' ) }
 			description={ __( 'Send form contacts to Salesforce', 'jetpack-forms' ) }
+			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <SalesforceIcon width={ 32 } height={ 32 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
@@ -23,14 +29,9 @@ const SalesforceDashboardCard = ( { isExpanded, onToggle, data, refreshStatus } 
 			<div>
 				<p>
 					{ __(
-						'Connect your site to Salesforce to send leads directly to your CRM.',
+						'Salesforce connections are managed for each form individually in the block editor.',
 						'jetpack-forms'
 					) }
-				</p>
-				<p>
-					<ExternalLink href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
-						{ __( 'Where to find your Salesforce Organization ID', 'jetpack-forms' ) }
-					</ExternalLink>
 				</p>
 			</div>
 		</IntegrationCard>

@@ -5,10 +5,16 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
+import type { IntegrationCardProps } from './types';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
-const JetpackCRMDashboardCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
+const JetpackCRMDashboardCard = ( {
+	isExpanded,
+	onToggle,
+	data,
+	refreshStatus,
+}: IntegrationCardProps ) => {
 	const { settingsUrl = '', version = '', details = {} } = data || {};
 	const { hasExtension = false, canActivateExtension = false } = details;
 
@@ -115,6 +121,7 @@ const JetpackCRMDashboardCard = ( { isExpanded, onToggle, data, refreshStatus } 
 		<IntegrationCard
 			title={ __( 'Jetpack CRM', 'jetpack-forms' ) }
 			description={ __( 'Store contact form submissions in your CRM', 'jetpack-forms' ) }
+			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <JetpackIcon color={ COLOR_JETPACK } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

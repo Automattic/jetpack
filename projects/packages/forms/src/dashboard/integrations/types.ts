@@ -12,3 +12,21 @@ export interface Integration {
 	settingsUrl?: string | null;
 	details: Record< string, unknown >;
 }
+
+export interface IntegrationCardProps {
+	isExpanded: boolean;
+	onToggle: () => void;
+	data?: Integration;
+	refreshStatus: () => void;
+}
+
+export interface JPFormsBlocksDefaults {
+	formsResponsesUrl?: string;
+	formsResponsesSpamUrl?: string;
+}
+
+export interface JPFormsBlocksWindow extends Window {
+	jpFormsBlocks?: {
+		defaults?: JPFormsBlocksDefaults;
+	};
+}

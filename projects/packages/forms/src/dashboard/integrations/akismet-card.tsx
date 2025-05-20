@@ -4,9 +4,16 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import AkismetIcon from '../../icons/akismet';
+import type { IntegrationCardProps, JPFormsBlocksWindow } from './types';
 
-const AkismetDashboardCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
-	const formSubmissionsUrl = window?.jpFormsBlocks?.defaults?.formsResponsesSpamUrl || '';
+const AkismetDashboardCard = ( {
+	isExpanded,
+	onToggle,
+	data,
+	refreshStatus,
+}: IntegrationCardProps ) => {
+	const formSubmissionsUrl =
+		( window as JPFormsBlocksWindow ).jpFormsBlocks?.defaults?.formsResponsesSpamUrl || '';
 
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 
@@ -35,6 +42,7 @@ const AkismetDashboardCard = ( { isExpanded, onToggle, data, refreshStatus } ) =
 		<IntegrationCard
 			title={ __( 'Akismet Spam Protection', 'jetpack-forms' ) }
 			description={ __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ) }
+			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <AkismetIcon width={ 28 } height={ 28 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

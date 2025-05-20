@@ -3,11 +3,18 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import GoogleSheetsIcon from '../../icons/google-sheets';
+import type { IntegrationCardProps, JPFormsBlocksWindow } from './types';
 
 const FORM_RESPONSES_URL =
-	window?.jpFormsBlocks?.defaults?.formsResponsesUrl || '/wp-admin/admin.php?page=jetpack-forms';
+	( window as JPFormsBlocksWindow ).jpFormsBlocks?.defaults?.formsResponsesUrl ||
+	'/wp-admin/admin.php?page=jetpack-forms';
 
-const GoogleSheetsDashboardCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
+const GoogleSheetsDashboardCard = ( {
+	isExpanded,
+	onToggle,
+	data,
+	refreshStatus,
+}: IntegrationCardProps ) => {
 	const isConnected = !! data?.isConnected;
 	const settingsUrl = data?.settingsUrl;
 
@@ -30,6 +37,7 @@ const GoogleSheetsDashboardCard = ( { isExpanded, onToggle, data, refreshStatus 
 		<IntegrationCard
 			title={ __( 'Google Sheets', 'jetpack-forms' ) }
 			description={ __( 'Export form responses to Google Sheets.', 'jetpack-forms' ) }
+			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <GoogleSheetsIcon className="google-sheets-icon" /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

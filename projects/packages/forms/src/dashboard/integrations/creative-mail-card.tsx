@@ -2,6 +2,7 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import CreativeMailIcon from '../../icons/creative-mail';
+import type { IntegrationCardProps } from './types';
 
 const CreativeMailDashboardCard = ( {
 	isExpanded,
@@ -9,7 +10,7 @@ const CreativeMailDashboardCard = ( {
 	data,
 	refreshStatus,
 	borderBottom = true,
-} ) => {
+}: IntegrationCardProps & { borderBottom?: boolean } ) => {
 	const { settingsUrl = '' } = data || {};
 
 	const cardData = {
@@ -32,19 +33,15 @@ const CreativeMailDashboardCard = ( {
 		<IntegrationCard
 			title={ __( 'Creative Mail', 'jetpack-forms' ) }
 			description={ __( 'Manage email contacts and campaigns', 'jetpack-forms' ) }
-			icon={ CreativeMailIcon }
+			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
+			icon={ <CreativeMailIcon /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 			cardData={ cardData }
 			borderBottom={ borderBottom }
 		>
 			<div>
-				<p>
-					{ __(
-						"You're all setup for email marketing with Creative Mail. Please manage your marketing from Creative Mail panel.",
-						'jetpack-forms'
-					) }
-				</p>
+				<p>{ __( "You're all setup for email marketing with Creative Mail.", 'jetpack-forms' ) }</p>
 				<Button
 					variant="link"
 					href={ settingsUrl }
