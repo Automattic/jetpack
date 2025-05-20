@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+use WP_HTML_Tag_Processor;
 
 class LCP_Optimizer {
 
@@ -118,19 +119,20 @@ class LCP_Optimizer {
 			return $buffer;
 		}
 
-		// Remove the last (closing) character from the LCP HTML in case the buffer adds a closing forward slash to the img tag. Which is not found by the Cloud.
-		$lcp_html = substr( $this->lcp_data['html'], 0, -1 );
-
-		// If the LCP HTML is not found in the buffer, return early.
-		if ( ! str_contains( $buffer, $lcp_html ) ) {
+		/*
+		 * Quickly check if the tag is in the buffer and return early if it's not found.
+		 * The HTML returned from cloud may not have a forward slash at the end of the tag, even if the original HTML had one.
+		 * By removing the last character from the LCP HTML, we can quickly check if the tag is in the buffer.
+		 *
+		 * `substr( '<img src="...">', 0, -1 )` -> `<img src="..."`
+		 */
+		if ( ! str_contains( $buffer, substr( $this->lcp_data['html'], 0, -1 ) ) ) {
 			return $buffer;
 		}
 
 		if ( $this->lcp_data['type'] === LCP::TYPE_IMAGE ) {
 			// Create the optimized tag with required attributes.
-			$optimized_tag = $this->optimize_image( $lcp_html );
-
-			return str_replace( $lcp_html, $optimized_tag, $buffer );
+			return $this->optimize_image( $buffer, $this->lcp_data['html'] );
 		}
 
 		return $buffer;
@@ -163,65 +165,78 @@ class LCP_Optimizer {
 	/**
 	 * Optimize an image tag by adding required attributes.
 	 *
-	 * @param string $tag The original image tag.
-	 * @return string The optimized image tag.
+	 * @param string $buffer The original HTML chunk of the page..
+	 * @param string $lcp_html The LCP HTML detected by cloud.
+	 *
+	 * @return string The optimized buffer.
 	 *
 	 * @since 4.0.0
 	 */
-	private function optimize_image( $tag ) {
-		// Add fetchpriority="high" if not present
-		if ( ! preg_match( '/fetchpriority\s*=\s*["\']high["\']/i', $tag ) ) {
-			$tag = preg_replace( '/<img\s/i', '<img fetchpriority="high" ', $tag );
+	private function optimize_image( $buffer, $lcp_html ) {
+		$lcp_processor = new WP_HTML_Tag_Processor( $lcp_html );
+
+		// Ensure the LCP HTML is a valid image tag before proceeding.
+		if ( ! $lcp_processor->next_tag( 'img' ) ) {
+			return $buffer;
 		}
 
-		// Add loading="eager" if not present
-		if ( ! preg_match( '/loading\s*=\s*["\']eager["\']/i', $tag ) ) {
-			$tag = preg_replace( '/<img\s/i', '<img loading="eager" ', $tag );
-		}
+		$id    = $lcp_processor->get_attribute( 'id' );
+		$class = $lcp_processor->get_attribute( 'class' );
+		$src   = $lcp_processor->get_attribute( 'src' );
 
-		if ( ! preg_match( '/src\s*=\s*["\']([^"\']+)["\']/i', $tag, $matches ) ) {
-			return $tag;
-		}
-
-		$image_url = $matches[1];
-
-		// Update the src attribute with the CDN URL
-		$tag = str_replace(
-			$image_url,
-			Image_CDN_Core::cdn_url( $image_url ),
-			$tag
+		$buffer_processor = new WP_HTML_Tag_Processor( $buffer );
+		$tag_found        = $buffer_processor->next_tag(
+			array(
+				'tag_name' => 'img',
+				'id'       => $id,
+				'class'    => $class,
+				'src'      => $src,
+			)
 		);
-		$tag = $this->add_responsive_image_attributes( $tag, $image_url );
 
-		return $tag;
+		// Tag not found in buffer
+		if ( ! $tag_found ) {
+			return $buffer;
+		}
+
+		if ( $buffer_processor->get_tag() !== 'IMG' ) {
+			return;
+		}
+
+		$buffer_processor->set_attribute( 'fetchpriority', 'high' );
+		$buffer_processor->set_attribute( 'loading', 'eager' );
+		$buffer_processor->set_attribute( 'data-jp-lcp-optimized', 'true' );
+
+		$image_url = $buffer_processor->get_attribute( 'src' );
+
+		$buffer_processor->set_attribute( 'src', Image_CDN_Core::cdn_url( $image_url ) );
+
+		$this->add_responsive_image_attributes( $buffer_processor, $image_url );
+
+		return $buffer_processor->get_updated_html();
 	}
 
 	/**
 	 * Optimize an image tag by adding srcset and sizes attributes.
 	 *
-	 * @param string $tag The original image tag.
-	 * @param string $image_url The image URL.
+	 * @param WP_HTML_Tag_Processor $element The original image tag.
+	 * @param string                $image_url The image URL.
 	 * @return string The optimized image tag.
 	 *
 	 * @since 4.0.0
 	 */
-	private function add_responsive_image_attributes( $tag, $image_url ) {
+	private function add_responsive_image_attributes( $element, $image_url ) {
 		$srcset = $this->get_srcsets( $image_url );
 		if ( ! empty( $srcset ) ) {
-			// Add srcset attribute
-			$tag = preg_replace( '/srcset\s*=\s*["\'][^"\']*["\']/i', '', $tag );
-			$tag = preg_replace( '/<img\s/i', '<img srcset="' . esc_attr( $srcset ) . '" ', $tag );
+			$element->set_attribute( 'srcset', $srcset );
 		}
 
-		// Add sizes attribute
 		$sizes = $this->get_sizes();
 		if ( ! empty( $sizes ) ) {
-			// Update the sizes attribute
-			$tag = preg_replace( '/sizes\s*=\s*["\'][^"\']*["\']/i', '', $tag );
-			$tag = preg_replace( '/<img\s/i', '<img sizes="' . esc_attr( $sizes ) . '" ', $tag );
+			$element->set_attribute( 'sizes', $sizes );
 		}
 
-		return $tag;
+		return $element;
 	}
 
 	/**
