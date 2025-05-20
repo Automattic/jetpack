@@ -3,7 +3,7 @@ import { ToolbarGroup, ToolbarButton, ToolbarItem } from '@wordpress/components'
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
-import EditButton from '../../shared/edit-button';
+import EditButton from './edit-button';
 
 const onSelectMedia = setAttributes => media =>
 	setAttributes( {
