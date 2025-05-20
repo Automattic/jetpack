@@ -168,7 +168,7 @@
 	font-size: 0.8em;
 	padding: 0 0.25em;
 	position: relative;
-	top: calc(var(--jetpack--contact-form--border-size, 1px) / 2 * -1);
+	top: calc(var(--jetpack--contact-form--border-top-size, 1px) / 2 * -1);
 
 }
 
@@ -408,7 +408,7 @@
 	transform: translateY(-50%) rotate(45deg);
 	transform-origin: center center;
 	pointer-events: none;
-	right: calc(var(--jetpack--contact-form--border-size) + 16px);
+	right: calc(var(--jetpack--contact-form--border-right-size, 1px) + 16px);
 }
 
 .contact-form :where( .contact-form__select-wrapper select ) {
@@ -417,7 +417,7 @@
 	border-color: var(--jetpack--contact-form--border-color);
 	border-radius: var(--jetpack--contact-form--border-radius);
 	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
+	border-width:  var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 	color: var(--jetpack--contact-form--text-color);
 	font-family: var(--jetpack--contact-form--font-family);
 	font-size: var(--jetpack--contact-form--font-size);
@@ -495,7 +495,9 @@
 :where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__leading {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
+	border-left-width: var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 	border-radius: var(--jetpack--contact-form--border-radius);
 	width: var(--jetpack--contact-form--notch-width);
 	max-width: 100px;
@@ -508,7 +510,8 @@
 :where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__notch {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
 	border-radius: unset !important;
 	padding: 0 4px;
 	transition: border 150ms linear;
@@ -520,7 +523,8 @@
 :where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__filler {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
 	flex-grow: 1;
 	border-left: none !important;
 	border-right: none !important;
@@ -531,7 +535,9 @@
 :where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__trailing {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
+	border-right-width: var(--jetpack--contact-form--border-right-size, var(--jetpack--contact-form--border-size));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
 	border-radius: var(--jetpack--contact-form--border-radius);
 	flex-grow: 1;
 	max-width: 100px;
@@ -612,7 +618,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-radio-options) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label
 {
-	top: calc(var(--jetpack--contact-form--border-size) * -1 );
+	top: calc( var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1 );
 	transform: translateY(-50%);
 	font-size: 0.8em;
 }
@@ -670,10 +676,18 @@ on production builds, the attributes are being reordered, causing side-effects
 	padding-right: var(--field-padding);
 }
 
+/* Fix padding for new forms in animated style */
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > .wp-block-jetpack-input,
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input,
+.contact-form .is-style-animated .wp-block-jetpack-options.jetpack-field-multiple__list--has-border {
+	padding-left: var(--jetpack--contact-form--animated-left-offset);
+	padding-right: var(--jetpack--contact-form--animated-left-offset);
+}
+
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
 	position: absolute;
 	top: 50%;
-	left: var(--label-left);
+	left: calc(var(--jetpack--contact-form--border-left-size, 0px) + var(--jetpack--contact-form--animated-left-offset, var(--label-left)));
 	width: 100%;
 	max-width: 100%;
 	box-sizing: border-box;
@@ -686,7 +700,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-textarea-wrap .animated-label__label {
 	transform: unset;
-	top: var(--jetpack--contact-form--input-padding-top, 16px);
+	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus),
@@ -696,7 +710,7 @@ on production builds, the attributes are being reordered, causing side-effects
 {
 	font-size: 0.75em;
 	transform: translateY(0);
-	top: calc(2px + var(--jetpack--contact-form--border-size));
+	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
 }
 
 /* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
@@ -715,7 +729,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .is-style-below .grunion-field-wrap .below-label__label {
-	margin-left: var(--jetpack--contact-form--border-size);
+	margin-left:  var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 }
 
 .contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options:not(.wp-block-jetpack-options),

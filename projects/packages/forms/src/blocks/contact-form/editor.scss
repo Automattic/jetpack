@@ -357,7 +357,7 @@
 		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
 		border-color: var(--jetpack--contact-form--border-color, #8c8f94);
 		border-style: var(--jetpack--contact-form--border-style, solid);
-		border-width: var(--jetpack--contact-form--border-size, 1px);
+		border-width: var(--jetpack--contact-form--border-left-size, 1px);
 	}
 
 	.components-base-control__field {
@@ -522,14 +522,6 @@
 
 	svg {
 		margin-right: 12px;
-	}
-}
-
-:where(:not(.contact-form)) > .jetpack-field {
-
-	.jetpack-field__input, .jetpack-field__textarea {
-		padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
-		padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 	}
 }
 
@@ -857,7 +849,7 @@
 				}
 
 				.notched-label__label {
-					top: calc(var(--jetpack--contact-form--border-size) * -1);
+					top: calc(var(--jetpack--contact-form--border-top-size) * -1);
 					transform: translateY(-50%);
 					font-size: 0.8em;
 				}
@@ -919,15 +911,15 @@
 			.jetpack-field-dropdown__toggle
 			{
 				padding-top: 1.4em;
-				padding-left: var(--jetpack--contact-form--field-padding);
+				padding-left: var(--jetpack--contact-form--animated-left-offset);
 			}
 
 			.animated-label__label {
 				position: absolute;
 				z-index: 1;
-				top: 50%;
-				left: var(--jetpack--contact-form--label-left);
-				width: calc( 100% - var(--jetpack--contact-form--label-left));
+				top: var(--jetpack--contact-form--animated-top-offset);
+				left: calc(var(--jetpack--contact-form--border-left-size, 1px) + var(--jetpack--contact-form--animated-left-offset));
+				width: auto;
 				max-width: 100%;
 				box-sizing: border-box;
 				margin: 0;
@@ -939,17 +931,18 @@
 				}
 			}
 
+			.jetpack-field-multiple__list.jetpack-field-multiple__list--has-border {
+				padding-left: var(--jetpack--contact-form--animated-left-offset);
+			}
 
-			&.jetpack-field-multiple {
 
-				.animated-label__label {
-					position: static;
-				}
+			&.jetpack-field-multiple .animated-label__label {
+				position: static;
 			}
 
 			&.jetpack-field-textarea .animated-label__label {
 				transform: unset;
-				top: var(--jetpack--contact-form--input-padding-top, 16px);
+				top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
 			}
 
 			&.is-selected, &.has-placeholder {
@@ -957,7 +950,7 @@
 				.animated-label__label {
 					font-size: 0.75em;
 					transform: translateY(0);
-					top: calc(2px + var(--jetpack--contact-form--border-size));
+					top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
 				}
 			}
 		}
