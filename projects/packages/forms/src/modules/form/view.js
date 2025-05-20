@@ -61,6 +61,11 @@ const { state } = store( NAMESPACE, {
 			return context.showErrors && field.error && field.error !== 'yes';
 		},
 
+		get isEmptyForm() {
+			const context = getContext();
+			return ! Object.values( context.fields ).some( field => field.value !== '' );
+		},
+
 		get isSubmitting() {
 			const context = getContext();
 			return context.isSubmitting;
@@ -84,7 +89,9 @@ const { state } = store( NAMESPACE, {
 		},
 
 		get isFormValid() {
-			// console.log( 'isFormValid' );
+			if ( state.isEmptyForm ) {
+				return false;
+			}
 			const context = getContext();
 			return ! Object.values( context.fields ).some( field => field.error !== 'yes' );
 		},
@@ -96,14 +103,19 @@ const { state } = store( NAMESPACE, {
 		},
 
 		get getFormErrorMessage() {
-			// console.log( 'getFormErrorMessage' );
 			const config = getConfig( NAMESPACE );
+			if ( state.isEmptyForm ) {
+				return config.error_types.invalid_form_empty;
+			}
 			return config.error_types.invalid_form;
 		},
 
 		get getErrorList() {
-			const context = getContext();
 			const errors = [];
+			if ( state.isEmptyForm ) {
+				return errors;
+			}
+			const context = getContext();
 			if ( context.showErrors ) {
 				Object.values( context.fields ).forEach( field => {
 					if ( field.error && field.error !== 'yes' ) {

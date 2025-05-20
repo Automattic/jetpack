@@ -283,8 +283,9 @@ class Contact_Form_Plugin {
 		if ( ! is_admin() ) {
 			$config = array(
 				'error_types' => array(
-					'is_required'  => __( 'This field is required.', 'jetpack-forms' ),
-					'invalid_form' => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
+					'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
+					'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
+					'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
 				),
 			);
 			wp_interactivity_config( 'jetpack/forms', $config );
