@@ -485,10 +485,8 @@ function add_submenu_jetpack_forms() {
 		return;
 	}
 
-	// @phan-suppress-next-line PhanRedundantCondition
-	$handler = $has_switch_class
-		? ( new Dashboard_View_Switch() )->get_forms_admin_url()
-		: 'edit.php?post_type=feedback';
+	// This is so we don't just hardcode get_admin_url() . 'admin.php?page=jetpack-forms-admin', should we?
+	$handler = ( new Dashboard_View_Switch() )->get_forms_admin_url();
 
 	add_submenu_page(
 		'jetpack',
