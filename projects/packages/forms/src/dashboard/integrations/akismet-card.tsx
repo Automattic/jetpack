@@ -4,7 +4,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import AkismetIcon from '../../icons/akismet';
-import type { IntegrationCardProps, JPFormsBlocksWindow } from './types';
+import type { IntegrationCardProps } from './types';
 
 const AkismetDashboardCard = ( {
 	isExpanded,
@@ -12,9 +12,7 @@ const AkismetDashboardCard = ( {
 	data,
 	refreshStatus,
 }: IntegrationCardProps ) => {
-	const formSubmissionsUrl =
-		( window as JPFormsBlocksWindow ).jpFormsBlocks?.defaults?.formsResponsesSpamUrl || '';
-
+	const formSubmissionsUrl = data?.details?.formSubmissionsSpamUrl || '';
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 
 	const cardData = {
@@ -86,7 +84,7 @@ const AkismetDashboardCard = ( {
 						</Button>
 						<span>|</span>
 						<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
-							{ __( 'View stats', 'jetpack-forms' ) }
+							{ __( 'View stats and settings', 'jetpack-forms' ) }
 						</Button>
 						<span>|</span>
 						<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
