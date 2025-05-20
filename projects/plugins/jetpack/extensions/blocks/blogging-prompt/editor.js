@@ -42,6 +42,7 @@ async function insertTemplate( promptId ) {
 		createBlock( 'jetpack/blogging-prompt', { promptFetched: false, promptId, tagsAdded: true } ),
 		createBlock( 'core/paragraph' ),
 	];
+	console.log( 'bloggingPromptBlocks', bloggingPromptBlocks );
 
 	insertBlocks( bloggingPromptBlocks, 0, undefined, false );
 }
@@ -50,6 +51,7 @@ async function initBloggingPrompt() {
 	const url = new URL( document.location.href );
 
 	const isNewPost = url.pathname.endsWith( '/wp-admin/post-new.php' );
+	console.log( 'isNewPost', isNewPost );
 
 	if ( ! isNewPost ) {
 		return;
@@ -57,11 +59,14 @@ async function initBloggingPrompt() {
 
 	const answerPrompt = url.searchParams.get( 'answer_prompt' ) ?? '0';
 	const answerPromptId = parseInt( answerPrompt );
+	console.log( 'answerPromptId', answerPromptId );
 
 	if ( answerPromptId ) {
 		const isEditorReady = select( 'core/editor' ).__unstableIsEditorReady;
+		console.log( 'isEditorReady', isEditorReady );
 
 		if ( isEditorReady && isEditorReady() === false ) {
+			console.log( 'isEditorReady is false, waiting for editor' );
 			await waitForEditor();
 		}
 
