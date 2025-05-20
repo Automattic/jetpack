@@ -180,6 +180,55 @@ function _wpcom_features_get_simple_site_purchases( $blog_id ) {
 		return (array) $purchases;
 	}
 
+	$lock_key   = "{$wp_cache_key}_building";
+	$lock_found = false;
+	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	$lock = wp_cache_get( $lock_key, $wp_cache_group, false, $lock_found );
+	if ( $lock_found ) {
+		// Another request is already rebuilding the purchases cache.
+		// Let's try 2 short sleeps of 200ms to see if that finishes, and if not,
+		// return an empty set of purchases. The DB must be backed up and we don't
+		// want to contribute to the problem.
+		$attempts = 2;
+		while ( $attempts > 0 ) {
+			// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$lock = wp_cache_get( $lock_key, $wp_cache_group, true /* force remote recheck */, $lock_found );
+			if ( ! $lock_found ) {
+				// The lock is no longer in cache, so we can break out of the loop.
+				break;
+			}
+			// Sleep 200ms
+			usleep( 200000 );
+			--$attempts;
+		}
+
+		// Has the first request has populated the cache?
+		$purchases = wp_cache_get( $wp_cache_key, $wp_cache_group, true /* force remote recheck */, $wp_cache_found );
+		if ( false !== $wp_cache_found ) {
+			return (array) $purchases;
+		}
+
+		// It's still not there, return [] as a fallback;
+		// Also let future checks for this blog for the life of this request fail
+		$target_blog_id = $blog_id;
+		add_filter(
+			'wpcom_simple_skip_purchase_lookup',
+			function ( $skip, $checked_blog_id ) use ( $target_blog_id ) {
+				if ( $checked_blog_id === $target_blog_id ) {
+					return true; // Skip purchases lookup
+				}
+				return $skip;
+			},
+			10,
+			2
+		);
+		return array();
+	}
+
+	// Let other requests know that we are rebuilding purchases, to stop multiples of the same
+	// request from stacking up.
+	wp_cache_set( $lock_key, true, $wp_cache_group, 30 ); // (30 second TTL)
+
 	// Get $purchases with a direct SQL query.
 	// We are intentionally NOT using the Purchases API as this code needs to be runnable
 	// in some contexts where the billing code-base is not available.
@@ -244,11 +293,13 @@ function _wpcom_features_get_simple_site_purchases( $blog_id ) {
 	}
 
 	/*
-	* Cache the $purchases for 3 hours. Otherwise, the cache is invalidated when a purchase is made, using:
+	* Cache the $purchases for 6-8 hours. Otherwise, the cache is invalidated when a purchase is made, using:
 	* add_action( 'subscription_changed', 'clear_wp_cache_site_purchases', 10, 1 );
 	* Found in ./wp-content/mu-plugins/wpcom-features.php
 	*/
-	wp_cache_set( $wp_cache_key, $purchases, $wp_cache_group, 3 * HOUR_IN_SECONDS );
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
+	wp_cache_set( $wp_cache_key, $purchases, $wp_cache_group, ( 6 * HOUR_IN_SECONDS ) + mt_rand( 1, 2 * 60 * MINUTE_IN_SECONDS ) );
+	wp_cache_delete( $lock_key, $wp_cache_group ); // Release the lock telling other requests we are building purchases.
 
 	return $purchases;
 }
