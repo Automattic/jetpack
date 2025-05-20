@@ -10,7 +10,7 @@
 namespace Automattic\Jetpack\PaypalPayments\SimplePayments;
 
 use Automattic\Jetpack\Blocks;
-use Jetpack_Simple_Payments;
+use Automattic\Jetpack\Paypal_Payments\Simple_Payments;
 use WP_Post;
 
 const FEATURE_NAME = 'simple-payments';
@@ -51,7 +51,7 @@ function render_block( $attr, $content ) {
 		return $content;
 	}
 
-	$simple_payments = Jetpack_Simple_Payments::get_instance();
+	$simple_payments = Simple_Payments::get_instance();
 
 	if ( ! $simple_payments->is_valid( $attr ) ) {
 		return '';
