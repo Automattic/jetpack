@@ -2045,9 +2045,12 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/paypal-payments",
-				"reference": "840d1c4fdbc9707b3d7b3b31f49247f5c29fb643"
+				"reference": "1e091cdda99436328f1aa818e9b8c47fd966f285"
 			},
 			"require": {
+				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-connection": "@dev",
+				"automattic/jetpack-plans": "@dev",
 				"php": ">=7.2"
 			},
 			"require-dev": {
@@ -2080,11 +2083,11 @@
 				]
 			},
 			"scripts": {
-				"build-development": [
-					"echo 'Add your build step to composer.json, please!'"
-				],
 				"build-production": [
-					"echo 'Add your build step to composer.json, please!'"
+					"pnpm run build-production"
+				],
+				"build-development": [
+					"pnpm run build"
 				],
 				"phpunit": [
 					"phpunit-select-config phpunit.#.xml.dist --colors=always"
