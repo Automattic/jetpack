@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blogging prompt: Fix the prompt block not being inserted based on the URL param.
