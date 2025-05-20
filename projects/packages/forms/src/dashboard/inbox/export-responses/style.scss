@@ -64,10 +64,16 @@
 	}
 }
 
-.jp-forms__export-button--large-green.jp-forms__export-button--large-green,
-.jp-forms__export-button--large-green.jp-forms__export-button--large-green:hover:not(:disabled,[aria-disabled="true"],.is-pressed) {
+.jp-forms__export-button--large-green.export-button,
+.jp-forms__export-button--large-green.export-button:hover:not(:disabled,[aria-disabled="true"]),
+.jp-forms__export-button--large-green.export-button:active:not(:disabled,[aria-disabled="true"]) {
 	color: var(--jp-green-50);
 	border-color: var(--jp-green-50);
 	box-shadow: inset 0 0 0 1px var(--jp-green-50), 0 0 0 currentColor;
 	min-width: auto;
+}
+
+
+.jp-forms__export-button--large-green.export-button:focus:not(:disabled,[aria-disabled="true"]) {
+	box-shadow: 0 0 0 currentColor inset, 0 0 0 var(--wp-admin-border-width-focus) var(--jp-green-50);
 }

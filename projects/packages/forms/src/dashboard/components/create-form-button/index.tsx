@@ -10,6 +10,7 @@ import { create } from '@wordpress/icons';
  * Internal dependencies
  */
 import { config } from '../../index';
+import './style.scss';
 
 type CreateFormButtonProps = {
 	label?: string;
@@ -47,7 +48,12 @@ export default function CreateFormButton( {
 	}, [ showPatterns ] );
 
 	return (
-		<Button variant="primary" onClick={ onButtonClickHandler } icon={ create }>
+		<Button
+			variant="primary"
+			onClick={ onButtonClickHandler }
+			icon={ create }
+			className="create-form-button jp-forms__create-form-button--large-green"
+		>
 			{ label }
 		</Button>
 	);
