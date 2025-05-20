@@ -383,7 +383,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// For Outline style support.
 			$form_style = $this->get_form_style();
 			if ( 'outlined' === $form_style || 'animated' === $form_style ) {
-				$output_data         = $this->get_outline_styles( $form_style );
+				$output_data         = $this->get_form_variation_style_properties( $form_style );
 				$this->block_styles .= $output_data['css_vars'];
 			}
 		} else {
@@ -1505,7 +1505,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$classes .= $this->is_error() ? ' form-error' : '';
 		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
 
-		$output_data = $this->get_outline_styles();
+		$output_data = $this->get_form_variation_style_properties();
 
 		return '
 			<div class="notched-label">
@@ -1527,6 +1527,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 	/**
 	 * Returns the styles, classes and CSS vars necessary to render fields in the "Outlined" style.
+	 * The "Animated" style variation shares the CSS vars, which require similar calculations for the left offset and label left position.
 	 * At the block level, the styles are extracted and added to the shortcode attributes in
 	 * Contact_Form_Plugin::get_outlined_style_attributes().
 	 * This function extracts those styles and applies them to the field,
@@ -1540,7 +1541,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *     @type string $class_name The class name.
 	 * }
 	 */
-	private function get_outline_styles( $form_style = 'outlined' ) {
+	private function get_form_variation_style_properties( $form_style = 'outlined' ) {
 		$style_attrs     = '';
 		$css_vars        = '';
 		$outline_styles  = $this->get_attribute( 'outlinestyledata' );
@@ -1551,61 +1552,78 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$block_name = 'jetpack/options';
 		}
 
-		if ( ! empty( $outline_styles ) ) {
-			$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
-			$input_styles   = $this->get_attribute( 'inputstyles' );
+		$outline_styles = ! empty( $outline_styles ) ? json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true ) : array();
+		$input_styles   = $this->get_attribute( 'inputstyles' );
 
-			if ( ! empty( $input_styles ) ) {
-				$style_attrs = $input_styles;
-			}
+		if ( ! empty( $input_styles ) ) {
+			$style_attrs = $input_styles;
+		}
 
-			$global_styles = wp_get_global_styles(
-				array( 'border' ),
-				array(
-					'block_name' => $block_name,
-					'transforms' => array( 'resolve-variables' ),
-				)
-			);
+		$global_styles = wp_get_global_styles(
+			array( 'border' ),
+			array(
+				'block_name' => $block_name,
+				'transforms' => array( 'resolve-variables' ),
+			)
+		);
 
-			$legacy_border_size   = $outline_styles['border']['width'] ?? null;
-			$legacy_border_size   = is_numeric( $legacy_border_size ) ? $legacy_border_size . 'px' : $legacy_border_size;
-			$legacy_border_radius = $outline_styles['border']['radius'] ?? null;
-			$legacy_border_radius = is_numeric( $legacy_border_radius ) ? $legacy_border_radius . 'px' : $legacy_border_radius;
+		/*
+		 * The `borderwidth` attribute contains the border value that forms used before the migration to global styles.
+		 * Any old forms saved in a post will still use this attribute, so it needs to be factored into the css vars for border
+		 * to properly support backwards compatibility. So we check if the attribute is set and if it's not empty or '0', which is a valid width value.
+		 * For newer forms that use global styles or the block supports styles, this value will be empty and is ignored.
+		 */
+		$border_width_attribute = $this->get_attribute( 'borderwidth' );
+		$legacy_border_size     = ! empty( $border_width_attribute ) || $border_width_attribute === '0' ? $border_width_attribute . 'px' : $outline_styles['border']['width'] ?? null;
+		$legacy_border_size     = is_numeric( $legacy_border_size ) ? $legacy_border_size . 'px' : $legacy_border_size;
+		$legacy_border_radius   = $outline_styles['border']['radius'] ?? null;
+		$legacy_border_radius   = is_numeric( $legacy_border_radius ) ? $legacy_border_radius . 'px' : $legacy_border_radius;
 
-			$border_size = $legacy_border_size ??
-				$outline_styles['border']['top']['width'] ??
-				$global_styles['width'] ??
-				$global_styles['top']['width'];
+		$border_top_size = $legacy_border_size ??
+			$outline_styles['border']['top']['width'] ??
+			$global_styles['width'] ??
+			$global_styles['top']['width'] ?? null;
 
-			$border_radius = $legacy_border_radius ??
-				$global_styles['radius'];
+		$border_right_size = $legacy_border_size ??
+			$outline_styles['border']['right']['width'] ??
+			$global_styles['width'] ??
+			$global_styles['right']['width'] ?? null;
 
-			$css_vars = $border_size ? '--jetpack--contact-form--border-size: ' . $border_size . ';' : '';
-			// Check if border radius is split or a single value.
-			if ( is_array( $border_radius ) ) {
-				// If corner radii are set on the top-left or bottom-left of the block, take the maximum of the two.
-				// We check the left side due to writing direction—this variable is used to offset text.
-				// TODO: this should factor in RTL languages.
-				$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: max(' . $border_radius['topLeft'] . ',' . $border_radius['bottomLeft'] . ');' : '';
-			} elseif ( isset( $border_radius ) ) {
-				$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
-			}
+		$border_bottom_size = $legacy_border_size ??
+			$outline_styles['border']['bottom']['width'] ??
+			$global_styles['width'] ??
+			$global_styles['bottom']['width'] ?? null;
 
-			if ( 'outlined' === $form_style ) {
-				$css_vars .= '--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));';
-			} elseif ( 'animated' === $form_style ) {
-				$legacy_border_left_size = $outline_styles['border']['width'] ?? null;
-				$legacy_border_left_size = is_numeric( $legacy_border_left_size ) ? $legacy_border_left_size . 'px' : $legacy_border_left_size;
+		$border_left_size = $legacy_border_size ??
+			$outline_styles['border']['left']['width'] ??
+			$global_styles['width'] ??
+			$global_styles['left']['width'] ?? null;
 
-				$border_left_size = $legacy_border_left_size ??
-				$outline_styles['border']['left']['width'] ??
-				$global_styles['width'] ??
-				$global_styles['left']['width'];
+		$border_radius = $legacy_border_radius ??
+			$global_styles['radius'] ?? null;
 
-				$css_vars .= "--jetpack--contact-form--left-offset: calc(var(--jetpack--contact-form--input-padding-left, 16px) + {$border_left_size});";
-				$css_vars .= '--jetpack--contact-form--label-left: max(var(--jetpack--contact-form--left-offset), var(--jetpack--contact-form--border-radius));';
-				$css_vars .= "--jetpack--contact-form--field-padding: calc(var(--jetpack--contact-form--label-left) - {$border_left_size});";
-			}
+		$css_vars  = $border_top_size ? '--jetpack--contact-form--border-size: ' . $border_top_size . ';' : '';
+		$css_vars .= $border_top_size ? '--jetpack--contact-form--border-top-size: ' . $border_top_size . ';' : '';
+		$css_vars .= $border_right_size ? '--jetpack--contact-form--border-right-size: ' . $border_right_size . ';' : '';
+		$css_vars .= $border_bottom_size ? '--jetpack--contact-form--border-bottom-size: ' . $border_bottom_size . ';' : '';
+		$css_vars .= $border_left_size ? '--jetpack--contact-form--border-left-size: ' . $border_left_size . ';' : '';
+
+		// Check if border radius is split or a single value.
+		if ( is_array( $border_radius ) ) {
+			// If corner radii are set on the top-left or bottom-left of the block, take the maximum of the two.
+			// We check the left side due to writing direction—this variable is used to offset text.
+			// TODO: this should factor in RTL languages.
+			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: max(' . $border_radius['topLeft'] . ',' . $border_radius['bottomLeft'] . ');' : '';
+		} elseif ( isset( $border_radius ) ) {
+			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
+		}
+
+		if ( 'outlined' === $form_style ) {
+			$css_vars .= '--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));';
+		} elseif ( 'animated' === $form_style ) {
+			$css_vars .= '--jetpack--contact-form--animated-left-offset: 16px;';
+			$css_vars .= '--jetpack--contact-form--animated-top-offset:' . $border_top_size ? 'calc(var(--jetpack--contact-form--border-top-size) + var(--jetpack--contact-form--animated-left-offset));'
+				: '50%;';
 		}
 
 		return array(
