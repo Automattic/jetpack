@@ -174,8 +174,13 @@
 .contact-form .grunion-checkbox-multiple-options .contact-form-field,
 .contact-form .grunion-radio-options .contact-form-field {
 	display: flex;
-	align-items: center;
+	align-items: baseline; /* Align input with first label line */
 	margin: 0;
+}
+
+.contact-form .grunion-radio-options .contact-form-field .grunion-radio-label,
+.contact-form .grunion-checkbox-multiple-options .contact-form-field .grunion-checkbox-multiple-label {
+	transform: translateY(-0.15rem);
 }
 
 .contact-form :where(label span.required),
