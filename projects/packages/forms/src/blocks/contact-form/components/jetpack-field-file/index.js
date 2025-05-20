@@ -13,6 +13,21 @@ import { UpsellNudge } from '../upsell-nudge';
 import { useJetpackFieldStyles } from '../use-jetpack-field-styles';
 import './editor.css';
 
+const ALLOWED_BLOCKS = [
+	'core/columns',
+	'core/group',
+	'core/heading',
+	'core/html',
+	'core/image',
+	'core/list',
+	'core/paragraph',
+	'core/row',
+	'core/separator',
+	'core/spacer',
+	'core/stack',
+	'core/subhead',
+];
+
 const BLOCKS_TEMPLATE = [
 	[
 		'core/group',
@@ -36,6 +51,7 @@ const BLOCKS_TEMPLATE = [
 					color: 'rgba(125,125,125,0.3)',
 				},
 			},
+			allowedBlocks: ALLOWED_BLOCKS,
 		},
 		[
 			[
@@ -105,7 +121,11 @@ const JetpackFieldFile = props => {
 				<div className="jetpack-form-file-field__dropzone">
 					<div className="jetpack-form-file-field__dropzone-inner">
 						<input type="file" style={ { display: 'none' } } aria-hidden="true" />
-						<InnerBlocks template={ BLOCKS_TEMPLATE } templateLock={ false } />
+						<InnerBlocks
+							allowedBlocks={ ALLOWED_BLOCKS }
+							template={ BLOCKS_TEMPLATE }
+							templateLock={ false }
+						/>
 					</div>
 				</div>
 			</div>
