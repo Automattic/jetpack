@@ -87,11 +87,23 @@ export const validateField = ( type, value, isRequired, extra = null ) => {
 		return validateNumber( value, extra );
 	}
 
+	if ( 'file' === type ) {
+		if ( value.some( file => file.error ) ) {
+			return 'invalid_file_has_errors';
+		}
+
+		if ( value.some( file => ! file.isUploaded ) ) {
+			return 'invalid_file_uploading';
+		}
+
+		return 'yes';
+	}
+
 	let regex = null;
 	switch ( type ) {
 		case 'url':
 			regex =
-				/(?:(?:[Hh][Tt][Tt][Pp][Ss]?|[Ff][Tt][Pp]):\/\/)?(?:\S+(?::\S*)?@|\d{1,3}(?:\.\d{1,3}){3}|(?:[a-zA-Z\d\u00a1-\uffff](?:[a-zA-Z\d\u00a1-\uffff\-]*[a-zA-Z\d\u00a1-\uffff])?)(?:\.[a-zA-Z\d\u00a1-\uffff](?:[a-zA-Z\d\u00a1-\uffff\-]*[a-zA-Z\d\u00a1-\uffff])?)*(?:\.[a-zA-Z\u00a1-\uffff]{2,6}))(?::\d+)?(?:[^\s]*)?/;
+				/(?:(?:[Hh][Tt][Tt][Pp][Ss]?|[Ff][Tt][Pp]):\/\/)?(?:\S+(?::\S*)?@|\d{1,3}(?:\.\d{1,3}){3}|(?:[a-zA-Z\d\u00a1-\uffff](?:[a-zA-Z\d\u00a1-\uffff-]*[a-zA-Z\d\u00a1-\uffff])?)(?:\.[a-zA-Z\d\u00a1-\uffff](?:[a-zA-Z\d\u00a1-\uffff-]*[a-zA-Z\d\u00a1-\uffff])?)*(?:\.[a-zA-Z\u00a1-\uffff]{2,6}))(?::\d+)?(?:[^\s]*)?/;
 			break;
 		case 'email':
 			regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

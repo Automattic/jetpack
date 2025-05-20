@@ -2,12 +2,13 @@
  * WordPress dependencies
  */
 import { store, getContext, withScope, getElement, getConfig } from '@wordpress/interactivity';
-import { clearInputError } from '../../contact-form/js/form-errors.js';
 
 const NAMESPACE = 'jetpack/field-file';
 
 let uploadToken = null;
 let tokenExpiry = null;
+
+const jetpackFormStore = store( 'jetpack/forms' );
 
 /**
  * Retuns the upload token. Sometimes it has to fetch a new one if it expired. Or we haven't needed one just yet.
@@ -95,9 +96,6 @@ const addFileToContext = file => {
 	const reader = new FileReader();
 	reader.readAsDataURL( file );
 
-	const { ref } = getElement();
-	clearInputError( ref, { hasInsetLabel: state.isInlineForm } );
-
 	const config = getConfig( NAMESPACE );
 	const context = getContext();
 
@@ -131,6 +129,8 @@ const addFileToContext = file => {
 		id: clientFileId,
 		error,
 	} );
+
+	jetpackFormStore.actions.updateFieldValue( context.fieldId, context.files );
 
 	// Start the upload if we don't have any errors.
 	! error && actions.uploadFile( file, clientFileId );
@@ -209,6 +209,8 @@ const updateFileContext = ( updatedFile, clientFileId ) => {
 	const context = getContext();
 	const index = context.files.findIndex( file => file.id === clientFileId );
 	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
+
+	jetpackFormStore.actions.updateFieldValue( context.fieldId, context.files );
 };
 
 const { state, actions } = store( NAMESPACE, {
@@ -345,10 +347,6 @@ const { state, actions } = store( NAMESPACE, {
 		removeFile: function* ( event ) {
 			event.preventDefault();
 
-			const { ref } = getElement();
-			const field = ref.closest( '.jetpack-form-file-field__container' ); // Needed to select the top most field.
-			clearInputError( field, { hasInsetLabel: state.isInlineForm } );
-
 			const context = getContext();
 			const clientFileId = event.target.dataset.id;
 
@@ -376,6 +374,10 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			// Remove the file from the context
 			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
+			jetpackFormStore.actions.updateFieldValue(
+				context.fieldId,
+				state.hasFiles ? context.files : ''
+			);
 		},
 	},
 

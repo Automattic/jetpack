@@ -127,6 +127,9 @@ const { state } = store( NAMESPACE, {
 	},
 
 	actions: {
+		updateFieldValue: ( fieldId, value ) => {
+			updateField( fieldId, value );
+		},
 		handleChangeField: withSyncEvent( event => {
 			let value = event.target.value;
 			const context = getContext();
