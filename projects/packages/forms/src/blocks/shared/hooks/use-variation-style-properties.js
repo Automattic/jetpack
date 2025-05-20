@@ -44,6 +44,45 @@ function getBorderRadiusCssVar( style ) {
 }
 
 /**
+ * Returns the border widths for the input block.
+ *
+ * @param {object} blockBorderStyles  - The attributes of the input block.
+ * @param {object} globalBorderStyles - The global styles.
+ * @return {object} The border widths.
+ */
+function getBorderWidths( blockBorderStyles, globalBorderStyles ) {
+	/*
+	 * Use `getIntAsPxValue` on the borderWidth as legacy form blocks might not have a value unit.
+	 * Sides (top, right, bottom, left) are available post-upgrade.
+	 */
+	const borderWidth =
+		getIntAsPxValue( blockBorderStyles?.borderWidth ) || globalBorderStyles?.borderWidth;
+
+	if ( borderWidth ) {
+		return {
+			borderTopWidth: borderWidth,
+			borderRightWidth: borderWidth,
+			borderBottomWidth: borderWidth,
+			borderLeftWidth: borderWidth,
+		};
+	}
+
+	const borderTopWidth = blockBorderStyles?.borderTopWidth || globalBorderStyles?.borderTopWidth;
+	const borderRightWidth =
+		blockBorderStyles?.borderRightWidth || globalBorderStyles?.borderRightWidth;
+	const borderBottomWidth =
+		blockBorderStyles?.borderBottomWidth || globalBorderStyles?.borderBottomWidth;
+	const borderLeftWidth = blockBorderStyles?.borderLeftWidth || globalBorderStyles?.borderLeftWidth;
+
+	return {
+		borderTopWidth,
+		borderRightWidth,
+		borderBottomWidth,
+		borderLeftWidth,
+	};
+}
+
+/**
  * Returns properties that help achieve the outlined and animated form styles.
  *
  * The outlined style in particular requires taking specific style properties (especially border and background)
@@ -95,29 +134,31 @@ export default function useVariationStyleProperties( {
 		[ inputBaseGlobalStyles, inputUserGlobalStyles ]
 	);
 
-	// Add a class to apply padding to option groups that have a border.
-	const customBorderClasses = useMemo( () => {
+	return useMemo( () => {
+		// Access the input block's attributes.
+		const blockBorderClassesAndStyles = getBorderClassesAndStyles( inputBlockAttributes ?? {} );
+		const globalBorderClassesAndStyles = getBorderClassesAndStyles( {
+			style: mergedGlobalBlockStyles,
+		} );
+		const borderWidths = getBorderWidths(
+			blockBorderClassesAndStyles?.style,
+			globalBorderClassesAndStyles?.style
+		);
+
+		// Add a class to apply padding to option groups that have a border.
 		const hasBorder =
 			inputBlockName === 'jetpack/options' &&
-			( !! inputBlockAttributes?.style?.border?.width ||
-				!! inputBlockAttributes?.style?.border?.left?.width ||
-				!! mergedGlobalBlockStyles?.border?.width ||
-				!! mergedGlobalBlockStyles?.border?.left?.width );
-		return hasBorder ? 'jetpack-field-multiple__list--has-border' : '';
-	}, [ inputBlockName, inputBlockAttributes, mergedGlobalBlockStyles ] );
+			!! borderWidths?.borderLeftWidth &&
+			parseInt( borderWidths?.borderLeftWidth ) > 0;
 
-	return useMemo( () => {
+		const customBorderClasses = hasBorder ? 'jetpack-field-multiple__list--has-border' : '';
+
 		// Only return styles for outlined and animated forms.
 		if ( formStyle !== FORM_STYLE.OUTLINED && formStyle !== FORM_STYLE.ANIMATED ) {
 			return {
 				className: customBorderClasses,
 			};
 		}
-		// Access the input block's attributes.
-		const blockBorderClassesAndStyles = getBorderClassesAndStyles( inputBlockAttributes ?? {} );
-		const globalBorderClassesAndStyles = getBorderClassesAndStyles( {
-			style: mergedGlobalBlockStyles,
-		} );
 
 		// Notched HTML only needs the background color and associated classes.
 		const attributesWithBackgroundColor = inputBlockAttributes
@@ -152,17 +193,14 @@ export default function useVariationStyleProperties( {
 			};
 		}
 		if ( formStyle === FORM_STYLE.ANIMATED ) {
-			const borderLeftSize =
-				getIntAsPxValue( blockBorderClassesAndStyles?.style?.borderWidth ) ||
-				blockBorderClassesAndStyles?.style?.borderLeftWidth ||
-				globalBorderClassesAndStyles?.style?.borderWidth ||
-				globalBorderClassesAndStyles?.style?.borderLeftWidth ||
-				'1px';
+			const hasTopBorder =
+				!! borderWidths?.borderTopWidth && parseInt( borderWidths?.borderTopWidth ) > 0;
 			styleSpecificCssVars = {
-				'--jetpack--contact-form--left-offset': `calc(var(--jetpack--contact-form--input-padding-left, 16px) + ${ borderLeftSize })`,
-				'--jetpack--contact-form--label-left':
-					'max(var(--jetpack--contact-form--left-offset), var(--jetpack--contact-form--border-radius))',
-				'--jetpack--contact-form--field-padding': `calc(var(--jetpack--contact-form--label-left) - ${ borderLeftSize })`,
+				// For the animated labels.
+				'--jetpack--contact-form--animated-left-offset': '16px', // Probably can be removed or we use `--jetpack--contact-form--input-padding`
+				'--jetpack--contact-form--animated-top-offset': hasTopBorder
+					? 'calc(var(--jetpack--contact-form--border-top-size) + var(--jetpack--contact-form--animated-left-offset))'
+					: '50%',
 			};
 		}
 
@@ -174,18 +212,16 @@ export default function useVariationStyleProperties( {
 				backgroundColor: blockColorClassesAndStyles?.style?.backgroundColor,
 			},
 			cssVars: {
-				// Sets the value of top: calc(var(--jetpack--contact-form--border-size) * -1) for .notched-label__label.
-				'--jetpack--contact-form--border-size':
-					getIntAsPxValue( blockBorderClassesAndStyles?.style?.borderWidth ) ||
-					blockBorderClassesAndStyles?.style?.borderTopWidth ||
-					globalBorderClassesAndStyles?.style?.borderWidth ||
-					globalBorderClassesAndStyles?.style?.borderTopWidth,
 				// Sets the value of --notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius)); for .notched-label.
 				'--jetpack--contact-form--border-radius':
 					getBorderRadiusCssVar( blockBorderClassesAndStyles.style ) ||
 					getBorderRadiusCssVar( globalBorderClassesAndStyles.style ),
+				'--jetpack--contact-form--border-left-size': borderWidths?.borderLeftWidth,
+				'--jetpack--contact-form--border-right-size': borderWidths?.borderRightWidth,
+				'--jetpack--contact-form--border-top-size': borderWidths?.borderTopWidth,
+				'--jetpack--contact-form--border-bottom-size': borderWidths?.borderBottomWidth,
 				...styleSpecificCssVars,
 			},
 		};
-	}, [ inputBlockAttributes, mergedGlobalBlockStyles, formStyle, customBorderClasses ] );
+	}, [ inputBlockAttributes, mergedGlobalBlockStyles, formStyle, inputBlockName ] );
 }
