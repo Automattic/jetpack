@@ -14,7 +14,6 @@ import { useJetpackFieldStyles } from '../use-jetpack-field-styles';
 import './editor.css';
 
 const ALLOWED_BLOCKS = [
-	'core/audio',
 	'core/columns',
 	'core/group',
 	'core/heading',
@@ -27,7 +26,6 @@ const ALLOWED_BLOCKS = [
 	'core/spacer',
 	'core/stack',
 	'core/subhead',
-	'core/video',
 ];
 
 const BLOCKS_TEMPLATE = [
