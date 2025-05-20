@@ -1,5 +1,5 @@
+import { CURRENCIES } from '@automattic/format-currency';
 import { trimEnd } from 'lodash';
-import { getCurrencyDefaults } from '../../shared/currencies';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE } from './constants';
 
 export const isValidSimplePaymentsProduct = product =>
@@ -21,6 +21,24 @@ const getNavigatorLanguage = ( defaultLang = 'en-US' ) => {
 	}
 	return nav?.userLanguage ?? nav?.language ?? nav?.browserLanguage ?? defaultLang;
 };
+
+/**
+ * Get the currency settings for a certain currency.
+ * This is an internalized version of the function previously provided by format-currency.
+ *
+ * @param {string} code - The currency code.
+ * @return {object} - Object containing currency settings.
+ */
+export function getCurrencyDefaults( code ) {
+	return (
+		CURRENCIES[ code ] || {
+			symbol: '$',
+			decimal: '.',
+			grouping: ',',
+			precision: 2,
+		}
+	);
+}
 
 // Legacy method of displaying prices.
 export const formatPriceFallback = ( price = 0, currency, withSymbol = true ) => {
