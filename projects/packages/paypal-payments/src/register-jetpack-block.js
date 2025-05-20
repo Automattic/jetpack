@@ -1,3 +1,12 @@
+/**
+ * This is a copy of the registerJetpackBlock function from the Jetpack plugin.
+ * It is used to register the PayPal Payments block.
+ *
+ * @todo Move this functionality to the @automattic/jetpack-shared-extension-utils package, then remove both copies of this file.
+ *
+ * @see https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/shared/register-jetpack-block.js
+ */
+
 import {
 	getJetpackExtensionAvailability,
 	withHasWarningIsInteractiveClassNames,
