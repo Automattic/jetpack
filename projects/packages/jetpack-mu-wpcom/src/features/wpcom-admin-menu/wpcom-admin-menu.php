@@ -481,7 +481,7 @@ function add_submenu_jetpack_forms() {
 	$has_switch_class = class_exists( 'Dashboard_View_Switch' );
 	// @phan-suppress-next-line PhanUndeclaredClassReference
 	$has_method = method_exists( 'Dashboard_View_Switch', 'is_jetpack_forms_admin_page_available' );
-	// @phan-suppress-next-line PhanUndeclaredStaticMethod
+
 	if ( ! $has_switch_class || ! $has_method || ! Dashboard_View_Switch::is_jetpack_forms_admin_page_available() ) {
 		return;
 	}
