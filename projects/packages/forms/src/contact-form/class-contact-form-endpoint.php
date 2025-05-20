@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
@@ -735,7 +736,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		// Plugin-specific customizations
 		if ( 'akismet' === $plugin_slug ) {
-			$response['isConnected'] = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
+			$dashboard_view_switch                         = new Dashboard_View_Switch();
+			$response['isConnected']                       = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
+			$response['details']['formSubmissionsSpamUrl'] = $dashboard_view_switch->get_forms_admin_url( 'spam' );
 		} elseif ( 'zero-bs-crm' === $plugin_slug && $is_active ) {
 			$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
 			$response['details'] = array(
