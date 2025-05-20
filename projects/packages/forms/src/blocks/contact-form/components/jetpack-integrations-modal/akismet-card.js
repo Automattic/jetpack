@@ -6,7 +6,7 @@ import AkismetIcon from '../../../../icons/akismet';
 import IntegrationCard from './integration-card';
 
 const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
-	const formSubmissionsUrl = window?.jpFormsBlocks?.defaults?.formsAdminUrl || '';
+	const formSubmissionsUrl = window?.jpFormsBlocks?.defaults?.formsResponsesSpamUrl || '';
 
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 

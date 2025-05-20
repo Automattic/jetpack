@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Open Graph: Prevent PHP warnings when embedding some Vimeo videos.

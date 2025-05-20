@@ -45,7 +45,8 @@ class Inline_Search_Highlighter {
 	 * Set up the WordPress filters for highlighting.
 	 */
 	public function setup(): void {
-		add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- Temporarily disabled due to incompatibility with P2 theme
+		// add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
 		add_filter( 'the_excerpt', array( $this, 'filter_highlighted_excerpt' ) );
 		add_filter( 'render_block_core/post-excerpt', array( $this, 'filter_render_highlighted_block' ), 10, 3 );
 	}
@@ -178,7 +179,7 @@ class Inline_Search_Highlighter {
 	 * @param object $instance The block instance.
 	 *
 	 * @return string The filtered block content.
-	 * @since $$next-version$$
+	 * @since 0.50.0
 	 */
 	public function filter_render_highlighted_block( string $block_content, array $block, object $instance ): string {
 		if ( ! isset( $instance->context['postId'] ) || ! $this->is_search_result( $instance->context['postId'] ) ) {
