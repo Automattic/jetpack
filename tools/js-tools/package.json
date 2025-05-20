@@ -20,6 +20,7 @@
 		"@eslint/js": "9.25.1",
 		"@octokit/auth-token": "5.1.2",
 		"@octokit/rest": "21.1.1",
+		"@tanstack/eslint-plugin-query": "5.74.7",
 		"@testing-library/jest-dom": "6.6.3",
 		"@wordpress/eslint-plugin": "22.8.0",
 		"@wordpress/jest-console": "8.22.0",

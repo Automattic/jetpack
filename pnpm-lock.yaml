@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-xSMsvUVmdrYZ9091U8N3niUsHyVAKnaJymkaOOeQ4Z4=
+pnpmfileChecksum: sha256-hLzg5bejd7XNsf/MgIRHv7GS1PImG7XvxWq8yywcY/k=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -4266,8 +4266,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
       '@tanstack/react-query':
-        specifier: 4.36.1
-        version: 4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.75.1
+        version: 5.75.1(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.22.0
         version: 7.22.0
@@ -5341,6 +5341,9 @@ importers:
       '@octokit/rest':
         specifier: 21.1.1
         version: 21.1.1
+      '@tanstack/eslint-plugin-query':
+        specifier: 5.74.7
+        version: 5.74.7(eslint@9.25.1)(typescript@5.8.2)
       '@testing-library/jest-dom':
         specifier: 6.6.3
         version: 6.6.3
@@ -8075,8 +8078,11 @@ packages:
   '@tannin/sprintf@1.2.0':
     resolution: {integrity: sha512-T0ORaQrH6kNFGzTg285RVPK+NCYZxOoA+r0QfKgHqK+yk5RuYPSKDa18XCLtycCNq+VWKpfyDpzGUGhYgCV+kw==}
 
-  '@tanstack/query-core@4.36.1':
-    resolution: {integrity: sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==}
+  '@tanstack/eslint-plugin-query@5.74.7':
+    resolution: {integrity: sha512-EeHuaaYiCOD+XOGyB7LMNEx9OEByAa5lkgP+S3ZggjKJpmIO6iRWeoIYYDKo2F8uc3qXcVhTfC7pn7NddQiNtA==}
+    peerDependencies:
+      eslint: ^8.57.0 || ^9.0.0
+      typescript: '*'
 
   '@tanstack/query-core@5.75.0':
     resolution: {integrity: sha512-rk8KQuCdhoRkzjRVF3QxLgAfFUyS0k7+GCQjlGEpEGco+qazJ0eMH6aO1DjDjibH7/ik383nnztua3BG+lOnwg==}
@@ -8089,18 +8095,6 @@ packages:
     peerDependencies:
       '@tanstack/react-query': ^5.75.1
       react: ^18 || ^19
-
-  '@tanstack/react-query@4.36.1':
-    resolution: {integrity: sha512-y7ySVHFyyQblPl3J3eQBWpXZkliroki3ARnBKsdJchlgt7yJLRDUcf4B8soufgiYt3pEQIkBWBx1N9/ZPIeUWw==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
 
   '@tanstack/react-query@5.75.1':
     resolution: {integrity: sha512-tN+gG+eXCHYm+VpmdXUP1rfE9LUrRzgYozTkBZtJV1/WFM3vwWNKQC8G6b2RKcs+2cPg+hdToZHZfjL3bF4yIQ==}
@@ -19343,7 +19337,13 @@ snapshots:
 
   '@tannin/sprintf@1.2.0': {}
 
-  '@tanstack/query-core@4.36.1': {}
+  '@tanstack/eslint-plugin-query@5.74.7(eslint@9.25.1)(typescript@5.8.2)':
+    dependencies:
+      '@typescript-eslint/utils': 8.32.1(eslint@9.25.1)(typescript@5.8.2)
+      eslint: 9.25.1
+      typescript: 5.8.2
+    transitivePeerDependencies:
+      - supports-color
 
   '@tanstack/query-core@5.75.0': {}
 
@@ -19354,14 +19354,6 @@ snapshots:
       '@tanstack/query-devtools': 5.74.7
       '@tanstack/react-query': 5.75.1(react@18.3.1)
       react: 18.3.1
-
-  '@tanstack/react-query@4.36.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@tanstack/query-core': 4.36.1
-      react: 18.3.1
-      use-sync-external-store: 1.5.0(react@18.3.1)
-    optionalDependencies:
-      react-dom: 18.3.1(react@18.3.1)
 
   '@tanstack/react-query@5.75.1(react@18.3.1)':
     dependencies:
