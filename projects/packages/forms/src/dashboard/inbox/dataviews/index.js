@@ -256,7 +256,7 @@ export default function InboxView() {
 				},
 				elements: ( filterOptions?.source || [] ).map( source => ( {
 					value: source.id,
-					label: source.title,
+					label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
 				} ) ),
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
