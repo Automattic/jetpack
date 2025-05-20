@@ -86,6 +86,7 @@ const SalesforceCard = ( {
 					onChange={ setOrganizationId }
 					__nextHasNoMarginBottom={ true }
 					__next40pxDefaultSize={ true }
+					style={ { maxWidth: '300px' } }
 				/>
 				{ salesforceData.organizationId && organizationIdError && (
 					<HelpMessage isError style={ { marginTop: '8px' } }>
