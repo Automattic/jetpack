@@ -3023,9 +3023,15 @@ importers:
 
   projects/packages/paypal-payments:
     dependencies:
+      '@automattic/format-currency':
+        specifier: 1.0.1
+        version: 1.0.1
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
       '@wordpress/block-editor':
         specifier: 14.17.0
         version: 14.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3053,6 +3059,9 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      email-validator:
+        specifier: 2.0.4
+        version: 2.0.4
       lodash:
         specifier: 4.17.21
         version: 4.17.21
@@ -3062,6 +3071,10 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
 
   projects/packages/plans: {}
 
