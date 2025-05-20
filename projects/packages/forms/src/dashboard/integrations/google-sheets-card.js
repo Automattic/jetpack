@@ -1,5 +1,5 @@
 import { Button } from '@wordpress/components';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import GoogleSheetsIcon from '../../icons/google-sheets';
@@ -8,8 +8,6 @@ const FORM_RESPONSES_URL =
 	window?.jpFormsBlocks?.defaults?.formsResponsesUrl || '/wp-admin/admin.php?page=jetpack-forms';
 
 const GoogleSheetsDashboardCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
-	const [ isPolling, setIsPolling ] = useState( false );
-	const pollInterval = useRef( null );
 	const isConnected = !! data?.isConnected;
 	const settingsUrl = data?.settingsUrl;
 
@@ -26,30 +24,7 @@ const GoogleSheetsDashboardCard = ( { isExpanded, onToggle, data, refreshStatus 
 	const handleConnectClick = useCallback( () => {
 		if ( ! settingsUrl ) return;
 		window.open( settingsUrl, '_blank', 'noopener,noreferrer' );
-		setIsPolling( true );
 	}, [ settingsUrl ] );
-
-	// Poll for connection status when polling is active
-	useEffect( () => {
-		if ( isPolling && ! isConnected ) {
-			pollInterval.current = setInterval( () => {
-				refreshStatus && refreshStatus();
-			}, 5000 );
-			return () => {
-				clearInterval( pollInterval.current );
-			};
-		}
-		if ( isConnected && pollInterval.current ) {
-			clearInterval( pollInterval.current );
-			setIsPolling( false );
-		}
-		return () => {
-			if ( pollInterval.current ) {
-				clearInterval( pollInterval.current );
-				setIsPolling( false );
-			}
-		};
-	}, [ isPolling, isConnected, refreshStatus ] );
 
 	return (
 		<IntegrationCard
@@ -68,16 +43,21 @@ const GoogleSheetsDashboardCard = ( { isExpanded, onToggle, data, refreshStatus 
 							'jetpack-forms'
 						) }
 					</p>
-					<Button
-						variant="secondary"
-						onClick={ handleConnectClick }
-						target="_blank"
-						rel="noopener noreferrer"
-						__next40pxDefaultSize={ true }
-						disabled={ ! settingsUrl }
-					>
-						{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
-					</Button>
+					<div style={ { display: 'flex', gap: '8px', alignItems: 'center' } }>
+						<Button
+							variant="secondary"
+							onClick={ handleConnectClick }
+							target="_blank"
+							rel="noopener noreferrer"
+							__next40pxDefaultSize={ true }
+							disabled={ ! settingsUrl }
+						>
+							{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
+						</Button>
+						<Button variant="tertiary" onClick={ refreshStatus } __next40pxDefaultSize={ true }>
+							{ __( 'Refresh Status', 'jetpack-forms' ) }
+						</Button>
+					</div>
 				</div>
 			) : (
 				<div>
