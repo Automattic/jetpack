@@ -10,7 +10,7 @@ import './style.scss';
 import type { Integration } from './types';
 
 const Integrations = () => {
-	const { integrations, isLoading, refreshIntegrations } = useIntegrationsStatus();
+	const { integrations, refreshIntegrations } = useIntegrationsStatus();
 	const [ expandedCards, setExpandedCards ] = useState( {
 		akismet: false,
 		googleSheets: false,
@@ -45,43 +45,37 @@ const Integrations = () => {
 		<div className="jp-forms__integrations">
 			<div className="section-main">
 				<h2>{ __( 'Third party integrations', 'jetpack-forms' ) }</h2>
-				{ isLoading ? (
-					<p>{ __( 'Loading integrations…', 'jetpack-forms' ) }</p>
-				) : (
-					<>
-						<AkismetDashboardCard
-							isExpanded={ expandedCards.akismet }
-							onToggle={ handleToggleAkismet }
-							data={ findIntegrationById( 'akismet' ) }
-							refreshStatus={ refreshIntegrations }
-						/>
-						<GoogleSheetsDashboardCard
-							isExpanded={ expandedCards.googleSheets }
-							onToggle={ handleToggleGoogleSheets }
-							data={ findIntegrationById( 'google-drive' ) }
-							refreshStatus={ refreshIntegrations }
-						/>
-						<JetpackCRMDashboardCard
-							isExpanded={ expandedCards.crm }
-							onToggle={ handleToggleCRM }
-							data={ findIntegrationById( 'zero-bs-crm' ) }
-							refreshStatus={ refreshIntegrations }
-						/>
-						<SalesforceDashboardCard
-							isExpanded={ expandedCards.salesforce }
-							onToggle={ handleToggleSalesforce }
-							data={ findIntegrationById( 'salesforce' ) }
-							refreshStatus={ refreshIntegrations }
-						/>
-						<CreativeMailDashboardCard
-							isExpanded={ expandedCards.creativemail }
-							onToggle={ handleToggleCreativeMail }
-							data={ findIntegrationById( 'creative-mail-by-constant-contact' ) }
-							refreshStatus={ refreshIntegrations }
-							borderBottom={ false }
-						/>
-					</>
-				) }
+				<AkismetDashboardCard
+					isExpanded={ expandedCards.akismet }
+					onToggle={ handleToggleAkismet }
+					data={ findIntegrationById( 'akismet' ) }
+					refreshStatus={ refreshIntegrations }
+				/>
+				<GoogleSheetsDashboardCard
+					isExpanded={ expandedCards.googleSheets }
+					onToggle={ handleToggleGoogleSheets }
+					data={ findIntegrationById( 'google-drive' ) }
+					refreshStatus={ refreshIntegrations }
+				/>
+				<JetpackCRMDashboardCard
+					isExpanded={ expandedCards.crm }
+					onToggle={ handleToggleCRM }
+					data={ findIntegrationById( 'zero-bs-crm' ) }
+					refreshStatus={ refreshIntegrations }
+				/>
+				<SalesforceDashboardCard
+					isExpanded={ expandedCards.salesforce }
+					onToggle={ handleToggleSalesforce }
+					data={ findIntegrationById( 'salesforce' ) }
+					refreshStatus={ refreshIntegrations }
+				/>
+				<CreativeMailDashboardCard
+					isExpanded={ expandedCards.creativemail }
+					onToggle={ handleToggleCreativeMail }
+					data={ findIntegrationById( 'creative-mail-by-constant-contact' ) }
+					refreshStatus={ refreshIntegrations }
+					borderBottom={ false }
+				/>
 			</div>
 		</div>
 	);
