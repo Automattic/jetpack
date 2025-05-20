@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Theme Compatibility: Prevent warning when custom color value isn't set.

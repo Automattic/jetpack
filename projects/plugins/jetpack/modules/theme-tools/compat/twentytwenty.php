@@ -100,15 +100,16 @@ add_action( 'wp_enqueue_scripts', 'twentytwenty_enqueue_jetpack_style' );
  * Add inline custom CSS with custom accent color if there is any set.
  */
 function twentytwenty_infinity_accent_color_css() {
+	$color_info = get_theme_mod( 'accent_accessible_colors' );
+
 	// Bail early if no custom color was set.
 	if (
-	'custom' !== get_theme_mod( 'accent_hue_active' )
-	|| empty( get_theme_mod( 'accent_accessible_colors' ) )
+		'custom' !== get_theme_mod( 'accent_hue_active' )
+		|| empty( $color_info )
 	) {
 		return;
 	}
 
-	$color_info = get_theme_mod( 'accent_accessible_colors' );
 	$custom_css = sprintf(
 		'
 	.infinite-scroll #site-content #infinite-handle span button,
@@ -124,7 +125,7 @@ function twentytwenty_infinity_accent_color_css() {
 	}
 	',
 		$color_info['content']['accent'],
-		$color_info['content']['background'],
+		$color_info['content']['background'] ?? '#fff',
 		$color_info['content']['secondary']
 	);
 
