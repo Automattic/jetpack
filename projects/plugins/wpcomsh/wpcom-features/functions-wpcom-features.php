@@ -182,7 +182,8 @@ function _wpcom_features_get_simple_site_purchases( $blog_id ) {
 
 	$lock_key   = "{$wp_cache_key}_building";
 	$lock_found = false;
-	$lock       = wp_cache_get( $lock_key, $wp_cache_group, false, $lock_found );
+	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	$lock = wp_cache_get( $lock_key, $wp_cache_group, false, $lock_found );
 	if ( $lock_found ) {
 		// Another request is already rebuilding the purchases cache.
 		// Let's try 2 short sleeps of 200ms to see if that finishes, and if not,
@@ -190,6 +191,7 @@ function _wpcom_features_get_simple_site_purchases( $blog_id ) {
 		// want to contribute to the problem.
 		$attempts = 2;
 		while ( $attempts > 0 ) {
+			// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			$lock = wp_cache_get( $lock_key, $wp_cache_group, true /* force remote recheck */, $lock_found );
 			if ( ! $lock_found ) {
 				// The lock is no longer in cache, so we can break out of the loop.
@@ -295,6 +297,7 @@ function _wpcom_features_get_simple_site_purchases( $blog_id ) {
 	* add_action( 'subscription_changed', 'clear_wp_cache_site_purchases', 10, 1 );
 	* Found in ./wp-content/mu-plugins/wpcom-features.php
 	*/
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_mt_rand
 	wp_cache_set( $wp_cache_key, $purchases, $wp_cache_group, ( 6 * HOUR_IN_SECONDS ) + mt_rand( 1, 2 * 60 * MINUTE_IN_SECONDS ) );
 	wp_cache_delete( $lock_key, $wp_cache_group ); // Release the lock telling other requests we are building purchases.
 
