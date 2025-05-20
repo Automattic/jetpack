@@ -1,5 +1,6 @@
 import { createBlock } from '@wordpress/blocks';
-import { dispatch } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
+import domReady from '@wordpress/dom-ready';
 import { __ } from '@wordpress/i18n';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import { waitForEditor } from '../../shared/wait-for-editor';
@@ -45,8 +46,9 @@ async function insertTemplate( promptId ) {
 	insertBlocks( bloggingPromptBlocks, 0, undefined, false );
 }
 
-function initBloggingPrompt() {
+async function initBloggingPrompt() {
 	const url = new URL( document.location.href );
+
 	const isNewPost = url.pathname.endsWith( '/wp-admin/post-new.php' );
 
 	if ( ! isNewPost ) {
@@ -57,8 +59,17 @@ function initBloggingPrompt() {
 	const answerPromptId = parseInt( answerPrompt );
 
 	if ( answerPromptId ) {
-		insertTemplate( answerPromptId );
+		const isEditorReady = select( 'core/editor' ).__unstableIsEditorReady;
+
+		if ( isEditorReady && isEditorReady() === false ) {
+			await waitForEditor();
+		}
+
+		await insertTemplate( answerPromptId );
 	}
 }
 
-initBloggingPrompt();
+// Initialize when the DOM is ready
+domReady( () => {
+	initBloggingPrompt();
+} );
