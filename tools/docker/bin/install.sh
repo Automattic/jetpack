@@ -1,4 +1,6 @@
 #!/bin/bash
+echo "$WP_ADMIN_USER"
+echo "$WP_ADMIN_PASSWORD"
 
 if wp core is-installed; then
 	echo
@@ -11,11 +13,11 @@ fi
 
 # Install WP core
 wp core install \
-	--url=${WP_DOMAIN} \
+	--url="${WP_DOMAIN}" \
 	--title="${WP_TITLE}" \
-	--admin_user=${WP_ADMIN_USER} \
-	--admin_password=${WP_ADMIN_PASSWORD} \
-	--admin_email=${WP_ADMIN_EMAIL} \
+	--admin_user="${WP_ADMIN_USER}" \
+	--admin_password="${WP_ADMIN_PASSWORD}" \
+	--admin_email="${WP_ADMIN_EMAIL}" \
 	--skip-email
 
 # Discourage search engines from indexing. Can be changed via UI in Settings->Reading.

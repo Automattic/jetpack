@@ -21,6 +21,7 @@ usage() {
 BASE_CMD='pnpm jetpack docker --type e2e --name t1'
 
 start_env() {
+	export_e2e_config
 	$BASE_CMD up -d
 	$BASE_CMD install || true
 	configure_wp_env "$@"
@@ -51,6 +52,20 @@ gb_setup() {
 	$BASE_CMD exec-silent -- /usr/local/src/jetpack-monorepo/tools/e2e-commons/bin/container-setup.sh gb-setup $GB_ZIP
 	$BASE_CMD wp plugin install $GB_ZIP
 	$BASE_CMD wp plugin activate gutenberg
+}
+
+# Exports E2E WP password from config file.
+export_e2e_config() {
+	if [[ ! -f 'config/local.cjs' ]]; then
+		echo "Decrypted config file not found! Have you run 'pnpm config:decrypt' yet?";
+		exit 1
+	elif [[ -z "$WP_ADMIN_USER" ||  -z "$WP_ADMIN_PASSWORD" ]]; then
+		local e2e_config=$(node -e 'const config = require( "./config/local.cjs" ); console.log( JSON.stringify(config.testSites.default) );' 2>/dev/null) || { echo "Failed to read config file!" && exit 1; }
+
+		WP_ADMIN_USER=$( jq -r '.username' <<< "$e2e_config" )
+		WP_ADMIN_PASSWORD=$( jq -r '.password' <<< "$e2e_config" )
+		export WP_ADMIN_USER WP_ADMIN_PASSWORD
+	fi
 }
 
 configure_wp_env() {
