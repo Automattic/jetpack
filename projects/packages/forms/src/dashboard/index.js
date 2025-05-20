@@ -47,10 +47,6 @@ window.addEventListener( 'load', () => {
 					  ]
 					: [] ),
 				{
-					path: 'integrations',
-					element: <Integrations />,
-				},
-				{
 					path: 'about',
 					element: <About />,
 				},
