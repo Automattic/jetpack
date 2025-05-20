@@ -22,10 +22,8 @@
 	--wp-admin-theme-color-darker-20--rgb: 44, 51, 56;
 }
 
-body.toplevel_page_jetpack-forms,
-body.feedback_page_jetpack-forms,
-body.jetpack_page_jetpack-forms,
-body.admin_page_jetpack-forms {
+body[class*="_page_jetpack-forms"],
+body.jetpack_page_jetpack-forms-admin {
 
 	#wpbody-content {
 		padding-bottom: 0;

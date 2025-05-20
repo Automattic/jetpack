@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
-use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 /**
  * Understands the Jetpack Forms package.
  */
@@ -24,9 +23,7 @@ class Jetpack_Forms {
 		Util::init();
 
 		if ( is_admin() && self::is_feedback_dashboard_enabled() ) {
-			$view_switch = new Dashboard_View_Switch();
-
-			$dashboard = new Dashboard( $view_switch );
+			$dashboard = new Dashboard();
 			$dashboard->init();
 		}
 
@@ -69,5 +66,14 @@ class Jetpack_Forms {
 		 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
 		 */
 		return apply_filters( 'jetpack_forms_dashboard_enable', true );
+	}
+
+	/**
+	 * Returns true if the legacy menu item is retired.
+	 *
+	 * @return boolean
+	 */
+	public static function is_legacy_menu_item_retired() {
+		return apply_filters( 'jetpack_forms_retire_legacy_menu_item', false );
 	}
 }

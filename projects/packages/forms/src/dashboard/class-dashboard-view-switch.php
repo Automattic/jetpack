@@ -236,9 +236,9 @@ CSS
 	 */
 	public function handle_preferred_view() {
 		// For simplicity, we only treat this as a valid operation
-		// if it occurs on one of the screens with the switch active.
+		// if it occurs on one of our screens.
 		// phpcs:disable WordPress.Security.NonceVerification
-		if ( ! $this->is_visible() || ! isset( $_GET['dashboard-preferred-view'] ) ) {
+		if ( ( ! $this->is_modern_view() && ! $this->is_classic_view() ) || ! isset( $_GET['dashboard-preferred-view'] ) ) {
 			return;
 		}
 
@@ -250,8 +250,10 @@ CSS
 		}
 
 		update_user_option( get_current_user_id(), 'jetpack_forms_admin_preferred_view', $view );
-		wp_safe_redirect( remove_query_arg( 'dashboard-preferred-view' ) );
-		exit( 0 );
+		if ( ! Jetpack_Forms::is_legacy_menu_item_retired() ) {
+			wp_safe_redirect( remove_query_arg( 'dashboard-preferred-view' ) );
+			exit( 0 );
+		}
 	}
 
 	/**
@@ -271,9 +273,10 @@ CSS
 	 * @return boolean
 	 */
 	public function is_visible() {
-		return Jetpack_Forms::is_feedback_dashboard_enabled() && (
+		return Jetpack_Forms::is_feedback_dashboard_enabled() && $this->is_classic_view_available() &&
+		(
 			$this->is_classic_view() ||
-			$this->is_modern_view()
+			( $this->is_modern_view() && $this->is_jetpack_forms_view_switch_available() )
 		);
 	}
 
@@ -306,6 +309,16 @@ CSS
 	}
 
 	/**
+	 * Returns true if the current screen is the Jetpack Forms admin page.
+	 *
+	 * @return boolean
+	 */
+	public function is_jetpack_forms_admin_page() {
+		$screen = get_current_screen();
+		return $screen && $screen->id === 'jetpack_page_jetpack-forms-admin';
+	}
+
+	/**
 	 * Returns url of forms admin page.
 	 *
 	 * @param string|null $tab Tab to open in the forms admin page.
@@ -313,19 +326,60 @@ CSS
 	 * @return string
 	 */
 	public function get_forms_admin_url( $tab = null ) {
-		$is_classic = $this->get_preferred_view() === self::CLASSIC_VIEW;
+		$is_classic          = $this->get_preferred_view() === self::CLASSIC_VIEW;
+		$switch_is_available = $this->is_jetpack_forms_view_switch_available();
 
-		$url = $is_classic
+		$admin_dashboard_url = $this->is_jetpack_forms_admin_page_available()
+			? 'admin.php?page=jetpack-forms-admin'
+			: 'admin.php?page=jetpack-forms';
+
+		$url = $is_classic && $switch_is_available
 			? get_admin_url() . 'edit.php?post_type=feedback'
-			: get_admin_url() . 'admin.php?page=jetpack-forms';
+			: get_admin_url() . $admin_dashboard_url;
 
 		// Return url directly to spam tab.
 		if ( $tab === 'spam' ) {
-			$url = $is_classic
+			$url = $is_classic && $switch_is_available
 				? add_query_arg( 'post_status', 'spam', $url )
 				: $url . '#/responses?status=spam';
 		}
 
 		return $url;
+	}
+
+	/**
+	 * Returns true if the new Jetpack Forms admin page is available.
+	 *
+	 * @return boolean
+	 */
+	public static function is_jetpack_forms_admin_page_available() {
+		return apply_filters( 'jetpack_forms_use_new_menu_parent', false );
+	}
+
+	/**
+	 * Returns true if the view switch is available.
+	 *
+	 * @return boolean
+	 */
+	public static function is_jetpack_forms_view_switch_available() {
+		return ! apply_filters( 'jetpack_forms_retire_view_switch', false );
+	}
+
+	/**
+	 * Returns true if the new Jetpack Forms admin page is announcing the new menu.
+	 *
+	 * @return boolean
+	 */
+	public static function is_jetpack_forms_announcing_new_menu() {
+		return apply_filters( 'jetpack_forms_announce_new_menu', false );
+	}
+
+	/**
+	 * Returns true if the classic view is available.
+	 *
+	 * @return boolean
+	 */
+	public static function is_classic_view_available() {
+		return ! Jetpack_Forms::is_legacy_menu_item_retired();
 	}
 }
