@@ -38,20 +38,33 @@ async function insertTemplate( promptId ) {
 	await waitForEditor();
 
 	const { insertBlocks } = dispatch( 'core/block-editor' );
+	const { editPost } = dispatch( 'core/editor' );
+
 	const bloggingPromptBlocks = [
 		createBlock( 'jetpack/blogging-prompt', { promptFetched: false, promptId, tagsAdded: true } ),
 		createBlock( 'core/paragraph' ),
 	];
-	console.log( 'bloggingPromptBlocks', bloggingPromptBlocks );
 
+	// Insert blocks and ensure they persist
 	insertBlocks( bloggingPromptBlocks, 0, undefined, false );
+
+	// Force a save to ensure blocks persist
+	editPost( { blocks: select( 'core/block-editor' ).getBlocks() } );
+
+	// Check if blocks were actually inserted
+	const insertedBlocks = select( 'core/block-editor' ).getBlocks();
+
+	// If blocks disappeared, try one more time with a delay
+	if ( ! insertedBlocks.some( block => block.name === 'jetpack/blogging-prompt' ) ) {
+		await new Promise( resolve => setTimeout( resolve, 100 ) );
+		insertBlocks( bloggingPromptBlocks, 0, undefined, false );
+		editPost( { blocks: select( 'core/block-editor' ).getBlocks() } );
+	}
 }
 
 async function initBloggingPrompt() {
 	const url = new URL( document.location.href );
-
 	const isNewPost = url.pathname.endsWith( '/wp-admin/post-new.php' );
-	console.log( 'isNewPost', isNewPost );
 
 	if ( ! isNewPost ) {
 		return;
@@ -59,14 +72,11 @@ async function initBloggingPrompt() {
 
 	const answerPrompt = url.searchParams.get( 'answer_prompt' ) ?? '0';
 	const answerPromptId = parseInt( answerPrompt );
-	console.log( 'answerPromptId', answerPromptId );
 
 	if ( answerPromptId ) {
 		const isEditorReady = select( 'core/editor' ).__unstableIsEditorReady;
-		console.log( 'isEditorReady', isEditorReady );
 
 		if ( isEditorReady && isEditorReady() === false ) {
-			console.log( 'isEditorReady is false, waiting for editor' );
 			await waitForEditor();
 		}
 
