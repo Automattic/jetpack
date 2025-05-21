@@ -41,6 +41,7 @@
 		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:*"
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@wordpress/block-serialization-default-parser": "5.22.0"
 	}
 }
