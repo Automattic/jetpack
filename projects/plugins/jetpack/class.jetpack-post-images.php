@@ -46,7 +46,7 @@ class Jetpack_PostImages {
 		$permalink = get_permalink( $post->ID );
 
 		// Mechanic: Somebody set us up the bomb.
-		$old_post                  = $GLOBALS['post'];
+		$old_post                  = $GLOBALS['post'] ?? null;
 		$GLOBALS['post']           = $post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$old_shortcodes            = $GLOBALS['shortcode_tags'];
 		$GLOBALS['shortcode_tags'] = array( 'slideshow' => $old_shortcodes['slideshow'] ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -289,11 +289,11 @@ class Jetpack_PostImages {
 
 			// strip off any query strings from src.
 			if ( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) ) {
-				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path'];
+				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . ( isset( $src['path'] ) ? $src['path'] : '' );
 			} elseif ( ! empty( $src['host'] ) ) {
-				$inserted_images[] = set_url_scheme( 'http://' . $src['host'] . $src['path'] );
+				$inserted_images[] = set_url_scheme( 'http://' . $src['host'] . ( isset( $src['path'] ) ? $src['path'] : '' ) );
 			} else {
-				$inserted_images[] = site_url( '/' ) . $src['path'];
+				$inserted_images[] = site_url( '/' ) . ( isset( $src['path'] ) ? $src['path'] : '' );
 			}
 		}
 		foreach ( $images as $i => $image ) {
