@@ -42,7 +42,9 @@ export default function AddStepControls( { clientId, formClientId } ) {
 
 			// Set this as the preview step if in preview mode
 			if ( isPreviewMode ) {
-				setPreviewStep( formId, newStepBlock.clientId );
+				setTimeout( () => {
+					setPreviewStep( formId, newStepBlock.clientId );
+				}, 10 );
 			}
 		},
 		[ insertBlock, setPreviewStep ]
