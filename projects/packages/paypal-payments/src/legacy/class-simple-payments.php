@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Simple Payments lets users embed a PayPal button fully integrated with wpcom to sell products on the site.
  * This is not a proper module yet, because not all the pieces are in place. Until everything is shipped, it can be turned
