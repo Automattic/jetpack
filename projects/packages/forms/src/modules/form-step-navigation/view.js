@@ -58,6 +58,8 @@ const { state } = store( NAMESPACE, {
 				return;
 			}
 
+			context.showErrors = false; // Reset the showErrors state
+
 			// Set direction to backward for animation
 			context.direction = 'backward';
 
