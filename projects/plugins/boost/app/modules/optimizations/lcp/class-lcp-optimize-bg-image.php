@@ -30,7 +30,7 @@ class LCP_Optimize_Bg_Image {
 		add_action( 'wp_head', array( $instance, 'preload_background_images' ), 1 );
 
 		// Add the background image styling as late as possible.
-		add_action( 'wp_print_styles', array( $instance, 'add_bg_style_override' ), 999999 );
+		add_action( 'wp_body_open', array( $instance, 'add_bg_style_override' ), 999999 );
 	}
 
 	public function __construct( $lcp_data ) {
@@ -47,17 +47,25 @@ class LCP_Optimize_Bg_Image {
 			}
 			$selectors[] = $lcp_data['element'];
 
-			$lcp_optimizer = new LCP_Optimizer( $lcp_data );
-			$image_url     = $lcp_optimizer->get_image_to_preload();
-			if ( empty( $image_url ) ) {
-				continue;
+			$responsive_image_rules = $this->get_responsive_image_rules( $lcp_data );
+			$this->print_preload_links( $responsive_image_rules );
+		}
+	}
+
+	private function print_preload_links( $responsive_image_rules ) {
+		foreach ( $responsive_image_rules as $breakpoint ) {
+			$image_set = array();
+			foreach ( $breakpoint['image_set'] as $image ) {
+				$image_set[] = sprintf( '%s %sx', $image['url'], $image['dpr'] );
 			}
 
+			$image_set_string = implode( ', ', $image_set );
+
 			printf(
-				'<link rel="preload" href="%s" as="image" fetchpriority="high" imagesrcset="%s" imagesizes="%s" />' . "\n",
-				esc_url( Image_CDN_Core::cdn_url( $image_url ) ),
-				esc_attr( $lcp_optimizer->get_srcsets( $image_url ) ),
-				esc_attr( $lcp_optimizer->get_sizes() )
+				'<link rel="preload" href="%s" as="image" fetchpriority="high" media="%s" imagesrcset="%s" />' . PHP_EOL,
+				esc_url( Image_CDN_Core::cdn_url( $breakpoint['base_image'] ) ),
+				esc_attr( $breakpoint['media_query'] ),
+				esc_attr( $image_set_string )
 			);
 		}
 	}
@@ -78,20 +86,127 @@ class LCP_Optimize_Bg_Image {
 				continue;
 			}
 
-			$image_css = sprintf(
-				'%s { background-image: url(%s) !important; }',
-				$lcp_data['element'],
-				esc_url( Image_CDN_Core::cdn_url( $image_url ) )
-			);
+			$styles                 = array();
+			$responsive_image_rules = $this->get_responsive_image_rules( $lcp_data );
+
+			// Add responsive image styling.
+			foreach ( $responsive_image_rules as $breakpoint ) {
+				$image_set = array();
+				foreach ( $breakpoint['image_set'] as $image ) {
+					$image_set[] = sprintf( 'url(%s) %sx', $image['url'], $image['dpr'] );
+				}
+
+				$image_set_string = implode( ', ', $image_set );
+
+				$styles[] = sprintf(
+					'@media %s { %s { background-image: url(%s) !important; background-image: -webkit-image-set(%s) !important; background-image: image-set(%s) !important; } }',
+					$breakpoint['media_query'],
+					$lcp_data['element'],
+					$breakpoint['base_image'],
+					$image_set_string,
+					$image_set_string
+				);
+			}
 
 			$bg_styling = PHP_EOL . '<style id="jetpack-boost-lcp-background-image">' . PHP_EOL;
 			// Ensure no </style> tag (or any HTML tags) in output.
-			$bg_styling .= wp_strip_all_tags( $image_css ) . PHP_EOL;
-			$bg_styling .= wp_strip_all_tags( implode( PHP_EOL, $lcp_optimizer->get_bg_styling( $lcp_data['element'], $image_url ) ) ) . PHP_EOL;
+			$bg_styling .= wp_strip_all_tags( implode( PHP_EOL, $styles ) ) . PHP_EOL;
 			$bg_styling .= '</style>' . PHP_EOL;
 
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $bg_styling;
 		}
+	}
+
+	private function get_responsive_image_rules( $lcp_data ) {
+		if ( empty( $lcp_data['breakpoints'] ) ) {
+			return array();
+		}
+
+		$lcp_optimizer = new LCP_Optimizer( $lcp_data );
+		$image_url     = $lcp_optimizer->get_image_to_preload();
+
+		if ( empty( $image_url ) ) {
+			return array();
+		}
+
+		$styles = array();
+		// Reverse the array to go from smallest to largest.
+		foreach ( array_reverse( $lcp_data['breakpoints'] ) as $breakpoint ) {
+			if ( empty( $breakpoint ) ) {
+				continue;
+			}
+			if ( ! isset( $breakpoint['widthValue'] ) ) {
+				continue;
+			}
+
+			// If it's a fixed pixel width for this breakpoint, easy peasy.
+			if ( 'px' === substr( $breakpoint['widthValue'], -2 ) ) {
+				if ( ! isset( $breakpoint['imageWidths'][0] ) ) {
+					continue;
+				}
+
+				$image_width = $breakpoint['imageWidths'][0];
+
+				$media_query = array();
+				if ( isset( $breakpoint['minWidth'] ) ) {
+					$media_query[] = sprintf( '(min-width: %spx)', $breakpoint['minWidth'] );
+				}
+				if ( isset( $breakpoint['maxWidth'] ) ) {
+					$media_query[] = sprintf( '(max-width: %spx)', $breakpoint['maxWidth'] );
+				}
+
+				$styles[] = array(
+					'media_query' => implode( ' and ', $media_query ),
+					'image_set'   => $this->get_image_set( $image_url, $image_width ),
+					'base_image'  => Image_CDN_Core::cdn_url( $image_url, array( 'w' => $image_width ) ),
+				);
+			} else {
+				// If it's relative to the vw, i.e. widthValue is 100vw, then we need to sub-divide the breakpoint into smaller chunks for background-image.
+				$min_width = $breakpoint['minWidth'] ?? null;
+				foreach ( $breakpoint['imageWidths'] as $image_width ) {
+
+					$media_query = array();
+					if ( $min_width ) {
+						$media_query[] = sprintf( '(min-width: %spx)', $min_width );
+					}
+					if ( $image_width ) {
+						$media_query[] = sprintf( '(max-width: %spx)', $image_width );
+					}
+
+					$styles[] = array(
+						'media_query' => implode( ' and ', $media_query ),
+						'image_set'   => $this->get_image_set( $image_url, $image_width ),
+						'base_image'  => Image_CDN_Core::cdn_url( $image_url, array( 'w' => $image_width ) ),
+					);
+
+					$min_width = $image_width + 1;
+				}
+			}
+		}
+		return $styles;
+	}
+
+	private function get_image_set( $image_url, $image_width ) {
+		$dprs = array( 1, 2 );
+
+		// If the image width is less than 480px, it's likely a mobile image and we should add a 3x dpr image.
+		if ( $image_width <= 480 ) {
+			$dprs[] = 3;
+		}
+
+		// For Moto G Power
+		if ( $image_width === 412 ) {
+			$dprs[] = 1.75;
+		}
+
+		$image_set = array();
+		foreach ( $dprs as $dpr ) {
+			$image_set[] = array(
+				'url' => Image_CDN_Core::cdn_url( $image_url, array( 'w' => $image_width * $dpr ) ),
+				'dpr' => $dpr,
+			);
+		}
+		return $image_set;
 	}
 }
