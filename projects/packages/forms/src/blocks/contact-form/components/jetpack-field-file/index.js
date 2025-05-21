@@ -1,6 +1,5 @@
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
-import { __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { compose } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
@@ -137,32 +136,6 @@ const JetpackFieldFile = props => {
 				setAttributes={ setAttributes }
 				attributes={ attributes }
 				hidePlaceholder={ true }
-				extraFieldSettings={ [
-					{
-						index: 1,
-						element: (
-							<NumberControl
-								key="maxfiles"
-								label={ __( 'Number of files', 'jetpack-forms' ) }
-								value={ attributes.maxfiles }
-								onChange={ value =>
-									setAttributes( {
-										maxfiles: value,
-									} )
-								}
-								max={ 10 }
-								min={ 1 }
-								step={ 1 }
-								__nextHasNoMarginBottom={ true }
-								__next40pxDefaultSize={ true }
-								help={ __(
-									'Maximum number of files that the user is able to upload per form submission. Each file can be up to 20MB.',
-									'jetpack-forms'
-								) }
-							/>
-						),
-					},
-				] }
 			/>
 		</>
 	);

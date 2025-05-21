@@ -1285,7 +1285,11 @@ class Contact_Form_Plugin {
 		foreach ( $md as $key => $value ) {
 			if ( is_array( $value ) ) {
 				if ( Contact_Form::is_file_upload_field( $value ) ) {
-					$value = $value['name'];
+					$file_names = array();
+					foreach ( $value['files'] as $file ) {
+						$file_names[] = $file['name'];
+					}
+					$value = implode( ', ', $file_names );
 				} else {
 					$value = implode( ', ', $value );
 				}
