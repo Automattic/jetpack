@@ -366,6 +366,8 @@ export const Swipeable = ( {
 				className="swipeable__container"
 				ref={ pagesRef }
 				{ ...otherProps }
+				// Ensure that state is reset when the window is resized
+				key={ containerWidth?.toString() }
 			>
 				<div
 					className={ clsx( 'swipeable__pages', containerClassName ) }
