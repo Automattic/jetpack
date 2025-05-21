@@ -12,12 +12,22 @@ export function useGlobalStylesConfig() {
 		const _globalStylesId = __experimentalGetCurrentGlobalStylesId
 			? __experimentalGetCurrentGlobalStylesId()
 			: null;
-		const globalStylesRecord = getEditedEntityRecord( 'root', 'globalStyles', _globalStylesId );
+
+		// Copy the global styles record to avoid mutating the original.
+		const globalStylesRecord = {
+			...getEditedEntityRecord( 'root', 'globalStyles', _globalStylesId ),
+		};
 
 		const globalStylesConfig = {
 			styles: globalStylesRecord?.styles ?? {},
 			settings: globalStylesRecord?.settings ?? {},
 		};
+
+		if ( window.wpcomGlobalStyles?.hasCustomDesign ) {
+			// Create a new styles object without the css property
+			const { css: _, ...stylesWithoutCss } = globalStylesConfig.styles;
+			globalStylesConfig.styles = stylesWithoutCss;
+		}
 
 		// Determine if the global Styles are in use on the current site.
 		const globalStylesInUse = !! (

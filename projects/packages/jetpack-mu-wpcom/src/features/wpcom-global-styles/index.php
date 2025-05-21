@@ -209,6 +209,7 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 			'planName'                   => $plan_name,
 			'learnMoreAboutStylesUrl'    => $learn_more_about_styles_support_url,
 			'learnMoreAboutStylesPostId' => $learn_more_about_styles_post_id,
+			'hasCustomDesign'            => wpcom_site_has_feature( WPCOM_Features::CUSTOM_DESIGN ),
 		)
 	);
 	wp_enqueue_style(
@@ -337,6 +338,15 @@ function wpcom_global_styles_in_use_by_wp_global_styles_post( array $wp_global_s
 	// Some keys are ignored because they are not relevant to a custom style
 	// behaviours are not relevant if blank - as they where when included during GB16.4 and later removed.
 	$ignored_keys = array( 'version', 'isGlobalStylesUserThemeJSON' );
+
+	if ( wpcom_site_has_feature( WPCOM_Features::CUSTOM_DESIGN ) ) {
+		unset( $global_styles_content['styles']['css'] );
+
+		if ( array_key_exists( 'styles', $global_styles_content ) && count( $global_styles_content['styles'] ) === 0 ) {
+			unset( $global_styles_content['styles'] );
+		}
+	}
+
 	if ( isset( $global_styles_content['behaviors'] ) && empty( $global_styles_content['behaviors'] ) ) {
 		$ignored_keys[] = 'behaviors';
 	}
