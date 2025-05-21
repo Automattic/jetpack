@@ -1015,9 +1015,6 @@ importers:
       rollup-plugin-svelte:
         specifier: 7.2.2
         version: 7.2.2(rollup@3.29.5)(svelte@4.2.19)
-      rollup-plugin-svelte-svg:
-        specifier: 1.0.0-beta.6
-        version: 1.0.0-beta.6(svelte@4.2.19)
       sass:
         specifier: 1.87.0
         version: 1.87.0
@@ -14353,12 +14350,6 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       postcss: 8.x
-
-  rollup-plugin-svelte-svg@1.0.0-beta.6:
-    resolution: {integrity: sha512-6uJb9kuaqK6p+DvkgphhGN18wvUzdT6h7MQC2B8P1omi9omC9lQC54pwaot21h6z9ibhGPLG9a1XFLeDQth/kg==}
-    deprecated: 'Svelte supports this usecase natively now. This package is redundant. See: https://svelte.dev/playground/86553af5c35449ab88e34f1e50eb298f?version=5.30.1'
-    peerDependencies:
-      svelte: '*'
 
   rollup-plugin-svelte@7.2.2:
     resolution: {integrity: sha512-hgnIblTRewaBEVQD6N0Q43o+y6q1TmDRhBjaEzQCi50bs8TXqjc+d1zFZyE8tsfgcfNHZQzclh4RxlFUB85H8Q==}
@@ -28921,12 +28912,6 @@ snapshots:
       style-inject: 0.3.0
     transitivePeerDependencies:
       - ts-node
-
-  rollup-plugin-svelte-svg@1.0.0-beta.6(svelte@4.2.19):
-    dependencies:
-      rollup-pluginutils: 2.8.2
-      svelte: 4.2.19
-      svgo: 3.3.2
 
   rollup-plugin-svelte@7.2.2(rollup@3.29.5)(svelte@4.2.19):
     dependencies:
