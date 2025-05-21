@@ -5,6 +5,7 @@ export type SIGSettings = {
 	image_id?: number;
 	template?: string;
 	token?: string;
+	default_image_id?: number;
 };
 
 export type AttachedMedia = {

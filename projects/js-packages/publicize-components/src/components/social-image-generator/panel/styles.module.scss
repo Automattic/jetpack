@@ -1,5 +1,8 @@
-.templateControl div {
-	padding-top: 0;
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.templateControl {
+	padding-top: 1rem;
+	padding-bottom: 1rem;
 }
 
 .customText {
@@ -8,4 +11,20 @@
 
 .mediaPicker {
 	max-width: 150px;
+}
+
+.footer {
+	display: flex;
+	justify-content: flex-end;
+
+	> * + * {
+		margin-inline-start: var( --spacing-base );
+	}
+}
+
+.modal {
+
+	@include break-small {
+		max-height: 90%;
+	}
 }

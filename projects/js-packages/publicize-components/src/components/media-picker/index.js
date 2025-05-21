@@ -1,7 +1,7 @@
 import { Button, ThemeProvider } from '@automattic/jetpack-components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { ResponsiveWrapper, Spinner, VisuallyHidden } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -28,6 +28,7 @@ const clickHandler = open => e => {
  * @param {Function} props.onChange          - A callback that can be passed to parent for validation
  * @param {string}   props.wrapperClassName  - A class name to be added to the wrapper
  * @param {object}   props.allowedMediaTypes - Custom allowed media types
+ * @param {boolean}  props.isEditor          - Whether the media picker is in the editor
  * @return {object} The media section.
  */
 export default function MediaPicker( {
@@ -38,6 +39,7 @@ export default function MediaPicker( {
 	onChange,
 	wrapperClassName,
 	allowedMediaTypes = null,
+	isEditor = true,
 } ) {
 	const {
 		mediaData: { width, height, sourceUrl } = {},
@@ -145,9 +147,11 @@ export default function MediaPicker( {
 		[ mediaId, isImageLoading, renderPreview, renderPicker ]
 	);
 
+	const MediaUploadComponent = isEditor ? MediaUploadCheck : Fragment;
+
 	return (
 		<ThemeProvider>
-			<MediaUploadCheck>
+			<MediaUploadComponent>
 				<MediaUpload
 					allowedTypes={ allowedMediaTypes ?? SELECTABLE_MEDIA_TYPES }
 					title={ buttonLabel }
@@ -155,7 +159,7 @@ export default function MediaPicker( {
 					render={ setMediaRender }
 					value={ mediaId }
 				/>
-			</MediaUploadCheck>
+			</MediaUploadComponent>
 		</ThemeProvider>
 	);
 }
