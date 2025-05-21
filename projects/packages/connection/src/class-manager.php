@@ -57,6 +57,14 @@ class Manager {
 	public $error_handler = null;
 
 	/**
+	 * Protected owner error handler object.
+	 * This will only be set if the wpcomsh plugin is active.
+	 *
+	 * @var \Automattic\WPComSH\Connection\Protected_Owner_Error_Handler|null
+	 */
+	public $protected_owner_error_handler = null;
+
+	/**
 	 * Jetpack_XMLRPC_Server object
 	 *
 	 * @var Jetpack_XMLRPC_Server
@@ -131,6 +139,9 @@ class Manager {
 		);
 
 		$manager->error_handler = Error_Handler::get_instance();
+
+		// Use protected owner error handler if available via filter
+		$manager->protected_owner_error_handler = apply_filters( 'jetpack_connection_protected_owner_error_handler', null );
 
 		if ( $manager->is_connected() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
