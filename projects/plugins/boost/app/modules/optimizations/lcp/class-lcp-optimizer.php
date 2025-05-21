@@ -200,7 +200,7 @@ class LCP_Optimizer {
 		}
 
 		if ( $buffer_processor->get_tag() !== 'IMG' ) {
-			return;
+			return $buffer;
 		}
 
 		$buffer_processor->set_attribute( 'fetchpriority', 'high' );
