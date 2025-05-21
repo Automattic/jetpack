@@ -64,8 +64,8 @@ function zeroBSCRM_notifyme_createDBtable(){
 function zeroBSCRM_notifyme_scripts(){
 	global $zbs;
 	wp_enqueue_script( 'jquery' );
-	wp_enqueue_script( 'notifyme-front', ZEROBSCRM_URL . 'js/lib/notifyme-front.min.js', array( 'jquery' ), $zbs::VERSION ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
-	wp_enqueue_style( 'notifyme-css', ZEROBSCRM_URL . 'css/lib/notifyme-front.min.css', array(), $zbs::VERSION );
+	wp_enqueue_script( 'notifyme-front', ZEROBSCRM_URL . 'js/jpcrm-notifyme-front' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
+	wp_enqueue_style( 'notifyme-css', ZEROBSCRM_URL . 'css/jpcrm-notifyme-front' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 
 	#} this does the browser notifications
 	wp_register_script( 'notifyme_push', ZEROBSCRM_URL . 'js/lib/push.min.js', array( 'jquery' ), $zbs::VERSION, true );
