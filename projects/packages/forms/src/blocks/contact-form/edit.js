@@ -9,6 +9,7 @@ import {
 	store as blockEditorStore,
 	BlockControls,
 } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import {
 	ExternalLink,
 	PanelBody,
@@ -24,6 +25,7 @@ import { useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
+import { useFindBlockRecursively } from '../../hooks/use-find-block-recursively';
 import useFormSteps from '../../hooks/use-form-steps';
 import { store as previewStore } from '../../store/preview-store';
 import { childBlocks } from './child-blocks';
@@ -88,12 +90,22 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	const steps = useFormSteps( clientId );
 
+	const stepContainerInForm = useFindBlockRecursively(
+		clientId,
+		block => block.name === 'jetpack/step-container'
+	);
+	const isConfiguredForSteps = !! stepContainerInForm;
+
+	const submitButton = useFindBlockRecursively(
+		clientId,
+		block => block.name === 'jetpack/button'
+	);
+
 	const {
 		postTitle,
 		canUserInstallPlugins,
 		hasAnyInnerBlocks,
 		postAuthorEmail,
-		hasStepBlock,
 		selectedBlockClientId,
 	} = useSelect(
 		select => {
@@ -106,25 +118,23 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			const authorId = getEditedPostAttribute( 'author' );
 			const authorEmail = authorId && getUser( authorId )?.email;
 
-			const submitButton = innerBlocksData.find( block => block.name === 'jetpack/button' );
-
-			if ( submitButton && ! submitButton.attributes.lock ) {
-				const lock = { move: false, remove: true };
-				submitButton.attributes.lock = lock;
-			}
-
 			return {
 				postTitle: title,
 				canUserInstallPlugins: canUser( 'create', 'plugins' ),
 				hasAnyInnerBlocks: innerBlocksData.length > 0,
 				postAuthorEmail: authorEmail,
-				hasStepBlock: !! steps.length,
 				selectedBlockClientId: getSelectedBlockClientId(),
-				innerBlocks: innerBlocksData,
 			};
 		},
-		[ clientId, steps ]
+		[ clientId ]
 	);
+
+	useEffect( () => {
+		if ( submitButton && ! submitButton.attributes.lock ) {
+			const lock = { move: false, remove: true };
+			submitButton.attributes.lock = lock;
+		}
+	}, [ submitButton ] );
 
 	const { currentStepInfo, isPreview } = useSelect(
 		select => {
@@ -147,7 +157,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		'jetpack-contact-form',
 		isFirstStep && 'is-first-step',
 		isLastStep && 'is-last-step',
-		hasStepBlock && isPreview && 'is-previewing-step'
+		isConfiguredForSteps && isPreview && 'is-previewing-step'
 	);
 
 	const innerBlocksProps = useInnerBlocksProps(
@@ -157,7 +167,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			style: window.jetpackForms.generateStyleVariables( innerRef.current ),
 		},
 		{
-			allowedBlocks: hasStepBlock ? ALLOWED_MULTI_STEP_BLOCKS : ALLOWED_FORM_BLOCKS,
+			allowedBlocks: isConfiguredForSteps ? ALLOWED_MULTI_STEP_BLOCKS : ALLOWED_FORM_BLOCKS,
 			prioritizedInserterBlocks: PRIORITIZED_INSERTER_BLOCKS,
 			templateInsertUpdatesSelection: false,
 		}
@@ -166,42 +176,87 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
 
+	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
+
+	const currentInnerBlocks = useSelect(
+		select => select( blockEditorStore ).getBlocks( clientId ),
+		[ clientId ]
+	);
+
+	const hasStepContainer = isConfiguredForSteps;
+
 	useEffect( () => {
-		// If the current variationName already matches the state of hasStepBlock, do nothing.
-		if (
-			( variationName === 'multistep' && hasStepBlock ) ||
-			( variationName === 'default' && ! hasStepBlock )
-		) {
-			return;
-		}
+		if ( variationName === 'multistep' ) {
+			if ( ! hasStepContainer && currentInnerBlocks.length > 0 ) {
+				const blocksToWrap = currentInnerBlocks.filter(
+					block =>
+						block.name !== 'jetpack/step-container' &&
+						block.name !== 'jetpack/form-step' &&
+						block.name !== 'jetpack/form-progress-indicator' &&
+						block.name !== 'jetpack/form-step-navigation'
+				);
 
-		// Otherwise, update variationName based on hasStepBlock.
-		if ( hasStepBlock ) {
+				const newFormStepNavigation = createBlock( 'jetpack/form-step-navigation', {} );
+				const newFormStep = createBlock(
+					'jetpack/form-step',
+					{ title: __( 'Step 1', 'jetpack-forms' ) },
+					[ ...blocksToWrap, newFormStepNavigation ]
+				);
+
+				const newStepContainer = createBlock( 'jetpack/step-container', {}, [ newFormStep ] );
+
+				const newProgressIndicator = createBlock( 'jetpack/form-progress-indicator', {} );
+
+				replaceInnerBlocks( clientId, [ newProgressIndicator, newStepContainer ] );
+			} else if (
+				! hasStepContainer &&
+				currentInnerBlocks.length === 0 &&
+				name === 'jetpack/contact-form'
+			) {
+				const defaultProgressIndicator = createBlock( 'jetpack/form-progress-indicator', {
+					labels: [ __( 'Step 1', 'jetpack-forms' ) ],
+					activeStep: 0,
+					showLabels: true,
+				} );
+				const defaultFormStepNavigation = createBlock( 'jetpack/form-step-navigation', {} );
+				const defaultFormStep = createBlock(
+					'jetpack/form-step',
+					{ title: __( 'Step 1', 'jetpack-forms' ) },
+					[ defaultFormStepNavigation ]
+				);
+				const defaultStepContainer = createBlock( 'jetpack/step-container', {}, [
+					defaultFormStep,
+				] );
+
+				replaceInnerBlocks( clientId, [ defaultProgressIndicator, defaultStepContainer ] );
+			}
+		} else if ( hasStepContainer ) {
 			setAttributes( { variationName: 'multistep' } );
-		} else {
-			setAttributes( { variationName: 'default' } );
 		}
-	}, [ hasStepBlock, variationName, setAttributes ] );
+	}, [
+		variationName,
+		currentInnerBlocks,
+		clientId,
+		replaceInnerBlocks,
+		setAttributes,
+		name,
+		hasStepContainer,
+	] );
 
-	// Get the dispatch function for previewStore
 	const { setPreviewStep } = useDispatch( previewStore );
 
-	// Update the selected Step Client ID in the preview store
 	useEffect( () => {
 		if ( ! isPreview ) {
 			return;
 		}
-		// Check if the selected block is a step
 		if ( selectedBlockClientId && selectedBlockClientId !== clientId ) {
-			// Check if the selected block is a step
 			const isCurrentBlockAStep = steps.some( step => step.clientId === selectedBlockClientId );
 			if ( isCurrentBlockAStep ) {
-				// Update the selected step in the preview store
 				setPreviewStep( clientId, selectedBlockClientId );
 			}
 		}
 	}, [ selectedBlockClientId, clientId, steps, setPreviewStep, isPreview ] );
-	// Update the selected block client ID in the preview store
+
 	let elt;
 
 	if ( ! isModuleActive ) {
@@ -229,7 +284,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		elt = (
 			<>
 				<BlockControls>
-					{ hasStepBlock && <StepControls formClientId={ clientId } /> }
+					{ isConfiguredForSteps && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody
