@@ -267,12 +267,12 @@ function wpcom_block_global_styles_frontend( $theme_json ) {
 
 	$limited_theme_json = array();
 
+	$theme_json_data = $theme_json->get_data();
+
 	/**
 	 * If the site has Custom Design paid addon, we only want to return the CSS part of the styles.
 	 */
-	if ( wpcom_site_has_feature( WPCOM_Features::CUSTOM_DESIGN ) && isset( $theme_json_data['styles']['css'] ) ) {
-		$theme_json_data = $theme_json->get_data();
-
+	if ( isset( $theme_json_data['styles']['css'] ) && wpcom_site_has_feature( WPCOM_Features::CUSTOM_DESIGN ) ) {
 		$limited_theme_json['styles']['css'] = $theme_json_data['styles']['css'];
 		$limited_theme_json['version']       = $theme_json_data['version'] ?? WP_Theme_JSON::LATEST_SCHEMA;
 	}
