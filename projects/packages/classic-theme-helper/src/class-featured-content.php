@@ -464,9 +464,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 		 *
 		 * @uses Featured_Content::get_setting()
 		 *
-		 * @param array $terms A list of term objects. This is the return value of get_the_terms().
-		 * @param int   $id The ID field for the post object that terms are associated with.
-		 * @param array $taxonomy An array of taxonomy slugs.
+		 * @param array  $terms A list of term objects. This is the return value of get_the_terms().
+		 * @param int    $id The ID field for the post object that terms are associated with.
+		 * @param string $taxonomy The slug of the taxonomy.
 		 * @return array $terms
 		 */
 		public static function hide_the_featured_term( $terms, $id, $taxonomy ) {
@@ -491,6 +491,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 
 			if ( false !== $tag ) {
 				foreach ( $terms as $order => $term ) {
+					if ( ! $term ) {
+						continue;
+					}
 					if ( $settings['tag-id'] === $term->term_id || $settings['tag-name'] === $term->name ) {
 						unset( $terms[ $order ] );
 					}
