@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# E2E test setup uses these to supply the username and password the E2Es are expecting, instead of what was set in default.env or .env.
 [[ -n "$WP_FORCE_ADMIN_USER" ]] && WP_ADMIN_USER="$WP_FORCE_ADMIN_USER"
 [[ -n "$WP_FORCE_ADMIN_PASS" ]] && WP_ADMIN_PASSWORD="$WP_FORCE_ADMIN_PASS"
 
