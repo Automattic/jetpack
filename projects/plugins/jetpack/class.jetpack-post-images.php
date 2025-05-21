@@ -288,12 +288,12 @@ class Jetpack_PostImages {
 			}
 
 			// strip off any query strings from src.
-			if ( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) ) {
-				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . ( isset( $src['path'] ) ? $src['path'] : '' );
-			} elseif ( ! empty( $src['host'] ) ) {
-				$inserted_images[] = set_url_scheme( 'http://' . $src['host'] . ( isset( $src['path'] ) ? $src['path'] : '' ) );
-			} else {
-				$inserted_images[] = site_url( '/' ) . ( isset( $src['path'] ) ? $src['path'] : '' );
+			if ( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) && ! empty( $src['path'] ) ) {
+				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path'];
+			} elseif ( ! empty( $src['host'] ) && ! empty( $src['path'] ) ) {
+				$inserted_images[] = set_url_scheme( 'http://' . $src['host'] . $src['path'] );
+			} elseif ( ! empty( $src['path'] ) ) {
+				$inserted_images[] = site_url( '/' ) . $src['path'];
 			}
 		}
 		foreach ( $images as $i => $image ) {
