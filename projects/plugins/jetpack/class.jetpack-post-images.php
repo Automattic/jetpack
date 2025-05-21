@@ -46,7 +46,7 @@ class Jetpack_PostImages {
 		$permalink = get_permalink( $post->ID );
 
 		// Mechanic: Somebody set us up the bomb.
-		$old_post                  = $GLOBALS['post'];
+		$old_post                  = $GLOBALS['post'] ?? null;
 		$GLOBALS['post']           = $post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$old_shortcodes            = $GLOBALS['shortcode_tags'];
 		$GLOBALS['shortcode_tags'] = array( 'slideshow' => $old_shortcodes['slideshow'] ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -283,7 +283,7 @@ class Jetpack_PostImages {
 
 		foreach ( $html_images as $html_image ) {
 			$src = wp_parse_url( $html_image['src'] );
-			if ( ! $src ) {
+			if ( ! $src || empty( $src['path'] ) ) {
 				continue;
 			}
 
