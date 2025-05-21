@@ -1,4 +1,5 @@
 @import '@automattic/jetpack-base-styles/root-variables';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .jetpack-onboarding-testimonial {
     flex: 1;
@@ -18,7 +19,7 @@
     &--1 {
         background-color: var(--jp-green-90);
 
-        svg {
+        svg.jp-gradient {
             position: absolute;
             inset-block-start: 0;
             transform: scale(2);
@@ -49,30 +50,23 @@
 
     &__content {
         width: 100%;
-        padding-top: 40px;
-        padding-left: 50px;
-        padding-right: 50px;
+        padding-top: 2.5rem;
+        padding-inline: 1.5rem;
         color: var(--jp-white);
         text-align: left;
         position: relative;
         margin-bottom: 10px;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu,
 		Cantarell, 'Helvetica Neue', sans-serif;
+
+        @include break-xlarge {
+            padding-inline: 3rem;
+        }
     }
 
     &__messages {
+        display: flex; // Ensure that the messages SVG gets resized on smaller screens
         margin-bottom: 4rem;
-    }
-
-    &__message {
-        color: var(--tag-color);
-        font-family: "Sohne Breit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-        font-size: 3.35rem;
-        font-weight: 400;
-        line-height: 1.1;
-        margin-bottom: 0;
-        margin-top: 0;
-        
     }
 
     &__quote {
