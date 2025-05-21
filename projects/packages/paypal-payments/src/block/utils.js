@@ -54,6 +54,8 @@ export const formatPrice = ( price = 0, currency, withSymbol = true ) => {
 		return formatPriceFallback( price, currency, withSymbol );
 	}
 
+	// @todo: This still depends on the Jetpack bundle to get the site locale.
+	// Eventually the package should pass its own data from PHP to JS.
 	const siteLocale = window?.Jetpack_Editor_Initial_State?.siteLocale ?? 'en-US';
 
 	const tryLocales = [ siteLocale, getNavigatorLanguage(), 'en-US' ];
