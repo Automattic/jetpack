@@ -8,13 +8,6 @@ const SYNCED_ATTRIBUTE_KEYS = [ 'backgroundColor', 'borderColor', 'style', 'text
 const OptionsEdit = ( { clientId, name, context, attributes, setAttributes } ) => {
 	const { 'jetpack/field-share-attributes': isSynced } = context;
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
-	useSyncedAttributes(
-		'jetpack/input',
-		isSynced,
-		SYNCED_ATTRIBUTE_KEYS,
-		attributes,
-		setAttributes
-	);
 	const variationProps = useVariationStyleProperties( {
 		clientId,
 		inputBlockName: name,
