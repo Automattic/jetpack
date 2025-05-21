@@ -265,8 +265,20 @@ function wpcom_block_global_styles_frontend( $theme_json ) {
 		return $theme_json;
 	}
 
+	$limited_theme_json = array();
+
+	/**
+	 * If the site has Custom Design paid addon, we only want to return the CSS part of the styles.
+	 */
+	if ( wpcom_site_has_feature( WPCOM_Features::CUSTOM_DESIGN ) && isset( $theme_json_data['styles']['css'] ) ) {
+		$theme_json_data = $theme_json->get_data();
+
+		$limited_theme_json['styles']['css'] = $theme_json_data['styles']['css'];
+		$limited_theme_json['version']       = $theme_json_data['version'] ?? WP_Theme_JSON::LATEST_SCHEMA;
+	}
+
 	if ( class_exists( 'WP_Theme_JSON_Data' ) ) {
-		return new WP_Theme_JSON_Data( array(), 'custom' );
+		return new WP_Theme_JSON_Data( $limited_theme_json, 'custom' );
 	}
 
 	/*
