@@ -103,52 +103,53 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function __construct( $attributes, $content = null, $form = null ) {
 		$attributes = shortcode_atts(
 			array(
-				'label'                  => null,
-				'togglelabel'            => null,
-				'type'                   => 'text',
-				'required'               => false,
-				'requiredtext'           => null,
-				'options'                => array(),
-				'optionsdata'            => array(),
-				'id'                     => null,
-				'style'                  => null,
-				'fieldbackgroundcolor'   => null,
-				'buttonbackgroundcolor'  => null,
-				'buttonborderradius'     => null,
-				'buttonborderwidth'      => null,
-				'textcolor'              => null,
-				'default'                => null,
-				'values'                 => null,
-				'placeholder'            => null,
-				'class'                  => null,
-				'width'                  => null,
-				'consenttype'            => null,
-				'dateformat'             => null,
-				'implicitconsentmessage' => null,
-				'explicitconsentmessage' => null,
-				'borderradius'           => null,
-				'borderwidth'            => null,
-				'lineheight'             => null,
-				'labellineheight'        => null,
-				'bordercolor'            => null,
-				'inputcolor'             => null,
-				'labelcolor'             => null,
-				'labelfontsize'          => null,
-				'fieldfontsize'          => null,
-				'labelclasses'           => null,
-				'labelstyles'            => null,
-				'inputclasses'           => null,
-				'inputstyles'            => null,
-				'optionclasses'          => null,
-				'optionstyles'           => null,
-				'min'                    => null,
-				'max'                    => null,
-				'maxfiles'               => null,
-				'fieldwrapperclasses'    => null,
-				'outlinestyledata'       => array(),
-				'outlinestyleclasses'    => null,
-				'optionsclasses'         => null,
-				'optionsstyles'          => null,
+				'label'                    => null,
+				'togglelabel'              => null,
+				'type'                     => 'text',
+				'required'                 => false,
+				'requiredtext'             => null,
+				'options'                  => array(),
+				'optionsdata'              => array(),
+				'id'                       => null,
+				'style'                    => null,
+				'fieldbackgroundcolor'     => null,
+				'buttonbackgroundcolor'    => null,
+				'buttonborderradius'       => null,
+				'buttonborderwidth'        => null,
+				'textcolor'                => null,
+				'default'                  => null,
+				'values'                   => null,
+				'placeholder'              => null,
+				'class'                    => null,
+				'width'                    => null,
+				'consenttype'              => null,
+				'dateformat'               => null,
+				'implicitconsentmessage'   => null,
+				'explicitconsentmessage'   => null,
+				'borderradius'             => null,
+				'borderwidth'              => null,
+				'lineheight'               => null,
+				'labellineheight'          => null,
+				'bordercolor'              => null,
+				'inputcolor'               => null,
+				'labelcolor'               => null,
+				'labelfontsize'            => null,
+				'fieldfontsize'            => null,
+				'labelclasses'             => null,
+				'labelstyles'              => null,
+				'inputclasses'             => null,
+				'inputstyles'              => null,
+				'optionclasses'            => null,
+				'optionstyles'             => null,
+				'min'                      => null,
+				'max'                      => null,
+				'maxfiles'                 => null,
+				'fieldwrapperclasses'      => null,
+				'stylevariationattributes' => array(),
+				'stylevariationclasses'    => null,
+				'stylevariationstyles'     => null,
+				'optionsclasses'           => null,
+				'optionsstyles'            => null,
 			),
 			$attributes,
 			'contact-field'
@@ -830,19 +831,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$fieldset_id       = "id='" . esc_attr( "$id-label" ) . "'";
 
 		if ( $is_outlined_style ) {
-			$outline_styles = $this->get_attribute( 'outlinestyledata' );
+			$style_variation_attributes = $this->get_attribute( 'stylevariationattributes' );
 
-			if ( ! empty( $outline_styles ) ) {
-				$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
+			if ( ! empty( $style_variation_attributes ) ) {
+				$style_variation_attributes = json_decode( html_entity_decode( $style_variation_attributes, ENT_COMPAT ), true );
 			}
 
 			// When there's an outlined style, and border radius is set, the existing inline border radius is overridden to apply
 			// a limit of `100px` to the radius on the x axis. This achieves the same look and feel as other fields
 			// that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
 			// It prevents large border radius values from disrupting the look and feel of the fields.
-			if ( isset( $outline_styles['border']['radius'] ) ) {
+			if ( isset( $style_variation_attributes['border']['radius'] ) ) {
 				$options_styles          = $options_styles ?? '';
-				$radius                  = $outline_styles['border']['radius'];
+				$radius                  = $style_variation_attributes['border']['radius'];
 				$has_split_radius_values = is_array( $radius );
 				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
 				$top_right_radius        = $has_split_radius_values ? $radius['topRight'] : $radius;
@@ -1232,19 +1233,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
 
 		if ( $is_outlined_style ) {
-			$outline_styles = $this->get_attribute( 'outlinestyledata' );
+			$style_variation_attributes = $this->get_attribute( 'stylevariationattributes' );
 
-			if ( ! empty( $outline_styles ) ) {
-				$outline_styles = json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true );
+			if ( ! empty( $style_variation_attributes ) ) {
+				$style_variation_attributes = json_decode( html_entity_decode( $style_variation_attributes, ENT_COMPAT ), true );
 			}
 
 			// When there's an outlined style, and border radius is set, the existing inline border radius is overridden to apply
 			// a limit of `100px` to the radius on the x axis. This achieves the same look and feel as other fields
 			// that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
 			// It prevents large border radius values from disrupting the look and feel of the fields.
-			if ( isset( $outline_styles['border']['radius'] ) ) {
+			if ( isset( $style_variation_attributes['border']['radius'] ) ) {
 				$options_styles          = $options_styles ?? '';
-				$radius                  = $outline_styles['border']['radius'];
+				$radius                  = $style_variation_attributes['border']['radius'];
 				$has_split_radius_values = is_array( $radius );
 				$top_left_radius         = $has_split_radius_values ? $radius['topLeft'] : $radius;
 				$top_right_radius        = $has_split_radius_values ? $radius['topRight'] : $radius;
@@ -1542,21 +1543,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * }
 	 */
 	private function get_form_variation_style_properties( $form_style = 'outlined' ) {
-		$style_attrs     = '';
-		$css_vars        = '';
-		$outline_styles  = $this->get_attribute( 'outlinestyledata' );
-		$outline_classes = $this->get_attribute( 'outlinestyleclasses' );
-		$block_name      = 'jetpack/input';
+		$css_vars             = '';
+		$variation_attributes = $this->get_attribute( 'stylevariationattributes' );
+		$variation_attributes = ! empty( $variation_attributes ) ? json_decode( html_entity_decode( $variation_attributes, ENT_COMPAT ), true ) : array();
+		$variation_classes    = $this->get_attribute( 'stylevariationclasses' );
+		$variation_style      = $this->get_attribute( 'stylevariationstyles' );
+		$block_name           = 'jetpack/input';
 
 		if ( $this->maybe_override_type() === 'radio' || $this->maybe_override_type() === 'checkbox-multiple' ) {
 			$block_name = 'jetpack/options';
-		}
-
-		$outline_styles = ! empty( $outline_styles ) ? json_decode( html_entity_decode( $outline_styles, ENT_COMPAT ), true ) : array();
-		$input_styles   = $this->get_attribute( 'inputstyles' );
-
-		if ( ! empty( $input_styles ) ) {
-			$style_attrs = $input_styles;
 		}
 
 		$global_styles = wp_get_global_styles(
@@ -1574,28 +1569,28 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * For newer forms that use global styles or the block supports styles, this value will be empty and is ignored.
 		 */
 		$border_width_attribute = $this->get_attribute( 'borderwidth' );
-		$legacy_border_size     = ! empty( $border_width_attribute ) || $border_width_attribute === '0' ? $border_width_attribute . 'px' : $outline_styles['border']['width'] ?? null;
+		$legacy_border_size     = ! empty( $border_width_attribute ) || $border_width_attribute === '0' ? $border_width_attribute . 'px' : $variation_attributes['border']['width'] ?? null;
 		$legacy_border_size     = is_numeric( $legacy_border_size ) ? $legacy_border_size . 'px' : $legacy_border_size;
-		$legacy_border_radius   = $outline_styles['border']['radius'] ?? null;
+		$legacy_border_radius   = $variation_attributes['border']['radius'] ?? null;
 		$legacy_border_radius   = is_numeric( $legacy_border_radius ) ? $legacy_border_radius . 'px' : $legacy_border_radius;
 
 		$border_top_size = $legacy_border_size ??
-			$outline_styles['border']['top']['width'] ??
+			$variation_attributes['border']['top']['width'] ??
 			$global_styles['width'] ??
 			$global_styles['top']['width'] ?? null;
 
 		$border_right_size = $legacy_border_size ??
-			$outline_styles['border']['right']['width'] ??
+			$variation_attributes['border']['right']['width'] ??
 			$global_styles['width'] ??
 			$global_styles['right']['width'] ?? null;
 
 		$border_bottom_size = $legacy_border_size ??
-			$outline_styles['border']['bottom']['width'] ??
+			$variation_attributes['border']['bottom']['width'] ??
 			$global_styles['width'] ??
 			$global_styles['bottom']['width'] ?? null;
 
 		$border_left_size = $legacy_border_size ??
-			$outline_styles['border']['left']['width'] ??
+			$variation_attributes['border']['left']['width'] ??
 			$global_styles['width'] ??
 			$global_styles['left']['width'] ?? null;
 
@@ -1627,9 +1622,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		return array(
-			'style'      => $style_attrs,
+			'style'      => $variation_style,
 			'css_vars'   => $css_vars,
-			'class_name' => $outline_classes,
+			'class_name' => $variation_classes,
 		);
 	}
 
