@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Endpoints: Adding checks within the v1.1 post update endpoint to ensure values are defined.
