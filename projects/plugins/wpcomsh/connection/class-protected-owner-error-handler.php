@@ -322,6 +322,7 @@ class Protected_Owner_Error_Handler {
 		$errors[] = array(
 			'code'           => 'protected_owner_' . $error_code,
 			'message'        => $this->get_error_message( $error_code, $error_data['wpcom_email'] ),
+			'action'         => 'protected_owner_action',
 			'action_links'   => array(
 				array(
 					'title'     => __( 'Create missing account', 'wpcomsh' ),
