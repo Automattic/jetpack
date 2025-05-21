@@ -572,7 +572,7 @@ class Contact_Form_Plugin {
 		}
 
 		if ( isset( $attrs['borderColor'] ) ) {
-			$attributes_for_outlined_style['borderColor'] = $attrs['borderColor'];
+			$picked_attributes['borderColor'] = $attrs['borderColor'];
 		}
 
 		if ( isset( $attrs['style']['color']['background'] ) ) {
