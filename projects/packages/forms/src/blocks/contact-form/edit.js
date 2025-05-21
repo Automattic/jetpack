@@ -109,8 +109,20 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		selectedBlockClientId,
 	} = useSelect(
 		select => {
-			const { getBlocks, getSelectedBlockClientId } = select( blockEditorStore );
+			const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
+				select( blockEditorStore );
 			const { getEditedPostAttribute } = select( editorStore );
+			const selectedBlockId = getSelectedBlockClientId();
+			const selectedBlock = getBlock( selectedBlockId );
+			let selectedStepBlockId = selectedBlockId;
+
+			if ( selectedBlock && selectedBlock.name !== 'jetpack/form-step' ) {
+				selectedStepBlockId = getBlockParentsByBlockName(
+					selectedBlockId,
+					'jetpack/form-step'
+				)[ 0 ];
+			}
+
 			const { getUser, canUser } = select( coreStore );
 			const innerBlocksData = getBlocks( clientId );
 
@@ -123,7 +135,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				canUserInstallPlugins: canUser( 'create', 'plugins' ),
 				hasAnyInnerBlocks: innerBlocksData.length > 0,
 				postAuthorEmail: authorEmail,
-				selectedBlockClientId: getSelectedBlockClientId(),
+				selectedBlockClientId: selectedStepBlockId,
 			};
 		},
 		[ clientId ]
