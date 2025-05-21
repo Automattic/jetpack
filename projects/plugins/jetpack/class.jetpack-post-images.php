@@ -283,16 +283,16 @@ class Jetpack_PostImages {
 
 		foreach ( $html_images as $html_image ) {
 			$src = wp_parse_url( $html_image['src'] );
-			if ( ! $src ) {
+			if ( ! $src || empty( $src['path'] ) ) {
 				continue;
 			}
 
 			// strip off any query strings from src.
-			if ( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) && ! empty( $src['path'] ) ) {
+			if ( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) ) {
 				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path'];
-			} elseif ( ! empty( $src['host'] ) && ! empty( $src['path'] ) ) {
+			} elseif ( ! empty( $src['host'] ) ) {
 				$inserted_images[] = set_url_scheme( 'http://' . $src['host'] . $src['path'] );
-			} elseif ( ! empty( $src['path'] ) ) {
+			} else {
 				$inserted_images[] = site_url( '/' ) . $src['path'];
 			}
 		}
