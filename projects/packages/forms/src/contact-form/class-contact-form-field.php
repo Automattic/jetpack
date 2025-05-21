@@ -853,7 +853,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$input_attrs['aria-required'] = 'true';
 		}
 
-		$max_files       = 1; // max number of files. - $this->get_attribute( 'maxfiles' )
+		$max_files       = 1; // TODO: Dynamically retrieve the max number of files using $this->get_attribute( 'maxfiles' ) if needed in the future.
 		$max_file_size   = 20 * 1024 * 1024; // 20MB
 		$file_size_units = array(
 			_x( 'B', 'unit symbol', 'jetpack-forms' ),
