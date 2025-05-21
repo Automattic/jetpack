@@ -98,7 +98,7 @@
 }
 
 
-.contact-form :where(label.consent) {
+:where(.contact-form label.consent) {
 	font-size: 13px;
 	font-weight: 400;
 	text-transform: uppercase;

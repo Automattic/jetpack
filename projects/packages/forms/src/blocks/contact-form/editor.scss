@@ -609,10 +609,11 @@
 .jetpack-field-checkbox,
 .jetpack-field-consent {
 	display: flex;
+}
 
-	.jetpack-field-label .jetpack-field-label__input {
-		font-weight: 400;
-	}
+.jetpack-field-consent,
+.jetpack-field-checkbox .jetpack-field-label .jetpack-field-label__input {
+	font-weight: 400;
 }
 
 .jetpack-field-checkbox {
