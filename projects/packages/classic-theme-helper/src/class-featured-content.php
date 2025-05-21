@@ -464,15 +464,20 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 		 *
 		 * @uses Featured_Content::get_setting()
 		 *
-		 * @param array $terms A list of term objects. This is the return value of get_the_terms().
-		 * @param int   $id The ID field for the post object that terms are associated with.
-		 * @param array $taxonomy An array of taxonomy slugs.
-		 * @return array $terms
+		 * @param \WP_Term[]|\WP_Error $terms A list of term objects. This is the return value of get_the_terms().
+		 * @param int                  $id The ID field for the post object that terms are associated with.
+		 * @param string               $taxonomy The slug of the taxonomy.
+		 * @return \WP_Term[]|\WP_Error $terms
 		 */
 		public static function hide_the_featured_term( $terms, $id, $taxonomy ) {
 
 			// This filter is only appropriate on the front-end.
 			if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) ) {
+				return $terms;
+			}
+
+			// This could be a WP_Error or something invalid from another hook function.
+			if ( ! is_array( $terms ) ) {
 				return $terms;
 			}
 
@@ -491,6 +496,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 
 			if ( false !== $tag ) {
 				foreach ( $terms as $order => $term ) {
+					if ( ! $term ) {
+						continue;
+					}
 					if ( $settings['tag-id'] === $term->term_id || $settings['tag-name'] === $term->name ) {
 						unset( $terms[ $order ] );
 					}
