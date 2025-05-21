@@ -473,9 +473,8 @@ class Contact_Form_Plugin {
 					/*
 						Borders for the outlined notched HTML.
 					*/
-					$outlined_style_data                      = self::get_outlined_style_attributes( $block_name, $inner_block['attrs'] );
-					$atts['outlinestyledata']                 = $outlined_style_data['outlinestyledata'] ?? null;
-					$atts['outlinestyleclasses']              = $outlined_style_data['outlinestyleclasses'] ?? null;
+					$style_variation_data                     = self::get_style_variation_shortcode_attributes( $block_name, $inner_block['attrs'] );
+					$atts                                     = array_merge( $atts, $style_variation_data );
 					$add_block_style_classes_to_field_wrapper = true;
 				}
 
@@ -526,9 +525,8 @@ class Contact_Form_Plugin {
 					/*
 						Borders for the outlined notched HTML.
 					*/
-					$outlined_style_data                      = self::get_outlined_style_attributes( $block_name, $inner_block['attrs'] );
-					$atts['outlinestyledata']                 = $outlined_style_data['outlinestyledata'];
-					$atts['outlinestyleclasses']              = $outlined_style_data['outlinestyleclasses'];
+					$style_variation_atts                     = self::get_style_variation_shortcode_attributes( $block_name, $inner_block['attrs'] );
+					$atts                                     = array_merge( $atts, $style_variation_atts );
 					$add_block_style_classes_to_field_wrapper = true;
 				}
 			}
@@ -555,7 +553,7 @@ class Contact_Form_Plugin {
 
 	/**
 	 * Returns the form "Outlined" style classes and styles.
-	 * Important: The "Outlined" style is somewhat different as it uses custom HTML to create a border around the field.
+	 * Important: The "Outlined" style is somewhat different as it uses custom HTML to create a border around the field's label.
 	 * When applying styles to the control, background and border styles are applied to the custom HTML, not the input itself.
 	 *
 	 * @param string $block_name - the block name.
@@ -563,30 +561,33 @@ class Contact_Form_Plugin {
 	 *
 	 * @return array
 	 */
-	protected static function get_outlined_style_attributes( $block_name, $attrs ) {
-		$outlined_style_data           = array();
-		$attributes_for_outlined_style = array();
+	protected static function get_style_variation_shortcode_attributes( $block_name, $attrs ) {
+		$picked_attributes = array();
 
+		// For style variations like the outlined style, we only care about porting specific attributes like background color and border
+		// to the custom label HTML, so we pick those attributes and ignore the rest.
 		if ( isset( $attrs['backgroundColor'] ) ) {
-			$attributes_for_outlined_style['backgroundColor'] = $attrs['backgroundColor'];
+			$picked_attributes['backgroundColor'] = $attrs['backgroundColor'];
 		}
 
 		if ( isset( $attrs['style']['border'] ) ) {
-			$attributes_for_outlined_style['style']['border'] = $attrs['style']['border'];
+			$picked_attributes['style']['border'] = $attrs['style']['border'];
 		}
 
 		if ( isset( $attrs['borderColor'] ) ) {
-			$attributes_for_outlined_style['borderColor'] = $attrs['borderColor'];
+			$picked_attributes['borderColor'] = $attrs['borderColor'];
 		}
 
 		if ( isset( $attrs['style']['color']['background'] ) ) {
-			$attributes_for_outlined_style['style']['color']['background'] = $attrs['style']['color']['background'];
+			$picked_attributes['style']['color']['background'] = $attrs['style']['color']['background'];
 		}
 
-		$outlined_attrs                             = self::get_block_support_classes_and_styles( $block_name, $attributes_for_outlined_style );
-		$outlined_style_data['outlinestyledata']    = isset( $attributes_for_outlined_style['style'] ) ? \wp_json_encode( $attributes_for_outlined_style['style'] ) : '';
-		$outlined_style_data['outlinestyleclasses'] = isset( $outlined_attrs['class'] ) ? ' ' . $outlined_attrs['class'] : '';
-		return $outlined_style_data;
+		$block_support_styles = self::get_block_support_classes_and_styles( $block_name, $picked_attributes );
+		return array(
+			'stylevariationattributes' => isset( $picked_attributes['style'] ) ? \wp_json_encode( $picked_attributes['style'] ) : '',
+			'stylevariationclasses'    => isset( $block_support_styles['class'] ) ? ' ' . $block_support_styles['class'] : '',
+			'stylevariationstyles'     => isset( $block_support_styles['style'] ) ? $block_support_styles['style'] : '',
+		);
 	}
 
 	/**
