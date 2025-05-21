@@ -418,7 +418,7 @@
 
 		&[type="radio"]::before {
 			border-radius: 50%;
-			transform: translateY(15%);
+			transform: translateY(0.15rem);
 		}
 	}
 
@@ -446,15 +446,12 @@
 
 		.jetpack-option__type::before {
 			display: block; /* display: flex causes baselines to not align */
+			transform: translateY(0.15rem);
 		}
 	}
 
-	.jetpack-field-option.field-option-radio,
-	.wp-block-jetpack-field-option-radio {
-
-		.jetpack-option__type {
-			transform: translateY(5%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
-		}
+	.rich-text {
+		transform: translateY(-0.1rem);
 	}
 }
 
@@ -813,7 +810,7 @@
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				margin: 0;
 
-				:where( label, .jetpack-field-label__suffix ) {
+				.jetpack-field-label__suffix {
 					font-weight: 300;
 				}
 			}
@@ -1063,6 +1060,10 @@
 
 :where(.wp-block-jetpack-label) {
 	font-weight: 700;
+}
+
+:where(.is-style-outlined .wp-block-jetpack-label) {
+	font-weight: 300;
 }
 
 .jetpack-field-dropdown__toggle .rich-text {
