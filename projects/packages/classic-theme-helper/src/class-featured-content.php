@@ -467,7 +467,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 		 * @param \WP_Term[]|\WP_Error $terms A list of term objects. This is the return value of get_the_terms().
 		 * @param int                  $id The ID field for the post object that terms are associated with.
 		 * @param string               $taxonomy The slug of the taxonomy.
-		 * @return array $terms
+		 * @return \WP_Term[]|\WP_Error $terms
 		 */
 		public static function hide_the_featured_term( $terms, $id, $taxonomy ) {
 
