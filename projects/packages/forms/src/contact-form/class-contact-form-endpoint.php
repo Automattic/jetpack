@@ -412,7 +412,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	public function resend_email( $post_id ) {
 		$comment_author_email = false;
 		$reply_to_addr        = false;
-		$message              = false;
+		$message              = '';
 		$to                   = false;
 		$headers              = false;
 		$blog_url             = wp_parse_url( site_url() );
