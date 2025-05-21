@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed Swipeable width being stale on window resize

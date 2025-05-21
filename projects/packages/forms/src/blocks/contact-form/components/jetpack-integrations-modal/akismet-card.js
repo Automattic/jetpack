@@ -6,7 +6,7 @@ import AkismetIcon from '../../../../icons/akismet';
 import IntegrationCard from './integration-card';
 
 const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
-	const formSubmissionsUrl = window?.jpFormsBlocks?.defaults?.formsResponsesSpamUrl || '';
+	const formSubmissionsUrl = data?.details?.formSubmissionsSpamUrl || '';
 
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 
@@ -80,7 +80,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						</Button>
 						<span>|</span>
 						<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
-							{ __( 'View stats', 'jetpack-forms' ) }
+							{ __( 'View stats and settings', 'jetpack-forms' ) }
 						</Button>
 						<span>|</span>
 						<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>

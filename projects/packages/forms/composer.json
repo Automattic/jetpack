@@ -11,7 +11,8 @@
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-sync": "@dev"
+		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-admin-ui": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",

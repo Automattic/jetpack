@@ -110,6 +110,7 @@ export function useDataSync<
 	 * ```
 	 */
 	const queryConfigDefaults = {
+		// eslint-disable-next-line @tanstack/query/exhaustive-deps -- params is there, the linter just doesn't know it.
 		queryKey,
 		queryFn: ( { signal } ) => datasync.GET( params, signal ),
 		staleTime: 1 * 1000,

@@ -154,11 +154,14 @@ class Settings {
 					'schema' => array(
 						'type'       => 'object',
 						'properties' => array(
-							'enabled'  => array(
+							'enabled'          => array(
 								'type' => 'boolean',
 							),
-							'template' => array(
+							'template'         => array(
 								'type' => 'string',
+							),
+							'default_image_id' => array(
+								'type' => 'number',
 							),
 						),
 					),
@@ -414,5 +417,24 @@ class Settings {
 			$sig_settings = self::DEFAULT_IMAGE_GENERATOR_SETTINGS;
 		}
 		return $sig_settings['template'];
+	}
+
+	/**
+	 * Get the default image ID.
+	 *
+	 * @return int
+	 */
+	public function sig_get_default_image_id() {
+		$this->migrate_old_option();
+		$sig_settings = get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS );
+		if ( empty( $sig_settings ) || ! is_array( $sig_settings ) ) {
+			return 0;
+		}
+
+		if ( isset( $sig_settings['default_image_id'] ) ) {
+			return $sig_settings['default_image_id'];
+		}
+
+		return 0;
 	}
 }
