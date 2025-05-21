@@ -190,12 +190,12 @@ class LCP_Optimize_Bg_Image {
 	private function get_image_set( $image_url, $image_width ) {
 		$dprs = array( 1, 2 );
 
-		// If the image width is less than 480px, it's likely a mobile image and we should add a 3x dpr image.
+		// Mobile devices usually have a DPR of 3 which is not common for desktop.
 		if ( $image_width <= 480 ) {
 			$dprs[] = 3;
 		}
 
-		// For Moto G Power
+		// Accurately reflect the performance improvement in lighthouse by including a 1.75x DPR image for the Moto G Power.
 		if ( $image_width === 412 ) {
 			$dprs[] = 1.75;
 		}
