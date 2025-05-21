@@ -114,7 +114,7 @@ abstract class Sharing_Source_Block {
 		 * @param int $post_id Post ID.
 		 * @param int $this->id Sharing ID.
 		 */
-		$title = $post ? apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id ) : '';
+		$title = $post instanceof WP_Post ? apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id ) : '';
 		return html_entity_decode( wp_kses( $title, '' ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 	}
 
