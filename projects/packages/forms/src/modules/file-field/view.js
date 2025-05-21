@@ -120,9 +120,11 @@ const addFileToContext = file => {
 
 	const clientFileId = performance.now() + '-' + Math.random();
 
-	const fileUrl = [ 'image/gif', 'image/jpg', 'image/png', 'image/jpeg' ].includes( file.type )
-		? 'url(' + URL.createObjectURL( file ) + ')'
-		: null;
+	const fileUrl =
+		[ 'image/gif', 'image/jpg', 'image/png', 'image/jpeg' ].includes( file.type ) &&
+		URL.createObjectURL
+			? 'url(' + URL.createObjectURL( file ) + ')'
+			: null;
 
 	context.files.push( {
 		name: file.name,
