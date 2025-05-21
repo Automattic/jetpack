@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
-use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
@@ -48,7 +47,9 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 
 		add_action( 'template_redirect', array( $this, 'start_output_filtering' ), -999999 );
 		add_action( 'jetpack_boost_lcp_invalidated', array( $this, 'handle_lcp_invalidated' ) );
-		add_action( 'wp_head', array( $this, 'add_preload_links_to_head' ) );
+
+		// Initialize the optimizer for background images. Doing it late enough so wp can load, but before any output is sent.
+		add_action( 'wp', array( LCP_Optimize_Bg_Image::class, 'init' ) );
 
 		LCP_Invalidator::init();
 	}
@@ -148,60 +149,6 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		}
 
 		$this->output_filter->add_callback( array( $this, 'optimize' ) );
-	}
-
-	/**
-	 * Adds preload links for LCP background images to the <head>.
-	 *
-	 * @since 4.0.0
-	 */
-	public function add_preload_links_to_head() {
-		if ( LCP_Optimizer::should_skip_optimization() ) {
-			return;
-		}
-
-		$lcp_storage = $this->storage->get_current_request_lcp();
-
-		if ( empty( $lcp_storage ) ) {
-			return;
-		}
-
-		$selectors = array();
-		foreach ( $lcp_storage as $lcp_data ) {
-			if ( in_array( $lcp_data['element'], $selectors, true ) ) {
-				// If we already printed the styling for this element, skip it.
-				continue;
-			}
-			$selectors[] = $lcp_data['element'];
-
-			$lcp_optimizer = new LCP_Optimizer( $lcp_data );
-			$image_url     = $lcp_optimizer->get_image_to_preload();
-			if ( empty( $image_url ) ) {
-				continue;
-			}
-
-			printf(
-				'<link rel="preload" href="%s" as="image" fetchpriority="high" imagesrcset="%s" imagesizes="%s" />' . "\n",
-				esc_url( Image_CDN_Core::cdn_url( $image_url ) ),
-				esc_attr( $lcp_optimizer->get_srcsets( $image_url ) ),
-				esc_attr( $lcp_optimizer->get_sizes() )
-			);
-
-			$image_css = sprintf(
-				'%s { background-image: url(%s) !important; }',
-				$lcp_data['element'],
-				esc_url( Image_CDN_Core::cdn_url( $image_url ) )
-			);
-
-			$bg_styling = '<style id="jetpack-boost-lcp-background-image">';
-			// Ensure no </style> tag (or any HTML tags) in output.
-			$bg_styling .= wp_strip_all_tags( $image_css );
-			$bg_styling .= wp_strip_all_tags( implode( '', $lcp_optimizer->get_bg_styling( $lcp_data['element'], $image_url ) ) );
-			$bg_styling .= '</style>';
-
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo $bg_styling;
-		}
 	}
 
 	/**
