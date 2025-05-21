@@ -226,7 +226,7 @@ class LCP_Optimizer {
 	 * @since 4.0.0
 	 */
 	private function add_responsive_image_attributes( $element, $image_url ) {
-		$srcset = $this->get_srcsets( $image_url );
+		$srcset = $this->get_srcset( $image_url );
 		if ( ! empty( $srcset ) ) {
 			$element->set_attribute( 'srcset', $srcset );
 		}
@@ -247,7 +247,7 @@ class LCP_Optimizer {
 	 *
 	 * @since $$next-version$$
 	 */
-	public function get_srcsets( $original_url ) {
+	public function get_srcset( $original_url ) {
 		if ( empty( $this->lcp_data['srcsets'] ) ) {
 			return '';
 		}

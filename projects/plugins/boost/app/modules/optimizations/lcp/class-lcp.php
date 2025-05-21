@@ -173,7 +173,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 				printf(
 					'<link rel="preload" href="%s" as="image" fetchpriority="high" imagesrcset="%s" imagesizes="%s" />' . "\n",
 					esc_url( Image_CDN_Core::cdn_url( $image_url ) ),
-					esc_attr( $lcp_optimizer->get_srcsets( $image_url ) ),
+					esc_attr( $lcp_optimizer->get_srcset( $image_url ) ),
 					esc_attr( $lcp_optimizer->get_sizes() )
 				);
 			}
