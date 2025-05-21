@@ -1,5 +1,8 @@
 #!/bin/bash
 
+[[ -n "$WP_FORCE_ADMIN_USER" ]] && WP_ADMIN_USER="$WP_FORCE_ADMIN_USER"
+[[ -n "$WP_FORCE_ADMIN_PASS" ]] && WP_ADMIN_PASSWORD="$WP_FORCE_ADMIN_PASS"
+
 if wp core is-installed; then
 	echo
 	echo "WordPress has already been installed. Uninstall it first by running:"
