@@ -24,7 +24,11 @@
 	align-items: center;
 	height: 100%;
 
-	@media screen and (max-width: 600px) {
+	/**
+	 * This (599px) is to match the breakpoints defined in layout container
+	 * @see https://github.com/Automattic/jetpack/blob/550550264caaaea98ca7527b7615cd14257d0aa8/projects/js-packages/components/components/layout/breakpoints.module.scss#L5
+	 */
+	@media screen and (max-width: 599px) {
 		justify-content: flex-start;
 		padding-top: 72px;
 	}
@@ -43,7 +47,7 @@
 
 .testimonials {
 
-	@media screen and (max-width: 600px) {
+	@media screen and (max-width: 599px) {
 		display: none;
 	}
 }
