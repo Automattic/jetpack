@@ -59,7 +59,7 @@ export_e2e_config() {
 	if [[ ! -f 'config/local.cjs' ]]; then
 		echo "Decrypted config file not found! Have you run 'pnpm config:decrypt' yet?";
 		exit 1
-	elif [[ -z "$WP_FORCE_ADMIN_USER" ||  -z "$WP_FORCE_ADMIN_PASS" ]]; then
+	else
 		local e2e_config=$(node -e 'const config = require( "./config/local.cjs" ); console.log( JSON.stringify(config.testSites.default) );' 2>/dev/null) || { echo "Failed to read config file!" && exit 1; }
 
 		WP_FORCE_ADMIN_USER=$( jq -r '.username' <<< "$e2e_config" )
