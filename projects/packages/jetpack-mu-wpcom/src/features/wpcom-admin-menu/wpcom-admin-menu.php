@@ -7,8 +7,9 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
+use Automattic\Jetpack\Forms\Dashboard;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
@@ -478,21 +479,20 @@ add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
  * Adds a submenu item for Jetpack Forms.
  */
 function add_submenu_jetpack_forms() {
-	$has_switch_class = class_exists( 'Dashboard_View_Switch' );
+	$has_switch_class = class_exists( 'Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch' );
 
-	if ( ! $has_switch_class || ! Dashboard_View_Switch::is_jetpack_forms_admin_page_available() ) {
+	if ( ! $has_switch_class || ! Dashboard\Dashboard_View_Switch::is_jetpack_forms_admin_page_available() ) {
 		return;
 	}
 
-	// This is so we don't just hardcode get_admin_url() . 'admin.php?page=jetpack-forms-admin', should we?
-	$handler = ( new Dashboard_View_Switch() )->get_forms_admin_url();
+	$forms_dashboard = new Dashboard\Dashboard();
 
-	add_submenu_page(
-		'jetpack',
+	Admin_Menu::add_menu(
 		__( 'Jetpack Forms', 'jetpack-mu-wpcom' ),
 		__( 'Forms', 'jetpack-mu-wpcom' ),
 		'edit_pages',
-		$handler
+		'jetpack-forms-admin',
+		array( $forms_dashboard, 'render_new_dashboard' )
 	);
 }
 add_action( 'admin_menu', 'add_submenu_jetpack_forms' );
