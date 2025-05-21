@@ -543,6 +543,51 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Return the HTML for the error div.
+	 *
+	 * @param string $id - the field ID.
+	 * @param string $type - the field type.
+	 *
+	 * @return string HTML
+	 */
+	private function get_error_div( $id, $type ) {
+		return '<div
+			id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error"
+			class="contact-form__input-error"
+			data-wp-class--has-errors="state.hasErrors"
+			>
+				<span class="contact-form__warning-icon">
+					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z" />
+						<path d="M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z" />
+						<path fill-rule="evenodd" clip-rule="evenodd" d="M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z" />
+					</svg>
+					<span class="visually-hidden">' . __( 'Warning', 'jetpack-forms' ) . '</span>
+				</span>
+				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message"></span>
+			</div>';
+	}
+
+	/**
+	 * Set the invalid message for specific field types.
+	 *
+	 * @param string $type - the field type.
+	 * @param string $message - the message to display.
+	 *
+	 * @return void
+	 */
+	private function set_invalid_message( $type, $message ) {
+		wp_interactivity_config(
+			'jetpack/form',
+			array(
+				'error_types' => array(
+					'invalid_' . $type => $message,
+				),
+			)
+		);
+	}
+
+	/**
 	 * Return the HTML for the input field.
 	 *
 	 * @param string $type - the field type.
@@ -576,10 +621,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					name='" . esc_attr( $id ) . "'
 					id='" . esc_attr( $id ) . "'
 					value='" . esc_attr( $value ) . "'
+					data-wp-bind--aria-invalid='state.hasErrors'
+					data-wp-bind--value='state.getFieldValue'
+					aria-errormessage='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
+					data-wp-on--input='actions.handleChangeField'
+					data-wp-on--blur='actions.handleBlurField'
 					" . $class . $placeholder . '
 					' . ( $required ? "required aria-required='true'" : '' ) .
 					$extra_attrs_string .
-					" />\n";
+					" />\n {$this->get_error_div( $id, $type )}";
 	}
 
 	/**
@@ -596,6 +646,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_email_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$this->set_invalid_message( 'email', __( 'Please enter a valid email address', 'jetpack-forms' ) );
 		$field  = $this->render_label( 'email', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'email', $id, $value, $class, $placeholder, $required );
 		return $field;
@@ -615,6 +666,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
 		$field  = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
 		return $field;
@@ -634,18 +686,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
-		$custom_validation_message = __( 'Please enter a valid URL - https://www.example.com', 'jetpack-forms' );
-		$validation_attrs          = array(
-			'title'              => $custom_validation_message,
-			'oninvalid'          => 'setCustomValidity("' . $custom_validation_message . '")',
-			'oninput'            => 'setCustomValidity("")',
-			// Changes to this regex should be synced with the regex in the URL validation of the validate method of this class as both validate the same input. Note that this regex is in ECMAScript (JS) format.
-			'pattern'            => '(?:(?:[Hh][Tt][Tt][Pp][Ss]?|[Ff][Tt][Pp]):\/\/)?(?:\S+(?::\S*)?@|\d{1,3}(?:\.\d{1,3}){3}|(?:(?:[a-zA-Z\d\u00a1-\uffff]+-?)*[a-zA-Z\d\u00a1-\uffff]+)(?:\.(?:[a-zA-Z\d\u00a1-\uffff]+-?)*[a-zA-Z\d\u00a1-\uffff]+)*(?:\.[a-zA-Z\u00a1-\uffff]{2,6}))(?::\d+)?(?:[^\s]*)?',
-			'data-type-override' => 'url',
-		);
 
+		$this->set_invalid_message( 'url', __( 'Please enter a valid URL - https://www.example.com', 'jetpack-forms' ) );
 		$field  = $this->render_label( 'url', $id, $label, $required, $required_field_text );
-		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, $validation_attrs );
+		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
 
@@ -669,16 +713,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
 		$field .= "<textarea
+
 		                style='" . $this->field_styles . "'
 		                name='" . esc_attr( $id ) . "'
 		                id='contact-form-comment-" . esc_attr( $id ) . "'
-		                rows='20' "
+		                rows='20' 
+						data-wp-on--input='actions.handleChangeField'
+						data-wp-on--blur='actions.handleBlurField'
+						data-wp-bind--aria-invalid='state.hasErrors'
+						data-wp-text='state.getFieldValue'
+						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message' "
 						. $class
 						. $placeholder
 						. ' ' . ( $required ? "required aria-required='true'" : '' ) .
 						'>' . esc_textarea( $value )
 				. "</textarea>\n";
-		return $field;
+		return $field . $this->get_error_div( $id, 'textarea' );
 	}
 
 	/**
@@ -694,7 +744,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field  = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="grunion-radio-options">';
+		$this->set_invalid_message( 'radio', __( 'Please select one of the options.', 'jetpack-forms' ) );
+		$field  = '<fieldset data-wp-bind--aria-invalid="state.hasErrors" id="' . esc_attr( "$id-label" ) . '" class="grunion-radio-options">';
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		$field_style = 'style="' . $this->option_styles . '"';
@@ -716,6 +767,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 				$field .= "<p class='contact-form-field'>";
 				$field .= "<input
+									data-wp-on--change='actions.handleChangeField'
 									id='" . esc_attr( $radio_id ) . "'
 									type='radio'
 									name='" . esc_attr( $id ) . "'
@@ -730,7 +782,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$field .= '</p>';
 			}
 		}
-		$field .= '</fieldset>';
+		$field .= $this->get_error_div( $id, 'radio' ) . '</fieldset>';
 		return $field;
 	}
 
@@ -748,7 +800,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = "<div class='contact-form__checkbox-wrap'>";
-		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
+		$field .= "<input data-wp-on--change='actions.handleChangeField' id='" . esc_attr( $id ) . "' type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
 		$field .= "<label for='" . esc_attr( $id ) . "' class='grunion-field-label checkbox" . ( $this->is_error() ? ' form-error' : '' ) . "' style='" . $this->label_styles . "'>";
 		$field .= wp_kses_post( $label ) . ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
 		$field .= "</label>\n";
@@ -802,6 +854,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				esc_html__( 'File upload field requires Jetpack to be active.', 'jetpack-forms' ) .
 				'</div>';
 		}
+
+		$this->set_invalid_message( 'file_uploading', __( 'Please wait a moment, file is currently uploading.', 'jetpack-forms' ) );
+		$this->set_invalid_message( 'file_has_errors', __( 'Please remove any file upload errors.', 'jetpack-forms' ) );
 
 		// Enqueue necessary scripts and styles.
 		$this->enqueue_file_field_assets();
@@ -882,6 +937,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		wp_interactivity_config( 'jetpack/field-file', $global_config );
 
 		$context = array(
+			'fieldId'          => $id,
 			'isDropping'       => false,
 			'files'            => array(),
 			'allowedMimeTypes' => $accepted_file_types,
@@ -1000,9 +1056,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// checkbox is checked. Unlike radio buttons, for which the required attribute is satisfied if
 		// any of the radio buttons in the group is selected, adding a required attribute directly to
 		// a checkbox means that this specific checkbox must be checked.
-		$field  = '<fieldset id="' . esc_attr( "$id-label" ) . '" class="grunion-checkbox-multiple-options"' . ( $required ? 'data-required' : '' ) . '>';
-		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
-
+		$field       = '<fieldset data-wp-bind--aria-invalid="state.hasErrors" id="' . esc_attr( "$id-label" ) . '" class="grunion-checkbox-multiple-options"' . ( $required ? 'data-required' : '' ) . '>';
+		$field      .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 		$field_style = 'style="' . $this->option_styles . '"';
 
 		$used_html_ids = array();
@@ -1024,6 +1079,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$field .= "<input
 									id='" . esc_attr( $checkbox_id ) . "'
 									type='checkbox'
+									data-wp-on--change='actions.handleMultipleChangeField'
 									name='" . esc_attr( $id ) . "[]'
 									value='" . esc_attr( $checkbox_value ) . "' "
 									. $class
@@ -1035,7 +1091,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$field .= '</p>';
 			}
 		}
-		$field .= '</fieldset>';
+		$field .= $this->get_error_div( $id, 'scheckbox_multiplelect' ) . '</fieldset>';
 
 		return $field;
 	}
@@ -1055,7 +1111,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
 		$field .= "<div class='contact-form__select-wrapper'>";
-		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
+		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.handleChangeField' data-wp-bind--aria-invalid='state.hasErrors' >\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
@@ -1074,7 +1130,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "\t</select>\n";
 		$field .= "</div>\n";
 
-		return $field;
+		return $field . $this->get_error_div( $id, 'select' );
 	}
 
 	/**
@@ -1091,7 +1147,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
-
+		$this->set_invalid_message( 'date', __( 'Please enter a valid date.', 'jetpack-forms' ) );
 		// WARNING: sync data with DATE_FORMATS in jetpack-field-datepicker.js
 		$formats = array(
 			'mm/dd/yy' => array(
@@ -1157,6 +1213,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_number_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+		$this->set_invalid_message( 'number', __( 'Please enter a valid number', 'jetpack-forms' ) );
+		if ( isset( $extra_attrs['min'] ) ) {
+			// translators: %d is the minimum value.
+			$this->set_invalid_message( 'min_number', __( 'Please select a value that is no less than %d.', 'jetpack-forms' ) );
+		}
+		if ( isset( $extra_attrs['max'] ) ) {
+			// translators: %d is the maximum value.
+			$this->set_invalid_message( 'max_number', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
+		}
+
 		$field  = $this->render_label( 'number', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'number', $id, $value, $class, $placeholder, $required, $extra_attrs );
 		return $field;
@@ -1322,71 +1388,100 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$field .= "\n<div class='" . implode( ' ', $inset_label_class ) . "'>\n";
 		}
 
-		$field .= "\n<div {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
+				$context = array(
+					'fieldId'           => $id,
+					'fieldType'         => $type,
+					'fieldLabel'        => $label,
+					'fieldValue'        => $value,
+					'fieldPlaceholder'  => $placeholder,
+					'fieldIsRequired'   => $required,
+					'fieldErrorMessage' => '',
+					'fieldExtra'        => $this->get_field_extra( $type, $extra_attrs ),
+				);
 
-		switch ( $type ) {
-			case 'email':
-				$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
-				break;
-			case 'telephone':
-				$field .= $this->render_telephone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
-				break;
-			case 'url':
-				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
-				break;
-			case 'textarea':
-				$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
-				break;
-			case 'radio':
-				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text );
-				break;
-			case 'checkbox':
-				$field .= $this->render_checkbox_field( $id, $label, $value, $field_class, $required, $required_field_text );
-				break;
-			case 'checkbox-multiple':
-				$field .= $this->render_checkbox_multiple_field( $id, $label, $value, $field_class, $required, $required_field_text );
-				break;
-			case 'select':
-				$field .= $this->render_select_field( $id, $label, $value, $field_class, $required, $required_field_text );
-				break;
-			case 'date':
-				$field .= $this->render_date_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
-				break;
-			case 'consent':
-				$field .= $this->render_consent_field( $id, $field_class );
-				break;
-			case 'number':
-				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
-				break;
-			case 'file':
-				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
-				break;
-			default: // text field
-				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
-				break;
+				$field .= "\n<div data-wp-interactive=\"jetpack/form\" " . wp_interactivity_data_wp_context( $context ) . " {$block_style} {$shell_field_class} data-wp-init=\"callbacks.initializeField\" >\n"; // new in Jetpack 6.8.0
+
+				switch ( $type ) {
+					case 'email':
+						$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+						break;
+					case 'telephone':
+						$field .= $this->render_telephone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+						break;
+					case 'url':
+						$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+						break;
+					case 'textarea':
+						$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+						break;
+					case 'radio':
+						$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text );
+						break;
+					case 'checkbox':
+						$field .= $this->render_checkbox_field( $id, $label, $value, $field_class, $required, $required_field_text );
+						break;
+					case 'checkbox-multiple':
+						$field .= $this->render_checkbox_multiple_field( $id, $label, $value, $field_class, $required, $required_field_text );
+						break;
+					case 'select':
+						$field .= $this->render_select_field( $id, $label, $value, $field_class, $required, $required_field_text );
+						break;
+					case 'date':
+						$field .= $this->render_date_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+						break;
+					case 'consent':
+						$field .= $this->render_consent_field( $id, $field_class );
+						break;
+					case 'number':
+						$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
+						break;
+					case 'file':
+						$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
+						break;
+					default: // text field
+						$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
+						break;
+				}
+
+				if ( ! empty( $form_style ) && $form_style !== 'default' && ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
+					switch ( $form_style ) {
+						case 'outlined':
+							$field .= $this->render_outline_label( $id, $label, $required, $required_field_text );
+							break;
+						case 'animated':
+							$field .= $this->render_animated_label( $id, $label, $required, $required_field_text );
+							break;
+						case 'below':
+							$field .= $this->render_below_label( $id, $label, $required, $required_field_text );
+							break;
+					}
+				}
+
+				$field .= "\t</div>\n";
+
+				if ( $has_inset_label ) {
+					$field .= "\t</div>\n";
+				}
+
+				return $field;
+	}
+
+	/**
+	 * Returns the extra attributes for the field.
+	 * That are used in field validation.
+	 *
+	 * @param string $type - the field type.
+	 * @param array  $extra_attrs - the extra attributes.
+	 *
+	 * @return string
+	 */
+	private function get_field_extra( $type, $extra_attrs ) {
+		if ( 'date' === $type ) {
+			$date_format = $this->get_attribute( 'dateformat' );
+			return isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
 		}
 
-		if ( ! empty( $form_style ) && $form_style !== 'default' && ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
-			switch ( $form_style ) {
-				case 'outlined':
-					$field .= $this->render_outline_label( $id, $label, $required, $required_field_text );
-					break;
-				case 'animated':
-					$field .= $this->render_animated_label( $id, $label, $required, $required_field_text );
-					break;
-				case 'below':
-					$field .= $this->render_below_label( $id, $label, $required, $required_field_text );
-					break;
-			}
-		}
-
-		$field .= "\t</div>\n";
-
-		if ( $has_inset_label ) {
-			$field .= "\t</div>\n";
-		}
-
-		return $field;
+		return $extra_attrs;
 	}
 
 	/**

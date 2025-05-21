@@ -1,7 +1,7 @@
 import { getContext, store } from '@wordpress/interactivity';
 
 const NAMESPACE = 'jetpack/form';
-store( NAMESPACE, {
+const { state } = store( NAMESPACE, {
 	state: {
 		get isFirstStep() {
 			const context = getContext();
@@ -17,29 +17,30 @@ store( NAMESPACE, {
 			const context = getContext();
 			return context.currentStep !== context.maxSteps;
 		},
+
+		get stepHasErrorFields() {
+			const context = getContext();
+			const fields = context.fields;
+
+			const stepFields = Object.values( fields ).filter( field => {
+				return field.step === context.currentStep;
+			} );
+
+			return stepFields.some( field => {
+				return field.error !== 'yes';
+			} );
+		},
 	},
 	actions: {
 		nextStep( event ) {
 			event.preventDefault();
 			const context = getContext();
 
-			// Add validation check
-			const currentStepElement = document.querySelector(
-				`.jetpack-form-step[data-wp-context*='"step":${ context.currentStep }']`
-			);
-			const inputs = currentStepElement.querySelectorAll( 'input, select, textarea' );
-			let isValid = true;
-
-			inputs.forEach( input => {
-				if ( ! input.checkValidity() ) {
-					isValid = false;
-					input.reportValidity();
-				}
-			} );
-
-			if ( ! isValid ) return;
-
 			if ( context.currentStep >= context.maxSteps ) {
+				return;
+			}
+			context.showErrors = state.stepHasErrorFields;
+			if ( state.stepHasErrorFields ) {
 				return;
 			}
 

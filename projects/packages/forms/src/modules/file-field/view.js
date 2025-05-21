@@ -2,9 +2,10 @@
  * WordPress dependencies
  */
 import { store, getContext, withScope, getElement, getConfig } from '@wordpress/interactivity';
-import { clearInputError } from '../../contact-form/js/form-errors.js';
 
 const NAMESPACE = 'jetpack/field-file';
+
+const jetpackFormStore = store( 'jetpack/form' );
 
 let uploadToken = null;
 let tokenExpiry = null;
@@ -92,9 +93,6 @@ const formatBytes = ( size, decimals = 2 ) => {
  * @param {File} file - The file to add.
  */
 const addFileToContext = file => {
-	const { ref } = getElement();
-	clearInputError( ref, { hasInsetLabel: state.isInlineForm } );
-
 	const config = getConfig( NAMESPACE );
 	const context = getContext();
 
@@ -135,6 +133,8 @@ const addFileToContext = file => {
 		url: fileUrl,
 		error,
 	} );
+
+	jetpackFormStore.actions.updateFieldValue( context.fieldId, context.files );
 
 	// Start the upload if we don't have any errors.
 	! error && actions.uploadFile( file, clientFileId );
@@ -210,6 +210,8 @@ const updateFileContext = ( updatedFile, clientFileId ) => {
 	const context = getContext();
 	const index = context.files.findIndex( file => file.id === clientFileId );
 	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
+
+	jetpackFormStore.actions.updateFieldValue( context.fieldId, context.files );
 };
 
 const { state, actions } = store( NAMESPACE, {
@@ -346,10 +348,6 @@ const { state, actions } = store( NAMESPACE, {
 		removeFile: function* ( event ) {
 			event.preventDefault();
 
-			const { ref } = getElement();
-			const field = ref.closest( '.jetpack-form-file-field__container' ); // Needed to select the top most field.
-			clearInputError( field, { hasInsetLabel: state.isInlineForm } );
-
 			const context = getContext();
 			const clientFileId = event.target.dataset.id;
 
@@ -382,6 +380,11 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			// Remove the file from the context
 			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
+
+			jetpackFormStore.actions.updateFieldValue(
+				context.fieldId,
+				state.hasFiles ? context.files : ''
+			);
 		},
 	},
 

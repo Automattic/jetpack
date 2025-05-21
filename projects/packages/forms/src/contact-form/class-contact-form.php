@@ -414,6 +414,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
+			if ( $has_submit_button_block ) {
+				// Place the error wrapper before the button block
+				$r = str_replace( '<div class="wp-block-jetpack-button', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r );
+			}
+
 			$max_steps = 0;
 			if ( preg_match_all( '/data-wp-context=[\'\"]?\{\"step\":(\d+)[\'\"]?/', $content, $matches ) ) {
 				if ( ! empty( $matches[1] ) ) {
@@ -424,13 +429,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$context = array(
 				'formId'      => $id,
 				'formHash'    => $form->hash,
+				'showErrors'  => false,
+				'fields'      => array(),
 				'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1,
 				'maxSteps'    => $max_steps,
 				'direction'   => 'forward', // Default direction for animations
 				'transition'  => $form->get_attribute( 'stepTransition' ) ? $form->get_attribute( 'stepTransition' ) : 'fade-slide', // Transition style for step animations
 			);
 
-			$r .= "<form action='" . esc_url( $url ) . "' data-wp-interactive='jetpack/form' class='" . esc_attr( $form_classes ) . "' " . wp_interactivity_data_wp_context( $context ) . " method='post' $form_aria_label novalidate>\n";
+			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label data-wp-interactive=\"jetpack/form\"  " . wp_interactivity_data_wp_context( $context ) . " data-wp-on--submit=\"actions.formSubmit\" novalidate>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
@@ -467,6 +474,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$submit_button_text = $form->get_attribute( 'submit_button_text' );
 				}
 
+				$r .= self::render_error_wrapper();
 				$r .= "\t\t<button type='submit' class='" . esc_attr( $submit_button_class ) . "'";
 				if ( ! empty( $submit_button_styles ) ) {
 					$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
@@ -512,6 +520,24 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string $r The contact form HTML.
 		 */
 		return apply_filters( 'jetpack_contact_form_html', $r );
+	}
+
+	/**
+	 * Helper function that display the error wrapper.
+	 *
+	 * @return string HTML string for the error wrapper.
+	 */
+	private static function render_error_wrapper() {
+		$html  = '<div class="contact-form__error" data-wp-class--show-errors="state.showFromErrors">';
+		$html .= '<span class="contact-form__warning-icon"><span class="visually-hidden">' . __( 'Warning.', 'jetpack-forms' ) . '</span><i aria-hidden="true"></i></span>
+				<span data-wp-text="state.getFormErrorMessage"></span>
+				<ul>
+				<template data-wp-each="state.getErrorList" data-wp-key="context.item.id">
+					<li><a data-wp-bind--href="context.item.anchor" data-wp-text="context.item.label"></a></li>
+				</template>
+				</ul>';
+		$html .= '</div>';
+		return $html;
 	}
 
 	/**
