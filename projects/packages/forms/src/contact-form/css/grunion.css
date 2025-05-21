@@ -178,11 +178,6 @@
 	margin: 0;
 }
 
-.contact-form .grunion-radio-options .contact-form-field .grunion-radio-label,
-.contact-form .grunion-checkbox-multiple-options .contact-form-field .grunion-checkbox-multiple-label {
-	transform: translateY(-0.1rem);
-}
-
 .contact-form :where(label span.required),
 .contact-form :where(.grunion-label-required) {
 	font-size: 85%;
@@ -850,7 +845,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	border: solid 1px currentColor;
     color: currentColor;
 	outline-offset: 4px;
-	transform: translateY(0.15rem);
+	transform: translateY(0.15em);
 }
 
 .contact-form .grunion-field-wrap input.radio {
