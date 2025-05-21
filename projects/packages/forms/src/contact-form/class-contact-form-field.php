@@ -886,7 +886,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 					$used_html_ids[ $radio_id ] = true;
 
-					$default_classes = 'contact-form-field wp-block-jetpack-option';
+					$default_classes = 'contact-form-field';
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
@@ -962,7 +962,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		// TODO: Make this backward compatible. Previously, this would use label styles not option styles.
 		// TODO: Is it better to apply the option classes and styles to the wrapper or the label?
-		$label_class  = 'wp-block-jetpack-option grunion-field-label checkbox';
+		$label_class  = 'grunion-field-label checkbox';
 		$label_class .= $this->is_error() ? ' form-error' : '';
 		$label_class .= $this->label_classes ? ' ' . $this->label_classes : '';
 		$label_class .= $this->option_classes ? ' ' . $this->option_classes : '';
@@ -988,7 +988,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$consent_message = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
 
 		// TODO: Confirm legacy consent blocks with custom label styles still display correctly without having been migrated.
-		$label_class  = 'wp-block-jetpack-option grunion-field-label consent consent-' . esc_attr( $consent_type );
+		$label_class  = 'grunion-field-label consent consent-' . esc_attr( $consent_type );
 		$label_class .= $this->option_classes ? ' ' . $this->option_classes : '';
 
 		$field = "<label class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . esc_attr( $this->option_styles ) . "'>";
@@ -1292,7 +1292,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 					$used_html_ids[ $checkbox_id ] = true;
 
-					$default_classes = 'contact-form-field wp-block-jetpack-option';
+					$default_classes = 'contact-form-field';
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 

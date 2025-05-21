@@ -159,7 +159,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 		);
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="checkbox" label="single" optionclasses=" has-text-color" optionstyles="color:caramel; font-size:24px;" fieldwrapperclasses="wp-block-jetpack-field-checkbox"/]';
+		$expected  = '[contact-field type="checkbox" label="single" optionclasses="wp-block-jetpack-option has-text-color" optionstyles="color:caramel; font-size:24px;" fieldwrapperclasses="wp-block-jetpack-field-checkbox"/]';
 
 		$this->assertEquals( $expected, $shortcode );
 	}
@@ -393,7 +393,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 			'option'            => array(
 				'expected'     => array(
-					'optionclasses'       => ' has-text-color has-swamp-cheese-color',
+					'optionclasses'       => 'wp-block-jetpack-option has-text-color has-swamp-cheese-color',
 					'optionstyles'        => 'font-size:24px;font-style:italic;font-weight:bold;line-height:1.5;letter-spacing:0.1em;',
 					'label'               => 'Option',
 					'type'                => 'radio',
