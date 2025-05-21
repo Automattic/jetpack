@@ -32,7 +32,7 @@
 		"@wordpress/dependency-extraction-webpack-plugin": "6.22.0",
 		"babel-loader": "9.1.2",
 		"babel-plugin-polyfill-corejs3": "0.10.6",
-		"browserslist": "4.24.3",
+		"browserslist": "4.24.5",
 		"core-js": "3.38.1",
 		"css-loader": "6.11.0",
 		"css-minimizer-webpack-plugin": "5.0.1",
