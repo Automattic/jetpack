@@ -45,7 +45,7 @@
 		"@automattic/explat-client-react-helpers": "0.1.1",
 		"@wordpress/api-fetch": "7.22.0",
 		"@wordpress/url": "4.22.0",
-		"cookie": "1.0.1",
+		"cookie": "1.0.2",
 		"qs": "6.12.1"
 	}
 }
