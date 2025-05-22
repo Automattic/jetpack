@@ -3121,11 +3121,11 @@ importers:
         specifier: 8.1.1
         version: 8.1.1(postcss@8.4.47)(webpack@5.94.0)
       sass:
-        specifier: 1.64.1
-        version: 1.64.1
+        specifier: 1.87.0
+        version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.64.1)(webpack@5.94.0)
+        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
 
   projects/packages/plans: {}
 
@@ -11961,9 +11961,6 @@ packages:
   immediate@3.0.6:
     resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
 
-  immutable@4.3.7:
-    resolution: {integrity: sha512-1hqclzwYwjRDFLjcFxOM5AYkkG0rpFPpr1RLPMEuGczoS7YA8gLhy8SWXYRAA/XwfEHpfo3cw5JGioS32fnMRw==}
-
   immutable@5.1.2:
     resolution: {integrity: sha512-qHKXW1q6liAk1Oys6umoaZbDRqjcjgSrbnrifHsfsttza7zcvRAsL7mMV6xWcyhwQy7Xj5v4hhbr6b+iDYwlmQ==}
 
@@ -14673,11 +14670,6 @@ packages:
         optional: true
       webpack:
         optional: true
-
-  sass@1.64.1:
-    resolution: {integrity: sha512-16rRACSOFEE8VN7SCgBu1MpYCyN7urj9At898tyzdXFhC+a+yOX5dXwAR7L8/IdPJ1NB8OYoXmD55DM30B2kEQ==}
-    engines: {node: '>=14.0.0'}
-    hasBin: true
 
   sass@1.87.0:
     resolution: {integrity: sha512-d0NoFH4v6SjEK7BoX810Jsrhj7IQSYHAHLi/iSpgqKc7LaIDshFRlSg5LOymf9FqQhxEHs2W5ZQXlvy0KD45Uw==}
@@ -25927,8 +25919,6 @@ snapshots:
 
   immediate@3.0.6: {}
 
-  immutable@4.3.7: {}
-
   immutable@5.1.2: {}
 
   import-cwd@3.0.0:
@@ -29203,25 +29193,12 @@ snapshots:
       sass-embedded: 1.87.0
       webpack: 5.94.0(webpack-cli@6.0.1)
 
-  sass-loader@16.0.5(sass@1.64.1)(webpack@5.94.0):
-    dependencies:
-      neo-async: 2.6.2
-    optionalDependencies:
-      sass: 1.64.1
-      webpack: 5.94.0(webpack-cli@6.0.1)
-
   sass-loader@16.0.5(sass@1.87.0)(webpack@5.94.0):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
       sass: 1.87.0
       webpack: 5.94.0(webpack-cli@6.0.1)
-
-  sass@1.64.1:
-    dependencies:
-      chokidar: 3.6.0
-      immutable: 4.3.7
-      source-map-js: 1.2.0
 
   sass@1.87.0:
     dependencies:
