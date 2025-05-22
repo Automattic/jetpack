@@ -78,11 +78,33 @@ class Dashboard {
 	 * Load JavaScript for the dashboard.
 	 */
 	public function load_admin_scripts() {
-		if ( ! $this->switch->is_modern_view() && ! $this->switch->is_jetpack_forms_admin_page() ) {
+		if ( ! $this->switch->is_modern_view() && ! $this->switch->is_jetpack_forms_admin_page() && $this->switch->is_classic_view() ) {
 			if ( Jetpack_Forms::is_legacy_menu_item_retired() ) {
-				wp_admin_notice( 'This page has moved to the Jetpack Forms menu.', array( 'type' => 'info' ) );
+				$notice = sprintf(
+					/* translators: %s: URL to the Jetpack > Forms menu */
+					__( 'This page has moved to the <a href="%s">Jetpack > Forms</a> menu.', 'jetpack-forms' ),
+					$this->switch->get_forms_admin_url()
+				);
+				wp_admin_notice(
+					$notice,
+					array(
+						'type'        => 'info',
+						'dismissable' => true,
+					)
+				);
 			} elseif ( $this->switch->is_jetpack_forms_admin_page_available() ) {
-				wp_admin_notice( 'This will be moved to the Jetpack Forms menu.', array( 'type' => 'info' ) );
+				$notice = sprintf(
+					/* translators: %s: URL to the Jetpack > Forms menu */
+					__( 'This page will be moved to the <a href="%s">Jetpack > Forms</a> menu.', 'jetpack-forms' ),
+					$this->switch->get_forms_admin_url()
+				);
+				wp_admin_notice(
+					$notice,
+					array(
+						'type'        => 'info',
+						'dismissable' => true,
+					)
+				);
 			}
 			return;
 		}
