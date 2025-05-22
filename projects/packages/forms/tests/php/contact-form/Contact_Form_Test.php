@@ -1076,8 +1076,10 @@ class Contact_Form_Test extends BaseTestCase {
 	 * @return DOMElement The first div element.
 	 */
 	public function getCommonDiv( $html ) {
-		$doc = new DOMDocument();
-		$doc->loadHTML( $html );
+		$doc              = new DOMDocument();
+		$previous_setting = libxml_use_internal_errors( true );
+		$doc->loadHTML( '<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		libxml_use_internal_errors( $previous_setting );
 		return $this->getFirstElement( $doc, 'div' );
 	}
 
