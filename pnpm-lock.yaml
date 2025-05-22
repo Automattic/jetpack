@@ -845,7 +845,7 @@ importers:
         version: 6.0.15
       browserslist:
         specifier: ^4.17.6
-        version: 4.24.3
+        version: 4.24.5
       debug:
         specifier: ^4.3.2
         version: 4.4.0
@@ -1015,9 +1015,6 @@ importers:
       rollup-plugin-svelte:
         specifier: 7.2.2
         version: 7.2.2(rollup@3.29.5)(svelte@4.2.19)
-      rollup-plugin-svelte-svg:
-        specifier: 1.0.0-beta.6
-        version: 1.0.0-beta.6(svelte@4.2.19)
       sass:
         specifier: 1.87.0
         version: 1.87.0
@@ -1909,8 +1906,8 @@ importers:
         specifier: 0.10.6
         version: 0.10.6(@babel/core@7.26.10)
       browserslist:
-        specifier: 4.24.3
-        version: 4.24.3
+        specifier: 4.24.5
+        version: 4.24.5
       core-js:
         specifier: 3.38.1
         version: 3.38.1
@@ -2301,8 +2298,8 @@ importers:
         specifier: 4.22.0
         version: 4.22.0
       cookie:
-        specifier: 1.0.1
-        version: 1.0.1
+        specifier: 1.0.2
+        version: 1.0.2
       qs:
         specifier: 6.12.1
         version: 6.12.1
@@ -4367,6 +4364,9 @@ importers:
         specifier: 6.30.0
         version: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
+      '@automattic/color-studio':
+        specifier: 4.1.0
+        version: 4.1.0
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
@@ -4633,8 +4633,8 @@ importers:
         specifier: 0.0.2
         version: 0.0.2
       cookie:
-        specifier: 1.0.1
-        version: 1.0.1
+        specifier: 1.0.2
+        version: 1.0.2
       copy-webpack-plugin:
         specifier: 11.0.0
         version: 11.0.0(webpack@5.94.0)
@@ -9858,11 +9858,6 @@ packages:
   browser-assert@1.2.1:
     resolution: {integrity: sha512-nfulgvOR6S4gt9UKCeGJOuSGBPGiFT6oQ/2UBnvTY/5aQ1PnksW72fhZkM30DzoRRv2WpwZf1vHHEr3mtuXIWQ==}
 
-  browserslist@4.24.3:
-    resolution: {integrity: sha512-1CPmv8iobE2fyRMV97dAcMVegvvWKxmq94hkLiAkUGwKVTyDLw33K+ZxiFrREKmmps4rIw6grcCFCnTMSZ/YiA==}
-    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
-    hasBin: true
-
   browserslist@4.24.5:
     resolution: {integrity: sha512-FDToo4Wo82hIdgc1CQ+NQD0hEhmpPjrZ3hiUgwgOG6IuTdlpr8jdjyG24P6cNP1yJpTLzS5OcGgSw0xmDU1/Tw==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
@@ -10256,8 +10251,8 @@ packages:
     resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
     engines: {node: '>= 0.6'}
 
-  cookie@1.0.1:
-    resolution: {integrity: sha512-Xd8lFX4LM9QEEwxQpF9J9NTUh8pmdJO0cyRJhFiDoLTk2eH8FXlRv2IFGYVadZpqI3j8fhNrSdKCeYPxiAhLXw==}
+  cookie@1.0.2:
+    resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
     engines: {node: '>=18'}
 
   copy-webpack-plugin@11.0.0:
@@ -14418,12 +14413,6 @@ packages:
     peerDependencies:
       postcss: 8.x
 
-  rollup-plugin-svelte-svg@1.0.0-beta.6:
-    resolution: {integrity: sha512-6uJb9kuaqK6p+DvkgphhGN18wvUzdT6h7MQC2B8P1omi9omC9lQC54pwaot21h6z9ibhGPLG9a1XFLeDQth/kg==}
-    deprecated: 'Svelte supports this usecase natively now. This package is redundant. See: https://svelte.dev/playground/86553af5c35449ab88e34f1e50eb298f?version=5.30.1'
-    peerDependencies:
-      svelte: '*'
-
   rollup-plugin-svelte@7.2.2:
     resolution: {integrity: sha512-hgnIblTRewaBEVQD6N0Q43o+y6q1TmDRhBjaEzQCi50bs8TXqjc+d1zFZyE8tsfgcfNHZQzclh4RxlFUB85H8Q==}
     engines: {node: '>=10'}
@@ -16486,7 +16475,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.26.8
       '@babel/helper-validator-option': 7.27.1
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -16494,7 +16483,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.27.2
       '@babel/helper-validator-option': 7.27.1
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -20358,7 +20347,7 @@ snapshots:
       '@babel/runtime': 7.26.10
       '@wordpress/browserslist-config': 6.23.0
       '@wordpress/warning': 3.23.0
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       core-js: 3.38.1
       react: 18.3.1
     transitivePeerDependencies:
@@ -23207,7 +23196,7 @@ snapshots:
 
   autoprefixer@10.4.20(postcss@8.4.47):
     dependencies:
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       caniuse-lite: 1.0.30001717
       fraction.js: 4.3.7
       normalize-range: 0.1.2
@@ -23464,13 +23453,6 @@ snapshots:
 
   browser-assert@1.2.1: {}
 
-  browserslist@4.24.3:
-    dependencies:
-      caniuse-lite: 1.0.30001717
-      electron-to-chromium: 1.5.152
-      node-releases: 2.0.19
-      update-browserslist-db: 1.1.3(browserslist@4.24.3)
-
   browserslist@4.24.5:
     dependencies:
       caniuse-lite: 1.0.30001717
@@ -23556,7 +23538,7 @@ snapshots:
 
   caniuse-api@3.0.0:
     dependencies:
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       caniuse-lite: 1.0.30001717
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
@@ -23950,7 +23932,7 @@ snapshots:
 
   cookie@0.7.2: {}
 
-  cookie@1.0.1: {}
+  cookie@1.0.2: {}
 
   copy-webpack-plugin@11.0.0(webpack@5.94.0):
     dependencies:
@@ -24115,7 +24097,7 @@ snapshots:
 
   cssnano-preset-default@6.1.2(postcss@8.4.47):
     dependencies:
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       css-declaration-sorter: 7.2.0(postcss@8.4.47)
       cssnano-utils: 4.0.2(postcss@8.4.47)
       postcss: 8.4.47
@@ -28098,7 +28080,7 @@ snapshots:
 
   postcss-colormin@6.1.0(postcss@8.4.47):
     dependencies:
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       caniuse-api: 3.0.0
       colord: 2.9.3
       postcss: 8.4.47
@@ -28106,7 +28088,7 @@ snapshots:
 
   postcss-convert-values@6.1.0(postcss@8.4.47):
     dependencies:
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
@@ -28177,7 +28159,7 @@ snapshots:
 
   postcss-merge-rules@6.1.1(postcss@8.4.47):
     dependencies:
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       caniuse-api: 3.0.0
       cssnano-utils: 4.0.2(postcss@8.4.47)
       postcss: 8.4.47
@@ -28197,7 +28179,7 @@ snapshots:
 
   postcss-minify-params@6.1.0(postcss@8.4.47):
     dependencies:
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       cssnano-utils: 4.0.2(postcss@8.4.47)
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
@@ -28283,7 +28265,7 @@ snapshots:
 
   postcss-normalize-unicode@6.1.0(postcss@8.4.47):
     dependencies:
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
@@ -28309,7 +28291,7 @@ snapshots:
 
   postcss-reduce-initial@6.1.0(postcss@8.4.47):
     dependencies:
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       caniuse-api: 3.0.0
       postcss: 8.4.47
 
@@ -28992,12 +28974,6 @@ snapshots:
       style-inject: 0.3.0
     transitivePeerDependencies:
       - ts-node
-
-  rollup-plugin-svelte-svg@1.0.0-beta.6(svelte@4.2.19):
-    dependencies:
-      rollup-pluginutils: 2.8.2
-      svelte: 4.2.19
-      svgo: 3.3.2
 
   rollup-plugin-svelte@7.2.2(rollup@3.29.5)(svelte@4.2.19):
     dependencies:
@@ -29690,7 +29666,7 @@ snapshots:
 
   stylehacks@6.1.1(postcss@8.4.47):
     dependencies:
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       postcss: 8.4.47
       postcss-selector-parser: 6.1.2
 
@@ -30329,12 +30305,6 @@ snapshots:
       '@unrs/resolver-binding-win32-ia32-msvc': 1.7.2
       '@unrs/resolver-binding-win32-x64-msvc': 1.7.2
 
-  update-browserslist-db@1.1.3(browserslist@4.24.3):
-    dependencies:
-      browserslist: 4.24.3
-      escalade: 3.2.0
-      picocolors: 1.1.1
-
   update-browserslist-db@1.1.3(browserslist@4.24.5):
     dependencies:
       browserslist: 4.24.5
@@ -30587,7 +30557,7 @@ snapshots:
       '@webassemblyjs/wasm-parser': 1.14.1
       acorn: 8.14.1
       acorn-import-attributes: 1.9.5(acorn@8.14.1)
-      browserslist: 4.24.3
+      browserslist: 4.24.5
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.18.1
       es-module-lexer: 1.7.0

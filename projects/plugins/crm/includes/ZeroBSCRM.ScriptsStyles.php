@@ -98,7 +98,7 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 			wp_register_script( 'zerobsjsmodal', plugins_url( '/js/lib/jquery.modal.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 			// font awesome
-			wp_register_style( 'jpcrm-fontawesome-v4-4-0-core-css', plugins_url( '/css/font-awesome.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_register_style( 'jpcrm-fontawesome', plugins_url( '/vendor/fortawesome/font-awesome/css/font-awesome' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 			// chart.js
 			wp_register_script( 'zerobscrmchartjs', plugins_url( '/js/lib/chart.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
@@ -348,7 +348,7 @@ function zeroBSCRM_global_admin_styles(){
 		// prev core
 		wp_enqueue_style( 'zerobscrmadmcss' );
 		wp_enqueue_style( 'zerobsjsmodal' );
-		wp_enqueue_style( 'jpcrm-fontawesome-v4-4-0-core-css'	);
+		wp_enqueue_style( 'jpcrm-fontawesome' );
 		wp_enqueue_style( 'zerobscrmswa' );
 		wp_enqueue_script( 'zerobsjsmodal');
 
