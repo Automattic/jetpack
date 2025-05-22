@@ -4344,6 +4344,9 @@ importers:
       glob:
         specifier: 11.0.0
         version: 11.0.0
+      hopscotch:
+        specifier: 0.3.1
+        version: 0.3.1
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -11728,6 +11731,9 @@ packages:
 
   hookified@1.9.0:
     resolution: {integrity: sha512-2yEEGqphImtKIe1NXWEhu6yD3hlFR4Mxk4Mtp3XEyScpSt4pQ4ymmXA1zzxZpj99QkFK+nN0nzjeb2+RUi/6CQ==}
+
+  hopscotch@0.3.1:
+    resolution: {integrity: sha512-XBvxhh1awi7lWzNP9Os2J8c/Ql66IPKnUn7L3hvqPaEa0Fk2S81mo0n2T/RxE2aNoHitVmn5Bl5C9J63iEWvSw==}
 
   hosted-git-info@7.0.2:
     resolution: {integrity: sha512-puUZAUKT5m8Zzvs72XWy3HtvVbTWljRE66cP60bxJzAqf2DgICo7lYTY2IHUmLnNpjYvw5bvmoHvPc0QO2a62w==}
@@ -25670,6 +25676,8 @@ snapshots:
       parse-passwd: 1.0.0
 
   hookified@1.9.0: {}
+
+  hopscotch@0.3.1: {}
 
   hosted-git-info@7.0.2:
     dependencies:
