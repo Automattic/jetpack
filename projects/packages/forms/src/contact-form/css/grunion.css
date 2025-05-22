@@ -84,8 +84,8 @@
 	display: block;
 }
 
-:where(.contact-form legend.grunion-field-label),
-:where(.contact-form label) {
+.contact-form :where(legend.grunion-field-label),
+.contact-form :where(label) {
 	margin-bottom: 0.25em;
 	font-weight: 700;
 }
