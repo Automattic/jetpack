@@ -3,6 +3,10 @@
 .jp-forms__integrations {
 	padding: 32px 16.6%;
 
+	@media ( max-width: 782px ) {
+		padding: 32px 8px;
+	}
+
 	.jp-forms__integrations-header {
 		display: flex;
 		flex-direction: column;
@@ -26,5 +30,9 @@
 		border: 1px solid $gray-200;
 		border-radius: 8px;
 		padding: 12px 24px;
+
+		@media ( max-width: 782px ) {
+			padding: 12px 8px;
+		}
 	}
 }
