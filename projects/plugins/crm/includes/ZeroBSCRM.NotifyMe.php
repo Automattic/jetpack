@@ -68,11 +68,11 @@ function zeroBSCRM_notifyme_scripts(){
 	wp_enqueue_style( 'notifyme-css', ZEROBSCRM_URL . 'css/jpcrm-notifyme-front' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 
 	#} this does the browser notifications
-	wp_register_script( 'notifyme_push', ZEROBSCRM_URL . 'build/lib/js/push.min.js', array(), $zbs::VERSION, true );
+	wp_register_script( 'notifyme_push', ZEROBSCRM_URL . 'build/lib/push.js/push.min.js', array(), $zbs::VERSION, true );
 	wp_enqueue_script( 'notifyme_push' );
 
 	#} this stores things in cookies, so not to keep notifying
-	wp_register_script( 'notifyme_cookie', ZEROBSCRM_URL . 'build/lib/js/js.cookie.min.js', array(), $zbs::VERSION, true );
+	wp_register_script( 'notifyme_cookie', ZEROBSCRM_URL . 'build/lib/js-cookie/js.cookie.min.js', array(), $zbs::VERSION, true );
 	wp_enqueue_script( 'notifyme_cookie' );
 
 	#} this is the browser notification icon.

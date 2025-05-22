@@ -4,8 +4,7 @@ const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plug
 const CopyPlugin = require( 'copy-webpack-plugin' );
 const { glob } = require( 'glob' );
 const doNotMinify = false;
-const libPathJS = path.resolve( __dirname, 'build/lib/js/' );
-const libPathCSS = path.resolve( __dirname, 'build/lib/css/' );
+const buildLibPath = path.resolve( __dirname, 'build/lib/' );
 
 /**
  * Return an array with a list of our legacy '.js' files.
@@ -322,22 +321,22 @@ module.exports = [
 					// Used by jpcrm-notifyme-front.js for notifications
 					{
 						from: path.resolve( __dirname, 'node_modules/js-cookie/dist/js.cookie.min.js' ),
-						to: libPathJS,
+						to: `${ buildLibPath }/js-cookie/`,
 					},
 					// Used by jpcrm-notifyme-front.js for notifications
 					{
 						from: path.resolve( __dirname, 'node_modules/push.js/bin/push.min.js' ),
-						to: libPathJS,
+						to: `${ buildLibPath }/push.js/`,
 					},
 					// Used by ZeroBSCRM.OnboardMe.php for the onboarding tour
 					{
 						from: path.resolve( __dirname, 'node_modules/hopscotch/dist/js/hopscotch.min.js' ),
-						to: libPathJS,
+						to: `${ buildLibPath }/hopscotch/`,
 					},
 					// Used by ZeroBSCRM.OnboardMe.php for the onboarding tour
 					{
 						from: path.resolve( __dirname, 'node_modules/hopscotch/dist/css/hopscotch.min.css' ),
-						to: libPathCSS,
+						to: `${ buildLibPath }/hopscotch/`,
 					},
 				],
 			} ),
