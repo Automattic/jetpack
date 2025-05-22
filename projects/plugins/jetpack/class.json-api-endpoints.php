@@ -2564,7 +2564,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		 * @param array $clients_allowed_video_uploads Array of whitelisted Video clients.
 		 */
 		$clients_allowed_video_uploads = apply_filters( 'rest_api_clients_allowed_video_uploads', $clients_allowed_video_uploads );
-		if ( ! isset( $this->api ) || ! isset( $this->api->token_details['client_id'] ) || ! in_array( $this->api->token_details['client_id'], $clients_allowed_video_uploads ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- Check what types are expected here.
+		if ( ! isset( $this->api->token_details['client_id'] ) || ! in_array( $this->api->token_details['client_id'], $clients_allowed_video_uploads, true ) ) {
 			return $mimes;
 		}
 
