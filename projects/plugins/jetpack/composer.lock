@@ -2046,10 +2046,11 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/paypal-payments",
-				"reference": "1e091cdda99436328f1aa818e9b8c47fd966f285"
+				"reference": "1fc13ca29fdb47d04215e1d9dd5a3da3e37dd926"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-blocks": "@dev",
 				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-plans": "@dev",
 				"php": ">=7.2"
