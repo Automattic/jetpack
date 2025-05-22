@@ -381,6 +381,13 @@
 		outline: none;
 		position: relative;
 		pointer-events: none;
+		border: none;
+
+		/* Some classic themes set the min-widths, which gives an elliptical shape to the input. */
+		min-width: auto;
+		width: 1em;
+		height: 1em;
+		box-shadow: none;
 	}
 
 	:where(.jetpack-option__type) {
@@ -419,7 +426,6 @@
 
 		&[type="radio"]::before {
 			border-radius: 50%;
-			transform: translateY(0.15em);
 		}
 	}
 
