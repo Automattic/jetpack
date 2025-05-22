@@ -145,7 +145,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		// Assert that the stats link is present in the output
-		$this->assertStringContainsString( 'admin.php?page=stats&from=postList&jp_post_type=post#!/stats/post/' . $post_id, html_entity_decode( $output ) );
+		$this->assertStringContainsString( 'admin.php?page=stats&from=postList&jp_post_type=post#!/stats/post/' . $post_id, html_entity_decode( $output, ENT_QUOTES, 'UTF-8' ) );
 
 		$this->assertStringContainsString( '1.2M', $output );
 
