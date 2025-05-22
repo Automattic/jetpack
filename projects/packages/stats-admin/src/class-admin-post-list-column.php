@@ -105,7 +105,7 @@ class Admin_Post_List_Column {
 				);
 
 				foreach ( $potential_params as $key => $value ) {
-					if ( isset( $_GET[ $key ] ) && $value ) {
+					if ( isset( $_GET[ $key ] ) && $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Checking if the key existts and not reading the value from the request.
 						$query_args[ 'jp_' . $key ] = $value;
 					}
 				}
