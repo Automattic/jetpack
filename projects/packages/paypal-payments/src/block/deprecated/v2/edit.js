@@ -15,12 +15,11 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import emailValidator from 'email-validator';
 import { get, isEmpty, isEqual, pick, trimEnd } from 'lodash';
-import { getCurrencyDefaults } from '../../../../shared/currencies';
-import HelpMessage from '../../../../shared/help-message';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, SUPPORTED_CURRENCY_LIST } from '../../constants';
 import FeaturedMedia from '../../featured-media';
+import HelpMessage from '../../help-message';
 import ProductPlaceholder from '../../product-placeholder';
-import { decimalPlaces, formatPriceFallback } from '../../utils';
+import { decimalPlaces, formatPriceFallback, getCurrencyDefaults } from '../../utils';
 
 class SimplePaymentsEdit extends Component {
 	state = {
