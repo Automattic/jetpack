@@ -66,7 +66,7 @@ export default function AddStepControls( { clientId, formClientId } ) {
 					popoverProps={ { placement: 'bottom-start' } }
 					toggleProps={ {
 						showTooltip: true,
-						children: __( 'Add Step', 'jetpack-forms' ),
+						children: __( 'Add step', 'jetpack-forms' ),
 					} }
 				>
 					{ ( { onClose } ) => (
