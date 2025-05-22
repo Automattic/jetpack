@@ -212,7 +212,8 @@ class LCP_Optimize_Img_Tag {
 	private function get_sizes() {
 		$sizes = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
-			if ( empty( $breakpoint['widthValue'] ) ) {
+			// Make sure widthValue is a known format.
+			if ( ! isset( $breakpoint['widthValue'] ) || ! preg_match( '/^[0-9]+(?:px|vw)$/', $breakpoint['widthValue'] ) ) {
 				continue;
 			}
 
