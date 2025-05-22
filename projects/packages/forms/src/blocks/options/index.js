@@ -32,7 +32,7 @@ const settings = {
 			blockGap: false,
 		},
 		color: {
-			text: true,
+			text: false,
 			background: true,
 		},
 		__experimentalBorder: {
