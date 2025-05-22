@@ -34,7 +34,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 		wp_enqueue_style( 'zbswelcomeadmin', plugins_url( '/css/welcome-to-zbs/admin.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 		wp_enqueue_style( 'zbswelcomeexitform', plugins_url( '/css/welcome-to-zbs/zbs-exitform' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 		wp_enqueue_style( 'zbswelcomeactivation', plugins_url( '/css/welcome-to-zbs/activation.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
-		wp_enqueue_style( 'zbswelcomewizard', plugins_url( '/css/welcome-to-zbs/wizard' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+		wp_enqueue_style( 'zbswelcomewizard', plugins_url( '/css/jpcrm-welcome-wizard' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 		$style_handles = array( 'zbswelcomebootstrap', 'zbswelcomeloadstyles', 'zbswelcomeopensans', 'zbswelcomeadmin', 'zbswelcomeexitform', 'zbswelcomeactivation', 'zbswelcomewizard' );
 		// phpcs:enable WordPress.WP.EnqueuedResourceParameters.NotInFooter
 
