@@ -4339,8 +4339,8 @@ importers:
         specifier: 18.3.5
         version: 18.3.5(@types/react@18.3.18)
       bootstrap:
-        specifier: 3.4.1
-        version: 3.4.1
+        specifier: 4.0.0
+        version: 4.0.0
       chart.js:
         specifier: 3.7.1
         version: 3.7.1
@@ -9816,9 +9816,12 @@ packages:
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
 
-  bootstrap@3.4.1:
-    resolution: {integrity: sha512-yN5oZVmRCwe5aKwzRj6736nSmKDX7pLYwsXiCj/EYmo16hODaBiT4En5btW/jhBF/seV+XMx3aYwukYC3A49DA==}
+  bootstrap@4.0.0:
+    resolution: {integrity: sha512-gulJE5dGFo6Q61V/whS6VM4WIyrlydXfCgkE+Gxe5hjrJ8rXLLZlALq7zq2RPhOc45PSwQpJkrTnc2KgD6cvmA==}
     engines: {node: '>=6'}
+    peerDependencies:
+      jquery: 1.9.1 - 3
+      popper.js: ^1.12.9
 
   bounding-client-rect@1.0.5:
     resolution: {integrity: sha512-3OVNM56TuMbHZYjbIbAkHZ7VHYVK9RPLr3s2nZucuJm1HgDBFEY6twJce4dCNwF0MO3ySOyA9KUZ+pObCd4mow==}
@@ -23435,7 +23438,7 @@ snapshots:
 
   boolbase@1.0.0: {}
 
-  bootstrap@3.4.1: {}
+  bootstrap@4.0.0: {}
 
   bounding-client-rect@1.0.5:
     dependencies:
