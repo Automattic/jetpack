@@ -353,6 +353,11 @@ module.exports = [
 						from: path.resolve( __dirname, 'node_modules/chart.js/dist/chart.min.js' ),
 						to: `${ buildLibPath }/chart.js/`,
 					},
+					// Used in a variety of areas
+					{
+						from: path.resolve( __dirname, 'node_modules/moment/min/moment-with-locales.min.js' ),
+						to: `${ buildLibPath }/moment/`,
+					},
 				],
 			} ),
 		],
