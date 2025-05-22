@@ -2,7 +2,7 @@
 /**
  * Display the Pay with PayPal Form.
  *
- * @html-template Jetpack_Simple_Payments_Widget::form
+ * @html-template Automattic\Jetpack\Paypal_Payments\Widgets\Simple_Payments_Widget::form
  * @package automattic/jetpack
  */
 
@@ -20,7 +20,7 @@
 		name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>"
 		value="<?php echo esc_attr( $instance['title'] ); ?>" />
 </p>
-<p class="jetpack-simple-payments-products-fieldset" 
+<p class="jetpack-simple-payments-products-fieldset"
 <?php
 if ( empty( $product_posts ) ) {
 	echo 'style="display:none;"';
@@ -42,7 +42,7 @@ if ( empty( $product_posts ) ) {
 	</select>
 </p>
 <?php if ( is_customize_preview() ) { ?>
-<p class="jetpack-simple-payments-products-warning" 
+<p class="jetpack-simple-payments-products-warning"
 	<?php
 	if ( ! empty( $product_posts ) ) {
 		echo 'style="display:none;"';
@@ -105,7 +105,7 @@ if ( empty( $product_posts ) ) {
 	</p>
 	<div class="jetpack-simple-payments-image-fieldset">
 		<label><?php esc_html_e( 'Product image', 'jetpack' ); ?></label>
-		<div class="placeholder" 
+		<div class="placeholder"
 		<?php
 		if ( ! empty( $instance['form_product_image_id'] ) ) {
 			echo 'style="display:none;"';
@@ -114,7 +114,7 @@ if ( empty( $product_posts ) ) {
 		>
 			<?php esc_html_e( 'Select an image', 'jetpack' ); ?>
 		</div>
-		<div class="jetpack-simple-payments-image" 
+		<div class="jetpack-simple-payments-image"
 		<?php
 		if ( empty( $instance['form_product_image_id'] ) ) {
 			echo 'style="display:none;"';
@@ -144,7 +144,7 @@ if ( empty( $product_posts ) ) {
 			id="<?php echo esc_attr( $this->get_field_id( 'form_product_currency' ) ); ?>"
 			name="<?php echo esc_attr( $this->get_field_name( 'form_product_currency' ) ); ?>">
 			<?php
-			foreach ( Jetpack_Simple_Payments_Widget::$supported_currency_list as $code => $currency ) {
+			foreach ( Automattic\Jetpack\Paypal_Payments\Widgets\Simple_Payments_Widget::$supported_currency_list as $code => $currency ) {
 				?>
 				<option value="<?php echo esc_attr( $code ); ?>"<?php selected( $instance['form_product_currency'], $code ); ?>>
 					<?php echo esc_html( "$code $currency" ); ?>

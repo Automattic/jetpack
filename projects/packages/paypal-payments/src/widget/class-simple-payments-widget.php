@@ -50,7 +50,7 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 		 * because it's limited to in-country PayPal India accounts only.
 		 * Discussion: https://github.com/Automattic/wp-calypso/pull/28236
 		 */
-		private static $supported_currency_list = array(
+		public static $supported_currency_list = array(
 			'USD' => '$',
 			'GBP' => '&#163;',
 			'JPY' => '&#165;',

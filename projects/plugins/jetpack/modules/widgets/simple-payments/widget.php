@@ -2,7 +2,7 @@
 /**
  * Display the Pay with PayPal Widget.
  *
- * @html-template Jetpack_Simple_Payments_Widget::widget
+ * @html-template Automattic\Jetpack\Paypal_Payments\Widgets\Simple_Payments_Widget::widget
  * @package automattic/jetpack
  */
 
