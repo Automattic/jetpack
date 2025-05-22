@@ -4380,6 +4380,9 @@ importers:
       sweetalert2:
         specifier: 7.33.1
         version: 7.33.1
+      typeahead.js:
+        specifier: 0.11.1
+        version: 0.11.1
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -15457,6 +15460,9 @@ packages:
   type-is@1.6.18:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}
     engines: {node: '>= 0.6'}
+
+  typeahead.js@0.11.1:
+    resolution: {integrity: sha512-yGaLzGjVHyryZdNfrWz2NHXUwEO7hrlVmGMGCo5+6mH3nEEhcQ0Te3mK3G60uRnxfERu8twOWSU4WmwScbwhMg==}
 
   typed-array-buffer@1.0.3:
     resolution: {integrity: sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw==}
@@ -30136,6 +30142,10 @@ snapshots:
     dependencies:
       media-typer: 0.3.0
       mime-types: 2.1.35
+
+  typeahead.js@0.11.1:
+    dependencies:
+      jquery: 3.6.0
 
   typed-array-buffer@1.0.3:
     dependencies:

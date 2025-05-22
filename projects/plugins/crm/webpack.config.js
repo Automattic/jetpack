@@ -373,6 +373,14 @@ module.exports = [
 						from: path.resolve( __dirname, 'node_modules/jquery-modal/jquery.modal.min.css' ),
 						to: `${ buildLibPath }/jquery-modal/`,
 					},
+					// Used extensively for autocompleting contacts/companies, etc.
+					{
+						from: path.resolve(
+							__dirname,
+							'node_modules/typeahead.js/dist/typeahead.bundle.min.js'
+						),
+						to: `${ buildLibPath }/typeahead.js/`,
+					},
 				],
 			} ),
 		],

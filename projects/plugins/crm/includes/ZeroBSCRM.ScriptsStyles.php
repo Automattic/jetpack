@@ -107,9 +107,8 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 			wp_register_style( 'zerobscrmswa', plugins_url( '/build/lib/sweetalert2/sweetalert2.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 			wp_enqueue_script( 'zerobscrmswa', plugins_url( '/build/lib/sweetalert2/sweetalert2.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
-			#} Bloodhound (for typeahead) - use prefetch from https://twitter.github.io/typeahead.js/examples/
-			#} https://github.com/twitter/typeahead.js  0.11.1
-			wp_enqueue_script( 'zerobscrmtajs-0-11-1', plugins_url( '/js/lib/typeahead.bundle.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+			// typeahead.js
+			wp_enqueue_script( 'jpcrm-typeahead', plugins_url( '/build/lib/typeahead.js/typeahead.bundle.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 		// ============ / Libs =======================
 		// ===========================================
