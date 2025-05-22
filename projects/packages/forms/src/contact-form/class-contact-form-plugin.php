@@ -520,8 +520,11 @@ class Contact_Form_Plugin {
 							$option_data  = array( 'label' => $option_label );
 
 							if ( isset( $option_attrs['class'] ) ) {
-								$option_data['class'] = $option_attrs['class'];
+								$option_data['class'] = $option_attrs['class'] . ' wp-block-jetpack-option';
+							} else {
+								$option_data['class'] = 'wp-block-jetpack-option';
 							}
+
 							if ( isset( $option_attrs['style'] ) ) {
 								$option_data['style'] = $option_attrs['style'];
 							}
