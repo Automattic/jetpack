@@ -4304,9 +4304,6 @@ importers:
       react-router-dom:
         specifier: 6.30.0
         version: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      sweetalert2:
-        specifier: 7.29.0
-        version: 7.29.0
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -4368,6 +4365,9 @@ importers:
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
+      sweetalert2:
+        specifier: 7.33.1
+        version: 7.33.1
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -15159,8 +15159,8 @@ packages:
     resolution: {integrity: sha512-nL6WTxYnsVl3e0G/mwGEFSnPAWUrzIwHAPOwInD4QUuLDKxaKMnXduf0Ipw3m/g9AldPhp1Y8E/nkReFBukJrA==}
     engines: {node: '>= 12'}
 
-  sweetalert2@7.29.0:
-    resolution: {integrity: sha512-QYMpgj+W1nmE5I6hQ+Kvj+xSAJ78o5oawNOm65fq+0DRuZqmNPwGNnyfMcA3/porpje6RjXJd41NCJN8Rj83wQ==}
+  sweetalert2@7.33.1:
+    resolution: {integrity: sha512-69KYtyhtxejFG0HDb8aVhAwbpAWPSTZwaL5vxDHgojErD2KeFxTmRgmkbiLtMC8UdTFXRmvTPtZTF4459MUb7w==}
     engines: {node: '>=0.10.0'}
 
   swiper@6.7.0:
@@ -29864,7 +29864,7 @@ snapshots:
     dependencies:
       cheerio: 1.0.0-rc.10
 
-  sweetalert2@7.29.0: {}
+  sweetalert2@7.33.1: {}
 
   swiper@6.7.0:
     dependencies:

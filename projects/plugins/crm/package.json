@@ -33,8 +33,7 @@
 		"prop-types": "15.8.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"react-router-dom": "6.30.0",
-		"sweetalert2": "7.29.0"
+		"react-router-dom": "6.30.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
@@ -57,6 +56,7 @@
 		"push.js": "1.0.12",
 		"sass": "1.87.0",
 		"sass-loader": "16.0.5",
+		"sweetalert2": "7.33.1",
 		"typescript": "5.8.2",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"
