@@ -84,7 +84,7 @@ const JetpackCRMDashboardCard = ( {
 						) }
 					</p>
 					{ ! canActivateExtension && (
-						<p className="integration-card__description">
+						<p>
 							{ __(
 								'A site administrator must enable the CRM Jetpack Forms extension.',
 								'jetpack-forms'
