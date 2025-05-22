@@ -47,8 +47,8 @@ $show_nav = ( $portal->is_user_enabled() || ! $portal->access_is_via_hash( ZBS_T
 			?>
 		</nav>
 	<?php } ?>
-	<div class='zbs-portal-content zbs-portal-invoices-list'>
-		<div class='zbs-entry-content zbs-single-invoice-portal' style="position:relative;">
+	<div class="zbs-portal-content zbs-portal-invoices-list">
+		<div class="zbs-entry-content zbs-single-invoice-portal" style="position:relative;">
 			<?php $single_invoice_endpoint->single_invoice_html_output( $obj_id, true ); ?>
 		</div>
 	</div>
