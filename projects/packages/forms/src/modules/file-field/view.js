@@ -138,8 +138,6 @@ const addFileToContext = file => {
 
 	// Start the upload if we don't have any errors.
 	! error && actions.uploadFile( file, clientFileId );
-
-	// Load the file so we can display it. In case it is an image.
 };
 
 // Map to store AbortControllers for each file upload
