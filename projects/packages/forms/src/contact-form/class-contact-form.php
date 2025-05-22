@@ -2061,10 +2061,36 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$data['settings']['blocks'] = array();
 		}
 
-		$data['settings']['blocks']['jetpack/input'] = array(
+		$input_settings = array(
 			'color'      => array(
 				'text'       => true,
 				'background' => true,
+			),
+			'border'     => array(
+				'color'  => true,
+				'radius' => true,
+				'style'  => true,
+				'width'  => true,
+			),
+			'typography' => array(
+				'fontFamily'     => true,
+				'fontSize'       => true,
+				'fontStyle'      => true,
+				'fontWeight'     => true,
+				'letterSpacing'  => true,
+				'lineHeight'     => true,
+				'textDecoration' => true,
+				'textTransform'  => true,
+			),
+		);
+
+		$data['settings']['blocks']['jetpack/input']   = $input_settings;
+		$data['settings']['blocks']['jetpack/options'] = $input_settings;
+
+		$data['settings']['blocks']['jetpack/input'] = array(
+			'color'      => array(
+				'text'       => true,
+				'background' => false,
 			),
 			'border'     => array(
 				'color'  => true,
