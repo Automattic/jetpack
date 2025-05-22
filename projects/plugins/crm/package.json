@@ -47,7 +47,6 @@
 		"@types/jest": "29.5.14",
 		"@types/react": "18.3.18",
 		"@types/react-dom": "18.3.5",
-		"bootstrap": "3.4.1",
 		"chart.js": "3.7.1",
 		"copy-webpack-plugin": "11.0.0",
 		"css-loader": "6.11.0",
