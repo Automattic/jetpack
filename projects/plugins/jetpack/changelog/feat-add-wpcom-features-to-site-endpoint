@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Site: Add hosting_features to the WPCOM_JSON_API_GET_Site_Endpoint endpoint
