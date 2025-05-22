@@ -381,6 +381,16 @@ module.exports = [
 						),
 						to: `${ buildLibPath }/typeahead.js/`,
 					},
+					// Used for welcome wizard
+					{
+						from: path.resolve( __dirname, 'node_modules/bootstrap/dist/js/bootstrap.min.js' ),
+						to: `${ buildLibPath }/bootstrap/`,
+					},
+					// Used for welcome wizard
+					{
+						from: path.resolve( __dirname, 'node_modules/bootstrap/dist/css/bootstrap.min.css' ),
+						to: `${ buildLibPath }/bootstrap/`,
+					},
 				],
 			} ),
 		],

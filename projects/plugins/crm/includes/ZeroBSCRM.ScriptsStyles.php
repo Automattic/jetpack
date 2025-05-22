@@ -280,9 +280,6 @@ function zeroBSCRM_scriptStyles_admin_quoteBuilder(){
 function zeroBSCRM_scriptStyles_admin_invoiceBuilder(){
 
 	global $zbs;
-	#} Bootstrap (for the modals)
-	#} ONLY REQUIRED in invoice editor => AND welcome wizard tour now 
-	// wp_enqueue_script( 'zerobscrmbsjs', plugins_url( '/js/lib/bootstrap.min.js', ZBS_ROOTFILE ), array( 'jquery' ));
 
 	#}  MS invoice stuff. xxx
 	wp_enqueue_style( 'zerobscrm-invoicebuilder', plugins_url( '/css/ZeroBSCRM.admin.invoicebuilder' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
