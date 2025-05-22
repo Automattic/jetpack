@@ -52,13 +52,8 @@ class LCP_Optimize_Img_Tag {
 		if ( ! str_contains( $buffer, substr( $this->lcp_data['html'], 0, -1 ) ) ) {
 			return $buffer;
 		}
-
-		if ( $this->lcp_data['type'] === LCP::TYPE_IMAGE ) {
-			// Create the optimized tag with required attributes.
-			return $this->optimize_image( $buffer, $this->lcp_data['html'] );
-		}
-
-		return $buffer;
+		// Create the optimized tag with required attributes.
+		return $this->optimize_image( $buffer, $this->lcp_data['html'] );
 	}
 
 	/**
