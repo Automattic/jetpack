@@ -90,11 +90,10 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	const steps = useFormSteps( clientId );
 
-	const stepContainerInForm = useFindBlockRecursively(
+	const initialStepContainer = useFindBlockRecursively(
 		clientId,
 		block => block.name === 'jetpack/step-container'
 	);
-	const isConfiguredForSteps = !! stepContainerInForm;
 
 	const submitButton = useFindBlockRecursively(
 		clientId,
@@ -169,7 +168,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		'jetpack-contact-form',
 		isFirstStep && 'is-first-step',
 		isLastStep && 'is-last-step',
-		isConfiguredForSteps && isPreview && 'is-previewing-step'
+		variationName === 'multistep' && isPreview && 'is-previewing-step'
 	);
 
 	const innerBlocksProps = useInnerBlocksProps(
@@ -179,7 +178,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			style: window.jetpackForms.generateStyleVariables( innerRef.current ),
 		},
 		{
-			allowedBlocks: isConfiguredForSteps ? ALLOWED_MULTI_STEP_BLOCKS : ALLOWED_FORM_BLOCKS,
+			allowedBlocks:
+				variationName === 'multistep' ? ALLOWED_MULTI_STEP_BLOCKS : ALLOWED_FORM_BLOCKS,
 			prioritizedInserterBlocks: PRIORITIZED_INSERTER_BLOCKS,
 			templateInsertUpdatesSelection: false,
 		}
@@ -195,55 +195,54 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		[ clientId ]
 	);
 
-	const hasStepContainer = isConfiguredForSteps;
-
 	useEffect( () => {
 		if ( variationName === 'multistep' ) {
-			if ( ! hasStepContainer && currentInnerBlocks.length > 0 ) {
-				const blocksToWrap = currentInnerBlocks.filter(
-					block =>
-						block.name !== 'jetpack/step-container' &&
-						block.name !== 'jetpack/form-step' &&
-						block.name !== 'jetpack/form-progress-indicator' &&
-						block.name !== 'jetpack/form-step-navigation'
+			// if no stepContainer it means it just got transformed
+			let stepContainer = initialStepContainer;
+			if ( ! stepContainer ) {
+				stepContainer = createBlock( 'jetpack/step-container', {}, currentInnerBlocks );
+				let stepNavigation = stepContainer.innerBlocks.find(
+					block => block.name === 'jetpack/form-step-navigation'
 				);
-
-				const newFormStepNavigation = createBlock( 'jetpack/form-step-navigation', {} );
-				const newFormStep = createBlock(
-					'jetpack/form-step',
-					{ title: __( 'Step 1', 'jetpack-forms' ) },
-					[ ...blocksToWrap, newFormStepNavigation ]
+				if ( ! stepNavigation ) {
+					stepNavigation = createBlock( 'jetpack/form-step-navigation', {}, [] );
+				}
+				let formProgressIndicator = stepContainer.innerBlocks.find(
+					block => block.name === 'jetpack/form-progress-indicator'
 				);
-
-				const newStepContainer = createBlock( 'jetpack/step-container', {}, [ newFormStep ] );
-
-				const newProgressIndicator = createBlock( 'jetpack/form-progress-indicator', {} );
-
-				replaceInnerBlocks( clientId, [ newProgressIndicator, newStepContainer ] );
-			} else if (
-				! hasStepContainer &&
-				currentInnerBlocks.length === 0 &&
-				name === 'jetpack/contact-form'
-			) {
-				const defaultProgressIndicator = createBlock( 'jetpack/form-progress-indicator', {
-					labels: [ __( 'Step 1', 'jetpack-forms' ) ],
-					activeStep: 0,
-					showLabels: true,
-				} );
-				const defaultFormStepNavigation = createBlock( 'jetpack/form-step-navigation', {} );
-				const defaultFormStep = createBlock(
-					'jetpack/form-step',
-					{ title: __( 'Step 1', 'jetpack-forms' ) },
-					[ defaultFormStepNavigation ]
-				);
-				const defaultStepContainer = createBlock( 'jetpack/step-container', {}, [
-					defaultFormStep,
-				] );
-
-				replaceInnerBlocks( clientId, [ defaultProgressIndicator, defaultStepContainer ] );
+				if ( ! formProgressIndicator ) {
+					formProgressIndicator = createBlock( 'jetpack/form-progress-indicator', {}, [] );
+				}
+				replaceInnerBlocks( clientId, [ formProgressIndicator, stepContainer, stepNavigation ] );
 			}
-		} else if ( hasStepContainer ) {
-			setAttributes( { variationName: 'multistep' } );
+			const stepBlock = stepContainer.innerBlocks.find(
+				block => block.name === 'jetpack/form-step'
+			);
+			if ( ! stepBlock ) {
+				const stepBlocks = currentInnerBlocks.map( block =>
+					createBlock( 'jetpack/form-step', {}, [ block ] )
+				);
+				replaceInnerBlocks( clientId, [ ...stepBlocks ] );
+			}
+		} else {
+			const beforeStepBlocks = [];
+			const afterStepBlocks = [];
+			let stepBlock = null;
+			currentInnerBlocks.forEach( block => {
+				if ( block.name === 'jetpack/form-step' ) {
+					stepBlock = block;
+				} else if ( stepBlock ) {
+					afterStepBlocks.push( block );
+				} else {
+					beforeStepBlocks.push( block );
+				}
+			} );
+			if ( stepBlock ) {
+				const stepBefore = createBlock( 'jetpack/form-step', {}, beforeStepBlocks );
+				const stepAfter = createBlock( 'jetpack/form-step', {}, afterStepBlocks );
+				replaceInnerBlocks( clientId, [ stepBefore, stepBlock, stepAfter ] );
+				setAttributes( { variationName: 'multistep' } );
+			}
 		}
 	}, [
 		variationName,
@@ -252,7 +251,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		replaceInnerBlocks,
 		setAttributes,
 		name,
-		hasStepContainer,
+		initialStepContainer,
 	] );
 
 	const { setPreviewStep } = useDispatch( previewStore );
@@ -296,7 +295,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		elt = (
 			<>
 				<BlockControls>
-					{ isConfiguredForSteps && <StepControls formClientId={ clientId } /> }
+					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody

@@ -881,7 +881,7 @@ export const childBlocks = [
 				foreground: getIconColor(),
 				src: <Icon icon={ page } />,
 			},
-			parent: [ 'jetpack/step-container' ],
+			parent: [ 'jetpack/step-container', 'jetpack/contact-form' ],
 			supports: {
 				html: false,
 				reusable: false,
@@ -917,7 +917,6 @@ export const childBlocks = [
 					default: __( 'Step', 'jetpack-forms' ),
 				},
 			},
-			template: [ [ 'jetpack/form-step-navigation', {} ] ],
 			edit: StepEdit,
 			save: StepSave,
 			transforms: {
