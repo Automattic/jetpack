@@ -475,24 +475,28 @@ const variations = compact( [
 						stroke="currentColor"
 						strokeWidth="1.5"
 						fill="none"
+						className="icon-filler"
 					/>
 					<Path
 						d="M14.3501 12C14.3501 10.7574 13.3427 9.75 12.1001 9.75C10.8575 9.75 9.8501 10.7574 9.8501 12C9.8501 13.2426 10.8575 14.25 12.1001 14.25C13.3427 14.25 14.3501 13.2426 14.3501 12Z"
 						stroke="currentColor"
 						strokeWidth="1.5"
 						fill="none"
+						className="icon-filler"
 					/>
 					<Path
 						d="M21.3501 12C21.3501 10.7574 20.3427 9.75 19.1001 9.75C17.8575 9.75 16.8501 10.7574 16.8501 12C16.8501 13.2426 17.8575 14.25 19.1001 14.25C20.3427 14.25 21.3501 13.2426 21.3501 12Z"
 						stroke="currentColor"
 						strokeWidth="1.5"
 						fill="none"
+						className="icon-filler"
 					/>
 					<Path
 						d="M19.1001 18.8636C19.1001 21.1364 17.4668 22.5 15.6001 22.5C13.7334 22.5 12.1001 21.5 12.1001 18.8636V16.5"
 						stroke="currentColor"
 						strokeWidth="1.5"
 						fill="none"
+						className="icon-filler"
 					/>
 					<Path d="M21.6001 19H20.1001H18.6001H16.6001L19.1001 16L21.6001 19Z" />
 					<Path
@@ -500,6 +504,7 @@ const variations = compact( [
 						stroke="currentColor"
 						strokeWidth="1.5"
 						fill="none"
+						className="icon-filler"
 					/>
 					<Path d="M14.6001 5H13.1001H11.6001H9.6001L12.1001 8L14.6001 5Z" />
 				</>
