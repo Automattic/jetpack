@@ -125,7 +125,7 @@ class Simple_Payments {
 			'../dist/simple-payments.css',
 			array( 'dashicons' ),
 			self::PACKAGE_VERSION,
-			false
+			false /* @phan-suppress-current-line PhanTypeMismatchArgument */
 		);
 	}
 
@@ -175,8 +175,8 @@ class Simple_Payments {
 	/**
 	 * Add an inline script for setting up the PayPal checkout button.
 	 *
-	 * @param int     $id Product ID.
-	 * @param int     $dom_id ID of the DOM element with the purchase message.
+	 * @param string  $id Product ID.
+	 * @param string  $dom_id ID of the DOM element with the purchase message.
 	 * @param boolean $is_multiple Whether multiple items of the same product can be purchased.
 	 */
 	public function setup_paypal_checkout_button( $id, $dom_id, $is_multiple ) {
@@ -187,7 +187,7 @@ class Simple_Payments {
 				esc_js( $this->get_blog_id() ),
 				esc_js( $id ),
 				esc_js( $dom_id ),
-				esc_js( $is_multiple )
+				esc_js( $is_multiple ) /* @phan-suppress-current-line PhanTypeMismatchArgument */
 			)
 		);
 	}
@@ -298,7 +298,7 @@ class Simple_Payments {
 		$data['id'] = $attrs['id'];
 
 		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
-			if ( jetpack_is_frontend() ) {
+			if ( function_exists( 'jetpack_is_frontend' ) && jetpack_is_frontend() ) {
 				return $this->output_admin_warning( $data );
 			}
 			return;

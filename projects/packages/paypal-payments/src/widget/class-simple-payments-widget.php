@@ -523,8 +523,10 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 			$current_user = wp_get_current_user();
 
 			// `bumps_stats_extra` only exists on .com
-			if ( function_exists( 'bump_stats_extras' ) ) {
+			if ( function_exists( 'bump_stats_extras' ) && function_exists( 'require_lib' ) ) {
+				/* @phan-suppress-next-line PhanUndeclaredFunction */
 				require_lib( 'tracks/client' );
+				/* @phan-suppress-next-line PhanUndeclaredFunction */
 				tracks_record_event( $current_user, 'simple_payments_button_' . $event_action, $event_properties );
 				/** This action is documented in modules/widgets/social-media-icons.php */
 				do_action( 'jetpack_bump_stats_extra', 'simple_payments', $stat_name );
@@ -533,10 +535,13 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 
 			$tracking = new Tracking();
 			$tracking->tracks_record_event( $current_user, 'jetpack_wpa_simple_payments_button_' . $event_action, $event_properties );
-			$jetpack = Jetpack::init();
-			// $jetpack->stat automatically prepends the stat group with 'jetpack-'
-			$jetpack->stat( 'simple_payments', $stat_name );
-			$jetpack->do_stats( 'server_side' );
+
+			if ( class_exists( 'Jetpack' ) ) {
+				$jetpack = Jetpack::init();
+				// $jetpack->stat automatically prepends the stat group with 'jetpack-'
+				$jetpack->stat( 'simple_payments', $stat_name );
+				$jetpack->do_stats( 'server_side' );
+			}
 		}
 
 		/**
