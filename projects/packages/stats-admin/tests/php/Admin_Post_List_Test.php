@@ -14,16 +14,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 	private function get_wp_query_mock( int $post_id ) {
 		$wp_query = $this->createMock( WP_Query::class );
 
-		$wp_query->query_vars = array(
-			's'           => 'test',
-			'paged'       => 1,
-			'post_status' => 'publish',
-			'orderby'     => 'date',
-			'order'       => 'DESC',
-			'author'      => 1,
-			'cat'         => 1,
-			'm'           => 202401,
-		);
+		$wp_query->query_vars = array();
 		$wp_query->posts      = array( (object) array( 'ID' => $post_id ) );
 
 		return $wp_query;

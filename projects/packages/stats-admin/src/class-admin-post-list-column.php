@@ -94,14 +94,15 @@ class Admin_Post_List_Column {
 				);
 
 				$potential_params = array(
-					's'           => sanitize_text_field( get_search_query() ),
-					'paged'       => absint( get_query_var( 'paged' ) ),
-					'post_status' => sanitize_text_field( get_query_var( 'post_status' ) ),
-					'orderby'     => sanitize_text_field( get_query_var( 'orderby' ) ),
-					'order'       => sanitize_text_field( get_query_var( 'order' ) ),
-					'author'      => absint( get_query_var( 'author' ) ),
-					'cat'         => absint( get_query_var( 'cat' ) ), // 'cat' is the query var for category ID
-					'm'           => absint( get_query_var( 'm' ) ),   // 'm' is the query var for YYYYMM
+					's'             => sanitize_text_field( get_search_query() ),
+					'paged'         => absint( get_query_var( 'paged' ) ),
+					'post_status'   => sanitize_text_field( get_query_var( 'post_status' ) ),
+					'orderby'       => sanitize_text_field( get_query_var( 'orderby' ) ),
+					'order'         => sanitize_text_field( get_query_var( 'order' ) ),
+					'author'        => absint( get_query_var( 'author' ) ),
+					'cat'           => absint( get_query_var( 'cat' ) ), // 'cat' is the query var for category ID
+					'm'             => absint( get_query_var( 'm' ) ),   // 'm' is the query var for YYYYMM
+					'category_name' => sanitize_text_field( get_query_var( 'category_name' ) ),
 				);
 
 				foreach ( $potential_params as $key => $value ) {
