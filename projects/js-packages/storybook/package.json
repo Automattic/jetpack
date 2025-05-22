@@ -40,13 +40,13 @@
 		"@storybook/test-runner": "0.19.1",
 		"@storybook/theming": "8.6.7",
 		"@types/react": "18.3.18",
-		"@wordpress/base-styles": "5.22.0",
-		"@wordpress/block-editor": "14.17.0",
-		"@wordpress/block-library": "9.22.0",
-		"@wordpress/components": "29.8.0",
-		"@wordpress/element": "6.22.0",
-		"@wordpress/format-library": "5.22.0",
-		"@wordpress/postcss-plugins-preset": "5.22.0",
+		"@wordpress/base-styles": "6.0.0",
+		"@wordpress/block-editor": "14.19.0",
+		"@wordpress/block-library": "9.24.0",
+		"@wordpress/components": "29.10.0",
+		"@wordpress/element": "6.24.0",
+		"@wordpress/format-library": "5.24.0",
+		"@wordpress/postcss-plugins-preset": "5.24.0",
 		"allure-playwright": "2.9.2",
 		"babel-loader": "9.1.2",
 		"babel-plugin-inline-json-import": "0.3.2",
@@ -71,6 +71,6 @@
 		"webpack-cli": "6.0.1"
 	},
 	"dependencies": {
-		"@wordpress/api-fetch": "7.22.0"
+		"@wordpress/api-fetch": "7.24.0"
 	}
 }
