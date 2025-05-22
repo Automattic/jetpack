@@ -46,7 +46,7 @@ const Integrations = () => {
 			<div className="jp-forms__integrations-wrapper">
 				<div className="jp-forms__integrations-header">
 					<h2 className="jp-forms__integrations-header-heading">
-						{ __( 'Third party integrations', 'jetpack-forms' ) }
+						{ __( 'Streamline your forms', 'jetpack-forms' ) }
 					</h2>
 					<div className="jp-forms__integrations-header-description">
 						{ __(
