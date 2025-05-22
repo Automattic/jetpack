@@ -587,7 +587,7 @@ const variations = compact( [
 			variationName: 'multistep',
 		},
 		scope: [ 'block', 'inserter', 'transform' ],
-		isActive: attributes => attributes.variationName === 'multistep',
+		isActive: [ 'variationName' ],
 	},
 ] );
 

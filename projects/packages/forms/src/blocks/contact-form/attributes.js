@@ -33,6 +33,10 @@ export default {
 		type: 'string',
 		default: '',
 	},
+	variationName: {
+		type: 'string',
+		default: '',
+	},
 	stepTransition: {
 		type: 'string',
 		default: 'fade',
