@@ -66,7 +66,7 @@ export default function useFixersQuery( {
 
 	// Main query function to fetch fixer status
 	const fixersQuery = useQuery( {
-		queryKey: [ QUERY_FIXERS_KEY ],
+		queryKey: [ QUERY_FIXERS_KEY, threatIds ],
 		queryFn: async () => {
 			// Fetch fixer status from API
 			const data = await API.getFixersStatus( threatIds );

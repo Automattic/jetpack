@@ -33,9 +33,10 @@ class Module_Control {
 	/**
 	 * We use the same options as Jetpack the plugin to flag whether Search is active.
 	 */
-	const JETPACK_ACTIVE_MODULES_OPTION_KEY       = 'active_modules';
-	const JETPACK_SEARCH_MODULE_SLUG              = 'search';
-	const SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY = 'instant_search_enabled';
+	const JETPACK_ACTIVE_MODULES_OPTION_KEY               = 'active_modules';
+	const JETPACK_SEARCH_MODULE_SLUG                      = 'search';
+	const SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY         = 'instant_search_enabled';
+	const SEARCH_MODULE_SWAP_CLASSIC_TO_INLINE_OPTION_KEY = 'swap_classic_to_inline_search';
 
 	/**
 	 * Contructor
@@ -74,6 +75,15 @@ class Module_Control {
 	 */
 	public function is_instant_search_enabled() {
 		return (bool) $this->plan->supports_instant_search() && get_option( self::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY );
+	}
+
+	/**
+	 * Returns a boolean for whether new inline search is enabled.
+	 *
+	 * @return bool
+	 */
+	public function is_swap_classic_to_inline_search() {
+		return (bool) get_option( self::SEARCH_MODULE_SWAP_CLASSIC_TO_INLINE_OPTION_KEY, false );
 	}
 
 	/**
@@ -145,6 +155,15 @@ class Module_Control {
 	 */
 	public function update_instant_search_status( $enabled ) {
 		return $enabled ? $this->enable_instant_search() : $this->disable_instant_search();
+	}
+
+	/**
+	 * Update setting indicating whether inline search should use newer 1.3 API.
+	 *
+	 * @param bool $swap_classic_to_inline_search - true to use Inline Search, false to use Classic Search.
+	 */
+	public function update_swap_classic_to_inline_search( bool $swap_classic_to_inline_search ) {
+		return update_option( self::SEARCH_MODULE_SWAP_CLASSIC_TO_INLINE_OPTION_KEY, $swap_classic_to_inline_search );
 	}
 
 	/**

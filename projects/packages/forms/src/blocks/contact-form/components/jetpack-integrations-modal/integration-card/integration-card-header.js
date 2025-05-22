@@ -65,7 +65,13 @@ const IntegrationCardHeader = ( {
 			<div className="integration-card__header-content">
 				<div className="integration-card__header-main">
 					<div className="integration-card__service-icon-container">
-						<Icon icon={ icon } className="integration-card__service-icon" size={ 30 } />
+						<Icon
+							icon={ icon }
+							className={ `integration-card__service-icon ${
+								cardData.slug ? `integration-card__service-icon--${ cardData.slug }` : ''
+							}` }
+							size={ 30 }
+						/>
 					</div>
 					<div className="integration-card__title-section">
 						<div className="integration-card__title-row">

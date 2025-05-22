@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-forms",
-	"version": "0.52.0",
+	"version": "0.54.0",
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
 	"bugs": {
@@ -63,7 +63,7 @@
 		"react-transition-group": "^4.4.5",
 		"redux": "4.2.1",
 		"redux-thunk": "2.3.0",
-		"sass": "1.68.0",
+		"sass": "1.87.0",
 		"semver": "7.7.1",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"
@@ -77,6 +77,7 @@
 		"@babel/runtime": "7.26.10",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/user-event": "^14.4.3",
+		"@types/lodash": "4.17.16",
 		"@types/react": "18.3.18",
 		"@types/react-dom": "18.3.5",
 		"@wordpress/api-fetch": "7.22.0",
@@ -90,7 +91,7 @@
 		"jest-environment-jsdom": "29.7.0",
 		"jquery": "3.6.0",
 		"postcss": "8.4.47",
-		"postcss-loader": "6.2.0",
+		"postcss-loader": "8.1.1",
 		"sass": "1.64.1",
 		"sass-loader": "16.0.5",
 		"typescript": "5.8.2"

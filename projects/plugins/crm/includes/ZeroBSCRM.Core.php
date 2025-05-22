@@ -2,9 +2,9 @@
 /**
  * Jetpack CRM Core
  *
- * @author   Woody Hayday, Mike Stott
- * @package  ZeroBSCRM
- * @since    2.27
+ * @author  Woody Hayday, Mike Stott
+ * @package automattic/jetpack-crm
+ * @since   2.27
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

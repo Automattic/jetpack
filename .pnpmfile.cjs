@@ -105,6 +105,17 @@ async function fixDeps( pkg ) {
 		pkg.optionalDependencies[ 'framer-motion' ] += ' <11.5.0';
 	}
 
+	// Missing dep or peer dep.
+	// https://github.com/TanStack/query/issues/9097
+	if (
+		pkg.name === '@tanstack/eslint-plugin-query' &&
+		! pkg.dependencies?.typescript &&
+		! pkg.peerDependencies?.typescript
+	) {
+		pkg.peerDependencies ??= {};
+		pkg.peerDependencies.typescript = '*';
+	}
+
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {

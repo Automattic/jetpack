@@ -114,8 +114,9 @@ class REST_Controller_Test extends Search_TestCase {
 	public function test_update_search_settings_success_both_enable() {
 		wp_set_current_user( $this->admin_id );
 		$new_settings = array(
-			'module_active'          => true,
-			'instant_search_enabled' => true,
+			'module_active'                 => true,
+			'instant_search_enabled'        => true,
+			'swap_classic_to_inline_search' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -132,8 +133,9 @@ class REST_Controller_Test extends Search_TestCase {
 	public function test_update_search_settings_invalid_request_1() {
 		wp_set_current_user( $this->admin_id );
 		$new_settings = array(
-			'module_active'          => false,
-			'instant_search_enabled' => true,
+			'module_active'                 => false,
+			'instant_search_enabled'        => true,
+			'swap_classic_to_inline_search' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -163,8 +165,9 @@ class REST_Controller_Test extends Search_TestCase {
 	public function test_update_search_settings_success_both_disable() {
 		wp_set_current_user( $this->admin_id );
 		$new_settings = array(
-			'module_active'          => false,
-			'instant_search_enabled' => false,
+			'module_active'                 => false,
+			'instant_search_enabled'        => false,
+			'swap_classic_to_inline_search' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -184,8 +187,9 @@ class REST_Controller_Test extends Search_TestCase {
 			'module_active' => false,
 		);
 		$expected     = array(
-			'module_active'          => false,
-			'instant_search_enabled' => false,
+			'module_active'                 => false,
+			'instant_search_enabled'        => false,
+			'swap_classic_to_inline_search' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -205,8 +209,53 @@ class REST_Controller_Test extends Search_TestCase {
 			'instant_search_enabled' => true,
 		);
 		$expected     = array(
-			'module_active'          => true,
-			'instant_search_enabled' => true,
+			'module_active'                 => true,
+			'instant_search_enabled'        => true,
+			'swap_classic_to_inline_search' => false,
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $new_settings ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( $expected, $response->get_data() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
+	 */
+	public function test_update_search_settings_success_enable_inline_search() {
+		wp_set_current_user( $this->admin_id );
+		$new_settings = array(
+			'swap_classic_to_inline_search' => true,
+		);
+		$expected     = array(
+			'module_active'                 => false,
+			'instant_search_enabled'        => false,
+			'swap_classic_to_inline_search' => true,
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $new_settings ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( $expected, $response->get_data() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/settings` endpoint with an admin user.
+	 */
+	public function test_update_search_settings_success_disable_inline_search() {
+		wp_set_current_user( $this->admin_id );
+		$new_settings = array(
+			'swap_classic_to_inline_search' => false,
+		);
+		$expected     = array(
+			'module_active'                 => false,
+			'instant_search_enabled'        => false,
+			'swap_classic_to_inline_search' => false,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
