@@ -59,7 +59,9 @@ function StepBreak( { stepName } ) {
 
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const blockProps = useBlockProps();
-	const { children, innerBlocksProps } = useInnerBlocksProps( blockProps, {
+
+	blockProps.className += ' jetpack-form-step__container';
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: STEP_TEMPLATE,
 		allowedBlocks: ALLOWED_BLOCKS,
 	} );
@@ -97,9 +99,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		<>
 			<div { ...blockProps }>
 				{ ! isPreview && <StepBreak stepName={ stepName } /> }
-				<div className="jetpack-form-step__container" { ...innerBlocksProps }>
-					{ children }
-				</div>
+				<div { ...innerBlocksProps } />
 				<AttributesControls
 					attributes={ attributes }
 					setAttributes={ setAttributes }
