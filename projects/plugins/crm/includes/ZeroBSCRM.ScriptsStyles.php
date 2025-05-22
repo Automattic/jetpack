@@ -101,7 +101,7 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 			wp_register_style( 'jpcrm-fontawesome-v4-4-0-core-css', plugins_url( '/css/font-awesome.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 			// chart.js
-			wp_register_script( 'zerobscrmchartjs', plugins_url( '/js/lib/chart.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+			wp_register_script( 'zerobscrmchartjs', plugins_url( '/build/lib/chart.js/Chart.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 			// funnel js
 			wp_register_script( 'zerobscrmfunneljs', plugins_url( '/js/lib/jquery.funnel.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );

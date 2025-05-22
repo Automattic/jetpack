@@ -348,6 +348,11 @@ module.exports = [
 						from: path.resolve( __dirname, 'node_modules/sweetalert2/dist/sweetalert2.min.css' ),
 						to: `${ buildLibPath }/sweetalert2/`,
 					},
+					// Used for dashboard charts
+					{
+						from: path.resolve( __dirname, 'node_modules/chart.js/dist/Chart.min.js' ),
+						to: `${ buildLibPath }/chart.js/`,
+					},
 				],
 			} ),
 		],
