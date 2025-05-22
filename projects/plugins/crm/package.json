@@ -36,6 +36,7 @@
 		"react-router-dom": "6.30.0"
 	},
 	"devDependencies": {
+		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
 		"@babel/core": "7.26.10",
