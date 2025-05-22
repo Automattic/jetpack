@@ -744,7 +744,7 @@ HTML;
 			$loc_id = esc_js( $loc_id );
 
 			$format = $this->get_wordads_format( (int) $width, (int) $height );
-			if ( $format === null ) {
+			if ( $format === '' ) {
 				return '';
 			}
 
