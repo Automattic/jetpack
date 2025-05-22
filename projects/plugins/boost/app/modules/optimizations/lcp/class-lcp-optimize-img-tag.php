@@ -44,7 +44,7 @@ class LCP_Optimize_Img_Tag {
 
 		/*
 		 * Quickly check if the tag is in the buffer and return early if it's not found.
-		 * The HTML returned from cloud may not have a forward slash at the end of the tag, even if the original HTML had one.
+		 * The HTML returned from cloud will not have a forward slash at the end of the tag, even if the original HTML had one.
 		 * By removing the last character from the LCP HTML, we can quickly check if the tag is in the buffer.
 		 *
 		 * `substr( '<img src="...">', 0, -1 )` -> `<img src="..."`
