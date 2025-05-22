@@ -93,10 +93,6 @@ class LCP_Optimize_Img_Tag {
 			return $buffer;
 		}
 
-		if ( $buffer_processor->get_tag() !== 'IMG' ) {
-			return $buffer;
-		}
-
 		$buffer_processor->set_attribute( 'fetchpriority', 'high' );
 		$buffer_processor->set_attribute( 'loading', 'eager' );
 		$buffer_processor->set_attribute( 'data-jp-lcp-optimized', 'true' );
