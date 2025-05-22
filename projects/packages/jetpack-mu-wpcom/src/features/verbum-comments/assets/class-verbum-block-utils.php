@@ -70,7 +70,7 @@ class Verbum_Block_Utils {
 			$filtered[] = $block;
 		}
 
-		return array_values( $filtered );
+		return $filtered;
 	}
 
 	/**
