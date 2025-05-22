@@ -283,6 +283,44 @@
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
 
+
+.wp-block-jetpack-form-step-navigation.is-vertical {
+  flex-direction: column;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-space-between.is-vertical {
+	align-items: space-between;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-right.is-vertical {
+	align-items: flex-end;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-left.is-vertical {
+	align-items: flex-start;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-center.is-vertical {
+	align-items: center;
+}
+
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-space-between {
+	justify-content: space-between;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-right {
+	justify-content: flex-end;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-left {
+	justify-content: flex-start;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-center {
+	justify-content: center;
+}
+
 .wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button) {
 	flex: 0 0 100%;
 	box-sizing: border-box;

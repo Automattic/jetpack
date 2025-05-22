@@ -633,25 +633,51 @@ class Contact_Form_Plugin {
 
 		$button_blocks_html = do_blocks( $content );
 
-		$tag = new \WP_HTML_Tag_Processor( $button_blocks_html );
-		$tag->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+		$processor = new \WP_HTML_Tag_Processor( $button_blocks_html );
 
-		while ( $tag->next_tag() ) {
-			$id = $tag->get_attribute( 'data-id-attr' );
+		$processor->next_tag();
+		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+
+		$class_names = array();
+
+		if ( ! empty( $atts['layout']['type'] ) ) {
+			$class_names[] = 'is-layout-' . sanitize_title( $atts['layout']['type'] );
+		}
+
+		$class_names[] = 'is-layout-constrained';
+
+		if ( ! empty( $atts['layout']['orientation'] ) ) {
+			$class_names[] = 'is-' . sanitize_title( $atts['layout']['orientation'] );
+		}
+
+		if ( ! empty( $atts['layout']['justifyContent'] ) ) {
+			$class_names[] = 'is-content-justification-' . sanitize_title( $atts['layout']['justifyContent'] );
+		}
+
+		if ( ! empty( $atts['layout']['flexWrap'] ) && 'nowrap' === $atts['layout']['flexWrap'] ) {
+			$class_names[] = 'is-nowrap';
+		}
+
+		foreach ( $class_names as $class_name ) {
+			$processor->add_class( $class_name );
+		}
+
+		while ( $processor->next_tag() ) {
+			$id = $processor->get_attribute( 'data-id-attr' );
 			if ( 'previous-step' === $id ) {
-				$tag->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
-				$tag->set_attribute( 'data-wp-class--is-hidden', 'state.isFirstStep' );
+				$processor->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
+				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isFirstStep' );
 			}
 			if ( 'next-step' === $id ) {
-				$tag->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
-				$tag->set_attribute( 'data-wp-class--is-hidden', 'state.isLastStep' );
+				$processor->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
+				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isLastStep' );
 			}
 			if ( 'submit-step' === $id ) {
-				$tag->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
+				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
 			}
 		}
 
-		return $tag->get_updated_html();
+		return $processor->get_updated_html();
 	}
 
 	/**
