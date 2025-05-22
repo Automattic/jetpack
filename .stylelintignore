@@ -15,7 +15,6 @@ projects/packages/jetpack-mu-wpcom/src/features/custom-css/custom-css/css/blank.
 projects/packages/jetpack-mu-wpcom/src/features/newspack-blocks/synced-newspack-blocks
 projects/plugins/crm/css/lib
 projects/plugins/crm/css/semantic-ui
-projects/plugins/crm/sass/_daterangepicker.scss
 projects/plugins/crm/sass/semantic-ui
 projects/plugins/jetpack/modules/carousel/swiper-bundle.css
 projects/plugins/jetpack/scss/cleanslate.scss

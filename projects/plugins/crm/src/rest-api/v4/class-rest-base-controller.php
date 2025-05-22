@@ -2,7 +2,7 @@
 /**
  * Jetpack CRM REST API base controller class.
  *
- * @package Automattic\Jetpack\CRM
+ * @package automattic/jetpack-crm
  */
 
 namespace Automattic\Jetpack\CRM\REST_API\V4;
@@ -15,7 +15,6 @@ defined( 'ABSPATH' ) || exit( 0 );
 /**
  * Abstract base controller class.
  *
- * @package Automattic\Jetpack\CRM
  * @since 6.1.0
  */
 abstract class REST_Base_Controller extends WP_REST_Controller {

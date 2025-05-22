@@ -1,8 +1,10 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const CopyPlugin = require( 'copy-webpack-plugin' );
 const { glob } = require( 'glob' );
 const doNotMinify = false;
+const buildLibPath = path.resolve( __dirname, 'build/lib/' );
 
 /**
  * Return an array with a list of our legacy '.js' files.
@@ -304,5 +306,93 @@ module.exports = [
 				jetpackWebpackConfig.FileRule(),
 			],
 		},
+	},
+	// Copy third-party libraries into build dir.
+	{
+		...crmWebpackConfig,
+		entry: {},
+		output: {
+			...crmWebpackConfig.output,
+			path: path.resolve( __dirname, '.' ),
+		},
+		plugins: [
+			new CopyPlugin( {
+				patterns: [
+					// Used by jpcrm-notifyme-front.js for notifications
+					{
+						from: path.resolve( __dirname, 'node_modules/js-cookie/dist/js.cookie.min.js' ),
+						to: `${ buildLibPath }/js-cookie/`,
+					},
+					// Used by jpcrm-notifyme-front.js for notifications
+					{
+						from: path.resolve( __dirname, 'node_modules/push.js/bin/push.min.js' ),
+						to: `${ buildLibPath }/push.js/`,
+					},
+					// Used by ZeroBSCRM.OnboardMe.php for the onboarding tour
+					{
+						from: path.resolve( __dirname, 'node_modules/hopscotch/dist/js/hopscotch.min.js' ),
+						to: `${ buildLibPath }/hopscotch/`,
+					},
+					// Used by ZeroBSCRM.OnboardMe.php for the onboarding tour
+					{
+						from: path.resolve( __dirname, 'node_modules/hopscotch/dist/css/hopscotch.min.css' ),
+						to: `${ buildLibPath }/hopscotch/`,
+					},
+					// Used extensively for alerts
+					{
+						from: path.resolve( __dirname, 'node_modules/sweetalert2/dist/sweetalert2.min.js' ),
+						to: `${ buildLibPath }/sweetalert2/`,
+					},
+					// Used extensively for alerts
+					{
+						from: path.resolve( __dirname, 'node_modules/sweetalert2/dist/sweetalert2.min.css' ),
+						to: `${ buildLibPath }/sweetalert2/`,
+					},
+					// Used for dashboard charts
+					{
+						from: path.resolve( __dirname, 'node_modules/chart.js/dist/chart.min.js' ),
+						to: `${ buildLibPath }/chart.js/`,
+					},
+					// Used in a variety of areas
+					{
+						from: path.resolve( __dirname, 'node_modules/moment/min/moment-with-locales.min.js' ),
+						to: `${ buildLibPath }/moment/`,
+					},
+					// Used extensively for date range selection
+					{
+						from: path.resolve( __dirname, 'node_modules/daterangepicker/daterangepicker.js' ),
+						to: `${ buildLibPath }/daterangepicker/`,
+					},
+					// Used for first-use dashboard modals
+					{
+						from: path.resolve( __dirname, 'node_modules/jquery-modal/jquery.modal.min.js' ),
+						to: `${ buildLibPath }/jquery-modal/`,
+					},
+					// Used for first-use dashboard modals
+					{
+						from: path.resolve( __dirname, 'node_modules/jquery-modal/jquery.modal.min.css' ),
+						to: `${ buildLibPath }/jquery-modal/`,
+					},
+					// Used extensively for autocompleting contacts/companies, etc.
+					{
+						from: path.resolve(
+							__dirname,
+							'node_modules/typeahead.js/dist/typeahead.bundle.min.js'
+						),
+						to: `${ buildLibPath }/typeahead.js/`,
+					},
+					// Used for welcome wizard
+					{
+						from: path.resolve( __dirname, 'node_modules/bootstrap/dist/js/bootstrap.min.js' ),
+						to: `${ buildLibPath }/bootstrap/`,
+					},
+					// Used for welcome wizard
+					{
+						from: path.resolve( __dirname, 'node_modules/bootstrap/dist/css/bootstrap.min.css' ),
+						to: `${ buildLibPath }/bootstrap/`,
+					},
+				],
+			} ),
+		],
 	},
 ];
