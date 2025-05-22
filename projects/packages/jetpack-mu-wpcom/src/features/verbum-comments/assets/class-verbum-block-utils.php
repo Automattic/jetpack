@@ -22,14 +22,11 @@ class Verbum_Block_Utils {
 
 		// The block attributes come slashed and `parse_blocks` won't be able to parse them.
 		$content = wp_unslash( $content );
+		$blocks  = parse_blocks( $content );
 
-		// Parse blocks first
-		$blocks = parse_blocks( $content );
-
-		// Filter blocks recursively
 		$filtered_blocks = self::filter_blocks_recursive( $blocks );
 
-		// Convert the filtered blocks back to HTML
+		// Convert the filtered blocks back to string
 		return serialize_blocks( $filtered_blocks );
 	}
 
