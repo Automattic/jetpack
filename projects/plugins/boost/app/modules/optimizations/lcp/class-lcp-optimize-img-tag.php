@@ -175,12 +175,36 @@ class LCP_Optimize_Img_Tag {
 
 		$widths = array_unique( array_merge( ...$widths ) );
 
+		// Remove unnecessary widths to save some bytes in the HTML.
+		$widths = $this->reduce_widths( $widths );
+
 		$srcset = array();
 		foreach ( $widths as $width ) {
 			$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $width ) ) . " {$width}w";
 		}
 
 		return implode( ', ', $srcset );
+	}
+
+	/**
+	 * Remove any width if we have another higher width that is within 20px.
+	 *
+	 * @param array $widths The widths to reduce.
+	 * @return array The reduced widths.
+	 */
+	private function reduce_widths( $widths ) {
+		rsort( $widths );
+		$reduced_widths = array();
+		$previous_width = 999999;
+		foreach ( $widths as $width ) {
+			if ( $previous_width - 20 < $width ) {
+				continue;
+			}
+
+			$previous_width   = $width;
+			$reduced_widths[] = $width;
+		}
+		return $reduced_widths;
 	}
 
 	/**
