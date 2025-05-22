@@ -13,7 +13,7 @@ class LCP_Optimize_Bg_Image {
 	private $lcp_data;
 
 	public static function init() {
-		if ( LCP_Optimizer::should_skip_optimization() ) {
+		if ( LCP_Optimization_Util::should_skip_optimization() ) {
 			return;
 		}
 
@@ -80,7 +80,7 @@ class LCP_Optimize_Bg_Image {
 			}
 			$selectors[] = $lcp_data['element'];
 
-			$lcp_optimizer = new LCP_Optimizer( $lcp_data );
+			$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
 			$image_url     = $lcp_optimizer->get_image_to_preload();
 			if ( empty( $image_url ) ) {
 				continue;
@@ -123,7 +123,7 @@ class LCP_Optimize_Bg_Image {
 			return array();
 		}
 
-		$lcp_optimizer = new LCP_Optimizer( $lcp_data );
+		$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
 		$image_url     = $lcp_optimizer->get_image_to_preload();
 
 		if ( empty( $image_url ) ) {
