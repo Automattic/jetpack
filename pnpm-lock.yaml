@@ -4338,24 +4338,57 @@ importers:
       '@types/react-dom':
         specifier: 18.3.5
         version: 18.3.5(@types/react@18.3.18)
+      bootstrap:
+        specifier: 3.4.1
+        version: 3.4.1
+      chart.js:
+        specifier: 3.7.1
+        version: 3.7.1
+      copy-webpack-plugin:
+        specifier: 11.0.0
+        version: 11.0.0(webpack@5.94.0)
       css-loader:
         specifier: 6.11.0
         version: 6.11.0(webpack@5.94.0)
+      daterangepicker:
+        specifier: 2.1.25
+        version: 2.1.25
       glob:
         specifier: 11.0.0
         version: 11.0.0
+      hopscotch:
+        specifier: 0.3.1
+        version: 0.3.1
       jest:
         specifier: 29.7.0
         version: 29.7.0
       jest-environment-jsdom:
         specifier: 29.7.0
         version: 29.7.0
+      jquery-modal:
+        specifier: 0.9.2
+        version: 0.9.2
+      js-cookie:
+        specifier: 3.0.5
+        version: 3.0.5
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      push.js:
+        specifier: 1.0.12
+        version: 1.0.12
       sass:
         specifier: 1.87.0
         version: 1.87.0
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
+      sweetalert2:
+        specifier: 7.33.1
+        version: 7.33.1
+      typeahead.js:
+        specifier: 0.11.1
+        version: 0.11.1
       typescript:
         specifier: 5.8.2
         version: 5.8.2
@@ -9783,6 +9816,10 @@ packages:
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
 
+  bootstrap@3.4.1:
+    resolution: {integrity: sha512-yN5oZVmRCwe5aKwzRj6736nSmKDX7pLYwsXiCj/EYmo16hODaBiT4En5btW/jhBF/seV+XMx3aYwukYC3A49DA==}
+    engines: {node: '>=6'}
+
   bounding-client-rect@1.0.5:
     resolution: {integrity: sha512-3OVNM56TuMbHZYjbIbAkHZ7VHYVK9RPLr3s2nZucuJm1HgDBFEY6twJce4dCNwF0MO3ySOyA9KUZ+pObCd4mow==}
 
@@ -10465,6 +10502,9 @@ packages:
 
   date-fns@3.6.0:
     resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
+
+  daterangepicker@2.1.25:
+    resolution: {integrity: sha512-8qSYdsolahhBpfoGFcVOmKXnpy0MpbgT3J4YeWG/oPgyApnEIUbIugtS6ryJdQFF+rZ+tUYbRXBnOe4QK8jGnA==}
 
   debounce@1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
@@ -11723,6 +11763,9 @@ packages:
   hookified@1.9.0:
     resolution: {integrity: sha512-2yEEGqphImtKIe1NXWEhu6yD3hlFR4Mxk4Mtp3XEyScpSt4pQ4ymmXA1zzxZpj99QkFK+nN0nzjeb2+RUi/6CQ==}
 
+  hopscotch@0.3.1:
+    resolution: {integrity: sha512-XBvxhh1awi7lWzNP9Os2J8c/Ql66IPKnUn7L3hvqPaEa0Fk2S81mo0n2T/RxE2aNoHitVmn5Bl5C9J63iEWvSw==}
+
   hosted-git-info@7.0.2:
     resolution: {integrity: sha512-puUZAUKT5m8Zzvs72XWy3HtvVbTWljRE66cP60bxJzAqf2DgICo7lYTY2IHUmLnNpjYvw5bvmoHvPc0QO2a62w==}
     engines: {node: ^16.14.0 || >=18.0.0}
@@ -12389,11 +12432,18 @@ packages:
   jpeg-js@0.4.4:
     resolution: {integrity: sha512-WZzeDOEtTOBK4Mdsar0IqEU5sMr3vSV2RqkAIzUEV2BHnUfKGyswWFPFwK5EeDo93K3FohSHbLAjj0s1Wzd+dg==}
 
+  jquery-modal@0.9.2:
+    resolution: {integrity: sha512-Bx6jTBuiUbdywriWd0UAZK9v7FKEDCOD5uRh47qd4coGvx+dG4w8cOGe4TG2OoR1dNrXn6Aqaeu8MAA+Oz7vOw==}
+
   jquery@3.6.0:
     resolution: {integrity: sha512-JVzAR/AjBvVt2BmYhxRCSYysDsPcssdmTFnzyLEts9qNwmjmu4JTAMYubEfwVOSwpQ1I1sKKFcxhZCI2buerfw==}
 
   js-base64@3.7.7:
     resolution: {integrity: sha512-7rCnleh0z2CkXhH67J8K1Ytz0b2Y+yxTPL+/KOJoa20hfnVQ/3/T6W/KflYI4bRHRagNeXeU2bkNGI3v1oS/lw==}
+
+  js-cookie@3.0.5:
+    resolution: {integrity: sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==}
+    engines: {node: '>=14'}
 
   js-library-detector@6.7.0:
     resolution: {integrity: sha512-c80Qupofp43y4cJ7+8TTDN/AsDwLi5oOm/plBrWI+iQt485vKXCco+yVmOwEgdo9VOdsYTuV0UlTeetVPTriXA==}
@@ -13928,6 +13978,9 @@ packages:
   pure-rand@6.1.0:
     resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
 
+  push.js@1.0.12:
+    resolution: {integrity: sha512-Mo/zkrPD58hcbMvC/9WveUPGz0PJ4T5UwQJP6DnMYbyxe7b1xM/9qqmJTMmDcprbZjCtLzf9wWtek7gA8O9QBw==}
+
   q-flat@1.0.7:
     resolution: {integrity: sha512-Ug+B6yajVE5HF7eAszOvAcYmQ+DbYaDcQlxYuW9RaAqwZTRZQq+lHMGqHlnaxKP7CfuGCpXQXOb4qymRYMkYEQ==}
 
@@ -15137,6 +15190,10 @@ packages:
     resolution: {integrity: sha512-nL6WTxYnsVl3e0G/mwGEFSnPAWUrzIwHAPOwInD4QUuLDKxaKMnXduf0Ipw3m/g9AldPhp1Y8E/nkReFBukJrA==}
     engines: {node: '>= 12'}
 
+  sweetalert2@7.33.1:
+    resolution: {integrity: sha512-69KYtyhtxejFG0HDb8aVhAwbpAWPSTZwaL5vxDHgojErD2KeFxTmRgmkbiLtMC8UdTFXRmvTPtZTF4459MUb7w==}
+    engines: {node: '>=0.10.0'}
+
   swiper@6.7.0:
     resolution: {integrity: sha512-zCfvWn7H7mCq7jgVurckhAwkjPUeMCkdC4rA7lagvaD3mIrNhKiaYYo2+nkxMVpiaWuCQ38e44Mya/dKb7HpyQ==}
     engines: {node: '>= 4.7.0'}
@@ -15413,6 +15470,9 @@ packages:
   type-is@1.6.18:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}
     engines: {node: '>= 0.6'}
+
+  typeahead.js@0.11.1:
+    resolution: {integrity: sha512-yGaLzGjVHyryZdNfrWz2NHXUwEO7hrlVmGMGCo5+6mH3nEEhcQ0Te3mK3G60uRnxfERu8twOWSU4WmwScbwhMg==}
 
   typed-array-buffer@1.0.3:
     resolution: {integrity: sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw==}
@@ -23375,6 +23435,8 @@ snapshots:
 
   boolbase@1.0.0: {}
 
+  bootstrap@3.4.1: {}
+
   bounding-client-rect@1.0.5:
     dependencies:
       get-document: 1.0.0
@@ -24190,6 +24252,11 @@ snapshots:
       '@babel/runtime': 7.26.10
 
   date-fns@3.6.0: {}
+
+  daterangepicker@2.1.25:
+    dependencies:
+      jquery: 3.6.0
+      moment: 2.30.1
 
   debounce@1.2.1: {}
 
@@ -25658,6 +25725,8 @@ snapshots:
 
   hookified@1.9.0: {}
 
+  hopscotch@0.3.1: {}
+
   hosted-git-info@7.0.2:
     dependencies:
       lru-cache: 10.4.3
@@ -26618,9 +26687,13 @@ snapshots:
 
   jpeg-js@0.4.4: {}
 
+  jquery-modal@0.9.2: {}
+
   jquery@3.6.0: {}
 
   js-base64@3.7.7: {}
+
+  js-cookie@3.0.5: {}
 
   js-library-detector@6.7.0: {}
 
@@ -28428,6 +28501,8 @@ snapshots:
 
   pure-rand@6.1.0: {}
 
+  push.js@1.0.12: {}
+
   q-flat@1.0.7: {}
 
   qrcode.react@3.2.0(react@18.3.1):
@@ -29832,6 +29907,8 @@ snapshots:
     dependencies:
       cheerio: 1.0.0-rc.10
 
+  sweetalert2@7.33.1: {}
+
   swiper@6.7.0:
     dependencies:
       dom7: 3.0.0
@@ -30077,6 +30154,10 @@ snapshots:
     dependencies:
       media-typer: 0.3.0
       mime-types: 2.1.35
+
+  typeahead.js@0.11.1:
+    dependencies:
+      jquery: 3.6.0
 
   typed-array-buffer@1.0.3:
     dependencies:
