@@ -52,6 +52,7 @@
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",
 		"js-cookie": "3.0.5",
+		"push.js": "1.0.12",
 		"sass": "1.87.0",
 		"sass-loader": "16.0.5",
 		"typescript": "5.8.2",

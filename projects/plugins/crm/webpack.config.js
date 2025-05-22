@@ -318,8 +318,14 @@ module.exports = [
 		plugins: [
 			new CopyPlugin( {
 				patterns: [
+					// Used by jpcrm-notifyme-front.js
 					{
 						from: path.resolve( __dirname, 'node_modules/js-cookie/dist/js.cookie.min.js' ),
+						to: libPathJS,
+					},
+					// Used by jpcrm-notifyme-front.js
+					{
+						from: path.resolve( __dirname, 'node_modules/push.js/bin/push.min.js' ),
 						to: libPathJS,
 					},
 				],

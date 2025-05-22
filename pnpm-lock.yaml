@@ -4353,6 +4353,9 @@ importers:
       js-cookie:
         specifier: 3.0.5
         version: 3.0.5
+      push.js:
+        specifier: 1.0.12
+        version: 1.0.12
       sass:
         specifier: 1.87.0
         version: 1.87.0
@@ -13934,6 +13937,9 @@ packages:
 
   pure-rand@6.1.0:
     resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
+
+  push.js@1.0.12:
+    resolution: {integrity: sha512-Mo/zkrPD58hcbMvC/9WveUPGz0PJ4T5UwQJP6DnMYbyxe7b1xM/9qqmJTMmDcprbZjCtLzf9wWtek7gA8O9QBw==}
 
   q-flat@1.0.7:
     resolution: {integrity: sha512-Ug+B6yajVE5HF7eAszOvAcYmQ+DbYaDcQlxYuW9RaAqwZTRZQq+lHMGqHlnaxKP7CfuGCpXQXOb4qymRYMkYEQ==}
@@ -28436,6 +28442,8 @@ snapshots:
       - utf-8-validate
 
   pure-rand@6.1.0: {}
+
+  push.js@1.0.12: {}
 
   q-flat@1.0.7: {}
 
