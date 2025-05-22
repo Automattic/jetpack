@@ -13,12 +13,11 @@ const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
-		editor: './src/block/simple-payments/editor.js',
-		view: './src/block/simple-payments/view.js',
+		editor: './src/block/editor.js',
 	},
 	output: {
 		...jetpackWebpackConfig.output,
-		path: path.join( __dirname, '../dist/block' ),
+		path: path.join( __dirname, './dist/block' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
