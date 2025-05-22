@@ -103,9 +103,6 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 			// chart.js
 			wp_register_script( 'zerobscrmchartjs', plugins_url( '/build/lib/chart.js/chart.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
-			// funnel js
-			wp_register_script( 'zerobscrmfunneljs', plugins_url( '/js/lib/jquery.funnel.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
-
 			// SweetAlert2
 			wp_register_style( 'zerobscrmswa', plugins_url( '/build/lib/sweetalert2/sweetalert2.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 			wp_enqueue_script( 'zerobscrmswa', plugins_url( '/build/lib/sweetalert2/sweetalert2.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
@@ -492,7 +489,6 @@ function zeroBSCRM_admin_styles_ui2_semantic_settingspage(){
 
 function zeroBSCRM_admin_styles_chartjs(){
 	wp_enqueue_script( 'zerobscrmchartjs' );
-	wp_enqueue_script( 'zerobscrmfunneljs' );
 }
 function zeroBSCRM_admin_styles_singleview(){
 
