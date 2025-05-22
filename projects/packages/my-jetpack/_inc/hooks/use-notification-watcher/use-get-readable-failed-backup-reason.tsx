@@ -125,7 +125,7 @@ const useGetReadableFailedBackupReason = (): ReasonContent => {
 					),
 				};
 			case 'Kill switch active':
-			case 'backup-deactivated':
+			case 'backups-deactivated':
 				return {
 					title: __( 'Backup is deactivated', 'jetpack-my-jetpack' ),
 					text: __(
