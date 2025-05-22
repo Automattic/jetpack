@@ -126,12 +126,10 @@ class LCP_Optimization_Util {
 	 */
 	public function can_optimize() {
 		if ( empty( $this->lcp_data ) || ! is_array( $this->lcp_data ) ) {
-			l( 'empty' );
 			return false;
 		}
 
 		if ( ! isset( $this->lcp_data['success'] ) || ! $this->lcp_data['success'] ) {
-			l( 'not success', $this->lcp_data['success'] );
 			return false;
 		}
 
