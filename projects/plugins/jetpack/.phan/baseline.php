@@ -79,7 +79,6 @@ return [
     // PhanUndeclaredClassInCallable : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
-    // PhanParamTooFewInternal : 1 occurrence
     // PhanPluginDuplicateSwitchCase : 1 occurrence
     // PhanPluginInvalidPregRegex : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
@@ -524,7 +523,6 @@ return [
         'tests/php/sync/server/class.jetpack-sync-test-object-factory.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/sync/server/class.jetpack-sync-test-replicastore.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeInvalidLeftOperandOfAdd'],
         'tools/build-asset-cdn-json.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument'],
-        'unauth-file-upload.php' => ['PhanParamTooFewInternal'],
         'uninstall.php' => ['PhanTypeMismatchArgumentInternal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
