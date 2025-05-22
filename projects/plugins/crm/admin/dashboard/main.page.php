@@ -453,12 +453,10 @@ function jpcrm_render_dashboard_page() {
 						},
 					},
 					scales: {
-						y: [
-							{
-								display: true,
-								beginAtZero: true // minimum value will be 0.
-							}
-						]
+						y: {
+							display: true,
+							beginAtZero: true // minimum value will be 0.
+						}
 					}
 				}
 			}

@@ -41,12 +41,10 @@ jQuery( function () {
 					},
 				},
 				scales: {
-					y: [
-						{
-							display: true,
-							beginAtZero: true, // minimum value will be 0.
-						},
-					],
+					y: {
+						display: true,
+						beginAtZero: true, // minimum value will be 0.
+					},
 				},
 			},
 		} );
