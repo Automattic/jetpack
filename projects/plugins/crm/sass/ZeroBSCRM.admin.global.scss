@@ -10,11 +10,11 @@
 // Mike's also made a clone of the following in \master\sass\ZeroBSCRM.admin.invoicepreview.scss
 // ... which could be updated if / when needs to be, (to largely match this... won't need all)
 
+// Import Color Studio
+@use '@automattic/color-studio/dist/color-variables' as *;
+
 // block wp notifications:]
 @import 'wp-hide-admin-notices';
-
-// Import colour studio
-@import 'color_studio';
 
 // Import generic edit page styles (old legacy of wh from taxibooker! :o to rewrite)
 @import 'ZeroBSCRM.genericeditpages';
