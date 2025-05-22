@@ -99,7 +99,7 @@ class LCP_Optimize_Bg_Image {
 				$image_set_string = implode( ', ', $image_set );
 
 				$styles[] = sprintf(
-					'@media %s { %s { background-image: url(%s) !important; background-image: -webkit-image-set(%s) !important; background-image: image-set(%s) !important; } }',
+					'@media %1$s { %2$s { background-image: url(%3$s) !important; background-image: -webkit-image-set(%4$s) !important; background-image: image-set(%4$s) !important; } }',
 					$breakpoint['media_query'],
 					$lcp_data['element'],
 					$breakpoint['base_image'],
