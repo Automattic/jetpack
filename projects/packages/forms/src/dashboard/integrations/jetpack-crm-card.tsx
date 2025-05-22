@@ -42,7 +42,7 @@ const JetpackCRMDashboardCard = ( {
 		if ( ! isRecentVersion ) {
 			return (
 				<div>
-					<p>
+					<p className="integration-card__description">
 						{ __(
 							'Please update to the latest version of the Jetpack CRM plugin to integrate your contact form with your CRM.',
 							'jetpack-forms'
@@ -65,7 +65,7 @@ const JetpackCRMDashboardCard = ( {
 		if ( ! hasExtension ) {
 			return (
 				<div>
-					<p>
+					<p className="integration-card__description">
 						{ createInterpolateElement(
 							__(
 								"You can integrate Jetpack CRM by enabling Jetpack CRM's <a>Jetpack Forms extension</a>.",
@@ -84,7 +84,7 @@ const JetpackCRMDashboardCard = ( {
 						) }
 					</p>
 					{ ! canActivateExtension && (
-						<p>
+						<p className="integration-card__description">
 							{ __(
 								'A site administrator must enable the CRM Jetpack Forms extension.',
 								'jetpack-forms'
