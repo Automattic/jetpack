@@ -437,7 +437,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'transition'  => $form->get_attribute( 'stepTransition' ) ? $form->get_attribute( 'stepTransition' ) : 'fade-slide', // Transition style for step animations
 			);
 
-			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label data-wp-interactive=\"jetpack/form\"  " . wp_interactivity_data_wp_context( $context ) . " data-wp-on--submit=\"actions.formSubmit\" novalidate>\n";
+			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label data-wp-interactive=\"jetpack/form\"  " . wp_interactivity_data_wp_context( $context ) . " data-wp-on--submit=\"actions.formSubmit\" data-wp-class--is-first-step=\"state.isFirstStep\" data-wp-class--is-last-step=\"state.isLastStep\" novalidate>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
