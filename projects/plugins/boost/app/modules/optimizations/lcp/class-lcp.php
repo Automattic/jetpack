@@ -41,6 +41,8 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 
 		add_action( 'template_redirect', array( $this, 'add_output_filter' ), -999999 );
 		add_action( 'jetpack_boost_lcp_invalidated', array( $this, 'handle_lcp_invalidated' ) );
+
+		// Initialize the optimizer for background images. Doing it late enough so wp can load, but before any output is sent.
 		add_action( 'wp', array( LCP_Optimize_Bg_Image::class, 'init' ) );
 
 		LCP_Invalidator::init();
@@ -66,9 +68,6 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 */
 	public function optimize( $buffer_start, $buffer_end ) {
 		$lcp_storage = $this->storage->get_current_request_lcp();
-
-		// Initialize the optimizer for background images. Doing it late enough so wp can load, but before any output is sent.
-		add_action( 'wp', array( LCP_Optimize_Bg_Image::class, 'init' ) );
 		if ( empty( $lcp_storage ) ) {
 			return array( $buffer_start, $buffer_end );
 		}
