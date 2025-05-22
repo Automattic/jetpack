@@ -1,6 +1,6 @@
 import { BlockControls, store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { ToolbarGroup, DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { ToolbarGroup, MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -60,9 +60,9 @@ export default function AddStepControls( { clientId, formClientId } ) {
 	return (
 		<BlockControls>
 			<ToolbarGroup>
-				<DropdownMenu
+				<ToolbarDropdownMenu
 					icon={ null }
-					label={ __( 'Add', 'jetpack-forms' ) }
+					text={ __( 'Add', 'jetpack-forms' ) }
 					popoverProps={ { placement: 'bottom-start' } }
 					toggleProps={ {
 						showTooltip: true,
@@ -70,7 +70,7 @@ export default function AddStepControls( { clientId, formClientId } ) {
 					} }
 				>
 					{ ( { onClose } ) => (
-						<MenuGroup key="add-step-options">
+						<MenuGroup>
 							{ currentStepIndex !== -1 && (
 								<MenuItem
 									onClick={ () => {
@@ -113,7 +113,7 @@ export default function AddStepControls( { clientId, formClientId } ) {
 							) }
 						</MenuGroup>
 					) }
-				</DropdownMenu>
+				</ToolbarDropdownMenu>
 			</ToolbarGroup>
 		</BlockControls>
 	);
