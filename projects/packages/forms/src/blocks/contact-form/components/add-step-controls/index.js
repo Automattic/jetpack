@@ -98,7 +98,7 @@ export default function AddStepControls( { clientId, formClientId } ) {
 										onClose();
 									} }
 								>
-									{ __( 'Add to start', 'jetpack-forms' ) }
+									{ __( 'Add at the beginning', 'jetpack-forms' ) }
 								</MenuItem>
 							) }
 							{ currentStepIndex === -1 && (
@@ -108,7 +108,7 @@ export default function AddStepControls( { clientId, formClientId } ) {
 										onClose();
 									} }
 								>
-									{ __( 'Add to end', 'jetpack-forms' ) }
+									{ __( 'Add at the end', 'jetpack-forms' ) }
 								</MenuItem>
 							) }
 						</MenuGroup>
