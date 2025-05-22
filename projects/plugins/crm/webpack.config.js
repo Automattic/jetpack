@@ -350,7 +350,7 @@ module.exports = [
 					},
 					// Used for dashboard charts
 					{
-						from: path.resolve( __dirname, 'node_modules/chart.js/dist/Chart.min.js' ),
+						from: path.resolve( __dirname, 'node_modules/chart.js/dist/chart.min.js' ),
 						to: `${ buildLibPath }/chart.js/`,
 					},
 				],

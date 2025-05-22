@@ -25,7 +25,7 @@ jQuery( function () {
 				datasets: [
 					{
 						label: '',
-						backgroundColor: Chart.defaults.global.defaultColor,
+						backgroundColor: Chart.defaults.defaultColor,
 						data: '',
 					},
 				],
@@ -33,18 +33,18 @@ jQuery( function () {
 			options: {
 				responsive: true,
 				maintainAspectRatio: false,
-				legend: { display: false },
-				title: {
-					display: false,
-					text: '',
+				plugins: {
+					legend: { display: false },
+					title: {
+						display: false,
+						text: '',
+					},
 				},
 				scales: {
-					yAxes: [
+					y: [
 						{
 							display: true,
-							ticks: {
-								beginAtZero: true, // minimum value will be 0.
-							},
+							beginAtZero: true, // minimum value will be 0.
 						},
 					],
 				},
