@@ -2,20 +2,18 @@
 /**
  * Single Quote Template
  *
- * The Single Quote Portal Page 
+ * The Single Quote Portal Page
  *
- * @author 		ZeroBSCRM
- * @package 	Templates/Portal/Quote
- * @see			https://kb.jetpackcrm.com/
- * @version     3.0
- * 
+ * @package automattic/jetpack-crm
+ * @see     https://kb.jetpackcrm.com/
+ * @version 3.0
  */
 
 // Don't allow direct access
 defined( 'ABSPATH' ) || exit( 0 );
 
 global $zbs;
-$portal = $zbs->modules->portal;
+$portal                = $zbs->modules->portal;
 $single_quote_endpoint = new Automattic\JetpackCRM\Single_Quote_Endpoint( $portal );
 
 // Enqueuement
@@ -25,11 +23,11 @@ do_action( 'zbs_enqueue_scripts_and_styles' );
 $obj_id = $portal->get_obj_id_from_current_portal_page_url( ZBS_TYPE_QUOTE );
 
 // fail if invalid object or no permissions to view it
-if ( !$obj_id ) {
-  $portal->render->show_single_obj_error_and_die();
+if ( ! $obj_id ) {
+	$portal->render->show_single_obj_error_and_die();
 }
 
-$show_nav = ( $portal->is_user_enabled() || !$portal->access_is_via_hash( ZBS_TYPE_QUOTE ) ) ;
+$show_nav = ( $portal->is_user_enabled() || ! $portal->access_is_via_hash( ZBS_TYPE_QUOTE ) );
 ?>
 <style>
 .zerobs-proposal-body{
@@ -41,25 +39,29 @@ $show_nav = ( $portal->is_user_enabled() || !$portal->access_is_via_hash( ZBS_TY
 	border: 1px solid rgba(34,36,38,0.15);
 }
 .zerobs-proposal-body li, .zerobs-proposal-body li span{
-  padding:5px;
-  line-height: 18px;
+	padding:5px;
+	line-height: 18px;
 }
 .zerobs-proposal-body table td, table tbody th {
-  border: 1px solid #ddd;
-  padding: 8px;
-  font-size: 16px;
+	border: 1px solid #ddd;
+	padding: 8px;
+	font-size: 16px;
 }
 .zerobs-proposal-body ul{
-  padding-left:20px;
+	padding-left:20px;
 }
 </style>
 
-<div class="alignwide zbs-site-main zbs-portal-grid<?php echo $show_nav?'':' no-nav' ?>">
-  <?php if ( $show_nav ) { ?>
-    <nav class="zbs-portal-nav"><?php echo $portal->render->portal_nav( $portal->get_endpoint( ZBS_TYPE_QUOTE ), false ); ?></nav>
-  <?php } ?>
-  <div class="zbs-portal-content zbs-portal-quote-single">
-    <?php $single_quote_endpoint->single_quote_html_output( $obj_id, true ); ?>
-  </div>
-  <div class="zbs-portal-grid-footer"><?php $portal->render->portal_footer(); ?></div>
+<div class="alignwide zbs-site-main zbs-portal-grid<?php echo $show_nav ? '' : ' no-nav'; ?>">
+	<?php if ( $show_nav ) { ?>
+		<nav class="zbs-portal-nav">
+			<?php
+			echo $portal->render->portal_nav( $portal->get_endpoint( ZBS_TYPE_QUOTE ), false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			?>
+		</nav>
+	<?php } ?>
+	<div class="zbs-portal-content zbs-portal-quote-single">
+		<?php $single_quote_endpoint->single_quote_html_output( $obj_id, true ); ?>
+	</div>
+	<div class="zbs-portal-grid-footer"><?php $portal->render->portal_footer(); ?></div>
 </div>
