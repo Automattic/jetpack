@@ -363,6 +363,16 @@ module.exports = [
 						from: path.resolve( __dirname, 'node_modules/daterangepicker/daterangepicker.js' ),
 						to: `${ buildLibPath }/daterangepicker/`,
 					},
+					// Used for first-use dashboard modals
+					{
+						from: path.resolve( __dirname, 'node_modules/jquery-modal/jquery.modal.min.js' ),
+						to: `${ buildLibPath }/jquery-modal/`,
+					},
+					// Used for first-use dashboard modals
+					{
+						from: path.resolve( __dirname, 'node_modules/jquery-modal/jquery.modal.min.css' ),
+						to: `${ buildLibPath }/jquery-modal/`,
+					},
 				],
 			} ),
 		],

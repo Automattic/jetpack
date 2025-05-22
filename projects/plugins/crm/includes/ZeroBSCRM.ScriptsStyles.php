@@ -94,8 +94,8 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 			wp_register_script( 'zerobscrmadmjquidraggable', plugins_url( '/js/lib/jquery-ui.1.12.1.dragdrop.listview.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 			// jq modal
-			wp_register_style( 'zerobsjsmodal', plugins_url( '/css/lib/jquery.modal.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
-			wp_register_script( 'zerobsjsmodal', plugins_url( '/js/lib/jquery.modal.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+			wp_register_style( 'jpcrm-jquery-modal', plugins_url( '/build/lib/jquery-modal/jquery.modal.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_register_script( 'jpcrm-jquery-modal', plugins_url( '/build/lib/jquery-modal/jquery.modal.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 			// font awesome
 			wp_register_style( 'jpcrm-fontawesome-v4-4-0-core-css', plugins_url( '/css/font-awesome.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
@@ -344,10 +344,10 @@ function zeroBSCRM_global_admin_styles(){
 
 		// prev core
 		wp_enqueue_style( 'zerobscrmadmcss' );
-		wp_enqueue_style( 'zerobsjsmodal' );
+		wp_enqueue_style( 'jpcrm-jquery-modal' );
 		wp_enqueue_style( 'jpcrm-fontawesome-v4-4-0-core-css'	);
 		wp_enqueue_style( 'zerobscrmswa' );
-		wp_enqueue_script( 'zerobsjsmodal');
+		wp_enqueue_script( 'jpcrm-jquery-modal' );
 
 		// emerald styles
 		wp_enqueue_style( 'jpcrm-emerald' );
@@ -558,8 +558,8 @@ function zeroBSCRM_calendar_admin_styles(){
 }
 
 function zeroBSCRM_dequeueJSModal(){
-	wp_dequeue_style( 'zerobsjsmodal' );
-	wp_dequeue_script( 'zerobsjsmodal' );
+	wp_dequeue_style( 'jpcrm-jquery-modal' );
+	wp_dequeue_script( 'jpcrm-jquery-modal' );
 }
 
 function zeroBSCRM_add_admin_styles( $hook ) {
