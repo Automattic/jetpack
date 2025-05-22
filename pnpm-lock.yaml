@@ -3023,6 +3023,9 @@ importers:
 
   projects/packages/paypal-payments:
     dependencies:
+      '@automattic/babel-plugin-replace-textdomain':
+        specifier: workspace:*
+        version: link:../../js-packages/babel-plugin-replace-textdomain
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
@@ -3032,6 +3035,12 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@automattic/remove-asset-webpack-plugin':
+        specifier: workspace:*
+        version: link:../../js-packages/remove-asset-webpack-plugin
+      '@wordpress/base-styles':
+        specifier: 5.22.0
+        version: 5.22.0
       '@wordpress/block-editor':
         specifier: 14.17.0
         version: 14.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3044,6 +3053,9 @@ importers:
       '@wordpress/data':
         specifier: 10.22.0
         version: 10.22.0(react@18.3.1)
+      '@wordpress/dependency-extraction-webpack-plugin':
+        specifier: 6.22.0
+        version: 6.22.0(webpack@5.94.0)
       '@wordpress/element':
         specifier: 6.22.0
         version: 6.22.0
@@ -3059,6 +3071,9 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      copy-webpack-plugin:
+        specifier: 11.0.0
+        version: 11.0.0(webpack@5.94.0)
       email-validator:
         specifier: 2.0.4
         version: 2.0.4
@@ -3074,13 +3089,43 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      webpack:
+        specifier: 5.94.0
+        version: 5.94.0(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.94.0)
     devDependencies:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
+      '@babel/core':
+        specifier: 7.26.10
+        version: 7.26.10
+      '@babel/runtime':
+        specifier: 7.26.10
+        version: 7.26.10
+      '@wordpress/babel-plugin-import-jsx-pragma':
+        specifier: 5.22.0
+        version: 5.22.0(@babel/core@7.26.10)
       '@wordpress/block-serialization-default-parser':
         specifier: 5.22.0
         version: 5.22.0
+      autoprefixer:
+        specifier: 10.4.20
+        version: 10.4.20(postcss@8.4.47)
+      postcss:
+        specifier: 8.4.47
+        version: 8.4.47
+      postcss-loader:
+        specifier: 8.1.1
+        version: 8.1.1(postcss@8.4.47)(webpack@5.94.0)
+      sass:
+        specifier: 1.64.1
+        version: 1.64.1
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass@1.64.1)(webpack@5.94.0)
 
   projects/packages/plans: {}
 
@@ -6360,6 +6405,10 @@ packages:
 
   '@babel/runtime@7.26.10':
     resolution: {integrity: sha512-2WJMeRQPHKSPemqk/awGrAiuFfzBmOIPXKizAsVhWH9YJqLZ0H+HS4c8loHGgW6utJ3E/ejXQUsiGaQy2NZ9Fw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.27.1':
+    resolution: {integrity: sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.27.2':
@@ -11912,6 +11961,9 @@ packages:
   immediate@3.0.6:
     resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
 
+  immutable@4.3.7:
+    resolution: {integrity: sha512-1hqclzwYwjRDFLjcFxOM5AYkkG0rpFPpr1RLPMEuGczoS7YA8gLhy8SWXYRAA/XwfEHpfo3cw5JGioS32fnMRw==}
+
   immutable@5.1.2:
     resolution: {integrity: sha512-qHKXW1q6liAk1Oys6umoaZbDRqjcjgSrbnrifHsfsttza7zcvRAsL7mMV6xWcyhwQy7Xj5v4hhbr6b+iDYwlmQ==}
 
@@ -14622,6 +14674,11 @@ packages:
       webpack:
         optional: true
 
+  sass@1.64.1:
+    resolution: {integrity: sha512-16rRACSOFEE8VN7SCgBu1MpYCyN7urj9At898tyzdXFhC+a+yOX5dXwAR7L8/IdPJ1NB8OYoXmD55DM30B2kEQ==}
+    engines: {node: '>=14.0.0'}
+    hasBin: true
+
   sass@1.87.0:
     resolution: {integrity: sha512-d0NoFH4v6SjEK7BoX810Jsrhj7IQSYHAHLi/iSpgqKc7LaIDshFRlSg5LOymf9FqQhxEHs2W5ZQXlvy0KD45Uw==}
     engines: {node: '>=14.0.0'}
@@ -17230,6 +17287,8 @@ snapshots:
   '@babel/runtime@7.26.10':
     dependencies:
       regenerator-runtime: 0.14.1
+
+  '@babel/runtime@7.27.1': {}
 
   '@babel/template@7.27.2':
     dependencies:
@@ -20365,7 +20424,7 @@ snapshots:
 
   '@wordpress/block-editor@14.17.0(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.1
       '@emotion/react': 11.14.0(@types/react@18.3.18)(react@18.3.1)
       '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
       '@react-spring/web': 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -20425,7 +20484,7 @@ snapshots:
 
   '@wordpress/block-editor@14.17.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.1
       '@emotion/react': 11.14.0(@types/react@18.3.18)(react@18.3.1)
       '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
       '@react-spring/web': 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -20485,7 +20544,7 @@ snapshots:
 
   '@wordpress/block-editor@14.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.1
       '@emotion/react': 11.14.0(react@18.3.1)
       '@emotion/styled': 11.14.0(@emotion/react@11.14.0(react@18.3.1))(react@18.3.1)
       '@react-spring/web': 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -21024,7 +21083,7 @@ snapshots:
   '@wordpress/components@29.8.0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@ariakit/react': 0.4.17(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.1
       '@emotion/cache': 11.14.0
       '@emotion/css': 11.13.5
       '@emotion/react': 11.14.0(@types/react@18.3.18)(react@18.3.1)
@@ -21078,7 +21137,7 @@ snapshots:
   '@wordpress/components@29.8.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@ariakit/react': 0.4.17(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.1
       '@emotion/cache': 11.14.0
       '@emotion/css': 11.13.5
       '@emotion/react': 11.14.0(react@18.3.1)
@@ -21239,7 +21298,7 @@ snapshots:
 
   '@wordpress/compose@7.22.0(react@18.3.1)':
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.1
       '@types/mousetrap': 1.6.15
       '@wordpress/deprecated': 4.23.0
       '@wordpress/dom': 4.23.0
@@ -21537,7 +21596,7 @@ snapshots:
 
   '@wordpress/data@10.22.0(react@18.3.1)':
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.1
       '@wordpress/compose': 7.22.0(react@18.3.1)
       '@wordpress/deprecated': 4.23.0
       '@wordpress/element': 6.22.0
@@ -22021,7 +22080,7 @@ snapshots:
 
   '@wordpress/element@6.22.0':
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.1
       '@types/react': 18.3.18
       '@types/react-dom': 18.3.5(@types/react@18.3.18)
       '@wordpress/escape-html': 3.22.0
@@ -22219,7 +22278,7 @@ snapshots:
 
   '@wordpress/hooks@4.22.0':
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.1
 
   '@wordpress/hooks@4.23.0':
     dependencies:
@@ -22235,7 +22294,7 @@ snapshots:
 
   '@wordpress/i18n@5.22.0':
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.27.1
       '@wordpress/hooks': 4.22.0
       gettext-parser: 1.4.0
       memize: 2.1.0
@@ -25868,6 +25927,8 @@ snapshots:
 
   immediate@3.0.6: {}
 
+  immutable@4.3.7: {}
+
   immutable@5.1.2: {}
 
   import-cwd@3.0.0:
@@ -29142,12 +29203,25 @@ snapshots:
       sass-embedded: 1.87.0
       webpack: 5.94.0(webpack-cli@6.0.1)
 
+  sass-loader@16.0.5(sass@1.64.1)(webpack@5.94.0):
+    dependencies:
+      neo-async: 2.6.2
+    optionalDependencies:
+      sass: 1.64.1
+      webpack: 5.94.0(webpack-cli@6.0.1)
+
   sass-loader@16.0.5(sass@1.87.0)(webpack@5.94.0):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
       sass: 1.87.0
       webpack: 5.94.0(webpack-cli@6.0.1)
+
+  sass@1.64.1:
+    dependencies:
+      chokidar: 3.6.0
+      immutable: 4.3.7
+      source-map-js: 1.2.0
 
   sass@1.87.0:
     dependencies:
