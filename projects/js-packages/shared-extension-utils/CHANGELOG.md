@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.1] - 2025-05-22
+### Changed
+- Update dependencies. [#43068]
+
 ## [0.20.0] - 2025-05-19
 ### Added
 - AI Assistant: Retrieve Chrome AI token from AI Features response and inject it from the frontend. [#43442]
@@ -629,6 +633,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.20.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.20.0...0.20.1
 [0.20.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.19.3...0.20.0
 [0.19.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.19.2...0.19.3
 [0.19.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.19.1...0.19.2
