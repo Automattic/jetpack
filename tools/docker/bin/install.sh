@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# E2E test setup uses these to supply the username and password the E2Es are expecting, instead of what was set in default.env or .env.
+[[ -n "$WP_FORCE_ADMIN_USER" ]] && WP_ADMIN_USER="$WP_FORCE_ADMIN_USER"
+[[ -n "$WP_FORCE_ADMIN_PASS" ]] && WP_ADMIN_PASSWORD="$WP_FORCE_ADMIN_PASS"
+
 if wp core is-installed; then
 	echo
 	echo "WordPress has already been installed. Uninstall it first by running:"
@@ -11,11 +15,11 @@ fi
 
 # Install WP core
 wp core install \
-	--url=${WP_DOMAIN} \
+	--url="${WP_DOMAIN}" \
 	--title="${WP_TITLE}" \
-	--admin_user=${WP_ADMIN_USER} \
-	--admin_password=${WP_ADMIN_PASSWORD} \
-	--admin_email=${WP_ADMIN_EMAIL} \
+	--admin_user="${WP_ADMIN_USER}" \
+	--admin_password="${WP_ADMIN_PASSWORD}" \
+	--admin_email="${WP_ADMIN_EMAIL}" \
 	--skip-email
 
 # Discourage search engines from indexing. Can be changed via UI in Settings->Reading.
