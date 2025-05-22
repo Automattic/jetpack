@@ -44,10 +44,7 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
-const STEP_TEMPLATE = [
-	[ 'core/paragraph', {} ],
-	[ 'jetpack/form-step-navigation', {} ],
-];
+const STEP_TEMPLATE = [ [ 'core/paragraph', {} ] ];
 
 function StepBreak( { stepName } ) {
 	return (
