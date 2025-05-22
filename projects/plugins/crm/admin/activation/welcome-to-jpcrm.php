@@ -26,7 +26,6 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 		// phpcs:disable WordPress.WP.EnqueuedResourceParameters.NotInFooter
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'zbswelcomeblock', plugins_url( '/js/welcome-to-zbs/jquery.blockUI.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
-		wp_enqueue_script( 'zbswelcomebootstrap', plugins_url( '/build/lib/bootstrap/bootstrap.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 		wp_enqueue_script( 'zbswelcomewizard', plugins_url( '/js/welcome-to-zbs/wizard2' . wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 		// css
