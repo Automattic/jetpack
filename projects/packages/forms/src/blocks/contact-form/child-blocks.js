@@ -1,18 +1,9 @@
 import { InnerBlocks, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Path, Icon } from '@wordpress/components';
+import { Path, Rect, Icon } from '@wordpress/components';
 import { select } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
-import {
-	globe,
-	envelope,
-	mobile,
-	upload,
-	next,
-	queryPagination,
-	pages,
-	page,
-} from '@wordpress/icons';
+import { globe, envelope, mobile, upload, next } from '@wordpress/icons';
 import { filter, isEmpty, map, startsWith, trim } from 'lodash';
 import FormProgressIndicatorEdit from '../form-progress-indicator/edit';
 import FormProgressIndicatorSave from '../form-progress-indicator/save';
@@ -455,12 +446,12 @@ export const childBlocks = [
 			...FieldDefaults,
 			title: __( 'Number Input Field', 'jetpack-forms' ),
 			description: __( 'Collect numbers from site visitors.', 'jetpack-forms' ),
-			icon: renderMaterialIcon(
-				<Path
-					fill={ getIconColor() }
-					d="M12 7H4V8.5H12V7ZM19.75 17.25V10.75H4.25V17.25H19.75ZM5.75 15.75V12.25H18.25V15.75H5.75Z"
-				/>
-			),
+			icon: {
+				foreground: getIconColor(),
+				src: renderMaterialIcon(
+					<Path d="M12 7H4V8.5H12V7ZM19.75 17.25V10.75H4.25V17.25H19.75ZM5.75 15.75V12.25H18.25V15.75H5.75Z" />
+				),
+			},
 			edit: EditNumber,
 			attributes: {
 				...FieldDefaults.attributes,
@@ -832,7 +823,28 @@ export const childBlocks = [
 			description: __( 'A container that organizes multiple form steps.', 'jetpack-forms' ),
 			icon: {
 				foreground: getIconColor(),
-				src: <Icon icon={ pages } />,
+				src: renderMaterialIcon(
+					<>
+						<Path
+							fillRule="evenodd"
+							clipRule="evenodd"
+							d="M19 4.5H5C4.72386 4.5 4.5 4.72386 4.5 5V19C4.5 19.2761 4.72386 19.5 5 19.5H19C19.2761 19.5 19.5 19.2761 19.5 19V5C19.5 4.72386 19.2761 4.5 19 4.5ZM5 3C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3H5Z"
+						/>
+						<Path d="M6.1001 6H12.1001V7.5H6.1001V6Z" />
+						<Path
+							d="M7.6001 9.75H16.6001C17.0143 9.75 17.3501 10.0858 17.3501 10.5V11.5C17.3501 11.9142 17.0143 12.25 16.6001 12.25H7.6001C7.18588 12.25 6.8501 11.9142 6.8501 11.5V10.5C6.8501 10.0858 7.18588 9.75 7.6001 9.75Z"
+							stroke-width="1.5"
+							stroke="currentColor"
+							fill="none"
+						/>
+						<Path
+							d="M7.6001 14.75H16.6001C17.0143 14.75 17.3501 15.0858 17.3501 15.5V16.5C17.3501 16.9142 17.0143 17.25 16.6001 17.25H7.6001C7.18588 17.25 6.8501 16.9142 6.8501 16.5V15.5C6.8501 15.0858 7.18588 14.75 7.6001 14.75Z"
+							stroke-width="1.5"
+							stroke="currentColor"
+							fill="none"
+						/>
+					</>
+				),
 			},
 			supports: {
 				html: false,
@@ -879,7 +891,11 @@ export const childBlocks = [
 			description: __( 'A single step in a multi-step form.', 'jetpack-forms' ),
 			icon: {
 				foreground: getIconColor(),
-				src: <Icon icon={ page } />,
+				src: renderMaterialIcon(
+					<>
+						<Path d="M17.5 9V6C17.5 5.46957 17.2893 4.96086 16.9142 4.58579C16.5391 4.21071 16.0304 4 15.5 4H8.5C7.96957 4 7.46086 4.21071 7.08579 4.58579C6.71071 4.96086 6.5 5.46957 6.5 6V9H8V6C8 5.86739 8.05268 5.74021 8.14645 5.64645C8.24021 5.55268 8.36739 5.5 8.5 5.5H15.5C15.6326 5.5 15.7598 5.55268 15.8536 5.64645C15.9473 5.74021 16 5.86739 16 6V9H17.5ZM17.5 15.5V18C17.5 18.5304 17.2893 19.0391 16.9142 19.4142C16.5391 19.7893 16.0304 20 15.5 20H8.5C7.96957 20 7.46086 19.7893 7.08579 19.4142C6.71071 19.0391 6.5 18.5304 6.5 18V15.5H8V18C8 18.1326 8.05268 18.2598 8.14645 18.3536C8.24021 18.4473 8.36739 18.5 8.5 18.5H15.5C15.6326 18.5 15.7598 18.4473 15.8536 18.3536C15.9473 18.2598 16 18.1326 16 18V15.5H17.5ZM4 13H20V11.5H4V13Z" />
+					</>
+				),
 			},
 			parent: [ 'jetpack/step-container', 'jetpack/contact-form' ],
 			supports: {
@@ -1015,7 +1031,21 @@ export const childBlocks = [
 			),
 			icon: {
 				foreground: getIconColor(),
-				src: <Icon icon={ queryPagination } />,
+				src: renderMaterialIcon(
+					<>
+						<Rect
+							x="3.75"
+							y="9.75"
+							width="16.5"
+							height="4.5"
+							rx="2.25"
+							stroke={ getIconColor() }
+							fill="none"
+							stroke-width="1.5"
+						/>
+						<Rect x="2" y="9" width="8" height="6" rx="3" />
+					</>
+				),
 			},
 			edit: FormProgressIndicatorEdit,
 			save: FormProgressIndicatorSave,
