@@ -31,7 +31,7 @@ do_action( 'zbs_enqueue_scripts_and_styles' );
 		$page_title = apply_filters( 'zbs_portal_dashboard_title', $page_title );
 		?>
 		<h2><?php echo esc_html( $page_title ); ?></h2>
-		<div class='zbs-entry-content' style="position:relative;">
+		<div class="zbs-entry-content" style="position:relative;">
 			<p>
 				<?php
 				// add actions for additional content
