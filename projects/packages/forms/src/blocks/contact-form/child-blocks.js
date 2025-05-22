@@ -833,13 +833,13 @@ export const childBlocks = [
 						<Path d="M6.1001 6H12.1001V7.5H6.1001V6Z" />
 						<Path
 							d="M7.6001 9.75H16.6001C17.0143 9.75 17.3501 10.0858 17.3501 10.5V11.5C17.3501 11.9142 17.0143 12.25 16.6001 12.25H7.6001C7.18588 12.25 6.8501 11.9142 6.8501 11.5V10.5C6.8501 10.0858 7.18588 9.75 7.6001 9.75Z"
-							stroke-width="1.5"
+							strokeWidth="1.5"
 							stroke="currentColor"
 							fill="none"
 						/>
 						<Path
 							d="M7.6001 14.75H16.6001C17.0143 14.75 17.3501 15.0858 17.3501 15.5V16.5C17.3501 16.9142 17.0143 17.25 16.6001 17.25H7.6001C7.18588 17.25 6.8501 16.9142 6.8501 16.5V15.5C6.8501 15.0858 7.18588 14.75 7.6001 14.75Z"
-							stroke-width="1.5"
+							strokeWidth="1.5"
 							stroke="currentColor"
 							fill="none"
 						/>
@@ -1041,7 +1041,7 @@ export const childBlocks = [
 							rx="2.25"
 							stroke={ getIconColor() }
 							fill="none"
-							stroke-width="1.5"
+							strokeWidth="1.5"
 						/>
 						<Rect x="2" y="9" width="8" height="6" rx="3" />
 					</>
