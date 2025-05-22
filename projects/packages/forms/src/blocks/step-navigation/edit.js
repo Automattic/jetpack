@@ -9,6 +9,7 @@ import { useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useFormSteps from '../../hooks/use-form-steps';
 import useParentFormClientId from '../../hooks/use-parent-form-client-id';
+import StepControls from '../contact-form/components/step-controls';
 
 import './editor.scss';
 
@@ -214,6 +215,7 @@ export default function Edit( { clientId } ) {
 	return (
 		<>
 			<div { ...innerBlocksProps } />
+			<StepControls formClientId={ formClientId } showToggle={ false } showNavigation={ true } />
 		</>
 	);
 }
