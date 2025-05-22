@@ -101,11 +101,14 @@ class Jetpack_Components {
 			get_edit_post_link( $post_id )
 		);
 
+		// Decode the URL to avoid double encoding.
+		$redirect_to = html_entity_decode( wp_unslash( $redirect_to ), ENT_QUOTES );
+
 		$upgrade_url =
 			$plan_path_slug
 			? add_query_arg(
 				'redirect_to',
-				$redirect_to,
+				rawurlencode( $redirect_to ),
 				"https://wordpress.com/checkout/{$site_slug}/{$plan_path_slug}"
 			) : '';
 
