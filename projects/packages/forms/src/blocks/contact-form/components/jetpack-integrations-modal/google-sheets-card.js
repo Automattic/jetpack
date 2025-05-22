@@ -81,7 +81,7 @@ const GoogleSheetsCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 				</div>
 			) : (
 				<div>
-					<p>
+					<p className="integration-card__description">
 						{ __(
 							'Google Sheets is connected. You can export your form responses from the form responses page.',
 							'jetpack-forms'

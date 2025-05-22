@@ -72,7 +72,9 @@ const AkismetDashboardCard = ( {
 				</div>
 			) : (
 				<div>
-					<p>{ __( 'Your forms are automatically protected with Akismet.', 'jetpack-forms' ) }</p>
+					<p className="integration-card__description">
+						{ __( 'Your forms are automatically protected with Akismet.', 'jetpack-forms' ) }
+					</p>
 					<div className="integration-card__links">
 						<Button
 							variant="link"

@@ -67,7 +67,7 @@ const SalesforceCard = ( {
 		>
 			<BaseControl __nextHasNoMarginBottom={ true }>
 				{ ! isValidSalesforceOrgId( salesforceData.organizationId ) && (
-					<p style={ { marginBottom: '20px' } }>
+					<p className="integration-card__description" style={ { marginBottom: '20px' } }>
 						{ __(
 							'Enter the Salesforce organization ID where you want to send leads.',
 							'jetpack-forms'

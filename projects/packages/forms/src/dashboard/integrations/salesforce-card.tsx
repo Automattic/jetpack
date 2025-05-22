@@ -27,7 +27,7 @@ const SalesforceDashboardCard = ( {
 			cardData={ cardData }
 		>
 			<div>
-				<p>
+				<p className="integration-card__description">
 					{ __(
 						'Salesforce connections are managed for each form individually in the block editor.',
 						'jetpack-forms'

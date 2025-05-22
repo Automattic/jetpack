@@ -44,6 +44,7 @@
 		"@wordpress/compose": "7.24.0",
 		"@wordpress/core-data": "7.24.0",
 		"@wordpress/data": "10.24.0",
+		"@wordpress/base-styles": "5.22.0",
 		"@wordpress/dataviews": "4.17.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.24.0",
 		"@wordpress/element": "6.24.0",

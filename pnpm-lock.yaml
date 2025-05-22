@@ -2446,6 +2446,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@wordpress/base-styles':
+        specifier: 5.22.0
+        version: 5.22.0
       '@wordpress/block-editor':
         specifier: 14.19.0
         version: 14.19.0(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

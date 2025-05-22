@@ -43,39 +43,51 @@ const Integrations = () => {
 
 	return (
 		<div className="jp-forms__integrations">
-			<div className="section-main">
-				<h2>{ __( 'Third party integrations', 'jetpack-forms' ) }</h2>
-				<AkismetDashboardCard
-					isExpanded={ expandedCards.akismet }
-					onToggle={ handleToggleAkismet }
-					data={ findIntegrationById( 'akismet' ) }
-					refreshStatus={ refreshIntegrations }
-				/>
-				<GoogleSheetsDashboardCard
-					isExpanded={ expandedCards.googleSheets }
-					onToggle={ handleToggleGoogleSheets }
-					data={ findIntegrationById( 'google-drive' ) }
-					refreshStatus={ refreshIntegrations }
-				/>
-				<JetpackCRMDashboardCard
-					isExpanded={ expandedCards.crm }
-					onToggle={ handleToggleCRM }
-					data={ findIntegrationById( 'zero-bs-crm' ) }
-					refreshStatus={ refreshIntegrations }
-				/>
-				<SalesforceDashboardCard
-					isExpanded={ expandedCards.salesforce }
-					onToggle={ handleToggleSalesforce }
-					data={ findIntegrationById( 'salesforce' ) }
-					refreshStatus={ refreshIntegrations }
-				/>
-				<CreativeMailDashboardCard
-					isExpanded={ expandedCards.creativemail }
-					onToggle={ handleToggleCreativeMail }
-					data={ findIntegrationById( 'creative-mail-by-constant-contact' ) }
-					refreshStatus={ refreshIntegrations }
-					borderBottom={ false }
-				/>
+			<div className="jp-forms__integrations-wrapper">
+				<div className="jp-forms__integrations-header">
+					<h2 className="jp-forms__integrations-header-heading">
+						{ __( 'Streamline your forms', 'jetpack-forms' ) }
+					</h2>
+					<div className="jp-forms__integrations-header-description">
+						{ __(
+							'Manage integrations for all forms on your site. You can turn them on or off per form in the editor.',
+							'jetpack-forms'
+						) }
+					</div>
+				</div>
+				<div className="jp-forms__integrations-body">
+					<AkismetDashboardCard
+						isExpanded={ expandedCards.akismet }
+						onToggle={ handleToggleAkismet }
+						data={ findIntegrationById( 'akismet' ) }
+						refreshStatus={ refreshIntegrations }
+					/>
+					<GoogleSheetsDashboardCard
+						isExpanded={ expandedCards.googleSheets }
+						onToggle={ handleToggleGoogleSheets }
+						data={ findIntegrationById( 'google-drive' ) }
+						refreshStatus={ refreshIntegrations }
+					/>
+					<JetpackCRMDashboardCard
+						isExpanded={ expandedCards.crm }
+						onToggle={ handleToggleCRM }
+						data={ findIntegrationById( 'zero-bs-crm' ) }
+						refreshStatus={ refreshIntegrations }
+					/>
+					<SalesforceDashboardCard
+						isExpanded={ expandedCards.salesforce }
+						onToggle={ handleToggleSalesforce }
+						data={ findIntegrationById( 'salesforce' ) }
+						refreshStatus={ refreshIntegrations }
+					/>
+					<CreativeMailDashboardCard
+						isExpanded={ expandedCards.creativemail }
+						onToggle={ handleToggleCreativeMail }
+						data={ findIntegrationById( 'creative-mail-by-constant-contact' ) }
+						refreshStatus={ refreshIntegrations }
+						borderBottom={ false }
+					/>
+				</div>
 			</div>
 		</div>
 	);

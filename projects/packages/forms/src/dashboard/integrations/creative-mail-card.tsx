@@ -41,7 +41,9 @@ const CreativeMailDashboardCard = ( {
 			borderBottom={ borderBottom }
 		>
 			<div>
-				<p>{ __( "You're all setup for email marketing with Creative Mail.", 'jetpack-forms' ) }</p>
+				<p className="integration-card__description">
+					{ __( "You're all setup for email marketing with Creative Mail.", 'jetpack-forms' ) }
+				</p>
 				<Button
 					variant="link"
 					href={ settingsUrl }
