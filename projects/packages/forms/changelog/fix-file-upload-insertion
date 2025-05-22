@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Restrict allowed blocks in file upload field. This fix ensures that only supported blocks can be inserted, improving stability and preventing errors. The file upload block is still in beta.
+
+

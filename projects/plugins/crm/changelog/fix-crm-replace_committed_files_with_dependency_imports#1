@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use @automattic/color-studio as a pnpm dependency.

@@ -1,6 +1,6 @@
 @mixin mobile {
 
-	@media (max-width: 600px) {
+	@media (max-width: 599px) {
 		@content;
 	}
 }
@@ -188,6 +188,10 @@
 
 					.icon-round {
 						clip-path: circle(16px at center);
+
+						&.google-sheets-icon {
+							clip-path: none !important;
+						}
 					}
 
 					.jetpack-icon {

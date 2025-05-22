@@ -326,22 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.7-a.1 - 2025-05-12
+### 14.7-a.5 - 2025-05-19
 #### Enhancements
-- Forms: Move Salesforce to block modal.
-- Forms: Remove Salesforce Form variation.
-- Forms: Update form responses tabs.
-- Forms: Replace Landing page with About page.
-- Forms: Update the email template for feedback responses.
-
-#### Improved compatibility
-- Blocks: Update `useResizeObserver` hook usage to meet new API expectations.
-- Remove Skype since the service no longer exists.
-- Sitemaps: Disable XMLWriter by default unless enabled by a filter.
+- Forms: Add Google Drive to integrations modal.
+- My Jetpack: Optimize the images for onboarding slider for faster page load.
+- Search: Highlight search term in returned search results.
 
 #### Bug fixes
-- Carousel: Do not display comment form when comments are closed for a specific media attachment.
-- Forms: Preserve responses query parameters.
+- Open Graph: Prevent PHP warnings when embedding some Vimeo videos.
 
 --------
 

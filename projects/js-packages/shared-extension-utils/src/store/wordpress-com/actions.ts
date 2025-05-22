@@ -49,6 +49,7 @@ export function mapAiFeatureResponseToAiFeatureProps(
 		tierPlansEnabled: !! response[ 'tier-plans-enabled' ],
 		costs: response.costs,
 		featuresControl: response[ 'features-control' ],
+		chromeAiTokens: response[ 'chrome-ai-tokens' ],
 	};
 }
 

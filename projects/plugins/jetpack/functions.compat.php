@@ -10,7 +10,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 /**
  * Required for class.media-extractor.php to match expected function naming convention.
  *
- * @param $url Can be just the $url or the whole $atts array.
+ * @param string|array $url Can be just the $url or the whole $atts array.
  * @return bool|mixed The Youtube video ID via jetpack_get_youtube_id
  */
 function jetpack_shortcode_get_youtube_id( $url ) {
