@@ -20,7 +20,7 @@ import {
 	isConnectionOwner,
 	connectUser,
 } from 'state/connection';
-import { isAtomicSite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
+import { isWoASite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
 import { siteHasFeature, hasActiveProductPurchase, isFetchingSiteData } from 'state/site';
 
 class SupportCard extends React.Component {
@@ -83,7 +83,7 @@ class SupportCard extends React.Component {
 								? sprintf(
 										/* translators: placeholder is either Jetpack or WordPress.com */
 										__( 'Your paid plan gives you access to prioritized %s support.', 'jetpack' ),
-										this.props.isAtomicSite ? 'WordPress.com' : 'Jetpack'
+										this.props.isWoASite ? 'WordPress.com' : 'Jetpack'
 								  )
 								: __(
 										'Jetpack offers support via community forums for any site without a paid product.',
@@ -91,7 +91,7 @@ class SupportCard extends React.Component {
 								  ) }
 						</p>
 						<p className="jp-support-card__description">
-							{ this.props.isAtomicSite || (
+							{ this.props.isWoASite || (
 								<Button
 									onClick={ this.trackGettingStartedClick }
 									href={ getRedirectUrl( 'jetpack-support-getting-started' ) }
@@ -103,7 +103,7 @@ class SupportCard extends React.Component {
 							<Button
 								onClick={ this.trackSearchClick }
 								href={
-									this.props.isAtomicSite
+									this.props.isWoASite
 										? getRedirectUrl( 'calypso-help' )
 										: getRedirectUrl( 'jetpack-support' )
 								}
@@ -151,7 +151,7 @@ export default connect(
 		return {
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isFetchingSiteData: isFetchingSiteData( state ),
-			isAtomicSite: isAtomicSite( state ),
+			isWoASite: isWoASite( state ),
 			isDevVersion: _isDevVersion( state ),
 			supportUpgradeUrl: getUpgradeUrl( state, 'support' ),
 			isCurrentUserLinked: isCurrentUserLinked( state ),
