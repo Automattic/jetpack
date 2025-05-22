@@ -1473,7 +1473,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $type - the field type.
 	 * @param array  $extra_attrs - the extra attributes.
 	 *
-	 * @return string
+	 * @return string|array The extra attributes.
 	 */
 	private function get_field_extra( $type, $extra_attrs ) {
 		if ( 'date' === $type ) {
