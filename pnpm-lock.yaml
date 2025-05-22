@@ -4344,6 +4344,9 @@ importers:
       css-loader:
         specifier: 6.11.0
         version: 6.11.0(webpack@5.94.0)
+      daterangepicker:
+        specifier: 2.1.25
+        version: 2.1.25
       glob:
         specifier: 11.0.0
         version: 11.0.0
@@ -10483,6 +10486,9 @@ packages:
 
   date-fns@3.6.0:
     resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
+
+  daterangepicker@2.1.25:
+    resolution: {integrity: sha512-8qSYdsolahhBpfoGFcVOmKXnpy0MpbgT3J4YeWG/oPgyApnEIUbIugtS6ryJdQFF+rZ+tUYbRXBnOe4QK8jGnA==}
 
   debounce@1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
@@ -24222,6 +24228,11 @@ snapshots:
       '@babel/runtime': 7.26.10
 
   date-fns@3.6.0: {}
+
+  daterangepicker@2.1.25:
+    dependencies:
+      jquery: 3.6.0
+      moment: 2.30.1
 
   debounce@1.2.1: {}
 

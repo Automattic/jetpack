@@ -358,6 +358,11 @@ module.exports = [
 						from: path.resolve( __dirname, 'node_modules/moment/min/moment-with-locales.min.js' ),
 						to: `${ buildLibPath }/moment/`,
 					},
+					// Used extensively for date range selection
+					{
+						from: path.resolve( __dirname, 'node_modules/daterangepicker/daterangepicker.js' ),
+						to: `${ buildLibPath }/daterangepicker/`,
+					},
 				],
 			} ),
 		],

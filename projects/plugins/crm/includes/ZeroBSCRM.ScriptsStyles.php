@@ -462,7 +462,7 @@ function zeroBSCRM_settingspage_admin_styles(){
 	global $zbs;
 
 	// needs datepicker (MS needed for paypal sync, was a gross hack elsewhere so put here)
-	wp_enqueue_script( 'wh-daterangepicker-v2-1-21-js', untrailingslashit( ZEROBSCRM_URL ) . '/js/lib/daterangepicker.min.js', array( 'jquery' ), $zbs::VERSION );
+	wp_enqueue_script( 'jpcrm-daterangepicker', ZEROBSCRM_URL . 'build/lib/daterangepicker/daterangepicker.js', array( 'jquery' ), $zbs::VERSION );
 
 	wp_enqueue_style( 'zerobscrmsettings' );
 	wp_register_script( 'zerobscrm-settingspage-js', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.settings' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
@@ -616,7 +616,7 @@ add_action( 'admin_enqueue_scripts', 'zeroBSCRM_add_admin_styles', 10, 1 );
 	function zeroBSCRM_enqueue_libs_js_momentdatepicker(){
 
 		global $zbs;
-		wp_enqueue_script( 'wh-daterangepicker-v2-1-21-js', untrailingslashit( ZEROBSCRM_URL ) . '/js/lib/daterangepicker.min.js', array( 'jquery' ), $zbs::VERSION );
+		wp_enqueue_script( 'jpcrm-daterangepicker', ZEROBSCRM_URL . 'build/lib/daterangepicker/daterangepicker.js', array( 'jquery' ), $zbs::VERSION );
 		#} CSS is wrapped into main plugin css
 	}
 
