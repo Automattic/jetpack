@@ -338,6 +338,16 @@ module.exports = [
 						from: path.resolve( __dirname, 'node_modules/hopscotch/dist/css/hopscotch.min.css' ),
 						to: `${ buildLibPath }/hopscotch/`,
 					},
+					// Used extensively for alerts
+					{
+						from: path.resolve( __dirname, 'node_modules/sweetalert2/dist/sweetalert2.min.js' ),
+						to: `${ buildLibPath }/sweetalert2/`,
+					},
+					// Used extensively for alerts
+					{
+						from: path.resolve( __dirname, 'node_modules/sweetalert2/dist/sweetalert2.min.css' ),
+						to: `${ buildLibPath }/sweetalert2/`,
+					},
 				],
 			} ),
 		],

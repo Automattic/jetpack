@@ -4304,6 +4304,9 @@ importers:
       react-router-dom:
         specifier: 6.30.0
         version: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      sweetalert2:
+        specifier: 7.29.0
+        version: 7.29.0
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -15155,6 +15158,10 @@ packages:
   svgstore@3.0.1:
     resolution: {integrity: sha512-nL6WTxYnsVl3e0G/mwGEFSnPAWUrzIwHAPOwInD4QUuLDKxaKMnXduf0Ipw3m/g9AldPhp1Y8E/nkReFBukJrA==}
     engines: {node: '>= 12'}
+
+  sweetalert2@7.29.0:
+    resolution: {integrity: sha512-QYMpgj+W1nmE5I6hQ+Kvj+xSAJ78o5oawNOm65fq+0DRuZqmNPwGNnyfMcA3/porpje6RjXJd41NCJN8Rj83wQ==}
+    engines: {node: '>=0.10.0'}
 
   swiper@6.7.0:
     resolution: {integrity: sha512-zCfvWn7H7mCq7jgVurckhAwkjPUeMCkdC4rA7lagvaD3mIrNhKiaYYo2+nkxMVpiaWuCQ38e44Mya/dKb7HpyQ==}
@@ -29856,6 +29863,8 @@ snapshots:
   svgstore@3.0.1:
     dependencies:
       cheerio: 1.0.0-rc.10
+
+  sweetalert2@7.29.0: {}
 
   swiper@6.7.0:
     dependencies:

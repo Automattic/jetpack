@@ -106,9 +106,9 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 			// funnel js
 			wp_register_script( 'zerobscrmfunneljs', plugins_url( '/js/lib/jquery.funnel.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
-			// sweet alerts - v2 v7.29.0 - 16th nov 18
-			wp_register_style( 'zerobscrmswa', plugins_url( '/css/lib/sweetalert2-7.29.0.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
-			wp_enqueue_script( 'zerobscrmswa', plugins_url( '/js/lib/sweetalert2-7.29.0.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+			// SweetAlert2
+			wp_register_style( 'zerobscrmswa', plugins_url( '/build/lib/sweetalert2/sweetalert2.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_enqueue_script( 'zerobscrmswa', plugins_url( '/build/lib/sweetalert2/sweetalert2.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 			#} Bloodhound (for typeahead) - use prefetch from https://twitter.github.io/typeahead.js/examples/
 			#} https://github.com/twitter/typeahead.js  0.11.1
