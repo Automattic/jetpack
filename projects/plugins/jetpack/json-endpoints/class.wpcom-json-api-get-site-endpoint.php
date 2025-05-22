@@ -89,6 +89,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_deleted'                  => '(bool) If the site flagged as deleted.',
 		'is_a4a_client'               => '(bool) If the site is an A4A client site.',
 		'is_a4a_dev_site'             => '(bool) If the site is an A4A dev site.',
+		'hosting_features'            => '(array) Details of the hosting features for the current user on this site.',
 	);
 
 	/**
@@ -252,6 +253,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'plan',
 		'products',
 		'zendesk_site_meta',
+		'hosting_features',
 	);
 
 	/**
@@ -625,6 +627,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'is_a4a_dev_site':
 				$response[ $key ] = $this->site->is_a4a_dev_site();
+				break;
+			case 'hosting_features':
+				$response[ $key ] = $this->site->get_hosting_features();
 				break;
 		}
 
@@ -1002,6 +1007,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			unset( $response->plan );
 			unset( $response->products );
 			unset( $response->zendesk_site_meta );
+			unset( $response->hosting_features );
 		}
 
 		// render additional options.

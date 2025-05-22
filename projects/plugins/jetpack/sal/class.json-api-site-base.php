@@ -1684,4 +1684,11 @@ abstract class SAL_Site {
 	 * @return bool
 	 */
 	abstract public function is_pending_plan();
+
+	/**
+	 * Defaults to false instead of returning the hosting features for the current user on this site.
+	 *
+	 * @see class.json-api-site-jetpack-shadow.php on WordPress.com for implementation. Only applicable on WordPress.com.
+	 */
+	abstract public function get_hosting_features();
 }

@@ -731,4 +731,15 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	public function is_pending_plan() {
 		return false;
 	}
+
+	/**
+	 * Defaults to false instead of returning the hosting features for the current user on this site.
+	 *
+	 * @see class.json-api-site-jetpack-shadow.php on WordPress.com for implementation. Only applicable on WordPress.com.
+	 *
+	 * @return bool
+	 */
+	public function get_hosting_features() {
+		return false;
+	}
 }
