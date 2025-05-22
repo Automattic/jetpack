@@ -129,7 +129,7 @@ const useGetReadableFailedBackupReason = (): ReasonContent => {
 				return {
 					title: __( 'Backup is deactivated', 'jetpack-my-jetpack' ),
 					text: __(
-						'It appear Backup has been manually deactivated, either by a site attribute or a general kill switch.',
+						'It appears that the backups have been manually deactivated for the site.',
 						'jetpack-my-jetpack'
 					),
 				};
