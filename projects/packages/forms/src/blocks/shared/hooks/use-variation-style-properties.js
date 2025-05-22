@@ -118,7 +118,10 @@ export default function useVariationStyleProperties( {
 		} = select( coreStore );
 		const globalStylesId = __experimentalGetCurrentGlobalStylesId();
 		if ( ! globalStylesId ) {
-			return null;
+			return {
+				userConfig: null,
+				baseConfig: null,
+			};
 		}
 
 		return {
