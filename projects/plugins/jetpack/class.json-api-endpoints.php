@@ -1665,12 +1665,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return object|WP_Error Media item data, or WP_Error.
 	 */
 	public function get_media_item_v1_1( $media_id, $media_item = null, $file = null ) {
-
 		if ( ! $media_item ) {
 			$media_item = get_post( $media_id );
 		}
 
-		if ( ! $media_item || is_wp_error( $media_item ) ) {
+		if ( ! $media_item || is_wp_error( $media_item || ! ( $media_item instanceof WP_Post ) ) ) {
 			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
 		}
 
