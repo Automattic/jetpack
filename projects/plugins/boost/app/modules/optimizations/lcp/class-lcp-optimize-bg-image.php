@@ -103,7 +103,6 @@ class LCP_Optimize_Bg_Image {
 					$breakpoint['media_query'],
 					$lcp_data['element'],
 					$breakpoint['base_image'],
-					$image_set_string,
 					$image_set_string
 				);
 			}
