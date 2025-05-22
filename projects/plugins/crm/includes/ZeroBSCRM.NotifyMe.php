@@ -72,7 +72,7 @@ function zeroBSCRM_notifyme_scripts(){
 	wp_enqueue_script( 'notifyme_push' );
 
 	#} this stores things in cookies, so not to keep notifying
-	wp_register_script( 'notifyme_cookie', ZEROBSCRM_URL . 'js/lib/cookie.min.js', array( 'jquery' ), $zbs::VERSION, true );
+	wp_register_script( 'notifyme_cookie', ZEROBSCRM_URL . 'build/lib/js/js.cookie.min.js', array(), $zbs::VERSION, true );
 	wp_enqueue_script( 'notifyme_cookie' );
 
 	#} this is the browser notification icon.

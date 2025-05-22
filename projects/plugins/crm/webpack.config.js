@@ -1,8 +1,10 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const CopyPlugin = require( 'copy-webpack-plugin' );
 const { glob } = require( 'glob' );
 const doNotMinify = false;
+const libPathJS = path.resolve( __dirname, 'build/lib/js/' );
 
 /**
  * Return an array with a list of our legacy '.js' files.
@@ -304,5 +306,24 @@ module.exports = [
 				jetpackWebpackConfig.FileRule(),
 			],
 		},
+	},
+	// Copy third-party libraries into build dir.
+	{
+		...crmWebpackConfig,
+		entry: {},
+		output: {
+			...crmWebpackConfig.output,
+			path: path.resolve( __dirname, '.' ),
+		},
+		plugins: [
+			new CopyPlugin( {
+				patterns: [
+					{
+						from: path.resolve( __dirname, 'node_modules/js-cookie/dist/js.cookie.min.js' ),
+						to: libPathJS,
+					},
+				],
+			} ),
+		],
 	},
 ];
