@@ -859,6 +859,9 @@ export const childBlocks = [
 					padding: true,
 					margin: true,
 				},
+				dimensions: {
+					minHeight: true, // Enable min height control.
+				},
 			},
 			attributes: {
 				align: {
