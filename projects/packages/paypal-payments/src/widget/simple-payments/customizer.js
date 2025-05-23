@@ -1,4 +1,4 @@
-/* global jpSimplePaymentsStrings */
+/* global jpSimplePaymentsStrings, wp, jQuery, _ */
 /* eslint no-var: 0, quote-props: 0 */
 
 ( function ( api, wp, $ ) {
@@ -29,6 +29,11 @@
 		} );
 	} );
 
+	/**
+	 * Initialize the widget with event handlers
+	 *
+	 * @param {jQuery} widgetContainer - The jQuery object containing the widget container
+	 */
 	function initWidget( widgetContainer ) {
 		var widgetForm = widgetContainer.find( '> .widget-inside > .form, > .widget-inside > form' );
 
@@ -71,6 +76,9 @@
 		);
 	}
 
+	/**
+	 * Sync the product lists
+	 */
 	function syncProductLists() {
 		var request = wp.ajax.post( 'customize-jetpack-simple-payments-buttons-get', {
 			'customize-jetpack-simple-payments-nonce':
@@ -98,6 +106,11 @@
 		} );
 	}
 
+	/**
+	 * Show the form and disable related controls
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 */
 	function showForm( widgetForm ) {
 		//reset validations
 		widgetForm.find( '.invalid' ).removeClass( 'invalid' );
@@ -117,6 +130,11 @@
 		widgetForm.find( '.jetpack-simple-payments-form' ).show();
 	}
 
+	/**
+	 * Hide the form and enable related controls
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 */
 	function hideForm( widgetForm ) {
 		//enable widget title and product selector
 		widgetForm
@@ -127,10 +145,22 @@
 		widgetForm.find( '.jetpack-simple-payments-form' ).hide();
 	}
 
+	/**
+	 * Change the form action
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 * @param {string} action     - The action to set ('add', 'edit', or 'clear')
+	 */
 	function changeFormAction( widgetForm, action ) {
 		widgetForm.find( '.jetpack-simple-payments-form-action' ).val( action ).change();
 	}
 
+	/**
+	 * Show the add new product form
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 * @return {Function} Event handler function
+	 */
 	function showAddNewForm( widgetForm ) {
 		return function ( event ) {
 			event.preventDefault();
@@ -140,6 +170,12 @@
 		};
 	}
 
+	/**
+	 * Show the edit product form
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 * @return {Function} Event handler function
+	 */
 	function showEditForm( widgetForm ) {
 		return function ( event ) {
 			event.preventDefault();
@@ -149,6 +185,12 @@
 		};
 	}
 
+	/**
+	 * Clear the form and reset state
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 * @return {Function} Event handler function
+	 */
 	function clearForm( widgetForm ) {
 		return function ( event ) {
 			event.preventDefault();
@@ -161,6 +203,11 @@
 		};
 	}
 
+	/**
+	 * Enable form action buttons based on current state
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 */
 	function enableFormActions( widgetForm ) {
 		var isFormVisible = widgetForm.find( '.jetpack-simple-payments-form' ).is( ':visible' );
 		var isProductSelectVisible = widgetForm
@@ -186,6 +233,11 @@
 		}
 	}
 
+	/**
+	 * Disable all form action buttons
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 */
 	function disableFormActions( widgetForm ) {
 		widgetForm
 			.find( '.jetpack-simple-payments-add-product' )
@@ -196,6 +248,12 @@
 			.attr( 'disabled', 'disabled' );
 	}
 
+	/**
+	 * Handle image selection
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 * @return {Function} Event handler function
+	 */
 	function selectImage( widgetForm ) {
 		return function ( event ) {
 			event.preventDefault();
@@ -228,6 +286,12 @@
 		};
 	}
 
+	/**
+	 * Handle image removal
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 * @return {Function} Event handler function
+	 */
 	function removeImage( widgetForm ) {
 		return function ( event ) {
 			event.preventDefault();
@@ -243,6 +307,11 @@
 		};
 	}
 
+	/**
+	 * Update the product image display
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 */
 	function updateProductImage( widgetForm ) {
 		var newImageId = parseInt(
 			widgetForm.find( '.jetpack-simple-payments-form-image-id' ).val(),
@@ -265,6 +334,12 @@
 		}
 	}
 
+	/**
+	 * Calculate the number of decimal places in a number string
+	 *
+	 * @param {string} number - The number string to check
+	 * @return {number|null} The number of decimal places or null if invalid
+	 */
 	function decimalPlaces( number ) {
 		var parts = number.split( '.' );
 		if ( parts.length > 2 ) {
@@ -274,6 +349,12 @@
 		return parts[ 1 ] ? parts[ 1 ].length : 0;
 	}
 
+	/**
+	 * Validate the form fields
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 * @return {boolean} Whether the form is valid
+	 */
 	function isFormValid( widgetForm ) {
 		widgetForm.find( '.invalid' ).removeClass( 'invalid' );
 
@@ -314,6 +395,12 @@
 		return ! errors;
 	}
 
+	/**
+	 * Save product changes
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 * @return {Function} Event handler function
+	 */
 	function saveChanges( widgetForm ) {
 		return function ( event ) {
 			event.preventDefault();
@@ -393,10 +480,17 @@
 		};
 	}
 
+	/**
+	 * Delete a product
+	 *
+	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
+	 * @return {Function} Event handler function
+	 */
 	function deleteProduct( widgetForm ) {
 		return function ( event ) {
 			event.preventDefault();
 
+			// eslint-disable-next-line no-alert
 			if ( ! confirm( jpSimplePaymentsStrings.deleteConfirmation ) ) {
 				return;
 			}

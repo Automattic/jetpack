@@ -24,7 +24,7 @@
 			printf(
 				wp_kses(
 					// translators: variable is a link to the support page.
-					__( 'Your plan doesn\'t include Pay with PayPal. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more and upgrade</a>.', 'jetpack' ),
+					__( 'Your plan doesn\'t include Pay with PayPal. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more and upgrade</a>.', 'jetpack-paypal-payments' ),
 					array(
 						'a' => array(
 							'href'   => array(),
