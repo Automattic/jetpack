@@ -2,7 +2,7 @@
 /**
  * Support Contact Page file: This is Support Contact Page file.
  *
- * @package Jetpack CRM
+ * @package automattic/jetpack-crm
  *
  * Jetpack CRM - https://jetpackcrm.com
  */

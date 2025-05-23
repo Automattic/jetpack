@@ -102,7 +102,7 @@
 			width: auto;
 		}
 
-		&:hover {
+		&.components-button:hover {
 			background-color: var( --jp-black-80 );
 			color: var( --jp-white );
 		}
