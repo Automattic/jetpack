@@ -7,34 +7,24 @@ import { select, subscribe } from '@wordpress/data';
  */
 export const waitForEditor = async () =>
 	new Promise( resolve => {
-		console.log( '[Wait For Editor] Function called - checking for race condition' );
-
-		const isReady = () => {
-			const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
-			const blocks = select( 'core/block-editor' ).getBlocks();
-			const ready = isCleanNewPost || blocks.length > 0;
-
-			console.log( '[Wait For Editor] Ready state check:', {
-				isCleanNewPost,
-				blocksLength: blocks.length,
-				ready,
-				timestamp: Date.now(),
-			} );
-
-			return ready;
-		};
-
-		// Check if editor is already ready before subscribing
-		if ( isReady() ) {
-			console.log( '[Wait For Editor] Race condition detected - editor already ready' );
+		// If we already have blocks, editor is ready
+		if ( select( 'core/block-editor' ).getBlocks().length > 0 ) {
 			resolve();
 			return;
 		}
 
-		console.log( '[Wait For Editor] Editor not ready - setting up subscription' );
+		// Otherwise wait for either condition
+		const timeoutId = setTimeout( () => {
+			unsubscribe();
+			resolve();
+		}, 2000 );
+
 		const unsubscribe = subscribe( () => {
-			if ( isReady() ) {
-				console.log( '[Wait For Editor] Editor became ready via subscription' );
+			const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
+			const blocks = select( 'core/block-editor' ).getBlocks();
+
+			if ( isCleanNewPost || blocks.length > 0 ) {
+				clearTimeout( timeoutId );
 				unsubscribe();
 				resolve();
 			}

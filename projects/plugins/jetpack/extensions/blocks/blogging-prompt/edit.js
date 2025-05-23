@@ -11,8 +11,6 @@ import { languageToLocale } from '../../shared/locale';
 import { usePromptTags } from './use-prompt-tags';
 
 function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
-	console.log( '[Blogging Prompt Edit] Component rendering', { attributes } );
-
 	// Use the ref to keep track of starting to fetch the prompt, so we don't make duplicate requests.
 	const fetchingPromptRef = useRef( false );
 	const {
@@ -29,19 +27,9 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 		tagsAdded,
 		isBloganuary,
 	} = attributes;
-
-	console.log( '[Blogging Prompt Edit] Current prompt state:', {
-		promptFetched,
-		promptId,
-		fetchingPromptRef: fetchingPromptRef.current,
-	} );
-
 	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompt' } );
 
-	const setTagsAdded = state => {
-		console.log( '[Blogging Prompt Edit] Setting tagsAdded:', state );
-		setAttributes( { tagsAdded: state } );
-	};
+	const setTagsAdded = state => setAttributes( { tagsAdded: state } );
 
 	// Add the prompt tags to the post, if they haven't already been added.
 	usePromptTags( promptId, tagsAdded, setTagsAdded );
@@ -50,37 +38,17 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 		const { getEntityRecord, hasFinishedResolution } = select( 'core' );
 		const language = getEntityRecord( 'root', 'site' )?.language || 'en_US';
 		const hasFinishedResolving = hasFinishedResolution( 'getEntityRecord', [ 'root', 'site' ] );
-		console.log( '[Blogging Prompt Edit] Site language resolution:', {
-			language,
-			hasFinishedResolving,
-		} );
 		return hasFinishedResolving ? language : null;
 	}, [] );
 
 	// Fetch the prompt by id, if present, otherwise the get the prompt for today.
 	useEffect( () => {
-		console.log( '[Blogging Prompt Edit] useEffect running for prompt fetch', {
-			siteLanguage,
-			fetchingPromptRef: fetchingPromptRef.current,
-			promptFetched,
-		} );
-
 		// Only fetch the prompt one time when the block is inserted, after we know the site language.
 		if ( ! siteLanguage || fetchingPromptRef.current || promptFetched ) {
-			let reason;
-			if ( ! siteLanguage ) {
-				reason = 'no site language';
-			} else if ( fetchingPromptRef.current ) {
-				reason = 'already fetching';
-			} else {
-				reason = 'already fetched';
-			}
-			console.log( '[Blogging Prompt Edit] Skipping prompt fetch:', { reason } );
 			return;
 		}
 
 		const retryPrompt = () => {
-			console.log( '[Blogging Prompt Edit] Retrying prompt fetch' );
 			setAttributes( { promptFetched: false, promptId: null, tagsAdded: false } );
 			fetchingPromptRef.current = false;
 			noticeOperations.removeAllNotices();
@@ -130,15 +98,11 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			_locale: siteLanguage,
 			force_year: new Date()?.getFullYear(),
 		} );
-
-		console.log( '[Blogging Prompt Edit] Starting prompt fetch', { path } );
 		fetchingPromptRef.current = true;
 		apiFetch( { path } )
 			.then( prompts => {
 				const promptData = promptId ? prompts : prompts[ 0 ];
 				const locale = languageToLocale( siteLanguage );
-
-				console.log( '[Blogging Prompt Edit] Prompt fetch successful', { promptData } );
 
 				setAttributes( {
 					answersLink: promptData.answered_link + `?locale=${ locale }`,
@@ -152,7 +116,6 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 				} );
 			} )
 			.catch( error => {
-				console.error( '[Blogging Prompt Edit] Prompt fetch error', { error } );
 				setAttributes( { promptFetched: true } );
 				const message =
 					error.code === 'rest_post_invalid_id' && promptId

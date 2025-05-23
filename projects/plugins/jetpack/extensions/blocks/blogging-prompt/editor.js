@@ -54,10 +54,7 @@ const registerBlock = () =>
 	} );
 
 async function insertTemplate( promptId ) {
-	console.log( '[Blogging Prompt] Attempting to insert template with promptId:', promptId );
-
 	await waitForEditor();
-	console.log( '[Blogging Prompt] Editor is ready, proceeding with block insertion' );
 
 	// Ensure block is registered before insertion
 	const blockType = getBlockType( 'jetpack/blogging-prompt' );
@@ -72,39 +69,16 @@ async function insertTemplate( promptId ) {
 		createBlock( 'core/paragraph' ),
 	];
 
-	console.log( '[Blogging Prompt] Inserting blogging prompt blocks at index 0' );
 	insertBlocks( bloggingPromptBlocks, 0, undefined, false );
-
-	// Verify blocks were inserted
-	const blocks = select( 'core/block-editor' ).getBlocks();
-	console.log( '[Blogging Prompt] Current blocks after insertion:', {
-		totalBlocks: blocks.length,
-		firstBlockType: blocks[ 0 ]?.name,
-		firstBlockAttributes: blocks[ 0 ]?.attributes,
-		allBlocks: blocks.map( block => ( {
-			type: block.name,
-			clientId: block.clientId,
-		} ) ),
-	} );
-
-	if ( blocks[ 0 ]?.name !== 'jetpack/blogging-prompt' ) {
-		console.warn(
-			'[Blogging Prompt] Warning: Blogging prompt block was not inserted as the first block!'
-		);
-	}
 }
 
 function initBloggingPrompt() {
 	if ( ! isNewPost ) {
-		console.log( '[Blogging Prompt] Not a new post, skipping prompt initialization' );
 		return;
 	}
 
 	if ( answerPromptId ) {
-		console.log( '[Blogging Prompt] Valid prompt ID found, inserting template' );
 		insertTemplate( answerPromptId );
-	} else {
-		console.log( '[Blogging Prompt] No valid prompt ID found, skipping template insertion' );
 	}
 }
 
