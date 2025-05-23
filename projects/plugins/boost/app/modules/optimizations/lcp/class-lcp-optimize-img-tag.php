@@ -44,7 +44,7 @@ class LCP_Optimize_Img_Tag {
 
 		/*
 		 * Quickly check if the tag is in the buffer and return early if it's not found.
-		 * The HTML returned from cloud may not have a forward slash at the end of the tag, even if the original HTML had one.
+		 * The HTML returned from cloud will not have a forward slash at the end of the tag, even if the original HTML had one.
 		 * By removing the last character from the LCP HTML, we can quickly check if the tag is in the buffer.
 		 *
 		 * `substr( '<img src="...">', 0, -1 )` -> `<img src="..."`
@@ -52,7 +52,6 @@ class LCP_Optimize_Img_Tag {
 		if ( ! str_contains( $buffer, substr( $this->lcp_data['html'], 0, -1 ) ) ) {
 			return $buffer;
 		}
-
 		// Create the optimized tag with required attributes.
 		return $this->optimize_image( $buffer, $this->lcp_data['html'] );
 	}
@@ -91,10 +90,6 @@ class LCP_Optimize_Img_Tag {
 
 		// Tag not found in buffer
 		if ( ! $tag_found ) {
-			return $buffer;
-		}
-
-		if ( $buffer_processor->get_tag() !== 'IMG' ) {
 			return $buffer;
 		}
 
@@ -213,7 +208,8 @@ class LCP_Optimize_Img_Tag {
 	private function get_sizes() {
 		$sizes = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
-			if ( empty( $breakpoint['widthValue'] ) ) {
+			// Make sure widthValue is a known format.
+			if ( ! isset( $breakpoint['widthValue'] ) || ! preg_match( '/^[0-9]+(?:px|vw)$/', $breakpoint['widthValue'] ) ) {
 				continue;
 			}
 
