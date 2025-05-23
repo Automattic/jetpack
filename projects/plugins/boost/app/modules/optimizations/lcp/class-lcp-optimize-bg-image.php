@@ -139,49 +139,26 @@ class LCP_Optimize_Bg_Image {
 				continue;
 			}
 
-			// If it's a fixed pixel width for this breakpoint, easy peasy.
-			if ( 'px' === substr( $breakpoint['widthValue'], -2 ) ) {
-				if ( ! isset( $breakpoint['imageWidths'][0] ) ) {
-					continue;
-				}
-
-				$image_width = $breakpoint['imageWidths'][0];
-
-				$media_query = array();
-				if ( isset( $breakpoint['minWidth'] ) ) {
-					$media_query[] = sprintf( '(min-width: %spx)', $breakpoint['minWidth'] );
-				}
-				if ( isset( $breakpoint['maxWidth'] ) ) {
-					$media_query[] = sprintf( '(max-width: %spx)', $breakpoint['maxWidth'] );
-				}
-
-				$styles[] = array(
-					'media_query' => implode( ' and ', $media_query ),
-					'image_set'   => $this->get_image_set( $image_url, $image_width ),
-					'base_image'  => Image_CDN_Core::cdn_url( $image_url, array( 'w' => $image_width ) ),
-				);
-			} else {
-				// If it's relative to the vw, i.e. widthValue is 100vw, then we need to sub-divide the breakpoint into smaller chunks for background-image.
-				$min_width = $breakpoint['minWidth'] ?? null;
-				foreach ( $breakpoint['imageWidths'] as $image_width ) {
-
-					$media_query = array();
-					if ( $min_width ) {
-						$media_query[] = sprintf( '(min-width: %spx)', $min_width );
-					}
-					if ( $image_width ) {
-						$media_query[] = sprintf( '(max-width: %spx)', $image_width );
-					}
-
-					$styles[] = array(
-						'media_query' => implode( ' and ', $media_query ),
-						'image_set'   => $this->get_image_set( $image_url, $image_width ),
-						'base_image'  => Image_CDN_Core::cdn_url( $image_url, array( 'w' => $image_width ) ),
-					);
-
-					$min_width = $image_width + 1;
-				}
+			// The Cloud should always return a fixed pixel width for background images, so catering for that is easy peasy.
+			if ( ! isset( $breakpoint['imageWidths'][0] ) ) {
+				continue;
 			}
+
+			$image_width = $breakpoint['imageWidths'][0];
+
+			$media_query = array();
+			if ( isset( $breakpoint['minWidth'] ) ) {
+				$media_query[] = sprintf( '(min-width: %spx)', $breakpoint['minWidth'] );
+			}
+			if ( isset( $breakpoint['maxWidth'] ) ) {
+				$media_query[] = sprintf( '(max-width: %spx)', $breakpoint['maxWidth'] );
+			}
+
+			$styles[] = array(
+				'media_query' => implode( ' and ', $media_query ),
+				'image_set'   => $this->get_image_set( $image_url, $image_width ),
+				'base_image'  => Image_CDN_Core::cdn_url( $image_url, array( 'w' => $image_width ) ),
+			);
 		}
 		return $styles;
 	}
