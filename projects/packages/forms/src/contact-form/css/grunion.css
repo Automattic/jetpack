@@ -167,6 +167,7 @@
 .wp-block-jetpack-contact-form.is-style-outlined .wp-block-jetpack-options legend {
 	display: flex;
 	align-items: baseline;
+	flex-wrap: wrap;
 	padding: 0 0.25em;
 	position: relative;
 	top: calc(var(--jetpack--contact-form--border-top-size, 1px) / 2 * -1);
@@ -570,6 +571,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	position: relative;
 	display: flex;
 	align-items: baseline;
+	flex-wrap: wrap;
 	top: 50%;
 	transform: translateY(-50%);
 	pointer-events: none;
