@@ -56,7 +56,7 @@
 		"@types/react": "18.3.18",
 		"@wordpress/browserslist-config": "6.24.0",
 		"concurrently": "7.6.0",
-		"sass": "1.87.0",
+		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",
 		"typescript": "5.8.2",
 		"webpack": "5.94.0",

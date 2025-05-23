@@ -81,7 +81,7 @@ const sbconfig = {
 						},
 					},
 				},
-				'sass-loader',
+				{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
 			],
 			include: includePaths,
 		} );

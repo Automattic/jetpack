@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Use `sass-embedded` instead of `sass`.
+
+

@@ -64,7 +64,6 @@
 		"react-transition-group": "^4.4.5",
 		"redux": "4.2.1",
 		"redux-thunk": "2.3.0",
-		"sass": "1.87.0",
 		"semver": "7.7.1",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"
@@ -93,7 +92,7 @@
 		"jquery": "3.6.0",
 		"postcss": "8.4.47",
 		"postcss-loader": "8.1.1",
-		"sass": "1.64.1",
+		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",
 		"typescript": "5.8.2"
 	},
