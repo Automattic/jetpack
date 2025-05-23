@@ -1,6 +1,7 @@
 <?php
 /**
  * Components unit tests.
+ * To run: jetpack docker phpunit jetpack -- --filter=Jetpack_Components_Test
  *
  * @package automattic/jetpack
  */
