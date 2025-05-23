@@ -54,7 +54,7 @@
 		"autoprefixer": "10.4.20",
 		"postcss": "8.4.47",
 		"postcss-loader": "8.1.1",
-		"sass": "1.87.0",
+		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5"
 	}
 }

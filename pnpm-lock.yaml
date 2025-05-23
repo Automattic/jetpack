@@ -3123,12 +3123,12 @@ importers:
       postcss-loader:
         specifier: 8.1.1
         version: 8.1.1(postcss@8.4.47)(webpack@5.94.0)
-      sass:
+      sass-embedded:
         specifier: 1.87.0
         version: 1.87.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(sass@1.87.0)(webpack@5.94.0)
+        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
 
   projects/packages/plans: {}
 
