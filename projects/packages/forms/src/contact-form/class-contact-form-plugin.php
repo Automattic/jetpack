@@ -346,6 +346,7 @@ class Contact_Form_Plugin {
 		$color_styles      = \wp_apply_colors_support( $block_type, $attrs );
 		$typography_styles = \wp_apply_typography_support( $block_type, $attrs );
 		$border_styles     = \wp_apply_border_support( $block_type, $attrs );
+		$custom_classname  = \wp_apply_custom_classname_support( $block_type, $attrs );
 
 		// Merge all the block support classes and styles.
 		$classes = array_filter(
@@ -353,6 +354,7 @@ class Contact_Form_Plugin {
 				$color_styles['class'] ?? '',
 				$typography_styles['class'] ?? '',
 				$border_styles['class'] ?? '',
+				$custom_classname['class'] ?? '',
 			),
 			'strlen'
 		);
