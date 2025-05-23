@@ -12,6 +12,9 @@ namespace Automattic\WPComSH\Connection;
  *
  * This class handles errors related to protected owner accounts in the Jetpack Connection.
  * It retrieves owner account errors stored in WordPress options and displays them in the UI.
+ *
+ * The class automatically clears errors when the required local account is created,
+ * allowing external healing code to establish the proper Jetpack connection.
  */
 class Protected_Owner_Error_Handler {
 
@@ -39,6 +42,10 @@ class Protected_Owner_Error_Handler {
 		add_filter( 'jetpack_connection_delete_all_tokens', array( $this, 'delete_error_and_return_unfiltered_value' ) );
 		add_action( 'jetpack_unlinked_user', array( $this, 'delete_error' ) );
 		add_action( 'jetpack_updated_user_token', array( $this, 'delete_error' ) );
+
+		// Clear errors when the missing user is created or updated (allows external healing code to work)
+		add_action( 'user_register', array( $this, 'check_and_clear_error_on_user_creation' ) );
+		add_action( 'profile_update', array( $this, 'check_and_clear_error_on_user_update' ) );
 
 		// Handle context-specific error integration
 		add_action( 'admin_enqueue_scripts', array( $this, 'setup_context_specific_error_handling' ) );
@@ -292,5 +299,52 @@ class Protected_Owner_Error_Handler {
 		);
 
 		return $errors;
+	}
+
+	/**
+	 * Clear the error when a user with the required email address is created
+	 *
+	 * @param int $user_id The ID of the newly created user.
+	 */
+	public function check_and_clear_error_on_user_creation( $user_id ) {
+		$this->check_and_clear_error_for_user( $user_id );
+	}
+
+	/**
+	 * Clear the error when a user with the required email address is updated
+	 *
+	 * @param int $user_id The ID of the updated user.
+	 */
+	public function check_and_clear_error_on_user_update( $user_id ) {
+		$this->check_and_clear_error_for_user( $user_id );
+	}
+
+	/**
+	 * Check if the user matches the protected owner error and clear it if so
+	 * This allows external healing code to automatically establish the connection
+	 *
+	 * @param int $user_id The ID of the user to check.
+	 */
+	private function check_and_clear_error_for_user( $user_id ) {
+		// Get the raw error data to check the wpcom_email
+		$raw_error = get_option( self::STORED_ERRORS_OPTION, false );
+
+		// Return early if no error is stored
+		if ( ! $raw_error || ! is_array( $raw_error ) || ! isset( $raw_error['wpcom_email'] ) ) {
+			return;
+		}
+
+		// Get the user
+		$user = get_user_by( 'id', $user_id );
+		if ( ! $user ) {
+			return;
+		}
+
+		// Check if the user's email matches the required wpcom_email
+		if ( strtolower( $user->user_email ) === strtolower( $raw_error['wpcom_email'] ) ) {
+			// The user with the required email has been created/updated
+			// Clear the error so external healing code can establish the connection
+			$this->delete_error();
+		}
 	}
 }
