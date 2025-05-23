@@ -1,13 +1,15 @@
 import { TabPanel } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { MY_JETPACK_TAB_OVERVIEW } from './constants';
 import { HelpTab } from './help-tab';
 import { OverviewTab } from './overview-tab';
 import { ProductsTab } from './products-tab';
 import styles from './styles.module.scss';
+import { MyJetpackTabs } from './types';
+import { getMyJetpackTabs, isValidMyJetpackSection } from './utils';
 
-const tabComponentMap = {
+const tabComponentMap: Record< MyJetpackTabs, React.ComponentType > = {
 	overview: OverviewTab,
 	products: ProductsTab,
 	help: HelpTab,
@@ -24,14 +26,14 @@ export function MyJetpackTabPanel() {
 
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
-			if ( tabName !== params.tab ) {
+			if ( tabName !== params.section ) {
 				navigate( `/${ tabName }` );
 			}
 		},
-		[ navigate, params.tab ]
+		[ navigate, params.section ]
 	);
 
-	const tabRenderer = useCallback( ( tab: { name: string; title: string } ) => {
+	const tabRenderer = useCallback( ( tab: { name: MyJetpackTabs } ) => {
 		const TabComponent = tabComponentMap[ tab.name ];
 
 		if ( ! TabComponent ) {
@@ -40,26 +42,18 @@ export function MyJetpackTabPanel() {
 		return <TabComponent />;
 	}, [] );
 
+	// If the tab is not valid, use the default one.
+	const initialTab = isValidMyJetpackSection( params.section )
+		? params.section
+		: MY_JETPACK_TAB_OVERVIEW;
+
 	return (
 		<TabPanel
 			className={ styles[ 'tab-panel' ] }
-			initialTabName={ params.tab || 'overview' }
+			initialTabName={ initialTab }
 			onSelect={ onTabSelect }
 			children={ tabRenderer }
-			tabs={ [
-				{
-					name: 'overview',
-					title: __( 'Overview', 'jetpack-my-jetpack' ),
-				},
-				{
-					name: 'products',
-					title: __( 'Products', 'jetpack-my-jetpack' ),
-				},
-				{
-					name: 'help',
-					title: __( 'Help', 'jetpack-my-jetpack' ),
-				},
-			] }
+			tabs={ getMyJetpackTabs() }
 		/>
 	);
 }

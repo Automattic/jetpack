@@ -1,0 +1,6 @@
+import { MY_JETPACK_TAB_HELP, MY_JETPACK_TAB_OVERVIEW, MY_JETPACK_TAB_PRODUCTS } from './constants';
+
+export type MyJetpackTabs =
+	| typeof MY_JETPACK_TAB_OVERVIEW
+	| typeof MY_JETPACK_TAB_PRODUCTS
+	| typeof MY_JETPACK_TAB_HELP;
