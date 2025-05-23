@@ -389,9 +389,15 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response Response object.
 	 */
 	public function update_item( $request ) {
+		$valid_check = parent::get_post( $request['id'] );
+		if ( is_wp_error( $valid_check ) ) {
+			return $valid_check;
+		}
+
 		$post_id         = $request['id'];
 		$previous_status = get_post_status( $post_id );
 		$updated_item    = parent::update_item( $request );
+
 		if ( ! is_wp_error( $updated_item ) && ! empty( $updated_item->data && ! empty( $updated_item->data['status'] ) ) ) {
 			if ( $previous_status === 'spam' && $updated_item->data['status'] === 'publish' ) {
 				// updated item is going from spam to inbox
