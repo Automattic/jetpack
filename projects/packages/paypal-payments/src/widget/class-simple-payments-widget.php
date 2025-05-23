@@ -97,8 +97,7 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
 			}
 
-			$jetpack_simple_payments = Simple_Payments::get_instance();
-			if ( is_customize_preview() && $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
+			if ( is_customize_preview() && Simple_Payments::is_enabled_jetpack_simple_payments() ) {
 				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
 				add_filter( 'customize_refresh_nonces', array( $this, 'filter_nonces' ) );
@@ -610,11 +609,7 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 		 * @return string|void
 		 */
 		public function form( $instance ) {
-			$jetpack_simple_payments = Simple_Payments::get_instance();
-			if ( ! method_exists( $jetpack_simple_payments, 'is_enabled_jetpack_simple_payments' ) ) {
-				return;
-			}
-			if ( ! $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
+			if ( ! Simple_Payments::is_enabled_jetpack_simple_payments() ) {
 				require __DIR__ . '/simple-payments/admin-warning.php';
 				return;
 			}

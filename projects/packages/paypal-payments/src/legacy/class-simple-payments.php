@@ -219,7 +219,7 @@ class Simple_Payments {
 	 *
 	 * @return bool True if Simple Payments are enabled, false otherwise.
 	 */
-	public function is_enabled_jetpack_simple_payments() {
+	public static function is_enabled_jetpack_simple_payments() {
 		/**
 		 * Can be used by plugin authors to disable the conflicting output of Simple Payments.
 		 *
@@ -297,7 +297,7 @@ class Simple_Payments {
 
 		$data['id'] = $attrs['id'];
 
-		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
+		if ( ! self::is_enabled_jetpack_simple_payments() ) {
 			if ( function_exists( 'jetpack_is_frontend' ) && jetpack_is_frontend() ) {
 				return $this->output_admin_warning( $data );
 			}
@@ -792,16 +792,11 @@ class Simple_Payments {
 	 * Register Simple_Payments_Widget widget.
 	 */
 	public static function register_widget_simple_payments() {
-		if ( ! class_exists( 'Simple_Payments' ) ) {
+		if ( ! self::is_enabled_jetpack_simple_payments() ) {
 			return;
 		}
 
-		$jetpack_simple_payments = self::get_instance();
-		if ( ! $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
-			return;
-		}
-
-		register_widget( 'Simple_Payments_Widget' );
+		register_widget( 'Automattic\Jetpack\Paypal_Payments\Widgets\Simple_Payments_Widget' );
 	}
 }
 Simple_Payments::get_instance();
