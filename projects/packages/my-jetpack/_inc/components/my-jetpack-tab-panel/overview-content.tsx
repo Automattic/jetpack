@@ -1,9 +1,9 @@
 /**
- * The Overview tab component.
+ * The Overview content component.
  *
  * @return The rendered component.
  */
-export function OverviewTab() {
+export function OverviewContent() {
 	return (
 		<div>
 			<h2>Overview Tab</h2>

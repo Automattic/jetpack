@@ -1,9 +1,9 @@
 /**
- * The Products tab component.
+ * The Products content component.
  *
  * @return The rendered component.
  */
-export function ProductsTab() {
+export function ProductsContent() {
 	return (
 		<div>
 			<h2>Products Tab</h2>

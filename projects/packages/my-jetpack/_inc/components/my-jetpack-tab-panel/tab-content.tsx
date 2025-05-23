@@ -1,6 +1,6 @@
-import { HelpTab } from './help-tab';
-import { OverviewTab } from './overview-tab';
-import { ProductsTab } from './products-tab';
+import { HelpContent } from './help-content';
+import { OverviewContent } from './overview-content';
+import { ProductsContent } from './products-content';
 import styles from './styles.module.scss';
 import { MyJetpackSection } from './types';
 
@@ -8,10 +8,10 @@ export type TabContentProps = {
 	name: MyJetpackSection;
 };
 
-const tabComponentMap: Record< MyJetpackSection, React.ComponentType > = {
-	overview: OverviewTab,
-	products: ProductsTab,
-	help: HelpTab,
+const componentMap: Record< MyJetpackSection, React.ComponentType > = {
+	overview: OverviewContent,
+	products: ProductsContent,
+	help: HelpContent,
 };
 
 /**
@@ -22,14 +22,14 @@ const tabComponentMap: Record< MyJetpackSection, React.ComponentType > = {
  * @return The rendered component or null if the tab name is not recognized.
  */
 export function TabContent( { name }: TabContentProps ) {
-	const TabComponent = tabComponentMap[ name ];
+	const ContentComponent = componentMap[ name ];
 
-	if ( ! TabComponent ) {
+	if ( ! ContentComponent ) {
 		return null;
 	}
 	return (
 		<div className={ styles[ 'tab-content-wrapper' ] }>
-			<TabComponent />
+			<ContentComponent />
 		</div>
 	);
 }

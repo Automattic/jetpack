@@ -35,5 +35,5 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
  * @return True if the section is valid, false otherwise.
  */
 export function isValidMyJetpackSection( section: string ) {
-	return getMyJetpackSections().some( tab => tab.name === section );
+	return getMyJetpackSections().some( item => item.name === section );
 }
