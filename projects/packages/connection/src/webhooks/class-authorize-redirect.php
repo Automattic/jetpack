@@ -141,7 +141,6 @@ class Authorize_Redirect {
 	 * @return string the modified URL.
 	 */
 	public static function filter_connect_redirect_url( $redirect ) {
-		error_log( 'Testing filter_connect_redirect_url' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		$jetpack_admin_page = esc_url_raw( admin_url( 'admin.php?page=my-jetpack' ) );
 		$redirect           = $redirect
 			? wp_validate_redirect( esc_url_raw( $redirect ), $jetpack_admin_page )
