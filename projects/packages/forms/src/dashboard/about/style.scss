@@ -101,9 +101,14 @@
 			&-card {
 				overflow: hidden;
 
+				&:focus-within {
+					box-shadow: 0 0 0 var(--wp-admin-border-width-focus) var(--jp-green-50);
+				}
+
 				&-body-wrapper {
 					display: flex;
 					justify-content: center;
+					cursor: pointer;
 
 					img {
 						width: 315px;
