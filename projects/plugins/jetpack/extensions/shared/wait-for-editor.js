@@ -1,26 +1,4 @@
 import { select, subscribe } from '@wordpress/data';
-import debugFactory from '@wordpress/debug';
-
-const debug = debugFactory( 'jetpack:wait-for-editor' );
-
-/**
- * Checks if the editor is ready by verifying if it's a clean new post or has blocks.
- *
- * @return {boolean} Whether the editor is ready.
- */
-const isEditorReady = () => {
-	const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
-	const blocks = select( 'core/block-editor' ).getBlocks();
-	const ready = isCleanNewPost || blocks.length > 0;
-
-	debug( 'Editor ready check:', {
-		isCleanNewPost,
-		blocksLength: blocks.length,
-		ready,
-	} );
-
-	return ready;
-};
 
 /**
  * Indicates if the block editor has been initialized.
@@ -29,19 +7,34 @@ const isEditorReady = () => {
  */
 export const waitForEditor = async () =>
 	new Promise( resolve => {
-		debug( 'waitForEditor called' );
+		console.log( '[Wait For Editor] Function called - checking for race condition' );
+
+		const isReady = () => {
+			const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
+			const blocks = select( 'core/block-editor' ).getBlocks();
+			const ready = isCleanNewPost || blocks.length > 0;
+
+			console.log( '[Wait For Editor] Ready state check:', {
+				isCleanNewPost,
+				blocksLength: blocks.length,
+				ready,
+				timestamp: Date.now(),
+			} );
+
+			return ready;
+		};
 
 		// Check if editor is already ready before subscribing
-		if ( isEditorReady() ) {
-			debug( 'Editor already ready - resolving immediately' );
+		if ( isReady() ) {
+			console.log( '[Wait For Editor] Race condition detected - editor already ready' );
 			resolve();
 			return;
 		}
 
-		debug( 'Editor not ready - subscribing to changes' );
+		console.log( '[Wait For Editor] Editor not ready - setting up subscription' );
 		const unsubscribe = subscribe( () => {
-			if ( isEditorReady() ) {
-				debug( 'Editor became ready - resolving promise' );
+			if ( isReady() ) {
+				console.log( '[Wait For Editor] Editor became ready via subscription' );
 				unsubscribe();
 				resolve();
 			}

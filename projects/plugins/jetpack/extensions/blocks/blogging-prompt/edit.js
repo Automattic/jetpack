@@ -2,7 +2,6 @@ import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { Button, PanelBody, Spinner, ToggleControl, withNotices } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import debugFactory from '@wordpress/debug';
 import { useEffect, useRef } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
@@ -11,10 +10,8 @@ import './editor.scss';
 import { languageToLocale } from '../../shared/locale';
 import { usePromptTags } from './use-prompt-tags';
 
-const debug = debugFactory( 'jetpack:blogging-prompt:edit' );
-
 function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
-	debug( 'BloggingPromptEdit component rendering', { attributes } );
+	console.log( '[Blogging Prompt Edit] Component rendering', { attributes } );
 
 	// Use the ref to keep track of starting to fetch the prompt, so we don't make duplicate requests.
 	const fetchingPromptRef = useRef( false );
@@ -33,7 +30,7 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 		isBloganuary,
 	} = attributes;
 
-	debug( 'Current prompt state:', {
+	console.log( '[Blogging Prompt Edit] Current prompt state:', {
 		promptFetched,
 		promptId,
 		fetchingPromptRef: fetchingPromptRef.current,
@@ -42,7 +39,7 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompt' } );
 
 	const setTagsAdded = state => {
-		debug( 'Setting tagsAdded:', state );
+		console.log( '[Blogging Prompt Edit] Setting tagsAdded:', state );
 		setAttributes( { tagsAdded: state } );
 	};
 
@@ -53,13 +50,16 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 		const { getEntityRecord, hasFinishedResolution } = select( 'core' );
 		const language = getEntityRecord( 'root', 'site' )?.language || 'en_US';
 		const hasFinishedResolving = hasFinishedResolution( 'getEntityRecord', [ 'root', 'site' ] );
-		debug( 'Site language resolution:', { language, hasFinishedResolving } );
+		console.log( '[Blogging Prompt Edit] Site language resolution:', {
+			language,
+			hasFinishedResolving,
+		} );
 		return hasFinishedResolving ? language : null;
 	}, [] );
 
 	// Fetch the prompt by id, if present, otherwise the get the prompt for today.
 	useEffect( () => {
-		debug( 'useEffect running for prompt fetch', {
+		console.log( '[Blogging Prompt Edit] useEffect running for prompt fetch', {
 			siteLanguage,
 			fetchingPromptRef: fetchingPromptRef.current,
 			promptFetched,
@@ -75,12 +75,12 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			} else {
 				reason = 'already fetched';
 			}
-			debug( 'Skipping prompt fetch:', { reason } );
+			console.log( '[Blogging Prompt Edit] Skipping prompt fetch:', { reason } );
 			return;
 		}
 
 		const retryPrompt = () => {
-			debug( 'Retrying prompt fetch' );
+			console.log( '[Blogging Prompt Edit] Retrying prompt fetch' );
 			setAttributes( { promptFetched: false, promptId: null, tagsAdded: false } );
 			fetchingPromptRef.current = false;
 			noticeOperations.removeAllNotices();
@@ -131,14 +131,14 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			force_year: new Date()?.getFullYear(),
 		} );
 
-		debug( 'Starting prompt fetch', { path } );
+		console.log( '[Blogging Prompt Edit] Starting prompt fetch', { path } );
 		fetchingPromptRef.current = true;
 		apiFetch( { path } )
 			.then( prompts => {
 				const promptData = promptId ? prompts : prompts[ 0 ];
 				const locale = languageToLocale( siteLanguage );
 
-				debug( 'Prompt fetch successful', { promptData } );
+				console.log( '[Blogging Prompt Edit] Prompt fetch successful', { promptData } );
 
 				setAttributes( {
 					answersLink: promptData.answered_link + `?locale=${ locale }`,
@@ -152,7 +152,7 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 				} );
 			} )
 			.catch( error => {
-				debug( 'Prompt fetch error', { error } );
+				console.error( '[Blogging Prompt Edit] Prompt fetch error', { error } );
 				setAttributes( { promptFetched: true } );
 				const message =
 					error.code === 'rest_post_invalid_id' && promptId
