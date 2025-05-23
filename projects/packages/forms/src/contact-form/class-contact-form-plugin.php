@@ -644,8 +644,6 @@ class Contact_Form_Plugin {
 			$class_names[] = 'is-layout-' . sanitize_title( $atts['layout']['type'] );
 		}
 
-		$class_names[] = 'is-layout-constrained';
-
 		if ( ! empty( $atts['layout']['orientation'] ) ) {
 			$class_names[] = 'is-' . sanitize_title( $atts['layout']['orientation'] );
 		}
