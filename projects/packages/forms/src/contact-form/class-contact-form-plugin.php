@@ -680,8 +680,13 @@ class Contact_Form_Plugin {
 
 	/**
 	 * Render the progress indicator.
+	 *
+	 * @param array  $attributes - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the progress indicator.
 	 */
-	public static function gutenblock_render_form_progress_indicator() {
+	public static function gutenblock_render_form_progress_indicator( $attributes, $content ) {
 		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
 
 		// Enqueue the frontend style for the progress indicator.
@@ -701,7 +706,7 @@ class Contact_Form_Plugin {
 			$version
 		);
 
-		return '<div data-wp-interactive="jetpack/form" class="jetpack-form-progress-indicator"><div class="jetpack-form-progress-indicator-bar" data-wp-style--width="state.getStepProgress"></div></div>';
+		return $content;
 	}
 
 	/**
