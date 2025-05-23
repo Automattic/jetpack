@@ -789,30 +789,6 @@ class Simple_Payments {
 	}
 
 	/**
-	 * Format a price for display
-	 *
-	 * Largely taken from WordPress.com Store_Price class
-	 *
-	 * The currency array will have the shape:
-	 *   format  => string sprintf format with placeholders `%1$s`: Symbol `%2$s`: Price.
-	 *   symbol  => string Symbol string
-	 *   desc    => string Text description of currency
-	 *   decimal => int    Number of decimal places
-	 *
-	 * @param  string $the_currency The desired currency, e.g. 'USD'.
-	 * @return ?array               Currency object or null if not found.
-	 */
-	private static function get_currency( $the_currency ) {
-		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
-		$currencies = Jetpack_Currencies::CURRENCIES;
-
-		if ( isset( $currencies[ $the_currency ] ) ) {
-			return $currencies[ $the_currency ];
-		}
-		return null;
-	}
-
-	/**
 	 * Register Simple_Payments_Widget widget.
 	 */
 	public static function register_widget_simple_payments() {
