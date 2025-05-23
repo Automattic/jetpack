@@ -657,16 +657,6 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 0.68em;
 }
 
-/* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-checkbox-multiple-options) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-radio-options) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"] {
-	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.8);
-}
-
 .contact-form .is-style-outlined .grunion-field-wrap > input,
 .contact-form .is-style-outlined .grunion-field-wrap > textarea,
 .contact-form .is-style-outlined .grunion-field-wrap select {
