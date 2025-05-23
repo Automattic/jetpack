@@ -71,7 +71,7 @@ class Update_LCP implements Endpoint {
 			$state->set_page_success( $entry['key'] );
 
 			// Store the LCP data for this page.
-			$storage->store_lcp( $entry['key'], $entry['devices'] );
+			$storage->store_lcp( $entry['key'], $entry['reports'] );
 
 			// Failures must have an array of urls.
 			// @TODO: figure out what to do with failures.
