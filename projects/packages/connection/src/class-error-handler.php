@@ -443,6 +443,19 @@ class Error_Handler {
 
 		$verified_errors = $this->garbage_collector( $verified_errors );
 
+		/**
+		 * Filter verified connection errors to allow external plugins to inject their own error types
+		 *
+		 * This filter allows external plugins (like wpcomsh with Protected Owner errors)
+		 * to inject their own error types into the standard connection error flow.
+		 * External errors should follow the same structure as regular connection errors.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $verified_errors Array of verified connection errors
+		 */
+		$verified_errors = apply_filters( 'jetpack_connection_get_verified_errors', $verified_errors );
+
 		return $verified_errors;
 	}
 

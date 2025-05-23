@@ -5,6 +5,7 @@ import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import ErrorNoticeCycleConnection from './error-notice-cycle-connection';
+import { ProtectedOwnerErrorNotice } from './protected-owner-error-notices';
 
 export default class JetpackConnectionErrors extends React.Component {
 	static propTypes = {
@@ -25,6 +26,15 @@ export default class JetpackConnectionErrors extends React.Component {
 						errorCode={ code }
 						errorData={ errorData }
 						action={ action }
+						display={ this.props.display }
+					/>
+				);
+			case 'protected_owner_action':
+				return (
+					<ProtectedOwnerErrorNotice
+						text={ message }
+						errorCode={ code }
+						errorData={ errorData }
 						display={ this.props.display }
 					/>
 				);
