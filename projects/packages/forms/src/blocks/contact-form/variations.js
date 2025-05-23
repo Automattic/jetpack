@@ -511,82 +511,165 @@ const variations = compact( [
 			),
 		},
 		innerBlocks: [
-			[
-				'jetpack/form-progress-indicator',
-				{
-					labels: [
-						__( 'Contact Info', 'jetpack-forms' ),
-						__( 'Details', 'jetpack-forms' ),
-						__( 'Preferences', 'jetpack-forms' ),
-					],
-					activeStep: 0,
-					showLabels: true,
-				},
-			],
+			[ 'jetpack/form-progress-indicator', {} ],
 			[
 				'jetpack/step-container',
 				{},
 				[
 					[
 						'jetpack/form-step',
-						{ title: __( 'Contact Information', 'jetpack-forms' ) },
+						{ stepLabel: __( "Step 1 - Let's get acquainted", 'jetpack-forms' ) },
 						[
-							[
-								'jetpack/field-name',
-								{ required: true, label: __( 'Full Name', 'jetpack-forms' ) },
-							],
+							[ 'jetpack/field-name', { placeholder: __( 'Jamie Smith', 'jetpack-forms' ) } ],
 							[
 								'jetpack/field-email',
-								{ required: true, label: __( 'Email Address', 'jetpack-forms' ) },
+								{
+									label: __( 'Email Address', 'jetpack-forms' ),
+									required: true,
+									placeholder: __( 'jamie.smith@example.com', 'jetpack-forms' ),
+								},
 							],
-							[ 'jetpack/field-telephone', { label: __( 'Phone Number', 'jetpack-forms' ) } ],
-						],
-					],
-					[
-						'jetpack/form-step',
-						{ title: __( 'Additional Details', 'jetpack-forms' ) },
-						[
 							[
 								'jetpack/field-select',
 								{
-									label: __( 'How did you hear about us?', 'jetpack-forms' ),
+									label: __( 'What brings you here today?', 'jetpack-forms' ),
 									options: [
-										__( 'Search Engine', 'jetpack-forms' ),
-										__( 'Social Media', 'jetpack-forms' ),
-										__( 'Recommendation', 'jetpack-forms' ),
-										__( 'Advertisement', 'jetpack-forms' ),
-										__( 'Other', 'jetpack-forms' ),
+										__( 'I need help', 'jetpack-forms' ),
+										__( "I'm interested in your services", 'jetpack-forms' ),
+										__( 'Just exploring', 'jetpack-forms' ),
 									],
+									toggleLabel: __( 'Select one option', 'jetpack-forms' ),
 								},
 							],
 							[
-								'jetpack/field-textarea',
-								{ label: __( 'What can we help you with?', 'jetpack-forms' ), required: true },
+								'jetpack/form-step-navigation',
+								{ layout: { type: 'flex', justifyContent: 'right' } },
+								[
+									[
+										'jetpack/button',
+										{
+											element: 'button',
+											uniqueId: 'next-step',
+											customVariant: 'next',
+											text: __( 'Tell us more →', 'jetpack-forms' ),
+											lock: { move: false, remove: true },
+										},
+									],
+								],
 							],
 						],
 					],
 					[
 						'jetpack/form-step',
-						{ title: __( 'Preferences', 'jetpack-forms' ) },
+						{ stepLabel: __( 'Step 2 - How can we help?', 'jetpack-forms' ) },
+						[
+							[
+								'jetpack/field-textarea',
+								{ label: __( 'What do you need help with?', 'jetpack-forms' ) },
+							],
+							[
+								'jetpack/field-select',
+								{
+									label: __( 'How soon do you need a response?', 'jetpack-forms' ),
+									options: [
+										__( 'ASAP', 'jetpack-forms' ),
+										__( 'This week', 'jetpack-forms' ),
+										__( 'No rush', 'jetpack-forms' ),
+									],
+									toggleLabel: __( 'Select one option', 'jetpack-forms' ),
+								},
+							],
+							[
+								'jetpack/form-step-navigation',
+								{ layout: { type: 'flex', justifyContent: 'space-between' } },
+								[
+									[
+										'jetpack/button',
+										{
+											element: 'button',
+											uniqueId: 'previous-step',
+											customVariant: 'previous',
+											text: __( '← Back', 'jetpack-forms' ),
+											className: 'is-style-outline',
+										},
+									],
+									[
+										'jetpack/button',
+										{
+											element: 'button',
+											uniqueId: 'next-step',
+											customVariant: 'next',
+											text: __( 'Set preferences →', 'jetpack-forms' ),
+										},
+									],
+								],
+							],
+						],
+					],
+					[
+						'jetpack/form-step',
+						{ stepLabel: __( 'Step 3 - Preferences', 'jetpack-forms' ) },
 						[
 							[
 								'jetpack/field-select',
 								{
-									label: __( 'Preferred contact method', 'jetpack-forms' ),
-									options: [ __( 'Email', 'jetpack-forms' ), __( 'Phone', 'jetpack-forms' ) ],
+									label: __( 'Preferred way to hear from us', 'jetpack-forms' ),
+									options: [
+										__( 'Email', 'jetpack-forms' ),
+										__( 'Phone call', 'jetpack-forms' ),
+										__( 'Text message', 'jetpack-forms' ),
+										__( 'WhatsApp', 'jetpack-forms' ),
+									],
+									toggleLabel: __( 'Select one option', 'jetpack-forms' ),
 								},
 							],
 							[
-								'jetpack/field-textarea',
+								'jetpack/field-telephone',
 								{
-									label: __( 'Additional notes or preferences', 'jetpack-forms' ),
+									placeholder: __(
+										"If you'd rather chat by phone, just leave your number here.",
+										'jetpack-forms'
+									),
 								},
+							],
+							[
+								'core/paragraph',
+								{
+									content: __(
+										"✨ That's it! Send it over and we'll take care of the rest.",
+										'jetpack-forms'
+									),
+								},
+							],
+							[
+								'jetpack/form-step-navigation',
+								{ layout: { type: 'flex', justifyContent: 'space-between' } },
+								[
+									[
+										'jetpack/button',
+										{
+											element: 'button',
+											uniqueId: 'previous-step',
+											customVariant: 'previous',
+											text: __( '← Back', 'jetpack-forms' ),
+											className: 'is-style-outline',
+										},
+									],
+									[
+										'jetpack/button',
+										{
+											element: 'button',
+											uniqueId: 'submit-step',
+											customVariant: 'submit',
+											text: __( 'Submit', 'jetpack-forms' ),
+										},
+									],
+								],
 							],
 						],
 					],
 				],
 			],
-			[ 'jetpack/form-step-navigation' ],
 		],
 		attributes: {
 			variationName: 'multistep',
