@@ -386,7 +386,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * Overrides the parent method to resend the email when the item is updated from spam to publish.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Response object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function update_item( $request ) {
 		$valid_check = parent::get_post( $request['id'] );
