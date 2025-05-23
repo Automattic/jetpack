@@ -1,6 +1,6 @@
 @use 'sass:color';
+@use '../../scss/z-index';
 @import '../../scss/calypso-colors';
-@import '../../scss/z-index';
 @import '../../scss/mixin_breakpoint';
 @import '../../scss/mixin_long-content-fade';
 
@@ -16,7 +16,7 @@
 	position: relative;
 	align-items: center;
 	// places search above filters
-	z-index: z-index( 'root', '.dops-search' );
+	z-index: z-index.z-index( 'root', '.dops-search' );
 	transition: all 0.15s ease-in-out;
 
 	.dops-search__icon-navigation {
@@ -58,7 +58,7 @@
 	.dops-search__close-icon {
 		flex: 0 0 auto;
 		width: 50px;
-		z-index: z-index( '.dops-search', '.dops-search .dops-search__open-icon' );
+		z-index: z-index.z-index( '.dops-search', '.dops-search .dops-search__open-icon' );
 		color: var( --jp-black-80 );
 		cursor: pointer;
 
@@ -113,7 +113,7 @@
 .dops-search__input[type="search"] {
 	flex: 1 1 auto;
 	display: none;
-	z-index: z-index( '.dops-search', '.dops-search__input' );
+	z-index: z-index.z-index( '.dops-search', '.dops-search__input' );
 	top: 0;
 	border: none;
 	border-radius: inherit;
@@ -164,14 +164,14 @@
 
 		&::before {
 
-			@include long-content-fade( $size: 32px, $color: $white, $z-index: z-index( '.dops-search', '.dops-search__input' ) + 2 );
+			@include long-content-fade( $size: 32px, $color: $white, $z-index: z-index.z-index( '.dops-search', '.dops-search__input' ) + 2 );
 			border-radius: inherit;
 		}
 
 		&.ltr { /*rtl:ignore*/
 			&::before {
 
-				@include long-content-fade( $direction: right, $size: 32px, $color: $white, $z-index: z-index( '.dops-search', '.dops-search__input' ) + 2 );
+				@include long-content-fade( $direction: right, $size: 32px, $color: $white, $z-index: z-index.z-index( '.dops-search', '.dops-search__input' ) + 2 );
 				border-radius: inherit;
 			}
 		}
@@ -192,7 +192,7 @@
 	height: 100%;
 	top: 0;
 	left: 0;
-	z-index: z-index( '.dops-search', '.dops-search__input' ) + 1;
+	z-index: z-index.z-index( '.dops-search', '.dops-search__input' ) + 1;
 }
 
 .dops-search.is-searching .dops-search__open-icon {

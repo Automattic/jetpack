@@ -1,9 +1,12 @@
-@import '../../lib/base-styles';
+@use '@wordpress/base-styles/colors';
+@use "@wordpress/base-styles/mixins";
+@use "@wordpress/base-styles/variables";
+@use '../../lib/base-styles';
 
 .components-panel__header.jp-search-configure-sidebar__panel-tabs {
 	justify-content: flex-start;
 	padding-left: 0;
-	padding-right: $grid-unit-15;
+	padding-right: variables.$grid-unit-15;
 	border-top: 0;
 	margin-top: 0;
 
@@ -17,13 +20,13 @@
 	}
 
 	.components-button.jp-search-configure-sidebar__hide-settings-button {
-		margin-right: $grid-unit-05;
+		margin-right: variables.$grid-unit-05;
 
-		@include break-small() {
-			margin-right: $grid-unit-15;
+		@include mixins.break-small() {
+			margin-right: variables.$grid-unit-15;
 		}
 
-		@include break-medium() {
+		@include mixins.break-medium() {
 			display: none;
 		}
 	}
@@ -39,7 +42,7 @@
 	padding: 3px 15px; // Use padding to offset the is-active border, this benefits Windows High Contrast mode
 	margin-left: 0;
 	font-weight: 400;
-	color: $gray-900;
+	color: colors.$gray-900;
 	height: 100%;
 
 	// This pseudo-element "duplicates" the tab label and sets the text to bold.
@@ -58,7 +61,7 @@
 	&.is-active {
 		// The transparent shadow ensures no jumpiness when focus animates on an active tab.
 		box-shadow: inset 0 0 0 var( --wp-admin-border-width-focus ) transparent,
-			inset 0 (-$border-width-tab) 0 0 var( --wp-admin-theme-color );
+			inset 0 (-1 * variables.$border-width-tab) 0 0 var( --wp-admin-theme-color );
 		font-weight: 600;
 		position: relative;
 
@@ -70,7 +73,7 @@
 			bottom: 1px;
 			right: 0;
 			left: 0;
-			border-bottom: $border-width-tab solid transparent;
+			border-bottom: variables.$border-width-tab solid transparent;
 		}
 	}
 
@@ -80,34 +83,34 @@
 
 	&.is-active:focus {
 		box-shadow: inset 0 0 0 var( --wp-admin-border-width-focus ) var( --wp-admin-theme-color ),
-			inset 0 (-$border-width-tab) 0 0 var( --wp-admin-theme-color );
+			inset 0 (-1 * variables.$border-width-tab) 0 0 var( --wp-admin-theme-color );
 	}
 }
 
 .jp-search-configure-sidebar-description {
 	display: flex;
-	padding: $grid-unit-20;
+	padding: variables.$grid-unit-20;
 
 	.block-editor-block-icon {
-		margin-right: $grid-unit-20;
+		margin-right: variables.$grid-unit-20;
 	}
 
 	.components-button.is-tertiary {
-		margin-left: -( $grid-unit-15 * 0.5 );
+		margin-left: -( variables.$grid-unit-15 * 0.5 );
 	}
 }
 
 .jp-search-configure-sidebar-options {
 
 	.components-base-control {
-		margin-bottom: $grid-unit-30;
+		margin-bottom: variables.$grid-unit-30;
 
 		&.components-checkbox-control {
-			margin-bottom: $grid-unit-10;
+			margin-bottom: variables.$grid-unit-10;
 		}
 
 		&.components-toggle-control {
-			margin-bottom: $grid-unit-15;
+			margin-bottom: variables.$grid-unit-15;
 		}
 
 		&:last-child {
@@ -127,32 +130,32 @@
 .jp-search-configure-sidebar-options .jp-search-configure-theme-buttons {
 	display: flex;
 	justify-content: space-around;
-	margin-bottom: $grid-unit-15;
+	margin-bottom: variables.$grid-unit-15;
 
 	button.components-button {
 		display: flex;
 		height: initial;
 		flex-direction: column;
 
-		padding-left: $grid-unit * 0.75;
-		padding-right: $grid-unit * 0.75;
+		padding-left: variables.$grid-unit * 0.75;
+		padding-right: variables.$grid-unit * 0.75;
 
 		&:first-child {
-			margin-right: $grid-unit-05;
+			margin-right: variables.$grid-unit-05;
 		}
 
 		&:last-child {
-			margin-left: $grid-unit-05;
+			margin-left: variables.$grid-unit-05;
 		}
 
 		svg {
-			border: 2px solid $white;
+			border: 2px solid colors.$white;
 			border-radius: 3px;
-			margin-bottom: $grid-unit-05;
+			margin-bottom: variables.$grid-unit-05;
 		}
 
 		&.jp-search-configure-theme-button--selected svg {
-			border-color: $gray-800;
+			border-color: colors.$gray-800;
 		}
 	}
 }
@@ -166,18 +169,18 @@
 
 	input[type="checkbox"],
 	input[type="radio"] {
-		background: $gray-300;
-		border-color: $gray-300;
+		background: colors.$gray-300;
+		border-color: colors.$gray-300;
 	}
 
 	.components-radio-control__input[type="radio"]:checked {
-		background: $gray-400;
-		border-color: $gray-400;
+		background: colors.$gray-400;
+		border-color: colors.$gray-400;
 	}
 }
 
 .components-checkbox-control__input:disabled {
-	background: $gray-300;
-	border-color: $gray-300;
+	background: colors.$gray-300;
+	border-color: colors.$gray-300;
 	cursor: not-allowed;
 }

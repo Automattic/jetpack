@@ -1,5 +1,4 @@
-@import '@wordpress/base-styles/breakpoints';
-@import '@wordpress/base-styles/mixins';
+@use '@wordpress/base-styles/mixins';
 @import '@automattic/jetpack-base-styles/style';
 
 .jp-contextualized-connection {
@@ -19,7 +18,7 @@
 		padding: 2rem;
 		text-align: center;
 
-		@include break-medium {
+		@include mixins.break-medium {
 			padding: 4rem;
 		}
 
@@ -86,7 +85,7 @@
 			grid-gap: 4rem;
 			grid-template-columns: auto;
 
-			@include break-medium {
+			@include mixins.break-medium {
 				grid-template-columns: repeat(3, 1fr);
 				grid-gap: 3rem;
 			}

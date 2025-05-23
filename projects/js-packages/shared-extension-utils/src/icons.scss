@@ -1,7 +1,7 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .jetpack-gutenberg-social-icon {
-	fill: $gray-700;
+	fill: gb.$gray-700;
 
 	&.is-facebook {
 		fill: var( --color-facebook );

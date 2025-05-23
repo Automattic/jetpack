@@ -1,6 +1,6 @@
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/mixins";
 @import "@automattic/typography/styles/fonts";
-@import "@wordpress/base-styles/breakpoints";
-@import "@wordpress/base-styles/mixins";
 
 .wpcom-global-styles-modal {
 
@@ -21,11 +21,11 @@
 		justify-content: flex-end;
 		align-items: flex-start;
 
-		@include break-small {
+		@include mixins.break-small {
 			flex-direction: row;
 			justify-content: flex-start;
 
-			@media (min-height: #{ ($break-small) }) {
+			@media (min-height: #{ (breakpoints.$break-small) }) {
 				align-items: stretch;
 			}
 		}
@@ -35,7 +35,7 @@
 	.wpcom-global-styles-modal__image {
 		width: 100%;
 
-		@include break-small {
+		@include mixins.break-small {
 			width: auto;
 			max-width: 380px;
 		}
@@ -46,9 +46,9 @@
 		display: flex;
 		flex-direction: column;
 
-		@include break-small {
+		@include mixins.break-small {
 
-			@media (min-height: #{ ($break-small) }) {
+			@media (min-height: #{ (breakpoints.$break-small) }) {
 				padding: 64px 48px;
 			}
 		}
@@ -62,9 +62,9 @@
 		line-height: 32px;
 		margin-bottom: 16px;
 
-		@include break-small {
+		@include mixins.break-small {
 
-			@media (min-height: #{ ($break-small) }) {
+			@media (min-height: #{ (breakpoints.$break-small) }) {
 				font-size: 2rem;
 				line-height: 40px;
 			}
@@ -98,10 +98,10 @@
 		justify-content: flex-end;
 		max-height: 50vh;
 
-		@include break-small {
+		@include mixins.break-small {
 			max-height: 70vh;
 
-			@media (min-height: #{ ($break-small) }) {
+			@media (min-height: #{ (breakpoints.$break-small) }) {
 				max-height: none;
 				padding: 64px 0 64px 64px;
 			}

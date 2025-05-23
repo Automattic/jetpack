@@ -2,6 +2,7 @@
 
 // Loading @wordpress/base-styles as they have mixins and other dependencies
 // used within @wordpress/*/src/*.scss
+// @todo Remove once @wordpress/*/src/*.scss has been updated to use `@use`.
 @import "@wordpress/base-styles/animations";
 @import "@wordpress/base-styles/breakpoints";
 @import "@wordpress/base-styles/colors";
