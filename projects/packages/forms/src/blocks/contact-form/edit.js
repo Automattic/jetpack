@@ -90,6 +90,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	const steps = useFormSteps( clientId );
 
+	const formVariation = useRef( variationName );
 	const initialStepContainer = useFindBlockRecursively(
 		clientId,
 		block => block.name === 'jetpack/step-container'
@@ -195,57 +196,64 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		[ clientId ]
 	);
 
+	// Detect if a user just added a step block to a non-multistep form and convert it to multistep.
 	useEffect( () => {
-		if ( variationName === 'multistep' ) {
-			// if no stepContainer it means it just got transformed
-			let stepContainer = initialStepContainer;
-			if ( ! stepContainer ) {
-				stepContainer = createBlock( 'jetpack/step-container', {}, currentInnerBlocks );
-				let stepNavigation = stepContainer.innerBlocks.find(
-					block => block.name === 'jetpack/form-step-navigation'
-				);
-				if ( ! stepNavigation ) {
-					stepNavigation = createBlock( 'jetpack/form-step-navigation', {}, [] );
-				}
-				let formProgressIndicator = stepContainer.innerBlocks.find(
-					block => block.name === 'jetpack/form-progress-indicator'
-				);
-				if ( ! formProgressIndicator ) {
-					formProgressIndicator = createBlock( 'jetpack/form-progress-indicator', {}, [] );
-				}
-				replaceInnerBlocks( clientId, [ formProgressIndicator, stepContainer, stepNavigation ] );
-			}
-			const stepBlock = stepContainer.innerBlocks.find(
-				block => block.name === 'jetpack/form-step'
-			);
-			if ( ! stepBlock ) {
-				const stepBlocks = currentInnerBlocks.map( block =>
-					createBlock( 'jetpack/form-step', {}, [ block ] )
-				);
-				replaceInnerBlocks( clientId, [ ...stepBlocks ] );
-			}
-		} else {
-			const beforeStepBlocks = [];
-			const afterStepBlocks = [];
-			let stepBlock = null;
-			currentInnerBlocks.forEach( block => {
-				if ( block.name === 'jetpack/form-step' ) {
-					stepBlock = block;
-				} else if ( stepBlock ) {
-					afterStepBlocks.push( block );
-				} else {
-					beforeStepBlocks.push( block );
-				}
-			} );
-			if ( stepBlock ) {
-				const stepBefore = createBlock( 'jetpack/form-step', {}, beforeStepBlocks );
-				const stepAfter = createBlock( 'jetpack/form-step', {}, afterStepBlocks );
-				replaceInnerBlocks( clientId, [ stepBefore, stepBlock, stepAfter ] );
+		if ( formVariation.current !== 'multistep' ) {
+			if ( currentInnerBlocks.some( block => block.name === 'jetpack/form-step' ) ) {
 				setAttributes( { variationName: 'multistep' } );
 			}
 		}
+	}, [ formVariation, currentInnerBlocks, setAttributes ] );
+	// Detect a conversion to a multistep form update the inner blocks to use step containers.
+	useEffect( () => {
+		if ( variationName === 'multistep' && formVariation.current !== 'multistep' ) {
+			formVariation.current = 'multistep';
+
+			if ( currentInnerBlocks.find( block => block.name === 'jetpack/step-container' ) ) {
+				// something odd happend where we already had a step container but we were not a multistep form.
+				return;
+			}
+			let stepBlocks = [];
+			const stepIndex = currentInnerBlocks.findIndex( block => block.name === 'jetpack/form-step' );
+			if ( stepIndex !== -1 ) {
+				const beforeBlocks = currentInnerBlocks.slice( 0, stepIndex );
+				const afterBlocks = currentInnerBlocks.slice( stepIndex + 1 );
+				const beforeStepBlock = createBlock( 'jetpack/form-step', {}, beforeBlocks );
+				const afterStepBlock = createBlock( 'jetpack/form-step', {}, afterBlocks );
+
+				stepBlocks.push( beforeStepBlock );
+				stepBlocks.push( currentInnerBlocks[ stepIndex ] );
+				stepBlocks.push( afterStepBlock );
+			} else if ( currentInnerBlocks.length > 0 ) {
+				// lets convert things to multi step form.
+				// if we have no step blocks, we need to wrap all the blocks in a step.
+				stepBlocks = currentInnerBlocks.map( block =>
+					createBlock( 'jetpack/form-step', {}, [ block ] )
+				);
+			} else {
+				// if we have no inner blocks we need to create a step block.
+				stepBlocks = [ createBlock( 'jetpack/form-step', {}, [] ) ];
+			}
+
+			const stepContainer = createBlock( 'jetpack/step-container', {}, stepBlocks );
+
+			let stepNavigation = currentInnerBlocks.find(
+				block => block.name === 'jetpack/form-step-navigation'
+			);
+			if ( ! stepNavigation ) {
+				stepNavigation = createBlock( 'jetpack/form-step-navigation', {}, [] );
+			}
+			let formProgressIndicator = currentInnerBlocks.find(
+				block => block.name === 'jetpack/form-progress-indicator'
+			);
+			if ( ! formProgressIndicator ) {
+				formProgressIndicator = createBlock( 'jetpack/form-progress-indicator', {}, [] );
+			}
+			replaceInnerBlocks( clientId, [ formProgressIndicator, stepContainer, stepNavigation ] );
+		}
 	}, [
 		variationName,
+		formVariation,
 		currentInnerBlocks,
 		clientId,
 		replaceInnerBlocks,
