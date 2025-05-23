@@ -11,7 +11,9 @@ import useRestoreConnection from '../../hooks/use-restore-connection/index.jsx';
  */
 export default function useConnectionErrorNotice() {
 	const { connectionErrors } = useConnection( {} );
+
 	const connectionErrorList = Object.values( connectionErrors ).shift();
+
 	const connectionErrorMessage =
 		connectionErrorList &&
 		Object.values( connectionErrorList ).length &&

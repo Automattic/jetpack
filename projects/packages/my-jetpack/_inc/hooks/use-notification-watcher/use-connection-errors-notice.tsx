@@ -17,69 +17,12 @@ interface NoticeAction {
 	variant?: 'primary' | 'secondary';
 }
 
-// Define ConnectionError interface
-interface ConnectionError {
-	message: string;
-	code: string;
-	action: string;
-	data: {
-		api_error_code?: string;
-		[ key: string ]: unknown;
-	};
-	error_type?: string;
-}
-
 const useConnectionErrorsNotice = () => {
 	const { setNotice, currentNotice } = useContext( NoticeContext );
 	const { hasConnectionError, connectionErrorMessage } = useConnectionErrorNotice();
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
 	const { recordEvent } = useAnalytics();
-
-	// Extract the connection error details from the connection data
-	const getConnectionError = useCallback( () => {
-		// Get errors from window.Initial_State
-		// @ts-expect-error - Property 'connectionErrors' might not exist on type
-		const myJetpackErrors = window?.Initial_State?.connectionErrors || [];
-
-		if ( Array.isArray( myJetpackErrors ) && myJetpackErrors.length > 0 ) {
-			const firstError = myJetpackErrors[ 0 ];
-
-			const result = {
-				message: firstError.message,
-				code: firstError.data?.api_error_code || firstError.code,
-				action: firstError.action,
-				data: firstError.data || {},
-				error_type: firstError.error_type || 'connection',
-			} as ConnectionError;
-
-			return result;
-		}
-
-		// FALLBACK: If connectionErrorMessage contains protected owner error but no errors array exists
-		if (
-			connectionErrorMessage &&
-			( connectionErrorMessage.includes( 'plan owner' ) ||
-				connectionErrorMessage.includes( 'WordPress.com plan owner' ) )
-		) {
-			// Extract email from the error message if possible
-			const emailMatch = connectionErrorMessage.match( /email\s+([^\s]+@[^\s]+)/ );
-			const wpcomEmail = emailMatch ? emailMatch[ 1 ] : 'unknown@wordpress.com';
-
-			return {
-				message: connectionErrorMessage,
-				code: 'protected_owner_wrong_owner_protected_owner_missing',
-				action: 'protected_owner_action',
-				data: {
-					wpcom_email: wpcomEmail,
-					error_type: 'missing_owner',
-				},
-				error_type: 'protected_owner',
-			} as ConnectionError;
-		}
-
-		return null;
-	}, [ connectionErrorMessage ] );
 
 	// Add a new handler for redirecting to create new user page
 	const handleCreateMissingAccount = useCallback( () => {
@@ -98,23 +41,15 @@ const useConnectionErrorsNotice = () => {
 			return;
 		}
 
-		// Get connection error details
-		const connectionError = getConnectionError();
-		if ( ! connectionError ) {
-			return;
-		}
-
-		const errorAction = connectionError?.action;
-		const isProtectedOwnerError = errorAction === 'protected_owner_action';
-
-		// Add additional check for protected owner errors in the error code
-		const isProtectedOwnerErrorByCode = connectionError?.code?.includes( 'protected_owner' );
-
-		// Check if we should treat this as a protected owner error
-		const shouldTreatAsProtectedOwnerError = isProtectedOwnerError || isProtectedOwnerErrorByCode;
+		// Check if this is a protected owner error based on the error message content
+		const isProtectedOwnerError =
+			connectionErrorMessage &&
+			( connectionErrorMessage.includes( 'plan owner' ) ||
+				connectionErrorMessage.includes( 'WordPress.com plan owner' ) ||
+				connectionErrorMessage.includes( 'protected owner' ) );
 
 		// Use the error message provided by the backend
-		let errorMessage = connectionError.message || connectionErrorMessage;
+		let errorMessage = connectionErrorMessage;
 
 		if ( restoreConnectionError ) {
 			errorMessage = (
@@ -133,7 +68,7 @@ const useConnectionErrorsNotice = () => {
 
 		// Add action buttons based on error type
 		let noticeActions: NoticeAction[] = [];
-		if ( shouldTreatAsProtectedOwnerError ) {
+		if ( isProtectedOwnerError ) {
 			// Protected owner mismatch error - add only "Create missing account" button
 			noticeActions = [
 				{
@@ -182,7 +117,6 @@ const useConnectionErrorsNotice = () => {
 		restoreConnectionError,
 		currentNotice.options.priority,
 		handleCreateMissingAccount,
-		getConnectionError,
 	] );
 };
 

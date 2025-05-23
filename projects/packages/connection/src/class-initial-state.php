@@ -24,7 +24,7 @@ class Initial_State {
 
 		$status = new Status();
 
-		// Get connection errors from Error_Handler (which now supports external error injection via filter)
+		// Get connection errors from Error_Handler
 		$connection_errors = Error_Handler::get_instance()->get_verified_errors();
 
 		return array(
