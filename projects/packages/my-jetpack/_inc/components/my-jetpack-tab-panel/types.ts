@@ -1,6 +1,10 @@
-import { MY_JETPACK_TAB_HELP, MY_JETPACK_TAB_OVERVIEW, MY_JETPACK_TAB_PRODUCTS } from './constants';
+import {
+	MY_JETPACK_SECTION_HELP,
+	MY_JETPACK_SECTION_OVERVIEW,
+	MY_JETPACK_SECTION_PRODUCTS,
+} from './constants';
 
-export type MyJetpackTabs =
-	| typeof MY_JETPACK_TAB_OVERVIEW
-	| typeof MY_JETPACK_TAB_PRODUCTS
-	| typeof MY_JETPACK_TAB_HELP;
+export type MyJetpackSection =
+	| typeof MY_JETPACK_SECTION_OVERVIEW
+	| typeof MY_JETPACK_SECTION_PRODUCTS
+	| typeof MY_JETPACK_SECTION_HELP;

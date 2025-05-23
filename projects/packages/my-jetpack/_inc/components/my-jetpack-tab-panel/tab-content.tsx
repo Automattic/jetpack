@@ -2,13 +2,13 @@ import { HelpTab } from './help-tab';
 import { OverviewTab } from './overview-tab';
 import { ProductsTab } from './products-tab';
 import styles from './styles.module.scss';
-import { MyJetpackTabs } from './types';
+import { MyJetpackSection } from './types';
 
 export type TabContentProps = {
-	name: MyJetpackTabs;
+	name: MyJetpackSection;
 };
 
-const tabComponentMap: Record< MyJetpackTabs, React.ComponentType > = {
+const tabComponentMap: Record< MyJetpackSection, React.ComponentType > = {
 	overview: OverviewTab,
 	products: ProductsTab,
 	help: HelpTab,
@@ -17,7 +17,7 @@ const tabComponentMap: Record< MyJetpackTabs, React.ComponentType > = {
 /**
  * The tab content component.
  *
- * @param {MyJetpackTabs} props - The name of the tab.
+ * @param {TabContentProps} props - The component props.
  *
  * @return The rendered component or null if the tab name is not recognized.
  */

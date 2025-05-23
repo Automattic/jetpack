@@ -1,11 +1,11 @@
 import { TabPanel } from '@wordpress/components';
 import { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { MY_JETPACK_TAB_OVERVIEW } from './constants';
+import { MY_JETPACK_SECTION_OVERVIEW } from './constants';
 import styles from './styles.module.scss';
 import { TabContent } from './tab-content';
-import { MyJetpackTabs } from './types';
-import { getMyJetpackTabs, isValidMyJetpackSection } from './utils';
+import { MyJetpackSection } from './types';
+import { getMyJetpackSections, isValidMyJetpackSection } from './utils';
 
 /**
  * My Jetpack Tab panel component.
@@ -25,14 +25,14 @@ export function MyJetpackTabPanel() {
 		[ navigate, params.section ]
 	);
 
-	const tabRenderer = useCallback( ( tab: { name: MyJetpackTabs } ) => {
+	const tabRenderer = useCallback( ( tab: { name: MyJetpackSection } ) => {
 		return <TabContent name={ tab.name } />;
 	}, [] );
 
 	// If the tab is not valid, use the default one.
 	const initialTab = isValidMyJetpackSection( params.section )
 		? params.section
-		: MY_JETPACK_TAB_OVERVIEW;
+		: MY_JETPACK_SECTION_OVERVIEW;
 
 	return (
 		<TabPanel
@@ -40,7 +40,7 @@ export function MyJetpackTabPanel() {
 			initialTabName={ initialTab }
 			onSelect={ onTabSelect }
 			children={ tabRenderer }
-			tabs={ getMyJetpackTabs() }
+			tabs={ getMyJetpackSections() }
 		/>
 	);
 }
