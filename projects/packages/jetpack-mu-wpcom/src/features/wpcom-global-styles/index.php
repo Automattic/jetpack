@@ -354,7 +354,7 @@ function wpcom_global_styles_in_use_by_wp_global_styles_post( array $wp_global_s
 	if ( wpcom_site_has_feature( WPCOM_Features::CUSTOM_DESIGN ) ) {
 		unset( $global_styles_content['styles']['css'] );
 
-		if ( array_key_exists( 'styles', $global_styles_content ) && count( $global_styles_content['styles'] ) === 0 ) {
+		if ( empty( $global_styles_content['styles'] ) ) {
 			unset( $global_styles_content['styles'] );
 		}
 	}
