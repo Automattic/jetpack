@@ -199,99 +199,149 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	// Detect if a user just added a step block to a non-multistep form and convert it to multistep.
 	useEffect( () => {
 		if ( formVariation.current !== 'multistep' ) {
-			if ( currentInnerBlocks.some( block => block.name === 'jetpack/form-step' ) ) {
+			if (
+				currentInnerBlocks.some(
+					block => block.name === 'jetpack/form-step' || block.name === 'jetpack/step-container'
+				)
+			) {
 				setAttributes( { variationName: 'multistep' } );
 			}
 		}
 	}, [ formVariation, currentInnerBlocks, setAttributes ] );
-	// Detect a conversion to a multistep form update the inner blocks to use step containers.
+
+	// Detect a conversion to a multistep form and update the inner blocks to use step containers.
 	useEffect( () => {
-		if ( variationName === 'multistep' && formVariation.current !== 'multistep' ) {
-			formVariation.current = 'multistep';
+		if ( variationName !== 'multistep' || formVariation.current === 'multistep' ) {
+			return;
+		}
 
-			if ( currentInnerBlocks.find( block => block.name === 'jetpack/step-container' ) ) {
-				// something odd happend where we already had a step container but we were not a multistep form.
-				return;
-			}
+		// Mark that we've processed this conversion
+		formVariation.current = 'multistep';
 
-			// Find if there's an existing button block
-			const existingButtonIndex = currentInnerBlocks.findIndex(
-				block => block.name === 'jetpack/button'
-			);
-			const existingButton =
-				existingButtonIndex !== -1 ? currentInnerBlocks[ existingButtonIndex ] : null;
+		// Helper functions
+		const findButtonBlock = () => {
+			const buttonIndex = currentInnerBlocks.findIndex( block => block.name === 'jetpack/button' );
+			return buttonIndex !== -1
+				? {
+						block: currentInnerBlocks[ buttonIndex ],
+						index: buttonIndex,
+				  }
+				: null;
+		};
 
-			// Create filtered inner blocks without the button
-			const filteredInnerBlocks = existingButton
-				? currentInnerBlocks.filter( ( _, index ) => index !== existingButtonIndex )
-				: currentInnerBlocks;
+		const prepareSubmitButton = button => {
+			if ( ! button ) return null;
 
-			let stepBlocks = [];
-			const stepIndex = filteredInnerBlocks.findIndex(
-				block => block.name === 'jetpack/form-step'
-			);
-			if ( stepIndex !== -1 ) {
-				const beforeBlocks = filteredInnerBlocks.slice( 0, stepIndex );
-				const afterBlocks = filteredInnerBlocks.slice( stepIndex + 1 );
-				const beforeStepBlock = createBlock( 'jetpack/form-step', {}, beforeBlocks );
-				const afterStepBlock = createBlock( 'jetpack/form-step', {}, afterBlocks );
+			const preparedButton = button;
+			preparedButton.attributes.uniqueId = 'submit-step';
+			preparedButton.attributes.customVariant = 'submit';
+			preparedButton.attributes.metaName = __( 'Submit button', 'jetpack-forms' );
+			return preparedButton;
+		};
 
-				stepBlocks.push( beforeStepBlock );
-				stepBlocks.push( filteredInnerBlocks[ stepIndex ] );
-				stepBlocks.push( afterStepBlock );
-			} else if ( filteredInnerBlocks.length > 0 ) {
-				// lets convert things to multi step form.
-				// if we have no step blocks, we need to wrap all the blocks in a step.
-				stepBlocks = filteredInnerBlocks.map( block =>
-					createBlock( 'jetpack/form-step', {}, [ block ] )
-				);
-			} else {
-				// if we have no inner blocks we need to create a step block.
-				stepBlocks = [ createBlock( 'jetpack/form-step', {}, [] ) ];
-			}
-
-			const stepContainer = createBlock( 'jetpack/step-container', {}, stepBlocks );
-
-			// Check for existing step navigation
-			let stepNavigationBlock = currentInnerBlocks.find(
+		const createStepNavigation = button => {
+			// Find existing navigation block or create new one
+			const existingNavigation = currentInnerBlocks.find(
 				block => block.name === 'jetpack/form-step-navigation'
 			);
 
-			// Create or update step navigation with the existing button
-			if ( existingButton ) {
-				// update the meta data to make it the submit button.
-				existingButton.attributes.uniqueId = 'submit-step';
-				existingButton.attributes.customVariant = 'submit';
-				existingButton.attributes.metaName = __( 'Submit button', 'jetpack-forms' );
-
-				if ( ! stepNavigationBlock ) {
-					// Create new navigation with the existing button
-					stepNavigationBlock = createBlock( 'jetpack/form-step-navigation', {}, [
-						existingButton,
-					] );
-				} else {
-					// If there's already a navigation, add the button to it
-					const navigationInnerBlocks = stepNavigationBlock.innerBlocks || [];
-					stepNavigationBlock = createBlock(
-						'jetpack/form-step-navigation',
-						stepNavigationBlock.attributes,
-						[ ...navigationInnerBlocks, existingButton ]
-					);
-				}
-			} else if ( ! stepNavigationBlock ) {
-				// No button found and no existing navigation, create default navigation
-				stepNavigationBlock = createBlock( 'jetpack/form-step-navigation', {}, [] );
+			if ( existingNavigation && button ) {
+				// Add button to existing navigation
+				return createBlock( 'jetpack/form-step-navigation', existingNavigation.attributes, [
+					...( existingNavigation.innerBlocks || [] ),
+					button,
+				] );
+			} else if ( existingNavigation ) {
+				return existingNavigation;
 			}
+			// Create new navigation with or without button
+			return createBlock( 'jetpack/form-step-navigation', {}, button ? [ button ] : [] );
+		};
 
-			let formProgressIndicator = currentInnerBlocks.find(
+		const getProgressIndicator = () => {
+			const existingIndicator = currentInnerBlocks.find(
 				block => block.name === 'jetpack/form-progress-indicator'
 			);
-			if ( ! formProgressIndicator ) {
-				formProgressIndicator = createBlock( 'jetpack/form-progress-indicator', {}, [] );
-			}
+			return existingIndicator || createBlock( 'jetpack/form-progress-indicator', {}, [] );
+		};
 
-			replaceInnerBlocks( clientId, [ formProgressIndicator, stepContainer, stepNavigationBlock ] );
+		// 1. Extract button if it exists
+		const buttonData = findButtonBlock();
+		const buttonBlock = buttonData ? buttonData.block : null;
+
+		// 2. Get blocks excluding the button
+		const blocksWithoutButton = buttonData
+			? currentInnerBlocks.filter( ( _, index ) => index !== buttonData.index )
+			: currentInnerBlocks;
+
+		// 3. Prepare step container based on current blocks
+		let stepBlocks = [];
+
+		const containerIndex = blocksWithoutButton.findIndex(
+			block => block.name === 'jetpack/step-container'
+		);
+
+		if ( containerIndex !== -1 ) {
+			// Case A: Step container was inserted.
+			const beforeBlocks = blocksWithoutButton.slice( 0, containerIndex );
+			const afterBlocks = blocksWithoutButton.slice( containerIndex + 1 );
+			const existingStepContainer = blocksWithoutButton[ containerIndex ];
+
+			// Use existing steps if available, otherwise create new ones
+			if ( existingStepContainer.innerBlocks && existingStepContainer.innerBlocks.length > 0 ) {
+				stepBlocks = existingStepContainer.innerBlocks;
+			} else {
+				// Create steps from blocks before and after the container
+				if ( beforeBlocks.length > 0 ) {
+					stepBlocks.push( createBlock( 'jetpack/form-step', {}, beforeBlocks ) );
+				}
+				if ( afterBlocks.length > 0 ) {
+					stepBlocks.push( createBlock( 'jetpack/form-step', {}, afterBlocks ) );
+				}
+				if ( stepBlocks.length === 0 ) {
+					stepBlocks.push( createBlock( 'jetpack/form-step', {}, [] ) );
+				}
+			}
+		} else {
+			// Case B: Has form-step block but no container
+			const stepIndex = blocksWithoutButton.findIndex(
+				block => block.name === 'jetpack/form-step'
+			);
+
+			if ( stepIndex !== -1 ) {
+				const beforeBlocks = blocksWithoutButton.slice( 0, stepIndex );
+				const afterBlocks = blocksWithoutButton.slice( stepIndex + 1 );
+
+				if ( beforeBlocks.length > 0 ) {
+					stepBlocks.push( createBlock( 'jetpack/form-step', {}, beforeBlocks ) );
+				}
+
+				stepBlocks.push( blocksWithoutButton[ stepIndex ] );
+
+				if ( afterBlocks.length > 0 ) {
+					stepBlocks.push( createBlock( 'jetpack/form-step', {}, afterBlocks ) );
+				}
+			}
+			// Case C: No step blocks or containers
+			else if ( blocksWithoutButton.length > 0 ) {
+				stepBlocks = blocksWithoutButton.map( block =>
+					createBlock( 'jetpack/form-step', {}, [ block ] )
+				);
+			} else {
+				stepBlocks = [ createBlock( 'jetpack/form-step', {}, [] ) ];
+			}
 		}
+
+		// Create the step container with the step blocks
+		const stepContainer = createBlock( 'jetpack/step-container', {}, stepBlocks );
+
+		// 4. Prepare all components for the final form
+		const preparedButton = prepareSubmitButton( buttonBlock );
+		const stepNavigation = createStepNavigation( preparedButton );
+		const progressIndicator = getProgressIndicator();
+
+		// 5. Replace all inner blocks with our structured form
+		replaceInnerBlocks( clientId, [ progressIndicator, stepContainer, stepNavigation ] );
 	}, [
 		variationName,
 		formVariation,
