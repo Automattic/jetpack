@@ -1,21 +1,24 @@
-<?php
+<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 namespace Automattic\JetpackCRM;
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
+/**
+ * Invoices endpoint
+ */
 class Invoices_Endpoint extends Client_Portal_Endpoint {
 
 	public static function register_endpoint( $endpoints, $client_portal ) {
 		if ( zeroBSCRM_getSetting( 'feat_invs' ) > 0 ) {
 			$new_endpoint = new Invoices_Endpoint( $client_portal );
 
-			$new_endpoint->portal                       = $client_portal;
-			$new_endpoint->slug                         = $client_portal->get_endpoint( ZBS_TYPE_INVOICE );
-			$new_endpoint->name                         = __('Invoices', 'zero-bs-crm');
-			$new_endpoint->hide_from_menu               = false;
-			$new_endpoint->menu_order                   = 2;
-			$new_endpoint->icon                         = 'fa-file-text-o';
-			$new_endpoint->add_rewrite_endpoint         = true;
+			$new_endpoint->portal               = $client_portal;
+			$new_endpoint->slug                 = $client_portal->get_endpoint( ZBS_TYPE_INVOICE );
+			$new_endpoint->name                 = __( 'Invoices', 'zero-bs-crm' );
+			$new_endpoint->hide_from_menu       = false;
+			$new_endpoint->menu_order           = 2;
+			$new_endpoint->icon                 = 'fa-file-text-o';
+			$new_endpoint->add_rewrite_endpoint = true;
 
 			$endpoints[] = $new_endpoint;
 		}
