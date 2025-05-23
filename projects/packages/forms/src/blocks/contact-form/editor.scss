@@ -614,11 +614,6 @@
 	display: flex;
 }
 
-.jetpack-field-consent,
-.jetpack-field-checkbox .jetpack-field-label .jetpack-field-label__input {
-	font-weight: 400;
-}
-
 .jetpack-field-checkbox {
 	align-items: baseline;
 
@@ -628,6 +623,7 @@
 }
 
 .jetpack-field-consent {
+	font-weight: 400;
 
 	:where(.wp-block-jetpack-option) {
 		font-size: 13px;
@@ -1066,7 +1062,7 @@
 	font-weight: 700;
 }
 
-:where(.is-style-outlined .wp-block-jetpack-label) {
+.is-style-outlined :where(.wp-block-jetpack-label) {
 	font-weight: 300;
 }
 
