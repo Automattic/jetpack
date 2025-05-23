@@ -6,6 +6,9 @@ import { clearInputError } from '../../contact-form/js/form-errors.js';
 
 const NAMESPACE = 'jetpack/field-file';
 
+const ENTER = 13;
+const SPACE = 32;
+
 let uploadToken = null;
 let tokenExpiry = null;
 
@@ -233,6 +236,12 @@ const { state, actions } = store( NAMESPACE, {
 	},
 
 	actions: {
+		handleKeyDown: event => {
+			if ( event.keyCode === ENTER || event.keyCode === SPACE ) {
+				event.preventDefault();
+				actions.openFilePicker( event );
+			}
+		},
 		/**
 		 * Open the file picker dialog.
 		 */
