@@ -59,7 +59,7 @@
 		"prettier-plugin-svelte": "3.3.2",
 		"semver": "7.7.1",
 		"sort-package-json": "1.50.0",
-		"stylelint": "16.16.0",
+		"stylelint": "16.19.1",
 		"stylelint-scss": "6.11.1",
 		"svelte": "4.2.19",
 		"svelte-eslint-parser": "1.1.3",
