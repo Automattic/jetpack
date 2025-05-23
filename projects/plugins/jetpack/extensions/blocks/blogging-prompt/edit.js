@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { Button, PanelBody, Spinner, ToggleControl, withNotices } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import debugFactory from '@wordpress/debug';
 import { useEffect, useRef } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
@@ -10,7 +11,11 @@ import './editor.scss';
 import { languageToLocale } from '../../shared/locale';
 import { usePromptTags } from './use-prompt-tags';
 
+const debug = debugFactory( 'jetpack:blogging-prompt:edit' );
+
 function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
+	debug( 'BloggingPromptEdit component rendering', { attributes } );
+
 	// Use the ref to keep track of starting to fetch the prompt, so we don't make duplicate requests.
 	const fetchingPromptRef = useRef( false );
 	const {
@@ -27,9 +32,19 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 		tagsAdded,
 		isBloganuary,
 	} = attributes;
+
+	debug( 'Current prompt state:', {
+		promptFetched,
+		promptId,
+		fetchingPromptRef: fetchingPromptRef.current,
+	} );
+
 	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompt' } );
 
-	const setTagsAdded = state => setAttributes( { tagsAdded: state } );
+	const setTagsAdded = state => {
+		debug( 'Setting tagsAdded:', state );
+		setAttributes( { tagsAdded: state } );
+	};
 
 	// Add the prompt tags to the post, if they haven't already been added.
 	usePromptTags( promptId, tagsAdded, setTagsAdded );
@@ -38,17 +53,34 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 		const { getEntityRecord, hasFinishedResolution } = select( 'core' );
 		const language = getEntityRecord( 'root', 'site' )?.language || 'en_US';
 		const hasFinishedResolving = hasFinishedResolution( 'getEntityRecord', [ 'root', 'site' ] );
+		debug( 'Site language resolution:', { language, hasFinishedResolving } );
 		return hasFinishedResolving ? language : null;
 	}, [] );
 
 	// Fetch the prompt by id, if present, otherwise the get the prompt for today.
 	useEffect( () => {
+		debug( 'useEffect running for prompt fetch', {
+			siteLanguage,
+			fetchingPromptRef: fetchingPromptRef.current,
+			promptFetched,
+		} );
+
 		// Only fetch the prompt one time when the block is inserted, after we know the site language.
 		if ( ! siteLanguage || fetchingPromptRef.current || promptFetched ) {
+			let reason;
+			if ( ! siteLanguage ) {
+				reason = 'no site language';
+			} else if ( fetchingPromptRef.current ) {
+				reason = 'already fetching';
+			} else {
+				reason = 'already fetched';
+			}
+			debug( 'Skipping prompt fetch:', { reason } );
 			return;
 		}
 
 		const retryPrompt = () => {
+			debug( 'Retrying prompt fetch' );
 			setAttributes( { promptFetched: false, promptId: null, tagsAdded: false } );
 			fetchingPromptRef.current = false;
 			noticeOperations.removeAllNotices();
@@ -98,11 +130,15 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			_locale: siteLanguage,
 			force_year: new Date()?.getFullYear(),
 		} );
+
+		debug( 'Starting prompt fetch', { path } );
 		fetchingPromptRef.current = true;
 		apiFetch( { path } )
 			.then( prompts => {
 				const promptData = promptId ? prompts : prompts[ 0 ];
 				const locale = languageToLocale( siteLanguage );
+
+				debug( 'Prompt fetch successful', { promptData } );
 
 				setAttributes( {
 					answersLink: promptData.answered_link + `?locale=${ locale }`,
@@ -116,6 +152,7 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 				} );
 			} )
 			.catch( error => {
+				debug( 'Prompt fetch error', { error } );
 				setAttributes( { promptFetched: true } );
 				const message =
 					error.code === 'rest_post_invalid_id' && promptId
