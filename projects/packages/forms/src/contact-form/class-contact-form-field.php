@@ -385,7 +385,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$form_style = $this->get_form_style();
 			if ( 'outlined' === $form_style || 'animated' === $form_style ) {
 				$output_data         = $this->get_form_variation_style_properties( $form_style );
-				$this->block_styles .= $output_data['css_vars'];
+				$this->block_styles .= esc_attr( $output_data['css_vars'] );
 			}
 		} else {
 			if ( is_numeric( $this->get_attribute( 'borderradius' ) ) ) {
@@ -887,8 +887,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$used_html_ids[ $radio_id ] = true;
 
 					$default_classes = 'contact-form-field wp-block-jetpack-option';
-					$option_styles   = empty( $option['style'] ) ? '' : "style='" . $option['style'] . "'";
-					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'];
+					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
+					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
 					$field .= "<p {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
@@ -1289,8 +1289,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$used_html_ids[ $checkbox_id ] = true;
 
 					$default_classes = 'contact-form-field wp-block-jetpack-option';
-					$option_styles   = empty( $option['style'] ) ? '' : "style='" . $option['style'] . "'";
-					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'];
+					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
+					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
 					$field .= "<p {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
@@ -1515,7 +1515,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					<label
 						for="' . esc_attr( $id ) . '"
 						class=" ' . $classes . '"
-						style="' . $this->label_styles . $output_data['css_vars'] . '"
+						style="' . $this->label_styles . esc_attr( $output_data['css_vars'] ) . '"
 					>'
 			. esc_html( $label )
 			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
