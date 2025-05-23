@@ -810,7 +810,6 @@
 				position: relative;
 				top: 50%;
 				transform: translateY(-50%);
-				will-change: transform;
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				margin: 0;
 
@@ -853,7 +852,7 @@
 				}
 
 				.notched-label__label {
-					top: calc(var(--jetpack--contact-form--border-top-size) * -1);
+					top: calc(var(--jetpack--contact-form--border-top-size, 1px) * -1);
 					transform: translateY(-50%);
 				}
 
