@@ -44,7 +44,23 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
-const STEP_TEMPLATE = [ [ 'core/paragraph', {} ] ];
+// Replace the constant with a function
+const getStepTemplate = ( previousStepBlocks = [] ) => {
+	// Check if previous step has navigation
+	const hasNavigation = previousStepBlocks.some(
+		block => block.name === 'jetpack/form-step-navigation'
+	);
+
+	if ( hasNavigation ) {
+		return [
+			[ 'core/paragraph', {} ],
+			[ 'jetpack/form-step-navigation', {} ],
+		];
+	}
+
+	// Default template
+	return [ [ 'core/paragraph', {} ] ];
+};
 
 function StepBreak( { stepName } ) {
 	return (
@@ -56,30 +72,41 @@ function StepBreak( { stepName } ) {
 
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const blockProps = useBlockProps();
-
 	blockProps.className += ' jetpack-form-step__container';
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		template: STEP_TEMPLATE,
-		allowedBlocks: ALLOWED_BLOCKS,
-	} );
 
 	const ancestorFormClientId = useParentFormClientId( clientId );
 	const steps = useFormSteps( ancestorFormClientId );
 
-	const { currentIndex, selectedStepClientId, isPreview } = useSelect(
+	// Get information about the previous step and its blocks
+	const { currentIndex, selectedStepClientId, isPreview, previousStepBlocks } = useSelect(
 		select => {
 			const { isPreviewMode, getActivePreviewStepId } = select( previewStore );
+			const { getBlocks } = select( 'core/block-editor' );
 
 			const currentStepIndex = steps.findIndex( block => block.clientId === clientId );
+
+			// Get previous step blocks if this isn't the first step
+			let prevBlocks = [];
+			if ( currentStepIndex > 0 && steps[ currentStepIndex - 1 ] ) {
+				prevBlocks = getBlocks( steps[ currentStepIndex - 1 ].clientId );
+			}
 
 			return {
 				currentIndex: currentStepIndex,
 				selectedStepClientId: getActivePreviewStepId( ancestorFormClientId ),
 				isPreview: isPreviewMode( ancestorFormClientId ),
+				previousStepBlocks: prevBlocks,
 			};
 		},
-		[ clientId, steps, ancestorFormClientId ] // Dependencies updated
+		[ clientId, steps, ancestorFormClientId ]
 	);
+
+	// Determine template based on whether this is a new block or not
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		// For new blocks, use dynamic template based on previous step
+		template: getStepTemplate( previousStepBlocks ),
+		allowedBlocks: ALLOWED_BLOCKS,
+	} );
 
 	// Only render the step content if it's the selected one or if "All Steps" is selected.
 	if ( isPreview && selectedStepClientId !== clientId ) {
