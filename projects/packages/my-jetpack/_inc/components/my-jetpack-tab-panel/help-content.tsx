@@ -1,3 +1,5 @@
+import { __ } from '@wordpress/i18n';
+
 /**
  * The Help content component.
  *
@@ -6,7 +8,7 @@
 export function HelpContent() {
 	return (
 		<div>
-			<h2>Help Tab</h2>
+			<h2>{ __( 'Need assistance?', 'jetpack-my-jetpack' ) }</h2>
 		</div>
 	);
 }

@@ -1,3 +1,5 @@
+import { __ } from '@wordpress/i18n';
+
 /**
  * The Products content component.
  *
@@ -6,7 +8,7 @@
 export function ProductsContent() {
 	return (
 		<div>
-			<h2>Products Tab</h2>
+			<h2>{ __( 'Products', 'jetpack-my-jetpack' ) }</h2>
 		</div>
 	);
 }
