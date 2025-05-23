@@ -7,23 +7,26 @@ import { select, subscribe } from '@wordpress/data';
  */
 export const waitForEditor = async () =>
 	new Promise( resolve => {
-		// If we already have blocks, editor is ready
-		if ( select( 'core/block-editor' ).getBlocks().length > 0 ) {
+		// Resolve immediately if it's a clean new post or has blocks
+		if (
+			select( 'core/editor' ).isCleanNewPost() ||
+			select( 'core/block-editor' ).getBlocks().length > 0
+		) {
+			console.log( 'Resolved immediately' );
 			resolve();
 			return;
 		}
 
-		// Otherwise wait for either condition
+		// Otherwise wait for blocks to appear
 		const timeoutId = setTimeout( () => {
 			unsubscribe();
 			resolve();
 		}, 2000 );
 
 		const unsubscribe = subscribe( () => {
-			const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
+			console.log( 'Checking blocks' );
 			const blocks = select( 'core/block-editor' ).getBlocks();
-
-			if ( isCleanNewPost || blocks.length > 0 ) {
+			if ( blocks.length > 0 ) {
 				clearTimeout( timeoutId );
 				unsubscribe();
 				resolve();
