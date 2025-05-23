@@ -165,11 +165,15 @@
 }
 
 .wp-block-jetpack-contact-form.is-style-outlined .wp-block-jetpack-options legend {
-	font-size: 0.8em;
+	display: flex;
+	align-items: baseline;
 	padding: 0 0.25em;
 	position: relative;
 	top: calc(var(--jetpack--contact-form--border-top-size, 1px) / 2 * -1);
+}
 
+.wp-block-jetpack-contact-form.is-style-outlined .wp-block-jetpack-options .grunion-label-text {
+	font-size: 0.8em;
 }
 
 .contact-form .grunion-checkbox-multiple-options .contact-form-field,

@@ -666,7 +666,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		return '<legend '
 				. $extra_attrs_string
 				. '>'
-				. esc_html( $legend )
+				. '<span class="grunion-label-text">' . esc_html( $legend ) . '</span>'
 				. ( $required ? '<span class="grunion-label-required">' . $required_field_text . '</span>' : '' )
 				. "</legend>\n";
 	}
