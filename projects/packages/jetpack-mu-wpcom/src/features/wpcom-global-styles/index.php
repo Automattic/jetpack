@@ -355,7 +355,12 @@ function wpcom_global_styles_in_use_by_wp_global_styles_post( array $wp_global_s
 		unset( $global_styles_content['styles']['css'] );
 	}
 
-	if ( empty( $global_styles_content['styles']['css'] ) ) {
+	$theme_base_css = WP_Theme_JSON_Resolver::get_theme_data()->get_stylesheet( array( 'custom-css' ) ) ?? '';
+
+	$theme_base_css = preg_replace( '/\s+/', '', $theme_base_css );
+	$custom_css     = preg_replace( '/\s+/', '', $global_styles_content['styles']['css'] ?? '' );
+
+	if ( $theme_base_css === $custom_css || empty( $global_styles_content['styles']['css'] ) ) {
 		unset( $global_styles_content['styles']['css'] );
 	}
 
