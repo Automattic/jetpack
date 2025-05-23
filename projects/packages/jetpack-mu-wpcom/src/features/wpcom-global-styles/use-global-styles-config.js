@@ -29,6 +29,15 @@ export function useGlobalStylesConfig() {
 			globalStylesConfig.styles = stylesWithoutCss;
 		}
 
+		// If the global styles are empty, set the styles to an empty object.
+		// Gutenberg saves the css property even if it's empty, so we need to check for that.
+		if (
+			'' === globalStylesConfig.styles.css &&
+			Object.keys( globalStylesConfig.styles ).length === 1
+		) {
+			globalStylesConfig.styles = {};
+		}
+
 		// Determine if the global Styles are in use on the current site.
 		const globalStylesInUse = !! (
 			Object.keys( globalStylesConfig.styles ).length ||
