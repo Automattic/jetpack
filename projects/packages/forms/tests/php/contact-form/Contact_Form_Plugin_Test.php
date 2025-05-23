@@ -298,7 +298,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 * @param string $type The type of the field.
 	 */
 	#[DataProvider( 'data_provider_block_attributes_to_shortcode_attributes_with_styles' )]
-	public function test_block_attributes_to_shortcode_attributes_with_styles( $expected, $atts = array(), $inner_blocks, $type = 'text' ) {
+	public function test_block_attributes_to_shortcode_attributes_with_styles( $expected, $atts = array(), $inner_blocks = array(), $type = 'text' ) {
 		$block                = array(
 			'blockName'   => 'jetpack/field-name',
 			'attrs'       => array(
