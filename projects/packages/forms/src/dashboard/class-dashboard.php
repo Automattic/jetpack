@@ -83,7 +83,7 @@ class Dashboard {
 				if ( Jetpack_Forms::is_legacy_menu_item_retired() ) {
 					$notice = sprintf(
 						/* translators: %s: URL to the Jetpack > Forms menu */
-						__( 'This page has moved to the <a href="%s">Jetpack > Forms</a> menu.', 'jetpack-forms' ),
+						__( 'Forms responses management has moved to the <a href="%s">Jetpack → Forms</a> menu.', 'jetpack-forms' ),
 						$this->switch->get_forms_admin_url()
 					);
 					wp_admin_notice(
@@ -96,7 +96,7 @@ class Dashboard {
 				} elseif ( $this->switch->is_jetpack_forms_admin_page_available() ) {
 					$notice = sprintf(
 						/* translators: %s: URL to the Jetpack > Forms menu */
-						__( 'This page will be moved to the <a href="%s">Jetpack > Forms</a> menu.', 'jetpack-forms' ),
+						__( 'Forms responses management will be moved to the <a href="%s">Jetpack → Forms</a> menu.', 'jetpack-forms' ),
 						$this->switch->get_forms_admin_url()
 					);
 					wp_admin_notice(
