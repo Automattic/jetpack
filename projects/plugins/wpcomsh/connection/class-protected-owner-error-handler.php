@@ -139,92 +139,11 @@ class Protected_Owner_Error_Handler {
 				return 'wrong_owner_protected_owner_missing';
 			} else {
 				// No master user, completely missing connection owner
-				// Check if the site is connected at all
-				if ( $this->should_attempt_connection() ) {
-					// Try to establish a connection
-					$connection_result = $this->attempt_connection();
-					if ( $connection_result ) {
-						// Connection was successful, recheck the master user
-						$new_master_user_id = \Jetpack_Options::get_option( 'master_user' );
-						if ( $new_master_user_id ) {
-							// We have a master user now, so change the error type
-							return 'wrong_owner_protected_owner_missing';
-						}
-					}
-				}
-
 				return 'no_user_connection_protected_owner_missing';
 			}
 		}
 
 		// Unrecognized error type
-		return false;
-	}
-
-	/**
-	 * Determine if we should attempt to connect the site
-	 *
-	 * We only want to try connecting once per session to avoid loops
-	 *
-	 * @return bool Whether we should attempt to connect
-	 */
-	private function should_attempt_connection() {
-		// We use a transient to track connection attempts
-		$attempt_count = get_transient( 'wpcomsh_connection_attempt_count' );
-
-		// If we've tried more than 2 times in the last hour, don't try again
-		if ( $attempt_count && $attempt_count >= 2 ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Attempt to establish a site-level Jetpack connection
-	 *
-	 * @return bool Whether the connection attempt was successful
-	 */
-	private function attempt_connection() {
-		// Increment the attempt counter
-		$attempt_count = get_transient( 'wpcomsh_connection_attempt_count' );
-		$attempt_count = $attempt_count ? $attempt_count + 1 : 1;
-		set_transient( 'wpcomsh_connection_attempt_count', $attempt_count, HOUR_IN_SECONDS );
-
-		// Only proceed if the Connection Manager class is available
-		if ( ! class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
-			return false;
-		}
-
-		try {
-			// Create a connection manager instance
-			$connection_manager = new \Automattic\Jetpack\Connection\Manager( 'jetpack' );
-
-			// Check if the site is already connected
-			if ( $connection_manager->is_connected() ) {
-				return true;
-			}
-
-			// Try to register the site
-			$result = $connection_manager->register();
-
-			// If registration was successful, return true
-			if ( ! is_wp_error( $result ) ) {
-				return true;
-			}
-		} catch ( \Exception $e ) {
-			// Log the error if possible
-			if ( class_exists( 'WPCOMSH_Log' ) ) {
-				\WPCOMSH_Log::unsafe_direct_log(
-					'automatic_connection_attempt_failed',
-					array(
-						'error'         => $e->getMessage(),
-						'attempt_count' => $attempt_count,
-					)
-				);
-			}
-		}
-
 		return false;
 	}
 
@@ -247,7 +166,10 @@ class Protected_Owner_Error_Handler {
 	 */
 	protected function get_error_message( $error_type, $wpcom_email ) {
 		// Format the email for display
-		$email_html = esc_html( $wpcom_email );
+		$email_html = '<strong>' . esc_html( $wpcom_email ) . '</strong>';
+
+		// Common fix explanation to append to all messages
+		$fix_explanation = ' ' . __( 'You can either create the missing account manually or enable automatic fixes for this issue.', 'wpcomsh' );
 
 		switch ( $error_type ) {
 			case 'wrong_owner_protected_owner_missing':
@@ -255,19 +177,19 @@ class Protected_Owner_Error_Handler {
 					// translators: %s is the WordPress.com email address
 					__( 'This site is connected to WordPress.com, but the WordPress.com plan owner with email %s is missing.', 'wpcomsh' ),
 					$email_html
-				);//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				) . $fix_explanation;//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			case 'no_user_connection_protected_owner_missing':
 				return sprintf(
 					// translators: %s is the WordPress.com email address
 					__( 'This site needs to be connected to WordPress.com by the plan owner account with email %s.', 'wpcomsh' ),
 					$email_html
-				);//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				) . $fix_explanation;//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			default:
 				return sprintf(
 					// translators: %s is the WordPress.com email address
 					__( 'There is an issue with the connection owner for this site. The WordPress.com plan owner email is %s.', 'wpcomsh' ),
 					$email_html
-				);
+				) . $fix_explanation;
 		}
 	}
 
