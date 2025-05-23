@@ -145,7 +145,7 @@ jobs:
           name: jetpack-build
           path: build.tar.xz
           # Only need to retain for a day since the beta builder slurps it up to distribute.
-          retention-days: 1
+          retention-days: 7
           # Already compressed.
           compression-level: 0
 
@@ -156,7 +156,7 @@ jobs:
           name: plugins.tsv
           path: ${{ env.BUILD_BASE }}/plugins.tsv
           # We don't really care about this artifact, its presence is a flag to the post-build job.
-          retention-days: 1
+          retention-days: 7
 
       - name: Update reminder with testing instructions
         id: update-reminder-comment
@@ -254,7 +254,7 @@ jobs:
           name: plugins
           path: zips
           # Only need to retain for a day since the beta builder slurps it up to distribute.
-          retention-days: 1
+          retention-days: 7
           # Already compressed.
           compression-level: 0
 
