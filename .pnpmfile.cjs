@@ -37,7 +37,11 @@ const wpPkgFetches = {};
 async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` and hope any breaking changes will not really break.
-	if ( pkg.name === '@automattic/social-previews' ) {
+	if (
+		pkg.name === '@automattic/social-previews' ||
+		pkg.name === '@automattic/components' ||
+		pkg.name === '@automattic/launchpad'
+	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
 				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
@@ -71,12 +75,6 @@ async function fixDeps( pkg ) {
 		! pkg.peerDependencies?.react
 	) {
 		pkg.peerDependencies.react = '^18';
-	}
-
-	// Unused deprecated dependency.
-	// https://github.com/WordPress/gutenberg/issues/69254
-	if ( pkg.name === '@wordpress/upload-media' ) {
-		delete pkg.dependencies?.[ '@shopify/web-worker' ];
 	}
 
 	// We need to add the missing deps for `@wordpress/dataviews` because
@@ -174,15 +172,9 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency.
-	// No upstream bug link yet.
+	// No upstream bug link yet, upstream seems unmaintained anyway.
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6';
-	}
-
-	// Outdated dependency. And it doesn't really use it in our configuration anyway.
-	// Looks like it's updated in master but has had no release since.
-	if ( pkg.name === 'rollup-plugin-svelte-svg' && pkg.dependencies.svgo === '^2.3.1' ) {
-		pkg.dependencies.svgo = '*';
 	}
 
 	// Missing dep or peer dep on @babel/runtime
@@ -196,7 +188,6 @@ async function fixDeps( pkg ) {
 	}
 
 	// Apparently this package tried to switch from a dep to a peer dep, but screwed it up.
-	// The screwed-up-ness makes pnpm 8.15.2 behave differently from earlier versions.
 	// https://github.com/ajv-validator/ajv-formats/issues/80
 	if ( pkg.name === 'ajv-formats' && pkg.dependencies?.ajv && pkg.peerDependencies?.ajv ) {
 		delete pkg.dependencies.ajv;
@@ -212,6 +203,7 @@ async function fixDeps( pkg ) {
 	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,
 	// which pnpm should 🤞 dedupe to match whatever is in use elsewhere in the monorepo.
 	// https://github.com/Automattic/jetpack/pull/35904#discussion_r1508681777
+	// Currently @types/wordpress__block-editor is the only one still in use; see also https://github.com/WordPress/gutenberg/issues/67691
 	if ( pkg.name.startsWith( '@types/wordpress__' ) && pkg.dependencies ) {
 		for ( const k of Object.keys( pkg.dependencies ) ) {
 			if ( k.startsWith( '@wordpress/' ) ) {
@@ -237,11 +229,12 @@ async function fixDeps( pkg ) {
 
 	// Dependency on "latest" makes for many spurious updates. Leave it for the lockfile maintenance PRs.
 	// No upstream evident to report bugs to.
-	if (
-		pkg.name === '@paulirish/trace_engine' &&
-		pkg.dependencies?.[ 'third-party-web' ] === 'latest'
-	) {
-		pkg.dependencies[ 'third-party-web' ] = '*';
+	if ( pkg.name === '@paulirish/trace_engine' ) {
+		for ( const k of Object.keys( pkg.dependencies ) ) {
+			if ( pkg.dependencies[ k ] === 'latest' ) {
+				pkg.dependencies[ k ] = '*';
+			}
+		}
 	}
 
 	return pkg;
