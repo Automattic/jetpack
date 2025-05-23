@@ -213,21 +213,36 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				// something odd happend where we already had a step container but we were not a multistep form.
 				return;
 			}
+
+			// Find if there's an existing button block
+			const existingButtonIndex = currentInnerBlocks.findIndex(
+				block => block.name === 'jetpack/button'
+			);
+			const existingButton =
+				existingButtonIndex !== -1 ? currentInnerBlocks[ existingButtonIndex ] : null;
+
+			// Create filtered inner blocks without the button
+			const filteredInnerBlocks = existingButton
+				? currentInnerBlocks.filter( ( _, index ) => index !== existingButtonIndex )
+				: currentInnerBlocks;
+
 			let stepBlocks = [];
-			const stepIndex = currentInnerBlocks.findIndex( block => block.name === 'jetpack/form-step' );
+			const stepIndex = filteredInnerBlocks.findIndex(
+				block => block.name === 'jetpack/form-step'
+			);
 			if ( stepIndex !== -1 ) {
-				const beforeBlocks = currentInnerBlocks.slice( 0, stepIndex );
-				const afterBlocks = currentInnerBlocks.slice( stepIndex + 1 );
+				const beforeBlocks = filteredInnerBlocks.slice( 0, stepIndex );
+				const afterBlocks = filteredInnerBlocks.slice( stepIndex + 1 );
 				const beforeStepBlock = createBlock( 'jetpack/form-step', {}, beforeBlocks );
 				const afterStepBlock = createBlock( 'jetpack/form-step', {}, afterBlocks );
 
 				stepBlocks.push( beforeStepBlock );
-				stepBlocks.push( currentInnerBlocks[ stepIndex ] );
+				stepBlocks.push( filteredInnerBlocks[ stepIndex ] );
 				stepBlocks.push( afterStepBlock );
-			} else if ( currentInnerBlocks.length > 0 ) {
+			} else if ( filteredInnerBlocks.length > 0 ) {
 				// lets convert things to multi step form.
 				// if we have no step blocks, we need to wrap all the blocks in a step.
-				stepBlocks = currentInnerBlocks.map( block =>
+				stepBlocks = filteredInnerBlocks.map( block =>
 					createBlock( 'jetpack/form-step', {}, [ block ] )
 				);
 			} else {
@@ -237,19 +252,45 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 			const stepContainer = createBlock( 'jetpack/step-container', {}, stepBlocks );
 
-			let stepNavigation = currentInnerBlocks.find(
+			// Check for existing step navigation
+			let stepNavigationBlock = currentInnerBlocks.find(
 				block => block.name === 'jetpack/form-step-navigation'
 			);
-			if ( ! stepNavigation ) {
-				stepNavigation = createBlock( 'jetpack/form-step-navigation', {}, [] );
+
+			// Create or update step navigation with the existing button
+			if ( existingButton ) {
+				// update the meta data to make it the submit button.
+				existingButton.attributes.uniqueId = 'submit-step';
+				existingButton.attributes.customVariant = 'submit';
+				existingButton.attributes.metaName = __( 'Submit button', 'jetpack-forms' );
+
+				if ( ! stepNavigationBlock ) {
+					// Create new navigation with the existing button
+					stepNavigationBlock = createBlock( 'jetpack/form-step-navigation', {}, [
+						existingButton,
+					] );
+				} else {
+					// If there's already a navigation, add the button to it
+					const navigationInnerBlocks = stepNavigationBlock.innerBlocks || [];
+					stepNavigationBlock = createBlock(
+						'jetpack/form-step-navigation',
+						stepNavigationBlock.attributes,
+						[ ...navigationInnerBlocks, existingButton ]
+					);
+				}
+			} else if ( ! stepNavigationBlock ) {
+				// No button found and no existing navigation, create default navigation
+				stepNavigationBlock = createBlock( 'jetpack/form-step-navigation', {}, [] );
 			}
+
 			let formProgressIndicator = currentInnerBlocks.find(
 				block => block.name === 'jetpack/form-progress-indicator'
 			);
 			if ( ! formProgressIndicator ) {
 				formProgressIndicator = createBlock( 'jetpack/form-progress-indicator', {}, [] );
 			}
-			replaceInnerBlocks( clientId, [ formProgressIndicator, stepContainer, stepNavigation ] );
+
+			replaceInnerBlocks( clientId, [ formProgressIndicator, stepContainer, stepNavigationBlock ] );
 		}
 	}, [
 		variationName,
