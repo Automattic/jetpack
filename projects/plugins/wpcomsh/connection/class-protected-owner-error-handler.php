@@ -125,11 +125,10 @@ class Protected_Owner_Error_Handler {
 	 * Determine the error code based on the raw error data and current connection state
 	 *
 	 * @param array        $raw_error      The raw error data.
-	 * @param int|bool     $master_user_id The master user ID or false if not set.
 	 * @param WP_User|bool $master_user The master user object or false if not exists.
 	 * @return string|false The determined error code or false if no valid error.
 	 */
-	private function determine_error_code( $raw_error, $master_user_id, $master_user ) {
+	private function determine_error_code( $raw_error, $master_user ) {
 		$error_type = $raw_error['error_type'];
 
 		// Handle missing_owner error type
@@ -169,7 +168,7 @@ class Protected_Owner_Error_Handler {
 		$email_html = '<strong>' . esc_html( $wpcom_email ) . '</strong>';
 
 		// Common fix explanation to append to all messages
-		$fix_explanation = ' ' . __( 'You can either create the missing account manually or enable automatic fixes for this issue.', 'wpcomsh' );
+		$fix_explanation = ' ' . __( 'You can either create the missing account manually or enable automatic account creation to resolve this issue.', 'wpcomsh' );
 
 		switch ( $error_type ) {
 			case 'wrong_owner_protected_owner_missing':
