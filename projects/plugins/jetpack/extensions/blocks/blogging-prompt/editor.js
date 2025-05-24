@@ -13,29 +13,42 @@ import save from './save';
 import './editor.scss';
 import './style.scss';
 
-// Register the block and return a promise that resolves when registration is complete
+// Check if we're handling a URL parameter case
+const url = new URL( document.location.href );
+const isNewPost = url.pathname.endsWith( '/wp-admin/post-new.php' );
+const answerPrompt = isNewPost ? url.searchParams.get( 'answer_prompt' ) ?? '0' : '0';
+const answerPromptId = parseInt( answerPrompt );
+
+// Common registration settings
+const blockSettings = {
+	edit,
+	save,
+	example: {
+		attributes: {
+			answersLink: 'https://wordpress.com/tag/dailyprompt',
+			answersLinkText: __( 'View all responses', 'jetpack' ),
+			gravatars: [ { url: avatar1 }, { url: avatar2 }, { url: avatar3 } ],
+			promptLabel: __( 'Daily writing prompt', 'jetpack' ),
+			promptText: __( "What's your favorite place to visit?", 'jetpack' ),
+			promptFetched: true,
+			promptId: 1234,
+			showResponses: true,
+			showLabel: true,
+			tagsAdded: true,
+			isBloganuary: false,
+		},
+	},
+};
+
+// Only register immediately if we're not handling a URL parameter
+if ( ! answerPromptId ) {
+	registerJetpackBlockFromMetadata( metadata, blockSettings );
+}
+
+// Function to ensure block is registered, returns a promise
 const registerBlock = () =>
 	new Promise( resolve => {
-		registerJetpackBlockFromMetadata( metadata, {
-			edit,
-			save,
-			example: {
-				attributes: {
-					answersLink: 'https://wordpress.com/tag/dailyprompt',
-					answersLinkText: __( 'View all responses', 'jetpack' ),
-					gravatars: [ { url: avatar1 }, { url: avatar2 }, { url: avatar3 } ],
-					promptLabel: __( 'Daily writing prompt', 'jetpack' ),
-					promptText: __( "What's your favorite place to visit?", 'jetpack' ),
-					promptFetched: true,
-					promptId: 1234,
-					showResponses: true,
-					showLabel: true,
-					tagsAdded: true,
-					isBloganuary: false,
-				},
-			},
-		} );
-
+		registerJetpackBlockFromMetadata( metadata, blockSettings );
 		// Wait for next tick to ensure registration is complete
 		setTimeout( resolve, 0 );
 	} );
@@ -51,27 +64,18 @@ async function insertTemplate( promptId ) {
 
 	const { insertBlocks } = dispatch( 'core/block-editor' );
 
-	const bloggingPromptBlock = createBlock( 'jetpack/blogging-prompt', {
-		promptFetched: false,
-		promptId,
-		tagsAdded: true,
-	} );
+	const bloggingPromptBlocks = [
+		createBlock( 'jetpack/blogging-prompt', { promptFetched: false, promptId, tagsAdded: true } ),
+		createBlock( 'core/paragraph' ),
+	];
 
-	const paragraphBlock = createBlock( 'core/paragraph' );
-
-	insertBlocks( [ bloggingPromptBlock, paragraphBlock ], 0, undefined, false );
+	insertBlocks( bloggingPromptBlocks, 0, undefined, false );
 }
 
 function initBloggingPrompt() {
-	const url = new URL( document.location.href );
-	const isNewPost = url.pathname.endsWith( '/wp-admin/post-new.php' );
-
 	if ( ! isNewPost ) {
 		return;
 	}
-
-	const answerPrompt = url.searchParams.get( 'answer_prompt' ) ?? '0';
-	const answerPromptId = parseInt( answerPrompt );
 
 	if ( answerPromptId ) {
 		insertTemplate( answerPromptId );
