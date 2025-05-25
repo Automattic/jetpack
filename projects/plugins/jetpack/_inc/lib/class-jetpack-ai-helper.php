@@ -391,6 +391,14 @@ class Jetpack_AI_Helper {
 				}
 			}
 
+			$chrome_ai_tokens = array();
+			if ( ! class_exists( 'WPCOM\Jetpack_AI\Chrome_AI_Tokens' ) ) {
+				if ( is_readable( WP_CONTENT_DIR . '/lib/jetpack-ai/chrome-ai-tokens.php' ) ) {
+					require_once WP_CONTENT_DIR . '/lib/jetpack-ai/chrome-ai-tokens.php';
+					$chrome_ai_tokens = WPCOM\Jetpack_AI\Chrome_AI_Tokens::get_tokens();
+				}
+			}
+
 			// Determine the upgrade type
 			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
 
@@ -409,6 +417,7 @@ class Jetpack_AI_Helper {
 				'tier-plans-enabled'   => WPCOM\Jetpack_AI\Usage\Helper::ai_tier_plans_enabled(),
 				'costs'                => WPCOM\Jetpack_AI\Usage\Helper::get_costs(),
 				'features-control'     => WPCOM\Jetpack_AI\Feature_Control::get_features(),
+				'chrome-ai-tokens'     => $chrome_ai_tokens,
 			);
 		}
 

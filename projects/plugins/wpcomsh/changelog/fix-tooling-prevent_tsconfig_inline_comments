@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tests: Add script that runs PHPUnit tests.

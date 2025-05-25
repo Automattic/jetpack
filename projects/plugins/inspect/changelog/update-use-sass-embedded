@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use `sass-embedded` instead of `sass`. Hacky method to avoid breaking unmaintained rollup plugins.
+
+

@@ -1,8 +1,23 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .footer {
 	display: flex;
 	justify-content: flex-end;
 
 	> * + * {
 		margin-left: var( --spacing-base );
+	}
+}
+
+.mediaPicker {
+	max-width: 150px;
+	margin-top: var( --spacing-base );
+	margin-bottom: var( --spacing-base );
+}
+
+.modal {
+	
+	@include break-small {
+		max-height: 90%;
 	}
 }

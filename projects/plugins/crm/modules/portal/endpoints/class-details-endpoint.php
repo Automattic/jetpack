@@ -1,16 +1,19 @@
-<?php
+<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 namespace Automattic\JetpackCRM;
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
+/**
+ * Details endpoint
+ */
 class Details_Endpoint extends Client_Portal_Endpoint {
 
-	public static function register_endpoint( $endpoints, $client_portal ) {
+	public static function register_endpoint( $endpoints, $client_portal ) { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 		$new_endpoint = new Details_Endpoint( $client_portal );
 
 		$new_endpoint->portal                       = $client_portal;
 		$new_endpoint->slug                         = 'details';
-		$new_endpoint->name                         = __('Your Details', 'zero-bs-crm');
+		$new_endpoint->name                         = __( 'Your Details', 'zero-bs-crm' );
 		$new_endpoint->hide_from_menu               = false;
 		$new_endpoint->menu_order                   = 1;
 		$new_endpoint->icon                         = 'fa-user';
@@ -22,13 +25,13 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 		return $endpoints;
 	}
 
-	function render_admin_notice() {
+	public function render_admin_notice() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 		$admin_message = __( 'This is the Client Portal contact details page. This will show the contact their details and allow them change information in the fields below. You can hide fields from this page in Settings → Client Portal → Fields.', 'zero-bs-crm' );
 		$this->portal->render->portal_viewing_as_admin_banner( $admin_message );
 	}
 
 	// Functions that were in the template file
-	function save_details() {
+	public function save_details() { // phpcs:ignore Squiz.Commenting.FunctionComment.WrongStyle
 		if(
 			$_POST['save'] == 1
 			&& isset( $_POST['_wpnonce'] )
