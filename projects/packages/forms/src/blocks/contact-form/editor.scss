@@ -278,6 +278,7 @@
 .jetpack-field-label {
 	display: flex;
 	flex-direction: row;
+	flex-wrap: wrap;
 	justify-content: flex-start;
 	align-items: baseline;
 
@@ -809,7 +810,6 @@
 				position: relative;
 				top: 50%;
 				transform: translateY(-50%);
-				will-change: transform;
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				margin: 0;
 
@@ -833,7 +833,10 @@
 				max-width: 100px;
 			}
 
-			.jetpack-field-label .jetpack-field-label__input {
+			.jetpack-field-label .jetpack-field-label__input,
+			.jetpack-field-label .required {
+				will-change: font-size;
+				transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				margin-bottom: 0;
 			}
 
@@ -849,8 +852,18 @@
 				}
 
 				.notched-label__label {
-					top: calc(var(--jetpack--contact-form--border-top-size) * -1);
+					top: calc(var(--jetpack--contact-form--border-top-size, 1px) * -1);
 					transform: translateY(-50%);
+				}
+
+				.jetpack-field-label .required {
+					// The required text is always 85% of the label font size.
+					// The label font size is reduced to 0.8em in a separate rule, so that needs to be accounted for.
+					// 0.85 * 0.8 = 0.68em.
+					font-size: 0.68em;
+				}
+
+				.jetpack-field-label__input {
 					font-size: 0.8em;
 				}
 
