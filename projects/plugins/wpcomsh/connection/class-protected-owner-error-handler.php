@@ -78,7 +78,7 @@ class Protected_Owner_Error_Handler {
 		}
 
 		// Validate the minimal required fields
-		if ( ! isset( $raw_error['error_type'] ) || ! isset( $raw_error['wpcom_email'] ) ) {
+		if ( ! isset( $raw_error['error_type'] ) || ! isset( $raw_error['email'] ) ) {
 			return false;
 		}
 
@@ -96,16 +96,16 @@ class Protected_Owner_Error_Handler {
 		}
 
 		// Prepare error data for My Jetpack (verified errors format)
-		$user_id   = isset( $raw_error['protected_owner_local_id'] ) ? $raw_error['protected_owner_local_id'] : '0';
-		$timestamp = isset( $raw_error['timestamp'] ) ? $raw_error['timestamp'] : time();
+		$user_id   = $raw_error['protected_owner_local_id'] ?? '0';
+		$timestamp = $raw_error['timestamp'] ?? time();
 
 		$error_details = array(
 			'error_code'    => $error_code,
 			'user_id'       => $user_id,
-			'error_message' => $this->get_error_message( $error_code, $raw_error['wpcom_email'] ),
+			'error_message' => $this->get_error_message( $error_code, $raw_error['email'] ),
 			'error_data'    => array(
-				'wpcom_email' => $raw_error['wpcom_email'],
-				'error_type'  => $raw_error['error_type'],
+				'email'      => $raw_error['email'],
+				'error_type' => $raw_error['error_type'],
 			),
 			'timestamp'     => $timestamp,
 			'nonce'         => wp_generate_password( 10, false ),
@@ -123,8 +123,8 @@ class Protected_Owner_Error_Handler {
 	/**
 	 * Determine the error code based on the raw error data and current connection state
 	 *
-	 * @param array        $raw_error      The raw error data.
-	 * @param WP_User|bool $master_user The master user object or false if not exists.
+	 * @param array         $raw_error      The raw error data.
+	 * @param \WP_User|bool $master_user The master user object or false if not exists.
 	 * @return string|false The determined error code or false if no valid error.
 	 */
 	private function determine_error_code( $raw_error, $master_user ) {
@@ -149,12 +149,12 @@ class Protected_Owner_Error_Handler {
 	 * Get a user-friendly error message based on the error type
 	 *
 	 * @param string $error_type The type of error.
-	 * @param string $wpcom_email The WordPress.com email address of the protected owner.
+	 * @param string $email The WordPress.com email address of the protected owner.
 	 * @return string The error message.
 	 */
-	protected function get_error_message( $error_type, $wpcom_email ) {
+	protected function get_error_message( $error_type, $email ) {
 		// Use plain text for the email - frontend will handle styling
-		$email_text = esc_html( $wpcom_email );
+		$email_text = esc_html( $email );
 
 		// Fix explanation for manual account creation only
 		$fix_explanation = ' ' . __( 'Please create the missing account to resolve this issue.', 'wpcomsh' );
@@ -326,11 +326,11 @@ class Protected_Owner_Error_Handler {
 	 * @param int $user_id The ID of the user to check.
 	 */
 	private function check_and_clear_error_for_user( $user_id ) {
-		// Get the raw error data to check the wpcom_email
+		// Get the raw error data to check the email
 		$raw_error = get_option( self::STORED_ERRORS_OPTION, false );
 
 		// Return early if no error is stored
-		if ( ! $raw_error || ! is_array( $raw_error ) || ! isset( $raw_error['wpcom_email'] ) ) {
+		if ( ! $raw_error || ! is_array( $raw_error ) || ! isset( $raw_error['email'] ) ) {
 			return;
 		}
 
@@ -340,8 +340,8 @@ class Protected_Owner_Error_Handler {
 			return;
 		}
 
-		// Check if the user's email matches the required wpcom_email
-		if ( strtolower( $user->user_email ) === strtolower( $raw_error['wpcom_email'] ) ) {
+		// Check if the user's email matches the required email
+		if ( strtolower( $user->user_email ) === strtolower( $raw_error['email'] ) ) {
 			// The user with the required email has been created/updated
 			// Clear the error so external healing code can establish the connection
 			$this->delete_error();
