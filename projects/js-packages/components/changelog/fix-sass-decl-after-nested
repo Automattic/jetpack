@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: sass: Fix "declarations that appear after nested" deprecation warnings.
+
+

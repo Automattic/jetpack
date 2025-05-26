@@ -8,11 +8,11 @@
 @import "./editor-styles";
 
 .playground {
+	padding-top: 20px;
 
 	@include break-small() {
 		width: calc(100% - #{$sidebar-width});
 	}
-	padding-top: 20px;
 
 	img {
 		max-width: 100%;

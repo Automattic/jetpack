@@ -48,6 +48,10 @@ $image-square-size: 128px;
 .jetpack-instant-search__search-result-expanded__image-container {
 	width: $image-square-size;
 
+	// Aspect ratio box trick, pt 1
+	// See https://css-tricks.com/aspect-ratio-boxes/
+	position: relative;
+
 	@include break-small-down() {
 		width: 2 * $image-square-size;
 	}
@@ -56,10 +60,8 @@ $image-square-size: 128px;
 		display: none;
 	}
 
-	// Aspect ratio box trick
+	// Aspect ratio box trick, pt 2
 	// See https://css-tricks.com/aspect-ratio-boxes/
-	position: relative;
-
 	&::before {
 		display: block;
 		content: '';
