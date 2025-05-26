@@ -442,6 +442,7 @@
 	z-index: 1;
 	border-radius: inherit;
 	border: none !important;
+	background-color: transparent;
 }
 
 .contact-form .is-style-outlined,
