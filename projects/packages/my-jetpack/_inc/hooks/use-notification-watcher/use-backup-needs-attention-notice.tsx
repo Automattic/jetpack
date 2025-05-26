@@ -58,7 +58,7 @@ const useBackupNeedsAttentionNotice: NoticeHookType = ( redBubbleAlerts, isLoadi
 	}, [ recordEvent, status, contactSupportUrl ] );
 
 	useEffect( () => {
-		if ( ! redBubbleAlerts?.backup_failure ) {
+		if ( ! redBubbleAlerts?.backup_failure || status === 'backups-deactivated' ) {
 			return;
 		}
 
@@ -126,6 +126,7 @@ const useBackupNeedsAttentionNotice: NoticeHookType = ( redBubbleAlerts, isLoadi
 		type,
 		errorDescription,
 		isLoading,
+		status,
 	] );
 };
 

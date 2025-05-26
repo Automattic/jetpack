@@ -84,6 +84,7 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 							{
 								loader: 'sass-loader',
 								options: {
+									api: 'modern-compiler',
 									sassOptions: {
 										style: 'expanded',
 									},
