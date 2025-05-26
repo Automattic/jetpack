@@ -81,20 +81,24 @@ class Module {
 			return array();
 		}
 
+		$available_submodules = array();
+		foreach ( $submodules as $slug => $submodule ) {
+			if ( $submodule->is_available() || $this->is_dev_feature_available( $submodule->feature ) ) {
+				$available_submodules[ $slug ] = $submodule;
+			}
+		}
+
+		return $available_submodules;
+	}
+
+	private function is_dev_feature_available( $feature ) {
 		// Even though the sanitization and unslashing are not needed here, we do it to satisfy the linter rule and consistency.
 		$include_dev_features = false !== strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ?? '' ) ), 'jurassic.ninja' );
 		if ( defined( 'JETPACK_BOOST_DEVELOPMENT_FEATURES' ) ) {
 			$include_dev_features = JETPACK_BOOST_DEVELOPMENT_FEATURES;
 		}
 
-		$available_submodules = array();
-		foreach ( $submodules as $slug => $submodule ) {
-			if ( $submodule->is_available() || ( $include_dev_features && $submodule->feature instanceof Is_Dev_Feature ) ) {
-				$available_submodules[ $slug ] = $submodule;
-			}
-		}
-
-		return $available_submodules;
+		return $include_dev_features && $feature instanceof Is_Dev_Feature;
 	}
 
 	/**
@@ -146,11 +150,7 @@ class Module {
 	 * If the module is not available, it cannot be enabled.
 	 */
 	public function is_available() {
-		if ( ! $this->feature::is_available() ) {
-			return false;
-		}
-
-		if ( $this->is_force_disabled() ) {
+		if ( ! $this->feature::is_available() || $this->is_force_disabled() ) {
 			return false;
 		}
 
@@ -164,6 +164,10 @@ class Module {
 			if ( ( new Module( new $parent_feature() ) )->is_available() ) {
 				return true;
 			}
+		}
+
+		if ( $this->is_dev_feature_available( $this->feature ) ) {
+			return true;
 		}
 
 		return false;
