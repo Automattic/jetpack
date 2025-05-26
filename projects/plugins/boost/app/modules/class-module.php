@@ -100,8 +100,8 @@ class Module {
 	 * @return bool True if the feature is available, false otherwise.
 	 */
 	private function is_disabled_dev_feature( $feature ) {
-		// Even though the sanitization and unslashing are not needed here, we do it to satisfy the linter rule and consistency.
-		$is_disabled_dev_feature = false === strpos( \sanitize_text_field( \wp_unslash( $_SERVER['HTTP_HOST'] ?? '' ) ), 'jurassic.ninja' );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$is_disabled_dev_feature = false === strpos( $_SERVER['HTTP_HOST'] ?? '', 'jurassic.ninja' );
 		if ( defined( 'JETPACK_BOOST_DEVELOPMENT_FEATURES' ) ) {
 			$is_disabled_dev_feature = ! JETPACK_BOOST_DEVELOPMENT_FEATURES;
 		}
