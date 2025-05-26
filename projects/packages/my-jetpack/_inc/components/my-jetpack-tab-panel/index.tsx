@@ -36,6 +36,7 @@ export function MyJetpackTabPanel() {
 
 	return (
 		<TabPanel
+			key={ initialTab }
 			className={ styles[ 'tab-panel' ] }
 			initialTabName={ initialTab }
 			onSelect={ onTabSelect }
