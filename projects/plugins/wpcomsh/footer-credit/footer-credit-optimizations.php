@@ -295,3 +295,17 @@ function wpcomthemes_twentysixteen_credits() {
 	echo 'Theme: Twenty Sixteen.'; // leave untranslated for regex match, will be translated in final output
 }
 add_action( 'twentysixteen_credits', 'wpcomthemes_twentysixteen_credits' );
+
+/**
+ * Add a filter to WP Cloud sites hosted on WordPress.com to show various support
+ * links in the site's WP Admin page footer.
+ */
+function wpcom_wpcloud_admin_footer() {
+	$footer_links = array(
+		__( 'Thank you for creating with <a href="https://wordpress.com/hosting/">WordPress.com WordPress Hosting</a>' ),
+		'<a href="https://wordpress.com/' . get_bloginfo( 'language' ) . '/support/" target="_blank">' . __( 'Help &amp; Support' ) . '</a>',
+	);
+
+	return implode( ' &bull; ', $footer_links );
+}
+add_filter( 'admin_footer_text', 'wpcom_wpcloud_admin_footer' );
