@@ -344,6 +344,7 @@ class Contact_Form_Plugin {
 		$color_styles      = \wp_apply_colors_support( $block_type, $attrs );
 		$typography_styles = \wp_apply_typography_support( $block_type, $attrs );
 		$border_styles     = \wp_apply_border_support( $block_type, $attrs );
+		$custom_classname  = \wp_apply_custom_classname_support( $block_type, $attrs );
 
 		// Merge all the block support classes and styles.
 		$classes = array_filter(
@@ -351,6 +352,7 @@ class Contact_Form_Plugin {
 				$color_styles['class'] ?? '',
 				$typography_styles['class'] ?? '',
 				$border_styles['class'] ?? '',
+				$custom_classname['class'] ?? '',
 			),
 			'strlen'
 		);
@@ -403,11 +405,12 @@ class Contact_Form_Plugin {
 		$block_style_classes = empty( $matches[0] ) ? '' : implode( ' ', $matches[0] );
 
 		if ( ! empty( $block_style_classes ) ) {
-			$wrap_classes          = ! empty( $matches[0] ) ? ' ' . implode( '-wrap ', $matches[0] ) . '-wrap' : '';
+			$wrap_classes          = ! empty( $matches[0] ) ? ' ' . implode( '-wrap ', array_filter( $matches[0] ) ) . '-wrap' : '';
 			$field_wrapper_classes = " $block_style_classes $wrap_classes";
-			// Remove block style classes from the original classname.
-			$classes_without_block_style = trim( preg_replace( '/is-style-([^\s]+)/i', '', $classname ) );
 		}
+
+		// Remove block style classes from the original classname.
+		$classes_without_block_style = trim( preg_replace( '/is-style-([^\s]+)/i', '', $classname ) );
 
 		return array(
 			'fieldwrapperclasses' => $field_wrapper_classes,

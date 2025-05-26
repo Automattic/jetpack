@@ -293,11 +293,12 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 * @dataProvider data_provider_block_attributes_to_shortcode_attributes_with_styles
 	 *
 	 * @param array  $expected The expected shortcode attributes.
+	 * @param array  $atts The attributes of the shortcode block.
 	 * @param array  $inner_blocks The inner blocks of the block.
 	 * @param string $type The type of the field.
 	 */
 	#[DataProvider( 'data_provider_block_attributes_to_shortcode_attributes_with_styles' )]
-	public function test_block_attributes_to_shortcode_attributes_with_styles( $expected, $inner_blocks, $type = 'text' ) {
+	public function test_block_attributes_to_shortcode_attributes_with_styles( $expected, $atts = array(), $inner_blocks = array(), $type = 'text' ) {
 		$block                = array(
 			'blockName'   => 'jetpack/field-name',
 			'attrs'       => array(
@@ -305,7 +306,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 			'innerBlocks' => $inner_blocks,
 		);
-		$shortcode_attributes = Contact_Form_Plugin::block_attributes_to_shortcode_attributes( array(), $type, new WP_Block( $block ) );
+		$shortcode_attributes = Contact_Form_Plugin::block_attributes_to_shortcode_attributes( $atts, $type, new WP_Block( $block ) );
 
 		// Sorting here so we don't have to care about the order of the attributes in the shortcode/data provider.
 		$expected_keys = array_keys( $expected );
@@ -343,6 +344,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'stylevariationattributes' => '{"border":{"color":"swamp-blue","width":"1px","style":"dashed"},"color":{"background":"swamp-red"}}',
 					'stylevariationstyles'     => 'background-color:swamp-red; border-color:swamp-blue;border-style:dashed;border-width:1px;',
 				),
+				'atts'         => array(),
 				'inner_blocks' => array(
 					array(
 						'blockName' => 'jetpack/label',
@@ -397,6 +399,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'type'                => 'radio',
 					'fieldwrapperclasses' => 'wp-block-jetpack-field-radio',
 				),
+				'atts'         => array(),
 				'inner_blocks' => array(
 					array(
 						'blockName' => 'jetpack/option',
@@ -427,6 +430,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 			'label and options' => array(
 				'expected'     => array(
+					'class'                    => 'some-custom-class',
 					'labelclasses'             => 'wp-block-jetpack-label has-text-color has-accent-3-color',
 					'labelstyles'              => 'letter-spacing:0.1em;',
 					'options'                  => 'Option 1,Option 2',
@@ -434,12 +438,15 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'label'                    => 'Label multiple options',
 					'type'                     => 'checkbox-multiple',
 					'requiredText'             => 'Do it again',
-					'fieldwrapperclasses'      => 'wp-block-jetpack-field-checkbox-multiple',
+					'fieldwrapperclasses'      => 'wp-block-jetpack-field-checkbox-multiple is-style-button  is-style-button-wrap',
 					'optionsclasses'           => ' has-text-color has-background',
 					'optionsstyles'            => 'color:blue-overture;background-color:green-tonight; border-top-width:2px;border-top-color:terrible-red;border-top-style:solid;',
 					'stylevariationclasses'    => ' has-background',
 					'stylevariationattributes' => '{"border":{"top":{"color":"terrible-red","width":"2px","style":"solid","radius":"10px"}},"color":{"background":"green-tonight"}}',
 					'stylevariationstyles'     => 'background-color:green-tonight; border-top-width:2px;border-top-color:terrible-red;border-top-style:solid;',
+				),
+				'atts'         => array(
+					'className' => 'is-style-button some-custom-class',
 				),
 				'inner_blocks' => array(
 					array(
