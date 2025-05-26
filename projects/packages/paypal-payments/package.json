@@ -17,7 +17,8 @@
 	"scripts": {
 		"build": "pnpm run clean && webpack --config ./webpack.config.blocks.js",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm build",
-		"clean": "rm -rf dist/ .cache/"
+		"clean": "rm -rf dist/ .cache/",
+		"watch": "webpack --watch --config ./webpack.config.blocks.js"
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
