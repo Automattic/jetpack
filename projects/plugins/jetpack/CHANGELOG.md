@@ -14,7 +14,7 @@
 ### Bug fixes
 - AI Chat & Donations blocks: Ensure that all metadata is properly attached to the blocks in the block editor. [#43535]
 - Forms: Fix Akismet spam URL. [#43542]
-- Jetpack: Fix redirect_to URL encoding on frontend for upgrade nudge. [#43562]
+- Jetpack: Fix redirect URL on frontend for upgrade nudge. [#43562]
 - My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
 - My Jetpack: Fix readability of license activation button on hover. [#43550]
 - My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
