@@ -96,7 +96,7 @@
 @media (prefers-reduced-motion) {
 
 	.jetpack-form-file-field__preview {
-		animation: none;
+		 animation-duration: 0.001ms;
 	}
 }
 
@@ -131,7 +131,7 @@
 @media (prefers-reduced-motion) {
 
 	.jetpack-form-file-field__preview.fade-out {
-		animation: none;
+		 animation-duration: 0.001ms !important;
 	}
 }
 
@@ -239,6 +239,16 @@
 	width: 46px;
 	height: 46px;
 }
+
+@media (prefers-reduced-motion) {
+
+	/* Remove the spinning animation for users who prefer reduced motion */
+	.jetpack-form-file-field__progress-bar {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+	}
+}
+
 
 .jetpack-form-file-field__preview.is-error .jetpack-form-file-field__progress-bar,
 .jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__progress-bar {
