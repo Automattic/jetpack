@@ -1047,7 +1047,6 @@ class Contact_Form_Test extends BaseTestCase {
 			),
 		);
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
-
 		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
@@ -1237,7 +1236,9 @@ class Contact_Form_Test extends BaseTestCase {
 		if ( isset( $attributes['class'] ) ) {
 			$wrapper_classes = explode( ' ', $attributes['class'] );
 			foreach ( $wrapper_classes as $wrapper_class ) {
-				$classes_wrap .= " {$wrapper_class}-wrap";
+				if ( $wrapper_class ) {
+					$classes_wrap .= " {$wrapper_class}-wrap";
+				}
 			}
 		}
 
@@ -1245,8 +1246,8 @@ class Contact_Form_Test extends BaseTestCase {
 		$wrapper_div_class = $wrapper_div->getAttribute( 'class' );
 
 		$this->assertEquals(
-			$wrapper_div_class,
 			$css_class,
+			$wrapper_div_class,
 			'div class attribute doesn\'t match'
 		);
 	}
@@ -1294,10 +1295,9 @@ class Contact_Form_Test extends BaseTestCase {
 				$classes_input .= " {$input_class}";
 			}
 		}
-
 		$this->assertEquals(
-			$input->getAttribute( 'class' ),
 			$attributes['type'] . $classes_input . $input_classes_input . $options_classes_input . ' grunion-field',
+			$input->getAttribute( 'class' ),
 			'input class attribute doesn\'t match'
 		);
 	}
@@ -1335,8 +1335,8 @@ class Contact_Form_Test extends BaseTestCase {
 		}
 
 		$this->assertEquals(
-			$label->getAttribute( 'class' ),
 			$classes_prefix . $label_classes_input . $options_classes_input,
+			$label->getAttribute( 'class' ),
 			'input class attribute doesn\'t match'
 		);
 	}
