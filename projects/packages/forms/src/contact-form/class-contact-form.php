@@ -1865,7 +1865,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$template       = '';
 		$style          = '';
 		$event          = new Jetpack_Tracks_Event(
-			array(
+			(object) array(
 				'_en' => 'jetpack_forms_email_open',
 				'_ui' => hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION ),
 				'_ut' => 'anon',
