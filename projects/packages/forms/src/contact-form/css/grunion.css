@@ -51,7 +51,7 @@
 	height: 200px;
 }
 
-.contact-form .grunion-field {
+.contact-form .grunion-field:not(.select) {
 	padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 	padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 }
@@ -62,7 +62,6 @@
 }
 
 .contact-form select {
-	padding: 14px 7px;
 	min-width: 150px;
 }
 
@@ -392,25 +391,25 @@
 	position: relative;
 }
 
-.contact-form .contact-form__select-wrapper::after {
+.contact-form .contact-form__select-wrapper .select::after {
 	position: absolute;
 	inset-inline-end: 20px;
 	top: 50%;
 	color: var(--jetpack--contact-form--text-color);
 	content: "";
 	display: block;
-	width: 8px;
-	height: 8px;
+    width: 10px;
+    height: 10px;
 	z-index: 1;
 	border-bottom: 2px solid;
 	border-right: 2px solid;
 	transform: translateY(-50%) rotate(45deg);
 	transform-origin: center center;
 	pointer-events: none;
-	right: calc(var(--jetpack--contact-form--border-right-size, 1px) + 16px);
+	right: 24px;
 }
 
-.contact-form :where( .contact-form__select-wrapper select ) {
+.contact-form :where( .contact-form__select-wrapper .select) {
 	background-color: var(--jetpack--contact-form--input-background);
 	border: var(--jetpack--contact-form--border);
 	border-color: var(--jetpack--contact-form--border-color);
@@ -421,8 +420,7 @@
 	font-family: var(--jetpack--contact-form--font-family);
 	font-size: var(--jetpack--contact-form--font-size);
 	line-height: var(--jetpack--contact-form--line-height);
-	padding-inline-end: calc(var(--jetpack--contact-form--input-padding) * 3);
-	padding: var(--jetpack--contact-form--input-padding);
+	position: relative;
 }
 
 .contact-form .contact-form__select-wrapper select {
@@ -431,6 +429,19 @@
 	appearance: none;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	padding: var(--jetpack--contact-form--input-padding);
+	color: inherit;
+	font-family: inherit;
+	font-size: inherit;
+	line-height: inherit;
+	letter-spacing: inherit;
+	font-style: inherit;
+	font-weight: inherit;
+	text-transform: inherit;
+	text-align: inherit;
+	z-index: 1;
+	border-radius: inherit;
+	border: none !important;
 }
 
 .contact-form .is-style-outlined,
@@ -470,6 +481,7 @@
 	box-sizing: border-box;
 	text-align: left;
 	pointer-events: none;
+	z-index: 1;
 }
 
 .contact-form .contact-form__select-wrapper + .notched-label {
@@ -703,7 +715,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 /* Fix padding for new forms in animated style */
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > .wp-block-jetpack-input,
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input,
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input:not(.select),
 .contact-form .is-style-animated .wp-block-jetpack-options.jetpack-field-multiple__list--has-border {
 	padding-left: var(--jetpack--contact-form--animated-left-offset);
 	padding-right: var(--jetpack--contact-form--animated-left-offset);
