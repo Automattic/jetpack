@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.7-a.6 - 2025-05-26
+### 14.7-a.7 - 2025-05-26
 #### Enhancements
 - Social: Add option to add default image to Social Image Generator.
 - Forms: Add Integration screen content.
