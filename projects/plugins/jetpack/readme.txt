@@ -326,14 +326,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.7-a.5 - 2025-05-19
+### 14.7-a.7 - 2025-05-26
 #### Enhancements
-- Forms: Add Google Drive to integrations modal.
-- My Jetpack: Optimize the images for onboarding slider for faster page load.
-- Search: Highlight search term in returned search results.
+- Social: Add option to add default image to Social Image Generator.
+- Forms: Add Integration screen content.
+
+#### Improved compatibility
+- Endpoints: Add checks within the v1.1 post update endpoint to ensure values are defined.
+- Sharing buttons: Prevent PHP warnings in some scenarios, ensuring we only check the post title and ID if posts exist.
 
 #### Bug fixes
-- Open Graph: Prevent PHP warnings when embedding some Vimeo videos.
+- AI Chat & Donations blocks: Ensure that all metadata is properly attached to the blocks in the block editor.
+- Forms: Fix Akismet spam URL.
+- Jetpack: Fix redirect URL on frontend for upgrade nudge.
+- My Jetpack: Fix Onboarding UI responsiveness at 600px.
+- My Jetpack: Fix readability of license activation button on hover.
+- My Jetpack: Hide backup failure notice when backups are deactivated.
 
 --------
 

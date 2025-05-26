@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.86.1] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
 ## [0.86.0] - 2025-05-22
 ### Added
 - Added option to set default image for Social Image Generator. [#43461]
@@ -1253,6 +1257,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.86.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.86.0...v0.86.1
 [0.86.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.5...v0.86.0
 [0.85.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.4...v0.85.5
 [0.85.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.3...v0.85.4
