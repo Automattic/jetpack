@@ -66,6 +66,7 @@ class Admin_Post_List_Column {
 		<style type="text/css">
 			.fixed .column-stats {
 				width: 5em;
+				white-space: nowrap;
 			}
 		</style>
 		<?php
