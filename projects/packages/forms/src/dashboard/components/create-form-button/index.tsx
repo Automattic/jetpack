@@ -9,7 +9,7 @@ import { create } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { config } from '../../index';
+import useCreateForm from '../../hooks/use-create-form';
 import './style.scss';
 
 type CreateFormButtonProps = {
@@ -29,23 +29,20 @@ export default function CreateFormButton( {
 	label = __( 'Create a free form', 'jetpack-forms' ),
 	showPatterns = false,
 }: CreateFormButtonProps ): JSX.Element {
-	const onButtonClickHandler = useCallback( async () => {
-		const data = new FormData();
+	const { openNewForm } = useCreateForm();
 
-		data.append( 'action', 'create_new_form' );
-		data.append( 'newFormNonce', config( 'newFormNonce' ) );
-
-		const response = await fetch( window.ajaxurl, { method: 'POST', body: data } );
-		const { post_url }: { post_url: string } = await response.json();
-
-		if ( post_url ) {
-			jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
-				button: 'forms',
-			} );
-
-			window.open( `${ post_url }${ showPatterns ? '&showJetpackFormsPatterns' : '' }` );
-		}
-	}, [ showPatterns ] );
+	const onButtonClickHandler = useCallback(
+		() =>
+			openNewForm( {
+				showPatterns,
+				analyticsEvent: () => {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
+						button: 'forms',
+					} );
+				},
+			} ),
+		[ openNewForm, showPatterns ]
+	);
 
 	return (
 		<Button
