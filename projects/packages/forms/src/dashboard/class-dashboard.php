@@ -250,6 +250,7 @@ class Dashboard {
 			'hasAI'                   => $has_ai,
 			'enableIntegrationsTab'   => self::$show_integrations,
 			'renderMigrationPage'     => $this->switch->is_jetpack_forms_announcing_new_menu(),
+			'dashboardURL'            => $this->switch->get_forms_admin_url(),
 		);
 		if ( ! empty( $extra_config ) ) {
 			$config = array_merge( $config, $extra_config );

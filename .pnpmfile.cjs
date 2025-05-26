@@ -174,7 +174,7 @@ async function fixDeps( pkg ) {
 	// Outdated dependency.
 	// No upstream bug link yet, upstream seems unmaintained anyway.
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
-		pkg.dependencies.cssnano = '^5.0.1 || ^6';
+		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
 	}
 
 	// Missing dep or peer dep on @babel/runtime
