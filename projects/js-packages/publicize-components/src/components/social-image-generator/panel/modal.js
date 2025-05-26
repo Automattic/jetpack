@@ -20,10 +20,20 @@ const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
 const ADD_MEDIA_LABEL = __( 'Choose Image', 'jetpack-publicize-components' );
 
 const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
-	const { customText, imageType, imageId, template, updateSettings } = useImageGeneratorConfig();
+	const {
+		customText,
+		imageType,
+		imageId,
+		featuredImageId,
+		defaultImageId,
+		template,
+		updateSettings,
+	} = useImageGeneratorConfig();
 
 	const [ localImageId, setEditedImageId ] = useState( imageId );
-	const [ localImageType, setEditedImageType ] = useState( imageType || 'featured' );
+	const [ localImageType, setEditedImageType ] = useState(
+		imageType || ( featuredImageId ? 'featured' : 'default' )
+	);
 	const [ localCustomText, setEditedCustomText ] = useState( customText );
 	const [ localTemplate, setEditedTemplate ] = useState( template );
 
@@ -50,7 +60,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 
 	return (
 		<ThemeProvider targetDom={ document.body }>
-			<Modal onRequestClose={ onClose }>
+			<Modal className={ styles.modal } onRequestClose={ onClose } __experimentalHideHeader>
 				<GeneratedImagePreview
 					className={ styles.preview }
 					imageId={ localImageId }
@@ -60,8 +70,16 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 				/>
 				<SelectControl
 					label={ __( 'Image Type', 'jetpack-publicize-components' ) }
-					value={ localImageType || 'featured' }
+					value={ localImageType || ( featuredImageId ? 'featured' : 'default' ) }
 					options={ [
+						...( defaultImageId
+							? [
+									{
+										label: __( 'Default Image', 'jetpack-publicize-components' ),
+										value: 'default',
+									},
+							  ]
+							: [] ),
 						{
 							label: __( 'Featured Image', 'jetpack-publicize-components' ),
 							value: 'featured',
@@ -103,12 +121,14 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 					</BaseControl.VisualLabel>
 					<TemplatePicker value={ localTemplate } onTemplateSelected={ setEditedTemplate } />
 				</BaseControl>
-				<Button onClick={ onClose } variant="tertiary">
-					{ __( 'Cancel', 'jetpack-publicize-components' ) }
-				</Button>
-				<Button onClick={ saveSettings } variant="primary">
-					{ __( 'Save', 'jetpack-publicize-components' ) }
-				</Button>
+				<div className={ styles.footer }>
+					<Button onClick={ onClose } variant="tertiary">
+						{ __( 'Cancel', 'jetpack-publicize-components' ) }
+					</Button>
+					<Button onClick={ saveSettings } variant="primary">
+						{ __( 'Save', 'jetpack-publicize-components' ) }
+					</Button>
+				</div>
 			</Modal>
 		</ThemeProvider>
 	);
