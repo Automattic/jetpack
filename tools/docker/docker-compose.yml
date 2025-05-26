@@ -48,6 +48,8 @@ services:
       - .env
     environment:
       - HOST_PORT=${PORT_WORDPRESS:-80}
+      - WP_FORCE_ADMIN_USER=${WP_FORCE_ADMIN_USER:-}
+      - WP_FORCE_ADMIN_PASS=${WP_FORCE_ADMIN_PASS:-}
       - COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME
     extra_hosts:
       - 'host.docker.internal:host-gateway'
