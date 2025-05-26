@@ -155,7 +155,7 @@ class LCP_Optimize_Bg_Image {
 			}
 
 			$styles[] = array(
-				'media_query' => implode( ' and ', $media_query ),
+				'media_query' => empty( $media_query ) ? 'all' : implode( ' and ', $media_query ),
 				'image_set'   => $this->get_image_set( $image_url, $image_width ),
 				'base_image'  => Image_CDN_Core::cdn_url( $image_url, array( 'w' => $image_width ) ),
 			);
