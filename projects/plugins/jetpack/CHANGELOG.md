@@ -25,7 +25,7 @@
 - Blogging prompt: Make sure the block is registered before inserting. [#43603]
 - E2E Tests: Update config file encryption algorithm. [#43523]
 - Featured Content: Prevent error if invalid taxonomy data is provided. [#43553]
-- Forms: Update dependency on packages/admin_ui, composer.lock update. [#43295]
+- Forms: Update dependency on packages/admin_ui. [#43295]
 - Janitorial: Ensure functionality related to WoA site checking is clearer. [#43481]
 - Post Images: Prevent undefined variable and key warnings. [#43548]
 - Theme Compatibility: Prevent warning when custom color value isn't set. [#43520]

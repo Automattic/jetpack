@@ -333,12 +333,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Improved compatibility
 - Endpoints: Add checks within the v1.1 post update endpoint to ensure values are defined.
-- Sharing buttons: Prevent PHP warnings in some scenarios, ensuring we only check the post tle and id if posts exist.
+- Sharing buttons: Prevent PHP warnings in some scenarios, ensuring we only check the post title and ID if posts exist.
 
 #### Bug fixes
 - AI Chat & Donations blocks: Ensure that all metadata is properly attached to the blocks in the block editor.
 - Forms: Fix Akismet spam URL.
-- Jetpack: Fix redirect_to URL encoding on frontend for upgrade nudge.
+- Jetpack: Fix redirect URL on frontend for upgrade nudge.
 - My Jetpack: Fix Onboarding UI responsiveness at 600px.
 - My Jetpack: Fix readability of license activation button on hover.
 - My Jetpack: Hide backup failure notice when backups are deactivated.
