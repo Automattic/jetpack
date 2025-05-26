@@ -131,7 +131,7 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	 */
 	public function test_get_error_missing_owner_with_master_user() {
 		// Create a master user
-		$user_id = $this->factory->user->create( array( 'user_email' => 'master@example.com' ) );
+		$user_id = $this->factory()->user->create( array( 'user_email' => 'master@example.com' ) );
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 
 		$test_email = 'test@example.com';
@@ -215,7 +215,7 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		);
 
 		// Create a user with matching email
-		$user_id = $this->factory->user->create( array( 'user_email' => $test_email ) );
+		$user_id = $this->factory()->user->create( array( 'user_email' => $test_email ) );
 
 		// Simulate user creation
 		$this->handler->check_and_clear_error_on_user_creation( $user_id );
