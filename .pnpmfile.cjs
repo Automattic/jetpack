@@ -324,6 +324,14 @@ function afterAllResolved( lockfile ) {
 			);
 		}
 
+		// Encourage `sass-embedded` over `sass`. Supposed to be faster, and it would be easy for `sass` to leak in.
+		if ( k.startsWith( 'sass@' ) || k.startsWith( 'node-sass@' ) ) {
+			throw new Error(
+				// prettier-ignore
+				`Please use \`sass-embedded\` rather than \`${ k.replace( /@.*/, '' ) }\`. We've standardized on the former.`
+			);
+		}
+
 		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
 		// https://github.com/pnpm/pnpm/issues/3935
 		if ( k.startsWith( 'webpack@' ) && ! v.optionalDependencies?.[ 'webpack-cli' ] ) {
