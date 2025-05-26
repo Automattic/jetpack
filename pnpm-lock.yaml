@@ -8758,10 +8758,6 @@ packages:
     resolution: {integrity: sha512-czWe+Aa/U+eAS1Bu7OkxXGmyECP/vZBGGxpNO0Za6V14KmM0ZJrMdQkWi5T0p/GVAx3naDVz2GTXqzcn8MFWaw==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
-  '@wordpress/base-styles@5.22.0':
-    resolution: {integrity: sha512-bsuVyCfdmDCIIMq1NdoeFGJzKMkd0qFlqNPeW1Hiz9yKtU+dJmccwrACCUVFydDS9zSVpN1VdI0NerFQMyr5wA==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
   '@wordpress/base-styles@6.0.0':
     resolution: {integrity: sha512-+/7ZojzWiC5TqXT6l+59NhjxPKoTALo9zkqSkphWDTkl/eNrZH7T99/btrak48sBcxmxV5SOpTe4OoV5QYl0nA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -20059,8 +20055,6 @@ snapshots:
       react: 18.3.1
     transitivePeerDependencies:
       - supports-color
-
-  '@wordpress/base-styles@5.22.0': {}
 
   '@wordpress/base-styles@6.0.0': {}
 
