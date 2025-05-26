@@ -66,7 +66,7 @@ const sharedWebpackConfig = {
 							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
 						},
 					},
-					'sass-loader',
+					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
 				],
 			} ),
 
