@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { JetpackFooter } from '@automattic/jetpack-components';
+import { JetpackFooter, useBreakpointMatch } from '@automattic/jetpack-components';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { TabPanel } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
@@ -13,8 +13,10 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
  */
 import ExportResponsesButton from '../../inbox/export-responses';
 import { config } from '../../index';
+import ActionsDropdownMenu from '../actions-dropdown-menu';
 import CreateFormButton from '../create-form-button';
 import JetpackFormsLogo from '../logo';
+
 import './style.scss';
 
 const Layout = ( {
@@ -26,6 +28,7 @@ const Layout = ( {
 } ) => {
 	const location = useLocation();
 	const navigate = useNavigate();
+	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	const enableIntegrationsTab = config( 'enableIntegrationsTab' );
 
@@ -46,11 +49,15 @@ const Layout = ( {
 	const getCurrentTab = () => {
 		const path = location.pathname.split( '/' )[ 1 ];
 		const validTabNames = tabs.map( tab => tab.name );
+
 		if ( validTabNames.includes( path ) ) {
 			return path;
 		}
+
 		return config( 'hasFeedback' ) ? 'responses' : 'about';
 	};
+
+	const isResponsesTab = getCurrentTab() === 'responses';
 
 	const handleTabSelect = useCallback(
 		( tabName: string ) => {
@@ -71,10 +78,14 @@ const Layout = ( {
 				<div className="jp-forms__logo-wrapper">
 					<JetpackFormsLogo />
 				</div>
-				<div className="jp-forms__layout-header-actions">
-					{ getCurrentTab() === 'responses' && <ExportResponsesButton /> }
-					<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
-				</div>
+				{ isSm ? (
+					<ActionsDropdownMenu exportData={ { show: isResponsesTab } } />
+				) : (
+					<div className="jp-forms__layout-header-actions">
+						{ isResponsesTab && <ExportResponsesButton /> }
+						<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
+					</div>
+				) }
 			</div>
 			<TabPanel
 				className="jp-forms__dashboard-tabs"
