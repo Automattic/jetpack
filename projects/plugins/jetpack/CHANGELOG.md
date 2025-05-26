@@ -9,7 +9,7 @@
 
 ### Improved compatibility
 - Endpoints: Add checks within the v1.1 post update endpoint to ensure values are defined. [#43513]
-- Sharing buttons: Prevent PHP warnings in some scenarios, ensuring we only check the post tle and id if posts exist. [#43539]
+- Sharing buttons: Prevent PHP warnings in some scenarios, ensuring we only check the post title and ID if posts exist. [#43539]
 
 ### Bug fixes
 - AI Chat & Donations blocks: Ensure that all metadata is properly attached to the blocks in the block editor. [#43535]
