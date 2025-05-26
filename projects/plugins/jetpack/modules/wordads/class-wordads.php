@@ -20,6 +20,7 @@ require_once WORDADS_ROOT . '/php/class-wordads-cron.php';
 require_once WORDADS_ROOT . '/php/class-wordads-california-privacy.php';
 require_once WORDADS_ROOT . '/php/class-wordads-ccpa-do-not-sell-link-widget.php';
 require_once WORDADS_ROOT . '/php/class-wordads-consent-management-provider.php';
+require_once WORDADS_ROOT . '/php/class-wordads-formats.php';
 require_once WORDADS_ROOT . '/php/class-wordads-smart.php';
 require_once WORDADS_ROOT . '/php/class-wordads-shortcode.php';
 
@@ -743,7 +744,7 @@ HTML;
 
 			$loc_id = esc_js( $loc_id );
 
-			$format = $this->get_wordads_format( (int) $width, (int) $height );
+			$format = WordAds_Formats::get_format_slug( (int) $width, (int) $height );
 			if ( $format === '' ) {
 				return '';
 			}
@@ -784,34 +785,6 @@ HTML;
 		}
 
 		return $this->get_dynamic_ad_snippet( $section_id, $form_factor, $location );
-	}
-
-	/**
-	 * Determine the WordAds format based on the ad dimensions.
-	 *
-	 * @param int $width  The width of the ad slot.
-	 * @param int $height The height of the ad slot.
-	 *
-	 * @return string WordAds Format enum.
-	 */
-	private function get_wordads_format( int $width, int $height ): string {
-		if ( $width === 300 && $height === 250 ) {
-			return 'gutenberg_rectangle';
-		}
-
-		if ( $width === 728 && $height === 90 ) {
-			return 'gutenberg_leaderboard';
-		}
-
-		if ( $width === 320 && $height === 50 ) {
-			return 'gutenberg_mobile_leaderboard';
-		}
-
-		if ( $width === 160 && $height === 600 ) {
-			return 'gutenberg_skyscraper';
-		}
-
-		return '';
 	}
 
 	/**
