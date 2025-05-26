@@ -165,11 +165,12 @@
 }
 
 .wp-block-jetpack-contact-form.is-style-outlined .wp-block-jetpack-options legend {
-	font-size: 0.8em;
+	display: flex;
+	align-items: baseline;
+	flex-wrap: wrap;
 	padding: 0 0.25em;
 	position: relative;
 	top: calc(var(--jetpack--contact-form--border-top-size, 1px) / 2 * -1);
-
 }
 
 .contact-form .grunion-checkbox-multiple-options .contact-form-field,
@@ -568,13 +569,25 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__label {
 	position: relative;
+	display: flex;
+	align-items: baseline;
+	flex-wrap: wrap;
 	top: 50%;
 	transform: translateY(-50%);
 	pointer-events: none;
-	will-change: transform;
 	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 	margin: 0;
 	font-weight: 300;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .grunion-label-text {
+	will-change: font-size;
+	transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .grunion-label-required {
+	will-change: font-size;
+	transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap legend.grunion-field-label {
@@ -604,8 +617,6 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-checkbox-multiple-options) .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-radio-options) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__notch
 {
 	border-top-color: transparent !important;
@@ -614,23 +625,33 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-checkbox-multiple-options) .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-radio-options) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label
 {
 	top: calc( var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1 );
 	transform: translateY(-50%);
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-text,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-text,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .grunion-label-text,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options .grunion-label-text,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options .grunion-label-text,
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .grunion-label-text {
 	font-size: 0.8em;
 }
 
-/* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-checkbox-multiple-options) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-radio-options) .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"] {
-	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.8);
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-required,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-required,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .grunion-label-required,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options .grunion-label-required,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options .grunion-label-required,
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .grunion-label-required {
+
+	/*
+	 * The font size should be 85% of the label font size, which is reduced separately to 0.8em for this focused style.
+	 * 0.85 * 0.8 = 0.68em.
+	 */
+	font-size: 0.68em;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap > input,
