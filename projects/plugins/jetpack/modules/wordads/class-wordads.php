@@ -272,7 +272,7 @@ class WordAds {
 		add_filter( 'wp_resource_hints', array( $this, 'resource_hints' ), 10, 2 );
 
 		// These 'wp_head' actions add the IPONWEB JavaScript snippets to the page.
-		// We need to remove them whenever
+		// We need to remove these calls whenever migration to Aditude is complete.
 		add_action( 'wp_head', array( $this, 'insert_head_meta' ), 20 );
 		add_action( 'wp_head', array( $this, 'insert_head_iponweb' ), 30 );
 
