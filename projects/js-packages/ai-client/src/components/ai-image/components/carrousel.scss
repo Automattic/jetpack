@@ -64,20 +64,6 @@ $scale-factor: 0.55;
 
 				&__prev,
 				&__next {
-
-					&:hover {
-						background-color: rgba( 0, 0, 0, 0.3 );
-						opacity: 1;
-					}
-
-					&-icon {
-						fill: #fff;
-
-						&.is-disabled {
-							fill: #808080;
-						}
-					}
-
 					cursor: pointer;
 					z-index: 1;
 					display: flex;
@@ -92,6 +78,19 @@ $scale-factor: 0.55;
 					width: 60px;
 					opacity: 0;
 					background: transparent;
+
+					&:hover {
+						background-color: rgba( 0, 0, 0, 0.3 );
+						opacity: 1;
+					}
+
+					&-icon {
+						fill: #fff;
+
+						&.is-disabled {
+							fill: #808080;
+						}
+					}
 				}
 			}
 		}
