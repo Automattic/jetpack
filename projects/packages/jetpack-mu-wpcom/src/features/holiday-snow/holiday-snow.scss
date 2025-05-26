@@ -6,6 +6,7 @@
  */
 
 @use 'sass:list';
+@use 'sass:math';
 
 $grid_width: 600;
 $snow_density: 10;
@@ -54,7 +55,7 @@ html {
 	}
 
 	#{$snow_selector}:after {
-		margin-left: -$grid_width / 3 + px;
+		margin-left: math.div( -$grid_width, 3 ) + px;
 		opacity: .4;
 		animation-duration: $snow_speed * 2;
 		animation-direction: reverse;
@@ -64,7 +65,7 @@ html {
 	#{$snow_selector}:before {
 		animation-duration: $snow_speed * 3;
 		animation-direction: reverse;
-		margin-left: -$grid_width / 2 + px;
+		margin-left: math.div( -$grid_width, 2 ) + px;
 		opacity: .65;
 		filter: blur(1.5px);
 	}
