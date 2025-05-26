@@ -102,7 +102,7 @@ const Module = ( {
 				<h3>
 					{ title }
 					{ Jetpack_Boost.developmentFeatures.includes( slug ) && (
-						<Pill text={ __( 'Development feature', 'jetpack-boost' ) } variant="red" />
+						<Pill text={ __( 'Under Development', 'jetpack-boost' ) } variant="red" />
 					) }
 				</h3>
 
