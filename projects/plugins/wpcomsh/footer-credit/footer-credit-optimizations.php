@@ -302,8 +302,8 @@ add_action( 'twentysixteen_credits', 'wpcomthemes_twentysixteen_credits' );
  */
 function wpcom_wpcloud_admin_footer() {
 	$footer_links = array(
-		__( 'Thank you for creating with <a href="https://wordpress.com/hosting/">WordPress.com WordPress Hosting</a>', , 'wpcomsh' ),
-		'<a href="https://wordpress.com/' . get_bloginfo( 'language' ) . '/support/" target="_blank">' . __( 'Help &amp; Support', , 'wpcomsh' ) . '</a>',
+		__( 'Thank you for creating with <a href="https://wordpress.com/hosting/">WordPress.com WordPress Hosting</a>', 'wpcomsh' ),
+		'<a href="https://wordpress.com/' . get_bloginfo( 'language' ) . '/support/" target="_blank">' . __( 'Help &amp; Support', 'wpcomsh' ) . '</a>',
 	);
 
 	return implode( ' &bull; ', $footer_links );
