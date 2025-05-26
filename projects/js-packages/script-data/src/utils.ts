@@ -82,6 +82,7 @@ export function isSimpleSite() {
 
 /**
  * Check if the is an Atomic site.
+ * This does not include WoA, but does include the likes of Jurassic Ninja, Pressable, Bluehost on Atomic.
  *
  * @return {boolean} Whether the site is an Atomic site.
  */
@@ -90,7 +91,8 @@ export function isAtomicSite() {
 }
 
 /**
- * Check if the site is a WoA site
+ * Check if the site is a WoA site.
+ * For WoA only - not general Atomic (see isAtomicSite()).
  *
  * @return Whether the site is woa.
  */
@@ -111,6 +113,7 @@ export function isWpcomPlatformSite() {
 
 /**
  * Check if the site is self-hosted Jetpack site.
+ * Will return false if the site is Atomic, for example Jurassic Ninja, Pressable, Bluehost on Atomic.
  *
  * @return {boolean} Whether the site is self-hosted Jetpack site.
  */

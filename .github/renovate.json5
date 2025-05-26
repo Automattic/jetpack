@@ -123,7 +123,7 @@
 
 	'github-actions': {
 		// Process Actions files copied into mirror repos.
-		fileMatch: [ '^\\.github/files/[^/]*/workflows/[^/]*.ya?ml$' ],
+		managerFilePatterns: [ '/^\\.github/files/[^/]*/workflows/[^/]*.ya?ml$/' ],
 	},
 
 	customManagers: [
@@ -131,7 +131,7 @@
 		// See also https://github.com/renovatebot/github-action/issues/756
 		{
 			customType: 'regex',
-			fileMatch: [ '^\\.github/workflows/renovate\\.yml$' ],
+			managerFilePatterns: [ '.github/workflows/renovate.yml' ],
 			matchStrings: [ 'renovate-version: (?<currentValue>[^\\s]+)' ],
 			datasourceTemplate: 'docker',
 			depNameTemplate: 'renovate',
@@ -141,7 +141,7 @@
 		// wpcomsh's wordpress/classic-editor-plugin fake-package.
 		{
 			customType: 'regex',
-			fileMatch: [ '^projects/plugins/wpcomsh/composer\\.json$' ],
+			managerFilePatterns: [ 'projects/plugins/wpcomsh/composer.json' ],
 			matchStrings: [
 				// Alas the only option is regexing to match against the JSON. Four patterns for the four different places the version number appears.
 				// .require:

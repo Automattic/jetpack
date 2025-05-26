@@ -22,7 +22,7 @@ class Inline_Search extends Classic_Search {
 	 * The Search Highlighter instance.
 	 *
 	 * @var Inline_Search_Highlighter|null
-	 * @since $$next-version$$
+	 * @since 0.50.0
 	 */
 	private $highlighter;
 
@@ -30,7 +30,7 @@ class Inline_Search extends Classic_Search {
 	 * The search correction instance.
 	 *
 	 * @var Inline_Search_Correction|null
-	 * @since $$next-version$$
+	 * @since 0.50.0
 	 */
 	private $correction;
 

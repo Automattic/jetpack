@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { fixupConfigRules } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
 import eslintJs from '@eslint/js';
+import tanstackEslintPluginQuery from '@tanstack/eslint-plugin-query';
 import makeDebug from 'debug';
 import { defaultConditionNames } from 'eslint-import-resolver-typescript';
 import eslintPluginImport from 'eslint-plugin-import';
@@ -163,6 +164,7 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 			)
 		),
 		eslintPluginPrettierRecommended,
+		...tanstackEslintPluginQuery.configs[ 'flat/recommended' ],
 
 		// Base config.
 		{

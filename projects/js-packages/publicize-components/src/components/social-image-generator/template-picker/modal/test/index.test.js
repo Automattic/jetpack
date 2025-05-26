@@ -3,6 +3,14 @@ import userEvent from '@testing-library/user-event';
 import { ReactElement } from 'react';
 import TemplatePickerModal from '..';
 
+jest.mock( '../../../../media-picker', () => {
+	return () => <div>Media Picker</div>;
+} );
+
+jest.mock( '../../../../../hooks/use-media-details', () => {
+	return jest.fn( () => [ {} ] );
+} );
+
 /**
  * Helper method to set up the user event.
  *
@@ -14,10 +22,11 @@ const setup = async jsx => ( {
 	...render( jsx ),
 } );
 
-const openTemplatePickerModal = async ( { onSelect = () => {} } = {} ) => {
+const openTemplatePickerModal = async ( { onSave = () => {}, imageId = null } = {} ) => {
 	const { user } = await setup(
 		<TemplatePickerModal
-			onSelect={ onSelect }
+			onSave={ onSave }
+			imageId={ imageId }
 			render={ ( { open } ) => <button onClick={ open }>Open Template Picker</button> } // eslint-disable-line
 		/>
 	);
@@ -28,10 +37,19 @@ const openTemplatePickerModal = async ( { onSelect = () => {} } = {} ) => {
 };
 
 describe( 'TemplatePickerModal', () => {
+	beforeEach( () => {
+		jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+	} );
+
+	afterEach( () => {
+		// eslint-disable-next-line no-console
+		console.warn.mockRestore();
+	} );
+
 	it( 'should open the template picker', async () => {
 		await openTemplatePickerModal();
 
-		expect( screen.getByText( /Pick a Template/i ) ).toBeInTheDocument();
+		expect( screen.getByText( /Set default Template and Image/i ) ).toBeInTheDocument();
 	} );
 
 	it( 'should close the template picker', async () => {
@@ -42,12 +60,12 @@ describe( 'TemplatePickerModal', () => {
 		} );
 		await user.click( cancelButton );
 
-		expect( screen.queryByText( /Pick a Template/i ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Set default Template and Image/i ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'should render the template picker and pick a template', async () => {
-		const handleSelect = jest.fn();
-		const { user } = await openTemplatePickerModal( { onSelect: handleSelect } );
+		const handleSave = jest.fn();
+		const { user } = await openTemplatePickerModal( { onSave: handleSave } );
 
 		const edgeTemplateButton = screen.getByRole( 'button', {
 			name: /Pick the Edge template/i,
@@ -59,13 +77,13 @@ describe( 'TemplatePickerModal', () => {
 		} );
 		await user.click( saveButton );
 
-		expect( handleSelect ).toHaveBeenCalledWith( 'edge' );
-		expect( screen.queryByText( /Pick a Template/i ) ).not.toBeInTheDocument();
+		expect( handleSave ).toHaveBeenCalledWith( { imageId: null, template: 'edge' } );
+		expect( screen.queryByText( /Set default Template and Image/i ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'should not select a template if user presses cancel', async () => {
-		const handleSelect = jest.fn();
-		const { user } = await openTemplatePickerModal( { onSelect: handleSelect } );
+		const handleSave = jest.fn();
+		const { user } = await openTemplatePickerModal( { onSave: handleSave } );
 
 		const edgeTemplateButton = screen.getByRole( 'button', {
 			name: /Pick the Edge template/i,
@@ -77,7 +95,24 @@ describe( 'TemplatePickerModal', () => {
 		} );
 		await user.click( cancelButton );
 
-		expect( handleSelect ).not.toHaveBeenCalled();
-		expect( screen.queryByText( /Pick a Template/i ) ).not.toBeInTheDocument();
+		expect( handleSave ).not.toHaveBeenCalled();
+		expect( screen.queryByText( /Set default Template and Image/i ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'should pick a default image', async () => {
+		const handleSave = jest.fn();
+		const imageId = 123;
+		const { user } = await openTemplatePickerModal( { onSave: handleSave, imageId } );
+
+		const imagePicker = screen.getByText( /Media Picker/i );
+		await user.click( imagePicker );
+
+		const saveButton = screen.getByRole( 'button', {
+			name: /Save/i,
+		} );
+		await user.click( saveButton );
+
+		expect( handleSave ).toHaveBeenCalledWith( { imageId, template: null } );
+		expect( screen.queryByText( /Set default Template and Image/i ) ).not.toBeInTheDocument();
 	} );
 } );

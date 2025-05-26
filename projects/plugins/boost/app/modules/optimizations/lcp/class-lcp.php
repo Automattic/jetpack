@@ -26,30 +26,71 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 *
 	 * @var LCP_Storage
 	 */
-	protected $storage;
+	private $storage;
 
 	/**
-	 * Utility class that supports output filtering.
+	 * Output filter instance.
 	 *
 	 * @var Output_Filter
 	 */
-	private $output_filter = null;
+	private $output_filter;
 
-	public function __construct() {
-		$this->storage = new LCP_Storage();
+	public function setup() {
+		$this->output_filter = new Output_Filter();
+		$this->storage       = new LCP_Storage();
+
+		add_action( 'template_redirect', array( $this, 'add_output_filter' ), -999999 );
+		add_action( 'jetpack_boost_lcp_invalidated', array( $this, 'handle_lcp_invalidated' ) );
+
+		LCP_Invalidator::init();
+	}
+
+	public function add_output_filter() {
+		if ( LCP_Optimization_Util::should_skip_optimization() ) {
+			return;
+		}
+
+		$this->output_filter->add_callback( array( $this, 'optimize' ) );
 	}
 
 	/**
+	 * Optimize the HTML content by finding the LCP image and adding required attributes.
+	 *
+	 * @param string $buffer_start First part of the buffer.
+	 * @param string $buffer_end   Second part of the buffer.
+	 *
+	 * @return array Parts of the buffer.
+	 *
 	 * @since 3.13.1
 	 */
-	public function setup() {
-		$this->output_filter = new Output_Filter();
+	public function optimize( $buffer_start, $buffer_end ) {
+		$lcp_storage = $this->storage->get_current_request_lcp();
 
-		add_action( 'template_redirect', array( $this, 'start_output_filtering' ), -999999 );
-		add_action( 'jetpack_boost_lcp_invalidated', array( $this, 'handle_lcp_invalidated' ) );
-		add_action( 'wp_head', array( $this, 'add_preload_links_to_head' ) );
+		if ( empty( $lcp_storage ) ) {
+			return array( $buffer_start, $buffer_end );
+		}
 
-		LCP_Invalidator::init();
+		// Combine the buffers for processing
+		$combined_buffer = $buffer_start . $buffer_end;
+
+		foreach ( $lcp_storage as $lcp_data ) {
+			$optimizer = new LCP_Optimize_Img_Tag( $lcp_data );
+
+			$combined_buffer = $optimizer->optimize_buffer( $combined_buffer );
+		}
+
+		// Split the modified buffer back into two parts
+		$buffer_start_length = strlen( $buffer_start );
+		$new_buffer_start    = substr( $combined_buffer, 0, $buffer_start_length );
+		$new_buffer_end      = substr( $combined_buffer, $buffer_start_length );
+
+		// Check for successful split
+		if ( false === $new_buffer_start || false === $new_buffer_end ) {
+			// If splitting failed, return the original buffers
+			return array( $buffer_start, $buffer_end );
+		}
+
+		return array( $new_buffer_start, $new_buffer_end );
 	}
 
 	/**
@@ -136,92 +177,6 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 		);
 
 		$instance->register_action( 'lcp_state', 'request-analyze', Schema::as_void(), new Optimize_LCP_Endpoint() );
-	}
-
-	/**
-	 * @since 3.13.1
-	 */
-	public function start_output_filtering() {
-		if ( LCP_Optimizer::should_skip_optimization() ) {
-			return;
-		}
-
-		$this->output_filter->add_callback( array( $this, 'optimize' ) );
-	}
-
-	/**
-	 * Adds preload links for LCP background images to the <head>.
-	 *
-	 * @since 4.0.0
-	 */
-	public function add_preload_links_to_head() {
-		if ( LCP_Optimizer::should_skip_optimization() ) {
-			return;
-		}
-
-		$lcp_storage = $this->storage->get_current_request_lcp();
-
-		if ( empty( $lcp_storage ) ) {
-			return;
-		}
-
-		$images_to_preload = array();
-		foreach ( $lcp_storage as $lcp_data ) {
-			$image_to_preload = ( new LCP_Optimizer( $lcp_data ) )->get_image_to_preload();
-			if ( ! empty( $image_to_preload ) ) {
-				$images_to_preload[] = $image_to_preload;
-			}
-		}
-
-		if ( empty( $images_to_preload ) ) {
-			return;
-		}
-
-		// Ensure each image URL is unique.
-		$images_to_preload = array_unique( $images_to_preload );
-		foreach ( $images_to_preload as $image_url ) {
-			printf(
-				'<link rel="preload" href="%s" as="image" fetchpriority="high" />' . "\n",
-				esc_url( $image_url )
-			);
-		}
-	}
-
-	/**
-	 * Optimize the HTML content by finding the LCP image and adding required attributes.
-	 *
-	 * @param string $buffer_start First part of the buffer.
-	 * @param string $buffer_end   Second part of the buffer.
-	 *
-	 * @return array Parts of the buffer.
-	 *
-	 * @since 3.13.1
-	 */
-	public function optimize( $buffer_start, $buffer_end ) {
-		$lcp_storage = $this->storage->get_current_request_lcp();
-		if ( empty( $lcp_storage ) ) {
-			return array( $buffer_start, $buffer_end );
-		}
-
-		// Combine the buffers for processing
-		$combined_buffer = $buffer_start . $buffer_end;
-
-		foreach ( $lcp_storage as $lcp_data ) {
-			$combined_buffer = ( new LCP_Optimizer( $lcp_data ) )->optimize_buffer( $combined_buffer );
-		}
-
-		// Split the modified buffer back into two parts
-		$buffer_start_length = strlen( $buffer_start );
-		$new_buffer_start    = substr( $combined_buffer, 0, $buffer_start_length );
-		$new_buffer_end      = substr( $combined_buffer, $buffer_start_length );
-
-		// Check for successful split
-		if ( false === $new_buffer_start || false === $new_buffer_end ) {
-			// If splitting failed, return the original buffers
-			return array( $buffer_start, $buffer_end );
-		}
-
-		return array( $new_buffer_start, $new_buffer_end );
 	}
 
 	/**

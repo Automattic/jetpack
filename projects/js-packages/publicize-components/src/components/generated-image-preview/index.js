@@ -15,15 +15,40 @@ const getMediaSourceUrl = media => {
 	return media?.media_details?.sizes?.large?.source_url || media?.source_url;
 };
 
-export const calculateImageUrl = ( imageType, customImageId, featuredImageId, getMedia ) => {
+const getImageId = ( imageType, customImageId, featuredImageId, defaultImageId ) => {
+	if ( imageType === 'custom' && customImageId ) {
+		return customImageId;
+	}
+
+	if ( imageType === 'default' && defaultImageId ) {
+		return defaultImageId;
+	}
+
+	if ( imageType === 'featured' && featuredImageId ) {
+		return featuredImageId;
+	}
+
+	return featuredImageId || defaultImageId;
+};
+
+export const calculateImageUrl = (
+	imageType,
+	customImageId,
+	featuredImageId,
+	defaultImageId,
+	getMedia
+) => {
 	if (
 		imageType === 'none' ||
 		( imageType === 'custom' && ! customImageId ) ||
-		( ( imageType ?? 'featured' ) === 'featured' && ! featuredImageId )
+		( ( imageType ?? 'featured' ) === 'featured' && ! featuredImageId && ! defaultImageId )
 	) {
 		return null;
 	}
-	const media = getMedia( imageType === 'custom' ? customImageId : featuredImageId );
+
+	const usedImageId = getImageId( imageType, customImageId, featuredImageId, defaultImageId );
+
+	const media = getMedia( usedImageId );
 	if ( ! media ) {
 		return FEATURED_IMAGE_STILL_LOADING;
 	}
@@ -45,7 +70,7 @@ export default function GeneratedImagePreview( {
 	const [ generatedImageUrl, setGeneratedImageUrl ] = useState( null );
 	const [ isLoading, setIsLoading ] = useState( true );
 
-	const { customText, imageType, imageId, template, setToken } = {
+	const { customText, imageType, imageId, defaultImageId, template, setToken } = {
 		...useImageGeneratorConfig(),
 		...generatorConfigProps,
 	};
@@ -53,7 +78,13 @@ export default function GeneratedImagePreview( {
 		const featuredImage = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 		return {
 			title: select( editorStore ).getEditedPostAttribute( 'title' ),
-			imageUrl: calculateImageUrl( imageType, imageId, featuredImage, select( 'core' ).getMedia ),
+			imageUrl: calculateImageUrl(
+				imageType,
+				imageId,
+				featuredImage,
+				defaultImageId,
+				select( 'core' ).getMedia
+			),
 		};
 	} );
 

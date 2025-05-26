@@ -94,4 +94,4 @@ function add_ai_chat_block_data() {
 		'before'
 	);
 }
-add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_ai_chat_block_data' );
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_ai_chat_block_data', 11 );

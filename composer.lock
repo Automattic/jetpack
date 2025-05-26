@@ -64,12 +64,12 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "903624342778c13451bc69b9d5e532d61d52b6a8"
+                "reference": "ba4dbd5164cb2b0e49b07664fe602473888d8c1a"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-                "mediawiki/mediawiki-codesniffer": "^46.0",
+                "mediawiki/mediawiki-codesniffer": "^47.0",
                 "php": ">=8.0",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
                 "phpcsstandards/phpcsutils": "^1.0",
@@ -465,24 +465,24 @@
         },
         {
             "name": "composer/spdx-licenses",
-            "version": "1.5.8",
+            "version": "1.5.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/spdx-licenses.git",
-                "reference": "560bdcf8deb88ae5d611c80a2de8ea9d0358cc0a"
+                "reference": "edf364cefe8c43501e21e88110aac10b284c3c9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/spdx-licenses/zipball/560bdcf8deb88ae5d611c80a2de8ea9d0358cc0a",
-                "reference": "560bdcf8deb88ae5d611c80a2de8ea9d0358cc0a",
+                "url": "https://api.github.com/repos/composer/spdx-licenses/zipball/edf364cefe8c43501e21e88110aac10b284c3c9f",
+                "reference": "edf364cefe8c43501e21e88110aac10b284c3c9f",
                 "shasum": ""
             },
             "require": {
                 "php": "^5.3.2 || ^7.0 || ^8.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^0.12.55",
-                "symfony/phpunit-bridge": "^4.2 || ^5"
+                "phpstan/phpstan": "^1.11",
+                "symfony/phpunit-bridge": "^3 || ^7"
             },
             "type": "library",
             "extra": {
@@ -525,7 +525,7 @@
             "support": {
                 "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/spdx-licenses/issues",
-                "source": "https://github.com/composer/spdx-licenses/tree/1.5.8"
+                "source": "https://github.com/composer/spdx-licenses/tree/1.5.9"
             },
             "funding": [
                 {
@@ -541,7 +541,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-11-20T07:44:33+00:00"
+            "time": "2025-05-12T21:07:07+00:00"
         },
         {
             "name": "composer/xdebug-handler",
@@ -782,16 +782,16 @@
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",
-            "version": "v46.0.0",
+            "version": "v47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-tools-codesniffer.git",
-                "reference": "6bd8a9ac4c10bf393dcd9ef32e3402399128a9e5"
+                "reference": "056bb337d5229699356884563431b9cc6521ad14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/6bd8a9ac4c10bf393dcd9ef32e3402399128a9e5",
-                "reference": "6bd8a9ac4c10bf393dcd9ef32e3402399128a9e5",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/056bb337d5229699356884563431b9cc6521ad14",
+                "reference": "056bb337d5229699356884563431b9cc6521ad14",
                 "shasum": ""
             },
             "require": {
@@ -801,7 +801,7 @@
                 "ext-mbstring": "*",
                 "php": ">=7.4.0",
                 "phpcsstandards/phpcsextra": "1.2.1",
-                "squizlabs/php_codesniffer": "3.11.3",
+                "squizlabs/php_codesniffer": "3.12.2",
                 "symfony/polyfill-php80": "^1.26.0"
             },
             "require-dev": {
@@ -830,9 +830,9 @@
                 "mediawiki"
             ],
             "support": {
-                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v46.0.0"
+                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v47.0.0"
             },
-            "time": "2025-01-27T21:05:44+00:00"
+            "time": "2025-05-04T07:30:05+00:00"
         },
         {
             "name": "microsoft/tolerant-php-parser",
@@ -2129,16 +2129,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.11.3",
+            "version": "3.12.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/PHP_CodeSniffer",
-                "reference": "ced34d3d7a3b3d63db3d192d1f287eecd8017224"
+                "reference": "faa2b902f228a04a73206edc433b766032281d04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/ced34d3d7a3b3d63db3d192d1f287eecd8017224",
-                "reference": "ced34d3d7a3b3d63db3d192d1f287eecd8017224",
+                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/faa2b902f228a04a73206edc433b766032281d04",
+                "reference": "faa2b902f228a04a73206edc433b766032281d04",
                 "shasum": ""
             },
             "require": {

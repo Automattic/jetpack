@@ -30,6 +30,16 @@ export function isAtomicSite() {
 }
 
 /**
+ * Check if environment is a WoA site.
+ * Replacement function for isAtomicSite.
+ *
+ * @return {boolean} True for WoA sites.
+ */
+export function isWoASite() {
+	return getSiteType() === 'atomic';
+}
+
+/**
  * Return whether the current blog is set to private. (if blog_public option is -1)
  *
  * @return {boolean} whether the current blog is set to private.
