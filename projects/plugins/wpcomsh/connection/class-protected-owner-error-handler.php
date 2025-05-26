@@ -163,7 +163,7 @@ class Protected_Owner_Error_Handler {
 			case 'wrong_owner_protected_owner_missing':
 				return sprintf(
 					// translators: %s is the WordPress.com email address
-					__( 'This site is connected to WordPress.com, but the WordPress.com plan owner with email %s is missing.', 'wpcomsh' ),
+					__( 'This site is connected, but the WordPress.com plan owner with email %s is missing.', 'wpcomsh' ),
 					$email_text
 				) . $fix_explanation;
 			case 'no_user_connection_protected_owner_missing':
