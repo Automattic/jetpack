@@ -2,7 +2,7 @@
 /**
  * Contact REST controller.
  *
- * @package Automattic\Jetpack\CRM
+ * @package automattic/jetpack-crm
  */
 
 namespace Automattic\Jetpack\CRM\REST_API\V4;
@@ -19,7 +19,6 @@ defined( 'ABSPATH' ) || exit( 0 );
 /**
  * REST contacts controller.
  *
- * @package Automattic\Jetpack\CRM
  * @since 6.1.0
  */
 final class REST_Contacts_Controller extends REST_Base_Objects_Controller {
