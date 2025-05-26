@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide Backup failure notice when backups are deactivated.
