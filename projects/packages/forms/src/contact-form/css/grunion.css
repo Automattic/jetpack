@@ -90,6 +90,14 @@
 	font-weight: 700;
 }
 
+.grunion-checkbox-multiple-options :where( legend ),
+.grunion-radio-options :where( legend ) {
+	margin-bottom: 0.25em;
+	padding: 0;
+	font-weight: 700;
+}
+
+
 .contact-form :where(label.consent) {
 	font-size: 13px;
 	font-weight: 400;
@@ -142,16 +150,6 @@
 :where( .contact-form .is-style-outlined .grunion-checkbox-multiple-options ),
 :where( .contact-form .is-style-outlined .grunion-radio-options )  {
 	border: solid 1px var( --jetpack--contact-form--border-color );
-}
-
-.grunion-checkbox-multiple-options,
-.grunion-radio-options {
-
-	:where( legend ) {
-		margin-bottom: 0.25em;
-		padding: 0;
-		font-weight: 700;
-	}
 }
 
 .contact-form .is-style-animated .grunion-checkbox-multiple-options legend,
@@ -577,7 +575,6 @@ on production builds, the attributes are being reordered, causing side-effects
 	pointer-events: none;
 	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 	margin: 0;
-	font-weight: 300;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .grunion-label-text {
@@ -590,7 +587,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap legend.grunion-field-label {
+.contact-form :where(.is-style-outlined .grunion-field-wrap .notched-label .notched-label__label),
+.contact-form :where(.is-style-outlined .grunion-field-wrap legend.grunion-field-label) {
 	font-weight: 300;
 }
 
