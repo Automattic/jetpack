@@ -666,7 +666,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		return '<legend '
 				. $extra_attrs_string
 				. '>'
-				. wp_kses_post( $legend )
+				. '<span class="grunion-label-text">' . wp_kses_post( $legend ) . '</span>'
 				. ( $required ? '<span class="grunion-label-required">' . $required_field_text . '</span>' : '' )
 				. "</legend>\n";
 	}
@@ -1516,9 +1516,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						for="' . esc_attr( $id ) . '"
 						class=" ' . $classes . '"
 						style="' . $this->label_styles . esc_attr( $output_data['css_vars'] ) . '"
-					>'
-			. esc_html( $label )
-			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+					>
+					<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
+					. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>
 				</div>
 				<div class="notched-label__filler' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
