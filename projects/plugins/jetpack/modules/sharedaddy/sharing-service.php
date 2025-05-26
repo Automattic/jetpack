@@ -689,7 +689,7 @@ class Sharing_Service_Total {
 		$this->service = $services->get_service( $id );
 		$this->total   = (int) $total;
 
-		if ( $this->service && is_object( $this->service ) ) {
+		if ( is_object( $this->service ) ) {
 			$this->name = $this->service->get_name();
 		}
 	}
