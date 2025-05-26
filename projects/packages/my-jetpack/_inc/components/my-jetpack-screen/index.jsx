@@ -2,14 +2,14 @@
  * External dependencies
  */
 import {
-	AdminSection,
+	ActionButton,
 	AdminPage,
-	Container,
+	AdminSection,
 	Col,
+	Container,
+	GlobalNotices,
 	Notice,
 	useBreakpointMatch,
-	ActionButton,
-	GlobalNotices,
 } from '@automattic/jetpack-components';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { __, _x } from '@wordpress/i18n';
@@ -42,9 +42,9 @@ import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
 import LoadingBlock from '../loading-block';
+import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import OnboardingTour from '../onboarding-tour';
 import PlansSection from '../plans-section';
-import ProductCardsSection from '../product-cards-section';
 import WelcomeFlow from '../welcome-flow';
 import styles from './styles.module.scss';
 
@@ -234,7 +234,7 @@ export default function MyJetpackScreen() {
 
 			{ isRedirectingFromOnboarding && <OnboardingTour /> }
 
-			<ProductCardsSection />
+			<MyJetpackTabPanel />
 
 			{ userIsAdmin && (
 				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>

@@ -1,0 +1,13 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.tab-panel {
+	margin-inline-start: 2rem;
+
+	@media ( max-width: $break-medium ) {
+		margin-inline-start: 1rem;
+	}
+}
+
+.tab-content-wrapper {
+	padding-inline-start: 1rem;
+}
