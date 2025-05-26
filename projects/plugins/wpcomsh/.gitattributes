@@ -11,6 +11,7 @@ package.json      export-ignore
 /vendor/autoload_packages.php                 production-include
 /vendor/automattic/**                         production-include
 /vendor/composer/**                           production-include
+/vendor/jetpack-autoloader/**                 production-include
 /vendor/scssphp/scssphp/**                    production-include
 /vendor/tubalmartin/**                        production-include
 /vendor/wordpress/classic-editor-plugin/**    production-include
