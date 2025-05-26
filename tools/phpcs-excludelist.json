@@ -17,7 +17,6 @@
 	"projects/packages/sync/src/replicastore/class-table-checksum.php",
 	"projects/plugins/crm/ZeroBSCRM.php",
 	"projects/plugins/crm/admin/activation/before-you-go.php",
-	"projects/plugins/crm/admin/activation/welcome-to-jpcrm.php",
 	"projects/plugins/crm/admin/company/view.page.php",
 	"projects/plugins/crm/admin/contact/add-file.page.php",
 	"projects/plugins/crm/admin/contact/view.page.php",
