@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
+use Automattic\Jetpack\Boost\App\Contracts\Is_Dev_Feature;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
 use Automattic\Jetpack_Boost\Contracts\Feature;
@@ -80,9 +81,15 @@ class Module {
 			return array();
 		}
 
+		// Even though the sanitization and unslashing are not needed here, we do it to satisfy the linter rule and consistency.
+		$include_dev_features = false !== strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ?? '' ) ), 'jurassic.ninja' );
+		if ( defined( 'JETPACK_BOOST_DEVELOPMENT_FEATURES' ) ) {
+			$include_dev_features = JETPACK_BOOST_DEVELOPMENT_FEATURES;
+		}
+
 		$available_submodules = array();
 		foreach ( $submodules as $slug => $submodule ) {
-			if ( $submodule->is_available() ) {
+			if ( $submodule->is_available() || ( $include_dev_features && $submodule->feature instanceof Is_Dev_Feature ) ) {
 				$available_submodules[ $slug ] = $submodule;
 			}
 		}
