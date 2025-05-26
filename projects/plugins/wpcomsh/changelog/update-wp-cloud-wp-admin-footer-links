@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+WordPress.com Site Helper: add a filter to WP Cloud sites hosted on WordPress.com to show various support links in the site's WP Admin page footer.
