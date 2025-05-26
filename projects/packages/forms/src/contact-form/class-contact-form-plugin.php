@@ -408,11 +408,12 @@ class Contact_Form_Plugin {
 		$block_style_classes = empty( $matches[0] ) ? '' : implode( ' ', $matches[0] );
 
 		if ( ! empty( $block_style_classes ) ) {
-			$wrap_classes          = ! empty( $matches[0] ) ? ' ' . implode( '-wrap ', $matches[0] ) . '-wrap' : '';
+			$wrap_classes          = ! empty( $matches[0] ) ? ' ' . implode( '-wrap ', array_filter( $matches[0] ) ) . '-wrap' : '';
 			$field_wrapper_classes = " $block_style_classes $wrap_classes";
-			// Remove block style classes from the original classname.
-			$classes_without_block_style = trim( preg_replace( '/is-style-([^\s]+)/i', '', $classname ) );
 		}
+
+		// Remove block style classes from the original classname.
+		$classes_without_block_style = trim( preg_replace( '/is-style-([^\s]+)/i', '', $classname ) );
 
 		return array(
 			'fieldwrapperclasses' => $field_wrapper_classes,
