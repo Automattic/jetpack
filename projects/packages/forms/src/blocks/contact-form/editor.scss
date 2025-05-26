@@ -942,6 +942,11 @@
 					transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
 					will-change: font-size;
 				}
+
+				.required {
+					transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
+					will-change: font-size;
+				}
 			}
 
 			.jetpack-field-multiple__list.jetpack-field-multiple__list--has-border {
