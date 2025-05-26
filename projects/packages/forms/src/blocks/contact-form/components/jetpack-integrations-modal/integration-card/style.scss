@@ -97,6 +97,7 @@
 		color: var(--jp-gray-50);
 		font-size: 13px;
 		line-height: 1.5;
+		margin-top: 0;
 
 		@media (max-width: 782px) {
 			text-wrap: balance;
@@ -116,9 +117,14 @@
 	}
 
 	.components-card__body {
-		padding-bottom: 30px;
-		padding-left: 0;
+		padding-top: 8px;
+		padding-bottom: 24px;
+		padding-left: 60px; // this is to align with the row above's icon + gap (44 + 16)
 		padding-right: 0;
+
+		:last-child {
+			margin-bottom: 0;
+		}
 	}
 
 	.components-card-header {
