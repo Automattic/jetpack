@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.7-a.6 - 2025-05-26
+## 14.7-a.7 - 2025-05-26
 ### Enhancements
 - Social: Add option to add default image to Social Image Generator. [#43461]
 - Forms: Add Integration screen content. [#43530]
