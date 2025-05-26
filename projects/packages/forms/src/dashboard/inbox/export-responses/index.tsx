@@ -20,19 +20,23 @@ import './style.scss';
 
 const ExportResponsesButton = () => {
 	const [ showExportModal, setShowExportModal ] = useState( false );
+	const openModal = useCallback( () => setShowExportModal( true ), [ setShowExportModal ] );
+	const closeModal = useCallback( () => setShowExportModal( false ), [ setShowExportModal ] );
+	const [ autoConnectGdrive, setAutoConnectGdrive ] = useState( false );
+
 	const userCanExport = useSelect(
 		select => select( coreStore ).canUser( 'update', 'settings' ),
 		[]
 	);
+
 	const { selected, currentQuery } = useSelect( select => {
 		const { getSelectedResponsesFromCurrentDataset, getCurrentQuery } = select( dashboardStore );
+
 		return { selected: getSelectedResponsesFromCurrentDataset(), currentQuery: getCurrentQuery() };
 	}, [] );
-	const openModal = useCallback( () => setShowExportModal( true ), [ setShowExportModal ] );
-	const closeModal = useCallback( () => setShowExportModal( false ), [ setShowExportModal ] );
-	const [ autoConnectGdrive, setAutoConnectGdrive ] = useState( false );
+
 	const onExport = useCallback(
-		( action, nonceName ) => {
+		( action: string, nonceName: string ) => {
 			const data = new FormData();
 			data.append( 'action', action );
 			data.append( nonceName, config( 'exportNonce' ) );
@@ -57,6 +61,7 @@ const ExportResponsesButton = () => {
 		if ( url.searchParams.get( 'connect-gdrive' ) === 'true' ) {
 			setAutoConnectGdrive( true );
 			openModal();
+
 			// Update the URL to remove the query param
 			url.searchParams.delete( 'connect-gdrive' );
 			window.history.replaceState( {}, '', url );
