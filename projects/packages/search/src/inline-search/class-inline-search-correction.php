@@ -12,7 +12,7 @@ use Automattic\Jetpack\Assets;
 /**
  * Class for handling search correction display
  *
- * @since $$next-version$$
+ * @since 0.48.0
  */
 class Inline_Search_Correction {
 	/**
@@ -34,7 +34,7 @@ class Inline_Search_Correction {
 	 * Enqueue theme-specific styles for the search correction.
 	 * This is hooked to wp_enqueue_scripts to ensure styles load properly in the head.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.48.0
 	 */
 	public function enqueue_styles() {
 		$corrected_query_html = $this->get_corrected_query_html();
@@ -49,7 +49,7 @@ class Inline_Search_Correction {
 	/**
 	 * Register and configure the JavaScript for displaying the corrected query notice.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.48.0
 	 */
 	public function register_corrected_query_script() {
 		$corrected_query_html = $this->get_corrected_query_html();
@@ -86,7 +86,7 @@ class Inline_Search_Correction {
 	/**
 	 * Register and enqueue theme-specific styles for corrected query.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.48.0
 	 * @param string $handle The script handle to use for the stylesheet.
 	 */
 	private function register_corrected_query_style( $handle ) {
@@ -136,7 +136,7 @@ class Inline_Search_Correction {
 	/**
 	 * Get selectors where corrected query notice will be displayed.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.48.0
 	 * @return array CSS selectors for search title elements.
 	 */
 	private function get_title_selectors() {
@@ -152,7 +152,7 @@ class Inline_Search_Correction {
 		/**
 		 * Filter the selectors where corrected query notice appears.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.48.0
 		 * @param array $default_selectors CSS selectors for search title elements.
 		 */
 		return apply_filters( 'jetpack_search_title_selectors', $default_selectors );

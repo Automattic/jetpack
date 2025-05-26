@@ -1,3 +1,5 @@
+@use '../../scss/functions/rem';
+
 .jp-dialogue-modern-full__container {
 	box-sizing: border-box;
 	position: fixed;
@@ -22,15 +24,15 @@ body.jp-dialogue-modern-showing {
 }
 
 .jp-dialogue-modern {
-	max-width: rem( 300px );
-	margin: rem( 32px ) auto;
+	max-width: rem.convert( 300px );
+	margin: rem.convert( 32px ) auto;
 	overflow: hidden;
 	position: relative;
 	background-color: #fff;
 	box-shadow: 0 5px 24px 0 rgba( 0, 0, 0, 0.13);
 
 	p {
-		font-size: rem( 16px );
+		font-size: rem.convert( 16px );
 		color: #000;
 		text-align: left;
 	}
@@ -43,13 +45,13 @@ body.jp-dialogue-modern-showing {
 	li {
 		text-align: left;
 		list-style: disc outside none;
-		margin: rem(16px);
-		font-size: rem( 16px );
+		margin: rem.convert(16px);
+		font-size: rem.convert( 16px );
 		color: #000;
 	}
 
 	p + img {
-		margin: rem( 32px ) 0 rem( 16px );
+		margin: rem.convert( 32px ) 0 rem.convert( 16px );
 	}
 
 	.dops-card {
@@ -80,9 +82,9 @@ body.jp-dialogue-modern-showing {
 	right: -16px;
 	top: -16px;
 	fill: #2c3338; // TODO: $studio-gray-80
-	padding: rem( 16px );
-	height: rem( 32px );
-	width: rem( 32px );
+	padding: rem.convert( 16px );
+	height: rem.convert( 32px );
+	width: rem.convert( 32px );
 }
 
 .jp-dialogue-modern.has-featured-image .jp-dialogue-modern-full__dismiss {
@@ -92,8 +94,8 @@ body.jp-dialogue-modern-showing {
 h1.jp-dialogue-modern__title {
 	font-weight: 600;
 	text-align: left;
-	font-size: rem( 24px );
-	margin: 0 0 rem( 32px ) 0;
+	font-size: rem.convert( 24px );
+	margin: 0 0 rem.convert( 32px ) 0;
 }
 
 .jp-dialogue-modern__content {
@@ -105,10 +107,10 @@ h1.jp-dialogue-modern__title {
 	text-align: center;
 	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 200%;
-	padding: rem( 8px ) 0 0;
+	padding: rem.convert( 8px ) 0 0;
 
 	.dops-button {
-		margin: 0 rem( 8px );
+		margin: 0 rem.convert( 8px );
 	}
 }
 
@@ -116,8 +118,8 @@ h1.jp-dialogue-modern__title {
 
 .jp-dialogue-modern__note, a.jp-dialogue-modern__note {
 	margin: 0;
-	padding: rem( 16px ) 0 0;
-	font-size: rem( 14px );
+	padding: rem.convert( 16px ) 0 0;
+	font-size: rem.convert( 14px );
 	clear: both;
 	font-style: italic;
 }
@@ -126,13 +128,13 @@ h1.jp-dialogue-modern__title {
 .jp-dialogue-modern-full__svg-jupiter {
 	position: absolute;
 	right: 0;
-	top: rem( 80px );
+	top: rem.convert( 80px );
 	opacity: .90;
 }
 
 .jp-dialogue-modern-full__svg-stars {
 	position: absolute;
-	left: rem( 100px );
-	top: rem( 100px );
+	left: rem.convert( 100px );
+	top: rem.convert( 100px );
 	opacity: .90;
 }

@@ -269,7 +269,7 @@ function load_editor_scripts() {
 		'before'
 	);
 }
-add_action( 'enqueue_block_assets', __NAMESPACE__ . '\load_editor_scripts' );
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\load_editor_scripts', 11 );
 
 /**
  * Determine if AMP should be disabled on posts having Donations blocks.

@@ -123,6 +123,7 @@ export interface KeyringResult extends KeyringAdditionalUser {
 export type SocialImageGeneratorConfig = {
 	enabled: boolean;
 	template?: string;
+	default_image_id?: number;
 };
 
 export type UtmSettingsConfig = {

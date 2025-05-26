@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Endpoints: Preventing warnings in error logs when using the update post endpoint without keys.

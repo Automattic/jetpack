@@ -29,7 +29,7 @@ import {
 	isOfflineMode,
 	connectUser,
 } from 'state/connection';
-import { isAtomicSite, showBackups } from 'state/initial-state';
+import { isWoASite, showBackups } from 'state/initial-state';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
@@ -285,7 +285,7 @@ class DashScan extends Component {
 	}
 
 	renderAction( url, message ) {
-		if ( this.props.isAtomicSite ) {
+		if ( this.props.isWoASite ) {
 			return null;
 		}
 
@@ -437,7 +437,7 @@ export default connect(
 		const sitePlan = getSitePlan( state );
 
 		return {
-			isAtomicSite: isAtomicSite( state ),
+			isWoASite: isWoASite( state ),
 			isOfflineMode: isOfflineMode( state ),
 			scanStatus: getScanStatus( state ),
 			fetchingScanStatus: isFetchingScanStatus( state ),

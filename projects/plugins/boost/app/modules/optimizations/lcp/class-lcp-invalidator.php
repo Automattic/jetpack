@@ -14,7 +14,6 @@ class LCP_Invalidator {
 	public static function init() {
 		add_action( 'jetpack_boost_deactivate', array( self::class, 'reset_data' ) );
 		add_action( 'update_option_jetpack_boost_ds_cornerstone_pages_list', array( self::class, 'reset_and_analyze' ) );
-
 		add_action( 'jetpack_boost_environment_changed', array( self::class, 'handle_environment_change' ) );
 		add_action( 'post_updated', array( self::class, 'handle_post_update' ) );
 	}
@@ -22,7 +21,7 @@ class LCP_Invalidator {
 	/**
 	 * Reset any LCP analysis data (state and storage).
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public static function reset_data() {
 		$state = new LCP_State();
@@ -35,7 +34,7 @@ class LCP_Invalidator {
 	/**
 	 * Reset the LCP analysis data, and analyze the pages again.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public static function reset_and_analyze() {
 		self::reset_data();
@@ -49,7 +48,7 @@ class LCP_Invalidator {
 	/**
 	 * Respond to environment changes; deciding whether or not to clear LCP analysis data.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public static function handle_environment_change( $is_major_change ) {
 		if ( $is_major_change ) {
@@ -60,14 +59,20 @@ class LCP_Invalidator {
 	/**
 	 * Handle post updates to check if the post is a cornerstone page and schedule preload if needed.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 * @param int $post_id The ID of the post being updated.
 	 * @return void
 	 */
 	public static function handle_post_update( int $post_id ) {
 		if ( Cornerstone_Utils::is_cornerstone_page( $post_id ) ) {
-			// @TODO: Once the Cloud supports individual page analysis, we can invalidate the LCP analysis for the specific page instead of all.
-			self::reset_and_analyze();
+			$url = get_permalink( $post_id );
+
+			$analyzer = new LCP_Analyzer();
+			$analyzer->start_partial_analysis(
+				array(
+					Cornerstone_Utils::prepare_provider_data( $url ),
+				)
+			);
 		}
 	}
 }

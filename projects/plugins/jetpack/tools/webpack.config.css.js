@@ -53,9 +53,10 @@ const sharedWebpackConfig = {
 					{
 						loader: 'sass-loader',
 						options: {
+							api: 'modern-compiler',
 							sassOptions: {
 								// The minifier will minify if necessary.
-								outputStyle: 'expanded',
+								style: 'expanded',
 							},
 						},
 					},

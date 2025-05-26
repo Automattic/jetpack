@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './page-cache.module.scss';
 import { isWpCloudClient, isWoaHosting } from '$lib/utils/hosting';
+import { hasConflictingCache } from '$lib/utils/caching';
 
 const DismissableNotice = ( { title, children }: { title: string; children: ReactNode } ) => {
 	const [ dismissed, setDismissed ] = useState( false );
@@ -37,7 +38,7 @@ const PageCache = () => {
 		pageCacheSetup.isSuccess && !! moduleState?.active
 	);
 	const showCacheFromHostingNotice =
-		! moduleState?.available && ( isWoaHosting() || isWpCloudClient() );
+		! moduleState?.available && ( isWoaHosting() || isWpCloudClient() || hasConflictingCache() );
 
 	const [ removePageCacheNotice ] = useMutationNotice(
 		'page-cache-setup',

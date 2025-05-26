@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix Code coverage run when testing with PHPCS 3.13.
+
+

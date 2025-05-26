@@ -1,3 +1,5 @@
+@use '../scss/functions/rem';
+
 .brute-force__current-ip {
 	margin-bottom: 16px;
 }
@@ -134,7 +136,7 @@
 
 			.modal-survey-notice__popup-head-title {
 				color: #fff;
-				font-size: rem(14px);
+				font-size: rem.convert(14px);
 				font-weight: 500;
 				line-height: 20px;
 				letter-spacing: -0.15px;
@@ -150,7 +152,7 @@
 			background: #fff;
 
 			.modal-survey-notice__popup-content-title {
-				font-size: rem(16px);
+				font-size: rem.convert(16px);
 				font-weight: 500;
 				line-height: 24px;
 				letter-spacing: -0.32px;
@@ -158,7 +160,7 @@
 			}
 
 			.modal-survey-notice__popup-content-description {
-				font-size: rem(14px);
+				font-size: rem.convert(14px);
 				line-height: 20px;
 				letter-spacing: -0.15px;
 				padding-bottom: 18px;
@@ -172,7 +174,7 @@
 					padding: 8px 14px;
 					background: #0675c4;
 					color: #fff;
-					font-size: rem(14px);
+					font-size: rem.convert(14px);
 					line-height: 20px;
 					letter-spacing: -0.15px;
 				}
@@ -181,7 +183,7 @@
 					padding: 8px 14px;
 					color: #0675c4;
 					text-align: center;
-					font-size: rem(14px);
+					font-size: rem.convert(14px);
 					line-height: 20px;
 					letter-spacing: -0.15px;
 				}

@@ -16,13 +16,20 @@ import {
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
 	ERROR_RESPONSE,
+	AI_MODEL_DEFAULT,
+	AI_MODEL_GEMINI_NANO,
 } from '../../types.ts';
 /**
  * Types & constants
  */
 import type { AskQuestionOptionsArgProps } from '../../ask-question/index.ts';
 import type SuggestionsEventSource from '../../suggestions-event-source/index.ts';
-import type { PromptProp, SuggestionErrorCode, RequestingStateProp } from '../../types.ts';
+import type {
+	PromptProp,
+	SuggestionErrorCode,
+	RequestingStateProp,
+	AiModelTypeProp,
+} from '../../types.ts';
 
 export type RequestingErrorProps = {
 	/*
@@ -70,7 +77,7 @@ type useAiSuggestionsOptions = {
 	/*
 	 * onDone callback.
 	 */
-	onDone?: ( content: string, skipRequestCount?: boolean ) => void;
+	onDone?: ( content: string, skipRequestCount?: boolean, modelUsed?: AiModelTypeProp ) => void;
 
 	/*
 	 * onStop callback.
@@ -85,7 +92,7 @@ type useAiSuggestionsOptions = {
 	/*
 	 * Error callback common for all errors.
 	 */
-	onAllErrors?: ( error: RequestingErrorProps ) => void;
+	onAllErrors?: ( error: RequestingErrorProps, skipRequestCount?: boolean ) => void;
 };
 
 type useAiSuggestionsProps = {
@@ -93,6 +100,11 @@ type useAiSuggestionsProps = {
 	 * The suggestion.
 	 */
 	suggestion: string;
+
+	/*
+	 * The model.
+	 */
+	model: AiModelTypeProp;
 
 	/*
 	 * The error.
@@ -221,6 +233,12 @@ export default function useAiSuggestions( {
 	const [ requestingState, setRequestingState ] =
 		useState< RequestingStateProp >( initialRequestingState );
 	const [ suggestion, setSuggestion ] = useState< string >( '' );
+	const [ model, setModel ] = useState< AiModelTypeProp >( AI_MODEL_DEFAULT );
+	const modelRef = useRef< AiModelTypeProp >( AI_MODEL_DEFAULT );
+	const setModelAndRef = ( value: AiModelTypeProp ) => {
+		setModel( value );
+		modelRef.current = value;
+	};
 	const [ error, setError ] = useState< RequestingErrorProps >();
 
 	// Store the event source in a ref, so we can handle it if needed.
@@ -258,7 +276,7 @@ export default function useAiSuggestions( {
 
 			const fullSuggestion = removeLlamaArtifact( event?.detail?.message ?? event?.detail );
 
-			onDone?.( fullSuggestion, event?.detail?.source === 'chromeAI' );
+			onDone?.( fullSuggestion, event?.detail?.source === 'chromeAI', modelRef.current );
 			setRequestingState( 'done' );
 		},
 		[ onDone ]
@@ -266,7 +284,7 @@ export default function useAiSuggestions( {
 
 	const handleAnyError = useCallback(
 		( event: CustomEvent ) => {
-			onAllErrors?.( event?.detail );
+			onAllErrors?.( event?.detail, event?.detail?.source === 'chromeAI' );
 		},
 		[ onAllErrors ]
 	);
@@ -319,8 +337,10 @@ export default function useAiSuggestions( {
 			const chromeAI = await ChromeAIFactory( promptArg );
 
 			if ( chromeAI !== false ) {
+				setModelAndRef( AI_MODEL_GEMINI_NANO );
 				eventSourceRef.current = chromeAI;
 			} else {
+				setModelAndRef( AI_MODEL_DEFAULT );
 				eventSourceRef.current = await askQuestion( promptArg, options );
 			}
 
@@ -436,6 +456,7 @@ export default function useAiSuggestions( {
 	return {
 		// Data
 		suggestion,
+		model,
 		error,
 		requestingState,
 

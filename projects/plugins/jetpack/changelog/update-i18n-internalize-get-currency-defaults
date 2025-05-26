@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Added getCurrencyDefaults method to JP to allow upgrading the format-currency NPM dependency

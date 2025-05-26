@@ -39,6 +39,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Cornerstone_Pages;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\List_LCP_Analysis;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -265,6 +266,7 @@ class Jetpack_Boost {
 		REST_API::register( List_Site_Urls::class );
 		REST_API::register( List_Source_Providers::class );
 		REST_API::register( List_Cornerstone_Pages::class );
+		REST_API::register( List_LCP_Analysis::class );
 
 		$this->connection->ensure_connection();
 		( new Admin() )->init( $modules_setup );

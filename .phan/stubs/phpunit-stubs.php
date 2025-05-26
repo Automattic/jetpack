@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.1.4
+ * Stubs automatically generated from PHPUnit 12.1.6
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -5842,8 +5842,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws GeneratorNotSupportedException
-     *
-     * @phan-assert empty $actual
      */
     final public static function assertEmpty(mixed $actual, string $message = ''): void
     {
@@ -5853,8 +5851,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws GeneratorNotSupportedException
-     *
-     * @phan-assert !empty $actual
      */
     final public static function assertNotEmpty(mixed $actual, string $message = ''): void
     {
@@ -7888,8 +7884,6 @@ function assertObjectNotEquals(object $expected, object $actual, string $method 
  * @throws ExpectationFailedException
  * @throws GeneratorNotSupportedException
  *
- * @phan-assert empty $actual
- *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @see Assert::assertEmpty
@@ -7902,8 +7896,6 @@ function assertEmpty(mixed $actual, string $message = '', ...$func_get_args): vo
  *
  * @throws ExpectationFailedException
  * @throws GeneratorNotSupportedException
- *
- * @phan-assert !empty $actual
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -14297,6 +14289,17 @@ final class RuntimeException extends \PHPUnit\Framework\Exception implements \PH
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final class UnknownInterfaceException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
+{
+    public function __construct(string $interfaceName)
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final class UnknownTypeException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
     public function __construct(string $type)
@@ -14334,7 +14337,7 @@ final class Generator
      * @param list<class-string> $interfaces
      *
      * @throws RuntimeException
-     * @throws UnknownTypeException
+     * @throws UnknownInterfaceException
      */
     public function testDoubleForInterfaceIntersection(array $interfaces, bool $mockObject, bool $returnValueGeneration = true): \PHPUnit\Framework\MockObject\MockObject|\PHPUnit\Framework\MockObject\Stub
     {
@@ -30131,7 +30134,7 @@ final class Console
      *
      * @param int|resource $fileDescriptor
      */
-    public function isInteractive($fileDescriptor = self::STDOUT): bool
+    public function isInteractive(mixed $fileDescriptor = self::STDOUT): bool
     {
     }
 }

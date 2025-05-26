@@ -26,30 +26,71 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 *
 	 * @var LCP_Storage
 	 */
-	protected $storage;
+	private $storage;
 
 	/**
-	 * Utility class that supports output filtering.
+	 * Output filter instance.
 	 *
 	 * @var Output_Filter
 	 */
-	private $output_filter = null;
+	private $output_filter;
 
-	public function __construct() {
-		$this->storage = new LCP_Storage();
+	public function setup() {
+		$this->output_filter = new Output_Filter();
+		$this->storage       = new LCP_Storage();
+
+		add_action( 'template_redirect', array( $this, 'add_output_filter' ), -999999 );
+		add_action( 'jetpack_boost_lcp_invalidated', array( $this, 'handle_lcp_invalidated' ) );
+
+		LCP_Invalidator::init();
+	}
+
+	public function add_output_filter() {
+		if ( LCP_Optimization_Util::should_skip_optimization() ) {
+			return;
+		}
+
+		$this->output_filter->add_callback( array( $this, 'optimize' ) );
 	}
 
 	/**
+	 * Optimize the HTML content by finding the LCP image and adding required attributes.
+	 *
+	 * @param string $buffer_start First part of the buffer.
+	 * @param string $buffer_end   Second part of the buffer.
+	 *
+	 * @return array Parts of the buffer.
+	 *
 	 * @since 3.13.1
 	 */
-	public function setup() {
-		$this->output_filter = new Output_Filter();
+	public function optimize( $buffer_start, $buffer_end ) {
+		$lcp_storage = $this->storage->get_current_request_lcp();
 
-		add_action( 'template_redirect', array( $this, 'start_output_filtering' ), -999999 );
-		add_action( 'jetpack_boost_lcp_invalidated', array( $this, 'handle_lcp_invalidated' ) );
-		add_action( 'wp_head', array( $this, 'add_preload_links_to_head' ) );
+		if ( empty( $lcp_storage ) ) {
+			return array( $buffer_start, $buffer_end );
+		}
 
-		LCP_Invalidator::init();
+		// Combine the buffers for processing
+		$combined_buffer = $buffer_start . $buffer_end;
+
+		foreach ( $lcp_storage as $lcp_data ) {
+			$optimizer = new LCP_Optimize_Img_Tag( $lcp_data );
+
+			$combined_buffer = $optimizer->optimize_buffer( $combined_buffer );
+		}
+
+		// Split the modified buffer back into two parts
+		$buffer_start_length = strlen( $buffer_start );
+		$new_buffer_start    = substr( $combined_buffer, 0, $buffer_start_length );
+		$new_buffer_end      = substr( $combined_buffer, $buffer_start_length );
+
+		// Check for successful split
+		if ( false === $new_buffer_start || false === $new_buffer_end ) {
+			// If splitting failed, return the original buffers
+			return array( $buffer_start, $buffer_end );
+		}
+
+		return array( $new_buffer_start, $new_buffer_end );
 	}
 
 	/**
@@ -139,244 +180,9 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	}
 
 	/**
-	 * @since 3.13.1
-	 */
-	public function start_output_filtering() {
-		if ( $this->should_skip_optimization() ) {
-			return;
-		}
-
-		$this->output_filter->add_callback( array( $this, 'optimize' ) );
-	}
-
-	/**
-	 * Adds preload links for LCP background images to the <head>.
-	 *
-	 * @since $$next-version$$
-	 */
-	public function add_preload_links_to_head() {
-		if ( $this->should_skip_optimization() ) {
-			return;
-		}
-
-		$lcp_storage = $this->storage->get_current_request_lcp();
-
-		if ( empty( $lcp_storage ) ) {
-			return;
-		}
-
-		$images_to_preload = array();
-		foreach ( $lcp_storage as $lcp_data ) {
-			if ( empty( $lcp_data ) || self::TYPE_BACKGROUND_IMAGE !== $lcp_data['type'] ) {
-				continue;
-			}
-
-			if ( empty( $lcp_data['elementData'] ) || empty( $lcp_data['elementData']['url'] ) ) {
-				continue;
-			}
-
-			if ( wp_http_validate_url( $lcp_data['elementData']['url'] ) ) {
-				$images_to_preload[] = $lcp_data['elementData']['url'];
-			}
-		}
-
-		if ( empty( $images_to_preload ) ) {
-			return;
-		}
-
-		// Ensure each image URL is unique.
-		$images_to_preload = array_unique( $images_to_preload );
-		foreach ( $images_to_preload as $image_url ) {
-			printf(
-				'<link rel="preload" href="%s" as="image" fetchpriority="high" />' . "\n",
-				esc_url( $image_url )
-			);
-		}
-	}
-
-	/**
-	 * Check if LCP optimization should be skipped for the current request.
-	 *
-	 * @since $$next-version$$
-	 * @return bool True if optimization should be skipped, false otherwise.
-	 */
-	private function should_skip_optimization() {
-		/**
-		 * Filters whether to short-circuit LCP optimization.
-		 *
-		 * Returning a value other than null from the filter will short-circuit
-		 * the optimization check, returning that value instead.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param null|bool $skip Whether to skip optimization. Default null.
-		 */
-		$pre = apply_filters( 'jetpack_boost_pre_should_skip_lcp_optimization', null );
-		if ( null !== $pre ) {
-			return $pre;
-		}
-
-		// Disable in robots.txt.
-		if ( isset( $_SERVER['REQUEST_URI'] ) && strpos( home_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'robots.txt' ) !== false ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-			return true;
-		}
-
-		// Disable in other possible AJAX requests setting cors related header.
-		if ( isset( $_SERVER['HTTP_SEC_FETCH_MODE'] ) && 'cors' === strtolower( $_SERVER['HTTP_SEC_FETCH_MODE'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
-			return true;
-		}
-
-		// Disable in other possible AJAX requests setting XHR related header.
-		if ( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && 'xmlhttprequest' === strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
-			return true;
-		}
-
-		// Disable in all XLS (see the WP_Sitemaps_Renderer class).
-		if ( isset( $_SERVER['REQUEST_URI'] ) &&
-		(
-			// phpcs:disable WordPress.Security.ValidatedSanitizedInput -- This is validating.
-			str_contains( $_SERVER['REQUEST_URI'], '.xsl' ) ||
-			str_contains( $_SERVER['REQUEST_URI'], 'sitemap-stylesheet=index' ) ||
-			str_contains( $_SERVER['REQUEST_URI'], 'sitemap-stylesheet=sitemap' )
-			// phpcs:enable WordPress.Security.ValidatedSanitizedInput
-		) ) {
-			return true;
-		}
-
-		// Disable in all POST Requests.
-		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		if ( ! empty( $_POST ) ) {
-			return true;
-		}
-
-		// Disable in customizer previews
-		if ( is_customize_preview() ) {
-			return true;
-		}
-
-		// Disable in feeds, AJAX, Cron, XML.
-		if ( is_feed() || wp_doing_ajax() || wp_doing_cron() || wp_is_xml_request() ) {
-			return true;
-		}
-
-		// Disable in sitemaps.
-		if ( ! empty( get_query_var( 'sitemap' ) ) ) {
-			return true;
-		}
-
-		// Disable in AMP pages.
-		if ( function_exists( 'amp_is_request' ) && amp_is_request() ) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Optimize the HTML content by finding the LCP image and adding required attributes.
-	 *
-	 * @param string $buffer_start First part of the buffer.
-	 * @param string $buffer_end   Second part of the buffer.
-	 *
-	 * @return array Parts of the buffer.
-	 *
-	 * @since 3.13.1
-	 */
-	public function optimize( $buffer_start, $buffer_end ) {
-		$lcp_storage = $this->storage->get_current_request_lcp();
-		if ( empty( $lcp_storage ) ) {
-			return array( $buffer_start, $buffer_end );
-		}
-
-		// Combine the buffers for processing
-		$combined_buffer = $buffer_start . $buffer_end;
-
-		foreach ( $lcp_storage as $lcp_data ) {
-			$combined_buffer = $this->optimize_viewport( $combined_buffer, $lcp_data );
-		}
-
-		// Split the modified buffer back into two parts
-		$buffer_start_length = strlen( $buffer_start );
-		$new_buffer_start    = substr( $combined_buffer, 0, $buffer_start_length );
-		$new_buffer_end      = substr( $combined_buffer, $buffer_start_length );
-
-		// Check for successful split
-		if ( false === $new_buffer_start || false === $new_buffer_end ) {
-			// If splitting failed, return the original buffers
-			return array( $buffer_start, $buffer_end );
-		}
-
-		return array( $new_buffer_start, $new_buffer_end );
-	}
-
-	/**
 	 * Handle the LCP invalidated action.
 	 */
 	public function handle_lcp_invalidated() {
 		( new LCP_Analyzer() )->start();
-	}
-
-	/**
-	 * Optimize a viewport
-	 *
-	 * @param string $buffer The buffer/html to optimize.
-	 * @param array  $lcp_data The LCP data returned from the Cloud.
-	 * @return string The optimized buffer, or the original buffer if no optimization was needed
-	 *
-	 * @since 3.13.1
-	 */
-	private function optimize_viewport( $buffer, $lcp_data ) {
-		if ( empty( $lcp_data ) || empty( $lcp_data['html'] ) ) {
-			return $buffer;
-		}
-
-		// Defensive check to ensure the LCP HTML is not empty.
-		if ( empty( $lcp_data['html'] ) ) {
-			return $buffer;
-		}
-
-		// Only optimize if the type is one we know how to handle.
-		if ( ! in_array( $lcp_data['type'], array( self::TYPE_BACKGROUND_IMAGE, self::TYPE_IMAGE ), true ) ) {
-			return $buffer;
-		}
-
-		// Remove the last (closing) character from the LCP HTML in case the buffer adds a closing forward slash to the img tag. Which is not found by the Cloud.
-		$lcp_html = substr( $lcp_data['html'], 0, -1 );
-
-		// If the LCP HTML is not found in the buffer, return early.
-		if ( ! str_contains( $buffer, $lcp_html ) ) {
-			return $buffer;
-		}
-
-		if ( $lcp_data['type'] === self::TYPE_IMAGE ) {
-			// Create the optimized tag with required attributes.
-			$optimized_tag = $this->optimize_image( $lcp_html );
-
-			return str_replace( $lcp_html, $optimized_tag, $buffer );
-		}
-
-		return $buffer;
-	}
-
-	/**
-	 * Optimize an image tag by adding required attributes.
-	 *
-	 * @param string $tag The original image tag.
-	 * @return string The optimized image tag.
-	 *
-	 * @since 3.13.1
-	 */
-	private function optimize_image( $tag ) {
-		// Add fetchpriority="high" if not present
-		if ( ! preg_match( '/fetchpriority\s*=\s*["\']high["\']/i', $tag ) ) {
-			$tag = preg_replace( '/<img\s/i', '<img fetchpriority="high" ', $tag );
-		}
-
-		// Add loading="eager" if not present
-		if ( ! preg_match( '/loading\s*=\s*["\']eager["\']/i', $tag ) ) {
-			$tag = preg_replace( '/<img\s/i', '<img loading="eager" ', $tag );
-		}
-
-		return $tag;
 	}
 }

@@ -42,7 +42,41 @@ class Cornerstone_Utils {
 		}
 
 		$cornerstone_pages = array_map( 'untrailingslashit', $cornerstone_pages );
-		return in_array( untrailingslashit( $url ), $cornerstone_pages, true );
+		return in_array( self::sanitize_url( $url ), $cornerstone_pages, true );
+	}
+
+	/**
+	 * Sanitize a URL to make it a compatible cornerstone page URL.
+	 *
+	 * @param string $url The URL to sanitize.
+	 * @return string The sanitized URL.
+	 */
+	public static function sanitize_url( $url ) {
+		return untrailingslashit( $url );
+	}
+
+	/**
+	 * Get the provider key for a given URL.
+	 *
+	 * @param string $url The URL to get the provider key for.
+	 * @return string The provider key.
+	 */
+	public static function get_provider_key( $url ) {
+		return Cornerstone_Provider::get_provider_key( self::sanitize_url( $url ) );
+	}
+
+	/**
+	 * Prepare provider data for a given URL.
+	 * This is usually sent to the Cloud API.
+	 *
+	 * @param string $url The URL to prepare provider data for.
+	 * @return array The provider data.
+	 */
+	public static function prepare_provider_data( $url ) {
+		return array(
+			'key' => self::get_provider_key( $url ),
+			'url' => self::sanitize_url( $url ),
+		);
 	}
 
 	/**
