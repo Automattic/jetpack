@@ -537,7 +537,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				class='grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' ) . "'"
 				. $extra_attrs_string
 				. '>'
-				. esc_html( $legend )
+				. wp_kses_post( $legend )
 				. ( $required ? '<span class="grunion-label-required">' . $required_field_text . '</span>' : '' )
 				. "</legend>\n";
 	}
