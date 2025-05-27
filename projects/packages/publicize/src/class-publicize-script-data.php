@@ -310,6 +310,7 @@ class Publicize_Script_Data {
 
 		$urls = array(
 			'connectionsManagementPage' => self::publicize()->publicize_connections_url(),
+			'webpackPublicPath'         => plugins_url( '/build/', __DIR__ ),
 		);
 
 		// Escape the URLs.
