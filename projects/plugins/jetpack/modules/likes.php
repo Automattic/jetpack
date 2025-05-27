@@ -294,7 +294,7 @@ class Jetpack_Likes {
 			.vers img { display: none; }
 			.metabox-prefs .vers img { display: inline; }
 			.fixed .column-likes { width: 2.5em; padding: 4px 0; text-align: left; }
-			.fixed .column-stats { width: 5em; }
+			.fixed .column-stats { width: 5em; white-space: nowrap; }
 			.fixed .column-likes .post-com-count {
 				-webkit-box-sizing: border-box;
 				-moz-box-sizing: border-box;
