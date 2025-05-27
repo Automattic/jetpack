@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: sass: `@use`/`@forward` rather than `@import` for `@automattic/color-studio`.
+
+
