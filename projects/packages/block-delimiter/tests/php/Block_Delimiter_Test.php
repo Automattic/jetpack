@@ -108,10 +108,11 @@ class Block_Delimiter_Test extends TestCase {
 	 * @dataProvider provideInvalidBlockDelimiters
 	 */
 	#[DataProvider( 'provideInvalidBlockDelimiters' )]
-	public function test_next_delimiter_with_invalid_input( string $input, int $start_offset ): void {
+	public function test_next_delimiter_with_invalid_input( string $input, int $start_offset, ?string $expected_error ): void {
 		$delimiter = Block_Delimiter::next_delimiter( $input, $start_offset );
 
 		$this->assertNull( $delimiter );
+		$this->assertEquals( $expected_error, Block_Delimiter::get_last_error() );
 	}
 
 	/**
@@ -119,23 +120,14 @@ class Block_Delimiter_Test extends TestCase {
 	 */
 	public static function provideInvalidBlockDelimiters(): array {
 		return array(
-			'no block delimiter'                => array( 'Just some regular text', 0 ),
-			'regular HTML comment'              => array( '<!-- This is a regular comment -->', 0 ),
-			'incomplete wp prefix'              => array( '<!-- w:paragraph -->', 0 ),
-			'no whitespace after comment start' => array( '<!--wp:paragraph -->', 0 ),
-			'invalid block name'                => array( '<!-- wp:123invalid -->', 0 ),
-			'empty input'                       => array( '', 0 ),
+			'no block delimiter'                => array( 'Just some regular text', 0, null ),
+			'regular HTML comment'              => array( '<!-- This is a regular comment -->', 0, null ),
+			'incomplete wp prefix'              => array( '<!-- w:paragraph -->', 0, null ),
+			'no whitespace after comment start' => array( '<!--wp:paragraph -->', 0, null ),
+			'invalid block name'                => array( '<!-- wp:123invalid -->', 0, null ),
+			'empty input'                       => array( '', 0, null ),
+			'incomplete input'                  => array( '<!-- wp:paragraph', 0, Block_Delimiter::INCOMPLETE_INPUT ),
 		);
-	}
-
-	/**
-	 * Test next_delimiter with incomplete input.
-	 */
-	public function test_next_delimiter_with_incomplete_input(): void {
-		$delimiter = Block_Delimiter::next_delimiter( '<!-- wp:paragraph', 0 );
-
-		$this->assertNull( $delimiter );
-		$this->assertEquals( Block_Delimiter::INCOMPLETE_INPUT, Block_Delimiter::get_last_error() );
 	}
 
 	/**
