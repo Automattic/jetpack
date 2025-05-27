@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sync: Send context in jetpack_full_sync_end action
