@@ -1,11 +1,9 @@
-import { Container, Col, Text, AdminSectionHero } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { Col, Container } from '@automattic/jetpack-components';
+import { useCallback, useEffect, useState } from 'react';
 import { PRODUCT_SLUGS } from '../../data/constants';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import LoadingBlock from '../loading-block';
-import ProductsTableView from '../products-table-view';
 import StatsSection from '../stats-section';
 import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
@@ -105,12 +103,12 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 };
 
 interface ProductCardsSectionProps {
-	noticeMessage: ReactNode;
+	noticeMessage?: ReactNode;
 }
 
 const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } ) => {
 	const {
-		data: { ownedProducts, unownedProducts },
+		data: { ownedProducts },
 		isLoading,
 	} = useProductsByOwnership();
 
@@ -128,13 +126,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 		requestAnimationFrame( () => setIsLoadingProducts( false ) );
 	} );
 
-	const { canUserViewStats, userIsAdmin } = getMyJetpackWindowInitialState();
-
-	const unownedSectionTitle = useMemo( () => {
-		return ownedProducts.length > 0
-			? __( 'Discover more', 'jetpack-my-jetpack' )
-			: __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' );
-	}, [ ownedProducts.length ] );
+	const { canUserViewStats } = getMyJetpackWindowInitialState();
 
 	const filterProducts = useCallback(
 		( products: JetpackModule[] ) => {
@@ -165,31 +157,17 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 	);
 
 	const filteredOwnedProducts = filterProducts( ownedProducts );
-	const filteredUnownedProducts = filterProducts( unownedProducts );
 
 	return (
 		<>
 			{ ( isLoadingProducts || filteredOwnedProducts.length > 0 ) && (
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
-						<Col>
-							<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
-								<Text variant="headline-small">{ __( 'My products', 'jetpack-my-jetpack' ) }</Text>
-							</Col>
-
-							<DisplayItems isLoading={ isLoadingProducts } slugs={ filteredOwnedProducts } />
-						</Col>
-					</Container>
-				</AdminSectionHero>
-			) }
-
-			{ userIsAdmin && filteredUnownedProducts.length > 0 && (
-				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
+				<Container
+					horizontalSpacing={ 0 }
+					horizontalGap={ noticeMessage ? 3 : 6 }
+					className={ styles[ 'products-container' ] }
+				>
 					<Col>
-						<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
-							<Text variant="headline-small">{ unownedSectionTitle }</Text>
-						</Col>
-						<ProductsTableView products={ filteredUnownedProducts } />
+						<DisplayItems isLoading={ isLoadingProducts } slugs={ filteredOwnedProducts } />
 					</Col>
 				</Container>
 			) }

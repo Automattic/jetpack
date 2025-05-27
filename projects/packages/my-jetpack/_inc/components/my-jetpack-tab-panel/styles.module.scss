@@ -10,4 +10,17 @@
 
 .tab-content-wrapper {
 	padding-inline-start: 1rem;
+	
+	@media ( max-width: $break-medium ) {
+		padding-inline-start: 0;
+	}
+}
+
+.overview-content {
+	padding-block-start: 2.5rem;	
+	padding-inline-end: 3rem;
+
+	@media ( max-width: $break-medium ) {
+		padding-inline-end: 1rem;
+	}
 }

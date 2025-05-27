@@ -1,3 +1,6 @@
+import ProductCardsSection from '../product-cards-section';
+import styles from './styles.module.scss';
+
 /**
  * The Overview content component.
  *
@@ -5,8 +8,8 @@
  */
 export function OverviewContent() {
 	return (
-		<div>
-			<h2>Overview Tab</h2>
+		<div className={ styles[ 'overview-content' ] }>
+			<ProductCardsSection />
 		</div>
 	);
 }
