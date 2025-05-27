@@ -1291,7 +1291,7 @@ function get_paywall_simple() {
 
 	return '
 <!-- wp:columns -->
-<div class="wp-block-columns" style="display: inline-block; width: 90%">
+<div class="wp-block-columns jetpack-paywall-simple" style="display: inline-block; width: 90%">
     <!-- wp:column -->
     <div class="wp-block-column" style="background-color: #F6F7F7; padding: 32px; 24px;">
         <!-- wp:paragraph -->
@@ -1308,12 +1308,12 @@ function get_paywall_simple() {
         <!-- wp:buttons -->
         <div class="wp-block-buttons" style="text-align: center;">
             <!-- wp:button -->
-            <div class="wp-block-button" style="display: inline-block; margin: 10px 0;">
+            <div class="wp-block-button" style="display: inline-block; margin: 10px 0; border-style: none; padding: 0;">
                 <a href="' . esc_url( get_post_permalink() ) . '" class="wp-block-button__link wp-element-button"
                    data-wpcom-track data-tracks-link-desc="paywall-email-click"
                    style="display: inline-block;
-                          padding: 15px 20px;
-                          background-color: #0675C4;
+                          padding: 12px 15px;
+                          background-color: #3858e9;
                           color: #FFFFFF;
                           text-decoration: none;
                           border-radius: 5px;
