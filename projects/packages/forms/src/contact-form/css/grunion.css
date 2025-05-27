@@ -704,6 +704,11 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: baseline;
 	position: absolute;
 	top: 50%;
 	left: calc(var(--jetpack--contact-form--border-left-size, 0px) + var(--jetpack--contact-form--animated-left-offset, var(--label-left)));
@@ -714,7 +719,18 @@ on production builds, the attributes are being reordered, causing side-effects
 	margin: 0;
 	transform: translateY(-50%);
 	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: transform, top;
 	z-index: 1;
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .grunion-label-text {
+	transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: font-size;
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .grunion-label-required {
+	transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: font-size;
 }
 
 .contact-form .is-style-animated .grunion-field-textarea-wrap .animated-label__label {
@@ -727,9 +743,30 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder),
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label
 {
-	font-size: 0.75em;
 	transform: translateY(0);
 	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-text,
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-text,
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder) .grunion-label-text,
+.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-text
+{
+	font-size: 0.75em;
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-required,
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-required,
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder) .grunion-label-required,
+.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-required
+{
+
+	/*
+	 * The required text is always 85% of the label font size.
+	 * The label font size is reduced to 0.75em in a separate rule, so that needs to be accounted for.
+	 * 0.85 * 0.75 = 0.6375em.
+	 */
+	font-size: 0.6375em;
 }
 
 /* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */

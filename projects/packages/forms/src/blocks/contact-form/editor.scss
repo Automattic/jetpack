@@ -935,9 +935,17 @@
 				margin: 0;
 				transform: translateY(-50%);
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+				will-change: transform, top;
 
 				.jetpack-field-label__input {
 					margin: 0;
+					transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
+					will-change: font-size;
+				}
+
+				.required {
+					transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
+					will-change: font-size;
 				}
 			}
 
@@ -955,12 +963,20 @@
 				top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
 			}
 
-			&.is-selected, &.has-placeholder {
+			&.is-selected .animated-label__label:not(.is-selected),
+			&.has-placeholder .animated-label__label {
+				transform: translateY(0);
+				top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
 
-				.animated-label__label {
+				.jetpack-field-label__input {
 					font-size: 0.75em;
-					transform: translateY(0);
-					top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
+				}
+
+				.required {
+					// The required text is usually 85% of the label font size.
+					// The label is being reduced to 0.75em in a separate rule which doesn't apply to the required text font size.
+					// Thus we take into account here - 0.85 * 0.75 = 0.6375em.
+					font-size: 0.6375em;
 				}
 			}
 		}
