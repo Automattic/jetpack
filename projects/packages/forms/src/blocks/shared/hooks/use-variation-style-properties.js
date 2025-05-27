@@ -196,14 +196,9 @@ export default function useVariationStyleProperties( {
 			};
 		}
 		if ( formStyle === FORM_STYLE.ANIMATED ) {
-			const hasTopBorder =
-				!! borderWidths?.borderTopWidth && parseInt( borderWidths?.borderTopWidth ) > 0;
 			styleSpecificCssVars = {
 				// For the animated labels.
 				'--jetpack--contact-form--animated-left-offset': '16px', // Probably can be removed or we use `--jetpack--contact-form--input-padding`
-				'--jetpack--contact-form--animated-top-offset': hasTopBorder
-					? 'calc(var(--jetpack--contact-form--border-top-size) + var(--jetpack--contact-form--animated-left-offset))'
-					: '50%',
 			};
 		}
 
