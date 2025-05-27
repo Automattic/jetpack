@@ -439,7 +439,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'type'                     => 'checkbox-multiple',
 					'requiredText'             => 'Do it again',
 					'fieldwrapperclasses'      => 'wp-block-jetpack-field-checkbox-multiple is-style-button  is-style-button-wrap',
-					'optionsclasses'           => ' has-text-color has-background',
+					'optionsclasses'           => ' has-background',
 					'optionsstyles'            => 'color:blue-overture;background-color:green-tonight; border-top-width:2px;border-top-color:terrible-red;border-top-style:solid;',
 					'stylevariationclasses'    => ' has-background',
 					'stylevariationattributes' => '{"border":{"top":{"color":"terrible-red","width":"2px","style":"solid","radius":"10px"}},"color":{"background":"green-tonight"}}',
