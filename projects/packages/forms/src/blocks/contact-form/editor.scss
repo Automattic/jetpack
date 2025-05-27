@@ -927,7 +927,7 @@
 			.animated-label__label {
 				position: absolute;
 				z-index: 1;
-				top: var(--jetpack--contact-form--animated-top-offset);
+				top: var(--jetpack--contact-form--animated-top-offset, 50%);
 				left: calc(var(--jetpack--contact-form--border-left-size, 1px) + var(--jetpack--contact-form--animated-left-offset));
 				width: auto;
 				max-width: 100%;
