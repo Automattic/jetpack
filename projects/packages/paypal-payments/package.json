@@ -28,6 +28,7 @@
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
 		"@wordpress/base-styles": "5.22.0",
 		"@wordpress/block-editor": "14.17.0",
+		"@wordpress/blocks": "14.13.0",
 		"@wordpress/components": "29.8.0",
 		"@wordpress/compose": "7.22.0",
 		"@wordpress/data": "10.22.0",
