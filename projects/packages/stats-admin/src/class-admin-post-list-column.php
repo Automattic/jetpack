@@ -94,7 +94,7 @@ class Admin_Post_List_Column {
 					'jp_post_type' => get_post_type( $post_id ),
 				);
 
-				$potential_params = array(
+				$list_criteria_params = array(
 					's'             => sanitize_text_field( get_search_query() ),
 					'paged'         => absint( get_query_var( 'paged' ) ),
 					'post_status'   => sanitize_text_field( get_query_var( 'post_status' ) ),
@@ -106,7 +106,7 @@ class Admin_Post_List_Column {
 					'category_name' => sanitize_text_field( get_query_var( 'category_name' ) ),
 				);
 
-				foreach ( $potential_params as $key => $value ) {
+				foreach ( $list_criteria_params as $key => $value ) {
 					if ( isset( $_GET[ $key ] ) && $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Checking if the key existts and not reading the value from the request.
 						$query_args[ 'jp_' . $key ] = $value;
 					}
