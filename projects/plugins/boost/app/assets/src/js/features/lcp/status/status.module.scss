@@ -1,5 +1,5 @@
-@import "$css/main/mixins";
-@import "$css/main/variables";
+@import '$css/main/mixins';
+@import '$css/main/variables';
 
 // TODO: This is a copy of the styles from the critical-css/status component.
 // We should move this to a shared location.
@@ -16,7 +16,7 @@
 		margin-bottom: 0;
 	}
 
-	@include breakpoint(xs) {
+	@include breakpoint( xs ) {
 		display: block;
 	}
 
@@ -25,10 +25,11 @@
 		flex-grow: 1;
 		position: relative;
 
-		.successes, .generating {
+		.successes,
+		.generating {
 			color: $gray_40;
 
-			@include breakpoint(md) {
+			@include breakpoint( md ) {
 				margin-right: 115px;
 			}
 		}
@@ -37,7 +38,7 @@
 			margin-top: 1em;
 			color: $gray_100;
 
-			@include breakpoint(xs) {
+			@include breakpoint( xs ) {
 				margin-bottom: 1em;
 			}
 
@@ -52,7 +53,7 @@
 
 	button {
 
-		&:global(.components-button.has-icon) {
+		&:global( .components-button.has-icon ) {
 			min-width: auto;
 		}
 
@@ -61,11 +62,16 @@
 		}
 	}
 
-	.optimize-button:global(.components-button) {
+	.optimize-button:global( .components-button ) {
 
 		&:disabled {
 			background: transparent;
-			opacity: .5;
+			opacity: 0.5;
 		}
 	}
+}
+
+.error-tooltip-wrapper {
+	position: relative;
+	display: inline-block;
 }
