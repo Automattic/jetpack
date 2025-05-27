@@ -710,7 +710,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	justify-content: flex-start;
 	align-items: baseline;
 	position: absolute;
-	top: 50%;
+	top: calc(50% + (var(--jetpack--contact-form--border-top-size, 0px) * 0.5) - (var(--jetpack--contact-form--border-bottom-size, 0px) * 0.5));
 	left: calc(var(--jetpack--contact-form--border-left-size, 0px) + var(--jetpack--contact-form--animated-left-offset, var(--label-left)));
 	width: 100%;
 	max-width: 100%;

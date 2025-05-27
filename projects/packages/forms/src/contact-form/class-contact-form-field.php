@@ -1582,8 +1582,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$css_vars .= '--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));';
 		} elseif ( 'animated' === $form_style ) {
 			$css_vars .= '--jetpack--contact-form--animated-left-offset: 16px;';
-			$css_vars .= '--jetpack--contact-form--animated-top-offset:' . $border_top_size ? 'calc(var(--jetpack--contact-form--border-top-size) + var(--jetpack--contact-form--animated-left-offset));'
-				: '50%;';
 		}
 
 		return array(
