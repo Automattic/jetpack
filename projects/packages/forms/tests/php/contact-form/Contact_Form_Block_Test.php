@@ -73,7 +73,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 						'width'  => true,
 					),
 					'color'                => array(
-						'text'       => false,
+						'text'       => true,
 						'background' => true,
 						'gradients'  => false,
 					),
@@ -119,7 +119,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 						'width'  => true,
 					),
 					'color'                => array(
-						'text'       => true,
+						'text'       => false,
 						'background' => true,
 					),
 					'spacing'              => array(
