@@ -35,11 +35,6 @@
 }
 
 .table-header {
-
-	@media ( max-width: 782px ) {
-		display: none !important;
-	}
-
 	font-size: 0.875rem;
 	color: var( --gray-60 );
 	border: var( --border );
@@ -47,6 +42,10 @@
 	border-top-right-radius: var( --border-radius );
 	border-bottom: 0;
 	background-color: #fff;
+
+	@media ( max-width: 782px ) {
+		display: none !important;
+	}
 
 	.image {
 		grid-column: thumbnail / title;

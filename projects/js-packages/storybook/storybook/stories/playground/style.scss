@@ -5,11 +5,11 @@
 @import "./editor-styles";
 
 .playground {
+	padding-top: 20px;
 
 	@include mixins.break-small() {
 		width: calc(100% - #{variables.$sidebar-width});
 	}
-	padding-top: 20px;
 
 	img {
 		max-width: 100%;

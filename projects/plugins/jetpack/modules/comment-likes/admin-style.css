@@ -6,6 +6,7 @@
 
 .fixed .column-stats {
     width: 5em;
+    white-space: nowrap;
 }
 
 .fixed .column-comment_likes .comment-like-count {

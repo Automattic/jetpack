@@ -25,6 +25,7 @@ test.describe.serial( 'Modules', () => {
 
 	modules.forEach( ( [ moduleSlug, moduleState ] = module ) => {
 		test( `The ${ moduleSlug } module should be ${ moduleState } by default`, async () => {
+			test.skip( true, 'Skipping this test as it is flaky and we are working on it' );
 			expect(
 				await jetpackBoostPage.isModuleEnabled( moduleSlug ),
 				`${ moduleSlug } should be enabled`

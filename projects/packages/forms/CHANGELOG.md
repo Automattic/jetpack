@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.55.0] - 2025-05-26
+### Added
+- Forms: Add Create Form button to dashboard header. [#43529]
+- Forms: Add feature filter flags and code for moving submenu item from Feedback > Forms responses to Jetpack > Forms. [#43295]
+- Forms: Add Integration screen content. [#43530]
+- Forms: Add integration tab with feature flag. [#43502]
+
+### Changed
+- Forms: Address styles design on integrations tabs and modal. [#43576]
+- Update package dependencies. [#43516] [#43578]
+
+### Fixed
+- Fixed admin notice showing on all screens instead of only forms classic view. [#43582]
+- Forms: Apply max-width on Salesforce ID input. [#43543]
+- Forms: Fix Akismet spam URL. [#43542]
+- Forms: Remove the ability to upload multiple files at using the same file upload field. This field is not yet released. [#43555]
+
 ## [0.54.0] - 2025-05-19
 ### Added
 - Add Google Drive to integrations modal. [#43479]
@@ -1096,6 +1113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.55.0]: https://github.com/automattic/jetpack-forms/compare/v0.54.0...v0.55.0
 [0.54.0]: https://github.com/automattic/jetpack-forms/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/automattic/jetpack-forms/compare/v0.52.0...v0.53.0
 [0.52.0]: https://github.com/automattic/jetpack-forms/compare/v0.51.0...v0.52.0
