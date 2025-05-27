@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
@@ -95,7 +95,7 @@
 				max-width: 75%;
 			}
 
-			@media (max-width: #{ ($break-mobile) }) {
+			@media (max-width: #{ (gb.$break-mobile) }) {
 
 				&[class*="jetpack-field__width-"] {
 					flex-basis: 100%;
@@ -208,16 +208,16 @@
 .form-placeholder__patterns-modal {
 	max-width: 1200px;
 
-	@include break-small() {
-		width: calc(100% - #{ $grid-unit-20 * 2 });
-		height: calc(100% - #{ $header-height * 2 });
+	@include gb.break-small() {
+		width: calc(100% - #{ gb.$grid-unit-20 * 2 });
+		height: calc(100% - #{ gb.$header-height * 2 });
 	}
 
-	@include break-medium() {
-		width: $break-medium - $grid-unit-20 * 2;
+	@include gb.break-medium() {
+		width: gb.$break-medium - gb.$grid-unit-20 * 2;
 	}
 
-	@include break-large() {
+	@include gb.break-large() {
 		height: 80%;
 		width: 80%;
 		max-height: none;

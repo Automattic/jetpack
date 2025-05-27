@@ -1,5 +1,5 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 @import '@automattic/jetpack-base-styles/root-variables';
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .jetpack-onboarding-testimonial {
     flex: 1;
@@ -59,7 +59,7 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu,
 		Cantarell, 'Helvetica Neue', sans-serif;
 
-        @include break-xlarge {
+        @include gb.break-xlarge {
             padding-inline: 3rem;
         }
     }

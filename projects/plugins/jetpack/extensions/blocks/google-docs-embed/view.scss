@@ -1,7 +1,7 @@
 /**
  * Shared Editor and Front End styles for Google Docs
  */
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 /* style the error message */
 .wp-block-jetpack-google-docs-embed {
@@ -23,7 +23,7 @@
 
 	&.alignleft {
 
-		@media only screen and (min-width: $break-small) {
+		@media only screen and (min-width: gb.$break-small) {
 			float: left;
 			margin-right: 20px !important;
 		}
@@ -31,7 +31,7 @@
 
 	&.alignright {
 
-		@media only screen and (min-width: $break-small) {
+		@media only screen and (min-width: gb.$break-small) {
 			float: right;
 			margin-left: 20px !important;
 		}

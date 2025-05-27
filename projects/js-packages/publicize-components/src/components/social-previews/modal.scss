@@ -2,8 +2,8 @@
  * Modal styles for Social Previews
  */
 
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 @import '@automattic/jetpack-base-styles/root-variables';
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 // Styles shared between modals
 .jetpack-social-previews__modal {
@@ -70,7 +70,7 @@
 
 	.components-tab-panel__tab-content {
 		padding: 10px;
-		background-color: $white;
+		background-color: gb.$white;
 		flex: 1;
 		overflow: auto;
 
@@ -85,12 +85,12 @@
 		}
 	}
 
-	@media ( min-width: $break-small ) {
+	@media ( min-width: gb.$break-small ) {
 		width: calc( 100vw - 40px );
 	}
 
-	@media ( min-width: $break-large ) {
-		width: calc( #{$break-large} - 40px );
+	@media ( min-width: gb.$break-large ) {
+		width: calc( #{gb.$break-large} - 40px );
 
 		.components-tab-panel__tabs {
 
@@ -144,12 +144,12 @@
 				content: '\2713 ';
 				position: absolute;
 				left: -20px;
-				color: $alert-green;
+				color: gb.$alert-green;
 			}
 		}
 	}
 
-	@media ( min-width: $break-small ) {
+	@media ( min-width: gb.$break-small ) {
 		width: 80vw;
 		max-width: 870px;
 		display: grid;
@@ -180,7 +180,7 @@
 		}
 	}
 
-	@media ( min-width: $break-medium ) {
+	@media ( min-width: gb.$break-medium ) {
 
 		.jetpack-social-previews__upgrade-description {
 			padding: 0 2em 2em;

@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: sass: `@use` rather than `@import` for `@wordpress/base-styles` and `@automattic/jetpack-base-styles/gutenberg-base-styles`.
+
+

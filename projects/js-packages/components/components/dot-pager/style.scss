@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 @import '@automattic/jetpack-base-styles/root-variables';
 
 .dot-pager {
@@ -13,7 +13,7 @@
 	opacity: 1;
 	visibility: visible;
 
-	@include reduce-motion( "transition" );
+	@include gb.reduce-motion( "transition" );
 }
 
 .dot-pager__controls {

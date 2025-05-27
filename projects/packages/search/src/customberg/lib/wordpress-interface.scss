@@ -5,10 +5,16 @@
  * TODO: Replace these styles with our own styles.
  */
 
+@use '@wordpress/base-styles/breakpoints';
+@use '@wordpress/base-styles/colors';
+@use "@wordpress/base-styles/mixins";
+@use "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/z-index";
+
 // complementary-area-header
 .components-panel__header.interface-complementary-area-header__small {
-	background: $white;
-	padding-right: $grid-unit-05;
+	background: colors.$white;
+	padding-right: variables.$grid-unit-05;
 
 	.interface-complementary-area-header__small-title {
 		overflow: hidden;
@@ -17,45 +23,45 @@
 		width: 100%;
 	}
 
-	@include break-medium() {
+	@include mixins.break-medium() {
 		display: none;
 	}
 }
 
 .interface-complementary-area-header {
-	background: $white;
-	padding-right: $grid-unit-05;
+	background: colors.$white;
+	padding-right: variables.$grid-unit-05;
 }
 
 // complementary-area
 .interface-complementary-area {
-	background: $white;
-	color: $gray-900;
+	background: colors.$white;
+	color: colors.$gray-900;
 
-	@include break-small() {
+	@include mixins.break-small() {
 		-webkit-overflow-scrolling: touch;
 	}
 
-	@include break-medium() {
-		width: $sidebar-width;
+	@include mixins.break-medium() {
+		width: variables.$sidebar-width;
 	}
 
 	.components-panel {
 		border: none;
 		// Make a stacking context that keeps all descendents behind the sticky header
 		position: relative;
-		z-index: z-index( '.interface-complementary-area .components-panel' );
+		z-index: z-index.z-index( '.interface-complementary-area .components-panel' );
 	}
 
 	.components-panel__header {
 		position: sticky;
 		top: 0;
-		z-index: z-index( '.interface-complementary-area .components-panel__header' );
+		z-index: z-index.z-index( '.interface-complementary-area .components-panel__header' );
 
 		&.edit-post-sidebar__panel-tabs {
-			top: $panel-header-height;
+			top: variables.$panel-header-height;
 
-			@include break-medium() {
+			@include mixins.break-medium() {
 				top: 0;
 			}
 		}
@@ -67,14 +73,14 @@
 
 	h2,
 	h3 {
-		font-size: $default-font-size;
-		color: $gray-900;
+		font-size: variables.$default-font-size;
+		color: colors.$gray-900;
 		margin-bottom: 1.5em;
 	}
 
 	hr {
 		border-top: none;
-		border-bottom: 1px solid $gray-100;
+		border-bottom: 1px solid colors.$gray-100;
 		margin: 1.5em 0;
 	}
 
@@ -99,11 +105,11 @@
 // fullscreen-mode
 body.js.is-fullscreen-mode {
 
-	@include break-medium {
+	@include mixins.break-medium {
 		// Reset the html.wp-topbar padding.
 		// Because this uses negative margins, we have to compensate for the height.
-		margin-top: -$admin-bar-height;
-		height: calc( 100% + #{$admin-bar-height} );
+		margin-top: -1 * variables.$admin-bar-height;
+		height: calc( 100% + #{variables.$admin-bar-height} );
 
 		#adminmenumain,
 		#wpadminbar {
@@ -125,7 +131,7 @@ html.interface-interface-skeleton__html-container {
 	position: fixed;
 	width: 100%;
 
-	@include break-medium() {
+	@include mixins.break-medium() {
 		position: initial;
 		width: initial;
 	}
@@ -139,14 +145,14 @@ html.interface-interface-skeleton__html-container {
 
 	// Fill the available space on Mobile.
 	position: fixed;
-	top: $admin-bar-height-big;
+	top: variables.$admin-bar-height-big;
 	left: 0;
 	right: 0;
 	bottom: 0;
 
 	// Adjust to admin-bar going small.
-	@media (min-width: #{ ($break-medium + 1) }) {
-		top: $admin-bar-height;
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		top: variables.$admin-bar-height;
 
 		.is-fullscreen-mode & {
 			top: 0;
@@ -161,25 +167,25 @@ html.interface-interface-skeleton__html-container {
 	overflow: hidden;
 }
 
-@include editor-left( '.interface-interface-skeleton' );
+@include mixins.editor-left( '.interface-interface-skeleton' );
 
 .interface-interface-skeleton__secondary-sidebar,
 .interface-interface-skeleton__sidebar {
 	display: block;
 	flex-shrink: 0;
 	position: absolute;
-	z-index: z-index( '.interface-interface-skeleton__sidebar' );
+	z-index: z-index.z-index( '.interface-interface-skeleton__sidebar' );
 	top: 0;
 	right: 0;
 	bottom: 0;
 	left: 0;
-	background: $white;
-	color: $gray-900;
+	background: colors.$white;
+	color: colors.$gray-900;
 
 	// On Mobile the header is fixed to keep HTML as scrollable.
-	@include break-medium() {
+	@include mixins.break-medium() {
 		position: relative !important;
-		z-index: z-index( '.interface-interface-skeleton__sidebar {greater than small}' );
+		z-index: z-index.z-index( '.interface-interface-skeleton__sidebar {greater than small}' );
 		width: auto; // Keep the sidebar width flexible.
 	}
 }
@@ -187,65 +193,65 @@ html.interface-interface-skeleton__html-container {
 .interface-interface-skeleton__sidebar {
 	overflow: auto;
 
-	@include break-medium() {
-		border-left: $border-width solid $gray-200;
+	@include mixins.break-medium() {
+		border-left: variables.$border-width solid colors.$gray-200;
 	}
 }
 
 .interface-interface-skeleton__secondary-sidebar {
 
-	@include break-medium() {
-		border-right: $border-width solid $gray-200;
+	@include mixins.break-medium() {
+		border-right: variables.$border-width solid colors.$gray-200;
 	}
 }
 
 .interface-interface-skeleton__header {
 	flex-shrink: 0;
 	height: auto; // Keep the height flexible.
-	border-bottom: $border-width solid $gray-200;
-	z-index: z-index( '.interface-interface-skeleton__header' );
-	color: $gray-900;
+	border-bottom: variables.$border-width solid colors.$gray-200;
+	z-index: z-index.z-index( '.interface-interface-skeleton__header' );
+	color: colors.$gray-900;
 }
 
 .interface-interface-skeleton__footer {
 	height: auto; // Keep the height flexible.
 	flex-shrink: 0;
-	border-top: $border-width solid $gray-200;
-	color: $gray-900;
+	border-top: variables.$border-width solid colors.$gray-200;
+	color: colors.$gray-900;
 	position: absolute;
 	bottom: 0;
 	left: 0;
 	width: 100%;
-	background-color: $white;
-	z-index: z-index( '.interface-interface-skeleton__footer' );
+	background-color: colors.$white;
+	z-index: z-index.z-index( '.interface-interface-skeleton__footer' );
 
 	// On Mobile the footer is hidden
 	display: none;
 
-	@include break-medium() {
+	@include mixins.break-medium() {
 		display: flex;
 	}
 
 	.block-editor-block-breadcrumb {
-		z-index: z-index( '.edit-post-layout__footer' );
+		z-index: z-index.z-index( '.edit-post-layout__footer' );
 		display: flex;
-		background: $white;
-		height: $button-size-small;
+		background: colors.$white;
+		height: variables.$button-size-small;
 		align-items: center;
-		font-size: $default-font-size;
-		padding: 0 ( $grid-unit-15 + 6px );
+		font-size: variables.$default-font-size;
+		padding: 0 ( variables.$grid-unit-15 + 6px );
 	}
 }
 
 .interface-interface-skeleton__actions {
-	z-index: z-index( '.interface-interface-skeleton__actions' );
+	z-index: z-index.z-index( '.interface-interface-skeleton__actions' );
 	position: fixed !important; // Need to override the default relative positioning
 	top: -9999em;
 	bottom: auto;
 	left: auto;
 	right: 0;
-	width: $sidebar-width;
-	color: $gray-900;
+	width: variables.$sidebar-width;
+	color: colors.$gray-900;
 
 	&:focus {
 		top: auto;
@@ -263,7 +269,7 @@ html.interface-interface-skeleton__html-container {
 		padding: 0 2px;
 	}
 
-	@include break-small() {
+	@include mixins.break-small() {
 		margin-left: 0;
 
 		.components-button {
@@ -276,9 +282,9 @@ html.interface-interface-skeleton__html-container {
 	min-width: 280px;
 
 	// Let the menu scale to fit items.
-	@include break-mobile() {
+	@include mixins.break-mobile() {
 		width: auto;
-		max-width: $break-mobile;
+		max-width: breakpoints.$break-mobile;
 	}
 
 	.components-dropdown-menu__menu {
@@ -287,7 +293,7 @@ html.interface-interface-skeleton__html-container {
 }
 
 .components-popover.interface-more-menu-dropdown__content {
-	z-index: z-index( '.components-popover.interface-more-menu__content' );
+	z-index: z-index.z-index( '.components-popover.interface-more-menu__content' );
 }
 
 // pinned-items
@@ -299,17 +305,17 @@ html.interface-interface-skeleton__html-container {
 	.components-button:not( :first-child ) {
 		display: none;
 
-		@include break-small() {
+		@include mixins.break-small() {
 			display: flex;
 		}
 	}
 
 	.components-button {
-		margin-left: $grid-unit-05;
+		margin-left: variables.$grid-unit-05;
 
 		svg {
-			max-width: $icon-size;
-			max-height: $icon-size;
+			max-width: variables.$icon-size;
+			max-height: variables.$icon-size;
 		}
 	}
 }

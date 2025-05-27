@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+sass: `@use` rather than `@import` for `@automattic/jetpack-base-styles/gutenberg-base-styles`.

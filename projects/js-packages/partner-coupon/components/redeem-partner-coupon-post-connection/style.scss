@@ -1,5 +1,4 @@
-@import '@wordpress/base-styles/breakpoints';
-@import '@wordpress/base-styles/mixins';
+@use '@wordpress/base-styles/mixins';
 @import '@automattic/jetpack-base-styles/style';
 
 .jetpack-redeem-partner-coupon-post-connection {
@@ -21,7 +20,7 @@
 
 	&__layout {
 
-		@include break-medium {
+		@include mixins.break-medium {
 			display: grid;
 			grid-template-columns: auto 34%;
 			grid-template-areas:
@@ -33,7 +32,7 @@
 	&__content {
 		padding: 32px 24px 24px 24px;
 
-		@include break-medium {
+		@include mixins.break-medium {
 			padding: 48px 48px 0 48px;
 		}
 	}
@@ -41,14 +40,14 @@
 	&__subcontent {
 		padding: 24px;
 
-		@include break-medium {
+		@include mixins.break-medium {
 			padding: 0 48px 48px 48px;
 		}
 
 		> p:first-child {
 			margin-top: 0;
 
-			@include break-medium {
+			@include mixins.break-medium {
 				margin-top: 1em;
 			}
 		}
@@ -63,7 +62,7 @@
 		background-size: cover;
 		background-position: center;
 
-		@include break-medium {
+		@include mixins.break-medium {
 			grid-area: aside;
 			padding: 0;
 		}
@@ -71,7 +70,7 @@
 		img {
 			width: 90px;
 
-			@include break-medium {
+			@include mixins.break-medium {
 				width: auto;
 			}
 		}
@@ -87,7 +86,7 @@
 		> * + * {
 			margin-left: 8px;
 
-			@include break-mobile {
+			@include mixins.break-mobile {
 				margin-left: 16px;
 			}
 		}
@@ -128,7 +127,7 @@
 		button {
 			width: 100%;
 
-			@include break-medium {
+			@include mixins.break-medium {
 				width: auto;
 			}
 		}
@@ -141,11 +140,11 @@
 		align-items: center;
 		margin-top: 32px;
 
-		@include break-medium {
+		@include mixins.break-medium {
 			justify-content: left;
 		}
 
-		@include break-xlarge {
+		@include mixins.break-xlarge {
 			flex-wrap: nowrap;
 		}
 
@@ -153,11 +152,11 @@
 			flex: 1 0 100%;
 			text-align: center;
 
-			@include break-medium {
+			@include mixins.break-medium {
 				text-align: left;
 			}
 
-			@include break-xlarge {
+			@include mixins.break-xlarge {
 				flex: 0 0 auto;
 			}
 		}
@@ -178,7 +177,7 @@
 			text-decoration: none;
 		}
 
-		@include break-xlarge {
+		@include mixins.break-xlarge {
 			margin: 0 0 0 24px;
 		}
 	}

@@ -1,4 +1,5 @@
-@import '../../lib/base-styles';
+@use '@wordpress/base-styles/colors';
+@use '../../lib/base-styles';
 
 #jp-search-configure {
 
@@ -18,7 +19,7 @@
 	}
 
 	.interface-interface-skeleton__header {
-		background-color: $white;
+		background-color: colors.$white;
 	}
 }
 

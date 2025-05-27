@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 @import '../../../../shared/styles/jetpack-variables';
 
 .wp-block-jetpack-slideshow {
@@ -124,7 +124,7 @@
 		}
 
 		&:focus {
-			outline: thin dotted $white;
+			outline: thin dotted gb.$white;
 			outline-offset: -4px;
 		}
 	}
@@ -191,7 +191,7 @@
 		background-color: rgba( 0, 0, 0, 0.5 );
 		box-sizing: border-box;
 		bottom: 0;
-		color: $white;
+		color: gb.$white;
 		cursor: text;
 		left: 0;
 		margin: 0 !important;
@@ -272,7 +272,7 @@
 	}
 }
 
-@media ( min-width: $break-small ) {
+@media ( min-width: gb.$break-small ) {
 
 	.wp-block-jetpack-slideshow {
 

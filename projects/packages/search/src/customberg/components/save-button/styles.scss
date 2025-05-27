@@ -1,21 +1,23 @@
-@import '../../lib/base-styles';
+@use "@wordpress/base-styles/mixins";
+@use "@wordpress/base-styles/variables";
+@use '../../lib/base-styles';
 
 // Used in header and the sidebar.
 .jp-search-configure-save-button {
-	margin-right: $grid-unit-05;
+	margin-right: variables.$grid-unit-05;
 
 	&:first-of-type {
 		margin-left: auto;
 	}
 
-	@include break-small() {
-		margin-right: $grid-unit-10;
+	@include mixins.break-small() {
+		margin-right: variables.$grid-unit-10;
 	}
 
 	// Only hide the save button when being shown in sidebar in mobile breakpoints.
 	.jp-search-configure-sidebar & {
 
-		@include break-medium() {
+		@include mixins.break-medium() {
 			display: none;
 		}
 	}

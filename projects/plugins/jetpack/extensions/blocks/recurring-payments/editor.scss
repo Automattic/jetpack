@@ -1,5 +1,5 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 @import './view';
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-recurring-payments {
 	width: 100%;
@@ -109,10 +109,10 @@
 		transform: translateY( 14px );
 
 		// Use opacity to work in various editor styles.
-		background: $dark-gray-placeholder;
+		background: gb.$dark-gray-placeholder;
 
 		.is-dark-theme & {
-			background: $light-gray-placeholder;
+			background: gb.$light-gray-placeholder;
 		}
 	}
 
