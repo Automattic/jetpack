@@ -728,6 +728,17 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Determines whether the current user is a subscriber.
+	 *
+	 * @return bool Whether the user is a subscriber
+	 */
+	public static function user_is_subscriber() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $subscription_service->is_current_user_subscribed();
+	}
+
+	/**
 	 * Determines whether the current user is a paid subscriber and caches the result.
 	 *
 	 * @param array    $valid_plan_ids An array of valid plan ids that the user could be subscribed to which would make the user able to view this content. Defaults to an empty array which will be filled with all newsletter plan IDs.
