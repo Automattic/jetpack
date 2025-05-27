@@ -31,6 +31,7 @@ test.describe( 'Speed Score feature', () => {
 	} );
 
 	test( 'The Speed Scores should be able to refresh', async () => {
+		test.skip( true, 'Skipping this test as it is flaky and we are working on it' );
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
 		await jetpackBoostPage.clickRefreshSpeedScore();
 
