@@ -1,41 +1,48 @@
 /**
  * Styles for the Pages-Homepage connection banner.
  */
- 
+
  .wpcom-homepage-notice.card {
     clear: both;
     max-width: none;
     width: 100%;
     margin: 8px 0;
-    padding: 16px 20px;
-    background: #fff;
-    border: 1px solid #c3c4c7;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    padding: 8px;
+	background: #ECEEFB;
+	border: none;
+	border-radius: var(--radius-s, 2px);
+    box-shadow: none;
     box-sizing: border-box;
     display: block;
 }
 
 .wpcom-homepage-notice-content {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
+}
+
+.wpcom-homepage-notice-left-column {
+	margin-right: 4px;
+	padding: 4px 4px 0 4px;
+
+	.dashicons-info-outline {
+    	color: var(--Scales-Grays-gray-900, #1E1E1E);
+	}
+}
+
+.wpcom-homepage-notice-right-column {
+	padding-top: 4px;
 }
 
 .wpcom-homepage-notice-text {
-    margin: 0;
-    font-size: 14px;
-    color: #3c434a;
-    line-height: 1.4;
+    color: var(--Scales-Grays-gray-900, #1E1E1E);
+	line-height: var(--s, 20px);
+    margin: 0 0 8px 0;
 }
 
-.wpcom-homepage-notice-edit-link {
-    font-size: 13px;
-    padding: 4px 0;
-}
-
-.wpcom-homepage-notice-edit-link:hover {
-    text-decoration: underline;
+.wpcom-homepage-notice-edit-btn {
+	line-height: var(--s, 20px) !important;
+	margin-bottom: 4px !important;
+    padding: 0 8px !important;
 }
 
 @media screen and (max-width: 782px) {
@@ -44,8 +51,5 @@
         flex-direction: column;
         align-items: flex-start;
     }
-    
-    .wpcom-homepage-notice-actions {
-        margin-top: 12px;
-    }
+
 }

@@ -21,35 +21,41 @@
 		const container = document.createElement( 'div' );
 		container.className = 'wpcom-homepage-notice card';
 
+		const leftColumn = document.createElement( 'div' );
+		leftColumn.className = 'wpcom-homepage-notice-left-column';
+
+		// Create info icon
+		const icon = document.createElement( 'span' );
+		icon.className = 'dashicons dashicons-info-outline';
+
+		leftColumn.appendChild( icon );
+
+		const rightColumn = document.createElement( 'div' );
+		rightColumn.className = 'wpcom-homepage-notice-right-column';
+
 		// Create content wrapper
 		const content = document.createElement( 'div' );
 		content.className = 'wpcom-homepage-notice-content';
-
-		// Create info section
-		const info = document.createElement( 'div' );
-		info.className = 'wpcom-homepage-notice-info';
 
 		// Create text paragraph
 		const text = document.createElement( 'p' );
 		text.className = 'wpcom-homepage-notice-text';
 		text.textContent = data.text;
-		info.appendChild( text );
+
+		rightColumn.appendChild( text );
 
 		// Add the info section to content
-		content.appendChild( info );
+		content.appendChild( leftColumn );
+		content.appendChild( rightColumn );
 
 		// Add edit link if user has permission
 		if ( data.canEdit ) {
-			const actions = document.createElement( 'div' );
-			actions.className = 'wpcom-homepage-notice-actions';
+			const btn = document.createElement( 'button' );
+			btn.className = 'wpcom-homepage-notice-edit-btn button button-primary';
+			btn.href = data.editLink;
+			btn.textContent = data.editText;
 
-			const link = document.createElement( 'a' );
-			link.className = 'wpcom-homepage-notice-edit-link';
-			link.href = data.editLink;
-			link.textContent = data.editText;
-
-			actions.appendChild( link );
-			content.appendChild( actions );
+			rightColumn.appendChild( btn );
 		}
 
 		// Add the content to the container

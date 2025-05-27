@@ -30,13 +30,13 @@ function wpcom_add_pages_homepage_connection_banner() {
 
 	$can_edit     = current_user_can( 'edit_theme_options' );
 	$edit_link    = admin_url( 'site-editor.php' );
-	$display_text = __( 'Your homepage is set to display latest posts.', 'jetpack-mu-wpcom' );
+	$display_text = __( 'Looking to customize your homepage?', 'jetpack-mu-wpcom' );
 
 	wp_register_style(
 		'wpcom-pages-homepage-connection-banner',
 		plugin_dir_url( __FILE__ ) . 'css/pages-homepage-connection-banner.css',
 		array(),
-		'20250312'
+		'20250527'
 	);
 	wp_enqueue_style( 'wpcom-pages-homepage-connection-banner' );
 
@@ -44,7 +44,7 @@ function wpcom_add_pages_homepage_connection_banner() {
 		'wpcom-pages-homepage-connection-banner',
 		plugin_dir_url( __FILE__ ) . 'js/pages-homepage-connection-banner.js',
 		array( 'jquery' ),
-		'20250312',
+		'20250527',
 		true
 	);
 
