@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixed webpack publicPath issue for Social admin.
