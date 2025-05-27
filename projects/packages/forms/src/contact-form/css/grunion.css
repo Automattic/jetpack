@@ -705,7 +705,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
 	position: absolute;
-	top: 50%;
+	top: var(--jetpack--contact-form--animated-top-offset);
 	left: calc(var(--jetpack--contact-form--border-left-size, 0px) + var(--jetpack--contact-form--animated-left-offset, var(--label-left)));
 	width: 100%;
 	max-width: 100%;

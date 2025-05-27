@@ -1613,13 +1613,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		} elseif ( isset( $border_radius ) ) {
 			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
 		}
-
 		if ( 'outlined' === $form_style ) {
 			$css_vars .= '--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));';
 		} elseif ( 'animated' === $form_style ) {
-			$css_vars .= '--jetpack--contact-form--animated-left-offset: 16px;';
-			$css_vars .= '--jetpack--contact-form--animated-top-offset:' . $border_top_size ? 'calc(var(--jetpack--contact-form--border-top-size) + var(--jetpack--contact-form--animated-left-offset));'
-				: '50%;';
+			$has_equal_vertical_border_sizes = $border_top_size === $border_bottom_size;
+
+			/*
+			 * If the top and bottom borders are not equal, we can't float the animated label in the vertical center.
+			 * So just make sure it sits under the top border. Add 1rem to offset huge font sizes.
+			 */
+			$animated_top_offset = $border_top_size && ! $has_equal_vertical_border_sizes ? 'calc(var(--jetpack--contact-form--border-top-size) + var(--jetpack--contact-form--animated-left-offset) + 1rem);' : '50%;';
+			$css_vars           .= '--jetpack--contact-form--animated-left-offset: 16px;';
+			$css_vars           .= '--jetpack--contact-form--animated-top-offset:' . $animated_top_offset;
 		}
 
 		return array(

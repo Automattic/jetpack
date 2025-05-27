@@ -196,14 +196,21 @@ export default function useVariationStyleProperties( {
 			};
 		}
 		if ( formStyle === FORM_STYLE.ANIMATED ) {
+			const hasEqualVerticalBorderSizes =
+				borderWidths?.borderTopWidth === borderWidths?.borderBottomWidth;
 			const hasTopBorder =
 				!! borderWidths?.borderTopWidth && parseInt( borderWidths?.borderTopWidth ) > 0;
 			styleSpecificCssVars = {
 				// For the animated labels.
 				'--jetpack--contact-form--animated-left-offset': '16px', // Probably can be removed or we use `--jetpack--contact-form--input-padding`
-				'--jetpack--contact-form--animated-top-offset': hasTopBorder
-					? 'calc(var(--jetpack--contact-form--border-top-size) + var(--jetpack--contact-form--animated-left-offset))'
-					: '50%',
+				/*
+				 * If the top and bottom borders are not equal, we can't float the animated label in the vertical center.
+				 * So just make sure it sits under the top border. Add 1rem to offset huge font sizes.
+				 */
+				'--jetpack--contact-form--animated-top-offset':
+					hasTopBorder && ! hasEqualVerticalBorderSizes
+						? `calc(var(--jetpack--contact-form--border-top-size) + var(--jetpack--contact-form--animated-left-offset) + 1rem)`
+						: '50%',
 			};
 		}
 
