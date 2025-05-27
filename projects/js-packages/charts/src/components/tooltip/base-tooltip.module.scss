@@ -9,3 +9,11 @@
   pointer-events: none;
   transform: translate(-50%, -100%);
 }
+
+:global(.visx-tooltip-glyph) {
+
+	svg {
+		width: 10px;
+		height: 10px;
+	}
+}
