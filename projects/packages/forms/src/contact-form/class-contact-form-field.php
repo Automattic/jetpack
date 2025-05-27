@@ -1368,7 +1368,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		if ( ! empty( $this->field_classes ) ) {
 			$class = preg_replace( '/class="([^"]*)"/', 'class="$1 ' . esc_attr( $this->field_classes ) . '"', $class );
 		}
-		$field .= '<div class="contact-form__select-wrapper"><div ' . $class . ' style="' . esc_attr( $this->field_styles ) . '">';
+		$field .= '<div ' . $class . ' style="' . esc_attr( $this->field_styles ) . '">';
 		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {

@@ -430,19 +430,10 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	padding: var(--jetpack--contact-form--input-padding);
-	color: inherit;
-	font-family: inherit;
-	font-size: inherit;
-	line-height: inherit;
-	letter-spacing: inherit;
-	font-style: inherit;
-	font-weight: inherit;
-	text-transform: inherit;
-	text-align: inherit;
 	z-index: 1;
-	border-radius: inherit;
 	border: none !important;
 	background-color: transparent;
+	all: inherit;
 }
 
 .contact-form .is-style-outlined,
