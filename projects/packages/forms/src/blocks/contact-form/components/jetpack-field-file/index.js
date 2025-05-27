@@ -23,17 +23,23 @@ const JetpackFieldFile = props => {
 	const uploadLabel = __( 'Upload a file', 'jetpack-forms' );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: [
-			[ 'jetpack/label', { label: uploadLabel, defaultLabel: uploadLabel } ],
+			[
+				'jetpack/label',
+				{
+					label: uploadLabel,
+					defaultLabel: uploadLabel,
+					lock: { move: true, remove: true },
+				},
+			],
 			[
 				'jetpack/dropzone',
 				{
-					attributes: {
-						lock: { remove: true },
-					},
+					lock: { move: true, remove: true },
 				},
 			],
 		],
 		templateLock: false,
+		allowedBlocks: [ 'jetpack/dropzone', 'jetpack/label' ],
 	} );
 
 	return (
