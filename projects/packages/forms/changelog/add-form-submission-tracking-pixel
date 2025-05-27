@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: added tracking pixel to form submission emails to know if emails are being open. No user information is being sent, just the tracking event.
