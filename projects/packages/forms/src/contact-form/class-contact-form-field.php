@@ -1492,41 +1492,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Return the HTML for the outlined label.
-	 *
-	 * @param int    $id - the ID.
-	 * @param string $label - the label.
-	 * @param bool   $required - if the field is marked as required.
-	 * @param string $required_field_text - the text in the required text field.
-	 *
-	 * @return string HTML
-	 */
-	public function render_outline_label( $id, $label, $required, $required_field_text ) {
-		$classes  = 'notched-label__label';
-		$classes .= $this->is_error() ? ' form-error' : '';
-		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
-
-		$output_data = $this->get_form_variation_style_properties();
-
-		return '
-			<div class="notched-label">
-				<div class="notched-label__leading' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
-				<div class="notched-label__notch' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '">
-					<label
-						for="' . esc_attr( $id ) . '"
-						class=" ' . $classes . '"
-						style="' . $this->label_styles . esc_attr( $output_data['css_vars'] ) . '"
-					>
-					<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
-					. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
-			'</label>
-				</div>
-				<div class="notched-label__filler' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
-				<div class="notched-label__trailing' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
-			</div>';
-	}
-
-	/**
 	 * Returns the styles, classes and CSS vars necessary to render fields in the "Outlined" style.
 	 * The "Animated" style variation shares the CSS vars, which require similar calculations for the left offset and label left position.
 	 * At the block level, the styles are extracted and added to the shortcode attributes in
@@ -1629,6 +1594,41 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Return the HTML for the outlined label.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return string HTML
+	 */
+	public function render_outline_label( $id, $label, $required, $required_field_text ) {
+		$classes  = 'notched-label__label';
+		$classes .= $this->is_error() ? ' form-error' : '';
+		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
+
+		$output_data = $this->get_form_variation_style_properties();
+
+		return '
+			<div class="notched-label">
+				<div class="notched-label__leading' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
+				<div class="notched-label__notch' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '">
+					<label
+						for="' . esc_attr( $id ) . '"
+						class=" ' . $classes . '"
+						style="' . $this->label_styles . esc_attr( $output_data['css_vars'] ) . '"
+					>
+					<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
+					. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+			'</label>
+				</div>
+				<div class="notched-label__filler' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
+				<div class="notched-label__trailing' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
+			</div>';
+	}
+
+	/**
 	 * Return the HTML for the animated label.
 	 *
 	 * @param int    $id - the ID.
@@ -1648,9 +1648,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				for="' . esc_attr( $id ) . '"
 				class="' . $classes . '"
 				style="' . $this->label_styles . '"
-			>'
-			. esc_html( $label )
-			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+			>
+				<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
+				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>';
 	}
 
