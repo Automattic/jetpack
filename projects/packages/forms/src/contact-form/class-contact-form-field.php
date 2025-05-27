@@ -926,7 +926,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 						<div class="jetpack-form-file-field__file-wrap">
 							<strong class="jetpack-form-file-field__file-name" data-wp-text="context.file.name"></strong>
-							<div class="jetpack-form-file-field__file-info" date-wp-class--is-error="context.file.error" data-wp-class--is-complete="context.file.file_id">
+							<div class="jetpack-form-file-field__file-info" data-wp-class--is-error="context.file.error" data-wp-class--is-complete="context.file.file_id">
 								<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
 								<span class="jetpack-form-file-field__seperator"> &middot; </span>
 								<span class="jetpack-form-file-field__uploading"><?php esc_html_e( 'Uploading...', 'jetpack-forms' ); ?></span>
