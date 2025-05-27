@@ -294,7 +294,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								'Enables a targeted advertising opt-out link in US states where this is legally required.',
 								'jetpack'
 							),
-							link: this.props.isAtomicSite
+							link: this.props.isWoASite
 								? getRedirectUrl( 'wpcom-support-us-privacy' )
 								: getRedirectUrl( 'jetpack-support-ads' ),
 						} }

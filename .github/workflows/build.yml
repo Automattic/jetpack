@@ -144,8 +144,8 @@ jobs:
         with:
           name: jetpack-build
           path: build.tar.xz
-          # Only need to retain for a day since the beta builder slurps it up to distribute.
-          retention-days: 1
+          # Retain trunk builds for 7 days so we can manually download for branch comparisons. Branch builds only need one day so the beta builder can slurp it up to distribute.
+          retention-days: ${{ github.ref == 'refs/heads/trunk' && 7 || 1 }}
           # Already compressed.
           compression-level: 0
 
