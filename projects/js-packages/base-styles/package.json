@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-base-styles",
-	"version": "0.7.4",
+	"version": "0.7.5",
 	"description": "Jetpack components base styles",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/base-styles/#readme",
 	"bugs": {
