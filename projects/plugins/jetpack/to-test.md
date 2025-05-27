@@ -13,3 +13,7 @@
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 
 **Thank you for all your help!**
+
+### Code quality
+
+This release cycle was largely focused around quality, so there aren't many features to test. We've made a push to clean up a large number of PHP warnings and errors. Often the hardest part is determining how to reproduce issues, so try to break things by doing the unexpected, keeping special note of the steps taken and any errors triggered.

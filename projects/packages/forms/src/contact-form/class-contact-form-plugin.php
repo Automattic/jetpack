@@ -17,6 +17,7 @@ use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
+use WP_Block_Patterns_Registry;
 use WP_Error;
 
 /**
@@ -1966,14 +1967,28 @@ class Contact_Form_Plugin {
 	 * Create a new post with a Form block
 	 */
 	public function create_new_form() {
+		if ( ! isset( $_POST['newFormNonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['newFormNonce'] ) ), 'create_new_form' ) ) {
+			wp_die( esc_html__( 'Invalid nonce', 'jetpack-forms' ) );
+		}
+
+		$pattern_name = isset( $_POST['pattern'] ) ? sanitize_text_field( wp_unslash( $_POST['pattern'] ) ) : null;
+
+		if ( $pattern_name && WP_Block_Patterns_Registry::get_instance()->is_registered( $pattern_name ) ) {
+			$pattern         = WP_Block_Patterns_Registry::get_instance()->get_registered( $pattern_name );
+			$pattern_content = $pattern['content'];
+		}
+
+		// If no pattern found or specified, use a default form block
+		if ( empty( $pattern_content ) ) {
+			$pattern_content = '<!-- wp:jetpack/contact-form -->
+														<div class="wp-block-jetpack-contact-form"></div>
+													<!-- /wp:jetpack/contact-form -->';
+		}
+
 		$post_id = wp_insert_post(
 			array(
 				'post_title'   => esc_html__( 'Jetpack Forms', 'jetpack-forms' ),
-				'post_content' => '
-					<!-- wp:jetpack/contact-form -->
-					<div class="wp-block-jetpack-contact-form"></div>
-					<!-- /wp:jetpack/contact-form -->
-				',
+				'post_content' => $pattern_content,
 			)
 		);
 

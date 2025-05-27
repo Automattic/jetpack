@@ -33,6 +33,10 @@ $features-colors: (
 @mixin pulse() {
 	$name: jetpack-ai-breve-loading-pulse;
 
+	animation-name: $name;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+
 	@keyframes #{$name} {
 
 		0% {
@@ -47,8 +51,4 @@ $features-colors: (
 			opacity: 1;
 		}
 	}
-
-	animation-name: $name;
-	animation-duration: 1s;
-	animation-iteration-count: infinite;
 }
