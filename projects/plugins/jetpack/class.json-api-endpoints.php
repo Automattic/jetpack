@@ -1665,12 +1665,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return object|WP_Error Media item data, or WP_Error.
 	 */
 	public function get_media_item_v1_1( $media_id, $media_item = null, $file = null ) {
-
 		if ( ! $media_item ) {
 			$media_item = get_post( $media_id );
 		}
 
-		if ( ! $media_item || is_wp_error( $media_item ) ) {
+		if ( ! $media_item || is_wp_error( $media_item ) || ! ( $media_item instanceof WP_Post ) ) {
 			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
 		}
 
@@ -1858,10 +1857,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				// not try and include it in the response.
 				if ( isset( $info->guid ) ) {
 					$response['videopress_guid']            = $info->guid;
-					$response['videopress_processing_done'] = true;
-					if ( '0000-00-00 00:00:00' === $info->finish_date_gmt ) {
-						$response['videopress_processing_done'] = false;
-					}
+					$response['videopress_processing_done'] = isset( $info->finish_date_gmt ) && '0000-00-00 00:00:00' !== $info->finish_date_gmt;
 				}
 			}
 		}
@@ -2568,7 +2564,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		 * @param array $clients_allowed_video_uploads Array of whitelisted Video clients.
 		 */
 		$clients_allowed_video_uploads = apply_filters( 'rest_api_clients_allowed_video_uploads', $clients_allowed_video_uploads );
-		if ( ! in_array( $this->api->token_details['client_id'], $clients_allowed_video_uploads ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- Check what types are expected here.
+		if ( ! isset( $this->api->token_details['client_id'] ) || ! in_array( $this->api->token_details['client_id'], $clients_allowed_video_uploads, true ) ) {
 			return $mimes;
 		}
 
