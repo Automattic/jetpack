@@ -689,7 +689,7 @@ class Sharing_Service_Total {
 		$this->service = $services->get_service( $id );
 		$this->total   = (int) $total;
 
-		if ( is_object( $this->service ) ) {
+		if ( $this->service instanceof Sharing_Source ) {
 			$this->name = $this->service->get_name();
 		}
 	}
