@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Removed unneeded dependency (rollup-plugin-svelte-svg)
+
+
