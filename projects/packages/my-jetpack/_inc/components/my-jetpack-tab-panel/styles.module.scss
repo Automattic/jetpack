@@ -1,26 +1,27 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .tab-panel {
-	margin-inline-start: 2rem;
 
-	@media ( max-width: $break-medium ) {
-		margin-inline-start: 1rem;
+	:global(.components-tab-panel__tabs) {
+		padding-inline-start: 2rem;
+		margin-block-end: -1px;
+
+		@media (max-width: $break-medium ) {
+			padding-inline-start: 1rem;
+		}
+	}
+
+	:global(.components-tab-panel__tab-content) {
+		border-top: 1px solid var(--jp-gray);
+
 	}
 }
 
 .tab-content-wrapper {
-	padding-inline-start: 1rem;
-	
-	@media ( max-width: $break-medium ) {
-		padding-inline-start: 0;
-	}
-}
+	padding-block-start: 2.5rem;
+	padding-inline: 3rem;
 
-.overview-content {
-	padding-block-start: 2.5rem;	
-	padding-inline-end: 3rem;
-
-	@media ( max-width: $break-medium ) {
-		padding-inline-end: 1rem;
+	@media (max-width: $break-medium ) {
+		padding-inline: 1rem;
 	}
 }
