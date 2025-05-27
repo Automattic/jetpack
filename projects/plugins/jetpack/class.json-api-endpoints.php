@@ -1669,7 +1669,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$media_item = get_post( $media_id );
 		}
 
-		if ( ! $media_item || is_wp_error( $media_item ) || ! ( $media_item instanceof WP_Post ) ) {
+		if ( ! $media_item || is_wp_error( $media_item ) ) {
 			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
 		}
 

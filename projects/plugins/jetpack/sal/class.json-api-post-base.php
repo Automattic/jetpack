@@ -917,6 +917,10 @@ abstract class SAL_Post {
 			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
 		}
 
+		if ( ! ( $media_item instanceof WP_Post ) ) {
+			return new WP_Error( 'invalid_media', 'Invalid Media Object', 400 );
+		}
+
 		$file      = basename( wp_get_attachment_url( $media_item->ID ) );
 		$file_info = pathinfo( $file );
 		$ext       = isset( $file_info['extension'] ) ? $file_info['extension'] : '';
