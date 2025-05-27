@@ -5,7 +5,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { DropdownMenu } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { menu, create, download } from '@wordpress/icons';
+import { menu, plus, download } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -33,7 +33,7 @@ const CreateFormDropdownItem = () => {
 	}, [ openNewForm, analyticsEvent ] );
 
 	return {
-		icon: create,
+		icon: plus,
 		onClick,
 		title: __( 'Create form', 'jetpack-forms' ),
 	};
