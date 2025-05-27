@@ -965,7 +965,7 @@ function add_paywall( $the_content ) {
 		return $the_content;
 	}
 
-	$paywalled_content = get_paywall_content( $post_access_level ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$paywalled_content = get_paywall_content();
 
 	if ( has_block( \Automattic\Jetpack\Extensions\Paywall\BLOCK_NAME ) ) {
 		if ( strpos( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML ) ) {
@@ -1044,17 +1044,16 @@ function maybe_prevent_super_cache_caching() {
 /**
  * Returns paywall content blocks
  *
- * @param string $post_access_level The newsletter access level.
  * @return string
  */
-function get_paywall_content( $post_access_level ) {
+function get_paywall_content() {
 	if ( Jetpack_Memberships::user_is_pending_subscriber() ) {
 		return get_paywall_blocks_subscribe_pending();
 	}
 	if ( doing_filter( 'get_the_excerpt' ) ) {
 		return '';
 	}
-	return get_paywall_blocks( $post_access_level );
+	return get_paywall_blocks();
 }
 
 /**
@@ -1138,20 +1137,19 @@ function sanitize_submit_text( $text ) {
 /**
  * Returns paywall content blocks if user is not authenticated
  *
- * @param string $newsletter_access_level The newsletter access level.
  * @return string
  */
-function get_paywall_blocks( $newsletter_access_level ) {
+function get_paywall_blocks() {
 	$custom_paywall = apply_filters( 'jetpack_custom_paywall_blocks', false );
 	if ( ! empty( $custom_paywall ) ) {
 		return $custom_paywall;
 	}
 
 	if ( ! jetpack_is_frontend() ) { // emails
-		return get_paywall_simple( $newsletter_access_level );
+		return get_paywall_simple();
 	}
 
-	$is_paid_post       = is_paid_post( $newsletter_access_level );
+	$is_paid_post       = is_paid_post();
 	$is_paid_subscriber = Jetpack_Memberships::user_is_paid_subscriber();
 
 	$access_heading = $is_paid_subscriber
@@ -1247,7 +1245,7 @@ function is_user_auth(): bool {
 function is_paid_post(): bool {
 	// Make sure Stripe is connected and the post is marked for paid subscribers.
 	if ( Jetpack_Memberships::has_connected_account() && is_jetpack_token_subscription_service_loaded() ) {
-		return get_post_access_level_for_current_post() === Jetpack_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
+		return Jetpack_Memberships::get_post_access_level() === Jetpack_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
 	}
 
 	return false;
@@ -1259,7 +1257,7 @@ function is_paid_post(): bool {
 function is_subscribers_post(): bool {
 	// Make sure Stripe is connected and the post is marked for paid subscribers.
 	if ( Jetpack_Memberships::has_connected_account() && is_jetpack_token_subscription_service_loaded() ) {
-		return get_post_access_level_for_current_post() === Jetpack_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
+		return Jetpack_Memberships::get_post_access_level() === Jetpack_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
 	}
 
 	return false;
@@ -1309,13 +1307,11 @@ function get_paywall_blocks_subscribe_pending() {
 
 /**
  * Return content for non frontend views like Reader, emails.
- *
- * @param string $newsletter_access_level The newsletter access level. We use this to show custom messages based on the access level.
  */
-function get_paywall_simple( string $newsletter_access_level ): string {
-	$is_paid_post        = is_paid_post( $newsletter_access_level );
-	$is_subscribers_post = is_subscribers_post( $newsletter_access_level );
-	$is_subscriber       = is_jetpack_memberships_loaded() && Jetpack_Memberships::user_is_subscriber();
+function get_paywall_simple(): string {
+	$is_paid_post        = is_paid_post();
+	$is_subscribers_post = is_subscribers_post();
+	$is_subscriber       = is_jetpack_memberships_loaded() && Jetpack_Memberships::is_current_user_subscribed();
 	$paywall_heading     = esc_html__( 'Subscribe to keep reading', 'jetpack' );
 
 	if ( $is_subscribers_post && ! $is_subscriber ) {
