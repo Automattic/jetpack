@@ -12,7 +12,6 @@ export const waitForEditor = async () =>
 			select( 'core/editor' ).isCleanNewPost() ||
 			select( 'core/block-editor' ).getBlocks().length > 0
 		) {
-			console.log( 'Resolved immediately' );
 			resolve();
 			return;
 		}
@@ -24,7 +23,6 @@ export const waitForEditor = async () =>
 		}, 2000 );
 
 		const unsubscribe = subscribe( () => {
-			console.log( 'Checking blocks' );
 			const blocks = select( 'core/block-editor' ).getBlocks();
 			if ( blocks.length > 0 ) {
 				clearTimeout( timeoutId );
