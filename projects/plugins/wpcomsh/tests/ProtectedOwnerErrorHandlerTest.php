@@ -29,9 +29,7 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 
 		// Clean up any existing error data
 		delete_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION );
-
-		// Clear any existing master user
-		\Jetpack_Options::delete_option( 'master_user' );
+		delete_option( 'jetpack_connection_xmlrpc_verified_errors' );
 	}
 
 	/**
@@ -39,7 +37,7 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	 */
 	public function tearDown(): void {
 		delete_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION );
-		\Jetpack_Options::delete_option( 'master_user' );
+		delete_option( 'jetpack_connection_xmlrpc_verified_errors' );
 		parent::tearDown();
 	}
 
@@ -55,51 +53,69 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_error returns false when no error is stored.
+	 * Test handle_error returns original errors when no error is stored.
 	 */
-	public function test_get_error_returns_false_when_no_error_stored() {
-		$result = $this->handler->get_error();
-		$this->assertFalse( $result );
+	public function test_handle_error_returns_original_errors_when_no_error_stored() {
+		$original_errors = array( 'some_error' => array( '1' => array( 'data' => 'test' ) ) );
+		$result          = $this->handler->handle_error( $original_errors );
+		$this->assertEquals( $original_errors, $result );
 	}
 
 	/**
-	 * Test get_error returns false when invalid error data is stored.
+	 * Test handle_error returns original errors for invalid data.
 	 */
-	public function test_get_error_returns_false_for_invalid_data() {
+	public function test_handle_error_returns_original_errors_for_invalid_data() {
+		$original_errors = array( 'some_error' => array( '1' => array( 'data' => 'test' ) ) );
+
 		// Test with non-array data
 		update_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION, 'invalid_data' );
-		$this->assertFalse( $this->handler->get_error() );
+		$result = $this->handler->handle_error( $original_errors );
+		$this->assertEquals( $original_errors, $result );
 
 		// Test with missing error_type
 		update_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION, array( 'email' => 'test@example.com' ) );
-		$this->assertFalse( $this->handler->get_error() );
+		$result = $this->handler->handle_error( $original_errors );
+		$this->assertEquals( $original_errors, $result );
 
 		// Test with missing email
 		update_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION, array( 'error_type' => 'missing_owner' ) );
-		$this->assertFalse( $this->handler->get_error() );
+		$result = $this->handler->handle_error( $original_errors );
+		$this->assertEquals( $original_errors, $result );
 	}
 
 	/**
-	 * Test get_error returns false for unrecognized error type.
+	 * Test handle_error returns original errors when user exists.
 	 */
-	public function test_get_error_returns_false_for_unrecognized_error_type() {
+	public function test_handle_error_returns_original_errors_when_user_exists() {
+		$test_email      = 'test@example.com';
+		$original_errors = array( 'some_error' => array( '1' => array( 'data' => 'test' ) ) );
+
+		// Create a user with the required email
+		$this->factory()->user->create( array( 'user_email' => $test_email ) );
+
+		// Set up an error
 		update_option(
 			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
 			array(
-				'error_type' => 'unknown_error',
-				'email'      => 'test@example.com',
+				'error_type' => 'missing_owner',
+				'email'      => $test_email,
 			)
 		);
 
-		$this->assertFalse( $this->handler->get_error() );
+		$result = $this->handler->handle_error( $original_errors );
+
+		// Should return original errors and delete the stored error
+		$this->assertEquals( $original_errors, $result );
+		$this->assertFalse( get_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION ) );
 	}
 
 	/**
-	 * Test get_error for missing_owner error type with no master user.
+	 * Test handle_error returns protected owner error when user doesn't exist.
 	 */
-	public function test_get_error_missing_owner_no_master_user() {
-		$test_email     = 'test@example.com';
-		$test_timestamp = time();
+	public function test_handle_error_returns_protected_owner_error() {
+		$test_email      = 'test@example.com';
+		$test_timestamp  = time();
+		$original_errors = array( 'some_error' => array( '1' => array( 'data' => 'test' ) ) );
 
 		update_option(
 			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
@@ -110,31 +126,80 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 			)
 		);
 
-		$result = $this->handler->get_error();
+		$result = $this->handler->handle_error( $original_errors );
 
+		// Should return only the protected owner error (takes priority)
 		$this->assertIsArray( $result );
-		$this->assertArrayHasKey( 'no_user_connection_protected_owner_missing', $result );
+		$this->assertArrayHasKey( 'protected_owner_missing', $result );
+		$this->assertArrayNotHasKey( 'some_error', $result );
 
-		$error_data = $result['no_user_connection_protected_owner_missing']['0'];
-		$this->assertEquals( 'no_user_connection_protected_owner_missing', $error_data['error_code'] );
+		$error_data = $result['protected_owner_missing']['0'];
+		$this->assertEquals( 'protected_owner_missing', $error_data['error_code'] );
 		$this->assertSame( '0', $error_data['user_id'] );
 		$this->assertEquals( 'protected_owner', $error_data['error_type'] );
 		$this->assertEquals( $test_timestamp, $error_data['timestamp'] );
 		$this->assertArrayHasKey( 'error_message', $error_data );
+		$this->assertStringContainsString( $test_email, $error_data['error_message'] );
 		$this->assertArrayHasKey( 'error_data', $error_data );
 		$this->assertEquals( $test_email, $error_data['error_data']['email'] );
 		$this->assertEquals( 'missing_owner', $error_data['error_data']['error_type'] );
 	}
 
 	/**
-	 * Test get_error for missing_owner error type with existing master user.
+	 * Test add_to_react_dashboard returns original errors when no error is stored.
 	 */
-	public function test_get_error_missing_owner_with_master_user() {
-		// Create a master user
-		$user_id = $this->factory()->user->create( array( 'user_email' => 'master@example.com' ) );
-		\Jetpack_Options::update_option( 'master_user', $user_id );
+	public function test_add_to_react_dashboard_returns_original_errors_when_no_error_stored() {
+		$original_errors = array(
+			array(
+				'code'    => 'some_error',
+				'message' => 'test',
+			),
+		);
+		$result          = $this->handler->add_to_react_dashboard( $original_errors );
+		$this->assertEquals( $original_errors, $result );
+	}
 
-		$test_email = 'test@example.com';
+	/**
+	 * Test add_to_react_dashboard returns original errors when user exists.
+	 */
+	public function test_add_to_react_dashboard_returns_original_errors_when_user_exists() {
+		$test_email      = 'test@example.com';
+		$original_errors = array(
+			array(
+				'code'    => 'some_error',
+				'message' => 'test',
+			),
+		);
+
+		// Create a user with the required email
+		$this->factory()->user->create( array( 'user_email' => $test_email ) );
+
+		// Set up an error
+		update_option(
+			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
+			array(
+				'error_type' => 'missing_owner',
+				'email'      => $test_email,
+			)
+		);
+
+		$result = $this->handler->add_to_react_dashboard( $original_errors );
+
+		// Should return original errors unchanged
+		$this->assertEquals( $original_errors, $result );
+	}
+
+	/**
+	 * Test add_to_react_dashboard adds protected owner error when user doesn't exist.
+	 */
+	public function test_add_to_react_dashboard_adds_protected_owner_error() {
+		$test_email      = 'test@example.com';
+		$original_errors = array(
+			array(
+				'code'    => 'some_error',
+				'message' => 'test',
+			),
+		);
 
 		update_option(
 			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
@@ -144,13 +209,16 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 			)
 		);
 
-		$result = $this->handler->get_error();
+		$result = $this->handler->add_to_react_dashboard( $original_errors );
 
-		$this->assertIsArray( $result );
-		$this->assertArrayHasKey( 'wrong_owner_protected_owner_missing', $result );
-
-		$error_data = $result['wrong_owner_protected_owner_missing']['0'];
-		$this->assertEquals( 'wrong_owner_protected_owner_missing', $error_data['error_code'] );
+		// Should have both original error and new protected owner error
+		$this->assertCount( 2, $result );
+		$this->assertEquals( 'some_error', $result[0]['code'] );
+		$this->assertEquals( 'protected_owner_missing', $result[1]['code'] );
+		$this->assertStringContainsString( $test_email, $result[1]['message'] );
+		$this->assertEquals( 'protected_owner_action', $result[1]['action'] );
+		$this->assertArrayHasKey( 'action_links', $result[1] );
+		$this->assertTrue( $result[1]['can_be_fixed'] );
 	}
 
 	/**
@@ -166,14 +234,65 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 			)
 		);
 
-		// Verify error exists
+		// Set up verified errors to test cleanup
+		update_option(
+			'jetpack_connection_xmlrpc_verified_errors',
+			array(
+				'protected_owner_missing' => array(
+					'0' => array( 'error_code' => 'protected_owner_missing' ),
+				),
+				'other_error'             => array(
+					'1' => array( 'error_code' => 'other_error' ),
+				),
+			)
+		);
+
+		// Verify errors exist
 		$this->assertNotFalse( get_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION ) );
+		$verified_errors = get_option( 'jetpack_connection_xmlrpc_verified_errors' );
+		$this->assertArrayHasKey( 'protected_owner_missing', $verified_errors );
 
 		// Delete the error
 		$this->handler->delete_error();
 
-		// Verify error is gone
+		// Verify our error is gone
 		$this->assertFalse( get_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION ) );
+
+		// Verify our error is removed from verified errors but other errors remain
+		$verified_errors = get_option( 'jetpack_connection_xmlrpc_verified_errors' );
+		$this->assertArrayNotHasKey( 'protected_owner_missing', $verified_errors );
+		$this->assertArrayHasKey( 'other_error', $verified_errors );
+	}
+
+	/**
+	 * Test delete_error clears verified errors completely when only our error exists.
+	 */
+	public function test_delete_error_clears_verified_errors_completely() {
+		// Set an error first
+		update_option(
+			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
+			array(
+				'error_type' => 'missing_owner',
+				'email'      => 'test@example.com',
+			)
+		);
+
+		// Set up verified errors with only our error
+		update_option(
+			'jetpack_connection_xmlrpc_verified_errors',
+			array(
+				'protected_owner_missing' => array(
+					'0' => array( 'error_code' => 'protected_owner_missing' ),
+				),
+			)
+		);
+
+		// Delete the error
+		$this->handler->delete_error();
+
+		// Verify both options are completely removed
+		$this->assertFalse( get_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION ) );
+		$this->assertFalse( get_option( 'jetpack_connection_xmlrpc_verified_errors' ) );
 	}
 
 	/**
@@ -217,52 +336,49 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Create a user with matching email
 		$user_id = $this->factory()->user->create( array( 'user_email' => $test_email ) );
 
-		// Simulate user creation
-		$this->handler->check_and_clear_error_on_user_creation( $user_id );
+		// Simulate user creation/update
+		$this->handler->check_and_clear_error_for_user( $user_id );
 
 		// Error should be cleared
 		$this->assertFalse( get_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION ) );
 	}
 
 	/**
-	 * Test add_to_verified_errors method.
+	 * Test check_and_clear_error_for_user method with non-matching email.
 	 */
-	public function test_add_to_verified_errors() {
-		// Set up an error
+	public function test_check_and_clear_error_for_user_non_matching_email() {
+		$test_email = 'test@example.com';
+
+		// Set an error
 		update_option(
 			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
 			array(
 				'error_type' => 'missing_owner',
-				'email'      => 'test@example.com',
+				'email'      => $test_email,
 			)
 		);
 
-		$existing_errors = array(
-			'some_other_error' => array(
-				'1' => array( 'some' => 'data' ),
-			),
-		);
+		// Create a user with different email
+		$user_id = $this->factory()->user->create( array( 'user_email' => 'different@example.com' ) );
 
-		$result = $this->handler->add_to_verified_errors( $existing_errors );
+		// Simulate user creation/update
+		$this->handler->check_and_clear_error_for_user( $user_id );
 
-		// Should return only the protected owner error (takes priority)
-		$this->assertArrayHasKey( 'no_user_connection_protected_owner_missing', $result );
-		$this->assertArrayNotHasKey( 'some_other_error', $result );
+		// Error should remain
+		$this->assertNotFalse( get_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION ) );
 	}
 
 	/**
-	 * Test add_to_verified_errors when no error exists.
+	 * Test check_and_clear_error_for_user method with no error stored.
 	 */
-	public function test_add_to_verified_errors_no_error() {
-		$existing_errors = array(
-			'some_other_error' => array(
-				'1' => array( 'some' => 'data' ),
-			),
-		);
+	public function test_check_and_clear_error_for_user_no_error_stored() {
+		// Create a user
+		$user_id = $this->factory()->user->create( array( 'user_email' => 'test@example.com' ) );
 
-		$result = $this->handler->add_to_verified_errors( $existing_errors );
+		// This should not cause any errors
+		$this->handler->check_and_clear_error_for_user( $user_id );
 
-		// Should return existing errors unchanged
-		$this->assertEquals( $existing_errors, $result );
+		// No error should be created
+		$this->assertFalse( get_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION ) );
 	}
 }
