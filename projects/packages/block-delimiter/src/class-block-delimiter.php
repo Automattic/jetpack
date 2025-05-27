@@ -7,6 +7,8 @@
 
 namespace Automattic;
 
+use Exception;
+
 /**
  * Class for efficiently working with block structure.
  *
@@ -21,47 +23,65 @@ class Block_Delimiter {
 	/**
 	 * Indicates if the last operation failed, otherwise
 	 * will be `null` for success.
+	 *
+	 * @var string|null
 	 */
 	private static ?string $last_error = self::UNINITIALIZED;
 
 	/**
 	 * Indicates failures from decoding JSON attributes.
+	 *
+	 * @var int
 	 */
 	private int $last_json_error = JSON_ERROR_NONE;
 
 	/**
 	 * Holds a reference to the original source text from which to
 	 * extract the parsed spans of the delimiter.
+	 *
+	 * @var string
 	 */
 	private string $source_text;
 
 	/**
 	 * Byte offset into source text where entire delimiter begins.
+	 *
+	 * @var int
 	 */
 	private int $delimiter_at;
 
 	/**
 	 * Byte length of full span of delimiter.
+	 *
+	 * @var int
 	 */
 	private int $delimiter_length;
 
 	/**
 	 * Byte offset where namespace span begins.
+	 *
+	 * @var int
 	 */
 	private int $namespace_at;
 
 	/**
 	 * Byte length of namespace span, or `0` if implicitly in the "core" namespace.
+	 *
+	 * @var int
 	 */
 	private int $namespace_length;
 
 	/**
 	 * Byte offset where block name span begins.
+	 *
+	 * @var int
 	 */
 	private int $name_at;
 
 	/**
 	 * Byte length of block name span.
+	 *
+	 * @var int
 	 */
 	private int $name_length;
 
@@ -71,16 +91,22 @@ class Block_Delimiter {
 	 * This may be erroneous if present within a block closer,
 	 * therefore the {@see self::has_void_flag} can be used by
 	 * calling code to perform appropriate error-handling.
+	 *
+	 * @var bool
 	 */
 	private bool $has_void_flag = false;
 
 	/**
 	 * Byte offset where JSON attributes span begins.
+	 *
+	 * @var int
 	 */
 	private int $json_at;
 
 	/**
 	 * Byte length of JSON attributes span, or `0` if none are present.
+	 *
+	 * @var int
 	 */
 	private int $json_length;
 
@@ -97,6 +123,8 @@ class Block_Delimiter {
 	 * flags then it will be interpreted as a void block to match the behavior
 	 * of the official block parser, however, this is a mistake and probably
 	 * the block ought to close an open block of the same name, if one is open.
+	 *
+	 * @var string
 	 */
 	private string $type;
 
@@ -425,7 +453,8 @@ class Block_Delimiter {
 		$match_at     = 0;
 		$match_length = 0;
 
-		while ( null !== ( $delimiter = self::next_delimiter( $text, $at, $match_at, $match_length ) ) ) {
+		$delimiter = self::next_delimiter( $text, $at, $match_at, $match_length );
+		while ( null !== $delimiter ) {
 			// Handle top-level text as freeform blocks
 			if ( 0 === $depth && $match_at > $at && 'visit' === $freeform_blocks ) {
 				list( $text_opener, $text_closer ) = static::freeform_pair( $text, $at, $match_at - $at );
@@ -456,7 +485,8 @@ class Block_Delimiter {
 				--$depth;
 			}
 
-			$at = $match_at + $match_length;
+			$at        = $match_at + $match_length;
+			$delimiter = self::next_delimiter( $text, $at, $match_at, $match_length );
 		}
 
 		$end = strlen( $text );
