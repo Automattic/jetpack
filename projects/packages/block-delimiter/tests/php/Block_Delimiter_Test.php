@@ -13,7 +13,6 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( Block_Delimiter::class )]
 class Block_Delimiter_Test extends TestCase {
-
 	/**
 	 * Test the next_delimiter method with valid block delimiters.
 	 *
@@ -193,37 +192,86 @@ class Block_Delimiter_Test extends TestCase {
 	 */
 	public static function provideBlockTypeChecks(): array {
 		return array(
-			'core paragraph with short name'   => array(
+			'core paragraph with short name'           => array(
 				'<!-- wp:paragraph -->',
 				'paragraph',
 				true,
 			),
-			'core paragraph with full name'    => array(
+			'core paragraph with full name'            => array(
 				'<!-- wp:paragraph -->',
 				'core/paragraph',
 				true,
 			),
-			'wrong block type'                 => array(
+			'wrong block type'                         => array(
 				'<!-- wp:paragraph -->',
 				'heading',
 				false,
 			),
-			'namespaced block correct'         => array(
+			'namespaced block correct'                 => array(
 				'<!-- wp:jetpack/contact-form -->',
 				'jetpack/contact-form',
 				true,
 			),
-			'namespaced block wrong namespace' => array(
+			'namespaced block wrong namespace'         => array(
 				'<!-- wp:jetpack/contact-form -->',
 				'core/contact-form',
 				false,
 			),
-			'namespaced block short name'      => array(
+			'namespaced block short name'              => array(
 				'<!-- wp:jetpack/contact-form -->',
 				'contact-form',
 				false,
 			),
+			'core separator with short name'           => array(
+				'<!-- wp:separator /-->',
+				'separator',
+				true,
+			),
+			'core separator with full name'            => array(
+				'<!-- wp:separator /-->',
+				'core/separator',
+				true,
+			),
+			'core block wrong short name'              => array(
+				'<!-- wp:paragraph -->',
+				'separator',
+				false,
+			),
+			'non-core namespace with short name fails' => array(
+				'<!-- wp:jetpack/contact-form -->',
+				'jetpack',
+				false,
+			),
 		);
+	}
+
+	/**
+	 * Test is_block_type method with freeform blocks.
+	 */
+	public function test_is_block_type_freeform(): void {
+		$content    = 'Some freeform text<!-- wp:paragraph -->block content<!-- /wp:paragraph -->More freeform text';
+		$delimiters = array();
+
+		// Collect freeform delimiters
+		foreach ( Block_Delimiter::scan_delimiters( $content, 'visit' ) as $position => $delimiter ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			if ( $delimiter->is_block_type( 'core/freeform' ) ) {
+				$delimiters[] = $delimiter;
+			}
+		}
+
+		$this->assertCount( 4, $delimiters ); // 2 freeform sections, each with opener and closer
+
+		// Test the first freeform delimiter
+		$freeform_delimiter = $delimiters[0];
+
+		// Test both short and full freeform block type names
+		$this->assertTrue( $freeform_delimiter->is_block_type( 'core/freeform' ) );
+		$this->assertTrue( $freeform_delimiter->is_block_type( 'freeform' ) );
+
+		// Test that it doesn't match other block types
+		$this->assertFalse( $freeform_delimiter->is_block_type( 'paragraph' ) );
+		$this->assertFalse( $freeform_delimiter->is_block_type( 'core/paragraph' ) );
+		$this->assertFalse( $freeform_delimiter->is_block_type( 'jetpack/freeform' ) );
 	}
 
 	/**
