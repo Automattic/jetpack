@@ -1,3 +1,5 @@
+import ProductCardsSection from '../product-cards-section';
+
 /**
  * The Overview content component.
  *
@@ -6,7 +8,7 @@
 export function OverviewContent() {
 	return (
 		<div>
-			<h2>Overview Tab</h2>
+			<ProductCardsSection />
 		</div>
 	);
 }

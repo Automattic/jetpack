@@ -47,7 +47,6 @@
 	}
 }
 
-.cardListTitle,
 .fullStatsCard {
 	margin-bottom: 1.5rem;
 }
@@ -90,4 +89,8 @@
 			grid-column-end: auto;
 		}
 	}	
+}
+
+.products-container {
+	padding-inline: 0;
 }
