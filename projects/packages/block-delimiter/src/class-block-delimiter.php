@@ -26,14 +26,14 @@ class Block_Delimiter {
 	 *
 	 * @var string|null
 	 */
-	private static ?string $last_error = self::UNINITIALIZED;
+	private static $last_error = self::UNINITIALIZED;
 
 	/**
 	 * Indicates failures from decoding JSON attributes.
 	 *
 	 * @var int
 	 */
-	private int $last_json_error = JSON_ERROR_NONE;
+	private $last_json_error = JSON_ERROR_NONE;
 
 	/**
 	 * Holds a reference to the original source text from which to
@@ -41,49 +41,49 @@ class Block_Delimiter {
 	 *
 	 * @var string
 	 */
-	private string $source_text;
+	private $source_text;
 
 	/**
 	 * Byte offset into source text where entire delimiter begins.
 	 *
 	 * @var int
 	 */
-	private int $delimiter_at;
+	private $delimiter_at;
 
 	/**
 	 * Byte length of full span of delimiter.
 	 *
 	 * @var int
 	 */
-	private int $delimiter_length;
+	private $delimiter_length;
 
 	/**
 	 * Byte offset where namespace span begins.
 	 *
 	 * @var int
 	 */
-	private int $namespace_at;
+	private $namespace_at;
 
 	/**
 	 * Byte length of namespace span, or `0` if implicitly in the "core" namespace.
 	 *
 	 * @var int
 	 */
-	private int $namespace_length;
+	private $namespace_length;
 
 	/**
 	 * Byte offset where block name span begins.
 	 *
 	 * @var int
 	 */
-	private int $name_at;
+	private $name_at;
 
 	/**
 	 * Byte length of block name span.
 	 *
 	 * @var int
 	 */
-	private int $name_length;
+	private $name_length;
 
 	/**
 	 * Whether the delimiter contains the block self-closing flag.
@@ -94,21 +94,21 @@ class Block_Delimiter {
 	 *
 	 * @var bool
 	 */
-	private bool $has_void_flag = false;
+	private $has_void_flag = false;
 
 	/**
 	 * Byte offset where JSON attributes span begins.
 	 *
 	 * @var int
 	 */
-	private int $json_at;
+	private $json_at;
 
 	/**
 	 * Byte length of JSON attributes span, or `0` if none are present.
 	 *
 	 * @var int
 	 */
-	private int $json_length;
+	private $json_length;
 
 	/**
 	 * Indicates what kind of block comment delimiter this represents.
@@ -126,7 +126,7 @@ class Block_Delimiter {
 	 *
 	 * @var string
 	 */
-	private string $type;
+	private $type;
 
 	/**
 	 * Finds the next block delimiter in a text document and returns a parsed
