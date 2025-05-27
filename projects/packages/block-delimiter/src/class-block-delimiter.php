@@ -5,6 +5,8 @@
  * @package automattic/block-delimiter
  */
 
+declare( strict_types = 1 );
+
 namespace Automattic;
 
 use Exception;
