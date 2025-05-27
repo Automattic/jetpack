@@ -34,10 +34,9 @@ const settings = {
 			type: 'object',
 			default: {
 				layout: {
-					type: 'flex',
+					type: 'constrained',
 					justifyContent: 'center',
 					orientation: 'vertical',
-					verticalAlignment: 'center',
 				},
 				spacing: {
 					padding: {
@@ -65,9 +64,9 @@ const settings = {
 		// Mimic the layout settings of the core Group block.
 		layout: {
 			type: 'constrained',
-			allowSwitching: true,
-			allowInheriting: true,
-			allowEditing: true,
+			allowSwitching: false,
+			allowInheriting: false,
+			allowEditing: false,
 			default: {
 				type: 'constrained',
 			},
