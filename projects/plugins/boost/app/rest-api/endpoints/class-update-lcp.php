@@ -66,7 +66,6 @@ class Update_LCP implements Endpoint {
 		// Update each page.
 		foreach ( $pages as $entry ) {
 			if ( $entry['success'] ) {
-				// Mark the page as successfully analyzed as we don't know what to do if mobile fails but desktop succeeds.
 				$state->set_page_success( $entry['key'] );
 			} else {
 				$errors = array();
