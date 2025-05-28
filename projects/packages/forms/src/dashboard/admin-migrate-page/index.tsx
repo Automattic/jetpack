@@ -10,6 +10,7 @@ import { Button } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { config } from '../index';
+import './style.scss';
 
 // TODO: This is a temporary page to migrate the admin page to the new menu
 // and this is a mockup of the new page until the new page is implemented.
@@ -34,7 +35,7 @@ const AdminMigratePage = () => {
 		</div>
 	);
 	return (
-		<div style={ { padding: '0 0 0 24px' } }>
+		<div className="jp-forms__admin-migrate-page-wrapper">
 			<AdminPage moduleName={ __( 'Jetpack Forms', 'jetpack-forms' ) } header={ header }>
 				<AdminSectionHero>
 					<Container>
