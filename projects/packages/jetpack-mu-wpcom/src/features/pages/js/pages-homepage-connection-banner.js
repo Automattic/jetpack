@@ -8,6 +8,21 @@
 
 /* global jQuery */
 ( function ( $ ) {
+	const trackEvent = ( eventName, eventProperties = {} ) => {
+		const currentUser = window.JP_CONNECTION_INITIAL_STATE?.userConnectionData?.currentUser ?? {};
+		const blogId = eventProperties.blogId ?? currentUser.blogId;
+
+		window._tkq = window._tkq || [];
+		window._tkq.push( [
+			'recordEvent',
+			eventName,
+			{
+				...eventProperties,
+				blog_id: blogId,
+			},
+		] );
+	};
+
 	/**
 	 * Create the connection banner element programmatically.
 	 *
@@ -17,10 +32,11 @@
 		// Get localized data
 		const data = window.wpcomPagesHomepageConnectionBanner || {};
 
-		// Create main container with card class
+		// Create card container
 		const container = document.createElement( 'div' );
 		container.className = 'wpcom-homepage-notice card';
 
+		// Crete left column element
 		const leftColumn = document.createElement( 'div' );
 		leftColumn.className = 'wpcom-homepage-notice-left-column';
 
@@ -30,12 +46,9 @@
 
 		leftColumn.appendChild( icon );
 
+		// Crete right column element
 		const rightColumn = document.createElement( 'div' );
 		rightColumn.className = 'wpcom-homepage-notice-right-column';
-
-		// Create content wrapper
-		const content = document.createElement( 'div' );
-		content.className = 'wpcom-homepage-notice-content';
 
 		// Create text paragraph
 		const text = document.createElement( 'p' );
@@ -44,21 +57,27 @@
 
 		rightColumn.appendChild( text );
 
-		// Add the info section to content
+		// Create content wrapper
+		const content = document.createElement( 'div' );
+		content.className = 'wpcom-homepage-notice-content';
+
 		content.appendChild( leftColumn );
 		content.appendChild( rightColumn );
 
 		// Add edit link if user has permission
 		if ( data.canEdit ) {
-			const btn = document.createElement( 'button' );
+			const btn = document.createElement( 'a' );
+
 			btn.className = 'wpcom-homepage-notice-edit-btn button button-primary';
 			btn.href = data.editLink;
 			btn.textContent = data.editText;
+			btn.onclick = function () {
+				trackEvent( 'wpcom_pages_edit_homepage_banner_clicked' );
+			};
 
 			rightColumn.appendChild( btn );
 		}
 
-		// Add the content to the container
 		container.appendChild( content );
 
 		return container;
@@ -72,6 +91,8 @@
 		const $tablenav = $( '.tablenav.top' );
 
 		if ( $tablenav.length ) {
+			trackEvent( 'wpcom_pages_edit_homepage_banner_shown' );
+
 			$tablenav.before( banner );
 		}
 	} );

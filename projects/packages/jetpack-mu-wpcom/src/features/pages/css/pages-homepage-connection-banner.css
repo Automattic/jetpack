@@ -40,7 +40,6 @@
 }
 
 .wpcom-homepage-notice-edit-btn {
-	line-height: var(--s, 20px) !important;
 	margin-bottom: 4px !important;
     padding: 0 8px !important;
 }
