@@ -163,7 +163,7 @@ class Contact_Form_Block {
 						'width'  => true,
 					),
 					'color'                => array(
-						'text'       => true,
+						'text'       => false,
 						'background' => true,
 					),
 					'spacing'              => array(
