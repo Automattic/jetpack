@@ -40,10 +40,10 @@ else
 	exit 1
 fi
 
-# Don't auto-release if there's a dummy release in place.
-dummy_release=$( gh release list --limit 1 --json tagName --jq '.[].tagName | select( contains( "+dummy_release" ) )' )
-if [[ -n $dummy_release ]]; then
-	echo 'Dummy release found; aborting auto-release.'
+# Don't auto-release if there's a dummy tag in place.
+dummy_tag=$( git ls-remote --tags origin pause_rolling_release_dummy_tag )
+if [[ -n $dummy_tag ]]; then
+	echo 'Dummy tag found ('pause_rolling_release_dummy_tag'); aborting auto-release.'
 	exit 0
 fi
 
