@@ -1965,7 +1965,7 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Create a new post with a Form block
+	 * Create a new page with a Form block
 	 */
 	public function create_new_form() {
 		if ( ! isset( $_POST['newFormNonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['newFormNonce'] ) ), 'create_new_form' ) ) {
@@ -1988,6 +1988,7 @@ class Contact_Form_Plugin {
 
 		$post_id = wp_insert_post(
 			array(
+				'post_type'    => 'page',
 				'post_title'   => esc_html__( 'Jetpack Forms', 'jetpack-forms' ),
 				'post_content' => $pattern_content,
 			)
