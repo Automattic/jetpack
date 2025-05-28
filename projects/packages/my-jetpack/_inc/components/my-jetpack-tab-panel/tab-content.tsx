@@ -27,6 +27,7 @@ export function TabContent( { name }: TabContentProps ) {
 	if ( ! ContentComponent ) {
 		return null;
 	}
+
 	return (
 		<div className={ styles[ 'tab-content-wrapper' ] }>
 			<ContentComponent />
