@@ -67,8 +67,7 @@
 }
 
 .my-jetpack-products-container {
-	padding-left: 0;
-	padding-right: 0;
+	padding-inline: 0;
 
 	:global(.dataviews-wrapper .dataviews__view-actions), /* :(*/
 	:global(.dataviews-view-list div[role="row"] .dataviews-view-list__item-wrapper) { // :'(
