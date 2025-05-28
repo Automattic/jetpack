@@ -817,6 +817,7 @@ class Block_Delimiter {
 	}
 
 	// Debugging methods not meant for production use.
+	// @codeCoverageIgnoreStart
 
 	/**
 	 * Prints a debugging message showing the structure of the parsed delimiter.
@@ -877,6 +878,8 @@ class Block_Delimiter {
 		echo $w( substr( $this->source_text, $closing_whitespace_at, $closing_whitespace_length ) ); // phpcs:ignore
 		echo "{$c( "\e[0;36m" )}{$void_flag}{$c("\e[90m")}-->\n"; // phpcs:ignore
 	}
+
+	// @codeCoverageIgnoreEnd
 
 	// Constant declarations that would otherwise pollute the top of the class.
 
