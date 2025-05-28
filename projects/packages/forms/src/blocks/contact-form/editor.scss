@@ -528,7 +528,7 @@
 .jetpack-field-multiple__list.jetpack-field-multiple__list {
 	list-style-type: none;
 	margin: 0;
-	padding: var(--jetpack--contact-form--input-padding-left, 16px) 0;
+	padding-left: 0;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
@@ -891,8 +891,9 @@
 				border-color: transparent !important;
 				border-radius: unset !important;
 				outline: none;
-				padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
-				padding-right: var(--jetpack--contact-form--input-padding-left, 16px);
+				padding: var(--jetpack--contact-form--input-padding, 16px);
+				padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
+				padding-left: min(100px, var(--jetpack--contact-form--notch-width));
 			}
 		}
 	}
@@ -947,9 +948,14 @@
 				padding-left: var(--jetpack--contact-form--animated-left-offset);
 			}
 
-
-			&.jetpack-field-multiple .animated-label__label {
+			&.is-selected.jetpack-field-multiple .animated-label__label,
+			&.has-placeholder.jetpack-field-multiple .animated-label__label {
 				position: static;
+				margin-bottom: 0.25em;
+
+				.jetpack-field-label__input {
+					font-size: inherit;
+				}
 			}
 
 			&.jetpack-field-textarea .animated-label__label {
