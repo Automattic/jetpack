@@ -3,13 +3,9 @@ import { useCallback, useEffect, useState } from 'react';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import ProductsTableView from '../products-table-view';
-import type { FC, ReactNode } from 'react';
+import styles from './style.module.scss';
 
-interface UnownedProductsCardProps {
-	noticeMessage?: ReactNode;
-}
-
-const UnownedProductsCard: FC< UnownedProductsCardProps > = ( { noticeMessage } ) => {
+const UnownedProductsCard = () => {
 	const {
 		data: { unownedProducts },
 		isLoading,
@@ -68,7 +64,11 @@ const UnownedProductsCard: FC< UnownedProductsCardProps > = ( { noticeMessage } 
 	return (
 		userIsAdmin &&
 		filteredUnownedProducts.length > 0 && (
-			<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
+			<Container
+				className={ styles[ 'my-jetpack-products-container' ] }
+				horizontalSpacing={ 4 }
+				horizontalGap={ 6 }
+			>
 				<Col>
 					<ProductsTableView products={ filteredUnownedProducts } />
 				</Col>
