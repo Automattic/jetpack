@@ -393,7 +393,7 @@
 
 	:where(.jetpack-option__type) {
 		all: initial;
-		color: var(--jetpack--contact-form--text-color);
+		color: currentColor;
 		// Inherit the font size from the parent element, this needs
 		// to override the `all: initial` above.
 		// Set the height and width to 1em, so that the input scales
