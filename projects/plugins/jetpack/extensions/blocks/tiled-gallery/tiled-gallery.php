@@ -189,9 +189,9 @@ class Tiled_Gallery {
 				$image_index,
 				$number_images
 			);
-			$img_element = '<img data-amp-layout="responsive" role="button" tabindex="0" aria-label="' . esc_attr( $aria_label_content ) . '"';
+			$img_element = '<img role="button" tabindex="0" aria-label="' . esc_attr( $aria_label_content ) . '"';
 		} else {
-			$img_element = '<img data-amp-layout="responsive" ';
+			$img_element = '<img ';
 		}
 		return $img_element;
 	}
