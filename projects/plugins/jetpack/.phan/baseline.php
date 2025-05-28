@@ -364,7 +364,6 @@ return [
         'modules/shortcodes/vr.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'modules/shortcodes/youtube.php' => ['PhanRedefineFunction'],
         'modules/shortlinks.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal'],
-        'modules/simple-payments/simple-payments.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],
         'modules/sitemaps/sitemap-buffer-fallback.php' => ['PhanTypeArraySuspicious'],
         'modules/sitemaps/sitemap-buffer-image-fallback.php' => ['PhanRedefineClass', 'PhanTypeMismatchPropertyProbablyReal'],
         'modules/sitemaps/sitemap-buffer-image.php' => ['PhanRedefineClass'],
