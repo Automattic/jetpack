@@ -2078,7 +2078,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$data['settings']['blocks']['jetpack/input'] = array(
 			'color'      => array(
 				'text'       => true,
-				'background' => true,
+				'background' => false,
 			),
 			'border'     => array(
 				'color'  => true,
@@ -2095,6 +2095,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'lineHeight'     => true,
 				'textDecoration' => true,
 				'textTransform'  => true,
+			),
+		);
+
+		$data['settings']['blocks']['jetpack/options'] = array(
+			'color'  => array(
+				'text'       => true,
+				'background' => true,
+			),
+			'border' => array(
+				'color'  => true,
+				'radius' => true,
+				'style'  => true,
+				'width'  => true,
 			),
 		);
 

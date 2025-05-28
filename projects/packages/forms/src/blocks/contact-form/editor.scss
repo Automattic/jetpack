@@ -374,26 +374,32 @@
 
 	.jetpack-option__type.jetpack-option__type {
 		align-items: center;
-		appearance: none;
 		display: flex;
 		justify-content: center;
 		margin: 0 10px 0 0;
-		outline: none;
 		position: relative;
 		pointer-events: none;
+
+		/* Force opinionated styles for the input. */
+		width: 1em !important;
+		height: 1em !important;
+		box-shadow: none !important;
+		border: none !important;
+		appearance: none !important;
+		outline: none !important;
+
+		/* Some classic themes set the min-widths, which gives an elliptical shape to the input. */
+		min-width: auto;
 	}
 
 	:where(.jetpack-option__type) {
 		all: initial;
 		color: var(--jetpack--contact-form--text-color);
-		border: none;
 		// Inherit the font size from the parent element, this needs
 		// to override the `all: initial` above.
 		// Set the height and width to 1em, so that the input scales
 		// with the font size.
 		font-size: inherit;
-		height: 1em;
-		width: 1em;
 
 		&::after, &::before {
 			all: initial;
@@ -419,7 +425,6 @@
 
 		&[type="radio"]::before {
 			border-radius: 50%;
-			transform: translateY(15%);
 		}
 	}
 
@@ -447,14 +452,7 @@
 
 		.jetpack-option__type::before {
 			display: block; /* display: flex causes baselines to not align */
-		}
-	}
-
-	.jetpack-field-option.field-option-radio,
-	.wp-block-jetpack-field-option-radio {
-
-		.jetpack-option__type {
-			transform: translateY(5%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
+			transform: translateY(0.15em);
 		}
 	}
 }
@@ -568,10 +566,6 @@
 	display: flex;
 	align-items: center;
 	margin: 0;
-}
-
-.jetpack-option__type.jetpack-option__type {
-	margin-top: 0;
 }
 
 // TODO - This looks like dead code, along with the `JetpackOption` component.
