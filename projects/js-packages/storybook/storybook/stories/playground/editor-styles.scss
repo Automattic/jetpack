@@ -1,8 +1,11 @@
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
+
 .editor-styles-wrapper {
-	font-family: $default-font;
-	font-size: $editor-font-size;
-	line-height: $editor-line-height;
-	color: $gray-900;
+	font-family: variables.$default-font;
+	font-size: variables.$editor-font-size;
+	line-height: variables.$editor-line-height;
+	color: colors.$gray-900;
 
 	p {
 		font-size: inherit;
@@ -45,7 +48,7 @@
 
 	.wp-block[data-align="wide"],
 	.wp-block.alignwide {
-		max-width: $content-width;
+		max-width: variables.$content-width;
 	}
 
 	.wp-block[data-align="full"],

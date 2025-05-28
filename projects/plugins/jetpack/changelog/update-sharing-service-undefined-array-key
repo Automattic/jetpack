@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Sharing service: Prevent warnings in error logs when certain keys are not set."

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Sync\Settings;
+use Jetpack_Tracks_Event;
 use PHPMailer\PHPMailer\PHPMailer;
 use WP_Error;
 
@@ -1864,6 +1865,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$template = '';
 		$style    = '';
 
+		// The hash is just used to anonymize the admin email and have a unique identifier for the event.
+		// The secret key used could have been a random string, but it's better to use the version number to make it easier to track.
+		$event = new Jetpack_Tracks_Event(
+			(object) array(
+				'_en' => 'jetpack_forms_email_open',
+				'_ui' => hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION ),
+				'_ut' => 'anon',
+			)
+		);
+
+		$tracking_pixel = '<img src="' . $event->build_pixel_url() . '" alt="" width="1" height="1" />';
+
 		/**
 		 * Filter the filename of the template HTML surrounding the response email. The PHP file will return the template in a variable called $template.
 		 *
@@ -1887,7 +1900,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'',
 			'',
 			$footer,
-			$style
+			$style,
+			$tracking_pixel
 		);
 
 		return $html_message;

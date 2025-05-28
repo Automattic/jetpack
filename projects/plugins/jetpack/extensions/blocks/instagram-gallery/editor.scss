@@ -1,9 +1,10 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 @import './view';
 
 .wp-block-jetpack-instagram-gallery .components-placeholder {
 
 	.components-radio-control {
-		margin-bottom: $default-block-margin;
+		margin-bottom: gb.$default-block-margin;
 
 		label {
 			font-weight: 400;
@@ -11,8 +12,8 @@
 	}
 
 	.wp-block-jetpack-instagram-gallery__new-account-instructions {
-		font-family: $default-font;
-		font-size: $default-font-size;
+		font-family: gb.$default-font;
+		font-size: gb.$default-font-size;
 	}
 }
 
@@ -114,7 +115,7 @@
 
 @supports ( display: grid ) {
 
-	@media ( max-width: $break-small ) {
+	@media ( max-width: gb.$break-small ) {
 
 		.wp-block-jetpack-instagram-gallery__grid.is-stacked-on-mobile {
 
