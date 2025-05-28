@@ -548,11 +548,11 @@ function my_plugin_add_profile_parameter( $should_add, $url, $host ) {
 ```
 ### Profiling requests locally.
 
-When running Jetpack locally, you can use the `XDEBUG_TRIGGER` parameter to profile requests. This is useful for performance analysis and debugging.
-To enable profiling, you can add the `XDEBUG_TRIGGER` parameter to the URL of the request you want to profile. For example:
+When running Jetpack locally, you can use the `XDEBUG_PROFILE=1` parameter to profile requests. This is useful for performance analysis and debugging.
+To enable profiling, you can add the `XDEBUG_PROFILE=1` parameter to the URL of the request you want to profile. For example:
 
 ```
-http://localhost/?XDEBUG_TRIGGER=profile
+http://localhost/?XDEBUG_PROFILE=1
 ```
 
 This will generate a cachegrind file in the `tools/docker/logs/php` directory. You can then analyze this file using PHPStorm, qcachegrind, or other similar tools.
