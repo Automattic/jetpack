@@ -102,19 +102,15 @@ class LCP_Optimization_Util {
 			return null;
 		}
 
-		if ( empty( $this->lcp_data['elementData'] ) || ! is_array( $this->lcp_data['elementData'] ) ) {
+		if ( empty( $this->lcp_data['url'] ) ) {
 			return null;
 		}
 
-		if ( empty( $this->lcp_data['elementData']['url'] ) ) {
+		if ( ! wp_http_validate_url( $this->lcp_data['url'] ) ) {
 			return null;
 		}
 
-		if ( ! wp_http_validate_url( $this->lcp_data['elementData']['url'] ) ) {
-			return null;
-		}
-
-		return $this->lcp_data['elementData']['url'];
+				return $this->lcp_data['url'];
 	}
 
 	/**
