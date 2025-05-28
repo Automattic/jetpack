@@ -32,7 +32,7 @@ class Block {
 	 */
 	public static function register_block() {
 		Blocks::jetpack_register_block(
-			self::BLOCK_NAME,
+			__DIR__,
 			array(
 				'render_callback' => array( __CLASS__, 'render_block' ),
 				'plan_check'      => true,
