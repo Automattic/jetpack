@@ -407,4 +407,302 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'unknown_user', $stored_errors );
 		$this->assertArrayHasKey( 'invalid_connection_owner', $stored_errors );
 	}
+
+	/**
+	 * Test get_instance singleton
+	 */
+	public function test_get_instance() {
+		$instance1 = Error_Handler::get_instance();
+		$instance2 = Error_Handler::get_instance();
+
+		$this->assertInstanceOf( Error_Handler::class, $instance1 );
+		$this->assertSame( $instance1, $instance2, 'get_instance should return the same instance (singleton)' );
+	}
+
+	/**
+	 * Test wp_error_to_array
+	 */
+	public function test_wp_error_to_array() {
+		$error       = $this->get_sample_error( 'invalid_token', 5 );
+		$error_array = $this->error_handler->wp_error_to_array( $error );
+
+		$this->assertIsArray( $error_array );
+		$this->assertArrayHasKey( 'error_code', $error_array );
+		$this->assertArrayHasKey( 'user_id', $error_array );
+		$this->assertArrayHasKey( 'error_message', $error_array );
+		$this->assertArrayHasKey( 'error_data', $error_array );
+		$this->assertArrayHasKey( 'timestamp', $error_array );
+		$this->assertArrayHasKey( 'nonce', $error_array );
+		$this->assertArrayHasKey( 'error_type', $error_array );
+
+		$this->assertEquals( 'invalid_token', $error_array['error_code'] );
+		$this->assertSame( '5', $error_array['user_id'] );
+		$this->assertEquals( 'An error was triggered', $error_array['error_message'] );
+		$this->assertEquals( 'xmlrpc', $error_array['error_type'] );
+	}
+
+	/**
+	 * Test wp_error_to_array with invalid error (missing signature_details)
+	 */
+	public function test_wp_error_to_array_invalid() {
+		$error  = new \WP_Error( 'test_error', 'Test message', array() );
+		$result = $this->error_handler->wp_error_to_array( $error );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test delete_all_errors
+	 */
+	public function test_delete_all_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$error = $this->get_sample_error( 'invalid_token', 1 );
+		$this->error_handler->report_error( $error );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$this->assertCount( 1, $stored_errors );
+
+		// Verify the error
+		$this->error_handler->verify_error( $stored_errors['invalid_token']['1'] );
+		$verified_errors = $this->error_handler->get_verified_errors();
+		$this->assertCount( 1, $verified_errors );
+
+		// Delete all errors
+		$this->error_handler->delete_all_errors();
+
+		$stored_errors   = $this->error_handler->get_stored_errors();
+		$verified_errors = $this->error_handler->get_verified_errors();
+
+		$this->assertEmpty( $stored_errors );
+		$this->assertEmpty( $verified_errors );
+	}
+
+	/**
+	 * Test delete_stored_errors
+	 */
+	public function test_delete_stored_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$error = $this->get_sample_error( 'invalid_token', 1 );
+		$this->error_handler->report_error( $error );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$this->assertCount( 1, $stored_errors );
+
+		$result = $this->error_handler->delete_stored_errors();
+		$this->assertTrue( $result );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$this->assertEmpty( $stored_errors );
+	}
+
+	/**
+	 * Test delete_verified_errors
+	 */
+	public function test_delete_verified_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$error = $this->get_sample_error( 'invalid_token', 1 );
+		$this->error_handler->report_error( $error );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$this->error_handler->verify_error( $stored_errors['invalid_token']['1'] );
+
+		$verified_errors = $this->error_handler->get_verified_errors();
+		$this->assertCount( 1, $verified_errors );
+
+		$result = $this->error_handler->delete_verified_errors();
+		$this->assertTrue( $result );
+
+		$verified_errors = $this->error_handler->get_verified_errors();
+		$this->assertEmpty( $verified_errors );
+	}
+
+	/**
+	 * Test delete_all_errors_and_return_unfiltered_value
+	 */
+	public function test_delete_all_errors_and_return_unfiltered_value() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$error = $this->get_sample_error( 'invalid_token', 1 );
+		$this->error_handler->report_error( $error );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$this->assertCount( 1, $stored_errors );
+
+		$test_value = 'test_return_value';
+		$result     = $this->error_handler->delete_all_errors_and_return_unfiltered_value( $test_value );
+
+		$this->assertEquals( $test_value, $result, 'Should return the input value unchanged' );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$this->assertEmpty( $stored_errors, 'Should delete all errors' );
+	}
+
+	/**
+	 * Test jetpack_react_dashboard_error
+	 */
+	public function test_jetpack_react_dashboard_error() {
+		// Set up a verified error first
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$error = $this->get_sample_error( 'invalid_token', 1 );
+		$this->error_handler->report_error( $error );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$this->error_handler->verify_error( $stored_errors['invalid_token']['1'] );
+
+		// Set the error code on the handler
+		$reflection = new \ReflectionClass( $this->error_handler );
+		$property   = $reflection->getProperty( 'error_code' );
+		$property->setAccessible( true );
+		$property->setValue( $this->error_handler, 'invalid_token' );
+
+		$initial_errors = array();
+		$result         = $this->error_handler->jetpack_react_dashboard_error( $initial_errors );
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+		$this->assertArrayHasKey( 'code', $result[0] );
+		$this->assertArrayHasKey( 'message', $result[0] );
+		$this->assertArrayHasKey( 'action', $result[0] );
+		$this->assertArrayHasKey( 'data', $result[0] );
+
+		$this->assertEquals( 'connection_error', $result[0]['code'] );
+		$this->assertEquals( 'reconnect', $result[0]['action'] );
+		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
+		$this->assertEquals( 'invalid_token', $result[0]['data']['api_error_code'] );
+	}
+
+	/**
+	 * Test jetpack_react_dashboard_error with custom error data
+	 */
+	public function test_jetpack_react_dashboard_error_with_custom_data() {
+		// Mock a verified error with custom action and data
+		$custom_error = array(
+			'test_error' => array(
+				'1' => array(
+					'error_code'    => 'test_error',
+					'user_id'       => '1',
+					'error_message' => 'Custom error message',
+					'error_data'    => array(
+						'action'      => 'custom_action',
+						'support_url' => 'https://example.com/support',
+						'custom_data' => 'test_value',
+					),
+					'timestamp'     => time(),
+					'nonce'         => 'test_nonce',
+					'error_type'    => 'custom',
+				),
+			),
+		);
+
+		// Mock the get_verified_errors method to return our custom error
+		add_filter(
+			'jetpack_connection_get_verified_errors',
+			function () use ( $custom_error ) {
+				return $custom_error;
+			}
+		);
+
+		// Set the error code on the handler
+		$reflection = new \ReflectionClass( $this->error_handler );
+		$property   = $reflection->getProperty( 'error_code' );
+		$property->setAccessible( true );
+		$property->setValue( $this->error_handler, 'test_error' );
+
+		$initial_errors = array();
+		$result         = $this->error_handler->jetpack_react_dashboard_error( $initial_errors );
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+
+		$this->assertEquals( 'connection_error', $result[0]['code'] );
+		$this->assertEquals( 'Custom error message', $result[0]['message'] );
+		$this->assertEquals( 'custom_action', $result[0]['action'] );
+		$this->assertArrayHasKey( 'support_url', $result[0]['data'] );
+		$this->assertArrayHasKey( 'custom_data', $result[0]['data'] );
+		$this->assertEquals( 'https://example.com/support', $result[0]['data']['support_url'] );
+		$this->assertEquals( 'test_value', $result[0]['data']['custom_data'] );
+	}
+
+	/**
+	 * Test handle_verified_errors
+	 */
+	public function test_handle_verified_errors() {
+		// Mock verified errors
+		$verified_errors = array(
+			'invalid_token' => array(
+				'1' => array(
+					'error_code'    => 'invalid_token',
+					'user_id'       => '1',
+					'error_message' => 'Invalid token error',
+					'error_data'    => array(),
+					'timestamp'     => time(),
+					'nonce'         => 'test_nonce',
+					'error_type'    => 'xmlrpc',
+				),
+			),
+		);
+
+		add_filter(
+			'jetpack_connection_get_verified_errors',
+			function () use ( $verified_errors ) {
+				return $verified_errors;
+			}
+		);
+
+		// Use reflection to call the method since it's called during admin_init
+		$reflection = new \ReflectionClass( $this->error_handler );
+		$method     = $reflection->getMethod( 'handle_verified_errors' );
+		$method->setAccessible( true );
+		$method->invoke( $this->error_handler );
+
+		// Check that error_code property was set
+		$property = $reflection->getProperty( 'error_code' );
+		$property->setAccessible( true );
+		$error_code = $property->getValue( $this->error_handler );
+
+		$this->assertEquals( 'invalid_token', $error_code );
+	}
+
+	/**
+	 * Test send_error_to_wpcom
+	 */
+	public function test_send_error_to_wpcom() {
+		// Mock Jetpack_Options::get_option
+		if ( ! class_exists( 'Jetpack_Options' ) ) {
+			$this->markTestSkipped( 'Jetpack_Options class not available' );
+		}
+
+		// Create a sample error array
+		$error_array = array(
+			'error_code'    => 'test_error',
+			'user_id'       => '1',
+			'error_message' => 'Test error message',
+			'error_data'    => array( 'test' => 'data' ),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+
+		// Mock the blog ID
+		add_filter(
+			'pre_option_jetpack_options',
+			function ( $value, $option ) {
+				if ( $option === 'jetpack_options' ) {
+					return array( 'id' => 12345 );
+				}
+				return $value;
+			},
+			10,
+			2
+		);
+
+		$result = $this->error_handler->send_error_to_wpcom( $error_array );
+
+		// Should return true if encryption succeeds (which it should with valid data)
+		$this->assertTrue( $result );
+	}
 }

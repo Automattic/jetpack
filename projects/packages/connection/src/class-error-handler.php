@@ -156,9 +156,6 @@ class Error_Handler {
 	 * @return void
 	 */
 	public function handle_verified_errors() {
-		// Get stored errors (without filter) to see what's originally in the database
-		$stored_errors = $this->get_stored_verified_errors();
-
 		// Get all errors (with filter) to see what external plugins have injected
 		$verified_errors = $this->get_verified_errors();
 
@@ -180,10 +177,10 @@ class Error_Handler {
 			'invalid_connection_owner',
 		);
 
-		// Automatically include any error codes that were injected via the filter
+		// Automatically include any error codes that aren't in the default list
 		// This allows external plugins to get automatic UI integration just by injecting errors
-		$injected_codes      = array_diff( array_keys( $verified_errors ), array_keys( $stored_errors ) );
-		$handled_error_codes = array_merge( $default_handled_codes, $injected_codes );
+		$additional_codes    = array_diff( array_keys( $verified_errors ), $default_handled_codes );
+		$handled_error_codes = array_merge( $default_handled_codes, $additional_codes );
 
 		foreach ( array_keys( $verified_errors ) as $error_code ) {
 			if ( in_array( $error_code, $handled_error_codes, true ) ) {
@@ -441,7 +438,7 @@ class Error_Handler {
 	}
 
 	/**
-	 * Gets the verified errors stored in the database
+	 * Gets the verified errors stored in the database and applies filters.
 	 *
 	 * @since 1.14.2
 	 *
@@ -486,19 +483,6 @@ class Error_Handler {
 		}
 
 		$verified_errors = $this->garbage_collector( $verified_errors );
-
-		/**
-		 * Filter verified connection errors to allow external plugins to inject their own error types
-		 *
-		 * This filter allows external plugins (like wpcomsh with Protected Owner errors)
-		 * to inject their own error types into the standard connection error flow.
-		 * External errors should follow the same structure as regular connection errors.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param array $verified_errors Array of verified connection errors
-		 */
-		$verified_errors = apply_filters( 'jetpack_connection_get_verified_errors', $verified_errors );
 
 		return $verified_errors;
 	}
