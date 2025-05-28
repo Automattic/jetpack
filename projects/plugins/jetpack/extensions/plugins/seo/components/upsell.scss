@@ -1,4 +1,4 @@
-@import "@automattic/color-studio/dist/color-variables";
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 .components-seo-upsell__learn-more {
     margin: 1em 0;
@@ -7,17 +7,17 @@
 .components-seo-upsell__button {
 
 	&.is-primary {
-		background: $studio-wordpress-blue-50;
-		color: $studio-white;
+		background: studio.$studio-wordpress-blue-50;
+		color: studio.$studio-white;
 		padding-right: 10px;
 
 		&:hover {
-			background: $studio-pink-30;
+			background: studio.$studio-pink-30;
 		}
 
 		&.is-busy {
 			background-size: 100px 100%;
-			background-image: linear-gradient(-45deg, $studio-pink-40 28%, $studio-pink-60 28%, $studio-pink-60 72%, $studio-pink-40 72%);
+			background-image: linear-gradient(-45deg, studio.$studio-pink-40 28%, studio.$studio-pink-60 28%, studio.$studio-pink-60 72%, studio.$studio-pink-40 72%);
 		}
 	}
 }
