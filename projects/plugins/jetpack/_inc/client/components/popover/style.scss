@@ -1,5 +1,5 @@
 @use 'sass:color';
-@import '../../scss/z-index';
+@use '../../scss/z-index';
 @import '../../scss/calypso-colors';
 
 /**
@@ -8,7 +8,7 @@
 
 .dops-popover {
 	font-size: 11px;
-	z-index: z-index( 'root', '.dops-popover' );
+	z-index: z-index.z-index( 'root', '.dops-popover' );
 	position: absolute;
 	top: 0;
 	left: 0 #{"/*rtl:ignore*/"};
@@ -45,7 +45,7 @@
 		line-height: 0;
 		position: absolute;
 		width: 0;
-		z-index: z-index( '.dops-popover', '.dops-popover .dops-popover__arrow' );
+		z-index: z-index.z-index( '.dops-popover', '.dops-popover .dops-popover__arrow' );
 	}
 
 	&.fade {
@@ -175,7 +175,7 @@
 	}
 
 	&.is-dialog-visible {
-		z-index: z-index( 'root', '.dops-popover.is-dialog-visible' ); /* Above .dialog */
+		z-index: z-index.z-index( 'root', '.dops-popover.is-dialog-visible' ); /* Above .dialog */
 	}
 }
 

@@ -5,7 +5,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { create } from '@wordpress/icons';
+import { plus } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -48,7 +48,7 @@ export default function CreateFormButton( {
 		<Button
 			variant="primary"
 			onClick={ onButtonClickHandler }
-			icon={ create }
+			icon={ plus }
 			className="create-form-button jp-forms__create-form-button--large-green"
 		>
 			{ label }

@@ -1,3 +1,4 @@
+import '../../utils/public-path.js';
 import { SocialIcon } from '@automattic/jetpack-components';
 import { handleJetpackEditorAction } from '@automattic/jetpack-shared-extension-utils';
 import { PluginSidebar } from '@wordpress/editor';

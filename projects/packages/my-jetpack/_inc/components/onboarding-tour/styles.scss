@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 $tour-footer-spacing: 16px;
 
@@ -20,16 +20,16 @@ $tour-footer-spacing: 16px;
         }
 
         .myjetpack-onboarding-welcome-tour__heading {
-            margin: $grid-unit-20 0 8px 0;
-            padding: 0 $grid-unit-20;
+            margin: gb.$grid-unit-20 0 8px 0;
+            padding: 0 gb.$grid-unit-20;
 
-            @include heading-x-large;
+            @include gb.heading-x-large;
         }
 
         .myjetpack-onboarding-welcome-tour__text {
             line-height: 1.4;
-            margin: 0 0 $grid-unit-30 0;
-            padding: 0 $grid-unit-20;
+            margin: 0 0 gb.$grid-unit-30 0;
+            padding: 0 gb.$grid-unit-20;
             min-height: 74px; // avoid layout shift when the text is short
         }
 

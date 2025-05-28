@@ -8,6 +8,7 @@
  * %4$s is a link to the embedded form to allow the site owner to edit it to change their email address.
  * %5$s is the footer HTML.
  * %6$s style HTML tag.
+ * %7$s tracking pixel.
  *
  * @package automattic/jetpack
  */
@@ -65,6 +66,7 @@ $template = '
 			<td class="collapse">&nbsp;</td>
 		</tr>
 	</table>
+	%7$s
 </body>
 </html>
 ';

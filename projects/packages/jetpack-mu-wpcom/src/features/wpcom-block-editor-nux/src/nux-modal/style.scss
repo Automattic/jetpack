@@ -1,6 +1,5 @@
+@use "@wordpress/base-styles/mixins";
 @import "@automattic/typography/styles/variables";
-@import "@wordpress/base-styles/breakpoints";
-@import "@wordpress/base-styles/mixins";
 
 .wpcom-block-editor-nux-modal {
 
@@ -34,7 +33,7 @@
 			margin: 0;
 		}
 
-		@include break-mobile {
+		@include mixins.break-mobile {
 			text-align: center;
 		}
 	}
@@ -50,7 +49,7 @@
 		font-weight: 500;
 		line-height: 1.2;
 
-		@include break-mobile {
+		@include mixins.break-mobile {
 			margin-top: 24px;
 		}
 	}
@@ -60,7 +59,7 @@
 		margin: 16px 0 0;
 		font-size: $font-body;
 
-		@include break-mobile {
+		@include mixins.break-mobile {
 			margin: 20px auto 0;
 			font-size: $font-body-large;
 		}
@@ -84,7 +83,7 @@
 			margin-top: 12px;
 		}
 
-		@include break-mobile {
+		@include mixins.break-mobile {
 			flex-direction: row;
 			margin-top: 28px;
 
