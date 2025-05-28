@@ -12,13 +12,10 @@ class LCP_Optimize_Bg_Image {
 	 */
 	private $lcp_data;
 
-	public static function init() {
+	public static function init( $lcp_data ) {
 		if ( LCP_Optimization_Util::should_skip_optimization() ) {
 			return;
 		}
-
-		$storage  = new LCP_Storage();
-		$lcp_data = $storage->get_current_request_lcp();
 
 		if ( empty( $lcp_data ) ) {
 			return;
