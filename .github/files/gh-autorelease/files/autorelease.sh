@@ -40,6 +40,13 @@ else
 	exit 1
 fi
 
+# Don't auto-release if there's a dummy release in place.
+dummy_release=$( gh release list --limit 1 --json tagName --jq '.[].tagName | select( contains( "+dummy_release" ) )' )
+if [[ -n $dummy_release ]]; then
+	echo 'Dummy release found; aborting auto-release.'
+	exit 0
+fi
+
 echo "Creating release for $TAG"
 
 ## Determine slug and title format.
