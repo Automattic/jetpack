@@ -674,7 +674,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset {
-	padding: 0;
+	padding: 8px 0 0 0;
 	border: 0;
 	margin: 0;
 }
@@ -790,8 +790,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	margin-left:  var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 }
 
-.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options,
-.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-radio-options {
+.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options:not(.wp-block-jetpack-options),
+.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-radio-options:not(.wp-block-jetpack-options) {
 	padding-top: 8px;
 }
 
