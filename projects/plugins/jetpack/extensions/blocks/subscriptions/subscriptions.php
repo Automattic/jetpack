@@ -19,7 +19,6 @@ use Jetpack_Subscriptions_Widget;
 require_once __DIR__ . '/class-jetpack-subscription-site.php';
 require_once __DIR__ . '/constants.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 
 /**
  * These block defaults should match ./constants.js
@@ -51,6 +50,8 @@ function register_block() {
 	if ( ! ( new Modules() )->is_active( 'subscriptions' ) ) {
 		return;
 	}
+
+	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 
 	if ( \Jetpack_Memberships::should_enable_monetize_blocks_in_editor() ) {
 		Blocks::jetpack_register_block(
@@ -951,6 +952,8 @@ function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
  * @return string
  */
 function add_paywall( $the_content ) {
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+
 	$post_access_level = Jetpack_Memberships::get_post_access_level();
 
 	if ( Jetpack_Memberships::user_can_view_post() ) {
@@ -994,6 +997,7 @@ function maybe_close_comments( $default_comments_open, $post_id ) {
 		return $default_comments_open;
 	}
 
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	return Jetpack_Memberships::user_can_view_post();
 }
 
@@ -1009,6 +1013,7 @@ function maybe_gate_existing_comments( $comment ) {
 		return $comment;
 	}
 
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	if ( Jetpack_Memberships::user_can_view_post() ) {
 		return $comment;
 	}
@@ -1149,6 +1154,7 @@ function get_paywall_blocks() {
 		return get_paywall_simple();
 	}
 
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	$is_paid_post       = is_paid_post();
 	$is_paid_subscriber = Jetpack_Memberships::user_is_paid_subscriber();
 
@@ -1243,6 +1249,8 @@ function is_user_auth(): bool {
  * Returns `true` if the post is a paid post.
  */
 function is_paid_post(): bool {
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+
 	// Make sure Stripe is connected and the post is marked for paid subscribers.
 	if ( Jetpack_Memberships::has_connected_account() && is_jetpack_token_subscription_service_loaded() ) {
 		return Jetpack_Memberships::get_post_access_level() === Jetpack_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
@@ -1255,6 +1263,8 @@ function is_paid_post(): bool {
  * Returns true if the post is a subscribers post.
  */
 function is_subscribers_post(): bool {
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+
 	// Make sure Stripe is connected and the post is marked for paid subscribers.
 	if ( Jetpack_Memberships::has_connected_account() && is_jetpack_token_subscription_service_loaded() ) {
 		return Jetpack_Memberships::get_post_access_level() === Jetpack_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
