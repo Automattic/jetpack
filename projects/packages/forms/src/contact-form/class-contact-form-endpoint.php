@@ -382,6 +382,99 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Updates the item.
+	 * Overrides the parent method to resend the email when the item is updated from spam to publish.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function update_item( $request ) {
+		$valid_check = parent::get_post( $request['id'] );
+		if ( is_wp_error( $valid_check ) ) {
+			return $valid_check;
+		}
+
+		$post_id         = $request['id'];
+		$previous_status = get_post_status( $post_id );
+		$updated_item    = parent::update_item( $request );
+
+		if ( ! is_wp_error( $updated_item ) && ! empty( $updated_item->data && ! empty( $updated_item->data['status'] ) ) ) {
+			if ( $previous_status === 'spam' && $updated_item->data['status'] === 'publish' ) {
+				// updated item is going from spam to inbox
+				$akismet_values = get_post_meta( $post_id, '_feedback_akismet_values', true );
+				/** This action is documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
+				do_action( 'contact_form_akismet', 'ham', $akismet_values );
+				$this->resend_email( $post_id );
+			}
+		}
+		return $updated_item;
+	}
+
+	/**
+	 * Resends the email for a given post ID.
+	 *
+	 * @param int $post_id The ID of the post to resend the email for.
+	 */
+	public function resend_email( $post_id ) {
+		$comment_author_email = false;
+		$reply_to_addr        = false;
+		$message              = '';
+		$to                   = false;
+		$headers              = false;
+		$blog_url             = wp_parse_url( site_url() );
+
+		// resend the original email
+		$email          = get_post_meta( $post_id, '_feedback_email', true );
+		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+
+		if ( ! empty( $email ) && ! empty( $content_fields ) ) {
+			if ( isset( $content_fields['_feedback_author_email'] ) ) {
+				$comment_author_email = $content_fields['_feedback_author_email'];
+			}
+
+			if ( isset( $email['to'] ) ) {
+				$to = $email['to'];
+			}
+
+			if ( isset( $email['message'] ) ) {
+				$message = $email['message'];
+			}
+
+			if ( isset( $email['headers'] ) ) {
+				$headers = $email['headers'];
+			} else {
+				$headers = 'From: "' . $content_fields['_feedback_author'] . '" <wordpress@' . $blog_url['host'] . ">\r\n";
+
+				if ( ! empty( $comment_author_email ) ) {
+					$reply_to_addr = $comment_author_email;
+				} elseif ( is_array( $to ) ) {
+					$reply_to_addr = $to[0];
+				}
+
+				if ( $reply_to_addr ) {
+					$headers .= 'Reply-To: "' . $content_fields['_feedback_author'] . '" <' . $reply_to_addr . ">\r\n";
+				}
+
+				$headers .= 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . '"';
+			}
+
+			/**
+			 * Filters the subject of the email sent after a contact form submission.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 3.0.0
+			 *
+			 * @param string $content_fields['_feedback_subject'] Feedback's subject line.
+			 * @param array $content_fields['_feedback_all_fields'] Feedback's data from old fields.
+			 */
+			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
+
+			Contact_Form::wp_mail( $to, $subject, $message, $headers );
+		}
+	}
+
+	/**
 	 * Prepares the item for the REST response.
 	 *
 	 * @param object          $item    WP Cron event.
