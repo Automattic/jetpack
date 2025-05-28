@@ -33,22 +33,6 @@
 				margin-right: 115px;
 			}
 		}
-
-		.failures {
-			margin-top: 1em;
-			color: $gray_100;
-
-			@include breakpoint( xs ) {
-				margin-bottom: 1em;
-			}
-
-			svg {
-				position: absolute;
-				width: 1.4rem;
-				height: 1.4rem;
-				left: -60px;
-			}
-		}
 	}
 
 	button {

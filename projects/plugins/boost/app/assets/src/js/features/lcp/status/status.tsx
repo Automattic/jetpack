@@ -1,7 +1,5 @@
 import TimeAgo from '$features/critical-css/time-ago/time-ago';
-import InfoIcon from '$svg/info';
 import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
 import { useLcpState } from '../lib/stores/lcp-state';
 import { ErrorDetails } from './error-details';
 import styles from './status.module.scss';
@@ -54,13 +52,7 @@ const Status: React.FC = () => {
 				{ __( 'Last optimized', 'jetpack-boost' ) }{ ' ' }
 				<TimeAgo time={ new Date( lcpState.updated * 1000 ) } />.
 			</div>
-			{ lcpState?.status === 'analyzed' && (
-				<div className={ clsx( 'failures', styles.failures ) }>
-					<InfoIcon />
-
-					<ErrorDetails />
-				</div>
-			) }
+			{ lcpState?.status === 'analyzed' && <ErrorDetails /> }
 		</>
 	);
 };

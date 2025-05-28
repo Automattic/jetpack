@@ -29,20 +29,24 @@ export const ErrorDetails = () => {
 
 	const errorMessages = errors.flatMap( p => p.errors );
 
-	return createInterpolateElement(
-		sprintf(
-			// translators: %d is a number of pages which failed to be optimized
-			_n(
-				'%d page could not be optimized. <errorDetails />',
-				'%d pages could not be optimized. <errorDetails />',
-				errorMessages.length,
-				'jetpack-boost'
-			),
-			errorMessages.length
-		),
-		{
-			errorDetails: <ErrorDetailsTooltip />,
-		}
+	return (
+		<div className={ styles.summary }>
+			{ createInterpolateElement(
+				sprintf(
+					// translators: %d is a number of pages which failed to be optimized
+					_n(
+						'%d page could not be optimized. <errorDetails />',
+						'%d pages could not be optimized. <errorDetails />',
+						errorMessages.length,
+						'jetpack-boost'
+					),
+					errorMessages.length
+				),
+				{
+					errorDetails: <ErrorDetailsTooltip />,
+				}
+			) }
+		</div>
 	);
 };
 
