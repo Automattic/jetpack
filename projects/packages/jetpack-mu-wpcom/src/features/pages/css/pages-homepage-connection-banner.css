@@ -8,9 +8,9 @@
     width: 100%;
     margin: 8px 0;
     padding: 8px;
-	background: #ECEEFB;
-	border: none;
-	border-radius: var(--radius-s, 2px);
+    background: #ECEEFB;
+    border: none;
+    border-radius: var(--radius-s, 2px);
     box-shadow: none;
     box-sizing: border-box;
     display: block;
@@ -21,26 +21,26 @@
 }
 
 .wpcom-homepage-notice-left-column {
-	margin-right: 4px;
-	padding: 4px 4px 0 4px;
+    margin-right: 4px;
+    padding: 4px 4px 0 4px;
 
-	.dashicons-info-outline {
-    	color: var(--Scales-Grays-gray-900, #1E1E1E);
-	}
+    .dashicons-info-outline {
+        color: var(--Scales-Grays-gray-900, #1E1E1E);
+    }
 }
 
 .wpcom-homepage-notice-right-column {
-	padding-top: 4px;
+    padding-top: 4px;
 }
 
 .wpcom-homepage-notice-text {
     color: var(--Scales-Grays-gray-900, #1E1E1E);
-	line-height: var(--s, 20px);
+    line-height: var(--s, 20px);
     margin: 0 0 8px 0;
 }
 
 .wpcom-homepage-notice-edit-btn {
-	margin-bottom: 4px !important;
+    margin-bottom: 4px !important;
     padding: 0 8px !important;
 }
 
