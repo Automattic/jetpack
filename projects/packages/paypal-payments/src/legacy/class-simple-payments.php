@@ -197,7 +197,7 @@ class Simple_Payments {
 	 *
 	 * @param string $content - the content of the post.
 	 */
-	public function remove_auto_paragraph_from_product_description( $content ) {
+	public static function remove_auto_paragraph_from_product_description( $content ) {
 		if ( get_post_type() === self::$post_type_product ) {
 			remove_filter( 'the_content', 'wpautop' );
 		}
