@@ -81,7 +81,7 @@ class LCP_Optimize_Bg_Image {
 			$selectors[] = $lcp_data['element'];
 
 			$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
-			$image_url     = $lcp_optimizer->get_image_to_preload();
+			$image_url     = $lcp_optimizer->get_lcp_image_url();
 			if ( empty( $image_url ) ) {
 				continue;
 			}
@@ -118,12 +118,12 @@ class LCP_Optimize_Bg_Image {
 	}
 
 	private function get_responsive_image_rules( $lcp_data ) {
-		if ( empty( $lcp_data['breakpoints'] ) ) {
+		if ( $lcp_data['type'] !== LCP::TYPE_BACKGROUND_IMAGE || empty( $lcp_data['breakpoints'] ) ) {
 			return array();
 		}
 
 		$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
-		$image_url     = $lcp_optimizer->get_image_to_preload();
+		$image_url     = $lcp_optimizer->get_lcp_image_url();
 
 		if ( empty( $image_url ) ) {
 			return array();

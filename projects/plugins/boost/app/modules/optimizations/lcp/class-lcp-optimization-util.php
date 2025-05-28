@@ -93,12 +93,12 @@ class LCP_Optimization_Util {
 		return false;
 	}
 
-	public function get_image_to_preload() {
+	public function get_lcp_image_url() {
 		if ( ! $this->can_optimize() ) {
 			return null;
 		}
 
-		if ( LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] ) {
+		if ( LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] && LCP::TYPE_IMAGE !== $this->lcp_data['type'] ) {
 			return null;
 		}
 
