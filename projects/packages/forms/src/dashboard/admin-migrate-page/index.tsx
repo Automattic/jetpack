@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import {
 	AdminPage,
 	AdminSectionHero,
@@ -9,11 +12,12 @@ import {
 import { Button } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import { config } from '../index';
 import './style.scss';
 
-// TODO: This is a temporary page to migrate the admin page to the new menu
-// and this is a mockup of the new page until the new page is implemented.
 const AdminMigratePage = () => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const ASSETS_URL = useMemo( () => config( 'pluginAssetsURL' ), [] );
