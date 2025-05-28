@@ -153,9 +153,9 @@ class Scan_Status extends Status {
 		$installed_plugins = Plugins_Installer::get_plugins();
 		$installed_themes  = Sync_Functions::get_themes();
 
-		$plugins = array();
-		$themes  = array();
-		$core    = new Extension_Model(
+		$plugins  = array();
+		$themes   = array();
+		$core     = new Extension_Model(
 			array(
 				'name'    => 'WordPress',
 				'slug'    => 'wordpress',
@@ -164,7 +164,7 @@ class Scan_Status extends Status {
 				'checked' => true, // to do: default to false once Scan API has manifest
 			)
 		);
-		$files   = array();
+		$files    = array();
 		$database = array();
 
 		$status = new Status_Model(
@@ -181,7 +181,7 @@ class Scan_Status extends Status {
 
 		// Format the "last checked" timestamp.
 		if ( ! empty( $scan_data->most_recent->timestamp ) ) {
-			$date = new \DateTime( $scan_data->most_recent->timestamp );
+			$date                 = new \DateTime( $scan_data->most_recent->timestamp );
 			$status->last_checked = $date->format( 'Y-m-d H:i:s' );
 		}
 
@@ -240,6 +240,7 @@ class Scan_Status extends Status {
 						'filename'                  => $scan_threat->filename ?? null,
 						'context'                   => $scan_threat->context ?? null,
 						'source'                    => $scan_threat->source ?? null,
+						'table'                     => $scan_threat->table ?? null,
 						'pk_column'                 => $scan_threat->pk_column ?? null,
 						'value'                     => $scan_threat->value ?? null,
 						'details'                   => $scan_threat->details ?? null,
@@ -305,10 +306,10 @@ class Scan_Status extends Status {
 		$status->threats = static::sort_threats( $status->threats );
 
 		// maintain deprecated properties for backwards compatibility
-		$status->plugins = array_values( $plugins );
-		$status->themes  = array_values( $themes );
-		$status->core    = $core;
-		$status->files   = $files;
+		$status->plugins  = array_values( $plugins );
+		$status->themes   = array_values( $themes );
+		$status->core     = $core;
+		$status->files    = $files;
 		$status->database = $database;
 
 		return $status;
