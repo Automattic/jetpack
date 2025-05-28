@@ -1104,6 +1104,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				if ( $processor->has_class( 'wp-block-jetpack-dropzone' ) ) {
 					$processor->add_class( 'is-layout-constrained' );
 				}
+				if ( 'A' === $processor->get_tag() || 'BUTTON' === $processor->get_tag() ) {
+					$processor->set_attribute( 'tabindex', '-1' );
+				}
 			}
 			$this->content = $processor->get_updated_html();
 		}
@@ -1294,9 +1297,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								type='checkbox'
 								name='" . esc_attr( $id ) . "[]'
 								value='" . esc_attr( $checkbox_value ) . "' "
-								. $class
-								. checked( in_array( $option_label, (array) $value, true ), true, false )
-								. ' /> ';
+							. $class
+							. checked( in_array( $option_label, (array) $value, true ), true, false )
+							. ' /> ';
 					$field .= "<label for='" . esc_attr( $checkbox_id ) . "' class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
 					$field .= '</label>';
@@ -1325,9 +1328,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								type='checkbox'
 								name='" . esc_attr( $id ) . "[]'
 								value='" . esc_attr( $checkbox_value ) . "' "
-								. $class
-								. checked( in_array( $option, (array) $value, true ), true, false )
-								. ' /> ';
+							. $class
+							. checked( in_array( $option, (array) $value, true ), true, false )
+							. ' /> ';
 					$field .= "<label for='" . esc_attr( $checkbox_id ) . "' {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option ) . '</span>';
 					$field .= '</label>';
@@ -1368,10 +1371,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$option = Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
 				$field .= "\t\t<option"
-								. selected( $option, $value, false )
-								. " value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) )
-								. "'>" . esc_html( $option )
-								. "</option>\n";
+							. selected( $option, $value, false )
+							. " value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) )
+							. "'>" . esc_html( $option )
+							. "</option>\n";
 			}
 		}
 		$field .= "\t</select><span class='jetpack-field-dropdown__icon'></span></span>\n";
@@ -1569,31 +1572,27 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$legacy_border_radius    = ! empty( $border_radius_attribute ) || $border_radius_attribute === '0' ? $border_radius_attribute . 'px' : $variation_attributes['border']['radius'] ?? null;
 
 		$border_top_size = $legacy_border_size ??
-			$variation_attributes['border']['width'] ??
-			$variation_attributes['border']['top']['width'] ??
-			$global_styles['width'] ??
-			$global_styles['top']['width'] ?? null;
+		$variation_attributes['border']['top']['width'] ??
+		$global_styles['width'] ??
+		$global_styles['top']['width'] ?? null;
 
 		$border_right_size = $legacy_border_size ??
-
-			$variation_attributes['border']['right']['width'] ??
-			$global_styles['width'] ??
-			$global_styles['right']['width'] ?? null;
+		$variation_attributes['border']['right']['width'] ??
+		$global_styles['width'] ??
+		$global_styles['right']['width'] ?? null;
 
 		$border_bottom_size = $legacy_border_size ??
-			$variation_attributes['border']['width'] ??
-			$variation_attributes['border']['bottom']['width'] ??
-			$global_styles['width'] ??
-			$global_styles['bottom']['width'] ?? null;
+		$variation_attributes['border']['bottom']['width'] ??
+		$global_styles['width'] ??
+		$global_styles['bottom']['width'] ?? null;
 
 		$border_left_size = $legacy_border_size ??
-			$variation_attributes['border']['width'] ??
-			$variation_attributes['border']['left']['width'] ??
-			$global_styles['width'] ??
-			$global_styles['left']['width'] ?? null;
+		$variation_attributes['border']['left']['width'] ??
+		$global_styles['width'] ??
+		$global_styles['left']['width'] ?? null;
 
 		$border_radius = $legacy_border_radius ??
-			$global_styles['radius'] ?? null;
+		$global_styles['radius'] ?? null;
 
 		// Border size to accommodate legacy border width attribute.
 		$css_vars = $legacy_border_size ? '--jetpack--contact-form--border-size: ' . $legacy_border_size . ';' : '';
@@ -1654,8 +1653,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						style="' . $this->label_styles . esc_attr( $output_data['css_vars'] ) . '"
 					>
 					<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
-					. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
-			'</label>
+				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+		'</label>
 				</div>
 				<div class="notched-label__filler' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
 				<div class="notched-label__trailing' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
@@ -1684,8 +1683,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				style="' . $this->label_styles . '"
 			>
 				<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
-				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
-			'</label>';
+			. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+		'</label>';
 	}
 
 	/**
@@ -1704,9 +1703,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				for="' . esc_attr( $id ) . '"
 				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
 			>'
-			. esc_html( $label )
-			. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
-			'</label>';
+		. esc_html( $label )
+		. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+		'</label>';
 	}
 
 	/**

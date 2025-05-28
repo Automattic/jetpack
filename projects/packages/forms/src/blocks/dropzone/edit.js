@@ -27,14 +27,9 @@ const BLOCKS_TEMPLATE = [
 
 export default function DropzoneEdit() {
 	const blockProps = useBlockProps( { className: 'jetpack-form-file-field__dropzone' } );
-	const { children, ...innerBlocksProps } = useInnerBlocksProps( blockProps, {
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: BLOCKS_TEMPLATE,
 	} );
 
-	return (
-		<div { ...innerBlocksProps }>
-			<input type="file" style={ { display: 'none' } } aria-hidden="true" />
-			{ children }
-		</div>
-	);
+	return <div { ...innerBlocksProps } />;
 }

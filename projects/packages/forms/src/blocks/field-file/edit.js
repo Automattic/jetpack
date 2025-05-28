@@ -1,22 +1,28 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { useFormWrapper } from '../../util/form';
-import { withSharedFieldAttributes } from '../../util/with-shared-field-attributes';
-import JetpackFieldControls from '../jetpack-field-controls';
-import { useJetpackFieldStyles } from '../use-jetpack-field-styles';
-import './editor.css';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls';
+import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import './editor.scss';
 
-const JetpackFieldFile = props => {
-	const { attributes, clientId, isSelected, setAttributes } = props;
+export default function FileFieldEdit( props ) {
+	const { attributes, clientId, isSelected, setAttributes, name } = props;
 	const { id, required, width } = attributes;
 
 	useFormWrapper( { attributes, clientId, name } );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
+	let className = 'jetpack-field';
+	if ( isSelected ) {
+		className += ' is-selected';
+	}
+
+	if ( width ) {
+		className += ` jetpack-field__width-${ width }`;
+	}
 
 	const blockProps = useBlockProps( {
-		className: `jetpack-field${ isSelected ? ' is-selected' : '' }`,
+		className,
 		style: blockStyle,
 	} );
 
@@ -48,15 +54,11 @@ const JetpackFieldFile = props => {
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
-				width={ width }
 				setAttributes={ setAttributes }
+				width={ width }
 				attributes={ attributes }
 				hidePlaceholder={ true }
 			/>
 		</>
 	);
-};
-
-export default compose(
-	withSharedFieldAttributes( [ 'labelFontSize', 'labelLineHeight', 'labelColor' ] )
-)( JetpackFieldFile );
+}

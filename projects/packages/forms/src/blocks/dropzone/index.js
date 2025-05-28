@@ -84,11 +84,6 @@ const settings = {
 		spacing: {
 			margin: [ 'top', 'bottom' ],
 			padding: true,
-			blockGap: true,
-			__experimentalDefaultControls: {
-				padding: true,
-				blockGap: true,
-			},
 		},
 		dimensions: {
 			minHeight: true,
