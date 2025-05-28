@@ -1440,7 +1440,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertInstanceOf( DOMElement::class, $label );
 		$this->assertInstanceOf( DOMElement::class, $input );
 
-		$this->assertLabelClasses( $label, $attributes, 'wp-block-jetpack-option grunion-field-label ' . $attributes['type'] );
+		$this->assertLabelClasses( $label, $attributes, 'grunion-field-label ' . $attributes['type'] );
 
 		$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
 		$this->assertEquals( 'Yes', $input->getAttribute( 'value' ), 'Input value doesn\'t match' );

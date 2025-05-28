@@ -858,7 +858,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "'>";
+			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "'>";
 		} else {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
 		}
@@ -866,7 +866,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		if ( ! $is_outlined_style ) {
-			$field .= "<div class='wp-block-jetpack-options grunion-radio-options" . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "'>";
+			$field .= "<div class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "'>";
 		}
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
@@ -886,7 +886,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 					$used_html_ids[ $radio_id ] = true;
 
-					$default_classes = 'contact-form-field wp-block-jetpack-option';
+					$default_classes = 'contact-form-field';
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
@@ -962,7 +962,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		// TODO: Make this backward compatible. Previously, this would use label styles not option styles.
 		// TODO: Is it better to apply the option classes and styles to the wrapper or the label?
-		$label_class  = 'wp-block-jetpack-option grunion-field-label checkbox';
+		$label_class  = 'grunion-field-label checkbox';
 		$label_class .= $this->is_error() ? ' form-error' : '';
 		$label_class .= $this->label_classes ? ' ' . $this->label_classes : '';
 		$label_class .= $this->option_classes ? ' ' . $this->option_classes : '';
@@ -988,7 +988,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$consent_message = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
 
 		// TODO: Confirm legacy consent blocks with custom label styles still display correctly without having been migrated.
-		$label_class  = 'wp-block-jetpack-option grunion-field-label consent consent-' . esc_attr( $consent_type );
+		$label_class  = 'grunion-field-label consent consent-' . esc_attr( $consent_type );
 		$label_class .= $this->option_classes ? ' ' . $this->option_classes : '';
 
 		$field = "<label class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . esc_attr( $this->option_styles ) . "'>";
@@ -1225,11 +1225,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style        = $this->get_form_style();
 		$is_outlined_style = 'outlined' === $form_style;
 
-		// The `data-required` attribute is used in `accessible-form.js` to ensure at least one
-		// checkbox is checked. Unlike radio buttons, for which the required attribute is satisfied if
-		// any of the radio buttons in the group is selected, adding a required attribute directly to
-		// a checkbox means that this specific checkbox must be checked.
-
+		/*
+		 * The `data-required` attribute is used in `accessible-form.js` to ensure at least one
+		 * checkbox is checked. Unlike radio buttons, for which the required attribute is satisfied if
+		 * any of the radio buttons in the group is selected, adding a required attribute directly to
+		 * a checkbox means that this specific checkbox must be checked.
+		 */
 		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
 
 		if ( $is_outlined_style ) {
@@ -1239,10 +1240,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$style_variation_attributes = json_decode( html_entity_decode( $style_variation_attributes, ENT_COMPAT ), true );
 			}
 
-			// When there's an outlined style, and border radius is set, the existing inline border radius is overridden to apply
-			// a limit of `100px` to the radius on the x axis. This achieves the same look and feel as other fields
-			// that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
-			// It prevents large border radius values from disrupting the look and feel of the fields.
+			/*
+			 * When there's an outlined style, and border radius is set, the existing inline border radius is overridden to apply
+			 * a limit of `100px` to the radius on the x axis. This achieves the same look and feel as other fields
+			 * that use the notch html (`notched-label__leading` has a max-width of `100px` to prevent it from getting too wide).
+			 * It prevents large border radius values from disrupting the look and feel of the fields.
+			 */
 			if ( isset( $style_variation_attributes['border']['radius'] ) ) {
 				$options_styles          = $options_styles ?? '';
 				$radius                  = $style_variation_attributes['border']['radius'];
@@ -1260,7 +1263,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='wp-block-jetpack-options grunion-checkbox-multiple-options" . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
+			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
 		} else {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
 		}
@@ -1268,7 +1271,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		if ( ! $is_outlined_style ) {
-			$field .= "<div class='wp-block-jetpack-options grunion-checkbox-multiple-options" . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
+			$field .= "<div class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
 		}
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
@@ -1288,7 +1291,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 					$used_html_ids[ $checkbox_id ] = true;
 
-					$default_classes = 'contact-form-field wp-block-jetpack-option';
+					$default_classes = 'contact-form-field';
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
@@ -1534,27 +1537,31 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * For newer forms that use global styles or the block supports styles, this value will be empty and is ignored.
 		 */
 		$border_width_attribute = $this->get_attribute( 'borderwidth' );
-		$legacy_border_size     = ! empty( $border_width_attribute ) || $border_width_attribute === '0' ? $border_width_attribute . 'px' : $variation_attributes['border']['width'] ?? null;
-		$legacy_border_size     = is_numeric( $legacy_border_size ) ? $legacy_border_size . 'px' : $legacy_border_size;
-		$legacy_border_radius   = $variation_attributes['border']['radius'] ?? null;
-		$legacy_border_radius   = is_numeric( $legacy_border_radius ) ? $legacy_border_radius . 'px' : $legacy_border_radius;
+		$legacy_border_size     = ! empty( $border_width_attribute ) || $border_width_attribute === '0' ? $border_width_attribute . 'px' : null;
+
+		$border_radius_attribute = $this->get_attribute( 'borderradius' );
+		$legacy_border_radius    = ! empty( $border_radius_attribute ) || $border_radius_attribute === '0' ? $border_radius_attribute . 'px' : $variation_attributes['border']['radius'] ?? null;
 
 		$border_top_size = $legacy_border_size ??
+			$variation_attributes['border']['width'] ??
 			$variation_attributes['border']['top']['width'] ??
 			$global_styles['width'] ??
 			$global_styles['top']['width'] ?? null;
 
 		$border_right_size = $legacy_border_size ??
+
 			$variation_attributes['border']['right']['width'] ??
 			$global_styles['width'] ??
 			$global_styles['right']['width'] ?? null;
 
 		$border_bottom_size = $legacy_border_size ??
+			$variation_attributes['border']['width'] ??
 			$variation_attributes['border']['bottom']['width'] ??
 			$global_styles['width'] ??
 			$global_styles['bottom']['width'] ?? null;
 
 		$border_left_size = $legacy_border_size ??
+			$variation_attributes['border']['width'] ??
 			$variation_attributes['border']['left']['width'] ??
 			$global_styles['width'] ??
 			$global_styles['left']['width'] ?? null;
@@ -1562,7 +1569,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$border_radius = $legacy_border_radius ??
 			$global_styles['radius'] ?? null;
 
-		$css_vars  = $border_top_size ? '--jetpack--contact-form--border-size: ' . $border_top_size . ';' : '';
+		// Border size to accommodate legacy border width attribute.
+		$css_vars = $legacy_border_size ? '--jetpack--contact-form--border-size: ' . $legacy_border_size . ';' : '';
+
+		// Border side sizes to accommodate global styles split values.
 		$css_vars .= $border_top_size ? '--jetpack--contact-form--border-top-size: ' . $border_top_size . ';' : '';
 		$css_vars .= $border_right_size ? '--jetpack--contact-form--border-right-size: ' . $border_right_size . ';' : '';
 		$css_vars .= $border_bottom_size ? '--jetpack--contact-form--border-bottom-size: ' . $border_bottom_size . ';' : '';

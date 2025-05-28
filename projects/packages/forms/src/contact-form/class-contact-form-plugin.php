@@ -485,19 +485,31 @@ class Contact_Form_Plugin {
 				if ( 'jetpack/option' === $block_name ) {
 					$atts['label']                            = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
 					$option_attrs                             = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
-					$atts['optionclasses']                    = isset( $option_attrs['class'] ) ? ' ' . $option_attrs['class'] : '';
+					$atts['optionclasses']                    = 'wp-block-jetpack-option';
+					$atts['optionclasses']                   .= isset( $option_attrs['class'] ) ? ' ' . $option_attrs['class'] : '';
 					$atts['optionstyles']                     = $option_attrs['style'] ?? null;
 					$add_block_style_classes_to_field_wrapper = true;
 				}
 
 				// The following handles choice fields such as; Single Choice Field (radio) or Multiple Choice Field (checkbox).
 				if ( 'jetpack/options' === $block_name ) {
-					$option_blocks          = $inner_block['innerBlocks'] ?? array();
-					$options                = array();
-					$options_data           = array();
-					$options_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
-					$atts['optionsclasses'] = isset( $options_attrs['class'] ) ? ' ' . $options_attrs['class'] : '';
-					if ( isset( $inner_block['attrs']['style']['border']['width'] ) || isset( $inner_block['attrs']['style']['border']['left']['width'] ) ) {
+					$option_blocks           = $inner_block['innerBlocks'] ?? array();
+					$options                 = array();
+					$options_data            = array();
+					$atts['optionsclasses']  = 'wp-block-jetpack-options';
+					$options_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
+					$atts['optionsclasses'] .= isset( $options_attrs['class'] ) ? ' ' . $options_attrs['class'] : '';
+
+					// Check if the block has left border, then apply a class for indentation.
+					$global_styles = wp_get_global_styles(
+						array( 'border' ),
+						array(
+							'block_name' => $block_name,
+							'transforms' => array( 'resolve-variables' ),
+						)
+					);
+
+					if ( isset( $inner_block['attrs']['style']['border']['width'] ) || isset( $inner_block['attrs']['style']['border']['left']['width'] ) || isset( $global_styles['width'] ) || isset( $global_styles['left']['width'] ) ) {
 						$atts['optionsclasses'] .= ' jetpack-field-multiple__list--has-border';
 					}
 
@@ -511,8 +523,11 @@ class Contact_Form_Plugin {
 							$option_data  = array( 'label' => $option_label );
 
 							if ( isset( $option_attrs['class'] ) ) {
-								$option_data['class'] = $option_attrs['class'];
+								$option_data['class'] = $option_attrs['class'] . ' wp-block-jetpack-option';
+							} else {
+								$option_data['class'] = 'wp-block-jetpack-option';
 							}
+
 							if ( isset( $option_attrs['style'] ) ) {
 								$option_data['style'] = $option_attrs['style'];
 							}
@@ -571,6 +586,10 @@ class Contact_Form_Plugin {
 		// to the custom label HTML, so we pick those attributes and ignore the rest.
 		if ( isset( $attrs['backgroundColor'] ) ) {
 			$picked_attributes['backgroundColor'] = $attrs['backgroundColor'];
+		}
+
+		if ( isset( $attrs['borderColor'] ) ) {
+			$picked_attributes['borderColor'] = $attrs['borderColor'];
 		}
 
 		if ( isset( $attrs['style']['border'] ) ) {
