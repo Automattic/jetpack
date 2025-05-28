@@ -1,64 +1,20 @@
 import { Container, Col } from '@automattic/jetpack-components';
-import { useCallback, useEffect, useState } from 'react';
-import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useFilteredProducts from '../../hooks/use-filtered-products';
+import LoadingBlock from '../loading-block';
 import ProductsTableView from '../products-table-view';
 import styles from './style.module.scss';
 
 const UnownedProductsCard = () => {
-	const {
-		data: { unownedProducts },
-		isLoading,
-	} = useProductsByOwnership();
+	const { filteredUnownedProducts, isLoading } = useFilteredProducts();
+	const { userIsAdmin } = getMyJetpackWindowInitialState();
 
-	const [ isLoadingProducts, setIsLoadingProducts ] = useState( true );
-
-	useEffect( () => {
-		if ( isLoading ) {
-			return;
-		}
-
-		// This adds a slight delay to the loading status change to prevent
-		// a brief moment in time where the section was not visible at all
-		// between the isLoading = true and isLoading = false states.
-		// This issue was causing a flicker effect.
-		requestAnimationFrame( () => setIsLoadingProducts( false ) );
-	} );
-
-	const { canUserViewStats, userIsAdmin } = getMyJetpackWindowInitialState();
-
-	const filterProducts = useCallback(
-		( products: JetpackModule[] ) => {
-			const productsWithNoCard = [
-				'extras',
-				'scan',
-				'security',
-				'ai',
-				'creator',
-				'growth',
-				'complete',
-				'site-accelerator',
-				'newsletter',
-				'related-posts',
-				'brute-force',
-			];
-
-			// If the user cannot view stats, filter out the stats card
-			if ( ! canUserViewStats ) {
-				productsWithNoCard.push( 'stats' );
-			}
-
-			return products.filter( product => {
-				return ! productsWithNoCard.includes( product );
-			} );
-		},
-		[ canUserViewStats ]
-	);
-
-	const filteredUnownedProducts = filterProducts( unownedProducts );
-
-	if ( isLoading || isLoadingProducts ) {
-		return <div>Loading...</div>;
+	if ( isLoading ) {
+		return (
+			<Col className={ styles.fullStatsCard }>
+				<LoadingBlock width="100%" height="150px" />
+			</Col>
+		);
 	}
 
 	return (
