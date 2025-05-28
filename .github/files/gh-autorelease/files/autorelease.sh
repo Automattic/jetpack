@@ -40,10 +40,11 @@ else
 	exit 1
 fi
 
-# Don't auto-release if there's a dummy tag in place.
-dummy_tag=$( git ls-remote --tags origin pause_autorelease_dummy_tag )
-if [[ -n $dummy_tag ]]; then
-	echo 'Dummy tag found ('pause_autorelease_dummy_tag'); aborting auto-release.'
+# Don't auto-release if there's a kill switch tag in place.
+kill_switch_tag_name='autorelease_kill_switch'
+kill_switch_tag=$( git ls-remote --tags origin "$kill_switch_tag_name" )
+if [[ -n "$kill_switch_tag" ]]; then
+	echo "Kill switch tag found ('$kill_switch_tag_name'); aborting auto-release."
 	exit 0
 fi
 
