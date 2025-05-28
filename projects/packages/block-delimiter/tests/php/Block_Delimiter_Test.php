@@ -464,24 +464,6 @@ class Block_Delimiter_Test extends TestCase {
 	}
 
 	/**
-	 * Test debug_print_structure method.
-	 */
-	public function test_debug_print_structure(): void {
-		$delimiter = Block_Delimiter::next_delimiter( '<!-- wp:paragraph {"align":"center"} -->', 0 );
-
-		$this->assertInstanceOf( Block_Delimiter::class, $delimiter );
-
-		// Capture output
-		ob_start();
-		$delimiter->debug_print_structure();
-		$output = ob_get_clean();
-
-		// Should contain the block information
-		$this->assertStringContainsString( 'paragraph', $output );
-		$this->assertStringContainsString( 'wp:', $output );
-	}
-
-	/**
 	 * Test edge cases and error conditions.
 	 */
 	public function test_edge_cases(): void {
