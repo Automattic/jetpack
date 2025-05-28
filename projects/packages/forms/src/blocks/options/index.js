@@ -8,7 +8,7 @@ const name = 'options';
 const settings = {
 	apiVersion: 3,
 	title: __( 'Options', 'jetpack-forms' ),
-	description: __( 'A wrapper for a group of options', 'jetpack-forms' ),
+	description: __( 'A collection of option blocks', 'jetpack-forms' ),
 	category: 'contact-form',
 	icon: {
 		src: renderMaterialIcon(
