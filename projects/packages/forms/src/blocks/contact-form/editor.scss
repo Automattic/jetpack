@@ -295,7 +295,6 @@
 
 	.jetpack-field-label__suffix {
 		margin-inline-start: 0.25em;
-
 		font-weight: 700;
 	}
 
@@ -854,7 +853,8 @@
 					font-size: 0.68em;
 				}
 
-				.jetpack-field-label__input {
+				.jetpack-field-label__input,
+				.jetpack-field-label__suffix {
 					font-size: 0.8em;
 				}
 
@@ -968,7 +968,8 @@
 				transform: translateY(0);
 				top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
 
-				.jetpack-field-label__input {
+				.jetpack-field-label__input,
+				.jetpack-field-label__suffix {
 					font-size: 0.75em;
 				}
 
