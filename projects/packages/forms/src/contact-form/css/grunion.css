@@ -427,6 +427,7 @@
 	appearance: none;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	padding: var(--jetpack--contact-form--input-padding);
 }
 
 .contact-form .is-style-outlined,
@@ -789,14 +790,9 @@ on production builds, the attributes are being reordered, causing side-effects
 	margin-left:  var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 }
 
-.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options:not(.wp-block-jetpack-options),
-.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-radio-options:not(.wp-block-jetpack-options) {
+.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options,
+.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-radio-options {
 	padding-top: 8px;
-}
-
-:where(.wp-block-jetpack-options) {
-
-	/* padding: var(--jetpack--contact-form--input-padding-left, 16px) 0; */
 }
 
 :where(.wp-block-jetpack-options.has-background) {
@@ -1052,10 +1048,6 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form__checkbox-wrap {
 	display: inline-flex;
 	align-items: baseline;
-
-	:where( .grunion-field-label ) {
-		margin: 0;
-	}
 }
 
 .contact-form :is([type="submit"],button:not([type="reset"])) {
