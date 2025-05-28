@@ -41,9 +41,9 @@ else
 fi
 
 # Don't auto-release if there's a dummy tag in place.
-dummy_tag=$( git ls-remote --tags origin pause_rolling_release_dummy_tag )
+dummy_tag=$( git ls-remote --tags origin pause_autorelease_dummy_tag )
 if [[ -n $dummy_tag ]]; then
-	echo 'Dummy tag found ('pause_rolling_release_dummy_tag'); aborting auto-release.'
+	echo 'Dummy tag found ('pause_autorelease_dummy_tag'); aborting auto-release.'
 	exit 0
 fi
 
