@@ -16,10 +16,6 @@ import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 
 const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFilter = 'all' } ) => {
 	const { hasPlan } = usePlan();
-
-	// const alldata = useProtectData( { sourceType, filter: { status: statusFilter } } );
-	// console.log( "all the available data", alldata );
-
 	const {
 		results: { plugins, themes },
 		counts: {
@@ -31,9 +27,6 @@ const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFil
 			},
 		},
 	} = useProtectData( { sourceType, filter: { status: statusFilter } } );
-
-	// console.log( 'results in navigation', results );
-
 	const { recordEvent } = useAnalyticsTracks();
 	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
 
