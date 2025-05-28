@@ -16,6 +16,29 @@ const deprecatedAttributes = [
 	'hasFormSettingsSet',
 ];
 
+const v3 = {
+	attributes: {
+		...defaultAttributes,
+	},
+	supports: {
+		html: false,
+	},
+	migrate: ( attributes, innerBlocks ) => {
+		if ( ! attributes.id ) {
+			return [
+				{
+					...attributes,
+					id: `contact-form-migrated-${ Date.now() }-${ Math.floor( Math.random() * 10000 ) }`,
+				},
+				innerBlocks,
+			];
+		}
+		return [ attributes, innerBlocks ];
+	},
+	isEligible: attr => ! attr.id,
+	save: () => <InnerBlocks.Content />,
+};
+
 const v2 = {
 	attributes: {
 		...defaultAttributes,
@@ -90,4 +113,4 @@ const v1 = {
 	save: () => <InnerBlocks.Content />,
 };
 
-export default [ v2, v1 ];
+export default [ v3, v2, v1 ];

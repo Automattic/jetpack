@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix: Ensure each contact form instance on a page has a unique and stable id, preventing hash collisions and submission issues when multiple forms are present. The form id is now deterministic and not based on the order of rendering, resolving issues with the second form not submitting. 

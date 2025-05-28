@@ -40,4 +40,8 @@ export default {
 			sendToSalesforce: false,
 		},
 	},
+	id: {
+		type: 'string',
+		default: '',
+	},
 };

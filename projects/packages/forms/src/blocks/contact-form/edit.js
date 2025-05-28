@@ -19,7 +19,7 @@ import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef } from '@wordpress/element';
+import { useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
@@ -61,6 +61,12 @@ const ALLOWED_BLOCKS = [
 const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
 
 function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
+	useEffect( () => {
+		if ( ! attributes.id ) {
+			setAttributes( { id: `contact-form-${ clientId }` } );
+		}
+	}, [ attributes.id, clientId, setAttributes ] );
+
 	const {
 		to,
 		subject,
