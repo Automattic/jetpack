@@ -90,13 +90,9 @@
 	font-weight: 700;
 }
 
-.grunion-checkbox-multiple-options :where( legend ),
-.grunion-radio-options :where( legend ) {
-	margin-bottom: 0.25em;
+.contact-form :where(legend.grunion-field-label) {
 	padding: 0;
-	font-weight: 700;
 }
-
 
 .contact-form :where(label.consent) {
 	font-size: 13px;
@@ -431,6 +427,7 @@
 	appearance: none;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	padding: var(--jetpack--contact-form--input-padding);
 }
 
 .contact-form .is-style-outlined,
@@ -676,13 +673,6 @@ on production builds, the attributes are being reordered, causing side-effects
 	--field-padding: calc(var(--label-left) - var(--jetpack--contact-form--border-size));
 }
 
-.wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset,
-.wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset legend {
-	padding: 0;
-	border: 0;
-	margin: 0;
-}
-
 .contact-form .is-style-animated .grunion-field-wrap input:not([type="checkbox"]):not([type="radio"]) {
 	outline: none;
 }
@@ -794,13 +784,17 @@ on production builds, the attributes are being reordered, causing side-effects
 	margin-left:  var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
 }
 
+/* fields with multiple options */
+.wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset {
+	padding: 8px 0 0 0;
+	border: 0;
+	margin: 0;
+}
+
+/* fields with multiple options - not .wp-block-jetpack-options because the inner blocks introduce new markup */
 .contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options:not(.wp-block-jetpack-options),
 .contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-radio-options:not(.wp-block-jetpack-options) {
 	padding-top: 8px;
-}
-
-:where(.wp-block-jetpack-options) {
-	padding: var(--jetpack--contact-form--input-padding-left, 16px) 0;
 }
 
 :where(.wp-block-jetpack-options.has-background) {
@@ -1056,10 +1050,6 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form__checkbox-wrap {
 	display: inline-flex;
 	align-items: baseline;
-
-	:where( .grunion-field-label ) {
-		margin: 0;
-	}
 }
 
 .contact-form :is([type="submit"],button:not([type="reset"])) {
