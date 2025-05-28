@@ -4,6 +4,7 @@ import {
 	Container,
 	Col,
 	JetpackLogo,
+	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
@@ -13,6 +14,7 @@ import { config } from '../index';
 // TODO: This is a temporary page to migrate the admin page to the new menu
 // and this is a mockup of the new page until the new page is implemented.
 const AdminMigratePage = () => {
+	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const ASSETS_URL = useMemo( () => config( 'pluginAssetsURL' ), [] );
 	const dashboardURL = useMemo( () => config( 'dashboardURL' ), [] );
 	const header = (
@@ -49,11 +51,19 @@ const AdminMigratePage = () => {
 								</Button>
 							</p>
 							<p style={ { marginTop: '3em' } }>
-								<img
-									style={ { maxWidth: '100%' } }
-									src={ `${ ASSETS_URL }/images/forms-moved.png` }
-									alt={ __( 'Forms moved', 'jetpack-forms' ) }
-								/>
+								{ isSm ? (
+									<img
+										style={ { maxWidth: '100%' } }
+										src={ `${ ASSETS_URL }/images/forms-moved-mobile.png` }
+										alt={ __( 'Forms moved', 'jetpack-forms' ) }
+									/>
+								) : (
+									<img
+										style={ { maxWidth: '100%' } }
+										src={ `${ ASSETS_URL }/images/forms-moved.png` }
+										alt={ __( 'Forms moved', 'jetpack-forms' ) }
+									/>
+								) }
 							</p>
 						</Col>
 					</Container>
