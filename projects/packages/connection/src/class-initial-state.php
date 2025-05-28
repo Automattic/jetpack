@@ -24,9 +24,6 @@ class Initial_State {
 
 		$status = new Status();
 
-		// Get connection errors from Error_Handler
-		$connection_errors = Error_Handler::get_instance()->get_verified_errors();
-
 		return array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
 			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
@@ -36,7 +33,7 @@ class Initial_State {
 			'connectedPlugins'   => REST_Connector::get_connection_plugins( false ),
 			'wpVersion'          => $wp_version,
 			'siteSuffix'         => $status->get_site_suffix(),
-			'connectionErrors'   => $connection_errors,
+			'connectionErrors'   => Error_Handler::get_instance()->get_verified_errors(),
 			'isOfflineMode'      => $status->is_offline_mode(),
 			'calypsoEnv'         => ( new Status\Host() )->get_calypso_env(),
 		);
