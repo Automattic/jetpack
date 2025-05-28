@@ -435,10 +435,7 @@ This is useful if you want to check your code is compatible with the minimum ver
 
 The WordPress image is leveraged with Xdebug present as a PHP Extension.
 
-You’ll likely need to install a browser extension like the following:
-
-* [The easiest Xdebug](https://addons.mozilla.org/en-US/firefox/addon/the-easiest-xdebug/) for Mozilla Firefox
-* [Xdebug Helper](https://chrome.google.com/webstore/detail/xdebug-helper/eadndfjplgieldjbigjakmdgkmoaaaoc) for Google Chrome
+You’ll likely need to install a browser extension like [The easiest Xdebug](https://addons.mozilla.org/en-US/firefox/addon/the-easiest-xdebug/) for Mozilla Firefox.
 
 #### Remote debugging with PhpStorm editor
 
@@ -475,7 +472,6 @@ Below are instructions for starting a debug session in PhpStorm that will listen
 You'll need:
 
 - [PHP Debug](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug) plugin installed in VSCode
-- If you use Google Chrome, install the [Xdebug Helper](https://chrome.google.com/webstore/detail/xdebug-helper/eadndfjplgieldjbigjakmdgkmoaaaoc?hl=en) extension.
 - If you use Firefox, install [Xdebug Helper](https://addons.mozilla.org/en-GB/firefox/addon/xdebug-helper-for-firefox/) add-on.
 
 ##### Set up the Debugging Task
@@ -550,3 +546,13 @@ function my_plugin_add_profile_parameter( $should_add, $url, $host ) {
 	return $should_add;
 }
 ```
+### Profiling requests locally.
+
+When running Jetpack locally, you can use the `XDEBUG_TRIGGER` parameter to profile requests. This is useful for performance analysis and debugging.
+To enable profiling, you can add the `XDEBUG_TRIGGER` parameter to the URL of the request you want to profile. For example:
+
+```
+http://localhost/?XDEBUG_TRIGGER=profile
+```
+
+This will generate a cachegrind file in the `tools/docker/logs/php` directory. You can then analyze this file using PHPStorm, qcachegrind, or other similar tools.
