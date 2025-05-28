@@ -120,8 +120,10 @@ class Sharing_Service {
 		if ( $include_custom ) {
 			// Add any custom services in
 			$options = $this->get_global_options();
-			foreach ( (array) $options['custom'] as $custom_id ) {
-				$services[ $custom_id ] = 'Share_Custom';
+			if ( isset( $options['custom'] ) ) {
+				foreach ( $options['custom'] as $custom_id ) {
+					$services[ $custom_id ] = 'Share_Custom';
+				}
 			}
 		}
 
@@ -313,13 +315,13 @@ class Sharing_Service {
 		}
 
 		// Cleanup after any filters that may have produced duplicate services
-		if ( is_array( $enabled['visible'] ) ) {
+		if ( isset( $enabled['visible'] ) && is_array( $enabled['visible'] ) ) {
 			$enabled['visible'] = array_unique( $enabled['visible'] );
 		} else {
 			$enabled['visible'] = array();
 		}
 
-		if ( is_array( $enabled['hidden'] ) ) {
+		if ( isset( $enabled['hidden'] ) && is_array( $enabled['hidden'] ) ) {
 			$enabled['hidden'] = array_unique( $enabled['hidden'] );
 		} else {
 			$enabled['hidden'] = array();
@@ -499,7 +501,7 @@ class Sharing_Service {
 			}
 		}
 
-		if ( false === $this->global['sharing_label'] || $this->global['sharing_label'] === 'Share this:' ) {
+		if ( ! isset( $this->global['sharing_label'] ) || false === $this->global['sharing_label'] || $this->global['sharing_label'] === 'Share this:' ) {
 			$this->global['sharing_label'] = $this->default_sharing_label;
 		}
 
@@ -687,7 +689,9 @@ class Sharing_Service_Total {
 		$this->service = $services->get_service( $id );
 		$this->total   = (int) $total;
 
-		$this->name = $this->service->get_name();
+		if ( $this->service instanceof Sharing_Source ) {
+			$this->name = $this->service->get_name();
+		}
 	}
 
 	/**

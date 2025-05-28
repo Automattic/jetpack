@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .swipeable__container {
 	width: 100%;
@@ -19,7 +19,7 @@
 	transition: all 0.5s ease-in-out;
 	transition-property: transform, height;
 
-	@include reduce-motion( "transition" );
+	@include gb.reduce-motion( "transition" );
 }
 
 .swipeable__page {

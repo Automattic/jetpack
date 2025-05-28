@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+sass: `@use` rather than `@import` for `@wordpress/base-styles`.
