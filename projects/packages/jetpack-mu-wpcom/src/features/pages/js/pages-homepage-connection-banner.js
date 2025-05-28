@@ -1,3 +1,5 @@
+import { wpcomTrackEvent } from 'wpcom-tracks-module';
+
 /**
  * JavaScript for the Pages-Homepage connection banner.
  * Creates and inserts a banner in the Pages admin screen to connect users
@@ -8,21 +10,6 @@
 
 /* global jQuery */
 ( function ( $ ) {
-	const trackEvent = ( eventName, eventProperties = {} ) => {
-		const currentUser = window.JP_CONNECTION_INITIAL_STATE?.userConnectionData?.currentUser ?? {};
-		const blogId = eventProperties.blogId ?? currentUser.blogId;
-
-		window._tkq = window._tkq || [];
-		window._tkq.push( [
-			'recordEvent',
-			eventName,
-			{
-				...eventProperties,
-				blog_id: blogId,
-			},
-		] );
-	};
-
 	/**
 	 * Create the connection banner element programmatically.
 	 *
@@ -80,9 +67,9 @@
 			btn.textContent = data.editText;
 			btn.onclick = function () {
 				if ( data.screenId === 'edit-page' ) {
-					trackEvent( 'wpcom_pages_edit_homepage_banner_clicked' );
+					wpcomTrackEvent( 'wpcom_pages_edit_homepage_banner_clicked' );
 				} else if ( data.screenId === 'site-editor' ) {
-					trackEvent( 'wpcom_site_editor_pages_edit_homepage_banner_clicked' );
+					wpcomTrackEvent( 'wpcom_site_editor_pages_edit_homepage_banner_clicked' );
 				}
 			};
 
@@ -107,7 +94,7 @@
 			const $tablenav = $( '.tablenav.top' );
 
 			if ( $tablenav.length ) {
-				trackEvent( 'wpcom_pages_edit_homepage_banner_shown' );
+				wpcomTrackEvent( 'wpcom_pages_edit_homepage_banner_shown' );
 
 				$tablenav.before( banner );
 			}
@@ -120,14 +107,14 @@
 				$( '.edit-site' ).prepend( banner );
 
 				if ( isPagesListPage() ) {
-					trackEvent( 'wpcom_site_editor_pages_edit_homepage_banner_shown' );
+					wpcomTrackEvent( 'wpcom_site_editor_pages_edit_homepage_banner_shown' );
 
 					banner.classList.add( 'show' );
 				}
 
 				window.addEventListener( 'locationchange', function () {
 					if ( isPagesListPage() ) {
-						trackEvent( 'wpcom_site_editor_pages_edit_homepage_banner_shown' );
+						wpcomTrackEvent( 'wpcom_site_editor_pages_edit_homepage_banner_shown' );
 
 						banner.classList.add( 'show' );
 					} else {

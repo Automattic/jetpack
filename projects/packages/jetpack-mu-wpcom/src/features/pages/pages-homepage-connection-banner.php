@@ -31,10 +31,6 @@ function wpcom_add_pages_homepage_connection_banner() {
 		return;
 	}
 
-	$can_edit     = current_user_can( 'edit_theme_options' );
-	$edit_link    = admin_url( 'site-editor.php' );
-	$display_text = __( 'Looking to customize your homepage?', 'jetpack-mu-wpcom' );
-
 	wp_register_style(
 		'wpcom-pages-homepage-connection-banner',
 		plugin_dir_url( __FILE__ ) . 'css/pages-homepage-connection-banner.css',
@@ -43,27 +39,42 @@ function wpcom_add_pages_homepage_connection_banner() {
 	);
 	wp_enqueue_style( 'wpcom-pages-homepage-connection-banner' );
 
-	wp_register_script(
-		'wpcom-pages-homepage-connection-banner',
-		plugin_dir_url( __FILE__ ) . 'js/pages-homepage-connection-banner.js',
-		array( 'jquery' ),
+	$can_edit       = current_user_can( 'edit_theme_options' );
+	$localized_data = array(
+		'text'     => esc_html( __( 'Looking to customize your homepage?', 'jetpack-mu-wpcom' ) ),
+		'editLink' => $can_edit ? esc_url( admin_url( 'site-editor.php' ) ) : '',
+		'editText' => esc_html__( 'Edit homepage', 'jetpack-mu-wpcom' ),
+		'canEdit'  => $can_edit,
+		'screenId' => esc_html( $screen->id ),
+	);
+
+	add_action(
+		'admin_footer',
+		function () use ( $localized_data ) {
+			?>
+		<script type="text/javascript">
+			window.wpcomPagesHomepageConnectionBanner = <?php echo wp_json_encode( $localized_data ); ?>;
+		</script>
+			<?php
+		},
+		1
+	);
+
+	wp_register_script_module(
+		'wpcom-tracks-module',
+		plugin_dir_url( __FILE__ ) . '../../common/tracks.js',
+		array(),
 		'20250527',
 		true
 	);
 
-	// Passing data to JavaScript
-	wp_localize_script(
+	wp_enqueue_script_module(
 		'wpcom-pages-homepage-connection-banner',
-		'wpcomPagesHomepageConnectionBanner',
-		array(
-			'text'     => esc_html( $display_text ),
-			'editLink' => $can_edit ? esc_url( $edit_link ) : '',
-			'editText' => esc_html__( 'Edit homepage', 'jetpack-mu-wpcom' ),
-			'canEdit'  => $can_edit,
-			'screenId' => esc_html( $screen->id ),
-		)
+		plugin_dir_url( __FILE__ ) . 'js/pages-homepage-connection-banner.js',
+		array( 'wpcom-tracks-module', 'jquery' ),
+		'20250527',
+		true
 	);
-	wp_enqueue_script( 'wpcom-pages-homepage-connection-banner' );
 }
 
 add_action( 'current_screen', 'wpcom_add_pages_homepage_connection_banner' );
