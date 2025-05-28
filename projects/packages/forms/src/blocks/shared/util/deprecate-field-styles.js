@@ -27,9 +27,9 @@ const deprecateFieldStyles = attributes => {
 	const inputStyles = cleanEmptyObject( {
 		border: {
 			color: borderColor,
-			radius: borderRadius ? `${ borderRadius }px` : undefined,
+			radius: !! borderRadius || borderRadius === 0 ? `${ borderRadius }px` : undefined,
 			style: 'solid',
-			width: borderWidth,
+			width: !! borderWidth || borderWidth === 0 ? `${ borderWidth }px` : undefined,
 		},
 		color: {
 			text: inputColor,
