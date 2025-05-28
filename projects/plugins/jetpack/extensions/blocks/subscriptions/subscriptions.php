@@ -1285,15 +1285,18 @@ function get_paywall_blocks_subscribe_pending() {
  * @return string
  */
 function get_paywall_simple() {
-	$access_heading = esc_html__( "You're currently a free subscriber. Upgrade your subscription to get access to the rest of this post and other paid-subscriber only content.", 'jetpack' );
-
-	$subscribe_text = esc_html__( 'Upgrade subscription', 'jetpack' );
+	$paywall_heading     = esc_html__( 'Subscribe to keep reading', 'jetpack' );
+	$paywall_description = esc_html__( "You're currently a free subscriber. Upgrade your subscription to get access to the rest of this post and other paid-subscriber only content.", 'jetpack' );
+	$paywall_action_btn  = esc_html__( 'Upgrade subscription', 'jetpack' );
 
 	return '
 <!-- wp:columns -->
 <div class="wp-block-columns jetpack-paywall-simple" style="display: inline-block; width: 90%">
     <!-- wp:column -->
     <div class="wp-block-column" style="background-color: #F6F7F7; padding: 32px; 24px;">
+        <!-- wp:heading -->
+        <h2 class="has-text-align-center" style="margin: 0 0 12px; font-weight: 600;">' . $paywall_heading . '</h2>
+        <!-- /wp:heading -->
         <!-- wp:paragraph -->
         <p class="has-text-align-center"
            style="text-align: center;
@@ -1302,7 +1305,7 @@ function get_paywall_simple() {
                   font-size: 16px;
                   font-family: \'SF Pro Text\', sans-serif;
                   line-height: 28.8px;">
-        ' . $access_heading . '
+        ' . $paywall_description . '
         </p>
         <!-- /wp:paragraph -->
         <!-- wp:buttons -->
@@ -1320,7 +1323,7 @@ function get_paywall_simple() {
                           font-family: \'SF Pro Display\', sans-serif;
                           font-weight: 500;
                           font-size: 16px;
-                          text-align: center;">' . $subscribe_text . '</a>
+                          text-align: center;">' . $paywall_action_btn . '</a>
             </div>
             <!-- /wp:button -->
         </div>
