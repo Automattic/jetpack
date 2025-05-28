@@ -104,20 +104,6 @@ class Threat_Model {
 	public $table;
 
 	/**
-	 * The primary key column of the database threat.
-	 *
-	 * @var null|string
-	 */
-	public $pk_column;
-
-	/**
-	 * The value of the primary key for the database threat.
-	 *
-	 * @var null|string
-	 */
-	public $value;
-
-	/**
 	 * Additional details about the database threat.
 	 *
 	 * @var null|object

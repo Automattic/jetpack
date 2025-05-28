@@ -12,6 +12,28 @@ const camelToSnakeCase = str => {
 };
 
 /**
+ * Recursively converts all keys in an object from camelCase to snake_case
+ *
+ * @param {object} obj - The object to convert
+ * @return {object} A new object with all keys converted to snake_case
+ */
+const convertObjectKeysToSnakeCase = obj => {
+	if ( obj === null || typeof obj !== 'object' ) {
+		return obj;
+	}
+
+	if ( Array.isArray( obj ) ) {
+		return obj.map( item => convertObjectKeysToSnakeCase( item ) );
+	}
+
+	return Object.entries( obj ).reduce( ( result, [ key, value ] ) => {
+		const snakeKey = camelToSnakeCase( key );
+		result[ snakeKey ] = convertObjectKeysToSnakeCase( value );
+		return result;
+	}, {} );
+};
+
+/**
  * Component to display details data from database matches
  *
  * @param {object} props         - Component props
@@ -31,7 +53,7 @@ const DetailsViewer = ( { details } ) => {
 					<div className={ styles[ 'details-viewer__value' ] }>
 						<pre>
 							{ typeof value === 'object' && value !== null
-								? JSON.stringify( value, null, 2 )
+								? JSON.stringify( convertObjectKeysToSnakeCase( value ), null, 2 )
 								: String( value ) }
 						</pre>
 					</div>

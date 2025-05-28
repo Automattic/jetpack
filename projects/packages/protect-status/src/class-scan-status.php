@@ -222,6 +222,18 @@ class Scan_Status extends Status {
 					$status->fixable_threat_ids[] = $scan_threat->id;
 				}
 
+				$db_details = null;
+				if ( $scan_threat->table ) {
+					$db_details = array_merge(
+						array(
+							'table'     => $scan_threat->table,
+							'pk_column' => $scan_threat->pk_column ?? null,
+							'pk_value'  => $scan_threat->value ?? null,
+						),
+						! empty( $scan_threat->details ) ? array( 'details' => $scan_threat->details ) : array()
+					);
+				}
+
 				$threat = new Threat_Model(
 					array(
 						'id'                        => $scan_threat->id ?? null,
@@ -241,9 +253,7 @@ class Scan_Status extends Status {
 						'context'                   => $scan_threat->context ?? null,
 						'source'                    => $scan_threat->source ?? null,
 						'table'                     => $scan_threat->table ?? null,
-						'pk_column'                 => $scan_threat->pk_column ?? null,
-						'value'                     => $scan_threat->value ?? null,
-						'details'                   => $scan_threat->details ?? null,
+						'details'                   => $db_details,
 					)
 				);
 
