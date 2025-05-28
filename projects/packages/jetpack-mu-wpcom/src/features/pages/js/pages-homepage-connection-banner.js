@@ -26,15 +26,22 @@
 	/**
 	 * Create the connection banner element programmatically.
 	 *
+	 * @param {object}  data          - The data for configuring the banner.
+	 * @param {string}  data.text     - The text to display in the banner.
+	 * @param {string}  data.editLink - The URL to the edit page.
+	 * @param {string}  data.editText - The text for the edit button.
+	 * @param {boolean} data.canEdit  - Whether the user can edit the homepage.
 	 * @return {HTMLElement} The created banner element.
 	 */
-	function createBannerElement() {
-		// Get localized data
-		const data = window.wpcomPagesHomepageConnectionBanner || {};
-
+	function createBannerElement( data ) {
 		// Create card container
 		const container = document.createElement( 'div' );
 		container.className = 'wpcom-homepage-notice card';
+		if ( data.screenId === 'edit-page' ) {
+			container.classList.add( 'is-edit-page' );
+		} else if ( data.screenId === 'site-editor' ) {
+			container.classList.add( 'is-site-editor' );
+		}
 
 		// Crete left column element
 		const leftColumn = document.createElement( 'div' );
@@ -72,7 +79,11 @@
 			btn.href = data.editLink;
 			btn.textContent = data.editText;
 			btn.onclick = function () {
-				trackEvent( 'wpcom_pages_edit_homepage_banner_clicked' );
+				if ( data.screenId === 'edit-page' ) {
+					trackEvent( 'wpcom_pages_edit_homepage_banner_clicked' );
+				} else if ( data.screenId === 'site-editor' ) {
+					trackEvent( 'wpcom_site_editor_pages_edit_homepage_banner_clicked' );
+				}
 			};
 
 			rightColumn.appendChild( btn );
@@ -87,13 +98,98 @@
 	 * Insert the banner at the correct position in the page.
 	 */
 	$( document ).ready( function () {
-		const banner = createBannerElement();
-		const $tablenav = $( '.tablenav.top' );
+		// Get localized data
+		const data = window.wpcomPagesHomepageConnectionBanner || {};
 
-		if ( $tablenav.length ) {
-			trackEvent( 'wpcom_pages_edit_homepage_banner_shown' );
+		const banner = createBannerElement( data );
 
-			$tablenav.before( banner );
+		if ( data.screenId === 'edit-page' ) {
+			const $tablenav = $( '.tablenav.top' );
+
+			if ( $tablenav.length ) {
+				trackEvent( 'wpcom_pages_edit_homepage_banner_shown' );
+
+				$tablenav.before( banner );
+			}
+		}
+
+		if ( data.screenId === 'site-editor' ) {
+			hijackHistory();
+
+			waitForElement( $, '.edit-site-layout__content', function () {
+				$( '.edit-site' ).prepend( banner );
+
+				if ( isPagesListPage() ) {
+					trackEvent( 'wpcom_site_editor_pages_edit_homepage_banner_shown' );
+
+					banner.classList.add( 'show' );
+				}
+
+				window.addEventListener( 'locationchange', function () {
+					if ( isPagesListPage() ) {
+						trackEvent( 'wpcom_site_editor_pages_edit_homepage_banner_shown' );
+
+						banner.classList.add( 'show' );
+					} else {
+						banner.classList.remove( 'show' );
+					}
+				} );
+			} );
 		}
 	} );
 } )( jQuery );
+
+const hijackHistory = () => {
+	// Save a reference to the original methods
+	const originalPushState = history.pushState;
+	const originalReplaceState = history.replaceState;
+
+	// Override pushState
+	history.pushState = function () {
+		const result = originalPushState.apply( history, arguments );
+
+		window.dispatchEvent( new Event( 'locationchange' ) );
+		return result;
+	};
+
+	// Override replaceState
+	history.replaceState = function () {
+		const result = originalReplaceState.apply( history, arguments );
+
+		window.dispatchEvent( new Event( 'locationchange' ) );
+		return result;
+	};
+
+	// Listen for popstate (for browser back/forward buttons)
+	window.addEventListener( 'popstate', function () {
+		window.dispatchEvent( new Event( 'locationchange' ) );
+	} );
+};
+
+const waitForElement = ( $, selector, callback ) => {
+	// Check if the element already exists on initial load
+	if ( $( selector ).length ) {
+		callback();
+		return;
+	}
+
+	const observer = new MutationObserver( function ( mutationsList, obs ) {
+		for ( const mutation of mutationsList ) {
+			// Check if the added nodes contain our selector
+			if ( mutation.type === 'childList' && $( selector ).length ) {
+				obs.disconnect();
+				callback();
+				return;
+			}
+		}
+	} );
+
+	observer.observe( document.body, { childList: true, subtree: true } );
+};
+
+const isPagesListPage = () => {
+	const url = new URL( window.location.href );
+	const params = new URLSearchParams( url.search );
+
+	return params.get( 'p' ) === '/page';
+};

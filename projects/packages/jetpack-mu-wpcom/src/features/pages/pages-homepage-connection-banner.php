@@ -13,11 +13,14 @@
  */
 function wpcom_add_pages_homepage_connection_banner() {
 	$screen = get_current_screen();
-	if ( ! $screen || 'edit-page' !== $screen->id ) {
+	if ( ! $screen || ! wp_is_block_theme() ) {
 		return;
 	}
 
-	if ( ! wp_is_block_theme() ) {
+	$is_edit_page_screen   = 'edit-page' === $screen->id;
+	$is_site_editor_screen = 'site-editor' === $screen->id;
+
+	if ( ! $is_edit_page_screen && ! $is_site_editor_screen ) {
 		return;
 	}
 
@@ -57,6 +60,7 @@ function wpcom_add_pages_homepage_connection_banner() {
 			'editLink' => $can_edit ? esc_url( $edit_link ) : '',
 			'editText' => esc_html__( 'Edit homepage', 'jetpack-mu-wpcom' ),
 			'canEdit'  => $can_edit,
+			'screenId' => esc_html( $screen->id ),
 		)
 	);
 	wp_enqueue_script( 'wpcom-pages-homepage-connection-banner' );
