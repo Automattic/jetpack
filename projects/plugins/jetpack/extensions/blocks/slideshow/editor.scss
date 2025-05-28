@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 // When slideshow block appears inside a layout grid block,
 // make it behave like a grid block to prevent grid blowout.
@@ -43,7 +43,7 @@
 
 		&:hover,
 		&:focus {
-			border: 1px solid $gray-600;
+			border: 1px solid gb.$gray-600;
 		}
 	}
 }

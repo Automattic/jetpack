@@ -1,8 +1,5 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 @import "@automattic/color-studio/dist/color-variables";
-
-$icon-size: 10px;
-$icon-background-color: #fff;
 
 // Upgrade Banner.
 .jetpack-upgrade-plan-banner {
@@ -12,7 +9,7 @@ $icon-background-color: #fff;
 		justify-content: space-between;
 		align-items: center;
 		font-size: 14px;
-		font-family: $default-font;
+		font-family: gb.$default-font;
 		text-transform: none;
 		background: #000;
 		padding: 0 20px;
@@ -68,7 +65,7 @@ $icon-background-color: #fff;
 	&.wp-block[data-align="left"] {
 
 		.jetpack-upgrade-plan-banner__wrapper {
-			max-width: $content-width;
+			max-width: gb.$content-width;
 			width: 100%;
 		}
 	}

@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .jetpack-inspector-notice {
 
@@ -45,6 +45,6 @@
 }
 
 .jetpack-subscribe-affirmation-loading {
-	background: $gray-400;
-	color: $gray-400;
+	background: gb.$gray-400;
+	color: gb.$gray-400;
 }

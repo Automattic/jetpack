@@ -1,12 +1,11 @@
-@import "@wordpress/base-styles/breakpoints";
-@import "@wordpress/base-styles/mixins";
-@import "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/mixins";
 
 .wpcom-block-editor-post-published-modal {
-	border-radius: $radius-large;
+	border-radius: variables.$radius-large;
 	margin: auto 16px;
 
-	@include break-small {
+	@include mixins.break-small {
 		margin: auto;
 	}
 
@@ -14,7 +13,7 @@
 		text-align: center;
 		padding: 60px 30px;
 
-		@include break-small {
+		@include mixins.break-small {
 			padding: 48px 90px;
 		}
 	}
@@ -28,7 +27,7 @@
 	}
 
 	.wpcom-block-editor-nux-modal__title {
-		font-size: $font-size-2x-large;
+		font-size: variables.$font-size-2x-large;
 	}
 
 	.wpcom-block-editor-nux-modal__buttons {
