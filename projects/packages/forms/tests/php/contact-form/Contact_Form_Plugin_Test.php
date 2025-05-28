@@ -125,7 +125,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Render the shortcode.
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox_multiple( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="checkbox-multiple" label="Choose several options" labelclasses="wp-block-jetpack-label has-text-color has-swamp-green-color" optionsclasses="" options="truth,dare" optionsdata="&#091;{&quot;label&quot;:&quot;truth&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:caramel; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;dare&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:gummy; font-size:24px;&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"/]';
+		$expected  = '[contact-field type="checkbox-multiple" label="Choose several options" labelclasses="wp-block-jetpack-label has-text-color has-swamp-green-color" optionsclasses="wp-block-jetpack-options" options="truth,dare" optionsdata="&#091;{&quot;label&quot;:&quot;truth&quot;&#044;&quot;class&quot;:&quot;has-text-color wp-block-jetpack-option&quot;&#044;&quot;style&quot;:&quot;color:caramel; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;dare&quot;&#044;&quot;class&quot;:&quot;has-text-color wp-block-jetpack-option&quot;&#044;&quot;style&quot;:&quot;color:gummy; font-size:24px;&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"/]';
 
 		$this->assertEquals( $expected, $shortcode, 'Shortcode is not as expected' );
 	}
@@ -159,7 +159,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 		);
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="checkbox" label="single" optionclasses=" has-text-color" optionstyles="color:caramel; font-size:24px;" fieldwrapperclasses="wp-block-jetpack-field-checkbox"/]';
+		$expected  = '[contact-field type="checkbox" label="single" optionclasses="wp-block-jetpack-option has-text-color" optionstyles="color:caramel; font-size:24px;" fieldwrapperclasses="wp-block-jetpack-field-checkbox"/]';
 
 		$this->assertEquals( $expected, $shortcode );
 	}
@@ -282,7 +282,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Render the shortcode.
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_radio( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="radio" label="Radio gaga" labelclasses="wp-block-jetpack-label has-text-color has-turmoil-purple-color" optionsclasses="" options="freddy,brian" optionsdata="&#091;{&quot;label&quot;:&quot;freddy&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:reddo; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;brian&quot;&#044;&quot;class&quot;:&quot;has-text-color&quot;&#044;&quot;style&quot;:&quot;color:blueo; font-size:100rem;&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-radio"/]';
+		$expected  = '[contact-field type="radio" label="Radio gaga" labelclasses="wp-block-jetpack-label has-text-color has-turmoil-purple-color" optionsclasses="wp-block-jetpack-options" options="freddy,brian" optionsdata="&#091;{&quot;label&quot;:&quot;freddy&quot;&#044;&quot;class&quot;:&quot;has-text-color wp-block-jetpack-option&quot;&#044;&quot;style&quot;:&quot;color:reddo; font-size:24px;&quot;}&#044;{&quot;label&quot;:&quot;brian&quot;&#044;&quot;class&quot;:&quot;has-text-color wp-block-jetpack-option&quot;&#044;&quot;style&quot;:&quot;color:blueo; font-size:100rem;&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-radio"/]';
 
 		$this->assertEquals( $expected, $shortcode, 'Shortcode is not as expected' );
 	}
@@ -393,7 +393,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 			'option'            => array(
 				'expected'     => array(
-					'optionclasses'       => ' has-text-color has-swamp-cheese-color',
+					'optionclasses'       => 'wp-block-jetpack-option has-text-color has-swamp-cheese-color',
 					'optionstyles'        => 'font-size:24px;font-style:italic;font-weight:bold;line-height:1.5;letter-spacing:0.1em;',
 					'label'               => 'Option',
 					'type'                => 'radio',
@@ -434,12 +434,12 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'labelclasses'             => 'wp-block-jetpack-label has-text-color has-accent-3-color',
 					'labelstyles'              => 'letter-spacing:0.1em;',
 					'options'                  => 'Option 1,Option 2',
-					'optionsdata'              => '[{"label":"Option 1","class":"has-text-color has-sweet-potato-option-1-color","style":"font-size:24px;font-weight:bold;line-height:1.5;letter-spacing:0.1em;"},{"label":"Option 2","class":"has-text-color has-sweet-potato-option-2-color","style":"font-size:22px;font-weight:normal;"}]',
+					'optionsdata'              => '[{"label":"Option 1","class":"has-text-color has-sweet-potato-option-1-color wp-block-jetpack-option","style":"font-size:24px;font-weight:bold;line-height:1.5;letter-spacing:0.1em;"},{"label":"Option 2","class":"has-text-color has-sweet-potato-option-2-color wp-block-jetpack-option","style":"font-size:22px;font-weight:normal;"}]',
 					'label'                    => 'Label multiple options',
 					'type'                     => 'checkbox-multiple',
 					'requiredText'             => 'Do it again',
 					'fieldwrapperclasses'      => 'wp-block-jetpack-field-checkbox-multiple is-style-button  is-style-button-wrap',
-					'optionsclasses'           => ' has-background',
+					'optionsclasses'           => 'wp-block-jetpack-options has-background',
 					'optionsstyles'            => 'background-color:green-tonight; border-top-width:2px;border-top-color:terrible-red;border-top-style:solid;',
 					'stylevariationclasses'    => ' has-background',
 					'stylevariationattributes' => '{"border":{"top":{"color":"terrible-red","width":"2px","style":"solid","radius":"10px"}},"color":{"background":"green-tonight"}}',
