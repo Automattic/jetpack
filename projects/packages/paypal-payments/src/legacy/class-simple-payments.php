@@ -156,7 +156,7 @@ class Simple_Payments {
 		$this->register_shortcode();
 		$this->setup_cpts();
 
-		add_filter( 'the_content', array( $this, 'remove_auto_paragraph_from_product_description' ), 0 );
+		add_filter( 'the_content', array( __CLASS__, 'remove_auto_paragraph_from_product_description' ), 0 );
 	}
 
 	/**
