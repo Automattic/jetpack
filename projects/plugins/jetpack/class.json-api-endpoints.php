@@ -1791,7 +1791,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			}
 
 			// add VideoPress info.
-			if ( function_exists( 'video_get_info_by_blogpostid' ) && isset( $media_item->ID ) ) {
+			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
 				$info = video_get_info_by_blogpostid( $this->api->get_blog_id_for_output(), $media_item->ID );
 
 				// If we failed to get VideoPress info, but it exists in the meta data (for some reason)
