@@ -28,12 +28,19 @@ const IntegrationCardHeader = ( {
 		isHeaderToggleEnabled,
 		onHeaderToggleChange,
 		toggleDisabledTooltip,
+		setupBadge,
 	} = cardData;
 	const showPluginAction = type === 'plugin' && ( ! isInstalled || ! isActive );
 	const showConnectedBadge = isActive && isConnected;
 	const disableFormText = __( 'Disable for this form', 'jetpack-forms' );
 	const enableFormText = __( 'Enable for this form', 'jetpack-forms' );
 
+	const showPendingBadge = ! showPluginAction && ! isConnected;
+	const pendingBadge = setupBadge || (
+		<span className="integration-card__plugin-badge">
+			{ __( 'Needs connection', 'jetpack-forms' ) }
+		</span>
+	);
 	const getTooltipText = checked => {
 		if ( toggleTooltip ) {
 			return toggleTooltip;
@@ -87,6 +94,7 @@ const IntegrationCardHeader = ( {
 									{ __( 'Connected', 'jetpack-forms' ) }
 								</span>
 							) }
+							{ showPendingBadge && <>{ pendingBadge }</> }
 						</div>
 						{ description && (
 							<span className="integration-card__description">{ description }</span>
