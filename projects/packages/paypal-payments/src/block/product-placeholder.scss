@@ -1,5 +1,4 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@import '../../shared/styles/jetpack-variables';
 
 .simple-payments__loading {
 	animation: simple-payments-loading 1600ms ease-in-out infinite;
