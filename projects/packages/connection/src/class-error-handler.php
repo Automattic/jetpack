@@ -156,29 +156,43 @@ class Error_Handler {
 	 * @return void
 	 */
 	public function handle_verified_errors() {
-		$verified_errors = $this->get_verified_errors();
-		foreach ( array_keys( $verified_errors ) as $error_code ) {
-			switch ( $error_code ) {
-				case 'malformed_token':
-				case 'token_malformed':
-				case 'no_possible_tokens':
-				case 'no_valid_user_token':
-				case 'no_valid_blog_token':
-				case 'unknown_token':
-				case 'could_not_sign':
-				case 'invalid_token':
-				case 'token_mismatch':
-				case 'invalid_signature':
-				case 'signature_mismatch':
-				case 'no_user_tokens':
-				case 'no_token_for_user':
-				case 'invalid_connection_owner':
-					add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
-					add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
-					$this->error_code = $error_code;
+		// Get stored errors (without filter) to see what's originally in the database
+		$stored_errors = $this->get_stored_verified_errors();
 
-					// Since we are only generically handling errors, we don't need to trigger error messages for each one of them.
-					break 2;
+		// Get all errors (with filter) to see what external plugins have injected
+		$verified_errors = $this->get_verified_errors();
+
+		// Default error codes that should trigger admin notices and React dashboard integration
+		$default_handled_codes = array(
+			'malformed_token',
+			'token_malformed',
+			'no_possible_tokens',
+			'no_valid_user_token',
+			'no_valid_blog_token',
+			'unknown_token',
+			'could_not_sign',
+			'invalid_token',
+			'token_mismatch',
+			'invalid_signature',
+			'signature_mismatch',
+			'no_user_tokens',
+			'no_token_for_user',
+			'invalid_connection_owner',
+		);
+
+		// Automatically include any error codes that were injected via the filter
+		// This allows external plugins to get automatic UI integration just by injecting errors
+		$injected_codes      = array_diff( array_keys( $verified_errors ), array_keys( $stored_errors ) );
+		$handled_error_codes = array_merge( $default_handled_codes, $injected_codes );
+
+		foreach ( array_keys( $verified_errors ) as $error_code ) {
+			if ( in_array( $error_code, $handled_error_codes, true ) ) {
+				add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
+				add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
+				$this->error_code = $error_code;
+
+				// Since we are only generically handling errors, we don't need to trigger error messages for each one of them.
+				break;
 			}
 		}
 	}
@@ -434,7 +448,37 @@ class Error_Handler {
 	 * @return array $errors
 	 */
 	public function get_verified_errors() {
+		$verified_errors = $this->get_stored_verified_errors();
 
+		/**
+		 * Filter verified connection errors to allow external plugins to inject their own error types
+		 *
+		 * This filter allows external plugins (like wpcomsh with Protected Owner errors)
+		 * to inject their own error types into the standard connection error flow.
+		 * External errors should follow the same structure as regular connection errors.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $verified_errors Array of verified connection errors
+		 */
+		$verified_errors = apply_filters( 'jetpack_connection_get_verified_errors', $verified_errors );
+
+		return $verified_errors;
+	}
+
+	/**
+	 * Gets the verified errors stored in the database without applying filters
+	 *
+	 * This method retrieves only the errors that are actually stored in the database,
+	 * without applying any filters that might inject additional errors. This is used
+	 * internally by methods that need to modify and store the verified errors back
+	 * to the database to prevent accidentally persisting filtered/injected errors.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array $errors
+	 */
+	protected function get_stored_verified_errors() {
 		$verified_errors = get_option( self::STORED_VERIFIED_ERRORS_OPTION );
 
 		if ( ! is_array( $verified_errors ) ) {
@@ -531,7 +575,7 @@ class Error_Handler {
 			}
 		}
 
-		$verified_errors = $this->get_verified_errors();
+		$verified_errors = $this->get_stored_verified_errors();
 		if ( is_array( $verified_errors ) && count( $verified_errors ) ) {
 			$verified_errors = array_filter( array_map( $type_filter, $verified_errors ) );
 			if ( count( $verified_errors ) ) {
@@ -611,7 +655,7 @@ class Error_Handler {
 	 */
 	public function verify_error( $error ) {
 
-		$verified_errors = $this->get_verified_errors();
+		$verified_errors = $this->get_stored_verified_errors();
 		$error_code      = $error['error_code'];
 		$user_id         = $error['user_id'];
 
@@ -736,11 +780,43 @@ class Error_Handler {
 	 * @return array
 	 */
 	public function jetpack_react_dashboard_error( $errors ) {
+		$verified_errors = $this->get_verified_errors();
+
+		// Check if we have a specific error message from the verified errors
+		$error_message = null;
+		$error_data    = array( 'api_error_code' => $this->error_code );
+		$action        = 'reconnect'; // Default action for traditional connection errors
+
+		if ( isset( $verified_errors[ $this->error_code ] ) ) {
+			// Get the first error for this error code to extract the message
+			$error_instances = $verified_errors[ $this->error_code ];
+			$first_error     = reset( $error_instances );
+
+			if ( isset( $first_error['error_message'] ) && ! empty( $first_error['error_message'] ) ) {
+				$error_message = $first_error['error_message'];
+
+				// Include additional error data if available
+				if ( isset( $first_error['error_data'] ) ) {
+					$error_data = array_merge( $error_data, $first_error['error_data'] );
+
+					// Use action from error data if provided
+					if ( isset( $first_error['error_data']['action'] ) ) {
+						$action = $first_error['error_data']['action'];
+					}
+				}
+			}
+		}
+
+		// Fall back to generic message if no specific message is available
+		if ( empty( $error_message ) ) {
+			$error_message = __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' );
+		}
+
 		$errors[] = array(
 			'code'    => 'connection_error',
-			'message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' ),
-			'action'  => 'reconnect',
-			'data'    => array( 'api_error_code' => $this->error_code ),
+			'message' => $error_message,
+			'action'  => $action,
+			'data'    => $error_data,
 		);
 		return $errors;
 	}

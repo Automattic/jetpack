@@ -52,6 +52,22 @@ export default class JetpackConnectionErrors extends React.Component {
 						</NoticeAction>
 					</SimpleNotice>
 				);
+			case 'create_missing_account': {
+				const createAccountUrl = errorData.support_url || '/wp-admin/user-new.php';
+				return (
+					<SimpleNotice
+						text={ message }
+						status={ 'is-error' }
+						icon={ 'link-break' }
+						showDismiss={ false }
+						display={ this.props.display }
+					>
+						<NoticeAction href={ createAccountUrl }>
+							{ __( 'Create Account', 'jetpack' ) }
+						</NoticeAction>
+					</SimpleNotice>
+				);
+			}
 		}
 
 		return null;
