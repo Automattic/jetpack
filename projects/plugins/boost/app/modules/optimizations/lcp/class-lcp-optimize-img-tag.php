@@ -48,8 +48,14 @@ class LCP_Optimize_Img_Tag {
 		 * By removing the last character from the LCP HTML, we can quickly check if the tag is in the buffer.
 		 *
 		 * `substr( '<img src="...">', 0, -1 )` -> `<img src="..."`
+		 *
+		 * We need to normalize HTML entities since the buffer may have &#038; while LCP data may have &amp;
 		 */
-		if ( ! str_contains( $buffer, substr( $this->lcp_data['html'], 0, -1 ) ) ) {
+		$search_string     = substr( $this->lcp_data['html'], 0, -1 );
+		$normalized_buffer = html_entity_decode( $buffer, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		$normalized_search = html_entity_decode( $search_string, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+
+		if ( ! str_contains( $normalized_buffer, $normalized_search ) ) {
 			return $buffer;
 		}
 		// Create the optimized tag with required attributes.
