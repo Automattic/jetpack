@@ -7,12 +7,16 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
+use Automattic\Jetpack\JWT;
 use Automattic\Jetpack\Sync\Settings;
 use Jetpack_Tracks_Event;
 use PHPMailer\PHPMailer\PHPMailer;
 use WP_Block;
 use WP_Error;
+
+require_once __DIR__ . '/class-jwt.php';
 
 /**
  * Class for the contact-form shortcode.
@@ -137,8 +141,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
 		}
 
-		$this->hash                 = sha1( wp_json_encode( $attributes ) );
-		self::$forms[ $this->hash ] = $this;
+		$hashable_attributes = $attributes;
+		unset( $hashable_attributes['id'] ); // Remove the ID from the attributes to be hashed, as it is not part of the form's content.
+		$this->hash = sha1( wp_json_encode( array( $content, $hashable_attributes ) ) );
+		if ( ! isset( self::$forms[ $this->hash ] ) ) {
+			// If no ID is set, generate a unique one.
+			self::$forms[ $this->hash ] = $this;
+		}
 
 		// Keep reference to $this for parsing form fields.
 		self::$current_form = $this;
@@ -199,6 +208,36 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
 		Contact_Form_Plugin::$using_contact_form_field = false;
+	}
+
+	/**
+	 * Get the JWT for this contact form instance.
+	 *
+	 * @return Contact_Form|null
+	 */
+	public function get_jwt() {
+		return JWT::encode( array( $this->attributes, $this->content ), ( new Tokens() )->get_access_token()->secret );
+	}
+
+	/**
+	 * Get an instance of Contact_Form from a JWT.
+	 *
+	 * @param string $jwt - the JWT to decode.
+	 *
+	 * @return Contact_Form|null
+	 */
+	public static function get_instance_from_jwt( $jwt ) {
+		try {
+			// Decode the JWT to get the attributes and content.
+			$data = JWT::decode( $jwt, ( new Tokens() )->get_access_token()->secret, array( 'HS256' ) );
+		} catch ( \Exception $e ) {
+			// If decoding fails, return an empty instance.
+			return null;
+		}
+		return new self(
+			$data[0], // attributes
+			$data[1]  // content
+		);
 	}
 
 	/**
@@ -341,10 +380,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( isset( $_GET['contact-form-id'] )
-			&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
-			&& isset( $_GET['contact-form-sent'] ) && isset( $_GET['contact-form-hash'] )
-			&& is_string( $_GET['contact-form-hash'] )
-			&& hash_equals( $form->hash, wp_unslash( $_GET['contact-form-hash'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			&& isset( $_GET['contact-form-sent'] )
+			&& $_GET['contact-form-id'] === $id ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			// The contact form was submitted.  Show the success message/results.
 			$feedback_id = (int) $_GET['contact-form-sent'];
 
@@ -467,6 +504,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$r .= '<input type="submit" style="display: none;" />';
 			}
 
+			$r .= "<input type='hidden' name='jetpack_contact_form_jwt' value='" . esc_attr( $form->get_jwt() ) . "' />\n";
 			$r .= $form->body;
 
 			if ( $is_multistep ) {
@@ -532,7 +570,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 			$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
 			$r .= "\t\t<input type='hidden' name='action' value='grunion-contact-form' />\n";
-			$r .= "\t\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\n";
 
 			if ( $page && $page > 1 ) {
 				$r .= "\t\t<input type='hidden' name='page' value='$page' />\n";
@@ -1046,8 +1083,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 			&&
 			isset( $_POST['contact-form-id'] ) && (string) $form->get_attribute( 'id' ) === $_POST['contact-form-id']
-			&&
-			isset( $_POST['contact-form-hash'] ) && is_string( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, wp_unslash( $_POST['contact-form-hash'] ) )
 		) { // phpcs:enable
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
 			$field->validate();
@@ -1242,7 +1277,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$plugin = Contact_Form_Plugin::init();
 
-		$id                  = $this->get_attribute( 'id' );
 		$to                  = $this->get_attribute( 'to' );
 		$widget              = $this->get_attribute( 'widget' );
 		$block_template      = $this->get_attribute( 'block_template' );
@@ -1278,23 +1312,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Last ditch effort to set a recipient if somehow none have been set.
 		if ( empty( $to ) ) {
 			$to = get_option( 'admin_email' );
-		}
-
-		// Make sure we're processing the form we think we're processing... probably a redundant check.
-		if ( $widget ) {
-			if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-				return false;
-			}
-		} elseif ( $block_template ) {
-			if ( isset( $_POST['contact-form-id'] ) && 'block-template-' . $block_template !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-				return false;
-			}
-		} elseif ( $block_template_part ) {
-			if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-				return false;
-			}
-		} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $post ) || $post->ID !== (int) $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-			return false;
 		}
 
 		$field_ids = $this->get_field_ids();
@@ -1920,13 +1937,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$redirect        = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		}
 
+		$rendered_form_id = isset( $_POST['contact-form-id'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
 		if ( ! $custom_redirect ) {
 			$redirect = add_query_arg(
 				urlencode_deep(
 					array(
-						'contact-form-id'   => $id,
+						'contact-form-id'   => $rendered_form_id,
 						'contact-form-sent' => $post_id,
-						'contact-form-hash' => $this->hash,
 						'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :( .
 					)
 				),
@@ -1945,8 +1963,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param int $id Contact Form ID.
 		 * @param int $post_id Post ID.
 		 */
-		$redirect = apply_filters( 'grunion_contact_form_redirect_url', $redirect, $id, $post_id );
-
+		$redirect = apply_filters( 'grunion_contact_form_redirect_url', $redirect, $rendered_form_id, $post_id );
 		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We intentially allow external redirects here.
 		wp_redirect( $redirect );
 		exit( 0 );

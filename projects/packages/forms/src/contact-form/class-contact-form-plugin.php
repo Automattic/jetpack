@@ -1196,174 +1196,28 @@ class Contact_Form_Plugin {
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Checked below for logged-in users only, see https://plugins.trac.wordpress.org/ticket/1859
-		$id   = isset( $_POST['contact-form-id'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) : null;
-		$hash = isset( $_POST['contact-form-hash'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-hash'] ) ) : null;
-		$hash = is_string( $hash ) ? preg_replace( '/[^\da-f]/i', '', $hash ) : $hash;
+		$id = isset( $_POST['contact-form-id'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) : null;
+
 		// phpcs:enable
 
-		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
+		if ( ! is_string( $id ) ) {
 			return false;
 		}
 
 		if ( is_user_logged_in() ) {
 			check_admin_referer( "contact-form_{$id}" );
 		}
-
-		$is_widget              = str_starts_with( $id, 'widget-' );
-		$is_block_template      = str_starts_with( $id, 'block-template-' );
-		$is_block_template_part = str_starts_with( $id, 'block-template-part-' );
-
-		$form = false;
-
-		if ( $is_widget ) {
-			// It's a form embedded in a text widget
-			$this->current_widget_id = substr( $id, 7 ); // remove "widget-"
-			$widget_type             = implode( '-', array_slice( explode( '-', $this->current_widget_id ), 0, -1 ) ); // Remove trailing -#
-
-			// Is the widget active?
-			$sidebar = is_active_widget( false, $this->current_widget_id, $widget_type );
-
-			// This is lame - no core API for getting a widget by ID
-			$widget = isset( $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] ) ? $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] : false;
-
-			if ( $sidebar && $widget && isset( $widget['callback'] ) ) {
-				// prevent PHP notices by populating widget args
-				$widget_args = array(
-					'before_widget' => '',
-					'after_widget'  => '',
-					'before_title'  => '',
-					'after_title'   => '',
-				);
-				// This is lamer - no API for outputting a given widget by ID
-				ob_start();
-				// Process the widget to populate Contact_Form::$last
-				call_user_func( $widget['callback'], $widget_args, $widget['params'][0] );
-				ob_end_clean();
-			}
-		} elseif ( $is_block_template ) {
-			/*
-			 * Recreate the logic in wp-includes/template-loader.php
-			 * that happens *after* 'template_redirect'.
-			 *
-			 * This logic populates the $_wp_current_template_content
-			 * global, which we need in order to render the contact
-			 * form for this block template.
-			 */
-			// start of copy-pasta from wp-includes/template-loader.php.
-			$tag_templates = array(
-				'is_embed'             => 'get_embed_template',
-				'is_404'               => 'get_404_template',
-				'is_search'            => 'get_search_template',
-				'is_front_page'        => 'get_front_page_template',
-				'is_home'              => 'get_home_template',
-				'is_privacy_policy'    => 'get_privacy_policy_template',
-				'is_post_type_archive' => 'get_post_type_archive_template',
-				'is_tax'               => 'get_taxonomy_template',
-				'is_attachment'        => 'get_attachment_template',
-				'is_single'            => 'get_single_template',
-				'is_page'              => 'get_page_template',
-				'is_singular'          => 'get_singular_template',
-				'is_category'          => 'get_category_template',
-				'is_tag'               => 'get_tag_template',
-				'is_author'            => 'get_author_template',
-				'is_date'              => 'get_date_template',
-				'is_archive'           => 'get_archive_template',
-			);
-			$template      = false;
-			// Loop through each of the template conditionals, and find the appropriate template file.
-			// This is what calls locate_block_template() to hydrate $_wp_current_template_content.
-			foreach ( $tag_templates as $tag => $template_getter ) {
-				if ( call_user_func( $tag ) ) {
-					$template = call_user_func( $template_getter );
-				}
-				if ( $template ) {
-					if ( 'is_attachment' === $tag ) {
-						remove_filter( 'the_content', 'prepend_attachment' );
-					}
-					break;
-				}
-			}
-			if ( ! $template ) {
-				$template = get_index_template();
-			}
-			// end of copy-pasta from wp-includes/template-loader.php.
-
-			// Ensure 'block_template' attribute is added to any shortcodes in the template.
-			$template = Util::grunion_contact_form_set_block_template_attribute( $template );
-
-			// Process the block template to populate Contact_Form::$last
-			get_the_block_template_html();
-		} elseif ( $is_block_template_part ) {
-			$block_template_part_id   = str_replace( 'block-template-part-', '', $id );
-			$bits                     = explode( '//', $block_template_part_id );
-			$block_template_part_slug = array_pop( $bits );
-			// Process the block part template to populate Contact_Form::$last
-			$attributes = array(
-				'theme'   => wp_get_theme()->get_stylesheet(),
-				'slug'    => $block_template_part_slug,
-				'tagName' => 'div',
-			);
-			do_blocks( '<!-- wp:template-part ' . wp_json_encode( $attributes ) . ' /-->' );
-		} else {
-			// It's a form embedded in a post
-
-			if ( ! is_post_publicly_viewable( $id ) && ! current_user_can( 'read_post', $id ) ) {
-				// The user can't see the post.
-				return false;
-			}
-
-			if ( post_password_required( $id ) ) {
-				// The post is password-protected and the password is not provided.
-				return false;
-			}
-
-			$post = get_post( $id );
-
-			// Process the content to populate Contact_Form::$last
-			if ( $post ) {
-				if ( str_contains( $post->post_content, '<!--nextpage-->' ) ) {
-					$postdata = generate_postdata( $post );
-					$page     = isset( $_POST['page'] ) ? absint( wp_unslash( $_POST['page'] ) ) : null; // phpcs:Ignore WordPress.Security.NonceVerification.Missing
-					$paged    = isset( $page ) ? $page : 1;
-					$content  = isset( $postdata['pages'][ $paged - 1 ] ) ? $postdata['pages'][ $paged - 1 ] : $post->post_content;
-				} else {
-					$content = $post->post_content;
-				}
-				/** This filter is already documented in core. wp-includes/post-template.php */
-				apply_filters( 'the_content', $content );
-			}
+		$jwt = isset( $_POST['jetpack_contact_form_jwt'] ) ? sanitize_text_field( wp_unslash( $_POST['jetpack_contact_form_jwt'] ) ) : null;
+		if ( ! $jwt ) {
+			// If the JWT is not provided, return an error.
+			return new WP_Error( 'jwt_not_found', __( 'The form you are trying to submit does not exist.', 'jetpack-forms' ) );
 		}
-
-		$form = isset( Contact_Form::$forms[ $hash ] ) ? Contact_Form::$forms[ $hash ] : null;
-
-		// No form may mean user is using do_shortcode, grab the form using the stored post meta
-		if ( ! $form && is_numeric( $id ) && $hash ) {
-
-			// Get shortcode from post meta
-			$shortcode = get_post_meta( $id, "_g_feedback_shortcode_{$hash}", true );
-
-			// Format it
-			if ( $shortcode !== '' && $shortcode !== false ) {
-
-				// Get attributes from post meta.
-				$parameters = '';
-				$attributes = get_post_meta( $id, "_g_feedback_shortcode_atts_{$hash}", true );
-				if ( ! empty( $attributes ) && is_array( $attributes ) ) {
-					foreach ( array_filter( $attributes ) as $param => $value ) {
-						$parameters .= " $param=\"$value\"";
-					}
-				}
-
-				$shortcode = '[contact-form' . $parameters . ']' . $shortcode . '[/contact-form]';
-				do_shortcode( $shortcode );
-
-				// Recreate form
-				$form = Contact_Form::$last;
-			}
-		}
+		// Get the contact form instance from the JWT.
+		$form = Contact_Form::get_instance_from_jwt( $jwt );
 
 		if ( ! $form ) {
-			return false;
+			// If the form is not found, return an error.
+			return new WP_Error( 'form_not_found', __( 'The form you are trying to submit does not exist.', 'jetpack-forms' ) );
 		}
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
