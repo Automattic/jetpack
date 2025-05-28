@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Jetpack: Fix redirect_to URL encoding on frontend for upgrade nudge

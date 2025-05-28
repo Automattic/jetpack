@@ -11,7 +11,7 @@ class Jetpack_Components {
 	/**
 	 * Get the contents of a component file
 	 *
-	 * @since $$next-version$$
+	 * @since 14.7
 	 *
 	 * @param string $name Component name.
 	 * @return string The component markup

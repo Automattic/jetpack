@@ -189,7 +189,6 @@ export default function MyJetpackScreen() {
 			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<h1 className="screen-reader-text">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</h1>
-			<hr className={ styles.separator } />
 
 			<IDCModal />
 			<GlobalNotices />

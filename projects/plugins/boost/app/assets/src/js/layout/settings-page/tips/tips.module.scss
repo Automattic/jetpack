@@ -18,15 +18,13 @@
 	}
 
 	.item {
+		margin-bottom: 2em;
 
 		@include breakpoint(sm) {
 			display: grid;
 			grid-template-columns: 80px 1fr;
 			grid-gap: 1em;
 		}
-
-		margin-bottom: 2em;
-
 
 		.item-rate {
 			font-size: 24px;
