@@ -90,13 +90,9 @@
 	font-weight: 700;
 }
 
-.grunion-checkbox-multiple-options :where( legend ),
-.grunion-radio-options :where( legend ) {
-	margin-bottom: 0.25em;
+.contact-form :where(legend.grunion-field-label) {
 	padding: 0;
-	font-weight: 700;
 }
-
 
 .contact-form :where(label.consent) {
 	font-size: 13px;
@@ -676,8 +672,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	--field-padding: calc(var(--label-left) - var(--jetpack--contact-form--border-size));
 }
 
-.wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset,
-.wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset legend {
+.wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset {
 	padding: 0;
 	border: 0;
 	margin: 0;
@@ -800,7 +795,8 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 :where(.wp-block-jetpack-options) {
-	padding: var(--jetpack--contact-form--input-padding-left, 16px) 0;
+
+	/* padding: var(--jetpack--contact-form--input-padding-left, 16px) 0; */
 }
 
 :where(.wp-block-jetpack-options.has-background) {
