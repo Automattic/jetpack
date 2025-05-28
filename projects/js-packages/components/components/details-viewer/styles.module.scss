@@ -1,0 +1,40 @@
+.details-viewer {
+	padding: 0;
+	background-color: var( --jp-gray-0 );
+	font-family: monospace;
+	display: flex;
+	flex-direction: column;
+	overflow-x: auto;
+	margin-bottom: var( --spacing-base ); // 8px
+}
+
+.details-viewer__item {
+	display: flex;
+	flex-direction: row;
+	padding: calc( var( --spacing-base ) / 2 ); // 4px
+	border-bottom: 1px solid var( --jp-gray-10 );
+
+	&:last-child {
+		border-bottom: none;
+	}
+}
+
+.details-viewer__key {
+	font-weight: 700;
+	padding-right: var( --spacing-base ); // 8px
+	color: var( --jp-gray-80 );
+	min-width: 120px;
+}
+
+.details-viewer__value {
+	flex: 1;
+	white-space: pre-wrap;
+	word-break: break-all;
+
+	pre {
+		margin: 0;
+		padding: 0;
+		font-family: monospace;
+		background-color: transparent;
+	}
+}

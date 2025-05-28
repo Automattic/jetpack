@@ -6,6 +6,7 @@ import {
 	warning as warningIcon,
 	color as themesIcon,
 	code as filesIcon,
+	grid as databaseIcon,
 } from '@wordpress/icons';
 import { useCallback, useMemo } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -15,12 +16,23 @@ import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 
 const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFilter = 'all' } ) => {
 	const { hasPlan } = usePlan();
+
+	// const alldata = useProtectData( { sourceType, filter: { status: statusFilter } } );
+	// console.log( "all the available data", alldata );
+
 	const {
 		results: { plugins, themes },
 		counts: {
-			current: { threats: numThreats, core: numCoreThreats, files: numFilesThreats },
+			current: {
+				threats: numThreats,
+				core: numCoreThreats,
+				files: numFilesThreats,
+				database: numDatabaseThreats,
+			},
 		},
 	} = useProtectData( { sourceType, filter: { status: statusFilter } } );
+
+	// console.log( 'results in navigation', results );
 
 	const { recordEvent } = useAnalyticsTracks();
 	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
@@ -31,6 +43,10 @@ const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFil
 
 	const trackNavigationClickCore = useCallback( () => {
 		recordEvent( 'jetpack_protect_navigation_core_click' );
+	}, [ recordEvent ] );
+
+	const trackNavigationClickDatabase = useCallback( () => {
+		recordEvent( 'jetpack_protect_navigation_database_click' );
 	}, [ recordEvent ] );
 
 	const trackNavigationClickPlugin = useCallback( () => {
@@ -82,6 +98,15 @@ const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFil
 				badge={ numCoreThreats }
 				disabled={ numCoreThreats <= 0 }
 				onClick={ trackNavigationClickCore }
+				checked={ true }
+			/>
+			<NavigationItem
+				id="database"
+				label={ __( 'Database', 'jetpack-protect' ) }
+				icon={ databaseIcon }
+				badge={ numDatabaseThreats }
+				disabled={ numDatabaseThreats <= 0 }
+				onClick={ trackNavigationClickDatabase }
 				checked={ true }
 			/>
 			<NavigationGroup label={ __( 'Plugins', 'jetpack-protect' ) } icon={ pluginsIcon }>
