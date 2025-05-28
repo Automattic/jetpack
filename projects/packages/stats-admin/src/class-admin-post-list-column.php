@@ -89,7 +89,30 @@ class Admin_Post_List_Column {
 				);
 			} else {
 				// Link to the wp-admin stats page.
-				$stats_post_url = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, \Jetpack_Options::get_option( 'id', 0 ) ) );
+				$query_args = array(
+					'from'         => 'postList',
+					'jp_post_type' => get_post_type( $post_id ),
+				);
+
+				$list_criteria_params = array(
+					's'             => sanitize_text_field( get_search_query() ),
+					'paged'         => absint( get_query_var( 'paged' ) ),
+					'post_status'   => sanitize_text_field( get_query_var( 'post_status' ) ),
+					'orderby'       => sanitize_text_field( get_query_var( 'orderby' ) ),
+					'order'         => sanitize_text_field( get_query_var( 'order' ) ),
+					'author'        => absint( get_query_var( 'author' ) ),
+					'cat'           => absint( get_query_var( 'cat' ) ), // 'cat' is the query var for category ID
+					'm'             => absint( get_query_var( 'm' ) ),   // 'm' is the query var for YYYYMM
+					'category_name' => sanitize_text_field( get_query_var( 'category_name' ) ),
+				);
+
+				foreach ( $list_criteria_params as $key => $value ) {
+					if ( isset( $_GET[ $key ] ) && $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Checking if the key existts and not reading the value from the request.
+						$query_args[ 'jp_' . $key ] = $value;
+					}
+				}
+
+				$stats_post_url = add_query_arg( $query_args, admin_url( 'admin.php?page=stats#!/stats/post/' . $post_id . '/' . \Jetpack_Options::get_option( 'id', 0 ) ) );
 				// Unless the user is on a Default style WOA site, in which case link to Calypso.
 				if ( ( new Host() )->is_woa_site() && Stats_Options::get_option( 'enable_odyssey_stats' ) && 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
 					$stats_post_url = Redirect::get_url(
