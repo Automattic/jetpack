@@ -215,7 +215,8 @@ class Contact_Form_Plugin {
 					'not_found_in_trash' => __( 'No responses found', 'jetpack-forms' ),
 				),
 				'menu_icon'             => 'dashicons-feedback',
-				'show_ui'               => true,
+				// when the legacy menu item is retired, we don't want to show the default post type listing
+				'show_ui'               => ! Jetpack_Forms::is_legacy_menu_item_retired(),
 				'show_in_menu'          => false,
 				'show_in_admin_bar'     => false,
 				'public'                => false,
