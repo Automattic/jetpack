@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add query parameters to the stats URL from post list to reconstruct the back URL from stats view.
