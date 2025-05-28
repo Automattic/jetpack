@@ -28,7 +28,7 @@ export function HelpFooter() {
 
 				<nav
 					className={ styles[ 'footer-nav' ] }
-					aria-label={ __( 'Useful links links', 'jetpack-my-jetpack' ) }
+					aria-label={ __( 'Useful links', 'jetpack-my-jetpack' ) }
 				>
 					<h4>{ __( 'Useful links', 'jetpack-my-jetpack' ) }</h4>
 					<ul>
