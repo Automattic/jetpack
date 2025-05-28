@@ -44,7 +44,7 @@ fi
 kill_switch_tag_name='autorelease_kill_switch'
 kill_switch_tag=$( git ls-remote --tags origin "$kill_switch_tag_name" )
 if [[ -n "$kill_switch_tag" ]]; then
-	echo "Kill switch tag found ('$kill_switch_tag_name'); aborting auto-release."
+	echo "::notice::Kill switch tag found ('$kill_switch_tag_name'); aborting auto-release."
 	exit 0
 fi
 
