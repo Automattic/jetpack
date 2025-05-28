@@ -27,7 +27,7 @@ describe( 'deprecateFieldStyles', () => {
 			},
 			typography: {
 				fontSize: '16px',
-				lineHeight: 1.5,
+				lineHeight: '1.5',
 			},
 		} );
 	} );
@@ -47,7 +47,7 @@ describe( 'deprecateFieldStyles', () => {
 			},
 			typography: {
 				fontSize: '14px',
-				lineHeight: 1.2,
+				lineHeight: '1.2',
 			},
 		} );
 	} );
@@ -67,7 +67,7 @@ describe( 'deprecateFieldStyles', () => {
 			},
 			typography: {
 				fontSize: '16px',
-				lineHeight: 1.5,
+				lineHeight: '1.5',
 			},
 		} );
 	} );

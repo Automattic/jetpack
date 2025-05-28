@@ -20,7 +20,7 @@ const deprecateFieldStyles = attributes => {
 		color: { text: labelColor },
 		typography: {
 			fontSize: labelFontSize,
-			lineHeight: labelLineHeight,
+			lineHeight: labelLineHeight ? `${ labelLineHeight }` : undefined,
 		},
 	} );
 
@@ -37,7 +37,7 @@ const deprecateFieldStyles = attributes => {
 		},
 		typography: {
 			fontSize: fieldFontSize,
-			lineHeight: lineHeight,
+			lineHeight: lineHeight ? `${ lineHeight }` : undefined,
 		},
 	} );
 
@@ -49,7 +49,7 @@ const deprecateFieldStyles = attributes => {
 		},
 		typography: {
 			fontSize: fieldFontSize,
-			lineHeight: lineHeight,
+			lineHeight: lineHeight ? `${ lineHeight }` : undefined,
 		},
 	} );
 
