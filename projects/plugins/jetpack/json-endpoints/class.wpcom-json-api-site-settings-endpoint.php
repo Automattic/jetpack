@@ -514,7 +514,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 					if ( class_exists( 'Jetpack_Memberships' ) ) {
-						$response['newsletter_plans_configured'] = Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' );
+						$response[ $key ]['newsletter_plans_configured'] = Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' );
 					}
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
