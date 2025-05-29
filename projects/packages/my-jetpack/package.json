@@ -33,6 +33,7 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-explat": "workspace:*",
 		"@automattic/jetpack-licensing": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@tanstack/react-query": "5.75.1",

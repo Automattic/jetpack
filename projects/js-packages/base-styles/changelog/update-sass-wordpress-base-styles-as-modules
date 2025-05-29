@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+sass: Convert `@automattic/jetpack-base-styles/gutenberg-base-styles` to modules format.

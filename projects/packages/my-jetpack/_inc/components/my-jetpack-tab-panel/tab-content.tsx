@@ -1,4 +1,4 @@
-import { HelpContent } from './help-content';
+import { HelpContent } from './help/content';
 import { OverviewContent } from './overview-content';
 import { ProductsContent } from './products-content';
 import styles from './styles.module.scss';

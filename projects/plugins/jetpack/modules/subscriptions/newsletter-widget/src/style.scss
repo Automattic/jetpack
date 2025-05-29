@@ -1,11 +1,11 @@
 @use 'sass:math';
-@import '@wordpress/base-styles/colors';
-@import '@wordpress/base-styles/variables';
+@use '@wordpress/base-styles/colors';
+@use '@wordpress/base-styles/variables';
 
-$spacing-xs: $grid-unit-05;      // 4px
-$spacing-sm: $grid-unit-10;      // 8px
-$spacing-md: $grid-unit-15;      // 12px
-$spacing-lg: $grid-unit-20;      // 16px
+$spacing-xs: variables.$grid-unit-05;      // 4px
+$spacing-sm: variables.$grid-unit-10;      // 8px
+$spacing-md: variables.$grid-unit-15;      // 12px
+$spacing-lg: variables.$grid-unit-20;      // 16px
 
 .newsletter-widget {
 
@@ -15,11 +15,11 @@ $spacing-lg: $grid-unit-20;      // 16px
     }
 
     &__heading {
-        font-weight: $font-weight-medium !important;
+        font-weight: variables.$font-weight-medium !important;
     }
 
     &__footer {
-        background-color: $gray-100;
+        background-color: colors.$gray-100;
         padding: $spacing-md;
     }
 
@@ -84,17 +84,17 @@ $spacing-lg: $grid-unit-20;      // 16px
     height: 200px;
 
     &__tooltip {
-        background: $white;
+        background: colors.$white;
         padding: $spacing-sm;
-        border-radius: $radius-medium;
-        box-shadow: $elevation-x-small;
-        font-size: $font-size-small;
-        color: $gray-900;
+        border-radius: variables.$radius-medium;
+        box-shadow: variables.$elevation-x-small;
+        font-size: variables.$font-size-small;
+        color: colors.$gray-900;
         min-width: 120px;
     }
 
     &__tooltip-date {
-        font-weight: $font-weight-medium;
+        font-weight: variables.$font-weight-medium;
         margin-bottom: $spacing-xs;
     }
 
@@ -112,7 +112,7 @@ $spacing-lg: $grid-unit-20;      // 16px
     &__tooltip-indicator {
         width: $spacing-sm;
         height: $spacing-sm;
-        border-radius: $radius-round;
+        border-radius: variables.$radius-round;
         margin-right: $spacing-xs;
     }
 
