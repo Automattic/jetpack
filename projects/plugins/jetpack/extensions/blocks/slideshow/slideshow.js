@@ -129,6 +129,7 @@ class Slideshow extends Component {
 				data-autoplay={ autoplay || null }
 				data-delay={ autoplay ? delay : null }
 				data-effect={ effect }
+				style={ { '--aspect-ratio': images[ 0 ].aspectRatio } }
 			>
 				<div
 					className="wp-block-jetpack-slideshow_container swiper-container"
