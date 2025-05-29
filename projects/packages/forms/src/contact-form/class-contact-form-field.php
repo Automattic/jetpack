@@ -1099,7 +1099,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true );
 
 		if ( class_exists( 'WP_HTML_Tag_Processor' ) ) {
-			$processor = new \WP_HTML_Processor( html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ) );
+			$processor = \WP_HTML_Processor::create_fragment( html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ) );
 			while ( $processor->next_tag() ) {
 				if ( $processor->has_class( 'wp-block-jetpack-dropzone' ) ) {
 					$processor->add_class( 'is-layout-constrained' );
@@ -1624,41 +1624,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'css_vars'   => $css_vars,
 			'class_name' => $variation_classes,
 		);
-	}
-
-	/**
-	 * Return the HTML for the outlined label.
-	 *
-	 * @param int    $id - the ID.
-	 * @param string $label - the label.
-	 * @param bool   $required - if the field is marked as required.
-	 * @param string $required_field_text - the text in the required text field.
-	 *
-	 * @return string HTML
-	 */
-	public function render_outline_label( $id, $label, $required, $required_field_text ) {
-		$classes  = 'notched-label__label';
-		$classes .= $this->is_error() ? ' form-error' : '';
-		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
-
-		$output_data = $this->get_form_variation_style_properties();
-
-		return '
-			<div class="notched-label">
-				<div class="notched-label__leading' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
-				<div class="notched-label__notch' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '">
-					<label
-						for="' . esc_attr( $id ) . '"
-						class=" ' . $classes . '"
-						style="' . $this->label_styles . esc_attr( $output_data['css_vars'] ) . '"
-					>
-					<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
-				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
-		'</label>
-				</div>
-				<div class="notched-label__filler' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
-				<div class="notched-label__trailing' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
-			</div>';
 	}
 
 	/**

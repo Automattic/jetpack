@@ -13,16 +13,12 @@ const settings = {
 	parent: [ 'jetpack/field-file' ],
 	allowedBlocks: [
 		'core/buttons',
-		'core/grid',
-		'core/group',
 		'core/heading',
 		'core/image',
 		'core/list',
 		'core/paragraph',
-		'core/row',
 		'core/separator',
 		'core/spacer',
-		'core/stack',
 	],
 	category: 'contact-form',
 	icon: {
