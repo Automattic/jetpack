@@ -156,40 +156,30 @@ class Error_Handler {
 	 * @return void
 	 */
 	public function handle_verified_errors() {
-		// Get all errors (with filter) to see what external plugins have injected
 		$verified_errors = $this->get_verified_errors();
-
-		// Default error codes that should trigger admin notices and React dashboard integration
-		$default_handled_codes = array(
-			'malformed_token',
-			'token_malformed',
-			'no_possible_tokens',
-			'no_valid_user_token',
-			'no_valid_blog_token',
-			'unknown_token',
-			'could_not_sign',
-			'invalid_token',
-			'token_mismatch',
-			'invalid_signature',
-			'signature_mismatch',
-			'no_user_tokens',
-			'no_token_for_user',
-			'invalid_connection_owner',
-		);
-
-		// Automatically include any error codes that aren't in the default list
-		// This allows external plugins to get automatic UI integration just by injecting errors
-		$additional_codes    = array_diff( array_keys( $verified_errors ), $default_handled_codes );
-		$handled_error_codes = array_merge( $default_handled_codes, $additional_codes );
-
 		foreach ( array_keys( $verified_errors ) as $error_code ) {
-			if ( in_array( $error_code, $handled_error_codes, true ) ) {
-				add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
-				add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
-				$this->error_code = $error_code;
+			switch ( $error_code ) {
+				case 'malformed_token':
+				case 'token_malformed':
+				case 'no_possible_tokens':
+				case 'no_valid_user_token':
+				case 'no_valid_blog_token':
+				case 'unknown_token':
+				case 'could_not_sign':
+				case 'invalid_token':
+				case 'token_mismatch':
+				case 'invalid_signature':
+				case 'signature_mismatch':
+				case 'no_user_tokens':
+				case 'no_token_for_user':
+				case 'invalid_connection_owner':
+				case 'protected_owner':
+					add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
+					add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
+					$this->error_code = $error_code;
 
-				// Since we are only generically handling errors, we don't need to trigger error messages for each one of them.
-				break;
+					// Since we are only generically handling errors, we don't need to trigger error messages for each one of them.
+					break 2;
 			}
 		}
 	}
