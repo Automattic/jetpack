@@ -18,7 +18,8 @@
 		"build": "pnpm run clean && webpack --config ./webpack.config.blocks.js",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm build",
 		"clean": "rm -rf dist/ .cache/",
-		"watch": "webpack --watch --config ./webpack.config.blocks.js"
+		"watch": "webpack --watch --config ./webpack.config.blocks.js",
+		"test:block": "jest --testPathPattern=src/block/test"
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
@@ -51,9 +52,13 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@babel/core": "7.26.10",
 		"@babel/runtime": "7.26.10",
+		"@testing-library/dom": "10.4.0",
+		"@testing-library/react": "16.2.0",
+		"@testing-library/user-event": "14.6.1",
 		"@wordpress/babel-plugin-import-jsx-pragma": "5.22.0",
 		"@wordpress/block-serialization-default-parser": "5.22.0",
 		"autoprefixer": "10.4.20",
+		"jest": "29.7.0",
 		"postcss": "8.4.47",
 		"postcss-loader": "8.1.1",
 		"sass-embedded": "1.87.0",
