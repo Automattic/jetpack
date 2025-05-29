@@ -450,21 +450,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$this->block_styles .= '--jetpack--contact-form--button-outline--border-size: ' . esc_attr( $this->get_attribute( 'buttonborderwidth' ) ) . 'px;';
 
 		}
-		if ( ! empty( $this->get_attribute( 'fieldfontsize' ) ) ) {
-			$this->block_styles  .= '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
-			$this->field_styles  .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
-			$this->option_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
-		}
-
-		if ( ! empty( $this->get_attribute( 'labelcolor' ) ) ) {
-			$this->label_styles .= 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
-		}
-		if ( ! empty( $this->get_attribute( 'labelfontsize' ) ) ) {
-			$this->label_styles .= '--jetpack--contact-form--label--font-size:' . esc_attr( $this->get_attribute( 'labelfontsize' ) ) . ';';
-		}
-		if ( is_numeric( $this->get_attribute( 'labellineheight' ) ) ) {
-			$this->label_styles .= 'line-height: ' . (int) $this->get_attribute( 'labellineheight' ) . ';';
-		}
 
 		if ( ! empty( $field_width ) && ! $this->has_inset_label() ) {
 			$class .= ' grunion-field-width-' . $field_width;
