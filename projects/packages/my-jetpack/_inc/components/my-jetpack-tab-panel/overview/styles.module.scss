@@ -1,0 +1,24 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.products {
+	margin-bottom: 3rem;
+}
+
+.footer {
+	padding-top: 2.5rem;
+	padding-bottom: 3.5rem;
+	border-top: 1px solid var(--jp-gray);
+
+	// Ensure that the top border is full width
+	margin-inline: -3rem;
+	padding-inline: 3rem;
+
+	@media (max-width: $break-medium ) {
+		margin-inline: -1rem;
+		padding-inline: 1rem;
+	}
+}
+
+.footer-container {
+	padding: 0
+}
