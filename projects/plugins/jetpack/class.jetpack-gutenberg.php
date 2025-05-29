@@ -795,7 +795,7 @@ class Jetpack_Gutenberg {
 			'jetpack-chrome-ai-token',
 			'https://widgets.wp.com/jetpack-chrome-ai/v1/3p-token.js',
 			array(),
-			gmdate( 'Ymd' ) . floor( gmdate( 'G' ) / 12 ), // Cache buster: changes twice daily (morning/afternoon) in case we need to rotate the tokens
+			gmdate( 'Ymd' ) . floor( (int) gmdate( 'G' ) / 12 ), // Cache buster: changes twice daily (morning/afternoon) in case we need to rotate the tokens
 			true
 		);
 		wp_enqueue_script( 'jetpack-chrome-ai-token' );
