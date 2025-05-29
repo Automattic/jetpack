@@ -110,7 +110,7 @@ class LCP_Optimization_Util {
 			return null;
 		}
 
-				return $this->lcp_data['url'];
+		return $this->lcp_data['url'];
 	}
 
 	/**
