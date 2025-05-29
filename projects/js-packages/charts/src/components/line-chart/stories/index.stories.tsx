@@ -1,5 +1,6 @@
 import React from 'react';
 import LineChart from '../line-chart';
+import largeValuesData from './large-values-sample';
 import sampleData from './sample-data';
 import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
@@ -292,6 +293,35 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 				story:
 					'Examples of the three different curve types available. The data points are designed to highlight how Monotone X prevents overshooting (going above/below data points) compared to Catmull-Rom smoothing, while still maintaining a smooth curve. Linear shows the raw connections between points.',
 			},
+		},
+	},
+};
+
+// Story demonstrating Smart Formatting (formatYTick) with large values
+export const SmartFormatting: StoryObj< typeof LineChart > = Template.bind( {} );
+SmartFormatting.args = {
+	data: largeValuesData,
+	showLegend: true,
+	legendOrientation: 'horizontal',
+	withGradientFill: false,
+	smoothing: true,
+	options: {
+		axis: {
+			x: {
+				orientation: 'bottom',
+			},
+			y: {
+				orientation: 'left',
+			},
+		},
+	},
+};
+
+SmartFormatting.parameters = {
+	docs: {
+		description: {
+			story:
+				'Demonstrates the Smart Formatting feature (formatYTick) that automatically formats Y-axis tick labels based on the data range. Values ≥1B are formatted as "1.23B", ≥1M as "1.2M", ≥1K as "1k", and smaller values as "1,234". This example shows revenue in billions and users in millions.',
 		},
 	},
 };
