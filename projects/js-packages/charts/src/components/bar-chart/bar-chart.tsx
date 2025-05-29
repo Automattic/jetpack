@@ -8,9 +8,11 @@ import {
 } from '@visx/xychart';
 import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import clsx from 'clsx';
-import { FC, ReactNode, useCallback } from 'react';
+import { FC, ReactNode, useCallback, useMemo } from 'react';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
+import { useChartMargin } from '../shared/use-chart-margin';
+import { getDefaultYTickFormat } from '../shared/utils';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './bar-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
@@ -63,7 +65,7 @@ const BarChart: FC< BarChartProps > = ( {
 	width,
 	height = 400,
 	className,
-	margin = { top: 20, right: 20, bottom: 40, left: 40 },
+	margin,
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
@@ -73,8 +75,15 @@ const BarChart: FC< BarChartProps > = ( {
 } ) => {
 	const theme = useXYChartTheme( data );
 
+	const allDataPoints = useMemo(
+		() => data.flatMap( series => series.data as DataPointDate[] ),
+		[ data ]
+	);
 	// Determine the tick format for the x-axis: use user-supplied, or default to label or date formatting.
 	const formatXTick = options.axis?.x?.tickFormat ?? getDefaultXTickFormat( data?.[ 0 ]?.data );
+	const formatYTick = options?.axis?.y?.tickFormat ?? getDefaultYTickFormat( allDataPoints );
+
+	const defaultMargin = useChartMargin( options, allDataPoints, formatYTick, theme );
 
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
@@ -122,7 +131,7 @@ const BarChart: FC< BarChartProps > = ( {
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ { top: 10, right: 0, bottom: 20, left: 40, ...margin } }
+				margin={ { ...defaultMargin, ...margin } }
 				xScale={ { type: 'band', padding: 0.2, innerPadding: 0.1, ...options?.xScale } }
 				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
 				pointerEventsDataKey="nearest"
@@ -133,7 +142,12 @@ const BarChart: FC< BarChartProps > = ( {
 					numTicks={ 4 }
 				/>
 				<AnimatedAxis orientation="bottom" tickFormat={ formatXTick } { ...options?.axis?.x } />
-				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
+				<AnimatedAxis
+					orientation="left"
+					numTicks={ 4 }
+					tickFormat={ formatYTick }
+					{ ...options?.axis?.y }
+				/>
 
 				<AnimatedBarGroup padding={ 0.1 }>
 					{ data.map( seriesData => {

@@ -6,6 +6,8 @@ import clsx from 'clsx';
 import { FC, ReactNode, useId, useMemo } from 'react';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { useChartMargin } from '../shared/use-chart-margin';
+import { getDefaultYTickFormat } from '../shared/utils';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
@@ -145,19 +147,13 @@ const LineChart: FC< LineChartProps > = ( {
 		[ data ]
 	);
 
-	margin = useMemo( () => {
-		// Auto-margin unless specified to make room for axis labels.
-		// Default margin is for bottom and left axis labels.
-		let defaultMargin = {};
-		if ( options.axis?.y?.orientation === 'right' ) {
-			defaultMargin = { ...defaultMargin, right: 40, left: 0 };
-		}
-		if ( options.axis?.x?.orientation === 'top' ) {
-			defaultMargin = { ...defaultMargin, top: 20, bottom: 10 };
-		}
-		// Merge default margin with user-specified margin.
-		return { ...defaultMargin, ...margin };
-	}, [ margin, options ] );
+	const allDataPoints = useMemo(
+		() => dataSorted.flatMap( series => series.data as DataPointDate[] ),
+		[ dataSorted ]
+	);
+
+	const formatYTick = options?.axis?.y?.tickFormat ?? getDefaultYTickFormat( allDataPoints );
+	const defaultMargin = useChartMargin( options, allDataPoints, formatYTick, theme );
 
 	const xNumTicks = useMemo(
 		() => Math.min( dataSorted[ 0 ]?.data.length, Math.ceil( width / X_TICK_WIDTH ) ),
@@ -192,7 +188,7 @@ const LineChart: FC< LineChartProps > = ( {
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ { top: 10, right: 0, bottom: 20, left: 40, ...margin } }
+				margin={ { ...defaultMargin, ...margin } }
 				// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 				xScale={ { type: 'time', ...options?.xScale } }
 				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
@@ -209,7 +205,12 @@ const LineChart: FC< LineChartProps > = ( {
 					tickFormat={ formatDateTick }
 					{ ...options?.axis?.x }
 				/>
-				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
+				<AnimatedAxis
+					orientation="left"
+					numTicks={ 4 }
+					tickFormat={ formatYTick }
+					{ ...options?.axis?.y }
+				/>
 
 				{ dataSorted.map( ( seriesData, index ) => {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
