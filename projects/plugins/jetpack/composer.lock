@@ -2046,7 +2046,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/paypal-payments",
-				"reference": "00181f065ef50147ba680e1b8b43766aa86dbaa6"
+				"reference": "f6bd0d1eee5d4b9433ed061b7ce25944d9e67ab4"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2099,6 +2099,9 @@
 				],
 				"test-php": [
 					"@composer phpunit"
+				],
+				"test-js": [
+					"pnpm run test:block"
 				],
 				"watch": [
 					"Composer\\Config::disableProcessTimeout",
