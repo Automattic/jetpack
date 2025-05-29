@@ -1,5 +1,11 @@
 /*
  * Styles for sidebar notices are maintained in a separate file for each color scheme so we can load them independently when needed.
 */
-@import "variables";
-@import "../upsell-banner";
+@use "variables";
+@use "../upsell-banner" with (
+  $menu-nudge-text-color: variables.$menu-nudge-text-color,
+  $menu-nudge-background: variables.$menu-nudge-background,
+  $menu-nudge-cta-color: variables.$menu-nudge-cta-color,
+  $menu-nudge-cta-background: variables.$menu-nudge-cta-background,
+  $menu-nudge-cta-background-hover: variables.$menu-nudge-cta-background-hover
+);

@@ -4,6 +4,18 @@
 // Make wpadminbar colors differ from submenu colors
 @use "@automattic/color-studio/dist/color-variables" as studio;
 
+$masterbar-active-background: $undefined !default;
+$masterbar-background: $undefined !default;
+$masterbar-highlight-background: $undefined !default;
+$masterbar-submenu-background: $undefined !default;
+$masterbar-submenu-background-alt: $undefined !default;
+$menu-current-text: $undefined !default;
+$menu-highlight-text: $undefined !default;
+$menu-submenu-current-text: $undefined !default;
+$menu-submenu-focus-text: $undefined !default;
+$menu-submenu-text: $undefined !default;
+$nav-unification-sidebar-border: $undefined !default;
+
 .admin-color-aquatic,
 .admin-color-classic-blue,
 .admin-color-classic-bright,

@@ -1,3 +1,10 @@
+// Input variables
+$menu-nudge-text-color: $undefined !default;
+$menu-nudge-background: $undefined !default;
+$menu-nudge-cta-color: $undefined !default;
+$menu-nudge-cta-background: $undefined !default;
+$menu-nudge-cta-background-hover: $undefined !default;
+
 // Calypso Upsell Banner
 #adminmenu .toplevel_page_site-notices .upsell_banner {
 	background-color: $menu-nudge-background;

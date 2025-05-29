@@ -1,6 +1,8 @@
-@import "variables";
-@import "../admin";
-@import "sidebar-notice";
+@use "sass:meta";
+@use "variables";
+@use "@automattic/color-studio/dist/color-variables" as studio;
+@include meta.load-css( "../admin", $with: meta.module-variables( 'variables' ) );
+@include meta.load-css( "sidebar-notice" );
 
 // Specific overrides for this color scheme.
 .admin-color-classic-bright {
@@ -35,7 +37,7 @@
 	#wpadminbar li.hover .ab-item::before,
 	#wpadminbar li:hover #adminbarsearch::before,
 	#wpadminbar li #adminbarsearch.adminbar-focused::before {
-		color: $studio-pink-20;
+		color: studio.$studio-pink-20;
 	}
 
 	#wpadminbar .ab-submenu .ab-item,
@@ -44,10 +46,10 @@
 	#wpadminbar.nojs .quicklinks .menupop:hover ul li a,
 	#wpadminbar #wp-admin-bar-user-info .display-name,
 	#wpadminbar #wp-admin-bar-user-info .username {
-		color: $studio-gray-10;
+		color: studio.$studio-gray-10;
 	}
 
 	#wpadminbar #wp-admin-bar-user-info a:hover .display-name {
-		color: $studio-pink-20;
+		color: studio.$studio-pink-20;
 	}
 }

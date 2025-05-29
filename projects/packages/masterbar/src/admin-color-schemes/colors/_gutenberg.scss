@@ -6,6 +6,8 @@
  */
 @use 'sass:color';
 
+$highlight-color: $undefined !default;
+
 body {
 	--wp-admin-theme-color: #{$highlight-color};
 
