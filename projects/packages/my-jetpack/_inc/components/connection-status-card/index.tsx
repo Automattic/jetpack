@@ -156,7 +156,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 						>
 							<path
 								d="M10.6004 6L9.40039 7L14.0004 12L9.40039 17L10.6004 18L16.0004 12L10.6004 6Z"
-								fill="black"
+								fill="currentColor"
 							/>
 						</svg>
 					</Button>
