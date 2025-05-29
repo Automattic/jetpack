@@ -89,10 +89,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string $content - the content.
 	 */
 	public function __construct( $attributes, $content = null ) {
-		global $post, $page;
+		global $post;
 
 		// Set up the default subject and recipient for this form.
-		$default_to      = '';
+		$default_to      = get_option( 'admin_email' );
 		$default_subject = '[' . get_option( 'blogname' ) . ']';
 
 		if ( ! isset( $attributes ) || ! is_array( $attributes ) ) {
@@ -108,45 +108,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 		}
 
-		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
-			$default_to      .= get_option( 'admin_email' );
-			$attributes['id'] = 'widget-' . $attributes['widget'];
-			// translators: the blog name (and post name, if applicable).
-			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack-forms' ), $default_subject );
-		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
-			$default_to      .= get_option( 'admin_email' );
-			$attributes['id'] = 'block-template-' . $attributes['block_template'];
-		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
-			$default_to      .= get_option( 'admin_email' );
-			$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
-		} elseif ( $post ) {
-			$attributes['id'] = $post->ID;
-			$post_author      = get_userdata( $post->post_author );
+		if ( $post ) {
+			$post_author = get_userdata( $post->post_author );
 			if ( is_a( $post_author, '\WP_User' ) ) {
-				$default_to .= $post_author->user_email;
-			} else {
-				$default_to .= get_option( 'admin_email' );
+				$default_to = $post_author->user_email;
 			}
 		}
-
-		if ( ! empty( self::$forms ) ) {
-			// Ensure 'id' exists in $attributes before trying to modify it
-			if ( ! isset( $attributes['id'] ) ) {
-				$attributes['id'] = '';
-			}
-
-			// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
-			$page_num = max( 1, intval( $page ) );
-
-			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
-		}
-
-		$hashable_attributes = $attributes;
-		unset( $hashable_attributes['id'] ); // Remove the ID from the attributes to be hashed, as it is not part of the form's content.
-		$this->hash = sha1( wp_json_encode( array( $content, $hashable_attributes ) ) );
-		if ( ! isset( self::$forms[ $this->hash ] ) ) {
-			// If no ID is set, generate a unique one.
-			self::$forms[ $this->hash ] = $this;
+		if ( ! isset( $attributes['id'] ) || isset( self::$forms[ $attributes['id'] ] ) ) {
+			$attributes['id'] = ! ( empty( self::$forms ) ) ? count( self::$forms ) + 1 : 1;
 		}
 
 		// Keep reference to $this for parsing form fields.
@@ -198,16 +167,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 				[contact-field label="' . __( 'Message', 'jetpack-forms' ) . '" type="textarea" /]';
 
 			$this->parse_content( $default_form );
-
-			// Store the shortcode.
-			$this->store_shortcode( $default_form, $attributes, $this->hash );
-		} else {
-			// Store the shortcode.
-			$this->store_shortcode( $content, $attributes, $this->hash );
 		}
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
 		Contact_Form_Plugin::$using_contact_form_field = false;
+		self::$forms[ $this->get_attribute( 'id' ) ]   = $this;
 	}
 
 	/**
@@ -216,7 +180,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return Contact_Form|null
 	 */
 	public function get_jwt() {
-		return JWT::encode( array( $this->attributes, $this->content ), ( new Tokens() )->get_access_token()->secret );
+		return JWT::encode(
+			array(
+				'attributes' => $this->attributes,
+				'content'    => $this->content,
+			),
+			( new Tokens() )->get_access_token()->secret
+		);
 	}
 
 	/**
@@ -228,43 +198,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public static function get_instance_from_jwt( $jwt ) {
 		try {
-			// Decode the JWT to get the attributes and content.
 			$data = JWT::decode( $jwt, ( new Tokens() )->get_access_token()->secret, array( 'HS256' ) );
 		} catch ( \Exception $e ) {
-			// If decoding fails, return an empty instance.
 			return null;
 		}
+		$attributes = (array) $data->attributes;
 		return new self(
-			$data[0], // attributes
-			$data[1]  // content
+			$attributes,
+			$data->content
 		);
-	}
-
-	/**
-	 * Store shortcode content for recall later
-	 *  - used to receate shortcode when user uses do_shortcode
-	 *
-	 * @param string $content - the content.
-	 * @param array  $attributes - the attributes.
-	 * @param string $hash - the hash.
-	 */
-	public static function store_shortcode( $content = null, $attributes = null, $hash = null ) {
-
-		if ( $content && isset( $attributes['id'] ) ) {
-
-			if ( empty( $hash ) ) {
-				$hash = sha1( wp_json_encode( $attributes ) . $content );
-			}
-
-			$shortcode_meta = (string) get_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", true );
-
-			if ( $shortcode_meta !== '' || $shortcode_meta !== $content ) {
-				update_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", $content );
-
-				// Save attributes to post_meta for later use. They're not available later in do_shortcode situations.
-				update_post_meta( $attributes['id'], "_g_feedback_shortcode_atts_{$hash}", $attributes );
-			}
-		}
 	}
 
 	/**
