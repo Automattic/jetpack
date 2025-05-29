@@ -59,16 +59,14 @@ function wpcom_add_pages_homepage_connection_banner() {
 		'wpcom-tracks-module',
 		plugin_dir_url( __FILE__ ) . '../../common/tracks.js',
 		array(),
-		'20250527',
-		true
+		'20250527'
 	);
 
 	wp_enqueue_script_module(
 		'wpcom-pages-homepage-connection-banner',
 		plugin_dir_url( __FILE__ ) . 'js/pages-homepage-connection-banner.js',
 		array( 'wpcom-tracks-module', 'jquery' ),
-		'20250527',
-		true
+		'20250527'
 	);
 }
 
