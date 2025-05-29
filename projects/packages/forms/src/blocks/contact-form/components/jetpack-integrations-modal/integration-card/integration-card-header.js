@@ -28,11 +28,21 @@ const IntegrationCardHeader = ( {
 		isHeaderToggleEnabled,
 		onHeaderToggleChange,
 		toggleDisabledTooltip,
+		setupBadge,
 	} = cardData;
 	const showPluginAction = type === 'plugin' && ( ! isInstalled || ! isActive );
 	const showConnectedBadge = isActive && isConnected;
 	const disableFormText = __( 'Disable for this form', 'jetpack-forms' );
 	const enableFormText = __( 'Enable for this form', 'jetpack-forms' );
+
+	const showPendingBadge = ! showPluginAction && ! isConnected;
+	const pendingBadge = setupBadge || (
+		<span className="integration-card__plugin-badge">
+			{ __( 'Needs connection', 'jetpack-forms' ) }
+		</span>
+	);
+	const installPluginActionLabel = __( 'Plugin needs install', 'jetpack-forms' );
+	const activatePluginActionLabel = __( 'Plugin needs activation', 'jetpack-forms' );
 
 	const getTooltipText = checked => {
 		if ( toggleTooltip ) {
@@ -78,15 +88,17 @@ const IntegrationCardHeader = ( {
 							<h3 className="integration-card__title">{ title }</h3>
 							{ showPluginAction && (
 								<span className="integration-card__plugin-badge">
-									{ __( 'Plugin', 'jetpack-forms' ) }
+									{ ! isInstalled && installPluginActionLabel }
+									{ isInstalled && ! isActive && activatePluginActionLabel }
 								</span>
 							) }
 							{ showConnectedBadge && (
 								<span className="integration-card__connected-badge">
-									<Icon icon="yes-alt" size={ 16 } />
-									{ __( 'Connected', 'jetpack-forms' ) }
+									<Icon icon="yes-alt" size={ 12 } />
+									{ __( 'Enabled', 'jetpack-forms' ) }
 								</span>
 							) }
+							{ showPendingBadge && <>{ pendingBadge }</> }
 						</div>
 						{ description && (
 							<span className="integration-card__description">{ description }</span>
