@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackFooter, useBreakpointMatch } from '@automattic/jetpack-components';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { TabPanel } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -32,21 +33,24 @@ const Layout = ( {
 
 	const enableIntegrationsTab = config( 'enableIntegrationsTab' );
 
-	const tabs = [
-		{
-			name: 'responses',
-			title: __( 'Responses', 'jetpack-forms' ),
-		},
-		...( enableIntegrationsTab
-			? [ { name: 'integrations', title: __( 'Integrations', 'jetpack-forms' ) } ]
-			: [] ),
-		{
-			name: 'about',
-			title: __( 'About', 'jetpack-forms' ),
-		},
-	];
+	const tabs = useMemo(
+		() => [
+			{
+				name: 'responses',
+				title: __( 'Responses', 'jetpack-forms' ),
+			},
+			...( enableIntegrationsTab
+				? [ { name: 'integrations', title: __( 'Integrations', 'jetpack-forms' ) } ]
+				: [] ),
+			{
+				name: 'about',
+				title: __( 'About', 'jetpack-forms' ),
+			},
+		],
+		[ enableIntegrationsTab ]
+	);
 
-	const getCurrentTab = () => {
+	const getCurrentTab = useCallback( () => {
 		const path = location.pathname.split( '/' )[ 1 ];
 		const validTabNames = tabs.map( tab => tab.name );
 
@@ -55,7 +59,7 @@ const Layout = ( {
 		}
 
 		return config( 'hasFeedback' ) ? 'responses' : 'about';
-	};
+	}, [ location.pathname, tabs ] );
 
 	const isResponsesTab = getCurrentTab() === 'responses';
 
@@ -64,12 +68,23 @@ const Layout = ( {
 			if ( ! tabName ) {
 				tabName = config( 'hasFeedback' ) ? 'responses' : 'about';
 			}
+
+			const currentTab = getCurrentTab();
+
+			if ( currentTab !== tabName ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_dashboard_tab_change', {
+					tab: tabName,
+					viewport: isSm ? 'mobile' : 'desktop',
+					previous_tab: currentTab,
+				} );
+			}
+
 			navigate( {
 				pathname: `/${ tabName }`,
 				search: tabName === 'responses' ? location.search : '',
 			} );
 		},
-		[ navigate, location.search ]
+		[ navigate, location.search, isSm, getCurrentTab ]
 	);
 
 	return (
