@@ -8,7 +8,6 @@ import { useEntityRecords } from '@wordpress/core-data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import './style.scss';
 
 /**
  * Returns a formatted tab label with count.
@@ -68,11 +67,12 @@ export default function InboxStatusToggle( { currentQuery } ) {
 		<ToggleGroupControl
 			__next40pxDefaultSize
 			__nextHasNoMarginBottom
+			style={ { marginBottom: '8px' } } // Counters empty space in DataViews above this component
 			key={ `${ totalItemsInbox ?? 0 }-${ totalItemsSpam ?? 0 }-${ totalItemsTrash ?? 0 }` }
-			className="jp-forms__inbox-status-toggle"
 			value={ status }
 			onChange={ handleChange }
 			isAdaptiveWidth={ true }
+			isBlock
 		>
 			{ statusTabs.map( option => (
 				<ToggleGroupControlOption
