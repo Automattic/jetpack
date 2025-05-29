@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
-import { SimplePaymentsEdit } from '../edit';
+import { SimplePaymentsEdit } from '../../src/block/edit';
 
 const setAttributes = jest.fn();
 const intlNumberFormatSpy = jest.spyOn( Intl, 'NumberFormat' );
@@ -92,7 +92,7 @@ describe( 'Edit component', () => {
 		rerender( <SimplePaymentsEdit { ...notSelectedProps } /> );
 
 		expect(
-			screen.getByText( 'If you’re selling something, you need a price tag', { exact: false } )
+			screen.getByText( "If you're selling something, you need a price tag", { exact: false } )
 		).toBeInTheDocument();
 	} );
 

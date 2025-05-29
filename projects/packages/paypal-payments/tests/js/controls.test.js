@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { PanelControls } from '../controls';
+import { PanelControls } from '../../src/block/controls';
 
 const setAttributes = jest.fn();
 

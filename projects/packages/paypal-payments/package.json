@@ -19,7 +19,7 @@
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm build",
 		"clean": "rm -rf dist/ .cache/",
 		"watch": "webpack --watch --config ./webpack.config.blocks.js",
-		"test:block": "jest --testPathPattern=src/block/test"
+		"test:js": "jest --config=jest.config.js"
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",

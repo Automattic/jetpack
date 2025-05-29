@@ -84,6 +84,7 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				console.groupEnd.mockRestore();
 
 				// @wordpress/blocks needlessly calls console.info. Ignore that.
+				jest.spyOn( console, 'info' );
 				// eslint-disable-next-line no-console
 				console.info.mockClear();
 
@@ -92,8 +93,10 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				// Match on basename for deprecated blocks fixtures to allow.
 				const isDeprecated = /__deprecated([-_]|$)/.test( basename );
 				if ( isDeprecated ) {
+					jest.spyOn( console, 'warn' );
 					// eslint-disable-next-line no-console
 					console.warn.mockClear();
+					jest.spyOn( console, 'error' );
 					// eslint-disable-next-line no-console
 					console.error.mockClear();
 				}
