@@ -43,7 +43,6 @@ export default function FileFieldEdit( props ) {
 				},
 			],
 		],
-		templateLock: 'insert',
 		allowedBlocks: [ 'jetpack/dropzone', 'jetpack/label' ],
 		renderAppender: false,
 	} );
