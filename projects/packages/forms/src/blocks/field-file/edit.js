@@ -1,28 +1,27 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
-import { __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import './editor.scss';
 
 export default function FileFieldEdit( props ) {
-	const { attributes, clientId, isSelected, setAttributes, name } = props;
+	const { attributes, clientId, isSelected, setAttributes, name, className } = props;
 	const { id, required, width } = attributes;
 
 	useFormWrapper( { attributes, clientId, name } );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
-	let className = 'jetpack-field';
-	if ( isSelected ) {
-		className += ' is-selected';
-	}
 
+	let classes = clsx( className, 'jetpack-field is-non-animated-label', {
+		'is-selected': isSelected,
+	} );
 	if ( width ) {
-		className += ` jetpack-field__width-${ width }`;
+		classes += ` jetpack-field__width-${ width }`;
 	}
 
 	const blockProps = useBlockProps( {
-		className,
+		className: classes,
 		style: blockStyle,
 	} );
 
@@ -44,8 +43,9 @@ export default function FileFieldEdit( props ) {
 				},
 			],
 		],
-		templateLock: false,
+		templateLock: 'insert',
 		allowedBlocks: [ 'jetpack/dropzone', 'jetpack/label' ],
+		renderAppender: false,
 	} );
 
 	return (
