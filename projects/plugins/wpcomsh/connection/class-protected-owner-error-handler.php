@@ -105,7 +105,7 @@ class Protected_Owner_Error_Handler {
 		$error_code = 'protected_owner_missing';
 
 		// Prepare error data for the connection error system
-		$user_id   = $raw_error['protected_owner_local_id'] ?? '0';
+		$user_id   = '0';
 		$timestamp = $raw_error['timestamp'] ?? time();
 
 		$error_details = array(
