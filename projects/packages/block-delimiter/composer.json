@@ -47,10 +47,7 @@
 			"link-template": "https://github.com/Automattic/block-delimiter/compare/v${old}...v${new}"
 		},
 		"mirror-repo": "Automattic/block-delimiter",
-		"textdomain": "jetpack-block-delimiter",
-		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-block-delimiter.php"
-		}
+		"textdomain": "jetpack-block-delimiter"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."

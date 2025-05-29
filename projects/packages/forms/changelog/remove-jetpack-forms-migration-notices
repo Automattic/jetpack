@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Forms: disable default listing UI for post_type=feedback if the menu item is removed. Remove admin notices about page being moved.
