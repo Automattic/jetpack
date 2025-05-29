@@ -2,9 +2,11 @@
 
 namespace Automattic\Jetpack_Boost\Admin;
 
+use Automattic\Jetpack\Boost\App\Contracts\Is_Dev_Feature;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack_Boost\Lib\Cache_Compatibility;
+use Automattic\Jetpack_Boost\Modules\Features_Index;
 
 /**
  * Handle the configuration constants.
@@ -39,7 +41,7 @@ class Config {
 				'prefix'    => JETPACK_BOOST_REST_PREFIX,
 			),
 			'postTypes'           => (object) $this->get_custom_post_types(),
-			'developmentFeatures' => defined( 'JETPACK_BOOST_DEVELOPMENT_FEATURES' ) && JETPACK_BOOST_DEVELOPMENT_FEATURES,
+			'developmentFeatures' => self::get_development_features(),
 		);
 
 		/**
@@ -50,6 +52,24 @@ class Config {
 		 * @since   1.0.0
 		 */
 		return apply_filters( 'jetpack_boost_js_constants', $constants );
+	}
+
+	/**
+	 * Get a list of features that are marked as development features.
+	 *
+	 * @return array<string, bool> Slugs of features and their status.
+	 */
+	private static function get_development_features() {
+		$features = Features_Index::get_all_features();
+
+		$development_features = array();
+		foreach ( $features as $feature ) {
+			if ( is_subclass_of( $feature, Is_Dev_Feature::class ) ) {
+				$development_features[] = ( new $feature() )->get_slug();
+			}
+		}
+
+		return $development_features;
 	}
 
 	/**
