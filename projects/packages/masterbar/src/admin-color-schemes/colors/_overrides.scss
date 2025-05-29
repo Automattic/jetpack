@@ -4,17 +4,17 @@
 // Make wpadminbar colors differ from submenu colors
 @use "@automattic/color-studio/dist/color-variables" as studio;
 
-$masterbar-active-background: $undefined !default;
-$masterbar-background: $undefined !default;
-$masterbar-highlight-background: $undefined !default;
-$masterbar-submenu-background: $undefined !default;
-$masterbar-submenu-background-alt: $undefined !default;
-$menu-current-text: $undefined !default;
-$menu-highlight-text: $undefined !default;
-$menu-submenu-current-text: $undefined !default;
-$menu-submenu-focus-text: $undefined !default;
-$menu-submenu-text: $undefined !default;
-$nav-unification-sidebar-border: $undefined !default;
+$masterbar-active-background: $--a-value-must-be-set-via-with-- !default;
+$masterbar-background: $--a-value-must-be-set-via-with-- !default;
+$masterbar-highlight-background: $--a-value-must-be-set-via-with-- !default;
+$masterbar-submenu-background: $--a-value-must-be-set-via-with-- !default;
+$masterbar-submenu-background-alt: $--a-value-must-be-set-via-with-- !default;
+$menu-current-text: $--a-value-must-be-set-via-with-- !default;
+$menu-highlight-text: $--a-value-must-be-set-via-with-- !default;
+$menu-submenu-current-text: $--a-value-must-be-set-via-with-- !default;
+$menu-submenu-focus-text: $--a-value-must-be-set-via-with-- !default;
+$menu-submenu-text: $--a-value-must-be-set-via-with-- !default;
+$nav-unification-sidebar-border: $--a-value-must-be-set-via-with-- !default;
 
 .admin-color-aquatic,
 .admin-color-classic-blue,
