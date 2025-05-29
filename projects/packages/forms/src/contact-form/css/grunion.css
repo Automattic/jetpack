@@ -733,9 +733,8 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) select
 {
 	padding-top: 1.4em;
-
-	/* padding-left: var(--field-padding);
-	padding-right: var(--field-padding); */
+	padding-left: var(--field-padding);
+	padding-right: var(--field-padding);
 }
 
 /* Fix padding for new forms in animated style */
