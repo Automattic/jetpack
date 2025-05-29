@@ -8,6 +8,7 @@ import {
 	Col,
 	JetpackLogo,
 	useBreakpointMatch,
+	getUserLocale,
 } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
@@ -17,6 +18,45 @@ import { __ } from '@wordpress/i18n';
  */
 import { config } from '../index';
 import './style.scss';
+
+// Mag-16, see https://wp.me/PCYsg-9nE
+// Exception: pt-br, since mag-16 code is BR and it's the variation, not the language
+const availableScreenshotLanguages = [
+	'ar',
+	'pt-br',
+	'de',
+	'en',
+	'es',
+	'fr',
+	'he',
+	'id',
+	'it',
+	'ja',
+	'ko',
+	'nl',
+	'ru',
+	'sv',
+	'tr',
+	'zh-cn',
+	'zh-tw',
+];
+
+const getLocaleScreenshotName = ( locale = '', isMobile = false ) => {
+	const baseName = `forms-moved`;
+	let languageSuffix = '';
+	const lowercaseLocale = locale.toLowerCase();
+	if ( availableScreenshotLanguages.includes( lowercaseLocale ) ) {
+		languageSuffix = `-${ lowercaseLocale }`;
+	} else {
+		const language = lowercaseLocale.split( '-' )[ 0 ];
+
+		if ( availableScreenshotLanguages.includes( language ) ) {
+			languageSuffix = `-${ language }`;
+		}
+	}
+
+	return `${ baseName }${ languageSuffix }${ isMobile ? '-mobile' : '' }.png`;
+};
 
 const AdminMigratePage = () => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -38,6 +78,10 @@ const AdminMigratePage = () => {
 			</span>
 		</div>
 	);
+	const screenshotName = useMemo(
+		() => getLocaleScreenshotName( getUserLocale(), isSm ),
+		[ isSm ]
+	);
 	return (
 		<div className="jp-forms__admin-migrate-page-wrapper">
 			<AdminPage moduleName={ __( 'Jetpack Forms', 'jetpack-forms' ) } header={ header }>
@@ -56,19 +100,11 @@ const AdminMigratePage = () => {
 								</Button>
 							</p>
 							<p style={ { marginTop: '3em' } }>
-								{ isSm ? (
-									<img
-										style={ { maxWidth: '100%' } }
-										src={ `${ ASSETS_URL }/images/forms-moved-mobile.png` }
-										alt={ __( 'Forms moved', 'jetpack-forms' ) }
-									/>
-								) : (
-									<img
-										style={ { maxWidth: '100%' } }
-										src={ `${ ASSETS_URL }/images/forms-moved.png` }
-										alt={ __( 'Forms moved', 'jetpack-forms' ) }
-									/>
-								) }
+								<img
+									style={ { maxWidth: '100%' } }
+									src={ `${ ASSETS_URL }/images/${ screenshotName }` }
+									alt={ __( 'Forms moved', 'jetpack-forms' ) }
+								/>
 							</p>
 						</Col>
 					</Container>
