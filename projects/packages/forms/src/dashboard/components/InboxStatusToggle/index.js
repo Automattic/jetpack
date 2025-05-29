@@ -67,12 +67,13 @@ export default function InboxStatusToggle( { currentQuery } ) {
 		<ToggleGroupControl
 			__next40pxDefaultSize
 			__nextHasNoMarginBottom
-			style={ { marginBottom: '8px' } } // Counters empty space in DataViews above this component
-			key={ `${ totalItemsInbox ?? 0 }-${ totalItemsSpam ?? 0 }-${ totalItemsTrash ?? 0 }` }
-			value={ status }
-			onChange={ handleChange }
+			hideLabelFromVision
 			isAdaptiveWidth={ true }
 			isBlock
+			key={ `${ totalItemsInbox ?? 0 }-${ totalItemsSpam ?? 0 }-${ totalItemsTrash ?? 0 }` }
+			label={ __( 'Form responses type', 'jetpack-forms' ) }
+			onChange={ handleChange }
+			value={ status }
 		>
 			{ statusTabs.map( option => (
 				<ToggleGroupControlOption
