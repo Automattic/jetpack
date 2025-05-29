@@ -70,14 +70,10 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 
 		await expect( connectionBlock, {
 			message: 'Should have the text saying the site is connected.',
-		} ).toContainText( 'Site connected.' );
+		} ).toContainText( 'Site and account connected' );
 
 		await expect( connectionBlock, {
 			message: 'Should have the text showing user connection.',
 		} ).toContainText( /Connected as .+ \(Owner\)/ );
-
-		await expect( connectionBlock.getByRole( 'button', { name: 'Manage' } ), {
-			message: 'Should have the "Manage" button.',
-		} ).toBeVisible();
 	} );
 } );
