@@ -13,7 +13,7 @@ const DEFAULT_LABEL_WIDTH = 40;
  * @param {SeriesData['data']} data - Array of data points.
  * @return {(value: number) => string} - d3-format function.
  */
-export const formatYTick = ( data: SeriesData[ 'data' ] ) => {
+export const getDefaultYTickFormat = ( data: SeriesData[ 'data' ] ) => {
 	if ( ! Array.isArray( data ) || data.length === 0 ) {
 		return DEFAULT_FORMAT;
 	}

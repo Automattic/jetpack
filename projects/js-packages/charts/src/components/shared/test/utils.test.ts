@@ -2,29 +2,29 @@
  * @jest-environment jsdom
  */
 import { getStringWidth } from '@visx/text';
-import { formatYTick, getLongestLabelWidth } from '../utils';
+import { getDefaultYTickFormat, getLongestLabelWidth } from '../utils';
 
 jest.mock( '@visx/text', () => ( {
 	getStringWidth: jest.fn(),
 } ) );
 
-describe( 'formatYTick', () => {
+describe( 'getDefaultYTickFormat', () => {
 	describe( 'edge cases', () => {
 		test( 'returns default format for empty array', () => {
-			const formatter = formatYTick( [] );
+			const formatter = getDefaultYTickFormat( [] );
 			expect( formatter( 1234 ) ).toBe( '1,234' );
 		} );
 
 		test( 'returns default format for null/undefined', () => {
-			const formatterNull = formatYTick( null );
-			const formatterUndefined = formatYTick( undefined );
+			const formatterNull = getDefaultYTickFormat( null );
+			const formatterUndefined = getDefaultYTickFormat( undefined );
 			expect( formatterNull( 1234 ) ).toBe( '1,234' );
 			expect( formatterUndefined( 1234 ) ).toBe( '1,234' );
 		} );
 
 		test( 'returns default format for non-array input', () => {
 			// @ts-expect-error Test for non-array input.
-			const formatter = formatYTick( 'not an array' );
+			const formatter = getDefaultYTickFormat( 'not an array' );
 			expect( formatter( 1234 ) ).toBe( '1,234' );
 		} );
 
@@ -35,7 +35,7 @@ describe( 'formatYTick', () => {
 				{ date: new Date( '2024-01-03' ), value: undefined },
 				{ date: new Date( '2024-01-04' ), value: 500 },
 			];
-			const formatter = formatYTick( data );
+			const formatter = getDefaultYTickFormat( data );
 			expect( formatter( 1234 ) ).toBe( '1,234' ); // Should use default format for max value 500
 		} );
 	} );
@@ -47,7 +47,7 @@ describe( 'formatYTick', () => {
 				{ date: new Date( '2024-01-02' ), value: 500 },
 				{ date: new Date( '2024-01-03' ), value: 999 },
 			];
-			const formatter = formatYTick( data );
+			const formatter = getDefaultYTickFormat( data );
 			expect( formatter( 100 ) ).toBe( '100' );
 			expect( formatter( 500 ) ).toBe( '500' );
 			expect( formatter( 999 ) ).toBe( '999' );
@@ -59,7 +59,7 @@ describe( 'formatYTick', () => {
 				{ date: new Date( '2024-01-02' ), value: 50000 },
 				{ date: new Date( '2024-01-03' ), value: 999999 },
 			];
-			const formatter = formatYTick( data );
+			const formatter = getDefaultYTickFormat( data );
 			expect( formatter( 1000 ) ).toBe( '1k' );
 			expect( formatter( 50000 ) ).toBe( '50k' );
 			expect( formatter( 500000 ) ).toBe( '500k' );
@@ -71,7 +71,7 @@ describe( 'formatYTick', () => {
 				{ date: new Date( '2024-01-02' ), value: 50000000 },
 				{ date: new Date( '2024-01-03' ), value: 999999999 },
 			];
-			const formatter = formatYTick( data );
+			const formatter = getDefaultYTickFormat( data );
 			expect( formatter( 1300000 ) ).toBe( '1.3M' );
 			expect( formatter( 50000000 ) ).toBe( '50M' );
 			expect( formatter( 500000000 ) ).toBe( '500M' );
@@ -83,7 +83,7 @@ describe( 'formatYTick', () => {
 				{ date: new Date( '2024-01-02' ), value: 50000000000 },
 				{ date: new Date( '2024-01-03' ), value: 1200000000000 },
 			];
-			const formatter = formatYTick( data );
+			const formatter = getDefaultYTickFormat( data );
 			expect( formatter( 1000000000 ) ).toBe( '1.00G' );
 			expect( formatter( 50000000000 ) ).toBe( '50.0G' );
 			expect( formatter( 1200000000000 ) ).toBe( '1.20T' );
@@ -95,7 +95,7 @@ describe( 'formatYTick', () => {
 			const data = [
 				{ date: new Date( '2024-01-01' ), value: -1000000000 }, // -1B
 			];
-			const formatter = formatYTick( data );
+			const formatter = getDefaultYTickFormat( data );
 			// Should use billions format because max absolute value is 1B
 			expect( formatter( -1000000000 ) ).toBe( '−1.00G' );
 		} );
@@ -105,34 +105,34 @@ describe( 'formatYTick', () => {
 		test( 'handles exact boundary values', () => {
 			// Test exact 1K boundary
 			const dataK = [ { date: new Date( '2024-01-01' ), value: 1000 } ];
-			const formatterK = formatYTick( dataK );
+			const formatterK = getDefaultYTickFormat( dataK );
 			expect( formatterK( 1000 ) ).toBe( '1k' );
 
 			// Test exact 1M boundary
 			const dataM = [ { date: new Date( '2024-01-01' ), value: 1000000 } ];
-			const formatterM = formatYTick( dataM );
+			const formatterM = getDefaultYTickFormat( dataM );
 			expect( formatterM( 1000000 ) ).toBe( '1.0M' );
 
 			// Test exact 1B boundary
 			const dataB = [ { date: new Date( '2024-01-01' ), value: 1000000000 } ];
-			const formatterB = formatYTick( dataB );
+			const formatterB = getDefaultYTickFormat( dataB );
 			expect( formatterB( 1000000000 ) ).toBe( '1.00G' );
 		} );
 
 		test( 'handles values just below boundaries', () => {
 			// Test just below 1K
 			const dataK = [ { date: new Date( '2024-01-01' ), value: 999 } ];
-			const formatterK = formatYTick( dataK );
+			const formatterK = getDefaultYTickFormat( dataK );
 			expect( formatterK( 999 ) ).toBe( '999' );
 
 			// Test just below 1M
 			const dataM = [ { date: new Date( '2024-01-01' ), value: 999999 } ];
-			const formatterM = formatYTick( dataM );
+			const formatterM = getDefaultYTickFormat( dataM );
 			expect( formatterM( 999999 ) ).toBe( '1M' );
 
 			// Test just below 1B
 			const dataB = [ { date: new Date( '2024-01-01' ), value: 999999999 } ];
-			const formatterB = formatYTick( dataB );
+			const formatterB = getDefaultYTickFormat( dataB );
 			expect( formatterB( 999999999 ) ).toBe( '1.0G' );
 		} );
 	} );
@@ -240,13 +240,13 @@ describe( 'getLongestLabelWidth', () => {
 		} );
 	} );
 
-	describe( 'integration with formatYTick', () => {
-		test( 'works correctly with formatYTick output', () => {
+	describe( 'integration with getDefaultYTickFormat', () => {
+		test( 'works correctly with getDefaultYTickFormat output', () => {
 			const data = [
 				{ date: new Date( '2024-01-01' ), value: 1200000000 }, // 1.2G
 				{ date: new Date( '2024-01-02' ), value: 45000000 }, // 45M
 			];
-			const formatter = formatYTick( data );
+			const formatter = getDefaultYTickFormat( data );
 
 			( getStringWidth as unknown as jest.Mock ).mockReturnValue( 75 );
 
