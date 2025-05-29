@@ -74,6 +74,6 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 
 		await expect( connectionBlock, {
 			message: 'Should have the text showing user connection.',
-		} ).toContainText( /Connected as .+ \(Owner\)/ );
+		} ).toContainText( 'Connected as owner' );
 	} );
 } );
