@@ -3113,12 +3113,18 @@ importers:
       '@babel/core':
         specifier: 7.26.10
         version: 7.26.10
+      '@babel/plugin-transform-react-jsx':
+        specifier: 7.25.9
+        version: 7.25.9(@babel/core@7.26.10)
       '@babel/runtime':
         specifier: 7.26.10
         version: 7.26.10
       '@testing-library/dom':
         specifier: 10.4.0
         version: 10.4.0
+      '@testing-library/jest-dom':
+        specifier: 6.6.3
+        version: 6.6.3
       '@testing-library/react':
         specifier: 16.2.0
         version: 16.2.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3134,7 +3140,13 @@ importers:
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
+      babel-jest:
+        specifier: 29.7.0
+        version: 29.7.0(@babel/core@7.26.10)
       jest:
+        specifier: 29.7.0
+        version: 29.7.0
+      jest-environment-jsdom:
         specifier: 29.7.0
         version: 29.7.0
       postcss:
