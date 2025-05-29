@@ -48,16 +48,11 @@ function wpcom_add_pages_homepage_connection_banner() {
 		'screenId' => esc_html( $screen->id ),
 	);
 
-	add_action(
-		'admin_footer',
+	add_filter(
+		'script_module_data_wpcom-pages-homepage-connection-banner',
 		function () use ( $localized_data ) {
-			?>
-		<script type="text/javascript">
-			window.wpcomPagesHomepageConnectionBanner = <?php echo wp_json_encode( $localized_data ); ?>;
-		</script>
-			<?php
-		},
-		1
+			return $localized_data;
+		}
 	);
 
 	wp_register_script_module(

@@ -85,8 +85,17 @@ import { wpcomTrackEvent } from 'wpcom-tracks-module';
 	 * Insert the banner at the correct position in the page.
 	 */
 	$( document ).ready( function () {
-		// Get localized data
-		const data = window.wpcomPagesHomepageConnectionBanner || {};
+		const dataContainer = document.getElementById(
+			'wp-script-module-data-wpcom-pages-homepage-connection-banner'
+		);
+		let data = {};
+		if ( dataContainer ) {
+			try {
+				data = JSON.parse( dataContainer.textContent );
+			} catch {
+				data = {};
+			}
+		}
 
 		const banner = createBannerElement( data );
 
