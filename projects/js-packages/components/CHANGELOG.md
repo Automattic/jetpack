@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.73.3] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
 ## [0.73.2] - 2025-05-22
 ### Fixed
 - Fixed Swipeable width being stale on window resize. [#43510]
@@ -1400,6 +1404,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.73.3]: https://github.com/Automattic/jetpack-components/compare/0.73.2...0.73.3
 [0.73.2]: https://github.com/Automattic/jetpack-components/compare/0.73.1...0.73.2
 [0.73.1]: https://github.com/Automattic/jetpack-components/compare/0.73.0...0.73.1
 [0.73.0]: https://github.com/Automattic/jetpack-components/compare/0.72.6...0.73.0

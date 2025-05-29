@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-script-data",
-	"version": "0.4.1",
+	"version": "0.4.2",
 	"description": "A library to provide data for script handles and the corresponding utility functions for Jetpack.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/script-data/#readme",
 	"bugs": {

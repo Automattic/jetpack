@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed images in connections management not loading when concatenating JS.

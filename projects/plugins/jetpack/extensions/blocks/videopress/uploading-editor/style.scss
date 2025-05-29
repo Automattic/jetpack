@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .uploading-editor {
 	width: 100%;
@@ -51,7 +51,7 @@
 }
 
 .uploading-editor__scrubber-help {
-	color: $gray-700;
+	color: gb.$gray-700;
 }
 
 .uploading-editor__upload-link {

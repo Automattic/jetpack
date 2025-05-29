@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-AI Chat & Donations blocks: ensure all metadata is properly attached to the blocks in the block editor.

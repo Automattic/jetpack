@@ -1,3 +1,4 @@
+import '../../utils/public-path.js';
 import { handleJetpackEditorAction } from '@automattic/jetpack-shared-extension-utils';
 import { Fill } from '@wordpress/components';
 import { registerPlugin } from '@wordpress/plugins';
