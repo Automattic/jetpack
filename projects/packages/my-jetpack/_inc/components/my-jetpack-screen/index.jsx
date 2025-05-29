@@ -4,7 +4,6 @@
 import {
 	ActionButton,
 	AdminPage,
-	AdminSection,
 	Col,
 	Container,
 	GlobalNotices,
@@ -37,14 +36,12 @@ import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
-import ConnectionsSection from '../connections-section';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
 import LoadingBlock from '../loading-block';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import OnboardingTour from '../onboarding-tour';
-import PlansSection from '../plans-section';
 import WelcomeFlow from '../welcome-flow';
 import styles from './styles.module.scss';
 
@@ -92,7 +89,7 @@ export default function MyJetpackScreen() {
 	} );
 	useNotificationWatcher();
 	const {
-		isAtomic = false,
+		// no prettier please
 		adminUrl,
 		sandboxedDomain,
 		isDevVersion,
@@ -249,17 +246,6 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			) }
-
-			<AdminSection>
-				<Container horizontalSpacing={ 8 }>
-					<Col sm={ 4 } md={ 4 } lg={ 6 }>
-						<PlansSection />
-					</Col>
-					<Col sm={ 4 } md={ 4 } lg={ 6 }>
-						{ ! isAtomic && <ConnectionsSection /> }
-					</Col>
-				</Container>
-			</AdminSection>
 		</AdminPage>
 	);
 }

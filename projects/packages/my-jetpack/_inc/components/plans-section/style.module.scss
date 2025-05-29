@@ -3,14 +3,47 @@
 	a, a:active, a:hover {
 		color: var( --jp-black );
 	}
+
+	h3 {
+		font-size: 1rem;
+		line-height: 20px;
+		font-weight: 500;
+		margin-top: 0;
+		margin-bottom: 1rem;
+	}
+
+	.logo {
+		margin-bottom: 1.25rem;
+	}
+}
+
+.plans-wrapper {
+	margin-bottom: 1rem;
+	display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .plan-container {
-	margin-bottom: calc( var(--spacing-base ) * 3 );
+
+	h4 {
+		margin-top: 0;
+		margin-bottom: 0.25rem;
+		font-size: 1.25rem;
+		line-height: 24px;
+		font-weight: 500;
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
 }
 
 .expire-date {
 	display: flex;
+	font-size: 0.8125rem; // 13px
+	line-height: 20px;
+	font-weight: 400;
+	color: var(--jp-gray-40);
 
 	&--with-icon {
 		margin-right: 8px;
@@ -26,6 +59,10 @@
 }
 
 .actions-list-item {
-	line-height: calc( var( --spacing-base ) * 3 );
-	margin: 0 0 var( --spacing-base ) 0;
+
+	&, a, * {
+		font-size: 0.8125rem; // 13px
+		line-height: 20px;
+		font-weight: 400;
+	}
 }
