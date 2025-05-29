@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Add dynamic chart margin calculation and improve Y-axis tick formatting
