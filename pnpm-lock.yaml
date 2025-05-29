@@ -2913,6 +2913,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
 
+  projects/packages/jwt: {}
+
   projects/packages/masterbar:
     dependencies:
       '@automattic/calypso-color-schemes':
