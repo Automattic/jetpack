@@ -450,6 +450,12 @@ class Error_Handler {
 		 */
 		$verified_errors = apply_filters( 'jetpack_connection_get_verified_errors', $verified_errors );
 
+		// Remove invalid_connection_owner errors on WoA sites
+		$host = new \Automattic\Jetpack\Status\Host();
+		if ( $host->is_woa_site() && isset( $verified_errors['invalid_connection_owner'] ) ) {
+			unset( $verified_errors['invalid_connection_owner'] );
+		}
+
 		return $verified_errors;
 	}
 
