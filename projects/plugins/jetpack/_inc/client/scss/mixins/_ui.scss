@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/style';
+@use '@automattic/jetpack-base-styles/style';
 
 @mixin card( $borderless: false ) {
 	border-radius: 0.5rem;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Forms: reinstate sending submission email when user moves response from spam to inbox

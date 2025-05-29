@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contact Form: Use wp_kses_post instead of esc_html for legend rendering to allow safe HTML in fieldset legends. 

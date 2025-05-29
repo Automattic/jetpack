@@ -1,18 +1,20 @@
-@import '../../lib/base-styles';
+@use "@wordpress/base-styles/mixins";
+@use "@wordpress/base-styles/variables";
+@use '../../lib/base-styles';
 
 .jp-search-configure-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	height: $grid-unit-60; // Match .components-panel__header height.
-	padding: 0 $grid-unit-20;
+	height: variables.$grid-unit-60; // Match .components-panel__header height.
+	padding: 0 variables.$grid-unit-20;
 	overflow: auto;
 
-	@include break-medium() {
-		height: $header-height; // Match headers of other editor interfaces.
+	@include mixins.break-medium() {
+		height: variables.$header-height; // Match headers of other editor interfaces.
 	}
 
-	@include break-small {
+	@include mixins.break-small {
 		overflow: visible;
 	}
 }
@@ -34,11 +36,11 @@
 
 	.components-button.jp-search-configure-header__show-settings-button {
 
-		@include break-small() {
-			margin-right: $grid-unit-10;
+		@include mixins.break-small() {
+			margin-right: variables.$grid-unit-10;
 		}
 
-		@include break-medium() {
+		@include mixins.break-medium() {
 			display: none;
 			margin-left: 0;
 		}

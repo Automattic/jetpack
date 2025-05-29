@@ -1,11 +1,11 @@
-@import '@automattic/jetpack-base-styles/style';
+@use '@automattic/jetpack-base-styles/style' as jpbs;
 @import '../masthead/calypso-mixins';
 
 .jp-header,
 .jp-footer {
 	padding: 20px 0;
 
-	@include for-tablet-up {
+	@include jpbs.for-tablet-up {
 		padding: 40px 0;
 	}
 }

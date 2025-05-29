@@ -13,8 +13,10 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
  */
 import ExportResponsesButton from '../../inbox/export-responses';
 import { config } from '../../index';
+import ActionsDropdownMenu from '../actions-dropdown-menu';
 import CreateFormButton from '../create-form-button';
 import JetpackFormsLogo from '../logo';
+
 import './style.scss';
 
 const Layout = ( {
@@ -27,9 +29,6 @@ const Layout = ( {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const createSmallLabel = __( 'Create', 'jetpack-forms' );
-	const createLargeLabel = __( 'Create form', 'jetpack-forms' );
-	const createButtonLabel = isSm ? createSmallLabel : createLargeLabel;
 
 	const enableIntegrationsTab = config( 'enableIntegrationsTab' );
 
@@ -50,11 +49,15 @@ const Layout = ( {
 	const getCurrentTab = () => {
 		const path = location.pathname.split( '/' )[ 1 ];
 		const validTabNames = tabs.map( tab => tab.name );
+
 		if ( validTabNames.includes( path ) ) {
 			return path;
 		}
+
 		return config( 'hasFeedback' ) ? 'responses' : 'about';
 	};
+
+	const isResponsesTab = getCurrentTab() === 'responses';
 
 	const handleTabSelect = useCallback(
 		( tabName: string ) => {
@@ -75,10 +78,14 @@ const Layout = ( {
 				<div className="jp-forms__logo-wrapper">
 					<JetpackFormsLogo />
 				</div>
-				<div className="jp-forms__layout-header-actions">
-					{ getCurrentTab() === 'responses' && <ExportResponsesButton /> }
-					<CreateFormButton label={ createButtonLabel } />
-				</div>
+				{ isSm ? (
+					<ActionsDropdownMenu exportData={ { show: isResponsesTab } } />
+				) : (
+					<div className="jp-forms__layout-header-actions">
+						{ isResponsesTab && <ExportResponsesButton /> }
+						<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
+					</div>
+				) }
 			</div>
 			<TabPanel
 				className="jp-forms__dashboard-tabs"

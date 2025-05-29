@@ -1,9 +1,9 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .jetpack-inspector-notice {
 	padding: 24px;
 	margin: 24px 16px;
-	background: $gray-100;
+	background: gb.$gray-100;
 	border-radius: 4px;
 	display: flex;
 	align-items: center;
