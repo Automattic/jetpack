@@ -1965,11 +1965,21 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Create a new post with a Form block
+	 * Create a new page with a Form block
 	 */
 	public function create_new_form() {
 		if ( ! isset( $_POST['newFormNonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['newFormNonce'] ) ), 'create_new_form' ) ) {
-			wp_die( esc_html__( 'Invalid nonce', 'jetpack-forms' ) );
+			wp_send_json_error(
+				__( 'Invalid nonce', 'jetpack-forms' ),
+				403
+			);
+		}
+
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			wp_send_json_error(
+				__( 'You do not have permission to create pages', 'jetpack-forms' ),
+				403
+			);
 		}
 
 		$pattern_name = isset( $_POST['pattern'] ) ? sanitize_text_field( wp_unslash( $_POST['pattern'] ) ) : null;
@@ -1988,20 +1998,24 @@ class Contact_Form_Plugin {
 
 		$post_id = wp_insert_post(
 			array(
+				'post_type'    => 'page',
 				'post_title'   => esc_html__( 'Jetpack Forms', 'jetpack-forms' ),
 				'post_content' => $pattern_content,
 			)
 		);
 
-		if ( ! is_wp_error( $post_id ) ) {
-			$array_result = array(
-				'post_url' => admin_url( 'post.php?post=' . intval( $post_id ) . '&action=edit' ),
+		if ( is_wp_error( $post_id ) ) {
+			wp_send_json_error(
+				$post_id->get_error_message(),
+				500
 			);
-
-			wp_send_json( $array_result );
+		} else {
+			wp_send_json(
+				array(
+					'post_url' => admin_url( 'post.php?post=' . intval( $post_id ) . '&action=edit' ),
+				)
+			);
 		}
-
-		wp_die();
 	}
 
 	/**
