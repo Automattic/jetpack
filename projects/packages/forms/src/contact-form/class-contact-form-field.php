@@ -1347,7 +1347,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
 		$class  = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="contact-form__select-wrapper $1"', $class );
-		$field .= "<div ${class} style='" . esc_attr( $this->field_styles ) . "'>";
+		$field .= "<div {$class} style='" . esc_attr( $this->field_styles ) . "'>";
 		$field .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
