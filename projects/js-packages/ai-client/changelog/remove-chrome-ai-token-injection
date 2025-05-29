@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+We've changed how we inject Chrome's built-in AI API tokens. It will be done from another script.
