@@ -41,7 +41,7 @@ dev:
 
       ## SFTP server running at localhost:1022
       sftp:
-        image: atmoz/sftp
+        image: jmcombs/sftp
         volumes:
           ## WordPress and its plugins and themes should be defined in volumeMappings in jetpack-docker-config-default.yml or jetpack-docker-config.yml, not here!
           ## That avoids having to define them both here and in the "wordpress" service.
