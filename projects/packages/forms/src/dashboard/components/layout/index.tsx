@@ -5,7 +5,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackFooter, useBreakpointMatch } from '@automattic/jetpack-components';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { TabPanel } from '@wordpress/components';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -32,6 +32,12 @@ const Layout = ( {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	const enableIntegrationsTab = config( 'enableIntegrationsTab' );
+
+	useEffect( () => {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_dashboard_page_view', {
+			viewport: isSm ? 'mobile' : 'desktop',
+		} );
+	}, [ isSm ] );
 
 	const tabs = useMemo(
 		() => [

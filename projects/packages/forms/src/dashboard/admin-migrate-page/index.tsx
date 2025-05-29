@@ -12,7 +12,7 @@ import {
 	getUserLocale,
 } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
-import { useMemo, useCallback } from '@wordpress/element';
+import { useEffect, useMemo, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -84,6 +84,12 @@ const AdminMigratePage = () => {
 		() => getLocaleScreenshotName( getUserLocale(), isSm ),
 		[ isSm ]
 	);
+
+	useEffect( () => {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_admin_migrate_page_view', {
+			viewport: isSm ? 'mobile' : 'desktop',
+		} );
+	}, [ isSm ] );
 
 	const onCheckNewFormsClick = useCallback( () => {
 		jetpackAnalytics.tracks.recordEvent(
