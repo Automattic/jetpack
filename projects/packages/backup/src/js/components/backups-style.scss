@@ -1,7 +1,7 @@
-@import '@automattic/jetpack-base-styles/style';
+@use '@automattic/jetpack-base-styles/style' as jpbs;
 @import 'masthead/calypso-mixins';
 
-@include for-tablet-up {
+@include jpbs.for-tablet-up {
 
 	.lg-col-span-0 {
 		display: none;
@@ -288,7 +288,7 @@
 			text-decoration: none;
 		}
 
-		@include for-tablet-down {
+		@include jpbs.for-tablet-down {
 			width: 100%;
 			
 		}
@@ -309,7 +309,7 @@
 	.backup-segments__storage-section {
 		grid-row: span 2;
 
-		@include for-tablet-down {
+		@include jpbs.for-tablet-down {
 			grid-row: 1;
 		}
 	}
