@@ -1613,7 +1613,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$comment_ip_text = $comment_author_ip ? "IP: {$comment_author_ip}\n" : null;
 
-		$post_id = wp_insert_post(
+		$feedback_post_id = wp_insert_post(
 			array(
 				'post_date'    => addslashes( $feedback_time ),
 				'post_type'    => 'feedback',
@@ -1629,7 +1629,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// once insert has finished we don't need this filter any more
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
-		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
+		update_post_meta( $feedback_post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 
 		if ( 'publish' === $feedback_status ) {
 			// Increase count of unread feedback.
@@ -1638,7 +1638,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( defined( 'AKISMET_VERSION' ) ) {
-			update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
+			update_post_meta( $feedback_post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
 		}
 
 		/**
@@ -1653,7 +1653,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param boolean $is_spam Whether the form submission has been identified as spam.
 		 * @param array   $entry_values The feedback entry values.
 		 */
-		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this->fields, $is_spam, $entry_values );
+		do_action( 'grunion_after_feedback_post_inserted', $feedback_post_id, $this->fields, $is_spam, $entry_values );
 
 		/**
 		 * Filter the title used in the response email.
@@ -1665,7 +1665,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string the title of the email
 		 */
 		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
-		$message = self::get_compiled_form_for_email( $post_id, $this );
+		$message = self::get_compiled_form_for_email( $feedback_post_id, $this );
 
 		if ( is_user_logged_in() ) {
 			$sent_by_text = sprintf(
@@ -1771,7 +1771,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// This is called after `contact_form_message`, in order to preserve back-compat
 		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions );
 
-		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
+		update_post_meta( $feedback_post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
 		/**
 		 * Fires right before the contact form message is sent via email to
@@ -1785,7 +1785,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param array $all_values Contact form fields
 		 * @param array $extra_values Contact form fields not included in $all_values
 		 */
-		do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values );
+		do_action( 'grunion_pre_message_sent', $feedback_post_id, $all_values, $extra_values );
 
 		// schedule deletes of old spam feedbacks
 		if ( ! wp_next_scheduled( 'grunion_scheduled_delete' ) ) {
@@ -1804,7 +1804,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 * @param bool true Should an email be sent after a form submission. Default to true.
 			 * @param int $post_id Post ID.
 			 */
-			true === apply_filters( 'grunion_should_send_email', true, $post_id )
+			true === apply_filters( 'grunion_should_send_email', true, $feedback_post_id )
 		) {
 			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		} elseif (
@@ -1838,7 +1838,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param array $all_values Contact form fields.
 		 * @param array $extra_values Contact form fields not included in $all_values
 		 */
-		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
+		do_action( 'grunion_after_message_sent', $feedback_post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
 
 		// If the request accepts JSON, return a JSON response instead of redirecting
 		$is_ajax_submission_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', false );
@@ -1859,7 +1859,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-			return self::success_message( $post_id, $this );
+			return self::success_message( $feedback_post_id, $this );
 		}
 
 		$redirect        = '';
@@ -1886,8 +1886,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				urlencode_deep(
 					array(
 						'contact-form-id'   => $rendered_form_id,
-						'contact-form-sent' => $post_id,
-						'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :( .
+						'contact-form-sent' => $feedback_post_id,
+						'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$feedback_post_id}" ), // wp_nonce_url HTMLencodes :( .
 					)
 				),
 				$redirect
@@ -1905,7 +1905,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param int $id Contact Form ID.
 		 * @param int $post_id Post ID.
 		 */
-		$redirect = apply_filters( 'grunion_contact_form_redirect_url', $redirect, $rendered_form_id, $post_id );
+		$redirect = apply_filters( 'grunion_contact_form_redirect_url', $redirect, $rendered_form_id, $feedback_post_id );
 		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We intentially allow external redirects here.
 		wp_redirect( $redirect );
 		exit( 0 );
