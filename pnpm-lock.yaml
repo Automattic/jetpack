@@ -129,6 +129,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../connection
+      '@automattic/jetpack-explat':
+        specifier: workspace:*
+        version: link:../../packages/explat
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../shared-extension-utils
