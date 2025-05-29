@@ -86,9 +86,12 @@ const AdminMigratePage = () => {
 	);
 
 	const onCheckNewFormsClick = useCallback( () => {
-		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_new_forms_page_cta_click', {
-			viewport: isSm ? 'mobile' : 'desktop',
-		} );
+		jetpackAnalytics.tracks.recordEvent(
+			'jetpack_forms_admin_migrate_page_check_new_forms_button_click',
+			{
+				viewport: isSm ? 'mobile' : 'desktop',
+			}
+		);
 
 		window.location.href = dashboardURL;
 	}, [ isSm, dashboardURL ] );
