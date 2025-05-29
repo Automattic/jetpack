@@ -95,6 +95,7 @@ class SupportCard extends React.Component {
 								<Button
 									onClick={ this.trackGettingStartedClick }
 									href={ getRedirectUrl( 'jetpack-support-getting-started' ) }
+									target="_blank"
 								>
 									{ __( 'Getting started with Jetpack', 'jetpack' ) }
 									<Gridicon className="dops-card__link-indicator" icon="external" />
@@ -107,6 +108,7 @@ class SupportCard extends React.Component {
 										? getRedirectUrl( 'calypso-help' )
 										: getRedirectUrl( 'jetpack-support' )
 								}
+								target="_blank"
 							>
 								{ __( 'Search our support site', 'jetpack' ) }
 								<Gridicon className="dops-card__link-indicator" icon="external" />
