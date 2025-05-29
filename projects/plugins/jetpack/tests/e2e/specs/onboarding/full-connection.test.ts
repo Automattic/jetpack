@@ -65,8 +65,8 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 
 	await test.step( 'Verify site and user connection', async () => {
 		// Find a block which has h2 with text "Connection"
-		const h2 = page.getByRole( 'heading', { level: 2, name: 'Connection' } );
-		const connectionBlock = h2.locator( 'xpath=..' ); // immediate parent
+		const h3 = page.getByRole( 'heading', { level: 3, name: 'Connection' } );
+		const connectionBlock = h3.locator( 'xpath=..' ); // immediate parent
 
 		await expect( connectionBlock, {
 			message: 'Should have the text saying the site is connected.',
