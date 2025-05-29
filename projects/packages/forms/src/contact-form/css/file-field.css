@@ -68,20 +68,24 @@
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
-	transition: visibility 0.3s ease-in-out;
+}
+
+@media not (prefers-reduced-motion) {
+
+	/* Animation for the visibility change */
+	.jetpack-form-file-field__preview-wrap {
+		transition: visibility 0.3s ease-in-out;
+	}
 }
 
 .jetpack-form-file-field__preview-wrap.is-active {
 	visibility: visible;
-
 }
 
 .jetpack-form-file-field__preview {
 	align-items: center;
-	animation: jpShowFileField 0.35s cubic-bezier(.21,1.02,.73,1) forwards;
 	display: flex;
 	gap: 1em;
-	opacity: 0;
 	padding: 16px;
 	position: relative;
 	justify-content:start;
@@ -93,10 +97,16 @@
 	line-height: 18px;
 }
 
-@media (prefers-reduced-motion) {
+@media not (prefers-reduced-motion) {
 
-	.jetpack-form-file-field__preview {
-		animation: none;
+	.jetpack-form-file-field__preview-wrap.is-active .jetpack-form-file-field__preview {
+		opacity: 0;
+		animation: jpShowFileField 0.35s cubic-bezier(.21,1.02,.73,1) forwards;
+	}
+
+	/* Animation for the fade out effect */
+	.jetpack-form-file-field__preview.fade-out {
+		animation: jpFadeOutFileField 0.3s forwards;
 	}
 }
 
@@ -112,28 +122,15 @@
 
 .jetpack-form-file-field__preview > * {
 	z-index: 2;
-	transition: height 0.3s ease;
 }
 
-@media (prefers-reduced-motion) {
+@media not (prefers-reduced-motion) {
 
-	.jetpack-form-file-field__preview > *,
-	.jetpack-form-file-field__preview:hover::before {
-		transition: none;
+	.jetpack-form-file-field__preview > * {
+		transition: height 0.3s ease;
 	}
 }
 
-
-.jetpack-form-file-field__preview.fade-out {
-	animation: jpFadeOutFileField 0.3s forwards;
-}
-
-@media (prefers-reduced-motion) {
-
-	.jetpack-form-file-field__preview.fade-out {
-		animation: none;
-	}
-}
 
 .grunion-field-file-wrap .wp-block-jetpack-contact-form {
 	gap: 8px;
@@ -163,7 +160,13 @@
 	border-radius: 50%;
 	background-color: var(--jetpack--contact-form--input-background, #fff );
 	filter: invert(0.1);
-	transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+@media not (prefers-reduced-motion) {
+
+	.jetpack-form-file-field__remove:hover {
+		transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+	}
 }
 
 .jetpack-form-file-field__remove::before,
@@ -197,7 +200,7 @@
 	aspect-ratio: 1 / 1;
 	background-position: center;
 	background-size: cover;
-	outline: 1 solid  var( --jetpack--contact-form--button-primary--text-color, #FFF );
+	outline: 1 solid var( --jetpack--contact-form--button-primary--text-color, #FFF );
 	background-color: #333;
 	border-radius: 50%;
 	outline-offset:0;
@@ -215,8 +218,14 @@
 	height: 46px;
 	left: 0;
 	top: 0;
-	outline: 1 solid  var( --jetpack--contact-form--button-primary--text-color, #FFF );
-	transition: width 0.5s ease-in-out;
+	border: 1px solid var(--jetpack--contact-form--border-color, #333);
+}
+
+@media not (prefers-reduced-motion) {
+
+	.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__image {
+		transition: width 0.5s ease-in-out;
+	}
 }
 
 .jetpack-form-file-field__progress-bar {
@@ -234,23 +243,23 @@
 	);
 
 	z-index: -1;
-	animation: spin 1.2s ease infinite;
 	opacity: 0.8;
 	width: 46px;
 	height: 46px;
+}
+
+@media not (prefers-reduced-motion) {
+
+	/* Animation for the progress bar */
+	.jetpack-form-file-field__progress-bar {
+		animation: jpSpin 1.2s ease infinite;
+	}
 }
 
 .jetpack-form-file-field__preview.is-error .jetpack-form-file-field__progress-bar,
 .jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__progress-bar {
 	animation: none;
 	opacity: 0;
-}
-
-@keyframes spin {
-
-    from {transform:rotate(0deg);}
-
-    to {transform:rotate(360deg);}
 }
 
 .jetpack-form-file-field__file-info {
@@ -283,9 +292,15 @@
 
 @keyframes jpShowFileField {
 
-	0% {transform: translate3d(0,-10px, 0) scale(.90); opacity:.5;}
+	0% { 
+		transform: translate3d(0,-10px, 0) scale(.90); 
+		opacity:.5;
+	}
 
-	100% {transform: translate3d(0,0,0) scale(1); opacity:1;}
+	100% { 
+		transform: translate3d(0,0,0) scale(1);
+		opacity:1; 
+	}
 }
 
 @keyframes jpFadeOutFileField {
@@ -298,5 +313,16 @@
 	100% {
 		opacity: 0;
 		transform: scale(0.98);
+	}
+}
+
+@keyframes jpSpin {
+
+    from { 
+		transform: rotate(0deg); 
+	}
+
+    to { 
+		transform: rotate(360deg);
 	}
 }

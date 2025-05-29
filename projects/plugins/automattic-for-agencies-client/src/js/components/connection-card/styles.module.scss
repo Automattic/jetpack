@@ -1,4 +1,4 @@
-@import '@automattic/color-studio/dist/color-variables';
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 .card {
 	display: flex;
@@ -103,14 +103,14 @@
 	}
 
 	.terms-of-service__link {
-		color: $studio-automattic-blue;
+		color: studio.$studio-automattic-blue;
 		white-space: nowrap;
 	}
 
 	:global {
 
 		.components-button.is-link {
-			color: $studio-automattic-blue;
+			color: studio.$studio-automattic-blue;
 			white-space: nowrap;
 			text-decoration: underline;
 		}
@@ -123,7 +123,7 @@
 	:global {
 
 		.components-button {
-			background-color: $studio-automattic-blue;
+			background-color: studio.$studio-automattic-blue;
 			min-width: 178px;
 		}
 	}
@@ -133,7 +133,7 @@
 
 	.components-button.is-link.components-button--back {
 		font-size: 14px;
-		color: $studio-black;
+		color: studio.$studio-black;
 		text-decoration: none;
 
 		&:hover {

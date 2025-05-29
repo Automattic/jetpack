@@ -1,17 +1,14 @@
-@import "@wordpress/base-styles/colors";
-@import "@wordpress/base-styles/variables";
-@import "@wordpress/base-styles/mixins";
-@import "@wordpress/base-styles/breakpoints";
-@import "@wordpress/base-styles/animations";
-@import "@wordpress/base-styles/z-index";
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/mixins";
 @import "./reset";
 @import "./editor-styles";
 
 .playground {
 	padding-top: 20px;
 
-	@include break-small() {
-		width: calc(100% - #{$sidebar-width});
+	@include mixins.break-small() {
+		width: calc(100% - #{variables.$sidebar-width});
 	}
 
 	img {
@@ -34,8 +31,8 @@
 	top: 0;
 	right: 0;
 	bottom: 0;
-	width: $sidebar-width;
-	border-left: $border-width solid $gray-300;
+	width: variables.$sidebar-width;
+	border-left: variables.$border-width solid colors.$gray-300;
 	height: auto;
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
@@ -43,7 +40,7 @@
 	// Temporarily disable the sidebar on mobile
 	display: none;
 
-	@include break-small() {
+	@include mixins.break-small() {
 		display: block;
 	}
 }

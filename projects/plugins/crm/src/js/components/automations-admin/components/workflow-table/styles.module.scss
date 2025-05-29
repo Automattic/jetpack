@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/style';
+@use '@automattic/jetpack-base-styles/style';
 
 .container {
 	// We have to allow x overflow since table components arent inherently responsive

@@ -1,17 +1,17 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .wp-block-premium-content-container .premium-content-tabs {
 	align-items: center;
-	background: $white;
-	color: $gray-700;
+	background: gb.$white;
+	color: gb.$gray-700;
 	display: flex;
 	flex-wrap: wrap;
-	font-family: $default-font;
-	font-size: $default-font-size;
+	font-family: gb.$default-font;
+	font-size: gb.$default-font-size;
 	position: relative;
 	margin: 0 0 0 -1px;
 	padding: 8px 14px;
-	border: 1px solid $gray-900;
+	border: 1px solid gb.$gray-900;
 	border-radius: 2px;
 }
 
@@ -65,7 +65,7 @@
 
 %button-outline-style {
 	background-color: unset;
-	color: $gray-800;
+	color: gb.$gray-800;
 }
 
 .wp-block-premium-content-login-button,

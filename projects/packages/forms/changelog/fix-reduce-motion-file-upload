@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: file upload field make it work for reduce motion case

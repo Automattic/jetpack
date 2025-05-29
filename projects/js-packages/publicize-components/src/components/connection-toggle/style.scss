@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .components-connection-toggle {
 	position: relative;
@@ -14,7 +14,7 @@
 		}
 
 		.jetpack-publicize-gutenberg-social-icon {
-			fill: $gray-600;
+			fill: gb.$gray-600;
 			filter: saturate(0);
 		}
 	}
