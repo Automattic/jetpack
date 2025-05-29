@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
+use Automattic\Jetpack\Boost\App\Contracts\Is_Dev_Feature;
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
@@ -14,7 +15,7 @@ use Automattic\Jetpack_Boost\Lib\Output_Filter;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_LCP;
 
-class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync, Has_Always_Available_Endpoints {
+class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync, Has_Always_Available_Endpoints, Is_Dev_Feature {
 	/** LCP type for background images. */
 	const TYPE_BACKGROUND_IMAGE = 'background-image';
 
@@ -120,11 +121,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @since 3.13.1
 	 */
 	public static function is_available() {
-		if ( defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) && JETPACK_BOOST_ALPHA_FEATURES ) {
-			return true;
-		}
-
-		return false;
+		return true;
 	}
 
 	/**
