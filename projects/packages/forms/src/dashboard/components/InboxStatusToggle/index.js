@@ -66,6 +66,8 @@ export default function InboxStatusToggle( { currentQuery } ) {
 
 	return (
 		<ToggleGroupControl
+			__next40pxDefaultSize
+			__nextHasNoMarginBottom
 			key={ `${ totalItemsInbox ?? 0 }-${ totalItemsSpam ?? 0 }-${ totalItemsTrash ?? 0 }` }
 			className="jp-forms__inbox-status-toggle"
 			value={ status }
