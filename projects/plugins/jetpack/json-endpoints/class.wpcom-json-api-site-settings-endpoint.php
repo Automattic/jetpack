@@ -512,6 +512,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_hide_action_bar'            => (bool) get_option( 'wpcom_hide_action_bar' ),
 					);
 
+					require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+					if ( class_exists( 'Jetpack_Memberships' ) ) {
+						$response['newsletter_plans_configured'] = Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' );
+					}
+
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 						$response[ $key ]['wpcom_publish_posts_with_markdown']    = (bool) WPCom_Markdown::get_instance()->is_posting_enabled();
 						$response[ $key ]['wpcom_publish_comments_with_markdown'] = (bool) WPCom_Markdown::get_instance()->is_commenting_enabled();

@@ -19,8 +19,13 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
  * @return {React.Component} Paid Newsletter component.
  */
 function PaidNewsletter( props ) {
-	const { isSubscriptionsActive, setupPaymentPlansUrl, subscriptionsModule, siteHasConnectedUser } =
-		props;
+	const {
+		haveNewsletterPlans,
+		isSubscriptionsActive,
+		setupPaymentPlansUrl,
+		subscriptionsModule,
+		siteHasConnectedUser,
+	} = props;
 
 	const setupPaymentPlansButtonDisabled = ! isSubscriptionsActive;
 
@@ -43,7 +48,7 @@ function PaidNewsletter( props ) {
 			>
 				<p className="jp-settings-card__email-settings">
 					{ __(
-						'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',
+						'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',
 						'jetpack'
 					) }
 				</p>
@@ -55,7 +60,7 @@ function PaidNewsletter( props ) {
 					primary
 					rna
 				>
-					{ __( 'Set up', 'jetpack' ) }
+					{ haveNewsletterPlans ? __( 'Manage Plans', 'jetpack' ) : __( 'Add Plans', 'jetpack' ) }
 				</Button>
 			</SettingsGroup>
 		</SettingsCard>
@@ -65,6 +70,7 @@ function PaidNewsletter( props ) {
 export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
+			haveNewsletterPlans: ownProps.getOptionValue( 'newsletter_plans_configured' ),
 			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			setupPaymentPlansUrl: getJetpackCloudUrl( state, 'monetize/payments' ),
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
