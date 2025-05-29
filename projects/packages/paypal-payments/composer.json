@@ -38,7 +38,7 @@
 			"@composer phpunit"
 		],
 		"test-js": [
-			"pnpm run test:block"
+			"pnpm run test:js"
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
