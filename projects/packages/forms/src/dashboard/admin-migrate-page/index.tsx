@@ -1,18 +1,25 @@
+/**
+ * External dependencies
+ */
 import {
 	AdminPage,
 	AdminSectionHero,
 	Container,
 	Col,
 	JetpackLogo,
+	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import { config } from '../index';
+import './style.scss';
 
-// TODO: This is a temporary page to migrate the admin page to the new menu
-// and this is a mockup of the new page until the new page is implemented.
 const AdminMigratePage = () => {
+	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const ASSETS_URL = useMemo( () => config( 'pluginAssetsURL' ), [] );
 	const dashboardURL = useMemo( () => config( 'dashboardURL' ), [] );
 	const header = (
@@ -32,7 +39,7 @@ const AdminMigratePage = () => {
 		</div>
 	);
 	return (
-		<div style={ { padding: '0 0 0 24px' } }>
+		<div className="jp-forms__admin-migrate-page-wrapper">
 			<AdminPage moduleName={ __( 'Jetpack Forms', 'jetpack-forms' ) } header={ header }>
 				<AdminSectionHero>
 					<Container>
@@ -49,11 +56,19 @@ const AdminMigratePage = () => {
 								</Button>
 							</p>
 							<p style={ { marginTop: '3em' } }>
-								<img
-									style={ { maxWidth: '100%' } }
-									src={ `${ ASSETS_URL }/images/forms-moved.png` }
-									alt={ __( 'Forms moved', 'jetpack-forms' ) }
-								/>
+								{ isSm ? (
+									<img
+										style={ { maxWidth: '100%' } }
+										src={ `${ ASSETS_URL }/images/forms-moved-mobile.png` }
+										alt={ __( 'Forms moved', 'jetpack-forms' ) }
+									/>
+								) : (
+									<img
+										style={ { maxWidth: '100%' } }
+										src={ `${ ASSETS_URL }/images/forms-moved.png` }
+										alt={ __( 'Forms moved', 'jetpack-forms' ) }
+									/>
+								) }
 							</p>
 						</Col>
 					</Container>

@@ -1,4 +1,4 @@
-@import '@automattic/color-studio/dist/color-variables';
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 .disconnect_site_trigger {
     display: flex;
@@ -44,7 +44,7 @@
         }
 
         .components-button.is-secondary {
-            box-shadow: inset 0 0 0 1px $studio-gray-5;
+            box-shadow: inset 0 0 0 1px studio.$studio-gray-5;
         }
     }
 }
