@@ -4,4 +4,10 @@
 	<rule ref="Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition">
 		<exclude-pattern>*</exclude-pattern>
 	</rule>
+	<rule ref="Universal.Operators.DisallowStandalonePostIncrementDecrement.PostIncrementFound">
+		<exclude-pattern>*</exclude-pattern>
+	</rule>
+	<rule ref="Universal.Arrays.DisallowShortArraySyntax.Found">
+		<exclude-pattern>*</exclude-pattern>
+	</rule>
 </ruleset>

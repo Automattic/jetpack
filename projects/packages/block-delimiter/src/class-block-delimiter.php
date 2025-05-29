@@ -206,7 +206,7 @@ class Block_Delimiter {
 
 				$closer_must_be_at = $dashes_at + 2 + strspn( $text, '-', $dashes_at + 2 );
 				if ( $closer_must_be_at < $end && '!' === $text[ $closer_must_be_at ] ) {
-					++$closer_must_be_at;
+					$closer_must_be_at++;
 				}
 
 				if ( $closer_must_be_at < $end && '>' === $text[ $closer_must_be_at ] ) {
@@ -214,7 +214,7 @@ class Block_Delimiter {
 					return;
 				}
 
-				++$now_at;
+				$now_at++;
 			}
 		};
 
@@ -461,10 +461,10 @@ class Block_Delimiter {
 				list( $text_opener, $text_closer ) = static::freeform_pair( $text, $at, $match_at - $at );
 
 				++$depth;
-				yield array( $at, 0 ) => $text_opener;
+				yield [ $at, 0 ] => $text_opener;
 
 				--$depth;
-				yield array( $match_at, 0 ) => $text_closer;
+				yield [ $match_at, 0 ] => $text_closer;
 			}
 
 			$delimiter_type = $delimiter->get_delimiter_type();
@@ -480,7 +480,7 @@ class Block_Delimiter {
 					break;
 			}
 
-			yield array( $match_at, $match_length ) => $delimiter;
+			yield [ $match_at, $match_length ] => $delimiter;
 
 			if ( static::VOID === $delimiter_type ) {
 				--$depth;
@@ -494,10 +494,10 @@ class Block_Delimiter {
 			list( $text_opener, $text_closer ) = static::freeform_pair( $text, $at, $end - $at );
 
 			++$depth;
-			yield array( $at, 0 ) => $text_opener;
+			yield [ $at, 0 ] => $text_opener;
 
 			--$depth;
-			yield array( $end, 0 ) => $text_closer;
+			yield [ $end, 0 ] => $text_closer;
 		}
 	}
 
@@ -539,7 +539,7 @@ class Block_Delimiter {
 		$closer->json_at      = $end_at;
 		$closer->type         = static::CLOSER;
 
-		return array( $opener, $closer );
+		return [ $opener, $closer ];
 	}
 
 	/**
