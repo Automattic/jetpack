@@ -1,7 +1,6 @@
 import TimeAgo from '$features/critical-css/time-ago/time-ago';
 import { __ } from '@wordpress/i18n';
 import { useLcpState } from '../lib/stores/lcp-state';
-import { ErrorDetails } from './error-details';
 import styles from './status.module.scss';
 
 const Status: React.FC = () => {
@@ -52,7 +51,6 @@ const Status: React.FC = () => {
 				{ __( 'Last optimized', 'jetpack-boost' ) }{ ' ' }
 				<TimeAgo time={ new Date( lcpState.updated * 1000 ) } />.
 			</div>
-			{ lcpState?.status === 'analyzed' && <ErrorDetails /> }
 		</>
 	);
 };

@@ -5,7 +5,7 @@
 // We should move this to a shared location.
 
 .status {
-	margin-bottom: 32px;
+	margin-bottom: 16px;
 	font-size: 14px;
 	line-height: 22px;
 	display: flex;
@@ -39,10 +39,6 @@
 
 		&:global( .components-button.has-icon ) {
 			min-width: auto;
-		}
-
-		svg {
-			fill: $jetpack-green;
 		}
 	}
 

@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import styles from './status/status.module.scss';
 import { useLcpState, useOptimizeLcpAction } from './lib/stores/lcp-state';
 import Status from './status/status';
+import { ErrorDetails } from './status/error-details';
 
 const Lcp = () => {
 	const [ query ] = useLcpState();
@@ -59,6 +60,7 @@ const Lcp = () => {
 					{ __( 'Optimize', 'jetpack-boost' ) }
 				</Button>
 			</div>
+			{ lcpState?.status === 'analyzed' && <ErrorDetails /> }
 		</Module>
 	);
 };
