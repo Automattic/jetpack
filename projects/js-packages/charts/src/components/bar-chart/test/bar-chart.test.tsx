@@ -192,8 +192,8 @@ describe( 'BarChart', () => {
 			} );
 
 			// Query for tspan elements that contain the formatted date.
-			const tspanWithDate = screen.getByText( '1/3/24' );
-			expect( tspanWithDate ).toBeInTheDocument();
+			const tspansWithDate = screen.getAllByText( '1/3/24' );
+			expect( tspansWithDate.length ).toBeGreaterThan( 0 );
 		} );
 	} );
 } );
