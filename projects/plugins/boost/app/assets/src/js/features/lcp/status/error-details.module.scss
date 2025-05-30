@@ -9,6 +9,8 @@
 	}
 
 	&__list {
+		margin: 0;
+		padding-top: 16px;
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
