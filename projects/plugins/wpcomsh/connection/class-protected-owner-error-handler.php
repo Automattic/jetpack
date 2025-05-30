@@ -94,10 +94,8 @@ class Protected_Owner_Error_Handler {
 	 * @return array Updated verified errors including protected owner errors.
 	 */
 	public function handle_error( $verified_errors ) {
-		// Always check for and remove invalid_connection_owner error if it exists
-		if ( isset( $verified_errors['invalid_connection_owner'] ) ) {
-			unset( $verified_errors['invalid_connection_owner'] );
-		}
+		// Clear all existing errors first
+		$verified_errors = array();
 
 		$raw_error = $this->get_active_error();
 
