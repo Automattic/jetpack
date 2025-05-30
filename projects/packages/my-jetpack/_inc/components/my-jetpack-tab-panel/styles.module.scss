@@ -2,6 +2,9 @@
 
 .tab-panel {
 
+    max-width: var(--max-container-width);
+    margin: 0 auto;
+
 	// Make all the links green
 	a,
 	:global(.components-external-link),
@@ -10,16 +13,14 @@
 	}
 
 	:global(.components-tab-panel__tabs) {
+		position: relative;
+		z-index: 1;
 		padding-inline-start: 2rem;
 		margin-block-end: -1px;
 
 		@media (max-width: $break-medium ) {
 			padding-inline-start: 1rem;
 		}
-	}
-
-	:global(.components-tab-panel__tab-content) {
-		border-top: 1px solid var(--jp-gray);
 	}
 }
 
@@ -50,3 +51,10 @@
 	}
 }
 
+.full-width-separator {
+	border-top: 1px solid var(--jp-gray);
+	width: 100vw;
+	position: relative;
+	inset-inline: 50%;
+	margin-inline-start: -50vw;
+}
