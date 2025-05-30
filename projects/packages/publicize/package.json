@@ -38,7 +38,7 @@
 		"autoprefixer": "10.4.20",
 		"concurrently": "7.6.0",
 		"postcss": "8.4.47",
-		"postcss-custom-properties": "12.1.7",
+		"postcss-custom-properties": "12.1.11",
 		"postcss-loader": "8.1.1",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",

@@ -51,7 +51,7 @@
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",
 		"postcss": "8.4.47",
-		"postcss-custom-properties": "12.1.7",
+		"postcss-custom-properties": "12.1.11",
 		"postcss-loader": "8.1.1",
 		"require-from-string": "2.0.2",
 		"sass-embedded": "1.87.0",
