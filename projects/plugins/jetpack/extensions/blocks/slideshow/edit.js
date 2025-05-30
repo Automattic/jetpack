@@ -34,9 +34,7 @@ export const pickRelevantMediaFiles = ( image, sizeSlug ) => {
 		get( image, [ 'media_details', 'sizes', sizeSlug ] ) ||
 		image;
 	imageProps.aspectRatio =
-		imageSize.width && imageSize.height
-			? `calc(${ imageSize.width } / ${ imageSize.height })`
-			: null;
+		imageSize.width && imageSize.height ? `${ imageSize.width } / ${ imageSize.height }` : null;
 	return imageProps;
 };
 
