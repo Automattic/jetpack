@@ -894,7 +894,7 @@
 				border-radius: unset !important;
 				outline: none;
 				padding: var(--jetpack--contact-form--input-padding, 16px);
-				padding-right: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
+				padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
 				padding-left: min(100px, var(--jetpack--contact-form--notch-width));
 			}
 		}
