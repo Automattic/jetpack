@@ -24,11 +24,6 @@ import { wpcomTrackEvent } from 'wpcom-tracks-module';
 		// Create card container
 		const container = document.createElement( 'div' );
 		container.className = 'wpcom-homepage-notice card';
-		if ( data.screenId === 'edit-page' ) {
-			container.classList.add( 'is-edit-page' );
-		} else if ( data.screenId === 'site-editor' ) {
-			container.classList.add( 'is-site-editor' );
-		}
 
 		// Crete left column element
 		const leftColumn = document.createElement( 'div' );
@@ -66,11 +61,7 @@ import { wpcomTrackEvent } from 'wpcom-tracks-module';
 			btn.href = data.editLink;
 			btn.textContent = data.editText;
 			btn.onclick = function () {
-				if ( data.screenId === 'edit-page' ) {
-					wpcomTrackEvent( 'wpcom_pages_edit_homepage_banner_clicked' );
-				} else if ( data.screenId === 'site-editor' ) {
-					wpcomTrackEvent( 'wpcom_site_editor_pages_edit_homepage_banner_clicked' );
-				}
+				wpcomTrackEvent( 'wpcom_pages_edit_homepage_banner_clicked' );
 			};
 
 			rightColumn.appendChild( btn );
@@ -99,93 +90,12 @@ import { wpcomTrackEvent } from 'wpcom-tracks-module';
 
 		const banner = createBannerElement( data );
 
-		if ( data.screenId === 'edit-page' ) {
-			const $tablenav = $( '.tablenav.top' );
+		const $tablenav = $( '.tablenav.top' );
 
-			if ( $tablenav.length ) {
-				wpcomTrackEvent( 'wpcom_pages_edit_homepage_banner_shown' );
+		if ( $tablenav.length ) {
+			wpcomTrackEvent( 'wpcom_pages_edit_homepage_banner_shown' );
 
-				$tablenav.before( banner );
-			}
-		}
-
-		if ( data.screenId === 'site-editor' ) {
-			hijackHistory();
-
-			waitForElement( $, '.edit-site-layout__content', function () {
-				$( '.edit-site' ).prepend( banner );
-
-				if ( isPagesListPage() ) {
-					wpcomTrackEvent( 'wpcom_site_editor_pages_edit_homepage_banner_shown' );
-
-					banner.classList.add( 'show' );
-				}
-
-				window.addEventListener( 'locationchange', function () {
-					if ( isPagesListPage() ) {
-						wpcomTrackEvent( 'wpcom_site_editor_pages_edit_homepage_banner_shown' );
-
-						banner.classList.add( 'show' );
-					} else {
-						banner.classList.remove( 'show' );
-					}
-				} );
-			} );
+			$tablenav.before( banner );
 		}
 	} );
 } )( jQuery );
-
-const hijackHistory = () => {
-	// Save a reference to the original methods
-	const originalPushState = history.pushState;
-	const originalReplaceState = history.replaceState;
-
-	// Override pushState
-	history.pushState = function () {
-		const result = originalPushState.apply( history, arguments );
-
-		window.dispatchEvent( new Event( 'locationchange' ) );
-		return result;
-	};
-
-	// Override replaceState
-	history.replaceState = function () {
-		const result = originalReplaceState.apply( history, arguments );
-
-		window.dispatchEvent( new Event( 'locationchange' ) );
-		return result;
-	};
-
-	// Listen for popstate (for browser back/forward buttons)
-	window.addEventListener( 'popstate', function () {
-		window.dispatchEvent( new Event( 'locationchange' ) );
-	} );
-};
-
-const waitForElement = ( $, selector, callback ) => {
-	// Check if the element already exists on initial load
-	if ( $( selector ).length ) {
-		callback();
-		return;
-	}
-
-	const observer = new MutationObserver( function ( mutationsList, obs ) {
-		for ( const mutation of mutationsList ) {
-			// Check if the added nodes contain our selector
-			if ( mutation.type === 'childList' && $( selector ).length ) {
-				obs.disconnect();
-				callback();
-				return;
-			}
-		}
-	} );
-
-	observer.observe( document.body, { childList: true, subtree: true } );
-};
-
-const isPagesListPage = () => {
-	const url = new URL( window.location.href );
-	const params = new URLSearchParams( url.search );
-
-	return params.get( 'p' ) === '/page';
-};

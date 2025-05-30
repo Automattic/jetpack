@@ -17,10 +17,9 @@ function wpcom_add_pages_homepage_connection_banner() {
 		return;
 	}
 
-	$is_edit_page_screen   = 'edit-page' === $screen->id;
-	$is_site_editor_screen = 'site-editor' === $screen->id;
+	$is_edit_page_screen = 'edit-page' === $screen->id;
 
-	if ( ! $is_edit_page_screen && ! $is_site_editor_screen ) {
+	if ( ! $is_edit_page_screen ) {
 		return;
 	}
 
@@ -45,7 +44,6 @@ function wpcom_add_pages_homepage_connection_banner() {
 		'editLink' => $can_edit ? esc_url( admin_url( 'site-editor.php' ) ) : '',
 		'editText' => esc_html__( 'Edit homepage', 'jetpack-mu-wpcom' ),
 		'canEdit'  => $can_edit,
-		'screenId' => esc_html( $screen->id ),
 	);
 
 	add_filter(

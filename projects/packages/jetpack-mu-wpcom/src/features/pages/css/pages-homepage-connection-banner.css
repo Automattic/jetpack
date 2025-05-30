@@ -14,16 +14,6 @@
     box-shadow: none;
     box-sizing: border-box;
     display: block;
-
-	&.is-site-editor {
-		display: none;
-		margin: 16px 16px 0 12px;
-		width: calc(100% - 28px);
-
-		&.show {
-			display: block;
-		}
-	}
 }
 
 .wpcom-homepage-notice-content {
