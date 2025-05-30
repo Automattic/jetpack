@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import apiFetch from '@wordpress/api-fetch';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 
@@ -23,10 +26,12 @@ export const useIntegrationStatus = slug => {
 			} );
 			return;
 		}
+
 		try {
 			const response = await apiFetch( {
 				path: `/wp/v2/feedback/integrations/${ slug }`,
 			} );
+
 			setStatus( {
 				isLoading: false,
 				integration: response,
@@ -50,6 +55,7 @@ export const useIntegrationStatus = slug => {
 			...current,
 			isLoading: true,
 		} ) );
+
 		await fetchIntegration();
 	}, [ fetchIntegration ] );
 

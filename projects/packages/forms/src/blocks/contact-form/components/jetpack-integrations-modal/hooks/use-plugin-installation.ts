@@ -1,6 +1,17 @@
+/**
+ * External dependencies
+ */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useState, useCallback } from '@wordpress/element';
+/**
+ * Internal dependencies
+ */
 import { installAndActivatePlugin, activatePlugin } from '../../../util/plugin-management';
+
+type PluginInstallation = {
+	isInstalling: boolean;
+	installPlugin: () => Promise< boolean >;
+};
 
 /**
  * Custom hook to handle plugin installation and activation flows.
@@ -11,7 +22,12 @@ import { installAndActivatePlugin, activatePlugin } from '../../../util/plugin-m
  * @param {string}  tracksEventName - The name of the tracks event to record
  * @return {object} Plugin installation states and handlers
  */
-export const usePluginInstallation = ( slug, pluginPath, isInstalled, tracksEventName ) => {
+export const usePluginInstallation = (
+	slug: string,
+	pluginPath: string,
+	isInstalled: boolean,
+	tracksEventName: string
+): PluginInstallation => {
 	const [ isInstalling, setIsInstalling ] = useState( false );
 	const { tracks } = useAnalytics();
 

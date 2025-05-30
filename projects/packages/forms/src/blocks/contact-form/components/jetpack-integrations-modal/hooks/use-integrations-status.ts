@@ -1,14 +1,32 @@
+/**
+ * External dependencies
+ */
 import apiFetch from '@wordpress/api-fetch';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
+/**
+ * Internal dependencies
+ */
+import type { Integration } from '../../../../../dashboard/integrations/types';
+
+type IntegrationsStatusReturn = {
+	isLoading: boolean;
+	integrations: Integration[];
+	error: Error | null;
+	refreshIntegrations: () => Promise< void >;
+};
 
 /**
  * Custom hook to fetch and manage all integrations status.
  *
  * @return {object} Object containing integrations data and loading state
  */
-export const useIntegrationsStatus = () => {
-	const [ status, setStatus ] = useState( {
+export const useIntegrationsStatus = (): IntegrationsStatusReturn => {
+	const [ status, setStatus ] = useState< {
+		isLoading: boolean;
+		integrations: Integration[];
+		error: Error | null;
+	} >( {
 		isLoading: true,
 		integrations: [],
 		error: null,
@@ -16,7 +34,7 @@ export const useIntegrationsStatus = () => {
 
 	const fetchIntegrations = useCallback( async () => {
 		try {
-			const response = await apiFetch( {
+			const response: Integration[] = await apiFetch( {
 				path: addQueryArgs( '/wp/v2/feedback/integrations', {
 					version: 2,
 				} ),
@@ -42,6 +60,7 @@ export const useIntegrationsStatus = () => {
 			...current,
 			isLoading: true,
 		} ) );
+
 		await fetchIntegrations();
 	}, [ fetchIntegrations ] );
 
