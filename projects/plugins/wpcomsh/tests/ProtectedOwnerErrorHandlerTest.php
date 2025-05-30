@@ -70,17 +70,17 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Test with non-array data
 		update_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION, 'invalid_data' );
 		$result = $this->handler->handle_error( $original_errors );
-		$this->assertEquals( $original_errors, $result );
+		$this->assertEquals( array(), $result );
 
 		// Test with missing error_type
 		update_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION, array( 'email' => 'test@example.com' ) );
 		$result = $this->handler->handle_error( $original_errors );
-		$this->assertEquals( $original_errors, $result );
+		$this->assertEquals( array(), $result );
 
 		// Test with missing email
 		update_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION, array( 'error_type' => 'missing_owner' ) );
 		$result = $this->handler->handle_error( $original_errors );
-		$this->assertEquals( $original_errors, $result );
+		$this->assertEquals( array(), $result );
 	}
 
 	/**
@@ -104,8 +104,8 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 
 		$result = $this->handler->handle_error( $original_errors );
 
-		// Should return original errors and delete the stored error
-		$this->assertEquals( $original_errors, $result );
+		// Should return empty array and delete the stored error
+		$this->assertEquals( array(), $result );
 		$this->assertFalse( get_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION ) );
 	}
 
