@@ -6,6 +6,25 @@ import { useLcpState } from '../lib/stores/lcp-state';
 import styles from './error-details.module.scss';
 
 export const ErrorDetails = () => {
+	const dictionary = {
+		unknown: __(
+			'Something went wrong while optimizing this page. Please try again later or contact support if the issue persists.',
+			'jetpack-boost'
+		),
+		'element-not-unique': __(
+			'This page has multiple similar large elements, making it difficult to determine which one to optimize. Manual optimization may be needed.',
+			'jetpack-boost'
+		),
+		'http-error': __(
+			"We couldn't access this page due to a connection issue. Please check that the page is publicly accessible and try again.",
+			'jetpack-boost'
+		),
+		'lcp-timeout': __(
+			"We couldn't identify the main LCP element within the time limit. This may happen with slow-loading or complex pages.",
+			'jetpack-boost'
+		),
+	};
+
 	const [ query ] = useLcpState();
 	const lcpState = query?.data;
 
@@ -23,7 +42,9 @@ export const ErrorDetails = () => {
 		return null;
 	}
 
-	const errorMessages = errors.flatMap( p => ( p.errors || [] ).map( e => e.message ) );
+	const errorMessages = errors.flatMap( p =>
+		( p.errors || [] ).map( e => dictionary[ e?.type ?? 'unknown' ] )
+	);
 
 	return (
 		<Notice
