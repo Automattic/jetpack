@@ -624,6 +624,7 @@ class Error_Handler_Test extends BaseTestCase {
 	public function test_send_error_to_wpcom_encryption_failure() {
 		// Mock encryption to fail
 		$error_handler_mock = $this->getMockBuilder( Error_Handler::class )
+			->disableOriginalConstructor()
 			->onlyMethods( array( 'encrypt_data_to_wpcom' ) )
 			->getMock();
 
