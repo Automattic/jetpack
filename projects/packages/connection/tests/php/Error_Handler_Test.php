@@ -576,10 +576,10 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test jetpack_react_dashboard_error with custom error data
+	 * Test jetpack_react_dashboard_error with custom error data (non-protected_owner)
 	 */
 	public function test_jetpack_react_dashboard_error_with_custom_data() {
-		// Mock a verified error with custom action and data
+		// Mock a verified error with custom action and data (but not protected_owner)
 		$custom_error = array(
 			'test_error' => array(
 				'1' => array(
@@ -618,13 +618,16 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertIsArray( $result );
 		$this->assertCount( 1, $result );
 
+		// For non-protected_owner errors, should use default values regardless of custom data
 		$this->assertEquals( 'connection_error', $result[0]['code'] );
-		$this->assertEquals( 'Custom error message', $result[0]['message'] );
-		$this->assertEquals( 'custom_action', $result[0]['action'] );
-		$this->assertArrayHasKey( 'support_url', $result[0]['data'] );
-		$this->assertArrayHasKey( 'custom_data', $result[0]['data'] );
-		$this->assertEquals( 'https://example.com/support', $result[0]['data']['support_url'] );
-		$this->assertEquals( 'test_value', $result[0]['data']['custom_data'] );
+		$this->assertEquals( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', $result[0]['message'] );
+		$this->assertEquals( 'reconnect', $result[0]['action'] );
+
+		// Should only have api_error_code, not the custom data
+		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
+		$this->assertEquals( 'test_error', $result[0]['data']['api_error_code'] );
+		$this->assertArrayNotHasKey( 'support_url', $result[0]['data'] );
+		$this->assertArrayNotHasKey( 'custom_data', $result[0]['data'] );
 	}
 
 	/**
@@ -704,5 +707,145 @@ class Error_Handler_Test extends BaseTestCase {
 
 		// Should return true if encryption succeeds (which it should with valid data)
 		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test jetpack_react_dashboard_error with protected_owner error
+	 */
+	public function test_jetpack_react_dashboard_error_with_protected_owner() {
+		// Mock a verified protected_owner error with custom message and action
+		$protected_owner_error = array(
+			'protected_owner' => array(
+				'1' => array(
+					'error_code'    => 'protected_owner',
+					'user_id'       => '1',
+					'error_message' => 'This site has a protected owner. Please contact support.',
+					'error_data'    => array(
+						'action'      => 'support',
+						'support_url' => 'https://jetpack.com/support',
+						'owner_id'    => 123,
+					),
+					'timestamp'     => time(),
+					'nonce'         => 'test_nonce',
+					'error_type'    => 'protected_owner',
+				),
+			),
+		);
+
+		// Mock the get_verified_errors method to return our protected_owner error
+		add_filter(
+			'jetpack_connection_get_verified_errors',
+			function () use ( $protected_owner_error ) {
+				return $protected_owner_error;
+			}
+		);
+
+		// Set the error code on the handler to protected_owner
+		$reflection = new \ReflectionClass( $this->error_handler );
+		$property   = $reflection->getProperty( 'error_code' );
+		$property->setAccessible( true );
+		$property->setValue( $this->error_handler, 'protected_owner' );
+
+		$initial_errors = array();
+		$result         = $this->error_handler->jetpack_react_dashboard_error( $initial_errors );
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+
+		// Verify the error structure
+		$this->assertEquals( 'connection_error', $result[0]['code'] );
+		$this->assertEquals( 'This site has a protected owner. Please contact support.', $result[0]['message'] );
+		$this->assertEquals( 'support', $result[0]['action'] );
+
+		// Verify the error data includes both api_error_code and custom data
+		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
+		$this->assertEquals( 'protected_owner', $result[0]['data']['api_error_code'] );
+		$this->assertArrayHasKey( 'support_url', $result[0]['data'] );
+		$this->assertEquals( 'https://jetpack.com/support', $result[0]['data']['support_url'] );
+		$this->assertArrayHasKey( 'owner_id', $result[0]['data'] );
+		$this->assertEquals( 123, $result[0]['data']['owner_id'] );
+	}
+
+	/**
+	 * Test jetpack_react_dashboard_error with protected_owner error but no custom data
+	 */
+	public function test_jetpack_react_dashboard_error_with_protected_owner_no_custom_data() {
+		// Mock a verified protected_owner error without custom message or action
+		$protected_owner_error = array(
+			'protected_owner' => array(
+				'1' => array(
+					'error_code'    => 'protected_owner',
+					'user_id'       => '1',
+					'error_message' => '',
+					'error_data'    => array(),
+					'timestamp'     => time(),
+					'nonce'         => 'test_nonce',
+					'error_type'    => 'protected_owner',
+				),
+			),
+		);
+
+		// Mock the get_verified_errors method to return our protected_owner error
+		add_filter(
+			'jetpack_connection_get_verified_errors',
+			function () use ( $protected_owner_error ) {
+				return $protected_owner_error;
+			}
+		);
+
+		// Set the error code on the handler to protected_owner
+		$reflection = new \ReflectionClass( $this->error_handler );
+		$property   = $reflection->getProperty( 'error_code' );
+		$property->setAccessible( true );
+		$property->setValue( $this->error_handler, 'protected_owner' );
+
+		$initial_errors = array();
+		$result         = $this->error_handler->jetpack_react_dashboard_error( $initial_errors );
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+
+		// Should use default values when custom data is not available
+		$this->assertEquals( 'connection_error', $result[0]['code'] );
+		$this->assertEquals( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', $result[0]['message'] );
+		$this->assertEquals( 'reconnect', $result[0]['action'] );
+
+		// Should still have api_error_code
+		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
+		$this->assertEquals( 'protected_owner', $result[0]['data']['api_error_code'] );
+	}
+
+	/**
+	 * Test jetpack_react_dashboard_error with protected_owner error but no verified errors
+	 */
+	public function test_jetpack_react_dashboard_error_with_protected_owner_no_verified_errors() {
+		// Mock empty verified errors
+		add_filter(
+			'jetpack_connection_get_verified_errors',
+			function () {
+				return array();
+			}
+		);
+
+		// Set the error code on the handler to protected_owner
+		$reflection = new \ReflectionClass( $this->error_handler );
+		$property   = $reflection->getProperty( 'error_code' );
+		$property->setAccessible( true );
+		$property->setValue( $this->error_handler, 'protected_owner' );
+
+		$initial_errors = array();
+		$result         = $this->error_handler->jetpack_react_dashboard_error( $initial_errors );
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+
+		// Should use default values when no verified errors exist
+		$this->assertEquals( 'connection_error', $result[0]['code'] );
+		$this->assertEquals( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', $result[0]['message'] );
+		$this->assertEquals( 'reconnect', $result[0]['action'] );
+
+		// Should still have api_error_code
+		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
+		$this->assertEquals( 'protected_owner', $result[0]['data']['api_error_code'] );
 	}
 }
