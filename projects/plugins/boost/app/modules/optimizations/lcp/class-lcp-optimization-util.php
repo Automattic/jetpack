@@ -93,28 +93,24 @@ class LCP_Optimization_Util {
 		return false;
 	}
 
-	public function get_image_to_preload() {
+	public function get_lcp_image_url() {
 		if ( ! $this->can_optimize() ) {
 			return null;
 		}
 
-		if ( LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] ) {
+		if ( LCP::TYPE_BACKGROUND_IMAGE !== $this->lcp_data['type'] && LCP::TYPE_IMAGE !== $this->lcp_data['type'] ) {
 			return null;
 		}
 
-		if ( empty( $this->lcp_data['elementData'] ) || ! is_array( $this->lcp_data['elementData'] ) ) {
+		if ( empty( $this->lcp_data['url'] ) ) {
 			return null;
 		}
 
-		if ( empty( $this->lcp_data['elementData']['url'] ) ) {
+		if ( ! wp_http_validate_url( $this->lcp_data['url'] ) ) {
 			return null;
 		}
 
-		if ( ! wp_http_validate_url( $this->lcp_data['elementData']['url'] ) ) {
-			return null;
-		}
-
-		return $this->lcp_data['elementData']['url'];
+		return $this->lcp_data['url'];
 	}
 
 	/**

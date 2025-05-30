@@ -1,23 +1,10 @@
-@use "sass:math";
-
-// Loading @wordpress/base-styles as they have mixins and other dependencies
-// used within @wordpress/*/src/*.scss
-// @todo Remove once @wordpress/*/src/*.scss has been updated to use `@use`.
-@import "@wordpress/base-styles/animations";
-@import "@wordpress/base-styles/breakpoints";
-@import "@wordpress/base-styles/colors";
-@import "@wordpress/base-styles/mixins";
-@import "@wordpress/base-styles/variables";
-@import "@wordpress/base-styles/z-index";
-@import "@wordpress/base-styles/default-custom-properties";
+// Root variables from js-packages base styles
+@use "../../base-styles/root-variables";
 
 // @wordpress package styles
-@import "@wordpress/components/src/style";
-@import "@wordpress/block-editor/src/style";
-@import "@wordpress/block-library/src/style";
-@import "@wordpress/block-library/src/theme";
-@import "@wordpress/block-library/src/editor";
-@import "@wordpress/format-library/src/style";
-
-// Root variables from js-packages base styles
-@import "../../base-styles/root-variables";
+@import "@wordpress/components/build-style/style.css";
+@import "@wordpress/block-editor/build-style/style.css";
+@import "@wordpress/block-library/build-style/style.css";
+@import "@wordpress/block-library/build-style/theme.css";
+@import "@wordpress/block-library/build-style/editor.css";
+@import "@wordpress/format-library/build-style/style.css";

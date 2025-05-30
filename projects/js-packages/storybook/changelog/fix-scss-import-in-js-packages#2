@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Import built CSS for `@wordpress/*` packages instead of rebuilding from Sass sources.
