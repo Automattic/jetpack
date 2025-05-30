@@ -12,12 +12,16 @@ import useRestoreConnection from '../../hooks/use-restore-connection/index.jsx';
 export default function useConnectionErrorNotice() {
 	const { connectionErrors } = useConnection( {} );
 	const connectionErrorList = Object.values( connectionErrors ).shift();
-	const connectionErrorMessage =
+	const firstError =
 		connectionErrorList &&
 		Object.values( connectionErrorList ).length &&
-		Object.values( connectionErrorList ).shift().error_message;
+		Object.values( connectionErrorList ).shift();
 
-	const hasConnectionError = Boolean( connectionErrorMessage );
+	const connectionErrorMessage = firstError && firstError.error_message;
+
+	// Hide error notice for protected owner errors
+	const isProtectedOwnerError = firstError && firstError.error_type === 'protected_owner';
+	const hasConnectionError = Boolean( connectionErrorMessage ) && ! isProtectedOwnerError;
 
 	return { hasConnectionError, connectionErrorMessage };
 }
