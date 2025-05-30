@@ -501,7 +501,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 		require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 		if ( class_exists( 'Jetpack_Memberships' ) ) {
-			$response['newsletter_plans_configured'] = Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' );
+			$response['newsletter_has_active_plan'] = count( Jetpack_Memberships::get_all_newsletter_plan_ids( false ) ) > 0;
 		}
 
 		return rest_ensure_response( $response );
