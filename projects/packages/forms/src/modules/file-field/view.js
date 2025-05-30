@@ -394,5 +394,21 @@ const { state, actions } = store( NAMESPACE, {
 		},
 	},
 
-	callbacks: {},
+	callbacks: {
+		focusElement: function () {
+			const { ref } = getElement();
+			setTimeout( () => {
+				ref.focus(); // .closest( '.jetpack-form-file-field__preview-wrap' ).focus( { focusVisible: true } );
+			}, 100 );
+
+			return withScope( function () {
+				const dropzone = ref
+					.closest( '.jetpack-form-file-field__container' )
+					.querySelector( '.jetpack-form-file-field__dropzone-inner' );
+				setTimeout( () => {
+					dropzone.focus( { focusVisible: true } );
+				}, 100 );
+			} );
+		},
+	},
 } );

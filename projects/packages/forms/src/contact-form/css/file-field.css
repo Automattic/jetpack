@@ -46,7 +46,8 @@
 	cursor: pointer;
 }
 
-.jetpack-form-file-field__dropzone-inner:focus {
+.jetpack-form-file-field__preview:focus-visible,
+.jetpack-form-file-field__dropzone-inner:focus-visible {
 	outline: var(--jetpack--contact-form--border-size, 1px) solid var(--jetpack--contact-form--border-color, #333 );
 	outline-offset: 1px;
 }
