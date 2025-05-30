@@ -111,7 +111,7 @@ class Simple_Payments {
 		);
 		Assets::register_script(
 			'jetpack-paypal-express-checkout',
-			'../dist/paypal-express-checkout.js',
+			'./paypal-express-checkout.js',
 			__FILE__,
 			array(
 				'dependencies' => array(
@@ -122,7 +122,7 @@ class Simple_Payments {
 		);
 		wp_register_style(
 			'jetpack-simple-payments',
-			'../dist/simple-payments.css',
+			'./simple-payments.css',
 			array( 'dashicons' ),
 			self::PACKAGE_VERSION,
 			false /* @phan-suppress-current-line PhanTypeMismatchArgument */
