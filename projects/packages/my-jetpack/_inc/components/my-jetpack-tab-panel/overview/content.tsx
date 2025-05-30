@@ -4,7 +4,7 @@ import ConnectionsSection from '../../connections-section';
 import PlansSection from '../../plans-section';
 import ProductCardsSection from '../../product-cards-section';
 import { FullWidthSeparator } from '../full-width-separator';
-import { JetpackManageUpsell } from './jetpack-manage-upsell';
+import { A4AUpsell } from './a4a-upsell';
 import styles from './styles.module.scss';
 
 /**
@@ -21,7 +21,7 @@ export function OverviewContent() {
 
 			{ currentUserCan( 'manage_options' ) ? (
 				<div className={ styles[ 'jetpack-manage-upsell' ] }>
-					<JetpackManageUpsell />
+					<A4AUpsell />
 				</div>
 			) : null }
 
