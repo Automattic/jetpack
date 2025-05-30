@@ -2832,8 +2832,8 @@ importers:
         specifier: 4.1.0
         version: 4.1.0
       postcss-custom-properties:
-        specifier: 12.1.7
-        version: 12.1.7(postcss@8.4.47)
+        specifier: 12.1.11
+        version: 12.1.11(postcss@8.4.47)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -3123,8 +3123,8 @@ importers:
         specifier: 8.4.47
         version: 8.4.47
       postcss-custom-properties:
-        specifier: 12.1.7
-        version: 12.1.7(postcss@8.4.47)
+        specifier: 12.1.11
+        version: 12.1.11(postcss@8.4.47)
       postcss-loader:
         specifier: 8.1.1
         version: 8.1.1(postcss@8.4.47)(webpack@5.94.0)
@@ -3301,8 +3301,8 @@ importers:
         specifier: 8.4.47
         version: 8.4.47
       postcss-custom-properties:
-        specifier: 12.1.7
-        version: 12.1.7(postcss@8.4.47)
+        specifier: 12.1.11
+        version: 12.1.11(postcss@8.4.47)
       postcss-loader:
         specifier: 8.1.1
         version: 8.1.1(postcss@8.4.47)(webpack@5.94.0)
@@ -3667,8 +3667,8 @@ importers:
         specifier: 8.4.47
         version: 8.4.47
       postcss-custom-properties:
-        specifier: 12.1.7
-        version: 12.1.7(postcss@8.4.47)
+        specifier: 12.1.11
+        version: 12.1.11(postcss@8.4.47)
       postcss-loader:
         specifier: 8.1.1
         version: 8.1.1(postcss@8.4.47)(typescript@5.8.2)(webpack@5.94.0)
@@ -4657,8 +4657,8 @@ importers:
         specifier: 4.1.1
         version: 4.1.1
       postcss-custom-properties:
-        specifier: 12.1.7
-        version: 12.1.7(postcss@8.4.47)
+        specifier: 12.1.11
+        version: 12.1.11(postcss@8.4.47)
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -13376,11 +13376,11 @@ packages:
     peerDependencies:
       postcss: ^8.4.32
 
-  postcss-custom-properties@12.1.7:
-    resolution: {integrity: sha512-N/hYP5gSoFhaqxi2DPCmvto/ZcRDVjE3T1LiAMzc/bg53hvhcHOLpXOHb526LzBBp5ZlAUhkuot/bfpmpgStJg==}
+  postcss-custom-properties@12.1.11:
+    resolution: {integrity: sha512-0IDJYhgU8xDv1KY6+VgUwuQkVtmYzRwu+dMjnmdMafXYv86SWqfxkc7qdDvWS38vsjaEtv8e0vGOUQrAiMBLpQ==}
     engines: {node: ^12 || ^14 || >=16}
     peerDependencies:
-      postcss: ^8.4
+      postcss: ^8.2
 
   postcss-discard-comments@7.0.4:
     resolution: {integrity: sha512-6tCUoql/ipWwKtVP/xYiFf1U9QgJ0PUvxN7pTcsQ8Ns3Fnwq1pU5D5s1MhT/XySeLq6GXNvn37U46Ded0TckWg==}
@@ -27136,7 +27136,7 @@ snapshots:
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
-  postcss-custom-properties@12.1.7(postcss@8.4.47):
+  postcss-custom-properties@12.1.11(postcss@8.4.47):
     dependencies:
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
