@@ -1,0 +1,22 @@
+@import '$css/main/mixins';
+
+.summary {
+	margin-top: 16px;
+	margin-bottom: 16px;
+
+	@include breakpoint( xs ) {
+		margin-bottom: 1em;
+	}
+
+	&__list {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	&__row {
+		list-style: disc;
+		margin-bottom: 0;
+		margin-left: 20px;
+	}
+}

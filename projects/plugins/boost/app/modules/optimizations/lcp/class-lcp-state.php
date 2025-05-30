@@ -112,6 +112,24 @@ class LCP_State {
 			$page_key,
 			array(
 				'status' => self::PAGE_STATES['success'],
+				'errors' => null,
+			)
+		);
+	}
+
+	/**
+	 * Signifies that the page was not optimized for reason(s) in $errors.
+	 *
+	 * @param string $page_key The page key.
+	 * @param array  $errors   The errors to set for the page.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
+	 */
+	public function set_page_errors( $page_key, $errors ) {
+		return $this->update_page_state(
+			$page_key,
+			array(
+				'status' => self::PAGE_STATES['error'],
+				'errors' => $errors,
 			)
 		);
 	}
