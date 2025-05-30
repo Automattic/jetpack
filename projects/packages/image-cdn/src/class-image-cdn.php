@@ -976,11 +976,11 @@ final class Image_CDN {
 	/**
 	 * Filters an array of image `srcset` values, replacing each URL with its Photon equivalent.
 	 *
-	 * @param array $sources An array of image urls and widths.
-	 * @param array $size_array The size array for srcset.
-	 * @param array $image_src The image srcs.
-	 * @param array $image_meta The image meta.
-	 * @param int   $attachment_id Attachment ID.
+	 * @param array  $sources An array of image urls and widths.
+	 * @param array  $size_array The size array for srcset.
+	 * @param string $image_src The image src attribute.
+	 * @param array  $image_meta The image meta.
+	 * @param int    $attachment_id Attachment ID.
 	 *
 	 * @uses self::validate_image_url, Image_CDN_Core::cdn_url
 	 * @uses Image_CDN::strip_image_dimensions_maybe, Image_CDN_Core::get_jetpack_content_width
