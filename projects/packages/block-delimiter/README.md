@@ -364,6 +364,20 @@ This makes it ideal for operations like finding specific blocks, counting block 
 
 You can contribute to this package by submitting a pull request to the [Jetpack repository](https://github.com/Automattic/jetpack/tree/trunk/projects/packages/block-delimiter).
 
+### Coding standards
+
+This package follows standards set by the [Jetpack Codesniffer package](https://packagist.org/packages/automattic/jetpack-codesniffer), with a few exceptions documented in the package's `.phpcs.dir.xml` file.
+
+### Testing
+
+When introducing new features or making changes to existing code, please add tests.
+
+To run the tests, you can use the following command:
+
+```bash
+composer phpunit
+```
+
 ## Using this package in your WordPress plugin
 
 If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
