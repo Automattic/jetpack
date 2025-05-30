@@ -93,7 +93,7 @@
 		"cookie": "1.0.2",
 		"copy-webpack-plugin": "11.0.0",
 		"crypto-js": "4.2.0",
-		"debug": "4.4.0",
+		"debug": "4.4.1",
 		"email-validator": "2.0.4",
 		"events": "3.3.0",
 		"filesize": "10.1.6",
