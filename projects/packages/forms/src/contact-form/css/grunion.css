@@ -411,10 +411,10 @@
 	font-size: inherit;
 
 	/*
-		* The translateY is to center the arrow vertically.
-		* It's set to -75% to account for the fact that only the bottom-half of the element is visible.
-		* If we set it to -50%, the element would be centered, but not the visible part of the arrow.
-		*/
+	 * The translateY is to center the arrow vertically.
+	 * It's set to -75% to account for the fact that only the bottom-half of the element is visible.
+	 * If we set it to -50%, the element would be centered, but not the visible part of the arrow.
+	 */
 	transform: translateY(-75%) rotate(45deg);
 	transform-origin: center center;
 	pointer-events: none;
