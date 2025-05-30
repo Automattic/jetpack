@@ -44,7 +44,6 @@
 	font: inherit;
 	border: 1px solid #8c8f94;
 	border-radius: 0;
-	z-index: 1;
 }
 
 :where(.contact-form textarea) {
@@ -400,25 +399,25 @@
 
 .contact-form .contact-form__select-wrapper .jetpack-field-dropdown__icon::after {
 	position: absolute;
-    inset-inline-end: 20px;
-    top: 50%;
-    content: "";
-    display: block;
-    width: calc(1em / 2.5);
-    height: calc(1em / 2.5);
-    border-bottom: calc(1em / 10) solid;
-    border-right: calc(1em / 10) solid;
-	color: var(--jetpack--contact-form--text-color);
+	inset-inline-end: 20px;
+	top: 50%;
+	content: "";
+	display: block;
+	width: calc(1em / 2.5);
+	height: calc(1em / 2.5);
+	border-bottom: calc(1em / 10) solid;
+	border-right: calc(1em / 10) solid;
+	color: inherit;
 	font-size: inherit;
 
 	/*
-	 * The translateY is to center the arrow vertically.
-	 * It's set to -75% to account for the fact that only the bottom-half of the element is visible.
-	 * If we set it to -50%, the element would be centered, but not the visible part of the arrow.
-	 */
-    transform: translateY(-75%) rotate(45deg);
-    transform-origin: center center;
-    pointer-events: none;
+		* The translateY is to center the arrow vertically.
+		* It's set to -75% to account for the fact that only the bottom-half of the element is visible.
+		* If we set it to -50%, the element would be centered, but not the visible part of the arrow.
+		*/
+	transform: translateY(-75%) rotate(45deg);
+	transform-origin: center center;
+	pointer-events: none;
 	z-index: 1;
 }
 
@@ -739,8 +738,8 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 /* Fix padding for new forms in animated style */
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > .wp-block-jetpack-input:not(.select),
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input:not(.select),
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > .wp-block-jetpack-input:not(.contact-form__select-wrapper),
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input:not(.contact-form__select-wrapper),
 .contact-form .is-style-animated .wp-block-jetpack-options.jetpack-field-multiple__list--has-border {
 	padding-left: var(--jetpack--contact-form--animated-left-offset);
 	padding-right: var(--jetpack--contact-form--animated-left-offset);
@@ -825,6 +824,11 @@ on production builds, the attributes are being reordered, causing side-effects
 	top: 0;
 	left: 0;
 	transform: translateY(0);
+}
+
+.contact-form .is-style-outlined .wp-block-jetpack-input:not(.contact-form__select-wrapper),
+.contact-form .is-style-animated .wp-block-jetpack-input:not(.contact-form__select-wrapper) {
+	z-index: 2;
 }
 
 .contact-form .is-style-below .grunion-field-wrap .below-label__label {
