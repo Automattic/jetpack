@@ -923,7 +923,6 @@ class Jetpack_Memberships {
 		$is_cached_site = ( new Host() )->is_wpcom_simple() && is_jetpack_site();
 		if ( ! $is_cached_site ) {
 			$meta_query = array(
-				'relation' => 'AND',
 				array(
 					'key'   => 'jetpack_memberships_type',
 					'value' => self::$type_tier,
