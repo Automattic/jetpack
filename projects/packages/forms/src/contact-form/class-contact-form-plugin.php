@@ -17,8 +17,8 @@ use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
-use WP_Block_Patterns_Registry;
 use WP_Block;
+use WP_Block_Patterns_Registry;
 use WP_Block_Type_Registry;
 use WP_Error;
 

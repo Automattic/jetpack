@@ -945,16 +945,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		// TODO: Make this backward compatible. Previously, this would use label styles not option styles.
-		// TODO: Is it better to apply the option classes and styles to the wrapper or the label?
-		$label_class  = 'grunion-field-label checkbox';
-		$label_class .= $this->is_error() ? ' form-error' : '';
-		$label_class .= $this->label_classes ? ' ' . $this->label_classes : '';
-		$label_class .= $this->option_classes ? ' ' . $this->option_classes : '';
+		$label_class                   = 'grunion-field-label checkbox';
+		$label_class                  .= $this->is_error() ? ' form-error' : '';
+		$label_class                  .= $this->label_classes ? ' ' . $this->label_classes : '';
+		$label_class                  .= $this->option_classes ? ' ' . $this->option_classes : '';
+		$has_inner_block_option_styles = ! empty( $this->get_attribute( 'optionstyles' ) );
 
 		$field  = "<div class='contact-form__checkbox-wrap'>";
 		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
-		$field .= "<label for='" . esc_attr( $id ) . "' class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . esc_attr( $this->option_styles ) . "'>";
+		$field .= "<label for='" . esc_attr( $id ) . "' class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "'>";
 		$field .= wp_kses_post( $label ) . ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
 		$field .= "</label>\n";
 		$field .= "<div class='clear-form'></div>\n";
@@ -969,14 +968,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class html classes (can be set by the admin).
 	 */
 	private function render_consent_field( $id, $class ) {
-		$consent_type    = 'explicit' === $this->get_attribute( 'consenttype' ) ? 'explicit' : 'implicit';
-		$consent_message = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
+		$consent_type                  = 'explicit' === $this->get_attribute( 'consenttype' ) ? 'explicit' : 'implicit';
+		$consent_message               = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
+		$label_class                   = 'grunion-field-label consent consent-' . esc_attr( $consent_type );
+		$label_class                  .= $this->option_classes ? ' ' . $this->option_classes : '';
+		$has_inner_block_option_styles = ! empty( $this->get_attribute( 'optionstyles' ) );
 
-		// TODO: Confirm legacy consent blocks with custom label styles still display correctly without having been migrated.
-		$label_class  = 'grunion-field-label consent consent-' . esc_attr( $consent_type );
-		$label_class .= $this->option_classes ? ' ' . $this->option_classes : '';
-
-		$field = "<label class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . esc_attr( $this->option_styles ) . "'>";
+		$field = "<label class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "'>";
 
 		if ( 'implicit' === $consent_type ) {
 			$field .= "\t\t<input aria-hidden='true' type='checkbox' checked name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' style='display:none;' /> \n";
