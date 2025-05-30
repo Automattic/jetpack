@@ -41,6 +41,11 @@ class LCP_Optimize_Bg_Image {
 		$selectors = array();
 
 		foreach ( $this->lcp_data as $lcp_data ) {
+			$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
+			if ( ! $lcp_optimizer->can_optimize() ) {
+				continue;
+			}
+
 			if ( in_array( $lcp_data['selector'], $selectors, true ) ) {
 				// If we already printed the styling for this element, skip it.
 				continue;
@@ -74,14 +79,18 @@ class LCP_Optimize_Bg_Image {
 		$selectors = array();
 
 		foreach ( $this->lcp_data as $lcp_data ) {
+			$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
+			if ( ! $lcp_optimizer->can_optimize() ) {
+				continue;
+			}
+
 			if ( in_array( $lcp_data['selector'], $selectors, true ) ) {
 				// If we already printed the styling for this element, skip it.
 				continue;
 			}
 			$selectors[] = $lcp_data['selector'];
 
-			$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
-			$image_url     = $lcp_optimizer->get_lcp_image_url();
+			$image_url = $lcp_optimizer->get_lcp_image_url();
 			if ( empty( $image_url ) ) {
 				continue;
 			}

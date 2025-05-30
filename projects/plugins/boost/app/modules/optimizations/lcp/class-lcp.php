@@ -158,6 +158,13 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 								'key'    => Schema::as_string(),
 								'url'    => Schema::as_string(),
 								'status' => Schema::as_string(),
+								'errors' => Schema::as_array(
+									Schema::as_assoc_array(
+										array(
+											'message' => Schema::as_string(),
+										)
+									)
+								)->nullable(),
 							)
 						)
 					),
