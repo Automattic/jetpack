@@ -280,6 +280,11 @@ $action-bar-height: 88px;
 .jp-forms__inbox-response-data-value .file-field {
 	display: flex;
 	gap: 12px;
+	
+	.file-field__item {
+		display: flex;
+		gap: 12px;
+	}
 }
 
 .jp-forms__inbox-response-data-value .file-field svg {
@@ -377,4 +382,30 @@ body.jetpack_page_jetpack-forms-admin {
 
 	/* Important to pair with flex-shrink */
 	min-height: 0;;
+}
+
+
+.jp-forms__inbox-file-preview-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.jp-forms__inbox-file-preview-image {
+  max-width: 100%;
+  height: auto;
+}
+
+.components-modal__content .jp-forms__inbox-file-preview-modal {
+  max-width: 90vw;
+  width: auto;
+  z-index: 100010; // Higher than parent modal
+}
+
+// Make sure backdrop is below the file preview modal but above the response modal
+.components-modal__screen-overlay:nth-of-type(2) {
+  z-index: 100005;
 }

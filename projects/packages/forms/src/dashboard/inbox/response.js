@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink, Modal } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -19,38 +19,68 @@ const isFileUploadField = value => {
 	return value && typeof value === 'object' && 'files' in value && 'field_id' in value;
 };
 
-const renderFieldValue = value => {
-	if ( isFileUploadField( value ) ) {
-		return (
-			<div className="file-field">
-				{ value.files?.length
-					? value.files.map( ( file, index ) => {
-							return (
-								<div key={ index } className="file-field__item">
-									<Button variant="link" href={ file.url } target="_blank">
-										{ decodeEntities( file.name ) } | { file.size }
-									</Button>
-								</div>
-							);
-					  } )
-					: '-' }
-			</div>
-		);
-	}
+const InboxResponse = props => {
+	const { response, loading, onModalStateChange } = props;
 
-	// Emails
-	const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-	if ( emailRegex.test( value ) ) {
-		return <a href={ `mailto:${ value }` }>{ value }</a>;
-	}
-
-	return value;
-};
-
-const InboxResponse = ( { loading, response } ) => {
 	const [ emailCopied, setEmailCopied ] = useState( false );
+	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
+	const [ previewFile, setPreviewFile ] = useState( null );
+	const [ isImageLoading, setIsImageLoading ] = useState( true );
 
 	const ref = useRef( undefined );
+
+	console.log( 'InboxResponse', { onModalStateChange, props } );
+
+	const openFilePreview = useCallback(
+		( file, e ) => {
+			e.preventDefault();
+
+			setPreviewFile( file );
+			setIsPreviewModalOpen( true );
+			onModalStateChange( true );
+		},
+		[ onModalStateChange, setPreviewFile, setIsPreviewModalOpen ]
+	);
+
+	const closePreviewModal = useCallback( () => {
+		setIsPreviewModalOpen( false );
+		setIsImageLoading( true );
+		// Notify parent component that this modal is closed
+		onModalStateChange( false );
+	}, [ onModalStateChange, setIsPreviewModalOpen, setIsImageLoading ] );
+
+	const renderFieldValue = value => {
+		if ( isFileUploadField( value ) ) {
+			return (
+				<div className="file-field">
+					{ value.files.map( ( file, index ) => {
+						return (
+							<div key={ index } className="file-field__item">
+								<span>
+									{ decodeEntities( file.name ) } | { file.size }
+								</span>
+								<Button
+									variant="link"
+									target="_blank"
+									onClick={ e => {
+										setIsImageLoading( true );
+										openFilePreview( file, e );
+									} }
+								>
+									{ __( 'Preview', 'jetpack-forms' ) }
+								</Button>
+
+								<Button variant="link" href={ file.url } target="_blank">
+									{ __( 'Download', 'jetpack-forms' ) }
+								</Button>
+							</div>
+						);
+					} ) }
+				</div>
+			);
+		}
+		return value;
+	};
 
 	useEffect( () => {
 		if ( ! ref.current ) {
@@ -140,6 +170,32 @@ const InboxResponse = ( { loading, response } ) => {
 					</div>
 				) ) }
 			</div>
+
+			{ isPreviewModalOpen && previewFile && (
+				<Modal
+					title={ decodeEntities( previewFile.name ) }
+					onRequestClose={ closePreviewModal }
+					className="jp-forms__inbox-file-preview-modal"
+				>
+					<div className="jp-forms__inbox-file-preview-container">
+						{ isImageLoading && (
+							<div className="jp-forms__inbox-file-loading">
+								<div className="components-spinner" />
+								<div className="jp-forms__inbox-file-loading-message">
+									{ __( 'Loading file preview…', 'jetpack-forms' ) }
+								</div>
+							</div>
+						) }
+						<img
+							src={ previewFile.preview_url || previewFile.url }
+							alt={ decodeEntities( previewFile.name ) }
+							onLoad={ () => setIsImageLoading( false ) }
+							className="jp-forms__inbox-file-preview-image"
+							style={ { display: isImageLoading ? 'none' : 'block' } }
+						/>
+					</div>
+				</Modal>
+			) }
 		</div>
 	);
 };
