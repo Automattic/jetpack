@@ -45,7 +45,7 @@ const JetpackManageBanner = props => {
 			icon={ jetpackManageIcon }
 			title={ __( 'Manage client sites and grow your business', 'jetpack-my-jetpack' ) }
 			description={ __(
-				'Are you an agency or freelancer? We’re working on a new partnership program bringing together the best of Jetpack, Woo, WordPress.com, and Pressable. Get bulk discounts, referral commissions, and more.',
+				'Are you an agency or freelancer? We have a partnership program that brings together the best of Jetpack, Woo, WordPress.com, and Pressable. Get bulk discounts, referral commissions, and more.',
 				'jetpack-my-jetpack'
 			) }
 			primaryCtaLabel={ __( 'Sign up now', 'jetpack-my-jetpack' ) }

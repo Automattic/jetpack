@@ -2,6 +2,13 @@
 
 .tab-panel {
 
+	// Make all the links green
+	a,
+	:global(.components-external-link),
+	:global(.components-button.is-link) {
+		color: var(--jp-green-60);
+	}
+
 	:global(.components-tab-panel__tabs) {
 		padding-inline-start: 2rem;
 		margin-block-end: -1px;

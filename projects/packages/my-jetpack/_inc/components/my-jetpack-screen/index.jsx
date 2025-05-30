@@ -4,7 +4,6 @@
 import {
 	ActionButton,
 	AdminPage,
-	AdminSection,
 	Col,
 	Container,
 	GlobalNotices,
@@ -20,14 +19,9 @@ import { useContext, useEffect, useLayoutEffect, useState } from 'react';
  */
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { NOTICE_SITE_CONNECTION_ERROR } from '../../context/notices/noticeTemplates';
-import {
-	QUERY_GET_JETPACK_MANAGE_DATA_KEY,
-	REST_API_GET_JETPACK_MANAGE_DATA,
-} from '../../data/constants';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useUpdateHistoricallyActiveModules from '../../data/products/use-update-historically-active-modules';
 import useRedBubbleQuery from '../../data/use-red-bubble-query';
-import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import onKeyDownCallback from '../../data/utils/onKeyDownCallback';
 import resetJetpackOptions from '../../data/utils/reset-jetpack-options';
@@ -37,14 +31,10 @@ import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
-import ConnectionsSection from '../connections-section';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
-import JetpackManageBanner from '../jetpack-manage-banner';
-import LoadingBlock from '../loading-block';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import OnboardingTour from '../onboarding-tour';
-import PlansSection from '../plans-section';
 import WelcomeFlow from '../welcome-flow';
 import styles from './styles.module.scss';
 
@@ -92,7 +82,7 @@ export default function MyJetpackScreen() {
 	} );
 	useNotificationWatcher();
 	const {
-		isAtomic = false,
+		// no prettier please
 		adminUrl,
 		sandboxedDomain,
 		isDevVersion,
@@ -108,14 +98,6 @@ export default function MyJetpackScreen() {
 		title: noticeTitle,
 		options: noticeOptions,
 	} = currentNotice || {};
-	const {
-		data: jetpackManageData,
-		isLoading: isJetpackManageLoading,
-		isError: isJetpackManageError,
-	} = useSimpleQuery( {
-		name: QUERY_GET_JETPACK_MANAGE_DATA_KEY,
-		query: { path: REST_API_GET_JETPACK_MANAGE_DATA },
-	} );
 
 	const {
 		data: redBubbleAlerts,
@@ -234,32 +216,6 @@ export default function MyJetpackScreen() {
 			{ isRedirectingFromOnboarding && <OnboardingTour /> }
 
 			<MyJetpackTabPanel />
-
-			{ userIsAdmin && (
-				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
-					<Col>
-						{ isJetpackManageLoading ? (
-							<LoadingBlock height="200px" width="100%" />
-						) : (
-							! isJetpackManageError &&
-							jetpackManageData.isEnabled && (
-								<JetpackManageBanner isAgencyAccount={ jetpackManageData.isAgencyAccount } />
-							)
-						) }
-					</Col>
-				</Container>
-			) }
-
-			<AdminSection>
-				<Container horizontalSpacing={ 8 }>
-					<Col sm={ 4 } md={ 4 } lg={ 6 }>
-						<PlansSection />
-					</Col>
-					<Col sm={ 4 } md={ 4 } lg={ 6 }>
-						{ ! isAtomic && <ConnectionsSection /> }
-					</Col>
-				</Container>
-			</AdminSection>
 		</AdminPage>
 	);
 }
