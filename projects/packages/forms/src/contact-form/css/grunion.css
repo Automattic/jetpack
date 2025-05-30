@@ -95,7 +95,7 @@
 }
 
 .contact-form :where(label.consent) {
-	font-size: 13px;
+	font-size: var(--jetpack--contact-form--label--font-size, 13px);
 	font-weight: 400;
 	text-transform: uppercase;
 }
@@ -541,6 +541,12 @@
 	border-top-left-radius: unset !important;
 	border-bottom-left-radius: unset !important;
 	background-color: var(--jetpack--contact-form--input-background);
+}
+
+/* Preserve the background color for the checkbox multiple and radio wrap when using the old checkbox multiple and radio blocks. */
+.contact-form .is-style-outlined .grunion-field-checkbox-multiple-wrap:not(.wp-block-jetpack-field-checkbox-multiple),
+.contact-form .is-style-outlined .grunion-field-radio-wrap:not(.wp-block-jetpack-field-radio) {
+    background-color: var(--jetpack--contact-form--input-background);
 }
 
 :where( .wp-block-jetpack-contact-form.is-style-outlined ) .wp-block-jetpack-options {
