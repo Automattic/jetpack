@@ -360,6 +360,13 @@ class Contact_Form_Block {
 			)
 		);
 
+		Blocks::jetpack_register_block(
+			'jetpack/dropzone',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_dropzone' ),
+			)
+		);
+
 		add_action(
 			'jetpack_register_gutenberg_extensions',
 			array( __CLASS__, 'set_file_field_extension_available' )

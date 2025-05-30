@@ -5,7 +5,6 @@ const BLOCKS_TEMPLATE = [
 	[
 		'core/paragraph',
 		{
-			align: 'center',
 			content: __(
 				'<strong><a href="#">Select a file</a></strong> or drag and drop your file here.',
 				'jetpack-forms'
@@ -15,6 +14,10 @@ const BLOCKS_TEMPLATE = [
 					padding: {
 						top: '8px',
 						bottom: '8px',
+					},
+					margin: {
+						top: '0',
+						bottom: '0',
 					},
 				},
 				typography: {

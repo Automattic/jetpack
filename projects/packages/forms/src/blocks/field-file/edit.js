@@ -40,6 +40,7 @@ export default function FileFieldEdit( props ) {
 				'jetpack/dropzone',
 				{
 					lock: { move: true, remove: true },
+					layout: { type: 'flex', justifyContent: 'center', orientation: 'vertical' },
 				},
 			],
 		],

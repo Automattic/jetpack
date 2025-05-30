@@ -30,7 +30,7 @@ const settings = {
 			type: 'object',
 			default: {
 				layout: {
-					type: 'constrained',
+					type: 'flex',
 					justifyContent: 'center',
 					orientation: 'vertical',
 				},
@@ -59,12 +59,14 @@ const settings = {
 		html: false,
 		// Mimic the layout settings of the core Group block.
 		layout: {
-			type: 'constrained',
+			type: 'flex',
 			allowSwitching: false,
 			allowInheriting: false,
-			allowEditing: false,
+			allowJustification: true,
+			allowVerticalAlignment: false,
+			allowOrientation: false,
 			default: {
-				type: 'constrained',
+				type: 'flex',
 			},
 		},
 		color: {

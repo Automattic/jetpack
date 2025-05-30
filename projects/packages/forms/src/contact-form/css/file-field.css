@@ -1,3 +1,24 @@
+.wp-block-jetpack-dropzone {
+	display: flex;
+	flex-direction: column;
+}
+
+.wp-block-jetpack-dropzone.is-content-justification-right {
+	align-items: flex-end;
+}
+
+.wp-block-jetpack-dropzone.is-content-justification-left {
+	align-items: flex-start;
+}
+
+.wp-block-jetpack-dropzone.is-content-justification-center {
+	align-items: center;
+}
+
+.wp-block-jetpack-dropzone.is-content-justification-stretch {
+	align-items: stretch;
+}
+
 .jetpack-form-file-field__dropzone {
 	position: relative;
 }
@@ -18,6 +39,11 @@
 	cursor: pointer;
 }
 
+.jetpack-form-file-field__dropzone-inner:focus {
+	outline: var(--jetpack--contact-form--border-size, 1px) solid var(--jetpack--contact-form--border-color, #333 );
+	outline-offset: 1px;
+}
+
 .jetpack-form-file-field__dropzone input[type="file"] {
 	display: none;
 }
@@ -30,8 +56,8 @@
 }
 
 .jetpack-form-file-field__dropzone:hover {
-	outline: var(--b) solid var(--c);
-	outline-offset: var(--g);
+	outline: var(--jetpack--contact-form--border-size, 1px) solid var(--jetpack--contact-form--border-color, #333 );
+	outline-offset: 1px;
 }
 
 .jetpack-form-file-field__content {
@@ -148,18 +174,22 @@
 	text-align: left;
 }
 
-.jetpack-form-file-field__remove {
+.jetpack-form-file-field__remove.jetpack-form-file-field__remove {
 	position: relative;
 	min-width: 33px;
 	height: 33px;
 	margin-right: 10px;
+	box-shadow: none;
+	border: none;
 }
 
-.jetpack-form-file-field__remove:hover {
+.jetpack-form-file-field__remove.jetpack-form-file-field__remove:hover {
 	cursor: pointer;
 	border-radius: 50%;
 	background-color: var(--jetpack--contact-form--input-background, #fff );
 	filter: invert(0.1);
+	box-shadow: none;
+	border: none;
 }
 
 @media not (prefers-reduced-motion) {

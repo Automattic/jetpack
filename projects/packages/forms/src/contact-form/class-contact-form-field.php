@@ -1098,19 +1098,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true );
 
-		if ( class_exists( 'WP_HTML_Tag_Processor' ) ) {
-			$processor = \WP_HTML_Processor::create_fragment( html_entity_decode( $this->content, ENT_COMPAT, 'UTF-8' ) );
-			while ( $processor->next_tag() ) {
-				if ( $processor->has_class( 'wp-block-jetpack-dropzone' ) ) {
-					$processor->add_class( 'is-layout-constrained' );
-				}
-				if ( 'A' === $processor->get_tag() || 'BUTTON' === $processor->get_tag() ) {
-					$processor->set_attribute( 'tabindex', '-1' );
-				}
-			}
-			$this->content = $processor->get_updated_html();
-		}
-
 		ob_start();
 		?>
 		<div
@@ -1154,9 +1141,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								<span class="jetpack-form-file-field__error" data-wp-text="context.file.error"></span>
 							</div>
 						</div>
-
 						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile" title="<?php esc_attr_e( 'Remove', 'jetpack-forms' ); ?>"> </a>
-
 					</div>
 				</template>
 			</div>
@@ -1189,6 +1174,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$version
 		);
 	}
+
 	/**
 	 * Returns the URL for the unauthenticated file upload endpoint.
 	 *
