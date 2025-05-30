@@ -33,6 +33,12 @@ function PaidNewsletter( props ) {
 		analytics.tracks.recordJetpackClick( 'newsletter_settings_setup_payment_plans_button_click' );
 	}, [] );
 
+	// Avoiding ternary to prevent bad minification error.
+	let plansBtnText = __( 'Add Plans', 'jetpack' );
+	if ( haveNewsletterPlans ) {
+		plansBtnText = __( 'Manage Plans', 'jetpack' );
+	}
+
 	return (
 		<SettingsCard
 			{ ...props }
@@ -60,7 +66,7 @@ function PaidNewsletter( props ) {
 					primary
 					rna
 				>
-					{ haveNewsletterPlans ? __( 'Manage Plans', 'jetpack' ) : __( 'Add Plans', 'jetpack' ) }
+					{ plansBtnText }
 				</Button>
 			</SettingsGroup>
 		</SettingsCard>
@@ -70,7 +76,7 @@ function PaidNewsletter( props ) {
 export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
-			haveNewsletterPlans: ownProps.getOptionValue( 'newsletter_plans_configured' ),
+			haveNewsletterPlans: ownProps.getOptionValue( 'newsletter_has_active_plan' ),
 			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			setupPaymentPlansUrl: getJetpackCloudUrl( state, 'monetize/payments' ),
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
