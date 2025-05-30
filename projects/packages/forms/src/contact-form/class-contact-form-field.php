@@ -1346,11 +1346,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
-		$field .= "<div class='contact-form__select-wrapper'>";
-		if ( ! empty( $this->field_classes ) ) {
-			$class = preg_replace( '/class="([^"]*)"/', 'class="$1 ' . esc_attr( $this->field_classes ) . '"', $class );
-		}
-		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . " style='" . esc_attr( $this->field_styles ) . "'>\n";
+		$class  = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="contact-form__select-wrapper $1"', $class );
+		$field .= "<div {$class} style='" . esc_attr( $this->field_styles ) . "'>";
+		$field .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
@@ -1366,7 +1364,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								. "</option>\n";
 			}
 		}
-		$field .= "\t</select>\n";
+		$field .= "\t</select><span class='jetpack-field-dropdown__icon'></span></span>\n";
 		$field .= "</div>\n";
 
 		return $field;

@@ -62,7 +62,6 @@
 }
 
 .contact-form select {
-	padding: 14px 7px;
 	min-width: 150px;
 }
 
@@ -386,27 +385,43 @@
 
 .contact-form .contact-form__select-wrapper {
 	position: relative;
+
+	/*
+	 * Remove padding set on .grunion-field. We want the nested input to have no space around it.
+	 * Instead the padding is added to the `select` element itself.
+	 */
+	 padding: 0;
 }
 
-.contact-form .contact-form__select-wrapper::after {
+.contact-form .contact-form__select-wrapper .jetpack-field-dropdown__icon {
+	position: relative;
+}
+
+.contact-form .contact-form__select-wrapper .jetpack-field-dropdown__icon::after {
 	position: absolute;
 	inset-inline-end: 20px;
 	top: 50%;
-	color: var(--jetpack--contact-form--text-color);
 	content: "";
 	display: block;
-	width: 8px;
-	height: 8px;
-	z-index: 1;
-	border-bottom: 2px solid;
-	border-right: 2px solid;
-	transform: translateY(-50%) rotate(45deg);
+	width: calc(1em / 2.5);
+	height: calc(1em / 2.5);
+	border-bottom: calc(1em / 10) solid;
+	border-right: calc(1em / 10) solid;
+	color: inherit;
+	font-size: inherit;
+
+	/*
+	 * The translateY is to center the arrow vertically.
+	 * It's set to -75% to account for the fact that only the bottom-half of the element is visible.
+	 * If we set it to -50%, the element would be centered, but not the visible part of the arrow.
+	 */
+	transform: translateY(-75%) rotate(45deg);
 	transform-origin: center center;
 	pointer-events: none;
-	right: calc(var(--jetpack--contact-form--border-right-size, 1px) + 16px);
+	z-index: 1;
 }
 
-.contact-form :where( .contact-form__select-wrapper select ) {
+.contact-form :where( .contact-form__select-wrapper ) {
 	background-color: var(--jetpack--contact-form--input-background);
 	border: var(--jetpack--contact-form--border);
 	border-color: var(--jetpack--contact-form--border-color);
@@ -416,9 +431,32 @@
 	color: var(--jetpack--contact-form--text-color);
 	font-family: var(--jetpack--contact-form--font-family);
 	font-size: var(--jetpack--contact-form--font-size);
-	line-height: var(--jetpack--contact-form--line-height);
-	padding-inline-end: calc(var(--jetpack--contact-form--input-padding) * 3);
-	padding: var(--jetpack--contact-form--input-padding);
+}
+
+.contact-form .contact-form__select-element-wrapper {
+	display: flex;
+}
+
+.contact-form :where( .contact-form__select-element-wrapper ),
+.contact-form :where( .contact-form__select-wrapper select ) {
+	border: 0 !important;
+	background: transparent !important;
+	font-family: inherit;
+	font-size: inherit;
+	color: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	text-decoration: inherit;
+	text-transform: inherit;
+	letter-spacing: inherit;
+	font-style: inherit;
+	z-index: 1;
+
+	/*
+	 * Remove border width from select element, border should be added by the wrapper.
+	 * Radius is retained to ensure the select element has the same radius as the wrapper.
+	 */
+	border-width: 0 !important;
 }
 
 .contact-form .contact-form__select-wrapper select {
@@ -427,7 +465,7 @@
 	appearance: none;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	padding: var(--jetpack--contact-form--input-padding);
+	padding: var(--jetpack--contact-form--input-padding-left, 16px);
 }
 
 .contact-form .is-style-outlined,
@@ -467,6 +505,7 @@
 	box-sizing: border-box;
 	text-align: left;
 	pointer-events: none;
+	z-index: 1;
 }
 
 .contact-form .contact-form__select-wrapper + .notched-label {
@@ -632,6 +671,13 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translateY(-50%);
 }
 
+/* Form that upgrade to use inner blocks look to the global styles border size accessible via the CSS vars. See Contact_Form_Field::get_form_variation_style_properties() .*/
+.contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
+.contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
+.contact-form .is-style-outlined .wp-block-jetpack-field-select.wp-block-jetpack-input-wrap .notched-label .notched-label__label {
+	top: calc( var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1 );
+}
+
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .grunion-label-text,
@@ -639,12 +685,6 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .grunion-label-text {
 	font-size: 0.8em;
-}
-
-/* Form that upgrade to use inner blocks look to the global styles border size.*/
-.contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
-.contact-form .is-style-outlined .wp-block-jetpack-field-select.wp-block-jetpack-input-wrap .notched-label .notched-label__label {
-	top: calc( var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1 );
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-required,
@@ -698,8 +738,8 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 /* Fix padding for new forms in animated style */
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > .wp-block-jetpack-input,
-.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input,
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > .wp-block-jetpack-input:not(.contact-form__select-wrapper),
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input:not(.contact-form__select-wrapper),
 .contact-form .is-style-animated .wp-block-jetpack-options.jetpack-field-multiple__list--has-border {
 	padding-left: var(--jetpack--contact-form--animated-left-offset);
 	padding-right: var(--jetpack--contact-form--animated-left-offset);
@@ -722,7 +762,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translateY(-50%);
 	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 	will-change: transform, top;
-	z-index: 1;
+	z-index: 2;
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .grunion-label-text {
@@ -784,6 +824,11 @@ on production builds, the attributes are being reordered, causing side-effects
 	top: 0;
 	left: 0;
 	transform: translateY(0);
+}
+
+.contact-form .is-style-outlined .wp-block-jetpack-input:not(.contact-form__select-wrapper),
+.contact-form .is-style-animated .wp-block-jetpack-input:not(.contact-form__select-wrapper) {
+	z-index: 2;
 }
 
 .contact-form .is-style-below .grunion-field-wrap .below-label__label {
