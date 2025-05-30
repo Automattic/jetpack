@@ -754,36 +754,29 @@ class Error_Handler {
 	 * @return array
 	 */
 	public function jetpack_react_dashboard_error( $errors ) {
-		$verified_errors = $this->get_verified_errors();
-
-		// Check if we have a specific error message from the verified errors
-		$error_message = null;
+		// Default values for all errors
+		$error_message = __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' );
+		$action        = 'reconnect';
 		$error_data    = array( 'api_error_code' => $this->error_code );
-		$action        = 'reconnect'; // Default action for traditional connection errors
 
-		if ( isset( $verified_errors[ $this->error_code ] ) ) {
-			// Get the first error for this error code to extract the message
-			$error_instances = $verified_errors[ $this->error_code ];
-			$first_error     = reset( $error_instances );
+		// Special handling only for protected_owner errors
+		if ( 'protected_owner' === $this->error_code ) {
+			$verified_errors = $this->get_verified_errors();
+			if ( isset( $verified_errors['protected_owner'] ) ) {
+				$first_error = reset( $verified_errors['protected_owner'] );
 
-			if ( isset( $first_error['error_message'] ) && ! empty( $first_error['error_message'] ) ) {
-				$error_message = $first_error['error_message'];
+				if ( ! empty( $first_error['error_message'] ) ) {
+					$error_message = $first_error['error_message'];
+				}
 
-				// Include additional error data if available
-				if ( isset( $first_error['error_data'] ) ) {
+				if ( ! empty( $first_error['error_data'] ) ) {
 					$error_data = array_merge( $error_data, $first_error['error_data'] );
 
-					// Use action from error data if provided
-					if ( isset( $first_error['error_data']['action'] ) ) {
+					if ( ! empty( $first_error['error_data']['action'] ) ) {
 						$action = $first_error['error_data']['action'];
 					}
 				}
 			}
-		}
-
-		// Fall back to generic message if no specific message is available
-		if ( empty( $error_message ) ) {
-			$error_message = __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' );
 		}
 
 		$errors[] = array(
@@ -792,6 +785,7 @@ class Error_Handler {
 			'action'  => $action,
 			'data'    => $error_data,
 		);
+
 		return $errors;
 	}
 

@@ -1,5 +1,5 @@
 import { Col, Text } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, useRestoreConnection } from '@automattic/jetpack-connection';
+import { useConnection, useRestoreConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
@@ -17,9 +17,20 @@ interface NoticeAction {
 	variant?: 'primary' | 'secondary';
 }
 
+// Define the connection error type
+interface ConnectionError {
+	error_code: string;
+	error_message: string;
+	error_type?: string;
+	error_data?: Record< string, unknown >;
+	user_id: string | number;
+	timestamp: number;
+	nonce: string;
+}
+
 const useConnectionErrorsNotice = () => {
 	const { setNotice, currentNotice } = useContext( NoticeContext );
-	const { hasConnectionError, connectionErrorMessage } = useConnectionErrorNotice();
+	const { connectionErrors } = useConnection( {} );
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
 	const { recordEvent } = useAnalytics();
@@ -35,21 +46,27 @@ const useConnectionErrorsNotice = () => {
 	}, [ recordEvent ] );
 
 	useEffect( () => {
-		// Check for errors using the connection error notice hook
-		if ( ! hasConnectionError ) {
-			// No errors detected by the hook
+		// Check if there are any connection errors
+		if ( ! connectionErrors || Object.keys( connectionErrors ).length === 0 ) {
+			// No errors detected
 			return;
 		}
 
-		// Check if this is a protected owner error based on the error message content
-		const isProtectedOwnerError =
-			connectionErrorMessage &&
-			( connectionErrorMessage.includes( 'plan owner' ) ||
-				connectionErrorMessage.includes( 'WordPress.com plan owner' ) ||
-				connectionErrorMessage.includes( 'protected owner' ) );
+		// Get the first error from the connectionErrors object
+		const firstErrorType = Object.keys( connectionErrors )[ 0 ];
+		const firstErrorList = Object.values( connectionErrors[ firstErrorType ] );
+		const firstError =
+			firstErrorList.length > 0 ? ( firstErrorList[ 0 ] as ConnectionError ) : null;
+
+		if ( ! firstError || ! firstError.error_message ) {
+			return;
+		}
+
+		// Check if this is a protected owner error based on the error_type field
+		const isProtectedOwnerError = firstError.error_type === 'protected_owner';
 
 		// Use the error message provided by the backend
-		let errorMessage = connectionErrorMessage;
+		let errorMessage: string | React.ReactElement = firstError.error_message;
 
 		if ( restoreConnectionError ) {
 			errorMessage = (
@@ -61,7 +78,7 @@ const useConnectionErrorsNotice = () => {
 							restoreConnectionError
 						) }
 					</Text>
-					<Text mb={ 2 }>{ connectionErrorMessage }</Text>
+					<Text mb={ 2 }>{ firstError.error_message }</Text>
 				</Col>
 			);
 		}
@@ -110,8 +127,7 @@ const useConnectionErrorsNotice = () => {
 	}, [
 		setNotice,
 		recordEvent,
-		hasConnectionError,
-		connectionErrorMessage,
+		connectionErrors,
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
