@@ -392,13 +392,20 @@ const { state, actions } = store( NAMESPACE, {
 			// Remove the file from the context
 			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
 		},
+
+		removeFileKeydown: event => {
+			if ( event.keyCode === ENTER || event.keyCode === SPACE ) {
+				event.preventDefault();
+				actions.removeFile( event );
+			}
+		},
 	},
 
 	callbacks: {
 		focusElement: function () {
 			const { ref } = getElement();
 			setTimeout( () => {
-				ref.focus(); // .closest( '.jetpack-form-file-field__preview-wrap' ).focus( { focusVisible: true } );
+				ref.focus( { focusVisible: true } );
 			}, 100 );
 
 			return withScope( function () {

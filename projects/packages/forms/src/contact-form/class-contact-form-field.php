@@ -1143,7 +1143,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								</span>
 							</div>
 						</div>
-						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile" title="<?php esc_attr_e( 'Remove', 'jetpack-forms' ); ?>"> </a>
+						<a href="#" class="jetpack-form-file-field__remove" data-wp-bind--data-id='context.file.id' aria-label="<?php esc_attr_e( 'Remove file', 'jetpack-forms' ); ?>" data-wp-on--click="actions.removeFile" data-wp-on--keydown="actions.removeFileKeydown"  title="<?php esc_attr_e( 'Remove', 'jetpack-forms' ); ?>"> </a>
 					</div>
 				</template>
 			</div>
