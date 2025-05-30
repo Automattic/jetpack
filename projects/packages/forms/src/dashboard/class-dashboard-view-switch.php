@@ -353,7 +353,7 @@ CSS
 	 * @return boolean
 	 */
 	public static function is_jetpack_forms_admin_page_available() {
-		return apply_filters( 'jetpack_forms_use_new_menu_parent', false );
+		return apply_filters( 'jetpack_forms_use_new_menu_parent', true );
 	}
 
 	/**
@@ -362,7 +362,7 @@ CSS
 	 * @return boolean
 	 */
 	public static function is_jetpack_forms_view_switch_available() {
-		return ! apply_filters( 'jetpack_forms_retire_view_switch', false );
+		return ! apply_filters( 'jetpack_forms_retire_view_switch', true );
 	}
 
 	/**
@@ -371,7 +371,7 @@ CSS
 	 * @return boolean
 	 */
 	public static function is_jetpack_forms_announcing_new_menu() {
-		return apply_filters( 'jetpack_forms_announce_new_menu', false );
+		return apply_filters( 'jetpack_forms_announce_new_menu', true );
 	}
 
 	/**
