@@ -987,7 +987,7 @@ final class Image_CDN {
 	 *
 	 * @return array An array of Photon image urls and widths.
 	 */
-	public function filter_srcset_array( $sources = array(), $size_array = array(), $image_src = array(), $image_meta = array(), $attachment_id = 0 ) {
+	public function filter_srcset_array( $sources = array(), $size_array = array(), $image_src = '', $image_meta = array(), $attachment_id = 0 ) {
 		// Check if we are supposed to skip the main image.
 		if ( $this->photon_should_skip_image( $image_src ) ) {
 			return $sources;

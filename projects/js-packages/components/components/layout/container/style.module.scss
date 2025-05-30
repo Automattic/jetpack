@@ -1,11 +1,11 @@
 @use "sass:map";
-@import "../breakpoints.module";
+@use "../breakpoints.module" as breakpoints;
 
 @mixin container($size) {
 	$paddings: ("sm": "16px", "md": "18px", "lg": "24px");
 	$padding: map.get($paddings, #{$size});
 
-	@include media(#{$size}) using ($columns) {
+	@include breakpoints.media(#{$size}) using ($columns) {
 		padding: 0 #{$padding};
 		grid-template-columns: repeat( #{$columns}, minmax(0, 1fr) );
 	}
