@@ -1,3 +1,4 @@
+import { FullWidthSeparator } from './full-width-separator';
 import { HelpContent } from './help/content';
 import { OverviewContent } from './overview/content';
 import { ProductsContent } from './products-content';
@@ -29,8 +30,11 @@ export function TabContent( { name }: TabContentProps ) {
 	}
 
 	return (
-		<div className={ styles[ 'tab-content-wrapper' ] }>
-			<ContentComponent />
-		</div>
+		<>
+			<FullWidthSeparator />
+			<div className={ styles[ 'tab-content-wrapper' ] }>
+				<ContentComponent />
+			</div>
+		</>
 	);
 }

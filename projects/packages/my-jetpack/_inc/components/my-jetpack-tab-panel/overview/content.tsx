@@ -3,6 +3,7 @@ import { currentUserCan, isWoASite } from '@automattic/jetpack-script-data';
 import ConnectionsSection from '../../connections-section';
 import PlansSection from '../../plans-section';
 import ProductCardsSection from '../../product-cards-section';
+import { FullWidthSeparator } from '../full-width-separator';
 import { JetpackManageUpsell } from './jetpack-manage-upsell';
 import styles from './styles.module.scss';
 
@@ -24,6 +25,7 @@ export function OverviewContent() {
 				</div>
 			) : null }
 
+			<FullWidthSeparator />
 			<div className={ styles.footer }>
 				<Container horizontalSpacing={ 0 } className={ styles[ 'footer-container' ] }>
 					<Col sm={ 4 } md={ 4 } lg={ 6 }>
