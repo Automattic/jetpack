@@ -6,6 +6,9 @@
 		padding-inline-start: 2rem;
 		margin-block-end: -1px;
 
+		margin: 0 auto;
+		max-width: var(--max-container-width);
+
 		@media (max-width: $break-medium ) {
 			padding-inline-start: 1rem;
 		}
@@ -18,7 +21,6 @@
 
 .tab-content-wrapper {
 	padding-block-start: 2.5rem;
-	padding-inline: 3rem;
 
 	@media (max-width: $break-medium ) {
 		padding-inline: 1rem;

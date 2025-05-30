@@ -1,3 +1,4 @@
+import { Container, Col } from '@automattic/jetpack-components';
 import { TabPanel } from '@wordpress/components';
 import { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -26,7 +27,13 @@ export function MyJetpackTabPanel() {
 	);
 
 	const tabRenderer = useCallback( ( tab: { name: MyJetpackSection } ) => {
-		return <TabContent name={ tab.name } />;
+		return (
+			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+				<Col>
+					<TabContent name={ tab.name } />
+				</Col>
+			</Container>
+		);
 	}, [] );
 
 	// If the tab is not valid, use the default one.
