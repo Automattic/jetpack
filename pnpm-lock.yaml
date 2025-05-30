@@ -190,8 +190,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.0
-        version: 4.4.0
+        specifier: 4.4.1
+        version: 4.4.1
       markdown-it:
         specifier: 14.1.0
         version: 14.1.0
@@ -239,8 +239,8 @@ importers:
   projects/js-packages/analytics:
     devDependencies:
       debug:
-        specifier: 4.4.0
-        version: 4.4.0
+        specifier: 4.4.1
+        version: 4.4.1
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -268,7 +268,7 @@ importers:
     dependencies:
       debug:
         specifier: ^4.3.2
-        version: 4.4.0
+        version: 4.4.1
     devDependencies:
       '@babel/core':
         specifier: 7.26.10
@@ -706,8 +706,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.0
-        version: 4.4.0
+        specifier: 4.4.1
+        version: 4.4.1
       prop-types:
         specifier: ^15.7.2
         version: 15.8.1
@@ -848,7 +848,7 @@ importers:
         version: 4.24.5
       debug:
         specifier: ^4.3.2
-        version: 4.4.0
+        version: 4.4.1
       semver:
         specifier: ^7.3.5
         version: 7.7.1
@@ -873,7 +873,7 @@ importers:
     dependencies:
       debug:
         specifier: ^4.3.2
-        version: 4.4.0
+        version: 4.4.1
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -895,7 +895,7 @@ importers:
     dependencies:
       debug:
         specifier: ^4.3.2
-        version: 4.4.0
+        version: 4.4.1
     devDependencies:
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.24.0
@@ -1123,7 +1123,7 @@ importers:
         version: 5.24.0
       debug:
         specifier: ^4.4.0
-        version: 4.4.0
+        version: 4.4.1
       tslib:
         specifier: ^2.5.0
         version: 2.5.0
@@ -1423,7 +1423,7 @@ importers:
     dependencies:
       debug:
         specifier: ^4.3.2
-        version: 4.4.0
+        version: 4.4.1
     devDependencies:
       jest:
         specifier: 29.7.0
@@ -1471,8 +1471,8 @@ importers:
         specifier: 4.24.0
         version: 4.24.0
       debug:
-        specifier: 4.4.0
-        version: 4.4.0
+        specifier: 4.4.1
+        version: 4.4.1
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -1573,8 +1573,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.0
-        version: 4.4.0
+        specifier: 4.4.1
+        version: 4.4.1
       lodash:
         specifier: 4.17.21
         version: 4.17.21
@@ -2651,7 +2651,7 @@ importers:
         version: link:../../js-packages/shared-extension-utils
       '@automattic/launchpad':
         specifier: 1.1.0
-        version: 1.1.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.24.0(react@18.3.1))(@wordpress/element@6.24.0)(@wordpress/i18n@5.24.0)(debug@4.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)
+        version: 1.1.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.24.0(react@18.3.1))(@wordpress/element@6.24.0)(@wordpress/i18n@5.24.0)(debug@4.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)
       '@automattic/typography':
         specifier: 1.0.0
         version: 1.0.0
@@ -2722,8 +2722,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.0
-        version: 4.4.0
+        specifier: 4.4.1
+        version: 4.4.1
       events:
         specifier: ^3.3.0
         version: 3.3.0
@@ -2947,8 +2947,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.0
-        version: 4.4.0
+        specifier: 4.4.1
+        version: 4.4.1
       gridicons:
         specifier: 3.4.1
         version: 3.4.1(react@18.3.1)
@@ -3411,8 +3411,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.0
-        version: 4.4.0
+        specifier: 4.4.1
+        version: 4.4.1
       gridicons:
         specifier: 3.4.1
         version: 3.4.1(react@18.3.1)
@@ -3573,8 +3573,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.0
-        version: 4.4.0
+        specifier: 4.4.1
+        version: 4.4.1
       filesize:
         specifier: 10.1.6
         version: 10.1.6
@@ -4621,8 +4621,8 @@ importers:
         specifier: 4.2.0
         version: 4.2.0
       debug:
-        specifier: 4.4.0
-        version: 4.4.0
+        specifier: 4.4.1
+        version: 4.4.1
       email-validator:
         specifier: 2.0.4
         version: 2.0.4
@@ -5404,8 +5404,8 @@ importers:
         specifier: 5.4.1
         version: 5.4.1
       debug:
-        specifier: 4.4.0
-        version: 4.4.0
+        specifier: 4.4.1
+        version: 4.4.1
       enquirer:
         specifier: 2.4.1
         version: 2.4.1
@@ -10304,8 +10304,8 @@ packages:
       supports-color:
         optional: true
 
-  debug@4.4.0:
-    resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
+  debug@4.4.1:
+    resolution: {integrity: sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ==}
     engines: {node: '>=6.0'}
     peerDependencies:
       supports-color: '*'
@@ -15913,7 +15913,7 @@ snapshots:
     dependencies:
       '@automattic/load-script': 1.0.0
       cookie: 0.7.2
-      debug: 4.4.0
+      debug: 4.4.1
       hash.js: 1.1.7
       tslib: 2.5.0
       uuid: 9.0.1
@@ -15982,7 +15982,7 @@ snapshots:
       canvas-confetti: 1.9.3
       clsx: 2.1.1
       colord: 2.9.3
-      debug: 4.4.0
+      debug: 4.4.1
       gridicons: 3.4.2(react@18.3.1)
       i18n-calypso: 7.4.0(@types/react@18.3.18)(react@18.3.1)
       lodash: 4.17.21
@@ -16026,7 +16026,7 @@ snapshots:
       '@wordpress/i18n': 5.24.0
       '@wordpress/primitives': 4.24.0(react@18.3.1)
       '@wordpress/url': 4.24.0
-      debug: 4.4.0
+      debug: 4.4.1
       fast-json-stable-stringify: 2.1.0
       i18n-calypso: 7.4.0(@types/react@18.3.18)(react@18.3.1)
       qs: 6.12.1
@@ -16086,7 +16086,7 @@ snapshots:
     dependencies:
       tslib: 2.5.0
 
-  '@automattic/launchpad@1.1.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.24.0(react@18.3.1))(@wordpress/element@6.24.0)(@wordpress/i18n@5.24.0)(debug@4.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)':
+  '@automattic/launchpad@1.1.0(@babel/runtime@7.26.10)(@types/react@18.3.18)(@wordpress/data@10.24.0(react@18.3.1))(@wordpress/element@6.24.0)(@wordpress/i18n@5.24.0)(debug@4.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)':
     dependencies:
       '@automattic/calypso-analytics': 1.1.3
       '@automattic/calypso-config': 1.0.0-alpha.0
@@ -16104,7 +16104,7 @@ snapshots:
       '@wordpress/icons': 10.24.0(react@18.3.1)
       '@wordpress/url': 4.24.0
       clsx: 2.1.1
-      debug: 4.4.0
+      debug: 4.4.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       redux: 4.2.1
@@ -16143,7 +16143,7 @@ snapshots:
 
   '@automattic/shopping-cart@2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
     transitivePeerDependencies:
@@ -16210,7 +16210,7 @@ snapshots:
       '@babel/traverse': 7.27.1
       '@babel/types': 7.27.1
       convert-source-map: 2.0.0
-      debug: 4.4.0
+      debug: 4.4.1
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -16278,7 +16278,7 @@ snapshots:
       '@babel/core': 7.26.10
       '@babel/helper-compilation-targets': 7.26.5
       '@babel/helper-plugin-utils': 7.27.1
-      debug: 4.4.0
+      debug: 4.4.1
       lodash.debounce: 4.0.8
       resolve: 1.22.10
     transitivePeerDependencies:
@@ -17010,7 +17010,7 @@ snapshots:
       '@babel/parser': 7.27.2
       '@babel/template': 7.27.2
       '@babel/types': 7.27.1
-      debug: 4.4.0
+      debug: 4.4.1
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -17299,7 +17299,7 @@ snapshots:
   '@eslint/config-array@0.20.0':
     dependencies:
       '@eslint/object-schema': 2.1.6
-      debug: 4.4.0
+      debug: 4.4.1
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -17313,7 +17313,7 @@ snapshots:
   '@eslint/eslintrc@3.3.1':
     dependencies:
       ajv: 6.12.6
-      debug: 4.4.0
+      debug: 4.4.1
       espree: 10.3.0
       globals: 14.0.0
       ignore: 5.3.2
@@ -17928,7 +17928,7 @@ snapshots:
 
   '@puppeteer/browsers@2.10.4':
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       extract-zip: 2.0.1
       progress: 2.0.3
       proxy-agent: 6.5.0
@@ -17941,7 +17941,7 @@ snapshots:
 
   '@puppeteer/browsers@2.3.0':
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       extract-zip: 2.0.1
       progress: 2.0.3
       proxy-agent: 6.5.0
@@ -18510,7 +18510,7 @@ snapshots:
 
   '@sitespeed.io/tracium@0.3.3':
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
 
@@ -18810,7 +18810,7 @@ snapshots:
 
   '@storybook/react-docgen-typescript-plugin@1.0.6--canary.9.0c3f3b7.0(typescript@5.8.2)(webpack@5.94.0)':
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       endent: 2.1.0
       find-cache-dir: 3.3.2
       flat-cache: 4.0.1
@@ -19516,7 +19516,7 @@ snapshots:
       '@typescript-eslint/types': 8.31.1
       '@typescript-eslint/typescript-estree': 8.31.1(typescript@5.8.2)
       '@typescript-eslint/visitor-keys': 8.31.1
-      debug: 4.4.0
+      debug: 4.4.1
       eslint: 9.25.1
       typescript: 5.8.2
     transitivePeerDependencies:
@@ -19536,7 +19536,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 8.31.1(typescript@5.8.2)
       '@typescript-eslint/utils': 8.31.1(eslint@9.25.1)(typescript@5.8.2)
-      debug: 4.4.0
+      debug: 4.4.1
       eslint: 9.25.1
       ts-api-utils: 2.1.0(typescript@5.8.2)
       typescript: 5.8.2
@@ -19551,7 +19551,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.31.1
       '@typescript-eslint/visitor-keys': 8.31.1
-      debug: 4.4.0
+      debug: 4.4.1
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -19565,7 +19565,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.32.1
       '@typescript-eslint/visitor-keys': 8.32.1
-      debug: 4.4.0
+      debug: 4.4.1
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -22016,7 +22016,7 @@ snapshots:
 
   agent-base@6.0.2:
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
 
@@ -22259,9 +22259,9 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  axios@1.8.2(debug@4.4.0):
+  axios@1.8.2(debug@4.4.1):
     dependencies:
-      follow-redirects: 1.15.9(debug@4.4.0)
+      follow-redirects: 1.15.9(debug@4.4.1)
       form-data: 4.0.2
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -22369,7 +22369,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.10
       core-js: 3.38.1
-      debug: 4.4.0
+      debug: 4.4.1
       lodash.mergewith: 4.6.2
       prettier: 2.8.8
       strip-indent: 3.0.0
@@ -23304,7 +23304,7 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
-  debug@4.4.0:
+  debug@4.4.1:
     dependencies:
       ms: 2.1.3
 
@@ -23731,7 +23731,7 @@ snapshots:
 
   esbuild-register@3.6.0(esbuild@0.25.4):
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       esbuild: 0.25.4
     transitivePeerDependencies:
       - supports-color
@@ -23808,7 +23808,7 @@ snapshots:
 
   eslint-import-resolver-typescript@4.3.4(eslint-plugin-import@2.31.0)(eslint@9.25.1):
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       eslint: 9.25.1
       get-tsconfig: 4.10.0
       is-bun-module: 2.0.0
@@ -23892,7 +23892,7 @@ snapshots:
       '@es-joy/jsdoccomment': 0.49.0
       are-docs-informative: 0.0.2
       comment-parser: 1.4.1
-      debug: 4.4.0
+      debug: 4.4.1
       escape-string-regexp: 4.0.0
       eslint: 9.25.1
       espree: 10.3.0
@@ -24039,7 +24039,7 @@ snapshots:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.6
-      debug: 4.4.0
+      debug: 4.4.1
       escape-string-regexp: 4.0.0
       eslint-scope: 8.3.0
       eslint-visitor-keys: 4.2.0
@@ -24201,7 +24201,7 @@ snapshots:
 
   extract-zip@2.0.1:
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       get-stream: 5.2.0
       yauzl: 2.10.0
     optionalDependencies:
@@ -24373,9 +24373,9 @@ snapshots:
 
   follow-redirects@1.15.9: {}
 
-  follow-redirects@1.15.9(debug@4.4.0):
+  follow-redirects@1.15.9(debug@4.4.1):
     optionalDependencies:
-      debug: 4.4.0
+      debug: 4.4.1
 
   for-each@0.3.5:
     dependencies:
@@ -24543,7 +24543,7 @@ snapshots:
     dependencies:
       basic-ftp: 5.0.5
       data-uri-to-buffer: 6.0.2
-      debug: 4.4.0
+      debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
 
@@ -24831,28 +24831,28 @@ snapshots:
     dependencies:
       '@tootallnate/once': 2.0.0
       agent-base: 6.0.2
-      debug: 4.4.0
+      debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
 
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0
+      debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
 
   https-proxy-agent@5.0.1:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.4.0
+      debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
 
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0
+      debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
 
@@ -24872,7 +24872,7 @@ snapshots:
       '@babel/runtime': 7.26.10
       '@tannin/sprintf': 1.2.0
       '@wordpress/compose': 7.24.0(react@18.3.1)
-      debug: 4.4.0
+      debug: 4.4.1
       events: 3.3.0
       hash.js: 1.1.7
       lru: 3.1.0
@@ -25218,7 +25218,7 @@ snapshots:
 
   istanbul-lib-source-maps@4.0.1:
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       istanbul-lib-coverage: 3.2.2
       source-map: 0.6.1
     transitivePeerDependencies:
@@ -25994,8 +25994,8 @@ snapshots:
 
   localtunnel@2.0.2:
     dependencies:
-      axios: 1.8.2(debug@4.4.0)
-      debug: 4.4.0
+      axios: 1.8.2(debug@4.4.1)
+      debug: 4.4.1
       openurl: 1.1.1
       yargs: 17.6.2
     transitivePeerDependencies:
@@ -26502,7 +26502,7 @@ snapshots:
   micromark@4.0.2:
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.4.0
+      debug: 4.4.1
       decode-named-character-reference: 1.1.0
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.3
@@ -26931,7 +26931,7 @@ snapshots:
     dependencies:
       '@tootallnate/quickjs-emscripten': 0.23.0
       agent-base: 7.1.3
-      debug: 4.4.0
+      debug: 4.4.1
       get-uri: 6.0.4
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
@@ -27070,7 +27070,7 @@ snapshots:
     dependencies:
       '@types/seed-random': 2.2.4
       crc32: 0.2.2
-      debug: 4.4.0
+      debug: 4.4.1
       seed-random: 2.2.0
       tslib: 2.5.0
     transitivePeerDependencies:
@@ -27477,7 +27477,7 @@ snapshots:
   proxy-agent@6.5.0:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0
+      debug: 4.4.1
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       lru-cache: 7.18.3
@@ -27508,7 +27508,7 @@ snapshots:
     dependencies:
       '@puppeteer/browsers': 2.3.0
       chromium-bidi: 0.6.3(devtools-protocol@0.0.1312386)
-      debug: 4.4.0
+      debug: 4.4.1
       devtools-protocol: 0.0.1312386
       ws: 8.18.2
     transitivePeerDependencies:
@@ -27521,7 +27521,7 @@ snapshots:
     dependencies:
       '@puppeteer/browsers': 2.10.4
       chromium-bidi: 5.1.0(devtools-protocol@0.0.1439962)
-      debug: 4.4.0
+      debug: 4.4.1
       devtools-protocol: 0.0.1439962
       typed-query-selector: 2.12.0
       ws: 8.18.2
@@ -28348,7 +28348,7 @@ snapshots:
   simple-peer@9.11.1:
     dependencies:
       buffer: 6.0.3
-      debug: 4.4.0
+      debug: 4.4.1
       err-code: 3.0.1
       get-browser-rtc: 1.1.0
       queue-microtask: 1.2.3
@@ -28401,7 +28401,7 @@ snapshots:
   socks-proxy-agent@8.0.5:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0
+      debug: 4.4.1
       socks: 2.8.4
     transitivePeerDependencies:
       - supports-color
@@ -28747,7 +28747,7 @@ snapshots:
       cosmiconfig: 9.0.0
       css-functions-list: 3.2.3
       css-tree: 3.1.0
-      debug: 4.4.0
+      debug: 4.4.1
       fast-glob: 3.3.3
       fastest-levenshtein: 1.0.16
       file-entry-cache: 10.1.0
@@ -28791,7 +28791,7 @@ snapshots:
       cosmiconfig: 9.0.0(typescript@5.8.2)
       css-functions-list: 3.2.3
       css-tree: 3.1.0
-      debug: 4.4.0
+      debug: 4.4.1
       fast-glob: 3.3.3
       fastest-levenshtein: 1.0.16
       file-entry-cache: 10.1.0
@@ -28906,7 +28906,7 @@ snapshots:
     dependencies:
       '@types/sax': 1.2.7
       commander: 12.1.0
-      debug: 4.4.0
+      debug: 4.4.1
       glob: 11.0.0
       sax: 1.4.1
       svg-pathdata: 7.2.0
@@ -29509,7 +29509,7 @@ snapshots:
     dependencies:
       chalk: 2.4.2
       commander: 3.0.2
-      debug: 4.4.0
+      debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
 
@@ -29730,7 +29730,7 @@ snapshots:
 
   wpcom-proxy-request@7.0.6:
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       uuid: 9.0.1
       wp-error: 1.3.0
     transitivePeerDependencies:

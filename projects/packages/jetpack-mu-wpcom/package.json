@@ -77,7 +77,7 @@
 		"@wordpress/router": "^1.8.11",
 		"@wordpress/url": "4.24.0",
 		"clsx": "2.1.1",
-		"debug": "4.4.0",
+		"debug": "4.4.1",
 		"events": "^3.3.0",
 		"preact": "10.22.1",
 		"react": "^18.2.0",
