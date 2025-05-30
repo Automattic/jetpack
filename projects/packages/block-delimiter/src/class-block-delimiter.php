@@ -183,18 +183,6 @@ class Block_Delimiter {
 		$delimiter          = null;
 		static::$last_error = null;
 
-		// Initialize all variables that will be used later.
-		$comment_opening_at = 0;
-		$comment_closing_at = 0;
-		$namespace_at       = 0;
-		$namespace_length   = 0;
-		$name_at            = 0;
-		$name_length        = 0;
-		$json_at            = 0;
-		$json_length        = 0;
-		$has_closer         = false;
-		$has_void_flag      = false;
-
 		$close_html_comment = function ( $comment_starting_at ) use ( $text, &$at, $end ) {
 			// Find span-of-dashes comments which look like `<!----->`.
 			$span_of_dashes = strspn( $text, '-', $comment_starting_at + 2 );
@@ -218,7 +206,7 @@ class Block_Delimiter {
 
 				$closer_must_be_at = $dashes_at + 2 + strspn( $text, '-', $dashes_at + 2 );
 				if ( $closer_must_be_at < $end && '!' === $text[ $closer_must_be_at ] ) {
-					++$closer_must_be_at;
+					$closer_must_be_at++;
 				}
 
 				if ( $closer_must_be_at < $end && '>' === $text[ $closer_must_be_at ] ) {
@@ -226,7 +214,7 @@ class Block_Delimiter {
 					return;
 				}
 
-				++$now_at;
+				$now_at++;
 			}
 		};
 
@@ -461,23 +449,22 @@ class Block_Delimiter {
 		/*
 		 * Although `phpcs` confidently asserts that `$match_at` and `$match_length`
 		 * are undefined, it is not aware enough to realize that they are set by the
-		 * call to `next_delimiter` and so it's necessary to alter the code so it
-		 * doesn't get confused and reject valid code.
+		 * call to `next_delimiter` and so it’s necessary to alter the code so it
+		 * doesn’t get confused and reject valid code.
 		 */
 		$match_at     = 0;
 		$match_length = 0;
 
-		$delimiter = self::next_delimiter( $text, $at, $match_at, $match_length );
-		while ( null !== $delimiter ) {
+		while ( null !== ( $delimiter = self::next_delimiter( $text, $at, $match_at, $match_length ) ) ) {
 			// Handle top-level text as freeform blocks
 			if ( 0 === $depth && $match_at > $at && 'visit' === $freeform_blocks ) {
 				list( $text_opener, $text_closer ) = static::freeform_pair( $text, $at, $match_at - $at );
 
 				++$depth;
-				yield array( $at, 0 ) => $text_opener;
+				yield [ $at, 0 ] => $text_opener;
 
 				--$depth;
-				yield array( $match_at, 0 ) => $text_closer;
+				yield [ $match_at, 0 ] => $text_closer;
 			}
 
 			$delimiter_type = $delimiter->get_delimiter_type();
@@ -493,14 +480,13 @@ class Block_Delimiter {
 					break;
 			}
 
-			yield array( $match_at, $match_length ) => $delimiter;
+			yield [ $match_at, $match_length ] => $delimiter;
 
 			if ( static::VOID === $delimiter_type ) {
 				--$depth;
 			}
 
-			$at        = $match_at + $match_length;
-			$delimiter = self::next_delimiter( $text, $at, $match_at, $match_length );
+			$at = $match_at + $match_length;
 		}
 
 		$end = strlen( $text );
@@ -508,10 +494,10 @@ class Block_Delimiter {
 			list( $text_opener, $text_closer ) = static::freeform_pair( $text, $at, $end - $at );
 
 			++$depth;
-			yield array( $at, 0 ) => $text_opener;
+			yield [ $at, 0 ] => $text_opener;
 
 			--$depth;
-			yield array( $end, 0 ) => $text_closer;
+			yield [ $end, 0 ] => $text_closer;
 		}
 	}
 
@@ -553,7 +539,7 @@ class Block_Delimiter {
 		$closer->json_at      = $end_at;
 		$closer->type         = static::CLOSER;
 
-		return array( $opener, $closer );
+		return [ $opener, $closer ];
 	}
 
 	/**
@@ -567,7 +553,7 @@ class Block_Delimiter {
 	}
 
 	/**
-	 * Indicates if the last attempt to parse a block's JSON attributes failed.
+	 * Indicates if the last attempt to parse a block’s JSON attributes failed.
 	 *
 	 * @see JSON_ERROR_NONE, JSON_ERROR_DEPTH, etc…
 	 *
@@ -661,7 +647,7 @@ class Block_Delimiter {
 	 * @return bool Whether this delimiter represents a block of the given type.
 	 */
 	public function is_block_type( string $block_type ): bool {
-		// This is a core/freeform text block, it's special.
+		// This is a core/freeform text block, it’s special.
 		if ( 0 === $this->name_length ) {
 			return 'core/freeform' === $block_type || 'freeform' === $block_type;
 		}
@@ -714,7 +700,7 @@ class Block_Delimiter {
 	 * @return string Fully-qualified block namespace and type, e.g. "core/paragraph".
 	 */
 	public function allocate_and_return_block_type(): string {
-		// This is a core/freeform text block, it's special.
+		// This is a core/freeform text block, it’s special.
 		if ( 0 === $this->name_length ) {
 			return 'core/freeform';
 		}
@@ -801,12 +787,7 @@ class Block_Delimiter {
 		}
 
 		$json_span = substr( $this->source_text, $this->json_at, $this->json_length );
-		$parsed    = json_decode(
-			$json_span,
-			null, // @phan-suppress-current-line PhanTypeMismatchArgumentInternalProbablyReal -- json_decode does accept null.
-			512,
-			JSON_OBJECT_AS_ARRAY | JSON_INVALID_UTF8_SUBSTITUTE
-		);
+		$parsed    = json_decode( $json_span, null, 512, JSON_OBJECT_AS_ARRAY | JSON_INVALID_UTF8_SUBSTITUTE );
 
 		$last_error            = json_last_error();
 		$this->last_json_error = $last_error;
@@ -817,7 +798,6 @@ class Block_Delimiter {
 	}
 
 	// Debugging methods not meant for production use.
-	// @codeCoverageIgnoreStart
 
 	/**
 	 * Prints a debugging message showing the structure of the parsed delimiter.
@@ -878,8 +858,6 @@ class Block_Delimiter {
 		echo $w( substr( $this->source_text, $closing_whitespace_at, $closing_whitespace_length ) ); // phpcs:ignore
 		echo "{$c( "\e[0;36m" )}{$void_flag}{$c("\e[90m")}-->\n"; // phpcs:ignore
 	}
-
-	// @codeCoverageIgnoreEnd
 
 	// Constant declarations that would otherwise pollute the top of the class.
 

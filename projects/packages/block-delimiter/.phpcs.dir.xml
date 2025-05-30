@@ -1,24 +1,13 @@
 <?xml version="1.0"?>
 <ruleset>
-
-	<rule ref="WordPress.WP.I18n">
-		<properties>
-			<property name="text_domain" type="array">
-				<element value="jetpack-block-delimiter" />
-			</property>
-		</properties>
+	<rule ref="Jetpack-Compat-NoWP" />
+	<rule ref="Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition">
+		<exclude-pattern>*</exclude-pattern>
 	</rule>
-	<rule ref="Jetpack.Functions.I18n">
-		<properties>
-			<property name="text_domain" value="jetpack-block-delimiter" />
-		</properties>
+	<rule ref="Universal.Operators.DisallowStandalonePostIncrementDecrement.PostIncrementFound">
+		<exclude-pattern>*</exclude-pattern>
 	</rule>
-
-	<rule ref="WordPress.Utils.I18nTextDomainFixer">
-		<properties>
-			<property name="old_text_domain" type="array" />
-			<property name="new_text_domain" value="jetpack-block-delimiter" />
-		</properties>
+	<rule ref="Universal.Arrays.DisallowShortArraySyntax.Found">
+		<exclude-pattern>*</exclude-pattern>
 	</rule>
-
 </ruleset>

@@ -66,6 +66,15 @@
 	line-height: var(--font-title-small);
 }
 
+.my-jetpack-products-container {
+	padding-inline: 0;
+
+	:global(.dataviews-wrapper .dataviews__view-actions), /* :(*/
+	:global(.dataviews-view-list div[role="row"] .dataviews-view-list__item-wrapper) { // :'(
+		padding-inline: 0;
+	}
+}
+
 :global(.info-tooltip__content) {
 	width: calc(100vw - 64px);
 	max-width: 340px;
@@ -88,7 +97,7 @@
 		> li {
 			grid-column-end: auto;
 		}
-	}	
+	}
 }
 
 .products-container {

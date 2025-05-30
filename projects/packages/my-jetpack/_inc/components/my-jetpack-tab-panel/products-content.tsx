@@ -1,14 +1,25 @@
 import { __ } from '@wordpress/i18n';
+import UnownedProductsCard from '../product-cards-section/unowned-products-card';
+import styles from './styles.module.scss';
 
 /**
  * The Products content component.
  *
  * @return The rendered component.
  */
-export function ProductsContent() {
+const ProductsContent = () => {
 	return (
-		<div>
+		<section className={ styles[ 'my-jetpack-tab--content' ] }>
 			<h2>{ __( 'Products', 'jetpack-my-jetpack' ) }</h2>
-		</div>
+			<p className={ styles[ 'my-jetpack-tab--content-description' ] }>
+				{ __(
+					'Browse our expert guides to get help with setup, features, and troubleshooting.',
+					'jetpack-my-jetpack'
+				) }
+			</p>
+			<UnownedProductsCard />
+		</section>
 	);
-}
+};
+
+export { ProductsContent };

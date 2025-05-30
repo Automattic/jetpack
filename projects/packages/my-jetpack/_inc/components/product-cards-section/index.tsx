@@ -1,8 +1,7 @@
 import { Col, Container } from '@automattic/jetpack-components';
-import { useCallback, useEffect, useState } from 'react';
 import { PRODUCT_SLUGS } from '../../data/constants';
-import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useFilteredProducts from '../../hooks/use-filtered-products';
 import LoadingBlock from '../loading-block';
 import StatsSection from '../stats-section';
 import AiCard from './ai-card';
@@ -107,67 +106,18 @@ interface ProductCardsSectionProps {
 }
 
 const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } ) => {
-	const {
-		data: { ownedProducts },
-		isLoading,
-	} = useProductsByOwnership();
-
-	const [ isLoadingProducts, setIsLoadingProducts ] = useState( true );
-
-	useEffect( () => {
-		if ( isLoading ) {
-			return;
-		}
-
-		// This adds a slight delay to the loading status change to prevent
-		// a brief moment in time where the section was not visible at all
-		// between the isLoading = true and isLoading = false states.
-		// This issue was causing a flicker effect.
-		requestAnimationFrame( () => setIsLoadingProducts( false ) );
-	} );
-
-	const { canUserViewStats } = getMyJetpackWindowInitialState();
-
-	const filterProducts = useCallback(
-		( products: JetpackModule[] ) => {
-			const productsWithNoCard = [
-				'extras',
-				'scan',
-				'security',
-				'ai',
-				'creator',
-				'growth',
-				'complete',
-				'site-accelerator',
-				'newsletter',
-				'related-posts',
-				'brute-force',
-			];
-
-			// If the user cannot view stats, filter out the stats card
-			if ( ! canUserViewStats ) {
-				productsWithNoCard.push( 'stats' );
-			}
-
-			return products.filter( product => {
-				return ! productsWithNoCard.includes( product );
-			} );
-		},
-		[ canUserViewStats ]
-	);
-
-	const filteredOwnedProducts = filterProducts( ownedProducts );
+	const { filteredOwnedProducts, isLoading } = useFilteredProducts();
 
 	return (
 		<>
-			{ ( isLoadingProducts || filteredOwnedProducts.length > 0 ) && (
+			{ ( isLoading || filteredOwnedProducts.length > 0 ) && (
 				<Container
 					horizontalSpacing={ 0 }
 					horizontalGap={ noticeMessage ? 3 : 6 }
 					className={ styles[ 'products-container' ] }
 				>
 					<Col>
-						<DisplayItems isLoading={ isLoadingProducts } slugs={ filteredOwnedProducts } />
+						<DisplayItems isLoading={ isLoading } slugs={ filteredOwnedProducts } />
 					</Col>
 				</Container>
 			) }
