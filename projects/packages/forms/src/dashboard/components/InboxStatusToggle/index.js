@@ -5,7 +5,7 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useEntityRecords } from '@wordpress/core-data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './style.scss';
@@ -50,7 +50,10 @@ export default function InboxStatusToggle( { currentQuery } ) {
 	const statusTabs = [
 		{ label: getTabLabel( __( 'Inbox', 'jetpack-forms' ), totalItemsInbox ), value: 'inbox' },
 		{ label: getTabLabel( __( 'Spam', 'jetpack-forms' ), totalItemsSpam ), value: 'spam' },
-		{ label: getTabLabel( __( 'Trash', 'jetpack-forms' ), totalItemsTrash ), value: 'trash' },
+		{
+			label: getTabLabel( _x( 'Trash', 'noun', 'jetpack-forms' ), totalItemsTrash ),
+			value: 'trash',
+		},
 	];
 
 	const handleChange = useCallback(
