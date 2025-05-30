@@ -1,6 +1,8 @@
 import { TabPanel } from '@wordpress/components';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import useAnalytics from '../../hooks/use-analytics';
+import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import { MY_JETPACK_SECTION_OVERVIEW } from './constants';
 import styles from './styles.module.scss';
 import { TabContent } from './tab-content';
@@ -15,14 +17,31 @@ import { getMyJetpackSections, isValidMyJetpackSection } from './utils';
 export function MyJetpackTabPanel() {
 	const params = useParams();
 	const navigate = useNavigate();
+	const { recordEvent } = useAnalytics();
+	const isNewUser = useIsJetpackUserNew();
+	const tabStartTimeRef = useRef< number >( Date.now() );
 
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
 			if ( tabName !== params.section ) {
+				// Calculate session duration on previous tab
+				const sessionDuration = Math.floor( ( Date.now() - tabStartTimeRef.current ) / 1000 );
+
+				// Record tab click event
+				recordEvent( 'jetpack_myjetpack_tab_click', {
+					tab_name: tabName,
+					previous_tab: params.section || MY_JETPACK_SECTION_OVERVIEW,
+					session_duration: sessionDuration,
+					user_type: isNewUser ? 'new' : 'returning',
+				} );
+
+				// Reset the timer for the new tab
+				tabStartTimeRef.current = Date.now();
+
 				navigate( `/${ tabName }` );
 			}
 		},
-		[ navigate, params.section ]
+		[ navigate, params.section, recordEvent, isNewUser ]
 	);
 
 	const tabRenderer = useCallback( ( tab: { name: MyJetpackSection } ) => {
@@ -33,6 +52,11 @@ export function MyJetpackTabPanel() {
 	const initialTab = isValidMyJetpackSection( params.section )
 		? params.section
 		: MY_JETPACK_SECTION_OVERVIEW;
+
+	// Reset timer when component mounts or tab changes from external navigation
+	useEffect( () => {
+		tabStartTimeRef.current = Date.now();
+	}, [ initialTab ] );
 
 	return (
 		<TabPanel

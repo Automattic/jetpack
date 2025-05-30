@@ -13,7 +13,8 @@ import {
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useContext, useEffect, useLayoutEffect, useState } from 'react';
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 /*
  * Internal dependencies
  */
@@ -34,6 +35,8 @@ import { useQueryParameter } from '../../hooks/use-query-parameter';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
+import { MY_JETPACK_SECTION_OVERVIEW } from '../my-jetpack-tab-panel/constants';
+import { isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import WelcomeFlow from '../welcome-flow';
 import styles from './styles.module.scss';
@@ -115,9 +118,16 @@ export default function MyJetpackScreen() {
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
+	const params = useParams();
+	const previousTabRef = useRef( null );
 
 	// useLayoutEffect gets called before useEffect.
 	// We are using it here to ensure the `page_view` event gets triggered first.
+	// Determine current tab
+	const currentTab = isValidMyJetpackSection( params.section )
+		? params.section
+		: MY_JETPACK_SECTION_OVERVIEW;
+
 	useLayoutEffect( () => {
 		let customTracksData = {};
 
@@ -130,9 +140,20 @@ export default function MyJetpackScreen() {
 		if ( ! isRedBubbleAlertsLoading ) {
 			recordEvent( 'jetpack_myjetpack_page_view', {
 				...customTracksData,
+				tab_name: currentTab,
+				previous_tab: previousTabRef.current,
 			} );
+
+			// Update previous tab for next navigation
+			previousTabRef.current = currentTab;
 		}
-	}, [ recordEvent, redBubbleAlerts, isRedBubbleAlertsError, isRedBubbleAlertsLoading ] );
+	}, [
+		recordEvent,
+		redBubbleAlerts,
+		isRedBubbleAlertsError,
+		isRedBubbleAlertsLoading,
+		currentTab,
+	] );
 
 	if ( window.location.hash.includes( '?reload=true' ) ) {
 		// Clears the query string and reloads the page.
