@@ -1,9 +1,9 @@
 @use "sass:map";
-@import "../breakpoints.module";
+@use "../breakpoints.module" as breakpoints;
 
 @mixin cols($size) {
 
-	@include media($size) using ($columns) {
+	@include breakpoints.media($size) using ($columns) {
 
 		@for $i from 1 through $columns {
 			.col-#{$size}-#{$i} {
@@ -24,7 +24,7 @@
 @include cols("lg");
 
 :export {
-	smCols: map.get($cols-sizes, "sm");
-	mdCols: map.get($cols-sizes, "md");
-	lgCols: map.get($cols-sizes, "lg");
+	smCols: map.get(breakpoints.$cols-sizes, "sm");
+	mdCols: map.get(breakpoints.$cols-sizes, "md");
+	lgCols: map.get(breakpoints.$cols-sizes, "lg");
 }

@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .global-notices {
 
@@ -10,14 +10,14 @@
 		// Modals have 100000, so this needs to be above them
 		z-index: 100001;
 
-		@include break-small {
+		@include gb.break-small {
 			width: auto;
 			inset-inline: unset; // left and right
 			inset-block-start: 4rem;
 			inset-inline-end: 1rem;
 		}
 
-		@include break-medium {
+		@include gb.break-medium {
 			inset-block-start: 3rem;
 		}
 	}

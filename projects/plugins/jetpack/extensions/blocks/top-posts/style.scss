@@ -1,7 +1,7 @@
 /**
  * Styles for Top Posts
  */
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 @import '../../shared/styles/jetpack-variables';
 
 .wp-block-jetpack-top-posts {
@@ -28,7 +28,7 @@
 			grid: auto / repeat( 6, 1fr );
 			gap: 16px 12px;
 
-			@media only screen and ( max-width: $break-small ) {
+			@media only screen and ( max-width: gb.$break-small ) {
 				display: block;
 
 				.jetpack-top-posts-mock-thumbnail {
@@ -42,7 +42,7 @@
 		}
 
 		.jetpack-top-posts-mock-thumbnail {
-			background-color: $gray-100;
+			background-color: gb.$gray-100;
 			height: 0;
 			padding-bottom: 75%;
 			position: relative;

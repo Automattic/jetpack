@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Update phpcs and Phan configuration to be more permissive, and update main class accordingly.

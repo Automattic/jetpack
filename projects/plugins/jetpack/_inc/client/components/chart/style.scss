@@ -2,11 +2,11 @@
 // Life is a statistical anomaly
 
 @use 'sass:color';
+@use '../../scss/z-index';
 @import '../../scss/calypso-colors';
 @import '../../scss/layout';
 @import '../../scss/mixin_clear-fix';
 @import '../../scss/mixin_long-content-fade';
-@import '../../scss/z-index';
 @import '../../scss/mixin_icons';
 
 .dops-chart {
@@ -40,7 +40,7 @@
 // Y-axis marker lines inside each chart__bar
 // (This is needed so that bars overlap correctly)
 .dops-chart__bar-marker {
-	z-index: z-index( 'root', '.dops-chart__bar-marker' );
+	z-index: z-index.z-index( 'root', '.dops-chart__bar-marker' );
 	position: absolute;
 		top: 0;
 	width: 100%;
@@ -178,7 +178,7 @@
 		right: 16%; // 1
 		bottom: 0; // 1
 		left: 16%; // 1
-	z-index: z-index( 'root', '.dops-chart__bar-section' );
+	z-index: z-index.z-index( 'root', '.dops-chart__bar-section' );
 
 	.dops-chart__bar:hover &.is-bar {
 		background-color: var( --jp-green-40 );
@@ -189,7 +189,7 @@
 	}
 
 	&.is-spacer {
-		z-index: z-index( 'root', '.dops-chart__bar-section.is-spacer' );
+		z-index: z-index.z-index( 'root', '.dops-chart__bar-section.is-spacer' );
 		background-color: $transparent;
 	}
 
@@ -200,7 +200,7 @@
 			top: 160px;
 			bottom: 0;
 			left: 0;
-		z-index: z-index( 'root', '.dops-chart__bar-section.is-ghost::after' );
+		z-index: z-index.z-index( 'root', '.dops-chart__bar-section.is-ghost::after' );
 		width: 100%;
 		height: 40px;
 		background-image: linear-gradient(to bottom, $transparent, rgba( color.adjust( $gray, $lightness: 30% ), .5 ) ); // TODO: needs to use default color for gradient
@@ -329,7 +329,7 @@
 	font-size: 14px;
 	line-height: 24px;
 	clear: both;
-	z-index: z-index( 'root', '.dops-chart__empty' );
+	z-index: z-index.z-index( 'root', '.dops-chart__empty' );
 }
 
 .dops-chart__empty_notice {

@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/style';
+@use '@automattic/jetpack-base-styles/style';
 
 // Used to show cards in the disconnection flow for active plugins and site benefits.
 .jp-connection__disconnect-card {

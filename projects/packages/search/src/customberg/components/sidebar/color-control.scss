@@ -1,4 +1,5 @@
-@import '../../lib/base-styles';
+@use "@wordpress/base-styles/variables";
+@use '../../lib/base-styles';
 
 // Manually adjust incorrect styles from core.
 .jp-search-configure-color-input {
@@ -10,7 +11,7 @@
 	.block-editor-color-gradient-control {
 
 		fieldset > legend {
-			margin-bottom: $grid-unit-15;
+			margin-bottom: variables.$grid-unit-15;
 
 			> .block-editor-color-gradient-control__color-indicator {
 				margin-bottom: 0;

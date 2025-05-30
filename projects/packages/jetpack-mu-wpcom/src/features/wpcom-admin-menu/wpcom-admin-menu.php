@@ -7,9 +7,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Forms\Dashboard;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
@@ -474,32 +472,3 @@ function wpcom_add_plugins_menu() {
 	}
 }
 add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
-
-/**
- * Adds a submenu item for Jetpack Forms.
- */
-function add_submenu_jetpack_forms() {
-	$has_switch_class    = class_exists( 'Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch' );
-	$has_dashboard_class = class_exists( 'Automattic\Jetpack\Forms\Dashboard\Dashboard' );
-	if ( ! $has_switch_class || ! $has_dashboard_class ) {
-		return;
-	}
-
-	$has_switch_method = method_exists( Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch::class, 'is_jetpack_forms_admin_page_available' );
-	$has_render_method = method_exists( Automattic\Jetpack\Forms\Dashboard\Dashboard::class, 'render_new_dashboard' );
-
-	if ( ! $has_switch_method || ! $has_render_method || ! Dashboard\Dashboard_View_Switch::is_jetpack_forms_admin_page_available() ) {
-		return;
-	}
-
-	$forms_dashboard = new Dashboard\Dashboard();
-
-	Admin_Menu::add_menu(
-		__( 'Jetpack Forms', 'jetpack-mu-wpcom' ),
-		__( 'Forms', 'jetpack-mu-wpcom' ),
-		'edit_pages',
-		'jetpack-forms-admin',
-		array( $forms_dashboard, 'render_new_dashboard' )
-	);
-}
-add_action( 'admin_menu', 'add_submenu_jetpack_forms' );

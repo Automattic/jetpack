@@ -209,6 +209,7 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 			'planName'                   => $plan_name,
 			'learnMoreAboutStylesUrl'    => $learn_more_about_styles_support_url,
 			'learnMoreAboutStylesPostId' => $learn_more_about_styles_post_id,
+			'hasCustomDesign'            => wpcom_site_has_feature( WPCOM_Features::CUSTOM_DESIGN ),
 		)
 	);
 	wp_enqueue_style(
@@ -264,8 +265,20 @@ function wpcom_block_global_styles_frontend( $theme_json ) {
 		return $theme_json;
 	}
 
+	$limited_theme_json = array();
+
+	$theme_json_data = $theme_json->get_data();
+
+	/**
+	 * If the site has Custom Design paid addon, we only want to return the CSS part of the styles.
+	 */
+	if ( isset( $theme_json_data['styles']['css'] ) && wpcom_site_has_feature( WPCOM_Features::CUSTOM_DESIGN ) ) {
+		$limited_theme_json['styles']['css'] = $theme_json_data['styles']['css'];
+		$limited_theme_json['version']       = $theme_json_data['version'] ?? WP_Theme_JSON::LATEST_SCHEMA;
+	}
+
 	if ( class_exists( 'WP_Theme_JSON_Data' ) ) {
-		return new WP_Theme_JSON_Data( array(), 'custom' );
+		return new WP_Theme_JSON_Data( $limited_theme_json, 'custom' );
 	}
 
 	/*
@@ -337,6 +350,24 @@ function wpcom_global_styles_in_use_by_wp_global_styles_post( array $wp_global_s
 	// Some keys are ignored because they are not relevant to a custom style
 	// behaviours are not relevant if blank - as they where when included during GB16.4 and later removed.
 	$ignored_keys = array( 'version', 'isGlobalStylesUserThemeJSON' );
+
+	if ( wpcom_site_has_feature( WPCOM_Features::CUSTOM_DESIGN ) ) {
+		unset( $global_styles_content['styles']['css'] );
+	}
+
+	$theme_base_css = WP_Theme_JSON_Resolver::get_theme_data()->get_stylesheet( array( 'custom-css' ) ) ?? '';
+
+	$theme_base_css = preg_replace( '/\s+/', '', $theme_base_css );
+	$custom_css     = preg_replace( '/\s+/', '', $global_styles_content['styles']['css'] ?? '' );
+
+	if ( $theme_base_css === $custom_css || empty( $global_styles_content['styles']['css'] ) ) {
+		unset( $global_styles_content['styles']['css'] );
+	}
+
+	if ( empty( $global_styles_content['styles'] ) ) {
+		unset( $global_styles_content['styles'] );
+	}
+
 	if ( isset( $global_styles_content['behaviors'] ) && empty( $global_styles_content['behaviors'] ) ) {
 		$ignored_keys[] = 'behaviors';
 	}
