@@ -1,6 +1,6 @@
+import { currentUserCan } from '@automattic/jetpack-script-data';
 import { TabPanelProps } from '@wordpress/components/build-types/tab-panel/types';
 import { __ } from '@wordpress/i18n';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import {
 	MY_JETPACK_SECTION_HELP,
 	MY_JETPACK_SECTION_OVERVIEW,
@@ -13,7 +13,7 @@ import {
  * @return The sections for the My Jetpack tab panel.
  */
 export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
-	const { userIsAdmin } = getMyJetpackWindowInitialState();
+	const showAdminTab = currentUserCan( 'manage_options' );
 
 	const tabs = [
 		{
@@ -31,7 +31,7 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
 		},
 	];
 
-	return tabs.filter( tab => ! ( tab.isAdminOnly && ! userIsAdmin ) );
+	return tabs.filter( tab => ! ( tab.isAdminOnly && ! showAdminTab ) );
 }
 
 /**
