@@ -1,3 +1,8 @@
+/**
+ * External dependencies
+ */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControl as ToggleGroupControl,
@@ -16,31 +21,36 @@ import { useSearchParams } from 'react-router-dom';
  * @param {number} count - The count to display.
  * @return {string} The formatted label.
  */
-function getTabLabel( label, count ) {
+function getTabLabel( label: string, count: number ): string {
 	/* translators: 1: Tab label, 2: Count */
 	return sprintf( __( '%1$s (%2$s)', 'jetpack-forms' ), label, count || 0 );
 }
 
+type InboxStatusToggleProps = {
+	currentQuery: Record< string, unknown >;
+};
+
 /**
  * Renders the status toggle for the inbox view.
  *
- * @param {object} props              - The component props.
- * @param {object} props.currentQuery - The current query args from the parent.
+ * @param {InboxStatusToggleProps} props - The component props.
  * @return {JSX.Element} The status toggle component.
  */
-export default function InboxStatusToggle( { currentQuery } ) {
+export default function InboxStatusToggle( { currentQuery }: InboxStatusToggleProps ): JSX.Element {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const status = searchParams.get( 'status' ) || 'inbox';
 	const queryBase = { search: '', page: 1, ...currentQuery, per_page: 1, _fields: 'id' };
-
+	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { totalItems: totalItemsInbox } = useEntityRecords( 'postType', 'feedback', {
 		...queryBase,
 		status: 'publish,draft',
 	} );
+
 	const { totalItems: totalItemsSpam } = useEntityRecords( 'postType', 'feedback', {
 		...queryBase,
 		status: 'spam',
 	} );
+
 	const { totalItems: totalItemsTrash } = useEntityRecords( 'postType', 'feedback', {
 		...queryBase,
 		status: 'trash',
@@ -56,14 +66,21 @@ export default function InboxStatusToggle( { currentQuery } ) {
 	];
 
 	const handleChange = useCallback(
-		newStatus => {
+		( newStatus: string ) => {
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_status_change', {
+				status: newStatus,
+				viewport: isSm ? 'mobile' : 'desktop',
+				previous_status: status,
+			} );
+
 			setSearchParams( prev => {
 				const params = new URLSearchParams( prev );
 				params.set( 'status', newStatus );
+
 				return params;
 			} );
 		},
-		[ setSearchParams ]
+		[ setSearchParams, status, isSm ]
 	);
 
 	return (

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import {
 	AdminPage,
 	AdminSectionHero,
@@ -11,7 +12,7 @@ import {
 	getUserLocale,
 } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
-import { useMemo } from '@wordpress/element';
+import { useEffect, useMemo, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -62,6 +63,7 @@ const AdminMigratePage = () => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const ASSETS_URL = useMemo( () => config( 'pluginAssetsURL' ), [] );
 	const dashboardURL = useMemo( () => config( 'dashboardURL' ), [] );
+
 	const header = (
 		<div>
 			<JetpackLogo />{ ' ' }
@@ -82,6 +84,24 @@ const AdminMigratePage = () => {
 		() => getLocaleScreenshotName( getUserLocale(), isSm ),
 		[ isSm ]
 	);
+
+	useEffect( () => {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_admin_migrate_page_view', {
+			viewport: isSm ? 'mobile' : 'desktop',
+		} );
+	}, [ isSm ] );
+
+	const onCheckNewFormsClick = useCallback( () => {
+		jetpackAnalytics.tracks.recordEvent(
+			'jetpack_forms_admin_migrate_page_check_new_forms_button_click',
+			{
+				viewport: isSm ? 'mobile' : 'desktop',
+			}
+		);
+
+		window.location.href = dashboardURL;
+	}, [ isSm, dashboardURL ] );
+
 	return (
 		<div className="jp-forms__admin-migrate-page-wrapper">
 			<AdminPage moduleName={ __( 'Jetpack Forms', 'jetpack-forms' ) } header={ header }>
@@ -95,7 +115,7 @@ const AdminMigratePage = () => {
 								{ __( "Now it's part of Jetpack → Forms", 'jetpack-forms' ) }
 							</p>
 							<p>
-								<Button variant="primary" href={ dashboardURL }>
+								<Button variant="primary" onClick={ onCheckNewFormsClick }>
 									{ __( 'Check new Forms', 'jetpack-forms' ) }
 								</Button>
 							</p>
