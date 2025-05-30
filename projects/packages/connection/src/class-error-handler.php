@@ -115,6 +115,7 @@ class Error_Handler {
 		'invalid_nonce',
 		'signature_mismatch',
 		'invalid_connection_owner',
+		'protected_owner_missing',
 	);
 
 	/**
@@ -173,7 +174,7 @@ class Error_Handler {
 				case 'no_user_tokens':
 				case 'no_token_for_user':
 				case 'invalid_connection_owner':
-				case 'protected_owner':
+				case 'protected_owner_missing':
 					add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
 					add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
 					$this->error_code = $error_code;
@@ -759,12 +760,13 @@ class Error_Handler {
 		$action        = 'reconnect';
 		$error_data    = array( 'api_error_code' => $this->error_code );
 
-		// Special handling only for protected_owner errors
-		if ( 'protected_owner' === $this->error_code ) {
-			$verified_errors = $this->get_verified_errors();
-			if ( isset( $verified_errors['protected_owner'] ) ) {
-				$first_error = reset( $verified_errors['protected_owner'] );
+		// Special handling for protected_owner type errors
+		$verified_errors = $this->get_verified_errors();
+		if ( isset( $verified_errors[ $this->error_code ] ) ) {
+			$first_error = reset( $verified_errors[ $this->error_code ] );
 
+			// Check if this is a protected_owner type error
+			if ( ! empty( $first_error['error_type'] ) && 'protected_owner' === $first_error['error_type'] ) {
 				if ( ! empty( $first_error['error_message'] ) ) {
 					$error_message = $first_error['error_message'];
 				}

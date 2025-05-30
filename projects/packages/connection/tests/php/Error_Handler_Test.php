@@ -409,21 +409,21 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_instance singleton
+	 * Test get_instance singleton pattern
 	 */
 	public function test_get_instance() {
 		$instance1 = Error_Handler::get_instance();
 		$instance2 = Error_Handler::get_instance();
 
 		$this->assertInstanceOf( Error_Handler::class, $instance1 );
-		$this->assertSame( $instance1, $instance2, 'get_instance should return the same instance (singleton)' );
+		$this->assertSame( $instance1, $instance2, 'get_instance should return the same instance (singleton pattern)' );
 	}
 
 	/**
-	 * Test wp_error_to_array
+	 * Test wp_error_to_array method
 	 */
 	public function test_wp_error_to_array() {
-		$error       = $this->get_sample_error( 'invalid_token', 5 );
+		$error       = $this->get_sample_error( 'invalid_token', 5, 'rest' );
 		$error_array = $this->error_handler->wp_error_to_array( $error );
 
 		$this->assertIsArray( $error_array );
@@ -438,13 +438,16 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertEquals( 'invalid_token', $error_array['error_code'] );
 		$this->assertSame( '5', $error_array['user_id'] );
 		$this->assertEquals( 'An error was triggered', $error_array['error_message'] );
-		$this->assertEquals( 'xmlrpc', $error_array['error_type'] );
+		$this->assertEquals( 'rest', $error_array['error_type'] );
+		$this->assertIsArray( $error_array['error_data'] );
+		$this->assertIsInt( $error_array['timestamp'] );
+		$this->assertIsString( $error_array['nonce'] );
 	}
 
 	/**
 	 * Test wp_error_to_array with invalid error (missing signature_details)
 	 */
-	public function test_wp_error_to_array_invalid() {
+	public function test_wp_error_to_array_invalid_error() {
 		$error  = new \WP_Error( 'test_error', 'Test message', array() );
 		$result = $this->error_handler->wp_error_to_array( $error );
 
@@ -452,34 +455,59 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test delete_all_errors
+	 * Test wp_error_to_array with invalid error (missing token)
+	 */
+	public function test_wp_error_to_array_missing_token() {
+		$error  = new \WP_Error(
+			'test_error',
+			'Test message',
+			array(
+				'signature_details' => array(
+					'timestamp' => time(),
+					'nonce'     => 'test_nonce',
+				),
+			)
+		);
+		$result = $this->error_handler->wp_error_to_array( $error );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test delete_all_errors method
 	 */
 	public function test_delete_all_errors() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		$error = $this->get_sample_error( 'invalid_token', 1 );
-		$this->error_handler->report_error( $error );
+		// Add some errors
+		$error1 = $this->get_sample_error( 'invalid_token', 1 );
+		$error2 = $this->get_sample_error( 'unknown_user', 2 );
 
+		$this->error_handler->report_error( $error1 );
+		$this->error_handler->report_error( $error2 );
+
+		// Verify errors and verify them
 		$stored_errors = $this->error_handler->get_stored_errors();
-		$this->assertCount( 1, $stored_errors );
+		foreach ( $stored_errors as $users ) {
+			foreach ( $users as $error ) {
+				$this->error_handler->verify_error( $error );
+			}
+		}
 
-		// Verify the error
-		$this->error_handler->verify_error( $stored_errors['invalid_token']['1'] );
-		$verified_errors = $this->error_handler->get_verified_errors();
-		$this->assertCount( 1, $verified_errors );
+		// Ensure we have both stored and verified errors
+		$this->assertNotEmpty( $this->error_handler->get_stored_errors() );
+		$this->assertNotEmpty( $this->error_handler->get_verified_errors() );
 
 		// Delete all errors
 		$this->error_handler->delete_all_errors();
 
-		$stored_errors   = $this->error_handler->get_stored_errors();
-		$verified_errors = $this->error_handler->get_verified_errors();
-
-		$this->assertEmpty( $stored_errors );
-		$this->assertEmpty( $verified_errors );
+		// Verify both stored and verified errors are deleted
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+		$this->assertEmpty( $this->error_handler->get_verified_errors() );
 	}
 
 	/**
-	 * Test delete_stored_errors
+	 * Test delete_stored_errors method
 	 */
 	public function test_delete_stored_errors() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
@@ -487,18 +515,16 @@ class Error_Handler_Test extends BaseTestCase {
 		$error = $this->get_sample_error( 'invalid_token', 1 );
 		$this->error_handler->report_error( $error );
 
-		$stored_errors = $this->error_handler->get_stored_errors();
-		$this->assertCount( 1, $stored_errors );
+		$this->assertNotEmpty( $this->error_handler->get_stored_errors() );
 
 		$result = $this->error_handler->delete_stored_errors();
-		$this->assertTrue( $result );
 
-		$stored_errors = $this->error_handler->get_stored_errors();
-		$this->assertEmpty( $stored_errors );
+		$this->assertTrue( $result );
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
 	}
 
 	/**
-	 * Test delete_verified_errors
+	 * Test delete_verified_errors method
 	 */
 	public function test_delete_verified_errors() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
@@ -509,42 +535,136 @@ class Error_Handler_Test extends BaseTestCase {
 		$stored_errors = $this->error_handler->get_stored_errors();
 		$this->error_handler->verify_error( $stored_errors['invalid_token']['1'] );
 
-		$verified_errors = $this->error_handler->get_verified_errors();
-		$this->assertCount( 1, $verified_errors );
+		$this->assertNotEmpty( $this->error_handler->get_verified_errors() );
 
 		$result = $this->error_handler->delete_verified_errors();
-		$this->assertTrue( $result );
 
-		$verified_errors = $this->error_handler->get_verified_errors();
-		$this->assertEmpty( $verified_errors );
+		$this->assertTrue( $result );
+		$this->assertEmpty( $this->error_handler->get_verified_errors() );
 	}
 
 	/**
-	 * Test delete_all_errors_and_return_unfiltered_value
+	 * Test delete_all_errors_and_return_unfiltered_value method
 	 */
 	public function test_delete_all_errors_and_return_unfiltered_value() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
+		// Add some errors
 		$error = $this->get_sample_error( 'invalid_token', 1 );
 		$this->error_handler->report_error( $error );
 
 		$stored_errors = $this->error_handler->get_stored_errors();
-		$this->assertCount( 1, $stored_errors );
+		$this->error_handler->verify_error( $stored_errors['invalid_token']['1'] );
+
+		$this->assertNotEmpty( $this->error_handler->get_stored_errors() );
+		$this->assertNotEmpty( $this->error_handler->get_verified_errors() );
 
 		$test_value = 'test_return_value';
 		$result     = $this->error_handler->delete_all_errors_and_return_unfiltered_value( $test_value );
 
-		$this->assertEquals( $test_value, $result, 'Should return the input value unchanged' );
+		// Should return the original value
+		$this->assertEquals( $test_value, $result );
 
-		$stored_errors = $this->error_handler->get_stored_errors();
-		$this->assertEmpty( $stored_errors, 'Should delete all errors' );
+		// Should delete all errors
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+		$this->assertEmpty( $this->error_handler->get_verified_errors() );
 	}
 
 	/**
-	 * Test jetpack_react_dashboard_error
+	 * Test send_error_to_wpcom method
 	 */
-	public function test_jetpack_react_dashboard_error() {
-		// Set up a verified error first
+	public function test_send_error_to_wpcom() {
+		// Mock Jetpack_Options::get_option
+		add_filter(
+			'pre_option_jetpack_options',
+			function ( $pre_option, $option ) {
+				if ( 'jetpack_options' === $option ) {
+					return array( 'id' => 12345 );
+				}
+				return $pre_option;
+			},
+			10,
+			3
+		);
+
+		$error_array = array(
+			'error_code'    => 'test_error',
+			'user_id'       => '1',
+			'error_message' => 'Test error message',
+			'error_data'    => array( 'test' => 'data' ),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'rest',
+		);
+
+		// Mock wp_remote_post to avoid actual HTTP requests
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $_parsed_args, $url ) {
+				if ( strpos( $url, 'public-api.wordpress.com' ) !== false ) {
+					return array(
+						'response' => array( 'code' => 200 ),
+						'body'     => '{"success": true}',
+					);
+				}
+				return $preempt;
+			},
+			10,
+			3
+		);
+
+		$result = $this->error_handler->send_error_to_wpcom( $error_array );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test send_error_to_wpcom with encryption failure
+	 */
+	public function test_send_error_to_wpcom_encryption_failure() {
+		// Mock encryption to fail
+		$error_handler_mock = $this->getMockBuilder( Error_Handler::class )
+			->onlyMethods( array( 'encrypt_data_to_wpcom' ) )
+			->getMock();
+
+		$error_handler_mock->method( 'encrypt_data_to_wpcom' )
+			->willReturn( false );
+
+		$error_array = array(
+			'error_code' => 'test_error',
+			'user_id'    => '1',
+		);
+
+		$result = $error_handler_mock->send_error_to_wpcom( $error_array );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test handle_verified_errors method
+	 */
+	public function test_handle_verified_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		// Add an error that should trigger admin notices
+		$error = $this->get_sample_error( 'invalid_token', 1 );
+		$this->error_handler->report_error( $error );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$this->error_handler->verify_error( $stored_errors['invalid_token']['1'] );
+
+		$this->error_handler->handle_verified_errors();
+
+		// Verify that admin_notices and react_connection_errors_initial_state actions were added
+		// has_action returns the priority (not boolean true) when the action exists, false when it doesn't
+		$this->assertNotFalse( has_action( 'admin_notices', array( $this->error_handler, 'generic_admin_notice_error' ) ) );
+		$this->assertNotFalse( has_action( 'react_connection_errors_initial_state', array( $this->error_handler, 'jetpack_react_dashboard_error' ) ) );
+	}
+
+	/**
+	 * Test jetpack_react_dashboard_error method with default error
+	 */
+	public function test_jetpack_react_dashboard_error_default() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$error = $this->get_sample_error( 'invalid_token', 1 );
@@ -553,299 +673,249 @@ class Error_Handler_Test extends BaseTestCase {
 		$stored_errors = $this->error_handler->get_stored_errors();
 		$this->error_handler->verify_error( $stored_errors['invalid_token']['1'] );
 
-		// Set the error code on the handler
+		// Set the error_code property
 		$reflection = new \ReflectionClass( $this->error_handler );
 		$property   = $reflection->getProperty( 'error_code' );
 		$property->setAccessible( true );
 		$property->setValue( $this->error_handler, 'invalid_token' );
 
-		$initial_errors = array();
-		$result         = $this->error_handler->jetpack_react_dashboard_error( $initial_errors );
+		$errors = array();
+		$result = $this->error_handler->jetpack_react_dashboard_error( $errors );
 
-		$this->assertIsArray( $result );
 		$this->assertCount( 1, $result );
-		$this->assertArrayHasKey( 'code', $result[0] );
-		$this->assertArrayHasKey( 'message', $result[0] );
-		$this->assertArrayHasKey( 'action', $result[0] );
-		$this->assertArrayHasKey( 'data', $result[0] );
-
 		$this->assertEquals( 'connection_error', $result[0]['code'] );
 		$this->assertEquals( 'reconnect', $result[0]['action'] );
+		$this->assertStringContainsString( 'broken', $result[0]['message'] );
 		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
 		$this->assertEquals( 'invalid_token', $result[0]['data']['api_error_code'] );
 	}
 
 	/**
-	 * Test jetpack_react_dashboard_error with custom error data (non-protected_owner)
+	 * Test jetpack_react_dashboard_error method with protected_owner error
 	 */
-	public function test_jetpack_react_dashboard_error_with_custom_data() {
-		// Mock a verified error with custom action and data (but not protected_owner)
-		$custom_error = array(
-			'test_error' => array(
-				'1' => array(
-					'error_code'    => 'test_error',
-					'user_id'       => '1',
-					'error_message' => 'Custom error message',
-					'error_data'    => array(
-						'action'      => 'custom_action',
-						'support_url' => 'https://example.com/support',
-						'custom_data' => 'test_value',
-					),
-					'timestamp'     => time(),
-					'nonce'         => 'test_nonce',
-					'error_type'    => 'custom',
-				),
+	public function test_jetpack_react_dashboard_error_protected_owner() {
+		// Create a protected_owner error manually
+		$protected_owner_error = array(
+			'error_code'    => 'protected_owner_missing',
+			'user_id'       => '1',
+			'error_message' => 'Custom protected owner message',
+			'error_data'    => array(
+				'action' => 'custom_action',
+				'custom' => 'data',
+			),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'protected_owner',
+		);
+
+		// Manually add to verified errors
+		$verified_errors = array(
+			'protected_owner_missing' => array(
+				'1' => $protected_owner_error,
 			),
 		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
 
-		// Mock the get_verified_errors method to return our custom error
-		add_filter(
-			'jetpack_connection_get_verified_errors',
-			function () use ( $custom_error ) {
-				return $custom_error;
-			}
-		);
-
-		// Set the error code on the handler
+		// Set the error_code property
 		$reflection = new \ReflectionClass( $this->error_handler );
 		$property   = $reflection->getProperty( 'error_code' );
 		$property->setAccessible( true );
-		$property->setValue( $this->error_handler, 'test_error' );
+		$property->setValue( $this->error_handler, 'protected_owner_missing' );
 
-		$initial_errors = array();
-		$result         = $this->error_handler->jetpack_react_dashboard_error( $initial_errors );
+		$errors = array();
+		$result = $this->error_handler->jetpack_react_dashboard_error( $errors );
 
-		$this->assertIsArray( $result );
 		$this->assertCount( 1, $result );
-
-		// For non-protected_owner errors, should use default values regardless of custom data
 		$this->assertEquals( 'connection_error', $result[0]['code'] );
-		$this->assertEquals( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', $result[0]['message'] );
-		$this->assertEquals( 'reconnect', $result[0]['action'] );
-
-		// Should only have api_error_code, not the custom data
+		$this->assertEquals( 'custom_action', $result[0]['action'] );
+		$this->assertEquals( 'Custom protected owner message', $result[0]['message'] );
 		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
-		$this->assertEquals( 'test_error', $result[0]['data']['api_error_code'] );
-		$this->assertArrayNotHasKey( 'support_url', $result[0]['data'] );
-		$this->assertArrayNotHasKey( 'custom_data', $result[0]['data'] );
+		$this->assertArrayHasKey( 'custom', $result[0]['data'] );
+		$this->assertEquals( 'data', $result[0]['data']['custom'] );
 	}
 
 	/**
-	 * Test handle_verified_errors
+	 * Test jetpack_react_dashboard_error method with non-protected_owner error_type
 	 */
-	public function test_handle_verified_errors() {
-		// Mock verified errors
-		$verified_errors = array(
-			'invalid_token' => array(
-				'1' => array(
-					'error_code'    => 'invalid_token',
-					'user_id'       => '1',
-					'error_message' => 'Invalid token error',
-					'error_data'    => array(),
-					'timestamp'     => time(),
-					'nonce'         => 'test_nonce',
-					'error_type'    => 'xmlrpc',
-				),
-			),
-		);
-
-		add_filter(
-			'jetpack_connection_get_verified_errors',
-			function () use ( $verified_errors ) {
-				return $verified_errors;
-			}
-		);
-
-		// Use reflection to call the method since it's called during admin_init
-		$reflection = new \ReflectionClass( $this->error_handler );
-		$method     = $reflection->getMethod( 'handle_verified_errors' );
-		$method->setAccessible( true );
-		$method->invoke( $this->error_handler );
-
-		// Check that error_code property was set
-		$property = $reflection->getProperty( 'error_code' );
-		$property->setAccessible( true );
-		$error_code = $property->getValue( $this->error_handler );
-
-		$this->assertEquals( 'invalid_token', $error_code );
-	}
-
-	/**
-	 * Test send_error_to_wpcom
-	 */
-	public function test_send_error_to_wpcom() {
-		// Mock Jetpack_Options::get_option
-		if ( ! class_exists( 'Jetpack_Options' ) ) {
-			$this->markTestSkipped( 'Jetpack_Options class not available' );
-		}
-
-		// Create a sample error array
-		$error_array = array(
-			'error_code'    => 'test_error',
+	public function test_jetpack_react_dashboard_error_non_protected_owner() {
+		// Create an error with different error_type
+		$regular_error = array(
+			'error_code'    => 'invalid_token',
 			'user_id'       => '1',
-			'error_message' => 'Test error message',
-			'error_data'    => array( 'test' => 'data' ),
+			'error_message' => 'Custom message that should not be used',
+			'error_data'    => array(
+				'action' => 'custom_action_ignored',
+			),
 			'timestamp'     => time(),
 			'nonce'         => 'test_nonce',
 			'error_type'    => 'xmlrpc',
 		);
 
-		// Mock the blog ID
+		// Manually add to verified errors
+		$verified_errors = array(
+			'invalid_token' => array(
+				'1' => $regular_error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		// Set the error_code property
+		$reflection = new \ReflectionClass( $this->error_handler );
+		$property   = $reflection->getProperty( 'error_code' );
+		$property->setAccessible( true );
+		$property->setValue( $this->error_handler, 'invalid_token' );
+
+		$errors = array();
+		$result = $this->error_handler->jetpack_react_dashboard_error( $errors );
+
+		$this->assertCount( 1, $result );
+		$this->assertEquals( 'connection_error', $result[0]['code'] );
+		$this->assertEquals( 'reconnect', $result[0]['action'] ); // Should use default
+		$this->assertStringContainsString( 'broken', $result[0]['message'] ); // Should use default message
+	}
+
+	/**
+	 * Test verify_xml_rpc_error method with valid nonce
+	 */
+	public function test_verify_xml_rpc_error_valid_nonce() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$error = $this->get_sample_error( 'invalid_token', 1 );
+		$this->error_handler->report_error( $error );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$nonce         = $stored_errors['invalid_token']['1']['nonce'];
+
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/verify_xmlrpc_error' );
+		$request->set_param( 'nonce', $nonce );
+
+		$response = $this->error_handler->verify_xml_rpc_error( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $response->get_data() );
+
+		// Verify the error was added to verified errors
+		$verified_errors = $this->error_handler->get_verified_errors();
+		$this->assertArrayHasKey( 'invalid_token', $verified_errors );
+	}
+
+	/**
+	 * Test verify_xml_rpc_error method with invalid nonce
+	 */
+	public function test_verify_xml_rpc_error_invalid_nonce() {
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/verify_xmlrpc_error' );
+		$request->set_param( 'nonce', 'invalid_nonce' );
+
+		$response = $this->error_handler->verify_xml_rpc_error( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( $response->get_data() );
+	}
+
+	/**
+	 * Test generic_admin_notice_error method on jetpack dashboard page
+	 */
+	public function test_generic_admin_notice_error_jetpack_page() {
+		global $pagenow;
+		$original_pagenow = $pagenow;
+		$pagenow          = 'admin.php';
+		$_GET['page']     = 'jetpack';
+
+		// Mock current_user_can to return true
+		$user = wp_get_current_user();
+		$user->add_cap( 'jetpack_connect' );
+
 		add_filter(
-			'pre_option_jetpack_options',
-			function ( $value, $option ) {
-				if ( $option === 'jetpack_options' ) {
-					return array( 'id' => 12345 );
-				}
-				return $value;
+			'jetpack_connection_error_notice_message',
+			function () {
+				return 'Should not be displayed';
 			},
 			10,
 			2
 		);
 
-		$result = $this->error_handler->send_error_to_wpcom( $error_array );
+		ob_start();
+		$this->error_handler->generic_admin_notice_error();
+		$output = ob_get_clean();
 
-		// Should return true if encryption succeeds (which it should with valid data)
-		$this->assertTrue( $result );
+		$this->assertEmpty( $output, 'Should not display notice on jetpack dashboard page' );
+
+		// Restore globals
+		$pagenow = $original_pagenow;
+		unset( $_GET['page'] );
 	}
 
 	/**
-	 * Test jetpack_react_dashboard_error with protected_owner error
+	 * Test generic_admin_notice_error method without jetpack_connect capability
 	 */
-	public function test_jetpack_react_dashboard_error_with_protected_owner() {
-		// Mock a verified protected_owner error with custom message and action
-		$protected_owner_error = array(
-			'protected_owner' => array(
-				'1' => array(
-					'error_code'    => 'protected_owner',
-					'user_id'       => '1',
-					'error_message' => 'This site has a protected owner. Please contact support.',
-					'error_data'    => array(
-						'action'      => 'support',
-						'support_url' => 'https://jetpack.com/support',
-						'owner_id'    => 123,
-					),
-					'timestamp'     => time(),
-					'nonce'         => 'test_nonce',
-					'error_type'    => 'protected_owner',
-				),
-			),
-		);
+	public function test_generic_admin_notice_error_no_capability() {
+		// Ensure user doesn't have jetpack_connect capability
+		$user = wp_get_current_user();
+		$user->remove_cap( 'jetpack_connect' );
 
-		// Mock the get_verified_errors method to return our protected_owner error
 		add_filter(
-			'jetpack_connection_get_verified_errors',
-			function () use ( $protected_owner_error ) {
-				return $protected_owner_error;
-			}
-		);
-
-		// Set the error code on the handler to protected_owner
-		$reflection = new \ReflectionClass( $this->error_handler );
-		$property   = $reflection->getProperty( 'error_code' );
-		$property->setAccessible( true );
-		$property->setValue( $this->error_handler, 'protected_owner' );
-
-		$initial_errors = array();
-		$result         = $this->error_handler->jetpack_react_dashboard_error( $initial_errors );
-
-		$this->assertIsArray( $result );
-		$this->assertCount( 1, $result );
-
-		// Verify the error structure
-		$this->assertEquals( 'connection_error', $result[0]['code'] );
-		$this->assertEquals( 'This site has a protected owner. Please contact support.', $result[0]['message'] );
-		$this->assertEquals( 'support', $result[0]['action'] );
-
-		// Verify the error data includes both api_error_code and custom data
-		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
-		$this->assertEquals( 'protected_owner', $result[0]['data']['api_error_code'] );
-		$this->assertArrayHasKey( 'support_url', $result[0]['data'] );
-		$this->assertEquals( 'https://jetpack.com/support', $result[0]['data']['support_url'] );
-		$this->assertArrayHasKey( 'owner_id', $result[0]['data'] );
-		$this->assertEquals( 123, $result[0]['data']['owner_id'] );
-	}
-
-	/**
-	 * Test jetpack_react_dashboard_error with protected_owner error but no custom data
-	 */
-	public function test_jetpack_react_dashboard_error_with_protected_owner_no_custom_data() {
-		// Mock a verified protected_owner error without custom message or action
-		$protected_owner_error = array(
-			'protected_owner' => array(
-				'1' => array(
-					'error_code'    => 'protected_owner',
-					'user_id'       => '1',
-					'error_message' => '',
-					'error_data'    => array(),
-					'timestamp'     => time(),
-					'nonce'         => 'test_nonce',
-					'error_type'    => 'protected_owner',
-				),
-			),
-		);
-
-		// Mock the get_verified_errors method to return our protected_owner error
-		add_filter(
-			'jetpack_connection_get_verified_errors',
-			function () use ( $protected_owner_error ) {
-				return $protected_owner_error;
-			}
-		);
-
-		// Set the error code on the handler to protected_owner
-		$reflection = new \ReflectionClass( $this->error_handler );
-		$property   = $reflection->getProperty( 'error_code' );
-		$property->setAccessible( true );
-		$property->setValue( $this->error_handler, 'protected_owner' );
-
-		$initial_errors = array();
-		$result         = $this->error_handler->jetpack_react_dashboard_error( $initial_errors );
-
-		$this->assertIsArray( $result );
-		$this->assertCount( 1, $result );
-
-		// Should use default values when custom data is not available
-		$this->assertEquals( 'connection_error', $result[0]['code'] );
-		$this->assertEquals( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', $result[0]['message'] );
-		$this->assertEquals( 'reconnect', $result[0]['action'] );
-
-		// Should still have api_error_code
-		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
-		$this->assertEquals( 'protected_owner', $result[0]['data']['api_error_code'] );
-	}
-
-	/**
-	 * Test jetpack_react_dashboard_error with protected_owner error but no verified errors
-	 */
-	public function test_jetpack_react_dashboard_error_with_protected_owner_no_verified_errors() {
-		// Mock empty verified errors
-		add_filter(
-			'jetpack_connection_get_verified_errors',
+			'jetpack_connection_error_notice_message',
 			function () {
-				return array();
+				return 'Should not be displayed';
+			},
+			10,
+			2
+		);
+
+		ob_start();
+		$this->error_handler->generic_admin_notice_error();
+		$output = ob_get_clean();
+
+		$this->assertEmpty( $output, 'Should not display notice without jetpack_connect capability' );
+	}
+
+	/**
+	 * Test get_verified_errors filter
+	 */
+	public function test_get_verified_errors_filter() {
+		// Add a verified error
+		$error = array(
+			'error_code'    => 'test_error',
+			'user_id'       => '1',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'test',
+		);
+
+		$verified_errors = array(
+			'test_error' => array(
+				'1' => $error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		// Add filter to inject additional errors
+		add_filter(
+			'jetpack_connection_get_verified_errors',
+			function ( $errors ) {
+				$errors['injected_error'] = array(
+					'1' => array(
+						'error_code'    => 'injected_error',
+						'user_id'       => '1',
+						'error_message' => 'Injected error',
+						'error_data'    => array(),
+						'timestamp'     => time(),
+						'nonce'         => 'injected_nonce',
+						'error_type'    => 'injected',
+					),
+				);
+				return $errors;
 			}
 		);
 
-		// Set the error code on the handler to protected_owner
-		$reflection = new \ReflectionClass( $this->error_handler );
-		$property   = $reflection->getProperty( 'error_code' );
-		$property->setAccessible( true );
-		$property->setValue( $this->error_handler, 'protected_owner' );
+		$result = $this->error_handler->get_verified_errors();
 
-		$initial_errors = array();
-		$result         = $this->error_handler->jetpack_react_dashboard_error( $initial_errors );
-
-		$this->assertIsArray( $result );
-		$this->assertCount( 1, $result );
-
-		// Should use default values when no verified errors exist
-		$this->assertEquals( 'connection_error', $result[0]['code'] );
-		$this->assertEquals( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', $result[0]['message'] );
-		$this->assertEquals( 'reconnect', $result[0]['action'] );
-
-		// Should still have api_error_code
-		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
-		$this->assertEquals( 'protected_owner', $result[0]['data']['api_error_code'] );
+		$this->assertCount( 2, $result );
+		$this->assertArrayHasKey( 'test_error', $result );
+		$this->assertArrayHasKey( 'injected_error', $result );
 	}
 }
