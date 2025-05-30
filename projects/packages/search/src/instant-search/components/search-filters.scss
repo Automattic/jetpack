@@ -1,4 +1,4 @@
-@import '../lib/styles/helper';
+@use '../lib/styles/helper';
 
 .jetpack-instant-search__search-filters {
 	position: relative;
@@ -9,7 +9,7 @@
 }
 
 .jetpack-instant-search__search-filters-title {
-	color: $color-text;
+	color: helper.$color-text;
 	display: block;
 	font-size: inherit;
 	font-weight: 700;
@@ -30,7 +30,7 @@
 
 	&:focus {
 
-		@include apply-overlay-focus-styling();
+		@include helper.apply-overlay-focus-styling();
 	}
 }
 
@@ -39,12 +39,12 @@
 	button.jetpack-instant-search__clear-filters-link {
 	// Extra specificity to override overly agressive theme styles.
 	// Without this, we need to use "!important" to get our default styling.
-	@include apply-default-overlay-colors();
-	@include apply-default-overlay-font-metrics();
+	@include helper.apply-default-overlay-colors();
+	@include helper.apply-default-overlay-font-metrics();
 }
 
 .jetpack-instant-search__search-filter-sub-heading {
-	color: $color-text-lighter;
+	color: helper.$color-text-lighter;
 	font-size: inherit;
 	margin: 0;
 	padding: 0;
@@ -80,7 +80,7 @@
 
 		&:focus {
 
-			@include apply-overlay-focus-styling();
+			@include helper.apply-overlay-focus-styling();
 			outline-offset: 2px;
 		}
 	}

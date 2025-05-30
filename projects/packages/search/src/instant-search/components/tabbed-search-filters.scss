@@ -1,7 +1,7 @@
-@import '../lib/styles/helper';
+@use '../lib/styles/helper';
 
 .jetpack-instant-search__search-static-filter-variation-tabbed {
-	border-bottom: 1px solid $color-layout-borders;
+	border-bottom: 1px solid helper.$color-layout-borders;
 	display: flex;
 
 	> div {

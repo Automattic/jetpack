@@ -1,8 +1,8 @@
-@import '../lib/styles/helper';
+@use '../lib/styles/helper';
 
 .jetpack-instant-search__box {
-	border-right: 1px solid $color-layout-borders;
-	border-bottom: 1px solid $color-layout-borders;
+	border-right: 1px solid helper.$color-layout-borders;
+	border-bottom: 1px solid helper.$color-layout-borders;
 }
 
 .jetpack-instant-search__box-label {
@@ -14,10 +14,10 @@
 
 input.jetpack-instant-search__box-input.search-field {
 	appearance: none;
-	background: $color-modal-background;
+	background: helper.$color-modal-background;
 	border: 0;
 	box-shadow: none;
-	color: $color-text-light;
+	color: helper.$color-text-light;
 	font-size: 18px;
 	height: 60px;
 	max-width: none;
@@ -29,8 +29,8 @@ input.jetpack-instant-search__box-input.search-field {
 
 	&:hover,
 	&:focus {
-		background: $color-modal-background; // necessary to override theme styles
-		color: $color-text;
+		background: helper.$color-modal-background; // necessary to override theme styles
+		color: helper.$color-text;
 	}
 
 	&.search-field {
@@ -53,14 +53,14 @@ input.jetpack-instant-search__box-input.search-field {
 	flex-shrink: 0;
 
 	svg {
-		fill: $color-text-lighter;
+		fill: helper.$color-text-lighter;
 	}
 }
 
 .jetpack-instant-search__box input[type="button"] {
 
-	@include remove-button-styling();
-	color: $color-text-lighter;
+	@include helper.remove-button-styling();
+	color: helper.$color-text-lighter;
 	cursor: pointer;
 	font-size: 1em;
 	font-weight: 400;
@@ -72,12 +72,12 @@ input.jetpack-instant-search__box-input.search-field {
 
 	&:hover,
 	&:focus {
-		color: $color-text-light;
+		color: helper.$color-text-light;
 	}
 
 	&:focus {
 
-		@include apply-overlay-focus-styling();
+		@include helper.apply-overlay-focus-styling();
 	}
 }
 
@@ -96,7 +96,7 @@ input.jetpack-instant-search__box-input.search-field {
 	}
 
 	&:focus {
-		outline: dotted thin $color-dark-layout-borders;
+		outline: dotted thin helper.$color-dark-layout-borders;
 		border-radius: 5px;
 		outline-offset: inherit;
 		margin-left: -50px;

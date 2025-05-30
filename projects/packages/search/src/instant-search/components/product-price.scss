@@ -1,6 +1,6 @@
-@import '../lib/styles/helper';
+@use '../lib/styles/helper';
 
 .jetpack-instant-search__product-price-regular {
-	color: $color-text-lighter;
+	color: helper.$color-text-lighter;
 	padding-right: 0.25em;
 }

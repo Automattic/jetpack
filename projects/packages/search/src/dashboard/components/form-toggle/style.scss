@@ -1,5 +1,5 @@
 @use 'sass:color';
-@import 'scss/calypso-colors';
+@use 'scss/calypso-colors';
 // ==========================================================================
 // FormToggle
 // ==========================================================================
@@ -34,7 +34,7 @@
 	&::after {
 		left: 0;
 		border-radius: 50%;
-		background: $white;
+		background: calypso-colors.$white;
 		transition: all .2s ease;
 	}
 
@@ -43,7 +43,7 @@
 	}
 
 	.dops-accessible-focus &:focus{
-		box-shadow: 0 0 0 2px $blue-medium;
+		box-shadow: 0 0 0 2px calypso-colors.$blue-medium;
 	}
 }
 
@@ -61,29 +61,29 @@
 	.dops-accessible-focus &:focus {
 
 		+ .form-toggle__label .form-toggle__switch {
-			box-shadow: 0 0 0 2px $blue-medium;
+			box-shadow: 0 0 0 2px calypso-colors.$blue-medium;
 		}
 
 		&:checked + .form-toggle__label .form-toggle__switch {
-			box-shadow: 0 0 0 2px $blue-light;
+			box-shadow: 0 0 0 2px calypso-colors.$blue-light;
 		}
 	}
 
 	+ .form-toggle__label .form-toggle__switch {
-		background: color.adjust( $gray, $lightness: 10% );
+		background: color.adjust( calypso-colors.$gray, $lightness: 10% );
 	}
 
 	&:not( :disabled ) {
 
 		+ .form-toggle__switch:hover {
-			background: color.adjust( $gray, $lightness: 20% );
+			background: color.adjust( calypso-colors.$gray, $lightness: 20% );
 		}
 	}
 
 	&:checked{
 
 		+ .form-toggle__label .form-toggle__switch {
-			background: $blue-medium;
+			background: calypso-colors.$blue-medium;
 
 			&::after {
 				left: 16px;
@@ -94,7 +94,7 @@
 	&:checked:not( :disabled ) {
 
 		+ .form-toggle__switch:hover {
-			background: $blue-light;
+			background: calypso-colors.$blue-light;
 		}
 	}
 
@@ -111,13 +111,13 @@
 .form-toggle.is-toggling {
 
 	+ .form-toggle__switch {
-		background: $blue-medium;
+		background: calypso-colors.$blue-medium;
 	}
 
 	&:checked {
 
 		+ .form-toggle__switch {
-			background: color.adjust( $gray, $lightness: 20% );
+			background: color.adjust( calypso-colors.$gray, $lightness: 20% );
 		}
 	}
 }

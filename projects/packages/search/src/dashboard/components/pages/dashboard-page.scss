@@ -1,5 +1,5 @@
-@import 'scss/variables';
-@import 'scss/rna-styles';
+@use 'scss/variables';
+@use 'scss/rna-styles';
 
 * {
 	box-sizing: border-box;
@@ -23,14 +23,14 @@ body {
 }
 
 #jp-search-dashboard {
-	background-color: $white;
-	color: $black;
+	background-color: variables.$white;
+	color: variables.$black;
 	font-size: 16px;
 	// 32px = wpadminbar height
 	// 65px = wpfooter height
 	min-height: calc( 100vh - 65px - 32px );
 
-	@include for-phone-down {
+	@include variables.for-phone-down {
 		font-size: 14px;
 	}
 
@@ -68,14 +68,14 @@ body {
 	}
 
 	.jp-search-dashboard-bottom {
-		background-color: $white;
+		background-color: variables.$white;
 	}
 
 	.jp-search-dashboard-header,
 	.jp-search-dashboard-footer {
 		padding: 2.5em 0;
 
-		background-color: $white;
+		background-color: variables.$white;
 	}
 
 	.jp-search-dashboard-header__logo-container {
@@ -97,7 +97,7 @@ body {
 	line-height: 24px;
 
 	.support-link {
-		color: $studio-black;
+		color: variables.$studio-black;
 		cursor: pointer;
 	}
 

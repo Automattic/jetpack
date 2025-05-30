@@ -1,6 +1,6 @@
-@import 'scss/variables';
+@use 'scss/variables';
 
-$color-modal-background: $studio-white;
+$color-modal-background: variables.$studio-white;
 $search-box-size: 60px;
 
 .jp-mocked-legacy-search {

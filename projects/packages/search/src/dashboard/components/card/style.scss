@@ -1,7 +1,7 @@
 @use 'sass:color';
-@import 'scss/layout';
-@import 'scss/typography';
-@import 'scss/calypso-colors';
+@use 'scss/layout';
+@use 'scss/typography';
+@use 'scss/calypso-colors';
 
 $title: #f6f7f7;
 $meta: #a7aaad;
@@ -16,14 +16,14 @@ $section-border: #dcdcde;
 	margin: 0 auto 10px auto;
 	padding: 16px;
 	box-sizing: border-box;
-	background: $white;
+	background: calypso-colors.$white;
 	box-shadow:
-		0 0 0 1px $light-gray-700,
+		0 0 0 1px calypso-colors.$light-gray-700,
 		0 1px 1px 1px  rgba(0,0,0,.04);
 
-	@include clear-fix;
+	@include layout.clear-fix;
 
-	@include breakpoint( ">480px" ) {
+	@include layout.breakpoint( ">480px" ) {
 		margin-bottom: 16px;
 		padding: 24px;
 	}
@@ -32,7 +32,7 @@ $section-border: #dcdcde;
 	&.is-compact {
 		margin-bottom: 1px;
 
-		@include breakpoint( ">480px" ) {
+		@include layout.breakpoint( ">480px" ) {
 			margin-bottom: 1px;
 			padding: 16px 24px;
 		}
@@ -44,12 +44,12 @@ $section-border: #dcdcde;
 }
 
 h2.dops-card-title {
-	font-size: $font-title-small;
+	font-size: typography.$font-title-small;
 }
 
 // Clickable Card
 .dops-card__link-indicator {
-	color: color.adjust( $gray, $lightness: 20% );
+	color: color.adjust( calypso-colors.$gray, $lightness: 20% );
 	display: block;
 	height: 100%;
 	position: absolute;
@@ -60,7 +60,7 @@ h2.dops-card-title {
 a.dops-card:hover {
 
 	.dops-card__link-indicator {
-		color: color.adjust( $gray, $lightness: 10% );
+		color: color.adjust( calypso-colors.$gray, $lightness: 10% );
 	}
 }
 
@@ -68,6 +68,6 @@ a.dops-card:focus {
 	outline: 0;
 
 	.dops-card__link-indicator {
-		color: $link-highlight;
+		color: calypso-colors.$link-highlight;
 	}
 }

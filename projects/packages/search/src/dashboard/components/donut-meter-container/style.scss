@@ -1,4 +1,4 @@
-@import 'scss/variables';
+@use 'scss/variables';
 
 .donut-meter-container {
 	display: flex;
@@ -30,14 +30,14 @@
 	}
 
 	.donut-info-secondary {
-		color: $studio-gray-60;
+		color: variables.$studio-gray-60;
 		margin: 0;
 		font-size: 0.7em;
 		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 0.7em;
 
 		.info-link {
-			color: $studio-black;
+			color: variables.$studio-black;
 			text-decoration: underline;
 
 			&:not( a ) {

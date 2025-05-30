@@ -1,4 +1,4 @@
-@import '../lib/styles/helper';
+@use '../lib/styles/helper';
 
 .jetpack-instant-search__scroll-button {
 	outline: 0;
@@ -8,7 +8,7 @@
 
 	&:focus {
 
-		@include apply-overlay-focus-styling();
+		@include helper.apply-overlay-focus-styling();
 	}
 }
 
@@ -17,6 +17,6 @@
 	button.jetpack-instant-search__scroll-button {
 	// Extra specificity to override overly agressive theme styles.
 	// Without this, we need to use "!important" to get our default styling.
-	@include apply-default-overlay-colors();
-	@include apply-default-overlay-font-metrics();
+	@include helper.apply-default-overlay-colors();
+	@include helper.apply-default-overlay-font-metrics();
 }

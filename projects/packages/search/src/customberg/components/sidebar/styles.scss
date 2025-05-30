@@ -1,7 +1,6 @@
 @use '@wordpress/base-styles/colors';
 @use "@wordpress/base-styles/mixins";
 @use "@wordpress/base-styles/variables";
-@use '../../lib/base-styles';
 
 .components-panel__header.jp-search-configure-sidebar__panel-tabs {
 	justify-content: flex-start;

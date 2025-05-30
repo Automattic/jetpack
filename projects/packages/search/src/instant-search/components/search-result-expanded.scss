@@ -1,4 +1,4 @@
-@import '../lib/styles/helper';
+@use '../lib/styles/helper';
 $image-square-size: 128px;
 
 .jetpack-instant-search__search-result-expanded {
@@ -15,7 +15,7 @@ $image-square-size: 128px;
 }
 
 .jetpack-instant-search__search-result-expanded__path {
-	color: $color-text-lighter;
+	color: helper.$color-text-lighter;
 	font-size: 0.9375em;
 	margin: 0 0 0.4em;
 }
@@ -23,7 +23,7 @@ $image-square-size: 128px;
 .jetpack-instant-search__search-result-expanded__copy-container {
 	max-width: 100%;
 
-	@include break-small-up() {
+	@include helper.break-small-up() {
 		width: calc( 100% - #{$image-square-size} - 1em );
 	}
 
@@ -34,13 +34,13 @@ $image-square-size: 128px;
 
 .jetpack-instant-search__search-result-expanded__content {
 	font-size: 0.9375em;
-	color: $color-text;
+	color: helper.$color-text;
 }
 
 .jetpack-instant-search__search-result-expanded__image-link {
 	margin-left: 1em;
 
-	@include break-small-down() {
+	@include helper.break-small-down() {
 		margin: 0 auto 0.5em auto;
 	}
 }
@@ -52,7 +52,7 @@ $image-square-size: 128px;
 	// See https://css-tricks.com/aspect-ratio-boxes/
 	position: relative;
 
-	@include break-small-down() {
+	@include helper.break-small-down() {
 		width: 2 * $image-square-size;
 	}
 
@@ -86,7 +86,7 @@ $image-square-size: 128px;
 	display: flex;
 	flex-flow: column;
 
-	@include break-small-up() {
+	@include helper.break-small-up() {
 		flex-flow: row nowrap;
 	}
 }

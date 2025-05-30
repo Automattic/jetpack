@@ -1,6 +1,6 @@
-@import 'scss/variables';
+@use 'scss/variables';
 
-$color-nudget-text: $black;
+$color-nudget-text: variables.$black;
 
 .jp-instant-search-upsell-nudge {
 	color: $color-nudget-text;

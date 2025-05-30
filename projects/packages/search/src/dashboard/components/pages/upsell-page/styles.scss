@@ -1,4 +1,4 @@
-@import 'scss/variables';
+@use 'scss/variables';
 
 .jp-search-dashboard-upsell-page {
 	line-height: 1.5;
@@ -35,10 +35,10 @@
 	font-weight: 400;
 	font-size: 14px;
 	line-height: 20px;
-	color: $studio-gray-40;
+	color: variables.$studio-gray-40;
 	margin-right: 7px;
 }
 
 .price-tip .price-tip-icon {
-	fill: $studio-gray-10;
+	fill: variables.$studio-gray-10;
 }

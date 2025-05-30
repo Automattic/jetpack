@@ -1,4 +1,4 @@
-@import '../lib/styles/helper';
+@use '../lib/styles/helper';
 
 .jetpack-instant-search,
 // Extra specific to override in some themes
@@ -7,12 +7,12 @@
 
 	a {
 		border: none;
-		color: $color-link;
+		color: helper.$color-link;
 		text-decoration: none;
 
 		&:hover,
 		&:focus {
-			color: $color-link-alt;
+			color: helper.$color-link-alt;
 			text-decoration: underline;
 		}
 	}
@@ -44,19 +44,19 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 
 // Dark theme styling
 .jetpack-instant-search__overlay.jetpack-instant-search__overlay--dark {
-	background: $color-dark-modal-backdrop-background;
-	color: $color-dark-text;
+	background: helper.$color-dark-modal-backdrop-background;
+	color: helper.$color-dark-text;
 
 	&,
 	.widget,
 	.widget.widget_archive ul li {
 
 		a {
-			color: $color-dark-link;
+			color: helper.$color-dark-link;
 
 			&:hover,
 			&:focus {
-				color: $color-dark-link-alt;
+				color: helper.$color-dark-link-alt;
 			}
 		}
 	}
@@ -66,101 +66,101 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 	.jetpack-instant-search__search-results-list,
 	.jetpack-instant-search__search-results-title,
 	.jetpack-instant-search__search-results-unused-query {
-		color: $color-dark-text;
+		color: helper.$color-dark-text;
 	}
 
 	.jetpack-instant-search__jetpack-colophon-text,
 	.jetpack-instant-search__path-breadcrumb-link,
 	.jetpack-instant-search__path-breadcrumb {
-		color: $color-dark-text-light;
+		color: helper.$color-dark-text-light;
 	}
 
 	.jetpack-instant-search__search-filter-sub-heading,
 	.jetpack-instant-search__search-result-expanded__path {
-		color: $color-dark-text-lighter;
+		color: helper.$color-dark-text-lighter;
 	}
 
 	.jetpack-instant-search__jetpack-colophon {
-		border-color: $color-dark-layout-borders;
-		background-color: $color-dark-modal-background;
+		border-color: helper.$color-dark-layout-borders;
+		background-color: helper.$color-dark-modal-background;
 	}
 
 	.jetpack-instant-search__box,
 	button.jetpack-instant-search__overlay-close {
-		border-color: $color-dark-layout-borders;
+		border-color: helper.$color-dark-layout-borders;
 	}
 
 	.jetpack-instant-search__box-gridicon svg,
 	button.jetpack-instant-search__overlay-close svg.gridicon {
-		fill: $color-dark-text-lighter;
+		fill: helper.$color-dark-text-lighter;
 	}
 
 	button.jetpack-instant-search__overlay-close {
-		border-color: $color-dark-layout-borders;
+		border-color: helper.$color-dark-layout-borders;
 
 		&:focus,
 		&:hover {
 
 			svg.gridicon {
-				fill: $color-dark-text-light;
+				fill: helper.$color-dark-text-light;
 			}
 		}
 	}
 
 	.jetpack-instant-search__box input[type="button"] {
-		color: $color-dark-text-lighter;
+		color: helper.$color-dark-text-lighter;
 
 		&:hover,
 		&:focus {
-			color: $color-dark-text-light;
+			color: helper.$color-dark-text-light;
 		}
 	}
 
 	input.jetpack-instant-search__box-input.search-field {
-		background: $color-dark-modal-background;
-		color: $color-dark-text-light;
+		background: helper.$color-dark-modal-background;
+		color: helper.$color-dark-text-light;
 
 		&:hover,
 		&:focus {
-			background: $color-dark-modal-background; // necessary to override theme styles
-			color: $color-dark-text;
+			background: helper.$color-dark-modal-background; // necessary to override theme styles
+			color: helper.$color-dark-text;
 		}
 
 		&:focus {
-			outline: dotted thin $color-layout-borders;
+			outline: dotted thin helper.$color-layout-borders;
 		}
 	}
 
 	.jetpack-instant-search__search-results {
-		background: $color-dark-modal-background;
+		background: helper.$color-dark-modal-background;
 
 		mark {
-			color: $color-dark-text;
+			color: helper.$color-dark-text;
 		}
 	}
 
 	.jetpack-instant-search__search-results-filter-button {
-		color: $color-dark-text-lighter;
+		color: helper.$color-dark-text-lighter;
 
 		&:hover,
 		&:focus {
-			color: $color-dark-text;
+			color: helper.$color-dark-text;
 		}
 	}
 
 	.jetpack-instant-search__search-results-secondary {
-		color: $color-dark-text;
+		color: helper.$color-dark-text;
 
-		@include break-large-up() {
-			border-color: $color-dark-layout-borders;
+		@include helper.break-large-up() {
+			border-color: helper.$color-dark-layout-borders;
 		}
 
 		&.jetpack-instant-search__search-results-secondary--show-as-modal {
 
-			@include break-large-down() {
-				background: $color-dark-modal-background;
-				border-color: $color-dark-layout-borders;
-				box-shadow: 0 2px 3px $color-dark-layout-borders;
+			@include helper.break-large-down() {
+				background: helper.$color-dark-modal-background;
+				border-color: helper.$color-dark-layout-borders;
+				box-shadow: 0 2px 3px helper.$color-dark-layout-borders;
 			}
 		}
 	}
@@ -170,20 +170,20 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 		button.jetpack-instant-search__search-sort-option {
 		// Extra specificity to override overly agressive theme styles.
 		// Without this, we need to use "!important" to get our default styling.
-		color: $color-dark-text-lighter;
+		color: helper.$color-dark-text-lighter;
 
 		&.is-selected {
-			color: $color-dark-link-alt;
+			color: helper.$color-dark-link-alt;
 		}
 	}
 
 	.jetpack-instant-search__search-result-product-img--placeholder {
-		color: $studio-gray-80;
+		color: helper.$studio-gray-80;
 	}
 
 	.jetpack-instant-search__search-sort-select {
-		background: $color-dark-modal-background;
-		border-color: $color-dark-layout-borders;
-		color: $color-dark-text;
+		background: helper.$color-dark-modal-background;
+		border-color: helper.$color-dark-layout-borders;
+		color: helper.$color-dark-text;
 	}
 }
