@@ -6,7 +6,7 @@ import { JetpackFooter, useBreakpointMatch } from '@automattic/jetpack-component
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { TabPanel } from '@wordpress/components';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 /**
@@ -50,7 +50,7 @@ const Layout = ( {
 				: [] ),
 			{
 				name: 'about',
-				title: __( 'About', 'jetpack-forms' ),
+				title: _x( 'About', 'About Forms', 'jetpack-forms' ),
 			},
 		],
 		[ enableIntegrationsTab ]
