@@ -40,6 +40,14 @@ else
 	exit 1
 fi
 
+# Don't auto-release if there's a kill switch tag in place.
+kill_switch_tag_name='autorelease_kill_switch'
+kill_switch_tag=$( git ls-remote --tags origin "$kill_switch_tag_name" )
+if [[ -n "$kill_switch_tag" ]]; then
+	echo "::notice::Kill switch tag found ('$kill_switch_tag_name'); aborting auto-release."
+	exit 0
+fi
+
 echo "Creating release for $TAG"
 
 ## Determine slug and title format.
@@ -119,7 +127,7 @@ fi
 if [[ -n "$ROLLING_MODE" ]]; then
 	echo "::group::Deleting stale rolling release"
 
-	for R in $( gh release list --limit 100 --json tagName --jq '.[].tagName | select( contains( "rolling" ) )' ); do
+	for R in $( gh release list --limit 100 --json tagName --jq '.[].tagName | select( contains( "+rolling" ) )' ); do
 		echo "Found $R, deleting"
 		gh release delete "$R" --cleanup-tag --yes
 	done
