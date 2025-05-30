@@ -1485,8 +1485,8 @@ class Contact_Form_Test extends BaseTestCase {
 			);
 
 			$select_wrapper = $wrapper_div->getElementsByTagName( 'div' )->item( 0 );
-			//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$select_wrapper_class = isset( $select_wrapper->className ) ? $select_wrapper->className : '';
+			// @phan-suppress-next-line PhanUndeclaredMethod
+			$select_wrapper_class = $select_wrapper->getAttribute( 'class' ) ?? '';
 
 			$this->assertEquals( 'contact-form__select-wrapper select ' . $attributes['class'] . ' grunion-field', $select_wrapper_class, ' select class does not match expected' );
 			// Options.
