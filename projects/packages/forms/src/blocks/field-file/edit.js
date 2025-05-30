@@ -13,12 +13,10 @@ export default function FileFieldEdit( props ) {
 	useFormWrapper( { attributes, clientId, name } );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
-	let classes = clsx( className, 'jetpack-field is-non-animated-label', {
+	const classes = clsx( className, 'jetpack-field is-non-animated-label', {
 		'is-selected': isSelected,
+		[ `jetpack-field__width-${ width }` ]: width,
 	} );
-	if ( width ) {
-		classes += ` jetpack-field__width-${ width }`;
-	}
 
 	const blockProps = useBlockProps( {
 		className: classes,
