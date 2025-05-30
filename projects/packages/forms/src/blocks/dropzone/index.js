@@ -34,23 +34,6 @@ const settings = {
 					justifyContent: 'center',
 					orientation: 'vertical',
 				},
-				spacing: {
-					padding: {
-						top: '48px',
-						bottom: '48px',
-						left: '48px',
-						right: '48px',
-					},
-					margin: {
-						top: '8px',
-						bottom: '8px',
-					},
-				},
-				border: {
-					style: 'dashed',
-					width: '1px',
-					color: 'rgba(125,125,125,0.3)',
-				},
 			},
 		},
 	},

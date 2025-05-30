@@ -1,6 +1,8 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
+import './editor.scss';
+
 const BLOCKS_TEMPLATE = [
 	[
 		'core/paragraph',
