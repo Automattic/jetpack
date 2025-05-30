@@ -1484,8 +1484,11 @@ class Contact_Form_Test extends BaseTestCase {
 				'label for does not equal input name!'
 			);
 
-			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field', ' select class does not match expected' );
+			$select_wrapper = $wrapper_div->getElementsByTagName( 'div' )->item( 0 );
+			// @phan-suppress-next-line PhanUndeclaredMethod
+			$select_wrapper_class = $select_wrapper->getAttribute( 'class' ) ?? '';
 
+			$this->assertEquals( 'contact-form__select-wrapper select ' . $attributes['class'] . ' grunion-field', $select_wrapper_class, ' select class does not match expected' );
 			// Options.
 			$options = $select->getElementsByTagName( 'option' );
 			$n       = $options->length;

@@ -678,7 +678,6 @@
 	&__toggle {
 		color: var(--jetpack--contact-form--text-color);
 		font-size: var(--jetpack--contact-form--font-size, 16px);
-		line-height: var(--jetpack--contact-form--line-height);
 		padding: var(--jetpack--contact-form--input-padding, 16px);
 		border-color: var(--jetpack--contact-form--border-color);
 		display: flex;
@@ -698,19 +697,22 @@
 		overflow: visible;
 		margin-right: 4px;
 		// Match the frontend.
-		color: var(--jetpack--contact-form--text-color);
+		color: inherit;
+		font-size: inherit;
 	}
 
 	&__icon::after {
+		inset-inline-end: 20px;
 		content: "";
 		display: block;
-		box-sizing: border-box;
-		width: 100%;
-		height: 100%;
-		border-bottom: 2px solid;
-		border-right: 2px solid;
-		transform: rotate(45deg);
-		margin-top: -2px;
+		width: calc(1em / 2.5);
+		height: calc(1em / 2.5);
+		border-bottom: calc(1em / 10) solid;
+		border-right: calc(1em / 10) solid;
+		transform: translateY(-12%) rotate(45deg);
+		transform-origin: center center;
+		pointer-events: none;
+		z-index: 1;
 	}
 
 	&__popover {
