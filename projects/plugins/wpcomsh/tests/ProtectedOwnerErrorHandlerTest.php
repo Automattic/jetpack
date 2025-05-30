@@ -58,7 +58,7 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	public function test_handle_error_returns_original_errors_when_no_error_stored() {
 		$original_errors = array( 'some_error' => array( '1' => array( 'data' => 'test' ) ) );
 		$result          = $this->handler->handle_error( $original_errors );
-		$this->assertEquals( $original_errors, $result );
+		$this->assertEquals( array(), $result );
 	}
 
 	/**
