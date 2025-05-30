@@ -29,8 +29,6 @@ const InboxResponse = props => {
 
 	const ref = useRef( undefined );
 
-	console.log( 'InboxResponse', { onModalStateChange, props } );
-
 	const openFilePreview = useCallback(
 		( file, e ) => {
 			e.preventDefault();

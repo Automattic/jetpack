@@ -336,13 +336,10 @@ const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMob
 
 	const handleModalStateChange = useCallback(
 		isOpen => {
-			console.log( 'handleModalStateChange', isOpen );
 			setIsChildModalOpen( isOpen );
 		},
 		[ setIsChildModalOpen ]
 	);
-
-	console.log( 'SingleResponse', { handleModalStateChange } );
 
 	if ( ! sidePanelItem ) {
 		return null;
