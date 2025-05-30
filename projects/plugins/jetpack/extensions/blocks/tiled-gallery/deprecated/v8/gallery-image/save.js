@@ -1,3 +1,4 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { isBlobURL } from '@wordpress/blob';
 import clsx from 'clsx';
 
@@ -49,7 +50,8 @@ export default function GalleryImageSave( props ) {
 			data-custom-link={ customLink }
 			data-width={ width }
 			src={ url }
-			data-amp-layout={ 'responsive' }
+			{ ...( ! isSimpleSite() && { 'data-amp-layout': 'responsive' } ) }
+			tabIndex={ 0 }
 			role={ 'button' }
 			aria-label={ ariaLabel }
 		/>

@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { getActiveStyleName } from '../../../../shared/block-styles';
 import { LAYOUT_STYLES } from '../../constants';
 import { defaultColumnsNumber } from '../../edit';
-import Layout from './layout';
+import Layout from '../v8/layout';
 
 export default function TiledGallerySave( { attributes } ) {
 	const { imageFilter, images } = attributes;

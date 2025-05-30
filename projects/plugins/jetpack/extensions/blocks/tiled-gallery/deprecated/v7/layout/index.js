@@ -1,10 +1,10 @@
 import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { LAYOUT_CIRCLE, MAX_ROUNDED_CORNERS } from '../../v9/constants';
-import Mosaic from '../../v9/layout/mosaic';
-import Square from '../../v9/layout/square';
-import { isSquareishLayout, photonizedImgProps } from '../../v9/utils';
+import { LAYOUT_CIRCLE, MAX_ROUNDED_CORNERS } from '../../../constants';
+import Square from '../../../layout/square';
+import { isSquareishLayout, photonizedImgProps } from '../../../utils';
+import Mosaic from '../../v8/layout/mosaic';
 import GalleryImageSave from '../gallery-image/save';
 
 export default class Layout extends Component {
