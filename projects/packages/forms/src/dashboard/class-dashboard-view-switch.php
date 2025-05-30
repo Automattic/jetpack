@@ -47,6 +47,9 @@ class Dashboard_View_Switch {
 			return;
 		}
 
+		$modern_view_url = $this->is_jetpack_forms_admin_page_available()
+			? 'admin.php?page=jetpack-forms-admin'
+			: add_query_arg( 'dashboard-preferred-view', self::MODERN_VIEW, 'admin.php?page=jetpack-forms' );
 		?>
 		<div id="jetpack-forms__view-link-wrap" class="hide-if-no-js screen-meta-toggle">
 			<button type="button" id="jetpack-forms__view-link" class="button show-settings" aria-expanded="false"><?php echo esc_html_x( 'View', 'View options to switch between', 'jetpack-forms' ); ?></button>
@@ -58,7 +61,7 @@ class Dashboard_View_Switch {
 						<strong><?php esc_html_e( 'Classic', 'jetpack-forms' ); ?></strong>
 						<?php esc_html_e( 'The classic WP-Admin WordPress interface.', 'jetpack-forms' ); ?>
 					</a>
-					<a class="jp-forms__view-switcher-button <?php echo $this->is_modern_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'dashboard-preferred-view', self::MODERN_VIEW, 'admin.php?page=jetpack-forms' ) ); ?>">
+					<a class="jp-forms__view-switcher-button <?php echo $this->is_modern_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( $modern_view_url ); ?>">
 						<strong><?php esc_html_e( 'Inbox', 'jetpack-forms' ); ?></strong>
 						<?php esc_html_e( 'The new Jetpack Forms inbox interface for form responses.', 'jetpack-forms' ); ?>
 					</a>
