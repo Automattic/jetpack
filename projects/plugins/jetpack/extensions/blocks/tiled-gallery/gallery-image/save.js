@@ -28,13 +28,13 @@ export default function GalleryImageSave( props ) {
 	const img = (
 		<img
 			alt={ alt }
-			data-height={ height }
+			data-height={ height } // These data- attributes are whitelisted for use on Simple sites. See the $allowedposttags['img'] options in wp-content/mu-plugins/wpcom-kses-config.php.
 			data-id={ id }
 			data-link={ link }
 			data-url={ origUrl }
 			data-width={ width }
 			src={ url }
-			{ ...( ! isSimpleSite && { 'data-amp-layout': 'responsive' } ) }
+			{ ...( ! isSimpleSite && { 'data-amp-layout': 'responsive' } ) } // This is stripped on Simple sites causing block validation issues (and is also not needed there) - see _wpcom_remove_data_wildcard_attribute in wp-content/mu-plugins/wpcom-kses-config.php on WPCom.
 		/>
 	);
 
