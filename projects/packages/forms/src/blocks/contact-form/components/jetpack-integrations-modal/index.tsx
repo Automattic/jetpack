@@ -14,6 +14,10 @@ import GoogleSheetsCard from './google-sheets-card';
 import JetpackCRMCard from './jetpack-crm-card';
 import SalesforceCard from './salesforce-card';
 import './style.scss';
+/**
+ * Types
+ */
+import type { Integration } from '../../../../dashboard/integrations/types';
 
 const IntegrationsModal = ( {
 	isOpen,
@@ -54,7 +58,7 @@ const IntegrationsModal = ( {
 	};
 
 	const findIntegrationById = ( id: string ) =>
-		integrationsData?.find( integration => integration.id === id );
+		integrationsData?.find( ( integration: Integration ) => integration.id === id );
 
 	return (
 		<Modal
