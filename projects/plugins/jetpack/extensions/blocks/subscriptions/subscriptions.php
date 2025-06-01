@@ -1326,15 +1326,15 @@ function get_paywall_simple(): string {
 
 	if ( $is_subscribers_post && ! $is_subscriber ) {
 		$paywall_description = esc_html__( "It's a subscribers only post. Subscribe to get access to the rest of this post and other subscriber-only content.", 'jetpack' );
-		$paywall_action_btn = esc_html__( 'Subscribe', 'jetpack' );
+		$paywall_action_btn  = esc_html__( 'Subscribe', 'jetpack' );
 	} elseif ( $is_paid_post && $is_subscriber ) {
 		$paywall_description = esc_html__( "You're currently a free subscriber. Upgrade your subscription to get access to the rest of this post and other paid-subscriber only content.", 'jetpack' );
-		$paywall_action_btn = esc_html__( 'Upgrade subscription', 'jetpack' );
+		$paywall_action_btn  = esc_html__( 'Upgrade subscription', 'jetpack' );
 	} else {
 		// - For paid post when the user is not a subscriber.
 		// - Default for all other cases.
 		$paywall_description = esc_html__( 'Become a paid subscriber to get access to the rest of this post and other exclusive content.', 'jetpack' );
-		$paywall_action_btn = esc_html__( 'Subscribe', 'jetpack' );
+		$paywall_action_btn  = esc_html__( 'Subscribe', 'jetpack' );
 	}
 
 	return '
