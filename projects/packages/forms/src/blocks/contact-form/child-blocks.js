@@ -900,7 +900,7 @@ export const childBlocks = [
 					</>
 				),
 			},
-			parent: [ 'jetpack/step-container', 'jetpack/contact-form' ],
+			parent: [ 'jetpack/step-container' ],
 			supports: {
 				html: false,
 				reusable: false,
