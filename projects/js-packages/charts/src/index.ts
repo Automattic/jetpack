@@ -29,4 +29,4 @@ export type {
 	OrientationType,
 } from './types';
 
-export type { LineStyles } from '@visx/xychart';
+export type { LineStyles, GridStyles } from '@visx/xychart';

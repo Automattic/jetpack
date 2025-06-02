@@ -1,7 +1,7 @@
 import { AxisScale, Orientation, TickFormatter } from '@visx/axis';
 import { ScaleInput, ScaleType } from '@visx/scale';
-import { EventHandlerParams, LineStyles } from '@visx/xychart';
-import type { CSSProperties, PointerEvent } from 'react';
+import { EventHandlerParams, GridStyles, LineStyles } from '@visx/xychart';
+import type { PointerEvent } from 'react';
 
 type ValueOf< T > = T[ keyof T ];
 
@@ -69,7 +69,7 @@ export type ChartTheme = {
 	/** Array of colors used for data visualization */
 	colors: string[];
 	/** Optional CSS styles for grid lines */
-	gridStyles?: CSSProperties;
+	gridStyles?: GridStyles;
 	/** Length of axis ticks in pixels */
 	tickLength: number;
 	/** Color of the grid lines */
