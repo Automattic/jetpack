@@ -107,7 +107,10 @@ class Dashboard {
 
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			'window.jetpackFormsData = ' . wp_json_encode( array( 'apiRoot' => $api_root ) ) . ';',
+			'window.jetpackFormsData = ' . wp_json_encode( array(
+				'apiRoot' => $api_root,
+				'demoLabel' =>  esc_html__( 'Come work with us', 'jetpack' ), // Contact
+			) ) . ';',
 			'before'
 		);
 	}

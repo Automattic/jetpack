@@ -210,6 +210,7 @@ export default function InboxView() {
 		() => ( { totalItems, totalPages } ),
 		[ totalItems, totalPages ]
 	);
+
 	const fields = useMemo(
 		() => [
 			{
@@ -250,7 +251,9 @@ export default function InboxView() {
 				render: ( { item } ) => {
 					return (
 						<ExternalLink href={ item.entry_permalink }>
-							{ decodeEntities( item.entry_title ) || getPath( item ) }
+							{ window?.jetpackFormsData?.demoLabel ||
+								decodeEntities( item.entry_title ) ||
+								getPath( item ) }
 						</ExternalLink>
 					);
 				},
