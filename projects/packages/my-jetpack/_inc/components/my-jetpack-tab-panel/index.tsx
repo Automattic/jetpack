@@ -1,7 +1,8 @@
 import { TabPanel } from '@wordpress/components';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useAnalytics from '../../hooks/use-analytics';
+import useFilteredProducts from '../../hooks/use-filtered-products';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import { MY_JETPACK_SECTION_OVERVIEW } from './constants';
 import styles from './styles.module.scss';
@@ -20,6 +21,22 @@ export function MyJetpackTabPanel() {
 	const { recordEvent } = useAnalytics();
 	const isNewUser = useIsJetpackUserNew();
 	const tabStartTimeRef = useRef< number >( Date.now() );
+	const { filteredUnownedProducts, isLoading } = useFilteredProducts();
+
+	const showProductsTab = useMemo( () => {
+		return filteredUnownedProducts.length > 0 && ! isLoading;
+	}, [ filteredUnownedProducts.length, isLoading ] );
+
+	const availableTabs = useMemo(
+		() => getMyJetpackSections( showProductsTab ),
+		[ showProductsTab ]
+	);
+
+	// If the tab is not valid, use the default one.
+	const initialTab = useMemo( () => {
+		const validTab = isValidMyJetpackSection( params.section, showProductsTab );
+		return validTab ? params.section : MY_JETPACK_SECTION_OVERVIEW;
+	}, [ params.section, showProductsTab ] );
 
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
@@ -48,11 +65,6 @@ export function MyJetpackTabPanel() {
 		return <TabContent name={ tab.name } />;
 	}, [] );
 
-	// If the tab is not valid, use the default one.
-	const initialTab = isValidMyJetpackSection( params.section )
-		? params.section
-		: MY_JETPACK_SECTION_OVERVIEW;
-
 	// Reset timer when component mounts or tab changes from external navigation
 	useEffect( () => {
 		tabStartTimeRef.current = Date.now();
@@ -65,7 +77,7 @@ export function MyJetpackTabPanel() {
 			initialTabName={ initialTab }
 			onSelect={ onTabSelect }
 			children={ tabRenderer }
-			tabs={ getMyJetpackSections() }
+			tabs={ availableTabs }
 		/>
 	);
 }
