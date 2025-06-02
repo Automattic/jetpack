@@ -23,3 +23,11 @@
 		padding-right: 1rem;
 	}
 }
+
+:global(.visx-tooltip-glyph) {
+
+	svg {
+		width: 10px;
+		height: 10px;
+	}
+}

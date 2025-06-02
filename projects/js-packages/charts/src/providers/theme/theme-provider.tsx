@@ -1,6 +1,7 @@
-import { createContext, useContext, FC, type ReactNode } from 'react';
+import { buildChartTheme } from '@visx/xychart';
+import { createContext, useContext, useMemo, FC, type ReactNode } from 'react';
 import { defaultTheme } from './themes';
-import type { ChartTheme } from '../../types';
+import type { ChartTheme, SeriesData } from '../../types';
 
 /**
  * Context for sharing theme configuration across components
@@ -14,6 +15,21 @@ const ThemeContext = createContext< ChartTheme >( defaultTheme );
 const useChartTheme = () => {
 	const theme = useContext( ThemeContext );
 	return theme;
+};
+
+const useXYChartTheme = ( data: SeriesData[] ) => {
+	const providerTheme = useChartTheme();
+
+	return useMemo( () => {
+		const seriesColors = ( data ?? [] )
+			.map( series => series.options?.stroke )
+			.filter( ( color ): color is string => Boolean( color ) );
+
+		return buildChartTheme( {
+			...providerTheme,
+			colors: [ ...seriesColors, ...( providerTheme.colors ?? [] ) ],
+		} );
+	}, [ providerTheme, data ] );
 };
 
 /**
@@ -33,4 +49,4 @@ const ThemeProvider: FC< ThemeProviderProps > = ( { theme = {}, children } ) => 
 	return <ThemeContext.Provider value={ mergedTheme }>{ children }</ThemeContext.Provider>;
 };
 
-export { ThemeProvider, useChartTheme };
+export { ThemeProvider, useChartTheme, useXYChartTheme };

@@ -1,17 +1,10 @@
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
-import {
-	XYChart,
-	AnimatedAreaSeries,
-	AnimatedAxis,
-	AnimatedGrid,
-	Tooltip,
-	buildChartTheme,
-} from '@visx/xychart';
+import { XYChart, AnimatedAreaSeries, AnimatedAxis, AnimatedGrid, Tooltip } from '@visx/xychart';
 import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import clsx from 'clsx';
 import { FC, ReactNode, useId, useMemo } from 'react';
-import { useChartTheme } from '../../providers/theme/theme-provider';
+import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
@@ -140,6 +133,7 @@ const LineChart: FC< LineChartProps > = ( {
 	onPointerOut = undefined,
 } ) => {
 	const providerTheme = useChartTheme();
+	const theme = useXYChartTheme( data );
 	const chartId = useId(); // Ensure unique ids for gradient fill.
 
 	const dataSorted = useMemo(
@@ -150,15 +144,6 @@ const LineChart: FC< LineChartProps > = ( {
 			} ) ),
 		[ data ]
 	);
-
-	const theme = useMemo( () => {
-		const seriesColors =
-			dataSorted?.map( series => series.options?.stroke ?? '' ).filter( Boolean ) ?? [];
-		return buildChartTheme( {
-			...providerTheme,
-			colors: [ ...seriesColors, ...providerTheme.colors ],
-		} );
-	}, [ providerTheme, dataSorted ] );
 
 	margin = useMemo( () => {
 		// Auto-margin unless specified to make room for axis labels.

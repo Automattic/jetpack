@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Refactor BarChart to use @visx/xychart
