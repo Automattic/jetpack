@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom';
 import useAnalytics from '../../../hooks/use-analytics';
 import { MY_JETPACK_SECTION_OVERVIEW } from '../constants';
-import { isValidMyJetpackSection } from '../utils';
 
 type HelpType = 'contact_support' | 'documentation' | 'faq';
 
@@ -15,9 +14,7 @@ export function useHelpTracking() {
 	const params = useParams();
 
 	// Determine the source tab
-	const sourceTab = isValidMyJetpackSection( params.section )
-		? params.section
-		: MY_JETPACK_SECTION_OVERVIEW;
+	const sourceTab = params.section ?? MY_JETPACK_SECTION_OVERVIEW;
 
 	/**
 	 * Track a help request event.
