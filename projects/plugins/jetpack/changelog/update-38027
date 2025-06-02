@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Updated default cookie expiration from 30000000 to YEAR_IN_SECONDS to match recent WordPress Core changes
