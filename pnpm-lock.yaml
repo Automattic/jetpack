@@ -2509,8 +2509,8 @@ importers:
         specifier: 2.0.4
         version: 2.0.4
       gridicons:
-        specifier: 3.4.1
-        version: 3.4.1(react@18.3.1)
+        specifier: 3.4.2
+        version: 3.4.2(react@18.3.1)
       lodash:
         specifier: 4.17.21
         version: 4.17.21
@@ -2950,8 +2950,8 @@ importers:
         specifier: 4.4.1
         version: 4.4.1
       gridicons:
-        specifier: 3.4.1
-        version: 3.4.1(react@18.3.1)
+        specifier: 3.4.2
+        version: 3.4.2(react@18.3.1)
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -3414,8 +3414,8 @@ importers:
         specifier: 4.4.1
         version: 4.4.1
       gridicons:
-        specifier: 3.4.1
-        version: 3.4.1(react@18.3.1)
+        specifier: 3.4.2
+        version: 3.4.2(react@18.3.1)
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -3874,8 +3874,8 @@ importers:
         specifier: 7.24.0
         version: 7.24.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       gridicons:
-        specifier: 3.4.1
-        version: 3.4.1(react@18.3.1)
+        specifier: 3.4.2
+        version: 3.4.2(react@18.3.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -4636,8 +4636,8 @@ importers:
         specifier: 6.3.0
         version: 6.3.0
       gridicons:
-        specifier: 3.4.1
-        version: 3.4.1(react@18.3.1)
+        specifier: 3.4.2
+        version: 3.4.2(react@18.3.1)
       jsdom:
         specifier: 20.0.3
         version: 20.0.3
@@ -11457,11 +11457,6 @@ packages:
 
   grid-index@1.1.0:
     resolution: {integrity: sha512-HZRwumpOGUrHyxO5bqKZL0B0GlUpwtCAzZ42sgxUPniu33R1LSFH5yrIcBCHjkctCAh3mtWKcKd9J4vDDdeVHA==}
-
-  gridicons@3.4.1:
-    resolution: {integrity: sha512-gbOa8H82TRfzTkisszvRsXLt2niuBoZOfAagXzHNfjFEfOoBhKM2gT0Y05TQMUSQjMmto6q4T9wiJJybROvxpQ==}
-    peerDependencies:
-      react: 15 - 18
 
   gridicons@3.4.2:
     resolution: {integrity: sha512-KC2BzPDh3F0vJzYa7KYBWJOO9gTHoKoFiHNazZEU9Gq2jIJ2zObOA67wlZjZkPHPCjZiLQrko3AYFLrMrHXKrA==}
@@ -24684,11 +24679,6 @@ snapshots:
   graphemer@1.4.0: {}
 
   grid-index@1.1.0: {}
-
-  gridicons@3.4.1(react@18.3.1):
-    dependencies:
-      prop-types: 15.8.1
-      react: 18.3.1
 
   gridicons@3.4.2(react@18.3.1):
     dependencies:
