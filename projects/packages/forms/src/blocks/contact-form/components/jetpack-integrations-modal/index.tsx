@@ -1,13 +1,23 @@
-// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-import { Modal, __experimentalVStack as VStack } from '@wordpress/components';
+/**
+ * External dependencies
+ */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { Modal, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import AkismetCard from './akismet-card';
 import CreativeMailCard from './creative-mail-card';
 import GoogleSheetsCard from './google-sheets-card';
 import JetpackCRMCard from './jetpack-crm-card';
 import SalesforceCard from './salesforce-card';
 import './style.scss';
+/**
+ * Types
+ */
+import type { Integration } from '../../../../dashboard/integrations/types';
 
 const IntegrationsModal = ( {
 	isOpen,
@@ -29,14 +39,26 @@ const IntegrationsModal = ( {
 		return null;
 	}
 
-	const toggleCard = cardId => {
-		setExpandedCards( prev => ( {
-			...prev,
-			[ cardId ]: ! prev[ cardId ],
-		} ) );
+	const toggleCard = ( cardId: string ) => {
+		setExpandedCards( prev => {
+			const isExpanding = ! prev[ cardId ];
+
+			if ( isExpanding ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_integrations_card_expand', {
+					card: cardId,
+					origin: 'block-editor',
+				} );
+			}
+
+			return {
+				...prev,
+				[ cardId ]: isExpanding,
+			};
+		} );
 	};
 
-	const findIntegrationById = id => integrationsData?.find( integration => integration.id === id );
+	const findIntegrationById = ( id: string ) =>
+		integrationsData?.find( ( integration: Integration ) => integration.id === id );
 
 	return (
 		<Modal

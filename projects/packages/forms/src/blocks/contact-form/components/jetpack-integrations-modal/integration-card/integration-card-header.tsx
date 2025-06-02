@@ -1,3 +1,10 @@
+/**
+ * External dependencies
+ */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+/**
+ * Internal dependencies
+ */
 import {
 	CardHeader,
 	Icon,
@@ -8,6 +15,35 @@ import {
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
 import PluginActionButton from './plugin-action-button';
+/**
+ * Types
+ */
+import type { Integration } from '../../../../../dashboard/integrations/types';
+
+type IntegrationCardData = {
+	isInstalled?: boolean;
+	isActive?: boolean;
+	isConnected?: boolean;
+	type?: string;
+	showHeaderToggle?: boolean;
+	headerToggleValue?: boolean;
+	isHeaderToggleEnabled?: boolean;
+	onHeaderToggleChange?: ( value: boolean ) => void;
+	toggleDisabledTooltip?: string;
+	setupBadge?: React.ReactNode;
+	refreshStatus?: () => void;
+	trackEventName?: string;
+} & Partial< Pick< Integration, 'id' | 'slug' | 'version' | 'details' | 'pluginFile' > >;
+
+type IntegrationCardHeaderProps = {
+	title: string;
+	description: string;
+	icon: React.ReactNode;
+	isExpanded: boolean;
+	onToggle: ( e: React.MouseEvent< HTMLDivElement > ) => void;
+	cardData: IntegrationCardData;
+	toggleTooltip: string;
+};
 
 const IntegrationCardHeader = ( {
 	title,
@@ -17,7 +53,7 @@ const IntegrationCardHeader = ( {
 	onToggle,
 	cardData = {},
 	toggleTooltip,
-} ) => {
+}: IntegrationCardHeaderProps ) => {
 	const {
 		isInstalled,
 		isActive,
@@ -56,17 +92,24 @@ const IntegrationCardHeader = ( {
 		return enableFormText;
 	};
 
-	const handleToggleChange = value => {
+	const handleToggleChange = ( value: boolean ) => {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_integrations_card_toggle', {
+			card: cardData.id,
+			origin: 'block-editor',
+			enabled: value,
+		} );
+
 		if ( onHeaderToggleChange ) {
 			onHeaderToggleChange( value );
 		}
 	};
 
-	const handleHeaderClick = e => {
+	const handleHeaderClick = ( e: React.MouseEvent< HTMLDivElement > ) => {
 		// Without this, toggle click bubbles and opens/closes the card.
-		if ( e.target.closest( '.components-form-toggle' ) ) {
+		if ( ( e.target as HTMLElement ).closest( '.components-form-toggle' ) ) {
 			return;
 		}
+
 		onToggle( e );
 	};
 

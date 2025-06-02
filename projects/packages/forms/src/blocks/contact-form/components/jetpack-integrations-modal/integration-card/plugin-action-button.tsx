@@ -1,8 +1,28 @@
+/**
+ * External dependencies
+ */
 import { Button, Spinner, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { usePluginInstallation } from '../hooks/usePluginInstallation';
+/**
+ * Internal dependencies
+ */
+import { usePluginInstallation } from '../hooks/use-plugin-installation';
 
-const PluginActionButton = ( { slug, pluginFile, isInstalled, refreshStatus, trackEventName } ) => {
+type PluginActionButtonProps = {
+	slug: string;
+	pluginFile: string;
+	isInstalled: boolean;
+	refreshStatus: () => void;
+	trackEventName: string;
+};
+
+const PluginActionButton = ( {
+	slug,
+	pluginFile,
+	isInstalled,
+	refreshStatus,
+	trackEventName,
+}: PluginActionButtonProps ) => {
 	const { isInstalling, installPlugin } = usePluginInstallation(
 		slug,
 		pluginFile,
@@ -10,9 +30,10 @@ const PluginActionButton = ( { slug, pluginFile, isInstalled, refreshStatus, tra
 		trackEventName
 	);
 
-	const handleAction = async event => {
+	const handleAction = async ( event: MouseEvent ) => {
 		event.stopPropagation();
 		const success = await installPlugin();
+
 		if ( success && refreshStatus ) {
 			refreshStatus();
 		}

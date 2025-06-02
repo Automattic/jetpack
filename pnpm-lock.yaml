@@ -2499,6 +2499,9 @@ importers:
       '@wordpress/primitives':
         specifier: 4.24.0
         version: 4.24.0(react@18.3.1)
+      '@wordpress/url':
+        specifier: 4.24.0
+        version: 4.24.0
       clsx:
         specifier: 2.1.1
         version: 2.1.1
