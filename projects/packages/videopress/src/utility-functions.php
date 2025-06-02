@@ -424,7 +424,7 @@ function videopress_is_attachment_without_guid( $post_id ) {
 function is_videopress_attachment( $post_id ) {
 	$post = get_post( $post_id );
 
-	if ( ! is_a( $post, 'WP_Post' ) ) {
+	if ( ! $post instanceof WP_Post ) {
 		return false;
 	}
 
