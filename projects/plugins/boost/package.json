@@ -11,7 +11,7 @@
 		"@automattic/number-formatters": "workspace:*",
 		"@react-spring/core": "9.7.5",
 		"@react-spring/web": "9.7.5",
-		"@types/react": "18.3.18",
+		"@types/react": "18.3.23",
 		"@types/react-router-dom": "5.3.3",
 		"@wordpress/components": "29.10.0",
 		"@wordpress/element": "6.24.0",
