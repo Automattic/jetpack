@@ -10,9 +10,10 @@ import {
 /**
  * Get the My Jetpack sections.
  *
+ * @param showProductsTab - Whether to show the products tab.
  * @return The sections for the My Jetpack tab panel.
  */
-export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
+export function getMyJetpackSections( showProductsTab: boolean ): TabPanelProps[ 'tabs' ] {
 	const showAdminTab = currentUserCan( 'manage_options' );
 
 	const tabs = [
@@ -23,7 +24,6 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
 		{
 			name: MY_JETPACK_SECTION_PRODUCTS,
 			title: __( 'Products', 'jetpack-my-jetpack' ),
-			isAdminOnly: true,
 		},
 		{
 			name: MY_JETPACK_SECTION_HELP,
@@ -31,15 +31,16 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
 		},
 	];
 
-	return tabs.filter( tab => ! ( tab.isAdminOnly && ! showAdminTab ) );
+	return [ tabs[ 0 ], ...( showProductsTab && showAdminTab ? [ tabs[ 1 ] ] : [] ), tabs[ 2 ] ];
 }
 
 /**
  * Check if the given section is a valid My Jetpack section.
  *
- * @param section - The section to check.
+ * @param section         - The section to check.
+ * @param showProductsTab - Whether to show the products tab.
  * @return True if the section is valid, false otherwise.
  */
-export function isValidMyJetpackSection( section: string ) {
-	return getMyJetpackSections().some( item => item.name === section );
+export function isValidMyJetpackSection( section: string, showProductsTab: boolean ) {
+	return getMyJetpackSections( showProductsTab ).some( item => item.name === section );
 }

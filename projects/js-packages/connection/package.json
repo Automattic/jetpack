@@ -27,7 +27,7 @@
 		"@wordpress/i18n": "5.24.0",
 		"@wordpress/icons": "10.24.0",
 		"clsx": "2.1.1",
-		"debug": "4.4.0",
+		"debug": "4.4.1",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {

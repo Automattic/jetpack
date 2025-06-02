@@ -1,5 +1,5 @@
-import { Orientation } from '@visx/axis';
-import { ScaleType } from '@visx/scale';
+import { AxisScale, Orientation, TickFormatter } from '@visx/axis';
+import { ScaleInput, ScaleType } from '@visx/scale';
 import { EventHandlerParams, LineStyles } from '@visx/xychart';
 import type { CSSProperties, PointerEvent } from 'react';
 
@@ -91,7 +91,7 @@ declare type AxisOptions = {
 	axisLineClassName?: string;
 	labelClassName?: string;
 	tickClassName?: string;
-	tickFormat?: ( value: number ) => string;
+	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
 };
 
 /**

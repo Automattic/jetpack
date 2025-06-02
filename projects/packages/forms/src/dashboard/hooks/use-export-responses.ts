@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
@@ -25,10 +27,18 @@ type ExportHookReturn = {
  * @return {ExportHookReturn} The export modal state and actions.
  */
 export default function useExportResponses(): ExportHookReturn {
+	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const [ showExportModal, setShowExportModal ] = useState( false );
-	const openModal = useCallback( () => setShowExportModal( true ), [ setShowExportModal ] );
 	const closeModal = useCallback( () => setShowExportModal( false ), [ setShowExportModal ] );
 	const [ autoConnectGdrive, setAutoConnectGdrive ] = useState( false );
+
+	const openModal = useCallback( () => {
+		setShowExportModal( true );
+
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_export_responses_modal_open', {
+			viewport: isSm ? 'mobile' : 'desktop',
+		} );
+	}, [ isSm ] );
 
 	const userCanExport = useSelect(
 		select => select( coreStore ).canUser( 'update', 'settings' ),
