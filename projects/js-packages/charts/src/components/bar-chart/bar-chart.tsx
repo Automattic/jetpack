@@ -1,28 +1,22 @@
-import { AxisLeft, AxisBottom } from '@visx/axis';
-import { localPoint } from '@visx/event';
-import { Group } from '@visx/group';
-import { scaleBand, scaleLinear } from '@visx/scale';
-import { Bar } from '@visx/shape';
-import { useTooltip } from '@visx/tooltip';
+import {
+	AnimatedAxis,
+	AnimatedBarSeries,
+	AnimatedBarGroup,
+	AnimatedGrid,
+	Tooltip,
+	XYChart,
+} from '@visx/xychart';
+import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import clsx from 'clsx';
-import { FC, useCallback, type MouseEvent, ReactNode } from 'react';
-import { useChartTheme } from '../../providers/theme';
-import { GridControl } from '../grid-control';
+import { FC, ReactNode, useCallback } from 'react';
+import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { withResponsive } from '../shared/with-responsive';
-import { BaseTooltip } from '../tooltip';
 import styles from './bar-chart.module.scss';
-import type { BaseChartProps, SeriesData } from '../../types';
-
-type BarChartTooltipData = {
-	value: number;
-	xLabel: string;
-	yLabel: string;
-	seriesIndex: number;
-};
+import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 
 interface BarChartProps extends BaseChartProps< SeriesData[] > {
-	renderTooltip?: ( params: BarChartTooltipData ) => ReactNode;
+	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 }
 
 const formatDateTick = ( timestamp: number ) => {
@@ -33,19 +27,12 @@ const formatDateTick = ( timestamp: number ) => {
 	} );
 };
 
-// Default tooltip renderer
-const renderDefaultTooltip = ( tooltipData: BarChartTooltipData ) => {
-	if ( ! tooltipData ) return null;
+const getDefaultXTickFormat = ( data: SeriesData[ 'data' ] ) => {
+	if ( data?.[ 0 ]?.label ) {
+		return ( label: string ) => label;
+	}
 
-	return (
-		<div className={ styles[ 'bar-chart__tooltip' ] }>
-			<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ tooltipData.yLabel }</div>
-			<div className={ styles[ 'bar-chart__tooltip-row' ] }>
-				<span className={ styles[ 'bar-chart__tooltip-label' ] }>{ tooltipData.xLabel }:</span>
-				<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ tooltipData.value }</span>
-			</div>
-		</div>
-	);
+	return formatDateTick;
 };
 
 // Validation function similar to LineChart
@@ -66,6 +53,11 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
+const accessors = {
+	xAccessor: ( d: DataPointDate ) => d?.label || d?.date,
+	yAccessor: ( d: DataPointDate ) => d?.value,
+};
+
 const BarChart: FC< BarChartProps > = ( {
 	data,
 	width,
@@ -76,32 +68,34 @@ const BarChart: FC< BarChartProps > = ( {
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	gridVisibility = 'x',
-	renderTooltip = renderDefaultTooltip,
+	renderTooltip,
 	options = {},
 } ) => {
-	const theme = useChartTheme();
-	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
-		useTooltip< BarChartTooltipData >();
-	// If we are to spread the options to axis, we need to get rid of tickFormat as it wouldn't work with band scales.
-	const tickFormat = options.axis?.x?.tickFormat ?? formatDateTick;
+	const theme = useXYChartTheme( data );
 
-	const handleMouseMove = useCallback(
-		(
-			event: MouseEvent< SVGRectElement >,
-			value: number,
-			xLabel: string,
-			yLabel: string,
-			seriesIndex: number
-		) => {
-			const coords = localPoint( event );
-			if ( ! coords ) return;
-			showTooltip( {
-				tooltipData: { value, xLabel, yLabel, seriesIndex },
-				tooltipLeft: coords.x,
-				tooltipTop: coords.y - 10,
-			} );
+	// Determine the tick format for the x-axis: use user-supplied, or default to label or date formatting.
+	const formatXTick = options.axis?.x?.tickFormat ?? getDefaultXTickFormat( data?.[ 0 ]?.data );
+
+	const renderDefaultTooltip = useCallback(
+		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
+			const nearestDatum = tooltipData?.nearestDatum?.datum;
+			if ( ! nearestDatum ) return null;
+
+			return (
+				<div className={ styles[ 'bar-chart__tooltip' ] }>
+					<div className={ styles[ 'bar-chart__tooltip-header' ] }>
+						{ tooltipData?.nearestDatum?.key }
+					</div>
+					<div className={ styles[ 'bar-chart__tooltip-row' ] }>
+						<span className={ styles[ 'bar-chart__tooltip-label' ] }>
+							{ nearestDatum.label || formatXTick( nearestDatum.date.getTime(), 0, [] ) }:
+						</span>
+						<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ nearestDatum.value }</span>
+					</div>
+				</div>
+			);
 		},
-		[ showTooltip ]
+		[ formatXTick ]
 	);
 
 	// Validate data using the same pattern as LineChart
@@ -109,36 +103,6 @@ const BarChart: FC< BarChartProps > = ( {
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}
-
-	const margins = margin;
-	const xMax = width - margins.left - margins.right;
-	const yMax = height - margins.top - margins.bottom;
-
-	// Get labels for x-axis from the first series (assuming all series have same labels)
-	const labels = data[ 0 ].data?.map( d => {
-		return d?.label || tickFormat( d?.date );
-	} );
-
-	// Create scales
-	const xScale = scaleBand< string >( {
-		range: [ 0, xMax ],
-		domain: labels,
-		padding: 0.2,
-	} );
-
-	const innerScale = scaleBand( {
-		range: [ 0, xScale.bandwidth() ],
-		domain: data.map( ( _, i ) => i.toString() ),
-		padding: 0.1,
-	} );
-
-	const yScale = scaleLinear< number >( {
-		range: [ yMax, 0 ],
-		domain: [
-			0,
-			Math.max( ...data.map( series => Math.max( ...series.data.map( d => d?.value || 0 ) ) ) ),
-		],
-	} );
 
 	// Create legend items from group labels, this iterates over groups rather than data points
 	const legendItems = data.map( ( group, index ) => ( {
@@ -154,54 +118,45 @@ const BarChart: FC< BarChartProps > = ( {
 			role="img"
 			aria-label="bar chart"
 		>
-			<svg width={ width } height={ height }>
-				<Group left={ margins.left } top={ margins.top }>
-					<GridControl
-						width={ xMax }
-						height={ yMax }
-						xScale={ xScale }
-						yScale={ yScale }
-						gridVisibility={ gridVisibility }
+			<XYChart
+				theme={ theme }
+				width={ width }
+				height={ height }
+				margin={ { top: 10, right: 0, bottom: 20, left: 40, ...margin } }
+				xScale={ { type: 'band', padding: 0.2, innerPadding: 0.1, ...options?.xScale } }
+				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
+				pointerEventsDataKey="nearest"
+			>
+				<AnimatedGrid
+					columns={ gridVisibility.includes( 'y' ) }
+					rows={ gridVisibility.includes( 'x' ) }
+					numTicks={ 4 }
+				/>
+				<AnimatedAxis orientation="bottom" tickFormat={ formatXTick } { ...options?.axis?.x } />
+				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
+
+				<AnimatedBarGroup padding={ 0.1 }>
+					{ data.map( seriesData => {
+						return (
+							<AnimatedBarSeries
+								key={ seriesData?.label }
+								dataKey={ seriesData?.label }
+								data={ seriesData.data as DataPointDate[] }
+								{ ...accessors }
+							/>
+						);
+					} ) }
+				</AnimatedBarGroup>
+
+				{ withTooltips && (
+					<Tooltip
+						detectBounds
+						snapTooltipToDatumX
+						snapTooltipToDatumY
+						renderTooltip={ renderTooltip || renderDefaultTooltip }
 					/>
-					{ data.map( ( series, seriesIndex ) => (
-						<Group key={ seriesIndex }>
-							{ series.data.map( d => {
-								const xLabel = d?.label || tickFormat( d?.date );
-								const xPos = xScale( xLabel );
-								if ( xPos === undefined ) return null;
-
-								const barWidth = innerScale.bandwidth();
-								const barX = xPos + ( innerScale( seriesIndex.toString() ) ?? 0 );
-								const barColor =
-									series.options?.stroke || theme.colors[ seriesIndex % theme.colors.length ];
-								const handleBarMouseMove = ( event: MouseEvent< SVGRectElement > ) =>
-									handleMouseMove( event, d.value, xLabel, series.label, seriesIndex );
-
-								return (
-									<Bar
-										key={ `bar-${ seriesIndex }-${ xLabel }` }
-										x={ barX }
-										y={ yScale( d.value ) }
-										width={ barWidth }
-										height={ yMax - ( yScale( d.value ) ?? 0 ) }
-										fill={ barColor }
-										onMouseMove={ withTooltips ? handleBarMouseMove : undefined }
-										onMouseLeave={ withTooltips ? hideTooltip : undefined }
-									/>
-								);
-							} ) }
-						</Group>
-					) ) }
-					<AxisLeft scale={ yScale } />
-					<AxisBottom scale={ xScale } top={ yMax } />
-				</Group>
-			</svg>
-
-			{ withTooltips && tooltipOpen && tooltipData && (
-				<BaseTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-					{ renderTooltip( tooltipData ) }
-				</BaseTooltip>
-			) }
+				) }
+			</XYChart>
 
 			{ showLegend && (
 				<Legend
