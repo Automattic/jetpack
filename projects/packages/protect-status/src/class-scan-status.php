@@ -224,7 +224,7 @@ class Scan_Status extends Status {
 
 				$db_details = null;
 				if ( ! empty( $scan_threat->table ) ) {
-					$db_details = array_merge(
+					$db_details = (object) array_merge(
 						array(
 							'table'     => $scan_threat->table,
 							'pk_column' => $scan_threat->pk_column ?? null,
