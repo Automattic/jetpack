@@ -129,6 +129,21 @@ const createTextFieldInnerBlocks = ( blockName, existingInnerBlocks = [] ) => {
 
 	const existingLabel = existingInnerBlocks.find( block => block.name === 'jetpack/label' );
 	const existingInput = existingInnerBlocks.find( block => block.name === 'jetpack/input' );
+	const existingInputAttributes = existingInput?.attributes ?? {};
+
+	if ( blockName === 'jetpack/field-select' ) {
+		/**
+		 * When transforming to a select field, add a default placeholder to the input block if none exists.
+		 * The select block's edit.js checks for the placeholder attribute on the input block,
+		 * and add the `has-placeholder` class to the field if it exists.
+		 * However if the incoming transformed block doesn't have a placeholder, the edit.js will
+		 * not add the class, BUT adds a default placeholder anyway.
+		 */
+
+		if ( ! existingInputAttributes?.placeholder ) {
+			existingInputAttributes.placeholder = __( 'Select one option', 'jetpack-forms' );
+		}
+	}
 
 	return [
 		createBlock( 'jetpack/label', {
@@ -137,7 +152,7 @@ const createTextFieldInnerBlocks = ( blockName, existingInnerBlocks = [] ) => {
 			defaultLabel: config.defaultLabel,
 		} ),
 		createBlock( 'jetpack/input', {
-			...( existingInput?.attributes || {} ),
+			...existingInputAttributes,
 			type: config.type,
 		} ),
 	];
