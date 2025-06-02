@@ -359,7 +359,7 @@ const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMob
 			title={ __( 'View response', 'jetpack-forms' ) }
 			size="medium"
 			onRequestClose={ onRequestClose }
-			style={ isChildModalOpen ? 'display:none' : '' }
+			style={ isChildModalOpen ? 'display:none' : null }
 		>
 			{ contents }
 		</Modal>

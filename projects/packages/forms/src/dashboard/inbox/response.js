@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, ExternalLink, Modal } from '@wordpress/components';
+import { Button, ExternalLink, Modal, Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -19,9 +19,30 @@ const isFileUploadField = value => {
 	return value && typeof value === 'object' && 'files' in value && 'field_id' in value;
 };
 
-const InboxResponse = props => {
-	const { response, loading, onModalStateChange } = props;
+const PreviewImage = ( { file, isLoading, onImageLoaded } ) => {
+	return (
+		<div className="jp-forms__inbox-file-preview-container">
+			{ isLoading && (
+				<div className="jp-forms__inbox-file-loading">
+					<div className="components-spinner" />
+					<div className="jp-forms__inbox-file-loading-message">
+						<Spinner />
+						{ __( 'Loading file preview…', 'jetpack-forms' ) }
+					</div>
+				</div>
+			) }
+			<img
+				src={ file.preview_url || file.url }
+				alt={ decodeEntities( file.name ) }
+				onLoad={ onImageLoaded }
+				className="jp-forms__inbox-file-preview-image"
+				style={ { display: isLoading ? 'none' : 'block' } }
+			/>
+		</div>
+	);
+};
 
+const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 	const [ emailCopied, setEmailCopied ] = useState( false );
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState( null );
@@ -32,19 +53,30 @@ const InboxResponse = props => {
 	const openFilePreview = useCallback(
 		( file, e ) => {
 			e.preventDefault();
-
+			setIsImageLoading( true );
 			setPreviewFile( file );
 			setIsPreviewModalOpen( true );
-			onModalStateChange( true );
+			if ( onModalStateChange ) {
+				onModalStateChange( true );
+			}
 		},
 		[ onModalStateChange, setPreviewFile, setIsPreviewModalOpen ]
+	);
+
+	const handleFilePreview = useCallback(
+		file => {
+			return openFilePreview.bind( null, file );
+		},
+		[ openFilePreview ]
 	);
 
 	const closePreviewModal = useCallback( () => {
 		setIsPreviewModalOpen( false );
 		setIsImageLoading( true );
 		// Notify parent component that this modal is closed
-		onModalStateChange( false );
+		if ( onModalStateChange ) {
+			onModalStateChange( false );
+		}
 	}, [ onModalStateChange, setIsPreviewModalOpen, setIsImageLoading ] );
 
 	const renderFieldValue = value => {
@@ -54,23 +86,17 @@ const InboxResponse = props => {
 					{ value.files.map( ( file, index ) => {
 						return (
 							<div key={ index } className="file-field__item">
-								<span>
-									{ decodeEntities( file.name ) } | { file.size }
-								</span>
-								<Button
-									variant="link"
-									target="_blank"
-									onClick={ e => {
-										setIsImageLoading( true );
-										openFilePreview( file, e );
-									} }
-								>
-									{ __( 'Preview', 'jetpack-forms' ) }
-								</Button>
+								<span className="file-field__item-name">{ decodeEntities( file.name ) }</span>
+								<span className="file-field__item-actions">
+									<span>{ file.size }</span>
+									<Button variant="link" target="_blank" onClick={ handleFilePreview( file ) }>
+										{ __( 'Preview', 'jetpack-forms' ) }
+									</Button>
 
-								<Button variant="link" href={ file.url } target="_blank">
-									{ __( 'Download', 'jetpack-forms' ) }
-								</Button>
+									<Button variant="link" href={ file.url } target="_blank">
+										{ __( 'Download', 'jetpack-forms' ) }
+									</Button>
+								</span>
 							</div>
 						);
 					} ) }
@@ -94,6 +120,10 @@ const InboxResponse = props => {
 		setTimeout( () => setEmailCopied( false ), 3000 );
 	}, [ response, setEmailCopied ] );
 
+	const handelImageLoaded = useCallback( () => {
+		return setIsImageLoading( false );
+	}, [ setIsImageLoading ] );
+
 	if ( ! loading && ! response ) {
 		return null;
 	}
@@ -104,6 +134,15 @@ const InboxResponse = props => {
 		'is-name': response && response.author_name,
 	} );
 
+	if ( isPreviewModalOpen && ! onModalStateChange ) {
+		return (
+			<PreviewImage
+				file={ previewFile }
+				isLoading={ isImageLoading }
+				onImageLoaded={ handelImageLoaded }
+			/>
+		);
+	}
 	return (
 		<div ref={ ref } className="jp-forms__inbox-response">
 			<div className="jp-forms__inbox-response-avatar">
@@ -169,29 +208,17 @@ const InboxResponse = props => {
 				) ) }
 			</div>
 
-			{ isPreviewModalOpen && previewFile && (
+			{ isPreviewModalOpen && previewFile && onModalStateChange && (
 				<Modal
 					title={ decodeEntities( previewFile.name ) }
 					onRequestClose={ closePreviewModal }
 					className="jp-forms__inbox-file-preview-modal"
 				>
-					<div className="jp-forms__inbox-file-preview-container">
-						{ isImageLoading && (
-							<div className="jp-forms__inbox-file-loading">
-								<div className="components-spinner" />
-								<div className="jp-forms__inbox-file-loading-message">
-									{ __( 'Loading file preview…', 'jetpack-forms' ) }
-								</div>
-							</div>
-						) }
-						<img
-							src={ previewFile.preview_url || previewFile.url }
-							alt={ decodeEntities( previewFile.name ) }
-							onLoad={ () => setIsImageLoading( false ) }
-							className="jp-forms__inbox-file-preview-image"
-							style={ { display: isImageLoading ? 'none' : 'block' } }
-						/>
-					</div>
+					<PreviewImage
+						file={ previewFile }
+						isLoading={ isImageLoading }
+						onImageLoaded={ handelImageLoaded }
+					/>
 				</Modal>
 			) }
 		</div>

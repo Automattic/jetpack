@@ -278,12 +278,23 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-response-data-value .file-field {
-	display: flex;
-	gap: 12px;
 	
 	.file-field__item {
 		display: flex;
+		justify-content: space-between;
 		gap: 12px;
+	}
+
+	.file-field__item-name {
+		display: block;
+	}
+
+	.file-field__item-actions.file-field__item-actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 8px;
 	}
 }
 
