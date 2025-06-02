@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Protect against improper calls to the_title() filter.

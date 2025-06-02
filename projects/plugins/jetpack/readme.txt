@@ -326,22 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.7-a.7 - 2025-05-26
+### 14.7-beta - 2025-06-02
 #### Enhancements
-- Social: Add option to add default image to Social Image Generator.
-- Forms: Add Integration screen content.
+- Forms: Move responses menu item from Feedback > Forms to Jetpack > Forms.
 
 #### Improved compatibility
-- Endpoints: Add checks within the v1.1 post update endpoint to ensure values are defined.
-- Sharing buttons: Prevent PHP warnings in some scenarios, ensuring we only check the post title and ID if posts exist.
+- Crowdsignal: Prevent warnings in error logs when viewing ratings via legacy shortcodes on archive pages.
+- Sharing service: Prevent warnings in error logs when certain keys are not set.
 
 #### Bug fixes
-- AI Chat & Donations blocks: Ensure that all metadata is properly attached to the blocks in the block editor.
-- Forms: Fix Akismet spam URL.
-- Jetpack: Fix redirect URL on frontend for upgrade nudge.
-- My Jetpack: Fix Onboarding UI responsiveness at 600px.
-- My Jetpack: Fix readability of license activation button on hover.
-- My Jetpack: Hide backup failure notice when backups are deactivated.
+- Fix text wrapping on the stats column heading in non-English languages.
+- Forms: Show upload progress in File Upload field when reduced motion is enabled.
+- Social: Ensure images load in connections management when concatenating JS.
 
 --------
 

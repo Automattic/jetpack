@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.0] - 2025-06-02
+### Added
+- Add tracking pixel to form submission emails to know if emails are being opened (no user info is sent). [#43629]
+- Add events to Forms dashboard pages. [#43686]
+- Add page to announce that forms moved to Jetpack > Forms menu. [#43620]
+- Reinstate sending submission email when user moves response from spam to inbox. [#43559]
+- Use translated screenshot on dashboard migration page. [#43693] [#43707]
+
+### Changed
+- Add mobile-friendly styles and screenshot on Forms migration page. [#43664]
+- Add context to About tab translation. [#43708]
+- Add translation hint for Trash terminology. [#43704]
+- Change action button placement on mobile. [#43605]
+- Create a new page instead of post when creating a new form from dashboard. [#43668]
+- Create form patterns from About page. [#43608]
+- Enable feature filters by default to migrate forms dashboard page and menu. [#43705]
+- Indicate in sidebar if no integrations enabled. [#43547]
+- Update inbox header to use latest component features. [#43680]
+- Update styles, labels and copy edits for integrations modal and tab. [#43666]
+- Update package dependencies. [#43712]
+
+### Removed
+- Disable default listing UI for Feedback post types if the menu item is removed. [#43657]
+
+### Fixed
+- Contact Form: Use `wp_kses_post` instead of `esc_html` when rendering legend to allow safe HTML in fieldset legends. [#43639]
+- File Upload field: Show upload progress when reduced motion is enabled. [#43628]
+- Remove dependency from `jetpack-mu-wpcom-plugin`. [#43627]
+
 ## [0.55.0] - 2025-05-26
 ### Added
 - Forms: Add Create Form button to dashboard header. [#43529]
@@ -1113,6 +1142,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.56.0]: https://github.com/automattic/jetpack-forms/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/automattic/jetpack-forms/compare/v0.54.0...v0.55.0
 [0.54.0]: https://github.com/automattic/jetpack-forms/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/automattic/jetpack-forms/compare/v0.52.0...v0.53.0
