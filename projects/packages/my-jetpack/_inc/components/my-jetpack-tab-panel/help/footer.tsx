@@ -1,7 +1,9 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import styles from './styles.module.scss';
+import { useHelpTracking } from './use-help-tracking';
 
 /**
  * Renders the footer for the Help section of My Jetpack.
@@ -9,6 +11,20 @@ import styles from './styles.module.scss';
  * @return The rendered footer component.
  */
 export function HelpFooter() {
+	const { trackHelpRequest } = useHelpTracking();
+
+	const handleLearnMoreClick = useCallback( () => {
+		trackHelpRequest( 'documentation', 'clicked_learn_more_about_us' );
+	}, [ trackHelpRequest ] );
+
+	const handleAllModulesClick = useCallback( () => {
+		trackHelpRequest( 'documentation', 'clicked_all_jetpack_modules_link' );
+	}, [ trackHelpRequest ] );
+
+	const handleDebugInfoClick = useCallback( () => {
+		trackHelpRequest( 'documentation', 'clicked_debug_information_link' );
+	}, [ trackHelpRequest ] );
+
 	return (
 		<div className={ styles.footer }>
 			<section>
@@ -22,6 +38,7 @@ export function HelpFooter() {
 				<ExternalLink
 					className={ styles[ 'footer-learn-more' ] }
 					href="https://automattic.com/about/"
+					onClick={ handleLearnMoreClick }
 				>
 					{ __( 'Learn more about us', 'jetpack-my-jetpack' ) }
 				</ExternalLink>
@@ -33,12 +50,18 @@ export function HelpFooter() {
 					<h4>{ __( 'Useful links', 'jetpack-my-jetpack' ) }</h4>
 					<ul>
 						<li>
-							<a href={ getAdminUrl( 'admin.php?page=jetpack_modules' ) }>
+							<a
+								href={ getAdminUrl( 'admin.php?page=jetpack_modules' ) }
+								onClick={ handleAllModulesClick }
+							>
 								{ __( 'All Jetpack modules', 'jetpack-my-jetpack' ) }
 							</a>
 						</li>
 						<li>
-							<a href={ getAdminUrl( 'admin.php?page=jetpack-debugger' ) }>
+							<a
+								href={ getAdminUrl( 'admin.php?page=jetpack-debugger' ) }
+								onClick={ handleDebugInfoClick }
+							>
 								{ __( 'Debug information', 'jetpack-my-jetpack' ) }
 							</a>
 						</li>

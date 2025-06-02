@@ -9,6 +9,7 @@ export type HelpCardProps = {
 	description?: React.ReactNode;
 	link?: string;
 	className?: string;
+	onClick?: () => void;
 };
 
 /**
@@ -24,12 +25,19 @@ export function HelpCard( {
 	description,
 	link,
 	className,
+	onClick,
 }: HelpCardProps ) {
 	return (
 		<section className={ clsx( styles.wrapper, className ) }>
 			{ icon ? <div className={ styles.icon }>{ icon }</div> : null }
 			<Heading className={ styles.heading }>
-				{ link ? <ExternalLink href={ link }>{ title }</ExternalLink> : title }
+				{ link ? (
+					<ExternalLink href={ link } onClick={ onClick }>
+						{ title }
+					</ExternalLink>
+				) : (
+					title
+				) }
 			</Heading>
 			{ description ? <p className={ styles.description }>{ description }</p> : null }
 		</section>

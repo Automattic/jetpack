@@ -1,10 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import { FullWidthSeparator } from '../full-width-separator';
 import { HelpCards } from './cards';
 import { HelpFooter } from './footer';
 import styles from './styles.module.scss';
+import { useHelpTracking } from './use-help-tracking';
 
 /**
  * The Help content component.
@@ -12,6 +14,12 @@ import styles from './styles.module.scss';
  * @return The rendered component.
  */
 export function HelpContent() {
+	const { trackHelpRequest } = useHelpTracking();
+
+	const handleExploreHelpCenterClick = useCallback( () => {
+		trackHelpRequest( 'documentation', 'clicked_explore_help_center_button' );
+	}, [ trackHelpRequest ] );
+
 	return (
 		<div className={ styles.content }>
 			<h2>{ __( 'Need assistance?', 'jetpack-my-jetpack' ) }</h2>
@@ -27,6 +35,7 @@ export function HelpContent() {
 				target="_blank"
 				rel="noopener noreferrer"
 				className={ styles.cta }
+				onClick={ handleExploreHelpCenterClick }
 			>
 				<span>
 					{ __( 'Explore our Help Center', 'jetpack-my-jetpack' ) }
