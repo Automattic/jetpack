@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .tab-panel {
 
@@ -18,7 +18,7 @@
 		padding-inline-start: 2rem;
 		margin-block-end: -1px;
 
-		@media (max-width: $break-medium ) {
+		@media (max-width: gb.$break-medium ) {
 			padding-inline-start: 0.5rem;
 		}
 	}
@@ -28,24 +28,24 @@
 	padding-block-start: 2.5rem;
 	padding-inline: 3rem;
 
-	@media (max-width: $break-medium ) {
+	@media (max-width: gb.$break-medium ) {
 		padding-inline: 1.5rem;
 	}
 }
 
 .my-jetpack-tab--content {
-	--my-jetpack-tab-description-color: #{$gray-700};
+	--my-jetpack-tab-description-color: #{gb.$gray-700};
 
 	h2 {
 
-		@include heading-2x-large;
+		@include gb.heading-2x-large;
 		margin-top: 0;
 		margin-bottom: 0.5rem;
 	}
 
 	.my-jetpack-tab--content-description {
 
-		@include body-medium;
+		@include gb.body-medium;
 		margin: 0;
 		color: var( --my-jetpack-tab-description-color );
 	}

@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .content {
 
@@ -35,7 +35,7 @@
 	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 	gap: 1.5rem;
 
-	@media (max-width: $break-medium ) {
+	@media (max-width: gb.$break-medium ) {
 		grid-template-columns: 1fr;
 	}
 }
@@ -48,7 +48,7 @@
 	margin-inline: -3rem;
 	padding-inline: 3rem;
 
-	@media (max-width: $break-medium ) {
+	@media (max-width: gb.$break-medium ) {
 		margin-inline: -1rem;
 		padding-inline: 1rem;
 	}
