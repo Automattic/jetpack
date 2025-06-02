@@ -8,22 +8,20 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="jetpack-mu-wpcom" />
+				<element value="jetpack-mu-wpcom-plugin" />
 			</property>
 		</properties>
 	</rule>
 	<rule ref="Jetpack.Functions.I18n">
 		<properties>
-			<property name="text_domain" value="jetpack-mu-wpcom" />
+			<property name="text_domain" value="jetpack-mu-wpcom-plugin" />
 		</properties>
 	</rule>
 
 	<rule ref="WordPress.Utils.I18nTextDomainFixer">
 		<properties>
-			<property name="old_text_domain" type="array">
-				<element value="newspack-blocks" />
-			</property>
-			<property name="new_text_domain" value="jetpack-mu-wpcom" />
+			<property name="old_text_domain" type="array" />
+			<property name="new_text_domain" value="jetpack-mu-wpcom-plugin" />
 		</properties>
 	</rule>
 
