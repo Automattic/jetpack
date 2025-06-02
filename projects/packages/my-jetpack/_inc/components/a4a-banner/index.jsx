@@ -2,16 +2,16 @@ import { UpsellBanner, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
-import jetpackManageIcon from './jetpack-manage.svg';
+import icon from './icon.svg';
 
 /**
- * Jetpack Manager Banner component that renders a banner with CTAs.
+ * Automattic for Agencies Banner component that renders a banner with CTAs.
  *
  * @param {object}  props                 - Component props.
  * @param {boolean} props.isAgencyAccount - Whether users account is an Agency account or not.
- * @return {object} The JetpackManageBanner component.
+ * @return {object} The rendered component.
  */
-const JetpackManageBanner = props => {
+const A4ABanner = props => {
 	const { isAgencyAccount = false } = props;
 	const { recordEvent } = useAnalytics();
 
@@ -42,10 +42,10 @@ const JetpackManageBanner = props => {
 
 	return (
 		<UpsellBanner
-			icon={ jetpackManageIcon }
-			title={ __( 'Manage client sites and grow your business', 'jetpack-my-jetpack' ) }
+			icon={ icon }
+			title={ __( 'Are you an agency or freelancer?', 'jetpack-my-jetpack' ) }
 			description={ __(
-				'Are you an agency or freelancer? We’re working on a new partnership program bringing together the best of Jetpack, Woo, WordPress.com, and Pressable. Get bulk discounts, referral commissions, and more.',
+				'Automattic for Agencies is the ultimate partnership to access agency pricing, referral earnings, partner badges, and powerful tooling for agencies using WordPress.com, Pressable, WooCommerce, Jetpack, and more. Joining is free.',
 				'jetpack-my-jetpack'
 			) }
 			primaryCtaLabel={ __( 'Sign up now', 'jetpack-my-jetpack' ) }
@@ -56,4 +56,4 @@ const JetpackManageBanner = props => {
 	);
 };
 
-export default JetpackManageBanner;
+export default A4ABanner;
