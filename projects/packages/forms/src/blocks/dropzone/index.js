@@ -1,7 +1,7 @@
-import { Icon } from '@wordpress/components';
+import { Rect } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { lineDashed } from '@wordpress/icons';
 import { getIconColor } from '../contact-form/util/block-icons';
+import renderMaterialIcon from '../contact-form/util/render-material-icon';
 import edit from './edit';
 import save from './save';
 
@@ -23,7 +23,22 @@ const settings = {
 	category: 'contact-form',
 	icon: {
 		foreground: getIconColor(),
-		src: <Icon icon={ lineDashed } />,
+		src: renderMaterialIcon(
+			<>
+				<Rect
+					x="2.75"
+					y="6.25"
+					width="18.5"
+					height="11.5"
+					rx="1.25"
+					stroke="currentColor"
+					fill="none"
+					strokeWidth="1.5"
+					strokeMiterlimit="1.80775"
+					strokeDasharray="3 3"
+				/>
+			</>
+		),
 	},
 	attributes: {
 		style: {
