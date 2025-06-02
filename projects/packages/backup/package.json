@@ -48,9 +48,9 @@
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.26.10",
-		"@babel/preset-env": "7.26.9",
-		"@babel/runtime": "7.26.10",
+		"@babel/core": "7.27.4",
+		"@babel/preset-env": "7.27.2",
+		"@babel/runtime": "7.27.4",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.2.0",
 		"@testing-library/user-event": "14.6.1",
