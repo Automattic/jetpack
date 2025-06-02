@@ -52,7 +52,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@microsoft/fetch-event-source": "2.0.1",
 		"@types/jest": "29.5.14",
-		"@types/react": "18.3.18",
+		"@types/react": "18.3.23",
 		"@types/wordpress__block-editor": "11.5.16",
 		"@wordpress/api-fetch": "7.24.0",
 		"@wordpress/base-styles": "6.0.0",
