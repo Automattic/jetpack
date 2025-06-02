@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Catch PHP notices when handling unexpected data types.

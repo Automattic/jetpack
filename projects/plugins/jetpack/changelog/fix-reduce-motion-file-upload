@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
- Forms: file upload field make it work for reduce motion case

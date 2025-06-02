@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Social: Fix images in connections management not loading when concatenating JS.
