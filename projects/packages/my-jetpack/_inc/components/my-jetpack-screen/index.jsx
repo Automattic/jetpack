@@ -169,6 +169,7 @@ export default function MyJetpackScreen() {
 			apiNonce={ apiNonce }
 			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
 			useInternalLinks={ shouldUseInternalLinks() }
+			className={ styles[ 'my-jetpack-screen' ] }
 		>
 			<h1 className="screen-reader-text">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</h1>
 

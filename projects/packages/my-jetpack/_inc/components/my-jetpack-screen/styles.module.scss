@@ -1,3 +1,9 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+
+.my-jetpack-screen {
+	overflow: hidden;
+}
+
 .heading {
 	margin-bottom: 0;
 }
