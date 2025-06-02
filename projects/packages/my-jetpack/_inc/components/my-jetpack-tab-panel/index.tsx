@@ -1,6 +1,7 @@
 import { TabPanel } from '@wordpress/components';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import useFilteredProducts from '../../hooks/use-filtered-products';
 import { MY_JETPACK_SECTION_OVERVIEW } from './constants';
 import styles from './styles.module.scss';
 import { TabContent } from './tab-content';
@@ -15,6 +16,22 @@ import { getMyJetpackSections, isValidMyJetpackSection } from './utils';
 export function MyJetpackTabPanel() {
 	const params = useParams();
 	const navigate = useNavigate();
+	const { filteredUnownedProducts, isLoading } = useFilteredProducts();
+
+	const showProductsTab = useMemo( () => {
+		return filteredUnownedProducts.length > 0 && ! isLoading;
+	}, [ filteredUnownedProducts.length, isLoading ] );
+
+	const availableTabs = useMemo(
+		() => getMyJetpackSections( showProductsTab ),
+		[ showProductsTab ]
+	);
+
+	// If the tab is not valid, use the default one.
+	const initialTab = useMemo( () => {
+		const validTab = isValidMyJetpackSection( params.section, showProductsTab );
+		return validTab ? params.section : MY_JETPACK_SECTION_OVERVIEW;
+	}, [ params.section, showProductsTab ] );
 
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
@@ -29,11 +46,6 @@ export function MyJetpackTabPanel() {
 		return <TabContent name={ tab.name } />;
 	}, [] );
 
-	// If the tab is not valid, use the default one.
-	const initialTab = isValidMyJetpackSection( params.section )
-		? params.section
-		: MY_JETPACK_SECTION_OVERVIEW;
-
 	return (
 		<TabPanel
 			key={ initialTab }
@@ -41,7 +53,7 @@ export function MyJetpackTabPanel() {
 			initialTabName={ initialTab }
 			onSelect={ onTabSelect }
 			children={ tabRenderer }
-			tabs={ getMyJetpackSections() }
+			tabs={ availableTabs }
 		/>
 	);
 }
