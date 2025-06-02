@@ -237,9 +237,10 @@
 	content: '';
 	aspect-ratio: 1 / 1;
 	background-position: center;
+	background-repeat: no-repeat;
 	background-size: cover;
 	outline: 1 solid var( --jetpack--contact-form--button-primary--text-color, #FFF );
-	background-color: #333;
+	background-color: var(--jetpack--contact-form--border-color, #333 );
 	border-radius: 50%;
 	outline-offset:0;
 	width: 40px;
@@ -248,6 +249,10 @@
 	position: absolute;
 	top: 3px;
 	z-index: 2;
+}
+
+.jetpack-form-file-field__image.is-icon {
+	background-size: auto;
 }
 
 .jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__image {

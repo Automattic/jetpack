@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Forms\Jetpack_Forms;
 
 /**
  * Class for the contact-field shortcode.
@@ -1083,6 +1084,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
 			),
 			'endpoint'      => $this->get_unauth_endpoint_url(),
+			'iconsPath'     => Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/',
 			'maxUploadSize' => $max_file_size,
 		);
 
@@ -1127,7 +1129,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					<div class="jetpack-form-file-field__preview" tabindex="0" data-wp-bind--aria-label="context.file.name" data-wp-init--focus="callbacks.focusElement" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.isUploaded">
 						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" class="jetpack-form-file-field__hidden include-hidden" data-wp-bind--value='context.file.fileJson' value="">
 						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress">
-							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" ></div>
+							<div class="jetpack-form-file-field__image" data-wp-class--is-icon="context.file.hasIcon" data-wp-style--background-image="context.file.url" ></div>
 							<div class="jetpack-form-file-field__progress-bar" ></div>
 						</div>
 

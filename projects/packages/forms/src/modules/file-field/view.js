@@ -89,6 +89,37 @@ const formatBytes = ( size, decimals = 2 ) => {
 	return `${ numberFormat.format( formattedSize ) } ${ sizes[ i ] }`;
 };
 
+const getFileIcon = file => {
+	const config = getConfig( NAMESPACE );
+	const fileType = file.type.split( '/' )[ 0 ];
+	const fileExtension = file.name.split( '.' ).pop().toLowerCase();
+
+	const iconMap = {
+		image: 'png',
+		video: 'mp4',
+		audio: 'mp3',
+		document: 'pdf',
+		application: 'txt',
+	};
+
+	const extensionMap = {
+		pdf: 'pdf',
+		doc: 'doc',
+		docx: 'doc',
+		txt: 'txt',
+		ppt: 'ppt',
+		pptx: 'ppt',
+		xls: 'xls',
+		xlsx: 'xls',
+		csv: 'xls',
+		zip: 'zip',
+		sql: 'sql',
+		cal: 'cal',
+	};
+	const iconName = extensionMap[ fileExtension ] || iconMap[ fileType ] || 'txt';
+	return 'url(' + config.iconsPath + iconName + '.svg)';
+};
+
 /**
  * Add the file to the context.
  *
@@ -122,16 +153,14 @@ const addFileToContext = file => {
 	}
 
 	const clientFileId = performance.now() + '-' + Math.random();
-
-	const fileUrl =
+	const hasImage =
 		[ 'image/gif', 'image/jpg', 'image/png', 'image/jpeg' ].includes( file.type ) &&
-		URL.createObjectURL
-			? 'url(' + URL.createObjectURL( file ) + ')'
-			: null;
-
+		URL.createObjectURL;
+	const fileUrl = hasImage ? 'url(' + URL.createObjectURL( file ) + ')' : getFileIcon( file );
 	context.files.push( {
 		name: file.name,
 		formattedSize: formatBytes( file.size, 2 ),
+		hasIcon: ! hasImage,
 		isUploaded: false,
 		hasError: !! error,
 		id: clientFileId,
