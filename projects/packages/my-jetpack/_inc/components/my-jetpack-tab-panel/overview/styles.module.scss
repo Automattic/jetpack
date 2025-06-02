@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .products {
 	margin-bottom: 3rem;
@@ -16,7 +16,7 @@
 	margin-inline: -3rem;
 	padding-inline: 3rem;
 
-	@media (max-width: $break-medium ) {
+	@media (max-width: gb.$break-medium ) {
 		margin-inline: -1rem;
 		padding-inline: 1rem;
 	}
