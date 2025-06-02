@@ -46,6 +46,7 @@ export default function CreateFormButton( {
 
 	return (
 		<Button
+			__next40pxDefaultSize
 			variant="primary"
 			onClick={ onButtonClickHandler }
 			icon={ plus }

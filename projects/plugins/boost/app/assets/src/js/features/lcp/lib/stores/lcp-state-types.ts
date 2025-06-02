@@ -1,7 +1,6 @@
-import { JSONSchema } from '$lib/utils/json-types';
 import z from 'zod';
 
-// @TODO: We don't send this back from the API, but it's here for if we do.
+// TODO: Reflect this in Boost Cloud after Beta release, each one should be an Error type.
 export const LcpErrorType = z.enum( [
 	'UrlError',
 	'HttpError',
@@ -11,10 +10,7 @@ export const LcpErrorType = z.enum( [
 ] );
 
 export const LcpErrorDetailsSchema = z.object( {
-	url: z.coerce.string(),
 	message: z.coerce.string(),
-	meta: z.record( JSONSchema ).catch( {} ),
-	type: LcpErrorType,
 } );
 
 export const PageSchema = z.object( {
@@ -25,7 +21,6 @@ export const PageSchema = z.object( {
 	// Status
 	status: z.enum( [ 'success', 'pending', 'error' ] ).catch( 'pending' ),
 	// Error details
-	// @TODO: We don't send this back from the API, but it's here for if we do.
 	errors: z.array( LcpErrorDetailsSchema ).optional(),
 } );
 

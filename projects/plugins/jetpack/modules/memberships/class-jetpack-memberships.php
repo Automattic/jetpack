@@ -909,9 +909,11 @@ class Jetpack_Memberships {
 	 * This function is used both on WPCOM or on Jetpack self-hosted.
 	 * Depending on the environment we need to mitigate where the data is retrieved from.
 	 *
+	 * @param bool $allow_deleted Whether to allow deleted plans to be returned. Defaults to true.
+	 *
 	 * @return array
 	 */
-	public static function get_all_newsletter_plan_ids() {
+	public static function get_all_newsletter_plan_ids( $allow_deleted = true ) {
 
 		if ( ! self::is_enabled_jetpack_recurring_payments() ) {
 			return array();
@@ -920,21 +922,33 @@ class Jetpack_Memberships {
 		// We can retrieve the data directly except on a Jetpack/Atomic cached site or
 		$is_cached_site = ( new Host() )->is_wpcom_simple() && is_jetpack_site();
 		if ( ! $is_cached_site ) {
+			$meta_query = array(
+				array(
+					'key'   => 'jetpack_memberships_type',
+					'value' => self::$type_tier,
+				),
+			);
+
+			if ( $allow_deleted === false ) {
+				$meta_query[] = array(
+					'key'     => 'jetpack_memberships_is_deleted',
+					'compare' => 'NOT EXISTS',
+				);
+			}
+
 			return get_posts(
 				array(
 					'posts_per_page' => -1,
 					'fields'         => 'ids',
 					'post_type'      => self::$post_type_plan,
-					'meta_key'       => 'jetpack_memberships_type',
-					'meta_value'     => self::$type_tier,
+					'meta_query'     => $meta_query,
 				)
 			);
 
 		} else {
 			// On cached site on WPCOM
 			require_lib( 'memberships' );
-			$allow_deleted = true;
-			$list          = Memberships_Product::get_product_list( get_current_blog_id(), self::$type_tier, null, $allow_deleted );
+			$list = Memberships_Product::get_product_list( get_current_blog_id(), self::$type_tier, null, $allow_deleted );
 
 			if ( is_wp_error( $list ) ) {
 				return array();
