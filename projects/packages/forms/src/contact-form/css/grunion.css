@@ -826,7 +826,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translateY(0);
 }
 
-/* Ensure that */
+/* Ensure that the outlined field is not hidden by the absolutely positioned label */
 .contact-form .is-style-outlined .grunion-field:not(.contact-form__select-wrapper) {
 	z-index: 1;
 }
