@@ -22,6 +22,7 @@ import ErrorBoundary from '$features/error-boundary/error-boundary';
 import PopOut from './pop-out/pop-out';
 import { useCornerstonePages } from '$features/cornerstone-pages/lib/stores/cornerstone-pages';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import { useLcpState } from '$features/lcp/lib/stores/lcp-state';
 
 const SpeedScore = () => {
 	const [ cornerstonePages ] = useCornerstonePages();
@@ -33,6 +34,7 @@ const SpeedScore = () => {
 	const [ { data } ] = useModulesState();
 	const [ cssState ] = useCriticalCssState();
 	const { isGenerating: criticalCssIsGenerating } = useLocalCriticalCssGeneratorStatus();
+	const [ { data: lcpState } ] = useLcpState();
 
 	// Construct an array of current module states
 	const moduleStates = useMemo(
@@ -77,7 +79,19 @@ const SpeedScore = () => {
 
 	// Refresh the score when something that can affect the score changes.
 	useDebouncedRefreshScore(
-		{ moduleStates, criticalCssCreated: cssState.created || 0, criticalCssIsGenerating },
+		{
+			moduleStates,
+			pendingStates: {
+				criticalCss: {
+					isPending: criticalCssIsGenerating,
+					timestamp: cssState.created || 0,
+				},
+				lcp: {
+					isPending: lcpState?.status === 'pending',
+					timestamp: lcpState?.updated || 0,
+				},
+			},
+		},
 		refreshScore
 	);
 
