@@ -24,10 +24,9 @@ const PreviewImage = ( { file, isLoading, onImageLoaded } ) => {
 		<div className="jp-forms__inbox-file-preview-container">
 			{ isLoading && (
 				<div className="jp-forms__inbox-file-loading">
-					<div className="components-spinner" />
+					<Spinner className="jp-forms__inbox-spinner" />
 					<div className="jp-forms__inbox-file-loading-message">
-						<Spinner />
-						{ __( 'Loading file preview…', 'jetpack-forms' ) }
+						{ __( 'Loading preview…', 'jetpack-forms' ) }
 					</div>
 				</div>
 			) }
@@ -36,7 +35,6 @@ const PreviewImage = ( { file, isLoading, onImageLoaded } ) => {
 				alt={ decodeEntities( file.name ) }
 				onLoad={ onImageLoaded }
 				className="jp-forms__inbox-file-preview-image"
-				style={ { display: isLoading ? 'none' : 'block' } }
 			/>
 		</div>
 	);

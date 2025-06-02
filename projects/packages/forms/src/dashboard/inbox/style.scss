@@ -419,3 +419,12 @@ body.jetpack_page_jetpack-forms-admin {
 .components-modal__screen-overlay:nth-of-type(2) {
   z-index: 100005;
 }
+
+.jp-forms__inbox-file-loading {
+	display: flex;
+	align-content: center;
+}
+
+.jp-forms__inbox-spinner.jp-forms__inbox-spinner {
+	margin-top: 0;
+}
