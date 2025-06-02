@@ -24,7 +24,7 @@ export const useChartMargin = (
 
 	return useMemo( () => {
 		// Default margin is for bottom axis labels.
-		const defaultMargin = { top: 10, right: 0, bottom: 20, left: 0 };
+		const defaultMargin = { top: 10, right: 20, bottom: 20, left: 20 };
 		const defaultTickWidth = 40;
 
 		// Auto-calculate margin for y axis labels based on orientation and tick width.
