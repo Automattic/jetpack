@@ -41,12 +41,15 @@ dev:
 
       ## SFTP server running at localhost:1022
       sftp:
-        image: atmoz/sftp
+        image: jmcombs/sftp:alpine
         volumes:
           ## WordPress and its plugins and themes should be defined in volumeMappings in jetpack-docker-config-default.yml or jetpack-docker-config.yml, not here!
           ## That avoids having to define them both here and in the "wordpress" service.
           - dockerdirectory:/usr/local/src/jetpack-monorepo/tools/docker
           - ./data/ssh.keys:/home/wordpress/.ssh/keys:ro
+          - ./bin/sftp-make-keys.sh:/etc/sftp.d/sftp-make-keys.sh
+          - ./data/sshd.keys/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key
+          - ./data/sshd.keys/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key
         ports:
           - '${PORT_SFTP:-1022}:22'
         env_file:

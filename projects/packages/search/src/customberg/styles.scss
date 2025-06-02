@@ -1,10 +1,12 @@
-@import 'lib/base-styles';
+@use "@wordpress/base-styles/mixins";
+@use '@wordpress/base-styles/colors';
+@use 'lib/base-styles';
 @import 'lib/wordpress-interface';
 
 // In order to use mix-blend-mode, this element needs to have an explicitly set background-color
 // We scope it to .wp-toolbar to be wp-admin only, to prevent bleed into other implementations
 html.wp-toolbar {
-	background: $white;
+	background: colors.$white;
 }
 
 .jp-search-configure-sidebar .components-button.interface-complementary-area__pin-unpin-item {
@@ -22,7 +24,7 @@ html.wp-toolbar {
 
 // Fix fill color for gridicons in dark mode
 .jp-search-configure-app-wrapper .jetpack-instant-search__overlay--dark .gridicon {
-	fill: $white;
+	fill: colors.$white;
 }
 
-@include wordpress-admin-schemes();
+@include mixins.wordpress-admin-schemes();

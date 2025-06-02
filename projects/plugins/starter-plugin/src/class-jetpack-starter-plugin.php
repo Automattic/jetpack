@@ -2,7 +2,7 @@
 /**
  * Primary class file for the Jetpack Starter Plugin plugin.
  *
- * @package automattic/jetpack-starter-plugin-plugin
+ * @package automattic/jetpack-starter-plugin
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

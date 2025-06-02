@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d45636658dec63882664129cb6181e7b",
+    "content-hash": "94b2be22172a7affdbc2740cad9cd0d5",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -255,6 +255,75 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-autoloader",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/autoloader",
+                "reference": "68901f3b3a256085ebd939a3461ee833be10f86d"
+            },
+            "require": {
+                "composer-plugin-api": "^2.2",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "composer/composer": "^2.2",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "autotagger": true,
+                "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin",
+                "mirror-repo": "Automattic/jetpack-autoloader",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
+                },
+                "version-constants": {
+                    "::VERSION": "src/AutoloadGenerator.php"
+                },
+                "branch-alias": {
+                    "dev-trunk": "5.0.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/AutoloadGenerator.php"
+                ],
+                "psr-4": {
+                    "Automattic\\Jetpack\\Autoloader\\": "src"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"./tests/php/tmp/coverage-report.php\"",
+                    "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Creates a custom autoloader for a plugin or theme.",
+            "keywords": [
+                "autoload",
+                "autoloader",
+                "composer",
+                "jetpack",
+                "plugin",
+                "wordpress"
+            ],
             "transport-options": {
                 "relative": true
             }
@@ -2049,16 +2118,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.10.3",
+            "version": "v2.10.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "e39fbf4447d0d8196955fa1d8c3018e5e9a3b559"
+                "reference": "cafd6d1b211b6a044901392b761f142703d59580"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/e39fbf4447d0d8196955fa1d8c3018e5e9a3b559",
-                "reference": "e39fbf4447d0d8196955fa1d8c3018e5e9a3b559",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/cafd6d1b211b6a044901392b761f142703d59580",
+                "reference": "cafd6d1b211b6a044901392b761f142703d59580",
                 "shasum": ""
             },
             "require-dev": {
@@ -2097,7 +2166,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2025-05-13T14:23:04+00:00"
+            "time": "2025-05-22T16:30:45+00:00"
         },
         {
             "name": "scssphp/scssphp",
@@ -4927,6 +4996,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-changelogger": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,

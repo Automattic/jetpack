@@ -191,15 +191,9 @@ describe( 'BarChart', () => {
 				},
 			} );
 
-			// Get all tspan elements in the document
-			const tspans = screen.getAllByText( /./i, {
-				selector: '.visx-axis-bottom .visx-axis-tick tspan',
-			} );
-
-			// Check if any of these tspans contains our target text
-			const hasTargetDate = tspans.some( element => element.textContent.trim() === '1/3/24' );
-
-			expect( hasTargetDate ).toBe( true );
+			// Query for tspan elements that contain the formatted date.
+			const tspansWithDate = screen.getAllByText( '1/3/24' );
+			expect( tspansWithDate.length ).toBeGreaterThan( 0 );
 		} );
 	} );
 } );

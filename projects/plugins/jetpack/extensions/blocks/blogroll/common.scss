@@ -1,10 +1,10 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 $jetpack-blogroll-item-container: bitem;
 
 @mixin break-bloroll-container-mobile() {
 
-	@container #{ ($jetpack-blogroll-item-container)} (min-width: #{ ($break-mobile) }) {
+	@container #{ ($jetpack-blogroll-item-container)} (min-width: #{ (gb.$break-mobile) }) {
 		@content;
 	}
 }

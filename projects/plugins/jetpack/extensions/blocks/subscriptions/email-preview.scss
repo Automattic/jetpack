@@ -1,10 +1,10 @@
-@import "@automattic/color-studio/dist/color-variables";
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 .jetpack-newsletter-test-email-modal__email-sent {
-	color: $studio-jetpack-green-30;
+	color: studio.$studio-jetpack-green-30;
 
 		svg {
-			fill: $studio-jetpack-green-30;
+			fill: studio.$studio-jetpack-green-30;
 		}
 }
 

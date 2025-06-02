@@ -1,5 +1,4 @@
-@import '@wordpress/base-styles/mixins';
-@import '@wordpress/base-styles/colors';
+@use '@wordpress/base-styles/mixins';
 
 /**
  * Allow to apply the modern scheme to elements.
@@ -8,7 +7,7 @@
 
 	.admin-color-modern {
 
-		@include admin-scheme(#3858e9);
+		@include mixins.admin-scheme(#3858e9);
 	}
 }
 

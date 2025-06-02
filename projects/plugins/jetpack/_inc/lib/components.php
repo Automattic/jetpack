@@ -9,6 +9,21 @@ use Automattic\Jetpack\Status;
  */
 class Jetpack_Components {
 	/**
+	 * Get the contents of a component file
+	 *
+	 * @since 14.7
+	 *
+	 * @param string $name Component name.
+	 * @return string The component markup
+	 */
+	protected static function get_component_markup( $name ) {
+		ob_start();
+		// `include` fails gracefully and throws a warning, but doesn't halt execution.
+		include JETPACK__PLUGIN_DIR . "_inc/blocks/$name.html";
+		return ob_get_clean();
+	}
+
+	/**
 	 * Load and display a pre-rendered component
 	 *
 	 * @since 7.7.0
@@ -23,10 +38,7 @@ class Jetpack_Components {
 		$rtl = is_rtl() ? '.rtl' : '';
 		wp_enqueue_style( 'jetpack-components', plugins_url( "_inc/blocks/components{$rtl}.css", JETPACK__PLUGIN_FILE ), array( 'wp-components' ), JETPACK__VERSION );
 
-		ob_start();
-		// `include` fails gracefully and throws a warning, but doesn't halt execution.
-		include JETPACK__PLUGIN_DIR . "_inc/blocks/$name.html";
-		$markup = ob_get_clean();
+		$markup = self::get_component_markup( $name );
 
 		foreach ( $props as $key => $value ) {
 			$markup = str_replace(
@@ -101,11 +113,14 @@ class Jetpack_Components {
 			get_edit_post_link( $post_id )
 		);
 
+		// Decode the URL to avoid double encoding.
+		$redirect_to = html_entity_decode( wp_unslash( $redirect_to ), ENT_QUOTES );
+
 		$upgrade_url =
 			$plan_path_slug
 			? add_query_arg(
 				'redirect_to',
-				$redirect_to,
+				rawurlencode( $redirect_to ),
 				"https://wordpress.com/checkout/{$site_slug}/{$plan_path_slug}"
 			) : '';
 

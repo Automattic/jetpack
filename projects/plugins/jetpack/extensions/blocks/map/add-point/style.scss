@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .component__add-point {
 	position: absolute;
@@ -49,6 +49,6 @@
 	float: right;
 
 	path {
-		color: $gray-200;
+		color: gb.$gray-200;
 	}
 }

@@ -61,8 +61,7 @@
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-starter-plugin",
 		"release-branch-prefix": "starter-plugin",
-		"beta-plugin-slug": "jetpack-starter-plugin",
-		"wp-plugin-slug": "jetpack-starter-plugin"
+		"beta-plugin-slug": "jetpack-starter-plugin"
 	},
 	"config": {
 		"allow-plugins": {

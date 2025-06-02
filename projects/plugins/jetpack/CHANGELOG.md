@@ -2,6 +2,51 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.7-a.7 - 2025-05-26
+### Enhancements
+- Social: Add option to add default image to Social Image Generator. [#43461]
+- Forms: Add Integration screen content. [#43530]
+
+### Improved compatibility
+- Endpoints: Add checks within the v1.1 post update endpoint to ensure values are defined. [#43513]
+- Sharing buttons: Prevent PHP warnings in some scenarios, ensuring we only check the post title and ID if posts exist. [#43539]
+
+### Bug fixes
+- AI Chat & Donations blocks: Ensure that all metadata is properly attached to the blocks in the block editor. [#43535]
+- Forms: Fix Akismet spam URL. [#43542]
+- Jetpack: Fix redirect URL on frontend for upgrade nudge. [#43562]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added wordpress/base-styles dependency. [#43576]
+- AI Assistant: Add tracking events to know when we're using built-in AI models in some requests and adapted to Chrome AI API changes. [#43495]
+- Blogging prompt: Make sure the block is registered before inserting. [#43603]
+- E2E Tests: Update config file encryption algorithm. [#43523]
+- Featured Content: Prevent error if invalid taxonomy data is provided. [#43553]
+- Forms: Update dependency on packages/admin_ui. [#43295]
+- Janitorial: Ensure functionality related to WoA site checking is clearer. [#43481]
+- Post Images: Prevent undefined variable and key warnings. [#43548]
+- Theme Compatibility: Prevent warning when custom color value isn't set. [#43520]
+- Update package dependencies. [#43516] [#43557] [#43572] [#43578]
+
+## 14.7-a.5 - 2025-05-19
+### Enhancements
+- Forms: Add Google Drive to integrations modal. [#43479]
+- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
+- Search: Highlight search term in returned search results. [#43110]
+
+### Bug fixes
+- Open Graph: Prevent PHP warnings when embedding some Vimeo videos. [#43458]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Retrieve Chrome AI tokens from the backend. [#43442]
+- Mitigate bug with certain P2 themes. [#43503]
+- Repeat Visitor block: Use stabilized role attribute in test file. [#43472]
+- Stats: Remove deprecated `stats_update_blog` method. [#43493]
+- Update package dependencies. [#43398]
+
 ## 14.7-a.3 - 2025-05-15
 ### Enhancements
 - Forms: Add Google to form integrations endpoint. [#43453]

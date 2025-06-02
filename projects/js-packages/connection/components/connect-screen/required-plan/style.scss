@@ -1,5 +1,4 @@
-@import '@wordpress/base-styles/breakpoints';
-@import '@wordpress/base-styles/mixins';
+@use '@wordpress/base-styles/mixins';
 
 .jp-connection__connect-screen-layout__left {
 
@@ -8,14 +7,14 @@
 	  * then account for a 384px pricing card that floats to the right;
 	  * finally give 32px of padding between content and the pricing card
 	  */
-	@include break-xlarge {
+	@include mixins.break-xlarge {
 		width: calc(100% - 384px - var(--spacing-base) * 4);
 	}
 }
 
 .jp-connection__connect-screen-required-plan {
 
-	@include break-xlarge {
+	@include mixins.break-xlarge {
 		position: relative;
 		background: linear-gradient(to right, #fff 70%, #f9f9f6 30%);
 	}
@@ -38,7 +37,7 @@
 		  * and mirror 96px horizontal padding seen in
 		  * .jp-connection__connect-screen-layout__left
 		 */
-		@include break-xlarge {
+		@include mixins.break-xlarge {
 			position: absolute;
 			top: calc(var(--spacing-base) * 8);
 			right: calc(var(--spacing-base) * 12);

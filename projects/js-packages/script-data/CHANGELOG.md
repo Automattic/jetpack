@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2025-05-26
+### Added
+- Janitorial: Ensure functionality related to WoA site checking is clearer. [#43481]
+
 ## [0.4.1] - 2025-04-28
 ### Fixed
 - Newsletters: Show newsletter widget on P2s. [#43085]
@@ -69,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added jetpack-script-data package to consolidate the logic for Jetpack Initial state [#38430]
 
+[0.4.2]: https://github.com/Automattic/jetpack-script-data/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/Automattic/jetpack-script-data/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Automattic/jetpack-script-data/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Automattic/jetpack-script-data/compare/v0.2.1...v0.3.0
