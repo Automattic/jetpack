@@ -22,22 +22,22 @@ test( 'Site only connection', async ( { page, admin } ) => {
 		await admin.visitAdminPage( 'admin.php', 'page=my-jetpack' );
 
 		// Find a block which has h2 with text "Connection"
-		const h2 = page.getByRole( 'heading', { level: 2, name: 'Connection' } );
-		const connectionBlock = h2.locator( 'xpath=..' ); // immediate parent
+		const h3 = page.getByRole( 'heading', { level: 3, name: 'Connection' } );
+		const connectionBlock = h3.locator( 'xpath=..' ); // immediate parent
 
 		await expect( connectionBlock, {
 			message: 'Should have the text saying the site is connected.',
-		} ).toContainText( 'Site connected.' );
+		} ).toContainText( 'Site connected' );
 
-		await expect( connectionBlock.getByRole( 'button', { name: 'Manage' } ), {
-			message: 'Should have the "Manage" button.',
+		await expect( connectionBlock.getByRole( 'button', { name: 'Site connected' } ), {
+			message: '"Site connected" should be a button.',
 		} ).toBeVisible();
 
 		await expect( connectionBlock, {
 			message: 'Should have the missing user connection text.',
-		} ).toContainText( 'Some features require authentication.' );
+		} ).toContainText( 'Connect your account to unlock all the features.' );
 
-		await expect( connectionBlock.getByRole( 'button', { name: 'Sign in' } ), {
+		await expect( connectionBlock.getByRole( 'button', { name: 'Connect my account' } ), {
 			message: 'Should have the user connection button.',
 		} ).toBeVisible();
 	} );

@@ -1,11 +1,8 @@
-import { Container, Col, Text, AdminSectionHero } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { Col, Container } from '@automattic/jetpack-components';
 import { PRODUCT_SLUGS } from '../../data/constants';
-import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useFilteredProducts from '../../hooks/use-filtered-products';
 import LoadingBlock from '../loading-block';
-import ProductsTableView from '../products-table-view';
 import StatsSection from '../stats-section';
 import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
@@ -105,91 +102,22 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 };
 
 interface ProductCardsSectionProps {
-	noticeMessage: ReactNode;
+	noticeMessage?: ReactNode;
 }
 
 const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } ) => {
-	const {
-		data: { ownedProducts, unownedProducts },
-		isLoading,
-	} = useProductsByOwnership();
-
-	const [ isLoadingProducts, setIsLoadingProducts ] = useState( true );
-
-	useEffect( () => {
-		if ( isLoading ) {
-			return;
-		}
-
-		// This adds a slight delay to the loading status change to prevent
-		// a brief moment in time where the section was not visible at all
-		// between the isLoading = true and isLoading = false states.
-		// This issue was causing a flicker effect.
-		requestAnimationFrame( () => setIsLoadingProducts( false ) );
-	} );
-
-	const { canUserViewStats, userIsAdmin } = getMyJetpackWindowInitialState();
-
-	const unownedSectionTitle = useMemo( () => {
-		return ownedProducts.length > 0
-			? __( 'Discover more', 'jetpack-my-jetpack' )
-			: __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' );
-	}, [ ownedProducts.length ] );
-
-	const filterProducts = useCallback(
-		( products: JetpackModule[] ) => {
-			const productsWithNoCard = [
-				'extras',
-				'scan',
-				'security',
-				'ai',
-				'creator',
-				'growth',
-				'complete',
-				'site-accelerator',
-				'newsletter',
-				'related-posts',
-				'brute-force',
-			];
-
-			// If the user cannot view stats, filter out the stats card
-			if ( ! canUserViewStats ) {
-				productsWithNoCard.push( 'stats' );
-			}
-
-			return products.filter( product => {
-				return ! productsWithNoCard.includes( product );
-			} );
-		},
-		[ canUserViewStats ]
-	);
-
-	const filteredOwnedProducts = filterProducts( ownedProducts );
-	const filteredUnownedProducts = filterProducts( unownedProducts );
+	const { filteredOwnedProducts, isLoading } = useFilteredProducts();
 
 	return (
 		<>
-			{ ( isLoadingProducts || filteredOwnedProducts.length > 0 ) && (
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
-						<Col>
-							<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
-								<Text variant="headline-small">{ __( 'My products', 'jetpack-my-jetpack' ) }</Text>
-							</Col>
-
-							<DisplayItems isLoading={ isLoadingProducts } slugs={ filteredOwnedProducts } />
-						</Col>
-					</Container>
-				</AdminSectionHero>
-			) }
-
-			{ userIsAdmin && filteredUnownedProducts.length > 0 && (
-				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
+			{ ( isLoading || filteredOwnedProducts.length > 0 ) && (
+				<Container
+					horizontalSpacing={ 0 }
+					horizontalGap={ noticeMessage ? 3 : 6 }
+					className={ styles[ 'products-container' ] }
+				>
 					<Col>
-						<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
-							<Text variant="headline-small">{ unownedSectionTitle }</Text>
-						</Col>
-						<ProductsTableView products={ filteredUnownedProducts } />
+						<DisplayItems isLoading={ isLoading } slugs={ filteredOwnedProducts } />
 					</Col>
 				</Container>
 			) }

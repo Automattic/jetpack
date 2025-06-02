@@ -1,15 +1,15 @@
 // Common styles for both views (editor and frontend).
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .wp-block-jetpack-donations {
 
 	.donations__container {
-		border: 1px solid $gray-400;
+		border: 1px solid gb.$gray-400;
 	}
 
 	.donations__nav {
 		display: flex;
-		border-bottom: 1px solid $gray-400;
+		border-bottom: 1px solid gb.$gray-400;
 	}
 
 	.donations__nav-item {
@@ -19,12 +19,12 @@
 		text-align: center;
 		font-size: 16px;
 		padding: 12px;
-		border-inline-start: 1px solid $gray-400;
-		background: $white;
-		color: $gray-900;
+		border-inline-start: 1px solid gb.$gray-400;
+		background: gb.$white;
+		color: gb.$gray-900;
 		cursor: pointer;
 
-		@include break-small() {
+		@include gb.break-small() {
 			padding: 16px 24px;
 		}
 
@@ -33,8 +33,8 @@
 		}
 
 		&.is-active {
-			background: $gray-900;
-			color: $white;
+			background: gb.$gray-900;
+			color: gb.$white;
 			cursor: default;
 		}
 	}
@@ -42,7 +42,7 @@
 	.donations__content {
 		padding: 16px;
 
-		@include break-small() {
+		@include gb.break-small() {
 			padding: 32px;
 		}
 
@@ -50,7 +50,7 @@
 		p {
 			margin: 0 0 16px;
 
-			@include break-small() {
+			@include gb.break-small() {
 				margin: 0 0 24px;
 			}
 		}
@@ -61,7 +61,7 @@
 		display: flex;
 		flex-wrap: wrap;
 
-		@include break-small() {
+		@include gb.break-small() {
 			margin: 0 0 24px;
 		}
 	}
@@ -69,9 +69,9 @@
 	.donations__amount {
 		display: inline-block;
 		padding: 16px 24px;
-		background-color: $white;
-		color: $gray-900;
-		border: 1px solid $gray-400;
+		background-color: gb.$white;
+		color: gb.$gray-900;
+		border: 1px solid gb.$gray-400;
 		margin-inline-end: 8px;
 		margin-bottom: 8px;
 		font-weight: 600;
@@ -79,7 +79,7 @@
 		white-space: nowrap;
 
 		&.has-error {
-			box-shadow: 0 0 0 1px $white, 0 0 0 3px $alert-red;
+			box-shadow: 0 0 0 1px gb.$white, 0 0 0 3px gb.$alert-red;
 			outline: 2px solid transparent;
 			outline-offset: -2px;
 		}
@@ -95,7 +95,7 @@
 		margin-bottom: 16px;
 		margin-top: 16px;
 
-		@include break-small() {
+		@include gb.break-small() {
 			margin-bottom: 32px;
 			margin-top: 32px;
 		}

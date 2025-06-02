@@ -13,9 +13,11 @@ use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
+use WP_Block_Patterns_Registry;
 use WP_Error;
 
 /**
@@ -213,7 +215,8 @@ class Contact_Form_Plugin {
 					'not_found_in_trash' => __( 'No responses found', 'jetpack-forms' ),
 				),
 				'menu_icon'             => 'dashicons-feedback',
-				'show_ui'               => true,
+				// when the legacy menu item is retired, we don't want to show the default post type listing
+				'show_ui'               => ! Jetpack_Forms::is_legacy_menu_item_retired(),
 				'show_in_menu'          => false,
 				'show_in_admin_bar'     => false,
 				'public'                => false,
@@ -560,17 +563,20 @@ class Contact_Form_Plugin {
 	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
-		$slug = 'feedback';
+		$slug     = 'feedback';
+		$is_wpcom = ( new Host() )->is_wpcom_simple();
 
-		add_menu_page(
-			__( 'Feedback', 'jetpack-forms' ),
-			__( 'Feedback', 'jetpack-forms' ),
-			'edit_pages',
-			$slug,
-			null,
-			'dashicons-feedback',
-			45
-		);
+		if ( $is_wpcom || is_plugin_active( 'polldaddy/polldaddy.php' ) || ! Jetpack_Forms::is_legacy_menu_item_retired() ) {
+			add_menu_page(
+				__( 'Feedback', 'jetpack-forms' ),
+				__( 'Feedback', 'jetpack-forms' ),
+				'edit_pages',
+				$slug,
+				null,
+				'dashicons-feedback',
+				45
+			);
+		}
 
 		add_submenu_page(
 			$slug,
@@ -586,6 +592,13 @@ class Contact_Form_Plugin {
 			$slug,
 			$slug
 		);
+
+		if ( Jetpack_Forms::is_legacy_menu_item_retired() ) {
+			remove_submenu_page(
+				$slug,
+				'edit.php?post_type=feedback'
+			);
+		}
 	}
 
 	/**
@@ -1274,7 +1287,11 @@ class Contact_Form_Plugin {
 		foreach ( $md as $key => $value ) {
 			if ( is_array( $value ) ) {
 				if ( Contact_Form::is_file_upload_field( $value ) ) {
-					$value = $value['name'];
+					$file_names = array();
+					foreach ( $value['files'] as $file ) {
+						$file_names[] = $file['name'];
+					}
+					$value = implode( ', ', $file_names );
 				} else {
 					$value = implode( ', ', $value );
 				}
@@ -1948,29 +1965,57 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Create a new post with a Form block
+	 * Create a new page with a Form block
 	 */
 	public function create_new_form() {
+		if ( ! isset( $_POST['newFormNonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['newFormNonce'] ) ), 'create_new_form' ) ) {
+			wp_send_json_error(
+				__( 'Invalid nonce', 'jetpack-forms' ),
+				403
+			);
+		}
+
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			wp_send_json_error(
+				__( 'You do not have permission to create pages', 'jetpack-forms' ),
+				403
+			);
+		}
+
+		$pattern_name = isset( $_POST['pattern'] ) ? sanitize_text_field( wp_unslash( $_POST['pattern'] ) ) : null;
+
+		if ( $pattern_name && WP_Block_Patterns_Registry::get_instance()->is_registered( $pattern_name ) ) {
+			$pattern         = WP_Block_Patterns_Registry::get_instance()->get_registered( $pattern_name );
+			$pattern_content = $pattern['content'];
+		}
+
+		// If no pattern found or specified, use a default form block
+		if ( empty( $pattern_content ) ) {
+			$pattern_content = '<!-- wp:jetpack/contact-form -->
+														<div class="wp-block-jetpack-contact-form"></div>
+													<!-- /wp:jetpack/contact-form -->';
+		}
+
 		$post_id = wp_insert_post(
 			array(
+				'post_type'    => 'page',
 				'post_title'   => esc_html__( 'Jetpack Forms', 'jetpack-forms' ),
-				'post_content' => '
-					<!-- wp:jetpack/contact-form -->
-					<div class="wp-block-jetpack-contact-form"></div>
-					<!-- /wp:jetpack/contact-form -->
-				',
+				'post_content' => $pattern_content,
 			)
 		);
 
-		if ( ! is_wp_error( $post_id ) ) {
-			$array_result = array(
-				'post_url' => admin_url( 'post.php?post=' . intval( $post_id ) . '&action=edit' ),
+		if ( is_wp_error( $post_id ) ) {
+			wp_send_json_error(
+				$post_id->get_error_message(),
+				500
 			);
-
-			wp_send_json( $array_result );
+		} else {
+			wp_send_json(
+				array(
+					'post_url' => admin_url( 'post.php?post=' . intval( $post_id ) . '&action=edit' ),
+				)
+			);
 		}
-
-		wp_die();
 	}
 
 	/**

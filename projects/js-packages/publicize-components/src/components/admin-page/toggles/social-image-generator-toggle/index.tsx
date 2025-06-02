@@ -18,12 +18,13 @@ type SocialImageGeneratorToggleProps = {
 const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = ( {
 	disabled,
 } ) => {
-	const { isEnabled, isUpdating, defaultTemplate } = useSelect( select => {
+	const { isEnabled, isUpdating, defaultTemplate, defaultImageId } = useSelect( select => {
 		const config = select( socialStore ).getSocialSettings().socialImageGenerator;
 
 		return {
 			isEnabled: config.enabled,
 			defaultTemplate: config.template,
+			defaultImageId: config.default_image_id,
 			isUpdating: select( socialStore ).isSavingSiteSettings(),
 		};
 	}, [] );
@@ -37,11 +38,15 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 		updateSocialImageGeneratorConfig( newOption );
 	}, [ isEnabled, updateSocialImageGeneratorConfig ] );
 
-	const updateTemplate = useCallback(
-		( template: string ) => {
-			updateSocialImageGeneratorConfig( { template } );
+	const handleSave = useCallback(
+		( { template, imageId } ) => {
+			updateSocialImageGeneratorConfig( {
+				enabled: isEnabled,
+				template,
+				default_image_id: imageId,
+			} );
 		},
-		[ updateSocialImageGeneratorConfig ]
+		[ updateSocialImageGeneratorConfig, isEnabled ]
 	);
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
@@ -55,7 +60,7 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 				disabled={ isUpdating || ! isEnabled }
 				onClick={ open }
 			>
-				{ __( 'Change default template', 'jetpack-publicize-components' ) }
+				{ __( 'Change defaults', 'jetpack-publicize-components' ) }
 			</Button>
 		),
 		[ isEnabled, isSmall, isUpdating ]
@@ -70,13 +75,14 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 		>
 			<Text className={ styles.text }>
 				{ __(
-					'When enabled, Social Image Generator will automatically generate social images for your posts. You can use the button below to choose a default template for new posts. This feature is only supported in the block editor.',
+					'When enabled, Social Image Generator will automatically generate social images for your posts. You can use the button below to choose a default template and image for new posts. This feature is only supported in the block editor.',
 					'jetpack-publicize-components'
 				) }
 			</Text>
 			<TemplatePickerModal
-				value={ defaultTemplate }
-				onSelect={ updateTemplate }
+				template={ defaultTemplate }
+				imageId={ defaultImageId }
+				onSave={ handleSave }
 				render={ renderTemplatePickerModal }
 			/>
 		</ToggleSection>

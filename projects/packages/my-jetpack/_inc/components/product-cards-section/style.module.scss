@@ -47,7 +47,6 @@
 	}
 }
 
-.cardListTitle,
 .fullStatsCard {
 	margin-bottom: 1.5rem;
 }
@@ -65,6 +64,15 @@
 	font-weight: 500;
 	margin-bottom: calc(var(--spacing-base) + 2px);
 	line-height: var(--font-title-small);
+}
+
+.my-jetpack-products-container {
+	padding-inline: 0;
+
+	:global(.dataviews-wrapper .dataviews__view-actions), /* :(*/
+	:global(.dataviews-view-list div[role="row"] .dataviews-view-list__item-wrapper) { // :'(
+		padding-inline: 0;
+	}
 }
 
 :global(.info-tooltip__content) {
@@ -89,5 +97,9 @@
 		> li {
 			grid-column-end: auto;
 		}
-	}	
+	}
+}
+
+.products-container {
+	padding-inline: 0;
 }

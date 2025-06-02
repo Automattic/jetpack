@@ -125,6 +125,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'jetpack_post_date_in_email'                => '(bool) Whether to show date in the email byline',
 			'wpcom_newsletter_categories'               => '(array) Array of post category ids that are marked as newsletter categories',
 			'wpcom_newsletter_categories_enabled'       => '(bool) Whether the newsletter categories are enabled or not',
+			'newsletter_has_active_plan'                => '(bool) Whether there is an active newsletter plan for the site',
 			'sm_enabled'                                => '(bool) Whether the newsletter Subscribe Modal is enabled or not',
 			'jetpack_subscribe_overlay_enabled'         => '(bool) Whether the newsletter Subscribe Overlay is enabled or not',
 			'jetpack_subscribe_floating_button_enabled' => '(bool) Whether the newsletter floating subscribe button is enabled or not',

@@ -1139,8 +1139,9 @@ abstract class Publicize_Base {
 			'single'        => true,
 			'default'       => array(
 				'image_generator_settings' => array(
-					'template' => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_template(),
-					'enabled'  => false,
+					'template'         => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_template(),
+					'default_image_id' => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_image_id(),
+					'enabled'          => false,
 				),
 				'version'                  => 2,
 			),
@@ -1172,23 +1173,26 @@ abstract class Publicize_Base {
 						'image_generator_settings' => array(
 							'type'       => 'object',
 							'properties' => array(
-								'enabled'     => array(
+								'enabled'          => array(
 									'type' => 'boolean',
 								),
-								'custom_text' => array(
+								'custom_text'      => array(
 									'type' => 'string',
 								),
-								'image_type'  => array(
+								'image_type'       => array(
 									'type' => 'string',
 								),
-								'image_id'    => array(
+								'image_id'         => array(
 									'type' => 'number',
 								),
-								'template'    => array(
+								'template'         => array(
 									'type' => 'string',
 								),
-								'token'       => array(
+								'token'            => array(
 									'type' => 'string',
+								),
+								'default_image_id' => array(
+									'type' => 'number',
 								),
 							),
 						),

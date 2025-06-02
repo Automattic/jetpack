@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: sass: `@use` rather than `@import` for `@automattic/jetpack-base-styles`.
+
+

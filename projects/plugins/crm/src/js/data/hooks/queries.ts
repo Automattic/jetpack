@@ -13,6 +13,6 @@ export const useGetAutomationWorkflows = ( hydrate: ( workflows: Workflow[] ) =>
 		queryKey: [ 'automations', 'workflows' ],
 		queryFn: getAutomationWorkflows( hydrate ),
 		staleTime: Infinity,
-		cacheTime: Infinity,
+		gcTime: Infinity,
 		refetchOnWindowFocus: false,
 	} );

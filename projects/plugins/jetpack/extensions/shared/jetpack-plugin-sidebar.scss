@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .interface-pinned-items,
 .interface-more-menu-dropdown__content {
@@ -42,7 +42,7 @@
 			}
 
 			.jetpack-logo__icon-triangle {
-				fill: $white !important;
+				fill: gb.$white !important;
 			}
 		}
 	}

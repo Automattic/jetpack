@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .product-management-control-inspector__product-title .components-base-control,
 .product-management-control-inspector__product-interval .components-base-control {
@@ -31,7 +31,7 @@
 }
 
 .product-management-control-nudge .product-management-control-nudge__info {
-	font-size: $default-font-size;
+	font-size: gb.$default-font-size;
 	display: flex;
 	flex-direction: row;
 	line-height: 1.4;

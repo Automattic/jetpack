@@ -1,5 +1,4 @@
-@import "@wordpress/base-styles/breakpoints";
-@import "@wordpress/base-styles/mixins";
+@use "@wordpress/base-styles/mixins";
 
 .wpcom-block-editor-post-published-recommended-tags-modal {
 
@@ -7,7 +6,7 @@
 		margin-top: 0;
 		padding: 96px 24px;
 
-		@include break-small {
+		@include mixins.break-small {
 			padding: 52px;
 		}
 
@@ -32,7 +31,7 @@
 			/* stylelint-disable-next-line declaration-property-unit-allowed-list */
 			font-size: 2.25rem;
 
-			@include break-small {
+			@include mixins.break-small {
 				font-size: 26px;
 				font-weight: 500;
 				line-height: 1;
@@ -69,7 +68,7 @@
 			flex: fit-content;
 			width: 100%;
 
-			@include break-small {
+			@include mixins.break-small {
 				width: 385px;
 			}
 

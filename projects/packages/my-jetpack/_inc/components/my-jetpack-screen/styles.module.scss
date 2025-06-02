@@ -1,3 +1,21 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+
+.my-jetpack-screen {
+	overflow-x: hidden;
+
+	:global(.jp-admin-page-header) {
+		padding-inline: 0.5rem;
+
+		@include gb.break-medium {
+			padding-inline: 2rem;
+		}
+
+		@include gb.break-large {
+			padding-inline: 1.5rem;
+		}
+	}
+}
+
 .heading {
 	margin-bottom: 0;
 }
@@ -147,9 +165,4 @@
 			}
 		}
 	}
-}
-
-.separator {
-	margin: 0;
-	border-bottom: none;
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix tooltip causing horizontal scrollbars to appear

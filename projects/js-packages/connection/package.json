@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.39.15",
+	"version": "0.39.17",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -19,15 +19,15 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-config": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
-		"@wordpress/base-styles": "5.22.0",
-		"@wordpress/browserslist-config": "6.22.0",
-		"@wordpress/components": "29.8.0",
-		"@wordpress/data": "10.22.0",
-		"@wordpress/element": "6.22.0",
-		"@wordpress/i18n": "5.22.0",
-		"@wordpress/icons": "10.22.0",
+		"@wordpress/base-styles": "6.0.0",
+		"@wordpress/browserslist-config": "6.24.0",
+		"@wordpress/components": "29.10.0",
+		"@wordpress/data": "10.24.0",
+		"@wordpress/element": "6.24.0",
+		"@wordpress/i18n": "5.24.0",
+		"@wordpress/icons": "10.24.0",
 		"clsx": "2.1.1",
-		"debug": "4.4.0",
+		"debug": "4.4.1",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {

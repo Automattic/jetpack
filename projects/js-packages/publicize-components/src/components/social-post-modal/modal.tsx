@@ -9,6 +9,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
+import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
 import { PreviewSection } from './preview-section';
 import { SettingsSection } from './settings-section';
@@ -57,6 +58,7 @@ export function SocialPostModal() {
 	const isModalOpen = useSelect( select => select( socialStore ).isSharePostModalOpen(), [] );
 	const { openSharePostModal, closeSharePostModal } = useDispatch( socialStore );
 	const { recordEvent } = useAnalytics();
+	const { hasConnections } = useSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	const handleOpenModal = useCallback( () => {
@@ -73,6 +75,10 @@ export function SocialPostModal() {
 			removeJetpackEditorAction();
 		}
 	}, [ closeSharePostModal ] );
+
+	if ( ! hasConnections ) {
+		return null;
+	}
 
 	return (
 		<PanelRow className={ styles.panel }>

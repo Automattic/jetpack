@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
+use Automattic\Jetpack\Boost\App\Contracts\Is_Dev_Feature;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_On_Activation;
 use Automattic\Jetpack_Boost\Contracts\Feature;
@@ -82,12 +83,34 @@ class Module {
 
 		$available_submodules = array();
 		foreach ( $submodules as $slug => $submodule ) {
-			if ( $submodule->is_available() ) {
+			if ( $submodule->is_available() && ! $this->is_disabled_dev_feature( $submodule->feature ) ) {
 				$available_submodules[ $slug ] = $submodule;
 			}
 		}
 
 		return $available_submodules;
+	}
+
+	/**
+	 * Check if the feature is disabled in development.
+	 *
+	 * Returns true if the feature is a dev feature and the dev features should be disabled.
+	 *
+	 * @param Feature $feature The feature to check.
+	 * @return bool True if the feature is available, false otherwise.
+	 */
+	private function is_disabled_dev_feature( $feature ) {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$is_disabled_dev_feature = false === strpos( $_SERVER['HTTP_HOST'] ?? '', 'jurassic.ninja' );
+		if ( defined( 'JETPACK_BOOST_DEVELOPMENT_FEATURES' ) ) {
+			$is_disabled_dev_feature = ! JETPACK_BOOST_DEVELOPMENT_FEATURES;
+		}
+
+		if ( $feature instanceof Is_Dev_Feature ) {
+			return $is_disabled_dev_feature;
+		}
+
+		return false;
 	}
 
 	/**
@@ -139,11 +162,7 @@ class Module {
 	 * If the module is not available, it cannot be enabled.
 	 */
 	public function is_available() {
-		if ( ! $this->feature::is_available() ) {
-			return false;
-		}
-
-		if ( $this->is_force_disabled() ) {
+		if ( ! $this->feature::is_available() || $this->is_disabled_dev_feature( $this->feature ) || $this->is_force_disabled() ) {
 			return false;
 		}
 

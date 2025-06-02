@@ -1,0 +1,60 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+
+.tab-panel {
+
+    max-width: var(--max-container-width);
+    margin: 0 auto;
+
+	// Make all the links green
+	a,
+	:global(.components-external-link),
+	:global(.components-button.is-link) {
+		color: var(--jp-green-60);
+	}
+
+	:global(.components-tab-panel__tabs) {
+		position: relative;
+		z-index: 1;
+		padding-inline-start: 2rem;
+		margin-block-end: -1px;
+
+		@media (max-width: gb.$break-medium ) {
+			padding-inline-start: 0.5rem;
+		}
+	}
+}
+
+.tab-content-wrapper {
+	padding-block-start: 2.5rem;
+	padding-inline: 3rem;
+
+	@media (max-width: gb.$break-medium ) {
+		padding-inline: 1.5rem;
+	}
+}
+
+.my-jetpack-tab--content {
+	--my-jetpack-tab-description-color: #{gb.$gray-700};
+
+	h2 {
+
+		@include gb.heading-2x-large;
+		margin-top: 0;
+		margin-bottom: 0.5rem;
+	}
+
+	.my-jetpack-tab--content-description {
+
+		@include gb.body-medium;
+		margin: 0;
+		color: var( --my-jetpack-tab-description-color );
+	}
+}
+
+.full-width-separator {
+	border-top: 1px solid var(--jp-gray);
+	width: 100vw;
+	position: relative;
+	inset-inline-start: 50%;
+	margin-inline-start: -50vw;
+}
