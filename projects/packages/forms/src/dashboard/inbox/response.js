@@ -32,7 +32,7 @@ const PreviewImage = ( { file, isLoading, onImageLoaded } ) => {
 				</div>
 			) }
 			<img
-				src={ file.preview_url || file.url }
+				src={ file.url }
 				alt={ decodeEntities( file.name ) }
 				onLoad={ onImageLoaded }
 				className="jp-forms__inbox-file-preview-image"
@@ -89,9 +89,12 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 								<span className="file-field__item-name">{ decodeEntities( file.name ) }</span>
 								<span className="file-field__item-actions">
 									<span>{ file.size }</span>
-									<Button variant="link" target="_blank" onClick={ handleFilePreview( file ) }>
-										{ __( 'Preview', 'jetpack-forms' ) }
-									</Button>
+
+									{ file.is_previewable && (
+										<Button variant="link" target="_blank" onClick={ handleFilePreview( file ) }>
+											{ __( 'Preview', 'jetpack-forms' ) }
+										</Button>
+									) }
 
 									<Button variant="link" href={ file.url } target="_blank">
 										{ __( 'Download', 'jetpack-forms' ) }
