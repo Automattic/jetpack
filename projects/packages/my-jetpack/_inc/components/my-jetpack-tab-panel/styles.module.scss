@@ -19,7 +19,7 @@
 		margin-block-end: -1px;
 
 		@media (max-width: $break-medium ) {
-			padding-inline-start: 1rem;
+			padding-inline-start: 0.5rem;
 		}
 	}
 }
@@ -29,7 +29,7 @@
 	padding-inline: 3rem;
 
 	@media (max-width: $break-medium ) {
-		padding-inline: 1rem;
+		padding-inline: 1.5rem;
 	}
 }
 
