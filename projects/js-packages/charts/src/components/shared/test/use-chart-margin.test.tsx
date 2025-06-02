@@ -3,10 +3,10 @@ import { Orientation } from '@visx/axis';
 import { XYChartTheme } from '@visx/xychart';
 import { useChartMargin } from '../use-chart-margin';
 
-const mockGetLongestLabelWidth = jest.fn();
+const mockGetLongestTickWidth = jest.fn();
 jest.mock( '../utils', () => ( {
 	...jest.requireActual( '../utils' ),
-	getLongestLabelWidth: ( ...args: unknown[] ) => mockGetLongestLabelWidth( ...args ),
+	getLongestTickWidth: ( ...args: unknown[] ) => mockGetLongestTickWidth( ...args ),
 } ) );
 
 describe( 'useChartMargin', () => {
@@ -20,52 +20,97 @@ describe( 'useChartMargin', () => {
 	} as XYChartTheme;
 
 	const data = [
-		{ date: new Date( '2024-01-01' ), value: 10 },
-		{ date: new Date( '2024-01-02' ), value: 200 },
+		{
+			label: 'Series 1',
+			data: [ { date: new Date( '2024-01-01' ), value: 10 } ],
+		},
+		{
+			label: 'Series 2',
+			data: [ { date: new Date( '2024-01-02' ), value: 200 } ],
+		},
 	];
-	const formatter = ( v: number ) => v.toString();
+	const optionsBase = {
+		yScale: {},
+		axis: {
+			y: {
+				numTicks: 2,
+				tickFormat: ( v: number ) => v.toString(),
+			},
+			x: {},
+		},
+	};
 
 	beforeEach( () => {
-		mockGetLongestLabelWidth.mockReset();
-		mockGetLongestLabelWidth.mockReturnValue( 40 );
+		mockGetLongestTickWidth.mockReset();
+		mockGetLongestTickWidth.mockReturnValue( 40 );
 	} );
 
 	it( 'calculates left margin for left y axis', () => {
-		const options = { axis: { y: { orientation: Orientation.left } } };
+		const options = {
+			...optionsBase,
+			axis: {
+				...optionsBase.axis,
+				y: {
+					...optionsBase.axis.y,
+					orientation: Orientation.left,
+				},
+			},
+		};
+		const height = 300;
 		const theme = baseTheme;
-		const { result } = renderHook( () => useChartMargin( options, data, formatter, theme ) );
-		expect( mockGetLongestLabelWidth ).toHaveBeenCalledWith(
-			data,
-			formatter,
+		const { result } = renderHook( () => useChartMargin( height, options, data, theme ) );
+		expect( mockGetLongestTickWidth ).toHaveBeenCalledWith(
+			expect.any( Array ),
+			options.axis.y.tickFormat,
 			theme.axisStyles.y.left.axisLabel
 		);
 		expect( result.current.left ).toBe( 48 ); // 40 + 8
 	} );
 
 	it( 'calculates right margin for right y axis', () => {
-		const options = { axis: { y: { orientation: Orientation.right } } };
+		const options = {
+			...optionsBase,
+			axis: {
+				...optionsBase.axis,
+				y: {
+					...optionsBase.axis.y,
+					orientation: Orientation.right,
+				},
+			},
+		};
+		const height = 300;
 		const theme = baseTheme;
-		const { result } = renderHook( () => useChartMargin( options, data, formatter, theme ) );
-		expect( mockGetLongestLabelWidth ).toHaveBeenCalledWith(
-			data,
-			formatter,
+		const { result } = renderHook( () => useChartMargin( height, options, data, theme ) );
+		expect( mockGetLongestTickWidth ).toHaveBeenCalledWith(
+			expect.any( Array ),
+			options.axis.y.tickFormat,
 			theme.axisStyles.y.right.axisLabel
 		);
 		expect( result.current.right ).toBe( 48 ); // 40 + 8
 	} );
 
 	it( 'sets top and bottom margin for top x axis', () => {
-		const options = { axis: { x: { orientation: Orientation.top } } };
+		const options = {
+			...optionsBase,
+			axis: {
+				...optionsBase.axis,
+				x: {
+					orientation: Orientation.top,
+				},
+			},
+		};
+		const height = 300;
 		const theme = baseTheme;
-		const { result } = renderHook( () => useChartMargin( options, data, formatter, theme ) );
+		const { result } = renderHook( () => useChartMargin( height, options, data, theme ) );
 		expect( result.current.top ).toBe( 20 );
 		expect( result.current.bottom ).toBe( 10 );
 	} );
 
 	it( 'returns default margin if no axis options', () => {
-		const options = {};
+		const options = { yScale: {}, axis: {} };
+		const height = 300;
 		const theme = baseTheme;
-		const { result } = renderHook( () => useChartMargin( options, data, formatter, theme ) );
+		const { result } = renderHook( () => useChartMargin( height, options, data, theme ) );
 		expect( result.current.left ).toBe( 48 );
 		expect( result.current.top ).toBe( 10 );
 		expect( result.current.bottom ).toBe( 20 );

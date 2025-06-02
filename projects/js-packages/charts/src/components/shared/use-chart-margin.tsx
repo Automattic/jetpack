@@ -1,33 +1,47 @@
+import { createScale, getTicks } from '@visx/scale';
 import { useMemo } from 'react';
-import { getLongestLabelWidth } from './utils';
-import type { BaseChartProps, DataPointDate } from '../../types';
+import { getLongestTickWidth } from './utils';
+import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 import type { XYChartTheme } from '@visx/xychart';
 
 export const useChartMargin = (
+	height: number,
 	options: BaseChartProps[ 'options' ],
-	allDataPoints: DataPointDate[],
-	yTickFormatter: ( value: number ) => string,
+	data: SeriesData[],
 	theme: XYChartTheme
 ) => {
+	const yTicks = useMemo( () => {
+		const allDataPoints = data.flatMap( series => series.data as DataPointDate[] );
+		const minY = Math.min( ...allDataPoints.map( d => d.value ) );
+		const maxY = Math.max( ...allDataPoints.map( d => d.value ) );
+		const yScale = createScale( {
+			...options.yScale,
+			domain: [ minY, maxY ],
+			range: [ height, 0 ],
+		} );
+		return getTicks( yScale, options.axis?.y?.numTicks );
+	}, [ options, data, height ] );
+
 	return useMemo( () => {
 		// Default margin is for bottom axis labels.
 		const defaultMargin = { top: 10, right: 0, bottom: 20, left: 0 };
+		const defaultTickWidth = 40;
 
-		// Auto-margin for y axis labels.
-		if ( options.axis?.y?.orientation === 'right' ) {
-			defaultMargin.right =
-				getLongestLabelWidth(
-					allDataPoints,
-					yTickFormatter,
-					theme.axisStyles.y.right.axisLabel ?? {}
-				) + theme.axisStyles.y.right.tickLength;
+		// Auto-calculate margin for y axis labels based on orientation and tick width.
+		const yAxisOrientation = options.axis?.y?.orientation;
+		const yAxisStyles =
+			yAxisOrientation === 'right' ? theme.axisStyles.y.right : theme.axisStyles.y.left;
+		const yTickWidth = getLongestTickWidth(
+			yTicks,
+			options.axis?.y?.tickFormat,
+			yAxisStyles.axisLabel
+		);
+		const yMarginValue = ( yTickWidth ?? defaultTickWidth ) + ( yAxisStyles?.tickLength ?? 0 );
+
+		if ( yAxisOrientation === 'right' ) {
+			defaultMargin.right = yMarginValue;
 		} else {
-			defaultMargin.left =
-				getLongestLabelWidth(
-					allDataPoints,
-					yTickFormatter,
-					theme.axisStyles.y.left.axisLabel ?? {}
-				) + theme.axisStyles.y.left.tickLength;
+			defaultMargin.left = yMarginValue;
 		}
 
 		if ( options.axis?.x?.orientation === 'top' ) {
@@ -36,5 +50,5 @@ export const useChartMargin = (
 		}
 
 		return defaultMargin;
-	}, [ options, allDataPoints, yTickFormatter, theme ] );
+	}, [ options, theme, yTicks ] );
 };
