@@ -13,7 +13,7 @@ const ProductsContent = () => {
 			<h2>{ __( 'Products', 'jetpack-my-jetpack' ) }</h2>
 			<p className={ styles[ 'my-jetpack-tab--content-description' ] }>
 				{ __(
-					'Browse our expert guides to get help with setup, features, and troubleshooting.',
+					'Manage and explore Jetpack products that boost growth, performance, and security.',
 					'jetpack-my-jetpack'
 				) }
 			</p>
