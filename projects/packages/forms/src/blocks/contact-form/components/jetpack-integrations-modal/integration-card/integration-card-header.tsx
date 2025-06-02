@@ -33,7 +33,7 @@ type IntegrationCardData = {
 	setupBadge?: React.ReactNode;
 	refreshStatus?: () => void;
 	trackEventName?: string;
-} & Integration;
+} & Partial< Pick< Integration, 'id' | 'slug' | 'version' | 'details' | 'pluginFile' > >;
 
 type IntegrationCardHeaderProps = {
 	title: string;
