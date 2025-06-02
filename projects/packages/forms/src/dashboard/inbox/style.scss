@@ -395,18 +395,42 @@ body.jetpack_page_jetpack-forms-admin {
 	min-height: 0;;
 }
 
+.jp-forms__inbox-file-preview-shell {
+	max-height: 70vh;
+	overflow: hidden;
+}
 
 .jp-forms__inbox-file-preview-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   margin-bottom: 16px;
   max-height: 70vh;
+  aspect-ratio: 16 / 9;
+}
+
+.jp-forms__inbox-file-preview-container-iframe.is-loading,
+.jp-forms__inbox-file-preview-container.is-loading {
+	display: none;
+}
+
+.jp-forms__inbox-file-preview-container-iframe {
+	margin-bottom: 16px;
+  	max-height: 70vh;
 }
 
 .jp-forms__inbox-file-preview-image {
-  max-width: 100%;
-  height: auto;
+  height: 100%;
+  width: 100%;
+  max-height: 66vh;
+  object-fit: contain;
+}
+
+
+.jp-forms__inbox-file-preview-iframe {
+	display: block;
+  	width: 100%;
+	min-width: 80vw;
+	min-height: 50vh;
+	border: none;
+	object-fit: contain;
 }
 
 .components-modal__content .jp-forms__inbox-file-preview-modal {
@@ -423,8 +447,20 @@ body.jetpack_page_jetpack-forms-admin {
 .jp-forms__inbox-file-loading {
 	display: flex;
 	align-content: center;
+	justify-content: center;
+	height: 150px;
+	flex-wrap: wrap;
 }
 
 .jp-forms__inbox-spinner.jp-forms__inbox-spinner {
 	margin-top: 0;
+}
+
+.jp-forms__inbox-file-preview-fallback {
+	padding: 20px;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	align-items: center;
 }

@@ -19,23 +19,52 @@ const isFileUploadField = value => {
 	return value && typeof value === 'object' && 'files' in value && 'field_id' in value;
 };
 
-const PreviewImage = ( { file, isLoading, onImageLoaded } ) => {
+const isFilePdf = file => {
+	return file.name?.toLowerCase().endsWith( '.pdf' ) || file.type === 'application/pdf';
+};
+
+const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
+	const isPdf = isFilePdf( file );
+	const imageClass = clsx( 'jp-forms__inbox-file-preview-container', {
+		'is-loading': isLoading,
+	} );
+
+	const iframeClass = clsx( 'jp-forms__inbox-file-preview-container-iframe', {
+		'is-loading': false,
+	} );
+
 	return (
-		<div className="jp-forms__inbox-file-preview-container">
+		<div className="jp-forms__inbox-file-preview-shell">
 			{ isLoading && (
 				<div className="jp-forms__inbox-file-loading">
 					<Spinner className="jp-forms__inbox-spinner" />
-					<div className="jp-forms__inbox-file-loading-message">
+					<div className="jp-forms__inbox-file-loading-message ">
 						{ __( 'Loading preview…', 'jetpack-forms' ) }
 					</div>
 				</div>
 			) }
-			<img
-				src={ file.url }
-				alt={ decodeEntities( file.name ) }
-				onLoad={ onImageLoaded }
-				className="jp-forms__inbox-file-preview-image"
-			/>
+
+			{ isPdf ? (
+				<div className={ iframeClass }>
+					<iframe
+						src={ file.url + '&preview=true' }
+						className="jp-forms__inbox-file-preview-iframe"
+						height={ '70vh' }
+						width={ '100%' }
+						title={ decodeEntities( file.name ) }
+						onLoad={ onImageLoaded }
+					/>
+				</div>
+			) : (
+				<div className={ imageClass }>
+					<img
+						src={ file.url }
+						alt={ decodeEntities( file.name ) }
+						onLoad={ onImageLoaded }
+						className="jp-forms__inbox-file-preview-image"
+					/>
+				</div>
+			) }
 		</div>
 	);
 };
@@ -51,6 +80,13 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 	const openFilePreview = useCallback(
 		( file, e ) => {
 			e.preventDefault();
+
+			const isSafari = window.safari !== undefined;
+			if ( isSafari && isFilePdf( file ) ) {
+				window.open( file.url + '&preview=true', 'pdf', 'popup' );
+				return;
+			}
+
 			setIsImageLoading( true );
 			setPreviewFile( file );
 			setIsPreviewModalOpen( true );
@@ -80,6 +116,9 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			return (
 				<div className="file-field">
 					{ value.files.map( ( file, index ) => {
+						if ( ! file || ! file.name ) {
+							return null;
+						}
 						return (
 							<div key={ index } className="file-field__item">
 								<span className="file-field__item-name">{ decodeEntities( file.name ) }</span>
@@ -87,14 +126,16 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 									<span>{ file.size }</span>
 
 									{ file.is_previewable && (
-										<Button variant="link" target="_blank" onClick={ handleFilePreview( file ) }>
+										<Button target="_blank" variant="link" onClick={ handleFilePreview( file ) }>
 											{ __( 'Preview', 'jetpack-forms' ) }
 										</Button>
 									) }
 
-									<Button variant="link" href={ file.url } target="_blank">
-										{ __( 'Download', 'jetpack-forms' ) }
-									</Button>
+									{ file.url && (
+										<Button variant="link" href={ file.url } target="_blank">
+											{ __( 'Download', 'jetpack-forms' ) }
+										</Button>
+									) }
 								</span>
 							</div>
 						);
@@ -135,7 +176,7 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 
 	if ( isPreviewModalOpen && ! onModalStateChange ) {
 		return (
-			<PreviewImage
+			<PreviewFile
 				file={ previewFile }
 				isLoading={ isImageLoading }
 				onImageLoaded={ handelImageLoaded }
@@ -213,7 +254,7 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 					onRequestClose={ closePreviewModal }
 					className="jp-forms__inbox-file-preview-modal"
 				>
-					<PreviewImage
+					<PreviewFile
 						file={ previewFile }
 						isLoading={ isImageLoading }
 						onImageLoaded={ handelImageLoaded }
