@@ -64,9 +64,7 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 	);
 
 	const handleFilePreview = useCallback(
-		file => {
-			return openFilePreview.bind( null, file );
-		},
+		file => openFilePreview.bind( null, file ),
 		[ openFilePreview ]
 	);
 
