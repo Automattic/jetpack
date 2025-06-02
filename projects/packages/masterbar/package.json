@@ -31,7 +31,7 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
-		"@babel/core": "7.26.10",
+		"@babel/core": "7.27.4",
 		"@csstools/postcss-global-data": "2.1.1",
 		"@wordpress/browserslist-config": "6.24.0",
 		"autoprefixer": "10.4.20",
