@@ -7,7 +7,7 @@ type ValueOf< T > = T[ keyof T ];
 
 export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
 
-declare type OrientationType = ValueOf< typeof Orientation >;
+export type OrientationType = ValueOf< typeof Orientation >;
 
 export type DataPoint = {
 	label: string;
