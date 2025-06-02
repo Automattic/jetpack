@@ -731,6 +731,9 @@ function videopress_get_attachment_url( $post_id ) {
  * @return string filtered content
  */
 function jetpack_videopress_flash_embed_filter( $content ) {
+	if ( ! is_string( $content ) ) {
+		return $content;
+	}
 	$regex   = '%<embed[^>]*+>(?:\s*</embed>)?%i';
 	$content = preg_replace_callback(
 		$regex,
