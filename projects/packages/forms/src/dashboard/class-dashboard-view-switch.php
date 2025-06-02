@@ -37,7 +37,7 @@ class Dashboard_View_Switch {
 		add_filter( 'in_admin_header', array( $this, 'render_switch' ) );
 		add_action( 'admin_footer', array( $this, 'add_scripts' ) );
 		add_action( 'current_screen', array( $this, 'handle_preferred_view' ) );
-		add_action( 'current_screen', array( $this, 'update_user_seen_announcement' ) );
+		add_action( 'current_screen', array( $this, 'update_user_seen_announcement' ), 9 );
 	}
 
 	/**
