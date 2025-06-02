@@ -62,7 +62,7 @@ class Verbum_Block_Utils {
 				$block['innerContent'] = $inner_content;
 			}
 
-			$block['innerHTML'] = $block['innerHTML'] ?? '';
+			$block['innerHTML'] ??= '';
 			if ( empty( $block['innerContent'] ) ) {
 				$block['innerContent'] = array( $block['innerHTML'] );
 			}
