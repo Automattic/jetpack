@@ -1,3 +1,8 @@
+$color-primary: $--a-value-must-be-set-via-with-- !default;
+$color-primary-dark: $--a-value-must-be-set-via-with-- !default;
+$color-primary-light: $--a-value-must-be-set-via-with-- !default;
+$color-surface: $--a-value-must-be-set-via-with-- !default;
+
 // These vars are consumed within `modules/masterbar/inline-help/inline-help.css`
 .a8c-faux-inline-help {
     --color-primary: #{$color-primary};
