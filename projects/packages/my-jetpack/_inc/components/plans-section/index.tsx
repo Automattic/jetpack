@@ -1,5 +1,6 @@
-import { Text, H3, Title, Button } from '@automattic/jetpack-components';
-import { getDate, dateI18n } from '@wordpress/date';
+import { Button, Text } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { dateI18n, getDate } from '@wordpress/date';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
@@ -12,7 +13,6 @@ import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
-import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
 import styles from './style.module.scss';
@@ -29,10 +29,10 @@ interface PlanSectionHeaderAndFooterProps {
 const PlanSection: FC< PlanSectionProps > = ( { purchase } ) => {
 	const { product_name } = purchase;
 	return (
-		<div className={ styles[ 'plan-container' ] }>
-			<Title>{ product_name }</Title>
+		<section className={ styles[ 'plan-container' ] }>
+			<h4>{ product_name }</h4>
 			<PlanExpiry purchase={ purchase } />
-		</div>
+		</section>
 	);
 };
 
@@ -144,10 +144,33 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 const PlanSectionHeader: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPurchases = 0 } ) => {
 	return (
 		<>
-			<H3>{ _n( 'Your plan', 'Your plans', numberOfPurchases, 'jetpack-my-jetpack' ) }</H3>
-			{ numberOfPurchases === 0 && (
-				<Text variant="body">{ __( 'Want to power up your Jetpack?', 'jetpack-my-jetpack' ) }</Text>
-			) }
+			<h3>
+				{ _n(
+					'Plan',
+					'Plans',
+					// Fallback to 1 if numberOfPurchases is 0 to ensure that it's "Plan".
+					numberOfPurchases || 1,
+					'jetpack-my-jetpack'
+				) }
+			</h3>
+			<div className={ styles.logo }>
+				<svg
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M0 4C0 1.79086 1.79086 0 4 0H20C22.2091 0 24 1.79086 24 4V20C24 22.2091 22.2091 24 20 24H4C1.79086 24 0 22.2091 0 20V4Z"
+						fill="#003010"
+					/>
+					<path
+						d="M12 4C7.58779 4 4 7.58779 4 12C4 16.4122 7.58779 20 12 20C16.4122 20 20 16.4122 20 12C20 7.58779 16.4122 4 12 4ZM11.5878 13.3282H7.60305L11.5878 5.57252V13.3282ZM12.3969 18.4122V10.6565H16.3817L12.3969 18.4122Z"
+						fill="#0CED57"
+					/>
+				</svg>
+			</div>
 		</>
 	);
 };
@@ -165,14 +188,8 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		'jetpack-my-jetpack'
 	);
 
-	const planPurchaseDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
-
 	const planManageClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_plans_manage_click' );
-	}, [ recordEvent ] );
-
-	const planPurchaseClickHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_plans_purchase_click' );
 	}, [ recordEvent ] );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
@@ -197,28 +214,9 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		<ul>
 			{ numberOfPurchases > 0 && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
-						onClick={ planManageClickHandler }
-						href={ getManageYourPlanUrl() }
-						weight="regular"
-						variant="link"
-						isExternalLink={ true }
-					>
+					<ExternalLink onClick={ planManageClickHandler } href={ getManageYourPlanUrl() }>
 						{ planManageDescription }
-					</Button>
-				</li>
-			) }
-			{ ! hasComplete && (
-				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
-						onClick={ planPurchaseClickHandler }
-						href={ getPurchasePlanUrl() }
-						weight="regular"
-						variant="link"
-						isExternalLink={ true }
-					>
-						{ planPurchaseDescription }
-					</Button>
+					</ExternalLink>
 				</li>
 			) }
 
@@ -256,17 +254,41 @@ const PlansSection: FC = () => {
 	const numberOfPurchases = isDataLoaded ? purchases.length : 0;
 
 	return (
-		<div className={ styles.container }>
+		<section className={ styles.container }>
 			<PlanSectionHeader numberOfPurchases={ numberOfPurchases } />
 
-			<div className={ styles.purchasesSection }>
+			<div className={ styles[ 'plans-wrapper' ] }>
 				{ isDataLoaded &&
-					purchases.map( purchase => (
-						<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
+					( numberOfPurchases ? (
+						purchases.map( purchase => (
+							<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
+						) )
+					) : (
+						<section className={ styles[ 'plan-container' ] }>
+							{ /* TODO: Convert this to link when the Products tab filtering is ready */ }
+							<h4>
+								{ __( 'Jetpack Essentials', 'jetpack-my-jetpack' ) }
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									role="presentation"
+								>
+									<path
+										d="M10.6004 6L9.40039 7L14.0004 12L9.40039 17L10.6004 18L16.0004 12L10.6004 6Z"
+										fill="black"
+									/>
+								</svg>
+							</h4>
+							<Text variant="body" className={ clsx( styles[ 'expire-date' ] ) }>
+								{ __( 'Free', 'jetpack-my-jetpack' ) }
+							</Text>
+						</section>
 					) ) }
 			</div>
 			{ userIsAdmin && <PlanSectionFooter numberOfPurchases={ numberOfPurchases } /> }
-		</div>
+		</section>
 	);
 };
 

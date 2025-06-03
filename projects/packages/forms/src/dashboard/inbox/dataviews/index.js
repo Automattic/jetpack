@@ -21,7 +21,7 @@ import { useSearchParams } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import InboxStatusToggle from '../../components/InboxStatusToggle';
+import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { store as dashboardStore } from '../../store';
 import InboxResponse from '../response';
 import { getPath } from '../utils.js';

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.86.2] - 2025-06-02
+### Changed
+- sass: `@use` rather than `@import` for `@automattic/jetpack-base-styles/gutenberg-base-styles`. [#43607]
+
+### Fixed
+- Social: Ensure images load in connections management when concatenating JS. [#43655]
+- Social: Hide preview modal if there are no connections. [#43701]
+
 ## [0.86.1] - 2025-05-26
 ### Changed
 - Update package dependencies. [#43578]
@@ -1257,6 +1265,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.86.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.86.1...v0.86.2
 [0.86.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.86.0...v0.86.1
 [0.86.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.5...v0.86.0
 [0.85.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.4...v0.85.5
