@@ -16,5 +16,16 @@ export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
 export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler';
 
 // Types
-export * from './types';
+export type {
+	DataPoint,
+	DataPointDate,
+	SeriesData,
+	MultipleDataPointsDate,
+	DataPointPercentage,
+	ChartTheme,
+	BaseChartProps,
+	GridProps,
+	Optional,
+	OrientationType,
+} from './types';
 export type { LineStyles, GridStyles } from '@visx/xychart';
