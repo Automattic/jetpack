@@ -20,6 +20,7 @@ import type { TickFormatter } from '@visx/axis';
 
 interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+	orientation?: 'horizontal' | 'vertical';
 }
 
 const formatDateTick = ( timestamp: number ) => {
@@ -73,40 +74,56 @@ const BarChart: FC< BarChartProps > = ( {
 	gridVisibility = 'x',
 	renderTooltip,
 	options = {},
+	orientation = 'vertical',
 } ) => {
+	const horizontal = orientation === 'horizontal';
 	const theme = useXYChartTheme( data );
 	const chartOptions = useMemo( () => {
+		const bandScale = {
+			type: 'band' as const,
+			padding: 0.2,
+			innerPadding: 0.1,
+		};
+		const linearScale = {
+			type: 'linear' as const,
+			nice: true,
+			zero: false,
+		};
+
+		const defaultXTickFormat = getDefaultXTickFormat( data?.[ 0 ]?.data );
+		const defaultYTickFormat = formatNumberCompact as TickFormatter< unknown >;
+
 		return {
 			axis: {
 				x: {
 					orientation: 'bottom' as const,
 					numTicks: 4,
-					tickFormat: getDefaultXTickFormat( data?.[ 0 ]?.data ),
+					tickFormat: horizontal ? defaultYTickFormat : defaultXTickFormat,
 					...options?.axis?.x,
 				},
 				y: {
 					orientation: 'left' as const,
 					numTicks: 4,
-					tickFormat: formatNumberCompact as TickFormatter< number >,
+					tickFormat: horizontal ? defaultXTickFormat : defaultYTickFormat,
 					...options?.axis?.y,
 				},
 			},
 			xScale: {
-				type: 'band' as const,
-				padding: 0.2,
-				innerPadding: 0.1,
+				...( horizontal ? linearScale : bandScale ),
 				...options?.xScale,
 			},
 			yScale: {
-				type: 'linear' as const,
-				nice: true,
-				zero: false,
+				...( horizontal ? bandScale : linearScale ),
 				...options?.yScale,
 			},
 		};
-	}, [ options, data ] );
+	}, [ options, data, horizontal ] );
 
-	const defaultMargin = useChartMargin( height, chartOptions, data, theme );
+	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
+
+	const dateTickFormatter = horizontal
+		? chartOptions.axis.y.tickFormat
+		: chartOptions.axis.x.tickFormat;
 
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
@@ -120,16 +137,14 @@ const BarChart: FC< BarChartProps > = ( {
 					</div>
 					<div className={ styles[ 'bar-chart__tooltip-row' ] }>
 						<span className={ styles[ 'bar-chart__tooltip-label' ] }>
-							{ nearestDatum.label ||
-								chartOptions.axis.x.tickFormat( nearestDatum.date.getTime(), 0, [] ) }
-							:
+							{ nearestDatum.label || dateTickFormatter( nearestDatum.date.getTime(), 0, [] ) }:
 						</span>
 						<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ nearestDatum.value }</span>
 					</div>
 				</div>
 			);
 		},
-		[ chartOptions.axis.x ]
+		[ dateTickFormatter ]
 	);
 
 	// Validate data using the same pattern as LineChart
@@ -159,6 +174,7 @@ const BarChart: FC< BarChartProps > = ( {
 				margin={ { ...defaultMargin, ...margin } }
 				xScale={ chartOptions.xScale }
 				yScale={ chartOptions.yScale }
+				horizontal={ horizontal }
 				pointerEventsDataKey="nearest"
 			>
 				<AnimatedGrid
@@ -169,14 +185,21 @@ const BarChart: FC< BarChartProps > = ( {
 				<AnimatedAxis { ...chartOptions.axis.x } />
 				<AnimatedAxis { ...chartOptions.axis.y } />
 
-				<AnimatedBarGroup padding={ 0.1 }>
+				<AnimatedBarGroup
+					padding={
+						horizontal
+							? ( chartOptions.yScale as { innerPadding: number } ).innerPadding
+							: ( chartOptions.xScale as { innerPadding: number } ).innerPadding
+					}
+				>
 					{ data.map( seriesData => {
 						return (
 							<AnimatedBarSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] }
-								{ ...accessors }
+								yAccessor={ horizontal ? accessors.xAccessor : accessors.yAccessor }
+								xAccessor={ horizontal ? accessors.yAccessor : accessors.xAccessor }
 							/>
 						);
 					} ) }
