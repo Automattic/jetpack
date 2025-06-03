@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Remove extensionAliases from webpack config after enabling TypeScript's `rewriteRelativeImportExtensions` option.
