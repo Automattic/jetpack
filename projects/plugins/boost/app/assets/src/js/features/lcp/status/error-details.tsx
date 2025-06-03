@@ -8,7 +8,7 @@ import styles from './error-details.module.scss';
 export const ErrorDetails = () => {
 	const dictionary = {
 		unknown: __(
-			'Something went wrong while optimizing this page. Please try again later or contact support if the issue persists.',
+			'Something went wrong while optimizing this page. Please try again later, or contact support if the issue persists.',
 			'jetpack-boost'
 		),
 		'element-not-unique': __(
@@ -37,14 +37,20 @@ export const ErrorDetails = () => {
 		return null;
 	}
 
-	const errors = pages.filter( page => ( page?.errors?.length || 0 ) > 0 );
-	if ( errors.length === 0 ) {
+	const pagesWithErrors = pages.filter( page => ( page?.errors?.length || 0 ) > 0 );
+	if ( pagesWithErrors.length === 0 ) {
 		return null;
 	}
 
-	const errorMessages = errors.flatMap( p =>
-		( p.errors || [] ).map( e => dictionary[ e?.type ?? 'unknown' ] )
-	);
+	const errorMessages: string[] = [];
+
+	pagesWithErrors.forEach( page => {
+		page.errors?.forEach( error => {
+			if ( error?.type ) {
+				errorMessages.push( `${ dictionary[ error?.type ] } (${ page.url })` );
+			}
+		} );
+	} );
 
 	return (
 		<Notice
