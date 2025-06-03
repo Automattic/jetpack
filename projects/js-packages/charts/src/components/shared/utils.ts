@@ -1,6 +1,6 @@
-import { TickFormatter } from '@visx/axis';
-import { AnyD3Scale, ScaleInput } from '@visx/scale';
 import { getStringWidth } from '@visx/text';
+import type { TickFormatter } from '@visx/axis';
+import type { AnyD3Scale, ScaleInput } from '@visx/scale';
 
 /**
  * Returns the width of the longest tick.

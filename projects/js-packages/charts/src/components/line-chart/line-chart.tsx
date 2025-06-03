@@ -3,7 +3,7 @@ import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import { XYChart, AnimatedAreaSeries, AnimatedAxis, AnimatedGrid, Tooltip } from '@visx/xychart';
 import clsx from 'clsx';
-import { FC, ReactNode, useId, useMemo } from 'react';
+import { useId, useMemo } from 'react';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -12,6 +12,7 @@ import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 import type { TickFormatter } from '@visx/axis';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
+import type { FC, ReactNode } from 'react';
 
 type CurveType = 'smooth' | 'linear' | 'monotone';
 
