@@ -796,6 +796,10 @@
 				border-left: none !important;
 				border-right: none !important;
 				box-sizing: content-box;
+
+				// This is required to ensure the color is not overridden by the global styles.
+				// See the selector in class-contact-form-block.php for 'jetpack/input' registration.
+				color: unset !important;
 			}
 
 			.notched-label__label {

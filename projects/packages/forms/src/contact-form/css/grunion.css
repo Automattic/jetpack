@@ -524,6 +524,12 @@
 	border-radius: unset;
 	padding: 0 4px;
 	transition: border 150ms linear;
+
+	/*
+	 * This is required to ensure the color is not overridden by the global styles.
+	 * See the selector in class-contact-form-block.php for 'jetpack/input' registration.
+	 */
+	color: unset !important;
 }
 
 
