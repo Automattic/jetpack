@@ -116,6 +116,7 @@ class Publicize_Script_Data {
 
 		$basic_data = array(
 			'api_paths'            => self::get_api_paths(),
+			'assets_url'           => plugins_url( '/build/', __DIR__ ),
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),

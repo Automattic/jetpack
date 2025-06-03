@@ -3,7 +3,7 @@
  */
 
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@import '@automattic/jetpack-base-styles/root-variables';
+@use '@automattic/jetpack-base-styles/root-variables';
 
 // Styles shared between modals
 .jetpack-social-previews__modal {

@@ -9,7 +9,7 @@
  */
 
 // Variables
-@import '@automattic/color-studio/dist/color-variables';
+@forward '@automattic/color-studio/dist/color-variables';
 @import 'variables/colors';
 @import 'variables/layout';
 

@@ -6,7 +6,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
-import Gridicon from 'components/gridicon';
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import {
@@ -95,9 +94,9 @@ class SupportCard extends React.Component {
 								<Button
 									onClick={ this.trackGettingStartedClick }
 									href={ getRedirectUrl( 'jetpack-support-getting-started' ) }
+									isExternalLink={ true }
 								>
 									{ __( 'Getting started with Jetpack', 'jetpack' ) }
-									<Gridicon className="dops-card__link-indicator" icon="external" />
 								</Button>
 							) }
 							<Button
@@ -107,9 +106,9 @@ class SupportCard extends React.Component {
 										? getRedirectUrl( 'calypso-help' )
 										: getRedirectUrl( 'jetpack-support' )
 								}
+								isExternalLink={ true }
 							>
 								{ __( 'Search our support site', 'jetpack' ) }
-								<Gridicon className="dops-card__link-indicator" icon="external" />
 							</Button>
 						</p>
 					</div>
