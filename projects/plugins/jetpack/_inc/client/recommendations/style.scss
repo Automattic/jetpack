@@ -1,17 +1,18 @@
 @use '@automattic/jetpack-base-styles/style';
-@import './mixin';
-@import '../scss/mixin_breakpoint';
-@import '../scss/mixins/rna';
+@use 'mixin';
+@use '../scss/mixin_breakpoint';
+@use '../scss/mixins/rna';
+@use "../scss/calypso-colors";
 
 .jp-recommendations-question__main {
 	min-height: 480px;
 	box-shadow: 0 2px 6px rgba( 0, 0, 0, 0.03 ), 0 1px 2px rgba( 0, 0, 0, 0.03 );
-	border: 1px solid $gray-lighten-20;
+	border: 1px solid calypso-colors.$gray-lighten-20;
 	background: var( --jp-white );
 
 	a:not( [type="button"] ) {
 		// $has-focus-state: false - as we don't need a focus state for navigation links
-		@include rna-link( $has-focus-state: false );
+		@include rna.rna-link( $has-focus-state: false );
 	}
 }
 
@@ -19,7 +20,7 @@
 	display: grid;
 	grid-template-columns: repeat( 2, 1fr );
 
-	@include breakpoint( '<1040px' ) {
+	@include mixin_breakpoint.breakpoint( '<1040px' ) {
 		grid-template-columns: auto;
 		background: var( --jp-white );
 	}
@@ -42,9 +43,9 @@
 
 .jp-recommendations-question__sidebar {
 
-	@include recommendation-sidebar-blob;
+	@include mixin.recommendation-sidebar-blob;
 
-	@include breakpoint( '<1040px' ) {
+	@include mixin_breakpoint.breakpoint( '<1040px' ) {
 		background: none;
 	}
 }
@@ -56,7 +57,7 @@
 	a {
 		margin-right: 16px;
 
-		@include breakpoint( '<660px' ) {
+		@include mixin_breakpoint.breakpoint( '<660px' ) {
 			display: block;
 			margin-right: 0;
 			margin-bottom: 16px;
@@ -65,7 +66,7 @@
 		&:last-child {
 			margin-right: 0;
 
-			@include breakpoint( '<660px' ) {
+			@include mixin_breakpoint.breakpoint( '<660px' ) {
 				margin-bottom: 0;
 			}
 		}

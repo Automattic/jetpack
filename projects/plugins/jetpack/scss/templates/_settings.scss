@@ -1,8 +1,10 @@
 // ==========================================================================
 // Settings
 // ==========================================================================
-@import '../../_inc/client/scss/calypso-colors';
-@import '../../_inc/client/scss/typography';
+@use '../../_inc/client/scss/calypso-colors';
+@use '../../_inc/client/scss/typography';
+@use "../atoms/colors/colors";
+@use "../atoms/typography/functions" as typography-functions;
 
 .page-content.configure {
 	margin-top: 0;
@@ -13,7 +15,7 @@
 	&.top {
 		border: none;
 		box-shadow: none;
-		padding-top: em(20px);
+		padding-top: typography-functions.em(20px);
 		position: relative;
 		top: auto;
 
@@ -32,7 +34,7 @@
 			@media (max-width: 782px) {
 				border: none;
 				box-shadow: none;
-				padding-top: em(20px);
+				padding-top: typography-functions.em(20px);
 				position: relative;
 				top: auto;
 			}
@@ -62,20 +64,20 @@
 	}
 
 	.button {
-		background: $white;
-		border: 1.5px solid $black;
+		background: colors.$white;
+		border: 1.5px solid calypso-colors.$black;
 		border-radius: 4px;
-		font-size: $font-body;
+		font-size: typography.$font-body;
 		line-height: 24px;
 		letter-spacing: -0.01em;
-		color: $black;
+		color: calypso-colors.$black;
 	}
 }
 
 // Bulk select table header area.
 .fixed-top {
 	box-sizing: border-box;
-	border-bottom: 1px solid $gray-5;
+	border-bottom: 1px solid calypso-colors.$gray-5;
 
 	/* Auto layout */
 	display: flex;
@@ -99,8 +101,8 @@
 		padding: 8px 16px;
 		margin-right: 8px;
 		line-height: normal;
-		color: $black;
-		font-size: $font-body-small;
+		color: calypso-colors.$black;
+		font-size: typography.$font-body-small;
 		letter-spacing: -0.02em;
 	}
 
@@ -115,15 +117,15 @@
 			align-items: center;
 			padding: 6px 24px;
 			height: 40px;
-			background: $white;
-			border: 1.5px solid $black;
+			background: colors.$white;
+			border: 1.5px solid calypso-colors.$black;
 			border-radius: 4px;
 
 			// Button label.
-			font-size: $font-body;
+			font-size: typography.$font-body;
 			line-height: 24px;
 			letter-spacing: -0.01em;
-			color: $black;
+			color: calypso-colors.$black;
 		}
 
 		.button:hover {
@@ -145,7 +147,7 @@
 
 			&::before {
 				margin: -2px;
-				color: $black;
+				color: calypso-colors.$black;
 				width: 21px;
 				height: 21px;
 			}
@@ -159,12 +161,12 @@
 	.row-actions {
 
 		a.dops-button.is-compact {
-			color: $black;
+			color: calypso-colors.$black;
 			line-height: 20px;
-			font-size: $font-body-extra-small;
+			font-size: typography.$font-body-extra-small;
 			font-weight: 600;
-			background: $white;
-			border: 1.5px solid $black;
+			background: colors.$white;
+			border: 1.5px solid calypso-colors.$black;
 			border-radius: 4px;
 			box-shadow: none;
 			text-decoration: none;
@@ -172,13 +174,13 @@
 		}
 
 		.delete a.dops-button.is-compact {
-			color: $red-50;
-			border: 1px solid $gray-5;
+			color: calypso-colors.$red-50;
+			border: 1px solid calypso-colors.$gray-5;
 		}
 
 		.configure a {
-			color: $black;
-			font-size: $font-body-extra-small;
+			color: calypso-colors.$black;
+			font-size: typography.$font-body-extra-small;
 			line-height: 20px;
 			font-weight: 600;
 			text-decoration: none;
@@ -226,11 +228,11 @@
 		z-index: 1;
 
 		p {
-			font-size: $font-body-small;
+			font-size: typography.$font-body-small;
 			line-height: 24px;
 			letter-spacing: -0.02em;
 			font-weight: 700;
-			color: $gray-80;
+			color: calypso-colors.$gray-80;
 			margin: 16px 0 4px 0;
 		}
 
@@ -260,13 +262,13 @@
 			position: static;
 
 			input[type="search"] {
-				border: 1px solid $gray-5;
+				border: 1px solid calypso-colors.$gray-5;
 				border-radius: 4px;
 				padding: 8px 16px 8px 40px;
 				line-height: 24px;
-				font-size: $font-body;
+				font-size: typography.$font-body;
 				letter-spacing: -0.02em;
-				color: $black;
+				color: calypso-colors.$black;
 				font-weight: 400;
 				height: 40px;
 				width: 100%;
@@ -276,7 +278,7 @@
 				float: none;
 
 				&::placeholder {
-					color: $gray-30;
+					color: calypso-colors.$gray-30;
 				}
 
 				@media (max-width: 782px) {
@@ -300,35 +302,35 @@
 				padding-left: 24px;
 				padding-right: 24px;
 				min-width: 90px;
-				border: 1px solid $gray-5;
-				color: $black;
+				border: 1px solid calypso-colors.$gray-5;
+				color: calypso-colors.$black;
 				height: 40px;
 				font-size: 13px;
 				line-height: 18px;
 				font-weight: 400;
-				background: $white;
+				background: colors.$white;
 
 				&:hover {
-					background: $gray-0;
+					background: calypso-colors.$gray-0;
 				}
 
 				&:focus {
-					border-color: $black;
+					border-color: calypso-colors.$black;
 				}
 			}
 
 			button.dops-button.button.active {
-				background: $black;
-				color: $white;
+				background: calypso-colors.$black;
+				color: colors.$white;
 				font-weight: 600;
 
 				&:hover {
-					background: $gray-80;
+					background: calypso-colors.$gray-80;
 				}
 
 				&:focus {
-					border-color: $white;
-					box-shadow: 0 0 0 1px $black;
+					border-color: colors.$white;
+					box-shadow: 0 0 0 1px calypso-colors.$black;
 				}
 			}
 		}
@@ -345,9 +347,9 @@
 
 				a {
 					padding: 0;
-					color: $black;
+					color: calypso-colors.$black;
 					text-decoration: underline;
-					font-size: $font-body-small;
+					font-size: typography.$font-body-small;
 					line-height: 24px;
 					letter-spacing: -0.02em;
 
@@ -358,11 +360,11 @@
 
 				&.current {
 					border-radius: 4px;
-					background: $black;
+					background: calypso-colors.$black;
 					padding: 2px 6px;
 
 					a, .count {
-						color: $white;
+						color: colors.$white;
 						text-decoration: none;
 						font-weight: 700;
 					}
@@ -462,8 +464,8 @@ tr.jetpack-module {
 	gap: 16px;
 	width: 100%;
 	height: 60px;
-	background: $white;
-	border-bottom: 1px solid $gray-5;
+	background: colors.$white;
+	border-bottom: 1px solid calypso-colors.$gray-5;
 
 	@media (max-width: 782px) {
 		padding: 4px 10px;
@@ -499,7 +501,7 @@ tr.jetpack-module.active {
 }
 
 tr.jetpack-module .column-name {
-	color: $gray-80;
+	color: calypso-colors.$gray-80;
 	float: left;
 	align-items: center;
 	display: flex;

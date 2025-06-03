@@ -1,9 +1,9 @@
 @use 'sass:color';
 @use '../../scss/z-index';
-@import '../../scss/calypso-colors';
-@import '../../scss/mixin_breakpoint';
-@import '../../scss/mixin_icons';
-@import '../../scss/typography';
+@use '../../scss/calypso-colors';
+@use '../../scss/mixin_breakpoint';
+@use '../../scss/mixin_icons';
+@use '../../scss/typography';
 
 /**
  * Section Nav
@@ -15,39 +15,39 @@
 	width: 100%;
 	padding: 0;
 	margin: 0 0 17px 0;
-	background: $white;
+	background: calypso-colors.$white;
 	box-sizing: border-box;
 
 	&.is-empty .dops-section-nav__panel {
 		visibility: hidden;
 	}
 
-	@include breakpoint( "<660px" ) {
+	@include mixin_breakpoint.breakpoint( "<660px" ) {
 		box-shadow:
-			0 0 0 1px $light-gray-700,
+			0 0 0 1px calypso-colors.$light-gray-700,
 			0 1px 1px 1px  rgba(0,0,0,.04);
 
 		&.is-open {
-			box-shadow: 0 0 0 1px $gray,
-				0 2px 4px color.adjust( $gray, $lightness: 20% );
+			box-shadow: 0 0 0 1px calypso-colors.$gray,
+				0 2px 4px color.adjust( calypso-colors.$gray, $lightness: 20% );
 		}
 	}
 
-	@include breakpoint( ">660px" ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 
 		&.has-pinned-items {
 			padding-right: 60px;
 		}
 	}
 
-	@include breakpoint( "660px-660px" ) {
+	@include mixin_breakpoint.breakpoint( "660px-660px" ) {
 
 		&.has-pinned-items {
 			padding-right: 50px;
 		}
 	}
 
-	@include breakpoint( "<660px" ) {
+	@include mixin_breakpoint.breakpoint( "<660px" ) {
 		margin-bottom: 9px;
 	}
 }
@@ -58,23 +58,23 @@
 	padding: 15px;
 	font-size: 14px;
 	line-height: 16px;
-	color: $gray-dark;
+	color: calypso-colors.$gray-dark;
 	font-weight: 600;
 	cursor: pointer;
 
 	&::after {
 
-		@include dashicons;
+		@include mixin_icons.dashicons;
 		content: '\f347';
 		line-height: 16px;
-		color: rgba( $gray, 0.5 );
+		color: rgba( calypso-colors.$gray, 0.5 );
 	}
 
 	.dops-section-nav.is-open & {
 
 		&::after {
 
-			@include dashicons;
+			@include mixin_icons.dashicons;
 			content: '\f343';
 		}
 	}
@@ -87,7 +87,7 @@
 		}
 	}
 
-	@include breakpoint( ">660px" ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 		display: none;
 	}
 }
@@ -102,7 +102,7 @@
 	small {
 		margin-left: 5px;
 		font-size: 11px;
-		color: $gray;
+		color: calypso-colors.$gray;
 		font-weight: 600;
 		text-transform: uppercase;
 	}
@@ -117,16 +117,16 @@
 	box-sizing: border-box;
 	width: 100%;
 
-	@include breakpoint( "<660px" ) {
+	@include mixin_breakpoint.breakpoint( "<660px" ) {
 
 		.dops-section-nav.is-open & {
 			padding-bottom: 15px;
-			border-top: solid 1px color.adjust( $gray, $lightness: 20% );
-			background: linear-gradient(to bottom, $gray-light 0%, $white 4px);
+			border-top: solid 1px color.adjust( calypso-colors.$gray, $lightness: 20% );
+			background: linear-gradient(to bottom, calypso-colors.$gray-light 0%, calypso-colors.$white 4px);
 		}
 	}
 
-	@include breakpoint( ">660px" ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 		display: flex;
 		align-items: center;
 
@@ -141,14 +141,14 @@
 	position: relative;
 	margin-top: 16px;
 	padding-top: 16px;
-	border-top: solid 1px color.adjust( $gray, $lightness: 20% );
+	border-top: solid 1px color.adjust( calypso-colors.$gray, $lightness: 20% );
 
 	&:first-child {
 		padding-top: 0;
 		border-top: none;
 	}
 
-	@include breakpoint( "<660px" ) {
+	@include mixin_breakpoint.breakpoint( "<660px" ) {
 		display: none;
 
 		.dops-section-nav.is-open & {
@@ -156,7 +156,7 @@
 		}
 	}
 
-	@include breakpoint( ">660px" ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 		margin-top: 0;
 		padding-top: 0;
 		border-top: none;
@@ -175,7 +175,7 @@
 }
 
 .dops-section-nav__hr {
-	background: color.adjust( $gray, $lightness: 30% );
+	background: color.adjust( calypso-colors.$gray, $lightness: 30% );
 }
 
 // -------- Labels --------
@@ -185,12 +185,12 @@
 	margin-bottom: 8px;
 	padding: 0 15px;
 	font-size: 11px;
-	color: $black;
+	color: calypso-colors.$black;
 	font-weight: 600;
 	text-transform: uppercase;
 	line-height: 12px;
 
-	@include breakpoint( "<660px" ) {
+	@include mixin_breakpoint.breakpoint( "<660px" ) {
 
 		.has-siblings & {
 			display: block;
@@ -213,7 +213,7 @@
 // which contain items
 .dops-section-nav-tabs {
 
-	@include breakpoint( ">660px" ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 		width: 0;
 		flex: 1 0 auto;
 
@@ -231,7 +231,7 @@
 	margin: 0;
 	list-style: none;
 
-	@include breakpoint( ">660px" ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 		display: flex;
 		width: 100%;
 		overflow: hidden;
@@ -253,7 +253,7 @@
 		}
 	}
 
-	@include breakpoint( ">660px" ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 		width: auto;
 		flex: none;
 		border-bottom: 2px solid transparent;
@@ -270,7 +270,7 @@
 		}
 
 		&.is-selected {
-			box-shadow: inset 0 -1px 0 $black;
+			box-shadow: inset 0 -1px 0 calypso-colors.$black;
 		}
 	}
 }
@@ -288,21 +288,21 @@
 	box-sizing: border-box;
 	padding: 15px;
 	width: 100%;
-	font-size: $font-body;
+	font-size: typography.$font-body;
 	font-weight: 400;
 	line-height: 24px;
-	color: $black;
+	color: calypso-colors.$black;
 	cursor: pointer;
 
 	&[disabled],
 	.notouch &[disabled]:hover {
-		color: color.adjust( $black, $lightness: 30% );
+		color: color.adjust( calypso-colors.$black, $lightness: 30% );
 		cursor: default;
 	}
 
 	.is-selected & {
-		color: $white;
-		background-color: $blue-medium-dark;
+		color: calypso-colors.$white;
+		background-color: calypso-colors.$blue-medium-dark;
 	}
 
 	&:focus {
@@ -310,7 +310,7 @@
 		box-shadow: none;
 
 		.dops-accessible-focus & {
-			outline: solid $gray 1px;
+			outline: solid calypso-colors.$gray 1px;
 		}
 	}
 
@@ -330,23 +330,23 @@
 	.notouch .is-selected & {
 
 		&:hover {
-			color: $white;
+			color: calypso-colors.$white;
 		}
 	}
 
-	@include breakpoint( ">660px" ) {
+	@include mixin_breakpoint.breakpoint( ">660px" ) {
 		display: block;
 		width: auto;
 		padding: 8px 0;
 		font-weight: 400;
 
 		&:hover {
-			color: $black;
-			box-shadow: inset 0 -1px 0 $black;
+			color: calypso-colors.$black;
+			box-shadow: inset 0 -1px 0 calypso-colors.$black;
 		}
 
 		.is-selected & {
-			color: $black;
+			color: calypso-colors.$black;
 			background-color: transparent;
 
 			&::after {
@@ -357,7 +357,7 @@
 		.notouch .is-selected & {
 
 			&:hover {
-				color: $black;
+				color: calypso-colors.$black;
 			}
 		}
 	}
@@ -375,7 +375,7 @@
 	min-width: 20px;
 	height: 20px;
 	border-radius: 10px;
-	background-color: $orange-fire;
+	background-color: calypso-colors.$orange-fire;
 	color: #fff;
 	font-size: 12px;
 	line-height: 1.6;
@@ -424,7 +424,7 @@
 // stylelint-disable-next-line no-duplicate-selectors -- This is a styling section for a distinct purpose.
 .dops-section-nav {
 
-	@include breakpoint( "<660px" ) {
+	@include mixin_breakpoint.breakpoint( "<660px" ) {
 
 		.dops-search.is-pinned {
 			height: 46px;

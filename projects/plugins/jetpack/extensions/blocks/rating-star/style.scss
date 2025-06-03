@@ -1,9 +1,9 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@import '../../shared/styles/jetpack-variables';
+@use '../../shared/styles/jetpack-variables';
 
 // Editor and View styles
 .wp-block-jetpack-rating-star {
-	margin-bottom: $jetpack-block-margin-bottom;
+	margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 	line-height: 0;
 	stroke-width: 0;
 
