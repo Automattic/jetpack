@@ -170,6 +170,7 @@ class Help_Center {
 				'const helpCenterData = ' . wp_json_encode(
 					array(
 						'isProxied'   => boolval( self::is_proxied() ),
+						'isSU'        => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
 						'currentUser' => array(
 							'ID'           => $user_id,
 							'username'     => $username,
