@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2025-06-03
+### Added
+- Forms: Add events for integrations toggling and card expansion. [#43716]
+
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
 ## [0.56.0] - 2025-06-02
 ### Added
 - Add tracking pixel to form submission emails to know if emails are being opened (no user info is sent). [#43629]
@@ -1142,6 +1149,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[1.0.0]: https://github.com/automattic/jetpack-forms/compare/v0.56.0...v1.0.0
 [0.56.0]: https://github.com/automattic/jetpack-forms/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/automattic/jetpack-forms/compare/v0.54.0...v0.55.0
 [0.54.0]: https://github.com/automattic/jetpack-forms/compare/v0.53.0...v0.54.0
