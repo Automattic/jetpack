@@ -288,12 +288,7 @@ class Protected_Owner_Error_Handler {
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-		// Check stored error data as fallback
-		$raw_error = $this->get_active_error();
-		if ( $raw_error && isset( $raw_error['email'] ) && is_email( $raw_error['email'] ) ) {
-			return $raw_error['email'];
-		}
-
+		// Only prepopulate when explicitly triggered from dashboard
 		return false;
 	}
 
