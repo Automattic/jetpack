@@ -277,11 +277,11 @@ const transforms = {
 						 * BUT adds a default placeholder anyway.
 						 */
 						innerBlocks.map( block => {
-							if ( block.name === 'jetpack/input' ) {
+							if ( block?.name === 'jetpack/input' ) {
 								return {
 									...block,
 									attributes: {
-										...block.attributes,
+										...( block?.attributes || {} ),
 										placeholder:
 											block?.attributes?.placeholder || __( 'Select one option', 'jetpack-forms' ),
 									},
