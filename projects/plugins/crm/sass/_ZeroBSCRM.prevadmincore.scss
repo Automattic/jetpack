@@ -4,6 +4,7 @@
  *
  * This was copied from previous CSS :)
  */
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 html {
     font-family:sans-serif;
@@ -777,20 +778,20 @@ output {
 }
 
 .form-control:-moz-placeholder {
-    color: $studio-gray-5;
+    color: studio.$studio-gray-5;
 }
 
 .form-control::-moz-placeholder {
-    color: $studio-gray-5;
+    color: studio.$studio-gray-5;
     opacity:1
 }
 
 .form-control:-ms-input-placeholder {
-    color: $studio-gray-5;
+    color: studio.$studio-gray-5;
 }
 
 .form-control::-webkit-input-placeholder {
-    color: $studio-gray-5;
+    color: studio.$studio-gray-5;
 }
 
 .form-control[disabled],.form-control[readonly],fieldset[disabled] .form-control {

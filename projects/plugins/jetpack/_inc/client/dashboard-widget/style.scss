@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/root-variables';
+@use '@automattic/jetpack-base-styles/root-variables';
 
 @mixin emerald-button-colors() {
 	background: var(--jp-black);

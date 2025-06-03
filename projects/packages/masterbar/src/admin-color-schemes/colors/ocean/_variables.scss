@@ -1,11 +1,12 @@
 // make use of color studio variables for consistency across products
-@import '@automattic/color-studio/dist/color-variables';
+@forward "@automattic/color-studio/dist/color-variables";
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 $highlight-color: #9ebaa0;
 
 // Sidebar Nudges
-$menu-nudge-background: $studio-white;
-$menu-nudge-text-color: $studio-black;
+$menu-nudge-background: studio.$studio-white;
+$menu-nudge-text-color: studio.$studio-black;
 $menu-nudge-cta-background: $highlight-color;
-$menu-nudge-cta-color: $studio-white;
-$menu-nudge-cta-background-hover: $studio-celadon-60;
+$menu-nudge-cta-color: studio.$studio-white;
+$menu-nudge-cta-background-hover: studio.$studio-celadon-60;

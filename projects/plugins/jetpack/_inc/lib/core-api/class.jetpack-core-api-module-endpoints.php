@@ -499,6 +499,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 		$response['akismet'] = is_plugin_active( 'akismet/akismet.php' );
 
+		require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+		if ( class_exists( 'Jetpack_Memberships' ) ) {
+			$response['newsletter_has_active_plan'] = count( Jetpack_Memberships::get_all_newsletter_plan_ids( false ) ) > 0;
+		}
+
 		return rest_ensure_response( $response );
 	}
 

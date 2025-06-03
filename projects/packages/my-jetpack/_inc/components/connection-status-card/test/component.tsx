@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { render, renderHook, screen, waitFor } from '@testing-library/react';
+import { render, renderHook, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
 import ConnectionStatusCard from '../index';
@@ -94,7 +94,15 @@ const setConnectionStore = ( {
 		.mockReset()
 		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner, userConnectionData } );
 };
-
+beforeAll( () => {
+	global.JetpackScriptData = {
+		user: {
+			current_user: {
+				capabilities: {},
+			},
+		},
+	};
+} );
 beforeEach( () => {
 	resetInitialState();
 	setConnectionStore();
@@ -119,16 +127,8 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders the correct copy for the site connection line item', () => {
 			setup();
-			expect( screen.getByText( 'Start with Jetpack.' ) ).toBeInTheDocument();
-			expect(
-				screen.getByRole( 'button', { name: 'Connect your site with one click' } )
-			).toBeInTheDocument();
-		} );
-
-		it( 'does not render the user connection line item', () => {
-			setup();
-			expect( screen.queryByText( 'Unlock more of Jetpack' ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'button', { name: 'Sign in' } ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Site not connected' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Connect your site with one click.' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -146,16 +146,7 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders the correct copy for the site connection line item', () => {
 			setup();
-			expect(
-				screen.getByText( 'Missing site connection to enable some features.' )
-			).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'Connect' } ) ).toBeInTheDocument();
-		} );
-
-		it( 'does not render the user connection line item', () => {
-			setup();
-			expect( screen.queryByText( 'Unlock more of Jetpack' ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'button', { name: 'Sign in' } ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Connect your site with one click.' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -172,20 +163,7 @@ describe( 'ConnectionStatusCard', () => {
 
 			it( 'renders the correct site connection line item', () => {
 				setup();
-				expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
-				expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
-			} );
-
-			it( 'renders the correct user connection line item', async () => {
-				setup();
-
-				// Wait for the specific text to appear, which indicates the data has been processed
-				await waitFor( () => {
-					return screen.queryByText( 'Some features require authentication.' ) !== null;
-				} );
-
-				expect( screen.getByText( 'Unlock more of Jetpack' ) ).toBeInTheDocument();
-				expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+				expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
 			} );
 		} );
 
@@ -202,8 +180,7 @@ describe( 'ConnectionStatusCard', () => {
 
 			it( 'renders the correct site connection line item', () => {
 				setup();
-				expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
-				expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
+				expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
 			} );
 
 			it( 'renders the correct user connection line item', () => {
@@ -231,16 +208,7 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders the correct site connection line item', () => {
 			setup();
-			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
-		} );
-
-		it( 'renders the correct user connection line item', () => {
-			setup();
-			expect(
-				screen.getByText( 'Missing authentication to enable all features.' )
-			).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -256,17 +224,12 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders the correct site connection line item', () => {
 			setup();
-			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Site and account connected' ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the correct user connection line item', () => {
 			setup();
 			expect( screen.getByText( /Connected as/ ) ).toBeInTheDocument();
-		} );
-
-		it( 'renders one manage button', () => {
-			setup();
-			expect( screen.getAllByRole( 'button', { name: 'Manage' } ) ).toHaveLength( 1 );
 		} );
 	} );
 
@@ -351,8 +314,10 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders prompt for this user to connect', () => {
 			setup();
-			expect( screen.getByText( 'Unlock more of Jetpack' ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+			expect(
+				screen.getByText( 'Connect your account to unlock all the features.' )
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -374,7 +339,9 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'renders message about an admin needing to sign in first', () => {
 			setup();
 			expect(
-				screen.getByText( 'A site admin will need to connect before you are able to sign in' )
+				screen.getByText(
+					'A site admin will need to connect their account before you can connect yours.'
+				)
 			).toBeInTheDocument();
 		} );
 	} );

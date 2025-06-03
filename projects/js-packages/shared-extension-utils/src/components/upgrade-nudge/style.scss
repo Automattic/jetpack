@@ -1,18 +1,18 @@
-@import "@automattic/color-studio/dist/color-variables";
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 .jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	font-size: 14px;
-	background: $studio-black;
+	background: studio.$studio-black;
 	padding: 0 20px;
 	border-radius: 2px;
-	box-shadow: 0 0 1px inset $studio-white; }
+	box-shadow: 0 0 1px inset studio.$studio-white; }
 
 	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .banner-title,
 	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .banner-description {
-		color: $studio-white; }
+		color: studio.$studio-white; }
 
 	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .jetpack-upgrade-plan-banner__title,
 	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .jetpack-upgrade-plan-banner__description {
@@ -25,15 +25,15 @@
 		height: 28px; }
 
 		.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .components-button.is-primary {
-			background: $studio-pink-40;
-			color: $studio-white; }
+			background: studio.$studio-pink-40;
+			color: studio.$studio-white; }
 
 		.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .components-button.is-primary:hover {
-			background: $studio-pink-30; }
+			background: studio.$studio-pink-30; }
 
 		.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .components-button.is-primary.is-busy {
 			background-size: 100px 100%;
-			background-image: linear-gradient(-45deg, $studio-pink-40 28%, $studio-pink-60 28%, $studio-pink-60 72%, $studio-pink-40 72%); }
+			background-image: linear-gradient(-45deg, studio.$studio-pink-40 28%, studio.$studio-pink-60 28%, studio.$studio-pink-60 72%, studio.$studio-pink-40 72%); }
 
 .jetpack-upgrade-plan-banner.block-editor-block-list__block {
 	margin-top: 0;
