@@ -95,8 +95,8 @@ function jetpack_gist_get_shortcode_id( $gist = '' ) {
 		}
 
 		$gist_info['id'] = $path;
-                // Reassign $gist with the identifier to clean it up below.
-		$gist            = $path;
+		// Reassign $gist with the identifier to clean it up below.
+		$gist = $path;
 
 		// Parse the query args to obtain the tab spacing.
 		if ( ! empty( $parsed_url['query'] ) ) {
