@@ -71,12 +71,13 @@ const BarChart: FC< BarChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	gridVisibility = 'x',
+	gridVisibility: gridVisibilityProp,
 	renderTooltip,
 	options = {},
 	orientation = 'vertical',
 } ) => {
 	const horizontal = orientation === 'horizontal';
+	const gridVisibility = gridVisibilityProp ?? ( horizontal ? 'y' : 'x' );
 	const theme = useXYChartTheme( data );
 	const chartOptions = useMemo( () => {
 		const bandScale = {
