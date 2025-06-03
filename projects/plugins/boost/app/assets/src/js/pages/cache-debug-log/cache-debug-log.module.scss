@@ -1,4 +1,4 @@
-@import "$css/main/variables";
+@use "$css/main/variables";
 
 .header {
 	display: flex;
@@ -16,5 +16,5 @@
 }
 
 .section {
-	border-top: 1px solid $gray_5;
+	border-top: 1px solid variables.$gray_5;
 }
