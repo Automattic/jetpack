@@ -1,12 +1,12 @@
+@use '../../scss/z-index';
 @import "../../scss/calypso-colors";
 @import "../../scss/calypso-mixins";
-@import '../../scss/z-index';
 
 .global-notices {
 	text-align: right;
 	pointer-events: none;
 
-	z-index: z-index( 'root', '.global-notices' );
+	z-index: z-index.z-index( 'root', '.global-notices' );
 	position: fixed;
 	top: auto;
 	right: 0;

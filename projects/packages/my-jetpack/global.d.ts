@@ -100,7 +100,6 @@ type BackupStatus =
 	| 'credential-error'
 	| 'http-only-error'
 	| 'not-accessible'
-	| 'backup-deactivated'
 	| 'Kill switch active'
 	| 'error'
 	| 'error-will-retry';

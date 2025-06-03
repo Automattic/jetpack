@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 /* Editor styles */
 .wp-block-jetpack-event-countdown .components-placeholder__fieldset {
@@ -15,7 +15,7 @@
 
 	.components-placeholder__input[type="text"] {
 
-		@include input-control;
+		@include gb.input-control;
 	}
 
 	.event-countdown__event-title {

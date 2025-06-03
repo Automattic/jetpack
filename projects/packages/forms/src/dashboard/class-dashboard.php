@@ -79,11 +79,6 @@ class Dashboard {
 	 */
 	public function load_admin_scripts() {
 		if ( ! $this->switch->is_modern_view() && ! $this->switch->is_jetpack_forms_admin_page() ) {
-			if ( Jetpack_Forms::is_legacy_menu_item_retired() ) {
-				wp_admin_notice( 'This page has moved to the Jetpack Forms menu.', array( 'type' => 'info' ) );
-			} elseif ( $this->switch->is_jetpack_forms_admin_page_available() ) {
-				wp_admin_notice( 'This will be moved to the Jetpack Forms menu.', array( 'type' => 'info' ) );
-			}
 			return;
 		}
 
@@ -180,11 +175,6 @@ class Dashboard {
 			return;
 		}
 
-		// When on WPCOM, we don't need to add the submenu page, it is handled by jetpack-mu-wpcom
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			return;
-		}
-
 		Admin_Menu::add_menu(
 			__( 'Jetpack Forms', 'jetpack-forms' ),
 			_x( 'Forms', 'submenu title for Jetpack Forms', 'jetpack-forms' ),
@@ -226,6 +216,7 @@ class Dashboard {
 			'hasAI'                   => $has_ai,
 			'enableIntegrationsTab'   => self::$show_integrations,
 			'renderMigrationPage'     => $this->switch->is_jetpack_forms_announcing_new_menu(),
+			'dashboardURL'            => $this->switch->get_forms_admin_url(),
 		);
 		if ( ! empty( $extra_config ) ) {
 			$config = array_merge( $config, $extra_config );

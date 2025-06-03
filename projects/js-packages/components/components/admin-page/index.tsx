@@ -20,6 +20,7 @@ import type React from 'react';
  */
 const AdminPage: React.FC< AdminPageProps > = ( {
 	children,
+	className,
 	moduleName = __( 'Jetpack', 'jetpack-components' ),
 	moduleNameHref,
 	showHeader = true,
@@ -37,7 +38,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
 
-	const rootClassName = clsx( styles[ 'admin-page' ], {
+	const rootClassName = clsx( styles[ 'admin-page' ], className, {
 		[ styles.background ]: showBackground,
 	} );
 

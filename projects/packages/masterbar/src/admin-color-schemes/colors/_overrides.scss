@@ -2,6 +2,7 @@
 // This file contains overrides to _admin.scss necessary to match Calypso color schemes
 
 // Make wpadminbar colors differ from submenu colors
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 .admin-color-aquatic,
 .admin-color-classic-blue,
@@ -101,5 +102,5 @@
 
 .admin-color-contrast.folded #adminmenu .toplevel_page_site-notices .wp-menu-image,
 .admin-color-classic-bright.folded #adminmenu .toplevel_page_site-notices .wp-menu-image {
-	background-color: $studio-gray-80 !important;
+	background-color: studio.$studio-gray-80 !important;
 }

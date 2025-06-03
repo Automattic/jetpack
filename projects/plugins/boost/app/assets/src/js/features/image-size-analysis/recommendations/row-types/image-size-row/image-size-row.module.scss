@@ -40,15 +40,14 @@
 }
 
 .potential-size {
-
-	@media (max-width: 782px) {
-		display: none;
-	}
-
 	grid-column: potential-size;
 	display: flex;
 	align-items: center;
 	gap: calc(var(--gap) / 2);
+
+	@media (max-width: 782px) {
+		display: none;
+	}
 }
 
 .hover-content {
@@ -56,22 +55,20 @@
 }
 
 .device {
+	grid-column: device;
+	text-align: center;
 
 	@media (max-width: 782px) {
 		display: none;
 	}
-
-	grid-column: device;
-	text-align: center;
 }
 
 .page {
+	grid-column: page;
 
 	@media (max-width: 782px) {
 		display: none;
 	}
-
-	grid-column: page;
 
 	a {
 		text-decoration: none;

@@ -1,14 +1,15 @@
 // make use of color studio variables for consistency across products
-@import '@automattic/color-studio/dist/color-variables';
+@forward "@automattic/color-studio/dist/color-variables";
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 // core variables (core _variables.scss)
 $base-color: #101517; // Calypso --color-masterbar-background
 $icon-color: #a2aab2; // Calypso --color-sidebar-gridicon-fill
-$highlight-color: $studio-pink-50;// Calypso --color-accent
+$highlight-color: studio.$studio-pink-50;// Calypso --color-accent
 $notification-color: $highlight-color;
 
 // global (core _variables.scss)
-$body-background: $studio-gray-0; // Calypso --color-surface-backdrop
+$body-background: studio.$studio-gray-0; // Calypso --color-surface-backdrop
 
 // admin menu & admin-bar (core _variables.scss)
 $menu-text: #eee; // Calypso --color-sidebar-text
@@ -22,7 +23,7 @@ $menu-current-background: #0073aa; // Calypso --color-sidebar-menu-selected-back
 $menu-submenu-text: #b4b9be; // Calypso --color-sidebar-submenu-text
 $menu-submenu-background: #333; // Calypso --color-sidebar-submenu-background
 $menu-submenu-focus-text: #00b9eb; // Calypso --color-sidebar-submenu-hover-text
-$menu-submenu-current-text: $studio-white; // Calypso --color-sidebar-submenu-selected-text
+$menu-submenu-current-text: studio.$studio-white; // Calypso --color-sidebar-submenu-selected-text
 $adminbar-avatar-frame: #333;
 
 // masterbar overrides
@@ -35,14 +36,14 @@ $nav-unification-sidebar-border: #333; // Calypso --color-sidebar-border
 $nav-unification-sidebar-text-alternative: #a2aab2; // Calypso --color-sidebar-text-alternative
 
 // Calypso color variables used in e.g. inline help
-$color-primary: $studio-gray-90; // Calypso --color-primary
-$color-primary-dark: $studio-gray-70; // Calypso --color-primary-dark
-$color-primary-light: $studio-gray-30; // Calypso --color-primary-light
-$color-surface: $studio-white; // Calypso --color-surface
+$color-primary: studio.$studio-gray-90; // Calypso --color-primary
+$color-primary-dark: studio.$studio-gray-70; // Calypso --color-primary-dark
+$color-primary-light: studio.$studio-gray-30; // Calypso --color-primary-light
+$color-surface: studio.$studio-white; // Calypso --color-surface
 
 // Sidebar Nudges
-$menu-nudge-background: $studio-white;
-$menu-nudge-text-color: $studio-black;
+$menu-nudge-background: studio.$studio-white;
+$menu-nudge-text-color: studio.$studio-black;
 $menu-nudge-cta-background: $highlight-color;
-$menu-nudge-cta-color: $studio-white;
-$menu-nudge-cta-background-hover: $studio-pink-60;
+$menu-nudge-cta-color: studio.$studio-white;
+$menu-nudge-cta-background-hover: studio.$studio-pink-60;

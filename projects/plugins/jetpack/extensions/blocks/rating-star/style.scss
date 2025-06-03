@@ -1,5 +1,5 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 @import '../../shared/styles/jetpack-variables';
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 // Editor and View styles
 .wp-block-jetpack-rating-star {
@@ -16,7 +16,7 @@
 		margin-inline-end: 0.3em;
 
 		// Mimic core focus style.
-		border-radius: $radius-block-ui;
+		border-radius: gb.$radius-block-ui;
 
 		&:focus {
 			box-shadow: 0 0 0 1px currentColor;

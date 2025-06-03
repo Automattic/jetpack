@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .wp-block-jetpack-gif {
 
@@ -75,7 +75,7 @@
 		width: calc( 100% / 10 - 4px );
 
 		&:hover {
-			box-shadow: 0 0 0 1px $gray-600;
+			box-shadow: 0 0 0 1px gb.$gray-600;
 		}
 
 		&:focus {
@@ -94,6 +94,6 @@
 	}
 
 	svg path {
-		fill: $gray-200;
+		fill: gb.$gray-200;
 	}
 }

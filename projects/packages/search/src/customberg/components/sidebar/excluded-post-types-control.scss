@@ -1,15 +1,16 @@
-@import '../../lib/base-styles';
+@use "@wordpress/base-styles/variables";
+@use '../../lib/base-styles';
 
 .jp-search-configure-excluded-post-types-control {
-	margin-top: $grid-unit;
+	margin-top: variables.$grid-unit;
 
 	.jp-search-configure-excluded-post-types-control__label {
-		margin-bottom: $grid-unit;
+		margin-bottom: variables.$grid-unit;
 	}
 
 	.components-notice {
-		margin: $grid-unit 0;
-		padding-top: $grid-unit-05;
-		padding-bottom: $grid-unit-05;
+		margin: variables.$grid-unit 0;
+		padding-top: variables.$grid-unit-05;
+		padding-bottom: variables.$grid-unit-05;
 	}
 }

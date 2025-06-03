@@ -27268,6 +27268,12 @@ abstract class AbstractNode implements \Countable
     {
     }
     /**
+     * @return non-negative-int
+     */
+    public function cyclomaticComplexity(): int
+    {
+    }
+    /**
      * @return array<string, ProcessedClassType>
      */
     abstract public function classes(): array;
@@ -27660,6 +27666,15 @@ final readonly class Crap4j
     {
     }
 }
+final class OpenClover
+{
+    /**
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
+     */
+    public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
+    {
+    }
+}
 final class PHP
 {
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null): string
@@ -28043,9 +28058,6 @@ final readonly class Tests
 final readonly class Totals
 {
     public function __construct(\DOMElement $container)
-    {
-    }
-    public function container(): \DOMNode
     {
     }
     public function setNumLines(int $loc, int $cloc, int $ncloc, int $executable, int $executed): void

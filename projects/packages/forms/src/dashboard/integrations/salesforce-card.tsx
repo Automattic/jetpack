@@ -1,3 +1,4 @@
+import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import SalesforceIcon from '../../icons/salesforce';
@@ -14,6 +15,12 @@ const SalesforceDashboardCard = ( {
 		showHeaderToggle: false, // Always off for dashboard
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
+		setupBadge: (
+			<span className="integration-card__setup-badge">
+				<Icon icon="info-outline" size={ 12 } />
+				{ __( 'Enter organization ID', 'jetpack-forms' ) }
+			</span>
+		),
 	};
 
 	return (

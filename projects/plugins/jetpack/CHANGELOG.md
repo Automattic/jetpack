@@ -2,6 +2,62 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.7-beta - 2025-06-02
+### Enhancements
+- Forms: Move responses menu item from Feedback > Forms to Jetpack > Forms. [#43705]
+
+### Improved compatibility
+- Crowdsignal: Prevent warnings in error logs when viewing ratings via legacy shortcodes on archive pages. [#43596]
+- Sharing service: Prevent warnings in error logs when certain keys are not set. [#43599]
+
+### Bug fixes
+- Fix text wrapping on the stats column heading in non-English languages. [#43630]
+- Forms: Show upload progress in File Upload field when reduced motion is enabled. [#43628]
+- Social: Ensure images load in connections management when concatenating JS. [#43655]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blogging prompts: Fix for Simple sites. [#43597]
+- Dashboard: Ensure links labeled as external links open in a new tab. [#43685]
+- E2E: Update onboarding tests. [#43592]
+- Endpoints: Prevent warnings in error logs due to undefined values. [#43570]
+- Load a script that injects the tokens needed to enable Chrome's built-in AI API. [#43682]
+- Newsletter: Update "Set Up" button to show "Add Plans" or "Manage Plans" depending on the plans configuration. [#43694]
+- Protect against improper calls to `the_title()` filter. [#43511]
+- Reader: Fix paywall styling on Reader and improve few other styles. [#43642]
+- Reader: Update paywall messages for restricted content. [#43637]
+- Updated default cookie expiration from 30000000 to YEAR_IN_SECONDS to match recent WordPress Core changes. [#43715]
+- Update package dependencies. [#43710] [#43711] [#43712]
+- Update to-test.md for Jetpack 14.7. [#43621]
+
+## 14.7-a.7 - 2025-05-26
+### Enhancements
+- Social: Add option to add default image to Social Image Generator. [#43461]
+- Forms: Add Integration screen content. [#43530]
+
+### Improved compatibility
+- Endpoints: Add checks within the v1.1 post update endpoint to ensure values are defined. [#43513]
+- Sharing buttons: Prevent PHP warnings in some scenarios, ensuring we only check the post title and ID if posts exist. [#43539]
+
+### Bug fixes
+- AI Chat & Donations blocks: Ensure that all metadata is properly attached to the blocks in the block editor. [#43535]
+- Forms: Fix Akismet spam URL. [#43542]
+- Jetpack: Fix redirect URL on frontend for upgrade nudge. [#43562]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added wordpress/base-styles dependency. [#43576]
+- AI Assistant: Add tracking events to know when we're using built-in AI models in some requests and adapted to Chrome AI API changes. [#43495]
+- Blogging prompt: Make sure the block is registered before inserting. [#43603]
+- E2E Tests: Update config file encryption algorithm. [#43523]
+- Featured Content: Prevent error if invalid taxonomy data is provided. [#43553]
+- Forms: Update dependency on packages/admin_ui. [#43295]
+- Janitorial: Ensure functionality related to WoA site checking is clearer. [#43481]
+- Post Images: Prevent undefined variable and key warnings. [#43548]
+- Theme Compatibility: Prevent warning when custom color value isn't set. [#43520]
+- Update package dependencies. [#43516] [#43557] [#43572] [#43578]
+
 ## 14.7-a.5 - 2025-05-19
 ### Enhancements
 - Forms: Add Google Drive to integrations modal. [#43479]

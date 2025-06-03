@@ -11,6 +11,7 @@
 		"automattic/text-media-widget-styles": "^2.0",
 		"automattic/wc-calypso-bridge": "2.10.4",
 		"wordpress/classic-editor-plugin": "1.6.7",
+		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-post-list": "@dev",
@@ -124,7 +125,8 @@
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true,
 			"composer/installers": true,
-			"automattic/jetpack-composer-plugin": true
+			"automattic/jetpack-composer-plugin": true,
+			"automattic/jetpack-autoloader": true
 		},
 		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ6_1_0"
 	},

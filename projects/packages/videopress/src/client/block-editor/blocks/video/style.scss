@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .wp-block-jetpack-videopress {
 	position: relative;
@@ -12,7 +12,7 @@
 		margin-bottom: 1em;
     	margin-top: 0.5em;
 
-		@include caption-style-theme();
+		@include gb.caption-style-theme();
 	}
 
 	.jetpack-videopress-player__wrapper {

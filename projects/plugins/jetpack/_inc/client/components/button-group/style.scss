@@ -1,4 +1,5 @@
 @use 'sass:color';
+@use '../../scss/z-index';
 @import "../../scss/calypso-colors";
 
 .dops-button-group {
@@ -10,7 +11,7 @@
 		&:focus {
 			// fixes focus styles in stacking context
 			position: relative;
-			z-index: z-index( 'button-group-parent', '.button-group .button:focus' );
+			z-index: z-index.z-index( 'button-group-parent', '.button-group .button:focus' );
 		}
 
 		&.is-primary:focus {

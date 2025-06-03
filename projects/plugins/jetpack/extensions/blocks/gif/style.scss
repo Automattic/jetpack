@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .wp-block-jetpack-gif {
 	clear: both;
@@ -22,7 +22,7 @@
 	.wp-block-jetpack-gif-caption {
 		margin-top: 0.5em;
 		margin-bottom: 1em;
-		color: $gray-600;
+		color: gb.$gray-600;
 		text-align: center;
 	}
 

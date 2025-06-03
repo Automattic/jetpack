@@ -186,7 +186,7 @@ module.exports = [
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ 'sass-loader' ],
+					extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
 					CssLoader: {
 						url: false,
 					},
@@ -220,6 +220,7 @@ module.exports = [
 						{
 							loader: 'sass-loader',
 							options: {
+								api: 'modern-compiler',
 								sassOptions: {
 									style: 'expanded',
 								},
@@ -287,6 +288,7 @@ module.exports = [
 						{
 							loader: 'sass-loader',
 							options: {
+								api: 'modern-compiler',
 								sassOptions: {
 									style: 'expanded',
 								},
@@ -380,16 +382,6 @@ module.exports = [
 							'node_modules/typeahead.js/dist/typeahead.bundle.min.js'
 						),
 						to: `${ buildLibPath }/typeahead.js/`,
-					},
-					// Used for welcome wizard
-					{
-						from: path.resolve( __dirname, 'node_modules/bootstrap/dist/js/bootstrap.min.js' ),
-						to: `${ buildLibPath }/bootstrap/`,
-					},
-					// Used for welcome wizard
-					{
-						from: path.resolve( __dirname, 'node_modules/bootstrap/dist/css/bootstrap.min.css' ),
-						to: `${ buildLibPath }/bootstrap/`,
 					},
 				],
 			} ),
