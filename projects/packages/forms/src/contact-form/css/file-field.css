@@ -251,8 +251,11 @@
 	z-index: 2;
 }
 
-.jetpack-form-file-field__image.is-icon {
+.jetpack-form-file-field__image-wrap.has-icon .jetpack-form-file-field__image {
 	background-size: auto;
+	mask-repeat: no-repeat;
+	mask-position: center;
+	background-color: var( --jetpack--contact-form--text-color, #333 );
 }
 
 .jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__image {
@@ -280,7 +283,7 @@
 	right: 0;
 	border-radius: 50%;
 	background: conic-gradient(
-		var(--jetpack--contact-form--border-color, #333 )
+		var( --jetpack--contact-form--text-color, #333 )
 		calc(var(--progress, 3) * 1%),
 		transparent calc(var(--progress, 3) * 1%)
 	);
@@ -289,6 +292,17 @@
 	opacity: 0.8;
 	width: 46px;
 	height: 46px;
+}
+
+.jetpack-form-file-field__progress-bar::after {
+	content: '';
+	position: absolute;
+	top: 3px;
+	bottom: 3px;
+	left: 3px;
+	right: 3px;
+	border-radius: 50%;
+	background-color: var(--jetpack--contact-form--border-color, #333 );
 }
 
 @media not (prefers-reduced-motion) {
@@ -303,6 +317,13 @@
 .jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__progress-bar {
 	animation: none;
 	opacity: 0;
+	--progress: 100;
+}
+
+.jetpack-form-file-field__preview.is-error .has-icon .jetpack-form-file-field__progress-bar,
+.jetpack-form-file-field__preview.is-complete .has-icon .jetpack-form-file-field__progress-bar {
+	background: var(--jetpack--contact-form--border-color, #333 );
+	opacity: 1;
 }
 
 .jetpack-form-file-field__file-info {

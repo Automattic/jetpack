@@ -1128,8 +1128,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				<template data-wp-each--file="context.files" data-wp-key="context.file.id">
 					<div class="jetpack-form-file-field__preview" tabindex="0" data-wp-bind--aria-label="context.file.name" data-wp-init--focus="callbacks.focusElement" data-wp-class--is-error="context.file.hasError" data-wp-class--is-complete="context.file.isUploaded">
 						<input type="hidden" name="<?php echo esc_attr( $id ); ?>[]" class="jetpack-form-file-field__hidden include-hidden" data-wp-bind--value='context.file.fileJson' value="">
-						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress">
-							<div class="jetpack-form-file-field__image" data-wp-class--is-icon="context.file.hasIcon" data-wp-style--background-image="context.file.url" ></div>
+						<div class="jetpack-form-file-field__image-wrap" data-wp-style----progress="context.file.progress" data-wp-class--has-icon="context.file.hasIcon">
+							<div class="jetpack-form-file-field__image" data-wp-style--background-image="context.file.url" data-wp-style--mask-image="context.file.mask"  ></div>
 							<div class="jetpack-form-file-field__progress-bar" ></div>
 						</div>
 

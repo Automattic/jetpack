@@ -164,7 +164,8 @@ const addFileToContext = file => {
 		isUploaded: false,
 		hasError: !! error,
 		id: clientFileId,
-		url: fileUrl,
+		url: hasImage ? fileUrl : null,
+		mask: ! hasImage ? fileUrl : null,
 		error,
 	} );
 
