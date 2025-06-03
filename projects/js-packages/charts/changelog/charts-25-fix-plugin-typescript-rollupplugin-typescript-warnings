@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix @rollup/plugin-typescript warnings
