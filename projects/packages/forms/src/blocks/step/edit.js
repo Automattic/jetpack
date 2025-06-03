@@ -63,7 +63,16 @@ const getStepTemplate = ( previousStepBlocks = [] ) => {
 	return [ [ 'core/paragraph', {} ] ];
 };
 
-function StepBreak( { stepName } ) {
+function StepBreak( { stepLabel, currentIndex } ) {
+	let stepName;
+	if ( stepLabel === '' || stepLabel === 'Step' ) {
+		// Translators: %d is the step number (1, 2, 3, etc.)
+		stepName = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
+	} else {
+		// Translators: %1$d is the step number (1, 2, 3, etc.), %2$s is the step label
+		stepName = sprintf( __( 'Step %1$d - %2$s', 'jetpack-forms' ), currentIndex + 1, stepLabel );
+	}
+
 	return (
 		<div className="jetpack-form-step__break">
 			<span className="jetpack-form-step__label">{ stepName }</span>
@@ -114,16 +123,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		return null;
 	}
 
-	let stepName = attributes.stepLabel;
-	if ( attributes.stepLabel === '' || attributes.stepLabel === 'Step' ) {
-		// Translators: %d is the step number (1, 2, 3, etc.)
-		stepName = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
-	}
-
 	return (
 		<>
 			<div { ...blockProps }>
-				{ ! isPreview && <StepBreak stepName={ stepName } /> }
+				{ ! isPreview && (
+					<StepBreak stepLabel={ attributes.stepLabel } currentIndex={ currentIndex } />
+				) }
 				<div { ...innerBlocksProps } />
 				<AttributesControls
 					attributes={ attributes }

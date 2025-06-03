@@ -518,7 +518,7 @@ const variations = compact( [
 				[
 					[
 						'jetpack/form-step',
-						{ stepLabel: __( "Step 1 - Let's get acquainted", 'jetpack-forms' ) },
+						{ stepLabel: __( "Let's get acquainted", 'jetpack-forms' ) },
 						[
 							[ 'jetpack/field-name', { placeholder: __( 'Jamie Smith', 'jetpack-forms' ) } ],
 							[
@@ -541,27 +541,11 @@ const variations = compact( [
 									toggleLabel: __( 'Select one option', 'jetpack-forms' ),
 								},
 							],
-							[
-								'jetpack/form-step-navigation',
-								{ layout: { type: 'flex', justifyContent: 'right' } },
-								[
-									[
-										'jetpack/button',
-										{
-											element: 'button',
-											uniqueId: 'next-step',
-											customVariant: 'next',
-											text: __( 'Tell us more →', 'jetpack-forms' ),
-											lock: { move: false, remove: true },
-										},
-									],
-								],
-							],
 						],
 					],
 					[
 						'jetpack/form-step',
-						{ stepLabel: __( 'Step 2 - How can we help?', 'jetpack-forms' ) },
+						{ stepLabel: __( 'How can we help?', 'jetpack-forms' ) },
 						[
 							[
 								'jetpack/field-textarea',
@@ -579,36 +563,11 @@ const variations = compact( [
 									toggleLabel: __( 'Select one option', 'jetpack-forms' ),
 								},
 							],
-							[
-								'jetpack/form-step-navigation',
-								{ layout: { type: 'flex', justifyContent: 'space-between' } },
-								[
-									[
-										'jetpack/button',
-										{
-											element: 'button',
-											uniqueId: 'previous-step',
-											customVariant: 'previous',
-											text: __( '← Back', 'jetpack-forms' ),
-											className: 'is-style-outline',
-										},
-									],
-									[
-										'jetpack/button',
-										{
-											element: 'button',
-											uniqueId: 'next-step',
-											customVariant: 'next',
-											text: __( 'Set preferences →', 'jetpack-forms' ),
-										},
-									],
-								],
-							],
 						],
 					],
 					[
 						'jetpack/form-step',
-						{ stepLabel: __( 'Step 3 - Preferences', 'jetpack-forms' ) },
+						{ stepLabel: __( 'Preferences', 'jetpack-forms' ) },
 						[
 							[
 								'jetpack/field-select',
@@ -641,32 +600,32 @@ const variations = compact( [
 									),
 								},
 							],
-							[
-								'jetpack/form-step-navigation',
-								{ layout: { type: 'flex', justifyContent: 'space-between' } },
-								[
-									[
-										'jetpack/button',
-										{
-											element: 'button',
-											uniqueId: 'previous-step',
-											customVariant: 'previous',
-											text: __( '← Back', 'jetpack-forms' ),
-											className: 'is-style-outline',
-										},
-									],
-									[
-										'jetpack/button',
-										{
-											element: 'button',
-											uniqueId: 'submit-step',
-											customVariant: 'submit',
-											text: __( 'Submit', 'jetpack-forms' ),
-										},
-									],
-								],
-							],
 						],
+					],
+				],
+			],
+			[
+				'jetpack/form-step-navigation',
+				{ layout: { type: 'flex', justifyContent: 'space-between' } },
+				[
+					[
+						'jetpack/button',
+						{
+							element: 'button',
+							uniqueId: 'previous-step',
+							customVariant: 'previous',
+							text: __( '← Back', 'jetpack-forms' ),
+							className: 'is-style-outline',
+						},
+					],
+					[
+						'jetpack/button',
+						{
+							element: 'button',
+							uniqueId: 'next-step',
+							customVariant: 'next',
+							text: __( 'Next →', 'jetpack-forms' ),
+						},
 					],
 				],
 			],
