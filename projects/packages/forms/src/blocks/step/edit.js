@@ -28,6 +28,7 @@ const ALLOWED_BLOCKS = [
 	'jetpack/field-select',
 	'jetpack/field-consent',
 	'jetpack/form-step-navigation',
+	'jetpack/step-divider',
 	'core/audio',
 	'core/columns',
 	'core/group',
