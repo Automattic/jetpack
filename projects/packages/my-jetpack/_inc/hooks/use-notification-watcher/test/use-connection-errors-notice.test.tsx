@@ -7,6 +7,15 @@ import useAnalytics from '../../use-analytics';
 import useConnectionErrorsNotice from '../use-connection-errors-notice';
 import type { NoticeContextType } from '../../../context/notices/types';
 
+// Extend Window interface for our test properties
+declare global {
+	interface Window {
+		Initial_State?: {
+			adminUrl?: string;
+		};
+	}
+}
+
 // Mock the dependencies
 jest.mock( '@automattic/jetpack-connection' );
 jest.mock( '../../use-analytics' );
@@ -83,6 +92,14 @@ describe( 'useConnectionErrorsNotice', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+
+		// Reset window.location.href
+		window.location.href = '';
+
+		// Reset Initial_State to default
+		window.Initial_State = {
+			adminUrl: '/wp-admin/',
+		};
 
 		mockUseConnectionErrorNotice.mockReturnValue( defaultConnectionData );
 		mockUseRestoreConnection.mockReturnValue( defaultRestoreConnection );
@@ -231,18 +248,7 @@ describe( 'useConnectionErrorsNotice', () => {
 					timestamp: Date.now(),
 					nonce: 'test-nonce',
 				},
-				connectionErrors: {
-					protected_owner: {
-						'1': {
-							error_code: 'protected_owner',
-							error_message: 'The WordPress.com plan owner is missing',
-							error_type: 'protected_owner',
-							user_id: '1',
-							timestamp: Date.now(),
-							nonce: 'test-nonce',
-						},
-					},
-				},
+				connectionErrors: {},
 			} );
 		} );
 
@@ -294,19 +300,17 @@ describe( 'useConnectionErrorsNotice', () => {
 			window.Initial_State = { adminUrl: '/custom-admin/' };
 
 			mockUseConnectionErrorNotice.mockReturnValue( {
-				...defaultConnectionData,
-				connectionErrors: {
-					protected_owner: {
-						'1': {
-							error_code: 'protected_owner',
-							error_message: 'The WordPress.com plan owner is missing',
-							error_type: 'protected_owner',
-							user_id: '1',
-							timestamp: Date.now(),
-							nonce: 'test-nonce',
-						},
-					},
+				hasConnectionError: true,
+				connectionErrorMessage: 'The WordPress.com plan owner is missing',
+				connectionError: {
+					error_code: 'protected_owner',
+					error_message: 'The WordPress.com plan owner is missing',
+					error_type: 'protected_owner',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
 				},
+				connectionErrors: {},
 			} );
 
 			renderWithNoticeContext();
@@ -327,19 +331,17 @@ describe( 'useConnectionErrorsNotice', () => {
 			window.Initial_State = undefined;
 
 			mockUseConnectionErrorNotice.mockReturnValue( {
-				...defaultConnectionData,
-				connectionErrors: {
-					protected_owner: {
-						'1': {
-							error_code: 'protected_owner',
-							error_message: 'The WordPress.com plan owner is missing',
-							error_type: 'protected_owner',
-							user_id: '1',
-							timestamp: Date.now(),
-							nonce: 'test-nonce',
-						},
-					},
+				hasConnectionError: true,
+				connectionErrorMessage: 'The WordPress.com plan owner is missing',
+				connectionError: {
+					error_code: 'protected_owner',
+					error_message: 'The WordPress.com plan owner is missing',
+					error_type: 'protected_owner',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
 				},
+				connectionErrors: {},
 			} );
 
 			renderWithNoticeContext();
@@ -359,19 +361,17 @@ describe( 'useConnectionErrorsNotice', () => {
 		it( 'should detect protected owner error by error_type field', async () => {
 			// Test with different error message but correct error_type
 			mockUseConnectionErrorNotice.mockReturnValue( {
-				...defaultConnectionData,
-				connectionErrors: {
-					protected_owner: {
-						'1': {
-							error_code: 'protected_owner',
-							error_message: 'Some other error message without keywords',
-							error_type: 'protected_owner',
-							user_id: '1',
-							timestamp: Date.now(),
-							nonce: 'test-nonce',
-						},
-					},
+				hasConnectionError: true,
+				connectionErrorMessage: 'Some other error message without keywords',
+				connectionError: {
+					error_code: 'protected_owner',
+					error_message: 'Some other error message without keywords',
+					error_type: 'protected_owner',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
 				},
+				connectionErrors: {},
 			} );
 
 			renderWithNoticeContext();
@@ -399,19 +399,17 @@ describe( 'useConnectionErrorsNotice', () => {
 		it( 'should not detect protected owner error with wrong error_type', async () => {
 			// Test with message containing keywords but wrong error_type
 			mockUseConnectionErrorNotice.mockReturnValue( {
-				...defaultConnectionData,
-				connectionErrors: {
-					invalid_token: {
-						'1': {
-							error_code: 'invalid_token',
-							error_message: 'The WordPress.com plan owner has an invalid token',
-							error_type: 'connection',
-							user_id: '1',
-							timestamp: Date.now(),
-							nonce: 'test-nonce',
-						},
-					},
+				hasConnectionError: true,
+				connectionErrorMessage: 'The WordPress.com plan owner has an invalid token',
+				connectionError: {
+					error_code: 'invalid_token',
+					error_message: 'The WordPress.com plan owner has an invalid token',
+					error_type: 'connection',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
 				},
+				connectionErrors: {},
 			} );
 
 			renderWithNoticeContext();
@@ -441,19 +439,17 @@ describe( 'useConnectionErrorsNotice', () => {
 	describe( 'notice priority calculation', () => {
 		it( 'should use higher priority when restoring connection', async () => {
 			mockUseConnectionErrorNotice.mockReturnValue( {
-				...defaultConnectionData,
-				connectionErrors: {
-					invalid_token: {
-						'1': {
-							error_code: 'invalid_token',
-							error_message: 'Connection error',
-							error_type: 'connection',
-							user_id: '1',
-							timestamp: Date.now(),
-							nonce: 'test-nonce',
-						},
-					},
+				hasConnectionError: true,
+				connectionErrorMessage: 'Connection error',
+				connectionError: {
+					error_code: 'invalid_token',
+					error_message: 'Connection error',
+					error_type: 'connection',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
 				},
+				connectionErrors: {},
 			} );
 
 			mockUseRestoreConnection.mockReturnValue( {
@@ -476,19 +472,17 @@ describe( 'useConnectionErrorsNotice', () => {
 
 		it( 'should use base priority when not restoring connection', async () => {
 			mockUseConnectionErrorNotice.mockReturnValue( {
-				...defaultConnectionData,
-				connectionErrors: {
-					invalid_token: {
-						'1': {
-							error_code: 'invalid_token',
-							error_message: 'Connection error',
-							error_type: 'connection',
-							user_id: '1',
-							timestamp: Date.now(),
-							nonce: 'test-nonce',
-						},
-					},
+				hasConnectionError: true,
+				connectionErrorMessage: 'Connection error',
+				connectionError: {
+					error_code: 'invalid_token',
+					error_message: 'Connection error',
+					error_type: 'connection',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
 				},
+				connectionErrors: {},
 			} );
 
 			renderWithNoticeContext();
@@ -514,19 +508,17 @@ describe( 'useConnectionErrorsNotice', () => {
 
 			// Add an error
 			mockUseConnectionErrorNotice.mockReturnValue( {
-				...defaultConnectionData,
-				connectionErrors: {
-					protected_owner: {
-						'1': {
-							error_code: 'protected_owner',
-							error_message: 'New connection error',
-							error_type: 'protected_owner',
-							user_id: '1',
-							timestamp: Date.now(),
-							nonce: 'test-nonce',
-						},
-					},
+				hasConnectionError: true,
+				connectionErrorMessage: 'New connection error',
+				connectionError: {
+					error_code: 'protected_owner',
+					error_message: 'New connection error',
+					error_type: 'protected_owner',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
 				},
+				connectionErrors: {},
 			} );
 
 			rerender();
