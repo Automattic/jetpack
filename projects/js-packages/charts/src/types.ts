@@ -1,6 +1,7 @@
 import { AxisScale, Orientation, TickFormatter } from '@visx/axis';
 import { ScaleInput, ScaleType } from '@visx/scale';
-import { EventHandlerParams, GridStyles, LineStyles } from '@visx/xychart';
+import { GridStyles, LineStyles } from '@visx/xychart';
+import type { EventHandlerParams } from '@visx/xychart';
 import type { PointerEvent } from 'react';
 
 type ValueOf< T > = T[ keyof T ];

@@ -17,5 +17,4 @@ export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler
 
 // Types
 export * from './types';
-
 export type { LineStyles, GridStyles } from '@visx/xychart';
