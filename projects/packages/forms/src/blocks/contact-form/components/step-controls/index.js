@@ -6,14 +6,14 @@ import {
 	MenuGroup,
 	MenuItem,
 	ToolbarDropdownMenu,
-	SVG,
-	Path,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { next, previous } from '@wordpress/icons';
+import { next, previous, check } from '@wordpress/icons';
 import useStepNavigation from '../../../../hooks/use-step-navigation';
 import { store as singleStepStore } from '../../../../store/preview-store';
+import StepContainerIcon from '../icons/StepContainerIcon';
+import StepIcon from '../icons/StepIcon';
 
 /**
  * Toolbar controls for managing steps within a multi-step form.
@@ -67,20 +67,15 @@ export default function StepControls( { formClientId, updateStepSelected = false
 		<BlockControls>
 			<ToolbarGroup>
 				<ToolbarDropdownMenu
-					icon={
-						<SVG viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
-							<Path d="M7 10l5 5 5-5z" />
-						</SVG>
-					}
+					icon={ ! isSingleStep ? <StepContainerIcon /> : <StepIcon /> }
 					text={ ! isSingleStep ? __( 'All steps', 'jetpack-forms' ) : displayLabel }
-					popoverProps={ { placement: 'bottom-start' } }
 					toggleProps={ {
 						showTooltip: true,
-						children: ! isSingleStep ? __( 'All steps', 'jetpack-forms' ) : displayLabel,
+						label: __( 'Edit mode', 'jetpack-forms' ),
 					} }
 				>
 					{ ( { onClose } ) => (
-						<MenuGroup key="choose-steps" label={ __( 'Available Steps', 'jetpack-forms' ) }>
+						<MenuGroup key="choose-steps" label={ __( 'Edit mode', 'jetpack-forms' ) }>
 							<MenuItem
 								onClick={ () => {
 									if ( isSingleStep ) {
@@ -89,9 +84,14 @@ export default function StepControls( { formClientId, updateStepSelected = false
 									onClose();
 								} }
 								isSelected={ ! isSingleStep }
-								icon={ ! isSingleStep ? 'yes' : null }
+								icon={ <StepContainerIcon /> }
+								suffix={ ! isSingleStep ? <Icon icon={ check } /> : null }
 							>
 								{ __( 'All steps', 'jetpack-forms' ) }
+							</MenuItem>
+							<hr />
+							<MenuItem disabled icon={ <StepIcon /> }>
+								{ __( 'Single step', 'jetpack-forms' ) }
 							</MenuItem>
 							{ steps.map( ( step, index ) => (
 								<MenuItem
@@ -102,7 +102,11 @@ export default function StepControls( { formClientId, updateStepSelected = false
 										onClose();
 									} }
 									isSelected={ selectedStepId === step.clientId && isSingleStep }
-									icon={ selectedStepId === step.clientId && isSingleStep ? 'yes' : null }
+									suffix={
+										selectedStepId === step.clientId && isSingleStep ? (
+											<Icon icon={ check } />
+										) : null
+									}
 								>
 									{ `${ index + 1 }. ${ step?.attributes?.stepLabel }` }
 								</MenuItem>
