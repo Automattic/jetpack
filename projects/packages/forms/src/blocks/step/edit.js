@@ -3,7 +3,7 @@ import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import useFormSteps from '../../hooks/use-form-steps';
 import useParentFormClientId from '../../hooks/use-parent-form-client-id';
-import { store as previewStore } from '../../store/preview-store';
+import { store as singleStepStore } from '../../store/preview-store';
 import AddStepControls from '../contact-form/components/add-step-controls';
 import StepControls from '../contact-form/components/step-controls';
 import AttributesControls from './attributes-controls';
@@ -88,9 +88,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const steps = useFormSteps( ancestorFormClientId );
 
 	// Get information about the previous step and its blocks
-	const { currentIndex, selectedStepClientId, isPreview, previousStepBlocks } = useSelect(
+	const { currentIndex, selectedStepClientId, isSingleStep, previousStepBlocks } = useSelect(
 		select => {
-			const { isPreviewMode, getActivePreviewStepId } = select( previewStore );
+			const { isSingleStepMode, getActiveStepId } = select( singleStepStore );
 			const { getBlocks } = select( 'core/block-editor' );
 
 			const currentStepIndex = steps.findIndex( block => block.clientId === clientId );
@@ -103,8 +103,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 			return {
 				currentIndex: currentStepIndex,
-				selectedStepClientId: getActivePreviewStepId( ancestorFormClientId ),
-				isPreview: isPreviewMode( ancestorFormClientId ),
+				selectedStepClientId: getActiveStepId( ancestorFormClientId ),
+				isSingleStep: isSingleStepMode( ancestorFormClientId ),
 				previousStepBlocks: prevBlocks,
 			};
 		},
@@ -119,14 +119,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	} );
 
 	// Only render the step content if it's the selected one or if "All Steps" is selected.
-	if ( isPreview && selectedStepClientId !== clientId ) {
+	if ( isSingleStep && selectedStepClientId !== clientId ) {
 		return null;
 	}
 
 	return (
 		<>
 			<div { ...blockProps }>
-				{ ! isPreview && (
+				{ ! isSingleStep && (
 					<StepBreak stepLabel={ attributes.stepLabel } currentIndex={ currentIndex } />
 				) }
 				<div { ...innerBlocksProps } />
@@ -136,12 +136,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					clientId={ clientId }
 				/>
 			</div>
-			<StepControls
-				formClientId={ ancestorFormClientId }
-				showToggle={ false }
-				showNavigation={ true }
-				updateStepSelected={ true }
-			/>
+			<StepControls formClientId={ ancestorFormClientId } updateStepSelected={ true } />
 			<AddStepControls clientId={ clientId } formClientId={ ancestorFormClientId } />
 		</>
 	);

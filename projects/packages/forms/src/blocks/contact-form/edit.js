@@ -27,7 +27,7 @@ import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
 import { useFindBlockRecursively } from '../../hooks/use-find-block-recursively';
 import useFormSteps from '../../hooks/use-form-steps';
-import { store as previewStore } from '../../store/preview-store';
+import { store as singleStepStore } from '../../store/preview-store';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
@@ -148,12 +148,12 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		}
 	}, [ submitButton ] );
 
-	const { currentStepInfo, isPreview } = useSelect(
+	const { currentStepInfo, isSingleStep } = useSelect(
 		select => {
-			const { getCurrentStepInfo, isPreviewMode } = select( previewStore );
+			const { getCurrentStepInfo, isSingleStepMode } = select( singleStepStore );
 			return {
 				currentStepInfo: getCurrentStepInfo( clientId, steps ),
-				isPreview: isPreviewMode( clientId ),
+				isSingleStep: isSingleStepMode( clientId ),
 			};
 		},
 		[ clientId, steps ]
@@ -169,7 +169,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		'jetpack-contact-form',
 		isFirstStep && 'is-first-step',
 		isLastStep && 'is-last-step',
-		variationName === 'multistep' && isPreview && 'is-previewing-step'
+		variationName === 'multistep' && isSingleStep && 'is-previewing-step'
 	);
 
 	const innerBlocksProps = useInnerBlocksProps(
@@ -353,19 +353,36 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		initialStepContainer,
 	] );
 
-	const { setPreviewStep } = useDispatch( previewStore );
+	const { setActiveStep } = useDispatch( singleStepStore );
+
+	// Find the selected block and its parent step block
+	const selectedBlock = useFindBlockRecursively(
+		selectedBlockClientId,
+		block => block.clientId === selectedBlockClientId
+	);
+	const stepBlock = useFindBlockRecursively(
+		selectedBlock?.clientId || '',
+		block => block.name === 'jetpack/form-step'
+	);
 
 	useEffect( () => {
-		if ( ! isPreview ) {
+		if ( ! isSingleStep ) {
 			return;
 		}
-		if ( selectedBlockClientId && selectedBlockClientId !== clientId ) {
-			const isCurrentBlockAStep = steps.some( step => step.clientId === selectedBlockClientId );
-			if ( isCurrentBlockAStep ) {
-				setPreviewStep( clientId, selectedBlockClientId );
-			}
+
+		// If a block is selected, make sure it's in the current step
+		if ( selectedBlockClientId && stepBlock && stepBlock.clientId !== currentStepInfo?.clientId ) {
+			setActiveStep( clientId, stepBlock.clientId );
 		}
-	}, [ selectedBlockClientId, clientId, steps, setPreviewStep, isPreview ] );
+	}, [
+		selectedBlockClientId,
+		clientId,
+		steps,
+		setActiveStep,
+		isSingleStep,
+		currentStepInfo,
+		stepBlock,
+	] );
 
 	let elt;
 

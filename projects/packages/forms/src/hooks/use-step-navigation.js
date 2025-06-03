@@ -1,7 +1,7 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { store as previewStore } from '../store/preview-store';
+import { store as singleStepStore } from '../store/preview-store';
 import useFormSteps from './use-form-steps';
 
 /**
@@ -16,13 +16,13 @@ import useFormSteps from './use-form-steps';
  * @return {object} Navigation functions and state
  */
 const useStepNavigation = ( formClientId, updateStepSelected ) => {
-	const { setPreviewStep } = useDispatch( previewStore );
+	const { setActiveStep } = useDispatch( singleStepStore );
 	const { selectBlock } = useDispatch( blockEditorStore );
 	const steps = useFormSteps( formClientId );
 
 	const { currentStepInfo } = useSelect(
 		select => {
-			const { getCurrentStepInfo } = select( previewStore );
+			const { getCurrentStepInfo } = select( singleStepStore );
 
 			return {
 				currentStepInfo: getCurrentStepInfo( formClientId, steps ),
@@ -41,12 +41,12 @@ const useStepNavigation = ( formClientId, updateStepSelected ) => {
 		}
 
 		const nextStepId = steps[ index + 1 ].clientId;
-		setPreviewStep( formClientId, nextStepId );
+		setActiveStep( formClientId, nextStepId );
 		if ( updateStepSelected ) {
 			// If the current step is selected, we need to deselect it
 			selectBlock( nextStepId );
 		}
-	}, [ currentStepInfo, steps, setPreviewStep, formClientId, updateStepSelected, selectBlock ] );
+	}, [ currentStepInfo, steps, setActiveStep, formClientId, updateStepSelected, selectBlock ] );
 
 	// Navigate to the previous step
 	const navigateToPreviousStep = useCallback( () => {
@@ -58,12 +58,12 @@ const useStepNavigation = ( formClientId, updateStepSelected ) => {
 		}
 
 		const prevStepId = steps[ index - 1 ].clientId;
-		setPreviewStep( formClientId, prevStepId );
+		setActiveStep( formClientId, prevStepId );
 		if ( updateStepSelected ) {
 			// If the current step is selected, we need to deselect it
 			selectBlock( prevStepId );
 		}
-	}, [ currentStepInfo, steps, setPreviewStep, formClientId, updateStepSelected, selectBlock ] );
+	}, [ currentStepInfo, steps, setActiveStep, formClientId, updateStepSelected, selectBlock ] );
 
 	// Navigate to a specific step by index
 	const navigateToStep = useCallback(
@@ -73,13 +73,13 @@ const useStepNavigation = ( formClientId, updateStepSelected ) => {
 			}
 
 			const stepId = steps[ stepIndex ].clientId;
-			setPreviewStep( formClientId, stepId );
+			setActiveStep( formClientId, stepId );
 			if ( updateStepSelected ) {
 				// If the current step is selected, we need to deselect it
 				selectBlock( stepId );
 			}
 		},
-		[ steps, setPreviewStep, formClientId, updateStepSelected, selectBlock ]
+		[ steps, setActiveStep, formClientId, updateStepSelected, selectBlock ]
 	);
 
 	return {

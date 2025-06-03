@@ -6,7 +6,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useContainerId from '../../../../hooks/use-container-id';
 import useFormSteps from '../../../../hooks/use-form-steps';
-import { store as previewStore } from '../../../../store/preview-store';
+import { store as singleStepStore } from '../../../../store/preview-store';
 
 /**
  * Toolbar controls for managing steps within a multi-step form.
@@ -17,17 +17,17 @@ import { store as previewStore } from '../../../../store/preview-store';
  * @return {JSX.Element} The rendered BlockControls component.
  */
 export default function AddStepControls( { clientId, formClientId } ) {
-	const { setPreviewStep } = useDispatch( previewStore );
+	const { setActiveStep } = useDispatch( singleStepStore );
 
 	const { insertBlock } = useDispatch( blockEditorStore );
 
 	const containerId = useContainerId( formClientId );
 	const steps = useFormSteps( formClientId );
-	const { isPreview } = useSelect(
+	const { isSingleStep } = useSelect(
 		select => {
-			const { isPreviewMode } = select( previewStore );
+			const { isSingleStepMode } = select( singleStepStore );
 			return {
-				isPreview: isPreviewMode( formClientId ),
+				isSingleStep: isSingleStepMode( formClientId ),
 			};
 		},
 		[ formClientId ]
@@ -35,19 +35,19 @@ export default function AddStepControls( { clientId, formClientId } ) {
 
 	// Custom function to insert a step container block after a specific block
 	const insertStepAtIndex = useCallback(
-		( targetId, index, formId, isPreviewMode ) => {
+		( targetId, index, formId, isSingleStepMode ) => {
 			// Create a new step container block with default attributes
 			const newStepBlock = createBlock( 'jetpack/form-step' );
 			insertBlock( newStepBlock, index, targetId );
 
-			// Set this as the preview step if in preview mode
-			if ( isPreviewMode ) {
+			// Set this as the active step if in single step mode
+			if ( isSingleStepMode ) {
 				setTimeout( () => {
-					setPreviewStep( formId, newStepBlock.clientId );
+					setActiveStep( formId, newStepBlock.clientId );
 				}, 10 );
 			}
 		},
-		[ insertBlock, setPreviewStep ]
+		[ insertBlock, setActiveStep ]
 	);
 
 	// Don't render controls if there are no steps
@@ -74,7 +74,7 @@ export default function AddStepControls( { clientId, formClientId } ) {
 							{ currentStepIndex !== -1 && (
 								<MenuItem
 									onClick={ () => {
-										insertStepAtIndex( containerId, currentStepIndex, formClientId, isPreview );
+										insertStepAtIndex( containerId, currentStepIndex, formClientId, isSingleStep );
 										onClose();
 									} }
 								>
@@ -84,7 +84,12 @@ export default function AddStepControls( { clientId, formClientId } ) {
 							{ currentStepIndex !== -1 && (
 								<MenuItem
 									onClick={ () => {
-										insertStepAtIndex( containerId, currentStepIndex + 1, formClientId, isPreview );
+										insertStepAtIndex(
+											containerId,
+											currentStepIndex + 1,
+											formClientId,
+											isSingleStep
+										);
 										onClose();
 									} }
 								>
@@ -94,7 +99,7 @@ export default function AddStepControls( { clientId, formClientId } ) {
 							{ currentStepIndex === -1 && (
 								<MenuItem
 									onClick={ () => {
-										insertStepAtIndex( containerId, 0, formClientId, isPreview );
+										insertStepAtIndex( containerId, 0, formClientId, isSingleStep );
 										onClose();
 									} }
 								>
@@ -104,7 +109,7 @@ export default function AddStepControls( { clientId, formClientId } ) {
 							{ currentStepIndex === -1 && (
 								<MenuItem
 									onClick={ () => {
-										insertStepAtIndex( containerId, steps.length, formClientId, isPreview );
+										insertStepAtIndex( containerId, steps.length, formClientId, isSingleStep );
 										onClose();
 									} }
 								>

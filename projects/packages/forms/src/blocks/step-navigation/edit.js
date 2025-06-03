@@ -9,6 +9,7 @@ import { useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useFormSteps from '../../hooks/use-form-steps';
 import useParentFormClientId from '../../hooks/use-parent-form-client-id';
+import { store as singleStepStore } from '../../store/preview-store';
 import StepControls from '../contact-form/components/step-controls';
 
 import './editor.scss';
@@ -65,14 +66,14 @@ export default function Edit( { clientId } ) {
 	const formClientId = useParentFormClientId( clientId );
 	const steps = useFormSteps( formClientId );
 
-	// Get the preview mode state and active step
-	const { isPreviewMode, activePreviewStepId } = useSelect(
+	// Get the single step mode state and active step
+	const { isSingleStep, activeStepId } = useSelect(
 		select => {
-			if ( ! formClientId ) return { isPreviewMode: false, activePreviewStepId: null };
-			const formsPreviewStore = select( 'jetpack/forms/preview' );
+			if ( ! formClientId ) return { isSingleStep: false, activeStepId: null };
+			const { isSingleStepMode, getActiveStepId } = select( singleStepStore );
 			return {
-				isPreviewMode: formsPreviewStore.isPreviewMode( formClientId ),
-				activePreviewStepId: formsPreviewStore.getActivePreviewStepId( formClientId ),
+				isSingleStep: isSingleStepMode( formClientId ),
+				activeStepId: getActiveStepId( formClientId ),
 			};
 		},
 		[ formClientId ]
@@ -86,9 +87,9 @@ export default function Edit( { clientId } ) {
 	let isLastStep = false;
 	let currentIndex = 0;
 
-	if ( isOutsideSteps && isPreviewMode && activePreviewStepId ) {
-		// When outside steps but in preview mode, show buttons based on the active preview step
-		const activeStepIndex = steps.findIndex( block => block.clientId === activePreviewStepId );
+	if ( isOutsideSteps && isSingleStep && activeStepId ) {
+		// When outside steps but in single step mode, show buttons based on the active step
+		const activeStepIndex = steps.findIndex( block => block.clientId === activeStepId );
 		if ( activeStepIndex !== -1 ) {
 			isFirstStep = activeStepIndex === 0;
 			isLastStep = activeStepIndex === steps.length - 1;
@@ -114,7 +115,7 @@ export default function Edit( { clientId } ) {
 	);
 
 	const template = useMemo( () => {
-		// When outside steps and not in preview mode, show all buttons
+		// When outside steps and not in single step mode, show all buttons
 		if ( isOutsideSteps ) {
 			return [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE, SUBMIT_BUTTON_TEMPLATE ];
 		}

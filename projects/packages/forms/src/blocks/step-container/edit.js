@@ -26,7 +26,7 @@ export default function StepContainerEdit( { clientId } ) {
 			<div className="jetpack-form-steps-wrapper">
 				<div { ...innerBlocksProps } />
 			</div>
-			<StepControls formClientId={ formClientId } showToggle={ false } showNavigation={ true } />
+			<StepControls formClientId={ formClientId } />
 			<AddStepControls formClientId={ formClientId } clientId={ clientId } />
 		</>
 	);
