@@ -1,3 +1,4 @@
+import { getProtectedOwnerCreateAccountUrl } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -43,7 +44,25 @@ export default class JetpackConnectionErrors extends React.Component {
 					</SimpleNotice>
 				);
 			case 'create_missing_account': {
-				const createAccountUrl = errorData.support_url || '/wp-admin/user-new.php';
+				// Check if this is a protected owner error with email data
+				let createAccountUrl = errorData.support_url || '/wp-admin/user-new.php';
+
+				// If we have error data that looks like a protected owner error, use prepopulation
+				if ( errorData && ( errorData.email || errorData.wpcom_user_email ) ) {
+					// Create a mock connection error object for the helper function
+					const connectionError = {
+						error_data: {
+							email: errorData.email,
+							wpcom_user_email: errorData.wpcom_user_email,
+						},
+					};
+
+					// Get admin URL from window.Initial_State or use default
+					const adminUrl =
+						( typeof window !== 'undefined' && window.Initial_State?.adminUrl ) || '/wp-admin/';
+					createAccountUrl = getProtectedOwnerCreateAccountUrl( connectionError, adminUrl );
+				}
+
 				return (
 					<SimpleNotice
 						text={ message }

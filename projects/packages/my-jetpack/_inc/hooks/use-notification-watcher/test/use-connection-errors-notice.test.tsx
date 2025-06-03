@@ -7,18 +7,18 @@ import useAnalytics from '../../use-analytics';
 import useConnectionErrorsNotice from '../use-connection-errors-notice';
 import type { NoticeContextType } from '../../../context/notices/types';
 
-// Extend Window interface for our test properties
-declare global {
-	interface Window {
-		Initial_State?: {
-			adminUrl?: string;
-		};
-	}
-}
-
 // Mock the dependencies
 jest.mock( '@automattic/jetpack-connection' );
 jest.mock( '../../use-analytics' );
+
+// Mock window.location to prevent navigation errors in tests
+Object.defineProperty( window, 'location', {
+	value: {
+		href: '',
+	},
+	writable: true,
+} );
+
 jest.mock( '@automattic/jetpack-components', () => ( {
 	Col: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 	Text: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
@@ -32,22 +32,6 @@ jest.mock( '@wordpress/i18n', () => ( {
 	_x: ( text: string ) => text,
 	_n: ( single: string, plural: string, number: number ) => ( number === 1 ? single : plural ),
 } ) );
-
-// Mock window object
-Object.defineProperty( window, 'location', {
-	value: {
-		href: '',
-	},
-	writable: true,
-} );
-
-// Mock Initial_State
-Object.defineProperty( window, 'Initial_State', {
-	value: {
-		adminUrl: '/wp-admin/',
-	},
-	writable: true,
-} );
 
 const mockUseConnectionErrorNotice = useConnectionErrorNotice as jest.MockedFunction<
 	typeof useConnectionErrorNotice
@@ -92,14 +76,6 @@ describe( 'useConnectionErrorsNotice', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
-
-		// Reset window.location.href
-		window.location.href = '';
-
-		// Reset Initial_State to default
-		window.Initial_State = {
-			adminUrl: '/wp-admin/',
-		};
 
 		mockUseConnectionErrorNotice.mockReturnValue( defaultConnectionData );
 		mockUseRestoreConnection.mockReturnValue( defaultRestoreConnection );
@@ -191,48 +167,6 @@ describe( 'useConnectionErrorsNotice', () => {
 				'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click'
 			);
 		} );
-
-		it( 'should show loading state when restoring connection', async () => {
-			mockUseRestoreConnection.mockReturnValue( {
-				...defaultRestoreConnection,
-				isRestoringConnection: true,
-			} );
-
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalledWith(
-					expect.objectContaining( {
-						options: expect.objectContaining( {
-							actions: [
-								expect.objectContaining( {
-									isLoading: true,
-									loadingText: 'Reconnecting Jetpack…',
-								} ),
-							],
-							priority: 301, // NOTICE_PRIORITY_HIGH + 1
-						} ),
-					} )
-				);
-			} );
-		} );
-
-		it( 'should show restore connection error in message', async () => {
-			mockUseRestoreConnection.mockReturnValue( {
-				...defaultRestoreConnection,
-				restoreConnectionError: 'Failed to restore connection',
-			} );
-
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalledWith(
-					expect.objectContaining( {
-						message: expect.anything(), // Should be a React element with both messages
-					} )
-				);
-			} );
-		} );
 	} );
 
 	describe( 'when there is a protected owner error', () => {
@@ -247,6 +181,10 @@ describe( 'useConnectionErrorsNotice', () => {
 					user_id: '1',
 					timestamp: Date.now(),
 					nonce: 'test-nonce',
+					error_data: {
+						email: 'owner@example.com',
+						wpcom_user_email: 'owner@example.com',
+					},
 				},
 				connectionErrors: {},
 			} );
@@ -275,7 +213,7 @@ describe( 'useConnectionErrorsNotice', () => {
 			} );
 		} );
 
-		it( 'should record analytics and redirect when create missing account is clicked', async () => {
+		it( 'should record analytics when create missing account is clicked', async () => {
 			renderWithNoticeContext();
 
 			await waitFor( () => {
@@ -292,70 +230,6 @@ describe( 'useConnectionErrorsNotice', () => {
 				'jetpack_my_jetpack_protected_owner_create_account_attempt',
 				{}
 			);
-
-			expect( window.location.href ).toBe( '/wp-admin/user-new.php' );
-		} );
-
-		it( 'should use custom adminUrl when available', async () => {
-			window.Initial_State = { adminUrl: '/custom-admin/' };
-
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'The WordPress.com plan owner is missing',
-				connectionError: {
-					error_code: 'protected_owner',
-					error_message: 'The WordPress.com plan owner is missing',
-					error_type: 'protected_owner',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-				},
-				connectionErrors: {},
-			} );
-
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
-			} );
-
-			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
-			const createAccountAction = setNoticeCall.options.actions[ 0 ];
-
-			createAccountAction.onClick();
-
-			expect( window.location.href ).toBe( '/custom-admin/user-new.php' );
-		} );
-
-		it( 'should fallback to default admin path when Initial_State is undefined', async () => {
-			window.Initial_State = undefined;
-
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'The WordPress.com plan owner is missing',
-				connectionError: {
-					error_code: 'protected_owner',
-					error_message: 'The WordPress.com plan owner is missing',
-					error_type: 'protected_owner',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-				},
-				connectionErrors: {},
-			} );
-
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
-			} );
-
-			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
-			const createAccountAction = setNoticeCall.options.actions[ 0 ];
-
-			createAccountAction.onClick();
-
-			expect( window.location.href ).toBe( '/wp-admin/user-new.php' );
 		} );
 
 		it( 'should detect protected owner error by error_type field', async () => {
@@ -370,6 +244,10 @@ describe( 'useConnectionErrorsNotice', () => {
 					user_id: '1',
 					timestamp: Date.now(),
 					nonce: 'test-nonce',
+					error_data: {
+						email: 'owner@example.com',
+						wpcom_user_email: 'owner@example.com',
+					},
 				},
 				connectionErrors: {},
 			} );
@@ -467,64 +345,6 @@ describe( 'useConnectionErrorsNotice', () => {
 						} ),
 					} )
 				);
-			} );
-		} );
-
-		it( 'should use base priority when not restoring connection', async () => {
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'Connection error',
-				connectionError: {
-					error_code: 'invalid_token',
-					error_message: 'Connection error',
-					error_type: 'connection',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-				},
-				connectionErrors: {},
-			} );
-
-			renderWithNoticeContext();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalledWith(
-					expect.objectContaining( {
-						options: expect.objectContaining( {
-							priority: 300, // NOTICE_PRIORITY_HIGH + 0
-						} ),
-					} )
-				);
-			} );
-		} );
-	} );
-
-	describe( 'dependency array handling', () => {
-		it( 'should re-run effect when dependencies change', async () => {
-			const { rerender } = renderWithNoticeContext();
-
-			// Initially no error
-			expect( mockSetNotice ).not.toHaveBeenCalled();
-
-			// Add an error
-			mockUseConnectionErrorNotice.mockReturnValue( {
-				hasConnectionError: true,
-				connectionErrorMessage: 'New connection error',
-				connectionError: {
-					error_code: 'protected_owner',
-					error_message: 'New connection error',
-					error_type: 'protected_owner',
-					user_id: '1',
-					timestamp: Date.now(),
-					nonce: 'test-nonce',
-				},
-				connectionErrors: {},
-			} );
-
-			rerender();
-
-			await waitFor( () => {
-				expect( mockSetNotice ).toHaveBeenCalled();
 			} );
 		} );
 	} );

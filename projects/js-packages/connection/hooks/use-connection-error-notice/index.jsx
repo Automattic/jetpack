@@ -4,6 +4,34 @@ import useConnection from '../../components/use-connection';
 import useRestoreConnection from '../../hooks/use-restore-connection/index.jsx';
 
 /**
+ * Helper function to generate user creation URL with email prepopulation
+ *
+ * @param {object} connectionError - The connection error object
+ * @param {string} baseUrl         - Base admin URL (defaults to '/wp-admin/')
+ * @return {string} The complete URL for user creation with email parameters
+ */
+export function getProtectedOwnerCreateAccountUrl( connectionError, baseUrl = '/wp-admin/' ) {
+	let redirectUrl = baseUrl + 'user-new.php';
+
+	// Add protected owner email if available for prepopulation
+	if ( connectionError?.error_data?.wpcom_user_email ) {
+		const params = new URLSearchParams( {
+			jetpack_protected_owner_email: connectionError.error_data.wpcom_user_email,
+			jetpack_create_missing_account: '1',
+		} );
+		redirectUrl += '?' + params.toString();
+	} else if ( connectionError?.error_data?.email ) {
+		const params = new URLSearchParams( {
+			jetpack_protected_owner_email: connectionError.error_data.email,
+			jetpack_create_missing_account: '1',
+		} );
+		redirectUrl += '?' + params.toString();
+	}
+
+	return redirectUrl;
+}
+
+/**
  * Connection error notice hook.
  * Returns connection error data and conditional flag on whether
  * to render the component or not.

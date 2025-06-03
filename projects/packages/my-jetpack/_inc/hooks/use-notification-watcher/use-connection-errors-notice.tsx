@@ -1,5 +1,9 @@
 import { Col, Text } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, useRestoreConnection } from '@automattic/jetpack-connection';
+import {
+	useConnectionErrorNotice,
+	useRestoreConnection,
+	getProtectedOwnerCreateAccountUrl,
+} from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
@@ -29,10 +33,13 @@ const useConnectionErrorsNotice = () => {
 		// Track the attempt to use create missing account
 		recordEvent( 'jetpack_my_jetpack_protected_owner_create_account_attempt', {} );
 
-		// Navigate to the WordPress Add New User admin page
+		// Get admin URL and generate the complete URL with email prepopulation
 		const initialState = window?.Initial_State as { adminUrl?: string } | undefined;
-		window.location.href = ( initialState?.adminUrl || '/wp-admin/' ) + 'user-new.php';
-	}, [ recordEvent ] );
+		const adminUrl = initialState?.adminUrl || '/wp-admin/';
+		const redirectUrl = getProtectedOwnerCreateAccountUrl( connectionError, adminUrl );
+
+		window.location.href = redirectUrl;
+	}, [ recordEvent, connectionError ] );
 
 	useEffect( () => {
 		// Use the enhanced hook data - it now includes protected owner errors

@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import { render, renderHook } from '@testing-library/react';
 import React from 'react';
+import { getProtectedOwnerCreateAccountUrl } from '../index.jsx';
 
 // Create manual mocks
 const mockConnectionData = {
@@ -14,13 +15,13 @@ const mockRestoreConnectionData = {
 };
 
 // Mock useConnection manually
-const useConnection = jest.fn().mockReturnValue( mockConnectionData );
+const mockUseConnection = jest.fn().mockReturnValue( mockConnectionData );
 
 // Mock useRestoreConnection manually
-const useRestoreConnection = jest.fn().mockReturnValue( mockRestoreConnectionData );
+const mockUseRestoreConnection = jest.fn().mockReturnValue( mockRestoreConnectionData );
 
 // Mock the ConnectionErrorNotice component manually
-const ConnectionErrorNotice = jest.fn().mockImplementation( () => <div>Mocked Notice</div> );
+const MockConnectionErrorNotice = jest.fn().mockImplementation( () => <div>Mocked Notice</div> );
 
 // Create a custom hook that uses our mocked dependencies
 /**
@@ -32,8 +33,8 @@ const ConnectionErrorNotice = jest.fn().mockImplementation( () => <div>Mocked No
  * @property {object}  connectionError        - The connection error object.
  * @property {object}  connectionErrors       - All connection errors.
  */
-function useConnectionErrorNotice() {
-	const { connectionErrors } = useConnection( {} );
+function mockUseConnectionErrorNotice() {
+	const { connectionErrors } = mockUseConnection( {} );
 	const connectionErrorList = Object.values( connectionErrors ).shift();
 	const firstError =
 		connectionErrorList &&
@@ -52,15 +53,15 @@ function useConnectionErrorNotice() {
 }
 
 // Create a custom ConnectionError component that uses our mocked dependencies
-const ConnectionError = ( {
+const MockConnectionError = ( {
 	onCreateMissingAccount = null,
 	trackingCallback = null,
 	customActions = null,
 } = {} ) => {
 	const { hasConnectionError, connectionErrorMessage, connectionError } =
-		useConnectionErrorNotice();
+		mockUseConnectionErrorNotice();
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
-		useRestoreConnection();
+		mockUseRestoreConnection();
 
 	if ( ! hasConnectionError ) {
 		return null;
@@ -106,7 +107,7 @@ const ConnectionError = ( {
 	}
 
 	return (
-		<ConnectionErrorNotice
+		<MockConnectionErrorNotice
 			isRestoringConnection={ isRestoringConnection }
 			restoreConnectionError={ restoreConnectionError }
 			restoreConnectionCallback={ actions.length === 0 ? restoreConnection : null }
@@ -119,12 +120,12 @@ const ConnectionError = ( {
 describe( 'useConnectionErrorNotice', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useConnection.mockReturnValue( mockConnectionData );
-		useRestoreConnection.mockReturnValue( mockRestoreConnectionData );
+		mockUseConnection.mockReturnValue( mockConnectionData );
+		mockUseRestoreConnection.mockReturnValue( mockRestoreConnectionData );
 	} );
 
 	it( 'should return hasConnectionError as false when no errors', () => {
-		const { result } = renderHook( () => useConnectionErrorNotice() );
+		const { result } = renderHook( () => mockUseConnectionErrorNotice() );
 
 		expect( result.current.hasConnectionError ).toBe( false );
 		expect( result.current.connectionErrorMessage ).toBeUndefined();
@@ -138,7 +139,7 @@ describe( 'useConnectionErrorNotice', () => {
 			error_type: 'connection',
 		};
 
-		useConnection.mockReturnValue( {
+		mockUseConnection.mockReturnValue( {
 			connectionErrors: {
 				invalid_token: {
 					123: mockError,
@@ -146,7 +147,7 @@ describe( 'useConnectionErrorNotice', () => {
 			},
 		} );
 
-		const { result } = renderHook( () => useConnectionErrorNotice() );
+		const { result } = renderHook( () => mockUseConnectionErrorNotice() );
 
 		expect( result.current.hasConnectionError ).toBe( true );
 		expect( result.current.connectionErrorMessage ).toBe( 'The connection token is invalid' );
@@ -160,7 +161,7 @@ describe( 'useConnectionErrorNotice', () => {
 			error_type: 'protected_owner',
 		};
 
-		useConnection.mockReturnValue( {
+		mockUseConnection.mockReturnValue( {
 			connectionErrors: {
 				protected_owner: {
 					123: protectedOwnerError,
@@ -168,7 +169,7 @@ describe( 'useConnectionErrorNotice', () => {
 			},
 		} );
 
-		const { result } = renderHook( () => useConnectionErrorNotice() );
+		const { result } = renderHook( () => mockUseConnectionErrorNotice() );
 
 		expect( result.current.hasConnectionError ).toBe( true );
 		expect( result.current.connectionErrorMessage ).toBe(
@@ -181,17 +182,17 @@ describe( 'useConnectionErrorNotice', () => {
 describe( 'ConnectionError component', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useConnection.mockReturnValue( mockConnectionData );
-		useRestoreConnection.mockReturnValue( mockRestoreConnectionData );
+		mockUseConnection.mockReturnValue( mockConnectionData );
+		mockUseRestoreConnection.mockReturnValue( mockRestoreConnectionData );
 	} );
 
 	it( 'should not render when there are no connection errors', () => {
-		const { container } = render( <ConnectionError /> );
+		const { container } = render( <MockConnectionError /> );
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'should not render for protected owner errors without custom handler', () => {
-		useConnection.mockReturnValue( {
+		mockUseConnection.mockReturnValue( {
 			connectionErrors: {
 				protected_owner: {
 					123: {
@@ -203,14 +204,14 @@ describe( 'ConnectionError component', () => {
 			},
 		} );
 
-		const { container } = render( <ConnectionError /> );
+		const { container } = render( <MockConnectionError /> );
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'should render for protected owner errors when onCreateMissingAccount is provided', () => {
 		const mockOnCreateMissingAccount = jest.fn();
 
-		useConnection.mockReturnValue( {
+		mockUseConnection.mockReturnValue( {
 			connectionErrors: {
 				protected_owner: {
 					123: {
@@ -223,13 +224,13 @@ describe( 'ConnectionError component', () => {
 		} );
 
 		const { container } = render(
-			<ConnectionError onCreateMissingAccount={ mockOnCreateMissingAccount } />
+			<MockConnectionError onCreateMissingAccount={ mockOnCreateMissingAccount } />
 		);
 		expect( container ).not.toBeEmptyDOMElement();
 	} );
 
 	it( 'should render for standard connection errors', () => {
-		useConnection.mockReturnValue( {
+		mockUseConnection.mockReturnValue( {
 			connectionErrors: {
 				invalid_token: {
 					123: {
@@ -241,7 +242,70 @@ describe( 'ConnectionError component', () => {
 			},
 		} );
 
-		const { container } = render( <ConnectionError /> );
+		const { container } = render( <MockConnectionError /> );
 		expect( container ).not.toBeEmptyDOMElement();
+	} );
+} );
+
+describe( 'getProtectedOwnerCreateAccountUrl', () => {
+	it( 'should generate URL with wpcom_user_email parameter', () => {
+		const connectionError = {
+			error_data: {
+				wpcom_user_email: 'test@example.com',
+			},
+		};
+
+		const url = getProtectedOwnerCreateAccountUrl( connectionError, '/wp-admin/' );
+
+		expect( url ).toBe(
+			'/wp-admin/user-new.php?jetpack_protected_owner_email=test%40example.com&jetpack_create_missing_account=1'
+		);
+	} );
+
+	it( 'should generate URL with email parameter when wpcom_user_email is not available', () => {
+		const connectionError = {
+			error_data: {
+				email: 'fallback@example.com',
+			},
+		};
+
+		const url = getProtectedOwnerCreateAccountUrl( connectionError, '/custom-admin/' );
+
+		expect( url ).toBe(
+			'/custom-admin/user-new.php?jetpack_protected_owner_email=fallback%40example.com&jetpack_create_missing_account=1'
+		);
+	} );
+
+	it( 'should prioritize wpcom_user_email over email when both are available', () => {
+		const connectionError = {
+			error_data: {
+				email: 'fallback@example.com',
+				wpcom_user_email: 'primary@example.com',
+			},
+		};
+
+		const url = getProtectedOwnerCreateAccountUrl( connectionError );
+
+		expect( url ).toBe(
+			'/wp-admin/user-new.php?jetpack_protected_owner_email=primary%40example.com&jetpack_create_missing_account=1'
+		);
+	} );
+
+	it( 'should return basic URL when no email data is available', () => {
+		const connectionError = {
+			error_data: {},
+		};
+
+		const url = getProtectedOwnerCreateAccountUrl( connectionError, '/wp-admin/' );
+
+		expect( url ).toBe( '/wp-admin/user-new.php' );
+	} );
+
+	it( 'should handle missing error_data', () => {
+		const connectionError = {};
+
+		const url = getProtectedOwnerCreateAccountUrl( connectionError );
+
+		expect( url ).toBe( '/wp-admin/user-new.php' );
 	} );
 } );
