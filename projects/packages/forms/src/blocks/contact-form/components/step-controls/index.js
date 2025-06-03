@@ -69,10 +69,16 @@ export default function StepControls( { formClientId, updateStepSelected = false
 				<ToolbarDropdownMenu
 					icon={ ! isSingleStep ? <StepContainerIcon /> : <StepIcon /> }
 					text={ ! isSingleStep ? __( 'All steps', 'jetpack-forms' ) : displayLabel }
-					toggleProps={ {
-						showTooltip: true,
-						label: __( 'Edit mode', 'jetpack-forms' ),
-					} }
+					label={
+						isSingleStep
+							? /* translators: %d: step number */
+							  __( 'Currently editing step %d', 'jetpack-forms' ).replace(
+									'%d',
+									currentStepIndex + 1
+							  )
+							: __( 'Currently editing all steps', 'jetpack-forms' )
+					}
+					showTooltip
 				>
 					{ ( { onClose } ) => (
 						<MenuGroup key="choose-steps" label={ __( 'Edit mode', 'jetpack-forms' ) }>
@@ -116,7 +122,11 @@ export default function StepControls( { formClientId, updateStepSelected = false
 				</ToolbarDropdownMenu>
 				<ToolbarButton
 					showTooltip={ true }
-					label={ __( 'Previous step', 'jetpack-forms' ) }
+					label={
+						! isSingleStep
+							? __( 'Step navigation is only available in single step mode', 'jetpack-forms' )
+							: __( 'Previous step', 'jetpack-forms' )
+					}
 					disabled={ ! isSingleStep || isFirstStep }
 					onClick={ navigateToPreviousStep }
 				>
@@ -124,7 +134,11 @@ export default function StepControls( { formClientId, updateStepSelected = false
 				</ToolbarButton>
 				<ToolbarButton
 					showTooltip={ true }
-					label={ __( 'Next step', 'jetpack-forms' ) }
+					label={
+						! isSingleStep
+							? __( 'Step navigation is only available in single step mode', 'jetpack-forms' )
+							: __( 'Next step', 'jetpack-forms' )
+					}
 					disabled={ ! isSingleStep || isLastStep }
 					onClick={ navigateToNextStep }
 				>
