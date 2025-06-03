@@ -1,13 +1,13 @@
 @use 'sass:map';
 @use 'sass:string';
-@import './variables';
+@use 'variables';
 
 // Mixins
 
 // @breakpoint is a string prefixed with < or > followed by a breakpoint size.
 // (e.g. ">sm" or "<large").
 @mixin break( $breakpoint-string ) {
-	$breakpoint: map.get( $breakpoints, string.to-lower-case( string.slice( $breakpoint-string, 2 ) ) );
+	$breakpoint: map.get( variables.$breakpoints, string.to-lower-case( string.slice( $breakpoint-string, 2 ) ) );
 
 	$predicate: max-width;
 
@@ -24,56 +24,56 @@
 
 @mixin break-small-up() {
 
-	@media ( min-width: #{ ( $break-sm ) } ) {
+	@media ( min-width: #{ ( variables.$break-sm ) } ) {
 		@content;
 	}
 }
 
 @mixin break-small-down() {
 
-	@media ( max-width: #{ ( $break-sm - .02px ) } ) {
+	@media ( max-width: #{ ( variables.$break-sm - .02px ) } ) {
 		@content;
 	}
 }
 
 @mixin break-medium-up() {
 
-	@media ( min-width: #{ ( $break-md ) } ) {
+	@media ( min-width: #{ ( variables.$break-md ) } ) {
 		@content;
 	}
 }
 
 @mixin break-medium-down() {
 
-	@media ( max-width: #{ ( $break-md - .02px ) } ) {
+	@media ( max-width: #{ ( variables.$break-md - .02px ) } ) {
 		@content;
 	}
 }
 
 @mixin break-large-up() {
 
-	@media ( min-width: #{ ( $break-lg ) } ) {
+	@media ( min-width: #{ ( variables.$break-lg ) } ) {
 		@content;
 	}
 }
 
 @mixin break-large-down() {
 
-	@media ( max-width: #{ ( $break-lg - .02px ) } ) {
+	@media ( max-width: #{ ( variables.$break-lg - .02px ) } ) {
 		@content;
 	}
 }
 
 @mixin break-xlarge-up() {
 
-	@media ( min-width: #{ ( $break-xl ) } ) {
+	@media ( min-width: #{ ( variables.$break-xl ) } ) {
 		@content;
 	}
 }
 
 @mixin break-xxlarge-up() {
 
-	@media ( min-width: #{ ( $break-xxl ) } ) {
+	@media ( min-width: #{ ( variables.$break-xxl ) } ) {
 		@content;
 	}
 }
