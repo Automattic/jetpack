@@ -212,7 +212,7 @@ class Protected_Owner_Error_Handler {
 		<tr class="form-field form-required">
 			<th scope="row">
 				<label for="jetpack_protected_owner_notice">
-					<?php esc_html_e( 'Jetpack Connection Owner', 'wpcomsh' ); ?>
+					<?php esc_html_e( 'WordPress.com Plan Owner', 'wpcomsh' ); ?>
 				</label>
 			</th>
 			<td>
@@ -221,7 +221,7 @@ class Protected_Owner_Error_Handler {
 						<?php
 						printf(
 							/* translators: %s is the email address */
-							esc_html__( 'Creating account for Jetpack connection owner: %s', 'wpcomsh' ),
+							esc_html__( 'Creating account for WordPress.com plan owner: %s', 'wpcomsh' ),
 							'<strong>' . esc_html( $email ) . '</strong>'
 						);
 						?>
@@ -235,10 +235,11 @@ class Protected_Owner_Error_Handler {
 		<script type="text/javascript">
 		(function($) {
 			$(document).ready(function() {
-				// Prepopulate the email field only
+				// Prepopulate the email field and role
 				var email = $('#jetpack_prepopulate_email').val();
 				if (email) {
 					$('#email').val(email);
+					$('#role').val('administrator');
 					
 					// Ensure invite checkbox is unchecked for protected owner creation
 					$('#invite_user_wpcom').prop('checked', false);

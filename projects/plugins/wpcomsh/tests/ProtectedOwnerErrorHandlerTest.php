@@ -432,12 +432,14 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		$output = ob_get_clean();
 
 		// Verify output contains expected elements
-		$this->assertStringContainsString( 'Jetpack Connection Owner', $output );
+		$this->assertStringContainsString( 'WordPress.com Plan Owner', $output );
 		$this->assertStringContainsString( $test_email, $output );
 		$this->assertStringContainsString( 'jetpack_prepopulate_email', $output );
 		$this->assertStringContainsString( 'jetpack_create_missing_account', $output );
 		$this->assertStringContainsString( 'text/javascript', $output );
 		$this->assertStringContainsString( '#email', $output );
+		$this->assertStringContainsString( '#role', $output );
+		$this->assertStringContainsString( 'administrator', $output );
 		$this->assertStringContainsString( '#invite_user_wpcom', $output );
 	}
 
