@@ -1,7 +1,7 @@
 // Main
-@import 'main/variables';
-@import 'main/mixins';
-@import 'main/wp-admin';
-@import 'main/dashboard';
-@import 'main/common';
+@use 'main/variables';
+@use 'main/mixins';
+@use 'main/wp-admin';
+@use 'main/dashboard';
+@use 'main/common';
 
