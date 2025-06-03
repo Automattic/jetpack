@@ -256,14 +256,40 @@ const transforms = {
 			blocks: [ 'jetpack/field-select' ],
 			transform: ( attributes, innerBlocks = [] ) => {
 				const optionLabels = getOptionLabelsFromInnerBlocks( innerBlocks );
-
 				return createBlock(
 					'jetpack/field-select',
 					{
 						...getFieldAttributes( attributes ),
 						options: optionLabels.length ? optionLabels : [ '' ],
 					},
-					createTextFieldInnerBlocks( 'jetpack/field-select', innerBlocks )
+					createTextFieldInnerBlocks(
+						'jetpack/field-select',
+						/**
+						 * When transforming to a select field, add a default placeholder in a non mutating way
+						 * to the input block if none exists.
+						 *
+						 * This is because the input block is created by the textFieldTransforms,
+						 * and we want to avoid mutating the original block.
+						 * The select block's edit.js checks for the placeholder attribute on the input block,
+						 * and add the `has-placeholder` class to the field if it exists.
+						 * However if the incoming transformed block doesn't have a placeholder, the edit.js will
+						 * not add the class because it's trying to honor the placeholder attribute,
+						 * BUT adds a default placeholder anyway.
+						 */
+						innerBlocks.map( block => {
+							if ( block?.name === 'jetpack/input' ) {
+								return {
+									...block,
+									attributes: {
+										...( block?.attributes || {} ),
+										placeholder:
+											block?.attributes?.placeholder || __( 'Select one option', 'jetpack-forms' ),
+									},
+								};
+							}
+							return block;
+						} )
+					)
 				);
 			},
 		},

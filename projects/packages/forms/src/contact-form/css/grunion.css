@@ -762,7 +762,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translateY(-50%);
 	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 	will-change: transform, top;
-	z-index: 3;
+	z-index: 1;
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .grunion-label-text {
@@ -826,9 +826,9 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translateY(0);
 }
 
-.contact-form .is-style-outlined .wp-block-jetpack-input:not(.contact-form__select-wrapper),
-.contact-form .is-style-animated .wp-block-jetpack-input:not(.contact-form__select-wrapper) {
-	z-index: 2;
+/* Ensure that the outlined field is not hidden by the absolutely positioned label */
+.contact-form .is-style-outlined .grunion-field:not(.contact-form__select-wrapper) {
+	z-index: 1;
 }
 
 .contact-form .is-style-below .grunion-field-wrap .below-label__label {

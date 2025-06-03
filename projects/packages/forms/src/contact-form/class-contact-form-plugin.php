@@ -470,7 +470,7 @@ class Contact_Form_Plugin {
 					$atts['inputstyles']   = $input_attrs['style'] ?? null;
 
 					if ( 'jetpack/field-select' === $block->name ) {
-						$atts['togglelabel'] = $inner_block['attrs']['placeholder'];
+						$atts['togglelabel'] = $atts['placeholder'];
 					}
 
 					/*
