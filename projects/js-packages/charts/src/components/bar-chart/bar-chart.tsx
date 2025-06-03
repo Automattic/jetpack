@@ -1,3 +1,4 @@
+import { formatNumberCompact } from '@automattic/number-formatters';
 import {
 	AnimatedAxis,
 	AnimatedBarSeries,
@@ -8,12 +9,14 @@ import {
 } from '@visx/xychart';
 import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import clsx from 'clsx';
-import { FC, ReactNode, useCallback } from 'react';
+import { FC, ReactNode, useCallback, useMemo } from 'react';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
+import { useChartMargin } from '../shared/use-chart-margin';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './bar-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
+import type { TickFormatter } from '@visx/axis';
 
 interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
@@ -63,7 +66,7 @@ const BarChart: FC< BarChartProps > = ( {
 	width,
 	height = 400,
 	className,
-	margin = { top: 20, right: 20, bottom: 40, left: 40 },
+	margin,
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
@@ -72,9 +75,38 @@ const BarChart: FC< BarChartProps > = ( {
 	options = {},
 } ) => {
 	const theme = useXYChartTheme( data );
+	const chartOptions = useMemo( () => {
+		return {
+			axis: {
+				x: {
+					orientation: 'bottom' as const,
+					numTicks: 4,
+					tickFormat: getDefaultXTickFormat( data?.[ 0 ]?.data ),
+					...options?.axis?.x,
+				},
+				y: {
+					orientation: 'left' as const,
+					numTicks: 4,
+					tickFormat: formatNumberCompact as TickFormatter< number >,
+					...options?.axis?.y,
+				},
+			},
+			xScale: {
+				type: 'band' as const,
+				padding: 0.2,
+				innerPadding: 0.1,
+				...options?.xScale,
+			},
+			yScale: {
+				type: 'linear' as const,
+				nice: true,
+				zero: false,
+				...options?.yScale,
+			},
+		};
+	}, [ options, data ] );
 
-	// Determine the tick format for the x-axis: use user-supplied, or default to label or date formatting.
-	const formatXTick = options.axis?.x?.tickFormat ?? getDefaultXTickFormat( data?.[ 0 ]?.data );
+	const defaultMargin = useChartMargin( height, chartOptions, data, theme );
 
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
@@ -88,14 +120,16 @@ const BarChart: FC< BarChartProps > = ( {
 					</div>
 					<div className={ styles[ 'bar-chart__tooltip-row' ] }>
 						<span className={ styles[ 'bar-chart__tooltip-label' ] }>
-							{ nearestDatum.label || formatXTick( nearestDatum.date.getTime(), 0, [] ) }:
+							{ nearestDatum.label ||
+								chartOptions.axis.x.tickFormat( nearestDatum.date.getTime(), 0, [] ) }
+							:
 						</span>
 						<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ nearestDatum.value }</span>
 					</div>
 				</div>
 			);
 		},
-		[ formatXTick ]
+		[ chartOptions.axis.x ]
 	);
 
 	// Validate data using the same pattern as LineChart
@@ -122,9 +156,9 @@ const BarChart: FC< BarChartProps > = ( {
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ { top: 10, right: 0, bottom: 20, left: 40, ...margin } }
-				xScale={ { type: 'band', padding: 0.2, innerPadding: 0.1, ...options?.xScale } }
-				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
+				margin={ { ...defaultMargin, ...margin } }
+				xScale={ chartOptions.xScale }
+				yScale={ chartOptions.yScale }
 				pointerEventsDataKey="nearest"
 			>
 				<AnimatedGrid
@@ -132,8 +166,8 @@ const BarChart: FC< BarChartProps > = ( {
 					rows={ gridVisibility.includes( 'x' ) }
 					numTicks={ 4 }
 				/>
-				<AnimatedAxis orientation="bottom" tickFormat={ formatXTick } { ...options?.axis?.x } />
-				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
+				<AnimatedAxis { ...chartOptions.axis.x } />
+				<AnimatedAxis { ...chartOptions.axis.y } />
 
 				<AnimatedBarGroup padding={ 0.1 }>
 					{ data.map( seriesData => {

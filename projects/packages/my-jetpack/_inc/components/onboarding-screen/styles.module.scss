@@ -2,12 +2,6 @@
 	font-family: -apple-system, BlinkMacSystemFont, "Avenir Next", Avenir, "Segoe UI", "Helvetica Neue", Helvetica, Cantarell, Ubuntu, Roboto, "Noto Sans", Arial, sans-serif;
 }
 
-:global(#wpwrap) {
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	text-rendering: optimizeLegibility;
-}
-
 .onboarding-screen {
 	// override the default max-container-width since otherwise the container will be only 1128px
 	--max-container-width: 100%;
@@ -15,6 +9,9 @@
 	min-height: 100vh;
 	overflow-y: hidden;
 	background-color: var(--jp-white, #fff);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
 }
 
 .primary-column {

@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
 import IntegrationsModal from './jetpack-integrations-modal';
 import ActiveIntegrations from './jetpack-integrations-modal/active-integrations';
-import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/useIntegrationsStatus';
+import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/use-integrations-status';
 
 /**
  * Integration controls component containing Panel for settings sidebar and block toolbar.

@@ -1,14 +1,17 @@
+import { formatNumberCompact } from '@automattic/number-formatters';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import { XYChart, AnimatedAreaSeries, AnimatedAxis, AnimatedGrid, Tooltip } from '@visx/xychart';
-import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import clsx from 'clsx';
 import { FC, ReactNode, useId, useMemo } from 'react';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { useChartMargin } from '../shared/use-chart-margin';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
+import type { TickFormatter } from '@visx/axis';
+import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 
 type CurveType = 'smooth' | 'linear' | 'monotone';
 
@@ -145,24 +148,37 @@ const LineChart: FC< LineChartProps > = ( {
 		[ data ]
 	);
 
-	margin = useMemo( () => {
-		// Auto-margin unless specified to make room for axis labels.
-		// Default margin is for bottom and left axis labels.
-		let defaultMargin = {};
-		if ( options.axis?.y?.orientation === 'right' ) {
-			defaultMargin = { ...defaultMargin, right: 40, left: 0 };
-		}
-		if ( options.axis?.x?.orientation === 'top' ) {
-			defaultMargin = { ...defaultMargin, top: 20, bottom: 10 };
-		}
-		// Merge default margin with user-specified margin.
-		return { ...defaultMargin, ...margin };
-	}, [ margin, options ] );
+	const chartOptions = useMemo( () => {
+		const xNumTicks = Math.min( dataSorted[ 0 ]?.data.length, Math.ceil( width / X_TICK_WIDTH ) );
+		return {
+			axis: {
+				x: {
+					orientation: 'bottom' as const,
+					numTicks: xNumTicks,
+					tickFormat: formatDateTick,
+					...options?.axis?.x,
+				},
+				y: {
+					orientation: 'left' as const,
+					numTicks: 4,
+					tickFormat: formatNumberCompact as TickFormatter< number >,
+					...options?.axis?.y,
+				},
+			},
+			xScale: {
+				type: 'time' as const,
+				...options?.xScale,
+			},
+			yScale: {
+				type: 'linear' as const,
+				nice: true,
+				zero: false,
+				...options?.yScale,
+			},
+		};
+	}, [ options, dataSorted, width ] );
 
-	const xNumTicks = useMemo(
-		() => Math.min( dataSorted[ 0 ]?.data.length, Math.ceil( width / X_TICK_WIDTH ) ),
-		[ dataSorted, width ]
-	);
+	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
 	const error = validateData( dataSorted );
 	if ( error ) {
@@ -192,10 +208,10 @@ const LineChart: FC< LineChartProps > = ( {
 				theme={ theme }
 				width={ width }
 				height={ height }
-				margin={ { top: 10, right: 0, bottom: 20, left: 40, ...margin } }
+				margin={ { ...defaultMargin, ...margin } }
 				// xScale and yScale could be set in Axis as well, but they are `scale` props there.
-				xScale={ { type: 'time', ...options?.xScale } }
-				yScale={ { type: 'linear', nice: true, zero: false, ...options?.yScale } }
+				xScale={ chartOptions.xScale }
+				yScale={ chartOptions.yScale }
 				onPointerDown={ onPointerDown }
 				onPointerUp={ onPointerUp }
 				onPointerMove={ onPointerMove }
@@ -203,13 +219,8 @@ const LineChart: FC< LineChartProps > = ( {
 				pointerEventsDataKey="nearest"
 			>
 				<AnimatedGrid columns={ false } numTicks={ 4 } />
-				<AnimatedAxis
-					orientation="bottom"
-					numTicks={ xNumTicks }
-					tickFormat={ formatDateTick }
-					{ ...options?.axis?.x }
-				/>
-				<AnimatedAxis orientation="left" numTicks={ 4 } { ...options?.axis?.y } />
+				<AnimatedAxis { ...chartOptions.axis.x } />
+				<AnimatedAxis { ...chartOptions.axis.y } />
 
 				{ dataSorted.map( ( seriesData, index ) => {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
