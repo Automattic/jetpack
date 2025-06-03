@@ -1,11 +1,11 @@
-import useMeasure from 'react-use-measure';
+import ChevronDown from '$svg/chevron-down';
+import ChevronUp from '$svg/chevron-up';
+import { Button } from '@automattic/jetpack-components';
 import { animated, useSpring } from '@react-spring/web';
 import clsx from 'clsx';
 import { useState } from 'react';
-import ChevronDown from '$svg/chevron-down';
-import ChevronUp from '$svg/chevron-up';
+import useMeasure from 'react-use-measure';
 import styles from './folding-element.module.scss';
-import { Button } from '@automattic/jetpack-components';
 
 type PropTypes = {
 	labelExpandedText: string;

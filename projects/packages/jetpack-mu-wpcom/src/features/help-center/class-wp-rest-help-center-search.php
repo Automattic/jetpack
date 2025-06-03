@@ -33,12 +33,15 @@ class WP_REST_Help_Center_Search extends \WP_REST_Controller {
 				'callback'            => array( $this, 'get_search_results' ),
 				'permission_callback' => 'is_user_logged_in',
 				'args'                => array(
-					'query'  => array(
+					'query'   => array(
 						'type' => 'string',
 					),
-					'locale' => array(
+					'locale'  => array(
 						'type'    => 'string',
 						'default' => 'en',
+					),
+					'section' => array(
+						'type' => 'string',
 					),
 				),
 			)
@@ -51,14 +54,20 @@ class WP_REST_Help_Center_Search extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 */
 	public function get_search_results( \WP_REST_Request $request ) {
-		$query  = $request['query'];
-		$locale = $request['locale'];
+		$query   = $request['query'];
+		$locale  = $request['locale'];
+		$section = $request['section'];
 
 		$query_parameters = array(
 			'query'  => $query,
 			'locale' => $locale,
 		);
-		$body             = Client::wpcom_json_api_request_as_user(
+
+		if ( ! empty( $section ) ) {
+			$query_parameters['section'] = $section;
+		}
+
+		$body = Client::wpcom_json_api_request_as_user(
 			'/help/search/wpcom?' . http_build_query( $query_parameters )
 		);
 

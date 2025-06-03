@@ -68,7 +68,8 @@
 	}
 
 	&__plugin-badge,
-	&__connected-badge {
+	&__connected-badge,
+	&__setup-badge {
 		font-size: 12px;
 		padding: 4px 8px;
 		border-radius: 3px;
@@ -91,6 +92,20 @@
 		.components-icon {
 			color: #93c692;
 		}
+	}
+
+	&__setup-badge {
+		// copy of how Badge (private api yet) is styled
+		background: color( sRGB 0.921961 0.93451 0.991373 );
+		color: color( sRGB 0.109804 0.172549 0.456863 );
+		display: flex;
+		align-items: center;
+		gap: 4px;
+
+		.components-icon {
+			color: #93c692;
+		}
+
 	}
 
 	&__description {

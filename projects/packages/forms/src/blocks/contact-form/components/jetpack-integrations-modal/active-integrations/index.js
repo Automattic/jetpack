@@ -56,7 +56,11 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 	}
 
 	if ( ! activeIntegrations?.length ) {
-		return null;
+		return (
+			<p>
+				<em>{ __( 'Form does not have integrations set up.', 'jetpack-forms' ) }</em>
+			</p>
+		);
 	}
 
 	return (

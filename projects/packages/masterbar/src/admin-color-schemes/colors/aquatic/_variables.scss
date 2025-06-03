@@ -1,29 +1,30 @@
 // make use of color studio variables for consistency across products
-@import '@automattic/color-studio/dist/color-variables';
+@forward "@automattic/color-studio/dist/color-variables";
+@use "@automattic/color-studio/dist/color-variables" as studio;
 @import '../deprecated-color-variables';
 
 // core variables (core _variables.scss)
 $base-color: $deprecated-studio-blue-80; // Calypso --color-masterbar-background
 $icon-color: $deprecated-studio-blue-5; // Calypso --color-sidebar-gridicon-fill
-$highlight-color: $studio-celadon-50; // Calypso --color-accent
-$notification-color: $studio-celadon-30; // Calypso --color-masterbar-unread-dot-background
+$highlight-color: studio.$studio-celadon-50; // Calypso --color-accent
+$notification-color: studio.$studio-celadon-30; // Calypso --color-masterbar-unread-dot-background
 
 // global (core _variables.scss)
-$body-background: $studio-gray-0; // Calypso --color-surface-backdrop
+$body-background: studio.$studio-gray-0; // Calypso --color-surface-backdrop
 
 // admin menu & admin-bar (core _variables.scss)
-$menu-text: $studio-white; // Calypso --color-sidebar-text
+$menu-text: studio.$studio-white; // Calypso --color-sidebar-text
 $menu-background: $deprecated-studio-blue-60; // Calypso --color-sidebar-background
-$menu-highlight-text: $studio-white; // Calypso --color-sidebar-menu-hover-text
-$menu-highlight-icon: $studio-white;
+$menu-highlight-text: studio.$studio-white; // Calypso --color-sidebar-menu-hover-text
+$menu-highlight-icon: studio.$studio-white;
 $menu-highlight-background: $deprecated-studio-blue-50; // Calypso --color-sidebar-menu-hover-background
 $menu-current-text: $deprecated-studio-blue-90; // Calypso --color-sidebar-menu-selected-text
 $menu-current-icon: $menu-current-text;
-$menu-current-background: $studio-yellow-20; // Calypso --color-sidebar-menu-selected-background
-$menu-submenu-text: $studio-gray-10; // Calypso --color-sidebar-submenu-text
+$menu-current-background: studio.$studio-yellow-20; // Calypso --color-sidebar-menu-selected-background
+$menu-submenu-text: studio.$studio-gray-10; // Calypso --color-sidebar-submenu-text
 $menu-submenu-background: $deprecated-studio-blue-90; // Calypso --color-sidebar-submenu-background
-$menu-submenu-focus-text: $studio-yellow-20; // Calypso --color-sidebar-submenu-hover-text
-$menu-submenu-current-text: $studio-white; // Calypso --color-sidebar-submenu-text
+$menu-submenu-focus-text: studio.$studio-yellow-20; // Calypso --color-sidebar-submenu-hover-text
+$menu-submenu-current-text: studio.$studio-white; // Calypso --color-sidebar-submenu-text
 $adminbar-avatar-frame: $deprecated-studio-blue-80;
 
 // masterbar overrides
@@ -39,11 +40,11 @@ $nav-unification-sidebar-text-alternative: $deprecated-studio-blue-5; // Calypso
 $color-primary: $deprecated-studio-blue-50; // Calypso --color-primary
 $color-primary-dark: $deprecated-studio-blue-70; // Calypso --color-primary-dark
 $color-primary-light: $deprecated-studio-blue-30; // Calypso --color-primary-light
-$color-surface: $studio-white; // Calypso --color-surface
+$color-surface: studio.$studio-white; // Calypso --color-surface
 
 // Calypso Sidebar Nudges
-$menu-nudge-background: $studio-white;
-$menu-nudge-text-color: $studio-black;
+$menu-nudge-background: studio.$studio-white;
+$menu-nudge-text-color: studio.$studio-black;
 $menu-nudge-cta-background: $highlight-color;
-$menu-nudge-cta-color: $studio-white;
-$menu-nudge-cta-background-hover: $studio-celadon-60;
+$menu-nudge-cta-color: studio.$studio-white;
+$menu-nudge-cta-background-hover: studio.$studio-celadon-60;

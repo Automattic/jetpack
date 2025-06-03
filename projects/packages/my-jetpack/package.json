@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "5.14.5",
+	"version": "5.15.0",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
@@ -33,6 +33,7 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-explat": "workspace:*",
 		"@automattic/jetpack-licensing": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@tanstack/react-query": "5.75.1",
@@ -47,8 +48,8 @@
 		"@wordpress/icons": "10.24.0",
 		"@wordpress/url": "4.24.0",
 		"clsx": "2.1.1",
-		"debug": "4.4.0",
-		"gridicons": "3.4.1",
+		"debug": "4.4.1",
+		"gridicons": "3.4.2",
 		"prop-types": "15.8.1",
 		"react-router-dom": "6.30.0"
 	},
@@ -61,8 +62,8 @@
 	],
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.26.10",
-		"@babel/preset-env": "7.26.9",
+		"@babel/core": "7.27.4",
+		"@babel/preset-env": "7.27.2",
 		"@storybook/react": "8.6.7",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/jest-dom": "6.6.3",
@@ -70,7 +71,7 @@
 		"@testing-library/user-event": "14.6.1",
 		"@types/jest": "29.5.14",
 		"@types/node": "^20.4.2",
-		"@types/react": "18.3.18",
+		"@types/react": "18.3.23",
 		"concurrently": "7.6.0",
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",
