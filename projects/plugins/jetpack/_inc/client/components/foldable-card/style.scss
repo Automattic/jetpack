@@ -1,14 +1,14 @@
 @use 'sass:color';
 @use '../../scss/functions/rem';
-@import '../../scss/calypso-colors';
-@import '../../scss/calypso-mixins';
-@import '../../scss/mixin_clear-fix';
+@use '../../scss/calypso-colors';
+@use '../../scss/calypso-mixins';
+@use '../../scss/mixin_clear-fix';
 
 
 // Multisite
 .dops-foldable-card.dops-card {
 
-	@include clear-fix;
+	@include mixin_clear-fix.clear-fix;
 	position: relative;
 	transition: margin .15s linear;
 	padding: 0;
@@ -40,7 +40,7 @@
 		}
 
 		.dops-foldable-card__expand {
-			border-left: 1px $gray-light solid;
+			border-left: 1px calypso-colors.$gray-light solid;
 		}
 	}
 
@@ -97,7 +97,7 @@ button.dops-foldable-card__action {
 	width: 100%;
 	margin-right: 5px;
 
-	@include breakpoint( '<480px' ) {
+	@include calypso-mixins.breakpoint( '<480px' ) {
 		flex: 1 1;
 	}
 }
@@ -113,7 +113,7 @@ button.dops-foldable-card__action {
 	width: 48px;
 
 	.gridicon {
-		fill: $gray;
+		fill: calypso-colors.$gray;
 		display: flex;
 		align-items: center;
 		width: 100%;
@@ -127,14 +127,14 @@ button.dops-foldable-card__action {
 	}
 
 	.gridicon:hover {
-		fill: $gray;
+		fill: calypso-colors.$gray;
 	}
 
 	&:focus,
 	&:hover {
 
 		.gridicon {
-			fill: $blue-medium;
+			fill: calypso-colors.$blue-medium;
 		}
 	}
 }
@@ -148,7 +148,7 @@ button.dops-foldable-card__action {
 	margin-top: rem.convert( 2px );
 	margin-bottom: rem.convert( 2px );
 	font-size: rem.convert( 14px );
-	color: color.adjust( $gray, $lightness: -20% );
+	color: color.adjust( calypso-colors.$gray, $lightness: -20% );
 }
 
 .dops-foldable-card__content {
@@ -157,7 +157,7 @@ button.dops-foldable-card__action {
 	.dops-foldable-card.is-expanded & {
 		display: block;
 		padding: 16px;
-		border-top: 1px solid $gray-light;
+		border-top: 1px solid calypso-colors.$gray-light;
 
 
 		.dops-foldable-card.is-compact & {
@@ -177,7 +177,7 @@ button.dops-foldable-card__action {
 .dops-foldable-card__summary,
 .dops-foldable-card__summary_expanded {
 	margin-right: 40px;
-	color: $gray;
+	color: calypso-colors.$gray;
 	font-size: 12px;
 	transition: opacity 0.2s linear;
 	display: inline-block;
@@ -188,7 +188,7 @@ button.dops-foldable-card__action {
 		text-align: right;
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include calypso-mixins.breakpoint( "<480px" ) {
 		display: none;
 	}
 }

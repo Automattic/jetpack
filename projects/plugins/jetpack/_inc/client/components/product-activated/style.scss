@@ -1,17 +1,17 @@
-@import '../../scss/mixin_breakpoint';
-@import '../../scss/variables/colors';
+@use '../../scss/mixin_breakpoint';
+@use '../../scss/variables/colors';
 
 .jp-product-activated-label {
 	display: flex;
 	font-weight: 600;
-	color: $green-primary;
+	color: colors.$green-primary;
 	padding: 0 0 8px 0;
 
   	&.expired {
-	  color: $alert-red;
+	  color: colors.$alert-red;
 
 	  ::before {
-	    background: $alert-red;
+	    background: colors.$alert-red;
 	  }
 	}
 
@@ -33,7 +33,7 @@
 	  background: var(--jp-green-50);
 	}
 
-	@include breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( '>960px' ) {
 		justify-content: flex-end;
 	}
 

@@ -1,3 +1,4 @@
+@use "../scss/mixin_breakpoint";
 @use '../scss/functions/rem';
 
 .jp-settings-container {
@@ -102,7 +103,7 @@
 		}
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include mixin_breakpoint.breakpoint( "<480px" ) {
 
 		.dops-search.is-expanded-to-container {
 			height: 46px;

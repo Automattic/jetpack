@@ -1,20 +1,20 @@
-@import '../features/features.colors';
+@use '../features/features.colors';
 
 [class^='jetpack-ai-breve__has-proofread-highlight'] {
 	transition: background-color;
 	transition-duration: 0.3s;
 	border-bottom: 3px solid;
 
-	@include features-colors( ( 'border-bottom-color' ) );
+	@include features.features-colors( ( 'border-bottom-color' ) );
 
 	&.jetpack-ai-breve__is-loading {
 
-		@include pulse();
+		@include features.pulse();
 	}
 
 	&.jetpack-ai-breve__highlight-hovered {
 
-		@include features-colors( ( 'background-color' ), 0.2 );
+		@include features.features-colors( ( 'background-color' ), 0.2 );
 	}
 }
 
@@ -69,7 +69,7 @@
 					height: 10px;
 					border-radius: 50%;
 
-					@include features-colors( ( 'background-color' ) );
+					@include features.features-colors( ( 'background-color' ) );
 				}
 			}
 

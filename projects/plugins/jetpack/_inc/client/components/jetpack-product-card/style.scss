@@ -1,24 +1,24 @@
 @use '../../scss/functions/rem';
-@import '../../scss/calypso-colors';
-@import '../../scss/mixin_breakpoint';
-@import '../../scss/typography';
-@import '../../scss/variables/colors';
+@use '../../scss/calypso-colors';
+@use '../../scss/mixin_breakpoint';
+@use '../../scss/typography';
+@use '../../scss/variables/colors';
 
 .jp-product-card {
 	position: relative;
 	box-sizing: border-box;
 	padding: 30px 24px 45px;
 	width: 100%;
-	background: $white;
+	background: colors.$white;
 	box-shadow: 0 2px 6px rgba( 0, 0, 0, 0.03 ), 0 1px 2px rgba( 0, 0, 0, 0.03 );
-	border: 1px solid $gray-lighten-20;
+	border: 1px solid calypso-colors.$gray-lighten-20;
 	border-radius: 4px;
 
-	@include breakpoint( '>660px' ) {
+	@include mixin_breakpoint.breakpoint( '>660px' ) {
 		padding: 40px 48px 60px;
 	}
 
-	@include breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( '>960px' ) {
 		padding-top: 60px;
 	}
 }
@@ -35,7 +35,7 @@
 	margin-bottom: 24px;
 	display: none;
 
-	@include breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( '>960px' ) {
 		display: block;
 	}
 }
@@ -46,14 +46,14 @@
 }
 
 .jp-product-card__title {
-	color: $black;
-	font-size: $font-title-large;
-	font-weight: $bold;
+	color: colors.$black;
+	font-size: typography.$font-title-large;
+	font-weight: typography.$bold;
 	margin: 0 0 18px;
 }
 
 .jp-product-card__description {
-	color: $black;
+	color: colors.$black;
 	font-size: rem.convert( 15px );
 	line-height: 1.5;
 	margin: 0 0 22px;
@@ -64,7 +64,7 @@
 }
 
 .jp-product-card__feature {
-	color: $black;
+	color: colors.$black;
 	display: flex;
 	align-items: center;
 	margin-bottom: 8px;
@@ -72,7 +72,7 @@
 
 .jp-product-card__feature svg {
 	margin-right: 10px;
-	fill: $color-plan;
+	fill: colors.$color-plan;
 }
 
 .jp-product-card__price {
@@ -133,37 +133,37 @@
 	text-align: center;
 
 	&--primary {
-		background: $black;
-		border-color: $black;
-		color: $white;
+		background: colors.$black;
+		border-color: colors.$black;
+		color: colors.$white;
 
 		&:hover,
 		&:focus {
-			border-color: $black;
-			background: $black;
-			color: $white;
+			border-color: colors.$black;
+			background: colors.$black;
+			color: colors.$white;
 		}
 
 		&:focus {
-			box-shadow: 0 0 0 1px $white, 0 0 0 3px $black;
+			box-shadow: 0 0 0 1px colors.$white, 0 0 0 3px colors.$black;
 		}
 	}
 
 	&--secondary {
 		background: transparent;
-		border: 2px solid $black;
-		color: $black;
+		border: 2px solid colors.$black;
+		color: colors.$black;
 		transition: all 150ms ease-in-out;
 
 		&:hover,
 		&:focus {
-			border-color: $black;
-			background: $black;
-			color: $white;
+			border-color: colors.$black;
+			background: colors.$black;
+			color: colors.$white;
 		}
 
 		&:focus {
-			box-shadow: 0 0 0 1px $white, 0 0 0 3px $black;
+			box-shadow: 0 0 0 1px colors.$white, 0 0 0 3px colors.$black;
 		}
 	}
 }
@@ -176,8 +176,8 @@
 	left: 0;
 	right: 0;
 	padding: 9px 10px;
-	background: $black;
-	color: $white;
+	background: colors.$black;
+	color: colors.$white;
 	font-size: rem.convert( 13px );
 	font-weight: 600;
 	letter-spacing: 0.3px;
@@ -203,32 +203,32 @@
 	height: auto;
 	margin-top: 36px;
 
-	@include breakpoint( '>480px' ) {
+	@include mixin_breakpoint.breakpoint( '>480px' ) {
 		display: block;
 	}
 
-	@include breakpoint( '>660px' ) {
+	@include mixin_breakpoint.breakpoint( '>660px' ) {
 		min-width: 240px;
 	}
 
-	@include breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( '>960px' ) {
 		margin-top: 0;
 	}
 }
 
 .jp-product-card--has-media {
 
-	@include breakpoint( '>480px' ) {
+	@include mixin_breakpoint.breakpoint( '>480px' ) {
 		display: block;
 	}
 
-	@include breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( '>960px' ) {
 		display: grid;
 		grid-template-columns: 55% 45%;
 		column-gap: 26px;
 	}
 
-	@include breakpoint( '>1040px' ) {
+	@include mixin_breakpoint.breakpoint( '>1040px' ) {
 		grid-template-columns: auto auto;
 	}
 
