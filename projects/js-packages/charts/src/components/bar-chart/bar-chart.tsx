@@ -1,4 +1,3 @@
-import { formatNumberCompact } from '@automattic/number-formatters';
 import {
 	AnimatedAxis,
 	AnimatedBarSeries,
@@ -9,35 +8,19 @@ import {
 } from '@visx/xychart';
 import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import clsx from 'clsx';
-import { FC, ReactNode, useCallback, useMemo } from 'react';
+import { FC, ReactNode, useCallback } from 'react';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './bar-chart.module.scss';
+import { useBarChartOptions } from './use-bar-chart-options';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
-import type { TickFormatter } from '@visx/axis';
 
-interface BarChartProps extends BaseChartProps< SeriesData[] > {
+export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	orientation?: 'horizontal' | 'vertical';
 }
-
-const formatDateTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, {
-		month: 'short',
-		day: 'numeric',
-	} );
-};
-
-const getDefaultXTickFormat = ( data: SeriesData[ 'data' ] ) => {
-	if ( data?.[ 0 ]?.label ) {
-		return ( label: string ) => label;
-	}
-
-	return formatDateTick;
-};
 
 // Validation function similar to LineChart
 const validateData = ( data: SeriesData[] ) => {
@@ -57,11 +40,6 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
-const accessors = {
-	xAccessor: ( d: DataPointDate ) => d?.label || d?.date,
-	yAccessor: ( d: DataPointDate ) => d?.value,
-};
-
 const BarChart: FC< BarChartProps > = ( {
 	data,
 	width,
@@ -77,54 +55,10 @@ const BarChart: FC< BarChartProps > = ( {
 	orientation = 'vertical',
 } ) => {
 	const horizontal = orientation === 'horizontal';
-	const gridVisibility = gridVisibilityProp ?? ( horizontal ? 'y' : 'x' );
+
 	const theme = useXYChartTheme( data );
-	const chartOptions = useMemo( () => {
-		const bandScale = {
-			type: 'band' as const,
-			padding: 0.2,
-			innerPadding: 0.1,
-		};
-		const linearScale = {
-			type: 'linear' as const,
-			nice: true,
-			zero: false,
-		};
-
-		const defaultXTickFormat = getDefaultXTickFormat( data?.[ 0 ]?.data );
-		const defaultYTickFormat = formatNumberCompact as TickFormatter< unknown >;
-
-		return {
-			axis: {
-				x: {
-					orientation: 'bottom' as const,
-					numTicks: 4,
-					tickFormat: horizontal ? defaultYTickFormat : defaultXTickFormat,
-					...options?.axis?.x,
-				},
-				y: {
-					orientation: 'left' as const,
-					numTicks: 4,
-					tickFormat: horizontal ? defaultXTickFormat : defaultYTickFormat,
-					...options?.axis?.y,
-				},
-			},
-			xScale: {
-				...( horizontal ? linearScale : bandScale ),
-				...options?.xScale,
-			},
-			yScale: {
-				...( horizontal ? bandScale : linearScale ),
-				...options?.yScale,
-			},
-		};
-	}, [ options, data, horizontal ] );
-
+	const chartOptions = useBarChartOptions( data, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
-
-	const dateTickFormatter = horizontal
-		? chartOptions.axis.y.tickFormat
-		: chartOptions.axis.x.tickFormat;
 
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
@@ -138,14 +72,19 @@ const BarChart: FC< BarChartProps > = ( {
 					</div>
 					<div className={ styles[ 'bar-chart__tooltip-row' ] }>
 						<span className={ styles[ 'bar-chart__tooltip-label' ] }>
-							{ nearestDatum.label || dateTickFormatter( nearestDatum.date.getTime(), 0, [] ) }:
+							{ chartOptions.tooltip.labelFormatter(
+								nearestDatum.label || nearestDatum.date.getTime(),
+								0,
+								[]
+							) }
+							:
 						</span>
 						<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ nearestDatum.value }</span>
 					</div>
 				</div>
 			);
 		},
-		[ dateTickFormatter ]
+		[ chartOptions.tooltip ]
 	);
 
 	// Validate data using the same pattern as LineChart
@@ -160,6 +99,8 @@ const BarChart: FC< BarChartProps > = ( {
 		value: '', // Empty string since we don't want to show a specific value
 		color: group.options?.stroke || theme.colors[ index % theme.colors.length ],
 	} ) );
+
+	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
 
 	return (
 		<div
@@ -186,21 +127,15 @@ const BarChart: FC< BarChartProps > = ( {
 				<AnimatedAxis { ...chartOptions.axis.x } />
 				<AnimatedAxis { ...chartOptions.axis.y } />
 
-				<AnimatedBarGroup
-					padding={
-						horizontal
-							? ( chartOptions.yScale as { innerPadding: number } ).innerPadding
-							: ( chartOptions.xScale as { innerPadding: number } ).innerPadding
-					}
-				>
+				<AnimatedBarGroup padding={ chartOptions.barGroup.padding }>
 					{ data.map( seriesData => {
 						return (
 							<AnimatedBarSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] }
-								yAccessor={ horizontal ? accessors.xAccessor : accessors.yAccessor }
-								xAccessor={ horizontal ? accessors.yAccessor : accessors.xAccessor }
+								yAccessor={ chartOptions.accessors.yAccessor }
+								xAccessor={ chartOptions.accessors.xAccessor }
 							/>
 						);
 					} ) }
