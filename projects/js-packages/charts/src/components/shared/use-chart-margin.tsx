@@ -9,7 +9,7 @@ export const useChartMargin = (
 	options: BaseChartProps[ 'options' ],
 	data: SeriesData[],
 	theme: XYChartTheme,
-	horizontal: boolean
+	horizontal: boolean = false
 ) => {
 	const yTicks = useMemo( () => {
 		const allDataPoints = data.flatMap( series => series.data as DataPointDate[] );
