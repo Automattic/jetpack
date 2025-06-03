@@ -503,8 +503,9 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Invite user', $output );
 		$this->assertStringContainsString( 'Invite user to WordPress.com', $output );
 		$this->assertStringContainsString( 'checkbox', $output );
-		$this->assertStringContainsString( 'WordPress.com plan issue', $output );
 
+		// Verify checkbox is disabled (should contain 'disabled')
+		$this->assertStringContainsString( 'disabled', $output );
 		// Verify checkbox is not checked (should not contain 'checked')
 		$this->assertStringNotContainsString( 'checked', $output );
 	}
