@@ -1,13 +1,13 @@
 import { BlockControls } from '@wordpress/block-editor';
 import {
 	ToolbarGroup,
-	DropdownMenu,
 	ToolbarButton,
 	Icon,
-	SVG,
-	Path,
 	MenuGroup,
 	MenuItem,
+	ToolbarDropdownMenu,
+	SVG,
+	Path,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -24,7 +24,7 @@ import { store as singleStepStore } from '../../../../store/preview-store';
  * @return {JSX.Element} The rendered BlockControls component.
  */
 export default function StepControls( { formClientId, updateStepSelected = false } ) {
-	const { setActiveStep, disableSingleStepMode, enableSingleStepMode } =
+	const { setActiveStep, enableSingleStepMode, disableSingleStepMode } =
 		useDispatch( singleStepStore );
 
 	// Use our custom navigation hook
@@ -51,20 +51,14 @@ export default function StepControls( { formClientId, updateStepSelected = false
 		return null;
 	}
 
-	const { stepLabel, index: currentStepIndex, isFirstStep, isLastStep } = currentStepInfo;
+	const { index: currentStepIndex, isFirstStep, isLastStep } = currentStepInfo;
 
 	// Format the display label
 	let displayLabel;
 	if ( ! isSingleStep ) {
 		displayLabel = __( 'All steps', 'jetpack-forms' );
 	} else if ( currentStepIndex >= 0 ) {
-		if ( stepLabel ) {
-			const shorterLabel =
-				stepLabel.length > 12 ? `${ stepLabel.substring( 0, 12 ) }...` : stepLabel;
-			displayLabel = `${ currentStepIndex + 1 } ${ shorterLabel }`;
-		} else {
-			displayLabel = `${ currentStepIndex + 1 } Step`;
-		}
+		displayLabel = `${ currentStepIndex + 1 }`;
 	} else {
 		displayLabel = __( 'Select step', 'jetpack-forms' );
 	}
@@ -72,30 +66,50 @@ export default function StepControls( { formClientId, updateStepSelected = false
 	return (
 		<BlockControls>
 			<ToolbarGroup>
-				<ToolbarButton
-					onClick={ () => disableSingleStepMode( formClientId ) }
-					isPressed={ ! isSingleStep }
-				>
-					{ __( 'All Steps', 'jetpack-forms' ) }
-				</ToolbarButton>
-				<ToolbarButton
-					onClick={ () => {
-						if ( ! isSingleStep && steps.length > 0 ) {
-							// First set the step if one isn't already selected
-							if ( selectedStepId === null ) {
-								setActiveStep( formClientId, steps[ 0 ].clientId );
-							}
-							// Then enable single step mode
-							enableSingleStepMode( formClientId );
-						}
+				<ToolbarDropdownMenu
+					icon={
+						<SVG viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+							<Path d="M7 10l5 5 5-5z" />
+						</SVG>
+					}
+					text={ ! isSingleStep ? __( 'All steps', 'jetpack-forms' ) : displayLabel }
+					popoverProps={ { placement: 'bottom-start' } }
+					toggleProps={ {
+						showTooltip: true,
+						children: ! isSingleStep ? __( 'All steps', 'jetpack-forms' ) : displayLabel,
 					} }
-					isPressed={ isSingleStep }
 				>
-					{ __( 'Single Step', 'jetpack-forms' ) }
-				</ToolbarButton>{ ' ' }
-			</ToolbarGroup>
-
-			<>
+					{ ( { onClose } ) => (
+						<MenuGroup key="choose-steps" label={ __( 'Available Steps', 'jetpack-forms' ) }>
+							<MenuItem
+								onClick={ () => {
+									if ( isSingleStep ) {
+										disableSingleStepMode( formClientId );
+									}
+									onClose();
+								} }
+								isSelected={ ! isSingleStep }
+								icon={ ! isSingleStep ? 'yes' : null }
+							>
+								{ __( 'All steps', 'jetpack-forms' ) }
+							</MenuItem>
+							{ steps.map( ( step, index ) => (
+								<MenuItem
+									key={ step.clientId }
+									onClick={ () => {
+										setActiveStep( formClientId, step.clientId );
+										enableSingleStepMode( formClientId );
+										onClose();
+									} }
+									isSelected={ selectedStepId === step.clientId && isSingleStep }
+									icon={ selectedStepId === step.clientId && isSingleStep ? 'yes' : null }
+								>
+									{ `${ index + 1 }. ${ step?.attributes?.stepLabel }` }
+								</MenuItem>
+							) ) }
+						</MenuGroup>
+					) }
+				</ToolbarDropdownMenu>
 				<ToolbarButton
 					showTooltip={ true }
 					label={ __( 'Previous step', 'jetpack-forms' ) }
@@ -112,50 +126,7 @@ export default function StepControls( { formClientId, updateStepSelected = false
 				>
 					<Icon icon={ next } />
 				</ToolbarButton>
-				<DropdownMenu
-					icon={ null }
-					label={ __( 'Select step to view', 'jetpack-forms' ) }
-					popoverProps={ { placement: 'bottom-start' } }
-					toggleProps={ {
-						children: (
-							<>
-								{ displayLabel }
-								<span style={ { width: '8px' } } />
-								<SVG
-									xmlns="http://www.w3.org/2000/svg"
-									width="12"
-									height="12"
-									viewBox="0 0 24 24"
-									fill="currentColor"
-								>
-									<Path d="M17.5 11.6L12 16l-5.5-4.4.9-1.2L12 14l4.5-3.6 1 1.2z"></Path>
-								</SVG>
-							</>
-						),
-						showTooltip: false,
-						as: ToolbarButton,
-						disabled: ! isSingleStep,
-					} }
-				>
-					{ ( { onClose } ) => (
-						<MenuGroup key="choose-steps" label={ __( 'Available Steps', 'jetpack-forms' ) }>
-							{ steps.map( ( step, index ) => (
-								<MenuItem
-									key={ step.clientId }
-									onClick={ () => {
-										setActiveStep( formClientId, step.clientId );
-										onClose();
-									} }
-									isSelected={ selectedStepId === step.clientId }
-									icon={ selectedStepId === step.clientId ? 'yes' : null }
-								>
-									{ `${ index + 1 }. ${ step?.attributes?.stepLabel }` }
-								</MenuItem>
-							) ) }
-						</MenuGroup>
-					) }
-				</DropdownMenu>
-			</>
+			</ToolbarGroup>
 		</BlockControls>
 	);
 }
