@@ -324,7 +324,8 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 
 		$result = $method->invoke( $this->handler );
 
-		$this->assertEquals( $test_email, $result );
+		// Should now return false since stored error fallback was removed
+		$this->assertFalse( $result );
 	}
 
 	/**
@@ -357,7 +358,7 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 			)
 		);
 
-		// Set up URL parameters (should take priority)
+		// Set up URL parameters (should work since only URL parameters are used)
 		$_GET['jetpack_protected_owner_email']  = $url_email;
 		$_GET['jetpack_create_missing_account'] = '1';
 
@@ -381,14 +382,9 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	public function test_enqueue_form_scripts_only_on_user_new_page() {
 		$test_email = 'test@example.com';
 
-		// Set up an error to ensure we have an email to prepopulate
-		update_option(
-			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
-			array(
-				'error_type' => 'missing_owner',
-				'email'      => $test_email,
-			)
-		);
+		// Set up URL parameters to ensure we have an email to prepopulate
+		$_GET['jetpack_protected_owner_email']  = $test_email;
+		$_GET['jetpack_create_missing_account'] = '1';
 
 		// Test with correct hook
 		$this->handler->enqueue_form_scripts( 'user-new.php' );
@@ -400,6 +396,10 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Test with incorrect hook - should not enqueue
 		$this->handler->enqueue_form_scripts( 'plugins.php' );
 		$this->assertFalse( wp_script_is( 'jquery', 'enqueued' ) );
+
+		// Clean up
+		unset( $_GET['jetpack_protected_owner_email'] );
+		unset( $_GET['jetpack_create_missing_account'] );
 	}
 
 	/**
@@ -417,14 +417,9 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	public function test_prepopulate_user_form_with_email() {
 		$test_email = 'test@example.com';
 
-		// Set up an error
-		update_option(
-			Protected_Owner_Error_Handler::STORED_ERRORS_OPTION,
-			array(
-				'error_type' => 'missing_owner',
-				'email'      => $test_email,
-			)
-		);
+		// Set up URL parameters to ensure we have an email to prepopulate
+		$_GET['jetpack_protected_owner_email']  = $test_email;
+		$_GET['jetpack_create_missing_account'] = '1';
 
 		// Capture output
 		ob_start();
@@ -432,7 +427,6 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		$output = ob_get_clean();
 
 		// Verify output contains expected elements
-		$this->assertStringContainsString( 'WordPress.com Plan Owner', $output );
 		$this->assertStringContainsString( $test_email, $output );
 		$this->assertStringContainsString( 'jetpack_prepopulate_email', $output );
 		$this->assertStringContainsString( 'jetpack_create_missing_account', $output );
@@ -441,6 +435,10 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( '#role', $output );
 		$this->assertStringContainsString( 'administrator', $output );
 		$this->assertStringContainsString( '#invite_user_wpcom', $output );
+
+		// Clean up
+		unset( $_GET['jetpack_protected_owner_email'] );
+		unset( $_GET['jetpack_create_missing_account'] );
 	}
 
 	/**

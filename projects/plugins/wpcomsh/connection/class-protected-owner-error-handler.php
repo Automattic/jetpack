@@ -209,28 +209,8 @@ class Protected_Owner_Error_Handler {
 
 		// Output hidden field and JavaScript to prepopulate the form
 		?>
-		<tr class="form-field form-required">
-			<th scope="row">
-				<label for="jetpack_protected_owner_notice">
-					<?php esc_html_e( 'WordPress.com Plan Owner', 'wpcomsh' ); ?>
-				</label>
-			</th>
-			<td>
-				<div class="notice notice-info inline">
-					<p>
-						<?php
-						printf(
-							/* translators: %s is the email address */
-							esc_html__( 'Creating account for WordPress.com plan owner: %s', 'wpcomsh' ),
-							'<strong>' . esc_html( $email ) . '</strong>'
-						);
-						?>
-					</p>
-				</div>
-				<input type="hidden" id="jetpack_prepopulate_email" value="<?php echo esc_attr( $email ); ?>" />
-				<input type="hidden" name="jetpack_create_missing_account" value="1" />
-			</td>
-		</tr>
+		<input type="hidden" id="jetpack_prepopulate_email" value="<?php echo esc_attr( $email ); ?>" />
+		<input type="hidden" name="jetpack_create_missing_account" value="1" />
 		
 		<script type="text/javascript">
 		(function($) {
