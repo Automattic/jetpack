@@ -67,6 +67,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
 		"@babel/core": "7.27.4",
 		"@babel/plugin-transform-react-jsx": "7.27.1",
 		"@babel/plugin-transform-runtime": "7.27.4",
