@@ -123,7 +123,7 @@ class Contact_Form_Block {
 					'border' => '.wp-block-jetpack-input, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-input) > *,.is-style-outlined .wp-block-jetpack-input + .notched-label > *, .is-style-outlined .wp-block-jetpack-field-select .notched-label > *',
 					'color'  => '.wp-block-jetpack-input, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-input) > *,.is-style-outlined .wp-block-jetpack-input + .notched-label > *, .is-style-outlined .wp-block-jetpack-field-select .notched-label > *',
 				),
-				'uses_context' => array( 'jetpack/field-defaultValue' ),
+				'uses_context' => array( 'jetpack/field-default-value' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -148,7 +148,7 @@ class Contact_Form_Block {
 				),
 				'uses_context' => array(
 					'jetpack/field-required',
-					'jetpack/field-dateFormat',
+					'jetpack/field-date-format',
 				),
 			)
 		);
@@ -200,7 +200,7 @@ class Contact_Form_Block {
 					),
 				),
 				'uses_context' => array(
-					'jetpack/field-defaultValue',
+					'jetpack/field-default-value',
 					'jetpack/field-options-type',
 					'jetpack/field-required',
 				),
@@ -240,8 +240,8 @@ class Contact_Form_Block {
 			array(
 				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_date' ),
 				'provides_context' => array(
-					'jetpack/field-required'   => 'required',
-					'jetpack/field-dateFormat' => 'dateFormat',
+					'jetpack/field-required'    => 'required',
+					'jetpack/field-date-format' => 'dateFormat',
 				),
 			)
 		);
@@ -264,8 +264,8 @@ class Contact_Form_Block {
 			array(
 				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_checkbox' ),
 				'provides_context' => array(
-					'jetpack/field-required'     => 'required',
-					'jetpack/field-defaultValue' => 'defaultValue',
+					'jetpack/field-required'      => 'required',
+					'jetpack/field-default-value' => 'defaultValue',
 				),
 			)
 		);

@@ -17,7 +17,7 @@ const getLabelOrFallback = ( label, placeholder ) => {
 
 const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) => {
 	const {
-		'jetpack/field-defaultValue': defaultValue,
+		'jetpack/field-default-value': defaultValue,
 		'jetpack/field-options-type': type = 'checkbox',
 		'jetpack/field-required': required,
 		'jetpack/field-share-attributes': isSynced,
