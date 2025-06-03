@@ -114,6 +114,6 @@ describe( 'useChartMargin', () => {
 		expect( result.current.left ).toBe( 48 );
 		expect( result.current.top ).toBe( 10 );
 		expect( result.current.bottom ).toBe( 20 );
-		expect( result.current.right ).toBe( 0 );
+		expect( result.current.right ).toBe( 20 );
 	} );
 } );
