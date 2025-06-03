@@ -100,6 +100,13 @@ export function useBarChartOptions(
 			: options.axis?.x?.tickFormat;
 
 		return {
+			gridVisibility,
+			xScale,
+			yScale,
+			accessors: {
+				xAccessor,
+				yAccessor,
+			},
 			axis: {
 				x: {
 					orientation: 'bottom' as const,
@@ -114,19 +121,12 @@ export function useBarChartOptions(
 					...( options.axis?.y || {} ),
 				},
 			},
-			xScale,
-			yScale,
 			barGroup: {
 				padding: getInnerPadding( horizontal ? yScale : xScale ),
 			},
 			tooltip: {
 				labelFormatter: providedToolTipLabelFormatter || defaultTooltipLabelFormatter,
 			},
-			accessors: {
-				xAccessor,
-				yAccessor,
-			},
-			gridVisibility,
 		};
 	}, [ defaultOptions, options, horizontal ] );
 }
