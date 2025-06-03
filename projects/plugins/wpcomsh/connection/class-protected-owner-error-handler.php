@@ -370,7 +370,7 @@ class Protected_Owner_Error_Handler {
 							<?php esc_html_e( 'Invite user to WordPress.com', 'wpcomsh' ); ?>
 						</label>
 						<p class="description">
-							<?php esc_html_e( 'Note: This user is being created to resolve a Jetpack connection issue. You may choose whether to invite them to WordPress.com.', 'wpcomsh' ); ?>
+							<?php esc_html_e( 'Note: This user is being created to resolve a problem with your WordPress.com plan. They will be automatically connected to WordPress.com.', 'wpcomsh' ); ?>
 						</p>
 					</fieldset>
 				</td>
