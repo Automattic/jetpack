@@ -49,7 +49,6 @@ interface ConnectionStatusCardProps {
 	apiNonce: string;
 	redirectUri?: string;
 	title?: string;
-	connectionInfoText?: string;
 	onDisconnected?: () => void;
 	connectedPlugins?: {
 		name: string;

@@ -1,12 +1,22 @@
+/**
+ * External dependencies
+ */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { __ } from '@wordpress/i18n';
 import { useState, useCallback } from 'react';
-import { useIntegrationsStatus } from '../../blocks/contact-form/components/jetpack-integrations-modal/hooks/useIntegrationsStatus';
+/**
+ * Internal dependencies
+ */
+import { useIntegrationsStatus } from '../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-integrations-status';
 import AkismetDashboardCard from './akismet-card';
 import CreativeMailDashboardCard from './creative-mail-card';
 import GoogleSheetsDashboardCard from './google-sheets-card';
 import JetpackCRMDashboardCard from './jetpack-crm-card';
 import SalesforceDashboardCard from './salesforce-card';
 import './style.scss';
+/**
+ * Types
+ */
 import type { Integration } from './types';
 
 const Integrations = () => {
@@ -20,10 +30,21 @@ const Integrations = () => {
 	} );
 
 	const toggleCard = useCallback( ( cardId: keyof typeof expandedCards ) => {
-		setExpandedCards( prev => ( {
-			...prev,
-			[ cardId ]: ! prev[ cardId ],
-		} ) );
+		setExpandedCards( prev => {
+			const isExpanding = ! prev[ cardId ];
+
+			if ( isExpanding ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_integrations_card_expand', {
+					card: cardId,
+					origin: 'dashboard',
+				} );
+			}
+
+			return {
+				...prev,
+				[ cardId ]: isExpanding,
+			};
+		} );
 	}, [] );
 
 	const handleToggleAkismet = useCallback( () => toggleCard( 'akismet' ), [ toggleCard ] );
