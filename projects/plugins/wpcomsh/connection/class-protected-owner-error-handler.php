@@ -281,7 +281,7 @@ class Protected_Owner_Error_Handler {
 		if ( isset( $_GET['jetpack_protected_owner_email'] ) &&
 			isset( $_GET['jetpack_create_missing_account'] ) ) {
 			$email = sanitize_email( wp_unslash( $_GET['jetpack_protected_owner_email'] ) );
-			if ( is_email( $email ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.Missing -- This is a valid use of is_email
+			if ( is_email( $email ) ) {
 				return $email;
 			}
 		}

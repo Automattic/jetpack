@@ -436,7 +436,7 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( $test_email, $output );
 		$this->assertStringContainsString( 'jetpack_prepopulate_email', $output );
 		$this->assertStringContainsString( 'jetpack_create_missing_account', $output );
-		$this->assertStringContainsString( 'JavaScript', $output );
+		$this->assertStringContainsString( 'text/javascript', $output );
 		$this->assertStringContainsString( '#email', $output );
 		$this->assertStringContainsString( '#invite_user_wpcom', $output );
 	}
