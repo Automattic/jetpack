@@ -1,6 +1,6 @@
 @use "@wordpress/base-styles/breakpoints";
 @use "@wordpress/base-styles/mixins";
-@import "@automattic/typography/styles/fonts";
+@use "@automattic/typography/styles/fonts";
 
 .wpcom-global-styles-modal {
 
@@ -56,7 +56,7 @@
 
 	.wpcom-global-styles-modal__heading {
 		margin-top: 0;
-		font-family: $brand-serif;
+		font-family: fonts.$brand-serif;
 		font-weight: 400;
 		font-size: 1.75rem;
 		line-height: 32px;
