@@ -20,6 +20,10 @@ export const ErrorDetails = () => {
 			'jetpack-boost'
 		),
 		'lcp-timeout': __(
+			'The page took too long to load during optimization. Please check that the page is publicly accessible and try again.',
+			'jetpack-boost'
+		),
+		'lcp-metric-timeout': __(
 			"We couldn't identify the main LCP element within the time limit. This may happen with slow-loading or complex pages.",
 			'jetpack-boost'
 		),

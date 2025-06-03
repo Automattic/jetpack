@@ -14,6 +14,7 @@ export const LcpErrorTypeSchema = z.enum( [
 	'element-not-unique',
 	'http-error',
 	'lcp-timeout',
+	'lcp-metric-timeout',
 ] );
 
 export const LcpErrorDetailsSchema = z.object( {
