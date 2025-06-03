@@ -82,8 +82,6 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-response {
-	border: 1px solid #dcdcde;
-	border-radius: 8px;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
@@ -91,15 +89,6 @@ $action-bar-height: 88px;
 	overflow: hidden;
 	background-color: #fff;
 	position: relative;
-
-	&::before {
-		background: linear-gradient(30deg, #eaeff5, #f2f3e3);
-		border-bottom: 1px solid #dcdcde;
-		box-sizing: border-box;
-		content: "";
-		display: flex;
-		padding-top: 24px;
-	}
 
 	&.exit-active {
 		display: none;
@@ -131,34 +120,30 @@ $action-bar-height: 88px;
 			}
 		}
 	}
-
-	@media (min-width: 816px) {
-		margin: 20px 20px 20px 0;
-	}
 }
 
-.jp-forms__inbox-response-avatar {
-	background-color: #fff;
-	border: 3px solid #fff;
-	border-radius: 50%;
-	box-sizing: border-box;
-	display: none; //Hidden for now
-	height: 74px;
-	filter: drop-shadow(0 4px 44px rgba(0, 0, 0, 0.25));
+.jp-forms__inbox-response-gravatar {
+	background-color: var(--jp-gray-5);
+	border-radius: 4px;
+	height: 48px;
 	overflow: hidden;
-	position: absolute;
-	left: 32px;
-	top: 32px;
-	width: 74px;
-	z-index: 100;
+	width: 48px;
+}
+
+.jp-forms__inbox-response-header {
+	margin: 24px 0 0;
+	padding: 0 32px;
+}
+
+.jp-forms__inbox-response-header-name {
+	min-height: 48px; // Same as avatar to middle-align single lines
 }
 
 .jp-forms__inbox-response-title {
 	font-size: 24px;
 	font-weight: 700;
 	line-height: normal;
-	margin: 24px 0 0;
-	padding: 0 32px;
+	margin: 0;
 
 	&.is-email,
 	&.is-ip {
@@ -170,52 +155,22 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-response-subtitle {
-	align-items: center;
-	color: #646970;
-	display: flex;
-	flex-shrink: 0;
-	font-size: 16px;
+	color: var(--jp-gray-80);
 	font-weight: 500;
-	height: 40px;
-	line-height: 40px;
 	margin: 0;
-	position: relative;
-	overflow: hidden;
-	padding: 0 32px;
+	font-size: 16px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 
-	.components-button {
-		background-color: #fff;
-		display: inline-block;
-		height: 28px;
-		margin-left: auto;
-		padding: 4px 8px;
-		position: absolute;
-		top: 6px;
-		right: 32px;
-		z-index: 100;
-
-		@media (min-width: 1025px) {
-			display: none;
-		}
-	}
-
-	@media (min-width: 1025px) {
-
-		&:hover {
-			background-color: #f6f6f7;
-
-			.components-button {
-				background-color: #f6f6f7;
-				display: inline-block;
-			}
-		}
+	.email-field {
+		align-items: center;
+		display: flex;
+		flex-shrink: 0;
 	}
 }
 
 .jp-forms__inbox-response-meta {
-	color: #646970;
+	color: var(--jp-gray-80);
 	display: table;
 	flex-direction: column;
 	font-size: 12px;
@@ -255,12 +210,8 @@ $action-bar-height: 88px;
 	}
 }
 
-.jp-forms__inbox-response-separator {
-	border-bottom: 1px solid var( --jp-forms-border-color );
-	width: 100%;
-}
-
 .jp-forms__inbox-response-data {
+	border-top: 1px solid var( --jp-forms-border-color );
 	display: flex;
 	font-size: var(--jp-forms-font-size-regular);
 	flex-direction: column;
@@ -269,17 +220,19 @@ $action-bar-height: 88px;
 	row-gap: 24px;
 }
 
-.jp-forms__inbox-response-data-label {
-	font-weight: 600;
-}
-
 .jp-forms__inbox-response-data-value {
 	white-space: pre-wrap;
+	display: block;
 }
 
 .jp-forms__inbox-response-data-value .file-field {
 	display: flex;
 	gap: 12px;
+}
+
+.jp-forms__inbox-response-data-value .email-field {
+	display: flex;
+	align-items: center;
 }
 
 .jp-forms__inbox-response-data-value .file-field svg {
@@ -301,10 +254,10 @@ $action-bar-height: 88px;
 	flex-direction: column;
 	height: 100%;
 	max-height: 100%;
-	flex: 1 1 50%;
+	flex: 1 1 60%;
 
 	.dataviews-wrapper {
-		background: #fff;
+		background: var(--jp-white);
 		height: 300px;
 		flex-grow: 1;
 		overflow-y: visible;
@@ -343,7 +296,7 @@ $action-bar-height: 88px;
 	min-width: 300px !important;
 	height: 100%;
 	overflow: auto;
-	flex: 1 1 50%;
+	flex: 1 1 40%;
 }
 
 

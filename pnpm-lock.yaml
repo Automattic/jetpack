@@ -2457,6 +2457,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@gravatar-com/hovercards':
+        specifier: 0.10.8
+        version: 0.10.8
       '@wordpress/base-styles':
         specifier: 6.0.0
         version: 6.0.0
@@ -2520,6 +2523,9 @@ importers:
       gridicons:
         specifier: 3.4.2
         version: 3.4.2(react@18.3.1)
+      js-sha256:
+        specifier: 0.11.1
+        version: 0.11.1
       lodash:
         specifier: 4.17.21
         version: 4.17.21
@@ -12218,6 +12224,9 @@ packages:
   js-library-detector@6.7.0:
     resolution: {integrity: sha512-c80Qupofp43y4cJ7+8TTDN/AsDwLi5oOm/plBrWI+iQt485vKXCco+yVmOwEgdo9VOdsYTuV0UlTeetVPTriXA==}
     engines: {node: '>=12'}
+
+  js-sha256@0.11.1:
+    resolution: {integrity: sha512-o6WSo/LUvY2uC4j7mO50a2ms7E/EAdbP0swigLV+nzHKTTaYnaLIWJ02VdXrsJX0vGedDESQnLsOekr94ryfjg==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -25698,6 +25707,8 @@ snapshots:
   js-cookie@3.0.5: {}
 
   js-library-detector@6.7.0: {}
+
+  js-sha256@0.11.1: {}
 
   js-tokens@4.0.0: {}
 
