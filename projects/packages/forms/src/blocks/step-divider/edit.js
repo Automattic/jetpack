@@ -22,12 +22,6 @@ const StepDividerEdit = ( { clientId } ) => {
 		const beforeBlocks = stepInnerBlocks.slice( 0, dividerIndex );
 		const afterBlocks = stepInnerBlocks.slice( dividerIndex + 1 );
 
-		// Only split if both sides have at least one block
-		if ( beforeBlocks.length === 0 || afterBlocks.length === 0 ) {
-			removeBlock( clientId );
-			return;
-		}
-
 		// Replace the current step's inner blocks with beforeBlocks
 		replaceInnerBlocks( parentStepClientId, beforeBlocks );
 
