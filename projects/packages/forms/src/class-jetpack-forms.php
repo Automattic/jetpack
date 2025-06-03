@@ -22,7 +22,7 @@ class Jetpack_Forms {
 	public static function load_contact_form() {
 		Util::init();
 
-		if ( is_admin() && self::is_feedback_dashboard_enabled() ) {
+		if ( self::is_feedback_dashboard_enabled() ) {
 			$dashboard = new Dashboard();
 			$dashboard->init();
 		}
