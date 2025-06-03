@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { useConnection, useRestoreConnection } from '@automattic/jetpack-connection';
+import { useConnectionErrorNotice, useRestoreConnection } from '@automattic/jetpack-connection';
 import { renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 import { NoticeContext } from '../../../context/notices/noticeContext';
@@ -40,7 +40,9 @@ Object.defineProperty( window, 'Initial_State', {
 	writable: true,
 } );
 
-const mockUseConnection = useConnection as jest.MockedFunction< typeof useConnection >;
+const mockUseConnectionErrorNotice = useConnectionErrorNotice as jest.MockedFunction<
+	typeof useConnectionErrorNotice
+>;
 const mockUseRestoreConnection = useRestoreConnection as jest.MockedFunction<
 	typeof useRestoreConnection
 >;
@@ -67,19 +69,10 @@ describe( 'useConnectionErrorsNotice', () => {
 	};
 
 	const defaultConnectionData = {
+		hasConnectionError: false,
+		connectionErrorMessage: '',
+		connectionError: null,
 		connectionErrors: {},
-		isRegistered: true,
-		isUserConnected: true,
-		siteIsRegistering: false,
-		userIsConnecting: false,
-		registrationError: false,
-		userConnectionData: {},
-		hasConnectedOwner: true,
-		connectedPlugins: {},
-		isOfflineMode: false,
-		handleRegisterSite: jest.fn(),
-		handleConnectUser: jest.fn(),
-		refreshConnectedPlugins: jest.fn(),
 	};
 
 	const defaultRestoreConnection = {
@@ -91,7 +84,7 @@ describe( 'useConnectionErrorsNotice', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 
-		mockUseConnection.mockReturnValue( defaultConnectionData );
+		mockUseConnectionErrorNotice.mockReturnValue( defaultConnectionData );
 		mockUseRestoreConnection.mockReturnValue( defaultRestoreConnection );
 		mockUseAnalytics.mockReturnValue( { recordEvent: mockRecordEvent } );
 	} );
@@ -113,8 +106,17 @@ describe( 'useConnectionErrorsNotice', () => {
 
 	describe( 'when there is a standard connection error', () => {
 		beforeEach( () => {
-			mockUseConnection.mockReturnValue( {
-				...defaultConnectionData,
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				hasConnectionError: true,
+				connectionErrorMessage: 'Connection failed due to network issue',
+				connectionError: {
+					error_code: 'invalid_token',
+					error_message: 'Connection failed due to network issue',
+					error_type: 'connection',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
+				},
 				connectionErrors: {
 					invalid_token: {
 						'1': {
@@ -218,8 +220,17 @@ describe( 'useConnectionErrorsNotice', () => {
 
 	describe( 'when there is a protected owner error', () => {
 		beforeEach( () => {
-			mockUseConnection.mockReturnValue( {
-				...defaultConnectionData,
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				hasConnectionError: true,
+				connectionErrorMessage: 'The WordPress.com plan owner is missing',
+				connectionError: {
+					error_code: 'protected_owner',
+					error_message: 'The WordPress.com plan owner is missing',
+					error_type: 'protected_owner',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
+				},
 				connectionErrors: {
 					protected_owner: {
 						'1': {
@@ -282,7 +293,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		it( 'should use custom adminUrl when available', async () => {
 			window.Initial_State = { adminUrl: '/custom-admin/' };
 
-			mockUseConnection.mockReturnValue( {
+			mockUseConnectionErrorNotice.mockReturnValue( {
 				...defaultConnectionData,
 				connectionErrors: {
 					protected_owner: {
@@ -315,7 +326,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		it( 'should fallback to default admin path when Initial_State is undefined', async () => {
 			window.Initial_State = undefined;
 
-			mockUseConnection.mockReturnValue( {
+			mockUseConnectionErrorNotice.mockReturnValue( {
 				...defaultConnectionData,
 				connectionErrors: {
 					protected_owner: {
@@ -347,7 +358,7 @@ describe( 'useConnectionErrorsNotice', () => {
 
 		it( 'should detect protected owner error by error_type field', async () => {
 			// Test with different error message but correct error_type
-			mockUseConnection.mockReturnValue( {
+			mockUseConnectionErrorNotice.mockReturnValue( {
 				...defaultConnectionData,
 				connectionErrors: {
 					protected_owner: {
@@ -387,7 +398,7 @@ describe( 'useConnectionErrorsNotice', () => {
 
 		it( 'should not detect protected owner error with wrong error_type', async () => {
 			// Test with message containing keywords but wrong error_type
-			mockUseConnection.mockReturnValue( {
+			mockUseConnectionErrorNotice.mockReturnValue( {
 				...defaultConnectionData,
 				connectionErrors: {
 					invalid_token: {
@@ -429,7 +440,7 @@ describe( 'useConnectionErrorsNotice', () => {
 
 	describe( 'notice priority calculation', () => {
 		it( 'should use higher priority when restoring connection', async () => {
-			mockUseConnection.mockReturnValue( {
+			mockUseConnectionErrorNotice.mockReturnValue( {
 				...defaultConnectionData,
 				connectionErrors: {
 					invalid_token: {
@@ -464,7 +475,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		} );
 
 		it( 'should use base priority when not restoring connection', async () => {
-			mockUseConnection.mockReturnValue( {
+			mockUseConnectionErrorNotice.mockReturnValue( {
 				...defaultConnectionData,
 				connectionErrors: {
 					invalid_token: {
@@ -502,7 +513,7 @@ describe( 'useConnectionErrorsNotice', () => {
 			expect( mockSetNotice ).not.toHaveBeenCalled();
 
 			// Add an error
-			mockUseConnection.mockReturnValue( {
+			mockUseConnectionErrorNotice.mockReturnValue( {
 				...defaultConnectionData,
 				connectionErrors: {
 					protected_owner: {

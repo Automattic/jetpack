@@ -1,5 +1,5 @@
 import { Col, Text } from '@automattic/jetpack-components';
-import { useConnection, useRestoreConnection } from '@automattic/jetpack-connection';
+import { useConnectionErrorNotice, useRestoreConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
@@ -17,25 +17,14 @@ interface NoticeAction {
 	variant?: 'primary' | 'secondary';
 }
 
-// Define the connection error type
-interface ConnectionError {
-	error_code: string;
-	error_message: string;
-	error_type?: string;
-	error_data?: Record< string, unknown >;
-	user_id: string | number;
-	timestamp: number;
-	nonce: string;
-}
-
 const useConnectionErrorsNotice = () => {
-	const { setNotice, currentNotice } = useContext( NoticeContext );
-	const { connectionErrors } = useConnection( {} );
+	const { setNotice } = useContext( NoticeContext );
+	const { hasConnectionError, connectionError } = useConnectionErrorNotice(); // Using enhanced hook
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
 	const { recordEvent } = useAnalytics();
 
-	// Add a new handler for redirecting to create new user page
+	// Handler for creating missing account (protected owner errors)
 	const handleCreateMissingAccount = useCallback( () => {
 		// Track the attempt to use create missing account
 		recordEvent( 'jetpack_my_jetpack_protected_owner_create_account_attempt', {} );
@@ -46,27 +35,16 @@ const useConnectionErrorsNotice = () => {
 	}, [ recordEvent ] );
 
 	useEffect( () => {
-		// Check if there are any connection errors
-		if ( ! connectionErrors || Object.keys( connectionErrors ).length === 0 ) {
-			// No errors detected
-			return;
-		}
-
-		// Get the first error from the connectionErrors object
-		const firstErrorType = Object.keys( connectionErrors )[ 0 ];
-		const firstErrorList = Object.values( connectionErrors[ firstErrorType ] );
-		const firstError =
-			firstErrorList.length > 0 ? ( firstErrorList[ 0 ] as ConnectionError ) : null;
-
-		if ( ! firstError || ! firstError.error_message ) {
+		// Use the enhanced hook data - it now includes protected owner errors
+		if ( ! hasConnectionError || ! connectionError ) {
 			return;
 		}
 
 		// Check if this is a protected owner error based on the error_type field
-		const isProtectedOwnerError = firstError.error_type === 'protected_owner';
+		const isProtectedOwnerError = connectionError.error_type === 'protected_owner';
 
 		// Use the error message provided by the backend
-		let errorMessage: string | React.ReactElement = firstError.error_message;
+		let errorMessage: string | React.ReactElement = connectionError.error_message;
 
 		if ( restoreConnectionError ) {
 			errorMessage = (
@@ -78,7 +56,7 @@ const useConnectionErrorsNotice = () => {
 							restoreConnectionError
 						) }
 					</Text>
-					<Text mb={ 2 }>{ firstError.error_message }</Text>
+					<Text mb={ 2 }>{ connectionError.error_message }</Text>
 				</Col>
 			);
 		}
@@ -127,11 +105,11 @@ const useConnectionErrorsNotice = () => {
 	}, [
 		setNotice,
 		recordEvent,
-		connectionErrors,
+		hasConnectionError,
+		connectionError,
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
-		currentNotice.options.priority,
 		handleCreateMissingAccount,
 	] );
 };
