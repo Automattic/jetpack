@@ -1,4 +1,4 @@
-import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps, InnerBlocks } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import useFormSteps from '../../hooks/use-form-steps';
@@ -88,34 +88,43 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const steps = useFormSteps( ancestorFormClientId );
 
 	// Get information about the previous step and its blocks
-	const { currentIndex, selectedStepClientId, isSingleStep, previousStepBlocks } = useSelect(
-		select => {
-			const { isSingleStepMode, getActiveStepId } = select( singleStepStore );
-			const { getBlocks } = select( 'core/block-editor' );
+	const { currentIndex, selectedStepClientId, isSingleStep, previousStepBlocks, hasInnerBlocks } =
+		useSelect(
+			select => {
+				const { isSingleStepMode, getActiveStepId } = select( singleStepStore );
+				const { getBlocks, getBlock } = select( 'core/block-editor' );
 
-			const currentStepIndex = steps.findIndex( block => block.clientId === clientId );
+				const currentStepIndex = steps.findIndex( block => block.clientId === clientId );
 
-			// Get previous step blocks if this isn't the first step
-			let prevBlocks = [];
-			if ( currentStepIndex > 0 && steps[ currentStepIndex - 1 ] ) {
-				prevBlocks = getBlocks( steps[ currentStepIndex - 1 ].clientId );
-			}
+				// Get previous step blocks if this isn't the first step
+				let prevBlocks = [];
+				if ( currentStepIndex > 0 && steps[ currentStepIndex - 1 ] ) {
+					prevBlocks = getBlocks( steps[ currentStepIndex - 1 ].clientId );
+				}
 
-			return {
-				currentIndex: currentStepIndex,
-				selectedStepClientId: getActiveStepId( ancestorFormClientId ),
-				isSingleStep: isSingleStepMode( ancestorFormClientId ),
-				previousStepBlocks: prevBlocks,
-			};
-		},
-		[ clientId, steps, ancestorFormClientId ]
-	);
+				const block = getBlock( clientId );
+
+				return {
+					currentIndex: currentStepIndex,
+					selectedStepClientId: getActiveStepId( ancestorFormClientId ),
+					isSingleStep: isSingleStepMode( ancestorFormClientId ),
+					previousStepBlocks: prevBlocks,
+					hasInnerBlocks: !! ( block && block.innerBlocks.length ),
+				};
+			},
+			[ clientId, steps, ancestorFormClientId ]
+		);
 
 	// Determine template based on whether this is a new block or not
+	let renderAppender;
+	if ( ! hasInnerBlocks && ! isSingleStep ) {
+		renderAppender = InnerBlocks.ButtonBlockAppender;
+	}
+
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		// For new blocks, use dynamic template based on previous step
 		template: getStepTemplate( previousStepBlocks ),
 		allowedBlocks: ALLOWED_BLOCKS,
+		renderAppender,
 	} );
 
 	// Only render the step content if it's the selected one or if "All Steps" is selected.
