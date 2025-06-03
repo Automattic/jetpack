@@ -279,6 +279,26 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 				'<div style="tab-size: 4" id="gist',
 				$expected_public_amp_markup,
 			),
+			'invalid path structure'                       => array(
+				'[gist https://gist.github.com/invalid/path/structure]',
+				'<!-- Invalid Gist ID -->',
+			),
+			'invalid gist id format'                       => array(
+				'[gist https://gist.github.com/username/not-a-valid-gist-id]',
+				'<!-- Invalid Gist ID -->',
+			),
+			'invalid username format'                      => array(
+				'[gist https://gist.github.com/invalid-username!/gistid]',
+				'<!-- Invalid Gist ID -->',
+			),
+			'invalid path with extra segments'             => array(
+				'[gist https://gist.github.com/username/gistid/extra/segments]',
+				'<!-- Invalid Gist ID -->',
+			),
+			'invalid path with special chars'              => array(
+				'[gist https://gist.github.com/user@name/gistid]',
+				'<!-- Invalid Gist ID -->',
+			),
 		);
 	}
 }
