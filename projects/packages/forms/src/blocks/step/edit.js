@@ -58,9 +58,6 @@ const getStepTemplate = ( previousStepBlocks = [] ) => {
 			[ 'jetpack/form-step-navigation', {} ],
 		];
 	}
-
-	// Default template
-	return [ [ 'core/paragraph', {} ] ];
 };
 
 function StepBreak( { stepLabel, currentIndex } ) {
