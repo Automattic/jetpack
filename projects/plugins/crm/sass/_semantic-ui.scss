@@ -1,5 +1,5 @@
-@import 'semantic-ui/globals/all';
-@import 'semantic-ui/elements/all';
-@import 'semantic-ui/collections/all';
-@import 'semantic-ui/views/all';
-@import 'semantic-ui/modules/all';
+@forward 'semantic-ui/globals/all';
+@forward 'semantic-ui/elements/all';
+@forward 'semantic-ui/collections/all';
+@forward 'semantic-ui/views/all';
+@forward 'semantic-ui/modules/all';

@@ -11,10 +11,10 @@
 @charset "UTF-8";
 
 // WH fixes for clashes between wp + semantic when nested
-@import 'wp-semantic-fixes';
+@use 'wp-semantic-fixes';
 
 // WH/MS semantic add ins/additions
-@import 'semantic-ui-additions';
+@use 'semantic-ui-additions';
 
 // This Semantic UI bug messes with the email composer layout in Safari
 // https://github.com/Semantic-Org/Semantic-UI/issues/3919
