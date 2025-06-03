@@ -129,7 +129,6 @@ const createTextFieldInnerBlocks = ( blockName, existingInnerBlocks = [] ) => {
 
 	const existingLabel = existingInnerBlocks.find( block => block.name === 'jetpack/label' );
 	const existingInput = existingInnerBlocks.find( block => block.name === 'jetpack/input' );
-	const existingInputAttributes = existingInput?.attributes ?? {};
 
 	return [
 		createBlock( 'jetpack/label', {
@@ -138,7 +137,7 @@ const createTextFieldInnerBlocks = ( blockName, existingInnerBlocks = [] ) => {
 			defaultLabel: config.defaultLabel,
 		} ),
 		createBlock( 'jetpack/input', {
-			...existingInputAttributes,
+			...( existingInput?.attributes || {} ),
 			type: config.type,
 		} ),
 	];
