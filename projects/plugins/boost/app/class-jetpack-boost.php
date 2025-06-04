@@ -34,6 +34,7 @@ use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
@@ -283,6 +284,7 @@ class Jetpack_Boost {
 					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
 					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Module::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
 					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),
+					'lcp_state'                    => array( new LCP_State(), 'get' ),
 				),
 			)
 		);
