@@ -278,7 +278,6 @@
 .jetpack-field-label {
 	display: flex;
 	flex-direction: row;
-	flex-wrap: wrap;
 	justify-content: flex-start;
 	align-items: baseline;
 
@@ -290,12 +289,23 @@
 	// Duplicated classname to preserve specificity level.
 	.jetpack-field-label__input.jetpack-field-label__input {
 		cursor: text;
+		font-weight: 700;
 		margin-bottom: 0.25em;
 	}
 
 	.jetpack-field-label__suffix {
 		margin-inline-start: 0.25em;
+
 		font-weight: 700;
+	}
+
+	.required {
+		word-break: normal;
+		color: unset;
+		opacity: 0.6;
+		font-size: 85%;
+		margin-inline-start: 0.25em;
+		font-weight: 400;
 	}
 
 	.components-toggle-control .components-base-control__field {
@@ -307,22 +317,9 @@
 	}
 }
 
-.jetpack-field-label,
-.jetpack-field-option {
-
-	.required {
-		word-break: normal;
-		color: unset;
-		opacity: 0.6;
-		font-size: 85%;
-		margin-inline-start: 0.25em;
-		font-weight: 400;
-	}
-}
-
 .jetpack-field-label__input {
 	min-height: unset;
-    pointer-events: auto;
+
 	padding: 0;
 }
 
@@ -335,37 +332,28 @@
 
 	.jetpack-field__input, .jetpack-field__textarea {
 		width: 100%;
+		font: inherit;
 		box-sizing: border-box;
 		box-shadow: unset;
+		border: 1px solid #8c8f94;
+		border-radius: 0;
 		padding: 16px;
 		margin: 0;
 	}
 
-	// Reduced specificity to 0,1,0 so that global styles can override it.
-	:where( .jetpack-field__input, .jetpack-field__textarea, .jetpack-field-dropdown__toggle ) {
-		font: inherit;
-		border: 1px solid #8c8f94;
-		border-radius: 0;
-	}
-
-	:where( .jetpack-field-dropdown__toggle ) {
-		background-color: var(--jetpack--contact-form--input-background);
-	}
-
-	// Reduced specificity to 0,1,0 so that global styles can override it.
-	:where( .jetpack-field__textarea ) {
+	.jetpack-field__textarea {
 		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
 		border-color: var(--jetpack--contact-form--border-color, #8c8f94);
-		border-style: var(--jetpack--contact-form--border-style, solid);
-		border-width: var(--jetpack--contact-form--border-left-size, 1px);
+		border-style: var(--jetpack--contact-form--border-style, solid );
+		border-width: var(--jetpack--contact-form--border-size, 1px );
 	}
 
 	.components-base-control__field {
 		margin-bottom: 0;
 	}
 
-	&.jetpack-field-checkbox .jetpack-field-option__checkbox,
-	&.jetpack-field-consent .jetpack-field-option__checkbox {
+	&.jetpack-field-checkbox .jetpack-field-checkbox__checkbox,
+	&.jetpack-field-consent .jetpack-field-consent__checkbox {
 		margin: 0 0.75rem 0 0;
 		border-color: currentColor;
 		opacity: 1;
@@ -373,32 +361,20 @@
 
 	.jetpack-option__type.jetpack-option__type {
 		align-items: center;
+		all: initial;
+		appearance: none;
+		color: var(--jetpack--contact-form--text-color);
 		display: flex;
+		border: none;
+		font-size: var(--jetpack--contact-form--font-size, 16px );
+		font-family: var(--jetpack--contact-form--font-family);
+		height: var(--jetpack--contact-form--font-size, 16px );
 		justify-content: center;
 		margin: 0 10px 0 0;
+		outline: none;
 		position: relative;
+		width: var(--jetpack--contact-form--font-size, 16px);
 		pointer-events: none;
-
-		/* Force opinionated styles for the input. */
-		width: 1em !important;
-		height: 1em !important;
-		box-shadow: none !important;
-		border: none !important;
-		appearance: none !important;
-		outline: none !important;
-
-		/* Some classic themes set the min-widths, which gives an elliptical shape to the input. */
-		min-width: auto;
-	}
-
-	:where(.jetpack-option__type) {
-		all: initial;
-		color: currentColor;
-		// Inherit the font size from the parent element, this needs
-		// to override the `all: initial` above.
-		// Set the height and width to 1em, so that the input scales
-		// with the font size.
-		font-size: inherit;
 
 		&::after, &::before {
 			all: initial;
@@ -417,13 +393,76 @@
 			content: ' ';
 			display: flex;
 			font-weight: 700;
-			height: 1em;
+			height: var(--jetpack--contact-form--font-size, 16px);
 			justify-content: center;
-			width: 1em;
+			width: var(--jetpack--contact-form--font-size, 16px);
 		}
 
 		&[type="radio"]::before {
 			border-radius: 50%;
+			transform: translateY(15%);
+		}
+	}
+
+	&.jetpack-field-multiple {
+
+		&.is-style-button {
+
+			.jetpack-field-option,
+			.wp-block-jetpack-field-option-checkbox,
+			.wp-block-jetpack-field-option-radio {
+				background: var(--jetpack--contact-form--button-outline--background-color);
+				color: var(--jetpack--contact-form--button-outline--text-color);
+				border: var(--jetpack--contact-form--button-outline--border);
+				border-width: var(--jetpack--contact-form--button-outline--border-size);
+				border-color: currentColor;
+				border-radius: var(--jetpack--contact-form--button-outline--border-radius);
+				padding: var(--jetpack--contact-form--button-outline--padding);
+				line-height: var(--jetpack--contact-form--button-outline--line-height);
+				align-items: center;
+
+				&.field-option-radio {
+					position: relative;
+					flex-direction: row-reverse;
+					gap: 16px;
+
+					.jetpack-option__type {
+						display: none;
+					}
+				}
+
+				.jetpack-option__type {
+					color: var(--jetpack--contact-form--button-outline--color);
+				}
+			}
+
+			.wp-block-jetpack-field-option-radio {
+
+				.jetpack-option__type {
+					display: none;
+				}
+			}
+		}
+
+		.jetpack-field-multiple__add-option {
+			margin: 0;
+			padding: 0;
+
+			.dashicon {
+				width: 1rem;
+				height: 1rem;
+				display: flex;
+				margin-left: 0;
+				margin-right: 0.75rem;
+
+				&::before {
+					font-size: 1rem;
+				}
+			}
+
+			svg {
+				margin-right: 12px;
+			}
 		}
 	}
 
@@ -451,75 +490,23 @@
 
 		.jetpack-option__type::before {
 			display: block; /* display: flex causes baselines to not align */
-			transform: translateY(0.15em);
-		}
-	}
-}
-
-.jetpack-field-multiple:where(.is-style-button) {
-	// Reduced specificity to 0,1,0 so that global styles can override it.
-	:where(.jetpack-field-option) {
-		background: var(--jetpack--contact-form--button-outline--background-color);
-		color: var(--jetpack--contact-form--button-outline--text-color);
-		border: var(--jetpack--contact-form--button-outline--border);
-		border-width: var(--jetpack--contact-form--button-outline--border-size);
-		border-color: currentColor;
-		border-radius: var(--jetpack--contact-form--button-outline--border-radius);
-		font-size: var(--jetpack--contact-form--font-size, 16px );
-		font-family: var(--jetpack--contact-form--font-family);
-		padding: var(--jetpack--contact-form--button-outline--padding);
-		line-height: var(--jetpack--contact-form--button-outline--line-height);
-	}
-
-	// Increase specificity to override the `align-items: baseline` from the `jetpack-field-option` class.
-	.jetpack-field-option.jetpack-field-option {
-		align-items: center;
-	}
-
-	.jetpack-field-option.field-option-radio {
-		// TODO - Investigate if this is needed.
-		position: relative;
-		flex-direction: row-reverse;
-		gap: 16px;
-
-		// Hide the radio input when in the button style.
-		// TODO - Check why this isn't done for the checkboxes.
-		.jetpack-option__type {
-			display: none;
 		}
 	}
 
-	.jetpack-field-option .jetpack-option__type {
-		color: inherit;
-	}
-
+	.jetpack-field-option.field-option-radio,
 	.wp-block-jetpack-field-option-radio {
 
 		.jetpack-option__type {
-			display: none;
+			transform: translateY(5%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
 		}
 	}
 }
 
-// TODO - See if we can find usage of this class. It's possibly a dead style.
-.jetpack-field-multiple .jetpack-field-multiple__add-option {
-	margin: 0;
-	padding: 0;
+:where(:not(.contact-form)) > .jetpack-field {
 
-	.dashicon {
-		width: 1rem;
-		height: 1rem;
-		display: flex;
-		margin-left: 0;
-		margin-right: 0.75rem;
-
-		&::before {
-			font-size: 1rem;
-		}
-	}
-
-	svg {
-		margin-right: 12px;
+	.jetpack-field__input, .jetpack-field__textarea {
+		padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+		padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 	}
 }
 
@@ -534,20 +521,10 @@
 	gap: 12px;
 	flex: 1;
 
-	&.has-background {
-		padding: var(--jetpack--contact-form--input-padding-left, 16px) 16px;
-	}
-
-	&.jetpack-field-multiple__list--has-border {
-		padding-left: var(--jetpack--contact-form--input-padding-left, 16px);
-		padding-right: var(--jetpack--contact-form--input-padding-left, 16px);
-	}
-
 	&:empty {
 		display: none;
 	}
 
-	// TODO - This looks like dead code, it looks like field select can't contain a multiple list.
 	// TODO: make this a class, @enej
 	[data-type='jetpack/field-select'] & {
 		border: 1px solid rgba( 0, 0, 0, 0.4 );
@@ -556,18 +533,16 @@
 	}
 }
 
-// Ensure global styles can ovewrite the default border color.
-:where(.jetpack-field-multiple__list.jetpack-field-multiple__list) {
-	border-color: var(--jetpack--contact-form--border-color);
-}
-
 .jetpack-option {
 	display: flex;
 	align-items: center;
 	margin: 0;
 }
 
-// TODO - This looks like dead code, along with the `JetpackOption` component.
+.jetpack-option__type.jetpack-option__type {
+	margin-top: 0;
+}
+
 // Duplicated to elevate specificity in order to overwrite core styles
 .jetpack-option__input.jetpack-option__input.jetpack-option__input {
 	color: inherit;
@@ -592,7 +567,6 @@
 	font-size: inherit;
 }
 
-// TODO - This is possibly dead CSS.
 // Duplicated to elevate specificity in order to overwrite calypso styles
 .jetpack-option__remove.jetpack-option__remove {
 	padding: 6px;
@@ -606,6 +580,10 @@
 .jetpack-field-checkbox,
 .jetpack-field-consent {
 	display: flex;
+
+	.jetpack-field-label .jetpack-field-label__input {
+		font-weight: 400;
+	}
 }
 
 .jetpack-field-checkbox {
@@ -617,11 +595,15 @@
 }
 
 .jetpack-field-consent {
-	font-weight: 400;
+	align-items: center;
 
-	:where(.wp-block-jetpack-option) {
-		font-size: 13px;
-		text-transform: uppercase;
+	.jetpack-field-label {
+		flex-grow: 1;
+
+		.jetpack-field-label__input {
+			font-size: 13px;
+			text-transform: uppercase;
+		}
 	}
 }
 
@@ -676,10 +658,16 @@
 	}
 
 	&__toggle {
+		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
+		border-radius: var(--jetpack--contact-form--border-radius);
+		background-color: var(--jetpack--contact-form--input-background);
 		color: var(--jetpack--contact-form--text-color);
 		font-size: var(--jetpack--contact-form--font-size, 16px);
-		padding: var(--jetpack--contact-form--input-padding, 16px);
-		border-color: var(--jetpack--contact-form--border-color);
+		line-height: var(--jetpack--contact-form--line-height);
+		padding: var(--jetpack--contact-form--input-padding);
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -696,41 +684,38 @@
 		border: 2px solid transparent;
 		overflow: visible;
 		margin-right: 4px;
-		// Match the frontend.
-		color: inherit;
-		font-size: inherit;
 	}
 
 	&__icon::after {
-		inset-inline-end: 20px;
 		content: "";
 		display: block;
-		width: calc(1em / 2.5);
-		height: calc(1em / 2.5);
-		border-bottom: calc(1em / 10) solid;
-		border-right: calc(1em / 10) solid;
-		transform: translateY(-12%) rotate(45deg);
-		transform-origin: center center;
-		pointer-events: none;
-		z-index: 1;
+		box-sizing: border-box;
+		width: 100%;
+		height: 100%;
+		border-bottom: 2px solid;
+		border-right: 2px solid;
+		transform: rotate(45deg);
+		margin-top: -2px;
 	}
 
 	&__popover {
-		// The editor should not render the border styles for the dropdown toggle.
-		// The frontend renders a default select box.
+		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
+		border-radius: var(--jetpack--contact-form--border-radius);
+		background-color: var(--jetpack--contact-form--input-background);
+		color: var(--jetpack--contact-form--text-color);
 		font-size: var(--jetpack--contact-form--font-size, 16px);
 		max-height: 165px;
 		overflow: auto;
+		padding: 0;
 		line-height: normal;
 		margin-top: 8px;
-		background-color: #fff;
-		color: #000;
-		border: 1px solid #000;
-		padding: 10px;
-		border-radius: unset;
+		box-shadow: 0 2px 6px rgb(0 0 0 / 5%);
 
 		.rich-text {
-			margin: 10px;
+			padding: var(--jetpack--contact-form--input-padding);
 		}
 	}
 }
@@ -760,8 +745,8 @@
 			right: -10px;
 		}
 
-		.jetpack-field,
-		.wp-block-jetpack-field-checkbox-multiple {
+		.jetpack-field {
+			--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 			margin-top: 8px;
 			box-sizing: border-box;
 
@@ -775,65 +760,62 @@
 				display: flex;
 				box-sizing: border-box;
 				text-align: left;
+				z-index: 1;
 			}
 
 			.notched-label__leading {
-				width: var(--jetpack--contact-form--notch-width);
-				border-right: none !important;
-				border-top-right-radius: unset !important;
-				border-bottom-right-radius: unset !important;
-				box-sizing: content-box;
-				max-width: 100px;
+				width: var(--notch-width);
+				border: var(--jetpack--contact-form--border);
+				border-color: var(--jetpack--contact-form--border-color);
+				border-style: var(--jetpack--contact-form--border-style);
+				border-width: var(--jetpack--contact-form--border-size);
+				border-right: none;
+				border-radius: var(--jetpack--contact-form--border-radius);
+				border-top-right-radius: unset;
+				border-bottom-right-radius: unset;
 			}
 
 			.notched-label__notch {
-				border-radius: unset !important;
+				border-radius: unset;
+				border: var(--jetpack--contact-form--border);
+				border-color: var(--jetpack--contact-form--border-color);
+				border-style: var(--jetpack--contact-form--border-style);
+				border-width: var(--jetpack--contact-form--border-size);
 				padding: 0 4px;
 				transition: border 150ms linear;
-				// For some reason, when keeping the rule below together with the above selector,
-				// on production builds, the attributes are being reordered, causing side-effects
-				// stylelint-disable-next-line no-duplicate-selectors
-				border-left: none !important;
-				border-right: none !important;
-				box-sizing: content-box;
+			}
 
-				// This is required to ensure the color is not overridden by the global styles.
-				// See the selector in class-contact-form-block.php for 'jetpack/input' registration.
-				color: unset !important;
+			// For some reason, when keeping the rule below together with the above selector,
+			// on production builds, the attributes are being reordered, causing side-effects
+			// stylelint-disable-next-line no-duplicate-selectors
+			.notched-label__notch {
+				border-left: none;
+				border-right: none;
 			}
 
 			.notched-label__label {
 				position: relative;
 				top: 50%;
 				transform: translateY(-50%);
+				will-change: transform;
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				margin: 0;
 
-				.jetpack-field-label__suffix {
+				label {
 					font-weight: 300;
 				}
 			}
 
-			:where(.notched-label__filler) {
-				border-left: none !important;
-				border-right: none !important;
-				border-radius: unset !important;
-				box-sizing: content-box;
-			}
-
-			:where(.notched-label__trailing) {
-				border-left: none !important;
-				border-top-left-radius: unset !important;
-				border-bottom-left-radius: unset !important;
-				box-sizing: content-box;
-				max-width: 100px;
-			}
-
-			.jetpack-field-label .jetpack-field-label__input,
-			.jetpack-field-label .required {
-				will-change: font-size;
-				transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
-				margin-bottom: 0;
+			.notched-label__trailing {
+				flex-grow: 1;
+				border: var(--jetpack--contact-form--border);
+				border-color: var(--jetpack--contact-form--border-color);
+				border-style: var(--jetpack--contact-form--border-style);
+				border-width: var(--jetpack--contact-form--border-size);
+				border-left: none;
+				border-radius: var(--jetpack--contact-form--border-radius);
+				border-top-left-radius: unset;
+				border-bottom-left-radius: unset;
 			}
 
 			&.jetpack-field-textarea .notched-label__label {
@@ -844,31 +826,43 @@
 			&.is-selected, &.has-placeholder {
 
 				.notched-label__notch {
-					border-top-color: transparent !important;
+					border-top-color: transparent;
 				}
 
 				.notched-label__label {
-					top: calc(var(--jetpack--contact-form--border-top-size, 1px) * -1);
+					top: calc(var(--jetpack--contact-form--border-size) * -1);
 					transform: translateY(-50%);
-				}
-
-				.jetpack-field-label .required {
-					// The required text is always 85% of the label font size.
-					// The label font size is reduced to 0.8em in a separate rule, so that needs to be accounted for.
-					// 0.85 * 0.8 = 0.68em.
-					font-size: 0.68em;
-				}
-
-				.jetpack-field-label__input,
-				.jetpack-field-label__suffix {
 					font-size: 0.8em;
 				}
 
 				&.jetpack-field-dropdown {
 
-					.jetpack-field-dropdown__toggle .jetpack-field-dropdown__icon,
-					.jetpack-field-dropdown__toggle .rich-text {
-						z-index: 1;
+					.jetpack-field-dropdown__toggle {
+						border-color: transparent;
+						padding-left: calc(var(--notch-width) + 4px);
+						padding-right: calc(var(--notch-width) + 4px);
+					}
+				}
+			}
+
+			&.jetpack-field-multiple {
+				background-color: var(--jetpack--contact-form--input-background);
+				border-radius: var(--jetpack--contact-form--border-radius);
+				border: var(--jetpack--contact-form--border);
+				border-color: var(--jetpack--contact-form--border-color);
+				border-style: var(--jetpack--contact-form--border-style);
+				border-width: var(--jetpack--contact-form--border-size);
+				padding: var(--jetpack--contact-form--input-padding, 16px);
+				padding-top: calc(var(--jetpack--contact-form--input-padding, 16px) + 4px);
+				border-top: none;
+
+				.notched-label {
+					height: unset;
+
+					&__leading, &__notch, &__trailing {
+						border-bottom: none;
+						border-left: none;
+						border-right: none;
 					}
 				}
 			}
@@ -879,27 +873,22 @@
 
 			.jetpack-field-dropdown {
 
+				&__popover .rich-text {
+					padding-left: calc(var(--notch-width) + 4px);
+					padding-right: calc(var(--notch-width) + 4px);
+				}
+
 				&__icon {
 					margin-right: 0;
 				}
 			}
 
-			.jetpack-field-multiple__list, .jetpack-field__input, .jetpack-field__textarea, .jetpack-field-dropdown__toggle {
+			.jetpack-field__input, .jetpack-field__textarea {
 				display: flex;
-
-				 /*
-				 * For the Outlined block style, labels render the input background and
-				 * border styles.
-				 * Unfortunately, the !important rule is required to overcome the inline
-				 * styles that block supports apply for block instance styles.
-				 */
-				background: none !important;
-				border-color: transparent !important;
-				border-radius: unset !important;
+				border-top-color: transparent !important; //Need to override styles coming from the style attribute
 				outline: none;
-				padding: var(--jetpack--contact-form--input-padding, 16px);
-				padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
-				padding-left: min(100px, var(--jetpack--contact-form--notch-width));
+				padding-left: calc(var(--notch-width) + 4px);
+				padding-right: calc(var(--notch-width) + 4px);
 			}
 		}
 	}
@@ -907,6 +896,9 @@
 	.is-style-animated & {
 
 		.jetpack-field {
+			--left-offset: calc(var(--jetpack--contact-form--input-padding-left, 16px) + var(--jetpack--contact-form--border-size));
+			--label-left: max(var(--left-offset), var(--jetpack--contact-form--border-radius));
+			--field-padding: calc(var(--label-left) - var(--jetpack--contact-form--border-size));
 
 			.jetpack-field__input {
 				outline: none;
@@ -922,68 +914,63 @@
 			.jetpack-field-dropdown__toggle
 			{
 				padding-top: 1.4em;
-				padding-left: var(--jetpack--contact-form--animated-left-offset);
+				padding-left: var(--field-padding);
+				padding-right: var(--field-padding);
+			}
+
+			&.jetpack-field-dropdown {
+
+				.jetpack-field-dropdown__popover {
+
+					.rich-text {
+						padding-left: var(--field-padding);
+						padding-right: var(--field-padding);
+					}
+				}
+			}
+
+			&.jetpack-field-multiple {
+				padding-bottom: var(--jetpack--contact-form--input-padding, 16px);
+				padding-top: 1.8em;
+
+				&.has-placeholder {
+
+					.animated-label__label {
+						font-size: 1em;
+						top: 0;
+						left: 0;
+					}
+				}
 			}
 
 			.animated-label__label {
 				position: absolute;
 				z-index: 1;
-				top: calc(50% + (var(--jetpack--contact-form--border-top-size, 0px) * 0.5) - (var(--jetpack--contact-form--border-bottom-size, 0px) * 0.5));
-				left: calc(var(--jetpack--contact-form--border-left-size, 1px) + var(--jetpack--contact-form--animated-left-offset));
-				width: auto;
+				top: 50%;
+				left: var(--label-left);
+				width: 100%;
 				max-width: 100%;
 				box-sizing: border-box;
 				margin: 0;
 				transform: translateY(-50%);
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-				will-change: transform, top;
 
 				.jetpack-field-label__input {
 					margin: 0;
-					transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
-					will-change: font-size;
-				}
-
-				.required {
-					transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
-					will-change: font-size;
-				}
-			}
-
-			.jetpack-field-multiple__list.jetpack-field-multiple__list--has-border {
-				padding-left: var(--jetpack--contact-form--animated-left-offset);
-			}
-
-			&.is-selected.jetpack-field-multiple .animated-label__label,
-			&.has-placeholder.jetpack-field-multiple .animated-label__label {
-				position: static;
-				margin-bottom: 0.25em;
-
-				.jetpack-field-label__input {
-					font-size: inherit;
 				}
 			}
 
 			&.jetpack-field-textarea .animated-label__label {
 				transform: unset;
-				top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
+				top: var(--jetpack--contact-form--input-padding-top, 16px);
 			}
 
-			&.is-selected .animated-label__label:not(.is-selected),
-			&.has-placeholder .animated-label__label {
-				transform: translateY(0);
-				top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
+			&.is-selected, &.has-placeholder {
 
-				.jetpack-field-label__input,
-				.jetpack-field-label__suffix {
+				.animated-label__label {
 					font-size: 0.75em;
-				}
-
-				.required {
-					// The required text is usually 85% of the label font size.
-					// The label is being reduced to 0.75em in a separate rule which doesn't apply to the required text font size.
-					// Thus we take into account here - 0.85 * 0.75 = 0.6375em.
-					font-size: 0.6375em;
+					transform: translateY(0);
+					top: calc(2px + var(--jetpack--contact-form--border-size));
 				}
 			}
 		}
@@ -995,56 +982,6 @@
 			display: flex;
 			flex-direction: column-reverse;
 		}
-	}
-}
-
-:where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__leading),
-:where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__notch),
-:where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__filler),
-:where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__trailing) {
-	border: var(--jetpack--contact-form--border);
-	background-color: var(--jetpack--contact-form--input-background);
-}
-
-:where( .wp-block-jetpack-contact-form.is-style-outlined ) {
-
-	.notched-label__leading {
-		border-color: var(--jetpack--contact-form--border-color);
-		width: var(--jetpack--contact-form--notch-width);
-		border-right: none !important;
-		border-top-right-radius: unset !important;
-		border-bottom-right-radius: unset !important;
-	}
-
-	.notched-label__notch {
-		border-color: var(--jetpack--contact-form--border-color);
-		border-style: var(--jetpack--contact-form--border-style);
-		border-radius: unset !important;
-		padding: 0 4px;
-		transition: border 150ms linear;
-		// For some reason, when keeping the rule below together with the above selector,
-		// on production builds, the attributes are being reordered, causing side-effects
-		border-left: none !important;
-		border-right: none !important;
-	}
-
-	.notched-label__filler {
-		flex-grow: 1;
-		border-color: var(--jetpack--contact-form--border-color);
-		border-style: var(--jetpack--contact-form--border-style);
-		border-radius: unset !important;
-		border-left: none !important;
-		border-right: none !important;
-	}
-
-	.notched-label__trailing {
-		flex-grow: 1;
-		border-color: var(--jetpack--contact-form--border-color);
-		border-style: var(--jetpack--contact-form--border-style);
-		border-radius: var(--jetpack--contact-form--border-radius);
-		border-left: none !important;
-		border-top-left-radius: unset !important;
-		border-bottom-left-radius: unset !important;
 	}
 }
 
@@ -1071,38 +1008,3 @@
 		justify-content: center;
 	}
 }
-
-:where(.wp-block-jetpack-input) {
-	width: 100%;
-	box-sizing: border-box;
-}
-
-.wp-block-jetpack-checkbox {
-	align-items: center;
-}
-
-.jetpack-field-option__label-wrapper {
-	display: grid;
-	grid-template-columns: 1fr auto;
-	align-items: baseline;
-}
-
-.notched-label,
-.notched-label__notch,
-.notched-label__leading,
-.notched-label__trailing {
-    pointer-events: none;
-}
-
-:where(.wp-block-jetpack-label) {
-	font-weight: 700;
-}
-
-.is-style-outlined :where(.wp-block-jetpack-label) {
-	font-weight: 300;
-}
-
-.jetpack-field-dropdown__toggle .rich-text {
-	flex-grow: 1;
-}
-

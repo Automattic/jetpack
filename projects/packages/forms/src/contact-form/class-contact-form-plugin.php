@@ -17,9 +17,7 @@ use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
-use WP_Block;
 use WP_Block_Patterns_Registry;
-use WP_Block_Type_Registry;
 use WP_Error;
 
 /**
@@ -328,109 +326,14 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Generate block support CSS classes and inline styles for block supports
-	 * via the style engine.
-	 *
-	 * @param string $block_name - the block name.
-	 * @param array  $attrs      - the block attributes.
-	 *
-	 * @return array
-	 */
-	private static function get_block_support_classes_and_styles( $block_name, $attrs ) {
-		$block_type = WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
-
-		if ( ! $block_type ) {
-			return array();
-		}
-
-		// Leverage the individual core block support functions to generate classes and styles.
-		$color_styles      = \wp_apply_colors_support( $block_type, $attrs );
-		$typography_styles = \wp_apply_typography_support( $block_type, $attrs );
-		$border_styles     = \wp_apply_border_support( $block_type, $attrs );
-		$custom_classname  = \wp_apply_custom_classname_support( $block_type, $attrs );
-
-		// Merge all the block support classes and styles.
-		$classes = array_filter(
-			array(
-				$color_styles['class'] ?? '',
-				$typography_styles['class'] ?? '',
-				$border_styles['class'] ?? '',
-				$custom_classname['class'] ?? '',
-			),
-			'strlen'
-		);
-
-		$styles = array_filter(
-			array(
-				$color_styles['style'] ?? '',
-				$typography_styles['style'] ?? '',
-				$border_styles['style'] ?? '',
-			),
-			'strlen'
-		);
-
-		$merged_styles = array();
-
-		if ( ! empty( $classes ) ) {
-			$merged_styles['class'] = implode( ' ', $classes );
-		}
-		if ( ! empty( $styles ) ) {
-			$merged_styles['style'] = implode( ' ', $styles );
-		}
-
-		return $merged_styles;
-	}
-
-	/**
-	 * Returns an array containing the field classes (including -wrap classes), the remaining classes without block style classes.
-	 * The wrap classes are used for the wrapper div around the field.
-	 *
-	 * @param string $classname The class name.
-	 *
-	 * @return array {
-	 *     @type string $fieldwrapperclasses         Classes that should be added to the field wrapper.
-	 *     @type string $classes_without_block_style The remaining classes without block style classes, intended for internal field controls.
-	 * }
-	 */
-	private static function get_block_style_classes( $classname = '' ) {
-		if ( ! $classname ) {
-			return array(
-				'fieldwrapperclasses' => '',
-				'classes'             => '',
-			);
-		}
-
-		$field_wrapper_classes       = '';
-		$classes_without_block_style = '';
-
-		preg_match_all( '/is-style-([^\s]+)/i', $classname, $matches );
-
-		$block_style_classes = empty( $matches[0] ) ? '' : implode( ' ', $matches[0] );
-
-		if ( ! empty( $block_style_classes ) ) {
-			$wrap_classes          = ! empty( $matches[0] ) ? ' ' . implode( '-wrap ', array_filter( $matches[0] ) ) . '-wrap' : '';
-			$field_wrapper_classes = " $block_style_classes $wrap_classes";
-		}
-
-		// Remove block style classes from the original classname.
-		$classes_without_block_style = trim( preg_replace( '/is-style-([^\s]+)/i', '', $classname ) );
-
-		return array(
-			'fieldwrapperclasses' => $field_wrapper_classes,
-			'classes'             => $classes_without_block_style,
-		);
-	}
-
-	/**
 	 * Turn block attribute to shortcode attributes.
 	 *
-	 * @param array         $atts  - the block attributes.
-	 * @param string        $type  - the type.
-	 * @param WP_Block|null $block - the block object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $type - the type.
 	 *
 	 * @return array
 	 */
-	public static function block_attributes_to_shortcode_attributes( $atts, $type, $block = null ) {
+	public static function block_attributes_to_shortcode_attributes( $atts, $type ) {
 		$atts['type'] = $type;
 		if ( isset( $atts['className'] ) ) {
 			$atts['class'] = $atts['className'];
@@ -442,300 +345,124 @@ class Contact_Form_Plugin {
 			unset( $atts['defaultValue'] );
 		}
 
-		// Process inner blocks to shortcode attributes.
-		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
-			// Only apply the block style classes to the field wrapper if the field is one of the new inner block types.
-			$add_block_style_classes_to_field_wrapper = false;
-
-			foreach ( $block->parsed_block['innerBlocks'] as $inner_block ) {
-				$block_name = $inner_block['blockName'] ?? '';
-
-				if ( 'jetpack/label' === $block_name ) {
-					$atts['label']                            = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
-					$atts['requiredText']                     = $inner_block['attrs']['requiredText'] ?? null;
-					$label_attrs                              = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
-					$atts['labelclasses']                     = 'wp-block-jetpack-label';
-					$atts['labelclasses']                    .= isset( $label_attrs['class'] ) ? ' ' . $label_attrs['class'] : '';
-					$atts['labelstyles']                      = $label_attrs['style'] ?? null;
-					$add_block_style_classes_to_field_wrapper = true;
-				}
-
-				if ( 'jetpack/input' === $block_name ) {
-					$atts['placeholder']   = $inner_block['attrs']['placeholder'] ?? '';
-					$atts['min']           = $inner_block['attrs']['min'] ?? '';
-					$atts['max']           = $inner_block['attrs']['max'] ?? '';
-					$input_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
-					$atts['inputclasses']  = 'wp-block-jetpack-input';
-					$atts['inputclasses'] .= isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
-					$atts['inputstyles']   = $input_attrs['style'] ?? null;
-
-					if ( 'jetpack/field-select' === $block->name ) {
-						$atts['togglelabel'] = $atts['placeholder'];
-					}
-
-					/*
-						Borders for the outlined notched HTML.
-					*/
-					$style_variation_data                     = self::get_style_variation_shortcode_attributes( $block_name, $inner_block['attrs'] );
-					$atts                                     = array_merge( $atts, $style_variation_data );
-					$add_block_style_classes_to_field_wrapper = true;
-				}
-
-				// The following handles when option blocks are a direct inner block for a field e.g. singular checkbox field.
-				if ( 'jetpack/option' === $block_name ) {
-					$atts['label']                            = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
-					$option_attrs                             = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
-					$atts['optionclasses']                    = 'wp-block-jetpack-option';
-					$atts['optionclasses']                   .= isset( $option_attrs['class'] ) ? ' ' . $option_attrs['class'] : '';
-					$atts['optionstyles']                     = $option_attrs['style'] ?? null;
-					$add_block_style_classes_to_field_wrapper = true;
-				}
-
-				// The following handles choice fields such as; Single Choice Field (radio) or Multiple Choice Field (checkbox).
-				if ( 'jetpack/options' === $block_name ) {
-					$option_blocks           = $inner_block['innerBlocks'] ?? array();
-					$options                 = array();
-					$options_data            = array();
-					$atts['optionsclasses']  = 'wp-block-jetpack-options';
-					$options_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
-					$atts['optionsclasses'] .= isset( $options_attrs['class'] ) ? ' ' . $options_attrs['class'] : '';
-
-					// Check if the block has left border, then apply a class for indentation.
-					$global_styles = wp_get_global_styles(
-						array( 'border' ),
-						array(
-							'block_name' => $block_name,
-							'transforms' => array( 'resolve-variables' ),
-						)
-					);
-
-					if ( isset( $inner_block['attrs']['style']['border']['width'] ) || isset( $inner_block['attrs']['style']['border']['left']['width'] ) || isset( $global_styles['width'] ) || isset( $global_styles['left']['width'] ) ) {
-						$atts['optionsclasses'] .= ' jetpack-field-multiple__list--has-border';
-					}
-
-					$atts['optionsstyles'] = $options_attrs['style'] ?? null;
-
-					foreach ( $option_blocks as $option ) {
-						$option_label = trim( $option['attrs']['label'] ?? '' );
-
-						if ( $option_label ) {
-							$option_attrs = self::get_block_support_classes_and_styles( 'jetpack/option', $option['attrs'] );
-							$option_data  = array( 'label' => $option_label );
-
-							if ( isset( $option_attrs['class'] ) ) {
-								$option_data['class'] = $option_attrs['class'] . ' wp-block-jetpack-option';
-							} else {
-								$option_data['class'] = 'wp-block-jetpack-option';
-							}
-
-							if ( isset( $option_attrs['style'] ) ) {
-								$option_data['style'] = $option_attrs['style'];
-							}
-
-							$options[]      = $option_label; // Legacy shortcode attribute in case filters are using it.
-							$options_data[] = $option_data;
-						}
-					}
-
-					$atts['options']     = implode( ',', $options );
-					$atts['optionsdata'] = \wp_json_encode( $options_data );
-
-					/*
-						Borders for the outlined notched HTML.
-					*/
-					$style_variation_atts                     = self::get_style_variation_shortcode_attributes( $block_name, $inner_block['attrs'] );
-					$atts                                     = array_merge( $atts, $style_variation_atts );
-					$add_block_style_classes_to_field_wrapper = true;
-				}
-			}
-
-			/*
-			 * Add the `wp-block-jetpack-field-*` and `is-style-*` classes to the field wrapper div
-			 * for fields that are one of the new inner block types.
-			 * This ensures any updates to field block styles in theme.json or global styles are
-			 * correctly applied.
-			 */
-			if ( $add_block_style_classes_to_field_wrapper ) {
-				$atts['fieldwrapperclasses'] = 'wp-block-jetpack-field-' . $type;
-				if ( ! empty( $atts['class'] ) ) {
-					$block_style_classes          = self::get_block_style_classes( $atts['class'] );
-					$atts['fieldwrapperclasses'] .= $block_style_classes['fieldwrapperclasses'];
-					// Return the rest of the classes without the block style classes.
-					$atts['class'] = $block_style_classes['classes'];
-				}
-			}
-		}
-
 		return $atts;
-	}
-
-	/**
-	 * Returns the form "Outlined" style classes and styles.
-	 * Important: The "Outlined" style is somewhat different as it uses custom HTML to create a border around the field's label.
-	 * When applying styles to the control, background and border styles are applied to the custom HTML, not the input itself.
-	 *
-	 * @param string $block_name - the block name.
-	 * @param array  $attrs - the block attributes.
-	 *
-	 * @return array
-	 */
-	protected static function get_style_variation_shortcode_attributes( $block_name, $attrs ) {
-		$picked_attributes = array();
-
-		// For style variations like the outlined style, we only care about porting specific attributes like background color and border
-		// to the custom label HTML, so we pick those attributes and ignore the rest.
-		if ( isset( $attrs['backgroundColor'] ) ) {
-			$picked_attributes['backgroundColor'] = $attrs['backgroundColor'];
-		}
-
-		if ( isset( $attrs['borderColor'] ) ) {
-			$picked_attributes['borderColor'] = $attrs['borderColor'];
-		}
-
-		if ( isset( $attrs['style']['border'] ) ) {
-			$picked_attributes['style']['border'] = $attrs['style']['border'];
-		}
-
-		if ( isset( $attrs['borderColor'] ) ) {
-			$picked_attributes['borderColor'] = $attrs['borderColor'];
-		}
-
-		if ( isset( $attrs['style']['color']['background'] ) ) {
-			$picked_attributes['style']['color']['background'] = $attrs['style']['color']['background'];
-		}
-
-		$block_support_styles = self::get_block_support_classes_and_styles( $block_name, $picked_attributes );
-		return array(
-			'stylevariationattributes' => isset( $picked_attributes['style'] ) ? \wp_json_encode( $picked_attributes['style'] ) : '',
-			'stylevariationclasses'    => isset( $block_support_styles['class'] ) ? ' ' . $block_support_styles['class'] : '',
-			'stylevariationstyles'     => isset( $block_support_styles['style'] ) ? $block_support_styles['style'] : '',
-		);
 	}
 
 	/**
 	 * Render the text field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_text( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'text', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_field_text( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'text' );
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
 	 * Render the name field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_name( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'name', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_field_name( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'name' );
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
 	 * Render the email field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_email( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'email', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_field_email( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'email' );
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
 	 * Render the url field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_url( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'url', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_field_url( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'url' );
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
 	 * Render the date field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_date( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'date', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_field_date( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'date' );
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
 	 * Render the telephone field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_telephone( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'telephone', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_field_telephone( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'telephone' );
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
 	 * Render the text area field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_textarea( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'textarea', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_field_textarea( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'textarea' );
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
 	 * Render the checkbox field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_checkbox( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_field_checkbox( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox' );
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
 	 * Render the multiple checkbox field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_checkbox_multiple( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple' );
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
@@ -754,40 +481,37 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the radio button field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_radio( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'radio', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_field_radio( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'radio' );
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
 	 * Render the select field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_select( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'select', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_field_select( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'select' );
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
 	 * Render the consent field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param string $atts consent attributes.
+	 * @param string $content html content.
 	 */
-	public static function gutenblock_render_field_consent( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'consent', $block );
+	public static function gutenblock_render_field_consent( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'consent' );
 
 		if ( ! isset( $atts['implicitConsentMessage'] ) ) {
 			$atts['implicitConsentMessage'] = __( "By submitting your information, you're giving us permission to email you. You may unsubscribe at any time.", 'jetpack-forms' );
@@ -825,15 +549,14 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the number field.
 	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the number field.
 	 */
-	public static function gutenblock_render_field_number( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'number', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	public static function gutenblock_render_field_number( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'number' );
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
 	/**
