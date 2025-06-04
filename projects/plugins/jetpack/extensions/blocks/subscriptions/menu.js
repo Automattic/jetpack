@@ -47,12 +47,16 @@ const NewsletterMenu = ( { openPreviewModal } ) => {
 			className="jetpack-newsletter-settings-sidebar"
 		>
 			<PanelBody>
+				{ ! isPublished && ! shouldPromptForConnection && (
+					<>
+						<NewsletterEmailDocumentSettings />
+						<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
+					</>
+				) }
 				{ isSendEmailEnabled && ! isPublished && (
 					<>
 						{ ! shouldPromptForConnection ? (
 							<>
-								{ ! isPublished && <NewsletterEmailDocumentSettings /> }
-								<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
 								<p>
 									{ __(
 										'Ensure your email looks perfect. Use the buttons below to view a preview or send a test email.',
