@@ -37,7 +37,7 @@ const Lcp = () => {
 			description={
 				<p>
 					{ __(
-						'Make sure your most important pages load their main content quickly! This feature focuses on the Largest Contentful Paint (LCP) of your Cornerstone Pages, optimizing key images so visitors see your content faster and enjoy a smoother experience on those key pages.',
+						'Improve the Largest Contentful Paint (LCP) of your Cornerstone Pages, optimizing their key image, so users can enjoy a smoother experience.',
 						'jetpack-boost'
 					) }
 				</p>
