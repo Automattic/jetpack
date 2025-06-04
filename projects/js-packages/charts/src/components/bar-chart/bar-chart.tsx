@@ -1,4 +1,3 @@
-import { formatNumberCompact } from '@automattic/number-formatters';
 import {
 	AnimatedAxis,
 	AnimatedBarSeries,
@@ -8,36 +7,21 @@ import {
 	XYChart,
 } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './bar-chart.module.scss';
+import { useBarChartOptions } from './use-bar-chart-options';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
-import type { TickFormatter } from '@visx/axis';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode } from 'react';
 
-interface BarChartProps extends BaseChartProps< SeriesData[] > {
+export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+	orientation?: 'horizontal' | 'vertical';
 }
-
-const formatDateTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, {
-		month: 'short',
-		day: 'numeric',
-	} );
-};
-
-const getDefaultXTickFormat = ( data: SeriesData[ 'data' ] ) => {
-	if ( data?.[ 0 ]?.label ) {
-		return ( label: string ) => label;
-	}
-
-	return formatDateTick;
-};
 
 // Validation function similar to LineChart
 const validateData = ( data: SeriesData[] ) => {
@@ -57,11 +41,6 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
-const accessors = {
-	xAccessor: ( d: DataPointDate ) => d?.label || d?.date,
-	yAccessor: ( d: DataPointDate ) => d?.value,
-};
-
 const BarChart: FC< BarChartProps > = ( {
 	data,
 	width,
@@ -71,43 +50,16 @@ const BarChart: FC< BarChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	gridVisibility = 'x',
+	gridVisibility: gridVisibilityProp,
 	renderTooltip,
 	options = {},
+	orientation = 'vertical',
 } ) => {
-	const theme = useXYChartTheme( data );
-	const chartOptions = useMemo( () => {
-		return {
-			axis: {
-				x: {
-					orientation: 'bottom' as const,
-					numTicks: 4,
-					tickFormat: getDefaultXTickFormat( data?.[ 0 ]?.data ),
-					...options?.axis?.x,
-				},
-				y: {
-					orientation: 'left' as const,
-					numTicks: 4,
-					tickFormat: formatNumberCompact as TickFormatter< number >,
-					...options?.axis?.y,
-				},
-			},
-			xScale: {
-				type: 'band' as const,
-				padding: 0.2,
-				innerPadding: 0.1,
-				...options?.xScale,
-			},
-			yScale: {
-				type: 'linear' as const,
-				nice: true,
-				zero: false,
-				...options?.yScale,
-			},
-		};
-	}, [ options, data ] );
+	const horizontal = orientation === 'horizontal';
 
-	const defaultMargin = useChartMargin( height, chartOptions, data, theme );
+	const theme = useXYChartTheme( data );
+	const chartOptions = useBarChartOptions( data, horizontal, options );
+	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
 
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
@@ -121,8 +73,11 @@ const BarChart: FC< BarChartProps > = ( {
 					</div>
 					<div className={ styles[ 'bar-chart__tooltip-row' ] }>
 						<span className={ styles[ 'bar-chart__tooltip-label' ] }>
-							{ nearestDatum.label ||
-								chartOptions.axis.x.tickFormat( nearestDatum.date.getTime(), 0, [] ) }
+							{ chartOptions.tooltip.labelFormatter(
+								nearestDatum.label || nearestDatum.date.getTime(),
+								0,
+								[]
+							) }
 							:
 						</span>
 						<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ nearestDatum.value }</span>
@@ -130,7 +85,7 @@ const BarChart: FC< BarChartProps > = ( {
 				</div>
 			);
 		},
-		[ chartOptions.axis.x ]
+		[ chartOptions.tooltip ]
 	);
 
 	// Validate data using the same pattern as LineChart
@@ -146,6 +101,8 @@ const BarChart: FC< BarChartProps > = ( {
 		color: group.options?.stroke || theme.colors[ index % theme.colors.length ],
 	} ) );
 
+	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
+
 	return (
 		<div
 			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
@@ -160,6 +117,7 @@ const BarChart: FC< BarChartProps > = ( {
 				margin={ { ...defaultMargin, ...margin } }
 				xScale={ chartOptions.xScale }
 				yScale={ chartOptions.yScale }
+				horizontal={ horizontal }
 				pointerEventsDataKey="nearest"
 			>
 				<AnimatedGrid
@@ -170,14 +128,15 @@ const BarChart: FC< BarChartProps > = ( {
 				<AnimatedAxis { ...chartOptions.axis.x } />
 				<AnimatedAxis { ...chartOptions.axis.y } />
 
-				<AnimatedBarGroup padding={ 0.1 }>
+				<AnimatedBarGroup padding={ chartOptions.barGroup.padding }>
 					{ data.map( seriesData => {
 						return (
 							<AnimatedBarSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] }
-								{ ...accessors }
+								yAccessor={ chartOptions.accessors.yAccessor }
+								xAccessor={ chartOptions.accessors.xAccessor }
 							/>
 						);
 					} ) }

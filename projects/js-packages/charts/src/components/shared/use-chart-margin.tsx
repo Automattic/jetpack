@@ -8,10 +8,19 @@ export const useChartMargin = (
 	height: number,
 	options: BaseChartProps[ 'options' ],
 	data: SeriesData[],
-	theme: XYChartTheme
+	theme: XYChartTheme,
+	horizontal: boolean = false
 ) => {
 	const yTicks = useMemo( () => {
 		const allDataPoints = data.flatMap( series => series.data as DataPointDate[] );
+
+		if ( horizontal ) {
+			// When horizontal, y ticks renders fixed tick labels.
+			return allDataPoints.map(
+				d => d.label || options.axis?.y?.tickFormat( d.date.getTime(), 0, [] )
+			);
+		}
+
 		const minY = Math.min( ...allDataPoints.map( d => d.value ) );
 		const maxY = Math.max( ...allDataPoints.map( d => d.value ) );
 		const yScale = createScale( {
@@ -19,8 +28,9 @@ export const useChartMargin = (
 			domain: [ minY, maxY ],
 			range: [ height, 0 ],
 		} );
+
 		return getTicks( yScale, options.axis?.y?.numTicks );
-	}, [ options, data, height ] );
+	}, [ options, data, height, horizontal ] );
 
 	return useMemo( () => {
 		// Default margin is for bottom axis labels.
