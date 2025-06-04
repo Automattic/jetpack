@@ -4398,8 +4398,8 @@ importers:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
       semantic-ui-css:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.4.1
+        version: 2.4.1
       sweetalert2:
         specifier: 7.33.1
         version: 7.33.1
@@ -14394,8 +14394,8 @@ packages:
   select@1.1.2:
     resolution: {integrity: sha512-OwpTSOfy6xSs1+pwcNrv0RBMOzI39Lp3qQKUTPVVPRjCdNa5JH/oPRiqsesIskK8TVgmRiHwO4KXlV2Li9dANA==}
 
-  semantic-ui-css@2.3.1:
-    resolution: {integrity: sha512-8M2OkoKZHfEnNUYB4Ha8q+tTAWN/g17X2l6HUg6n3DP4QDJLQl1xyhnRvM9UhJpsRvkRqgWgQLbRA6cl7Ep2dw==}
+  semantic-ui-css@2.4.1:
+    resolution: {integrity: sha512-Pkp0p9oWOxlH0kODx7qFpIRYpK1T4WJOO4lNnpNPOoWKCrYsfHqYSKgk5fHfQtnWnsAKy7nLJMW02bgDWWFZFg==}
 
   semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
@@ -28176,7 +28176,7 @@ snapshots:
 
   select@1.1.2: {}
 
-  semantic-ui-css@2.3.1:
+  semantic-ui-css@2.4.1:
     dependencies:
       jquery: 3.6.0
 
