@@ -191,7 +191,7 @@ class JITM {
 			__FILE__,
 			array(
 				'in_footer'    => true,
-				'dependencies' => array( 'jquery' ),
+				'dependencies' => array(),
 				'enqueue'      => true,
 			)
 		);
