@@ -5,7 +5,7 @@ import {
 } from '@wordpress/block-editor';
 import { createBlock, store as blocksStore } from '@wordpress/blocks';
 import { Button, Modal } from '@wordpress/components';
-import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -21,7 +21,6 @@ const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 };
 
 export default function VariationPicker( { blockName, setAttributes, clientId, classNames } ) {
-	const registry = useRegistry();
 	const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 	const { replaceInnerBlocks, selectBlock } = useDispatch( blockEditorStore );
 	const { blockType, defaultVariation, variations } = useSelect(
@@ -58,20 +57,18 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				) }
 				variations={ filter( variations, v => ! v.hiddenFromPicker ) }
 				onSelect={ ( nextVariation = defaultVariation ) => {
-					registry.batch( () => {
-						if ( nextVariation.attributes ) {
-							setAttributes( nextVariation.attributes );
-						}
+					if ( nextVariation.attributes ) {
+						setAttributes( nextVariation.attributes );
+					}
 
-						if ( nextVariation.innerBlocks ) {
-							replaceInnerBlocks(
-								clientId,
-								createBlocksFromInnerBlocksTemplate( nextVariation.innerBlocks )
-							);
-						}
+					if ( nextVariation.innerBlocks ) {
+						replaceInnerBlocks(
+							clientId,
+							createBlocksFromInnerBlocksTemplate( nextVariation.innerBlocks )
+						);
+					}
 
-						selectBlock( clientId );
-					} );
+					selectBlock( clientId );
 				} }
 			/>
 			<div className="form-placeholder__footer">

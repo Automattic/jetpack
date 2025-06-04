@@ -186,7 +186,7 @@ const isFormSubmitting = form => {
 const isMultipleChoiceField = elt => {
 	return (
 		elt.tagName.toLowerCase() === 'fieldset' &&
-		elt.querySelector( 'input[type="checkbox"]' ) !== null
+		elt.classList.contains( 'grunion-checkbox-multiple-options' )
 	);
 };
 
@@ -197,7 +197,7 @@ const isMultipleChoiceField = elt => {
  */
 const isSingleChoiceField = elt => {
 	return (
-		elt.tagName.toLowerCase() === 'fieldset' && elt.querySelector( 'input[type="radio"]' ) !== null
+		elt.tagName.toLowerCase() === 'fieldset' && elt.classList.contains( 'grunion-radio-options' )
 	);
 };
 
@@ -340,7 +340,7 @@ const getFormSubmitBtn = form => {
  * @returns {HTMLFieldSetElement[]} Fieldset elements
  */
 const getMultipleChoiceFields = form => {
-	return Array.from( form.querySelectorAll( 'fieldset:has(input[type="checkbox"])' ) );
+	return Array.from( form.querySelectorAll( '.grunion-checkbox-multiple-options' ) );
 };
 
 const getFileDropzones = form => {

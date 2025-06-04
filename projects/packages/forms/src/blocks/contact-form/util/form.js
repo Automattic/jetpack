@@ -21,7 +21,7 @@ export const useFormWrapper = ( { attributes, clientId, name } ) => {
 		lock: { remove: true },
 	};
 
-	const { replaceBlock, __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
+	const { replaceBlock } = useDispatch( blockEditorStore );
 
 	const parents = useSelect( select => {
 		return select( blockEditorStore ).getBlockParentsByBlockName( clientId, FORM_BLOCK_NAME );
@@ -29,9 +29,6 @@ export const useFormWrapper = ( { attributes, clientId, name } ) => {
 
 	useEffect( () => {
 		if ( ! parents?.length ) {
-			// As this is an automated update, ensure it doesn't end up in the undo stack
-			// by calling `__unstableMarkNextChangeAsNotPersistent`.
-			__unstableMarkNextChangeAsNotPersistent();
 			replaceBlock(
 				clientId,
 				createBlock( FORM_BLOCK_NAME, {}, [

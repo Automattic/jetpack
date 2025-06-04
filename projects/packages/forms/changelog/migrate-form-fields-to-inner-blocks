@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Migrate form field blocks to use new inner label, input, option, and options blocks
