@@ -25,6 +25,8 @@ export default function GalleryImageSave( props ) {
 			href = '';
 	}
 
+	const ampLayout = ! isSimpleSite() ? { 'data-amp-layout': 'responsive' } : {};
+
 	const img = (
 		<img
 			alt={ alt }
@@ -34,7 +36,7 @@ export default function GalleryImageSave( props ) {
 			data-url={ origUrl }
 			data-width={ width }
 			src={ url }
-			{ ...( ! isSimpleSite && { 'data-amp-layout': 'responsive' } ) } // This is stripped on Simple sites causing block validation issues (and is also not needed there) - see _wpcom_remove_data_wildcard_attribute in wp-content/mu-plugins/wpcom-kses-config.php on WPCom.
+			{ ...ampLayout } // This is stripped on Simple sites causing block validation issues (and is also not needed there) - see _wpcom_remove_data_wildcard_attribute in wp-content/mu-plugins/wpcom-kses-config.php on WPCom.
 		/>
 	);
 
