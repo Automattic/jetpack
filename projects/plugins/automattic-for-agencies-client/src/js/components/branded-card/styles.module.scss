@@ -1,7 +1,7 @@
-@import '@automattic/color-studio/dist/color-variables';
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 .card {
-	background-color: $studio-automattic-blue-100;
+	background-color: studio.$studio-automattic-blue-100;
 	border-radius: 14px;
 	display: flex;
 	padding: 8px;
@@ -49,16 +49,16 @@
 	:global {
 
 		.components-button.is-primary {
-			background-color: $studio-automattic-blue;
+			background-color: studio.$studio-automattic-blue;
 			min-width: 178px;
 		}
 
 		.components-button.is-primary:hover {
-			background-color: $studio-automattic-blue-60;
+			background-color: studio.$studio-automattic-blue-60;
 		}
 
 		.components-button.is-link {
-			color: $studio-automattic-blue;
+			color: studio.$studio-automattic-blue;
 			white-space: nowrap;
 			text-decoration: underline;
 		}

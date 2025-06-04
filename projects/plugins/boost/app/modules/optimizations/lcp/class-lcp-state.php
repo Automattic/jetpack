@@ -112,6 +112,24 @@ class LCP_State {
 			$page_key,
 			array(
 				'status' => self::PAGE_STATES['success'],
+				'errors' => null,
+			)
+		);
+	}
+
+	/**
+	 * Signifies that the page was not optimized for reason(s) in $errors.
+	 *
+	 * @param string $page_key The page key.
+	 * @param array  $errors   The errors to set for the page.
+	 * @return bool|\WP_Error True on success, WP_Error on failure.
+	 */
+	public function set_page_errors( $page_key, $errors ) {
+		return $this->update_page_state(
+			$page_key,
+			array(
+				'status' => self::PAGE_STATES['error'],
+				'errors' => $errors,
 			)
 		);
 	}
@@ -161,7 +179,7 @@ class LCP_State {
 	 *
 	 * @return array The pages from the state.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public function get_pages() {
 		return $this->state['pages'];
@@ -173,7 +191,7 @@ class LCP_State {
 	 * @param array $pages The pages to set in the state.
 	 * @return $this
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public function set_pages( $pages ) {
 		$this->state['pages'] = $pages;
@@ -187,7 +205,7 @@ class LCP_State {
 	 * @param array $pages The pages to set to pending.
 	 * @return $this
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public function set_pending_pages( $pages ) {
 		$current_pages = $this->state['pages'];

@@ -1,7 +1,7 @@
-@import 'main/variables';
+@use 'main/variables';
 
 .jb-setup-banner {
-    border: 1px solid $gray_5;
+    border: 1px solid variables.$gray_5;
     box-shadow: 0 2px 6px rgb(0 0 0 / 3%), 0 1px 2px rgb(0 0 0 / 3%);
     display: block;
     margin: 3rem 1.25rem 1.25rem 0;
@@ -10,7 +10,7 @@
 
     &__content-top-text {
         align-items: baseline;
-        background-color: $jetpack_green_40;
+        background-color: variables.$jetpack_green_40;
         color: #fff;
         display: flex;
         padding: 1rem 2.25rem 1.5rem 1rem;
@@ -100,13 +100,13 @@
 
         &:hover {
             color: #fff;
-            background-color: $gray_80;
+            background-color: variables.$gray_80;
         }
 
         &:focus {
             color: #fff;
             box-shadow: none;
-            outline: solid 1px $primary-black;
+            outline: solid 1px variables.$primary-black;
             outline-offset: 1px;
         }
     }

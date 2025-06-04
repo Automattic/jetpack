@@ -69,7 +69,7 @@ export function WidthControl( { align, width, onChange, showLabel = true } ) {
 					<ToggleGroupControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
-						aria-label={ __( 'Percentage Width', 'jetpack' ) }
+						aria-label={ __( 'Percentage width', 'jetpack' ) }
 						isBlock
 						value={ width }
 						onChange={ handleChange }

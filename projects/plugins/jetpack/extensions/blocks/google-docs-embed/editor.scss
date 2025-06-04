@@ -1,4 +1,5 @@
-@import './view';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use 'view';
 
 .wp-block-jetpack-google-docs-embed {
 	margin: 0 0 1.5em 0;
@@ -56,7 +57,7 @@
 
 		// Unless these have a min-width, they collapse when floated.
 		&__wrapper {
-			min-width: $break-zoomed-in;
+			min-width: gb.$break-zoomed-in;
 		}
 	}
 }

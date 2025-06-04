@@ -151,7 +151,7 @@ Will stop all of the containers created by this Docker compose configuration and
 These commands require the WordPress container to be running.
 
 ```sh
-jetpack docker phpunit
+jetpack docker phpunit jetpack
 ```
 
 This will run unit tests for Jetpack. You can pass arguments to `phpunit` like so:
@@ -162,10 +162,14 @@ jetpack docker phpunit -- --filter=Protect
 
 This command runs the tests as a multi site install
 ```sh
-jetpack docker phpunit-jp-multisite -- --filter=Protect
+jetpack docker phpunit jp-multisite -- --filter=Protect
 ```
 
-To run tests for specific packages, you can run the tests locally, from within the package's directory:
+To run tests for specific packages, you can run the tests locally. The most straightforward way is to use `jetpack test`, for example
+```sh
+jetpack test -v php packages/assets
+```
+or you can usually run them manually like
 ```sh
 cd projects/packages/assets
 composer phpunit
@@ -233,6 +237,16 @@ You can access WordPress and Jetpack files via SFTP server container.
 - User: `wordpress`
 - Pass: `wordpress`
 - WordPress path: `/var/www/html`
+
+Note that the SSH host key changes each time the container is started, so you might consider one of these variants to avoid strict host key checking:
+
+```sh
+sftp -o NoHostAuthenticationForLocalhost=yes -P 1022 wordpress@localhost
+```
+
+```sh
+sftp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P 1022 wordpress@localhost
+```
 
 You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/). If you intend to do so, change the password in the `SFTP_USERS` variable in `./tools/docker/.env`!
 

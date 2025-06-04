@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use transients instead of cache to ensure persistance for sites without object caching

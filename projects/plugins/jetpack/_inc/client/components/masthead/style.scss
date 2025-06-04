@@ -1,8 +1,10 @@
 @use '../../scss/functions/rem';
-@import '../../scss/calypso-colors';
+@use '../../scss/calypso-colors';
+@use "../../scss/mixins/breakpoints";
+@use "../../scss/variables/colors";
 
 .jp-masthead {
-	background-color: $white;
+	background-color: colors.$white;
 	text-align: center;
 
 	@media (max-width: rem.convert( 782px ) ) {
@@ -35,7 +37,7 @@
 	flex-shrink: 0;
 	padding: rem.convert( 40px ) 0 rem.convert( 20px ) 0;
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		padding: rem.convert( 11px ) 0 0;
 		margin-right: rem.convert( 16px );
 	}
@@ -48,7 +50,7 @@
 
 	&:focus {
 		line-height: 0; // fixes rectangle gap
-		box-shadow: 0 0 0 2px $blue-light;
+		box-shadow: 0 0 0 2px colors.$blue-light;
 	}
 
 	+ code {
@@ -79,15 +81,15 @@
 		font-size: 0;
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		text-align: left;
 	}
 
 	.dops-button {
-		background: $white;
-		color: $black;
+		background: colors.$white;
+		color: colors.$black;
 		font-weight: 600;
-		border: 1.5px solid $black;
+		border: 1.5px solid colors.$black;
 		box-shadow: none;
 
 		&:first-child {
@@ -95,9 +97,9 @@
 		}
 
 		&.is-primary {
-			background: $black;
+			background: colors.$black;
 			color: #fff;
-			border: 1.5px solid $black;
+			border: 1.5px solid colors.$black;
 
 			&:last-child {
 				border-left: 0;

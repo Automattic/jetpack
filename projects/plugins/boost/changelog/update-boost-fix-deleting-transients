@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Transient caching: remove the transient when updating the post type cache
-
-

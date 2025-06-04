@@ -158,6 +158,9 @@ class Jetpack_Media_Summary {
 						break;
 					case 'vimeo':
 						if ( 0 === $return['count']['video'] ) {
+							if ( ! isset( $extract['shortcode']['vimeo']['id'][0] ) ) {
+								break;
+							}
 							$return['type']            = 'video';
 							$return['video']           = esc_url_raw( 'http://vimeo.com/' . $extract['shortcode']['vimeo']['id'][0] );
 							$return['secure']['video'] = self::https( $return['video'] );
@@ -262,11 +265,13 @@ class Jetpack_Media_Summary {
 					++$number_of_paragraphs;
 				}
 
-				$return['image']           = $extract['image'][0]['url'];
-				$return['secure']['image'] = self::ssl_img( $return['image'] );
-				++$return['count']['image'];
+				if ( isset( $extract['image'][0]['url'] ) ) {
+					$return['image']           = $extract['image'][0]['url'];
+					$return['secure']['image'] = self::ssl_img( $return['image'] );
+					++$return['count']['image'];
+				}
 
-				if ( $number_of_paragraphs <= 2 && is_countable( $extract['image'] ) && 1 === count( $extract['image'] ) ) {
+				if ( $number_of_paragraphs <= 2 && is_countable( $extract['image'] ) && 1 === count( $extract['image'] ) ) {  // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- We established the image offset exists with '! empty( $extract['has']['image']' earlier.
 					// If we have lots of text or images, let's not treat it as an image post, but return its first image.
 					$return['type'] = 'image';
 				}

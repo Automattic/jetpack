@@ -1,17 +1,17 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .resumable-upload {
-	background: $white;
-	color: $gray-900;
-	font-family: $default-font;
+	background: gb.$white;
+	color: gb.$gray-900;
+	font-family: gb.$default-font;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
 	padding: 20px 0;
-	border: 1px solid $gray-900;
+	border: 1px solid gb.$gray-900;
 	border-radius: 2px;
-	font-size: $default-font-size;
+	font-size: gb.$default-font-size;
 }
 
 .resumable-upload__editor {
@@ -56,10 +56,10 @@
 }
 
 .resumable-upload__status, .resumable-upload__error {
-	border-top: 1px solid $gray-200;
+	border-top: 1px solid gb.$gray-200;
 	width: 100%;
 	box-sizing: border-box;
-	margin-top: $grid-unit-30;
+	margin-top: gb.$grid-unit-30;
 }
 
 .resumable-upload__status {
@@ -68,7 +68,7 @@
 	align-items: center;
 	padding: 20px 20px 0;
 	flex-wrap: wrap;
-	gap: $grid-unit-15 $grid-unit-30;
+	gap: gb.$grid-unit-15 gb.$grid-unit-30;
 }
 
 .resumable-upload__error {
@@ -81,8 +81,8 @@
 }
 
 .resumable-upload__file-size {
-	color: $gray-700;
-	margin-left: $grid-unit-15;
+	color: gb.$gray-700;
+	margin-left: gb.$grid-unit-15;
 }
 
 .resumable-upload__progress {
@@ -111,7 +111,7 @@
 }
 
 .resumable-upload__select-file-name {
-	margin-left: $grid-unit-15;
+	margin-left: gb.$grid-unit-15;
 }
 
 .resumable-upload__actions {
@@ -134,12 +134,12 @@
 }
 
 .resumable-upload__error-text {
-	margin-top: $grid-unit-20;
-	font-family: $default-font;
-	color: $alert-red;
+	margin-top: gb.$grid-unit-20;
+	font-family: gb.$default-font;
+	color: gb.$alert-red;
 }
 
 .resumable-upload__error-cancel {
-	margin-top: $grid-unit-20;
-	margin-left: $grid-unit-15;
+	margin-top: gb.$grid-unit-20;
+	margin-left: gb.$grid-unit-15;
 }

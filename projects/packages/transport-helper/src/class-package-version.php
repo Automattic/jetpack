@@ -16,7 +16,7 @@ namespace Automattic\Jetpack\Transport_Helper;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '0.3.1';
+	const PACKAGE_VERSION = '0.3.2';
 
 	const PACKAGE_SLUG = 'transport-helper';
 

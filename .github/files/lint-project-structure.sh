@@ -197,20 +197,27 @@ for PROJECT in projects/*/*; do
 	if [[ -e "$PROJECT/tsconfig.json" ]]; then
 		# tsconfig.json files may have comments. Strip those.
 		JSON=$( sed 's#^[ \t]*//.*##' "$PROJECT/tsconfig.json" );
-		if jq -e '.compilerOptions // {} | has( "noEmit" )' <<<"$JSON" >/dev/null; then
+		if ! jq -e <<< "$JSON" &>/dev/null; then
 			EXIT=1
-			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","noEmit"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
-			echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set noEmit directly. Extend tsconfig.base.json if you want it false, or tsconfig.tsc.json or tsconfig.tsc-declaration-only.json if you want it true."
-		fi
-		if jq -e '.compilerOptions // {} | has( "module" )' <<<"$JSON" >/dev/null; then
-			EXIT=1
-			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","module"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
-			echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set module directly. Our base configs already set correct values."
-		fi
-		if jq -e '.compilerOptions // {} | has( "moduleResolution" )' <<<"$JSON" >/dev/null; then
-			EXIT=1
-			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","moduleResolution"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
-			echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set moduleResolution directly. Our base configs already set correct values."
+			# Inline comments are messy; it's easier to hint rather than strip them.
+			inline_comment_hint=$(grep -q '//' "$PROJECT/tsconfig.json" && echo ' Perhaps there are inline comments?' || true)
+			echo "::error file=$PROJECT/tsconfig.json::Unable to parse tsconfig.json.$inline_comment_hint"
+		else
+			if jq -e '.compilerOptions // {} | has( "noEmit" )' <<<"$JSON" >/dev/null; then
+				EXIT=1
+				LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","noEmit"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
+				echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set noEmit directly. Extend tsconfig.base.json if you want it false, or tsconfig.tsc.json or tsconfig.tsc-declaration-only.json if you want it true."
+			fi
+			if jq -e '.compilerOptions // {} | has( "module" )' <<<"$JSON" >/dev/null; then
+				EXIT=1
+				LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","module"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
+				echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set module directly. Our base configs already set correct values."
+			fi
+			if jq -e '.compilerOptions // {} | has( "moduleResolution" )' <<<"$JSON" >/dev/null; then
+				EXIT=1
+				LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["compilerOptions","moduleResolution"] then ",line=\( input_line_number )" else empty end' <<<"$JSON")
+				echo "::error file=$PROJECT/tsconfig.json${LINE}::Don't set moduleResolution directly. Our base configs already set correct values."
+			fi
 		fi
 	fi
 
@@ -602,6 +609,30 @@ for FILE in $(git -c core.quotepath=off ls-files .phpcs.config.xml .phpcs.xml.di
 		}
 		PHPDOC
 	)
+done
+
+# - Make sure .phpcs.dir.phpcompatibility.xml has corresponding .phpcs.dir.xml.
+#   (This isn't perfect, since it doesn't catch anything except the Jetpack-Compat-* stuff, but in most cases that's all we have in .phpcs.dir.phpcompatibility.xml anyway)
+debug "Checking that .phpcs.dir.phpcompatibility.xml has corresponding .phpcs.dir.xml"
+for FILE in $(git -c core.quotepath=off ls-files '*/.phpcs.dir.phpcompatibility.xml'); do
+	DIR=${FILE%/.phpcs.dir.phpcompatibility.xml}
+	if [[ ! -f "$DIR/.phpcs.dir.xml" ]]; then
+		EXIT=1
+		echo "::error file=$FILE::There should be a file \`$DIR/.phpcs.dir.xml\` corresponding to this file, so local phpcs runs behave appropriately."
+		continue
+	fi
+	if grep -q '<rule ref="\./\.phpcs\.dir\.phpcompatibility\.xml" */>' "$DIR/.phpcs.dir.xml"; then
+		# Probably ok if the .dir.xml includes the .dir.phpcompatibility.xml.
+		continue
+	fi
+	while IFS= read -r LINE; do
+		LINE2=${LINE/Jetpack-Compat-NoWP/Jetpack-NoWP}
+		RE=$( sed 's! */>$!!' <<<"$LINE2" )
+		if ! grep --fixed-strings -q "$RE" "$DIR/.phpcs.dir.xml"; then
+			EXIT=1
+			echo "::error file=$DIR/.phpcs.dir.xml::File should contain \`$LINE2\` to match \`$FILE\`."
+		fi
+	done < <( grep -o '<rule ref="Jetpack-Compat-[^"]*" */>' "$FILE" )
 done
 
 # - .nvmrc should match .github/versions.sh.

@@ -1,3 +1,4 @@
+import '../../utils/public-path.js';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
 import React from 'react';

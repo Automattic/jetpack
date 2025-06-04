@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.11.9] - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
+## [6.11.8] - 2025-06-02
+### Changed
+- Update dependencies.
+
+## [6.11.7] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
+## [6.11.6] - 2025-05-22
+### Changed
+- Update dependencies.
+
+## [6.11.5] - 2025-05-19
+### Changed
+- Update dependencies.
+
+## [6.11.4] - 2025-05-15
+### Changed
+- Update package dependencies. [#43398]
+
 ## [6.11.3] - 2025-05-12
 ### Changed
 - Stable release management: Do not ship source files. [#43310]
@@ -1424,6 +1448,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.11.9]: https://github.com/Automattic/jetpack-connection/compare/v6.11.8...v6.11.9
+[6.11.8]: https://github.com/Automattic/jetpack-connection/compare/v6.11.7...v6.11.8
+[6.11.7]: https://github.com/Automattic/jetpack-connection/compare/v6.11.6...v6.11.7
+[6.11.6]: https://github.com/Automattic/jetpack-connection/compare/v6.11.5...v6.11.6
+[6.11.5]: https://github.com/Automattic/jetpack-connection/compare/v6.11.4...v6.11.5
+[6.11.4]: https://github.com/Automattic/jetpack-connection/compare/v6.11.3...v6.11.4
 [6.11.3]: https://github.com/Automattic/jetpack-connection/compare/v6.11.2...v6.11.3
 [6.11.2]: https://github.com/Automattic/jetpack-connection/compare/v6.11.1...v6.11.2
 [6.11.1]: https://github.com/Automattic/jetpack-connection/compare/v6.11.0...v6.11.1

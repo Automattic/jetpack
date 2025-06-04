@@ -226,6 +226,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	 * Outputs the widget settings form.
 	 *
 	 * @param array $instance Current settings.
+	 * @return string|void
 	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args(

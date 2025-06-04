@@ -3,6 +3,10 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 	useConnectionErrorNotice: jest.fn( () => ( { hasConnectionError: false } ) ),
 } ) );
 
+jest.mock( '../../../hooks/use-media-details', () => {
+	return jest.fn( () => [ {} ] );
+} );
+
 import { useConnection } from '@automattic/jetpack-connection';
 import { render, screen } from '@testing-library/react';
 import { SocialAdminPage } from '../';

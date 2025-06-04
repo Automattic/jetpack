@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Cornestone pages: avoid fatal errors when no pages are set.

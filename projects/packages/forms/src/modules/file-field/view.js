@@ -92,9 +92,6 @@ const formatBytes = ( size, decimals = 2 ) => {
  * @param {File} file - The file to add.
  */
 const addFileToContext = file => {
-	const reader = new FileReader();
-	reader.readAsDataURL( file );
-
 	const { ref } = getElement();
 	clearInputError( ref, { hasInsetLabel: state.isInlineForm } );
 
@@ -123,12 +120,19 @@ const addFileToContext = file => {
 
 	const clientFileId = performance.now() + '-' + Math.random();
 
+	const fileUrl =
+		[ 'image/gif', 'image/jpg', 'image/png', 'image/jpeg' ].includes( file.type ) &&
+		URL.createObjectURL
+			? 'url(' + URL.createObjectURL( file ) + ')'
+			: null;
+
 	context.files.push( {
 		name: file.name,
 		formattedSize: formatBytes( file.size, 2 ),
 		isUploaded: false,
 		hasError: !! error,
 		id: clientFileId,
+		url: fileUrl,
 		error,
 	} );
 
@@ -136,9 +140,6 @@ const addFileToContext = file => {
 	! error && actions.uploadFile( file, clientFileId );
 
 	// Load the file so we can display it. In case it is an image.
-	reader.onload = withScope( () => {
-		updateFileContext( { url: 'url(' + reader.result + ')' }, clientFileId );
-	} );
 };
 
 // Map to store AbortControllers for each file upload
@@ -360,6 +361,11 @@ const { state, actions } = store( NAMESPACE, {
 			}
 
 			const file = context.files.find( fileObject => fileObject.id === clientFileId );
+			if ( file && file.url ) {
+				// Remove the object URL to free up memory
+				const urlToRemove = file.url.substring( 4, file.url.length - 1 );
+				URL.revokeObjectURL( urlToRemove );
+			}
 
 			if ( file && file.file_id ) {
 				const { endpoint } = getConfig( NAMESPACE );

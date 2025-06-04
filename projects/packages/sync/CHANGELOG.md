@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.14.1] - 2025-06-03
+### Fixed
+- Sync: Ensure HPOS Orders are retrieved in Descending Order [#43744]
+
+## [4.14.0] - 2025-06-02
+### Added
+- Sync: Send context in `jetpack_full_sync_end` action. [#43589]
+
+## [4.13.0] - 2025-05-15
+### Changed
+- Full Sync: Calculate metadata based on entire item, not just value. [#43421]
+- Sync: Add support for 'sandbox' environment type. [#43430]
+
 ## [4.12.0] - 2025-05-05
 ### Added
 - Full Sync: Ensure procesing of start, end, and cancelled actions. [#43287]
@@ -1468,6 +1481,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.14.1]: https://github.com/Automattic/jetpack-sync/compare/v4.14.0...v4.14.1
+[4.14.0]: https://github.com/Automattic/jetpack-sync/compare/v4.13.0...v4.14.0
+[4.13.0]: https://github.com/Automattic/jetpack-sync/compare/v4.12.0...v4.13.0
 [4.12.0]: https://github.com/Automattic/jetpack-sync/compare/v4.11.1...v4.12.0
 [4.11.1]: https://github.com/Automattic/jetpack-sync/compare/v4.11.0...v4.11.1
 [4.11.0]: https://github.com/Automattic/jetpack-sync/compare/v4.10.1...v4.11.0

@@ -36,8 +36,6 @@ This helps create streamlined way to pass data from the WordPress backend to Jav
 - Automatically set up a nonce for every entry that is registered
 - Integrate with libraries like Zod on the front-end to provide type-safe data sync.
 
-This package is currently used in combination with the `@jetpack/js-packages/svelte-data-sync-client` package, but can be extended to work with other libraries in the future.
-
 ## Usage Overview
 
 After integrating the package into your plugin, the typical setup for a new entry would look something like this:
@@ -107,9 +105,6 @@ The response will look like this:
 	"JSON": "This is a title",
 }
 ```
-
-To make it easy to use in Svelte, there's a `@jetpack/js-packages/svelte-data-sync-client` package that provides a Svelte store that can be used to interact with the data.
-
 
 ## Setup
 ### Step 1: Initialize Data Sync for the Admin Dashboard

@@ -103,7 +103,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		 *
 		 * @param array $instance Instance configuration.
 		 *
-		 * @return void
+		 * @return string|void
 		 */
 		public function form( $instance ) {
 			$instance = wp_parse_args( $instance, array( 'code' => '' ) );

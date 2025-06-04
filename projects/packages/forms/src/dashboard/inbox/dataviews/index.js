@@ -21,7 +21,7 @@ import { useSearchParams } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import InboxStatusToggle from '../../components/InboxStatusToggle';
+import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { store as dashboardStore } from '../../store';
 import InboxResponse from '../response';
 import { getPath } from '../utils.js';
@@ -256,7 +256,7 @@ export default function InboxView() {
 				},
 				elements: ( filterOptions?.source || [] ).map( source => ( {
 					value: source.id,
-					label: source.title,
+					label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
 				} ) ),
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,

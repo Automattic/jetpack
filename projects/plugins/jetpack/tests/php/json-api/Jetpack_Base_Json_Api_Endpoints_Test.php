@@ -1,7 +1,7 @@
 <?php
 /**
  * Jetpack_JSON_API_Endpoint class unit tests.
- * Run this test with command: jetpack docker phpunit -- --filter=Jetpack_Base_Json_Api_Endpoints_Test
+ * Run this test with command: jetpack docker phpunit jetpack -- --filter=Jetpack_Base_Json_Api_Endpoints_Test
  *
  * @package automattic/jetpack
  *

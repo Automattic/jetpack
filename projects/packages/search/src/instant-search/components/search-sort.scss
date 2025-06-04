@@ -1,4 +1,4 @@
-@import '../lib/styles/helper';
+@use '../lib/styles/helper';
 
 .jetpack-instant-search__search-sort {
 	align-items: center;
@@ -17,13 +17,13 @@
 
 	.jetpack-instant-search__search-sort-separator {
 		font-weight: 300;
-		color: $color-text-lighter;
+		color: helper.$color-text-lighter;
 	}
 }
 
 .jetpack-instant-search__search-sort-with-select {
 
-	@include break-small-down() {
+	@include helper.break-small-down() {
 		width: 100%;
 		margin-right: 1em;
 
@@ -32,7 +32,7 @@
 		}
 	}
 
-	@include break-large-up() {
+	@include helper.break-large-up() {
 		margin-top: -4px; // bump up when SearchControls using absolute positioning.
 	}
 }
@@ -45,12 +45,12 @@
 
 	// Prevent themes from specifying a customized select styling.
 	appearance: auto;
-	background: $color-modal-background;
-	border: 1px solid $color-layout-borders;
-	color: $color-text;
+	background: helper.$color-modal-background;
+	border: 1px solid helper.$color-layout-borders;
+	color: helper.$color-text;
 	height: inherit;
 
-	@include break-small-down() {
+	@include helper.break-small-down() {
 		width: 100%;
 		padding: 0.5em;
 	}
@@ -58,13 +58,13 @@
 
 .jetpack-instant-search__search-sort-option {
 
-	@include remove-button-styling();
+	@include helper.remove-button-styling();
 	cursor: pointer;
 	padding: 0 2px 0 2px;
 
 	&:focus {
 
-		@include apply-overlay-focus-styling();
+		@include helper.apply-overlay-focus-styling();
 	}
 }
 
@@ -73,11 +73,11 @@
 	button.jetpack-instant-search__search-sort-option {
 	// Extra specificity to override overly agressive theme styles.
 	// Without this, we need to use "!important" to get our default styling.
-	@include apply-default-overlay-colors();
-	@include apply-default-overlay-font-metrics();
+	@include helper.apply-default-overlay-colors();
+	@include helper.apply-default-overlay-font-metrics();
 
 	&.is-selected {
-		color: $color-link-alt;
+		color: helper.$color-link-alt;
 		font-weight: 600;
 		text-decoration: none;
 	}

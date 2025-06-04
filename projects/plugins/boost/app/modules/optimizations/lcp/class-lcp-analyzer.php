@@ -13,7 +13,7 @@ class LCP_Analyzer {
 	private $storage;
 
 	/**
-	 * @since $$next-version$$
+	 * @since 4.0.0
 	 */
 	public function __construct() {
 		$this->state   = new LCP_State();
@@ -99,7 +99,7 @@ class LCP_Analyzer {
 			'pages'     => $pages,
 			'requestId' => md5( wp_json_encode( $pages ) . time() ),
 		);
-		return Boost_API::post( 'analyze-lcp', $payload );
+		return Boost_API::post( 'lcp', $payload );
 	}
 
 	/**

@@ -1,5 +1,5 @@
-@import '../../scss/layout';
-@import '../../scss/calypso-colors';
+@use '../../scss/layout';
+@use '../../scss/calypso-colors';
 
 /* This hack is used to prevent the body from scrolling when the modal is showing */
 body.dops-modal-showing {
@@ -44,7 +44,7 @@ body.dops-modal-showing {
 		clear: both;
 		cursor: default;
 
-		@include breakpoint( ">480px" ) {
+		@include layout.breakpoint( ">480px" ) {
 			margin: 0 auto;
 			height: auto;
 			border-radius: 5px;

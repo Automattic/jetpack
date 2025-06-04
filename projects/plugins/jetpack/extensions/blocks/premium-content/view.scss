@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 /**
  * The following styles get applied both on the front of your site
@@ -33,7 +33,7 @@
 
 %button-outline-style {
 	background-color: unset;
-	color: $gray-800;
+	color: gb.$gray-800;
 }
 
 .wp-block-premium-content-login-button,

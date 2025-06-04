@@ -1,6 +1,5 @@
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
-import { __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { compose } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
@@ -13,7 +12,20 @@ import { UpsellNudge } from '../upsell-nudge';
 import { useJetpackFieldStyles } from '../use-jetpack-field-styles';
 import './editor.css';
 
-const DEFAULT_ICON = `${ window?.jpFormsBlocks?.defaults?.assetsUrl }/images/upload-icon.svg`;
+const ALLOWED_BLOCKS = [
+	'core/columns',
+	'core/group',
+	'core/heading',
+	'core/html',
+	'core/image',
+	'core/list',
+	'core/paragraph',
+	'core/row',
+	'core/separator',
+	'core/spacer',
+	'core/stack',
+	'core/subhead',
+];
 
 const BLOCKS_TEMPLATE = [
 	[
@@ -38,32 +50,15 @@ const BLOCKS_TEMPLATE = [
 					color: 'rgba(125,125,125,0.3)',
 				},
 			},
+			allowedBlocks: ALLOWED_BLOCKS,
 		},
 		[
-			[
-				'core/image',
-				{
-					url: DEFAULT_ICON,
-					width: '24px',
-					height: '24px',
-					scale: 'cover',
-					align: 'center',
-					className: 'is-style-default',
-					style: {
-						spacing: {
-							margin: {
-								bottom: '20px',
-							},
-						},
-					},
-				},
-			],
 			[
 				'core/paragraph',
 				{
 					align: 'center',
 					content: __(
-						'<strong><a href="#">Select a file</a></strong> or drag and drop your file here',
+						'<strong><a href="#">Select a file</a></strong> or drag and drop your file here.',
 						'jetpack-forms'
 					),
 					style: {
@@ -75,18 +70,6 @@ const BLOCKS_TEMPLATE = [
 						},
 						typography: {
 							fontSize: '16px',
-						},
-					},
-				},
-			],
-			[
-				'core/paragraph',
-				{
-					align: 'center',
-					content: __( 'JPEG, PNG, PDF, and MP4 formats', 'jetpack-forms' ),
-					style: {
-						typography: {
-							fontSize: '14px',
 						},
 					},
 				},
@@ -137,7 +120,11 @@ const JetpackFieldFile = props => {
 				<div className="jetpack-form-file-field__dropzone">
 					<div className="jetpack-form-file-field__dropzone-inner">
 						<input type="file" style={ { display: 'none' } } aria-hidden="true" />
-						<InnerBlocks template={ BLOCKS_TEMPLATE } templateLock={ false } />
+						<InnerBlocks
+							allowedBlocks={ ALLOWED_BLOCKS }
+							template={ BLOCKS_TEMPLATE }
+							templateLock={ false }
+						/>
 					</div>
 				</div>
 			</div>
@@ -149,40 +136,6 @@ const JetpackFieldFile = props => {
 				setAttributes={ setAttributes }
 				attributes={ attributes }
 				hidePlaceholder={ true }
-				extraFieldSettings={ [
-					{
-						index: 1,
-						element: (
-							<p key="max-file-size">
-								{ __( 'Maximum file size is set to 20MB', 'jetpack-forms' ) }
-							</p>
-						),
-					},
-					{
-						index: 2,
-						element: (
-							<NumberControl
-								key="maxfiles"
-								label={ __( 'Number of files', 'jetpack-forms' ) }
-								value={ attributes.maxfiles }
-								onChange={ value =>
-									setAttributes( {
-										maxfiles: value,
-									} )
-								}
-								max={ 10 }
-								min={ 1 }
-								step={ 1 }
-								__nextHasNoMarginBottom={ true }
-								__next40pxDefaultSize={ true }
-								help={ __(
-									'Maximum number of files that the user is able to upload per form submission.',
-									'jetpack-forms'
-								) }
-							/>
-						),
-					},
-				] }
 			/>
 		</>
 	);

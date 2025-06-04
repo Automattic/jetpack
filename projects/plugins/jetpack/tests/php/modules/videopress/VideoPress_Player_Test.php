@@ -14,7 +14,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/videopress/class.videopress-video.ph
 /**
  * Tests Jetpack VideoPress Player
  *
- * To run: jetpack docker phpunit -- --filter=videopress_player
+ * To run: jetpack docker phpunit jetpack -- --filter=VideoPress_Player_Test
  *
  * @covers \VideoPress_Player
  */

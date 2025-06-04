@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: LCP: Only attempt to apply LCP optimization if data is valid.
+
+

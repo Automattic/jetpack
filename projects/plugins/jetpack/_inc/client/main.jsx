@@ -65,7 +65,6 @@ import {
 	getInitialRecommendationsStep,
 	getPluginBaseUrl,
 	getPartnerCoupon,
-	isAtomicSite,
 	isWoASite,
 	showMyJetpack,
 	isWooCommerceActive,
@@ -676,7 +675,7 @@ class Main extends React.Component {
 			this.props.userCanConnectSite &&
 			site_count >= 2 &&
 			this.props.isSiteConnected &&
-			! this.props.isAtomicSite &&
+			! this.props.isWoaSite &&
 			! this.shouldShowWooConnectionScreen() &&
 			dashboardRoutes.includes( this.props.location.pathname )
 		);
@@ -913,7 +912,6 @@ export default connect(
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 			connectingUserFrom: getConnectingUserFrom( state ),
-			isAtomicSite: isAtomicSite( state ),
 			isWoaSite: isWoASite( state ),
 			showMyJetpack: showMyJetpack( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),

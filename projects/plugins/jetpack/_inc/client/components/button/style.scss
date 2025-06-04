@@ -1,23 +1,23 @@
 @use 'sass:color';
 @use "../../scss/functions/rem";
-@import "../../scss/calypso-colors";
-@import "../../scss/color-functions";
-@import "../../scss/typography";
+@use "../../scss/calypso-colors";
+@use "../../scss/color-functions";
+@use "../../scss/typography";
 
 // ==========================================================================
 // Buttons
 // ==========================================================================
 
 .dops-button {
-	background: $white;
-	box-shadow: inset 0 0 0 1.5px $black;
+	background: calypso-colors.$white;
+	box-shadow: inset 0 0 0 1.5px calypso-colors.$black;
 	border: none;
-	color: $black;
+	color: calypso-colors.$black;
 	display: inline-block;
 	margin: 0;
 	outline: 0;
 	overflow: hidden;
-	font-size: $font-body;
+	font-size: typography.$font-body;
 	line-height: 24px;
 	text-overflow: ellipsis;
 	text-decoration: none;
@@ -30,31 +30,31 @@
 	cursor: pointer;
 
 	&:hover {
-		background: $blue-grey-light;
-		box-shadow: inset 0 0 0 1px $black;
-		color: $gray-80;
+		background: calypso-colors.$blue-grey-light;
+		box-shadow: inset 0 0 0 1px calypso-colors.$black;
+		color: calypso-colors.$gray-80;
 	}
 
 	&[disabled],
 	&:disabled {
-		color: color.adjust( $gray, $lightness: 30% );
-		background: $white;
-		border-color: color.adjust( $gray, $lightness: 30% );
+		color: color.adjust( calypso-colors.$gray, $lightness: 30% );
+		background: calypso-colors.$white;
+		border-color: color.adjust( calypso-colors.$gray, $lightness: 30% );
 		cursor: default;
 	}
 
 	&:focus {
-		background: $white;
-		border-color: $black;
+		background: calypso-colors.$white;
+		border-color: calypso-colors.$black;
 	}
 
 	&.is-compact {
 		padding: 4px 8px;
 		line-height: 20px;
-		font-size: $font-body-extra-small;
+		font-size: typography.$font-body-extra-small;
 
 		&:disabled {
-			color: color.adjust( $gray, $lightness: 30% );
+			color: color.adjust( calypso-colors.$gray, $lightness: 30% );
 		}
 
 		.gridicon {
@@ -92,9 +92,9 @@
 
 // Primary buttons
 .dops-button.is-primary {
-	background: $black;
-	box-shadow: inset 0 0 0 1.5px $black;
-	color: $white;
+	background: calypso-colors.$black;
+	box-shadow: inset 0 0 0 1.5px calypso-colors.$black;
+	color: calypso-colors.$white;
 
 	&:hover {
 		background: var( --jp-gray-80 )
@@ -111,56 +111,56 @@
 	}
 
 	&.is-compact {
-		color: $white;
+		color: calypso-colors.$white;
 		white-space: nowrap;
 	}
 }
 
 // Scary buttons
 .dops-button.is-scary {
-  color: $alert-red;
+  color: calypso-colors.$alert-red;
 
   &:hover,
   &:focus {
-	border-color: $alert-red;
+	border-color: calypso-colors.$alert-red;
   }
 
   &:focus {
-	box-shadow: 0 0 0 2px color.adjust( $alert-red, $lightness: 20% );
+	box-shadow: 0 0 0 2px color.adjust( calypso-colors.$alert-red, $lightness: 20% );
   }
 
   &[disabled],
   &:disabled {
-	color: color.adjust( $alert-red, $lightness: 30% );
-	border-color: color.adjust( $gray, $lightness: 30% );
+	color: color.adjust( calypso-colors.$alert-red, $lightness: 30% );
+	border-color: color.adjust( calypso-colors.$gray, $lightness: 30% );
   }
 }
 
 .dops-button.is-primary.is-scary {
-  background: $alert-red;
-  border-color: color.adjust( $alert-red, $lightness: -20% );
-  color: $white;
+  background: calypso-colors.$alert-red;
+  border-color: color.adjust( calypso-colors.$alert-red, $lightness: -20% );
+  color: calypso-colors.$white;
 
   &:hover,
   &:focus {
-	border-color: color.adjust( $alert-red, $lightness: -40% );
+	border-color: color.adjust( calypso-colors.$alert-red, $lightness: -40% );
   }
 
   &[disabled],
   &:disabled {
-	background: color.adjust( $alert-red, $lightness: 20% );
-	border-color: tint( $alert-red, 30% );
+	background: color.adjust( calypso-colors.$alert-red, $lightness: 20% );
+	border-color: color-functions.tint( calypso-colors.$alert-red, 30% );
   }
 }
 
 .dops-button.is-borderless {
   box-shadow: none;
-  color: color.adjust( $gray, $lightness: -10% );
+  color: color.adjust( calypso-colors.$gray, $lightness: -10% );
   padding-left: 0;
   padding-right: 0;
 
   &:hover {
-	color: $gray-dark;
+	color: calypso-colors.$gray-dark;
   }
 
   &:focus {
@@ -179,8 +179,8 @@
 
   &[disabled],
   &:disabled {
-	color: color.adjust( $gray, $lightness: 30% );
-	background: $white;
+	color: color.adjust( calypso-colors.$gray, $lightness: 30% );
+	background: calypso-colors.$white;
 	cursor: default;
 
 	&:active {
@@ -189,15 +189,15 @@
   }
 
   &.is-scary {
-	color: $alert-red;
+	color: calypso-colors.$alert-red;
 
 	&:hover,
 	&:focus {
-	  color: color.adjust( $alert-red, $lightness: -20% );
+	  color: color.adjust( calypso-colors.$alert-red, $lightness: -20% );
 	}
 
 	&[disabled] {
-	  color: color.adjust( $alert-red, $lightness: 30% );
+	  color: color.adjust( calypso-colors.$alert-red, $lightness: 30% );
 	}
   }
 
@@ -290,5 +290,5 @@
 
 a .components-external-link,
 button .components-external-link {
-	color: $black;
+	color: calypso-colors.$black;
 }

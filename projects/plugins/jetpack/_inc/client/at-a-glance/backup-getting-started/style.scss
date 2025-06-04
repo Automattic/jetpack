@@ -1,4 +1,4 @@
-@import '../../scss/calypso-mixins';
+@use '../../scss/calypso-mixins';
 
 .dash-backup-getting-started {
     position: relative;
@@ -8,12 +8,12 @@
     padding: 2rem;
     margin-top: 0.625rem;
 
-    @include breakpoint( '>480px' ) {
+    @include calypso-mixins.breakpoint( '>480px' ) {
         margin-top: 1rem;
         margin-bottom: 2rem;
     }
 
-    @include breakpoint( '>660px' ) {
+    @include calypso-mixins.breakpoint( '>660px' ) {
 		flex-direction: row;
         align-items: center;
 	}
@@ -38,7 +38,7 @@
     flex: 1 1 auto;
     margin: 1rem 0 2rem;
 
-    @include breakpoint( '>660px' ) {
+    @include calypso-mixins.breakpoint( '>660px' ) {
         margin: 0 1rem;
 	}
 }
@@ -61,7 +61,7 @@
 .dash-backup-getting-started__cta {
     flex-shrink: 0;
 
-    @include breakpoint( '>660px' ) {
+    @include calypso-mixins.breakpoint( '>660px' ) {
         margin-left: auto;
 	}
 }

@@ -20,8 +20,9 @@ function die {
 # Renovate has a bug where they modify `.npmrc` and don't clean up after themselves,
 # resulting in those modifications being included in the diff.
 # https://github.com/renovatebot/renovate/discussions/23489
-# So work around it by manually reverting the file.
+# So work around it by manually reverting the file and deleting any new copies they may have created.
 git restore .npmrc
+git clean -f '*/.npmrc'
 
 # Renovate may get confused if we leave installed node_modules or the like behind.
 # So delete everything that's git-ignored on exit.
@@ -41,14 +42,19 @@ fi
 #pnpm config set --global store-dir /tmp/renovate/cache/others/pnpm
 #composer config --global cache-dir /tmp/renovate/cache/others/composer
 
-# Do the pnpm and changelogger installs.
+# Do the pnpm install. Turn off some strictness settings to make it more likely this will work.
 cd "$BASE"
+echo 'strict-peer-dependencies = false' >> .npmrc
+echo 'strict-dep-builds = false' >> .npmrc
 pnpm install
-cd projects/packages/changelogger
+git restore .npmrc
+
+# Install changelogger too.
+cd "$BASE/projects/packages/changelogger"
 composer update
-cd "$BASE"
 
 # Add change files for anything that changed.
+cd "$BASE"
 echo "Changed files:"
 git -c core.quotepath=off diff --name-only HEAD
 ANY=false

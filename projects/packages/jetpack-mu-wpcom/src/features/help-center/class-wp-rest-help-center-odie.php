@@ -164,6 +164,38 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/conversations/(?P<bot_id>[a-zA-Z0-9-]+)',
+			// Retrieve the latest conversations of a user with the specified bot (i.e. the last messages from each chat)
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_conversations' ),
+					'permission_callback' => 'is_user_logged_in',
+					'args'                => array(
+						'bot_id'         => array(
+							'description' => __( 'The bot id to chat with.', 'jetpack-mu-wpcom' ),
+							'type'        => 'string',
+							'required'    => true,
+						),
+						'page_number'    => array(
+							'description' => __( 'The number of the page to retrieve, limited to 100', 'jetpack-mu-wpcom' ),
+							'type'        => 'integer',
+							'required'    => false,
+							'default'     => 1,
+						),
+						'items_per_page' => array(
+							'description' => __( 'The number of items per page.', 'jetpack-mu-wpcom' ),
+							'type'        => 'integer',
+							'required'    => false,
+							'default'     => 10,
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -251,6 +283,36 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 			array(
 				'rating_value' => $rating_value,
 			)
+		);
+
+		if ( is_wp_error( $body ) ) {
+			return $body;
+		}
+
+		$response = json_decode( wp_remote_retrieve_body( $body ) );
+
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Get list of AI conversations.
+	 *
+	 * @param \WP_REST_Request $request The request sent to the API.
+	 */
+	public function get_conversations( \WP_REST_Request $request ) {
+		$bot_name_slug  = $request->get_param( 'bot_id' );
+		$page_number    = $request['page_number'];
+		$items_per_page = $request['items_per_page'];
+
+		$url_query_params = http_build_query(
+			array(
+				'page_number'    => $page_number,
+				'items_per_page' => $items_per_page,
+			)
+		);
+
+		$body = Client::wpcom_json_api_request_as_user(
+			'/odie/conversations/' . $bot_name_slug . '?' . $url_query_params
 		);
 
 		if ( is_wp_error( $body ) ) {

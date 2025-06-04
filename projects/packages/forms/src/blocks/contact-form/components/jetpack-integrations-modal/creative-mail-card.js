@@ -60,7 +60,7 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus, borderBo
 			borderBottom={ borderBottom }
 		>
 			<div>
-				<p>
+				<p className="integration-card__description">
 					{ __(
 						"You're all setup for email marketing with Creative Mail. Please manage your marketing from Creative Mail panel.",
 						'jetpack-forms'

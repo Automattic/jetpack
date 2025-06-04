@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.15.0] - 2025-06-02
+### Added
+- My Jetpack: Add comprehensive analytics tracking for tab interactions including tab switching, page views with tab context, and help request tracking. [#43592]
+
+### Changed
+- Onboarding: Improved the My Jetpack screen to make it more useful by splitting it into tabs. [#43592]
+- Update package dependencies. [#43711] [#43712]
+
+### Fixed
+- Fix product dataview settings icon visibility on re-render. [#43722]
+- Styling: Prevent styling from leaking outside of the onboarding screen. [#43526]
+
+## [5.14.5] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
+### Fixed
+- Hide Backup failure notice when backups are deactivated. [#43568]
+
+## [5.14.4] - 2025-05-22
+### Changed
+- Updated the typography for onboarding slider text. [#43512]
+
+### Fixed
+- Add missing variables to Tanstack queryKey. [#43359]
+- Fix Onboarding UI responsiveness at 600px. [#43533]
+
+## [5.14.3] - 2025-05-19
+### Changed
+- Optimize images for onboarding slider. [#43473]
+- Remove Zendesk chat script from DOM. [#42477]
+
+## [5.14.2] - 2025-05-15
+### Changed
+- Update package dependencies. [#43398]
+
+## [5.14.1] - 2025-05-15
+### Fixed
+- My Jetpack: Fix styles for notice in small screens. [#43459]
+
 ## [5.14.0] - 2025-05-12
 ### Changed
 - Stable release management: Do not ship source files. [#43310]
@@ -2130,6 +2170,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.14.5...5.15.0
+[5.14.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.14.4...5.14.5
+[5.14.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.14.3...5.14.4
+[5.14.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.14.2...5.14.3
+[5.14.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.14.1...5.14.2
+[5.14.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.14.0...5.14.1
 [5.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.13.1...5.14.0
 [5.13.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.13.0...5.13.1
 [5.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.12.0...5.13.0

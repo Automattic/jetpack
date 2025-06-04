@@ -81,6 +81,9 @@ export async function rsyncInit( argv ) {
 				console.error(
 					chalk.yellow( 'Installing standard rsync (e.g. `brew install rsync`) is recommended.' )
 				);
+				if ( argv.nonInteractive ) {
+					process.exit( 1 );
+				}
 				console.error();
 				await enquirer
 					.prompt( {
@@ -100,7 +103,11 @@ export async function rsyncInit( argv ) {
 	}
 
 	if ( argv.config ) {
-		await promptToManageConfig();
+		if ( argv.nonInteractive ) {
+			console.warn( 'Config management is not available in non-interactive mode.' );
+		} else {
+			await promptToManageConfig();
+		}
 		return;
 	}
 	argv = await maybePromptForPlugin( argv );
@@ -129,18 +136,20 @@ export async function rsyncInit( argv ) {
 	if ( untrackedFiles ) {
 		console.log( 'The below untracked files were detected in your plugin path:\n' );
 		console.log( untrackedFiles.replace( /^/gm, '  ' ) + '\n' );
-		await enquirer
-			.prompt( {
-				type: 'confirm',
-				name: 'ignoreUntracked',
-				message: 'Untracked files will not be synced. Proceed?',
-				initial: false,
-			} )
-			.then( answer => {
-				if ( ! answer.ignoreUntracked ) {
-					process.exit( 0 );
-				}
-			} );
+		if ( ! argv.nonInteractive ) {
+			await enquirer
+				.prompt( {
+					type: 'confirm',
+					name: 'ignoreUntracked',
+					message: 'Untracked files will not be synced. Proceed?',
+					initial: false,
+				} )
+				.then( answer => {
+					if ( ! answer.ignoreUntracked ) {
+						process.exit( 0 );
+					}
+				} );
+		}
 	}
 
 	if ( argv.watch ) {
@@ -265,12 +274,15 @@ export async function rsyncInit( argv ) {
 		);
 		console.log( '\n' );
 
+		if ( argv.nonInteractive ) {
+			return;
+		}
 		await promptForRsyncConfig( argv.dest );
 	}
 }
 
 /**
- * Promots to delete, clear or list out the stored destinations.
+ * Prompts to delete, clear or list out the stored destinations.
  */
 async function promptToManageConfig() {
 	const promptClearAll = async () => {
@@ -648,6 +660,7 @@ async function promptForSetAlias( pluginDestPath ) {
 
 /**
  * Maybe prompts for the destination path if not already set or found a saved alias.
+ * Ends process if destination is not provided and in non-interactive mode.
  *
  * @param {object} argv - Passthrough of the argv object.
  * @return {object} argv object with the project property.
@@ -660,6 +673,10 @@ async function maybePromptForDest( argv ) {
 	}
 	if ( argv.dest ) {
 		return argv;
+	}
+	if ( argv.nonInteractive ) {
+		console.warn( 'Destination must be explicitly specified when in non-interactive mode.' );
+		process.exit( 1 );
 	}
 	const savedDests = Object.keys( rsyncConfigStore.all );
 	if ( savedDests.length === 0 ) {
@@ -700,6 +717,7 @@ async function promptNewDest() {
  * Maybe prompt for plugin.
  *
  * If no type is passed via `options`, then it will prompt for the plugin.
+ * Ends process if plugin is not provided and in non-interactive mode.
  *
  * @param {object} argv - Passthrough of an object, meant to accept argv.
  * @return {object} object with the type property appended.
@@ -711,6 +729,10 @@ export async function maybePromptForPlugin( argv ) {
 		whichPlugin.length === 0 ||
 		( whichPlugin.length > 0 && ! validatePlugin( whichPlugin ) )
 	) {
+		if ( argv.nonInteractive ) {
+			console.warn( 'Plugin must be explicitly specified when in non-interactive mode.' );
+			process.exit( 1 );
+		}
 		whichPlugin = await enquirer.prompt( {
 			type: 'autocomplete',
 			name: 'plugin',
@@ -765,6 +787,10 @@ export function rsyncDefine( yargs ) {
 				.option( 'watch', {
 					describe:
 						'Watch the plugin for changes and rsync on change. Note this will probably not be useful if rsync prompts for a password.',
+					type: 'boolean',
+				} )
+				.option( 'non-interactive', {
+					describe: 'Do not use interactive prompts. Ideal for CI runs.',
 					type: 'boolean',
 				} );
 		},

@@ -239,10 +239,11 @@ class REST_Controller {
 	public function update_settings( $request ) {
 		$request_body = $request->get_json_params();
 
-		$module_active          = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
-		$instant_search_enabled = isset( $request_body['instant_search_enabled'] ) ? (bool) $request_body['instant_search_enabled'] : null;
+		$module_active                 = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
+		$instant_search_enabled        = isset( $request_body['instant_search_enabled'] ) ? (bool) $request_body['instant_search_enabled'] : null;
+		$swap_classic_to_inline_search = isset( $request_body['swap_classic_to_inline_search'] ) ? (bool) $request_body['swap_classic_to_inline_search'] : null;
 
-		$error = $this->validate_search_settings( $module_active, $instant_search_enabled );
+		$error = $this->validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search );
 
 		if ( is_wp_error( $error ) ) {
 			return $error;
@@ -268,6 +269,10 @@ class REST_Controller {
 			}
 		}
 
+		if ( $swap_classic_to_inline_search !== null ) {
+			$this->search_module->update_swap_classic_to_inline_search( $swap_classic_to_inline_search );
+		}
+
 		if ( ! empty( $errors ) ) {
 			return new WP_Error(
 				'some_updated',
@@ -291,8 +296,13 @@ class REST_Controller {
 	 *
 	 * @param boolean $module_active - Module status.
 	 * @param boolean $instant_search_enabled - Instant Search status.
+	 * @param boolean $swap_classic_to_inline_search - New inline search status.
 	 */
-	protected function validate_search_settings( $module_active, $instant_search_enabled ) {
+	protected function validate_search_settings( $module_active, $instant_search_enabled, $swap_classic_to_inline_search ) {
+		if ( $module_active === null && $instant_search_enabled === null && $swap_classic_to_inline_search !== null ) {
+			// allow updating 'swap_classic_to_inline_search' without updating/validating other settings.
+			return true;
+		}
 		if ( ( true === $instant_search_enabled && false === $module_active ) || ( $module_active === null && $instant_search_enabled === null ) ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
@@ -309,8 +319,9 @@ class REST_Controller {
 	public function get_settings() {
 		return rest_ensure_response(
 			array(
-				'module_active'          => $this->search_module->is_active(),
-				'instant_search_enabled' => $this->search_module->is_instant_search_enabled(),
+				'module_active'                 => $this->search_module->is_active(),
+				'instant_search_enabled'        => $this->search_module->is_instant_search_enabled(),
+				'swap_classic_to_inline_search' => $this->search_module->is_swap_classic_to_inline_search(),
 			)
 		);
 	}

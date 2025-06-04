@@ -17,7 +17,7 @@ import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getAkismetData } from 'state/at-a-glance';
 import { isOfflineMode, connectUser } from 'state/connection';
-import { getApiNonce, isAtomicSite } from 'state/initial-state';
+import { getApiNonce, isWoASite } from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
 
 class DashAkismet extends Component {
@@ -93,8 +93,8 @@ class DashAkismet extends Component {
 				'Comments and contact form submissions are checked against our global database of spam.',
 				'jetpack'
 			),
-			// Hide the action link from Atomic sites because it promotes purchase of Jetpack product
-			link: this.props.isAtomicSite ? null : 'https://akismet.com/features',
+			// Hide the action link from WoA sites because it promotes purchase of Jetpack product
+			link: this.props.isWoASite ? null : 'https://akismet.com/features',
 			privacyLink: 'https://automattic.com/privacy/',
 		};
 
@@ -248,7 +248,7 @@ export default connect(
 	state => {
 		return {
 			akismetData: getAkismetData( state ),
-			isAtomicSite: isAtomicSite( state ),
+			isWoASite: isWoASite( state ),
 			isOfflineMode: isOfflineMode( state ),
 			upgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			nonce: getApiNonce( state ),

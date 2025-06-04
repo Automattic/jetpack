@@ -16,7 +16,7 @@ const fakeParagraphBlockSettings = {
 			source: 'html',
 			selector: 'p',
 			default: '',
-			__experimentalRole: 'content',
+			role: 'content',
 		},
 	},
 	edit() {},

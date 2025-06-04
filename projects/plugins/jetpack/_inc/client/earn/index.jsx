@@ -14,7 +14,7 @@ import {
 	isOfflineMode,
 	isUnavailableInOfflineMode as isUnavailableInOfflineModeSelector,
 } from 'state/connection';
-import { isAtomicSite as isAtomicSiteSelector, getSiteId } from 'state/initial-state';
+import { isWoASite as isWoASiteSelector, getSiteId } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
 import { Ads } from './ads';
@@ -205,7 +205,7 @@ export default connect( state => {
 		isModuleFound: module_name => isModuleFoundSelector( state, module_name ),
 		isUnavailableInOfflineMode: module_name =>
 			isUnavailableInOfflineModeSelector( state, module_name ),
-		isAtomicSite: isAtomicSiteSelector( state ),
+		isWoASite: isWoASiteSelector( state ),
 		blogID: getSiteId( state ),
 	};
 } )( Earn );

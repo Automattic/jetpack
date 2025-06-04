@@ -737,6 +737,7 @@ class Search_Widget extends \WP_Widget {
 	 * Outputs the settings update form.
 	 *
 	 * @param array $instance Previously saved values from database.
+	 * @return string|void
 	 * @since 5.0.0
 	 */
 	public function form( $instance ) {

@@ -1,7 +1,12 @@
-body.toplevel_page_jetpack-forms,
-body.feedback_page_jetpack-forms,
-body.jetpack_page_jetpack-forms,
-body.admin_page_jetpack-forms {
+@mixin mobile {
+
+	@media (max-width: 599px) {
+		@content;
+	}
+}
+
+body[class*="_page_jetpack-forms"],
+body.jetpack_page_jetpack-forms-admin {
 	background-color: #fff;
 
 	#wpcontent {
@@ -16,11 +21,23 @@ body.admin_page_jetpack-forms {
 	margin: 0;
 	padding: 0;
 	width: 100%;
-	min-height: 100%;
+	height: 100%;
 
 	.jp-forms__logo-wrapper,
 	.jp-forms__layout-header {
 		flex: 0 1 auto; /* Flex, but don't grow */
+	}
+
+	.jp-forms__logo-wrapper {
+
+		@include mobile {
+			width: 180px;
+		}
+	}
+
+	.jp-forms__layout-header-actions {
+		display: flex;
+		gap: 8px;
 	}
 
 	.jp-forms__logo {
@@ -47,12 +64,14 @@ body.admin_page_jetpack-forms {
 	}
 
 	.jp-forms__dashboard-tabs {
-		min-height: 100%;
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
 
 		> .components-tab-panel__tabs {
 			margin: 0;
 			padding: 0 48px;
-			border-bottom: 1px solid #dcdcde;
+			border-bottom: 1px solid var(--jp-gray-5);
 
 			.components-tab-panel__tabs-item {
 				border-bottom: 2px solid transparent;
@@ -78,6 +97,10 @@ body.admin_page_jetpack-forms {
 			@media (max-width: 660px) {
 				padding: 0 24px;
 			}
+		}
+
+		.components-tab-panel__tab-content {
+			height: 100%;
 		}
 	}
 }

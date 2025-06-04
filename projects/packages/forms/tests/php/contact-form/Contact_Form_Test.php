@@ -2257,7 +2257,7 @@ EOT;
 		global $post;
 
 		// Removing the user without reassinging posts.
-		wp_delete_user( $post->post_author );
+		wp_delete_user( (int) $post->post_author );
 
 		$this->add_field_values(
 			array(

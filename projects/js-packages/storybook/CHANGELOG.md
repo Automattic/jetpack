@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0 - 2025-06-03
+### Added
+- Add Scan package to storybook. [#42806]
+
+### Changed
+- Code: First pass of style coding standards. [#42734]
+- Import built CSS for `@wordpress/*` packages instead of rebuilding from Sass sources. [#43670]
+- Remove extensionAliases from webpack config after enabling TypeScript's `rewriteRelativeImportExtensions` option. [#42990]
+- sass: `@use` rather than `@import` for `@wordpress/base-styles` where possible. [#43607]
+- Update package dependencies. [#43071] [#43326] [#43349] [#43398] [#43400] [#43516] [#43578] [#43718] [#43734]
+
+### Fixed
+- Linting: Format SCSS imports consistently. [#43018]
+
 ## 0.6.1 - 2025-04-02
 ### Added
 - Publicize Components: Add Storybook support [#42167]

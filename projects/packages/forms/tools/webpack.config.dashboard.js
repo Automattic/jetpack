@@ -8,7 +8,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
-		'jetpack-forms-dashboard': path.join( __dirname, '..', 'src/dashboard/index.js' ),
+		'jetpack-forms-dashboard': path.join( __dirname, '..', 'src/dashboard/index.tsx' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -106,7 +106,7 @@ module.exports = {
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
-				extraLoaders: [ 'sass-loader' ],
+				extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
 			} ),
 
 			// Handle images.

@@ -16,12 +16,15 @@ jobs:
           ref: trunk
       - name: Generate message
         id: message
+        env:
+          SLACK_RELEASES_CHANNEL: ${{ secrets.SLACK_RELEASES_CHANNEL }}
         run: |
           source .github/files/gh-funcs.sh
 
           if [[ "$GITHUB_EVENT_NAME" == 'create' ]]; then
             gh_set_output message "$(
-              jq -nc --slurpfile event "$GITHUB_EVENT_PATH" '$event[0] as $e | {
+              jq -nc --arg C "$SLACK_RELEASES_CHANNEL" --slurpfile event "$GITHUB_EVENT_PATH" '$event[0] as $e | {
+                channel: $C,
                 icon_emoji: ":lock:",
                 text: "Incoming release! Prerelease branch was created by \( $e.sender.login ).",
                 blocks: [
@@ -37,7 +40,8 @@ jobs:
             )"
           elif [[ "$GITHUB_EVENT_NAME" == 'delete' ]]; then
             gh_set_output message "$(
-              jq -nc --slurpfile event "$GITHUB_EVENT_PATH" '$event[0] as $e | {
+              jq -nc --arg C "$SLACK_RELEASES_CHANNEL" --slurpfile event "$GITHUB_EVENT_PATH" '$event[0] as $e | {
+                channel: $C,
                 icon_emoji: ":unlock:",
                 text: "Prerelease branch was deleted by \( $e.sender.login ).",
                 blocks: [
@@ -57,9 +61,8 @@ jobs:
           fi
 
       - name: Send message to releases channel
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v2.1.0
         with:
-          channel-id: ${{ secrets.SLACK_RELEASES_CHANNEL }}
+          token: ${{ secrets.SLACK_TOKEN }}
+          method: chat.postMessage
           payload: ${{ steps.message.outputs.message }}
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}

@@ -2,6 +2,27 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [1.0.0] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## [0.39.18] - 2025-06-02
+### Changed
+- sass: `@use` rather than `@import` for `@wordpress/base-styles`. [#43607]
+- Update package dependencies. [#43711]
+
+## [0.39.17] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
+## [0.39.16] - 2025-05-22
+### Changed
+- Update dependencies.
+
+## [0.39.15] - 2025-05-19
+### Changed
+- Update dependencies.
+
 ## [0.39.14] - 2025-05-12
 ### Changed
 - Update dependencies.
@@ -1023,6 +1044,11 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[1.0.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.18...v1.0.0
+[0.39.18]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.17...v0.39.18
+[0.39.17]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.16...v0.39.17
+[0.39.16]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.15...v0.39.16
+[0.39.15]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.14...v0.39.15
 [0.39.14]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.13...v0.39.14
 [0.39.13]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.12...v0.39.13
 [0.39.12]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.11...v0.39.12

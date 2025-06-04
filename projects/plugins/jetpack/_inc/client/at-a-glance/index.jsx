@@ -13,7 +13,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import analytics from 'lib/analytics';
 import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import {
-	isAtomicSite,
+	isWoASite,
 	getApiNonce,
 	getApiRootUrl,
 	getPartnerCoupon,
@@ -104,7 +104,7 @@ class AtAGlance extends Component {
 		// Backup won't work with multi-sites, but Scan does if VaultPress is enabled
 		const hasVaultPressScanning =
 			! this.props.fetchingScanStatus && this.props.scanStatus?.reason === 'vp_active_on_site';
-		if ( ! this.props.isAtomicSite && ( ! this.props.multisite || hasVaultPressScanning ) ) {
+		if ( ! this.props.isWoASite && ( ! this.props.multisite || hasVaultPressScanning ) ) {
 			securityCards.push(
 				<DashScan
 					{ ...settingsProps }
@@ -262,7 +262,7 @@ export default connect( state => {
 		userCanViewStats: userCanViewStats( state ),
 		userCanManagePlugins: userCanManagePlugins( state ),
 		userIsSubscriber: userIsSubscriber( state ),
-		isAtomicSite: isAtomicSite( state ),
+		isWoASite: isWoASite( state ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		isModuleAvailable: module_name => isModuleAvailable( state, module_name ),

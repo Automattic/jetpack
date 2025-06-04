@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Jetpack-Tests: Exclude filenames semi-required by PHPUnit 10+ from `WordPress.Files.FileName` rules.

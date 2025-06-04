@@ -1,4 +1,4 @@
-@import './variables';
+@use 'variables';
 
 .jp-wordads-dashboard-wrap {
 	display: flex;
@@ -16,13 +16,13 @@
 	width: calc( 100% - 32px );
 	margin: 0 16px;
 
-	@include for-phone-up {
+	@include variables.for-phone-up {
 		grid-template-columns: repeat( 8, 1fr );
 		width: calc( 100% - 36px );
 		margin: 0 18px;
 	}
 
-	@include for-tablet-up {
+	@include variables.for-tablet-up {
 		grid-template-columns: repeat( 12, 1fr );
 		max-width: 1128px;
 		width: calc( 100% - 48px );
@@ -35,7 +35,7 @@
 		}
 	}
 
-	@include for-phone-up {
+	@include variables.for-phone-up {
 
 		@for $i from 1 through 8 {
 			.md-col-span-#{$i} {
@@ -44,7 +44,7 @@
 		}
 	}
 
-	@include for-tablet-up {
+	@include variables.for-tablet-up {
 
 		@for $i from 1 through 12 {
 			.lg-col-span-#{$i} {
@@ -53,21 +53,21 @@
 		}
 	}
 
-	@include for-tablet-up {
+	@include variables.for-tablet-up {
 
 		.lg-col-span-0 {
 			display: none;
 		}
 	}
 
-	@include for-tablet-down {
+	@include variables.for-tablet-down {
 
 		.md-col-span-0 {
 			display: none;
 		}
 	}
 
-	@include for-phone-down {
+	@include variables.for-phone-down {
 
 		.sm-col-span-0 {
 			display: none;

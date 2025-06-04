@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 import yaml from 'js-yaml';
@@ -202,6 +202,20 @@ const setExtrasConfig = ( argv, config ) => {
 };
 
 /**
+ * Generates empty host key files for the sftp container.
+ */
+const setSftpHostKeys = () => {
+	const dir = `${ dockerFolder }/data/sshd.keys`;
+	mkdirSync( dir, { recursive: true } );
+	for ( const filename of [ 'ssh_host_ed25519_key', 'ssh_host_rsa_key' ] ) {
+		const file = `${ dir }/${ filename }`;
+		if ( ! existsSync( file ) ) {
+			writeFileSync( file, '' );
+		}
+	}
+};
+
+/**
  * Generates required configuration files according to passed argv flags
  *
  * @param {object} argv - Argv
@@ -211,4 +225,5 @@ export function setConfig( argv ) {
 
 	setMappings( argv, config );
 	setExtrasConfig( argv, config );
+	setSftpHostKeys();
 }

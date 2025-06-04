@@ -104,23 +104,25 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 6.4.0 - 2025-04-17
+### 7.0.0 - 2025-05-22
 #### Added
-- Added more error logging.
-- Added Share status support for WPCOM sites
-- Adding My Jetpack tour.
-- Adds Account Protection initialization
-- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
+- Added option to set default image for Social Image Generator.
 
 #### Changed
-- Connection: Allow pre-selected login providers
-- General: indicate compatibility with the upcoming version of WordPress - 6.8.
-- Improved the logic for share status
+- E2E Tests: Update config file encryption algorithm.
+- jetpack-assets now requires jetpack-status so updating composer lock files.
+- My Jetpack: Optimize the images for onboarding slider for faster page load.
+- My Jetpack: Updated the onboarding UI, changing it to a single button.
 - Update package dependencies.
 
+#### Removed
+- General: Update minimum WordPress version to 6.7.
+
 #### Fixed
-- Do not load in the editor if sharing is disabled
-- Fix arguments for jetpack_open_graph_tags filter
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
+- My Jetpack: Fixed Onboarding UI responsiveness at 600px.
+- My Jetpack: Fix readability of license activation button on hover.
+- My Jetpack: Fix social login getting stuck when email input not empty.
 
 == Upgrade Notice ==
 

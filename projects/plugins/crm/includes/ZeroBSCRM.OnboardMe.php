@@ -30,8 +30,8 @@ function jpcrm_onboardme_scripts() {
 	global $zbs;
 
 	wp_enqueue_script( 'jquery' );
-	wp_enqueue_script( 'onboardme-front', ZEROBSCRM_URL . 'js/lib/hopscotch.min.js', array( 'jquery' ), $zbs::VERSION, true );
-	wp_enqueue_style( 'onboardme-css', ZEROBSCRM_URL . 'css/lib/hopscotch.min.css', array(), $zbs::VERSION );
+	wp_enqueue_script( 'onboardme-front', ZEROBSCRM_URL . 'build/lib/hopscotch/hopscotch.min.js', array( 'jquery' ), $zbs::VERSION, true );
+	wp_enqueue_style( 'onboardme-css', ZEROBSCRM_URL . 'build/lib/hopscotch/hopscotch.min.css', array(), $zbs::VERSION );
 	wp_enqueue_script( 'tour-front', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.tour' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'onboardme-front' ), $zbs::VERSION, true );
 
 	$zbs_tour_root = admin_url();

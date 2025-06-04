@@ -1,3 +1,5 @@
+@use "../../scss/mixins/breakpoints";
+@use "../../scss/variables/colors";
 @use 'sass:color';
 
 .jp-loading-placeholder {
@@ -5,11 +7,11 @@
 
 	margin-top: 30vh;
 	margin-bottom: 25vh;
-	color: color.adjust( $gray, $lightness: 20% );
+	color: color.adjust( colors.$gray, $lightness: 20% );
 	font-size: $size;
 	text-align: center;
 
-	@include breakpoint( ">960px" ) {
+	@include breakpoints.breakpoint( ">960px" ) {
 		font-size: 120px;
 	}
 

@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.0.0] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## [0.73.4] - 2025-06-02
+### Added
+- Added className prop to AdminPage component. [#43592]
+
+### Changed
+- sass: `@use` rather than `@import` for `@automattic/jetpack-base-styles/gutenberg-base-styles`. [#43607]
+
+## [0.73.3] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
+## [0.73.2] - 2025-05-22
+### Fixed
+- Fixed Swipeable width being stale on window resize. [#43510]
+
+## [0.73.1] - 2025-05-19
+### Changed
+- Update dependencies.
+
 ## [0.73.0] - 2025-05-12
 ### Changed
 - Use `formatCurrency()` and `getCurrencyObject()` functions from the `@automattic/number-formatters` package. [#42796]
@@ -1392,6 +1415,11 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.0.0]: https://github.com/Automattic/jetpack-components/compare/0.73.4...1.0.0
+[0.73.4]: https://github.com/Automattic/jetpack-components/compare/0.73.3...0.73.4
+[0.73.3]: https://github.com/Automattic/jetpack-components/compare/0.73.2...0.73.3
+[0.73.2]: https://github.com/Automattic/jetpack-components/compare/0.73.1...0.73.2
+[0.73.1]: https://github.com/Automattic/jetpack-components/compare/0.73.0...0.73.1
 [0.73.0]: https://github.com/Automattic/jetpack-components/compare/0.72.6...0.73.0
 [0.72.6]: https://github.com/Automattic/jetpack-components/compare/0.72.5...0.72.6
 [0.72.5]: https://github.com/Automattic/jetpack-components/compare/0.72.4...0.72.5

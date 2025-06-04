@@ -2,7 +2,7 @@
 /**
  * Tests for WPCOM_REST_API_V2_Endpoint_Send_Email_Preview.
  * To run this test by itself use the following command:
- * jetpack docker phpunit -- --filter=WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test
+ * jetpack docker phpunit jetpack -- --filter=WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;

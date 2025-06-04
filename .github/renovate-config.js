@@ -39,7 +39,7 @@ module.exports = {
 	repositories: [ 'Automattic/jetpack' ],
 
 	// Extra code to run before creating a commit.
-	allowedPostUpgradeCommands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh' ],
+	allowedCommands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh' ],
 	postUpgradeTasks: {
 		commands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh {{{branchName}}}' ],
 		executionMode: 'branch',

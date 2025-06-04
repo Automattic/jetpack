@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.21] - 2025-06-03
+### Changed
+- Update dependencies.
+
+## [4.2.20] - 2025-06-02
+### Changed
+- Update dependencies. [#42554]
+
+## [4.2.19] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
+## [4.2.18] - 2025-05-22
+### Changed
+- Update dependencies. [#42554]
+
+## [4.2.17] - 2025-05-15
+### Changed
+- Update package dependencies. [#43398]
+
 ## [4.2.16] - 2025-05-12
 ### Changed
 - Update package dependencies. [#43400]
@@ -909,6 +929,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[4.2.21]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.20...v4.2.21
+[4.2.20]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.19...v4.2.20
+[4.2.19]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.18...v4.2.19
+[4.2.18]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.17...v4.2.18
+[4.2.17]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.16...v4.2.17
 [4.2.16]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.15...v4.2.16
 [4.2.15]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.14...v4.2.15
 [4.2.14]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.13...v4.2.14
