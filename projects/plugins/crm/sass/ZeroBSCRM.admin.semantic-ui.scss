@@ -16,7 +16,7 @@
 // WH/MS semantic add ins/additions
 @import 'semantic-ui-additions';
 
-// This Semantic UI bug messes with the Email UI in Safari
+// This Semantic UI bug messes with the email composer layout in Safari
 // https://github.com/Semantic-Org/Semantic-UI/issues/3919
 .ui.grid {
 	margin-left: inherit;
