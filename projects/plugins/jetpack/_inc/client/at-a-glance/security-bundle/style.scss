@@ -1,6 +1,6 @@
-@import '../../scss/calypso-mixins';
-@import '../../scss/mixins/ui';
-@import '../../scss/typography';
+@use '../../scss/calypso-mixins';
+@use '../../scss/mixins/ui';
+@use '../../scss/typography';
 
 .dash-security-bundle {
 	display: flex;
@@ -10,10 +10,10 @@
 	background: rgb(249, 249, 246);
 	background: linear-gradient(133deg, rgb(206, 217, 242) 0%, rgb(249, 249, 246) 10%, rgb(249, 249, 246) 80%, rgb(245, 230, 179) 100%);
 
-	@include dashboard-card-shadow;
+	@include ui.dashboard-card-shadow;
 
 	// match aag responsive styling
-	@include breakpoint( '>660px' ) {
+	@include calypso-mixins.breakpoint( '>660px' ) {
 		flex-direction: row;
 	}
 
@@ -24,7 +24,7 @@
 		margin-right: 0;
 		margin-top: 16px;
 
-		@include breakpoint( '>660px' ) {
+		@include calypso-mixins.breakpoint( '>660px' ) {
 			align-items: center;
 			margin-bottom: 0;
 			margin-right: 32px;
@@ -38,7 +38,7 @@
 		flex: 1;
 		justify-content: space-between;
 
-		@include breakpoint( '>660px' ) {
+		@include calypso-mixins.breakpoint( '>660px' ) {
 			flex-direction: row;
 		}
 
@@ -47,14 +47,14 @@
 			flex-direction: column;
 
 			h3 {
-				font-size: $font-title-medium;
+				font-size: typography.$font-title-medium;
 				line-height: 32px;
 				font-weight: 500;
 				margin: 8px 0 0 0;
 			}
 
 			p {
-				font-size: $font-body;
+				font-size: typography.$font-body;
 				margin: 8px 0 0 0;
 			}
 		}
@@ -66,7 +66,7 @@
 			margin-top: 16px;
 			margin-left: 0;
 
-			@include breakpoint( '>660px' ) {
+			@include calypso-mixins.breakpoint( '>660px' ) {
 				margin-top: 0;
 				margin-left: 16px;
 			}

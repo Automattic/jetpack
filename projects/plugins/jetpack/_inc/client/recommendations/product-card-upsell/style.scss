@@ -1,18 +1,18 @@
 @use '@automattic/jetpack-base-styles/style';
-@import '../../scss/mixins/ui';
-@import '../../scss/variables/colors';
-@import '../../scss/typography';
-@import '../../scss/mixin_breakpoint';
+@use '../../scss/mixins/ui';
+@use '../../scss/variables/colors';
+@use '../../scss/typography';
+@use '../../scss/mixin_breakpoint';
 
 .jp-recommendations-product-card-upsell {
 
-	@include card;
+	@include ui.card;
 
 	position: relative;
 
 	padding: 3.25rem 2rem 2rem;
 
-	@include breakpoint( '<480px' ) {
+	@include mixin_breakpoint.breakpoint( '<480px' ) {
 		padding: 1rem;
 
 		&.with-header {
@@ -33,14 +33,14 @@
 
 	color: var( --jp-gray-100 );
 
-	font-size: $font-title-large;
-	font-weight: $bold;
+	font-size: typography.$font-title-large;
+	font-weight: typography.$bold;
 }
 
 .jp-recommendations-product-card-upsell__description {
 	margin-bottom: 1.5rem;
 
-	font-size: $font-body-small;
+	font-size: typography.$font-body-small;
 }
 
 .jp-recommendations-product-card-upsell__features {
@@ -120,7 +120,7 @@
 	padding-inline-start: 4rem !important;
 	padding-inline-end: 4rem !important;
 
-	font-size: $font-body;
+	font-size: typography.$font-body;
 
 	.gridicons-external {
 		margin-left: 0.25rem;

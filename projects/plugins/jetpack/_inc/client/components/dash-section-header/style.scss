@@ -1,3 +1,6 @@
+@use "../../scss/mixins/breakpoints";
+@use "../../scss/typography";
+@use "../../scss/variables/colors";
 @use 'sass:color';
 @use '../../scss/functions/rem';
 
@@ -6,20 +9,20 @@
 	flex-wrap: wrap;
 	margin: rem.convert( 12px ) 0 rem.convert( 12px );
 
-	@include breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		margin-bottom: rem.convert( 24px );
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		display: block;
 	}
 
 	a {
-		font-size: $font-body;
+		font-size: typography.$font-body;
 		font-weight: 400;
 		font-style: normal;
 		line-height: 24px;
-		color: $black;
+		color: colors.$black;
 		text-decoration: underline;
 
 		&:hover {
@@ -44,20 +47,20 @@
 	display: inline-block;
 	margin-top: 0;
 	margin-bottom: 0;
-	font-size: $font-title-medium;
+	font-size: typography.$font-title-medium;
 	line-height: 32px;
 	font-weight: 500;
 	white-space: nowrap;
-	color: $black;
+	color: colors.$black;
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoints.breakpoint( ">480px" ) {
 		display: inline-block;
 	}
 
 	// need to clean up ClassName nesting
 	.jp-dash-section-header__label {
 
-		@include breakpoint( "<480px" ) {
+		@include breakpoints.breakpoint( "<480px" ) {
 			display: inline-block;
 		}
 	}
@@ -67,14 +70,14 @@
 	display: inline-block;
 	min-width: rem.convert( 40px );
 	text-align: center;
-	color: color.adjust( $gray, $lightness: -10% );
+	color: color.adjust( colors.$gray, $lightness: -10% );
 
 	&:focus {
 		outline: 0;
 		box-shadow: none;
 
 		.gridicon {
-			color: $blue-wordpress;
+			color: colors.$blue-wordpress;
 		}
 	}
 
@@ -88,11 +91,11 @@
 	align-self: center;
 	font-style: italic;
 
-	@include breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		margin-top: rem.convert( 4px );
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		display: block;
 		width: 100%;
 		// margin-top: rem.convert( 32px );
@@ -102,7 +105,7 @@
 .jp-dash-section-header__children {
 	align-self: center;
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		width: 100%;
 	}
 }

@@ -1,5 +1,5 @@
-@import '../../shared/styles/jetpack-variables';
+@use '../../shared/styles/jetpack-variables';
 
 .wp-block-jetpack-contact-info {
-	margin-bottom: $jetpack-block-margin-bottom;
+	margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 }

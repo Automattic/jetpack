@@ -2,124 +2,89 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.7-beta - 2025-06-02
+## 14.7 - 2025-06-03
 ### Enhancements
-- Forms: Move responses menu item from Feedback > Forms to Jetpack > Forms. [#43705]
-
-### Improved compatibility
-- Crowdsignal: Prevent warnings in error logs when viewing ratings via legacy shortcodes on archive pages. [#43596]
-- Sharing service: Prevent warnings in error logs when certain keys are not set. [#43599]
-
-### Bug fixes
-- Fix text wrapping on the stats column heading in non-English languages. [#43630]
-- Forms: Show upload progress in File Upload field when reduced motion is enabled. [#43628]
-- Social: Ensure images load in connections management when concatenating JS. [#43655]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Blogging prompts: Fix for Simple sites. [#43597]
-- Dashboard: Ensure links labeled as external links open in a new tab. [#43685]
-- E2E: Update onboarding tests. [#43592]
-- Endpoints: Prevent warnings in error logs due to undefined values. [#43570]
-- Load a script that injects the tokens needed to enable Chrome's built-in AI API. [#43682]
-- Newsletter: Update "Set Up" button to show "Add Plans" or "Manage Plans" depending on the plans configuration. [#43694]
-- Protect against improper calls to `the_title()` filter. [#43511]
-- Reader: Fix paywall styling on Reader and improve few other styles. [#43642]
-- Reader: Update paywall messages for restricted content. [#43637]
-- Updated default cookie expiration from 30000000 to YEAR_IN_SECONDS to match recent WordPress Core changes. [#43715]
-- Update package dependencies. [#43710] [#43711] [#43712]
-- Update to-test.md for Jetpack 14.7. [#43621]
-
-## 14.7-a.7 - 2025-05-26
-### Enhancements
-- Social: Add option to add default image to Social Image Generator. [#43461]
+- Forms: Add 33% width option to fields and buttons. [#43417]
+- Forms: Add Google Drive to integrations modal. [#43479]
+- Forms: Add Google to form integrations endpoint. [#43453]
 - Forms: Add Integration screen content. [#43530]
+- Forms: Move responses menu item from Feedback > Forms to Jetpack > Forms. [#43705]
+- Forms: Move Salesforce to block modal. [#43297]
+- Forms: Remove Salesforce Form variation. [#43419]
+- Forms: Replace Landing page with About page. [#43361]
+- Forms: Update form responses tabs. [#43358]
+- Forms: Update the email template for feedback responses. [#43323]
+- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
+- Search: Highlight search term in returned search results. [#43110]
+- Social: Add option to add default image to Social Image Generator. [#43461]
 
 ### Improved compatibility
+- Blocks: Update `useResizeObserver` hook usage to meet new API expectations. [#43334]
+- Crowdsignal: Prevent warnings in error logs when viewing ratings via legacy shortcodes on archive pages. [#43596]
 - Endpoints: Add checks within the v1.1 post update endpoint to ensure values are defined. [#43513]
+- Remove Skype since the service no longer exists. [#43375]
 - Sharing buttons: Prevent PHP warnings in some scenarios, ensuring we only check the post title and ID if posts exist. [#43539]
+- Sharing service: Prevent warnings in error logs when certain keys are not set. [#43599]
+- Sitemaps: Disable XMLWriter by default unless enabled by a filter. [#43384]
 
 ### Bug fixes
 - AI Chat & Donations blocks: Ensure that all metadata is properly attached to the blocks in the block editor. [#43535]
+- Carousel: Do not display comment form when comments are closed for a specific media attachment. [#43379]
+- Fix text wrapping on the stats column heading in non-English languages. [#43630]
+- Forms: Fix a bug preventing responses dashboard from loading (blank screen). [#43460]
 - Forms: Fix Akismet spam URL. [#43542]
+- Forms: Fix double scrollbars for responses. [#43462]
+- Forms: Preserve responses query parameters. [#43372]
+- Forms: Show upload progress in File Upload field when reduced motion is enabled. [#43628]
 - Jetpack: Fix redirect URL on frontend for upgrade nudge. [#43562]
 - My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
 - My Jetpack: Fix readability of license activation button on hover. [#43550]
 - My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
+- Open Graph: Prevent PHP warnings when embedding some Vimeo videos. [#43458]
+- Social: Ensure images load in connections management when concatenating JS. [#43655]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Added wordpress/base-styles dependency. [#43576]
-- AI Assistant: Add tracking events to know when we're using built-in AI models in some requests and adapted to Chrome AI API changes. [#43495]
-- Blogging prompt: Make sure the block is registered before inserting. [#43603]
-- E2E Tests: Update config file encryption algorithm. [#43523]
-- Featured Content: Prevent error if invalid taxonomy data is provided. [#43553]
-- Forms: Update dependency on packages/admin_ui. [#43295]
-- Janitorial: Ensure functionality related to WoA site checking is clearer. [#43481]
-- Post Images: Prevent undefined variable and key warnings. [#43548]
-- Theme Compatibility: Prevent warning when custom color value isn't set. [#43520]
-- Update package dependencies. [#43516] [#43557] [#43572] [#43578]
-
-## 14.7-a.5 - 2025-05-19
-### Enhancements
-- Forms: Add Google Drive to integrations modal. [#43479]
-- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
-- Search: Highlight search term in returned search results. [#43110]
-
-### Bug fixes
-- Open Graph: Prevent PHP warnings when embedding some Vimeo videos. [#43458]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- AI Assistant: Retrieve Chrome AI tokens from the backend. [#43442]
-- Mitigate bug with certain P2 themes. [#43503]
-- Repeat Visitor block: Use stabilized role attribute in test file. [#43472]
-- Stats: Remove deprecated `stats_update_blog` method. [#43493]
-- Update package dependencies. [#43398]
-
-## 14.7-a.3 - 2025-05-15
-### Enhancements
-- Forms: Add Google to form integrations endpoint. [#43453]
-- Forms: Add 33% width option to fields and buttons. [#43417]
-
-### Bug fixes
-- Forms: Fix a bug preventing responses dashboard from loading (blank screen). [#43460]
-- Forms: Fix double scrollbars for responses. [#43462]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Update package dependencies. [#43425]
-
-## 14.7-a.1 - 2025-05-12
-### Enhancements
-- Forms: Move Salesforce to block modal. [#43297]
-- Forms: Remove Salesforce Form variation. [#43419]
-- Forms: Update form responses tabs. [#43358]
-- Forms: Replace Landing page with About page. [#43361]
-- Forms: Update the email template for feedback responses. [#43323]
-
-### Improved compatibility
-- Blocks: Update `useResizeObserver` hook usage to meet new API expectations. [#43334]
-- Remove Skype since the service no longer exists. [#43375]
-- Sitemaps: Disable XMLWriter by default unless enabled by a filter. [#43384]
-
-### Bug fixes
-- Carousel: Do not display comment form when comments are closed for a specific media attachment. [#43379]
-- Forms: Preserve responses query parameters. [#43372]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add `getCurrencyDefaults()` method to allow removal of the `@automattic/format-currency` dependency. [#42456]
+- AI Assistant: Add tracking events to know when we're using built-in AI models in some requests and adapted to Chrome AI API changes. [#43495]
+- AI Assistant: Retrieve Chrome AI tokens from the backend. [#43442]
 - AI Assistant: Track model used in toolbar extension and AI excerpt features. [#43390]
 - Blank to-test.md for 14.7 release cycle. [#43436]
 - Blocks: Ensure there is enough time for styles to load, preventing console warnings. [#43003]
+- Blogging prompt: Make sure the block is registered before inserting. [#43603]
+- Blogging prompts: Fix for Simple sites. [#43597]
+- Dashboard: Ensure links labeled as external links open in a new tab. [#43685]
 - Donations block: Bring back `@automattic/format-currency` temporarily. [#43405]
 - Donations block: Ensure links in modal use the External Link indicator. [#43402]
+- E2E: Update onboarding tests. [#43592]
+- E2E Tests: Update config file encryption algorithm. [#43523]
 - Endpoints: Prevent PHP warnings when using the update post endpoint without keys. [#43404]
+- Endpoints: Prevent warnings in error logs due to undefined values. [#43570]
+- Featured Content: Prevent error if invalid taxonomy data is provided. [#43553]
 - Fix My Jetpack onboarding E2E tests. [#43370]
 - Forms: Improve Success and Email messages. [#43380]
+- Forms: Update dependency on packages/admin_ui. [#43295]
+- Janitorial: Ensure functionality related to WoA site checking is clearer. [#43481]
+- Load a script that injects the tokens needed to enable Chrome's built-in AI API. [#43682]
 - Migrate `numberFormat()` to `number-formatters` package. [#42864]
+- Mitigate bug with certain P2 themes. [#43503]
+- Newsletter: Update "Set Up" button to show "Add Plans" or "Manage Plans" depending on the plans configuration. [#43694]
+- Post Images: Prevent undefined variable and key warnings. [#43548]
+- Protect against improper calls to `the_title()` filter. [#43511]
+- Reader: Fix paywall styling on Reader and improve few other styles. [#43642]
+- Reader: Update paywall messages for restricted content. [#43637]
+- Repeat Visitor block: Use stabilized role attribute in test file. [#43472]
+- Shortcodes: Prevent malformed gist URLs. [#43753]
 - Site Logo: Prevent PHP fatal when third-party code passes unexpected content to `option_site_logo` filter. [#43432]
 - Stable release management: Do not ship source files. [#43310]
+- Stats: Remove deprecated `stats_update_blog` method. [#43493]
 - Subscriptions: Fix newsletter JavaScript string extraction. [#43403]
 - Subscriptions: Load newsletter JavaScript translations. [#43423]
+- Theme Compatibility: Prevent warning when custom color value isn't set. [#43520]
 - Update color on Upsell button to WordPress Blue. [#43406]
-- Update package dependencies. [#43400]
+- Updated default cookie expiration from 30000000 to YEAR_IN_SECONDS to match recent WordPress Core changes. [#43715]
+- Update package dependencies. [#43398] [#43400] [#43425] [#43516] [#43557] [#43572] [#43578] [#43710] [#43711] [#43712]
+- Update to-test.md for Jetpack 14.7. [#43621]
 - Use `formatCurrency()` and `getCurrencyObject()` functions from the `@automattic/number-formatters` package. [#42796]
 
 ## 14.6 - 2025-05-06

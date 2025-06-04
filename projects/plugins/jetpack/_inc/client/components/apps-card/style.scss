@@ -1,5 +1,6 @@
 @use '../../scss/functions/rem';
-@import '../../scss/mixins/ui';
+@use '../../scss/mixins/ui';
+@use "../../scss/mixins/breakpoints";
 
 .jp-apps-card {
 	margin-top: rem.convert( 24px );
@@ -8,7 +9,7 @@
 
 .jp-apps-card__content {
 
-	@include dashboard-card-shadow;
+	@include ui.dashboard-card-shadow;
 
 	display: flex;
 	justify-content: space-between;
@@ -40,7 +41,7 @@
 		}
 	}
 
-	@include breakpoint( '<782px' ) {
+	@include breakpoints.breakpoint( '<782px' ) {
 		flex-direction: column;
 
 		.jp-apps-card__description {
@@ -115,7 +116,7 @@
 	justify-content: center;
 	align-items: center;
 
-	@include breakpoint( '<480px' ) {
+	@include breakpoints.breakpoint( '<480px' ) {
 
 		.apps-badge:first-child {
 			margin-right: 0;

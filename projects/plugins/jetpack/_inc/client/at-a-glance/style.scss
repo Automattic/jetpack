@@ -2,7 +2,11 @@
 // For more precise styles, dig into the styles of each component. ie. dash-item
 @use 'sass:color';
 @use '../scss/functions/rem';
-@import '../scss/calypso-colors';
+@use '../scss/calypso-colors';
+@use "../scss/mixins/breakpoints";
+@use "../scss/mixins/ui";
+@use "../scss/typography";
+@use "../scss/variables/colors";
 
 .jp-at-a-glance {
 	margin-bottom: rem.convert( 48px );
@@ -27,7 +31,7 @@
 	}
 
 	.dops-button .dashicons-no {
-		color: $black;
+		color: colors.$black;
 	}
 
 	.dops-banner__title {
@@ -58,11 +62,11 @@
 .jp-at-a-glance__stats-card {
 	padding: 0;
 
-	@include dashboard-card-shadow;
+	@include ui.dashboard-card-shadow;
 	margin-bottom: 24px;
 
 	.jp-link-button {
-		background: $white;
+		background: colors.$white;
 		border: none;
 		padding: 2px 0;
 	}
@@ -71,7 +75,7 @@
 .dops-banner__content {
 
 	.jp-link-button {
-		background: $white;
+		background: colors.$white;
 		border: none;
 		font-size: 0.75rem;
 		padding: 1px 0;
@@ -83,15 +87,15 @@
 	margin-bottom: 0;
 
 	p {
-		font-size: $font-body-small;
-		color: $gray-80;
+		font-size: typography.$font-body-small;
+		color: calypso-colors.$gray-80;
 	}
 }
 
 .jp-at-a-glance__stats-inactive {
 	padding: rem.convert( 16px );
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( '>660px' ) {
 		display: flex;
 		flex-wrap: nowrap;
 		flex-direction: row;
@@ -104,16 +108,16 @@
 	display: flex;
 	flex-grow: 0;
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( '<660px' ) {
 		display: none;
 	}
 }
 
 .jp-at-a-glance__stats-inactive-text {
-	font-size: $font-body-small;
+	font-size: typography.$font-body-small;
 	line-height: 1.5;
 	letter-spacing: -0.3px;
-	color: $gray-80;
+	color: calypso-colors.$gray-80;
 	flex-grow: 1;
 
 	h3 {
@@ -122,14 +126,14 @@
 		font-weight: 700;
 		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 136%;
-		color: $black;
+		color: colors.$black;
 	}
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( '<660px' ) {
 		padding: 0 0 rem.convert( 16px );
 	}
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( '>660px' ) {
 		flex-basis: 50%;
 		padding: 0 rem.convert( 16px );
 	}
@@ -140,15 +144,15 @@
 
 	button.dops-button.is-primary {
 		padding: 4px 20px;
-		font-size: $font-body-small;
+		font-size: typography.$font-body-small;
 
 		&:focus {
-			border: 1px solid $white;
-			box-shadow: 0 0 0 1px $black;
+			border: 1px solid colors.$white;
+			box-shadow: 0 0 0 1px colors.$black;
 		}
 	}
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( '>660px' ) {
 		flex-grow: 0;
 		margin-left: 64px;
 	}
@@ -169,8 +173,8 @@
 .jp-at-a-glance__stats-bottom {
 	margin: rem.convert( 8px ) 0 0;
 
-	@include breakpoint( '<480px' ) {
-		box-shadow: 0 0 0 1px $light-gray-700;
+	@include breakpoints.breakpoint( '<480px' ) {
+		box-shadow: 0 0 0 1px calypso-colors.$light-gray-700;
 	}
 }
 
@@ -203,13 +207,13 @@
 .jp-at-a-glance__stats-summary {
 	text-align: center;
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( '>660px' ) {
 		flex-wrap: nowrap;
 		display: flex;
 		flex-direction: row;
 	}
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( '<660px' ) {
 		display: block;
 	}
 }
@@ -227,7 +231,7 @@
 	border-style: solid;
 	border-color: #DCDCDE;
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( '<660px' ) {
 		margin-top: rem.convert( -1px );
 	}
 }
@@ -237,7 +241,7 @@
 	border-style: solid;
 	border-color: #DCDCDE;
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( '>660px' ) {
 		margin: 0 rem.convert( 1px );
 	}
 }
@@ -258,7 +262,7 @@
 .jp-at-a-glance__stats-summary-alltime-views,
 .jp-at-a-glance__stats-summary-alltime-comments {
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( '<660px' ) {
 		margin-top: rem.convert( 1px );
 	}
 }
@@ -266,36 +270,36 @@
 .jp-at-a-glance__stats-cta {
 	padding: rem.convert( 12px );
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( '>660px' ) {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
 		align-items: center;
 	}
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( '<660px' ) {
 		display: block;
 	}
 }
 
 .jp-at-a-glance__stats-cta-description {
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( '>660px' ) {
 		flex-basis: 30%;
 	}
 }
 
 .jp-at-a-glance__stat-details {
 	margin: 0;
-	font-size: $font-body;
+	font-size: typography.$font-body;
 	line-height: 24px;
-	color: $gray-80;
+	color: calypso-colors.$gray-80;
 	letter-spacing: -0.02em;
 }
 
 .jp-at-a-glance__stat-number {
-	color: $black;
-	font-size: $font-title-small;
+	color: colors.$black;
+	font-size: typography.$font-title-small;
 	line-height: 30px;
 	font-weight: 500;
 	margin: rem.convert( 6px ) 0 rem.convert( 4px );
@@ -307,12 +311,12 @@
 	align-items: center;
 	justify-content: flex-end;
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( '>660px' ) {
 		text-align: right;
 		flex-basis: 70%;
 	}
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( '<660px' ) {
 		text-align: center;
 		flex-direction: column;
 
@@ -348,7 +352,7 @@
 		outline: 0;
 	}
 
-	@include breakpoint('<480px') {
+	@include breakpoints.breakpoint('<480px') {
 		margin-left: 0;
 		margin-right: rem.convert(16px);
 	}
@@ -356,7 +360,7 @@
 	.jp-at-a-glance__stats-view-link,
 	.jp-at-a-glance__stats-view-link:hover,
 	.jp-at-a-glance__stats-view-link:visited {
-		color: $gray-60;
+		color: calypso-colors.$gray-60;
 		text-decoration: none;
 		font-size: 16px;
 		line-height: 24px;
@@ -366,10 +370,10 @@
 		&.is-current,
 		&:visited.is-current,
 		&:focus.is-current {
-			color: $black;
+			color: colors.$black;
 			text-decoration: none;
 			padding-bottom: rem.convert(11px);
-			border-bottom: 2px solid $black;
+			border-bottom: 2px solid colors.$black;
 		}
 	}
 }
@@ -383,7 +387,7 @@
 .jp-at-a-glance__item-grid {
 	display: flex;
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( '<660px' ) {
 		display: block; // don't need flexbox on smaller screens
 	}
 }
@@ -393,12 +397,12 @@
 	display: flex;
 	min-width: 0;
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( '>660px' ) {
 		flex-basis: 50%;
 		margin-bottom: rem.convert( 16px );
 	}
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( '<660px' ) {
 		margin-bottom: rem.convert( 12px );
 	}
 
@@ -432,7 +436,7 @@
 				margin-left: 0;
 				padding-left: 0;
 
-				@include breakpoint( '<480px' ) {
+				@include breakpoints.breakpoint( '<480px' ) {
 					text-transform: none;
 				}
 			}
@@ -451,7 +455,7 @@
 .jp-at-a-glance__left {
 	display: flex;
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( '>660px' ) {
 		margin-right: rem.convert( 16px );
 
 		&:last-child {
@@ -477,8 +481,8 @@
 .jp-connection-settings__text {
 	margin-left: rem.convert( 16px );
 	word-break: break-word;
-	color: $gray-80;
-	font-size: $font-body-small;
+	color: calypso-colors.$gray-80;
+	font-size: typography.$font-body-small;
 	line-height: 24px;
 	letter-spacing: -0.02em;
 
@@ -505,7 +509,7 @@
 	.jp-connection-settings__gravatar {
 		display: inline-block;
 		min-width: rem.convert( 64px );
-		background: $gray;
+		background: colors.$gray;
 		border-radius: 50%;
 		margin-bottom: 0;
 	}
@@ -515,7 +519,7 @@
 	max-width: 635px;
 	min-height: 400px;
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( '>660px' ) {
 		min-height: auto;
 	}
 }
@@ -523,33 +527,33 @@
 .jp-connection-settings__modal-body {
 	margin: 0;
 	padding: rem.convert( 24px ) rem.convert( 32px );
-	font-size: $font-body-small;
-	color: $blue-dark-text;
+	font-size: typography.$font-body-small;
+	color: colors.$blue-dark-text;
 	text-align: center;
 
 	h2 {
 		margin: rem.convert( 32px ) 0 rem.convert( 24px );
-		font-size: $font-title-large;
+		font-size: typography.$font-title-large;
 		font-weight: 300;
-		color: $blue-dark-text;
+		color: colors.$blue-dark-text;
 	}
 
 	h4 {
 		margin: rem.convert( 16px ) rem.convert( 24px ) 0;
-		font-size: $font-body;
+		font-size: typography.$font-body;
 		font-weight: 400;
 		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 1.5em;
-		color: $blue-heading;
+		color: colors.$blue-heading;
 	}
 
 	p {
-		font-size: $font-body-small;
+		font-size: typography.$font-body-small;
 	}
 
 	ul {
 		margin: rem.convert( 24px ) 0 rem.convert( 36px );
-		color: $blue-text;
+		color: colors.$blue-text;
 	}
 
 	li {
@@ -557,11 +561,11 @@
 		display: block;
 		margin: 0;
 		padding: rem.convert( 16px ) rem.convert( 8px ) rem.convert( 16px ) rem.convert( 44px );
-		border-bottom: 1px solid color.adjust( $gray, $lightness: 25% );
+		border-bottom: 1px solid color.adjust( colors.$gray, $lightness: 25% );
 		text-align: left;
 
 		&:first-of-type {
-			border-top: 1px solid color.adjust( $gray, $lightness: 25% );
+			border-top: 1px solid color.adjust( colors.$gray, $lightness: 25% );
 		}
 	}
 
@@ -570,7 +574,7 @@
 		left: rem.convert( 16px );
 		top: rem.convert( 16px );
 		vertical-align: text-bottom;
-		color: $blue-text;
+		color: colors.$blue-text;
 	}
 }
 
@@ -579,7 +583,7 @@
 }
 
 .jp-connection-settings__modal-more a {
-	color: $blue-wordpress;
+	color: colors.$blue-wordpress;
 	text-decoration: underline;
 }
 
@@ -625,11 +629,11 @@ a.jp-dash-item__manage-in-wpcom,
 	&, &:active, &:visited, &:hover, &:focus {
 		cursor: pointer;
 		font-weight: 400;
-		font-size: $font-body-small;
+		font-size: typography.$font-body-small;
 		line-height: 24px;
 		letter-spacing: -0.02em;
 		text-decoration: underline;
-		color: $black;
+		color: colors.$black;
 
 		&:hover {
 			text-decoration-thickness: 3px;
@@ -647,18 +651,18 @@ a.jp-dash-item__manage-in-wpcom,
 .jp-connection-settings__actions a {
 
 	&, &:active, &:visited, &:hover, &:focus {
-		color: $gray-80;
+		color: calypso-colors.$gray-80;
 	}
 }
 
 .jp-dash-item.dash-backups {
 
-	@include dashboard-card-shadow;
+	@include ui.dashboard-card-shadow;
 
 	.dops-section-header {
 		box-shadow: none;
 		border: 0;
-		border-bottom: 1px solid $gray-5;
+		border-bottom: 1px solid calypso-colors.$gray-5;
 		margin: 0;
 	}
 
@@ -670,14 +674,14 @@ a.jp-dash-item__manage-in-wpcom,
 	.dops-banner {
 		box-shadow: none;
 		border: 0;
-		border-top: 1px solid $gray-5;
+		border-top: 1px solid calypso-colors.$gray-5;
 	}
 
 	.dash-backup-undo {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		border-bottom: 1px solid $gray-5;
+		border-bottom: 1px solid calypso-colors.$gray-5;
 	}
 
 	.dash-backup-undo__activity-log {
@@ -688,7 +692,7 @@ a.jp-dash-item__manage-in-wpcom,
 		font-size: 0.75rem;
 
 		.dash-backup-undo__activity-log-date {
-			color: $gray-60;
+			color: calypso-colors.$gray-60;
 		}
 
 		.dash-backup-undo__activity-log-action,
@@ -698,12 +702,12 @@ a.jp-dash-item__manage-in-wpcom,
 		}
 
 		.dash-backup-undo__activity-log-action {
-			font-size: $font-body;
+			font-size: typography.$font-body;
 			font-weight: 600;
 		}
 
 		.dash-backup-undo__activity-log-description {
-			font-size: $font-body-small;
+			font-size: typography.$font-body-small;
 		}
 
 		.dash-backup-undo__activity-log-user-meta {
@@ -729,7 +733,7 @@ a.jp-dash-item__manage-in-wpcom,
 	}
 
 	.dash-backup-undo__cta svg {
-		fill: $white;
+		fill: colors.$white;
 		position: relative;
 		top: 5px;
 		margin-top: -6px;
@@ -740,7 +744,7 @@ a.jp-dash-item__manage-in-wpcom,
 
 	.dops-banner {
 		margin-bottom: 0;
-		border-top: 1px solid $gray-5;
+		border-top: 1px solid calypso-colors.$gray-5;
 	}
 }
 

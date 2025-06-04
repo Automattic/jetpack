@@ -1,4 +1,4 @@
-@import "../../shared/styles/align";
+@use "../../shared/styles/align";
 // Hide the link if an iframe got appended to the container.
 .eventbrite__direct-link:not(:only-child) {
 	display: none;
@@ -74,6 +74,6 @@
 
 	.wp-block-jetpack-button {
 
-		@include align-block;
+		@include align.align-block;
 	}
 }

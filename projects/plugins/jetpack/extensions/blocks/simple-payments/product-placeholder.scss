@@ -1,5 +1,5 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@import '../../shared/styles/jetpack-variables';
+@use '../../shared/styles/jetpack-variables';
 
 .simple-payments__loading {
 	animation: simple-payments-loading 1600ms ease-in-out infinite;
@@ -21,12 +21,12 @@
 }
 
 .jetpack-simple-payments-wrapper {
-	margin-bottom: $jetpack-block-margin-bottom;
+	margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 }
 
 /* Higher specificity in order to reset paragraph style */
 body .jetpack-simple-payments-wrapper .jetpack-simple-payments-details p {
-	margin: 0 0 $jetpack-block-margin-bottom;
+	margin: 0 0 jetpack-variables.$jetpack-block-margin-bottom;
 	padding: 0;
 }
 
@@ -41,7 +41,7 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-details p {
 
 .jetpack-simple-payments-product-image {
 	flex: 0 0 30%;
-	margin-bottom: $jetpack-block-margin-bottom;
+	margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 }
 
 .jetpack-simple-payments-image {

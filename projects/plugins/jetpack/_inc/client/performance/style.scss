@@ -1,5 +1,5 @@
 @use '../scss/functions/rem';
-@import '../scss/calypso-colors';
+@use '../scss/calypso-colors';
 
 .jp-form-settings-group .jp-form-shortcode-setting-explanation {
 	margin-left: 60px;
@@ -18,7 +18,7 @@
 
 
 .media__videopress-upgrade {
-	border-top: 1px solid $gray-5;
+	border-top: 1px solid calypso-colors.$gray-5;
 
 	&.dops-banner.dops-card.is-product {
 		border-left: none;

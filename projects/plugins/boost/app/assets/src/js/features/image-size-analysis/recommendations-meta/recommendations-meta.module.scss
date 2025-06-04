@@ -1,4 +1,4 @@
-@import "$css/main/variables";
+@use "$css/main/variables";
 
 .summary-line {
 	font-size: 14px;
@@ -15,7 +15,7 @@
 	button {
 
 		svg {
-			fill: $jetpack-green;
+			fill: variables.$jetpack-green;
 		}
 
 		@media (max-width: 600px) {
@@ -28,7 +28,7 @@
 	margin-right: 5px;
 	flex-grow: 1;
 	position: relative;
-	color: $jetpack-green;
+	color: variables.$jetpack-green;
 }
 
 .has-issues {
@@ -64,8 +64,8 @@
 	align-items: center;
 	padding: 16px 24px;
 	margin: 32px 0;
-	border: 2px solid $jetpack-green;
-	border-radius: $border-radius;
+	border: 2px solid variables.$jetpack-green;
+	border-radius: variables.$border-radius;
 	background-color: #fff;
 	text-align: left;
 }

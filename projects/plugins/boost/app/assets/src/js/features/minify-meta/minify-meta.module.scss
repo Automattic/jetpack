@@ -1,5 +1,5 @@
-@import "$css/main/variables";
-@import "$css/main/mixins";
+@use "$css/main/variables";
+@use "$css/main/mixins";
 
 .wrapper {
 	font-size: 14px;
@@ -20,7 +20,7 @@
 		font-size: 14px;
 		line-height: 22px;
 
-		@include breakpoint(xs) {
+		@include mixins.breakpoint(xs) {
 			display: block;
 		}
 	}
@@ -62,11 +62,11 @@
 		width: 100%;
 		padding: 10px;
 		border-radius: 4px;
-		border: 1px solid $gray_10;
+		border: 1px solid variables.$gray_10;
 	}
 
 	.edit-button svg {
-		fill: $jetpack-green;
+		fill: variables.$jetpack-green;
 	}
 
 	.sub-header {

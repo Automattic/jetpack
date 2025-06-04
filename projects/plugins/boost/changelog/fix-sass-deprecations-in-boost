@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix sass deprecation warnings. No changes to built CSS.
+
+

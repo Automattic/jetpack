@@ -1,7 +1,8 @@
 import { buildChartTheme } from '@visx/xychart';
-import { createContext, useContext, useMemo, FC, type ReactNode } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { defaultTheme } from './themes';
 import type { ChartTheme, SeriesData } from '../../types';
+import type { FC, ReactNode } from 'react';
 
 /**
  * Context for sharing theme configuration across components
