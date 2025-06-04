@@ -1689,9 +1689,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$form_style = $this->get_form_style();
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
-			if ( ! isset( $placeholder ) || '' === $placeholder ) {
-				$placeholder .= ' ';
-			} else {
+			if ( isset( $placeholder ) && '' !== $placeholder ) {
 				$class .= ' has-placeholder';
 			}
 		}
@@ -1723,7 +1721,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$block_style       = 'style="' . $this->block_styles . '"';
 		$has_inset_label   = $this->has_inset_label();
 		$field             = '';
-		$field_placeholder = ( '' !== $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
+		$field_placeholder = "placeholder='" . esc_attr( $placeholder ) . "'";
 
 		// Fields with an inset label need an extra wrapper to show the error message below the input.
 		if ( $has_inset_label ) {
