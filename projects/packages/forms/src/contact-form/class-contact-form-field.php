@@ -1721,7 +1721,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$block_style       = 'style="' . $this->block_styles . '"';
 		$has_inset_label   = $this->has_inset_label();
 		$field             = '';
-		$field_placeholder = "placeholder='" . esc_attr( $placeholder ) . "'";
+		$field_placeholder = ! empty( $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 
 		// Fields with an inset label need an extra wrapper to show the error message below the input.
 		if ( $has_inset_label ) {
