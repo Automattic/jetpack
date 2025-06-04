@@ -1248,13 +1248,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			 */
 			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . '>';
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
 
 		if ( ! $is_outlined_style ) {
-			$field .= "<div class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
+			$field .= "<div class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . '>';
 		}
 
 		$options_data  = $this->get_attribute( 'optionsdata' );
