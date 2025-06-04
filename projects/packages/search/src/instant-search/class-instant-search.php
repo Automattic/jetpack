@@ -397,8 +397,7 @@ class Instant_Search extends Classic_Search {
 	}
 
 	/**
-	 * Add JP Search widget on top of theme sidebar.
-	 * Or Replace core search widget in theme sidebar if exists.
+	 * Replace core search widget in theme sidebar if exists.
 	 */
 	public function auto_config_non_fse_theme_sidebar_search_widget() {
 		$sidebars = get_option( 'sidebars_widgets', array() );
@@ -424,8 +423,8 @@ class Instant_Search extends Classic_Search {
 			// Replace core search widget with JP search widget.
 			$sidebars[ self::AUTO_CONFIG_SIDEBAR ][ $sidebar_searchbox_idx ] = Helper::build_widget_id( $next_id );
 		} else {
-			// Add JP Search widget to top.
-			array_unshift( $sidebars[ self::AUTO_CONFIG_SIDEBAR ], Helper::build_widget_id( $next_id ) );
+			// No core search widget found, so we don't need to replace anything.
+			return true;
 		}
 
 		update_option( $widget_opt_name, $widget_options );
