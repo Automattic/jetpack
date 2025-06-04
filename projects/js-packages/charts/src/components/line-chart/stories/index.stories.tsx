@@ -325,3 +325,27 @@ SmartFormatting.parameters = {
 		},
 	},
 };
+
+export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
+BrokenLine.args = {
+	...Default.args,
+	data: [
+		{
+			...webTrafficData[ 0 ],
+			label: 'Vistors to compare',
+			options: {
+				...webTrafficData[ 0 ].options,
+				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
+			},
+		},
+		webTrafficData[ 1 ],
+	],
+};
+
+BrokenLine.parameters = {
+	docs: {
+		description: {
+			story: 'Demonstrates the option of setting a seriesLineStyle to a dash array.',
+		},
+	},
+};

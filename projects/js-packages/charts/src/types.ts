@@ -27,6 +27,7 @@ export type SeriesData = {
 	options?: {
 		gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
 		stroke?: string;
+		seriesLineStyle?: LineStyles;
 	};
 };
 
