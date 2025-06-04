@@ -1,6 +1,6 @@
 import { Text } from '@automattic/jetpack-components';
 import { CONNECTION_STORE_ID, ManageConnectionDialog } from '@automattic/jetpack-connection';
-import { currentUserCan } from '@automattic/jetpack-script-data';
+import { currentUserCan, isWoASite } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -118,7 +118,11 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 
 	const state = useConnectionState();
 
-	const allowDisconnect = currentUserCan( 'manage_options' ) || isUserConnected;
+	// Prevent opening dialog for WoA sites when user is connection owner
+	const isConnectionOwner = userConnectionData.currentUser?.isMaster;
+	const shouldPreventDialog = isWoASite() && isConnectionOwner;
+	const allowDisconnect =
+		( currentUserCan( 'manage_options' ) || isUserConnected ) && ! shouldPreventDialog;
 
 	return (
 		<section className={ styles[ 'connection-status-card' ] }>
