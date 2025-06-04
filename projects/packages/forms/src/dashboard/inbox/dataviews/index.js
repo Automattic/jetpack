@@ -34,7 +34,7 @@ import {
 	deleteAction,
 	restoreAction,
 } from './actions';
-import { LAYOUT_TABLE, LAYOUT_LIST, useView, defaultLayouts } from './views';
+import { LAYOUT_LIST, useView, defaultLayouts } from './views';
 
 const EMPTY_ARRAY = [];
 const EMPTY_OBJECT = {};
@@ -170,7 +170,7 @@ export default function InboxView() {
 	const onChangeSelection = useCallback(
 		items => {
 			setSelection( items );
-			if ( view.type === 'list' && ! isMobile ) {
+			if ( view.type === LAYOUT_LIST && ! isMobile ) {
 				setSidePanelItem(
 					!! items?.length &&
 						data?.find( record => getItemId( record ) === items[ items.length - 1 ] )
@@ -285,19 +285,20 @@ export default function InboxView() {
 					const selectedId = item.id.toString();
 					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
 					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+					/*
 					if ( view.type === LAYOUT_TABLE ) {
 						setView( {
 							...view,
-							titleField: 'from', // TODO should not be here
 							type: LAYOUT_LIST,
 						} );
 					}
+					*/
 					setSidePanelItem( item );
 				},
 			} );
 		}
 		return _actions;
-	}, [ isMobile, onChangeSelection, selection, setView, view ] );
+	}, [ isMobile, onChangeSelection, selection ] );
 
 	const onChangeView = useCallback(
 		newView => {

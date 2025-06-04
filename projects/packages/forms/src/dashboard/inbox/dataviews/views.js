@@ -9,19 +9,18 @@ export const LAYOUT_TABLE = 'table';
 export const LAYOUT_LIST = 'list';
 
 const defaultView = {
-	type: LAYOUT_TABLE,
+	type: LAYOUT_LIST,
 	search: '',
 	filters: [],
 	page: 1,
 	perPage: 20,
-	fields: [ 'from', 'date', 'source' ],
+	titleField: 'from',
+	fields: [ 'date', 'source' ],
 };
 
 export const defaultLayouts = {
+	[ LAYOUT_LIST ]: {},
 	[ LAYOUT_TABLE ]: {},
-	[ LAYOUT_LIST ]: {
-		titleField: 'from', // TODO should not be here
-	},
 };
 
 /**
