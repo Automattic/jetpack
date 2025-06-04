@@ -44,17 +44,19 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.5.0 - 2025-04-03
-#### Added
-- Add Account Protection initialization.
-- Connection: Disconnect all other users before disconnecting connection owner account.
-- Components: Export the `getRedirectUrl` function with subpath.
-
+### 0.6.0 - 2025-06-04
 #### Changed
-- Code: Use function-style `exit()` and `die()` with a default status code of 0.
-- Connection: Allow pre-selected login providers.
-- Connection: Display connection status on Users page independent of the SSO module.
-- General: Indicate compatibility with WordPress 6.8.
-- Update dependencies.
-- Updated package dependencies.
+- Code: First pass of style coding standards.
+- Dashboard: Mark external link as external.
+- E2E Tests: Update config file encryption algorithm.
+- Update package dependencies.
+
+#### Removed
+- General: Update minimum WordPress version to 6.7.
+
+#### Fixed
+- Block editor: Fix layout issues with the Media Library modal buttons.
+- Code: Update stylesheets to use hex instead of named colors.
+- Linting: Do additional stylesheet cleanup.
+- Resolve parsing error that was resulting in a blank page.
 
