@@ -171,6 +171,7 @@ class Help_Center {
 					array(
 						'isProxied'   => boolval( self::is_proxied() ),
 						'isSU'        => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
+						'isSSP'       => isset( $_COOKIE['ssp'] ),
 						'currentUser' => array(
 							'ID'           => $user_id,
 							'username'     => $username,
