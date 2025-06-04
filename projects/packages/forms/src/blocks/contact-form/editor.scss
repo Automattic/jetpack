@@ -364,8 +364,8 @@
 		margin-bottom: 0;
 	}
 
-	&.jetpack-field-checkbox .jetpack-field-checkbox__checkbox,
-	&.jetpack-field-consent .jetpack-field-consent__checkbox {
+	&.jetpack-field-checkbox .jetpack-field-option__checkbox,
+	&.jetpack-field-consent .jetpack-field-option__checkbox {
 		margin: 0 0.75rem 0 0;
 		border-color: currentColor;
 		opacity: 1;
