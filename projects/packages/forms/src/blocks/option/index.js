@@ -60,7 +60,7 @@ const settings = {
 		},
 	},
 	usesContext: [
-		'jetpack/field-defaultValue',
+		'jetpack/field-default-value',
 		'jetpack/field-options-type',
 		'jetpack/field-required',
 		'jetpack/field-share-attributes',

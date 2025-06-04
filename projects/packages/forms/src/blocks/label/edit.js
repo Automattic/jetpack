@@ -67,9 +67,9 @@ const WithNotchedWrapper = ( { formStyle, styles, cssVars, className, children }
 
 const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => {
 	const {
-		'jetpack/form-className': formClassName,
+		'jetpack/form-class-name': formClassName,
 		'jetpack/field-required': required,
-		'jetpack/field-dateFormat': dateFormat,
+		'jetpack/field-date-format': dateFormat,
 		'jetpack/field-share-attributes': isSynced,
 	} = context;
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
