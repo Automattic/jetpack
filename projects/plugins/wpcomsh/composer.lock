@@ -8,23 +8,23 @@
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "v2.0.2",
+            "version": "v2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "113461a854d3d6551c173ca4c02dbc901bbefd27"
+                "reference": "f3564cdc408f5354cfd70ce66ac131c891831a33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/113461a854d3d6551c173ca4c02dbc901bbefd27",
-                "reference": "113461a854d3d6551c173ca4c02dbc901bbefd27",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/f3564cdc408f5354cfd70ce66ac131c891831a33",
+                "reference": "f3564cdc408f5354cfd70ce66ac131c891831a33",
                 "shasum": ""
             },
             "type": "wordpress-plugin",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2024-06-06T16:58:27+00:00"
+            "time": "2025-06-04T10:44:48+00:00"
         },
         {
             "name": "automattic/custom-fonts",
