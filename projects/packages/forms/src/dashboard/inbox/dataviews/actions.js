@@ -211,7 +211,6 @@ export const moveToTrashAction = {
 	label: __( 'Move to trash', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'trash',
 	supportsBulk: true,
-	isPrimary: true,
 	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
