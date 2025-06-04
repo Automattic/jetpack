@@ -15,7 +15,6 @@ use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\PayPal_Payments;
 use Jetpack_Components;
 use Jetpack_Currencies;
-use Jetpack_Options;
 use WP_Post;
 
 /**
@@ -77,10 +76,7 @@ class Simple_Payments {
 	 */
 	public static function get_instance() {
 		// Check for required dependencies
-		if ( ! class_exists( 'Jetpack_Components' )
-			|| ! class_exists( 'Jetpack_Currencies' )
-			|| ! class_exists( 'Jetpack_Options' )
-			|| ! function_exists( 'jetpack_is_frontend' )
+		if ( ! class_exists( 'Jetpack_Components' ) || ! class_exists( 'Jetpack_Currencies' )
 		) {
 			return null;
 		}
@@ -211,7 +207,7 @@ class Simple_Payments {
 			return get_current_blog_id();
 		}
 
-		return Jetpack_Options::get_option( 'id' );
+		return get_option( 'jetpack_id' );
 	}
 
 	/**
