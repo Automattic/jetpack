@@ -744,11 +744,14 @@ HTML;
 
 			$loc_id = esc_js( $loc_id );
 
+			// Determine supported Gutenberg format by width and height.
 			$format = WordAds_Formats::get_format_slug( (int) $width, (int) $height );
 			if ( $format === '' ) {
-				return '';
+				return ''; // When format is not supported, ignore placement.
 			}
 
+			// For a while return elements for both IPONWEB (__ATA) and Aditude (tudeMappings).
+			// We will remove using IPONWEB after partnership termination on June 30, 2025.
 			return <<<HTML
 			<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
 				<div id="atatags-{$ad_number}">
@@ -762,15 +765,13 @@ HTML;
 							height: {$height}
 						});
 					});
-					if ( '{$format}' !== '' ) {
-						window.tudeMappings = window.tudeMappings || [];
-						window.tudeMappings.push( {
-							divId: 'atatags-{$ad_number}',
-							format: '{$format}',
-							width: {$width},
-							height: {$height},
-						} );
-					}
+					window.tudeMappings = window.tudeMappings || [];
+					window.tudeMappings.push( {
+						divId: 'atatags-{$ad_number}',
+						format: '{$format}',
+						width: {$width},
+						height: {$height},
+					} );
 					</script>
 				</div>
 			</div>
