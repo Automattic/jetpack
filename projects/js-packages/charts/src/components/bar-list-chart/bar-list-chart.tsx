@@ -16,39 +16,39 @@ interface BarListChartProps
 	extends Exclude< BarChartProps, 'orientation' | 'size' | 'gridVisibility' > {
 	options?: {
 		/**
-		 * Scale for the y axis
+		 * Scale for the y axis. Exclude the type property.
 		 */
 		yScale: Omit< ScaleOptions, 'type' >;
 		/**
-		 * Scale for the x axis
+		 * Scale for the x axis. Exclude the type property.
 		 */
 		xScale: Omit< ScaleOptions, 'type' >;
 		/**
-		 * Formatter for the label
+		 * Formatter for the label.
 		 */
 		labelFormatter?: ( value: string ) => string;
 		/**
-		 * Formatter for the value
+		 * Formatter for the value.
 		 */
 		valueFormatter?: ( value: number ) => string;
 		/**
-		 * y offset of the label and value
+		 * y offset of the label and value. Default is based on the number of series, automatically computed.
 		 */
 		yOffset?: number;
 		/**
-		 * x position of the label
+		 * x position of the label.
 		 */
 		labelPosition?: number;
 		/**
-		 * x position of the value
+		 * x position of the value.
 		 */
 		valuePosition?: number;
 		/**
-		 * Custom render function for the label
+		 * Custom render function for the label.
 		 */
 		labelComponent?: ComponentType< RenderLabelProps >;
 		/**
-		 * Custom render function for the value
+		 * Custom render function for the value.
 		 */
 		valueComponent?: ComponentType< RenderValueProps >;
 	};
