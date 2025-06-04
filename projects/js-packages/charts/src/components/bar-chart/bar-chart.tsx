@@ -125,8 +125,6 @@ const BarChart: FC< BarChartProps > = ( {
 					rows={ gridVisibility.includes( 'x' ) }
 					numTicks={ 4 }
 				/>
-				<AnimatedAxis { ...chartOptions.axis.x } />
-				<AnimatedAxis { ...chartOptions.axis.y } />
 
 				<AnimatedBarGroup padding={ chartOptions.barGroup.padding }>
 					{ data.map( seriesData => {
@@ -141,6 +139,9 @@ const BarChart: FC< BarChartProps > = ( {
 						);
 					} ) }
 				</AnimatedBarGroup>
+
+				<AnimatedAxis { ...chartOptions.axis.x } />
+				<AnimatedAxis { ...chartOptions.axis.y } />
 
 				{ withTooltips && (
 					<Tooltip
