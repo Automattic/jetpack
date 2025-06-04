@@ -60,6 +60,9 @@ export const settings = {
 		align: [ 'wide', 'full' ],
 	},
 	attributes: defaultAttributes,
+	providesContext: {
+		'jetpack/form-class-name': 'className',
+	},
 	edit,
 	save: () => {
 		const blockProps = useBlockProps.save();

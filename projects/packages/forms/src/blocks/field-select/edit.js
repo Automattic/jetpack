@@ -1,31 +1,70 @@
-import { RichText, useBlockProps } from '@wordpress/block-editor';
-import { compose } from '@wordpress/compose';
-import { useEffect, useRef } from '@wordpress/element';
+import {
+	RichText,
+	store as blockEditorStore,
+	useBlockProps,
+	useInnerBlocksProps,
+} from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
+import { useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { isEmpty, isNil, noop, split, trim } from 'lodash';
-import { getCaretPosition } from '../util/caret';
-import { setFocus } from '../util/focus';
-import { useFormStyle, useFormWrapper } from '../util/form';
-import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
-import JetpackFieldControls from './jetpack-field-controls';
-import JetpackFieldLabel from './jetpack-field-label';
-import { useJetpackFieldStyles } from './use-jetpack-field-styles';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls';
+import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import { getCaretPosition } from '../shared/util/caret';
+import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
+import setFocus from '../shared/util/set-focus';
 
-const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttributes } ) => {
-	const { id, label, options, required, requiredText, toggleLabel, width } = attributes;
-	const optionsWrapper = useRef( undefined );
-	const formStyle = useFormStyle( clientId );
+const noop = () => undefined;
+
+export default function DropdownFieldEdit( props ) {
+	const { attributes, clientId, isSelected, name, setAttributes } = props;
+	const { id, options, required, width } = attributes;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
+	const { isInnerBlockSelected, inputBlockAttributes } = useSelect(
+		select => {
+			const { getBlock, hasSelectedInnerBlock } = select( blockEditorStore );
+			return {
+				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
+				inputBlockAttributes: getBlock( clientId ).innerBlocks[ 1 ]?.attributes,
+			};
+		},
+		[ clientId ]
+	);
+
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-field-dropdown', {
-			'is-selected': isSelected,
-			'has-placeholder': ! isEmpty( toggleLabel ),
+			'is-selected': isSelected || isInnerBlockSelected,
+			'has-placeholder': !! inputBlockAttributes?.placeholder,
 		} ),
 		style: blockStyle,
 	} );
 
+	const optionsWrapper = useRef( undefined );
 	useFormWrapper( { attributes, clientId, name } );
+
+	const template = useMemo( () => {
+		return [
+			[ 'jetpack/label', { required } ],
+			[
+				'jetpack/input',
+				{ type: 'dropdown', placeholder: __( 'Select one option', 'jetpack-forms' ) },
+			],
+		];
+	}, [ required ] );
+
+	const innerBlocksProps = useInnerBlocksProps(
+		{ className: 'jetpack-field-dropdown__wrapper' },
+		{
+			allowedBlocks: ALLOWED_INNER_BLOCKS,
+			template,
+			templateLock: 'all',
+		}
+	);
+
+	const optionWrapperStyles = {
+		className: 'jetpack-field-dropdown__popover',
+	};
 
 	const changeFocus = ( index, cursorToEnd ) =>
 		setFocus( optionsWrapper.current, '[role=textbox]', index, cursorToEnd );
@@ -55,7 +94,7 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 	};
 
 	const handleChangeOption = index => value => {
-		const values = split( value, '\n' ).filter( op => op && trim( op ) !== '' );
+		const values = ( value || '' ).split( '\n' ).filter( op => op && op.trim() !== '' );
 
 		if ( ! values.length ) {
 			return;
@@ -104,44 +143,11 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 		changeFocus( Math.max( index - 1, 0 ), true );
 	};
 
-	useEffect( () => {
-		if ( isNil( label ) ) {
-			setAttributes( { label: '' } );
-		}
-
-		if ( isNil( toggleLabel ) ) {
-			setAttributes( { toggleLabel: __( 'Select one option', 'jetpack-forms' ) } );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
-
 	return (
 		<div { ...blockProps }>
-			<div className="jetpack-field-dropdown__wrapper">
-				<JetpackFieldLabel
-					required={ required }
-					requiredText={ requiredText }
-					label={ label }
-					attributes={ attributes }
-					setAttributes={ setAttributes }
-					isSelected={ isSelected }
-					style={ formStyle }
-				/>
-				<div className="jetpack-field-dropdown__toggle">
-					<RichText
-						value={ toggleLabel }
-						onChange={ value => {
-							setAttributes( { toggleLabel: value } );
-						} }
-						allowedFormats={ [ 'core/bold', 'core/italic' ] }
-						withoutInteractiveFormatting
-					/>
-					<span className="jetpack-field-dropdown__icon" />
-				</div>
-			</div>
-
-			{ isSelected && (
-				<div className="jetpack-field-dropdown__popover" ref={ optionsWrapper }>
+			<div { ...innerBlocksProps } />
+			{ ( isSelected || isInnerBlockSelected ) && (
+				<div ref={ optionsWrapper } { ...optionWrapperStyles }>
 					{ options.map( ( option, index ) => (
 						<RichText
 							key={ index }
@@ -162,25 +168,8 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
-				placeholder={ toggleLabel }
-				placeholderField="toggleLabel"
 				type="dropdown"
 			/>
 		</div>
 	);
-};
-
-export default compose(
-	withSharedFieldAttributes( [
-		'borderRadius',
-		'borderWidth',
-		'labelFontSize',
-		'fieldFontSize',
-		'lineHeight',
-		'labelLineHeight',
-		'inputColor',
-		'labelColor',
-		'fieldBackgroundColor',
-		'borderColor',
-	] )
-)( JetpackDropdown );
+}
