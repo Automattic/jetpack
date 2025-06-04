@@ -52,7 +52,6 @@ class Protected_Owner_Error_Handler {
 
 		// Add form prepopulation functionality
 		add_action( 'user_new_form', array( $this, 'prepopulate_user_form' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_form_scripts' ) );
 
 		// Disable WordPress.com invitations when creating protected owner accounts
 		add_filter( 'jetpack_sso_invite_new_users_wpcom', array( $this, 'disable_wpcom_invite_for_protected_owner' ) );
@@ -215,39 +214,25 @@ class Protected_Owner_Error_Handler {
 		<input type="hidden" name="jetpack_create_missing_account" value="1" />
 		
 		<script type="text/javascript">
-		(function($) {
-			$(document).ready(function() {
+		(function() {
+			document.addEventListener('DOMContentLoaded', function() {
 				// Prepopulate the email field and role
-				var email = $('#jetpack_prepopulate_email').val();
-				if (email) {
-					$('#email').val(email);
-					$('#role').val('administrator');
+				var emailInput = document.getElementById('jetpack_prepopulate_email');
+				if (emailInput && emailInput.value) {
+					var emailField = document.getElementById('email');
+					var roleField = document.getElementById('role');
+					
+					if (emailField) {
+						emailField.value = emailInput.value;
+					}
+					if (roleField) {
+						roleField.value = 'administrator';
+					}
 				}
 			});
-		})(jQuery);
+		})();
 		</script>
 		<?php
-	}
-
-	/**
-	 * Enqueue form scripts
-	 *
-	 * @param string $hook The current admin page hook.
-	 */
-	public function enqueue_form_scripts( $hook ) {
-		// Only load on user-new.php page
-		if ( 'user-new.php' !== $hook ) {
-			return;
-		}
-
-		// Only enqueue if we have an email to prepopulate
-		$email = $this->get_prepopulation_email();
-		if ( ! $email ) {
-			return;
-		}
-
-		// Enqueue jQuery (should already be available in admin)
-		wp_enqueue_script( 'jquery' );
 	}
 
 	/**

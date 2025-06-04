@@ -377,41 +377,6 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test enqueue_form_scripts only enqueues on user-new.php page.
-	 */
-	public function test_enqueue_form_scripts_only_on_user_new_page() {
-		$test_email = 'test@example.com';
-
-		// Set up URL parameters to ensure we have an email to prepopulate
-		$_GET['jetpack_protected_owner_email']  = $test_email;
-		$_GET['jetpack_create_missing_account'] = '1';
-
-		// Test with correct hook
-		$this->handler->enqueue_form_scripts( 'user-new.php' );
-		$this->assertTrue( wp_script_is( 'jquery', 'enqueued' ) );
-
-		// Reset
-		wp_dequeue_script( 'jquery' );
-
-		// Test with incorrect hook - should not enqueue
-		$this->handler->enqueue_form_scripts( 'plugins.php' );
-		$this->assertFalse( wp_script_is( 'jquery', 'enqueued' ) );
-
-		// Clean up
-		unset( $_GET['jetpack_protected_owner_email'] );
-		unset( $_GET['jetpack_create_missing_account'] );
-	}
-
-	/**
-	 * Test enqueue_form_scripts doesn't enqueue without email.
-	 */
-	public function test_enqueue_form_scripts_no_email() {
-		// Test without any email available
-		$this->handler->enqueue_form_scripts( 'user-new.php' );
-		$this->assertFalse( wp_script_is( 'jquery', 'enqueued' ) );
-	}
-
-	/**
 	 * Test prepopulate_user_form outputs expected HTML when email is available.
 	 */
 	public function test_prepopulate_user_form_with_email() {
@@ -431,8 +396,7 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'jetpack_prepopulate_email', $output );
 		$this->assertStringContainsString( 'jetpack_create_missing_account', $output );
 		$this->assertStringContainsString( 'text/javascript', $output );
-		$this->assertStringContainsString( '#email', $output );
-		$this->assertStringContainsString( '#role', $output );
+		$this->assertStringContainsString( 'getElementById', $output );
 		$this->assertStringContainsString( 'administrator', $output );
 
 		// Clean up
