@@ -41,13 +41,13 @@
 		// Prevent layout shifts during loading, by using serialized aspect ratio.
 		// These rules mimic the conditions in swiperResize() on swiper-callbacks.js.
 		&:not(.wp-swiper-initialized) .wp-block-jetpack-slideshow_swiper-wrapper {
-      aspect-ratio: max(min(var(--aspect-ratio), calc(16 / 9)), 1);
-      max-height: 80vh;
-    }
+			aspect-ratio: max(min(var(--aspect-ratio), calc(16 / 9)), 1);
+			max-height: 80vh;
+		}
 
-    // For older slideshows, where the aspect ratio wasn't serialized,
-    // we can partially mitigate layout shifts during loading.
-    // Since the aspect ratio is always calculated based on the first slide,
+		// For older slideshows, where the aspect ratio wasn't serialized,
+		// we can partially mitigate layout shifts during loading.
+		// Since the aspect ratio is always calculated based on the first slide,
 		// we ensure that other slides don't affect the block height while loading.
 		// This reduces layout shifts if a later image is taller than the first one.
 		&:not(.wp-swiper-initialized) .wp-block-jetpack-slideshow_slide:not(:first-of-type) {
