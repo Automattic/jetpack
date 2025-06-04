@@ -109,7 +109,7 @@ const AdminMigratePage = () => {
 					<Container>
 						<Col lg={ 12 } md={ 8 } sm={ 4 }>
 							<h1 style={ { fontSize: '2.5em', marginBottom: '0.5em' } }>
-								{ __( 'Forms responses have moved', 'jetpack-forms' ) }
+								{ __( 'Form responses have moved', 'jetpack-forms' ) }
 							</h1>
 							<p style={ { fontSize: '1.7em', marginTop: '0.5em' } }>
 								{ __( 'They can now be found at Jetpack → Forms', 'jetpack-forms' ) }
