@@ -1,6 +1,7 @@
-@import './components/feedback/style';
-@import './components/copy-button/style';
-@import './components/display-error/style';
+@use 'sass:meta';
+@include meta.load-css( 'components/feedback/style' );
+@include meta.load-css( 'components/copy-button/style' );
+@include meta.load-css( 'components/display-error/style' );
 
 .wp-block-jetpack-ai-chat {
 

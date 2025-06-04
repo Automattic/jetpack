@@ -1,3 +1,6 @@
+@use "../_utilities/mixins/breakpoint";
+@use "../atoms/colors/colors";
+
 // ==========================================================================
 // Jetpack Connection Landing Page ('Please connect jetpack')
 //===========================================================================
@@ -32,7 +35,7 @@
 		text-align: center;
 
 		&.success {
-			color: $green;
+			color: colors.$green;
 		}
 	}
 
@@ -66,7 +69,7 @@
 }
 
 // Breakpoints
-@include breakpoint(large-desktop) {
+@include breakpoint.breakpoint(large-desktop) {
 
 	.jp-content {
 
@@ -80,7 +83,7 @@
 	}
 } // large-desktop
 
-@include breakpoint(large-phone) {
+@include breakpoint.breakpoint(large-phone) {
 
 	.jp-content {
 

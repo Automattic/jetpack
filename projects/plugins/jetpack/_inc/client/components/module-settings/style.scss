@@ -1,3 +1,4 @@
+@use "../../scss/mixins/breakpoints";
 @use '../../scss/functions/rem';
 
 .jp-module-settings__external-link {
@@ -8,7 +9,7 @@
 	clear: both;
 	margin-top: rem.convert( 16px );
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoints.breakpoint( ">480px" ) {
 		margin-top: rem.convert( 32px );
 	}
 
@@ -61,7 +62,7 @@
 	padding: rem.convert( 8px );
 	vertical-align: top;
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		width: 100%;
 	}
 

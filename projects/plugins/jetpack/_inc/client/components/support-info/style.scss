@@ -1,6 +1,6 @@
 @use '../../scss/functions/rem';
-@import '../../scss/layout';
-@import '../../scss/calypso-colors';
+@use '../../scss/layout';
+@use '../../scss/calypso-colors';
 
 .jp-support-info {
 	position: absolute;
@@ -8,7 +8,7 @@
 	right: rem.convert( 25px );
 	z-index: 1;
 
-	@include breakpoint( "<480px" ) {
+	@include layout.breakpoint( "<480px" ) {
 		top: rem.convert( 20px );
 		right: rem.convert( 16px );
 	}
@@ -21,7 +21,7 @@
 		white-space: nowrap;
 
 		.gridicon {
-			color: $gray-30;
+			color: calypso-colors.$gray-30;
 
 			&:hover {
 				color: #414141;
@@ -36,6 +36,6 @@
 		display: block;
 		margin-top: rem.convert( 14px );
 		padding-top: rem.convert( 12px );
-		border-top: 1px solid rgba( $gray, 0.5 );
+		border-top: 1px solid rgba( calypso-colors.$gray, 0.5 );
 	}
 }

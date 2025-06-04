@@ -14,7 +14,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '0.55.0';
+	const PACKAGE_VERSION = '1.0.0';
 
 	/**
 	 * Load the contact form module.
@@ -22,7 +22,7 @@ class Jetpack_Forms {
 	public static function load_contact_form() {
 		Util::init();
 
-		if ( is_admin() && self::is_feedback_dashboard_enabled() ) {
+		if ( self::is_feedback_dashboard_enabled() ) {
 			$dashboard = new Dashboard();
 			$dashboard->init();
 		}

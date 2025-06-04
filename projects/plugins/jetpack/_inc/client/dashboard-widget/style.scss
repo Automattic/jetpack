@@ -1,3 +1,4 @@
+@use "../scss/variables/colors";
 @use '@automattic/jetpack-base-styles/root-variables';
 
 @mixin emerald-button-colors() {
@@ -230,7 +231,7 @@
 			height: 40px;
 
 			path {
-				fill: $green-primary;
+				fill: colors.$green-primary;
 			}
 		}
 
@@ -246,7 +247,7 @@
 		}
 
 		p {
-			color: $wpui_dark_medium_gray;
+			color: colors.$wpui_dark_medium_gray;
 			margin-top: 0;
 			padding: 0 15px;
 		}

@@ -1,3 +1,5 @@
+@use "../../scss/mixins/breakpoints";
+@use "../../scss/variables/colors";
 @use '../../scss/functions/rem';
 
 .jp-form-legend,
@@ -35,7 +37,7 @@
 .jp-form-button {
 	margin-top: rem.convert( 16px );
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoints.breakpoint( ">480px" ) {
 		position: absolute;
 			right: rem.convert( 16px );
 			bottom: rem.convert( 16px );
@@ -50,7 +52,7 @@
 	.jp-form-toggle-privacy-info {
 		margin-left: rem.convert( 5px );
 		padding-left: rem.convert( 5px );
-		border-left: 1px solid rgba( $gray, 0.5 );
+		border-left: 1px solid rgba( colors.$gray, 0.5 );
 	}
 }
 
@@ -78,7 +80,7 @@
 		padding: rem.convert( 8px ) rem.convert( 14px );
 		white-space: nowrap;
 
-		@include breakpoint( '<660px' ) {
+		@include breakpoints.breakpoint( '<660px' ) {
 			display: block;
 			text-align: left;
 		}
@@ -87,16 +89,16 @@
 	input[type="text"] {
 		width: 100%;
 
-		@include breakpoint( '>660px' ) {
+		@include breakpoints.breakpoint( '>660px' ) {
 			border-left: 0;
 		}
 
-		@include breakpoint( '<660px' ) {
+		@include breakpoints.breakpoint( '<660px' ) {
 			border-top: 0;
 		}
 	}
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoints.breakpoint( '<660px' ) {
 		display: block;
 		box-sizing: border-box;
 	}

@@ -1,0 +1,96 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+
+.content {
+
+	h2 {
+		font-size: 2rem;
+		line-height: 40px;
+		margin-top: 0;
+		margin-bottom: 0.5rem;
+	}
+}
+
+.description {
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 24px;
+	margin: 0 0;
+	color: var(--jp-gray-80);
+}
+
+.cta:global(.components-button) {
+	padding: 0.5rem 1.5rem;
+	height: auto;
+	border-radius: 4px;
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 24px;
+	margin-top: 1.5rem;
+}
+
+.cards {
+	margin-top: 2rem;
+	margin-bottom: 3rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1.5rem;
+
+	@media (max-width: gb.$break-medium ) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.footer {
+	padding-top: 2.5rem;
+	padding-bottom: 3.5rem;
+
+	// Ensure that the top border is full width
+	margin-inline: -3rem;
+	padding-inline: 3rem;
+
+	@media (max-width: gb.$break-medium ) {
+		margin-inline: -1rem;
+		padding-inline: 1rem;
+	}
+
+	section {
+		max-width: 35rem;
+	}
+
+	h3 {
+		font-size: 1.25rem;
+		line-height: 24px;
+		font-weight: 500;
+		margin-block: 0 1.5rem;
+	}
+}
+
+.footer-learn-more {
+	display: inline-block;
+	margin-top: 0.5rem;
+	font-size: 1rem;
+	line-height: 24px;
+
+	:global(.components-external-link__icon) {
+		display: none;
+	}
+}
+
+.footer-nav {
+	margin-top: 3rem;
+
+	h4 {
+		margin-block: 0 1rem;
+		font-size: 1rem;
+		font-weight: 500;
+		line-height: 20px;
+	}
+
+	ul {
+		margin-block: 0;
+
+		li {
+			margin-bottom: 0.5rem;
+		}
+	}
+}

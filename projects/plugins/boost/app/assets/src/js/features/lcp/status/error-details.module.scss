@@ -1,14 +1,16 @@
-@import '$css/main/mixins';
+@use '$css/main/mixins';
 
 .summary {
 	margin-top: 16px;
 	margin-bottom: 16px;
 
-	@include breakpoint( xs ) {
+	@include mixins.breakpoint( xs ) {
 		margin-bottom: 1em;
 	}
 
 	&__list {
+		margin: 0;
+		padding-top: 16px;
 		display: flex;
 		flex-direction: column;
 		gap: 8px;

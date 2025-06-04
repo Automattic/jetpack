@@ -43,7 +43,7 @@
  * 1977
  * From https://github.com/una/CSSgram/blob/0.1.12/source/scss/1977.scss
  */
-@mixin _1977( $filters... ) {
+@mixin gram1977( $filters... ) {
 
 	@include filter-base;
 	filter: contrast( 1.1 ) brightness( 1.1 ) saturate( 1.3 ) $filters;

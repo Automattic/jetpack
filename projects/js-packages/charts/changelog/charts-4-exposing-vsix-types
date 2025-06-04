@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Charts: Expose types from the charts library and visx package

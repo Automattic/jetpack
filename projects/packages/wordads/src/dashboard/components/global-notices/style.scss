@@ -1,6 +1,6 @@
 @use '../../scss/z-index';
-@import "scss/calypso-colors";
-@import "scss/calypso-mixins";
+@use "scss/calypso-colors";
+@use "scss/calypso-mixins";
 
 .global-notices {
 	text-align: right;
@@ -13,7 +13,7 @@
 	bottom: 0;
 	left: 0;
 
-	@include breakpoint( ">660px" ) {
+	@include calypso-mixins.breakpoint( ">660px" ) {
 		top: 47px + 16px;
 		right: 16px;
 		bottom: auto;
@@ -23,7 +23,7 @@
 		max-width: calc( 100% - 32px - 36px );
 	}
 
-	@include breakpoint( ">960px" ) {
+	@include calypso-mixins.breakpoint( ">960px" ) {
 		top: 47px + 24px;
 		right: 24px;
 
@@ -31,7 +31,7 @@
 		max-width: calc( 100% - 48px - 160px );
 	}
 
-	@include breakpoint( ">1040px" ) {
+	@include calypso-mixins.breakpoint( ">1040px" ) {
 		right: 32px;
 
 		/* `160px` being the width of the WP-admin sidebar */
@@ -52,7 +52,7 @@
 		border-radius: 0;
 	}
 
-	@include breakpoint( ">660px" ) {
+	@include calypso-mixins.breakpoint( ">660px" ) {
 		display: flex;
 		overflow: hidden;
 		margin-bottom: 24px;
@@ -66,7 +66,7 @@
 
 .global-notices .dops-notice a.dops-notice__action {
 
-	@include breakpoint( ">660px" ) {
+	@include calypso-mixins.breakpoint( ">660px" ) {
 		font-size: 14px;
 		padding: 13px 16px;
 	}
@@ -75,7 +75,7 @@
 .global-notices .dops-notice__dismiss {
 	flex-shrink: 0;
 
-	@include breakpoint( ">660px" ) {
+	@include calypso-mixins.breakpoint( ">660px" ) {
 		padding: 13px 16px 0;
 	}
 }

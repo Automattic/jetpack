@@ -4,7 +4,7 @@ export const MY_JETPACK_MY_PLANS_PURCHASE_NO_SITE_SOURCE = 'my-jetpack-my-plans-
 export const MY_JETPACK_PRODUCT_CHECKOUT = 'my-jetpack-product-checkout';
 
 export const MyJetpackRoutes = {
-	Home: '/',
+	Home: '/:section',
 	Connection: '/connection',
 	ConnectionSkipPricing: '/connection?skip_pricing=true',
 	AddAkismet: '/add-akismet',

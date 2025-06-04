@@ -1,4 +1,4 @@
-@import '../lib/styles/helper';
+@use '../lib/styles/helper';
 
 .jetpack-instant-search__jetpack-colophon {
 	margin-top: 2em;
@@ -20,7 +20,7 @@
 }
 
 .jetpack-instant-search__jetpack-colophon-text {
-	color: $studio-gray-80;
+	color: helper.$studio-gray-80;
 	font-size: 0.7em;
 	font-weight: 500;
 	padding-left: 12px;

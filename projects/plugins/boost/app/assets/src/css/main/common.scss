@@ -3,6 +3,8 @@
  */
 
 @use 'sass:math';
+@use 'mixins';
+@use 'variables';
 
 $definition-combinations: (
 		'' : ['top', 'left', 'bottom', 'right'],
@@ -19,7 +21,7 @@ $definition-combinations: (
   @each $postfixes, $properties in $definition-combinations {
 
 	@for $i from 1 to 5 {
-	  $spacing: math.pow(2, $i - 1) * $spacing-unit !important;
+	  $spacing: math.pow(2, $i - 1) * variables.$spacing-unit !important;
 
 	  .#{$acronym}#{$postfixes}-#{$i} {
 
@@ -35,14 +37,14 @@ $definition-combinations: (
 .visible-md {
 	display: none !important;
 
-	@include breakpoint( 'md' ) {
+	@include mixins.breakpoint( 'md' ) {
 		display: unset !important;
 	}
 }
 
 .hidden-md {
 
-	@include breakpoint( 'md' ) {
+	@include mixins.breakpoint( 'md' ) {
 		display: none !important;
 	}
 }

@@ -1,5 +1,4 @@
 // make use of color studio variables for consistency across products
-@forward "@automattic/color-studio/dist/color-variables";
 @use "@automattic/color-studio/dist/color-variables" as studio;
 
 // core variables (core _variables.scss)
@@ -33,7 +32,7 @@ $masterbar-active-background: #23282d; // Calypso --color-masterbar-item-active-
 
 // nav unification overrides
 $nav-unification-sidebar-border: #333; // Calypso --color-sidebar-border
-$nav-unification-sidebar-text-alternative: #a2aab2; // Calypso --color-sidebar-text-alternative
+//$nav-unification-sidebar-text-alternative: #a2aab2; // Calypso --color-sidebar-text-alternative
 
 // Calypso color variables used in e.g. inline help
 $color-primary: studio.$studio-gray-90; // Calypso --color-primary

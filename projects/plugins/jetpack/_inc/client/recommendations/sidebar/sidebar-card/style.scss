@@ -1,11 +1,11 @@
 @use '@automattic/jetpack-base-styles/style';
-@import '../../../scss/variables/colors';
-@import '../../../scss/mixins/ui';
-@import '../../../scss/typography';
+@use '../../../scss/variables/colors';
+@use '../../../scss/mixins/ui';
+@use '../../../scss/typography';
 
 .jp-recommendations-sidebar-card {
 
-	@include card;
+	@include ui.card;
 
 	width: 100%;
 	margin-bottom: 1rem;
@@ -22,12 +22,12 @@
 	box-shadow: none;
 
 	h2 {
-		font-size: $font-title-large;
+		font-size: typography.$font-title-large;
 		margin-bottom: 0.75rem;
 	}
 
 	p {
-		font-size: $font-body;
+		font-size: typography.$font-body;
 	}
 }
 
@@ -41,11 +41,11 @@
 	h2 {
 		margin-top: 1.75rem;
 
-		font-size: $font-body;
+		font-size: typography.$font-body;
 	}
 
 	p {
-		font-size: $font-body-small;
+		font-size: typography.$font-body-small;
 	}
 
 	.dops-button {
@@ -65,12 +65,12 @@
 	height: 115px;
 	margin-top: 24px;
 	padding: 8px;
-	background: $white;
+	background: colors.$white;
 	border-radius: 3px;
 	box-shadow: 0 0 24px rgba( 0, 0, 0, 0.16 );
 }
 
 .jp-recommendations-sidebar-card__features {
 
-	@include features-list;
+	@include ui.features-list;
 }

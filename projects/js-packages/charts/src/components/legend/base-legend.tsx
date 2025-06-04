@@ -1,9 +1,9 @@
 import { LegendOrdinal } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
-import { FC } from 'react';
 import styles from './legend.module.scss';
 import type { LegendProps } from './types';
+import type { FC } from 'react';
 
 /**
  * Base legend component that displays color-coded items with labels using visx

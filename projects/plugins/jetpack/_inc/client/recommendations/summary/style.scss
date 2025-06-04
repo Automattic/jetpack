@@ -1,8 +1,8 @@
-@import '../mixin';
-@import '../../scss/mixin_breakpoint';
-@import '../../scss/calypso-colors';
-@import '../../scss/mixins/rna';
-@import '../../scss/typography';
+@use '../mixin';
+@use '../../scss/mixin_breakpoint';
+@use '../../scss/calypso-colors';
+@use '../../scss/mixins/rna';
+@use '../../scss/typography';
 
 .jp-recommendations-summary__main {
 	display: grid;
@@ -11,18 +11,18 @@
 	background: var( --jp-white-off );
 
 	box-shadow: 0 2px 6px rgba( 0, 0, 0, 0.03 ), 0 1px 2px rgba( 0, 0, 0, 0.03 );
-	border: 1px solid $gray-lighten-20;
+	border: 1px solid calypso-colors.$gray-lighten-20;
 
-	@include breakpoint( '<782px' ) {
+	@include mixin_breakpoint.breakpoint( '<782px' ) {
 		display: flex;
 		flex-direction: column;
 	}
 }
 
 .jp-recommendations-summary__content {
-	background: $white;
+	background: calypso-colors.$white;
 
-	@include breakpoint( '<480px' ) {
+	@include mixin_breakpoint.breakpoint( '<480px' ) {
 		padding-bottom: 1rem;
 	}
 
@@ -37,12 +37,12 @@
 .jp-recommendations-summary__configuration {
 	margin: 3rem 3rem 2rem 3rem;
 
-	@include breakpoint( '<480px' ) {
+	@include mixin_breakpoint.breakpoint( '<480px' ) {
 		margin: 1rem 1rem 0 1rem;
 	}
 
 	h1 {
-		font-size: $font-title-medium;
+		font-size: typography.$font-title-medium;
 
 		color: var( --jp-gray-80 );
 	}
@@ -52,12 +52,12 @@
 
 		color: var( --jp-gray-100 );
 
-		font-size: $font-body;
+		font-size: typography.$font-body;
 	}
 }
 
 .jp-recommendations-summary__recommendation-notice {
-	font-size: $font-body-small;
+	font-size: typography.$font-body-small;
 
 	color: var( --jp-gray-50 );
 }
@@ -68,11 +68,11 @@
 	justify-content: flex-start;
 	flex-direction: column;
 
-	@include recommendation-sidebar-blob;
+	@include mixin.recommendation-sidebar-blob;
 
 	padding: 2rem 2.5rem 4.5rem;
 
-	@include breakpoint( '<782px' ) {
+	@include mixin_breakpoint.breakpoint( '<782px' ) {
 		padding: 1rem;
 	}
 
@@ -141,6 +141,6 @@
 
 	color: var( --jp-gray-30 );
 
-	font-size: $font-body-small;
+	font-size: typography.$font-body-small;
 	text-align: center;
 }

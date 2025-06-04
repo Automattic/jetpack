@@ -1,6 +1,6 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@import './view';
-@import './variables';
+@use 'view';
+@use 'variables';
 
 // inspired by from assets/shared/_animations loading-fade
 @keyframes tiled-gallery-img-placeholder {
@@ -49,7 +49,7 @@
 		}
 
 		&.is-selected {
-			outline: 4px solid $tiled-gallery-selection;
+			outline: 4px solid variables.$tiled-gallery-selection;
 
 			// Disable filters when selected
 			filter: none;
@@ -114,7 +114,7 @@
 	}
 
 	.tiled-gallery__add-item {
-		margin-top: $tiled-gallery-gutter;
+		margin-top: variables.$tiled-gallery-gutter;
 		width: 100%;
 
 		.components-form-file-upload,

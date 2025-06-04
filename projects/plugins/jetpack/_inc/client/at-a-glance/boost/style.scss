@@ -1,7 +1,7 @@
-@import '../../scss/calypso-colors';
-@import '../../scss/mixin_breakpoint';
+@use '../../scss/calypso-colors';
+@use '../../scss/mixin_breakpoint';
 
-$border: 1px solid $gray-5;
+$border: 1px solid calypso-colors.$gray-5;
 
 .boost-grade-info,
 .boost-conversion-loss-info,
@@ -48,9 +48,9 @@ $border: 1px solid $gray-5;
 }
 
 .dash-boost-speed-score {
-    background-color: $white;
+    background-color: calypso-colors.$white;
     border: $border;
-    color: $gray-80;
+    color: calypso-colors.$gray-80;
     border-radius: 0.25rem;
 
     .dops-card {
@@ -60,7 +60,7 @@ $border: 1px solid $gray-5;
 
     .dops-banner__title {
         line-height: 1.57;
-        color: $gray-80;
+        color: calypso-colors.$gray-80;
     }
 
     .jb-score-bar {
@@ -69,15 +69,15 @@ $border: 1px solid $gray-5;
 
     .jb-score-bar__label,
     .jb-score-bar__filler.fill-loading {
-        background-color: $gray-0;
+        background-color: calypso-colors.$gray-0;
 
-        @include breakpoint( "<782px" ) {
-            background-color: $white;
+        @include mixin_breakpoint.breakpoint( "<782px" ) {
+            background-color: calypso-colors.$white;
         }
     }
 
     .warning {
-        color: $orange-warning;
+        color: calypso-colors.$orange-warning;
     }
 
     &__score-bars,
@@ -91,7 +91,7 @@ $border: 1px solid $gray-5;
         
         padding: 1rem;
 
-        @include breakpoint( "<660px" ) {
+        @include mixin_breakpoint.breakpoint( "<660px" ) {
             flex-direction: column;
         }
     }
@@ -110,7 +110,7 @@ $border: 1px solid $gray-5;
     &__last-tested {
         margin: 0 0 0.25rem 0;
         
-        color: $gray-30;
+        color: calypso-colors.$gray-30;
         text-align: left;
     }
 
@@ -122,7 +122,7 @@ $border: 1px solid $gray-5;
 
         cursor: pointer;
 
-        color: $black;
+        color: calypso-colors.$black;
         text-decoration: underline;
         text-align: right;
 

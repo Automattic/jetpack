@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.65.2] - 2025-06-02
+### Changed
+- Update package dependencies. [#43710]
+
+### Fixed
+- Social: Ensure images load in connections management when concatenating JS. [#43655]
+
 ## [0.65.1] - 2025-05-26
 ### Changed
 - Update package dependencies. [#43578]
@@ -1009,6 +1016,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.65.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.1...v0.65.2
 [0.65.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.0...v0.65.1
 [0.65.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.5...v0.65.0
 [0.64.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.4...v0.64.5
