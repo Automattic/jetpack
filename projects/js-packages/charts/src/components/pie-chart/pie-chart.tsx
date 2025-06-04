@@ -1,7 +1,6 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
-import { SVGProps, type MouseEvent } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Legend } from '../legend';
@@ -9,6 +8,7 @@ import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
+import type { SVGProps, MouseEvent } from 'react';
 
 // TODO: add animation
 

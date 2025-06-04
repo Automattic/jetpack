@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { Orientation } from '@visx/axis';
-import { XYChartTheme } from '@visx/xychart';
 import { useChartMargin } from '../use-chart-margin';
+import type { XYChartTheme } from '@visx/xychart';
 
 const mockGetLongestTickWidth = jest.fn();
 jest.mock( '../utils', () => ( {

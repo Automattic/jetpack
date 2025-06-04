@@ -7,9 +7,8 @@ import {
 	Tooltip,
 	XYChart,
 } from '@visx/xychart';
-import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import clsx from 'clsx';
-import { FC, ReactNode, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -17,6 +16,8 @@ import { withResponsive } from '../shared/with-responsive';
 import styles from './bar-chart.module.scss';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
 import type { TickFormatter } from '@visx/axis';
+import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
+import type { FC, ReactNode } from 'react';
 
 interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
