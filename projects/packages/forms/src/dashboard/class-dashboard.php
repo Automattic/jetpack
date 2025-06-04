@@ -41,7 +41,7 @@ class Dashboard {
 	 *
 	 * @var bool
 	 */
-	public static $show_integrations = false;
+	public static $show_integrations = true;
 
 	/**
 	 * Dashboard_View_Switch instance
