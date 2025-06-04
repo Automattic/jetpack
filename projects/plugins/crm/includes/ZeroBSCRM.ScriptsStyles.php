@@ -473,13 +473,11 @@ function zeroBSCRM_settingspage_admin_styles(){
 	}
 }
 
-/* WH adding in for old ext compatibility e.g. inv pro was still producing error for lack of func */
+/* Placeholder function for Invoicing Pro <= 2.8.3. */
 function zeroBSCRM_admin_styles_ui2_semantic(){}
 
 function zeroBSCRM_admin_styles_ui2_semantic_settingspage(){
-			// These now get rolled into zeroBSCRM_global_admin_styles wp_enqueue_style( 'zbs-wp-semanticui' );
 			wp_enqueue_style( 'zerobscrmmaildeliverywizard' );
-			// These now get rolled into zeroBSCRM_global_admin_styles wp_enqueue_script( 'semanticuijs');
 			wp_enqueue_style( 'zerobscrmsettings' );
 }
 
