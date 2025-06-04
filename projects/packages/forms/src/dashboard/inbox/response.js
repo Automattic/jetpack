@@ -23,15 +23,17 @@ const renderFieldValue = value => {
 	if ( isFileUploadField( value ) ) {
 		return (
 			<div className="file-field">
-				{ value.files.map( ( file, index ) => {
-					return (
-						<div key={ index } className="file-field__item">
-							<Button variant="link" href={ file.url } target="_blank">
-								{ decodeEntities( file.name ) } | { file.size }
-							</Button>
-						</div>
-					);
-				} ) }
+				{ value.files?.length
+					? value.files.map( ( file, index ) => {
+							return (
+								<div key={ index } className="file-field__item">
+									<Button variant="link" href={ file.url } target="_blank">
+										{ decodeEntities( file.name ) } | { file.size }
+									</Button>
+								</div>
+							);
+					  } )
+					: '-' }
 			</div>
 		);
 	}
