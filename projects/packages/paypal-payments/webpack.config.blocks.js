@@ -13,7 +13,7 @@ const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
-		editor: './src/block/editor.js',
+		'block/editor': './src/block/editor.js',
 		'legacy-simple-payments': './src/legacy/simple-payments.css',
 	},
 	output: {
@@ -62,7 +62,6 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							// postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
 							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
 						},
 					},
@@ -85,7 +84,7 @@ module.exports = [
 				patterns: [
 					{
 						from: 'src/block/**/block.json',
-						to: '[name][ext]',
+						to: 'block/[name][ext]',
 						noErrorOnMissing: true,
 					},
 				],
