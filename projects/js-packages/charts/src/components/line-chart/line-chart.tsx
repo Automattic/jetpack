@@ -190,7 +190,7 @@ const LineChart: FC< LineChartProps > = ( {
 	const legendItems = dataSorted.map( ( group, index ) => ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
-		color: providerTheme.colors[ index % providerTheme.colors.length ],
+		color: group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
 	} ) );
 
 	const accessors = {
