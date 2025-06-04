@@ -26,7 +26,7 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 			// registers the styles on admin init
 			wp_register_style( 'jpcrm-semanticui-lib', plugins_url( '/build/lib/semantic-ui-css/semantic.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 			wp_register_style( 'zbs-wp-semanticui', plugins_url( '/css/ZeroBSCRM.admin.semantic-ui' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array( 'jpcrm-semanticui-lib' ), $zbs::VERSION );
-			wp_register_script( 'semanticuijs', plugins_url( '/js/lib/semantic.min.js', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_register_script( 'semanticuijs', plugins_url( '/build/lib/semantic-ui-css/semantic.min.js', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 			// global
 			wp_register_style( 'zerobscrmadmcss', plugins_url( '/css/ZeroBSCRM.admin.global' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array( 'zbs-wp-semanticui' ), $zbs::VERSION );
