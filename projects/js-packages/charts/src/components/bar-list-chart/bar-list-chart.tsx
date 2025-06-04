@@ -186,10 +186,12 @@ const BarListChart: FC< BarListChartProps > = ( {
 	const isMultiSeries = data.length > 1;
 	const chartOptions = useMemo( () => {
 		const defaultYScale = {
+			// For multi series, set default padding larger to look better.
 			paddingInner: isMultiSeries ? 0.3 : 0.1,
 			padding: isMultiSeries ? 0.3 : 0.1,
 		};
 		const defaultXScale = {
+			// Always begin at zero since the x axis is hidden.
 			zero: true,
 		};
 
