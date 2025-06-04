@@ -1,7 +1,10 @@
 import FoldingElement from '$features/critical-css/folding-element/folding-element';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { Notice } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { ReactElement } from 'react';
 import { useLcpState } from '../lib/stores/lcp-state';
 import styles from './error-details.module.scss';
 
@@ -11,20 +14,20 @@ export const ErrorDetails = () => {
 			'Something went wrong while optimizing this page. Please try again later, or contact support if the issue persists.',
 			'jetpack-boost'
 		),
-		'element-not-unique': __(
-			'This page has multiple similar large elements, making it difficult to determine which one to optimize. Manual optimization may be needed.',
-			'jetpack-boost'
-		),
 		'http-error': __(
-			"We couldn't access this page due to a connection issue. Please check that the page is publicly accessible and try again.",
+			"Jetpack Boost couldn't access this page due to a connection issue. Please check that the page is publicly accessible, and try again.",
 			'jetpack-boost'
 		),
 		'lcp-timeout': __(
-			'The page took too long to load during optimization. Please check that the page is publicly accessible and try again.',
+			'The page took too long to load during analysis. Please check that the page is publicly accessible, and try again.',
 			'jetpack-boost'
 		),
 		'lcp-metric-timeout': __(
-			"We couldn't identify the main LCP element within the time limit. This may happen with slow-loading or complex pages.",
+			"Jetpack Boost couldn't identify the main LCP element within the time limit. This may happen with slow-loading, or complex pages.",
+			'jetpack-boost'
+		),
+		'element-not-unique': __(
+			'This page has multiple similar large elements, making it difficult to determine which one to optimize.',
 			'jetpack-boost'
 		),
 	};
@@ -46,12 +49,23 @@ export const ErrorDetails = () => {
 		return null;
 	}
 
-	const errorMessages: string[] = [];
+	const errorMessages: ReactElement[] = [];
 
 	pagesWithErrors.forEach( page => {
 		page.errors?.forEach( error => {
 			if ( error?.type ) {
-				errorMessages.push( `${ dictionary[ error?.type ] } (${ page.url })` );
+				errorMessages.push(
+					createInterpolateElement(
+						`${ dictionary[ error?.type ] } (${ page.url }) <link>Learn more</link>`,
+						{
+							link: (
+								<ExternalLink
+									href={ `https://jetpack.com/support/jetpack-boost/optimize-your-largest-contentful-paint-lcp-with-jetpack-boost/#${ error?.type }` }
+								/>
+							),
+						}
+					)
+				);
 			}
 		} );
 	} );
