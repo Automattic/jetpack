@@ -21,11 +21,6 @@ const getInnerPadding = ( scale: Record< string, unknown > ): number => {
 	return typeof scale.innerPadding === 'number' ? ( scale.innerPadding as number ) : 0;
 };
 
-const DEFAULT_ACCESSORS = {
-	xAccessor: ( d: DataPointDate ) => d?.label || d?.date,
-	yAccessor: ( d: DataPointDate ) => d?.value,
-};
-
 /**
  * Returns the merged options for the bar chart, including axis and scale configuration based on the orientation.
  *
@@ -51,28 +46,31 @@ export function useBarChartOptions(
 			zero: false,
 		};
 
-		const defaultXTickFormat = data?.[ 0 ]?.data?.[ 0 ]?.label
+		const labelFormatter = data?.[ 0 ]?.data?.[ 0 ]?.label
 			? ( label: string ) => label
 			: formatDateTick;
-		const defaultYTickFormat = formatNumberCompact as TickFormatter< unknown >;
+		const valueFormatter = formatNumberCompact as TickFormatter< unknown >;
+
+		const labelAccessor = ( d: DataPointDate ) => d?.label || d?.date;
+		const valueAccessor = ( d: DataPointDate ) => d?.value;
 
 		return {
 			vertical: {
-				xTickFormat: defaultXTickFormat,
-				yTickFormat: defaultYTickFormat,
-				tooltipLabelFormatter: defaultXTickFormat,
-				xAccessor: DEFAULT_ACCESSORS.xAccessor,
-				yAccessor: DEFAULT_ACCESSORS.yAccessor,
+				xTickFormat: labelFormatter,
+				yTickFormat: valueFormatter,
+				tooltipLabelFormatter: labelFormatter,
+				xAccessor: labelAccessor,
+				yAccessor: valueAccessor,
 				gridVisibility: 'y',
 				xScale: bandScale,
 				yScale: linearScale,
 			},
 			horizontal: {
-				xTickFormat: defaultYTickFormat,
-				yTickFormat: defaultXTickFormat,
-				tooltipLabelFormatter: defaultXTickFormat,
-				xAccessor: DEFAULT_ACCESSORS.yAccessor,
-				yAccessor: DEFAULT_ACCESSORS.xAccessor,
+				xTickFormat: valueFormatter,
+				yTickFormat: labelFormatter,
+				tooltipLabelFormatter: labelFormatter,
+				xAccessor: valueAccessor,
+				yAccessor: labelAccessor,
 				gridVisibility: 'x',
 				xScale: linearScale,
 				yScale: bandScale,
