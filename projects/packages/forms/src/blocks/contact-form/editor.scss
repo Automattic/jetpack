@@ -324,7 +324,16 @@
 	min-height: unset;
     pointer-events: auto;
 	padding: 0;
+	width: 100%;
 	min-width: 20px !important;
+}
+
+/* If there is no required field, the label input will be 100% width.
+ * If there is a required field, the label input will be auto width.
+ * This makes the label easier to select when it's empty.
+ */
+.jetpack-field-label__input:has(+ .block-editor-rich-text__editable) {
+	width: auto;
 }
 
 .jetpack-field__textarea {
