@@ -1,3 +1,7 @@
+## [3.2.1] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718]
+
 ## [3.2.0] - 2025-05-12
 ### Removed
 - Remove Skype since the service no longer exists. [#43375]
@@ -220,6 +224,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.2.1]: https://github.com/Automattic/social-logos/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/Automattic/social-logos/compare/v3.1.21...v3.2.0
 [3.1.21]: https://github.com/Automattic/social-logos/compare/v3.1.20...v3.1.21
 [3.1.20]: https://github.com/Automattic/social-logos/compare/v3.1.19...v3.1.20

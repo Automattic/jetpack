@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { BaseChartProps } from '../../../types';
 import { withResponsive } from '../with-responsive';
+import type { BaseChartProps } from '../../../types';
 
 describe( 'withResponsive', () => {
 	const MockComponent = ( { width = 0, height = 0 }: BaseChartProps ) => (

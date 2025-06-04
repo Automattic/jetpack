@@ -1,3 +1,5 @@
+@use "../../scss/mixins/breakpoints";
+
 // Jetpack specific foldable card mods
 @use '../../scss/functions/rem';
 
@@ -26,29 +28,29 @@
 
 .dops-foldable-card__main {
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		max-width: 85%;
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoints.breakpoint( ">480px" ) {
 		max-width: 60%;
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		flex-basis: 100%;
 	}
 }
 
 .dops-foldable-card__header {
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		flex-wrap: wrap;
 	}
 }
 
 .dops-foldable-card__header-text {
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		font-size: rem.convert( 14px );
 	}
 
@@ -59,7 +61,7 @@
 
 .dops-foldable-card__subheader {
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		display: none;
 	}
 }
@@ -69,7 +71,7 @@
 	.dops-foldable-card__summary,
 	.dops-foldable-card__summary_expanded {
 
-		@include breakpoint( "<480px" ) {
+		@include breakpoints.breakpoint( "<480px" ) {
 			text-align: left;
 			margin-top: rem.convert( 8px );
 		}

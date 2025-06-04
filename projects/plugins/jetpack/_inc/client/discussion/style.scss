@@ -1,5 +1,5 @@
 @use '../scss/functions/rem';
-@import '../scss/layout';
+@use '../scss/layout';
 
 .jp-form-settings-group .jp-toggle-set {
 	position: relative;
@@ -9,7 +9,7 @@
 		right: rem.convert( -20px );
 		top: rem.convert( 5px );
 
-		@include breakpoint( "<480px" ) {
+		@include layout.breakpoint( "<480px" ) {
 			right: rem.convert( -32px );
 			top: rem.convert( 5px );
 		}
