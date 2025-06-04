@@ -559,7 +559,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "1d0e8466e6188a79ff302ba975d3c2ffc691090b"
+                "reference": "6befc795d36067f546166e17e2c1563f74c95a1f"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -595,7 +595,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.11.x-dev"
+                    "dev-trunk": "6.12.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
