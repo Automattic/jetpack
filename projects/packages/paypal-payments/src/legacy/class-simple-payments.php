@@ -76,10 +76,10 @@ class Simple_Payments {
 	 */
 	public static function get_instance() {
 		// Check for required dependencies
-		// if ( ! class_exists( 'Jetpack_Components' )
-		// ) {
-		// return null;
-		// }
+		if ( ! class_exists( 'Jetpack_Components' )
+		) {
+			return null;
+		}
 
 		if ( ! self::$instance ) {
 			self::$instance = new self();
