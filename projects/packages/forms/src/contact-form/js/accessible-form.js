@@ -186,7 +186,8 @@ const isFormSubmitting = form => {
 const isMultipleChoiceField = elt => {
 	return (
 		elt.tagName.toLowerCase() === 'fieldset' &&
-		elt.classList.contains( 'grunion-checkbox-multiple-options' )
+		( elt.classList.contains( 'grunion-checkbox-multiple-options' ) ||
+			elt.querySelector( '.grunion-checkbox-multiple-options' ) !== null )
 	);
 };
 
@@ -197,7 +198,9 @@ const isMultipleChoiceField = elt => {
  */
 const isSingleChoiceField = elt => {
 	return (
-		elt.tagName.toLowerCase() === 'fieldset' && elt.classList.contains( 'grunion-radio-options' )
+		elt.tagName.toLowerCase() === 'fieldset' &&
+		( elt.classList.contains( 'grunion-radio-options' ) ||
+			elt.querySelector( '.grunion-radio-options' ) !== null )
 	);
 };
 
