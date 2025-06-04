@@ -30,14 +30,14 @@ const Lcp = () => {
 			slug="lcp"
 			title={
 				<>
-					{ __( 'Optimize LCP', 'jetpack-boost' ) }
+					{ __( 'Optimize LCP Images', 'jetpack-boost' ) }
 					<Pill text={ __( 'Beta', 'jetpack-boost' ) } />
 				</>
 			}
 			description={
 				<p>
 					{ __(
-						'Improve the Largest Contentful Paint (LCP) of your Cornerstone pages.',
+						'Improve the Largest Contentful Paint (LCP) of your Cornerstone Pages, optimizing their key image, so users can enjoy a smoother experience.',
 						'jetpack-boost'
 					) }
 				</p>
