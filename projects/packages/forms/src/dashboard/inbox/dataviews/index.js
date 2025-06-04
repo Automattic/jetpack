@@ -34,7 +34,7 @@ import {
 	deleteAction,
 	restoreAction,
 } from './actions';
-import { useView, defaultLayouts } from './views';
+import { LAYOUT_TABLE, LAYOUT_LIST, useView, defaultLayouts } from './views';
 
 const EMPTY_ARRAY = [];
 const EMPTY_OBJECT = {};
@@ -170,12 +170,13 @@ export default function InboxView() {
 	const onChangeSelection = useCallback(
 		items => {
 			setSelection( items );
-			// Set the side panel item only when we are not on mobile.
-			if ( ! isMobile ) {
+			if ( view.type === 'list' && ! isMobile ) {
 				setSidePanelItem(
 					!! items?.length &&
 						data?.find( record => getItemId( record ) === items[ items.length - 1 ] )
 				);
+			} else {
+				setSidePanelItem();
 			}
 			setSearchParams( previousSearchParams => {
 				const _searchParams = new URLSearchParams( previousSearchParams );
@@ -187,7 +188,7 @@ export default function InboxView() {
 				return _searchParams;
 			} );
 		},
-		[ data, setSearchParams, isMobile ]
+		[ data, setSearchParams, isMobile, view.type ]
 	);
 	// Because selection is in sync with the URL and data takes some time to load,
 	// We need to carefully (avoid infinite loops by always updating the state)
@@ -199,11 +200,11 @@ export default function InboxView() {
 		);
 		const recordToShow = data?.find( record => getItemId( record ) === firstValidSelection );
 		if ( ! sidePanelItem && recordToShow ) {
-			setSidePanelItem( recordToShow );
+			//setSidePanelItem( recordToShow );
 		} else if ( !! sidePanelItem && ! recordToShow ) {
 			// This case handles the case where we were having a side panel item
 			// visible but the data have changed and the item is not there anymore.
-			setSidePanelItem();
+			//setSidePanelItem();
 		}
 	}
 	const paginationInfo = useMemo(
@@ -284,11 +285,28 @@ export default function InboxView() {
 					const selectedId = item.id.toString();
 					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
 					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+					if ( view.type === LAYOUT_TABLE ) {
+						setView( {
+							...view,
+							titleField: 'from', // TODO should not be here
+							type: LAYOUT_LIST,
+						} );
+					}
+					setSidePanelItem( item );
 				},
 			} );
 		}
 		return _actions;
-	}, [ isMobile, onChangeSelection, selection ] );
+	}, [ isMobile, onChangeSelection, selection, setView, view ] );
+
+	const onChangeView = useCallback(
+		newView => {
+			setView( newView );
+			setSelection( EMPTY_ARRAY );
+			setSidePanelItem();
+		},
+		[ setView ]
+	);
 
 	return (
 		<HStack
@@ -306,7 +324,7 @@ export default function InboxView() {
 					data={ data || EMPTY_ARRAY }
 					isLoading={ isLoadingData }
 					view={ view }
-					onChangeView={ setView }
+					onChangeView={ onChangeView }
 					selection={ selection }
 					onChangeSelection={ onChangeSelection }
 					getItemId={ getItemId }

@@ -5,8 +5,8 @@ import { useEvent } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
 import { useSearchParams } from 'react-router-dom';
 
-const LAYOUT_TABLE = 'table';
-const LAYOUT_LIST = 'list';
+export const LAYOUT_TABLE = 'table';
+export const LAYOUT_LIST = 'list';
 
 const defaultView = {
 	type: LAYOUT_TABLE,
@@ -20,7 +20,7 @@ const defaultView = {
 export const defaultLayouts = {
 	[ LAYOUT_TABLE ]: {},
 	[ LAYOUT_LIST ]: {
-		titleField: 'from',
+		titleField: 'from', // TODO should not be here
 	},
 };
 
@@ -35,8 +35,9 @@ export const defaultLayouts = {
 export function useView() {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const urlSearch = searchParams.get( 'search' );
-	const [ view, setView ] = useState( () => ( {
+	const [ view, setView ] = useState( newView => ( {
 		...defaultView,
+		...newView,
 		search: urlSearch ?? '',
 	} ) );
 	// When view changes, update the URL params if needed.
