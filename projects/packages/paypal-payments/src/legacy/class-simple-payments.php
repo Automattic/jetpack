@@ -122,7 +122,7 @@ class Simple_Payments {
 		);
 		wp_register_style(
 			'jetpack-simple-payments',
-			'./simple-payments.css',
+			plugin_dir_url( __FILE__ ) . '/../../../dist/legacy-simple-payments.css',
 			array( 'dashicons' ),
 			self::PACKAGE_VERSION,
 			false /* @phan-suppress-current-line PhanTypeMismatchArgument */

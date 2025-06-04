@@ -14,10 +14,11 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		editor: './src/block/editor.js',
+		'legacy-simple-payments': './src/legacy/simple-payments.css',
 	},
 	output: {
 		...jetpackWebpackConfig.output,
-		path: path.join( __dirname, './dist/block' ),
+		path: path.join( __dirname, './dist' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
