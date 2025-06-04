@@ -28,7 +28,7 @@ const settings = {
 	edit,
 	providesContext: {
 		...defaultSettings.providesContext,
-		'jetpack/field-dateFormat': 'dateFormat',
+		'jetpack/field-date-format': 'dateFormat',
 	},
 	attributes: {
 		...defaultSettings.attributes,

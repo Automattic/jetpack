@@ -50,7 +50,7 @@ const settings = {
 	},
 	providesContext: {
 		...defaultSettings.providesContext,
-		'jetpack/field-defaultValue': 'defaultValue',
+		'jetpack/field-default-value': 'defaultValue',
 	},
 	deprecated,
 	save,
