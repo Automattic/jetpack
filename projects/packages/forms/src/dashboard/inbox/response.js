@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import { Button, ExternalLink, Modal, Spinner } from '@wordpress/components';
+import { Button, ExternalLink, Modal, Tooltip, Spinner, Icon } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
+import { download } from '@wordpress/icons';
 import clsx from 'clsx';
 import { map } from 'lodash';
 import { getPath } from './utils';
@@ -119,23 +120,29 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 						if ( ! file || ! file.name ) {
 							return null;
 						}
+						const extension = file.name.split( '.' ).pop().toLowerCase();
 						return (
 							<div key={ index } className="file-field__item">
-								<span className="file-field__item-name">{ decodeEntities( file.name ) }</span>
+								<div className="file-field__info">
+									<div className="file-field__name">
+										{ file.is_previewable && (
+											<Button target="_blank" variant="link" onClick={ handleFilePreview( file ) }>
+												{ decodeEntities( file.name ) }
+											</Button>
+										) }
+										{ ! file.is_previewable && (
+											<ExternalLink href="#">{ decodeEntities( file.name ) }</ExternalLink>
+										) }
+									</div>
+									<span className="file-field__size">{ file.size }</span>
+									<span className="file-field__extenstion">{ extension }</span>
+								</div>
 								<span className="file-field__item-actions">
-									<span>{ file.size }</span>
-
-									{ file.is_previewable && (
-										<Button target="_blank" variant="link" onClick={ handleFilePreview( file ) }>
-											{ __( 'Preview', 'jetpack-forms' ) }
+									<Tooltip text={ __( 'Download', 'jetpack-forms' ) }>
+										<Button variant="secondary" href={ file.url } target="_blank">
+											<Icon icon={ download } />
 										</Button>
-									) }
-
-									{ file.url && (
-										<Button variant="link" href={ file.url } target="_blank">
-											{ __( 'Download', 'jetpack-forms' ) }
-										</Button>
-									) }
+									</Tooltip>
 								</span>
 							</div>
 						);
