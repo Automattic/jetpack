@@ -32,7 +32,7 @@ export default [
 			const { restAttributes, labelStyles } = deprecateFieldStyles( attributes );
 			const newInnerBlocks = [
 				createBlock( 'jetpack/option', {
-					defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+					placeholder: __( 'Add option…', 'jetpack-forms' ),
 					hideInput: attributes.consentType === 'implicit',
 					isStandalone: true,
 					label: attributes.label,

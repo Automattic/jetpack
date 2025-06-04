@@ -19,7 +19,7 @@ export default [
 			const newInnerBlocks = [
 				createBlock( 'jetpack/option', {
 					label: attributes.label,
-					defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+					placeholder: __( 'Add option…', 'jetpack-forms' ),
 					isStandalone: true,
 					style: labelStyles,
 				} ),

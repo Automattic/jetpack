@@ -12,7 +12,7 @@ export default function migrateInnerOptionBlocks( attributes, innerBlocks, field
 	const optionBlocks = innerBlocks.map( optionBlock =>
 		createBlock( 'jetpack/option', {
 			label: optionBlock.attributes.label,
-			defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+			placeholder: __( 'Add option…', 'jetpack-forms' ),
 			style: optionStyles,
 		} )
 	);

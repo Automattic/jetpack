@@ -33,7 +33,7 @@ export default function SingleChoiceFieldEdit( props ) {
 				'jetpack/label',
 				{
 					label: __( 'Choose one option', 'jetpack-forms' ),
-					defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+					placeholder: __( 'Add label…', 'jetpack-forms' ),
 				},
 			],
 			[ 'jetpack/options', { type: 'radio' } ],

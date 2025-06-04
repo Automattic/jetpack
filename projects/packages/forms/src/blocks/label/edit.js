@@ -9,7 +9,6 @@ import getBlockStyle from '../shared/util/get-block-style.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
 
-const emptyToNull = str => ( str === '' ? null : str );
 const getLabelOrFallback = ( label, placeholder ) => {
 	if ( label === '' ) {
 		return placeholder;
@@ -74,9 +73,8 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 	} = context;
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
-	const { label, defaultLabel, requiredText } = attributes;
-	const defaultPlaceholder = __( 'Add label…', 'jetpack-forms' );
-	const placeholder = emptyToNull( defaultLabel ) ?? emptyToNull( label ) ?? defaultPlaceholder;
+	const { label, placeholder, requiredText } = attributes;
+	const placeholderValue = placeholder !== '' ? placeholder : __( 'Add label…', 'jetpack-forms' );
 	const suffix = dateFormat
 		? `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })`
 		: undefined;
@@ -104,7 +102,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 	const isPreviewMode = useSelect( select => {
 		return select( blockEditorStore ).getSettings().isPreviewMode;
 	}, [] );
-	const labelValue = isPreviewMode ? getLabelOrFallback( label, defaultPlaceholder ) : label;
+	const labelValue = isPreviewMode ? getLabelOrFallback( label, placeholderValue ) : label;
 
 	return (
 		<WithNotchedWrapper
@@ -118,7 +116,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 					allowedFormats={ ALLOWED_FORMATS }
 					className="jetpack-field-label__input"
 					onChange={ value => setAttributes( { label: value } ) }
-					placeholder={ placeholder }
+					placeholder={ placeholderValue }
 					tagName="label"
 					value={ labelValue }
 					withoutInteractiveFormatting

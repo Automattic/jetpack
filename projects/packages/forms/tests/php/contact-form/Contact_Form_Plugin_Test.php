@@ -68,10 +68,10 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				array(
 					'blockName' => 'jetpack/label',
 					'attrs'     => array(
-						'label'        => 'Choose several options',
-						'defaultLabel' => 'Add label…',
-						'textColor'    => 'swamp-green',
-						'style'        => array(
+						'label'       => 'Choose several options',
+						'placeholder' => 'Add label…',
+						'textColor'   => 'swamp-green',
+						'style'       => array(
 							'elements' => array(
 								'link' => array( 'color' => array( 'text' => 'var:preset|color|accent-3' ) ),
 							),
@@ -229,10 +229,10 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				array(
 					'blockName' => 'jetpack/label',
 					'attrs'     => array(
-						'label'        => 'Radio gaga',
-						'defaultLabel' => 'Radio gaga…',
-						'textColor'    => 'turmoil-purple',
-						'style'        => array(
+						'label'       => 'Radio gaga',
+						'placeholder' => 'Radio gaga…',
+						'textColor'   => 'turmoil-purple',
+						'style'       => array(
 							'elements' => array(
 								'link' => array( 'color' => array( 'text' => 'var:preset|color|turmoil-purple' ) ),
 							),
