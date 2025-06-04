@@ -392,7 +392,6 @@ function zeroBSCRM_email_styles() {
 }
 function zeroBSCRM_admin_styles_ui2_listview(){
 
-	// semantic 2.2.11 (EVENTUALLY these PROBS shouldn't be global)
 	wp_enqueue_style( 'zerobscrmlistview' );
 	wp_enqueue_script( 'semanticuijs' );
 	// Removed at request of plugin reviewers. (used wp core ver) wp_enqueue_script( 'zerobscrmadmjqui');
@@ -412,7 +411,6 @@ function zeroBSCRM_admin_styles_ui2_editview(){
 
 			// Removed at request of plugin reviewers. (used wp core ver) wp_enqueue_script( 'zerobscrmadmjqui');
 			wp_enqueue_script( 'jquery-ui-sortable' );
-			// semantic 2.2.11 (EVENTUALLY these PROBS shouldn't be global)
 			wp_enqueue_style( 'zerobscrmeditview' );
 			wp_enqueue_script( 'semanticuijs' );
 			wp_enqueue_script( 'zerobscrmeditviewjs' );
