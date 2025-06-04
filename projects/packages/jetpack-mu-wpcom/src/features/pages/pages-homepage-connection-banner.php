@@ -22,9 +22,8 @@ function homepage_connection_banner() {
 	wp_admin_notice(
 		$message,
 		array(
-			'type'        => 'info',
-			'dismissible' => true,
-			'id'          => 'edit-homepage-banner',
+			'type' => 'info',
+			'id'   => 'edit-homepage-banner',
 		)
 	);
 }
