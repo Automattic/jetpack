@@ -756,6 +756,8 @@ HTML;
 			<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
 				<div id="atatags-{$ad_number}">
 					<script$data_tags type="text/javascript">
+					const __ATA = window.__ATA || {};
+					__ATA.cmd = __ATA.cmd || [];
 					__ATA.cmd.push(function() {
 						__ATA.initSlot('atatags-{$ad_number}',  {
 							collapseEmpty: 'before',
