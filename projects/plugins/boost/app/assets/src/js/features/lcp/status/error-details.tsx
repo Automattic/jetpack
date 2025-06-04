@@ -61,6 +61,11 @@ export const ErrorDetails = () => {
 							link: (
 								<ExternalLink
 									href={ `https://jetpack.com/support/jetpack-boost/optimize-your-largest-contentful-paint-lcp-with-jetpack-boost/#${ error?.type }` }
+									onClick={ () => {
+										recordBoostEvent( 'lcp_learn_more', {
+											error_type: error?.type,
+										} );
+									} }
 								/>
 							),
 						}
