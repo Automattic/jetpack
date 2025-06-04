@@ -14,7 +14,7 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\PayPal_Payments;
 use Jetpack_Components;
-use Jetpack_Currencies;
+use PayPal_Payments_Currencies;
 use WP_Post;
 
 /**
@@ -76,10 +76,10 @@ class Simple_Payments {
 	 */
 	public static function get_instance() {
 		// Check for required dependencies
-		if ( ! class_exists( 'Jetpack_Components' ) || ! class_exists( 'Jetpack_Currencies' )
-		) {
-			return null;
-		}
+		// if ( ! class_exists( 'Jetpack_Components' )
+		// ) {
+		// return null;
+		// }
 
 		if ( ! self::$instance ) {
 			self::$instance = new self();
@@ -419,8 +419,7 @@ class Simple_Payments {
 	 * @return string           Formatted price.
 	 */
 	private function format_price( $price, $currency ) {
-		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
-		return Jetpack_Currencies::format_price( $price, $currency );
+		return PayPal_Payments_Currencies::format_price( $price, $currency );
 	}
 
 	/**
