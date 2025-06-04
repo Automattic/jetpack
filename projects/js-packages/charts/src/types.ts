@@ -1,5 +1,5 @@
-import { AxisScale, Orientation, TickFormatter } from '@visx/axis';
-import { ScaleInput, ScaleType } from '@visx/scale';
+import type { AxisScale, Orientation, TickFormatter } from '@visx/axis';
+import type { ScaleInput, ScaleType } from '@visx/scale';
 import type { EventHandlerParams, GridStyles, LineStyles } from '@visx/xychart';
 import type { PointerEvent } from 'react';
 
@@ -156,7 +156,7 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	legendOrientation?: 'horizontal' | 'vertical';
 	/**
-	 * Grid visibility. x is default.
+	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
 

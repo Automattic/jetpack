@@ -2,7 +2,7 @@
  * Editor styles for Cookie Consent
  */
 
-@import './common';
+@use 'common';
 
 .wp-block-jetpack-cookie-consent {
 	position: initial;

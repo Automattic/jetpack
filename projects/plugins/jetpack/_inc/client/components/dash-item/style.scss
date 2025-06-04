@@ -1,11 +1,15 @@
 @use 'sass:color';
 @use '../../scss/functions/rem';
-@import '../../scss/calypso-colors';
-@import '../../scss/mixins/ui';
+@use '../../scss/calypso-colors';
+@use '../../scss/mixins/ui';
+@use "../../scss/mixins/breakpoints";
+@use "../../scss/mixins/long-content-fade";
+@use "../../scss/typography";
+@use "../../scss/variables/colors";
 
 .jp-dash-item {
 
-	@include dashboard-card-shadow;
+	@include ui.dashboard-card-shadow;
 
 	.dops-section-header__actions {
 
@@ -44,15 +48,15 @@
 
 .jp-dash-item__count {
 	margin: 0;
-	color: $black;
+	color: colors.$black;
 	font-weight: 400;
-	font-size: $font-headline-small;
+	font-size: typography.$font-headline-small;
 	line-height: 40px;
 	display: inline-block;
 	padding: 0;
 	text-align: center;
 
-	@include breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		font-size: rem.convert( 23px );
 	}
 
@@ -81,7 +85,7 @@
 	margin: 0 50px 0 0;
 	font-size: rem.convert( 14px );
 	max-width: calc( 100% - 18px ); // For the support icon
-	color: $gray-80;
+	color: calypso-colors.$gray-80;
 	letter-spacing: -0.02em;
 	line-height: 24px;
 	font-weight: 400;
@@ -93,9 +97,9 @@
 	.jp-link-button {
 		border: none;
 		box-shadow: none;
-		color: $black;
+		color: colors.$black;
 		font-weight: 400;
-		font-size: $font-body-small;
+		font-size: typography.$font-body-small;
 		text-decoration: underline;
 		transition-duration: .05s;
 		transition-property: border,background,color;
@@ -127,15 +131,15 @@
 	&.is-premium-inactive {
 
 		.dops-section-header__actions {
-			color: $gray-text-min;
+			color: colors.$gray-text-min;
 		}
 	}
 }
 
 .jp-dash-item__active-label {
 	display: inline-block;
-	color: color.adjust( $gray, $lightness: -10% );
-	color: $gray;
+	color: color.adjust( colors.$gray, $lightness: -10% );
+	color: colors.$gray;
 	font-size: rem.convert( 12px );
 	font-weight: 400;
 	text-transform: uppercase;
@@ -146,7 +150,7 @@
 
 	.jp-at-a-glance__left &,
 	.jp-at-a-glance__right & {
-		border: 1px solid $gray-5;
+		border: 1px solid calypso-colors.$gray-5;
 		background: #F9F9F6;
 		box-shadow: none;
 
@@ -179,7 +183,7 @@
 
 		&::before {
 
-			@include long-content-fade( $size: 8px, $color : $white );
+			@include long-content-fade.long-content-fade( $size: 8px, $color : colors.$white );
 		}
 	}
 }

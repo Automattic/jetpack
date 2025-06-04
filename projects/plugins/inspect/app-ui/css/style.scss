@@ -1,5 +1,5 @@
-@import "main/variables";
-@import "main/wp-admin";
+@use "main/variables";
+@use "main/wp-admin";
 
 .info code {
 	background-color: hsla(0, 0%, 92%, 100%);

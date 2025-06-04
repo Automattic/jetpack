@@ -1,5 +1,5 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@import './common';
+@use 'common';
 
 .editor-styles-wrapper .wp-block-jetpack-donations {
 

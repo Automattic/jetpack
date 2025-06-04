@@ -3268,8 +3268,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1(postcss@8.4.47)
       '@size-limit/preset-app':
-        specifier: 11.1.6
-        version: 11.1.6(size-limit@11.1.6)
+        specifier: 11.2.0
+        version: 11.2.0(size-limit@11.2.0)
       '@testing-library/dom':
         specifier: 10.4.0
         version: 10.4.0
@@ -3322,8 +3322,8 @@ importers:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
       size-limit:
-        specifier: 11.1.6
-        version: 11.1.6(@size-limit/preset-app@11.1.6)
+        specifier: 11.2.0
+        version: 11.2.0(@size-limit/preset-app@11.2.0)
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@6.0.1)
@@ -7591,22 +7591,22 @@ packages:
     resolution: {integrity: sha512-dNZafjM93Y+F+sfwTO5gTpsGXlnc/0Q+c2+62ViqP3gkMWvHEMSKkaEHgVJLcLg3i/g19GSIPziiKpgyne07Bw==}
     engines: {node: '>=8'}
 
-  '@size-limit/file@11.1.6':
-    resolution: {integrity: sha512-ojzzJMrTfcSECRnaTjGy0wNIolTCRdyqZTSWG9sG5XEoXG6PNgHXDDS6gf6YNxnqb+rWfCfVe93u6aKi3wEocQ==}
+  '@size-limit/file@11.2.0':
+    resolution: {integrity: sha512-OZHE3putEkQ/fgzz3Tp/0hSmfVo3wyTpOJSRNm6AmcwX4Nm9YtTfbQQ/hZRwbBFR23S7x2Sd9EbqYzngKwbRoA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
-      size-limit: 11.1.6
+      size-limit: 11.2.0
 
-  '@size-limit/preset-app@11.1.6':
-    resolution: {integrity: sha512-soQSMEWAWSxjc8IPL9IYP/lYVeZZ9mqFuos6N+a8h5yAzuiVvLJN/lVk6av6il+ecAdlB/RoD4IQBrYTIeq6uw==}
+  '@size-limit/preset-app@11.2.0':
+    resolution: {integrity: sha512-mIOLQm9Vi4pQpwEuGxsdNtH9xBxTNUkV2+qbUFnUYeKUXsTrtPGdfDYSE48rzg+TfbyeOC3sH4HvVwHi0BRbIA==}
     peerDependencies:
-      size-limit: 11.1.6
+      size-limit: 11.2.0
 
-  '@size-limit/time@11.1.6':
-    resolution: {integrity: sha512-NIlJEPvUIxw87gHjriHpPhvd9fIC94S9wq7OW25K7Ctn14FZ2NlOTezPCfVViPmdlXjBYdi8vjsbc7kLCF1EpA==}
+  '@size-limit/time@11.2.0':
+    resolution: {integrity: sha512-bL7EnxL3jivVipnlf1xUYDgbnAOinkl6pbNc3WSFkEOFEwy7i58rqOFs5H4iS3Y0mrCueafakUpIW25HiKZZPA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
-      size-limit: 11.1.6
+      size-limit: 11.2.0
 
   '@slack/logger@4.0.0':
     resolution: {integrity: sha512-Wz7QYfPAlG/DR+DfABddUZeNgoeY7d1J39OCR2jR+v7VBsB8ezulDK5szTnDDPDwLH5IWhLvXIHlCFZV7MSKgA==}
@@ -14494,8 +14494,8 @@ packages:
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
-  size-limit@11.1.6:
-    resolution: {integrity: sha512-S5ux2IB8rU26xwVgMskmknGMFkieaIAqDLuwgKiypk6oa4lFsie8yFPrzRFV+yrLDY2GddjXuCaVk5PveVOHiQ==}
+  size-limit@11.2.0:
+    resolution: {integrity: sha512-2kpQq2DD/pRpx3Tal/qRW1SYwcIeQ0iq8li5CJHQgOC+FtPn2BVmuDtzUCgNnpCrbgtfEHqh+iWzxK+Tq6C+RQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -14981,8 +14981,8 @@ packages:
     resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
     engines: {node: '>=6'}
 
-  tar-fs@3.0.8:
-    resolution: {integrity: sha512-ZoROL70jptorGAlgAYiLoBLItEKw/fUxg9BSYK/dF/GAGYFJOJJJMvjPAKDJraCXFwadD456FCuvLWgfhMsPwg==}
+  tar-fs@3.0.9:
+    resolution: {integrity: sha512-XF4w9Xp+ZQgifKakjZYmFdkLoSWd34VGKcsTCwlNWM7QG3ZbaxnTsaBwnjFZqHRf/rROxaR8rXnbtwdvaDI+lA==}
 
   tar-stream@3.1.7:
     resolution: {integrity: sha512-qJj60CXt7IU1Ffyc3NJMjh6EkuCFej46zUqJ4J7pqYlThyd9bO0XBTmcOIhSzZJVWfsLks0+nle/j538YAW9RQ==}
@@ -17886,7 +17886,7 @@ snapshots:
       progress: 2.0.3
       proxy-agent: 6.5.0
       semver: 7.7.1
-      tar-fs: 3.0.8
+      tar-fs: 3.0.9
       yargs: 17.7.2
     transitivePeerDependencies:
       - bare-buffer
@@ -17899,7 +17899,7 @@ snapshots:
       progress: 2.0.3
       proxy-agent: 6.5.0
       semver: 7.7.1
-      tar-fs: 3.0.8
+      tar-fs: 3.0.9
       unbzip2-stream: 1.4.3
       yargs: 17.7.2
     transitivePeerDependencies:
@@ -18467,25 +18467,25 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@size-limit/file@11.1.6(size-limit@11.1.6)':
+  '@size-limit/file@11.2.0(size-limit@11.2.0)':
     dependencies:
-      size-limit: 11.1.6(@size-limit/preset-app@11.1.6)
+      size-limit: 11.2.0(@size-limit/preset-app@11.2.0)
 
-  '@size-limit/preset-app@11.1.6(size-limit@11.1.6)':
+  '@size-limit/preset-app@11.2.0(size-limit@11.2.0)':
     dependencies:
-      '@size-limit/file': 11.1.6(size-limit@11.1.6)
-      '@size-limit/time': 11.1.6(size-limit@11.1.6)
-      size-limit: 11.1.6(@size-limit/preset-app@11.1.6)
+      '@size-limit/file': 11.2.0(size-limit@11.2.0)
+      '@size-limit/time': 11.2.0(size-limit@11.2.0)
+      size-limit: 11.2.0(@size-limit/preset-app@11.2.0)
     transitivePeerDependencies:
       - bare-buffer
       - bufferutil
       - supports-color
       - utf-8-validate
 
-  '@size-limit/time@11.1.6(size-limit@11.1.6)':
+  '@size-limit/time@11.2.0(size-limit@11.2.0)':
     dependencies:
       estimo: 3.0.3
-      size-limit: 11.1.6(@size-limit/preset-app@11.1.6)
+      size-limit: 11.2.0(@size-limit/preset-app@11.2.0)
     transitivePeerDependencies:
       - bare-buffer
       - bufferutil
@@ -28309,7 +28309,7 @@ snapshots:
 
   sisteransi@1.0.5: {}
 
-  size-limit@11.1.6(@size-limit/preset-app@11.1.6):
+  size-limit@11.2.0(@size-limit/preset-app@11.2.0):
     dependencies:
       bytes-iec: 3.1.1
       chokidar: 4.0.3
@@ -28319,7 +28319,7 @@ snapshots:
       picocolors: 1.1.1
       tinyglobby: 0.2.13
     optionalDependencies:
-      '@size-limit/preset-app': 11.1.6(size-limit@11.1.6)
+      '@size-limit/preset-app': 11.2.0(size-limit@11.2.0)
 
   slash@3.0.0: {}
 
@@ -28920,7 +28920,7 @@ snapshots:
 
   tapable@2.2.1: {}
 
-  tar-fs@3.0.8:
+  tar-fs@3.0.9:
     dependencies:
       pump: 3.0.2
       tar-stream: 3.1.7

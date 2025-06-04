@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.7-beta - 2025-06-02
+### 14.7 - 2025-06-03
 #### Enhancements
 - Forms: Add 33% width option to fields and buttons.
 - Forms: Add Google Drive to integrations modal.

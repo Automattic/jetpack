@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2025-06-03
+### Added
+- Add threat components. [#41654]
+
+### Changed
+- Adjust relative imports in TypeScript sources to use correct extensions after enabling TypeScript's new `rewriteRelativeImportExtensions` option. The built JS should be unaffected, so this is not a breaking change. [#42990]
+- Code: First pass of style coding standards. [#42734]
+- Update package dependencies. [#42762] [#42806] [#42809] [#43326] [#43578] [#43711] [#43718]
+
+### Fixed
+- Code: Update stylesheets to use WordPress font styles. [#42928]
+- Fixed TS type checking in the monorepo [#42817]
+
 ## [0.5.9] - 2025-03-18
 ### Changed
 - Update package dependencies. [#42509]
@@ -115,6 +128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Updated dependencies. [#39754]
 
+[1.0.0]: https://github.com/Automattic/jetpack-scan/compare/v0.5.9...v1.0.0
 [0.5.9]: https://github.com/Automattic/jetpack-scan/compare/v0.5.8...v0.5.9
 [0.5.8]: https://github.com/Automattic/jetpack-scan/compare/v0.5.7...v0.5.8
 [0.5.7]: https://github.com/Automattic/jetpack-scan/compare/v0.5.6...v0.5.7

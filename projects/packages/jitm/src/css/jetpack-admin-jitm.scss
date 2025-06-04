@@ -3,9 +3,9 @@
 
 // TODO: Switch to using the `@automattic/jetpack-base-styles` package when its ready.
 @use '../../../../plugins/jetpack/_inc/client/scss/functions/rem';
-@import '../../../../plugins/jetpack/_inc/client/scss/variables/colors';
-@import '../../../../plugins/jetpack/_inc/client/scss/mixins/breakpoints';
-@import '../../../../plugins/jetpack/_inc/client/scss/calypso-colors';
+@use '../../../../plugins/jetpack/_inc/client/scss/variables/colors';
+@use '../../../../plugins/jetpack/_inc/client/scss/mixins/breakpoints';
+@use '../../../../plugins/jetpack/_inc/client/scss/calypso-colors';
 
 @mixin clear-fix {
 
@@ -34,7 +34,7 @@
 }
 
 // New JITMS - modified calypso banner styles
-$blue-medium-dark:       #2271b1;
+calypso-colors.$blue-medium-dark:       #2271b1;
 $jp-gray:                #dcdcde;
 $jp-gray-0:              #f6f7f7;
 $jp-gray-20:             #a7aaad;
@@ -60,17 +60,17 @@ $jp-gray-20:             #a7aaad;
 	min-width: 90px;
 	font-weight: 600;
 	border-color: #000;
-	background: $white;
+	background: calypso-colors.$white;
 	color: #000;
 	width: 100%;
 
 	// Primary buttons
 	&.is-primary {
 		background: #000;
-		color: $white;
+		color: calypso-colors.$white;
 
 		.gridicons-external-link {
-			fill: $white;
+			fill: calypso-colors.$white;
 		}
 	}
 
@@ -93,15 +93,15 @@ $jp-gray-20:             #a7aaad;
 
 	&:hover,
 	&:focus {
-		border-color: $gray-dark;
-		background: $gray-dark;
-		color: $white;
+		border-color: calypso-colors.$gray-dark;
+		background: calypso-colors.$gray-dark;
+		color: calypso-colors.$white;
 	}
 
 	&:focus {
 		box-shadow:
-			0 0 0 1px $white,
-			0 0 0 3px $blue-medium-dark;
+			0 0 0 1px calypso-colors.$white,
+			0 0 0 3px calypso-colors.$blue-medium-dark;
 	}
 
 	&[disabled],
@@ -154,8 +154,8 @@ $jp-gray-20:             #a7aaad;
 	padding: rem.convert( 16px );
 	padding-left: rem.convert( 20px );
 	box-sizing: border-box;
-	background-color: $white;
-	border: 1px solid $white;
+	background-color: calypso-colors.$white;
+	border: 1px solid calypso-colors.$white;
 	border-radius: 2px;
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
 
@@ -165,7 +165,7 @@ $jp-gray-20:             #a7aaad;
 	&.is-compact {
 		margin-bottom: rem.convert( 1px );
 
-		@include breakpoint( ">480px" ) {
+		@include breakpoints.breakpoint( ">480px" ) {
 			margin-bottom: 1px;
 			padding: rem.convert( 16px ) rem.convert( 24px );
 		}
@@ -217,7 +217,7 @@ $jp-gray-20:             #a7aaad;
 		border-bottom-left-radius: 1px;
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		display: flex;
 		flex-direction: column;
 	}
@@ -230,11 +230,11 @@ $jp-gray-20:             #a7aaad;
 		padding-right: rem.convert( 48px );
 	}
 
-	@include jitm-banner-color( $alert-green );
+	@include jitm-banner-color( calypso-colors.$alert-green );
 
 	&.is-upgrade-personal {
 
-		@include jitm-banner-color( $alert-yellow );
+		@include jitm-banner-color( calypso-colors.$alert-yellow );
 	}
 
 	&.is-upgrade-premium {
@@ -245,12 +245,12 @@ $jp-gray-20:             #a7aaad;
 	&.is-upgrade-business,
 	&.woo-jitm {
 
-		@include jitm-banner-color( $alert-purple );
+		@include jitm-banner-color( calypso-colors.$alert-purple );
 	}
 
 	.jitm-card__link-indicator {
 		align-items: center;
-		color: $blue-wordpress;
+		color: calypso-colors.$blue-wordpress;
 		display: flex;
 	}
 
@@ -258,15 +258,15 @@ $jp-gray-20:             #a7aaad;
 		transition: all 100ms ease-in-out;
 
 		&.is-card-link {
-			box-shadow: 0 0 0 1px $gray, 0 2px 4px color.adjust( $gray, $lightness: 20% );
+			box-shadow: 0 0 0 1px calypso-colors.$gray, 0 2px 4px color.adjust( calypso-colors.$gray, $lightness: 20% );
 		}
 
 		.jitm-card__link-indicator {
-			color: $blue-dark;
+			color: calypso-colors.$blue-dark;
 		}
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoints.breakpoint( ">480px" ) {
 		padding: rem.convert( 16px );
 		padding-left: rem.convert( 20px );
 
@@ -283,7 +283,7 @@ $jp-gray-20:             #a7aaad;
 	gap: rem.convert( 16px );
 	overflow: hidden;
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoints.breakpoint( ">480px" ) {
 		margin-left: rem.convert( 16px );
 	}
 }
@@ -305,7 +305,7 @@ $jp-gray-20:             #a7aaad;
 
 	.jitm-banner__icon {
 		align-self: center;
-		color: $white;
+		color: calypso-colors.$white;
 		display: block;
 	}
 
@@ -315,7 +315,7 @@ $jp-gray-20:             #a7aaad;
 		padding: rem.convert( 3px ) rem.convert( 4px ) rem.convert( 4px ) rem.convert( 3px );
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoints.breakpoint( ">480px" ) {
 		align-items: center;
 
 		.jitm-banner__icon {
@@ -341,14 +341,14 @@ $jp-gray-20:             #a7aaad;
 		position: relative;
 		top: rem.convert( 2px );
 
-		@include breakpoint( "<480px" ) {
+		@include breakpoints.breakpoint( "<480px" ) {
 			margin-bottom: rem.convert( 16px );
 		}
 
 		svg {
 			height: rem.convert(  32px );
 			width: rem.convert( 32px );
-			fill: $green-primary;
+			fill: colors.$green-primary;
 		}
 
 		.jitm-jp-logo {
@@ -358,7 +358,7 @@ $jp-gray-20:             #a7aaad;
 		}
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoints.breakpoint( ">480px" ) {
 		align-items: center;
 	}
 }
@@ -387,15 +387,15 @@ $jp-gray-20:             #a7aaad;
 	flex-wrap: wrap;
 	flex-shrink: 100000;
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		margin-right: 0;
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoints.breakpoint( ">480px" ) {
 		flex-wrap: nowrap;
 	}
 
-	@include breakpoint( "<960px" ) {
+	@include breakpoints.breakpoint( "<960px" ) {
 		margin-right: 5px;
 	}
 }
@@ -404,11 +404,11 @@ $jp-gray-20:             #a7aaad;
 	flex-grow: 1;
 	line-height: 1.4;
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoints.breakpoint( ">480px" ) {
 		flex-basis: 50%;
 	}
 
-	@include breakpoint( ">960px" ) {
+	@include breakpoints.breakpoint( ">960px" ) {
 		flex-basis: 70%;
 	}
 
@@ -441,7 +441,7 @@ $jp-gray-20:             #a7aaad;
 			margin: 6px 0;
 
 			.gridicon {
-				fill: $gray;
+				fill: calypso-colors.$gray;
 				display: inline;
 				margin-right: 12px;
 				vertical-align: bottom;
@@ -466,7 +466,7 @@ $jp-gray-20:             #a7aaad;
 
 		.dops-plan-price.is-discounted,
 		.dops-plan-price.is-discounted .dops-plan-price__currency-symbol {
-			color: $gray-dark;
+			color: calypso-colors.$gray-dark;
 		}
 
 		.has-call-to-action & .dops-plan-price {
@@ -474,11 +474,11 @@ $jp-gray-20:             #a7aaad;
 		}
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		margin-top: 1rem;
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoints.breakpoint( ">480px" ) {
 		text-align: center;
 		width: auto;
 
@@ -501,16 +501,16 @@ $jp-gray-20:             #a7aaad;
 	margin-bottom: auto;
 
 	&::before {
-		color: color.adjust( $gray, $lightness: -20%);
+		color: color.adjust( calypso-colors.$gray, $lightness: -20%);
 		font: 400 20px/1 dashicons;
 		content: '\f335';
 	}
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		margin-right: rem.convert( -8px );
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		position: absolute;
 		top: 0;
 		right: 0;

@@ -1,8 +1,8 @@
-@import '$css/main/variables';
+@use '$css/main/variables';
 
 .back-button {
 	text-decoration: none !important;
-	color: $gray_90;
+	color: variables.$gray_90;
 	line-height: 24px;
 
 	// Specify the global class for specificity so that it overrides the default styles.

@@ -1,3 +1,4 @@
+@use "../../scss/variables/colors";
 @use 'sass:color';
 
 .jp-dev-card.jp-dev-card {
@@ -32,7 +33,7 @@
 
 .jp-dev-card__subheading {
 	font-size: 11px;
-	color: color.adjust( $gray, $lightness: -10% );
+	color: color.adjust( colors.$gray, $lightness: -10% );
 }
 
 .jp-dev-card__close {

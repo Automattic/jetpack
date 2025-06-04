@@ -1,8 +1,8 @@
 @use '@automattic/jetpack-base-styles/style';
-@import '../../mixin';
-@import '../../../scss/mixins/ui';
-@import '../../../scss/mixin_breakpoint';
-@import '../../../scss/typography';
+@use '../../mixin';
+@use '../../../scss/mixins/ui';
+@use '../../../scss/mixin_breakpoint';
+@use '../../../scss/typography';
 
 .jp-recommendations-discount-card {
 	display: flex;
@@ -12,13 +12,13 @@
 	height: 100%;
 	padding: 3rem 0;
 
-	@include breakpoint( '<782px' ) {
+	@include mixin_breakpoint.breakpoint( '<782px' ) {
 		justify-content: center;
 		padding-inline-start: 1rem;
 		padding-inline-end: 1rem;
 	}
 
-	@include breakpoint( '>1040px' ) {
+	@include mixin_breakpoint.breakpoint( '>1040px' ) {
 		justify-content: flex-end;
 		padding-left: 3rem;
 		padding-right: 3rem;
@@ -31,7 +31,7 @@
 
 	&__card {
 
-		@include card( $borderless: true );
+		@include ui.card( $borderless: true );
 
 		box-shadow: 0 0 40px rgba( 0, 0, 0, 0.08 );
 	}
@@ -78,7 +78,7 @@
 
 	&__feature-list {
 
-		@include features-list;
+		@include ui.features-list;
 	}
 
 	&__disclaimer {
@@ -93,7 +93,7 @@
 	&__button {
 		align-self: center;
 		margin-top: 0.25rem;
-		font-size: $font-body;
+		font-size: typography.$font-body;
 		display: flex;
 		align-items: center;
 
@@ -111,7 +111,7 @@
 
 		color: var( --jp-gray-60 );
 
-		font-size: $font-body-small;
+		font-size: typography.$font-body-small;
 		text-align: center;
 	}
 

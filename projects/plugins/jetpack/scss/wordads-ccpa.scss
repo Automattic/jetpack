@@ -1,7 +1,7 @@
 $z-index-max: 2147483647;
 
 /* Include Cleanslate */
-@import "cleanslate";
+@use "cleanslate";
 
 body.admin-bar .cleanslate .components-modal__frame {
 

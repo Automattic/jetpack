@@ -1,4 +1,4 @@
-@import "../../shared/styles/align";
+@use "../../shared/styles/align";
 
 .amp-wp-article .wp-block-jetpack-button {
 	color: #fff;
@@ -6,7 +6,7 @@
 
 .wp-block-jetpack-button {
 
-	@include align-block;
+	@include align.align-block;
 	max-width: 100%;
 	width: fit-content;
 	height: fit-content; // Since .wp-block-button__link has a 100% height, this prevents the button from matching its container's height.

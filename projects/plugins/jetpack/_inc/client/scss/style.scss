@@ -5,54 +5,56 @@
  * Please keep these imports sorted and use specificity to ensure that
  * stylesheet order does not matter.
  *
- * example: @import '../components/card/style';
+ * example: @include meta.load-css( '../components/card/style' );
  */
 
+@use 'sass:meta';
+
 // Variables
-@forward '@automattic/color-studio/dist/color-variables';
-@import 'variables/colors';
-@import 'variables/layout';
+@use '@automattic/color-studio/dist/color-variables';
+@use 'variables/colors';
+@use 'variables/layout';
 
 // Mixins
-@import 'mixins/breakpoints';
-@import 'mixins/clear-fix';
-@import 'mixins/long-content-fade';
-@import 'mixins/ui';
+@use 'mixins/breakpoints';
+@use 'mixins/clear-fix';
+@use 'mixins/long-content-fade';
+@use 'mixins/ui';
 
 // Typography
-@import 'typography';
+@use 'typography';
 
 // General
-@import 'shared/main';
-@import 'shared/admin-static';
+@use 'shared/main';
+@use 'shared/admin-static';
 
 // Components
-@import '../components/dash-item/style';
-@import '../components/dash-section-header/style';
-@import '../components/foldable-card/style2';
-@import '../components/footer/style';
-@import '../components/dev-card/style';
-@import '../components/loading-placeholder/style';
-@import '../components/jetpack-notices/style';
-@import '../components/masthead/style';
-@import '../components/module-settings/style';
-@import '../components/support-card/style';
-@import '../components/forms/styles';
-@import '../components/admin-notices/style';
-@import '../components/module-toggle/style';
-@import '../components/navigation-settings/style';
-@import '../components/settings-card/style';
-@import '../components/settings-group/style';
-@import '../components/apps-card/style';
-@import '../components/upgrade-notice-content/style';
-@import '../components/jetpack-dialogue-modern/style';
-@import '../components/about-page/style';
+@include meta.load-css( '../components/dash-item/style' );
+@include meta.load-css( '../components/dash-section-header/style' );
+@include meta.load-css( '../components/foldable-card/style2' );
+@include meta.load-css( '../components/footer/style' );
+@include meta.load-css( '../components/dev-card/style' );
+@include meta.load-css( '../components/loading-placeholder/style' );
+@include meta.load-css( '../components/jetpack-notices/style' );
+@include meta.load-css( '../components/masthead/style' );
+@include meta.load-css( '../components/module-settings/style' );
+@include meta.load-css( '../components/support-card/style' );
+@include meta.load-css( '../components/forms/styles' );
+@include meta.load-css( '../components/admin-notices/style' );
+@include meta.load-css( '../components/module-toggle/style' );
+@include meta.load-css( '../components/navigation-settings/style' );
+@include meta.load-css( '../components/settings-card/style' );
+@include meta.load-css( '../components/settings-group/style' );
+@include meta.load-css( '../components/apps-card/style' );
+@include meta.load-css( '../components/upgrade-notice-content/style' );
+@include meta.load-css( '../components/jetpack-dialogue-modern/style' );
+@include meta.load-css( '../components/about-page/style' );
 
 // Page Templates
-@import '../at-a-glance/style';
-@import '../my-plan/style';
-@import '../performance/style';
-@import '../recommendations/style';
-@import '../security/style';
-@import '../settings/style';
-@import '../traffic/style';
+@include meta.load-css( '../at-a-glance/style' );
+@include meta.load-css( '../my-plan/style' );
+@include meta.load-css( '../performance/style' );
+@include meta.load-css( '../recommendations/style' );
+@include meta.load-css( '../security/style' );
+@include meta.load-css( '../settings/style' );
+@include meta.load-css( '../traffic/style' );

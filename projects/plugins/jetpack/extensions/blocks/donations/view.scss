@@ -1,7 +1,7 @@
 @use "sass:math";
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@import './common';
-@import '../../shared/memberships';
+@use 'common';
+@use '../../shared/memberships';
 
 .wp-block-jetpack-donations {
 
