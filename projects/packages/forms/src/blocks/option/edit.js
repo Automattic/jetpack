@@ -66,7 +66,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 			<div { ...blockProps }>
 				{ ! hideInput && (
 					<input
-						className="jetpack-field-checkbox__checkbox"
+						className="jetpack-field-option__checkbox"
 						checked={ !! defaultValue }
 						disabled
 						type={ type }
