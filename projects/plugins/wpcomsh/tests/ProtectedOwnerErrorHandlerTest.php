@@ -434,7 +434,6 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( '#email', $output );
 		$this->assertStringContainsString( '#role', $output );
 		$this->assertStringContainsString( 'administrator', $output );
-		$this->assertStringContainsString( '#invite_user_wpcom', $output );
 
 		// Clean up
 		unset( $_GET['jetpack_protected_owner_email'] );
@@ -455,71 +454,37 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test override_wpcom_invite_checkbox only works for add-new-user type.
+	 * Test disable_wpcom_invite_for_protected_owner filter with protected owner context.
 	 */
-	public function test_override_wpcom_invite_checkbox_type_check() {
+	public function test_disable_wpcom_invite_for_protected_owner_with_email() {
 		$test_email = 'test@example.com';
 
-		// Set up URL parameters
+		// Set up URL parameters to create protected owner context
 		$_GET['jetpack_protected_owner_email']  = $test_email;
 		$_GET['jetpack_create_missing_account'] = '1';
 
-		// Test with wrong type - should return early
-		$this->handler->override_wpcom_invite_checkbox( 'wrong-type' );
+		// Test that the filter disables invitations
+		$result = $this->handler->disable_wpcom_invite_for_protected_owner( true );
+		$this->assertFalse( $result );
 
-		// Test with correct type - should proceed (we can't easily test the hook removal in unit tests)
-		$this->handler->override_wpcom_invite_checkbox( 'add-new-user' );
+		// Test that it also works when the original value is false
+		$result = $this->handler->disable_wpcom_invite_for_protected_owner( false );
+		$this->assertFalse( $result );
 
 		// Clean up
 		unset( $_GET['jetpack_protected_owner_email'] );
 		unset( $_GET['jetpack_create_missing_account'] );
-
-		// This test mainly verifies the method doesn't throw errors
-		$this->assertTrue( true );
 	}
 
 	/**
-	 * Test override_wpcom_invite_checkbox returns early without email.
+	 * Test disable_wpcom_invite_for_protected_owner filter without protected owner context.
 	 */
-	public function test_override_wpcom_invite_checkbox_without_email() {
-		// Should return early without any email available
-		$this->handler->override_wpcom_invite_checkbox( 'add-new-user' );
+	public function test_disable_wpcom_invite_for_protected_owner_without_email() {
+		// Test that without protected owner context, original value is preserved
+		$result = $this->handler->disable_wpcom_invite_for_protected_owner( true );
+		$this->assertTrue( $result );
 
-		// This test mainly verifies the method doesn't throw errors
-		$this->assertTrue( true );
-	}
-
-	/**
-	 * Test render_unchecked_wpcom_invite_checkbox outputs expected HTML.
-	 */
-	public function test_render_unchecked_wpcom_invite_checkbox() {
-		// Capture output
-		ob_start();
-		$this->handler->render_unchecked_wpcom_invite_checkbox( 'add-new-user' );
-		$output = ob_get_clean();
-
-		// Verify output contains expected elements
-		$this->assertStringContainsString( 'invite_user_wpcom', $output );
-		$this->assertStringContainsString( 'Invite user', $output );
-		$this->assertStringContainsString( 'Invite user to WordPress.com', $output );
-		$this->assertStringContainsString( 'checkbox', $output );
-
-		// Verify checkbox is disabled (should contain 'disabled')
-		$this->assertStringContainsString( 'disabled', $output );
-		// Verify checkbox is not checked (should not contain 'checked')
-		$this->assertStringNotContainsString( 'checked', $output );
-	}
-
-	/**
-	 * Test render_unchecked_wpcom_invite_checkbox only works for add-new-user type.
-	 */
-	public function test_render_unchecked_wpcom_invite_checkbox_type_check() {
-		// Capture output with wrong type
-		ob_start();
-		$this->handler->render_unchecked_wpcom_invite_checkbox( 'wrong-type' );
-		$output = ob_get_clean();
-
-		// Should be empty
-		$this->assertEmpty( $output );
+		$result = $this->handler->disable_wpcom_invite_for_protected_owner( false );
+		$this->assertFalse( $result );
 	}
 }

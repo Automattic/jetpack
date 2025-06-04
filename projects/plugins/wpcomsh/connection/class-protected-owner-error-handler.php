@@ -50,10 +50,12 @@ class Protected_Owner_Error_Handler {
 		add_action( 'user_register', array( $this, 'check_and_clear_error_for_user' ) );
 		add_action( 'profile_update', array( $this, 'check_and_clear_error_for_user' ) );
 
-		// Add form prepopulation functionality - run before User_Admin class (priority 0)
-		add_action( 'user_new_form', array( $this, 'override_wpcom_invite_checkbox' ), 0 );
+		// Add form prepopulation functionality
 		add_action( 'user_new_form', array( $this, 'prepopulate_user_form' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_form_scripts' ) );
+
+		// Disable WordPress.com invitations when creating protected owner accounts
+		add_filter( 'jetpack_sso_invite_new_users_wpcom', array( $this, 'disable_wpcom_invite_for_protected_owner' ) );
 	}
 
 	/**
@@ -220,9 +222,6 @@ class Protected_Owner_Error_Handler {
 				if (email) {
 					$('#email').val(email);
 					$('#role').val('administrator');
-					
-					// Ensure invite checkbox is unchecked for protected owner creation
-					$('#invite_user_wpcom').prop('checked', false);
 				}
 			});
 		})(jQuery);
@@ -273,110 +272,19 @@ class Protected_Owner_Error_Handler {
 	}
 
 	/**
-	 * Override the WP.com invite checkbox behavior when creating a missing protected user
+	 * Disable WordPress.com invitations when creating protected owner accounts
 	 *
-	 * This method runs before the User_Admin class hook (priority 0) to override
-	 * the default checkbox behavior when we're creating a missing protected owner account.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $type The type of new user form the hook follows.
+	 * @param bool $invite_new_users_wpcom Whether to invite new users to WordPress.com.
+	 * @return bool Updated value indicating whether to invite new users to WordPress.com.
 	 */
-	public function override_wpcom_invite_checkbox( $type ) {
-		// Only override for add-new-user form type
-		if ( 'add-new-user' !== $type ) {
-			return;
-		}
-
+	public function disable_wpcom_invite_for_protected_owner( $invite_new_users_wpcom ) {
 		// Check if we're in a protected owner creation context
 		$email = $this->get_prepopulation_email();
 		if ( ! $email ) {
-			return; // Not a protected owner creation, let the default behavior proceed
+			return $invite_new_users_wpcom; // Not a protected owner creation, let the default behavior proceed
 		}
 
-		// Remove the User_Admin hook that would pre-check the invitation checkbox
-		$this->remove_user_admin_invite_checkbox_hook();
-
-		// Add our own version that ensures the checkbox is unchecked
-		add_action( 'user_new_form', array( $this, 'render_unchecked_wpcom_invite_checkbox' ), 1 );
-	}
-
-	/**
-	 * Remove the User_Admin class hook that renders the invite checkbox
-	 *
-	 * This is necessary to prevent the default pre-checked behavior for protected owner creation.
-	 *
-	 * @since $$next-version$$
-	 */
-	private function remove_user_admin_invite_checkbox_hook() {
-		// Get all hooked functions for the user_new_form action
-		global $wp_filter;
-
-		if ( ! isset( $wp_filter['user_new_form'] ) ) {
-			return;
-		}
-
-		// Look for the User_Admin class hook at priority 1
-		if ( isset( $wp_filter['user_new_form']->callbacks[1] ) ) {
-			foreach ( $wp_filter['user_new_form']->callbacks[1] as $callback ) {
-				// Check if this is the User_Admin render_wpcom_invite_checkbox method
-				if (
-					is_array( $callback['function'] ) &&
-					is_object( $callback['function'][0] ) &&
-					get_class( $callback['function'][0] ) === 'Automattic\Jetpack\Connection\SSO\User_Admin' &&
-					$callback['function'][1] === 'render_wpcom_invite_checkbox'
-				) {
-					// Remove the hook
-					remove_action( 'user_new_form', $callback['function'], 1 );
-					break;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Render the WP.com invite checkbox in an unchecked state for protected owner creation
-	 *
-	 * This replaces the User_Admin method to ensure the checkbox is not pre-checked
-	 * when creating a missing protected owner account.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $type The type of new user form the hook follows.
-	 */
-	public function render_unchecked_wpcom_invite_checkbox( $type ) {
-		if ( 'add-new-user' !== $type ) {
-			return;
-		}
-
-		?>
-		<table class="form-table">
-			<tr class="form-field">
-				<th scope="row">
-					<label for="invite_user_wpcom"><?php esc_html_e( 'Invite user', 'wpcomsh' ); ?></label>
-				</th>
-				<td>
-					<fieldset>
-						<legend class="screen-reader-text">
-							<span><?php esc_html_e( 'Invite user', 'wpcomsh' ); ?></span>
-						</legend>
-						<label for="invite_user_wpcom">
-							<input
-								name="invite_user_wpcom"
-								type="checkbox"
-								id="invite_user_wpcom"
-								value="1"
-								disabled
-								>
-							<?php esc_html_e( 'Invite user to WordPress.com', 'wpcomsh' ); ?>
-						</label>
-						<p class="description">
-							<?php esc_html_e( 'Note: This user is being created to resolve a problem with your WordPress.com plan. Invitation is not needed.', 'wpcomsh' ); ?>
-						</p>
-					</fieldset>
-				</td>
-			</tr>
-		</table>
-		<?php
+		// Disable invitations for protected owner creation
+		return false;
 	}
 }
