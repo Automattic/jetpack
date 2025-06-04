@@ -71,6 +71,11 @@ class Dashboard {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
 
+		// Removed all admin notices on the Jetpack Forms admin page.
+		if ( isset( $_GET['page'] ) && $_GET['page'] === 'jetpack-forms-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			remove_all_actions( 'admin_notices' );
+		}
+
 		$this->switch->init();
 	}
 
