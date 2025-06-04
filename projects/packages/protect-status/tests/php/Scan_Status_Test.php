@@ -152,6 +152,21 @@ class Scan_Status_Test extends BaseTestCase {
 					'filename'       => '/var/www/html/wp-admin/index.php',
 					'diff'           => "--- /tmp/wordpress/6.0-en_US/wordpress/wp-admin/index.php\t2021-11-03 03:16:57.000000000 +0000\n+++ /tmp/6299071296/core-file-23271BW6i4wLCe3T7\t2022-06-23 18:42:29.087377846 +0000\n@@ -209,3 +209,4 @@\n wp_print_community_events_templates();\n \n require_once ABSPATH . 'wp-admin/admin-footer.php';\n+if ( true === false ) exit();\n\\ No newline at end of file\n",
 				),
+				(object) array(
+					'id'             => '69353715',
+					'signature'      => 'database_malicious_redirect_wpcode_001',
+					'description'    => 'Jetpack has identified a malicious redirect in the database.',
+					'first_detected' => '2023-06-23T18:42:29.000Z',
+					'severity'       => 2,
+					'status'         => 'current',
+					'fixable'        => false,
+					'table'          => 'wp_options',
+					'pk_column'      => 'option_id',
+					'value'          => '7062',
+					'details'        => (object) array(
+						'option_value' => 'unset($value->response[$_insert-headers-and-footers/ihaf.php\r\n\r\nand other stuff',
+					),
+				),
 			),
 			'has_cloud'   => true,
 			'credentials' => array(),
@@ -174,7 +189,7 @@ class Scan_Status_Test extends BaseTestCase {
 			array(
 				'data_source'         => 'scan_api',
 				'last_checked'        => '2003-03-03 03:03:03',
-				'num_threats'         => 3,
+				'num_threats'         => 4,
 				'num_plugins_threats' => 1,
 				'num_themes_threats'  => 0,
 				'status'              => 'idle',
@@ -231,6 +246,26 @@ class Scan_Status_Test extends BaseTestCase {
 									'version' => '3.0.0',
 									'checked' => true,
 								)
+							),
+						)
+					),
+					new Threat_Model(
+						array(
+							'id'             => '69353715',
+							'signature'      => 'database_malicious_redirect_wpcode_001',
+							'description'    => 'Jetpack has identified a malicious redirect in the database.',
+							'first_detected' => '2023-06-23T18:42:29.000Z',
+							'severity'       => 2,
+							'fixable'        => null,
+							'status'         => 'current',
+							'table'          => 'wp_options',
+							'details'        => (object) array(
+								'table'     => 'wp_options',
+								'pk_column' => 'option_id',
+								'pk_value'  => '7062',
+								'details'   => (object) array(
+									'option_value' => 'unset($value->response[$_insert-headers-and-footers/ihaf.php\r\n\r\nand other stuff',
+								),
 							),
 						)
 					),
@@ -319,7 +354,28 @@ class Scan_Status_Test extends BaseTestCase {
 						)
 					),
 				),
-				'database'            => array(),
+				'database'            => array(
+					new Threat_Model(
+						array(
+							'id'             => '69353715',
+							'signature'      => 'database_malicious_redirect_wpcode_001',
+							'description'    => 'Jetpack has identified a malicious redirect in the database.',
+							'first_detected' => '2023-06-23T18:42:29.000Z',
+							'severity'       => 2,
+							'fixable'        => null,
+							'status'         => 'current',
+							'table'          => 'wp_options',
+							'details'        => (object) array(
+								'table'     => 'wp_options',
+								'pk_column' => 'option_id',
+								'pk_value'  => '7062',
+								'details'   => (object) array(
+									'option_value' => 'unset($value->response[$_insert-headers-and-footers/ihaf.php\r\n\r\nand other stuff',
+								),
+							),
+						)
+					),
+				),
 				'has_unchecked_items' => false,
 			)
 		);
@@ -430,7 +486,7 @@ class Scan_Status_Test extends BaseTestCase {
 	public function test_get_total_threats() {
 		$this->mock_connection();
 
-		$this->assertSame( 3, Scan_Status::get_total_threats() );
+		$this->assertSame( 4, Scan_Status::get_total_threats() );
 	}
 
 	/**
