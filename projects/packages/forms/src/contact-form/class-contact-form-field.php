@@ -1139,7 +1139,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 								<span class="jetpack-form-file-field__file-size" data-wp-text="context.file.formattedSize"></span>
 								<span class="jetpack-form-file-field__seperator"> &middot; </span>
 								<span aria-live="polite">
-									<span class="jetpack-form-file-field__uploading"><?php esc_html_e( 'Uploading...', 'jetpack-forms' ); ?></span>
+									<span class="jetpack-form-file-field__uploading"><?php esc_html_e( 'Uploading…', 'jetpack-forms' ); ?></span>
 									<span class="jetpack-form-file-field__success"><?php esc_html_e( 'Uploaded', 'jetpack-forms' ); ?></span>
 									<span class="jetpack-form-file-field__error" data-wp-text="context.file.error"></span>
 								</span>
