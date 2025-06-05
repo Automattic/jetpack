@@ -582,8 +582,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	private static function is_previewable_file( $file ) {
 		$file_type = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
 		// Check if the file is previewable based on its type or extension.
-		// Note: This is a simplified check and does not cover all possible image upload formats.
-		$previewable_types = array( 'jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf' );
+		// Note: This is a simplified check and does not match if the file is allowed to be uploaded by the server.
+		$previewable_types = array( 'jpg', 'jpeg', 'png', 'gif', 'webp' );
 		return in_array( $file_type, $previewable_types, true );
 	}
 

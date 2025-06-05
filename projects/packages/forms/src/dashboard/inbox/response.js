@@ -20,18 +20,9 @@ const isFileUploadField = value => {
 	return value && typeof value === 'object' && 'files' in value && 'field_id' in value;
 };
 
-const isFilePdf = file => {
-	return file.name?.toLowerCase().endsWith( '.pdf' ) || file.type === 'application/pdf';
-};
-
 const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
-	const isPdf = isFilePdf( file );
 	const imageClass = clsx( 'jp-forms__inbox-file-preview-container', {
 		'is-loading': isLoading,
-	} );
-
-	const iframeClass = clsx( 'jp-forms__inbox-file-preview-container-iframe', {
-		'is-loading': false,
 	} );
 
 	return (
@@ -45,27 +36,52 @@ const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
 				</div>
 			) }
 
-			{ isPdf ? (
-				<div className={ iframeClass }>
-					<iframe
-						src={ file.url + '&preview=true' }
-						className="jp-forms__inbox-file-preview-iframe"
-						height={ '70vh' }
-						width={ '100%' }
-						title={ decodeEntities( file.name ) }
-						onLoad={ onImageLoaded }
-					/>
+			<div className={ imageClass }>
+				<img
+					src={ file.url }
+					alt={ decodeEntities( file.name ) }
+					onLoad={ onImageLoaded }
+					className="jp-forms__inbox-file-preview-image"
+				/>
+			</div>
+		</div>
+	);
+};
+
+const FileField = ( { file, onClick, key } ) => {
+	const extension = file.name.split( '.' ).pop().toUpperCase();
+	return (
+		<div key={ key } className="file-field__item">
+			<div className="file-field__info">
+				<div className="file-field__icon"></div>
+				<div className="file-field__name">
+					{ file.is_previewable && (
+						<Button target="_blank" variant="link" onClick={ onClick }>
+							{ decodeEntities( file.name ) }
+						</Button>
+					) }
+					{ ! file.is_previewable && (
+						<ExternalLink href={ file.url + '?preview=true' }>
+							{ decodeEntities( file.name ) }
+						</ExternalLink>
+					) }
 				</div>
-			) : (
-				<div className={ imageClass }>
-					<img
-						src={ file.url }
-						alt={ decodeEntities( file.name ) }
-						onLoad={ onImageLoaded }
-						className="jp-forms__inbox-file-preview-image"
-					/>
+				<div className="file-field__meta-info">
+					{ sprintf(
+						/* translators: %1$s size of the file and %2$s is the file extension */
+						__( '%1$s, %2$s', 'jetpack-forms' ),
+						file.size,
+						extension
+					) }
 				</div>
-			) }
+			</div>
+			<span className="file-field__item-actions">
+				<Tooltip text={ __( 'Download', 'jetpack-forms' ) }>
+					<Button variant="secondary" href={ file.url } target="_blank">
+						<Icon icon={ download } />
+					</Button>
+				</Tooltip>
+			</span>
 		</div>
 	);
 };
@@ -79,15 +95,7 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 	const ref = useRef( undefined );
 
 	const openFilePreview = useCallback(
-		( file, e ) => {
-			e.preventDefault();
-
-			const isSafari = window.safari !== undefined;
-			if ( isSafari && isFilePdf( file ) ) {
-				window.open( file.url + '&preview=true', 'pdf', 'popup' );
-				return;
-			}
-
+		file => {
 			setIsImageLoading( true );
 			setPreviewFile( file );
 			setIsPreviewModalOpen( true );
@@ -116,40 +124,26 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		if ( isFileUploadField( value ) ) {
 			return (
 				<div className="file-field">
-					{ value.files.map( ( file, index ) => {
-						if ( ! file || ! file.name ) {
-							return null;
-						}
-						const extension = file.name.split( '.' ).pop().toLowerCase();
-						return (
-							<div key={ index } className="file-field__item">
-								<div className="file-field__info">
-									<div className="file-field__name">
-										{ file.is_previewable && (
-											<Button target="_blank" variant="link" onClick={ handleFilePreview( file ) }>
-												{ decodeEntities( file.name ) }
-											</Button>
-										) }
-										{ ! file.is_previewable && (
-											<ExternalLink href="#">{ decodeEntities( file.name ) }</ExternalLink>
-										) }
-									</div>
-									<span className="file-field__size">{ file.size }</span>
-									<span className="file-field__extenstion">{ extension }</span>
-								</div>
-								<span className="file-field__item-actions">
-									<Tooltip text={ __( 'Download', 'jetpack-forms' ) }>
-										<Button variant="secondary" href={ file.url } target="_blank">
-											<Icon icon={ download } />
-										</Button>
-									</Tooltip>
-								</span>
-							</div>
-						);
-					} ) }
+					{ value.files?.length
+						? value.files.map( ( file, index ) => {
+								if ( ! file || ! file.name ) {
+									return null;
+								}
+								return (
+									<FileField file={ file } onClick={ handleFilePreview( file ) } key={ index } />
+								);
+						  } )
+						: '-' }
 				</div>
 			);
 		}
+
+		// Emails
+		const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+		if ( emailRegex.test( value ) ) {
+			return <a href={ `mailto:${ value }` }>{ value }</a>;
+		}
+
 		return value;
 	};
 
