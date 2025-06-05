@@ -45,14 +45,14 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 			);
 		}
 
-		if ( type === 'element-not-unique' && meta?.selector !== undefined ) {
+		if ( type === 'element-not-unique' ) {
 			return sprintf(
 				/* translators: %s is the HTML selector */
 				__(
-					'This page has multiple similar large elements with the same selector (%s), making it difficult to determine which one to optimize.',
+					'Boost was unable to identify the main LCP element on the page, due to multiple similar large elements with the same selector (%s).',
 					'jetpack-boost'
 				),
-				meta.selector
+				meta?.selector ?? 'unknown'
 			);
 		}
 
