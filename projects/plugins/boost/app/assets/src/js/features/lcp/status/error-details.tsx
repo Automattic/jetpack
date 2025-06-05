@@ -33,7 +33,7 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 
 		if ( type === 'lcp-timeout' ) {
 			return __(
-				'The page took too long to load during analysis. Please check that the page is publicly accessible, and try again.',
+				'The page took too long to load during analysis. Please make sure the page loads correctly in incognito mode, and try again.',
 				'jetpack-boost'
 			);
 		}
