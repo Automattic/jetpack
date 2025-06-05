@@ -31,7 +31,6 @@ Official links:
 - Nextdoor: https://about.nextdoor.com/nextdoor-brand-use-guidelines/
 - Patreon: https://www.patreon.com/brand
 - Pinterest: https://business.pinterest.com/brand-guidelines/
-- Pocket: https://blog.getpocket.com/press/
 - Quora: https://www.quora.com/
 - Reddit: https://www.redditinc.com/brand
 - Snapchat: https://snap.com/brand-guidelines
