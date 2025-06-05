@@ -1,7 +1,7 @@
-import type { AxisScale, Orientation, TickFormatter } from '@visx/axis';
+import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { ScaleInput, ScaleType } from '@visx/scale';
 import type { EventHandlerParams, GridStyles, LineStyles } from '@visx/xychart';
-import type { PointerEvent } from 'react';
+import type { PointerEvent, ReactNode } from 'react';
 
 type ValueOf< T > = T[ keyof T ];
 
@@ -93,6 +93,36 @@ declare type AxisOptions = {
 	labelClassName?: string;
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
+	/**
+	 * For more control over rendering or to add event handlers to datum, pass a function as children.
+	 */
+	children?: ( renderProps: AxisRendererProps< AxisScale > ) => ReactNode;
+};
+
+export type ScaleOptions = {
+	type?: ScaleType;
+	zero?: boolean;
+	domain?: [ number, number ];
+	range?: [ number, number ];
+	/**
+	 * For band scale, shortcut for setting `paddingInner` and `paddingOuter` to the same value.
+	 *
+	 * For point scale, the outer padding (spacing) at the ends of the range.
+	 * This is similar to band scale's `paddingOuter`.
+	 *
+	 */
+	padding?: number;
+	/**
+	 * The inner padding (spacing) within each band step of band scales, as a fraction of the step size. This value must lie in the range [0,1].
+	 *
+	 */
+	paddingInner?: number;
+	/**
+	 * The outer padding (spacing) at the ends of the range of band and point scales,
+	 * as a fraction of the step size. This value must lie in the range [0,1].
+	 *
+	 */
+	paddingOuter?: number;
 };
 
 /**
@@ -165,13 +195,8 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * More options for the chart.
 	 */
 	options?: {
-		yScale?: {
-			type?: ScaleType;
-			zero?: boolean;
-			domain?: [ number, number ];
-			range?: [ number, number ];
-		};
-		xScale?: { type?: ScaleType };
+		yScale?: ScaleOptions;
+		xScale?: ScaleOptions;
 		axis?: {
 			x?: AxisOptions;
 			y?: AxisOptions;
