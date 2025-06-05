@@ -1,5 +1,9 @@
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+import {
+	useBlockProps,
+	useInnerBlocksProps,
+	store as blockEditorStore,
+} from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -8,6 +12,7 @@ import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import { UpsellNudge } from '../shared/components/upsell-nudge';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 import './editor.scss';
 
 export default function FileFieldEdit( props ) {
@@ -52,11 +57,14 @@ export default function FileFieldEdit( props ) {
 		renderAppender: false,
 	} );
 
-	const isInnerBlockSelected = useSelect( select => {
-		const selectedBlockClientId = select( 'core/block-editor' ).getSelectedBlockClientId();
-		const blockParents = select( 'core/block-editor' ).getBlockParents( selectedBlockClientId );
-		return blockParents.includes( clientId );
+	const formClientId = useParentFormClientId( clientId );
+
+	const selectedBlockClientId = useSelect( select => {
+		const { getSelectedBlockClientId } = select( blockEditorStore );
+		return getSelectedBlockClientId();
 	} );
+
+	const selectedFormClientId = useParentFormClientId( selectedBlockClientId );
 
 	const requiresCustomUpgradeNudge = useMemo( () => {
 		return (
@@ -67,9 +75,10 @@ export default function FileFieldEdit( props ) {
 
 	return (
 		<>
-			{ requiresCustomUpgradeNudge && ( isSelected || isInnerBlockSelected ) && (
-				<UpsellNudge requiredPlan={ fieldFileAvailability?.details?.required_plan } />
-			) }
+			{ requiresCustomUpgradeNudge &&
+				( selectedFormClientId === formClientId || formClientId === selectedBlockClientId ) && (
+					<UpsellNudge requiredPlan={ fieldFileAvailability?.details?.required_plan } />
+				) }
 			<div { ...innerBlocksProps } />
 			<JetpackFieldControls
 				id={ id }
