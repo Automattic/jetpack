@@ -367,6 +367,9 @@ class Sharing_Admin {
 		 * @since 1.6.0
 		 */
 		do_action( 'pre_admin_screen_sharing' );
+
+		// Show Pocket discontinuation notice
+		$this->display_pocket_discontinuation_notice();
 		?>
 
 		<?php
@@ -717,6 +720,60 @@ class Sharing_Admin {
 		</form>
 	</div>
 		<?php
+	}
+
+	/**
+	 * Display notice about Pocket service discontinuation.
+	 *
+	 * @since 14.7
+	 * @return void
+	 */
+	public function display_pocket_discontinuation_notice() {
+		// Check if user has Pocket in their sharing configuration
+		$sharing_services = get_option( 'sharing-services', array() );
+		$has_pocket       = false;
+
+		if ( is_array( $sharing_services ) ) {
+			$has_pocket = ( isset( $sharing_services['visible'] ) && in_array( 'pocket', $sharing_services['visible'], true ) ) ||
+						( isset( $sharing_services['hidden'] ) && in_array( 'pocket', $sharing_services['hidden'], true ) );
+		}
+
+		// Only show the notice if user has Pocket configured or within a reasonable timeframe
+		if ( $has_pocket || time() < strtotime( '2025-08-01' ) ) {
+			?>
+			<div class="notice notice-info">
+				<h3><?php esc_html_e( 'Pocket Service Discontinued', 'jetpack' ); ?></h3>
+				<p>
+					<?php
+					echo wp_kses(
+						sprintf(
+							/* translators: %s is the date when Pocket service was discontinued */
+							__( 'The Pocket sharing service was discontinued on %s and has been removed from Jetpack. If you had Pocket buttons on your site, they will no longer appear.', 'jetpack' ),
+							'<strong>July 8, 2025</strong>'
+						),
+						array( 'strong' => array() )
+					);
+					?>
+				</p>
+				<p>
+					<strong><?php esc_html_e( 'Alternative "read later" services:', 'jetpack' ); ?></strong>
+				</p>
+				<ul style="margin-left: 20px;">
+					<li>• <a href="https://www.instapaper.com/" target="_blank" rel="noopener noreferrer">Instapaper</a> - <?php esc_html_e( 'Popular read-later service', 'jetpack' ); ?></li>
+					<li>• <a href="https://raindrop.io/" target="_blank" rel="noopener noreferrer">Raindrop.io</a> - <?php esc_html_e( 'Modern bookmark manager', 'jetpack' ); ?></li>
+					<li>• <a href="https://www.readwise.io/read" target="_blank" rel="noopener noreferrer">Readwise Reader</a> - <?php esc_html_e( 'Advanced reading app', 'jetpack' ); ?></li>
+				</ul>
+				<p>
+					<?php
+					echo wp_kses(
+						__( 'You can create custom sharing buttons for these services using the <a href="#add-a-new-service">"Add a new service"</a> option below.', 'jetpack' ),
+						array( 'a' => array( 'href' => array() ) )
+					);
+					?>
+				</p>
+			</div>
+			<?php
+		}
 	}
 
 	/**
