@@ -445,7 +445,7 @@ class Error_Handler {
 		 * to inject their own error types into the standard connection error flow.
 		 * External errors should follow the same structure as regular connection errors.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.12.0
 		 *
 		 * @param array $verified_errors Array of verified connection errors
 		 */
@@ -462,7 +462,7 @@ class Error_Handler {
 	 * internally by methods that need to modify and store the verified errors back
 	 * to the database to prevent accidentally persisting filtered/injected errors.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.12.0
 	 *
 	 * @return array $errors
 	 */

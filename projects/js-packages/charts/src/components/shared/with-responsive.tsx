@@ -17,7 +17,7 @@ type ResponsiveConfig = {
  * @param config           - Optional configuration for responsive behavior
  * @return A functional component that renders the wrapped component with responsive dimensions.
  */
-export function withResponsive< T extends BaseChartProps< unknown > >(
+export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'options' > >( // 'options' is excluded so that each chart can define its own options type
 	WrappedComponent: ComponentType< T >,
 	config?: ResponsiveConfig
 ) {

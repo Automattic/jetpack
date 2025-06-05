@@ -23,18 +23,27 @@ const renderFieldValue = value => {
 	if ( isFileUploadField( value ) ) {
 		return (
 			<div className="file-field">
-				{ value.files.map( ( file, index ) => {
-					return (
-						<div key={ index } className="file-field__item">
-							<Button variant="link" href={ file.url } target="_blank">
-								{ decodeEntities( file.name ) } | { file.size }
-							</Button>
-						</div>
-					);
-				} ) }
+				{ value.files?.length
+					? value.files.map( ( file, index ) => {
+							return (
+								<div key={ index } className="file-field__item">
+									<Button variant="link" href={ file.url } target="_blank">
+										{ decodeEntities( file.name ) } | { file.size }
+									</Button>
+								</div>
+							);
+					  } )
+					: '-' }
 			</div>
 		);
 	}
+
+	// Emails
+	const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+	if ( emailRegex.test( value ) ) {
+		return <a href={ `mailto:${ value }` }>{ value }</a>;
+	}
+
 	return value;
 };
 

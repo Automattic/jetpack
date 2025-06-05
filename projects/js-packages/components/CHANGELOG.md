@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.1.0] - 2025-06-04
+### Added
+- Add functionality to correctly display database threats in the Protect UI. [#43663]
+
+### Changed
+- Update package dependencies. [#43766]
+
 ## [1.0.0] - 2025-06-03
 ### Changed
 - Update package dependencies. [#43718] [#43734]
@@ -1415,6 +1422,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.1.0]: https://github.com/Automattic/jetpack-components/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/Automattic/jetpack-components/compare/0.73.4...1.0.0
 [0.73.4]: https://github.com/Automattic/jetpack-components/compare/0.73.3...0.73.4
 [0.73.3]: https://github.com/Automattic/jetpack-components/compare/0.73.2...0.73.3
