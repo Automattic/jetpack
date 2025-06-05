@@ -9,7 +9,7 @@ import save from './save';
 const name = 'field-file';
 const settings = {
 	...defaultSettings,
-	title: __( 'File Upload Field', 'jetpack-forms' ),
+	title: __( 'File upload field', 'jetpack-forms' ),
 	keywords: [
 		__( 'File', 'jetpack-forms' ),
 		__( 'Upload', 'jetpack-forms' ),
