@@ -1116,10 +1116,11 @@
 }
 
 .jetpack-field-dropdown__option-remove {
-	display: none;
+	display: inline-flex;
+	visibility: hidden;
 	margin-right: 5px;
 }
 
 .jetpack-field-dropdown__option:hover .jetpack-field-dropdown__option-remove {
-	display: inline-flex;
+	visibility: visible;
 }
