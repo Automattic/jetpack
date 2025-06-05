@@ -10,14 +10,7 @@ import type { NoticeContextType } from '../../../context/notices/types';
 // Mock the dependencies
 jest.mock( '@automattic/jetpack-connection' );
 jest.mock( '../../use-analytics' );
-
-// Mock window.location to prevent navigation errors in tests
-Object.defineProperty( window, 'location', {
-	value: {
-		href: '',
-	},
-	writable: true,
-} );
+jest.mock( '../assignLocation' );
 
 jest.mock( '@automattic/jetpack-components', () => ( {
 	Col: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
