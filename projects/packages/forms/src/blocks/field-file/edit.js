@@ -5,9 +5,9 @@ import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
+import { UpsellNudge } from '../shared/components/upsell-nudge';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
-import { UpsellNudge } from '../upsell-nudge';
 import './editor.scss';
 
 export default function FileFieldEdit( props ) {
