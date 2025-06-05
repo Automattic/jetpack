@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 4.1.0 - 2025-06-05
 ### Added
-- Scanner: Added functionality to correctly display database threats in the Protect UI. [#43663]
-- Account Protection: Adds the Account Protection module toggle. [#40925]
+- Scanner: Add functionality to correctly display database threats in the Protect UI. [#43663]
+- Account Protection: Add the Account Protection module toggle. [#40925]
 - My Jetpack: Add user tour. [#42880]
 - My Jetpack: Improve the onboarding experience of Jetpack guiding the users through a new onboarding process. [#42757]
 
