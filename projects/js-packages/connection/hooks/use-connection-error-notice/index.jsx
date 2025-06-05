@@ -1,10 +1,39 @@
+import { __ } from '@wordpress/i18n';
 import ConnectionErrorNotice from '../../components/connection-error-notice';
 import useConnection from '../../components/use-connection';
 import useRestoreConnection from '../../hooks/use-restore-connection/index.jsx';
 
 /**
+ * Helper function to generate user creation URL with email prepopulation
+ *
+ * @param {object} connectionError - The connection error object
+ * @param {string} baseUrl         - Base admin URL (defaults to '/wp-admin/')
+ * @return {string} The complete URL for user creation with email parameters
+ */
+export function getProtectedOwnerCreateAccountUrl( connectionError, baseUrl = '/wp-admin/' ) {
+	let redirectUrl = baseUrl + 'user-new.php';
+
+	// Add protected owner email if available for prepopulation
+	if ( connectionError?.error_data?.wpcom_user_email ) {
+		const params = new URLSearchParams( {
+			jetpack_protected_owner_email: connectionError.error_data.wpcom_user_email,
+			jetpack_create_missing_account: '1',
+		} );
+		redirectUrl += '?' + params.toString();
+	} else if ( connectionError?.error_data?.email ) {
+		const params = new URLSearchParams( {
+			jetpack_protected_owner_email: connectionError.error_data.email,
+			jetpack_create_missing_account: '1',
+		} );
+		redirectUrl += '?' + params.toString();
+	}
+
+	return redirectUrl;
+}
+
+/**
  * Connection error notice hook.
- * Returns a ConnectionErrorNotice component and the conditional flag on whether
+ * Returns connection error data and conditional flag on whether
  * to render the component or not.
  *
  * @return {object} - The hook data.
@@ -12,27 +41,90 @@ import useRestoreConnection from '../../hooks/use-restore-connection/index.jsx';
 export default function useConnectionErrorNotice() {
 	const { connectionErrors } = useConnection( {} );
 	const connectionErrorList = Object.values( connectionErrors ).shift();
-	const connectionErrorMessage =
+	const firstError =
 		connectionErrorList &&
 		Object.values( connectionErrorList ).length &&
-		Object.values( connectionErrorList ).shift().error_message;
+		Object.values( connectionErrorList ).shift();
 
+	const connectionErrorMessage = firstError && firstError.error_message;
+
+	// Return all connection errors, including protected owner errors
 	const hasConnectionError = Boolean( connectionErrorMessage );
 
-	return { hasConnectionError, connectionErrorMessage };
+	return {
+		hasConnectionError,
+		connectionErrorMessage,
+		connectionError: firstError, // Full error object with error_type, etc.
+		connectionErrors, // All errors for advanced use cases
+	};
 }
 
-export const ConnectionError = () => {
-	const { hasConnectionError, connectionErrorMessage } = useConnectionErrorNotice();
+export const ConnectionError = ( {
+	onCreateMissingAccount = null, // Custom handler for protected owner errors
+	trackingCallback = null, // Custom tracking function
+	customActions = null, // Function that returns custom actions based on error
+} = {} ) => {
+	const { hasConnectionError, connectionErrorMessage, connectionError } =
+		useConnectionErrorNotice();
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
 
-	return hasConnectionError ? (
+	if ( ! hasConnectionError ) {
+		return null;
+	}
+
+	// Determine error type
+	const isProtectedOwnerError = connectionError && connectionError.error_type === 'protected_owner';
+
+	// Build actions array based on error type
+	let actions = [];
+
+	if ( customActions ) {
+		// Use provided custom actions function
+		actions = customActions( connectionError, { restoreConnection, isRestoringConnection } );
+	} else if ( isProtectedOwnerError && onCreateMissingAccount ) {
+		// Handle protected owner error with custom handler
+		actions = [
+			{
+				label: __( 'Create missing account', 'jetpack-connection-js' ),
+				onClick: () => {
+					if ( trackingCallback ) {
+						trackingCallback( 'jetpack_connection_protected_owner_create_account_attempt', {} );
+					}
+					onCreateMissingAccount();
+				},
+				variant: 'primary',
+			},
+		];
+	} else if ( ! isProtectedOwnerError ) {
+		// Standard connection error - use restore connection
+		actions = [
+			{
+				label: __( 'Restore Connection', 'jetpack-connection-js' ),
+				onClick: () => {
+					if ( trackingCallback ) {
+						trackingCallback( 'jetpack_connection_error_notice_reconnect_cta_click', {} );
+					}
+					restoreConnection();
+				},
+				isLoading: isRestoringConnection,
+				loadingText: __( 'Reconnecting Jetpack…', 'jetpack-connection-js' ),
+			},
+		];
+	}
+
+	// For protected owner errors without custom handler, don't show the component
+	if ( isProtectedOwnerError && ! onCreateMissingAccount && ! customActions ) {
+		return null;
+	}
+
+	return (
 		<ConnectionErrorNotice
 			isRestoringConnection={ isRestoringConnection }
 			restoreConnectionError={ restoreConnectionError }
-			restoreConnectionCallback={ restoreConnection }
+			restoreConnectionCallback={ actions.length === 0 ? restoreConnection : null } // Fallback for backward compatibility
 			message={ connectionErrorMessage }
+			actions={ actions }
 		/>
-	) : null;
+	);
 };

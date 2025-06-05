@@ -1,3 +1,7 @@
+@use "../mixins/breakpoints";
+@use "../typography";
+@use "../variables/colors";
+
 // ==========================================================================
 // Global Shared Jetpack Styles
 // ==========================================================================
@@ -9,7 +13,7 @@
 
 .jp-hidden-on-mobile {
 
-	@include breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		display: none;
 	}
 }
@@ -17,7 +21,7 @@
 // General Elements
 
 .wp-admin.toplevel_page_jetpack {
-	background-color: $gray-light;
+	background-color: colors.$gray-light;
 	line-height: 1.4; // fixes core bug that sets an em unit on body
 	height: auto;
 }
@@ -27,7 +31,7 @@
 }
 
 .jetpack-pagestyles {
-	font-size: $font-body-small;
+	font-size: typography.$font-body-small;
 }
 
 	.jetpack-pagestyles a {
@@ -47,13 +51,13 @@
 		top: 0;
 		padding: rem.convert( 10px );
 		text-align: right;
-		background: $white;
+		background: colors.$white;
 		font-size: rem.convert( 12px );
 		font-style: italic;
-		color: $gray;
-		border-bottom: 1px color.adjust( $gray, $lightness: 30% ) solid;
+		color: colors.$gray;
+		border-bottom: 1px color.adjust( colors.$gray, $lightness: 30% ) solid;
 
-		@include breakpoint( "<660px" ) {
+		@include breakpoints.breakpoint( "<660px" ) {
 			display: none;
 		}
 	}
@@ -64,7 +68,7 @@
 
 // restyled the arrow to match our gray
 .toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu::after {
-	border-right-color: $gray-light;
+	border-right-color: colors.$gray-light;
 }
 
 .jp-top {
@@ -116,12 +120,12 @@
 
 .is-placeholder {
 	animation: pulse-light 0.8s ease-in-out infinite;
-	background: color.adjust( $gray, $lightness: 20% );
+	background: color.adjust( colors.$gray, $lightness: 20% );
 }
 
 @keyframes pulse-light {
 
-	50% { background-color: color.adjust( $gray, $lightness: 30% ); }
+	50% { background-color: color.adjust( colors.$gray, $lightness: 30% ); }
 }
 
 .blur {

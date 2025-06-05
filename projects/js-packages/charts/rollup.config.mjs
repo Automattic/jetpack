@@ -50,6 +50,7 @@ const mainConfig = {
 			compilerOptions: {
 				verbatimModuleSyntax: true,
 			},
+			exclude: [ 'node_modules', 'dist', '**/stories/**', '**/*.test.{ts,tsx}' ],
 		} ),
 		terser(),
 	],

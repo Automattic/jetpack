@@ -74,25 +74,37 @@ class LCP_Optimize_Img_Tag {
 			return $buffer;
 		}
 
-		$id    = $lcp_processor->get_attribute( 'id' );
-		$class = $lcp_processor->get_attribute( 'class' );
-		$src   = $lcp_processor->get_attribute( 'src' );
+		// Extract attributes from the LCP tag for matching
+		$lcp_id    = $lcp_processor->get_attribute( 'id' );
+		$lcp_class = $lcp_processor->get_attribute( 'class' );
+		$lcp_src   = $lcp_processor->get_attribute( 'src' );
 
 		$buffer_processor = new WP_HTML_Tag_Processor( $buffer );
-		$tag_found        = $buffer_processor->next_tag(
-			array(
-				'tag_name' => 'img',
-				'id'       => $id,
-				'class'    => $class,
-				'src'      => $src,
-			)
-		);
+		$target_tag_found = false;
 
-		// Tag not found in buffer
-		if ( ! $tag_found ) {
+		// Loop through all img tags in the buffer with the same classuntil we find a match.
+		// We do this because next_tag does not support matching on IDs and sources.
+		while ( $buffer_processor->next_tag(
+			array(
+				'tag_name'   => 'img',
+				'class_name' => $lcp_class,
+			)
+		) ) {
+			// Tag is considered a match if all attributes match
+			if ( $lcp_id === $buffer_processor->get_attribute( 'id' ) &&
+				$lcp_class === $buffer_processor->get_attribute( 'class' ) &&
+				$lcp_src === $buffer_processor->get_attribute( 'src' ) ) {
+				$target_tag_found = true;
+				break;
+			}
+		}
+
+		// If no matching tag found, return the original buffer
+		if ( ! $target_tag_found ) {
 			return $buffer;
 		}
 
+		// Apply optimizations to the matched tag
 		$buffer_processor->set_attribute( 'fetchpriority', 'high' );
 		$buffer_processor->set_attribute( 'loading', 'eager' );
 		$buffer_processor->set_attribute( 'data-jp-lcp-optimized', 'true' );
@@ -111,7 +123,7 @@ class LCP_Optimize_Img_Tag {
 	 *
 	 * @param WP_HTML_Tag_Processor $element The original image tag.
 	 * @param string                $image_url The image URL.
-	 * @return string The optimized image tag.
+	 * @return WP_HTML_Tag_Processor The optimized image tag.
 	 *
 	 * @since 4.0.0
 	 */

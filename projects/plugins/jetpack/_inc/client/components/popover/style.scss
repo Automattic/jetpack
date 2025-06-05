@@ -1,6 +1,6 @@
 @use 'sass:color';
 @use '../../scss/z-index';
-@import '../../scss/calypso-colors';
+@use '../../scss/calypso-colors';
 
 /**
  * "popover" theme for `component/tip`.
@@ -15,15 +15,15 @@
 	right: auto #{"/*rtl:ignore*/"};
 
 	.dops-popover__inner {
-		background-color: $white;
-		border: 1px solid color.adjust( $gray, $lightness: 20% );
+		background-color: calypso-colors.$white;
+		border: 1px solid color.adjust( calypso-colors.$gray, $lightness: 20% );
 		border-radius: 4px;
 		box-shadow: 0 2px 5px rgba( 0, 0, 0, 0.1 ), 0 0 56px rgba( 0, 0, 0, 0.075 );
 		text-align: center;
 		position: relative;
 
 		a {
-			color: $black;
+			color: calypso-colors.$black;
 			text-decoration: underline;
 
 			&:hover {
@@ -40,7 +40,7 @@
 	}
 
 	.dops-popover__arrow {
-		border: 10px dashed color.adjust( $gray, $lightness: 20% );
+		border: 10px dashed color.adjust( calypso-colors.$gray, $lightness: 20% );
 		height: 0;
 		line-height: 0;
 		position: absolute;
@@ -116,7 +116,7 @@
 
 			&::before {
 				#{$opposite-side}: 2px #{"/*rtl:ignore*/"};
-				border: 10px solid $white;
+				border: 10px solid calypso-colors.$white;
 				content: " ";
 				position: absolute;
 
@@ -190,7 +190,7 @@
 	background: inherit;
 	border: none;
 	border-radius: 0;
-	color: $gray-dark;
+	color: calypso-colors.$gray-dark;
 	cursor: pointer;
 	display: block;
 	font-size: 14px;
@@ -206,13 +206,13 @@
 
 	&:hover,
 	&:focus {
-		background-color: $blue-medium;
+		background-color: calypso-colors.$blue-medium;
 		border: 0;
 		box-shadow: none;
 		color: #fff;
 
 		.gridicon {
-			color: $white;
+			color: calypso-colors.$white;
 		}
 	}
 
@@ -237,7 +237,7 @@
 
 	// with gridicons
 	.gridicon {
-		color: color.adjust( $gray, $lightness: 10% );
+		color: color.adjust( calypso-colors.$gray, $lightness: 10% );
 		vertical-align: bottom;
 		margin-right: 8px;
 	}
@@ -245,5 +245,5 @@
 
 .dops-popover__hr {
 	margin: 8px 0;
-	background: color.adjust( $gray, $lightness: 30% );
+	background: color.adjust( calypso-colors.$gray, $lightness: 30% );
 }

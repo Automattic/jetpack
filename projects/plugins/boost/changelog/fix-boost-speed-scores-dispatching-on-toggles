@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Speed Scores: Fix not waiting for Cloud CSS to finish generating before refreshing the scores.

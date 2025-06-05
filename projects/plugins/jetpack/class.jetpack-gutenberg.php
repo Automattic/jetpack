@@ -789,6 +789,16 @@ class Jetpack_Gutenberg {
 
 		// Adds Connection package initial state.
 		Connection_Initial_State::render_script( 'jetpack-blocks-editor' );
+
+		// Register and enqueue the Jetpack Chrome AI token script
+		wp_register_script(
+			'jetpack-chrome-ai-token',
+			'https://widgets.wp.com/jetpack-chrome-ai/v1/3p-token.js',
+			array(),
+			gmdate( 'Ymd' ) . floor( (int) gmdate( 'G' ) / 12 ), // Cache buster: changes twice daily (morning/afternoon) in case we need to rotate the tokens
+			true
+		);
+		wp_enqueue_script( 'jetpack-chrome-ai-token' );
 	}
 
 	/**

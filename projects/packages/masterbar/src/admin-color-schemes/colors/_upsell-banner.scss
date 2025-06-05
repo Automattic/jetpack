@@ -1,3 +1,10 @@
+// Input variables
+$menu-nudge-text-color: $--a-value-must-be-set-via-with-- !default;
+$menu-nudge-background: $--a-value-must-be-set-via-with-- !default;
+$menu-nudge-cta-color: $--a-value-must-be-set-via-with-- !default;
+$menu-nudge-cta-background: $--a-value-must-be-set-via-with-- !default;
+$menu-nudge-cta-background-hover: $--a-value-must-be-set-via-with-- !default;
+
 // Calypso Upsell Banner
 #adminmenu .toplevel_page_site-notices .upsell_banner {
 	background-color: $menu-nudge-background;

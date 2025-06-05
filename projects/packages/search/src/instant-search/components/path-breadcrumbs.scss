@@ -1,4 +1,4 @@
-@import '../lib/styles/helper';
+@use '../lib/styles/helper';
 
 .jetpack-instant-search__path-breadcrumb {
 	font-size: 0.9em;
@@ -23,5 +23,5 @@
 
 .jetpack-instant-search__path-breadcrumb,
 .jetpack-instant-search__path-breadcrumb-link {
-	color: $color-text-light;
+	color: helper.$color-text-light;
 }

@@ -5,8 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 4.0.0 - 2025-03-24
+## 4.1.0 - 2025-06-05
+### Added
+- Scanner: Add functionality to correctly display database threats in the Protect UI. [#43663]
+- Account Protection: Add the Account Protection module toggle. [#40925]
+- My Jetpack: Add user tour. [#42880]
+- My Jetpack: Improve the onboarding experience of Jetpack guiding the users through a new onboarding process. [#42757]
 
+### Changed
+- Connection: Allow pre-selected login providers. [#42662]
+- General: Indicate compatibility with WordPress 6.8. [#42701]
+- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
+- My Jetpack: Update the onboarding UI, changing it to a single button. [#43203]
+- General: Update package dependencies. [#43766]
+
+### Removed
+- General: Update minimum WordPress version to 6.7. [#43192]
+
+### Fixed
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- My Jetpack: Prevent social login from getting stuck when email input is not empty. [#43158]
+- Readme: Clarify language in the plugin readme regarding malware and vulnerability scanning. [#43775]
+
+## 4.0.0 - 2025-03-24
 ### Changed
 - Scanner: Add threat count to tab. [#40056]
 - Scanner: Animate the "scan in progress" placeholder image. [#39825]

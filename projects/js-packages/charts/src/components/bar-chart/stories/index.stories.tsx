@@ -1,3 +1,4 @@
+import largeValuesData from '../../line-chart/stories/large-values-sample';
 import trafficData from '../../line-chart/stories/site-traffic-sample';
 import BarChart from '../bar-chart';
 import data from './sample-data';
@@ -170,5 +171,34 @@ ErrorStates.parameters = {
 			story:
 				'Examples of how the bar chart handles various error states including empty data and invalid data.',
 		},
+	},
+};
+
+// Story demonstrating Smart Formatting (formatYTick) with large values
+export const SmartFormatting: Story = {
+	args: {
+		withTooltips: true,
+		data: largeValuesData,
+		showLegend: false,
+		legendOrientation: 'horizontal',
+		gridVisibility: 'x',
+	},
+};
+
+SmartFormatting.parameters = {
+	docs: {
+		description: {
+			story:
+				'Demonstrates the Smart Formatting feature (formatYTick) that automatically formats Y-axis tick labels based on the data range. Values ≥1B are formatted as "1.23B", ≥1M as "1.2M", ≥1K as "1k", and smaller values as "1,234". This example shows revenue in billions and users in millions.',
+		},
+	},
+};
+
+export const HorizontalBarChart: Story = {
+	args: {
+		...Default.args,
+		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
+		orientation: 'horizontal',
+		gridVisibility: 'none',
 	},
 };

@@ -62,7 +62,6 @@
 }
 
 .contact-form select {
-	padding: 14px 7px;
 	min-width: 150px;
 }
 
@@ -80,16 +79,27 @@
 }
 
 .contact-form label {
-	margin-bottom: 0.25em;
 	float: none;
-	font-weight: 700;
 	display: block;
 }
 
-.contact-form label.consent {
-	font-size: 13px;
+.contact-form :where(legend.grunion-field-label),
+.contact-form :where(label) {
+	margin-bottom: 0.25em;
+	font-weight: 700;
+}
+
+.contact-form :where(legend.grunion-field-label) {
+	padding: 0;
+}
+
+.contact-form :where(label.consent) {
+	font-size: var(--jetpack--contact-form--label--font-size, 13px);
 	font-weight: 400;
 	text-transform: uppercase;
+}
+
+.contact-form label.consent {
 	display: flex;
 	align-items: center;
 }
@@ -98,14 +108,17 @@
 	display: none;
 }
 
-.contact-form label.checkbox {
-	font-weight: 400;
+.contact-form :where(label.checkbox-multiple),
+.contact-form :where(label.radio),
+.contact-form :where(label.checkbox) {
+
+	/* Inherit the font weight from the parent 'option' block wrapper */
+	font-weight: inherit;
 }
 
 .contact-form label.checkbox-multiple,
 .contact-form label.radio {
 	margin-bottom: 0;
-	font-weight: 400;
 	flex: 1;
 }
 
@@ -119,45 +132,49 @@
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 12px;
-
 	margin: 0;
-	padding: 0;
-
-	border: none;
 }
 
-.contact-form .is-style-outlined .grunion-checkbox-multiple-options,
-.contact-form .is-style-outlined .grunion-radio-options {
+/* Ensure global styles can ovewrite the default border and padding. */
+:where( .contact-form .grunion-checkbox-multiple-options ),
+:where( .contact-form .grunion-radio-options ) {
+	border: none;
+	padding: 0;
+}
+
+:where( .contact-form .is-style-outlined .grunion-checkbox-multiple-options ),
+:where( .contact-form .is-style-outlined .grunion-radio-options )  {
 	border: solid 1px var( --jetpack--contact-form--border-color );
 }
 
-.contact-form .grunion-checkbox-multiple-options legend,
-.contact-form .grunion-radio-options legend {
-	margin-bottom: 0.25em;
-	padding: 0;
-
-	font-weight: 700;
-}
-
+.contact-form .is-style-animated .grunion-checkbox-multiple-options legend,
+.contact-form .is-style-animated .grunion-radio-options legend,
 .contact-form .is-style-outlined .grunion-checkbox-multiple-options legend,
 .contact-form .is-style-outlined .grunion-radio-options legend {
-	margin: 0 0 -0.75em;
-	padding: 0 0.25em;
+    margin: 0 0 -0.75em;
+    padding: 0 0.25em 10px 0.25em;
+    cursor: text;
+    pointer-events: auto;
+}
 
-	font-size: 0.8em;
-	font-weight: 300;
+.wp-block-jetpack-contact-form.is-style-outlined .wp-block-jetpack-options legend {
+	display: flex;
+	align-items: baseline;
+	flex-wrap: wrap;
+	padding: 0 0.25em;
+	position: relative;
+	top: calc(var(--jetpack--contact-form--border-top-size, 1px) / 2 * -1);
 }
 
 .contact-form .grunion-checkbox-multiple-options .contact-form-field,
 .contact-form .grunion-radio-options .contact-form-field {
 	display: flex;
-	align-items: baseline;
-
+	align-items: baseline; /* Align input with first label line */
 	margin: 0;
 }
 
-.contact-form label span.required,
-.grunion-label-required {
+.contact-form :where(label span.required),
+.contact-form :where(.grunion-label-required) {
 	font-size: 85%;
 	margin-left: 0.25em;
 	font-weight: 400;
@@ -368,52 +385,98 @@
 
 .contact-form .contact-form__select-wrapper {
 	position: relative;
+
+	/*
+	 * Remove padding set on .grunion-field. We want the nested input to have no space around it.
+	 * Instead the padding is added to the `select` element itself.
+	 */
+	 padding: 0;
 }
 
-.contact-form .contact-form__select-wrapper::after {
+.contact-form .contact-form__select-wrapper .jetpack-field-dropdown__icon {
+	position: relative;
+}
+
+.contact-form .contact-form__select-wrapper .jetpack-field-dropdown__icon::after {
 	position: absolute;
 	inset-inline-end: 20px;
 	top: 50%;
+	content: "";
+	display: block;
+	width: calc(1em / 2.5);
+	height: calc(1em / 2.5);
+	border-bottom: calc(1em / 10) solid;
+	border-right: calc(1em / 10) solid;
+	color: inherit;
+	font-size: inherit;
 
-  content: "";
-  display: block;
-	width: 8px;
-	height: 8px;
-
-	border-bottom: 2px solid;
-  border-right: 2px solid;
-
-	transform: translateY(-50%) rotate(45deg);
+	/*
+	 * The translateY is to center the arrow vertically.
+	 * It's set to -75% to account for the fact that only the bottom-half of the element is visible.
+	 * If we set it to -50%, the element would be centered, but not the visible part of the arrow.
+	 */
+	transform: translateY(-75%) rotate(45deg);
 	transform-origin: center center;
-
 	pointer-events: none;
+	z-index: 1;
+}
+
+.contact-form :where( .contact-form__select-wrapper ) {
+	background-color: var(--jetpack--contact-form--input-background);
+	border: var(--jetpack--contact-form--border);
+	border-color: var(--jetpack--contact-form--border-color);
+	border-radius: var(--jetpack--contact-form--border-radius);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width:  var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
+	color: var(--jetpack--contact-form--text-color);
+	font-family: var(--jetpack--contact-form--font-family);
+	font-size: var(--jetpack--contact-form--font-size);
+}
+
+.contact-form .contact-form__select-element-wrapper {
+	display: flex;
+}
+
+.contact-form :where( .contact-form__select-element-wrapper ),
+.contact-form :where( .contact-form__select-wrapper select ) {
+	border: 0 !important;
+	background: transparent !important;
+	font-family: inherit;
+	font-size: inherit;
+	color: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	text-decoration: inherit;
+	text-transform: inherit;
+	letter-spacing: inherit;
+	font-style: inherit;
+	z-index: 1;
+
+	/*
+	 * Remove border width from select element, border should be added by the wrapper.
+	 * Radius is retained to ensure the select element has the same radius as the wrapper.
+	 */
+	border-width: 0 !important;
 }
 
 .contact-form .contact-form__select-wrapper select {
 	box-sizing: border-box;
 	width: 100%;
-	padding: var(--jetpack--contact-form--input-padding);
-	padding-inline-end: calc(var(--jetpack--contact-form--input-padding) * 3);
-
 	appearance: none;
-	background-color: var(--jetpack--contact-form--input-background);
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
-	border-radius: var(--jetpack--contact-form--border-radius);
-	color: var(--jetpack--contact-form--text-color);
-
-	font-size: var(--jetpack--contact-form--font-size);
-	font-family: var(--jetpack--contact-form--font-family);
-	line-height: var(--jetpack--contact-form--line-height);
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	padding: var(--jetpack--contact-form--input-padding-left, 16px);
 }
 
 .contact-form .is-style-outlined,
-.contact-form .is-style-animated {
-	--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+.contact-form .is-style-animated,
+.contact-form .is-style-outlined .grunion-field-wrap,
+.contact-form .is-style-animated .grunion-field-wrap {
+
+	/*
+	 * This is duplicated in class-contact-form-field.php, does it need to be set here? This might be back compat for shortcodes.
+	 */
+	--jetpack--contact-form--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap):not(.grunion-field-select-wrap):not(.grunion-field-file-wrap),
@@ -423,17 +486,12 @@
 	flex-direction: row-reverse;
 }
 
-.contact-form .is-style-outlined .grunion-field-checkbox-multiple-wrap,
-.contact-form .is-style-outlined .grunion-field-radio-wrap {
-	background-color: var(--jetpack--contact-form--input-background);
-}
-
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options
 {
 	padding: var(--jetpack--contact-form--input-padding, 16px);
 	padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
-	flex-grow: 1;
+	padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)))
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label {
@@ -447,6 +505,7 @@
 	box-sizing: border-box;
 	text-align: left;
 	pointer-events: none;
+	z-index: 1;
 }
 
 .contact-form .contact-form__select-wrapper + .notched-label {
@@ -454,12 +513,8 @@
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__leading {
-	width: var(--notch-width);
-	border-radius: var(--jetpack--contact-form--border-radius);
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
+	width: var(--jetpack--contact-form--notch-width);
+	max-width: 100px;
 	border-right: none;
 	border-top-right-radius: unset;
 	border-bottom-right-radius: unset;
@@ -467,13 +522,82 @@
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__notch {
 	border-radius: unset;
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
 	padding: 0 4px;
 	transition: border 150ms linear;
+
+	/*
+	 * This is required to ensure the color is not overridden by the global styles.
+	 * See the selector in class-contact-form-block.php for 'jetpack/input' registration.
+	 */
+	color: unset !important;
 }
+
+
+:where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__leading {
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
+	border-left-width: var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
+	border-radius: var(--jetpack--contact-form--border-radius);
+	width: var(--jetpack--contact-form--notch-width);
+	max-width: 100px;
+	border-right: none !important;
+	border-top-right-radius: unset !important;
+	border-bottom-right-radius: unset !important;
+	background-color: var(--jetpack--contact-form--input-background);
+}
+
+:where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__notch {
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
+	border-radius: unset !important;
+	padding: 0 4px;
+	transition: border 150ms linear;
+	border-left: none !important;
+	border-right: none !important;
+	background-color: var(--jetpack--contact-form--input-background);
+}
+
+:where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__filler {
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
+	flex-grow: 1;
+	border-left: none !important;
+	border-right: none !important;
+	border-radius: unset !important;
+	background-color: var(--jetpack--contact-form--input-background);
+}
+
+:where( .wp-block-jetpack-contact-form.is-style-outlined ) .notched-label__trailing {
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
+	border-right-width: var(--jetpack--contact-form--border-right-size, var(--jetpack--contact-form--border-size));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
+	border-radius: var(--jetpack--contact-form--border-radius);
+	flex-grow: 1;
+	max-width: 100px;
+	border-left: none !important;
+	border-top-left-radius: unset !important;
+	border-bottom-left-radius: unset !important;
+	background-color: var(--jetpack--contact-form--input-background);
+}
+
+/* Preserve the background color for the checkbox multiple and radio wrap when using the old checkbox multiple and radio blocks. */
+.contact-form .is-style-outlined .grunion-field-checkbox-multiple-wrap:not(.wp-block-jetpack-field-checkbox-multiple),
+.contact-form .is-style-outlined .grunion-field-radio-wrap:not(.wp-block-jetpack-field-radio) {
+    background-color: var(--jetpack--contact-form--input-background);
+}
+
+:where( .wp-block-jetpack-contact-form.is-style-outlined ) .wp-block-jetpack-options {
+	background-color: var(--jetpack--contact-form--input-background);
+}
+
 
 /*
 For some reason, when keeping the rule below together with the above selector,
@@ -481,7 +605,7 @@ on production builds, the attributes are being reordered, causing side-effects
 */
 /* stylelint-disable-next-line no-duplicate-selectors*/
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__notch {
-	border-left: none;
+	border-left: none !important;
 	border-right: none;
 }
 
@@ -491,12 +615,28 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__label {
 	position: relative;
+	display: flex;
+	align-items: baseline;
+	flex-wrap: wrap;
 	top: 50%;
 	transform: translateY(-50%);
 	pointer-events: none;
-	will-change: transform;
 	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 	margin: 0;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .grunion-label-text {
+	will-change: font-size;
+	transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .grunion-label-required {
+	will-change: font-size;
+	transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.contact-form :where(.is-style-outlined .grunion-field-wrap .notched-label .notched-label__label),
+.contact-form :where(.is-style-outlined .grunion-field-wrap legend.grunion-field-label) {
 	font-weight: 300;
 }
 
@@ -505,64 +645,74 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: unset;
 }
 
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__filler {
+	flex-grow: 1;
+	border-left: none !important;
+	border-right: none !important;
+	border-radius: unset !important;
+}
+
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__trailing {
 	flex-grow: 1;
-	border-radius: var(--jetpack--contact-form--border-radius);
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
-	border-left: none;
-	border-top-left-radius: unset;
-	border-bottom-left-radius: unset;
+	border-left: none !important;
+	border-top-left-radius: unset !important;
+	border-bottom-left-radius: unset !important;
+	max-width: 100px;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__notch
 {
-	border-top-color: transparent;
+	border-top-color: transparent !important;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label
 {
 	top: calc(var(--jetpack--contact-form--border-size) * -1);
 	transform: translateY(-50%);
+}
+
+/* Form that upgrade to use inner blocks look to the global styles border size accessible via the CSS vars. See Contact_Form_Field::get_form_variation_style_properties() .*/
+.contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
+.contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
+.contact-form .is-style-outlined .wp-block-jetpack-field-select.wp-block-jetpack-input-wrap .notched-label .notched-label__label {
+	top: calc( var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1 );
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-text,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .grunion-label-text,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options .grunion-label-text,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options .grunion-label-text,
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .grunion-label-text {
 	font-size: 0.8em;
 }
 
-/* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label[style*="--jetpack--contact-form--label--font-size"] {
-	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.8);
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-required,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .grunion-label-required,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options .grunion-label-required,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options .grunion-label-required,
+.contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .grunion-label-required {
+
+	/*
+	 * The font size should be 85% of the label font size, which is reduced separately to 0.8em for this focused style.
+	 * 0.85 * 0.8 = 0.68em.
+	 */
+	font-size: 0.68em;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap > input,
 .contact-form .is-style-outlined .grunion-field-wrap > textarea,
-.contact-form .is-style-outlined .grunion-field-wrap select
-{
+.contact-form .is-style-outlined .grunion-field-wrap select {
+	background: none !important; /* Need to override styles coming from the style attribute*/
 	border-color: transparent !important; /* Need to override styles coming from the style attribute*/
+	border-radius: unset !important; /* Need to override styles coming from the style attribute*/
 	outline: none;
-	padding-left: calc(var(--notch-width) + 4px);
-	padding-right: calc(var(--notch-width) + 4px);
-}
-
-.contact-form .is-style-outlined .grunion-field-wrap textarea {
-	padding: var(--jetpack--contact-form--input-padding, 16px);
-	padding-left: calc(var(--notch-width) + 4px);
-	padding-right: calc(var(--notch-width) + 4px);
+	padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
+	padding-right: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
+	position: relative;
 }
 
 .contact-form .is-style-animated .grunion-field-wrap {
@@ -589,10 +739,23 @@ on production builds, the attributes are being reordered, causing side-effects
 	padding-right: var(--field-padding);
 }
 
+/* Fix padding for new forms in animated style */
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > .wp-block-jetpack-input:not(.contact-form__select-wrapper),
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .wp-block-jetpack-input:not(.contact-form__select-wrapper),
+.contact-form .is-style-animated .wp-block-jetpack-options.jetpack-field-multiple__list--has-border {
+	padding-left: var(--jetpack--contact-form--animated-left-offset);
+	padding-right: var(--jetpack--contact-form--animated-left-offset);
+}
+
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: baseline;
 	position: absolute;
-	top: 50%;
-	left: var(--label-left);
+	top: calc(50% + (var(--jetpack--contact-form--border-top-size, 0px) * 0.5) - (var(--jetpack--contact-form--border-bottom-size, 0px) * 0.5));
+	left: calc(var(--jetpack--contact-form--border-left-size, 0px) + var(--jetpack--contact-form--animated-left-offset, var(--label-left)));
 	width: 100%;
 	max-width: 100%;
 	box-sizing: border-box;
@@ -600,45 +763,111 @@ on production builds, the attributes are being reordered, causing side-effects
 	margin: 0;
 	transform: translateY(-50%);
 	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: transform, top;
+	z-index: 1;
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .grunion-label-text {
+	transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: font-size;
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .grunion-label-required {
+	transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: font-size;
 }
 
 .contact-form .is-style-animated .grunion-field-textarea-wrap .animated-label__label {
 	transform: unset;
-	top: var(--jetpack--contact-form--input-padding-top, 16px);
+	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
 }
 
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus),
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder),
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label
 {
-	font-size: 0.75em;
 	transform: translateY(0);
-	top: calc(2px + var(--jetpack--contact-form--border-size));
+	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-text,
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder) .grunion-label-text,
+.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-text
+{
+	font-size: 0.75em;
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-required,
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder) .grunion-label-required,
+.contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-required
+{
+
+	/*
+	 * The required text is always 85% of the label font size.
+	 * The label font size is reduced to 0.75em in a separate rule, so that needs to be accounted for.
+	 * 0.85 * 0.75 = 0.6375em.
+	 */
+	font-size: 0.6375em;
 }
 
 /* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label[style*="--jetpack--contact-form--label--font-size"],
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field:focus),
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field.has-placeholder),
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"] {
 	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.75);
 }
 
-.contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options ~ .animated-label__label {
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-checkbox-multiple-options),
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-radio-options) {
 	top: 0;
 	left: 0;
 	transform: translateY(0);
 }
 
-.contact-form .is-style-below .grunion-field-wrap .below-label__label {
-	margin-left: var(--jetpack--contact-form--border-size);
+/* Ensure that the outlined field is not hidden by the absolutely positioned label */
+.contact-form .is-style-outlined .grunion-field:not(.contact-form__select-wrapper) {
+	z-index: 1;
 }
 
-.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options,
-.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-radio-options {
+.contact-form .is-style-below .grunion-field-wrap .below-label__label {
+	margin-left:  var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
+}
+
+/* fields with multiple options */
+.wp-block-jetpack-contact-form:not(.is-style-outlined) .jetpack-field-multiple__fieldset {
+	padding: 8px 0 0 0;
+	border: 0;
+	margin: 0;
+}
+
+/* fields with multiple options - not .wp-block-jetpack-options because the inner blocks introduce new markup */
+.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options:not(.wp-block-jetpack-options),
+.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-radio-options:not(.wp-block-jetpack-options) {
 	padding-top: 8px;
+}
+
+:where(.wp-block-jetpack-options.has-background) {
+	padding: var(--jetpack--contact-form--input-padding-left, 16px) 16px;
+}
+
+/* Ensure global styles can ovewrite the default border color. */
+:where(.wp-block-jetpack-options.jetpack-field-multiple__list--has-border) {
+	padding-left: var(--jetpack--contact-form--input-padding-left, 16px);
+	padding-right: var(--jetpack--contact-form--input-padding-left, 16px);
+	border-color: var(--jetpack--contact-form--border-color);
+}
+
+.contact-form :where(.grunion-checkbox-multiple-options .contact-form-field),
+.contact-form :where(.grunion-radio-options .contact-form-field),
+.contact-form :where(.grunion-checkbox .contact-form-field) {
+	font-weight: 400;
+}
+
+.contact-form :where(.grunion-checkbox-multiple-options .contact-form-field),
+.contact-form :where(.grunion-radio-options .contact-form-field) {
+
+	/* Back compat for the old css vars used in the old radio and checkbox styles */
+	font-size: var(--jetpack--contact-form--font-size);
 }
 
 .contact-form .grunion-field-wrap input.checkbox-multiple,
@@ -646,33 +875,38 @@ on production builds, the attributes are being reordered, causing side-effects
 	position: relative;
 
 	box-sizing: border-box;
-	width: var(--jetpack--contact-form--font-size);
-	height: var(--jetpack--contact-form--font-size);
+
+	/* Inherit the font size from the parent element. This allows the input to scale with the font size
+	   set from global styles or from block styles */
+	font-size: inherit;
+	width: 1em;
+	height: 1em;
 	margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
 	padding: 0;
 
 	appearance: none;
 	border: solid 1px currentColor;
-
+    color: currentColor;
 	outline-offset: 4px;
+	transform: translateY(0.15em);
 }
 
 .contact-form .grunion-field-wrap input.radio {
 	border-radius: 50%;
-
-	transform: translateY(15%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
 }
 
 .contact-form .grunion-field-wrap input.checkbox-multiple:checked::before {
 	content: "\2713";
-
 	position: absolute;
-	top: calc(var(--jetpack--contact-form--font-size) / 2);
-	left: calc(var(--jetpack--contact-form--font-size) / 2);
+
+	/* Inherit the font size from the parent element. This allows the input to scale with the font size
+	   set from global styles or from block styles */
+	font-size: inherit;
+	top: calc(1em / 2);
+	left: calc(1em / 2);
 
 	display: block;
 
-	font-size: var(--jetpack--contact-form--font-size);
 	line-height: 1;
 
   transform: translate(-50%, -50%);
@@ -682,68 +916,82 @@ on production builds, the attributes are being reordered, causing side-effects
 	background: currentColor;
 	border-radius: 50%;
 	content: '';
-	height: calc(var(--jetpack--contact-form--font-size) / 2);
+
+	/* Inherit the font size from the parent element. This allows the input to scale with the font size
+	   set from global styles or from block styles */
+	font-size: inherit;
+	height: calc(1em / 2);
+	width: calc(1em / 2);
 	margin-left: 50%;
 	margin-top: 50%;
 	position: absolute;
 	transform: translate(-50%, -50%);
-	width: calc(var(--jetpack--contact-form--font-size) / 2);
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-radio-label {
+.contact-form .grunion-field-wrap.grunion-field-radio-wrap.is-style-button-wrap .contact-form-field {
 	display: inline-flex;
-  align-items: center;
-
+	align-items: center;
 	padding: var(--jetpack--contact-form--button-outline--padding);
+}
 
+.contact-form :where(.grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field),
+.contact-form :where(.grunion-field-wrap.grunion-field-radio-wrap.is-style-button-wrap .contact-form-field) {
 	background: var(--jetpack--contact-form--button-outline--background-color);
 	border: var(--jetpack--contact-form--button-outline--border);
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
 	color: var(--jetpack--contact-form--button-outline--text-color);
-
 	line-height: var(--jetpack--contact-form--button-outline--line-height);
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button {
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio {
 
 	/* visually-hidden */
 	clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  height: 1px;
-  overflow: hidden;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:checked + .grunion-radio-label {
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio:checked + .grunion-radio-label {
 	display: inline-flex;
 	gap: 0.5em;
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:checked + .grunion-radio-label::before {
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio:checked + .grunion-radio-label::before {
 	content: "\2713";
 }
 
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field:focus-within,
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio.is-style-button:focus + .grunion-radio-label {
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio:focus + .grunion-radio-label {
 	outline: var(--jetpack--contact-form--button-outline--border);
 	outline-offset: 2px;
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple.is-style-button {
+.contact-form :where(.grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple) {
 	border-radius: var(--jetpack--contact-form--button-outline--border-radius);
 	color: var(--jetpack--contact-form--button-outline--text-color);
-
 	font-family: var(--wp--preset--font-family--body);
 }
 
-.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple.is-style-button:focus {
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple {
+
+	/*
+	* Options typically have a transform applied to line the checkbox/radio with the label.
+	* This is not needed for the button style.
+	*/
+	transform: unset !important;
+}
+
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple:focus {
 	outline-width: 0; /* focus style defined on parent */
 }
 
-.contact-form input.grunion-field.is-style-button + .grunion-field-text::before {
+/* TODO - is this style used anywhere? if not, remove it */
+.contact-form :where(.is-style-button-wrap input.grunion-field + .grunion-field-text::before) {
 	background: var(--jetpack--contact-form--button-outline--background-color);
 	border: var(--jetpack--contact-form--button-outline--border);
 	border-color: currentColor;
@@ -759,16 +1007,16 @@ on production builds, the attributes are being reordered, causing side-effects
 	z-index: -1;
 }
 
-.contact-form input.grunion-field.is-style-button {
+.contact-form :where(.is-style-button-wrap input.grunion-field) {
 	color: var(--jetpack--contact-form--button-outline--color);
 }
 
-.contact-form input.grunion-field.is-style-button:checked,
-.contact-form input.grunion-field.is-style-button:checked + .grunion-field-text {
+.contact-form :where(.is-style-button-wrap input.grunion-field:checked),
+.contact-form :where(.is-style-button-wrap input.grunion-field:checked + .grunion-field-text) {
 	color: var(--jetpack--contact-form--button-outline--background-color-fallback);
 }
 
-.contact-form input.grunion-field.is-style-button:checked + .grunion-field-text::before {
+.contact-form :where(.is-style-button-wrap input.grunion-field:checked + .grunion-field-text::before) {
 	background: var(--jetpack--contact-form--button-outline--text-color);
 	border-color: var(--jetpack--contact-form--button-outline--text-color);
 }

@@ -1,6 +1,6 @@
 @use '@automattic/jetpack-base-styles/style';
-@import '../../../scss/mixin_breakpoint';
-@import '../../../scss/calypso-colors';
+@use '../../../scss/mixin_breakpoint';
+@use '../../../scss/calypso-colors';
 
 .jp-recommendations-question__site-type-checkboxes {
 	display: flex;
@@ -16,17 +16,17 @@
 
 	margin: 0 0 32px 32px;
 
-	@include breakpoint( '<660px' ) {
+	@include mixin_breakpoint.breakpoint( '<660px' ) {
 		margin: 0 32px 32px 32px;
 	}
 
-	@include breakpoint( '<480px' ) {
+	@include mixin_breakpoint.breakpoint( '<480px' ) {
 		margin: 0 16px 16px 16px;
 	}
 
 	.dops-button {
 
-		@include breakpoint( '<480px' ) {
+		@include mixin_breakpoint.breakpoint( '<480px' ) {
 			width: 100%;
 		}
 	}
@@ -37,7 +37,7 @@
 	margin: 14px auto 0 auto;
 	max-width: 300px;
 
-	@include breakpoint( '<480px' ) {
+	@include mixin_breakpoint.breakpoint( '<480px' ) {
 		display: none;
 	}
 }

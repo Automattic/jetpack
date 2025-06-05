@@ -63,12 +63,23 @@ class Update_LCP implements Endpoint {
 			return $api_successful;
 		}
 
-		// @TODO: handle bad payload coming from the Cloud.
-
 		// Update each page.
 		foreach ( $pages as $entry ) {
-			// Mark the page as successfully analyzed as we don't know what to do if mobile fails but desktop succeeds.
-			$state->set_page_success( $entry['key'] );
+			if ( $entry['success'] ) {
+				$state->set_page_success( $entry['key'] );
+			} else {
+				$errors = array();
+				foreach ( $entry['reports'] as $report ) {
+					if ( false === $report['success'] && ! empty( $report['message'] ) ) {
+						$errors[] = array(
+							// @TODO: Add a type and meta here (and the Cloud) after Beta release to further explain the error.
+							'message' => $report['message'] ?? __( 'An unknown error occurred', 'jetpack-boost' ),
+						);
+					}
+				}
+
+				$state->set_page_errors( $entry['key'], $errors );
+			}
 
 			// Store the LCP data for this page.
 			$storage->store_lcp( $entry['key'], $entry['reports'] );

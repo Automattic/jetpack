@@ -1,13 +1,21 @@
-$myjetpack-connection-avatar-width: 32px;
-$myjetpack-connection-avatar-overlap: 10px;
+$myjetpack-connection-avatar-width: 28px;
+$myjetpack-connection-avatar-overlap: 8px;
 
 .connection-status-card {
+
+	h3 {
+		font-size: 1rem;
+		line-height: 20px;
+		font-weight: 500;
+		margin-top: 0;
+		margin-bottom: 1rem;
+	}
 
 	.status {
 		display: flex;
 		align-items: center;
 		gap: var( --spacing-base );
-		margin-bottom: calc( var(--spacing-base) * 3); // 24px
+		margin-bottom: 1rem;
 
 		.avatar-wrapper {
 			position: relative;
@@ -15,7 +23,7 @@ $myjetpack-connection-avatar-overlap: 10px;
 		}
 
 		.cloud {
-			width: 32px;
+			width: 28px;
 		}
 
 		.jetpack {
@@ -25,33 +33,28 @@ $myjetpack-connection-avatar-overlap: 10px;
 		.avatar {
 			width: $myjetpack-connection-avatar-width;
 			position: absolute;
-			margin-left: -( $myjetpack-connection-avatar-overlap );
+			margin-inline-start: -( $myjetpack-connection-avatar-overlap );
 			border-radius: 50%;
 		}
 
 		.line {
-			width: 67px;
-			height: 0;
-			border-top: 2px solid var( --jp-black );
-			border-top-style: dashed;
+			width: 1.875rem; // 30px
+			height: 2px;
+			background-color: var(--jp-black);
+			border-radius: 1px;
 		}
 
 		.error {
-			border-color: var( --jp-red );
+			background-color: var( --jp-red );
 		}
 
 		.warning {
-			border-color: var( --jp-yellow-50 );
+			background-color: var( --jp-yellow-50 );
 		}
 	}
 
 	.info {
 		transform: rotate( 180deg );
-	}
-
-	.connect-action {
-		align-self: flex-end;
-		margin-bottom: 2px;
 	}
 
 	.list-item {
@@ -83,6 +86,45 @@ $myjetpack-connection-avatar-overlap: 10px;
 		}
 	}
 }
+
+.connection-state {
+
+	h4 {
+		margin-top: 0;
+		margin-bottom: 0.25rem;
+
+		:global(button.components-button) {
+			height: auto;
+			padding: 0;
+			font-size: 1.25rem;
+			line-height: 24px;
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			gap: 0.25rem;
+
+			&:hover:not(:disabled) {
+				text-decoration: underline;
+				background: transparent;
+			}
+
+			&:focus, &:active {
+				outline: none;
+				box-shadow: none;
+			}
+		}
+	}
+
+	.description {
+		display: flex;
+		font-size: 0.8125rem; // 13px
+		line-height: 20px;
+		font-weight: 400;
+		color: var(--jp-gray-40);
+		margin-bottom: 0.5rem;
+	}
+}
+
 
 :global(.account-error-tooltip) {
 	color: var(--jp-yellow-50) !important;

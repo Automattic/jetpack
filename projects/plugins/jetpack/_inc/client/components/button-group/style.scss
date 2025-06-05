@@ -1,6 +1,6 @@
 @use 'sass:color';
 @use '../../scss/z-index';
-@import "../../scss/calypso-colors";
+@use "../../scss/calypso-colors";
 
 .dops-button-group {
 
@@ -16,20 +16,20 @@
 
 		&.is-primary:focus {
 			box-shadow:
-				0 0 0 1px $white,
-				0 0 0 3px $blue-medium-dark;
+				0 0 0 1px calypso-colors.$white,
+				0 0 0 3px calypso-colors.$blue-medium-dark;
 		}
 
 		&.is-scary:focus {
-			box-shadow: inset 1px 0 0 $alert-red, 0 0 0 2px color.adjust( $alert-red, $lightness: 20% );
+			box-shadow: inset 1px 0 0 calypso-colors.$alert-red, 0 0 0 2px color.adjust( calypso-colors.$alert-red, $lightness: 20% );
 		}
 
 		&.is-primary.is-scary:focus {
-			box-shadow: inset 1px 0 0 color.adjust( $alert-red, $lightness: -30% ), 0 0 0 2px color.adjust( $alert-red, $lightness: 20% );
+			box-shadow: inset 1px 0 0 color.adjust( calypso-colors.$alert-red, $lightness: -30% ), 0 0 0 2px color.adjust( calypso-colors.$alert-red, $lightness: 20% );
 		}
 
 		&.is-scary:first-child:focus {
-			box-shadow: 0 0 0 2px color.adjust( $alert-red, $lightness: 20% );
+			box-shadow: 0 0 0 2px color.adjust( calypso-colors.$alert-red, $lightness: 20% );
 		}
 	}
 

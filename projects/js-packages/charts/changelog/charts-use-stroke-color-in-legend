@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: use color set from the data for the stroke as legend if available and fallback to theme color if it was not available

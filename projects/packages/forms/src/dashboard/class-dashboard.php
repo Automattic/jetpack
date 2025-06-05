@@ -180,7 +180,8 @@ class Dashboard {
 			_x( 'Forms', 'submenu title for Jetpack Forms', 'jetpack-forms' ),
 			'edit_pages',
 			'jetpack-forms-admin',
-			array( $this, 'render_new_dashboard' )
+			array( $this, 'render_new_dashboard' ),
+			10
 		);
 	}
 

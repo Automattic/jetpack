@@ -1,6 +1,6 @@
-@import '../../shared/styles/jetpack-variables';
-@import './variables';
-@import './css-gram';
+@use '../../shared/styles/jetpack-variables';
+@use 'variables';
+@use 'css-gram';
 
 $tiled-gallery-max-column-count: 20;
 $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
@@ -28,7 +28,7 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 				&.columns-#{$cols} {
 
 					.tiled-gallery__col {
-						width: calc( ( 100% - #{ $tiled-gallery-gutter * ( $cols - 1 ) } ) / #{$cols} );
+						width: calc( ( 100% - #{ variables.$tiled-gallery-gutter * ( $cols - 1 ) } ) / #{$cols} );
 					}
 				}
 			}
@@ -71,7 +71,7 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	margin: 0;
 
 	& + & {
-		margin-top: $tiled-gallery-gutter;
+		margin-top: variables.$tiled-gallery-gutter;
 	}
 }
 
@@ -82,7 +82,7 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	margin: 0;
 
 	& + & {
-		margin-inline-start: $tiled-gallery-gutter;
+		margin-inline-start: variables.$tiled-gallery-gutter;
 	}
 }
 
@@ -104,21 +104,21 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 
 	&.filter__1977 {
 
-		@include _1977;
+		@include css-gram.gram1977;
 	}
 
 	&.filter__clarendon {
 
-		@include clarendon;
+		@include css-gram.clarendon;
 	}
 
 	&.filter__gingham {
 
-		@include gingham;
+		@include css-gram.gingham;
 	}
 
 	& + & {
-		margin-top: $tiled-gallery-gutter;
+		margin-top: variables.$tiled-gallery-gutter;
 	}
 
 	&:focus-within {

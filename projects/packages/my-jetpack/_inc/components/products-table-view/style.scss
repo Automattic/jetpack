@@ -16,7 +16,7 @@ div.dataviews-wrapper {
         height: 52px;
     }
     
-    button[aria-controls="dataviews-view-config-dropdown-0"] {
+    button[aria-controls^="dataviews-view-config-dropdown-"] {
         display: none;
     }  
     

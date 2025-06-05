@@ -1,9 +1,9 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@import '../../shared/styles/jetpack-variables';
+@use '../../shared/styles/jetpack-variables';
 
 .wp-block-jetpack-slideshow {
 	min-width: 0;
-	margin-bottom: $jetpack-block-margin-bottom;
+	margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 	position: relative;
 
 	[tabindex='-1']:focus {
@@ -36,6 +36,22 @@
 
 		&.wp-swiper-initialized {
 			opacity: 1;
+		}
+
+		// Prevent layout shifts during loading, by using serialized aspect ratio.
+		// These rules mimic the conditions in swiperResize() on swiper-callbacks.js.
+		&:not(.wp-swiper-initialized) .wp-block-jetpack-slideshow_swiper-wrapper {
+			aspect-ratio: max(min(var(--aspect-ratio), calc(16 / 9)), 1);
+			max-height: 80vh;
+		}
+
+		// For older slideshows, where the aspect ratio wasn't serialized,
+		// we can partially mitigate layout shifts during loading.
+		// Since the aspect ratio is always calculated based on the first slide,
+		// we ensure that other slides don't affect the block height while loading.
+		// This reduces layout shifts if a later image is taller than the first one.
+		&:not(.wp-swiper-initialized) .wp-block-jetpack-slideshow_slide:not(:first-of-type) {
+			height: 1px;
 		}
 
 	  	//overide display collision with coblocks plugin styles which causes a gap

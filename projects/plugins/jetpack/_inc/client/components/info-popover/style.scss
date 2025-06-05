@@ -1,14 +1,14 @@
 @use 'sass:color';
-@import '../../scss/calypso-colors';
+@use '../../scss/calypso-colors';
 
 .dops-info-popover-button {
 	background: transparent;
 	border: none;
-	color: color.adjust( $gray, $lightness: -10% );
+	color: color.adjust( calypso-colors.$gray, $lightness: -10% );
 	padding: 0;
 
 	&:hover {
-		color: $gray-dark;
+		color: calypso-colors.$gray-dark;
 	}
 
 	&:focus {
@@ -22,21 +22,21 @@
 
 .dops-info-popover .gridicon {
 	cursor: pointer;
-	color: color.adjust( $gray, $lightness: 15% );
+	color: color.adjust( calypso-colors.$gray, $lightness: 15% );
 
 	&:hover {
-		color: $gray-dark;
+		color: calypso-colors.$gray-dark;
 	}
 }
 
 .dops-info-popover.is_active .gridicon {
-	color: $gray-dark;
+	color: calypso-colors.$gray-dark;
 }
 
 .dops-popover.dops-info-popover__tooltip {
 
 	.dops-popover__inner {
-		color: color.adjust( $gray, $lightness: -20% );
+		color: color.adjust( calypso-colors.$gray, $lightness: -20% );
 		font-size: 13px;
 		max-width: 220px;
 		padding: 16px;
