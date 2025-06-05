@@ -1,4 +1,4 @@
-@import '$css/main/variables';
+@use '$css/main/variables';
 
 .upgrade-cta {
 	width: 100%;
@@ -7,8 +7,8 @@
 	align-items: center;
 	padding: 16px 24px;
 	margin: 32px 0;
-	border: 2px solid $jetpack-green;
-	border-radius: $border-radius;
+	border: 2px solid variables.$jetpack-green;
+	border-radius: variables.$border-radius;
 	background-color: #fff;
 	text-align: left;
 	cursor: pointer;
@@ -22,6 +22,6 @@
 	}
 
 	.icon svg {
-		fill: $jetpack-green;
+		fill: variables.$jetpack-green;
 	}
 }

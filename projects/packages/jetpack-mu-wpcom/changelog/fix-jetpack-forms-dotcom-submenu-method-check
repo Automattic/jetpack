@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Check for classes and methods before call

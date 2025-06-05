@@ -1,16 +1,16 @@
-@import "$css/main/variables";
-@import "$css/main/mixins";
-@import "$css/main/common";
+@use "$css/main/variables";
+@use "$css/main/mixins";
+@use "$css/main/common";
 
 .card {
 	background: #FFF url(\$images/color-shift.svg) no-repeat top right;
 	border: 1px solid #DCDCDE;
-	border-radius: $border-radius;
+	border-radius: variables.$border-radius;
 
 	.content {
 
 		@extend .p-4; // stylelint-disable-line scss/at-extend-no-missing-placeholder -- This is a generated class from css/main/common.scss.
-		color: $primary-black;
+		color: variables.$primary-black;
 
 		ul li {
 			padding-top: 2px;
@@ -33,14 +33,14 @@
 		}
 	}
 
-	@include breakpoint( xs ) {
+	@include mixins.breakpoint( xs ) {
 
 		.content {
-			padding: $spacing-unit * 3;
+			padding: variables.$spacing-unit * 3;
 		}
 	}
 
-	@include breakpoint( lg ) {
+	@include mixins.breakpoint( lg ) {
 		display: grid;
 		grid-template-columns: auto 460px;
 	}
@@ -48,8 +48,8 @@
 
 .footer-note {
 	text-align: center;
-	margin-top: $halfling;
-	color: $gray_70;
+	margin-top: variables.$halfling;
+	color: variables.$gray_70;
 }
 
 .body {

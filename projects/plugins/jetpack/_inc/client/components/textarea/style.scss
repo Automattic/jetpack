@@ -1,6 +1,6 @@
 @use 'sass:color';
 @use '../../scss/functions/rem';
-@import '../../scss/calypso-colors';
+@use '../../scss/calypso-colors';
 
 // ==========================================================================
 // Text Inputs
@@ -13,26 +13,26 @@
 	padding: rem.convert( 7px ) rem.convert( 14px );
 	min-height: rem.convert( 92px );
 	width: 100%;
-	color: $gray-dark;
+	color: calypso-colors.$gray-dark;
 	font-size: rem.convert( 16px );
 	line-height: 1.5;
-	border: 1px solid color.adjust( $gray, $lightness: 20% );
-	background-color: $white;
+	border: 1px solid color.adjust( calypso-colors.$gray, $lightness: 20% );
+	background-color: calypso-colors.$white;
 	transition: all .15s ease-in-out;
 	box-shadow: none;
 
 	&::placeholder {
-		color: $gray;
+		color: calypso-colors.$gray;
 	}
 
 	&:hover {
-		border-color: color.adjust( $gray, $lightness: 10% );
+		border-color: color.adjust( calypso-colors.$gray, $lightness: 10% );
 	}
 
 	&:focus {
-		border-color: $blue-wordpress;
+		border-color: calypso-colors.$blue-wordpress;
 		outline: none;
-		box-shadow: 0 0 0 2px $blue-light;
+		box-shadow: 0 0 0 2px calypso-colors.$blue-light;
 
 		&::-ms-clear {
 			display: none;
@@ -40,17 +40,17 @@
 	}
 
 	&:disabled {
-		background: $gray-light;
-		border-color: color.adjust( $gray, $lightness: 30% );
-		color: color.adjust( $gray, $lightness: 10% );
-		-webkit-text-fill-color: color.adjust( $gray, $lightness: 10% );
+		background: calypso-colors.$gray-light;
+		border-color: color.adjust( calypso-colors.$gray, $lightness: 30% );
+		color: color.adjust( calypso-colors.$gray, $lightness: 10% );
+		-webkit-text-fill-color: color.adjust( calypso-colors.$gray, $lightness: 10% );
 
 		&:hover {
 			cursor: default;
 		}
 
 		&::placeholder {
-			color: color.adjust( $gray, $lightness: 10% );
+			color: color.adjust( calypso-colors.$gray, $lightness: 10% );
 		}
 	}
 }

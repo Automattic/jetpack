@@ -1,7 +1,7 @@
 @use '../../scss/functions/rem';
-@import '../../scss/calypso-colors';
-@import '../../scss/mixin_clear-fix';
-@import '../../scss/mixin_long-content-fade';
+@use '../../scss/calypso-colors';
+@use '../../scss/mixin_clear-fix';
+@use '../../scss/mixin_long-content-fade';
 
 .dops-section-header.dops-card {
 	display: flex;
@@ -25,7 +25,7 @@
 	min-width: 0; // weird fix for overflowing items
 	line-height: rem.convert( 30px );
 	position: relative;
-	color: $black;
+	color: calypso-colors.$black;
 	font-size: rem.convert( 20px );
 	font-weight: 500;
 
@@ -45,7 +45,7 @@
 
 	&::before {
 
-		@include long-content-fade( $size: 8px, $color : $white );
+		@include mixin_long-content-fade.long-content-fade( $size: 8px, $color : calypso-colors.$white );
 	}
 
 	.has-card-badge & {

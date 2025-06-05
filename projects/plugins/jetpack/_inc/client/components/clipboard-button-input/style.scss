@@ -1,4 +1,4 @@
-@import '../../scss/mixin_long-content-fade';
+@use '../../scss/mixin_long-content-fade';
 
 .dops-clipboard-button-input {
 	position: relative;
@@ -13,7 +13,7 @@
 
 		&:not( :disabled )::before {
 
-			@include long-content-fade( $size: 16px );
+			@include mixin_long-content-fade.long-content-fade( $size: 16px );
 			right: calc( 100% + 1px );
 		}
 

@@ -1,5 +1,5 @@
-@import "$css/main/mixins";
-@import "$css/main/variables";
+@use "$css/main/mixins";
+@use "$css/main/variables";
 
 .status {
 	margin-bottom: 32px;
@@ -13,7 +13,7 @@
 		margin-bottom: 0;
 	}
 
-	@include breakpoint(xs) {
+	@include mixins.breakpoint(xs) {
 		display: block;
 	}
 
@@ -23,18 +23,18 @@
 		position: relative;
 
 		.successes, .generating {
-			color: $gray_40;
+			color: variables.$gray_40;
 
-			@include breakpoint(md) {
+			@include mixins.breakpoint(md) {
 				margin-right: 115px;
 			}
 		}
 
 		.failures {
 			margin-top: 1em;
-			color: $gray_100;
+			color: variables.$gray_100;
 
-			@include breakpoint(xs) {
+			@include mixins.breakpoint(xs) {
 				margin-bottom: 1em;
 			}
 
@@ -54,7 +54,7 @@
 		}
 
 		svg {
-			fill: $jetpack-green;
+			fill: variables.$jetpack-green;
 		}
 	}
 

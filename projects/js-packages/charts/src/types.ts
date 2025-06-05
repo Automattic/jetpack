@@ -1,13 +1,13 @@
-import { AxisScale, Orientation, TickFormatter } from '@visx/axis';
-import { ScaleInput, ScaleType } from '@visx/scale';
-import { EventHandlerParams, LineStyles } from '@visx/xychart';
-import type { CSSProperties, PointerEvent } from 'react';
+import type { AxisScale, Orientation, TickFormatter } from '@visx/axis';
+import type { ScaleInput, ScaleType } from '@visx/scale';
+import type { EventHandlerParams, GridStyles, LineStyles } from '@visx/xychart';
+import type { PointerEvent } from 'react';
 
 type ValueOf< T > = T[ keyof T ];
 
 export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
 
-declare type OrientationType = ValueOf< typeof Orientation >;
+export type OrientationType = ValueOf< typeof Orientation >;
 
 export type DataPoint = {
 	label: string;
@@ -69,7 +69,7 @@ export type ChartTheme = {
 	/** Array of colors used for data visualization */
 	colors: string[];
 	/** Optional CSS styles for grid lines */
-	gridStyles?: CSSProperties;
+	gridStyles?: GridStyles;
 	/** Length of axis ticks in pixels */
 	tickLength: number;
 	/** Color of the grid lines */
@@ -156,7 +156,7 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	legendOrientation?: 'horizontal' | 'vertical';
 	/**
-	 * Grid visibility. x is default.
+	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
 

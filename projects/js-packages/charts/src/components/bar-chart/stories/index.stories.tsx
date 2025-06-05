@@ -193,3 +193,12 @@ SmartFormatting.parameters = {
 		},
 	},
 };
+
+export const HorizontalBarChart: Story = {
+	args: {
+		...Default.args,
+		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
+		orientation: 'horizontal',
+		gridVisibility: 'none',
+	},
+};

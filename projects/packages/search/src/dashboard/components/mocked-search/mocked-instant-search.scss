@@ -1,12 +1,12 @@
-@import 'scss/variables';
-@import 'scss/mixin_breakpoint';
+@use 'scss/variables';
+@use 'scss/mixin_breakpoint';
 
 $sidebar-width: 220px;
 $close-button-size: 60px;
 $close-button-size-mobile: 45px;
-$color-modal-background: $studio-white;
-$color-layout-borders: $studio-wordpress-blue-0;
-$color-text-lighter: $studio-gray-50;
+$color-modal-background: variables.$studio-white;
+$color-layout-borders: variables.$studio-wordpress-blue-0;
+$color-text-lighter: variables.$studio-gray-50;
 
 /* Mocked Search Container */
 .jp-mocked-instant-search {
@@ -38,7 +38,7 @@ $color-text-lighter: $studio-gray-50;
 	width: $close-button-size;
 	height: $close-button-size;
 
-	@include breakpoint( '<660px' ) {
+	@include mixin_breakpoint.breakpoint( '<660px' ) {
 		width: $close-button-size-mobile;
 		height: $close-button-size-mobile;
 	}
@@ -62,7 +62,7 @@ $color-text-lighter: $studio-gray-50;
 		fill: $color-text-lighter;
 	}
 
-	@include breakpoint( '<660px' ) {
+	@include mixin_breakpoint.breakpoint( '<660px' ) {
 		width: $close-button-size-mobile;
 		height: $close-button-size-mobile;
 	}
@@ -79,11 +79,11 @@ $color-text-lighter: $studio-gray-50;
 	width: 100%;
 	padding: 1em 4em;
 
-	@include breakpoint( '>660px' ) {
+	@include mixin_breakpoint.breakpoint( '>660px' ) {
 		max-width: calc( 100% - #{$sidebar-width} );
 	}
 
-	@include breakpoint( '<660px' ) {
+	@include mixin_breakpoint.breakpoint( '<660px' ) {
 		padding: 2em;
 	}
 }
@@ -98,7 +98,7 @@ $color-text-lighter: $studio-gray-50;
 		font-size: 1em;
 		font-weight: 700;
 
-		@include breakpoint( '<480px' ) {
+		@include mixin_breakpoint.breakpoint( '<480px' ) {
 			width: 100%;
 		}
 	}
@@ -115,10 +115,10 @@ $color-text-lighter: $studio-gray-50;
 		}
 
 		.jp-mocked-instant-search__result-sort-selected {
-			color: $color-plan;
+			color: variables.$color-plan;
 		}
 
-		@include breakpoint( '<480px' ) {
+		@include mixin_breakpoint.breakpoint( '<480px' ) {
 			width: 100%;
 		}
 	}
@@ -144,7 +144,7 @@ $color-text-lighter: $studio-gray-50;
 	position: static;
 	width: $sidebar-width;
 
-	@include breakpoint( '<660px' ) {
+	@include mixin_breakpoint.breakpoint( '<660px' ) {
 		display: none;
 	}
 }

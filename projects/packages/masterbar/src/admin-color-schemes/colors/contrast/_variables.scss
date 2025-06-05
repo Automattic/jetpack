@@ -1,12 +1,11 @@
 // make use of color studio variables for consistency across products
-@forward "@automattic/color-studio/dist/color-variables";
 @use "@automattic/color-studio/dist/color-variables" as studio;
-@import '../deprecated-color-variables';
+@use '../deprecated-color-variables';
 
 // core variables (core _variables.scss)
 $base-color: studio.$studio-gray-100; // Calypso --color-masterbar-background
 $icon-color: studio.$studio-gray-90; // Calypso --color-sidebar-gridicon-fill
-$highlight-color: $deprecated-studio-blue-70;// Calypso --color-accent
+$highlight-color: deprecated-color-variables.$deprecated-studio-blue-70;// Calypso --color-accent
 $notification-color: studio.$studio-yellow-20; // Calypso --color-masterbar-unread-dot-background
 
 // global (core _variables.scss)
@@ -34,7 +33,7 @@ $masterbar-active-background: studio.$studio-gray-60; // Calypso --color-masterb
 
 // nav unification overrides
 $nav-unification-sidebar-border: studio.$studio-gray-5; // Calypso --color-sidebar-border
-$nav-unification-sidebar-text-alternative: studio.$studio-gray-90; // Calypso --color-sidebar-text-alternative
+//$nav-unification-sidebar-text-alternative: studio.$studio-gray-90; // Calypso --color-sidebar-text-alternative
 
 // Calypso color variables used in e.g. inline help
 $color-primary: studio.$studio-gray-80; // Calypso --color-primary
@@ -47,4 +46,4 @@ $menu-nudge-background: studio.$studio-gray-80;
 $menu-nudge-text-color: studio.$studio-white;
 $menu-nudge-cta-background: $highlight-color;
 $menu-nudge-cta-color: studio.$studio-white;
-$menu-nudge-cta-background-hover: $deprecated-studio-blue-60;
+$menu-nudge-cta-background-hover: deprecated-color-variables.$deprecated-studio-blue-60;

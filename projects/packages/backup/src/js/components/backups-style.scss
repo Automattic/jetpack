@@ -1,5 +1,5 @@
 @use '@automattic/jetpack-base-styles/style' as jpbs;
-@import 'masthead/calypso-mixins';
+@use 'masthead/calypso-mixins';
 
 @include jpbs.for-tablet-up {
 
@@ -149,7 +149,7 @@
 .backup__animation {
 	position: relative;
 
-	@include responsive( full-width ) {
+	@include calypso-mixins.responsive( full-width ) {
 		display: none;
 	}
 }
