@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.0] - 2025-06-05
 ### Added
-- Added functionality to correctly display database threats in the Protect UI. [#43663]
+- Add functionality to correctly display database threats in the Protect UI. [#43663]
 
 ## [0.5.11] - 2025-05-05
 ### Changed
