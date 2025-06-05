@@ -4,7 +4,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
-import { isWoASite } from '@automattic/jetpack-script-data';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { ExternalLink, Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -19,6 +19,17 @@ import ConnectionErrorNotice from '../connection-error-notice/index.jsx';
 import DisconnectDialog from '../disconnect-dialog';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
 import './style.scss';
+
+const initialState = getScriptData()?.connection || {};
+
+/**
+ * Check if the current site is a WoA site using connection data
+ *
+ * @return {boolean} True if the site is a WoA site
+ */
+const isWoASite = () => {
+	return initialState.siteHost === 'woa';
+};
 
 /**
  * The RNA Manage Connection Dialog component.

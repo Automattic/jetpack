@@ -48,6 +48,7 @@ class Initial_State_Test extends TestCase {
 			'connectionErrors'   => Error_Handler::get_instance()->get_verified_errors(),
 			'isOfflineMode'      => ( new Status() )->is_offline_mode(),
 			'calypsoEnv'         => 'wpcalypso',
+			'siteHost'           => ( new Status\Host() )->get_known_host_guess(),
 		);
 		$expected_value = 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $expected_state ) ) . '")));';
 
