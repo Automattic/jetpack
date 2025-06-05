@@ -24,7 +24,7 @@ import styles from './styles.module.scss';
  */
 import { LocalLibraryProps, VideoLibraryProps } from './types';
 
-const LIBRARY_TYPE_LOCALSORAGE_KEY = 'videopress-library-type';
+const LIBRARY_TYPE_LOCALSTORAGE_KEY = 'videopress-library-type';
 
 const LibraryType = {
 	List: 'list',
@@ -143,7 +143,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	];
 
 	const libraryTypeFromLocalStorage = localStorage.getItem(
-		LIBRARY_TYPE_LOCALSORAGE_KEY
+		LIBRARY_TYPE_LOCALSTORAGE_KEY
 	) as LibraryType;
 
 	const [ libraryType, setLibraryType ] = useState< LibraryType >(
@@ -155,7 +155,11 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	const toggleType = () => {
 		setLibraryType( current => {
 			const next = current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid;
-			localStorage.setItem( LIBRARY_TYPE_LOCALSORAGE_KEY, next );
+			localStorage.setItem( LIBRARY_TYPE_LOCALSTORAGE_KEY, next );
+			setVideosQuery( { 
+				itemsPerPage: next === LibraryType.Grid ? 9 : 20,
+				page: 1
+			} );
 			return next;
 		} );
 	};
