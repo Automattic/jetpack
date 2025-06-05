@@ -8,6 +8,8 @@ import { grid, formatListBullets } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { dispatch } from '@wordpress/data';
+import { STORE_ID } from '../../../state/constants';
 /**
  * Internal dependencies
  */
@@ -156,7 +158,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 		const next = libraryType === LibraryType.Grid ? LibraryType.List : LibraryType.Grid;
 		localStorage.setItem( LIBRARY_TYPE_LOCALSTORAGE_KEY, next );
 		setLibraryType( next );
-		setVideosQuery( { 
+		( dispatch( STORE_ID ) as any ).setVideosQuery( { 
 			itemsPerPage: next === LibraryType.Grid ? 9 : 20,
 			page: 1
 		} );
