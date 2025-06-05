@@ -170,6 +170,46 @@ const AxisRenderer = ( {
 	} );
 };
 
+/**
+ * Calculate the default y offset for the bar list chart.
+ * @param data          - The data to calculate the default y offset for.
+ * @param yScaleConfig  - The y scale configuration.
+ * @param height        - The height of the chart.
+ * @param isMultiSeries - Whether the chart is a multi series chart.
+ * @return The default y offset.
+ */
+const getDefaultYOffset = (
+	data: SeriesData[],
+	yScaleConfig: Omit< ScaleOptions, 'type' >,
+	height: number,
+	isMultiSeries: boolean
+) => {
+	if ( ! isMultiSeries ) {
+		return 0;
+	}
+
+	const dataKeys = data.map( ( { label } ) => label );
+
+	const yScale = createScale< string >( {
+		type: 'band' as const,
+		range: [ 0, height ],
+		domain: dataKeys,
+		...yScaleConfig,
+	} );
+
+	const groupScale = scaleBand< string >( {
+		domain: dataKeys,
+		range: [ 0, getScaleBandwidth( yScale ) ],
+		padding: yScaleConfig.paddingInner,
+	} );
+
+	const GAP_BETWEEN_BARS = 6;
+	const barThickness = getScaleBandwidth( groupScale );
+
+	// Use negative value to move the label up.
+	return -( barThickness + GAP_BETWEEN_BARS );
+};
+
 const BarListChart: FC< BarListChartProps > = ( {
 	data,
 	width,
@@ -194,45 +234,25 @@ const BarListChart: FC< BarListChartProps > = ( {
 			// Always begin at zero since the x axis is hidden.
 			zero: true,
 		};
+		const yScale = {
+			...defaultYScale,
+			...( options.yScale ?? {} ),
+		};
+		const xScale = {
+			...defaultXScale,
+			...( options.xScale ?? {} ),
+		};
 
 		return {
-			yScale: {
-				...defaultYScale,
-				...( options.yScale ?? {} ),
-			},
-			xScale: {
-				...defaultXScale,
-				...( options.xScale ?? {} ),
-			},
+			yScale,
+			xScale,
 			labelPosition: options.labelPosition ?? ( isMultiSeries ? 0 : 10 ),
 			valueFormatter: options.valueFormatter ?? ( value => formatNumberCompact( value ) ),
 			labelFormatter: options.labelFormatter ?? ( value => String( value ) ),
 			valuePosition: options.valuePosition ?? width,
-			yOffset: options.yOffset,
+			yOffset: options.yOffset ?? getDefaultYOffset( data, yScale, height, isMultiSeries ),
 		};
-	}, [ isMultiSeries, options, width ] );
-
-	// For multi series, we need to offset the bars to avoid overlapping, 6 is the gap between bars
-	const defaultYOffset = useMemo( () => {
-		const dataKeys = data.map( ( { label } ) => label );
-
-		const yScale = createScale< string >( {
-			type: 'band' as const,
-			range: [ 0, height ],
-			domain: dataKeys,
-			...chartOptions.yScale,
-		} );
-
-		const groupScale = scaleBand< string >( {
-			domain: dataKeys,
-			range: [ 0, getScaleBandwidth( yScale ) ],
-			padding: chartOptions.yScale.paddingInner,
-		} );
-
-		const barThickness = getScaleBandwidth( groupScale );
-
-		return isMultiSeries ? -( barThickness + 6 ) : 0;
-	}, [ data, chartOptions.yScale, height, isMultiSeries ] );
+	}, [ isMultiSeries, options, width, data, height ] );
 
 	return (
 		<BarChart
@@ -249,7 +269,7 @@ const BarListChart: FC< BarListChartProps > = ( {
 							<AxisRenderer
 								{ ...renderProps }
 								data={ data }
-								yOffset={ chartOptions.yOffset ?? defaultYOffset }
+								yOffset={ chartOptions.yOffset }
 								labelPosition={ chartOptions.labelPosition }
 								valuePosition={ chartOptions.valuePosition }
 								labelFormatter={ chartOptions.labelFormatter }
