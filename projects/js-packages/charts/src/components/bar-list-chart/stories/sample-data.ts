@@ -1,4 +1,4 @@
-export const SalesByChannel = [
+export const salesByChannel = [
 	{
 		group: 'primary',
 		label: 'Jan 21-Aug 8, 2024',
@@ -21,7 +21,7 @@ export const SalesByChannel = [
 	},
 ];
 
-export const SalesByProduct = [
+export const salesByProduct = [
 	{
 		group: 'primary',
 		label: 'Sales By Product',

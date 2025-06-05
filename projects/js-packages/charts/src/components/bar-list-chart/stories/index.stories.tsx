@@ -3,7 +3,7 @@ import { Circle } from '@visx/shape';
 import { Text } from '@visx/text';
 import React from 'react';
 import BarListChart from '../bar-list-chart';
-import { SalesByChannel, SalesByProduct } from './sample-data';
+import { salesByChannel, salesByProduct } from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof BarListChart > = {
@@ -39,14 +39,14 @@ type Story = StoryObj< typeof BarListChart >;
 export const Default: Story = {
 	args: {
 		withTooltips: true,
-		data: SalesByProduct,
+		data: salesByProduct,
 	},
 };
 
 export const MultiSeries: Story = {
 	args: {
 		...Default.args,
-		data: SalesByChannel,
+		data: salesByChannel,
 		showLegend: true,
 	},
 };
@@ -54,7 +54,7 @@ export const MultiSeries: Story = {
 export const CustomLabelComponent: Story = {
 	args: {
 		...Default.args,
-		data: SalesByProduct,
+		data: salesByProduct,
 		width: 450,
 		margin: {
 			top: 0,
@@ -80,7 +80,7 @@ export const CustomLabelComponent: Story = {
 export const CustomValueComponent: Story = {
 	args: {
 		...Default.args,
-		data: SalesByChannel,
+		data: salesByChannel,
 		showLegend: true,
 		width: 450,
 		margin: {
