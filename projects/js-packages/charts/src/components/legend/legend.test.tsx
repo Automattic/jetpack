@@ -1,5 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import { BaseLegend } from './base-legend';
+import type { LegendProps } from './types';
+
+const TestShape: LegendProps[ 'shape' ] = props => {
+	return (
+		<svg>
+			<rect data-testid="legend-marker" fill={ props.fill } />
+		</svg>
+	);
+};
 
 describe( 'BaseLegend', () => {
 	const defaultItems = [
@@ -22,7 +31,7 @@ describe( 'BaseLegend', () => {
 	} );
 
 	test( 'applies color styles to legend markers', () => {
-		render( <BaseLegend items={ defaultItems } orientation="horizontal" /> );
+		render( <BaseLegend items={ defaultItems } orientation="horizontal" shape={ TestShape } /> );
 		const markers = screen.getAllByTestId( 'legend-marker' );
 		expect( markers[ 0 ] ).toHaveAttribute( 'fill', '#ff0000' );
 		expect( markers[ 1 ] ).toHaveAttribute( 'fill', '#00ff00' );

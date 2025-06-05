@@ -8,7 +8,7 @@ import {
 } from '@visx/xychart';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { useXYChartTheme } from '../../providers/theme';
+import { useChartTheme, useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { withResponsive } from '../shared/with-responsive';
@@ -50,13 +50,14 @@ const BarChart: FC< BarChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
 	options = {},
 	orientation = 'vertical',
 } ) => {
 	const horizontal = orientation === 'horizontal';
-
+	const providerTheme = useChartTheme();
 	const theme = useXYChartTheme( data );
 	const chartOptions = useBarChartOptions( data, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
@@ -99,6 +100,8 @@ const BarChart: FC< BarChartProps > = ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
 		color: group.options?.stroke || theme.colors[ index % theme.colors.length ],
+		shapeStyle:
+			group?.options?.legendShapeStyle ?? providerTheme.legendShapeStyles?.[ index ] ?? {},
 	} ) );
 
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
@@ -158,6 +161,7 @@ const BarChart: FC< BarChartProps > = ( {
 					items={ legendItems }
 					orientation={ legendOrientation }
 					className={ styles[ 'bar-chart__legend' ] }
+					shape={ legendShape }
 				/>
 			) }
 		</div>
