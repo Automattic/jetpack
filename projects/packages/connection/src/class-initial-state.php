@@ -37,7 +37,6 @@ class Initial_State {
 			'connectionErrors'   => Error_Handler::get_instance()->get_verified_errors(),
 			'isOfflineMode'      => $status->is_offline_mode(),
 			'calypsoEnv'         => $host->get_calypso_env(),
-			'siteHost'           => $host->get_known_host_guess(),
 		);
 	}
 
@@ -49,6 +48,12 @@ class Initial_State {
 	public static function set_connection_script_data( $data ) {
 
 		$data['connection'] = self::get_data();
+
+		// Ensure site.host is set for WoA detection
+		if ( ! isset( $data['site']['host'] ) ) {
+			$host                 = new Status\Host();
+			$data['site']['host'] = $host->get_known_host_guess();
+		}
 
 		return $data;
 	}

@@ -6,10 +6,13 @@ export default {
 	component: ManageConnectionDialog,
 	decorators: [
 		( Story, context ) => {
-			// Mock connection initial state based on story args
-			window.JP_CONNECTION_INITIAL_STATE = {
-				...( window.JP_CONNECTION_INITIAL_STATE || {} ),
-				siteHost: context.args.siteHost || 'standard',
+			// Mock JetpackScriptData for WoA detection
+			window.JetpackScriptData = {
+				...( window.JetpackScriptData || {} ),
+				site: {
+					...( window.JetpackScriptData?.site || {} ),
+					host: context.args.siteHost || 'standard',
+				},
 			};
 			return <Story />;
 		},
