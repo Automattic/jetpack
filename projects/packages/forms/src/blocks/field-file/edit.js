@@ -73,13 +73,19 @@ export default function FileFieldEdit( props ) {
 		);
 	}, [ fieldFileAvailability ] );
 
+	const childern = innerBlocksProps.children;
+	delete innerBlocksProps.children;
+
 	return (
 		<>
-			{ requiresCustomUpgradeNudge &&
-				( selectedFormClientId === formClientId || formClientId === selectedBlockClientId ) && (
-					<UpsellNudge requiredPlan={ fieldFileAvailability?.details?.required_plan } />
-				) }
-			<div { ...innerBlocksProps } />
+			<div { ...innerBlocksProps }>
+				{ requiresCustomUpgradeNudge &&
+					( selectedFormClientId === formClientId || formClientId === selectedBlockClientId ) && (
+						<UpsellNudge requiredPlan={ fieldFileAvailability?.details?.required_plan } />
+					) }
+				{ childern }
+			</div>
+
 			<JetpackFieldControls
 				id={ id }
 				required={ required }

@@ -7,7 +7,7 @@ import { useSelect } from '@wordpress/data';
  * @param {string} clientId - The client ID of the child block.
  * @return {string|null} The client ID of the parent form, or null if not found.
  */
-export const useParentFormClientId = clientId => {
+export default function useParentFormClientId( clientId ) {
 	return useSelect(
 		select => {
 			if ( ! clientId ) {
@@ -23,4 +23,4 @@ export const useParentFormClientId = clientId => {
 		},
 		[ clientId ]
 	);
-};
+}
