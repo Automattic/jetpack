@@ -802,14 +802,14 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the file upload field.
 	 *
-	 * @param array  $atts - the block attributes.
-	 * @param string $content - html content.
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
 	 *
 	 * @return string HTML for the file upload field.
 	 */
-	public static function gutenblock_render_field_file( $atts, $content ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file' );
-
+	public static function gutenblock_render_field_file( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file', $block );
 		// Create wrapper div for the file field
 		$output = '<div class="jetpack-form-file-field">';
 
