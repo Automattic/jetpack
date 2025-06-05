@@ -329,6 +329,9 @@ SmartFormatting.parameters = {
 export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
 BrokenLine.args = {
 	...Default.args,
+	margin: {
+		bottom: 40,
+	},
 	showLegend: true,
 	data: [
 		{
@@ -338,7 +341,7 @@ BrokenLine.args = {
 				...webTrafficData[ 0 ].options,
 				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
 				legendShapeStyle: {
-					strokeDasharray: '5 1 5',
+					strokeDasharray: '5 5 1',
 				},
 			},
 		},
