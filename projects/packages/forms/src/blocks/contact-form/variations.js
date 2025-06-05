@@ -270,7 +270,7 @@ const variations = compact( [
 					[
 						'jetpack/label',
 						{
-							label: __( 'Message', 'jetpack-forms' ),
+							label: __( 'Other Details', 'jetpack-forms' ),
 						},
 					],
 					[ 'jetpack/input', { type: 'textarea' } ],
@@ -361,7 +361,7 @@ const variations = compact( [
 						{
 							name: 'jetpack/label',
 							attributes: {
-								label: __( 'Message', 'jetpack-forms' ),
+								label: __( 'Other Details', 'jetpack-forms' ),
 							},
 						},
 						{
