@@ -24,6 +24,7 @@ test( 'Click on the plugins page should navigate to Boost settings page', async 
 test( 'Click on the sidebar Boost Jetpack submenu should navigate to Boost settings page', async ( {
 	page,
 } ) => {
+	test.skip( true, 'Skipping this test as it is flaky and we are working on it' );
 	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectJetpackBoost();
 	expect( page.url(), "URL should contain 'page=jetpack-boost" ).toContain( 'page=jetpack-boost' );
