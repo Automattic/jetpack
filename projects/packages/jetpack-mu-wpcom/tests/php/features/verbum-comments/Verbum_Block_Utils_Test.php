@@ -71,4 +71,34 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 		$filtered_content = Verbum_Block_Utils::remove_blocks( $comment_content );
 		$this->assertEquals( '<!-- wp:paragraph -->Testing<!-- /wp:paragraph -->', $filtered_content );
 	}
+
+	/**
+	 * Ensure innerBlocks are removed if not allowed
+	 */
+	public function test_pre_comment_content_inner_blocks() {
+		$comment_content = <<<HTML
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+	<p>Allowed outer quote block</p>
+	<!-- wp:button {"text":"I am a disallowed button!","url":"#"} -->
+	<a class="wp-block-button__link" href="#">I am a disallowed button!</a>
+	<!-- /wp:button -->
+</blockquote>
+<!-- /wp:quote -->
+HTML;
+
+		$expected_content = <<<HTML
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+	<p>Allowed outer quote block</p>
+</blockquote>
+<!-- /wp:quote -->
+HTML;
+
+		$filtered_content = Verbum_Block_Utils::remove_blocks( $comment_content );
+		// Normalize whitespace before comparison
+		$filtered_content = preg_replace( '/\s+/', ' ', $filtered_content );
+		$expected_content = preg_replace( '/\s+/', ' ', $expected_content );
+		$this->assertSame( $expected_content, $filtered_content );
+	}
 }

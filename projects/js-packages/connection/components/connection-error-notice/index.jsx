@@ -12,8 +12,13 @@ import styles from './styles.module.scss';
  * @return {React.Component} The `ConnectionErrorNotice` component.
  */
 const ConnectionErrorNotice = props => {
-	const { message, isRestoringConnection, restoreConnectionCallback, restoreConnectionError } =
-		props;
+	const {
+		message,
+		isRestoringConnection,
+		restoreConnectionCallback,
+		restoreConnectionError,
+		actions = [], // New prop for custom actions
+	} = props;
 
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 	const wrapperClassName =
@@ -73,6 +78,39 @@ const ConnectionErrorNotice = props => {
 		</Notice>
 	) : null;
 
+	// Determine which actions to show
+	let actionButtons = [];
+
+	if ( actions.length > 0 ) {
+		// Use custom actions
+		actionButtons = actions.map( ( action, index ) => (
+			<a
+				key={ index }
+				onClick={ action.onClick }
+				onKeyDown={ action.onClick }
+				className={ `${ styles.button } ${ action.variant === 'primary' ? styles.primary : '' }` }
+				href="#"
+			>
+				{ action.isLoading
+					? action.loadingText || __( 'Loading…', 'jetpack-connection-js' )
+					: action.label }
+			</a>
+		) );
+	} else if ( restoreConnectionCallback ) {
+		// Use default restore connection action for backward compatibility
+		actionButtons = [
+			<a
+				key="restore"
+				onClick={ restoreConnectionCallback }
+				onKeyDown={ restoreConnectionCallback }
+				className={ styles.button }
+				href="#"
+			>
+				{ __( 'Restore Connection', 'jetpack-connection-js' ) }
+			</a>,
+		];
+	}
+
 	return (
 		<>
 			{ errorRender }
@@ -81,16 +119,7 @@ const ConnectionErrorNotice = props => {
 					{ icon }
 					{ message }
 				</div>
-				{ restoreConnectionCallback && (
-					<a
-						onClick={ restoreConnectionCallback }
-						onKeyDown={ restoreConnectionCallback }
-						className={ styles.button }
-						href="#"
-					>
-						{ __( 'Restore Connection', 'jetpack-connection-js' ) }
-					</a>
-				) }
+				{ actionButtons.length > 0 && <div className={ styles.actions }>{ actionButtons }</div> }
 			</Notice>
 		</>
 	);
@@ -98,13 +127,23 @@ const ConnectionErrorNotice = props => {
 
 ConnectionErrorNotice.propTypes = {
 	/** The notice message. */
-	message: PropTypes.string.isRequired,
+	message: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
 	/** "Restore Connection" button callback. */
 	restoreConnectionCallback: PropTypes.func,
 	/** Whether connection restore is in progress. */
 	isRestoringConnection: PropTypes.bool,
 	/** The connection error text if there is one. */
 	restoreConnectionError: PropTypes.string,
+	/** Array of custom action objects. */
+	actions: PropTypes.arrayOf(
+		PropTypes.shape( {
+			label: PropTypes.string.isRequired,
+			onClick: PropTypes.func.isRequired,
+			isLoading: PropTypes.bool,
+			loadingText: PropTypes.string,
+			variant: PropTypes.oneOf( [ 'primary', 'secondary' ] ),
+		} )
+	),
 };
 
 export default ConnectionErrorNotice;
