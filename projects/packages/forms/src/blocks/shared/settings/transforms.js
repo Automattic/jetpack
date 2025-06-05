@@ -129,7 +129,6 @@ const createTextFieldInnerBlocks = ( blockName, existingInnerBlocks = [] ) => {
 
 	const existingLabel = existingInnerBlocks.find( block => block.name === 'jetpack/label' );
 	const existingInput = existingInnerBlocks.find( block => block.name === 'jetpack/input' );
-	const existingInputAttributes = existingInput?.attributes || {};
 
 	/**
 	 * When transforming to a select field, add a default placeholder in a non mutating way
@@ -143,6 +142,7 @@ const createTextFieldInnerBlocks = ( blockName, existingInnerBlocks = [] ) => {
 	 * not add the class because it's trying to honor the placeholder attribute,
 	 * BUT adds a default placeholder anyway.
 	 */
+	const existingInputAttributes = existingInput?.attributes ? { ...existingInput?.attributes } : {}; // Destructure the attributes to avoid mutating the original block.
 	if ( 'jetpack/field-select' === blockName ) {
 		existingInputAttributes.placeholder =
 			existingInputAttributes?.placeholder || __( 'Select one option', 'jetpack-forms' );
