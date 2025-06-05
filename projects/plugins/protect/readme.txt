@@ -180,25 +180,25 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 == Changelog ==
 ### 4.1.0 - 2025-06-05
 #### Added
-- Scanner: Added functionality to correctly display database threats in the Protect UI.
-- Account Protection: Adds the Account Protection module toggle.
+- Scanner: Add functionality to correctly display database threats in the Protect UI.
+- Account Protection: Add the Account Protection module toggle.
 - My Jetpack: Add user tour.
 - My Jetpack: Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
 
 #### Changed
-- Connection: Allow pre-selected login providers
-- General: indicate compatibility with the upcoming version of WordPress - 6.8.
+- Connection: Allow pre-selected login providers.
+- General: Indicate compatibility with WordPress 6.8.
 - My Jetpack: Optimize the images for onboarding slider for faster page load.
-- My Jetpack: Updated the onboarding UI, changing it to a single button
+- My Jetpack: Updated the onboarding UI, changing it to a single button.
 - General: Update package dependencies.
 
 #### Removed
 - General: Update minimum WordPress version to 6.7.
 
 #### Fixed
-- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor
-- My Jetpack: Fixed Onboarding UI responsiveness at 600px.
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
+- My Jetpack: Fix Onboarding UI responsiveness at 600px.
 - My Jetpack: Fix readability of license activation button on hover.
-- My Jetpack: Fix social login getting stuck when email input not empty
-- Readme: Clarified language in the plugin readme to clarify malware and vulnerability scanning.
+- My Jetpack: Prevent social login from getting stuck when email input is not empty.
+- Readme: Clarify language in the plugin readme regarding malware and vulnerability scanning.
 

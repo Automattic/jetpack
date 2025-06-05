@@ -13,21 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - My Jetpack: Improve the onboarding experience of Jetpack guiding the users through a new onboarding process. [#42757]
 
 ### Changed
-- Connection: Allow pre-selected login providers [#42662]
-- General: indicate compatibility with the upcoming version of WordPress - 6.8. [#42701]
+- Connection: Allow pre-selected login providers. [#42662]
+- General: Indicate compatibility with WordPress 6.8. [#42701]
 - My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
-- My Jetpack: Updated the onboarding UI, changing it to a single button [#43203]
+- My Jetpack: Update the onboarding UI, changing it to a single button. [#43203]
 - General: Update package dependencies. [#43766]
 
 ### Removed
 - General: Update minimum WordPress version to 6.7. [#43192]
 
 ### Fixed
-- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor [#43035]
-- My Jetpack: Fixed Onboarding UI responsiveness at 600px. [#43533]
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
 - My Jetpack: Fix readability of license activation button on hover. [#43550]
-- My Jetpack: Fix social login getting stuck when email input not empty [#43158]
-- Readme: Clarified language in the plugin readme to clarify malware and vulnerability scanning. [#43775]
+- My Jetpack: Prevent social login from getting stuck when email input is not empty. [#43158]
+- Readme: Clarify language in the plugin readme regarding malware and vulnerability scanning. [#43775]
 
 ## 4.0.0 - 2025-03-24
 ### Changed
