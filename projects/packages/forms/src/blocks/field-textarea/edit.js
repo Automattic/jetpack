@@ -10,7 +10,7 @@ import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
 
 export default function TextareaFieldEdit( props ) {
 	const { attributes, clientId, isSelected, setAttributes } = props;
-	const { id, required, requiredText, width } = attributes;
+	const { id, required, width } = attributes;
 
 	useFormWrapper( props );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
@@ -25,10 +25,10 @@ export default function TextareaFieldEdit( props ) {
 
 	const template = useMemo( () => {
 		return [
-			[ 'jetpack/label', { label: __( 'Message', 'jetpack-forms' ), requiredText } ],
+			[ 'jetpack/label', { label: __( 'Message', 'jetpack-forms' ) } ],
 			[ 'jetpack/input', { type: 'textarea' } ],
 		];
-	}, [ requiredText ] );
+	}, [] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
