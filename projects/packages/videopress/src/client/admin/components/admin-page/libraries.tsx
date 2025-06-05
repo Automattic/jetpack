@@ -153,14 +153,12 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	const uploading = videos?.some?.( video => video.uploading );
 
 	const toggleType = () => {
-		setLibraryType( current => {
-			const next = current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid;
-			localStorage.setItem( LIBRARY_TYPE_LOCALSTORAGE_KEY, next );
-			setVideosQuery( { 
-				itemsPerPage: next === LibraryType.Grid ? 9 : 20,
-				page: 1
-			} );
-			return next;
+		const next = libraryType === LibraryType.Grid ? LibraryType.List : LibraryType.Grid;
+		localStorage.setItem( LIBRARY_TYPE_LOCALSTORAGE_KEY, next );
+		setLibraryType( next );
+		setVideosQuery( { 
+			itemsPerPage: next === LibraryType.Grid ? 9 : 20,
+			page: 1
 		} );
 	};
 
