@@ -17,16 +17,16 @@
 	},
 	"require": {
 		"php": ">=7.4",
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-config": "@dev"
+		"automattic/jetpack-assets": "^4.0.25",
+		"automattic/jetpack-autoloader": "^5.0.7",
+		"automattic/jetpack-composer-plugin": "^4.0.5",
+		"automattic/jetpack-connection": "^6.13.0",
+		"automattic/jetpack-config": "^3.1.0"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/jetpack-changelogger": "^6.0.5",
+		"automattic/phpunit-select-config": "^1.0.3"
 	},
 	"config": {
 		"allow-plugins": {
@@ -48,15 +48,7 @@
 		"build-development": "pnpm run build",
 		"build-production": "pnpm run build-production"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
