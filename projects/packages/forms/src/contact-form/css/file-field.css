@@ -6,8 +6,8 @@
 
 :where( .wp-block-jetpack-dropzone ) {
 	padding: 48px;
-    margin-top: 8px;
-    margin-bottom: 8px;
+	margin-top: 8px;
+	margin-bottom: 8px;
 	background-color: var( --jetpack--contact-form--input-background );
 	border-radius: var( --jetpack--contact-form--border-radius, 0 );
 }
