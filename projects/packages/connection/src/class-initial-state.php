@@ -51,8 +51,7 @@ class Initial_State {
 
 		// Ensure site.host is set for WoA detection
 		if ( ! isset( $data['site']['host'] ) ) {
-			$host                 = new Status\Host();
-			$data['site']['host'] = $host->get_known_host_guess();
+			$data['site']['host'] = ( new Status\Host() )->get_known_host_guess();
 		}
 
 		return $data;
