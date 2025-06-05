@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use font-awesome from pnpm instead of composer.
