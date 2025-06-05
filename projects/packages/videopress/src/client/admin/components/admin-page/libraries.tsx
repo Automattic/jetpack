@@ -156,7 +156,6 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 		setLibraryType( current => {
 			const next = current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid;
 			localStorage.setItem( LIBRARY_TYPE_LOCALSORAGE_KEY, next );
-			setVideosQuery( { itemsPerPage: next === LibraryType.Grid ? 9 : 20 } );
 			return next;
 		} );
 	};
