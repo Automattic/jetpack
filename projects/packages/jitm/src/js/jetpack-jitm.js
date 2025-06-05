@@ -238,8 +238,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         // Hide the JITM after 2 seconds
                         setTimeout(function() {
-                            templateEl.style.opacity = '0';
                             templateEl.style.transition = 'opacity 0.5s';
+                            templateEl.style.opacity = '0';
                             setTimeout(() => {
                                 templateEl.style.display = 'none';
                             }, 500);
