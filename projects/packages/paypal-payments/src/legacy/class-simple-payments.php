@@ -11,9 +11,7 @@ namespace Automattic\Jetpack\Paypal_Payments;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\PayPal_Payments;
-use Jetpack_Components;
 use PayPal_Payments_Currencies;
 use WP_Post;
 
@@ -53,13 +51,6 @@ class Simple_Payments {
 	public static $css_classname_prefix = 'jetpack-simple-payments';
 
 	/**
-	 * Which plan the user is on.
-	 *
-	 * @var string value_bundle or jetpack_premium
-	 */
-	public static $required_plan;
-
-	/**
 	 * Instance of the class.
 	 *
 	 * @var Simple_Payments
@@ -75,16 +66,10 @@ class Simple_Payments {
 	 * Create instance of class.
 	 */
 	public static function get_instance() {
-		// Check for required dependencies
-		if ( ! class_exists( 'Jetpack_Components' )
-		) {
-			return null;
-		}
 
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hooks();
-			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium';
 		}
 		return self::$instance;
 	}
@@ -227,10 +212,7 @@ class Simple_Payments {
 			return false;
 		}
 
-		return ( ( defined( 'IS_WPCOM' ) && IS_WPCOM )
-			|| ( new Manager() )->is_connected() )
-			&&
-			Jetpack_Plan::supports( 'simple-payments' );
+		return ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Manager() )->is_connected() );
 	}
 
 	/**
@@ -294,9 +276,6 @@ class Simple_Payments {
 		$data['id'] = $attrs['id'];
 
 		if ( ! self::is_enabled_jetpack_simple_payments() ) {
-			if ( function_exists( 'jetpack_is_frontend' ) && jetpack_is_frontend() ) {
-				return $this->output_admin_warning( $data );
-			}
 			return;
 		}
 
@@ -304,24 +283,6 @@ class Simple_Payments {
 		$this->setup_paypal_checkout_button( $attrs['id'], $data['dom_id'], $data['multiple'] );
 
 		return $this->output_shortcode( $data );
-	}
-
-	/**
-	 * Output an admin warning if user can't use Pay with PayPal.
-	 *
-	 * @param array $data unused.
-	 */
-	public function output_admin_warning( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/components.php';
-		return Jetpack_Components::render_upgrade_nudge(
-			array(
-				'plan' => self::$required_plan,
-			)
-		);
 	}
 
 	/**
