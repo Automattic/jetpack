@@ -288,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
         trackButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const eventName = button.getAttribute('data-jptracks-name');
-                if (eventName === undefined) {
+                if (!eventName) {
                     return;
                 }
 
