@@ -2697,6 +2697,7 @@ p {
 
 			// If an admin page is visited after the update, the 'current_screen' action will fire.
 			add_action( 'current_screen', 'Jetpack::set_update_modal_display' );
+
 		}
 	}
 
