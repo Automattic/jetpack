@@ -15,15 +15,15 @@ type PageErrorProps = {
 
 const PageError = ( { url, error }: PageErrorProps ) => {
 	const getErrorLabel = ( { type, meta }: LcpErrorDetails ) => {
-		if ( type === 'http-error' && meta?.code !== undefined ) {
+		if ( type === 'http-error' ) {
 			return createInterpolateElement(
 				sprintf(
 					/* translators: %d is the HTTP Status Code */
 					__(
-						'Boost received HTTP error <b>%d</b> when attempting to analyze this page. Please check that the page is publicly accessible, and try again.',
+						'Boost encountered an HTTP error <b>%d</b> when attempting to analyze this page. Please make sure it loads correctly in incognito mode, and try again.',
 						'jetpack-boost'
 					),
-					meta.code
+					meta?.code ?? 'unknown'
 				),
 				{
 					b: <strong />,
