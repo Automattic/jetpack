@@ -1,6 +1,6 @@
 import { Text } from '@automattic/jetpack-components';
 import { CONNECTION_STORE_ID, ManageConnectionDialog } from '@automattic/jetpack-connection';
-import { currentUserCan } from '@automattic/jetpack-script-data';
+import { currentUserCan, isWoASite } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -118,7 +118,13 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 
 	const state = useConnectionState();
 
-	const allowDisconnect = currentUserCan( 'manage_options' ) || isUserConnected;
+	// Prevent opening dialog for WoA sites when user is connection owner
+	const isConnectionOwner = userConnectionData.currentUser?.isMaster;
+	const shouldPreventDialog = isWoASite() && isConnectionOwner;
+	const allowDisconnect =
+		( currentUserCan( 'manage_options' ) || isUserConnected ) &&
+		isUserConnected &&
+		! shouldPreventDialog;
 
 	return (
 		<section className={ styles[ 'connection-status-card' ] }>
@@ -147,18 +153,20 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 						disabled={ ! allowDisconnect }
 					>
 						{ state.label }
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="24"
-							height="24"
-							viewBox="0 0 24 24"
-							role="presentation"
-						>
-							<path
-								d="M10.6004 6L9.40039 7L14.0004 12L9.40039 17L10.6004 18L16.0004 12L10.6004 6Z"
-								fill="currentColor"
-							/>
-						</svg>
+						{ allowDisconnect && (
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								role="presentation"
+							>
+								<path
+									d="M10.6004 6L9.40039 7L14.0004 12L9.40039 17L10.6004 18L16.0004 12L10.6004 6Z"
+									fill="currentColor"
+								/>
+							</svg>
+						) }
 					</Button>
 				</h4>
 				<div>

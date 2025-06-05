@@ -1,5 +1,5 @@
 import { Col, Container } from '@automattic/jetpack-components';
-import { currentUserCan, isWoASite } from '@automattic/jetpack-script-data';
+import { currentUserCan } from '@automattic/jetpack-script-data';
 import ConnectionsSection from '../../connections-section';
 import PlansSection from '../../plans-section';
 import ProductCardsSection from '../../product-cards-section';
@@ -32,7 +32,7 @@ export function OverviewContent() {
 						<PlansSection />
 					</Col>
 					<Col sm={ 4 } md={ 4 } lg={ 6 }>
-						{ ! isWoASite() && <ConnectionsSection /> }
+						<ConnectionsSection />
 					</Col>
 				</Container>
 			</div>
