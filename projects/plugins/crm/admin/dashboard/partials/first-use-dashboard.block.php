@@ -121,7 +121,7 @@ $learn_from_mike_videos = array(
 	</div>
 </div>
 <?php // PHPCS:Ignore WordPress.Security.NonceVerification.Recommended ?>
-<script>var jpcrm_show_first_use_dash = <?php echo esc_js( ! isset( $_GET['zbs-welcome-tour'] ) ); ?>;</script>
+<script>var jpcrm_show_first_use_dash = <?php echo wp_json_encode( ! isset( $_GET['zbs-welcome-tour'] ) ); ?>;</script>
 <?php
 
 ##/WLREMOVE
