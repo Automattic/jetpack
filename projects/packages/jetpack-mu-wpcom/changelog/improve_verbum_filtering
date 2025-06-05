@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent disallowed blocks from being used inside inner comments
