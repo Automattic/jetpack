@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove Pocket support from social menu icon functions and CSS styling ahead of Mozilla's July 2025 shutdown.

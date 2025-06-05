@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove Pocket SVG icons, font codepoints, and logo data ahead of Mozilla's July 2025 shutdown.
