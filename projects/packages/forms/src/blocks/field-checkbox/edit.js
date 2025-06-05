@@ -30,7 +30,9 @@ export default function CheckboxFieldEdit( props ) {
 		},
 	} );
 
-	const template = [ [ 'jetpack/option', { isStandalone: true } ] ];
+	const template = [
+		[ 'jetpack/option', { isStandalone: true, placeholder: __( 'Add label…', 'jetpack-forms' ) } ],
+	];
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,
