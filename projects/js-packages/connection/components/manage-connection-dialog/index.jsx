@@ -4,6 +4,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { ExternalLink, Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -204,7 +205,7 @@ const ManageConnectionDialog = props => {
 									/>
 								</>
 							) }
-							{ isCurrentUserAdmin && (
+							{ isCurrentUserAdmin && ! isWoASite() && (
 								<ManageConnectionActionCard
 									title={ __( 'Disconnect Jetpack', 'jetpack-connection-js' ) }
 									onClick={ openDisconnectDialog }

@@ -23,6 +23,7 @@ class Initial_State {
 		global $wp_version;
 
 		$status = new Status();
+		$host   = new Status\Host();
 
 		return array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
@@ -35,7 +36,7 @@ class Initial_State {
 			'siteSuffix'         => $status->get_site_suffix(),
 			'connectionErrors'   => Error_Handler::get_instance()->get_verified_errors(),
 			'isOfflineMode'      => $status->is_offline_mode(),
-			'calypsoEnv'         => ( new Status\Host() )->get_calypso_env(),
+			'calypsoEnv'         => $host->get_calypso_env(),
 		);
 	}
 
@@ -47,6 +48,11 @@ class Initial_State {
 	public static function set_connection_script_data( $data ) {
 
 		$data['connection'] = self::get_data();
+
+		// Ensure site.host is set for WoA detection
+		if ( ! isset( $data['site']['host'] ) ) {
+			$data['site']['host'] = ( new Status\Host() )->get_known_host_guess();
+		}
 
 		return $data;
 	}
