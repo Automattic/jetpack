@@ -9,6 +9,7 @@
     margin-top: 8px;
     margin-bottom: 8px;
 	background-color: var( --jetpack--contact-form--input-background );
+	border-radius: var( --jetpack--contact-form--border-radius, 0 );
 }
 
 .wp-block-jetpack-dropzone.is-content-justification-right {
@@ -50,8 +51,8 @@
 .jetpack-form-file-field__preview:focus-visible,
 .jetpack-form-file-field__dropzone-inner:focus-visible {
 	outline-style: solid;
-	outline-color: var( --jetpack--contact-form--border-color, #32a1ce );
 	outline-offset: -2px;
+	outline-width: 2px;
 }
 
 .jetpack-form-file-field__dropzone input[type="file"] {
@@ -358,9 +359,9 @@
 		opacity:.5;
 	}
 
-	100% { 
+	100% {
 		transform: translate3d(0,0,0) scale(1);
-		opacity:1; 
+		opacity:1;
 	}
 }
 
@@ -379,11 +380,11 @@
 
 @keyframes jpSpin {
 
-    from { 
-		transform: rotate(0deg); 
+    from {
+		transform: rotate(0deg);
 	}
 
-    to { 
+    to {
 		transform: rotate(360deg);
 	}
 }
