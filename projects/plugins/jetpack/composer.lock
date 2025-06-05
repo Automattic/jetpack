@@ -4,8 +4,63 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "916cfb86dae4ce516e275e174206cc68",
+	"content-hash": "12d2a634feda8e901f845147db6a412c",
 	"packages": [
+		{
+			"name": "automattic/block-delimiter",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/block-delimiter",
+				"reference": "f12ed0cec5190658d2a04b218c7dece88bec3b45"
+			},
+			"require": {
+				"php": ">=7.2"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/phpunit-select-config": "@dev",
+				"yoast/phpunit-polyfills": "^4.0.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/block-delimiter/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/block-delimiter",
+				"textdomain": "jetpack-block-delimiter"
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"phpunit-select-config phpunit.#.xml.dist --colors=always"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Efficiently work with block structure",
+			"transport-options": {
+				"relative": true
+			}
+		},
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
 			"version": "dev-trunk",
@@ -6194,6 +6249,7 @@
 	"aliases": [],
 	"minimum-stability": "dev",
 	"stability-flags": {
+		"automattic/block-delimiter": 20,
 		"automattic/jetpack-a8c-mc-stats": 20,
 		"automattic/jetpack-account-protection": 20,
 		"automattic/jetpack-admin-ui": 20,
