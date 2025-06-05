@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
             template = 'default';
         }
 
-        response.url = response.url + '&redirect=' + redirect;
+        response.url = response.url + '&redirect=' + encodeURIComponent(redirect);
 
         const templateEl = templates[template](response);
         
