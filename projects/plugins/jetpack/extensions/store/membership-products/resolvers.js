@@ -107,9 +107,9 @@ const fetchTotalEmailsSentCount = async ( blogId, postId ) => {
 		return;
 	}
 
-	const baseUrl = isSimpleSite() ? '/rest/v1.1/sites/' : '/jetpack/v4/stats-app/sites/';
+	const baseUrl = isSimpleSite() ? '/rest/v1.1/sites' : '/jetpack/v4/stats-app/sites';
 	const response = await apiFetch( {
-		path: baseUrl + `${ blogId }/stats/opens/emails/${ postId }/rate`,
+		path: baseUrl + `/${ blogId }/stats/opens/emails/${ postId }/rate`,
 	} );
 
 	if ( ! response || typeof response !== 'object' ) {
