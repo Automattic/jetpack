@@ -1,5 +1,5 @@
 /**
- * Simplified date parsing utilities for local timezone handling.
+ * Simplified date parsing utilities for local timezone handling
  *
  * This module provides utilities for parsing various date string formats and converting
  * them to local timezone dates. For formats without timezone info, they're treated as local.
@@ -17,7 +17,9 @@
  * Supported Formats:
  * - YYYY-MM-DD (treated as local)
  * - YYYY-MM-DD HH:mm:ss (treated as local)
+ * - YYYY-MM-DD HH:mm (treated as local)
  * - YYYY-MM-DDTHH:mm:ss (treated as local)
+ * - YYYY-MM-DDTHH:mm (treated as local)
  * - YYYY-MM-DDTHH:mm:ssZ (converted to local)
  * - YYYY-MM-DDTHH:mm:ss±HH:mm (converted to local)
  *
@@ -25,6 +27,7 @@
  * ```typescript
  * parseAsLocalDate("2025-01-01");                    // Local timezone
  * parseAsLocalDate("2025-01-01 14:30:00");           // Local timezone
+ * parseAsLocalDate("2025-01-01 14:30");              // Local timezone
  * parseAsLocalDate("2025-01-01T14:30:00Z");          // UTC 14:30 → Local equivalent
  * parseAsLocalDate("2025-01-01T14:30:00+05:00");     // +05:00 14:30 → Local equivalent
  * ```
@@ -42,7 +45,7 @@ interface DateComponents {
 /**
  * Checks if a date string contains timezone information
  * @param {string} dateString - The date string to check for timezone information
- * @return {boolean} True if the date string contains timezone information, false otherwise
+ * @return {boolean} True if the date string contains timezone information (Z or ±HH:mm format), false otherwise
  */
 const hasTimezone = ( dateString: string ): boolean => {
 	return /T.*[Z]$|T.*[+-]\d{2}:?\d{2}$/.test( dateString );
@@ -51,12 +54,12 @@ const hasTimezone = ( dateString: string ): boolean => {
 /**
  * Parses date string components into an object (for naive date strings)
  * @param {string} dateString - The date string to parse into components
- * @return {DateComponents | null} Object containing date components or null if parsing fails
+ * @return {DateComponents | null} Object containing parsed date components or null if parsing fails
  */
 const parseToComponents = ( dateString: string ): DateComponents | null => {
-	// Handle ISO format without timezone: "YYYY-MM-DDTHH:mm:ss" or "YYYY-MM-DDTHH:mm:ss.SSS"
+	// Handle ISO format without timezone: "YYYY-MM-DDTHH:mm:ss", "YYYY-MM-DDTHH:mm:ss.SSS", or "YYYY-MM-DDTHH:mm"
 	const isoMatch = dateString.match(
-		/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{3})?$/
+		/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d{3})?$/
 	);
 	if ( isoMatch ) {
 		return {
@@ -65,12 +68,12 @@ const parseToComponents = ( dateString: string ): DateComponents | null => {
 			day: parseInt( isoMatch[ 3 ], 10 ),
 			hour: parseInt( isoMatch[ 4 ], 10 ),
 			minute: parseInt( isoMatch[ 5 ], 10 ),
-			second: parseInt( isoMatch[ 6 ], 10 ),
+			second: parseInt( isoMatch[ 6 ] || '0', 10 ),
 		};
 	}
 
-	// Handle space-separated format: "YYYY-MM-DD HH:mm:ss"
-	const spaceMatch = dateString.match( /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/ );
+	// Handle space-separated format: "YYYY-MM-DD HH:mm:ss" or "YYYY-MM-DD HH:mm"
+	const spaceMatch = dateString.match( /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})(?::(\d{2}))?$/ );
 	if ( spaceMatch ) {
 		return {
 			year: parseInt( spaceMatch[ 1 ], 10 ),
@@ -78,7 +81,7 @@ const parseToComponents = ( dateString: string ): DateComponents | null => {
 			day: parseInt( spaceMatch[ 3 ], 10 ),
 			hour: parseInt( spaceMatch[ 4 ], 10 ),
 			minute: parseInt( spaceMatch[ 5 ], 10 ),
-			second: parseInt( spaceMatch[ 6 ], 10 ),
+			second: parseInt( spaceMatch[ 6 ] || '0', 10 ),
 		};
 	}
 
@@ -101,7 +104,7 @@ const parseToComponents = ( dateString: string ): DateComponents | null => {
 /**
  * Validates date component values
  * @param {DateComponents} components - The date components to validate
- * @return {boolean} True if all components are valid, false otherwise
+ * @return {boolean} True if all components have valid values, false otherwise
  */
 const isValidComponents = ( components: DateComponents ): boolean => {
 	return (
@@ -127,7 +130,9 @@ const isValidComponents = ( components: DateComponents ): boolean => {
  * Supports:
  * - YYYY-MM-DD (local)
  * - YYYY-MM-DD HH:mm:ss (local)
+ * - YYYY-MM-DD HH:mm (local)
  * - YYYY-MM-DDTHH:mm:ss (local)
+ * - YYYY-MM-DDTHH:mm (local)
  * - YYYY-MM-DDTHH:mm:ssZ (UTC → local)
  * - YYYY-MM-DDTHH:mm:ss±HH:mm (offset → local)
  * @param {string} dateString - The date string to parse

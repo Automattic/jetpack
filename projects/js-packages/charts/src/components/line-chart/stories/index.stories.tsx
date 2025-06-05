@@ -349,3 +349,68 @@ BrokenLine.parameters = {
 		},
 	},
 };
+
+export const DateStringFormats: StoryObj< typeof LineChart > = {
+	render: () => {
+		const dateStringData = [
+			{
+				label: 'String Dates',
+				data: [
+					{ date: '2024-01-01', value: 10, label: 'Jan 1' },
+					{ date: '2024-01-02', value: 20, label: 'Jan 2' },
+					{ date: '2024-01-03', value: 15, label: 'Jan 3' },
+					{ date: '2024-01-04', value: 25, label: 'Jan 4' },
+					{ date: '2024-01-05 00:00:00', value: 30, label: 'Jan 5' },
+				],
+				options: {},
+			},
+			{
+				label: 'Mixed Dates',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 5, label: 'Jan 1' },
+					{ date: '2024-01-02', value: 8, label: 'Jan 2' },
+					{ date: new Date( '2024-01-03' ), value: 12, label: 'Jan 3' },
+					{ date: '2024-01-04', value: 15, label: 'Jan 4' },
+					{ date: new Date( '2024-01-05' ), value: 18, label: 'Jan 5' },
+				],
+				options: {},
+			},
+		];
+
+		return (
+			<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+				<div>
+					<h3>String Date Formats</h3>
+					<LineChart
+						width={ 300 }
+						height={ 200 }
+						data={ [ dateStringData[ 0 ] ] }
+						withGradientFill={ false }
+						showLegend={ true }
+					/>
+				</div>
+				<div>
+					<h3>Mixed Date Types</h3>
+					<LineChart
+						width={ 300 }
+						height={ 200 }
+						data={ [ dateStringData[ 1 ] ] }
+						withGradientFill={ false }
+						showLegend={ true }
+					/>
+				</div>
+			</div>
+		);
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Demonstrates the line chart's ability to handle various date string formats and mixed date types. All dates are converted to start of day in local timezone. The chart can process:\n" +
+					'- Simple date strings (YYYY-MM-DD)\n' +
+					'- Date with time (YYYY-MM-DD 00:00:00)\n' +
+					'- Mixed Date objects and date strings in the same series',
+			},
+		},
+	},
+};

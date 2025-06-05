@@ -57,6 +57,36 @@ describe( 'parseAsLocalDate', () => {
 			expect( result.getMinutes() ).toBe( 59 );
 			expect( result.getSeconds() ).toBe( 59 );
 		} );
+
+		test( 'should parse YYYY-MM-DD HH:mm format (without seconds)', () => {
+			const result = parseAsLocalDate( '2025-01-15 14:30' );
+
+			expect( result.getFullYear() ).toBe( 2025 );
+			expect( result.getMonth() ).toBe( 0 );
+			expect( result.getDate() ).toBe( 15 );
+			expect( result.getHours() ).toBe( 14 );
+			expect( result.getMinutes() ).toBe( 30 );
+			expect( result.getSeconds() ).toBe( 0 ); // Should default to 0
+		} );
+
+		test( 'should parse YYYY-MM-DD HH:mm with midnight', () => {
+			const result = parseAsLocalDate( '2024-01-05 00:00' );
+
+			expect( result.getFullYear() ).toBe( 2024 );
+			expect( result.getMonth() ).toBe( 0 );
+			expect( result.getDate() ).toBe( 5 );
+			expect( result.getHours() ).toBe( 0 );
+			expect( result.getMinutes() ).toBe( 0 );
+			expect( result.getSeconds() ).toBe( 0 );
+		} );
+
+		test( 'should parse YYYY-MM-DD HH:mm with end of day', () => {
+			const result = parseAsLocalDate( '2025-01-15 23:45' );
+
+			expect( result.getHours() ).toBe( 23 );
+			expect( result.getMinutes() ).toBe( 45 );
+			expect( result.getSeconds() ).toBe( 0 );
+		} );
 	} );
 
 	describe( 'ISO formats without timezone (treated as local)', () => {
@@ -80,6 +110,28 @@ describe( 'parseAsLocalDate', () => {
 			expect( result.getHours() ).toBe( 14 );
 			expect( result.getMinutes() ).toBe( 30 );
 			expect( result.getSeconds() ).toBe( 45 );
+		} );
+
+		test( 'should parse YYYY-MM-DDTHH:mm format (without seconds)', () => {
+			const result = parseAsLocalDate( '2025-01-15T14:30' );
+
+			expect( result.getFullYear() ).toBe( 2025 );
+			expect( result.getMonth() ).toBe( 0 );
+			expect( result.getDate() ).toBe( 15 );
+			expect( result.getHours() ).toBe( 14 );
+			expect( result.getMinutes() ).toBe( 30 );
+			expect( result.getSeconds() ).toBe( 0 ); // Should default to 0
+		} );
+
+		test( 'should parse YYYY-MM-DDTHH:mm with midnight', () => {
+			const result = parseAsLocalDate( '2024-01-05T00:00' );
+
+			expect( result.getFullYear() ).toBe( 2024 );
+			expect( result.getMonth() ).toBe( 0 );
+			expect( result.getDate() ).toBe( 5 );
+			expect( result.getHours() ).toBe( 0 );
+			expect( result.getMinutes() ).toBe( 0 );
+			expect( result.getSeconds() ).toBe( 0 );
 		} );
 	} );
 
@@ -251,6 +303,8 @@ describe( 'parseAsLocalDate', () => {
 				'2025-01-03T12:00:00Z',
 				'2025-01-04T12:00:00+05:00',
 				'2025-01-05 12:00:00',
+				'2024-01-05 00:00',
+				'2025-01-06T14:30',
 			];
 
 			const startTime = performance.now();
@@ -258,8 +312,8 @@ describe( 'parseAsLocalDate', () => {
 			const endTime = performance.now();
 
 			// Should complete quickly (this is more of a smoke test)
-			expect( endTime - startTime ).toBeLessThan( 100 ); // 100ms for 5 operations
-			expect( results ).toHaveLength( 5 );
+			expect( endTime - startTime ).toBeLessThan( 100 ); // 100ms for 7 operations
+			expect( results ).toHaveLength( 7 );
 			results.forEach( result => {
 				expect( result instanceof Date ).toBe( true );
 			} );

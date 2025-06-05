@@ -15,7 +15,8 @@ export type DataPoint = {
 };
 
 export type DataPointDate = {
-	date: Date | string;
+	date?: Date;
+	dateString?: string;
 	value: number | null;
 	label?: string;
 };

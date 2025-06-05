@@ -149,7 +149,7 @@ const LineChart: FC< LineChartProps > = ( {
 						...series,
 						data: series.data.map( point => ( {
 							...point,
-							date: typeof point.date === 'string' ? parseAsLocalDate( point.date ) : point.date,
+							date: point.date ? point.date : parseAsLocalDate( point.dateString ),
 						} ) ),
 					};
 				} )
