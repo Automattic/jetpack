@@ -635,11 +635,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Pinterest',
 			),
 			array(
-				'url'   => array( 'getpocket.com' ),
-				'icon'  => 'pocket',
-				'label' => 'Pocket',
-			),
-			array(
 				'url'   => array( 'ravelry.com' ),
 				'icon'  => 'ravelry',
 				'label' => 'Ravelry',
