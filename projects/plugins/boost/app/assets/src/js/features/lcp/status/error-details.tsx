@@ -4,34 +4,82 @@ import { Notice } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { ReactElement } from 'react';
 import { useLcpState } from '../lib/stores/lcp-state';
 import styles from './error-details.module.scss';
+import { LcpErrorDetails } from '../lib/stores/lcp-state-types';
 
-export const ErrorDetails = () => {
-	const dictionary = {
-		unknown: __(
+type PageErrorProps = {
+	url: string;
+	error: LcpErrorDetails;
+};
+
+const PageError = ( { url, error }: PageErrorProps ) => {
+	const getErrorLabel = ( { type, meta }: LcpErrorDetails ) => {
+		if ( type === 'http-error' && meta?.code !== undefined ) {
+			return createInterpolateElement(
+				sprintf(
+					/* translators: %d is the HTTP Status Code */
+					__(
+						'Boost received HTTP error <b>%d</b> when attempting to analyze this page. Please check that the page is publicly accessible, and try again.',
+						'jetpack-boost'
+					),
+					meta.code
+				),
+				{
+					b: <strong />,
+				}
+			);
+		}
+
+		if ( type === 'lcp-timeout' ) {
+			return __(
+				'The page took too long to load during analysis. Please check that the page is publicly accessible, and try again.',
+				'jetpack-boost'
+			);
+		}
+
+		if ( type === 'lcp-metric-timeout' ) {
+			return __(
+				"Boost couldn't identify the main LCP element within the time limit. This may happen with slow-loading, or complex pages.",
+				'jetpack-boost'
+			);
+		}
+
+		if ( type === 'element-not-unique' && meta?.selector !== undefined ) {
+			return sprintf(
+				/* translators: %s is the HTML selector */
+				__(
+					'This page has multiple similar large elements with the same selector (%s), making it difficult to determine which one to optimize.',
+					'jetpack-boost'
+				),
+				meta.selector
+			);
+		}
+
+		return __(
 			'Something went wrong while optimizing this page. Please try again later, or contact support if the issue persists.',
 			'jetpack-boost'
-		),
-		'http-error': __(
-			"Jetpack Boost couldn't access this page due to a connection issue. Please check that the page is publicly accessible, and try again.",
-			'jetpack-boost'
-		),
-		'lcp-timeout': __(
-			'The page took too long to load during analysis. Please check that the page is publicly accessible, and try again.',
-			'jetpack-boost'
-		),
-		'lcp-metric-timeout': __(
-			"Jetpack Boost couldn't identify the main LCP element within the time limit. This may happen with slow-loading, or complex pages.",
-			'jetpack-boost'
-		),
-		'element-not-unique': __(
-			'This page has multiple similar large elements, making it difficult to determine which one to optimize.',
-			'jetpack-boost'
-		),
+		);
 	};
 
+	return (
+		<li className={ styles.summary__row }>
+			{ getErrorLabel( error ) } ({ url }){ ' ' }
+			<ExternalLink
+				href={ `https://jetpack.com/redirect/?source=jetpack-boost-lcp-errors#${ error?.type }` }
+				onClick={ () => {
+					recordBoostEvent( 'lcp_learn_more', {
+						error_type: error?.type,
+					} );
+				} }
+			>
+				{ __( 'Learn more', 'jetpack-boost' ) }
+			</ExternalLink>
+		</li>
+	);
+};
+
+export const ErrorDetails = () => {
 	const [ query ] = useLcpState();
 	const lcpState = query?.data;
 
@@ -49,31 +97,9 @@ export const ErrorDetails = () => {
 		return null;
 	}
 
-	const errorMessages: ReactElement[] = [];
-
-	pagesWithErrors.forEach( page => {
-		page.errors?.forEach( error => {
-			if ( error?.type ) {
-				errorMessages.push(
-					createInterpolateElement(
-						`${ dictionary[ error?.type ] } (${ page.url }) <link>Learn more</link>`,
-						{
-							link: (
-								<ExternalLink
-									href={ `https://jetpack.com/support/jetpack-boost/optimize-your-largest-contentful-paint-lcp-with-jetpack-boost/#${ error?.type }` }
-									onClick={ () => {
-										recordBoostEvent( 'lcp_learn_more', {
-											error_type: error?.type,
-										} );
-									} }
-								/>
-							),
-						}
-					)
-				);
-			}
-		} );
-	} );
+	const errorMessages = pagesWithErrors.flatMap(
+		page => page.errors?.map( error => ( { error, url: page.url } ) ) || []
+	);
 
 	return (
 		<Notice
@@ -103,10 +129,8 @@ export const ErrorDetails = () => {
 				} }
 			>
 				<ul className={ styles.summary__list }>
-					{ errorMessages.map( ( error, index ) => (
-						<li className={ styles.summary__row } key={ index }>
-							{ error }
-						</li>
+					{ errorMessages.map( ( { error, url }, index ) => (
+						<PageError url={ url } error={ error } key={ index } />
 					) ) }
 				</ul>
 			</FoldingElement>

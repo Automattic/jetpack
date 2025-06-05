@@ -183,6 +183,12 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 									Schema::as_assoc_array(
 										array(
 											'type' => Schema::as_string(),
+											'meta' => Schema::as_assoc_array(
+												array(
+													'code' => Schema::as_number()->nullable(),
+													'selector' => Schema::as_string()->nullable(),
+												)
+											)->nullable(),
 										)
 									)
 								)->nullable(),
