@@ -491,6 +491,15 @@
 
 	.jetpack-field-option .jetpack-option__type {
 		color: inherit;
+
+		&::before {
+
+			/*
+			 * Options typically have a transform applied to line the checkbox/radio with the label.
+			 * This is not needed for the button style.
+			 */
+			transform: unset !important;
+		}
 	}
 
 	.wp-block-jetpack-field-option-radio {

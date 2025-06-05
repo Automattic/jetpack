@@ -977,6 +977,15 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-family: var(--wp--preset--font-family--body);
 }
 
+.contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple {
+
+	/*
+	* Options typically have a transform applied to line the checkbox/radio with the label.
+	* This is not needed for the button style.
+	*/
+	transform: unset !important;
+}
+
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.checkbox-multiple:focus {
 	outline-width: 0; /* focus style defined on parent */
 }
