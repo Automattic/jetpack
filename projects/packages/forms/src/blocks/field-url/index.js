@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-url';
 const settings = {
 	...defaultSettings,
-	title: __( 'Website Field', 'jetpack-forms' ),
+	title: __( 'Website field', 'jetpack-forms' ),
 	keywords: [
 		__( 'url', 'jetpack-forms' ),
 		__( 'internet page', 'jetpack-forms' ),
