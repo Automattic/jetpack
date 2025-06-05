@@ -66,6 +66,7 @@ export const BaseLegend: FC< LegendProps > = ( {
 					{ labels.map( ( label, i ) => (
 						<LegendItem
 							className={ styles[ 'legend-item' ] }
+							data-testid="legend-item"
 							key={ `legend-${ label.text }-${ i }` }
 							margin={ itemMargin }
 							flexDirection={ itemDirection }
