@@ -202,7 +202,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				__( 'Settings', 'jetpack' ),
 				'jetpack_admin_page',
 				Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ),
-				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- See https://core.trac.wordpress.org/ticket/52539.
+				null,
 				13
 			);
 		}
