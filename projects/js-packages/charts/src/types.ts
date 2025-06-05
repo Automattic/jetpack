@@ -16,6 +16,16 @@ export type DataPoint = {
 
 export type DataPointDate = {
 	date?: Date;
+	/**
+	 * Supported Formats:
+	 * - YYYY-MM-DD (treated as local)
+	 * - YYYY-MM-DD HH:mm:ss (treated as local)
+	 * - YYYY-MM-DD HH:mm (treated as local)
+	 * - YYYY-MM-DDTHH:mm:ss (treated as local)
+	 * - YYYY-MM-DDTHH:mm (treated as local)
+	 * - YYYY-MM-DDTHH:mm:ssZ (converted to local)
+	 * - YYYY-MM-DDTHH:mm:ss±HH:mm (converted to local)
+	 */
 	dateString?: string;
 	value: number | null;
 	label?: string;
