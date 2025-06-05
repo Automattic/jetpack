@@ -6,20 +6,22 @@ import { LcpStateSchema } from './lcp-state-types';
 
 /**
  * Hook for accessing and writing to the overall Lcp state.
+ * @param queryArgs
+ * @param queryArgs.enabled
  */
-export function useLcpState() {
+export function useLcpState( queryArgs: { enabled?: boolean } = {} ) {
 	const [ lcp ] = useSingleModuleState( 'lcp' );
-	const enabled = lcp?.active;
 
 	return useDataSync( 'jetpack_boost_ds', 'lcp_state', LcpStateSchema, {
 		query: {
 			refetchInterval: refetch => {
-				if ( ! enabled ) {
+				if ( lcp?.active === false ) {
 					return false;
 				}
 
 				return refetch.state.data?.status === 'pending' ? 2000 : 30000;
 			},
+			...queryArgs,
 		},
 	} );
 }
