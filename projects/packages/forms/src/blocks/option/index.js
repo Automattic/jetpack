@@ -38,7 +38,7 @@ const settings = {
 		},
 	},
 	attributes: {
-		defaultLabel: {
+		placeholder: {
 			type: 'string',
 			default: '',
 		},

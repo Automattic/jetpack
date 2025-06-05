@@ -42,7 +42,7 @@ export default function ConsentFieldEdit( props ) {
 				'jetpack/option',
 				{
 					label: implicitConsentMessage,
-					defaultLabel: sprintf(
+					placeholder: sprintf(
 						/* translators: placeholder is a type of consent: implicit or explicit */
 						__( 'Add %s consent message…', 'jetpack-forms' ),
 						'implicit'
@@ -83,7 +83,7 @@ export default function ConsentFieldEdit( props ) {
 			__unstableMarkNextChangeAsNotPersistent();
 			updateBlockAttributes( optionBlockId, {
 				label,
-				defaultLabel: sprintf(
+				placeholder: sprintf(
 					/* translators: placeholder is a type of consent: implicit or explicit */
 					__( 'Add %s consent message…', 'jetpack-forms' ),
 					consentType

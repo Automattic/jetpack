@@ -1,5 +1,4 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
-import { getBlockType } from '@wordpress/blocks';
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -25,14 +24,12 @@ export default function DateFieldEdit( props ) {
 		style: blockStyle,
 	} );
 
-	const labelBlockType = getBlockType( 'jetpack/label' );
-	const defaultLabel = labelBlockType.attributes.label.default;
 	const template = useMemo( () => {
 		return [
-			[ 'jetpack/label', { label: __( 'Date', 'jetpack-forms' ), required, defaultLabel } ],
+			[ 'jetpack/label', { label: __( 'Date', 'jetpack-forms' ), required } ],
 			[ 'jetpack/input' ],
 		];
-	}, [ defaultLabel, required ] );
+	}, [ required ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,

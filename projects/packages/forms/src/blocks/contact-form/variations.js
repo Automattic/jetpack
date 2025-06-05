@@ -103,14 +103,14 @@ const variations = compact( [
 								'jetpack/option',
 								{
 									label: __( 'Yes', 'jetpack-forms' ),
-									defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
 								},
 							],
 							[
 								'jetpack/option',
 								{
 									label: __( 'No', 'jetpack-forms' ),
-									defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
 								},
 							],
 						],
@@ -168,14 +168,14 @@ const variations = compact( [
 									name: 'jetpack/option',
 									attributes: {
 										label: __( 'Yes', 'jetpack-forms' ),
-										defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
 									},
 								},
 								{
 									name: 'jetpack/option',
 									attributes: {
 										label: __( 'No', 'jetpack-forms' ),
-										defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
 									},
 								},
 							],
@@ -271,7 +271,6 @@ const variations = compact( [
 						'jetpack/label',
 						{
 							label: __( 'Other Details', 'jetpack-forms' ),
-							defaultLabel: __( 'Message', 'jetpack-forms' ),
 						},
 					],
 					[ 'jetpack/input', { type: 'textarea' } ],
@@ -363,7 +362,6 @@ const variations = compact( [
 							name: 'jetpack/label',
 							attributes: {
 								label: __( 'Other Details', 'jetpack-forms' ),
-								defaultLabel: __( 'Message', 'jetpack-forms' ),
 							},
 						},
 						{
@@ -443,14 +441,14 @@ const variations = compact( [
 								'jetpack/option',
 								{
 									label: __( 'Morning', 'jetpack-forms' ),
-									defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
 								},
 							],
 							[
 								'jetpack/option',
 								{
 									label: __( 'Afternoon', 'jetpack-forms' ),
-									defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
 								},
 							],
 						],
@@ -524,14 +522,14 @@ const variations = compact( [
 									name: 'jetpack/option',
 									attributes: {
 										label: __( 'Morning', 'jetpack-forms' ),
-										defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
 									},
 								},
 								{
 									name: 'jetpack/option',
 									attributes: {
 										label: __( 'Afternoon', 'jetpack-forms' ),
-										defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
 									},
 								},
 							],
@@ -612,35 +610,35 @@ const variations = compact( [
 								'jetpack/option',
 								{
 									label: __( '1 - Very Bad', 'jetpack-forms' ),
-									defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
 								},
 							],
 							[
 								'jetpack/option',
 								{
 									label: __( '2 - Poor', 'jetpack-forms' ),
-									defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
 								},
 							],
 							[
 								'jetpack/option',
 								{
 									label: __( '3 - Average', 'jetpack-forms' ),
-									defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
 								},
 							],
 							[
 								'jetpack/option',
 								{
 									label: __( '4 - Good', 'jetpack-forms' ),
-									defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
 								},
 							],
 							[
 								'jetpack/option',
 								{
 									label: __( '5 - Excellent', 'jetpack-forms' ),
-									defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
 								},
 							],
 						],
@@ -701,35 +699,35 @@ const variations = compact( [
 									name: 'jetpack/option',
 									attributes: {
 										label: __( '1 - Very Bad', 'jetpack-forms' ),
-										defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
 									},
 								},
 								{
 									name: 'jetpack/option',
 									attributes: {
 										label: __( '2 - Poor', 'jetpack-forms' ),
-										defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
 									},
 								},
 								{
 									name: 'jetpack/option',
 									attributes: {
 										label: __( '3 - Average', 'jetpack-forms' ),
-										defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
 									},
 								},
 								{
 									name: 'jetpack/option',
 									attributes: {
 										label: __( '4 - Good', 'jetpack-forms' ),
-										defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
 									},
 								},
 								{
 									name: 'jetpack/option',
 									attributes: {
 										label: __( '5 - Excellent', 'jetpack-forms' ),
-										defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
 									},
 								},
 							],

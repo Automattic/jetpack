@@ -20,64 +20,64 @@ const fieldConfig = {
 	'jetpack/field-text': {
 		type: 'text',
 		label: __( 'Text', 'jetpack-forms' ),
-		defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
 	'jetpack/field-name': {
 		type: 'text',
 		label: __( 'Name', 'jetpack-forms' ),
-		defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
 	'jetpack/field-email': {
 		type: 'email',
 		label: __( 'Email', 'jetpack-forms' ),
-		defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
 	'jetpack/field-url': {
 		type: 'url',
 		label: __( 'Website', 'jetpack-forms' ),
-		defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
 	'jetpack/field-telephone': {
 		type: 'tel',
 		label: __( 'Phone', 'jetpack-forms' ),
-		defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
 	'jetpack/field-textarea': {
 		type: 'textarea',
 		label: __( 'Message', 'jetpack-forms' ),
-		defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
 	'jetpack/field-number': {
 		type: 'number',
 		label: __( 'Number', 'jetpack-forms' ),
-		defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
 	'jetpack/field-date': {
 		type: 'text',
 		label: __( 'Date', 'jetpack-forms' ),
-		defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
 	'jetpack/field-select': {
 		type: 'dropdown',
 		label: '',
-		defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
 	// Choice-based fields.
 	'jetpack/field-checkbox-multiple': {
 		type: 'checkbox',
 		label: __( 'Choose several options', 'jetpack-forms' ),
-		defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
 	'jetpack/field-radio': {
 		type: 'radio',
 		label: __( 'Choose one option', 'jetpack-forms' ),
-		defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
 	// Single option fields.
 	'jetpack/field-checkbox': {
 		type: 'checkbox',
 		label: '',
-		defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 		extraAttributes: {
 			isStandalone: true,
 			hideInput: false,
@@ -86,7 +86,7 @@ const fieldConfig = {
 	'jetpack/field-consent': {
 		type: 'checkbox',
 		label: '',
-		defaultLabel: sprintf(
+		labelPlaceholder: sprintf(
 			/* translators: placeholder is a type of consent: implicit or explicit */
 			__( 'Add %s consent message…', 'jetpack-forms' ),
 			'implicit'
@@ -152,7 +152,7 @@ const createTextFieldInnerBlocks = ( blockName, existingInnerBlocks = [] ) => {
 		createBlock( 'jetpack/label', {
 			...( existingLabel?.attributes || {} ),
 			label: config.label,
-			defaultLabel: config.defaultLabel,
+			placeholder: config.labelPlaceholder,
 		} ),
 		createBlock( 'jetpack/input', {
 			...existingInputAttributes,
@@ -173,7 +173,7 @@ const createChoiceFieldInnerBlocks = ( blockName, existingInnerBlocks = [], attr
 	const label = createBlock( 'jetpack/label', {
 		...( existingLabel?.attributes || {} ),
 		label: config.label,
-		defaultLabel: config.defaultLabel,
+		placeholder: config.labelPlaceholder,
 	} );
 
 	let optionBlocks = [];
@@ -217,7 +217,7 @@ const createSingleOptionFieldInnerBlocks = ( blockName, existingInnerBlocks = []
 		createBlock( 'jetpack/option', {
 			...( existingOption?.attributes || {} ),
 			label: config.label,
-			defaultLabel: config.defaultLabel,
+			placeholder: config.labelPlaceholder,
 			...config.extraAttributes,
 		} ),
 	];

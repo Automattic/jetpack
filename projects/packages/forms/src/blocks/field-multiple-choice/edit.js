@@ -33,7 +33,7 @@ export default function MultipleChoiceFieldEdit( props ) {
 				'jetpack/label',
 				{
 					label: __( 'Choose several options', 'jetpack-forms' ),
-					defaultLabel: __( 'Add label…', 'jetpack-forms' ),
+					placeholder: __( 'Add label…', 'jetpack-forms' ),
 				},
 			],
 			[ 'jetpack/options', { type: 'checkbox' } ],

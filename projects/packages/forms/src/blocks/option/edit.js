@@ -22,7 +22,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 		'jetpack/field-required': required,
 		'jetpack/field-share-attributes': isSynced,
 	} = context;
-	const { hideInput, label, isStandalone, requiredText } = attributes;
+	const { hideInput, label, isStandalone, requiredText, placeholder } = attributes;
 
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
@@ -53,10 +53,10 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 	const isPreviewMode = useSelect( select => {
 		return select( blockEditorStore ).getSettings().isPreviewMode;
 	}, [] );
-	const placeholder = __( 'Add label…', 'jetpack-forms' );
+	const placeholderValue = placeholder !== '' ? placeholder : __( 'Add option…', 'jetpack-forms' );
 	// The label value to use for the RichText field must manually fall back to the
 	// placeholder to be rendered in previews.
-	const labelValue = isPreviewMode ? getLabelOrFallback( label, placeholder ) : label;
+	const labelValue = isPreviewMode ? getLabelOrFallback( label, placeholderValue ) : label;
 
 	// Some fields such as Checkbox or Consent, do not have a list of options.
 	// Additionally, a checkbox field may also be flagged as required so we need
@@ -79,7 +79,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 						tagName="div"
 						className="wp-block"
 						value={ labelValue }
-						placeholder={ placeholder }
+						placeholder={ placeholderValue }
 						__unstableDisableFormats
 						onChange={ newLabel => setAttributes( { label: newLabel } ) }
 						onRemove={ onRemove }

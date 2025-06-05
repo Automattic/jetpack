@@ -10,8 +10,7 @@ export default [
 			const { restAttributes, labelStyles, inputStyles } = deprecateFieldStyles( attributes );
 			const newInnerBlocks = [
 				createBlock( 'jetpack/label', {
-					label: attributes.label,
-					defaultLabel: __( 'Message', 'jetpack-forms' ),
+					label: attributes.label ?? __( 'Message', 'jetpack-forms' ),
 					requiredText: attributes.requiredText,
 					style: labelStyles,
 				} ),

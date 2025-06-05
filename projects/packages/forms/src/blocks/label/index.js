@@ -54,7 +54,7 @@ const settings = {
 			type: 'string',
 			default: '',
 		},
-		defaultLabel: {
+		placeholder: {
 			type: 'string',
 			default: '',
 		},

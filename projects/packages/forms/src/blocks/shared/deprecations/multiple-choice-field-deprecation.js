@@ -27,7 +27,7 @@ export default function multiFieldV1( fieldType ) {
 			const optionBlocks = nonEmptyOptions.map( option =>
 				createBlock( 'jetpack/option', {
 					label: option,
-					defaultLabel: __( 'Add option…', 'jetpack-forms' ),
+					placeholder: __( 'Add option…', 'jetpack-forms' ),
 					style: optionStyles,
 				} )
 			);
