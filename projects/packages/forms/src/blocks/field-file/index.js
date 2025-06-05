@@ -28,7 +28,7 @@ const settings = {
 			{
 				name: 'jetpack/label',
 				attributes: {
-					label: __( 'File Upload', 'jetpack-forms' ),
+					label: __( 'File upload', 'jetpack-forms' ),
 				},
 			},
 			{
