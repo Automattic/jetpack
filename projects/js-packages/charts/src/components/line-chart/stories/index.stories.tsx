@@ -368,7 +368,6 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 					},
 				] }
 				withGradientFill={ false }
-				showLegend={ true }
 			/>
 		);
 	},
