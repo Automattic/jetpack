@@ -88,6 +88,7 @@ const PieChart = ( {
 	className,
 	showLegend,
 	legendOrientation,
+	legendShape = 'circle',
 	size,
 	thickness = 1,
 	padding = 20,
@@ -217,6 +218,7 @@ const PieChart = ( {
 					items={ legendItems }
 					orientation={ legendOrientation }
 					className={ styles[ 'pie-chart-legend' ] }
+					shape={ legendShape }
 				/>
 			) }
 

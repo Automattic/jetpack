@@ -126,6 +126,7 @@ const LineChart: FC< LineChartProps > = ( {
 	withTooltips = true,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	legendShape = 'line',
 	withGradientFill = false,
 	smoothing = true,
 	curveType = 'linear',
@@ -191,6 +192,8 @@ const LineChart: FC< LineChartProps > = ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
 		color: group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
+		shapeStyle:
+			group?.options?.legendShapeStyle ?? providerTheme.legendShapeStyles?.[ index ] ?? {},
 	} ) );
 
 	const accessors = {
@@ -274,6 +277,7 @@ const LineChart: FC< LineChartProps > = ( {
 					items={ legendItems }
 					orientation={ legendOrientation }
 					className={ styles[ 'line-chart-legend' ] }
+					shape={ legendShape }
 				/>
 			) }
 		</div>
