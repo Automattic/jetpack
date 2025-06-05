@@ -10,10 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Connection: error handling for protected owner on WPcom. [#43593]
 
 ### Changed
-- Connection: Display connection info on WoA sites [#43777]
-- Update package dependencies. [#43718]
-- Update package dependencies. [#43734]
-- Update package dependencies. [#43766]
+- Connection: Display connection info on WoA sites. [#43777]
+- Update package dependencies. [#43718] [#43734] [#43766]
 
 ## [5.15.0] - 2025-06-02
 ### Added
