@@ -45,7 +45,7 @@ const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 };
 
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
-	withGradientFill?: boolean;
+	withGradientFill: boolean;
 	smoothing?: boolean;
 	curveType?: CurveType;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
