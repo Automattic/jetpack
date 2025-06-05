@@ -223,8 +223,9 @@ const BarListChart: FC< BarListChartProps > = ( {
 	},
 	...rest
 } ) => {
-	const isMultiSeries = data.length > 1;
 	const chartOptions = useMemo( () => {
+		const isMultiSeries = data.length > 1;
+
 		const defaultYScale = {
 			// For multi series, set default padding larger to look better.
 			paddingInner: isMultiSeries ? 0.3 : 0.1,
@@ -252,7 +253,7 @@ const BarListChart: FC< BarListChartProps > = ( {
 			valuePosition: options.valuePosition ?? width,
 			yOffset: options.yOffset ?? getDefaultYOffset( data, yScale, height, isMultiSeries ),
 		};
-	}, [ isMultiSeries, options, width, data, height ] );
+	}, [ options, width, data, height ] );
 
 	return (
 		<BarChart
