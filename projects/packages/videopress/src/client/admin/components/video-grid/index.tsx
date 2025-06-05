@@ -17,7 +17,7 @@ import type React from 'react';
  * @param {VideoGridProps} props - Component props.
  * @return {React.ReactNode} - VideoGrid react component.
  */
-const VideoGrid = ( { videos, count = 6, onVideoDetailsClick, loading }: VideoGridProps ) => {
+const VideoGrid = ( { videos, count = 9, onVideoDetailsClick, loading }: VideoGridProps ) => {
 	const gridVideos = videos.slice( 0, count );
 
 	const handleClickWithIndex = ( index, callback ) => () => {

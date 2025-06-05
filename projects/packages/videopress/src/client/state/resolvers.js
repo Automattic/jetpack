@@ -88,7 +88,8 @@ const getVideos = {
 			 * - and use it to fetch the videos.
 			 */
 			if ( ! query ) {
-				query = getDefaultQuery();
+				const libraryType = localStorage.getItem( 'videopress-library-type' ) || 'grid';
+				query = getDefaultQuery( libraryType );
 				dispatch.setVideosQuery( query );
 			}
 

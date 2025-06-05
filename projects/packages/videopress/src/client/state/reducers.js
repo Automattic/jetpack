@@ -49,15 +49,16 @@ import {
 } from './constants';
 
 /**
- * Retunr default query values
+ * Return default query values
  *
- * @return {object}       Full query object.
+ * @param {string} viewType The type of view ('grid' or 'list')
+ * @return {object}         Full query object.
  */
-export function getDefaultQuery() {
+export function getDefaultQuery(viewType = 'grid') {
 	return {
 		order: 'desc',
 		orderBy: 'date',
-		itemsPerPage: 6,
+		itemsPerPage: viewType === 'grid' ? 9 : 20,
 		page: 1,
 		type: 'video/videopress',
 	};

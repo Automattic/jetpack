@@ -132,14 +132,14 @@ export const VideoLibraryWrapper = ( {
 
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	const navigate = useNavigate();
-	const { search } = useVideos();
+	const { search, setVideosQuery } = useVideos();
 	const videosToDisplay = [
 		// First comes video upload errors
 		...videos.filter( video => video.error ),
 		// Then comes the videos that are uploading
 		...videos.filter( video => video.uploading ),
-		// Then the videos that are not uploading, at most 6
-		...videos.filter( video => ! video.uploading && ! video.error ).slice( 0, 6 ),
+		// Then the videos that are not uploading, at most 9
+		...videos.filter( video => ! video.uploading && ! video.error ).slice( 0, 9 ),
 	];
 
 	const libraryTypeFromLocalStorage = localStorage.getItem(
@@ -156,6 +156,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 		setLibraryType( current => {
 			const next = current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid;
 			localStorage.setItem( LIBRARY_TYPE_LOCALSORAGE_KEY, next );
+			setVideosQuery( { itemsPerPage: next === LibraryType.Grid ? 9 : 20 } );
 			return next;
 		} );
 	};
@@ -170,7 +171,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 				videos={ videosToDisplay }
 				onVideoDetailsClick={ handleClickEditDetails }
 				loading={ loading }
-				count={ uploading ? videosToDisplay.length : 6 }
+				count={ uploading ? videosToDisplay.length : 9 }
 			/>
 		) : (
 			<VideoList
