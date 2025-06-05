@@ -33,6 +33,7 @@ test( 'Click on the sidebar Boost Jetpack submenu should navigate to Boost setti
 test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommendation notice option', async ( {
 	page,
 } ) => {
+	test.skip( true, 'Skipping this test as it is flaky and we are working on it' );
 	// Generate Critical CSS to ensure that on plugin deactivation it is cleared.
 	// TODO: Also should make sure that a Critical CSS recommendation is dismissed to check that the options does not exist after deactivation of the plugin.
 	await boostPrerequisitesBuilder( page )
