@@ -1510,22 +1510,6 @@ class Contact_Form_Plugin {
 			}
 			return;
 		}
-
-		if ( isset( $submenu['feedback'] ) && is_array( $submenu['feedback'] ) && ! empty( $submenu['feedback'] ) ) {
-			foreach ( $submenu['feedback'] as $index => $menu_item ) {
-				if ( 'edit.php?post_type=feedback' === $menu_item[2] ) {
-					$unread = self::get_unread_count();
-
-					if ( $unread > 0 ) {
-						$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread jp-feedback-unread-counter count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
-
-						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-						$submenu['feedback'][ $index ][0] .= $unread_count;
-					}
-					break;
-				}
-			}
-		}
 	}
 
 	/**
