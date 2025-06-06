@@ -107,6 +107,7 @@ class Script_Data {
 	protected static function get_admin_script_data() {
 
 		global $wp_version;
+		$jetpack_options = get_option( 'jetpack_options' ); // Using jetpack Manager::get_site_id will create a circular dependency so using option directly.
 
 		$data = array(
 			'site' => array(
@@ -127,7 +128,7 @@ class Script_Data {
 				'wp_version'        => $wp_version,
 				'wpcom'             => array(
 					// This should contain the connected site details like blog_id, is_atomic etc.
-					'blog_id' => 0,
+					'blog_id' => isset( $jetpack_options['id'] ) ? (int) $jetpack_options['id'] : 0, // Set `blog_id` if available. Otherwise data can also be provided via filter.
 				),
 			),
 			'user' => array(

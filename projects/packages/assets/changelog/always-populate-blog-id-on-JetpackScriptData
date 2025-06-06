@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Assets: Populate wpcom.blog_id on window.JetpackScriptData if available.
