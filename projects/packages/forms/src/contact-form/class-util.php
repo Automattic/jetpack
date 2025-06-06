@@ -339,4 +339,25 @@ class Util {
 			$content
 		);
 	}
+
+	/**
+	 * Get a filename for export tasks
+	 *
+	 * @param string $source The filtered source for exported data.
+	 * @return string The filename without source nor date suffix.
+	 */
+	public static function get_export_filename( $source = '' ) {
+		return $source === ''
+			? sprintf(
+				/* translators: Site title, used to craft the export filename, eg "MySite - Jetpack Form Responses" */
+				__( '%s - Jetpack Form Responses', 'jetpack-forms' ),
+				sanitize_file_name( get_bloginfo( 'name' ) )
+			)
+			: sprintf(
+				/* translators: 1: Site title; 2: post title. Used to craft the export filename, eg "MySite - Jetpack Form Responses - Contact" */
+				__( '%1$s - Jetpack Form Responses - %2$s', 'jetpack-forms' ),
+				sanitize_file_name( get_bloginfo( 'name' ) ),
+				sanitize_file_name( $source )
+			);
+	}
 }
