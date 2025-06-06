@@ -316,6 +316,9 @@ importers:
 
   projects/js-packages/charts:
     dependencies:
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../number-formatters
       '@babel/runtime':
         specifier: 7.27.4
         version: 7.27.4
@@ -371,9 +374,6 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
-      '@automattic/number-formatters':
-        specifier: workspace:*
-        version: link:../number-formatters
       '@babel/core':
         specifier: 7.27.4
         version: 7.27.4

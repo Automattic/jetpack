@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix @automattic/number-formatters dependency issue

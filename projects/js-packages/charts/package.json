@@ -47,6 +47,7 @@
 		"./style.css": "./dist/mjs/style.css"
 	},
 	"dependencies": {
+		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "7.27.4",
 		"@react-spring/web": "9.7.5",
 		"@visx/axis": "^3.12.0",
@@ -67,7 +68,6 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@automattic/number-formatters": "workspace:*",
 		"@babel/core": "7.27.4",
 		"@babel/plugin-transform-react-jsx": "7.27.1",
 		"@babel/plugin-transform-runtime": "7.27.4",
