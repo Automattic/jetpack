@@ -192,7 +192,7 @@ class Simple_Payments {
 			return get_current_blog_id();
 		}
 
-		return get_option( 'jetpack_id' );
+		return \Jetpack_Options::get_option( 'id' );
 	}
 
 	/**
