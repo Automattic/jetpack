@@ -4,9 +4,11 @@ import {
 	useBlockProps,
 	useInnerBlocksProps,
 } from '@wordpress/block-editor';
+import { Icon, Button, Flex, FlexItem } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { close } from '@wordpress/icons';
 import clsx from 'clsx';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
@@ -139,6 +141,9 @@ export default function DropdownFieldEdit( props ) {
 
 		const _options = [ ...attributes.options ];
 		_options.splice( index, 1 );
+		if ( _options.length === 0 || _options.filter( option => option ).length === 0 ) {
+			return;
+		}
 		setAttributes( { options: _options } );
 		changeFocus( Math.max( index - 1, 0 ), true );
 	};
@@ -149,16 +154,30 @@ export default function DropdownFieldEdit( props ) {
 			{ ( isSelected || isInnerBlockSelected ) && (
 				<div ref={ optionsWrapper } { ...optionWrapperStyles }>
 					{ options.map( ( option, index ) => (
-						<RichText
-							key={ index }
-							value={ option }
-							onChange={ handleChangeOption( index ) }
-							onKeyDown={ handleKeyDown( index ) }
-							onRemove={ handleDeleteOption( index ) }
-							onReplace={ noop }
-							placeholder={ __( 'Add option…', 'jetpack-forms' ) }
-							__unstableDisableFormats
-						/>
+						<Flex key={ index } className="jetpack-field-dropdown__option">
+							<FlexItem isBlock>
+								<RichText
+									value={ option }
+									onChange={ handleChangeOption( index ) }
+									onKeyDown={ handleKeyDown( index ) }
+									onRemove={ handleDeleteOption( index ) }
+									onReplace={ noop }
+									placeholder={ __( 'Add option…', 'jetpack-forms' ) }
+									__unstableDisableFormats
+								/>
+							</FlexItem>
+							<FlexItem>
+								{ ( options.filter( opt => opt ).length > 1 || option === '' ) && (
+									<Button
+										className="jetpack-field-dropdown__option-remove"
+										label={ __( 'Remove', 'jetpack-forms' ) }
+										onClick={ handleDeleteOption( index ) }
+									>
+										<Icon icon={ close } />
+									</Button>
+								) }
+							</FlexItem>
+						</Flex>
 					) ) }
 				</div>
 			) }
