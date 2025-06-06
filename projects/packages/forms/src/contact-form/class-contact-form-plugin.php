@@ -1426,7 +1426,9 @@ class Contact_Form_Plugin {
 	public function admin_menu() {
 		$slug = 'feedback';
 
-		if ( is_plugin_active( 'polldaddy/polldaddy.php' ) ) {
+		// Do we still need to create the Feedback menu item for polldaddy?
+		// WPCOM already handles this. Self hosted will depend on us until we produce a new release for polldaddy.
+		if ( is_plugin_active( 'polldaddy/polldaddy.php' ) || ! Jetpack_Forms::is_legacy_menu_item_retired() ) {
 			add_menu_page(
 				__( 'Feedback', 'jetpack-forms' ),
 				__( 'Feedback', 'jetpack-forms' ),
