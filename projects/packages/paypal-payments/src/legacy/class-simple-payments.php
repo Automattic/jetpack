@@ -165,7 +165,7 @@ class Simple_Payments {
 			'jetpack-paypal-express-checkout',
 			sprintf(
 				"try{PaypalExpressCheckout.renderButton( '%d', '%d', '%s', '%d' );}catch(e){}",
-				esc_js( $this->get_blog_id() ),
+				esc_js( (string) $this->get_blog_id() ),
 				esc_js( $id ),
 				esc_js( $dom_id ),
 				esc_js( $is_multiple ) /* @phan-suppress-current-line PhanTypeMismatchArgument */
