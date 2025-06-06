@@ -150,7 +150,7 @@ const LineChart: FC< LineChartProps > = ( {
 						...point,
 						date: point.date ? point.date : parseAsLocalDate( point.dateString ),
 					} ) ),
-				} )
+				} ) )
 				.map( series => ( {
 					...series,
 					data: series.data.sort( ( a, b ) => a.date.getTime() - b.date.getTime() ),
