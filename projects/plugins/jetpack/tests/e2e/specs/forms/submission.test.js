@@ -1,6 +1,5 @@
 import { Plans, prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.js';
-import { BlockEditorPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '../../playwright.config.mjs';
 
 test.beforeAll( async ( { browser } ) => {
@@ -44,22 +43,15 @@ test.afterEach( async ( { requestUtils } ) => {
 } );
 
 test.describe( 'Forms: Submission', () => {
-	test( 'Submits a simple contact form', async ( { editor, page } ) => {
+	test( 'Submits a simple contact form', async ( { admin, editor, page } ) => {
 		const formTitle = 'E2E Test Form';
 		await test.step( 'Visit the block editor and insert a form', async () => {
-			const blockEditor = await BlockEditorPage.visit( page );
-			await page.waitForURL( '**/post-new.php' );
-			await blockEditor.waitForEditor();
-			await blockEditor.closeWelcomeGuide();
+			await admin.createNewPost();
 			await editor.insertBlock( {
 				name: 'jetpack/contact-form',
 				attributes: { formTitle },
 			} );
-
-			// TODO: Ideally it'd be possible to use `editor.canvas` from the `@wordpress/e2e-test-utils-playwright` package.
-			// This doesn't work for a non-iframed canvas - see https://github.com/WordPress/gutenberg/issues/69840.
-			const canvas = blockEditor.canvasPage.canvas();
-			const formBlock = canvas.getByRole( 'document', { name: 'Block: Form' } );
+			const formBlock = editor.canvas.getByRole( 'document', { name: 'Block: Form' } );
 			await formBlock.getByRole( 'button', { name: 'Add a contact form to your page.' } ).click();
 
 			await expect( formBlock ).toBeVisible();
@@ -85,6 +77,7 @@ test.describe( 'Forms: Submission', () => {
 	} );
 
 	test( 'Submits the correct from when multiple forms are on the same page', async ( {
+		admin,
 		editor,
 		page,
 	} ) => {
@@ -107,11 +100,7 @@ test.describe( 'Forms: Submission', () => {
 		];
 
 		await test.step( 'Visit the block editor and insert three forms', async () => {
-			const blockEditor = await BlockEditorPage.visit( page );
-			await page.waitForURL( '**/post-new.php' );
-			await blockEditor.waitForEditor();
-			await blockEditor.closeWelcomeGuide();
-
+			await admin.createNewPost();
 			await editor.insertBlock( {
 				name: 'jetpack/contact-form',
 				attributes: { formTitle: 'First form' },
@@ -128,10 +117,7 @@ test.describe( 'Forms: Submission', () => {
 				innerBlocks: contactFormInnerBlocks,
 			} );
 
-			// TODO: Ideally it'd be possible to use `editor.canvas` from the `@wordpress/e2e-test-utils-playwright` package.
-			// This doesn't work for a non-iframed canvas - see https://github.com/WordPress/gutenberg/issues/69840.
-			const canvas = blockEditor.canvasPage.canvas();
-			const formBlock = canvas.getByRole( 'document', { name: 'Block: Form' } );
+			const formBlock = editor.canvas.getByRole( 'document', { name: 'Block: Form' } );
 			await expect( formBlock ).toHaveCount( 3 );
 		} );
 
