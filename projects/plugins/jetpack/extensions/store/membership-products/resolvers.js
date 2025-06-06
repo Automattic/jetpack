@@ -1,4 +1,3 @@
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
@@ -195,13 +194,6 @@ export const getProducts =
 		shouldDisplayProductCreationNotice = true
 	) =>
 	async ( { dispatch, registry, select } ) => {
-		// Early return if user is not connected to avoid unnecessary API calls
-		const { isUserConnected } = registry.select( CONNECTION_STORE_ID ).getConnectionStatus();
-		if ( ! isUserConnected ) {
-			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-			return;
-		}
-
 		await executionLock.blockExecution( EXECUTION_KEY );
 		if ( hydratedFromAPI ) {
 			setDefaultProductIfNeeded( selectedProductIds, setSelectedProductIds, select );
@@ -238,13 +230,6 @@ export const getProducts =
 export const getSubscriberCounts =
 	() =>
 	async ( { dispatch, registry } ) => {
-		// Early return if user is not connected to avoid unnecessary API calls
-		const { isUserConnected } = registry.select( CONNECTION_STORE_ID ).getConnectionStatus();
-		if ( ! isUserConnected ) {
-			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-			return;
-		}
-
 		await executionLock.blockExecution( SUBSCRIBER_COUNT_EXECUTION_KEY );
 
 		const lock = executionLock.acquire( SUBSCRIBER_COUNT_EXECUTION_KEY );
@@ -269,13 +254,6 @@ export const getSubscriberCounts =
 export const getNewsletterCategories =
 	() =>
 	async ( { dispatch, registry } ) => {
-		// Early return if user is not connected to avoid unnecessary API calls
-		const { isUserConnected } = registry.select( CONNECTION_STORE_ID ).getConnectionStatus();
-		if ( ! isUserConnected ) {
-			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-			return;
-		}
-
 		await executionLock.blockExecution( GET_NEWSLETTER_CATEGORIES_EXECUTION_KEY );
 
 		const lock = executionLock.acquire( GET_NEWSLETTER_CATEGORIES_EXECUTION_KEY );
@@ -299,13 +277,6 @@ export const getNewsletterCategories =
 export const getNewsletterCategoriesSubscriptionsCount =
 	( termIds = [] ) =>
 	async ( { dispatch, registry } ) => {
-		// Early return if user is not connected to avoid unnecessary API calls
-		const { isUserConnected } = registry.select( CONNECTION_STORE_ID ).getConnectionStatus();
-		if ( ! isUserConnected ) {
-			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-			return;
-		}
-
 		await executionLock.blockExecution(
 			GET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT_EXECUTION_KEY
 		);
