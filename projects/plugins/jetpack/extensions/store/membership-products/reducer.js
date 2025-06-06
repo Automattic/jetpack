@@ -38,6 +38,11 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 				...state,
 				subscriberCounts: action.subscriberCounts,
 			};
+		case 'SET_TOTAL_EMAILS_SENT_COUNT':
+			return {
+				...state,
+				totalEmailsSentCount: action.totalEmailsSentCount,
+			};
 		case 'SET_NEWSLETTER_CATEGORIES':
 			return {
 				...state,

@@ -1,3 +1,4 @@
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -90,8 +91,8 @@ const getCopyForCategorySubscribers = ( {
 	return sprintf(
 		// translators: %1s is the list of categories, %2d is subscriptions count
 		_n(
-			'This post was sent to everyone subscribed to %1$s (%2$s subscriber).',
-			'This post was sent to everyone subscribed to %1$s (%2$s subscribers).',
+			'This post was sent to everyone subscribed to %1$s (<link>%2$s subscriber</link>).',
+			'This post was sent to everyone subscribed to %1$s (<link>%2$s subscribers</link>).',
 			reachCount ?? 0,
 			'jetpack'
 		),
@@ -141,21 +142,8 @@ export const getCopyForSubscribers = ( {
 		return sprintf(
 			/* translators: %s is the number of subscribers */
 			_n(
-				'This post was sent to <strong>%s paid subscriber</strong>.',
-				'This post was sent to <strong>%s paid subscribers</strong>.',
-				reachCount,
-				'jetpack'
-			),
-			reachCountString
-		);
-	}
-	// Paid post sent only to paid subscribers, post is already published
-	if ( isPaidPost && ! postHasPaywallBlock ) {
-		return sprintf(
-			/* translators: %s is the number of subscribers */
-			_n(
-				'This post was sent to <strong>%s paid subscriber</strong> only.',
-				'This post was sent to <strong>%s paid subscribers</strong> only.',
+				'This post was sent to <link>%s paid subscriber</link>.',
+				'This post was sent to <link>%s paid subscribers</link>.',
 				reachCount,
 				'jetpack'
 			),
@@ -167,8 +155,8 @@ export const getCopyForSubscribers = ( {
 	return sprintf(
 		/* translators: %s is the number of subscribers */
 		_n(
-			'This post was sent to <strong>%s subscriber</strong>.',
-			'This post was sent to <strong>%s subscribers</strong>.',
+			'This post was sent to <link>%s subscriber</link>.',
+			'This post was sent to <link>%s subscribers</link>.',
 			reachCount,
 			'jetpack'
 		),
@@ -186,20 +174,30 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			.some( block => block.name === paywallBlockMetadata.name )
 	);
 
-	const { isScheduledPost, postCategories, postMeta } = useSelect( select => {
-		const { isCurrentPostScheduled, getEditedPostAttribute } = select( editorStore );
-		return {
-			isScheduledPost: isCurrentPostScheduled(),
-			postCategories: getEditedPostAttribute( 'categories' ),
-			postMeta: getEditedPostAttribute( 'meta' ),
-		};
-	} );
+	const { isScheduledPost, isPostOlderThanADay, postCategories, postId, postMeta } = useSelect(
+		select => {
+			const { isCurrentPostScheduled, getEditedPostAttribute, getCurrentPost } =
+				select( editorStore );
+			const status = getCurrentPost()?.status;
+			const publishTime = new Date( getCurrentPost()?.date );
+			const time24HoursAgo = new Date( Date.now() - 24 * 60 * 60 * 1000 );
+
+			return {
+				isScheduledPost: isCurrentPostScheduled(),
+				isPostOlderThanADay: status === 'publish' && publishTime < time24HoursAgo,
+				postCategories: getEditedPostAttribute( 'categories' ),
+				postId: getCurrentPost()?.id,
+				postMeta: getEditedPostAttribute( 'meta' ),
+			};
+		}
+	);
 
 	const isSendEmailEnabled = () => {
 		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
 		return ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
 	};
 
+	const blogId = window.Jetpack_Editor_Initial_State?.wpcomBlogId;
 	const {
 		emailSubscribersCount,
 		hasFinishedLoading,
@@ -207,12 +205,14 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		newsletterCategoriesEnabled,
 		newsletterCategorySubscriberCount,
 		paidSubscribersCount,
+		totalEmailsSentCount, // To display stats from Jetpack. It is necessary to provide the accurate count for historical posts.
 	} = useSelect( select => {
 		const {
 			getNewsletterCategories,
 			getNewsletterCategoriesEnabled,
 			getNewsletterCategoriesSubscriptionsCount,
 			getSubscriberCounts,
+			getTotalEmailsSentCount,
 			hasFinishedResolution,
 		} = select( membershipProductsStore );
 
@@ -231,6 +231,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
 			newsletterCategorySubscriberCount: getNewsletterCategoriesSubscriptionsCount(),
 			paidSubscribersCount: paidSubscribers,
+			totalEmailsSentCount: isPostOlderThanADay ? getTotalEmailsSentCount( blogId, postId ) : null,
 		};
 	} );
 
@@ -253,7 +254,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	const reachForAccessLevel = getReachForAccessLevelKey( {
 		accessLevel,
-		subscribers: emailSubscribersCount,
+		subscribers: isPostOlderThanADay ? totalEmailsSentCount : emailSubscribersCount,
 		paidSubscribers: paidSubscribersCount,
 		postHasPaywallBlock,
 	} );
@@ -274,7 +275,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			isPaidPost,
 			newsletterCategories,
 			postCategories,
-			reachCount: newsletterCategorySubscriberCount,
+			reachCount: isPostOlderThanADay ? totalEmailsSentCount : newsletterCategorySubscriberCount,
 		} );
 	} else {
 		text = getCopyForSubscribers( {
@@ -289,9 +290,22 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		<p>
 			{ createInterpolateElement( text, {
 				strong: <strong />,
+				link: <a href={ getJetpackEmailStatsLink( blogId, postId ) } />,
 			} ) }
 		</p>
 	);
+}
+
+/**
+ * Get the Jetpack email stats link for the given post ID.
+ *
+ * @param {number} blogId - The ID of the blog.
+ * @param {number} postId - The ID of the post.
+ *
+ * @return {string} - The Jetpack email stats link for the given post.
+ */
+function getJetpackEmailStatsLink( blogId, postId ) {
+	return getAdminUrl( `admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ blogId }` );
 }
 
 export default SubscribersAffirmation;
