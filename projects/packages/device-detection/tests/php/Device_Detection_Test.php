@@ -26,7 +26,8 @@ class Device_Detection_Test extends TestCase {
 	 * @dataProvider ua_provider
 	 */
 	#[DataProvider( 'ua_provider' )]
-	public function test_is_mobile( $ua, array $expected_types, $expected_ua_returned, string $expected_browser ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- data provider provides an extra unused param
+	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- PHPUnit 12.2 requires methods with data providers to have an exact param count match
+	public function test_is_mobile( $ua, array $expected_types, $expected_ua_returned, string $expected_browser ) {
 		$_SERVER['HTTP_USER_AGENT'] = $ua;
 
 		$device_info      = Device_Detection::get_info();

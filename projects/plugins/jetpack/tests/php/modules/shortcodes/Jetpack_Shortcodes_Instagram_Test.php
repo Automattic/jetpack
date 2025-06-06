@@ -354,7 +354,8 @@ BODY;
 	 * @param string $shortcode_content The shortcode as entered in the editor.
 	 */
 	#[DataProvider( 'get_instagram_amp_data' )]
-	public function test_shortcodes_instagram_non_amp( $shortcode_content, $expected ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- data provider provides an extra unused param
+	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- PHPUnit 12.2 requires methods with data providers to have an exact param count match
+	public function test_shortcodes_instagram_non_amp( $shortcode_content, $expected ) {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
 		$this->assertStringNotContainsString( 'amp-instagram', do_shortcode( $shortcode_content ) );
 	}

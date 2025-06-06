@@ -416,7 +416,8 @@ class IgnoreFileTest extends TestCase {
 	 * @param string $pattern Pattern.
 	 */
 	#[DataProvider( 'provideBadPattern' )]
-	public function testBadPattern( $pattern, $msg ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- data provider provides an extra unused param
+	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- PHPUnit 12.2 requires methods with data providers to have an exact param count match
+	public function testBadPattern( $pattern, $msg ) {
 		$ignore = new IgnoreFile();
 		$ignore->add( array( 'aaa', $pattern, 'bbb' ) );
 		$this->assertTrue( $ignore->ignores( 'aaa' ) );
