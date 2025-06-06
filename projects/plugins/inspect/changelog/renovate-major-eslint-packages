@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix new eslint issues in svelte code. Should be no change to functionality.
-
-

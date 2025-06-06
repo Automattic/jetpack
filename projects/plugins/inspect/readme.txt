@@ -33,13 +33,20 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 2.0.0-a.1 - 2025-04-04
-#### Added
-- Added an initial version of Jetpack Inspect to the Jetpack Monorepo.
-
+### 2.0.0-a.3 - 2025-06-05
 #### Changed
-- General: Update minimum PHP version to 7.2.
-- General: Indicate compatibility with WordPress 6.8.
+- Code: First pass of style coding standards.
+- Update package dependencies.
+
+#### Removed
+- General: Update minimum WordPress version to 6.7.
+
+#### Fixed
+- Code: Update stylesheets to use hex instead of named colors.
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
+- Linting: Do additional stylesheet cleanup.
+- Linting: Fix more Stylelint violations.
+
 == Arbitrary section ==
 
 You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
