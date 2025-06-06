@@ -113,6 +113,7 @@ const Layout = ( {
 				tabs={ tabs }
 				initialTabName={ getCurrentTab() }
 				onSelect={ handleTabSelect }
+				key={ getCurrentTab() }
 			>
 				{ () => <Outlet /> }
 			</TabPanel>
