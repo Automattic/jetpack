@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2025-06-06
+### Added
+- Add bar list chart component [#43763]
+- Added support for customizable legend shapes/styles [#43792]
+- Charts: Expose types from the charts library and visx package [#43723]
+- Enhance BarChart component to support horizontal orientation [#43741]
+- Support tick dasharray overridden by series data [#43761]
+
+### Changed
+- Add dynamic chart margin calculation and improve Y-axis tick formatting [#43679]
+- Refactor BarChart to use @visx/xychart [#43677]
+- Update dependencies. [#43068]
+- Update package dependencies. [#43326]
+- Update package dependencies. [#43354]
+- Update package dependencies. [#43398]
+- Update package dependencies. [#43399]
+- Update package dependencies. [#43400]
+- Update package dependencies. [#43516]
+- Update package dependencies. [#43578]
+- Update package dependencies. [#43718]
+- Update package dependencies. [#43734]
+- Update package dependencies. [#43766]
+
+### Removed
+- Removed animation for line and bar charts [#43809]
+
+### Fixed
+- Charts: use color set from the data for the stroke as legend if available and fallback to theme color if it was not available [#43772]
+- Fix @rollup/plugin-typescript warnings [#43742]
+- Fixed smoothing is not working when specified [#43810]
+- Fix tooltip causing horizontal scrollbars to appear [#43613]
+- Linting: Fix more Stylelint violations. [#43213]
+
 ## [0.11.4] - 2025-04-10
 ### Changed
 - Internal updates.
@@ -179,6 +212,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.12.0]: https://github.com/Automattic/charts/compare/v0.11.4...v0.12.0
 [0.11.4]: https://github.com/Automattic/charts/compare/v0.11.3...v0.11.4
 [0.11.3]: https://github.com/Automattic/charts/compare/v0.11.2...v0.11.3
 [0.11.2]: https://github.com/Automattic/charts/compare/v0.11.1...v0.11.2
