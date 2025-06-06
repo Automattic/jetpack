@@ -10,8 +10,8 @@ import { usePrevious } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import JetpackFieldWidth from '../contact-form/components/jetpack-field-width';
 import JetpackManageResponsesSettings from '../contact-form/components/jetpack-manage-responses-settings';
+import JetpackFieldWidth from '../shared/components/jetpack-field-width';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
 export default function ConsentFieldEdit( props ) {
