@@ -8,7 +8,7 @@ import {
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
-import { isOdysseyStatsEnabled, isWoASite, getSiteAdminUrl } from 'state/initial-state';
+import { isOdysseyStatsEnabled, getSiteAdminUrl } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
@@ -24,7 +24,6 @@ export class Discussion extends React.Component {
 			isOdysseyStatsEnabled: this.props.isOdysseyStatsEnabled,
 			isOfflineMode: this.props.isOfflineMode,
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
-			isWoASite: this.props.isWoASite,
 			siteAdminUrl: this.props.siteAdminUrl,
 		};
 
@@ -71,7 +70,6 @@ export default connect( state => {
 		isLinked: isCurrentUserLinked( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
-		isWoASite: isWoASite( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 	};
 } )( Discussion );
