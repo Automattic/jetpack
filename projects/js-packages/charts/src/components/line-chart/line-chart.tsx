@@ -27,7 +27,7 @@ const X_TICK_WIDTH = 100;
  */
 const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 	// If no type specified, use legacy smoothing behavior
-	if ( ! type || smoothing ) {
+	if ( ! type ) {
 		return smoothing ? curveCatmullRom : curveLinear;
 	}
 
@@ -129,7 +129,7 @@ const LineChart: FC< LineChartProps > = ( {
 	legendShape = 'line',
 	withGradientFill = false,
 	smoothing = true,
-	curveType = 'linear',
+	curveType,
 	renderTooltip = renderDefaultTooltip,
 	options = {},
 	onPointerDown = undefined,
