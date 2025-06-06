@@ -19,7 +19,7 @@ interface ConnectBannerProps {
 import './style.scss';
 
 const getRedirectUri = () => {
-	const pathname = window?.location?.pathname.replace( 'wp-admin/', '' );
+	const pathname = window?.location?.pathname.replace( /.*?wp-admin\//, '' );
 	const search = window?.location?.search;
 
 	return `${ pathname }${ search }`;
