@@ -160,6 +160,13 @@ export const FixedDimensions: Story = {
 	},
 };
 
+export const WithPatterns: Story = {
+	args: {
+		...Default.args,
+		withPatterns: true,
+	},
+};
+
 export const ErrorStates: StoryObj< typeof BarChart > = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '20px' } }>

@@ -1,3 +1,4 @@
+import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
 import { useCallback } from 'react';
@@ -15,6 +16,7 @@ import type { FC, ReactNode } from 'react';
 export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	orientation?: 'horizontal' | 'vertical';
+	withPatterns?: boolean;
 }
 
 // Validation function similar to LineChart
@@ -35,6 +37,9 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
+// Pattern configurations for each series
+const getPatternId = ( index: number ) => `bar-pattern-${ index }`;
+
 const BarChart: FC< BarChartProps > = ( {
 	data,
 	width,
@@ -49,12 +54,25 @@ const BarChart: FC< BarChartProps > = ( {
 	renderTooltip,
 	options = {},
 	orientation = 'vertical',
+	withPatterns = false,
 } ) => {
 	const horizontal = orientation === 'horizontal';
+	const patterns = [ PatternLines, PatternCircles, PatternWaves, PatternHexagons ];
 	const theme = useXYChartTheme( data );
 	const chartOptions = useBarChartOptions( data, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+
+	// Create color accessor function that returns the appropriate color for each series
+	const createColorAccessor = useCallback(
+		( index: number ) => {
+			const barColor = withPatterns
+				? `url(#${ getPatternId( index ) })`
+				: data[ index ]?.options?.stroke || theme.colors[ index % theme.colors.length ];
+			return () => barColor;
+		},
+		[ withPatterns, data, theme ]
+	);
 
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
@@ -126,8 +144,30 @@ const BarChart: FC< BarChartProps > = ( {
 					numTicks={ 4 }
 				/>
 
+				{ withPatterns && (
+					<defs>
+						{ data.map( ( seriesData, index ) => {
+							const PatternComponent = patterns[ index % patterns.length ];
+							const color =
+								seriesData.options?.stroke || theme.colors[ index % theme.colors.length ];
+
+							return (
+								<PatternComponent
+									key={ `pattern-${ index }` }
+									id={ getPatternId( index ) }
+									width={ 8 }
+									height={ 8 }
+									stroke={ color }
+									strokeWidth={ 1 }
+									fill={ index % 2 === 0 ? 'transparent' : color }
+								/>
+							);
+						} ) }
+					</defs>
+				) }
+
 				<BarGroup padding={ chartOptions.barGroup.padding }>
-					{ data.map( seriesData => {
+					{ data.map( ( seriesData, index ) => {
 						return (
 							<BarSeries
 								key={ seriesData?.label }
@@ -135,6 +175,7 @@ const BarChart: FC< BarChartProps > = ( {
 								data={ seriesData.data as DataPointDate[] }
 								yAccessor={ chartOptions.accessors.yAccessor }
 								xAccessor={ chartOptions.accessors.xAccessor }
+								colorAccessor={ createColorAccessor( index ) }
 							/>
 						);
 					} ) }
