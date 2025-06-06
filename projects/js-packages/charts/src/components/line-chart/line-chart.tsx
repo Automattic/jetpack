@@ -117,9 +117,6 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	curveType?: CurveType;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	withStartGlyphs?: boolean;
-	renderStartGlyph?: < Datum extends object >(
-		props: RenderLineStartGlyphProps< Datum >
-	) => ReactNode;
 	glyphStyle?: React.SVGProps< SVGCircleElement >;
 }
 
@@ -205,7 +202,6 @@ const LineChart: FC< LineChartProps > = ( {
 	renderTooltip = renderDefaultTooltip,
 	glyphStyle = {},
 	withStartGlyphs = false,
-	renderStartGlyph = defaultRenderGlyph,
 	options = {},
 	onPointerDown = undefined,
 	onPointerUp = undefined,
@@ -315,7 +311,7 @@ const LineChart: FC< LineChartProps > = ( {
 									data={ seriesData }
 									color={ stroke }
 									glyphStyle={ glyphStyle }
-									renderStartGlyph={ renderStartGlyph }
+									renderStartGlyph={ defaultRenderGlyph }
 									accessors={ accessors }
 								/>
 							) }
