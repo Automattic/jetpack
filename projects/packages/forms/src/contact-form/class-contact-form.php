@@ -1653,6 +1653,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 			esc_url( $url )
 		);
 
+		// Get the status of the feedback
+		$status = $is_spam ? 'spam' : 'inbox';
+
+		// Build the dashboard URL with the status and the feedback's post id
+		$dashboard_url = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status ) . '&r=' . $post_id;
+
+		$footer_dashboard_response_url = sprintf(
+			/* translators: Placeholder is the URL of the response in the dashboard. */
+			__( 'Dashboard response URL: %1$s', 'jetpack-forms' ),
+			$dashboard_url
+		);
+
 		$footer = implode(
 			'',
 			/**
@@ -1670,7 +1682,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					'<span style="font-size: 12px">',
 					$footer_time . '<br />',
 					$footer_ip ? $footer_ip . '<br />' : null,
-					$footer_url . '<br />',
+					$footer_url . '<br /><br />',
+					$footer_dashboard_response_url . '<br />',
 					$sent_by_text,
 					'</span>',
 				)
