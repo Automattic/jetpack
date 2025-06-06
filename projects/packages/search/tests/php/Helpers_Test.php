@@ -974,9 +974,6 @@ class Helpers_Test extends TestCase {
 					'2'            => static::get_sample_widget_instance( 2 ),
 					'_multiwidget' => 1,
 				),
-				array(
-					'_multiwidget' => 1,
-				),
 			),
 			'multiple_widgets_filter_added'      => array(
 				array(
@@ -1001,9 +998,6 @@ class Helpers_Test extends TestCase {
 					'2'            => static::get_sample_widget_instance( 2 ),
 					'_multiwidget' => 1,
 				),
-				array(
-					'_multiwidget' => 1,
-				),
 			),
 			'multiple_widgets_filter_updated'    => array(
 				array(
@@ -1026,9 +1020,6 @@ class Helpers_Test extends TestCase {
 					'0'            => static::get_sample_widget_instance( 0 ),
 					'1'            => static::get_sample_widget_instance( 1 ),
 					'2'            => $instance_with_filter_updated,
-					'_multiwidget' => 1,
-				),
-				array(
 					'_multiwidget' => 1,
 				),
 			),
