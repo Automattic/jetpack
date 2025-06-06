@@ -1,7 +1,8 @@
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
+import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
 import type { EventHandlerParams, GridStyles, LineStyles } from '@visx/xychart';
-import type { PointerEvent, ReactNode } from 'react';
+import type { CSSProperties, PointerEvent, ReactNode } from 'react';
 
 type ValueOf< T > = T[ keyof T ];
 
@@ -28,6 +29,7 @@ export type SeriesData = {
 		gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
 		stroke?: string;
 		seriesLineStyle?: LineStyles;
+		legendShapeStyle?: CSSProperties;
 	};
 };
 
@@ -83,6 +85,8 @@ export type ChartTheme = {
 	xAxisLineStyles?: LineStyles;
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
+	/** Styles for legend shapes */
+	legendShapeStyles?: CSSProperties[];
 };
 
 declare type AxisOptions = {
@@ -186,6 +190,10 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * Legend orientation
 	 */
 	legendOrientation?: 'horizontal' | 'vertical';
+	/**
+	 * Legend shape
+	 */
+	legendShape?: LegendShape< T, number >;
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */

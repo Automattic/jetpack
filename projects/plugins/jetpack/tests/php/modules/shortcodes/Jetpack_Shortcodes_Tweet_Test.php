@@ -235,9 +235,10 @@ BODY;
 	 * @since 8.0.0
 	 *
 	 * @param string $shortcode_content The shortcode as entered in the editor.
+	 * @param string $_expected The expected return value of the function. Not used in this test.
 	 */
 	#[DataProvider( 'get_tweet_amp_data' )]
-	public function test_shortcodes_tweet_non_amp( $shortcode_content ) {
+	public function test_shortcodes_tweet_non_amp( $shortcode_content, $_expected ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
 		$this->assertStringNotContainsString( 'amp-twitter', do_shortcode( $shortcode_content ) );
 	}

@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Search & Classic Themes: no longer add a Jetpack Search widget to the best guess on the main sidebar, instead only replaces the Core Search Widget.

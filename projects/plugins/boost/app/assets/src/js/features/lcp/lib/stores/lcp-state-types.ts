@@ -9,8 +9,22 @@ export const LcpErrorType = z.enum( [
 	'OptimizationError',
 ] );
 
+export const LcpErrorTypeSchema = z.enum( [
+	'unknown',
+	'element-not-unique',
+	'http-error',
+	'lcp-timeout',
+	'lcp-metric-timeout',
+] );
+
+export const LcpErrorMetaSchema = z.object( {
+	code: z.number().optional(),
+	selector: z.string().optional(),
+} );
+
 export const LcpErrorDetailsSchema = z.object( {
-	message: z.coerce.string(),
+	type: LcpErrorTypeSchema,
+	meta: LcpErrorMetaSchema.optional(),
 } );
 
 export const PageSchema = z.object( {
@@ -44,4 +58,6 @@ export const LcpStateSchema = z
  */
 export type LcpState = z.infer< typeof LcpStateSchema >;
 export type LcpErrorType = z.infer< typeof LcpErrorType >;
+export type LcpErrorTypeSchema = z.infer< typeof LcpErrorTypeSchema >;
+export type LcpErrorMeta = z.infer< typeof LcpErrorMetaSchema >;
 export type LcpErrorDetails = z.infer< typeof LcpErrorDetailsSchema >;

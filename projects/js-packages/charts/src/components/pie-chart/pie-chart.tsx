@@ -10,8 +10,6 @@ import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
 import type { SVGProps, MouseEvent } from 'react';
 
-// TODO: add animation
-
 type OmitBaseChartProps = Omit< BaseChartProps< DataPointPercentage[] >, 'width' | 'height' >;
 
 interface PieChartProps extends OmitBaseChartProps {
@@ -88,6 +86,7 @@ const PieChart = ( {
 	className,
 	showLegend,
 	legendOrientation,
+	legendShape = 'circle',
 	size,
 	thickness = 1,
 	padding = 20,
@@ -217,6 +216,7 @@ const PieChart = ( {
 					items={ legendItems }
 					orientation={ legendOrientation }
 					className={ styles[ 'pie-chart-legend' ] }
+					shape={ legendShape }
 				/>
 			) }
 

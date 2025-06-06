@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Jetpack Media Library: Prevent PHP warnings related to unexpected array offsets and undefined array keys in some cases.

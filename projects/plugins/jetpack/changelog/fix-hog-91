@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Complete: correctly display Critical CSS status for customers with the Complete plan

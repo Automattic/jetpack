@@ -316,6 +316,9 @@ importers:
 
   projects/js-packages/charts:
     dependencies:
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../number-formatters
       '@babel/runtime':
         specifier: 7.27.4
         version: 7.27.4
@@ -371,9 +374,6 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
-      '@automattic/number-formatters':
-        specifier: workspace:*
-        version: link:../number-formatters
       '@babel/core':
         specifier: 7.27.4
         version: 7.27.4
@@ -4498,6 +4498,9 @@ importers:
       daterangepicker:
         specifier: 2.1.25
         version: 2.1.25
+      font-awesome:
+        specifier: 4.7.0
+        version: 4.7.0
       glob:
         specifier: 11.0.0
         version: 11.0.0
@@ -4528,6 +4531,9 @@ importers:
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
+      semantic-ui-css:
+        specifier: 2.5.0
+        version: 2.5.0
       sweetalert2:
         specifier: 7.33.1
         version: 7.33.1
@@ -11394,6 +11400,10 @@ packages:
       debug:
         optional: true
 
+  font-awesome@4.7.0:
+    resolution: {integrity: sha512-U6kGnykA/6bFmg1M/oT9EkFeIYv7JlX3bozwQJWiiLz6L0w3F5vBVPxHlwyX/vtNq1ckcpRKOB9f2Qal/VtFpg==}
+    engines: {node: '>=0.10.3'}
+
   for-each@0.3.5:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
     engines: {node: '>= 0.4'}
@@ -14616,6 +14626,9 @@ packages:
 
   select@1.1.2:
     resolution: {integrity: sha512-OwpTSOfy6xSs1+pwcNrv0RBMOzI39Lp3qQKUTPVVPRjCdNa5JH/oPRiqsesIskK8TVgmRiHwO4KXlV2Li9dANA==}
+
+  semantic-ui-css@2.5.0:
+    resolution: {integrity: sha512-jIWn3WXXE2uSaWCcB+gVJVRG3masIKtTMNEP2X8Aw909H2rHpXGneYOxzO3hT8TpyvB5/dEEo9mBFCitGwoj1A==}
 
   semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
@@ -24952,6 +24965,8 @@ snapshots:
     optionalDependencies:
       debug: 4.4.1
 
+  font-awesome@4.7.0: {}
+
   for-each@0.3.5:
     dependencies:
       is-callable: 1.2.7
@@ -28798,6 +28813,10 @@ snapshots:
   seed-random@2.2.0: {}
 
   select@1.1.2: {}
+
+  semantic-ui-css@2.5.0:
+    dependencies:
+      jquery: 3.6.0
 
   semver@5.7.2: {}
 

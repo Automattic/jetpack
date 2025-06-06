@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Forms: remove is_admin fencing for menu registration. Move Forms down on submenu order.
