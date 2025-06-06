@@ -7,7 +7,7 @@ import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { isValidElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackManageResponsesSettings from '../../contact-form/components/jetpack-manage-responses-settings';
-import JetpackFieldWidth from '../../shared/components/jetpack-field-width';
+import JetpackFieldWidth from './jetpack-field-width';
 import ToolbarRequiredGroup from './toolbar-required-group';
 
 const JetpackFieldControls = ( {
