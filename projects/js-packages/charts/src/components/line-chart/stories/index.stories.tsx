@@ -356,3 +356,9 @@ BrokenLine.parameters = {
 		},
 	},
 };
+
+export const WithStartGlyphs: StoryObj< typeof LineChart > = Template.bind( {} );
+WithStartGlyphs.args = {
+	...Default.args,
+	withStartGlyphs: true,
+};
