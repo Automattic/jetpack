@@ -340,6 +340,16 @@ module.exports = [
 						from: path.resolve( __dirname, 'node_modules/hopscotch/dist/css/hopscotch.min.css' ),
 						to: `${ buildLibPath }/hopscotch/`,
 					},
+					// Used by extensively as a font icon
+					{
+						from: path.resolve( __dirname, 'node_modules/font-awesome/css/font-awesome.min.css' ),
+						to: `${ buildLibPath }/font-awesome/css`,
+					},
+					// Used by extensively as a font icon
+					{
+						from: path.resolve( __dirname, 'node_modules/font-awesome/fonts' ),
+						to: `${ buildLibPath }/font-awesome/fonts`,
+					},
 					// Used extensively for alerts
 					{
 						from: path.resolve( __dirname, 'node_modules/sweetalert2/dist/sweetalert2.min.js' ),

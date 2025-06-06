@@ -5,7 +5,8 @@ import GoogleSheetsIcon from '../../../../icons/google-sheets';
 import IntegrationCard from './integration-card';
 
 const FORM_RESPONSES_URL =
-	window?.jpFormsBlocks?.defaults?.formsResponsesUrl || '/wp-admin/admin.php?page=jetpack-forms';
+	window?.jpFormsBlocks?.defaults?.formsResponsesUrl ||
+	'/wp-admin/admin.php?page=jetpack-forms-admin';
 
 const GoogleSheetsCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const [ isPolling, setIsPolling ] = useState( false );

@@ -4367,6 +4367,9 @@ importers:
       daterangepicker:
         specifier: 2.1.25
         version: 2.1.25
+      font-awesome:
+        specifier: 4.7.0
+        version: 4.7.0
       glob:
         specifier: 11.0.0
         version: 11.0.0
@@ -11175,6 +11178,10 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
+
+  font-awesome@4.7.0:
+    resolution: {integrity: sha512-U6kGnykA/6bFmg1M/oT9EkFeIYv7JlX3bozwQJWiiLz6L0w3F5vBVPxHlwyX/vtNq1ckcpRKOB9f2Qal/VtFpg==}
+    engines: {node: '>=0.10.3'}
 
   for-each@0.3.5:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
@@ -24329,6 +24336,8 @@ snapshots:
   follow-redirects@1.15.9(debug@4.4.1):
     optionalDependencies:
       debug: 4.4.1
+
+  font-awesome@4.7.0: {}
 
   for-each@0.3.5:
     dependencies:

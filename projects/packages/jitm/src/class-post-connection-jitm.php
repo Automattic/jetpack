@@ -113,7 +113,7 @@ class Post_Connection_JITM extends JITM {
 				array(
 					'creative-mail-action' => 'install',
 				),
-				admin_url( 'edit.php?post_type=feedback' )
+				admin_url( 'admin.php?page=jetpack-forms-admin' )
 			),
 			'creative-mail-install'
 		);
@@ -130,7 +130,7 @@ class Post_Connection_JITM extends JITM {
 				array(
 					'creative-mail-action' => 'activate',
 				),
-				admin_url( 'edit.php?post_type=feedback' )
+				admin_url( 'admin.php?page=jetpack-forms-admin' )
 			),
 			'creative-mail-install'
 		);

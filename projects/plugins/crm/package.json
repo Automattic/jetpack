@@ -51,6 +51,7 @@
 		"copy-webpack-plugin": "11.0.0",
 		"css-loader": "6.11.0",
 		"daterangepicker": "2.1.25",
+		"font-awesome": "4.7.0",
 		"glob": "11.0.0",
 		"hopscotch": "0.3.1",
 		"jest": "29.7.0",

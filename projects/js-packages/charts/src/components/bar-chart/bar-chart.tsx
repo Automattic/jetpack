@@ -1,14 +1,7 @@
-import {
-	AnimatedAxis,
-	AnimatedBarSeries,
-	AnimatedBarGroup,
-	AnimatedGrid,
-	Tooltip,
-	XYChart,
-} from '@visx/xychart';
+import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { useXYChartTheme } from '../../providers/theme';
+import { useChartTheme, useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { withResponsive } from '../shared/with-responsive';
@@ -50,13 +43,14 @@ const BarChart: FC< BarChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
 	options = {},
 	orientation = 'vertical',
 } ) => {
 	const horizontal = orientation === 'horizontal';
-
+	const providerTheme = useChartTheme();
 	const theme = useXYChartTheme( data );
 	const chartOptions = useBarChartOptions( data, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
@@ -99,6 +93,8 @@ const BarChart: FC< BarChartProps > = ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
 		color: group.options?.stroke || theme.colors[ index % theme.colors.length ],
+		shapeStyle:
+			group?.options?.legendShapeStyle ?? providerTheme.legendShapeStyles?.[ index ] ?? {},
 	} ) );
 
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
@@ -120,16 +116,16 @@ const BarChart: FC< BarChartProps > = ( {
 				horizontal={ horizontal }
 				pointerEventsDataKey="nearest"
 			>
-				<AnimatedGrid
+				<Grid
 					columns={ gridVisibility.includes( 'y' ) }
 					rows={ gridVisibility.includes( 'x' ) }
 					numTicks={ 4 }
 				/>
 
-				<AnimatedBarGroup padding={ chartOptions.barGroup.padding }>
+				<BarGroup padding={ chartOptions.barGroup.padding }>
 					{ data.map( seriesData => {
 						return (
-							<AnimatedBarSeries
+							<BarSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] }
@@ -138,10 +134,10 @@ const BarChart: FC< BarChartProps > = ( {
 							/>
 						);
 					} ) }
-				</AnimatedBarGroup>
+				</BarGroup>
 
-				<AnimatedAxis { ...chartOptions.axis.x } />
-				<AnimatedAxis { ...chartOptions.axis.y } />
+				<Axis { ...chartOptions.axis.x } />
+				<Axis { ...chartOptions.axis.y } />
 
 				{ withTooltips && (
 					<Tooltip
@@ -158,6 +154,7 @@ const BarChart: FC< BarChartProps > = ( {
 					items={ legendItems }
 					orientation={ legendOrientation }
 					className={ styles[ 'bar-chart__legend' ] }
+					shape={ legendShape }
 				/>
 			) }
 		</div>

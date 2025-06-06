@@ -4,8 +4,63 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "916cfb86dae4ce516e275e174206cc68",
+	"content-hash": "12d2a634feda8e901f845147db6a412c",
 	"packages": [
+		{
+			"name": "automattic/block-delimiter",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/block-delimiter",
+				"reference": "f12ed0cec5190658d2a04b218c7dece88bec3b45"
+			},
+			"require": {
+				"php": ">=7.2"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/phpunit-select-config": "@dev",
+				"yoast/phpunit-polyfills": "^4.0.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/block-delimiter/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/block-delimiter",
+				"textdomain": "jetpack-block-delimiter"
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"phpunit-select-config phpunit.#.xml.dist --colors=always"
+				],
+				"test-coverage": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Efficiently work with block structure",
+			"transport-options": {
+				"relative": true
+			}
+		},
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
 			"version": "dev-trunk",
@@ -966,7 +1021,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "6befc795d36067f546166e17e2c1563f74c95a1f"
+				"reference": "157a3de134bf9093130b3ab5dfd381754d4d06fe"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1002,7 +1057,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "6.12.x-dev"
+					"dev-trunk": "6.13.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -1360,7 +1415,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "73ec2a96a6f9ad77067af793f322430d6d653f54"
+				"reference": "c010918da0d8c6d10dfd71419156771efffdc61a"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1391,7 +1446,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "1.0.x-dev"
+					"dev-trunk": "1.1.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -1891,7 +1946,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "ca2e9fdc87e308ead865afaf254bad187f3cff14"
+				"reference": "4fef752d0a25783b40533b33515dd78964640515"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1930,7 +1985,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "5.15.x-dev"
+					"dev-trunk": "5.16.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2232,7 +2287,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/protect-models",
-				"reference": "b8e862ee1ac0301a12afa22b03c5503159aab2fa"
+				"reference": "47d85cc433228c6278e5a10225e27a8cf6848971"
 			},
 			"require": {
 				"automattic/jetpack-redirect": "@dev",
@@ -2251,7 +2306,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.5.x-dev"
+					"dev-trunk": "0.6.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-protect-models/compare/v${old}...v${new}"
@@ -2298,7 +2353,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/protect-status",
-				"reference": "887b85b6fe8085925ca4e80b82c9222e73f17dc3"
+				"reference": "634b0c4d43a8adbae0b436e37ec10cc2bc511e1e"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2321,7 +2376,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.5.x-dev"
+					"dev-trunk": "0.6.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-protect-status/compare/v${old}...v${new}"
@@ -2557,7 +2612,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/search",
-				"reference": "eff3dcf5f77445aa696b0fb68ab9d45213430c63"
+				"reference": "2fe3d1a287d6e83b4be2b74149449635f5bc0837"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2587,7 +2642,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.50.x-dev"
+					"dev-trunk": "0.51.x-dev"
 				},
 				"version-constants": {
 					"::VERSION": "src/class-package.php"
@@ -6194,6 +6249,7 @@
 	"aliases": [],
 	"minimum-stability": "dev",
 	"stability-flags": {
+		"automattic/block-delimiter": 20,
 		"automattic/jetpack-a8c-mc-stats": 20,
 		"automattic/jetpack-account-protection": 20,
 		"automattic/jetpack-admin-ui": 20,
