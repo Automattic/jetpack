@@ -53,6 +53,8 @@ const StatsCards = ( { counts, previousCounts, headingLevel } ) => {
 				</small>
 			</Heading>
 
+			{ /* // chart goes here */ }
+
 			<ul className={ styles[ 'cards-list' ] }>
 				<CountComparisonCard
 					heading={ __( 'Views', 'jetpack-my-jetpack' ) }

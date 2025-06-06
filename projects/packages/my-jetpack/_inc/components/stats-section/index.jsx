@@ -7,6 +7,7 @@ import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import useStatsVisits from '../../hooks/use-stats-visits';
 import ProductCard from '../connected-product-card';
 import StatsCards from './cards';
 
@@ -16,14 +17,30 @@ const StatsSection = () => {
 	const { detail } = useProduct( slug );
 	const { status } = detail;
 	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
+	const { recordEvent } = useAnalytics();
+
+	// Existing stats counts query
 	const { data: statsCounts } = useSimpleQuery( {
 		name: QUERY_STATS_COUNTS_KEY,
 		query: { path: getStatsHighlightsEndpoint( blogID ) },
 		options: { enabled: isSiteConnected },
 	} );
+
+	// New stats visits hook for time series data
+	const { data: visitsData } = useStatsVisits(
+		// TODO: add loading or move
+		blogID,
+		isSiteConnected,
+		{
+			period: 'day',
+			quantity: 7,
+		}
+	);
+
+	// console.log( 'visitsData', visitsData );
+
 	const counts = statsCounts?.past_seven_days || {};
 	const previousCounts = statsCounts?.between_past_eight_and_fifteen_days || {};
-	const { recordEvent } = useAnalytics();
 
 	/**
 	 * Called when "See detailed stats" button is clicked.
@@ -68,7 +85,12 @@ const StatsSection = () => {
 			secondaryAction={ viewStatsButton }
 			showMenu
 		>
-			<StatsCards counts={ counts } previousCounts={ previousCounts } headingLevel={ 4 } />
+			<StatsCards
+				counts={ counts }
+				previousCounts={ previousCounts }
+				headingLevel={ 4 }
+				chartData={ visitsData }
+			/>
 		</ProductCard>
 	);
 };
