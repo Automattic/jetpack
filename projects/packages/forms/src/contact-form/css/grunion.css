@@ -635,6 +635,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	transition: font-size 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.is-style-outlined :where(.wp-block-jetpack-label),
 .contact-form :where(.is-style-outlined .grunion-field-wrap .notched-label .notched-label__label),
 .contact-form :where(.is-style-outlined .grunion-field-wrap legend.grunion-field-label) {
 	font-weight: 300;
