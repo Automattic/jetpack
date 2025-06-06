@@ -2,6 +2,8 @@
  * External dependencies
  */
 import { Button, ExternalLink, Modal, Tooltip, Spinner, Icon } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { useDispatch } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -124,6 +126,19 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
+	const { saveEntityRecord } = useDispatch( coreStore );
+
+	// When opening a "Mark as spam" link from the email, the InboxResponse component is rendered, so we check for the query param and mark the response as spam.
+	useEffect( () => {
+		if ( window.location.hash.includes( '&mark_as_spam' ) ) {
+			window.location.hash = window.location.hash.replace( '&mark_as_spam', '' );
+
+			if ( ! [ 'spam', 'trash' ].includes( response.status ) ) {
+				window.location.hash = window.location.hash.replace( 'status=inbox', 'status=spam' );
+				saveEntityRecord( 'postType', 'feedback', { id: response.id, status: 'spam' } );
+			}
+		}
+	}, [ response, saveEntityRecord ] );
 
 	const ref = useRef( undefined );
 
