@@ -66,7 +66,6 @@ const StartGlyph: FC< {
 	if ( data.data.length === 0 ) return null;
 
 	const firstPoint = data.data[ 0 ];
-	if ( ! firstPoint ) return null;
 
 	const x = xScale( accessors.xAccessor( firstPoint ) );
 	const y = yScale( accessors.yAccessor( firstPoint ) );
