@@ -68,7 +68,7 @@ class WP_REST_Help_Center_Persisted_Open_State extends \WP_REST_Controller {
 
 		$projected_response = array(
 			'help_center_open' => (bool) $is_open,
-			'help_center_router_history' => router_history,
+			'help_center_router_history' => $router_history,
 		);
 
 		return rest_ensure_response( $projected_response );
