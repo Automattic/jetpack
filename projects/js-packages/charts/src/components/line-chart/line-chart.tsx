@@ -11,8 +11,8 @@ import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
 import type { TickFormatter } from '@visx/axis';
+import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
-import type { GlyphProps } from '@visx/xychart/lib/types/series';
 import type { FC, ReactNode } from 'react';
 
 type CurveType = 'smooth' | 'linear' | 'monotone';
@@ -44,7 +44,7 @@ const DefaultGlyph = < Datum extends object >( props: RenderLineStartGlyphProps<
 const defaultRenderGlyph = < Datum extends object >(
 	props: RenderLineStartGlyphProps< Datum >
 ) => {
-	return <DefaultGlyph { ...props } />;
+	return <DefaultGlyph { ...props } key={ props.key } />;
 };
 
 const StartGlyph: FC< {
