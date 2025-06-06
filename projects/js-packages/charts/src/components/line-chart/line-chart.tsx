@@ -35,6 +35,7 @@ const DefaultGlyph = < Datum extends object >( props: RenderLineStartGlyphProps<
 			stroke={ theme?.backgroundColor }
 			strokeWidth={ 1.5 }
 			paintOrder="fill"
+			data-testid={ `start-glyph-${ props.index }` }
 			{ ...props.glyphStyle }
 		/>
 	);
