@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Resolve PHPUnit "has more arguments..." warnings

@@ -20,13 +20,14 @@ class Device_Detection_Test extends TestCase {
 	 * @param string $ua                   User agent string.
 	 * @param array  $expected_types       Expected device types to be detected for a user-agent.
 	 * @param bool   $expected_ua_returned Expected value for UA returned by the method.
+	 * @param string $expected_browser     Expected value for browser returned by the method.
 	 *
 	 * @return void
 	 *
 	 * @dataProvider ua_provider
 	 */
 	#[DataProvider( 'ua_provider' )]
-	public function test_is_mobile( $ua, array $expected_types, $expected_ua_returned ) {
+	public function test_is_mobile( $ua, array $expected_types, $expected_ua_returned, $expected_browser ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$_SERVER['HTTP_USER_AGENT'] = $ua;
 
 		$device_info      = Device_Detection::get_info();
