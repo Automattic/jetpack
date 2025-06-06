@@ -1690,6 +1690,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 			esc_url( $url )
 		);
 
+		// Get the status of the feedback
+		$status = $is_spam ? 'spam' : 'inbox';
+
+		// Build the dashboard URL with the status and the feedback's post id
+		$dashboard_url = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
+
+		$mark_as_spam_url = $dashboard_url . '&mark_as_spam';
+
+		$footer_mark_as_spam_url = sprintf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url( $mark_as_spam_url ),
+			__( 'Mark as spam', 'jetpack-forms' )
+		);
+
 		$footer = implode(
 			'',
 			/**
@@ -1707,7 +1721,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					'<span style="font-size: 12px">',
 					$footer_time . '<br />',
 					$footer_ip ? $footer_ip . '<br />' : null,
-					$footer_url . '<br />',
+					$footer_url . '<br /><br />',
+					$footer_mark_as_spam_url . '<br />',
 					$sent_by_text,
 					'</span>',
 				)
@@ -1719,12 +1734,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$are_email_actions_enabled = true;
 
 		if ( $are_email_actions_enabled ) {
-			// Get the status of the feedback
-			$status = $is_spam ? 'spam' : 'inbox';
-
-			// Build the dashboard URL with the status and the feedback's post id
-			$dashboard_url = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
-
 			$actions = sprintf(
 				'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
 					<tr>
