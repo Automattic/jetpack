@@ -8,21 +8,6 @@ const BLOCKS_TEMPLATE = [
 		'core/paragraph',
 		{
 			content: __( 'Drag and drop or click to select a file.', 'jetpack-forms' ),
-			style: {
-				spacing: {
-					padding: {
-						top: '8px',
-						bottom: '8px',
-					},
-					margin: {
-						top: '0',
-						bottom: '0',
-					},
-				},
-				typography: {
-					fontSize: '16px',
-				},
-			},
 		},
 	],
 ];
