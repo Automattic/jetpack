@@ -82,6 +82,7 @@ const StartGlyph: FC< {
 		size,
 		x,
 		y,
+		glyphStyle,
 	} );
 };
 
