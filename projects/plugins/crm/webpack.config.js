@@ -333,12 +333,17 @@ module.exports = [
 					// Used by ZeroBSCRM.OnboardMe.php for the onboarding tour
 					{
 						from: path.resolve( __dirname, 'node_modules/hopscotch/dist/js/hopscotch.min.js' ),
-						to: `${ buildLibPath }/hopscotch/`,
+						to: `${ buildLibPath }/hopscotch/js`,
 					},
 					// Used by ZeroBSCRM.OnboardMe.php for the onboarding tour
 					{
 						from: path.resolve( __dirname, 'node_modules/hopscotch/dist/css/hopscotch.min.css' ),
-						to: `${ buildLibPath }/hopscotch/`,
+						to: `${ buildLibPath }/hopscotch/css`,
+					},
+					// Sprites used by hopscotch tour
+					{
+						from: path.resolve( __dirname, 'node_modules/hopscotch/dist/img' ),
+						to: `${ buildLibPath }/hopscotch/img`,
 					},
 					// Used by extensively as a font icon
 					{
