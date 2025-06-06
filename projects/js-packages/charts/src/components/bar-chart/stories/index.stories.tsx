@@ -163,6 +163,7 @@ export const FixedDimensions: Story = {
 export const WithPatterns: Story = {
 	args: {
 		...Default.args,
+		data: largeValuesData,
 		withPatterns: true,
 	},
 };
