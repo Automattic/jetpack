@@ -322,18 +322,19 @@ CSS
 	 * Returns url of forms admin page.
 	 *
 	 * @param string|null $tab Tab to open in the forms admin page.
+	 * @param boolean     $force_inbox Whether to force the inbox view URL.
 	 *
 	 * @return string
 	 */
-	public function get_forms_admin_url( $tab = null ) {
+	public function get_forms_admin_url( $tab = null, $force_inbox = false ) {
 		$is_classic          = $this->get_preferred_view() === self::CLASSIC_VIEW;
 		$switch_is_available = $this->is_jetpack_forms_view_switch_available();
 
-		$base_url = $is_classic && $switch_is_available
+		$base_url = $is_classic && $switch_is_available && ! $force_inbox
 			? get_admin_url() . 'edit.php?post_type=feedback'
 			: get_admin_url() . ( $this->is_jetpack_forms_admin_page_available() ? 'admin.php?page=jetpack-forms-admin' : 'admin.php?page=jetpack-forms' );
 
-		return $this->append_tab_to_url( $base_url, $tab, $is_classic && $switch_is_available );
+		return $this->append_tab_to_url( $base_url, $tab, $is_classic && $switch_is_available && ! $force_inbox );
 	}
 
 	/**
