@@ -143,16 +143,15 @@ const LineChart: FC< LineChartProps > = ( {
 
 	const dataSorted = useMemo(
 		() =>
-			data
-				.map( series => ( {
-					...series,
-					data: series.data
-						.map( point => ( {
-							...point,
-							date: point.date ? point.date : parseAsLocalDate( point.dateString ),
-						} ) )
-						.sort( ( a, b ) => a.date.getTime() - b.date.getTime() ),
-				} ) )
+			data.map( series => ( {
+				...series,
+				data: series.data
+					.map( point => ( {
+						...point,
+						date: point.date ? point.date : parseAsLocalDate( point.dateString ),
+					} ) )
+					.sort( ( a, b ) => a.date.getTime() - b.date.getTime() ),
+			} ) ),
 		[ data ]
 	);
 
