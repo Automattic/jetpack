@@ -29,7 +29,7 @@ class Jetpack_Deprecation_Test extends WP_UnitTestCase {
 	 * @dataProvider provider_deprecated_method_stubs
 	 */
 	#[DataProvider( 'provider_deprecated_method_stubs' )]
-	public function test_deprecated_method_stubs( $class_name, $method_name ) {
+	public function test_deprecated_method_stubs( $class_name, $method_name, $arguments, $expect_notice ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->assertTrue( method_exists( $class_name, $method_name ) );
 	}
 

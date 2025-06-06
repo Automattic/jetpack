@@ -221,9 +221,10 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 	 * @since 8.0.0
 	 *
 	 * @param string $shortcode_content The shortcode as entered in the editor.
+	 * @param string $expected The expected return value of the function.
 	 */
 	#[DataProvider( 'get_dailymotion_amp_data' )]
-	public function test_shortcodes_dailymotion_non_amp( $shortcode_content ) {
+	public function test_shortcodes_dailymotion_non_amp( $shortcode_content, $expected ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
 		$this->assertStringNotContainsString( 'amp-dailymotion', do_shortcode( $shortcode_content ) );
 	}

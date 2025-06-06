@@ -352,9 +352,10 @@ BODY;
 	 * @since 8.0.0
 	 *
 	 * @param string $shortcode_content The shortcode as entered in the editor.
+	 * @param string $expected The expected return value of the function.
 	 */
 	#[DataProvider( 'get_instagram_amp_data' )]
-	public function test_shortcodes_instagram_non_amp( $shortcode_content ) {
+	public function test_shortcodes_instagram_non_amp( $shortcode_content, $expected ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
 		$this->assertStringNotContainsString( 'amp-instagram', do_shortcode( $shortcode_content ) );
 	}
