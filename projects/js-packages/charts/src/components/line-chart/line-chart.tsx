@@ -146,15 +146,13 @@ const LineChart: FC< LineChartProps > = ( {
 			data
 				.map( series => ( {
 					...series,
-					data: series.data.map( point => ( {
-						...point,
-						date: point.date ? point.date : parseAsLocalDate( point.dateString ),
-					} ) ),
+					data: series.data
+						.map( point => ( {
+							...point,
+							date: point.date ? point.date : parseAsLocalDate( point.dateString ),
+						} ) )
+						.sort( ( a, b ) => a.date.getTime() - b.date.getTime() ),
 				} ) )
-				.map( series => ( {
-					...series,
-					data: series.data.sort( ( a, b ) => a.date.getTime() - b.date.getTime() ),
-				} ) ),
 		[ data ]
 	);
 
