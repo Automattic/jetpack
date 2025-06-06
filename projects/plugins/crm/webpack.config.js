@@ -380,7 +380,7 @@ module.exports = [
 						from: path.resolve( __dirname, 'node_modules/jquery-modal/jquery.modal.min.js' ),
 						to: `${ buildLibPath }/jquery-modal/`,
 					},
-					// Used for first-use dashboard modals
+					// Used by first-use dashboard modals
 					{
 						from: path.resolve( __dirname, 'node_modules/jquery-modal/jquery.modal.min.css' ),
 						to: `${ buildLibPath }/jquery-modal/`,
@@ -392,6 +392,21 @@ module.exports = [
 							'node_modules/typeahead.js/dist/typeahead.bundle.min.js'
 						),
 						to: `${ buildLibPath }/typeahead.js/`,
+					},
+					// Used extensively as a general UI base
+					{
+						from: path.resolve( __dirname, 'node_modules/semantic-ui-css/semantic.min.css' ),
+						to: `${ buildLibPath }/semantic-ui-css/`,
+					},
+					// Used extensively as a general UI base
+					{
+						from: path.resolve( __dirname, 'node_modules/semantic-ui-css/semantic.min.js' ),
+						to: `${ buildLibPath }/semantic-ui-css/`,
+					},
+					// Used extensively as a general UI base
+					{
+						from: path.resolve( __dirname, 'node_modules/semantic-ui-css/themes' ),
+						to: `${ buildLibPath }/semantic-ui-css/themes`,
 					},
 				],
 			} ),

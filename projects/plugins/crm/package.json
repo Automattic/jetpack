@@ -62,6 +62,7 @@
 		"push.js": "1.0.12",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",
+		"semantic-ui-css": "2.5.0",
 		"sweetalert2": "7.33.1",
 		"typeahead.js": "0.11.1",
 		"typescript": "5.8.3",

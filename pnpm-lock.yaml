@@ -4400,6 +4400,9 @@ importers:
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
+      semantic-ui-css:
+        specifier: 2.5.0
+        version: 2.5.0
       sweetalert2:
         specifier: 7.33.1
         version: 7.33.1
@@ -14397,6 +14400,9 @@ packages:
 
   select@1.1.2:
     resolution: {integrity: sha512-OwpTSOfy6xSs1+pwcNrv0RBMOzI39Lp3qQKUTPVVPRjCdNa5JH/oPRiqsesIskK8TVgmRiHwO4KXlV2Li9dANA==}
+
+  semantic-ui-css@2.5.0:
+    resolution: {integrity: sha512-jIWn3WXXE2uSaWCcB+gVJVRG3masIKtTMNEP2X8Aw909H2rHpXGneYOxzO3hT8TpyvB5/dEEo9mBFCitGwoj1A==}
 
   semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
@@ -28178,6 +28184,10 @@ snapshots:
   seed-random@2.2.0: {}
 
   select@1.1.2: {}
+
+  semantic-ui-css@2.5.0:
+    dependencies:
+      jquery: 3.6.0
 
   semver@5.7.2: {}
 
