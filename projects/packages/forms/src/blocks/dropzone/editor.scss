@@ -5,3 +5,8 @@
     border: 1px dashed var(--jp-form-color-border, rgba( 125, 125, 125, 0.3 ) );
     border-radius: var( --jetpack--contact-form--border-radius, 0 );
 }
+
+// Reset the flex property for the dropzone innerblock
+.jetpack-contact-form .wp-block-jetpack-dropzone .wp-block {
+	flex: initial;
+}
