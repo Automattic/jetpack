@@ -129,7 +129,7 @@ const LineChart: FC< LineChartProps > = ( {
 	legendShape = 'line',
 	withGradientFill = false,
 	smoothing = true,
-	curveType = 'linear',
+	curveType,
 	renderTooltip = renderDefaultTooltip,
 	options = {},
 	onPointerDown = undefined,
