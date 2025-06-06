@@ -57,21 +57,50 @@ const BarChart: FC< BarChartProps > = ( {
 	withPatterns = false,
 } ) => {
 	const horizontal = orientation === 'horizontal';
-	const patterns = [ PatternLines, PatternCircles, PatternWaves, PatternHexagons ];
 	const theme = useXYChartTheme( data );
 	const chartOptions = useBarChartOptions( data, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 
+	const renderPattern = useCallback( ( index: number, color: string ) => {
+		const patternType = index % 4;
+		const commonProps = {
+			id: getPatternId( index ),
+			stroke: color,
+			strokeWidth: 1,
+		};
+
+		switch ( patternType ) {
+			case 0:
+			default:
+				return (
+					<PatternLines
+						{ ...commonProps }
+						width={ 6 }
+						height={ 6 }
+						orientation={ [ 'diagonal' ] }
+					/>
+				);
+			case 1:
+				return <PatternCircles { ...commonProps } width={ 6 } height={ 6 } fill={ color } />;
+			case 2:
+				return <PatternWaves { ...commonProps } width={ 6 } height={ 6 } />;
+			case 3:
+				return <PatternHexagons { ...commonProps } size={ 6 } height={ 3 } />;
+		}
+	}, [] );
+
+	const getColor = useCallback(
+		( seriesData: SeriesData, index: number ) =>
+			seriesData?.options?.stroke || theme.colors[ index % theme.colors.length ],
+		[ theme ]
+	);
+
 	// Create color accessor function that returns the appropriate color for each series
 	const createColorAccessor = useCallback(
-		( index: number ) => {
-			const barColor = withPatterns
-				? `url(#${ getPatternId( index ) })`
-				: data[ index ]?.options?.stroke || theme.colors[ index % theme.colors.length ];
-			return () => barColor;
-		},
-		[ withPatterns, data, theme ]
+		( index: number ) => () =>
+			withPatterns ? `url(#${ getPatternId( index ) })` : getColor( data[ index ], index ),
+		[ withPatterns, getColor, data ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -111,7 +140,7 @@ const BarChart: FC< BarChartProps > = ( {
 	const legendItems = data.map( ( group, index ) => ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
-		color: group.options?.stroke || theme.colors[ index % theme.colors.length ],
+		color: getColor( group, index ),
 		shapeStyle: group?.options?.legendShapeStyle,
 	} ) );
 
@@ -146,23 +175,9 @@ const BarChart: FC< BarChartProps > = ( {
 
 				{ withPatterns && (
 					<defs>
-						{ data.map( ( seriesData, index ) => {
-							const PatternComponent = patterns[ index % patterns.length ];
-							const color =
-								seriesData.options?.stroke || theme.colors[ index % theme.colors.length ];
-
-							return (
-								<PatternComponent
-									key={ `pattern-${ index }` }
-									id={ getPatternId( index ) }
-									width={ 8 }
-									height={ 8 }
-									stroke={ color }
-									strokeWidth={ 1 }
-									fill={ index % 2 === 0 ? 'transparent' : color }
-								/>
-							);
-						} ) }
+						{ data.map( ( seriesData, index ) =>
+							renderPattern( index, getColor( seriesData, index ) )
+						) }
 					</defs>
 				) }
 
