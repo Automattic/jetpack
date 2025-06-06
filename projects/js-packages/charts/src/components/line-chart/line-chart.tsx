@@ -46,7 +46,7 @@ const defaultRenderGlyph = < Datum extends object >(
 	return <DefaultGlyph { ...props } />;
 };
 
-const StartGlyphs: FC< {
+const StartGlyph: FC< {
 	data: SeriesData;
 	index: number;
 	color: string;
@@ -306,7 +306,7 @@ const LineChart: FC< LineChartProps > = ( {
 					return (
 						<g key={ seriesData?.label || index }>
 							{ withStartGlyphs && (
-								<StartGlyphs
+								<StartGlyph
 									index={ index }
 									data={ seriesData }
 									color={ stroke }
