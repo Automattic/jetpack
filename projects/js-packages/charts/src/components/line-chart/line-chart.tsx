@@ -27,7 +27,7 @@ const X_TICK_WIDTH = 100;
  */
 const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 	// If no type specified, use legacy smoothing behavior
-	if ( ! type ) {
+	if ( ! type || smoothing ) {
 		return smoothing ? curveCatmullRom : curveLinear;
 	}
 
