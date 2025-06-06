@@ -5,13 +5,13 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=8.1",
-		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-mu-wpcom": "@dev"
+		"automattic/jetpack-composer-plugin": "^4.0.5",
+		"automattic/jetpack-mu-wpcom": "^6.5.0"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/jetpack-changelogger": "^6.0.5",
+		"automattic/phpunit-select-config": "^1.0.3"
 	},
 	"autoload": {
 		"classmap": [
@@ -29,15 +29,7 @@
 			"@composer phpunit"
 		]
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
