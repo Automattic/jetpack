@@ -253,7 +253,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	const reachForAccessLevel = getReachForAccessLevelKey( {
 		accessLevel,
-		subscribers: emailSubscribersCount,
+		emailSubscribers: emailSubscribersCount,
 		paidSubscribers: paidSubscribersCount,
 		postHasPaywallBlock,
 	} );

@@ -252,7 +252,6 @@ export const getSubscriberCounts =
 			const response = await fetchSubscriberCounts();
 			dispatch(
 				setSubscriberCounts( {
-					totalSubscribers: response.counts.total_subscribers,
 					socialFollowers: response.counts.social_followers,
 					emailSubscribers: response.counts.email_subscribers,
 					paidSubscribers: response.counts.paid_subscribers,
