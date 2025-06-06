@@ -188,11 +188,7 @@ class Simple_Payments {
 
 	/** Return the blog ID */
 	public function get_blog_id() {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return get_current_blog_id();
-		}
-
-		return \Jetpack_Options::get_option( 'id' );
+		return ( new Manager() )->get_site_id();
 	}
 
 	/**
