@@ -1,7 +1,8 @@
-<?php
-/*
-!
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+/**
  * Admin Page Partial: Dashboard: First use dashboard
+ *
+ * @package automattic/jetpack-crm
  */
 
 // stop direct access
