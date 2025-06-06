@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-checkbox-multiple';
 const settings = {
 	...defaultSettings,
-	title: __( 'Multiple Choice (Checkbox)', 'jetpack-forms' ),
+	title: __( 'Multiple choice (checkbox)', 'jetpack-forms' ),
 	keywords: [ __( 'Choose multiple', 'jetpack-forms' ), __( 'Option', 'jetpack-forms' ) ],
 	description: __(
 		'Offer users a list of choices, and allow them to select multiple options.',
