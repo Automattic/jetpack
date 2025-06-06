@@ -78,12 +78,7 @@ const GoogleSheetsDashboardCard = ( {
 						) }
 					</p>
 					<div className="integration-card__links">
-						<Button
-							variant="link"
-							onClick={ handleViewResponsesClick }
-							target="_self"
-							rel="noopener noreferrer"
-						>
+						<Button variant="link" onClick={ handleViewResponsesClick } rel="noopener noreferrer">
 							{ __( 'View Form Responses', 'jetpack-forms' ) }
 						</Button>
 					</div>
