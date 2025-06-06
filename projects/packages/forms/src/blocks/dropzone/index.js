@@ -10,7 +10,7 @@ const settings = {
 	apiVersion: 3,
 	title: __( 'File upload dropzone', 'jetpack-forms' ),
 	description: __( 'A dropzone for file uploads.', 'jetpack-forms' ),
-	parent: [ 'jetpack/field-file' ],
+	parent: [],
 	allowedBlocks: [
 		'core/buttons',
 		'core/heading',

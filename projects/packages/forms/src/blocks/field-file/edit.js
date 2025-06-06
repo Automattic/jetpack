@@ -53,7 +53,7 @@ export default function FileFieldEdit( props ) {
 				},
 			],
 		],
-		allowedBlocks: [ 'jetpack/dropzone', 'jetpack/label' ],
+		allowedBlocks: [], // leave this empty to prevent adding new blocks inside and dplicateing them.
 		renderAppender: false,
 	} );
 
