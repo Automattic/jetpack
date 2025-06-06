@@ -50,7 +50,6 @@ const StartGlyph: FC< {
 	data: SeriesData;
 	index: number;
 	color: string;
-	glyphStyle: React.SVGProps< SVGCircleElement >;
 	renderStartGlyph: < Datum extends object >(
 		props: RenderLineStartGlyphProps< Datum >
 	) => ReactNode;
@@ -58,6 +57,7 @@ const StartGlyph: FC< {
 		xAccessor: ( d: DataPointDate | DataPoint ) => Date;
 		yAccessor: ( d: DataPointDate | DataPoint ) => number | null;
 	};
+	glyphStyle?: React.SVGProps< SVGCircleElement >;
 } > = ( { data, index, color, glyphStyle, renderStartGlyph, accessors } ) => {
 	const { xScale, yScale } = useContext( DataContext ) || {};
 	if ( ! xScale || ! yScale ) return null;
@@ -118,7 +118,6 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	curveType?: CurveType;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	withStartGlyphs?: boolean;
-	glyphStyle?: React.SVGProps< SVGCircleElement >;
 }
 
 type TooltipDatum = {
@@ -201,7 +200,6 @@ const LineChart: FC< LineChartProps > = ( {
 	smoothing = true,
 	curveType,
 	renderTooltip = renderDefaultTooltip,
-	glyphStyle = {},
 	withStartGlyphs = false,
 	options = {},
 	onPointerDown = undefined,
@@ -311,7 +309,6 @@ const LineChart: FC< LineChartProps > = ( {
 									index={ index }
 									data={ seriesData }
 									color={ stroke }
-									glyphStyle={ glyphStyle }
 									renderStartGlyph={ defaultRenderGlyph }
 									accessors={ accessors }
 								/>
@@ -353,7 +350,6 @@ const LineChart: FC< LineChartProps > = ( {
 						snapTooltipToDatumY
 						showSeriesGlyphs
 						renderTooltip={ renderTooltip }
-						glyphStyle={ glyphStyle }
 					/>
 				) }
 			</XYChart>
