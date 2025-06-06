@@ -15,6 +15,24 @@ import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 import './editor.scss';
 
+const ALLOWED_BLOCKS = []; // leave this empty to prevent adding new blocks inside and duplicating them.
+const DEFAULT_TEMPLATE = [
+	[
+		'jetpack/label',
+		{
+			label: __( 'Upload a file', 'jetpack-forms' ),
+			lock: { move: true, remove: true },
+		},
+	],
+	[
+		'jetpack/dropzone',
+		{
+			lock: { move: true, remove: true },
+			layout: { type: 'flex', justifyContent: 'center', orientation: 'vertical' },
+		},
+	],
+];
+
 export default function FileFieldEdit( props ) {
 	const { attributes, clientId, isSelected, setAttributes, name, className } = props;
 	const { id, required, width } = attributes;
@@ -34,25 +52,9 @@ export default function FileFieldEdit( props ) {
 		style: blockStyle,
 	} );
 
-	const uploadLabel = __( 'Upload a file', 'jetpack-forms' );
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		template: [
-			[
-				'jetpack/label',
-				{
-					label: uploadLabel,
-					lock: { move: true, remove: true },
-				},
-			],
-			[
-				'jetpack/dropzone',
-				{
-					lock: { move: true, remove: true },
-					layout: { type: 'flex', justifyContent: 'center', orientation: 'vertical' },
-				},
-			],
-		],
-		allowedBlocks: [], // leave this empty to prevent adding new blocks inside and dplicateing them.
+	const { children, ...restInnerBlocksProps } = useInnerBlocksProps( blockProps, {
+		template: DEFAULT_TEMPLATE,
+		allowedBlocks: ALLOWED_BLOCKS, // leave this empty to prevent adding new blocks inside and dplicateing them.
 		renderAppender: false,
 	} );
 
@@ -72,17 +74,14 @@ export default function FileFieldEdit( props ) {
 		);
 	}, [ fieldFileAvailability ] );
 
-	const childern = innerBlocksProps.children;
-	delete innerBlocksProps.children;
-
 	return (
 		<>
-			<div { ...innerBlocksProps }>
+			<div { ...restInnerBlocksProps }>
 				{ requiresCustomUpgradeNudge &&
 					( selectedFormClientId === formClientId || formClientId === selectedBlockClientId ) && (
 						<UpsellNudge requiredPlan={ fieldFileAvailability?.details?.required_plan } />
 					) }
-				{ childern }
+				{ children }
 			</div>
 
 			<JetpackFieldControls
