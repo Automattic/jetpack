@@ -197,7 +197,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		return ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
 	};
 
-	const blogId = window.Jetpack_Editor_Initial_State.wpcomBlogId;
+	const blogId = window.Jetpack_Editor_Initial_State?.wpcomBlogId;
 	const {
 		emailSubscribersCount,
 		hasFinishedLoading,
