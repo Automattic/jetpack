@@ -1115,3 +1115,12 @@
 	flex-grow: 1;
 }
 
+.jetpack-field-dropdown__option-remove {
+	display: inline-flex;
+	visibility: hidden;
+	margin-right: 5px;
+}
+
+.jetpack-field-dropdown__option:hover .jetpack-field-dropdown__option-remove {
+	visibility: visible;
+}

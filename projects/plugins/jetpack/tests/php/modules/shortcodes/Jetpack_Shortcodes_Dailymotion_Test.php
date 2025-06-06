@@ -221,6 +221,7 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 	 * @since 8.0.0
 	 *
 	 * @param string $shortcode_content The shortcode as entered in the editor.
+	 * @param string $expected The expected return value of the function. Unused in this method.
 	 */
 	#[DataProvider( 'get_dailymotion_amp_data' )]
 	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- PHPUnit 12.2 requires methods with data providers to have an exact param count match

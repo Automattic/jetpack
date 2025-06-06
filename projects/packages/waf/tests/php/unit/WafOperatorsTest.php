@@ -31,7 +31,7 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Main test function
+	 * Main test function.
 	 *
 	 * @param string $ofn   The name of the operator function that is being tested.
 	 * @param array  $tests Array of test cases, where each test case is an array with 3 elements:
@@ -71,7 +71,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( 'abc', 'abcdef', false ),
 			),
 		);
-
 		yield array(
 			'contains',
 			// input, paramToMatch, expected_return.
@@ -85,7 +84,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( 'hidinX<-not quite, but is later on->hiding', 'hiding', 'hiding' ),
 			),
 		);
-
 		yield array(
 			'contains_word',
 			// input, paramToMatch, expected_return.
@@ -107,7 +105,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( 'xyz', 'y', false ),
 			),
 		);
-
 		yield array(
 			'ends_with',
 			// input, paramToMatch, expected_return.
@@ -121,7 +118,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( 'abcdefghi', 'def', false ),
 			),
 		);
-
 		yield array(
 			'eq',
 			// input, paramToMatch, expected_return.
@@ -142,7 +138,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( '10', '5', false ),
 			),
 		);
-
 		yield array(
 			'ge',
 			// input, paramToMatch, expected_return.
@@ -161,7 +156,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( '0', '5', false ),
 			),
 		);
-
 		yield array(
 			'gt',
 			// input, paramToMatch, expected_return.
@@ -180,7 +174,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( '5', '5', false ),
 			),
 		);
-
 		yield array(
 			'le',
 			// input, paramToMatch, expected_return.
@@ -199,7 +192,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( '10', '5', false ),
 			),
 		);
-
 		yield array(
 			'lt',
 			// input, paramToMatch, expected_return.
@@ -218,7 +210,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( '10', '5', false ),
 			),
 		);
-
 		yield array(
 			'no_match',
 			// input, paramToMatch, expected_return.
@@ -228,7 +219,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( '', 'TestCase', false ),
 			),
 		);
-
 		yield array(
 			'rx',
 			// input, paramToMatch, expected_return.
@@ -243,7 +233,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( 'SELECT pg_sleep(10);', '/(?i:(sleep\\((\\s*?)(\\d*?)(\\s*?)\\)|benchmark\\((.*?)\\,(.*?)\\)))/Ds', array( 'sleep(10)', 'sleep(10)', '', '10', '' ) ),
 			),
 		);
-
 		yield array(
 			'streq',
 			// input, paramToMatch, expected_return.
@@ -257,7 +246,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( 'abcdefghi', 'abcdefghi', 'abcdefghi' ),
 			),
 		);
-
 		yield array(
 			'unconditional_match',
 			// input, paramToMatch, expected_return.
@@ -267,7 +255,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( 'TestCase', '', 'TestCase' ),
 			),
 		);
-
 		$zero_to_255_range = array(
 			'min'   => 0,
 			'max'   => 255,
@@ -288,7 +275,6 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				array( 'abcdefghij', $a_to_i_range, 'j' ),
 			),
 		);
-
 		yield array(
 			'within',
 			// input, paramToMatch, expected_return.

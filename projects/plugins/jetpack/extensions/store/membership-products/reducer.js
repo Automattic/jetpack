@@ -7,6 +7,7 @@ export const DEFAULT_STATE = {
 	siteSlug: '',
 	connectedAccountDefaultCurrency: '',
 	subscriberCounts: {
+		totalSubscribers: null,
 		socialFollowers: null,
 		emailSubscribers: null,
 		paidSubscribers: null,

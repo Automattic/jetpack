@@ -20,6 +20,7 @@ class Device_Detection_Test extends TestCase {
 	 * @param string $ua                   User agent string.
 	 * @param array  $expected_types       Expected device types to be detected for a user-agent.
 	 * @param bool   $expected_ua_returned Expected value for UA returned by the method.
+	 * @param string $expected_browser     Expected value for browser returned by the method. Unused in this method.
 	 *
 	 * @return void
 	 *

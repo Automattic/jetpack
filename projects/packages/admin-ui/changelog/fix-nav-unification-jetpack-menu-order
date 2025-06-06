@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Jetpack submenu order for WPCOM sites that use NavUnification

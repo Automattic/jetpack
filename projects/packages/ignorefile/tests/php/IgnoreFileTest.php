@@ -118,9 +118,9 @@ class IgnoreFileTest extends TestCase {
 	 * @param string $dir Directory to remove.
 	 */
 	private function rmrf( $dir ) {
-		$iter = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
+		$iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator( $dir, \FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS ),
+			RecursiveIteratorIterator::CHILD_FIRST
 		);
 		foreach ( $iter as $path ) {
 			if ( is_dir( $path ) ) {
@@ -414,6 +414,7 @@ class IgnoreFileTest extends TestCase {
 	 *
 	 * @dataProvider provideBadPattern
 	 * @param string $pattern Pattern.
+	 * @param string $msg Exception message. Unused in this method.
 	 */
 	#[DataProvider( 'provideBadPattern' )]
 	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- PHPUnit 12.2 requires methods with data providers to have an exact param count match

@@ -1,21 +1,14 @@
-<?php
-/*
-!
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+/**
  * Main Dashboard Page file: This is the main file which renders the dashboard view
  * Jetpack CRM - https://jetpackcrm.com
+ *
+ * @package automattic/jetpack-crm
  */
 
-/*
-======================================================
-	Breaking Checks ( stops direct access )
-	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit( 0 );
 }
-/*
-======================================================
-	/ Breaking Checks
-	====================================================== */
 
 // permissions check
 global $current_user;
@@ -469,11 +462,11 @@ function jpcrm_render_dashboard_page() {
 /**
  * Render a partial
  *
- * @param string $title
+ * @param string $block Name of "block".
  */
 function jpcrm_render_partial_block( $block ) {
 
 	if ( ! empty( $block ) ) {
-			include 'partials/' . $block . '.block.php';
+			include 'partials/' . $block . '.block.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 	}
 }
