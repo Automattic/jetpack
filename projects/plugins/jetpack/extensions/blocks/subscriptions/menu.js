@@ -47,8 +47,12 @@ const NewsletterMenu = ( { openPreviewModal } ) => {
 			className="jetpack-newsletter-settings-sidebar"
 		>
 			<PanelBody>
-				{ ! isPublished && <NewsletterEmailDocumentSettings /> }
-				<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
+				{ ! isPublished && ! shouldPromptForConnection && (
+					<>
+						<NewsletterEmailDocumentSettings />
+						<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
+					</>
+				) }
 				{ isSendEmailEnabled && ! isPublished && (
 					<>
 						{ ! shouldPromptForConnection ? (
