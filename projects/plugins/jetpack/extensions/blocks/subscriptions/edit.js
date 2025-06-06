@@ -1,6 +1,4 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import {
 	BlockControls,
@@ -63,37 +61,6 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	};
 } );
 
-function PaidPlanBlockControls() {
-	const { isUserConnected } = useConnection();
-	const canManagePlans = isSimpleSite() || isUserConnected;
-
-	const hasTierPlans = useSelect(
-		select => {
-			if ( ! isUserConnected ) {
-				return false;
-			}
-			return !! select( 'jetpack/membership-products' )?.getNewsletterTierProducts()?.length;
-		},
-		[ isUserConnected ]
-	);
-
-	if ( ! canManagePlans ) {
-		return null;
-	}
-
-	return (
-		<BlockControls>
-			<ToolbarGroup>
-				<ToolbarButton href={ getPaidPlanLink( hasTierPlans ) } target="_blank">
-					{ hasTierPlans
-						? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
-						: __( 'Set up a paid plan', 'jetpack' ) }
-				</ToolbarButton>
-			</ToolbarGroup>
-		</BlockControls>
-	);
-}
-
 export function SubscriptionEdit( props ) {
 	const {
 		attributes,
@@ -109,7 +76,10 @@ export function SubscriptionEdit( props ) {
 		setBorderColor,
 		fontSize,
 	} = props;
-
+	const hasTierPlans = useSelect(
+		select => !! select( 'jetpack/membership-products' )?.getNewsletterTierProducts()?.length,
+		[]
+	);
 	const blockProps = useBlockProps();
 	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
@@ -306,7 +276,15 @@ export function SubscriptionEdit( props ) {
 					successMessage={ successMessage }
 				/>
 			</InspectorControls>
-			<PaidPlanBlockControls />
+			<BlockControls>
+				<ToolbarGroup>
+					<ToolbarButton href={ getPaidPlanLink( hasTierPlans ) } target="_blank">
+						{ hasTierPlans
+							? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
+							: __( 'Set up a paid plan', 'jetpack' ) }
+					</ToolbarButton>
+				</ToolbarGroup>
+			</BlockControls>
 			<div style={ cssVars }>
 				<div className="wp-block-jetpack-subscriptions__container is-not-subscriber">
 					<div className="wp-block-jetpack-subscriptions__form" role="form">
