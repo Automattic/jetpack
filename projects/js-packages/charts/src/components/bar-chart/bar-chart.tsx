@@ -1,11 +1,4 @@
-import {
-	AnimatedAxis,
-	AnimatedBarSeries,
-	AnimatedBarGroup,
-	AnimatedGrid,
-	Tooltip,
-	XYChart,
-} from '@visx/xychart';
+import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { useChartTheme, useXYChartTheme } from '../../providers/theme';
@@ -123,16 +116,16 @@ const BarChart: FC< BarChartProps > = ( {
 				horizontal={ horizontal }
 				pointerEventsDataKey="nearest"
 			>
-				<AnimatedGrid
+				<Grid
 					columns={ gridVisibility.includes( 'y' ) }
 					rows={ gridVisibility.includes( 'x' ) }
 					numTicks={ 4 }
 				/>
 
-				<AnimatedBarGroup padding={ chartOptions.barGroup.padding }>
+				<BarGroup padding={ chartOptions.barGroup.padding }>
 					{ data.map( seriesData => {
 						return (
-							<AnimatedBarSeries
+							<BarSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] }
@@ -141,10 +134,10 @@ const BarChart: FC< BarChartProps > = ( {
 							/>
 						);
 					} ) }
-				</AnimatedBarGroup>
+				</BarGroup>
 
-				<AnimatedAxis { ...chartOptions.axis.x } />
-				<AnimatedAxis { ...chartOptions.axis.y } />
+				<Axis { ...chartOptions.axis.x } />
+				<Axis { ...chartOptions.axis.y } />
 
 				{ withTooltips && (
 					<Tooltip

@@ -1,7 +1,7 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
-import { XYChart, AnimatedAreaSeries, AnimatedAxis, AnimatedGrid, Tooltip } from '@visx/xychart';
+import { XYChart, AreaSeries, Tooltip, Grid, Axis } from '@visx/xychart';
 import clsx from 'clsx';
 import { useId, useMemo } from 'react';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
@@ -222,9 +222,9 @@ const LineChart: FC< LineChartProps > = ( {
 				onPointerOut={ onPointerOut }
 				pointerEventsDataKey="nearest"
 			>
-				<AnimatedGrid columns={ false } numTicks={ 4 } />
-				<AnimatedAxis { ...chartOptions.axis.x } />
-				<AnimatedAxis { ...chartOptions.axis.y } />
+				<Grid columns={ false } numTicks={ 4 } />
+				<Axis { ...chartOptions.axis.x } />
+				<Axis { ...chartOptions.axis.y } />
 
 				{ dataSorted.map( ( seriesData, index ) => {
 					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
@@ -245,13 +245,15 @@ const LineChart: FC< LineChartProps > = ( {
 									data-testid="line-gradient"
 								/>
 							) }
-							<AnimatedAreaSeries
+							<AreaSeries
 								key={ seriesData?.label }
 								dataKey={ seriesData?.label }
 								data={ seriesData.data as DataPointDate[] }
 								{ ...accessors }
 								fill={
-									withGradientFill ? `url(#area-gradient-${ chartId }-${ index + 1 })` : undefined
+									withGradientFill
+										? `url(#area-gradient-${ chartId }-${ index + 1 })`
+										: 'transparent'
 								}
 								renderLine={ true }
 								curve={ getCurveType( curveType, smoothing ) }
