@@ -118,9 +118,9 @@ class IgnoreFileTest extends TestCase {
 	 * @param string $dir Directory to remove.
 	 */
 	private function rmrf( $dir ) {
-		$iter = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
+		$iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator( $dir, \FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS ),
+			RecursiveIteratorIterator::CHILD_FIRST
 		);
 		foreach ( $iter as $path ) {
 			if ( is_dir( $path ) ) {
@@ -416,7 +416,7 @@ class IgnoreFileTest extends TestCase {
 	 * @param string $pattern Pattern.
 	 */
 	#[DataProvider( 'provideBadPattern' )]
-	public function testBadPattern( $pattern ) {
+	public function testBadPattern( $pattern, $msg ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$ignore = new IgnoreFile();
 		$ignore->add( array( 'aaa', $pattern, 'bbb' ) );
 		$this->assertTrue( $ignore->ignores( 'aaa' ) );
