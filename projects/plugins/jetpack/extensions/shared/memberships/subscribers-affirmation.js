@@ -1,4 +1,4 @@
-import { getSiteData, getAdminUrl } from '@automattic/jetpack-script-data';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -197,7 +197,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		return ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
 	};
 
-	const { blog_id: blogId } = getSiteData()?.wpcom ?? {};
+	const blogId = window.Jetpack_Editor_Initial_State.wpcomBlogId;
 	const {
 		emailSubscribersCount,
 		hasFinishedLoading,
