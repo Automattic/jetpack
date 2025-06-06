@@ -41,7 +41,6 @@ export default function FileFieldEdit( props ) {
 				'jetpack/label',
 				{
 					label: uploadLabel,
-					defaultLabel: uploadLabel,
 					lock: { move: true, remove: true },
 				},
 			],
