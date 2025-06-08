@@ -850,6 +850,11 @@
 				transform: unset;
 			}
 
+			&.is-non-animated-label .notched-label__label {
+				position: static;
+				transform: unset;
+			}
+
 			&.is-selected, &.has-placeholder {
 
 				.notched-label__notch {
@@ -967,6 +972,18 @@
 			&.has-placeholder.jetpack-field-multiple .animated-label__label {
 				position: static;
 				margin-bottom: 0.25em;
+
+				.jetpack-field-label__input {
+					font-size: inherit;
+				}
+			}
+
+			&.is-non-animated-label .animated-label__label {
+				position: static;
+				transform: translateY(0);
+			}
+
+			&.is-selected.is-non-animated-label.jetpack-field .animated-label__label {
 
 				.jetpack-field-label__input {
 					font-size: inherit;

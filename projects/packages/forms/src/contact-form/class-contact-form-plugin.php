@@ -802,14 +802,14 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the file upload field.
 	 *
-	 * @param array  $atts - the block attributes.
-	 * @param string $content - html content.
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
 	 *
 	 * @return string HTML for the file upload field.
 	 */
-	public static function gutenblock_render_field_file( $atts, $content ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file' );
-
+	public static function gutenblock_render_field_file( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file', $block );
 		// Create wrapper div for the file field
 		$output = '<div class="jetpack-form-file-field">';
 
@@ -819,6 +819,33 @@ class Contact_Form_Plugin {
 		$output .= '</div>';
 
 		return $output;
+	}
+	/**
+	 * Render the dropzone field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the dropzone field.
+	 */
+	public static function gutenblock_render_dropzone( $atts, $content ) {
+
+		if ( class_exists( 'WP_HTML_Tag_Processor' ) ) {
+			$processor = \WP_HTML_Processor::create_fragment( $content );
+			while ( $processor->next_tag() ) {
+				if ( $processor->has_class( 'wp-block-jetpack-dropzone' ) ) {
+					if ( isset( $atts['layout']['justifyContent'] ) ) {
+						$processor->add_class( 'is-content-justification-' . $atts['layout']['justifyContent'] );
+					}
+				}
+				if ( 'A' === $processor->get_tag() || 'BUTTON' === $processor->get_tag() ) {
+					$processor->set_attribute( 'tabindex', '-1' );
+				}
+			}
+			$content = $processor->get_updated_html();
+		}
+
+		return $content;
 	}
 
 	/**

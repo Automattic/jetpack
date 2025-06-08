@@ -26,6 +26,7 @@ const settings = {
 		'jetpack/field-telephone',
 		'jetpack/field-text',
 		'jetpack/field-textarea',
+		// Do not include 'jetpack/field-file' since it prevents the label from being duplicated.
 	],
 	supports: {
 		reusable: false,
