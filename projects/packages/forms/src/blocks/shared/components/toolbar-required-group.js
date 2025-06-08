@@ -1,6 +1,6 @@
 import { ToolbarGroup, ToolbarButton, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../../util/render-material-icon';
+import renderMaterialIcon from './render-material-icon';
 
 const ToolbarRequiredGroup = ( { required, onClick } ) => {
 	return (

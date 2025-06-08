@@ -15,9 +15,9 @@ import {
 } from '@wordpress/components';
 import { isValidElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import JetpackFieldWidth from '../../shared/components/jetpack-field-width';
+import ToolbarRequiredGroup from '../../shared/components/toolbar-required-group';
 import { useFormStyle, FORM_STYLE, getBlockStyle } from '../util/form';
-import ToolbarRequiredGroup from './block-controls/toolbar-required-group';
-import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldControls = ( {

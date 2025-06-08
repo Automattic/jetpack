@@ -7,9 +7,9 @@ import {
 import { PanelBody, ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import ToolbarRequiredGroup from '../contact-form/components/block-controls/toolbar-required-group';
-import JetpackFieldWidth from '../contact-form/components/jetpack-field-width';
 import JetpackManageResponsesSettings from '../contact-form/components/jetpack-manage-responses-settings';
+import JetpackFieldWidth from '../shared/components/jetpack-field-width';
+import ToolbarRequiredGroup from '../shared/components/toolbar-required-group';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
