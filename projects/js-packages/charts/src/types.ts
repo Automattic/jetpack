@@ -18,13 +18,14 @@ export type DataPointDate = {
 	date?: Date;
 	/**
 	 * Supported Formats:
-	 * - YYYY-MM-DD (treated as local)
-	 * - YYYY-MM-DD HH:mm:ss (treated as local)
-	 * - YYYY-MM-DD HH:mm (treated as local)
-	 * - YYYY-MM-DDTHH:mm:ss (treated as local)
-	 * - YYYY-MM-DDTHH:mm (treated as local)
-	 * - YYYY-MM-DDTHH:mm:ssZ (converted to local)
-	 * - YYYY-MM-DDTHH:mm:ss±HH:mm (converted to local)
+	 * - YYYY-MM-DD (local)
+	 * - YYYY-MM-DD HH:mm:ss (local)
+	 * - YYYY-MM-DD HH:mm (local)
+	 * - YYYY-MM-DDTHH:mm:ss (local)
+	 * - YYYY-MM-DDTHH:mm:ss.SSS (local)
+	 * - YYYY-MM-DDTHH:mm (local)
+	 * - YYYY-MM-DDTHH:mm:ssZ (UTC → local)
+	 * - YYYY-MM-DDTHH:mm:ss±HH:mm (offset → local)
 	 */
 	dateString?: string;
 	value: number | null;
