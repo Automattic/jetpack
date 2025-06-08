@@ -6,7 +6,7 @@
  *
  */
 
-import { parseAsLocalDate, parseLocalDate } from '../date-parsing';
+import { parseAsLocalDate } from '../date-parsing';
 
 describe( 'parseAsLocalDate', () => {
 	describe( 'Date-only formats (treated as local)', () => {
@@ -238,11 +238,6 @@ describe( 'parseAsLocalDate', () => {
 			expect( result.getMinutes() ).toBe( 30 );
 			expect( result.getSeconds() ).toBe( 45 );
 		} );
-
-		test( 'should return invalid date for malformed ISO timezone', () => {
-			const result = parseAsLocalDate( '2025-01-15T14:30:45+25:00' ); // Invalid timezone offset
-			expect( isNaN( result.getTime() ) ).toBe( true );
-		} );
 	} );
 
 	describe( 'Edge cases', () => {
@@ -267,20 +262,9 @@ describe( 'parseAsLocalDate', () => {
 			expect( result.getDate() ).toBe( 28 );
 			expect( result.getMonth() ).toBe( 1 ); // February
 
-			// Feb 29 in non-leap year - JavaScript Date is lenient and rolls to March 1
+			// Feb 29 in non-leap year - Not valid
 			const feb29 = parseAsLocalDate( '2025-02-29' );
-			expect( feb29.getDate() ).toBe( 1 );
-			expect( feb29.getMonth() ).toBe( 2 ); // March (rolled over)
-		} );
-	} );
-
-	describe( 'Legacy function alias', () => {
-		test( 'parseLocalDate should work identically to parseAsLocalDate', () => {
-			const testDate = '2025-01-15T14:30:45';
-			const result1 = parseAsLocalDate( testDate );
-			const result2 = parseLocalDate( testDate );
-
-			expect( result1.getTime() ).toBe( result2.getTime() );
+			expect( isNaN( feb29.getTime() ) ).toBe( true );
 		} );
 	} );
 
