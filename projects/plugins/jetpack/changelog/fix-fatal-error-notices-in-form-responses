@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: fixes a bug where form data might be badly formated

@@ -2496,7 +2496,12 @@ class Contact_Form_Plugin {
 			if ( str_contains( $content, 'JSON_DATA' ) ) {
 				$chunks     = explode( "\nJSON_DATA", $content );
 				$all_values = json_decode( $chunks[1], true );
-				$lines      = array_filter( explode( "\n", $chunks[0] ) );
+				if ( $all_values === null ) {
+					// If JSON decoding fails, try to decode the second try with stripslashes and trim.
+					// This is a workaround for some cases where the JSON data is not properly formatted.
+					$all_values = json_decode( stripslashes( trim( $chunks[1] ) ), true );
+				}
+				$lines = array_filter( explode( "\n", $chunks[0] ) );
 			} else {
 				$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 
@@ -2535,7 +2540,10 @@ class Contact_Form_Plugin {
 				}
 			}
 		}
-
+		// All fields should always be an array, even if empty.
+		if ( ! is_array( $all_values ) ) {
+			$all_values = array();
+		}
 		$fields['_feedback_all_fields'] = $all_values;
 
 		return $fields;
