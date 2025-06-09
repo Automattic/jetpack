@@ -3,7 +3,6 @@ import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legen
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
 import { ReactNode, useCallback, type FC } from 'react';
-import { defaultRenderGlyph } from '../line-chart/line-chart';
 import styles from './legend.module.scss';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from './utils';
 import type { LegendProps } from './types';
@@ -40,7 +39,7 @@ export const BaseLegend: FC< LegendPropsExtended > = ( {
 	itemMargin = '0',
 	itemDirection = 'row',
 	legendLabelProps,
-	renderGlyph = defaultRenderGlyph,
+	renderGlyph,
 	...legendItemProps
 } ) => {
 	const legendScale = scaleOrdinal( {
