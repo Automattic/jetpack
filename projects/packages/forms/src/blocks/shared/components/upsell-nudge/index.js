@@ -9,7 +9,7 @@ export const UpsellNudge = ( { requiredPlan } ) => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
 			plan: requiredPlan,
 			context: 'editor-canvas',
-			block: 'jetpack/file-field',
+			block: 'jetpack/field-file',
 		} );
 	} );
 	return (
