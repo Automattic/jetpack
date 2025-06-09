@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Comments: Prevent PHP error on malformed submissions.
