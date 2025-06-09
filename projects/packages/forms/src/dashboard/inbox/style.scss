@@ -292,12 +292,17 @@ $action-bar-height: 88px;
 		height: 40px;
 		border-radius: 50%;
 		background-color: #f6f6f7;
+		background-image: url( ../../contact-form/images/file-icons/txt.svg);
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: 24px;
+
 	}
 
 	.file-field__info {
 		display: flex;
-		flex-direction: column;
-		gap: 4px;
+		flex-direction: row;
+		gap: 12px;
 	}
 
 }

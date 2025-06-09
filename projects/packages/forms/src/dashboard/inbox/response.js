@@ -65,14 +65,14 @@ const FileField = ( { file, onClick, key } ) => {
 							{ decodeEntities( file.name ) }
 						</ExternalLink>
 					) }
-				</div>
-				<div className="file-field__meta-info">
-					{ sprintf(
-						/* translators: %1$s size of the file and %2$s is the file extension */
-						__( '%1$s, %2$s', 'jetpack-forms' ),
-						file.size,
-						extension
-					) }
+					<div className="file-field__meta-info">
+						{ sprintf(
+							/* translators: %1$s size of the file and %2$s is the file extension */
+							__( '%1$s, %2$s', 'jetpack-forms' ),
+							file.size,
+							extension
+						) }
+					</div>
 				</div>
 			</div>
 			<span className="file-field__item-actions">
