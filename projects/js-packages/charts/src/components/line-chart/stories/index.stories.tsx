@@ -356,3 +356,40 @@ BrokenLine.parameters = {
 		},
 	},
 };
+
+export const DateStringFormats: StoryObj< typeof LineChart > = {
+	render: () => {
+		return (
+			<LineChart
+				data={ [
+					{
+						label: 'String Dates',
+						data: [
+							{ dateString: '2024-01-01', value: 10 },
+							{ dateString: '2024-01-02', value: 20 },
+							{ dateString: '2024-01-03 00:00:00', value: 15 },
+							{ dateString: '2024-01-04', value: 25 },
+							{ dateString: '2024-01-05 00:00', value: 30 },
+						],
+						options: {},
+					},
+				] }
+				withGradientFill={ false }
+			/>
+		);
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Demonstrates the line chart's ability to handle various date string formats and mixed date types. All dates are converted to local timezone. The chart can process:\n" +
+					'- Simple date strings (YYYY-MM-DD)\n' +
+					'- Date with time (YYYY-MM-DD 00:00:00)\n' +
+					'- Date with time (YYYY-MM-DD 00:00)\n' +
+					'- ISO format (YYYY-MM-DDT00:00:00)\n' +
+					'- UTC format (YYYY-MM-DDT00:00:00Z)\n' +
+					'- Timezone offset (YYYY-MM-DDT00:00:00±HH:mm)\n',
+			},
+		},
+	},
+};

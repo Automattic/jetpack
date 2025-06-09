@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { useId, useMemo } from 'react';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { parseAsLocalDate } from '../shared/date-parsing';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
@@ -145,7 +146,12 @@ const LineChart: FC< LineChartProps > = ( {
 		() =>
 			data.map( series => ( {
 				...series,
-				data: series.data.sort( ( a, b ) => a.date.getTime() - b.date.getTime() ),
+				data: series.data
+					.map( point => ( {
+						...point,
+						date: point.date ? point.date : parseAsLocalDate( point.dateString ),
+					} ) )
+					.sort( ( a, b ) => a.date.getTime() - b.date.getTime() ),
 			} ) ),
 		[ data ]
 	);

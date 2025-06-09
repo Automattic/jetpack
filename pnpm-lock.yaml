@@ -367,6 +367,9 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       tslib:
         specifier: 2.5.0
         version: 2.5.0
@@ -10276,6 +10279,9 @@ packages:
 
   date-fns@3.6.0:
     resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
+
+  date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
   daterangepicker@2.1.25:
     resolution: {integrity: sha512-8qSYdsolahhBpfoGFcVOmKXnpy0MpbgT3J4YeWG/oPgyApnEIUbIugtS6ryJdQFF+rZ+tUYbRXBnOe4QK8jGnA==}
@@ -23254,6 +23260,8 @@ snapshots:
       '@babel/runtime': 7.27.4
 
   date-fns@3.6.0: {}
+
+  date-fns@4.1.0: {}
 
   daterangepicker@2.1.25:
     dependencies:
