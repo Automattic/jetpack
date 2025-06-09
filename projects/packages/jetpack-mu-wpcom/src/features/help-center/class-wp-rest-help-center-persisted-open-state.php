@@ -63,11 +63,11 @@ class WP_REST_Help_Center_Persisted_Open_State extends \WP_REST_Controller {
 
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
-		$is_open = $response->help_center_open ?? false;
+		$is_open        = $response->help_center_open ?? false;
 		$router_history = $response->help_center_router_history ?? null;
 
 		$projected_response = array(
-			'help_center_open' => (bool) $is_open,
+			'help_center_open'           => (bool) $is_open,
 			'help_center_router_history' => $router_history,
 		);
 
@@ -80,7 +80,7 @@ class WP_REST_Help_Center_Persisted_Open_State extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request The request sent to the API.
 	 */
 	public function set_state( \WP_REST_Request $request ) {
-		$state = $request['help_center_open'];
+		$state          = $request['help_center_open'];
 		$router_history = $request['help_center_router_history'];
 
 		$data = array(
@@ -108,12 +108,12 @@ class WP_REST_Help_Center_Persisted_Open_State extends \WP_REST_Controller {
 
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
-		$is_open = $response->calypso_preferences->help_center_open ?? false;
+		$is_open        = $response->calypso_preferences->help_center_open ?? false;
 		$router_history = $response->calypso_preferences->help_center_router_history ?? null;
 
 		$projected_response = array(
 			'calypso_preferences' => array(
-				'help_center_open' => (bool) $is_open,
+				'help_center_open'           => (bool) $is_open,
 				'help_center_router_history' => $router_history,
 			),
 		);
