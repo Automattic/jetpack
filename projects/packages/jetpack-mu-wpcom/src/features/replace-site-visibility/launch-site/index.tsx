@@ -55,19 +55,17 @@ const LaunchSite = ( {
 							0
 					  ) }
 			</p>
-			<a
-				role="button"
+			<button
+				type="button"
 				className="button-secondary"
 				style={ { marginTop: '0.5em' } }
-				href={ launchUrl }
-				onClick={ e => {
-					e.preventDefault();
+				onClick={ () => {
 					wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
 					window.location.href = launchUrl;
 				} }
 			>
 				{ __( 'Launch site', 'jetpack-mu-wpcom' ) }
-			</a>
+			</button>
 			{ showPreviewLink && (
 				<SitePreviewLink
 					homeUrl={ homeUrl }
