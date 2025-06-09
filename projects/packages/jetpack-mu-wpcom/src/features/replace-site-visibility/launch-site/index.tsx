@@ -1,3 +1,4 @@
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { wpcomTrackEvent } from '../../../common/tracks';
@@ -55,9 +56,8 @@ const LaunchSite = ( {
 							0
 					  ) }
 			</p>
-			<button
-				type="button"
-				className="button-secondary"
+			<Button
+				variant="primary"
 				style={ { marginTop: '0.5em' } }
 				onClick={ () => {
 					wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
@@ -65,7 +65,7 @@ const LaunchSite = ( {
 				} }
 			>
 				{ __( 'Launch site', 'jetpack-mu-wpcom' ) }
-			</button>
+			</Button>
 			{ showPreviewLink && (
 				<SitePreviewLink
 					homeUrl={ homeUrl }
