@@ -1,21 +1,28 @@
+import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
-import { useCallback, type FC } from 'react';
+import { ReactNode, useCallback, type FC } from 'react';
+import { defaultRenderGlyph } from '../line-chart/line-chart';
 import styles from './legend.module.scss';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from './utils';
 import type { LegendProps } from './types';
+import type { RenderLineStartGlyphProps } from '../line-chart/line-chart';
 
 const orientationToFlexDirection = {
 	horizontal: 'row' as const,
 	vertical: 'column' as const,
 };
 
+type LegendPropsExtended = LegendProps & {
+	renderGlyph?: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
+};
+
 /*
  * Base legend component that displays color-coded items with labels based on visx LegendOrdinal.
  * We avoid using LegendOrdinal directly to enable support for advanced features such as interactivity.
  */
-export const BaseLegend: FC< LegendProps > = ( {
+export const BaseLegend: FC< LegendPropsExtended > = ( {
 	items,
 	className,
 	orientation = 'horizontal',
@@ -33,6 +40,7 @@ export const BaseLegend: FC< LegendProps > = ( {
 	itemMargin = '0',
 	itemDirection = 'row',
 	legendLabelProps,
+	renderGlyph = defaultRenderGlyph,
 	...legendItemProps
 } ) => {
 	const legendScale = scaleOrdinal( {
@@ -72,18 +80,35 @@ export const BaseLegend: FC< LegendProps > = ( {
 							flexDirection={ itemDirection }
 							{ ...legendItemProps }
 						>
-							<LegendShape
-								shape={ shape }
-								height={ shapeHeight }
-								width={ shapeWidth }
-								margin={ shapeMargin }
-								item={ domain[ i ] }
-								itemIndex={ i }
-								label={ label }
-								fill={ fill }
-								size={ size }
-								shapeStyle={ getShapeStyle }
-							/>
+							{ renderGlyph ? (
+								<svg width={ Number( shapeWidth ) * 2 } height={ Number( shapeHeight ) * 2 }>
+									<Group>
+										{ renderGlyph( {
+											key: `legend-glyph-${ label.text }`,
+											datum: label.datum || label,
+											index: i,
+											color: fill( label ),
+											size: Number( shapeWidth ),
+											x: Number( shapeWidth ),
+											y: Number( shapeHeight ),
+										} ) }
+									</Group>
+								</svg>
+							) : (
+								<LegendShape
+									shape={ shape }
+									height={ shapeHeight }
+									width={ shapeWidth }
+									margin={ shapeMargin }
+									item={ domain[ i ] }
+									itemIndex={ i }
+									label={ label }
+									fill={ fill }
+									size={ size }
+									shapeStyle={ getShapeStyle }
+								/>
+							) }
+
 							<LegendLabel
 								label={ label.text }
 								flex={ labelFlex }

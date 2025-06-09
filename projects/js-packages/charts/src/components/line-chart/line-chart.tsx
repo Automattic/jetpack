@@ -42,7 +42,7 @@ const DefaultGlyph = < Datum extends object >( props: RenderLineStartGlyphProps<
 	);
 };
 
-const defaultRenderGlyph = < Datum extends object >(
+export const defaultRenderGlyph = < Datum extends object >(
 	props: RenderLineStartGlyphProps< Datum >
 ) => {
 	return <DefaultGlyph { ...props } key={ props.key } />;
@@ -117,6 +117,8 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	curveType?: CurveType;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	withStartGlyphs?: boolean;
+	renderGlyph?: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
+	glyphStyle?: React.SVGProps< SVGCircleElement >;
 }
 
 type TooltipDatum = {
@@ -194,6 +196,8 @@ const LineChart: FC< LineChartProps > = ( {
 	withTooltips = true,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	renderGlyph = defaultRenderGlyph,
+	glyphStyle = {},
 	legendShape = 'line',
 	withGradientFill = false,
 	smoothing = true,
@@ -268,6 +272,7 @@ const LineChart: FC< LineChartProps > = ( {
 		color: group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
 		shapeStyle:
 			group?.options?.legendShapeStyle ?? providerTheme.legendShapeStyles?.[ index ] ?? {},
+		renderGlyph: renderGlyph,
 	} ) );
 
 	const accessors = {
@@ -313,8 +318,9 @@ const LineChart: FC< LineChartProps > = ( {
 									index={ index }
 									data={ seriesData }
 									color={ stroke }
-									renderGlyph={ defaultRenderGlyph }
+									renderGlyph={ renderGlyph }
 									accessors={ accessors }
+									glyphStyle={ glyphStyle }
 								/>
 							) }
 
@@ -354,6 +360,8 @@ const LineChart: FC< LineChartProps > = ( {
 						snapTooltipToDatumY
 						showSeriesGlyphs
 						renderTooltip={ renderTooltip }
+						renderGlyph={ renderGlyph }
+						glyphStyle={ glyphStyle }
 					/>
 				) }
 			</XYChart>
@@ -364,6 +372,9 @@ const LineChart: FC< LineChartProps > = ( {
 					orientation={ legendOrientation }
 					className={ styles[ 'line-chart-legend' ] }
 					shape={ legendShape }
+					renderGlyph={ renderGlyph }
+					shapeWidth={ glyphStyle?.radius || 8 }
+					shapeHeight={ glyphStyle?.radius || 8 }
 				/>
 			) }
 		</div>

@@ -1,3 +1,4 @@
+import { GlyphStar } from '@visx/glyph';
 import React from 'react';
 import LineChart from '../line-chart';
 import largeValuesData from './large-values-sample';
@@ -361,6 +362,19 @@ export const WithStartGlyphs: StoryObj< typeof LineChart > = Template.bind( {} )
 WithStartGlyphs.args = {
 	...Default.args,
 	withStartGlyphs: true,
+};
+
+export const WithCustomLegendGlyph: StoryObj< typeof LineChart > = Template.bind( {} );
+WithCustomLegendGlyph.args = {
+	...Default.args,
+	showLegend: true,
+	withStartGlyphs: true,
+	renderGlyph: ( { color, size, x, y } ) => {
+		return <GlyphStar top={ y } left={ x } size={ size * size } fill={ color } />;
+	},
+	glyphStyle: {
+		radius: 10,
+	},
 };
 
 export const DateStringFormats: StoryObj< typeof LineChart > = {
