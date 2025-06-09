@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Paypal_Payments;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\PayPal_Payments;
 use PayPal_Payments_Currencies;
 use WP_Post;
@@ -51,6 +52,13 @@ class Simple_Payments {
 	public static $css_classname_prefix = 'jetpack-simple-payments';
 
 	/**
+	 * Which plan the user is on.
+	 *
+	 * @var string value_bundle or jetpack_premium
+	 */
+	public static $required_plan;
+
+	/**
 	 * Instance of the class.
 	 *
 	 * @var Simple_Payments
@@ -70,6 +78,7 @@ class Simple_Payments {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hooks();
+			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium';
 		}
 		return self::$instance;
 	}
@@ -208,7 +217,9 @@ class Simple_Payments {
 			return false;
 		}
 
-		return ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Manager() )->is_connected() );
+		return ( ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			|| ( new Manager() )->is_connected()
+			&& Jetpack_Plan::supports( 'simple-payments' ) );
 	}
 
 	/**
