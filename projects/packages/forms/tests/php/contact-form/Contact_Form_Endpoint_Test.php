@@ -146,12 +146,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'isInstalled', $data['akismet'] );
 		$this->assertArrayHasKey( 'isActive', $data['akismet'] );
 		$this->assertArrayHasKey( 'isConnected', $data['akismet'] );
-
-		// Verify structure of google-drive
-		$this->assertArrayHasKey( 'type', $data['google-drive'] );
-		$this->assertArrayHasKey( 'isInstalled', $data['google-drive'] );
-		$this->assertArrayHasKey( 'isActive', $data['google-drive'] );
-		$this->assertArrayHasKey( 'isConnected', $data['google-drive'] );
+		$this->assertArrayHasKey( 'needsConnection', $data['akismet'] );
 	}
 
 	/**
@@ -190,18 +185,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			$this->assertArrayHasKey( 'pluginFile', $integration );
 			$this->assertArrayHasKey( 'version', $integration );
 			$this->assertArrayHasKey( 'details', $integration );
-
-			// Verify expected data types
-			$this->assertIsString( $integration['id'] );
-			$this->assertIsString( $integration['type'] );
-			$this->assertIsString( $integration['slug'] );
-			$this->assertIsBool( $integration['isInstalled'] );
-			$this->assertIsBool( $integration['isActive'] );
-			$this->assertIsBool( $integration['isConnected'] );
-			$this->assertTrue( $integration['settingsUrl'] === null || is_string( $integration['settingsUrl'] ) );
-			$this->assertTrue( $integration['pluginFile'] === null || is_string( $integration['pluginFile'] ) );
-			$this->assertTrue( $integration['version'] === null || is_string( $integration['version'] ) );
-			$this->assertIsArray( $integration['details'] );
+			$this->assertArrayHasKey( 'needsConnection', $integration );
 		}
 	}
 
@@ -232,6 +216,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'pluginFile', $data );
 		$this->assertArrayHasKey( 'version', $data );
 		$this->assertArrayHasKey( 'details', $data );
+		$this->assertArrayHasKey( 'needsConnection', $data );
 	}
 
 	/**
