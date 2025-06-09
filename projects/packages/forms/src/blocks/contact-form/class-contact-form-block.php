@@ -58,7 +58,7 @@ class Contact_Form_Block {
 	 *  @return array
 	 */
 	public static function find_nested_html_block( $parsed_block, $source_block, $parent_block ) {
-		if ( $parsed_block['blockName'] === 'core/html' && isset( $parent_block->parsed_block ) && $parent_block->parsed_block['blockName'] === 'jetpack/contact-form' ) {
+		if ( ! empty( $parsed_block['blockName'] ) && $parsed_block['blockName'] === 'core/html' && isset( $parent_block->parsed_block ) && $parent_block->parsed_block['blockName'] === 'jetpack/contact-form' ) {
 			$parsed_block['hasJPFormParent'] = true;
 		}
 		return $parsed_block;
