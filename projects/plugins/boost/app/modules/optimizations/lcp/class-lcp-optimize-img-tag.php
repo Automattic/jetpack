@@ -42,14 +42,13 @@ class LCP_Optimize_Img_Tag {
 			return $buffer;
 		}
 
-		$html_processor = new WP_HTML_Tag_Processor( $buffer );
-		if ( ! $optimization_util->element_present( $html_processor ) ) {
+		$buffer_processor = $optimization_util->find_element( $buffer );
+		if ( ! $buffer_processor ) {
 			return $buffer;
 		}
 
-		// At this point the $html_processor is already on the correct tag due to element_present.
 		// Create the optimized tag with required attributes.
-		return $this->optimize_image( $html_processor );
+		return $this->optimize_image( $buffer_processor );
 	}
 
 	/**
