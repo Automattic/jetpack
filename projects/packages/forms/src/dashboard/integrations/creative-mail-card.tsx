@@ -2,7 +2,7 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import CreativeMailIcon from '../../icons/creative-mail';
-import type { IntegrationCardProps } from './types';
+import { IntegrationCardProps } from '../../types';
 
 const CreativeMailDashboardCard = ( {
 	isExpanded,
