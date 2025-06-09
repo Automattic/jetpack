@@ -179,7 +179,7 @@ const BarChart: FC< BarChartProps > = ( {
 				/>
 
 				{ withPatterns && (
-					<defs>
+					<defs data-testid="bar-chart-patterns">
 						{ data.map( ( seriesData, index ) =>
 							renderPattern( index, getColor( seriesData, index ) )
 						) }
