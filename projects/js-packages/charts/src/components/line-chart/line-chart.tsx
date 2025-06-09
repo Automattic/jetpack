@@ -126,17 +126,8 @@ type TooltipDatum = {
 	value: number;
 };
 
-const renderDefaultTooltip = ( {
-	tooltipData,
-}: {
-	tooltipData?: {
-		nearestDatum?: {
-			datum: DataPointDate;
-			key: string;
-		};
-		datumByKey?: { [ key: string ]: { datum: DataPointDate } };
-	};
-} ) => {
+const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
+	const { tooltipData } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
 	if ( ! nearestDatum ) return null;
 
