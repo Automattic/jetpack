@@ -1,7 +1,7 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useId } from 'react';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -57,7 +57,7 @@ const BarChart: FC< BarChartProps > = ( {
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
-	const chartId = useMemo( () => crypto.randomUUID(), [] );
+	const chartId = useId();
 	const theme = useXYChartTheme( data );
 	const chartOptions = useBarChartOptions( data, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
@@ -105,8 +105,10 @@ const BarChart: FC< BarChartProps > = ( {
 	const renderPattern = useCallback(
 		( index: number, color: string ) => {
 			const patternType = index % 4;
+			const id = getPatternId( chartId, index );
 			const commonProps = {
-				id: getPatternId( chartId, index ),
+				id,
+				key: id,
 				stroke: color,
 				strokeWidth: 1,
 			};
