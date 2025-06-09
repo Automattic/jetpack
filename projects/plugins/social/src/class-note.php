@@ -44,6 +44,7 @@ class Note {
 					return $allowed_blocks;
 				}
 			);
+
 		}
 
 		self::register_cpt();
@@ -196,8 +197,20 @@ class Note {
 	 * @param array $post_id The Post ID.
 	 */
 	public function override_empty_title( $title, $post_id ) {
-		if ( get_post_type( $post_id ) === self::JETPACK_SOCIAL_NOTE_CPT ) {
-			return wp_trim_words( get_the_excerpt(), 10 );
+		$post = get_post( $post_id );
+
+		if ( isset( $post ) && get_post_type( $post_id ) === self::JETPACK_SOCIAL_NOTE_CPT ) {
+			$post_date = get_the_date( 'd M Y', $post );
+			$post_time = get_the_time( 'H:i', $post );
+
+			/**
+			 * Filters the title for Social Notes.
+			 *
+			 * @param string   $new_title The generated title (e.g., 'Daily note 29 Mar 2025 03:32').
+			 * @param \WP_Post $post      The current post object.
+			 */
+			$label = apply_filters( 'jetpack_social_note_title_label', 'Daily note', $post );
+			return sprintf( '%s - %s %s', $label, $post_date, $post_time );
 		}
 
 		// Return the original title for other cases.
