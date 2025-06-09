@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-telephone';
 const settings = {
 	...defaultSettings,
-	title: __( 'Phone Number Field', 'jetpack-forms' ),
+	title: __( 'Phone number field', 'jetpack-forms' ),
 	keywords: [
 		__( 'Phone', 'jetpack-forms' ),
 		__( 'Cellular phone', 'jetpack-forms' ),

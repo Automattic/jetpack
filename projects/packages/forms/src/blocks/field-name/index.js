@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-name';
 const settings = {
 	...defaultSettings,
-	title: __( 'Name Field', 'jetpack-forms' ),
+	title: __( 'Name field', 'jetpack-forms' ),
 	description: __( 'Collect the site visitor’s name.', 'jetpack-forms' ),
 	icon: {
 		foreground: getIconColor(),

@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-email';
 const settings = {
 	...defaultSettings,
-	title: __( 'Email Field', 'jetpack-forms' ),
+	title: __( 'Email field', 'jetpack-forms' ),
 	keywords: [ __( 'e-mail', 'jetpack-forms' ), __( 'mail', 'jetpack-forms' ), 'email' ],
 	description: __( 'Collect email addresses from your visitors.', 'jetpack-forms' ),
 	icon: {

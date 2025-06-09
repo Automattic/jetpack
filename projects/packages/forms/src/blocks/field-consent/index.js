@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-consent';
 const settings = {
 	...defaultSettings,
-	title: __( 'Terms Consent', 'jetpack-forms' ),
+	title: __( 'Terms consent', 'jetpack-forms' ),
 	keywords: [ __( 'Consent', 'jetpack-forms' ) ],
 	description: __(
 		'Communicate site terms and offer visitors consent to those terms.',

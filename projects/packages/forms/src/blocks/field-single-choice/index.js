@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-radio';
 const settings = {
 	...defaultSettings,
-	title: __( 'Single Choice (Radio)', 'jetpack-forms' ),
+	title: __( 'Single choice (radio)', 'jetpack-forms' ),
 	keywords: [
 		__( 'Choose', 'jetpack-forms' ),
 		__( 'Select', 'jetpack-forms' ),

@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-textarea';
 const settings = {
 	...defaultSettings,
-	title: __( 'Multi-line Text Field', 'jetpack-forms' ),
+	title: __( 'Multi-line text field', 'jetpack-forms' ),
 	keywords: [
 		__( 'Textarea', 'jetpack-forms' ),
 		'textarea',
