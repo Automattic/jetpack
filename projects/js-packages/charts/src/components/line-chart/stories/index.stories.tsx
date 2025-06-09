@@ -364,8 +364,8 @@ WithStartGlyphs.args = {
 	withStartGlyphs: true,
 };
 
-export const WithCustomLegendGlyph: StoryObj< typeof LineChart > = Template.bind( {} );
-WithCustomLegendGlyph.args = {
+export const WithCustomGlyph: StoryObj< typeof LineChart > = Template.bind( {} );
+WithCustomGlyph.args = {
 	...Default.args,
 	showLegend: true,
 	withStartGlyphs: true,
