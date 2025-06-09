@@ -2,6 +2,27 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.8-a.3 - 2025-06-09
+### Enhancements
+- Forms: Release new file uploads field. [#43846]
+- Sharing: Improve the performance of Open Graph Meta Image tags. [#43662]
+
+### Bug fixes
+- Display Critical CSS status correctly on the WordPress.com Complete plan. [#43803]
+- Connection: Redirect to the proper place when clicking the block "Connect" banner on Multisites. [#43594]
+- Forms: Fix dropdown field background color on Windows. [#43848]
+- Forms: Fix an error with poorly-formatted POST data. [#43835]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Address `body_class` filter fatal in older versions of the Blaskan theme. [#43797]
+- Comments: Prevent PHP error on malformed submissions. [#43832]
+- Forms: Update redirect URL when Creative Mail installation fails. [#43779]
+- Newsletters:  Use `total_subscribers` field while displaying all subscribers. [#43801]
+- PHPUnit: Resolve tests warnings. [#43815]
+- Subscriptions: Adjust display of the number of subscribers in the Newsletter panels of the block editor. [#43193]
+- Tests: Ensure method param count matches PHPUnit data providers. [#43828]
+- Update package dependencies. [#43839]
+
 ## 14.8-a.1 - 2025-06-05
 ### Enhancements
 - Forms: Add "undo" to all post-action alerts in Inbox. [#43787]
