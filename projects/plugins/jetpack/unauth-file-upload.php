@@ -41,12 +41,6 @@ function handle_file_download() {
 		wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack' ) );
 	}
 
-	if ( function_exists( 'wpcom_site_has_feature' ) ) {
-		if ( ! wpcom_site_has_feature( 'field-file', get_current_blog_id() ) ) {
-			wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack' ) );
-		}
-	}
-
 	$file_id = isset( $_GET['file_id'] ) ? absint( wp_unslash( $_GET['file_id'] ) ) : 0;
 
 	if ( ! $file_id ) {
