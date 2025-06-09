@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: migration page heading needs line-height for when it wraps

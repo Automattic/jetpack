@@ -279,9 +279,9 @@ function newsletter_access_column_styles() {
 }
 
 /**
- * Determine the amount of folks currently subscribed to the blog, splitted out in email_subscribers & social_followers & paid_subscribers
+ * Determine the amount of folks currently subscribed to the blog, splitted out in total_subscribers, email_subscribers, social_followers & paid_subscribers.
  *
- * @return array containing ['value' => ['email_subscribers' => 0, 'paid_subscribers' => 0, 'social_followers' => 0]]
+ * @return array containing ['value' => ['total_subscribers' => 0, 'email_subscribers' => 0, 'paid_subscribers' => 0, 'social_followers' => 0]]
  */
 function fetch_subscriber_counts() {
 	$subs_count = 0;
@@ -302,6 +302,7 @@ function fetch_subscriber_counts() {
 					'code'    => $xml->getErrorCode(),
 					'message' => $xml->getErrorMessage(),
 					'value'   => ( isset( $subs_count['value'] ) ) ? $subs_count['value'] : array(
+						'total_subscribers' => 0,
 						'email_subscribers' => 0,
 						'social_followers'  => 0,
 						'paid_subscribers'  => 0,
@@ -329,9 +330,9 @@ function get_subscriber_count( $include_social_followers ) {
 	$counts = fetch_subscriber_counts();
 
 	if ( $include_social_followers ) {
-		$subscriber_count = $counts['value']['email_subscribers'] + $counts['value']['social_followers'];
+		$subscriber_count = $counts['value']['total_subscribers'] + $counts['value']['social_followers'];
 	} else {
-		$subscriber_count = $counts['value']['email_subscribers'];
+		$subscriber_count = $counts['value']['total_subscribers'];
 	}
 	return $subscriber_count;
 }

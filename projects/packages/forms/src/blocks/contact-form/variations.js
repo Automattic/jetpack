@@ -3,8 +3,8 @@ import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
 import { compact } from 'lodash';
+import renderMaterialIcon from '../shared/components/render-material-icon';
 import { getIconColor } from './util/block-icons';
-import renderMaterialIcon from './util/render-material-icon';
 
 const variations = compact( [
 	{

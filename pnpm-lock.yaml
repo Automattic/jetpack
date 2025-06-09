@@ -316,6 +316,9 @@ importers:
 
   projects/js-packages/charts:
     dependencies:
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../number-formatters
       '@babel/runtime':
         specifier: 7.27.4
         version: 7.27.4
@@ -326,13 +329,13 @@ importers:
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
       '@visx/curve':
-        specifier: 3.12.0
+        specifier: ^3.12.0
         version: 3.12.0
       '@visx/event':
-        specifier: ^3.8.0
+        specifier: ^3.12.0
         version: 3.12.0
       '@visx/gradient':
-        specifier: 3.12.0
+        specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
       '@visx/grid':
         specifier: ^3.12.0
@@ -344,7 +347,7 @@ importers:
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
       '@visx/responsive':
-        specifier: 3.12.0
+        specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
       '@visx/scale':
         specifier: ^3.12.0
@@ -353,17 +356,20 @@ importers:
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
       '@visx/text':
-        specifier: 3.12.0
+        specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
       '@visx/tooltip':
-        specifier: ^3.8.0
+        specifier: ^3.12.0
         version: 3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@visx/xychart':
-        specifier: 3.12.0
+        specifier: ^3.12.0
         version: 3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       tslib:
         specifier: 2.5.0
         version: 2.5.0
@@ -371,9 +377,6 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
-      '@automattic/number-formatters':
-        specifier: workspace:*
-        version: link:../number-formatters
       '@babel/core':
         specifier: 7.27.4
         version: 7.27.4
@@ -4400,6 +4403,9 @@ importers:
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
+      semantic-ui-css:
+        specifier: 2.5.0
+        version: 2.5.0
       sweetalert2:
         specifier: 7.33.1
         version: 7.33.1
@@ -10274,6 +10280,9 @@ packages:
   date-fns@3.6.0:
     resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
 
+  date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
+
   daterangepicker@2.1.25:
     resolution: {integrity: sha512-8qSYdsolahhBpfoGFcVOmKXnpy0MpbgT3J4YeWG/oPgyApnEIUbIugtS6ryJdQFF+rZ+tUYbRXBnOe4QK8jGnA==}
 
@@ -14397,6 +14406,9 @@ packages:
 
   select@1.1.2:
     resolution: {integrity: sha512-OwpTSOfy6xSs1+pwcNrv0RBMOzI39Lp3qQKUTPVVPRjCdNa5JH/oPRiqsesIskK8TVgmRiHwO4KXlV2Li9dANA==}
+
+  semantic-ui-css@2.5.0:
+    resolution: {integrity: sha512-jIWn3WXXE2uSaWCcB+gVJVRG3masIKtTMNEP2X8Aw909H2rHpXGneYOxzO3hT8TpyvB5/dEEo9mBFCitGwoj1A==}
 
   semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
@@ -23249,6 +23261,8 @@ snapshots:
 
   date-fns@3.6.0: {}
 
+  date-fns@4.1.0: {}
+
   daterangepicker@2.1.25:
     dependencies:
       jquery: 3.6.0
@@ -28178,6 +28192,10 @@ snapshots:
   seed-random@2.2.0: {}
 
   select@1.1.2: {}
+
+  semantic-ui-css@2.5.0:
+    dependencies:
+      jquery: 3.6.0
 
   semver@5.7.2: {}
 

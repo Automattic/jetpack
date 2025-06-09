@@ -355,8 +355,16 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/field-file',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
-				'plan_check'      => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				'plan_check'       => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/dropzone',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_dropzone' ),
 			)
 		);
 

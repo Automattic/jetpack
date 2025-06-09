@@ -66,11 +66,12 @@ class Partner_Test extends TestCase {
 	 *
 	 * @param string $code_type Partner code type.
 	 * @param string $option_name Option and filter name.
+	 * @param string $query_param Query string parameter.
 	 *
 	 * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
 	#[DataProvider( 'code_provider' )]
-	public function test_partner_code_is_empty_by_default( $code_type, $option_name ) {
+	public function test_partner_code_is_empty_by_default( $code_type, $option_name, $query_param ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$call_counter  = 0;
 		$option_filter = function () use ( &$call_counter ) {
 			++$call_counter;
@@ -94,11 +95,12 @@ class Partner_Test extends TestCase {
 	 *
 	 * @param string $code_type Partner code type.
 	 * @param string $option_name Option and filter name.
+	 * @param string $query_param Query string parameter.
 	 *
 	 * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
 	#[DataProvider( 'code_provider' )]
-	public function test_partner_code_is_set_via_option( $code_type, $option_name ) {
+	public function test_partner_code_is_set_via_option( $code_type, $option_name, $query_param ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$call_counter  = 0;
 		$option_filter = function () use ( &$call_counter ) {
 			++$call_counter;
@@ -122,11 +124,12 @@ class Partner_Test extends TestCase {
 	 *
 	 * @param string $code_type Partner code type.
 	 * @param string $option_name Option and filter name.
+	 * @param string $query_param Query string parameter.
 	 *
 	 * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
 	#[DataProvider( 'code_provider' )]
-	public function test_partner_code_is_set_via_filter( $code_type, $option_name ) {
+	public function test_partner_code_is_set_via_filter( $code_type, $option_name, $query_param ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$call_counter  = 0;
 		$option_filter = function () use ( &$call_counter ) {
 			++$call_counter;

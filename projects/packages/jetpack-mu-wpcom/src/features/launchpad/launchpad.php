@@ -37,7 +37,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'setup_general',
-				'design_selected',
 				'plan_selected',
 				'first_post_published',
 				'design_edited',

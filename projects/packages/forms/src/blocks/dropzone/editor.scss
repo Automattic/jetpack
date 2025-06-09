@@ -1,0 +1,12 @@
+:where( .jetpack-form-file-field__dropzone ) {
+    padding: 48px;
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+    border: 1px dashed var(--jp-form-color-border, rgba( 125, 125, 125, 0.3 ) );
+    border-radius: var( --jetpack--contact-form--border-radius, 0 );
+}
+
+// Reset the flex property for the dropzone innerblock
+.jetpack-contact-form .wp-block-jetpack-dropzone .wp-block {
+	flex: initial;
+}

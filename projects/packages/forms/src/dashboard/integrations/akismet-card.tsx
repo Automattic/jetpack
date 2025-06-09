@@ -1,7 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, ExternalLink } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useNavigate } from 'react-router-dom';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import AkismetIcon from '../../icons/akismet';
 import type { IntegrationCardProps } from './types';
@@ -12,8 +13,8 @@ const AkismetDashboardCard = ( {
 	data,
 	refreshStatus,
 }: IntegrationCardProps ) => {
-	const formSubmissionsUrl = data?.details?.formSubmissionsSpamUrl || '';
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
+	const navigate = useNavigate();
 
 	const cardData = {
 		...data,
@@ -35,6 +36,10 @@ const AkismetDashboardCard = ( {
 			'jetpack-forms'
 		),
 	};
+
+	const handleViewSpamClick = useCallback( () => {
+		navigate( '/responses?status=spam' );
+	}, [ navigate ] );
 
 	return (
 		<IntegrationCard
@@ -76,12 +81,7 @@ const AkismetDashboardCard = ( {
 						{ __( 'Your forms are automatically protected with Akismet.', 'jetpack-forms' ) }
 					</p>
 					<div className="integration-card__links">
-						<Button
-							variant="link"
-							href={ formSubmissionsUrl }
-							target="_blank"
-							rel="noopener noreferrer"
-						>
+						<Button variant="link" onClick={ handleViewSpamClick }>
 							{ __( 'View spam', 'jetpack-forms' ) }
 						</Button>
 						<span>|</span>

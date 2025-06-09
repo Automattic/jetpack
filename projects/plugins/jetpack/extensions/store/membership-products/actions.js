@@ -110,6 +110,11 @@ export const setSubscriberCounts = subscriberCounts => ( {
 	subscriberCounts,
 } );
 
+export const setTotalEmailsSentCount = totalEmailsSentCount => ( {
+	type: 'SET_TOTAL_EMAILS_SENT_COUNT',
+	totalEmailsSentCount,
+} );
+
 export const setNewsletterCategories = newsletterCategories => ( {
 	type: 'SET_NEWSLETTER_CATEGORIES',
 	newsletterCategories,
