@@ -121,7 +121,7 @@ const variations = compact( [
 				'jetpack/field-textarea',
 				{},
 				[
-					[ 'jetpack/label', { label: __( 'Other Details', 'jetpack-forms' ) } ],
+					[ 'jetpack/label', { label: __( 'Other details', 'jetpack-forms' ) } ],
 					[ 'jetpack/input', { type: 'textarea' } ],
 				],
 			],
@@ -187,7 +187,7 @@ const variations = compact( [
 					innerBlocks: [
 						{
 							name: 'jetpack/label',
-							attributes: { label: __( 'Other Details', 'jetpack-forms' ) },
+							attributes: { label: __( 'Other details', 'jetpack-forms' ) },
 						},
 						{ name: 'jetpack/input', attributes: { type: 'textarea' } },
 					],
@@ -245,11 +245,11 @@ const variations = compact( [
 				'jetpack/field-select',
 				{
 					options: [
-						__( 'Search Engine', 'jetpack-forms' ),
-						__( 'Social Media', 'jetpack-forms' ),
+						__( 'Search engine', 'jetpack-forms' ),
+						__( 'Social media', 'jetpack-forms' ),
 						__( 'TV', 'jetpack-forms' ),
 						__( 'Radio', 'jetpack-forms' ),
-						__( 'Friend or Family', 'jetpack-forms' ),
+						__( 'Friend or family', 'jetpack-forms' ),
 					],
 				},
 				[
@@ -270,7 +270,7 @@ const variations = compact( [
 					[
 						'jetpack/label',
 						{
-							label: __( 'Other Details', 'jetpack-forms' ),
+							label: __( 'Other details', 'jetpack-forms' ),
 						},
 					],
 					[ 'jetpack/input', { type: 'textarea' } ],
@@ -361,7 +361,7 @@ const variations = compact( [
 						{
 							name: 'jetpack/label',
 							attributes: {
-								label: __( 'Other Details', 'jetpack-forms' ),
+								label: __( 'Other details', 'jetpack-forms' ),
 							},
 						},
 						{
@@ -466,7 +466,7 @@ const variations = compact( [
 			[
 				'jetpack/button',
 				{
-					text: __( 'Book Appointment', 'jetpack-forms' ),
+					text: __( 'Book appointment', 'jetpack-forms' ),
 					element: 'button',
 					lock: { remove: true },
 				},
@@ -546,7 +546,7 @@ const variations = compact( [
 				{
 					name: 'jetpack/button',
 					attributes: {
-						text: __( 'Book Appointment', 'jetpack-forms' ),
+						text: __( 'Book appointment', 'jetpack-forms' ),
 						element: 'button',
 						lock: { remove: true },
 					},
@@ -557,7 +557,7 @@ const variations = compact( [
 	{
 		name: 'feedback-form',
 		title: __( 'Feedback Form', 'jetpack-forms' ),
-		description: __( 'Add a Feedback form to your page', 'jetpack-forms' ),
+		description: __( 'Add a feedback form to your page', 'jetpack-forms' ),
 		icon: {
 			foreground: getIconColor(),
 			src: renderMaterialIcon(
