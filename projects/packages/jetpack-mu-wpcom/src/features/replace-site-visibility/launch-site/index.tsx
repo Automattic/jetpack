@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { wpcomTrackEvent } from '../../../common/tracks';
 import SitePreviewLink from '../site-preview-link';
 import type { SitePreviewLinkObject } from '../site-preview-link';
 
@@ -59,6 +60,9 @@ const LaunchSite = ( {
 				className="button-secondary"
 				style={ { marginTop: '0.5em' } }
 				href={ launchUrl }
+				onClick={ () => {
+					wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
+				} }
 			>
 				{ __( 'Launch site', 'jetpack-mu-wpcom' ) }
 			</a>
