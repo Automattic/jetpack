@@ -5,9 +5,11 @@ import { __ } from '@wordpress/i18n';
 
 export const UpsellNudge = ( { requiredPlan } ) => {
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting ] = useUpgradeFlow( requiredPlan, () => {
-		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_file_upload_upsell_click', {
+		// This mimics the logic on jetpack/extensions/extended-blocks/paid-blocks/utils.js
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
 			plan: requiredPlan,
-			context: 'block-editor',
+			context: 'editor-canvas',
+			block: 'jetpack/file-field',
 		} );
 	} );
 	return (
