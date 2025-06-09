@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added a fallback title for Social Notes with no title, using the current date and time. Developers can customize the label via the new 'jetpack_social_note_title_label' filter.
