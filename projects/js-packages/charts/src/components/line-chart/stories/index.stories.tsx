@@ -106,6 +106,7 @@ export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
 WithLegend.args = {
 	...Default.args,
 	showLegend: true,
+	height: 400,
 };
 
 // Story with vertical legend

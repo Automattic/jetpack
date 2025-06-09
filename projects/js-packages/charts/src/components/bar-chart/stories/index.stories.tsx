@@ -138,9 +138,9 @@ export const WithLegend = {
 export const WithVerticalLegend = {
 	args: {
 		...WithLegend.args,
-		data: [ data[ 0 ] ],
 		showLegend: true,
 		legendOrientation: 'vertical',
+		height: 600,
 	},
 };
 
