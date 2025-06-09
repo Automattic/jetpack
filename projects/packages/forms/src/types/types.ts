@@ -39,16 +39,6 @@ export interface IntegrationCardProps {
 }
 
 /**
- * Default URLs for Jetpack Forms blocks, such as responses and spam responses.
- */
-export interface JPFormsBlocksDefaults {
-	/** The URL for form responses. */
-	formsResponsesUrl?: string;
-	/** The URL for spam form responses. */
-	formsResponsesSpamUrl?: string;
-}
-
-/**
  * Represents a reusable form pattern for the Jetpack Forms dashboard.
  */
 export type Pattern = {
@@ -65,11 +55,23 @@ export type Pattern = {
 };
 
 /**
- * Extends the Window interface to include Jetpack Forms block defaults.
+ * Default URLs for Jetpack Forms blocks, such as responses and spam responses.
  */
-export interface JPFormsBlocksWindow extends Window {
-	/** Optional Jetpack Forms block defaults on the window object. */
-	jpFormsBlocks?: {
-		defaults?: JPFormsBlocksDefaults;
-	};
+export interface JPFormsBlocksDefaults {
+	/** The URL for form responses. */
+	formsResponsesUrl?: string;
+	/** The URL for spam form responses. */
+	formsResponsesSpamUrl?: string;
+}
+
+/**
+ * Augments the global Window interface to include Jetpack Forms block defaults.
+ */
+declare global {
+	interface Window {
+		/** Optional Jetpack Forms block defaults on the window object. */
+		jpFormsBlocks?: {
+			defaults?: JPFormsBlocksDefaults;
+		};
+	}
 }
