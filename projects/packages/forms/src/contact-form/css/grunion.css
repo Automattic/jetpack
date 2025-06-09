@@ -440,7 +440,8 @@
 .contact-form :where( .contact-form__select-element-wrapper ),
 .contact-form :where( .contact-form__select-wrapper select ) {
 	border: 0 !important;
-	background: transparent !important;
+	background: inherit !important;
+	border-radius: inherit !important;
 	font-family: inherit;
 	font-size: inherit;
 	color: inherit;
