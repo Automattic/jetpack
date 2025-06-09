@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\PaypalPayments\SimplePayments;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Paypal_Payments\Simple_Payments;
 use WP_Post;
 
@@ -31,6 +32,10 @@ class Block {
 	 * registration if we need to.
 	 */
 	public static function register_block() {
+		if ( ! Jetpack_Plan::supports( 'simple-payments' ) ) {
+			return;
+		}
+
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array( 'render_callback' => array( __CLASS__, 'render_block' ) )
