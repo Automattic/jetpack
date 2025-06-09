@@ -764,15 +764,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		// Default response for all integrations
 		$response = array(
-			'type'        => $config['type'],
-			'slug'        => $slug,
-			'isConnected' => false,
-			'settingsUrl' => $config['settings_url'] ?? null,
-			'pluginFile'  => null,
-			'isInstalled' => false,
-			'isActive'    => false,
-			'version'     => null,
-			'details'     => array(),
+			'type'            => $config['type'],
+			'slug'            => $slug,
+			'needsConnection' => true,
+			'isConnected'     => false,
+			'settingsUrl'     => $config['settings_url'] ?? null,
+			'pluginFile'      => null,
+			'isInstalled'     => false,
+			'isActive'        => false,
+			'version'         => null,
+			'details'         => array(),
 		);
 
 		// Process settingsUrl to return a full URL if present (for services only)
@@ -816,15 +817,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$is_active         = is_plugin_active( $plugin_config['file'] );
 
 		$response = array(
-			'type'        => 'plugin',
-			'slug'        => $plugin_slug,
-			'pluginFile'  => str_replace( '.php', '', $plugin_config['file'] ),
-			'isInstalled' => $is_installed,
-			'isActive'    => $is_active,
-			'isConnected' => false,
-			'version'     => $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null,
-			'settingsUrl' => $is_active ? admin_url( $plugin_config['settings_url'] ) : null,
-			'details'     => array(),
+			'type'            => 'plugin',
+			'slug'            => $plugin_slug,
+			'pluginFile'      => str_replace( '.php', '', $plugin_config['file'] ),
+			'isInstalled'     => $is_installed,
+			'isActive'        => $is_active,
+			'needsConnection' => false,
+			'isConnected'     => false,
+			'version'         => $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null,
+			'settingsUrl'     => $is_active ? admin_url( $plugin_config['settings_url'] ) : null,
+			'details'         => array(),
 		);
 
 		// Plugin-specific customizations
@@ -832,6 +834,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$dashboard_view_switch                         = new Dashboard_View_Switch();
 			$response['isConnected']                       = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
 			$response['details']['formSubmissionsSpamUrl'] = $dashboard_view_switch->get_forms_admin_url( 'spam' );
+			$response['needsConnection']                   = true;
 		} elseif ( 'zero-bs-crm' === $plugin_slug && $is_active ) {
 			$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
 			$response['details'] = array(
