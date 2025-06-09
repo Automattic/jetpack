@@ -83,6 +83,13 @@ WithLegend.args = {
 	showLegend: true,
 };
 
+export const WithLegendShapeRectangle: StoryObj< typeof LineChart > = Template.bind( {} );
+WithLegendShapeRectangle.args = {
+	...Default.args,
+	showLegend: true,
+	legendShape: 'rect',
+};
+
 // Story with vertical legend
 export const WithVerticalLegend: StoryObj< typeof LineChart > = Template.bind( {} );
 WithVerticalLegend.args = {
@@ -369,6 +376,7 @@ WithCustomGlyph.args = {
 	...Default.args,
 	showLegend: true,
 	withStartGlyphs: true,
+	withLegendGlyph: true,
 	renderGlyph: ( { color, size, x, y } ) => {
 		return <GlyphStar top={ y } left={ x } size={ size * size } fill={ color } />;
 	},

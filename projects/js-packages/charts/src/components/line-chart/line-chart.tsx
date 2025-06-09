@@ -119,6 +119,7 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withStartGlyphs?: boolean;
 	renderGlyph?: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
 	glyphStyle?: React.SVGProps< SVGCircleElement >;
+	withLegendGlyph: boolean;
 }
 
 type TooltipDatum = {
@@ -190,6 +191,7 @@ const LineChart: FC< LineChartProps > = ( {
 	renderGlyph = defaultRenderGlyph,
 	glyphStyle = {},
 	legendShape = 'line',
+	withLegendGlyph = false,
 	withGradientFill = false,
 	smoothing = true,
 	curveType,
@@ -363,7 +365,7 @@ const LineChart: FC< LineChartProps > = ( {
 					orientation={ legendOrientation }
 					className={ styles[ 'line-chart-legend' ] }
 					shape={ legendShape }
-					renderGlyph={ renderGlyph }
+					renderGlyph={ withLegendGlyph ? renderGlyph : undefined }
 					shapeWidth={ glyphStyle?.radius || 8 }
 					shapeHeight={ glyphStyle?.radius || 8 }
 				/>
