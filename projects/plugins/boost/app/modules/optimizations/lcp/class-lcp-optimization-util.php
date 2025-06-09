@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
-use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use WP_HTML_Tag_Processor;
 
 class LCP_Optimization_Util {
@@ -156,7 +155,6 @@ class LCP_Optimization_Util {
 		// Extract attributes from the LCP tag for matching
 		$lcp_id    = $element->get_attribute( 'id' );
 		$lcp_class = $element->get_attribute( 'class' );
-		$lcp_src   = $element->get_attribute( 'src' );
 
 		// Perform a quick check to see if the class is present in the HTML.
 		if ( ! empty( $lcp_class ) && ! str_contains( $buffer, $lcp_class ) ) {
@@ -168,11 +166,7 @@ class LCP_Optimization_Util {
 		while ( $html_processor->next_tag( $tag ) ) {
 			// Tag is considered a match if the class and id match.
 			if ( $lcp_id === $html_processor->get_attribute( 'id' ) &&
-				$lcp_class === $html_processor->get_attribute( 'class' )
-				&& (
-					$lcp_src === $html_processor->get_attribute( 'src' ) ||
-					Image_CDN_Core::cdn_url( $lcp_src ) === $html_processor->get_attribute( 'src' )
-				) ) {
+				$lcp_class === $html_processor->get_attribute( 'class' ) ) {
 				return $html_processor;
 			}
 		}
