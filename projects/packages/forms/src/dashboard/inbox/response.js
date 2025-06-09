@@ -49,11 +49,44 @@ const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
 };
 
 const FileField = ( { file, onClick, key } ) => {
-	const extension = file.name.split( '.' ).pop().toUpperCase();
+	const fileExtension = file.name.split( '.' ).pop().toLowerCase();
+	const fileType = file.type.split( '/' )[ 0 ];
+
+	const iconMap = {
+		image: 'png',
+		video: 'mp4',
+		audio: 'mp3',
+		document: 'pdf',
+		application: 'txt',
+	};
+
+	const extensionMap = {
+		pdf: 'pdf',
+		png: 'png',
+		jpg: 'png',
+		jpeg: 'png',
+		gif: 'png',
+		mp4: 'mp4',
+		mp3: 'mp3',
+		webm: 'webm',
+		doc: 'doc',
+		docx: 'doc',
+		txt: 'txt',
+		ppt: 'ppt',
+		pptx: 'ppt',
+		xls: 'xls',
+		xlsx: 'xls',
+		csv: 'xls',
+		zip: 'zip',
+		sql: 'sql',
+		cal: 'cal',
+	};
+	const iconType = extensionMap[ fileExtension ] || iconMap[ fileType ] || 'txt';
+	const iconClass = clsx( 'file-field__icon', 'icon-' + iconType );
 	return (
 		<div key={ key } className="file-field__item">
 			<div className="file-field__info">
-				<div className="file-field__icon"></div>
+				<div className={ iconClass }></div>
 				<div className="file-field__name">
 					{ file.is_previewable && (
 						<Button target="_blank" variant="link" onClick={ onClick }>
@@ -61,7 +94,7 @@ const FileField = ( { file, onClick, key } ) => {
 						</Button>
 					) }
 					{ ! file.is_previewable && (
-						<ExternalLink href={ file.url + '?preview=true' }>
+						<ExternalLink href={ file.url + '&preview=true' }>
 							{ decodeEntities( file.name ) }
 						</ExternalLink>
 					) }
@@ -70,7 +103,7 @@ const FileField = ( { file, onClick, key } ) => {
 							/* translators: %1$s size of the file and %2$s is the file extension */
 							__( '%1$s, %2$s', 'jetpack-forms' ),
 							file.size,
-							extension
+							fileExtension.toUpperCase()
 						) }
 					</div>
 				</div>

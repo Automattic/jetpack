@@ -278,6 +278,7 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-response-data-value .file-field {
+	margin-top: 4px;
 
 	.file-field__item {
 		display: flex;
@@ -296,7 +297,50 @@ $action-bar-height: 88px;
 		background-repeat: no-repeat;
 		background-position: center;
 		background-size: 24px;
+	}
 
+	.file-field__icon.icon-cal {
+		background-image: url( ../../contact-form/images/file-icons/cal.svg);
+	}
+
+	.file-field__icon.icon-html {
+		background-image: url( ../../contact-form/images/file-icons/html.svg);
+	}
+
+	.file-field__icon.icon-mp3 {
+		background-image: url( ../../contact-form/images/file-icons/mp3.svg);
+	}
+
+	.file-field__icon.icon-mp4 {
+		background-image: url( ../../contact-form/images/file-icons/mp4.svg);
+	}
+
+	.file-field__icon.icon-pdf {
+		background-image: url( ../../contact-form/images/file-icons/pdf.svg);
+	}
+
+	.file-field__icon.icon-png {
+		background-image: url( ../../contact-form/images/file-icons/png.svg);
+	}
+
+	.file-field__icon.icon-ppt {
+		background-image: url( ../../contact-form/images/file-icons/ppt.svg);
+	}
+
+	.file-field__icon.icon-sql {
+		background-image: url( ../../contact-form/images/file-icons/sql.svg);
+	}
+
+	.file-field__icon.icon-txt {
+		background-image: url( ../../contact-form/images/file-icons/txt.svg);
+	}
+
+	.file-field__icon.icon-xls {
+		background-image: url( ../../contact-form/images/file-icons/xls.svg);
+	}
+
+	.file-field__icon.icon-zip {
+		background-image: url( ../../contact-form/images/file-icons/zip.svg);
 	}
 
 	.file-field__info {
