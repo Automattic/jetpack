@@ -213,7 +213,9 @@ const About = () => {
 									filtersDocs: (
 										<ExternalLink href="https://developer.wordpress.org/plugins/hooks/filters/" />
 									),
-									devDocs: <ExternalLink href={ getRedirectUrl( 'jetpack-contact-support' ) } />,
+									devDocs: (
+										<ExternalLink href={ getRedirectUrl( 'jetpack-developer-docs-forms' ) } />
+									),
 								}
 							) }
 						</Details>
