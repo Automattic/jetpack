@@ -2,26 +2,21 @@ import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
-import { ReactNode, useCallback, type FC } from 'react';
+import { useCallback, type FC } from 'react';
 import styles from './legend.module.scss';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from './utils';
 import type { LegendProps } from './types';
-import type { RenderLineStartGlyphProps } from '../line-chart/line-chart';
 
 const orientationToFlexDirection = {
 	horizontal: 'row' as const,
 	vertical: 'column' as const,
 };
 
-type LegendPropsExtended = LegendProps & {
-	renderGlyph?: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
-};
-
 /*
  * Base legend component that displays color-coded items with labels based on visx LegendOrdinal.
  * We avoid using LegendOrdinal directly to enable support for advanced features such as interactivity.
  */
-export const BaseLegend: FC< LegendPropsExtended > = ( {
+export const BaseLegend: FC< LegendProps > = ( {
 	items,
 	className,
 	orientation = 'horizontal',

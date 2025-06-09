@@ -117,7 +117,7 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	curveType?: CurveType;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	withStartGlyphs?: boolean;
-	renderGlyph?: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 	glyphStyle?: React.SVGProps< SVGCircleElement >;
 	withLegendGlyph: boolean;
 }
