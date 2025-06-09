@@ -101,7 +101,7 @@ class Block {
 
 		Assets::register_script(
 			$handle,
-			'../../../dist/block/editor.js',
+			'../../dist/block/editor.js',
 			__FILE__,
 			array(
 				'css_path'   => '../../dist/block/editor.css',
