@@ -17,7 +17,7 @@ import './style.scss';
 /**
  * Types
  */
-import type { Integration } from '../../types/types';
+import type { Integration } from '../../types';
 
 const Integrations = () => {
 	const { integrations, refreshIntegrations } = useIntegrationsStatus();

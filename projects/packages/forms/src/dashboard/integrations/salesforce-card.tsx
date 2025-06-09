@@ -2,7 +2,7 @@ import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import SalesforceIcon from '../../icons/salesforce';
-import { IntegrationCardProps } from '../../types/types';
+import { IntegrationCardProps } from '../../types';
 
 const SalesforceDashboardCard = ( {
 	isExpanded,

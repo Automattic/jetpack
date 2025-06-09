@@ -18,7 +18,7 @@ import PluginActionButton from './plugin-action-button';
 /**
  * Types
  */
-import type { Integration } from '../../../../../types/types';
+import type { Integration } from '../../../../../types';
 
 type IntegrationCardData = {
 	isInstalled?: boolean;
