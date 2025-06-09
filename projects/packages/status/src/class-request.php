@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Status;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Get information about the current request.
  */
@@ -26,9 +28,9 @@ class Request {
 			|| wp_doing_ajax()
 			|| wp_is_jsonp_request()
 			|| is_feed()
-			|| ( defined( 'REST_REQUEST' ) && \REST_REQUEST )
-			|| ( defined( 'REST_API_REQUEST' ) && \REST_API_REQUEST )
-			|| ( defined( 'WP_CLI' ) && \WP_CLI )
+			|| Constants::is_true( 'REST_REQUEST' )
+			|| Constants::is_true( 'REST_API_REQUEST' )
+			|| Constants::is_true( 'WP_CLI' )
 		) {
 			$is_frontend        = false;
 			$is_varying_request = false;
