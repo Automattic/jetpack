@@ -148,4 +148,19 @@ describe( 'Membership products reducer testing', () => {
 			newsletterCategoriesSubscriptionsCount: anyNewsletterCategoriesSubscriptionsCount,
 		} );
 	} );
+
+	test( 'SET_TOTAL_EMAILS_SENT_COUNT action adds the total emails sent count to the returned state.', () => {
+		const anyTotalEmailsSentCount = 10;
+		const anySetTotalEmailsSentCountAction = {
+			type: 'SET_TOTAL_EMAILS_SENT_COUNT',
+			totalEmailsSentCount: anyTotalEmailsSentCount,
+		};
+
+		const returnedState = reducer( DEFAULT_STATE, anySetTotalEmailsSentCountAction );
+
+		expect( returnedState ).toStrictEqual( {
+			...DEFAULT_STATE,
+			totalEmailsSentCount: anyTotalEmailsSentCount,
+		} );
+	} );
 } );

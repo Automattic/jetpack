@@ -1,3 +1,33 @@
+.wp-block-jetpack-dropzone {
+	display: flex;
+	flex-direction: column;
+	border: 1px dashed var(--jetpack--contact-form--border-color, rgba( 125, 125, 125, 0.3 ) );
+}
+
+:where( .wp-block-jetpack-dropzone ) {
+	padding: 48px;
+	margin-top: 8px;
+	margin-bottom: 8px;
+	background-color: var( --jetpack--contact-form--input-background );
+	border-radius: var( --jetpack--contact-form--border-radius, 0 );
+}
+
+.wp-block-jetpack-dropzone.is-content-justification-right {
+	align-items: flex-end;
+}
+
+.wp-block-jetpack-dropzone.is-content-justification-left {
+	align-items: flex-start;
+}
+
+.wp-block-jetpack-dropzone.is-content-justification-center {
+	align-items: center;
+}
+
+.wp-block-jetpack-dropzone.is-content-justification-stretch {
+	align-items: stretch;
+}
+
 .jetpack-form-file-field__dropzone {
 	position: relative;
 }
@@ -18,6 +48,13 @@
 	cursor: pointer;
 }
 
+.jetpack-form-file-field__preview:focus-visible,
+.jetpack-form-file-field__dropzone-inner:focus-visible {
+	outline-style: solid;
+	outline-offset: -2px;
+	outline-width: 2px;
+}
+
 .jetpack-form-file-field__dropzone input[type="file"] {
 	display: none;
 }
@@ -27,11 +64,6 @@
 	transition: .2s;
 	opacity: 1;
 	filter: invert(0.1);
-}
-
-.jetpack-form-file-field__dropzone:hover {
-	outline: var(--b) solid var(--c);
-	outline-offset: var(--g);
 }
 
 .jetpack-form-file-field__content {
@@ -148,18 +180,22 @@
 	text-align: left;
 }
 
-.jetpack-form-file-field__remove {
+.jetpack-form-file-field__remove.jetpack-form-file-field__remove {
 	position: relative;
 	min-width: 33px;
 	height: 33px;
 	margin-right: 10px;
+	box-shadow: none;
+	border: none;
 }
 
-.jetpack-form-file-field__remove:hover {
+.jetpack-form-file-field__remove.jetpack-form-file-field__remove:hover {
 	cursor: pointer;
 	border-radius: 50%;
 	background-color: var(--jetpack--contact-form--input-background, #fff );
 	filter: invert(0.1);
+	box-shadow: none;
+	border: none;
 }
 
 @media not (prefers-reduced-motion) {
@@ -199,9 +235,10 @@
 	content: '';
 	aspect-ratio: 1 / 1;
 	background-position: center;
+	background-repeat: no-repeat;
 	background-size: cover;
 	outline: 1 solid var( --jetpack--contact-form--button-primary--text-color, #FFF );
-	background-color: #333;
+	background-color: var(--jetpack--contact-form--border-color, #333 );
 	border-radius: 50%;
 	outline-offset:0;
 	width: 40px;
@@ -210,6 +247,13 @@
 	position: absolute;
 	top: 3px;
 	z-index: 2;
+}
+
+.jetpack-form-file-field__image-wrap.has-icon .jetpack-form-file-field__image {
+	background-size: auto;
+	mask-repeat: no-repeat;
+	mask-position: center;
+	background-color: var( --jetpack--contact-form--text-color, #333 );
 }
 
 .jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__image {
@@ -237,7 +281,7 @@
 	right: 0;
 	border-radius: 50%;
 	background: conic-gradient(
-		var(--jetpack--contact-form--border-color, #333 )
+		var( --jetpack--contact-form--text-color, #333 )
 		calc(var(--progress, 3) * 1%),
 		transparent calc(var(--progress, 3) * 1%)
 	);
@@ -246,6 +290,17 @@
 	opacity: 0.8;
 	width: 46px;
 	height: 46px;
+}
+
+.jetpack-form-file-field__progress-bar::after {
+	content: '';
+	position: absolute;
+	top: 3px;
+	bottom: 3px;
+	left: 3px;
+	right: 3px;
+	border-radius: 50%;
+	background-color: var(--jetpack--contact-form--border-color, #333 );
 }
 
 @media not (prefers-reduced-motion) {
@@ -260,6 +315,13 @@
 .jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__progress-bar {
 	animation: none;
 	opacity: 0;
+	--progress: 100;
+}
+
+.jetpack-form-file-field__preview.is-error .has-icon .jetpack-form-file-field__progress-bar,
+.jetpack-form-file-field__preview.is-complete .has-icon .jetpack-form-file-field__progress-bar {
+	background: var(--jetpack--contact-form--border-color, #333 );
+	opacity: 1;
 }
 
 .jetpack-form-file-field__file-info {
@@ -297,9 +359,9 @@
 		opacity:.5;
 	}
 
-	100% { 
+	100% {
 		transform: translate3d(0,0,0) scale(1);
-		opacity:1; 
+		opacity:1;
 	}
 }
 
@@ -318,11 +380,11 @@
 
 @keyframes jpSpin {
 
-    from { 
-		transform: rotate(0deg); 
+    from {
+		transform: rotate(0deg);
 	}
 
-    to { 
+    to {
 		transform: rotate(360deg);
 	}
 }

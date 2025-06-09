@@ -1,7 +1,7 @@
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { config } from '../';
+import { useNavigate } from 'react-router-dom';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import GoogleSheetsIcon from '../../icons/google-sheets';
 import type { IntegrationCardProps } from './types';
@@ -14,8 +14,7 @@ const GoogleSheetsDashboardCard = ( {
 }: IntegrationCardProps ) => {
 	const isConnected = !! data?.isConnected;
 	const settingsUrl = data?.settingsUrl;
-	const FORM_RESPONSES_URL =
-		config( 'dashboardURL' ) || '/wp-admin/admin.php?page=jetpack-forms-admin';
+	const navigate = useNavigate();
 
 	const cardData = {
 		...data,
@@ -31,6 +30,10 @@ const GoogleSheetsDashboardCard = ( {
 		if ( ! settingsUrl ) return;
 		window.open( settingsUrl, '_blank', 'noopener,noreferrer' );
 	}, [ settingsUrl ] );
+
+	const handleViewResponsesClick = useCallback( () => {
+		navigate( '/responses' );
+	}, [ navigate ] );
 
 	return (
 		<IntegrationCard
@@ -75,12 +78,7 @@ const GoogleSheetsDashboardCard = ( {
 						) }
 					</p>
 					<div className="integration-card__links">
-						<Button
-							variant="link"
-							href={ FORM_RESPONSES_URL }
-							target="_blank"
-							rel="noopener noreferrer"
-						>
+						<Button variant="link" onClick={ handleViewResponsesClick }>
 							{ __( 'View Form Responses', 'jetpack-forms' ) }
 						</Button>
 					</div>
