@@ -7,7 +7,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import type { Integration } from '../../../../../dashboard/integrations/types';
+import type { Integration } from '../../../../../types';
 
 type IntegrationsStatusReturn = {
 	isLoading: boolean;
