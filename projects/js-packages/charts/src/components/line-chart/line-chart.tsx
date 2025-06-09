@@ -1,23 +1,89 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
-import { XYChart, AreaSeries, Tooltip, Grid, Axis } from '@visx/xychart';
+import { XYChart, AreaSeries, Tooltip, Grid, Axis, DataContext } from '@visx/xychart';
 import clsx from 'clsx';
-import { useId, useMemo } from 'react';
+import { useId, useMemo, useContext } from 'react';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { parseAsLocalDate } from '../shared/date-parsing';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
-import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
+import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
 import type { TickFormatter } from '@visx/axis';
+import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode } from 'react';
 
 type CurveType = 'smooth' | 'linear' | 'monotone';
 
 const X_TICK_WIDTH = 100;
+
+export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datum > & {
+	glyphStyle?: React.SVGProps< SVGCircleElement >;
+};
+
+const DefaultGlyph = < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => {
+	const { theme } = useContext( DataContext ) || {};
+
+	return (
+		<circle
+			cx={ props.x }
+			cy={ props.y }
+			r={ props.size }
+			fill={ props.color }
+			stroke={ theme?.backgroundColor }
+			strokeWidth={ 1.5 }
+			paintOrder="fill"
+			data-testid={ `start-glyph-${ props.index }` }
+			{ ...props.glyphStyle }
+		/>
+	);
+};
+
+const defaultRenderGlyph = < Datum extends object >(
+	props: RenderLineStartGlyphProps< Datum >
+) => {
+	return <DefaultGlyph { ...props } key={ props.key } />;
+};
+
+const StartGlyph: FC< {
+	data: SeriesData;
+	index: number;
+	color: string;
+	renderGlyph: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
+	accessors: {
+		xAccessor: ( d: DataPointDate | DataPoint ) => Date;
+		yAccessor: ( d: DataPointDate | DataPoint ) => number | null;
+	};
+	glyphStyle?: React.SVGProps< SVGCircleElement >;
+} > = ( { data, index, color, glyphStyle, renderGlyph, accessors } ) => {
+	const { xScale, yScale } = useContext( DataContext ) || {};
+	if ( ! xScale || ! yScale ) return null;
+
+	if ( data.data.length === 0 ) return null;
+
+	const firstPoint = data.data[ 0 ];
+
+	const x = xScale( accessors.xAccessor( firstPoint ) );
+	const y = yScale( accessors.yAccessor( firstPoint ) );
+
+	if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
+
+	const size = Number( glyphStyle?.radius ) || 4;
+
+	return renderGlyph( {
+		key: `start-glyph-${ data.label }`,
+		index,
+		datum: firstPoint,
+		color,
+		size,
+		x,
+		y,
+		glyphStyle,
+	} );
+};
 
 /**
  * Determines the curve type for the line chart based on the provided type and smoothing parameters
@@ -50,6 +116,7 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	smoothing?: boolean;
 	curveType?: CurveType;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+	withStartGlyphs?: boolean;
 }
 
 type TooltipDatum = {
@@ -132,6 +199,7 @@ const LineChart: FC< LineChartProps > = ( {
 	smoothing = true,
 	curveType,
 	renderTooltip = renderDefaultTooltip,
+	withStartGlyphs = false,
 	options = {},
 	onPointerDown = undefined,
 	onPointerUp = undefined,
@@ -240,6 +308,16 @@ const LineChart: FC< LineChartProps > = ( {
 						{};
 					return (
 						<g key={ seriesData?.label || index }>
+							{ withStartGlyphs && (
+								<StartGlyph
+									index={ index }
+									data={ seriesData }
+									color={ stroke }
+									renderGlyph={ defaultRenderGlyph }
+									accessors={ accessors }
+								/>
+							) }
+
 							{ withGradientFill && (
 								<LinearGradient
 									id={ `area-gradient-${ chartId }-${ index + 1 }` }
