@@ -11,7 +11,7 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
-import { showBackups } from 'state/initial-state'; // change
+import { showBackups } from 'state/initial-state';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,

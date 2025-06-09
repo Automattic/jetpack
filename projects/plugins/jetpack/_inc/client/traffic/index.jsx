@@ -10,7 +10,7 @@ import {
 	isUnavailableInOfflineMode,
 	hasConnectedOwner,
 } from 'state/connection';
-import { getLastPostUrl, currentThemeIsBlockTheme, getSiteId } from 'state/initial-state'; /// change.
+import { getLastPostUrl, currentThemeIsBlockTheme, getSiteId } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
