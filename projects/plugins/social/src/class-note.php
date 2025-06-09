@@ -44,7 +44,6 @@ class Note {
 					return $allowed_blocks;
 				}
 			);
-
 		}
 
 		self::register_cpt();
