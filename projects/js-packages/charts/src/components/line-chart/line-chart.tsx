@@ -366,8 +366,8 @@ const LineChart: FC< LineChartProps > = ( {
 					className={ styles[ 'line-chart-legend' ] }
 					shape={ legendShape }
 					renderGlyph={ withLegendGlyph ? renderGlyph : undefined }
-					shapeWidth={ glyphStyle?.radius || 8 }
-					shapeHeight={ glyphStyle?.radius || 8 }
+					shapeWidth={ glyphStyle?.radius }
+					shapeHeight={ glyphStyle?.radius }
 				/>
 			) }
 		</div>
