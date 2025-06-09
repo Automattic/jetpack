@@ -60,8 +60,10 @@ const LaunchSite = ( {
 				className="button-secondary"
 				style={ { marginTop: '0.5em' } }
 				href={ launchUrl }
-				onClick={ () => {
+				onClick={ e => {
+					e.preventDefault();
 					wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
+					window.location.href = launchUrl;
 				} }
 			>
 				{ __( 'Launch site', 'jetpack-mu-wpcom' ) }
