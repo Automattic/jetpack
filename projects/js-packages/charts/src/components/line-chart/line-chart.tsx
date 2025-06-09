@@ -52,15 +52,13 @@ const StartGlyph: FC< {
 	data: SeriesData;
 	index: number;
 	color: string;
-	renderStartGlyph: < Datum extends object >(
-		props: RenderLineStartGlyphProps< Datum >
-	) => ReactNode;
+	renderGlyph: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
 	accessors: {
 		xAccessor: ( d: DataPointDate | DataPoint ) => Date;
 		yAccessor: ( d: DataPointDate | DataPoint ) => number | null;
 	};
 	glyphStyle?: React.SVGProps< SVGCircleElement >;
-} > = ( { data, index, color, glyphStyle, renderStartGlyph, accessors } ) => {
+} > = ( { data, index, color, glyphStyle, renderGlyph, accessors } ) => {
 	const { xScale, yScale } = useContext( DataContext ) || {};
 	if ( ! xScale || ! yScale ) return null;
 
@@ -75,7 +73,7 @@ const StartGlyph: FC< {
 
 	const size = Number( glyphStyle?.radius ) || 4;
 
-	return renderStartGlyph( {
+	return renderGlyph( {
 		key: `start-glyph-${ data.label }`,
 		index,
 		datum: firstPoint,
@@ -315,7 +313,7 @@ const LineChart: FC< LineChartProps > = ( {
 									index={ index }
 									data={ seriesData }
 									color={ stroke }
-									renderStartGlyph={ defaultRenderGlyph }
+									renderGlyph={ defaultRenderGlyph }
 									accessors={ accessors }
 								/>
 							) }
