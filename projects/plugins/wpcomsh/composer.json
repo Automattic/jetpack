@@ -11,17 +11,17 @@
 		"automattic/text-media-widget-styles": "^2.0",
 		"automattic/wc-calypso-bridge": "2.10.4",
 		"wordpress/classic-editor-plugin": "1.6.7",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-post-list": "@dev",
-		"automattic/jetpack-mu-wpcom": "@dev",
+		"automattic/jetpack-autoloader": "^5.0.7",
+		"automattic/jetpack-composer-plugin": "^4.0.5",
+		"automattic/jetpack-config": "^3.1.0",
+		"automattic/jetpack-post-list": "^0.8.18",
+		"automattic/jetpack-mu-wpcom": "^6.6.0",
 		"tubalmartin/cssmin": "^4.1"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-changelogger": "^6.0.5",
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/phpunit-select-config": "^1.0.3"
 	},
 	"autoload": {
 		"classmap": [
@@ -62,13 +62,6 @@
 		]
 	},
 	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		},
 		{
 			"name": "automattic/custom-fonts",
 			"type": "vcs",
