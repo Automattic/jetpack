@@ -163,8 +163,13 @@ export const FixedDimensions: Story = {
 export const WithPatterns: Story = {
 	args: {
 		...Default.args,
-		data: largeValuesData,
 		withPatterns: true,
+		data: data.map( country => {
+			return {
+				...country,
+				data: country.data.filter( d => parseInt( d.label ) >= 2016 ),
+			};
+		} ),
 	},
 };
 
