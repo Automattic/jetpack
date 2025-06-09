@@ -155,7 +155,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 			return;
 		}
 
-		$slug       = 'edit.php?post_type=' . $post_type;
+		$slug       = 'admin.php?page=jetpack-forms';
 		$name       = __( 'Feedback', 'jetpack-masterbar' );
 		$capability = $ptype_obj->cap->edit_posts;
 		$icon       = $ptype_obj->menu_icon;
