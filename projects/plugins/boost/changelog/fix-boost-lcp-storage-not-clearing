@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: LCP: Unreleased feature update. Fix storage data persisting after clear.
+
+
