@@ -159,8 +159,7 @@ class LCP_Optimization_Util {
 		$lcp_src   = $element->get_attribute( 'src' );
 
 		// Perform a quick check to see if the class is present in the HTML.
-		$html = $html_processor->get_updated_html();
-		if ( ! empty( $lcp_class ) && ! str_contains( $html, $lcp_class ) ) {
+		if ( ! empty( $lcp_class ) && ! str_contains( $buffer, $lcp_class ) ) {
 			return false;
 		}
 
