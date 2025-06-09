@@ -37,19 +37,6 @@ function filter_get_download_url( $url, $file_id ) {
  * @return never This method never returns as it exits directly
  */
 function handle_file_download() {
-	/**
-	 * Check if the file is availabe for download.
-	 *
-	 * @since 14.6
-	 *
-	 * @param array $data The script data.
-	 */
-	$blocks_variation = apply_filters( 'jetpack_blocks_variation', \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' ) );
-
-	if ( apply_filters( 'jetpack_unauth_file_download_available', $blocks_variation !== 'beta' ) ) {
-		wp_die( esc_html__( 'File download is not available.', 'jetpack' ) );
-	}
-
 	if ( ! current_user_can( 'edit_pages' ) ) {
 		wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack' ) );
 	}

@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate } from 'react-router-dom';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import GoogleSheetsIcon from '../../icons/google-sheets';
-import type { IntegrationCardProps } from './types';
+import type { IntegrationCardProps } from '../../types';
 
 const GoogleSheetsDashboardCard = ( {
 	isExpanded,

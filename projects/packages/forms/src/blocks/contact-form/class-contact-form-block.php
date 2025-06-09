@@ -318,6 +318,28 @@ class Contact_Form_Block {
 			)
 		);
 
+		Blocks::jetpack_register_block(
+			'jetpack/field-file',
+			array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				'plan_check'       => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/dropzone',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_dropzone' ),
+			)
+		);
+
+		// Paid file field block
+		add_action(
+			'jetpack_register_gutenberg_extensions',
+			array( __CLASS__, 'set_file_field_extension_available' )
+		);
+
 		/**
 		 * The blocks 'jetpack/field-checkbox-multiple' and 'jetpack/field-radio' are wrapper blocks.
 		 * Styles must be registered so that they are available to be overridden by the theme or global styles.
@@ -340,37 +362,6 @@ class Contact_Form_Block {
 				'name'  => 'button',
 				'label' => __( 'Button', 'jetpack-forms' ),
 			)
-		);
-
-		$blocks_variation = apply_filters( 'jetpack_blocks_variation', \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' ) );
-		if ( 'beta' === $blocks_variation ) {
-			self::register_beta_blocks();
-		}
-	}
-
-	/**
-	 * Register beta blocks
-	 */
-	private static function register_beta_blocks() {
-		Blocks::jetpack_register_block(
-			'jetpack/field-file',
-			array(
-				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
-				'provides_context' => array( 'jetpack/field-required' => 'required' ),
-				'plan_check'       => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
-			)
-		);
-
-		Blocks::jetpack_register_block(
-			'jetpack/dropzone',
-			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_dropzone' ),
-			)
-		);
-
-		add_action(
-			'jetpack_register_gutenberg_extensions',
-			array( __CLASS__, 'set_file_field_extension_available' )
 		);
 	}
 

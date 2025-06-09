@@ -1,3 +1,5 @@
+@use "sass:meta";
+
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -170,4 +172,4 @@ i.alternate {
 
   // pull in modal css
   /* stylelint-disable-next-line no-invalid-position-at-import-rule -- this is an intentional override */
-  @import 'JetpackCRM.admin.modals';
+  @include meta.load-css('JetpackCRM.admin.modals');

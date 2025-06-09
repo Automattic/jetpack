@@ -12,7 +12,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/block-delimiter",
-				"reference": "f12ed0cec5190658d2a04b218c7dece88bec3b45"
+				"reference": "bdd9e130163756cc3fe6255e6758754bd067fe7f"
 			},
 			"require": {
 				"php": ">=7.2"
@@ -29,7 +29,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.1.x-dev"
+					"dev-trunk": "0.2.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/block-delimiter/compare/v${old}...v${new}"
@@ -1415,7 +1415,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "c010918da0d8c6d10dfd71419156771efffdc61a"
+				"reference": "f01d585f34b9d2d8faad1f6ca5005b4c9dec1623"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1446,7 +1446,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "1.1.x-dev"
+					"dev-trunk": "1.2.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -2612,7 +2612,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/search",
-				"reference": "2fe3d1a287d6e83b4be2b74149449635f5bc0837"
+				"reference": "6b541ca53f442b3751fa6a3094f498f6c5b9cb68"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2642,7 +2642,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.51.x-dev"
+					"dev-trunk": "0.52.x-dev"
 				},
 				"version-constants": {
 					"::VERSION": "src/class-package.php"
