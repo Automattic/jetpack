@@ -57,7 +57,7 @@ const LaunchSite = ( {
 					  ) }
 			</p>
 			<Button
-				variant="primary"
+				variant="secondary"
 				style={ { marginTop: '0.5em' } }
 				onClick={ () => {
 					wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
