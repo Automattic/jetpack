@@ -1,7 +1,7 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -37,8 +37,7 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
-// Pattern configurations for each series
-const getPatternId = ( index: number ) => `bar-pattern-${ index }`;
+const getPatternId = ( chartId: string, index: number ) => `bar-pattern-${ chartId }-${ index }`;
 
 const BarChart: FC< BarChartProps > = ( {
 	data,
@@ -57,38 +56,12 @@ const BarChart: FC< BarChartProps > = ( {
 	withPatterns = false,
 } ) => {
 	const horizontal = orientation === 'horizontal';
+	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
+	const chartId = useMemo( () => crypto.randomUUID(), [] );
 	const theme = useXYChartTheme( data );
 	const chartOptions = useBarChartOptions( data, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
-
-	const renderPattern = useCallback( ( index: number, color: string ) => {
-		const patternType = index % 4;
-		const commonProps = {
-			id: getPatternId( index ),
-			stroke: color,
-			strokeWidth: 1,
-		};
-
-		switch ( patternType ) {
-			case 0:
-			default:
-				return (
-					<PatternLines
-						{ ...commonProps }
-						width={ 6 }
-						height={ 6 }
-						orientation={ [ 'diagonal' ] }
-					/>
-				);
-			case 1:
-				return <PatternCircles { ...commonProps } width={ 6 } height={ 6 } fill={ color } />;
-			case 2:
-				return <PatternWaves { ...commonProps } width={ 6 } height={ 6 } />;
-			case 3:
-				return <PatternHexagons { ...commonProps } size={ 6 } height={ 3 } />;
-		}
-	}, [] );
 
 	const getColor = useCallback(
 		( seriesData: SeriesData, index: number ) =>
@@ -96,11 +69,10 @@ const BarChart: FC< BarChartProps > = ( {
 		[ theme ]
 	);
 
-	// Create color accessor function that returns the appropriate color for each series
-	const createColorAccessor = useCallback(
+	const getBarBackground = useCallback(
 		( index: number ) => () =>
-			withPatterns ? `url(#${ getPatternId( index ) })` : getColor( data[ index ], index ),
-		[ withPatterns, getColor, data ]
+			withPatterns ? `url(#${ getPatternId( chartId, index ) })` : getColor( data[ index ], index ),
+		[ withPatterns, getColor, data, chartId ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -128,6 +100,37 @@ const BarChart: FC< BarChartProps > = ( {
 			);
 		},
 		[ chartOptions.tooltip ]
+	);
+
+	const renderPattern = useCallback(
+		( index: number, color: string ) => {
+			const patternType = index % 4;
+			const commonProps = {
+				id: getPatternId( chartId, index ),
+				stroke: color,
+				strokeWidth: 1,
+			};
+
+			switch ( patternType ) {
+				case 0:
+				default:
+					return (
+						<PatternLines
+							{ ...commonProps }
+							width={ 5 }
+							height={ 5 }
+							orientation={ [ 'diagonal' ] }
+						/>
+					);
+				case 1:
+					return <PatternCircles { ...commonProps } width={ 6 } height={ 6 } fill={ color } />;
+				case 2:
+					return <PatternWaves { ...commonProps } width={ 4 } height={ 4 } />;
+				case 3:
+					return <PatternHexagons { ...commonProps } size={ 8 } height={ 3 } />;
+			}
+		},
+		[ chartId ]
 	);
 
 	// Validate data using the same pattern as LineChart
@@ -190,7 +193,7 @@ const BarChart: FC< BarChartProps > = ( {
 								data={ seriesData.data as DataPointDate[] }
 								yAccessor={ chartOptions.accessors.yAccessor }
 								xAccessor={ chartOptions.accessors.xAccessor }
-								colorAccessor={ createColorAccessor( index ) }
+								colorAccessor={ getBarBackground( index ) }
 							/>
 						);
 					} ) }
