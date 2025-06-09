@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-number';
 const settings = {
 	...defaultSettings,
-	title: __( 'Number Input Field', 'jetpack-forms' ),
+	title: __( 'Number input field', 'jetpack-forms' ),
 	description: __( 'Collect numbers from site visitors.', 'jetpack-forms' ),
 	icon: renderMaterialIcon(
 		<Path

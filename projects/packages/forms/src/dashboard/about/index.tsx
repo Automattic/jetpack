@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getRedirectUrl, JetpackIcon } from '@automattic/jetpack-components';
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { isSimpleSite, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -97,6 +97,7 @@ const About = () => {
 	);
 
 	const isWpcomSite = isWpcomPlatformSite();
+	const isSimple = isSimpleSite();
 
 	return (
 		<div className="jp-forms__about">
@@ -199,6 +200,26 @@ const About = () => {
 					<Details summary={ __( 'Is there a form responses limit?', 'jetpack-forms' ) }>
 						{ __( 'No.', 'jetpack-forms' ) }
 					</Details>
+					{ ! isSimple && (
+						<Details
+							summary={ __( 'Can I change Forms functionality via code?', 'jetpack-forms' ) }
+						>
+							{ createInterpolateElement(
+								__(
+									'Yes! You can change several aspects of Forms by using <filtersDocs>WordPress filters</filtersDocs>. Please see our <devDocs>developer documentation</devDocs> for full list of available filters and details.',
+									'jetpack-forms'
+								),
+								{
+									filtersDocs: (
+										<ExternalLink href="https://developer.wordpress.org/plugins/hooks/filters/" />
+									),
+									devDocs: (
+										<ExternalLink href={ getRedirectUrl( 'jetpack-developer-docs-forms' ) } />
+									),
+								}
+							) }
+						</Details>
+					) }
 					<Details summary={ __( 'What if I would need some help?', 'jetpack-forms' ) }>
 						{ createInterpolateElement(
 							__(
@@ -207,7 +228,7 @@ const About = () => {
 							),
 							{
 								a: isWpcomSite ? (
-									<a href={ getRedirectUrl( 'wpcom-contact-support' ) } />
+									<a href={ getRedirectUrl( 'jetpack-contact-support' ) } />
 								) : (
 									<ExternalLink href={ getRedirectUrl( 'jetpack-contact-support' ) } />
 								),

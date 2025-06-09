@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-select';
 const settings = {
 	...defaultSettings,
-	title: __( 'Dropdown Field', 'jetpack-forms' ),
+	title: __( 'Dropdown field', 'jetpack-forms' ),
 	keywords: [
 		__( 'Choose', 'jetpack-forms' ),
 		__( 'Dropdown', 'jetpack-forms' ),

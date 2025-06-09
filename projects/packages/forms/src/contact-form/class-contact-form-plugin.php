@@ -2228,13 +2228,13 @@ class Contact_Form_Plugin {
 		if ( ! empty( $post_data['post'] ) && $post_data['post'] !== 'all' ) {
 			$filename = sprintf(
 				'%s - %s.csv',
-				Admin::init()->get_export_filename( get_the_title( (int) $post_data['post'] ) ),
+				Util::get_export_filename( get_the_title( (int) $post_data['post'] ) ),
 				gmdate( 'Y-m-d H:i' )
 			);
 		} else {
 			$filename = sprintf(
 				'%s - %s.csv',
-				Admin::init()->get_export_filename(),
+				Util::get_export_filename(),
 				gmdate( 'Y-m-d H:i' )
 			);
 		}

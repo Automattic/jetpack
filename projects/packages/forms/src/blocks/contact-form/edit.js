@@ -155,7 +155,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							{ __( 'Customize the view after form submission:', 'jetpack-forms' ) }
 						</InspectorHint>
 						<SelectControl
-							label={ __( 'On Submission', 'jetpack-forms' ) }
+							label={ __( 'On submission', 'jetpack-forms' ) }
 							value={ customThankyou }
 							options={ [
 								{ label: __( 'Show a summary of submitted fields', 'jetpack-forms' ), value: '' },
@@ -172,7 +172,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 						{ 'redirect' !== customThankyou && (
 							<TextControl
-								label={ __( 'Message Heading', 'jetpack-forms' ) }
+								label={ __( 'Message heading', 'jetpack-forms' ) }
 								value={ customThankyouHeading }
 								placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
 								onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
@@ -183,7 +183,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 						{ 'message' === customThankyou && (
 							<TextareaControl
-								label={ __( 'Message Text', 'jetpack-forms' ) }
+								label={ __( 'Message text', 'jetpack-forms' ) }
 								value={ customThankyouMessage }
 								placeholder={ __( 'Thank you for your submission!', 'jetpack-forms' ) }
 								onChange={ newMessage => setAttributes( { customThankyouMessage: newMessage } ) }
@@ -194,7 +194,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						{ 'redirect' === customThankyou && (
 							<div>
 								<URLInput
-									label={ __( 'Redirect Address', 'jetpack-forms' ) }
+									label={ __( 'Redirect address', 'jetpack-forms' ) }
 									value={ customThankyouRedirect }
 									className="jetpack-contact-form__thankyou-redirect-url"
 									onChange={ newURL => setAttributes( { customThankyouRedirect: newURL } ) }
