@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tests: Ensure method param count matches PHPUnit data providers.
