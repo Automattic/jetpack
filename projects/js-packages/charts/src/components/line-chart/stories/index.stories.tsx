@@ -1,44 +1,10 @@
-import { GlyphDiamond, GlyphStar } from '@visx/glyph';
+import { GlyphStar } from '@visx/glyph';
 import React from 'react';
-import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
-import { DefaultGlyph } from '../../shared/default-glyph';
 import LineChart from '../line-chart';
 import largeValuesData from './large-values-sample';
 import sampleData from './sample-data';
 import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
-
-const customStorybookTheme = {
-	...jetpackTheme,
-	glyphs: [
-		props => React.createElement( DefaultGlyph, { ...props, key: props.key } ),
-		props =>
-			React.createElement( GlyphStar, {
-				...props,
-				key: props.key,
-				top: props.y,
-				left: props.x,
-				size: props.size * props.size,
-				fill: props.color,
-			} ),
-		props =>
-			React.createElement( GlyphDiamond, {
-				...props,
-				key: props.key,
-				top: props.y,
-				left: props.x,
-				size: props.size * props.size,
-				fill: props.color,
-			} ),
-	],
-};
-
-const THEME_MAP = {
-	default: undefined,
-	jetpack: jetpackTheme,
-	woo: wooTheme,
-	customStorybook: customStorybookTheme,
-};
 
 const meta: Meta< typeof LineChart > = {
 	title: 'JS Packages/Charts/Types/Line Chart',
@@ -47,35 +13,22 @@ const meta: Meta< typeof LineChart > = {
 		layout: 'centered',
 	},
 	decorators: [
-		( Story, { args } ) => {
-			const theme = THEME_MAP[ args.themeName ];
-
-			return (
-				<ThemeProvider theme={ theme }>
-					<div
-						style={ {
-							resize: 'both',
-							overflow: 'auto',
-							padding: '2rem',
-							width: '800px',
-							maxWidth: '1200px',
-							border: '1px dashed #ccc',
-							display: 'inline-block',
-						} }
-					>
-						<Story />
-					</div>
-				</ThemeProvider>
-			);
-		},
+		Story => (
+			<div
+				style={ {
+					resize: 'both',
+					overflow: 'auto',
+					padding: '2rem',
+					width: '800px',
+					maxWidth: '1200px',
+					border: '1px dashed #ccc',
+					display: 'inline-block',
+				} }
+			>
+				<Story />
+			</div>
+		),
 	],
-	argTypes: {
-		themeName: {
-			control: 'select',
-			options: [ 'default', 'jetpack', 'woo', 'customStorybook' ],
-			defaultValue: 'default',
-		},
-	},
 };
 
 export default meta;
@@ -467,18 +420,6 @@ WithCustomSvgGlyph.args = {
 	renderGlyph: ( { color, size, x, y } ) => (
 		<CustomStarGlyph color={ color } size={ size } x={ x } y={ y } />
 	),
-	glyphStyle: {
-		radius: 8,
-	},
-};
-
-export const WithCustomGlyphsPerDataPoint: StoryObj< typeof LineChart > = Template.bind( {} );
-WithCustomGlyphsPerDataPoint.args = {
-	...Default.args,
-	showLegend: true,
-	withStartGlyphs: true,
-	withLegendGlyph: true,
-	themeName: 'customStorybook',
 	glyphStyle: {
 		radius: 8,
 	},
