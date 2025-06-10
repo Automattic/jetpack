@@ -3,13 +3,14 @@ import { validateField } from '../../contact-form/js/validate-helper';
 
 const NAMESPACE = 'jetpack/form';
 
-const updateField = ( fieldId, value ) => {
+const updateField = ( fieldId, value, showFieldError = false ) => {
 	const context = getContext();
 	const field = context.fields[ fieldId ];
 	const { type, isRequired, extra } = field;
 	if ( field ) {
 		field.value = value;
 		field.error = validateField( type, value, isRequired, extra );
+		field.showFieldError = showFieldError;
 	}
 };
 
@@ -22,8 +23,8 @@ const registerField = (
 	extra = null
 ) => {
 	const context = getContext();
+
 	if ( ! context.fields[ fieldId ] ) {
-		// console.log( 'registerField', fieldId, type, label, value, isRequired, extra );
 		context.fields[ fieldId ] = {
 			id: fieldId,
 			type,
@@ -32,6 +33,7 @@ const registerField = (
 			isRequired,
 			extra,
 			error: validateField( type, value, isRequired, extra ),
+			step: context?.step ? context.step : 1,
 		};
 	}
 };
@@ -58,7 +60,7 @@ const { state } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
 
-			return context.showErrors && field.error && field.error !== 'yes';
+			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
 		},
 
 		get isEmptyForm() {
@@ -81,7 +83,7 @@ const { state } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
 
-			if ( ! context.showErrors || ! field.error ) {
+			if ( ! ( context.showErrors || field.showFieldError ) || ! field.error ) {
 				return '';
 			}
 
@@ -187,7 +189,7 @@ const { state } = store( NAMESPACE, {
 
 		handleBlurField: withSyncEvent( event => {
 			const context = getContext();
-			updateField( context.fieldId, event.target.value );
+			updateField( context.fieldId, event.target.value, true );
 		} ),
 
 		formSubmit: withSyncEvent( event => {
