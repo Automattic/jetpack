@@ -67,8 +67,20 @@ class LCP_Optimize_Img_Tag {
 		$buffer_processor->set_attribute( 'data-jp-lcp-optimized', 'true' );
 
 		$image_url = $buffer_processor->get_attribute( 'src' );
+		// Validate URL syntax using WordPress function
+		if ( ! wp_http_validate_url( $image_url ) ) {
+			return $buffer_processor->get_updated_html();
+		}
 
-		$buffer_processor->set_attribute( 'src', Image_CDN_Core::cdn_url( $image_url ) );
+		// Remove unwanted query parameters that would be used unnecessarily by Photon.
+		$clean_url = remove_query_arg( array( 'resize', 'w', 'h' ), $image_url );
+
+		// Additional validation after cleaning
+		if ( ! wp_http_validate_url( $clean_url ) ) {
+			return $buffer_processor->get_updated_html();
+		}
+
+		$buffer_processor->set_attribute( 'src', Image_CDN_Core::cdn_url( $clean_url ) );
 
 		$this->add_responsive_image_attributes( $buffer_processor, $image_url );
 
