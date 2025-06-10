@@ -42,7 +42,7 @@ const DefaultGlyph = < Datum extends object >( props: RenderLineStartGlyphProps<
 	);
 };
 
-export const defaultRenderGlyph = < Datum extends object >(
+const defaultRenderGlyph = < Datum extends object >(
 	props: RenderLineStartGlyphProps< Datum >
 ) => {
 	return <DefaultGlyph { ...props } key={ props.key } />;
