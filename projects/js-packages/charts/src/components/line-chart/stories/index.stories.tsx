@@ -28,7 +28,30 @@ const meta: Meta< typeof LineChart > = {
 			</div>
 		),
 	],
-};
+	argTypes: {
+		maxWidth: {
+			control: {
+				type: 'number',
+				min: 100,
+				max: 1200,
+			},
+		},
+		aspectRatio: {
+			control: {
+				type: 'number',
+				min: 0,
+				max: 1,
+			},
+		},
+		resizeDebounceTime: {
+			control: {
+				type: 'number',
+				min: 0,
+				max: 10000,
+			},
+		},
+	},
+} satisfies Meta< typeof LineChart >;
 
 export default meta;
 
@@ -42,6 +65,9 @@ Default.args = {
 	legendOrientation: 'horizontal',
 	withGradientFill: false,
 	smoothing: true,
+	maxWidth: 1200,
+	aspectRatio: 0.5,
+	resizeDebounceTime: 300,
 	options: {
 		axis: {
 			x: {

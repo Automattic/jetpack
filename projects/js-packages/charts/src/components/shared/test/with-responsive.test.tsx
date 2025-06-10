@@ -18,15 +18,15 @@ describe( 'withResponsive', () => {
 	} );
 
 	test( 'respects maxWidth configuration', () => {
-		const ResponsiveWithConfig = withResponsive( MockComponent, { maxWidth: 400 } );
-		render( <ResponsiveWithConfig data={ [] } /> );
+		const ResponsiveWithConfig = withResponsive( MockComponent );
+		render( <ResponsiveWithConfig data={ [] } maxWidth={ 400 } /> );
 		const component = screen.getByTestId( 'mock-component' );
 		expect( component ).toHaveStyle( { width: '400px' } );
 	} );
 
 	test( 'applies custom aspect ratio', () => {
-		const ResponsiveWithConfig = withResponsive( MockComponent, { aspectRatio: 0.75 } );
-		render( <ResponsiveWithConfig data={ [] } /> );
+		const ResponsiveWithConfig = withResponsive( MockComponent );
+		render( <ResponsiveWithConfig data={ [] } aspectRatio={ 0.75 } /> );
 		const component = screen.getByTestId( 'mock-component' );
 		const styles = window.getComputedStyle( component );
 		const height = parseFloat( styles.height );
@@ -35,8 +35,8 @@ describe( 'withResponsive', () => {
 	} );
 
 	test( 'applies custom debounce time', () => {
-		const ResponsiveWithConfig = withResponsive( MockComponent, { debounceTime: 100 } );
-		render( <ResponsiveWithConfig data={ [] } /> );
+		const ResponsiveWithConfig = withResponsive( MockComponent );
+		render( <ResponsiveWithConfig data={ [] } resizeDebounceTime={ 100 } /> );
 		const component = screen.getByTestId( 'mock-component' );
 		expect( component ).toBeInTheDocument();
 	} );
