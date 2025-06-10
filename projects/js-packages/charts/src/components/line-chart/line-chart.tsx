@@ -7,6 +7,7 @@ import { useId, useMemo, useContext } from 'react';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { parseAsLocalDate } from '../shared/date-parsing';
+import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
@@ -251,6 +252,16 @@ const LineChart: FC< LineChartProps > = ( {
 		};
 	}, [ options, dataSorted, width ] );
 
+	const tooltipRenderGlyph = useMemo( () => {
+		return ( props: GlyphProps< DataPointDate > ) => {
+			const seriesIndex = dataSorted.findIndex(
+				series => series.label === props.key || series.data.includes( props.datum as DataPointDate )
+			);
+			const themeGlyph = providerTheme.glyphs?.[ seriesIndex ];
+			return themeGlyph ? themeGlyph( props ) : renderGlyph( props );
+		};
+	}, [ dataSorted, providerTheme.glyphs, renderGlyph ] );
+
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
 	const error = validateData( dataSorted );
@@ -265,7 +276,7 @@ const LineChart: FC< LineChartProps > = ( {
 		color: group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
 		shapeStyle:
 			group?.options?.legendShapeStyle ?? providerTheme.legendShapeStyles?.[ index ] ?? {},
-		renderGlyph: withLegendGlyph ? renderGlyph : undefined,
+		renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
 		glyphSize: Number( glyphStyle?.radius ),
 	} ) );
 
@@ -312,7 +323,7 @@ const LineChart: FC< LineChartProps > = ( {
 									index={ index }
 									data={ seriesData }
 									color={ stroke }
-									renderGlyph={ renderGlyph }
+									renderGlyph={ providerTheme.glyphs?.[ index ] ?? renderGlyph }
 									accessors={ accessors }
 									glyphStyle={ glyphStyle }
 								/>
@@ -354,7 +365,7 @@ const LineChart: FC< LineChartProps > = ( {
 						snapTooltipToDatumY
 						showSeriesGlyphs
 						renderTooltip={ renderTooltip }
-						renderGlyph={ renderGlyph }
+						renderGlyph={ tooltipRenderGlyph }
 						glyphStyle={ glyphStyle }
 					/>
 				) }
