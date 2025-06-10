@@ -3,13 +3,13 @@
  * https://jetpackcrm.com
  */
 // Daterangepicker styles
-@import 'daterangepicker/daterangepicker';
+@use 'daterangepicker/daterangepicker';
 
 // Daterangepicker fix
-@import '../../../sass/daterangepicker.fix';
+@use '../../../sass/daterangepicker.fix' as daterangepicker2;
 
 // Daterangepicker dirty fix
-@import '../../../sass/daterangepicker.dirty.fix';
+@use '../../../sass/daterangepicker.dirty.fix' as daterangepicker3;
 
  .zbs-invoice-list{
 

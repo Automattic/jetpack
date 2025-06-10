@@ -28,6 +28,8 @@ class Dashboard {
 	 */
 	const SCRIPT_HANDLE = 'jp-forms-dashboard';
 
+	const ADMIN_SLUG = 'jetpack-forms-admin';
+
 	/**
 	 * Priority for the dashboard menu.
 	 * Needs to be high enough for us to be able to unregister the default edit.php menu item.
@@ -70,6 +72,11 @@ class Dashboard {
 		add_action( 'admin_menu', array( $this, 'add_new_admin_submenu' ), self::MENU_PRIORITY );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+
+		// Removed all admin notices on the Jetpack Forms admin page.
+		if ( isset( $_GET['page'] ) && $_GET['page'] === self::ADMIN_SLUG ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			remove_all_actions( 'admin_notices' );
+		}
 
 		$this->switch->init();
 	}
@@ -179,7 +186,7 @@ class Dashboard {
 			__( 'Jetpack Forms', 'jetpack-forms' ),
 			_x( 'Forms', 'submenu title for Jetpack Forms', 'jetpack-forms' ),
 			'edit_pages',
-			'jetpack-forms-admin',
+			self::ADMIN_SLUG,
 			array( $this, 'render_new_dashboard' ),
 			10
 		);

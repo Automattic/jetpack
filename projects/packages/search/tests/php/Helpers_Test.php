@@ -515,12 +515,11 @@ class Helpers_Test extends TestCase {
 	 * @param mixed $expected - Expected value.
 	 * @param mixed $old_value - Old value.
 	 * @param mixed $new_value - New value.
-	 * @param mixed $widgets - Widgets.
 	 *
 	 * @dataProvider get_widget_tracks_value_data
 	 */
 	#[DataProvider( 'get_widget_tracks_value_data' )]
-	public function test_get_widget_tracks_value( $expected, $old_value, $new_value, $widgets = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function test_get_widget_tracks_value( $expected, $old_value, $new_value ) {
 		$this->assertSame( $expected, Helper::get_widget_tracks_value( $old_value, $new_value ) );
 	}
 
@@ -975,9 +974,6 @@ class Helpers_Test extends TestCase {
 					'2'            => static::get_sample_widget_instance( 2 ),
 					'_multiwidget' => 1,
 				),
-				array(
-					'_multiwidget' => 1,
-				),
 			),
 			'multiple_widgets_filter_added'      => array(
 				array(
@@ -1002,9 +998,6 @@ class Helpers_Test extends TestCase {
 					'2'            => static::get_sample_widget_instance( 2 ),
 					'_multiwidget' => 1,
 				),
-				array(
-					'_multiwidget' => 1,
-				),
 			),
 			'multiple_widgets_filter_updated'    => array(
 				array(
@@ -1027,9 +1020,6 @@ class Helpers_Test extends TestCase {
 					'0'            => static::get_sample_widget_instance( 0 ),
 					'1'            => static::get_sample_widget_instance( 1 ),
 					'2'            => $instance_with_filter_updated,
-					'_multiwidget' => 1,
-				),
-				array(
 					'_multiwidget' => 1,
 				),
 			),

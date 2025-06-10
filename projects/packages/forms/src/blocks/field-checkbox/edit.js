@@ -66,7 +66,7 @@ export default function CheckboxFieldEdit( props ) {
 				<ToolbarRequiredGroup required={ required } onClick={ onRequiredToggle } />
 			</BlockControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Checkbox Settings', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Checkbox settings', 'jetpack-forms' ) }>
 					<ToggleControl
 						label={ __( 'Checked by default', 'jetpack-forms' ) }
 						checked={ !! defaultValue }
@@ -76,10 +76,10 @@ export default function CheckboxFieldEdit( props ) {
 				</PanelBody>
 			</InspectorControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Manage responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
-				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
 					<ToggleControl
 						label={ __( 'Field is required', 'jetpack-forms' ) }
 						checked={ required }

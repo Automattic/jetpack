@@ -326,17 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.8-a.1 - 2025-06-05
+### 14.8-a.3 - 2025-06-09
 #### Enhancements
-- Forms: Add "undo" to all post-action alerts in Inbox.
-- Forms: Make emails clickable in Inbox.
-
-#### Improved compatibility
-- Search: Replace the Core Search widget instead of adding a new widget to the main sidebar in classic themes.
+- Forms: Release new file uploads field.
+- Sharing: Improve the performance of Open Graph Meta Image tags.
 
 #### Bug fixes
-- Jetpack Media Library: Prevent PHP warnings related to unexpected array offsets and undefined array keys in some cases.
-- Slideshow block: Reduce layout shifts during page load.
+- Display Critical CSS status correctly on the WordPress.com Complete plan.
+- Connection: Redirect to the proper place when clicking the block "Connect" banner on Multisites.
+- Forms: Fix dropdown field background color on Windows.
+- Forms: Fix an error with poorly-formatted POST data.
 
 --------
 

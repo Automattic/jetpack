@@ -69,10 +69,10 @@ const JetpackFieldControls = ( {
 			</BlockControls>
 
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Manage responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
-				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
 					<>{ fieldSettings }</>
 				</PanelBody>
 			</InspectorControls>

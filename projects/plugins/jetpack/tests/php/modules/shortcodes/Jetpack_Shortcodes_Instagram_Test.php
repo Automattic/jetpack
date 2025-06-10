@@ -352,10 +352,11 @@ BODY;
 	 * @since 8.0.0
 	 *
 	 * @param string $shortcode_content The shortcode as entered in the editor.
-	 * @param string $expected The expected return value of the function.
+	 * @param string $expected The expected return value of the function. Unused in this method.
 	 */
 	#[DataProvider( 'get_instagram_amp_data' )]
-	public function test_shortcodes_instagram_non_amp( $shortcode_content, $expected ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- PHPUnit 12.2 requires methods with data providers to have an exact param count match
+	public function test_shortcodes_instagram_non_amp( $shortcode_content, $expected ) {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
 		$this->assertStringNotContainsString( 'amp-instagram', do_shortcode( $shortcode_content ) );
 	}

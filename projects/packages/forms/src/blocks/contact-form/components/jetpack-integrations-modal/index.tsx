@@ -17,7 +17,7 @@ import './style.scss';
 /**
  * Types
  */
-import type { Integration } from '../../../../dashboard/integrations/types';
+import type { Integration } from '../../../../types';
 
 const IntegrationsModal = ( {
 	isOpen,

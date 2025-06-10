@@ -10,7 +10,7 @@ const JetpackManageResponsesSettings = () => {
 				{ __( 'Manage and export your form responses in WPAdmin:', 'jetpack-forms' ) }
 			</InspectorHint>
 			<Button variant="secondary" href={ FULL_RESPONSES_PATH } __next40pxDefaultSize={ true }>
-				{ __( 'View Form Responses', 'jetpack-forms' ) }
+				{ __( 'View form responses', 'jetpack-forms' ) }
 				<span className="screen-reader-text">
 					{ __( '(opens in a new tab)', 'jetpack-forms' ) }
 				</span>

@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-text';
 const settings = {
 	...defaultSettings,
-	title: __( 'Text Input Field', 'jetpack-forms' ),
+	title: __( 'Text input field', 'jetpack-forms' ),
 	description: __( 'Collect short text responses from site visitors.', 'jetpack-forms' ),
 	icon: {
 		foreground: getIconColor(),

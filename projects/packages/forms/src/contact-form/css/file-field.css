@@ -301,6 +301,7 @@
 	right: 3px;
 	border-radius: 50%;
 	background-color: var(--jetpack--contact-form--border-color, #333 );
+	filter: invert(0.7);
 }
 
 @media not (prefers-reduced-motion) {
@@ -354,8 +355,8 @@
 
 @keyframes jpShowFileField {
 
-	0% { 
-		transform: translate3d(0,-10px, 0) scale(.90); 
+	0% {
+		transform: translate3d(0,-10px, 0) scale(.90);
 		opacity:.5;
 	}
 

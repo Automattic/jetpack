@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-06-09
+### Added
+- Add "Remove" button for dropdown options and prevent dropdowns with no options. [#43616]
+- New file uploads field released. [#43846]
+- Show unread count on Jetpack > Forms submenu. [#43758]
+
+### Changed
+- Add section about developer documentation to FAQ. [#43654]
+- Move `get_export_filename` method from Admin to Util. [#43823]
+- Use sentence case where appropriate in UI. [#43818] [#43847]
+- Update feedback pattern screenshot. [#43849]
+- Update inbox fallback and redirect URLs. [#43757]
+
+### Removed
+- Remove unused code. [#43816] [#43838]
+
+### Fixed
+- Add line-height to migration page heading when it wraps. [#43827]
+- Fix dropdown field background color on Windows. [#43848]
+- Fix an error with poorly-formatted POST data. [#43835]
+- Fix routing on new integrations tab. [#43822]
+- Remove all admin notices from the Jetpack Forms admin. [#43776]
+
 ## [1.1.0] - 2025-06-05
 ### Added
 - Add "undo" to all action snackbars in Inbox. [#43787]
@@ -1160,6 +1183,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[1.2.0]: https://github.com/automattic/jetpack-forms/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/automattic/jetpack-forms/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/automattic/jetpack-forms/compare/v0.56.0...v1.0.0
 [0.56.0]: https://github.com/automattic/jetpack-forms/compare/v0.55.0...v0.56.0
