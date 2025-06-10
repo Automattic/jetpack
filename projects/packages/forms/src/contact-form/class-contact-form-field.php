@@ -741,7 +741,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	private function set_invalid_message( $type, $message ) {
 		wp_interactivity_config(
-			'jetpack/forms',
+			'jetpack/form',
 			array(
 				'error_types' => array(
 					'invalid_' . $type => $message,
@@ -1819,7 +1819,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'fieldExtra'        => $this->get_field_extra( $type, $extra_attrs ),
 		);
 
-		$field .= "\n<div data-wp-interactive=\"jetpack/forms\" " . wp_interactivity_data_wp_context( $context ) . " {$block_style} {$shell_field_class} data-wp-init='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
+		$field .= "\n<div data-wp-interactive=\"jetpack/form\" " . wp_interactivity_data_wp_context( $context ) . " {$block_style} {$shell_field_class} data-wp-init='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
 
 		switch ( $type ) {
 			case 'email':

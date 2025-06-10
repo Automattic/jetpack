@@ -11,7 +11,7 @@ const SPACE = 32;
 let uploadToken = null;
 let tokenExpiry = null;
 
-const jetpackFormStore = store( 'jetpack/forms' );
+const jetpackFormStore = store( 'jetpack/form' );
 
 /**
  * Retuns the upload token. Sometimes it has to fetch a new one if it expired. Or we haven't needed one just yet.

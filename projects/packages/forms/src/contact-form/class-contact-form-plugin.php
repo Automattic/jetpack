@@ -289,7 +289,7 @@ class Contact_Form_Plugin {
 				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
 			),
 		);
-		wp_interactivity_config( 'jetpack/forms', $config );
+		wp_interactivity_config( 'jetpack/form', $config );
 		\wp_enqueue_script_module(
 			'jp-forms-view',
 			plugins_url( '../../dist/modules/form/view.js', __FILE__ ),

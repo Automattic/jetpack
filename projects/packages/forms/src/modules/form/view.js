@@ -1,7 +1,7 @@
 import { getContext, store, getConfig, withSyncEvent } from '@wordpress/interactivity';
 import { validateField } from '../../contact-form/js/validate-helper';
 
-const NAMESPACE = 'jetpack/forms';
+const NAMESPACE = 'jetpack/form';
 
 const updateField = ( fieldId, value ) => {
 	const context = getContext();
