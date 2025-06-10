@@ -64,7 +64,7 @@ class Request {
 
 	/**
 	 * Go through headers and get a list of Vary headers to add,
-	 * including a Vary Accept header if necessary.
+	 * including Vary on Accept and Content-Type if necessary.
 	 *
 	 * @since 12.2
 	 *
