@@ -198,30 +198,33 @@ class Note {
 	public function override_empty_title( $title, $post_id ) {
 		$post = get_post( $post_id );
 
-		if ( isset( $post ) && get_post_type( $post_id ) === self::JETPACK_SOCIAL_NOTE_CPT ) {
-			$post_date = get_the_date( '', $post );
-			$post_time = get_the_time( '', $post );
+		if (
+			$post instanceof \WP_Post &&
+			self::JETPACK_SOCIAL_NOTE_CPT === $post->post_type
+		) {
+			$publishing_date = new \DateTimeImmutable(
+				$post->post_date,
+				wp_timezone()
+			);
 
-			$label = __( 'Daily note', 'jetpack-social' );
+			$title = sprintf(
+				/* Translators: placeholder is a fully-formatted date. */
+				__( 'Social note, %1$s', 'jetpack-social' ),
+				wp_date(
+					get_option( 'date_format' ) . ' \a\t ' . get_option( 'time_format' ),
+					$publishing_date->getTimestamp()
+				)
+			);
 
 			/**
-			 * Filters the default label for Social Notes.
+			 * Filters the default title for a Social Note.
 			 *
-			 * @param string   $label The default label.
-			 * @param \WP_Post $post  The current post object.
-			 */
-			$label = apply_filters( 'jetpack_social_notes_default_label', $label, $post );
-
-			$title = sprintf( '%s %s %s', $label, $post_date, $post_time );
-
-			/**
-			 * Filters the title for Social Notes.
+			 * @since $$next-version$$
 			 *
-			 * @param string   $title The generated title (e.g. 'Daily note 29 Mar 2025 03:32 pm').
-			 * @param \WP_Post $post  The current post object.
-			 * @param string   $label The default label for the note.
+			 * @param string $title The default title.
+			 * @param \WP_Post $post The post.
 			 */
-			return apply_filters( 'jetpack_social_notes_default_title', $title, $post, $label );
+			$title = apply_filters( 'jetpack_social_notes_default_title', $title, $post );
 		}
 
 		// Return the original title for other cases.
