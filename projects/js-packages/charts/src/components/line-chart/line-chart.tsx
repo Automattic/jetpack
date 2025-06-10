@@ -265,7 +265,8 @@ const LineChart: FC< LineChartProps > = ( {
 		color: group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
 		shapeStyle:
 			group?.options?.legendShapeStyle ?? providerTheme.legendShapeStyles?.[ index ] ?? {},
-		renderGlyph: renderGlyph,
+		renderGlyph: withLegendGlyph ? renderGlyph : undefined,
+		size: Number( glyphStyle?.radius ),
 	} ) );
 
 	const accessors = {
@@ -365,9 +366,6 @@ const LineChart: FC< LineChartProps > = ( {
 					orientation={ legendOrientation }
 					className={ styles[ 'line-chart-legend' ] }
 					shape={ legendShape }
-					renderGlyph={ withLegendGlyph ? renderGlyph : undefined }
-					shapeWidth={ glyphStyle?.radius }
-					shapeHeight={ glyphStyle?.radius }
 				/>
 			) }
 		</div>

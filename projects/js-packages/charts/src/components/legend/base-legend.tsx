@@ -34,7 +34,6 @@ export const BaseLegend: FC< LegendProps > = ( {
 	itemMargin = '0',
 	itemDirection = 'row',
 	legendLabelProps,
-	renderGlyph,
 	...legendItemProps
 } ) => {
 	const legendScale = scaleOrdinal( {
@@ -74,17 +73,17 @@ export const BaseLegend: FC< LegendProps > = ( {
 							flexDirection={ itemDirection }
 							{ ...legendItemProps }
 						>
-							{ renderGlyph ? (
-								<svg width={ Number( shapeWidth ) * 2 } height={ Number( shapeHeight ) * 2 }>
+							{ items[ i ]?.renderGlyph ? (
+								<svg width={ items[ i ]?.size * 2 } height={ items[ i ]?.size * 2 }>
 									<Group>
-										{ renderGlyph( {
+										{ items[ i ]?.renderGlyph( {
 											key: `legend-glyph-${ label.text }`,
 											datum: label.datum || label,
 											index: i,
 											color: fill( label ),
-											size: Number( shapeWidth ),
-											x: Number( shapeWidth ),
-											y: Number( shapeHeight ),
+											size: items[ i ]?.size,
+											x: items[ i ]?.size,
+											y: items[ i ]?.size,
 										} ) }
 									</Group>
 								</svg>
