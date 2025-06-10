@@ -380,7 +380,7 @@ class Jetpack_Carousel {
 
 		$this->enqueue_assets();
 
-		if ( ! isset( $post ) || ! $post instanceof WP_Post ) {
+		if ( ! $post instanceof WP_Post ) {
 			return $block_content;
 		}
 
