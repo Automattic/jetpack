@@ -9,9 +9,9 @@ export type LegendItem = {
 	label: string;
 	value: number | string;
 	color: string;
-	shapeStyle?: CSSProperties;
-	size: number;
+	glyphSize: number;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
+	shapeStyle?: CSSProperties;
 };
 
 export type LegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {

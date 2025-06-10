@@ -266,7 +266,7 @@ const LineChart: FC< LineChartProps > = ( {
 		shapeStyle:
 			group?.options?.legendShapeStyle ?? providerTheme.legendShapeStyles?.[ index ] ?? {},
 		renderGlyph: withLegendGlyph ? renderGlyph : undefined,
-		size: Number( glyphStyle?.radius ),
+		glyphSize: Number( glyphStyle?.radius ),
 	} ) );
 
 	const accessors = {
