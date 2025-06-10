@@ -284,6 +284,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
+		require_once __DIR__ . '/features/wpcom-navigation-export-filter/class-export-filter.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
@@ -291,6 +292,11 @@ class Jetpack_Mu_Wpcom {
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Holiday_Snow::init();
+
+		// Initialize WPCOM Navigation Export Filter
+		if ( class_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Navigation_Export_Filter\Export_Filter' ) ) {
+			new \Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Navigation_Export_Filter\Export_Filter();
+		}
 
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
