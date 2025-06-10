@@ -9,7 +9,7 @@ export type LegendItem = {
 	label: string;
 	value: number | string;
 	color: string;
-	glyphSize: number;
+	glyphSize?: number;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 	shapeStyle?: CSSProperties;
 };
