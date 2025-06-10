@@ -82,7 +82,7 @@ export const BaseLegend: FC< LegendProps > = ( {
 									<Group>
 										{ items[ i ]?.renderGlyph( {
 											key: `legend-glyph-${ label.text }`,
-											datum: label.datum || label,
+											datum: {},
 											index: i,
 											color: fill( label ),
 											size: items[ i ]?.glyphSize,
