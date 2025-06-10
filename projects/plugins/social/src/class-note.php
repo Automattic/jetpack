@@ -202,14 +202,26 @@ class Note {
 			$post_date = get_the_date( '', $post );
 			$post_time = get_the_time( '', $post );
 
+			$label = __( 'Daily note', 'jetpack-social' );
+
+			/**
+			 * Filters the default label for Social Notes.
+			 *
+			 * @param string   $label The default label.
+			 * @param \WP_Post $post  The current post object.
+			 */
+			$label = apply_filters( 'jetpack_social_notes_default_label', $label, $post );
+
+			$title = sprintf( '%s %s %s', $label, $post_date, $post_time );
+
 			/**
 			 * Filters the title for Social Notes.
 			 *
-			 * @param string   $new_title The generated title (e.g., 'Daily note 29 Mar 2025 03:32').
-			 * @param \WP_Post $post      The current post object.
+			 * @param string   $title The generated title (e.g. 'Daily note 29 Mar 2025 03:32 pm').
+			 * @param \WP_Post $post  The current post object.
+			 * @param string   $label The default label for the note.
 			 */
-			$label = apply_filters( 'jetpack_social_note_title_label', 'Daily note', $post );
-			return sprintf( '%s - %s %s', $label, $post_date, $post_time );
+			return apply_filters( 'jetpack_social_notes_default_title', $title, $post, $label );
 		}
 
 		// Return the original title for other cases.
