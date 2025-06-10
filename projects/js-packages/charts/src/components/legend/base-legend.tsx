@@ -74,7 +74,11 @@ export const BaseLegend: FC< LegendProps > = ( {
 							{ ...legendItemProps }
 						>
 							{ items[ i ]?.renderGlyph ? (
-								<svg width={ items[ i ]?.glyphSize * 2 } height={ items[ i ]?.glyphSize * 2 }>
+								<svg
+									width={ items[ i ]?.glyphSize * 2 }
+									height={ items[ i ]?.glyphSize * 2 }
+									data-testid="legend-glyph"
+								>
 									<Group>
 										{ items[ i ]?.renderGlyph( {
 											key: `legend-glyph-${ label.text }`,
