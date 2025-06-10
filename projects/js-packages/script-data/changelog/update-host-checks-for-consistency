@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Utils: Ensure isWoASite has a default if the site itself can't be found.
