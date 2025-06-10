@@ -692,10 +692,62 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					name='" . esc_attr( $id ) . "'
 					id='" . esc_attr( $id ) . "'
 					value='" . esc_attr( $value ) . "'
+
+					data-wp-bind--aria-invalid='state.hasErrors'
+					data-wp-bind--value='state.getFieldValue'
+					aria-errormessage='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
+					data-wp-on--input='actions.handleChangeField'
+					data-wp-on--blur='actions.handleBlurField'
+
 					" . $class . $placeholder . '
-					' . ( $required ? "required aria-required='true'" : '' ) .
+					' . ( $required ? "required='true' aria-required='true'" : '' ) .
 					$extra_attrs_string .
-					" />\n";
+					" />\n " . self::get_error_div( $id, $type ) . " \n";
+	}
+
+	/**
+	 * Return the HTML for the error div.
+	 *
+	 * @param string $id - the field ID.
+	 * @param string $type - the field type.
+	 *
+	 * @return string HTML
+	 */
+	private static function get_error_div( $id, $type ) {
+		return '<div
+			id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error"
+			class="contact-form__input-error"
+			data-wp-class--has-errors="state.hasErrors"
+			>
+				<span class="contact-form__warning-icon">
+					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z" />
+						<path d="M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z" />
+						<path fill-rule="evenodd" clip-rule="evenodd" d="M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z" />
+					</svg>
+					<span class="visually-hidden">' . __( 'Warning', 'jetpack-forms' ) . '</span>
+				</span>
+				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message"></span>
+			</div>';
+	}
+
+	/**
+	 * Set the invalid message for specific field types.
+	 *
+	 * @param string $type - the field type.
+	 * @param string $message - the message to display.
+	 *
+	 * @return void
+	 */
+	private function set_invalid_message( $type, $message ) {
+		wp_interactivity_config(
+			'jetpack/forms',
+			array(
+				'error_types' => array(
+					'invalid_' . $type => $message,
+				),
+			)
+		);
 	}
 
 	/**
@@ -712,6 +764,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_email_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$this->set_invalid_message( 'email', __( 'Please enter a valid email address', 'jetpack-forms' ) );
 		$field  = $this->render_label( 'email', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'email', $id, $value, $class, $placeholder, $required );
 		return $field;
@@ -731,6 +784,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
 		$field  = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
 		return $field;
@@ -750,18 +804,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
-		$custom_validation_message = __( 'Please enter a valid URL - https://www.example.com', 'jetpack-forms' );
-		$validation_attrs          = array(
-			'title'              => $custom_validation_message,
-			'oninvalid'          => 'setCustomValidity("' . $custom_validation_message . '")',
-			'oninput'            => 'setCustomValidity("")',
-			// Changes to this regex should be synced with the regex in the URL validation of the validate method of this class as both validate the same input. Note that this regex is in ECMAScript (JS) format.
-			'pattern'            => '(?:(?:[Hh][Tt][Tt][Pp][Ss]?|[Ff][Tt][Pp]):\/\/)?(?:\S+(?::\S*)?@|\d{1,3}(?:\.\d{1,3}){3}|(?:(?:[a-zA-Z\d\u00a1-\uffff]+-?)*[a-zA-Z\d\u00a1-\uffff]+)(?:\.(?:[a-zA-Z\d\u00a1-\uffff]+-?)*[a-zA-Z\d\u00a1-\uffff]+)*(?:\.[a-zA-Z\u00a1-\uffff]{2,6}))(?::\d+)?(?:[^\s]*)?',
-			'data-type-override' => 'url',
-		);
+		$this->set_invalid_message( 'url', __( 'Please enter a valid URL - https://www.example.com', 'jetpack-forms' ) );
 
 		$field  = $this->render_label( 'url', $id, $label, $required, $required_field_text );
-		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, $validation_attrs );
+		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
 
@@ -788,12 +834,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		                style='" . $this->field_styles . "'
 		                name='" . esc_attr( $id ) . "'
 		                id='contact-form-comment-" . esc_attr( $id ) . "'
-		                rows='20' "
+		                rows='20'
+						data-wp-text='state.getFieldValue'
+						data-wp-on--input='actions.handleChangeField'
+						data-wp-on--blur='actions.handleBlurField'
+						data-wp-bind--aria-invalid='state.hasErrors'
+						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
+						"
 						. $class
 						. $placeholder
 						. ' ' . ( $required ? "required aria-required='true'" : '' ) .
 						'>' . esc_textarea( $value )
-				. "</textarea>\n";
+				. "</textarea>\n " . self::get_error_div( $id, 'textarea' ) . "\n";
 		return $field;
 	}
 
@@ -810,6 +862,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		$this->set_invalid_message( 'radio', __( 'Please select one of the options.', 'jetpack-forms' ) );
 		$options_classes   = $this->get_attribute( 'optionsclasses' );
 		$options_styles    = $this->get_attribute( 'optionsstyles' );
 		$form_style        = $this->get_form_style();
@@ -844,9 +897,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "'>";
+			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' data-wp-bind--aria-invalid='state.hasErrors' >";
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'>";
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.hasErrors' >";
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
@@ -881,7 +934,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 									id='" . esc_attr( $radio_id ) . "'
 									type='radio'
 									name='" . esc_attr( $id ) . "'
-									value='" . esc_attr( $radio_value ) . "' "
+									value='" . esc_attr( $radio_value ) . "'
+									data-wp-on--change='actions.handleChangeField' "
 									. $class
 									. checked( $option_label, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
@@ -913,7 +967,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 									id='" . esc_attr( $radio_id ) . "'
 									type='radio'
 									name='" . esc_attr( $id ) . "'
-									value='" . esc_attr( $radio_value ) . "' "
+									value='" . esc_attr( $radio_value ) . "'
+									data-wp-on--change='actions.handleChangeField' "
 									. $class
 									. checked( $option, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
@@ -929,7 +984,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		if ( ! $is_outlined_style ) {
 			$field .= '</div>';
 		}
-		$field .= '</fieldset>';
+		$field .= $this->get_error_div( $id, 'radio' ) . '</fieldset>';
 		return $field;
 	}
 
@@ -953,13 +1008,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$has_inner_block_option_styles = ! empty( $this->get_attribute( 'optionstyles' ) );
 
 		$field  = "<div class='contact-form__checkbox-wrap'>";
-		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
+		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' data-wp-on--change='actions.handleChangeField' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
 		$field .= "<label for='" . esc_attr( $id ) . "' class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "'>";
 		$field .= wp_kses_post( $label ) . ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
 		$field .= "</label>\n";
 		$field .= "<div class='clear-form'></div>\n";
 		$field .= '</div>';
-		return $field;
+		return $field . $this->get_error_div( $id, 'checkbox' );
 	}
 
 	/**
@@ -1010,6 +1065,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				esc_html__( 'File upload field requires Jetpack to be active.', 'jetpack-forms' ) .
 				'</div>';
 		}
+
+		$this->set_invalid_message( 'file_uploading', __( 'Please wait a moment, file is currently uploading.', 'jetpack-forms' ) );
+		$this->set_invalid_message( 'file_has_errors', __( 'Please remove any file upload errors.', 'jetpack-forms' ) );
 
 		// Enqueue necessary scripts and styles.
 		$this->enqueue_file_field_assets();
@@ -1092,6 +1150,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$context = array(
 			'isDropping'       => false,
+			'fieldId'          => $id,
 			'files'            => array(),
 			'allowedMimeTypes' => $accepted_file_types,
 			'maxFiles'         => $max_files, // max number of files.
@@ -1151,7 +1210,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			</div>
 		</div>
 		<?php
-		return $field . ob_get_clean();
+		return $field . ob_get_clean() . $this->get_error_div( $id, 'file' );
 	}
 
 	/**
@@ -1249,9 +1308,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . '>';
+			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.hasErrors">';
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . '>';
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.hasErrors">';
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
@@ -1285,6 +1344,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
 								type='checkbox'
+								data-wp-on--change='actions.handleMultipleChangeField'
 								name='" . esc_attr( $id ) . "[]'
 								value='" . esc_attr( $checkbox_value ) . "' "
 								. $class
@@ -1315,6 +1375,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field .= "<p class='contact-form-field'>";
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
+								data-wp-on--change='actions.handleMultipleChangeField'
 								type='checkbox'
 								name='" . esc_attr( $id ) . "[]'
 								value='" . esc_attr( $checkbox_value ) . "' "
@@ -1331,7 +1392,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		if ( ! $is_outlined_style ) {
 			$field .= '</div>';
 		}
-		$field .= '</fieldset>';
+		$field .= $this->get_error_div( $id, 'select' ) . '</fieldset>';
 		return $field;
 	}
 
@@ -1351,7 +1412,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
 		$class  = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="contact-form__select-wrapper $1"', $class );
 		$field .= "<div {$class} style='" . esc_attr( $this->field_styles ) . "'>";
-		$field .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . ">\n";
+		$field .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.handleChangeField' data-wp-bind--aria-invalid='state.hasErrors'>\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
@@ -1370,7 +1431,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "\t</select><span class='jetpack-field-dropdown__icon'></span></span>\n";
 		$field .= "</div>\n";
 
-		return $field;
+		return $field . $this->get_error_div( $id, 'select' );
 	}
 
 	/**
@@ -1387,7 +1448,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
-
+		$this->set_invalid_message( 'date', __( 'Please enter a valid date.', 'jetpack-forms' ) );
 		// WARNING: sync data with DATE_FORMATS in jetpack-field-datepicker.js
 		$formats = array(
 			'mm/dd/yy' => array(
@@ -1453,6 +1514,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_number_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+		$this->set_invalid_message( 'number', __( 'Please enter a valid number', 'jetpack-forms' ) );
+		if ( isset( $extra_attrs['min'] ) ) {
+			// translators: %d is the minimum value.
+			$this->set_invalid_message( 'min_number', __( 'Please select a value that is no less than %d.', 'jetpack-forms' ) );
+		}
+		if ( isset( $extra_attrs['max'] ) ) {
+			// translators: %d is the maximum value.
+			$this->set_invalid_message( 'max_number', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
+		}
 		$field  = $this->render_label( 'number', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'number', $id, $value, $class, $placeholder, $required, $extra_attrs );
 		return $field;
@@ -1738,7 +1808,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$field .= "\n<div class='" . implode( ' ', $inset_label_class ) . "'>\n";
 		}
 
-		$field .= "\n<div {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
+		$context = array(
+			'fieldId'           => $id,
+			'fieldType'         => $type,
+			'fieldLabel'        => $label,
+			'fieldValue'        => $value,
+			'fieldPlaceholder'  => $placeholder,
+			'fieldIsRequired'   => $required,
+			'fieldErrorMessage' => '',
+			'fieldExtra'        => $this->get_field_extra( $type, $extra_attrs ),
+		);
+
+		$field .= "\n<div data-wp-interactive=\"jetpack/forms\" " . wp_interactivity_data_wp_context( $context ) . " {$block_style} {$shell_field_class} data-wp-init='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
 
 		switch ( $type ) {
 			case 'email':
@@ -1789,6 +1870,24 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		return $field;
+	}
+
+	/**
+	 * Returns the extra attributes for the field.
+	 * That are used in field validation.
+	 *
+	 * @param string $type - the field type.
+	 * @param array  $extra_attrs - the extra attributes.
+	 *
+	 * @return string|array The extra attributes.
+	 */
+	private function get_field_extra( $type, $extra_attrs ) {
+		if ( 'date' === $type ) {
+			$date_format = $this->get_attribute( 'dateformat' );
+			return isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
+		}
+
+		return $extra_attrs;
 	}
 
 	/**

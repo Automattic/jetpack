@@ -1,0 +1,213 @@
+import { getContext, store, getConfig, withSyncEvent } from '@wordpress/interactivity';
+import { validateField } from '../../contact-form/js/validate-helper';
+
+const NAMESPACE = 'jetpack/forms';
+
+const updateField = ( fieldId, value ) => {
+	const context = getContext();
+	const field = context.fields[ fieldId ];
+	const { type, isRequired, extra } = field;
+	if ( field ) {
+		field.value = value;
+		field.error = validateField( type, value, isRequired, extra );
+	}
+};
+
+const registerField = (
+	fieldId,
+	type,
+	label = '',
+	value = '',
+	isRequired = false,
+	extra = null
+) => {
+	const context = getContext();
+	if ( ! context.fields[ fieldId ] ) {
+		// console.log( 'registerField', fieldId, type, label, value, isRequired, extra );
+		context.fields[ fieldId ] = {
+			id: fieldId,
+			type,
+			label,
+			value,
+			isRequired,
+			extra,
+			error: validateField( type, value, isRequired, extra ),
+		};
+	}
+};
+
+const getError = field => {
+	const config = getConfig( NAMESPACE );
+	if ( field.type === 'number' ) {
+		if ( field.error === 'invalid_min_number' ) {
+			return config.error_types.invalid_min_number.replace( '%d', field.extra.min );
+		}
+
+		if ( field.error === 'invalid_max_number' ) {
+			return config.error_types.invalid_max_number.replace( '%d', field.extra.max );
+		}
+	}
+
+	return config.error_types && config.error_types[ field.error ];
+};
+
+const { state } = store( NAMESPACE, {
+	state: {
+		get hasErrors() {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ] || {};
+
+			return context.showErrors && field.error && field.error !== 'yes';
+		},
+
+		get isEmptyForm() {
+			const context = getContext();
+			return ! Object.values( context.fields ).some( field => field.value !== '' );
+		},
+
+		get isSubmitting() {
+			const context = getContext();
+			return context.isSubmitting;
+		},
+
+		get isAriaDisabled() {
+			const context = getContext();
+			return context.isSubmitting;
+		},
+
+		get errorMessage() {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ] || {};
+
+			if ( ! context.showErrors || ! field.error ) {
+				return '';
+			}
+
+			return getError( field );
+		},
+
+		get isFormValid() {
+			if ( state.isEmptyForm ) {
+				return false;
+			}
+			const context = getContext();
+			return ! Object.values( context.fields ).some( field => field.error !== 'yes' );
+		},
+
+		get showFromErrors() {
+			const context = getContext();
+
+			return ! state.isFormValid && context.showErrors;
+		},
+
+		get getFormErrorMessage() {
+			const config = getConfig( NAMESPACE );
+			if ( state.isEmptyForm ) {
+				return config.error_types.invalid_form_empty;
+			}
+			return config.error_types.invalid_form;
+		},
+
+		get getErrorList() {
+			const errors = [];
+			if ( state.isEmptyForm ) {
+				return errors;
+			}
+			const context = getContext();
+			if ( context.showErrors ) {
+				Object.values( context.fields ).forEach( field => {
+					if ( field.error && field.error !== 'yes' ) {
+						errors.push( {
+							anchor: '#' + field.id,
+							label: field.label + ' : ' + getError( field ),
+							id: field.id,
+						} );
+					}
+				} );
+			}
+			return errors;
+		},
+
+		get getFieldValue() {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ];
+			return field.value;
+		},
+	},
+
+	actions: {
+		updateFieldValue: ( fieldId, value ) => {
+			updateField( fieldId, value );
+		},
+		handleChangeField: withSyncEvent( event => {
+			let value = event.target.value;
+			const context = getContext();
+			const fieldId = context.fieldId;
+
+			if ( context.fieldType === 'checkbox' ) {
+				value = event.target.checked ? '1' : '';
+			}
+
+			updateField( fieldId, value );
+		} ),
+
+		handleOnInputField: withSyncEvent( event => {
+			const value = event.target.value;
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ];
+
+			if ( field.type === 'checkbox' ) {
+				field.value = event.target.checked ? value : '';
+			} else {
+				field.value = value;
+			}
+
+			field.error = validateField( field.type, field.value, field.isRequired, field.extra );
+		} ),
+
+		handleMultipleChangeField: withSyncEvent( event => {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ];
+			const value = event.target.value;
+			let newValues = [ ...( field.value || [] ) ];
+
+			if ( event.target.checked ) {
+				newValues.push( value );
+			} else {
+				newValues = newValues.filter( v => v !== value );
+			}
+
+			updateField( fieldId, newValues );
+		} ),
+
+		handleBlurField: withSyncEvent( event => {
+			const context = getContext();
+			updateField( context.fieldId, event.target.value );
+		} ),
+
+		formSubmit: withSyncEvent( event => {
+			const context = getContext();
+
+			if ( ! state.isFormValid ) {
+				context.showErrors = true;
+				event.preventDefault();
+				event.stopPropagation();
+			} else {
+				context.isSubmitting = true;
+			}
+		} ),
+	},
+
+	callbacks: {
+		initializeField() {
+			const context = getContext();
+			const { fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
+			registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
+		},
+	},
+} );
