@@ -5,12 +5,12 @@ import React from 'react';
 /**
  * Renders a link that opens a WP.com support article in the Help Center.
  *
- * @param {object}   props         - The component props.
- * @param {string}   props.url     - Support link URL.
- * @param {number}   props.postId  - Post ID.
- * @param {string}   props.text    - Support link text.
- * @param {Function} props.onClick - Callback function to be called when the link is clicked.
- * @param {Function} props.style   - CSS properties to be applied to the link.
+ * @param {object}   props           - The component props.
+ * @param {string}   props.url       - Support link URL.
+ * @param {number}   props.postId    - Post ID.
+ * @param {string}   props.text      - Support link text.
+ * @param {Function} [props.onClick] - Callback function to be called when the link is clicked.
+ * @param {object}   [props.style]   - CSS properties to be applied to the link.
  * @return {React.JSX.Element} The component to render.
  */
 export function WpcomSupportLink( { url, postId, text, onClick, style } ) {
