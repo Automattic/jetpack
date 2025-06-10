@@ -2,6 +2,7 @@ import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legen
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
 import { useCallback, type FC } from 'react';
+import { useChartTheme } from '../../providers/theme';
 import styles from './legend.module.scss';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from './utils';
 import type { LegendProps } from './types';
@@ -35,6 +36,7 @@ export const BaseLegend: FC< LegendProps > = ( {
 	legendLabelProps,
 	...legendItemProps
 } ) => {
+	const theme = useChartTheme();
 	const legendScale = scaleOrdinal( {
 		domain: items.map( item => item.label ),
 		range: items.map( item => item.color ),
@@ -43,9 +45,9 @@ export const BaseLegend: FC< LegendProps > = ( {
 
 	const getShapeStyle = useCallback(
 		( { index }: { index: number } ) => {
-			return items[ index ]?.shapeStyle ?? {};
+			return items[ index ]?.shapeStyle ?? theme.legendShapeStyles?.[ index ] ?? {};
 		},
-		[ items ]
+		[ items, theme ]
 	);
 
 	return (
@@ -61,6 +63,7 @@ export const BaseLegend: FC< LegendProps > = ( {
 					className={ clsx( styles.legend, styles[ `legend--${ orientation }` ], className ) }
 					style={ {
 						flexDirection: orientationToFlexDirection[ orientation ],
+						...theme.legendContainerStyles,
 					} }
 				>
 					{ labels.map( ( label, i ) => (
@@ -85,11 +88,12 @@ export const BaseLegend: FC< LegendProps > = ( {
 								shapeStyle={ getShapeStyle }
 							/>
 							<LegendLabel
-								label={ label.text }
-								flex={ labelFlex }
-								margin={ labelMargin }
-								align={ labelAlign }
-								className={ styles[ 'legend-item-label' ] }
+								style={ {
+									justifyContent: labelAlign,
+									flex: labelFlex,
+									margin: labelMargin,
+									...theme.legendLabelStyles,
+								} }
 								{ ...legendLabelProps }
 							>
 								{ label.text }
