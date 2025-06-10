@@ -24,6 +24,24 @@ export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datu
 	glyphStyle?: React.SVGProps< SVGCircleElement >;
 };
 
+const DefaultGlyph = < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => {
+	const { theme } = useContext( DataContext ) || {};
+
+	return (
+		<circle
+			cx={ props.x }
+			cy={ props.y }
+			r={ props.size }
+			fill={ props.color }
+			stroke={ theme?.backgroundColor }
+			strokeWidth={ 1.5 }
+			paintOrder="fill"
+			data-testid={ `start-glyph-${ props.index }` }
+			{ ...props.glyphStyle }
+		/>
+	);
+};
+
 const defaultRenderGlyph = < Datum extends object >(
 	props: RenderLineStartGlyphProps< Datum >
 ) => {
