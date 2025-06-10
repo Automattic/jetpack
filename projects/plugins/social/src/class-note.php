@@ -199,8 +199,8 @@ class Note {
 		$post = get_post( $post_id );
 
 		if ( isset( $post ) && get_post_type( $post_id ) === self::JETPACK_SOCIAL_NOTE_CPT ) {
-			$post_date = get_the_date( 'd M Y', $post );
-			$post_time = get_the_time( 'H:i', $post );
+			$post_date = get_the_date( '', $post );
+			$post_time = get_the_time( '', $post );
 
 			/**
 			 * Filters the title for Social Notes.
