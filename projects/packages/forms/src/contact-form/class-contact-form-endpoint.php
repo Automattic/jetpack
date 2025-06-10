@@ -333,28 +333,34 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 							'items' => array(
 								'type'       => 'object',
 								'properties' => array(
-									'file_id' => array(
+									'file_id'        => array(
 										'type'        => 'integer',
 										'arg_options' => array(
 											'sanitize_callback' => 'sanitize_text_field',
 										),
 									),
-									'name'    => array(
+									'name'           => array(
 										'type'        => 'string',
 										'arg_options' => array(
 											'sanitize_callback' => 'sanitize_text_field',
 										),
 									),
-									'size'    => array(
+									'size'           => array(
 										'type'        => 'string',
 										'arg_options' => array(
 											'sanitize_callback' => 'sanitize_text_field',
 										),
 									),
-									'url'     => array(
+									'url'            => array(
 										'type'        => 'string',
 										'arg_options' => array(
 											'sanitize_callback' => 'esc_url_raw',
+										),
+									),
+									'is_previewable' => array(
+										'type'        => 'boolean',
+										'arg_options' => array(
+											'sanitize_callback' => 'rest_sanitize_boolean',
 										),
 									),
 								),
@@ -552,11 +558,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 							// this shouldn't happen, todo: log this
 							continue;
 						}
-						$file_id         = absint( $file['file_id'] );
-						$file['file_id'] = $file_id;
-						$file['size']    = size_format( $file['size'] );
-						$file['url']     = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
-						$has_file        = true;
+						$file_id                = absint( $file['file_id'] );
+						$file['file_id']        = $file_id;
+						$file['size']           = size_format( $file['size'] );
+						$file['url']            = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
+						$file['is_previewable'] = self::is_previewable_file( $file );
+						$has_file               = true;
 					}
 				}
 			}
@@ -565,6 +572,19 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['has_file'] = $has_file;
 		}
 		return rest_ensure_response( $data );
+	}
+	/**
+	 * Checks if the file is previewable based on its type or extension.
+	 *
+	 * @param array $file File data.
+	 * @return bool True if the file is previewable, false otherwise.
+	 */
+	private static function is_previewable_file( $file ) {
+		$file_type = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
+		// Check if the file is previewable based on its type or extension.
+		// Note: This is a simplified check and does not match if the file is allowed to be uploaded by the server.
+		$previewable_types = array( 'jpg', 'jpeg', 'png', 'gif', 'webp' );
+		return in_array( $file_type, $previewable_types, true );
 	}
 
 	/**
