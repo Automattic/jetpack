@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -9,12 +10,7 @@ import {
 	isUnavailableInOfflineMode,
 	hasConnectedOwner,
 } from 'state/connection';
-import {
-	getLastPostUrl,
-	currentThemeIsBlockTheme,
-	getSiteId,
-	isWoASite,
-} from 'state/initial-state';
+import { getLastPostUrl, currentThemeIsBlockTheme, getSiteId } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
@@ -57,7 +53,7 @@ export class Traffic extends React.Component {
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
-			foundAnalytics = this.props.isWoASite,
+			foundAnalytics = isWoASite(),
 			foundBlaze = this.props.isModuleFound( 'blaze' );
 
 		if (
@@ -117,7 +113,6 @@ export default connect( state => {
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		isSiteConnected: isSiteConnected( state ),
-		isWoASite: isWoASite( state ),
 		lastPostUrl: getLastPostUrl( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		hasConnectedOwner: hasConnectedOwner( state ),

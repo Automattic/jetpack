@@ -37,19 +37,6 @@ function filter_get_download_url( $url, $file_id ) {
  * @return never This method never returns as it exits directly
  */
 function handle_file_download() {
-	/**
-	 * Check if the file is availabe for download.
-	 *
-	 * @since 14.6
-	 *
-	 * @param array $data The script data.
-	 */
-	$blocks_variation = apply_filters( 'jetpack_blocks_variation', \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' ) );
-
-	if ( apply_filters( 'jetpack_unauth_file_download_available', $blocks_variation !== 'beta' ) ) {
-		wp_die( esc_html__( 'File download is not available.', 'jetpack' ) );
-	}
-
 	if ( ! current_user_can( 'edit_pages' ) ) {
 		wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack' ) );
 	}
@@ -82,14 +69,22 @@ function handle_file_download() {
 		wp_die( esc_html__( 'Error retrieving file content.', 'jetpack' ) );
 	}
 
+	$is_preview = isset( $_GET['preview'] ) && 'true' === $_GET['preview'];
+
 	// Clean output buffer
 	if ( ob_get_length() ) {
 		ob_clean();
 	}
 	// Set headers for download
 	header( 'Content-Type: ' . $file['type'] );
-	// Forcing the file to be downloaded is important to prevent XSS attacks.
-	header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $file['name'] ) . '"' );
+
+	if ( ! $is_preview ) {
+		// Forcing the file to be downloaded is important to prevent XSS attacks.
+		header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $file['name'] ) . '"' );
+	} else {
+		// For preview mode, use inline disposition
+		header( 'Content-Disposition: inline; filename="' . sanitize_file_name( $file['name'] ) . '"' );
+	}
 	header( 'Content-Length: ' . strlen( $file['content'] ) );
 	header( 'Content-Transfer-Encoding: binary' );
 	header( 'Cache-Control: no-cache, must-revalidate, max-age=0' );

@@ -29,7 +29,7 @@ import './style.scss';
 /**
  * Types
  */
-import type { Pattern } from '../types';
+import type { Pattern } from '../../types';
 
 const About = () => {
 	const ASSETS_URL = useMemo( () => config( 'pluginAssetsURL' ), [] );

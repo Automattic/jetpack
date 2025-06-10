@@ -1,5 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x } from '@wordpress/i18n';
@@ -29,7 +30,7 @@ import {
 	isOfflineMode,
 	connectUser,
 } from 'state/connection';
-import { isWoASite, showBackups } from 'state/initial-state';
+import { showBackups } from 'state/initial-state';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
@@ -285,7 +286,7 @@ class DashScan extends Component {
 	}
 
 	renderAction( url, message ) {
-		if ( this.props.isWoASite ) {
+		if ( isWoASite() ) {
 			return null;
 		}
 
@@ -437,7 +438,6 @@ export default connect(
 		const sitePlan = getSitePlan( state );
 
 		return {
-			isWoASite: isWoASite( state ),
 			isOfflineMode: isOfflineMode( state ),
 			scanStatus: getScanStatus( state ),
 			fetchingScanStatus: isFetchingScanStatus( state ),

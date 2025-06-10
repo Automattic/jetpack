@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+General: Fix storage data persisting after clear.

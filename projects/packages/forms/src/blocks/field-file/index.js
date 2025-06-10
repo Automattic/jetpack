@@ -36,7 +36,6 @@ const settings = {
 			},
 		],
 	},
-	isBeta: true,
 };
 
 export default {
