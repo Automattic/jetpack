@@ -23,9 +23,10 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 		// ===========================================
 		// ================  Global  =================
 
-			//registers the styles on admin init
-			wp_register_style( 'zbs-wp-semanticui', plugins_url( '/css/ZeroBSCRM.admin.semantic-ui' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
-			wp_register_script( 'semanticuijs', plugins_url( '/js/lib/semantic.min.js', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			// registers the styles on admin init
+			wp_register_style( 'jpcrm-semanticui-lib', plugins_url( '/build/lib/semantic-ui-css/semantic.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_register_style( 'zbs-wp-semanticui', plugins_url( '/css/ZeroBSCRM.admin.semantic-ui' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array( 'jpcrm-semanticui-lib' ), $zbs::VERSION );
+			wp_register_script( 'semanticuijs', plugins_url( '/build/lib/semantic-ui-css/semantic.min.js', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 			// global
 			wp_register_style( 'zerobscrmadmcss', plugins_url( '/css/ZeroBSCRM.admin.global' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array( 'zbs-wp-semanticui' ), $zbs::VERSION );
@@ -391,7 +392,6 @@ function zeroBSCRM_email_styles() {
 }
 function zeroBSCRM_admin_styles_ui2_listview(){
 
-	// semantic 2.2.11 (EVENTUALLY these PROBS shouldn't be global)
 	wp_enqueue_style( 'zerobscrmlistview' );
 	wp_enqueue_script( 'semanticuijs' );
 	// Removed at request of plugin reviewers. (used wp core ver) wp_enqueue_script( 'zerobscrmadmjqui');
@@ -411,7 +411,6 @@ function zeroBSCRM_admin_styles_ui2_editview(){
 
 			// Removed at request of plugin reviewers. (used wp core ver) wp_enqueue_script( 'zerobscrmadmjqui');
 			wp_enqueue_script( 'jquery-ui-sortable' );
-			// semantic 2.2.11 (EVENTUALLY these PROBS shouldn't be global)
 			wp_enqueue_style( 'zerobscrmeditview' );
 			wp_enqueue_script( 'semanticuijs' );
 			wp_enqueue_script( 'zerobscrmeditviewjs' );
@@ -473,13 +472,11 @@ function zeroBSCRM_settingspage_admin_styles(){
 	}
 }
 
-/* WH adding in for old ext compatibility e.g. inv pro was still producing error for lack of func */
+/* Placeholder function for Invoicing Pro <= 2.8.3. */
 function zeroBSCRM_admin_styles_ui2_semantic(){}
 
 function zeroBSCRM_admin_styles_ui2_semantic_settingspage(){
-			// These now get rolled into zeroBSCRM_global_admin_styles wp_enqueue_style( 'zbs-wp-semanticui' );
 			wp_enqueue_style( 'zerobscrmmaildeliverywizard' );
-			// These now get rolled into zeroBSCRM_global_admin_styles wp_enqueue_script( 'semanticuijs');
 			wp_enqueue_style( 'zerobscrmsettings' );
 }
 

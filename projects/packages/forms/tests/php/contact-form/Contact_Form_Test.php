@@ -770,6 +770,101 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertEquals( $post_id, get_post( $post_id )->ID, 'A new spam feedback should be left intact when deleting old spam' );
 	}
 
+	public function test_parse_fields_from_content() {
+
+		$comment_content      = 'This is a test comment content.';
+		$comment_author       = 'Test User';
+		$comment_author_email = 'test@email.com';
+		$comment_author_url   = 'http://example.com';
+		$comment_ip_text      = 'https://127.0.0.1';
+		$subject              = 'Test Subject';
+		$all_values           = array(
+			'field1'                  => 'value1',
+			'field2'                  => 'value2',
+			'email_marketing_consent' => 'yes',
+		);
+
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		// Create a mock post with JSON_DATA format
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => 'feedback',
+				'post_status'  => 'publish',
+				'post_content' => $content,
+			)
+		);
+
+		// Parse fields from the post
+		$fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+
+		// Assert that basic feedback fields were parsed correctly
+		$this->assertEquals( $comment_author, $fields['_feedback_author'] );
+		$this->assertEquals( $comment_author_email, $fields['_feedback_author_email'] );
+		$this->assertEquals( $comment_author_url, $fields['_feedback_author_url'] );
+		$this->assertEquals( $subject, $fields['_feedback_subject'] );
+		$this->assertEquals( $comment_ip_text, $fields['_feedback_ip'] );
+
+		// Assert that JSON data fields were parsed correctly
+		$this->assertIsArray( $fields['_feedback_all_fields'] );
+		$this->assertEquals( $all_values['field1'], $fields['_feedback_all_fields']['field1'] );
+		$this->assertEquals( $all_values['field2'], $fields['_feedback_all_fields']['field2'] );
+		$this->assertEquals( $all_values['email_marketing_consent'], $fields['_feedback_all_fields']['email_marketing_consent'] );
+
+		// Test caching by calling the method again and ensuring the same object is returned
+		$cached_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+		$this->assertSame( $fields, $cached_fields );
+
+		// Clean up
+		wp_delete_post( $post_id, true );
+	}
+
+	public function test_parse_fields_from_content_form_submission() {
+		// Fill field values.
+		$this->add_field_values(
+			array(
+				'name'     => 'John Doe',
+				'dropdown' => 'First option',
+				'radio'    => 'Second option',
+				'text'     => 'Texty text',
+			)
+		);
+
+		// Initialize a form with name, dropdown and radiobutton (first, second
+		// and third option), text field.
+		$form = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
+		$form->process_submission();
+
+		$post_id = end( Posts::init()->posts )->ID;
+		$fields  = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+
+		// Assert basic feedback fields
+		$this->assertEquals( 'John Doe', $fields['_feedback_author'] );
+		$this->assertSame( '', $fields['_feedback_author_email'] );
+		$this->assertSame( '', $fields['_feedback_author_url'] );
+		$this->assertStringContainsString( 'abc', $fields['_feedback_subject'] );
+		$this->assertEquals( '127.0.0.1', $fields['_feedback_ip'] );
+
+		// Assert all fields array structure
+		$this->assertIsArray( $fields['_feedback_all_fields'] );
+		$this->assertEquals( 'John Doe', $fields['_feedback_all_fields']['1_Name'] );
+		$this->assertEquals( 'First option', $fields['_feedback_all_fields']['2_Dropdown'] );
+		$this->assertEquals( 'Second option', $fields['_feedback_all_fields']['3_Radio'] );
+		$this->assertEquals( 'Texty text', $fields['_feedback_all_fields']['4_Text'] );
+
+		// Check metadata fields
+		$this->assertArrayHasKey( 'email_marketing_consent', $fields['_feedback_all_fields'] );
+		$this->assertArrayHasKey( 'entry_title', $fields['_feedback_all_fields'] );
+		$this->assertArrayHasKey( 'entry_permalink', $fields['_feedback_all_fields'] );
+		$this->assertArrayHasKey( 'feedback_id', $fields['_feedback_all_fields'] );
+
+		// Verify specific content
+		$this->assertEquals( 'abc', $fields['_feedback_all_fields']['entry_title'] );
+		$this->assertStringContainsString( 'example.org', $fields['_feedback_all_fields']['entry_permalink'] );
+		$this->assertMatchesRegularExpression( '/^[a-f0-9]{32}$/', $fields['_feedback_all_fields']['feedback_id'] );
+
+		wp_delete_post( $post_id, true );
+	}
+
 	/**
 	 * Tests that token is left intact when there is not matching field.
 	 *

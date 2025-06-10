@@ -802,14 +802,14 @@ class Contact_Form_Plugin {
 	/**
 	 * Render the file upload field.
 	 *
-	 * @param array  $atts - the block attributes.
-	 * @param string $content - html content.
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
 	 *
 	 * @return string HTML for the file upload field.
 	 */
-	public static function gutenblock_render_field_file( $atts, $content ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file' );
-
+	public static function gutenblock_render_field_file( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file', $block );
 		// Create wrapper div for the file field
 		$output = '<div class="jetpack-form-file-field">';
 
@@ -819,6 +819,33 @@ class Contact_Form_Plugin {
 		$output .= '</div>';
 
 		return $output;
+	}
+	/**
+	 * Render the dropzone field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the dropzone field.
+	 */
+	public static function gutenblock_render_dropzone( $atts, $content ) {
+
+		if ( class_exists( 'WP_HTML_Tag_Processor' ) ) {
+			$processor = \WP_HTML_Processor::create_fragment( $content );
+			while ( $processor->next_tag() ) {
+				if ( $processor->has_class( 'wp-block-jetpack-dropzone' ) ) {
+					if ( isset( $atts['layout']['justifyContent'] ) ) {
+						$processor->add_class( 'is-content-justification-' . $atts['layout']['justifyContent'] );
+					}
+				}
+				if ( 'A' === $processor->get_tag() || 'BUTTON' === $processor->get_tag() ) {
+					$processor->set_attribute( 'tabindex', '-1' );
+				}
+			}
+			$content = $processor->get_updated_html();
+		}
+
+		return $content;
 	}
 
 	/**
@@ -894,10 +921,34 @@ class Contact_Form_Plugin {
 	 * @param object $screen Information about the current screen.
 	 */
 	public function unread_count( $screen ) {
-		if ( isset( $screen->post_type ) && 'feedback' === $screen->post_type ) {
+		if ( isset( $screen->post_type ) && 'feedback' === $screen->post_type || $screen->id === 'jetpack_page_jetpack-forms-admin' ) {
 			update_option( 'feedback_unread_count', 0 );
 		} else {
-			global $submenu;
+			global $submenu, $menu;
+			if ( apply_filters( 'jetpack_forms_use_new_menu_parent', true ) && current_user_can( 'edit_pages' ) ) {
+				// show the count on Jetpack and Jetpack → Forms
+				$unread           = get_option( 'feedback_unread_count', 0 );
+				$unread_count_tag = " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>';
+
+				if ( $unread > 0 && isset( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) && ! empty( $submenu['jetpack'] ) ) {
+					// Main menu entries
+					foreach ( $menu as $index => $main_menu_item ) {
+						if ( isset( $main_menu_item[1] ) && 'jetpack_admin_page' === $main_menu_item[1] ) {
+							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+							$menu[ $index ][0] .= $unread_count_tag;
+						}
+					}
+
+					// Jetpack submenu entries
+					foreach ( $submenu['jetpack'] as $index => $menu_item ) {
+						if ( 'jetpack-forms-admin' === $menu_item[2] ) {
+							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+							$submenu['jetpack'][ $index ][0] .= $unread_count_tag;
+						}
+					}
+				}
+				return;
+			}
 			if ( isset( $submenu['feedback'] ) && is_array( $submenu['feedback'] ) && ! empty( $submenu['feedback'] ) ) {
 				foreach ( $submenu['feedback'] as $index => $menu_item ) {
 					if ( 'edit.php?post_type=feedback' === $menu_item[2] ) {
@@ -2177,13 +2228,13 @@ class Contact_Form_Plugin {
 		if ( ! empty( $post_data['post'] ) && $post_data['post'] !== 'all' ) {
 			$filename = sprintf(
 				'%s - %s.csv',
-				Admin::init()->get_export_filename( get_the_title( (int) $post_data['post'] ) ),
+				Util::get_export_filename( get_the_title( (int) $post_data['post'] ) ),
 				gmdate( 'Y-m-d H:i' )
 			);
 		} else {
 			$filename = sprintf(
 				'%s - %s.csv',
-				Admin::init()->get_export_filename(),
+				Util::get_export_filename(),
 				gmdate( 'Y-m-d H:i' )
 			);
 		}
@@ -2472,7 +2523,12 @@ class Contact_Form_Plugin {
 			if ( str_contains( $content, 'JSON_DATA' ) ) {
 				$chunks     = explode( "\nJSON_DATA", $content );
 				$all_values = json_decode( $chunks[1], true );
-				$lines      = array_filter( explode( "\n", $chunks[0] ) );
+				if ( $all_values === null ) {
+					// If JSON decoding fails, try to decode the second try with stripslashes and trim.
+					// This is a workaround for some cases where the JSON data is not properly formatted.
+					$all_values = json_decode( stripslashes( trim( $chunks[1] ) ), true );
+				}
+				$lines = array_filter( explode( "\n", $chunks[0] ) );
 			} else {
 				$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 
@@ -2511,7 +2567,10 @@ class Contact_Form_Plugin {
 				}
 			}
 		}
-
+		// All fields should always be an array, even if empty.
+		if ( ! is_array( $all_values ) ) {
+			$all_values = array();
+		}
 		$fields['_feedback_all_fields'] = $all_values;
 
 		return $fields;

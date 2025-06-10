@@ -10,8 +10,8 @@ import { usePrevious } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import JetpackFieldWidth from '../contact-form/components/jetpack-field-width';
 import JetpackManageResponsesSettings from '../contact-form/components/jetpack-manage-responses-settings';
+import JetpackFieldWidth from '../shared/components/jetpack-field-width';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
 export default function ConsentFieldEdit( props ) {
@@ -149,10 +149,10 @@ export default function ConsentFieldEdit( props ) {
 		<>
 			<div { ...innerBlocksProps } />
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Manage responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
-				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<ToggleControl
 						label={ __( 'Sync fields style', 'jetpack-forms' ) }
@@ -162,7 +162,7 @@ export default function ConsentFieldEdit( props ) {
 						__nextHasNoMarginBottom
 					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Consent Settings', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Consent settings', 'jetpack-forms' ) }>
 					<BaseControl __nextHasNoMarginBottom>
 						<SelectControl
 							label={ __( 'Permission to email', 'jetpack-forms' ) }

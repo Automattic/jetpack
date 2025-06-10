@@ -12,7 +12,7 @@ import useCreateForm from '../hooks/use-create-form';
 /**
  * Types
  */
-import type { Pattern } from '../types';
+import type { Pattern } from '../../types';
 import type { KeyboardEvent } from 'react';
 
 const PatternCard = ( { pattern }: { pattern: Pattern } ) => {

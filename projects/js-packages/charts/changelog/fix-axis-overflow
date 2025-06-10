@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Set SVG overflow to visible in bar-chart and line-chart styles

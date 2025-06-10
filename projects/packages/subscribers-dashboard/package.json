@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-subscribers-dashboard",
-	"version": "0.1.15",
+	"version": "0.1.16",
 	"description": "WP Admin page to manage subscribers",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/subscribers-dashboard/#readme",
 	"bugs": {
@@ -83,7 +83,6 @@
 		"concurrently": "7.6.0",
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",
-		"pkg-dir": "^5.0.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"require-from-string": "2.0.2",

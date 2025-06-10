@@ -18,12 +18,13 @@ import PluginActionButton from './plugin-action-button';
 /**
  * Types
  */
-import type { Integration } from '../../../../../dashboard/integrations/types';
+import type { Integration } from '../../../../../types';
 
 type IntegrationCardData = {
 	isInstalled?: boolean;
 	isActive?: boolean;
 	isConnected?: boolean;
+	needsConnection?: boolean;
 	type?: string;
 	showHeaderToggle?: boolean;
 	headerToggleValue?: boolean;
@@ -58,6 +59,7 @@ const IntegrationCardHeader = ( {
 		isInstalled,
 		isActive,
 		isConnected,
+		needsConnection,
 		type,
 		showHeaderToggle,
 		headerToggleValue,
@@ -67,11 +69,11 @@ const IntegrationCardHeader = ( {
 		setupBadge,
 	} = cardData;
 	const showPluginAction = type === 'plugin' && ( ! isInstalled || ! isActive );
-	const showConnectedBadge = isActive && isConnected;
+	const showConnectedBadge = isConnected || ( isActive && ! needsConnection );
 	const disableFormText = __( 'Disable for this form', 'jetpack-forms' );
 	const enableFormText = __( 'Enable for this form', 'jetpack-forms' );
 
-	const showPendingBadge = ! showPluginAction && ! isConnected;
+	const showPendingBadge = ! showPluginAction && ! isConnected && needsConnection;
 	const pendingBadge = setupBadge || (
 		<span className="integration-card__plugin-badge">
 			{ __( 'Needs connection', 'jetpack-forms' ) }

@@ -163,4 +163,75 @@ describe( 'LineChart', () => {
 			expect( screen.getByRole( 'img', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
+
+	describe( 'Start Glyphs', () => {
+		test( 'renders start glyphs when withStartGlyphs is true', () => {
+			renderWithTheme( {
+				withStartGlyphs: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			// Check that start glyphs are rendered for each series
+			const startGlyphs = screen.getAllByTestId( /start-glyph/i );
+			expect( startGlyphs ).toHaveLength( 2 ); // One for each series
+		} );
+
+		test( 'does not render start glyphs when withStartGlyphs is false', () => {
+			renderWithTheme( {
+				withStartGlyphs: false,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			// Check that no start glyphs are rendered
+			expect( screen.queryByTestId( /start-glyph/i ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'does not render start glyph when series has empty data', () => {
+			renderWithTheme( {
+				withStartGlyphs: true,
+				data: [
+					{
+						label: 'Empty Series',
+						data: [],
+						options: {},
+					},
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						options: {},
+					},
+				],
+			} );
+
+			// Should only have one start glyph (from the non-empty series)
+			const startGlyphs = screen.getAllByTestId( /start-glyph/i );
+			expect( startGlyphs ).toHaveLength( 1 );
+		} );
+	} );
 } );

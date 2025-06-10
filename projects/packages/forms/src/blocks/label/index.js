@@ -1,6 +1,6 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../contact-form/util/render-material-icon';
+import renderMaterialIcon from '../shared/components/render-material-icon';
 import edit from './edit';
 import save from './save';
 
@@ -26,6 +26,7 @@ const settings = {
 		'jetpack/field-telephone',
 		'jetpack/field-text',
 		'jetpack/field-textarea',
+		// Do not include 'jetpack/field-file' since it prevents the label from being duplicated.
 	],
 	supports: {
 		reusable: false,

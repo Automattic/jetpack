@@ -57,11 +57,9 @@
 		// label
 		label {
     		
-			// use our generic label first
-  			@extend %zbs-admin-label;
-
     		margin: 4px 8px;
 		    font-size: 13px;
+		    font-weight:800;
 
 
 		}

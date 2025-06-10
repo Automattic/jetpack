@@ -106,9 +106,9 @@ export function SubscriptionEdit( props ) {
 	const activeStyleName = getActiveStyleName( metadata.styles, className );
 
 	const { subscriberCount, subscriberCountString } = useSelect( select => {
-		const { emailSubscribers, socialFollowers } =
+		const { totalSubscribers, socialFollowers } =
 			select( membershipProductsStore ).getSubscriberCounts();
-		let count = emailSubscribers;
+		let count = totalSubscribers;
 		if ( includeSocialFollowers ) {
 			count += socialFollowers;
 		}

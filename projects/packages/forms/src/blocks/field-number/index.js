@@ -1,7 +1,7 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../contact-form/util/block-icons';
-import renderMaterialIcon from '../contact-form/util/render-material-icon';
+import renderMaterialIcon from '../shared/components/render-material-icon';
 import defaultSettings from '../shared/settings';
 import deprecated from './deprecated';
 import edit from './edit';
@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-number';
 const settings = {
 	...defaultSettings,
-	title: __( 'Number Input Field', 'jetpack-forms' ),
+	title: __( 'Number input field', 'jetpack-forms' ),
 	description: __( 'Collect numbers from site visitors.', 'jetpack-forms' ),
 	icon: renderMaterialIcon(
 		<Path
