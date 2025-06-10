@@ -66,7 +66,7 @@ class Request {
 	 * Go through headers and get a list of Vary headers to add,
 	 * including Vary on Accept and Content-Type if necessary.
 	 *
-	 * @since 12.2
+	 * @since jetpack-12.2
 	 *
 	 * @param array $headers The headers to be sent.
 	 *
