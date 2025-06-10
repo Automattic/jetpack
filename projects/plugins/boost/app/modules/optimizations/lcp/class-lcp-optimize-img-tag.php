@@ -42,68 +42,25 @@ class LCP_Optimize_Img_Tag {
 			return $buffer;
 		}
 
-		/*
-		 * Quickly check if the tag is in the buffer and return early if it's not found.
-		 * The HTML returned from cloud will not have a forward slash at the end of the tag, even if the original HTML had one.
-		 * By removing the last character from the LCP HTML, we can quickly check if the tag is in the buffer.
-		 *
-		 * `substr( '<img src="...">', 0, -1 )` -> `<img src="..."`
-		 */
-		if ( ! str_contains( $buffer, substr( $this->lcp_data['html'], 0, -1 ) ) ) {
+		$buffer_processor = $optimization_util->find_element( $buffer );
+		if ( ! $buffer_processor ) {
 			return $buffer;
 		}
+
 		// Create the optimized tag with required attributes.
-		return $this->optimize_image( $buffer, $this->lcp_data['html'] );
+		return $this->optimize_image( $buffer_processor );
 	}
 
 	/**
 	 * Optimize an image tag by adding required attributes.
 	 *
-	 * @param string $buffer The original HTML chunk of the page..
-	 * @param string $lcp_html The LCP HTML detected by cloud.
+	 * @param WP_HTML_Tag_Processor $buffer_processor The original HTML chunk of the page..
 	 *
 	 * @return string The optimized buffer.
 	 *
 	 * @since 4.0.0
 	 */
-	private function optimize_image( $buffer, $lcp_html ) {
-		$lcp_processor = new WP_HTML_Tag_Processor( $lcp_html );
-
-		// Ensure the LCP HTML is a valid image tag before proceeding.
-		if ( ! $lcp_processor->next_tag( 'img' ) ) {
-			return $buffer;
-		}
-
-		// Extract attributes from the LCP tag for matching
-		$lcp_id    = $lcp_processor->get_attribute( 'id' );
-		$lcp_class = $lcp_processor->get_attribute( 'class' );
-		$lcp_src   = $lcp_processor->get_attribute( 'src' );
-
-		$buffer_processor = new WP_HTML_Tag_Processor( $buffer );
-		$target_tag_found = false;
-
-		// Loop through all img tags in the buffer with the same classuntil we find a match.
-		// We do this because next_tag does not support matching on IDs and sources.
-		while ( $buffer_processor->next_tag(
-			array(
-				'tag_name'   => 'img',
-				'class_name' => $lcp_class,
-			)
-		) ) {
-			// Tag is considered a match if all attributes match
-			if ( $lcp_id === $buffer_processor->get_attribute( 'id' ) &&
-				$lcp_class === $buffer_processor->get_attribute( 'class' ) &&
-				$lcp_src === $buffer_processor->get_attribute( 'src' ) ) {
-				$target_tag_found = true;
-				break;
-			}
-		}
-
-		// If no matching tag found, return the original buffer
-		if ( ! $target_tag_found ) {
-			return $buffer;
-		}
-
+	private function optimize_image( $buffer_processor ) {
 		// Apply optimizations to the matched tag
 		$buffer_processor->set_attribute( 'fetchpriority', 'high' );
 		$buffer_processor->set_attribute( 'loading', 'eager' );
