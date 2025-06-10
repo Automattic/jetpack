@@ -5,7 +5,7 @@ import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 // See https://airbnb.io/visx/docs/legend#Ordinal for more details.
 type LegendOrdinalProps = Omit< ComponentProps< typeof LegendOrdinal >, 'scale' | 'direction' >;
 
-export type LegendItem = {
+export type BaseLegendItem = {
 	label: string;
 	value: number | string;
 	color: string;
@@ -14,7 +14,17 @@ export type LegendItem = {
 	shapeStyle?: CSSProperties;
 };
 
+export type LegendItemWithGlyph = BaseLegendItem & {
+	renderGlyph: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
+	glyphSize: number;
+};
+
+export type LegendItemWithoutGlyph = BaseLegendItem & {
+	renderGlyph?: never;
+	glyphSize?: number;
+};
+
 export type LegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
-	items: LegendItem[];
+	items: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
 	orientation?: 'horizontal' | 'vertical';
 };
