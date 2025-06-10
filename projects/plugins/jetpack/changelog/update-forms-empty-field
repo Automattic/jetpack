@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: visually separate empty fields from submissions containing just "-"

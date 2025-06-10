@@ -9,6 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 import clsx from 'clsx';
 import { map } from 'lodash';
+import EmptyField from '../components/empty-field';
 import { getPath } from './utils';
 
 const getDisplayName = response => {
@@ -157,16 +158,18 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		if ( isFileUploadField( value ) ) {
 			return (
 				<div className="file-field">
-					{ value.files?.length
-						? value.files.map( ( file, index ) => {
-								if ( ! file || ! file.name ) {
-									return null;
-								}
-								return (
-									<FileField file={ file } onClick={ handleFilePreview( file ) } key={ index } />
-								);
-						  } )
-						: '-' }
+					{ value.files?.length ? (
+						value.files.map( ( file, index ) => {
+							if ( ! file || ! file.name ) {
+								return null;
+							}
+							return (
+								<FileField file={ file } onClick={ handleFilePreview( file ) } key={ index } />
+							);
+						} )
+					) : (
+						<EmptyField />
+					) }
 				</div>
 			);
 		}

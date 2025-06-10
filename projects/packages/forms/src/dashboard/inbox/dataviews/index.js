@@ -21,6 +21,7 @@ import { useSearchParams } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import EmptyField from '../../components/empty-field';
 import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { store as dashboardStore } from '../../store';
 import InboxResponse from '../response';
@@ -51,7 +52,7 @@ const formatFieldName = fieldName => {
 
 const formatFieldValue = fieldValue => {
 	if ( isEmpty( fieldValue ) ) {
-		return '-';
+		return <EmptyField />;
 	} else if ( isArray( fieldValue ) ) {
 		return join( fieldValue, ', ' );
 	}
