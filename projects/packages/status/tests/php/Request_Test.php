@@ -44,14 +44,13 @@ class Request_Test extends TestCase {
 	 *
 	 * @dataProvider get_is_frontend_scenarios
 	 *
-	 * @param string $scenario_name    Name of the scenario being tested.
-	 * @param array  $function_mocks   WordPress functions and their return values.
-	 * @param array  $constants        Constants to mock and their values.
-	 * @param bool   $expected_result  Expected result from is_frontend().
-	 * @param bool   $should_set_headers Whether Vary headers should be set.
+	 * @param array $function_mocks   WordPress functions and their return values.
+	 * @param array $constants        Constants to mock and their values.
+	 * @param bool  $expected_result  Expected result from is_frontend().
+	 * @param bool  $should_set_headers Whether Vary headers should be set.
 	 */
 	#[DataProvider( 'get_is_frontend_scenarios' )]
-	public function test_is_frontend_scenarios( $scenario_name, $function_mocks, $constants, $expected_result, $should_set_headers ) {
+	public function test_is_frontend_scenarios( $function_mocks, $constants, $expected_result, $should_set_headers ) {
 		// Set up constants using Constants package
 		foreach ( $constants as $constant_name => $constant_value ) {
 			Constants::set_constant( $constant_name, $constant_value );
@@ -74,7 +73,7 @@ class Request_Test extends TestCase {
 		Filters\expectApplied( 'jetpack_is_frontend' )->once()->with( $expected_result )->andReturn( $expected_result );
 
 		$result = Request::is_frontend();
-		$this->assertEquals( $expected_result, $result, "Failed scenario: {$scenario_name}" );
+		$this->assertEquals( $expected_result, $result );
 	}
 
 	/**
@@ -95,77 +94,66 @@ class Request_Test extends TestCase {
 
 		return array(
 			'frontend request'          => array(
-				'scenario_name'      => 'frontend request',
 				'function_mocks'     => $default_functions,
 				'constants'          => array(),
 				'expected_result'    => true,
 				'should_set_headers' => true,
 			),
 			'admin request'             => array(
-				'scenario_name'      => 'admin request',
 				'function_mocks'     => array_merge( $default_functions, array( 'is_admin' => true ) ),
 				'constants'          => array(),
 				'expected_result'    => false,
 				'should_set_headers' => false,
 			),
 			'ajax request'              => array(
-				'scenario_name'      => 'ajax request',
 				'function_mocks'     => array_merge( $default_functions, array( 'wp_doing_ajax' => true ) ),
 				'constants'          => array(),
 				'expected_result'    => false,
 				'should_set_headers' => false,
 			),
 			'jsonp request'             => array(
-				'scenario_name'      => 'jsonp request',
 				'function_mocks'     => array_merge( $default_functions, array( 'wp_is_jsonp_request' => true ) ),
 				'constants'          => array(),
 				'expected_result'    => false,
 				'should_set_headers' => false,
 			),
 			'feed request'              => array(
-				'scenario_name'      => 'feed request',
 				'function_mocks'     => array_merge( $default_functions, array( 'is_feed' => true ) ),
 				'constants'          => array(),
 				'expected_result'    => false,
 				'should_set_headers' => false,
 			),
 			'REST_REQUEST constant'     => array(
-				'scenario_name'      => 'REST_REQUEST constant',
 				'function_mocks'     => $default_functions,
 				'constants'          => array( 'REST_REQUEST' => true ),
 				'expected_result'    => false,
 				'should_set_headers' => false,
 			),
 			'REST_API_REQUEST constant' => array(
-				'scenario_name'      => 'REST_API_REQUEST constant',
 				'function_mocks'     => $default_functions,
 				'constants'          => array( 'REST_API_REQUEST' => true ),
 				'expected_result'    => false,
 				'should_set_headers' => false,
 			),
 			'WP_CLI constant'           => array(
-				'scenario_name'      => 'WP_CLI constant',
 				'function_mocks'     => $default_functions,
 				'constants'          => array( 'WP_CLI' => true ),
 				'expected_result'    => false,
 				'should_set_headers' => false,
 			),
 			'json request'              => array(
-				'scenario_name'      => 'json request',
 				'function_mocks'     => array_merge( $default_functions, array( 'wp_is_json_request' => true ) ),
 				'constants'          => array(),
 				'expected_result'    => false,
 				'should_set_headers' => true, // JSON requests are varying requests
 			),
 			'xml request'               => array(
-				'scenario_name'      => 'xml request',
 				'function_mocks'     => array_merge( $default_functions, array( 'wp_is_xml_request' => true ) ),
 				'constants'          => array(),
 				'expected_result'    => false,
 				'should_set_headers' => true, // XML requests are varying requests
 			),
 			'headers already sent'      => array(
-				'scenario_name'      => 'headers already sent',
 				'function_mocks'     => array_merge( $default_functions, array( 'headers_sent' => true ) ),
 				'constants'          => array(),
 				'expected_result'    => true,
@@ -178,12 +166,11 @@ class Request_Test extends TestCase {
 	 * Test is_frontend with various existing header scenarios
 	 *
 	 * @dataProvider get_header_scenarios
-	 * @param string $scenario_name    Name of the scenario being tested.
 	 * @param array  $existing_headers Existing headers to mock.
 	 * @param string $expected_header  Expected Vary header to be set.
 	 */
 	#[DataProvider( 'get_header_scenarios' )]
-	public function test_is_frontend_with_existing_headers( $scenario_name, $existing_headers, $expected_header ) {
+	public function test_is_frontend_with_existing_headers( $existing_headers, $expected_header ) {
 		// Set up for frontend request (all conditions false)
 		Functions\when( 'is_admin' )->justReturn( false );
 		Functions\when( 'wp_doing_ajax' )->justReturn( false );
@@ -199,7 +186,7 @@ class Request_Test extends TestCase {
 		Filters\expectApplied( 'jetpack_is_frontend' )->once()->with( true )->andReturn( true );
 
 		$result = Request::is_frontend();
-		$this->assertTrue( $result, "Failed scenario: {$scenario_name}" );
+		$this->assertTrue( $result );
 	}
 
 	/**
@@ -210,12 +197,10 @@ class Request_Test extends TestCase {
 	public static function get_header_scenarios() {
 		return array(
 			'no existing headers'                       => array(
-				'scenario_name'    => 'no existing headers',
 				'existing_headers' => array(),
 				'expected_header'  => 'Vary: accept, content-type',
 			),
 			'existing Accept-Encoding header'           => array(
-				'scenario_name'    => 'existing Accept-Encoding header',
 				'existing_headers' => array(
 					'Cache-Control: no-cache, must-revalidate, max-age=0',
 					'Content-Type: text/html; charset=UTF-8',
@@ -224,7 +209,6 @@ class Request_Test extends TestCase {
 				'expected_header'  => 'Vary: accept, content-type, accept-encoding',
 			),
 			'multiple Vary headers'                     => array(
-				'scenario_name'    => 'multiple Vary headers',
 				'existing_headers' => array(
 					'Cache-Control: no-cache, must-revalidate, max-age=0',
 					'Content-Type: text/html; charset=UTF-8',
@@ -234,7 +218,6 @@ class Request_Test extends TestCase {
 				'expected_header'  => 'Vary: accept, content-type, accept-encoding',
 			),
 			'wildcard Vary header'                      => array(
-				'scenario_name'    => 'wildcard Vary header',
 				'existing_headers' => array(
 					'Cache-Control: no-cache, must-revalidate, max-age=0',
 					'Content-Type: text/html; charset=UTF-8',
@@ -243,7 +226,6 @@ class Request_Test extends TestCase {
 				'expected_header'  => 'Vary: *',
 			),
 			'existing Accept header (already included)' => array(
-				'scenario_name'    => 'existing Accept header (already included)',
 				'existing_headers' => array(
 					'Cache-Control: no-cache, must-revalidate, max-age=0',
 					'Content-Type: text/html; charset=UTF-8',
@@ -252,7 +234,6 @@ class Request_Test extends TestCase {
 				'expected_header'  => 'Vary: accept, content-type',
 			),
 			'mixed case Vary header'                    => array(
-				'scenario_name'    => 'mixed case Vary header',
 				'existing_headers' => array(
 					'Cache-Control: no-cache, must-revalidate, max-age=0',
 					'Content-Type: text/html; charset=UTF-8',
@@ -267,13 +248,12 @@ class Request_Test extends TestCase {
 	 * Test is_frontend filter behavior
 	 *
 	 * @dataProvider get_filter_override_scenarios
-	 * @param string $scenario_name     Name of the scenario being tested.
-	 * @param bool   $initial_result    The initial result before filter is applied.
-	 * @param bool   $filter_return     What the filter should return.
-	 * @param bool   $expected_result   The expected final result.
+	 * @param bool $initial_result    The initial result before filter is applied.
+	 * @param bool $filter_return     What the filter should return.
+	 * @param bool $expected_result   The expected final result.
 	 */
 	#[DataProvider( 'get_filter_override_scenarios' )]
-	public function test_is_frontend_filter_behavior( $scenario_name, $initial_result, $filter_return, $expected_result ) {
+	public function test_is_frontend_filter_behavior( $initial_result, $filter_return, $expected_result ) {
 		// Set up WordPress functions based on the initial result we want
 		if ( $initial_result ) {
 			// Frontend request setup
@@ -302,7 +282,7 @@ class Request_Test extends TestCase {
 		Filters\expectApplied( 'jetpack_is_frontend' )->once()->with( $initial_result )->andReturn( $filter_return );
 
 		$result = Request::is_frontend();
-		$this->assertEquals( $expected_result, $result, "Failed scenario: {$scenario_name}" );
+		$this->assertEquals( $expected_result, $result );
 	}
 
 	/**
@@ -313,25 +293,21 @@ class Request_Test extends TestCase {
 	public static function get_filter_override_scenarios() {
 		return array(
 			'frontend request - filter returns same (true)' => array(
-				'scenario_name'   => 'frontend request - filter returns same (true)',
 				'initial_result'  => true,
 				'filter_return'   => true,
 				'expected_result' => true,
 			),
 			'frontend request - filter overrides to false' => array(
-				'scenario_name'   => 'frontend request - filter overrides to false',
 				'initial_result'  => true,
 				'filter_return'   => false,
 				'expected_result' => false,
 			),
 			'admin request - filter returns same (false)'  => array(
-				'scenario_name'   => 'admin request - filter returns same (false)',
 				'initial_result'  => false,
 				'filter_return'   => false,
 				'expected_result' => false,
 			),
 			'admin request - filter overrides to true'     => array(
-				'scenario_name'   => 'admin request - filter overrides to true',
 				'initial_result'  => false,
 				'filter_return'   => true,
 				'expected_result' => true,
