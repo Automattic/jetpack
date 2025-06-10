@@ -454,7 +454,7 @@ function jetpack_get_vary_headers( $headers = array() ) {
 function jetpack_is_frontend() {
 	_deprecated_function( __FUNCTION__, '$$next-version$$', 'Automattic\Jetpack\Status\Request::is_frontend' );
 
-	return ( new Request() )->is_frontend();
+	return Request::is_frontend();
 }
 
 if ( ! function_exists( 'jetpack_mastodon_get_instance_list' ) ) {

@@ -288,7 +288,7 @@ class Jetpack_Simple_Payments {
 		$data['id'] = $attrs['id'];
 
 		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
-			if ( ( new Request() )->is_frontend() ) {
+			if ( Request::is_frontend() ) {
 				return $this->output_admin_warning( $data );
 			}
 			return;

@@ -54,7 +54,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function render_block( $attr, $content ) {
 	// Keep content as-is if rendered in other contexts than frontend (i.e. feed, emails, API, etc.).
-	if ( ! ( new Request() )->is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		$parsed = parse_blocks( $content );
 		if ( ! empty( $parsed[0] ) ) {
 			// Inject the link of the current post from the server side as the fallback link to make sure the donations block

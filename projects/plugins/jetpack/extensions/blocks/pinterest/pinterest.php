@@ -221,7 +221,7 @@ function render_amp_pin( $attr ) {
  * @return string
  */
 function load_assets( $attr, $content ) {
-	if ( ! ( new Request() )->is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		return $content;
 	}
 	if ( Blocks::is_amp_request() ) {

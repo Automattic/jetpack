@@ -84,7 +84,7 @@ HTML;
 		$placeholder_site_icon = 'empty-site-icon';
 	}
 
-	if ( ! ( new Request() )->is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		return <<<HTML
 			<div style="margin-bottom: 10px;">
 				<a href="$url">$name</a><div>$description</div>

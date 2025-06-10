@@ -48,7 +48,7 @@ function render_block( $attr, $content ) {
 	}
 
 	// Keep content as-is if rendered in other contexts than frontend (i.e. feed, emails, API, etc.).
-	if ( ! ( new Request() )->is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		return $content;
 	}
 

@@ -247,7 +247,7 @@ class Jetpack_Memberships {
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
 		$this->setup_cpts();
 
-		if ( Jetpack::is_module_active( 'subscriptions' ) && ( new Request() )->is_frontend() ) {
+		if ( Jetpack::is_module_active( 'subscriptions' ) && Request::is_frontend() ) {
 			add_action( 'wp_logout', array( $this, 'subscriber_logout' ) );
 		}
 	}

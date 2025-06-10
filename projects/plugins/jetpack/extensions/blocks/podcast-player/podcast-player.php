@@ -60,7 +60,7 @@ function render_error( $message ) {
  */
 function render_block( $attributes, $content ) {
 	// Don't render an interactive version of the block outside the frontend context.
-	if ( ! ( new Request() )->is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		return $content;
 	}
 

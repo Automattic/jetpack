@@ -60,7 +60,7 @@ function load_assets( $attr, $content ) {
 		</form>
 HTML;
 
-	$blogroll_content = $is_wpcom && ( new Request() )->is_frontend() ? $form_content : $content;
+	$blogroll_content = $is_wpcom && Request::is_frontend() ? $form_content : $content;
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',

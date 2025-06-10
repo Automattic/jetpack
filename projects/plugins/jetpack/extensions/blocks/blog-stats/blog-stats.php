@@ -63,7 +63,7 @@ function load_assets( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	// For outside the front-end, such as within emails or the API.
-	if ( ! ( new Request() )->is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		return;
 	}
 

@@ -455,7 +455,7 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes, $content, $block = null ) {
-		if ( ! ( new Request() )->is_frontend() ) {
+		if ( ! Request::is_frontend() ) {
 			return $content;
 		}
 

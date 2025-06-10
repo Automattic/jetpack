@@ -60,7 +60,7 @@ function load_assets( $attributes ) {
 	}
 
 	// Do not render in contexts outside the front-end (eg. emails, API).
-	if ( ! ( new Request() )->is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		return;
 	}
 
