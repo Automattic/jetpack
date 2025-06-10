@@ -2,9 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [1.2.1] - 2025-06-10
+### Changed
+- Update dependencies.
+
 ## [1.2.0] - 2025-06-05
 ### Changed
-- Connection: Display connection info on WoA sites [#43777]
+- Connection: Display connection info on WoA sites. [#43777]
 
 ## [1.1.0] - 2025-06-04
 ### Added
@@ -1052,6 +1056,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[1.2.1]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.18...v1.0.0
