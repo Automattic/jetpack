@@ -359,7 +359,10 @@ class Playground_DB_Importer {
 			$field_names[] = $column['name'];
 
 			if ( ! array_key_exists( $column['name'], $mysql_map ) ) {
-				return new WP_Error( 'missing-column', 'Query error: not a valid SQLite database, missing column' );
+				return new WP_Error(
+					'missing-column',
+					sprintf( 'Query error: not a valid SQLite table "%s", missing column "%s"', $table_name, $column['name'] )
+				);
 			}
 
 			// Add map info.
