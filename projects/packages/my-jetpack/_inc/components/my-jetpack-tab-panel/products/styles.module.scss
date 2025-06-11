@@ -1,0 +1,11 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+
+.content {
+
+	.description {
+
+		@include gb.body-medium;
+		margin: 0;
+		color: #{gb.$gray-700};
+	}
+}
