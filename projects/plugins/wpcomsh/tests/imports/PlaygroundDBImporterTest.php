@@ -291,7 +291,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( SQL_Generator::DEFAULT_COLLATION, $result );
 	}
 
-	public function get_needs_191_limit_test_cases() {
+	public function test_get_needs_191_limit_test_cases() {
 		$this->assertFalse(
 			$this->db_importer->needs_191_limit(
 				array(
@@ -352,6 +352,13 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 
 		$this->assertNotWPError( $result );
 		$this->assertStringNotContainsString( 'CREATE TABLE `_wp_sqlite_global_variables`', $result );
+	}
+
+	public function test_is_valid_table() {
+		$this->assertFalse( $this->db_importer->is_valid_table( '_mysql_data_types_cache' ) );
+		$this->assertFalse( $this->db_importer->is_valid_table( '_wp_sqlite_global_variables' ) );
+		$this->assertFalse( $this->db_importer->is_valid_table( 'sqlite_master' ) );
+		$this->assertTrue( $this->db_importer->is_valid_table( 'wp_options' ) );
 	}
 
 	/**
