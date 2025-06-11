@@ -795,7 +795,7 @@ jQuery( function() {
 		$message = new IXR_Message( $raw_post_data );
 		$message->parse();
 		$post_id_position = 'metaWeblog.getPost' === $message->methodName ? 0 : 1; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$this->prime_post_cache( $message->params[ $post_id_position ] );
+		$this->prime_post_cache( $message->params[ $post_id_position ] ?? false );
 	}
 
 	/**
@@ -807,7 +807,11 @@ jQuery( function() {
 	private function prime_post_cache( $post_id = false ) {
 		global $wp_xmlrpc_server;
 		if ( ! $post_id ) {
-			$post_id = $wp_xmlrpc_server->message->params[3];
+			if ( isset( $wp_xmlrpc_server->message->params[3] ) ) {
+				$post_id = $wp_xmlrpc_server->message->params[3];
+			} else {
+				return; // Exit early if we can't get a valid post_id
+			}
 		}
 
 		// prime the post cache.
