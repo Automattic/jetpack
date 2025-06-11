@@ -1258,8 +1258,8 @@ class Woo_Sync_Background_Sync_Job {
 
 	        		if ( 
 	        			
-	        			// name
-	        			sprintf( __( '%s (From WooCommerce)', 'zero-bs-crm' ), $tax_label ) == $tax_rate_detail['name']
+						// name
+						$tax_label === $tax_rate_detail['name']
 	        			&&
 	        			// rate
 	        			$tax_rate == $tax_rate_detail['rate']
@@ -1282,7 +1282,7 @@ class Woo_Sync_Background_Sync_Job {
 
 							//'id'   => -1,
 							'data' => array(
-								'name' => sprintf( __( '%s (From WooCommerce)', 'zero-bs-crm' ), $tax_label ),
+								'name' => $tax_label,
 								'rate' => (float)$tax_rate,
 							),
 						)
@@ -1612,8 +1612,7 @@ class Woo_Sync_Background_Sync_Job {
 					$tax_label = $tax_items_labels[ $rate_id ];
 
 					foreach ( $tax_rates_table as $tax_rate_id => $tax_rate_detail ) {
-						// Translators: %s = tax rate name
-						if ( sprintf( __( '%s (From WooCommerce)', 'zero-bs-crm' ), $tax_label ) === $tax_rate_detail['name'] ) {
+						if ( $tax_label === $tax_rate_detail['name'] ) {
 							$shipping_tax_id = $tax_rate_id;
 							break;
 						}
@@ -1661,7 +1660,7 @@ class Woo_Sync_Background_Sync_Job {
 			        	// match tax label to tax in our crm tax table (should have been added by the logic above here, even if new)
 			        	foreach ( $tax_rates_table as $tax_rate_id => $tax_rate_detail ){
 
-			        		if ( sprintf( __( '%s (From WooCommerce)', 'zero-bs-crm' ), $tax_label ) == $tax_rate_detail['name'] ){
+							if ( $tax_label === $tax_rate_detail['name'] ) {
 
 			        			// this tax is applied to this line item
 			        			$item_tax_rate_ids[] = $tax_rate_id;
@@ -1673,6 +1672,18 @@ class Woo_Sync_Background_Sync_Job {
 
 			    }
 
+				// Get product short description for line item description.
+				$product_id_to_fetch = $item_data['product_id'];
+				if ( isset( $item_data['variation_id'] ) && $item_data['variation_id'] > 0 ) {
+					$product_id_to_fetch = $item_data['variation_id'];
+				}
+				$product               = wc_get_product( $product_id_to_fetch );
+				$line_item_description = $product ? $product->get_short_description() : '';
+				// If short description is empty or product not found, fall back to the product name.
+				if ( empty( $line_item_description ) ) {
+					$line_item_description = $item_data['name'];
+				}
+
 				// attributes not yet translatable but originally referenced: `variation_id|tax_class|subtotal_tax`
 				$new_line_item = array(
 					'order'    => $order_post_id, // passed as parameter to this function
@@ -1681,7 +1692,7 @@ class Woo_Sync_Background_Sync_Job {
 					'price'    => $price,
 					'total'    => $item_data['total'],
 					'title'    => $item_data['name'],
-					'desc'     => $item_data['name'] . ' (#' . $item_data['product_id'] . ')',
+					'desc'     => $line_item_description,
 					'tax'      => $item_data['total_tax'],
 					'shipping' => 0,
 				);
@@ -1690,6 +1701,7 @@ class Woo_Sync_Background_Sync_Job {
 				if ( is_array( $item_tax_rate_ids ) && count( $item_tax_rate_ids ) > 0 ) {
 					$new_line_item['taxes'] = implode( ',', $item_tax_rate_ids );
 				}
+
 				// Add order item line
 				$data['lineitems'][] = $new_line_item;
 

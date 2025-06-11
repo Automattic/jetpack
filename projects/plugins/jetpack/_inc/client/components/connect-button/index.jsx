@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { DisconnectDialog } from '@automattic/jetpack-connection';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -210,18 +211,22 @@ export class ConnectButton extends React.Component {
 		}
 
 		if ( this.props.isSiteConnected ) {
-			return (
-				<JetpackBanner
-					title={ __( 'Your site is connected to WordPress.com.', 'jetpack' ) }
-					noIcon
-					callToAction={ this.props.connectLegend || __( 'Manage', 'jetpack' ) }
-					onClick={ this.handleOpenModal }
-					eventFeature="manage-site-connection"
-					path="dashboard"
-					eventProps={ { type: 'manage' } }
-					isPromotion={ false }
-				/>
-			);
+			const bannerProps = {
+				title: __( 'Your site is connected to WordPress.com.', 'jetpack' ),
+				noIcon: true,
+				eventFeature: 'manage-site-connection',
+				path: 'dashboard',
+				eventProps: { type: 'manage' },
+				isPromotion: false,
+			};
+
+			// Don't show Manage button on WoA sites
+			if ( ! isWoASite() ) {
+				bannerProps.callToAction = this.props.connectLegend || __( 'Manage', 'jetpack' );
+				bannerProps.onClick = this.handleOpenModal;
+			}
+
+			return <JetpackBanner { ...bannerProps } />;
 		}
 
 		let connectUrl = this.props.connectUrl;

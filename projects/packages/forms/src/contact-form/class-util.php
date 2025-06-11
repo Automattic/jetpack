@@ -183,7 +183,8 @@ class Util {
 	 * @return string
 	 */
 	public static function grunion_contact_form_unset_block_template_part_id_global( $content, $block ) {
-		if ( 'core/template-part' === $block['blockName']
+		if ( isset( $block['blockName'] )
+			&& 'core/template-part' === $block['blockName']
 			&& isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
 			unset( $GLOBALS['grunion_block_template_part_id'] );
 		}

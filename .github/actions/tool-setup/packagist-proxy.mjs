@@ -116,7 +116,7 @@ server.on( 'request', ( req, res ) => {
 	} );
 
 	upstreamReq.on( 'error', e => {
-		console.log( `!![${ reqid }] Network error: ${ e }` );
+		console.log( `!![${ reqid }] Network error:`, e );
 
 		if ( sentResponse ) {
 			console.log( `!![${ reqid }] Already got a (partial) response, just closing.` );

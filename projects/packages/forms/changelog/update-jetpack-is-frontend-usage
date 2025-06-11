@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Frontend vs. email detection: switch to method from Jetpack Status package.
