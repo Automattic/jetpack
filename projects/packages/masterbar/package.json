@@ -35,7 +35,7 @@
 		"@csstools/postcss-global-data": "2.1.1",
 		"@wordpress/browserslist-config": "6.24.0",
 		"autoprefixer": "10.4.20",
-		"glob": "11.0.0",
+		"glob": "11.0.2",
 		"postcss": "8.4.47",
 		"postcss-loader": "8.1.1",
 		"sass-embedded": "1.87.0",
