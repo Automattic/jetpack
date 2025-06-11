@@ -191,6 +191,8 @@ class Playground_DB_Importer {
 
 			if ( is_wp_error( $types_map ) ) {
 				return $types_map;
+			} elseif ( empty( $types_map['map'] ) ) {
+				continue;
 			}
 
 			// Force a temporary table name if needed.
@@ -329,6 +331,17 @@ class Playground_DB_Importer {
 
 			// Map by column name and MySQL type.
 			$mysql_map[ $column['column_or_index'] ] = $column['mysql_type'];
+		}
+
+		// Tables like `'_wp_sqlite_*` do not have entries in the `_mysql_data_types_cache` table.
+		// In this case, we return an empty map.
+		if ( empty( $mysql_map ) ) {
+			return array(
+				'map'            => array(),
+				'auto_increment' => 0,
+				'field_names'    => null,
+				'format'         => null,
+			);
 		}
 
 		// Get the "table info" of the table.
@@ -606,5 +619,26 @@ class Playground_DB_Importer {
 		}
 
 		return $map;
+	}
+
+	/**
+	 * Check if the table is valid.
+	 *
+	 * @param string $table_name The table name.
+	 *
+	 * @return bool
+	 */
+	public function is_valid_table( string $table_name ): bool {
+		// Skip SQLite internal tables.
+		if ( $table_name === self::SQLITE_DATA_TYPES_TABLE || $table_name === self::SQLITE_SEQUENCE_TABLE ) {
+			return false;
+		}
+
+		// Skip WordPress internal tables.
+		if ( strpos( $table_name, '_wp_sqlite' ) === 0 ) {
+			return false;
+		}
+
+		return true;
 	}
 }

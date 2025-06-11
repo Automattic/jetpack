@@ -340,6 +340,20 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		);
 	}
 
+	public function test_open_a_database_with_internal_wp_tables() {
+		$this->generate_sqlite_database(
+			array(
+				'cache_table' => true,
+				'queries'     => $this->get_base_queries( '_wp_sqlite_global_variables', false ),
+			)
+		);
+
+		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
+
+		$this->assertNotWPError( $result );
+		$this->assertStringNotContainsString( 'CREATE TABLE `_wp_sqlite_global_variables`', $result );
+	}
+
 	/**
 	 * Generates a temporary file.
 	 *
