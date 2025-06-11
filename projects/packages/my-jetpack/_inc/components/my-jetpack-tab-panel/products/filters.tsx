@@ -48,7 +48,6 @@ export function Filters( { onChangeFilter, onSearch, search, selectedFilter }: F
 							role="menuitemradio"
 							isSelected={ isSelected }
 							onClick={ onSelectFilter( item.value ) }
-							aria-label={ item[ 'aria-label' ] }
 						>
 							{ item.label }
 						</MenuItem>
