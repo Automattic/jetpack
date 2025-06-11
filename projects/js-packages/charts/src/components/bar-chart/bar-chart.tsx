@@ -1,7 +1,7 @@
 import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { useChartTheme, useXYChartTheme } from '../../providers/theme';
+import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { withResponsive } from '../shared/with-responsive';
@@ -50,7 +50,6 @@ const BarChart: FC< BarChartProps > = ( {
 	orientation = 'vertical',
 } ) => {
 	const horizontal = orientation === 'horizontal';
-	const providerTheme = useChartTheme();
 	const theme = useXYChartTheme( data );
 	const chartOptions = useBarChartOptions( data, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
@@ -93,8 +92,7 @@ const BarChart: FC< BarChartProps > = ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
 		color: group.options?.stroke || theme.colors[ index % theme.colors.length ],
-		shapeStyle:
-			group?.options?.legendShapeStyle ?? providerTheme.legendShapeStyles?.[ index ] ?? {},
+		shapeStyle: group?.options?.legendShapeStyle,
 	} ) );
 
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
