@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Chart components now subtract legend height from total height, ensuring the rendered chart (including legend) does not exceed the specified height prop
