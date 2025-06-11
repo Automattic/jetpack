@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Fix redirects preventing Critical CSS from being generated.

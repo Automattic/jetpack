@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix redirects breaking Critical CSS generation in iframe interface.
