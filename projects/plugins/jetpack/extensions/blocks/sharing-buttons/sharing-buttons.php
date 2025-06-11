@@ -10,6 +10,8 @@
 namespace Automattic\Jetpack\Extensions\Sharing_Buttons;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status\Request;
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -33,7 +35,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function render_block( $attr, $content ) {
 	// Render nothing in other contexts than frontend (i.e. feed, emails, API, etc.).
-	if ( ! jetpack_is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		return '';
 	}
 
