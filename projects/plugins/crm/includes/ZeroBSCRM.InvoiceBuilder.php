@@ -1097,7 +1097,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	$partials_table = '';
 
 	// Check if partial payments are disabled
-	if ( ! isset( $invsettings['invoicing_disable_partial_payments'] ) || $invsettings['invoicing_disable_partial_payments'] !== '1' ) {
+	if ( ! isset( $invsettings['invoicing_disable_partial_payments'] ) || $invsettings['invoicing_disable_partial_payments'] !== 1 ) {
 
 		if ( $invoice['total'] == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			$partials_table .= '<table id="partials" class="hide table-totals striped">';
