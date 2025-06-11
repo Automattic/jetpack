@@ -2101,13 +2101,14 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/paypal-payments",
-				"reference": "2aadf37d6ace86837b23c0762a5a7ae6b1a8fbd4"
+				"reference": "212a7b22dff2a31244d1bd0898143f35eec59667"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
 				"automattic/jetpack-blocks": "@dev",
 				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-plans": "@dev",
+				"automattic/jetpack-status": "@dev",
 				"php": ">=7.2"
 			},
 			"require-dev": {
