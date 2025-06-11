@@ -116,9 +116,9 @@ export class DashConnections extends Component {
 	userConnection() {
 		// Hide disconnect button for connection owners on WoA sites
 		const shouldShowDisconnectButton = ! ( isWoASite() && this.props.isConnectionOwner );
-		const maybeShowLinkUnlinkBtn = shouldShowDisconnectButton ? (
+		const LinkUnlinkBtn = (
 			<ConnectButton asBanner connectUser={ true } from="connection-settings" />
-		) : null;
+		);
 
 		let cardContent = '';
 
@@ -148,7 +148,7 @@ export class DashConnections extends Component {
 		}
 
 		if ( ! this.props.isLinked ) {
-			cardContent = <div className="jp-connection-settings__info">{ maybeShowLinkUnlinkBtn }</div>;
+			cardContent = <div className="jp-connection-settings__info">{ LinkUnlinkBtn }</div>;
 		} else if ( this.props.isFetchingUserData ) {
 			cardContent = __( 'Loading…', 'jetpack' );
 		} else if ( ! this.props.wpComConnectedUser?.email ) {
@@ -190,8 +190,8 @@ export class DashConnections extends Component {
 							</div>
 						</div>
 					</div>
-					{ maybeShowLinkUnlinkBtn && (
-						<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
+					{ shouldShowDisconnectButton && (
+						<div className="jp-connection-settings__actions">{ LinkUnlinkBtn }</div>
 					) }
 				</div>
 			);
