@@ -120,7 +120,7 @@ class LCP_Optimization_Util {
 	 *
 	 * @return bool True if the LCP data is valid and can be optimized, false otherwise.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 */
 	public function can_optimize() {
 		if ( empty( $this->lcp_data ) || ! is_array( $this->lcp_data ) ) {
@@ -141,7 +141,7 @@ class LCP_Optimization_Util {
 	 * @param string $tag The tag to check. Default is 'img'.
 	 * @return WP_HTML_Tag_Processor|false The HTML tag processor if the element is present, false otherwise.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 */
 	public function find_element( $buffer, $tag = 'img' ) {
 		$html_processor = new WP_HTML_Tag_Processor( $buffer );
