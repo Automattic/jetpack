@@ -13,6 +13,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Paypal_Payments\Simple_Payments;
+use Automattic\Jetpack\Status\Request;
 use WP_Post;
 
 /**
@@ -57,7 +58,7 @@ class Block {
 		}
 
 		// Keep content as-is if rendered in other contexts than frontend (i.e. feed, emails, API, etc.).
-		if ( function_exists( 'jetpack_is_frontend' ) && ! jetpack_is_frontend() ) {
+		if ( ! Request::is_frontend() ) {
 			return $content;
 		}
 
