@@ -187,7 +187,7 @@ const { state } = store( NAMESPACE, {
 			field.error = validateField( field.type, field.value, field.isRequired, field.extra );
 		} ),
 
-		handleMultipleChangeField: withSyncEvent( event => {
+		onMultipleFieldChange: withSyncEvent( event => {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];

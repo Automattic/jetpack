@@ -1351,7 +1351,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
 								type='checkbox'
-								data-wp-on--change='actions.handleMultipleChangeField'
+								data-wp-on--change='actions.onMultipleFieldChange'
 								name='" . esc_attr( $id ) . "[]'
 								value='" . esc_attr( $checkbox_value ) . "' "
 								. $class
@@ -1382,7 +1382,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field .= "<p class='contact-form-field'>";
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
-								data-wp-on--change='actions.handleMultipleChangeField'
+								data-wp-on--change='actions.onMultipleFieldChange'
 								type='checkbox'
 								name='" . esc_attr( $id ) . "[]'
 								value='" . esc_attr( $checkbox_value ) . "' "
