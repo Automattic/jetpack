@@ -1,6 +1,6 @@
 import { ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 /**
  * Renders a link that opens a WP.com support article in the Help Center.
@@ -13,7 +13,7 @@ import React from 'react';
  * @param {object}   [props.style]   - CSS properties to be applied to the link.
  * @return {React.JSX.Element} The component to render.
  */
-export function WpcomSupportLink( { url, postId, text, onClick, style } ) {
+export const WpcomSupportLink = forwardRef( ( { url, postId, text, onClick, style }, ref ) => {
 	const helpCenterDispatch = useDispatch( 'automattic/help-center' );
 	const setShowSupportDoc = helpCenterDispatch?.setShowSupportDoc;
 
@@ -31,8 +31,9 @@ export function WpcomSupportLink( { url, postId, text, onClick, style } ) {
 				}
 			} }
 			style={ style }
+			ref={ ref }
 		>
 			{ text }
 		</Link>
 	);
-}
+} );
