@@ -137,12 +137,12 @@ class Util {
 				'categories' => array( $category_slug ),
 				'content'    => '<!-- wp:jetpack/contact-form {"formTitle":"Salesforce Lead Form"} -->
 					<div class="wp-block-jetpack-contact-form">
-						<!-- wp:jetpack/field-text {"label":"First Name","required":true,"id":"first_name"} /-->
-						<!-- wp:jetpack/field-text {"label":"Last Name","required":true,"id":"last_name"} /-->
+						<!-- wp:jetpack/field-name {"label":"First Name","required":true,"id":"first_name"} /-->
+						<!-- wp:jetpack/field-name {"label":"Last Name","required":true,"id":"last_name"} /-->
 						<!-- wp:jetpack/field-email {"label":"Email","required":true,"id":"email"} /-->
-						<!-- wp:jetpack/field-telephone {"label":"Phone","id":"phone_number"} /-->
+						<!-- wp:jetpack/field-telephone {"label":"Phone","id":"phone"} /-->
 						<!-- wp:jetpack/field-text {"label":"Company","id":"company"} /-->
-						<!-- wp:jetpack/field-text {"label":"Job Title","id":"job_title"} /-->
+						<!-- wp:jetpack/field-text {"label":"Job Title","id":"title"} /-->
 						<!-- wp:jetpack/button {"element":"button","text":"Submit","lock":{"remove":true}} /-->
 					</div>
 					<!-- /wp:jetpack/contact-form -->',
