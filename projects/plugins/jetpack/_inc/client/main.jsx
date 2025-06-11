@@ -4,6 +4,7 @@ import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connecti
 import { ActivationScreen } from '@automattic/jetpack-licensing';
 import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body';
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
@@ -65,7 +66,6 @@ import {
 	getInitialRecommendationsStep,
 	getPluginBaseUrl,
 	getPartnerCoupon,
-	isWoASite,
 	showMyJetpack,
 	isWooCommerceActive,
 	userIsSubscriber,
@@ -628,7 +628,7 @@ class Main extends React.Component {
 				break;
 		}
 
-		if ( this.props.isWoaSite && ! this.props.showMyJetpack ) {
+		if ( isWoASite() && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
 		} else if ( ! this.props.isLinked && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 2 } );
@@ -675,7 +675,7 @@ class Main extends React.Component {
 			this.props.userCanConnectSite &&
 			site_count >= 2 &&
 			this.props.isSiteConnected &&
-			! this.props.isWoaSite &&
+			! isWoASite() &&
 			! this.shouldShowWooConnectionScreen() &&
 			dashboardRoutes.includes( this.props.location.pathname )
 		);
@@ -912,7 +912,6 @@ export default connect(
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 			connectingUserFrom: getConnectingUserFrom( state ),
-			isWoaSite: isWoASite( state ),
 			showMyJetpack: showMyJetpack( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),

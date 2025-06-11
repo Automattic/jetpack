@@ -13,6 +13,10 @@ jest.mock( 'state/settings', () => {
 	};
 } );
 
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isWoASite: jest.fn().mockReturnValue( true ),
+} ) );
+
 describe( 'Google Analytics', () => {
 	const defaultProps = {
 		active: true,
@@ -28,9 +32,6 @@ describe( 'Google Analytics', () => {
 							manage_modules: true,
 						},
 					},
-				},
-				siteData: {
-					isWoASite: true,
 				},
 			},
 			connection: {

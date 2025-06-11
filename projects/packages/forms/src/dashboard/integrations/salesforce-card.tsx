@@ -18,7 +18,7 @@ const SalesforceDashboardCard = ( {
 		setupBadge: (
 			<span className="integration-card__setup-badge">
 				<Icon icon="info-outline" size={ 12 } />
-				{ __( 'Enter organization ID', 'jetpack-forms' ) }
+				{ __( 'Configured per form', 'jetpack-forms' ) }
 			</span>
 		),
 	};

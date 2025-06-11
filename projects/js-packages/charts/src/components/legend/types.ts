@@ -1,5 +1,5 @@
 import { LegendOrdinal } from '@visx/legend';
-import type { ComponentProps, CSSProperties } from 'react';
+import type { ComponentProps, CSSProperties, RefObject } from 'react';
 
 // See https://airbnb.io/visx/docs/legend#Ordinal for more details.
 type LegendOrdinalProps = Omit< ComponentProps< typeof LegendOrdinal >, 'scale' | 'direction' >;
@@ -14,4 +14,5 @@ export type LegendItem = {
 export type LegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	items: LegendItem[];
 	orientation?: 'horizontal' | 'vertical';
+	ref?: RefObject< HTMLDivElement >;
 };

@@ -268,10 +268,18 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 2.0.1 - 2025-04-04
+### 3.0.0 - 2025-06-10
 #### Changed
-- Code: Use function-style `exit()` and `die()` with a default status code of 0.
+- Code: First pass of style coding standards.
 - Update package dependencies.
+
+#### Removed
+- General: Update minimum WordPress version to 6.7.
+
+#### Fixed
+- Code: Update stylesheets to use hex instead of named colors.
+- General: Improve WP CLI support by making variables global.
+- Linting: Fix more Stylelint violations.
 
 --------
 

@@ -1,9 +1,10 @@
 import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { useChartTheme, useXYChartTheme } from '../../providers/theme';
+import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
+import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './use-bar-chart-options';
@@ -50,10 +51,10 @@ const BarChart: FC< BarChartProps > = ( {
 	orientation = 'vertical',
 } ) => {
 	const horizontal = orientation === 'horizontal';
-	const providerTheme = useChartTheme();
 	const theme = useXYChartTheme( data );
 	const chartOptions = useBarChartOptions( data, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
+	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
@@ -93,8 +94,7 @@ const BarChart: FC< BarChartProps > = ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
 		color: group.options?.stroke || theme.colors[ index % theme.colors.length ],
-		shapeStyle:
-			group?.options?.legendShapeStyle ?? providerTheme.legendShapeStyles?.[ index ] ?? {},
+		shapeStyle: group?.options?.legendShapeStyle,
 	} ) );
 
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
@@ -105,11 +105,15 @@ const BarChart: FC< BarChartProps > = ( {
 			data-testid="bar-chart"
 			role="img"
 			aria-label="bar chart"
+			style={ {
+				width,
+				height,
+			} }
 		>
 			<XYChart
 				theme={ theme }
 				width={ width }
-				height={ height }
+				height={ height - legendHeight }
 				margin={ { ...defaultMargin, ...margin } }
 				xScale={ chartOptions.xScale }
 				yScale={ chartOptions.yScale }
@@ -155,6 +159,7 @@ const BarChart: FC< BarChartProps > = ( {
 					orientation={ legendOrientation }
 					className={ styles[ 'bar-chart__legend' ] }
 					shape={ legendShape }
+					ref={ legendRef }
 				/>
 			) }
 		</div>
