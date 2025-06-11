@@ -146,13 +146,15 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 			return;
 		}
 
+		let urlToLoad = rawUrl;
+
 		// Make sure URL is valid.
 		let url;
 		try {
-			url = new URL( rawUrl );
+			url = new URL( urlToLoad );
 		} catch ( err ) {
 			this.trackUrlError( rawUrl, err );
-			throw new InvalidURLError( { url: rawUrl } );
+			throw new InvalidURLError( { url: urlToLoad } );
 		}
 
 		const fullUrl = this.addGetParameters( url );
@@ -178,33 +180,52 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 
 			// Catch load event.
 			this.iframe.onload = async () => {
+				const loadedUrl = new URL( this.iframe.contentWindow.location.href );
+
+				// In case there's a redirect, let's make sure that the loaded URL
+				// is on the same origin as the main page.
+				if ( ! this.sameOrigin( loadedUrl.toString() ) ) {
+					reject( new CrossDomainError( { url: fullUrl } ) );
+					return;
+				}
+
+				// If the loaded URL is not using ugly permalinks, use it to run the checks.
+				// Otherwise, we can't rely that the loaded URL is the same as the original URL,
+				// since ugly permalinks are different only by the value of the 'p' parameter.
+				const usesUglyPermalinks = loadedUrl.searchParams.has( 'p' );
+				if ( ! usesUglyPermalinks ) {
+					urlToLoad = loadedUrl.toString();
+				}
+
 				try {
 					this.iframe.onload = null;
 					clearTimeout( timeoutId );
 
 					// Check HTTP status code first.
-					const is404 = await this.is404Page( fullUrl );
+					const is404 = await this.is404Page( urlToLoad );
 					if ( is404 ) {
-						throw new HttpError( { url: fullUrl, code: 404 } );
+						throw new HttpError( { url: urlToLoad, code: 404 } );
 					}
 
 					// Verify the inner document is readable.
 					if ( ! this.iframe.contentDocument || ! this.iframe.contentWindow ) {
 						throw (
-							( await this.diagnoseUrlError( fullUrl ) ) || new CrossDomainError( { url: fullUrl } )
+							( await this.diagnoseUrlError( urlToLoad ) ) ||
+							new CrossDomainError( { url: urlToLoad } )
 						);
 					}
 
 					if (
-						! this.verifyPage( rawUrl, this.iframe.contentWindow, this.iframe.contentDocument )
+						! this.verifyPage( urlToLoad, this.iframe.contentWindow, this.iframe.contentDocument )
 					) {
 						// Diagnose and throw an appropriate error.
 						throw (
-							( await this.diagnoseUrlError( fullUrl ) ) || new UrlVerifyError( { url: fullUrl } )
+							( await this.diagnoseUrlError( urlToLoad ) ) ||
+							new UrlVerifyError( { url: urlToLoad } )
 						);
 					}
 
-					this.currentUrl = rawUrl;
+					this.currentUrl = urlToLoad;
 					resolve();
 				} catch ( err ) {
 					reject( err );
