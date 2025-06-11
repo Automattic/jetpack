@@ -173,7 +173,7 @@ class Playground_DB_Importer {
 				continue;
 			}
 
-			// A SQLite internal tables. Skip.
+			// SQLite internal tables. Skip.
 			if ( ! $this->is_valid_table( $table_name ) ) {
 				continue;
 			}
