@@ -689,7 +689,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		// this is a hack for Firefox to prevent users from falsly entering a something other then a number into a number field.
 		if ( $type === 'number' ) {
-			$extra_attrs_string .= " data-wp-on--keypress='actions.handleNumberKeyPress' ";
+			$extra_attrs_string .= " data-wp-on--keypress='actions.onNumberKeyPress' ";
 		}
 
 		return "<input
@@ -701,7 +701,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-bind--aria-invalid='state.hasErrors'
 					data-wp-bind--value='state.getFieldValue'
 					aria-errormessage='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
-					data-wp-on--input='actions.handleChangeField'
+					data-wp-on--input='actions.onFieldInput'
 					data-wp-on--blur='actions.handleBlurField'
 
 					" . $class . $placeholder . '
@@ -843,7 +843,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		                id='contact-form-comment-" . esc_attr( $id ) . "'
 		                rows='20'
 						data-wp-text='state.getFieldValue'
-						data-wp-on--input='actions.handleChangeField'
+						data-wp-on--input='actions.onFieldInput'
 						data-wp-on--blur='actions.handleBlurField'
 						data-wp-bind--aria-invalid='state.hasErrors'
 						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
@@ -942,7 +942,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 									type='radio'
 									name='" . esc_attr( $id ) . "'
 									value='" . esc_attr( $radio_value ) . "'
-									data-wp-on--change='actions.handleChangeField' "
+									data-wp-on--change='actions.onFieldChange' "
 									. $class
 									. checked( $option_label, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
@@ -975,7 +975,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 									type='radio'
 									name='" . esc_attr( $id ) . "'
 									value='" . esc_attr( $radio_value ) . "'
-									data-wp-on--change='actions.handleChangeField' "
+									data-wp-on--change='actions.onFieldChange' "
 									. $class
 									. checked( $option, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
@@ -1015,7 +1015,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$has_inner_block_option_styles = ! empty( $this->get_attribute( 'optionstyles' ) );
 
 		$field  = "<div class='contact-form__checkbox-wrap'>";
-		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' data-wp-on--change='actions.handleChangeField' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
+		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' data-wp-on--change='actions.onFieldChange' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
 		$field .= "<label for='" . esc_attr( $id ) . "' class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "'>";
 		$field .= wp_kses_post( $label ) . ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
 		$field .= "</label>\n";
@@ -1419,7 +1419,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
 		$class  = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="contact-form__select-wrapper $1"', $class );
 		$field .= "<div {$class} style='" . esc_attr( $this->field_styles ) . "'>";
-		$field .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.handleChangeField' data-wp-bind--aria-invalid='state.hasErrors'>\n";
+		$field .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.hasErrors'>\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
@@ -1808,7 +1808,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'fieldType'         => $type,
 			'fieldLabel'        => $label,
 			'fieldValue'        => $value,
-			'fieldPlaceholder'  => $placeholder,
 			'fieldIsRequired'   => $required,
 			'fieldErrorMessage' => '',
 			'fieldExtra'        => $this->get_field_extra( $type, $extra_attrs ),
