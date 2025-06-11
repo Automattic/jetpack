@@ -156,7 +156,7 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 		 * @return array $nonces Modified array of nonces.
 		 */
 		public function filter_nonces( $nonces ) {
-			$nonces['customize-simple-payments'] = wp_create_nonce( 'customize-simple-payments' );
+			$nonces['customize-jetpack-simple-payments'] = wp_create_nonce( 'customize-jetpack-simple-payments' );
 			return $nonces;
 		}
 
@@ -204,7 +204,7 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 		 * Get payment buttons.
 		 */
 		public function ajax_get_payment_buttons() {
-			if ( ! check_ajax_referer( 'customize-simple-payments', 'customize-simple-payments-nonce', false ) ) {
+			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
 				wp_send_json_error( 'bad_nonce', 400 );
 			}
 
@@ -247,7 +247,7 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 		 * Handle saving the simple payments widget.
 		 */
 		public function ajax_save_payment_button() {
-			if ( ! check_ajax_referer( 'customize-simple-payments', 'customize-simple-payments-nonce', false ) ) {
+			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
 				wp_send_json_error( 'bad_nonce', 400 );
 			}
 
@@ -320,7 +320,7 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 		 * Handle deleting the simple payment widget.
 		 */
 		public function ajax_delete_payment_button() {
-			if ( ! check_ajax_referer( 'customize-simple-payments', 'customize-simple-payments-nonce', false ) ) {
+			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
 				wp_send_json_error( 'bad_nonce', 400 );
 			}
 
