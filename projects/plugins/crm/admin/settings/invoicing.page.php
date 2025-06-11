@@ -92,31 +92,28 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
 	// } Hide Invoice ID
 	$updated_settings['invid'] = 0;
-	if ( isset( $_POST['wpzbscrm_invid'] ) && ! empty( $_POST['wpzbscrm_invid'] ) ) {
+	if ( ! empty( $_POST['wpzbscrm_invid'] ) ) {
 		$updated_settings['invid'] = 1;
 	}
 
-	// } Allow Invoice Hash (view and pay without being logged into the portal)
-	// moved to client portal settings 3.0 - $updated_settings['invhash'] = 0; if (isset($_POST['wpzbscrm_invhash']) && !empty($_POST['wpzbscrm_invhash'])) $updated_settings['invhash'] = 1;
-
 	// } Tax etc
 	$updated_settings['invtax'] = 0;
-	if ( isset( $_POST['wpzbscrm_invtax'] ) && ! empty( $_POST['wpzbscrm_invtax'] ) ) {
+	if ( ! empty( $_POST['wpzbscrm_invtax'] ) ) {
 		$updated_settings['invtax'] = 1;
 	}
 	$updated_settings['invdis'] = 0;
-	if ( isset( $_POST['wpzbscrm_invdis'] ) && ! empty( $_POST['wpzbscrm_invdis'] ) ) {
+	if ( ! empty( $_POST['wpzbscrm_invdis'] ) ) {
 		$updated_settings['invdis'] = 1;
 	}
 	$updated_settings['invpandp'] = 0;
-	if ( isset( $_POST['wpzbscrm_invpandp'] ) && ! empty( $_POST['wpzbscrm_invpandp'] ) ) {
+	if ( ! empty( $_POST['wpzbscrm_invpandp'] ) ) {
 		$updated_settings['invpandp'] = 1;
 	}
 
 	// } Disable Partial Payments
 	$updated_settings['invoicing_disable_partial_payments'] = 0; // Default to 0 (unchecked)
 	// If the checkbox name exists in POST, it means it was checked.
-	if ( isset( $_POST['wpzbscrm_invoicing_disable_partial_payments'] ) && ! empty( $_POST['wpzbscrm_invoicing_disable_partial_payments'] ) ) {
+	if ( ! empty( $_POST['wpzbscrm_invoicing_disable_partial_payments'] ) ) {
 		$updated_settings['invoicing_disable_partial_payments'] = 1;
 	}
 
