@@ -227,7 +227,6 @@ class Note {
 			$title = apply_filters( 'jetpack_social_notes_default_title', $title, $post );
 		}
 
-		// Return the original title for other cases.
 		return $title;
 	}
 }
