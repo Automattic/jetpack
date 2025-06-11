@@ -42,18 +42,19 @@ export default function DescriptionSupportLink( {
 			{ children }
 			<br />
 			<WpcomSupportLink
-				url={ localizeUrl( url ) }
-				postId={ postId }
+				supportLink={ localizeUrl( url ) }
+				supportPostId={ postId }
 				onClick={ () => {
 					tracks.recordEvent( 'jetpack_mu_wpcom_block_description_support_link_click', {
 						block: title,
 						support_link: url,
 					} );
 				} }
-				text={ __( 'Block guide', 'jetpack-mu-wpcom' ) }
 				style={ { display: 'block', marginTop: 10, maxWidth: 'fit-content' } }
 				ref={ reference => ref !== reference && setRef( reference ) }
-			/>
+			>
+				{ __( 'Block guide', 'jetpack-mu-wpcom' ) }
+			</WpcomSupportLink>
 		</>
 	);
 }

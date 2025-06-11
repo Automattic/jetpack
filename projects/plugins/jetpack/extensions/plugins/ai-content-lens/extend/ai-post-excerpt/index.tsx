@@ -232,10 +232,11 @@ ${ postContent }
 
 			{ isAtomicSite() || isSimpleSite() ? (
 				<WpcomSupportLink
-					url={ __( 'https://wordpress.com/support/excerpts/', 'jetpack' ) }
-					postId={ 1569 }
-					text={ __( 'Learn more about manual excerpts', 'jetpack' ) }
-				/>
+					supportLink={ __( 'https://wordpress.com/support/excerpts/', 'jetpack' ) }
+					supportPostId={ 1569 }
+				>
+					{ __( 'Learn more about manual excerpts', 'jetpack' ) }
+				</WpcomSupportLink>
 			) : (
 				<ExternalLink
 					href={ __(

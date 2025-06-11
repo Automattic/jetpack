@@ -16,13 +16,14 @@ const addTagsEducationLink = createHigherOrderComponent( PostTaxonomyType => {
 			<>
 				<PostTaxonomyType { ...props } />
 				<WpcomSupportLink
-					url={ localizeUrl( 'https://wordpress.com/support/posts/tags/' ) }
-					postId={ 8586 }
-					text={ window.wpcomTagsEducation.actionText }
+					supportLink={ localizeUrl( 'https://wordpress.com/support/posts/tags/' ) }
+					supportPostId={ 8586 }
 					onClick={ () => {
 						tracks.recordEvent( 'jetpack_mu_wpcom_tags_education_link_click' );
 					} }
-				/>
+				>
+					{ window.wpcomTagsEducation.actionText }
+				</WpcomSupportLink>
 			</>
 		);
 	};
