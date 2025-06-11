@@ -37,9 +37,9 @@ const registerField = (
 		};
 	}
 };
+const config = getConfig( NAMESPACE );
 
 const getError = field => {
-	const config = getConfig( NAMESPACE );
 	if ( field.type === 'number' ) {
 		if ( field.error === 'invalid_min_number' ) {
 			return config.error_types.invalid_min_number.replace( '%d', field.extra.min );
@@ -110,7 +110,6 @@ const { state } = store( NAMESPACE, {
 		},
 
 		get getFormErrorMessage() {
-			const config = getConfig( NAMESPACE );
 			if ( state.isEmptyForm ) {
 				return config.error_types.invalid_form_empty;
 			}
