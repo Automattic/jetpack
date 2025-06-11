@@ -17,27 +17,29 @@ const orientationToFlexDirection = {
  * We avoid using LegendOrdinal directly to enable support for advanced features such as interactivity.
  */
 export const BaseLegend = forwardRef< HTMLDivElement, LegendProps >(
-	( {
-		ref,
-		items,
-		className,
-		orientation = 'horizontal',
-		shape = 'rect',
-		fill = valueOrIdentityString,
-		size = valueOrIdentityString,
-		labelFormat = valueOrIdentity,
-		labelTransform = labelTransformFactory,
-		shapeWidth = 16,
-		shapeHeight = 16,
-		shapeMargin = '2px 4px 2px 0',
-		labelAlign = 'left',
-		labelFlex = '1',
-		labelMargin = '0 4px',
-		itemMargin = '0',
-		itemDirection = 'row',
-		legendLabelProps,
-		...legendItemProps
-	} ) => {
+	(
+		{
+			items,
+			className,
+			orientation = 'horizontal',
+			shape = 'rect',
+			fill = valueOrIdentityString,
+			size = valueOrIdentityString,
+			labelFormat = valueOrIdentity,
+			labelTransform = labelTransformFactory,
+			shapeWidth = 16,
+			shapeHeight = 16,
+			shapeMargin = '2px 4px 2px 0',
+			labelAlign = 'left',
+			labelFlex = '1',
+			labelMargin = '0 4px',
+			itemMargin = '0',
+			itemDirection = 'row',
+			legendLabelProps,
+			...legendItemProps
+		},
+		ref
+	) => {
 		const theme = useChartTheme();
 		const legendScale = scaleOrdinal( {
 			domain: items.map( item => item.label ),
