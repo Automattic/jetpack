@@ -2,8 +2,6 @@
  * FullCalendar v3.10.0
  * Docs & License: https://fullcalendar.io/
  * (c) 2018 Adam Shaw
- * Modified by MS (WH put back in after update)
- * Search #MSMOD to see  modifications (v2.97.9+ ZBS)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -13348,16 +13346,6 @@ var TimeGridEventRenderer = /** @class */ (function (_super) {
             fullTimeText = this.getTimeText(seg.footprint, 'LT');
             startTimeText = this.getTimeText(seg.footprint, null, false); // displayEnd=false
         }
-
-        // #MSMOD (WH put back in after updating this js file.)
-        if(eventDef.miscProps.avatar == ''){
-            avatarHtml = '';
-        }else{
-            avatarHtml = '<div class="avatar zbs-avatar"><img src="'+ util_1.htmlEscape(eventDef.miscProps.avatar) +'"/></div>';
-        }
-        // /#MSMOD
-
-
         return '<a class="' + classes.join(' ') + '"' +
             (eventDef.url ?
                 ' href="' + util_1.htmlEscape(eventDef.url) + '"' :
@@ -13366,10 +13354,7 @@ var TimeGridEventRenderer = /** @class */ (function (_super) {
                 ' style="' + skinCss + '"' :
                 '') +
             '>' +
-            // #MSMOD (WH put back in after updating this js file.)
-            //'<div class="fc-content">' +
-            '<div class="fc-content zbs-'+ eventDef.miscProps.showonCal  +'">' + avatarHtml +
-            // /#MSMOD
+            '<div class="fc-content">' +
             (timeText ?
                 '<div class="fc-time"' +
                     ' data-start="' + util_1.htmlEscape(startTimeText) + '"' +
@@ -13872,27 +13857,13 @@ var DayGridEventRenderer = /** @class */ (function (_super) {
         if (seg.isStart) {
             timeText = this.getTimeText(seg.footprint);
             if (timeText) {
-                // #MSMOD (WH put back in after updating this js file.)
-                //timeHtml = '<span class="fc-time">' + util_1.htmlEscape(timeText) + '</span>';
-                timeHtml = '<div class="fc-time">' + util_1.htmlEscape(timeText) + '</div>';
-                // /#MSMOD
+                timeHtml = '<span class="fc-time">' + util_1.htmlEscape(timeText) + '</span>';
             }
         }
-        
-        // #MSMOD (WH put back in after updating this js file.)
-        completeHtml = '<div class="ui green circular label zbs-cal-complete zbs-comp'+eventDef.miscProps.complete+'"><i class="ui icon check"></i></div>';
-        // /#MSMOD
-
         titleHtml =
-            // #MSMOD (WH put back in after updating this js file.)
-            //'<span class="fc-title">' +
-            '<div class="fc-title">' +
-            // /#MSMOD
+            '<span class="fc-title">' +
                 (util_1.htmlEscape(eventDef.title || '') || '&nbsp;') + // we always want one line of height
-            // #MSMOD (WH put back in after updating this js file.)
-            //    '</span>';
-                '</div>';
-            // /#MSMOD
+                '</span>';
         return '<a class="' + classes.join(' ') + '"' +
             (eventDef.url ?
                 ' href="' + util_1.htmlEscape(eventDef.url) + '"' :
@@ -13901,10 +13872,7 @@ var DayGridEventRenderer = /** @class */ (function (_super) {
                 ' style="' + skinCss + '"' :
                 '') +
             '>' +
-            // #MSMOD (WH put back in after updating this js file.)
-            //'<div class="fc-content">' +
-            '<div class="fc-content zbs-'+ eventDef.miscProps.showonCal  +'"><div class="avatar zbs-avatar"><img src="'+ util_1.htmlEscape(eventDef.miscProps.avatar) +'"/></div>' +
-            // /#MSMOD
+            '<div class="fc-content">' +
             (this.dayGrid.isRTL ?
                 titleHtml + ' ' + timeHtml : // put a natural space in between
                 timeHtml + ' ' + titleHtml //
@@ -13916,10 +13884,7 @@ var DayGridEventRenderer = /** @class */ (function (_super) {
             (isResizableFromEnd ?
                 '<div class="fc-resizer fc-end-resizer" />' :
                 '') +
-            // #MSMOD (WH put back in after updating this js file.)
-            //'</a>';
-            completeHtml + '</a>';
-            // /#MSMOD
+            '</a>';
     };
     return DayGridEventRenderer;
 }(EventRenderer_1.default));
@@ -14336,14 +14301,6 @@ var ListEventRenderer = /** @class */ (function (_super) {
         if (url) {
             classes.push('fc-has-url');
         }
-            // #MSMOD (WH put back in after updating this js file.)
-                completeHtml = '<span class="ui green circular label zbs-cal-complete-list zbs-comp'+eventDef.miscProps.complete+'"><i class="ui icon check"></i></span>';   
-               if(eventDef.miscProps.avatar == ''){
-                   avatarHtml = '';
-               }else{
-                   avatarHtml = '<div class="avatar zbs-avatar"><img src="'+ util_1.htmlEscape(eventDef.miscProps.avatar) +'"/></div>';
-               }
-            // /#MSMOD
         return '<tr class="' + classes.join(' ') + '">' +
             (this.displayEventTime ?
                 '<td class="fc-list-item-time ' + theme.getClass('widgetContent') + '">' +
@@ -14352,19 +14309,13 @@ var ListEventRenderer = /** @class */ (function (_super) {
                 '') +
             '<td class="fc-list-item-marker ' + theme.getClass('widgetContent') + '">' +
             '<span class="fc-event-dot"' +
-            // #MSMOD (WH put back in after updating this js file.)
-            /*(bgColor ?
+            (bgColor ?
                 ' style="background-color:' + bgColor + '"' :
                 '') +
-            '></span>' + */
-            '>'+ completeHtml  +'</span>' +
-            // /#MSMOD
+            '></span>' +
             '</td>' +
             '<td class="fc-list-item-title ' + theme.getClass('widgetContent') + '">' +
-            // #MSMOD (WH put back in after updating this js file.)
-            //'<a' + (url ? ' href="' + util_1.htmlEscape(url) + '"' : '') + '>' +
-            '<a' + (url ? ' href="' + util_1.htmlEscape(url) + '"' : '') + '>' + avatarHtml +
-            // /#MSMOD
+            '<a' + (url ? ' href="' + util_1.htmlEscape(url) + '"' : '') + '>' +
             util_1.htmlEscape(eventDef.title || '') +
             '</a>' +
             '</td>' +
