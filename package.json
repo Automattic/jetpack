@@ -37,7 +37,7 @@
 		"stylelint": "16.19.1"
 	},
 	"engines": {
-		"node": "^22.9.0",
+		"node": "^22.12.0",
 		"pnpm": "^10.4.0"
 	},
 	"packageManager": "pnpm@10.4.0",
