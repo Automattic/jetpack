@@ -60,6 +60,11 @@ const { state } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
 
+			// Don't show is_required untill the user first tries to submit the form.
+			if ( ! context.showErrors && field.error && field.error === 'is_required' ) {
+				return false;
+			}
+
 			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
 		},
 
@@ -154,6 +159,17 @@ const { state } = store( NAMESPACE, {
 			}
 
 			updateField( fieldId, value );
+		} ),
+		// prevents the defalut action from adding
+		handleNumberKeyPress: withSyncEvent( event => {
+			// Allow only numbers, decimal point and minus sign.
+			if ( ! /^[0-9.]*$/.test( event.key ) ) {
+				event.preventDefault();
+			}
+			// check if it has multiple decimal points
+			if ( event.key === '.' && event.target.value.includes( '.' ) ) {
+				event.preventDefault();
+			}
 		} ),
 
 		handleOnInputField: withSyncEvent( event => {

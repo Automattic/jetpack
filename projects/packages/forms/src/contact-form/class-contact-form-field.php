@@ -610,7 +610,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$type_class = $type ? ' ' . $type : '';
 		return "<label
-				for='" . esc_attr( $id ) . "'"
+				for='" . esc_attr( $id ) . "' "
 				. $extra_attrs_string
 				. '>'
 				. wp_kses_post( $label )
@@ -687,6 +687,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
+		// this is a hack for Firefox to prevent users from falsly entering a something other then a number into a number field.
+		if ( $type === 'number' ) {
+			$extra_attrs_string .= " data-wp-on--keypress='actions.handleNumberKeyPress' ";
+		}
+
 		return "<input
 					type='" . esc_attr( $type ) . "'
 					name='" . esc_attr( $id ) . "'
@@ -700,7 +705,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-on--blur='actions.handleBlurField'
 
 					" . $class . $placeholder . '
-					' . ( $required ? "required='true' aria-required='true'" : '' ) .
+					' . ( $required ? "required='true' aria-required='true' " : '' ) .
 					$extra_attrs_string .
 					" />\n " . $this->get_error_div( $id, $type ) . " \n";
 	}
@@ -719,11 +724,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		if ( $this->has_inset_label() && ! $override_render ) {
 			return '';
 		}
-		return '<div
-			id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error"
-			class="contact-form__input-error"
-			data-wp-class--has-errors="state.hasErrors"
-			>
+		return '
+			<div id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error" class="contact-form__input-error" data-wp-class--has-errors="state.hasErrors">
 				<span class="contact-form__warning-icon">
 					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z" />
