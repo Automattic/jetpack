@@ -3,7 +3,7 @@ import { validateField } from '../../contact-form/js/validate-helper';
 
 const NAMESPACE = 'jetpack/form';
 
-const updateField = ( fieldId, value, showFieldError = false, validity = null ) => {
+const updateField = ( fieldId, value, showFieldError = false ) => {
 	const context = getContext();
 	const field = context.fields[ fieldId ];
 	const { type, isRequired, extra } = field;
@@ -11,10 +11,6 @@ const updateField = ( fieldId, value, showFieldError = false, validity = null ) 
 		field.value = value;
 		field.error = validateField( type, value, isRequired, extra );
 		field.showFieldError = showFieldError;
-	}
-	if ( validity ) {
-		field.isValid = validity.valid;
-		field.error_message = validity.validationMessage;
 	}
 };
 
@@ -64,10 +60,6 @@ const { state } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
 
-			if ( field.validity && field.validity.valid ) {
-				// If the field is valid, no need to show an error.
-				return false;
-			}
 			// Don't show is_required untill the user first tries to submit the form.
 			if ( ! context.showErrors && field.error && field.error === 'is_required' ) {
 				return false;
@@ -156,8 +148,7 @@ const { state } = store( NAMESPACE, {
 		updateFieldValue: ( fieldId, value ) => {
 			updateField( fieldId, value );
 		},
-
-		onFieldChange: event => {
+		handleChangeField: withSyncEvent( event => {
 			let value = event.target.value;
 			const context = getContext();
 			const fieldId = context.fieldId;
@@ -167,9 +158,9 @@ const { state } = store( NAMESPACE, {
 			}
 
 			updateField( fieldId, value );
-		},
-		// prevents the default action from adding letters to the number field.
-		onNumberKeyPress: withSyncEvent( event => {
+		} ),
+		// prevents the defalut action from adding
+		handleNumberKeyPress: withSyncEvent( event => {
 			// Allow only numbers, decimal point and minus sign.
 			if ( ! /^[0-9.]*$/.test( event.key ) ) {
 				event.preventDefault();
@@ -179,8 +170,8 @@ const { state } = store( NAMESPACE, {
 				event.preventDefault();
 			}
 		} ),
-		// text and textarea fields - changes right away
-		onFieldInput: withSyncEvent( event => {
+
+		handleOnInputField: withSyncEvent( event => {
 			const value = event.target.value;
 			const context = getContext();
 			const fieldId = context.fieldId;
@@ -213,8 +204,7 @@ const { state } = store( NAMESPACE, {
 
 		handleBlurField: withSyncEvent( event => {
 			const context = getContext();
-			event.target.checkValidity();
-			updateField( context.fieldId, event.target.value, event.target.validity );
+			updateField( context.fieldId, event.target.value, true );
 		} ),
 
 		formSubmit: withSyncEvent( event => {
