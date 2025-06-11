@@ -698,7 +698,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					id='" . esc_attr( $id ) . "'
 					value='" . esc_attr( $value ) . "'
 
-					data-wp-bind--aria-invalid='state.hasErrors'
+					data-wp-bind--aria-invalid='state.fieldHasErrors'
 					data-wp-bind--value='state.getFieldValue'
 					aria-errormessage='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
 					data-wp-on--input='actions.handleChangeField'
@@ -725,7 +725,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return '';
 		}
 		return '
-			<div id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error" class="contact-form__input-error" data-wp-class--has-errors="state.hasErrors">
+			<div id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error" class="contact-form__input-error" data-wp-class--has-errors="state.fieldHasErrors">
 				<span class="contact-form__warning-icon">
 					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z" />
@@ -845,7 +845,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-text='state.getFieldValue'
 						data-wp-on--input='actions.handleChangeField'
 						data-wp-on--blur='actions.handleBlurField'
-						data-wp-bind--aria-invalid='state.hasErrors'
+						data-wp-bind--aria-invalid='state.fieldHasErrors'
 						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
 						"
 						. $class
@@ -904,9 +904,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' data-wp-bind--aria-invalid='state.hasErrors' >";
+			$field = "<fieldset {$fieldset_id} class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.hasErrors' >";
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
@@ -1315,9 +1315,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			/*
 			 * For the "outlined" style, the styles and classes are applied to the fieldset element.
 			 */
-			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.hasErrors">';
+			$field = "<fieldset {$fieldset_id} class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldHasErrors">';
 		} else {
-			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.hasErrors">';
+			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldHasErrors">';
 		}
 
 		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
@@ -1419,7 +1419,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
 		$class  = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="contact-form__select-wrapper $1"', $class );
 		$field .= "<div {$class} style='" . esc_attr( $this->field_styles ) . "'>";
-		$field .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.handleChangeField' data-wp-bind--aria-invalid='state.hasErrors'>\n";
+		$field .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.handleChangeField' data-wp-bind--aria-invalid='state.fieldHasErrors'>\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";

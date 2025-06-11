@@ -55,7 +55,7 @@ const getError = field => {
 
 const { state } = store( NAMESPACE, {
 	state: {
-		get hasErrors() {
+		get fieldHasErrors() {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
