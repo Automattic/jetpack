@@ -535,11 +535,11 @@ function zeroBSCRM_calendar_admin_styles(){
 	$language_tag_short = zeroBSCRM_getLocale( false );
 	if ( file_exists( ZEROBSCRM_PATH . '/js/lib/calendar-locale/' . $language_tag . '.js' ) ) {
 		// e.g. en-gb
-		wp_enqueue_script( 'zerobscrm-calendar-js-locale', ZEROBSCRM_URL . 'js/lib/calendar-locale/' . $language_tag . '.js', array( 'jpcrm-calendar-js' ), $zbs::VERSION );
+		wp_enqueue_script( 'jpcrm-calendar-js-locale', ZEROBSCRM_URL . 'build/lib/fullcalendar/locale/' . $language_tag . '.js', array( 'jpcrm-calendar-js' ), $zbs::VERSION );
 	} elseif ( file_exists( ZEROBSCRM_PATH . '/js/lib/calendar-locale/' . $language_tag_short . '.js' ) ) {
 
 			// e.g. en
-			wp_enqueue_script( 'zerobscrm-calendar-js-locale', ZEROBSCRM_URL . 'js/lib/calendar-locale/' . $language_tag_short . '.js', array( 'zerobscrm-calendar-js' ), $zbs::VERSION );
+			wp_enqueue_script( 'jpcrm-calendar-js-locale', ZEROBSCRM_URL . 'build/lib/fullcalendar/locale/' . $language_tag_short . '.js', array( 'zerobscrm-calendar-js' ), $zbs::VERSION );
 	}
 
 	wp_enqueue_style( 'jpcrm-calendar' );

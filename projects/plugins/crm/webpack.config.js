@@ -390,6 +390,11 @@ module.exports = [
 						from: path.resolve( __dirname, 'node_modules/fullcalendar/dist/fullcalendar.min.css' ),
 						to: `${ buildLibPath }/fullcalendar/`,
 					},
+					// Used by events pages
+					{
+						from: path.resolve( __dirname, 'node_modules/fullcalendar/dist/locale' ),
+						to: `${ buildLibPath }/fullcalendar/locale`,
+					},
 					// Used for first-use dashboard modals
 					{
 						from: path.resolve( __dirname, 'node_modules/jquery-modal/jquery.modal.min.js' ),
