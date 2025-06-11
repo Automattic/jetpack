@@ -427,7 +427,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				method='post'
 				class='" . esc_attr( $form_classes ) . "' $form_aria_label
 				data-wp-interactive=\"jetpack/form\"  " . wp_interactivity_data_wp_context( $context ) . "
-				data-wp-on--submit=\"actions.formSubmit\"
+				data-wp-on--submit=\"actions.onFormSubmit\"
 				novalidate >\n";
 
 			$r .= $form->body;

@@ -208,7 +208,7 @@ const { state } = store( NAMESPACE, {
 			updateField( context.fieldId, event.target.value, true );
 		} ),
 
-		formSubmit: withSyncEvent( event => {
+		onFormSubmit: withSyncEvent( event => {
 			const context = getContext();
 
 			if ( ! state.isFormValid ) {
