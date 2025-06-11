@@ -9,3 +9,45 @@
 		color: #{gb.$gray-700};
 	}
 }
+
+.products-wrapper {
+	display: flex;
+	gap: 4.5rem;
+	margin-top: 2rem;
+}
+
+.filters-wrapper {
+	max-width: 15rem;
+}
+
+.filtered-products-wrapper {
+	flex-grow: 1;
+}
+
+.filters {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+
+	div[role="menu"] {
+		margin-inline-start: -12px; // Adjustment for the padding for buttons
+	}
+
+	button[role="menuitemradio"] {
+		font-weight: 400;
+		color: #{gb.$gray-700};
+	}
+
+	button[aria-checked="true"] {
+		font-weight: 600;
+		color: #{gb.$gray-900};
+	}
+
+	.search-control {
+
+		:global(.components-input-control__container) {
+			background-color: transparent;
+			border: 1px solid #{gb.$gray-600};
+		}
+	}
+}

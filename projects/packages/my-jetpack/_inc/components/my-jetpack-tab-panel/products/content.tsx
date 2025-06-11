@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import UnownedProductsCard from '../../product-cards-section/unowned-products-card';
+import { Products } from './products';
 import styles from './styles.module.scss';
 
 /**
@@ -17,7 +17,7 @@ const ProductsContent = () => {
 					'jetpack-my-jetpack'
 				) }
 			</p>
-			<UnownedProductsCard />
+			<Products />
 		</section>
 	);
 };
