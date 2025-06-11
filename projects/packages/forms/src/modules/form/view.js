@@ -220,6 +220,36 @@ const { state } = store( NAMESPACE, {
 				context.isSubmitting = true;
 			}
 		} ),
+
+		scrollIntoView: withSyncEvent( event => {
+			const context = getContext();
+
+			const element = document.querySelector( context.item.anchor );
+
+			if ( element ) {
+				element.focus( { preventScroll: true } );
+				element.scrollIntoView( { behavior: 'smooth' } );
+				event.preventDefault();
+				return;
+			}
+			const findName = context.item.anchor.substring( 1 );
+			// If the anchor is a hash, we need to find the element with that ID.
+			const anchorElement = document.querySelector( '[name="' + findName + '"]' );
+			if ( anchorElement ) {
+				anchorElement.focus( { preventScroll: true } );
+				anchorElement.scrollIntoView( { behavior: 'smooth' } );
+				event.preventDefault();
+				return;
+			}
+
+			// If the element is not found, we can log an error or handle it as needed.
+			const fieldset = document.getElementById( findName + '-label' );
+			if ( fieldset ) {
+				fieldset.querySelector( 'input' ).focus( { preventScroll: true } );
+				fieldset.scrollIntoView( { behavior: 'smooth' } );
+				event.preventDefault();
+			}
+		} ),
 	},
 
 	callbacks: {

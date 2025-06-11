@@ -530,7 +530,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				<span data-wp-text="state.getFormErrorMessage"></span>
 				<ul>
 				<template data-wp-each="state.getErrorList" data-wp-key="context.item.id">
-					<li><a data-wp-bind--href="context.item.anchor" data-wp-text="context.item.label"></a></li>
+					<li><a data-wp-bind--href="context.item.anchor" data-wp-on--click="actions.scrollIntoView" data-wp-text="context.item.label"></a></li>
 				</template>
 				</ul>';
 		$html .= '</div>';
