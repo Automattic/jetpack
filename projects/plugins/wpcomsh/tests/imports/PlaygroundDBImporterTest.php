@@ -127,8 +127,8 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 
 		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
 
-		$this->assertWPError( $result );
-		$this->assertEquals( 'missing-column', $result->get_error_code() );
+		// Tables without entries in the cache table are skipped.
+		$this->assertIsString( $result );
 	}
 
 	/**
