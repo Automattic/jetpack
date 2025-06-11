@@ -1,4 +1,19 @@
 Significance: patch
 Type: fixed
 
-Fix Playground backup import
+The `wp wpcomsh backup-import --source=%s --dest=%s --no-dry-run` command was
+generating an error during parsing of database schema.
+
+```
+Error: Query error: not a valid SQLite table \"_wp_sqlite_global_variables\",
+missing column \"name\""
+```
+
+This is because that table is not a WordPress table.
+
+1. Added an exception for `_wp_sqlite_*` tables that have no entries in the
+`_mysql_data_types_cache` table.
+2. Return an empty map if a table not part of core (`all_tables` on) has no
+entries in the `_mysql_data_types_cache` table.
+3. Fixed a missing test (`get_needs_191_limit_test_cases`). The test was never
+run because it was missing the `test_` prefix.

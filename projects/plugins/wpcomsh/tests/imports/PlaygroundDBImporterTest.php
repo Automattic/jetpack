@@ -128,7 +128,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
 
 		// Tables without entries in the cache table are skipped.
-		$this->assertIsString( $result );
+		$this->assertNotWPError( $result );
 	}
 
 	/**
