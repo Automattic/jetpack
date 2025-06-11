@@ -17,23 +17,26 @@ export const WpcomSupportLink = forwardRef( ( { url, postId, text, onClick, styl
 	const helpCenterDispatch = useDispatch( 'automattic/help-center' );
 	const setShowSupportDoc = helpCenterDispatch?.setShowSupportDoc;
 
-	const Link = setShowSupportDoc ? 'a' : ExternalLink;
-
-	return (
-		<Link
-			href={ url }
-			// eslint-disable-next-line react/jsx-no-bind
-			onClick={ event => {
-				onClick?.();
-				if ( setShowSupportDoc ) {
+	if ( setShowSupportDoc ) {
+		return (
+			<a
+				href={ url }
+				// eslint-disable-next-line react/jsx-no-bind
+				onClick={ event => {
 					event.preventDefault();
+					onClick?.();
 					setShowSupportDoc( url, postId );
-				}
-			} }
-			style={ style }
-			ref={ ref }
-		>
+				} }
+				style={ style }
+				ref={ ref }
+			>
+				{ text }
+			</a>
+		);
+	}
+	return (
+		<ExternalLink href={ url } onClick={ onClick } style={ style } ref={ ref }>
 			{ text }
-		</Link>
+		</ExternalLink>
 	);
 } );
