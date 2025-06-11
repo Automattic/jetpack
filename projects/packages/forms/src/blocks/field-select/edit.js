@@ -35,7 +35,7 @@ export default function DropdownFieldEdit( props ) {
 	);
 
 	const blockProps = useBlockProps( {
-		className: clsx( 'jetpack-field jetpack-field-dropdown', {
+		className: clsx( 'jetpack-field jetpack-field-dropdown wp-element-select', {
 			'is-selected': isSelected || isInnerBlockSelected,
 			'has-placeholder': !! inputBlockAttributes?.placeholder,
 		} ),
