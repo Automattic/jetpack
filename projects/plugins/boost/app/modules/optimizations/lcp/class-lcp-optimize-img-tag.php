@@ -67,6 +67,18 @@ class LCP_Optimize_Img_Tag {
 		$buffer_processor->set_attribute( 'data-jp-lcp-optimized', 'true' );
 
 		$image_url = $buffer_processor->get_attribute( 'src' );
+		// Ensure the image URL is valid.
+		if ( ! wp_http_validate_url( $image_url ) ) {
+			return $buffer_processor->get_updated_html();
+		}
+
+		// Remove unwanted query parameters that would be used unnecessarily by Photon.
+		$image_url = remove_query_arg( array( 'resize', 'w', 'h' ), $image_url );
+
+		// Additional validation after cleaning.
+		if ( ! wp_http_validate_url( $image_url ) ) {
+			return $buffer_processor->get_updated_html();
+		}
 
 		$buffer_processor->set_attribute( 'src', Image_CDN_Core::cdn_url( $image_url ) );
 
@@ -108,7 +120,7 @@ class LCP_Optimize_Img_Tag {
 	 * @param string $original_url The original image URL.
 	 * @return string The srcset for the image.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 */
 	private function get_srcset( $original_url ) {
 		$widths = array();
@@ -172,7 +184,7 @@ class LCP_Optimize_Img_Tag {
 	 *
 	 * @return string The sizes for the image.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 */
 	private function get_sizes() {
 		$sizes = array();

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0-beta] - 2025-06-11
+### Added
+- LCP Optimization: New Largest Contentful Paint (LCP) optimization feature to improve loading performance of Cornerstone pages. [#43684]
+
+### Changed
+- Auto-Resize Lazy Images: Remove beta tag. [#43496]
+- E2E Tests: Update config file encryption algorithm. [#43523]
+- My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
+- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
+- Update package dependencies. [#43578] [#43718] [#43734] [#43766] [#43839]
+
+### Removed
+- Cornerstone Pages: Remove "Experimental" tag from UI. [#43492]
+
+### Fixed
+- General: Fix storage data persisting after clear. [#43852]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- Speed Scores: Fix not waiting for Cloud CSS to finish generating before refreshing the scores. [#43764]
+
 ## [4.0.0] - 2025-05-19
 ### Changed
 - General: Run feature activation routines for active features when the plugin is deactivated, then reactivated. [#43168]
@@ -704,6 +724,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.1.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.0.0...4.1.0-beta
 [4.0.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.1...4.0.0
 [3.13.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.0...3.13.1
 [3.13.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.12.1...3.13.0
