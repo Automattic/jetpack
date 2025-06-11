@@ -4,6 +4,9 @@
  * Admin Page: Settings: Invoicing settings
  */
 
+// zeroBSCRM_textProcess is used
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
 // stop direct access
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit( 0 );
@@ -43,48 +46,48 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	$updated_settings['reflabel']   = '';
 
 	if ( isset( $_POST['reftype'] ) ) {
-		$updated_settings['reftype'] = sanitize_text_field( wp_unslash( $_POST['reftype'] ) );
+		$updated_settings['reftype'] = zeroBSCRM_textProcess( $_POST['reftype'] );
 	}
 
 	if ( isset( $_POST['defaultref'] ) ) {
-		$updated_settings['defaultref'] = sanitize_text_field( wp_unslash( $_POST['defaultref'] ) );
+		$updated_settings['defaultref'] = zeroBSCRM_textProcess( $_POST['defaultref'] );
 	}
 
 	if ( isset( $_POST['refprefix'] ) ) {
-		$updated_settings['refprefix'] = sanitize_text_field( wp_unslash( $_POST['refprefix'] ) );
+		$updated_settings['refprefix'] = zeroBSCRM_textProcess( $_POST['refprefix'] );
 	}
 	if ( isset( $_POST['refsuffix'] ) ) {
-		$updated_settings['refsuffix'] = sanitize_text_field( wp_unslash( $_POST['refsuffix'] ) );
+		$updated_settings['refsuffix'] = zeroBSCRM_textProcess( $_POST['refsuffix'] );
 	}
 	if ( isset( $_POST['refnextnum'] ) ) {
-		$updated_settings['refnextnum'] = sanitize_text_field( wp_unslash( $_POST['refnextnum'] ) );
+		$updated_settings['refnextnum'] = zeroBSCRM_textProcess( $_POST['refnextnum'] );
 	}
 
 	if ( isset( $_POST['reflabel'] ) ) {
-		$updated_settings['reflabel'] = sanitize_text_field( wp_unslash( $_POST['reflabel'] ) );
+		$updated_settings['reflabel'] = zeroBSCRM_textProcess( $_POST['reflabel'] );
 	}
 
 	$updated_settings['businessextra'] = '';
 	if ( isset( $_POST['businessextra'] ) ) {
-		$updated_settings['businessextra'] = sanitize_text_field( wp_unslash( $_POST['businessextra'] ) );
+		$updated_settings['businessextra'] = zeroBSCRM_textProcess( $_POST['businessextra'] );
 	}
 	$updated_settings['paymentinfo'] = '';
 	if ( isset( $_POST['paymentinfo'] ) ) {
-		$updated_settings['paymentinfo'] = sanitize_text_field( wp_unslash( $_POST['paymentinfo'] ) );
+		$updated_settings['paymentinfo'] = zeroBSCRM_textProcess( $_POST['paymentinfo'] );
 	}
 	$updated_settings['paythanks'] = '';
 	if ( isset( $_POST['paythanks'] ) ) {
-		$updated_settings['paythanks'] = sanitize_text_field( wp_unslash( $_POST['paythanks'] ) );
+		$updated_settings['paythanks'] = zeroBSCRM_textProcess( $_POST['paythanks'] );
 	}
 
 	// } Invoice sending settings
 	$updated_settings['invfromemail'] = '';
 	if ( isset( $_POST['invfromemail'] ) ) {
-		$updated_settings['invfromemail'] = sanitize_text_field( wp_unslash( $_POST['invfromemail'] ) );
+		$updated_settings['invfromemail'] = zeroBSCRM_textProcess( $_POST['invfromemail'] );
 	}
 	$updated_settings['invfromname'] = '';
 	if ( isset( $_POST['invfromname'] ) ) {
-		$updated_settings['invfromname'] = sanitize_text_field( wp_unslash( $_POST['invfromname'] ) );
+		$updated_settings['invfromname'] = zeroBSCRM_textProcess( $_POST['invfromname'] );
 	}
 
 	// } Hide Invoice ID
@@ -120,35 +123,35 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	// } Statements
 	$updated_settings['statementextra'] = '';
 	if ( isset( $_POST['zbsi_statementextra'] ) ) {
-		$updated_settings['statementextra'] = sanitize_text_field( wp_unslash( $_POST['zbsi_statementextra'] ) );
+		$updated_settings['statementextra'] = zeroBSCRM_textProcess( $_POST['zbsi_statementextra'] );
 	}
 
 	// templating
 	$updated_settings['inv_pdf_template'] = '';
 	if ( isset( $_POST['inv_pdf_template'] ) && jpcrm_template_file_path( $_POST['inv_pdf_template'] ) ) {
-		$updated_settings['inv_pdf_template'] = sanitize_text_field( wp_unslash( $_POST['inv_pdf_template'] ) );
+		$updated_settings['inv_pdf_template'] = zeroBSCRM_textProcess( $_POST['inv_pdf_template'] );
 	}
 	$updated_settings['inv_portal_template'] = '';
 	if ( isset( $_POST['inv_portal_template'] ) && jpcrm_template_file_path( $_POST['inv_portal_template'] ) ) {
-		$updated_settings['inv_portal_template'] = sanitize_text_field( wp_unslash( $_POST['inv_portal_template'] ) );
+		$updated_settings['inv_portal_template'] = zeroBSCRM_textProcess( $_POST['inv_portal_template'] );
 	}
 	$updated_settings['statement_pdf_template'] = '';
 	if ( isset( $_POST['statement_pdf_template'] ) && jpcrm_template_file_path( $_POST['statement_pdf_template'] ) ) {
-		$updated_settings['statement_pdf_template'] = sanitize_text_field( wp_unslash( $_POST['statement_pdf_template'] ) );
+		$updated_settings['statement_pdf_template'] = zeroBSCRM_textProcess( $_POST['statement_pdf_template'] );
 	}
 
 	// template additions, custom fields:
 	$updated_settings['invcustomfields'] = '';
 	if ( isset( $_POST['jpcrm_invcustomfields'] ) ) {
-		$updated_settings['invcustomfields'] = sanitize_text_field( wp_unslash( $_POST['jpcrm_invcustomfields'] ) );
+		$updated_settings['invcustomfields'] = zeroBSCRM_textProcess( $_POST['jpcrm_invcustomfields'] );
 	}
 	$updated_settings['contactcustomfields'] = '';
 	if ( isset( $_POST['jpcrm_contactcustomfields'] ) ) {
-		$updated_settings['contactcustomfields'] = sanitize_text_field( wp_unslash( $_POST['jpcrm_contactcustomfields'] ) );
+		$updated_settings['contactcustomfields'] = zeroBSCRM_textProcess( $_POST['jpcrm_contactcustomfields'] );
 	}
 	$updated_settings['companycustomfields'] = '';
 	if ( isset( $_POST['jpcrm_companycustomfields'] ) ) {
-		$updated_settings['companycustomfields'] = sanitize_text_field( wp_unslash( $_POST['jpcrm_companycustomfields'] ) );
+		$updated_settings['companycustomfields'] = zeroBSCRM_textProcess( $_POST['jpcrm_companycustomfields'] );
 	}
 
 	// } Brutal update
