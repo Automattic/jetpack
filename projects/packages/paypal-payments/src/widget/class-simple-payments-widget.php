@@ -82,7 +82,7 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 		 */
 		public function __construct() {
 			parent::__construct(
-				'simple_payments_widget',
+				'jetpack_simple_payments_widget',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
 				apply_filters( 'jetpack_widget_name', __( 'Pay with PayPal', 'jetpack-paypal-payments' ) ),
 				array(
