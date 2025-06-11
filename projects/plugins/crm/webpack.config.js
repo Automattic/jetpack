@@ -380,6 +380,16 @@ module.exports = [
 						from: path.resolve( __dirname, 'node_modules/daterangepicker/daterangepicker.js' ),
 						to: `${ buildLibPath }/daterangepicker/`,
 					},
+					// Used by events pages
+					{
+						from: path.resolve( __dirname, 'node_modules/fullcalendar/dist/fullcalendar.js' ),
+						to: `${ buildLibPath }/fullcalendar/`,
+					},
+					// Used by events pages
+					{
+						from: path.resolve( __dirname, 'node_modules/fullcalendar/dist/fullcalendar.min.css' ),
+						to: `${ buildLibPath }/fullcalendar/`,
+					},
 					// Used for first-use dashboard modals
 					{
 						from: path.resolve( __dirname, 'node_modules/jquery-modal/jquery.modal.min.js' ),
