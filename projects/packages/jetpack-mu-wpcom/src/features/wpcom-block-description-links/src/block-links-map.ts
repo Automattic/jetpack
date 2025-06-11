@@ -353,7 +353,7 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/goodreads-block/',
 		postId: 382051,
 	},
-	'simple-payments': {
+	'jetpack/simple-payments': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/pay-with-paypal/',
 		postId: 168671,
 	},
