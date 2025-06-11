@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Export: Don't export wp_navigation CPT if it came from a user that doesn't belong to the site
