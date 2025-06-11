@@ -124,17 +124,20 @@ class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 		$params = $request->get_params();
 		$number = $params['number'];
 
-		$query_args  = array(
+		$query_args = array(
 			'post_type'   => 'attachment',
 			'post_status' => 'inherit',
 			'number'      => $number,
 			'date_query'  => array(
 				'after' => gmdate( DATE_RSS, intval( $params['after'] ) ),
 			),
-			'paged'       => $params['page_handle'],
 			'author'      => get_current_user_id(),
 			'orderby'     => 'date',
 		);
+		if ( isset( $params['page_handle'] ) ) {
+			// No default value.
+			$query_args['paged'] = $params['page_handle'];
+		}
 		$media_query = new WP_Query( $query_args );
 		$response    = $this->format_response( $media_query );
 
