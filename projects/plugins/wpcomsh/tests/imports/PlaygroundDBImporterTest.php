@@ -292,7 +292,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	}
 
 	public function test_get_needs_191_limit_test_cases() {
-		$this->assertFalse(
+		$this->assertTrue(
 			$this->db_importer->needs_191_limit(
 				array(
 					'type'        => 'text',
@@ -304,6 +304,14 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 			$this->db_importer->needs_191_limit(
 				array(
 					'type'        => 'varchar(255)',
+					'sqlite_type' => 'text',
+				)
+			)
+		);
+		$this->assertFalse(
+			$this->db_importer->needs_191_limit(
+				array(
+					'type'        => 'int',
 					'sqlite_type' => 'text',
 				)
 			)
@@ -357,7 +365,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 	public function test_is_valid_table() {
 		$this->assertFalse( $this->db_importer->is_valid_table( '_mysql_data_types_cache' ) );
 		$this->assertFalse( $this->db_importer->is_valid_table( '_wp_sqlite_global_variables' ) );
-		$this->assertFalse( $this->db_importer->is_valid_table( 'sqlite_master' ) );
+		$this->assertFalse( $this->db_importer->is_valid_table( 'sqlite_sequence' ) );
 		$this->assertTrue( $this->db_importer->is_valid_table( 'wp_options' ) );
 	}
 
