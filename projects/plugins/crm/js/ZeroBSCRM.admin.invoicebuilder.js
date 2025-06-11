@@ -935,7 +935,7 @@ function zbscrm_JS_draw_partials_table( res ) {
 	if (
 		typeof window.zbs_invoice.invoiceObj.settings.invoicing_disable_partial_payments !==
 			'undefined' &&
-		window.zbs_invoice.invoiceObj.settings.invoicing_disable_partial_payments == '1'
+		window.zbs_invoice.invoiceObj.settings.invoicing_disable_partial_payments === 1
 	) {
 		return ''; // Return empty string to hide the section
 	}
