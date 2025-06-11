@@ -14,7 +14,6 @@ const customStorybookTheme = {
 		props => React.createElement( DefaultGlyph, { ...props, key: props.key } ),
 		props =>
 			React.createElement( GlyphStar, {
-				...props,
 				key: props.key,
 				top: props.y,
 				left: props.x,
@@ -23,7 +22,6 @@ const customStorybookTheme = {
 			} ),
 		props =>
 			React.createElement( GlyphDiamond, {
-				...props,
 				key: props.key,
 				top: props.y,
 				left: props.x,
@@ -503,7 +501,7 @@ WithCustomGlyphsPerDataPoint.args = {
 	showLegend: true,
 	withStartGlyphs: true,
 	withLegendGlyph: true,
-	themeName: 'customStorybook',
+	themeName: 'customStorybook', // Mock prop used to switch the rendered theme in the storybook.
 	glyphStyle: {
 		radius: 8,
 	},
