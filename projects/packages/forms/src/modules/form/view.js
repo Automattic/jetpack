@@ -149,6 +149,18 @@ const { state } = store( NAMESPACE, {
 			updateField( fieldId, value );
 		},
 
+		// prevents the number field value from being changed by non-numeric values
+		handleNumberKeyPress: withSyncEvent( event => {
+			// Allow only numbers, decimal point and minus sign.
+			if ( ! /^[0-9.]*$/.test( event.key ) ) {
+				event.preventDefault();
+			}
+			// check if it has multiple decimal points
+			if ( event.key === '.' && event.target.value.includes( '.' ) ) {
+				event.preventDefault();
+			}
+		} ),
+
 		onFieldChange: withSyncEvent( event => {
 			let value = event.target.value;
 			const context = getContext();
@@ -159,17 +171,6 @@ const { state } = store( NAMESPACE, {
 			}
 
 			updateField( fieldId, value );
-		} ),
-		// prevents the defalut action from adding
-		handleNumberKeyPress: withSyncEvent( event => {
-			// Allow only numbers, decimal point and minus sign.
-			if ( ! /^[0-9.]*$/.test( event.key ) ) {
-				event.preventDefault();
-			}
-			// check if it has multiple decimal points
-			if ( event.key === '.' && event.target.value.includes( '.' ) ) {
-				event.preventDefault();
-			}
 		} ),
 
 		handleOnInputField: withSyncEvent( event => {
@@ -203,7 +204,7 @@ const { state } = store( NAMESPACE, {
 			updateField( fieldId, newValues );
 		} ),
 
-		handleBlurField: withSyncEvent( event => {
+		onFieldBlur: withSyncEvent( event => {
 			const context = getContext();
 			updateField( context.fieldId, event.target.value, true );
 		} ),
