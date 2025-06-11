@@ -1,7 +1,7 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { FULL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view';
-import InspectorHint from '../components/inspector-hint';
+import InspectorHint from './inspector-hint';
 
 const JetpackManageResponsesSettings = () => {
 	return (
