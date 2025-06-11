@@ -1673,19 +1673,6 @@ class Woo_Sync_Background_Sync_Job {
 
 			    }
 
-				// attributes not yet translatable but originally referenced: `variation_id|tax_class|subtotal_tax`
-				$new_line_item = array(
-					'order'    => $order_post_id, // passed as parameter to this function
-					'currency' => $order_currency,
-					'quantity' => $item_data['quantity'],
-					'price'    => $price,
-					'total'    => $item_data['total'],
-					'title'    => $item_data['name'],
-					'desc'     => '', // Placeholder, will be set below.
-					'tax'      => $item_data['total_tax'],
-					'shipping' => 0,
-				);
-
 				// Get product short description for line item description.
 				$product_id_to_fetch = $item_data['product_id'];
 				if ( isset( $item_data['variation_id'] ) && $item_data['variation_id'] > 0 ) {
@@ -1697,12 +1684,25 @@ class Woo_Sync_Background_Sync_Job {
 				if ( empty( $line_item_description ) ) {
 					$line_item_description = $item_data['name'];
 				}
-				$new_line_item['desc'] = $line_item_description;
+
+				// attributes not yet translatable but originally referenced: `variation_id|tax_class|subtotal_tax`
+				$new_line_item = array(
+					'order'    => $order_post_id, // passed as parameter to this function
+					'currency' => $order_currency,
+					'quantity' => $item_data['quantity'],
+					'price'    => $price,
+					'total'    => $item_data['total'],
+					'title'    => $item_data['name'],
+					'desc'     => $line_item_description,
+					'tax'      => $item_data['total_tax'],
+					'shipping' => 0,
+				);
 
 				// add taxes, where present
 				if ( is_array( $item_tax_rate_ids ) && count( $item_tax_rate_ids ) > 0 ) {
 					$new_line_item['taxes'] = implode( ',', $item_tax_rate_ids );
 				}
+
 				// Add order item line
 				$data['lineitems'][] = $new_line_item;
 
