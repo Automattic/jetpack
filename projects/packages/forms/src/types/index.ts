@@ -73,5 +73,10 @@ declare global {
 		jpFormsBlocks?: {
 			defaults?: JPFormsBlocksDefaults;
 		};
+		jetpackAnalytics?: {
+			tracks?: {
+				recordEvent: ( event: string, props?: Record< string, unknown > ) => void;
+			};
+		};
 	}
 }
