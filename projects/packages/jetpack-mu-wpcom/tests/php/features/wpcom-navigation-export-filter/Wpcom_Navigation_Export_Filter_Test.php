@@ -82,9 +82,11 @@ class Wpcom_Navigation_Export_Filter_Test extends \WorDBless\BaseTestCase {
 		// The filter should target wp_navigation posts specifically
 		$this->assertStringContainsString( 'wp_navigation', $filtered_query, 'Filter should target wp_navigation posts' );
 
-		// The filter should exclude posts with invalid authors (post_author > 0 AND NOT IN users table)
+		// The filter should exclude posts with invalid authors (post_author > 0 AND NOT IN usermeta table)
 		$this->assertStringContainsString( 'post_author > 0', $filtered_query, 'Filter should check for non-system authors' );
-		$this->assertStringContainsString( 'NOT IN (SELECT ID FROM', $filtered_query, 'Filter should check against users table' );
+		$this->assertStringContainsString( 'NOT IN (SELECT user_id FROM', $filtered_query, 'Filter should check against usermeta table' );
+		$this->assertStringContainsString( 'usermeta', $filtered_query, 'Filter should use usermeta table' );
+		$this->assertStringContainsString( 'meta_key =', $filtered_query, 'Filter should check for specific meta_key' );
 
 		// The exclusion should use AND NOT (...) logic
 		$this->assertStringContainsString( 'AND NOT (', $filtered_query, 'Filter should use exclusion logic' );
@@ -151,6 +153,7 @@ class Wpcom_Navigation_Export_Filter_Test extends \WorDBless\BaseTestCase {
 			"SELECT * FROM {$wpdb->posts} WHERE post_status = 'publish'",
 			"UPDATE {$wpdb->posts} SET post_status = 'publish' WHERE ID = 1",
 			"INSERT INTO {$wpdb->posts} (post_title) VALUES ('Test')",
+			"SELECT post_title FROM {$wpdb->posts} WHERE post_status != 'auto-draft'", // Different SELECT pattern
 		);
 
 		foreach ( $non_export_queries as $query ) {
