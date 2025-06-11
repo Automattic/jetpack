@@ -12,17 +12,7 @@ import { PlanConflictWarning } from '../plan-conflict-warning';
  * @return {MemoryRouter} Router to render..
  */
 function wrapWithMemoryRouter( component, entries = [ '/plans' ] ) {
-	return (
-		<MemoryRouter
-			initialEntries={ entries }
-			future={
-				// Enable some forward-compat things so it doesn't console.warn about enabling them. Sigh.
-				{ v7_startTransition: true, v7_relativeSplatPath: true }
-			}
-		>
-			{ component }
-		</MemoryRouter>
-	);
+	return <MemoryRouter initialEntries={ entries }>{ component }</MemoryRouter>;
 }
 
 describe( 'PlanConflictWarning', () => {
