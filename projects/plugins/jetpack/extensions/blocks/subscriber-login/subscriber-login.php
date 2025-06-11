@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Extensions\Subscriber_Login;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Request;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
@@ -48,7 +49,7 @@ function register_block() {
 	);
 
 	// If called via REST API, we need to register later in the lifecycle
-	if ( ( new Host() )->is_wpcom_platform() && ! jetpack_is_frontend() ) {
+	if ( ( new Host() )->is_wpcom_platform() && ! Request::is_frontend() ) {
 		add_action(
 			'restapi_theme_init',
 			function () {

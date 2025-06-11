@@ -1,5 +1,5 @@
-import { AnyD3Scale, ScaleInput } from '@visx/scale';
 import type { ItemTransformer, LabelFormatter } from '@visx/legend/lib/types';
+import type { AnyD3Scale, ScaleInput } from '@visx/scale';
 
 export type ValueOrIdentity< T > = T | { value?: T };
 

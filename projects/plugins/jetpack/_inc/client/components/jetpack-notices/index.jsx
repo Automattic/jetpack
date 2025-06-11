@@ -22,7 +22,6 @@ import {
 	hasConnectedOwner,
 } from 'state/connection';
 import {
-	isWoASite,
 	isDevVersion,
 	userCanConnectAccount,
 	userCanConnectSite,
@@ -272,7 +271,6 @@ export default connect(
 			isConnectionOwner: isConnectionOwner( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
-			isWoASite: isWoASite( state ),
 			siteOfflineMode: getSiteOfflineMode( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
 			connectionErrors: getConnectionErrors( state ),

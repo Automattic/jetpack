@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { get, includes } from 'lodash';
@@ -10,7 +11,7 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
-import { showBackups, isWoASite } from 'state/initial-state';
+import { showBackups } from 'state/initial-state';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -523,7 +524,7 @@ class MyPlanBody extends React.Component {
 							</div>
 						) }
 
-						{ isPlanPremiumOrBetter && this.props.isWoASite && (
+						{ isPlanPremiumOrBetter && isWoASite() && (
 							<div className="jp-landing__plan-features-card">
 								<div className="jp-landing__plan-features-img">
 									<img
@@ -886,7 +887,6 @@ export default connect(
 			showBackups: showBackups( state ),
 			getFeatureState: feature => getSetting( state, feature ),
 			isActivatingFeature: feature => isUpdatingSetting( state, feature ),
-			isWoASite: isWoASite( state ),
 		};
 	},
 	dispatch => {

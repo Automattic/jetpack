@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
+use WP_HTML_Tag_Processor;
+
 class LCP_Optimization_Util {
 
 	/**
@@ -130,5 +132,45 @@ class LCP_Optimization_Util {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Check if the element is present in the LCP data.
+	 *
+	 * @param string $buffer The HTML to check.
+	 * @param string $tag The tag to check. Default is 'img'.
+	 * @return WP_HTML_Tag_Processor|false The HTML tag processor if the element is present, false otherwise.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function find_element( $buffer, $tag = 'img' ) {
+		$html_processor = new WP_HTML_Tag_Processor( $buffer );
+		$element        = new WP_HTML_Tag_Processor( $this->lcp_data['html'] );
+
+		// Ensure the LCP HTML is a valid tag before proceeding.
+		if ( ! $element->next_tag( $tag ) ) {
+			return false;
+		}
+
+		// Extract attributes from the LCP tag for matching
+		$lcp_id    = $element->get_attribute( 'id' );
+		$lcp_class = $element->get_attribute( 'class' );
+
+		// Perform a quick check to see if the class is present in the HTML.
+		if ( ! empty( $lcp_class ) && ! str_contains( $buffer, $lcp_class ) ) {
+			return false;
+		}
+
+		// Loop through all img tags in the buffer with the same class until we find a match.
+		// We do this because next_tag does not support matching on IDs and sources.
+		while ( $html_processor->next_tag( $tag ) ) {
+			// Tag is considered a match if the class and id match.
+			if ( $lcp_id === $html_processor->get_attribute( 'id' ) &&
+				$lcp_class === $html_processor->get_attribute( 'class' ) ) {
+				return $html_processor;
+			}
+		}
+
+		return false;
 	}
 }

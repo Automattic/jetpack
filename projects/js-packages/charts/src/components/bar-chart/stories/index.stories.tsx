@@ -27,7 +27,30 @@ const meta: Meta< typeof BarChart > = {
 			</div>
 		),
 	],
-};
+	argTypes: {
+		maxWidth: {
+			control: {
+				type: 'number',
+				min: 100,
+				max: 1200,
+			},
+		},
+		aspectRatio: {
+			control: {
+				type: 'number',
+				min: 0,
+				max: 1,
+			},
+		},
+		resizeDebounceTime: {
+			control: {
+				type: 'number',
+				min: 0,
+				max: 10000,
+			},
+		},
+	},
+} satisfies Meta< typeof BarChart >;
 
 export default meta;
 
@@ -41,6 +64,9 @@ export const Default: Story = {
 		showLegend: false,
 		legendOrientation: 'horizontal',
 		gridVisibility: 'x',
+		maxWidth: 1200,
+		aspectRatio: 0.5,
+		resizeDebounceTime: 300,
 	},
 };
 
@@ -112,9 +138,9 @@ export const WithLegend = {
 export const WithVerticalLegend = {
 	args: {
 		...WithLegend.args,
-		data: [ data[ 0 ] ],
 		showLegend: true,
 		legendOrientation: 'vertical',
+		height: 600,
 	},
 };
 
