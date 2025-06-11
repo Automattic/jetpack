@@ -1,4 +1,5 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -294,7 +295,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								'Enables a targeted advertising opt-out link in US states where this is legally required.',
 								'jetpack'
 							),
-							link: this.props.isWoASite
+							link: isWoASite()
 								? getRedirectUrl( 'wpcom-support-us-privacy' )
 								: getRedirectUrl( 'jetpack-support-ads' ),
 						} }

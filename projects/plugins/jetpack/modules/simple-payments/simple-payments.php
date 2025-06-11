@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\Status\Request;
 
 /**
  * Jetpack_Simple_Payments
@@ -287,7 +288,7 @@ class Jetpack_Simple_Payments {
 		$data['id'] = $attrs['id'];
 
 		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
-			if ( jetpack_is_frontend() ) {
+			if ( Request::is_frontend() ) {
 				return $this->output_admin_warning( $data );
 			}
 			return;

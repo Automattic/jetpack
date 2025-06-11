@@ -101,6 +101,10 @@ export type ChartTheme = {
 	legendShapeStyles?: CSSProperties[];
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
+	/** Styles for legend labels */
+	legendLabelStyles?: CSSProperties;
+	/** Styles for legend container */
+	legendContainerStyles?: CSSProperties;
 };
 
 declare type AxisOptions = {
