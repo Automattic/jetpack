@@ -8,6 +8,7 @@ import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-prov
 import { Legend } from '../legend';
 import { parseAsLocalDate } from '../shared/date-parsing';
 import { useChartMargin } from '../shared/use-chart-margin';
+import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
@@ -209,6 +210,7 @@ const LineChart: FC< LineChartProps > = ( {
 	const providerTheme = useChartTheme();
 	const theme = useXYChartTheme( data );
 	const chartId = useId(); // Ensure unique ids for gradient fill.
+	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 
 	const dataSorted = useMemo(
 		() =>
@@ -280,11 +282,15 @@ const LineChart: FC< LineChartProps > = ( {
 			data-testid="line-chart"
 			role="img"
 			aria-label="line chart"
+			style={ {
+				width,
+				height,
+			} }
 		>
 			<XYChart
 				theme={ theme }
 				width={ width }
-				height={ height }
+				height={ height - legendHeight }
 				margin={ { ...defaultMargin, ...margin } }
 				// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 				xScale={ chartOptions.xScale }
@@ -363,6 +369,7 @@ const LineChart: FC< LineChartProps > = ( {
 					orientation={ legendOrientation }
 					className={ styles[ 'line-chart-legend' ] }
 					shape={ legendShape }
+					ref={ legendRef }
 				/>
 			) }
 		</div>

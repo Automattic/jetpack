@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
+import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './use-bar-chart-options';
@@ -53,6 +54,7 @@ const BarChart: FC< BarChartProps > = ( {
 	const theme = useXYChartTheme( data );
 	const chartOptions = useBarChartOptions( data, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
+	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
@@ -103,11 +105,15 @@ const BarChart: FC< BarChartProps > = ( {
 			data-testid="bar-chart"
 			role="img"
 			aria-label="bar chart"
+			style={ {
+				width,
+				height,
+			} }
 		>
 			<XYChart
 				theme={ theme }
 				width={ width }
-				height={ height }
+				height={ height - legendHeight }
 				margin={ { ...defaultMargin, ...margin } }
 				xScale={ chartOptions.xScale }
 				yScale={ chartOptions.yScale }
@@ -153,6 +159,7 @@ const BarChart: FC< BarChartProps > = ( {
 					orientation={ legendOrientation }
 					className={ styles[ 'bar-chart__legend' ] }
 					shape={ legendShape }
+					ref={ legendRef }
 				/>
 			) }
 		</div>
