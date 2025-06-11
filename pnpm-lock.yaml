@@ -4374,8 +4374,8 @@ importers:
         specifier: 4.7.0
         version: 4.7.0
       fullcalendar:
-        specifier: 3.10.0
-        version: 3.10.0(moment@2.30.1)
+        specifier: 3.10.5
+        version: 3.10.5(moment@2.30.1)
       glob:
         specifier: 11.0.2
         version: 11.0.2
@@ -11435,8 +11435,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  fullcalendar@3.10.0:
-    resolution: {integrity: sha512-0OtsHhmdYhtFmQwXzyo8VqHzYgamg+zVOoytv5N13gI+iF6CGjevpCi/yBaQs0O4wY3OAp8I688IxdNYe0iAvw==}
+  fullcalendar@3.10.5:
+    resolution: {integrity: sha512-JGWpECKgza/344bbF5QT0hBJpx04DZ/7QGPlR1ZbAwrG6Yz6mWEkQd+NnZUh1sK6HCBIPnPRW2x53aJxeLGvvQ==}
     peerDependencies:
       jquery: 2 - 3
       moment: ^2.20.1
@@ -25207,7 +25207,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  fullcalendar@3.10.0(moment@2.30.1):
+  fullcalendar@3.10.5(moment@2.30.1):
     dependencies:
       moment: 2.30.1
 
