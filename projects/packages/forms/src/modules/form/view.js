@@ -1,7 +1,19 @@
-import { getContext, store, getConfig, withSyncEvent } from '@wordpress/interactivity';
+import {
+	getContext,
+	store,
+	getConfig,
+	withSyncEvent as originalWithSyncEvent,
+} from '@wordpress/interactivity';
 import { validateField } from '../../contact-form/js/validate-helper';
 
+const withSyncEvent =
+	originalWithSyncEvent ||
+	( cb =>
+		( ...args ) =>
+			cb( ...args ) );
+
 const NAMESPACE = 'jetpack/form';
+const config = getConfig( NAMESPACE );
 
 const updateField = ( fieldId, value, showFieldError = false ) => {
 	const context = getContext();
@@ -37,7 +49,6 @@ const registerField = (
 		};
 	}
 };
-const config = getConfig( NAMESPACE );
 
 const getError = field => {
 	if ( field.type === 'number' ) {
@@ -161,7 +172,7 @@ const { state } = store( NAMESPACE, {
 			}
 		} ),
 
-		onFieldChange: withSyncEvent( event => {
+		onFieldChange: event => {
 			let value = event.target.value;
 			const context = getContext();
 			const fieldId = context.fieldId;
@@ -171,24 +182,9 @@ const { state } = store( NAMESPACE, {
 			}
 
 			updateField( fieldId, value );
-		} ),
+		},
 
-		handleOnInputField: withSyncEvent( event => {
-			const value = event.target.value;
-			const context = getContext();
-			const fieldId = context.fieldId;
-			const field = context.fields[ fieldId ];
-
-			if ( field.type === 'checkbox' ) {
-				field.value = event.target.checked ? value : '';
-			} else {
-				field.value = value;
-			}
-
-			field.error = validateField( field.type, field.value, field.isRequired, field.extra );
-		} ),
-
-		onMultipleFieldChange: withSyncEvent( event => {
+		onMultipleFieldChange: event => {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
@@ -202,12 +198,12 @@ const { state } = store( NAMESPACE, {
 			}
 
 			updateField( fieldId, newValues );
-		} ),
+		},
 
-		onFieldBlur: withSyncEvent( event => {
+		onFieldBlur: event => {
 			const context = getContext();
 			updateField( context.fieldId, event.target.value, true );
-		} ),
+		},
 
 		onFormSubmit: withSyncEvent( event => {
 			const context = getContext();
