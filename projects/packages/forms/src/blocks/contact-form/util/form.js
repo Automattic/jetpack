@@ -1,8 +1,5 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 
 const FORM_BLOCK_NAME = 'jetpack/contact-form';
 
@@ -11,37 +8,6 @@ export const FORM_STYLE = {
 	BELOW: 'below',
 	DEFAULT: 'default',
 	OUTLINED: 'outlined',
-};
-
-export const useFormWrapper = ( { attributes, clientId, name } ) => {
-	const BUTTON_BLOCK_NAME = 'jetpack/button';
-	const SUBMIT_BUTTON_ATTR = {
-		text: __( 'Submit', 'jetpack-forms' ),
-		element: 'button',
-		lock: { remove: true },
-	};
-
-	const { replaceBlock, __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
-
-	const parents = useSelect( select => {
-		return select( blockEditorStore ).getBlockParentsByBlockName( clientId, FORM_BLOCK_NAME );
-	} );
-
-	useEffect( () => {
-		if ( ! parents?.length ) {
-			// As this is an automated update, ensure it doesn't end up in the undo stack
-			// by calling `__unstableMarkNextChangeAsNotPersistent`.
-			__unstableMarkNextChangeAsNotPersistent();
-			replaceBlock(
-				clientId,
-				createBlock( FORM_BLOCK_NAME, {}, [
-					createBlock( name, attributes ),
-					createBlock( BUTTON_BLOCK_NAME, SUBMIT_BUTTON_ATTR ),
-				] )
-			);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
 };
 
 export const getBlockStyle = className => {
