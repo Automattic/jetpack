@@ -756,7 +756,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Test extends \WorDBless\BaseTe
 		// Usually this should be 3, but in rare cases when the clock ticks over to the next second, the
 		// counter bumps 4 times. For now, we'll use this workaround to split the difference and accept
 		// both 3 and 4 as valid; outside of that something more catastrophic has occurred.
-		$this->assertContains( self::get_sync_counter(), array( 3, 4 ) );
+		$this->assertThat( self::get_sync_counter(), $this->logicalOr( $this->identicalTo( 3 ), $this->identicalTo( 4 ) ) );
 		$this->assertSame( 2, self::$scheduled_counter );
 		$this->assertSame( 1, self::$transients_added );
 	}
