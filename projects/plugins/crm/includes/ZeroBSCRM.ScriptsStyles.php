@@ -526,8 +526,8 @@ function zeroBSCRM_calendar_admin_styles(){
 
 	wp_register_style( 'jpcrm-tasks-css', ZEROBSCRM_URL . 'css/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 
-	wp_register_script( 'zerobscrm-calendar-js', ZEROBSCRM_URL . 'js/lib/fullcalendar.mod' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment' ), $zbs::VERSION, false );
-	wp_register_style( 'zerobscrm-calendar', ZEROBSCRM_URL . 'css/lib/fullcalendar.min.css', array(), $zbs::VERSION );
+	wp_register_script( 'zerobscrm-calendar-js', ZEROBSCRM_URL . 'build/lib/fullcalendar/fullcalendar.js', array( 'jquery', 'jpcrm-moment' ), $zbs::VERSION, false );
+	wp_register_style( 'zerobscrm-calendar', ZEROBSCRM_URL . 'build/lib/fullcalendar/fullcalendar.min.css', array(), $zbs::VERSION );
 	wp_register_script( 'jpcrm-tasks-js', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment', 'zerobscrm-calendar-js' ), $zbs::VERSION, false );
 
 	// LOCALE Specific
