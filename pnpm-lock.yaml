@@ -4373,6 +4373,9 @@ importers:
       font-awesome:
         specifier: 4.7.0
         version: 4.7.0
+      fullcalendar:
+        specifier: 3.10.0
+        version: 3.10.0(moment@2.30.1)
       glob:
         specifier: 11.0.2
         version: 11.0.2
@@ -11431,6 +11434,12 @@ packages:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+
+  fullcalendar@3.10.0:
+    resolution: {integrity: sha512-0OtsHhmdYhtFmQwXzyo8VqHzYgamg+zVOoytv5N13gI+iF6CGjevpCi/yBaQs0O4wY3OAp8I688IxdNYe0iAvw==}
+    peerDependencies:
+      jquery: 2 - 3
+      moment: ^2.20.1
 
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
@@ -25197,6 +25206,10 @@ snapshots:
 
   fsevents@2.3.3:
     optional: true
+
+  fullcalendar@3.10.0(moment@2.30.1):
+    dependencies:
+      moment: 2.30.1
 
   function-bind@1.1.2: {}
 
