@@ -116,7 +116,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	// } Disable Partial Payments
 	$updated_settings['invoicing_disable_partial_payments'] = 0; // Default to 0 (unchecked)
 	// If the checkbox name exists in POST, it means it was checked.
-	if ( isset( $_POST['wpzbscrm_invoicing_disable_partial_payments'] ) ) {
+	if ( isset( $_POST['wpzbscrm_invoicing_disable_partial_payments'] ) && ! empty( $_POST['wpzbscrm_invoicing_disable_partial_payments'] ) ) {
 		$updated_settings['invoicing_disable_partial_payments'] = 1;
 	}
 
