@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2025-06-11
+### Added
+- Add responsive configuration options for charts [#43871]
+- Add supports for customizing legend label/container styles [#43868]
+- Charts: Add support for the glyph at the start of the line chart [#43819]
+- Support date literals [#43791]
+
+### Changed
+- Janitorial: clean up dependency versions. [#43841]
+- Set SVG overflow to visible in bar-chart and line-chart styles [#43869]
+
+### Fixed
+- Chart components now subtract legend height from total height, ensuring the rendered chart (including legend) does not exceed the specified height prop [#43844]
+- Fix default bar chart gridVisibility [#43845]
+- Fix output CSS file name [#43842]
+
 ## [0.12.1] - 2025-06-06
 ### Fixed
 - Fix @automattic/number-formatters dependency issue [#43813]
@@ -216,6 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.13.0]: https://github.com/Automattic/charts/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/Automattic/charts/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/Automattic/charts/compare/v0.11.4...v0.12.0
 [0.11.4]: https://github.com/Automattic/charts/compare/v0.11.3...v0.11.4

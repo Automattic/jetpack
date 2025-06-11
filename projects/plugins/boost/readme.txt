@@ -183,27 +183,25 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.0.0 - 2025-05-19
+### 4.1.0-beta - 2025-06-11
+#### Added
+- LCP Optimization: New Largest Contentful Paint (LCP) optimization feature to improve loading performance of Cornerstone pages.
+
 #### Changed
-- General: Run feature activation routines for active features when the plugin is deactivated, then reactivated.
-- Dashboard: Indicate all external links with External icon.
-- Page Cache: Improve compatibility with sites using Endurance Page Cache.
-- My Jetpack: Update the onboarding UI, changing it to a single button.
-- UI: Updated currency formatting.
+- Auto-Resize Lazy Images: Remove beta tag.
+- E2E Tests: Update config file encryption algorithm.
+- My Jetpack: Hide backup failure notice when backups are deactivated.
+- My Jetpack: Optimize the images for onboarding slider for faster page load.
 - Update package dependencies.
 
 #### Removed
-- General: Update minimum WordPress version to 6.7.
+- Cornerstone Pages: Remove "Experimental" tag from UI.
 
 #### Fixed
-- Dashboard: Properly display notice to purchase a plan in Critical CSS modal.
-- Cornerstone Pages: Avoid fatal errors when no pages are set.
-- Page Cache: Handle garbage collection through cron-job on front-end update.
-- Concatenate JS/CSS: Gracefully handle if there are too many files to concat.
-- Concatenate JS/CSS: Avoid fatal errors on feature activation.
-- Concatenate JS: Ensure compatibility with the WooCommerce Bookings plugin.
-- My Jetpack: Fix social login getting stuck when email input is not empty.
-- Performance: Improve internal object caching.
+- General: Fix storage data persisting after clear.
+- My Jetpack: Fix Onboarding UI responsiveness at 600px.
+- My Jetpack: Fix readability of license activation button on hover.
+- Speed Scores: Fix not waiting for Cloud CSS to finish generating before refreshing the scores.
 
 --------
 

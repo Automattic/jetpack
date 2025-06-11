@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Invoice line items now import the product short descritpion if set. If not set just the item name.
