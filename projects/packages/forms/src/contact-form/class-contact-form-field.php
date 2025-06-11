@@ -702,7 +702,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					" . $class . $placeholder . '
 					' . ( $required ? "required='true' aria-required='true'" : '' ) .
 					$extra_attrs_string .
-					" />\n " . self::get_error_div( $id, $type ) . " \n";
+					" />\n " . $this->get_error_div( $id, $type ) . " \n";
 	}
 
 	/**
@@ -710,10 +710,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * @param string $id - the field ID.
 	 * @param string $type - the field type.
+	 * @param bool   $override_render - if the error div should be rendered even if the label is inset.
 	 *
 	 * @return string HTML
 	 */
-	private static function get_error_div( $id, $type ) {
+	private function get_error_div( $id, $type, $override_render = false ) {
+
+		if ( $this->has_inset_label() && ! $override_render ) {
+			return '';
+		}
 		return '<div
 			id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error"
 			class="contact-form__input-error"
@@ -845,7 +850,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						. $placeholder
 						. ' ' . ( $required ? "required aria-required='true'" : '' ) .
 						'>' . esc_textarea( $value )
-				. "</textarea>\n " . self::get_error_div( $id, 'textarea' ) . "\n";
+				. "</textarea>\n " . $this->get_error_div( $id, 'textarea' ) . "\n";
 		return $field;
 	}
 
@@ -1796,18 +1801,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field             = '';
 		$field_placeholder = ! empty( $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : 'placeholder=" "'; // ensure that we can use :placeholder-shown CSS selector
 
-		// Fields with an inset label need an extra wrapper to show the error message below the input.
-		if ( $has_inset_label ) {
-			$field_width       = $this->get_attribute( 'width' );
-			$inset_label_class = array( 'contact-form__inset-label-wrap' );
-
-			if ( ! empty( $field_width ) ) {
-				array_push( $inset_label_class, 'grunion-field-width-' . $field_width . '-wrap' );
-			}
-
-			$field .= "\n<div class='" . implode( ' ', $inset_label_class ) . "'>\n";
-		}
-
 		$context = array(
 			'fieldId'           => $id,
 			'fieldType'         => $type,
@@ -1819,7 +1812,21 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'fieldExtra'        => $this->get_field_extra( $type, $extra_attrs ),
 		);
 
-		$field .= "\n<div data-wp-interactive=\"jetpack/form\" " . wp_interactivity_data_wp_context( $context ) . " {$block_style} {$shell_field_class} data-wp-init='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
+		$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
+		// Fields with an inset label need an extra wrapper to show the error message below the input.
+		if ( $has_inset_label ) {
+			$field_width       = $this->get_attribute( 'width' );
+			$inset_label_class = array( 'contact-form__inset-label-wrap' );
+
+			if ( ! empty( $field_width ) ) {
+				array_push( $inset_label_class, 'grunion-field-width-' . $field_width . '-wrap' );
+			}
+
+			$field              .= "\n<div class='" . implode( ' ', $inset_label_class ) . "' {$interactivity_attrs} >\n";
+			$interactivity_attrs = ''; // Reset interactivity attributes for the field wrapper.
+		}
+
+		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-wp-init='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
 
 		switch ( $type ) {
 			case 'email':
@@ -1866,6 +1873,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "\t</div>\n";
 
 		if ( $has_inset_label ) {
+			$field .= $this->get_error_div( $id, $type, true );
+			// Close the extra wrapper for inset labels.
 			$field .= "\t</div>\n";
 		}
 
