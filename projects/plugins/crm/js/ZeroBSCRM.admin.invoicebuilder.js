@@ -931,6 +931,15 @@ function zbscrm_JS_draw_invoice_totals( res ) {
  * @param res
  */
 function zbscrm_JS_draw_partials_table( res ) {
+	// Check if partial payments are disabled
+	if (
+		typeof window.zbs_invoice.invoiceObj.settings.invoicing_disable_partial_payments !==
+			'undefined' &&
+		window.zbs_invoice.invoiceObj.settings.invoicing_disable_partial_payments === 1
+	) {
+		return ''; // Return empty string to hide the section
+	}
+
 	let html = '<div id="zbs-invoice-partial-payments" class = "ui grid">';
 
 	html += '<div class="col-md-6 eight wide column"></div>';
