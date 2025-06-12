@@ -65,15 +65,20 @@ const AkismetDashboardCard = ( {
 							}
 						) }
 					</p>
-					<Button
-						variant="secondary"
-						href={ settingsUrl }
-						target="_blank"
-						rel="noopener noreferrer"
-						__next40pxDefaultSize={ true }
-					>
-						{ __( 'Add Akismet key', 'jetpack-forms' ) }
-					</Button>
+					<div style={ { display: 'flex', gap: '8px', alignItems: 'center' } }>
+						<Button
+							variant="secondary"
+							href={ settingsUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+							__next40pxDefaultSize={ true }
+						>
+							{ __( 'Add Akismet key', 'jetpack-forms' ) }
+						</Button>
+						<Button variant="tertiary" onClick={ refreshStatus } __next40pxDefaultSize={ true }>
+							{ __( 'Refresh Status', 'jetpack-forms' ) }
+						</Button>
+					</div>
 				</div>
 			) : (
 				<div>
