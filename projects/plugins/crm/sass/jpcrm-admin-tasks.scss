@@ -27,19 +27,37 @@
     margin: 0 auto;
 }
 
-// 3.0
-#jpcrm-task-edit #zerobscrm-owner {
-    //display:none !important;
-    margin-top: 4px;
-    z-index: 4;
-    position: absolute;
-    right: 30px;
-    width: 85%;
-    top: 4px;
-    display: inline-block;
-    color: #000;
-    border: 0;
-    box-shadow: none;
+.jpcrm-task-owner {
+
+	@extend %zbs-tasks-field;
+
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	padding: 5px 10px;
+
+	i, img {
+		width: 30px;
+		flex: 0 0 0;
+		border-radius: 50%;
+	}
+
+	#zerobscrm-owner {
+		color: #000;
+		border: 0;
+		box-shadow: none;
+	}
+}
+
+.jpcrm-task-time td {
+	padding: 6px 10px;
+	color: #000;
+
+	label {
+		font-size: 14px;
+		color: #000;
+		font-weight: 400;
+	}
 }
 
 .fc-header-toolbar h2{

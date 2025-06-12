@@ -561,7 +561,7 @@ function zeroBSCRM_task_ui_assignment( $taskObject = array(), $taskID = -1 ) {
 	$html = '';
 	if ( $current_task_user_id === '' || $current_task_user_id <= 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-		$html .= "<div class='no-owner'><i class='ui icon user circle zbs-unassigned'></i>";
+		$html .= "<div class='jpcrm-task-owner'><i class='ui icon user circle zbs-unassigned'></i>";
 
 	} else {
 
@@ -571,7 +571,7 @@ function zeroBSCRM_task_ui_assignment( $taskObject = array(), $taskID = -1 ) {
 			'class' => 'rounded-circle',
 		);
 		$avatar       = jpcrm_get_avatar( $current_task_user_id, 30, '', $display_name, $ava_args );
-		$html        .= "<div class='no-owner'>" . $avatar . "<div class='dn'></div>";
+		$html        .= '<div class="jpcrm-task-owner">' . $avatar;
 
 	}
 
@@ -585,7 +585,7 @@ function zeroBSCRM_task_ui_assignment( $taskObject = array(), $taskID = -1 ) {
 	// get potential owners
 	$jpcrm_tasks_users = zeroBS_getPossibleTaskOwners();
 
-	$html .= '<div class="owner-select" style="margin-left:30px;"><select class="form-controlx" id="zerobscrm-owner" name="zbse_owner" style="width:80%">';
+	$html .= '<select id="zerobscrm-owner" name="zbse_owner">';
 	$html .= '<option value="-1">' . __( 'None', 'zero-bs-crm' ) . '</option>';
 
 	if ( count( $jpcrm_tasks_users ) > 0 ) {
@@ -597,7 +597,7 @@ function zeroBSCRM_task_ui_assignment( $taskObject = array(), $taskID = -1 ) {
 			$html .= '>' . esc_html( $possOwner->display_name ) . '</option>';
 		}
 	}
-	$html .= '</select></div></div>';
+	$html .= '</select></div>';
 
 	return $html;
 }
@@ -743,7 +743,7 @@ function jpcrm_task_ui_daterange( $task_object = array() ) {
 	// For now, hack together a table so the date and time inputs line up nicely. Eventually we'll want to rework the entire UI of this page.
 	$html = '
 <table style="margin-left:20px;">
-	<tr class="wh-large">
+	<tr class="jpcrm-task-time">
 		<td><label>' . esc_html__( 'Start time', 'zero-bs-crm' ) . ':</label>&nbsp;</td>
 		<td>
 			<input type="date" name="jpcrm_start_datepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_start, 'Y-m-d' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
@@ -751,7 +751,7 @@ function jpcrm_task_ui_daterange( $task_object = array() ) {
 			<input type="time" name="jpcrm_start_timepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_start, 'H:i' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
 		</td>
 	</tr>
-	<tr class="wh-large">
+	<tr class="jpcrm-task-time">
 		<td><label>' . esc_html__( 'End time', 'zero-bs-crm' ) . ':</label>&nbsp;</td>
 		<td>
 			<input type="date" name="jpcrm_end_datepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_end, 'Y-m-d' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
