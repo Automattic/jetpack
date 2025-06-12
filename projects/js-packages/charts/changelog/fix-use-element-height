@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix useElementHeight hook to use a callback ref for reliable height measurement

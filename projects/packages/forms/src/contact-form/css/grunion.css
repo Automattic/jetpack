@@ -662,6 +662,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	max-width: 100px;
 }
 
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__notch
@@ -669,6 +670,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	border-top-color: transparent !important;
 }
 
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label
@@ -678,12 +680,14 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 /* Form that upgrade to use inner blocks look to the global styles border size accessible via the CSS vars. See Contact_Form_Field::get_form_variation_style_properties() .*/
+.contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__label,
 .contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
 .contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
 .contact-form .is-style-outlined .wp-block-jetpack-field-select.wp-block-jetpack-input-wrap .notched-label .notched-label__label {
 	top: calc( var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1 );
 }
 
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options .grunion-label-text,
@@ -692,6 +696,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 0.8em;
 }
 
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-required,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-required,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .grunion-label-required,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options .grunion-label-required,
@@ -784,6 +789,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
 }
 
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:not(:placeholder-shown)),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder),
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label
@@ -792,6 +798,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
 }
 
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-text,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-text,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder) .grunion-label-text,
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-text
@@ -799,6 +806,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 0.75em;
 }
 
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-required,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-required,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder) .grunion-label-required,
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-required
@@ -813,6 +821,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 /* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field:not(:placeholder-shown)),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field:focus),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field.has-placeholder),
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"] {

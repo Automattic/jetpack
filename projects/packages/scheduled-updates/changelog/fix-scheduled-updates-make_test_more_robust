@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tests: Prevent rare PHPUnit failure due to clock time.

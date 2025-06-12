@@ -1,3 +1,4 @@
+import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
@@ -80,18 +81,38 @@ export const BaseLegend = forwardRef< HTMLDivElement, LegendProps >(
 								flexDirection={ itemDirection }
 								{ ...legendItemProps }
 							>
-								<LegendShape
-									shape={ shape }
-									height={ shapeHeight }
-									width={ shapeWidth }
-									margin={ shapeMargin }
-									item={ domain[ i ] }
-									itemIndex={ i }
-									label={ label }
-									fill={ fill }
-									size={ size }
-									shapeStyle={ getShapeStyle }
-								/>
+								{ items[ i ]?.renderGlyph ? (
+									<svg
+										width={ items[ i ]?.glyphSize * 2 }
+										height={ items[ i ]?.glyphSize * 2 }
+										data-testid="legend-glyph"
+									>
+										<Group>
+											{ items[ i ]?.renderGlyph( {
+												key: `legend-glyph-${ label.text }`,
+												datum: {},
+												index: i,
+												color: fill( label ),
+												size: items[ i ]?.glyphSize,
+												x: items[ i ]?.glyphSize,
+												y: items[ i ]?.glyphSize,
+											} ) }
+										</Group>
+									</svg>
+								) : (
+									<LegendShape
+										shape={ shape }
+										height={ shapeHeight }
+										width={ shapeWidth }
+										margin={ shapeMargin }
+										item={ domain[ i ] }
+										itemIndex={ i }
+										label={ label }
+										fill={ fill }
+										size={ size }
+										shapeStyle={ getShapeStyle }
+									/>
+								) }
 								<LegendLabel
 									style={ {
 										justifyContent: labelAlign,
