@@ -29,7 +29,7 @@ export function Filters( { onChangeFilter, onSearch, search, selectedFilter }: F
 		[ onChangeFilter, selectedFilter ]
 	);
 
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	return (
 		<div className={ styles.filters }>
@@ -41,7 +41,7 @@ export function Filters( { onChangeFilter, onSearch, search, selectedFilter }: F
 				onChange={ onSearch }
 				className={ styles[ 'search-control' ] }
 			/>
-			{ isSm ? (
+			{ isSmall ? (
 				<SelectControl
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
