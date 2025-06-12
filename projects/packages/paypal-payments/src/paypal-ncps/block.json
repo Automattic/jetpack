@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "jetpack/paypal-ncps-block",
+	"name": "jetpack/paypal-ncps",
 	"version": "0.1.0",
-	"title": "PayPal NCPS Block",
+	"title": "PayPal NCPS",
 	"category": "widgets",
 	"icon": "smiley",
 	"description": "Custom block for displaying PayPal No-Code Payment Solution (NCPS) buttons.",

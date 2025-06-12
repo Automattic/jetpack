@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import Edit from '../../../src/paypal-ncps-block/edit';
+import Edit from '../../../src/paypal-ncps/edit';
 
 // Mock WordPress dependencies
 jest.mock( '@wordpress/block-editor', () => ( {
-	useBlockProps: () => ( { className: 'wp-block-pncps-paypal-ncps-block' } ),
+	useBlockProps: () => ( { className: 'wp-block-pncps-paypal-ncps' } ),
 	PlainText: ( { value, onChange, placeholder, 'aria-label': ariaLabel } ) => (
 		<input
 			data-testid="plain-text"

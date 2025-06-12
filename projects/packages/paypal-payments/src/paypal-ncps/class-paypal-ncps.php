@@ -12,17 +12,17 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Paypal_Payments;
 
 /**
- * Class Paypal_NCPS_Block
+ * Class Paypal_NCPS
  *
  * @package Automattic\Jetpack\PaypalPayments
  */
-class Paypal_NCPS_Block {
+class Paypal_NCPS {
 	/**
 	 * The block full slugname.
 	 *
 	 * @var string
 	 */
-	public const BLOCK_NAME = 'jetpack/paypal-ncps-block';
+	public const BLOCK_NAME = 'jetpack/paypal-ncps';
 
 	/**
 	 * The package version.

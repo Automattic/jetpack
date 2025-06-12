@@ -15,7 +15,7 @@ const sharedWebpackConfig = {
 	entry: {
 		'block/editor': './src/block/editor.js',
 		'legacy-simple-payments': './src/legacy/simple-payments.css',
-		'paypal-ncps-block/editor': './src/paypal-ncps-block/editor.js',
+		'paypal-ncps/editor': './src/paypal-ncps/editor.js',
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -89,8 +89,8 @@ module.exports = [
 						noErrorOnMissing: true,
 					},
 					{
-						from: 'src/paypal-ncps-block/block.json',
-						to: 'paypal-ncps-block/block.json',
+						from: 'src/paypal-ncps/block.json',
+						to: 'paypal-ncps/block.json',
 						noErrorOnMissing: true,
 					},
 				],
