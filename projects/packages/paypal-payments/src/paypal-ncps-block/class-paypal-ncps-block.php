@@ -134,10 +134,10 @@ class Paypal_NCPS_Block {
 
 		Assets::register_script(
 			$handle,
-			'../dist/paypal-ncps-block/editor.js',
+			'../../dist/paypal-ncps-block/editor.js',
 			__FILE__,
 			array(
-				'css_path'   => '../dist/paypal-ncps-block/editor.css',
+				'css_path'   => '../../dist/paypal-ncps-block/editor.css',
 				'textdomain' => 'jetpack-paypal-payments',
 			)
 		);
@@ -150,7 +150,7 @@ class Paypal_NCPS_Block {
 	public static function load_editor_scripts() {
 		Assets::register_script(
 			'jp-paypal-payments-ncps-blocks',
-			'../dist/paypal-ncps-block/editor.js',
+			'../../dist/paypal-ncps-block/editor.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,
