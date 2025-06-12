@@ -118,19 +118,32 @@ background: #fff;
     clear:both;
 }
 
-#zbs-task-title{
+#zbs-task-title-row {
+	display: flex;
+	gap: 8px;
 
-    // take general rounding etc. from this
-    @extend %zbs-tasks-field;
+	#zbs-task-title {
+		// take general rounding etc. from this
+		@extend %zbs-tasks-field;
 
-    width:80%;
-    float:left;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    min-height: 0;
-    padding: 0.2em 0.5em;
-    line-height: 1.4;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+		font-size: 14px;
+		font-weight: 400;
+		min-height: 0;
+		padding: 0.2em 0.5em;
+		line-height: 1.4;
+
+		flex: 1 1 auto;
+	}
+
+	#mark-complete-task {
+		min-width: 200px;
+		flex: 0 1 auto;
+
+		button {
+			width:100%;
+		}
+	}
 }
 
 .fc-event{
@@ -228,9 +241,6 @@ background: #fff;
     color: #ccc;
 }
 
-
-
-
 #titlewrap, #post-body-content{
     display:none;
 }
@@ -271,16 +281,6 @@ background: #fff;
 .select2-container--default .select2-selection--single{
     border: 0 solid !important;
     font-size:20px;
-}
-
-.task-comp{
-    width: 19%;
-    float: right;
-    // wasn't needed v3.0 + ? margin-top: 3px;
-}
-
-.task-comp button{
-    width:100%;
 }
 
 .zbs-cal-complete{

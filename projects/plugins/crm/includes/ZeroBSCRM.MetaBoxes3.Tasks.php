@@ -500,9 +500,10 @@ function zeroBSCRM_task_addEdit( $taskID = -1 ) {
 	}
 	// WH: Not sure placeholder is really req 3.0? What was that even? (It's not a field we've added to the data model)
 
+	$html .= '<div id="zbs-task-title-row">';
 	$html .= "<input id='zbs-task-title' name='zbse_title' type='text' value='" . esc_attr( $title ) . "' placeholder='" . $placeholder . "' />";
-
 	$html .= jpcrm_task_ui_mark_complete( $taskObject ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$html .= '</div>';
 
 	$html .= zeroBSCRM_task_ui_clear();
 
@@ -613,12 +614,12 @@ function jpcrm_task_ui_mark_complete( $task_object = array() ) {
 		$task_object['complete'] = -1;
 	}
 	$html .= sprintf(
-		'<div class="task-comp"><button class="ui button black%s" data-status="1"><i class="ui icon check green"></i>%s</button></div>',
+		'<button class="ui button black%s" data-status="1"><i class="ui icon check green"></i>%s</button>',
 		$task_object['complete'] !== 1 ? ' hidden' : '',
 		__( 'Completed', 'zero-bs-crm' )
 	);
 	$html .= sprintf(
-		'<div class="task-comp"><button class="ui button white%s" data-status="-1">%s</button></div>',
+		'<button class="ui button white%s" data-status="-1">%s</button>',
 		$task_object['complete'] === 1 ? ' hidden' : '',
 		__( 'Mark Complete', 'zero-bs-crm' )
 	);
