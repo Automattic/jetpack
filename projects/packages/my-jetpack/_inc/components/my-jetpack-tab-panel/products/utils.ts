@@ -1,4 +1,3 @@
-import { MenuItemsChoiceProps } from '@wordpress/components/build-types/menu-items-choice/types';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -6,7 +5,7 @@ import { __ } from '@wordpress/i18n';
  *
  * @return The choices for the products filter.
  */
-export function getProductsFilterChoices(): MenuItemsChoiceProps[ 'choices' ] {
+export function getProductsFilterChoices(): Array< { label: string; value: string } > {
 	const choices = [
 		{
 			label: __( 'All categories', 'jetpack-my-jetpack' ),

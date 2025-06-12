@@ -12,12 +12,29 @@
 
 .products-wrapper {
 	display: flex;
-	gap: 4.5rem;
+	flex-direction: column;
+	gap: 2rem;
 	margin-top: 2rem;
+
+	@include gb.break-small {
+		flex-direction: row;
+		gap: 3rem;
+	}
+
+	@include gb.break-medium {
+		gap: 4.5rem;
+	}
 }
 
 .filters-wrapper {
-	max-width: 15rem;
+
+	@include gb.break-small{
+		max-width: 12rem;
+	}
+
+	@include gb.break-medium {
+		max-width: 15rem;
+	}
 }
 
 .filtered-products-wrapper {
