@@ -160,6 +160,19 @@ export const FixedDimensions: Story = {
 	},
 };
 
+export const WithPatterns: Story = {
+	args: {
+		...Default.args,
+		withPatterns: true,
+		data: data.map( country => {
+			return {
+				...country,
+				data: country.data.filter( d => parseInt( d.label ) >= 2016 ),
+			};
+		} ),
+	},
+};
+
 export const ErrorStates: StoryObj< typeof BarChart > = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '20px' } }>
