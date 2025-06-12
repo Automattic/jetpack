@@ -109,8 +109,9 @@ const BarChart: FC< BarChartProps > = ( {
 			const commonProps = {
 				id,
 				key: id,
-				stroke: color,
+				stroke: 'white',
 				strokeWidth: 1,
+				background: color,
 			};
 
 			switch ( patternType ) {
@@ -125,7 +126,7 @@ const BarChart: FC< BarChartProps > = ( {
 						/>
 					);
 				case 1:
-					return <PatternCircles { ...commonProps } width={ 6 } height={ 6 } fill={ color } />;
+					return <PatternCircles { ...commonProps } width={ 6 } height={ 6 } fill="white" />;
 				case 2:
 					return <PatternWaves { ...commonProps } width={ 4 } height={ 4 } />;
 				case 3:
