@@ -301,29 +301,12 @@ background: #fff;
     font-size:20px;
 }
 
-.zbs-cal-complete{
-    font-size: 6px !important;
-    position: absolute;
-    right: 5px;
-    top: 5px;
-    z-index: 2;
-    font-weight: 900;
-    line-height: 11px !important;
-    margin-right: 0 !important;
-    padding: 3px !important;
-}
+.zbs-cal-complete {
+	box-sizing: border-box;
 
-.zbs-cal-complete-list{
-    width: 13px;
-    height: 13px;
-    margin-left: 0;
-    margin-top: 0;
-    min-width: 13px !important;
-    min-height: 13px !important;
-}
-
-.zbs-cal-complete .icon{
-    margin:0 !important;
+	.icon {
+		margin:0 !important;
+	}
 }
 
 .zbs-comp-1{
