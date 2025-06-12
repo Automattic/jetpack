@@ -135,6 +135,19 @@ const BarChart: FC< BarChartProps > = ( {
 		[ chartId ]
 	);
 
+	const createPatternBorderStyle = useCallback(
+		( index: number, color: string ) => {
+			const patternId = getPatternId( chartId, index );
+			return `
+			.visx-bar[fill="url(#${ patternId })"] {
+				stroke: ${ color };
+				stroke-width: 1;
+				}
+			`;
+		},
+		[ chartId ]
+	);
+
 	// Validate data using the same pattern as LineChart
 	const error = validateData( data );
 	if ( error ) {
@@ -179,11 +192,18 @@ const BarChart: FC< BarChartProps > = ( {
 				/>
 
 				{ withPatterns && (
-					<defs data-testid="bar-chart-patterns">
-						{ data.map( ( seriesData, index ) =>
-							renderPattern( index, getColor( seriesData, index ) )
-						) }
-					</defs>
+					<>
+						<defs data-testid="bar-chart-patterns">
+							{ data.map( ( seriesData, index ) =>
+								renderPattern( index, getColor( seriesData, index ) )
+							) }
+						</defs>
+						<style>
+							{ data.map( ( seriesData, index ) =>
+								createPatternBorderStyle( index, getColor( seriesData, index ) )
+							) }
+						</style>
+					</>
 				) }
 
 				<BarGroup padding={ chartOptions.barGroup.padding }>
