@@ -3,8 +3,47 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import { ThemeProvider } from '../../../providers/theme';
+import { GlyphDiamond, GlyphStar } from '@visx/glyph';
+import React from 'react';
+import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
 import LineChart from '../line-chart';
+
+const customTheme = {
+	...jetpackTheme,
+	glyphs: [
+		props =>
+			React.createElement(
+				'g',
+				{ 'data-testid': 'custom-glyph-diamond' },
+				React.createElement( GlyphDiamond, {
+					key: props.key,
+					top: props.y,
+					left: props.x,
+					size: props.size * props.size,
+					fill: props.color,
+				} )
+			),
+		props =>
+			React.createElement(
+				'g',
+				{ 'data-testid': 'custom-glyph-star' },
+				React.createElement( GlyphStar, {
+					key: props.key,
+					top: props.y,
+					left: props.x,
+					size: props.size * props.size,
+					fill: props.color,
+				} )
+			),
+	],
+};
+
+const THEME_MAP = {
+	default: undefined,
+	jetpack: jetpackTheme,
+	woo: wooTheme,
+	custom: customTheme,
+};
 
 describe( 'LineChart', () => {
 	const defaultProps = {
@@ -22,9 +61,11 @@ describe( 'LineChart', () => {
 		],
 	};
 
-	const renderWithTheme = ( props = {} ) => {
+	const renderWithTheme = ( props = {}, themeName = 'jetpack' ) => {
+		const theme = THEME_MAP[ themeName ];
+
 		return render(
-			<ThemeProvider>
+			<ThemeProvider theme={ theme }>
 				{ /* @ts-expect-error TODO Fix the missing props */ }
 				<LineChart { ...defaultProps } { ...props } />
 			</ThemeProvider>
@@ -232,6 +273,32 @@ describe( 'LineChart', () => {
 			// Should only have one start glyph (from the non-empty series)
 			const startGlyphs = screen.getAllByTestId( /start-glyph/i );
 			expect( startGlyphs ).toHaveLength( 1 );
+		} );
+
+		test( 'Renders custom glyph from theme', () => {
+			renderWithTheme(
+				{
+					withStartGlyphs: true,
+					data: [
+						{
+							label: 'Series A',
+							data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						},
+						{
+							label: 'Series B',
+							data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+						},
+					],
+				},
+				'custom'
+			);
+
+			// The default start glyph should not be rendered.
+			expect( screen.queryByTestId( /start-glyph/i ) ).not.toBeInTheDocument();
+
+			// The custom glyphs should be rendered.
+			const customGlyphs = screen.getAllByTestId( /custom-glyph/i );
+			expect( customGlyphs ).toHaveLength( 2 );
 		} );
 	} );
 
