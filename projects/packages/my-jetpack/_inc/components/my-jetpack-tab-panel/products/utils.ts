@@ -16,10 +16,6 @@ export function getProductsFilterChoices(): Array< { label: string; value: strin
 			value: 'recommended',
 		},
 		{
-			label: __( 'Installed', 'jetpack-my-jetpack' ),
-			value: 'installed',
-		},
-		{
 			label: __( 'Included in plan', 'jetpack-my-jetpack' ),
 			value: 'included',
 		},
@@ -46,4 +42,15 @@ export function getProductsFilterChoices(): Array< { label: string; value: strin
 	];
 
 	return choices;
+}
+
+/**
+ * Get the title for a section based on its id.
+ * @param {string} section - The section id.
+ * @return  The title of the section, or undefined if not found.
+ */
+export function getSectionTitle( section: string ) {
+	const option = getProductsFilterChoices().find( item => item.value === section );
+
+	return option?.label;
 }

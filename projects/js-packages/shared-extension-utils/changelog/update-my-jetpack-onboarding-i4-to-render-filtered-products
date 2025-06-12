@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Data store: Expose the store object for better auto completion.
