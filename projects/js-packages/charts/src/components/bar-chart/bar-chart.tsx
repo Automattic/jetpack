@@ -187,18 +187,16 @@ const BarChart: FC< BarChartProps > = ( {
 				) }
 
 				<BarGroup padding={ chartOptions.barGroup.padding }>
-					{ data.map( ( seriesData, index ) => {
-						return (
-							<BarSeries
-								key={ seriesData?.label }
-								dataKey={ seriesData?.label }
-								data={ seriesData.data as DataPointDate[] }
-								yAccessor={ chartOptions.accessors.yAccessor }
-								xAccessor={ chartOptions.accessors.xAccessor }
-								colorAccessor={ getBarBackground( index ) }
-							/>
-						);
-					} ) }
+					{ data.map( ( seriesData, index ) => (
+						<BarSeries
+							key={ seriesData?.label }
+							dataKey={ seriesData?.label }
+							data={ seriesData.data as DataPointDate[] }
+							yAccessor={ chartOptions.accessors.yAccessor }
+							xAccessor={ chartOptions.accessors.xAccessor }
+							colorAccessor={ getBarBackground( index ) }
+						/>
+					) ) }
 				</BarGroup>
 
 				<Axis { ...chartOptions.axis.x } />
