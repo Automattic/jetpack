@@ -1528,17 +1528,64 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		Assets::register_script(
-			'grunion-frontend',
-			'../../dist/contact-form/js/grunion-frontend.js',
+			'jp-date-picker',
+			'../../dist/contact-form/js/date-picker.js',
 			__FILE__,
 			array(
 				'enqueue'      => true,
-				'dependencies' => array( 'jquery', 'jquery-ui-datepicker' ),
+				'dependencies' => array(),
 				'version'      => \JETPACK__VERSION,
 			)
 		);
 
-		wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( '../../dist/contact-form/css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
+		/**
+		 * Filter the localized date picker script.
+		 */
+		if ( ! apply_filters( 'jetpack_has_localized_date_picker', false ) ) {
+			\wp_localize_script(
+				'jp-date-picker',
+				'jpDatePicker',
+				array(
+					'offset' => intval( get_option( 'start_of_week', 1 ) ),
+					'lang'   => array(
+						'days'      => array( __( 'Su', 'jetpack-forms' ), __( 'Mo', 'jetpack-forms' ), __( 'Tu', 'jetpack-forms' ), __( 'We', 'jetpack-forms' ), __( 'Th', 'jetpack-forms' ), __( 'Fr', 'jetpack-forms' ), __( 'Sa', 'jetpack-forms' ) ),
+						'months'    => array(
+							__( 'January', 'jetpack-forms' ),
+							__( 'February', 'jetpack-forms' ),
+							__( 'March', 'jetpack-forms' ),
+							__( 'April', 'jetpack-forms' ),
+							__( 'May', 'jetpack-forms' ),
+							__( 'June', 'jetpack-forms' ),
+							__( 'July', 'jetpack-forms' ),
+							__( 'August', 'jetpack-forms' ),
+							__( 'September', 'jetpack-forms' ),
+							__( 'October', 'jetpack-forms' ),
+							__( 'November', 'jetpack-forms' ),
+							__( 'December', 'jetpack-forms' ),
+						),
+						'today'     => __( 'Today', 'jetpack-forms' ),
+						'clear'     => __( 'Clear', 'jetpack-forms' ),
+						'close'     => __( 'Close', 'jetpack-forms' ),
+						'ariaLabel' => array(
+							'enterPicker'       => __( 'You are on a date picker input. Use the down key to focus into the date picker. Or type the date in the format MM/DD/YYYY', 'jetpack-forms' ),
+							'dayPicker'         => __( 'You are currently inside the date picker, use the arrow keys to navigate between the dates. Use tab key to jump to more controls.', 'jetpack-forms' ),
+							'monthPicker'       => __( 'You are currently inside the month picker, use the arrow keys to navigate between the months. Use the space key to select it.', 'jetpack-forms' ),
+							'yearPicker'        => __( 'You are currently inside the year picker, use the up and down arrow keys to navigate between the years. Use the space key to select it.', 'jetpack-forms' ),
+							'monthPickerButton' => __( 'Month picker. Use the space key to enter the month picker.', 'jetpack-forms' ),
+							'yearPickerButton'  => __( 'Year picker. Use the space key to enter the month picker.', 'jetpack-forms' ),
+							'dayButton'         => __( 'Use the space key to select the date.', 'jetpack-forms' ),
+							'todayButton'       => __( 'Today button. Use the space key to select the current date.', 'jetpack-forms' ),
+							'clearButton'       => __( 'Clear button. Use the space key to clear the date picker.', 'jetpack-forms' ),
+							'closeButton'       => __( 'Close button. Use the space key to close the date picker.', 'jetpack-forms' ),
+						),
+					),
+				)
+			);
+			// Only include the localized script once.
+			add_filter( 'jetpack_has_localized_date_picker', '__return_true' );
+		}
+
+		\wp_enqueue_style( 'jp-date-picker', plugins_url( '../../dist/contact-form/js/date-picker.css', __FILE__ ), array(), \JETPACK__VERSION );
 
 		return $field;
 	}
