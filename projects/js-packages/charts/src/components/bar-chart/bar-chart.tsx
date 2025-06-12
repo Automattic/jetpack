@@ -1,9 +1,11 @@
+import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback } from 'react';
-import { useChartTheme, useXYChartTheme } from '../../providers/theme';
+import { useCallback, useId } from 'react';
+import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
+import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './use-bar-chart-options';
@@ -14,6 +16,7 @@ import type { FC, ReactNode } from 'react';
 export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	orientation?: 'horizontal' | 'vertical';
+	withPatterns?: boolean;
 }
 
 // Validation function similar to LineChart
@@ -34,6 +37,8 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
+const getPatternId = ( chartId: string, index: number ) => `bar-pattern-${ chartId }-${ index }`;
+
 const BarChart: FC< BarChartProps > = ( {
 	data,
 	width,
@@ -48,12 +53,27 @@ const BarChart: FC< BarChartProps > = ( {
 	renderTooltip,
 	options = {},
 	orientation = 'vertical',
+	withPatterns = false,
 } ) => {
 	const horizontal = orientation === 'horizontal';
-	const providerTheme = useChartTheme();
+	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
+	const chartId = useId();
 	const theme = useXYChartTheme( data );
 	const chartOptions = useBarChartOptions( data, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
+	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+
+	const getColor = useCallback(
+		( seriesData: SeriesData, index: number ) =>
+			seriesData?.options?.stroke || theme.colors[ index % theme.colors.length ],
+		[ theme ]
+	);
+
+	const getBarBackground = useCallback(
+		( index: number ) => () =>
+			withPatterns ? `url(#${ getPatternId( chartId, index ) })` : getColor( data[ index ], index ),
+		[ withPatterns, getColor, data, chartId ]
+	);
 
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
@@ -82,6 +102,53 @@ const BarChart: FC< BarChartProps > = ( {
 		[ chartOptions.tooltip ]
 	);
 
+	const renderPattern = useCallback(
+		( index: number, color: string ) => {
+			const patternType = index % 4;
+			const id = getPatternId( chartId, index );
+			const commonProps = {
+				id,
+				key: id,
+				stroke: 'white',
+				strokeWidth: 1,
+				background: color,
+			};
+
+			switch ( patternType ) {
+				case 0:
+				default:
+					return (
+						<PatternLines
+							{ ...commonProps }
+							width={ 5 }
+							height={ 5 }
+							orientation={ [ 'diagonal' ] }
+						/>
+					);
+				case 1:
+					return <PatternCircles { ...commonProps } width={ 6 } height={ 6 } fill="white" />;
+				case 2:
+					return <PatternWaves { ...commonProps } width={ 4 } height={ 4 } />;
+				case 3:
+					return <PatternHexagons { ...commonProps } size={ 8 } height={ 3 } />;
+			}
+		},
+		[ chartId ]
+	);
+
+	const createPatternBorderStyle = useCallback(
+		( index: number, color: string ) => {
+			const patternId = getPatternId( chartId, index );
+			return `
+			.visx-bar[fill="url(#${ patternId })"] {
+				stroke: ${ color };
+				stroke-width: 1;
+				}
+			`;
+		},
+		[ chartId ]
+	);
+
 	// Validate data using the same pattern as LineChart
 	const error = validateData( data );
 	if ( error ) {
@@ -92,9 +159,8 @@ const BarChart: FC< BarChartProps > = ( {
 	const legendItems = data.map( ( group, index ) => ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
-		color: group.options?.stroke || theme.colors[ index % theme.colors.length ],
-		shapeStyle:
-			group?.options?.legendShapeStyle ?? providerTheme.legendShapeStyles?.[ index ] ?? {},
+		color: getColor( group, index ),
+		shapeStyle: group?.options?.legendShapeStyle,
 	} ) );
 
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
@@ -105,11 +171,15 @@ const BarChart: FC< BarChartProps > = ( {
 			data-testid="bar-chart"
 			role="img"
 			aria-label="bar chart"
+			style={ {
+				width,
+				height,
+			} }
 		>
 			<XYChart
 				theme={ theme }
 				width={ width }
-				height={ height }
+				height={ height - legendHeight }
 				margin={ { ...defaultMargin, ...margin } }
 				xScale={ chartOptions.xScale }
 				yScale={ chartOptions.yScale }
@@ -122,18 +192,32 @@ const BarChart: FC< BarChartProps > = ( {
 					numTicks={ 4 }
 				/>
 
+				{ withPatterns && (
+					<>
+						<defs data-testid="bar-chart-patterns">
+							{ data.map( ( seriesData, index ) =>
+								renderPattern( index, getColor( seriesData, index ) )
+							) }
+						</defs>
+						<style>
+							{ data.map( ( seriesData, index ) =>
+								createPatternBorderStyle( index, getColor( seriesData, index ) )
+							) }
+						</style>
+					</>
+				) }
+
 				<BarGroup padding={ chartOptions.barGroup.padding }>
-					{ data.map( seriesData => {
-						return (
-							<BarSeries
-								key={ seriesData?.label }
-								dataKey={ seriesData?.label }
-								data={ seriesData.data as DataPointDate[] }
-								yAccessor={ chartOptions.accessors.yAccessor }
-								xAccessor={ chartOptions.accessors.xAccessor }
-							/>
-						);
-					} ) }
+					{ data.map( ( seriesData, index ) => (
+						<BarSeries
+							key={ seriesData?.label }
+							dataKey={ seriesData?.label }
+							data={ seriesData.data as DataPointDate[] }
+							yAccessor={ chartOptions.accessors.yAccessor }
+							xAccessor={ chartOptions.accessors.xAccessor }
+							colorAccessor={ getBarBackground( index ) }
+						/>
+					) ) }
 				</BarGroup>
 
 				<Axis { ...chartOptions.axis.x } />
@@ -155,6 +239,7 @@ const BarChart: FC< BarChartProps > = ( {
 					orientation={ legendOrientation }
 					className={ styles[ 'bar-chart__legend' ] }
 					shape={ legendShape }
+					ref={ legendRef }
 				/>
 			) }
 		</div>

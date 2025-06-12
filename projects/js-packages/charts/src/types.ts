@@ -99,6 +99,10 @@ export type ChartTheme = {
 	seriesLineStyles?: LineStyles[];
 	/** Styles for legend shapes */
 	legendShapeStyles?: CSSProperties[];
+	/** Styles for legend labels */
+	legendLabelStyles?: CSSProperties;
+	/** Styles for legend container */
+	legendContainerStyles?: CSSProperties;
 };
 
 declare type AxisOptions = {

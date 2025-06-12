@@ -38,7 +38,7 @@
 	"devDependencies": {
 		"@types/react": "18.3.23",
 		"@types/react-dom": "18.3.7",
-		"glob": "11.0.0",
+		"glob": "11.0.2",
 		"svg2ttf": "^6.0.3",
 		"svgicons2svgfont": "^15.0.0",
 		"svgo": "^3.3.2",
