@@ -614,12 +614,12 @@ function jpcrm_task_ui_mark_complete( $task_object = array() ) {
 		$task_object['complete'] = -1;
 	}
 	$html .= sprintf(
-		'<button class="ui button black%s" data-status="1"><i class="ui icon check green"></i>%s</button>',
+		'<button type="button" class="ui button black%s" data-status="1"><i class="ui icon check green"></i>%s</button>',
 		$task_object['complete'] !== 1 ? ' hidden' : '',
 		__( 'Completed', 'zero-bs-crm' )
 	);
 	$html .= sprintf(
-		'<button class="ui button white%s" data-status="-1">%s</button>',
+		'<button type="button" class="ui button white%s" data-status="-1">%s</button>',
 		$task_object['complete'] === 1 ? ' hidden' : '',
 		__( 'Mark Complete', 'zero-bs-crm' )
 	);
