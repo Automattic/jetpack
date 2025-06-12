@@ -61,7 +61,7 @@ class Dashboard {
 		$this->switch = $switch ?? new Dashboard_View_Switch();
 
 		// Set the integrations tab feature flag
-		self::$show_integrations = apply_filters( 'jetpack_forms_enable_integrations_tab', false );
+		self::$show_integrations = apply_filters( 'jetpack_forms_enable_integrations_tab', true );
 	}
 
 	/**
