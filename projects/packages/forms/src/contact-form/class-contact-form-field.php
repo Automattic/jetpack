@@ -1781,7 +1781,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$wrap_classes          = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap';
 		$field_wrapper_classes = $this->get_attribute( 'fieldwrapperclasses' ) ? $this->get_attribute( 'fieldwrapperclasses' ) . ' ' : '';
 
-		if ( empty( $label ) ) {
+		if ( empty( $label ) && ! $required ) {
 			$wrap_classes .= ' no-label';
 		}
 
