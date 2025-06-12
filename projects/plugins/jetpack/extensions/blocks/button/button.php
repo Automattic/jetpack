@@ -95,10 +95,10 @@ function render_block( $attributes, $content ) {
 
 	$button = 'input' === $element
 		? '<' . $element . $button_attributes . ' />'
-		: '<' . $element . $button_attributes . '>' . $text . '</' . $element . '>';
+		: '<' . $element . $button_attributes . '>' . $text . $spinner . '</' . $element . '>';
 
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	return '<div' . $wrapper_attributes . '>' . $button . $spinner . '</div>';
+	return '<div' . $wrapper_attributes . '>' . $button . '</div>';
 }
 
 /**
