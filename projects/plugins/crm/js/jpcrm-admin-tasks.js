@@ -11,76 +11,55 @@
 
 /* global ajaxurl */
 window.jpcrm_task_ajax_blocker = false;
-jQuery( function ( $ ) {
-	$( '.mark-complete-task button' ).on( 'click', function ( e ) {
-		e.preventDefault();
 
-		$( '.mark-complete-task button' ).addClass( 'disabled' );
+function jpcrm_update_task_status( task_id, new_status ) {
+	if ( task_id === 0 || window.jpcrm_task_ajax_blocker ) {
+		return;
+	}
 
-		const ourButton = $( this );
+	window.jpcrm_task_ajax_blocker = true;
+	const buttons = document.querySelectorAll( '#mark-complete-task button' );
+	buttons.forEach( b => b.classList.add( 'disabled', 'loading' ) );
 
-		if ( ! window.jpcrm_task_ajax_blocker ) {
-			window.jpcrm_task_ajax_blocker = true;
-			if ( $( this ).hasClass( 'black' ) ) {
-				ourButton.removeClass( 'black' ).addClass( 'loading' );
+	const data = {
+		action: 'mark_task_complete',
+		taskID: task_id,
+		status: new_status,
+		sec: window.zbs_root.zbsnonce,
+	};
 
-				// postbag!
-				const data = {
-					action: 'mark_task_complete',
-					taskID: $( this ).data( 'taskid' ),
-					way: 'incomplete',
-					sec: window.zbs_root.zbsnonce,
-				};
-
-				// Send it Pat :D
-				jQuery.ajax( {
-					type: 'POST',
-					url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-					data: data,
-					dataType: 'json',
-					timeout: 20000,
-					success: function () {
-						ourButton.removeClass( 'loading' );
-						ourButton.html( '<i class="ui icon check"></i> Mark Complete' );
-						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						$( '#zbs-task-complete' ).val( -1 );
-						window.jpcrm_task_ajax_blocker = false;
-					},
-					error: function () {
-						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						window.jpcrm_task_ajax_blocker = false;
-					},
-				} );
-			} else {
-				ourButton.addClass( 'black' ).addClass( 'loading' );
-				// postbag!
-				const data = {
-					action: 'mark_task_complete',
-					taskID: $( this ).data( 'taskid' ),
-					way: 'complete',
-					sec: window.zbs_root.zbsnonce,
-				};
-
-				// Send it Pat :D
-				jQuery.ajax( {
-					type: 'POST',
-					url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-					data: data,
-					dataType: 'json',
-					timeout: 20000,
-					success: function () {
-						ourButton.removeClass( 'loading' );
-						ourButton.html( '<i class="ui icon check"></i> Completed' );
-						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						$( '#zbs-task-complete' ).val( 1 );
-						window.jpcrm_task_ajax_blocker = false;
-					},
-					error: function () {
-						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						window.jpcrm_task_ajax_blocker = false;
-					},
-				} );
+	fetch( ajaxurl, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		body: new URLSearchParams( data ).toString(),
+	} )
+		.then( r => {
+			if ( r.status !== 200 ) {
+				throw Error( 'Error updating task status!' );
 			}
-		}
-	} );
-} );
+			return r.json();
+		} )
+		.then( response => {
+			document.getElementById( 'zbs-task-complete' ).value = response.data.status;
+			buttons.forEach( b =>
+				b.classList.toggle( 'hidden', +b.dataset.status !== response.data.status )
+			);
+		} )
+		.catch( err => {
+			// eslint-disable-next-line no-console -- Debug if there's an error.
+			console.log( err );
+		} )
+		.finally( () => {
+			buttons.forEach( b => b.classList.remove( 'disabled', 'loading' ) );
+			window.jpcrm_task_ajax_blocker = false;
+		} );
+}
+
+document.querySelectorAll( '#mark-complete-task button' ).forEach( el =>
+	el.addEventListener( 'click', function ( e ) {
+		e.preventDefault();
+		const task_id = document.querySelector( '[id^="task-"]' ).id.slice( 5 );
+		const new_status = -document.getElementById( 'zbs-task-complete' ).value;
+		jpcrm_update_task_status( task_id, new_status );
+	} )
+);

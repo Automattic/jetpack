@@ -502,7 +502,7 @@ function zeroBSCRM_task_addEdit( $taskID = -1 ) {
 
 	$html .= "<input id='zbs-task-title' name='zbse_title' type='text' value='" . esc_attr( $title ) . "' placeholder='" . $placeholder . "' />";
 
-	$html .= zeroBSCRM_task_ui_mark_complete( $taskObject, $taskID );
+	$html .= jpcrm_task_ui_mark_complete( $taskObject ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	$html .= zeroBSCRM_task_ui_clear();
 
@@ -601,29 +601,30 @@ function zeroBSCRM_task_ui_assignment( $taskObject = array(), $taskID = -1 ) {
 	return $html;
 }
 
-function zeroBSCRM_task_ui_mark_complete( $taskObject = array(), $taskID = -1 ) {
+/**
+ * Generates HTML for the task status buttons.
+ *
+ * @param array $task_object Task object.
+ */
+function jpcrm_task_ui_mark_complete( $task_object = array() ) {
+	$html = '<div id="mark-complete-task">';
 
-	$html = "<div class='mark-complete-task'>";
-
-	if ( ! array_key_exists( 'complete', $taskObject ) ) {
-		$taskObject['complete'] = 0;
+	if ( ! array_key_exists( 'complete', $task_object ) ) {
+		$task_object['complete'] = -1;
 	}
-
-	if ( $taskObject['complete'] == 1 ) {
-
-			$html .= "<div id='task-mark-incomplete' class='task-comp incomplete'><button class='ui button black' data-taskid='" . $taskID . "'><i class='ui icon check white'></i>" . __( 'Completed', 'zero-bs-crm' ) . '</button></div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$complete  = "<input type='hidden' id='zbs-task-complete' value = '1' name = 'zbs-task-complete'/>";
-	} else {
-			$html .= sprintf(
-				'<div id="task-mark-complete" class="task-comp complete"><button class="ui button black button-primary button-large" data-taskid="%s"><i class="ui icon check"></i>%s</button></div>',
-				$taskID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				__( 'Mark Complete', 'zero-bs-crm' )
-			);
-		$complete  = "<input type='hidden' id='zbs-task-complete' value = '-1' name = 'zbs-task-complete'/>";
-	}
+	$html .= sprintf(
+		'<div class="task-comp"><button class="ui button black%s" data-status="1"><i class="ui icon check green"></i>%s</button></div>',
+		$task_object['complete'] !== 1 ? ' hidden' : '',
+		__( 'Completed', 'zero-bs-crm' )
+	);
+	$html .= sprintf(
+		'<div class="task-comp"><button class="ui button white%s" data-status="-1">%s</button></div>',
+		$task_object['complete'] === 1 ? ' hidden' : '',
+		__( 'Mark Complete', 'zero-bs-crm' )
+	);
+	$html .= '<input type="hidden" id="zbs-task-complete" value="' . $task_object['complete'] . '" name="zbs-task-complete" />';
 
 	$html .= '</div>';
-	$html .= $complete;
 
 	return $html;
 }
