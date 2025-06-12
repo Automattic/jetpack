@@ -48,6 +48,7 @@ export function Filters( { onChangeFilter, onSearch, search, selectedFilter }: F
 					options={ getProductsFilterChoices() }
 					aria-label={ __( 'Filter products', 'jetpack-my-jetpack' ) }
 					onChange={ onChangeFilter }
+					value={ selectedFilter }
 				/>
 			) : (
 				<NavigableMenu
