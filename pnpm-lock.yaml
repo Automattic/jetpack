@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-sMYXM0N71oUcgK3cWfJVVRNpSWyrQpt26BH3D1PnoEY=
+pnpmfileChecksum: sha256-GRjj4mwKQ1fELOsbm2v+wVFWc3SWSI6xPUhonuhVjyE=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -11438,7 +11438,6 @@ packages:
   fullcalendar@3.10.5:
     resolution: {integrity: sha512-JGWpECKgza/344bbF5QT0hBJpx04DZ/7QGPlR1ZbAwrG6Yz6mWEkQd+NnZUh1sK6HCBIPnPRW2x53aJxeLGvvQ==}
     peerDependencies:
-      jquery: 2 - 3
       moment: ^2.20.1
 
   function-bind@1.1.2:

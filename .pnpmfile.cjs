@@ -275,6 +275,12 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
+	// Remove jQuery peer dependency, given it's already bundled in WordPress.
+	// The next version of FullCalendar (v4) removes the dependency altogether.
+	if ( pkg.name === 'fullcalendar' && pkg.peerDependencies?.jquery ) {
+		delete pkg.peerDependencies.jquery;
+	}
+
 	// It assumes hoisting to find its plugins. Sigh. Add peer deps for the plugins we use.
 	// https://github.com/ai/size-limit/issues/366
 	if ( pkg.name === 'size-limit' ) {
