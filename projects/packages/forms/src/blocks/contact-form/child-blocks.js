@@ -15,10 +15,15 @@ import JetpackTelephoneField from '../field-telephone';
 import JetpackTextField from '../field-text';
 import JetpackTextareaField from '../field-textarea';
 import JetpackUrlField from '../field-url';
+import FormProgressIndicator from '../form-progress-indicator';
 import JetpackInput from '../input';
 import JetpackLabel from '../label';
 import JetpackOption from '../option';
 import JetpackOptions from '../options';
+import Step from '../step';
+import StepContainer from '../step-container';
+import StepDivider from '../step-divider';
+import StepNavigation from '../step-navigation';
 
 export const childBlocks = [
 	JetpackLabel,
@@ -40,6 +45,11 @@ export const childBlocks = [
 	JetpackTelephoneField,
 	JetpackTextareaField,
 	JetpackFieldFile,
+	Step,
+	StepContainer,
+	StepDivider,
+	StepNavigation,
+	FormProgressIndicator,
 	// The following are required for these blocks to be parsed correctly in block
 	// deprecations. They have been flagged with `supports.inserter: false` to
 	// prevent further use.

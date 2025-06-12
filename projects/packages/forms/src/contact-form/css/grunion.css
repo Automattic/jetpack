@@ -26,6 +26,26 @@
 	opacity: 0.3;
 }
 
+.jetpack-form-step {
+	position: absolute;
+	z-index: -1;
+	opacity: 0;
+}
+
+.jetpack-form-step.is-current-step {
+	position: relative;
+	visibility: visible;
+	opacity: 1;
+	height: auto;
+	overflow: visible;
+	z-index: 2;
+	display: block;
+}
+
+.contact-form .wp-block-jetpack-button:has( button.is-hidden ) {
+	display: none;
+}
+
 /*
 	Using :where we will keep a lower CSS specificity,
 	allowing themes to easily override these styles
@@ -246,6 +266,65 @@
 .jetpack-check-feedback-spam-spinner {
 	display: inline-block;
 	margin-top: 7px;
+}
+
+.wp-block-jetpack-form-step {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	flex-direction: row;
+	flex-grow: 1;
+	gap: var(--wp--style--block-gap, 1.5rem);
+}
+
+.wp-block-jetpack-form-step > * {
+	flex: 0 0 100%;
+	box-sizing: border-box;
+}
+
+.wp-block-jetpack-form-step-navigation {
+	flex: 0 0 100%;
+	display: flex;
+	box-sizing: border-box;
+	gap: var(--wp--style--block-gap, 1.5rem);
+}
+
+
+.wp-block-jetpack-form-step-navigation.is-vertical {
+  flex-direction: column;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-space-between.is-vertical {
+	align-items: space-between;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-right.is-vertical {
+	align-items: flex-end;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-left.is-vertical {
+	align-items: flex-start;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-center.is-vertical {
+	align-items: center;
+}
+
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-space-between {
+	justify-content: space-between;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-right {
+	justify-content: flex-end;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-left {
+	justify-content: flex-start;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-center {
+	justify-content: center;
 }
 
 .wp-block-jetpack-contact-form {

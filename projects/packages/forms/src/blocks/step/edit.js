@@ -1,0 +1,149 @@
+import { useBlockProps, useInnerBlocksProps, InnerBlocks } from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
+import { __, sprintf } from '@wordpress/i18n';
+import { store as singleStepStore } from '../../store/preview-store';
+import AddStepControls from '../contact-form/components/add-step-controls';
+import StepControls from '../contact-form/components/step-controls';
+import useFormSteps from '../shared/hooks/use-form-steps';
+import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
+import AttributesControls from './attributes-controls';
+
+import './editor.scss';
+
+// Define allowed blocks directly in this file to break circular dependency
+const ALLOWED_BLOCKS = [
+	'jetpack/field-text',
+	'jetpack/field-name',
+	'jetpack/field-email',
+	'jetpack/field-url',
+	'jetpack/field-date',
+	'jetpack/field-telephone',
+	'jetpack/field-number',
+	'jetpack/field-textarea',
+	'jetpack/field-checkbox',
+	'jetpack/field-checkbox-multiple',
+	'jetpack/field-option-checkbox',
+	'jetpack/field-radio',
+	'jetpack/field-option-radio',
+	'jetpack/field-select',
+	'jetpack/field-consent',
+	'jetpack/form-step-navigation',
+	'jetpack/step-divider',
+	'core/audio',
+	'core/columns',
+	'core/group',
+	'core/heading',
+	'core/html',
+	'core/image',
+	'core/list',
+	'core/paragraph',
+	'core/row',
+	'core/separator',
+	'core/spacer',
+	'core/stack',
+	'core/subhead',
+	'core/video',
+];
+
+// Replace the constant with a function
+const getStepTemplate = ( previousStepBlocks = [] ) => {
+	// Check if previous step has navigation
+	const hasNavigation = previousStepBlocks.some(
+		block => block.name === 'jetpack/form-step-navigation'
+	);
+
+	if ( hasNavigation ) {
+		return [
+			[ 'core/paragraph', {} ],
+			[ 'jetpack/form-step-navigation', {} ],
+		];
+	}
+};
+
+function StepBreak( { stepLabel, currentIndex } ) {
+	let stepName;
+	if ( stepLabel === '' || stepLabel === 'Step' ) {
+		// Translators: %d is the step number (1, 2, 3, etc.)
+		stepName = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
+	} else {
+		// Translators: %1$d is the step number (1, 2, 3, etc.), %2$s is the step label
+		stepName = sprintf( __( 'Step %1$d - %2$s', 'jetpack-forms' ), currentIndex + 1, stepLabel );
+	}
+
+	return (
+		<div className="jetpack-form-step__break">
+			<span className="jetpack-form-step__label">{ stepName }</span>
+		</div>
+	);
+}
+
+export default function Edit( { attributes, setAttributes, clientId } ) {
+	const blockProps = useBlockProps();
+	blockProps.className += ' jetpack-form-step__container';
+
+	const ancestorFormClientId = useParentFormClientId( clientId );
+	const steps = useFormSteps( ancestorFormClientId );
+
+	// Get information about the previous step and its blocks
+	const { currentIndex, selectedStepClientId, isSingleStep, previousStepBlocks, hasInnerBlocks } =
+		useSelect(
+			select => {
+				const { isSingleStepMode, getActiveStepId } = select( singleStepStore );
+				const { getBlocks, getBlock } = select( 'core/block-editor' );
+
+				const currentStepIndex = steps.findIndex( block => block.clientId === clientId );
+
+				// Get previous step blocks if this isn't the first step
+				let prevBlocks = [];
+				if ( currentStepIndex > 0 && steps[ currentStepIndex - 1 ] ) {
+					prevBlocks = getBlocks( steps[ currentStepIndex - 1 ].clientId );
+				}
+
+				const block = getBlock( clientId );
+
+				return {
+					currentIndex: currentStepIndex,
+					selectedStepClientId: getActiveStepId( ancestorFormClientId ),
+					isSingleStep: isSingleStepMode( ancestorFormClientId ),
+					previousStepBlocks: prevBlocks,
+					hasInnerBlocks: !! ( block && block.innerBlocks.length ),
+				};
+			},
+			[ clientId, steps, ancestorFormClientId ]
+		);
+
+	// Determine template based on whether this is a new block or not
+	let renderAppender;
+	if ( ! hasInnerBlocks && ! isSingleStep ) {
+		renderAppender = InnerBlocks.ButtonBlockAppender;
+	}
+
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		template: getStepTemplate( previousStepBlocks ),
+		allowedBlocks: ALLOWED_BLOCKS,
+		renderAppender,
+	} );
+
+	// Only render the step content if it's the selected one or if "All Steps" is selected.
+	if ( isSingleStep && selectedStepClientId !== clientId ) {
+		return null;
+	}
+
+	return (
+		<>
+			<div { ...blockProps }>
+				{ ! isSingleStep && (
+					<StepBreak stepLabel={ attributes.stepLabel } currentIndex={ currentIndex } />
+				) }
+				<div { ...innerBlocksProps } />
+				<AttributesControls
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					clientId={ clientId }
+				/>
+			</div>
+			<StepControls formClientId={ ancestorFormClientId } updateStepSelected={ true } />
+			<AddStepControls clientId={ clientId } formClientId={ ancestorFormClientId } />
+		</>
+	);
+}

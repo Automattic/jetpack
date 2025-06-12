@@ -162,6 +162,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'postToUrl'              => null,
 			'salesforceData'         => null,
 			'hiddenFields'           => null,
+			'stepTransition'         => 'fade-slide', // The transition style for multi-step forms. Options: none, fade, slide, fade-slide
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -279,10 +280,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * @param array       $attributes Key => Value pairs as parsed by shortcode_parse_atts().
 	 * @param string|null $content The shortcode's inner content: [contact-form]$content[/contact-form].
+	 * @param array       $context An array of context data for the form.
 	 *
 	 * @return string HTML for the concat form.
 	 */
-	public static function parse( $attributes, $content ) {
+	public static function parse( $attributes, $content, $context = array() ) {
 		global $post, $page, $multipage; // $page is used in the contact-form submission redirect
 		if ( Settings::is_syncing() ) {
 			return '';
@@ -415,7 +417,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$context = array(
+			$max_steps = 0;
+			if ( preg_match_all( '/data-wp-context=[\'"]?{"step":(\d+)}[\'"]?/', $content, $matches ) ) {
+				if ( ! empty( $matches[1] ) ) {
+					$max_steps = max( array_map( 'intval', $matches[1] ) );
+				}
+			}
+
+			$default_context = array(
 				'formId'     => $id,
 				'formHash'   => $form->hash,
 				'showErrors' => false, // We toggle this to true when we want to show the user errors right away.
@@ -423,18 +432,37 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'fields'     => array(),
 			);
 
+			if ( $max_steps > 0 ) {
+				$multistep_context = array(
+					'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1,
+					'maxSteps'    => $max_steps,
+					'direction'   => 'forward', // Default direction for animations
+					'transition'  => $form->get_attribute( 'stepTransition' ) ? $form->get_attribute( 'stepTransition' ) : 'fade-slide', // Transition style for step animations
+				);
+
+				if ( ! is_array( $context ) ) {
+					$context = array();
+				}
+				$context = array_merge( $context, $multistep_context );
+			}
+
+			$context = is_array( $context ) ? array_merge( $default_context, $context ) : $default_context;
+
 			$r .= "<form action='" . esc_url( $url ) . "'
 				method='post'
 				class='" . esc_attr( $form_classes ) . "' $form_aria_label
 				data-wp-interactive=\"jetpack/form\"  " . wp_interactivity_data_wp_context( $context ) . "
 				data-wp-on--submit=\"actions.onFormSubmit\"
+				data-wp-class--is-first-step=\"state.isFirstStep\"
+				data-wp-class--is-last-step=\"state.isLastStep\"
 				novalidate >\n";
 
 			$r .= $form->body;
 
 			if ( $has_submit_button_block ) {
-				// Place the error wrapper before the button block
-				$r = str_replace( '<div class="wp-block-jetpack-button', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r );
+				// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
+				// Replace only the first occurrence.
+				$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
 			}
 
 			// In new versions of the contact form block the button is an inner block
