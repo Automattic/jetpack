@@ -1,0 +1,89 @@
+import { Rect } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { getIconColor } from '../contact-form/util/block-icons';
+import renderMaterialIcon from '../shared/components/render-material-icon';
+import edit from './edit';
+import save from './save';
+
+export const name = 'form-progress-indicator';
+
+const FieldDefaults = {
+	category: 'contact-form',
+	parent: [ 'jetpack/contact-form' ],
+	attributes: {
+		label: {
+			type: 'string',
+		},
+		required: {
+			type: 'boolean',
+		},
+		width: {
+			type: 'number',
+			default: 100,
+		},
+	},
+	supports: {
+		html: false,
+		reusable: false,
+	},
+	save: () => null,
+};
+
+export const settings = {
+	...FieldDefaults,
+	ancestor: [ 'jetpack/contact-form' ],
+	supports: {
+		html: false,
+		reusable: false,
+		spacing: {
+			padding: true,
+			margin: true,
+		},
+	},
+	title: __( 'Progress indicator', 'jetpack-forms' ),
+	description: __(
+		'Show a visual indicator of progress through multi-step forms.',
+		'jetpack-forms'
+	),
+	icon: {
+		foreground: getIconColor(),
+		src: renderMaterialIcon(
+			<>
+				<Rect
+					x="3.75"
+					y="9.75"
+					width="16.5"
+					height="4.5"
+					rx="2.25"
+					stroke={ getIconColor() }
+					fill="none"
+					strokeWidth="1.5"
+				/>
+				<Rect x="2" y="9" width="8" height="6" rx="3" />
+			</>
+		),
+	},
+	edit: edit,
+	save: save,
+	attributes: {
+		backgroundColor: {
+			type: 'string',
+		},
+		progressColor: {
+			type: 'string',
+		},
+		gradient: {
+			type: 'string',
+		},
+		style: {
+			type: 'object',
+		},
+	},
+	transforms: {},
+	example: {},
+};
+
+export default {
+	name,
+	settings,
+};

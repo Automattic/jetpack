@@ -87,6 +87,12 @@ const { state } = store( NAMESPACE, {
 
 		get isFormEmpty() {
 			const context = getContext();
+			// If this is a multistep form (identified by the presence of `maxSteps` in context),
+			// we never want to treat the form as completely empty. Treat it as not empty so that
+			// the `invalid_form_empty` message is never shown for multistep forms.
+			if ( context?.maxSteps && context.maxSteps > 0 ) {
+				return false;
+			}
 			return ! Object.values( context.fields ).some( field => field.value !== '' );
 		},
 
@@ -142,7 +148,11 @@ const { state } = store( NAMESPACE, {
 
 		get getFormErrorMessage() {
 			if ( state.isFormEmpty ) {
-				return config.error_types.invalid_form_empty;
+				const context = getContext();
+				// Never show the "form empty" error for multistep forms.
+				if ( ! context?.maxSteps || context.maxSteps === 0 ) {
+					return config.error_types.invalid_form_empty;
+				}
 			}
 			return config.error_types.invalid_form;
 		},

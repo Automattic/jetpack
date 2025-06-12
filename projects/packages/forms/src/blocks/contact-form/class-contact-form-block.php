@@ -364,6 +364,27 @@ class Contact_Form_Block {
 				'label' => __( 'Button', 'jetpack-forms' ),
 			)
 		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step-navigation',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step_navigation' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-progress-indicator',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_progress_indicator' ),
+			)
+		);
 	}
 
 	/**
