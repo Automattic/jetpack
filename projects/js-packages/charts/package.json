@@ -57,6 +57,7 @@
 		"@visx/grid": "^3.12.0",
 		"@visx/group": "^3.12.0",
 		"@visx/legend": "^3.12.0",
+		"@visx/pattern": "^3.12.0",
 		"@visx/responsive": "^3.12.0",
 		"@visx/scale": "^3.12.0",
 		"@visx/shape": "^3.12.0",

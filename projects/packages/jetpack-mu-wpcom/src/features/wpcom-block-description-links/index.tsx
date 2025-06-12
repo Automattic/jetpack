@@ -6,7 +6,7 @@ import blockInfoMapping, {
 	blockInfoWithVariations,
 	childrenBlockInfoWithDifferentUrl,
 } from './src/block-links-map';
-import DescriptionSupportLink from './src/inline-support-link';
+import DescriptionSupportLink from './src/description-support-link';
 
 const createLocalizedDescriptionWithLearnMore = (
 	title: string,

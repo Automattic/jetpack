@@ -196,4 +196,22 @@ describe( 'BarChart', () => {
 			expect( tspansWithDate.length ).toBeGreaterThan( 0 );
 		} );
 	} );
+
+	describe( 'Pattern', () => {
+		test( 'renders with patterns', () => {
+			renderWithTheme( { withPatterns: true } );
+			expect( screen.getByRole( 'img', { name: /bar chart/i } ) ).toBeInTheDocument();
+
+			// Check that pattern definitions container is present
+			expect( screen.getByTestId( 'bar-chart-patterns' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders without patterns by default', () => {
+			renderWithTheme( { withPatterns: false } );
+			expect( screen.getByRole( 'img', { name: /bar chart/i } ) ).toBeInTheDocument();
+
+			// Check that no pattern definitions container is present
+			expect( screen.queryByTestId( 'bar-chart-patterns' ) ).not.toBeInTheDocument();
+		} );
+	} );
 } );
