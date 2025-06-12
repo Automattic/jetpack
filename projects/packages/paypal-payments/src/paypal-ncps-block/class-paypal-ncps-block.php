@@ -5,15 +5,16 @@
  * @package automattic/jetpack-paypal-payments
  */
 
-namespace Automattic\Jetpack\Paypal_Payments;
+namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Paypal_Payments;
 
 /**
  * Class Paypal_NCPS_Block
  *
- * @package Automattic\Jetpack\Paypal_Payments
+ * @package Automattic\Jetpack\PaypalPayments
  */
 class Paypal_NCPS_Block {
 	/**
@@ -122,5 +123,42 @@ class Paypal_NCPS_Block {
 		);
 
 		return wp_kses( $code_body, $allow_html );
+	}
+
+	/**
+	 * Load editor styles for the block.
+	 * These are loaded via enqueue_block_assets to ensure proper loading in the editor iframe context.
+	 */
+	public static function load_editor_styles() {
+		$handle = 'jp-paypal-payments-ncps-blocks';
+
+		Assets::register_script(
+			$handle,
+			'../dist/paypal-ncps-block/editor.js',
+			__FILE__,
+			array(
+				'css_path'   => '../dist/paypal-ncps-block/editor.css',
+				'textdomain' => 'jetpack-paypal-payments',
+			)
+		);
+		wp_enqueue_style( $handle );
+	}
+
+	/**
+	 * Loads scripts
+	 */
+	public static function load_editor_scripts() {
+		Assets::register_script(
+			'jp-paypal-payments-ncps-blocks',
+			'../dist/paypal-ncps-block/editor.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-paypal-payments',
+				'enqueue'    => true,
+				// Editor styles are loaded separately, see load_editor_styles().
+				'css_path'   => null,
+			)
+		);
 	}
 }
