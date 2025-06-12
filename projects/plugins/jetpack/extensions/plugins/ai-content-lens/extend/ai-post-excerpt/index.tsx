@@ -11,6 +11,7 @@ import {
 	isSimpleSite,
 	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
@@ -218,12 +219,6 @@ ${ postContent }
 
 	const { requireUpgrade, isOverLimit } = useAiFeature();
 
-	// Set the docs link depending on the site type
-	const docsLink =
-		isAtomicSite() || isSimpleSite()
-			? __( 'https://wordpress.com/support/excerpts/', 'jetpack' )
-			: __( 'https://jetpack.com/support/create-better-post-excerpts-with-ai/', 'jetpack' );
-
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
@@ -235,9 +230,23 @@ ${ postContent }
 				disabled={ isTextAreaDisabled }
 			/>
 
-			<ExternalLink href={ docsLink }>
-				{ __( 'Learn more about manual excerpts', 'jetpack' ) }
-			</ExternalLink>
+			{ isAtomicSite() || isSimpleSite() ? (
+				<WpcomSupportLink
+					supportLink={ __( 'https://wordpress.com/support/excerpts/', 'jetpack' ) }
+					supportPostId={ 1569 }
+				>
+					{ __( 'Learn more about manual excerpts', 'jetpack' ) }
+				</WpcomSupportLink>
+			) : (
+				<ExternalLink
+					href={ __(
+						'https://jetpack.com/support/create-better-post-excerpts-with-ai/',
+						'jetpack'
+					) }
+				>
+					{ __( 'Learn more about manual excerpts', 'jetpack' ) }
+				</ExternalLink>
+			) }
 
 			<div className="jetpack-generated-excerpt__ai-container">
 				{ error?.code && error.code !== 'error_quota_exceeded' && (
