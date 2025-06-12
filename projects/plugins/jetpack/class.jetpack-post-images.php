@@ -422,7 +422,7 @@ class Jetpack_PostImages {
 	 * Get images from Gutenberg Image blocks.
 	 *
 	 * @since 6.9.0
-	 * @since $$next-version$$ Updated to use Block_Delimiter for improved performance.
+	 * @since 14.8 Updated to use Block_Delimiter for improved performance.
 	 *
 	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
 	 * @param int   $width      Minimum Image width.
@@ -480,7 +480,7 @@ class Jetpack_PostImages {
 	/**
 	 * Extract images from block attributes based on block type.
 	 *
-	 * @since $$next-version$$
+	 * @since 14.8
 	 *
 	 * @param string $block_type Block type name.
 	 * @param array  $attributes Block attributes.

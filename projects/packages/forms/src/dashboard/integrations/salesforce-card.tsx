@@ -1,8 +1,10 @@
-import { Icon } from '@wordpress/components';
+import { Icon, Button } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import SalesforceIcon from '../../icons/salesforce';
-import type { IntegrationCardProps } from './types';
+import { IntegrationCardProps } from '../../types';
+import useCreateForm from '../hooks/use-create-form';
 
 const SalesforceDashboardCard = ( {
 	isExpanded,
@@ -10,6 +12,17 @@ const SalesforceDashboardCard = ( {
 	data,
 	refreshStatus,
 }: IntegrationCardProps ) => {
+	const { openNewForm } = useCreateForm();
+	const handleCreateSalesforceForm = useCallback( () => {
+		openNewForm( {
+			formPattern: 'salesforce-lead-form',
+			analyticsEvent: () => {
+				if ( window.jetpackAnalytics?.tracks ) {
+					window.jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_salesforce_lead_form_click' );
+				}
+			},
+		} );
+	}, [ openNewForm ] );
 	const cardData = {
 		...data,
 		showHeaderToggle: false, // Always off for dashboard
@@ -18,7 +31,7 @@ const SalesforceDashboardCard = ( {
 		setupBadge: (
 			<span className="integration-card__setup-badge">
 				<Icon icon="info-outline" size={ 12 } />
-				{ __( 'Enter organization ID', 'jetpack-forms' ) }
+				{ __( 'Configured per form', 'jetpack-forms' ) }
 			</span>
 		),
 	};
@@ -40,6 +53,13 @@ const SalesforceDashboardCard = ( {
 						'jetpack-forms'
 					) }
 				</p>
+				<Button
+					variant="primary"
+					onClick={ handleCreateSalesforceForm }
+					className="jp-forms__create-form-button--large-green"
+				>
+					{ __( 'Create Salesforce Lead Form', 'jetpack-forms' ) }
+				</Button>
 			</div>
 		</IntegrationCard>
 	);

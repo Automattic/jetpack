@@ -5,7 +5,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
-import type { IntegrationCardProps } from './types';
+import { IntegrationCardProps } from '../../types';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 

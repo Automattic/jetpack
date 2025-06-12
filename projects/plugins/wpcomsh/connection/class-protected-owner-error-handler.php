@@ -21,7 +21,7 @@ namespace Automattic\WPComSH\Connection;
  * default User_Admin class behavior to ensure the WP.com invitation checkbox is not
  * pre-checked when creating protected owner accounts.
  *
- * @since $$next-version$$
+ * @since 7.0.0
  */
 class Protected_Owner_Error_Handler {
 

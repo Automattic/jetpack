@@ -1,6 +1,10 @@
 .bar-chart {
 	position: relative;
-	
+
+	svg {
+		overflow: visible;
+	}
+
 	&-legend {
 		margin-top: 1rem;
 	}

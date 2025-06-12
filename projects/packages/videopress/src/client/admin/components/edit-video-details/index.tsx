@@ -233,8 +233,11 @@ const EditVideoDetails = () => {
 		'jetpack-videopress-pkg'
 	);
 
+	const hasUnsavedChanges = hasChanges && ! updated && ! deleted && canPerformAction;
+	const videoThumbnailUpdateInProgress = processing || isUpdatingPoster;
+
 	useUnloadPrevent( {
-		shouldPrevent: hasChanges && ! updated && ! deleted && canPerformAction,
+		shouldPrevent: hasUnsavedChanges || videoThumbnailUpdateInProgress,
 		message: unsavedChangesMessage,
 	} );
 

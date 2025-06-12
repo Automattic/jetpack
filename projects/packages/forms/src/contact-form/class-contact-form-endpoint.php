@@ -333,28 +333,34 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 							'items' => array(
 								'type'       => 'object',
 								'properties' => array(
-									'file_id' => array(
+									'file_id'        => array(
 										'type'        => 'integer',
 										'arg_options' => array(
 											'sanitize_callback' => 'sanitize_text_field',
 										),
 									),
-									'name'    => array(
+									'name'           => array(
 										'type'        => 'string',
 										'arg_options' => array(
 											'sanitize_callback' => 'sanitize_text_field',
 										),
 									),
-									'size'    => array(
+									'size'           => array(
 										'type'        => 'string',
 										'arg_options' => array(
 											'sanitize_callback' => 'sanitize_text_field',
 										),
 									),
-									'url'     => array(
+									'url'            => array(
 										'type'        => 'string',
 										'arg_options' => array(
 											'sanitize_callback' => 'esc_url_raw',
+										),
+									),
+									'is_previewable' => array(
+										'type'        => 'boolean',
+										'arg_options' => array(
+											'sanitize_callback' => 'rest_sanitize_boolean',
 										),
 									),
 								),
@@ -552,11 +558,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 							// this shouldn't happen, todo: log this
 							continue;
 						}
-						$file_id         = absint( $file['file_id'] );
-						$file['file_id'] = $file_id;
-						$file['size']    = size_format( $file['size'] );
-						$file['url']     = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
-						$has_file        = true;
+						$file_id                = absint( $file['file_id'] );
+						$file['file_id']        = $file_id;
+						$file['size']           = size_format( $file['size'] );
+						$file['url']            = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
+						$file['is_previewable'] = self::is_previewable_file( $file );
+						$has_file               = true;
 					}
 				}
 			}
@@ -565,6 +572,19 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['has_file'] = $has_file;
 		}
 		return rest_ensure_response( $data );
+	}
+	/**
+	 * Checks if the file is previewable based on its type or extension.
+	 *
+	 * @param array $file File data.
+	 * @return bool True if the file is previewable, false otherwise.
+	 */
+	private static function is_previewable_file( $file ) {
+		$file_type = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
+		// Check if the file is previewable based on its type or extension.
+		// Note: This is a simplified check and does not match if the file is allowed to be uploaded by the server.
+		$previewable_types = array( 'jpg', 'jpeg', 'png', 'gif', 'webp' );
+		return in_array( $file_type, $previewable_types, true );
 	}
 
 	/**
@@ -764,15 +784,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		// Default response for all integrations
 		$response = array(
-			'type'        => $config['type'],
-			'slug'        => $slug,
-			'isConnected' => false,
-			'settingsUrl' => $config['settings_url'] ?? null,
-			'pluginFile'  => null,
-			'isInstalled' => false,
-			'isActive'    => false,
-			'version'     => null,
-			'details'     => array(),
+			'type'            => $config['type'],
+			'slug'            => $slug,
+			'needsConnection' => true,
+			'isConnected'     => false,
+			'settingsUrl'     => $config['settings_url'] ?? null,
+			'pluginFile'      => null,
+			'isInstalled'     => false,
+			'isActive'        => false,
+			'version'         => null,
+			'details'         => array(),
 		);
 
 		// Process settingsUrl to return a full URL if present (for services only)
@@ -816,15 +837,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$is_active         = is_plugin_active( $plugin_config['file'] );
 
 		$response = array(
-			'type'        => 'plugin',
-			'slug'        => $plugin_slug,
-			'pluginFile'  => str_replace( '.php', '', $plugin_config['file'] ),
-			'isInstalled' => $is_installed,
-			'isActive'    => $is_active,
-			'isConnected' => false,
-			'version'     => $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null,
-			'settingsUrl' => $is_active ? admin_url( $plugin_config['settings_url'] ) : null,
-			'details'     => array(),
+			'type'            => 'plugin',
+			'slug'            => $plugin_slug,
+			'pluginFile'      => str_replace( '.php', '', $plugin_config['file'] ),
+			'isInstalled'     => $is_installed,
+			'isActive'        => $is_active,
+			'needsConnection' => false,
+			'isConnected'     => false,
+			'version'         => $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null,
+			'settingsUrl'     => $is_active ? admin_url( $plugin_config['settings_url'] ) : null,
+			'details'         => array(),
 		);
 
 		// Plugin-specific customizations
@@ -832,6 +854,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$dashboard_view_switch                         = new Dashboard_View_Switch();
 			$response['isConnected']                       = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
 			$response['details']['formSubmissionsSpamUrl'] = $dashboard_view_switch->get_forms_admin_url( 'spam' );
+			$response['needsConnection']                   = true;
 		} elseif ( 'zero-bs-crm' === $plugin_slug && $is_active ) {
 			$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
 			$response['details'] = array(
