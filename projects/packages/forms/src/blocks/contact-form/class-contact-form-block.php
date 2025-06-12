@@ -14,6 +14,7 @@ use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Request;
 use Jetpack;
 
 /**
@@ -388,7 +389,7 @@ class Contact_Form_Block {
 			return '';
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
-		if ( ! jetpack_is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return sprintf(
 				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
 				esc_attr( Blocks::classes( 'contact-form', $atts ) ),

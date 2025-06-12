@@ -1286,7 +1286,7 @@ class Jetpack_Gutenberg {
 	 * @return string
 	 */
 	public static function display_deprecated_block_message( $block_content, $block ) {
-		if ( in_array( $block['blockName'], self::$deprecated_blocks, true ) ) {
+		if ( isset( $block['blockName'] ) && in_array( $block['blockName'], self::$deprecated_blocks, true ) ) {
 			if ( current_user_can( 'edit_posts' ) ) {
 				$block_content = self::notice(
 					__( 'This block is no longer supported. Its contents will no longer be displayed to your visitors and as such this block should be removed.', 'jetpack' ),

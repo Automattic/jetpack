@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Extensions\Like;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 
 /**
@@ -43,7 +44,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function render_block( $attr, $content, $block ) {
 	// Do not render the Like block in other context than front-end (i.e. feed, emails, API, etc.).
-	if ( ! jetpack_is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		return;
 	}
 
