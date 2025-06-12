@@ -82,14 +82,29 @@ class Wpcom_Navigation_Export_Filter_Test extends \WorDBless\BaseTestCase {
 		// The filter should target wp_navigation posts specifically
 		$this->assertStringContainsString( 'wp_navigation', $filtered_query, 'Filter should target wp_navigation posts' );
 
-		// The filter should exclude posts with invalid authors (post_author > 0 AND NOT IN usermeta table)
+		// The filter should exclude posts with invalid authors (post_author > 0)
 		$this->assertStringContainsString( 'post_author > 0', $filtered_query, 'Filter should check for non-system authors' );
-		$this->assertStringContainsString( 'NOT IN (SELECT user_id FROM', $filtered_query, 'Filter should check against usermeta table' );
-		$this->assertStringContainsString( 'usermeta', $filtered_query, 'Filter should use usermeta table' );
-		$this->assertStringContainsString( 'meta_key =', $filtered_query, 'Filter should check for specific meta_key' );
 
 		// The exclusion should use AND NOT (...) logic
 		$this->assertStringContainsString( 'AND NOT (', $filtered_query, 'Filter should use exclusion logic' );
+
+		$this->export_filter->stop_export_filtering();
+	}
+
+	/**
+	 * Test that the filter properly handles the case when there are no valid users.
+	 */
+	public function test_filter_handles_no_valid_users(): void {
+		global $wpdb;
+
+		$this->export_filter->start_export_filtering();
+
+		$export_query   = "SELECT ID FROM {$wpdb->posts} WHERE post_status != 'auto-draft'";
+		$filtered_query = $this->export_filter->filter_export_queries( $export_query );
+
+		// When there are no valid users, all wp_navigation posts with post_author > 0 should be excluded
+		$this->assertStringContainsString( "post_type = 'wp_navigation'", $filtered_query );
+		$this->assertStringContainsString( 'post_author > 0', $filtered_query );
 
 		$this->export_filter->stop_export_filtering();
 	}
