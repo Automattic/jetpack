@@ -683,13 +683,11 @@ class Jetpack_Recipes {
 		global $themecolors;
 		$style = '';
 
-		if ( isset( $themecolors ) ) {
-			if ( isset( $themecolors['border'] ) ) {
-				$style .= '.jetpack-recipe { border-color: #' . esc_attr( $themecolors['border'] ) . '; }';
-			}
-			if ( isset( $themecolors['link'] ) ) {
-				$style .= '.jetpack-recipe-title { border-bottom-color: #' . esc_attr( $themecolors['link'] ) . '; }';
-			}
+		if ( isset( $themecolors['border'] ) ) {
+			$style .= '.jetpack-recipe { border-color: #' . esc_attr( $themecolors['border'] ) . '; }';
+		}
+		if ( isset( $themecolors['link'] ) ) {
+			$style .= '.jetpack-recipe-title { border-bottom-color: #' . esc_attr( $themecolors['link'] ) . '; }';
 		}
 
 		return $style;
