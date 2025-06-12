@@ -10,7 +10,7 @@
  */
 
 /* global ajaxurl */
-window.completeBlocker = true;
+window.completeBlocker = false;
 jQuery( function ( $ ) {
 	$( '.mark-complete-task button' ).on( 'click', function ( e ) {
 		e.preventDefault();
@@ -19,8 +19,8 @@ jQuery( function ( $ ) {
 
 		const ourButton = $( this );
 
-		if ( window.completeBlocker ) {
-			window.completeBlocker = false;
+		if ( ! window.completeBlocker ) {
+			window.completeBlocker = true;
 			if ( $( this ).hasClass( 'black' ) ) {
 				ourButton.removeClass( 'black' ).addClass( 'loading' );
 
@@ -44,11 +44,11 @@ jQuery( function ( $ ) {
 						ourButton.html( '<i class="ui icon check"></i> Mark Complete' );
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
 						$( '#zbs-task-complete' ).val( -1 );
-						window.completeBlocker = true;
+						window.completeBlocker = false;
 					},
 					error: function () {
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						window.completeBlocker = true;
+						window.completeBlocker = false;
 					},
 				} );
 			} else {
@@ -73,11 +73,11 @@ jQuery( function ( $ ) {
 						ourButton.html( '<i class="ui icon check"></i> Completed' );
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
 						$( '#zbs-task-complete' ).val( 1 );
-						window.completeBlocker = true;
+						window.completeBlocker = false;
 					},
 					error: function () {
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						window.completeBlocker = true;
+						window.completeBlocker = false;
 					},
 				} );
 			}
