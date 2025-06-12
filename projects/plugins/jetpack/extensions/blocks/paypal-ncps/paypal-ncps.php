@@ -2,7 +2,7 @@
 /**
  * PayPal NCPS block.
  *
- * @since 14.8.0
+ * @since $$next-version$$
  *
  * @package automattic/jetpack
  */
