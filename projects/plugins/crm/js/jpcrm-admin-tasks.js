@@ -10,7 +10,7 @@
  */
 
 /* global ajaxurl */
-window.completeBlocker = false;
+window.jpcrm_task_ajax_blocker = false;
 jQuery( function ( $ ) {
 	$( '.mark-complete-task button' ).on( 'click', function ( e ) {
 		e.preventDefault();
@@ -19,8 +19,8 @@ jQuery( function ( $ ) {
 
 		const ourButton = $( this );
 
-		if ( ! window.completeBlocker ) {
-			window.completeBlocker = true;
+		if ( ! window.jpcrm_task_ajax_blocker ) {
+			window.jpcrm_task_ajax_blocker = true;
 			if ( $( this ).hasClass( 'black' ) ) {
 				ourButton.removeClass( 'black' ).addClass( 'loading' );
 
@@ -44,11 +44,11 @@ jQuery( function ( $ ) {
 						ourButton.html( '<i class="ui icon check"></i> Mark Complete' );
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
 						$( '#zbs-task-complete' ).val( -1 );
-						window.completeBlocker = false;
+						window.jpcrm_task_ajax_blocker = false;
 					},
 					error: function () {
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						window.completeBlocker = false;
+						window.jpcrm_task_ajax_blocker = false;
 					},
 				} );
 			} else {
@@ -73,11 +73,11 @@ jQuery( function ( $ ) {
 						ourButton.html( '<i class="ui icon check"></i> Completed' );
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
 						$( '#zbs-task-complete' ).val( 1 );
-						window.completeBlocker = false;
+						window.jpcrm_task_ajax_blocker = false;
 					},
 					error: function () {
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						window.completeBlocker = false;
+						window.jpcrm_task_ajax_blocker = false;
 					},
 				} );
 			}
