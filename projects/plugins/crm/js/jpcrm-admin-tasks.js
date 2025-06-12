@@ -9,7 +9,7 @@
  * Date: 15th August 2018
  */
 
-/* global ajaxurl, moment */
+/* global ajaxurl */
 
 jQuery( function ( $ ) {
 	$( '.mark-complete-task button' ).on( 'click', function ( e ) {
@@ -22,8 +22,8 @@ jQuery( function ( $ ) {
 
 		if ( completeBlocker ) {
 			completeBlocker = false;
-			if ( $( this ).hasClass( 'green' ) ) {
-				ourButton.removeClass( 'green' ).addClass( 'loading' );
+			if ( $( this ).hasClass( 'black' ) ) {
+				ourButton.removeClass( 'black' ).addClass( 'loading' );
 
 				// postbag!
 				const data = {
@@ -53,7 +53,7 @@ jQuery( function ( $ ) {
 					},
 				} );
 			} else {
-				ourButton.addClass( 'green' ).addClass( 'loading' );
+				ourButton.addClass( 'black' ).addClass( 'loading' );
 				// postbag!
 				const data = {
 					action: 'mark_task_complete',
@@ -83,30 +83,5 @@ jQuery( function ( $ ) {
 				} );
 			}
 		}
-	} );
-
-	jQuery( function () {
-		// temp pre v3.0 fix, forcing english en for this datepicker only.
-		// requires php mod: search #forcedlocaletasks
-		// (Month names are localised, causing a mismatch here (Italian etc.))
-		moment.locale( 'en' );
-
-		jQuery( 'input[name="daterange"]' ).daterangepicker( {
-			timePicker: true,
-			timePickerIncrement: 15,
-			timePicker24Hour: true,
-			locale: {
-				format: 'DD MMMM YYYY h:mm A',
-				firstDay:
-					window.zbs_root.localeOptions && window.zbs_root.localeOptions.firstDay
-						? window.zbs_root.localeOptions.firstDay
-						: 0,
-			},
-		} );
-	} );
-
-	jQuery( '#daterange' ).on( 'apply.daterangepicker', function ( ev, picker ) {
-		jQuery( '#zbs_from' ).val( picker.startDate.format( 'YYYY-MM-DD HH:mm:ss' ) );
-		jQuery( '#zbs_to' ).val( picker.endDate.format( 'YYYY-MM-DD HH:mm:ss' ) );
 	} );
 } );

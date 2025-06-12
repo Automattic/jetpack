@@ -174,11 +174,6 @@ jQuery( function () {
 		);
 	} );
 
-	jQuery( '#daterange' ).on( 'apply.daterangepicker', function ( ev, picker ) {
-		jQuery( '#zbs_from' ).val( picker.startDate.format( 'YYYY-MM-DD HH:mm:ss' ) );
-		jQuery( '#zbs_to' ).val( picker.endDate.format( 'YYYY-MM-DD HH:mm:ss' ) );
-	} );
-
 	// first use dashboard modal
 	if ( window.jpcrm_show_first_use_dash ) {
 		// open modal
