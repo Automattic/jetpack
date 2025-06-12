@@ -1,4 +1,5 @@
-import { MenuItem, NavigableMenu, SearchControl } from '@wordpress/components';
+import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { MenuItem, NavigableMenu, SearchControl, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
@@ -28,6 +29,8 @@ export function Filters( { onChangeFilter, onSearch, search, selectedFilter }: F
 		[ onChangeFilter, selectedFilter ]
 	);
 
+	const [ isSm ] = useBreakpointMatch( 'sm' );
+
 	return (
 		<div className={ styles.filters }>
 			<SearchControl
@@ -38,22 +41,35 @@ export function Filters( { onChangeFilter, onSearch, search, selectedFilter }: F
 				onChange={ onSearch }
 				className={ styles[ 'search-control' ] }
 			/>
-			<NavigableMenu>
-				{ getProductsFilterChoices().map( item => {
-					const isSelected = selectedFilter === item.value;
+			{ isSm ? (
+				<SelectControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					options={ getProductsFilterChoices() }
+					aria-label={ __( 'Filter products', 'jetpack-my-jetpack' ) }
+					onChange={ onChangeFilter }
+				/>
+			) : (
+				<NavigableMenu
+					aria-label={ __( 'Filter products', 'jetpack-my-jetpack' ) }
+					className={ styles[ 'products-filter' ] }
+				>
+					{ getProductsFilterChoices().map( item => {
+						const isSelected = selectedFilter === item.value;
 
-					return (
-						<MenuItem
-							key={ item.value }
-							role="menuitemradio"
-							isSelected={ isSelected }
-							onClick={ onSelectFilter( item.value ) }
-						>
-							{ item.label }
-						</MenuItem>
-					);
-				} ) }
-			</NavigableMenu>
+						return (
+							<MenuItem
+								key={ item.value }
+								role="menuitemradio"
+								isSelected={ isSelected }
+								onClick={ onSelectFilter( item.value ) }
+							>
+								{ item.label }
+							</MenuItem>
+						);
+					} ) }
+				</NavigableMenu>
+			) }
 		</div>
 	);
 }
