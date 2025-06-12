@@ -3,7 +3,7 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import { GlyphDiamond, GlyphStar } from '@visx/glyph';
+import { GlyphDiamond } from '@visx/glyph';
 import React from 'react';
 import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
 import LineChart from '../line-chart';
@@ -16,18 +16,6 @@ const customTheme = {
 				'g',
 				{ 'data-testid': 'custom-glyph-diamond' },
 				React.createElement( GlyphDiamond, {
-					key: props.key,
-					top: props.y,
-					left: props.x,
-					size: props.size * props.size,
-					fill: props.color,
-				} )
-			),
-		props =>
-			React.createElement(
-				'g',
-				{ 'data-testid': 'custom-glyph-star' },
-				React.createElement( GlyphStar, {
 					key: props.key,
 					top: props.y,
 					left: props.x,
@@ -293,12 +281,12 @@ describe( 'LineChart', () => {
 				'custom'
 			);
 
-			// The default start glyph should not be rendered.
-			expect( screen.queryByTestId( /start-glyph/i ) ).not.toBeInTheDocument();
+			// We are rendering one custom glyph from theme and the second dataset will be using default glyph.
+			const defaultGlyphs = screen.getAllByTestId( /start-glyph/i );
+			expect( defaultGlyphs ).toHaveLength( 1 );
 
-			// The custom glyphs should be rendered.
 			const customGlyphs = screen.getAllByTestId( /custom-glyph/i );
-			expect( customGlyphs ).toHaveLength( 2 );
+			expect( customGlyphs ).toHaveLength( 1 );
 		} );
 	} );
 
