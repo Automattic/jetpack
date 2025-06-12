@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Paypal_Payments;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Paypal_Payments;
 
 /**
  * Class Paypal_NCPS_Block
@@ -20,7 +21,14 @@ class Paypal_NCPS_Block {
 	 *
 	 * @var string
 	 */
-	const BLOCK_NAME = 'jetpack/paypal-ncps-block';
+	public const BLOCK_NAME = 'jetpack/paypal-ncps-block';
+
+	/**
+	 * The package version.
+	 *
+	 * @var string
+	 */
+	private const PACKAGE_VERSION = PayPal_Payments::PACKAGE_VERSION;
 
 	/**
 	 * Registers the block for use in Gutenberg
@@ -41,7 +49,7 @@ class Paypal_NCPS_Block {
 	 * @param string $content The block content.
 	 * @return string The block content.
 	 */
-	public static function render_block( $attributes, $content ) {
+	public static function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$button_type = $attributes['buttonType'] ?? '';
 		$code_head   = $attributes['codeHead'] ?? '';
 		$code_body   = $attributes['codeBody'] ?? '';
@@ -54,10 +62,10 @@ class Paypal_NCPS_Block {
 			if ( preg_match( '/src="(.+)"/', $code_head, $matches ) ) {
 				$script_url = esc_url( $matches[1] );
 				if ( ! empty( $script_url ) ) {
-					wp_enqueue_script( 'paypal-ncps-block-head', $script_url, array(), null, false );
+					wp_enqueue_script( 'paypal-ncps-block-head', $script_url, array(), self::PACKAGE_VERSION, false );
 					add_filter(
 						'script_loader_tag',
-						function ( $tag, $handle, $src ) {
+						function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 							if ( 'paypal-ncps-block-head' === $handle ) {
 								if ( false === strpos( $tag, 'data-paypal-partner-attribution-id' ) ) {
 									$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="WooNCPS_Ecom_Wordpress" src=$2', $tag );
@@ -113,9 +121,6 @@ class Paypal_NCPS_Block {
 			'script' => array(),
 		);
 
-		$code_body = wp_kses( $code_body, $allow_html );
-
-		// Already escaped in wp_kses above.
-		return $code_body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return wp_kses( $code_body, $allow_html );
 	}
 }
