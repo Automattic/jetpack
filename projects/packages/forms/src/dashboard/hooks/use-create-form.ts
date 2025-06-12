@@ -57,9 +57,20 @@ export default function useCreateForm(): CreateFormReturn {
 				if ( postUrl ) {
 					analyticsEvent?.( { formPattern } );
 
-					window.open(
-						`${ postUrl }${ showPatterns && ! formPattern ? '&showJetpackFormsPatterns' : '' }`
-					);
+					const url = `${ postUrl }${
+						showPatterns && ! formPattern ? '&showJetpackFormsPatterns' : ''
+					}`;
+
+					const link = document.createElement( 'a' );
+
+					link.setAttribute( 'href', url );
+					link.setAttribute( 'target', '_blank' );
+					link.setAttribute( 'rel', 'noopener noreferrer' );
+					link.style.display = 'none';
+
+					document.body.appendChild( link );
+					link.click();
+					document.body.removeChild( link );
 				}
 			} catch ( error ) {
 				console.error( error.message ); // eslint-disable-line no-console
