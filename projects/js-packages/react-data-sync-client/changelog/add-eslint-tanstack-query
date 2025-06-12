@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Ignore false positive from eslint `@tanstack/query/exhaustive-deps` rule
-
-

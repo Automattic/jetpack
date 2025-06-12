@@ -8,6 +8,7 @@ import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-prov
 import { Legend } from '../legend';
 import { parseAsLocalDate } from '../shared/date-parsing';
 import { useChartMargin } from '../shared/use-chart-margin';
+import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import styles from './line-chart.module.scss';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
@@ -117,6 +118,9 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	curveType?: CurveType;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	withStartGlyphs?: boolean;
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
+	glyphStyle?: React.SVGProps< SVGCircleElement >;
+	withLegendGlyph: boolean;
 }
 
 type TooltipDatum = {
@@ -124,17 +128,8 @@ type TooltipDatum = {
 	value: number;
 };
 
-const renderDefaultTooltip = ( {
-	tooltipData,
-}: {
-	tooltipData?: {
-		nearestDatum?: {
-			datum: DataPointDate;
-			key: string;
-		};
-		datumByKey?: { [ key: string ]: { datum: DataPointDate } };
-	};
-} ) => {
+const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
+	const { tooltipData } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
 	if ( ! nearestDatum ) return null;
 
@@ -194,7 +189,10 @@ const LineChart: FC< LineChartProps > = ( {
 	withTooltips = true,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	renderGlyph = defaultRenderGlyph,
+	glyphStyle = {},
 	legendShape = 'line',
+	withLegendGlyph = false,
 	withGradientFill = false,
 	smoothing = true,
 	curveType,
@@ -209,6 +207,7 @@ const LineChart: FC< LineChartProps > = ( {
 	const providerTheme = useChartTheme();
 	const theme = useXYChartTheme( data );
 	const chartId = useId(); // Ensure unique ids for gradient fill.
+	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 
 	const dataSorted = useMemo(
 		() =>
@@ -266,8 +265,9 @@ const LineChart: FC< LineChartProps > = ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
 		color: group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
-		shapeStyle:
-			group?.options?.legendShapeStyle ?? providerTheme.legendShapeStyles?.[ index ] ?? {},
+		shapeStyle: group?.options?.legendShapeStyle,
+		renderGlyph: withLegendGlyph ? renderGlyph : undefined,
+		glyphSize: Number( glyphStyle?.radius ),
 	} ) );
 
 	const accessors = {
@@ -281,11 +281,15 @@ const LineChart: FC< LineChartProps > = ( {
 			data-testid="line-chart"
 			role="img"
 			aria-label="line chart"
+			style={ {
+				width,
+				height,
+			} }
 		>
 			<XYChart
 				theme={ theme }
 				width={ width }
-				height={ height }
+				height={ height - legendHeight }
 				margin={ { ...defaultMargin, ...margin } }
 				// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 				xScale={ chartOptions.xScale }
@@ -313,8 +317,9 @@ const LineChart: FC< LineChartProps > = ( {
 									index={ index }
 									data={ seriesData }
 									color={ stroke }
-									renderGlyph={ defaultRenderGlyph }
+									renderGlyph={ renderGlyph }
 									accessors={ accessors }
+									glyphStyle={ glyphStyle }
 								/>
 							) }
 
@@ -354,6 +359,8 @@ const LineChart: FC< LineChartProps > = ( {
 						snapTooltipToDatumY
 						showSeriesGlyphs
 						renderTooltip={ renderTooltip }
+						renderGlyph={ renderGlyph }
+						glyphStyle={ glyphStyle }
 					/>
 				) }
 			</XYChart>
@@ -364,6 +371,7 @@ const LineChart: FC< LineChartProps > = ( {
 					orientation={ legendOrientation }
 					className={ styles[ 'line-chart-legend' ] }
 					shape={ legendShape }
+					ref={ legendRef }
 				/>
 			) }
 		</div>
