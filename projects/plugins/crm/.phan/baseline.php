@@ -142,7 +142,7 @@ return [
         'admin/settings/field-sorts.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantConditionInGlobalScope', 'PhanTypeArraySuspiciousNullable'],
         'admin/settings/forms.page.php' => ['PhanRedundantConditionInGlobalScope', 'PhanUndeclaredVariableDim'],
         'admin/settings/general.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanRedundantConditionInGlobalScope', 'PhanTypeMismatchArgumentNullable', 'PhanTypeSuspiciousEcho'],
-        'admin/settings/invoicing.page.php' => ['PhanRedundantConditionInGlobalScope', 'PhanUndeclaredVariableDim'],
+        'admin/settings/invoicing.page.php' => ['PhanRedundantConditionInGlobalScope'],
         'admin/settings/license.page.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanRedundantConditionInGlobalScope'],
         'admin/settings/list-view.page.php' => ['PhanRedundantConditionInGlobalScope'],
         'admin/settings/locale.page.php' => ['PhanPossiblyUndeclaredGlobalVariable', 'PhanRedundantConditionInGlobalScope', 'PhanUndeclaredVariableDim'],
