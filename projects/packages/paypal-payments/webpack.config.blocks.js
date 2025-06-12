@@ -90,7 +90,7 @@ module.exports = [
 					},
 					{
 						from: 'src/paypal-ncps/block.json',
-						to: 'paypal-ncps/block.json',
+						to: 'paypal-ncps/[name][ext]',
 						noErrorOnMissing: true,
 					},
 				],
