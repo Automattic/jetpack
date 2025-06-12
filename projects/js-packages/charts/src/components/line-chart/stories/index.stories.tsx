@@ -39,29 +39,6 @@ CustomDimensions.args = {
 	data: sampleData,
 };
 
-// Story with horizontal legend
-export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegend.args = {
-	...Default.args,
-	showLegend: true,
-	height: 400,
-};
-
-export const WithLegendShapeRectangle: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegendShapeRectangle.args = {
-	...Default.args,
-	showLegend: true,
-	legendShape: 'rect',
-};
-
-// Story with vertical legend
-export const WithVerticalLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithVerticalLegend.args = {
-	...Default.args,
-	showLegend: true,
-	legendOrientation: 'vertical',
-};
-
 // Add after existing stories
 export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 FixedDimensions.args = {
