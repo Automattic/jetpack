@@ -19,6 +19,7 @@ function wpcom_unregister_jetpack_patterns() {
 		'registration-form',
 		'appointment-form',
 		'feedback-form',
+		'salesforce-lead-form',
 	);
 	foreach ( $pattern_names as $pattern_name ) {
 		$pattern = \WP_Block_Patterns_Registry::get_instance()->get_registered( $pattern_name );

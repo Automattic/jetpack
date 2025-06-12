@@ -139,13 +139,13 @@ const SalesforceCard = ( {
 							{ __( 'Email (ID must be', 'jetpack-forms' ) } <code>email</code>)
 						</li>
 						<li>
-							{ __( 'Phone (ID must be', 'jetpack-forms' ) } <code>phone_number</code>)
+							{ __( 'Phone (ID must be', 'jetpack-forms' ) } <code>phone</code>)
 						</li>
 						<li>
 							{ __( 'Company (ID must be', 'jetpack-forms' ) } <code>company</code>)
 						</li>
 						<li>
-							{ __( 'Job Title (ID must be', 'jetpack-forms' ) } <code>job_title</code>)
+							{ __( 'Job Title (ID must be', 'jetpack-forms' ) } <code>title</code>)
 						</li>
 					</ul>
 				</div>
