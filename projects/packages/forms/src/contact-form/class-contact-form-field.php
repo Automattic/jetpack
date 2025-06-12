@@ -1801,7 +1801,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$block_style       = 'style="' . $this->block_styles . '"';
 		$has_inset_label   = $this->has_inset_label();
 		$field             = '';
-		$field_placeholder = ! empty( $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : 'placeholder=" "'; // ensure that we can use :placeholder-shown CSS selector
+		$field_placeholder = ! empty( $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 
 		$context = array(
 			'fieldId'           => $id,
