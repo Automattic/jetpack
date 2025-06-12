@@ -15,7 +15,7 @@ const sharedWebpackConfig = {
 	entry: {
 		'block/editor': './src/block/editor.js',
 		'legacy-simple-payments': './src/legacy/simple-payments.css',
-		'paypal-ncps-block/index': './src/paypal-ncps-block/index.js',
+		'paypal-ncps-block/editor': './src/paypal-ncps-block/editor.js',
 	},
 	output: {
 		...jetpackWebpackConfig.output,

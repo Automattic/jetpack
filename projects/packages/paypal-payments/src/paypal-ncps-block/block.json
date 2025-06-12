@@ -24,9 +24,5 @@
 	"supports": {
 		"html": false
 	},
-	"textdomain": "jetpack-paypal-payments",
-	"editorScript": "file:./index.js",
-	"editorStyle": "file:./index.css",
-	"style": "file:./style-index.css",
-	"render": "file:./render.php"
+	"textdomain": "jetpack-paypal-payments"
 }
