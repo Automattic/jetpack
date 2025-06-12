@@ -10,7 +10,7 @@
  */
 
 /* global ajaxurl */
-
+window.completeBlocker = true;
 jQuery( function ( $ ) {
 	$( '.mark-complete-task button' ).on( 'click', function ( e ) {
 		e.preventDefault();
@@ -18,10 +18,9 @@ jQuery( function ( $ ) {
 		$( '.mark-complete-task button' ).addClass( 'disabled' );
 
 		const ourButton = $( this );
-		let completeBlocker = true;
 
-		if ( completeBlocker ) {
-			completeBlocker = false;
+		if ( window.completeBlocker ) {
+			window.completeBlocker = false;
 			if ( $( this ).hasClass( 'black' ) ) {
 				ourButton.removeClass( 'black' ).addClass( 'loading' );
 
@@ -45,11 +44,11 @@ jQuery( function ( $ ) {
 						ourButton.html( '<i class="ui icon check"></i> Mark Complete' );
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
 						$( '#zbs-task-complete' ).val( -1 );
-						completeBlocker = true;
+						window.completeBlocker = true;
 					},
 					error: function () {
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						completeBlocker = true;
+						window.completeBlocker = true;
 					},
 				} );
 			} else {
@@ -74,11 +73,11 @@ jQuery( function ( $ ) {
 						ourButton.html( '<i class="ui icon check"></i> Completed' );
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
 						$( '#zbs-task-complete' ).val( 1 );
-						completeBlocker = true;
+						window.completeBlocker = true;
 					},
 					error: function () {
 						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						completeBlocker = true;
+						window.completeBlocker = true;
 					},
 				} );
 			}
