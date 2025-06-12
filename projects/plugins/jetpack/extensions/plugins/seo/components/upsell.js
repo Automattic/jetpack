@@ -34,7 +34,9 @@ const UpsellNotice = ( { requiredPlan } ) => {
 			</div>
 
 			<div className="components-seo-upsell__learn-more">
-				<WpcomSupportLink url={ supportUrl } postId={ 120916 } text={ supportLinkTitle } />
+				<WpcomSupportLink supportLink={ supportUrl } supportPostId={ 120916 }>
+					{ supportLinkTitle }
+				</WpcomSupportLink>
 			</div>
 
 			<Button
