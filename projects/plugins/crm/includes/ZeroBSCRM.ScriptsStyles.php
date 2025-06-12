@@ -526,27 +526,27 @@ function zeroBSCRM_calendar_admin_styles(){
 
 	wp_register_style( 'jpcrm-tasks-css', ZEROBSCRM_URL . 'css/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 
-	wp_register_script( 'zerobscrm-calendar-js', ZEROBSCRM_URL . 'js/lib/fullcalendar.mod' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment' ), $zbs::VERSION, false );
-	wp_register_style( 'zerobscrm-calendar', ZEROBSCRM_URL . 'css/lib/fullcalendar.min.css', array(), $zbs::VERSION );
-	wp_register_script( 'jpcrm-tasks-js', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment', 'zerobscrm-calendar-js' ), $zbs::VERSION, false );
+	wp_register_script( 'jpcrm-calendar-js', ZEROBSCRM_URL . 'build/lib/fullcalendar/fullcalendar.js', array( 'jquery', 'jpcrm-moment' ), $zbs::VERSION, false );
+	wp_register_style( 'jpcrm-calendar', ZEROBSCRM_URL . 'build/lib/fullcalendar/fullcalendar.min.css', array(), $zbs::VERSION );
+	wp_register_script( 'jpcrm-tasks-js', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment', 'jpcrm-calendar-js' ), $zbs::VERSION, false );
 
 	// LOCALE Specific
 	$language_tag       = zeroBSCRM_getLocale();
 	$language_tag_short = zeroBSCRM_getLocale( false );
 	if ( file_exists( ZEROBSCRM_PATH . '/js/lib/calendar-locale/' . $language_tag . '.js' ) ) {
 		// e.g. en-gb
-		wp_enqueue_script( 'zerobscrm-calendar-js-locale', ZEROBSCRM_URL . 'js/lib/calendar-locale/' . $language_tag . '.js', array( 'zerobscrm-calendar-js' ), $zbs::VERSION );
+		wp_enqueue_script( 'jpcrm-calendar-js-locale', ZEROBSCRM_URL . 'build/lib/fullcalendar/locale/' . $language_tag . '.js', array( 'jpcrm-calendar-js' ), $zbs::VERSION );
 	} elseif ( file_exists( ZEROBSCRM_PATH . '/js/lib/calendar-locale/' . $language_tag_short . '.js' ) ) {
 
 			// e.g. en
-			wp_enqueue_script( 'zerobscrm-calendar-js-locale', ZEROBSCRM_URL . 'js/lib/calendar-locale/' . $language_tag_short . '.js', array( 'zerobscrm-calendar-js' ), $zbs::VERSION );
+			wp_enqueue_script( 'jpcrm-calendar-js-locale', ZEROBSCRM_URL . 'build/lib/fullcalendar/locale/' . $language_tag_short . '.js', array( 'zerobscrm-calendar-js' ), $zbs::VERSION );
 	}
 
-	wp_enqueue_style( 'zerobscrm-calendar' );
+	wp_enqueue_style( 'jpcrm-calendar' );
 	wp_enqueue_style( 'jpcrm-tasks-css' );
 
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
-	wp_enqueue_script( 'zerobscrm-calendar-js' );
+	wp_enqueue_script( 'jpcrm-calendar-js' );
 	wp_enqueue_script( 'jpcrm-tasks-js' );
 }
 
