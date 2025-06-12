@@ -1,5 +1,6 @@
 import { request } from '@playwright/test';
 import { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
+import { getSiteCredentials } from '../helpers/utils-helper.js';
 
 /**
  * Global setup for Playwright tests.
@@ -16,8 +17,10 @@ async function globalSetup( config ) {
 		baseURL,
 	} );
 
+	const user = getSiteCredentials();
 	const requestUtils = new RequestUtils( requestContext, {
 		storageStatePath,
+		user,
 	} );
 
 	// Authenticate and save the storageState to disk.
