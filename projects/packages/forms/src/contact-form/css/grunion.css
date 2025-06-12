@@ -466,7 +466,7 @@
 	appearance: none;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	padding: var(--jetpack--contact-form--input-padding-left, 16px);
+	padding: var(--jetpack--contact-form--input-padding, 16px);
 }
 
 .contact-form .is-style-outlined,
@@ -858,7 +858,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 :where(.wp-block-jetpack-options.has-background) {
-	padding: var(--jetpack--contact-form--input-padding-left, 16px) 16px;
+	padding: var(--jetpack--contact-form--input-padding, 16px) 16px;
 }
 
 /* Ensure global styles can ovewrite the default border color. */
