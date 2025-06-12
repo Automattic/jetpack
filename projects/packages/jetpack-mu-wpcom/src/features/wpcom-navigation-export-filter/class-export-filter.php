@@ -24,13 +24,6 @@ class Export_Filter {
 	private $is_exporting = false;
 
 	/**
-	 * Cached list of valid user IDs for the current blog.
-	 *
-	 * @var array|null
-	 */
-	private $valid_user_ids = null;
-
-	/**
 	 * Constructor to set up the export filter.
 	 */
 	public function __construct() {
@@ -44,7 +37,6 @@ class Export_Filter {
 	 */
 	public function start_export_filtering(): void {
 		$this->is_exporting = true;
-		$this->load_valid_user_ids();
 		add_filter( 'query', array( $this, 'filter_export_queries' ) );
 	}
 
@@ -54,25 +46,8 @@ class Export_Filter {
 	 * @return void
 	 */
 	public function stop_export_filtering(): void {
-		$this->is_exporting   = false;
-		$this->valid_user_ids = null; // Clear cached user IDs
+		$this->is_exporting = false;
 		remove_filter( 'query', array( $this, 'filter_export_queries' ) );
-	}
-
-	/**
-	 * Loads and caches valid user IDs for the current blog.
-	 *
-	 * @return void
-	 */
-	private function load_valid_user_ids(): void {
-		// Get all user IDs for the current blog
-		$users = get_users(
-			array(
-				'fields' => 'ID', // Only return user IDs for efficiency
-			)
-		);
-
-		$this->valid_user_ids = array_map( 'intval', $users );
 	}
 
 	/**
@@ -95,24 +70,26 @@ class Export_Filter {
 			return $query;
 		}
 
-		// Handle the filtering condition based on whether we have valid users
-		if ( empty( $this->valid_user_ids ) ) {
-			// No valid users on the site - exclude all wp_navigation posts with post_author > 0 otherwise
-			// all will be included. This is good for privacy but bad for export integrity.
+		// Get current users for this site
+		$users = get_users( array( 'fields' => 'ID' ) );
+
+		// Handle the filtering condition based on whether we have current users
+		if ( empty( $users ) ) {
+			// No current users on the site - exclude all wp_navigation posts with post_author > 0
 			$additional_where = " AND NOT (
 					{$wpdb->posts}.post_type = 'wp_navigation'
 					AND {$wpdb->posts}.post_author > 0
 				)";
 		} else {
-			// We have valid users - create a comma-separated list for the IN clause
-			$valid_user_ids_string = implode( ',', $this->valid_user_ids );
+			// We have current users - create a comma-separated list for the IN clause
+			$current_users = implode( ',', array_map( 'intval', $users ) );
 
 			// Add our filter condition to exclude wp_navigation posts that have users that are
 			// not valid on the current site.
 			$additional_where = " AND NOT (
 					{$wpdb->posts}.post_type = 'wp_navigation'
 					AND {$wpdb->posts}.post_author > 0
-					AND {$wpdb->posts}.post_author NOT IN ({$valid_user_ids_string})
+					AND {$wpdb->posts}.post_author NOT IN ({$current_users})
 				)";
 		}
 
