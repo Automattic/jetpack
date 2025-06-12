@@ -1,6 +1,6 @@
 import { BrowserContext, Page } from 'playwright-core';
 import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface.ts';
-import { HttpError } from './errors.ts';
+import { HttpError, RedirectError } from './errors.ts';
 import { objectPromiseAll } from './object-promise-all.ts';
 import { Viewport } from './types.ts';
 
@@ -109,6 +109,16 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 			throw error;
 		}
 
+		if ( ! this.isSameOrigin( pageUrl, tab.page.url() ) ) {
+			// If the origin isn't the same, that means that the page has been redirected.
+			const error = new RedirectError( {
+				url: pageUrl,
+				redirectUrl: tab.page.url(),
+			} );
+			this.trackUrlError( pageUrl, error );
+			throw error;
+		}
+
 		if ( viewport ) {
 			await tab.page.setViewportSize( viewport );
 		}
@@ -133,6 +143,14 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	}
 
 	private isOkStatus( statusCode: number ) {
-		return statusCode >= 200 && statusCode < 300;
+		return statusCode >= 200 && statusCode < 400;
+	}
+
+	private isSameOrigin( url: string, pageUrl: string ): boolean {
+		try {
+			return new URL( url ).origin === new URL( pageUrl ).origin;
+		} catch ( error ) {
+			return false;
+		}
 	}
 }
