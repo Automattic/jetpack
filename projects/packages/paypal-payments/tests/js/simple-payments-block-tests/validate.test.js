@@ -1,8 +1,8 @@
-import metadata from '../../src/block/block.json';
-import deprecatedV1 from '../../src/block/deprecated/v1/index.js';
-import deprecatedV2 from '../../src/block/deprecated/v2/index.js';
-import edit from '../../src/block/edit';
-import save from '../../src/block/save';
+import metadata from '../../../src/block/block.json';
+import deprecatedV1 from '../../../src/block/deprecated/v1/index.js';
+import deprecatedV2 from '../../../src/block/deprecated/v2/index.js';
+import edit from '../../../src/block/edit';
+import save from '../../../src/block/save';
 import runBlockFixtureTests from './block-fixtures';
 
 const intlNumberFormatSpy = jest.spyOn( Intl, 'NumberFormat' );

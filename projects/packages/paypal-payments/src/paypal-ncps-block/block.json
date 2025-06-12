@@ -1,0 +1,32 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/paypal-ncps-block",
+	"version": "0.1.0",
+	"title": "PayPal NCPS Block",
+	"category": "widgets",
+	"icon": "smiley",
+	"description": "Custom block for displaying PayPal No-Code Payment Solution (NCPS) buttons.",
+	"example": {},
+	"attributes": {
+		"buttonType": {
+			"type": "string",
+			"enum": [ "stacked", "single" ],
+			"default": "stacked"
+		},
+		"codeHead": {
+			"type": "string"
+		},
+		"codeBody": {
+			"type": "string"
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"textdomain": "jetpack-paypal-payments",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php"
+}

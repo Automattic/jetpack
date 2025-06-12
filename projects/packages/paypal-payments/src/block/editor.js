@@ -1,8 +1,8 @@
+import { registerJetpackBlockFromMetadata } from '../register-jetpack-block';
 import metadata from './block.json';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
 import edit from './edit';
-import { registerJetpackBlockFromMetadata } from './register-jetpack-block';
 import save from './save';
 import './editor.scss';
 

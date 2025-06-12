@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
-import { SimplePaymentsEdit } from '../../src/block/edit';
+import { SimplePaymentsEdit } from '../../../src/block/edit';
 
 const setAttributes = jest.fn();
 const intlNumberFormatSpy = jest.spyOn( Intl, 'NumberFormat' );

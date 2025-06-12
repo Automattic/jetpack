@@ -1,0 +1,19 @@
+/**
+ * The following styles get applied inside the editor only.
+ */
+@import "~@wordpress/base-styles/variables";
+@import "~@wordpress/base-styles/breakpoints";
+@import "~@wordpress/base-styles/mixins";
+
+.wp-block-pncps-paypal-ncps-block {
+
+	.block-editor-plain-text {
+
+		@include editor-input-reset();
+		width: auto;
+	}
+
+	.components-notice {
+		align-self: normal;
+	}
+}
