@@ -9,7 +9,6 @@ class MockResizeObserver {
 
 	constructor( callback: () => void ) {
 		this.callback = callback;
-		this.entries = [];
 	}
 
 	observe( element: HTMLElement ) {
@@ -20,13 +19,6 @@ class MockResizeObserver {
 
 	disconnect() {
 		this.element = null;
-	}
-
-	// Helper method to simulate resize
-	triggerResize() {
-		if ( this.callback ) {
-			this.callback();
-		}
 	}
 }
 
