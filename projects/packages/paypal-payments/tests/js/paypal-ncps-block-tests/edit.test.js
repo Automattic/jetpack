@@ -68,6 +68,7 @@ jest.mock( '@wordpress/components', () => ( {
 // Mock i18n
 jest.mock( '@wordpress/i18n', () => ( {
 	__: text => text,
+	_x: text => text,
 } ) );
 
 // Mock element
