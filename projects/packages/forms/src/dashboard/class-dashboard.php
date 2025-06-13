@@ -61,7 +61,7 @@ class Dashboard {
 		$this->switch = $switch ?? new Dashboard_View_Switch();
 
 		// Set the integrations tab feature flag
-		self::$show_integrations = apply_filters( 'jetpack_forms_enable_integrations_tab', false );
+		self::$show_integrations = apply_filters( 'jetpack_forms_enable_integrations_tab', true );
 	}
 
 	/**
@@ -183,8 +183,9 @@ class Dashboard {
 		}
 
 		Admin_Menu::add_menu(
-			__( 'Jetpack Forms', 'jetpack-forms' ),
-			_x( 'Forms', 'submenu title for Jetpack Forms', 'jetpack-forms' ),
+			/** "Jetpack Forms" and "Forms" are Product names, do not translate. */
+			'Jetpack Forms',
+			'Forms',
 			'edit_pages',
 			self::ADMIN_SLUG,
 			array( $this, 'render_new_dashboard' ),

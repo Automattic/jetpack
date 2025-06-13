@@ -155,7 +155,7 @@
 		"babel-jest": "29.7.0",
 		"concurrently": "7.6.0",
 		"eval": "0.1.8",
-		"glob": "11.0.0",
+		"glob": "11.0.2",
 		"jest": "29.7.0",
 		"jest-environment-jsdom": "29.7.0",
 		"jquery": "3.6.0",

@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
@@ -283,16 +282,19 @@ class Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . '../dist/contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		Assets::register_script(
-			'accessible-form',
-			'../../dist/contact-form/js/accessible-form.js',
-			__FILE__,
-			array(
-				'strategy'     => 'defer',
-				'textdomain'   => 'jetpack-forms',
-				'version'      => \JETPACK__VERSION,
-				'dependencies' => array( 'wp-i18n' ),
-			)
+		$config = array(
+			'error_types' => array(
+				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
+				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
+				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
+			),
+		);
+		wp_interactivity_config( 'jetpack/form', $config );
+		\wp_enqueue_script_module(
+			'jp-forms-view',
+			plugins_url( '../../dist/modules/form/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			\JETPACK__VERSION
 		);
 
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );

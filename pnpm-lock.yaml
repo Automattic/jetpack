@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-sMYXM0N71oUcgK3cWfJVVRNpSWyrQpt26BH3D1PnoEY=
+pnpmfileChecksum: sha256-GRjj4mwKQ1fELOsbm2v+wVFWc3SWSI6xPUhonuhVjyE=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -52,8 +52,8 @@ importers:
         specifier: 6.1.1
         version: 6.1.1
       glob:
-        specifier: 11.0.0
-        version: 11.0.0
+        specifier: 11.0.2
+        version: 11.0.2
       moment:
         specifier: 2.30.1
         version: 2.30.1
@@ -102,8 +102,8 @@ importers:
         specifier: 7.9.1
         version: 7.9.1
       glob:
-        specifier: 11.0.0
-        version: 11.0.0
+        specifier: 11.0.2
+        version: 11.0.2
       minimatch:
         specifier: 5.1.0
         version: 5.1.0
@@ -344,6 +344,9 @@ importers:
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
       '@visx/legend':
+        specifier: ^3.12.0
+        version: 3.12.0(react@18.3.1)
+      '@visx/pattern':
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
       '@visx/responsive':
@@ -1653,8 +1656,8 @@ importers:
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.23)
       glob:
-        specifier: 11.0.0
-        version: 11.0.0
+        specifier: 11.0.2
+        version: 11.0.2
       svg2ttf:
         specifier: ^6.0.3
         version: 6.0.3
@@ -2221,8 +2224,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
       glob:
-        specifier: 11.0.0
-        version: 11.0.0
+        specifier: 11.0.2
+        version: 11.0.2
       postcss:
         specifier: 8.4.47
         version: 8.4.47
@@ -2273,8 +2276,8 @@ importers:
         specifier: 6.24.0
         version: 6.24.0
       glob:
-        specifier: 11.0.0
-        version: 11.0.0
+        specifier: 11.0.2
+        version: 11.0.2
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2603,8 +2606,8 @@ importers:
         specifier: 7.6.0
         version: 7.6.0
       glob:
-        specifier: 11.0.0
-        version: 11.0.0
+        specifier: 11.0.2
+        version: 11.0.2
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -2866,8 +2869,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
       glob:
-        specifier: 11.0.0
-        version: 11.0.0
+        specifier: 11.0.2
+        version: 11.0.2
       postcss:
         specifier: 8.4.47
         version: 8.4.47
@@ -4373,9 +4376,12 @@ importers:
       font-awesome:
         specifier: 4.7.0
         version: 4.7.0
+      fullcalendar:
+        specifier: 3.10.5
+        version: 3.10.5(moment@2.30.1)
       glob:
-        specifier: 11.0.0
-        version: 11.0.0
+        specifier: 11.0.2
+        version: 11.0.2
       hopscotch:
         specifier: 0.3.1
         version: 0.3.1
@@ -4820,8 +4826,8 @@ importers:
         specifier: 0.1.8
         version: 0.1.8
       glob:
-        specifier: 11.0.0
-        version: 11.0.0
+        specifier: 11.0.2
+        version: 11.0.2
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -5271,8 +5277,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0
       glob:
-        specifier: 11.0.0
-        version: 11.0.0
+        specifier: 11.0.2
+        version: 11.0.2
       ignore:
         specifier: 7.0.0
         version: 7.0.0
@@ -5479,8 +5485,8 @@ importers:
         specifier: 7.1.1
         version: 7.1.1(eslint@9.25.1)(typescript@5.8.3)
       glob:
-        specifier: 11.0.0
-        version: 11.0.0
+        specifier: 11.0.2
+        version: 11.0.2
       globals:
         specifier: 16.0.0
         version: 16.0.0
@@ -8625,6 +8631,11 @@ packages:
     peerDependencies:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
 
+  '@visx/pattern@3.12.0':
+    resolution: {integrity: sha512-ZkNA/2TkULNiiY4cw2IkuQcQRp9zI3SQ0/JoZMQ+UmUvY5RNBcsdTmic7649egHq0FRYCbY0DDQVJicccW5JUg==}
+    peerDependencies:
+      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+
   '@visx/point@3.12.0':
     resolution: {integrity: sha512-I6UrHoJAEVbx3RORQNupgTiX5EzjuZpiwLPxn8L2mI5nfERotPKi1Yus12Cq2WtXqEBR/WgqTnoImlqOXBykcA==}
 
@@ -9760,8 +9771,8 @@ packages:
   brace-expansion@1.1.11:
     resolution: {integrity: sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==}
 
-  brace-expansion@2.0.1:
-    resolution: {integrity: sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==}
+  brace-expansion@2.0.2:
+    resolution: {integrity: sha512-Jt0vHyM+jmUBqojB7E1NIYadt0vI0Qxjxd2TErW94wDz+E2LAm5vKMXXwg6ZZBTHPuUlDgQHKXvjGBdfcF1ZDQ==}
 
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
@@ -11432,6 +11443,11 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
+  fullcalendar@3.10.5:
+    resolution: {integrity: sha512-JGWpECKgza/344bbF5QT0hBJpx04DZ/7QGPlR1ZbAwrG6Yz6mWEkQd+NnZUh1sK6HCBIPnPRW2x53aJxeLGvvQ==}
+    peerDependencies:
+      moment: ^2.20.1
+
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
 
@@ -11523,11 +11539,6 @@ packages:
 
   glob@10.4.5:
     resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
-    hasBin: true
-
-  glob@11.0.0:
-    resolution: {integrity: sha512-9UiX/Bl6J2yaBbxKoEBRm4Cipxgok8kQYcOPEhScPwebu2I0HoQOuYdIO6S3hLuWoZgpDpwQZMzTFxgpkyT76g==}
-    engines: {node: 20 || >=22}
     hasBin: true
 
   glob@11.0.2:
@@ -19881,6 +19892,13 @@ snapshots:
       prop-types: 15.8.1
       react: 18.3.1
 
+  '@visx/pattern@3.12.0(react@18.3.1)':
+    dependencies:
+      '@types/react': 18.3.23
+      classnames: 2.5.1
+      prop-types: 15.8.1
+      react: 18.3.1
+
   '@visx/point@3.12.0': {}
 
   '@visx/react-spring@3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
@@ -23207,7 +23225,7 @@ snapshots:
       balanced-match: 1.0.2
       concat-map: 0.0.1
 
-  brace-expansion@2.0.1:
+  brace-expansion@2.0.2:
     dependencies:
       balanced-match: 1.0.2
 
@@ -25203,6 +25221,10 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
+  fullcalendar@3.10.5(moment@2.30.1):
+    dependencies:
+      moment: 2.30.1
+
   function-bind@1.1.2: {}
 
   function.prototype.name@1.1.8:
@@ -25305,15 +25327,6 @@ snapshots:
       minipass: 7.1.2
       package-json-from-dist: 1.0.1
       path-scurry: 1.11.1
-
-  glob@11.0.0:
-    dependencies:
-      foreground-child: 3.3.1
-      jackspeak: 4.1.1
-      minimatch: 10.0.1
-      minipass: 7.1.2
-      package-json-from-dist: 1.0.1
-      path-scurry: 2.0.0
 
   glob@11.0.2:
     dependencies:
@@ -27278,7 +27291,7 @@ snapshots:
 
   minimatch@10.0.1:
     dependencies:
-      brace-expansion: 2.0.1
+      brace-expansion: 2.0.2
 
   minimatch@3.1.2:
     dependencies:
@@ -27286,11 +27299,11 @@ snapshots:
 
   minimatch@5.1.0:
     dependencies:
-      brace-expansion: 2.0.1
+      brace-expansion: 2.0.2
 
   minimatch@9.0.5:
     dependencies:
-      brace-expansion: 2.0.1
+      brace-expansion: 2.0.2
 
   minimist@1.2.8: {}
 
@@ -29623,7 +29636,7 @@ snapshots:
       '@types/sax': 1.2.7
       commander: 12.1.0
       debug: 4.4.1
-      glob: 11.0.0
+      glob: 11.0.2
       sax: 1.4.1
       svg-pathdata: 7.2.0
       transformation-matrix: 3.0.0
