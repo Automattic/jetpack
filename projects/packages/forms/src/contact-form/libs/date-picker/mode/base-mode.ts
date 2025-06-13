@@ -15,22 +15,6 @@ const views = {
 	month: monthPicker,
 };
 
-( function () {
-	if ( typeof window.CustomEvent === 'function' ) return false;
-
-	function CustomEvent(
-		event: string,
-		params: { bubbles?: boolean; cancelable?: boolean; detail?: unknown }
-	) {
-		params = params || { bubbles: false, cancelable: false, detail: null };
-		var evt = document.createEvent( 'CustomEvent' );
-		evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
-		return evt;
-	}
-
-	( window as unknown ).CustomEvent = CustomEvent;
-} )();
-
 function isMobileDevice() {
 	return /iPhone|iPad|iPod|Android/i.test( navigator.userAgent );
 }
@@ -305,9 +289,14 @@ function attachContainerEvents( dp: IDatePicker ) {
 
 	// Hack to get iOS to show active CSS states
 	el!.ontouchstart = noop;
+	function onClick( e: Event | KeyboardEvent ) {
+		const target = e.target as HTMLElement;
 
-	function onClick( e: unknown ) {
-		e?.target?.className.split( ' ' ).forEach( function ( evt: string ) {
+		if ( ! target ) {
+			return;
+		}
+
+		target.className.split( ' ' ).forEach( function ( evt: string ) {
 			const handler = dp.currentView().onClick[ evt ];
 			handler && handler( e, dp );
 		} );
