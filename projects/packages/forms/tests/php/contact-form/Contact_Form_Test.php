@@ -941,6 +941,21 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
+	 *
+	 * @author tonykova
+	 */
+	public function test_token_can_replace_entire_subject_with_token_field_has_html() {
+		$plugin       = Contact_Form_Plugin::init();
+		$subject      = '{email}';
+		$field_values = array(
+			'2_<strong>Email</strong>' => 'note',
+		);
+
+		$this->assertEquals( 'note', $plugin->replace_tokens_with_input( $subject, $field_values ) );
+	}
+
+	/**
 	 * Tests that token with curly brackets is replaced with value.
 	 *
 	 * @author tonykova

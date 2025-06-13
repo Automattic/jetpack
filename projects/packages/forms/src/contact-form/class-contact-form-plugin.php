@@ -1228,7 +1228,7 @@ class Contact_Form_Plugin {
 	 * @return string
 	 */
 	public static function tokenize_label( $label ) {
-		return '{' . trim( preg_replace( '#^\d+_#', '', $label ) ) . '}';
+		return '{' . trim( wp_strip_all_tags( preg_replace( '#^\d+_#', '', $label ) ) ) . '}';
 	}
 
 	/**
