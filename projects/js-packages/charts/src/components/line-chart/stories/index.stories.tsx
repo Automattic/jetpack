@@ -1,5 +1,6 @@
 import { GlyphStar } from '@visx/glyph';
 import React from 'react';
+import { useChartTheme } from '../../../providers/theme/theme-provider';
 import LineChart from '../line-chart';
 import largeValuesData from './large-values-sample';
 import sampleData from './sample-data';
@@ -234,10 +235,13 @@ CustomTooltips.args = {
 		if ( ! nearestDatum ) return null;
 
 		const tooltipPoints = Object.entries( tooltipData?.datumByKey || {} )
-			.map( ( [ key, { datum } ] ) => ( {
-				key,
-				value: datum.value as number,
-			} ) )
+			.map( ( [ key, value ] ) => {
+				const { datum } = value as { datum: { value: number } };
+				return {
+					key,
+					value: datum.value as number,
+				};
+			} )
 			.sort( ( a, b ) => b.value - a.value );
 
 		return (
@@ -487,4 +491,56 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 			},
 		},
 	},
+};
+
+const ToolTipWithGlyph = ( { tooltipData } ) => {
+	const providerTheme = useChartTheme();
+
+	return (
+		<div>
+			<div style={ { marginBottom: '0.5rem' } }>
+				{ tooltipData?.nearestDatum?.datum?.date?.toLocaleDateString() }
+			</div>
+			<div>
+				{ Object.entries( tooltipData?.datumByKey || {} ).map( ( [ key, value ], index ) => {
+					const { datum } = value as { datum: { value: number } };
+					return (
+						<div key={ key }>
+							<div
+								style={ {
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									marginBottom: '0.2rem',
+								} }
+							>
+								<svg width={ 20 } height={ 20 }>
+									<GlyphStar
+										size={ 10 * 10 }
+										top={ 10 }
+										left={ 10 }
+										fill={ '#fff' }
+										stroke={ providerTheme.colors[ index % providerTheme.colors.length ] }
+									/>
+								</svg>
+								{ key }: { datum.value }
+							</div>
+						</div>
+					);
+				} ) }
+			</div>
+		</div>
+	);
+};
+
+export const WithTooltipGlyphs: StoryObj< typeof LineChart > = Template.bind( {} );
+WithTooltipGlyphs.args = {
+	...Default.args,
+	renderGlyph: ( { color, size, x, y } ) => {
+		return <GlyphStar top={ y } left={ x } size={ size * size } fill={ '#fff' } stroke={ color } />;
+	},
+	glyphStyle: {
+		radius: 10,
+	},
+	renderTooltip: ToolTipWithGlyph,
 };
