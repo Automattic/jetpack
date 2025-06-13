@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from 'react-router';
@@ -65,7 +65,7 @@ const AkismetDashboardCard = ( {
 							}
 						) }
 					</p>
-					<div style={ { display: 'flex', gap: '8px', alignItems: 'center' } }>
+					<HStack spacing="3" justify="start">
 						<Button
 							variant="secondary"
 							href={ settingsUrl }
@@ -78,7 +78,7 @@ const AkismetDashboardCard = ( {
 						<Button variant="tertiary" onClick={ refreshStatus } __next40pxDefaultSize={ true }>
 							{ __( 'Refresh Status', 'jetpack-forms' ) }
 						</Button>
-					</div>
+					</HStack>
 				</div>
 			) : (
 				<div>
