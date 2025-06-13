@@ -1585,8 +1585,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			add_filter( 'jetpack_has_localized_date_picker', '__return_true' );
 		}
 
-		\wp_enqueue_style( 'jp-date-picker', plugins_url( '../../dist/contact-form/js/date-picker.css', __FILE__ ), array(), \JETPACK__VERSION );
-
 		return $field;
 	}
 
