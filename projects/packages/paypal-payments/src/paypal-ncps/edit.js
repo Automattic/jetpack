@@ -77,10 +77,14 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 				icon={ PayPalIcon }
 				label={ __( 'PayPal NCPS Code', 'jetpack-paypal-payments' ) }
 				isColumnLayout
-				instructions={ __(
-					'Select the button type and paste the code below.',
-					'jetpack-paypal-payments'
-				) }
+				instructions={
+					buttonType === 'stacked'
+						? __(
+								'Paste both the head and body HTML code from PayPal below.',
+								'jetpack-paypal-payments'
+						  )
+						: __( 'Paste the button code from PayPal below.', 'jetpack-paypal-payments' )
+				}
 				notices={ notice }
 			>
 				<ToggleGroupControl
