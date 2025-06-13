@@ -52,7 +52,7 @@ class Paypal_NCPS {
 		}
 
 		if ( 'stacked' === $button_type && ! empty( $code_head ) ) {
-			if ( preg_match( '/src="(https:\/\/www\.paypal\.com\/sdk\/js\?client-id=.+)"/', $code_head, $matches ) ) {
+			if ( preg_match( '/src="(https:\/\/(www\.)?(sandbox\.)?paypal\.com\/sdk\/js\?client-id=.+)"/', $code_head, $matches ) ) {
 				$script_url = esc_url( $matches[1] );
 				if ( ! empty( $script_url ) ) {
 					// We can't include the version number here. If we do, it is appended to the URL and causes a 400 response.
