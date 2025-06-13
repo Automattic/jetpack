@@ -1,4 +1,4 @@
-This library use the https://chrisdavies.github.io/tiny-date-picker/ as starting point. and then uses the
+This library use the https://chrisdavies.github.io/tiny-date-picker/ as starting point.
 
 And the update to use typescript by Kim Almasan and Lars Kumbier
 See https://github.com/Verivox/tiny-date-picker
