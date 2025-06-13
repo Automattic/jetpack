@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
+use Automattic\Jetpack\Image_CDN\Image_CDN;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use WP_HTML_Tag_Processor;
 
@@ -72,8 +73,15 @@ class LCP_Optimize_Img_Tag {
 			return $buffer_processor->get_updated_html();
 		}
 
-		// Remove unwanted query parameters that would be used unnecessarily by Photon.
-		$image_url = remove_query_arg( array( 'resize', 'w', 'h' ), $image_url );
+		// If the image isn't photonized, it might be resized by WP.
+		// We need the original image URL, as we'll be generating
+		// the necessary sizes based on it.
+		if ( ! Image_CDN_Core::is_cdn_url( $image_url ) ) {
+			$image_url = Image_CDN::strip_image_dimensions_maybe( $image_url );
+		} else {
+			// In case it's Photonized, we need to remove any size change arguments.
+			$image_url = remove_query_arg( array( 'resize', 'w', 'h' ), $image_url );
+		}
 
 		// Additional validation after cleaning.
 		if ( ! wp_http_validate_url( $image_url ) ) {
