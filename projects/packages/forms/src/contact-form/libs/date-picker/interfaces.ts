@@ -9,8 +9,8 @@ export interface IDatePickerOptions {
 	inRange: ( dt: Date, dp?: IDatePicker ) => boolean;
 	appendTo: HTMLElement;
 	alignment: 'left' | 'right';
-	min: Date;
-	max: Date;
+	min?: Date;
+	max?: Date;
 	shouldFocusOnBlur?: boolean;
 	shouldFocusOnRender?: boolean;
 	dayOffset?: number;
@@ -64,6 +64,7 @@ export interface ILanguage {
 	clear: string;
 	close: string;
 	ariaLabel: {
+		enterPicker: string;
 		dayPicker: string;
 		monthPicker: string;
 		yearPicker: string;
