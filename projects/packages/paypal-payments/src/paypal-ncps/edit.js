@@ -45,6 +45,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 
 	useEffect( () => {
 		if ( ! codeBody || isSelected ) {
+			setNotice( null );
 			return;
 		}
 
