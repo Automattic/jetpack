@@ -818,6 +818,8 @@ class Contact_Form_Test extends BaseTestCase {
 		wp_delete_post( $post_id, true );
 	}
 
+	}
+
 	public function test_parse_fields_from_content_form_submission() {
 		// Fill field values.
 		$this->add_field_values(
@@ -912,8 +914,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
-	 *
-	 * @author tonykova
 	 */
 	public function test_token_can_replace_entire_subject_with_token_field_has_japanese() {
 		$plugin       = Contact_Form_Plugin::init();
@@ -927,8 +927,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
-	 *
-	 * @author tonykova
 	 */
 	public function test_token_can_replace_entire_subject_with_token_field_has_emoji() {
 		$plugin       = Contact_Form_Plugin::init();
@@ -942,8 +940,6 @@ class Contact_Form_Test extends BaseTestCase {
 
 	/**
 	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
-	 *
-	 * @author tonykova
 	 */
 	public function test_token_can_replace_entire_subject_with_token_field_has_html() {
 		$plugin       = Contact_Form_Plugin::init();
