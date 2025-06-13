@@ -31,7 +31,26 @@ NoTooltips.args = {
 export const Crosshairs: StoryObj< typeof LineChart > = Template.bind( {} );
 Crosshairs.args = {
 	...tooltipStoryArgs,
-	withTooltipCrosshairs: true,
+	withTooltipCrosshairs: {
+		showVertical: true,
+		showHorizontal: true,
+	},
+};
+
+export const CrosshairVertical: StoryObj< typeof LineChart > = Template.bind( {} );
+CrosshairVertical.args = {
+	...tooltipStoryArgs,
+	withTooltipCrosshairs: {
+		showVertical: true,
+	},
+};
+
+export const CrosshairHorizontal: StoryObj< typeof LineChart > = Template.bind( {} );
+CrosshairHorizontal.args = {
+	...tooltipStoryArgs,
+	withTooltipCrosshairs: {
+		showHorizontal: true,
+	},
 };
 
 export const Custom: StoryObj< typeof LineChart > = Template.bind( {} );
