@@ -1493,7 +1493,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'clear'     => __( 'Clear', 'jetpack-forms' ),
 			'close'     => __( 'Close', 'jetpack-forms' ),
 			'ariaLabel' => array(
-				'enterPicker'       => __( 'You are on a date picker input. Use the down key to focus into the date picker. Or type the date in the format MM/DD/YYYY', 'jetpack-forms' ),
+				'enterPicker'       => __( 'You are on a date picker input. Use the down key to focus into the date picker.', 'jetpack-forms' ),
 				'dayPicker'         => __( 'You are currently inside the date picker, use the arrow keys to navigate between the dates. Use tab key to jump to more controls.', 'jetpack-forms' ),
 				'monthPicker'       => __( 'You are currently inside the month picker, use the arrow keys to navigate between the months. Use the space key to select it.', 'jetpack-forms' ),
 				'yearPicker'        => __( 'You are currently inside the year picker, use the up and down arrow keys to navigate between the years. Use the space key to select it.', 'jetpack-forms' ),
