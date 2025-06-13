@@ -1,4 +1,4 @@
-import { registerJetpackBlockFromMetadata } from '../register-jetpack-block';
+import { registerJetpackBlockFromMetadata } from '../utils/register-jetpack-block';
 import metadata from './block.json';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
