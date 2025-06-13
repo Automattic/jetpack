@@ -1,9 +1,17 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
-import { XYChart, AreaSeries, Tooltip, Grid, Axis, DataContext } from '@visx/xychart';
+import {
+	XYChart,
+	AreaSeries,
+	Tooltip,
+	Grid,
+	Axis,
+	DataContext,
+	TooltipContext,
+} from '@visx/xychart';
 import clsx from 'clsx';
-import { useId, useMemo, useContext } from 'react';
+import { useId, useMemo, useContext, useEffect, useState } from 'react';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { parseAsLocalDate } from '../shared/date-parsing';
@@ -180,6 +188,36 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
+const HighlightTooltip: React.FC< { series: SeriesData[]; selectedIndex: number } > = ( {
+	series,
+	selectedIndex,
+} ) => {
+	const tooltipContext = useContext( TooltipContext );
+
+	useEffect( () => {
+		if ( ! series ) return;
+
+		if ( selectedIndex === 0 ) {
+			tooltipContext?.hideTooltip();
+			return;
+		}
+
+		series.forEach( ( s, index ) => {
+			const datum = s.data[ selectedIndex ];
+
+			tooltipContext?.showTooltip( {
+				datum,
+				key: s.label,
+				index,
+			} );
+		} );
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ selectedIndex, series ] );
+
+	return null;
+};
+
 const LineChart: FC< LineChartProps > = ( {
 	data,
 	width,
@@ -254,11 +292,7 @@ const LineChart: FC< LineChartProps > = ( {
 	}, [ options, dataSorted, width ] );
 
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
-
-	const error = validateData( dataSorted );
-	if ( error ) {
-		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
-	}
+	const [ selectedIndex, setSelectedIndex ] = useState( 0 );
 
 	// Create legend items from group labels, this iterates over groups rather than data points
 	const legendItems = dataSorted.map( ( group, index ) => ( {
@@ -275,16 +309,46 @@ const LineChart: FC< LineChartProps > = ( {
 		yAccessor: ( d: DataPointDate ) => d?.value,
 	};
 
+	const handleFocus = useMemo( () => () => setSelectedIndex( 0 ), [] );
+	const onKeyDown = useMemo(
+		() => ( event: React.KeyboardEvent< HTMLDivElement > ) => {
+			const size = dataSorted[ 0 ]?.data.length || 0;
+			if ( size === 0 ) return;
+
+			// Keep the selected index within the bounds of the data until end of the chart data.
+			if ( selectedIndex + 1 !== size ) {
+				event.preventDefault();
+			} else {
+				setSelectedIndex( 0 );
+			}
+
+			if ( [ 'ArrowRight', 'Tab' ].includes( event.key ) ) {
+				setSelectedIndex( ( selectedIndex + 1 ) % size );
+			} else if ( [ 'ArrowLeft' ].includes( event.key ) ) {
+				setSelectedIndex( ( selectedIndex - 1 + size ) % size );
+			}
+		},
+		[ dataSorted, selectedIndex ]
+	);
+
+	const error = validateData( dataSorted );
+	if ( error ) {
+		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
+	}
+
 	return (
 		<div
 			className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }
 			data-testid="line-chart"
-			role="img"
+			role="listbox"
 			aria-label="line chart"
 			style={ {
 				width,
 				height,
 			} }
+			tabIndex={ 0 }
+			onKeyDown={ onKeyDown }
+			onFocus={ handleFocus }
 		>
 			<XYChart
 				theme={ theme }
@@ -353,15 +417,20 @@ const LineChart: FC< LineChartProps > = ( {
 				} ) }
 
 				{ withTooltips && (
-					<Tooltip
-						detectBounds
-						snapTooltipToDatumX
-						snapTooltipToDatumY
-						showSeriesGlyphs
-						renderTooltip={ renderTooltip }
-						renderGlyph={ renderGlyph }
-						glyphStyle={ glyphStyle }
-					/>
+					<>
+						{ dataSorted && (
+							<HighlightTooltip series={ dataSorted } selectedIndex={ selectedIndex } />
+						) }
+						<Tooltip
+							detectBounds
+							snapTooltipToDatumX
+							snapTooltipToDatumY
+							showSeriesGlyphs
+							renderTooltip={ renderTooltip }
+							renderGlyph={ renderGlyph }
+							glyphStyle={ glyphStyle }
+						/>
+					</>
 				) }
 			</XYChart>
 
