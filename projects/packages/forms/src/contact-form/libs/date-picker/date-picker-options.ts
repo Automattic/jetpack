@@ -3,7 +3,6 @@
  */
 import { IDatePicker, IDatePickerOptions } from './interfaces';
 import { now, shiftYear, dateOrParse, Dec31st, Jan1st } from './lib/date';
-import { cp } from './lib/fns';
 
 const english = {
 	days: [ 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa' ],
@@ -51,10 +50,10 @@ const english = {
  * @returns {IDatePickerOptions}
  */
 export function DatePickerOptions( _options: Partial< IDatePickerOptions > = {} ) {
-	const options: Partial< IDatePickerOptions > = cp( defaults(), _options );
+	const options: Partial< IDatePickerOptions > = { ...defaults(), ..._options };
 	const parse = dateOrParse( options.parse, options.dateFormat );
 
-	options.lang = cp( english, options.lang );
+	options.lang = { ...english, ...options.lang };
 	options.parse = parse;
 	options.inRange = makeInRangeFn( options );
 	options.min = parse( options.min || shiftYear( Jan1st(), -100 ), options.dateFormat );
