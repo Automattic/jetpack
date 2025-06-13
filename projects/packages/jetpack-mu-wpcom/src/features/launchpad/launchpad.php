@@ -36,8 +36,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'setup_general',
 				'plan_selected',
+				'setup_general',
 				'first_post_published',
 				'design_edited',
 				'site_launched',
