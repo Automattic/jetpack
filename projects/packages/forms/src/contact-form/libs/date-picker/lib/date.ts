@@ -113,15 +113,19 @@ export function setMonth( dt: Date | undefined, month: number ) {
 	return shiftMonth( dt, month - dt.getMonth() );
 }
 
+type DateOrParse = ( dt: Date | string, dateFormat: string ) => Date;
+
 /**
  * dateOrParse creates a function which, given a date or string, returns a date
  *
- * @param {function} parse the function used to parse strings
+ * @param {function} parse      the function used to parse strings
+ * @param {string}   dateFormat the date format to use, overrides the date format passed in the function call
  * @returns {function}
  */
-export function dateOrParse( parse: ( candidate: Date | string, dateFormat: string ) => Date ) {
-	return function ( dt: Date | string, dateFormat: string ) {
-		return dropTime( typeof dt === 'string' ? parse( dt, dateFormat ) : dt );
+export function dateOrParse( parse: DateOrParse, dateFormat?: string ): DateOrParse {
+	return function ( dt: Date | string, df: string ) {
+		const format = dateFormat ?? df;
+		return dropTime( typeof dt === 'string' ? parse( dt, format ) : dt );
 	};
 }
 
