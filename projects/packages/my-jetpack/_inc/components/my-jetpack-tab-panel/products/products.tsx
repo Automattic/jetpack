@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FilteredPlans } from './filtered-plans';
 import { FilteredProducts } from './filtered-products';
 import { Filters } from './filters';
 import styles from './styles.module.scss';
@@ -23,7 +24,11 @@ export function Products() {
 				/>
 			</div>
 			<div className={ styles[ 'filtered-products-wrapper' ] }>
-				<FilteredProducts search={ search } selectedFilter={ selectedFilter } />
+				{ selectedFilter === 'included' ? (
+					<FilteredPlans search={ search } />
+				) : (
+					<FilteredProducts search={ search } selectedFilter={ selectedFilter } />
+				) }
 			</div>
 		</div>
 	);

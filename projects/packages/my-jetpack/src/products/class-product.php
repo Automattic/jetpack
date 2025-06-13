@@ -245,6 +245,31 @@ abstract class Product {
 	}
 
 	/**
+	 * Get the related plan slugs including Free and Paid ones.
+	 *
+	 * @return array
+	 */
+	public static function get_related_plan_slugs() {
+		$slugs = array_merge(
+			static::get_paid_bundles_that_include_product(),
+			static::get_paid_plan_product_slugs()
+		);
+
+		$method = array( static::class, 'get_wpcom_free_product_slug' );
+
+		if ( ! is_callable( $method ) ) {
+			return $slugs;
+		}
+		$free_product_slug = call_user_func( $method );
+
+		if ( $free_product_slug ) {
+			$slugs[] = $free_product_slug;
+		}
+
+		return $slugs;
+	}
+
+	/**
 	 * Get the Product Info that requires http requests to get
 	 *
 	 * @throws \Exception If required attribute is not declared in the child class.
@@ -258,6 +283,7 @@ abstract class Product {
 		$product_data = array(
 			'status'                        => static::get_status(),
 			'pricing_for_ui'                => static::get_pricing_for_ui(),
+			'related_plan_slugs'            => static::get_related_plan_slugs(),
 			'is_upgradable'                 => static::is_upgradable(),
 			'description'                   => static::get_description(),
 			'tiers'                         => static::get_tiers(),

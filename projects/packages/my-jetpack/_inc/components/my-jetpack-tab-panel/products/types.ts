@@ -1,3 +1,10 @@
+import { ProductCamelCase } from '../../../data/types';
+import {
+	JETPACK_MODULES,
+	JETPACK_PRODUCTS_WITH_CARD,
+	JETPACK_PRODUCTS_WITHOUT_CARD,
+} from './constants';
+
 export type ProductCategory =
 	| 'recommended'
 	| 'security'
@@ -6,72 +13,29 @@ export type ProductCategory =
 	| 'management'
 	| 'create';
 
-export type JetpackProductWithCard =
-	| 'ai'
-	| 'jetpack-ai'
-	| 'anti-spam'
-	| 'backup'
-	| 'boost'
-	| 'crm'
-	| 'scan'
-	| 'search'
-	| 'social'
-	| 'stats'
-	| 'videopress';
+export type JetpackProductWithCard = ( typeof JETPACK_PRODUCTS_WITH_CARD )[ number ];
 
-export type JetpackProductWithoutCard =
-	| 'complete'
-	| 'creator'
-	| 'extras'
-	| 'newsletter'
-	| 'protect'
-	| 'related-posts'
-	| 'security'
-	| 'site-accelerator';
+export type JetpackProductWithoutCard = ( typeof JETPACK_PRODUCTS_WITHOUT_CARD )[ number ];
 
 export type JetpackProductSlug = JetpackProductWithCard | JetpackProductWithoutCard;
 
-export type JetpackModuleSlug =
-	| 'account-protection'
-	| 'blaze'
-	| 'blocks'
-	| 'carousel'
-	| 'comment-likes'
-	| 'comments'
-	| 'contact-form'
-	| 'copy-post'
-	| 'custom-content-types'
-	| 'google-fonts'
-	| 'gravatar-hovercards'
-	| 'infinite-scroll'
-	| 'json-api'
-	| 'latex'
-	| 'likes'
-	| 'markdown'
-	| 'monitor'
-	| 'notes'
-	| 'photon'
-	| 'photon-cdn'
-	| 'post-by-email'
-	| 'post-list'
-	| 'protect'
-	| 'publicize'
-	| 'related-posts'
-	| 'search'
-	| 'seo-tools'
-	| 'sharedaddy'
-	| 'shortcodes'
-	| 'shortlinks'
-	| 'sitemaps'
-	| 'sso'
-	| 'stats'
-	| 'subscriptions'
-	| 'tiled-gallery'
-	| 'vaultpress'
-	| 'verification-tools'
-	| 'videopress'
-	| 'waf'
-	| 'widget-visibility'
-	| 'widgets'
-	| 'woocommerce-analytics'
-	| 'wordads';
+export type JetpackModuleSlug = ( typeof JETPACK_MODULES )[ number ];
+
+export type JetpackModule = {
+	module: string;
+	name: string;
+	activated: boolean;
+	description: string;
+	long_description: string;
+	search_terms: string;
+};
+
+export type ProductSection = {
+	id: string;
+	title: string;
+	cards?: Array< {
+		product: ProductCamelCase;
+		module?: JetpackModule;
+	} >;
+	modules?: Array< JetpackModule >;
+};
