@@ -60,10 +60,11 @@ class Paypal_NCPS {
 		}
 
 		if ( 'stacked' === $button_type && ! empty( $code_head ) ) {
-			if ( preg_match( '/src="(.+)"/', $code_head, $matches ) ) {
+			if ( preg_match( '/src="(https:\/\/www\.paypal\.com\/sdk\/js\?client-id=.+)"/', $code_head, $matches ) ) {
 				$script_url = esc_url( $matches[1] );
 				if ( ! empty( $script_url ) ) {
-					wp_enqueue_script( 'paypal-ncps-block-head', $script_url, array(), self::PACKAGE_VERSION, false );
+					// We can't include the version number here. If we do, it is appended to the URL and causes a 400 response.
+					wp_enqueue_script( 'paypal-ncps-block-head', $script_url, array(), null, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 					add_filter(
 						'script_loader_tag',
 						function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
