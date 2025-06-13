@@ -40,7 +40,7 @@ class Paypal_NCPS {
 	 *
 	 * @param array  $attributes The block attributes.
 	 * @param string $content The block content.
-	 * @return string The block content.
+	 * @return string|void
 	 */
 	public static function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$button_type = $attributes['buttonType'] ?? '';
@@ -114,7 +114,8 @@ class Paypal_NCPS {
 			'script' => array(),
 		);
 
-		return wp_kses( $code_body, $allow_html );
+		$code_body = wp_kses( $code_body, $allow_html );
+		return $code_body;
 	}
 
 	/**
