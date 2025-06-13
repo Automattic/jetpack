@@ -1,11 +1,11 @@
 /**
  * The following styles get applied inside the editor only.
  */
-@import "~@wordpress/base-styles/variables";
-@import "~@wordpress/base-styles/breakpoints";
-@import "~@wordpress/base-styles/mixins";
+@use '@wordpress/base-styles/variables';
+@use '@wordpress/base-styles/breakpoints';
+@use '@wordpress/base-styles/mixins';
 
-.wp-block-pncps-paypal-ncps-block {
+.wp-block-jetpack-paypal-ncps {
 
 	.block-editor-plain-text {
 
