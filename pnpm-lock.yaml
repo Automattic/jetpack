@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-sMYXM0N71oUcgK3cWfJVVRNpSWyrQpt26BH3D1PnoEY=
+pnpmfileChecksum: sha256-GRjj4mwKQ1fELOsbm2v+wVFWc3SWSI6xPUhonuhVjyE=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -4376,6 +4376,9 @@ importers:
       font-awesome:
         specifier: 4.7.0
         version: 4.7.0
+      fullcalendar:
+        specifier: 3.10.5
+        version: 3.10.5(moment@2.30.1)
       glob:
         specifier: 11.0.2
         version: 11.0.2
@@ -11439,6 +11442,11 @@ packages:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+
+  fullcalendar@3.10.5:
+    resolution: {integrity: sha512-JGWpECKgza/344bbF5QT0hBJpx04DZ/7QGPlR1ZbAwrG6Yz6mWEkQd+NnZUh1sK6HCBIPnPRW2x53aJxeLGvvQ==}
+    peerDependencies:
+      moment: ^2.20.1
 
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
@@ -25212,6 +25220,10 @@ snapshots:
 
   fsevents@2.3.3:
     optional: true
+
+  fullcalendar@3.10.5(moment@2.30.1):
+    dependencies:
+      moment: 2.30.1
 
   function-bind@1.1.2: {}
 
