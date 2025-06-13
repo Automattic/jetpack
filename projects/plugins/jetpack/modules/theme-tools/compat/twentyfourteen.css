@@ -178,9 +178,6 @@ img[id*="botd"] {
 .widget_jetpack_display_posts_widget .jetpack-display-remote-posts p {
 	font-size: 14px;
 	line-height: 1.2857142857 !important;
-}
-
-.widget_jetpack_display_posts_widget .jetpack-display-remote-posts p {
 	margin: 9px 0 18px !important;
 }
 
@@ -316,12 +313,10 @@ img[id*="botd"] {
 @media screen and (min-width: 1008px) {
 
 	.footer-sidebar .widget_jp_blogs_i_follow li,
-	.footer-sidebar .widget_jp_blogs_i_follow li,
 	.footer-sidebar .widget_top-clicks li,
 	.footer-sidebar .widget_top-posts li,
 	.footer-sidebar .top_rated li,
 	.footer-sidebar .widget_upcoming_events_widget .upcoming-events li,
-	.primary-sidebar .widget_jp_blogs_i_follow li,
 	.primary-sidebar .widget_jp_blogs_i_follow li,
 	.primary-sidebar .widget_top-clicks li,
 	.primary-sidebar .widget_top-posts li,
@@ -331,12 +326,10 @@ img[id*="botd"] {
 	}
 
 	.footer-sidebar .widget_jp_blogs_i_follow li:last-child,
-	.footer-sidebar .widget_jp_blogs_i_follow li:last-child,
 	.footer-sidebar .widget_top-clicks li:last-child,
 	.footer-sidebar .widget_top-posts li:last-child,
 	.footer-sidebar .top_rated li:last-child,
 	.footer-sidebar .widget_upcoming_events_widget .upcoming-events li:last-child,
-	.primary-sidebar .widget_jp_blogs_i_follow li:last-child,
 	.primary-sidebar .widget_jp_blogs_i_follow li:last-child,
 	.primary-sidebar .widget_top-clicks li:last-child,
 	.primary-sidebar .widget_top-posts li:last-child,

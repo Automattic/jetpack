@@ -11,6 +11,7 @@
 		"ext-fileinfo": "*",
 		"ext-json": "*",
 		"ext-openssl": "*",
+		"automattic/block-delimiter": "@dev",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-account-protection": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
@@ -60,7 +61,7 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/patchwork-redefine-exit": "@dev",
 		"automattic/phpunit-select-config": "@dev",
-		"yoast/phpunit-polyfills": "^3.0.0"
+		"yoast/phpunit-polyfills": "^4.0.0"
 	},
 	"scripts": {
 		"build-production": [
@@ -109,7 +110,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ14_6_a_5",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ14_8_a_3",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

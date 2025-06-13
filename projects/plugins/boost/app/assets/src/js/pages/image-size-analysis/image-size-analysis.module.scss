@@ -38,8 +38,8 @@
 	 * Narrow screen overrides.
 	 */
 	@media ( max-width: 782px ) {
-		--expanded-gap: 0px;
-		--border-radius: 0px;
+		--expanded-gap: 0;
+		--border-radius: 0;
 		--table-column-expand: 32px;
 	}
 }

@@ -114,8 +114,7 @@ abstract class Sharing_Source_Block {
 		 * @param int $post_id Post ID.
 		 * @param int $this->id Sharing ID.
 		 */
-		$title = apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id );
-
+		$title = $post instanceof WP_Post ? apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id ) : '';
 		return html_entity_decode( wp_kses( $title, '' ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 	}
 
@@ -542,7 +541,8 @@ class Share_Facebook_Block extends Sharing_Source_Block {
 	 * @return void
 	 */
 	public function process_request( $post, array $post_data ) {
-		$fb_url = $this->http() . '://www.facebook.com/sharer.php?u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $this->get_share_title( $post->ID ) );
+		$post_id = $post instanceof WP_Post ? $post->ID : 0;
+		$fb_url  = $this->http() . '://www.facebook.com/sharer.php?u=' . rawurlencode( $this->get_share_url( $post_id ) ) . '&t=' . rawurlencode( $this->get_share_title( $post_id ) );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -1415,27 +1415,6 @@ class Share_LinkedIn_Block extends Sharing_Source_Block {
 		parent::process_request( $post, $post_data );
 
 		parent::redirect_request( $linkedin_url );
-	}
-}
-
-/**
- * Skype sharing service.
- */
-class Share_Skype_Block extends Sharing_Source_Block {
-	/**
-	 * Service short name.
-	 *
-	 * @var string
-	 */
-	public $shortname = 'skype';
-
-	/**
-	 * Service name.
-	 *
-	 * @return string
-	 */
-	public function get_name() {
-		return __( 'Skype', 'jetpack' );
 	}
 }
 

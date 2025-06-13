@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\CRM\Tests;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -12,6 +14,7 @@ require_once __DIR__ . '/../class-rest-base-testcase.php';
  *
  * @covers \Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller
  */
+#[CoversClass( \Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller::class )]
 class REST_Authentication_Test extends REST_Base_TestCase {
 
 	/**
@@ -81,6 +84,7 @@ class REST_Authentication_Test extends REST_Base_TestCase {
 	 * @param string $url URL to send a request to.
 	 * @param array  $params Request parameters.
 	 */
+	#[DataProvider( 'auth_all_urls_provider' )]
 	public function test_unauthenticated_endpoints_return_a_401( $method, $url, $params ) {
 		$request = new WP_REST_Request( $method, $url );
 		foreach ( $params as $param => $value ) {
@@ -101,6 +105,7 @@ class REST_Authentication_Test extends REST_Base_TestCase {
 	 * @param string $url URL to send a request to.
 	 * @param array  $params Request parameters.
 	 */
+	#[DataProvider( 'auth_all_urls_provider' )]
 	public function test_auth_user_endpoints_return_403_with_insufficient_capabilities( $method, $url, $params ) {
 		$wp_user_id = $this->create_wp_user( array( 'role' => 'subscriber' ) );
 		wp_set_current_user( $wp_user_id );

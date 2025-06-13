@@ -79,8 +79,8 @@ class DocBlocks {
 			$name    = $tokens[ $idx ]['content'];
 			$end     = $tokens[ $stackPtr ]['comment_tags'][ $i + 1 ] ?? $tokens[ $stackPtr ]['comment_closer'];
 			$content = '';
-			for ( $j = $idx; $j < $end; $j++ ) {
-				if ( $tokens[ $j ]['code'] === T_DOC_COMMENT_STRING || $tokens[ $j ]['code'] === T_DOC_COMMENT_WHITESPACE ) {
+			for ( $j = $idx + 1; $j < $end; $j++ ) {
+				if ( $tokens[ $j ]['code'] !== T_DOC_COMMENT_STAR ) {
 					$content .= trim( $tokens[ $j ]['content'], " \t" );
 				}
 			}

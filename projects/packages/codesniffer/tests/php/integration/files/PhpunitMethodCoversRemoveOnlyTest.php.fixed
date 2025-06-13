@@ -2,6 +2,11 @@
 // phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
 // phpcs:disable Squiz.Commenting.FunctionComment.Missing
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\UsesMethod;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,10 +18,15 @@ use PHPUnit\Framework\TestCase;
  * @uses Rab::rabrab
  */
 #[Attribute]
+#[CoversClass( Foo::class )]
+#[CoversMethod( Bar::class, 'barbar' )]
+#[UsesClass( Oof::class )]
+#[UsesMethod( Rab::class, 'rabrab' )]
 class PhpunitMethodCoversRemoveOnlyTest extends TestCase {
 	/**
 	 * @dataProvider provideFoo
 	 */
+	#[DataProvider( 'provideFoo' )]
 	public function testFoo() {
 	}
 
@@ -27,6 +37,7 @@ class PhpunitMethodCoversRemoveOnlyTest extends TestCase {
 	}
 
 	/** @dataProvider provideSomething2 */
+	#[DataProvider( 'provideSomething2' )]
 	public function testSomething2() {
 	}
 

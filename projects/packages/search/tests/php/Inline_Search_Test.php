@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -103,13 +104,14 @@ class Inline_Search_Test extends TestCase {
 					'post_type'      => 'any',
 				),
 				'expected_api_args' => array(
-					'size'   => 5,
-					'from'   => 0,
-					'fields' => array( 'post_id' ),
-					'query'  => 'hello_world',
-					'sort'   => 'score_recency',
-					'langs'  => array( 'en_US' ),
-					'filter' => array(
+					'size'             => '5',
+					'from'             => '0',
+					'fields'           => array( 'post_id' ),
+					'highlight_fields' => array( 'title', 'content', 'comments' ),
+					'query'            => 'hello_world',
+					'sort'             => 'score_recency',
+					'langs'            => array( 'en_US' ),
+					'filter'           => array(
 						'bool' => array(
 							'must' => array(
 								array(
@@ -120,6 +122,7 @@ class Inline_Search_Test extends TestCase {
 							),
 						),
 					),
+					'highlight'        => array( 'fields' => array( 'title', 'content', 'comments' ) ),
 				),
 			),
 			'only_posts'       => array(
@@ -129,13 +132,14 @@ class Inline_Search_Test extends TestCase {
 					'post_type'      => 'post',
 				),
 				'expected_api_args' => array(
-					'size'   => 5,
-					'from'   => 0,
-					'fields' => array( 'post_id' ),
-					'query'  => 'only search posts',
-					'sort'   => 'score_recency',
-					'langs'  => array( 'en_US' ),
-					'filter' => array(
+					'size'             => '5',
+					'from'             => '0',
+					'fields'           => array( 'post_id' ),
+					'highlight_fields' => array( 'title', 'content', 'comments' ),
+					'query'            => 'only search posts',
+					'sort'             => 'score_recency',
+					'langs'            => array( 'en_US' ),
+					'filter'           => array(
 						'bool' => array(
 							'must' => array(
 								array(
@@ -146,6 +150,7 @@ class Inline_Search_Test extends TestCase {
 							),
 						),
 					),
+					'highlight'        => array( 'fields' => array( 'title', 'content', 'comments' ) ),
 				),
 			),
 			'sort_by_date_asc' => array(
@@ -157,13 +162,14 @@ class Inline_Search_Test extends TestCase {
 					'orderby'        => 'date',
 				),
 				'expected_api_args' => array(
-					'size'   => 5,
-					'from'   => 0,
-					'fields' => array( 'post_id' ),
-					'query'  => 'search by date descending',
-					'sort'   => 'date_asc',
-					'langs'  => array( 'en_US' ),
-					'filter' => array(
+					'size'             => '5',
+					'from'             => '0',
+					'fields'           => array( 'post_id' ),
+					'highlight_fields' => array( 'title', 'content', 'comments' ),
+					'query'            => 'search by date descending',
+					'sort'             => 'date_asc',
+					'langs'            => array( 'en_US' ),
+					'filter'           => array(
 						'bool' => array(
 							'must' => array(
 								array(
@@ -174,6 +180,7 @@ class Inline_Search_Test extends TestCase {
 							),
 						),
 					),
+					'highlight'        => array( 'fields' => array( 'title', 'content', 'comments' ) ),
 				),
 			),
 		);
@@ -187,6 +194,7 @@ class Inline_Search_Test extends TestCase {
 	 * @param array $wp_query_args     Input, WP_Query arguments.
 	 * @param array $expected_api_args Output, expected API arguments.
 	 */
+	#[DataProvider( 'data_provider' )]
 	public function test_search( array $wp_query_args, array $expected_api_args ) {
 		$search = Inline_Search::instance( 0 );
 		$search->do_search( new \WP_Query( $wp_query_args ) );

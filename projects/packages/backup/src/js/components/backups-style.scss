@@ -1,7 +1,7 @@
-@import '@automattic/jetpack-base-styles/style';
-@import 'masthead/calypso-mixins';
+@use '@automattic/jetpack-base-styles/style' as jpbs;
+@use 'masthead/calypso-mixins';
 
-@include for-tablet-up {
+@include jpbs.for-tablet-up {
 
 	.lg-col-span-0 {
 		display: none;
@@ -11,7 +11,7 @@
 .backup__card {
 	padding: 24px;
 	background: var( --jp-white );
-	box-shadow: 0px 0px 40px rgba( 0, 0, 0, 0.08 );
+	box-shadow: 0 0 40px rgba( 0, 0, 0, 0.08 );
 	border-radius: var( --jp-border-radius );
 }
 
@@ -149,7 +149,7 @@
 .backup__animation {
 	position: relative;
 
-	@include responsive( full-width ) {
+	@include calypso-mixins.responsive( full-width ) {
 		display: none;
 	}
 }
@@ -288,7 +288,7 @@
 			text-decoration: none;
 		}
 
-		@include for-tablet-down {
+		@include jpbs.for-tablet-down {
 			width: 100%;
 			
 		}
@@ -309,7 +309,7 @@
 	.backup-segments__storage-section {
 		grid-row: span 2;
 
-		@include for-tablet-down {
+		@include jpbs.for-tablet-down {
 			grid-row: 1;
 		}
 	}

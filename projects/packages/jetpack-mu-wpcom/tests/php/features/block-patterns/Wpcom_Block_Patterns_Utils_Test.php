@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/block-patterns/class-wpcom-block-patterns-utils.php';
@@ -26,6 +27,7 @@ class Wpcom_Block_Patterns_Utils_Test extends TestCase {
 	 *
 	 * @before
 	 */
+	#[Before]
 	public function custom_setup() {
 		parent::setUp();
 		$this->utils = new Wpcom_Block_Patterns_Utils();

@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Tests;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\After;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 if ( ! defined( 'JETPACK_BOOST_DIR_PATH' ) ) {
@@ -56,6 +57,7 @@ abstract class Base_TestCase extends TestCase {
 	/**
 	 * @after
 	 */
+	#[After]
 	protected function tear_down() {
 		Monkey\tearDown();
 	}

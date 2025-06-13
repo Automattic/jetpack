@@ -8,6 +8,8 @@
 // We live in the namespace of the test autoloader to avoid many use statements.
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -16,6 +18,8 @@ use PHPUnit\Framework\TestCase;
  * @runClassInSeparateProcess
  * @preserveGlobalState disabled
  */
+#[RunClassInSeparateProcess]
+#[PreserveGlobalState( false )]
 class PluginLocatorTest extends TestCase {
 
 	/**

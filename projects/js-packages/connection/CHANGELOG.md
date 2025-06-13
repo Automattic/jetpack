@@ -2,10 +2,64 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [1.2.1] - 2025-06-10
+### Changed
+- Update dependencies.
+
+## [1.2.0] - 2025-06-05
+### Changed
+- Connection: Display connection info on WoA sites. [#43777]
+
+## [1.1.0] - 2025-06-04
+### Added
+- Improve error handling for protected owner on WordPress.com. [#43593]
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## [0.39.18] - 2025-06-02
+### Changed
+- sass: `@use` rather than `@import` for `@wordpress/base-styles`. [#43607]
+- Update package dependencies. [#43711]
+
+## [0.39.17] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
+## [0.39.16] - 2025-05-22
+### Changed
+- Update dependencies.
+
+## [0.39.15] - 2025-05-19
+### Changed
+- Update dependencies.
+
+## [0.39.14] - 2025-05-12
+### Changed
+- Update dependencies.
+
+## [0.39.13] - 2025-05-05
+### Changed
+- Update package dependencies. [#43326]
+
+### Fixed
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+
+## [0.39.12] - 2025-04-28
+### Changed
+- Mark external links with extra markup. [#43152]
+
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
+- My Jetpack: Fix TS type checking and the corresponding errors [#43205]
+
 ## [0.39.11] - 2025-04-14
 ### Fixed
 - Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
-- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Clean up various Stylelint violations. [#43010]
 - Linting: Use double colon notation for pseudo-element selectors. [#43019]
 
 ## [0.39.10] - 2025-04-07
@@ -1002,6 +1056,17 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[1.2.1]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.18...v1.0.0
+[0.39.18]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.17...v0.39.18
+[0.39.17]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.16...v0.39.17
+[0.39.16]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.15...v0.39.16
+[0.39.15]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.14...v0.39.15
+[0.39.14]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.13...v0.39.14
+[0.39.13]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.12...v0.39.13
+[0.39.12]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.11...v0.39.12
 [0.39.11]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.10...v0.39.11
 [0.39.10]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.9...v0.39.10
 [0.39.9]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.8...v0.39.9

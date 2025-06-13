@@ -15,7 +15,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-test-environment": "@dev",
-		"yoast/phpunit-polyfills": "^3.0.0",
+		"yoast/phpunit-polyfills": "^4.0.0",
 		"brain/monkey": "^2.6.2",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-licensing": "@dev",
@@ -75,7 +75,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "6.11.x-dev"
+			"dev-trunk": "6.13.x-dev"
 		},
 		"dependencies": {
 			"test-only": [

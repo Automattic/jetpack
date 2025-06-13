@@ -15,7 +15,7 @@
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^3.0.0",
+		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
@@ -72,7 +72,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.64.x-dev"
+			"dev-trunk": "0.65.x-dev"
 		}
 	},
 	"config": {

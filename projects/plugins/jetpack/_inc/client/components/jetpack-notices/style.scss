@@ -1,11 +1,14 @@
-@import '../../scss/calypso-colors';
+@use '../../scss/functions/rem';
+@use '../../scss/calypso-colors';
+@use "../../scss/mixins/breakpoints";
+@use "../../scss/variables/colors";
 
 .dops-notice {
 
 	ul {
 
-		@include breakpoint( "<480px" ) {
-			font-size: rem( 12px );
+		@include breakpoints.breakpoint( "<480px" ) {
+			font-size: rem.convert( 12px );
 		}
 	}
 }
@@ -18,7 +21,7 @@
 }
 
 .jp-unlinked-notice {
-	background: $white;
+	background: colors.$white;
 
 	.jp-connection-banner__icon {
 		align-self: center;

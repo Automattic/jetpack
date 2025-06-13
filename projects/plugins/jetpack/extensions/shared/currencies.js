@@ -1,8 +1,26 @@
-import { CURRENCIES, getCurrencyDefaults } from '@automattic/format-currency';
+import { CURRENCIES } from '@automattic/format-currency';
 
 // Removes all dots (`.`) from the end of a string.
 function removeTrailingDots( string ) {
 	return String( string || '' ).replace( /\.+$/, '' );
+}
+
+/**
+ * Get the currency settings for a certain currency.
+ * This is an internalized version of the function previously provided by format-currency.
+ *
+ * @param {string} code - The currency code.
+ * @return {object} - Object containing currency settings.
+ */
+export function getCurrencyDefaults( code ) {
+	return (
+		CURRENCIES[ code ] || {
+			symbol: '$',
+			decimal: '.',
+			grouping: ',',
+			precision: 2,
+		}
+	);
 }
 
 /**

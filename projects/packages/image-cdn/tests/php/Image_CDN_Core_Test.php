@@ -1,11 +1,15 @@
 <?php
 
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use WorDBless\BaseTestCase;
 
 /**
  * @covers \Automattic\Jetpack\Image_CDN\Image_CDN_Core
  */
+#[CoversClass( Image_CDN_Core::class )]
 class Image_CDN_Core_Test extends BaseTestCase {
 
 	private $custom_photon_domain;
@@ -74,6 +78,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
+	#[Group( 'jetpack_photon_no_filter' )]
 	public function test_photon_url_no_filter_http() {
 		$url        = Image_CDN_Core::cdn_url( 'http://example.com/img.jpg' );
 		$parsed_url = wp_parse_url( $url );
@@ -88,6 +93,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
+	#[Group( 'jetpack_photon_no_filter' )]
 	public function test_photon_url_no_filter_http_to_http() {
 		$url        = Image_CDN_Core::cdn_url( 'http://example.com/img.jpg', array(), 'http' );
 		$parsed_url = wp_parse_url( $url );
@@ -102,6 +108,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
+	#[Group( 'jetpack_photon_no_filter' )]
 	public function test_photon_url_no_filter_photonized_https() {
 		$url = Image_CDN_Core::cdn_url( 'https://i0.wp.com/example.com/img.jpg' );
 
@@ -113,6 +120,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
+	#[Group( 'jetpack_photon_no_filter' )]
 	public function test_photon_url_no_filter_photonized_http() {
 		$url = Image_CDN_Core::cdn_url( 'http://i0.wp.com/example.com/img.jpg' );
 
@@ -124,6 +132,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
+	#[Group( 'jetpack_photon_no_filter' )]
 	public function test_photon_url_no_filter_photonized_https_to_http() {
 		$url = Image_CDN_Core::cdn_url( 'https://i0.wp.com/example.com/img.jpg', array(), 'http' );
 
@@ -135,6 +144,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
+	#[Group( 'jetpack_photon_filter_http' )]
 	public function test_photon_url_filter_http_http() {
 		$this->apply_custom_domain( 'http://photon.test' );
 		$url = Image_CDN_Core::cdn_url( 'http://example.com/img.jpg' );
@@ -147,6 +157,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
+	#[Group( 'jetpack_photon_filter_http' )]
 	public function test_photon_url_filter_http_http_to_http() {
 		$this->apply_custom_domain( 'http://photon.test' );
 		$url = Image_CDN_Core::cdn_url( 'http://example.com/img.jpg', array(), 'http' );
@@ -159,6 +170,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
+	#[Group( 'jetpack_photon_filter_http' )]
 	public function test_photon_url_filter_http_photonized_http() {
 		$this->apply_custom_domain( 'http://photon.test' );
 		$url = Image_CDN_Core::cdn_url( 'http://photon.test/example.com/img.jpg' );
@@ -171,6 +183,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
+	#[Group( 'jetpack_photon_filter_http' )]
 	public function test_photon_url_filter_http_photonized_https() {
 		$this->apply_custom_domain( 'http://photon.test' );
 		$url = Image_CDN_Core::cdn_url( 'https://photon.test/example.com/img.jpg' );
@@ -183,6 +196,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
+	#[Group( 'jetpack_photon_filter_http' )]
 	public function test_photon_url_filter_http_photonized_http_to_https() {
 		$this->apply_custom_domain( 'http://photon.test' );
 		$url = Image_CDN_Core::cdn_url( 'http://photon.test/example.com/img.jpg', array(), 'https' );
@@ -195,6 +209,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
+	#[Group( 'jetpack_photon_filter_network_path' )]
 	public function test_photon_url_filter_network_path_http() {
 		$this->apply_custom_domain( '//photon.test' );
 		$url = Image_CDN_Core::cdn_url( 'http://example.com/img.jpg' );
@@ -207,6 +222,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
+	#[Group( 'jetpack_photon_filter_network_path' )]
 	public function test_photon_url_filter_network_path_http_to_http() {
 		$this->apply_custom_domain( '//photon.test' );
 		$url = Image_CDN_Core::cdn_url( 'http://example.com/img.jpg', array(), 'http' );
@@ -219,6 +235,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
+	#[Group( 'jetpack_photon_filter_network_path' )]
 	public function test_photon_url_filter_network_path_photonized_http() {
 		$this->apply_custom_domain( '//photon.test' );
 		$url = Image_CDN_Core::cdn_url( 'http://photon.test/example.com/img.jpg' );
@@ -231,6 +248,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
+	#[Group( 'jetpack_photon_filter_network_path' )]
 	public function test_photon_url_filter_network_path_photonized_https() {
 		$this->apply_custom_domain( '//photon.test' );
 		$url = Image_CDN_Core::cdn_url( 'https://photon.test/example.com/img.jpg' );
@@ -243,6 +261,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
+	#[Group( 'jetpack_photon_filter_network_path' )]
 	public function test_photon_url_filter_network_path_photonized_to_https() {
 		$this->apply_custom_domain( '//photon.test' );
 		$url = Image_CDN_Core::cdn_url( '//photon.test/example.com/img.jpg', array(), 'https' );
@@ -254,6 +273,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  0.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
+	#[Group( 'jetpack_photon_filter_network_path' )]
 	public function test_is_cdn_url_method() {
 		$this->apply_custom_domain( '//photon.test' );
 		$this->assertTrue( Image_CDN_Core::is_cdn_url( '//photon.test/example.com/img.jpg' ) );
@@ -271,6 +291,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  0.5.1
 	 * @group  jetpack_photon_filter_url_encoding
 	 */
+	#[Group( 'jetpack_photon_filter_url_encoding' )]
 	public function test_photon_url_filter_url_encodes_path_parts() {
 		// The first two spaces are not standard spaces - https://www.compart.com/en/unicode/U+202F
 		$url = Image_CDN_Core::cdn_url( '//example.com/narrow no-break space/name with spaces.jpg', array(), 'https' );
@@ -282,6 +303,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  0.7.3
 	 * @group  jetpack_photon_filter_url_encoding
 	 */
+	#[Group( 'jetpack_photon_filter_url_encoding' )]
 	public function test_photon_url_filter_encoded_url_should_not_be_encoded_again() {
 		$url = Image_CDN_Core::cdn_url( '//example.com/image%20with%20spaces.jpg', array(), 'https' );
 		$this->assertEquals( 'https://i0.wp.com/example.com/image%20with%20spaces.jpg', $url );
@@ -292,6 +314,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
+	#[Group( 'Image_CDN_Core::cdn_url_scheme' )]
 	public function test_photon_url_scheme_valid_url_null_scheme() {
 		$url = Image_CDN_Core::cdn_url_scheme( 'https://i0.wp.com/example.com/img.jpg', null );
 
@@ -303,6 +326,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
+	#[Group( 'Image_CDN_Core::cdn_url_scheme' )]
 	public function test_photon_url_scheme_valid_url_invalid_scheme() {
 		$url = Image_CDN_Core::cdn_url_scheme( 'https://i0.wp.com/example.com/img.jpg', 'ftp' );
 
@@ -314,6 +338,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
+	#[Group( 'Image_CDN_Core::cdn_url_scheme' )]
 	public function test_photon_url_scheme_valid_url_valid_scheme() {
 		$url = Image_CDN_Core::cdn_url_scheme( 'https://i0.wp.com/example.com/img.jpg', 'http' );
 
@@ -325,6 +350,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
+	#[Group( 'Image_CDN_Core::cdn_url_scheme' )]
 	public function test_photon_url_scheme_valid_url_network_path_scheme() {
 		$url = Image_CDN_Core::cdn_url_scheme( 'https://i0.wp.com/example.com/img.jpg', 'network_path' );
 
@@ -336,6 +362,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
+	#[Group( 'Image_CDN_Core::cdn_url_scheme' )]
 	public function test_photon_url_scheme_invalid_url_null_scheme() {
 		$url = Image_CDN_Core::cdn_url_scheme( 'ftp://i0.wp.com/example.com/img.jpg', null );
 
@@ -347,6 +374,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
+	#[Group( 'Image_CDN_Core::cdn_url_scheme' )]
 	public function test_photon_url_scheme_invalid_url_invalid_scheme() {
 		$url = Image_CDN_Core::cdn_url_scheme( 'ftp://i0.wp.com/example.com/img.jpg', 'ftp' );
 
@@ -358,6 +386,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @since  4.5.0
 	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
+	#[Group( 'Image_CDN_Core::cdn_url_scheme' )]
 	public function test_photon_url_scheme_invalid_url_valid_scheme() {
 		$url = Image_CDN_Core::cdn_url_scheme( 'ftp://i0.wp.com/example.com/img.jpg', 'https' );
 
@@ -375,6 +404,8 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 * @param bool   $skip If the image should be skipped by Photon.
 	 * @param string $image_url URL of the image.
 	 */
+	#[Group( 'Image_CDN_Core::banned_domains' )]
+	#[DataProvider( 'get_photon_domains' )]
 	public function test_photon_banned_domains( $skip, $image_url ) {
 		$this->assertEquals( $skip, Image_CDN_Core::banned_domains( false, $image_url ) );
 	}
@@ -414,6 +445,7 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	 *
 	 * @dataProvider get_different_extensions
 	 */
+	#[DataProvider( 'get_different_extensions' )]
 	public function test_photonizing_check_extensions( $image_url, $expected ) {
 		$this->assertEquals( $expected, Image_CDN_Core::cdn_url( $image_url, array( 'w' => 500 ) ) );
 	}

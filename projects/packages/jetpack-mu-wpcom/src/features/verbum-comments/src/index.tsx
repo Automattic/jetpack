@@ -18,7 +18,7 @@ import {
 	addWordPressDomain,
 	hasSubscriptionOptionsVisible,
 } from './utils';
-import type { VerbumAppProps, VerbumComments } from './types';
+import type { VerbumAppProps } from './types';
 
 import './style.scss';
 
@@ -44,6 +44,7 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 	const [ email, setEmail ] = useState( '' );
 	const [ ignoreSubscriptionModal, setIgnoreSubscriptionModal ] = useState( false );
 	const { login, loginWindowRef, logout } = useSocialLogin();
+
 	useFormMutations( parentForm );
 
 	const dispose = effect( () => {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Code: Load third-party dependencies from build folder.

@@ -1,3 +1,4 @@
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './activate-license.module.scss';
@@ -18,8 +19,7 @@ const ActivateLicense = () => {
 					'jetpack-boost'
 				),
 				{
-					// eslint-disable-next-line jsx-a11y/anchor-has-content
-					link: <a className={ styles.link } href={ activateLicenseUrl } />,
+					link: <ExternalLink className={ styles.link } href={ activateLicenseUrl } />,
 				}
 			) }
 		</p>

@@ -1,7 +1,7 @@
-import formatCurrency from '@automattic/format-currency';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { formatCurrency } from '@automattic/number-formatters';
 import { sprintf, __ } from '@wordpress/i18n';
 import {
 	PLAN_JETPACK_SECURITY_T1_YEARLY,

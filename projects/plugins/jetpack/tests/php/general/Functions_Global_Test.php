@@ -1,11 +1,16 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Tests for functions in functions.global.php
  *
  * @covers ::jetpack_get_future_removed_version
  * @covers ::jetpack_get_vary_headers
  */
+#[CoversFunction( 'jetpack_get_future_removed_version' )]
+#[CoversFunction( 'jetpack_get_vary_headers' )]
 class Functions_Global_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -18,6 +23,7 @@ class Functions_Global_Test extends WP_UnitTestCase {
 	 * @param string $version  Version number passed to the function.
 	 * @param string $expected Expected removed version number.
 	 */
+	#[DataProvider( 'jetpack_deprecated_function_versions' )]
 	public function test_jetpack_get_future_removed_version( $version, $expected ) {
 		$removed_version = jetpack_get_future_removed_version( $version );
 
@@ -58,79 +64,6 @@ class Functions_Global_Test extends WP_UnitTestCase {
 			'full_version_number_above_10'               => array(
 				'10.5',
 				'11.1',
-			),
-		);
-	}
-
-	/**
-	 * Test jetpack_get_vary_headers.
-	 *
-	 * @dataProvider get_test_headers
-	 * @param array $headers  Array of headers.
-	 * @param array $expected Expected array of headers, to be used as Vary header.
-	 */
-	public function test_jetpack_get_vary_headers( $headers, $expected ) {
-		$vary_header_parts = jetpack_get_vary_headers( $headers );
-
-		$this->assertEquals( $expected, $vary_header_parts );
-	}
-
-	/**
-	 * Data provider for the test_jetpack_get_vary_headers() test.
-	 *
-	 * @return array
-	 */
-	public static function get_test_headers() {
-		return array(
-			'no headers'                             => array(
-				array(),
-				array( 'accept', 'content-type' ),
-			),
-			'Single Vary Encoding header'            => array(
-				array(
-					'Vary: Accept-Encoding',
-				),
-				array( 'accept', 'content-type', 'accept-encoding' ),
-			),
-			'Double Vary: Accept-Encoding & Accept'  => array(
-				array(
-					'Vary: Accept, Accept-Encoding',
-				),
-				array( 'accept', 'content-type', 'accept-encoding' ),
-			),
-			'vary header'                            => array(
-				array(
-					'Cache-Control: no-cache, must-revalidate, max-age=0',
-					'Content-Type: text/html; charset=UTF-8',
-					'Vary: Accept',
-				),
-				array( 'accept', 'content-type' ),
-			),
-			'Wildcard Vary header'                   => array(
-				array(
-					'Cache-Control: no-cache, must-revalidate, max-age=0',
-					'Content-Type: text/html; charset=UTF-8',
-					'Vary: *',
-				),
-				array( '*' ),
-			),
-			'Multiple Vary headers'                  => array(
-				array(
-					'Cache-Control: no-cache, must-revalidate, max-age=0',
-					'Content-Type: text/html; charset=UTF-8',
-					'Vary: Accept',
-					'Vary: Accept-Encoding',
-				),
-				array( 'accept', 'content-type', 'accept-encoding' ),
-			),
-			'Multiple Vary headers, with a wildcard' => array(
-				array(
-					'Cache-Control: no-cache, must-revalidate, max-age=0',
-					'Content-Type: text/html; charset=UTF-8',
-					'Vary: *',
-					'Vary: Accept-Encoding',
-				),
-				array( '*' ),
 			),
 		);
 	}

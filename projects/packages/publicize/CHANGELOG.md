@@ -5,13 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.64.0] - 2025-04-17
+## [0.65.3] - 2025-06-05
 ### Changed
-- Publicize: Improve package initialization [#42737]
-- Re-enabled unit tests for share status [#43099]
+- Update package dependencies. [#43734]
+
+## [0.65.2] - 2025-06-02
+### Changed
+- Update package dependencies. [#43710]
 
 ### Fixed
-- Do not load the module on private WPCOM sites [#43078]
+- Social: Ensure images load in connections management when concatenating JS. [#43655]
+
+## [0.65.1] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
+## [0.65.0] - 2025-05-22
+### Added
+- Added option to set default image for Social Image Generator. [#43461]
+
+### Changed
+- Update package dependencies. [#43516]
+
+## [0.64.5] - 2025-05-19
+### Changed
+- Update package dependencies. [#43398]
+
+## [0.64.4] - 2025-05-12
+### Changed
+- Update package dependencies. [#43400]
+
+## [0.64.3] - 2025-05-05
+### Changed
+- Update package dependencies. [#43326]
+
+## [0.64.2] - 2025-04-28
+### Fixed
+- Newsletters: Show newsletter widget on P2s. [#43085]
+
+## [0.64.1] - 2025-04-21
+### Changed
+- Remove a stale comment in connections post field. [#43061]
+- Social: Re-enable resharing in classic editor on Simple sites. [#43005]
+
+## [0.64.0] - 2025-04-17
+### Changed
+- Publicize: Improve package initialization. [#42737]
+- Re-enable unit tests for share status. [#43099]
+
+### Fixed
+- Do not load the module on private WordPress.com sites. [#43078]
 
 ## [0.63.0] - 2025-04-14
 ### Added
@@ -977,6 +1020,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.65.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.2...v0.65.3
+[0.65.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.1...v0.65.2
+[0.65.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.0...v0.65.1
+[0.65.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.5...v0.65.0
+[0.64.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.4...v0.64.5
+[0.64.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.3...v0.64.4
+[0.64.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.2...v0.64.3
+[0.64.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.1...v0.64.2
+[0.64.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.0...v0.64.1
 [0.64.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.63.0...v0.64.0
 [0.63.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.5...v0.63.0
 [0.62.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.62.4...v0.62.5

@@ -2,18 +2,18 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import AkismetIcon from '../../../../icons/akismet-icon';
+import AkismetIcon from '../../../../icons/akismet';
 import IntegrationCard from './integration-card';
 
 const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
-	const formSubmissionsUrl = window?.jpFormsBlocks?.defaults?.formsAdminUrl || '';
+	const formSubmissionsUrl = data?.details?.formSubmissionsSpamUrl || '';
 
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 
 	const cardData = {
 		...data,
 		showHeaderToggle: true,
-		headerToggleValue: data?.isConnected,
+		headerToggleValue: akismetActiveWithKey,
 		isHeaderToggleEnabled: false,
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
@@ -28,7 +28,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 			}
 		),
 		notActivatedMessage: __(
-			'Akismet is installed! Just activate the plugin to start blocking spam.',
+			'Akismet is installed. Just activate the plugin to start blocking spam.',
 			'jetpack-forms'
 		),
 	};
@@ -37,7 +37,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		<IntegrationCard
 			title={ __( 'Akismet Spam Protection', 'jetpack-forms' ) }
 			description={ __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ) }
-			icon={ <AkismetIcon /> }
+			icon={ <AkismetIcon width={ 28 } height={ 28 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 			cardData={ cardData }
@@ -45,10 +45,10 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 		>
 			{ ! akismetActiveWithKey ? (
 				<div>
-					<p>
+					<p className="integration-card__description">
 						{ createInterpolateElement(
 							__(
-								'Akismet is active! There is one step left. Please add your <a>Akismet key</a>.',
+								'Akismet is active. There is one step left. Please add your <a>Akismet key</a>.',
 								'jetpack-forms'
 							),
 							{
@@ -68,7 +68,9 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 				</div>
 			) : (
 				<div>
-					<p>{ __( 'Your forms are automatically protected with Akismet!', 'jetpack-forms' ) }</p>
+					<p className="integration-card__description">
+						{ __( 'Your forms are automatically protected with Akismet.', 'jetpack-forms' ) }
+					</p>
 					<div className="integration-card__links">
 						<Button
 							variant="link"
@@ -80,7 +82,7 @@ const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 						</Button>
 						<span>|</span>
 						<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
-							{ __( 'View stats', 'jetpack-forms' ) }
+							{ __( 'View stats and settings', 'jetpack-forms' ) }
 						</Button>
 						<span>|</span>
 						<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>

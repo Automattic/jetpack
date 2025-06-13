@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelogger\PluginTrait;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Wikimedia\TestingAccessWrapper;
@@ -17,6 +18,7 @@ use Wikimedia\TestingAccessWrapper;
  *
  * @covers \Automattic\Jetpack\Changelogger\PluginTrait
  */
+#[CoversTrait( PluginTrait::class )]
 class PluginTraitTest extends TestCase {
 
 	/**

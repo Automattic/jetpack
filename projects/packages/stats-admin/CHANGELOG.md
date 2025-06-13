@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.26.3 - 2025-06-02
+### Added
+- Add query parameters to the stats URL from post list to reconstruct the back URL from stats view. [#43567]
+
+### Fixed
+- Fix wrapping on the stats column heading in non-English languages. [#43630]
+
+## 0.26.2 - 2025-05-12
+### Fixed
+- Stats column: Avoid PHP error when a locale is not available. [#43396]
+
+## 0.26.1 - 2025-05-05
+### Changed
+- Update dependencies. [#39303]
+
+## 0.26.0 - 2025-04-28
+### Removed
+- SAL_Site: Remove unused `view_hosting` field. [#43237]
+
+### Fixed
+- Stats: Avoid PHP warning when we have no views data about a specific post. [#43146]
+
+## 0.25.2 - 2025-04-21
+### Changed
+- Internal updates.
+
 ## 0.25.1 - 2025-04-14
 ### Changed
 - Internal updates.

@@ -58,7 +58,7 @@ const sharedWebpackConfig = {
 							postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
 						},
 					},
-					'sass-loader',
+					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
 				],
 			} ),
 
@@ -132,6 +132,17 @@ module.exports = [
 			...sharedWebpackConfig.output,
 			filename: '[name].min.js', // @todo: Fix this.
 		},
+	},
+	// Build the newsletter widget separately to support translatable strings.
+	{
+		...sharedWebpackConfig,
+		entry: {
+			'newsletter-widget': './modules/subscriptions/newsletter-widget/src/index.tsx',
+		},
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.DependencyExtractionPlugin(),
+		],
 	},
 	// Build admin page JS.
 	{

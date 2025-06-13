@@ -6,6 +6,7 @@
  */
 
 use Brain\Monkey;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -189,6 +190,7 @@ class Meta_Tags_Test extends BaseTestCase {
 	 * @param string $description Post description.
 	 * @param string $cleaned_description Description cleaned up and ready to be used.
 	 */
+	#[DataProvider( 'get_description_data_provider' )]
 	public function test_get_description_default( $description, $cleaned_description ) {
 		// A test shortcode that should be removed from descriptions.
 		add_shortcode(
@@ -266,6 +268,7 @@ class Meta_Tags_Test extends BaseTestCase {
 	 * @param string $content Post content.
 	 * @param string $note_title The expected note title.
 	 */
+	#[DataProvider( 'get_note_title_data_provider' )]
 	public function test_get_social_note_title( $content, $note_title ) {
 		global $post;
 

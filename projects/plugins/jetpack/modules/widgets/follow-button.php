@@ -116,6 +116,7 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 	 * @see WP_Widget::form() for more information on parameters.
 	 *
 	 * @param array $instance Previously saved values from database.
+	 * @return string|void
 	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args(

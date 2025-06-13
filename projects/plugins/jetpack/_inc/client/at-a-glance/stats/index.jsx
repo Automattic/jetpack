@@ -1,4 +1,5 @@
-import { getRedirectUrl, JetpackLogo, numberFormat } from '@automattic/jetpack-components';
+import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import { ExternalLink, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -20,7 +21,6 @@ import {
 	isOdysseyStatsEnabled,
 	getInitialStateStatsData,
 	getDateFormat,
-	isAtomicSite,
 } from 'state/initial-state';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
@@ -120,7 +120,7 @@ export class DashStats extends Component {
 						value: sprintf(
 							/* translators: placeholder is a number */
 							__( 'Views: %s', 'jetpack' ),
-							numberFormat( views )
+							formatNumber( views )
 						),
 						className: 'tooltip class',
 					},
@@ -399,7 +399,6 @@ export default connect(
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
-		isAtomicSite: isAtomicSite( state ),
 	} ),
 	dispatch => ( {
 		switchView: tab => dispatch( statsSwitchTab( tab ) ),

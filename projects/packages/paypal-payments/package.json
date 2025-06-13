@@ -1,0 +1,25 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-paypal-payments",
+	"version": "0.1.0-alpha",
+	"description": "Add PayPal, credit, and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/paypal-payments/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] PayPal Payments"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/paypal-payments"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'",
+		"clean": "true"
+	},
+	"devDependencies": {}
+}

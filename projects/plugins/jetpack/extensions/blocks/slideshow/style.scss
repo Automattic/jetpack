@@ -1,9 +1,9 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-@import '../../shared/styles/jetpack-variables';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use '../../shared/styles/jetpack-variables';
 
 .wp-block-jetpack-slideshow {
 	min-width: 0;
-	margin-bottom: $jetpack-block-margin-bottom;
+	margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 	position: relative;
 
 	[tabindex='-1']:focus {
@@ -12,7 +12,7 @@
 
 	&.wp-amp-block {
 
-		& > .wp-block-jetpack-slideshow_container {
+		> .wp-block-jetpack-slideshow_container {
 			opacity: 1;
 		}
 	}
@@ -36,6 +36,22 @@
 
 		&.wp-swiper-initialized {
 			opacity: 1;
+		}
+
+		// Prevent layout shifts during loading, by using serialized aspect ratio.
+		// These rules mimic the conditions in swiperResize() on swiper-callbacks.js.
+		&:not(.wp-swiper-initialized) .wp-block-jetpack-slideshow_swiper-wrapper {
+			aspect-ratio: max(min(var(--aspect-ratio), calc(16 / 9)), 1);
+			max-height: 80vh;
+		}
+
+		// For older slideshows, where the aspect ratio wasn't serialized,
+		// we can partially mitigate layout shifts during loading.
+		// Since the aspect ratio is always calculated based on the first slide,
+		// we ensure that other slides don't affect the block height while loading.
+		// This reduces layout shifts if a later image is taller than the first one.
+		&:not(.wp-swiper-initialized) .wp-block-jetpack-slideshow_slide:not(:first-of-type) {
+			height: 1px;
 		}
 
 	  	//overide display collision with coblocks plugin styles which causes a gap
@@ -125,7 +141,7 @@
 		}
 
 		&:focus {
-			outline: thin dotted $white;
+			outline: thin dotted gb.$white;
 			outline-offset: -4px;
 		}
 	}
@@ -155,7 +171,7 @@
 	.swiper-button-next.swiper-button-white,
 	.wp-block-jetpack-slideshow_button-next,
 	.amp-carousel-button-next {
-		background-image: url( "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNSAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48bWFzayBpZD0ibWFza05leHQiIG1hc2stdHlwZT0iYWxwaGEiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHg9IjgiIHk9IjYiIHdpZHRoPSI4IiBoZWlnaHQ9IjEyIj48cGF0aCBkPSJNOC41OTgxNCAxNi41OUwxMy4xNTU3IDEyTDguNTk4MTQgNy40MUwxMC4wMDEyIDZMMTUuOTcxOCAxMkwxMC4wMDEyIDE4TDguNTk4MTQgMTYuNTlaIiBmaWxsPSJ3aGl0ZSIvPjwvbWFzaz48ZyBtYXNrPSJ1cmwoI21hc2tOZXh0KSI+PHJlY3QgeD0iMC4zNDM3NSIgd2lkdGg9IjIzLjg4MjIiIGhlaWdodD0iMjQiIGZpbGw9IiMwMDAwMDAiLz48L2c+PC9zdmc+" );
+		background-image: url( data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNSAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48bWFzayBpZD0ibWFza05leHQiIG1hc2stdHlwZT0iYWxwaGEiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHg9IjgiIHk9IjYiIHdpZHRoPSI4IiBoZWlnaHQ9IjEyIj48cGF0aCBkPSJNOC41OTgxNCAxNi41OUwxMy4xNTU3IDEyTDguNTk4MTQgNy40MUwxMC4wMDEyIDZMMTUuOTcxOCAxMkwxMC4wMDEyIDE4TDguNTk4MTQgMTYuNTlaIiBmaWxsPSJ3aGl0ZSIvPjwvbWFzaz48ZyBtYXNrPSJ1cmwoI21hc2tOZXh0KSI+PHJlY3QgeD0iMC4zNDM3NSIgd2lkdGg9IjIzLjg4MjIiIGhlaWdodD0iMjQiIGZpbGw9IiMwMDAwMDAiLz48L2c+PC9zdmc+ );
 	}
 
 	&.swiper-container-rtl .swiper-button-next.swiper-button-white,
@@ -163,11 +179,12 @@
 	.swiper-button-prev.swiper-button-white,
 	.wp-block-jetpack-slideshow_button-prev,
 	.amp-carousel-button-prev {
-		background-image: url( "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNSAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48bWFzayBpZD0ibWFza1ByZXYiIG1hc2stdHlwZT0iYWxwaGEiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHg9IjgiIHk9IjYiIHdpZHRoPSI5IiBoZWlnaHQ9IjEyIj48cGF0aCBkPSJNMTYuMjA3MiAxNi41OUwxMS42NDk2IDEyTDE2LjIwNzIgNy40MUwxNC44MDQxIDZMOC44MzM1IDEyTDE0LjgwNDEgMThMMTYuMjA3MiAxNi41OVoiIGZpbGw9IndoaXRlIi8+PC9tYXNrPjxnIG1hc2s9InVybCgjbWFza1ByZXYpIj48cmVjdCB4PSIwLjU3OTEwMiIgd2lkdGg9IjIzLjg4MjMiIGhlaWdodD0iMjQiIGZpbGw9IiMwMDAwMDAiLz48L2c+PC9zdmc+" );
+		background-image: url( data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNSAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48bWFzayBpZD0ibWFza1ByZXYiIG1hc2stdHlwZT0iYWxwaGEiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHg9IjgiIHk9IjYiIHdpZHRoPSI5IiBoZWlnaHQ9IjEyIj48cGF0aCBkPSJNMTYuMjA3MiAxNi41OUwxMS42NDk2IDEyTDE2LjIwNzIgNy40MUwxNC44MDQxIDZMOC44MzM1IDEyTDE0LjgwNDEgMThMMTYuMjA3MiAxNi41OVoiIGZpbGw9IndoaXRlIi8+PC9tYXNrPjxnIG1hc2s9InVybCgjbWFza1ByZXYpIj48cmVjdCB4PSIwLjU3OTEwMiIgd2lkdGg9IjIzLjg4MjMiIGhlaWdodD0iMjQiIGZpbGw9IiMwMDAwMDAiLz48L2c+PC9zdmc+ );
 	}
 
 	.wp-block-jetpack-slideshow_button-play,
 	.wp-block-jetpack-slideshow_button-pause {
+		// stylelint-disable-next-line function-url-quotes -- quotes are required here. Bug report: https://github.com/stylelint/stylelint/issues/8544
 		background-image: url( "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M6%2019h4V5H6v14zm8-14v14h4V5h-4z'%20fill='black'/%3E%3Cpath%20d='M0%200h24v24H0z'%20fill='none'/%3E%3C/svg%3E" );
 		display: none;
 		margin-top: 0;
@@ -179,6 +196,7 @@
 
 	.wp-block-jetpack-slideshow_button-play,
 	.wp-block-jetpack-slideshow_autoplay-paused .wp-block-jetpack-slideshow_button-pause {
+		// stylelint-disable-next-line function-url-quotes -- quotes are required here. Bug report: https://github.com/stylelint/stylelint/issues/8544
 		background-image: url( "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M8%205v14l11-7z'%20fill='black'/%3E%3Cpath%20d='M0 0h24v24H0z'%20fill='none'/%3E%3C/svg%3E" );
 	}
 
@@ -191,7 +209,7 @@
 		background-color: rgba( 0, 0, 0, 0.5 );
 		box-sizing: border-box;
 		bottom: 0;
-		color: $white;
+		color: gb.$white;
 		cursor: text;
 		left: 0;
 		margin: 0 !important;
@@ -272,7 +290,7 @@
 	}
 }
 
-@media ( min-width: $break-small ) {
+@media ( min-width: gb.$break-small ) {
 
 	.wp-block-jetpack-slideshow {
 

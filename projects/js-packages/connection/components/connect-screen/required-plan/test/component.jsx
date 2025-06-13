@@ -41,14 +41,16 @@ describe( 'ConnectScreenRequiredPlan', () => {
 
 	it( 'applies correct href to terms of service', () => {
 		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
-		const terms = screen.getByRole( 'link', { name: 'Terms of Service' } );
+		const terms = screen.getByRole( 'link', { name: 'Terms of Service (opens in a new tab)' } );
 		expect( terms ).toHaveAttribute( 'href', 'https://jetpack.com/redirect/?source=wpcom-tos' );
 		expect( terms ).toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'applies correct href to share', () => {
 		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
-		const share = screen.getByRole( 'link', { name: 'sync your site‘s data' } );
+		const share = screen.getByRole( 'link', {
+			name: 'sync your site‘s data (opens in a new tab)',
+		} );
 		expect( share ).toHaveAttribute(
 			'href',
 			'https://jetpack.com/redirect/?source=jetpack-support-what-data-does-jetpack-sync'

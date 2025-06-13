@@ -1,5 +1,6 @@
 <?php
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -12,6 +13,7 @@ class Jetpack_Sync_Codec_Interface_Test extends TestCase {
 	/**
 	 * @dataProvider codec_provider
 	 */
+	#[DataProvider( 'codec_provider' )]
 	public function test_sync_codec_encodes_objects( $codec ) {
 		$object = (object) array(
 			'b' => 'thang',
@@ -26,6 +28,7 @@ class Jetpack_Sync_Codec_Interface_Test extends TestCase {
 	/**
 	 * @dataProvider codec_provider
 	 */
+	#[DataProvider( 'codec_provider' )]
 	public function test_sync_codec_does_not_explode_on_circular_reference( $codec ) {
 		$object_a = new stdClass();
 		$object_b = new stdClass();
@@ -43,6 +46,7 @@ class Jetpack_Sync_Codec_Interface_Test extends TestCase {
 	/**
 	 * @dataProvider codec_provider
 	 */
+	#[DataProvider( 'codec_provider' )]
 	public function test_codec_does_not_modify_original_object( $codec ) {
 
 		$object = array(

@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/photon-cdn.php';
 
 /**
@@ -12,6 +15,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/photon-cdn.php';
  *
  * @covers \Jetpack_Photon_Static_Assets_CDN
  */
+#[CoversClass( Jetpack_Photon_Static_Assets_CDN::class )]
 class Jetpack_Photon_Static_Assets_CDN_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -24,6 +28,7 @@ class Jetpack_Photon_Static_Assets_CDN_Test extends WP_UnitTestCase {
 	 *
 	 * @dataProvider fix_local_script_translation_path_data_provider
 	 */
+	#[DataProvider( 'fix_local_script_translation_path_data_provider' )]
 	public function test_fix_local_script_translation_path( $file, $script_src, $expected_output ) {
 		global $wp_scripts;
 		$handle = 'test_handle';

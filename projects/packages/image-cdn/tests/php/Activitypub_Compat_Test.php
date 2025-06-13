@@ -6,6 +6,7 @@
  * @package automattic/jetpack-image-cdn
  */
 
+use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
 
 require __DIR__ . '/../../src/compatibility/activitypub.php';
@@ -13,6 +14,7 @@ require __DIR__ . '/../../src/compatibility/activitypub.php';
 /**
  * @covers ::\Automattic\Jetpack\Image_CDN\Compatibility\load_activitypub_compat
  */
+#[CoversFunction( '\\Automattic\\Jetpack\\Image_CDN\\Compatibility\\load_activitypub_compat' )]
 class Activitypub_Compat_Test extends BaseTestCase {
 	/**
 	 * Test that we do not disable CDN for ActivityPub requests by default.

@@ -17,7 +17,7 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/phpunit-select-config": "@dev",
-		"yoast/phpunit-polyfills": "^3.0.0"
+		"yoast/phpunit-polyfills": "^4.0.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -66,7 +66,7 @@
 	},
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ4_1_0",
+		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ5_0_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,

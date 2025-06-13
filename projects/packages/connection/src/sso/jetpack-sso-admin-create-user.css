@@ -10,7 +10,7 @@
 	width: 25em;
 }
 
-#createuser .form-field [type=checkbox] {
+#createuser .form-field [type="checkbox"] {
 	width: 1rem;
 }
 

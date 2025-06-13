@@ -1,3 +1,6 @@
+@use "../_utilities/mixins/breakpoint";
+@use "typography/functions" as typography-functions;
+
 // ==========================================================================
 // Buttony button buttons
 // ==========================================================================
@@ -7,10 +10,10 @@
 	transition: all .1s ease-in-out;
 }
 
-.jp-button {
+.jp-button, %jp-button {
 	display: inline-block;
 	position: relative;
-	padding: em(10px, 13px) em(19px, 13px);
+	padding: typography-functions.em(10px, 13px) typography-functions.em(19px, 13px);
 	color: #efefef;
 	font-weight: 700;
 	font-size: 0.9285714286em; // 13/14
@@ -37,7 +40,7 @@
 
 .jp-button--settings {
 
-	@extend .jp-button;
+	@extend %jp-button;
 	background: #93b45f;
 	color: #e8eedf;
 
@@ -63,7 +66,7 @@
 .download-jetpack {
 	display: inline-block;
 	position: relative;
-	padding: em(18px, 28px) em(50px, 46px) em(15px, 28px);
+	padding: typography-functions.em(18px, 28px) typography-functions.em(50px, 46px) typography-functions.em(15px, 28px);
 	color: #fff;
 	font-weight: 400;
 	font-size: 20px;
@@ -91,7 +94,7 @@
 	&:active {
 		top: 6px;
 		box-shadow:
-			0 0px 0 #3e6c20,
+			0 0 0 #3e6c20,
 			0 0 0 rgba(0,0,0,.4);
 
 		&::after {
@@ -109,7 +112,7 @@
 		width: 30px;
 		height: 30px;
 		vertical-align: middle;
-		background: url('../images/connect-plug.svg') center center no-repeat;
+		background: url(../images/connect-plug.svg) center center no-repeat;
 		background-size: 100%;
 	}
 
@@ -123,8 +126,8 @@
 		height: 100%;
 	}
 
-	@include breakpoint(large-desktop){
-		font-size: em(18px);
+	@include breakpoint.breakpoint(large-desktop){
+		font-size: typography-functions.em(18px);
 
 		&::before {
 			top: -1px;
@@ -133,15 +136,15 @@
 		}
 	};
 
-	@include breakpoint(desktop){
+	@include breakpoint.breakpoint(desktop){
 
 		&:active {
 			top: 0;
 		}
 	};
 
-	@include breakpoint(large-phone){
-		font-size: em(17px);
+	@include breakpoint.breakpoint(large-phone){
+		font-size: typography-functions.em(17px);
 		font-weight: 600;
 
 		&::before {

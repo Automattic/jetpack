@@ -30,7 +30,7 @@
         }
     }
 
-    input[type=checkbox] {
+    input[type="checkbox"] {
         // protect the button from style leaks from the site; reset all.
         all: unset;
         opacity: 0;

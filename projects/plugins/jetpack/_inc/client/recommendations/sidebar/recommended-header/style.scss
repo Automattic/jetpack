@@ -1,5 +1,5 @@
-@import "../../../scss/typography";
-@import 'node_modules/@automattic/jetpack-base-styles/style';
+@use '@automattic/jetpack-base-styles/style';
+@use "../../../scss/typography";
 
 .jp-recommendations-recommended-header {
 	display: flex;
@@ -12,7 +12,7 @@
 	border-top-right-radius: inherit;
 	color: var( --jp-black );
 
-	font-weight: $bold;
+	font-weight: typography.$bold;
 
 	.gridicon {
 		margin-inline-end: 0.5rem;

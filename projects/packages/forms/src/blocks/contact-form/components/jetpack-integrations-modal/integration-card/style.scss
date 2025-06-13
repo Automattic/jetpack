@@ -9,12 +9,22 @@
 		align-items: center;
 		justify-content: space-between;
 		width: 100%;
+
+		@media (max-width: 782px) {
+			flex-direction: column;
+			gap: 10px;
+			align-items: flex-end;
+		}
 	}
 
 	&__header-main {
 		display: flex;
 		align-items: center;
 		gap: 16px;
+
+		@media (max-width: 782px) {
+			width: 100%;
+		}
 	}
 
 	&__title-section {
@@ -26,7 +36,13 @@
 	&__title-row {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: 10px;
+
+		@media (max-width: 782px) {
+			gap: 6px;
+			flex-direction: column-reverse;
+			align-items: flex-start;
+		}
 	}
 
 	&__service-icon-container {
@@ -46,18 +62,18 @@
 
 	&__title {
 		margin: 0;
-		font-size: var(--font-body);
-		font-weight: 600;
+		font-size: 15px;
+		font-weight: 400;
 		line-height: 1.4;
 	}
 
 	&__plugin-badge,
-	&__connected-badge {
-		font-size: 11px;
+	&__connected-badge,
+	&__setup-badge {
+		font-size: 12px;
 		padding: 4px 8px;
 		border-radius: 3px;
-		margin-left: 8px;
-		font-weight: 500;
+		font-weight: 400;
 		line-height: 16px;
 	}
 
@@ -78,19 +94,28 @@
 		}
 	}
 
+	&__setup-badge {
+		// copy of how Badge (private api yet) is styled
+		background: color( sRGB 0.921961 0.93451 0.991373 );
+		color: color( sRGB 0.109804 0.172549 0.456863 );
+		display: flex;
+		align-items: center;
+		gap: 4px;
+
+		.components-icon {
+			color: #93c692;
+		}
+
+	}
+
 	&__description {
 		color: var(--jp-gray-50);
 		font-size: 13px;
-		line-height: 1.4;
-	}
+		line-height: 1.5;
+		margin-top: 0;
 
-	&__actions {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-
-		.components-base-control.components-toggle-control {
-			margin-bottom: 0;
+		@media (max-width: 782px) {
+			text-wrap: balance;
 		}
 	}
 
@@ -100,21 +125,6 @@
 		gap: 8px;
 	}
 
-	.is-spinning {
-		animation: rotation 2s infinite linear;
-	}
-	
-	@keyframes rotation {
-
-		from {
-			transform: rotate(0deg);
-		}
-
-		to {
-			transform: rotate(359deg);
-		}
-	}
-
 	.components-button .components-spinner {
 		margin: 0 8px;
 		width: 16px;
@@ -122,6 +132,31 @@
 	}
 
 	.components-card__body {
-		padding-bottom: 30px;
+		padding-top: 8px;
+		padding-bottom: 24px;
+		padding-left: 60px; // this is to align with the row above's icon + gap (44 + 16)
+		padding-right: 0;
+
+		:last-child {
+			margin-bottom: 0;
+		}
 	}
-} 
+
+	.components-card-header {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.jetpack-forms-creative-mail-settings-button {
+		margin-top: 12px;
+	}
+
+	p {
+		text-wrap: balance; // TODO: remove this fallback once `pretty` is globally supported.
+		text-wrap: pretty;
+	}
+
+	&__service-icon--google-sheets {
+		border-radius: 0 !important;
+	}
+}

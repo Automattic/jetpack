@@ -9,6 +9,8 @@
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
 use Automattic\Jetpack\AutoloaderTesting\SharedTestClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,6 +19,8 @@ use PHPUnit\Framework\TestCase;
  * @runTestsInSeparateProcesses Ensure that each test loads class files new.
  * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class PHPAutoloaderTest extends TestCase {
 
 	/**

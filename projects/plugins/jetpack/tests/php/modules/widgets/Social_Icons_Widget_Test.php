@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/widgets/social-icons.php';
 
 /**
@@ -7,6 +9,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/widgets/social-icons.php';
  *
  * @covers Jetpack_Widget_Social_Icons
  */
+#[CoversClass( Jetpack_Widget_Social_Icons::class )]
 class Social_Icons_Widget_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

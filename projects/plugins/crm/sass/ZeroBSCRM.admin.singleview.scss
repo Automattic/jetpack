@@ -9,7 +9,7 @@
  */
 
 // Import generic edit page styles (old legacy of wh from taxibooker! :o to rewrite)
-@import 'ZeroBSCRM.timelines';
+@use 'ZeroBSCRM.timelines';
 
 // hide these, they look bad/inaccessible on this page:
 #wpwrap .update-nag {display:none !important;}
@@ -60,12 +60,12 @@
 	}
 
 	.zbs-sentence {
-
-	    font-size: 1.1em;
-	    color: #5d4949;
-	    padding-left: 2em;
-	    padding-top: 0.2em;
-	    padding-bottom: 0.2em;
+		padding-top: 0.2em;
+		padding-bottom: 0.2em;
+		padding-left:0;
+		color: #000;
+		margin-top:5px;
+		font-size:14px;
 	}
 
 	// NOTE this is also in contact edit metabox! copy any changes if made:
@@ -86,25 +86,17 @@
 	    outline: none;
 	    border: none;
 	    vertical-align: baseline;
-	    background: #E0E1E2 none;
-	    color: rgba(0,0,0,0.6);
 	    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-	    margin: 0em 0.25em 0em 0em;
+	    margin: 0 0.25em 0 0;
 	    padding: 0.78571429em 1.5em 0.78571429em;
-	    text-transform: none;
-	    text-shadow: none;
-	    font-weight: 700;
-	    line-height: 1em;
+	    line-height: 1;
 	    font-style: normal;
 	    text-align: center;
 	    text-decoration: none;
-	    border-radius: 0.28571429rem;
-	    box-shadow: 0px 0px 0px 1px transparent inset, 0px 0em 0px 0px rgba(34,36,38,0.15) inset;
 	    -webkit-user-select: none;
 	    -moz-user-select: none;
 	    -ms-user-select: none;
 	    user-select: none;
-	    -webkit-transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
 	    transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
 	    will-change: '';
 	    -webkit-tap-highlight-color: transparent;
@@ -112,14 +104,12 @@
 	    font-size: 1rem;
 
 	    background: transparent none !important;
-	    color: rgba(0,0,0,0.6) !important;
 	    font-weight: 400;
 	    border-radius: 0.28571429rem;
 	    text-transform: none;
 	    text-shadow: none !important;
-	    box-shadow: 0px 0px 0px 1px rgba(34,36,38,0.15) inset;
 
-	    box-shadow: 0px 0px 0px 1px #21BA45 inset !important;
+	    box-shadow: 0 0 0 1px #21BA45 inset !important;
 	    color: #21BA45 !important;
 	}
 }
@@ -200,7 +190,7 @@ i.zbs-hide-longdesc {
 	    font-size: 1em !important;
 
 	    // this needs to match [.ui.label>.icon] in semantic ui :)
-   		margin: 0em 0.75em 0em 0em !important;
+   		margin: 0 0.75em 0 0 !important;
 	}
 }
 
@@ -223,7 +213,7 @@ width:30px;
 }
 
 .zbs-social-buttons .icon{
-margin: 0px !important;
+margin: 0 !important;
 color: #fff;
 font-size:14px;
 }
@@ -237,15 +227,9 @@ font-size:14px;
 display:none !important;
 }
 
-.zbs-view-card .zbs-sentence{
-padding-left:0px;
-color: #000;
-margin-top:5px;
-font-size:14px;
-}
-
 .zbs-sentence{
-line-height: 21px;
+	line-height: 21px;
+	width:80%;
 }
 
 .zbs-contact-owner{
@@ -271,12 +255,6 @@ margin-top: -15px !important;
 margin-top:10px !important;
 margin-right:10px !important;
 }
-
-.zbs-sentence{
-width:80%;
-}
-
-
 
 // === Pinned notes
 #jpcrm-pinned-logs-header {

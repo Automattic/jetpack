@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/Jetpack_REST_TestCase.php';
 
@@ -9,6 +10,7 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/Jetpack_REST_TestCase.php';
  *
  * @covers Jetpack
  */
+#[CoversClass( Jetpack::class )]
 class Jetpack_REST_API_Authentication_Test extends Jetpack_REST_TestCase {
 	protected static $admin_id;
 

@@ -189,7 +189,7 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
 	// Config
-	$concat_max_files = 150;
+	$concat_max_files = jetpack_boost_minify_concat_max_files();
 	$concat_unique    = true;
 
 	$file_parts = jetpack_boost_minify_get_file_parts( $request_uri );

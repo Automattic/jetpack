@@ -23,7 +23,7 @@ if ( ! defined( 'JETPACK_BOOST_REST_PREFIX' ) ) {
  */
 class Speed_Score {
 
-	const PACKAGE_VERSION = '0.4.7';
+	const PACKAGE_VERSION = '0.4.9';
 
 	/**
 	 * Array of module slugs that are currently active and can impact speed score.
@@ -65,10 +65,11 @@ class Speed_Score {
 		 * Mark the speed score history as stale when the environment changes.
 		 *
 		 * @since 0.3.9 - This hook replaced `handle_environment_change` action.
+		 * @since $$next-version - jetpack_boost_critical_css_environment_changed has been replaced by jetpack_boost_environment_changed.
 		 */
-		add_action( 'jetpack_boost_critical_css_environment_changed', array( Speed_Score_History::class, 'mark_stale' ) );
+		add_action( 'jetpack_boost_environment_changed', array( Speed_Score_History::class, 'mark_stale' ) );
 		/**
-		 * The `handle_environment_change` action is replaced by `jetpack_boost_critical_css_environment_changed` in Jetpack Boost.
+		 * The `handle_environment_change` action is replaced by `jetpack_boost_environment_changed` in Jetpack Boost.
 		 * Keeping the `handle_environment_change` action for backward compatibility.
 		 */
 		add_action( 'handle_environment_change', array( Speed_Score_History::class, 'mark_stale' ) );

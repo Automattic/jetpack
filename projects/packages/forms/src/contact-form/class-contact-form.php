@@ -9,7 +9,9 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Sync\Settings;
+use Jetpack_Tracks_Event;
 use PHPMailer\PHPMailer\PHPMailer;
+use WP_Block;
 use WP_Error;
 
 /**
@@ -413,8 +415,27 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label novalidate>\n";
+			$context = array(
+				'formId'     => $id,
+				'formHash'   => $form->hash,
+				'showErrors' => false, // We toggle this to true when we want to show the user errors right away.
+				'errors'     => array(), // This should be a associative array.
+				'fields'     => array(),
+			);
+
+			$r .= "<form action='" . esc_url( $url ) . "'
+				method='post'
+				class='" . esc_attr( $form_classes ) . "' $form_aria_label
+				data-wp-interactive=\"jetpack/form\"  " . wp_interactivity_data_wp_context( $context ) . "
+				data-wp-on--submit=\"actions.onFormSubmit\"
+				novalidate >\n";
+
 			$r .= $form->body;
+
+			if ( $has_submit_button_block ) {
+				// Place the error wrapper before the button block
+				$r = str_replace( '<div class="wp-block-jetpack-button', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r );
+			}
 
 			// In new versions of the contact form block the button is an inner block
 			// so the button does not need to be constructed server-side.
@@ -450,6 +471,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$submit_button_text = $form->get_attribute( 'submit_button_text' );
 				}
 
+				$r .= self::render_error_wrapper();
 				$r .= "\t\t<button type='submit' class='" . esc_attr( $submit_button_class ) . "'";
 				if ( ! empty( $submit_button_styles ) ) {
 					$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
@@ -498,6 +520,24 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Helper function that display the error wrapper.
+	 *
+	 * @return string HTML string for the error wrapper.
+	 */
+	private static function render_error_wrapper() {
+		$html  = '<div class="contact-form__error" data-wp-class--show-errors="state.showFromErrors">';
+		$html .= '<span class="contact-form__warning-icon"><span class="visually-hidden">' . __( 'Warning.', 'jetpack-forms' ) . '</span><i aria-hidden="true"></i></span>
+				<span data-wp-text="state.getFormErrorMessage"></span>
+				<ul>
+				<template data-wp-each="state.getErrorList" data-wp-key="context.item.id">
+					<li><a data-wp-bind--href="context.item.anchor" data-wp-on--click="actions.scrollIntoView" data-wp-text="context.item.label"></a></li>
+				</template>
+				</ul>';
+		$html .= '</div>';
+		return $html;
+	}
+
+	/**
 	 * Returns a success message to be returned if the form is sent via AJAX.
 	 *
 	 * @param int          $feedback_id - the feedback ID.
@@ -508,30 +548,28 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static function success_message( $feedback_id, $form ) {
 
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
-			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
+			$raw_message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
+			// Add more allowed HTML elements for file download links
+			$allowed_html = array(
+				'br'         => array(),
+				'blockquote' => array( 'class' => array() ),
+				'p'          => array(),
+				'div'        => array(
+					'class' => array(),
+					'style' => array(),
+				),
+				'span'       => array(
+					'class' => array(),
+					'style' => array(),
+				),
+			);
+			$message      = wp_kses( $raw_message, $allowed_html );
 		} else {
 			$compiled_form = self::get_compiled_form( $feedback_id, $form );
 			$message       = '<p>' . implode( '</p><p>', $compiled_form ) . '</p>';
 		}
 
-		// Add more allowed HTML elements for file download links
-		$allowed_html = array(
-			'br'         => array(),
-			'blockquote' => array( 'class' => array() ),
-			'p'          => array(),
-			'div'        => array(
-				'class' => array(),
-				'style' => array(),
-			),
-			'span'       => array(
-				'class' => array(),
-				'style' => array(),
-			),
-		);
-
-		$filtered_message = wp_kses( $message, $allowed_html );
-
-		return $filtered_message;
+		return $message;
 	}
 
 	/**
@@ -544,6 +582,46 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form( $feedback_id, $form ) {
+		$compiled_form = self::get_raw_compiled_form_data( $feedback_id, $form );
+
+		foreach ( $compiled_form as $field_index => $data ) {
+			$safe_display_value = self::escape_and_sanitize_field_value( $data['value'] );
+
+			if ( '' === $safe_display_value ) {
+				$safe_display_value = '-';
+			}
+
+			if ( ! empty( $data['label'] ) ) {
+				$safe_display_label            = self::escape_and_sanitize_field_label( $data['label'] );
+				$compiled_form[ $field_index ] = sprintf(
+					'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
+					self::maybe_add_colon_to_label( $safe_display_label ),
+					$safe_display_value
+				);
+			} else {
+				// If there is no label, only output the field value, wrapped in its div.
+				$compiled_form[ $field_index ] = sprintf(
+					'<div class="field-value">%s</div>',
+					$safe_display_value
+				);
+			}
+		}
+
+		// Sorting lines by the field index
+		ksort( $compiled_form );
+
+		return $compiled_form;
+	}
+
+	/**
+	 * Retrieves raw compiled form data.
+	 *
+	 * @param int          $feedback_id - the feedback ID.
+	 * @param Contact_Form $form - the form.
+	 *
+	 * @return array $raw_data Associative array where keys are field_index and values are arrays with 'label' and 'value'.
+	 */
+	private static function get_raw_compiled_form_data( $feedback_id, $form ) {
 		$feedback       = get_post( $feedback_id );
 		$field_ids      = $form->get_field_ids();
 		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $feedback_id );
@@ -557,12 +635,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'textarea' => false, // not a post_meta key.  This is stored in post_content
 		);
 
-		$compiled_form = array();
+		$raw_data = array();
 
 		// "Standard" field allowed list.
 		foreach ( $field_value_map as $type => $meta_key ) {
 			if ( isset( $field_ids[ $type ] ) ) {
 				$field = $form->fields[ $field_ids[ $type ] ];
+				$value = null;
 
 				if ( $meta_key ) {
 					if ( isset( $content_fields[ "_feedback_{$meta_key}" ] ) ) {
@@ -578,24 +657,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 					}
 				} else {
 					// The feedback content is stored as the first "half" of post_content
-					$value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
+					$current_value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
 									$feedback->post_content : '';
-					list( $value ) = explode( '<!--more-->', $value );
-					$value         = trim( $value );
-				}
-
-				// If we still do not have any value, bail.
-				if ( empty( $value ) ) {
-					continue;
+					list( $current_value ) = explode( '<!--more-->', $current_value );
+					$value                 = trim( $current_value );
 				}
 
 				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
-				$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
+				$field_label = $field->get_attribute( 'label' );
 
-				$compiled_form[ $field_index ] = sprintf(
-					'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
-					wp_kses( $field_label, array() ),
-					self::escape_and_sanitize_field_value( $value )
+				$raw_data[ $field_index ] = array(
+					'label' => $field_label,
+					'value' => $value,
 				);
 			}
 		}
@@ -613,26 +686,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 				$i = 0;
 				foreach ( $field_ids['extra'] as $field_id ) {
-					$field       = $form->fields[ $field_id ];
-					$field_index = array_search( $field_id, $field_ids['all'], true );
-
-					$label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
-
-					$compiled_form[ $field_index ] = sprintf(
-						'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
-						wp_kses( $label, array() ),
-						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
+					$field                    = $form->fields[ $field_id ];
+					$field_index              = array_search( $field_id, $field_ids['all'], true );
+					$field_label              = $field->get_attribute( 'label' );
+					$value                    = isset( $extra_field_keys[ $i ] ) && isset( $extra_fields[ $extra_field_keys[ $i ] ] ) ? $extra_fields[ $extra_field_keys[ $i ] ] : '';
+					$raw_data[ $field_index ] = array(
+						'label' => $field_label,
+						'value' => $value,
 					);
-
 					++$i;
 				}
 			}
 		}
-
-		// Sorting lines by the field index
-		ksort( $compiled_form );
-
-		return $compiled_form;
+		return $raw_data;
 	}
 
 	/**
@@ -645,81 +711,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form_for_email( $feedback_id, $form ) {
-		$feedback       = get_post( $feedback_id );
-		$field_ids      = $form->get_field_ids();
-		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $feedback_id );
-
-		// Maps field_ids to post_meta keys
-		$field_value_map = array(
-			'name'     => 'author',
-			'email'    => 'author_email',
-			'url'      => 'author_url',
-			'subject'  => 'subject',
-			'textarea' => false, // not a post_meta key.  This is stored in post_content
-		);
-
-		$compiled_form = array();
-
-		// "Standard" field allowed list.
-		foreach ( $field_value_map as $type => $meta_key ) {
-			if ( isset( $field_ids[ $type ] ) ) {
-				$field = $form->fields[ $field_ids[ $type ] ];
-
-				if ( $meta_key ) {
-					if ( isset( $content_fields[ "_feedback_{$meta_key}" ] ) ) {
-						$value = $content_fields[ "_feedback_{$meta_key}" ];
-					}
-				} else {
-					// The feedback content is stored as the first "half" of post_content
-					$value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
-									$feedback->post_content : '';
-					list( $value ) = explode( '<!--more-->', $value );
-					$value         = trim( $value );
-				}
-
-				// If we still do not have any value, bail.
-				if ( empty( $value ) ) {
-					continue;
-				}
-
-				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
-				$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
-
-				$compiled_form[ $field_index ] = array(
-					wp_kses( $field_label, array() ),
-					self::escape_and_sanitize_field_value( $value ),
-				);
-			}
-		}
-
-		// "Non-standard" fields
-		if ( $field_ids['extra'] ) {
-			// array indexed by field label (not field id)
-			$extra_fields = get_post_meta( $feedback_id, '_feedback_extra_fields', true );
-
-			/**
-			 * Only get data for the compiled form if `$extra_fields` is a valid and non-empty array.
-			 */
-			if ( is_array( $extra_fields ) && ! empty( $extra_fields ) ) {
-
-				$extra_field_keys = array_keys( $extra_fields );
-
-				$i = 0;
-				foreach ( $field_ids['extra'] as $field_id ) {
-					$field       = $form->fields[ $field_id ];
-					$field_index = array_search( $field_id, $field_ids['all'], true );
-
-					$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
-
-					$compiled_form[ $field_index ] = array(
-						wp_kses( $field_label, array() ),
-						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] ),
-					);
-
-					++$i;
-				}
-			}
-		}
+		$compiled_form = self::get_raw_compiled_form_data( $feedback_id, $form );
 
 		/**
 		 * This filter allows a site owner to customize the response to be emailed, by adding their own HTML around it for example.
@@ -738,11 +730,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} else {
 			// add styling to the array
 			foreach ( $compiled_form as $key => $value ) {
-				$compiled_form[ $key ] = sprintf(
-					'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
-					$value[0],
-					$value[1]
-				);
+				$safe_display_label = self::escape_and_sanitize_field_label( $value['label'] );
+				$safe_display_value = self::escape_and_sanitize_field_value( $value['value'] );
+
+				if ( ! empty( $safe_display_label ) ) {
+					$compiled_form[ $key ] = sprintf(
+						'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
+						self::maybe_add_colon_to_label( $safe_display_label ),
+						$safe_display_value
+					);
+				} else {
+					$compiled_form[ $key ] = sprintf(
+						'<p><span>%s</span></p>',
+						$safe_display_value
+					);
+				}
 			}
 		}
 
@@ -874,11 +876,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * The contact-field shortcode processor.
 	 * We use an object method here instead of a static Contact_Form_Field class method to parse contact-field shortcodes so that we can tie them to the contact-form object.
 	 *
-	 * @param array       $attributes Key => Value pairs as parsed by shortcode_parse_atts().
-	 * @param string|null $content The shortcode's inner content: [contact-field]$content[/contact-field].
+	 * @param array         $attributes Key => Value pairs as parsed by shortcode_parse_atts().
+	 * @param string|null   $content The shortcode's inner content: [contact-field]$content[/contact-field].
+	 * @param WP_Block|null $block The field block object.
 	 * @return string HTML for the contact form field
 	 */
-	public static function parse_contact_field( $attributes, $content ) {
+	public static function parse_contact_field( $attributes, $content, $block = null ) {
+		if ( $block ) {
+			$type = null;
+		}
+
 		// Don't try to parse contact form fields if not inside a contact form
 		if ( ! Contact_Form_Plugin::$using_contact_form_field ) {
 			$type = isset( $attributes['type'] ) ? $attributes['type'] : null;
@@ -927,10 +934,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$shortcode_type = 'contact-field-option';
 			}
 
-			$html = '[' . $shortcode_type . ' ' . implode( ' ', $att_strs );
+			$html            = '[' . $shortcode_type . ' ' . implode( ' ', $att_strs );
+			$trimmed_content = isset( $content ) ? trim( $content ) : '';
 
-			if ( isset( $content ) && ! empty( $content ) ) { // If there is content, let's add a closing tag
-				$html .= ']' . esc_html( $content ) . '[/contact-field]';
+			if ( ! empty( $trimmed_content ) ) { // If there is content, let's add a closing tag
+				$html .= ']' . esc_html( $trimmed_content ) . '[/contact-field]';
 			} else { // Otherwise let's add a closing slash in the first tag
 				$html .= '/]';
 			}
@@ -1093,9 +1101,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$field_ids['email_marketing_consent'] = null;
 
 		foreach ( $this->fields as $id => $field ) {
+			$type = $field->get_attribute( 'type' );
+
+			// If the field is not renderable, skip it.
+			if ( ! $field->is_field_renderable( $type ) ) {
+				continue;
+			}
+
 			$field_ids['all'][] = $id;
 
-			$type = $field->get_attribute( 'type' );
 			if ( isset( $field_ids[ $type ] ) ) {
 				// This type of field is already present in our allowed list of "standard" fields for this form
 				// Put it in extra
@@ -1653,15 +1667,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			apply_filters(
 				'jetpack_forms_response_email_footer',
 				array(
-					'<br />',
-					'<hr />',
 					'<span style="font-size: 12px">',
 					$footer_time . '<br />',
 					$footer_ip ? $footer_ip . '<br />' : null,
 					$footer_url . '<br />',
 					$sent_by_text,
 					'</span>',
-					'<hr />',
 				)
 			)
 		);
@@ -1897,6 +1908,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$template = '';
+		$style    = '';
+
+		// The hash is just used to anonymize the admin email and have a unique identifier for the event.
+		// The secret key used could have been a random string, but it's better to use the version number to make it easier to track.
+		$event = new Jetpack_Tracks_Event(
+			(object) array(
+				'_en' => 'jetpack_forms_email_open',
+				'_ui' => hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION ),
+				'_ut' => 'anon',
+			)
+		);
+
+		$tracking_pixel = '<img src="' . $event->build_pixel_url() . '" alt="" width="1" height="1" />';
 
 		/**
 		 * Filter the filename of the template HTML surrounding the response email. The PHP file will return the template in a variable called $template.
@@ -1920,7 +1944,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$body,
 			'',
 			'',
-			$footer
+			$footer,
+			$style,
+			$tracking_pixel
 		);
 
 		return $html_message;
@@ -2041,5 +2067,108 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'field_id' => $field_id,
 			'files'    => $file_data_array,
 		);
+	}
+
+	/**
+	 * Ensures a field label ends with a colon, unless it ends with a question mark.
+	 *
+	 * @param string $label The field label.
+	 * @return string The formatted label.
+	 */
+	private static function maybe_add_colon_to_label( $label ) {
+		$formatted_label = $label ? $label : '';
+		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : rtrim( $formatted_label, ':' ) . ':';
+
+		return $formatted_label;
+	}
+
+	/**
+	 * Helper method to format a raw label string for display, including kses sanitization.
+	 *
+	 * @param string|null $raw_label The raw label input.
+	 * @return string The formatted and kses'd label string, or an empty string if raw_label is empty.
+	 */
+	private static function escape_and_sanitize_field_label( $raw_label ) {
+		if ( empty( $raw_label ) ) {
+			return ''; // kses the empty string
+		}
+		return wp_kses( (string) $raw_label, array() );
+	}
+
+	/**
+	 * Enforce required block supports UIs for Classic themes.
+	 *
+	 * @param \WP_Theme_JSON_Data $theme_json_data Theme JSON data object.
+	 *
+	 * @return \WP_Theme_JSON_Data Updated theme JSON settings.
+	 */
+	public static function add_theme_json_data_for_classic_themes( $theme_json_data ) {
+		if ( wp_is_block_theme() ) {
+			return $theme_json_data;
+		}
+
+		$data = $theme_json_data->get_data();
+
+		if ( ! isset( $data['settings']['blocks'] ) ) {
+			$data['settings']['blocks'] = array();
+		}
+
+		$data['settings']['blocks']['jetpack/input'] = array(
+			'color'      => array(
+				'text'       => true,
+				'background' => false,
+			),
+			'border'     => array(
+				'color'  => true,
+				'radius' => true,
+				'style'  => true,
+				'width'  => true,
+			),
+			'typography' => array(
+				'fontFamily'     => true,
+				'fontSize'       => true,
+				'fontStyle'      => true,
+				'fontWeight'     => true,
+				'letterSpacing'  => true,
+				'lineHeight'     => true,
+				'textDecoration' => true,
+				'textTransform'  => true,
+			),
+		);
+
+		$data['settings']['blocks']['jetpack/options'] = array(
+			'color'  => array(
+				'text'       => true,
+				'background' => true,
+			),
+			'border' => array(
+				'color'  => true,
+				'radius' => true,
+				'style'  => true,
+				'width'  => true,
+			),
+		);
+
+		$shared_settings                              = array(
+			'color'      => array(
+				'text'       => true,
+				'background' => false,
+			),
+			'typography' => array(
+				'fontFamily'     => true,
+				'fontSize'       => true,
+				'fontStyle'      => true,
+				'fontWeight'     => true,
+				'letterSpacing'  => true,
+				'lineHeight'     => true,
+				'textDecoration' => true,
+				'textTransform'  => true,
+			),
+		);
+		$data['settings']['blocks']['jetpack/label']  = $shared_settings;
+		$data['settings']['blocks']['jetpack/option'] = $shared_settings;
+
+		$theme_json_class = get_class( $theme_json_data );
+		return new $theme_json_class( $data, 'default' );
 	}
 }

@@ -1,11 +1,11 @@
 body {
-	padding: 0px;
-	margin: 0px;
+	padding: 0;
+	margin: 0;
 }
 
 div.top {
 	position: absolute;
-	top: 0px;
+	top: 0;
 }
 
 div.four_eighty {

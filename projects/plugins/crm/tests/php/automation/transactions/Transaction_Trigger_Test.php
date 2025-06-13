@@ -9,6 +9,8 @@ use Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Updated;
 use Automattic\Jetpack\CRM\Entities\Transaction;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -18,6 +20,8 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Updated
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created
  */
+#[CoversClass( Transaction_Created::class )]
+#[CoversClass( Transaction_Updated::class )]
 class Transaction_Trigger_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
@@ -30,6 +34,7 @@ class Transaction_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the transaction created trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the transaction created trigger executes the workflow with an action' )]
 	public function test_transaction_created_trigger() {
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/transaction_created' );
 
@@ -62,6 +67,7 @@ class Transaction_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the transaction updated trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the transaction updated trigger executes the workflow with an action' )]
 	public function test_transaction_updated_trigger() {
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/transaction_updated' );
 

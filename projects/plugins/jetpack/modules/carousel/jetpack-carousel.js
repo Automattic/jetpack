@@ -1124,7 +1124,7 @@
 		}
 
 		function testCommentsOpened( opened ) {
-			var commentForm = carousel.container.querySelector( '.jp-carousel-comment-form-container' );
+			var commentForm = carousel.info.querySelector( '#jp-carousel-comment-form-container' );
 			var isOpened = parseInt( opened, 10 ) === 1;
 
 			if ( isOpened ) {

@@ -2,7 +2,7 @@
 /**
  * Main plugin file testing.
  *
- * @package automattic/jetpack-social-plugin
+ * @package automattic/jetpack-starter-plugin
  */
 
 use WorDBless\BaseTestCase;
@@ -22,17 +22,17 @@ class Jetpack_Starter_Plugin_Test extends BaseTestCase {
 	private static $user_id;
 
 	/**
-	 * The starter plugin object.
+	 * The Starter Plugin object.
 	 *
 	 * @var \Jetpack_Starter_Plugin
 	 */
-	public $starter;
+	public $starter_plugin;
 
 	/**
 	 * Initialize tests
 	 */
 	public function set_up() {
-		$this->starter = new Jetpack_Starter_Plugin();
+		$this->starter_plugin = new Jetpack_Starter_Plugin();
 	}
 
 	/**

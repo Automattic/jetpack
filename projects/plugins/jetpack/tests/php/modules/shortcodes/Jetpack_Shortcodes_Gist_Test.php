@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 // cache HTTP requests.
 require_once __DIR__ . '/trait.http-request-cache.php';
 
@@ -13,6 +16,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  *
  * @covers ::github_gist_shortcode
  */
+#[CoversFunction( 'github_gist_shortcode' )]
 class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -58,6 +62,7 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	 * @param string $expected     Expected returned output.
 	 * @param string $expected_amp Expected returned output for AMP.
 	 */
+	#[DataProvider( 'gist_embed_data' )]
 	public function test_gist_embeds( $content, $expected, $expected_amp ) {
 		global $post;
 
@@ -127,6 +132,7 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 	 * @param string $expected     Expected returned output.
 	 * @param string $expected_amp Expected returned output for AMP.
 	 */
+	#[DataProvider( 'gist_shortcode_data' )]
 	public function test_gist_shortcode( $content, $expected, $expected_amp = null ) {
 		/*
 		 * If we did not specify an expected AMP output,
@@ -272,6 +278,26 @@ class Jetpack_Shortcodes_Gist_Test extends WP_UnitTestCase {
 				sprintf( '[gist %s ts=4]', $public_id ),
 				'<div style="tab-size: 4" id="gist',
 				$expected_public_amp_markup,
+			),
+			'invalid path structure'                       => array(
+				'[gist https://gist.github.com/invalid/path/structure]',
+				'<!-- Invalid Gist ID -->',
+			),
+			'invalid gist id format'                       => array(
+				'[gist https://gist.github.com/username/not-a-valid-gist-id]',
+				'<!-- Invalid Gist ID -->',
+			),
+			'invalid username format'                      => array(
+				'[gist https://gist.github.com/invalid-username!/gistid]',
+				'<!-- Invalid Gist ID -->',
+			),
+			'invalid path with extra segments'             => array(
+				'[gist https://gist.github.com/username/gistid/extra/segments]',
+				'<!-- Invalid Gist ID -->',
+			),
+			'invalid path with special chars'              => array(
+				'[gist https://gist.github.com/user@name/gistid]',
+				'<!-- Invalid Gist ID -->',
 			),
 		);
 	}

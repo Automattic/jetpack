@@ -17,7 +17,6 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
-use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
@@ -196,18 +195,6 @@ class Cloud_CSS implements Feature, Has_Activate, Has_Always_Available_Endpoints
 		// the Cloud CSS.
 		if ( $this->is_post_in_latest_providers_list( $post ) ) {
 			$this->regenerate_cloud_css( self::REGENERATE_REASON_SAVE_POST, $this->get_all_providers( array( $post ) ) );
-		}
-	}
-
-	/**
-	 * Handle when a critical CSS environment change is detected.
-	 */
-	public function handle_environment_change( $is_major_change, $change_type ) {
-		/*
-		 * Regenerate Cloud CSS when the list of cornerstone pages is updated.
-		 */
-		if ( $change_type === Environment_Change_Detector::ENV_CHANGE_CORNERSTONE_PAGES_LIST_UPDATED ) {
-			$this->regenerate_cloud_css( self::REGENERATE_REASON_CORNERSTONE_UPDATE, $this->get_all_providers() );
 		}
 	}
 

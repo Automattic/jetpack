@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use PHPUnit\Framework\Attributes\CoversClass;
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/verbum-comments/assets/class-verbum-block-utils.php';
 
 /**
@@ -13,6 +14,7 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/verbum-comments/assets/cl
  *
  * @covers \Verbum_Block_Utils
  */
+#[CoversClass( Verbum_Block_Utils::class )]
 class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Ensure string comments are not modified when 'render_verbum_blocks' is applied
@@ -68,5 +70,35 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 		$comment_content  = '<!-- wp:paragraph -->Testing<!-- /wp:paragraph --><!-- wp:latest-posts -->';
 		$filtered_content = Verbum_Block_Utils::remove_blocks( $comment_content );
 		$this->assertEquals( '<!-- wp:paragraph -->Testing<!-- /wp:paragraph -->', $filtered_content );
+	}
+
+	/**
+	 * Ensure innerBlocks are removed if not allowed
+	 */
+	public function test_pre_comment_content_inner_blocks() {
+		$comment_content = <<<HTML
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+	<p>Allowed outer quote block</p>
+	<!-- wp:button {"text":"I am a disallowed button!","url":"#"} -->
+	<a class="wp-block-button__link" href="#">I am a disallowed button!</a>
+	<!-- /wp:button -->
+</blockquote>
+<!-- /wp:quote -->
+HTML;
+
+		$expected_content = <<<HTML
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+	<p>Allowed outer quote block</p>
+</blockquote>
+<!-- /wp:quote -->
+HTML;
+
+		$filtered_content = Verbum_Block_Utils::remove_blocks( $comment_content );
+		// Normalize whitespace before comparison
+		$filtered_content = preg_replace( '/\s+/', ' ', $filtered_content );
+		$expected_content = preg_replace( '/\s+/', ' ', $expected_content );
+		$this->assertSame( $expected_content, $filtered_content );
 	}
 }

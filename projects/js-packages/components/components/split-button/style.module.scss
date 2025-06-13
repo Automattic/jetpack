@@ -9,11 +9,11 @@
 		height: 100%;
 	}
 
-    & > .button:first-child {
+    > .button:first-child {
         border-radius: var(--jp-border-radius) 0 0 var(--jp-border-radius);
     }
 
-    & > :global(.components-dropdown) > .button {
+    > :global(.components-dropdown) > .button {
         border-radius: 0 var(--jp-border-radius) var(--jp-border-radius) 0;
     }
 }

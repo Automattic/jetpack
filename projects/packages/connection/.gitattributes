@@ -16,3 +16,4 @@ src/js/**         production-exclude
 webpack.config.js production-exclude
 /dist/*.css.map   production-exclude
 /dist/*.js.map    production-exclude
+src/identity-crisis/_inc/*.scss production-exclude

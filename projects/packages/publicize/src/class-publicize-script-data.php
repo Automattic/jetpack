@@ -12,7 +12,6 @@ use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Publicize\Services as Publicize_Services;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
@@ -68,7 +67,6 @@ class Publicize_Script_Data {
 		}
 
 		$data['site']['wpcom']['blog_id'] = Manager::get_site_id( true );
-		$data['site']['suffix']           = ( new Status() )->get_site_suffix();
 		if ( ! isset( $data['site']['host'] ) ) {
 			$data['site']['host'] = ( new Host() )->get_known_host_guess( false );
 		}
@@ -118,6 +116,7 @@ class Publicize_Script_Data {
 
 		$basic_data = array(
 			'api_paths'            => self::get_api_paths(),
+			'assets_url'           => plugins_url( '/build/', __DIR__ ),
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),

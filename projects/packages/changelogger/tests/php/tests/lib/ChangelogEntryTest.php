@@ -13,6 +13,8 @@ use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelog\ChangelogEntry;
 use DateTime;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,6 +22,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Changelog\ChangelogEntry
  */
+#[CoversClass( ChangelogEntry::class )]
 class ChangelogEntryTest extends TestCase {
 
 	/**
@@ -224,6 +227,7 @@ class ChangelogEntryTest extends TestCase {
 	 * @param string                $json JSON data.
 	 * @param ChangelogEntry|string $entry Changelog entry, or error message if decoding should fail.
 	 */
+	#[DataProvider( 'provideJson' )]
 	public function testJson( $json, $entry ) {
 		if ( is_string( $entry ) ) {
 			$this->expectException( InvalidArgumentException::class );

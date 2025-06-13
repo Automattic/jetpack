@@ -1,7 +1,7 @@
-@import 'scss/variables';
+@use 'scss/variables';
 
 #jp-wordads-dashboard {
-	color: $black;
+	color: variables.$black;
 	font-size: 16px;
 
   	* {
@@ -15,7 +15,7 @@
 		transform: translate( -50%, -50% );
 	}
 
-	@include for-phone-down {
+	@include variables.for-phone-down {
 		font-size: 14px;
 	}
 

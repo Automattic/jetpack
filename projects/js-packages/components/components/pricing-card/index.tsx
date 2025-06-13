@@ -1,10 +1,10 @@
-import { getCurrencyObject } from '@automattic/format-currency';
+import { getCurrencyObject } from '@automattic/number-formatters';
 import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import TermsOfService from '../terms-of-service/index.tsx';
 import type { PricingCardProps } from './types.ts';
-import type { CurrencyObject } from '@automattic/format-currency/src/types.js';
+import type { CurrencyObject } from '@automattic/number-formatters';
 import type React from 'react';
 
 import './style.scss';

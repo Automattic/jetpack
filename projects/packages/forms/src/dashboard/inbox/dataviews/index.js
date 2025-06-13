@@ -17,15 +17,17 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { isArray, isEmpty, join } from 'lodash';
 import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { store as dashboardStore } from '../../store';
 import InboxResponse from '../response';
 import { getPath } from '../utils.js';
 import {
 	viewAction,
+	viewActionModal,
 	markAsSpamAction,
 	markAsNotSpamAction,
 	moveToTrashAction,
@@ -73,14 +75,21 @@ function getStatusFilter( urlStatus ) {
 /**
  * The DataViews implementation.
  *
- * @return {React.ReactElement} The DataViews component.
+ * @return {React.JSX.Element} The DataViews component.
  */
 export default function InboxView() {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useSearchParams();
+	const [ containerWidth, setContainerWidth ] = useState( 0 );
 	const [ queryArgs, setQueryArgs ] = useState( EMPTY_OBJECT );
+
 	const dateSettings = getDateSettings();
-	const [ resizeListener, { width: containerWidth } ] = useResizeObserver();
+	const containerRef = useResizeObserver(
+		resizeObserverEntries => {
+			setContainerWidth( resizeObserverEntries[ 0 ].borderBoxSize[ 0 ].inlineSize );
+		},
+		{ box: 'border-box' }
+	);
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const selectedResponses = searchParams.get( 'r' );
@@ -136,7 +145,12 @@ export default function InboxView() {
 				 * 3. Normalize the values to handle the case where the value is an array or if is empty.
 				 */
 				fields: Object.entries( record.fields || {} ).reduce( ( accumulator, [ key, value ] ) => {
-					const _key = formatFieldName( key );
+					let _key = formatFieldName( key );
+					let counter = 2;
+					while ( accumulator[ _key ] ) {
+						_key = `${ formatFieldName( key ) } (${ counter })`;
+						counter++;
+					}
 					accumulator[ _key ] = formatFieldValue( decodeEntities( value ) );
 					return accumulator;
 				}, {} ),
@@ -243,7 +257,7 @@ export default function InboxView() {
 				},
 				elements: ( filterOptions?.source || [] ).map( source => ( {
 					value: source.id,
-					label: source.title,
+					label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
 				} ) ),
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
@@ -252,6 +266,7 @@ export default function InboxView() {
 		],
 		[ filterOptions, dateSettings.formats.date ]
 	);
+
 	const actions = useMemo( () => {
 		const _actions = [
 			markAsSpamAction,
@@ -261,18 +276,29 @@ export default function InboxView() {
 			deleteAction,
 		];
 		if ( isMobile ) {
-			_actions.unshift( viewAction );
+			_actions.unshift( viewActionModal );
+		} else {
+			_actions.unshift( {
+				...viewAction,
+				callback( items ) {
+					const [ item ] = items;
+					const selectedId = item.id.toString();
+					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
+					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+				},
+			} );
 		}
 		return _actions;
-	}, [ isMobile ] );
+	}, [ isMobile, onChangeSelection, selection ] );
+
 	return (
 		<HStack
 			spacing={ 5 }
 			alignment="top"
 			justify="flex-start"
+			ref={ containerRef }
 			className="jp-forms__inbox__dataviews__container"
 		>
-			{ resizeListener }
 			<div className="jp-forms__inbox__dataviews">
 				<DataViews
 					paginationInfo={ paginationInfo }
@@ -286,6 +312,7 @@ export default function InboxView() {
 					onChangeSelection={ onChangeSelection }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
+					header={ <InboxStatusToggle currentQuery={ queryArgs } /> }
 				/>
 			</div>
 			<SingleResponse
@@ -299,13 +326,31 @@ export default function InboxView() {
 }
 
 const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMobile } ) => {
+	const [ isChildModalOpen, setIsChildModalOpen ] = useState( false );
+
 	const onRequestClose = useCallback( () => {
-		setSidePanelItem();
-	}, [ setSidePanelItem ] );
+		if ( ! isChildModalOpen ) {
+			setSidePanelItem();
+		}
+	}, [ setSidePanelItem, isChildModalOpen ] );
+
+	const handleModalStateChange = useCallback(
+		isOpen => {
+			setIsChildModalOpen( isOpen );
+		},
+		[ setIsChildModalOpen ]
+	);
+
 	if ( ! sidePanelItem ) {
 		return null;
 	}
-	const contents = <InboxResponse response={ sidePanelItem } isLoading={ isLoadingData } />;
+	const contents = (
+		<InboxResponse
+			response={ sidePanelItem }
+			isLoading={ isLoadingData }
+			onModalStateChange={ handleModalStateChange }
+		/>
+	);
 	if ( ! isMobile ) {
 		return <div className="jp-forms__inbox__dataviews-response">{ contents }</div>;
 	}

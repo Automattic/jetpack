@@ -2,17 +2,18 @@
 
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Queue_Buffer;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 
 /**
+ * This is abstract class to cover common test cases between testing the Options Table and Dedicated Table
+ *
  * @group jetpack-sync
  * @group jetpack-sync-queue
  */
-
-/**
- * This is abstract class to cover common test cases between testing the Options Table and Dedicated Table
- */
+#[Group( 'jetpack-sync' )]
+#[Group( 'jetpack-sync-queue' )]
 abstract class Jetpack_Sync_Queue_TestBase extends Jetpack_Sync_TestBase {
 	/**
 	 * @var Queue

@@ -191,15 +191,27 @@ describe( 'BarChart', () => {
 				},
 			} );
 
-			// Get all tspan elements in the document
-			const tspans = screen.getAllByText( /./i, {
-				selector: '.visx-axis-bottom .visx-axis-tick tspan',
-			} );
+			// Query for tspan elements that contain the formatted date.
+			const tspansWithDate = screen.getAllByText( '1/3/24' );
+			expect( tspansWithDate.length ).toBeGreaterThan( 0 );
+		} );
+	} );
 
-			// Check if any of these tspans contains our target text
-			const hasTargetDate = tspans.some( element => element.textContent.trim() === '1/3/24' );
+	describe( 'Pattern', () => {
+		test( 'renders with patterns', () => {
+			renderWithTheme( { withPatterns: true } );
+			expect( screen.getByRole( 'img', { name: /bar chart/i } ) ).toBeInTheDocument();
 
-			expect( hasTargetDate ).toBe( true );
+			// Check that pattern definitions container is present
+			expect( screen.getByTestId( 'bar-chart-patterns' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders without patterns by default', () => {
+			renderWithTheme( { withPatterns: false } );
+			expect( screen.getByRole( 'img', { name: /bar chart/i } ) ).toBeInTheDocument();
+
+			// Check that no pattern definitions container is present
+			expect( screen.queryByTestId( 'bar-chart-patterns' ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );

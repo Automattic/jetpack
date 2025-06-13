@@ -36,6 +36,13 @@ class Admin_Post_List_Column {
 	private $formatter;
 
 	/**
+	 * The current locale.
+	 *
+	 * @var string
+	 */
+	private $locale;
+
+	/**
 	 * The constructor.
 	 */
 	public function __construct() {
@@ -59,6 +66,7 @@ class Admin_Post_List_Column {
 		<style type="text/css">
 			.fixed .column-stats {
 				width: 5em;
+				white-space: nowrap;
 			}
 		</style>
 		<?php
@@ -81,7 +89,30 @@ class Admin_Post_List_Column {
 				);
 			} else {
 				// Link to the wp-admin stats page.
-				$stats_post_url = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, \Jetpack_Options::get_option( 'id', 0 ) ) );
+				$query_args = array(
+					'from'         => 'postList',
+					'jp_post_type' => get_post_type( $post_id ),
+				);
+
+				$list_criteria_params = array(
+					's'             => sanitize_text_field( get_search_query() ),
+					'paged'         => absint( get_query_var( 'paged' ) ),
+					'post_status'   => sanitize_text_field( get_query_var( 'post_status' ) ),
+					'orderby'       => sanitize_text_field( get_query_var( 'orderby' ) ),
+					'order'         => sanitize_text_field( get_query_var( 'order' ) ),
+					'author'        => absint( get_query_var( 'author' ) ),
+					'cat'           => absint( get_query_var( 'cat' ) ), // 'cat' is the query var for category ID
+					'm'             => absint( get_query_var( 'm' ) ),   // 'm' is the query var for YYYYMM
+					'category_name' => sanitize_text_field( get_query_var( 'category_name' ) ),
+				);
+
+				foreach ( $list_criteria_params as $key => $value ) {
+					if ( isset( $_GET[ $key ] ) && $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Checking if the key existts and not reading the value from the request.
+						$query_args[ 'jp_' . $key ] = $value;
+					}
+				}
+
+				$stats_post_url = add_query_arg( $query_args, admin_url( 'admin.php?page=stats#!/stats/post/' . $post_id . '/' . \Jetpack_Options::get_option( 'id', 0 ) ) );
 				// Unless the user is on a Default style WOA site, in which case link to Calypso.
 				if ( ( new Host() )->is_woa_site() && Stats_Options::get_option( 'enable_odyssey_stats' ) && 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
 					$stats_post_url = Redirect::get_url(
@@ -106,9 +137,15 @@ class Admin_Post_List_Column {
 
 				$views = $post_views[ $post_id ] ?? null;
 
-				$current_locale = get_bloginfo( 'language' );
+				$current_locale = get_locale();
 
-				$formatted_views = class_exists( '\NumberFormatter' ) ? $this->get_formatter( $current_locale )->format( $views ) : $this->get_fallback_format_to_compact_version( $views );
+				if ( null !== $views ) {
+					$formatted_views = class_exists( '\NumberFormatter' )
+						? $this->get_formatter( $current_locale )->format( $views )
+						: $this->get_fallback_format_to_compact_version( $views );
+				} else {
+					$formatted_views = '';
+				}
 
 				?>
 				<a href="<?php echo esc_url( $stats_post_url ); ?>"
@@ -213,6 +250,30 @@ class Admin_Post_List_Column {
 	}
 
 	/**
+	 * Get and validate the locale.
+	 *
+	 * @param string $locale The locale to validate.
+	 *
+	 * @return string The validated locale.
+	 */
+	public function get_validated_locale( string $locale ): string {
+		if ( isset( $this->locale ) ) {
+			return $this->locale;
+		}
+
+		/*
+		 * Check if the locale is valid and available.
+		 * If not, fallback to en_US.
+		 */
+		if ( ! in_array( $locale, \IntlCalendar::getAvailableLocales(), true ) ) {
+			$locale = 'en_US';
+		}
+
+		$this->locale = $locale;
+		return $locale;
+	}
+
+	/**
 	 * Get the NumberFormatter instance.
 	 *
 	 * @param string $locale The current locale.
@@ -223,6 +284,8 @@ class Admin_Post_List_Column {
 		if ( isset( $this->formatter[ $locale ] ) ) {
 			return $this->formatter[ $locale ];
 		}
+
+		$locale = $this->get_validated_locale( $locale );
 
 		/**
 		 * PHP's NumberFormatter is just a wrapper over the ICU C library. The library does support decimal compact short formatter, but PHP doesn't have a stub for it (=< PHP 8.4).

@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use Brain\Monkey;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 
@@ -19,6 +20,7 @@ use WP_Error;
  * @see \Automattic\Jetpack\Connection\Webhooks
  * @covers \Automattic\Jetpack\Connection\Webhooks
  */
+#[CoversClass( Webhooks::class )]
 class Webhooks_Test extends TestCase {
 
 	/**

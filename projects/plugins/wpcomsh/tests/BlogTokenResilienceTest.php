@@ -5,11 +5,15 @@
  * @package wpcomsh
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Class BlogTokenResilienceTest.
  *
  * @covers \WPCOMSH_Blog_Token_Resilience
  */
+#[CoversClass( WPCOMSH_Blog_Token_Resilience::class )]
 class BlogTokenResilienceTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -30,6 +34,7 @@ class BlogTokenResilienceTest extends WP_UnitTestCase {
 	 * @return void
 	 * @dataProvider get_blog_token_data
 	 */
+	#[DataProvider( 'get_blog_token_data' )]
 	public function test_get_blog_token( $value_on_db, $value_on_persistent_data, $expected_value ) {
 		if ( $value_on_db ) {
 			Jetpack_Options::update_option( 'blog_token', $value_on_db );

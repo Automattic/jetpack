@@ -1,9 +1,13 @@
 <?php
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 
 /**
  * @covers \Jetpack_Core_API_XMLRPC_Consumer_Endpoint
  */
+#[CoversClass( Jetpack_Core_API_XMLRPC_Consumer_Endpoint::class )]
 class Jetpack_Core_Api_Xmlrpc_Consumer_Endpoint_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -11,6 +15,7 @@ class Jetpack_Core_Api_Xmlrpc_Consumer_Endpoint_Test extends WP_UnitTestCase {
 	 * @author zinigor
 	 * @dataProvider true_false_provider
 	 */
+	#[DataProvider( 'true_false_provider' )]
 	public function test_Jetpack_Core_API_XMLRPC_Consumer_Endpoint_privacy_check( $query_success, $result ) {
 		$xmlrpc_mock = $this->getMockBuilder( 'Jetpack_IXR_Client' )
 					->onlyMethods( array( 'query', 'getResponse' ) )

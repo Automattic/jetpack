@@ -357,6 +357,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 * @see WP_Widget::form()
 	 *
 	 * @param array $instance Previously saved values from database.
+	 * @return string|void
 	 */
 	public function form( $instance ) {
 		$defaults = array(

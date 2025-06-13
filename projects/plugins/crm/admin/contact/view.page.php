@@ -1177,7 +1177,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									<?php
 										$jpcrm_add_file_url = admin_url( 'admin.php?page=' . $zbs->slugs['addnewfile'] ) . '&customer=' . $id;
 									?>
-									<a href="<?php echo esc_url( $jpcrm_add_file_url ); ?>" class="ui basic button" target="_blank" style="color: black !important; box-shadow: 0px 0px 0px 1px black inset !important;">
+									<a href="<?php echo esc_url( $jpcrm_add_file_url ); ?>" class="ui basic button" target="_blank" style="color: black !important; box-shadow: 0 0 0 1px black inset !important;">
 									<i class="plus square outline icon"></i>
 									<?php esc_html_e( 'Add File', 'zero-bs-crm' ); ?>
 									</a>

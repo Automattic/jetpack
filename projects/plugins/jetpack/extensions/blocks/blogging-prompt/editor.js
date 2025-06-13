@@ -1,4 +1,4 @@
-import { createBlock } from '@wordpress/blocks';
+import { createBlock, getBlockType } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
@@ -13,7 +13,14 @@ import save from './save';
 import './editor.scss';
 import './style.scss';
 
-registerJetpackBlockFromMetadata( metadata, {
+// Check if we're handling a URL parameter case
+const url = new URL( document.location.href );
+const isNewPost = url.pathname.endsWith( '/wp-admin/post-new.php' );
+const answerPrompt = isNewPost ? url.searchParams.get( 'answer_prompt' ) ?? '0' : '0';
+const answerPromptId = parseInt( answerPrompt );
+
+// Common registration settings
+const blockSettings = {
 	edit,
 	save,
 	example: {
@@ -31,12 +38,32 @@ registerJetpackBlockFromMetadata( metadata, {
 			isBloganuary: false,
 		},
 	},
-} );
+};
+
+// Only register immediately if we're not handling a URL parameter
+if ( ! answerPromptId ) {
+	registerJetpackBlockFromMetadata( metadata, blockSettings );
+}
+
+// Function to ensure block is registered, returns a promise
+const registerBlock = () =>
+	new Promise( resolve => {
+		registerJetpackBlockFromMetadata( metadata, blockSettings );
+		// Wait for next tick to ensure registration is complete
+		setTimeout( resolve, 0 );
+	} );
 
 async function insertTemplate( promptId ) {
 	await waitForEditor();
 
+	// Ensure block is registered before insertion
+	const blockType = getBlockType( 'jetpack/blogging-prompt' );
+	if ( ! blockType ) {
+		await registerBlock();
+	}
+
 	const { insertBlocks } = dispatch( 'core/block-editor' );
+
 	const bloggingPromptBlocks = [
 		createBlock( 'jetpack/blogging-prompt', { promptFetched: false, promptId, tagsAdded: true } ),
 		createBlock( 'core/paragraph' ),
@@ -46,15 +73,9 @@ async function insertTemplate( promptId ) {
 }
 
 function initBloggingPrompt() {
-	const url = new URL( document.location.href );
-	const isNewPost = url.pathname.endsWith( '/wp-admin/post-new.php' );
-
 	if ( ! isNewPost ) {
 		return;
 	}
-
-	const answerPrompt = url.searchParams.get( 'answer_prompt' ) ?? '0';
-	const answerPromptId = parseInt( answerPrompt );
 
 	if ( answerPromptId ) {
 		insertTemplate( answerPromptId );

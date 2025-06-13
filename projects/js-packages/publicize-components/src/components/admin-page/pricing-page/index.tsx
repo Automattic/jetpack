@@ -10,27 +10,52 @@ import {
 } from '@automattic/jetpack-components';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useProductInfo from '../../../hooks/use-product-info';
 import { store as socialStore } from '../../../social-store';
+import { getSocialScriptData } from '../../../utils/script-data';
 import styles from './styles.module.scss';
 
-const PricingPage = ( { onDismiss = () => {} } = {} ) => {
+type PricingPageProps = {
+	onDismiss: VoidFunction;
+};
+
+const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 	const [ productInfo ] = useProductInfo();
 
 	const blogID = getScriptData().site.wpcom.blog_id;
 	const siteSuffix = getScriptData().site.suffix;
 
-	const { setShowPricingPage } = useDispatch( socialStore );
+	const { setShowPricingPage, updateSocialModuleSettings } = useDispatch( socialStore );
 
 	const [ isLarge ] = useBreakpointMatch( 'lg' );
 
-	const hidePricingPage = useCallback( () => {
+	const isEnablingSocial = useSelect(
+		select => select( socialStore ).isSavingSocialModuleSettings(),
+		[]
+	);
+
+	const { is_publicize_enabled: isSocialEnabled } = getSocialScriptData();
+
+	const startForFree = useCallback( async () => {
+		// First let us activate the Social module, if it is not already enabled
+		// Because saving the settings won't work if the module is not enabled
+		if ( ! isSocialEnabled ) {
+			await updateSocialModuleSettings( { publicize: true } );
+		}
+		// Then we save the settings to not show the pricing page again
 		setShowPricingPage( false );
+
+		// If the module was NOT enabled, we need to refresh the page
+		if ( ! isSocialEnabled ) {
+			return window.location.reload();
+		}
+
+		// Otherwise dismiss the pricing page
 		onDismiss();
-	}, [ setShowPricingPage, onDismiss ] );
+	}, [ updateSocialModuleSettings, setShowPricingPage, onDismiss, isSocialEnabled ] );
 
 	return (
 		<PricingTable
@@ -123,10 +148,17 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 					<Button
 						fullWidth
 						variant="secondary"
-						onClick={ hidePricingPage }
+						onClick={ startForFree }
 						className={ isLarge && styles.button }
+						disabled={ isEnablingSocial }
 					>
-						{ __( 'Start for free', 'jetpack-publicize-components' ) }
+						{ isEnablingSocial
+							? __( 'Please wait…', 'jetpack-publicize-components' )
+							: _x(
+									'Start for free',
+									'Pricing page CTA for Social admin page',
+									'jetpack-publicize-components'
+							  ) }
 					</Button>
 				</PricingTableHeader>
 				<PricingTableItem isIncluded={ false } />

@@ -1,3 +1,20 @@
+## [3.2.2] - 2025-06-04
+### Changed
+- Update package dependencies. [#43766]
+
+## [3.2.1] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718]
+
+## [3.2.0] - 2025-05-12
+### Removed
+- Remove Skype since the service no longer exists. [#43375]
+
+## [3.1.21] - 2025-04-28
+### Fixed
+- Code: Use modern font MIME types for inline fonts. [#43227]
+- Linting: Fix more Stylelint violations. [#43213]
+
 ## [3.1.20] - 2025-04-14
 ### Fixed
 - Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
@@ -211,6 +228,10 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.2.2]: https://github.com/Automattic/social-logos/compare/v3.2.1...v3.2.2
+[3.2.1]: https://github.com/Automattic/social-logos/compare/v3.2.0...v3.2.1
+[3.2.0]: https://github.com/Automattic/social-logos/compare/v3.1.21...v3.2.0
+[3.1.21]: https://github.com/Automattic/social-logos/compare/v3.1.20...v3.1.21
 [3.1.20]: https://github.com/Automattic/social-logos/compare/v3.1.19...v3.1.20
 [3.1.19]: https://github.com/Automattic/social-logos/compare/v3.1.18...v3.1.19
 [3.1.18]: https://github.com/Automattic/social-logos/compare/v3.1.17...v3.1.18

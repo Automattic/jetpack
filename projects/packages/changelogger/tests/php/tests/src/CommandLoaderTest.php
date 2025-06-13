@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelogger\AddCommand;
 use Automattic\Jetpack\Changelogger\CommandLoader;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 
 /**
@@ -16,6 +17,7 @@ use Symfony\Component\Console\Exception\CommandNotFoundException;
  *
  * @covers \Automattic\Jetpack\Changelogger\CommandLoader
  */
+#[CoversClass( CommandLoader::class )]
 class CommandLoaderTest extends TestCase {
 
 	/**

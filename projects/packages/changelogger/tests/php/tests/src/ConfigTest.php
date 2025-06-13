@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Changelogger\Tests;
 use Automattic\Jetpack\Changelogger\Config;
 use Automattic\Jetpack\Changelogger\ConfigException;
 use Automattic\Jetpack\Changelogger\PluginTrait;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Wikimedia\TestingAccessWrapper;
 
 /**
@@ -17,6 +18,7 @@ use Wikimedia\TestingAccessWrapper;
  *
  * @covers \Automattic\Jetpack\Changelogger\Config
  */
+#[CoversClass( Config::class )]
 class ConfigTest extends TestCase {
 
 	/**

@@ -9,8 +9,9 @@
 		"automattic/custom-fonts": "^3.0",
 		"automattic/custom-fonts-typekit": "^2.0",
 		"automattic/text-media-widget-styles": "^2.0",
-		"automattic/wc-calypso-bridge": "2.10.0",
+		"automattic/wc-calypso-bridge": "2.10.4",
 		"wordpress/classic-editor-plugin": "1.6.7",
+		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-post-list": "@dev",
@@ -19,7 +20,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"yoast/phpunit-polyfills": "^3.0.0",
+		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {
@@ -124,9 +125,10 @@
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true,
 			"composer/installers": true,
-			"automattic/jetpack-composer-plugin": true
+			"automattic/jetpack-composer-plugin": true,
+			"automattic/jetpack-autoloader": true
 		},
-		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ6_1_0"
+		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ7_0_0"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/wpcom-site-helper",

@@ -15,10 +15,10 @@ class Jetpack_Display_Posts_Widget_Test extends WP_UnitTestCase {
 	private $inst;
 
 	/**
-	 * Jetpack_Display_Posts_Widget_Test constructor.
+	 * Setup function.
 	 */
-	public function __construct( ...$args ) {
-		parent::__construct( ...$args ); // @phan-suppress-current-line PhanParamTooFewUnpack - Should be ok.
+	public function set_up() {
+		parent::set_up();
 		$this->inst = new Jetpack_Display_Posts_Widget();
 	}
 

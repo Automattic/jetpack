@@ -5,10 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2025-06-03
+### Changed
+- Internal updates.
+
+## [0.8.0] - 2025-06-02
+### Changed
+- sass: Convert `@automattic/jetpack-base-styles/gutenberg-base-styles` to modules format. [#43607]
+- Update README for Sass modules. [#43670]
+
+## [0.7.5] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
+## [0.7.4] - 2025-05-12
+### Changed
+- Update package dependencies. [#43400]
+
+## [0.7.3] - 2025-05-05
+### Changed
+- Update package dependencies. [#43326]
+
+## [0.7.2] - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+
 ## [0.7.1] - 2025-04-14
 ### Fixed
 - Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
-- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Clean up various Stylelint violations. [#43010]
 - Linting: Format SCSS imports consistently. [#43018]
 - Linting: Use double colon notation for pseudo-element selectors. [#43019]
 
@@ -379,6 +404,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[1.0.0]: https://github.com/Automattic/jetpack-base-styles/compare/0.8.0...1.0.0
+[0.8.0]: https://github.com/Automattic/jetpack-base-styles/compare/0.7.5...0.8.0
+[0.7.5]: https://github.com/Automattic/jetpack-base-styles/compare/0.7.4...0.7.5
+[0.7.4]: https://github.com/Automattic/jetpack-base-styles/compare/0.7.3...0.7.4
+[0.7.3]: https://github.com/Automattic/jetpack-base-styles/compare/0.7.2...0.7.3
+[0.7.2]: https://github.com/Automattic/jetpack-base-styles/compare/0.7.1...0.7.2
 [0.7.1]: https://github.com/Automattic/jetpack-base-styles/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.45...0.7.0
 [0.6.45]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.44...0.6.45

@@ -13,6 +13,8 @@ use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use InvalidArgumentException;
 use Mockery;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\TestingAccessWrapper;
@@ -33,6 +35,7 @@ interface AssetsTest_test_wp_default_scripts_hook {
  *
  * @covers \Automattic\Jetpack\Assets
  */
+#[CoversClass( Assets::class )]
 class AssetsTest extends TestCase {
 	use \Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
@@ -98,6 +101,7 @@ class AssetsTest extends TestCase {
 	 * @param string $expected        Expected result.
 	 * @param string $not_expected    Non expected result.
 	 */
+	#[DataProvider( 'get_file_url_for_environment_data_provider' )]
 	public function test_get_file_url_for_environment( $min_path, $non_min_path, $is_script_debug, $expected, $not_expected ) {
 		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
 		$file_url = Assets::get_file_url_for_environment( $min_path, $non_min_path );
@@ -115,6 +119,7 @@ class AssetsTest extends TestCase {
 	 *
 	 * @param string $url Full URL we want to enqueue.
 	 */
+	#[DataProvider( 'get_file_url_for_environment_full_urls_data_provider' )]
 	public function test_get_file_url_for_environment_full_url( $url ) {
 		$file_url = Assets::get_file_url_for_environment( $url, $url );
 
@@ -134,6 +139,7 @@ class AssetsTest extends TestCase {
 	 * @author       davidlonjon
 	 * @dataProvider get_file_url_for_environment_package_path_data_provider
 	 */
+	#[DataProvider( 'get_file_url_for_environment_package_path_data_provider' )]
 	public function test_get_file_url_for_environment_package_path( $min_path, $non_min_path, $package_path, $is_script_debug, $expected, $not_expected ) {
 		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
 		$file_url = Assets::get_file_url_for_environment( $min_path, $non_min_path, $package_path );
@@ -226,6 +232,7 @@ class AssetsTest extends TestCase {
 	 * @param string $expected_http  Expected WordPress.com Static URL when we're mocking a site using HTTP.
 	 * @param string $expected_https Expected WordPress.com Static URL when we're mocking a site using HTTPS.
 	 */
+	#[DataProvider( 'get_resources_urls' )]
 	public function test_staticize_subdomain( $original, $expected_http, $expected_https ) {
 		Functions\when( 'is_ssl' )->justReturn( false );
 		$static_resource = Assets::staticize_subdomain( $original );
@@ -286,6 +293,7 @@ class AssetsTest extends TestCase {
 	 * @param string $path Path.
 	 * @param string $expect Expect.
 	 */
+	#[DataProvider( 'provide_normalize_path' )]
 	public function test_normalize_path( $path, $expect ) {
 		$this->assertSame( $expect, Assets::normalize_path( $path ) );
 	}
@@ -324,6 +332,7 @@ class AssetsTest extends TestCase {
 	 *   - is_rtl: Value for `is_rtl()`.
 	 *   - exception: Exception expected to be thrown.
 	 */
+	#[DataProvider( 'provide_register_script' )]
 	public function test_register_script( $args, $expect, $extra = array() ) {
 		Functions\stubs(
 			array(
@@ -699,6 +708,7 @@ class AssetsTest extends TestCase {
 	 * @param string $expect_js Expected JS.
 	 * @param array  $options Options for the test.
 	 */
+	#[DataProvider( 'provide_wp_default_scripts_hook' )]
 	public function test_wp_default_scripts_hook( $expect_filter, $expect_js, $options = array() ) {
 		$options += array(
 			'constants'  => array(),
@@ -1071,6 +1081,7 @@ class AssetsTest extends TestCase {
 	 * @param array                             $is_readable Expected files passed to `is_readable()` and the corresponding return values.
 	 * @param string|false                      $expect Expected return value.
 	 */
+	#[DataProvider( 'provide_filter_load_script_translation_file' )]
 	public function test_filter_load_script_translation_file( $args, $is_readable, $expect ) {
 		Jetpack_Constants::set_constant( 'WP_LANG_DIR', '/path/to/wordpress/wp-content/languages' );
 		TestingAccessWrapper::newFromClass( Assets::class )->domain_map = array(

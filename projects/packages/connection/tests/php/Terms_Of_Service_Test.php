@@ -10,6 +10,7 @@ namespace Automattic\Jetpack;
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,6 +19,7 @@ use PHPUnit\Framework\TestCase;
  * @package Automattic\Jetpack
  * @covers \Automattic\Jetpack\Terms_Of_Service
  */
+#[CoversClass( Terms_Of_Service::class )]
 class Terms_Of_Service_Test extends TestCase {
 	use MockeryPHPUnitIntegration;
 

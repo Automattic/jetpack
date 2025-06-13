@@ -1,11 +1,14 @@
-<?php
+<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 namespace Automattic\JetpackCRM;
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
+/**
+ * Single quote endpoint
+ */
 class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 
-	public static function register_endpoint( $endpoints, $client_portal ) {
+	public static function register_endpoint( $endpoints, $client_portal ) { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 		global $zbs;
 
 		if ( zeroBSCRM_getSetting( 'feat_quotes' ) > 0 ) {
@@ -16,7 +19,7 @@ class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 			$new_endpoint->hide_from_menu               = true;
 			$new_endpoint->template_name                = 'single-quote.php';
 			$new_endpoint->add_rewrite_endpoint         = true;
-			$new_endpoint->should_check_user_permission = $zbs->settings->get( 'easyaccesslinks' ) === "0";
+			$new_endpoint->should_check_user_permission = $zbs->settings->get( 'easyaccesslinks' ) === '0';
 			$new_endpoint->hide_from_settings_page      = true;
 
 			$endpoints[] = $new_endpoint;
@@ -25,7 +28,7 @@ class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 		return $endpoints;
 	}
 
-	/* 
+	/*
 	* Generates HTML for portal single email
 	*
 	* Previously called zeroBSCRM_quote_generatePortalQuoteHTML
@@ -67,7 +70,7 @@ class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 			}
 		}
 ?>
-		<div id="zerobs-proposal-<?php echo esc_attr( $quote_id ); ?> main" class="zerobs-proposal entry-content hentry" style="margin-bottom:50px;margin-top:0px;">
+		<div id="zerobs-proposal-<?php echo esc_attr( $quote_id ); ?> main" class="zerobs-proposal entry-content hentry" style="margin-bottom:50px;margin-top:0;">
 
 			<div class="zerobs-proposal-body"><?php echo wp_kses( wpautop( $quote_content ), $zbs->acceptable_html ); ?></div>
 

@@ -276,7 +276,7 @@ jQuery( function ( $ ) {
 		const post = window.location.search.match( /[?&]jetpack_form_parent_id=(\d+)/ );
 
 		const selected = [];
-		$( '#posts-filter .check-column input[type=checkbox]:checked' ).each( function () {
+		$( '#posts-filter .check-column input[type="checkbox"]:checked' ).each( function () {
 			selected.push( parseInt( $( this ).attr( 'value' ), 10 ) );
 		} );
 
@@ -320,7 +320,7 @@ jQuery( function ( $ ) {
 		const post = window.location.search.match( /[?&]jetpack_form_parent_id=(\d+)/ );
 
 		const selected = [];
-		$( '#posts-filter .check-column input[type=checkbox]:checked' ).each( function () {
+		$( '#posts-filter .check-column input[type="checkbox"]:checked' ).each( function () {
 			selected.push( parseInt( $( this ).attr( 'value' ), 10 ) );
 		} );
 

@@ -8,27 +8,27 @@
 	}
 
 	// notice content
-	& :global( .components-notice__content ) {
+	:global( .components-notice__content ) {
 		display: flex;
 		align-items: center;
 		margin: 0;
 		padding: 12px 4px;
 
 		// left icon
-		& > svg {
+		> svg {
 			fill: var( --jp-red-60 );
 		}
 	}
 
 	// action button
-	& :global( .is-link ) {
+	:global( .is-link ) {
 		color: var( --jp-black );
 		font-size: 16px;
 		font-weight: 600;
 	}
 
 	// X close button
-	& :global( .components-notice__dismiss ) {
+	:global( .components-notice__dismiss ) {
 		align-self: center;
 	}
 

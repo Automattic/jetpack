@@ -1,5 +1,5 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-@import './player/style';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use 'player/style';
 
 .wp-block-jetpack-story__add-item {
 	margin-top: 4px;
@@ -26,7 +26,7 @@
 
 		&:hover,
 		&:focus {
-			border: 1px solid $gray-600;
+			border: 1px solid gb.$gray-600;
 		}
 	}
 }

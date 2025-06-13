@@ -1,7 +1,7 @@
 import { Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { commentContent, trash, backup } from '@wordpress/icons';
+import { seen, trash, backup } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
@@ -14,10 +14,13 @@ export const BULK_ACTIONS = {
 
 export const viewAction = {
 	id: 'view-response',
-	label: __( 'View response', 'jetpack-forms' ),
+	icon: <Icon icon={ seen } />,
 	isPrimary: true,
-	icon: <Icon icon={ commentContent } />,
-	modalHeader: __( 'Response', 'jetpack-forms' ),
+	label: __( 'View response', 'jetpack-forms' ),
+};
+
+export const viewActionModal = {
+	...viewAction,
 	RenderModal: ( { items } ) => {
 		const [ item ] = items;
 		return <InboxResponse isLoading={ false } response={ item } />;
@@ -68,7 +71,18 @@ export const markAsSpamAction = {
 							),
 							items.length
 					  );
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'mark-as-spam-action' } );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'mark-as-spam-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							markAsNotSpamAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 		} else {
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
@@ -115,7 +129,18 @@ export const markAsNotSpamAction = {
 							),
 							items.length
 					  );
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'mark-as-not-spam-action' } );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'mark-as-not-spam-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							markAsSpamAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 		} else {
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
@@ -160,7 +185,18 @@ export const restoreAction = {
 							),
 							items.length
 					  );
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'restore-action' } );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'restore-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							moveToTrashAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 			return;
 		}
 		// There is at least one failure.
@@ -198,7 +234,18 @@ export const moveToTrashAction = {
 							),
 							items.length
 					  );
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'move-to-trash-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							restoreAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 			return;
 		}
 		// There is at least one failure.

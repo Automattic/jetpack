@@ -24,6 +24,9 @@ export class JetpackFormHandler extends BlockHandler {
 		this.feature = 'jetpack-form-ai-extension';
 		this.startOpen = true;
 		this.hideOnBlockFocus = false;
+		this.supports = {
+			file_upload_field: 1,
+		};
 	}
 
 	private setContent( newContent: string, isRequestDone = false ): void {

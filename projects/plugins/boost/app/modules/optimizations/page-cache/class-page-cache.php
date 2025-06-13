@@ -10,6 +10,7 @@ use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
+use Automattic\Jetpack_Boost\Lib\Cache_Compatibility;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync\Page_Cache_Entry;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Clear_Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Data_Sync_Actions\Deactivate_WPSC;
@@ -78,17 +79,11 @@ class Page_Cache implements Feature, Has_Deactivate, Has_Data_Sync, Optimization
 	}
 
 	public function handle_page_output_change() {
-		$this->invalidate_cache();
+		Garbage_Collection::schedule_single_garbage_collection();
 
 		// Remove the action so it doesn't run again during the same request.
 		remove_action( 'jetpack_boost_page_output_changed', array( $this, 'handle_page_output_change' ) );
 	}
-
-	private function invalidate_cache() {
-		$cache = new Boost_Cache();
-		$cache->delete_recursive( home_url() );
-	}
-
 	/**
 	 * Runs cleanup when the feature is deactivated.
 	 */
@@ -115,6 +110,11 @@ class Page_Cache implements Feature, Has_Deactivate, Has_Data_Sync, Optimization
 				return true;
 			}
 
+			return false;
+		}
+
+		// Disable Page Cache on sites that have their own caching service.
+		if ( Cache_Compatibility::has_cache() ) {
 			return false;
 		}
 

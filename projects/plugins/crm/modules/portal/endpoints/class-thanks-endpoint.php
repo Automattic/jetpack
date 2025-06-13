@@ -1,16 +1,19 @@
-<?php
+<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 namespace Automattic\JetpackCRM;
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
+/**
+ * Thanks endpoint
+ */
 class Thanks_Endpoint extends Client_Portal_Endpoint {
 
-	public static function register_endpoint( $endpoints, $client_portal ) {
+	public static function register_endpoint( $endpoints, $client_portal ) { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 		$new_endpoint = new Thanks_Endpoint( $client_portal );
 
 		$new_endpoint->portal                       = $client_portal;
 		$new_endpoint->slug                         = 'thanks';
-		$new_endpoint->name                         = __('Thank you', 'zero-bs-crm');
+		$new_endpoint->name                         = __( 'Thank you', 'zero-bs-crm' );
 		$new_endpoint->hide_from_menu               = true;
 		$new_endpoint->template_name                = 'thank-you.php';
 		$new_endpoint->add_rewrite_endpoint         = true;

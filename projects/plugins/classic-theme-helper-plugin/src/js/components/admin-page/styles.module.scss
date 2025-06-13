@@ -1,10 +1,10 @@
-@import '@automattic/jetpack-base-styles/style';
+@use '@automattic/jetpack-base-styles/style';
 
 :global {
 
 	#wpbody-content {
 
-		& > .notice {
+		> .notice {
 			display: none;
 		}
 	}

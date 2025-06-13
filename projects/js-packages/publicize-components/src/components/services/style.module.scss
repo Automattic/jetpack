@@ -1,11 +1,11 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .services {
 	outline: 1px solid var(--jp-gray-5);
 	border-radius: 4px;
 
 	.service-list-item {
-		margin-bottom: 0px;
+		margin-bottom: 0;
 
 		&:not(:last-child) {
 			border-bottom: 1px solid var(--jp-gray-5);
@@ -15,7 +15,7 @@
 	.service-item {
 		padding: 0.75rem;
 
-		@include break-small {
+		@include gb.break-small {
 			padding: 1rem;
 		}
 	}
@@ -83,12 +83,12 @@
 	}
 
 	.service-panel {
-		border: 0px;
+		border: 0;
 
 		:global(.components-panel__body) {
-			border-top: 0px;
-			border-bottom: 0px;
-			padding: 0px;
+			border-top: 0;
+			border-bottom: 0;
+			padding: 0;
 		}
 
 		:global(.components-panel__body.is-opened) {
@@ -102,7 +102,7 @@
 	}
 
 	.broken-connection-alert {
-		margin-block: 0px;
+		margin-block: 0;
 		font-size: var(--font-body-small);
 	}
 
@@ -211,7 +211,7 @@
 			justify-content: flex-start;
 		}
 
-		@include break-medium {
+		@include gb.break-medium {
 			flex-direction: row;
 		}
 	}
@@ -222,11 +222,11 @@
 		gap: 0.5rem;
 		flex-basis: 100%;
 
-		@include break-medium {
+		@include gb.break-medium {
 			flex-basis: 50%;
 		}
 
-		@include break-small {
+		@include gb.break-small {
 
 			button {
 				align-self: flex-end;
@@ -246,7 +246,7 @@
 		padding: var(--spacing-base) calc(var(--spacing-base) * 3); // To make the inputs of the same size as the Connect button
 
 		// Override the default input styles for small screens
-		@media (max-width: #{ ($break-medium) }) {
+		@media (max-width: #{ (gb.$break-medium) }) {
 			padding: 0 8px;
 			font-size: 14px;
 		}

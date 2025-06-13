@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -16,6 +18,7 @@ use PHPUnit\Framework\TestCase;
  * @see \Automattic\Jetpack\Connection\Plugin
  * @covers \Automattic\Jetpack\Connection\Plugin
  */
+#[CoversClass( Plugin::class )]
 class Plugin_Test extends TestCase {
 
 	const PLUGIN_SLUG = 'sample-plugin-slug';
@@ -55,6 +58,7 @@ class Plugin_Test extends TestCase {
 	 *
 	 * @depends test_add
 	 */
+	#[Depends( 'test_add' )]
 	public function test_remove() {
 		$plugin = new Plugin( self::PLUGIN_SLUG );
 		$plugin->remove();

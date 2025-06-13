@@ -15,3 +15,6 @@ package.json      export-ignore
 changelog/**      production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
+_inc/*.scss       production-exclude
+_inc/*.jsx        production-exclude
+_inc/*.tsx        production-exclude

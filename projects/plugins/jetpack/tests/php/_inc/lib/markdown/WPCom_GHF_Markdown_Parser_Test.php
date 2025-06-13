@@ -5,6 +5,9 @@
  * @package Jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 // Require the whole lib to process text.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/markdown.php';
 
@@ -13,6 +16,7 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/markdown.php';
  *
  * @covers WPCom_GHF_Markdown_Parser
  */
+#[CoversClass( WPCom_GHF_Markdown_Parser::class )]
 class WPCom_GHF_Markdown_Parser_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -26,6 +30,7 @@ class WPCom_GHF_Markdown_Parser_Test extends WP_UnitTestCase {
 	 * @param string $text     The Markdown text we want to transform.
 	 * @param string $expected Expected HTML content.
 	 */
+	#[DataProvider( 'get_text_urls' )]
 	public function test_urls_preserve( $text, $expected ) {
 		/*
 		 * Text always ends with a newline.

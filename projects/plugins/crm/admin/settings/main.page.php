@@ -237,7 +237,7 @@ $setting_updated = isset( $_GET['updated'] ) && 'true' == esc_attr( $_GET['updat
 	<?php echo zeroBSCRM_UI2_messageHTML( 'info', '', __( 'Settings updated', 'zero-bs-crm' ) ); ?>
 <?php endif ?>
 
-<div class="ui grid zbs-page-wrap" style="margin-top:0em">
+<div class="ui grid zbs-page-wrap" style="margin-top: 0">
 
 	<div class="four wide column">
 		<?php jpcrm_render_settings_menu( $current_tab ); ?>

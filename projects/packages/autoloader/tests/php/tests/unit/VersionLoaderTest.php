@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
 use Automattic\Jetpack\AutoloaderTesting\Current\UniqueTestClass;
 use Automattic\Jetpack\AutoloaderTesting\SharedTestClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Test_Plugin_Factory;
 
@@ -176,6 +178,8 @@ class VersionLoaderTest extends TestCase {
 	 * @preserveGlobalState disabled
 	 * @runInSeparateProcess
 	 */
+	#[PreserveGlobalState( false )]
+	#[RunInSeparateProcess]
 	public function test_loads_filemap() {
 		$file_hash = md5( 'test-file' );
 
@@ -204,6 +208,8 @@ class VersionLoaderTest extends TestCase {
 	 * @preserveGlobalState disabled
 	 * @runInSeparateProcess
 	 */
+	#[PreserveGlobalState( false )]
+	#[RunInSeparateProcess]
 	public function test_loads_filemap_skips_existing_files() {
 		$file_hash = md5( 'test-file' );
 

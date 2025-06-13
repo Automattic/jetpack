@@ -11,6 +11,8 @@ use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelogger\FormatterPlugin;
 use Automattic\Jetpack\Changelogger\LoadChangeFileException;
 use Automattic\Jetpack\Changelogger\Utils;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -24,6 +26,7 @@ use Symfony\Component\Process\Process;
  *
  * @covers \Automattic\Jetpack\Changelogger\Utils
  */
+#[CoversClass( Utils::class )]
 class UtilsTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertObjectProperty;
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
@@ -40,6 +43,7 @@ class UtilsTest extends TestCase {
 	 * @param string $expectOutput Expected output to the console.
 	 * @param int    $verbosity Output buffer verbosity.
 	 */
+	#[DataProvider( 'provideRunCommand' )]
 	public function testRunCommand( $cmd, $options, $expectExitCode, $expectStdout, $expectStderr, $expectOutput, $verbosity = BufferedOutput::VERBOSITY_DEBUG ) {
 		$sh = ( new ExecutableFinder() )->find( 'sh' );
 		if ( ! $sh ) {
@@ -149,6 +153,7 @@ class UtilsTest extends TestCase {
 	 * @param array|LoadChangeFileException $expect Expected output.
 	 * @param array                         $expectDiagnostics Expected diagnostics.
 	 */
+	#[DataProvider( 'provideLoadChangeFile' )]
 	public function testLoadChangeFile( $contents, $expect, $expectDiagnostics = array() ) {
 		$temp = tempnam( sys_get_temp_dir(), 'phpunit-testLoadChangeFile-' );
 		try {

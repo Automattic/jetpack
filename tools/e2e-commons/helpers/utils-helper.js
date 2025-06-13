@@ -2,7 +2,6 @@ import { execSync, exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import config from 'config';
-import fetch from 'node-fetch';
 import logger from '../logger.js';
 const { E2E_DEBUG } = process.env;
 export const BASE_DOCKER_CMD = 'pnpm jetpack docker --type e2e --name t1';
@@ -213,10 +212,14 @@ export function getSiteCredentials() {
  */
 export function setWpEnvVars() {
 	const site = getConfigTestSite();
+	const storage = config.get( 'temp.storage' );
 
 	process.env.WP_BASE_URL = resolveSiteUrl();
 	process.env.WP_USERNAME = site.username;
 	process.env.WP_PASSWORD = site.password;
+	if ( storage ) {
+		process.env.STORAGE_STATE_PATH = storage;
+	}
 }
 
 /**

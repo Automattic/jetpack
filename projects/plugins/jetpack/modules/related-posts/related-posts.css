@@ -142,7 +142,6 @@
 	display: block;
 	width: 100%;
 	min-width: 30px;
-	border-top: 1px solid #dcdcde;
 	border-top: 1px solid rgba(0,0,0,.2);
 	margin-bottom: 1em;
 }
@@ -169,8 +168,6 @@
 	width: 33%;
 	margin: 0 0 1em; /* Needs to be same as the main outer wrapper for Related Posts */
 	box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
 }
 
 #jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post {

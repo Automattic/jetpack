@@ -1,8 +1,8 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import numberFormat from '../../../utils/format-number';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 import { InfoTooltip } from '../../info-tooltip';
 import baseStyles from '../style.module.scss';
@@ -58,7 +58,7 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 					{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
 				</div>
 				<div className="value-section__data">
-					<div className="logins_blocked__count">{ numberFormat( blockedLoginsCount ) }</div>
+					<div className="logins_blocked__count">{ formatNumber( blockedLoginsCount ) }</div>
 				</div>
 			</>
 		) : (
@@ -123,7 +123,7 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 									) }
 								/>
 							</div>
-							<div className="logins_blocked__count">{ numberFormat( blockedLoginsCount ) }</div>
+							<div className="logins_blocked__count">{ formatNumber( blockedLoginsCount ) }</div>
 						</>
 					) : (
 						<div>

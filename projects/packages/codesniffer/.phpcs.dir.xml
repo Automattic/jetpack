@@ -7,4 +7,10 @@
 	<rule ref="PHPCompatibility.Syntax.NewFlexibleHeredocNowdoc">
 		<exclude name="PHPCompatibility.Syntax.NewFlexibleHeredocNowdoc.ClosingMarkerNoNewLine" />
 	</rule>
+
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<properties>
+			<property name="skipIfInheritdoc" value="true" />
+		</properties>
+	</rule>
 </ruleset>

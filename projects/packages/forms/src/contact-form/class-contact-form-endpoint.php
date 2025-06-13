@@ -7,6 +7,11 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
+use Automattic\Jetpack\Forms\Service\Google_Drive;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -38,6 +43,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'type'         => 'plugin',
 			'file'         => 'zero-bs-crm/ZeroBSCRM.php',
 			'settings_url' => 'admin.php?page=zerobscrm-plugin-settings',
+		),
+		'salesforce'                        => array(
+			'type'         => 'service',
+			'file'         => null,
+			'settings_url' => null,
+		),
+		'google-drive'                      => array(
+			'type'         => 'service',
+			'file'         => null,
+			'settings_url' => null,
 		),
 	);
 
@@ -75,6 +90,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_all_integrations_status' ),
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'args'                => array(
+					'version' => array(
+						'type'              => 'integer',
+						'default'           => 1,
+						'sanitize_callback' => 'absint',
+						'validate_callback' => function ( $param ) {
+							$version = absint( $param );
+							return in_array( $version, array( 1, 2 ), true );
+						},
+					),
+				),
 			)
 		);
 
@@ -307,28 +333,34 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 							'items' => array(
 								'type'       => 'object',
 								'properties' => array(
-									'file_id' => array(
+									'file_id'        => array(
 										'type'        => 'integer',
 										'arg_options' => array(
 											'sanitize_callback' => 'sanitize_text_field',
 										),
 									),
-									'name'    => array(
+									'name'           => array(
 										'type'        => 'string',
 										'arg_options' => array(
 											'sanitize_callback' => 'sanitize_text_field',
 										),
 									),
-									'size'    => array(
+									'size'           => array(
 										'type'        => 'string',
 										'arg_options' => array(
 											'sanitize_callback' => 'sanitize_text_field',
 										),
 									),
-									'url'     => array(
+									'url'            => array(
 										'type'        => 'string',
 										'arg_options' => array(
 											'sanitize_callback' => 'esc_url_raw',
+										),
+									),
+									'is_previewable' => array(
+										'type'        => 'boolean',
+										'arg_options' => array(
+											'sanitize_callback' => 'rest_sanitize_boolean',
 										),
 									),
 								),
@@ -353,6 +385,99 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$this->schema = $schema;
 
 		return $this->add_additional_fields_schema( $this->schema );
+	}
+
+	/**
+	 * Updates the item.
+	 * Overrides the parent method to resend the email when the item is updated from spam to publish.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function update_item( $request ) {
+		$valid_check = parent::get_post( $request['id'] );
+		if ( is_wp_error( $valid_check ) ) {
+			return $valid_check;
+		}
+
+		$post_id         = $request['id'];
+		$previous_status = get_post_status( $post_id );
+		$updated_item    = parent::update_item( $request );
+
+		if ( ! is_wp_error( $updated_item ) && ! empty( $updated_item->data && ! empty( $updated_item->data['status'] ) ) ) {
+			if ( $previous_status === 'spam' && $updated_item->data['status'] === 'publish' ) {
+				// updated item is going from spam to inbox
+				$akismet_values = get_post_meta( $post_id, '_feedback_akismet_values', true );
+				/** This action is documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
+				do_action( 'contact_form_akismet', 'ham', $akismet_values );
+				$this->resend_email( $post_id );
+			}
+		}
+		return $updated_item;
+	}
+
+	/**
+	 * Resends the email for a given post ID.
+	 *
+	 * @param int $post_id The ID of the post to resend the email for.
+	 */
+	public function resend_email( $post_id ) {
+		$comment_author_email = false;
+		$reply_to_addr        = false;
+		$message              = '';
+		$to                   = false;
+		$headers              = false;
+		$blog_url             = wp_parse_url( site_url() );
+
+		// resend the original email
+		$email          = get_post_meta( $post_id, '_feedback_email', true );
+		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+
+		if ( ! empty( $email ) && ! empty( $content_fields ) ) {
+			if ( isset( $content_fields['_feedback_author_email'] ) ) {
+				$comment_author_email = $content_fields['_feedback_author_email'];
+			}
+
+			if ( isset( $email['to'] ) ) {
+				$to = $email['to'];
+			}
+
+			if ( isset( $email['message'] ) ) {
+				$message = $email['message'];
+			}
+
+			if ( isset( $email['headers'] ) ) {
+				$headers = $email['headers'];
+			} else {
+				$headers = 'From: "' . $content_fields['_feedback_author'] . '" <wordpress@' . $blog_url['host'] . ">\r\n";
+
+				if ( ! empty( $comment_author_email ) ) {
+					$reply_to_addr = $comment_author_email;
+				} elseif ( is_array( $to ) ) {
+					$reply_to_addr = $to[0];
+				}
+
+				if ( $reply_to_addr ) {
+					$headers .= 'Reply-To: "' . $content_fields['_feedback_author'] . '" <' . $reply_to_addr . ">\r\n";
+				}
+
+				$headers .= 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . '"';
+			}
+
+			/**
+			 * Filters the subject of the email sent after a contact form submission.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 3.0.0
+			 *
+			 * @param string $content_fields['_feedback_subject'] Feedback's subject line.
+			 * @param array $content_fields['_feedback_all_fields'] Feedback's data from old fields.
+			 */
+			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
+
+			Contact_Form::wp_mail( $to, $subject, $message, $headers );
+		}
 	}
 
 	/**
@@ -433,11 +558,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 							// this shouldn't happen, todo: log this
 							continue;
 						}
-						$file_id         = absint( $file['file_id'] );
-						$file['file_id'] = $file_id;
-						$file['size']    = size_format( $file['size'] );
-						$file['url']     = \apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
-						$has_file        = true;
+						$file_id                = absint( $file['file_id'] );
+						$file['file_id']        = $file_id;
+						$file['size']           = size_format( $file['size'] );
+						$file['url']            = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
+						$file['is_previewable'] = self::is_previewable_file( $file );
+						$has_file               = true;
 					}
 				}
 			}
@@ -446,6 +572,19 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['has_file'] = $has_file;
 		}
 		return rest_ensure_response( $data );
+	}
+	/**
+	 * Checks if the file is previewable based on its type or extension.
+	 *
+	 * @param array $file File data.
+	 * @return bool True if the file is previewable, false otherwise.
+	 */
+	private static function is_previewable_file( $file ) {
+		$file_type = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
+		// Check if the file is previewable based on its type or extension.
+		// Note: This is a simplified check and does not match if the file is allowed to be uploaded by the server.
+		$previewable_types = array( 'jpg', 'jpeg', 'png', 'gif', 'webp' );
+		return in_array( $file_type, $previewable_types, true );
 	}
 
 	/**
@@ -583,34 +722,100 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Get status for all supported integrations.
+	 * Core logic for a single integration
 	 *
+	 * @param string $slug Integration slug.
+	 * @return array Integration status data.
+	 */
+	private function get_integration( $slug ) {
+		$config       = $this->get_supported_integrations()[ $slug ];
+		$status       = $config['type'] === 'plugin'
+			? $this->get_plugin_status( $slug )
+			: $this->get_service_status( $slug );
+		$status['id'] = $slug;
+		return $status;
+	}
+
+	/**
+	 * REST callback for /integrations/{slug}
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object or error.
+	 */
+	public function get_single_integration_status( $request ) {
+		$slug         = $request->get_param( 'slug' );
+		$integrations = $this->get_supported_integrations();
+		if ( ! isset( $integrations[ $slug ] ) ) {
+			return new \WP_Error( 'rest_integration_not_found', __( 'Integration not found.', 'jetpack-forms' ), array( 'status' => 404 ) );
+		}
+		return rest_ensure_response( $this->get_integration( $slug ) );
+	}
+
+	/**
+	 * REST callback for /integrations
+	 *
+	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
-	public function get_all_integrations_status() {
+	public function get_all_integrations_status( $request ) {
+		$version      = absint( $request->get_param( 'version' ) );
 		$integrations = array();
 
-		foreach ( array_keys( $this->get_supported_integrations() ) as $slug ) {
-			// For now, we only have plugin integrations.
-			// When needed, handle other integration types here.
-			$integrations[ $slug ] = $this->get_plugin_status( $slug );
+		foreach ( $this->get_supported_integrations() as $slug => $config ) {
+			$status = $this->get_integration( $slug );
+			if ( 1 === $version ) {
+				$integrations[ $slug ] = $status;
+			} else {
+				$integrations[] = $status;
+			}
 		}
 
 		return rest_ensure_response( $integrations );
 	}
 
 	/**
-	 * REST endpoint handler for single integration status.
+	 * Get status for internal/service integrations.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Response object.
+	 * @param string $slug Service slug.
+	 * @return array Service status data.
 	 */
-	public function get_single_integration_status( $request ) {
-		// Slug validation is handled in endpoint registration.
-		$slug = $request->get_param( 'slug' );
-		// For now, we only have plugin integrations.
-		// When needed, handle other integration types here.
-		return rest_ensure_response( $this->get_plugin_status( $slug ) );
+	private function get_service_status( $slug ) {
+		$config = $this->get_supported_integrations()[ $slug ];
+
+		// Default response for all integrations
+		$response = array(
+			'type'            => $config['type'],
+			'slug'            => $slug,
+			'needsConnection' => true,
+			'isConnected'     => false,
+			'settingsUrl'     => $config['settings_url'] ?? null,
+			'pluginFile'      => null,
+			'isInstalled'     => false,
+			'isActive'        => false,
+			'version'         => null,
+			'details'         => array(),
+		);
+
+		// Process settingsUrl to return a full URL if present (for services only)
+		if ( $response['settingsUrl'] ) {
+			$response['settingsUrl'] = esc_url( Redirect::get_url( $response['settingsUrl'] ) );
+		}
+
+		switch ( $slug ) {
+			case 'google-drive':
+				$user_id                 = get_current_user_id();
+				$jetpack_connected       = ( new Host() )->is_wpcom_simple() || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( $user_id );
+				$is_connected            = $jetpack_connected && Google_Drive::has_valid_connection( $user_id );
+				$response['isConnected'] = $is_connected;
+				$response['settingsUrl'] = Redirect::get_url( 'jetpack-forms-responses-connect' );
+				break;
+			case 'salesforce':
+				// No overrides needed for now; keep defaults.
+				break;
+			// Add other service cases as needed.
+		}
+
+		return $response;
 	}
 
 	/**
@@ -632,20 +837,24 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$is_active         = is_plugin_active( $plugin_config['file'] );
 
 		$response = array(
-			'type'        => 'plugin',
-			'slug'        => $plugin_slug,
-			'pluginFile'  => str_replace( '.php', '', $plugin_config['file'] ),
-			'isInstalled' => $is_installed,
-			'isActive'    => $is_active,
-			'isConnected' => false,
-			'version'     => $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null,
-			'settingsUrl' => $is_active ? admin_url( $plugin_config['settings_url'] ) : null,
-			'details'     => array(),
+			'type'            => 'plugin',
+			'slug'            => $plugin_slug,
+			'pluginFile'      => str_replace( '.php', '', $plugin_config['file'] ),
+			'isInstalled'     => $is_installed,
+			'isActive'        => $is_active,
+			'needsConnection' => false,
+			'isConnected'     => false,
+			'version'         => $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null,
+			'settingsUrl'     => $is_active ? admin_url( $plugin_config['settings_url'] ) : null,
+			'details'         => array(),
 		);
 
 		// Plugin-specific customizations
 		if ( 'akismet' === $plugin_slug ) {
-			$response['isConnected'] = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
+			$dashboard_view_switch                         = new Dashboard_View_Switch();
+			$response['isConnected']                       = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
+			$response['details']['formSubmissionsSpamUrl'] = $dashboard_view_switch->get_forms_admin_url( 'spam' );
+			$response['needsConnection']                   = true;
 		} elseif ( 'zero-bs-crm' === $plugin_slug && $is_active ) {
 			$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
 			$response['details'] = array(

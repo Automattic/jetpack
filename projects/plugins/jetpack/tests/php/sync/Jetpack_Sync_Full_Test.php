@@ -4,6 +4,7 @@ use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Full_Sync;
 use Automattic\Jetpack\Sync\Settings;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 
@@ -12,6 +13,7 @@ require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
  *
  * @group legacy-full-sync
  */
+#[Group( 'legacy-full-sync' )]
 class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 	/** @var \Automattic\Jetpack\Sync\Modules\Full_Sync */

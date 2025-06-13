@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-summary.php';
 }
@@ -7,6 +9,7 @@ if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 /**
  * @covers \Jetpack_Media_Summary
  */
+#[CoversClass( Jetpack_Media_Summary::class )]
 class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

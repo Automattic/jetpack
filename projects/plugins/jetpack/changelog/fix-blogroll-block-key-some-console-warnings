@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Blogroll block: Prevent console warnings and block validation issues when adding new items to the blogroll.

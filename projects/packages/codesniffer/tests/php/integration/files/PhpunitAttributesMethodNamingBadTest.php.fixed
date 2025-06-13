@@ -1,0 +1,1 @@
+PHP_CodeSniffer\Exceptions\RuntimeException: Invalid value 'bogus' for attributeNaming. Valid values are: add-alias, use-alias, fully-qualify

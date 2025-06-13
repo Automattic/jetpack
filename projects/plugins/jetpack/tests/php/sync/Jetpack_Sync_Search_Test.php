@@ -7,6 +7,8 @@
 
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 
@@ -15,6 +17,7 @@ require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
  *
  * @group jetpack-sync
  */
+#[Group( 'jetpack-sync' )]
 class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 
 	/**
@@ -172,6 +175,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	 * @dataProvider get_random_allowed_postmeta_keys
 	 * @param string $key Meta Key.
 	 */
+	#[DataProvider( 'get_random_allowed_postmeta_keys' )]
 	public function test_check_postmeta_spec( $key ) {
 		$spec = Modules\Search::get_postmeta_spec( $key );
 
@@ -206,6 +210,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	 * @dataProvider get_random_allowed_taxonomies
 	 * @param string $taxonomy Taxonomy Name.
 	 */
+	#[DataProvider( 'get_random_allowed_taxonomies' )]
 	public function test_add_taxonomy( $taxonomy ) {
 		register_taxonomy(
 			$taxonomy,

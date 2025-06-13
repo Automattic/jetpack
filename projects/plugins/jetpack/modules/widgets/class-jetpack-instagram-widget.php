@@ -388,6 +388,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 * Allows the user to add new Instagram Keyring tokens and more.
 	 *
 	 * @param array $instance The widget instance (configuration options).
+	 * @return string|void
 	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );

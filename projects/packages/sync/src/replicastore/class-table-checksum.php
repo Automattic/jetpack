@@ -306,7 +306,9 @@ class Table_Checksum {
 				'parent_table'              => 'woocommerce_order_items',
 				'parent_join_field'         => 'order_item_id',
 				'table_join_field'          => 'order_item_id',
-				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_tables',
+				'is_table_enabled_callback' => function () {
+					return false !== Sync\Modules::get_module( 'meta' ) && self::enable_woocommerce_tables();
+				},
 			),
 			'wc_orders'                  => array(
 				'table'                     => "{$wpdb->prefix}wc_orders",

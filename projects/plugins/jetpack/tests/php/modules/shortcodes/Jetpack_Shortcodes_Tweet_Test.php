@@ -1,5 +1,8 @@
 <?php
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 class Jetpack_Shortcodes_Tweet_Test extends WP_UnitTestCase {
@@ -157,6 +160,7 @@ BODY;
 	 * @group external-http
 	 * @since 7.4.0
 	 */
+	#[Group( 'external-http' )]
 	public function test_shortcodes_tweet_card_via_oembed_http_request() {
 		$content = '[tweet https://twitter.com/jetpack/status/759034293385502721]';
 
@@ -213,6 +217,7 @@ BODY;
 	 * @param string $shortcode_content The shortcode, like [tweet 1234].
 	 * @param string $expected The expected return value of the function.
 	 */
+	#[DataProvider( 'get_tweet_amp_data' )]
 	public function test_shortcodes_tweet_amp( $shortcode_content, $expected ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
@@ -230,8 +235,11 @@ BODY;
 	 * @since 8.0.0
 	 *
 	 * @param string $shortcode_content The shortcode as entered in the editor.
+	 * @param string $expected The expected return value of the function. Not used in this test. Unused in this method.
 	 */
-	public function test_shortcodes_tweet_non_amp( $shortcode_content ) {
+	#[DataProvider( 'get_tweet_amp_data' )]
+	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- PHPUnit 12.2 requires methods with data providers to have an exact param count match
+	public function test_shortcodes_tweet_non_amp( $shortcode_content, $expected ) {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
 		$this->assertStringNotContainsString( 'amp-twitter', do_shortcode( $shortcode_content ) );
 	}

@@ -167,9 +167,8 @@ class Woo_Sync_My_Account_Integration {
 	 */
 	public function register_styles_scripts() {
 		global $zbs;
-
-    	wp_register_style( 'jpcrm-woo-sync-my-account', plugins_url( '/css/jpcrm-woo-sync-my-account'.wp_scripts_get_suffix().'.css', JPCRM_WOO_SYNC_ROOT_FILE ) );
-		wp_register_style( 'jpcrm-woo-sync-fa', plugins_url( '/css/font-awesome.min.css', ZBS_ROOTFILE ) );
+		wp_register_style( 'jpcrm-woo-sync-my-account', plugins_url( '/css/jpcrm-woo-sync-my-account' . wp_scripts_get_suffix() . '.css', JPCRM_WOO_SYNC_ROOT_FILE ), array(), $zbs::VERSION );
+		wp_register_style( 'jpcrm-woo-sync-fa', plugins_url( '/build/lib/font-awesome/css/font-awesome.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 	}
 
 	/**

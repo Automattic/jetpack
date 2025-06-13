@@ -26,6 +26,7 @@ module.exports = [
 			...jetpackConfig.output,
 			filename: '[name]/[name].js',
 			path: path.resolve( __dirname, 'src/build' ),
+			chunkFilename: 'verbum-comments/[name].js',
 			environment: {
 				module: true,
 				dynamicImport: true,
@@ -33,6 +34,17 @@ module.exports = [
 		},
 		optimization: {
 			...jetpackConfig.optimization,
+			splitChunks: {
+				cacheGroups: {
+					// Split out hovercards
+					verbumComments: {
+						name: 'verbum-gravatar',
+						test: /[\\/]node_modules[\\/](@gravatar-com)[\\/]hovercards[\\/]dist[\\/].*?\.(js|mjs)/,
+						chunks: 'all',
+						enforce: true,
+					},
+				},
+			},
 		},
 		resolve: {
 			...jetpackConfig.resolve,
@@ -74,7 +86,7 @@ module.exports = [
 				// Handle CSS.
 				jetpackConfig.CssRule( {
 					extensions: [ 'css', 'scss' ],
-					extraLoaders: [ 'sass-loader' ],
+					extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
 				} ),
 
 				// Handle images.

@@ -424,7 +424,7 @@ function videopress_is_attachment_without_guid( $post_id ) {
 function is_videopress_attachment( $post_id ) {
 	$post = get_post( $post_id );
 
-	if ( is_wp_error( $post ) ) {
+	if ( ! $post instanceof WP_Post ) {
 		return false;
 	}
 
@@ -486,25 +486,30 @@ function videopress_make_resumable_upload_path( $blog_id ) {
  *
  * @param int $blog_id Blog ID.
  * @param int $post_id Post ID.
- * @return bool|stdClass
+ * @return stdClass
  */
 function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$post = get_post( $post_id );
 
 	$video_info                  = new stdClass();
-	$video_info->post_id         = $post_id;
+	$video_info->post_id         = 0;
+	$video_info->description     = '';
+	$video_info->title           = '';
+	$video_info->caption         = '';
 	$video_info->blog_id         = $blog_id;
 	$video_info->guid            = null;
 	$video_info->finish_date_gmt = '0000-00-00 00:00:00';
 	$video_info->rating          = null;
-	$video_info->description     = $post->post_content;
-	$video_info->title           = $post->post_title;
-	$video_info->caption         = $post->post_excerpt;
 	$video_info->privacy_setting = VIDEOPRESS_PRIVACY::SITE_DEFAULT;
 
-	if ( is_wp_error( $post ) ) {
+	if ( ! $post ) {
 		return $video_info;
 	}
+
+	$video_info->post_id     = $post_id;
+	$video_info->description = $post->post_content;
+	$video_info->title       = $post->post_title;
+	$video_info->caption     = $post->post_excerpt;
 
 	if ( 'video/videopress' !== $post->post_mime_type ) {
 		return $video_info;
@@ -726,6 +731,10 @@ function videopress_get_attachment_url( $post_id ) {
  * @return string filtered content
  */
 function jetpack_videopress_flash_embed_filter( $content ) {
+	// This receives data from the `the_content` filter, which unfortunately sometimes has bad content passed along as a param.
+	if ( ! is_string( $content ) ) {
+		return $content;
+	}
 	$regex   = '%<embed[^>]*+>(?:\s*</embed>)?%i';
 	$content = preg_replace_callback(
 		$regex,

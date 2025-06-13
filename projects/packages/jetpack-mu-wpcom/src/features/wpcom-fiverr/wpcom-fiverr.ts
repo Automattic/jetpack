@@ -13,7 +13,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		fiverCta.addEventListener( 'click', e => {
 			e.preventDefault();
 
-			wpcomTrackEvent( 'wp_admin_site_icon_fiverr_logo_maker_cta_click', {
+			wpcomTrackEvent( 'wpcom_admin_site_icon_fiverr_logo_maker_cta_click', {
 				cta_name: 'wp_admin_site_icon_fiverr_logo_maker',
 			} );
 

@@ -16,10 +16,10 @@ if ( ! is_dir( $work_dir ) ) {
 }
 
 chdir( "$work_dir/phpunit" );
-if ( ! preg_match( '/^PHPUnit (\d+\.\d+\.\d+) /', (string) shell_exec( 'vendor/bin/phpunit --version' ), $m ) ) {
+$version = trim( (string) shell_exec( 'composer info phpunit/phpunit --format=json | jq -r \'.versions[0]\'' ) );
+if ( ! preg_match( '/^(\d+\.\d+\.\d+)$/', $version ) ) {
 	throw new RuntimeException( 'Failed to determine PHPUnit version' );
 }
-$version = $m[1];
 
 $config = array(
 	'header'  => <<<HEAD

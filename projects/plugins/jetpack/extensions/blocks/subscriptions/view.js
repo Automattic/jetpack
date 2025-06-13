@@ -16,7 +16,7 @@ function show_iframe_retrieve_subscriptions_from_email() {
 		return;
 	}
 
-	const email = form.querySelector( 'input[type=email]' ).value;
+	const email = form.querySelector( 'input[type="email"]' ).value;
 
 	show_iframe( {
 		email,
@@ -66,7 +66,7 @@ domReady( function () {
 
 				// If email is empty, we will ask for it in the modal that opens
 				// Email input can be hidden for "button only style" for example.
-				let email = form.querySelector( 'input[type=email]' )?.value ?? '';
+				let email = form.querySelector( 'input[type="email"]' )?.value ?? '';
 
 				// Fallback to provided email from the logged in user when set
 				if ( ! email && form.dataset.subscriber_email ) {

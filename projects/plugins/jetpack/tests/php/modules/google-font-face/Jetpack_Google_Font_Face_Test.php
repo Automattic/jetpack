@@ -1,4 +1,6 @@
 <?php
+
+use PHPUnit\Framework\Attributes\DataProvider;
 require_once JETPACK__PLUGIN_DIR . 'modules/google-fonts/current/class-jetpack-google-font-face.php.php';
 
 class Jetpack_Google_Font_Face_Test extends WP_UnitTestCase {
@@ -26,6 +28,7 @@ class Jetpack_Google_Font_Face_Test extends WP_UnitTestCase {
 	/**
 	 * @dataProvider data_blocks_to_collect
 	 */
+	#[DataProvider( 'data_blocks_to_collect' )]
 	public function test_collect_blocks_with_valid_font_family( $block_content ) {
 		$parsed_block = parse_blocks( $block_content );
 

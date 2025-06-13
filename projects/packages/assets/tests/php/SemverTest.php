@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Assets;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -22,6 +23,7 @@ class SemverTest extends TestCase {
 	 * @param string                          $version Version.
 	 * @param string|InvalidArgumentException $expect Expected parse result.
 	 */
+	#[DataProvider( 'provideParse' )]
 	public function testParse( $version, $expect ) {
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );
@@ -173,6 +175,7 @@ class SemverTest extends TestCase {
 	 * @param string $expect Expected result converted to a string, '>', '==', or '<'.
 	 * @param string $b Version B.
 	 */
+	#[DataProvider( 'provideCompare' )]
 	public function testCompare( $a, $expect, $b ) {
 		$ret = Semver::compare( $a, $b );
 		$this->assertIsInt( $ret );

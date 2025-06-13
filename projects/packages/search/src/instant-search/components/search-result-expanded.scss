@@ -1,4 +1,4 @@
-@import '../lib/styles/helper';
+@use '../lib/styles/helper';
 $image-square-size: 128px;
 
 .jetpack-instant-search__search-result-expanded {
@@ -15,7 +15,7 @@ $image-square-size: 128px;
 }
 
 .jetpack-instant-search__search-result-expanded__path {
-	color: $color-text-lighter;
+	color: helper.$color-text-lighter;
 	font-size: 0.9375em;
 	margin: 0 0 0.4em;
 }
@@ -23,7 +23,7 @@ $image-square-size: 128px;
 .jetpack-instant-search__search-result-expanded__copy-container {
 	max-width: 100%;
 
-	@include break-small-up() {
+	@include helper.break-small-up() {
 		width: calc( 100% - #{$image-square-size} - 1em );
 	}
 
@@ -34,13 +34,13 @@ $image-square-size: 128px;
 
 .jetpack-instant-search__search-result-expanded__content {
 	font-size: 0.9375em;
-	color: $color-text;
+	color: helper.$color-text;
 }
 
 .jetpack-instant-search__search-result-expanded__image-link {
 	margin-left: 1em;
 
-	@include break-small-down() {
+	@include helper.break-small-down() {
 		margin: 0 auto 0.5em auto;
 	}
 }
@@ -48,20 +48,20 @@ $image-square-size: 128px;
 .jetpack-instant-search__search-result-expanded__image-container {
 	width: $image-square-size;
 
-	@include break-small-down() {
+	// Aspect ratio box trick, pt 1
+	// See https://css-tricks.com/aspect-ratio-boxes/
+	position: relative;
+
+	@include helper.break-small-down() {
 		width: 2 * $image-square-size;
 	}
 
 	.jetpack-instant-search__search-result-expanded--no-image & {
 		display: none;
 	}
-}
 
-// Aspect ratio box trick
-// See https://css-tricks.com/aspect-ratio-boxes/
-.jetpack-instant-search__search-result-expanded__image-container {
-	position: relative;
-
+	// Aspect ratio box trick, pt 2
+	// See https://css-tricks.com/aspect-ratio-boxes/
 	&::before {
 		display: block;
 		content: '';
@@ -79,9 +79,6 @@ $image-square-size: 128px;
 	height: 100%;
 	object-fit: cover;
 	width: 100%;
-}
-
-.jetpack-instant-search__search-result-expanded__image {
 	border-radius: 5px;
 }
 
@@ -89,7 +86,7 @@ $image-square-size: 128px;
 	display: flex;
 	flex-flow: column;
 
-	@include break-small-up() {
+	@include helper.break-small-up() {
 		flex-flow: row nowrap;
 	}
 }
@@ -116,6 +113,7 @@ $image-square-size: 128px;
 	font-style: normal;
 	font-weight: 600;
 	font-size: 13px;
+	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 180%;
 }
 

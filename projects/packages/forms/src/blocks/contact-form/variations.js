@@ -3,20 +3,8 @@ import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
 import { compact } from 'lodash';
-import { salesforceLeadFormVariation } from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
+import renderMaterialIcon from '../shared/components/render-material-icon';
 import { getIconColor } from './util/block-icons';
-import renderMaterialIcon from './util/render-material-icon';
-
-const defaultBlockStyling = {
-	style: {
-		spacing: {
-			padding: {
-				top: '16px',
-				bottom: '16px',
-			},
-		},
-	},
-};
 
 const variations = compact( [
 	{
@@ -41,9 +29,24 @@ const variations = compact( [
 			),
 		},
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-textarea', { label: __( 'Message', 'jetpack-forms' ) } ],
+			[
+				'jetpack/field-name',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/field-email',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/field-textarea',
+				{},
+				[
+					[ 'jetpack/label', { label: __( 'Message', 'jetpack-forms' ) } ],
+					[ 'jetpack/input', { type: 'textarea' } ],
+				],
+			],
 			[
 				'jetpack/button',
 				{
@@ -53,9 +56,7 @@ const variations = compact( [
 				},
 			],
 		],
-		attributes: {
-			...defaultBlockStyling,
-		},
+		attributes: {},
 	},
 	{
 		name: 'rsvp-form',
@@ -79,17 +80,51 @@ const variations = compact( [
 			),
 		},
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
+			[
+				'jetpack/field-name',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/field-email',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
 			[
 				'jetpack/field-radio',
-				{
-					label: __( 'Attending?', 'jetpack-forms' ),
-					required: true,
-					options: [ __( 'Yes', 'jetpack-forms' ), __( 'No', 'jetpack-forms' ) ],
-				},
+				{ required: true },
+				[
+					[ 'jetpack/label', { label: __( 'Attending?', 'jetpack-forms' ) } ],
+					[
+						'jetpack/options',
+						{ type: 'radio' },
+						[
+							[
+								'jetpack/option',
+								{
+									label: __( 'Yes', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
+								},
+							],
+							[
+								'jetpack/option',
+								{
+									label: __( 'No', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
+								},
+							],
+						],
+					],
+				],
 			],
-			[ 'jetpack/field-textarea', { label: __( 'Other Details', 'jetpack-forms' ) } ],
+			[
+				'jetpack/field-textarea',
+				{},
+				[
+					[ 'jetpack/label', { label: __( 'Other details', 'jetpack-forms' ) } ],
+					[ 'jetpack/input', { type: 'textarea' } ],
+				],
+			],
 			[
 				'jetpack/button',
 				{
@@ -100,30 +135,62 @@ const variations = compact( [
 			],
 		],
 		attributes: {
-			...defaultBlockStyling,
 			subject: __( 'A new RSVP from your website', 'jetpack-forms' ),
 		},
 		example: {
 			innerBlocks: [
 				{
 					name: 'jetpack/field-name',
-					attributes: { required: true, label: __( 'Name', 'jetpack-forms' ) },
+					attributes: { required: true },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Name', 'jetpack-forms' ) } },
+						{ name: 'jetpack/input' },
+					],
 				},
 				{
 					name: 'jetpack/field-email',
-					attributes: { required: true, label: __( 'Email', 'jetpack-forms' ) },
+					attributes: { required: true },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Email', 'jetpack-forms' ) } },
+						{ name: 'jetpack/input' },
+					],
 				},
 				{
 					name: 'jetpack/field-radio',
-					attributes: {
-						label: __( 'Attending?', 'jetpack-forms' ),
-						required: true,
-						options: [ __( 'Yes', 'jetpack-forms' ), __( 'No', 'jetpack-forms' ) ],
-					},
+					attributes: { required: true },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Attending?', 'jetpack-forms' ) } },
+						{
+							name: 'jetpack/options',
+							attributes: { type: 'radio' },
+							innerBlocks: [
+								{
+									name: 'jetpack/option',
+									attributes: {
+										label: __( 'Yes', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
+									},
+								},
+								{
+									name: 'jetpack/option',
+									attributes: {
+										label: __( 'No', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
+									},
+								},
+							],
+						},
+					],
 				},
 				{
 					name: 'jetpack/field-textarea',
-					attributes: { label: __( 'Other Details', 'jetpack-forms' ) },
+					innerBlocks: [
+						{
+							name: 'jetpack/label',
+							attributes: { label: __( 'Other details', 'jetpack-forms' ) },
+						},
+						{ name: 'jetpack/input', attributes: { type: 'textarea' } },
+					],
 				},
 				{
 					name: 'jetpack/button',
@@ -159,23 +226,56 @@ const variations = compact( [
 			),
 		},
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-telephone', { label: __( 'Phone', 'jetpack-forms' ) } ],
+			[
+				'jetpack/field-name',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/field-email',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/field-telephone',
+				{},
+				[ [ 'jetpack/label', { label: __( 'Phone', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
 			[
 				'jetpack/field-select',
 				{
-					label: __( 'How did you hear about us?', 'jetpack-forms' ),
 					options: [
-						__( 'Search Engine', 'jetpack-forms' ),
-						__( 'Social Media', 'jetpack-forms' ),
+						__( 'Search engine', 'jetpack-forms' ),
+						__( 'Social media', 'jetpack-forms' ),
 						__( 'TV', 'jetpack-forms' ),
 						__( 'Radio', 'jetpack-forms' ),
-						__( 'Friend or Family', 'jetpack-forms' ),
+						__( 'Friend or family', 'jetpack-forms' ),
 					],
 				},
+				[
+					[ 'jetpack/label', { label: __( 'How did you hear about us?', 'jetpack-forms' ) } ],
+					[
+						'jetpack/input',
+						{
+							type: 'dropdown',
+							placeholder: __( 'Select one option', 'jetpack-forms' ),
+						},
+					],
+				],
 			],
-			[ 'jetpack/field-textarea', { label: __( 'Other Details', 'jetpack-forms' ) } ],
+			[
+				'jetpack/field-textarea',
+				{},
+				[
+					[
+						'jetpack/label',
+						{
+							label: __( 'Other details', 'jetpack-forms' ),
+						},
+					],
+					[ 'jetpack/input', { type: 'textarea' } ],
+				],
+			],
 			[
 				'jetpack/button',
 				{
@@ -186,27 +286,51 @@ const variations = compact( [
 			],
 		],
 		attributes: {
-			...defaultBlockStyling,
 			subject: __( 'A new registration from your website', 'jetpack-forms' ),
 		},
 		example: {
 			innerBlocks: [
 				{
 					name: 'jetpack/field-name',
-					attributes: { required: true, label: __( 'Name', 'jetpack-forms' ) },
+					attributes: { required: true },
+					innerBlocks: [
+						{
+							name: 'jetpack/label',
+							attributes: { label: __( 'Name', 'jetpack-forms' ) },
+						},
+						{
+							name: 'jetpack/input',
+						},
+					],
 				},
 				{
 					name: 'jetpack/field-email',
-					attributes: { required: true, label: __( 'Email', 'jetpack-forms' ) },
+					attributes: { required: true },
+					innerBlocks: [
+						{
+							name: 'jetpack/label',
+							attributes: { label: __( 'Email', 'jetpack-forms' ) },
+						},
+						{
+							name: 'jetpack/input',
+						},
+					],
 				},
 				{
 					name: 'jetpack/field-telephone',
-					attributes: { required: true, label: __( 'Phone', 'jetpack-forms' ) },
+					innerBlocks: [
+						{
+							name: 'jetpack/label',
+							attributes: { label: __( 'Phone', 'jetpack-forms' ) },
+						},
+						{
+							name: 'jetpack/input',
+						},
+					],
 				},
 				{
 					name: 'jetpack/field-select',
 					attributes: {
-						label: __( 'How did you hear about us?', 'jetpack-forms' ),
 						options: [
 							__( 'Search Engine', 'jetpack-forms' ),
 							__( 'Social Media', 'jetpack-forms' ),
@@ -215,10 +339,38 @@ const variations = compact( [
 							__( 'Friend or Family', 'jetpack-forms' ),
 						],
 					},
+					innerBlocks: [
+						{
+							name: 'jetpack/label',
+							attributes: {
+								label: __( 'How did you hear about us?', 'jetpack-forms' ),
+							},
+						},
+						{
+							name: 'jetpack/input',
+							attributes: {
+								type: 'dropdown',
+								placeholder: __( 'Select one option', 'jetpack-forms' ),
+							},
+						},
+					],
 				},
 				{
 					name: 'jetpack/field-textarea',
-					attributes: { label: __( 'Other Details', 'jetpack-forms' ) },
+					innerBlocks: [
+						{
+							name: 'jetpack/label',
+							attributes: {
+								label: __( 'Other details', 'jetpack-forms' ),
+							},
+						},
+						{
+							name: 'jetpack/input',
+							attributes: {
+								type: 'textarea',
+							},
+						},
+					],
 				},
 				{
 					name: 'jetpack/button',
@@ -256,66 +408,145 @@ const variations = compact( [
 			),
 		},
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-telephone', { required: true, label: __( 'Phone', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-date', { label: __( 'Date', 'jetpack-forms' ), required: true } ],
+			[
+				'jetpack/field-name',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/field-email',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/field-telephone',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Phone', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/field-date',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Date', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
 			[
 				'jetpack/field-radio',
-				{
-					label: __( 'Time', 'jetpack-forms' ),
-					required: true,
-					options: [ __( 'Morning', 'jetpack-forms' ), __( 'Afternoon', 'jetpack-forms' ) ],
-				},
+				{ required: true },
+				[
+					[ 'jetpack/label', { label: __( 'Time', 'jetpack-forms' ) } ],
+					[
+						'jetpack/options',
+						{ type: 'radio' },
+						[
+							[
+								'jetpack/option',
+								{
+									label: __( 'Morning', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
+								},
+							],
+							[
+								'jetpack/option',
+								{
+									label: __( 'Afternoon', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
+								},
+							],
+						],
+					],
+				],
 			],
-			[ 'jetpack/field-textarea', { label: __( 'Notes', 'jetpack-forms' ) } ],
+			[
+				'jetpack/field-textarea',
+				{},
+				[
+					[ 'jetpack/label', { label: __( 'Notes', 'jetpack-forms' ) } ],
+					[ 'jetpack/input', { type: 'textarea' } ],
+				],
+			],
 			[
 				'jetpack/button',
 				{
-					text: __( 'Book Appointment', 'jetpack-forms' ),
+					text: __( 'Book appointment', 'jetpack-forms' ),
 					element: 'button',
 					lock: { remove: true },
 				},
 			],
 		],
 		attributes: {
-			...defaultBlockStyling,
 			subject: __( 'A new appointment booked from your website', 'jetpack-forms' ),
 		},
 		example: {
 			innerBlocks: [
 				{
 					name: 'jetpack/field-name',
-					attributes: { required: true, label: __( 'Name', 'jetpack-forms' ) },
+					attributes: { required: true },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Name', 'jetpack-forms' ) } },
+						{ name: 'jetpack/input' },
+					],
 				},
 				{
 					name: 'jetpack/field-email',
-					attributes: { required: true, label: __( 'Email', 'jetpack-forms' ) },
+					attributes: { required: true },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Email', 'jetpack-forms' ) } },
+						{ name: 'jetpack/input' },
+					],
 				},
 				{
 					name: 'jetpack/field-telephone',
-					attributes: { required: true, label: __( 'Phone', 'jetpack-forms' ) },
+					attributes: { required: true },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Phone', 'jetpack-forms' ) } },
+						{ name: 'jetpack/input' },
+					],
 				},
 				{
 					name: 'jetpack/field-date',
-					attributes: { required: true, label: __( 'Date', 'jetpack-forms' ) },
+					attributes: { required: true },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Date', 'jetpack-forms' ) } },
+						{ name: 'jetpack/input' },
+					],
 				},
 				{
 					name: 'jetpack/field-radio',
-					attributes: {
-						label: __( 'Time', 'jetpack-forms' ),
-						required: true,
-						options: [ __( 'Morning', 'jetpack-forms' ), __( 'Afternoon', 'jetpack-forms' ) ],
-					},
+					attributes: { required: true },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Time', 'jetpack-forms' ) } },
+						{
+							name: 'jetpack/options',
+							attributes: { type: 'radio' },
+							innerBlocks: [
+								{
+									name: 'jetpack/option',
+									attributes: {
+										label: __( 'Morning', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
+									},
+								},
+								{
+									name: 'jetpack/option',
+									attributes: {
+										label: __( 'Afternoon', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
+									},
+								},
+							],
+						},
+					],
 				},
 				{
 					name: 'jetpack/field-textarea',
-					attributes: { label: __( 'Notes', 'jetpack-forms' ) },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Notes', 'jetpack-forms' ) } },
+						{ name: 'jetpack/input', attributes: { type: 'textarea' } },
+					],
 				},
 				{
 					name: 'jetpack/button',
 					attributes: {
-						text: __( 'Book Appointment', 'jetpack-forms' ),
+						text: __( 'Book appointment', 'jetpack-forms' ),
 						element: 'button',
 						lock: { remove: true },
 					},
@@ -326,7 +557,7 @@ const variations = compact( [
 	{
 		name: 'feedback-form',
 		title: __( 'Feedback Form', 'jetpack-forms' ),
-		description: __( 'Add a Feedback form to your page', 'jetpack-forms' ),
+		description: __( 'Add a feedback form to your page', 'jetpack-forms' ),
 		icon: {
 			foreground: getIconColor(),
 			src: renderMaterialIcon(
@@ -356,23 +587,72 @@ const variations = compact( [
 			),
 		},
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
+			[
+				'jetpack/field-name',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/field-email',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
 			[
 				'jetpack/field-radio',
-				{
-					label: __( 'Please rate our website', 'jetpack-forms' ),
-					required: true,
-					options: [
-						__( '1 - Very Bad', 'jetpack-forms' ),
-						__( '2 - Poor', 'jetpack-forms' ),
-						__( '3 - Average', 'jetpack-forms' ),
-						__( '4 - Good', 'jetpack-forms' ),
-						__( '5 - Excellent', 'jetpack-forms' ),
+				{ required: true },
+				[
+					[ 'jetpack/label', { label: __( 'Please rate our website', 'jetpack-forms' ) } ],
+					[
+						'jetpack/options',
+						{ type: 'radio' },
+						[
+							[
+								'jetpack/option',
+								{
+									label: __( '1 - Very Bad', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
+								},
+							],
+							[
+								'jetpack/option',
+								{
+									label: __( '2 - Poor', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
+								},
+							],
+							[
+								'jetpack/option',
+								{
+									label: __( '3 - Average', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
+								},
+							],
+							[
+								'jetpack/option',
+								{
+									label: __( '4 - Good', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
+								},
+							],
+							[
+								'jetpack/option',
+								{
+									label: __( '5 - Excellent', 'jetpack-forms' ),
+									placeholder: __( 'Add option…', 'jetpack-forms' ),
+								},
+							],
+						],
 					],
-				},
+				],
 			],
-			[ 'jetpack/field-textarea', { label: __( 'How could we improve?', 'jetpack-forms' ) } ],
+			[
+				'jetpack/field-textarea',
+				{},
+				[
+					[ 'jetpack/label', { label: __( 'How could we improve?', 'jetpack-forms' ) } ],
+					[ 'jetpack/input', { type: 'textarea' } ],
+				],
+			],
 			[
 				'jetpack/button',
 				{
@@ -383,36 +663,86 @@ const variations = compact( [
 			],
 		],
 		attributes: {
-			...defaultBlockStyling,
 			subject: __( 'New feedback received from your website', 'jetpack-forms' ),
 		},
 		example: {
 			innerBlocks: [
 				{
 					name: 'jetpack/field-name',
-					attributes: { required: true, label: __( 'Name', 'jetpack-forms' ) },
+					attributes: { required: true },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Name', 'jetpack-forms' ) } },
+						{ name: 'jetpack/input' },
+					],
 				},
 				{
 					name: 'jetpack/field-email',
-					attributes: { required: true, label: __( 'Email', 'jetpack-forms' ) },
+					attributes: { required: true },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Email', 'jetpack-forms' ) } },
+						{ name: 'jetpack/input' },
+					],
 				},
 				{
 					name: 'jetpack/field-radio',
-					attributes: {
-						label: __( 'Please rate our website', 'jetpack-forms' ),
-						required: true,
-						options: [
-							__( '1 - Very Bad', 'jetpack-forms' ),
-							__( '2 - Poor', 'jetpack-forms' ),
-							__( '3 - Average', 'jetpack-forms' ),
-							__( '4 - Good', 'jetpack-forms' ),
-							__( '5 - Excellent', 'jetpack-forms' ),
-						],
-					},
+					attributes: { required: true },
+					innerBlocks: [
+						{
+							name: 'jetpack/label',
+							attributes: { label: __( 'Please rate our website', 'jetpack-forms' ) },
+						},
+						{
+							name: 'jetpack/options',
+							attributes: { type: 'radio' },
+							innerBlocks: [
+								{
+									name: 'jetpack/option',
+									attributes: {
+										label: __( '1 - Very Bad', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
+									},
+								},
+								{
+									name: 'jetpack/option',
+									attributes: {
+										label: __( '2 - Poor', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
+									},
+								},
+								{
+									name: 'jetpack/option',
+									attributes: {
+										label: __( '3 - Average', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
+									},
+								},
+								{
+									name: 'jetpack/option',
+									attributes: {
+										label: __( '4 - Good', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
+									},
+								},
+								{
+									name: 'jetpack/option',
+									attributes: {
+										label: __( '5 - Excellent', 'jetpack-forms' ),
+										placeholder: __( 'Add option…', 'jetpack-forms' ),
+									},
+								},
+							],
+						},
+					],
 				},
 				{
 					name: 'jetpack/field-textarea',
-					attributes: { label: __( 'How could we improve?', 'jetpack-forms' ) },
+					innerBlocks: [
+						{
+							name: 'jetpack/label',
+							attributes: { label: __( 'How could we improve?', 'jetpack-forms' ) },
+						},
+						{ name: 'jetpack/input', attributes: { type: 'textarea' } },
+					],
 				},
 				{
 					name: 'jetpack/button',
@@ -439,9 +769,21 @@ const variations = compact( [
 			src: people,
 		},
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
-			[ 'jetpack/field-consent', {} ],
+			[
+				'jetpack/field-name',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/field-email',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/field-consent',
+				{},
+				[ [ 'jetpack/label' ], [ 'jetpack/input', { type: 'checkbox' } ] ],
+			],
 			[
 				'jetpack/button',
 				{
@@ -451,22 +793,32 @@ const variations = compact( [
 				},
 			],
 		],
-		attributes: {
-			...defaultBlockStyling,
-		},
+		attributes: {},
 		example: {
 			innerBlocks: [
 				{
 					name: 'jetpack/field-name',
-					attributes: { required: true, label: __( 'Name', 'jetpack-forms' ) },
+					attributes: { required: true },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Name', 'jetpack-forms' ) } },
+						{ name: 'jetpack/input' },
+					],
 				},
 				{
 					name: 'jetpack/field-email',
-					attributes: { required: true, label: __( 'Email', 'jetpack-forms' ) },
+					attributes: { required: true },
+					innerBlocks: [
+						{ name: 'jetpack/label', attributes: { label: __( 'Email', 'jetpack-forms' ) } },
+						{ name: 'jetpack/input' },
+					],
 				},
 				{
 					name: 'jetpack/field-consent',
 					attributes: {},
+					innerBlocks: [
+						{ name: 'jetpack/label' },
+						{ name: 'jetpack/input', attributes: { type: 'checkbox' } },
+					],
 				},
 				{
 					name: 'jetpack/button',
@@ -479,7 +831,6 @@ const variations = compact( [
 			],
 		},
 	},
-	salesforceLeadFormVariation,
 ] );
 
 export default variations;

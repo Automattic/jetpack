@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 /**
  * Editor styles for OpenTable
@@ -9,8 +9,8 @@
 	display: inline-block;
 	position: relative;
 
-	& > .is-style-wide,
-	& > .is-placeholder {
+	> .is-style-wide,
+	> .is-placeholder {
 		display: block;
 	}
 
@@ -50,15 +50,15 @@
 
 				@media screen and ( min-width: 480px ) {
 
-					input[type='text'].components-form-token-field__input {
+					input[type="text"].components-form-token-field__input {
 						min-height: 32px;
 					}
 				}
 			}
 
 			> .components-button {
-				padding-bottom: 0px;
-				padding-top: 0px;
+				padding-bottom: 0;
+				padding-top: 0;
 				padding-right: 8px;
 				padding-left: 8px;
 				height: 38px;
@@ -109,6 +109,7 @@
 		}
 
 		a {
+			padding: 0.25em 1em 0.25em 0;
 
 			@media screen and ( min-width: 480px ) {
 
@@ -116,7 +117,6 @@
 					height: 50px;
 				}
 			}
-			padding: 0.25em 1em 0.25em 0;
 
 			&:last-child {
 				padding-right: 0;
@@ -125,7 +125,7 @@
 		}
 	}
 
-	& > .is-style-button {
+	> .is-style-button {
 
 		&.has-no-margin {
 
@@ -136,7 +136,7 @@
 	}
 
 	.editor-styles-wrapper & .components-form-token-field__suggestions-list {
-		font-family: $default-font;
+		font-family: gb.$default-font;
 		text-align: left;
 		padding: 0;
 		margin: 0;

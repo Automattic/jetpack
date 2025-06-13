@@ -5,9 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.29.5] - 2025-06-10
+### Changed
+- Update dependencies. [#43878]
+
+## [0.29.4] - 2025-06-05
+### Changed
+- Update package dependencies. [#43718] [#43734] [#43766]
+
+## [0.29.3] - 2025-06-02
+### Changed
+- Update package dependencies. [#43710] [#43711]
+
+### Fixed
+- Catch PHP notices when handling unexpected data types. [#43728]
+
+## [0.29.2] - 2025-05-26
+### Changed
+- Update package dependencies. [#43516] [#43578]
+
+## [0.29.1] - 2025-05-19
+### Changed
+- Update package dependencies. [#43398]
+
+## [0.29.0] - 2025-05-12
+### Changed
+- Stable release management: Do not ship source files. [#43310]
+- Update package dependencies. [#43400]
+- Use functions from the `@automattic/number-formatters` package. [#42864]
+
+## [0.28.4] - 2025-05-05
+### Changed
+- Update package dependencies. [#43320] [#43326] [#43355]
+
+### Fixed
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+- Prevent PHP warnings when post is invalid. [#43288]
+
+## [0.28.3] - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+- My Jetpack: Fix TypeScript type checking and the corresponding errors. [#43205]
+
+## [0.28.2] - 2025-04-21
+### Changed
+- Editor extensions: Handle status of the VideoPress module when the Jetpack plugin is active. [#40209]
+
 ## [0.28.1] - 2025-04-14
 ### Fixed
-- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Clean up various Stylelint violations. [#43010]
 - Linting: Format SCSS imports consistently. [#43018]
 - Linting: Update stylesheets to use WordPress rules for colors. [#42920]
 
@@ -1608,6 +1655,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.29.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.4...v0.29.5
+[0.29.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.3...v0.29.4
+[0.29.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.2...v0.29.3
+[0.29.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.1...v0.29.2
+[0.29.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.0...v0.29.1
+[0.29.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.28.4...v0.29.0
+[0.28.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.28.3...v0.28.4
+[0.28.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.28.2...v0.28.3
+[0.28.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.28.1...v0.28.2
 [0.28.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.6...v0.28.0
 [0.27.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.27.5...v0.27.6

@@ -1,4 +1,5 @@
-@import '../../scss/calypso-colors';
+@use 'sass:color';
+@use '../../scss/calypso-colors';
 
 .dops-tooltip.dops-popover {
 
@@ -11,7 +12,7 @@
 	&.is-bottom {
 
 		.dops-popover__arrow {
-			border-bottom-color: darken( $gray, 30% );
+			border-bottom-color: color.adjust( calypso-colors.$gray, $lightness: -30% );
 			top: 4px;
 			right: 10px;
 
@@ -23,21 +24,21 @@
 		&.is-error {
 
 			.dops-popover__arrow {
-				border-bottom-color: $alert-red;
+				border-bottom-color: calypso-colors.$alert-red;
 			}
 		}
 
 		&.is-warning {
 
 			.dops-popover__arrow {
-				border-bottom-color: $alert-yellow;
+				border-bottom-color: calypso-colors.$alert-yellow;
 			}
 		}
 
 		&.is-success {
 
 			.dops-popover__arrow {
-				border-bottom-color: $alert-green;
+				border-bottom-color: calypso-colors.$alert-green;
 			}
 		}
 	}
@@ -47,7 +48,7 @@
 	&.is-top-right {
 
 		.dops-popover__arrow {
-			border-top-color: darken( $gray, 30% );
+			border-top-color: color.adjust( calypso-colors.$gray, $lightness: -30% );
 			bottom: 4px;
 			right: 10px;
 
@@ -59,21 +60,21 @@
 		&.is-error {
 
 			.dops-popover__arrow {
-				border-top-color: $alert-red;
+				border-top-color: calypso-colors.$alert-red;
 			}
 		}
 
 		&.is-warning {
 
 			.dops-popover__arrow {
-				border-top-color: $alert-yellow;
+				border-top-color: calypso-colors.$alert-yellow;
 			}
 		}
 
 		&.is-success {
 
 			.dops-popover__arrow {
-				border-top-color: $alert-green;
+				border-top-color: calypso-colors.$alert-green;
 			}
 		}
 	}
@@ -101,21 +102,21 @@
 		&.is-error {
 
 			.dops-popover__arrow {
-				border-right-color: $alert-red;
+				border-right-color: calypso-colors.$alert-red;
 			}
 		}
 
 		&.is-warning {
 
 			.dops-popover__arrow {
-				border-right-color: $alert-yellow;
+				border-right-color: calypso-colors.$alert-yellow;
 			}
 		}
 
 		&.is-success {
 
 			.dops-popover__arrow {
-				border-right-color: $alert-green;
+				border-right-color: calypso-colors.$alert-green;
 			}
 		}
 	}
@@ -124,7 +125,7 @@
 
 		.dops-popover__arrow {
 			margin-right: 4px;
-			border-left-color: darken( $gray, 30% );
+			border-left-color: color.adjust( calypso-colors.$gray, $lightness: -30% );
 		}
 	}
 
@@ -132,16 +133,16 @@
 
 		.dops-popover__arrow {
 			margin-left: 4px;
-			border-right-color: darken( $gray, 30% );
+			border-right-color: color.adjust( calypso-colors.$gray, $lightness: -30% );
 		}
 	}
 
 	.dops-popover__inner {
-		border: 0px;
+		border: 0;
 		box-shadow: none;
 		border-radius: 2px;
-		color: $white;
-		background: darken( $gray, 30% );
+		color: calypso-colors.$white;
+		background: color.adjust( calypso-colors.$gray, $lightness: -30% );
 		font-size: 12px;
 		padding: 6px 10px;
 		text-align: left;
@@ -150,21 +151,21 @@
 	&.is-error {
 
 		.dops-popover__inner {
-			background: $alert-red;
+			background: calypso-colors.$alert-red;
 		}
 	}
 
 	&.is-warning {
 
 		.dops-popover__inner {
-			background: $alert-yellow;
+			background: calypso-colors.$alert-yellow;
 		}
 	}
 
 	&.is-success {
 
 		.dops-popover__inner {
-			background: $alert-green;
+			background: calypso-colors.$alert-green;
 		}
 	}
 
@@ -183,5 +184,5 @@
 
 .dops-tooltip__hr {
 	margin: 8px 0;
-	background: $gray;
+	background: calypso-colors.$gray;
 }

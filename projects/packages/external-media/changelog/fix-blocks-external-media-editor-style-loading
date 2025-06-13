@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Scripts: Ensure correct loading, preventing console warnings.

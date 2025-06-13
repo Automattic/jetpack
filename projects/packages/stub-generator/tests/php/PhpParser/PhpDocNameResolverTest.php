@@ -14,6 +14,8 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter_Standard;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -23,6 +25,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
  * @covers \Automattic\Jetpack\StubGenerator\PhpParser\PhpDocNameResolver
  * @covers \Automattic\Jetpack\StubGenerator\PhpDocParser\NameResolver
  */
+#[CoversClass( \Automattic\Jetpack\StubGenerator\PhpDocParser\NameResolver::class )]
+#[CoversClass( PhpDocNameResolver::class )]
 class PhpDocNameResolverTest extends TestCase {
 
 	/**
@@ -34,6 +38,7 @@ class PhpDocNameResolverTest extends TestCase {
 	 * @param int    $verbosity Output verbosity.
 	 * @param string $expectOutput Expected console output.
 	 */
+	#[DataProvider( 'provideIntegration' )]
 	public function testIntegration( string $input, string $expect, int $verbosity = BufferedOutput::VERBOSITY_NORMAL, string $expectOutput = '' ) {
 		$output       = new BufferedOutput( $verbosity );
 		$parser       = ( new ParserFactory() )->createForHostVersion();

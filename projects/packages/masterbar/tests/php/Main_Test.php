@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Status\Cache;
+use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
 /**
@@ -15,6 +16,7 @@ use WorDBless\BaseTestCase;
  *
  * @covers Automattic\Jetpack\Masterbar\Main
  */
+#[CoversClass( Main::class )]
 class Main_Test extends BaseTestCase {
 	/**
 	 * Returning the environment into its initial state.

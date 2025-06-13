@@ -174,13 +174,13 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 							if ( $show_addresses !== 1 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								continue;
 							} elseif ( $field_group === '' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-								echo '<div class="jpcrm-form-grid" style="padding:0px;grid-template-columns: 1fr;">';
+								echo '<div class="jpcrm-form-grid" style="padding:0;grid-template-columns: 1fr;">';
 								echo '<div class="jpcrm-form-group"><label>';
 								echo esc_html__( $field_value['area'], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText
 								echo '</label></div>';
 							} elseif ( $field_group !== $field_value['area'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								echo '</div>';
-								echo '<div class="jpcrm-form-grid" style="padding:0px;grid-template-columns: 1fr;">';
+								echo '<div class="jpcrm-form-grid" style="padding:0;grid-template-columns: 1fr;">';
 								echo '<div class="jpcrm-form-group"><label>';
 								echo $show_field ? esc_html( $second_address_label ) : '';
 								echo '</label></div>';

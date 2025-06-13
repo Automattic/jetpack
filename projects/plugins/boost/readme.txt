@@ -2,10 +2,10 @@
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, lsarsfield, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 6.6
+Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 3.13.1
+Stable tag: 4.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,13 +183,25 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.13.1 - 2025-04-16
+### 4.1.0-beta - 2025-06-11
+#### Added
+- LCP Optimization: New Largest Contentful Paint (LCP) optimization feature to improve loading performance of Cornerstone pages.
+
+#### Changed
+- Auto-Resize Lazy Images: Remove beta tag.
+- E2E Tests: Update config file encryption algorithm.
+- My Jetpack: Hide backup failure notice when backups are deactivated.
+- My Jetpack: Optimize the images for onboarding slider for faster page load.
+- Update package dependencies.
+
+#### Removed
+- Cornerstone Pages: Remove "Experimental" tag from UI.
+
 #### Fixed
-- Critical CSS: Fix cases where dismissing a recommendation would dismiss multiple ones.
-- Critical CSS: Fix not showing status code when generation fails for some pages.
-- Image Guide: Fix front-end state not being in sync with Boost settings.
-- Page Cache: Fix garbage collection and clear cache functionality leaving empty directories behind.
-- Page Cache: Fix not clearing up some events on deactivation.
+- General: Fix storage data persisting after clear.
+- My Jetpack: Fix Onboarding UI responsiveness at 600px.
+- My Jetpack: Fix readability of license activation button on hover.
+- Speed Scores: Fix not waiting for Cloud CSS to finish generating before refreshing the scores.
 
 --------
 

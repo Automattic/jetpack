@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Slideshow block: Ensure block preview doesn't generate an invalid API request

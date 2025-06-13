@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Status;
 use Automattic\Jetpack\Constants;
 use Brain\Monkey;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,6 +19,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Status\Host
  */
+#[CoversClass( Host::class )]
 class Host_Test extends TestCase {
 	/**
 	 * Testing object.
@@ -122,6 +125,7 @@ class Host_Test extends TestCase {
 	 *
 	 * @param string $env Calypso environment (empty string if default).
 	 */
+	#[DataProvider( 'get_calypso_env_data_provider' )]
 	public function test_get_calypso_env( $env ) {
 		if ( $env ) {
 			$_GET['calypso_env'] = $env;
@@ -152,6 +156,7 @@ class Host_Test extends TestCase {
 	 * @param string $source Source parameter.
 	 * @param string $expected Expected query string.
 	 */
+	#[DataProvider( 'get_source_query_params' )]
 	public function test_get_source_query( $source, $expected ) {
 		$_GET['source'] = $source;
 		$this->assertEquals( $expected, $this->host_obj->get_source_query() );

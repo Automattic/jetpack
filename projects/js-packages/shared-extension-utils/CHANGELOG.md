@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-06-10
+### Changed
+- Update dependencies. [#43796]
+
+## [1.0.1] - 2025-06-05
+### Changed
+- Update dependencies. [#43785]
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
+## [0.20.3] - 2025-06-02
+### Changed
+- sass: `@use` rather than `@import` for `@automattic/jetpack-base-styles/gutenberg-base-styles`. [#43607]
+- Update package dependencies. [#43711]
+
+## [0.20.2] - 2025-05-26
+### Added
+- Janitorial: Ensure functionality related to WoA site checking is clearer. [#43481]
+
+### Changed
+- Update package dependencies. [#43578]
+
+## [0.20.1] - 2025-05-22
+### Changed
+- Update dependencies. [#43068]
+
+## [0.20.0] - 2025-05-19
+### Added
+- AI Assistant: Retrieve Chrome AI token from AI Features response and inject it from the frontend. [#43442]
+
+## [0.19.3] - 2025-05-12
+### Changed
+- Update dependencies. [#43068]
+
+## [0.19.2] - 2025-05-05
+### Changed
+- Update package dependencies. [#43320] [#43326]
+
+## [0.19.1] - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+
 ## [0.19.0] - 2025-04-14
 ### Changed
 - Adjust relative imports in TypeScript sources to use correct extensions after enabling TypeScript's new `rewriteRelativeImportExtensions` option. [#42990]
@@ -613,6 +657,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[1.0.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.0.0...1.0.1
+[1.0.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.20.3...1.0.0
+[0.20.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.20.2...0.20.3
+[0.20.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.20.1...0.20.2
+[0.20.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.20.0...0.20.1
+[0.20.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.19.3...0.20.0
+[0.19.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.19.2...0.19.3
+[0.19.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.19.1...0.19.2
+[0.19.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.19.0...0.19.1
 [0.19.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.11...0.19.0
 [0.18.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.10...0.18.11
 [0.18.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.18.9...0.18.10

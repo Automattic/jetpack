@@ -6,6 +6,7 @@
 
 .fixed .column-stats {
     width: 5em;
+    white-space: nowrap;
 }
 
 .fixed .column-comment_likes .comment-like-count {
@@ -14,7 +15,6 @@
     padding: 0 8px;
     height: 2em;
     margin-top: 5px;
-    -webkit-border-radius: 5px;
     border-radius: 5px;
     background-color: #787c82;
     color: #fff;

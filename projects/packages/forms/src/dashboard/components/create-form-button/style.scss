@@ -1,0 +1,27 @@
+.jp-forms__create-form-button--large-green.create-form-button:not(:disabled,[aria-disabled="true"]),
+.jp-forms__create-form-button--large-green.create-form-button:active:not(:disabled,[aria-disabled="true"]) {
+	color: var(--jp-white,#fff);
+	background-color: var(--jp-green-50);
+	border-color: var(--jp-green-50);
+	box-shadow: inset 0 0 0 1px var(--jp-green-50), 0 0 0 currentColor;
+	min-width: auto;
+
+	&:hover {
+		background-color: var(--jp-green-60);
+
+		&:focus {
+			box-shadow: inset 0 0 0 1px var(--wp-components-color-background,#fff),0 0 0 var(--wp-admin-border-width-focus) var(--jp-green-60);
+		}
+	}
+
+	&:focus {
+		box-shadow: inset 0 0 0 1px var(--wp-components-color-background,#fff),0 0 0 var(--wp-admin-border-width-focus) var(--jp-green-50);
+	}
+}
+
+.jp-forms__create-form-button--large-green.create-form-button:disabled,
+.jp-forms__create-form-button--large-green.create-form-button[aria-disabled="true"] {
+	background: var(--jp-gray);
+	border-color: var(--jp-gray);
+	color: var(--jp-gray-50);
+}

@@ -23,20 +23,16 @@ import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
+import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
-import AkismetPanel from './components/jetpack-akismet-panel';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
-import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import IntegrationControls from './components/jetpack-integration-controls';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
-import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
-import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
-
 const validFields = filter( childBlocks, ( { settings } ) => {
 	return (
 		! settings.parent ||
@@ -72,8 +68,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouHeading,
 		customThankyouMessage,
 		customThankyouRedirect,
-		jetpackCRM,
-		salesforceData,
 		formTitle,
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
@@ -122,13 +116,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
 
-	const isSalesForceExtensionEnabled =
-		!! window?.Jetpack_Editor_Initial_State?.available_blocks[
-			'contact-form/salesforce-lead-form'
-		];
-
-	const isFormModalEnabled = !! window?.jpFormsBlocks?.defaults?.isFormModalEnabled;
-
 	let elt;
 
 	if ( ! isModuleActive ) {
@@ -168,7 +155,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							{ __( 'Customize the view after form submission:', 'jetpack-forms' ) }
 						</InspectorHint>
 						<SelectControl
-							label={ __( 'On Submission', 'jetpack-forms' ) }
+							label={ __( 'On submission', 'jetpack-forms' ) }
 							value={ customThankyou }
 							options={ [
 								{ label: __( 'Show a summary of submitted fields', 'jetpack-forms' ), value: '' },
@@ -185,7 +172,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 						{ 'redirect' !== customThankyou && (
 							<TextControl
-								label={ __( 'Message Heading', 'jetpack-forms' ) }
+								label={ __( 'Message heading', 'jetpack-forms' ) }
 								value={ customThankyouHeading }
 								placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
 								onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
@@ -196,7 +183,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 						{ 'message' === customThankyou && (
 							<TextareaControl
-								label={ __( 'Message Text', 'jetpack-forms' ) }
+								label={ __( 'Message text', 'jetpack-forms' ) }
 								value={ customThankyouMessage }
 								placeholder={ __( 'Thank you for your submission!', 'jetpack-forms' ) }
 								onChange={ newMessage => setAttributes( { customThankyouMessage: newMessage } ) }
@@ -207,7 +194,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						{ 'redirect' === customThankyou && (
 							<div>
 								<URLInput
-									label={ __( 'Redirect Address', 'jetpack-forms' ) }
+									label={ __( 'Redirect address', 'jetpack-forms' ) }
 									value={ customThankyouRedirect }
 									className="jetpack-contact-form__thankyou-redirect-url"
 									onChange={ newURL => setAttributes( { customThankyouRedirect: newURL } ) }
@@ -225,27 +212,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						/>
 					</PanelBody>
 
-					{ isFormModalEnabled && (
+					{ ! isSimpleSite() && canUserInstallPlugins && (
 						<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
-					) }
-
-					{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
-						<SalesforceLeadFormSettings
-							salesforceData={ salesforceData }
-							setAttributes={ setAttributes }
-							instanceId={ instanceId }
-						/>
-					) }
-					{ ! isFormModalEnabled && ! isSimpleSite() && canUserInstallPlugins && (
-						<>
-							<AkismetPanel />
-							<PanelBody title={ __( 'CRM connection', 'jetpack-forms' ) } initialOpen={ false }>
-								<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
-							</PanelBody>
-							<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
-								<NewsletterIntegrationSettings />
-							</PanelBody>
-						</>
 					) }
 				</InspectorControls>
 				<InspectorAdvancedControls>
@@ -271,9 +239,11 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	}
 
 	return (
-		<ThemeProvider targetDom={ wrapperRef.current }>
-			<div { ...blockProps }>{ elt }</div>
-		</ThemeProvider>
+		<SyncedAttributeProvider>
+			<ThemeProvider targetDom={ wrapperRef.current }>
+				<div { ...blockProps }>{ elt }</div>
+			</ThemeProvider>
+		</SyncedAttributeProvider>
 	);
 }
 

@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require __DIR__ . '/../../../../modules/widgets/twitter-timeline.php';
 
 /**
@@ -12,6 +15,7 @@ require __DIR__ . '/../../../../modules/widgets/twitter-timeline.php';
  *
  * @covers \Jetpack_Twitter_Timeline_Widget
  */
+#[CoversClass( Jetpack_Twitter_Timeline_Widget::class )]
 class Twitter_Timeline_Widget_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -115,6 +119,7 @@ class Twitter_Timeline_Widget_Test extends WP_UnitTestCase {
 	 * @param bool   $is_amp Whether this is on an AMP endpoint.
 	 * @param string $expected The expected output of the tested method.
 	 */
+	#[DataProvider( 'get_widget_data' )]
 	public function test_widget( $instance, $is_amp, $expected ) {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		if ( $is_amp ) {

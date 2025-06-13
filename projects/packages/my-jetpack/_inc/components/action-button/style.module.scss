@@ -6,7 +6,7 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 	left: 0;
 	background: var( --jp-white );
 	border-radius: calc( var( --jp-border-radius ) / 2 );
-	box-shadow: 0px 1px 1px 0px $box-shadow-color, 0px 1px 1.5px 0px $box-shadow-color, 0px 2px 3px -0.5px $box-shadow-color;
+	box-shadow: 0 1px 1px 0 $box-shadow-color, 0 1px 1.5px 0 $box-shadow-color, 0 2px 3px -0.5px $box-shadow-color;
 	padding: var( --spacing-base );
 	z-index: 1;
 

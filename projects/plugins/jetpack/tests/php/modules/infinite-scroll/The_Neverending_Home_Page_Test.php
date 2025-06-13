@@ -1,4 +1,7 @@
 <?php
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 require __DIR__ . '/../../../../modules/infinite-scroll/infinity.php';
 
 /**
@@ -6,6 +9,7 @@ require __DIR__ . '/../../../../modules/infinite-scroll/infinity.php';
  *
  * @covers The_Neverending_Home_Page
  */
+#[CoversClass( The_Neverending_Home_Page::class )]
 class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -35,6 +39,7 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 	 * @param mixed $posts_per_page_query_arg The $_REQUEST['query_args']['posts_per_page'] value.
 	 * @param int   $expected The expected return value of the posts_per_page method.
 	 */
+	#[DataProvider( 'get_posts_per_page_in_request_data' )]
 	public function test_max_posts_per_page_in_request( $posts_per_page_query_arg, $expected ) {
 		$_REQUEST['query_args']['posts_per_page'] = $posts_per_page_query_arg;
 

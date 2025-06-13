@@ -91,9 +91,7 @@ amp-consent.widget_eu_cookie_law_widget.widget.top {
 #eu-cookie-law input:focus {
 	background: #f3f3f3;
 	border: 1px solid #dedede;
-	border-radius: 4px;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
+	border-radius: 3px;
 	color: #2e4453;
 	cursor: pointer;
 	display: inline;

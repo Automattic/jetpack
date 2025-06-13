@@ -56,7 +56,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 
 		if ( data.email ) {
 			const emailInput = document.querySelector(
-				'.jetpack-subscription-modal__modal-content input[type=email]'
+				'.jetpack-subscription-modal__modal-content input[type="email"]'
 			);
 			if ( ! emailInput ) {
 				reloadOnCloseSubscriptionModal( data.url );
@@ -64,7 +64,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			}
 
 			const appSource = document.querySelector(
-				'.jetpack-subscription-modal__modal-content input[name=app_source]'
+				'.jetpack-subscription-modal__modal-content input[name="app_source"]'
 			);
 			if ( ! appSource ) {
 				reloadOnCloseSubscriptionModal( data.url );

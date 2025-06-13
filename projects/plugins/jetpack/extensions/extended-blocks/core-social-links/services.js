@@ -116,10 +116,6 @@ const services = [
 		url: [ 'reddit.com' ],
 	},
 	{
-		name: 'skype',
-		url: [ 'skype.com', 'skype:' ],
-	},
-	{
 		name: 'snapchat',
 		url: [ 'snapchat.com' ],
 	},

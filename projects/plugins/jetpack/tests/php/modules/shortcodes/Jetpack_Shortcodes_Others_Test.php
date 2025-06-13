@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 // Dummy comment so phpcs sees the above as a file doc comment.
 require_once __DIR__ . '/trait.http-request-cache.php';
 
@@ -33,6 +35,7 @@ class Jetpack_Shortcodes_Others_Test extends WP_UnitTestCase {
 	 * @param string $embed_link The link we're trying to embed, as pasted in the editor.
 	 * @param string $expected   The expected return value of the function.
 	 */
+	#[DataProvider( 'get_odesli_data' )]
 	public function test_shortcodes_songlink( $embed_link, $expected ) {
 		global $post;
 

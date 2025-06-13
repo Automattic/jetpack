@@ -25,6 +25,8 @@ export default function getRedirectUrl( source: string, args: GetRedirectUrlArgs
 
 	let calypsoEnv;
 	if ( typeof window !== 'undefined' ) {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- Not using @ts-expect-error because JP_CONNECTION_INITIAL_STATE is typed in the "connection" package and that doesn't expect this error
+		// @ts-ignore The usage of JP_CONNECTION_INITIAL_STATE is not typed inside this generic package. We should get rid of it in the future.
 		calypsoEnv = window?.JP_CONNECTION_INITIAL_STATE?.calypsoEnv;
 	}
 

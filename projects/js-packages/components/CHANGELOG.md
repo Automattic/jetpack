@@ -2,6 +2,65 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.1.1] - 2025-06-10
+### Changed
+- Update dependencies.
+
+## [1.1.0] - 2025-06-04
+### Added
+- Add functionality to correctly display database threats in the Protect UI. [#43663]
+
+### Changed
+- Update package dependencies. [#43766]
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## [0.73.4] - 2025-06-02
+### Added
+- Added className prop to AdminPage component. [#43592]
+
+### Changed
+- sass: `@use` rather than `@import` for `@automattic/jetpack-base-styles/gutenberg-base-styles`. [#43607]
+
+## [0.73.3] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
+## [0.73.2] - 2025-05-22
+### Fixed
+- Fixed Swipeable width being stale on window resize. [#43510]
+
+## [0.73.1] - 2025-05-19
+### Changed
+- Update dependencies.
+
+## [0.73.0] - 2025-05-12
+### Changed
+- Use `formatCurrency()` and `getCurrencyObject()` functions from the `@automattic/number-formatters` package. [#42796]
+
+### Removed
+- Remove the `numberFormat()` function. This is a breaking change; use the `@automattic/number-formatters` package instead. [#42864]
+
+## [0.72.6] - 2025-05-05
+### Changed
+- Update package dependencies. [#43320] [#43326]
+
+### Fixed
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+
+## [0.72.5] - 2025-04-28
+### Changed
+- Connection: Mark external links as external. [#43152]
+
+### Fixed
+- Code: Use modern font MIME types for inline fonts. [#43227]
+- Linting: Fix more Stylelint violations. [#43213]
+- My Jetpack: Fix TypeScript type checking and the corresponding errors. [#43205]
+
 ## [0.72.4] - 2025-04-14
 ### Changed
 - Adjust relative imports in TypeScript sources to use correct extensions after enabling TypeScript's new `rewriteRelativeImportExtensions` option. [#42990]
@@ -1367,6 +1426,16 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.1.1]: https://github.com/Automattic/jetpack-components/compare/1.1.0...1.1.1
+[1.1.0]: https://github.com/Automattic/jetpack-components/compare/1.0.0...1.1.0
+[1.0.0]: https://github.com/Automattic/jetpack-components/compare/0.73.4...1.0.0
+[0.73.4]: https://github.com/Automattic/jetpack-components/compare/0.73.3...0.73.4
+[0.73.3]: https://github.com/Automattic/jetpack-components/compare/0.73.2...0.73.3
+[0.73.2]: https://github.com/Automattic/jetpack-components/compare/0.73.1...0.73.2
+[0.73.1]: https://github.com/Automattic/jetpack-components/compare/0.73.0...0.73.1
+[0.73.0]: https://github.com/Automattic/jetpack-components/compare/0.72.6...0.73.0
+[0.72.6]: https://github.com/Automattic/jetpack-components/compare/0.72.5...0.72.6
+[0.72.5]: https://github.com/Automattic/jetpack-components/compare/0.72.4...0.72.5
 [0.72.4]: https://github.com/Automattic/jetpack-components/compare/0.72.3...0.72.4
 [0.72.3]: https://github.com/Automattic/jetpack-components/compare/0.72.2...0.72.3
 [0.72.2]: https://github.com/Automattic/jetpack-components/compare/0.72.1...0.72.2

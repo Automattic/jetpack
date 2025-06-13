@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Tracking;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -17,6 +18,7 @@ use WorDBless\Users as WorDBless_Users;
  *
  * @covers Automattic\Jetpack\Masterbar\Dashboard_Switcher_Tracking
  */
+#[CoversClass( Dashboard_Switcher_Tracking::class )]
 class Dashboard_Switcher_Tracking_Test extends TestCase {
 	/**
 	 * Mock user id.

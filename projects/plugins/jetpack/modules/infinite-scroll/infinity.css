@@ -38,6 +38,7 @@
 	height: 12px;
 	border-radius: 3px / 6px;
 	transform-origin: 3px 26px;
+	box-sizing: content-box;
 }
 
 .infinite-loader .spinner-inner div:nth-child(1) {
@@ -129,10 +130,6 @@
 	transform-origin: 0 0; /* see note above */
 }
 
-.infinite-loader .spinner-inner div {
-	box-sizing: content-box;
-}
-
 /**
  * Using a highly-specific rule to make sure that all button styles
  * will be reset
@@ -200,11 +197,9 @@
 
 #infinite-footer .container {
 	background: rgba( 255, 255, 255, 0.8 );
-	border-color: #ccc;
 	border-color: rgba( 0, 0, 0, 0.1 );
 	border-style: solid;
 	border-width: 1px 0 0;
-	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 	margin: 0 auto;
 	overflow: hidden;
@@ -214,8 +209,6 @@
 
 #infinite-footer .blog-info,
 #infinite-footer .blog-credits {
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 	line-height: 25px;
 }
@@ -229,12 +222,6 @@
 	width: 40%;
 }
 
-#infinite-footer .blog-credits {
-	font-weight: 400;
-	float: right;
-	width: 60%;
-}
-
 #infinite-footer .blog-info a {
 	color: #111;
 	font-size: 14px;
@@ -242,6 +229,9 @@
 }
 
 #infinite-footer .blog-credits {
+	font-weight: 400;
+	float: right;
+	width: 60%;
 	color: #888;
 	font-size: 12px;
 	text-align: right;
@@ -264,8 +254,6 @@
 @media (max-width: 640px) {
 
 	#infinite-footer .container {
-		-moz-box-sizing: border-box;
-		-webkit-box-sizing: border-box;
 		box-sizing: border-box;
 		width: 100%;
 	}

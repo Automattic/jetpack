@@ -1,4 +1,4 @@
-@import "../../shared/styles/align";
+@use "../../shared/styles/align";
 
 .amp-wp-article .wp-block-jetpack-button {
 	color: #fff;
@@ -6,7 +6,7 @@
 
 .wp-block-jetpack-button {
 
-	@include align-block;
+	@include align.align-block;
 	max-width: 100%;
 	width: fit-content;
 	height: fit-content; // Since .wp-block-button__link has a 100% height, this prevents the button from matching its container's height.
@@ -17,8 +17,33 @@
 		border: solid 1px currentColor;
 		color: currentColor;
 	}
-	
+
 	:where(&:not(.is-style-outline) button) {
  		border: none;
  	}
+
+	.spinner {
+		display: none;
+		fill: currentColor;
+
+		svg {
+
+			/* Ensure container is of the exact same dimension */
+			display: block;
+		}
+	}
+
+	.is-submitting .spinner {
+		display: inline;
+	}
+
+	.is-visually-hidden {
+		clip: rect(0 0 0 0);
+		clip-path: inset(50%);
+		height: 1px;
+		overflow: hidden;
+		position: absolute;
+		white-space: nowrap;
+		width: 1px;
+	}
 }

@@ -81,6 +81,9 @@ class Social_Admin_Page {
 		 * Use priority 20 to ensure that we can dequeue the old Social assets.
 		 */
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 20 );
+
+		// Initialize the media library for the social image generator.
+		wp_enqueue_media();
 	}
 
 	/**

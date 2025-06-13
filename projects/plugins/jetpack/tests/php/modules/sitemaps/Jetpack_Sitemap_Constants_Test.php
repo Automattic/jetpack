@@ -6,6 +6,8 @@
  * @since 4.7.0
  */
 
+use PHPUnit\Framework\Attributes\Group;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-constants.php';
 
 /**
@@ -27,6 +29,7 @@ class Jetpack_Sitemap_Constants_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_builder_capacity_constants() {
 		// Test range of JP_SITEMAP_MAX_BYTES.
 		$this->assertTrue( is_int( JP_SITEMAP_MAX_BYTES ) );
@@ -50,6 +53,7 @@ class Jetpack_Sitemap_Constants_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_librarian_type_constants_distinct() {
 		$this->assertNotEquals(
 			JP_MASTER_SITEMAP_TYPE,

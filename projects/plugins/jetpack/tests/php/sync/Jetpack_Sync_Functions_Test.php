@@ -143,6 +143,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 			'get_loaded_extensions'             => Functions::get_loaded_extensions(),
 			'jetpack_connection_active_plugins' => Functions::get_jetpack_connection_active_plugins(),
 			'jetpack_sync_active_modules'       => Functions::get_jetpack_sync_active_modules(),
+			'jetpack_package_versions'          => Functions::get_jetpack_package_versions(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -1299,8 +1300,8 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 		$this->assertFalse( $functions->get_hosting_provider_by_known_class() );
 
 		// Fake that the class exists for the test.
-		// @phan-suppress-next-line PhanUndeclaredClassReference
-		$this->getMockBuilder( '\\WPaaS\\Plugin' )->getMock();
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- We're defining it here, Phan. 🙄
+		class_alias( static::class, \WPaaS\Plugin::class );
 
 		$this->assertEquals( 'gd-managed-wp', $functions->get_hosting_provider_by_known_class() );
 	}

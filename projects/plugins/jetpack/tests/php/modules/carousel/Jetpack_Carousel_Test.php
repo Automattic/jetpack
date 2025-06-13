@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/carousel/jetpack-carousel.php';
 
 /**
@@ -12,6 +15,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/carousel/jetpack-carousel.php';
  *
  * @covers \Jetpack_Carousel
  */
+#[CoversClass( Jetpack_Carousel::class )]
 class Jetpack_Carousel_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -98,6 +102,7 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 	 * @param bool        $is_amp Whether this is an AMP endpoint.
 	 * @param string|null $expected The filtered content.
 	 */
+	#[DataProvider( 'get_data_img_tags' )]
 	public function test_add_data_img_tags_and_enqueue_assets( $content, $is_amp = false, $expected = null ) {
 		if ( $is_amp ) {
 			add_filter( 'jetpack_is_amp_request', '__return_true' );

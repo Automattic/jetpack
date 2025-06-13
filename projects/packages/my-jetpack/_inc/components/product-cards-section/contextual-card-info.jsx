@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { Text, numberFormat, LoadingPlaceholder } from '@automattic/jetpack-components';
+import { Text, LoadingPlaceholder } from '@automattic/jetpack-components';
+import { formatNumberCompact } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import { arrowUp, arrowDown, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -18,9 +19,10 @@ export const ChangePercentageContext = ( { change, changePercentage } ) => {
 	}
 
 	const changeIcon = change > 0 ? arrowUp : arrowDown;
-	const changeFormatted = numberFormat( Math.abs( change ), {
-		notation: 'compact',
-		compactDisplay: 'short',
+	const changeFormatted = formatNumberCompact( Math.abs( change ), {
+		numberFormatOptions: {
+			compactDisplay: 'short',
+		},
 	} );
 
 	return (

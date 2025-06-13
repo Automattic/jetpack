@@ -1,15 +1,19 @@
-// ==========================================================================
-// em()
-//
-// Convert px to em in a readable fashion.
-// ==========================================================================
+@use "variables";
 
-// Examples:
-// 1. font-size: em(14px);
-// 2. font-size: em(30px/14px);
-@use "sass:math";
+/**
+ * em()
+ *
+ * Convert px to em in a readable fashion.
+ * ==========================================================================
 
-@function em($value, $context: map-get($root-font, font-size)) {
+ * Examples:
+ * 1. font-size: em(14px);
+ * 2. font-size: em(30px/14px);
+ */
+ @use 'sass:map';
+ @use "sass:math";
+
+@function em($value, $context: map.get(variables.$root-font, font-size)) {
 
 	@return (math.div($value, $context) * 1em);
 }

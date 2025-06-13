@@ -250,6 +250,10 @@ class Instant_Search extends Classic_Search {
 		$response_code = wp_remote_retrieve_response_code( $request );
 		$response      = json_decode( wp_remote_retrieve_body( $request ), true );
 
+		if ( isset( $response['swap_classic_to_inline_search'] ) && $response['swap_classic_to_inline_search'] === false ) {
+			update_option( Module_Control::SEARCH_MODULE_SWAP_CLASSIC_TO_INLINE_OPTION_KEY, false );
+		}
+
 		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
 			/**
 			 * Fires after a search query request has failed
@@ -393,8 +397,7 @@ class Instant_Search extends Classic_Search {
 	}
 
 	/**
-	 * Add JP Search widget on top of theme sidebar.
-	 * Or Replace core search widget in theme sidebar if exists.
+	 * Replace core search widget in theme sidebar if exists.
 	 */
 	public function auto_config_non_fse_theme_sidebar_search_widget() {
 		$sidebars = get_option( 'sidebars_widgets', array() );
@@ -420,8 +423,8 @@ class Instant_Search extends Classic_Search {
 			// Replace core search widget with JP search widget.
 			$sidebars[ self::AUTO_CONFIG_SIDEBAR ][ $sidebar_searchbox_idx ] = Helper::build_widget_id( $next_id );
 		} else {
-			// Add JP Search widget to top.
-			array_unshift( $sidebars[ self::AUTO_CONFIG_SIDEBAR ], Helper::build_widget_id( $next_id ) );
+			// No core search widget found, so we don't need to replace anything.
+			return true;
 		}
 
 		update_option( $widget_opt_name, $widget_options );

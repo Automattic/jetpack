@@ -1,10 +1,13 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-extractor.php';
 
 /**
  * @covers \Jetpack_Media_Meta_Extractor
  */
+#[CoversClass( Jetpack_Media_Meta_Extractor::class )]
 class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

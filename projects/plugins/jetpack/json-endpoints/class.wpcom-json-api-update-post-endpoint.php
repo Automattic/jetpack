@@ -750,7 +750,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				$meta = (object) $meta;
 
 				if (
-					in_array( $meta->key, Jetpack_SEO_Posts::POST_META_KEYS_ARRAY, true ) &&
+					in_array( isset( $meta->key ) ? $meta->key : null, Jetpack_SEO_Posts::POST_META_KEYS_ARRAY, true ) &&
 					! Jetpack_SEO_Utils::is_enabled_jetpack_seo()
 				) {
 					return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
@@ -780,10 +780,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					}
 				}
 
-				$unslashed_meta_key           = wp_unslash( $meta->key ); // should match what the final key will be.
-				$meta->key                    = wp_slash( $meta->key );
-				$unslashed_existing_meta_key  = wp_unslash( $existing_meta_item->meta_key );
-				$existing_meta_item->meta_key = wp_slash( $existing_meta_item->meta_key );
+				$unslashed_meta_key           = isset( $meta->key ) ? wp_unslash( $meta->key ) : null; // should match what the final key will be.
+				$meta->key                    = isset( $meta->key ) ? wp_slash( $meta->key ) : null;
+				$unslashed_existing_meta_key  = isset( $existing_meta_item->meta_key ) ? wp_unslash( $existing_meta_item->meta_key ) : null;
+				$existing_meta_item->meta_key = isset( $existing_meta_item->meta_key ) ? wp_slash( $existing_meta_item->meta_key ) : null;
 
 				// make sure that the meta id passed matches the existing meta key.
 				if ( ! empty( $meta->id ) && ! empty( $meta->key ) ) {

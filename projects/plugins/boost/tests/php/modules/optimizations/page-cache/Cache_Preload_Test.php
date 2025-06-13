@@ -307,7 +307,7 @@ class Cache_Preload_Test extends TestCase {
 
 		Functions\expect( 'add_action' )
 			->once()
-			->withArgs( array( 'post_updated', Mockery::type( 'array' ), 10, 1 ) );
+			->withArgs( array( 'post_updated', Mockery::type( 'array' ) ) );
 
 		Functions\expect( 'add_action' )
 			->once()

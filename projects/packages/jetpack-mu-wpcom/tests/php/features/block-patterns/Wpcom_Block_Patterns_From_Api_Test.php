@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/block-patterns/block-patterns.php';
@@ -27,6 +28,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 	 *
 	 * @before
 	 */
+	#[Before]
 	public function custom_setup() {
 		parent::setUp();
 		$this->pattern_mock_object = array(

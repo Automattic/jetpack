@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Changelogger\Tests;
 use Automattic\Jetpack\Changelogger\Application;
 use Automattic\Jetpack\Changelogger\Config;
 use Automattic\Jetpack\Changelogger\ConfigException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\ApplicationTester;
@@ -20,6 +21,7 @@ use Wikimedia\TestingAccessWrapper;
  *
  * @covers \Automattic\Jetpack\Changelogger\Application
  */
+#[CoversClass( Application::class )]
 class ApplicationTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 

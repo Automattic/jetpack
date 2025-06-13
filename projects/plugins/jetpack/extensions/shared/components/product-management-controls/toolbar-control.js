@@ -1,4 +1,4 @@
-import formatCurrency from '@automattic/format-currency';
+import { formatCurrency } from '@automattic/number-formatters';
 import { BlockControls } from '@wordpress/block-editor';
 import { ExternalLink, MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';

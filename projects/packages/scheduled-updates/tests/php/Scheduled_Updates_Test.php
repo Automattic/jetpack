@@ -7,12 +7,17 @@
 
 namespace Automattic\Jetpack;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
 /**
  * Test class for Scheduled_Updates.
  *
  * @covers \Automattic\Jetpack\Scheduled_Updates
  * @covers \WPCOM_REST_API_V2_Endpoint_Update_Schedules
  */
+#[CoversClass( Scheduled_Updates::class )]
+#[CoversClass( \WPCOM_REST_API_V2_Endpoint_Update_Schedules::class )]
 class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
@@ -125,6 +130,7 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @group failing
 	 */
+	#[Group( 'failing' )]
 	public function test_managed_plugins() {
 		symlink( WP_PLUGIN_DIR . '/wordpress/managed-plugin', WP_PLUGIN_DIR . '/managed-plugin' );
 

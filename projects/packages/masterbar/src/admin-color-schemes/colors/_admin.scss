@@ -5,12 +5,99 @@
  * 2. An import of the overrides necessary to match Calypso color schemes.
  */
 
-@import 'variables';
-@import 'mixins';
+@use 'sass:color';
+@use 'sass:string';
+@use "sass:meta";
+@use 'mixins';
+
+// external variables
+$color-primary: $--a-value-must-be-set-via-with-- !default;
+$color-primary-dark: $--a-value-must-be-set-via-with-- !default;
+$color-primary-light: $--a-value-must-be-set-via-with-- !default;
+$color-surface: $--a-value-must-be-set-via-with-- !default;
+$masterbar-background: $--a-value-must-be-set-via-with-- !default;
+$masterbar-active-background: $--a-value-must-be-set-via-with-- !default;
+$masterbar-highlight-background: $--a-value-must-be-set-via-with-- !default;
+$nav-unification-sidebar-border: $--a-value-must-be-set-via-with-- !default;
+
+// core variables
+
+$text-color: #fff !default;
+$base-color: #23282d !default;
+$icon-color: hsl( color.channel( $base-color, "hue", $space: oklch ), 7%, 95% ) !default;
+$highlight-color: #0073aa !default;
+$notification-color: #d54e21 !default;
+
+
+// global
+
+$body-background: #f1f1f1 !default;
+
+$link: #0073aa !default;
+$link-focus: color.adjust( $link, $lightness: 10% ) !default;
+
+$button-color: $highlight-color !default;
+$button-text-color: $text-color !default;
+
+$form-checked: #7e8993 !default;
+
+// admin menu & admin-bar
+
+$menu-text: $text-color !default;
+$menu-icon: $icon-color !default;
+$menu-background: $base-color !default;
+
+$menu-highlight-text: $text-color !default;
+$menu-highlight-icon: $text-color !default;
+$menu-highlight-background: $highlight-color !default;
+
+$menu-current-text: $menu-highlight-text !default;
+$menu-current-icon: $menu-highlight-icon !default;
+$menu-current-background: $menu-highlight-background !default;
+
+$menu-submenu-text: color.mix( $base-color, $text-color, 30% ) !default;
+$menu-submenu-background: color.adjust( $base-color, $lightness: -7% ) !default;
+$menu-submenu-background-alt: color.adjust( $menu-background, $lightness: 7%, $saturation: -7% ) !default;
+
+$menu-submenu-focus-text: $highlight-color !default;
+$menu-submenu-current-text: $text-color !default;
+
+$menu-bubble-text: $text-color !default;
+$menu-bubble-background: $notification-color !default;
+$menu-bubble-current-text: $text-color !default;
+$menu-bubble-current-background: $menu-submenu-background !default;
+
+$menu-collapse-text: $menu-icon !default;
+$menu-collapse-icon: $menu-icon !default;
+$menu-collapse-focus-text: $text-color !default;
+$menu-collapse-focus-icon: $menu-highlight-icon !default;
+
+$adminbar-avatar-frame: color.adjust( $menu-background, $lightness: 7% ) !default;
+$adminbar-input-background: color.adjust( $menu-background, $lightness: 7% ) !default;
+
+$adminbar-recovery-exit-text: $menu-bubble-text !default;
+$adminbar-recovery-exit-background: $menu-bubble-background !default;
+$adminbar-recovery-exit-background-alt: color.mix(#000, $adminbar-recovery-exit-background, 10%) !default;
+
+$menu-customizer-text: color.mix( $base-color, $text-color, 40% ) !default;
+
+$low-contrast-theme: "false" !default;
+
+// Add defaults for the admin bar submenus. In most cases these can match the
+// admin menu submenus, but some schemes may be different.
+$masterbar-submenu-background: $menu-submenu-background !default;
+$masterbar-submenu-background-alt: color.adjust( $menu-submenu-background, $lightness: 5% ) !default;
+
+// Unused here, used in _upsell-banner.scss.
+$menu-nudge-text-color: null !default;
+$menu-nudge-background: null !default;
+$menu-nudge-cta-color: null !default;
+$menu-nudge-cta-background: null !default;
+$menu-nudge-cta-background-hover: null !default;
 
 @function url-friendly-colour( $color ) {
 
-	@return '%23' + str-slice( '#{ $color }', 2, -1 );
+	@return '%23' + string.slice( '#{ $color }', 2, -1 );
 }
 
 body {
@@ -68,11 +155,11 @@ span.wp-media-buttons-icon::before {
 
 /* Forms */
 
-input[type=checkbox]:checked::before {
-	content: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2020%2020%27%3E%3Cpath%20d%3D%27M14.83%204.89l1.34.94-5.81%208.38H9.02L5.78%209.67l1.34-1.25%202.57%202.4z%27%20fill%3D%27#{url-friendly-colour($form-checked)}%27%2F%3E%3C%2Fsvg%3E");
+input[type="checkbox"]:checked::before {
+	content: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2020%2020%27%3E%3Cpath%20d%3D%27M14.83%204.89l1.34.94-5.81%208.38H9.02L5.78%209.67l1.34-1.25%202.57%202.4z%27%20fill%3D%27#{url-friendly-colour($form-checked)}%27%2F%3E%3C%2Fsvg%3E");
 }
 
-input[type=radio]:checked::before {
+input[type="radio"]:checked::before {
 	background: $form-checked;
 }
 
@@ -92,7 +179,6 @@ input[type="month"]:focus,
 input[type="number"]:focus,
 input[type="search"]:focus,
 input[type="tel"]:focus,
-input[type="text"]:focus,
 input[type="time"]:focus,
 input[type="url"]:focus,
 input[type="week"]:focus,
@@ -118,20 +204,20 @@ textarea:focus {
 	.button:hover,
 	.button.focus,
 	.button:focus {
-		border-color: darken( #7e8993, 5% );
-		color: darken( #32373c, 5% );
+		border-color: color.adjust( #7e8993, $lightness: -5% );
+		color: color.adjust( #32373c, $lightness: -5% );
 	}
 
 	.button.focus,
 	.button:focus {
 		border-color: #7e8993;
-		color: darken( #32373c, 5% );
+		color: color.adjust( #32373c, $lightness: -5% );
 		box-shadow: 0 0 0 1px #32373c;
 	}
 
 	.button:active {
 		border-color: #7e8993;
-		color: darken( #32373c, 5% );
+		color: color.adjust( #32373c, $lightness: -5% );
 		box-shadow: none;
 	}
 
@@ -139,7 +225,7 @@ textarea:focus {
 	.button.active:focus,
 	.button.active:hover {
 		border-color: $button-color;
-		color: darken( #32373c, 5% );
+		color: color.adjust( #32373c, $lightness: -5% );
 		box-shadow: inset 0 2px 5px -3px $button-color;
 	}
 
@@ -158,16 +244,16 @@ textarea:focus {
 		.button.hover,
 		.button:hover,
 		.button-secondary:hover{
-			border-color: darken($highlight-color, 10);
-			color: darken($highlight-color, 10);
+			border-color: color.adjust($highlight-color, $lightness: -10%);
+			color: color.adjust($highlight-color, $lightness: -10%);
 		}
 
 		.button.focus,
 		.button:focus,
 		.button-secondary:focus {
-			border-color: lighten($highlight-color, 10);
-			color: darken($highlight-color, 20);;
-			box-shadow: 0 0 0 1px lighten($highlight-color, 10);
+			border-color: color.adjust($highlight-color, $lightness: 10%);
+			color: color.adjust($highlight-color, $lightness: -20%);
+			box-shadow: 0 0 0 1px color.adjust($highlight-color, $lightness: 10%);
 		}
 
 		.button-primary {
@@ -180,7 +266,7 @@ textarea:focus {
 
 	.button-primary {
 
-		@include button( $button-color );
+		@include mixins.button( $button-color );
 	}
 
 	.button-group > .button.active {
@@ -236,14 +322,14 @@ textarea:focus {
 	}
 
 	.wrap .page-title-action:hover {
-		color: darken($highlight-color, 10);
-		border-color: darken($highlight-color, 10);
+		color: color.adjust($highlight-color, $lightness: -10%);
+		border-color: color.adjust($highlight-color, $lightness: -10%);
 	}
 
 	.wrap .page-title-action:focus {
-		border-color: lighten($highlight-color, 10);
-		color: darken($highlight-color, 20);;
-		box-shadow: 0 0 0 1px lighten($highlight-color, 10);
+		border-color: color.adjust($highlight-color, $lightness: 10%);
+		color: color.adjust($highlight-color, $lightness: -20%);
+		box-shadow: 0 0 0 1px color.adjust($highlight-color, $lightness: 10%);
 	}
 }
 
@@ -552,7 +638,7 @@ ul#adminmenu > li.current > a.current::after {
 
 .wp-pointer .wp-pointer-content h3 {
 	background-color: $highlight-color;
-	border-color: darken( $highlight-color, 5% );
+	border-color: color.adjust($highlight-color, $lightness: -5% );
 }
 
 .wp-pointer .wp-pointer-content h3::before {
@@ -713,7 +799,7 @@ div#wp-responsive-toggle a::before {
 .menu-item-bar .item-delete:focus::before,
 #available-menu-items .item-add:focus::before {
 	box-shadow:
-		0 0 0 1px lighten($highlight-color, 10),
+		0 0 0 1px color.adjust($highlight-color, $lightness: 10%),
 		0 0 2px 1px $highlight-color;
 }
 
@@ -769,7 +855,7 @@ div#wp-responsive-toggle a::before {
 .wp-full-overlay .collapse-sidebar:hover .collapse-sidebar-arrow,
 .wp-full-overlay .collapse-sidebar:focus .collapse-sidebar-arrow {
 	box-shadow:
-		0 0 0 1px lighten($highlight-color, 10),
+		0 0 0 1px color.adjust($highlight-color, $lightness: 10%),
 		0 0 2px 1px $highlight-color;
 }
 
@@ -778,13 +864,30 @@ div#wp-responsive-toggle a::before {
 	color: $highlight-color;
 }
 
-/* stylelint-disable no-invalid-position-at-import-rule -- these imports are intentional overrides */
-
 /* Overrides */
-@import 'overrides';
+@include meta.load-css('overrides', $with: (
+  masterbar-active-background: $masterbar-active-background,
+  masterbar-background: $masterbar-background,
+  masterbar-highlight-background: $masterbar-highlight-background,
+  masterbar-submenu-background: $masterbar-submenu-background,
+  masterbar-submenu-background-alt: $masterbar-submenu-background-alt,
+  menu-current-text: $menu-current-text,
+  menu-highlight-text: $menu-highlight-text,
+  menu-submenu-current-text: $menu-submenu-current-text,
+  menu-submenu-focus-text: $menu-submenu-focus-text,
+  menu-submenu-text: $menu-submenu-text,
+  nav-unification-sidebar-border: $nav-unification-sidebar-border
+));
 
 /* Gutenberg Support */
-@import 'gutenberg';
+@include meta.load-css('gutenberg', $with: (
+  highlight-color: $highlight-color
+));
 
 /* Inline Help Support */
-@import 'inline-help';
+@include meta.load-css('inline-help', $with: (
+  color-primary: $color-primary,
+  color-primary-dark: $color-primary-dark,
+  color-primary-light: $color-primary-light,
+  color-surface: $color-surface
+));

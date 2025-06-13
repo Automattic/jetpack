@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor

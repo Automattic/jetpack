@@ -13,7 +13,6 @@ import {
 	getSiteRawUrl,
 	getSiteAdminUrl,
 	userCanManageModules,
-	isAtomicSite,
 	isSharingBlockAvailable,
 	getSiteId,
 } from 'state/initial-state';
@@ -40,7 +39,6 @@ class Sharing extends Component {
 			siteAdminUrl: this.props.siteAdminUrl,
 			userCanManageModules: this.props.userCanManageModules,
 			activeFeatures: this.props.activeFeatures,
-			isAtomicSite: this.props.isAtomicSite,
 			hasSharingBlock: this.props.hasSharingBlock,
 			isBlockTheme: this.props.isBlockTheme,
 		};
@@ -92,7 +90,6 @@ export default connect( state => {
 		siteAdminUrl: getSiteAdminUrl( state ),
 		activeFeatures: getActiveFeatures( state ),
 		userCanManageModules: userCanManageModules( state ),
-		isAtomicSite: isAtomicSite( state ),
 		hasSharingBlock: isSharingBlockAvailable( state ),
 		isBlockTheme: currentThemeIsBlockTheme( state ),
 	};

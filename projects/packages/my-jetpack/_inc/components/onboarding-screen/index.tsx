@@ -1,4 +1,4 @@
-import { Container, Col, JetpackLogo } from '@automattic/jetpack-components';
+import { Container, Col } from '@automattic/jetpack-components';
 import clsx from 'clsx';
 import { useFullScreen } from '../../hooks/use-fullscreen';
 import Testimonials from '../testimonials';
@@ -15,7 +15,6 @@ const OnboardingScreen: FC = () => {
 			horizontalGap={ 0 }
 			className={ styles[ 'onboarding-screen' ] }
 		>
-			<JetpackLogo height={ 24 } showText={ false } className={ styles[ 'jetpack-logo' ] } />
 			<Col
 				sm={ 4 }
 				md={ 4 }

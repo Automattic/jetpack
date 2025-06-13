@@ -1,25 +1,26 @@
-@import "$css/main/variables";
-@import "$css/main/mixins";
-@import "$css/main/common";
+@use "$css/main/variables";
+@use "$css/main/mixins";
+@use "$css/main/common";
 
 .card {
-	background: #FFF url("$images/color-shift.svg") no-repeat top right;
+	background: #FFF url(\$images/color-shift.svg) no-repeat top right;
 	border: 1px solid #DCDCDE;
-	border-radius: $border-radius;
+	border-radius: variables.$border-radius;
 
 	.content {
 
-		@extend .p-4;
-		color: $primary-black;
+		@extend .p-4; // stylelint-disable-line scss/at-extend-no-missing-placeholder -- This is a generated class from css/main/common.scss.
+		color: variables.$primary-black;
 
 		ul li {
 			padding-top: 2px;
 			padding-bottom: 6px;
 			padding-left: 2em;
 			vertical-align: middle;
-			background: url("$images/check.svg") no-repeat;
-			background-position: 0px 2px;
+			background: url(\$images/check.svg) no-repeat;
+			background-position: 0 2px;
 			background-size: 1.5em;
+			// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 			line-height: 1.5em;
 			list-style-type: none;
 		}
@@ -32,14 +33,14 @@
 		}
 	}
 
-	@include breakpoint( xs ) {
+	@include mixins.breakpoint( xs ) {
 
 		.content {
-			padding: $spacing-unit * 3;
+			padding: variables.$spacing-unit * 3;
 		}
 	}
 
-	@include breakpoint( lg ) {
+	@include mixins.breakpoint( lg ) {
 		display: grid;
 		grid-template-columns: auto 460px;
 	}
@@ -47,8 +48,8 @@
 
 .footer-note {
 	text-align: center;
-	margin-top: $halfling;
-	color: $gray_70;
+	margin-top: variables.$halfling;
+	color: variables.$gray_70;
 }
 
 .body {

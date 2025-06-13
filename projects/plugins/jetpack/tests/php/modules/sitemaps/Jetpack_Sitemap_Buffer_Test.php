@@ -8,6 +8,9 @@
  * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-constants.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-fallback.php';
@@ -18,6 +21,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-fallback.php
  * @since 4.7.0
  * @covers \Jetpack_Sitemap_Buffer
  */
+#[CoversClass( Jetpack_Sitemap_Buffer::class )]
 class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -27,6 +31,7 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_buffer_constructor() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 10, '1970-01-01 00:00:00' );
 		$this->assertEquals(
@@ -42,6 +47,7 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_buffer_append() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 128, '1970-01-01 00:00:00' );
 		$buffer->append( 'foo' );
@@ -61,6 +67,7 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_buffer_is_empty() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 64, '1970-01-01 00:00:00' );
 		$this->assertTrue( $buffer->is_empty() );
@@ -74,6 +81,7 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_buffer_add_item_at_item_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 48, '1970-01-01 00:00:00' );
 		$buffer->append( 'foo' );
@@ -93,6 +101,7 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_buffer_add_item_at_byte_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 100, 48, '1970-01-01 00:00:00' );
 		$buffer->append( 'foobarbazxyzzy' );
@@ -112,6 +121,7 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_buffer_add_item_below_byte_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 48, '1970-01-01 00:00:00' );
 		$buffer->append( 'foobarbazquux' );
@@ -131,6 +141,7 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_buffer_is_full_item_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 1024, '1970-01-01 00:00:00' );
 		$buffer->append( 'foo' );
@@ -147,6 +158,7 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_buffer_is_full_byte_capacity() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 10, 44, '1970-01-01 00:00:00' );
 		$buffer->append( 'foo' );
@@ -163,6 +175,7 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_buffer_last_modified() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 16, '1970-01-01 00:00:00' );
 		$this->assertEquals( '1970-01-01 00:00:00', $buffer->last_modified() );
@@ -174,6 +187,7 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_buffer_view_time_update() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 16, '1970-01-01 00:00:00' );
 		$buffer->view_time( '1971-01-01 00:00:00' );
@@ -186,6 +200,7 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_buffer_view_time_do_not_update() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 16, '1971-01-01 00:00:00' );
 		$buffer->view_time( '1970-01-01 00:00:00' );
@@ -198,6 +213,7 @@ class Jetpack_Sitemap_Buffer_Test extends WP_UnitTestCase {
 	 * @group jetpack-sitemap
 	 * @since 5.1.0
 	 */
+	#[Group( 'jetpack-sitemap' )]
 	public function test_news_sitemap_item_to_xml() {
 		$timestamp = gmdate( 'r' );
 		$array     = array(

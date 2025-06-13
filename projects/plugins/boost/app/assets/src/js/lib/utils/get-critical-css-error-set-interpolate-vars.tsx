@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom';
+import { ExternalLink } from '@wordpress/components';
+import { useNavigate } from 'react-router';
 import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 import { InterpolateVars } from '$lib/utils/interplate-vars-types';
 import supportLinkInterpolateVar from '$lib/utils/support-link-interpolate-var';
@@ -30,10 +31,7 @@ function getCriticalCssErrorSetInterpolateVars( errorSet: ErrorSet ) {
 	};
 
 	if ( 'listLink' in suggestion( errorSet ) ) {
-		interpolateVars.link = (
-			// eslint-disable-next-line jsx-a11y/anchor-has-content
-			<a href={ suggestion( errorSet ).listLink } target="_blank" rel="noreferrer" />
-		);
+		interpolateVars.link = <ExternalLink href={ suggestion( errorSet ).listLink } />;
 	}
 
 	return interpolateVars;

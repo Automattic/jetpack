@@ -1,3 +1,4 @@
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -92,14 +93,9 @@ const TermsOfServiceTextOnly = () =>
 	);
 
 const Link: React.FC< { slug: string; children?: React.ReactNode } > = ( { slug, children } ) => (
-	<a
-		className="terms-of-service__link"
-		href={ getRedirectUrl( slug ) }
-		rel="noopener noreferrer"
-		target="_blank"
-	>
+	<ExternalLink className="terms-of-service__link" href={ getRedirectUrl( slug ) }>
 		{ children }
-	</a>
+	</ExternalLink>
 );
 
 export default TermsOfService;

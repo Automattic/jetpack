@@ -53,6 +53,7 @@ function jetpack_boost_delete_cache() {
 function jetpack_boost_delete_cache_for_home() {
 	$boost_cache = new Boost_Cache();
 	$boost_cache->delete_page( home_url() );
+
 	Logger::debug( 'jetpack_boost_delete_cache_for_home: deleting front page cache' );
 	if ( get_option( 'show_on_front' ) === 'page' ) {
 		$posts_page_id = get_option( 'page_for_posts' ); // posts page

@@ -1,4 +1,4 @@
-name: WPCloud Unit Testing for WPCOMSH
+name: WP Cloud Unit Testing for WPCOMSH
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 concurrency:
   group: wpcloud-wpcomsh
   cancel-in-progress: false
-  # Concurrency is set up to make sure we can only run one WPCloud testing job at the same time.
+  # Concurrency is set up to make sure we can only run one WP Cloud testing job at the same time.
 
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
         with:
-          # Match PHP version on wpcloud so the right vendor packages get installed.
+          # Match PHP version on WP Cloud so the right vendor packages get installed.
           php: 8.1
       - name: Monorepo install
         run: |
@@ -75,7 +75,7 @@ jobs:
             !./.github/
           key: ${{ github.sha }}
   deploy:
-    name: Run PHPUnit on the WPCloud test site
+    name: Run PHPUnit on the WP Cloud test site
     runs-on: ubuntu-latest
     needs: build
     if: needs.build.outputs.wpcomsh == 'true'
@@ -99,7 +99,7 @@ jobs:
         run: |
           pnpm install
 
-      - name: Configure Github to be able to SSH to the Atomic site
+      - name: Configure Github to be able to SSH to the WP Cloud site
         run: |
           echo "::group::Intializing"
 
@@ -128,16 +128,16 @@ jobs:
           ssh jpwpcomsh "wp --skip-plugins --skip-themes dereferenced freshen > /dev/null 2>&1" || CODE=$?
           echo "wp dereferenced freshen has exited with code $CODE"
           ssh jpwpcomsh "rm -rf /tmp/old-* > /dev/null 2>&1"
-          pnpm jetpack rsync wpcomsh jpwpcomsh:~/htdocs/wp-content/mu-plugins
-          scp -r projects/plugins/wpcomsh/bin jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh
+          pnpm jetpack rsync --non-interactive wpcomsh jpwpcomsh:~/htdocs/wp-content/mu-plugins
+          scp -r projects/plugins/wpcomsh/bin jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
           scp -r projects/plugins/wpcomsh/tests jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/
-          # The test on wpcloud won't use `phpunit-select-config`, select config manually.
+          # The test on WP Cloud won't use `phpunit-select-config`, so select config manually.
           scp projects/plugins/wpcomsh/phpunit.9.xml.dist jpwpcomsh:/srv/htdocs/wp-content/mu-plugins/wpcomsh/phpunit.xml.dist
 
-          echo "::engroup::"
+          echo "::endgroup::"
 
           echo "::group::execution"
-          ssh jpwpcomsh "~/htdocs/github-action-handler.sh" || CODE=$?
+          ssh jpwpcomsh "/srv/htdocs/wp-content/mu-plugins/wpcomsh/bin/run-phpunit-tests.sh" || CODE=$?
           echo "::endgroup::"
 
           echo "::group::teardown"

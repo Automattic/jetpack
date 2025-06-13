@@ -47,8 +47,9 @@ class Settings {
 		$new_settings = ( new Jetpack_Social_Settings() )->get_settings();
 
 		return array(
-			'enabled'  => $new_settings['socialImageGeneratorSettings']['enabled'],
-			'defaults' => array(
+			'enabled'          => $new_settings['socialImageGeneratorSettings']['enabled'],
+			'default_image_id' => $new_settings['socialImageGeneratorSettings']['default_image_id'],
+			'defaults'         => array(
 				'template' => $new_settings['socialImageGeneratorSettings']['template'],
 			),
 		);

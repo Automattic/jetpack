@@ -651,18 +651,6 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
-		/**
-		 * This can be called multiple times per page load in the admin, during the `enqueue_block_assets` action.
-		 * These assets are necessary for the admin for editing but are not necessary for each pattern preview.
-		 * Therefore we dequeue them, so they don't load for each pattern preview iframe.
-		 */
-		if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
-			wp_dequeue_script( 'jp-tracks' );
-			wp_dequeue_script( 'jetpack-blocks-editor' );
-
-			return;
-		}
-
 		$status = new Status();
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
@@ -690,6 +678,18 @@ class Jetpack_Gutenberg {
 				'dependencies' => array( 'jetpack-blocks-assets-base-url' ),
 			)
 		);
+
+		/**
+		 * This can be called multiple times per page load in the admin, during the `enqueue_block_assets` action.
+		 * These assets are necessary for the admin for editing but are not necessary for each pattern preview.
+		 * Therefore we dequeue them, so they don't load for each pattern preview iframe.
+		 */
+		if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
+			wp_dequeue_script( 'jp-tracks' );
+			wp_dequeue_script( 'jetpack-blocks-editor' );
+
+			return;
+		}
 
 		// Hack around #20357 (specifically, that the editor bundle depends on
 		// wp-edit-post but wp-edit-post's styles break the Widget Editor and
@@ -789,6 +789,16 @@ class Jetpack_Gutenberg {
 
 		// Adds Connection package initial state.
 		Connection_Initial_State::render_script( 'jetpack-blocks-editor' );
+
+		// Register and enqueue the Jetpack Chrome AI token script
+		wp_register_script(
+			'jetpack-chrome-ai-token',
+			'https://widgets.wp.com/jetpack-chrome-ai/v1/3p-token.js',
+			array(),
+			gmdate( 'Ymd' ) . floor( (int) gmdate( 'G' ) / 12 ), // Cache buster: changes twice daily (morning/afternoon) in case we need to rotate the tokens
+			true
+		);
+		wp_enqueue_script( 'jetpack-chrome-ai-token' );
 	}
 
 	/**
@@ -1242,13 +1252,13 @@ class Jetpack_Gutenberg {
 			$availability = self::get_cached_availability();
 			$bare_slug    = self::remove_extension_prefix( $slug );
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
-				return call_user_func( $render_callback, $prepared_attributes, $block_content );
+				return call_user_func( $render_callback, $prepared_attributes, $block_content, $block );
 			}
 
 			// A preview of the block is rendered for admins on the frontend with an upgrade nudge.
 			if ( isset( $availability[ $bare_slug ] ) ) {
 				if ( self::should_show_frontend_preview( $availability[ $bare_slug ] ) ) {
-					$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
+					$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content, $block );
 
 					// If the upgrade nudge isn't already being displayed by a parent block, display the nudge.
 					if ( isset( $block->attributes['shouldDisplayFrontendBanner'] ) && $block->attributes['shouldDisplayFrontendBanner'] ) {
@@ -1276,7 +1286,7 @@ class Jetpack_Gutenberg {
 	 * @return string
 	 */
 	public static function display_deprecated_block_message( $block_content, $block ) {
-		if ( in_array( $block['blockName'], self::$deprecated_blocks, true ) ) {
+		if ( isset( $block['blockName'] ) && in_array( $block['blockName'], self::$deprecated_blocks, true ) ) {
 			if ( current_user_can( 'edit_posts' ) ) {
 				$block_content = self::notice(
 					__( 'This block is no longer supported. Its contents will no longer be displayed to your visitors and as such this block should be removed.', 'jetpack' ),

@@ -8,6 +8,9 @@
  */
 
 use Automattic\Jetpack\Status\Cache as StatusCache;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 if ( defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/module-extras.php';
@@ -22,6 +25,9 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
  * @covers \WPCOM_JSON_API
  * @covers \WPCOM_JSON_API_Endpoint
  */
+#[CoversClass( Jetpack_JSON_API_Endpoint::class )]
+#[CoversClass( WPCOM_JSON_API::class )]
+#[CoversClass( WPCOM_JSON_API_Endpoint::class )]
 class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -89,6 +95,8 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * @param bool $is_user_logged_in If a user is logged in.
 	 * @param bool $result The expected result.
 	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'data_provider_test_accepts_site_based_authentication' )]
 	public function test_accepts_site_based_authentication( $allow_jetpack_site_auth, $is_user_logged_in, $result ) {
 
 		$endpoint = new Jetpack_JSON_API_Dummy_Endpoint(
@@ -117,6 +125,8 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * @param bool            $user_can_read If the current user has read capability. When a blog token is used this has no effect.
 	 * @param WP_Error|string $result The expected result.
 	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'data_provider_test_private_site_accessibility' )]
 	public function test_private_site_accessibility( $allow_jetpack_site_auth, $use_blog_token, $user_can_read, $result ) {
 		StatusCache::clear();
 		// Private site.
@@ -152,6 +162,8 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * @param bool            $user_with_permissions If the current user has the needed capabilities to access the endpoint. When a blog token is used this has no effect.
 	 * @param WP_Error|string $result The expected result.
 	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'data_provider_test_endpoint_capabilities' )]
 	public function test_endpoint_capabilities( $allow_jetpack_site_auth, $use_blog_token, $user_with_permissions, $result ) {
 		$endpoint = new Jetpack_JSON_API_Dummy_Endpoint(
 			array(

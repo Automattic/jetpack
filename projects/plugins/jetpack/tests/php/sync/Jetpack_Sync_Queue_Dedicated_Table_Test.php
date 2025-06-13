@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Queue\Queue_Storage_Table;
 use Automattic\Jetpack\Sync\Settings;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_Queue_TestBase.php';
 
@@ -11,6 +12,9 @@ require_once __DIR__ . '/Jetpack_Sync_Queue_TestBase.php';
  * @group jetpack-sync-queue
  * @group jetpack-sync-queue-custom-table
  */
+#[Group( 'jetpack-sync' )]
+#[Group( 'jetpack-sync-queue' )]
+#[Group( 'jetpack-sync-queue-custom-table' )]
 class Jetpack_Sync_Queue_Dedicated_Table_Test extends Jetpack_Sync_Queue_TestBase {
 
 	/**

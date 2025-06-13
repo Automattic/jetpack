@@ -264,7 +264,7 @@ class Boost_Cache {
 			return;
 		}
 
-		$post = get_post( $comment->comment_post_ID );
+		$post = get_post( (int) $comment->comment_post_ID );
 		$this->rebuild_post_cache( $post );
 	}
 
@@ -369,7 +369,7 @@ class Boost_Cache {
 		$this->rebuild_post_cache( $post );
 		$this->rebuild_post_terms_cache( $post );
 		$this->rebuild_front_page();
-		$this->rebuild_author_page( $post->post_author );
+		$this->rebuild_author_page( (int) $post->post_author );
 	}
 
 	/**
@@ -387,7 +387,7 @@ class Boost_Cache {
 			}
 			$this->rebuild_post_terms_cache( $post );
 			$this->rebuild_front_page();
-			$this->rebuild_author_page( $post->post_author );
+			$this->rebuild_author_page( (int) $post->post_author );
 		}
 	}
 

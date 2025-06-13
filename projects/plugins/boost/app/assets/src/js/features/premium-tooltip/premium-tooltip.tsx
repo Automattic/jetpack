@@ -1,7 +1,7 @@
 import { IconTooltip } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import styles from './premium-tooltip.module.scss';
-import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
+import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 
 const PremiumTooltip = () => {
 	return (
@@ -42,10 +42,9 @@ const PremiumTooltip = () => {
 			</ul>
 
 			<div className={ styles[ 'upgrade-cta' ] }>
-				<UpgradeCTA
+				<InterstitialModalCTA
 					identifier="critical-css-tooltip"
 					description={ __( 'Automatic Critical CSS regeneration', 'jetpack-boost' ) }
-					eventName="upsell_cta_from_settings_page_tooltip_in_plugin"
 				/>
 			</div>
 		</IconTooltip>

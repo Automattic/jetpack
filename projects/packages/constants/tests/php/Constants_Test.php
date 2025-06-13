@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Constants;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,6 +16,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Constants
  */
+#[CoversClass( Constants::class )]
 class Constants_Test extends TestCase {
 	/**
 	 * Sets up the test.

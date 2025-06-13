@@ -1,5 +1,5 @@
-@import '$css/main/variables';
-@import '$css/main/mixins';
+@use '$css/main/variables';
+@use '$css/main/mixins';
 
 .speed-scores {
 
@@ -15,7 +15,7 @@
 		font-weight: 400;
 		max-width: 560px;
 		line-height: 1.5;
-		color: $gray_70;
+		color: variables.$gray_70;
 	}
 
 	.top {
@@ -25,12 +25,12 @@
 	}
 
 	.action-button {
-		color: $gray_90;
+		color: variables.$gray_90;
 		margin-left: auto;
 		min-width: auto;
 
 		svg {
-			fill: $jetpack-green;
+			fill: variables.$jetpack-green;
 		}
 	}
 
@@ -48,12 +48,12 @@
 :global(.jb-dashboard) .speed-scores h2 {
 	font-weight: 700;
 
-	@include breakpoint(xs) {
+	@include mixins.breakpoint(xs) {
 		font-size: 27px;
 	}
 }
 
-@include breakpoint(xs) {
+@include mixins.breakpoint(xs) {
 
 	.speed-scores :global(.icon-tooltip-helper.is-wide .components-popover) {
 		left: -60px !important;

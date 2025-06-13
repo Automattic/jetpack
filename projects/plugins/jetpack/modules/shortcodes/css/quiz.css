@@ -2,6 +2,7 @@ div.jetpack-quiz {
 	border: 1px solid #deede3;
 	background-color: #f3f3f3;
 	padding: 1em;
+	/* stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values */
 	line-height: 1.3em;
 	margin-bottom: 2em;
 	border-radius: .2em;

@@ -1,4 +1,4 @@
-import { numberFormat } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action';
@@ -11,7 +11,7 @@ const CLOSE_TO_LIMIT_PERCENT = 0.8;
 const getNotices = ( tierMaximumRecords = null ) => {
 	const recordLimit =
 		typeof tierMaximumRecords === 'number'
-			? numberFormat( tierMaximumRecords )
+			? formatNumber( tierMaximumRecords )
 			: tierMaximumRecords;
 
 	return {

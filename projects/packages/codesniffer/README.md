@@ -27,7 +27,7 @@ You should then include the Jetpack rules in your `.phpcs.xml.dist`, like
 ```
 You will also likely want to set some configuration for other included rulesets:
 ```xml
-<config name="minimum_supported_wp_version" value="6.6" />
+<config name="minimum_supported_wp_version" value="6.7" />
 <config name="testVersion" value="7.2-"/>
 ```
 

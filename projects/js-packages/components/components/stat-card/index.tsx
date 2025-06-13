@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
+import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
 import { Tooltip } from '@wordpress/components';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import numberFormat from '../number-format/index.ts';
 import Text from '../text/index.tsx';
 import styles from './style.module.scss';
 import { StatCardProps } from './types.ts';
@@ -26,11 +26,8 @@ const StatCard = ( {
 	value,
 	variant = 'square',
 }: StatCardProps ) => {
-	const formattedValue = numberFormat( value );
-	const compactValue = numberFormat( value, {
-		notation: 'compact',
-		compactDisplay: 'short',
-	} );
+	const formattedValue = formatNumber( value );
+	const compactValue = formatNumberCompact( value );
 
 	return (
 		<div className={ clsx( className, styles.wrapper, styles[ variant ] ) }>

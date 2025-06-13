@@ -4,6 +4,7 @@ use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Users;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 
@@ -849,6 +850,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 	 * @param mixed  $field_value User field value to set.
 	 * @param string $user_flag   The expected user flag that should be synced.
 	 */
+	#[DataProvider( 'get_user_fields_and_flags' )]
 	public function test_update_user_field_is_synced( $field_name, $field_value, $user_flag ) {
 		wp_update_user(
 			array(

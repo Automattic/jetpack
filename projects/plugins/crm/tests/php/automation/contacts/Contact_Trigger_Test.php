@@ -12,6 +12,8 @@ use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
 use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -25,6 +27,12 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated
  */
+#[CoversClass( Contact_Before_Deleted::class )]
+#[CoversClass( Contact_Created::class )]
+#[CoversClass( Contact_Deleted::class )]
+#[CoversClass( Contact_Email_Updated::class )]
+#[CoversClass( Contact_Status_Updated::class )]
+#[CoversClass( Contact_Updated::class )]
 class Contact_Trigger_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
@@ -38,6 +46,7 @@ class Contact_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the contact updated trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the contact updated trigger executes the workflow with an action' )]
 	public function test_contact_updated_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_updated' );
@@ -74,6 +83,7 @@ class Contact_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the contact status updated trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the contact status updated trigger executes the workflow with an action' )]
 	public function test_contact_status_updated_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_status_updated' );
@@ -113,6 +123,7 @@ class Contact_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the contact new trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the contact new trigger executes the workflow with an action' )]
 	public function test_contact_created_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_created' );
@@ -149,6 +160,7 @@ class Contact_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the contact email updated trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the contact email updated trigger executes the workflow with an action' )]
 	public function test_contact_email_updated_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_email_updated' );
@@ -185,6 +197,7 @@ class Contact_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the contact deleted trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the contact deleted trigger executes the workflow with an action' )]
 	public function test_contact_deleted_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_deleted' );
@@ -221,6 +234,7 @@ class Contact_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the contact before deleted trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the contact before deleted trigger executes the workflow with an action' )]
 	public function test_contact_before_deleted_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_before_deleted' );

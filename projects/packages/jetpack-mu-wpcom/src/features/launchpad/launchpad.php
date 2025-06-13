@@ -36,9 +36,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
-				'setup_general',
-				'design_selected',
 				'plan_selected',
+				'setup_general',
 				'first_post_published',
 				'design_edited',
 				'site_launched',
@@ -92,8 +91,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'setup_newsletter',
 				'plan_selected',
 				'verify_email',
-				'subscribers_added',
 				'migrate_content',
+				'subscribers_added',
 				'set_up_payments',
 				'newsletter_plan_created',
 				'first_post_published_newsletter',
@@ -215,9 +214,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
+				'enable_subscribers_modal',
 				'verify_email',
 				'share_site',
-				'enable_subscribers_modal',
 				'manage_subscribers',
 				'update_about_page',
 				'add_about_page',
@@ -229,10 +228,10 @@ function wpcom_launchpad_get_task_list_definitions() {
 				return __( 'Next steps for your site', 'jetpack-mu-wpcom' );
 			},
 			'task_ids'            => array(
+				'enable_subscribers_modal',
 				'verify_email',
 				'share_site',
 				'set_up_payments',
-				'enable_subscribers_modal',
 				'manage_subscribers',
 				'manage_paid_newsletter_plan',
 				'update_about_page',

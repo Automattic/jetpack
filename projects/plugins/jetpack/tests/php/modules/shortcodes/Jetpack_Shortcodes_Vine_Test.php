@@ -1,10 +1,13 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
  * @covers ::vine_shortcode
  */
+#[CoversFunction( 'vine_shortcode' )]
 class Jetpack_Shortcodes_Vine_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;

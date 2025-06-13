@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-06-05
+### Changed
+- Update package dependencies. [#43766]
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## [0.86.2] - 2025-06-02
+### Changed
+- sass: `@use` rather than `@import` for `@automattic/jetpack-base-styles/gutenberg-base-styles`. [#43607]
+
+### Fixed
+- Social: Ensure images load in connections management when concatenating JS. [#43655]
+- Social: Hide preview modal if there are no connections. [#43701]
+
+## [0.86.1] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
+## [0.86.0] - 2025-05-22
+### Added
+- Added option to set default image for Social Image Generator. [#43461]
+
+## [0.85.5] - 2025-05-19
+### Changed
+- Update dependencies. [#42943]
+
+## [0.85.4] - 2025-05-12
+### Changed
+- Update dependencies. [#42943]
+
+## [0.85.3] - 2025-05-05
+### Changed
+- Update package dependencies. [#43320] [#43326]
+
+### Fixed
+- Ensure "Start for free" works when module is OFF. [#43331]
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+
+## [0.85.2] - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+
+## [0.85.1] - 2025-04-21
+### Fixed
+- Social: Fix a typo in media requirements notice. [#43127]
+
 ## [0.85.0] - 2025-04-14
 ### Added
 - Add share status support for WordPress.com sites. [#42593]
@@ -16,7 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
-- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Clean up various Stylelint violations. [#43010]
 - Linting: Use double colon notation for pseudo-element selectors. [#43019]
 - Social: Fix share status typo and button style. [#42986]
 - Social: Ensure manual sharing is visible on post publish screen. [#42958]
@@ -1224,6 +1273,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[1.0.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.86.2...v1.0.0
+[0.86.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.86.1...v0.86.2
+[0.86.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.86.0...v0.86.1
+[0.86.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.5...v0.86.0
+[0.85.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.4...v0.85.5
+[0.85.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.3...v0.85.4
+[0.85.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.2...v0.85.3
+[0.85.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.1...v0.85.2
+[0.85.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.0...v0.85.1
 [0.85.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.5...v0.85.0
 [0.84.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.4...v0.84.5
 [0.84.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.84.3...v0.84.4

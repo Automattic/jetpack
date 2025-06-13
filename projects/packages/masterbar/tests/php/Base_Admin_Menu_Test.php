@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\RedefineExit\ExitException;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -18,6 +19,7 @@ use WorDBless\Users as WorDBless_Users;
  *
  * @covers Automattic\Jetpack\Masterbar\Base_Admin_Menu
  */
+#[CoversClass( Base_Admin_Menu::class )]
 class Base_Admin_Menu_Test extends TestCase {
 
 	/**

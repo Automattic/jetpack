@@ -345,7 +345,7 @@
 		function getLink() {
 			const query = [ 'jetpack-beta' ];
 			$(
-				'#jetpack-live-branches input[type=checkbox]:checked:not([data-invert]), #jetpack-live-branches input[type=checkbox][data-invert]:not(:checked)'
+				'#jetpack-live-branches input[type="checkbox"]:checked:not([data-invert]), #jetpack-live-branches input[type="checkbox"][data-invert]:not(:checked)'
 			).each( ( i, input ) => {
 				if ( input.value ) {
 					query.push( encodeURIComponent( input.name ) + '=' + encodeURIComponent( input.value ) );
@@ -423,7 +423,7 @@
 			$( '#jetpack-live-branches' ).remove();
 			liveBranches.prepend( style );
 			$el.append( liveBranches );
-			liveBranches.find( 'input[type=checkbox]' ).on( 'change', onInputChanged );
+			liveBranches.find( 'input[type="checkbox"]' ).on( 'change', onInputChanged );
 			liveBranches.find( 'a.refresh' ).on( 'click', onRefreshClick );
 		}
 

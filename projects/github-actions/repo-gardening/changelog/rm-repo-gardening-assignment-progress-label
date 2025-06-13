@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Issue Assignment: stop adding the "[Status] In Progress" label to issues when a PR is opened to close that issue.

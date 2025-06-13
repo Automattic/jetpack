@@ -1,14 +1,13 @@
 import {
 	DonutMeter,
 	Gridicon,
-	numberFormat,
 	IconTooltip,
 	Button,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
+import { formatNumber as formatNumberImported } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-
 import './style.scss';
 
 const localizedUnlimited = __( 'Unlimited', 'jetpack-search-pkg' );
@@ -19,7 +18,7 @@ export const formatNumber = x => {
 		return localizedUnlimited;
 	}
 
-	return numberFormat( x );
+	return formatNumberImported( x );
 };
 
 const usageInfoMessage = ( current, limit ) => {

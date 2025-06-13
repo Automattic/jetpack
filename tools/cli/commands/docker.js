@@ -384,63 +384,71 @@ const buildExecCmd = argv => {
 	} else if ( cmd === 'db' ) {
 		opts.push( 'mysql', '--defaults-group-suffix=docker' );
 	} else if ( cmd === 'phpunit' ) {
-		// @todo: Make this scale.
-		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
-		console.warn(
-			chalk.yellow(
-				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
+		const unitTestArgs = {};
+		switch ( argv.target ) {
+			case 'jetpack':
+				unitTestArgs.plugin = 'jetpack';
+				break;
+			case 'jp-multisite':
+				unitTestArgs.plugin = 'jetpack';
+				unitTestArgs.configFile = 'tests/php.multisite.#.xml';
+				break;
+			case 'jp-wpcomsh':
+				unitTestArgs.plugin = 'jetpack';
+				unitTestArgs.envVars = [ 'JETPACK_TEST_WPCOMSH=1' ];
+				break;
+			case 'crm':
+				unitTestArgs.plugin = 'crm';
+				break;
+			case 'wpcomsh':
+				unitTestArgs.plugin = 'wpcomsh';
+				unitTestArgs.envVars = [
+					'WP_TESTS_DIR=/tmp/wordpress-develop/tests/phpunit',
+					'WP_CORE_DIR=/var/www/html',
+					'WP_CONTENT_DIR=/var/www/html/wp-content',
+				];
+				break;
+		}
+		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
+	} else if (
+		cmd === 'phpunit-jp-multisite' ||
+		cmd === 'phpunit-jp-wpcomsh' ||
+		cmd === 'phpunit-crm' ||
+		cmd === 'phpunit-wpcomsh'
+	) {
+		console.error(
+			chalk.red(
+				`This command is deprecated. Please use \`jetpack docker phpunit ${ cmd.substring(
+					8
+				) }\` instead.`
 			)
 		);
-		const unitTestArgs = {
-			plugin: 'jetpack',
-		};
-		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
-	} else if ( cmd === 'phpunit-jp-multisite' ) {
-		// @todo: Make this scale.
-		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
-		console.warn(
-			chalk.yellow(
-				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
-			)
-		);
-
-		const unitTestArgs = {
-			plugin: 'jetpack',
-			configFile: 'tests/php.multisite.#.xml',
-		};
-		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
-	} else if ( cmd === 'phpunit-jp-wpcomsh' ) {
-		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
-		console.warn(
-			chalk.yellow(
-				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
-			)
-		);
-		const unitTestArgs = {
-			plugin: 'jetpack',
-			envVars: [ 'JETPACK_TEST_WPCOMSH=1' ],
-		};
-		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
-	} else if ( cmd === 'phpunit-crm' ) {
-		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack CRM plugin.' ) );
-		const unitTestArgs = {
-			plugin: 'crm',
-		};
-		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
-	} else if ( cmd === 'phpunit-wpcomsh' ) {
-		console.warn( chalk.yellow( 'This currently only run tests for the wpcomsh plugin.' ) );
-		console.warn(
-			chalk.bold.yellow( 'Use `phpunit-jp-wpcomsh` to run tests for Jetpack with wpcomsh enabled.' )
-		);
-		const unitTestArgs = {
-			plugin: 'wpcomsh',
-			envVars: [
-				'WP_TESTS_DIR=/tmp/wordpress-develop/tests/phpunit',
-				'WP_CORE_DIR=/var/www/html',
-				'WP_CONTENT_DIR=/var/www/html/wp-content',
-			],
-		};
-		opts = buildPhpUnitTestCmd( argv, opts, unitTestArgs );
+		process.exit( 1 );
+	} else if ( cmd === 'phpunit-integration' ) {
+		// Only run tests for wpcomsh and jetpack, but always set JP_MONO_INTEGRATION_PLUGINS to the full list
+		const plugins = argv.plugins || argv._.slice( 2 );
+		const integrationPluginsEnv = plugins.join( ',' );
+		const allCmds = [];
+		// Only run for these plugins
+		const testablePlugins = [ 'wpcomsh', 'jetpack' ];
+		for ( const plugin of testablePlugins ) {
+			if ( ! plugins.includes( plugin ) ) continue;
+			let envVars = [ `JP_MONO_INTEGRATION_PLUGINS=${ integrationPluginsEnv }` ];
+			if ( plugin === 'wpcomsh' ) {
+				envVars = envVars.concat( [
+					'WP_TESTS_DIR=/tmp/wordpress-develop/tests/phpunit',
+					'WP_CORE_DIR=/var/www/html',
+					'WP_CONTENT_DIR=/var/www/html/wp-content',
+				] );
+			}
+			const unitTestArgs = {
+				plugin,
+				envVars,
+			};
+			const pluginOpts = buildPhpUnitTestCmd( argv, [ 'exec', 'wordpress' ], unitTestArgs );
+			allCmds.push( buildComposeFiles().concat( pluginOpts ) );
+		}
+		return allCmds;
 	} else if ( cmd === 'wp' ) {
 		const wpArgs = argv._.slice( 2 );
 		// Ugly solution to allow interactive shell work in dev context
@@ -699,13 +707,20 @@ export function dockerDefine( yargs ) {
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
-					command: 'phpunit',
-					description: 'Run PHPUnit tests inside container',
+					command: 'phpunit <target>',
+					description:
+						'Run PHPUnit tests inside container for plugins that require a WordPress install.\n\nMost projects do not need a WordPress install, and can be tested on the host by using the `jetpack test` command. If you really want to run them inside the container anyway, see docs in docs/development-environment.md.',
 					builder: yargCmd =>
-						defaultOpts( yargCmd ).option( 'php', {
-							describe: 'Use the specified version of PHP.',
-							type: 'string',
-						} ),
+						defaultOpts( yargCmd )
+							.option( 'php', {
+								describe: 'Use the specified version of PHP.',
+								type: 'string',
+							} )
+							.positional( 'target', {
+								describe:
+									'Which PHPUnit tests to run:\n- jetpack: Jetpack plugin tests\n- jp-multisite: Jetpack plugin multisite tests.\n- jp-wpcomsh: Jetpack plugin tests with wpcomsh installed.\n- crm: Jetpack CRM plugin tests.\n- wpcomsh: Wpcomsh plugin tests.',
+								type: 'string',
+							} ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
@@ -728,46 +743,22 @@ export function dockerDefine( yargs ) {
 				} )
 				.command( {
 					command: 'phpunit-jp-multisite',
-					alias: 'phpunit:jp:multisite',
-					description: 'Run multisite Jetpack PHPUnit tests inside container',
-					builder: yargCmd =>
-						defaultOpts( yargCmd ).option( 'php', {
-							describe: 'Use the specified version of PHP.',
-							type: 'string',
-						} ),
+					deprecated: true,
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'phpunit-jp-wpcomsh',
-					alias: 'phpunit:jp:wpcomsh',
-					description: 'Run Jetpack PHPUnit tests with wpcomsh inside container',
-					builder: yargCmd =>
-						defaultOpts( yargCmd ).option( 'php', {
-							describe: 'Use the specified version of PHP.',
-							type: 'string',
-						} ),
+					deprecated: true,
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'phpunit-crm',
-					alias: 'phpunit:crm',
-					description: 'Run Jetpack CRM PHPUnit inside container',
-					builder: yargCmd =>
-						defaultOpts( yargCmd ).option( 'php', {
-							describe: 'Use the specified version of PHP.',
-							type: 'string',
-						} ),
+					deprecated: true,
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'phpunit-wpcomsh',
-					alias: 'phpunit:wpcomsh',
-					description: 'Run WPCOMSH PHPUnit inside container',
-					builder: yargCmd =>
-						defaultOpts( yargCmd ).option( 'php', {
-							describe: 'Use the specified version of PHP.',
-							type: 'string',
-						} ),
+					deprecated: true,
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
@@ -839,6 +830,33 @@ export function dockerDefine( yargs ) {
 					builder: yargCmd => defaultOpts( yargCmd ),
 					handler: async argv => {
 						await generateConfig( argv );
+					},
+				} )
+				.command( {
+					command: 'phpunit-integration <plugins...>',
+					description:
+						'Run PHPUnit for each specified plugin with all specified plugins activated (integration mode)',
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).positional( 'plugins', {
+							describe: 'Plugin slugs to activate and test',
+							type: 'string',
+							array: true,
+						} ),
+					handler: argv => {
+						// Get all the commands to run
+						const allCmds = buildExecCmd( argv );
+						let hasFailure = false;
+						for ( const opts of allCmds ) {
+							try {
+								composeExecutor( argv, opts, buildEnv( argv ) );
+							} catch ( e ) {
+								console.error( chalk.bgRed( `Error: ` ) + e );
+								hasFailure = true;
+							}
+						}
+						if ( hasFailure ) {
+							process.exit( 1 );
+						}
 					},
 				} );
 		},

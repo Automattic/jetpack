@@ -1,6 +1,8 @@
-@import '../scss/calypso-colors';
-@import '../scss/functions/rem';
-@import '../scss/typography';
+@use '../scss/functions/rem';
+@use '../scss/calypso-colors';
+@use '../scss/typography';
+@use "../scss/mixins/breakpoints";
+@use "../scss/variables/colors";
 
 .jp-landing__plans {
 	margin-top: 48px;
@@ -15,7 +17,7 @@
 		margin-bottom: 0;
 		border-bottom: 1px solid var(--jp-gray);
 
-		@include breakpoint( "<960px" ) {
+		@include breakpoints.breakpoint( "<960px" ) {
 			border-bottom: 0;
 		}
 	}
@@ -27,21 +29,21 @@
 	.dops-card:last-child {
 		border-radius: 0 0 4px 4px;
 
-		@include breakpoint( "<960px" ) {
+		@include breakpoints.breakpoint( "<960px" ) {
 			padding-top: 0;
 		}
 	}
 
 	.dops-card:nth-last-child(2) {
 
-		@include breakpoint( "<960px" ) {
+		@include breakpoints.breakpoint( "<960px" ) {
 			border-bottom: 0;
 		}
 	}
 
 	.my-plan-card__tag-line a,
 	a.jp-landing__licensing-actions-link {
-		color: $black;
+		color: colors.$black;
 		text-decoration-line: underline;
 
 		&:hover {
@@ -62,7 +64,7 @@
 	margin-bottom: 8px;
 	font-size: 20px;
 	font-weight: 500;
-	color: $black;
+	color: colors.$black;
 }
 
 .jp-landing__licensing-actions {
@@ -72,12 +74,12 @@
 
 	span {
 
-		@include breakpoint( "<660px" ) {
+		@include breakpoints.breakpoint( "<660px" ) {
 			display: none;
 		}
 	}
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoints.breakpoint( ">480px" ) {
 		justify-content: space-between;
 	}
 
@@ -89,11 +91,11 @@
 
 		text-align: center;
 
-		@include breakpoint( ">480px" ) {
+		@include breakpoints.breakpoint( ">480px" ) {
 			flex-direction: row;
 		}
 
-		@include breakpoint( "<660px" ) {
+		@include breakpoints.breakpoint( "<660px" ) {
 			flex-direction: unset;
 			flex: 1;
 		}
@@ -105,14 +107,10 @@
 	}
 
 	.jp-landing__licensing-actions-item.no-licenses {
-		justify-content: space-between;
 		flex: 1;
-	}
-
-	.jp-landing__licensing-actions-item.no-licenses {
 		justify-content: flex-end;
 
-		@include breakpoint( "<660px" ) {
+		@include breakpoints.breakpoint( "<660px" ) {
 			justify-content: space-around;
 
 			a {
@@ -131,8 +129,8 @@
 	box-sizing: border-box;
 	padding: 7px 20px 9px 0;
 
-	@include breakpoint( "<480px" ) {
-		padding: 0px;
+	@include breakpoints.breakpoint( "<480px" ) {
+		padding: 0;
 		margin-bottom: 15px;
 	}
 }
@@ -154,8 +152,8 @@
 	flex-wrap: nowrap;
 	flex-grow: 1;
 	box-sizing: border-box;
-	margin: 0 rem( 8px );
-	background-color: $white;
+	margin: 0 rem.convert( 8px );
+	background-color: colors.$white;
 	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
 
@@ -167,33 +165,33 @@
 		width: 49.5%;
 	}
 
-	@include breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		max-width: 100%;
-		margin-bottom: rem( 8px );
+		margin-bottom: rem.convert( 8px );
 	}
 
-	@include breakpoint( ">480px" ) {
-		padding: rem( 24px );
+	@include breakpoints.breakpoint( ">480px" ) {
+		padding: rem.convert( 24px );
 	}
 
-	@include breakpoint( "<480px" ) {
-		padding: rem( 16px );
+	@include breakpoints.breakpoint( "<480px" ) {
+		padding: rem.convert( 16px );
 	}
 }
 
 .jp-landing__plan-features-list {
 	list-style: initial;
-	margin-left: rem( 16px );
+	margin-left: rem.convert( 16px );
 }
 
 .jp-landing__plan-features-img {
-	width: rem( 48px );
+	width: rem.convert( 48px );
 	padding: 24px 24px 24px 0;
 	line-height: 1;
 	display: flex;
 
-	@include breakpoint( ">960px" ) {
-		width: rem( 48px );
+	@include breakpoints.breakpoint( ">960px" ) {
+		width: rem.convert( 48px );
 	}
 }
 
@@ -205,7 +203,7 @@
 .jp-landing__plan-features-text,
 .jp-landing__licensing-actions{
 	flex: 1;
-	font-size: $font-body-small;
+	font-size: typography.$font-body-small;
 	color: var(--jp-gray-80);
 
 	a,
@@ -231,18 +229,18 @@
 	align-items: stretch;
 	justify-content: space-between;
 	gap: 24px;
-	margin-bottom: rem( 32px );
-	margin-left: rem( -8px );
-	margin-right: rem( -8px );
+	margin-bottom: rem.convert( 32px );
+	margin-left: rem.convert( -8px );
+	margin-right: rem.convert( -8px );
 
-	@include breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		display: block;
 	}
 }
 
 .jp-landing__plan-features-card:nth-child(odd) {
 
-	@include breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		margin-right: 8px;
 	}
 }
@@ -250,25 +248,25 @@
 .jp-landing__plan-features-card:nth-child(even) {
 	margin-left: 0;
 
-	@include breakpoint( "<660px" ) {
+	@include breakpoints.breakpoint( "<660px" ) {
 		margin-left: 8px;
 	}
 }
 
 .jp-landing__plan-features-title.is-placeholder {
-	height: rem( 24px );
+	height: rem.convert( 24px );
 	max-width: 50%;
 }
 
 .jp-landing__plan-features-text.is-placeholder {
-	height: rem( 44px );
+	height: rem.convert( 44px );
 	max-width: 75%;
 }
 
 .jp-landing__plan-features-link {
 	width: 100%;
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		text-align: center;
 	}
 }
@@ -277,7 +275,7 @@
 
 	.dops-button {
 		margin-top: 16px;
-		margin-right: 0px;
+		margin-right: 0;
 		float: right;
 	}
 }

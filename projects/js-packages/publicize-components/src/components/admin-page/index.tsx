@@ -38,9 +38,9 @@ export const SocialAdminPage = () => {
 	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! isSimple && ( ! isRegistered || ! isUserConnected );
 
-	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
+	const [ pricingPageDismissed, setPricingPageDismissed ] = useState( false );
 
-	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
+	const onPricingPageDismiss = useCallback( () => setPricingPageDismissed( true ), [] );
 
 	const { isModuleEnabled, showPricingPage, isUpdatingJetpackSettings } = useSelect( select => {
 		const store = select( socialStore );
@@ -86,8 +86,7 @@ export const SocialAdminPage = () => {
 			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<GlobalNotices />
-			{ ( isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage ) ||
-			forceDisplayPricingPage ? (
+			{ isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage && ! pricingPageDismissed ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>

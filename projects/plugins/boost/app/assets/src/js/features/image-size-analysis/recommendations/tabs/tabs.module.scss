@@ -1,11 +1,10 @@
 .dropdown {
+	margin-bottom: 32px;
 
 	/* Hide on wide screens */
 	@media ( min-width: 783px ) {
 		display: none;
 	}
-
-	margin-bottom: 32px;
 
 	:global(.dashicons) {
 		float: right;
@@ -20,7 +19,7 @@
 }
 
 .options {
-	margin: 0px;
+	margin: 0;
 	border: 1px solid #000;
 	background-color: #fff;
 	padding: 8px 12px;

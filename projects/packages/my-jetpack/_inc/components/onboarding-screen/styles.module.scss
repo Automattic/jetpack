@@ -2,16 +2,6 @@
 	font-family: -apple-system, BlinkMacSystemFont, "Avenir Next", Avenir, "Segoe UI", "Helvetica Neue", Helvetica, Cantarell, Ubuntu, Roboto, "Noto Sans", Arial, sans-serif;
 }
 
-:global(#wpwrap) {
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	text-rendering: optimizeLegibility;
-}
-
-.jetpack-logo {
-	position: absolute;
-}
-
 .onboarding-screen {
 	// override the default max-container-width since otherwise the container will be only 1128px
 	--max-container-width: 100%;
@@ -19,6 +9,9 @@
 	min-height: 100vh;
 	overflow-y: hidden;
 	background-color: var(--jp-white, #fff);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
 }
 
 .primary-column {
@@ -28,7 +21,11 @@
 	align-items: center;
 	height: 100%;
 
-	@media screen and (max-width: 600px) {
+	/**
+	 * This (599px) is to match the breakpoints defined in layout container
+	 * @see https://github.com/Automattic/jetpack/blob/550550264caaaea98ca7527b7615cd14257d0aa8/projects/js-packages/components/components/layout/breakpoints.module.scss#L5
+	 */
+	@media screen and (max-width: 599px) {
 		justify-content: flex-start;
 		padding-top: 72px;
 	}
@@ -47,7 +44,7 @@
 
 .testimonials {
 
-	@media screen and (max-width: 600px) {
+	@media screen and (max-width: 599px) {
 		display: none;
 	}
 }

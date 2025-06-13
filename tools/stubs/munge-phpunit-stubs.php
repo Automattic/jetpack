@@ -39,4 +39,11 @@ if ( $stubs === null ) {
 	throw new RuntimeException( preg_last_error_msg() );
 }
 
+// Phan silently fails on PHP 8.3 typed class constants (at least when running with PHP 8.2).
+// https://github.com/phan/phan/issues/4829
+$stubs = preg_replace( '/^(\s*+public const) (?:int|string) /m', '$1 ', $stubs );
+if ( $stubs === null ) {
+	throw new RuntimeException( preg_last_error_msg() );
+}
+
 file_put_contents( $argv[1], $stubs );

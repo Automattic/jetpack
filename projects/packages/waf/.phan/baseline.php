@@ -14,8 +14,8 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 5 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanRedefineFunction : 4 occurrences
-    // PhanTypeMismatchArgument : 4 occurrences
-    // PhanTypeMismatchArgumentInternal : 4 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 4 occurrences
+    // PhanTypeMismatchArgumentInternal : 3 occurrences
     // PhanPluginRedundantAssignment : 2 occurrences
     // PhanStaticCallToNonStatic : 2 occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences
@@ -40,7 +40,6 @@ return [
         'src/class-waf-rules-manager.php' => ['PhanTypeMismatchArgument'],
         'src/class-waf-runtime.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'src/class-waf-transforms.php' => ['PhanPluginInvalidPregRegex', 'PhanTypeInvalidDimOffset'],
-        'tests/php/unit/WafOperatorsTest.php' => ['PhanTypeMismatchArgumentInternal'],
         'tests/php/unit/WafRuntimeTargetsTest.php' => ['PhanPluginRedundantAssignment'],
         'tests/php/unit/WafStandaloneBootstrapTest.php' => ['PhanNoopNew'],
         'tests/php/unit/functions-wordpress.php' => ['PhanRedefineFunction'],

@@ -4,9 +4,6 @@
  * responses if the VideoPress Module is active.
  *
  * @package automattic/jetpack
- *
- * @group videopress
- * @group rest-api
  */
 
 /**
@@ -16,10 +13,16 @@ require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 
 use Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Data;
 use Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Field;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * VideoPress Data field tests.
+ *
+ * @group videopress
+ * @group rest-api
  */
+#[Group( 'videopress' )]
+#[Group( 'rest-api' )]
 class WPCOM_REST_API_V2_Attachment_VideoPress_Data_Test extends Jetpack_REST_TestCase {
 	/**
 	 * Checks that the jetpack_videopress field is included in the schema

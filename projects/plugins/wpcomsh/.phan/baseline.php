@@ -9,19 +9,19 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginMixedKeyNoKey : 25+ occurrences
+    // PhanPluginMixedKeyNoKey : 20+ occurrences
     // PhanUndeclaredStaticMethod : 15+ occurrences
-    // PhanTypeVoidAssignment : 8 occurrences
+    // PhanTypeVoidAssignment : 7 occurrences
     // PhanRedundantCondition : 6 occurrences
     // PhanTypeMismatchArgument : 6 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
+    // PhanTypeVoidArgument : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanTypeSuspiciousEcho : 4 occurrences
     // PhanImpossibleCondition : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanNoopNew : 2 occurrences
-    // PhanTypeVoidArgument : 2 occurrences
     // PhanContextNotObject : 1 occurrence
     // PhanDeprecatedFunction : 1 occurrence
     // PhanDeprecatedProperty : 1 occurrence
@@ -29,7 +29,6 @@ return [
     // PhanPluginRedundantAssignment : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanPossiblyUndeclaredVariable : 1 occurrence
-    // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeObjectUnsetDeclaredProperty : 1 occurrence
     // PhanUndeclaredClassConstant : 1 occurrence
     // PhanUndeclaredClassStaticProperty : 1 occurrence
@@ -60,7 +59,7 @@ return [
         'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
         'tests/BlogTokenResilienceTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
-        'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanTypeVoidAssignment', 'PhanUndeclaredStaticMethod'],
+        'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredStaticMethod'],
         'tests/WpcomFeaturesTest.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],
         'tests/feature-manager/FeatureHookTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/imports/SQLGeneratorTest.php' => ['PhanTypeObjectUnsetDeclaredProperty'],

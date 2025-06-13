@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -250,6 +251,7 @@ class Actions_Test extends BaseTestCase {
 	 * @param callable $callback The callback to use for the pre_http_request filter.
 	 * @param mixed    $expected The expected result.
 	 */
+	#[DataProvider( 'send_data_with_wpcom_rest_api_enabled_data_provider' )]
 	public function test_send_data_with_wpcom_rest_api_enabled( $data, $callback, $expected ) {
 
 		Settings::update_settings( array( 'wpcom_rest_api_enabled' => 1 ) );

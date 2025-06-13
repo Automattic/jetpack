@@ -13,7 +13,7 @@
 	import type { ZodFormattedError } from 'zod';
 
 	export let logEntry: LogEntry | false = false;
-	const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher< { submit: null } >();
 
 	const data: Writable< EntryData > = createPersistentStore( 'jetpack_devtools_form', {
 		url: '',

@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .jetpack-stripe-nudge__banner .block-editor-warning__contents {
 	align-items: center;
@@ -9,8 +9,8 @@
 	background: var( --color-primary );
 	border-radius: 50%;
 	box-sizing: content-box;
-	color: $white;
-	fill: $white;
+	color: gb.$white;
+	fill: gb.$white;
 	flex-shrink: 0;
 	margin-right: 16px;
 	padding: 6px;

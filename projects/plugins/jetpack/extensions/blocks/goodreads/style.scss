@@ -1,7 +1,7 @@
-@import '../../shared/styles/jetpack-variables';
+@use '../../shared/styles/jetpack-variables';
 
 .wp-block-jetpack-goodreads {
-	margin-bottom: $jetpack-block-margin-bottom;
+	margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 
 	// These styles are directly from Goodreads and
 	// shared with the Goodreads Widget in Jetpack.
@@ -25,15 +25,7 @@
 	}
 
 	[class^='gr_custom_each_container_'] {
-		width: 100%;
-		clear: both;
 		margin: auto;
-		overflow: auto;
-		padding-bottom: 4px;
-		border-bottom: 1px solid #aaa;
-	}
-
-	[class^='gr_custom_each_container_'] {
 		width: 100%;
 		clear: both;
 		margin-bottom: 10px;
@@ -67,7 +59,7 @@
 		float: left;
 		width: 98px;
 		height: 160px;
-		padding: 0px 0px;
+		padding: 0 0;
 		overflow: hidden;
 
 		img {

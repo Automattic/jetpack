@@ -14,7 +14,7 @@
     border: 1px solid #dedee3;
     padding: 11px;
     font-size: 12px;
-    line-height: 1.3em;
+    line-height: 1.3;
     margin-bottom: 22px;
     overflow: auto;
     border-radius: 4px;
@@ -57,11 +57,9 @@
 		// label
 		label {
     		
-			// use our generic label first
-  			@extend .zbs-admin-label;
-
     		margin: 4px 8px;
 		    font-size: 13px;
+		    font-weight:800;
 
 
 		}
@@ -71,21 +69,21 @@
 		}
 
 		// fields: Input text
-		input[type=text]{
+		input[type="text"]{
     		
     		margin: 4px 8px;
 
 		}
 
 		// fields: Input checkbox
-		input[type=checkbox]{
+		input[type="checkbox"]{
     		
     		margin: 4px 8px;
 
 		}
 
 		// fields: Input radio
-		input[type=radio]{
+		input[type="radio"]{
     		
     		margin: 4px 8px;
 
@@ -130,7 +128,7 @@
 			}
 
 			// float these right :)
-			input[type=checkbox]{
+			input[type="checkbox"]{
 
     			//float: right;
 

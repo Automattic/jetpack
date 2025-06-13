@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
@@ -8,6 +10,10 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  * @covers ::soundcloud_url_has_tracklist
  * @covers ::jetpack_soundcloud_embed_reversal
  */
+#[CoversFunction( 'jetpack_soundcloud_embed_reversal' )]
+#[CoversFunction( 'soundcloud_get_option' )]
+#[CoversFunction( 'soundcloud_shortcode' )]
+#[CoversFunction( 'soundcloud_url_has_tracklist' )]
 class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;

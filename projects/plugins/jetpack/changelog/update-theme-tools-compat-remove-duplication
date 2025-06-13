@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Theme compat: Removing duplicated code where it is now served by the Classic Theme Helper package

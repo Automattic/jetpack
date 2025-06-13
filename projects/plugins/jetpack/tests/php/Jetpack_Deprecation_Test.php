@@ -1,11 +1,14 @@
 <?php
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 class Jetpack_Deprecation_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
 	 * @dataProvider provider_deprecated_file_paths
 	 */
+	#[DataProvider( 'provider_deprecated_file_paths' )]
 	public function test_deprecated_file_paths( $file_path, $replacement_path ) {
 		if ( $file_path === '' && $replacement_path === '' ) {
 			$this->markTestSkipped( 'No deprecated paths to test' );
@@ -25,7 +28,9 @@ class Jetpack_Deprecation_Test extends WP_UnitTestCase {
 	/**
 	 * @dataProvider provider_deprecated_method_stubs
 	 */
-	public function test_deprecated_method_stubs( $class_name, $method_name ) {
+	#[DataProvider( 'provider_deprecated_method_stubs' )]
+	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- PHPUnit 12.2 requires methods with data providers to have an exact param count match
+	public function test_deprecated_method_stubs( $class_name, $method_name, $arguments, $expect_notice = true ) {
 		$this->assertTrue( method_exists( $class_name, $method_name ) );
 	}
 
@@ -41,6 +46,7 @@ class Jetpack_Deprecation_Test extends WP_UnitTestCase {
 	/**
 	 * @dataProvider provider_deprecated_method_stubs
 	 */
+	#[DataProvider( 'provider_deprecated_method_stubs' )]
 	public function test_deprecated_method_smoke_test( $class, $method, $arguments, $expect_notice = true ) {
 		if ( $expect_notice ) {
 			$this->setExpectedDeprecated( "$class::$method" );

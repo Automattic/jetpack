@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Queue;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_Queue_TestBase.php';
 
@@ -9,6 +10,9 @@ require_once __DIR__ . '/Jetpack_Sync_Queue_TestBase.php';
  * @group jetpack-sync-queue
  * @group jetpack-sync-queue-options
  */
+#[Group( 'jetpack-sync' )]
+#[Group( 'jetpack-sync-queue' )]
+#[Group( 'jetpack-sync-queue-options' )]
 class Jetpack_Sync_Queue_Options_Table_Test extends Jetpack_Sync_Queue_TestBase {
 
 	/**

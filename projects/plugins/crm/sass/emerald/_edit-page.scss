@@ -9,12 +9,12 @@
 		box-sizing: border-box;
 		width: 100%;
 		max-width: 100%;
-		margin:0px;
+		margin:0;
 	}
 
 	&.one-column {
 		grid-template-columns: 1fr;
-		padding: 0px;
+		padding: 0;
 	}
 }
 
@@ -23,7 +23,7 @@
 	font-weight: 400;
 	line-height: 1.4;
 	margin-bottom: calc(8px);
-	padding: 0px;
+	padding: 0;
 }
 
 .jpcrm-form-input, .jpcrm-form-select {

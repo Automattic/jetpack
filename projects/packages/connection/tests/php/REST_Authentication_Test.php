@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,6 +16,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \Automattic\Jetpack\Connection\REST_Authentication
  */
+#[CoversClass( REST_Authentication::class )]
 class REST_Authentication_Test extends TestCase {
 
 	/**
@@ -93,6 +96,7 @@ class REST_Authentication_Test extends TestCase {
 	 *
 	 * @dataProvider wp_rest_authenticate_data_provider
 	 */
+	#[DataProvider( 'wp_rest_authenticate_data_provider' )]
 	public function test_wp_rest_authenticate( $test_inputs, $expected_outputs ) {
 		$_GET = $test_inputs['get_params'];
 		if ( isset( $test_inputs['request_method'] ) ) {
@@ -302,6 +306,7 @@ class REST_Authentication_Test extends TestCase {
 	 *
 	 * @dataProvider is_signed_with_blog_token_data_provider
 	 */
+	#[DataProvider( 'is_signed_with_blog_token_data_provider' )]
 	public function test_is_signed_with_blog_token( $test_inputs, $expected ) {
 		$_GET = $test_inputs['get_params'];
 		if ( isset( $test_inputs['request_method'] ) ) {

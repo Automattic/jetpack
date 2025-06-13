@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -15,6 +19,7 @@ use stdClass;
  *
  * @covers \Jetpack_Signature
  */
+#[CoversClass( \Jetpack_Signature::class )]
 class SignatureTest extends TestCase {
 	/**
 	 * Tests the Jetpack_Signature->join_with_equal_sign() method.
@@ -25,6 +30,7 @@ class SignatureTest extends TestCase {
 	 * @param string|array $value Associated value for query string key.
 	 * @param string|array $expected_output The expected output of $signature->join_with_equal_sign.
 	 */
+	#[DataProvider( 'join_with_equal_sign_data_provider' )]
 	public function test_join_with_equal_sign( $name, $value, $expected_output ) {
 		$signature = new \Jetpack_Signature( 'some-secret', 0 );
 		$this->assertEquals( $expected_output, $signature->join_with_equal_sign( $name, $value ) );
@@ -110,6 +116,7 @@ class SignatureTest extends TestCase {
 	 * @param string       $query_string Query string key value.
 	 * @param string|array $expected_output The expected output of $signature->normalized_query_parameters.
 	 */
+	#[DataProvider( 'normalized_query_parameters_data_provider' )]
 	public function test_normalized_query_parameters( $query_string, $expected_output ) {
 		$signature = new \Jetpack_Signature( 'some-secret', 0 );
 		$this->assertEquals( $expected_output, $signature->normalized_query_parameters( $query_string ) );
@@ -166,6 +173,7 @@ class SignatureTest extends TestCase {
 	 * @param string $expected the expected output.
 	 * @return void
 	 */
+	#[DataProvider( 'sanitize_host_post_data_provider' )]
 	public function test_sanitize_host_post( $input, $expected ) {
 		$signature = new \Jetpack_Signature( 'some-secret', 0 );
 		$this->assertSame( $expected, $signature->sanitize_host_post( $input ) );
@@ -229,6 +237,7 @@ class SignatureTest extends TestCase {
 	 *
 	 * @dataProvider get_request_port_data_provider
 	 */
+	#[DataProvider( 'get_request_port_data_provider' )]
 	public function test_get_request_port( $http_x_forwarded_port, $server_port, $expeceted, $ssl = false ) {
 
 		$original_server = $_SERVER;
@@ -382,6 +391,8 @@ class SignatureTest extends TestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_request_port_constants() {
 		define( 'JETPACK_SIGNATURE__HTTP_PORT', 81 ); // http as integer.
 		$this->test_get_request_port( 81, '', '' );

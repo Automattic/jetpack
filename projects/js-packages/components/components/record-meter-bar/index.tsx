@@ -1,7 +1,7 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
-import numberFormat from '../number-format/index.ts';
 
 import './style.scss';
 
@@ -110,7 +110,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 				{ legendTitle && <div className="record-meter-bar__legend--title">{ legendTitle }</div> }
 				<ul className="record-meter-bar__legend--items">
 					{ itemsToRender.map( ( { count, label, backgroundColor } ) => {
-						const formattedCount = numberFormat( count );
+						const formattedCount = formatNumber( count );
 						return (
 							<li key={ label } className="record-meter-bar__legend--item">
 								<div

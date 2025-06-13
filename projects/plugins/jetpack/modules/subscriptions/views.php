@@ -716,6 +716,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * Renders the widget's options form in wp-admin.
 	 *
 	 * @param array $instance Widget instance.
+	 * @return string|void
 	 */
 	public function form( $instance ) {
 		$instance               = wp_parse_args( (array) $instance, static::defaults() );
@@ -949,7 +950,7 @@ function jetpack_do_subscription_form( $instance ) {
 	if ( isset( $instance['button_on_newline'] ) && 'true' === $instance['button_on_newline'] ) {
 		$submit_button_styles .= 'margin-top: ' . $button_spacing . 'px; ';
 	} else {
-		$submit_button_styles .= 'margin: 0px; '; // Reset Safari's 2px default margin for buttons affecting input and button union
+		$submit_button_styles .= 'margin: 0; '; // Reset Safari's 2px default margin for buttons affecting input and button union
 		$submit_button_styles .= 'margin-left: ' . $button_spacing . 'px; ';
 	}
 

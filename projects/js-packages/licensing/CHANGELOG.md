@@ -5,10 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.2 - 2025-06-10
+### Changed
+- Update dependencies. [#43796]
+
+## 1.0.1 - 2025-06-05
+### Changed
+- Update dependencies. [#43785]
+
+## 1.0.0 - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## 0.14.30 - 2025-06-02
+### Changed
+- Internal updates.
+
+## 0.14.29 - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
+## 0.14.28 - 2025-05-22
+### Fixed
+- Fixed readability of license activation button on hover. [#43550]
+
+## 0.14.27 - 2025-05-19
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.26 - 2025-05-12
+### Changed
+- Update dependencies. [#37982]
+
+## 0.14.25 - 2025-05-05
+### Changed
+- Update package dependencies. [#43326]
+
+### Fixed
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+
+## 0.14.24 - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+- My Jetpack: Fix TypeScript type checking and the corresponding errors. [#43205]
+
 ## 0.14.23 - 2025-04-14
 ### Fixed
 - Linting: Update stylesheets to use WordPress rules for fonts. [#42928]
-- Linting: Clean up various Styleline violations. [#43010]
+- Linting: Clean up various Stylelint violations. [#43010]
 
 ## 0.14.22 - 2025-04-07
 ### Changed

@@ -116,14 +116,16 @@ class File_Storage implements Storage {
 
 	/**
 	 * Garbage collect expired files.
+	 *
+	 * @param int $cache_ttl If file is is created before this specified number of seconds, it will be deleted.
 	 */
-	public function garbage_collect( $cache_duration = JETPACK_BOOST_CACHE_DURATION ) {
-		if ( $cache_duration === 0 ) {
+	public function garbage_collect( $cache_ttl = JETPACK_BOOST_CACHE_DURATION ) {
+		if ( $cache_ttl === -1 ) {
 			// Garbage collection is disabled.
 			return false;
 		}
 
-		$created_before = time() - $cache_duration;
+		$created_before = time() - $cache_ttl;
 
 		$count = Filesystem_Utils::iterate_directory( $this->root_path, new Filter_Older( $created_before, new Rebuild_File() ) );
 		if ( $count instanceof Boost_Cache_Error ) {

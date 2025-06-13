@@ -5,17 +5,21 @@ namespace Automattic\Jetpack\CRM\Entities\Tests;
 use Automattic\Jetpack\CRM\Entities\Factories\Task_Factory;
 use Automattic\Jetpack\CRM\Entities\Task;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 /**
  * Test Event Manager system.
  *
  * @covers Automattic\Jetpack\CRM\Entities\Task
  */
+#[CoversClass( Task::class )]
 class Task_Entity_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * @testdox Test that task entity is created from input data.
 	 */
+	#[TestDox( 'Test that task entity is created from input data.' )]
 	public function test_task_entity_from_input_data() {
 
 		$task_data = $this->generate_task_data();
@@ -37,6 +41,7 @@ class Task_Entity_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test create task entity from input data and insert in DB via DAL.
 	 */
+	#[TestDox( 'Test create task entity from input data and insert in DB via DAL.' )]
 	public function test_create_task_from_input_data_and_insert_into_DB() {
 
 		$task_data = $this->generate_task_data();

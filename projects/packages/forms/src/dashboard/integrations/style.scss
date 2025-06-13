@@ -1,0 +1,39 @@
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
+
+.jp-forms__integrations {
+	padding: 32px 16.6%;
+
+	@media ( max-width: 782px ) {
+		padding: 32px 8px;
+	}
+
+	.jp-forms__integrations-header {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		margin-bottom: 24px;
+
+		.jp-forms__integrations-header-heading {
+			color: colors.$gray-900;
+			font-size: variables.$font-size-2x-large;
+			line-height: variables.$font-line-height-2x-large;
+			margin-block: 0;
+		}
+
+		.jp-forms__integrations-header-description {
+			color: colors.$gray-700;
+			max-width: 75ch; /* stylelint-disable-line unit-allowed-list */
+		}
+	}
+
+	.jp-forms__integrations-body {
+		border: 1px solid colors.$gray-200;
+		border-radius: 8px;
+		padding: 12px 24px;
+
+		@media ( max-width: 782px ) {
+			padding: 12px 8px;
+		}
+	}
+}

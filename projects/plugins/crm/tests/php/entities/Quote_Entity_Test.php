@@ -5,17 +5,21 @@ namespace Automattic\Jetpack\CRM\Entities\Tests;
 use Automattic\Jetpack\CRM\Entities\Factories\Quote_Factory;
 use Automattic\Jetpack\CRM\Entities\Quote;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 /**
  * Test Event Manager system.
  *
  * @covers Automattic\Jetpack\CRM\Entities\Quote
  */
+#[CoversClass( Quote::class )]
 class Quote_Entity_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
 	 * @testdox Test that quote entity is created from input data.
 	 */
+	#[TestDox( 'Test that quote entity is created from input data.' )]
 	public function test_quote_entity_from_input_data() {
 
 		$quote_data = $this->generate_quote_data();
@@ -37,6 +41,7 @@ class Quote_Entity_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test create quote entity from input data and insert in DB via DAL.
 	 */
+	#[TestDox( 'Test create quote entity from input data and insert in DB via DAL.' )]
 	public function test_create_quote_from_input_data_and_insert_into_DB() {
 
 		$quote_data = $this->generate_quote_data();

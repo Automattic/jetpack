@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 if ( is_multisite() ) :
 
 	/**
@@ -13,6 +16,8 @@ if ( is_multisite() ) :
 	 * @covers \Jetpack_Network
 	 * @covers \Jetpack_Options
 	 */
+	#[CoversClass( Jetpack_Network::class )]
+	#[CoversClass( Jetpack_Options::class )]
 	class Jetpack_Network_Test extends WP_UnitTestCase {
 		use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -200,6 +205,7 @@ if ( is_multisite() ) :
 		 *
 		 * @dataProvider data_provider_test_set_multisite_disconnect_caps
 		 */
+		#[DataProvider( 'data_provider_test_set_multisite_disconnect_caps' )]
 		public function test_set_multisite_disconnect_cap( $is_super_admin, $connection_override, $disconnect_allowed ) {
 			$test_cap        = array( 'test_cap' );
 			$expected_output = $disconnect_allowed ? $test_cap : array( 'do_not_allow' );

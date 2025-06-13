@@ -11,7 +11,7 @@
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^3.0.0",
+		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
@@ -35,7 +35,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ3_2",
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ3_3",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

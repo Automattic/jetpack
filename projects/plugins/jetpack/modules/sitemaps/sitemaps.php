@@ -34,6 +34,14 @@
 /* Include all of the sitemap subclasses. */
 require_once __DIR__ . '/sitemap-constants.php';
 require_once __DIR__ . '/sitemap-buffer.php';
+require_once __DIR__ . '/sitemap-buffer-fallback.php';
+require_once __DIR__ . '/sitemap-buffer-xmlwriter.php';
+require_once __DIR__ . '/sitemap-buffer-page-xmlwriter.php';
+require_once __DIR__ . '/sitemap-buffer-image-xmlwriter.php';
+require_once __DIR__ . '/sitemap-buffer-video-xmlwriter.php';
+require_once __DIR__ . '/sitemap-buffer-news-xmlwriter.php';
+require_once __DIR__ . '/sitemap-buffer-master-xmlwriter.php';
+require_once __DIR__ . '/sitemap-buffer-factory.php';
 require_once __DIR__ . '/sitemap-stylist.php';
 require_once __DIR__ . '/sitemap-librarian.php';
 require_once __DIR__ . '/sitemap-finder.php';

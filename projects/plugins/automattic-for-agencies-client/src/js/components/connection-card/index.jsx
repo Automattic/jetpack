@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectButton } from '@automattic/jetpack-connection';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -66,11 +67,9 @@ function ConnectionContent( { onShowSharingDetailsClick } ) {
 						{
 							strong: <strong />,
 							tosLink: (
-								<a
+								<ExternalLink
 									className={ styles[ 'terms-of-service__link' ] }
 									href={ getRedirectUrl( 'wpcom-tos' ) }
-									rel="noopener noreferrer"
-									target="_blank"
 								/>
 							),
 							shareDetailsLink: (

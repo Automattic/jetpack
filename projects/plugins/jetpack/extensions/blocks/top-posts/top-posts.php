@@ -13,6 +13,8 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 use Jetpack_Top_Posts_Helper;
 
@@ -35,7 +37,7 @@ function register_block() {
 		return;
 	}
 
-	if ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() ) {
+	if ( ( new Host() )->is_wpcom_simple() || ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() ) {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
@@ -58,7 +60,7 @@ function load_assets( $attributes ) {
 	}
 
 	// Do not render in contexts outside the front-end (eg. emails, API).
-	if ( ! jetpack_is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		return;
 	}
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contacts: Prevent a PHP warning when adding a new contact when a custom file field exists. 

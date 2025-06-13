@@ -187,6 +187,7 @@ class Concatenate_CSS extends WP_Styles {
 
 		foreach ( $stylesheets as $_idx => $stylesheets_group ) {
 			foreach ( $stylesheets_group as $media => $css ) {
+				$href = '';
 				if ( 'noconcat' === $media ) {
 					foreach ( $css as $handle ) {
 						if ( $this->do_item( $handle, $group ) ) {
@@ -194,58 +195,64 @@ class Concatenate_CSS extends WP_Styles {
 						}
 					}
 					continue;
-				} elseif ( count( $css ) > 1 ) {
-					$file_name = jetpack_boost_page_optimize_generate_concat_path( $css, $this->dependency_path_mapping );
+				} elseif ( count( $css ) > 0 ) {
+					// Split the CSS into groups of max files, we are also chunking the handles to match the CSS groups and depending on order to be maintained.
+					$css_groups = array_chunk( $css, jetpack_boost_minify_concat_max_files(), true );
 
-					if ( get_site_option( 'jetpack_boost_static_minification' ) ) {
-						$href = jetpack_boost_get_minify_url( $file_name . '.min.css' );
-					} else {
-						$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $file_name;
+					foreach ( $css_groups as $css_group ) {
+						$file_name = jetpack_boost_page_optimize_generate_concat_path( $css_group, $this->dependency_path_mapping );
+
+						if ( get_site_option( 'jetpack_boost_static_minification' ) ) {
+							$href = jetpack_boost_get_minify_url( $file_name . '.min.css' );
+						} else {
+							$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $file_name;
+						}
+
+						$this->print_style_tag( $href, array_keys( $css_group ), $media );
 					}
-				} else {
-					$href = jetpack_boost_page_optimize_cache_bust_mtime( current( $css ), $siteurl );
 				}
-
-				$handles = array_keys( $css );
-				$css_id  = sanitize_title_with_dashes( $media ) . '-css-' . md5( $href );
-				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					$style_tag = "<link data-handles='" . esc_attr( implode( ',', $handles ) ) . "' rel='stylesheet' id='$css_id' href='$href' type='text/css' media='$media' />";
-				} else {
-					$style_tag = "<link rel='stylesheet' id='$css_id' href='$href' type='text/css' media='$media' />";
-				}
-
-				/**
-				 * Filter the style loader HTML tag for page optimize.
-				 *
-				 * @param string $style_tag style loader tag
-				 * @param array $handles handles of CSS files
-				 * @param string $href link to CSS file
-				 * @param string $media media attribute of the link.
-				 *
-				 * @since   1.0.0
-				 */
-				$style_tag = apply_filters( 'page_optimize_style_loader_tag', $style_tag, $handles, $href, $media );
-
-				/**
-				 * Filter the stylesheet tag. For example: making it deferred when using Critical CSS.
-				 *
-				 * @param string $style_tag stylesheet tag
-				 * @param array $handles handles of CSS files
-				 * @param string $href link to CSS file
-				 * @param string $media media attribute of the link.
-				 *
-				 * @since   1.0.0
-				 */
-				$style_tag = apply_filters( 'style_loader_tag', $style_tag, implode( ',', $handles ), $href, $media );
-
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $style_tag . "\n";
-
-				array_map( array( $this, 'print_inline_style' ), array_keys( $css ) );
 			}
 		}
 
 		return $this->done;
+	}
+
+	private function print_style_tag( $href, $handles, $media ) {
+		$css_id = sanitize_title_with_dashes( $media ) . '-css-' . md5( $href );
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$style_tag = "<link data-handles='" . esc_attr( implode( ',', $handles ) ) . "' rel='stylesheet' id='$css_id' href='$href' type='text/css' media='$media' />";
+		} else {
+			$style_tag = "<link rel='stylesheet' id='$css_id' href='$href' type='text/css' media='$media' />";
+		}
+
+		/**
+		 * Filter the style loader HTML tag for page optimize.
+		 *
+		 * @param string $style_tag style loader tag
+		 * @param array $handles handles of CSS files
+		 * @param string $href link to CSS file
+		 * @param string $media media attribute of the link.
+		 *
+		 * @since   1.0.0
+		 */
+		$style_tag = apply_filters( 'page_optimize_style_loader_tag', $style_tag, $handles, $href, $media );
+
+		/**
+		 * Filter the stylesheet tag. For example: making it deferred when using Critical CSS.
+		 *
+		 * @param string $style_tag stylesheet tag
+		 * @param array $handles handles of CSS files
+		 * @param string $href link to CSS file
+		 * @param string $media media attribute of the link.
+		 *
+		 * @since   1.0.0
+		 */
+		$style_tag = apply_filters( 'style_loader_tag', $style_tag, implode( ',', $handles ), $href, $media );
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $style_tag . "\n";
+
+		array_map( array( $this, 'print_inline_style' ), $handles );
 	}
 
 	public function __isset( $key ) {

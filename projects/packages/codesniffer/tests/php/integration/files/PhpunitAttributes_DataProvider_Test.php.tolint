@@ -1,0 +1,67 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.FunctionComment.Missing
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+// phpcs:disable Jetpack.PHPUnit.TestClassName.DoesNotMatchFileName
+
+namespace Xyz;
+
+use NS\UsedClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @dataProvder bogus
+ */
+class AnnotationsTest extends TestCase {
+	/**
+	 * @dataProvider someMethod
+	 * @dataProvider Xyz\LocalClass::a_method
+	 * @dataProvider RootClass::other_method
+	 * @dataProvider NS\SomeClass::class_method
+	 * @dataProvider NS\UsedClass::used_method
+	 */
+	public function testAnnotations() {
+		UsedClass::x();
+	}
+
+	#[DataProvider( 'someMethod' )]
+	#[DataProviderExternal( LocalClass::class, 'a_method' )]
+	#[DataProviderExternal( \RootClass::class, 'other_method' )]
+	#[DataProviderExternal( \NS\SomeClass::class, 'class_method' )]
+	#[DataProviderExternal( UsedClass::class, 'used_method' )]
+	public function testAttributes() {
+		UsedClass::x();
+	}
+
+	/**
+	 * @dataProvider Xyz\LocalClass::a_method
+	 * @dataProvider RootClass::other_method
+	 * @dataProvider NS\SomeClass::class_method
+	 * @dataProvider NS\UsedClass::used_method
+	 */
+	#[DataProviderExternal( 'Xyz\LocalClass', 'a_method' )]
+	#[DataProviderExternal( 'RootClass', 'other_method' )]
+	#[DataProviderExternal( 'NS\SomeClass', 'class_method' )]
+	#[DataProviderExternal( 'NS\UsedClass', 'used_method' )]
+	public function testQuotedClasses() {
+		UsedClass::x();
+	}
+
+	#[DataProviderExternal()]
+	#[DataProviderExternal( 42, 42 )]
+	public function bad() {
+	}
+
+	/**
+	 * @dataProvider function()
+	 * @dataProvider yes_this_is_weird()()(((())))
+	 * @dataProvider X::yes::this::is::weird::too
+	 */
+	#[DataProvider( 'function' )]
+	#[DataProvider( 'yes_this_is_weird' )]
+	#[DataProviderExternal( 'X', 'yes' )]
+	public function otherWeirdStuff() {
+	}
+}

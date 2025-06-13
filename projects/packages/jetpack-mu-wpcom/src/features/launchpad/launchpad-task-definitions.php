@@ -240,7 +240,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'subscribers_added'               => array(
 			'get_title'            => function () {
-				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
+				return __( 'Import subscribers', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
@@ -249,12 +249,15 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 		),
 		'migrate_content'                 => array(
-			'get_title'            => function () {
-				return __( 'Migrate content', 'jetpack-mu-wpcom' );
+			'get_title'             => function () {
+				return __( 'Import content', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
+			'is_complete_callback'  => 'wpcom_launchpad_is_task_option_completed',
+			'is_visible_callback'   => 'wpcom_launchpad_has_goal_import_subscribers',
+			'add_listener_callback' => function () {
+				add_action( 'save_post', 'wpcom_launchpad_track_migrate_content_task' );
+			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
 					return admin_url( 'import.php' );
 				}
@@ -514,7 +517,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Manage your subscribers', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
@@ -636,10 +638,10 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Add the Subscribe Block to your site', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_launchpad_has_added_subscribe_block',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
-			'get_calypso_path'     => function () {
-				return admin_url( 'site-editor.php?canvas=edit&help-center=subscribe-block' );
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/newsletter/' . $data['site_slug_encoded'];
 			},
 		),
 		'mobile_app_installed'            => array(
@@ -1632,9 +1634,36 @@ function wpcom_launchpad_track_publish_first_post_task() {
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return;
 	}
+	// Ensure that Imports don't mark this as complete.
+	if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
+		return;
+	}
 	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published' );
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published_newsletter' );
+}
+
+/**
+ * Callback for completing migrate content task.
+ *
+ * @return void
+ */
+function wpcom_launchpad_track_migrate_content_task() {
+	// Ensure that Headstart posts don't mark this as complete.
+	// Headstart also enables WP_IMPORTING, so it is necessary to check both.
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+	// Only mark this complete when importing content.
+	if ( ! defined( 'WP_IMPORTING' ) || ! WP_IMPORTING ) {
+		return;
+	}
+	// Check the option to prevent setting this repeatedly during imports, which could spam tracks
+	// and run extra unnecessary logic.
+	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'migrate_content' ) ) ) {
+		return;
+	}
+	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'migrate_content' );
 }
 
 /**
@@ -2909,4 +2938,18 @@ function wpcom_get_current_site_goals_for_tracks() {
 
 	$site_goals = get_option( 'site_goals', array() );
 	return implode( ',', $site_goals );
+}
+
+/**
+ * Checks if the subscribe block has been added or enabled.
+ *
+ * @return bool True if the task is completed, false otherwise.
+ */
+function wpcom_launchpad_has_added_subscribe_block() {
+
+	if ( get_option( 'jetpack_subscriptions_subscribe_post_end_enabled', false ) || get_option( 'jetpack_subscriptions_subscribe_navigation_enabled', false ) ) {
+		return true;
+	}
+
+	return wpcom_launchpad_is_task_option_completed( array( 'id' => 'add_subscribe_block' ) );
 }

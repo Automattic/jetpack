@@ -8,6 +8,8 @@
 .phpcs.dir.xml   production-exclude
 /changelog/**    production-exclude
 /tests/**        production-exclude
+types.d.ts       production-exclude
+/src/js/**       production-exclude
 
 # Files needed in the production build.
 build/**         production-include

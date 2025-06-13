@@ -1,61 +1,13 @@
-import { __ } from '@wordpress/i18n';
-import styles from './lcp.module.scss';
-import { Button } from '@automattic/jetpack-components';
-import RefreshIcon from '$svg/refresh';
 import Module from '$features/module/module';
-import { useLcpState, useOptimizeLcpAction } from './lib/stores/lcp-state';
-import TimeAgo from '$features/critical-css/time-ago/time-ago';
+import Pill from '$features/ui/pill/pill';
 import { recordBoostEvent } from '$lib/utils/analytics';
-
-const Status = () => {
-	const [ query ] = useLcpState();
-	const lcpState = query?.data;
-
-	if ( lcpState?.status === 'error' ) {
-		return (
-			<div className={ styles?.failures }>
-				{ __(
-					"An error occurred while optimizing your Cornerstone Page's LCP. Please try again.",
-					'jetpack-boost'
-				) }
-			</div>
-		);
-	}
-
-	if ( lcpState?.status === 'not_analyzed' ) {
-		// This should never happen, but just in case.
-		return (
-			<div>
-				{ __(
-					"Click the optimize button to start optimizing your Cornerstone Page's LCP.",
-					'jetpack-boost'
-				) }
-			</div>
-		);
-	}
-
-	if ( lcpState?.status === 'pending' ) {
-		return (
-			<div className={ styles?.generating }>
-				{ __(
-					"Jetpack Boost is optimizing your Cornerstone Page's LCP for you.",
-					'jetpack-boost'
-				) }
-			</div>
-		);
-	}
-
-	if ( lcpState?.status !== 'analyzed' || ! lcpState?.updated ) {
-		return null;
-	}
-
-	return (
-		<div className={ styles?.successes }>
-			{ __( 'Last optimized', 'jetpack-boost' ) }{ ' ' }
-			<TimeAgo time={ new Date( lcpState.updated * 1000 ) } />.
-		</div>
-	);
-};
+import RefreshIcon from '$svg/refresh';
+import { Button } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
+import styles from './status/status.module.scss';
+import { useLcpState, useOptimizeLcpAction } from './lib/stores/lcp-state';
+import Status from './status/status';
+import { ErrorDetails } from './status/error-details';
 
 const Lcp = () => {
 	const [ query ] = useLcpState();
@@ -76,11 +28,16 @@ const Lcp = () => {
 	return (
 		<Module
 			slug="lcp"
-			title={ __( 'Optimize LCP', 'jetpack-boost' ) }
+			title={
+				<>
+					{ __( 'Optimize LCP Images', 'jetpack-boost' ) }
+					<Pill text={ __( 'Beta', 'jetpack-boost' ) } />
+				</>
+			}
 			description={
 				<p>
 					{ __(
-						'Improve the Largest Contentful Paint (LCP) of your Cornerstone pages.',
+						'Improve the Largest Contentful Paint (LCP) of your Cornerstone Pages, optimizing their key image, so users can enjoy a smoother experience.',
 						'jetpack-boost'
 					) }
 				</p>
@@ -103,6 +60,7 @@ const Lcp = () => {
 					{ __( 'Optimize', 'jetpack-boost' ) }
 				</Button>
 			</div>
+			{ lcpState?.status === 'analyzed' && <ErrorDetails /> }
 		</Module>
 	);
 };

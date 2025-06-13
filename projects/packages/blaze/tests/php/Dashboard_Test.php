@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\Blaze;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
 /**
@@ -15,6 +16,7 @@ use WorDBless\BaseTestCase;
  *
  * @covers \Automattic\Jetpack\Blaze\Dashboard
  */
+#[CoversClass( Dashboard::class )]
 class Dashboard_Test extends BaseTestCase {
 	/**
 	 * Test has root dom.

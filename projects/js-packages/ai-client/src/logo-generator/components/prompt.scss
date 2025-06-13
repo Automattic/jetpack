@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/root-variables';
+@use '@automattic/jetpack-base-styles/root-variables';
 
 .jetpack-ai-logo-generator__prompt {
 	display: flex;
@@ -106,7 +106,7 @@
 	line-height: 21px;
 	display: flex;
 
-	& .prompt-footer__icon {
+	.prompt-footer__icon {
 		height: 20px;
 		width: 20px;
 

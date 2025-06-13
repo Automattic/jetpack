@@ -2,8 +2,8 @@
  * Modal styles for Social Previews
  */
 
-@import '@automattic/jetpack-base-styles/root-variables';
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use '@automattic/jetpack-base-styles/root-variables';
 
 // Styles shared between modals
 .jetpack-social-previews__modal {
@@ -56,7 +56,7 @@
 			}
 
 			&.is-active::after {
-				height: 0px;
+				height: 0;
 				border-bottom: 1px solid var( --jp-highlight );
 				margin-bottom: -1px;
 			}
@@ -70,7 +70,7 @@
 
 	.components-tab-panel__tab-content {
 		padding: 10px;
-		background-color: $white;
+		background-color: gb.$white;
 		flex: 1;
 		overflow: auto;
 
@@ -78,14 +78,19 @@
 			display: flex;
 			justify-content: center;
 		}
+
+		// Mastodon
+		.mastodon-preview {
+			max-width: 578px;
+		}
 	}
 
-	@media ( min-width: $break-small ) {
+	@media ( min-width: gb.$break-small ) {
 		width: calc( 100vw - 40px );
 	}
 
-	@media ( min-width: $break-large ) {
-		width: calc( #{$break-large} - 40px );
+	@media ( min-width: gb.$break-large ) {
+		width: calc( #{gb.$break-large} - 40px );
 
 		.components-tab-panel__tabs {
 
@@ -100,18 +105,8 @@
 	}
 
 	// Facebook
-
 	.facebook-preview {
 		width: 100%;
-	}
-
-	// Mastodon
-
-	.components-tab-panel__tab-content {
-
-		.mastodon-preview {
-			max-width: 578px;
-		}
 	}
 }
 
@@ -149,12 +144,12 @@
 				content: '\2713 ';
 				position: absolute;
 				left: -20px;
-				color: $alert-green;
+				color: gb.$alert-green;
 			}
 		}
 	}
 
-	@media ( min-width: $break-small ) {
+	@media ( min-width: gb.$break-small ) {
 		width: 80vw;
 		max-width: 870px;
 		display: grid;
@@ -185,7 +180,7 @@
 		}
 	}
 
-	@media ( min-width: $break-medium ) {
+	@media ( min-width: gb.$break-medium ) {
 
 		.jetpack-social-previews__upgrade-description {
 			padding: 0 2em 2em;

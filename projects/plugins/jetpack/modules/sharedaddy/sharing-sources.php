@@ -405,9 +405,9 @@ abstract class Sharing_Source {
 		$classes = implode( ' ', $klasses );
 
 		return sprintf(
-			'<a rel="nofollow %s" 
-				data-shared="%s" 
-				class="%s" 
+			'<a rel="nofollow %s"
+				data-shared="%s"
+				class="%s"
 				href="%s"
 				%s
 				aria-labelledby="%s"
@@ -3203,27 +3203,6 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
 
 		parent::redirect_request( $url );
-	}
-}
-
-/**
- * Skype sharing service.
- */
-class Share_Skype extends Deprecated_Sharing_Source {
-	/**
-	 * Service short name.
-	 *
-	 * @var string
-	 */
-	public $shortname = 'skype';
-
-	/**
-	 * Service name.
-	 *
-	 * @return string
-	 */
-	public function get_name() {
-		return __( 'Skype', 'jetpack' );
 	}
 }
 

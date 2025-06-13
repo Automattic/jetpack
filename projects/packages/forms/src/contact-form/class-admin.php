@@ -291,14 +291,6 @@ class Admin {
 				<div class="export-card__body-description">
 					<div>
 						<?php esc_html_e( 'Export your data into a Google Sheets file.', 'jetpack-forms' ); ?>
-						<?php
-						printf(
-							'<a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferer">%3$s</a>',
-							esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
-							esc_attr__( 'connect to Google Drive', 'jetpack-forms' ),
-							esc_html__( 'You need to connect to Google Drive.', 'jetpack-forms' )
-						);
-						?>
 					</div>
 				</div>
 				<div class="export-card__body-cta">

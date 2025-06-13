@@ -15,9 +15,9 @@ import {
 } from '@wordpress/components';
 import { isValidElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import JetpackFieldWidth from '../../shared/components/jetpack-field-width';
+import ToolbarRequiredGroup from '../../shared/components/toolbar-required-group';
 import { useFormStyle, FORM_STYLE, getBlockStyle } from '../util/form';
-import ToolbarRequiredGroup from './block-controls/toolbar-required-group';
-import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldControls = ( {
@@ -165,10 +165,10 @@ const JetpackFieldControls = ( {
 			</BlockControls>
 
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Manage responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
-				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
 					<>{ fieldSettings }</>
 				</PanelBody>
 				<PanelColorSettings
@@ -198,7 +198,7 @@ const JetpackFieldControls = ( {
 					{ ( isChoicesBlock || blockStyle === 'button' ) && (
 						<>
 							<RangeControl
-								label={ __( 'Button Border Width', 'jetpack-forms' ) }
+								label={ __( 'Button border width', 'jetpack-forms' ) }
 								value={ attributes.buttonBorderWidth }
 								initialPosition={ 1 }
 								onChange={ setNumberAttribute( 'buttonBorderWidth' ) }
@@ -208,7 +208,7 @@ const JetpackFieldControls = ( {
 								__next40pxDefaultSize={ true }
 							/>
 							<RangeControl
-								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
+								label={ __( 'Button border radius', 'jetpack-forms' ) }
 								value={ attributes.buttonBorderRadius }
 								initialPosition={ 0 }
 								onChange={ setNumberAttribute( 'buttonBorderRadius' ) }
@@ -222,7 +222,7 @@ const JetpackFieldControls = ( {
 					{ ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) && (
 						<>
 							<RangeControl
-								label={ __( 'Border Width', 'jetpack-forms' ) }
+								label={ __( 'Border width', 'jetpack-forms' ) }
 								value={ attributes.borderWidth }
 								initialPosition={ 1 }
 								onChange={ setNumberAttribute( 'borderWidth' ) }
@@ -232,7 +232,7 @@ const JetpackFieldControls = ( {
 								__next40pxDefaultSize={ true }
 							/>
 							<RangeControl
-								label={ __( 'Border Radius', 'jetpack-forms' ) }
+								label={ __( 'Border radius', 'jetpack-forms' ) }
 								value={ attributes.borderRadius }
 								initialPosition={ 0 }
 								onChange={ setNumberAttribute( 'borderRadius' ) }
@@ -244,7 +244,7 @@ const JetpackFieldControls = ( {
 						</>
 					) }
 				</PanelBody>
-				<PanelBody title={ __( 'Label Styles', 'jetpack-forms' ) } initialOpen={ false }>
+				<PanelBody title={ __( 'Label styles', 'jetpack-forms' ) } initialOpen={ false }>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<FontSizePicker
 							withReset={ true }

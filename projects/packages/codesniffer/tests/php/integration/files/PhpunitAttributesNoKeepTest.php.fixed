@@ -1,0 +1,65 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.FunctionComment.Missing
+
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BackupGlobals;
+use PHPUnit\Framework\Attributes\BackupStaticProperties;
+use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\BeforeClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use PHPUnit\Framework\Attributes\PostCondition;
+use PHPUnit\Framework\Attributes\PreCondition;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * A test class
+ */
+#[BackupGlobals]
+#[BackupStaticProperties]
+#[CoversNothing]
+#[DoesNotPerformAssertions]
+#[PreserveGlobalState( true )]
+#[RunClassInSeparateProcess]
+#[TestDox( 'Some weird thing.' )]
+class PhpunitAttributesNoKeepTest extends TestCase {
+	#[After]
+	#[AfterClass]
+	#[Before]
+	#[BeforeClass]
+	#[PostCondition]
+	#[PreCondition]
+	#[RunInSeparateProcess]
+	#[Test]
+	#[BackupGlobals]
+	#[BackupStaticProperties]
+	#[CoversNothing]
+	#[DoesNotPerformAssertions]
+	#[PreserveGlobalState( true )]
+	#[TestDox( 'Another weird thing.' )]
+	public function testMethodAnnotations() {
+	}
+
+	/**
+	 * @backupGlobals disabled
+	 * @backupStaticAttributes disabled
+	 * @backupStaticProperties disabled
+	 */
+	#[PreserveGlobalState( false )]
+	public function disabledStuff() {
+	}
+
+	#[BackupStaticProperties]
+	public function alias() {
+	}
+
+	#[Test]
+	public function nospace() {}
+}

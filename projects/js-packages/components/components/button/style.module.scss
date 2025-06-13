@@ -53,7 +53,7 @@
 		}
 
 		// With Spinner
-		& > :global(.components-spinner) {
+		> :global(.components-spinner) {
 			height: 20px;
 		}
 	}
@@ -197,12 +197,12 @@
 			justify-content: center;
 		}
 
-		& > *:not(:global(.components-spinner)) {
+		> *:not(:global(.components-spinner)) {
 			visibility: hidden;
 		}
 
 		// Spinner
-		& > :global(.components-spinner) {
+		> :global(.components-spinner) {
 			margin: 0;
 			position: absolute;
 		}

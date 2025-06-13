@@ -17,7 +17,6 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
     // PhanUndeclaredFunction : 4 occurrences
     // PhanPossiblyUndeclaredVariable : 3 occurrences
-    // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanUndeclaredClassConstant : 3 occurrences
     // PhanNoopNew : 2 occurrences
     // PhanPluginUseReturnValueInternalKnown : 2 occurrences
@@ -42,7 +41,7 @@ return [
         'app/lib/class-cli.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'app/lib/critical-css/class-critical-css-state.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'app/lib/minify/class-concatenate-css.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument'],
-        'app/lib/minify/class-concatenate-js.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanPossiblyUndeclaredVariable', 'PhanTypeInvalidUnaryOperandIncOrDec', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset'],
+        'app/lib/minify/class-concatenate-js.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanPossiblyUndeclaredVariable', 'PhanTypeInvalidUnaryOperandIncOrDec', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal'],
         'app/lib/minify/class-dependency-path-mapping.php' => ['PhanUndeclaredConstant'],
         'app/lib/minify/functions-helpers.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
         'app/modules/image-guide/class-image-guide-proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],

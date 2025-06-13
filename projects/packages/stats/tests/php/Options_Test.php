@@ -7,11 +7,15 @@
 
 namespace Automattic\Jetpack\Stats;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Class to test the Options class.
  *
  * @covers \Automattic\Jetpack\Stats\Options
  */
+#[CoversClass( Options::class )]
 class Options_Test extends StatsBaseTestCase {
 	/**
 	 * Clean up the testing environment.
@@ -120,6 +124,7 @@ class Options_Test extends StatsBaseTestCase {
 	 * @param  string $option_name  The Stats option name.
 	 * @param  mixed  $option_value The expected Stats option value.
 	 */
+	#[DataProvider( 'statsGetOptionDataProvider' )]
 	public function test_get_option( $option_name, $option_value ) {
 		$this->assertSame( $option_value, Options::get_option( $option_name ) );
 	}
@@ -243,6 +248,7 @@ class Options_Test extends StatsBaseTestCase {
 	 * @param bool  $result          The expected result.
 	 * @param mixed $stored_options  The expected Stats stored options.
 	 */
+	#[DataProvider( 'statsSetOptionsDataProvider' )]
 	public function test_set_options( $set_options, $result, $stored_options ) {
 		$this->assertSame( $result, Options::set_options( $set_options ) );
 		$this->assertSame( $stored_options, get_option( 'stats_options' ) );
@@ -428,6 +434,7 @@ class Options_Test extends StatsBaseTestCase {
 	 * @param mixed  $option_value   The Stats option value.
 	 * @param mixed  $stored_options The expected Stats stored options.
 	 */
+	#[DataProvider( 'statsSetOptionDataProvider' )]
 	public function test_set_option( $option_name, $option_value, $stored_options ) {
 		$this->assertTrue( Options::set_option( $option_name, $option_value ) );
 		$this->assertSame( $stored_options, get_option( 'stats_options' ) );

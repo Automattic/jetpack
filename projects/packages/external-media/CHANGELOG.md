@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.13] - 2025-06-05
+### Changed
+- Update package dependencies. [#43734]
+
+## [0.3.12] - 2025-06-02
+### Changed
+- Internal updates.
+
+## [0.3.11] - 2025-05-26
+### Changed
+- Update package dependencies. [#43514] [#43578]
+
+## [0.3.10] - 2025-05-19
+### Changed
+- Update package dependencies. [#43398]
+
+## [0.3.9] - 2025-05-15
+### Changed
+- Update dependencies. [#42943]
+
+## [0.3.8] - 2025-05-12
+### Changed
+- Stable release management: Do not ship source files. [#43310]
+- Update package dependencies. [#43400]
+
+## [0.3.7] - 2025-05-05
+### Changed
+- Update package dependencies. [#43326]
+
+### Fixed
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+
+## [0.3.6] - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+
+## [0.3.5] - 2025-04-21
+### Fixed
+- Scripts: Prevent console warnings by ensuring styles are correctly added to iframe. [#42985]
+
 ## [0.3.4] - 2025-04-14
 ### Fixed
 - Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
@@ -77,6 +117,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix the button size in the editor for Gutenberg 18 or below. [#41619]
 - Media Library: Fix the Import Media button color in some color schemes. [#41664]
 
+[0.3.13]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.12...v0.3.13
+[0.3.12]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.11...v0.3.12
+[0.3.11]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.10...v0.3.11
+[0.3.10]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.9...v0.3.10
+[0.3.9]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.8...v0.3.9
+[0.3.8]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.7...v0.3.8
+[0.3.7]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.6...v0.3.7
+[0.3.6]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.5...v0.3.6
+[0.3.5]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.1...v0.3.2

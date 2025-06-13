@@ -1,3 +1,4 @@
-@import "variables";
-@import "../admin";
-@import "sidebar-notice";
+@use "sass:meta";
+@use "variables";
+@include meta.load-css( "../admin", $with: meta.module-variables( 'variables' ) );
+@include meta.load-css( "sidebar-notice" );

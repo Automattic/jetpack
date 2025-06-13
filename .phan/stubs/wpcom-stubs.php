@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 188f89b7be0067125e8640caa70618606da95896.
+ * Stubs automatically generated from WordPress.com commit 13c7b851269f9ce5341480031491e95f2329d9f3.
  */
 
 namespace {
@@ -1174,9 +1174,11 @@ namespace {
     {
     }
     /**
+     * @param bool $include_paid_subscribers
+     * @param array $args
      * @return array
      **/
-    function wpcom_fetch_subs_counts($include_paid_subscribers = \false)
+    function wpcom_fetch_subs_counts($include_paid_subscribers, $args = array())
     {
     }
     /**
@@ -1323,6 +1325,7 @@ namespace {
         }
     }
     /**
+     * @param int|null $blog_id
      * @return bool
      */
     function wpcom_activitypub_is_active($blog_id = \null)
@@ -1658,6 +1661,15 @@ namespace WPCOM\Experiments\Internal {
     }
 }
 namespace WPCOM\Jetpack_AI {
+    class Chrome_AI_Tokens
+    {
+        /**
+         * @return array
+         */
+        public static function get_tokens()
+        {
+        }
+    }
     class Feature_Control
     {
         /**

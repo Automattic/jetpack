@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { fixupConfigRules } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
 import eslintJs from '@eslint/js';
+import tanstackEslintPluginQuery from '@tanstack/eslint-plugin-query';
 import makeDebug from 'debug';
 import { defaultConditionNames } from 'eslint-import-resolver-typescript';
 import eslintPluginImport from 'eslint-plugin-import';
@@ -121,6 +122,18 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 		}
 	}
 
+	let tsconfigPath = false;
+	for ( let d = basedir; d.startsWith( rootdir ); d = path.dirname( d ) ) {
+		if ( fs.existsSync( path.join( d, 'tsconfig.json' ) ) ) {
+			tsconfigPath = path.join( d, 'tsconfig.json' );
+			break;
+		}
+		if ( fs.existsSync( path.join( d, 'jsconfig.json' ) ) ) {
+			tsconfigPath = path.join( d, 'jsconfig.json' );
+			break;
+		}
+	}
+
 	return [
 		{
 			name: 'Global files',
@@ -151,6 +164,7 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 			)
 		),
 		eslintPluginPrettierRecommended,
+		...tanstackEslintPluginQuery.configs[ 'flat/recommended' ],
 
 		// Base config.
 		{
@@ -179,7 +193,7 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 			settings: {
 				'import/resolver': {
 					typescript: {
-						project: 'projects/*/*/tsconfig.json',
+						project: tsconfigPath,
 						conditionNames: process.env.npm_config_jetpack_webpack_config_resolve_conditions
 							? process.env.npm_config_jetpack_webpack_config_resolve_conditions
 									.split( ',' )

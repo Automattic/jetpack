@@ -15,7 +15,6 @@ import { ToneDropdownMenu } from '../../../../blocks/ai-assistant/components/ton
  */
 import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
 import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
-import type { AiModelTypeProp } from '@automattic/jetpack-ai-client';
 
 export type AiExcerptControlProps = {
 	/*
@@ -48,9 +47,6 @@ export type AiExcerptControlProps = {
 
 	tone?: ToneProp;
 	onToneChange?: ( tone: ToneProp ) => void;
-
-	model?: AiModelTypeProp;
-	onModelChange?: ( model: AiModelTypeProp ) => void;
 };
 
 import './style.scss';

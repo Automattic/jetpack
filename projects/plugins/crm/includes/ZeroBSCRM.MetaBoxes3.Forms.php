@@ -325,6 +325,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
                  // DAL3+ saved in obj
                  $zbsfs = 'simple'; if (is_array($form) && isset($form['style'])) $zbsfs = $form['style'];
 
+					// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
             ?>
             <input type="hidden" name="<?php echo esc_attr( $this->fieldPrefix ); ?>style" id="zbs_form_style_post" value="<?php echo esc_attr( $zbsfs ); ?>" />
 
@@ -369,8 +370,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
                     </div>
                     <div class="caption"><?php esc_html_e("Naked Style","zero-bs-crm");?></div>
                     <div id="naked_html_form" class="hide">
-                        
-                        <div class='zbs_form_content_wrap <?php if($zbsfs == 'naked'){ echo 'embed-selected';} ?>'>&lt;iframe src='<?php echo esc_html($formRoot); ?>/naked/?fid=<?php echo esc_html( $formID ); ?>' height='200px' width='700px' style='border:0px!important'&gt;&lt;/iframe&gt;
+						<div class='zbs_form_content_wrap<?php echo esc_attr( $zbsfs === 'naked' ? ' embed-selected' : '' ); ?>'>&lt;iframe src='<?php echo esc_html( $formRoot ); ?>/naked/?fid=<?php echo esc_html( $formID ); ?>' height='200px' width='700px' style='border:0!important'&gt;&lt;/iframe&gt;
                         </div> <!-- end form content grab -->
                     </div>
                 </div>
@@ -400,8 +400,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
                     </div>
                     <div class="caption"><?php esc_html_e("Content Grab","zero-bs-crm");?></div>
                     <div id="cgrab_html_form" class="hide">
-                        
-    <div class='zbs_form_content_wrap <?php if($zbsfs == 'cgrab'){ echo 'embed-selected';} ?>'>&lt;iframe src='<?php echo esc_html( $formRoot ); ?>/content/?fid=<?php echo esc_html( $formID ); ?>' height='700px' width='700px' style='border:0px!important'&gt;&lt;/iframe&gt;
+						<div class='zbs_form_content_wrap<?php echo esc_attr( $zbsfs === 'cgrab' ? ' embed-selected' : '' ); ?>'>&lt;iframe src='<?php echo esc_html( $formRoot ); ?>/content/?fid=<?php echo esc_html( $formID ); ?>' height='700px' width='700px' style='border:0!important'&gt;&lt;/iframe&gt;
     </div> <!-- end form content grab -->
                     </div>
 
@@ -434,7 +433,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
                     </div>
                     <div class="caption"><?php esc_html_e("Simple Style","zero-bs-crm");?></div>
                     <div id="simple_html_form" class="hide">
-                        <div class='zbs_form_content_wrap <?php if($zbsfs == 'simple'){ echo 'embed-selected';} ?>'>&lt;iframe src='<?php echo esc_html( $formRoot ); ?>/simple/?fid=<?php echo esc_html( $formID ); ?>' height='300px' width='700px' style='border:0px!important'&gt;&lt;/iframe&gt;
+						<div class='zbs_form_content_wrap<?php echo esc_attr( $zbsfs === 'simple' ? ' embed-selected' : '' ); ?>'>&lt;iframe src='<?php echo esc_html( $formRoot ); ?>/simple/?fid=<?php echo esc_html( $formID ); ?>' height='300px' width='700px' style='border:0!important'&gt;&lt;/iframe&gt;
                         </div> <!-- end form content grab -->
                     </div>
                 </div>
@@ -443,13 +442,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
             </div>
-            <?php /* WH removed, don't seem to be meaningfully used?
-            ... moved into proper vars to stop this usage.
-            <div id="zbs_form_css" data-css="<?php echo $formcss; ?>"></div>
-            <div id="zbs_form_js" data-js="<?php echo $formjs; ?>"></div>
-            <div id="zbs_form_action" data-zbsformaction="<?php echo esc_url( admin_url('admin-post.php') ); ?>"></div>
-
-            */ ?>
+            <?php /* phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>
 
 
             <script type="text/javascript">

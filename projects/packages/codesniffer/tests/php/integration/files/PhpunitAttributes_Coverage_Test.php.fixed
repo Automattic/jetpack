@@ -1,0 +1,132 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.FunctionComment.Missing
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+// phpcs:disable Jetpack.PHPUnit.TestClassName.DoesNotMatchFileName
+
+namespace Xyz;
+
+use NS\UsedTrait;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\UsesFunction;
+use PHPUnit\Framework\Attributes\UsesMethod;
+use PHPUnit\Framework\Attributes\UsesTrait;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @covers ::function
+ * @covers Xyz\LocalClass
+ * @covers RootClass::method
+ * @covers NS\SomeClass
+ * @covers NS\UsedTrait
+ * @uses ::ufunction
+ * @uses Xyz\ULocalClass
+ * @uses RootClass::umethod
+ * @uses NS\USomeClass
+ * @uses NS\UsedTrait
+ */
+#[CoversClass( \NS\SomeClass::class )]
+#[CoversClass( LocalClass::class )]
+#[CoversFunction( 'function' )]
+#[CoversMethod( \RootClass::class, 'method' )]
+#[CoversTrait( UsedTrait::class )]
+#[UsesClass( \NS\USomeClass::class )]
+#[UsesClass( ULocalClass::class )]
+#[UsesFunction( 'ufunction' )]
+#[UsesMethod( \RootClass::class, 'umethod' )]
+#[UsesTrait( UsedTrait::class )]
+class AnnotationsTest extends TestCase {
+	use UsedTrait;
+}
+
+/**
+ * @covers \NS\SomeClass
+ * @covers \Xyz\LocalClass
+ * @covers ::function
+ * @covers \RootClass::method
+ * @covers \NS\UsedTrait
+ * @uses \NS\USomeClass
+ * @uses \Xyz\ULocalClass
+ * @uses ::ufunction
+ * @uses \RootClass::umethod
+ * @uses \NS\UsedTrait
+ */
+#[CoversFunction( 'function' )]
+#[CoversClass( LocalClass::class )]
+#[CoversMethod( \RootClass::class, 'method' )]
+#[CoversClass( \NS\SomeClass::class )]
+#[CoversTrait( UsedTrait::class )]
+#[UsesFunction( 'ufunction' )]
+#[UsesClass( ULocalClass::class )]
+#[UsesMethod( \RootClass::class, 'umethod' )]
+#[UsesClass( \NS\USomeClass::class )]
+#[UsesTrait( UsedTrait::class )]
+class AttributesTest extends TestCase {
+	use UsedTrait;
+}
+
+/**
+ * @covers TSomething
+ * @uses NotATrait
+ */
+#[CoversTrait( \TSomething::class )]
+#[UsesClass( \NotATrait::class )]
+class TraitVsClassTest extends TestCase {
+}
+
+/**
+ * @covers \OneOfTheseIsWrong
+ */
+#[CoversClass( \OneOfTheseIsWrong::class )]
+#[CoversTrait( \OneOfTheseIsWrong::class )]
+class TraitAndClassTest extends TestCase {
+}
+
+/**
+ * @coversDefaultClass CoverClass
+ * @usesDefaultClass UseClass
+ * @covers ::cmethod
+ * @uses ::umethod
+ */
+#[CoversMethod( \CoverClass::class, 'cmethod' )]
+#[UsesMethod( \UseClass::class, 'umethod' )]
+class DefaultClassTest extends TestCase {
+}
+
+/**
+ * @coversDefaultClass CoverClass
+ * @usesDefaultClass UseClass
+ * @covers Other::cmethod
+ * @uses Other::umethod
+ */
+#[CoversMethod( \Other::class, 'cmethod' )]
+#[UsesMethod( \Other::class, 'umethod' )]
+class UnusedDefaultClassTest extends TestCase {
+}
+
+/**
+ * @coversDefaultClass CoverClass
+ * @coversDefaultClass CoverClass2
+ * @usesDefaultClass UseClass
+ * @usesDefaultClass UseClass2
+ * @covers ::cmethod
+ */
+class MultipleDefautClassTest extends TestCase {
+}
+
+/**
+ * @covers ::function()
+ * @covers ::yes_this_is_weird()()(((())))
+ * @covers X::yes this is weird too
+ * @covers X::and::this::too
+ */
+#[CoversFunction( 'function' )]
+#[CoversFunction( 'yes_this_is_weird' )]
+#[CoversMethod( 'X', 'yes' )]
+#[CoversMethod( 'X', 'and' )]
+class OtherEdgeCasesTest extends TestCase {
+}

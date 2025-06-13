@@ -44,7 +44,15 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 
 	const slideContainerRef = useRef( undefined );
 	const [ maxSlideWidth, setMaxSlideWidth ] = useState( null );
-	const [ resizeListener, { width, height } ] = useResizeObserver();
+	const setElement = useResizeObserver(
+		resizeObserverEntries => {
+			const width = resizeObserverEntries[ 0 ]?.contentRect.width;
+			if ( width ) {
+				setMaxSlideWidth( width );
+			}
+		},
+		{ box: 'border-box' }
+	);
 	const [ targetAspectRatio, setTargetAspectRatio ] = useState( settings.defaultAspectRatio );
 	const uploading = some( slides, media => isBlobURL( media.url ) );
 	const isVideo = slideIndex => {
@@ -112,29 +120,21 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 
 	// Max slide width is used to display the story in portrait mode on desktop
 	useLayoutEffect( () => {
-		if ( ! slideContainerRef.current ) {
+		const containerHeight = slideContainerRef?.current.offsetHeight;
+		if ( ! slideContainerRef.current || ! settings.defaultAspectRatio || containerHeight <= 0 ) {
 			return;
 		}
-		let ratioBasedWidth = Math.round(
-			settings.defaultAspectRatio * slideContainerRef.current.offsetHeight
-		);
+		setElement( slideContainerRef.current );
+		let ratioBasedWidth = Math.round( settings.defaultAspectRatio * containerHeight );
 		if ( fullscreen ) {
+			const width = slideContainerRef.current.offsetWidth; // Get the current width
 			ratioBasedWidth =
 				Math.abs( 1 - ratioBasedWidth / width ) < settings.cropUpTo ? width : ratioBasedWidth;
 		}
 		setMaxSlideWidth( ratioBasedWidth );
+		setTargetAspectRatio( ratioBasedWidth / containerHeight );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ width, height, fullscreen ] );
-
-	useLayoutEffect( () => {
-		if (
-			maxSlideWidth &&
-			slideContainerRef.current &&
-			slideContainerRef.current.offsetHeight > 0
-		) {
-			setTargetAspectRatio( maxSlideWidth / slideContainerRef.current.offsetHeight );
-		}
-	}, [ maxSlideWidth ] );
+	}, [ setElement, fullscreen ] );
 
 	let label;
 	if ( fullscreen ) {
@@ -159,7 +159,6 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 	/* eslint-disable jsx-a11y/click-events-have-key-events */
 	return (
 		<div className="wp-story-display-contents">
-			{ resizeListener }
 			<div
 				role={ role }
 				aria-label={ label }

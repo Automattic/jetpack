@@ -8,7 +8,7 @@
 
 .jp-ms-data-time input[type="text"] {
 	text-align: right;
-	width: 2.1em;
+	width: 3.2em;
 }
 
 .jp-ms-data-time .month {
@@ -18,15 +18,6 @@
 
 .jp-ms-data-time .year[type="text"] {
 	text-align: right;
-	width: 3.2em;
-}
-
-.jp-ms-data-time input[type="text"] {
-	text-align: right;
-	width: 3.2em;
-}
-
-.jp-ms-data-time .year[type="text"] {
 	width: 4.5em;
 }
 

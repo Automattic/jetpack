@@ -9,7 +9,7 @@
 	},
 	"require-dev": {
 		"brain/monkey": "^2.6.2",
-		"yoast/phpunit-polyfills": "^3.0.0",
+		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-plans": "@dev",
@@ -53,7 +53,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "5.1.x-dev"
+			"dev-trunk": "5.2.x-dev"
 		},
 		"dependencies": {
 			"test-only": [

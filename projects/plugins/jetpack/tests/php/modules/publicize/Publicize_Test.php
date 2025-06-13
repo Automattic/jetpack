@@ -3,6 +3,8 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
 
 use Automattic\Jetpack\Publicize\Publicize;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 
 if ( ! function_exists( 'publicize_init' ) ) {
 	/**
@@ -23,6 +25,8 @@ if ( ! function_exists( 'publicize_init' ) ) {
  * @group publicize
  * @covers Automattic\Jetpack\Publicize\Publicize
  */
+#[Group( 'publicize' )]
+#[CoversClass( Publicize::class )]
 class Publicize_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

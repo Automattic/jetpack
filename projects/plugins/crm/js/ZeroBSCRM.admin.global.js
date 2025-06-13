@@ -8,7 +8,7 @@
  * Date: 17/06/2016
  */
 /* eslint-disable jsdoc/require-description, jsdoc/require-param-description, jsdoc/require-param-type, jsdoc/require-returns */
-/* global moment, ajaxurl, swal, Bloodhound, hopscotch */
+/* global moment, ajaxurl, swal, Bloodhound, hopscotch, zbsTour */
 jQuery( function () {
 	// THIS IS FOR POTENTIALLY GLOBAL STUFF ONLY! NO SPECIFICS (E>G> INVOICING)
 
@@ -187,7 +187,7 @@ function zbscrm_JS_adminMenuDropdown() {
 			}
 
 			if ( typeof window.zbscrmjs_hopscotch_squash === 'undefined' ) {
-				hopscotch.startTour( window.zbsTour, 0 );
+				hopscotch.startTour( zbsTour, 0 );
 			}
 		}
 	} );

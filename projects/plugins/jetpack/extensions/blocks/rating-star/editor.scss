@@ -1,11 +1,9 @@
 // Editor only styles
+
 .jetpack-ratings-button {
 	cursor: pointer;
-}
 
-// Control symbol outline when focus and hover.
-.jetpack-ratings-button {
-
+	// Control symbol outline when focus and hover.
 	&:focus {
 		border: none;
 		outline: none;

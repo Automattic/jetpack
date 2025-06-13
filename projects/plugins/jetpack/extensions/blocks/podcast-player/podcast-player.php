@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 use Jetpack_Podcast_Helper;
 
@@ -59,7 +60,7 @@ function render_error( $message ) {
  */
 function render_block( $attributes, $content ) {
 	// Don't render an interactive version of the block outside the frontend context.
-	if ( ! jetpack_is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		return $content;
 	}
 

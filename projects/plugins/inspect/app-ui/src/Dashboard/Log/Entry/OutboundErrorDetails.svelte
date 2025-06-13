@@ -16,7 +16,7 @@
 	</TabList>
 
 	<TabPanel>
-		{#each Object.entries( details.error.errors ) as [error, name]}
+		{#each Object.entries( details.error.errors ) as [error, name] (error)}
 			<h4>{name}</h4>
 			<p>{error}</p>
 		{/each}

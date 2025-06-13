@@ -40,10 +40,22 @@ export function getCurrentVersion( state ) {
 	return get( state.jetpack.initialState, 'currentVersion', '' );
 }
 
+/**
+ * Returns an object of the current site roles.
+ *
+ * @param {object} state - Global state tree
+ * @return {object} Site roles
+ */
 export function getSiteRoles( state ) {
 	return get( state.jetpack.initialState.stats, 'roles', {} );
 }
 
+/**
+ * Returns the initial state of the stats data.
+ *
+ * @param {object} state - Global state tree
+ * @return {object} The initial state of the stats data.
+ */
 export function getInitialStateStatsData( state ) {
 	return get( state.jetpack.initialState.stats, 'data' );
 }
@@ -78,34 +90,82 @@ export function getCurrenUserEmailAddress( state ) {
 	return get( state.jetpack.initialState, [ 'userData', 'currentUser', 'email' ] );
 }
 
+/**
+ * Returns the site's raw url.
+ *
+ * @param {object} state - Global state tree
+ * @return {object} The site's raw url.
+ */
 export function getSiteRawUrl( state ) {
 	return get( state.jetpack.initialState, 'rawUrl', {} );
 }
 
+/**
+ * Returns the site's admin url.
+ *
+ * @param {object} state - Global state tree
+ * @return {object} The site's admin url.
+ */
 export function getSiteAdminUrl( state ) {
 	return get( state.jetpack.initialState, 'adminUrl', {} );
 }
 
+/**
+ * Returns the site title.
+ *
+ * @param {object} state - Global state tree
+ * @return {string} The site's title.
+ */
 export function getSiteTitle( state ) {
 	return get( state.jetpack.initialState, 'siteTitle', '' );
 }
 
+/**
+ * Return whether or not the site is public.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether the site is public.
+ */
 export function isSitePublic( state ) {
 	return get( state.jetpack.initialState, [ 'connectionStatus', 'isPublic' ] );
 }
 
+/**
+ * Return whether or not Gutenberg is available.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether Gutenberg is available.
+ */
 export function isGutenbergAvailable( state ) {
 	return get( state.jetpack.initialState, 'is_gutenberg_available', false );
 }
 
+/**
+ * Return whether or not the current user is a subscriber on the site.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether the current user is a subscriber.
+ */
 export function userIsSubscriber( state ) {
 	return ! get( state.jetpack.initialState.userData.currentUser.permissions, 'edit_posts', false );
 }
 
+/**
+ * Return whether or not the user can publish posts.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether the user can publish posts.
+ */
 export function userCanPublish( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'publish_posts', false );
 }
 
+/**
+ * Return whether or not the user can manage modules.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether the user can manage modules.
+ */
 export function userCanManageModules( state ) {
 	return get(
 		state.jetpack.initialState.userData.currentUser.permissions,
@@ -114,6 +174,12 @@ export function userCanManageModules( state ) {
 	);
 }
 
+/**
+ * Return whether or not the user can manage options.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether the user can manage options.
+ */
 export function userCanManageOptions( state ) {
 	return get(
 		state.jetpack.initialState.userData.currentUser.permissions,
@@ -148,10 +214,22 @@ export function userCanManagePlugins( state ) {
 	);
 }
 
+/**
+ * Returns true if the user has permission to disconnect the site.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether the user can disconnect the site.
+ */
 export function userCanDisconnectSite( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'disconnect', false );
 }
 
+/**
+ * Returns true if the user has permission to connect the site.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether the user can connect the site.
+ */
 export function userCanConnectSite( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect', false );
 }
@@ -179,6 +257,12 @@ export function userIsMaster( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, 'isMaster', false );
 }
 
+/**
+ * Return the current user's WordPress.com login.
+ *
+ * @param {object} state - Global state tree
+ * @return {string} The WordPress.com login of the current user.
+ */
 export function getUserWpComLogin( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'login' ], '' );
 }
@@ -193,18 +277,42 @@ export function getUserWpComId( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'ID' ], '' );
 }
 
+/**
+ * Return the current user's WordPress.com email.
+ *
+ * @param {object} state - Global state tree
+ * @return {string} The WordPress.com email of the current user.
+ */
 export function getUserWpComEmail( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'email' ], '' );
 }
 
+/**
+ * Return the current user's WordPress.com avatar URL.
+ *
+ * @param {object} state - Global state tree
+ * @return {string} The WordPress.com avatar URL of the current user.
+ */
 export function getUserWpComAvatar( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'avatar' ] );
 }
 
+/**
+ * Return the current user's WordPress.com Gravatar.
+ *
+ * @param {object} state - Global state tree
+ * @return {string} The WordPress.com Gravatar of the current user.
+ */
 export function getUserGravatar( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'gravatar' ] );
 }
 
+/**
+ * Return the current user's username.
+ *
+ * @param {object} state - Global state tree
+ * @return {string} The username of the current user.
+ */
 export function getUsername( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'username' ] );
 }
@@ -230,6 +338,12 @@ export function getUserId( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, 'id', '' );
 }
 
+/**
+ * Return whether the current user can view stats.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether the current user can view stats.
+ */
 export function userCanViewStats( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'view_stats', false );
 }
@@ -276,10 +390,22 @@ export function getLatestBoostSpeedScores( state ) {
 	return get( state.jetpack.initialState.siteData, [ 'latestBoostSpeedScores' ] );
 }
 
+/**
+ * Return the WP API nonce.
+ *
+ * @param {object} state - Global state tree
+ * @return {string} The WP API nonce.
+ */
 export function getApiNonce( state ) {
 	return get( state.jetpack.initialState, 'WP_API_nonce' );
 }
 
+/**
+ * Return the WP API root URL.
+ *
+ * @param {object} state - Global state tree
+ * @return {string} The WP API root URL.
+ */
 export function getApiRootUrl( state ) {
 	return get( state.jetpack.initialState, 'WP_API_root' );
 }
@@ -327,10 +453,22 @@ export function getCalypsoEnv( state ) {
 	return get( state.jetpack.initialState, 'calypsoEnv' );
 }
 
+/**
+ * Returns the current user tracks data.
+ *
+ * @param { object } state - Global state tree
+ * @return { object } The current user tracks data.
+ */
 export function getTracksUserData( state ) {
 	return get( state.jetpack.initialState, 'tracksUserData' );
 }
 
+/**
+ * Return the current IP address of the site.
+ *
+ * @param {object} state - Global state tree
+ * @return {string} The current IP address of the site.
+ */
 export function getCurrentIp( state ) {
 	return get( state.jetpack.initialState, 'currentIp' );
 }
@@ -381,6 +519,7 @@ export function isWoASite( state ) {
 
 /**
  * Check if the site is an Atomic-hosted site.
+ * Examples include Jurassic Ninja, BlueHost on Atomic, etc.
  *
  * @param {object} state - Global state tree.
  * @return {boolean} True if this is an Atomic-hosted site, false otherwise.

@@ -10,6 +10,8 @@
 namespace Automattic\Jetpack;
 
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,6 +20,7 @@ use PHPUnit\Framework\TestCase;
  * @package Automattic\jetpack-connection
  * @covers Automattic\Jetpack\Partner_Coupon
  */
+#[CoversClass( Partner_Coupon::class )]
 class Partner_Coupon_Test extends TestCase {
 
 	const PRODUCT = array(
@@ -185,6 +188,7 @@ class Partner_Coupon_Test extends TestCase {
 	 * @param int  $added_date Timestamp for added date.
 	 * @param bool $purged If we expect the coupon to be purged or not.
 	 */
+	#[DataProvider( 'dataprovider_purge_dates' )]
 	public function test_maybe_purge_coupon_by_added_date( $added_date, $purged ) {
 		$this->setup_coupon();
 		$coupon_code = sprintf( '%s_%s_%s', self::PARTNER['prefix'], self::PRESET['code'], 'abc123' );
@@ -249,6 +253,7 @@ class Partner_Coupon_Test extends TestCase {
 	 * @param array $mock_response Data used to mock response.
 	 * @param bool  $expectation The expected assertion result.
 	 */
+	#[DataProvider( 'dataprovider_availability_check_scenarios' )]
 	public function test_maybe_purge_coupon_by_availability_check( $mock_response, $expectation ) {
 		$this->setup_coupon();
 		$coupon_code = sprintf( '%s_%s_%s', self::PARTNER['prefix'], self::PRESET['code'], 'abc123' );

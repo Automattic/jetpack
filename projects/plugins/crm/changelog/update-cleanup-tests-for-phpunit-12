@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Update `WP_UnitTestCase_Fix` with a simple annotation parser for `@expectedDeprecated` and `@expectedIncorrectUsage`.
+
+

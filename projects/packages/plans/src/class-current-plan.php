@@ -146,7 +146,9 @@ class Current_Plan {
 				'jetpack_complete_monthly',
 				'vip',
 			),
-			'supports' => array(),
+			'supports' => array(
+				'field-file', // Forms
+			),
 		),
 	);
 

@@ -1,11 +1,15 @@
 <?php
 
 use Automattic\Jetpack\Blocks;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers \Automattic\Jetpack\Blocks
  * @covers \Jetpack_Gutenberg
  */
+#[CoversClass( Blocks::class )]
+#[CoversClass( Jetpack_Gutenberg::class )]
 class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -204,6 +208,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * @param string $url       Original URL.
 	 * @param object $assertion Assertion on the result.
 	 */
+	#[DataProvider( 'provider_invalid_urls' )]
 	public function test_validate_normalizes_invalid_domain_url( $url, $assertion ) {
 		$allowed_hosts = array( 'calendar.google.com' );
 

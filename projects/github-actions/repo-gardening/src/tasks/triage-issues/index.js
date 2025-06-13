@@ -148,17 +148,19 @@ async function triageIssues( payload, octokit ) {
 			}
 		}
 
-		// Use OpenAI to automatically add labels to issues.
-		const issueLabels = await aiLabeling( payload, octokit );
+		// If AI Labeling is enabled, use OpenAI to automatically add labels to issues.
+		if ( getInput( 'ai_labeling_enabled' ) === 'true' ) {
+			const issueLabels = await aiLabeling( payload, octokit );
 
-		// At this point, if we still miss a [Type] label, a [Feature] label, or a [Pri] label, ask the author to add it.
-		const requiredLabelTypes = [ /^\[Type\]/, /^\[Pri/, /^\[[^\]]*Feature/ ];
-		const missingLabelTypes = requiredLabelTypes.filter(
-			requiredLabelType => ! issueLabels.some( label => requiredLabelType.test( label ) )
-		);
+			// At this point, if we still miss a [Type] label, a [Feature] label, or a [Pri] label, ask the author to add it.
+			const requiredLabelTypes = [ /^\[Type\]/, /^\[Pri/, /^\[[^\]]*Feature/ ];
+			const missingLabelTypes = requiredLabelTypes.filter(
+				requiredLabelType => ! issueLabels.some( label => requiredLabelType.test( label ) )
+			);
 
-		if ( missingLabelTypes.length > 0 ) {
-			await addCommentAskLabels( octokit, ownerLogin, authorLogin, name, number );
+			if ( missingLabelTypes.length > 0 ) {
+				await addCommentAskLabels( octokit, ownerLogin, authorLogin, name, number );
+			}
 		}
 	}
 

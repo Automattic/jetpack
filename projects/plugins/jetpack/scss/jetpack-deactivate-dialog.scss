@@ -1,5 +1,7 @@
-@import '../_inc/client/scss/variables/colors';
-@import '../_inc/client/scss/calypso-colors';
+@use 'sass:color';
+@use '../_inc/client/scss/variables/colors';
+@use '../_inc/client/scss/functions/colors' as colorfuncs;
+@use '../_inc/client/scss/calypso-colors';
 
 #TB_window.jetpack-disconnect-modal {
 
@@ -16,18 +18,18 @@
 		font-weight: 600;
 		height: 24px;
 		padding: 24px;
-		color: $wpui-header-dark;
+		color: colors.$wpui-header-dark;
 	}
 
 	#TB_ajaxWindowTitle {
-		padding-left: 0px;
+		padding-left: 0;
 		margin-top: -2px; // compensate line height and vertical align the title
 	}
 
 	#TB_ajaxContent {
 
 		width: auto !important;
-		padding: 0px;
+		padding: 0;
 		max-height: 435px;
 
 		@media screen and (min-width: 661px) {
@@ -37,7 +39,7 @@
 		.jetpack_deactivation_dialog_content {
 			padding: 24px;
 			padding-bottom: 80px;
-			margin-top: 0px;
+			margin-top: 0;
 
 			@media screen and (min-width: 661px) {
 				padding-bottom: 24px;
@@ -46,7 +48,7 @@
 			p {
 				font-size: 16px;
 				line-height: 24px;
-				margin-top: 0px;
+				margin-top: 0;
 			}
 
 			ul {
@@ -62,7 +64,7 @@
 						vertical-align: middle;
 
 						&.dashicons {
-							color: $alert-hot-red;
+							color: colors.$alert-hot-red;
 						}
 
 					}
@@ -77,7 +79,7 @@
 	#TB_closeWindowButton {
 		left: auto;
 		right: 22px;
-		color: $wpui-dark-medium-gray;
+		color: colors.$wpui-dark-medium-gray;
 		top: 22px;
 
 		&::after {
@@ -89,7 +91,7 @@
 
 		&:hover,
 		&:focus {
-			color: $gray;
+			color: colors.$gray;
 			outline: none;
 			box-shadow: none;
 		}
@@ -101,10 +103,10 @@
 
 	.jetpack_deactivation_dialog_content__buttons-row-container {
 		position: absolute;
-		bottom: 0px;
+		bottom: 0;
 		width: 100%;
-		border-top: 1px solid $light-gray-700;
-		background-color: $white;
+		border-top: 1px solid calypso-colors.$light-gray-700;
+		background-color: colors.$white;
 	}
 
 	.jetpack_deactivation_dialog_content__buttons-row {
@@ -123,10 +125,9 @@
 		p {
 			font-size: 13px;
 			line-height: 1.5;
-			margin-top: auto;
-			margin-bottom: 0px;
-			margin-top: 0px;
-			padding-top: 0px;
+			margin-bottom: 0;
+			margin-top: 0;
+			padding-top: 0;
 
 			@media screen and (min-width: 661px) {
 				padding-top: 5px;
@@ -137,17 +138,16 @@
 		.jetpack_deactivation_dialog_content__buttons {
 
 			button {
-				background: $blue-grey-light;
-				border-color: $blue-medium-dark;
+				background: calypso-colors.$blue-grey-light;
+				border-color: calypso-colors.$blue-medium-dark;
 				border-style: solid;
 				border-width: 1px;
-				color: $blue-medium-dark;
+				color: calypso-colors.$blue-medium-dark;
 				cursor: pointer;
 				display: inline-block;
 				margin: 0;
 				outline: 0;
 				overflow: hidden;
-				font-size: 14px;
 				text-overflow: ellipsis;
 				text-decoration: none;
 				vertical-align: top;
@@ -162,21 +162,21 @@
 				margin-bottom: 18px;
 
 				@media screen and (min-width: 661px) {
-					margin-bottom: 0px;
+					margin-bottom: 0;
 					margin-left: 18px;
 					width: auto;
 				}
 
 				&#jetpack_deactivation_dialog_content__button-deactivate {
-					background: $alert-red;
-					border-color: darken( $alert-red, 20% );
-					color: $white;
-					margin-bottom: 0px;
+					background: colors.$alert-red;
+					border-color: color.adjust( colors.$alert-red, $lightness: -20% );
+					color: colors.$white;
+					margin-bottom: 0;
 
 					&[disabled],
 					&:disabled {
-						background: lighten( $alert-red, 20% );
-						border-color: tint( $alert-red, 30% );
+						background: color.adjust( colors.$alert-red, $lightness: 20% );
+						border-color: colorfuncs.tint( colors.$alert-red, 30% );
 					}
 				}
 			}

@@ -9,6 +9,7 @@ use Automattic\Jetpack\Waf\Waf_Operators;
 use Automattic\Jetpack\Waf\Waf_Request;
 use Automattic\Jetpack\Waf\Waf_Runtime;
 use Automattic\Jetpack\Waf\Waf_Transforms;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Runtime test suite.
@@ -25,6 +26,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 * @param array{0: string, 1: scalar}[]               $expected_names_and_values  Array of key/value tuples, where `key` is the name of one of the three mocked items, and `value` is its value.
 	 * @param string                                      $second_name_regex          RegEx pattern that will match only the second item in the list.
 	 */
+	#[DataProvider( 'provideArrayTargets' )]
 	public function testArrayTargets( $runtimeFactory, $target_name, $expected_names_and_values, $second_name_regex ) {
 		$runtime = $runtimeFactory( $this );
 
@@ -111,6 +113,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 * @param string[]                                    $expected_names     Array of names that are expected to be found in the target.
 	 * @param string                                      $second_name_regex  RegEx pattern that will match only the second item in the list.
 	 */
+	#[DataProvider( 'provideArrayTargetsNames' )]
 	public function testArrayTargetsNames( $runtimeFactory, $target_name, $expected_names, $second_name_regex ) {
 		$runtime = $runtimeFactory( $this );
 

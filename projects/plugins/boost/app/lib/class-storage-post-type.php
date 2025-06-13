@@ -96,6 +96,8 @@ class Storage_Post_Type {
 		} else {
 			wp_insert_post( $data_post_data );
 		}
+
+		delete_transient( $this->post_type_slug() . '_' . $key );
 	}
 
 	/**
@@ -107,7 +109,7 @@ class Storage_Post_Type {
 	 * @return mixed
 	 */
 	public function get( $key, $default ) {
-		$cached = wp_cache_get( $key, $this->post_type_slug() );
+		$cached = get_transient( $this->post_type_slug() . '_' . $key );
 		if ( $cached ) {
 			return $cached;
 		}
@@ -142,7 +144,7 @@ class Storage_Post_Type {
 			return $default;
 		}
 
-		wp_cache_set( $key, $value['data'], $this->post_type_slug(), HOUR_IN_SECONDS );
+		set_transient( $this->post_type_slug() . '_' . $key, $value['data'], HOUR_IN_SECONDS );
 
 		return $value['data'];
 	}
@@ -231,6 +233,19 @@ class Storage_Post_Type {
 			array( '%s' )
 		);
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete(
+			$wpdb->options,
+			array( 'option_name' => '_transient_' . $this->post_type_slug() . '_%' ),
+			array( '%s' )
+		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete(
+			$wpdb->options,
+			array( 'option_name' => '_transient_timeout_' . $this->post_type_slug() . '_%' ),
+			array( '%s' )
+		);
+
 		wp_cache_flush_group( $this->post_type_slug() );
 	}
 
@@ -247,9 +262,21 @@ class Storage_Post_Type {
 			)
 		);
 
+		$keys = array();
 		foreach ( $posts as $post ) {
 			wp_delete_post( $post->ID, true );
 			wp_cache_delete( $post->post_name, $this->post_type_slug() );
+			$keys[] = '_transient_' . $this->post_type_slug() . '_' . $post->post_name;
+			$keys[] = '_transient_timeout_' . $this->post_type_slug() . '_' . $post->post_name;
+		}
+
+		if ( empty( $keys ) ) {
+			return;
+		}
+
+		foreach ( $posts as $post ) {
+			$key = $this->post_type_slug() . '_' . $post->post_name;
+			delete_transient( $key );
 		}
 	}
 }

@@ -1,0 +1,100 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.FunctionComment.Missing
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+// phpcs:disable Jetpack.PHPUnit.TestClassName.DoesNotMatchFileName
+
+namespace Xyz;
+
+use NS\UsedClass;
+use PHPUnit\Framework\Attributes\ExcludeGlobalVariableFromBackup;
+use PHPUnit\Framework\Attributes\ExcludeStaticPropertyFromBackup;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @excludeGlobalVariableFromBackup foo
+ * @excludeStaticPropertyFromBackup Xyz\LocalClass var1
+ * @excludeStaticPropertyFromBackup RootClass var2
+ * @excludeStaticPropertyFromBackup NS\SomeClass var3
+ * @excludeStaticPropertyFromBackup NS\UsedClass var4
+ */
+class AnnotationsTest extends TestCase {
+	/**
+	 * @excludeGlobalVariableFromBackup foo
+	 * @excludeStaticPropertyFromBackup Xyz\LocalClass var1
+	 * @excludeStaticPropertyFromBackup RootClass var2
+	 * @excludeStaticPropertyFromBackup NS\SomeClass var3
+	 * @excludeStaticPropertyFromBackup NS\UsedClass var4
+	 */
+	public function testMethodAnnotations() {
+		UsedClass::foo();
+	}
+
+	/**
+	 * @excludeGlobalVariableFromBackup foo
+	 * @excludeStaticPropertyFromBackup Xyz\LocalClass var1
+	 * @excludeStaticPropertyFromBackup RootClass var2
+	 * @excludeStaticPropertyFromBackup NS\SomeClass var3
+	 * @excludeStaticPropertyFromBackup NS\UsedClass var4
+	 */
+	#[ExcludeGlobalVariableFromBackup( 'foo' )]
+	#[ExcludeStaticPropertyFromBackup( LocalClass::class, 'var1' )]
+	#[ExcludeStaticPropertyFromBackup( \RootClass::class, 'var2' )]
+	#[ExcludeStaticPropertyFromBackup( \NS\SomeClass::class, 'var3' )]
+	#[ExcludeStaticPropertyFromBackup( UsedClass::class, 'var4' )]
+	public function testHasBothAlready() {
+		UsedClass::foo();
+	}
+
+	/**
+	 * @excludeStaticPropertyFromBackup Xyz\LocalClass var1
+	 * @excludeStaticPropertyFromBackup RootClass var2
+	 * @excludeStaticPropertyFromBackup NS\SomeClass var3
+	 * @excludeStaticPropertyFromBackup NS\UsedClass var4
+	 */
+	#[ExcludeStaticPropertyFromBackup( 'Xyz\\LocalClass', 'var1' )]
+	#[ExcludeStaticPropertyFromBackup( 'RootClass', 'var2' )]
+	#[ExcludeStaticPropertyFromBackup( 'NS\\SomeClass', 'var3' )]
+	#[ExcludeStaticPropertyFromBackup( 'NS\\UsedClass', 'var4' )]
+	public function testHasBothAlreadyQuoted() {
+		UsedClass::foo();
+	}
+
+	/**
+	 * @excludeStaticPropertyFromBackup Xyz\LocalClass var1
+	 * @excludeStaticPropertyFromBackup RootClass var2
+	 * @excludeStaticPropertyFromBackup NS\SomeClass var3
+	 * @excludeStaticPropertyFromBackup NS\UsedClass var4
+	 */
+	#[ExcludeStaticPropertyFromBackup( '\\Xyz\\LocalClass', 'var1' )]
+	#[ExcludeStaticPropertyFromBackup( '\\RootClass', 'var2' )]
+	#[ExcludeStaticPropertyFromBackup( '\\NS\\SomeClass', 'var3' )]
+	#[ExcludeStaticPropertyFromBackup( '\\NS\\UsedClass', 'var4' )]
+	public function testHasBothAlreadyQuotedWithLeadingBackslash() {
+		UsedClass::foo();
+	}
+
+	#[ExcludeGlobalVariableFromBackup()]
+	#[ExcludeStaticPropertyFromBackup()]
+	#[ExcludeStaticPropertyFromBackup( \RootClass::class )]
+	#[ExcludeStaticPropertyFromBackup( 42, 'var' )]
+	#[ExcludeStaticPropertyFromBackup( self::class, 'var' )]
+	public function badAttributes() {
+	}
+
+	/**
+	 * @excludeStaticPropertyFromBackup foo
+	 * @excludeStaticPropertyFromBackup foo bar baz
+	 */
+	public function badAnnotations() {
+	}
+}
+
+/**
+ * @excludeGlobalVariableFromBackup foo
+ * @excludeStaticPropertyFromBackup Xyz\LocalClass var1
+ */
+#[ExcludeGlobalVariableFromBackup( 'foo' )]
+#[ExcludeStaticPropertyFromBackup( LocalClass::class, 'var1' )]
+class Annotations2Test extends TestCase {
+}

@@ -7,6 +7,7 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 
@@ -38,6 +39,7 @@ class Jetpack_Plan_Test extends TestCase {
 	/**
 	 * @dataProvider get_update_from_sites_response_data
 	 */
+	#[DataProvider( 'get_update_from_sites_response_data' )]
 	public function test_update_from_sites_response( $response, $expected_plan_slug_after, $expected_return, $initial_option = null ) {
 
 		if ( $initial_option !== null ) {

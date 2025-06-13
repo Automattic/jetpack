@@ -1,4 +1,4 @@
-import formatCurrency from '@automattic/format-currency';
+import { formatCurrency } from '@automattic/number-formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';
@@ -108,6 +108,11 @@ export const saveProduct =
 export const setSubscriberCounts = subscriberCounts => ( {
 	type: 'SET_SUBSCRIBER_COUNTS',
 	subscriberCounts,
+} );
+
+export const setTotalEmailsSentCount = totalEmailsSentCount => ( {
+	type: 'SET_TOTAL_EMAILS_SENT_COUNT',
+	totalEmailsSentCount,
 } );
 
 export const setNewsletterCategories = newsletterCategories => ( {

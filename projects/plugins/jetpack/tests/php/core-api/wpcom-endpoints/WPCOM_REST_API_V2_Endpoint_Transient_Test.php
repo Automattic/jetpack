@@ -3,6 +3,7 @@
  * Tests for /wpcom/v2/transients endpoints.
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use WpOrg\Requests\Requests;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
@@ -12,6 +13,7 @@ require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
  *
  * @covers \WPCOM_REST_API_V2_Endpoint_Transient
  */
+#[CoversClass( WPCOM_REST_API_V2_Endpoint_Transient::class )]
 class WPCOM_REST_API_V2_Endpoint_Transient_Test extends Jetpack_REST_TestCase {
 
 	/**

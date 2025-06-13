@@ -181,6 +181,7 @@ div.sd-box {
 	padding-right: 5px;
 	background-repeat: no-repeat;
 	background-size: 16px 16px;
+	// stylelint-disable-next-line function-url-quotes -- quotes are required here. Bug report: https://github.com/stylelint/stylelint/issues/8544
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='0' fill='none' width='24' height='24'/%3E%3Cg%3E%3Cpath fill='%232EA2CC' d='M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304'/%3E%3C/g%3E%3C/svg%3E");
 }
 

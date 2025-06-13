@@ -1,7 +1,7 @@
 === Jetpack Classic Theme Helper Plugin ===
 Contributors: automattic,
 Tags: jetpack, stuff
-Requires at least: 6.6
+Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.8
 Stable tag: 0.1.0-alpha

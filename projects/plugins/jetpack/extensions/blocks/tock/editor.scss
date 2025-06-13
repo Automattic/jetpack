@@ -1,4 +1,4 @@
-@import './style';
+@use 'style';
 
 .jetpack-tock-url-settings {
 	margin: 8px;
@@ -9,7 +9,7 @@
 	max-width: 300px;
 	min-width: auto;
 
-	& .components-text-control__input {
+	.components-text-control__input {
 		padding: 10px 36px 10px 10px;
 	}
 }
@@ -25,5 +25,5 @@
 .jetpack-tock-url-input-action {
 	position: absolute;
 	right: 14px;
-	top: 0px;
+	top: 0;
 }

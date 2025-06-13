@@ -14,6 +14,8 @@ use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
 use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
 use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
 
@@ -24,6 +26,7 @@ require_once __DIR__ . '/tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation\Automation_Workflow
  */
+#[CoversClass( Automation_Workflow::class )]
 class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
@@ -37,6 +40,7 @@ class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Automation workflow initialization.
 	 */
+	#[TestDox( 'Automation workflow initialization.' )]
 	public function test_automation_workflow_init() {
 
 		$workflow_data = $this->automation_faker->basic_workflow();
@@ -49,6 +53,7 @@ class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Automation workflow with no triggers.
 	 */
+	#[TestDox( 'Automation workflow with no triggers.' )]
 	public function test_automation_workflow_no_triggers() {
 		$workflow_data = $this->automation_faker->empty_workflow();
 
@@ -60,6 +65,7 @@ class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Automation workflow set initial step.
 	 */
+	#[TestDox( 'Automation workflow set initial step.' )]
 	public function test_automation_workflow_set_initial_step() {
 		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
@@ -90,6 +96,7 @@ class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Automation workflow with multiple triggers.
 	 */
+	#[TestDox( 'Automation workflow with multiple triggers.' )]
 	public function test_workflow_triggers() {
 		$workflow_data = $this->automation_faker->basic_workflow();
 
@@ -110,6 +117,7 @@ class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Testing turn on/off the workflow, to activate/deactivate it.
 	 */
+	#[TestDox( 'Testing turn on/off the workflow, to activate/deactivate it.' )]
 	public function test_workflow_turn_on_off() {
 		$workflow_data = $this->automation_faker->basic_workflow();
 
@@ -125,6 +133,7 @@ class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Testing the workflow execution if it's not active.
 	 */
+	#[TestDox( 'Testing the workflow execution if it\'s not active.' )]
 	public function test_workflow_execution_not_active() {
 
 		$automation = new Automation_Engine();
@@ -162,6 +171,7 @@ class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test an automation workflow execution on contact_created event.
 	 */
+	#[TestDox( 'Test an automation workflow execution on contact_created event.' )]
 	public function test_workflow_execution_on_contact_created() {
 
 		$logger = Automation_Logger::instance( true );
@@ -209,6 +219,7 @@ class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test an automation workflow execution with a dummy action.
 	 */
+	#[TestDox( 'Test an automation workflow execution with a dummy action.' )]
 	public function test_workflow_execution_with_dummy_action() {
 
 		$logger = Automation_Logger::instance( true );
@@ -256,6 +267,7 @@ class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Ensure that we throw an error if a workflow is executed without an engine.
 	 */
+	#[TestDox( 'Ensure that we throw an error if a workflow is executed without an engine.' )]
 	public function test_workflow_execution_without_engine() {
 		$workflow_data = $this->automation_faker->basic_workflow();
 		$workflow      = new Automation_Workflow( $workflow_data );
@@ -269,6 +281,7 @@ class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test an automation workflow execution with condition => true.
 	 */
+	#[TestDox( 'Test an automation workflow execution with condition => true.' )]
 	public function test_workflow_execution_with_condition_true() {
 		$logger = Automation_Logger::instance( true );
 		$logger->reset_log();
@@ -307,6 +320,7 @@ class Automation_Workflow_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test an automation workflow execution with condition => false.
 	 */
+	#[TestDox( 'Test an automation workflow execution with condition => false.' )]
 	public function test_workflow_execution_with_condition_false() {
 		$logger = Automation_Logger::instance( true );
 		$logger->reset_log();

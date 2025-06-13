@@ -1,6 +1,10 @@
 .line-chart {
 	position: relative;
 
+	svg {
+		overflow: visible;
+	}
+
 	&__tooltip {
 		background: #fff;
 		padding: 0.5rem;
@@ -21,5 +25,13 @@
 	&__tooltip-label {
 		font-weight: 500;
 		padding-right: 1rem;
+	}
+}
+
+:global(.visx-tooltip-glyph) {
+
+	svg {
+		width: 10px;
+		height: 10px;
 	}
 }

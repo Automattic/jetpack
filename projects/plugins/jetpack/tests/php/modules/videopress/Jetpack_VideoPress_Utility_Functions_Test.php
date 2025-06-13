@@ -7,6 +7,10 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Tests Jetpack_VideoPress_Utility_Functions
  *
@@ -15,6 +19,10 @@
  * @covers ::videopress_get_post_id_by_guid
  * @covers \VIDEOPRESS_PRIVACY
  */
+#[CoversClass( VIDEOPRESS_PRIVACY::class )]
+#[CoversFunction( 'jetpack_videopress_flash_embed_filter' )]
+#[CoversFunction( 'videopress_get_post_by_guid' )]
+#[CoversFunction( 'videopress_get_post_id_by_guid' )]
 class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -61,6 +69,7 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 * @param string      $cache_key_base The base of the cache key.
 	 * @param string|null $cache_group The cache group, if any.
 	 */
+	#[DataProvider( 'get_data_test_video_non_cached' )]
 	public function test_non_cached_videopress_get_post_by_guid( $callback, $should_cache_object, $cache_key_base, $cache_group = null ) {
 		$guid          = wp_generate_uuid4();
 		$expected_id   = videopress_create_new_media_item( 'Example', $guid );
@@ -116,6 +125,7 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 * @param bool        $should_cache_object Whether the entire WP_Post should be cached, or simply the post ID.
 	 * @param string|null $cache_group The cache group, if any.
 	 */
+	#[DataProvider( 'get_data_test_video_cached' )]
 	public function test_cached_videopress_get_post_by_guid( $callback, $should_cache_object, $cache_group = null ) {
 		$guid            = wp_generate_uuid4();
 		$attachment_id   = videopress_create_new_media_item( 'Example Title', $guid );
@@ -163,6 +173,7 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 *
 	 * @param mixed $invalid_cached_value A cached value that should be ignored.
 	 */
+	#[DataProvider( 'get_data_cached_invalid' )]
 	public function test_cached_invalid_videopress_get_post_by_guid( $invalid_cached_value ) {
 		$guid          = wp_generate_uuid4();
 		$attachment_id = videopress_create_new_media_item( 'Example Title', $guid );
@@ -183,6 +194,7 @@ class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	 * @param int $expected The expected privacy constant value.
 	 * @param int $actual   The actual privacy constant value.
 	 */
+	#[DataProvider( 'privacy_settings_data_provider' )]
 	public function test_videopress_privacy_settings_constants( $expected, $actual ) {
 		$this->assertEquals( $expected, $actual );
 	}

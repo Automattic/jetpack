@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\Blogroll_Item;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'blogroll-item';
@@ -83,7 +84,7 @@ HTML;
 		$placeholder_site_icon = 'empty-site-icon';
 	}
 
-	if ( ! jetpack_is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		return <<<HTML
 			<div style="margin-bottom: 10px;">
 				<a href="$url">$name</a><div>$description</div>

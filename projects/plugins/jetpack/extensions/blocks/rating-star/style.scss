@@ -1,9 +1,9 @@
-@import '../../shared/styles/jetpack-variables';
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use '../../shared/styles/jetpack-variables';
 
 // Editor and View styles
 .wp-block-jetpack-rating-star {
-	margin-bottom: $jetpack-block-margin-bottom;
+	margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 	line-height: 0;
 	stroke-width: 0;
 
@@ -16,7 +16,7 @@
 		margin-inline-end: 0.3em;
 
 		// Mimic core focus style.
-		border-radius: $radius-block-ui;
+		border-radius: gb.$radius-block-ui;
 
 		&:focus {
 			box-shadow: 0 0 0 1px currentColor;
@@ -32,7 +32,6 @@
 		// These rules hide the element visually, but not to screen readers.
 		border: 0;
 		clip: rect(1px,1px,1px,1px);
-		-webkit-clip-path: inset(50%);
 		clip-path: inset(50%);
 		height: 1px;
 		margin: -1px;
@@ -43,14 +42,12 @@
 		word-wrap: normal !important;
 	}
 
-	// The !important is necessary to override the inline style.
-	> span {
-		display: inline-flex !important;
-	}
-
-	// Put the star together.
 	// This immediate span is a whole star.
-	> span { // Frontend.
+	> span {
+		// The !important is necessary to override the inline style.
+		display: inline-flex !important;
+
+		// Put the star together.
 		margin-inline-end: 0.3em;
 	}
 
@@ -87,9 +84,5 @@
 		.is-rating-unfilled {
 			fill: transparent;
 		}
-	}
-
-	.jetpack-ratings-button {
-		margin-inline-end: 0.3em;
 	}
 }

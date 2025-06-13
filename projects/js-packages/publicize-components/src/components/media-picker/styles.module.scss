@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .preview-wrapper {
 	position: relative;
@@ -56,7 +56,7 @@
 }
 
 .subtitle {
-	color: $gray-700;
+	color: gb.$gray-700;
 	font-size: 12px;
 	font-weight: 400;
 	line-height: 16px;
@@ -72,7 +72,7 @@
 	cursor: pointer;
 }
 
-.remove {
+.remove, %remove {
 	position: absolute;
 	top: -4px;
 	right: -4px;
@@ -82,7 +82,6 @@
 	justify-content: center;
 	align-items: center;
 	appearance: none;
-	border: 0;
 	padding: 0;
 	margin: 0;
 	cursor: pointer;
@@ -104,7 +103,7 @@
 
 .remove-loading {
 
-	@extend .remove;
+	@extend %remove;
 	// This is to make the close button appear in the right place when we are loading the image.
 	// With this it is possible to close/stop loading images if the request takes too long.
 	top: -56px;

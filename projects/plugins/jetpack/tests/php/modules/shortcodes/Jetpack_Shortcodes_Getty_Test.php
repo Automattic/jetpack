@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\Group;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 class Jetpack_Shortcodes_Getty_Test extends WP_UnitTestCase {
@@ -175,6 +177,7 @@ class Jetpack_Shortcodes_Getty_Test extends WP_UnitTestCase {
 	 *
 	 * @since 4.5.0
 	 */
+	#[Group( 'external-http' )]
 	public function test_shortcodes_getty_image_via_oembed_http_request() {
 		$image_id = '82278805';
 		$content  = "[getty src='$image_id']";

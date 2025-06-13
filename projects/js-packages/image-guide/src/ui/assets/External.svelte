@@ -8,7 +8,7 @@
 	svg {
 		width: 1em;
 		height: 1em;
-		margin: 0px;
+		margin: 0;
 		vertical-align: middle;
 		fill: currentcolor;
 	}

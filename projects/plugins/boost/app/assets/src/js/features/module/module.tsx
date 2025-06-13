@@ -7,6 +7,8 @@ import { __ } from '@wordpress/i18n';
 import { isWoaHosting } from '$lib/utils/hosting';
 import { useNotices } from '$features/notice/context';
 import { createInterpolateElement } from '@wordpress/element';
+import { ExternalLink } from '@wordpress/components';
+import Pill from '$features/ui/pill/pill';
 
 type ModuleProps = {
 	title: React.ReactNode;
@@ -97,7 +99,12 @@ const Module = ( {
 			</div>
 
 			<div className={ styles.content }>
-				<h3>{ title }</h3>
+				<h3>
+					{ title }
+					{ Jetpack_Boost.developmentFeatures.includes( slug ) && (
+						<Pill text={ __( 'Under Development', 'jetpack-boost' ) } variant="red" />
+					) }
+				</h3>
 
 				<div className={ styles.description }>{ description }</div>
 
@@ -129,10 +136,7 @@ export default ( props: ModuleProps ) => {
 										),
 										{
 											link: (
-												// eslint-disable-next-line jsx-a11y/anchor-has-content
-												<a
-													target="_blank"
-													rel="noopener noreferrer"
+												<ExternalLink
 													href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
 												/>
 											),

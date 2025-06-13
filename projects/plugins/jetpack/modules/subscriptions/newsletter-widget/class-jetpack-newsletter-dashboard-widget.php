@@ -96,6 +96,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 				array(
 					'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
 					'config_data'          => static::get_config_data(),
+					'load_minified_js'     => false,
 				)
 			);
 
@@ -132,22 +133,6 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	/**
 	 * Load the admin scripts for the Jetpack Newsletter widget.
 	 *
-	 * @return void
-	 */
-	public static function admin_init() {
-		static::load_admin_scripts(
-			'jp-newsletter-widget',
-			'newsletter-widget',
-			array(
-				'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
-				'config_data'          => static::get_config_data(),
-			)
-		);
-	}
-
-	/**
-	 * Load the admin scripts for the Jetpack Newsletter widget.
-	 *
 	 * @param string $asset_handle The handle of the asset.
 	 * @param string $asset_name The name of the asset.
 	 * @param array  $options The options for the asset.
@@ -158,6 +143,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			'config_data'          => array(),
 			'config_variable_name' => 'configData',
 			'enqueue_css'          => true,
+			'load_minified_js'     => true,
 		);
 		$options         = wp_parse_args( $options, $default_options );
 
@@ -174,15 +160,22 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			$version      = $asset['version'];
 		}
 
+		$file_extension = '.min.js';
+		if ( ! $options['load_minified_js'] ) {
+			$file_extension = '.js';
+		}
 		// Register and enqueue the script
 		wp_register_script(
 			$asset_handle,
-			plugins_url( '_inc/build/' . $asset_name . '.min.js', JETPACK__PLUGIN_FILE ),
+			plugins_url( '_inc/build/' . $asset_name . $file_extension, JETPACK__PLUGIN_FILE ),
 			$dependencies,
 			$version,
 			true
 		);
 		wp_enqueue_script( $asset_handle );
+		if ( in_array( 'wp-i18n', $dependencies, true ) ) {
+			wp_set_script_translations( $asset_handle, 'jetpack' );
+		}
 
 		// Enqueue the CSS if enabled
 		if ( $options['enqueue_css'] ) {

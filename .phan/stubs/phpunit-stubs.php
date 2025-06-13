@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 11.5.17
+ * Stubs automatically generated from PHPUnit 12.2.1
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -144,6 +144,8 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
     {
     }
     /**
+     * @param non-empty-string $filename
+     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
@@ -151,6 +153,10 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
     {
     }
     /**
+     * @param non-empty-string $filename
+     * @param non-empty-string $name
+     * @param non-empty-string $version
+     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
@@ -261,7 +267,14 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function testPreparationFailed(\PHPUnit\Event\Code\Test $test): void
+    public function testPreparationErrored(\PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable): void
+    {
+    }
+    /**
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testPreparationFailed(\PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable): void
     {
     }
     /**
@@ -288,61 +301,72 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
+    public function beforeFirstTestMethodFailed(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
+    {
+    }
+    /**
+     * @param class-string $testClassName
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
     public function beforeFirstTestMethodFinished(string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void
     {
     }
     /**
-     * @param class-string $testClassName
-     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function beforeTestMethodCalled(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod): void
+    public function beforeTestMethodCalled(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod): void
     {
     }
     /**
-     * @param class-string $testClassName
-     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function beforeTestMethodErrored(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
+    public function beforeTestMethodErrored(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
     {
     }
     /**
-     * @param class-string $testClassName
-     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function beforeTestMethodFinished(string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void
+    public function beforeTestMethodFailed(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
     {
     }
     /**
-     * @param class-string $testClassName
-     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function preConditionCalled(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod): void
+    public function beforeTestMethodFinished(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void
     {
     }
     /**
-     * @param class-string $testClassName
-     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function preConditionErrored(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
+    public function preConditionCalled(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod): void
     {
     }
     /**
-     * @param class-string $testClassName
-     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function preConditionFinished(string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void
+    public function preConditionErrored(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
+    {
+    }
+    /**
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function preConditionFailed(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
+    {
+    }
+    /**
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function preConditionFinished(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void
     {
     }
     /**
@@ -380,52 +404,12 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
     {
     }
     /**
-     * @param trait-string $traitName
-     *
-     * @throws InvalidArgumentException
-     * @throws UnknownEventTypeException
-     */
-    public function testCreatedMockObjectForTrait(string $traitName): void
-    {
-    }
-    /**
-     * @param class-string $className
-     *
-     * @throws InvalidArgumentException
-     * @throws UnknownEventTypeException
-     */
-    public function testCreatedMockObjectForAbstractClass(string $className): void
-    {
-    }
-    /**
-     * @param class-string $originalClassName
-     * @param class-string $mockClassName
-     * @param list<string> $methods
-     * @param list<mixed>  $options
-     *
-     * @throws InvalidArgumentException
-     * @throws UnknownEventTypeException
-     */
-    public function testCreatedMockObjectFromWsdl(string $wsdlFile, string $originalClassName, string $mockClassName, array $methods, bool $callOriginalConstructor, array $options): void
-    {
-    }
-    /**
      * @param class-string $className
      *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
     public function testCreatedPartialMockObject(string $className, string ...$methodNames): void
-    {
-    }
-    /**
-     * @param class-string $className
-     * @param list<mixed>  $constructorArguments
-     *
-     * @throws InvalidArgumentException
-     * @throws UnknownEventTypeException
-     */
-    public function testCreatedTestProxy(string $className, array $constructorArguments): void
     {
     }
     /**
@@ -496,6 +480,16 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
      * @throws UnknownEventTypeException
      */
     public function testTriggeredPhpunitDeprecation(?\PHPUnit\Event\Code\Test $test, string $message): void
+    {
+    }
+    /**
+     * @param non-empty-string $message
+     *
+     * @throws InvalidArgumentException
+     * @throws Code\NoTestCaseObjectOnCallStackException
+     * @throws UnknownEventTypeException
+     */
+    public function testTriggeredPhpunitNotice(?\PHPUnit\Event\Code\Test $test, string $message): void
     {
     }
     /**
@@ -604,6 +598,17 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
     {
     }
     /**
+     * @param non-empty-string $additionalInformation
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testProvidedAdditionalInformation(\PHPUnit\Event\Code\TestMethod $test, string $additionalInformation): void
+    {
+    }
+    /**
+     * @param non-negative-int $numberOfAssertionsPerformed
+     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
@@ -611,57 +616,59 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
     {
     }
     /**
-     * @param class-string $testClassName
-     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function postConditionCalled(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod): void
+    public function postConditionCalled(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod): void
     {
     }
     /**
-     * @param class-string $testClassName
-     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function postConditionErrored(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
+    public function postConditionErrored(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
     {
     }
     /**
-     * @param class-string $testClassName
-     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function postConditionFinished(string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void
+    public function postConditionFailed(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
     {
     }
     /**
-     * @param class-string $testClassName
-     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function afterTestMethodCalled(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod): void
+    public function postConditionFinished(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void
     {
     }
     /**
-     * @param class-string $testClassName
-     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function afterTestMethodErrored(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
+    public function afterTestMethodCalled(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod): void
     {
     }
     /**
-     * @param class-string $testClassName
-     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function afterTestMethodFinished(string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void
+    public function afterTestMethodErrored(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
+    {
+    }
+    /**
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function afterTestMethodFailed(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
+    {
+    }
+    /**
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function afterTestMethodFinished(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void
     {
     }
     /**
@@ -688,6 +695,15 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
+    public function afterLastTestMethodFailed(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void
+    {
+    }
+    /**
+     * @param class-string $testClassName
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
     public function afterLastTestMethodFinished(string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void
     {
     }
@@ -702,10 +718,40 @@ final class DispatchingEmitter implements \PHPUnit\Event\Emitter
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
+    public function testRunnerStartedStaticAnalysisForCodeCoverage(): void
+    {
+    }
+    /**
+     * @param non-negative-int $cacheHits
+     * @param non-negative-int $cacheMisses
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testRunnerFinishedStaticAnalysisForCodeCoverage(int $cacheHits, int $cacheMisses): void
+    {
+    }
+    /**
+     * @param non-empty-string $message
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
     public function testRunnerTriggeredPhpunitDeprecation(string $message): void
     {
     }
     /**
+     * @param non-empty-string $message
+     *
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testRunnerTriggeredPhpunitNotice(string $message): void
+    {
+    }
+    /**
+     * @param non-empty-string $message
+     *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
@@ -758,7 +804,15 @@ interface Emitter
     public function applicationStarted(): void;
     public function testRunnerStarted(): void;
     public function testRunnerConfigured(\PHPUnit\TextUI\Configuration\Configuration $configuration): void;
+    /**
+     * @param non-empty-string $filename
+     */
     public function testRunnerBootstrapFinished(string $filename): void;
+    /**
+     * @param non-empty-string $filename
+     * @param non-empty-string $name
+     * @param non-empty-string $version
+     */
     public function testRunnerLoadedExtensionFromPhar(string $filename, string $name, string $version): void;
     /**
      * @param class-string          $className
@@ -774,10 +828,14 @@ interface Emitter
     public function testRunnerExecutionStarted(\PHPUnit\Event\TestSuite\TestSuite $testSuite): void;
     public function testRunnerDisabledGarbageCollection(): void;
     public function testRunnerTriggeredGarbageCollection(): void;
+    /**
+     * @param non-empty-string $message
+     */
     public function testSuiteSkipped(\PHPUnit\Event\TestSuite\TestSuite $testSuite, string $message): void;
     public function testSuiteStarted(\PHPUnit\Event\TestSuite\TestSuite $testSuite): void;
     public function testPreparationStarted(\PHPUnit\Event\Code\Test $test): void;
-    public function testPreparationFailed(\PHPUnit\Event\Code\Test $test): void;
+    public function testPreparationErrored(\PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable): void;
+    public function testPreparationFailed(\PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable): void;
     /**
      * @param class-string $testClassName
      */
@@ -789,31 +847,19 @@ interface Emitter
     /**
      * @param class-string $testClassName
      */
+    public function beforeFirstTestMethodFailed(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
+    /**
+     * @param class-string $testClassName
+     */
     public function beforeFirstTestMethodFinished(string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void;
-    /**
-     * @param class-string $testClassName
-     */
-    public function beforeTestMethodCalled(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod): void;
-    /**
-     * @param class-string $testClassName
-     */
-    public function beforeTestMethodErrored(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
-    /**
-     * @param class-string $testClassName
-     */
-    public function beforeTestMethodFinished(string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void;
-    /**
-     * @param class-string $testClassName
-     */
-    public function preConditionCalled(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod): void;
-    /**
-     * @param class-string $testClassName
-     */
-    public function preConditionErrored(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
-    /**
-     * @param class-string $testClassName
-     */
-    public function preConditionFinished(string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void;
+    public function beforeTestMethodCalled(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod): void;
+    public function beforeTestMethodErrored(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
+    public function beforeTestMethodFailed(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
+    public function beforeTestMethodFinished(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void;
+    public function preConditionCalled(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod): void;
+    public function preConditionErrored(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
+    public function preConditionFailed(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
+    public function preConditionFinished(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void;
     public function testPrepared(\PHPUnit\Event\Code\Test $test): void;
     /**
      * @param class-string $className
@@ -828,29 +874,9 @@ interface Emitter
      */
     public function testCreatedMockObjectForIntersectionOfInterfaces(array $interfaces): void;
     /**
-     * @param trait-string $traitName
-     */
-    public function testCreatedMockObjectForTrait(string $traitName): void;
-    /**
-     * @param class-string $className
-     */
-    public function testCreatedMockObjectForAbstractClass(string $className): void;
-    /**
-     * @param class-string $originalClassName
-     * @param class-string $mockClassName
-     * @param list<string> $methods
-     * @param list<mixed>  $options
-     */
-    public function testCreatedMockObjectFromWsdl(string $wsdlFile, string $originalClassName, string $mockClassName, array $methods, bool $callOriginalConstructor, array $options): void;
-    /**
      * @param class-string $className
      */
     public function testCreatedPartialMockObject(string $className, string ...$methodNames): void;
-    /**
-     * @param class-string $className
-     * @param list<mixed>  $constructorArguments
-     */
-    public function testCreatedTestProxy(string $className, array $constructorArguments): void;
     /**
      * @param class-string $className
      */
@@ -875,6 +901,10 @@ interface Emitter
      * @param non-empty-string $message
      */
     public function testTriggeredPhpunitDeprecation(?\PHPUnit\Event\Code\Test $test, string $message): void;
+    /**
+     * @param non-empty-string $message
+     */
+    public function testTriggeredPhpunitNotice(?\PHPUnit\Event\Code\Test $test, string $message): void;
     /**
      * @param non-empty-string $message
      * @param non-empty-string $file
@@ -930,31 +960,22 @@ interface Emitter
      * @param non-empty-string $output
      */
     public function testPrintedUnexpectedOutput(string $output): void;
+    /**
+     * @param non-empty-string $additionalInformation
+     */
+    public function testProvidedAdditionalInformation(\PHPUnit\Event\Code\TestMethod $test, string $additionalInformation): void;
+    /**
+     * @param non-negative-int $numberOfAssertionsPerformed
+     */
     public function testFinished(\PHPUnit\Event\Code\Test $test, int $numberOfAssertionsPerformed): void;
-    /**
-     * @param class-string $testClassName
-     */
-    public function postConditionCalled(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod): void;
-    /**
-     * @param class-string $testClassName
-     */
-    public function postConditionErrored(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
-    /**
-     * @param class-string $testClassName
-     */
-    public function postConditionFinished(string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void;
-    /**
-     * @param class-string $testClassName
-     */
-    public function afterTestMethodCalled(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod): void;
-    /**
-     * @param class-string $testClassName
-     */
-    public function afterTestMethodErrored(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
-    /**
-     * @param class-string $testClassName
-     */
-    public function afterTestMethodFinished(string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void;
+    public function postConditionCalled(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod): void;
+    public function postConditionErrored(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
+    public function postConditionFailed(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
+    public function postConditionFinished(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void;
+    public function afterTestMethodCalled(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod): void;
+    public function afterTestMethodErrored(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
+    public function afterTestMethodFailed(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
+    public function afterTestMethodFinished(\PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void;
     /**
      * @param class-string $testClassName
      */
@@ -966,11 +987,31 @@ interface Emitter
     /**
      * @param class-string $testClassName
      */
+    public function afterLastTestMethodFailed(string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable): void;
+    /**
+     * @param class-string $testClassName
+     */
     public function afterLastTestMethodFinished(string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods): void;
     public function testSuiteFinished(\PHPUnit\Event\TestSuite\TestSuite $testSuite): void;
     public function testRunnerStartedChildProcess(): void;
     public function testRunnerFinishedChildProcess(string $stdout, string $stderr): void;
+    public function testRunnerStartedStaticAnalysisForCodeCoverage(): void;
+    /**
+     * @param non-negative-int $cacheHits
+     * @param non-negative-int $cacheMisses
+     */
+    public function testRunnerFinishedStaticAnalysisForCodeCoverage(int $cacheHits, int $cacheMisses): void;
+    /**
+     * @param non-empty-string $message
+     */
     public function testRunnerTriggeredPhpunitDeprecation(string $message): void;
+    /**
+     * @param non-empty-string $message
+     */
+    public function testRunnerTriggeredPhpunitNotice(string $message): void;
+    /**
+     * @param non-empty-string $message
+     */
     public function testRunnerTriggeredPhpunitWarning(string $message): void;
     public function testRunnerEnabledGarbageCollection(): void;
     public function testRunnerExecutionAborted(): void;
@@ -984,6 +1025,9 @@ interface Emitter
 interface Event
 {
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info;
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string;
 }
 /**
@@ -1233,6 +1277,9 @@ final readonly class Finished implements \PHPUnit\Event\Event
     public function shellExitCode(): int
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -1260,6 +1307,9 @@ final readonly class Started implements \PHPUnit\Event\Event
     public function runtime(): \PHPUnit\Event\Runtime\Runtime
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -1925,7 +1975,7 @@ final readonly class Duration
  */
 final readonly class GarbageCollectorStatus
 {
-    public function __construct(int $runs, int $collected, int $threshold, int $roots, ?float $applicationTime, ?float $collectorTime, ?float $destructorTime, ?float $freeTime, ?bool $running, ?bool $protected, ?bool $full, ?int $bufferSize)
+    public function __construct(int $runs, int $collected, int $threshold, int $roots, float $applicationTime, float $collectorTime, float $destructorTime, float $freeTime, bool $running, bool $protected, bool $full, int $bufferSize)
     {
     }
     public function runs(): int
@@ -1940,64 +1990,27 @@ final readonly class GarbageCollectorStatus
     public function roots(): int
     {
     }
-    /**
-     * @phpstan-assert-if-true !null $this->applicationTime
-     * @phpstan-assert-if-true !null $this->collectorTime
-     * @phpstan-assert-if-true !null $this->destructorTime
-     * @phpstan-assert-if-true !null $this->freeTime
-     * @phpstan-assert-if-true !null $this->running
-     * @phpstan-assert-if-true !null $this->protected
-     * @phpstan-assert-if-true !null $this->full
-     * @phpstan-assert-if-true !null $this->bufferSize
-     */
-    public function hasExtendedInformation(): bool
-    {
-    }
-    /**
-     * @throws \PHPUnit\Event\RuntimeException on PHP < 8.3
-     */
     public function applicationTime(): float
     {
     }
-    /**
-     * @throws \PHPUnit\Event\RuntimeException on PHP < 8.3
-     */
     public function collectorTime(): float
     {
     }
-    /**
-     * @throws \PHPUnit\Event\RuntimeException on PHP < 8.3
-     */
     public function destructorTime(): float
     {
     }
-    /**
-     * @throws \PHPUnit\Event\RuntimeException on PHP < 8.3
-     */
     public function freeTime(): float
     {
     }
-    /**
-     * @throws \PHPUnit\Event\RuntimeException on PHP < 8.3
-     */
     public function isRunning(): bool
     {
     }
-    /**
-     * @throws \PHPUnit\Event\RuntimeException on PHP < 8.3
-     */
     public function isProtected(): bool
     {
     }
-    /**
-     * @throws \PHPUnit\Event\RuntimeException on PHP < 8.3
-     */
     public function isFull(): bool
     {
     }
-    /**
-     * @throws \PHPUnit\Event\RuntimeException on PHP < 8.3
-     */
     public function bufferSize(): int
     {
     }
@@ -2100,30 +2113,6 @@ final readonly class MemoryUsage
     }
 }
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @codeCoverageIgnore
- */
-final readonly class Php81GarbageCollectorStatusProvider implements \PHPUnit\Event\Telemetry\GarbageCollectorStatusProvider
-{
-    public function status(): \PHPUnit\Event\Telemetry\GarbageCollectorStatus
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final readonly class Php83GarbageCollectorStatusProvider implements \PHPUnit\Event\Telemetry\GarbageCollectorStatusProvider
-{
-    public function status(): \PHPUnit\Event\Telemetry\GarbageCollectorStatus
-    {
-    }
-}
-/**
  * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -2166,6 +2155,17 @@ final readonly class System
     {
     }
     public function snapshot(): \PHPUnit\Event\Telemetry\Snapshot
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class SystemGarbageCollectorStatusProvider implements \PHPUnit\Event\Telemetry\GarbageCollectorStatusProvider
+{
+    public function status(): \PHPUnit\Event\Telemetry\GarbageCollectorStatus
     {
     }
 }
@@ -2223,6 +2223,45 @@ namespace PHPUnit\Event\Test;
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class AdditionalInformationProvided implements \PHPUnit\Event\Event
+{
+    /**
+     * @param non-empty-string $additionalInformation
+     */
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, string $additionalInformation)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function additionalInformation(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface AdditionalInformationProvidedSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\Test\AdditionalInformationProvided $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class ComparatorRegistered implements \PHPUnit\Event\Event
 {
     /**
@@ -2240,6 +2279,9 @@ final readonly class ComparatorRegistered implements \PHPUnit\Event\Event
     public function className(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2276,6 +2318,9 @@ final readonly class AfterLastTestMethodCalled implements \PHPUnit\Event\Event
     public function calledMethod(): \PHPUnit\Event\Code\ClassMethod
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2315,6 +2360,9 @@ final readonly class AfterLastTestMethodErrored implements \PHPUnit\Event\Event
     public function throwable(): \PHPUnit\Event\Code\Throwable
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2325,6 +2373,48 @@ final readonly class AfterLastTestMethodErrored implements \PHPUnit\Event\Event
 interface AfterLastTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
 {
     public function notify(\PHPUnit\Event\Test\AfterLastTestMethodErrored $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class AfterLastTestMethodFailed implements \PHPUnit\Event\Event
+{
+    /**
+     * @param class-string $testClassName
+     */
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    /**
+     * @return class-string
+     */
+    public function testClassName(): string
+    {
+    }
+    public function calledMethod(): \PHPUnit\Event\Code\ClassMethod
+    {
+    }
+    public function throwable(): \PHPUnit\Event\Code\Throwable
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface AfterLastTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\Test\AfterLastTestMethodFailed $event): void;
 }
 /**
  * @immutable
@@ -2354,6 +2444,9 @@ final readonly class AfterLastTestMethodFinished implements \PHPUnit\Event\Event
     public function calledMethods(): array
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2372,17 +2465,19 @@ interface AfterLastTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscribe
  */
 final readonly class AfterTestMethodCalled implements \PHPUnit\Event\Event
 {
-    /**
-     * @param class-string $testClassName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
@@ -2390,6 +2485,9 @@ final readonly class AfterTestMethodCalled implements \PHPUnit\Event\Event
     public function calledMethod(): \PHPUnit\Event\Code\ClassMethod
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2408,17 +2506,19 @@ interface AfterTestMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class AfterTestMethodErrored implements \PHPUnit\Event\Event
 {
-    /**
-     * @param class-string $testClassName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
@@ -2429,6 +2529,9 @@ final readonly class AfterTestMethodErrored implements \PHPUnit\Event\Event
     public function throwable(): \PHPUnit\Event\Code\Throwable
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2445,19 +2548,57 @@ interface AfterTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final readonly class AfterTestMethodFinished implements \PHPUnit\Event\Event
+final readonly class AfterTestMethodFailed implements \PHPUnit\Event\Event
 {
-    /**
-     * @param class-string $testClassName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
+    public function calledMethod(): \PHPUnit\Event\Code\ClassMethod
+    {
+    }
+    public function throwable(): \PHPUnit\Event\Code\Throwable
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface AfterTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\Test\AfterTestMethodFailed $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class AfterTestMethodFinished implements \PHPUnit\Event\Event
+{
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
@@ -2468,6 +2609,9 @@ final readonly class AfterTestMethodFinished implements \PHPUnit\Event\Event
     public function calledMethods(): array
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2504,6 +2648,9 @@ final readonly class BeforeFirstTestMethodCalled implements \PHPUnit\Event\Event
     public function calledMethod(): \PHPUnit\Event\Code\ClassMethod
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2543,6 +2690,9 @@ final readonly class BeforeFirstTestMethodErrored implements \PHPUnit\Event\Even
     public function throwable(): \PHPUnit\Event\Code\Throwable
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2553,6 +2703,48 @@ final readonly class BeforeFirstTestMethodErrored implements \PHPUnit\Event\Even
 interface BeforeFirstTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
 {
     public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodErrored $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class BeforeFirstTestMethodFailed implements \PHPUnit\Event\Event
+{
+    /**
+     * @param class-string $testClassName
+     */
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    /**
+     * @return class-string
+     */
+    public function testClassName(): string
+    {
+    }
+    public function calledMethod(): \PHPUnit\Event\Code\ClassMethod
+    {
+    }
+    public function throwable(): \PHPUnit\Event\Code\Throwable
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface BeforeFirstTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodFailed $event): void;
 }
 /**
  * @immutable
@@ -2582,6 +2774,9 @@ final readonly class BeforeFirstTestMethodFinished implements \PHPUnit\Event\Eve
     public function calledMethods(): array
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2600,17 +2795,19 @@ interface BeforeFirstTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscri
  */
 final readonly class BeforeTestMethodCalled implements \PHPUnit\Event\Event
 {
-    /**
-     * @param class-string $testClassName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
@@ -2618,6 +2815,9 @@ final readonly class BeforeTestMethodCalled implements \PHPUnit\Event\Event
     public function calledMethod(): \PHPUnit\Event\Code\ClassMethod
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2636,17 +2836,19 @@ interface BeforeTestMethodCalledSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class BeforeTestMethodErrored implements \PHPUnit\Event\Event
 {
-    /**
-     * @param class-string $testClassName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
@@ -2657,6 +2859,9 @@ final readonly class BeforeTestMethodErrored implements \PHPUnit\Event\Event
     public function throwable(): \PHPUnit\Event\Code\Throwable
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2673,19 +2878,57 @@ interface BeforeTestMethodErroredSubscriber extends \PHPUnit\Event\Subscriber
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final readonly class BeforeTestMethodFinished implements \PHPUnit\Event\Event
+final readonly class BeforeTestMethodFailed implements \PHPUnit\Event\Event
 {
-    /**
-     * @param class-string $testClassName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
+    public function calledMethod(): \PHPUnit\Event\Code\ClassMethod
+    {
+    }
+    public function throwable(): \PHPUnit\Event\Code\Throwable
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface BeforeTestMethodFailedSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\Test\BeforeTestMethodFailed $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class BeforeTestMethodFinished implements \PHPUnit\Event\Event
+{
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
@@ -2696,6 +2939,9 @@ final readonly class BeforeTestMethodFinished implements \PHPUnit\Event\Event
     public function calledMethods(): array
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2714,17 +2960,19 @@ interface BeforeTestMethodFinishedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PostConditionCalled implements \PHPUnit\Event\Event
 {
-    /**
-     * @param class-string $testClassName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
@@ -2732,6 +2980,9 @@ final readonly class PostConditionCalled implements \PHPUnit\Event\Event
     public function calledMethod(): \PHPUnit\Event\Code\ClassMethod
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2750,17 +3001,19 @@ interface PostConditionCalledSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PostConditionErrored implements \PHPUnit\Event\Event
 {
-    /**
-     * @param class-string $testClassName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
@@ -2771,6 +3024,9 @@ final readonly class PostConditionErrored implements \PHPUnit\Event\Event
     public function throwable(): \PHPUnit\Event\Code\Throwable
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2787,19 +3043,57 @@ interface PostConditionErroredSubscriber extends \PHPUnit\Event\Subscriber
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final readonly class PostConditionFinished implements \PHPUnit\Event\Event
+final readonly class PostConditionFailed implements \PHPUnit\Event\Event
 {
-    /**
-     * @param class-string $testClassName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
+    public function calledMethod(): \PHPUnit\Event\Code\ClassMethod
+    {
+    }
+    public function throwable(): \PHPUnit\Event\Code\Throwable
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface PostConditionFailedSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\Test\PostConditionFailed $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class PostConditionFinished implements \PHPUnit\Event\Event
+{
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
@@ -2810,6 +3104,9 @@ final readonly class PostConditionFinished implements \PHPUnit\Event\Event
     public function calledMethods(): array
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2828,17 +3125,19 @@ interface PostConditionFinishedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PreConditionCalled implements \PHPUnit\Event\Event
 {
-    /**
-     * @param class-string $testClassName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
@@ -2846,6 +3145,9 @@ final readonly class PreConditionCalled implements \PHPUnit\Event\Event
     public function calledMethod(): \PHPUnit\Event\Code\ClassMethod
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2864,17 +3166,19 @@ interface PreConditionCalledSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class PreConditionErrored implements \PHPUnit\Event\Event
 {
-    /**
-     * @param class-string $testClassName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
@@ -2885,6 +3189,9 @@ final readonly class PreConditionErrored implements \PHPUnit\Event\Event
     public function throwable(): \PHPUnit\Event\Code\Throwable
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2901,19 +3208,57 @@ interface PreConditionErroredSubscriber extends \PHPUnit\Event\Subscriber
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final readonly class PreConditionFinished implements \PHPUnit\Event\Event
+final readonly class PreConditionFailed implements \PHPUnit\Event\Event
 {
-    /**
-     * @param class-string $testClassName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $testClassName, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod $calledMethod, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
+    public function calledMethod(): \PHPUnit\Event\Code\ClassMethod
+    {
+    }
+    public function throwable(): \PHPUnit\Event\Code\Throwable
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface PreConditionFailedSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\Test\PreConditionFailed $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class PreConditionFinished implements \PHPUnit\Event\Event
+{
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\TestMethod $test, \PHPUnit\Event\Code\ClassMethod ...$calledMethods)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    public function test(): \PHPUnit\Event\Code\TestMethod
+    {
+    }
     /**
      * @return class-string
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6140
      */
     public function testClassName(): string
     {
@@ -2924,6 +3269,9 @@ final readonly class PreConditionFinished implements \PHPUnit\Event\Event
     public function calledMethods(): array
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -2960,6 +3308,9 @@ final readonly class ConsideredRisky implements \PHPUnit\Event\Event
     public function message(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3029,6 +3380,9 @@ final readonly class DeprecationTriggered implements \PHPUnit\Event\Event
     public function stackTrace(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3082,6 +3436,9 @@ final readonly class ErrorTriggered implements \PHPUnit\Event\Event
     public function wasSuppressed(): bool
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3138,6 +3495,9 @@ final readonly class NoticeTriggered implements \PHPUnit\Event\Event
     public function ignoredByBaseline(): bool
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3200,6 +3560,9 @@ final readonly class PhpDeprecationTriggered implements \PHPUnit\Event\Event
     public function trigger(): \PHPUnit\Event\Code\IssueTrigger\IssueTrigger
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3256,6 +3619,9 @@ final readonly class PhpNoticeTriggered implements \PHPUnit\Event\Event
     public function ignoredByBaseline(): bool
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3312,6 +3678,9 @@ final readonly class PhpWarningTriggered implements \PHPUnit\Event\Event
     public function ignoredByBaseline(): bool
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3348,6 +3717,9 @@ final readonly class PhpunitDeprecationTriggered implements \PHPUnit\Event\Event
     public function message(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3384,6 +3756,9 @@ final readonly class PhpunitErrorTriggered implements \PHPUnit\Event\Event
     public function message(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3394,6 +3769,45 @@ final readonly class PhpunitErrorTriggered implements \PHPUnit\Event\Event
 interface PhpunitErrorTriggeredSubscriber extends \PHPUnit\Event\Subscriber
 {
     public function notify(\PHPUnit\Event\Test\PhpunitErrorTriggered $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class PhpunitNoticeTriggered implements \PHPUnit\Event\Event
+{
+    /**
+     * @param non-empty-string $message
+     */
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, string $message)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    public function test(): \PHPUnit\Event\Code\Test
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function message(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface PhpunitNoticeTriggeredSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\Test\PhpunitNoticeTriggered $event): void;
 }
 /**
  * @immutable
@@ -3420,6 +3834,9 @@ final readonly class PhpunitWarningTriggered implements \PHPUnit\Event\Event
     public function message(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3476,6 +3893,9 @@ final readonly class WarningTriggered implements \PHPUnit\Event\Event
     public function ignoredByBaseline(): bool
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3506,6 +3926,9 @@ final readonly class DataProviderMethodCalled implements \PHPUnit\Event\Event
     public function dataProviderMethod(): \PHPUnit\Event\Code\ClassMethod
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3539,6 +3962,9 @@ final readonly class DataProviderMethodFinished implements \PHPUnit\Event\Event
     public function calledMethods(): array
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3557,6 +3983,9 @@ interface DataProviderMethodFinishedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class Finished implements \PHPUnit\Event\Event
 {
+    /**
+     * @param non-negative-int $numberOfAssertionsPerformed
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, int $numberOfAssertionsPerformed)
     {
     }
@@ -3566,9 +3995,15 @@ final readonly class Finished implements \PHPUnit\Event\Event
     public function test(): \PHPUnit\Event\Code\Test
     {
     }
+    /**
+     * @return non-negative-int
+     */
     public function numberOfAssertionsPerformed(): int
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3585,9 +4020,9 @@ interface FinishedSubscriber extends \PHPUnit\Event\Subscriber
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final readonly class PreparationFailed implements \PHPUnit\Event\Event
+final readonly class PreparationErrored implements \PHPUnit\Event\Event
 {
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test)
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
@@ -3596,6 +4031,45 @@ final readonly class PreparationFailed implements \PHPUnit\Event\Event
     public function test(): \PHPUnit\Event\Code\Test
     {
     }
+    public function throwable(): \PHPUnit\Event\Code\Throwable
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface PreparationErroredSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\Test\PreparationErrored $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class PreparationFailed implements \PHPUnit\Event\Event
+{
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, \PHPUnit\Event\Code\Test $test, \PHPUnit\Event\Code\Throwable $throwable)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    public function test(): \PHPUnit\Event\Code\Test
+    {
+    }
+    public function throwable(): \PHPUnit\Event\Code\Throwable
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3623,6 +4097,9 @@ final readonly class PreparationStarted implements \PHPUnit\Event\Event
     public function test(): \PHPUnit\Event\Code\Test
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3650,6 +4127,9 @@ final readonly class Prepared implements \PHPUnit\Event\Event
     public function test(): \PHPUnit\Event\Code\Test
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3680,6 +4160,9 @@ final readonly class Errored implements \PHPUnit\Event\Event
     public function throwable(): \PHPUnit\Event\Code\Throwable
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3722,6 +4205,9 @@ final readonly class Failed implements \PHPUnit\Event\Event
     public function comparisonFailure(): \PHPUnit\Event\Code\ComparisonFailure
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3752,6 +4238,9 @@ final readonly class MarkedIncomplete implements \PHPUnit\Event\Event
     public function throwable(): \PHPUnit\Event\Code\Throwable
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3779,6 +4268,9 @@ final readonly class Passed implements \PHPUnit\Event\Event
     public function test(): \PHPUnit\Event\Code\Test
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3809,6 +4301,9 @@ final readonly class Skipped implements \PHPUnit\Event\Event
     public function message(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3842,6 +4337,9 @@ final readonly class PrintedUnexpectedOutput implements \PHPUnit\Event\Event
     public function output(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3875,6 +4373,9 @@ final readonly class MockObjectCreated implements \PHPUnit\Event\Event
     public function className(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3885,39 +4386,6 @@ final readonly class MockObjectCreated implements \PHPUnit\Event\Event
 interface MockObjectCreatedSubscriber extends \PHPUnit\Event\Subscriber
 {
     public function notify(\PHPUnit\Event\Test\MockObjectCreated $event): void;
-}
-/**
- * @immutable
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final readonly class MockObjectForAbstractClassCreated implements \PHPUnit\Event\Event
-{
-    /**
-     * @param class-string $className
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $className)
-    {
-    }
-    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
-    {
-    }
-    /**
-     * @return class-string
-     */
-    public function className(): string
-    {
-    }
-    public function asString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-interface MockObjectForAbstractClassCreatedSubscriber extends \PHPUnit\Event\Subscriber
-{
-    public function notify(\PHPUnit\Event\Test\MockObjectForAbstractClassCreated $event): void;
 }
 /**
  * @immutable
@@ -3941,6 +4409,9 @@ final readonly class MockObjectForIntersectionOfInterfacesCreated implements \PH
     public function interfaces(): array
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -3951,99 +4422,6 @@ final readonly class MockObjectForIntersectionOfInterfacesCreated implements \PH
 interface MockObjectForIntersectionOfInterfacesCreatedSubscriber extends \PHPUnit\Event\Subscriber
 {
     public function notify(\PHPUnit\Event\Test\MockObjectForIntersectionOfInterfacesCreated $event): void;
-}
-/**
- * @immutable
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final readonly class MockObjectForTraitCreated implements \PHPUnit\Event\Event
-{
-    /**
-     * @param trait-string $traitName
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $traitName)
-    {
-    }
-    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
-    {
-    }
-    /**
-     * @return trait-string
-     */
-    public function traitName(): string
-    {
-    }
-    public function asString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-interface MockObjectForTraitCreatedSubscriber extends \PHPUnit\Event\Subscriber
-{
-    public function notify(\PHPUnit\Event\Test\MockObjectForTraitCreated $event): void;
-}
-/**
- * @immutable
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final readonly class MockObjectFromWsdlCreated implements \PHPUnit\Event\Event
-{
-    /**
-     * @param class-string $originalClassName
-     * @param class-string $mockClassName
-     * @param list<string> $methods
-     * @param list<mixed>  $options
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $wsdlFile, string $originalClassName, string $mockClassName, array $methods, bool $callOriginalConstructor, array $options)
-    {
-    }
-    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
-    {
-    }
-    public function wsdlFile(): string
-    {
-    }
-    /**
-     * @return class-string
-     */
-    public function originalClassName(): string
-    {
-    }
-    /**
-     * @return class-string
-     */
-    public function mockClassName(): string
-    {
-    }
-    /**
-     * @return list<string>
-     */
-    public function methods(): array
-    {
-    }
-    public function callOriginalConstructor(): bool
-    {
-    }
-    /**
-     * @return list<mixed>
-     */
-    public function options(): array
-    {
-    }
-    public function asString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-interface MockObjectFromWsdlCreatedSubscriber extends \PHPUnit\Event\Subscriber
-{
-    public function notify(\PHPUnit\Event\Test\MockObjectFromWsdlCreated $event): void;
 }
 /**
  * @immutable
@@ -4073,6 +4451,9 @@ final readonly class PartialMockObjectCreated implements \PHPUnit\Event\Event
     public function methodNames(): array
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4083,42 +4464,6 @@ final readonly class PartialMockObjectCreated implements \PHPUnit\Event\Event
 interface PartialMockObjectCreatedSubscriber extends \PHPUnit\Event\Subscriber
 {
     public function notify(\PHPUnit\Event\Test\PartialMockObjectCreated $event): void;
-}
-/**
- * @immutable
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final readonly class TestProxyCreated implements \PHPUnit\Event\Event
-{
-    /**
-     * @param class-string $className
-     */
-    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $className, string $constructorArguments)
-    {
-    }
-    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
-    {
-    }
-    /**
-     * @return class-string
-     */
-    public function className(): string
-    {
-    }
-    public function constructorArguments(): string
-    {
-    }
-    public function asString(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-interface TestProxyCreatedSubscriber extends \PHPUnit\Event\Subscriber
-{
-    public function notify(\PHPUnit\Event\Test\TestProxyCreated $event): void;
 }
 /**
  * @immutable
@@ -4142,6 +4487,9 @@ final readonly class TestStubCreated implements \PHPUnit\Event\Event
     public function className(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4175,6 +4523,9 @@ final readonly class TestStubForIntersectionOfInterfacesCreated implements \PHPU
     public function interfaces(): array
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4336,15 +4687,24 @@ namespace PHPUnit\Event\TestRunner;
  */
 final readonly class BootstrapFinished implements \PHPUnit\Event\Event
 {
+    /**
+     * @param non-empty-string $filename
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $filename)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function filename(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4375,6 +4735,9 @@ final readonly class ChildProcessFinished implements \PHPUnit\Event\Event
     public function stderr(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4399,6 +4762,9 @@ final readonly class ChildProcessStarted implements \PHPUnit\Event\Event
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4424,6 +4790,9 @@ final readonly class Configured implements \PHPUnit\Event\Event
     public function configuration(): \PHPUnit\TextUI\Configuration\Configuration
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4442,15 +4811,24 @@ interface ConfiguredSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class DeprecationTriggered implements \PHPUnit\Event\Event
 {
+    /**
+     * @param non-empty-string $message
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $message)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function message(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4475,6 +4853,9 @@ final readonly class EventFacadeSealed implements \PHPUnit\Event\Event
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4499,6 +4880,9 @@ final readonly class ExecutionAborted implements \PHPUnit\Event\Event
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4523,6 +4907,9 @@ final readonly class ExecutionFinished implements \PHPUnit\Event\Event
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4550,6 +4937,9 @@ final readonly class ExecutionStarted implements \PHPUnit\Event\Event
     public function testSuite(): \PHPUnit\Event\TestSuite\TestSuite
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4590,6 +4980,9 @@ final readonly class ExtensionBootstrapped implements \PHPUnit\Event\Event
     public function parameters(): array
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4608,21 +5001,38 @@ interface ExtensionBootstrappedSubscriber extends \PHPUnit\Event\Subscriber
  */
 final readonly class ExtensionLoadedFromPhar implements \PHPUnit\Event\Event
 {
+    /**
+     * @param non-empty-string $filename
+     * @param non-empty-string $name
+     * @param non-empty-string $version
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $filename, string $name, string $version)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function filename(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function name(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function version(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4647,6 +5057,9 @@ final readonly class Finished implements \PHPUnit\Event\Event
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4671,6 +5084,9 @@ final readonly class GarbageCollectionDisabled implements \PHPUnit\Event\Event
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4695,6 +5111,9 @@ final readonly class GarbageCollectionEnabled implements \PHPUnit\Event\Event
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4719,6 +5138,9 @@ final readonly class GarbageCollectionTriggered implements \PHPUnit\Event\Event
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4735,6 +5157,36 @@ interface GarbageCollectionTriggeredSubscriber extends \PHPUnit\Event\Subscriber
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class NoticeTriggered implements \PHPUnit\Event\Event
+{
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $message)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    public function message(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface NoticeTriggeredSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\TestRunner\NoticeTriggered $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class Started implements \PHPUnit\Event\Event
 {
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
@@ -4743,6 +5195,9 @@ final readonly class Started implements \PHPUnit\Event\Event
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4759,17 +5214,96 @@ interface StartedSubscriber extends \PHPUnit\Event\Subscriber
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class StaticAnalysisForCodeCoverageFinished implements \PHPUnit\Event\Event
+{
+    /**
+     * @param non-negative-int $cacheHits
+     * @param non-negative-int $cacheMisses
+     */
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, int $cacheHits, int $cacheMisses)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function cacheHits(): int
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function cacheMisses(): int
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface StaticAnalysisForCodeCoverageFinishedSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\TestRunner\StaticAnalysisForCodeCoverageFinished $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class StaticAnalysisForCodeCoverageStarted implements \PHPUnit\Event\Event
+{
+    public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo)
+    {
+    }
+    public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function asString(): string
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface StaticAnalysisForCodeCoverageStartedSubscriber extends \PHPUnit\Event\Subscriber
+{
+    public function notify(\PHPUnit\Event\TestRunner\StaticAnalysisForCodeCoverageStarted $event): void;
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class WarningTriggered implements \PHPUnit\Event\Event
 {
+    /**
+     * @param non-empty-string $message
+     */
     public function __construct(\PHPUnit\Event\Telemetry\Info $telemetryInfo, string $message)
     {
     }
     public function telemetryInfo(): \PHPUnit\Event\Telemetry\Info
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function message(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4799,6 +5333,9 @@ final readonly class Filtered implements \PHPUnit\Event\Event
     public function testSuite(): \PHPUnit\Event\TestSuite\TestSuite
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4826,6 +5363,9 @@ final readonly class Finished implements \PHPUnit\Event\Event
     public function testSuite(): \PHPUnit\Event\TestSuite\TestSuite
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4853,6 +5393,9 @@ final readonly class Loaded implements \PHPUnit\Event\Event
     public function testSuite(): \PHPUnit\Event\TestSuite\TestSuite
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4883,6 +5426,9 @@ final readonly class Skipped implements \PHPUnit\Event\Event
     public function message(): string
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4916,6 +5462,9 @@ final readonly class Sorted implements \PHPUnit\Event\Event
     public function resolveDependencies(): bool
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -4943,6 +5492,9 @@ final readonly class Started implements \PHPUnit\Event\Event
     public function testSuite(): \PHPUnit\Event\TestSuite\TestSuite
     {
     }
+    /**
+     * @return non-empty-string
+     */
     public function asString(): string
     {
     }
@@ -5234,13 +5786,15 @@ abstract class Assert
      * @throws Exception
      * @throws ExpectationFailedException
      *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6055
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6056
      */
     final public static function assertContainsOnly(string $type, iterable $haystack, ?bool $isNativeType = null, string $message = ''): void
     {
     }
     /**
      * Asserts that a haystack contains only values of type array.
+     *
+     * @phan-assert iterable<array<mixed>> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5252,6 +5806,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type bool.
      *
+     * @phan-assert iterable<bool> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5261,6 +5817,8 @@ abstract class Assert
     }
     /**
      * Asserts that a haystack contains only values of type callable.
+     *
+     * @phan-assert iterable<callable> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5272,6 +5830,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type float.
      *
+     * @phan-assert iterable<float> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5281,6 +5841,8 @@ abstract class Assert
     }
     /**
      * Asserts that a haystack contains only values of type int.
+     *
+     * @phan-assert iterable<int> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5292,6 +5854,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type iterable.
      *
+     * @phan-assert iterable<iterable<mixed>> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5301,6 +5865,8 @@ abstract class Assert
     }
     /**
      * Asserts that a haystack contains only values of type null.
+     *
+     * @phan-assert iterable<null> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5312,6 +5878,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type numeric.
      *
+     * @phan-assert iterable<numeric> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5321,6 +5889,8 @@ abstract class Assert
     }
     /**
      * Asserts that a haystack contains only values of type object.
+     *
+     * @phan-assert iterable<object> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5332,6 +5902,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type resource.
      *
+     * @phan-assert iterable<resource> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5341,6 +5913,8 @@ abstract class Assert
     }
     /**
      * Asserts that a haystack contains only values of type closed resource.
+     *
+     * @phan-assert iterable<resource> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5352,6 +5926,8 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only values of type scalar.
      *
+     * @phan-assert iterable<scalar> $haystack
+     *
      * @param iterable<mixed> $haystack
      *
      * @throws ExpectationFailedException
@@ -5361,6 +5937,8 @@ abstract class Assert
     }
     /**
      * Asserts that a haystack contains only values of type string.
+     *
+     * @phan-assert iterable<string> $haystack
      *
      * @param iterable<mixed> $haystack
      *
@@ -5372,7 +5950,11 @@ abstract class Assert
     /**
      * Asserts that a haystack contains only instances of a specified interface or class name.
      *
-     * @param class-string    $className
+     * @template T
+     *
+     * @phan-assert iterable<T> $haystack
+     *
+     * @param class-string<T> $className
      * @param iterable<mixed> $haystack
      *
      * @throws Exception
@@ -5390,7 +5972,7 @@ abstract class Assert
      * @throws Exception
      * @throws ExpectationFailedException
      *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6055
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6056
      */
     final public static function assertNotContainsOnly(string $type, iterable $haystack, ?bool $isNativeType = null, string $message = ''): void
     {
@@ -5642,8 +6224,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws GeneratorNotSupportedException
-     *
-     * @phan-assert empty $actual
      */
     final public static function assertEmpty(mixed $actual, string $message = ''): void
     {
@@ -5653,8 +6233,6 @@ abstract class Assert
      *
      * @throws ExpectationFailedException
      * @throws GeneratorNotSupportedException
-     *
-     * @phan-assert !empty $actual
      */
     final public static function assertNotEmpty(mixed $actual, string $message = ''): void
     {
@@ -6431,31 +7009,11 @@ abstract class Assert
     {
     }
     /**
-     * Asserts that a string does not match a given format string.
-     *
-     * @throws ExpectationFailedException
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5472
-     */
-    final public static function assertStringNotMatchesFormat(string $format, string $string, string $message = ''): void
-    {
-    }
-    /**
      * Asserts that a string matches a given format file.
      *
      * @throws ExpectationFailedException
      */
     final public static function assertStringMatchesFormatFile(string $formatFile, string $string, string $message = ''): void
-    {
-    }
-    /**
-     * Asserts that a string does not match a given format string.
-     *
-     * @throws ExpectationFailedException
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5472
-     */
-    final public static function assertStringNotMatchesFormatFile(string $formatFile, string $string, string $message = ''): void
     {
     }
     /**
@@ -6705,7 +7263,7 @@ abstract class Assert
      *
      * @throws Exception
      *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6055
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6060
      */
     final public static function containsOnly(string $type): \PHPUnit\Framework\Constraint\TraversableContainsOnly
     {
@@ -6844,9 +7402,9 @@ abstract class Assert
     /**
      * @param 'array'|'bool'|'boolean'|'callable'|'double'|'float'|'int'|'integer'|'iterable'|'null'|'numeric'|'object'|'real'|'resource (closed)'|'resource'|'scalar'|'string' $type
      *
-     * @throws Exception
+     * @throws UnknownNativeTypeException
      *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6052
+     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6053
      */
     final public static function isType(string $type): \PHPUnit\Framework\Constraint\IsType
     {
@@ -7101,7 +7659,7 @@ function assertNotContainsEquals(mixed $needle, iterable $haystack, string $mess
  * @throws Exception
  * @throws ExpectationFailedException
  *
- * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6055
+ * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6056
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -7112,6 +7670,8 @@ function assertContainsOnly(string $type, iterable $haystack, ?bool $isNativeTyp
 }
 /**
  * Asserts that a haystack contains only values of type array.
+ *
+ * @phan-assert iterable<array<mixed>> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7127,6 +7687,8 @@ function assertContainsOnlyArray(iterable $haystack, string $message = '', ...$f
 /**
  * Asserts that a haystack contains only values of type bool.
  *
+ * @phan-assert iterable<bool> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7140,6 +7702,8 @@ function assertContainsOnlyBool(iterable $haystack, string $message = '', ...$fu
 }
 /**
  * Asserts that a haystack contains only values of type callable.
+ *
+ * @phan-assert iterable<callable> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7155,6 +7719,8 @@ function assertContainsOnlyCallable(iterable $haystack, string $message = '', ..
 /**
  * Asserts that a haystack contains only values of type float.
  *
+ * @phan-assert iterable<float> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7168,6 +7734,8 @@ function assertContainsOnlyFloat(iterable $haystack, string $message = '', ...$f
 }
 /**
  * Asserts that a haystack contains only values of type int.
+ *
+ * @phan-assert iterable<int> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7183,6 +7751,8 @@ function assertContainsOnlyInt(iterable $haystack, string $message = '', ...$fun
 /**
  * Asserts that a haystack contains only values of type iterable.
  *
+ * @phan-assert iterable<iterable<mixed>> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7196,6 +7766,8 @@ function assertContainsOnlyIterable(iterable $haystack, string $message = '', ..
 }
 /**
  * Asserts that a haystack contains only values of type null.
+ *
+ * @phan-assert iterable<null> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7211,6 +7783,8 @@ function assertContainsOnlyNull(iterable $haystack, string $message = '', ...$fu
 /**
  * Asserts that a haystack contains only values of type numeric.
  *
+ * @phan-assert iterable<numeric> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7224,6 +7798,8 @@ function assertContainsOnlyNumeric(iterable $haystack, string $message = '', ...
 }
 /**
  * Asserts that a haystack contains only values of type object.
+ *
+ * @phan-assert iterable<object> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7239,6 +7815,8 @@ function assertContainsOnlyObject(iterable $haystack, string $message = '', ...$
 /**
  * Asserts that a haystack contains only values of type resource.
  *
+ * @phan-assert iterable<resource> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7252,6 +7830,8 @@ function assertContainsOnlyResource(iterable $haystack, string $message = '', ..
 }
 /**
  * Asserts that a haystack contains only values of type closed resource.
+ *
+ * @phan-assert iterable<resource> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7267,6 +7847,8 @@ function assertContainsOnlyClosedResource(iterable $haystack, string $message = 
 /**
  * Asserts that a haystack contains only values of type scalar.
  *
+ * @phan-assert iterable<scalar> $haystack
+ *
  * @param iterable<mixed> $haystack
  *
  * @throws ExpectationFailedException
@@ -7280,6 +7862,8 @@ function assertContainsOnlyScalar(iterable $haystack, string $message = '', ...$
 }
 /**
  * Asserts that a haystack contains only values of type string.
+ *
+ * @phan-assert iterable<string> $haystack
  *
  * @param iterable<mixed> $haystack
  *
@@ -7295,7 +7879,11 @@ function assertContainsOnlyString(iterable $haystack, string $message = '', ...$
 /**
  * Asserts that a haystack contains only instances of a specified interface or class name.
  *
- * @param class-string    $className
+ * @template T
+ *
+ * @phan-assert iterable<T> $haystack
+ *
+ * @param class-string<T> $className
  * @param iterable<mixed> $haystack
  *
  * @throws Exception
@@ -7317,7 +7905,7 @@ function assertContainsOnlyInstancesOf(string $className, iterable $haystack, st
  * @throws Exception
  * @throws ExpectationFailedException
  *
- * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6055
+ * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6056
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -7678,8 +8266,6 @@ function assertObjectNotEquals(object $expected, object $actual, string $method 
  * @throws ExpectationFailedException
  * @throws GeneratorNotSupportedException
  *
- * @phan-assert empty $actual
- *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @see Assert::assertEmpty
@@ -7692,8 +8278,6 @@ function assertEmpty(mixed $actual, string $message = '', ...$func_get_args): vo
  *
  * @throws ExpectationFailedException
  * @throws GeneratorNotSupportedException
- *
- * @phan-assert !empty $actual
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -8794,20 +9378,6 @@ function assertStringMatchesFormat(string $format, string $string, string $messa
 {
 }
 /**
- * Asserts that a string does not match a given format string.
- *
- * @throws ExpectationFailedException
- *
- * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5472
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see Assert::assertStringNotMatchesFormat
- */
-function assertStringNotMatchesFormat(string $format, string $string, string $message = '', ...$func_get_args): void
-{
-}
-/**
  * Asserts that a string matches a given format file.
  *
  * @throws ExpectationFailedException
@@ -8817,20 +9387,6 @@ function assertStringNotMatchesFormat(string $format, string $string, string $me
  * @see Assert::assertStringMatchesFormatFile
  */
 function assertStringMatchesFormatFile(string $formatFile, string $string, string $message = '', ...$func_get_args): void
-{
-}
-/**
- * Asserts that a string does not match a given format string.
- *
- * @throws ExpectationFailedException
- *
- * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5472
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @see Assert::assertStringNotMatchesFormatFile
- */
-function assertStringNotMatchesFormatFile(string $formatFile, string $string, string $message = '', ...$func_get_args): void
 {
 }
 /**
@@ -9365,33 +9921,7 @@ function exactly(int $count): \PHPUnit\Framework\MockObject\Rule\InvokedCount
 function atMost(int $allowedInvocations): \PHPUnit\Framework\MockObject\Rule\InvokedAtMostCount
 {
 }
-function returnValue(mixed $value): \PHPUnit\Framework\MockObject\Stub\ReturnStub
-{
-}
-/**
- * @param array<mixed> $valueMap
- */
-function returnValueMap(array $valueMap): \PHPUnit\Framework\MockObject\Stub\ReturnValueMap
-{
-}
-function returnArgument(int $argumentIndex): \PHPUnit\Framework\MockObject\Stub\ReturnArgument
-{
-}
-function returnCallback(callable $callback): \PHPUnit\Framework\MockObject\Stub\ReturnCallback
-{
-}
-/**
- * Returns the current object.
- *
- * This method is useful when mocking a fluent interface.
- */
-function returnSelf(): \PHPUnit\Framework\MockObject\Stub\ReturnSelf
-{
-}
 function throwException(\Throwable $exception): \PHPUnit\Framework\MockObject\Stub\Exception
-{
-}
-function onConsecutiveCalls(...$func_get_args): \PHPUnit\Framework\MockObject\Stub\ConsecutiveCalls
 {
 }
 /**
@@ -9439,14 +9969,6 @@ class AssertionFailedError extends \PHPUnit\Framework\Exception implements \PHPU
     public function toString(): string
     {
     }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-class CodeCoverageException extends \PHPUnit\Framework\Exception
-{
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -9554,14 +10076,6 @@ final class IncompleteTestError extends \PHPUnit\Framework\AssertionFailedError 
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 abstract class InvalidArgumentException extends \PHPUnit\Framework\Exception
-{
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class InvalidCoversTargetException extends \PHPUnit\Framework\CodeCoverageException
 {
 }
 /**
@@ -9733,9 +10247,9 @@ final class UnknownClassOrInterfaceException extends \PHPUnit\Framework\InvalidA
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class UnknownTypeException extends \PHPUnit\Framework\InvalidArgumentException
+final class UnknownNativeTypeException extends \PHPUnit\Framework\InvalidArgumentException
 {
-    public function __construct(string $name)
+    public function __construct(string $type)
     {
     }
 }
@@ -9787,6 +10301,9 @@ final class ExecutionOrderDependency implements \Stringable
     public function __toString(): string
     {
     }
+    /**
+     * @phpstan-assert-if-true non-empty-string $this->getTarget()
+     */
     public function isValid(): bool
     {
     }
@@ -9869,10 +10386,8 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      * @param non-empty-string $name
      *
      * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     *
-     * @final
      */
-    public function __construct(string $name)
+    final public function __construct(string $name)
     {
     }
     /**
@@ -9954,7 +10469,6 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      * @throws \PHPUnit\Util\Exception
      * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
      * @throws \SebastianBergmann\Template\InvalidArgumentException
-     * @throws CodeCoverageException
      * @throws Exception
      * @throws \PHPUnit\Event\NoPreviousThrowableException
      * @throws ProcessIsolationException
@@ -10003,6 +10517,8 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     }
     /**
      * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     *
+     * @phpstan-assert-if-true non-empty-string $this->output()
      */
     final public function hasUnexpectedOutput(): bool
     {
@@ -10147,6 +10663,8 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     }
     /**
      * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     *
+     * @return 0|positive-int
      */
     final public function numberOfAssertionsPerformed(): int
     {
@@ -10271,64 +10789,7 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     final protected function atMost(int $allowedInvocations): \PHPUnit\Framework\MockObject\Rule\InvokedAtMostCount
     {
     }
-    /**
-     * @deprecated Use <code>$double->willReturn()</code> instead of <code>$double->will($this->returnValue())</code>
-     * @see https://github.com/sebastianbergmann/phpunit/issues/5423
-     *
-     * @codeCoverageIgnore
-     */
-    final protected function returnValue(mixed $value): \PHPUnit\Framework\MockObject\Stub\ReturnStub
-    {
-    }
-    /**
-     * @param array<mixed> $valueMap
-     *
-     * @deprecated Use <code>$double->willReturnMap()</code> instead of <code>$double->will($this->returnValueMap())</code>
-     * @see https://github.com/sebastianbergmann/phpunit/issues/5423
-     *
-     * @codeCoverageIgnore
-     */
-    final protected function returnValueMap(array $valueMap): \PHPUnit\Framework\MockObject\Stub\ReturnValueMap
-    {
-    }
-    /**
-     * @deprecated Use <code>$double->willReturnArgument()</code> instead of <code>$double->will($this->returnArgument())</code>
-     * @see https://github.com/sebastianbergmann/phpunit/issues/5423
-     *
-     * @codeCoverageIgnore
-     */
-    final protected function returnArgument(int $argumentIndex): \PHPUnit\Framework\MockObject\Stub\ReturnArgument
-    {
-    }
-    /**
-     * @deprecated Use <code>$double->willReturnCallback()</code> instead of <code>$double->will($this->returnCallback())</code>
-     * @see https://github.com/sebastianbergmann/phpunit/issues/5423
-     *
-     * @codeCoverageIgnore
-     */
-    final protected function returnCallback(callable $callback): \PHPUnit\Framework\MockObject\Stub\ReturnCallback
-    {
-    }
-    /**
-     * @deprecated Use <code>$double->willReturnSelf()</code> instead of <code>$double->will($this->returnSelf())</code>
-     * @see https://github.com/sebastianbergmann/phpunit/issues/5423
-     *
-     * @codeCoverageIgnore
-     */
-    final protected function returnSelf(): \PHPUnit\Framework\MockObject\Stub\ReturnSelf
-    {
-    }
     final protected function throwException(\Throwable $exception): \PHPUnit\Framework\MockObject\Stub\Exception
-    {
-    }
-    /**
-     * @deprecated Use <code>$double->willReturn()</code> instead of <code>$double->will($this->onConsecutiveCalls())</code>
-     * @see https://github.com/sebastianbergmann/phpunit/issues/5423
-     * @see https://github.com/sebastianbergmann/phpunit/issues/5425
-     *
-     * @codeCoverageIgnore
-     */
-    final protected function onConsecutiveCalls(mixed ...$arguments): \PHPUnit\Framework\MockObject\Stub\ConsecutiveCalls
     {
     }
     final protected function getActualOutputForAssertion(): string
@@ -10338,6 +10799,9 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     {
     }
     final protected function expectOutputString(string $expectedString): void
+    {
+    }
+    final protected function expectErrorLog(): void
     {
     }
     /**
@@ -10400,38 +10864,11 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
     {
     }
     /**
-     * This method is a wrapper for the ini_set() function that automatically
-     * resets the modified php.ini setting to its original value after the
-     * test is run.
-     *
-     * @throws Exception
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5214
-     *
-     * @codeCoverageIgnore
-     */
-    final protected function iniSet(string $varName, string $newValue): void
-    {
-    }
-    /**
-     * This method is a wrapper for the setlocale() function that automatically
-     * resets the locale to its original value after the test is run.
-     *
-     * @throws Exception
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5216
-     *
-     * @codeCoverageIgnore
-     */
-    final protected function setLocale(mixed ...$arguments): void
-    {
-    }
-    /**
      * Creates a mock object for the specified interface or class.
      *
      * @template RealInstanceType of object
      *
-     * @param class-string<RealInstanceType> $originalClassName
+     * @param class-string<RealInstanceType> $type
      *
      * @throws InvalidArgumentException
      * @throws MockObject\Exception
@@ -10439,7 +10876,7 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      *
      * @return MockObject\MockObject&RealInstanceType
      */
-    final protected function createMock(string $originalClassName): \PHPUnit\Framework\MockObject\MockObject
+    final protected function createMock(string $type): \PHPUnit\Framework\MockObject\MockObject
     {
     }
     /**
@@ -10455,7 +10892,7 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      *
      * @template RealInstanceType of object
      *
-     * @param class-string<RealInstanceType> $originalClassName
+     * @param class-string<RealInstanceType> $type
      * @param array<non-empty-string, mixed> $configuration
      *
      * @throws InvalidArgumentException
@@ -10464,13 +10901,13 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      *
      * @return MockObject\MockObject&RealInstanceType
      */
-    final protected function createConfiguredMock(string $originalClassName, array $configuration): \PHPUnit\Framework\MockObject\MockObject
+    final protected function createConfiguredMock(string $type, array $configuration): \PHPUnit\Framework\MockObject\MockObject
     {
     }
     /**
      * Creates a partial mock object for the specified interface or class.
      *
-     * @param class-string<RealInstanceType> $originalClassName
+     * @param class-string<RealInstanceType> $type
      * @param list<non-empty-string>         $methods
      *
      * @template RealInstanceType of object
@@ -10480,89 +10917,13 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      *
      * @return MockObject\MockObject&RealInstanceType
      */
-    final protected function createPartialMock(string $originalClassName, array $methods): \PHPUnit\Framework\MockObject\MockObject
+    final protected function createPartialMock(string $type, array $methods): \PHPUnit\Framework\MockObject\MockObject
     {
     }
     /**
-     * Creates a test proxy for the specified class.
-     *
-     * @template RealInstanceType of object
-     *
-     * @param class-string<RealInstanceType> $originalClassName
-     * @param array<mixed>                   $constructorArguments
-     *
-     * @throws InvalidArgumentException
-     * @throws MockObject\Exception
-     *
-     * @return MockObject\MockObject&RealInstanceType
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5240
+     * @param non-empty-string $additionalInformation
      */
-    final protected function createTestProxy(string $originalClassName, array $constructorArguments = []): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Creates a mock object for the specified abstract class with all abstract
-     * methods of the class mocked. Concrete methods are not mocked by default.
-     * To mock concrete methods, use the 7th parameter ($mockedMethods).
-     *
-     * @template RealInstanceType of object
-     *
-     * @param class-string<RealInstanceType> $originalClassName
-     * @param array<mixed>                   $arguments
-     * @param list<non-empty-string>         $mockedMethods
-     *
-     * @throws InvalidArgumentException
-     * @throws MockObject\Exception
-     *
-     * @return MockObject\MockObject&RealInstanceType
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5241
-     */
-    final protected function getMockForAbstractClass(string $originalClassName, array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $callAutoload = true, array $mockedMethods = [], bool $cloneArguments = false): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Creates a mock object based on the given WSDL file.
-     *
-     * @param list<string> $methods
-     * @param list<mixed>  $options
-     *
-     * @throws MockObject\Exception
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5242
-     */
-    final protected function getMockFromWsdl(string $wsdlFile, string $originalClassName = '', string $mockClassName = '', array $methods = [], bool $callOriginalConstructor = true, array $options = []): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Creates a mock object for the specified trait with all abstract methods
-     * of the trait mocked. Concrete methods to mock can be specified with the
-     * `$mockedMethods` parameter.
-     *
-     * @param trait-string           $traitName
-     * @param array<mixed>           $arguments
-     * @param list<non-empty-string> $mockedMethods
-     *
-     * @throws InvalidArgumentException
-     * @throws MockObject\Exception
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5243
-     */
-    final protected function getMockForTrait(string $traitName, array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $callAutoload = true, array $mockedMethods = [], bool $cloneArguments = false): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Creates an object that uses the specified trait.
-     *
-     * @param trait-string $traitName
-     * @param array<mixed> $arguments
-     *
-     * @throws MockObject\Exception
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5244
-     */
-    final protected function getObjectForTrait(string $traitName, array $arguments = [], string $traitClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $callAutoload = true): object
+    final protected function provideAdditionalInformation(string $additionalInformation): void
     {
     }
     protected function transformException(\Throwable $t): \Throwable
@@ -10581,7 +10942,7 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      *
      * @template RealInstanceType of object
      *
-     * @param class-string<RealInstanceType> $originalClassName
+     * @param class-string<RealInstanceType> $type
      *
      * @throws InvalidArgumentException
      * @throws MockObject\Exception
@@ -10589,7 +10950,7 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      *
      * @return RealInstanceType&MockObject\Stub
      */
-    final protected static function createStub(string $originalClassName): \PHPUnit\Framework\MockObject\Stub
+    final protected static function createStub(string $type): \PHPUnit\Framework\MockObject\Stub
     {
     }
     /**
@@ -10605,7 +10966,7 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      *
      * @template RealInstanceType of object
      *
-     * @param class-string<RealInstanceType> $originalClassName
+     * @param class-string<RealInstanceType> $type
      * @param array<non-empty-string, mixed> $configuration
      *
      * @throws InvalidArgumentException
@@ -10614,7 +10975,7 @@ abstract class TestCase extends \PHPUnit\Framework\Assert implements \PHPUnit\Fr
      *
      * @return RealInstanceType&MockObject\Stub
      */
-    final protected static function createConfiguredStub(string $originalClassName, array $configuration): \PHPUnit\Framework\MockObject\Stub
+    final protected static function createConfiguredStub(string $type, array $configuration): \PHPUnit\Framework\MockObject\Stub
     {
     }
 }
@@ -10680,7 +11041,6 @@ final class TestRunner
     {
     }
     /**
-     * @throws CodeCoverageException
      * @throws \PHPUnit\Runner\Exception
      * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
      * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
@@ -10777,13 +11137,12 @@ class TestSuite implements \IteratorAggregate, \PHPUnit\Framework\Reorderable, \
     {
     }
     /**
-     * @return list<\PHPUnit\Runner\PhptTestCase|TestCase>
+     * @return list<\PHPUnit\Runner\Phpt\TestCase|TestCase>
      */
     public function collect(): array
     {
     }
     /**
-     * @throws CodeCoverageException
      * @throws \PHPUnit\Event\RuntimeException
      * @throws Exception
      * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
@@ -11013,6 +11372,48 @@ final readonly class CoversClass
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
+final readonly class CoversClassesThatExtendClass
+{
+    /**
+     * @param class-string $className
+     */
+    public function __construct(string $className)
+    {
+    }
+    /**
+     * @return class-string
+     */
+    public function className(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
+final readonly class CoversClassesThatImplementInterface
+{
+    /**
+     * @param class-string $interfaceName
+     */
+    public function __construct(string $interfaceName)
+    {
+    }
+    /**
+     * @return class-string
+     */
+    public function interfaceName(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class CoversFunction
 {
     /**
@@ -11053,6 +11454,27 @@ final readonly class CoversMethod
      * @return non-empty-string
      */
     public function methodName(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
+final readonly class CoversNamespace
+{
+    /**
+     * @param non-empty-string $namespace
+     */
+    public function __construct(string $namespace)
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function namespace(): string
     {
     }
 }
@@ -11522,6 +11944,24 @@ final readonly class PreserveGlobalState
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+final readonly class RequiresEnvironmentVariable
+{
+    public function __construct(string $environmentVariableName, null|string $value = null)
+    {
+    }
+    public function environmentVariableName(): string
+    {
+    }
+    public function value(): null|string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 final readonly class RequiresFunction
 {
     /**
@@ -11896,6 +12336,48 @@ final readonly class UsesClass
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
+final readonly class UsesClassesThatExtendClass
+{
+    /**
+     * @param class-string $className
+     */
+    public function __construct(string $className)
+    {
+    }
+    /**
+     * @return class-string
+     */
+    public function className(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
+final readonly class UsesClassesThatImplementInterface
+{
+    /**
+     * @param class-string $interfaceName
+     */
+    public function __construct(string $interfaceName)
+    {
+    }
+    /**
+     * @return class-string
+     */
+    public function interfaceName(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class UsesFunction
 {
     /**
@@ -11945,6 +12427,27 @@ final readonly class UsesMethod
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
+final readonly class UsesNamespace
+{
+    /**
+     * @param non-empty-string $namespace
+     */
+    public function __construct(string $namespace)
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function namespace(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final readonly class UsesTrait
 {
     /**
@@ -11957,6 +12460,30 @@ final readonly class UsesTrait
      * @return trait-string
      */
     public function traitName(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+final readonly class WithEnvironmentVariable
+{
+    /**
+     * @param non-empty-string $environmentVariableName
+     */
+    public function __construct(string $environmentVariableName, null|string $value = null)
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function environmentVariableName(): string
+    {
+    }
+    public function value(): null|string
     {
     }
 }
@@ -13070,12 +13597,13 @@ final class TraversableContainsIdentical extends \PHPUnit\Framework\Constraint\T
  */
 final class TraversableContainsOnly extends \PHPUnit\Framework\Constraint\Constraint
 {
+    public static function forNativeType(\PHPUnit\Framework\NativeType $type): self
+    {
+    }
     /**
-     * @param 'array'|'bool'|'boolean'|'callable'|'double'|'float'|'int'|'integer'|'iterable'|'null'|'numeric'|'object'|'real'|'resource (closed)'|'resource'|'scalar'|'string'|class-string $type
-     *
-     * @throws \PHPUnit\Framework\Exception
+     * @param class-string $type
      */
-    public function __construct(string $type, bool $isNativeType = true)
+    public static function forClassOrInterface(string $type): self
     {
     }
     /**
@@ -13135,64 +13663,7 @@ final class IsNull extends \PHPUnit\Framework\Constraint\Constraint
  */
 final class IsType extends \PHPUnit\Framework\Constraint\Constraint
 {
-    /**
-     * @var string
-     */
-    public const TYPE_ARRAY = 'array';
-    /**
-     * @var string
-     */
-    public const TYPE_BOOL = 'bool';
-    /**
-     * @var string
-     */
-    public const TYPE_FLOAT = 'float';
-    /**
-     * @var string
-     */
-    public const TYPE_INT = 'int';
-    /**
-     * @var string
-     */
-    public const TYPE_NULL = 'null';
-    /**
-     * @var string
-     */
-    public const TYPE_NUMERIC = 'numeric';
-    /**
-     * @var string
-     */
-    public const TYPE_OBJECT = 'object';
-    /**
-     * @var string
-     */
-    public const TYPE_RESOURCE = 'resource';
-    /**
-     * @var string
-     */
-    public const TYPE_CLOSED_RESOURCE = 'resource (closed)';
-    /**
-     * @var string
-     */
-    public const TYPE_STRING = 'string';
-    /**
-     * @var string
-     */
-    public const TYPE_SCALAR = 'scalar';
-    /**
-     * @var string
-     */
-    public const TYPE_CALLABLE = 'callable';
-    /**
-     * @var string
-     */
-    public const TYPE_ITERABLE = 'iterable';
-    /**
-     * @param 'array'|'bool'|'boolean'|'callable'|'double'|'float'|'int'|'integer'|'iterable'|'null'|'numeric'|'object'|'real'|'resource (closed)'|'resource'|'scalar'|'string' $type
-     *
-     * @throws \PHPUnit\Framework\UnknownTypeException
-     */
-    public function __construct(string $type)
+    public function __construct(\PHPUnit\Framework\NativeType $type)
     {
     }
     /**
@@ -13251,19 +13722,6 @@ final readonly class ConfigurableMethod
  */
 final class BadMethodCallException extends \BadMethodCallException implements \PHPUnit\Framework\MockObject\Exception
 {
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @codeCoverageIgnore
- */
-final class CannotCloneTestDoubleForReadonlyClassException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Exception
-{
-    public function __construct()
-    {
-    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -13426,7 +13884,6 @@ final class MockBuilder
      * @throws \PHPUnit\Framework\InvalidArgumentException
      * @throws Generator\InvalidMethodNameException
      * @throws Generator\NameAlreadyInUseException
-     * @throws Generator\OriginalConstructorInvocationRequiredException
      * @throws Generator\ReflectionException
      * @throws Generator\RuntimeException
      * @throws Generator\UnknownTypeException
@@ -13434,34 +13891,6 @@ final class MockBuilder
      * @return MockedType&MockObject
      */
     public function getMock(): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Creates a mock object for an abstract class using a fluent interface.
-     *
-     * @throws \PHPUnit\Framework\Exception
-     * @throws Generator\ReflectionException
-     * @throws Generator\RuntimeException
-     *
-     * @return MockedType&MockObject
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5305
-     */
-    public function getMockForAbstractClass(): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Creates a mock object for a trait using a fluent interface.
-     *
-     * @throws \PHPUnit\Framework\Exception
-     * @throws Generator\ReflectionException
-     * @throws Generator\RuntimeException
-     *
-     * @return MockedType&MockObject
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5306
-     */
-    public function getMockForTrait(): \PHPUnit\Framework\MockObject\MockObject
     {
     }
     /**
@@ -13476,23 +13905,6 @@ final class MockBuilder
      * @phan-return $this<MockedType>
      */
     public function onlyMethods(array $methods): self
-    {
-    }
-    /**
-     * Specifies methods that don't exist in the class which you want to mock.
-     *
-     * @param list<non-empty-string> $methods
-     *
-     * @throws Generator\CannotUseAddMethodsException
-     * @throws Generator\ReflectionException
-     * @throws Generator\RuntimeException
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5320
-     */
-    public function addMethods(array $methods): self
     {
     }
     /**
@@ -13554,107 +13966,6 @@ final class MockBuilder
     {
     }
     /**
-     * Disables the use of class autoloading while creating the mock object.
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5309
-     *
-     * @codeCoverageIgnore
-     */
-    public function disableAutoload(): self
-    {
-    }
-    /**
-     * Enables the use of class autoloading while creating the mock object.
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5309
-     */
-    public function enableAutoload(): self
-    {
-    }
-    /**
-     * Disables the cloning of arguments passed to mocked methods.
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5315
-     */
-    public function disableArgumentCloning(): self
-    {
-    }
-    /**
-     * Enables the cloning of arguments passed to mocked methods.
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5315
-     */
-    public function enableArgumentCloning(): self
-    {
-    }
-    /**
-     * Enables the invocation of the original methods.
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5307
-     *
-     * @codeCoverageIgnore
-     */
-    public function enableProxyingToOriginalMethods(): self
-    {
-    }
-    /**
-     * Disables the invocation of the original methods.
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5307
-     */
-    public function disableProxyingToOriginalMethods(): self
-    {
-    }
-    /**
-     * Sets the proxy target.
-     *
-     * @return $this
-     * @phan-return $this<MockedType>
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5307
-     *
-     * @codeCoverageIgnore
-     */
-    public function setProxyTarget(object $object): self
-    {
-    }
-    /**
-     * @return $this
-     * @phan-return $this<MockedType>
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5308
-     */
-    public function allowMockingUnknownTypes(): self
-    {
-    }
-    /**
-     * @return $this
-     * @phan-return $this<MockedType>
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5308
-     */
-    public function disallowMockingUnknownTypes(): self
-    {
-    }
-    /**
      * @return $this
      * @phan-return $this<MockedType>
      */
@@ -13685,46 +13996,11 @@ trait DoubledCloneMethod
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @internal This trait is not covered by the backward compatibility promise for PHPUnit
- *
- * @codeCoverageIgnore
- */
-trait ErrorCloneMethod
-{
-    public function __clone(): void
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This trait is not covered by the backward compatibility promise for PHPUnit
- */
-trait GeneratedAsMockObject
-{
-    public function __phpunit_wasGeneratedAsMockObject(): true
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This trait is not covered by the backward compatibility promise for PHPUnit
- */
-trait GeneratedAsTestStub
-{
-    public function __phpunit_wasGeneratedAsMockObject(): false
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This trait is not covered by the backward compatibility promise for PHPUnit
  */
 trait Method
 {
     abstract public function __phpunit_getInvocationHandler(): \PHPUnit\Framework\MockObject\InvocationHandler;
-    public function method(...$func_get_args): \PHPUnit\Framework\MockObject\Builder\InvocationMocker
+    public function method(\PHPUnit\Framework\Constraint\Constraint|\PHPUnit\Framework\MockObject\Runtime\PropertyHook|string $constraint): \PHPUnit\Framework\MockObject\InvocationStubber
     {
     }
 }
@@ -13746,29 +14022,7 @@ trait MockObjectApi
     abstract public function __phpunit_state(): \PHPUnit\Framework\MockObject\TestDoubleState;
     abstract public function __phpunit_getInvocationHandler(): \PHPUnit\Framework\MockObject\InvocationHandler;
     abstract public function __phpunit_unsetInvocationMocker(): void;
-    public function expects(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $matcher): \PHPUnit\Framework\MockObject\Builder\InvocationMocker
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This trait is not covered by the backward compatibility promise for PHPUnit
- *
- * @codeCoverageIgnore
- */
-trait MutableStubApi
-{
-    private \PHPUnit\Framework\MockObject\TestDoubleState $__phpunit_state;
-    public function __phpunit_state(): \PHPUnit\Framework\MockObject\TestDoubleState
-    {
-    }
-    /** @noinspection MagicMethodsValidityInspection */
-    public function __phpunit_getInvocationHandler(): \PHPUnit\Framework\MockObject\InvocationHandler
-    {
-    }
-    /** @noinspection MagicMethodsValidityInspection */
-    public function __phpunit_unsetInvocationMocker(): void
+    public function expects(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $matcher): \PHPUnit\Framework\MockObject\InvocationStubber
     {
     }
 }
@@ -13826,24 +14080,6 @@ final class TestDoubleState
     public function unsetInvocationHandler(): void
     {
     }
-    public function setProxyTarget(object $proxyTarget): void
-    {
-    }
-    public function proxyTarget(): object
-    {
-    }
-    /**
-     * @param non-empty-string $testId
-     */
-    public function deprecationWasEmittedFor(string $testId): void
-    {
-    }
-    /**
-     * @param non-empty-string $testId
-     */
-    public function wasDeprecationAlreadyEmittedFor(string $testId): bool
-    {
-    }
     /**
      * @return list<ConfigurableMethod>
      */
@@ -13855,13 +14091,81 @@ final class TestDoubleState
     }
 }
 /**
- * @method Builder\InvocationMocker method($constraint)
- *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+interface InvocationStubber
+{
+    /**
+     * @param \PHPUnit\Framework\Constraint\Constraint|non-empty-string|Runtime\PropertyHook $constraint
+     *
+     * @return $this
+     */
+    public function method(\PHPUnit\Framework\Constraint\Constraint|\PHPUnit\Framework\MockObject\Runtime\PropertyHook|string $constraint): self;
+    /**
+     * @param non-empty-string $id
+     *
+     * @return $this
+     */
+    public function id(string $id): self;
+    /**
+     * @param non-empty-string $id
+     *
+     * @return $this
+     */
+    public function after(string $id): self;
+    /**
+     * @return $this
+     */
+    public function with(mixed ...$arguments): self;
+    /**
+     * @return $this
+     */
+    public function withAnyParameters(): self;
+    /**
+     * @return $this
+     */
+    public function will(\PHPUnit\Framework\MockObject\Stub\Stub $stub): self;
+    /**
+     * @return $this
+     */
+    public function willReturn(mixed $value, mixed ...$nextValues): self;
+    /**
+     * @return $this
+     */
+    public function willReturnReference(mixed &$reference): self;
+    /**
+     * @param array<int, array<int, mixed>> $valueMap
+     *
+     * @return $this
+     */
+    public function willReturnMap(array $valueMap): self;
+    /**
+     * @return $this
+     */
+    public function willReturnArgument(int $argumentIndex): self;
+    /**
+     * @return $this
+     */
+    public function willReturnCallback(callable $callback): self;
+    /**
+     * @return $this
+     */
+    public function willReturnSelf(): self;
+    /**
+     * @return $this
+     */
+    public function willReturnOnConsecutiveCalls(mixed ...$values): self;
+    /**
+     * @return $this
+     */
+    public function willThrowException(\Throwable $exception): self;
+}
+/**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 interface MockObject extends \PHPUnit\Framework\MockObject\Stub
 {
-    public function expects(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $invocationRule): \PHPUnit\Framework\MockObject\Builder\InvocationMocker;
+    public function expects(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $invocationRule): \PHPUnit\Framework\MockObject\InvocationStubber;
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -13874,12 +14178,11 @@ interface MockObjectInternal extends \PHPUnit\Framework\MockObject\MockObject, \
     public function __phpunit_verify(bool $unsetInvocationMocker = true): void;
 }
 /**
- * @method Builder\InvocationStubber method($constraint)
- *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 interface Stub
 {
+    public function method(\PHPUnit\Framework\Constraint\Constraint|\PHPUnit\Framework\MockObject\Runtime\PropertyHook|string $constraint): \PHPUnit\Framework\MockObject\InvocationStubber;
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -13891,7 +14194,6 @@ interface StubInternal extends \PHPUnit\Framework\MockObject\Stub
     public function __phpunit_state(): \PHPUnit\Framework\MockObject\TestDoubleState;
     public function __phpunit_getInvocationHandler(): \PHPUnit\Framework\MockObject\InvocationHandler;
     public function __phpunit_unsetInvocationMocker(): void;
-    public function __phpunit_wasGeneratedAsMockObject(): bool;
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -13905,7 +14207,7 @@ final readonly class Invocation implements \PHPUnit\Framework\SelfDescribing
      * @param non-empty-string $methodName
      * @param array<mixed>     $parameters
      */
-    public function __construct(string $className, string $methodName, array $parameters, string $returnType, \PHPUnit\Framework\MockObject\MockObjectInternal|\PHPUnit\Framework\MockObject\StubInternal $object, bool $cloneObjects = false, bool $proxiedCall = false)
+    public function __construct(string $className, string $methodName, array $parameters, string $returnType, \PHPUnit\Framework\MockObject\MockObjectInternal|\PHPUnit\Framework\MockObject\StubInternal $object)
     {
     }
     /**
@@ -13957,6 +14259,8 @@ final class InvocationHandler
     }
     /**
      * Looks up the match builder with identification $id and returns it.
+     *
+     * @param non-empty-string $id
      */
     public function lookupMatcher(string $id): ?\PHPUnit\Framework\MockObject\Matcher
     {
@@ -13965,12 +14269,14 @@ final class InvocationHandler
      * Registers a matcher with the identification $id. The matcher can later be
      * looked up using lookupMatcher() to figure out if it has been invoked.
      *
+     * @param non-empty-string $id
+     *
      * @throws MatcherAlreadyRegisteredException
      */
     public function registerMatcher(string $id, \PHPUnit\Framework\MockObject\Matcher $matcher): void
     {
     }
-    public function expects(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $rule): \PHPUnit\Framework\MockObject\Builder\InvocationMocker
+    public function expects(\PHPUnit\Framework\MockObject\Rule\InvocationOrder $rule): \PHPUnit\Framework\MockObject\InvocationStubber
     {
     }
     /**
@@ -13984,6 +14290,99 @@ final class InvocationHandler
      * @throws \Throwable
      */
     public function verify(): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InvocationStubberImplementation implements \PHPUnit\Framework\MockObject\InvocationStubber
+{
+    public function __construct(\PHPUnit\Framework\MockObject\InvocationHandler $handler, \PHPUnit\Framework\MockObject\Matcher $matcher, \PHPUnit\Framework\MockObject\ConfigurableMethod ...$configurableMethods)
+    {
+    }
+    /**
+     * @param \PHPUnit\Framework\Constraint\Constraint|non-empty-string|Runtime\PropertyHook $constraint
+     *
+     * @throws \PHPUnit\Framework\InvalidArgumentException
+     * @throws MethodCannotBeConfiguredException
+     * @throws MethodNameAlreadyConfiguredException
+     *
+     * @return $this
+     */
+    public function method(\PHPUnit\Framework\Constraint\Constraint|\PHPUnit\Framework\MockObject\Runtime\PropertyHook|string $constraint): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    /**
+     * @param non-empty-string $id
+     *
+     * @throws MatcherAlreadyRegisteredException
+     *
+     * @return $this
+     */
+    public function id(string $id): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    /**
+     * @param non-empty-string $id
+     *
+     * @return $this
+     */
+    public function after(string $id): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    /**
+     * @throws \PHPUnit\Framework\Exception
+     * @throws MethodNameNotConfiguredException
+     * @throws MethodParametersAlreadyConfiguredException
+     *
+     * @return $this
+     */
+    public function with(mixed ...$arguments): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    /**
+     * @throws MethodNameNotConfiguredException
+     * @throws MethodParametersAlreadyConfiguredException
+     *
+     * @return $this
+     */
+    public function withAnyParameters(): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    /**
+     * @return $this
+     */
+    public function will(\PHPUnit\Framework\MockObject\Stub\Stub $stub): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    /**
+     * @throws IncompatibleReturnValueException
+     */
+    public function willReturn(mixed $value, mixed ...$nextValues): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    public function willReturnReference(mixed &$reference): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    public function willReturnMap(array $valueMap): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    public function willReturnArgument(int $argumentIndex): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    public function willReturnCallback(callable $callback): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    public function willReturnSelf(): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    public function willReturnOnConsecutiveCalls(mixed ...$values): \PHPUnit\Framework\MockObject\InvocationStubber
+    {
+    }
+    public function willThrowException(\Throwable $exception): \PHPUnit\Framework\MockObject\InvocationStubber
     {
     }
 }
@@ -14018,6 +14417,9 @@ final class Matcher
     public function setStub(\PHPUnit\Framework\MockObject\Stub\Stub $stub): void
     {
     }
+    /**
+     * @param non-empty-string $id
+     */
     public function setAfterMatchBuilderId(string $id): void
     {
     }
@@ -14079,212 +14481,6 @@ final class ReturnValueGenerator
     {
     }
 }
-namespace PHPUnit\Framework\MockObject\Builder;
-
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface Identity
-{
-    /**
-     * Sets the identification of the expectation to $id.
-     *
-     * @note The identifier is unique per mock object.
-     */
-    public function id(string $id): self;
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class InvocationMocker implements \PHPUnit\Framework\MockObject\Builder\InvocationStubber, \PHPUnit\Framework\MockObject\Builder\MethodNameMatch
-{
-    public function __construct(\PHPUnit\Framework\MockObject\InvocationHandler $handler, \PHPUnit\Framework\MockObject\Matcher $matcher, \PHPUnit\Framework\MockObject\ConfigurableMethod ...$configurableMethods)
-    {
-    }
-    /**
-     * @throws \PHPUnit\Framework\MockObject\MatcherAlreadyRegisteredException
-     *
-     * @return $this
-     */
-    public function id(string $id): self
-    {
-    }
-    /**
-     * @return $this
-     */
-    public function will(\PHPUnit\Framework\MockObject\Stub\Stub $stub): \PHPUnit\Framework\MockObject\Builder\Identity
-    {
-    }
-    /**
-     * @throws \PHPUnit\Framework\MockObject\IncompatibleReturnValueException
-     */
-    public function willReturn(mixed $value, mixed ...$nextValues): self
-    {
-    }
-    public function willReturnReference(mixed &$reference): self
-    {
-    }
-    public function willReturnMap(array $valueMap): self
-    {
-    }
-    public function willReturnArgument(int $argumentIndex): self
-    {
-    }
-    public function willReturnCallback(callable $callback): self
-    {
-    }
-    public function willReturnSelf(): self
-    {
-    }
-    public function willReturnOnConsecutiveCalls(mixed ...$values): self
-    {
-    }
-    public function willThrowException(\Throwable $exception): self
-    {
-    }
-    /**
-     * @return $this
-     */
-    public function after(string $id): self
-    {
-    }
-    /**
-     * @throws \PHPUnit\Framework\Exception
-     * @throws \PHPUnit\Framework\MockObject\MethodNameNotConfiguredException
-     * @throws \PHPUnit\Framework\MockObject\MethodParametersAlreadyConfiguredException
-     *
-     * @return $this
-     */
-    public function with(mixed ...$arguments): self
-    {
-    }
-    /**
-     * @throws \PHPUnit\Framework\MockObject\MethodNameNotConfiguredException
-     * @throws \PHPUnit\Framework\MockObject\MethodParametersAlreadyConfiguredException
-     *
-     * @return $this
-     */
-    public function withAnyParameters(): self
-    {
-    }
-    /**
-     * @throws \PHPUnit\Framework\InvalidArgumentException
-     * @throws \PHPUnit\Framework\MockObject\MethodCannotBeConfiguredException
-     * @throws \PHPUnit\Framework\MockObject\MethodNameAlreadyConfiguredException
-     *
-     * @return $this
-     */
-    public function method(\PHPUnit\Framework\Constraint\Constraint|\PHPUnit\Framework\MockObject\Runtime\PropertyHook|string $constraint): self
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-interface InvocationStubber
-{
-    public function will(\PHPUnit\Framework\MockObject\Stub\Stub $stub): \PHPUnit\Framework\MockObject\Builder\Identity;
-    /**
-     * @return $this
-     */
-    public function willReturn(mixed $value, mixed ...$nextValues): self;
-    /**
-     * @return $this
-     */
-    public function willReturnReference(mixed &$reference): self;
-    /**
-     * @param array<int, array<int, mixed>> $valueMap
-     *
-     * @return $this
-     */
-    public function willReturnMap(array $valueMap): self;
-    /**
-     * @return $this
-     */
-    public function willReturnArgument(int $argumentIndex): self;
-    /**
-     * @return $this
-     */
-    public function willReturnCallback(callable $callback): self;
-    /**
-     * @return $this
-     */
-    public function willReturnSelf(): self;
-    /**
-     * @return $this
-     */
-    public function willReturnOnConsecutiveCalls(mixed ...$values): self;
-    /**
-     * @return $this
-     */
-    public function willThrowException(\Throwable $exception): self;
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface MethodNameMatch extends \PHPUnit\Framework\MockObject\Builder\ParametersMatch
-{
-    /**
-     * Adds a new method name match and returns the parameter match object for
-     * further matching possibilities.
-     */
-    public function method(\PHPUnit\Framework\Constraint\Constraint|string $constraint): self;
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface ParametersMatch extends \PHPUnit\Framework\MockObject\Builder\Stub
-{
-    /**
-     * Defines the expectation which must occur before the current is valid.
-     */
-    public function after(string $id): \PHPUnit\Framework\MockObject\Builder\Stub;
-    /**
-     * Sets the parameters to match for, each parameter to this function will
-     * be part of match. To perform specific matches or constraints create a
-     * new PHPUnit\Framework\Constraint\Constraint and use it for the parameter.
-     * If the parameter value is not a constraint it will use the
-     * PHPUnit\Framework\Constraint\IsEqual for the value.
-     *
-     * Some examples:
-     * <code>
-     * // match first parameter with value 2
-     * $b->with(2);
-     * // match first parameter with value 'smock' and second identical to 42
-     * $b->with('smock', new PHPUnit\Framework\Constraint\IsEqual(42));
-     * </code>
-     */
-    public function with(mixed ...$arguments): self;
-    /**
-     * Sets a rule which allows any kind of parameters.
-     *
-     * Some examples:
-     * <code>
-     * // match any number of parameters
-     * $b->withAnyParameters();
-     * </code>
-     */
-    public function withAnyParameters(): self;
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface Stub extends \PHPUnit\Framework\MockObject\Builder\Identity
-{
-    /**
-     * Stubs the matching method with the stub object $stub. Any invocations of
-     * the matched method will now be handled by the stub instead.
-     */
-    public function will(\PHPUnit\Framework\MockObject\Stub\Stub $stub): \PHPUnit\Framework\MockObject\Builder\Identity;
-}
 namespace PHPUnit\Framework\MockObject\Generator;
 
 /**
@@ -14292,9 +14488,98 @@ namespace PHPUnit\Framework\MockObject\Generator;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class CannotUseAddMethodsException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
+final readonly class DoubledClass
 {
-    public function __construct(string $type, string $methodName)
+    /**
+     * @param class-string             $mockName
+     * @param list<\PHPUnit\Framework\MockObject\ConfigurableMethod> $configurableMethods
+     */
+    public function __construct(string $classCode, string $mockName, array $configurableMethods)
+    {
+    }
+    /**
+     * @return class-string
+     */
+    public function generate(): string
+    {
+    }
+    public function classCode(): string
+    {
+    }
+    /**
+     * @return list<\PHPUnit\Framework\MockObject\ConfigurableMethod>
+     */
+    public function configurableMethods(): array
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class DoubledMethod
+{
+    use \PHPUnit\Framework\MockObject\Generator\TemplateLoader;
+    /**
+     * @throws ReflectionException
+     * @throws RuntimeException
+     */
+    public static function fromReflection(\ReflectionMethod $method): self
+    {
+    }
+    /**
+     * @param class-string     $className
+     * @param non-empty-string $methodName
+     */
+    public static function fromName(string $className, string $methodName): self
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function methodName(): string
+    {
+    }
+    /**
+     * @throws RuntimeException
+     */
+    public function generateCode(): string
+    {
+    }
+    public function returnType(): \SebastianBergmann\Type\Type
+    {
+    }
+    /**
+     * @return array<int, mixed>
+     */
+    public function defaultParameterValues(): array
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function numberOfParameters(): int
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class DoubledMethodSet
+{
+    public function addMethods(\PHPUnit\Framework\MockObject\Generator\DoubledMethod ...$methods): void
+    {
+    }
+    /**
+     * @return list<DoubledMethod>
+     */
+    public function asArray(): array
+    {
+    }
+    public function hasMethod(string $methodName): bool
     {
     }
 }
@@ -14354,6 +14639,15 @@ final class InvalidMethodNameException extends \PHPUnit\Framework\Exception impl
     }
 }
 /**
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class MethodNamedMethodException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
+{
+    public function __construct()
+    {
+    }
+}
+/**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
@@ -14364,17 +14658,6 @@ final class NameAlreadyInUseException extends \PHPUnit\Framework\Exception imple
      * @param class-string|trait-string $name
      */
     public function __construct(string $name)
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class OriginalConstructorInvocationRequiredException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
-{
-    public function __construct()
     {
     }
 }
@@ -14399,33 +14682,9 @@ final class RuntimeException extends \PHPUnit\Framework\Exception implements \PH
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class SoapExtensionNotAvailableException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
+final class UnknownInterfaceException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
 {
-    public function __construct()
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class UnknownClassException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
-{
-    public function __construct(string $className)
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5243
- */
-final class UnknownTraitException extends \PHPUnit\Framework\Exception implements \PHPUnit\Framework\MockObject\Generator\Exception
-{
-    public function __construct(string $traitName)
+    public function __construct(string $interfaceName)
     {
     }
 }
@@ -14451,100 +14710,33 @@ final class Generator
     /**
      * Returns a test double for the specified class.
      *
+     * @param class-string            $type
      * @param ?list<non-empty-string> $methods
-     * @param list<mixed>             $arguments
+     * @param array<mixed>            $arguments
      *
      * @throws ClassIsEnumerationException
      * @throws ClassIsFinalException
      * @throws DuplicateMethodException
      * @throws InvalidMethodNameException
      * @throws NameAlreadyInUseException
-     * @throws OriginalConstructorInvocationRequiredException
      * @throws ReflectionException
      * @throws RuntimeException
      * @throws UnknownTypeException
      */
-    public function testDouble(string $type, bool $mockObject, bool $markAsMockObject, ?array $methods = [], array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $callAutoload = true, bool $cloneArguments = true, bool $callOriginalMethods = false, ?object $proxyTarget = null, bool $allowMockingUnknownTypes = true, bool $returnValueGeneration = true): \PHPUnit\Framework\MockObject\MockObject|\PHPUnit\Framework\MockObject\Stub
+    public function testDouble(string $type, bool $mockObject, ?array $methods = [], array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $returnValueGeneration = true): \PHPUnit\Framework\MockObject\MockObject|\PHPUnit\Framework\MockObject\Stub
     {
     }
     /**
      * @param list<class-string> $interfaces
      *
      * @throws RuntimeException
-     * @throws UnknownTypeException
+     * @throws UnknownInterfaceException
      */
-    public function testDoubleForInterfaceIntersection(array $interfaces, bool $mockObject, bool $callAutoload = true, bool $returnValueGeneration = true): \PHPUnit\Framework\MockObject\MockObject|\PHPUnit\Framework\MockObject\Stub
+    public function testDoubleForInterfaceIntersection(array $interfaces, bool $mockObject, bool $returnValueGeneration = true): \PHPUnit\Framework\MockObject\MockObject|\PHPUnit\Framework\MockObject\Stub
     {
     }
     /**
-     * Returns a mock object for the specified abstract class with all abstract
-     * methods of the class mocked.
-     *
-     * Concrete methods to mock can be specified with the $mockedMethods parameter.
-     *
-     * @param list<mixed>             $arguments
-     * @param ?list<non-empty-string> $mockedMethods
-     *
-     * @throws ClassIsEnumerationException
-     * @throws ClassIsFinalException
-     * @throws DuplicateMethodException
-     * @throws \PHPUnit\Framework\InvalidArgumentException
-     * @throws InvalidMethodNameException
-     * @throws NameAlreadyInUseException
-     * @throws OriginalConstructorInvocationRequiredException
-     * @throws ReflectionException
-     * @throws RuntimeException
-     * @throws UnknownClassException
-     * @throws UnknownTypeException
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5241
-     */
-    public function mockObjectForAbstractClass(string $originalClassName, array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $callAutoload = true, ?array $mockedMethods = null, bool $cloneArguments = true): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Returns a mock object for the specified trait with all abstract methods
-     * of the trait mocked. Concrete methods to mock can be specified with the
-     * `$mockedMethods` parameter.
-     *
-     * @param trait-string            $traitName
-     * @param list<mixed>             $arguments
-     * @param ?list<non-empty-string> $mockedMethods
-     *
-     * @throws ClassIsEnumerationException
-     * @throws ClassIsFinalException
-     * @throws DuplicateMethodException
-     * @throws \PHPUnit\Framework\InvalidArgumentException
-     * @throws InvalidMethodNameException
-     * @throws NameAlreadyInUseException
-     * @throws OriginalConstructorInvocationRequiredException
-     * @throws ReflectionException
-     * @throws RuntimeException
-     * @throws UnknownClassException
-     * @throws UnknownTraitException
-     * @throws UnknownTypeException
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5243
-     */
-    public function mockObjectForTrait(string $traitName, array $arguments = [], string $mockClassName = '', bool $callOriginalConstructor = true, bool $callOriginalClone = true, bool $callAutoload = true, ?array $mockedMethods = null, bool $cloneArguments = true): \PHPUnit\Framework\MockObject\MockObject
-    {
-    }
-    /**
-     * Returns an object for the specified trait.
-     *
-     * @param trait-string $traitName
-     * @param list<mixed>  $arguments
-     *
-     * @throws ReflectionException
-     * @throws RuntimeException
-     * @throws UnknownTraitException
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5244
-     */
-    public function objectForTrait(string $traitName, string $traitClassName = '', bool $callAutoload = true, bool $callOriginalConstructor = false, array $arguments = []): object
-    {
-    }
-    /**
+     * @param class-string            $type
      * @param ?list<non-empty-string> $methods
      *
      * @throws ClassIsEnumerationException
@@ -14556,29 +14748,7 @@ final class Generator
      *
      * @see https://github.com/sebastianbergmann/phpunit/issues/5476
      */
-    public function generate(string $type, bool $mockObject, bool $markAsMockObject, ?array $methods = null, string $mockClassName = '', bool $callOriginalClone = true, bool $callAutoload = true, bool $cloneArguments = true, bool $callOriginalMethods = false): \PHPUnit\Framework\MockObject\Generator\MockClass
-    {
-    }
-    /**
-     * @param non-empty-string       $wsdlFile
-     * @param class-string           $className
-     * @param list<non-empty-string> $methods
-     * @param array<mixed>           $options
-     *
-     * @throws RuntimeException
-     * @throws SoapExtensionNotAvailableException
-     *
-     * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5242
-     */
-    public function generateClassFromWsdl(string $wsdlFile, string $className, array $methods = [], array $options = []): string
-    {
-    }
-    /**
-     * @throws ReflectionException
-     *
-     * @return list<MockMethod>
-     */
-    public function mockClassMethods(string $className, bool $callOriginalMethods, bool $cloneArguments): array
+    public function generate(string $type, bool $mockObject, ?array $methods = null, string $mockClassName = '', bool $callOriginalClone = true): \PHPUnit\Framework\MockObject\Generator\DoubledClass
     {
     }
 }
@@ -14618,146 +14788,10 @@ final class HookedPropertyGenerator
     /**
      * @param class-string         $className
      * @param list<HookedProperty> $properties
-     *
-     * @return non-empty-string
      */
     public function generate(string $className, array $properties): string
     {
     }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final readonly class MockClass implements \PHPUnit\Framework\MockObject\Generator\MockType
-{
-    /**
-     * @param class-string             $mockName
-     * @param list<\PHPUnit\Framework\MockObject\ConfigurableMethod> $configurableMethods
-     */
-    public function __construct(string $classCode, string $mockName, array $configurableMethods)
-    {
-    }
-    /**
-     * @return class-string
-     */
-    public function generate(): string
-    {
-    }
-    public function classCode(): string
-    {
-    }
-    /**
-     * @return list<\PHPUnit\Framework\MockObject\ConfigurableMethod>
-     */
-    public function configurableMethods(): array
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MockMethod
-{
-    use \PHPUnit\Framework\MockObject\Generator\TemplateLoader;
-    /**
-     * @throws ReflectionException
-     * @throws RuntimeException
-     */
-    public static function fromReflection(\ReflectionMethod $method, bool $callOriginalMethod, bool $cloneArguments): self
-    {
-    }
-    /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
-     */
-    public static function fromName(string $className, string $methodName, bool $cloneArguments): self
-    {
-    }
-    /**
-     * @return non-empty-string
-     */
-    public function methodName(): string
-    {
-    }
-    /**
-     * @throws RuntimeException
-     */
-    public function generateCode(): string
-    {
-    }
-    public function returnType(): \SebastianBergmann\Type\Type
-    {
-    }
-    /**
-     * @return array<int, mixed>
-     */
-    public function defaultParameterValues(): array
-    {
-    }
-    /**
-     * @return non-negative-int
-     */
-    public function numberOfParameters(): int
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class MockMethodSet
-{
-    public function addMethods(\PHPUnit\Framework\MockObject\Generator\MockMethod ...$methods): void
-    {
-    }
-    /**
-     * @return list<MockMethod>
-     */
-    public function asArray(): array
-    {
-    }
-    public function hasMethod(string $methodName): bool
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @deprecated https://github.com/sebastianbergmann/phpunit/issues/5243
- */
-final readonly class MockTrait implements \PHPUnit\Framework\MockObject\Generator\MockType
-{
-    /**
-     * @param class-string $mockName
-     */
-    public function __construct(string $classCode, string $mockName)
-    {
-    }
-    /**
-     * @return class-string
-     */
-    public function generate(): string
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-interface MockType
-{
-    /**
-     * @return class-string
-     */
-    public function generate(): string;
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -15699,10 +15733,6 @@ namespace PHPUnit\Logging\JUnit;
  */
 final class JunitXmlLogger
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public function __construct(\PHPUnit\TextUI\Output\Printer $printer, \PHPUnit\Event\Facade $facade)
     {
     }
@@ -15719,6 +15749,9 @@ final class JunitXmlLogger
      * @throws \PHPUnit\Event\InvalidArgumentException
      */
     public function testPreparationStarted(\PHPUnit\Event\Test\PreparationStarted $event): void
+    {
+    }
+    public function testPreparationErrored(): void
     {
     }
     public function testPreparationFailed(): void
@@ -15836,6 +15869,20 @@ final readonly class TestMarkedIncompleteSubscriber extends \PHPUnit\Logging\JUn
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class TestPreparationErroredSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\Test\PreparationErroredSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\PreparationErrored $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class TestPreparationFailedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\Test\PreparationFailedSubscriber
 {
     /**
@@ -15927,6 +15974,353 @@ final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\Logging\JUnit\
  */
 final readonly class TestSuiteStartedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\TestSuite\StartedSubscriber
 {
+    public function notify(\PHPUnit\Event\TestSuite\Started $event): void
+    {
+    }
+}
+namespace PHPUnit\Logging\OpenTestReporting;
+
+final class CannotOpenUriForWritingException extends \RuntimeException implements \PHPUnit\Logging\OpenTestReporting\Exception
+{
+}
+interface Exception extends \PHPUnit\Exception
+{
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class InfrastructureInformationProvider
+{
+    /**
+     * @return non-empty-string
+     */
+    public function operatingSystem(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function hostName(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function userName(): string
+    {
+    }
+    /**
+     * @return array{originUrl: non-empty-string, branch: non-empty-string, commit: non-empty-string, clean: bool, status: string}|false
+     */
+    public function gitInformation(): array|false
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class OtrXmlLogger
+{
+    /**
+     * @param non-empty-string $uri
+     *
+     * @throws CannotOpenUriForWritingException
+     */
+    public function __construct(string $uri, \PHPUnit\Event\Facade $facade)
+    {
+    }
+    public function testRunnerStarted(): void
+    {
+    }
+    public function testRunnerFinished(): void
+    {
+    }
+    public function testSuiteStarted(\PHPUnit\Event\TestSuite\Started $event): void
+    {
+    }
+    public function testSuiteSkipped(\PHPUnit\Event\TestSuite\Skipped $event): void
+    {
+    }
+    public function testSuiteFinished(): void
+    {
+    }
+    public function testPrepared(\PHPUnit\Event\Test\PreparationErrored|\PHPUnit\Event\Test\PreparationFailed|\PHPUnit\Event\Test\Prepared $event): void
+    {
+    }
+    public function testFinished(): void
+    {
+    }
+    public function testFailed(\PHPUnit\Event\Test\Failed $event): void
+    {
+    }
+    public function testErrored(\PHPUnit\Event\Test\Errored $event): void
+    {
+    }
+    public function testSkipped(\PHPUnit\Event\Test\Skipped $event): void
+    {
+    }
+    public function markTestIncomplete(\PHPUnit\Event\Test\MarkedIncomplete $event): void
+    {
+    }
+    public function parentErrored(\PHPUnit\Event\Test\AfterLastTestMethodErrored|\PHPUnit\Event\Test\BeforeFirstTestMethodErrored $event): void
+    {
+    }
+    public function parentFailed(\PHPUnit\Event\Test\AfterLastTestMethodFailed|\PHPUnit\Event\Test\BeforeFirstTestMethodFailed $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class AfterLastTestMethodErroredSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\AfterLastTestMethodErroredSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\AfterLastTestMethodErrored $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class AfterLastTestMethodFailedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\AfterLastTestMethodFailedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\AfterLastTestMethodFailed $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class BeforeFirstTestMethodErroredSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodErroredSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodErrored $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class BeforeFirstTestMethodFailedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodFailedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodFailed $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+abstract readonly class Subscriber
+{
+    public function __construct(\PHPUnit\Logging\OpenTestReporting\OtrXmlLogger $logger)
+    {
+    }
+    protected function logger(): \PHPUnit\Logging\OpenTestReporting\OtrXmlLogger
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestAbortedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\MarkedIncompleteSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\MarkedIncomplete $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestErroredSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\ErroredSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\Errored $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestFailedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\FailedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\Failed $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestFinishedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\FinishedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\Finished $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestPreparationErroredSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\PreparationErroredSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\PreparationErrored $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestPreparationFailedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\PreparationFailedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\PreparationFailed $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestPreparedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\PreparedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\Prepared $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestRunnerFinishedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\TestRunner\ExecutionFinishedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\TestRunner\ExecutionFinished $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestRunnerStartedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Application\StartedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Application\Started $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\SkippedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\Test\Skipped $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\TestSuite\FinishedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\TestSuite\Finished $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
+    public function notify(\PHPUnit\Event\TestSuite\Skipped $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestSuiteStartedSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\TestSuite\StartedSubscriber
+{
+    /**
+     * @throws \PHPUnit\Event\InvalidArgumentException
+     */
     public function notify(\PHPUnit\Event\TestSuite\Started $event): void
     {
     }
@@ -16110,10 +16504,6 @@ final readonly class TestSuiteStartedSubscriber extends \PHPUnit\Logging\TeamCit
  */
 final class TeamCityLogger
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public function __construct(\PHPUnit\TextUI\Output\Printer $printer, \PHPUnit\Event\Facade $facade)
     {
     }
@@ -16526,10 +16916,6 @@ final class TestResultCollectionIterator implements \Iterator
  */
 final class TestResultCollector
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public function __construct(\PHPUnit\Event\Facade $facade, \PHPUnit\TestRunner\IssueFilter $issueFilter)
     {
     }
@@ -16685,23 +17071,6 @@ final readonly class BeforeClass extends \PHPUnit\Metadata\Metadata
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final readonly class Covers extends \PHPUnit\Metadata\Metadata
-{
-    public function isCovers(): true
-    {
-    }
-    /**
-     * @return non-empty-string
-     */
-    public function target(): string
-    {
-    }
-}
-/**
- * @immutable
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
 final readonly class CoversClass extends \PHPUnit\Metadata\Metadata
 {
     public function isCoversClass(): true
@@ -16713,12 +17082,21 @@ final readonly class CoversClass extends \PHPUnit\Metadata\Metadata
     public function className(): string
     {
     }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class CoversClassesThatExtendClass extends \PHPUnit\Metadata\Metadata
+{
+    public function isCoversClassesThatExtendClass(): true
+    {
+    }
     /**
      * @return class-string
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
-    public function asStringForCodeUnitMapper(): string
+    public function className(): string
     {
     }
 }
@@ -16727,15 +17105,15 @@ final readonly class CoversClass extends \PHPUnit\Metadata\Metadata
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final readonly class CoversDefaultClass extends \PHPUnit\Metadata\Metadata
+final readonly class CoversClassesThatImplementInterface extends \PHPUnit\Metadata\Metadata
 {
-    public function isCoversDefaultClass(): true
+    public function isCoversClassesThatImplementInterface(): true
     {
     }
     /**
      * @return class-string
      */
-    public function className(): string
+    public function interfaceName(): string
     {
     }
 }
@@ -16753,12 +17131,6 @@ final readonly class CoversFunction extends \PHPUnit\Metadata\Metadata
      * @return non-empty-string
      */
     public function functionName(): string
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function asStringForCodeUnitMapper(): string
     {
     }
 }
@@ -16784,12 +17156,21 @@ final readonly class CoversMethod extends \PHPUnit\Metadata\Metadata
     public function methodName(): string
     {
     }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class CoversNamespace extends \PHPUnit\Metadata\Metadata
+{
+    public function isCoversNamespace(): true
+    {
+    }
     /**
-     * @return non-empty-string
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     * @return class-string
      */
-    public function asStringForCodeUnitMapper(): string
+    public function namespace(): string
     {
     }
 }
@@ -16818,14 +17199,6 @@ final readonly class CoversTrait extends \PHPUnit\Metadata\Metadata
      * @return trait-string
      */
     public function traitName(): string
-    {
-    }
-    /**
-     * @return trait-string
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function asStringForCodeUnitMapper(): string
     {
     }
 }
@@ -16926,20 +17299,6 @@ final readonly class DoesNotPerformAssertions extends \PHPUnit\Metadata\Metadata
     {
     }
 }
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class AnnotationsAreNotSupportedForInternalClassesException extends \RuntimeException implements \PHPUnit\Exception
-{
-    /**
-     * @param class-string $className
-     */
-    public function __construct(string $className)
-    {
-    }
-}
 interface Exception extends \PHPUnit\Exception
 {
 }
@@ -16965,14 +17324,6 @@ final class InvalidVersionRequirementException extends \RuntimeException impleme
 {
 }
 final class NoVersionRequirementException extends \RuntimeException implements \PHPUnit\Metadata\Exception
-{
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class ReflectionException extends \RuntimeException implements \PHPUnit\Exception
 {
 }
 /**
@@ -17088,9 +17439,27 @@ abstract readonly class Metadata
     {
     }
     /**
+     * @param non-empty-string $namespace
+     */
+    public static function coversNamespace(string $namespace): \PHPUnit\Metadata\CoversNamespace
+    {
+    }
+    /**
      * @param class-string $className
      */
     public static function coversClass(string $className): \PHPUnit\Metadata\CoversClass
+    {
+    }
+    /**
+     * @param class-string $className
+     */
+    public static function coversClassesThatExtendClass(string $className): \PHPUnit\Metadata\CoversClassesThatExtendClass
+    {
+    }
+    /**
+     * @param class-string $interfaceName
+     */
+    public static function coversClassesThatImplementInterface(string $interfaceName): \PHPUnit\Metadata\CoversClassesThatImplementInterface
     {
     }
     /**
@@ -17110,24 +17479,6 @@ abstract readonly class Metadata
      * @param non-empty-string $functionName
      */
     public static function coversFunction(string $functionName): \PHPUnit\Metadata\CoversFunction
-    {
-    }
-    /**
-     * @param non-empty-string $target
-     */
-    public static function coversOnClass(string $target): \PHPUnit\Metadata\Covers
-    {
-    }
-    /**
-     * @param non-empty-string $target
-     */
-    public static function coversOnMethod(string $target): \PHPUnit\Metadata\Covers
-    {
-    }
-    /**
-     * @param class-string $className
-     */
-    public static function coversDefaultClass(string $className): \PHPUnit\Metadata\CoversDefaultClass
     {
     }
     public static function coversNothingOnClass(): \PHPUnit\Metadata\CoversNothing
@@ -17319,6 +17670,18 @@ abstract readonly class Metadata
     public static function requiresPhpunitExtensionOnMethod(string $extensionClass): \PHPUnit\Metadata\RequiresPhpunitExtension
     {
     }
+    public static function requiresEnvironmentVariableOnClass(string $environmentVariableName, null|string $value): \PHPUnit\Metadata\RequiresEnvironmentVariable
+    {
+    }
+    public static function requiresEnvironmentVariableOnMethod(string $environmentVariableName, null|string $value): \PHPUnit\Metadata\RequiresEnvironmentVariable
+    {
+    }
+    public static function withEnvironmentVariableOnClass(string $environmentVariableName, null|string $value): \PHPUnit\Metadata\WithEnvironmentVariable
+    {
+    }
+    public static function withEnvironmentVariableOnMethod(string $environmentVariableName, null|string $value): \PHPUnit\Metadata\WithEnvironmentVariable
+    {
+    }
     /**
      * @param non-empty-string $setting
      * @param non-empty-string $value
@@ -17365,9 +17728,27 @@ abstract readonly class Metadata
     {
     }
     /**
+     * @param non-empty-string $namespace
+     */
+    public static function usesNamespace(string $namespace): \PHPUnit\Metadata\UsesNamespace
+    {
+    }
+    /**
      * @param class-string $className
      */
     public static function usesClass(string $className): \PHPUnit\Metadata\UsesClass
+    {
+    }
+    /**
+     * @param class-string $className
+     */
+    public static function usesClassesThatExtendClass(string $className): \PHPUnit\Metadata\UsesClassesThatExtendClass
+    {
+    }
+    /**
+     * @param class-string $interfaceName
+     */
+    public static function usesClassesThatImplementInterface(string $interfaceName): \PHPUnit\Metadata\UsesClassesThatImplementInterface
     {
     }
     /**
@@ -17389,29 +17770,11 @@ abstract readonly class Metadata
     public static function usesMethod(string $className, string $methodName): \PHPUnit\Metadata\UsesMethod
     {
     }
-    /**
-     * @param non-empty-string $target
-     */
-    public static function usesOnClass(string $target): \PHPUnit\Metadata\Uses
-    {
-    }
-    /**
-     * @param non-empty-string $target
-     */
-    public static function usesOnMethod(string $target): \PHPUnit\Metadata\Uses
-    {
-    }
-    /**
-     * @param class-string $className
-     */
-    public static function usesDefaultClass(string $className): \PHPUnit\Metadata\UsesDefaultClass
-    {
-    }
     public static function withoutErrorHandler(): \PHPUnit\Metadata\WithoutErrorHandler
     {
     }
     /**
-     * @param 0|1 $level
+     * @param int<0, 1> $level
      */
     protected function __construct(int $level)
     {
@@ -17459,9 +17822,9 @@ abstract readonly class Metadata
     {
     }
     /**
-     * @phpstan-assert-if-true Covers $this
+     * @phpstan-assert-if-true CoversNamespace $this
      */
-    public function isCovers(): bool
+    public function isCoversNamespace(): bool
     {
     }
     /**
@@ -17471,9 +17834,15 @@ abstract readonly class Metadata
     {
     }
     /**
-     * @phpstan-assert-if-true CoversDefaultClass $this
+     * @phpstan-assert-if-true CoversClassesThatExtendClass $this
      */
-    public function isCoversDefaultClass(): bool
+    public function isCoversClassesThatExtendClass(): bool
+    {
+    }
+    /**
+     * @phpstan-assert-if-true CoversClassesThatImplementInterface $this
+     */
+    public function isCoversClassesThatImplementInterface(): bool
     {
     }
     /**
@@ -17653,6 +18022,18 @@ abstract readonly class Metadata
     {
     }
     /**
+     * @phpstan-assert-if-true RequiresEnvironmentVariable $this
+     */
+    public function isRequiresEnvironmentVariable(): bool
+    {
+    }
+    /**
+     * @phpstan-assert-if-true WithEnvironmentVariable $this
+     */
+    public function isWithEnvironmentVariable(): bool
+    {
+    }
+    /**
      * @phpstan-assert-if-true RequiresSetting $this
      */
     public function isRequiresSetting(): bool
@@ -17671,9 +18052,9 @@ abstract readonly class Metadata
     {
     }
     /**
-     * @phpstan-assert-if-true Uses $this
+     * @phpstan-assert-if-true UsesNamespace $this
      */
-    public function isUses(): bool
+    public function isUsesNamespace(): bool
     {
     }
     /**
@@ -17683,9 +18064,15 @@ abstract readonly class Metadata
     {
     }
     /**
-     * @phpstan-assert-if-true UsesDefaultClass $this
+     * @phpstan-assert-if-true UsesClassesThatExtendClass $this
      */
-    public function isUsesDefaultClass(): bool
+    public function isUsesClassesThatExtendClass(): bool
+    {
+    }
+    /**
+     * @phpstan-assert-if-true UsesClassesThatImplementInterface $this
+     */
+    public function isUsesClassesThatImplementInterface(): bool
     {
     }
     /**
@@ -17737,9 +18124,17 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
     public function count(): int
     {
     }
+    /**
+     * @phpstan-assert-if-true 0 $this->count()
+     * @phpstan-assert-if-true array{} $this->asArray()
+     */
     public function isEmpty(): bool
     {
     }
+    /**
+     * @phpstan-assert-if-true positive-int $this->count()
+     * @phpstan-assert-if-true non-empty-list<Metadata> $this->asArray()
+     */
     public function isNotEmpty(): bool
     {
     }
@@ -17773,13 +18168,16 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
     public function isBefore(): self
     {
     }
-    public function isCovers(): self
+    public function isCoversNamespace(): self
     {
     }
     public function isCoversClass(): self
     {
     }
-    public function isCoversDefaultClass(): self
+    public function isCoversClassesThatExtendClass(): self
+    {
+    }
+    public function isCoversClassesThatImplementInterface(): self
     {
     }
     public function isCoversTrait(): self
@@ -17875,6 +18273,12 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
     public function isRequiresPhpunitExtension(): self
     {
     }
+    public function isRequiresEnvironmentVariable(): self
+    {
+    }
+    public function isWithEnvironmentVariable(): self
+    {
+    }
     public function isRequiresSetting(): self
     {
     }
@@ -17884,13 +18288,16 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
     public function isTestWith(): self
     {
     }
-    public function isUses(): self
+    public function isUsesNamespace(): self
     {
     }
     public function isUsesClass(): self
     {
     }
-    public function isUsesDefaultClass(): self
+    public function isUsesClassesThatExtendClass(): self
+    {
+    }
+    public function isUsesClassesThatImplementInterface(): self
     {
     }
     public function isUsesTrait(): self
@@ -17979,6 +18386,26 @@ final readonly class PreserveGlobalState extends \PHPUnit\Metadata\Metadata
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class RequiresEnvironmentVariable extends \PHPUnit\Metadata\Metadata
+{
+    public function __construct(int $level, string $environmentVariableName, null|string $value)
+    {
+    }
+    public function isRequiresEnvironmentVariable(): true
+    {
+    }
+    public function environmentVariableName(): string
+    {
+    }
+    public function value(): null|string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class RequiresFunction extends \PHPUnit\Metadata\Metadata
 {
     public function isRequiresFunction(): true
@@ -18022,7 +18449,7 @@ final readonly class RequiresMethod extends \PHPUnit\Metadata\Metadata
 final readonly class RequiresOperatingSystem extends \PHPUnit\Metadata\Metadata
 {
     /**
-     * @param 0|1              $level
+     * @param int<0, 1>        $level
      * @param non-empty-string $operatingSystem
      */
     public function __construct(int $level, string $operatingSystem)
@@ -18253,23 +18680,6 @@ final readonly class TestWith extends \PHPUnit\Metadata\Metadata
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final readonly class Uses extends \PHPUnit\Metadata\Metadata
-{
-    public function isUses(): true
-    {
-    }
-    /**
-     * @return non-empty-string
-     */
-    public function target(): string
-    {
-    }
-}
-/**
- * @immutable
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
 final readonly class UsesClass extends \PHPUnit\Metadata\Metadata
 {
     public function isUsesClass(): true
@@ -18281,23 +18691,15 @@ final readonly class UsesClass extends \PHPUnit\Metadata\Metadata
     public function className(): string
     {
     }
-    /**
-     * @return class-string
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function asStringForCodeUnitMapper(): string
-    {
-    }
 }
 /**
  * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final readonly class UsesDefaultClass extends \PHPUnit\Metadata\Metadata
+final readonly class UsesClassesThatExtendClass extends \PHPUnit\Metadata\Metadata
 {
-    public function isUsesDefaultClass(): true
+    public function isUsesClassesThatExtendClass(): true
     {
     }
     /**
@@ -18312,10 +18714,27 @@ final readonly class UsesDefaultClass extends \PHPUnit\Metadata\Metadata
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class UsesClassesThatImplementInterface extends \PHPUnit\Metadata\Metadata
+{
+    public function isUsesClassesThatImplementInterface(): true
+    {
+    }
+    /**
+     * @return class-string
+     */
+    public function interfaceName(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class UsesFunction extends \PHPUnit\Metadata\Metadata
 {
     /**
-     * @param 0|1              $level
+     * @param int<0, 1>        $level
      * @param non-empty-string $functionName
      */
     public function __construct(int $level, string $functionName)
@@ -18328,12 +18747,6 @@ final readonly class UsesFunction extends \PHPUnit\Metadata\Metadata
      * @return non-empty-string
      */
     public function functionName(): string
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function asStringForCodeUnitMapper(): string
     {
     }
 }
@@ -18359,12 +18772,21 @@ final readonly class UsesMethod extends \PHPUnit\Metadata\Metadata
     public function methodName(): string
     {
     }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class UsesNamespace extends \PHPUnit\Metadata\Metadata
+{
+    public function isUsesNamespace(): true
+    {
+    }
     /**
-     * @return non-empty-string
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     * @return class-string
      */
-    public function asStringForCodeUnitMapper(): string
+    public function namespace(): string
     {
     }
 }
@@ -18384,12 +18806,30 @@ final readonly class UsesTrait extends \PHPUnit\Metadata\Metadata
     public function traitName(): string
     {
     }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class WithEnvironmentVariable extends \PHPUnit\Metadata\Metadata
+{
     /**
-     * @return trait-string
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     * @param non-empty-string $environmentVariableName
      */
-    public function asStringForCodeUnitMapper(): string
+    public function __construct(int $level, string $environmentVariableName, null|string $value)
+    {
+    }
+    public function isWithEnvironmentVariable(): true
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function environmentVariableName(): string
+    {
+    }
+    public function value(): null|string
     {
     }
 }
@@ -18401,87 +18841,6 @@ final readonly class UsesTrait extends \PHPUnit\Metadata\Metadata
 final readonly class WithoutErrorHandler extends \PHPUnit\Metadata\Metadata
 {
     public function isWithoutErrorHandler(): true
-    {
-    }
-}
-namespace PHPUnit\Metadata\Annotation\Parser;
-
-/**
- * This is an abstraction around a PHPUnit-specific docBlock,
- * allowing us to ask meaningful questions about a specific
- * reflection symbol.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class DocBlock
-{
-    /**
-     * @throws \PHPUnit\Metadata\AnnotationsAreNotSupportedForInternalClassesException
-     *
-     * @phpstan-ignore missingType.generics
-     */
-    public static function ofClass(\ReflectionClass $class): self
-    {
-    }
-    /**
-     * @throws \PHPUnit\Metadata\AnnotationsAreNotSupportedForInternalClassesException
-     */
-    public static function ofMethod(\ReflectionMethod $method): self
-    {
-    }
-    /**
-     * @phan-return array{
-     *   __OFFSET: array<string, int>&array{__FILE: string},
-     *   setting?: array<string, string>,
-     *   extension_versions?: array<string, array{version: string, operator: string}>
-     * }&array<
-     *   string,
-     *   string|array{version: string, operator: string}|array{constraint: string}|array<int|string, string>
-     * >
-     *
-     * @phpstan-ignore missingType.iterableValue
-     */
-    public function requirements(): array
-    {
-    }
-    /**
-     * @return array<string, array<int, string>>
-     */
-    public function symbolAnnotations(): array
-    {
-    }
-}
-/**
- * Reflection information, and therefore DocBlock information, is static within
- * a single PHP process. It is therefore okay to use a Singleton registry here.
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class Registry
-{
-    public static function getInstance(): self
-    {
-    }
-    /**
-     * @param class-string $class
-     *
-     * @throws \PHPUnit\Metadata\AnnotationsAreNotSupportedForInternalClassesException
-     * @throws \PHPUnit\Metadata\ReflectionException
-     */
-    public function forClassName(string $class): \PHPUnit\Metadata\Annotation\Parser\DocBlock
-    {
-    }
-    /**
-     * @param class-string $classInHierarchy
-     *
-     * @throws \PHPUnit\Metadata\AnnotationsAreNotSupportedForInternalClassesException
-     * @throws \PHPUnit\Metadata\ReflectionException
-     */
-    public function forMethod(string $classInHierarchy, string $method): \PHPUnit\Metadata\Annotation\Parser\DocBlock
     {
     }
 }
@@ -18497,23 +18856,15 @@ final class CodeCoverage
     /**
      * @param class-string     $className
      * @param non-empty-string $methodName
-     *
-     * @throws \PHPUnit\Framework\CodeCoverageException
-     *
-     * @return array<string,list<int>>|false
      */
-    public function linesToBeCovered(string $className, string $methodName): array|false
+    public function coversTargets(string $className, string $methodName): \SebastianBergmann\CodeCoverage\Test\Target\TargetCollection
     {
     }
     /**
      * @param class-string     $className
      * @param non-empty-string $methodName
-     *
-     * @throws \PHPUnit\Framework\CodeCoverageException
-     *
-     * @return array<string,list<int>>
      */
-    public function linesToBeUsed(string $className, string $methodName): array
+    public function usesTargets(string $className, string $methodName): \SebastianBergmann\CodeCoverage\Test\Target\TargetCollection
     {
     }
     /**
@@ -18624,46 +18975,6 @@ namespace PHPUnit\Metadata\Parser;
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class AnnotationParser implements \PHPUnit\Metadata\Parser\Parser
-{
-    /**
-     * @param class-string $className
-     *
-     * @throws \PHPUnit\Metadata\AnnotationsAreNotSupportedForInternalClassesException
-     * @throws \PHPUnit\Util\InvalidVersionOperatorException
-     * @throws \PHPUnit\Metadata\ReflectionException
-     */
-    public function forClass(string $className): \PHPUnit\Metadata\MetadataCollection
-    {
-    }
-    /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
-     *
-     * @throws \PHPUnit\Metadata\AnnotationsAreNotSupportedForInternalClassesException
-     * @throws \PHPUnit\Util\InvalidVersionOperatorException
-     * @throws \PHPUnit\Metadata\ReflectionException
-     */
-    public function forMethod(string $className, string $methodName): \PHPUnit\Metadata\MetadataCollection
-    {
-    }
-    /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
-     *
-     * @throws \PHPUnit\Metadata\AnnotationsAreNotSupportedForInternalClassesException
-     * @throws \PHPUnit\Util\InvalidVersionOperatorException
-     * @throws \PHPUnit\Metadata\ReflectionException
-     */
-    public function forClassAndMethod(string $className, string $methodName): \PHPUnit\Metadata\MetadataCollection
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
 final readonly class AttributeParser implements \PHPUnit\Metadata\Parser\Parser
 {
     /**
@@ -18741,38 +19052,7 @@ interface Parser
     public function forClassAndMethod(string $className, string $methodName): \PHPUnit\Metadata\MetadataCollection;
 }
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final readonly class ParserChain implements \PHPUnit\Metadata\Parser\Parser
-{
-    public function __construct(\PHPUnit\Metadata\Parser\Parser $attributeReader, \PHPUnit\Metadata\Parser\Parser $annotationReader)
-    {
-    }
-    /**
-     * @param class-string $className
-     */
-    public function forClass(string $className): \PHPUnit\Metadata\MetadataCollection
-    {
-    }
-    /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
-     */
-    public function forMethod(string $className, string $methodName): \PHPUnit\Metadata\MetadataCollection
-    {
-    }
-    /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
-     */
-    public function forClassAndMethod(string $className, string $methodName): \PHPUnit\Metadata\MetadataCollection
-    {
-    }
-}
-/**
- * Attribute and annotation information is static within a single PHP process.
+ * Attribute information is static within a single PHP process.
  * It is therefore okay to use a Singleton registry here.
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -18844,6 +19124,25 @@ namespace PHPUnit\Runner;
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class BackedUpEnvironmentVariable
+{
+    /**
+     * @param non-empty-string $name
+     *
+     * @return array{0: self, 1: self}
+     */
+    public static function create(string $name): array
+    {
+    }
+    public function restore(): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
  * @codeCoverageIgnore
  */
@@ -18864,17 +19163,16 @@ final class CodeCoverage
     public function codeCoverage(): \SebastianBergmann\CodeCoverage\CodeCoverage
     {
     }
-    public function driver(): \SebastianBergmann\CodeCoverage\Driver\Driver
+    /**
+     * @return non-empty-string
+     */
+    public function driverNameAndVersion(): string
     {
     }
     public function start(\PHPUnit\Framework\TestCase $test): void
     {
     }
-    /**
-     * @param array<string,list<int>>|false $linesToBeCovered
-     * @param array<string,list<int>>       $linesToBeUsed
-     */
-    public function stop(bool $append, array|false $linesToBeCovered = [], array $linesToBeUsed = []): void
+    public function stop(bool $append, null|false|\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $covers = null, ?\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $uses = null): void
     {
     }
     public function deactivate(): void
@@ -18898,6 +19196,15 @@ final class ErrorHandler
      * @throws \PHPUnit\Event\Code\NoTestCaseObjectOnCallStackException
      */
     public function __invoke(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
+    {
+    }
+    public function deprecationHandler(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
+    {
+    }
+    public function registerDeprecationHandler(): void
+    {
+    }
+    public function restoreDeprecationHandler(): void
     {
     }
     public function enable(): void
@@ -19000,39 +19307,9 @@ final class InvalidOrderException extends \RuntimeException implements \PHPUnit\
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class InvalidPhptFileException extends \RuntimeException implements \PHPUnit\Runner\Exception
-{
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
 final class ParameterDoesNotExistException extends \RuntimeException implements \PHPUnit\Runner\Exception
 {
     public function __construct(string $name)
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class PhptExternalFileCannotBeLoadedException extends \RuntimeException implements \PHPUnit\Runner\Exception
-{
-    public function __construct(string $section, string $file)
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final class UnsupportedPhptSectionException extends \RuntimeException implements \PHPUnit\Runner\Exception
-{
-    public function __construct(string $section)
     {
     }
 }
@@ -19099,90 +19376,6 @@ final class HookMethodCollection
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
-final class PhptTestCase implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
-{
-    /**
-     * Constructs a test case with the given filename.
-     *
-     * @param non-empty-string $filename
-     */
-    public function __construct(string $filename)
-    {
-    }
-    /**
-     * Counts the number of test cases executed by run(TestResult result).
-     */
-    public function count(): int
-    {
-    }
-    /**
-     * Runs a test and collects its result in a TestResult instance.
-     *
-     * @throws \PHPUnit\Framework\Exception
-     * @throws \SebastianBergmann\Template\InvalidArgumentException
-     * @throws Exception
-     * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
-     * @throws \PHPUnit\Event\NoPreviousThrowableException
-     * @throws \SebastianBergmann\CodeCoverage\ReflectionException
-     * @throws \SebastianBergmann\CodeCoverage\TestIdMissingException
-     * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
-     *
-     * @noinspection RepetitiveMethodCallsInspection
-     */
-    public function run(): void
-    {
-    }
-    /**
-     * Returns the name of the test case.
-     */
-    public function getName(): string
-    {
-    }
-    /**
-     * Returns a string representation of the test case.
-     */
-    public function toString(): string
-    {
-    }
-    public function usesDataProvider(): bool
-    {
-    }
-    public function numberOfAssertionsPerformed(): int
-    {
-    }
-    public function output(): string
-    {
-    }
-    public function hasOutput(): bool
-    {
-    }
-    public function sortId(): string
-    {
-    }
-    /**
-     * @return list<\PHPUnit\Framework\ExecutionOrderDependency>
-     */
-    public function provides(): array
-    {
-    }
-    /**
-     * @return list<\PHPUnit\Framework\ExecutionOrderDependency>
-     */
-    public function requires(): array
-    {
-    }
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function valueObjectForEvents(): \PHPUnit\Event\Code\Phpt
-    {
-    }
-}
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
 final class TestSuiteLoader
 {
     /**
@@ -19201,29 +19394,11 @@ final class TestSuiteLoader
  */
 final class TestSuiteSorter
 {
-    /**
-     * @var int
-     */
     public const ORDER_DEFAULT = 0;
-    /**
-     * @var int
-     */
     public const ORDER_RANDOMIZED = 1;
-    /**
-     * @var int
-     */
     public const ORDER_REVERSED = 2;
-    /**
-     * @var int
-     */
     public const ORDER_DEFECTS_FIRST = 3;
-    /**
-     * @var int
-     */
     public const ORDER_DURATION = 4;
-    /**
-     * @var int
-     */
     public const ORDER_SIZE = 5;
     public function __construct(?\PHPUnit\Runner\ResultCache\ResultCache $cache = null)
     {
@@ -19294,7 +19469,7 @@ final class Baseline
     {
     }
     /**
-     * @return array<string, array<positive-int, list<Issue>>>
+     * @return array<non-empty-string, array<positive-int, list<Issue>>>
      */
     public function groupedByFileAndLine(): array
     {
@@ -19326,10 +19501,6 @@ final class FileDoesNotHaveLineException extends \RuntimeException implements \P
  */
 final readonly class Generator
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public function __construct(\PHPUnit\Event\Facade $facade, \PHPUnit\TextUI\Configuration\Source $source)
     {
     }
@@ -19566,10 +19737,6 @@ namespace PHPUnit\Runner\DeprecationCollector;
  */
 final class Collector
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public function __construct(\PHPUnit\Event\Facade $facade, \PHPUnit\TestRunner\IssueFilter $issueFilter)
     {
     }
@@ -19599,26 +19766,16 @@ final class Collector
  */
 final class Facade
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public static function init(): void
     {
     }
     /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     *
      * @return list<non-empty-string>
      */
     public static function deprecations(): array
     {
     }
     /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     *
      * @return list<non-empty-string>
      */
     public static function filteredDeprecations(): array
@@ -19926,10 +20083,6 @@ namespace PHPUnit\Runner\GarbageCollection;
  */
 final class GarbageCollectionHandler
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public function __construct(\PHPUnit\Event\Facade $facade, int $threshold)
     {
     }
@@ -19999,6 +20152,168 @@ final readonly class TestFinishedSubscriber extends \PHPUnit\Runner\GarbageColle
      * @throws \PHPUnit\Event\InvalidArgumentException
      */
     public function notify(\PHPUnit\Event\Test\Finished $event): void
+    {
+    }
+}
+namespace PHPUnit\Runner\Phpt;
+
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class InvalidPhptFileException extends \RuntimeException implements \PHPUnit\Runner\Exception
+{
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class PhptExternalFileCannotBeLoadedException extends \RuntimeException implements \PHPUnit\Runner\Exception
+{
+    public function __construct(string $section, string $file)
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final class UnsupportedPhptSectionException extends \RuntimeException implements \PHPUnit\Runner\Exception
+{
+    public function __construct(string $section)
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://qa.php.net/phpt_details.php
+ */
+final readonly class Parser
+{
+    /**
+     * @param non-empty-string $phptFile
+     *
+     * @throws \PHPUnit\Runner\Exception
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function parse(string $phptFile): array
+    {
+    }
+    /**
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function parseEnvSection(string $content): array
+    {
+    }
+    /**
+     * @param array<string>|string                                              $content
+     * @param array<non-empty-string, array<non-empty-string>|non-empty-string> $ini
+     *
+     * @return array<non-empty-string, array<non-empty-string>|non-empty-string>
+     */
+    public function parseIniSection(array|string $content, array $ini = []): array
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://qa.php.net/phpt_details.php
+ */
+final readonly class Renderer
+{
+    /**
+     * @param non-empty-string $phptFile
+     * @param non-empty-string $code
+     *
+     * @return non-empty-string
+     */
+    public function render(string $phptFile, string $code): string
+    {
+    }
+    /**
+     * @param non-empty-string                                         $job
+     * @param array{coverage: non-empty-string, job: non-empty-string} $files
+     *
+     * @param-out non-empty-string $job
+     *
+     * @throws \SebastianBergmann\Template\InvalidArgumentException
+     */
+    public function renderForCoverage(string &$job, bool $pathCoverage, ?string $codeCoverageCacheDirectory, array $files): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @see https://qa.php.net/phpt_details.php
+ */
+final readonly class TestCase implements \PHPUnit\Framework\Reorderable, \PHPUnit\Framework\SelfDescribing, \PHPUnit\Framework\Test
+{
+    /**
+     * @param non-empty-string $filename
+     */
+    public function __construct(string $filename)
+    {
+    }
+    public function count(): int
+    {
+    }
+    /**
+     * @throws \PHPUnit\Framework\Exception
+     * @throws \SebastianBergmann\Template\InvalidArgumentException
+     * @throws \PHPUnit\Runner\Exception
+     * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
+     * @throws \PHPUnit\Event\NoPreviousThrowableException
+     * @throws \SebastianBergmann\CodeCoverage\ReflectionException
+     * @throws \SebastianBergmann\CodeCoverage\TestIdMissingException
+     * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
+     */
+    public function run(): void
+    {
+    }
+    /**
+     * Returns the name of the test case.
+     */
+    public function getName(): string
+    {
+    }
+    /**
+     * Returns a string representation of the test case.
+     */
+    public function toString(): string
+    {
+    }
+    public function sortId(): string
+    {
+    }
+    /**
+     * @return list<\PHPUnit\Framework\ExecutionOrderDependency>
+     */
+    public function provides(): array
+    {
+    }
+    /**
+     * @return list<\PHPUnit\Framework\ExecutionOrderDependency>
+     */
+    public function requires(): array
+    {
+    }
+    /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function valueObjectForEvents(): \PHPUnit\Event\Code\Phpt
     {
     }
 }
@@ -20086,10 +20401,6 @@ interface ResultCache
  */
 final class ResultCacheHandler
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public function __construct(\PHPUnit\Runner\ResultCache\ResultCache $cache, \PHPUnit\Event\Facade $facade)
     {
     }
@@ -20275,10 +20586,6 @@ namespace PHPUnit\TestRunner\TestResult;
  */
 final class Collector
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public function __construct(\PHPUnit\Event\Facade $facade, \PHPUnit\TestRunner\IssueFilter $issueFilter)
     {
     }
@@ -20306,7 +20613,13 @@ final class Collector
     public function beforeTestClassMethodErrored(\PHPUnit\Event\Test\BeforeFirstTestMethodErrored $event): void
     {
     }
+    public function beforeTestClassMethodFailed(\PHPUnit\Event\Test\BeforeFirstTestMethodFailed $event): void
+    {
+    }
     public function afterTestClassMethodErrored(\PHPUnit\Event\Test\AfterLastTestMethodErrored $event): void
+    {
+    }
+    public function afterTestClassMethodFailed(\PHPUnit\Event\Test\AfterLastTestMethodFailed $event): void
     {
     }
     public function testErrored(\PHPUnit\Event\Test\Errored $event): void
@@ -20333,6 +20646,9 @@ final class Collector
     public function testTriggeredPhpunitDeprecation(\PHPUnit\Event\Test\PhpunitDeprecationTriggered $event): void
     {
     }
+    public function testTriggeredPhpunitNotice(\PHPUnit\Event\Test\PhpunitNoticeTriggered $event): void
+    {
+    }
     public function testTriggeredError(\PHPUnit\Event\Test\ErrorTriggered $event): void
     {
     }
@@ -20355,6 +20671,9 @@ final class Collector
     {
     }
     public function testRunnerTriggeredDeprecation(\PHPUnit\Event\TestRunner\DeprecationTriggered $event): void
+    {
+    }
+    public function testRunnerTriggeredNotice(\PHPUnit\Event\TestRunner\NoticeTriggered $event): void
     {
     }
     public function testRunnerTriggeredWarning(\PHPUnit\Event\TestRunner\WarningTriggered $event): void
@@ -20392,24 +20711,12 @@ final class Collector
  */
 final class Facade
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public static function init(): void
     {
     }
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public static function result(): \PHPUnit\TestRunner\TestResult\TestResult
     {
     }
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public static function shouldStop(): bool
     {
     }
@@ -20468,9 +20775,31 @@ final readonly class AfterTestClassMethodErroredSubscriber extends \PHPUnit\Test
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class AfterTestClassMethodFailedSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\AfterLastTestMethodFailedSubscriber
+{
+    public function notify(\PHPUnit\Event\Test\AfterLastTestMethodFailed $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class BeforeTestClassMethodErroredSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodErroredSubscriber
 {
     public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodErrored $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class BeforeTestClassMethodFailedSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\BeforeFirstTestMethodFailedSubscriber
+{
+    public function notify(\PHPUnit\Event\Test\BeforeFirstTestMethodFailed $event): void
     {
     }
 }
@@ -20573,6 +20902,17 @@ final readonly class TestPreparedSubscriber extends \PHPUnit\TestRunner\TestResu
 final readonly class TestRunnerTriggeredDeprecationSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\TestRunner\DeprecationTriggeredSubscriber
 {
     public function notify(\PHPUnit\Event\TestRunner\DeprecationTriggered $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestRunnerTriggeredNoticeSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\TestRunner\NoticeTriggeredSubscriber
+{
+    public function notify(\PHPUnit\Event\TestRunner\NoticeTriggered $event): void
     {
     }
 }
@@ -20724,6 +21064,17 @@ final readonly class TestTriggeredPhpunitErrorSubscriber extends \PHPUnit\TestRu
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class TestTriggeredPhpunitNoticeSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\PhpunitNoticeTriggeredSubscriber
+{
+    public function notify(\PHPUnit\Event\Test\PhpunitNoticeTriggered $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class TestTriggeredPhpunitWarningSubscriber extends \PHPUnit\TestRunner\TestResult\Subscriber implements \PHPUnit\Event\Test\PhpunitWarningTriggeredSubscriber
 {
     public function notify(\PHPUnit\Event\Test\PhpunitWarningTriggered $event): void
@@ -20750,15 +21101,17 @@ final readonly class TestResult
 {
     /**
      * @param list<\PHPUnit\Event\Test\AfterLastTestMethodErrored|\PHPUnit\Event\Test\BeforeFirstTestMethodErrored|\PHPUnit\Event\Test\Errored> $testErroredEvents
-     * @param list<\PHPUnit\Event\Test\Failed>                                                          $testFailedEvents
+     * @param list<\PHPUnit\Event\Test\AfterLastTestMethodFailed|\PHPUnit\Event\Test\BeforeFirstTestMethodFailed|\PHPUnit\Event\Test\Failed>    $testFailedEvents
      * @param array<string,list<\PHPUnit\Event\Test\ConsideredRisky>>                                   $testConsideredRiskyEvents
      * @param list<\PHPUnit\Event\TestSuite\Skipped>                                                $testSuiteSkippedEvents
      * @param list<\PHPUnit\Event\Test\Skipped>                                                     $testSkippedEvents
      * @param list<\PHPUnit\Event\Test\MarkedIncomplete>                                                $testMarkedIncompleteEvents
      * @param array<string,list<\PHPUnit\Event\Test\PhpunitDeprecationTriggered>>                       $testTriggeredPhpunitDeprecationEvents
      * @param array<string,list<\PHPUnit\Event\Test\PhpunitErrorTriggered>>                             $testTriggeredPhpunitErrorEvents
+     * @param array<string,list<\PHPUnit\Event\Test\PhpunitNoticeTriggered>>                            $testTriggeredPhpunitNoticeEvents
      * @param array<string,list<\PHPUnit\Event\Test\PhpunitWarningTriggered>>                           $testTriggeredPhpunitWarningEvents
      * @param list<\PHPUnit\Event\TestRunner\DeprecationTriggered>                                  $testRunnerTriggeredDeprecationEvents
+     * @param list<\PHPUnit\Event\TestRunner\NoticeTriggered>                                       $testRunnerTriggeredNoticeEvents
      * @param list<\PHPUnit\Event\TestRunner\WarningTriggered>                                      $testRunnerTriggeredWarningEvents
      * @param list<Issues\Issue>                                                           $errors
      * @param list<Issues\Issue>                                                           $deprecations
@@ -20769,7 +21122,7 @@ final readonly class TestResult
      * @param list<Issues\Issue>                                                           $phpWarnings
      * @param non-negative-int                                                      $numberOfIssuesIgnoredByBaseline
      */
-    public function __construct(int $numberOfTests, int $numberOfTestsRun, int $numberOfAssertions, array $testErroredEvents, array $testFailedEvents, array $testConsideredRiskyEvents, array $testSuiteSkippedEvents, array $testSkippedEvents, array $testMarkedIncompleteEvents, array $testTriggeredPhpunitDeprecationEvents, array $testTriggeredPhpunitErrorEvents, array $testTriggeredPhpunitWarningEvents, array $testRunnerTriggeredDeprecationEvents, array $testRunnerTriggeredWarningEvents, array $errors, array $deprecations, array $notices, array $warnings, array $phpDeprecations, array $phpNotices, array $phpWarnings, int $numberOfIssuesIgnoredByBaseline)
+    public function __construct(int $numberOfTests, int $numberOfTestsRun, int $numberOfAssertions, array $testErroredEvents, array $testFailedEvents, array $testConsideredRiskyEvents, array $testSuiteSkippedEvents, array $testSkippedEvents, array $testMarkedIncompleteEvents, array $testTriggeredPhpunitDeprecationEvents, array $testTriggeredPhpunitErrorEvents, array $testTriggeredPhpunitNoticeEvents, array $testTriggeredPhpunitWarningEvents, array $testRunnerTriggeredDeprecationEvents, array $testRunnerTriggeredNoticeEvents, array $testRunnerTriggeredWarningEvents, array $errors, array $deprecations, array $notices, array $warnings, array $phpDeprecations, array $phpNotices, array $phpWarnings, int $numberOfIssuesIgnoredByBaseline)
     {
     }
     public function numberOfTestsRun(): int
@@ -20875,6 +21228,18 @@ final readonly class TestResult
     {
     }
     /**
+     * @return array<string,list<\PHPUnit\Event\Test\PhpunitNoticeTriggered>>
+     */
+    public function testTriggeredPhpunitNoticeEvents(): array
+    {
+    }
+    public function numberOfTestsWithTestTriggeredPhpunitNoticeEvents(): int
+    {
+    }
+    public function hasTestTriggeredPhpunitNoticeEvents(): bool
+    {
+    }
+    /**
      * @return array<string,list<\PHPUnit\Event\Test\PhpunitWarningTriggered>>
      */
     public function testTriggeredPhpunitWarningEvents(): array
@@ -20899,6 +21264,18 @@ final readonly class TestResult
     {
     }
     /**
+     * @return list<\PHPUnit\Event\TestRunner\NoticeTriggered>
+     */
+    public function testRunnerTriggeredNoticeEvents(): array
+    {
+    }
+    public function numberOfTestRunnerTriggeredNoticeEvents(): int
+    {
+    }
+    public function hasTestRunnerTriggeredNoticeEvents(): bool
+    {
+    }
+    /**
      * @return list<\PHPUnit\Event\TestRunner\WarningTriggered>
      */
     public function testRunnerTriggeredWarningEvents(): array
@@ -20916,7 +21293,7 @@ final readonly class TestResult
     public function wasSuccessfulIgnoringPhpunitWarnings(): bool
     {
     }
-    public function wasSuccessfulAndNoTestHasIssues(): bool
+    public function hasIssues(): bool
     {
     }
     public function hasTestsWithIssues(): bool
@@ -21019,6 +21396,12 @@ final readonly class TestResult
      * @return non-negative-int
      */
     public function numberOfIssuesIgnoredByBaseline(): int
+    {
+    }
+    public function hasPhpunitNotices(): bool
+    {
+    }
+    public function numberOfPhpunitNotices(): int
     {
     }
 }
@@ -21179,7 +21562,7 @@ final class Help
  */
 final readonly class ShellExitCodeCalculator
 {
-    public function calculate(bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, \PHPUnit\TestRunner\TestResult\TestResult $result): int
+    public function calculate(bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, \PHPUnit\TestRunner\TestResult\TestResult $result): int
     {
     }
 }
@@ -21251,7 +21634,7 @@ final readonly class Configuration
      * @param ?non-empty-list<non-empty-string>                    $coverageFilter
      * @param ?non-empty-list<non-empty-string>                    $extensions
      */
-    public function __construct(array $arguments, ?string $atLeastVersion, ?bool $backupGlobals, ?bool $backupStaticProperties, ?bool $beStrictAboutChangesToGlobalState, ?string $bootstrap, ?string $cacheDirectory, ?bool $cacheResult, bool $checkVersion, ?string $colors, null|int|string $columns, ?string $configurationFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4J, ?string $coverageHtml, ?string $coveragePhp, ?string $coverageText, ?bool $coverageTextShowUncoveredFiles, ?bool $coverageTextShowOnlySummary, ?string $coverageXml, ?bool $pathCoverage, bool $warmCoverageCache, ?int $defaultTimeLimit, ?bool $disableCodeCoverageIgnore, ?bool $disallowTestOutput, ?bool $enforceTimeLimit, ?array $excludeGroups, ?int $executionOrder, ?int $executionOrderDefects, ?bool $failOnDeprecation, ?bool $failOnPhpunitDeprecation, ?bool $failOnEmptyTestSuite, ?bool $failOnIncomplete, ?bool $failOnNotice, ?bool $failOnRisky, ?bool $failOnSkipped, ?bool $failOnWarning, ?bool $stopOnDefect, ?bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, ?bool $stopOnError, ?bool $stopOnFailure, ?bool $stopOnIncomplete, ?bool $stopOnNotice, ?bool $stopOnRisky, ?bool $stopOnSkipped, ?bool $stopOnWarning, ?string $filter, ?string $excludeFilter, ?string $generateBaseline, ?string $useBaseline, bool $ignoreBaseline, bool $generateConfiguration, bool $migrateConfiguration, ?array $groups, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, bool $help, ?string $includePath, ?array $iniSettings, ?string $junitLogfile, bool $listGroups, bool $listSuites, bool $listTestFiles, bool $listTests, ?string $listTestsXml, ?bool $noCoverage, ?bool $noExtensions, ?bool $noOutput, ?bool $noProgress, ?bool $noResults, ?bool $noLogging, ?bool $processIsolation, ?int $randomOrderSeed, ?bool $reportUselessTests, ?bool $resolveDependencies, ?bool $reverseList, ?bool $stderr, ?bool $strictCoverage, ?string $teamcityLogfile, ?string $testdoxHtmlFile, ?string $testdoxTextFile, ?array $testSuffixes, ?string $testSuite, ?string $excludeTestSuite, bool $useDefaultConfiguration, ?bool $displayDetailsOnIncompleteTests, ?bool $displayDetailsOnSkippedTests, ?bool $displayDetailsOnTestsThatTriggerDeprecations, ?bool $displayDetailsOnPhpunitDeprecations, ?bool $displayDetailsOnTestsThatTriggerErrors, ?bool $displayDetailsOnTestsThatTriggerNotices, ?bool $displayDetailsOnTestsThatTriggerWarnings, bool $version, ?array $coverageFilter, ?string $logEventsText, ?string $logEventsVerboseText, ?bool $printerTeamCity, ?bool $testdoxPrinter, ?bool $testdoxPrinterSummary, bool $debug, ?array $extensions)
+    public function __construct(array $arguments, ?string $atLeastVersion, ?bool $backupGlobals, ?bool $backupStaticProperties, ?bool $beStrictAboutChangesToGlobalState, ?string $bootstrap, ?string $cacheDirectory, ?bool $cacheResult, bool $checkVersion, ?string $colors, null|int|string $columns, ?string $configurationFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4J, ?string $coverageHtml, ?string $coverageOpenClover, ?string $coveragePhp, ?string $coverageText, ?bool $coverageTextShowUncoveredFiles, ?bool $coverageTextShowOnlySummary, ?string $coverageXml, ?bool $pathCoverage, bool $warmCoverageCache, ?int $defaultTimeLimit, ?bool $disableCodeCoverageIgnore, ?bool $disallowTestOutput, ?bool $enforceTimeLimit, ?array $excludeGroups, ?int $executionOrder, ?int $executionOrderDefects, ?bool $failOnAllIssues, ?bool $failOnDeprecation, ?bool $failOnPhpunitDeprecation, ?bool $failOnPhpunitNotice, ?bool $failOnEmptyTestSuite, ?bool $failOnIncomplete, ?bool $failOnNotice, ?bool $failOnRisky, ?bool $failOnSkipped, ?bool $failOnWarning, ?bool $stopOnDefect, ?bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, ?bool $stopOnError, ?bool $stopOnFailure, ?bool $stopOnIncomplete, ?bool $stopOnNotice, ?bool $stopOnRisky, ?bool $stopOnSkipped, ?bool $stopOnWarning, ?string $filter, ?string $excludeFilter, ?string $generateBaseline, ?string $useBaseline, bool $ignoreBaseline, bool $generateConfiguration, bool $migrateConfiguration, ?array $groups, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, bool $help, ?string $includePath, ?array $iniSettings, ?string $junitLogfile, ?string $otrLogfile, bool $listGroups, bool $listSuites, bool $listTestFiles, bool $listTests, ?string $listTestsXml, ?bool $noCoverage, ?bool $noExtensions, ?bool $noOutput, ?bool $noProgress, ?bool $noResults, ?bool $noLogging, ?bool $processIsolation, ?int $randomOrderSeed, ?bool $reportUselessTests, ?bool $resolveDependencies, ?bool $reverseList, ?bool $stderr, ?bool $strictCoverage, ?string $teamcityLogfile, ?string $testdoxHtmlFile, ?string $testdoxTextFile, ?array $testSuffixes, ?string $testSuite, ?string $excludeTestSuite, bool $useDefaultConfiguration, ?bool $displayDetailsOnAllIssues, ?bool $displayDetailsOnIncompleteTests, ?bool $displayDetailsOnSkippedTests, ?bool $displayDetailsOnTestsThatTriggerDeprecations, ?bool $displayDetailsOnPhpunitDeprecations, ?bool $displayDetailsOnPhpunitNotices, ?bool $displayDetailsOnTestsThatTriggerErrors, ?bool $displayDetailsOnTestsThatTriggerNotices, ?bool $displayDetailsOnTestsThatTriggerWarnings, bool $version, ?array $coverageFilter, ?string $logEventsText, ?string $logEventsVerboseText, ?bool $printerTeamCity, ?bool $testdoxPrinter, ?bool $testdoxPrinterSummary, bool $debug, bool $withTelemetry, ?array $extensions)
     {
     }
     /**
@@ -21446,6 +21829,18 @@ final readonly class Configuration
     {
     }
     /**
+     * @phpstan-assert-if-true !null $this->coverageOpenClover
+     */
+    public function hasCoverageOpenClover(): bool
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function coverageOpenClover(): string
+    {
+    }
+    /**
      * @phpstan-assert-if-true !null $this->coveragePhp
      */
     public function hasCoveragePhp(): bool
@@ -21607,6 +22002,18 @@ final readonly class Configuration
     {
     }
     /**
+     * @phpstan-assert-if-true !null $this->failOnAllIssues
+     */
+    public function hasFailOnAllIssues(): bool
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function failOnAllIssues(): bool
+    {
+    }
+    /**
      * @phpstan-assert-if-true !null $this->failOnDeprecation
      */
     public function hasFailOnDeprecation(): bool
@@ -21628,6 +22035,18 @@ final readonly class Configuration
      * @throws Exception
      */
     public function failOnPhpunitDeprecation(): bool
+    {
+    }
+    /**
+     * @phpstan-assert-if-true !null $this->failOnPhpunitNotice
+     */
+    public function hasFailOnPhpunitNotice(): bool
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function failOnPhpunitNotice(): bool
     {
     }
     /**
@@ -21976,6 +22395,18 @@ final readonly class Configuration
     public function junitLogfile(): string
     {
     }
+    /**
+     * @phpstan-assert-if-true !null $this->otrLogfile
+     */
+    public function hasOtrLogfile(): bool
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function otrLogfile(): string
+    {
+    }
     public function listGroups(): bool
     {
     }
@@ -22270,6 +22701,18 @@ final readonly class Configuration
     {
     }
     /**
+     * @phpstan-assert-if-true !null $this->displayDetailsOnAllIssues
+     */
+    public function hasDisplayDetailsOnAllIssues(): bool
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function displayDetailsOnAllIssues(): bool
+    {
+    }
+    /**
      * @phpstan-assert-if-true !null $this->displayDetailsOnIncompleteTests
      */
     public function hasDisplayDetailsOnIncompleteTests(): bool
@@ -22315,6 +22758,18 @@ final readonly class Configuration
      * @throws Exception
      */
     public function displayDetailsOnPhpunitDeprecations(): bool
+    {
+    }
+    /**
+     * @phpstan-assert-if-true !null $this->displayDetailsOnPhpunitNotices
+     */
+    public function hasDisplayDetailsOnPhpunitNotices(): bool
+    {
+    }
+    /**
+     * @throws Exception
+     */
+    public function displayDetailsOnPhpunitNotices(): bool
     {
     }
     /**
@@ -22381,6 +22836,9 @@ final readonly class Configuration
     {
     }
     public function debug(): bool
+    {
+    }
+    public function withTelemetry(): bool
     {
     }
     /**
@@ -22461,7 +22919,7 @@ final readonly class GenerateConfigurationCommand implements \PHPUnit\TextUI\Com
 final readonly class ListGroupsCommand implements \PHPUnit\TextUI\Command\Command
 {
     /**
-     * @param list<\PHPUnit\Runner\PhptTestCase|\PHPUnit\Framework\TestCase> $tests
+     * @param list<\PHPUnit\Runner\Phpt\TestCase|\PHPUnit\Framework\TestCase> $tests
      */
     public function __construct(array $tests)
     {
@@ -22478,7 +22936,7 @@ final readonly class ListGroupsCommand implements \PHPUnit\TextUI\Command\Comman
 final readonly class ListTestFilesCommand implements \PHPUnit\TextUI\Command\Command
 {
     /**
-     * @param list<\PHPUnit\Runner\PhptTestCase|\PHPUnit\Framework\TestCase> $tests
+     * @param list<\PHPUnit\Runner\Phpt\TestCase|\PHPUnit\Framework\TestCase> $tests
      */
     public function __construct(array $tests)
     {
@@ -22512,7 +22970,7 @@ final readonly class ListTestSuitesCommand implements \PHPUnit\TextUI\Command\Co
 final readonly class ListTestsAsTextCommand implements \PHPUnit\TextUI\Command\Command
 {
     /**
-     * @param list<\PHPUnit\Runner\PhptTestCase|\PHPUnit\Framework\TestCase> $tests
+     * @param list<\PHPUnit\Runner\Phpt\TestCase|\PHPUnit\Framework\TestCase> $tests
      */
     public function __construct(array $tests)
     {
@@ -22529,7 +22987,7 @@ final readonly class ListTestsAsTextCommand implements \PHPUnit\TextUI\Command\C
 final readonly class ListTestsAsXmlCommand implements \PHPUnit\TextUI\Command\Command
 {
     /**
-     * @param list<\PHPUnit\Runner\PhptTestCase|\PHPUnit\Framework\TestCase> $tests
+     * @param list<\PHPUnit\Runner\Phpt\TestCase|\PHPUnit\Framework\TestCase> $tests
      */
     public function __construct(array $tests, string $filename)
     {
@@ -22705,9 +23163,10 @@ final readonly class Configuration
      * @param list<non-empty-string>                                                      $groups
      * @param list<non-empty-string>                                                      $excludeGroups
      * @param non-empty-list<non-empty-string>                                            $testSuffixes
+     * @param null|non-empty-string                                                       $generateBaseline
      * @param non-negative-int                                                            $shortenArraysForExportThreshold
      */
-    public function __construct(array $cliArguments, ?string $configurationFile, ?string $bootstrap, bool $cacheResult, ?string $cacheDirectory, ?string $coverageCacheDirectory, \PHPUnit\TextUI\Configuration\Source $source, string $testResultCacheFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4j, int $coverageCrap4jThreshold, ?string $coverageHtml, int $coverageHtmlLowUpperBound, int $coverageHtmlHighLowerBound, string $coverageHtmlColorSuccessLow, string $coverageHtmlColorSuccessMedium, string $coverageHtmlColorSuccessHigh, string $coverageHtmlColorWarning, string $coverageHtmlColorDanger, ?string $coverageHtmlCustomCssFile, ?string $coveragePhp, ?string $coverageText, bool $coverageTextShowUncoveredFiles, bool $coverageTextShowOnlySummary, ?string $coverageXml, bool $pathCoverage, bool $ignoreDeprecatedCodeUnitsFromCodeCoverage, bool $disableCodeCoverageIgnore, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, bool $outputToStandardErrorStream, int|string $columns, bool $noExtensions, ?string $pharExtensionDirectory, array $extensionBootstrappers, bool $backupGlobals, bool $backupStaticProperties, bool $beStrictAboutChangesToGlobalState, bool $colors, bool $processIsolation, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, bool $reportUselessTests, bool $strictCoverage, bool $disallowTestOutput, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, bool $noProgress, bool $noResults, bool $noOutput, int $executionOrder, int $executionOrderDefects, bool $resolveDependencies, ?string $logfileTeamcity, ?string $logfileJunit, ?string $logfileTestdoxHtml, ?string $logfileTestdoxText, ?string $logEventsText, ?string $logEventsVerboseText, bool $teamCityOutput, bool $testDoxOutput, bool $testDoxOutputSummary, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, ?string $filter, ?string $excludeFilter, array $groups, array $excludeGroups, int $randomOrderSeed, bool $includeUncoveredFiles, \PHPUnit\TextUI\Configuration\TestSuiteCollection $testSuite, string $includeTestSuite, string $excludeTestSuite, ?string $defaultTestSuite, array $testSuffixes, \PHPUnit\TextUI\Configuration\Php $php, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, ?string $generateBaseline, bool $debug, int $shortenArraysForExportThreshold)
+    public function __construct(array $cliArguments, ?string $configurationFile, ?string $bootstrap, bool $cacheResult, ?string $cacheDirectory, ?string $coverageCacheDirectory, \PHPUnit\TextUI\Configuration\Source $source, string $testResultCacheFile, ?string $coverageClover, ?string $coverageCobertura, ?string $coverageCrap4j, int $coverageCrap4jThreshold, ?string $coverageHtml, int $coverageHtmlLowUpperBound, int $coverageHtmlHighLowerBound, string $coverageHtmlColorSuccessLow, string $coverageHtmlColorSuccessMedium, string $coverageHtmlColorSuccessHigh, string $coverageHtmlColorWarning, string $coverageHtmlColorDanger, ?string $coverageHtmlCustomCssFile, ?string $coverageOpenClover, ?string $coveragePhp, ?string $coverageText, bool $coverageTextShowUncoveredFiles, bool $coverageTextShowOnlySummary, ?string $coverageXml, bool $pathCoverage, bool $ignoreDeprecatedCodeUnitsFromCodeCoverage, bool $disableCodeCoverageIgnore, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, ?string $specificDeprecationToStopOn, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, bool $outputToStandardErrorStream, int $columns, bool $noExtensions, ?string $pharExtensionDirectory, array $extensionBootstrappers, bool $backupGlobals, bool $backupStaticProperties, bool $beStrictAboutChangesToGlobalState, bool $colors, bool $processIsolation, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, bool $reportUselessTests, bool $strictCoverage, bool $disallowTestOutput, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, bool $noProgress, bool $noResults, bool $noOutput, int $executionOrder, int $executionOrderDefects, bool $resolveDependencies, ?string $logfileTeamcity, ?string $logfileJunit, ?string $logfileOtr, ?string $logfileTestdoxHtml, ?string $logfileTestdoxText, ?string $logEventsText, ?string $logEventsVerboseText, bool $teamCityOutput, bool $testDoxOutput, bool $testDoxOutputSummary, ?array $testsCovering, ?array $testsUsing, ?array $testsRequiringPhpExtension, ?string $filter, ?string $excludeFilter, array $groups, array $excludeGroups, int $randomOrderSeed, bool $includeUncoveredFiles, \PHPUnit\TextUI\Configuration\TestSuiteCollection $testSuite, string $includeTestSuite, string $excludeTestSuite, ?string $defaultTestSuite, array $testSuffixes, \PHPUnit\TextUI\Configuration\Php $php, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, ?string $generateBaseline, bool $debug, bool $withTelemetry, int $shortenArraysForExportThreshold)
     {
     }
     /**
@@ -22876,6 +23335,18 @@ final readonly class Configuration
     {
     }
     /**
+     * @phpstan-assert-if-true !null $this->coverageOpenClover
+     */
+    public function hasCoverageOpenClover(): bool
+    {
+    }
+    /**
+     * @throws CodeCoverageReportNotConfiguredException
+     */
+    public function coverageOpenClover(): string
+    {
+    }
+    /**
      * @phpstan-assert-if-true !null $this->coveragePhp
      */
     public function hasCoveragePhp(): bool
@@ -22917,10 +23388,16 @@ final readonly class Configuration
     public function coverageXml(): string
     {
     }
+    public function failOnAllIssues(): bool
+    {
+    }
     public function failOnDeprecation(): bool
     {
     }
     public function failOnPhpunitDeprecation(): bool
+    {
+    }
+    public function failOnPhpunitNotice(): bool
     {
     }
     public function failOnEmptyTestSuite(): bool
@@ -23048,6 +23525,9 @@ final readonly class Configuration
     public function disallowTestOutput(): bool
     {
     }
+    public function displayDetailsOnAllIssues(): bool
+    {
+    }
     public function displayDetailsOnIncompleteTests(): bool
     {
     }
@@ -23058,6 +23538,9 @@ final readonly class Configuration
     {
     }
     public function displayDetailsOnPhpunitDeprecations(): bool
+    {
+    }
+    public function displayDetailsOnPhpunitNotices(): bool
     {
     }
     public function displayDetailsOnTestsThatTriggerErrors(): bool
@@ -23115,6 +23598,18 @@ final readonly class Configuration
      * @throws LoggingNotConfiguredException
      */
     public function logfileJunit(): string
+    {
+    }
+    /**
+     * @phpstan-assert-if-true !null $this->logfileOtr
+     */
+    public function hasLogfileOtr(): bool
+    {
+    }
+    /**
+     * @throws LoggingNotConfiguredException
+     */
+    public function logfileOtr(): string
     {
     }
     /**
@@ -23318,11 +23813,16 @@ final readonly class Configuration
     }
     /**
      * @throws NoBaselineException
+     *
+     * @return non-empty-string
      */
     public function generateBaseline(): string
     {
     }
     public function debug(): bool
+    {
+    }
+    public function withTelemetry(): bool
     {
     }
     /**
@@ -24137,7 +24637,7 @@ final readonly class Source
      * @param non-empty-string                                                          $baseline
      * @param array{functions: list<non-empty-string>, methods: list<non-empty-string>} $deprecationTriggers
      */
-    public function __construct(?string $baseline, bool $ignoreBaseline, \PHPUnit\TextUI\Configuration\FilterDirectoryCollection $includeDirectories, \PHPUnit\TextUI\Configuration\FileCollection $includeFiles, \PHPUnit\TextUI\Configuration\FilterDirectoryCollection $excludeDirectories, \PHPUnit\TextUI\Configuration\FileCollection $excludeFiles, bool $restrictDeprecations, bool $restrictNotices, bool $restrictWarnings, bool $ignoreSuppressionOfDeprecations, bool $ignoreSuppressionOfPhpDeprecations, bool $ignoreSuppressionOfErrors, bool $ignoreSuppressionOfNotices, bool $ignoreSuppressionOfPhpNotices, bool $ignoreSuppressionOfWarnings, bool $ignoreSuppressionOfPhpWarnings, array $deprecationTriggers, bool $ignoreSelfDeprecations, bool $ignoreDirectDeprecations, bool $ignoreIndirectDeprecations)
+    public function __construct(?string $baseline, bool $ignoreBaseline, \PHPUnit\TextUI\Configuration\FilterDirectoryCollection $includeDirectories, \PHPUnit\TextUI\Configuration\FileCollection $includeFiles, \PHPUnit\TextUI\Configuration\FilterDirectoryCollection $excludeDirectories, \PHPUnit\TextUI\Configuration\FileCollection $excludeFiles, bool $restrictNotices, bool $restrictWarnings, bool $ignoreSuppressionOfDeprecations, bool $ignoreSuppressionOfPhpDeprecations, bool $ignoreSuppressionOfErrors, bool $ignoreSuppressionOfNotices, bool $ignoreSuppressionOfPhpNotices, bool $ignoreSuppressionOfWarnings, bool $ignoreSuppressionOfPhpWarnings, array $deprecationTriggers, bool $ignoreSelfDeprecations, bool $ignoreDirectDeprecations, bool $ignoreIndirectDeprecations)
     {
     }
     /**
@@ -24173,9 +24673,6 @@ final readonly class Source
     {
     }
     public function notEmpty(): bool
-    {
-    }
-    public function restrictDeprecations(): bool
     {
     }
     public function restrictNotices(): bool
@@ -24576,10 +25073,6 @@ namespace PHPUnit\TextUI\Output;
  */
 final class Facade
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public static function init(\PHPUnit\TextUI\Configuration\Configuration $configuration, bool $extensionReplacesProgressOutput, bool $extensionReplacesResultOutput): \PHPUnit\TextUI\Output\Printer
     {
     }
@@ -24683,7 +25176,7 @@ namespace PHPUnit\TextUI\Output\Default;
  */
 final class ResultPrinter
 {
-    public function __construct(\PHPUnit\TextUI\Output\Printer $printer, bool $displayPhpunitErrors, bool $displayPhpunitWarnings, bool $displayPhpunitDeprecations, bool $displayTestsWithErrors, bool $displayTestsWithFailedAssertions, bool $displayRiskyTests, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $displayDefectsInReverseOrder)
+    public function __construct(\PHPUnit\TextUI\Output\Printer $printer, bool $displayPhpunitDeprecations, bool $displayPhpunitErrors, bool $displayPhpunitNotices, bool $displayPhpunitWarnings, bool $displayTestsWithErrors, bool $displayTestsWithFailedAssertions, bool $displayRiskyTests, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $displayDefectsInReverseOrder)
     {
     }
     public function print(\PHPUnit\TestRunner\TestResult\TestResult $result, bool $stackTraceForDeprecations = false): void
@@ -24692,10 +25185,6 @@ final class ResultPrinter
 }
 final readonly class UnexpectedOutputPrinter implements \PHPUnit\Event\Test\PrintedUnexpectedOutputSubscriber
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public function __construct(\PHPUnit\TextUI\Output\Printer $printer, \PHPUnit\Event\Facade $facade)
     {
     }
@@ -24712,10 +25201,6 @@ namespace PHPUnit\TextUI\Output\Default\ProgressPrinter;
  */
 final class ProgressPrinter
 {
-    /**
-     * @throws \PHPUnit\Event\EventFacadeIsSealedException
-     * @throws \PHPUnit\Event\UnknownSubscriberTypeException
-     */
     public function __construct(\PHPUnit\TextUI\Output\Printer $printer, \PHPUnit\Event\Facade $facade, bool $colors, int $numberOfColumns, \PHPUnit\TextUI\Configuration\Source $source)
     {
     }
@@ -25675,7 +26160,7 @@ final readonly class PHPUnit
      * @param ?non-empty-string $extensionsDirectory
      * @param non-negative-int  $shortenArraysForExportThreshold
      */
-    public function __construct(?string $cacheDirectory, bool $cacheResult, int|string $columns, string $colors, bool $stderr, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, ?string $bootstrap, bool $processIsolation, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, ?string $extensionsDirectory, bool $beStrictAboutChangesToGlobalState, bool $beStrictAboutOutputDuringTests, bool $beStrictAboutTestsThatDoNotTestAnything, bool $beStrictAboutCoverageMetadata, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, ?string $defaultTestSuite, int $executionOrder, bool $resolveDependencies, bool $defectsFirst, bool $backupGlobals, bool $backupStaticProperties, bool $testdoxPrinter, bool $testdoxPrinterSummary, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, int $shortenArraysForExportThreshold)
+    public function __construct(?string $cacheDirectory, bool $cacheResult, int|string $columns, string $colors, bool $stderr, bool $displayDetailsOnAllIssues, bool $displayDetailsOnIncompleteTests, bool $displayDetailsOnSkippedTests, bool $displayDetailsOnTestsThatTriggerDeprecations, bool $displayDetailsOnPhpunitDeprecations, bool $displayDetailsOnPhpunitNotices, bool $displayDetailsOnTestsThatTriggerErrors, bool $displayDetailsOnTestsThatTriggerNotices, bool $displayDetailsOnTestsThatTriggerWarnings, bool $reverseDefectList, bool $requireCoverageMetadata, ?string $bootstrap, bool $processIsolation, bool $failOnAllIssues, bool $failOnDeprecation, bool $failOnPhpunitDeprecation, bool $failOnPhpunitNotice, bool $failOnEmptyTestSuite, bool $failOnIncomplete, bool $failOnNotice, bool $failOnRisky, bool $failOnSkipped, bool $failOnWarning, bool $stopOnDefect, bool $stopOnDeprecation, bool $stopOnError, bool $stopOnFailure, bool $stopOnIncomplete, bool $stopOnNotice, bool $stopOnRisky, bool $stopOnSkipped, bool $stopOnWarning, ?string $extensionsDirectory, bool $beStrictAboutChangesToGlobalState, bool $beStrictAboutOutputDuringTests, bool $beStrictAboutTestsThatDoNotTestAnything, bool $beStrictAboutCoverageMetadata, bool $enforceTimeLimit, int $defaultTimeLimit, int $timeoutForSmallTests, int $timeoutForMediumTests, int $timeoutForLargeTests, ?string $defaultTestSuite, int $executionOrder, bool $resolveDependencies, bool $defectsFirst, bool $backupGlobals, bool $backupStaticProperties, bool $testdoxPrinter, bool $testdoxPrinterSummary, bool $controlGarbageCollector, int $numberOfTestsBeforeGarbageCollection, int $shortenArraysForExportThreshold)
     {
     }
     /**
@@ -25702,6 +26187,9 @@ final readonly class PHPUnit
     public function stderr(): bool
     {
     }
+    public function displayDetailsOnAllIssues(): bool
+    {
+    }
     public function displayDetailsOnIncompleteTests(): bool
     {
     }
@@ -25712,6 +26200,9 @@ final readonly class PHPUnit
     {
     }
     public function displayDetailsOnPhpunitDeprecations(): bool
+    {
+    }
+    public function displayDetailsOnPhpunitNotices(): bool
     {
     }
     public function displayDetailsOnTestsThatTriggerErrors(): bool
@@ -25744,10 +26235,16 @@ final readonly class PHPUnit
     public function processIsolation(): bool
     {
     }
+    public function failOnAllIssues(): bool
+    {
+    }
     public function failOnDeprecation(): bool
     {
     }
     public function failOnPhpunitDeprecation(): bool
+    {
+    }
+    public function failOnPhpunitNotice(): bool
     {
     }
     public function failOnEmptyTestSuite(): bool
@@ -26035,7 +26532,7 @@ namespace PHPUnit\TextUI\XmlConfiguration\CodeCoverage;
  */
 final readonly class CodeCoverage
 {
-    public function __construct(bool $pathCoverage, bool $includeUncoveredFiles, bool $ignoreDeprecatedCodeUnits, bool $disableCodeCoverageIgnore, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Clover $clover, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Cobertura $cobertura, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Crap4j $crap4j, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Html $html, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Php $php, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Text $text, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Xml $xml)
+    public function __construct(bool $pathCoverage, bool $includeUncoveredFiles, bool $ignoreDeprecatedCodeUnits, bool $disableCodeCoverageIgnore, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Clover $clover, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Cobertura $cobertura, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Crap4j $crap4j, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Html $html, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\OpenClover $openClover, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Php $php, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Text $text, ?\PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Xml $xml)
     {
     }
     public function pathCoverage(): bool
@@ -26096,6 +26593,18 @@ final readonly class CodeCoverage
      * @throws \PHPUnit\TextUI\XmlConfiguration\Exception
      */
     public function html(): \PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Html
+    {
+    }
+    /**
+     * @phpstan-assert-if-true !null $this->openClover
+     */
+    public function hasOpenClover(): bool
+    {
+    }
+    /**
+     * @throws \PHPUnit\TextUI\XmlConfiguration\Exception
+     */
+    public function openClover(): \PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\OpenClover
     {
     }
     /**
@@ -26244,6 +26753,22 @@ final readonly class Html
  *
  * @immutable
  */
+final readonly class OpenClover
+{
+    public function __construct(\PHPUnit\TextUI\Configuration\File $target)
+    {
+    }
+    public function target(): \PHPUnit\TextUI\Configuration\File
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @immutable
+ */
 final readonly class Php
 {
     public function __construct(\PHPUnit\TextUI\Configuration\File $target)
@@ -26318,7 +26843,7 @@ final readonly class Junit
  */
 final readonly class Logging
 {
-    public function __construct(?\PHPUnit\TextUI\XmlConfiguration\Logging\Junit $junit, ?\PHPUnit\TextUI\XmlConfiguration\Logging\TeamCity $teamCity, ?\PHPUnit\TextUI\XmlConfiguration\Logging\TestDox\Html $testDoxHtml, ?\PHPUnit\TextUI\XmlConfiguration\Logging\TestDox\Text $testDoxText)
+    public function __construct(?\PHPUnit\TextUI\XmlConfiguration\Logging\Junit $junit, ?\PHPUnit\TextUI\XmlConfiguration\Logging\Otr $otr, ?\PHPUnit\TextUI\XmlConfiguration\Logging\TeamCity $teamCity, ?\PHPUnit\TextUI\XmlConfiguration\Logging\TestDox\Html $testDoxHtml, ?\PHPUnit\TextUI\XmlConfiguration\Logging\TestDox\Text $testDoxText)
     {
     }
     public function hasJunit(): bool
@@ -26328,6 +26853,15 @@ final readonly class Logging
      * @throws \PHPUnit\TextUI\XmlConfiguration\Exception
      */
     public function junit(): \PHPUnit\TextUI\XmlConfiguration\Logging\Junit
+    {
+    }
+    public function hasOtr(): bool
+    {
+    }
+    /**
+     * @throws \PHPUnit\TextUI\XmlConfiguration\Exception
+     */
+    public function otr(): \PHPUnit\TextUI\XmlConfiguration\Logging\Otr
     {
     }
     public function hasTeamCity(): bool
@@ -26355,6 +26889,22 @@ final readonly class Logging
      * @throws \PHPUnit\TextUI\XmlConfiguration\Exception
      */
     public function testDoxText(): \PHPUnit\TextUI\XmlConfiguration\Logging\TestDox\Text
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ *
+ * @immutable
+ */
+final readonly class Otr
+{
+    public function __construct(\PHPUnit\TextUI\Configuration\File $target)
+    {
+    }
+    public function target(): \PHPUnit\TextUI\Configuration\File
     {
     }
 }
@@ -26410,24 +26960,6 @@ final readonly class Text
 }
 namespace PHPUnit\Util;
 
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @internal This class is not covered by the backward compatibility promise for PHPUnit
- */
-final readonly class Cloner
-{
-    /**
-     * @template OriginalType of object
-     *
-     * @param OriginalType $original
-     *
-     * @return OriginalType
-     */
-    public static function clone(object $original): object
-    {
-    }
-}
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
@@ -26565,12 +27097,6 @@ final readonly class Filter
     public static function stackTraceFromThrowableAsString(\Throwable $t, bool $unwrap = true): string
     {
     }
-    /**
-     * @param list<array{file: string, line: ?int, class?: class-string, function?: string, type: string}> $frames
-     */
-    public static function stackTraceAsString(array $frames): string
-    {
-    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -26674,6 +27200,9 @@ final readonly class Test
     {
     }
     public static function isTestMethod(\ReflectionMethod $method): bool
+    {
+    }
+    public static function isHookMethod(\ReflectionMethod $method): bool
     {
     }
 }
@@ -26974,7 +27503,7 @@ final class Parser
      * @throws RequiredOptionArgumentMissingException
      * @throws UnknownOptionException
      *
-     * @return array{0: list<array{0: non-empty-string, 1: ?non-empty-string}>, 1: list<non-empty-string>}
+     * @return array{0: list<array{0: string, 1: ?string}>, 1: list<string>}
      */
     public function parse(array $argv, string $shortOptions, ?array $longOptions = null): array
     {
@@ -27012,10 +27541,8 @@ namespace SebastianBergmann\CodeCoverage;
 /**
  * Provides collection functionality for PHP code coverage information.
  *
- * @phan-type TestType = array{
- *     size: string,
- *     status: string,
- * }
+ * @phan-type TestType array{size: string, status: string}
+ * @phan-type TargetedLines array<non-empty-string, list<positive-int>>
  */
 final class CodeCoverage
 {
@@ -27073,20 +27600,15 @@ final class CodeCoverage
     public function start(string $id, ?\SebastianBergmann\CodeCoverage\Test\TestSize\TestSize $size = null, bool $clear = false): void
     {
     }
-    /**
-     * @param array<string,list<int>> $linesToBeIgnored
-     */
-    public function stop(bool $append = true, ?\SebastianBergmann\CodeCoverage\Test\TestStatus\TestStatus $status = null, array|false $linesToBeCovered = [], array $linesToBeUsed = [], array $linesToBeIgnored = []): \SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData
+    public function stop(bool $append = true, ?\SebastianBergmann\CodeCoverage\Test\TestStatus\TestStatus $status = null, null|false|\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $covers = null, ?\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $uses = null): \SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData
     {
     }
     /**
-     * @param array<string,list<int>> $linesToBeIgnored
-     *
      * @throws ReflectionException
      * @throws TestIdMissingException
      * @throws UnintentionallyCoveredCodeException
      */
-    public function append(\SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData $rawData, ?string $id = null, bool $append = true, ?\SebastianBergmann\CodeCoverage\Test\TestStatus\TestStatus $status = null, array|false $linesToBeCovered = [], array $linesToBeUsed = [], array $linesToBeIgnored = []): void
+    public function append(\SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData $rawData, ?string $id = null, bool $append = true, ?\SebastianBergmann\CodeCoverage\Test\TestStatus\TestStatus $status = null, null|false|\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $covers = null, ?\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $uses = null): void
     {
     }
     /**
@@ -27152,14 +27674,11 @@ final class CodeCoverage
     public function collectsBranchAndPathCoverage(): bool
     {
     }
-    public function detectsDeadCode(): bool
+    public function validate(\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $targets): \SebastianBergmann\CodeCoverage\Test\Target\ValidationResult
     {
     }
 }
 final class BranchAndPathCoverageNotSupportedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-}
-final class DeadCodeDetectionNotSupportedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
 {
 }
 interface Exception extends \Throwable
@@ -27185,6 +27704,12 @@ final class NoCodeCoverageDriverWithPathCoverageSupportAvailableException extend
 }
 final class ParserException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
 {
+}
+final class PathExistsButIsNotDirectoryException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct(string $path)
+    {
+    }
 }
 final class ReflectionException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
 {
@@ -27216,6 +27741,12 @@ final class UnintentionallyCoveredCodeException extends \RuntimeException implem
      * @return list<string>
      */
     public function getUnintentionallyCoveredUnits(): array
+    {
+    }
+}
+final class WriteOperationFailedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    public function __construct(string $path)
     {
     }
 }
@@ -27262,7 +27793,24 @@ namespace SebastianBergmann\CodeCoverage\Data;
  *
  * @phpstan-import-type XdebugFunctionCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
  *
- * @phan-type TestIdType = string
+ * @phan-type TestIdType string
+ * @phan-type FunctionCoverageDataType array{
+ *      branches: array<int, array{
+ *          op_start: int,
+ *          op_end: int,
+ *          line_start: int,
+ *          line_end: int,
+ *          hit: list<TestIdType>,
+ *          out: array<int, int>,
+ *          out_hit: array<int, int>,
+ *      }>,
+ *      paths: array<int, array{
+ *          path: array<int, int>,
+ *          hit: list<TestIdType>,
+ *      }>,
+ *      hit: list<TestIdType>
+ *  }
+ * @phan-type FunctionCoverageType array<string, array<string, FunctionCoverageDataType>>
  */
 final class ProcessedCodeCoverageData
 {
@@ -27369,32 +27917,22 @@ namespace SebastianBergmann\CodeCoverage\Driver;
 abstract class Driver
 {
     /**
-     * @var int
-     *
      * @see http://xdebug.org/docs/code_coverage
      */
     public const LINE_NOT_EXECUTABLE = -2;
     /**
-     * @var int
-     *
      * @see http://xdebug.org/docs/code_coverage
      */
     public const LINE_NOT_EXECUTED = -1;
     /**
-     * @var int
-     *
      * @see http://xdebug.org/docs/code_coverage
      */
     public const LINE_EXECUTED = 1;
     /**
-     * @var int
-     *
      * @see http://xdebug.org/docs/code_coverage
      */
     public const BRANCH_NOT_HIT = 0;
     /**
-     * @var int
-     *
      * @see http://xdebug.org/docs/code_coverage
      */
     public const BRANCH_HIT = 1;
@@ -27413,21 +27951,6 @@ abstract class Driver
     public function disableBranchAndPathCoverage(): void
     {
     }
-    public function canDetectDeadCode(): bool
-    {
-    }
-    public function detectsDeadCode(): bool
-    {
-    }
-    /**
-     * @throws \SebastianBergmann\CodeCoverage\DeadCodeDetectionNotSupportedException
-     */
-    public function enableDeadCodeDetection(): void
-    {
-    }
-    public function disableDeadCodeDetection(): void
-    {
-    }
     abstract public function nameAndVersion(): string;
     abstract public function start(): void;
     abstract public function stop(): \SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData;
@@ -27443,6 +27966,9 @@ final class PcovDriver extends \SebastianBergmann\CodeCoverage\Driver\Driver
     public function __construct(\SebastianBergmann\CodeCoverage\Filter $filter)
     {
     }
+    /**
+     * @codeCoverageIgnore
+     */
     public function start(): void
     {
     }
@@ -27460,6 +27986,7 @@ final class Selector
      * @throws PcovNotAvailableException
      * @throws XdebugNotAvailableException
      * @throws XdebugNotEnabledException
+     * @throws XdebugVersionNotSupportedException
      */
     public function forLineCoverage(\SebastianBergmann\CodeCoverage\Filter $filter): \SebastianBergmann\CodeCoverage\Driver\Driver
     {
@@ -27468,6 +27995,7 @@ final class Selector
      * @throws \SebastianBergmann\CodeCoverage\NoCodeCoverageDriverWithPathCoverageSupportAvailableException
      * @throws XdebugNotAvailableException
      * @throws XdebugNotEnabledException
+     * @throws XdebugVersionNotSupportedException
      */
     public function forLineAndPathCoverage(\SebastianBergmann\CodeCoverage\Filter $filter): \SebastianBergmann\CodeCoverage\Driver\Driver
     {
@@ -27478,8 +28006,8 @@ final class Selector
  *
  * @see https://xdebug.org/docs/code_coverage#xdebug_get_code_coverage
  *
- * @phan-type XdebugLinesCoverageType = array<int, int>
- * @phan-type XdebugBranchCoverageType = array{
+ * @phan-type XdebugLinesCoverageType array<int, int>
+ * @phan-type XdebugBranchCoverageType array{
  *     op_start: int,
  *     op_end: int,
  *     line_start: int,
@@ -27488,35 +28016,33 @@ final class Selector
  *     out: array<int, int>,
  *     out_hit: array<int, int>,
  * }
- * @phan-type XdebugPathCoverageType = array{
+ * @phan-type XdebugPathCoverageType array{
  *     path: array<int, int>,
  *     hit: int,
  * }
- * @phan-type XdebugFunctionCoverageType = array{
+ * @phan-type XdebugFunctionCoverageType array{
  *     branches: array<int, XdebugBranchCoverageType>,
  *     paths: array<int, XdebugPathCoverageType>,
  * }
- * @phan-type XdebugFunctionsCoverageType = array<string, XdebugFunctionCoverageType>
- * @phan-type XdebugPathAndBranchesCoverageType = array{
+ * @phan-type XdebugFunctionsCoverageType array<string, XdebugFunctionCoverageType>
+ * @phan-type XdebugPathAndBranchesCoverageType array{
  *     lines: XdebugLinesCoverageType,
  *     functions: XdebugFunctionsCoverageType,
  * }
- * @phan-type XdebugCodeCoverageWithoutPathCoverageType = array<string, XdebugLinesCoverageType>
- * @phan-type XdebugCodeCoverageWithPathCoverageType = array<string, XdebugPathAndBranchesCoverageType>
+ * @phan-type XdebugCodeCoverageWithoutPathCoverageType array<string, XdebugLinesCoverageType>
+ * @phan-type XdebugCodeCoverageWithPathCoverageType array<string, XdebugPathAndBranchesCoverageType>
  */
 final class XdebugDriver extends \SebastianBergmann\CodeCoverage\Driver\Driver
 {
     /**
      * @throws XdebugNotAvailableException
      * @throws XdebugNotEnabledException
+     * @throws XdebugVersionNotSupportedException
      */
     public function __construct(\SebastianBergmann\CodeCoverage\Filter $filter)
     {
     }
     public function canCollectBranchAndPathCoverage(): bool
-    {
-    }
-    public function canDetectDeadCode(): bool
     {
     }
     public function start(): void
@@ -27529,21 +28055,9 @@ final class XdebugDriver extends \SebastianBergmann\CodeCoverage\Driver\Driver
     {
     }
 }
-final class PathExistsButIsNotDirectoryException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct(string $path)
-    {
-    }
-}
 final class PcovNotAvailableException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
 {
     public function __construct()
-    {
-    }
-}
-final class WriteOperationFailedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
-{
-    public function __construct(string $path)
     {
     }
 }
@@ -27559,15 +28073,23 @@ final class XdebugNotEnabledException extends \RuntimeException implements \Seba
     {
     }
 }
+final class XdebugVersionNotSupportedException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
+{
+    /**
+     * @param non-empty-string $version
+     */
+    public function __construct(string $version)
+    {
+    }
+}
 namespace SebastianBergmann\CodeCoverage\Node;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
- * @phpstan-import-type LinesOfCodeType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
- * @phpstan-import-type ProcessedFunctionType from \SebastianBergmann\CodeCoverage\Node\File
- * @phpstan-import-type ProcessedClassType from \SebastianBergmann\CodeCoverage\Node\File
- * @phpstan-import-type ProcessedTraitType from \SebastianBergmann\CodeCoverage\Node\File
+ * @phpstan-import-type ProcessedFunctionType from File
+ * @phpstan-import-type ProcessedClassType from File
+ * @phpstan-import-type ProcessedTraitType from File
  */
 abstract class AbstractNode implements \Countable
 {
@@ -27583,6 +28105,9 @@ abstract class AbstractNode implements \Countable
     public function pathAsString(): string
     {
     }
+    /**
+     * @return non-empty-list<self>
+     */
     public function pathAsArray(): array
     {
     }
@@ -27635,6 +28160,12 @@ abstract class AbstractNode implements \Countable
     {
     }
     /**
+     * @return non-negative-int
+     */
+    public function cyclomaticComplexity(): int
+    {
+    }
+    /**
      * @return array<string, ProcessedClassType>
      */
     abstract public function classes(): array;
@@ -27646,10 +28177,7 @@ abstract class AbstractNode implements \Countable
      * @return array<string, ProcessedFunctionType>
      */
     abstract public function functions(): array;
-    /**
-     * @return LinesOfCodeType
-     */
-    abstract public function linesOfCode(): array;
+    abstract public function linesOfCode(): \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode;
     abstract public function numberOfExecutableLines(): int;
     abstract public function numberOfExecutedLines(): int;
     abstract public function numberOfExecutableBranches(): int;
@@ -27670,7 +28198,7 @@ abstract class AbstractNode implements \Countable
  *
  * @phpstan-import-type TestType from \SebastianBergmann\CodeCoverage\CodeCoverage
  */
-final class Builder
+final readonly class Builder
 {
     public function __construct(\SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser $analyser)
     {
@@ -27682,7 +28210,7 @@ final class Builder
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class CrapIndex
+final readonly class CrapIndex
 {
     public function __construct(int $cyclomaticComplexity, float $codeCoverage)
     {
@@ -27692,15 +28220,22 @@ final class CrapIndex
     }
 }
 /**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ * @template-implements \IteratorAggregate<int, AbstractNode>
  *
- * @phpstan-import-type LinesOfCodeType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
+ * @phpstan-import-type ProcessedFunctionType from File
+ * @phpstan-import-type ProcessedClassType from File
+ * @phpstan-import-type ProcessedTraitType from File
+ *
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode implements \IteratorAggregate
 {
     public function count(): int
     {
     }
+    /**
+     * @return \RecursiveIteratorIterator<Iterator<AbstractNode>>
+     */
     public function getIterator(): \RecursiveIteratorIterator
     {
     }
@@ -27710,28 +28245,43 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
     public function addFile(\SebastianBergmann\CodeCoverage\Node\File $file): void
     {
     }
+    /**
+     * @return list<Directory>
+     */
     public function directories(): array
     {
     }
+    /**
+     * @return list<File>
+     */
     public function files(): array
     {
     }
+    /**
+     * @return list<Directory|File>
+     */
     public function children(): array
     {
     }
+    /**
+     * @return array<string, ProcessedClassType>
+     */
     public function classes(): array
     {
     }
+    /**
+     * @return array<string, ProcessedTraitType>
+     */
     public function traits(): array
     {
     }
+    /**
+     * @return array<string, ProcessedFunctionType>
+     */
     public function functions(): array
     {
     }
-    /**
-     * @return LinesOfCodeType
-     */
-    public function linesOfCode(): array
+    public function linesOfCode(): \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode
     {
     }
     public function numberOfExecutableLines(): int
@@ -27780,14 +28330,10 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
- * @phpstan-import-type CodeUnitFunctionType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type CodeUnitMethodType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type CodeUnitClassType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type CodeUnitTraitType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type LinesOfCodeType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
- * @phpstan-import-type LinesType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
+ * @phpstan-import-type TestType from \SebastianBergmann\CodeCoverage\CodeCoverage
+ * @phpstan-import-type LinesType from \SebastianBergmann\CodeCoverage\StaticAnalysis\AnalysisResult
  *
- * @phan-type ProcessedFunctionType = array{
+ * @phan-type ProcessedFunctionType array{
  *     functionName: string,
  *     namespace: string,
  *     signature: string,
@@ -27804,7 +28350,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
  *     crap: int|string,
  *     link: string
  * }
- * @phan-type ProcessedMethodType = array{
+ * @phan-type ProcessedMethodType array{
  *     methodName: string,
  *     visibility: string,
  *     signature: string,
@@ -27821,7 +28367,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
  *     crap: int|string,
  *     link: string
  * }
- * @phan-type ProcessedClassType = array{
+ * @phan-type ProcessedClassType array{
  *     className: string,
  *     namespace: string,
  *     methods: array<string, ProcessedMethodType>,
@@ -27837,7 +28383,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
  *     crap: int|string,
  *     link: string
  * }
- * @phan-type ProcessedTraitType = array{
+ * @phan-type ProcessedTraitType array{
  *     traitName: string,
  *     namespace: string,
  *     methods: array<string, ProcessedMethodType>,
@@ -27858,12 +28404,12 @@ final class File extends \SebastianBergmann\CodeCoverage\Node\AbstractNode
 {
     /**
      * @param array<int, ?list<non-empty-string>> $lineCoverageData
-     * @param array<string, CodeUnitClassType>    $classes
-     * @param array<string, CodeUnitTraitType>    $traits
-     * @param array<string, CodeUnitFunctionType> $functions
-     * @param LinesOfCodeType                     $linesOfCode
+     * @param array<string, TestType>             $testData
+     * @param array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Class_>               $classes
+     * @param array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Trait_>               $traits
+     * @param array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Function_>            $functions
      */
-    public function __construct(string $name, \SebastianBergmann\CodeCoverage\Node\AbstractNode $parent, array $lineCoverageData, array $functionCoverageData, array $testData, array $classes, array $traits, array $functions, array $linesOfCode)
+    public function __construct(string $name, \SebastianBergmann\CodeCoverage\Node\AbstractNode $parent, array $lineCoverageData, array $functionCoverageData, array $testData, array $classes, array $traits, array $functions, \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode $linesOfCode)
     {
     }
     public function count(): int
@@ -27878,6 +28424,9 @@ final class File extends \SebastianBergmann\CodeCoverage\Node\AbstractNode
     public function functionCoverageData(): array
     {
     }
+    /**
+     * @return array<string, TestType>
+     */
     public function testData(): array
     {
     }
@@ -27899,7 +28448,7 @@ final class File extends \SebastianBergmann\CodeCoverage\Node\AbstractNode
     public function functions(): array
     {
     }
-    public function linesOfCode(): array
+    public function linesOfCode(): \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode
     {
     }
     public function numberOfExecutableLines(): int
@@ -27946,6 +28495,8 @@ final class File extends \SebastianBergmann\CodeCoverage\Node\AbstractNode
     }
 }
 /**
+ * @template-implements \RecursiveIterator<int, AbstractNode>
+ *
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class Iterator implements \RecursiveIterator
@@ -27953,45 +28504,24 @@ final class Iterator implements \RecursiveIterator
     public function __construct(\SebastianBergmann\CodeCoverage\Node\Directory $node)
     {
     }
-    /**
-     * Rewinds the Iterator to the first element.
-     */
     public function rewind(): void
     {
     }
-    /**
-     * Checks if there is a current element after calls to rewind() or next().
-     */
     public function valid(): bool
     {
     }
-    /**
-     * Returns the key of the current element.
-     */
     public function key(): int
     {
     }
-    /**
-     * Returns the current element.
-     */
     public function current(): ?\SebastianBergmann\CodeCoverage\Node\AbstractNode
     {
     }
-    /**
-     * Moves forward to next element.
-     */
     public function next(): void
     {
     }
-    /**
-     * Returns the sub iterator for the current element.
-     */
     public function getChildren(): self
     {
     }
-    /**
-     * Checks whether the current element has children.
-     */
     public function hasChildren(): bool
     {
     }
@@ -28001,7 +28531,7 @@ namespace SebastianBergmann\CodeCoverage\Report;
 final class Clover
 {
     /**
-     * @throws \SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
     {
@@ -28010,19 +28540,28 @@ final class Clover
 final class Cobertura
 {
     /**
-     * @throws \SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null): string
     {
     }
 }
-final class Crap4j
+final readonly class Crap4j
 {
     public function __construct(int $threshold = 30)
     {
     }
     /**
-     * @throws \SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
+     */
+    public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
+    {
+    }
+}
+final class OpenClover
+{
+    /**
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
     {
@@ -28046,7 +28585,7 @@ final class Text
 /**
  * @immutable
  */
-final class Thresholds
+final readonly class Thresholds
 {
     public static function default(): self
     {
@@ -28069,7 +28608,7 @@ namespace SebastianBergmann\CodeCoverage\Report\Html;
 /**
  * @immutable
  */
-final class Colors
+final readonly class Colors
 {
     public static function default(): self
     {
@@ -28096,7 +28635,7 @@ final class Colors
 /**
  * @immutable
  */
-final class CustomCssFile
+final readonly class CustomCssFile
 {
     public static function default(): self
     {
@@ -28111,7 +28650,7 @@ final class CustomCssFile
     {
     }
 }
-final class Facade
+final readonly class Facade
 {
     public function __construct(string $generator = '', ?\SebastianBergmann\CodeCoverage\Report\Html\Colors $colors = null, ?\SebastianBergmann\CodeCoverage\Report\Thresholds $thresholds = null, ?\SebastianBergmann\CodeCoverage\Report\Html\CustomCssFile $customCssFile = null)
     {
@@ -28134,6 +28673,9 @@ abstract class Renderer
     public function __construct(string $templatePath, string $generator, string $date, \SebastianBergmann\CodeCoverage\Report\Thresholds $thresholds, bool $hasBranchCoverage)
     {
     }
+    /**
+     * @param array<non-empty-string, float|int|string> $data
+     */
     protected function renderItemTemplate(\SebastianBergmann\Template\Template $template, array $data): string
     {
     }
@@ -28160,6 +28702,9 @@ abstract class Renderer
     }
 }
 /**
+ * @phpstan-import-type ProcessedClassType from \SebastianBergmann\CodeCoverage\Node\File
+ * @phpstan-import-type ProcessedTraitType from \SebastianBergmann\CodeCoverage\Node\File
+ *
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class Dashboard extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
@@ -28178,6 +28723,11 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Report\Html\Render
     }
 }
 /**
+ * @phpstan-import-type ProcessedClassType from \SebastianBergmann\CodeCoverage\Node\File
+ * @phpstan-import-type ProcessedTraitType from \SebastianBergmann\CodeCoverage\Node\File
+ * @phpstan-import-type ProcessedMethodType from \SebastianBergmann\CodeCoverage\Node\File
+ * @phpstan-import-type ProcessedFunctionType from \SebastianBergmann\CodeCoverage\Node\File
+ *
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class File extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
@@ -28191,7 +28741,7 @@ namespace SebastianBergmann\CodeCoverage\Report\Xml;
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class BuildInformation
+final readonly class BuildInformation
 {
     public function __construct(\DOMElement $contextNode)
     {
@@ -28230,6 +28780,12 @@ final class Coverage
 final class Directory extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
 {
 }
+/**
+ * @phpstan-import-type ProcessedClassType from \SebastianBergmann\CodeCoverage\Node\File
+ * @phpstan-import-type ProcessedTraitType from \SebastianBergmann\CodeCoverage\Node\File
+ * @phpstan-import-type ProcessedFunctionType from \SebastianBergmann\CodeCoverage\Node\File
+ * @phpstan-import-type TestType from \SebastianBergmann\CodeCoverage\CodeCoverage
+ */
 final class Facade
 {
     public function __construct(string $version)
@@ -28266,7 +28822,7 @@ class File
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class Method
+final readonly class Method
 {
     public function __construct(\DOMElement $context, string $name)
     {
@@ -28316,6 +28872,9 @@ abstract class Node
  */
 final class Project extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
 {
+    /**
+     * @phpstan-ignore constructor.missingParentCall
+     */
     public function __construct(string $directory)
     {
     }
@@ -28343,13 +28902,13 @@ final class Report extends \SebastianBergmann\CodeCoverage\Report\Xml\File
     public function asDom(): \DOMDocument
     {
     }
-    public function functionObject($name): \SebastianBergmann\CodeCoverage\Report\Xml\Method
+    public function functionObject(string $name): \SebastianBergmann\CodeCoverage\Report\Xml\Method
     {
     }
-    public function classObject($name): \SebastianBergmann\CodeCoverage\Report\Xml\Unit
+    public function classObject(string $name): \SebastianBergmann\CodeCoverage\Report\Xml\Unit
     {
     }
-    public function traitObject($name): \SebastianBergmann\CodeCoverage\Report\Xml\Unit
+    public function traitObject(string $name): \SebastianBergmann\CodeCoverage\Report\Xml\Unit
     {
     }
     public function source(): \SebastianBergmann\CodeCoverage\Report\Xml\Source
@@ -28359,7 +28918,7 @@ final class Report extends \SebastianBergmann\CodeCoverage\Report\Xml\File
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class Source
+final readonly class Source
 {
     public function __construct(\DOMElement $context)
     {
@@ -28373,7 +28932,7 @@ final class Source
  *
  * @phpstan-import-type TestType from \SebastianBergmann\CodeCoverage\CodeCoverage
  */
-final class Tests
+final readonly class Tests
 {
     public function __construct(\DOMElement $context)
     {
@@ -28388,12 +28947,9 @@ final class Tests
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class Totals
+final readonly class Totals
 {
     public function __construct(\DOMElement $container)
-    {
-    }
-    public function container(): \DOMNode
     {
     }
     public function setNumLines(int $loc, int $cloc, int $ncloc, int $executable, int $executed): void
@@ -28415,7 +28971,7 @@ final class Totals
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class Unit
+final readonly class Unit
 {
     public function __construct(\DOMElement $context, string $name)
     {
@@ -28435,123 +28991,539 @@ final class Unit
 }
 namespace SebastianBergmann\CodeCoverage\StaticAnalysis;
 
-final class CacheWarmer
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class CacheWarmer
 {
-    public function warmCache(string $cacheDirectory, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode, \SebastianBergmann\CodeCoverage\Filter $filter): void
+    /**
+     * @return array{cacheHits: non-negative-int, cacheMisses: non-negative-int}
+     */
+    public function warmCache(string $cacheDirectory, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode, \SebastianBergmann\CodeCoverage\Filter $filter): array
+    {
+    }
+}
+/**
+ * @internal This interface is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class CachingSourceAnalyser implements \SebastianBergmann\CodeCoverage\StaticAnalysis\SourceAnalyser
+{
+    public function __construct(string $directory, \SebastianBergmann\CodeCoverage\StaticAnalysis\SourceAnalyser $sourceAnalyser)
+    {
+    }
+    /**
+     * @param non-empty-string $sourceCodeFile
+     */
+    public function analyse(string $sourceCodeFile, string $sourceCode, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode): \SebastianBergmann\CodeCoverage\StaticAnalysis\AnalysisResult
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function cacheHits(): int
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function cacheMisses(): int
     {
     }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- *
- * @phpstan-import-type CodeUnitFunctionType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type CodeUnitMethodType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type CodeUnitClassType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type CodeUnitTraitType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type LinesOfCodeType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
- * @phpstan-import-type LinesType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
  */
-final class CachingFileAnalyser implements \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
+final class FileAnalyser
 {
-    public function __construct(string $directory, \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser $analyser, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode)
+    public function __construct(\SebastianBergmann\CodeCoverage\StaticAnalysis\SourceAnalyser $sourceAnalyser, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode)
     {
     }
     /**
-     * @return array<string, CodeUnitClassType>
+     * @param non-empty-string $sourceCodeFile
      */
-    public function classesIn(string $filename): array
-    {
-    }
-    /**
-     * @return array<string, CodeUnitTraitType>
-     */
-    public function traitsIn(string $filename): array
-    {
-    }
-    /**
-     * @return array<string, CodeUnitFunctionType>
-     */
-    public function functionsIn(string $filename): array
-    {
-    }
-    /**
-     * @return LinesOfCodeType
-     */
-    public function linesOfCodeFor(string $filename): array
-    {
-    }
-    /**
-     * @return LinesType
-     */
-    public function executableLinesIn(string $filename): array
-    {
-    }
-    /**
-     * @return LinesType
-     */
-    public function ignoredLinesFor(string $filename): array
-    {
-    }
-    public function process(string $filename): void
+    public function analyse(string $sourceCodeFile): \SebastianBergmann\CodeCoverage\StaticAnalysis\AnalysisResult
     {
     }
 }
 /**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- *
- * @phan-type CodeUnitFunctionType = array{
- *     name: string,
- *     namespacedName: string,
- *     namespace: string,
- *     signature: string,
- *     startLine: int,
- *     endLine: int,
- *     ccn: int
- * }
- * @phan-type CodeUnitMethodType = array{
- *     methodName: string,
- *     signature: string,
- *     visibility: string,
- *     startLine: int,
- *     endLine: int,
- *     ccn: int
- * }
- * @phan-type CodeUnitClassType = array{
- *     name: string,
- *     namespacedName: string,
- *     namespace: string,
- *     startLine: int,
- *     endLine: int,
- *     methods: array<string, CodeUnitMethodType>
- * }
- * @phan-type CodeUnitTraitType = array{
- *     name: string,
- *     namespacedName: string,
- *     namespace: string,
- *     startLine: int,
- *     endLine: int,
- *     methods: array<string, CodeUnitMethodType>
- * }
+ * @internal This interface is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class CodeUnitFindingVisitor extends \PhpParser\NodeVisitorAbstract
+final readonly class ParsingSourceAnalyser implements \SebastianBergmann\CodeCoverage\StaticAnalysis\SourceAnalyser
 {
-    public function enterNode(\PhpParser\Node $node): void
+    /**
+     * @param non-empty-string $sourceCodeFile
+     */
+    public function analyse(string $sourceCodeFile, string $sourceCode, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode): \SebastianBergmann\CodeCoverage\StaticAnalysis\AnalysisResult
+    {
+    }
+}
+/**
+ * @internal This interface is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+interface SourceAnalyser
+{
+    /**
+     * @param non-empty-string $sourceCodeFile
+     */
+    public function analyse(string $sourceCodeFile, string $sourceCode, bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode): \SebastianBergmann\CodeCoverage\StaticAnalysis\AnalysisResult;
+}
+/**
+ * @phan-type LinesType array<int, int>
+ *
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class AnalysisResult
+{
+    /**
+     * @param array<string, Interface_> $interfaces
+     * @param array<string, Class_>     $classes
+     * @param array<string, Trait_>     $traits
+     * @param array<string, Function_>  $functions
+     * @param LinesType                 $executableLines
+     * @param LinesType                 $ignoredLines
+     */
+    public function __construct(array $interfaces, array $classes, array $traits, array $functions, \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode $linesOfCode, array $executableLines, array $ignoredLines)
     {
     }
     /**
-     * @return array<string, CodeUnitClassType>
+     * @return array<string, Interface_>
+     */
+    public function interfaces(): array
+    {
+    }
+    /**
+     * @return array<string, Class_>
      */
     public function classes(): array
     {
     }
     /**
-     * @return array<string, CodeUnitTraitType>
+     * @return array<string, Trait_>
      */
     public function traits(): array
     {
     }
     /**
-     * @return array<string, CodeUnitFunctionType>
+     * @return array<string, Function_>
+     */
+    public function functions(): array
+    {
+    }
+    public function linesOfCode(): \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode
+    {
+    }
+    /**
+     * @return LinesType
+     */
+    public function executableLines(): array
+    {
+    }
+    /**
+     * @return LinesType
+     */
+    public function ignoredLines(): array
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class Class_
+{
+    /**
+     * @param non-empty-string                $name
+     * @param non-empty-string                $namespacedName
+     * @param non-empty-string                $file
+     * @param non-negative-int                $startLine
+     * @param non-negative-int                $endLine
+     * @param ?non-empty-string               $parentClass
+     * @param list<non-empty-string>          $interfaces
+     * @param list<non-empty-string>          $traits
+     * @param array<non-empty-string, Method> $methods
+     */
+    public function __construct(string $name, string $namespacedName, string $namespace, string $file, int $startLine, int $endLine, ?string $parentClass, array $interfaces, array $traits, array $methods)
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function name(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function namespacedName(): string
+    {
+    }
+    public function isNamespaced(): bool
+    {
+    }
+    public function namespace(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function file(): string
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function startLine(): int
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function endLine(): int
+    {
+    }
+    public function hasParent(): bool
+    {
+    }
+    /**
+     * @return ?non-empty-string
+     */
+    public function parentClass(): ?string
+    {
+    }
+    /**
+     * @return list<non-empty-string>
+     */
+    public function interfaces(): array
+    {
+    }
+    /**
+     * @return list<non-empty-string>
+     */
+    public function traits(): array
+    {
+    }
+    /**
+     * @return array<non-empty-string, Method>
+     */
+    public function methods(): array
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class Function_
+{
+    /**
+     * @param non-empty-string $name
+     * @param non-empty-string $namespacedName
+     * @param non-negative-int $startLine
+     * @param non-negative-int $endLine
+     * @param non-empty-string $signature
+     * @param positive-int     $cyclomaticComplexity
+     */
+    public function __construct(string $name, string $namespacedName, string $namespace, int $startLine, int $endLine, string $signature, int $cyclomaticComplexity)
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function name(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function namespacedName(): string
+    {
+    }
+    public function isNamespaced(): bool
+    {
+    }
+    public function namespace(): string
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function startLine(): int
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function endLine(): int
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function signature(): string
+    {
+    }
+    /**
+     * @return positive-int
+     */
+    public function cyclomaticComplexity(): int
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class Interface_
+{
+    /**
+     * @param non-empty-string       $name
+     * @param non-empty-string       $namespacedName
+     * @param non-negative-int       $startLine
+     * @param non-negative-int       $endLine
+     * @param list<non-empty-string> $parentInterfaces
+     */
+    public function __construct(string $name, string $namespacedName, string $namespace, int $startLine, int $endLine, array $parentInterfaces)
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function name(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function namespacedName(): string
+    {
+    }
+    public function isNamespaced(): bool
+    {
+    }
+    public function namespace(): string
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function startLine(): int
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function endLine(): int
+    {
+    }
+    /**
+     * @return list<non-empty-string>
+     */
+    public function parentInterfaces(): array
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class LinesOfCode
+{
+    /**
+     * @param non-negative-int $linesOfCode
+     * @param non-negative-int $commentLinesOfCode
+     * @param non-negative-int $nonCommentLinesOfCode
+     */
+    public function __construct(int $linesOfCode, int $commentLinesOfCode, int $nonCommentLinesOfCode)
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function linesOfCode(): int
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function commentLinesOfCode(): int
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function nonCommentLinesOfCode(): int
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class Method
+{
+    /**
+     * @param non-empty-string $name
+     * @param non-negative-int $startLine
+     * @param non-negative-int $endLine
+     * @param non-empty-string $signature
+     * @param positive-int     $cyclomaticComplexity
+     */
+    public function __construct(string $name, int $startLine, int $endLine, string $signature, \SebastianBergmann\CodeCoverage\StaticAnalysis\Visibility $visibility, int $cyclomaticComplexity)
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function name(): string
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function startLine(): int
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function endLine(): int
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function signature(): string
+    {
+    }
+    public function visibility(): \SebastianBergmann\CodeCoverage\StaticAnalysis\Visibility
+    {
+    }
+    /**
+     * @return positive-int
+     */
+    public function cyclomaticComplexity(): int
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class Trait_
+{
+    /**
+     * @param non-empty-string                $name
+     * @param non-empty-string                $namespacedName
+     * @param non-empty-string                $file
+     * @param non-negative-int                $startLine
+     * @param non-negative-int                $endLine
+     * @param list<non-empty-string>          $traits
+     * @param array<non-empty-string, Method> $methods
+     */
+    public function __construct(string $name, string $namespacedName, string $namespace, string $file, int $startLine, int $endLine, array $traits, array $methods)
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function name(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function namespacedName(): string
+    {
+    }
+    public function isNamespaced(): bool
+    {
+    }
+    public function namespace(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function file(): string
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function startLine(): int
+    {
+    }
+    /**
+     * @return non-negative-int
+     */
+    public function endLine(): int
+    {
+    }
+    /**
+     * @return list<non-empty-string>
+     */
+    public function traits(): array
+    {
+    }
+    /**
+     * @return array<non-empty-string, Method>
+     */
+    public function methods(): array
+    {
+    }
+}
+/**
+ * Visitor that connects a child node to its parent node optimized for Attribute nodes.
+ *
+ * On the child node, the parent node can be accessed through
+ * <code>$node->getAttribute('parent')</code>.
+ */
+final class AttributeParentConnectingVisitor implements \PhpParser\NodeVisitor
+{
+    public function beforeTraverse(array $nodes): null
+    {
+    }
+    public function enterNode(\PhpParser\Node $node): null
+    {
+    }
+    public function leaveNode(\PhpParser\Node $node): null
+    {
+    }
+    public function afterTraverse(array $nodes): null
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class CodeUnitFindingVisitor extends \PhpParser\NodeVisitorAbstract
+{
+    /**
+     * @param non-empty-string $file
+     */
+    public function __construct(string $file)
+    {
+    }
+    public function enterNode(\PhpParser\Node $node): null
+    {
+    }
+    public function leaveNode(\PhpParser\Node $node): null
+    {
+    }
+    /**
+     * @return array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Interface_>
+     */
+    public function interfaces(): array
+    {
+    }
+    /**
+     * @return array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Class_>
+     */
+    public function classes(): array
+    {
+    }
+    /**
+     * @return array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Trait_>
+     */
+    public function traits(): array
+    {
+    }
+    /**
+     * @return array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Function_>
      */
     public function functions(): array
     {
@@ -28560,17 +29532,17 @@ final class CodeUnitFindingVisitor extends \PhpParser\NodeVisitorAbstract
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
- * @phpstan-import-type LinesType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
+ * @phpstan-import-type LinesType from AnalysisResult
  */
 final class ExecutableLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
 {
     public function __construct(string $source)
     {
     }
-    public function enterNode(\PhpParser\Node $node): void
+    public function enterNode(\PhpParser\Node $node): null
     {
     }
-    public function afterTraverse(array $nodes): void
+    public function afterTraverse(array $nodes): null
     {
     }
     /**
@@ -28582,55 +29554,13 @@ final class ExecutableLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- *
- * @phpstan-import-type CodeUnitFunctionType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type CodeUnitMethodType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type CodeUnitClassType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type CodeUnitTraitType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- *
- * @phan-type LinesOfCodeType = array{
- *     linesOfCode: int,
- *     commentLinesOfCode: int,
- *     nonCommentLinesOfCode: int
- * }
- * @phan-type LinesType = array<int, int>
- */
-interface FileAnalyser
-{
-    /**
-     * @return array<string, CodeUnitClassType>
-     */
-    public function classesIn(string $filename): array;
-    /**
-     * @return array<string, CodeUnitTraitType>
-     */
-    public function traitsIn(string $filename): array;
-    /**
-     * @return array<string, CodeUnitFunctionType>
-     */
-    public function functionsIn(string $filename): array;
-    /**
-     * @return LinesOfCodeType
-     */
-    public function linesOfCodeFor(string $filename): array;
-    /**
-     * @return LinesType
-     */
-    public function executableLinesIn(string $filename): array;
-    /**
-     * @return LinesType
-     */
-    public function ignoredLinesFor(string $filename): array;
-}
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class IgnoredLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
 {
     public function __construct(bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecated)
     {
     }
-    public function enterNode(\PhpParser\Node $node): void
+    public function enterNode(\PhpParser\Node $node): null
     {
     }
     /**
@@ -28640,55 +29570,536 @@ final class IgnoredLinesFindingVisitor extends \PhpParser\NodeVisitorAbstract
     {
     }
 }
-/**
- * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- *
- * @phpstan-import-type CodeUnitFunctionType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type CodeUnitMethodType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type CodeUnitClassType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type CodeUnitTraitType from \SebastianBergmann\CodeCoverage\StaticAnalysis\CodeUnitFindingVisitor
- * @phpstan-import-type LinesOfCodeType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
- * @phpstan-import-type LinesType from \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
- */
-final class ParsingFileAnalyser implements \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser
+namespace SebastianBergmann\CodeCoverage\Test\Target;
+
+final class InvalidCodeCoverageTargetException extends \RuntimeException implements \SebastianBergmann\CodeCoverage\Exception
 {
-    public function __construct(bool $useAnnotationsForIgnoringCode, bool $ignoreDeprecatedCode)
+    public function __construct(\SebastianBergmann\CodeCoverage\Test\Target\Target $target)
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Class_ extends \SebastianBergmann\CodeCoverage\Test\Target\Target
+{
+    public function isClass(): true
     {
     }
     /**
-     * @return array<string, CodeUnitClassType>
+     * @return class-string
      */
-    public function classesIn(string $filename): array
+    public function className(): string
     {
     }
     /**
-     * @return array<string, CodeUnitTraitType>
+     * @return non-empty-string
      */
-    public function traitsIn(string $filename): array
+    public function key(): string
     {
     }
     /**
-     * @return array<string, CodeUnitFunctionType>
+     * @return non-empty-string
      */
-    public function functionsIn(string $filename): array
+    public function target(): string
     {
     }
     /**
-     * @return LinesOfCodeType
+     * @return non-empty-string
      */
-    public function linesOfCodeFor(string $filename): array
+    public function description(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class ClassesThatExtendClass extends \SebastianBergmann\CodeCoverage\Test\Target\Target
+{
+    public function isClassesThatExtendClass(): true
     {
     }
     /**
-     * @return LinesType
+     * @return class-string
      */
-    public function executableLinesIn(string $filename): array
+    public function className(): string
     {
     }
     /**
-     * @return LinesType
+     * @return non-empty-string
      */
-    public function ignoredLinesFor(string $filename): array
+    public function key(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function target(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function description(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class ClassesThatImplementInterface extends \SebastianBergmann\CodeCoverage\Test\Target\Target
+{
+    public function isClassesThatImplementInterface(): true
+    {
+    }
+    /**
+     * @return class-string
+     */
+    public function interfaceName(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function key(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function target(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function description(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Function_ extends \SebastianBergmann\CodeCoverage\Test\Target\Target
+{
+    public function isFunction(): true
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function functionName(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function key(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function target(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function description(): string
+    {
+    }
+}
+/**
+ * @phpstan-import-type TargetMap from Mapper
+ * @phpstan-import-type TargetMapPart from Mapper
+ *
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class MapBuilder
+{
+    /**
+     * @return TargetMap
+     */
+    public function build(\SebastianBergmann\CodeCoverage\Filter $filter, \SebastianBergmann\CodeCoverage\StaticAnalysis\FileAnalyser $analyser): array
+    {
+    }
+}
+/**
+ * @phan-type TargetMap array{namespaces: TargetMapPart, traits: TargetMapPart, classes: TargetMapPart, classesThatExtendClass: TargetMapPart, classesThatImplementInterface: TargetMapPart, methods: TargetMapPart, functions: TargetMapPart, reverseLookup: ReverseLookup}
+ * @phan-type TargetMapPart array<non-empty-string, array<non-empty-string, list<positive-int>>>
+ * @phan-type ReverseLookup array<non-empty-string, non-empty-string>
+ *
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class Mapper
+{
+    /**
+     * @param TargetMap $map
+     */
+    public function __construct(array $map)
+    {
+    }
+    /**
+     * @return array<non-empty-string, list<positive-int>>
+     */
+    public function mapTargets(\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $targets): array
+    {
+    }
+    /**
+     * @throws InvalidCodeCoverageTargetException
+     *
+     * @return array<non-empty-string, list<positive-int>>
+     */
+    public function mapTarget(\SebastianBergmann\CodeCoverage\Test\Target\Target $target): array
+    {
+    }
+    /**
+     * @param non-empty-string $file
+     * @param positive-int     $line
+     *
+     * @return non-empty-string
+     */
+    public function lookup(string $file, int $line): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Method extends \SebastianBergmann\CodeCoverage\Test\Target\Target
+{
+    public function isMethod(): true
+    {
+    }
+    /**
+     * @return class-string
+     */
+    public function className(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function methodName(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function key(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function target(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function description(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Namespace_ extends \SebastianBergmann\CodeCoverage\Test\Target\Target
+{
+    public function isNamespace(): true
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function namespace(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function key(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function target(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function description(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+abstract class Target
+{
+    /**
+     * @param non-empty-string $namespace
+     */
+    public static function forNamespace(string $namespace): \SebastianBergmann\CodeCoverage\Test\Target\Namespace_
+    {
+    }
+    /**
+     * @param class-string $className
+     */
+    public static function forClass(string $className): \SebastianBergmann\CodeCoverage\Test\Target\Class_
+    {
+    }
+    /**
+     * @param class-string     $className
+     * @param non-empty-string $methodName
+     */
+    public static function forMethod(string $className, string $methodName): \SebastianBergmann\CodeCoverage\Test\Target\Method
+    {
+    }
+    /**
+     * @param class-string $interfaceName
+     */
+    public static function forClassesThatImplementInterface(string $interfaceName): \SebastianBergmann\CodeCoverage\Test\Target\ClassesThatImplementInterface
+    {
+    }
+    /**
+     * @param class-string $className
+     */
+    public static function forClassesThatExtendClass(string $className): \SebastianBergmann\CodeCoverage\Test\Target\ClassesThatExtendClass
+    {
+    }
+    /**
+     * @param non-empty-string $functionName
+     */
+    public static function forFunction(string $functionName): \SebastianBergmann\CodeCoverage\Test\Target\Function_
+    {
+    }
+    /**
+     * @param trait-string $traitName
+     */
+    public static function forTrait(string $traitName): \SebastianBergmann\CodeCoverage\Test\Target\Trait_
+    {
+    }
+    public function isNamespace(): bool
+    {
+    }
+    public function isClass(): bool
+    {
+    }
+    public function isMethod(): bool
+    {
+    }
+    public function isClassesThatImplementInterface(): bool
+    {
+    }
+    public function isClassesThatExtendClass(): bool
+    {
+    }
+    public function isFunction(): bool
+    {
+    }
+    public function isTrait(): bool
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    abstract public function key(): string;
+    /**
+     * @return non-empty-string
+     */
+    abstract public function target(): string;
+    /**
+     * @return non-empty-string
+     */
+    abstract public function description(): string;
+}
+/**
+ * @template-implements \IteratorAggregate<int, Target>
+ *
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class TargetCollection implements \Countable, \IteratorAggregate
+{
+    /**
+     * @param list<Target> $targets
+     */
+    public static function fromArray(array $targets): self
+    {
+    }
+    /**
+     * @return list<Target>
+     */
+    public function asArray(): array
+    {
+    }
+    public function count(): int
+    {
+    }
+    public function isEmpty(): bool
+    {
+    }
+    public function isNotEmpty(): bool
+    {
+    }
+    public function getIterator(): \SebastianBergmann\CodeCoverage\Test\Target\TargetCollectionIterator
+    {
+    }
+}
+/**
+ * @template-implements \Iterator<int, Target>
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class TargetCollectionIterator implements \Iterator
+{
+    public function __construct(\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $metadata)
+    {
+    }
+    public function rewind(): void
+    {
+    }
+    public function valid(): bool
+    {
+    }
+    public function key(): int
+    {
+    }
+    public function current(): \SebastianBergmann\CodeCoverage\Test\Target\Target
+    {
+    }
+    public function next(): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class TargetCollectionValidator
+{
+    public function validate(\SebastianBergmann\CodeCoverage\Test\Target\Mapper $mapper, \SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $targets): \SebastianBergmann\CodeCoverage\Test\Target\ValidationResult
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class Trait_ extends \SebastianBergmann\CodeCoverage\Test\Target\Target
+{
+    public function isTrait(): true
+    {
+    }
+    /**
+     * @return trait-string
+     */
+    public function traitName(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function key(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function target(): string
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function description(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class ValidationFailure extends \SebastianBergmann\CodeCoverage\Test\Target\ValidationResult
+{
+    public function isFailure(): true
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function message(): string
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+abstract readonly class ValidationResult
+{
+    public static function success(): \SebastianBergmann\CodeCoverage\Test\Target\ValidationSuccess
+    {
+    }
+    /**
+     * @param non-empty-string $message
+     */
+    public static function failure(string $message): \SebastianBergmann\CodeCoverage\Test\Target\ValidationFailure
+    {
+    }
+    /**
+     * @phpstan-assert-if-true ValidationSuccess $this
+     */
+    public function isSuccess(): bool
+    {
+    }
+    /**
+     * @phpstan-assert-if-true ValidationFailure $this
+     */
+    public function isFailure(): bool
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class ValidationSuccess extends \SebastianBergmann\CodeCoverage\Test\Target\ValidationResult
+{
+    public function isSuccess(): true
     {
     }
 }
@@ -28917,7 +30328,7 @@ final class Filesystem
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
-final class Percentage
+final readonly class Percentage
 {
     public static function fromFractionAndTotal(float $fraction, float $total): self
     {
@@ -28929,312 +30340,6 @@ final class Percentage
     {
     }
     public function asFixedWidthString(): string
-    {
-    }
-}
-namespace SebastianBergmann\CodeUnit;
-
-/**
- * @immutable
- */
-final readonly class ClassMethodUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    public function isClassMethod(): bool
-    {
-    }
-}
-/**
- * @immutable
- */
-final readonly class ClassUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    public function isClass(): bool
-    {
-    }
-}
-/**
- * @immutable
- */
-abstract readonly class CodeUnit
-{
-    /**
-     * @param class-string $className
-     *
-     * @throws InvalidCodeUnitException
-     * @throws ReflectionException
-     */
-    public static function forClass(string $className): \SebastianBergmann\CodeUnit\ClassUnit
-    {
-    }
-    /**
-     * @param class-string $className
-     *
-     * @throws InvalidCodeUnitException
-     * @throws ReflectionException
-     */
-    public static function forClassMethod(string $className, string $methodName): \SebastianBergmann\CodeUnit\ClassMethodUnit
-    {
-    }
-    /**
-     * @param non-empty-string $path
-     *
-     * @throws InvalidCodeUnitException
-     */
-    public static function forFileWithAbsolutePath(string $path): \SebastianBergmann\CodeUnit\FileUnit
-    {
-    }
-    /**
-     * @param class-string $interfaceName
-     *
-     * @throws InvalidCodeUnitException
-     * @throws ReflectionException
-     */
-    public static function forInterface(string $interfaceName): \SebastianBergmann\CodeUnit\InterfaceUnit
-    {
-    }
-    /**
-     * @param class-string $interfaceName
-     *
-     * @throws InvalidCodeUnitException
-     * @throws ReflectionException
-     */
-    public static function forInterfaceMethod(string $interfaceName, string $methodName): \SebastianBergmann\CodeUnit\InterfaceMethodUnit
-    {
-    }
-    /**
-     * @param class-string $traitName
-     *
-     * @throws InvalidCodeUnitException
-     * @throws ReflectionException
-     */
-    public static function forTrait(string $traitName): \SebastianBergmann\CodeUnit\TraitUnit
-    {
-    }
-    /**
-     * @param class-string $traitName
-     *
-     * @throws InvalidCodeUnitException
-     * @throws ReflectionException
-     */
-    public static function forTraitMethod(string $traitName, string $methodName): \SebastianBergmann\CodeUnit\TraitMethodUnit
-    {
-    }
-    /**
-     * @param callable-string $functionName
-     *
-     * @throws InvalidCodeUnitException
-     * @throws ReflectionException
-     */
-    public static function forFunction(string $functionName): \SebastianBergmann\CodeUnit\FunctionUnit
-    {
-    }
-    /**
-     * @return non-empty-string
-     */
-    public function name(): string
-    {
-    }
-    /**
-     * @return non-empty-string
-     */
-    public function sourceFileName(): string
-    {
-    }
-    /**
-     * @return list<int>
-     */
-    public function sourceLines(): array
-    {
-    }
-    /**
-     * @phpstan-assert-if-true ClassUnit $this
-     */
-    public function isClass(): bool
-    {
-    }
-    /**
-     * @phpstan-assert-if-true ClassMethodUnit $this
-     */
-    public function isClassMethod(): bool
-    {
-    }
-    /**
-     * @phpstan-assert-if-true InterfaceUnit $this
-     */
-    public function isInterface(): bool
-    {
-    }
-    /**
-     * @phpstan-assert-if-true InterfaceMethodUnit $this
-     */
-    public function isInterfaceMethod(): bool
-    {
-    }
-    /**
-     * @phpstan-assert-if-true TraitUnit $this
-     */
-    public function isTrait(): bool
-    {
-    }
-    /**
-     * @phpstan-assert-if-true TraitMethodUnit $this
-     */
-    public function isTraitMethod(): bool
-    {
-    }
-    /**
-     * @phpstan-assert-if-true FunctionUnit $this
-     */
-    public function isFunction(): bool
-    {
-    }
-    /**
-     * @phpstan-assert-if-true FileUnit $this
-     */
-    public function isFile(): bool
-    {
-    }
-}
-/**
- * @template-implements \IteratorAggregate<int, CodeUnit>
- *
- * @immutable
- */
-final readonly class CodeUnitCollection implements \Countable, \IteratorAggregate
-{
-    public static function fromList(\SebastianBergmann\CodeUnit\CodeUnit ...$codeUnits): self
-    {
-    }
-    /**
-     * @return list<CodeUnit>
-     */
-    public function asArray(): array
-    {
-    }
-    public function getIterator(): \SebastianBergmann\CodeUnit\CodeUnitCollectionIterator
-    {
-    }
-    public function count(): int
-    {
-    }
-    public function isEmpty(): bool
-    {
-    }
-    public function mergeWith(self $other): self
-    {
-    }
-}
-/**
- * @template-implements \Iterator<int, CodeUnit>
- */
-final class CodeUnitCollectionIterator implements \Iterator
-{
-    public function __construct(\SebastianBergmann\CodeUnit\CodeUnitCollection $collection)
-    {
-    }
-    public function rewind(): void
-    {
-    }
-    public function valid(): bool
-    {
-    }
-    public function key(): int
-    {
-    }
-    public function current(): \SebastianBergmann\CodeUnit\CodeUnit
-    {
-    }
-    public function next(): void
-    {
-    }
-}
-/**
- * @immutable
- */
-final readonly class FileUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    public function isFile(): bool
-    {
-    }
-}
-/**
- * @immutable
- */
-final readonly class FunctionUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    public function isFunction(): bool
-    {
-    }
-}
-/**
- * @immutable
- */
-final readonly class InterfaceMethodUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    public function isInterfaceMethod(): bool
-    {
-    }
-}
-/**
- * @immutable
- */
-final readonly class InterfaceUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    public function isInterface(): bool
-    {
-    }
-}
-final class Mapper
-{
-    /**
-     * @return array<string,list<int>>
-     */
-    public function codeUnitsToSourceLines(\SebastianBergmann\CodeUnit\CodeUnitCollection $codeUnits): array
-    {
-    }
-    /**
-     * @throws InvalidCodeUnitException
-     * @throws ReflectionException
-     */
-    public function stringToCodeUnits(string $unit): \SebastianBergmann\CodeUnit\CodeUnitCollection
-    {
-    }
-}
-/**
- * @immutable
- */
-final readonly class TraitMethodUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    public function isTraitMethod(): bool
-    {
-    }
-}
-/**
- * @immutable
- */
-final readonly class TraitUnit extends \SebastianBergmann\CodeUnit\CodeUnit
-{
-    public function isTrait(): bool
-    {
-    }
-}
-interface Exception extends \Throwable
-{
-}
-final class InvalidCodeUnitException extends \RuntimeException implements \SebastianBergmann\CodeUnit\Exception
-{
-}
-final class NoTraitException extends \RuntimeException implements \SebastianBergmann\CodeUnit\Exception
-{
-}
-final class ReflectionException extends \RuntimeException implements \SebastianBergmann\CodeUnit\Exception
-{
-}
-namespace SebastianBergmann\CodeUnitReverseLookup;
-
-final class Wizard
-{
-    public function lookup(string $filename, int $lineNumber): string
     {
     }
 }
@@ -29641,7 +30746,7 @@ final class ComplexityCalculatingVisitor extends \PhpParser\NodeVisitorAbstract
 }
 final class CyclomaticComplexityCalculatingVisitor extends \PhpParser\NodeVisitorAbstract
 {
-    public function enterNode(\PhpParser\Node $node): void
+    public function enterNode(\PhpParser\Node $node): null
     {
     }
     /**
@@ -29838,6 +30943,8 @@ abstract class AbstractChunkOutputBuilder implements \SebastianBergmann\Diff\Out
     /**
      * Takes input of the diff array and returns the common parts.
      * Iterates through diff line by line.
+     *
+     * @return array<int, positive-int>
      */
     protected function getCommonChunks(array $diff, int $lineThreshold = 5): array
     {
@@ -29931,7 +31038,7 @@ final class Console
      *
      * @param int|resource $fileDescriptor
      */
-    public function isInteractive($fileDescriptor = self::STDOUT): bool
+    public function isInteractive(mixed $fileDescriptor = self::STDOUT): bool
     {
     }
 }
@@ -30152,6 +31259,8 @@ final class Factory
      * @param list<non-empty-string>|string           $suffixes
      * @param list<non-empty-string>|string           $prefixes
      * @param list<non-empty-string>                  $exclude
+     *
+     * @phpstan-ignore missingType.generics
      */
     public function getFileIterator(array|string $paths, array|string $suffixes = '', array|string $prefixes = '', array $exclude = []): \AppendIterator
     {
@@ -30394,9 +31503,6 @@ interface Exception extends \Throwable
 final class IllogicalValuesException extends \LogicException implements \SebastianBergmann\LinesOfCode\Exception
 {
 }
-final class NegativeValueException extends \InvalidArgumentException implements \SebastianBergmann\LinesOfCode\Exception
-{
-}
 final class RuntimeException extends \RuntimeException implements \SebastianBergmann\LinesOfCode\Exception
 {
 }
@@ -30408,7 +31514,7 @@ final class LineCountingVisitor extends \PhpParser\NodeVisitorAbstract
     public function __construct(int $linesOfCode)
     {
     }
-    public function enterNode(\PhpParser\Node $node): void
+    public function enterNode(\PhpParser\Node $node): null
     {
     }
     public function result(): \SebastianBergmann\LinesOfCode\LinesOfCode
@@ -30427,7 +31533,6 @@ final readonly class LinesOfCode
      * @param non-negative-int $logicalLinesOfCode
      *
      * @throws IllogicalValuesException
-     * @throws NegativeValueException
      */
     public function __construct(int $linesOfCode, int $commentLinesOfCode, int $nonCommentLinesOfCode, int $logicalLinesOfCode)
     {
@@ -30504,7 +31609,7 @@ final class Context
      *
      * @param-out T $value
      */
-    public function add(array|object &$value): false|int|string
+    public function add(array|object &$value): int
     {
     }
     /**
@@ -30514,7 +31619,7 @@ final class Context
      *
      * @param-out T $value
      */
-    public function contains(array|object &$value): false|int|string
+    public function contains(array|object &$value): false|int
     {
     }
 }

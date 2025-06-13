@@ -368,6 +368,7 @@ class WPCOM_Features {
 	public const EMAIL_PROFESSIONAL                = 'email-professional';
 	public const EMAIL_SUBSCRIPTION                = 'email-subscription';
 	public const EMAIL_FORWARDS_EXTENDED_LIMIT     = 'email-forwards-extended-limit';
+	public const FIELD_FILE                        = 'field-file';
 	public const FREE_BLOG                         = 'free-blog';
 	public const FULL_ACTIVITY_LOG                 = 'full-activity-log';
 	public const GLOBAL_STYLES                     = 'global-styles';
@@ -419,17 +420,12 @@ class WPCOM_Features {
 	public const SITE_PREVIEW_LINKS                = 'site-preview-links';
 	public const SOCIAL_ADMIN_PAGE                 = 'social-admin-page';
 	public const SOCIAL_IMAGE_GENERATOR            = 'social-image-generator';
-	public const SOCIAL_PREVIEWS                   = 'social-previews';
 	public const SOCIAL_SHARES_1000                = 'social-shares-1000';
 	public const SOCIAL_ENHANCED_PUBLISHING        = 'social-enhanced-publishing';
-	public const SOCIAL_MASTODON_CONNECTION        = 'social-mastodon-connection';
-	public const SOCIAL_THREADS_CONNECTION         = 'social-threads-connection';
-	public const SOCIAL_INSTAGRAM_CONNECTION       = 'social-instagram-connection';
-	public const SOCIAL_CONNECTIONS_MANAGEMENT     = 'social-connections-management';
 	public const SOCIAL_IMAGE_AUTO_CONVERT         = 'social-image-auto-convert';
+	public const SOCIAL_CONNECTIONS_MANAGEMENT     = 'social-connections-management';
 	public const SOCIAL_EDITOR_PREVIEW             = 'social-editor-preview';
 	public const SOCIAL_SHARE_STATUS               = 'social-share-status';
-	public const SOCIAL_MULTI_CONNECTIONS          = 'social-multi-connections';
 	public const SPACE                             = 'space';
 	public const SPACE_UPGRADED_STORAGE            = 'space-upgraded-storage';
 	public const SSH                               = 'ssh';
@@ -708,6 +704,12 @@ class WPCOM_Features {
 			self::BUNDLE_ENTERPRISE,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+		),
+		// FIELD_FILE - Premium block/feature (jetpack/field-file) for uploading files with cloud backend.
+		// See: https://github.com/Automattic/jetpack/pull/43177 / https://github.a8c.com/Automattic/wpcom/pull/179247
+		self::FIELD_FILE                        => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::FREE_BLOG                         => array(
 			self::WPCOM_ALL_SITES,
@@ -1043,11 +1045,6 @@ class WPCOM_Features {
 		self::SITE_PREVIEW_LINKS                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
-		self::SOCIAL_PREVIEWS                   => array(
-			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::JETPACK_ALL_SITES,
-		),
 
 		/*
 		 * SOCIAL_SHARES_1000 - This feature is linked to the ability to share upto 1000 social media shares on the Jetpack Social Plugin.
@@ -1079,31 +1076,8 @@ class WPCOM_Features {
 		self::SOCIAL_ADMIN_PAGE                 => array(
 			self::WPCOM_ALL_SITES,
 		),
-		self::SOCIAL_MASTODON_CONNECTION        => array(
-			array(
-				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
-				'before' => '1900-01-01',
-				self::WPCOM_ALL_SITES,
-				self::JETPACK_ALL_SITES,
-			),
-		),
-		self::SOCIAL_THREADS_CONNECTION         => array(
-			array(
-				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
-				'before' => '1900-01-01',
-				self::WPCOM_ALL_SITES,
-				self::JETPACK_ALL_SITES,
-			),
-		),
-		self::SOCIAL_INSTAGRAM_CONNECTION       => array(
-			array(
-				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
-				'before' => '1900-01-01',
-				self::WPCOM_ALL_SITES,
-				self::JETPACK_ALL_SITES,
-			),
-		),
 		self::SOCIAL_CONNECTIONS_MANAGEMENT     => array(
+			self::JETPACK_ALL_SITES,
 			self::WPCOM_ALL_SITES,
 		),
 		self::SOCIAL_EDITOR_PREVIEW             => array(
@@ -1467,7 +1441,15 @@ class WPCOM_Features {
 		163161552, // brwpgo.wordpress.com
 		53424024, // discover.wordpress.com
 		489937, // dailypost.wordpress.com
-		33534099, // developer.wordpress.com
+		33534099,  // developer.wordpress.com
+		233643880, // eswpcomdeveloper.wordpress.com
+		244311505, // jawpcomdeveloper.wordpress.com
+		244447807, // frwpcomdeveloper.wordpress.com
+		244448116, // dewpcomdeveloper.wordpress.com
+		244448279, // ptbrwpcomdeveloper.wordpress.com
+		244517526, // idwpcomdeveloper.wordpress.com
+		244516213, // itwpcomdeveloper.wordpress.com
+		244518337, // nlwpcomdeveloper.wordpress.com
 		22994, // theme.wordpress.com
 		16390, // learn.wordpress.com
 		54117, // automattic.wordpress.com

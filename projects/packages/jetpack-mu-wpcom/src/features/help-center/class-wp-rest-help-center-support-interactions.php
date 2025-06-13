@@ -34,13 +34,18 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 				'permission_callback' => 'is_user_logged_in',
 				'args'                => array(
 					'status'   => array(
-						'type'     => 'string',
+						'type'     => 'array',
 						'required' => false,
-						'enum'     => array(
-							'open',
-							'resolved',
-							'closed',
+						'items'    => array(
+							'type' => 'string',
+							'enum' => array(
+								'open',
+								'resolved',
+								'solved',
+								'closed',
+							),
 						),
+						'default'  => array(),
 					),
 					'page'     => array(
 						'type'     => 'integer',

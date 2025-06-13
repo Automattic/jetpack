@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import ButtonGroup from '../../../components/button-group';
 
 /**

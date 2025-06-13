@@ -7,9 +7,7 @@ jest.mock( '@slack/web-api', () => {
 			postMessage: jest.fn(),
 			update: jest.fn(),
 		},
-		files: {
-			upload: jest.fn(),
-		},
+		filesUploadV2: jest.fn(),
 		conversations: {
 			history: jest.fn(),
 		},
@@ -113,11 +111,12 @@ describe( 'Post message', () => {
 			thread_ts,
 		} );
 
-		await expect( slackClient.files.upload ).toHaveBeenCalledWith(
+		await expect( slackClient.filesUploadV2 ).toHaveBeenCalledWith(
 			expect.objectContaining( {
-				file: expect.objectContaining( { path: filePath } ),
-				channels: channel,
+				file: filePath,
+				channel_id: channel,
 				thread_ts,
+				filename: path.basename( filePath ),
 			} )
 		);
 	} );

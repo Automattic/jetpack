@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Device_Detection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -19,12 +20,15 @@ class Device_Detection_Test extends TestCase {
 	 * @param string $ua                   User agent string.
 	 * @param array  $expected_types       Expected device types to be detected for a user-agent.
 	 * @param bool   $expected_ua_returned Expected value for UA returned by the method.
+	 * @param string $expected_browser     Expected value for browser returned by the method. Unused in this method.
 	 *
 	 * @return void
 	 *
 	 * @dataProvider ua_provider
 	 */
-	public function test_is_mobile( $ua, array $expected_types, $expected_ua_returned ) {
+	#[DataProvider( 'ua_provider' )]
+	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- PHPUnit 12.2 requires methods with data providers to have an exact param count match
+	public function test_is_mobile( $ua, array $expected_types, $expected_ua_returned, string $expected_browser ) {
 		$_SERVER['HTTP_USER_AGENT'] = $ua;
 
 		$device_info      = Device_Detection::get_info();
@@ -56,6 +60,7 @@ class Device_Detection_Test extends TestCase {
 	 *
 	 * @dataProvider ua_provider
 	 */
+	#[DataProvider( 'ua_provider' )]
 	public function test_get_browser( string $ua, array $expected_types, $expected_ua_returned, string $expected_browser ) {
 		$_SERVER['HTTP_USER_AGENT'] = $ua;
 
@@ -73,6 +78,7 @@ class Device_Detection_Test extends TestCase {
 	 *
 	 * @dataProvider ua_desktop_provider
 	 */
+	#[DataProvider( 'ua_desktop_provider' )]
 	public function test_get_desktop_platform( string $ua, string $expected_platform ) {
 		$_SERVER['HTTP_USER_AGENT'] = $ua;
 

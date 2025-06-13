@@ -8,7 +8,7 @@
 	import { API, options } from '../../Options';
 	import ActivateMonitor from './ActivateMonitor.svelte';
 
-	const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher< { clear: null } >();
 
 	async function clear() {
 		if ( ( await API.DELETE( 'clear' ) ) === 'OK' ) {

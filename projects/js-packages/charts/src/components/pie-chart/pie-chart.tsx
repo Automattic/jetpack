@@ -1,7 +1,6 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
-import { SVGProps, type MouseEvent } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Legend } from '../legend';
@@ -9,8 +8,7 @@ import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
-
-// TODO: add animation
+import type { SVGProps, MouseEvent } from 'react';
 
 type OmitBaseChartProps = Omit< BaseChartProps< DataPointPercentage[] >, 'width' | 'height' >;
 
@@ -88,6 +86,7 @@ const PieChart = ( {
 	className,
 	showLegend,
 	legendOrientation,
+	legendShape = 'circle',
 	size,
 	thickness = 1,
 	padding = 20,
@@ -217,6 +216,7 @@ const PieChart = ( {
 					items={ legendItems }
 					orientation={ legendOrientation }
 					className={ styles[ 'pie-chart-legend' ] }
+					shape={ legendShape }
 				/>
 			) }
 

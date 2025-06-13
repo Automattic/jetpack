@@ -5,6 +5,9 @@
  * @package wpcomsh
  */
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+
 /**
  * Class FunctionsTest.
  */
@@ -26,6 +29,8 @@ class FunctionsTest extends WP_UnitTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_wpcomsh_get_atomic_client_id_defined() {
 		define( 'ATOMIC_CLIENT_ID', '2' );
 		add_filter(

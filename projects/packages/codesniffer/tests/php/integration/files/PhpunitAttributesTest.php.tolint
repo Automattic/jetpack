@@ -1,0 +1,54 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.FunctionComment.Missing
+
+use PHPUnit\Framework\TestCase;
+
+/**
+ * A test class
+ *
+ * @backupGlobals enabled
+ * @backupStaticAttributes enabled
+ * @coversNothing
+ * @doesNotPerformAssertions
+ * @preserveGlobalState enabled
+ * @runClassInSeparateProcess
+ * @runClassInSeparateProcess
+ * @testdox Some weird thing.
+ */
+abstract class PhpunitAttributesTestCase extends TestCase {
+	/**
+	 * @after
+	 * @afterClass
+	 * @before
+	 * @beforeClass
+	 * @postCondition
+	 * @preCondition
+	 * @runInSeparateProcess
+	 * @test
+	 * @backupGlobals enabled
+	 * @backupStaticAttributes enabled
+	 * @coversNothing
+	 * @doesNotPerformAssertions
+	 * @preserveGlobalState enabled
+	 * @testdox Another weird thing.
+	 */
+	abstract public function testMethodAnnotations();
+
+	/**
+	 * @backupGlobals disabled
+	 * @backupStaticAttributes disabled
+	 * @backupStaticProperties disabled
+	 * @preserveGlobalState disabled
+	 */
+	public function disabledStuff() {
+	}
+
+	/**
+	 * @backupStaticProperties enabled
+	 */
+	public function alias() {
+	}
+
+	/** @test */ public function nospace() {}
+}

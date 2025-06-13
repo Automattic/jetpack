@@ -1,16 +1,7 @@
-import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.ts';
 import { PromptProp, PromptItemProps } from '../types.ts';
+import { isChromeAIAvailable } from './get-availability.ts';
 import ChromeAISuggestionsEventSource from './suggestions.ts';
-
-/**
- * Check for the feature flag.
- *
- * @return boolean
- */
-function shouldUseChromeAI() {
-	return getJetpackExtensionAvailability( 'ai-use-chrome-ai-sometimes' ).available === true;
-}
 
 interface PromptContext {
 	type?: string;
@@ -27,7 +18,7 @@ interface PromptContext {
  * @return ChromeAISuggestionsEventSource | bool
  */
 export default async function ChromeAIFactory( promptArg: PromptProp ) {
-	if ( ! shouldUseChromeAI() ) {
+	if ( ! isChromeAIAvailable() ) {
 		return false;
 	}
 
@@ -75,13 +66,41 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		}
 	}
 
+	// Early return if the prompt type is not supported.
+	if (
+		! promptType.startsWith( 'ai-assistant-change-language' ) &&
+		! promptType.startsWith( 'ai-content-lens' )
+	) {
+		return false;
+	}
+
+	// If the languageDetector is not available, we can't use the translation or summary features—it's safer to fall back
+	// to the default AI model than to risk an unexpected error.
+	if (
+		! ( 'LanguageDetector' in self ) ||
+		! self.LanguageDetector.create ||
+		! self.LanguageDetector.availability
+	) {
+		return false;
+	}
+
+	const languageDetectorAvailability = await self.LanguageDetector.availability();
+	if ( languageDetectorAvailability === 'unavailable' ) {
+		return false;
+	}
+
+	const detector = await self.LanguageDetector.create();
+	if ( languageDetectorAvailability !== 'available' ) {
+		await detector.ready;
+	}
+
 	if ( promptType.startsWith( 'ai-assistant-change-language' ) ) {
 		const [ language ] = context.language.split( ' ' );
 
 		if (
-			! ( 'translation' in self ) ||
-			! self.translation.createTranslator ||
-			! self.translation.canTranslate
+			! ( 'Translator' in self ) ||
+			! self.Translator.create ||
+			! self.Translator.availability
 		) {
 			return false;
 		}
@@ -91,26 +110,22 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 			targetLanguage: language,
 		};
 
-		// see if we can detect the source language
-		if ( 'ai' in self && self.ai.languageDetector ) {
-			const detector = await self.ai.languageDetector.create();
-			const confidences = await detector.detect( context.content );
+		const confidences = await detector.detect( context.content );
 
-			for ( const confidence of confidences ) {
-				// 75% confidence is just a value that was picked. Generally
-				// 80% of higher is pretty safe, but the source language is
-				// required for the translator to work at all, which is also
-				// why en is the default language.
-				if ( confidence.confidence > 0.75 ) {
-					languageOpts.sourceLanguage = confidence.detectedLanguage;
-					break;
-				}
+		for ( const confidence of confidences ) {
+			// 75% confidence is just a value that was picked. Generally
+			// 80% of higher is pretty safe, but the source language is
+			// required for the translator to work at all, which is also
+			// why en is the default language.
+			if ( confidence.confidence > 0.75 ) {
+				languageOpts.sourceLanguage = confidence.detectedLanguage;
+				break;
 			}
 		}
 
-		const canTranslate = await self.translation.canTranslate( languageOpts );
+		const translationAvailability = await self.Translator.availability( languageOpts );
 
-		if ( canTranslate === 'no' ) {
+		if ( translationAvailability === 'unavailable' ) {
 			return false;
 		}
 
@@ -123,14 +138,33 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		return chromeAI;
 	}
 
-	// TODO: consider also using ChromeAI for ai-assistant-summarize
 	if ( promptType.startsWith( 'ai-content-lens' ) ) {
+		if ( ! ( 'Summarizer' in self ) ) {
+			return false;
+		}
+
+		if ( context.language && context.language !== 'en (English)' ) {
+			return false;
+		}
+
+		const confidences = await detector.detect( context.content );
+
+		// if it doesn't look like the content is in English, we can't use the summary feature
+		for ( const confidence of confidences ) {
+			// 75% confidence is just a value that was picked. Generally
+			// 80% of higher is pretty safe, but the source language is
+			// required for the translator to work at all, which is also
+			// why en is the default language.
+			if ( confidence.confidence > 0.75 && confidence.detectedLanguage !== 'en' ) {
+				return false;
+			}
+		}
+
 		const summaryOpts = {
 			tone: tone,
 			wordCount: wordCount,
 		};
 
-		// TODO: detect if the content is in English and fallback if it's not
 		return new ChromeAISuggestionsEventSource( {
 			content: context.content,
 			promptType: PROMPT_TYPE_SUMMARIZE,

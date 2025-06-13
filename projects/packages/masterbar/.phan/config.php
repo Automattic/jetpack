@@ -34,7 +34,7 @@ return make_phan_config(
 
 			// Make an exception to the above for packages/jetpack-mu-wpcom. Pulling in that whole package here causes more trouble than it solves.
 			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/features/custom-css/custom-css.php', // class Jetpack_Custom_CSS_Enhancements
-			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php', // function wpcom_is_duplicate_views_experiment_enabled
+			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php', // function wpcom_is_duplicate_views_experiment_enabled removed
 		),
 	)
 );

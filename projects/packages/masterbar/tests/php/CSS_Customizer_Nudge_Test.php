@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
@@ -17,6 +18,7 @@ require_once dirname( __DIR__, 2 ) . '/src/nudges/bootstrap.php';
 /**
  * @covers Automattic\Jetpack\Masterbar\CSS_Customizer_Nudge
  */
+#[CoversClass( CSS_Customizer_Nudge::class )]
 class CSS_Customizer_Nudge_Test extends TestCase {
 	/**
 	 * A mock Customize manager.

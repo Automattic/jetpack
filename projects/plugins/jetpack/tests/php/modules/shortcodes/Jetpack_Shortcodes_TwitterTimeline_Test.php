@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversFunction;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
@@ -12,6 +14,7 @@ require_once __DIR__ . '/trait.http-request-cache.php';
  *
  * @covers ::twitter_timeline_shortcode
  */
+#[CoversFunction( 'twitter_timeline_shortcode' )]
 class Jetpack_Shortcodes_TwitterTimeline_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;

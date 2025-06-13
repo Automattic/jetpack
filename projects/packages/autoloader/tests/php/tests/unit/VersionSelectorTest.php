@@ -8,6 +8,9 @@
 // We live in the namespace of the test autoloader to avoid many use statements.
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -42,6 +45,8 @@ class VersionSelectorTest extends TestCase {
 	 * @dataProvider is_version_update_required_provider
 	 * @dataProvider is_version_update_required_without_dev_constant_provider
 	 */
+	#[DataProvider( 'is_version_update_required_provider' )]
+	#[DataProvider( 'is_version_update_required_without_dev_constant_provider' )]
 	public function test_is_version_update_required( $selected_version, $compare_version, $expected ) {
 		$this->assertEquals( $expected, $this->version_selector->is_version_update_required( $selected_version, $compare_version ) );
 	}
@@ -60,6 +65,10 @@ class VersionSelectorTest extends TestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
+	#[DataProvider( 'is_version_update_required_provider' )]
+	#[DataProvider( 'is_version_update_required_with_dev_constant_provider' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_is_version_update_required_with_dev_constant( $selected_version, $compare_version, $expected ) {
 		define( 'JETPACK_AUTOLOAD_DEV', true );
 		$this->assertEquals( $expected, $this->version_selector->is_version_update_required( $selected_version, $compare_version ) );

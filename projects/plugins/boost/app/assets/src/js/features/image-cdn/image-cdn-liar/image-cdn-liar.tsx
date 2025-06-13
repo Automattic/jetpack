@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import styles from './image-cdn-liar.module.scss';
 import ModuleSubsection from '$features/ui/module-subsection/module-subsection';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import Pill from '$features/ui/pill/pill';
 import { useMutationNotice } from '$features/ui/mutation-notice/mutation-notice';
 import { useModulesState } from '$features/module/lib/stores';
 
@@ -43,10 +42,7 @@ export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
 		<ModuleSubsection>
 			<div className={ styles.wrapper }>
 				<div className={ styles.title }>
-					<h4>
-						{ __( 'Auto-Resize Lazy Images', 'jetpack-boost' ) }
-						<Pill text="Beta" />
-					</h4>
+					<h4>{ __( 'Auto-Resize Lazy Images', 'jetpack-boost' ) }</h4>
 					<ToggleControl
 						className={ styles[ 'toggle-control' ] }
 						checked={ imageCdnLiar }

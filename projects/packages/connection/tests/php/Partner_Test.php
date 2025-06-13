@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,6 +17,7 @@ use PHPUnit\Framework\TestCase;
  * @package Automattic\jetpack-connection
  * @covers Automattic\Jetpack\Partner
  */
+#[CoversClass( Partner::class )]
 class Partner_Test extends TestCase {
 
 	const TEST_CODE = 'abc-123';
@@ -45,13 +48,11 @@ class Partner_Test extends TestCase {
 				array(
 					Partner::SUBSIDIARY_CODE,            // Code type.
 					'jetpack_partner_subsidiary_id',     // filter/option key.
-					'subsidiaryId',                      // Query string parameter.
 				),
 			'affiliate_code'  =>
 				array(
 					Partner::AFFILIATE_CODE,
 					'jetpack_affiliate_code',
-					'aff',
 				),
 		);
 	}
@@ -66,6 +67,7 @@ class Partner_Test extends TestCase {
 	 *
 	 * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
+	#[DataProvider( 'code_provider' )]
 	public function test_partner_code_is_empty_by_default( $code_type, $option_name ) {
 		$call_counter  = 0;
 		$option_filter = function () use ( &$call_counter ) {
@@ -93,6 +95,7 @@ class Partner_Test extends TestCase {
 	 *
 	 * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
+	#[DataProvider( 'code_provider' )]
 	public function test_partner_code_is_set_via_option( $code_type, $option_name ) {
 		$call_counter  = 0;
 		$option_filter = function () use ( &$call_counter ) {
@@ -120,6 +123,7 @@ class Partner_Test extends TestCase {
 	 *
 	 * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired Function requires args.
 	 */
+	#[DataProvider( 'code_provider' )]
 	public function test_partner_code_is_set_via_filter( $code_type, $option_name ) {
 		$call_counter  = 0;
 		$option_filter = function () use ( &$call_counter ) {

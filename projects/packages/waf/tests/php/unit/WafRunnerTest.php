@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Waf\Waf_Constants;
 use Automattic\Jetpack\Waf\Waf_Runner;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * Runtime test suite.
@@ -38,6 +39,7 @@ final class WafRunnerTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @runInSeparateProcess
 	 */
+	#[RunInSeparateProcess]
 	public function testRunSetsConstants() {
 		define( 'ABSPATH', '/pseudo' );
 		define( 'WP_CONTENT_DIR', '/pseudo/dir' );

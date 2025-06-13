@@ -10,6 +10,8 @@ use Automattic\Jetpack\CRM\Automation\Triggers\Company_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Company_Updated;
 use Automattic\Jetpack\CRM\Entities\Company;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -21,6 +23,10 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Company_Deleted
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Company_Status_Updated
  */
+#[CoversClass( Company_Created::class )]
+#[CoversClass( Company_Deleted::class )]
+#[CoversClass( Company_Status_Updated::class )]
+#[CoversClass( Company_Updated::class )]
 class Company_Trigger_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
@@ -33,6 +39,7 @@ class Company_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the company updated trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the company updated trigger executes the workflow with an action' )]
 	public function test_company_updated_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/company_updated' );
@@ -66,6 +73,7 @@ class Company_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the company status updated trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the company status updated trigger executes the workflow with an action' )]
 	public function test_company_status_updated_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/company_status_updated' );
@@ -100,6 +108,7 @@ class Company_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the company new trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the company new trigger executes the workflow with an action' )]
 	public function test_company_created_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/company_created' );
@@ -134,6 +143,7 @@ class Company_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the company deleted trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the company deleted trigger executes the workflow with an action' )]
 	public function test_company_deleted_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/company_deleted' );

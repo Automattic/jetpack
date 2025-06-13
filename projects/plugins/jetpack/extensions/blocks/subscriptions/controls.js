@@ -1,5 +1,5 @@
-import { numberFormat } from '@automattic/jetpack-components';
 import { isSimpleSite, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { formatNumberCompact } from '@automattic/number-formatters';
 import {
 	ContrastChecker,
 	PanelColorSettings,
@@ -101,7 +101,9 @@ export default function SubscriptionControls( {
 								subscriberCount,
 								'jetpack'
 							),
-							numberFormat( subscriberCount, { notation: 'compact', maximumFractionDigits: 1 } )
+							formatNumberCompact( subscriberCount, {
+								numberFormatOptions: { maximumFractionDigits: 1 },
+							} )
 						),
 						{ span: <span style={ { fontWeight: 'bold' } } /> }
 					) }

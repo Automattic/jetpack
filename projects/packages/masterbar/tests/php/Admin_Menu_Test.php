@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu as Jetpack_Admin_UI_Admin;
 use Automattic\Jetpack\Status;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -19,6 +22,7 @@ require_once __DIR__ . '/data/admin-menu.php';
  *
  * @covers Automattic\Jetpack\Masterbar\Admin_Menu
  */
+#[CoversClass( Admin_Menu::class )]
 class Admin_Menu_Test extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
@@ -361,6 +365,8 @@ class Admin_Menu_Test extends TestCase {
 	public function test_add_jetpack_menu() {
 		global $submenu;
 
+		static::$admin_menu->register_nav_unification_jetpack_menus();
+		Jetpack_Admin_UI_Admin::admin_menu_hook_callback();
 		static::$admin_menu->add_jetpack_menu();
 
 		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][3][2] );
@@ -409,6 +415,7 @@ class Admin_Menu_Test extends TestCase {
 	 * @param array $submenu_items The mock submenu array.
 	 * @param array $expected The expected result.
 	 */
+	#[DataProvider( 'hide_menu_based_on_submenu_provider' )]
 	public function test_if_it_hides_menu_based_on_submenu( $menu_items, $submenu_items, $expected ) {
 		global $submenu, $menu;
 

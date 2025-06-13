@@ -66,6 +66,7 @@ export interface VerbumComments {
 	embedNonce: string;
 	verbumBundleUrl: string;
 	isRTL: boolean;
+	hovercardi18n: Record< string, string >;
 
 	/**
 	 * Contains the time we started loading Highlander.

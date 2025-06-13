@@ -6,7 +6,7 @@
 // Front end forms, for front-end (public)
 
 // import actual form styles (shared from front end + backend)
-@import 'ZeroBSCRM.frontendforms';
+@use 'ZeroBSCRM.frontendforms';
 
 .widget, .mh-sidebar{
 
@@ -39,7 +39,7 @@
 			float:left;
 			text-align: center;
 			line-height:12px;
-		    border: 0px;
+		    border: 0;
 		    margin-top: 10px !important;
 			margin-left: 8%;
 		}	

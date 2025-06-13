@@ -9,6 +9,8 @@ use Automattic\Jetpack\CRM\Automation\Tests\Automation_Faker;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
 use Automattic\Jetpack\CRM\Automation\Workflow\Workflow_Repository;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -19,6 +21,7 @@ require_once JETPACK_CRM_TESTS_ROOT . '/automation/tools/class-automation-faker.
  *
  * @covers \Automattic\Jetpack\CRM\REST_API\V4\REST_Automation_Workflows_Controller
  */
+#[CoversClass( \Automattic\Jetpack\CRM\REST_API\V4\REST_Automation_Workflows_Controller::class )]
 class REST_Automation_Workflows_Controller_Test extends REST_Base_TestCase {
 
 	/**
@@ -71,6 +74,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_TestCase {
 	 *
 	 * @dataProvider dataprovider_user_roles
 	 */
+	#[DataProvider( 'dataprovider_user_roles' )]
 	public function test_role_access( $role, $expectation ) {
 		// Create and set authenticated user.
 		$jpcrm_admin_id = $this->create_wp_jpcrm_admin( array( 'role' => $role ) );
@@ -189,6 +193,7 @@ class REST_Automation_Workflows_Controller_Test extends REST_Base_TestCase {
 	 *
 	 * @return void
 	 */
+	#[DataProvider( 'dataprovider_pagination' )]
 	public function test_get_workflows_pagination( $args, $expected_count ): void {
 		// Create and set authenticated user.
 		$jpcrm_admin_id = $this->create_wp_jpcrm_admin();

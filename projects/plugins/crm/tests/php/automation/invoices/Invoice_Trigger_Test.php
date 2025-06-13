@@ -10,6 +10,8 @@ use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Updated;
 use Automattic\Jetpack\CRM\Entities\Invoice;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -21,6 +23,10 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Updated
  */
+#[CoversClass( Invoice_Created::class )]
+#[CoversClass( Invoice_Deleted::class )]
+#[CoversClass( Invoice_Status_Updated::class )]
+#[CoversClass( Invoice_Updated::class )]
 class Invoice_Trigger_Test extends JPCRM_Base_TestCase {
 
 	private $automation_faker;
@@ -33,6 +39,7 @@ class Invoice_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the invoice updated trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the invoice updated trigger executes the workflow with an action' )]
 	public function test_invoice_updated_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/invoice_updated' );
@@ -67,6 +74,7 @@ class Invoice_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the invoice status updated trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the invoice status updated trigger executes the workflow with an action' )]
 	public function test_invoice_status_updated_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/invoice_status_updated' );
@@ -101,6 +109,7 @@ class Invoice_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the invoice new trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the invoice new trigger executes the workflow with an action' )]
 	public function test_invoice_created_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/invoice_created' );
@@ -135,6 +144,7 @@ class Invoice_Trigger_Test extends JPCRM_Base_TestCase {
 	/**
 	 * @testdox Test the invoice deleted trigger executes the workflow with an action
 	 */
+	#[TestDox( 'Test the invoice deleted trigger executes the workflow with an action' )]
 	public function test_invoice_deleted_trigger() {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/invoice_deleted' );

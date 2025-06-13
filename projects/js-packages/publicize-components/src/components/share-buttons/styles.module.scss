@@ -13,11 +13,11 @@ $whatsapp: #2ab318;
 			color: #fff;
 		}
 
-		&>span {
+		>span {
 			display: flex;
 			align-items: center;
 
-			&>svg {
+			>svg {
 				border-radius: var(--jp-border-radius);
 				color: #fff;
 			}

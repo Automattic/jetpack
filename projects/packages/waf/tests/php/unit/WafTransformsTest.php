@@ -6,6 +6,8 @@
  */
 
 use Automattic\Jetpack\Waf\Waf_Transforms as GlobalWafTransforms;
+use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Transforms test suite.
@@ -24,6 +26,7 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @before
 	 */
+	#[Before]
 	protected function before() {
 		$this->t = new GlobalWafTransforms();
 	}
@@ -36,6 +39,7 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @dataProvider transformDataProvider
 	 */
+	#[DataProvider( 'transformDataProvider' )]
 	public function testTransforms( $tfn, $tests ) {
 		$i = 1;
 		foreach ( $tests as $in => $out ) {

@@ -9,12 +9,15 @@ use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Contact_Data;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 
 /**
  * Test Automation Workflow functionalities
  *
  * @covers Automattic\Jetpack\CRM\Automation\Actions\Update_Contact_Status
  */
+#[CoversClass( Update_Contact_Status::class )]
 class Update_Contact_Status_Test extends JPCRM_Base_Integration_TestCase {
 
 	/**
@@ -38,6 +41,7 @@ class Update_Contact_Status_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test the update contact status action executes the action.
 	 */
+	#[TestDox( 'Test the update contact status action executes the action.' )]
 	public function test_update_contact_status_action() {
 		global $zbs;
 
@@ -63,6 +67,7 @@ class Update_Contact_Status_Test extends JPCRM_Base_Integration_TestCase {
 	/**
 	 * @testdox Test the update contact status action executes the action, within a workflow.
 	 */
+	#[TestDox( 'Test the update contact status action executes the action, within a workflow.' )]
 	public function test_update_contact_status_action_with_workflow() {
 		global $zbs;
 

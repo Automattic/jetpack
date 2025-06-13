@@ -163,4 +163,139 @@ describe( 'LineChart', () => {
 			expect( screen.getByRole( 'img', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
+
+	describe( 'Start Glyphs', () => {
+		test( 'renders start glyphs when withStartGlyphs is true', () => {
+			renderWithTheme( {
+				withStartGlyphs: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			// Check that start glyphs are rendered for each series
+			const startGlyphs = screen.getAllByTestId( /start-glyph/i );
+			expect( startGlyphs ).toHaveLength( 2 ); // One for each series
+		} );
+
+		test( 'does not render start glyphs when withStartGlyphs is false', () => {
+			renderWithTheme( {
+				withStartGlyphs: false,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			// Check that no start glyphs are rendered
+			expect( screen.queryByTestId( /start-glyph/i ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'does not render start glyph when series has empty data', () => {
+			renderWithTheme( {
+				withStartGlyphs: true,
+				data: [
+					{
+						label: 'Empty Series',
+						data: [],
+						options: {},
+					},
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						options: {},
+					},
+				],
+			} );
+
+			// Should only have one start glyph (from the non-empty series)
+			const startGlyphs = screen.getAllByTestId( /start-glyph/i );
+			expect( startGlyphs ).toHaveLength( 1 );
+		} );
+	} );
+
+	describe( 'Legend Glyphs', () => {
+		test( 'renders legend glyphs when withLegendGlyph is true', () => {
+			renderWithTheme( {
+				showLegend: true,
+				withLegendGlyph: true,
+				glyphStyle: {
+					radius: 10,
+				},
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+			const legendItems = screen.getAllByTestId( /legend-item/i );
+			expect( legendItems ).toHaveLength( 2 );
+
+			const legendGlyphs = screen.getAllByTestId( /legend-glyph/i );
+			expect( legendGlyphs ).toHaveLength( 2 );
+		} );
+
+		test( 'renders legend glyphs when withLegendGlyph is false', () => {
+			renderWithTheme( {
+				withLegendGlyph: false,
+				showLegend: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+			const legendItems = screen.getAllByTestId( /legend-item/i );
+			expect( legendItems ).toHaveLength( 2 );
+
+			expect( screen.queryByTestId( /legend-glyph/i ) ).not.toBeInTheDocument();
+		} );
+	} );
 } );

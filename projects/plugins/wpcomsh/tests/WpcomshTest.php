@@ -60,4 +60,20 @@ class WpcomshTest extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected_output, wpcomsh_make_content_clickable( $original_content ) );
 	}
+
+	/**
+	 * Tests if Jetpack Boost plugin is active, to test the integreation setup.
+	 *
+	 * This is for the `jp docker phpunit-integration` command to verify it works.
+	 *
+	 * @return void
+	 */
+	public function test_is_jetpack_boost_active() {
+		$plugins = getenv( 'JP_MONO_INTEGRATION_PLUGINS' );
+		if ( $plugins && strpos( $plugins, 'boost' ) !== false ) {
+			$this->assertTrue( is_plugin_active( 'boost/jetpack-boost.php' ) );
+			return;
+		}
+		$this->assertFalse( is_plugin_active( 'boost/jetpack-boost.php' ) );
+	}
 }

@@ -1,7 +1,7 @@
 /**
  * Editor styles for Google Calendar
  */
- @import './view';
+ @use 'view';
 
 .wp-block-jetpack-google-calendar {
 
@@ -54,7 +54,7 @@
 	.components-placeholder {
 
 		p {
-			margin: 0px 0px 19px 0px;
+			margin: 0 0 19px 0;
 		}
 	}
 }

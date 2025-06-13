@@ -9,13 +9,12 @@ namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
-use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 /**
  * Understands the Jetpack Forms package.
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '0.48.0';
+	const PACKAGE_VERSION = '1.2.0';
 
 	/**
 	 * Load the contact form module.
@@ -23,10 +22,8 @@ class Jetpack_Forms {
 	public static function load_contact_form() {
 		Util::init();
 
-		if ( is_admin() && self::is_feedback_dashboard_enabled() ) {
-			$view_switch = new Dashboard_View_Switch();
-
-			$dashboard = new Dashboard( $view_switch );
+		if ( self::is_feedback_dashboard_enabled() ) {
+			$dashboard = new Dashboard();
 			$dashboard->init();
 		}
 
@@ -38,6 +35,9 @@ class Jetpack_Forms {
 
 		// Add hook to delete file attachments when a feedback post is deleted
 		add_action( 'before_delete_post', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'delete_feedback_files' ) );
+
+		// Enforces the availability of block support controls in the UI for classic themes.
+		add_filter( 'wp_theme_json_data_default', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_theme_json_data_for_classic_themes' ) );
 	}
 
 	/**
@@ -69,5 +69,14 @@ class Jetpack_Forms {
 		 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
 		 */
 		return apply_filters( 'jetpack_forms_dashboard_enable', true );
+	}
+
+	/**
+	 * Returns true if the legacy menu item is retired.
+	 *
+	 * @return boolean
+	 */
+	public static function is_legacy_menu_item_retired() {
+		return apply_filters( 'jetpack_forms_retire_legacy_menu_item', false );
 	}
 }

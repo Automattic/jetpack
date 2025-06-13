@@ -27,6 +27,7 @@ declare global {
 			url: string;
 			online: boolean;
 			host: string;
+			hasCache: boolean;
 		};
 		assetPath: string;
 		pluginDirUrl: string;
@@ -34,7 +35,7 @@ declare global {
 		postTypes: {
 			[ key: string ]: string;
 		};
-		developmentFeatures: boolean;
+		developmentFeatures: string[];
 	};
 
 	const jpTracksAJAX: {

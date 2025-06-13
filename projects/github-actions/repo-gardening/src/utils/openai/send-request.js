@@ -19,7 +19,7 @@ async function sendOpenAiRequest( message, responseFormat = 'plain' ) {
 
 	const client = new OpenAI( {
 		apiKey,
-		baseURL: 'https://public-api.wordpress.com/wpcom/v2/openai-proxy/v1',
+		baseURL: 'https://public-api.wordpress.com/wpcom/v2/ai-api-proxy/v1',
 	} );
 
 	debug( 'openai: Sending message to OpenAI.' );

@@ -5,11 +5,15 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Tests the Module Override functionality.
  *
  * @covers \Jetpack_Modules_Overrides
  */
+#[CoversClass( Jetpack_Modules_Overrides::class )]
 class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -45,6 +49,7 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_supported_filters
 	 */
+	#[DataProvider( 'get_supported_filters' )]
 	public function test_do_overrides_exist( $filter_name ) {
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			$this->markTestSkipped( 'is irrelevant because there are already overrides on tested filters in Atomic.' );
@@ -63,6 +68,7 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_supported_filters
 	 */
+	#[DataProvider( 'get_supported_filters' )]
 	public function test_get_overrides( $filter_name ) {
 		$this->assertEmpty( $this->instance->get_overrides() );
 
@@ -100,6 +106,7 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_supported_filters
 	 */
+	#[DataProvider( 'get_supported_filters' )]
 	public function test_get_overrides_cache( $filter_name ) {
 		$this->assertEmpty( $this->instance->get_overrides() );
 
@@ -128,6 +135,7 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_supported_filters
 	 */
+	#[DataProvider( 'get_supported_filters' )]
 	public function test_get_module_override( $filter_name ) {
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			$this->markTestSkipped( 'is unnecessary in Atomic environment.' );

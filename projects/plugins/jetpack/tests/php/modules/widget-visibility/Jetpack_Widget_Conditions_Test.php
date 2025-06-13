@@ -1,14 +1,17 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/widget-visibility/widget-conditions.php';
 
 /**
  * Test class for Jetpack_Widget_Conditions (widget visibility)
  *
- * To run: jetpack docker phpunit -- --filter=widget
+ * To run: jetpack docker phpunit jetpack -- --filter=Jetpack_Widget_Conditions_Test
  *
  * @covers Jetpack_Widget_Conditions
  */
+#[CoversClass( Jetpack_Widget_Conditions::class )]
 class Jetpack_Widget_Conditions_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

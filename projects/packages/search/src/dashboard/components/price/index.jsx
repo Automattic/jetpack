@@ -1,5 +1,5 @@
-import { getCurrencyObject } from '@automattic/format-currency';
 import { Text } from '@automattic/jetpack-components';
+import { getCurrencyObject } from '@automattic/number-formatters';
 import React from 'react';
 
 /**

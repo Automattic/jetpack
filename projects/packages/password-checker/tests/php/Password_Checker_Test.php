@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -65,6 +66,7 @@ class Password_Checker_Test extends BaseTestCase {
 	 * @param bool   $expected_result The expected result.
 	 * @param string $output_message  The output message.
 	 */
+	#[DataProvider( 'rule_provider' )]
 	public function test_password( $section, $rule, $password, $expected_result, $output_message ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->password_checker->common_passwords = array( 'password' );
 

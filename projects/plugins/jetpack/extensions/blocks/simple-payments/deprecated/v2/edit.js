@@ -1,4 +1,3 @@
-import { getCurrencyDefaults } from '@automattic/format-currency';
 import { InspectorControls } from '@wordpress/block-editor';
 import {
 	Disabled,
@@ -16,6 +15,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import emailValidator from 'email-validator';
 import { get, isEmpty, isEqual, pick, trimEnd } from 'lodash';
+import { getCurrencyDefaults } from '../../../../shared/currencies';
 import HelpMessage from '../../../../shared/help-message';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, SUPPORTED_CURRENCY_LIST } from '../../constants';
 import FeaturedMedia from '../../featured-media';

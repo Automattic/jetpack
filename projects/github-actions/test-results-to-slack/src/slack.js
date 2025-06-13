@@ -1,4 +1,5 @@
 const fs = require( 'fs' );
+const path = require( 'path' );
 const { debug, error } = require( './debug' );
 
 /**
@@ -29,10 +30,11 @@ async function postOrUpdateMessage( client, update, options ) {
 			}
 
 			try {
-				response = await client.files.upload( {
-					file: fs.createReadStream( chunk[ 0 ].path ),
-					channels: channel,
-					thread_ts: thread_ts,
+				response = await client.filesUploadV2( {
+					channel_id: channel,
+					thread_ts,
+					file: chunk[ 0 ].path,
+					filename: path.basename( chunk[ 0 ].path ),
 				} );
 			} catch ( err ) {
 				error( err );

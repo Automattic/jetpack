@@ -21,7 +21,7 @@ function wpcomInitializeFiverrCta() {
 		fiverCta.addEventListener( 'click', e => {
 			e.preventDefault();
 
-			wpcomTrackEvent( 'wp_admin_site_icon_fiverr_logo_maker_cta_click', {
+			wpcomTrackEvent( 'wpcom_admin_site_icon_fiverr_logo_maker_cta_click', {
 				cta_name: 'wp_admin_site_icon_fiverr_logo_maker',
 			} );
 
@@ -54,7 +54,7 @@ function _wpcomBuildAddCustomAddressButton( fragment: DocumentFragment ) {
 			return;
 		}
 
-		wpcomTrackEvent( 'wp_admin_upgrade_nudge_cta_click', {
+		wpcomTrackEvent( 'wpcom_admin_upgrade_nudge_cta_click', {
 			cta_name: 'settings_site_address',
 		} );
 

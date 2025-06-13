@@ -76,6 +76,7 @@ body #infinite-footer .container {
 body #infinite-footer .blog-info {
 	font-family: Montserrat, "Helvetica Neue", sans-serif;
 	height: 2.1875em;
+	/* stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values */
 	line-height: 2.1875em;
 }
 
@@ -88,6 +89,7 @@ body #infinite-footer .blog-credits {
 	font-size: 13px;
 	font-size: 0.8125rem;
 	height: 2.692307692em;
+	/* stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values */
 	line-height: 2.692307692em;
 }
 

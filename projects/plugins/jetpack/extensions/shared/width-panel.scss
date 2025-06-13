@@ -3,7 +3,7 @@
 	align-items: center;
 	gap: 0.5em;
 
-	&> .components-base-control {
+	> .components-base-control {
 		width: 65%;
 		margin-bottom: 8px; // To cater for toggle control hidden label
 	}

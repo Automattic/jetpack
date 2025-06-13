@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .wp-block-jetpack-business-hours {
 	overflow: hidden;
@@ -29,7 +29,7 @@
 	  	// The Site Editor iframe doesn't include common styles,
 	  	// from which the font size of the labels are inherited.
 	  	// https://github.com/WordPress/gutenberg/blob/3da717b8d0ac7d7821fc6d0475695ccf3ae2829f/packages/base-styles/_variables.scss#L16
-		font-size: $default-font-size;
+		font-size: gb.$default-font-size;
 	 }
 
 	.components-base-control__field {
@@ -132,14 +132,14 @@
  */
 @mixin editor-area-is-small {
 
-	@media ( max-width: $break-xlarge ) {
+	@media ( max-width: gb.$break-xlarge ) {
 
 		.is-sidebar-opened {
 			@content;
 		}
 	}
 
-	@media ( max-width: $break-small ) {
+	@media ( max-width: gb.$break-small ) {
 		@content;
 	}
 

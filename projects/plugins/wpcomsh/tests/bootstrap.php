@@ -60,9 +60,39 @@ function _manually_load_plugin() {
 	if ( file_exists( WPMU_PLUGIN_DIR . '/wpcomsh-loader.php' ) ) {
 		return;
 	}
+
 	require_once dirname( __DIR__ ) . '/wpcomsh.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
+
+/**
+ * Add the various plugins to the active options array.
+ */
+function _manually_load_other_plugins( $active_plugins ) {
+	// Get the JP_MONO_INTEGRATION_PLUGINS env var to include other plugins.
+	$plugins = getenv( 'JP_MONO_INTEGRATION_PLUGINS' );
+	if ( $plugins ) {
+		$plugins = explode( ',', $plugins );
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		$all_plugins = get_plugins();
+		foreach ( $plugins as $plugin ) {
+			// Ignore wpcomsh and jetpack for now.
+			if ( 'wpcomsh' === $plugin || 'jetpack' === $plugin ) {
+				continue;
+			}
+			// Find the main plugin file for this plugin directory
+			foreach ( $all_plugins as $plugin_file => $plugin_data ) {
+				if ( strpos( $plugin_file, $plugin . '/' ) === 0 ) {
+					$active_plugins[] = $plugin_file;
+					break;
+				}
+			}
+		}
+	}
+	return $active_plugins;
+}
+
+tests_add_filter( 'option_active_plugins', '_manually_load_other_plugins' );
 
 // Override WP_TESTS_CONFIG_FILE_PATH via environment.
 // Important for monorepo CI, if you don't do this then different test runs might collide!

@@ -34,11 +34,13 @@ use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Cornerstone_Pages;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\List_LCP_Analysis;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -121,7 +123,7 @@ class Jetpack_Boost {
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
-		add_action( 'jetpack_boost_critical_css_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
+		add_action( 'jetpack_boost_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
 
 		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
 
@@ -226,6 +228,22 @@ class Jetpack_Boost {
 		if ( $page_cache_status->get() && Boost_Cache_Settings::get_instance()->get_enabled() ) {
 			Page_Cache_Setup::run_setup();
 		}
+
+		$modules_setup = new Modules_Setup();
+
+		/*
+		 * Check what modules are already active (from a previous activation for example).
+		 * If there are active modules, we need to ensure each module-related event is triggered again.
+		 */
+		$active_modules = $modules_setup->get_status();
+		if (
+			! empty( $active_modules )
+			&& ( new Connection() )->is_connected()
+		) {
+			foreach ( $active_modules as $module => $status ) {
+				$modules_setup->on_module_status_update( $module, true );
+			}
+		}
 	}
 
 	/**
@@ -249,6 +267,7 @@ class Jetpack_Boost {
 		REST_API::register( List_Site_Urls::class );
 		REST_API::register( List_Source_Providers::class );
 		REST_API::register( List_Cornerstone_Pages::class );
+		REST_API::register( List_LCP_Analysis::class );
 
 		$this->connection->ensure_connection();
 		( new Admin() )->init( $modules_setup );
@@ -265,6 +284,7 @@ class Jetpack_Boost {
 					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
 					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Module::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
 					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),
+					'lcp_state'                    => array( new LCP_State(), 'get' ),
 				),
 			)
 		);

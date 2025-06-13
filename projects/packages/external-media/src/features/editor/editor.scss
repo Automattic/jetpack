@@ -2,8 +2,6 @@
 * External Media
 */
 
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-
 @keyframes animate-drop {
 
 	0% {
@@ -73,10 +71,10 @@
 	display: initial;
 }
 
-.block-editor-inserter__media-panel .components-search-control input[type=search].components-search-control__input[placeholder~="Google"] {
+.block-editor-inserter__media-panel .components-search-control input[type="search"].components-search-control__input[placeholder~="Google"] {
 	display: none;
 
-	& + .components-search-control__icon {
+	+ .components-search-control__icon {
 		display: none;
 	}
 }

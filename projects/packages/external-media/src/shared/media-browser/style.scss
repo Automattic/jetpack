@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 $grid-size: 8px;
 
@@ -32,7 +32,7 @@ $grid-size: 8px;
 		// Unset button appearance.
 		border: 0;
 		border-radius: 4px;
-		background-color: $gray-400;
+		background-color: gb.$gray-400;
 
 		img {
 			display: block;

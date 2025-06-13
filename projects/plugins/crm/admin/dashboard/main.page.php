@@ -1,21 +1,14 @@
-<?php
-/*
-!
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+/**
  * Main Dashboard Page file: This is the main file which renders the dashboard view
  * Jetpack CRM - https://jetpackcrm.com
+ *
+ * @package automattic/jetpack-crm
  */
 
-/*
-======================================================
-	Breaking Checks ( stops direct access )
-	====================================================== */
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit( 0 );
 }
-/*
-======================================================
-	/ Breaking Checks
-	====================================================== */
 
 // permissions check
 global $current_user;
@@ -418,7 +411,7 @@ function jpcrm_render_dashboard_page() {
 	<script>
 
 	// set default color for charts
-	Chart.defaults.global.defaultColor = zbs_root['jp_green']['40'];
+	Chart.defaults.defaultColor = zbs_root['jp_green']['40'];
 	// build sales funnel
 	let funnel_element = document.getElementById('jpcrm_sales_funnel');
 	let funnel_data = <?php echo wp_json_encode( $funnel_data ); ?>;
@@ -436,8 +429,8 @@ function jpcrm_render_dashboard_page() {
 					labels: <?php echo wp_json_encode( $labels ); ?>,
 					datasets: [
 						{
-							label: "",
-							backgroundColor: Chart.defaults.global.defaultColor,
+							label: '',
+							backgroundColor: Chart.defaults.defaultColor,
 							data: <?php echo wp_json_encode( $chartdata ); ?>
 						}
 					]
@@ -445,20 +438,18 @@ function jpcrm_render_dashboard_page() {
 				options: {
 					responsive: true,
 					maintainAspectRatio: false,
-					legend: { display: false },
-					title: {
-						display: false,
-						text: ''
+					plugins: {
+						legend: { display: false },
+						title: {
+							display: false,
+							text: '',
+						},
 					},
 					scales: {
-						yAxes: [
-							{
-								display: true,
-								ticks: {
-									beginAtZero: true // minimum value will be 0.
-								}
-							}
-						]
+						y: {
+							display: true,
+							beginAtZero: true // minimum value will be 0.
+						}
 					}
 				}
 			}
@@ -471,11 +462,11 @@ function jpcrm_render_dashboard_page() {
 /**
  * Render a partial
  *
- * @param string $title
+ * @param string $block Name of "block".
  */
 function jpcrm_render_partial_block( $block ) {
 
 	if ( ! empty( $block ) ) {
-			include 'partials/' . $block . '.block.php';
+			include 'partials/' . $block . '.block.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 	}
 }

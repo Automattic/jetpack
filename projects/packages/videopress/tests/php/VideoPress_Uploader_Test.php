@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -165,6 +166,7 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 	 * @param bool        $throw Whether we expect the method to throw an exception.
 	 * @dataProvider get_upload_token_data
 	 */
+	#[DataProvider( 'get_upload_token_data' )]
 	public function test_get_upload_token( $response_from_server, $expected, $throw ) {
 		if ( 'valid' === $response_from_server ) {
 			$callback = array( $this, 'return_valid_response' );

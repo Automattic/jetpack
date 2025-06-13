@@ -21,6 +21,7 @@ usage() {
 BASE_CMD='pnpm jetpack docker --type e2e --name t1'
 
 start_env() {
+	export_e2e_config
 	$BASE_CMD up -d
 	$BASE_CMD install || true
 	configure_wp_env "$@"
@@ -53,6 +54,20 @@ gb_setup() {
 	$BASE_CMD wp plugin activate gutenberg
 }
 
+# Exports E2E WP password from config file.
+export_e2e_config() {
+	if [[ ! -f 'config/local.cjs' ]]; then
+		echo "Decrypted config file not found! Have you run 'pnpm config:decrypt' yet?";
+		exit 1
+	else
+		local e2e_config=$(node -e 'const config = require( "./config/local.cjs" ); console.log( JSON.stringify(config.testSites.default) );' 2>/dev/null) || { echo "Failed to read config file!" && exit 1; }
+
+		WP_FORCE_ADMIN_USER=$( jq -r '.username' <<< "$e2e_config" )
+		WP_FORCE_ADMIN_PASS=$( jq -r '.password' <<< "$e2e_config" )
+		export WP_FORCE_ADMIN_USER WP_FORCE_ADMIN_PASS
+	fi
+}
+
 configure_wp_env() {
 	$BASE_CMD exec-silent -- chown -R www-data:www-data /var/www/html/wp-content/uploads
 	$BASE_CMD exec-silent -- mkdir -p /var/www/html/wp-content/jetpack-waf
@@ -75,6 +90,10 @@ configure_wp_env() {
 	fi
 	$BASE_CMD wp option set permalink_structure ""
 	$BASE_CMD wp jetpack module deactivate sso
+
+	# Disable modules that may interfere with login flow.
+	$BASE_CMD wp jetpack module deactivate account-protection
+	$BASE_CMD wp jetpack module deactivate protect
 
 	echo
 	$BASE_CMD wp plugin status

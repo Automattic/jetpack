@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Module Activation: use require_once to avoid potential redeclaration errors

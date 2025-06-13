@@ -39,12 +39,14 @@
 	&__post-heading {
 		margin: 0.5rem 0;
 		font-size: 1rem;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 1.2em;
 	}
 
 	&__post-link {
 		display: block;
 		width: 100%;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 1.2em;
 		margin: 0.2em 0;
 	}

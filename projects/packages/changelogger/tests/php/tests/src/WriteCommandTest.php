@@ -11,6 +11,8 @@ use Automattic\Jetpack\Changelog\Changelog;
 use Automattic\Jetpack\Changelogger\FormatterPlugin;
 use Automattic\Jetpack\Changelogger\WriteCommand;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -22,6 +24,7 @@ use Wikimedia\TestingAccessWrapper;
  *
  * @covers \Automattic\Jetpack\Changelogger\WriteCommand
  */
+#[CoversClass( WriteCommand::class )]
 class WriteCommandTest extends CommandTestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
@@ -47,6 +50,7 @@ class WriteCommandTest extends CommandTestCase {
 	 * @param bool|array  $expectChangesDeleted Whether change files should have been deleted, or an array of files that should have been deleted.
 	 * @param string|null $expectChangelog Expected changelog file contents, or null if it should be the same as $options['changelog'].
 	 */
+	#[DataProvider( 'provideExecute' )]
 	public function testExecute( array $args, array $options, array $inputs, $expectExitCode, $expectOutputRegexes = array(), $expectChangesDeleted = false, $expectChangelog = null ) {
 		$options += array(
 			'changelog' => "# Changelog\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",

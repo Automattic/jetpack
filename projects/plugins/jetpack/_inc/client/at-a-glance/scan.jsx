@@ -1,5 +1,7 @@
 import restApi from '@automattic/jetpack-api';
-import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
+import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x } from '@wordpress/i18n';
 import { get, isArray, noop } from 'lodash';
@@ -28,7 +30,7 @@ import {
 	isOfflineMode,
 	connectUser,
 } from 'state/connection';
-import { isAtomicSite, showBackups } from 'state/initial-state';
+import { showBackups } from 'state/initial-state';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
@@ -284,7 +286,7 @@ class DashScan extends Component {
 	}
 
 	renderAction( url, message ) {
-		if ( this.props.isAtomicSite ) {
+		if ( isWoASite() ) {
 			return null;
 		}
 
@@ -308,7 +310,7 @@ class DashScan extends Component {
 			<>
 				{ renderActiveCard( [
 					<h2 key="header" className="jp-dash-item__count is-alert">
-						{ numberFormat( numberOfThreats ) }
+						{ formatNumber( numberOfThreats ) }
 					</h2>,
 					<p key="description" className="jp-dash-item__description">
 						{ createInterpolateElement(
@@ -436,7 +438,6 @@ export default connect(
 		const sitePlan = getSitePlan( state );
 
 		return {
-			isAtomicSite: isAtomicSite( state ),
 			isOfflineMode: isOfflineMode( state ),
 			scanStatus: getScanStatus( state ),
 			fetchingScanStatus: isFetchingScanStatus( state ),

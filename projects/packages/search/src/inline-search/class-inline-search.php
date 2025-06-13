@@ -19,10 +19,34 @@ class Inline_Search extends Classic_Search {
 	private static $instance;
 
 	/**
+	 * The Search Highlighter instance.
+	 *
+	 * @var Inline_Search_Highlighter|null
+	 * @since 0.50.0
+	 */
+	private $highlighter;
+
+	/**
+	 * The search correction instance.
+	 *
+	 * @var Inline_Search_Correction|null
+	 * @since 0.50.0
+	 */
+	private $correction;
+
+	/**
+	 * Stores the list of post IDs that are actual search results.
+	 *
+	 * @var array
+	 */
+	private $search_result_ids = array();
+
+	/**
 	 * Returns whether this class should be used instead of Classic_Search.
 	 */
 	public static function should_replace_classic_search(): bool {
-		return (bool) apply_filters( 'jetpack_search_replace_classic', false );
+		$option_value = get_option( Module_Control::SEARCH_MODULE_SWAP_CLASSIC_TO_INLINE_OPTION_KEY, false );
+		return (bool) apply_filters( 'jetpack_search_replace_classic', $option_value );
 	}
 
 	/**
@@ -39,6 +63,12 @@ class Inline_Search extends Classic_Search {
 			}
 			self::$instance = new static();
 			self::$instance->setup( $blog_id );
+
+			// Initialize search correction handling
+			self::$instance->correction = new Inline_Search_Correction();
+
+			// Add hooks for displaying corrected query notice
+			add_action( 'pre_get_posts', array( self::$instance->correction, 'setup_corrected_query_hooks' ) );
 		}
 
 		return self::$instance;
@@ -60,6 +90,17 @@ class Inline_Search extends Classic_Search {
 	}
 
 	/**
+	 * Set up the highlighter.
+	 *
+	 * @param string $blog_id The blog ID to set up for.
+	 */
+	public function setup( $blog_id ) {
+		parent::setup( $blog_id );
+		// The highlighter will be initialized with data during search processing
+		$this->highlighter = null;
+	}
+
+	/**
 	 * Bypass WP search and offload it to 1.3 search API instead.
 	 *
 	 * This is the main hook of the plugin and is responsible for returning the posts that match the search query.
@@ -78,6 +119,7 @@ class Inline_Search extends Classic_Search {
 
 		if ( ! is_array( $this->search_result ) ) {
 			do_action( 'jetpack_search_abort', 'no_search_results_array', $this->search_result );
+
 			return $posts;
 		}
 
@@ -89,24 +131,11 @@ class Inline_Search extends Classic_Search {
 			return array();
 		}
 
-		$post_ids = array();
+		// Process the search results to extract post IDs and highlighted content.
+		$this->process_search_results();
 
-		foreach ( $this->search_result['results'] as $result ) {
-			$post_ids[] = (int) ( $result['fields']['post_id'] ?? 0 );
-		}
-
-		// Query all posts now.
-		$args = array(
-			'post__in'            => $post_ids,
-			'orderby'             => 'post__in',
-			'perm'                => 'readable',
-			'post_type'           => 'any',
-			'ignore_sticky_posts' => true,
-			'suppress_filters'    => true,
-			'posts_per_page'      => $query->get( 'posts_per_page' ),
-		);
-
-		$posts_query = new \WP_Query( $args );
+		// Create a WP_Query to fetch the actual posts.
+		$posts_query = $this->create_posts_query( $query );
 
 		// WP Core doesn't call the set_found_posts and its filters when filtering posts_pre_query like we do, so need to do these manually.
 		$query->found_posts   = $this->found_posts;
@@ -123,6 +152,7 @@ class Inline_Search extends Classic_Search {
 	public function do_search( \WP_Query $query ) {
 		if ( ! $this->should_handle_query( $query ) ) {
 			do_action( 'jetpack_search_abort', 'search_attempted_non_search_query', $query );
+
 			return;
 		}
 
@@ -168,8 +198,8 @@ class Inline_Search extends Classic_Search {
 		 *
 		 * @since  5.0.0
 		 *
-		 * @param array     $wp_query_args The current query args, in WP_Query format.
-		 * @param \WP_Query $query            The original WP_Query object.
+		 * @param array $wp_query_args The current query args, in WP_Query format.
+		 * @param \WP_Query $query The original WP_Query object.
 		 */
 		$wp_query_args = apply_filters( 'jetpack_search_es_wp_query_args', $wp_query_args, $query );
 
@@ -190,15 +220,17 @@ class Inline_Search extends Classic_Search {
 		}
 
 		// Convert the WP-style args into ES args.
-		$es_query_args = $this->convert_wp_query_to_api_args( $wp_query_args );
+		$api_query_args = $this->convert_wp_query_to_api_args( $wp_query_args );
+		$api_query_args = $this->trigger_es_query_args_filter( $api_query_args, $query );
+		$api_query_args = $this->trigger_instant_search_query_args_filter( $api_query_args );
 
 		// Only trust ES to give us IDs, not the content since it is a mirror.
-		$es_query_args['fields'] = array(
+		$api_query_args['fields'] = array(
 			'post_id',
 		);
 
 		// Do the actual search query!
-		$this->search_result = $this->search( $es_query_args );
+		$this->search_result = $this->search( $api_query_args );
 
 		if ( is_wp_error( $this->search_result ) || ! is_array( $this->search_result ) || empty( $this->search_result['results'] ) || ! is_array( $this->search_result['results'] ) ) {
 			$this->found_posts = 0;
@@ -301,21 +333,141 @@ class Inline_Search extends Classic_Search {
 			}
 		}
 
+		$highlight_fields = array(
+			'title',
+			'content',
+			'comments',
+		);
+
+		$fields = array(
+			'blog_id',
+			'post_id',
+			'title',
+			'content',
+			'comments',
+		);
+
 		return array(
-			'blog_id'      => $this->jetpack_blog_id,
-			'size'         => absint( $args['posts_per_page'] ),
-			'from'         => min( $from, Helper::get_max_offset() ),
-			'fields'       => array( 'blog_id', 'post_id' ),
-			'query'        => $args['query'] ?? '',
-			'sort'         => $sort,
-			'aggregations' => empty( $aggregations ) ? null : $aggregations,
-			'langs'        => $this->get_langs(),
-			'filter'       => array(
+			'blog_id'          => $this->jetpack_blog_id,
+			'size'             => (int) absint( $args['posts_per_page'] ),
+			'from'             => (int) min( $from, Helper::get_max_offset() ),
+			'fields'           => $fields,
+			'highlight_fields' => $highlight_fields,
+			'query'            => $args['query'] ?? '',
+			'sort'             => $sort,
+			'aggregations'     => empty( $aggregations ) ? null : $aggregations,
+			'langs'            => $this->get_langs(),
+			'filter'           => array(
 				'bool' => array(
 					'must' => $this->build_es_filters( $args ),
 				),
 			),
+			'highlight'        => array(
+				'fields' => $highlight_fields,
+			),
 		);
+	}
+
+	/**
+	 * Trigger the jetpack_search_es_query_args filter for compatibility with Classic Search.
+	 *
+	 * The arguments can only be simulated, so this is not a 1:1 replacement.
+	 * We support only some modifications, since not all of them are supported by Instant API.
+	 * The goal is to support all common ones.
+	 *
+	 * @param array     $api_query_args Array of API query arguments.
+	 * @param \WP_Query $query The original WP_Query object.
+	 *
+	 * @return array
+	 */
+	private function trigger_es_query_args_filter( array $api_query_args, \WP_Query $query ): array {
+		$es_query_args = array(
+			'blog_id'      => $api_query_args['blog_id'] ?? 1,
+			'size'         => $api_query_args['size'] ?? 10,
+			'from'         => $api_query_args['from'] ?? 0,
+			'sort'         => array(
+				array( '_score' => array( 'order' => 'desc' ) ),
+			),
+			'filter'       => $api_query_args['filter'] ?? array(),
+			'query'        => array(
+				'function_score' => array(
+					'query'      => array(
+						'bool' => array(
+							'must' => array(
+								array(
+									'multi_match' => array(
+										'fields'   => array( 'title.en' ),
+										'query'    => $api_query_args['query'] ?? '',
+										'operator' => 'and',
+									),
+								),
+							),
+						),
+					),
+					'functions'  => array( array( 'gauss' => array( 'date_gmt' => array( 'origin' => '2025-05-13' ) ) ) ),
+					'max_boost'  => 2.0,
+					'score_mode' => 'multiply',
+					'boost_mode' => 'multiply',
+				),
+			),
+			'aggregations' => $api_query_args['aggregations'] ?? array(),
+			'fields'       => $api_query_args['fields'] ?? array(),
+		);
+
+		$es_query_args = apply_filters( 'jetpack_search_es_query_args', $es_query_args, $query );
+
+		if ( ! empty( $es_query_args['aggregations'] ) && is_array( $es_query_args['aggregations'] ) ) {
+			$api_query_args['aggregations'] = $es_query_args['aggregations'];
+		}
+		$api_query_args['filter'] = $es_query_args['filter'] ?? $api_query_args['filter'];
+		$api_query_args['size']   = $es_query_args['size'] ?? $api_query_args['size'];
+		$api_query_args['from']   = $es_query_args['from'] ?? $api_query_args['from'];
+		if ( isset( $es_query_args['query']['bool']['must_not'] ) ) {
+			$api_query_args['filter'] = array(
+				'bool' => array(
+					'must_not' => $es_query_args['query']['bool']['must_not'],
+					'filter'   => array(
+						$api_query_args['filter'],
+					),
+				),
+			);
+		}
+		if ( isset( $es_query_args['query']['bool']['filter'] ) && is_array( $es_query_args['query']['bool']['filter'] ) ) {
+			$new_filter = array(
+				'bool' => array(
+					'filter' => $es_query_args['query']['bool']['filter'],
+				),
+			);
+			if ( ! empty( $api_query_args['filter'] ) ) {
+				$new_filter['bool']['filter'][] = $api_query_args['filter'];
+			}
+			$api_query_args['filter'] = $new_filter;
+		}
+
+		return $api_query_args;
+	}
+
+	/**
+	 * Trigger jetpack_instant_search_options for compatibility with Instant Search.
+	 *
+	 * @param array $api_query_args Array of API query arguments.
+	 *
+	 * @return array
+	 */
+	private function trigger_instant_search_query_args_filter( array $api_query_args ): array {
+		// this will trigger jetpack_instant_search_options filter
+		$options = Helper::generate_initial_javascript_state();
+
+		if ( isset( $options['adminQueryFilter'] ) ) {
+			$api_query_args['filter'] = array(
+				'bool' => array(
+					'filter' => $api_query_args['filter'],
+					'must'   => $options['adminQueryFilter'],
+				),
+			);
+		}
+
+		return $api_query_args;
 	}
 
 	/**
@@ -406,6 +558,7 @@ class Inline_Search extends Classic_Search {
 	protected function instant_api( array $es_args ) {
 		$instant_search                  = new Instant_Search();
 		$instant_search->jetpack_blog_id = $this->jetpack_blog_id;
+
 		return $instant_search->instant_api( $es_args );
 	}
 
@@ -420,5 +573,47 @@ class Inline_Search extends Classic_Search {
 		$raw = false // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	) {
 		return $this->search_result;
+	}
+
+	/**
+	 * Process search results to extract post IDs and highlighted content.
+	 */
+	private function process_search_results() {
+		$post_ids = array();
+
+		foreach ( $this->search_result['results'] as $result ) {
+			$post_id    = (int) ( $result['fields']['post_id'] ?? 0 );
+			$post_ids[] = $post_id;
+		}
+
+		$this->search_result_ids = $post_ids;
+		$this->highlighter       = new Inline_Search_Highlighter( $post_ids );
+
+		// Hand the entire results array over; Inline_Search_Highlighter
+		// will pull out `fields.post_id` and `highlight` for each one.
+		$this->highlighter->process_results( $this->search_result['results'] );
+
+		$this->highlighter->setup();
+	}
+
+	/**
+	 * Create a WP_Query to fetch the posts for search results.
+	 *
+	 * @param \WP_Query $original_query The original WP_Query.
+	 *
+	 * @return \WP_Query The new query with posts matching the search results.
+	 */
+	private function create_posts_query( \WP_Query $original_query ): \WP_Query {
+		$args = array(
+			'post__in'            => $this->search_result_ids,
+			'orderby'             => 'post__in',
+			'perm'                => 'readable',
+			'post_type'           => 'any',
+			'ignore_sticky_posts' => true,
+			'suppress_filters'    => true,
+			'posts_per_page'      => $original_query->get( 'posts_per_page' ),
+		);
+
+		return new \WP_Query( $args );
 	}
 }

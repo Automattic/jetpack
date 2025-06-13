@@ -1,8 +1,8 @@
-@import '../../scss/calypso-colors';
-@import '../../scss/layout';
+@use '../../scss/calypso-colors';
+@use '../../scss/layout';
 
 .form-input-validation {
-	color: $alert-green;
+	color: calypso-colors.$alert-green;
 	position: relative;
 	padding: 6px 24px 11px 34px;
 	border-radius: 1px;
@@ -11,11 +11,11 @@
 	animation: appear .3s ease-in-out;
 
 	&.is-error {
-		color: $alert-red;
+		color: calypso-colors.$alert-red;
 	}
 
 	&.is-warning{
-		color: $alert-yellow;
+		color: calypso-colors.$alert-yellow;
 	}
 
 	.gridicon {

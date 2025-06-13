@@ -12,9 +12,15 @@ const IntegrationCard = ( {
 	children,
 	cardData = {},
 	toggleTooltip,
+	borderBottom = true,
 } ) => {
 	return (
-		<Card className="integration-card">
+		<Card
+			className="integration-card"
+			isBorderless={ true }
+			borderBottom={ borderBottom }
+			isRounded={ false }
+		>
 			<IntegrationCardHeader
 				title={ title }
 				description={ description }

@@ -41,7 +41,7 @@
 	content: "\f147";
 }
 
-div[class*=mce-videopress-field] input[type=number] {
+div[class*="mce-videopress-field"] input[type="number"] {
 	width: 70px !important;
 	left: 120px !important;
 }

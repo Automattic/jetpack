@@ -1,4 +1,5 @@
-import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -68,7 +69,7 @@ class DashProtect extends Component {
 
 			return (
 				<DashItem label={ labelName } module="protect" support={ support } status="is-working">
-					<h2 className="jp-dash-item__count">{ numberFormat( protectCount ) }</h2>
+					<h2 className="jp-dash-item__count">{ formatNumber( protectCount ) }</h2>
 					<p className="jp-dash-item__description">
 						{ __( 'Total malicious attacks blocked on your site.', 'jetpack' ) }
 					</p>

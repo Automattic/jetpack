@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/style';
+@use '@automattic/jetpack-base-styles/style';
 
 $arrow-color: var( --jp-gray );
 
@@ -9,15 +9,23 @@ $arrow-color: var( --jp-gray );
 
 // Namespace to avoid overriding global styles
 .icon-tooltip-helper {
+	// POPOVER_HELPER_WIDTH
+	width: 124px;
+	height: 18px;
+	position: absolute;
+	top: 0;
+	// -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px'
+	left: -53px;
+	pointer-events: none;
 
 	/*
 	* Fix arrow placement - section start
 	*/
-	.components-popover:not([data-y-axis=middle])[data-x-axis=left] .components-popover__content {
+	.components-popover:not([data-y-axis="middle"])[data-x-axis="left"] .components-popover__content {
 		margin-right: -62px;
 	}
 
-	.components-popover:not([data-y-axis=middle])[data-x-axis=right] .components-popover__content {
+	.components-popover:not([data-y-axis="middle"])[data-x-axis="right"] .components-popover__content {
 		margin-left: -62px;	
 	}
 
@@ -28,27 +36,27 @@ $arrow-color: var( --jp-gray );
 	/*
 	* Fix arrow position for legacy position option - section start
 	*/
-	.components-popover[data-y-axis=bottom] .components-popover__content {
+	.components-popover[data-y-axis="bottom"] .components-popover__content {
 		top: 2px !important;
 	}
 
-	.components-popover:not(.is-without-arrow)[data-y-axis=bottom]::before {
+	.components-popover:not(.is-without-arrow)[data-y-axis="bottom"]::before {
 		top: -6px !important;
 	}
 
-	.components-popover:not(.is-without-arrow)[data-y-axis=bottom]::after {
+	.components-popover:not(.is-without-arrow)[data-y-axis="bottom"]::after {
 		top: -4px !important;
 	}
 
-	.components-popover[data-y-axis=top] .components-popover__content {
+	.components-popover[data-y-axis="top"] .components-popover__content {
 		bottom: 10px !important;
 	}
 
-	.components-popover:not(.is-without-arrow)[data-y-axis=top]::before {
+	.components-popover:not(.is-without-arrow)[data-y-axis="top"]::before {
 		bottom: 3px;
 	}
 
-	.components-popover:not(.is-without-arrow)[data-y-axis=top]::after {
+	.components-popover:not(.is-without-arrow)[data-y-axis="top"]::after {
 		bottom: 4px;
 	}
 
@@ -69,17 +77,6 @@ $arrow-color: var( --jp-gray );
 	.components-button.is-link:focus:not(:disabled) {
 		box-shadow: none;
 	}
-}
-
-.icon-tooltip-helper {
-	// POPOVER_HELPER_WIDTH
-	width: 124px;
-	height: 18px;
-	position: absolute;
-	top: 0;
-	// -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px'
-	left: -53px;
-	pointer-events: none;
 }
 
 .icon-tooltip-container {

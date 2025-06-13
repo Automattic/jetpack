@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.27] - 2025-06-05
+### Changed
+- Update package dependencies. [#43734]
+
+## [0.4.26] - 2025-06-02
+### Changed
+- Internal updates.
+
+## [0.4.25] - 2025-05-26
+### Changed
+- Update dependencies. [#43569] [#43578]
+
+## [0.4.24] - 2025-05-19
+### Changed
+- Update package dependencies. [#43398]
+
+## [0.4.23] - 2025-05-12
+### Changed
+- Stable release management: Do not ship source files. [#43310]
+- Update package dependencies. [#43400]
+
+## [0.4.22] - 2025-05-05
+### Changed
+- Update package dependencies. [#43320] [#43326] [#43350]
+
+### Fixed
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+
+## [0.4.21] - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
+
 ## [0.4.20] - 2025-04-14
 ### Fixed
 - Linting: Format SCSS imports consistently. [#43018]
@@ -525,6 +559,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
 - Updated package dependencies.
 
+[0.4.27]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.26...v0.4.27
+[0.4.26]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.25...v0.4.26
+[0.4.25]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.24...v0.4.25
+[0.4.24]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.23...v0.4.24
+[0.4.23]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.22...v0.4.23
+[0.4.22]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.21...v0.4.22
+[0.4.21]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.20...v0.4.21
 [0.4.20]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.19...v0.4.20
 [0.4.19]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.18...v0.4.19
 [0.4.18]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.17...v0.4.18

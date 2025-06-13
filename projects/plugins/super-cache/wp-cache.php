@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 2.0.1
+ * Version: 3.0.0
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -125,6 +125,17 @@ global $wp_cache_preload_email_me, $wp_cache_preload_email_volume;
 global $wp_cache_mobile, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes;
 global $wp_cache_config_file, $wp_cache_config_file_sample;
 
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+global $wpsc_advanced_cache_filename, $wpsc_advanced_cache_dist_filename;
+global $wp_cache_phase1_loaded, $blog_cache_dir, $wp_supercache_304, $wp_cache_mfunc_enabled;
+global $wp_cache_front_page_checks, $wpsc_save_headers, $is_nginx, $wpsc_promo_links;
+global $wp_cache_disable_utf8, $wp_cache_not_logged_in, $wp_cache_make_known_anon;
+global $wpsc_tracking_parameters, $wpsc_rejected_cookies, $cache_rejected_uri;
+global $cache_acceptable_files, $wp_super_cache_comments;
+global $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear;
+global $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification;
+global $wpsc_plugins, $wpsc_cookies, $wpsc_version, $wp_cache_clear_on_post_edit;
+// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 // Check is cache config already loaded.
 if ( ! isset( $cache_enabled, $super_cache_enabled, $wp_cache_mod_rewrite, $cache_path ) &&
 	empty( $wp_cache_phase1_loaded ) &&
@@ -1115,7 +1126,7 @@ table.wpsc-settings-table {
 	<style>
 		.wpsc-boost-banner {
 			margin: 2px 1.25rem 1.25rem 0;
-			box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.03), 0px 1px 2px rgba(0, 0, 0, 0.03);
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.03);
 			border: 1px solid #d5d5d5;
 			position: relative;
 		}
@@ -2804,7 +2815,7 @@ function wp_cache_clean_cache( $file_prefix, $all = false ) {
 
 function wpsc_delete_post_cache( $id ) {
 	$post = get_post( $id );
-	wpsc_delete_url_cache( get_author_posts_url( $post->post_author ) );
+	wpsc_delete_url_cache( get_author_posts_url( (int) $post->post_author ) );
 	$permalink = get_permalink( $id );
 	if ( $permalink != '' ) {
 		wpsc_delete_url_cache( $permalink );

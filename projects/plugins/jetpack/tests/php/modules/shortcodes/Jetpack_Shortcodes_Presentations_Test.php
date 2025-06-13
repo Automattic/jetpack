@@ -1,10 +1,13 @@
 <?php
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 /**
  * @covers \Presentations
  */
+#[CoversClass( Presentations::class )]
 class Jetpack_Shortcodes_Presentations_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;

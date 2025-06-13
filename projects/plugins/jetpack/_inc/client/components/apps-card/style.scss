@@ -1,13 +1,15 @@
-@import '../../scss/mixins/ui';
+@use '../../scss/functions/rem';
+@use '../../scss/mixins/ui';
+@use "../../scss/mixins/breakpoints";
 
 .jp-apps-card {
-	margin-top: rem( 24px );
+	margin-top: rem.convert( 24px );
 	margin-bottom: 0;
 }
 
 .jp-apps-card__content {
 
-	@include dashboard-card-shadow;
+	@include ui.dashboard-card-shadow;
 
 	display: flex;
 	justify-content: space-between;
@@ -39,7 +41,7 @@
 		}
 	}
 
-	@include breakpoint( '<782px' ) {
+	@include breakpoints.breakpoint( '<782px' ) {
 		flex-direction: column;
 
 		.jp-apps-card__description {
@@ -56,6 +58,7 @@
 .jp-apps-card__paragraph {
 	margin: 14px 0 0 0;
 	font-size: 17px;
+	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 145%;
 	color: var( --gray-100 );
 	letter-spacing: -0.24px;
@@ -92,7 +95,7 @@
 
 	.jp-apps-card__caption {
 		font-size: 11px;
-		margin: rem( 10px ) 0 0;
+		margin: rem.convert( 10px ) 0 0;
 		max-width: 220px;
 	}
 
@@ -113,7 +116,7 @@
 	justify-content: center;
 	align-items: center;
 
-	@include breakpoint( '<480px' ) {
+	@include breakpoints.breakpoint( '<480px' ) {
 
 		.apps-badge:first-child {
 			margin-right: 0;
@@ -122,5 +125,5 @@
 }
 
 .jp-themes-card {
-	margin-bottom: rem( 20px );
+	margin-bottom: rem.convert( 20px );
 }

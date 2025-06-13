@@ -1,4 +1,4 @@
-import formatCurrency from '@automattic/format-currency';
+import { formatCurrency } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import useProduct from '../../data/products/use-product';
