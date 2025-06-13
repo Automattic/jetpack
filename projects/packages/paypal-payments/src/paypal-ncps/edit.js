@@ -89,6 +89,8 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 					hideLabelFromVision
 					onChange={ type => setAttributes( { buttonType: type } ) }
 					isBlock
+					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
 				>
 					<ToggleGroupControlOption
 						value="stacked"
