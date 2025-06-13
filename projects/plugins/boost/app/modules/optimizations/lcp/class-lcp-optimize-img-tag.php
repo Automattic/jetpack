@@ -134,19 +134,25 @@ class LCP_Optimize_Img_Tag {
 		$dimensions = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
 			foreach ( $breakpoint['imageDimensions'] as $breakpoint_dimensions ) {
-				$dimensions[ $breakpoint_dimensions['width'] ] = $breakpoint_dimensions['height'];
+				if ( ! is_numeric( $breakpoint_dimensions['width'] ) || ! is_numeric( $breakpoint_dimensions['height'] ) ) {
+					continue;
+				}
+
+				$width                = (int) $breakpoint_dimensions['width'];
+				$height               = (int) $breakpoint_dimensions['height'];
+				$dimensions[ $width ] = $height;
 
 				// If it's a Moto G Power, include a 1.75 DPR for accurate lighthouse representation of the optimized image.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] === 412 ) {
-					$dimensions[ round( (int) $breakpoint_dimensions['width'] * 1.75 ) ] = round( $breakpoint_dimensions['height'] * 1.75 );
+					$dimensions[ round( $width * 1.75 ) ] = round( $height * 1.75 );
 				}
 
 				// Include 2x DPR.
-				$dimensions[ $breakpoint_dimensions['width'] * 2 ] = $breakpoint_dimensions['height'] * 2;
+				$dimensions[ $width * 2 ] = $height * 2;
 
 				// If it's a mobile breakpoint, include 3x DPR.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] <= 480 ) {
-					$dimensions[ $breakpoint_dimensions['width'] * 3 ] = $breakpoint_dimensions['height'] * 3;
+					$dimensions[ $width * 3 ] = $height * 3;
 				}
 			}
 		}
