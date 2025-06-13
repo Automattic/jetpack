@@ -6,7 +6,7 @@ See https://github.com/Verivox/tiny-date-picker
 Documentation
 See https://github.com/chrisdavies/tiny-date-picker/blob/master/docs/tiny-date-picker.md
 
-The design and accessibility improvements were insired by the excellent https://duetds.github.io/date-picker/ - MIT license
+The design and accessibility improvements were inspired by the excellent https://duetds.github.io/date-picker/ - MIT license
 
 ---
 
