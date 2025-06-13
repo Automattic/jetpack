@@ -51,7 +51,7 @@ const english = {
  * @returns {IDatePickerOptions}
  */
 export function DatePickerOptions( _options: Partial< IDatePickerOptions > = {} ) {
-	const options = cp( defaults(), _options );
+	const options: Partial< IDatePickerOptions > = cp( defaults(), _options );
 	const parse = dateOrParse( options.parse, options.dateFormat );
 
 	options.lang = cp( english, options.lang );
