@@ -127,11 +127,11 @@ class WPCOM_REST_API_V2_Endpoint_App_Media extends WP_REST_Controller {
 		$query_args = array(
 			'post_type'   => 'attachment',
 			'post_status' => 'inherit',
-			'number'      => $params['number'] ?? 20,
+			'number'      => $params['number'],
 			'date_query'  => array(
 				'after' => gmdate( DATE_RSS, intval( $params['after'] ) ),
 			),
-			'paged'       => $params['page_handle'] ?? 1,
+			'paged'       => $params['page_handle'],
 			'author'      => get_current_user_id(),
 			'orderby'     => 'date',
 		);
