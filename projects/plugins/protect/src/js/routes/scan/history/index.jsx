@@ -1,7 +1,7 @@
 import { AdminSection, Container, Col, H3, Text, Title } from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router';
 import AdminPage from '../../../components/admin-page';
 import ProtectCheck from '../../../components/protect-check-icon';
 import ThreatsNavigation from '../../../components/threats-list/navigation';

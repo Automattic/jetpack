@@ -63,7 +63,7 @@
 		"gridicons": "3.4.2",
 		"lodash": "4.17.21",
 		"react-redux": "7.2.8",
-		"react-router-dom": "7.6.2",
+		"react-router": "7.6.2",
 		"react-transition-group": "^4.4.5",
 		"redux": "4.2.1",
 		"redux-thunk": "2.3.0",

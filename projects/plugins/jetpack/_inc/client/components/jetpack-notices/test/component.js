@@ -1,5 +1,5 @@
 import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import { render, screen } from 'test/test-utils';
 import { DevVersionNotice } from '../index';
 import { PlanConflictWarning } from '../plan-conflict-warning';

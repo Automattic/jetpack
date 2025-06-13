@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Icon, arrowLeft } from '@wordpress/icons';
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import styles from './styles.module.scss';
 
 /**
