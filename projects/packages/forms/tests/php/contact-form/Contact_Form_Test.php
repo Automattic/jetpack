@@ -818,6 +818,41 @@ class Contact_Form_Test extends BaseTestCase {
 		wp_delete_post( $post_id, true );
 	}
 
+	/**
+	 * We test that if the all fields keys do have HTML content, they are escaped correctly.
+	 */
+	public function test_parse_fields_from_content_all_field_has_html_content() {
+
+		$comment_content      = 'This is a test comment content.';
+		$comment_author       = 'Test User';
+		$comment_author_email = 'test@email.com';
+		$comment_author_url   = 'http://example.com';
+		$comment_ip_text      = 'https://127.0.0.1';
+		$subject              = 'Test Subject';
+		$all_values           = array(
+			'<strong>field2</strong>' => 'value2',
+		);
+
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		// Create a mock post with JSON_DATA format
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => 'feedback',
+				'post_status'  => 'publish',
+				'post_content' => $content,
+			)
+		);
+
+		// Parse fields from the post
+		$fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+
+		// Assert that JSON data fields were parsed correctly
+		$this->assertIsArray( $fields['_feedback_all_fields'] );
+		$this->assertArrayHasKey( 'field2', $fields['_feedback_all_fields'] ); // note that we should escape HTML tags here.
+		$this->assertEquals( $all_values['<strong>field2</strong>'], $fields['_feedback_all_fields']['field2'] );
+
+		// Clean up
+		wp_delete_post( $post_id, true );
 	}
 
 	public function test_parse_fields_from_content_form_submission() {
