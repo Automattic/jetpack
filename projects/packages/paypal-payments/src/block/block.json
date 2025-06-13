@@ -30,7 +30,8 @@
 		"className": false,
 		"customClassName": false,
 		"html": false,
-		"reusable": false
+		"reusable": false,
+		"inserter": false
 	},
 	"attributes": {
 		"currency": {
