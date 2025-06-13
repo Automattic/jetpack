@@ -106,6 +106,8 @@ jobs:
         run: .github/files/select-wordpress-tag.sh
 
       - name: Composer Install
+        env:
+          CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
           # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
           if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
@@ -130,6 +132,19 @@ jobs:
             fi
           fi
           echo "::endgroup::"
+
+          echo "Checking for non-mirrored require-dev packages, in case this is testing a release branch"
+          for SLUG in $( jq -r 'keys[]' <<<"$CHANGED" ); do
+            PKGS=()
+            readarray -t PKGS < <( jq -r '.extra["non-mirrored-require-dev"] // empty | .[] | . += "=@dev"' "projects/$SLUG/composer.json" )
+            if [[ ${#PKGS[@]} -gt 0 ]]; then
+              echo "Adding packages for $SLUG: ${PKGS[*]}"
+              # Make sure monorepo repositories entry is present.
+              JSON=$( jq --tab '.repositories //= [] | if any( .repositories[]; .type == "path" and ( .url | startswith( "../" ) ) and .options?.monorepo? ) then . else .repositories += [ { type: "path", url: "../../packages/*", options: { monorepo: true } } ] end' "projects/$SLUG/composer.json" )
+              echo "$JSON" > "projects/$SLUG/composer.json"
+              composer require --working-dir="projects/$SLUG/" --dev --no-install "${PKGS[@]}"
+            fi
+          done
 
       - name: Setup WordPress environment for plugin tests
         env:
