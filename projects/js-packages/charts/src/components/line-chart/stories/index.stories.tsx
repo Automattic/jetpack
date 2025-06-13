@@ -235,13 +235,10 @@ CustomTooltips.args = {
 		if ( ! nearestDatum ) return null;
 
 		const tooltipPoints = Object.entries( tooltipData?.datumByKey || {} )
-			.map( ( [ key, value ] ) => {
-				const { datum } = value as { datum: { value: number } };
-				return {
-					key,
-					value: datum.value as number,
-				};
-			} )
+			.map( ( [ key, { datum } ] ) => ( {
+				key,
+				value: datum.value as number,
+			} ) )
 			.sort( ( a, b ) => b.value - a.value );
 
 		return (
