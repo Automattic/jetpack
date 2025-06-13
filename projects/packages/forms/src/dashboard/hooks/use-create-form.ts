@@ -57,6 +57,10 @@ export default function useCreateForm(): CreateFormReturn {
 				if ( postUrl ) {
 					analyticsEvent?.( { formPattern } );
 
+					/*
+					 * We are using a temporary link click to open the new form page, as it is created in the backend and we need
+					 * to wait for it before we have the post URL. Using window.open() does not work due to Safari's popup blocker.
+					 */
 					const url = `${ postUrl }${
 						showPatterns && ! formPattern ? '&showJetpackFormsPatterns' : ''
 					}`;
