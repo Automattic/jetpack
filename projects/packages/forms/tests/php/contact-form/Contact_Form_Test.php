@@ -903,6 +903,30 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * This tests make sure that we don't store HTML when labels do have HTML tags.
+	 */
+	public function test_parse_fields_from_content_form_submission_do_not_store_label_html() {
+		// Fill field values.
+		$this->add_field_values(
+			array(
+				'name' => 'John Doe',
+			)
+		);
+
+		// Initialize a form with name, dropdown and radiobutton (first, second
+		// and third option), text field.
+		$form = new Contact_Form( array(), "[contact-field label='<strong>Name</strong>' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
+		$form->process_submission();
+
+		$post    = end( Posts::init()->posts );
+		$post_id = $post->ID;
+
+		$this->assertStringContainsString( '1_Name', $post->post_content, 'Post content should contain the field name without HTML tags' );
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
 	 * Tests that token is left intact when there is not matching field.
 	 *
 	 * @author tonykova
