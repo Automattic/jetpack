@@ -17,15 +17,11 @@ jest.mock( '@wordpress/block-editor', () => ( {
 
 // Mock WordPress components
 jest.mock( '@wordpress/components', () => ( {
-	Notice: ( { children, status, isDismissible } ) => {
-		// Extract text content from children
-		const text = children.props ? children.props.children : children;
-		return (
-			<span data-testid="notice" data-status={ status } data-dismissible={ isDismissible }>
-				{ text }
-			</span>
-		);
-	},
+	Notice: ( { children, status, isDismissible } ) => (
+		<span data-testid="notice" data-status={ status } data-dismissible={ isDismissible }>
+			{ children }
+		</span>
+	),
 	ExternalLink: ( { href, children } ) => (
 		<a href={ href } data-testid="external-link">
 			{ children }
@@ -84,7 +80,7 @@ jest.mock( '@wordpress/element', () => {
 			return [ state, setState ];
 		} ),
 		useEffect: jest.fn().mockImplementation( ( callback, deps ) => {
-			React.useEffect( callback, deps );
+			React.useEffect( () => callback(), deps ); // eslint-disable-line react-hooks/exhaustive-deps
 		} ),
 		createInterpolateElement: text => text,
 	};
@@ -143,7 +139,7 @@ describe( 'Edit', () => {
 		const setAttributes = jest.fn();
 		render( <Edit attributes={ defaultProps.attributes } setAttributes={ setAttributes } /> );
 
-		fireEvent.click( screen.getByTestId( 'toggle-option-single' ) );
+		fireEvent.click( screen.getByTestId( 'toggle-option-single' ) ); // eslint-disable-line testing-library/prefer-user-event
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			buttonType: 'single',
 		} );
@@ -157,6 +153,7 @@ describe( 'Edit', () => {
 
 		const inputs = screen.getAllByTestId( 'plain-text' );
 		// First input should be the head code for stacked buttons
+		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.change( inputs[ 0 ], {
 			target: { value: '<script src="test"></script>' },
 		} );
@@ -174,6 +171,7 @@ describe( 'Edit', () => {
 
 		const inputs = screen.getAllByTestId( 'plain-text' );
 		// For stacked buttons, body code is the second input
+		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.change( inputs[ 1 ], {
 			target: { value: '<div id="paypal-container"></div>' },
 		} );
