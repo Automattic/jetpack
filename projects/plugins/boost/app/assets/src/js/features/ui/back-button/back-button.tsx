@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import LeftArrow from '$svg/left-arrow';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { Button } from '@automattic/jetpack-components';
 import styles from './back-button.module.scss';

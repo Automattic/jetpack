@@ -23,7 +23,7 @@ import {
 } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router';
 /**
  * Internal dependencies
  */
