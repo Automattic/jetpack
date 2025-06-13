@@ -23,5 +23,8 @@ if ( ! global.ResizeObserver ) {
 
 // jsdom doesn't support TextEncoder, so polyfill
 // https://github.com/remix-run/react-router/issues/12363
-const { TextEncoder } = require( 'util' );
-global.TextEncoder = TextEncoder;
+if ( ! global.TextEncoder ) {
+	const { TextEncoder, TextDecoder } = require( 'node:util' );
+	global.TextEncoder = TextEncoder;
+	global.TextDecoder = TextDecoder;
+}
