@@ -32,7 +32,6 @@ class Note {
 			return;
 		}
 		add_filter( 'allowed_block_types', array( $this, 'restrict_blocks_for_social_note' ), 10, 2 );
-		add_filter( 'the_content', array( $this, 'prepend_title_to_content' ) );
 
 		/*
 		 * The ActivityPub plugin has a block to set a Fediverse post that a new post is in reply to. This is perfect for Social Notes.
@@ -50,6 +49,19 @@ class Note {
 		self::register_cpt();
 		add_action( 'wp_insert_post_data', array( $this, 'set_empty_title' ), 10, 2 );
 		add_action( 'admin_init', array( $this, 'admin_init_actions' ) );
+
+		if (
+			/**
+			 * Filters whether to override the empty title for Social Notes on the frontend.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $override_empty_title Whether to override the empty title for Social Notes on the frontend.
+			 */
+			apply_filters( 'jetpack_social_notes_override_empty_title', false )
+		) {
+			add_filter( 'the_title', array( $this, 'override_empty_title' ), 10, 2 );
+		}
 	}
 
 	/**
@@ -191,28 +203,6 @@ class Note {
 	}
 
 	/**
-	 * Generates a default title for a Social Note post based on its publish date.
-	 *
-	 * @param \WP_Post $post The post object.
-	 * @return string The generated title.
-	 */
-	private function generate_custom_title( \WP_Post $post ) {
-		$publishing_date = new \DateTimeImmutable(
-			$post->post_date,
-			wp_timezone()
-		);
-
-		return sprintf(
-			/* Translators: placeholder is a fully-formatted date. */
-			__( 'Social note, %1$s', 'jetpack-social' ),
-			wp_date(
-				get_option( 'date_format' ) . ' \a\t ' . get_option( 'time_format' ),
-				$publishing_date->getTimestamp()
-			)
-		);
-	}
-
-	/**
 	 * Use the_title hook so we show the social note's exceprt in the post list view.
 	 *
 	 * @param array $title The title of the post, which we have set to be an empty string for Social Notes.
@@ -225,7 +215,19 @@ class Note {
 			$post instanceof \WP_Post &&
 			self::JETPACK_SOCIAL_NOTE_CPT === $post->post_type
 		) {
-			$title = $this->generate_custom_title( $post );
+			$publishing_date = new \DateTimeImmutable(
+				$post->post_date,
+				wp_timezone()
+			);
+
+			$title = sprintf(
+				/* Translators: placeholder is a fully-formatted date. */
+				__( 'Social note, %1$s', 'jetpack-social' ),
+				wp_date(
+					get_option( 'date_format' ) . ' \a\t ' . get_option( 'time_format' ),
+					$publishing_date->getTimestamp()
+				)
+			);
 
 			/**
 			 * Filters the default title for a Social Note.
@@ -239,27 +241,5 @@ class Note {
 		}
 
 		return $title;
-	}
-
-	/**
-	 * Prepends a generated custom title to the content of a Social Note post.
-	 *
-	 * @param string $content The original post content.
-	 * @return string Modified post content with the custom title prepended.
-	 */
-	public function prepend_title_to_content( $content ) {
-		$post = get_post();
-
-		if (
-			! $post instanceof \WP_Post ||
-			self::JETPACK_SOCIAL_NOTE_CPT !== $post->post_type
-		) {
-			return $content;
-		}
-
-		$title   = $this->generate_custom_title( $post );
-		$heading = sprintf( '<h2 class="wp-block-post-title">%s</h2>', esc_html( $title ) );
-
-		return sprintf( "%s\n%s", $heading, $content );
 	}
 }
