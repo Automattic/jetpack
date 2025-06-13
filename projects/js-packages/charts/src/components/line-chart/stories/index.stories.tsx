@@ -1,6 +1,8 @@
 import { GlyphStar } from '@visx/glyph';
+import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import React from 'react';
 import { useChartTheme } from '../../../providers/theme/theme-provider';
+import { DataPointDate } from '../../../types';
 import LineChart from '../line-chart';
 import largeValuesData from './large-values-sample';
 import sampleData from './sample-data';
@@ -490,7 +492,7 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 	},
 };
 
-const ToolTipWithGlyph = ( { tooltipData } ) => {
+const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
 	const providerTheme = useChartTheme();
 
 	return (
