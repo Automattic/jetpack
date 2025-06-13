@@ -854,15 +854,6 @@ class Main extends React.Component {
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
-					{ /*
-					This component was removed as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
-					It could probably be brought back with `unstable_usePrompt`, but that is broken with the hash router and normal links,
-					and is already not reliable cross-browser anyway.
-					<Prompt
-						when={ this.props.areThereUnsavedSettings }
-						message={ this.handleRouterWillLeave }
-					/>
-					*/ }
 
 					{ this.renderMainContent( this.props.location.pathname ) }
 					{ this.shouldShowJetpackManageBanner() && (
