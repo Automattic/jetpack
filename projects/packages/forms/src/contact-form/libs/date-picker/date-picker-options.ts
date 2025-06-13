@@ -102,6 +102,10 @@ function defaults(): IDatePickerOptions {
 				return now();
 			}
 
+			if ( candidate instanceof Date ) {
+				return candidate;
+			}
+
 			let [ parsedYear, parsedMonth, parsedDay ] = [ NaN, NaN, NaN ];
 			switch ( dateFormat ) {
 				case 'yy-mm-dd':
