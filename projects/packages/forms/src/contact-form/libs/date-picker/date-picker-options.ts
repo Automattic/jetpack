@@ -1,10 +1,10 @@
 /**
  * @file Responsible for sanitizing and creating date picker options.
  */
-import { IDatePicker, IDatePickerOptions } from './interfaces';
+import { IDatePicker, IDatePickerOptions, ILanguage } from './interfaces';
 import { now, shiftYear, dateOrParse, Dec31st, Jan1st } from './lib/date';
 
-const english = {
+const english: ILanguage = {
 	days: [ 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa' ],
 	months: [
 		'January',
@@ -49,15 +49,23 @@ const english = {
  *
  * @returns {IDatePickerOptions}
  */
-export function DatePickerOptions( _options: Partial< IDatePickerOptions > = {} ) {
-	const options: Partial< IDatePickerOptions > = { ...defaults(), ..._options };
+export function DatePickerOptions(
+	_options: Partial< IDatePickerOptions > = {}
+): IDatePickerOptions {
+	const options: IDatePickerOptions = { ...defaults(), ..._options };
+
+	// Override the parse function with the date format passed in the options, if any.
 	const parse = dateOrParse( options.parse, options.dateFormat );
 
 	options.lang = { ...english, ...options.lang };
 	options.parse = parse;
 	options.inRange = makeInRangeFn( options );
-	options.min = parse( options.min || shiftYear( Jan1st(), -100 ), options.dateFormat );
-	options.max = parse( options.max || shiftYear( Dec31st(), 100 ), options.dateFormat );
+	options.min = options.min
+		? parse( options.min, options.dateFormat )
+		: shiftYear( Jan1st(), -100 );
+	options.max = options.max
+		? parse( options.max, options.dateFormat )
+		: shiftYear( Dec31st(), 100 );
 	options.highlightedDate = options.parse( options.highlightedDate, options.dateFormat );
 	options.alignment = options.alignment || 'left';
 
