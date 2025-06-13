@@ -51,7 +51,7 @@
 		"debug": "4.4.1",
 		"gridicons": "3.4.2",
 		"prop-types": "15.8.1",
-		"react-router-dom": "6.30.0"
+		"react-router-dom": "7.6.2"
 	},
 	"exports": {
 		"./components/*": "./_inc/components/*"
