@@ -382,18 +382,18 @@ module.exports = [
 					},
 					// Used by events pages
 					{
-						from: path.resolve( __dirname, 'node_modules/fullcalendar/dist/fullcalendar.js' ),
+						from: path.resolve( __dirname, 'node_modules/fullcalendar/main.min.js' ),
 						to: `${ buildLibPath }/fullcalendar/`,
 					},
 					// Used by events pages
 					{
-						from: path.resolve( __dirname, 'node_modules/fullcalendar/dist/fullcalendar.min.css' ),
+						from: path.resolve( __dirname, 'node_modules/fullcalendar/main.min.css' ),
 						to: `${ buildLibPath }/fullcalendar/`,
 					},
 					// Used by events pages
 					{
-						from: path.resolve( __dirname, 'node_modules/fullcalendar/dist/locale' ),
-						to: `${ buildLibPath }/fullcalendar/locale`,
+						from: path.resolve( __dirname, 'node_modules/fullcalendar/locales' ),
+						to: `${ buildLibPath }/fullcalendar/locales`,
 					},
 					// Used for first-use dashboard modals
 					{
