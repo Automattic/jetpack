@@ -3065,8 +3065,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/remove-asset-webpack-plugin
       '@wordpress/base-styles':
-        specifier: 5.22.0
-        version: 5.22.0
+        specifier: 6.0.0
+        version: 6.0.0
       '@wordpress/block-editor':
         specifier: 14.17.0
         version: 14.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -8949,10 +8949,6 @@ packages:
 
   '@wordpress/babel-preset-default@8.25.0':
     resolution: {integrity: sha512-8Sf4pkH7/4pcKt/jOkVNLOoScypMOM2xEHtyiTE5tHgX4z7UZRNbXFKqJ9fxDDb/cniDdNyeG5QhOLIZbO7hlg==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
-  '@wordpress/base-styles@5.22.0':
-    resolution: {integrity: sha512-bsuVyCfdmDCIIMq1NdoeFGJzKMkd0qFlqNPeW1Hiz9yKtU+dJmccwrACCUVFydDS9zSVpN1VdI0NerFQMyr5wA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/base-styles@6.0.0':
@@ -20540,8 +20536,6 @@ snapshots:
       react: 18.3.1
     transitivePeerDependencies:
       - supports-color
-
-  '@wordpress/base-styles@5.22.0': {}
 
   '@wordpress/base-styles@6.0.0': {}
 
