@@ -528,7 +528,7 @@ function zeroBSCRM_calendar_admin_styles(){
 
 	wp_register_script( 'jpcrm-calendar-js', ZEROBSCRM_URL . 'build/lib/fullcalendar/fullcalendar.js', array( 'jquery', 'jpcrm-moment' ), $zbs::VERSION, false );
 	wp_register_style( 'jpcrm-calendar', ZEROBSCRM_URL . 'build/lib/fullcalendar/fullcalendar.min.css', array(), $zbs::VERSION );
-	wp_register_script( 'jpcrm-tasks-js', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment', 'jpcrm-calendar-js' ), $zbs::VERSION, false );
+	wp_register_script( 'jpcrm-tasks-js', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment', 'jpcrm-calendar-js' ), $zbs::VERSION, true );
 
 	// LOCALE Specific
 	$language_tag       = zeroBSCRM_getLocale();

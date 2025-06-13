@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { SocialLogo } from 'social-logos';
 import ConnectionBanner from 'components/connection-banner';
 import NoticesList from 'components/global-notices';
