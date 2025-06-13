@@ -88,10 +88,8 @@ class Paypal_NCPS {
 			if ( preg_match( '/\s+action=[\'"]([^\'"]+)[\'"]/', $code_body, $matches ) ) {
 				$action = esc_url( $matches[1] );
 				if ( ! empty( $action ) && false === strpos( $action, $attr_code ) ) {
-					$parsed_url_parts   = wp_parse_url( $action );
-					$prepared_attr_code = isset( $parsed_url_parts['query'] ) ? '&' . $attr_code : '?' . $attr_code;
-					$action             = $action . $prepared_attr_code;
-					$code_body          = preg_replace( '/(\s+action=[\'"])[^\'"]+([\'"])/', '$1' . $action . '$2', $code_body );
+					$action    = add_query_arg( 'at_code', 'WooNCPS_Ecom_Wordpress', $action );
+					$code_body = preg_replace( '/(\s+action=[\'"])[^\'"]+([\'"])/', '$1' . $action . '$2', $code_body );
 				}
 			}
 		}
