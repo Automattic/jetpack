@@ -18,7 +18,6 @@ function jpcrm_update_task_status( task_id, new_status ) {
 	}
 
 	window.jpcrm_task_ajax_blocker = true;
-	const buttons = document.querySelectorAll( '#mark-complete-task button' );
 	buttons.forEach( b => b.classList.add( 'disabled', 'loading' ) );
 
 	const data = {
@@ -55,7 +54,8 @@ function jpcrm_update_task_status( task_id, new_status ) {
 		} );
 }
 
-document.querySelectorAll( '#mark-complete-task button' ).forEach( el =>
+const buttons = document.querySelectorAll( '#mark-complete-task button' );
+buttons.forEach( el =>
 	el.addEventListener( 'click', function ( e ) {
 		e.preventDefault();
 		const task_id = document.querySelector( '[id^="task-"]' ).id.slice( 5 );
