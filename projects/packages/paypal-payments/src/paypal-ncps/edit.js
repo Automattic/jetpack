@@ -9,7 +9,7 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import PayPalIcon from './icon';
 import './editor.scss';
 
@@ -83,7 +83,11 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 								'Paste both the head and body HTML code from PayPal below.',
 								'jetpack-paypal-payments'
 						  )
-						: __( 'Paste the button code from PayPal below.', 'jetpack-paypal-payments' )
+						: _x(
+								'Paste the button code from PayPal below.',
+								'jetpack-paypal-payments',
+								'jetpack-paypal-payments'
+						  )
 				}
 				notices={ notice }
 			>
