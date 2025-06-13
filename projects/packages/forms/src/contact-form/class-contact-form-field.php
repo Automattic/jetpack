@@ -1473,7 +1473,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		);
 		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$local = array(
-			// translators: These are the two letter abbreviated name of the week.
+			// translators: These are the two letter abbreviated names of the days of the week.
 			'days'      => array( __( 'Su', 'jetpack-forms' ), __( 'Mo', 'jetpack-forms' ), __( 'Tu', 'jetpack-forms' ), __( 'We', 'jetpack-forms' ), __( 'Th', 'jetpack-forms' ), __( 'Fr', 'jetpack-forms' ), __( 'Sa', 'jetpack-forms' ) ),
 			'months'    => array(
 				__( 'January', 'jetpack-forms' ),
