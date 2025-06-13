@@ -85,18 +85,32 @@ function jetpack_mark_if_post_answers_blogging_prompt( $post_id, $post, $update,
 		return;
 	}
 
-	$blocks = parse_blocks( $post->post_content );
-	foreach ( $blocks as $block ) {
-		if ( 'jetpack/blogging-prompt' === $block['blockName'] ) {
-			$prompt_id      = isset( $block['attrs']['promptId'] ) ? absint( $block['attrs']['promptId'] ) : null;
-			$has_prompt_tag = has_tag( 'dailyprompt', $post ) || ( $prompt_id && has_tag( "dailyprompt-{$prompt_id}", $post ) );
+	$prompt_id        = null;
+	$has_prompt_tag   = false;
+	$has_other_blocks = false;
+	$found_prompt     = false;
 
-			if ( $prompt_id && $has_prompt_tag && count( $blocks ) > 1 ) {
-				update_post_meta( $post->ID, '_jetpack_blogging_prompt_key', $prompt_id );
-			}
-
+	foreach ( \Automattic\Block_Delimiter::scan_delimiters( $post->post_content ) as $delimiter ) {
+		// If we've already found both what we need, we can stop.
+		if ( $found_prompt && $has_other_blocks ) {
 			break;
 		}
+
+		if ( ! $delimiter->is_block_type( 'jetpack/blogging-prompt' ) ) {
+			$has_other_blocks |= true; // Set to true if it's not already true.
+			continue;
+		}
+
+		if ( \Automattic\Block_Delimiter::OPENER === $delimiter->get_delimiter_type() ) {
+			$attributes     = $delimiter->allocate_and_return_parsed_attributes();
+			$prompt_id      = isset( $attributes['promptId'] ) ? absint( $attributes['promptId'] ) : null;
+			$has_prompt_tag = has_tag( 'dailyprompt', $post ) || ( $prompt_id && has_tag( "dailyprompt-{$prompt_id}", $post ) );
+			$found_prompt   = true;
+		}
+	}
+
+	if ( $prompt_id && $has_prompt_tag && $has_other_blocks ) {
+		update_post_meta( $post->ID, '_jetpack_blogging_prompt_key', $prompt_id );
 	}
 }
 
