@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\PaypalPayments;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Paypal_Payments;
 
 /**
  * Class Paypal_NCPS
@@ -23,13 +22,6 @@ class Paypal_NCPS {
 	 * @var string
 	 */
 	public const BLOCK_NAME = 'jetpack/paypal-ncps';
-
-	/**
-	 * The package version.
-	 *
-	 * @var string
-	 */
-	private const PACKAGE_VERSION = PayPal_Payments::PACKAGE_VERSION;
 
 	/**
 	 * Registers the block for use in Gutenberg
@@ -83,6 +75,7 @@ class Paypal_NCPS {
 		}
 
 		if ( 'single' === $button_type ) {
+			self::register_hooks();
 			$code_body = str_replace( 'inline-grid', 'grid', $code_body );
 			$attr_code = 'at_code=WooNCPS_Ecom_Wordpress';
 			if ( preg_match( '/\s+action=[\'"]([^\'"]+)[\'"]/', $code_body, $matches ) ) {
@@ -159,5 +152,25 @@ class Paypal_NCPS {
 				'css_path'   => null,
 			)
 		);
+	}
+
+	/**
+	 * Add display to the allowed styles.
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/safe_style_css/
+	 *
+	 * @param array $safe_styles The allowed styles.
+	 * @return array The allowed styles.
+	 */
+	public static function add_style_display( array $safe_styles ): array {
+		$safe_styles[] = 'display';
+		return $safe_styles;
+	}
+
+	/**
+	 * Register hooks.
+	 */
+	public static function register_hooks() {
+		add_filter( 'safe_style_css', array( __CLASS__, 'add_style_display' ) );
 	}
 }
