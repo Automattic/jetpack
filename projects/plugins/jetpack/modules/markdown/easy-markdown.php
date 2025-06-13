@@ -313,7 +313,7 @@ class WPCom_Markdown {
 			esc_attr( self::POST_OPTION ),
 			checked( $this->is_posting_enabled(), true, false ),
 			esc_html__( 'Use Markdown for posts and pages.', 'jetpack' ),
-			sprintf( '<a href="%s">%s</a>', esc_url( $this->get_support_url() ), esc_html__( 'Learn more about Markdown.', 'jetpack' ) )
+			sprintf( '<a href="%s" data-target="wpcom-help-center">%s</a>', esc_url( $this->get_support_url() ), esc_html__( 'Learn more about Markdown.', 'jetpack' ) )
 		);
 	}
 
@@ -326,7 +326,7 @@ class WPCom_Markdown {
 			esc_attr( self::COMMENT_OPTION ),
 			checked( $this->is_commenting_enabled(), true, false ),
 			esc_html__( 'Use Markdown for comments.', 'jetpack' ),
-			sprintf( '<a href="%s">%s</a>', esc_url( $this->get_support_url() ), esc_html__( 'Learn more about Markdown.', 'jetpack' ) )
+			sprintf( '<a href="%s" data-target="wpcom-help-center">%s</a>', esc_url( $this->get_support_url() ), esc_html__( 'Learn more about Markdown.', 'jetpack' ) )
 		);
 	}
 
