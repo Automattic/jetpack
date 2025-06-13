@@ -131,7 +131,7 @@ class LCP_Optimize_Img_Tag {
 
 				// If it's a Moto G Power, include a 1.75 DPR for accurate lighthouse representation of the optimized image.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] === 412 ) {
-					$breakpoint_widths[] = (int) $width * 1.75;
+					$breakpoint_widths[] = round( (int) $width * 1.75 );
 				}
 
 				// Include 2x DPR.
