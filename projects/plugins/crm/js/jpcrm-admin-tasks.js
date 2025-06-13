@@ -58,7 +58,7 @@ const buttons = document.querySelectorAll( '#mark-complete-task button' );
 buttons.forEach( el =>
 	el.addEventListener( 'click', function ( e ) {
 		e.preventDefault();
-		const task_id = document.querySelector( '[id^="task-"]' ).id.slice( 5 );
+		const task_id = el.closest( '[id^="task-"]' ).id.slice( 5 );
 		const new_status = -document.getElementById( 'zbs-task-complete' ).value;
 		jpcrm_update_task_status( task_id, new_status );
 	} )
