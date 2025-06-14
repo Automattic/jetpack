@@ -286,8 +286,9 @@ function wpcom_add_jetpack_submenu() {
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 	add_submenu_page(
 		'jetpack',
-		esc_attr__( 'Scan', 'jetpack-mu-wpcom' ),
-		__( 'Scan', 'jetpack-mu-wpcom' ),
+		/** "Scan" is a product name, do not translate. */
+		'Scan',
+		'Scan',
 		'manage_options',
 		'https://wordpress.com/scan/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
@@ -366,8 +367,9 @@ function wpcom_add_jetpack_submenu() {
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
 	add_submenu_page(
 		'jetpack',
-		__( 'Activity Log', 'jetpack-mu-wpcom' ),
-		__( 'Activity Log', 'jetpack-mu-wpcom' ),
+		/** "Activity Log" is a product name, do not translate. */
+		'Activity Log',
+		'Activity Log',
 		'manage_options',
 		'https://wordpress.com/activity-log/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
