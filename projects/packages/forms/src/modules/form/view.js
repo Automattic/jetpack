@@ -17,9 +17,15 @@ const config = getConfig( NAMESPACE );
 
 const updateField = ( fieldId, value, showFieldError = false ) => {
 	const context = getContext();
-	const field = context.fields[ fieldId ];
-	const { type, isRequired, extra } = field;
+	let field = context.fields[ fieldId ];
+
+	if ( ! field ) {
+		const { fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
+		registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
+		field = context.fields[ fieldId ];
+	}
 	if ( field ) {
+		const { type, isRequired, extra } = field;
 		field.value = value;
 		field.error = validateField( type, value, isRequired, extra );
 		field.showFieldError = showFieldError;
