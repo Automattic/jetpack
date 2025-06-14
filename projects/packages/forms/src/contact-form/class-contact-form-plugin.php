@@ -1230,7 +1230,7 @@ class Contact_Form_Plugin {
 	 * @return string
 	 */
 	public static function tokenize_label( $label ) {
-		return '{' . trim( preg_replace( '#^\d+_#', '', $label ) ) . '}';
+		return '{' . trim( wp_strip_all_tags( preg_replace( '#^\d+_#', '', $label ) ) ) . '}';
 	}
 
 	/**
@@ -2573,7 +2573,10 @@ class Contact_Form_Plugin {
 		if ( ! is_array( $all_values ) ) {
 			$all_values = array();
 		}
-		$fields['_feedback_all_fields'] = $all_values;
+
+		foreach ( $all_values as $key => $value ) {
+			$fields['_feedback_all_fields'][ wp_strip_all_tags( $key ) ] = $value;
+		}
 
 		return $fields;
 	}
