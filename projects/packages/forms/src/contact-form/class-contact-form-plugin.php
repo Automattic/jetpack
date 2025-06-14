@@ -2573,7 +2573,7 @@ class Contact_Form_Plugin {
 		if ( ! is_array( $all_values ) ) {
 			$all_values = array();
 		}
-
+		$fields['_feedback_all_fields'] = array();
 		foreach ( $all_values as $key => $value ) {
 			$fields['_feedback_all_fields'][ wp_strip_all_tags( $key ) ] = $value;
 		}
