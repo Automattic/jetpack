@@ -1471,6 +1471,40 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'label' => __( 'YYYY-MM-DD', 'jetpack-forms' ),
 			),
 		);
+		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$local = array(
+			// translators: These are the two letter abbreviated names of the days of the week.
+			'days'      => array( __( 'Su', 'jetpack-forms' ), __( 'Mo', 'jetpack-forms' ), __( 'Tu', 'jetpack-forms' ), __( 'We', 'jetpack-forms' ), __( 'Th', 'jetpack-forms' ), __( 'Fr', 'jetpack-forms' ), __( 'Sa', 'jetpack-forms' ) ),
+			'months'    => array(
+				__( 'January', 'jetpack-forms' ),
+				__( 'February', 'jetpack-forms' ),
+				__( 'March', 'jetpack-forms' ),
+				__( 'April', 'jetpack-forms' ),
+				__( 'May', 'jetpack-forms' ),
+				__( 'June', 'jetpack-forms' ),
+				__( 'July', 'jetpack-forms' ),
+				__( 'August', 'jetpack-forms' ),
+				__( 'September', 'jetpack-forms' ),
+				__( 'October', 'jetpack-forms' ),
+				__( 'November', 'jetpack-forms' ),
+				__( 'December', 'jetpack-forms' ),
+			),
+			'today'     => __( 'Today', 'jetpack-forms' ),
+			'clear'     => __( 'Clear', 'jetpack-forms' ),
+			'close'     => __( 'Close', 'jetpack-forms' ),
+			'ariaLabel' => array(
+				'enterPicker'       => __( 'You are on a date picker input. Use the down key to focus into the date picker.', 'jetpack-forms' ),
+				'dayPicker'         => __( 'You are currently inside the date picker, use the arrow keys to navigate between the dates. Use tab key to jump to more controls.', 'jetpack-forms' ),
+				'monthPicker'       => __( 'You are currently inside the month picker, use the arrow keys to navigate between the months. Use the space key to select it.', 'jetpack-forms' ),
+				'yearPicker'        => __( 'You are currently inside the year picker, use the up and down arrow keys to navigate between the years. Use the space key to select it.', 'jetpack-forms' ),
+				'monthPickerButton' => __( 'Month picker. Use the space key to enter the month picker.', 'jetpack-forms' ),
+				'yearPickerButton'  => __( 'Year picker. Use the space key to enter the month picker.', 'jetpack-forms' ),
+				'dayButton'         => __( 'Use the space key to select the date.', 'jetpack-forms' ),
+				'todayButton'       => __( 'Today button. Use the space key to select the current date.', 'jetpack-forms' ),
+				'clearButton'       => __( 'Clear button. Use the space key to clear the date picker.', 'jetpack-forms' ),
+				'closeButton'       => __( 'Close button. Use the space key to close the date picker.', 'jetpack-forms' ),
+			),
+		);
 
 		$date_format = $this->get_attribute( 'dateformat' );
 		$date_format = isset( $date_format ) && ! empty( $date_format ) ? $date_format : 'yy-mm-dd';
