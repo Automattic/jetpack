@@ -703,6 +703,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					aria-errormessage='" . esc_attr( $id ) . '-' . esc_attr( $type ) . "-error-message'
 					data-wp-on--input='actions.onFieldChange'
 					data-wp-on--blur='actions.onFieldBlur'
+					data-wp-class--has-value='state.hasFieldValue'
 
 					" . $class . $placeholder . '
 					' . ( $required ? "required='true' aria-required='true' " : '' ) .
@@ -845,6 +846,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-text='state.getFieldValue'
 						data-wp-on--input='actions.onFieldChange'
 						data-wp-on--blur='actions.onFieldBlur'
+						data-wp-class--has-value='state.hasFieldValue'
 						data-wp-bind--aria-invalid='state.fieldHasErrors'
 						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
 						"
@@ -1835,7 +1837,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$block_style       = 'style="' . $this->block_styles . '"';
 		$has_inset_label   = $this->has_inset_label();
 		$field             = '';
-		$field_placeholder = ! empty( $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : 'placeholder=" "'; // ensure that we can use :placeholder-shown CSS selector
+		$field_placeholder = ! empty( $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 
 		$context = array(
 			'fieldId'           => $id,
