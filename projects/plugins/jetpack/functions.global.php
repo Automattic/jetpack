@@ -431,14 +431,14 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
  * including a Vary Accept header if necessary.
  *
  * @since 12.2
- * @deprecated $$next-version$$
+ * @deprecated 14.8
  *
  * @param array $headers The headers to be sent.
  *
  * @return array $vary_header_parts Vary Headers to be sent.
  */
 function jetpack_get_vary_headers( $headers = array() ) {
-	_deprecated_function( __FUNCTION__, '$$next-version$$', 'Automattic\Jetpack\Status\Request::get_vary_headers' );
+	_deprecated_function( __FUNCTION__, '14.8', 'Automattic\Jetpack\Status\Request::get_vary_headers' );
 
 	return ( new Request() )->get_vary_headers( $headers );
 }
@@ -447,12 +447,12 @@ function jetpack_get_vary_headers( $headers = array() ) {
  * Determine whether the current request is for accessing the frontend.
  * Also update Vary headers to indicate that the response may vary by Accept header.
  *
- * @deprecated $$next-version$$
+ * @deprecated 14.8
  *
  * @return bool True if it's a frontend request, false otherwise.
  */
 function jetpack_is_frontend() {
-	_deprecated_function( __FUNCTION__, '$$next-version$$', 'Automattic\Jetpack\Status\Request::is_frontend' );
+	_deprecated_function( __FUNCTION__, '14.8', 'Automattic\Jetpack\Status\Request::is_frontend' );
 
 	return Request::is_frontend();
 }

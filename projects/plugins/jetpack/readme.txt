@@ -326,16 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.8-a.3 - 2025-06-09
+### 14.8-a.5 - 2025-06-16
 #### Enhancements
-- Forms: Release new file uploads field.
-- Sharing: Improve the performance of Open Graph Meta Image tags.
+- AI Assistant: Add support for file upload field on Forms extension.
+- Forms: Add Akismet refresh status button.
+- Forms: Stop translate product name in the sidebar.
+- Forms: Show central integrations dashboard.
+- Forms: Use interactivity API for form validation.
+- Forms: Make it possible to preview file by visiting the URL.
 
 #### Bug fixes
-- Display Critical CSS status correctly on the WordPress.com Complete plan.
-- Connection: Redirect to the proper place when clicking the block "Connect" banner on Multisites.
-- Forms: Fix dropdown field background color on Windows.
-- Forms: Fix an error with poorly-formatted POST data.
+- Endpoints: Prevent warnings in logs when attempting to add external media from some sources.
+- Recipe shortcode: Prevent errors in logs due to checking for theme color properties that may not exist.
 
 --------
 
