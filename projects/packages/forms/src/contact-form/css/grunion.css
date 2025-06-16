@@ -466,7 +466,7 @@
 	appearance: none;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	padding: var(--jetpack--contact-form--input-padding-left, 16px);
+	padding: var(--jetpack--contact-form--input-padding, 16px);
 }
 
 .contact-form .is-style-outlined,
@@ -663,6 +663,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-value) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__notch
 {
@@ -670,6 +671,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-value) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label
 {
@@ -679,12 +681,14 @@ on production builds, the attributes are being reordered, causing side-effects
 
 /* Form that upgrade to use inner blocks look to the global styles border size accessible via the CSS vars. See Contact_Form_Field::get_form_variation_style_properties() .*/
 .contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
+.contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field.has-value) .notched-label__label,
 .contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
 .contact-form .is-style-outlined .wp-block-jetpack-field-select.wp-block-jetpack-input-wrap .notched-label .notched-label__label {
 	top: calc( var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1 );
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-text,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-value) .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options .grunion-label-text,
@@ -693,6 +697,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-required,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-value) .grunion-label-required,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .grunion-label-required,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options .grunion-label-required,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options .grunion-label-required,
@@ -766,7 +771,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translateY(-50%);
 	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 	will-change: transform, top;
-	z-index: 1;
+	z-index: 2;
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .grunion-label-text {
@@ -785,6 +790,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus),
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-value),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder),
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label
 {
@@ -793,6 +799,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-text,
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-value) .grunion-label-text,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder) .grunion-label-text,
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-text
 {
@@ -800,6 +807,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-required,
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-value) .grunion-label-required,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder) .grunion-label-required,
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-required
 {
@@ -814,6 +822,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 /* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field:focus),
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field.has-value),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field.has-placeholder),
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"] {
 	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.75);
@@ -849,7 +858,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 :where(.wp-block-jetpack-options.has-background) {
-	padding: var(--jetpack--contact-form--input-padding-left, 16px) 16px;
+	padding: var(--jetpack--contact-form--input-padding, 16px) 16px;
 }
 
 /* Ensure global styles can ovewrite the default border color. */
@@ -1023,24 +1032,17 @@ on production builds, the attributes are being reordered, causing side-effects
 	border-color: var(--jetpack--contact-form--button-outline--text-color);
 }
 
-.contact-form__error,
-.contact-form__input-error {
-	--warning-icon-size: 1.25em;
-	--warning-icon-margin: 0.75em;
-
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-
-	font-size: 1rem;
-}
-
 .contact-form__error {
+	display: none;
 	padding: 1em;
 	gap: var(--warning-icon-margin);
 
 	background-color: var(--jetpack--contact-form--error-color);
 	color: var(--jetpack--contact-form--inverted-text-color);
+}
+
+.contact-form__error.show-errors {
+	display: inline;
 }
 
 .contact-form__error ul {
@@ -1056,7 +1058,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form__error ul li {
-	padding: 0.25em 0;
+	padding: 0;
 }
 
 .contact-form__error a {
@@ -1066,13 +1068,21 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form__input-error {
 	margin: 0.25rem 0;
 	gap: 0.33em;
-
+	font-size: 1rem;
 	color: var(--jetpack--contact-form--error-color);
+	opacity: 0;
+	height: 0;
+	display: none;
+	overflow: hidden;
+	transition: opacity 0.3s ease-out, height 0.3s ease-out;
 }
 
-.contact-form__error:empty,
-.contact-form__input-error:empty {
-	display: none;
+.contact-form__input-error.has-errors {
+
+	display: flex;
+	gap: 0.33em;
+	opacity: 1;
+	height: auto;
 }
 
 .contact-form [aria-invalid="true"]:not(fieldset),
@@ -1083,28 +1093,20 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .wp-block-jetpack-contact-form:not(.is-style-outlined) fieldset[aria-invalid="true"] {
 	outline: solid 1px var(--jetpack--contact-form--error-color);
 	outline-offset: 0.5em;
+	margin-bottom: 12px;
 }
 
 .contact-form__warning-icon {
-	width: var(--warning-icon-size);
-	height: var(--warning-icon-size);
-
-	background-color: var(--jetpack--contact-form--error-color);
-	border-radius: 50%;
-	border: solid 1px var(--jetpack--contact-form--inverted-text-color);
-	color: var(--jetpack--contact-form--inverted-text-color);
-}
-
-.contact-form__warning-icon i::after {
-	content: "\0021";
-
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	margin: auto 0;
+}
 
-	font-size: 0.8em;
-	font-style: normal;
-	font-weight: 700;
+.contact-form__warning-icon svg {
+	fill: currentColor;
+  	display: block; /* Prevents extra space */
+  	margin: 0 auto; /* Centers horizontally */
 }
 
 .contact-form__checkbox-wrap {

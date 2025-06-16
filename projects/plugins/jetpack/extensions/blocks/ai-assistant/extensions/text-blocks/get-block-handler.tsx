@@ -65,5 +65,6 @@ export function getBlockHandler( blockType: ExtendedBlockProp, clientId: string 
 		adjustPosition: handler.adjustPosition,
 		startOpen: handler.startOpen,
 		hideOnBlockFocus: handler.hideOnBlockFocus,
+		supports: handler.supports,
 	};
 }

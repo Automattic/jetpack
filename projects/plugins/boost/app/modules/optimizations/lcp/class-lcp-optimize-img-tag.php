@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
+use Automattic\Jetpack\Image_CDN\Image_CDN;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use WP_HTML_Tag_Processor;
 
@@ -72,8 +73,15 @@ class LCP_Optimize_Img_Tag {
 			return $buffer_processor->get_updated_html();
 		}
 
-		// Remove unwanted query parameters that would be used unnecessarily by Photon.
-		$image_url = remove_query_arg( array( 'resize', 'w', 'h' ), $image_url );
+		// If the image isn't photonized, it might be resized by WP.
+		// We need the original image URL, as we'll be generating
+		// the necessary sizes based on it.
+		if ( ! Image_CDN_Core::is_cdn_url( $image_url ) ) {
+			$image_url = Image_CDN::strip_image_dimensions_maybe( $image_url );
+		} else {
+			// In case it's Photonized, we need to remove any size change arguments.
+			$image_url = remove_query_arg( array( 'w', 'h' ), $image_url );
+		}
 
 		// Additional validation after cleaning.
 		if ( ! wp_http_validate_url( $image_url ) ) {
@@ -123,36 +131,43 @@ class LCP_Optimize_Img_Tag {
 	 * @since 4.1.0
 	 */
 	private function get_srcset( $original_url ) {
-		$widths = array();
+		$dimensions = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
-			$breakpoint_widths = array();
-			foreach ( $breakpoint['imageWidths'] as $width ) {
-				$breakpoint_widths[] = $width;
+			foreach ( $breakpoint['imageDimensions'] as $breakpoint_dimensions ) {
+				if ( ! is_numeric( $breakpoint_dimensions['width'] ) || ! is_numeric( $breakpoint_dimensions['height'] ) ) {
+					continue;
+				}
+
+				$width                = (int) $breakpoint_dimensions['width'];
+				$height               = (int) $breakpoint_dimensions['height'];
+				$dimensions[ $width ] = $height;
 
 				// If it's a Moto G Power, include a 1.75 DPR for accurate lighthouse representation of the optimized image.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] === 412 ) {
-					$breakpoint_widths[] = (int) $width * 1.75;
+					$dimensions[ (int) round( $width * 1.75 ) ] = round( $height * 1.75 );
 				}
 
 				// Include 2x DPR.
-				$breakpoint_widths[] = $width * 2;
+				$dimensions[ $width * 2 ] = $height * 2;
 
 				// If it's a mobile breakpoint, include 3x DPR.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] <= 480 ) {
-					$breakpoint_widths[] = $width * 3;
+					$dimensions[ $width * 3 ] = $height * 3;
 				}
 			}
-			$widths[] = $breakpoint_widths;
 		}
 
-		$widths = array_unique( array_merge( ...$widths ) );
-
 		// Remove unnecessary widths to save some bytes in the HTML.
-		$widths = $this->reduce_widths( $widths );
+		$reduced_widths = $this->reduce_widths( array_keys( $dimensions ) );
 
 		$srcset = array();
-		foreach ( $widths as $width ) {
-			$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $width ) ) . " {$width}w";
+		foreach ( $reduced_widths as $width ) {
+			$srcset[] = Image_CDN_Core::cdn_url(
+				$original_url,
+				array(
+					'resize' => array( $width, $dimensions[ $width ] ),
+				)
+			) . " {$width}w";
 		}
 
 		return implode( ', ', $srcset );
