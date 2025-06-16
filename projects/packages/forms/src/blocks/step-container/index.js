@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { getIconColor } from '../contact-form/util/block-icons';
+import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
 import StepContainerIcon from './icon';
 import save from './save';
