@@ -7,30 +7,10 @@ import save from './save';
 
 export const name = 'form-progress-indicator';
 
-const FieldDefaults = {
+export const settings = {
+	apiVersion: 3,
 	category: 'contact-form',
 	parent: [ 'jetpack/contact-form' ],
-	attributes: {
-		label: {
-			type: 'string',
-		},
-		required: {
-			type: 'boolean',
-		},
-		width: {
-			type: 'number',
-			default: 100,
-		},
-	},
-	supports: {
-		html: false,
-		reusable: false,
-	},
-	save: () => null,
-};
-
-export const settings = {
-	...FieldDefaults,
 	ancestor: [ 'jetpack/contact-form' ],
 	supports: {
 		html: false,
