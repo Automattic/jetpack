@@ -1,4 +1,4 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
@@ -755,7 +755,7 @@ const variations = compact( [
 			],
 		},
 	},
-	! ( isAtomicSite() || isSimpleSite() ) && {
+	! isWpcomPlatformSite() && {
 		name: 'lead-capture-form',
 		title: __( 'Lead capture', 'jetpack-forms' ),
 		description: __( 'A simple way to collect leads using forms on your site.', 'jetpack-forms' ),

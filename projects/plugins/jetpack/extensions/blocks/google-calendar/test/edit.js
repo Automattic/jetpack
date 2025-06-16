@@ -1,4 +1,4 @@
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GoogleCalendarEdit } from '../edit';
@@ -9,8 +9,8 @@ jest.mock( '@wordpress/components/build/sandbox', () => ( {
 } ) );
 
 // isSimpleSite is mocked simply to check appropriate support link is displayed.
-jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
-	...jest.requireActual( '@automattic/jetpack-shared-extension-utils' ),
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	...jest.requireActual( '@automattic/jetpack-script-data' ),
 	isSimpleSite: jest.fn(),
 } ) );
 
