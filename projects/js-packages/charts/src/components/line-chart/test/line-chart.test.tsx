@@ -76,7 +76,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 			// Should render without crashing and show the single point
-			expect( screen.getByRole( 'img', { name: /line chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'listbox', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'handles null or undefined values', () => {
@@ -170,7 +170,7 @@ describe( 'LineChart', () => {
 				},
 			} );
 			// The chart should render with the custom axis configuration
-			expect( screen.getByRole( 'img', { name: /line chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'listbox', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -189,7 +189,7 @@ describe( 'LineChart', () => {
 
 			// Instead of checking styles, verify the chart renders
 			expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'img', { name: /line chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'listbox', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
