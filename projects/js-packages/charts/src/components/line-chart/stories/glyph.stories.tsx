@@ -1,8 +1,11 @@
 import { GlyphStar } from '@visx/glyph';
 import React from 'react';
+import { useChartTheme } from '../../../providers/theme';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
+import type { DataPointDate } from '../../../types';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
+import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 
 const meta: Meta< typeof LineChart > = {
 	...lineChartMetaArgs,
@@ -73,4 +76,56 @@ CustomSvg.args = {
 	glyphStyle: {
 		radius: 8,
 	},
+};
+
+const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
+	const providerTheme = useChartTheme();
+
+	return (
+		<div>
+			<div style={ { marginBottom: '0.5rem' } }>
+				{ tooltipData?.nearestDatum?.datum?.date?.toLocaleDateString() }
+			</div>
+			<div>
+				{ Object.entries( tooltipData?.datumByKey || {} ).map( ( [ key, value ], index ) => {
+					const { datum } = value as { datum: { value: number } };
+					return (
+						<div key={ key }>
+							<div
+								style={ {
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									marginBottom: '0.2rem',
+								} }
+							>
+								<svg width={ 20 } height={ 20 }>
+									<GlyphStar
+										size={ 10 * 10 }
+										top={ 10 }
+										left={ 10 }
+										fill={ '#fff' }
+										stroke={ providerTheme.colors[ index % providerTheme.colors.length ] }
+									/>
+								</svg>
+								{ key }: { datum.value }
+							</div>
+						</div>
+					);
+				} ) }
+			</div>
+		</div>
+	);
+};
+
+export const InTooltip: StoryObj< typeof LineChart > = Template.bind( {} );
+InTooltip.args = {
+	...glyphStoryArgs,
+	renderGlyph: ( { color, size, x, y } ) => {
+		return <GlyphStar top={ y } left={ x } size={ size * size } fill={ '#fff' } stroke={ color } />;
+	},
+	glyphStyle: {
+		radius: 10,
+	},
+	renderTooltip: ToolTipWithGlyph,
 };
