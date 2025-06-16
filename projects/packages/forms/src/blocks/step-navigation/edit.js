@@ -82,24 +82,18 @@ export default function Edit( { clientId } ) {
 	// Check if we're inside a step or standalone
 	const isOutsideSteps = ! ancestorStepClientId;
 
-	// Calculate our current position in steps
-	let isFirstStep = false;
-	let isLastStep = false;
+	// Track the current step index (used later when replacing inner blocks)
 	let currentIndex = 0;
 
 	if ( isOutsideSteps && isSingleStep && activeStepId ) {
 		// When outside steps but in single step mode, show buttons based on the active step
 		const activeStepIndex = steps.findIndex( block => block.clientId === activeStepId );
 		if ( activeStepIndex !== -1 ) {
-			isFirstStep = activeStepIndex === 0;
-			isLastStep = activeStepIndex === steps.length - 1;
 			currentIndex = activeStepIndex;
 		}
 	} else if ( ! isOutsideSteps ) {
 		// Inside a step - determine position
 		const stepIndex = steps.findIndex( block => block.clientId === ancestorStepClientId );
-		isFirstStep = stepIndex === 0;
-		isLastStep = stepIndex === steps.length - 1;
 		currentIndex = stepIndex;
 	}
 
@@ -115,30 +109,12 @@ export default function Edit( { clientId } ) {
 	);
 
 	const template = useMemo( () => {
-		// When the navigation block is outside the steps and we are NOT in single-step mode, always show every button.
-		// If we ARE in single-step mode, we want the navigation to mirror the behaviour inside a step (first/last/middle logic below).
-		if ( isOutsideSteps && ! isSingleStep ) {
-			return [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE, SUBMIT_BUTTON_TEMPLATE ];
-		}
-
-		if ( isFirstStep && isLastStep ) {
-			// Single step in form - only show submit button
-			return [ SUBMIT_BUTTON_TEMPLATE ];
-		}
-
-		if ( isFirstStep ) {
-			// First step - only next button
-			return [ NEXT_BUTTON_TEMPLATE ];
-		}
-
-		if ( isLastStep ) {
-			// Last step - previous and submit buttons
-			return [ PREVIOUS_BUTTON_TEMPLATE, SUBMIT_BUTTON_TEMPLATE ];
-		}
-
-		// Middle steps - previous and next buttons
-		return [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE ];
-	}, [ isFirstStep, isLastStep, isOutsideSteps, isSingleStep ] );
+		// Always persist every navigation button inside the navigation block. Runtime logic or CSS can then hide
+		// buttons that are not relevant for a particular context (first step, last step, etc.) without altering
+		// the underlying markup. This avoids issues where buttons disappear after saving because their block was
+		// removed at edit-time.
+		return [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE, SUBMIT_BUTTON_TEMPLATE ];
+	}, [] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: template,
