@@ -5,7 +5,7 @@ import {
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useMemo } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as singleStepStore } from '../../store/preview-store';
 import StepControls from '../contact-form/components/step-controls';
@@ -45,6 +45,12 @@ const SUBMIT_BUTTON_TEMPLATE = [
 		customVariant: 'submit',
 		metaName: __( 'Submit button', 'jetpack-forms' ),
 	},
+];
+
+const NAVIGATION_TEMPLATE = [
+	PREVIOUS_BUTTON_TEMPLATE,
+	NEXT_BUTTON_TEMPLATE,
+	SUBMIT_BUTTON_TEMPLATE,
 ];
 
 export default function Edit( { clientId } ) {
@@ -108,16 +114,8 @@ export default function Edit( { clientId } ) {
 		[ clientId ]
 	);
 
-	const template = useMemo( () => {
-		// Always persist every navigation button inside the navigation block. Runtime logic or CSS can then hide
-		// buttons that are not relevant for a particular context (first step, last step, etc.) without altering
-		// the underlying markup. This avoids issues where buttons disappear after saving because their block was
-		// removed at edit-time.
-		return [ PREVIOUS_BUTTON_TEMPLATE, NEXT_BUTTON_TEMPLATE, SUBMIT_BUTTON_TEMPLATE ];
-	}, [] );
-
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		template: template,
+		template: NAVIGATION_TEMPLATE,
 		templateLock: 'all',
 		allowedBlocks: [ 'jetpack/button' ],
 		renderAppender: false,
@@ -151,7 +149,7 @@ export default function Edit( { clientId } ) {
 		};
 
 		// Flag needed buttons based on template
-		template.forEach( ( [ , blockAttributes ] ) => {
+		NAVIGATION_TEMPLATE.forEach( ( [ , blockAttributes ] ) => {
 			buttonUpdates[ blockAttributes.uniqueId ].needed = true;
 
 			// If button doesn't exist but is needed, we'll need to replace inner blocks
@@ -161,7 +159,7 @@ export default function Edit( { clientId } ) {
 		} );
 
 		// Build the updated button collection
-		const replacementInnerBlocks = template.map( ( [ blockName, blockAttributes ] ) => {
+		const replacementInnerBlocks = NAVIGATION_TEMPLATE.map( ( [ blockName, blockAttributes ] ) => {
 			return (
 				buttonUpdates[ blockAttributes.uniqueId ].existing ||
 				createBlock( blockName, {
@@ -188,7 +186,7 @@ export default function Edit( { clientId } ) {
 			replaceInnerBlocks( clientId, replacementInnerBlocks, false );
 			return undefined;
 		}
-	}, [ template, navigationBlocks, replaceInnerBlocks, clientId, currentIndex ] );
+	}, [ navigationBlocks, replaceInnerBlocks, clientId, currentIndex ] );
 
 	return (
 		<>
