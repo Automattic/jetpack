@@ -6,33 +6,14 @@ import save from './save';
 
 export const name = 'form-step-navigation';
 
-const FieldDefaults = {
+export const settings = {
+	apiVersion: 3,
 	category: 'contact-form',
 	parent: [ 'jetpack/contact-form' ],
-	attributes: {
-		label: {
-			type: 'string',
-		},
-		required: {
-			type: 'boolean',
-		},
-		width: {
-			type: 'number',
-			default: 100,
-		},
-	},
+	ancestor: [ 'jetpack/contact-form', 'jetpack/form-step' ],
 	supports: {
 		html: false,
 		reusable: false,
-	},
-	save: () => null,
-};
-
-export const settings = {
-	...FieldDefaults,
-	ancestor: [ 'jetpack/contact-form', 'jetpack/form-step' ],
-	supports: {
-		...FieldDefaults.supports,
 		layout: {
 			allowSwitching: false,
 			allowInheriting: false,
