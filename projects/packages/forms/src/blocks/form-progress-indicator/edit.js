@@ -36,9 +36,9 @@ const FormProgressIndicatorEdit = ( { attributes, setAttributes, clientId } ) =>
 
 	return (
 		<>
-			<InspectorControls>
+			<InspectorControls group="styles">
 				<PanelColorGradientSettings
-					title={ __( 'Color settings', 'jetpack-forms' ) }
+					title={ __( 'Color', 'jetpack-forms' ) }
 					initialOpen={ true }
 					settings={ [
 						{
