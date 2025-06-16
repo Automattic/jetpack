@@ -1105,28 +1105,16 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 1rem;
 	color: var(--jetpack--contact-form--error-color);
 	opacity: 0;
-	height: 0;
+	max-height: 0;
 	overflow: hidden;
-	transition: opacity 0.2s ease;
+	transition: max-height 0.2s ease-in,opacity 0.2s ease;
 }
 
 .contact-form__input-error.has-errors {
 	display: flex;
 	opacity: 1;
-	height: auto;
-	animation-name: jp-grow;
-  	animation-duration: 0.2s;
-}
-
-@keyframes jp-grow {
-
-  0% {
-    height: 0;
-  }
-
-  100% {
-    height: 1.5em;
-  }
+	max-height: 2em;
+	transition: max-height 0.3s ease-in,opacity 0.3s ease;
 }
 
 .contact-form [aria-invalid="true"]:not(fieldset),
@@ -1147,8 +1135,8 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__warning-icon svg {
 	fill: currentColor;
-  	display: block;
-  	margin: 0 auto;
+	display: block;
+	margin: 0 auto;
 }
 
 .contact-form__checkbox-wrap {
