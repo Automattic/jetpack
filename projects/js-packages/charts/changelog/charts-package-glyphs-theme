@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Allow setting the glyphs array in the theme to have these rendered in the line chart
