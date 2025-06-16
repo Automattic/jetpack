@@ -65,7 +65,7 @@ const GoogleSheetsDashboardCard = ( {
 							{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
 						</Button>
 						<Button variant="tertiary" onClick={ refreshStatus } __next40pxDefaultSize={ true }>
-							{ __( 'Refresh Status', 'jetpack-forms' ) }
+							{ __( 'Refresh status', 'jetpack-forms' ) }
 						</Button>
 					</HStack>
 				</div>

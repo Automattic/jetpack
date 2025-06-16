@@ -76,7 +76,7 @@ const AkismetDashboardCard = ( {
 							{ __( 'Add Akismet key', 'jetpack-forms' ) }
 						</Button>
 						<Button variant="tertiary" onClick={ refreshStatus } __next40pxDefaultSize={ true }>
-							{ __( 'Refresh Status', 'jetpack-forms' ) }
+							{ __( 'Refresh status', 'jetpack-forms' ) }
 						</Button>
 					</HStack>
 				</div>
