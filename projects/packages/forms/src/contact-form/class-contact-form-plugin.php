@@ -571,14 +571,14 @@ class Contact_Form_Plugin {
 		return $atts;
 	}
 
-		/**
-		 * Render the number field.
-		 *
-		 * @param array  $atts - the block attributes.
-		 * @param string $content - html content.
-		 *
-		 * @return string HTML for the number field.
-		 */
+	/**
+	 * Render the number field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the number field.
+	 */
 	public static function gutenblock_render_form_step( $atts, $content ) {
 		static $step = 0;
 		++$step;
