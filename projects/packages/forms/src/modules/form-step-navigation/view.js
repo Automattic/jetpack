@@ -1,6 +1,14 @@
 import { getContext, store, withSyncEvent } from '@wordpress/interactivity';
 
 const NAMESPACE = 'jetpack/form';
+const focusNextInput = formHash => {
+	const form = document.getElementById( 'jp-form-' + formHash );
+	const currentStep = form.querySelector( '.is-current-step' );
+	const focusableElements = currentStep.querySelectorAll(
+		'input, select, textarea, .jetpack-form-file-field__dropzone-inner, [tabindex]:not([disabled])'
+	);
+	focusableElements[ 0 ]?.focus();
+};
 const { state } = store( NAMESPACE, {
 	state: {
 		get isFirstStep() {
@@ -49,6 +57,10 @@ const { state } = store( NAMESPACE, {
 
 			// Update step after a small delay to allow animation to complete
 			context.currentStep = context.currentStep + 1;
+			const formHash = context.formHash;
+			setTimeout( () => {
+				focusNextInput( formHash );
+			}, 100 );
 		} ),
 
 		previousStep: withSyncEvent( event => {
@@ -65,6 +77,11 @@ const { state } = store( NAMESPACE, {
 
 			// Update step
 			context.currentStep = context.currentStep - 1;
+
+			const formHash = context.formHash;
+			setTimeout( () => {
+				focusNextInput( formHash );
+			}, 100 );
 		} ),
 	},
 	callbacks: {
