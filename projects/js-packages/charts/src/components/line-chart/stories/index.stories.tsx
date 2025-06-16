@@ -1,9 +1,6 @@
 import { GlyphDiamond, GlyphStar } from '@visx/glyph';
-import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import React from 'react';
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
-import { useChartTheme } from '../../../providers/theme/theme-provider';
-import { DataPointDate } from '../../../types';
 import { DefaultGlyph } from '../../shared/default-glyph';
 import LineChart from '../line-chart';
 import { lineChartStoryArgs, lineChartMetaArgs } from './config';
