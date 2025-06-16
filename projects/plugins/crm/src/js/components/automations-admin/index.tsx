@@ -1,6 +1,6 @@
 import { Col, Container } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router';
 import AdminPage from 'crm/components/admin-page';
 import { RedirectHome } from './components/redirect-home';
 import { WorkflowsHome } from './components/workflows-home';

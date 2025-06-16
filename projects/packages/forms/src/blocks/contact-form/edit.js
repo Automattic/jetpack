@@ -23,14 +23,14 @@ import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
+import InspectorHint from '../shared/components/inspector-hint';
+import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-responses-settings';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
 import { childBlocks } from './child-blocks';
-import InspectorHint from './components/inspector-hint';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import IntegrationControls from './components/jetpack-integration-controls';
-import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
 const validFields = filter( childBlocks, ( { settings } ) => {

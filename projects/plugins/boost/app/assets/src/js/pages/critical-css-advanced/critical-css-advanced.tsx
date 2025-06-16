@@ -15,7 +15,7 @@ import CriticalCssErrorDescription from '$features/critical-css/error-descriptio
 import InfoIcon from '$svg/info';
 import styles from './critical-css-advanced.module.scss';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import clsx from 'clsx';
 import { Button } from '@automattic/jetpack-components';
 import {

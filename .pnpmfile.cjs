@@ -245,7 +245,6 @@ async function fixDeps( pkg ) {
 	}
 
 	// Hack-update Jest to v30 for ts-jest and @storybook/test-runner. Not sure if they'd 100% work, but they seem to work for us in CI.
-	// https://github.com/kulshekhar/ts-jest/issues/4891
 	// https://github.com/storybookjs/test-runner/issues/567
 	if ( pkg.name === '@storybook/test-runner' && pkg.dependencies.jest === '^29.6.4' ) {
 		pkg.dependencies.jest = '^30.0.0';
@@ -266,13 +265,6 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies[ 'jest-circus' ] += ' || ^30.0.0';
 		pkg.peerDependencies[ 'jest-environment-node' ] += ' || ^30.0.0';
 		pkg.peerDependencies[ 'jest-runner' ] += ' || ^30.0.0';
-	}
-	if ( pkg.name === 'ts-jest' && pkg.peerDependencies.jest === '^29.0.0' ) {
-		pkg.peerDependencies.jest += ' || ^30.0.0';
-		pkg.peerDependencies[ '@jest/transform' ] += ' || ^30.0.0';
-		pkg.peerDependencies[ '@jest/types' ] += ' || ^30.0.0';
-		pkg.peerDependencies[ 'babel-jest' ] += ' || ^30.0.0';
-		pkg.dependencies[ 'jest-util' ] = '^30.0.0';
 	}
 
 	return pkg;
@@ -311,6 +303,12 @@ function fixPeerDeps( pkg ) {
 				pkg.peerDependencies[ p ] += ' || ^18';
 			}
 		}
+	}
+
+	// Remove jQuery peer dependency, given it's already bundled in WordPress.
+	// The next version of FullCalendar (v4) removes the dependency altogether.
+	if ( pkg.name === 'fullcalendar' && pkg.peerDependencies?.jquery ) {
+		delete pkg.peerDependencies.jquery;
 	}
 
 	// It assumes hoisting to find its plugins. Sigh. Add peer deps for the plugins we use.

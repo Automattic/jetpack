@@ -29,7 +29,7 @@
 		"@storybook/react": "8.6.7",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.2.0",
-		"@types/jest": "29.5.14",
+		"@types/jest": "30.0.0",
 		"@types/react": "18.3.23",
 		"jest": "30.0.0",
 		"jest-environment-jsdom": "30.0.0",

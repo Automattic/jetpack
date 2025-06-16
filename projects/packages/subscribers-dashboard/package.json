@@ -58,7 +58,7 @@
 		"debug": "4.4.1",
 		"gridicons": "3.4.2",
 		"prop-types": "15.8.1",
-		"react-router-dom": "6.30.0",
+		"react-router": "7.6.2",
 		"wpcom-proxy-request": "^7.0.3"
 	},
 	"exports": {
@@ -78,7 +78,7 @@
 		"@testing-library/jest-dom": "6.6.3",
 		"@testing-library/react": "16.2.0",
 		"@testing-library/user-event": "14.6.1",
-		"@types/jest": "29.5.14",
+		"@types/jest": "30.0.0",
 		"@types/react": "18.3.23",
 		"concurrently": "7.6.0",
 		"jest": "30.0.0",

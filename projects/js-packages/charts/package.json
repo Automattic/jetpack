@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.13.0",
+	"version": "0.14.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -87,7 +87,7 @@
 		"@testing-library/jest-dom": "^6.0.0",
 		"@testing-library/react": "^16.0.0",
 		"@testing-library/user-event": "^14.4.3",
-		"@types/jest": "^29.0.0",
+		"@types/jest": "^30.0.0",
 		"@types/react": "18.3.23",
 		"@types/react-dom": "18.3.7",
 		"@visx/glyph": "3.12.0",
