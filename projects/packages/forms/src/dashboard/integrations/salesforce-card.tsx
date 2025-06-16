@@ -1,10 +1,19 @@
+/**
+ * External dependencies
+ */
 import { Icon, Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import SalesforceIcon from '../../icons/salesforce';
-import { IntegrationCardProps } from '../../types';
 import useCreateForm from '../hooks/use-create-form';
+/**
+ * Types
+ */
+import type { IntegrationCardProps, IntegrationCardData } from '../../types';
 
 const SalesforceDashboardCard = ( {
 	isExpanded,
@@ -23,7 +32,7 @@ const SalesforceDashboardCard = ( {
 			},
 		} );
 	}, [ openNewForm ] );
-	const cardData = {
+	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: false, // Always off for dashboard
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
