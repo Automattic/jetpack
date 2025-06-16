@@ -521,11 +521,8 @@ function zeroBSCRM_admin_scripts_editcust(){
 function zeroBSCRM_calendar_admin_styles(){
 	global $zbs;
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
-	wp_enqueue_script( 'jpcrm-fullcalendar-core', ZEROBSCRM_URL . 'build/lib/fullcalendar/core/index.global.min.js', array(), $zbs::VERSION, true );
-	wp_enqueue_script( 'jpcrm-fullcalendar-daygrid', ZEROBSCRM_URL . 'build/lib/fullcalendar/daygrid/index.global.min.js', array( 'jpcrm-fullcalendar-core' ), $zbs::VERSION, true );
-	wp_enqueue_script( 'jpcrm-fullcalendar-timegrid', ZEROBSCRM_URL . 'build/lib/fullcalendar/timegrid/index.global.min.js', array( 'jpcrm-fullcalendar-core' ), $zbs::VERSION, true );
-	wp_enqueue_script( 'jpcrm-fullcalendar-list', ZEROBSCRM_URL . 'build/lib/fullcalendar/list/index.global.min.js', array( 'jpcrm-fullcalendar-core' ), $zbs::VERSION, true );
-	wp_enqueue_script( 'jpcrm-tasks', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jpcrm-fullcalendar-core' ), $zbs::VERSION, true );
+	wp_enqueue_script( 'jpcrm-fullcalendar', ZEROBSCRM_URL . 'build/lib/fullcalendar/index.global.min.js', array(), $zbs::VERSION, true );
+	wp_enqueue_script( 'jpcrm-tasks', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jpcrm-fullcalendar' ), $zbs::VERSION, true );
 	wp_enqueue_style( 'jpcrm-tasks', ZEROBSCRM_URL . 'css/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 }
 

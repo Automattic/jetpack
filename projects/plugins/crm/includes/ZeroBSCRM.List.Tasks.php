@@ -98,10 +98,10 @@ function zeroBSCRM_render_tasks_calendar_page() { // phpcs:ignore WordPress.Nami
 
 			$fullcalendar_locale = false;
 			foreach ( $potential_locales as $locale ) {
-				$potential_file = 'build/lib/fullcalendar/core/locales/' . $locale . '.global.min.js';
+				$potential_file = 'build/lib/fullcalendar/locales/' . $locale . '.global.min.js';
 				if ( file_exists( ZEROBSCRM_PATH . $potential_file ) ) {
 					$fullcalendar_locale = $locale;
-					wp_enqueue_script( 'jpcrm-fullcalendar-core-locale', ZEROBSCRM_URL . $potential_file, array( 'jpcrm-fullcalendar-core' ), $zbs::VERSION, true );
+					wp_enqueue_script( 'jpcrm-fullcalendar-locale', ZEROBSCRM_URL . $potential_file, array( 'jpcrm-fullcalendar' ), $zbs::VERSION, true );
 					break;
 				}
 			}

@@ -382,36 +382,15 @@ module.exports = [
 					},
 					// Used by events pages
 					{
-						from: path.resolve( __dirname, 'node_modules/@fullcalendar/core/index.global.min.js' ),
-						to: `${ buildLibPath }/fullcalendar/core/`,
+						from: path.resolve( __dirname, 'node_modules/fullcalendar/index.global.min.js' ),
+						to: `${ buildLibPath }/fullcalendar/`,
 					},
 					// Used by events pages
 					{
 						from: path.resolve( __dirname, 'node_modules/@fullcalendar/core/locales' ),
-						to: `${ buildLibPath }/fullcalendar/core/locales`,
+						to: `${ buildLibPath }/fullcalendar/locales`,
 						globOptions: { matchBase: true },
 						filter: resourcePath => resourcePath.endsWith( '.min.js' ),
-					},
-					// Used by events pages
-					{
-						from: path.resolve(
-							__dirname,
-							'node_modules/@fullcalendar/daygrid/index.global.min.js'
-						),
-						to: `${ buildLibPath }/fullcalendar/daygrid/`,
-					},
-					// Used by events pages
-					{
-						from: path.resolve(
-							__dirname,
-							'node_modules/@fullcalendar/timegrid/index.global.min.js'
-						),
-						to: `${ buildLibPath }/fullcalendar/timegrid/`,
-					},
-					// Used by events pages
-					{
-						from: path.resolve( __dirname, 'node_modules/@fullcalendar/list/index.global.min.js' ),
-						to: `${ buildLibPath }/fullcalendar/list/`,
 					},
 					// Used for first-use dashboard modals
 					{
