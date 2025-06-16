@@ -218,6 +218,12 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
 	}
 
+	// Fix a CVE coming in a couple layers down under eslint.
+	// https://github.com/isaacs/minimatch/issues/254
+	if ( pkg.name === 'minimatch' && pkg.dependencies?.[ 'brace-expansion' ] === '^1.1.7' ) {
+		pkg.dependencies[ 'brace-expansion' ] = '^1.1.12';
+	}
+
 	// Outdated, deprecated dependency.
 	// https://github.com/hipstersmoothie/react-docgen-typescript-plugin/issues/93
 	if (
