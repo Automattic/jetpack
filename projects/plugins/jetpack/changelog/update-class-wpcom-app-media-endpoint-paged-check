@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Endpoints: Prevents warnings in logs when attempting to add external media from some sources
