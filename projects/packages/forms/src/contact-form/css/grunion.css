@@ -291,7 +291,7 @@
 
 
 .wp-block-jetpack-form-step-navigation.is-vertical {
-  flex-direction: column;
+	flex-direction: column;
 }
 
 .wp-block-jetpack-form-step-navigation.is-content-justification-space-between.is-vertical {
