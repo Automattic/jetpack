@@ -67,7 +67,7 @@
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.2.0",
 		"@testing-library/user-event": "14.6.1",
-		"@types/jest": "29.5.14",
+		"@types/jest": "30.0.0",
 		"@types/react": "18.3.23",
 		"@wordpress/babel-plugin-import-jsx-pragma": "5.24.0",
 		"babel-jest": "30.0.0",
