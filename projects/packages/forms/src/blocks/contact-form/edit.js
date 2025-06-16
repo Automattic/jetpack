@@ -148,18 +148,21 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		}
 	}, [ submitButton ] );
 
-	const { currentStepInfo, isSingleStep } = useSelect(
+	const { isSingleStep, isFirstStep, isLastStep, currentStepClientId } = useSelect(
 		select => {
 			const { getCurrentStepInfo, isSingleStepMode } = select( singleStepStore );
+
+			const info = getCurrentStepInfo( clientId, steps );
+
 			return {
-				currentStepInfo: getCurrentStepInfo( clientId, steps ),
 				isSingleStep: isSingleStepMode( clientId ),
+				isFirstStep: info ? info.isFirstStep : false,
+				isLastStep: info ? info.isLastStep : false,
+				currentStepClientId: info ? info.clientId : null,
 			};
 		},
 		[ clientId, steps ]
 	);
-
-	const { isFirstStep, isLastStep } = currentStepInfo || { isFirstStep: false, isLastStep: false };
 
 	const wrapperRef = useRef();
 	const innerRef = useRef();
@@ -376,7 +379,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		}
 
 		// If a block is selected, make sure it's in the current step
-		if ( selectedBlockClientId && stepBlock && stepBlock.clientId !== currentStepInfo?.clientId ) {
+		if ( selectedBlockClientId && stepBlock && stepBlock.clientId !== currentStepClientId ) {
 			setActiveStep( clientId, stepBlock.clientId );
 		}
 	}, [
@@ -385,7 +388,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		steps,
 		setActiveStep,
 		isSingleStep,
-		currentStepInfo,
+		currentStepClientId,
 		stepBlock,
 	] );
 
