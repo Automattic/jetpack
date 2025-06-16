@@ -619,6 +619,10 @@ class Contact_Form_Plugin {
 			$blocks_content = do_blocks( $content );
 			$tags           = new \WP_HTML_Tag_Processor( $blocks_content );
 
+			// Move to the first token so the bookmark has a valid span, then set the bookmark.
+			$tags->next_tag();
+			$tags->set_bookmark( 'start' );
+
 			// Process blocks with the "next step" trigger
 			while ( $tags->next_tag( array( 'class_name' => 'trigger-next-step' ) ) ) {
 				// No need to set data-wp-interactive since the parent div already has it
@@ -626,7 +630,6 @@ class Contact_Form_Plugin {
 			}
 
 			// Reset and process blocks with the "previous step" trigger
-			$tags->set_bookmark( 'start' );
 			$tags->seek( 'start' );
 			while ( $tags->next_tag( array( 'class_name' => 'trigger-previous-step' ) ) ) {
 				$tags->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
