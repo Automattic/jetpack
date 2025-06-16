@@ -9,7 +9,7 @@
  * Date: 15th August 2018
  */
 
-/* global FullCalendar, ajaxurl, jpcrm_fullcalendar_data */
+/* global FullCalendar, ajaxurl, jpcrm_fullcalendar_data, jpcrm */
 window.jpcrm_task_ajax_blocker = false;
 
 function jpcrm_update_task_status( task_id, new_status ) {
@@ -78,6 +78,19 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		weekends: true,
 		firstDay: jpcrm_fullcalendar_data.firstDay,
 		events: jpcrm_fullcalendar_data.events,
+		eventContent: args => {
+			const eventProps = args.event._def.extendedProps;
+			const avatarHTML = eventProps.avatar
+				? '<img class="jpcrm-avatar" src="' + jpcrm.esc_attr( eventProps.avatar ) + '"/>'
+				: '';
+			const completeHTML = eventProps.complete === 1 ? '<i class="fa fa-check"></i></span>' : '';
+			const eventText = args.timeText + ' ' + args.event.title;
+			const html = avatarHTML + completeHTML + eventText;
+			return {
+				html:
+					'<div class="event_html" title="' + jpcrm.esc_attr( eventText ) + '">' + html + '</div>',
+			};
+		},
 	} );
 	calendar.render();
 } );

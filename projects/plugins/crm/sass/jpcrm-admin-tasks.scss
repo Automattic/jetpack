@@ -60,13 +60,8 @@
 	}
 }
 
-.zbs-avatar{
-    float:left;
-    margin-right:3px;
-}
-
-.zbs-avatar img{
-    border-radius:50%;
+img.jpcrm-avatar {
+	border-radius:50%;
 }
 
 #zbs-add-task-ui{
@@ -304,4 +299,44 @@
     width: 100%;
     padding: 10px;
     border-radius: 4px;
+}
+
+// FullCalendar style overrides
+#calendar.fc {
+	--fc-event-bg-color: var(--jp-green);
+	--fc-event-border-color: var(--jp-green);
+	--fc-button-text-color: var(--jp-black);
+	--fc-button-bg-color: var(--jp-white);
+	--fc-button-hover-bg-color: var(--jp-gray-0);
+	--fc-button-active-bg-color: var(--jp-black);
+
+	a {
+		color: #000;
+	}
+
+	.fc-button-primary:not(:disabled):active {
+		color: inherit;
+		background-color: inherit;
+	}
+
+	.fc-button-primary:not(:disabled).fc-button-active, .fc-button-primary:not(:disabled).fc-button-active:active {
+		color: var(--jp-white);
+		background-color: var(--jp-black);
+	}
+
+	.fc-button-primary:disabled {
+		background-color: var(--jp-gray);
+		border-color: var(--jp-gray);
+	}
+
+	.fc-daygrid-event-harness, .fc-timegrid-event-harness {
+		overflow: hidden;
+		white-space: nowrap;
+	}
+
+	.event_html {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
 }
