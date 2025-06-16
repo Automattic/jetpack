@@ -43,6 +43,8 @@ const AttributesControls = ( { attributes, setAttributes, clientId } ) => {
 					value={ stepLabel }
 					onChange={ handleStepLabelChange }
 					help={ __( 'Name the step.', 'jetpack-forms' ) }
+					__next40pxDefaultSize={ true }
+					__nextHasNoMarginBottom={ true }
 				/>
 			</PanelBody>
 		</InspectorControls>
