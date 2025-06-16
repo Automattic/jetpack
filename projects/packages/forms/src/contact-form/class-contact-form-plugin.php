@@ -59,6 +59,16 @@ class Contact_Form_Plugin {
 	 */
 	private $pde_email_address = '';
 
+	/**
+	 * The number of steps in the form.
+	 *
+	 * This is used to determine how many steps are in the form when using the multi-step feature.
+	 * It is incremented each time a new step is added.
+	 *
+	 * @var int
+	 */
+	public static $step_count = 0;
+
 	/*
 	 * Field keys that might be present in the entry json but we don't want to show to the admin
 	 * since they not something that the visitor entered into the form.
@@ -572,6 +582,13 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Resets the step counter back to 0.
+	 */
+	public static function reset_step() {
+		self::$step_count = 0;
+	}
+
+	/**
 	 * Render the number field.
 	 *
 	 * @param array  $atts - the block attributes.
@@ -580,8 +597,7 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the number field.
 	 */
 	public static function gutenblock_render_form_step( $atts, $content ) {
-		static $step = 0;
-		++$step;
+		self::$step_count = 1 + self::$step_count;
 
 		$version = Constants::get_constant( 'JETPACK__VERSION' );
 		if ( empty( $version ) ) {
@@ -620,8 +636,8 @@ class Contact_Form_Plugin {
 		} else {
 			$processed_content = do_blocks( $content );
 		}
-
-		return '<div data-wp-interactive="jetpack/form" class="jetpack-form-step" data-wp-class--is-before-current="state.isBeforeCurrent" data-wp-class--is-after-current="state.isAfterCurrent" data-wp-class--is-current-step="state.isCurrentStep" ' . wp_interactivity_data_wp_context( array( 'step' => $step ) ) . ' >'
+		$is_current_step_class = ( self::$step_count === 1 ? 'is-current-step' : '' );
+		return '<div data-wp-interactive="jetpack/form" class="jetpack-form-step ' . $is_current_step_class . ' " data-wp-class--is-before-current="state.isBeforeCurrent" data-wp-class--is-after-current="state.isAfterCurrent" data-wp-class--is-current-step="state.isCurrentStep" ' . wp_interactivity_data_wp_context( array( 'step' => self::$step_count ) ) . ' >'
 				. $processed_content
 			. '</div>';
 	}
@@ -679,8 +695,8 @@ class Contact_Form_Plugin {
 		while ( $processor->next_tag() ) {
 			$id = $processor->get_attribute( 'data-id-attr' );
 			if ( 'previous-step' === $id ) {
-				$processor->add_class( 'disable-spinner' );
 				$processor->remove_attribute( 'id' );
+				$processor->add_class( 'disable-spinner' );
 				$processor->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isFirstStep' );
 			}

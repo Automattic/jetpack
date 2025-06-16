@@ -301,6 +301,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 		// Create a new Contact_Form object (this class)
 		$form = new Contact_Form( $attributes, $content );
+		Contact_Form_Plugin::reset_step();
 
 		$id = $form->get_attribute( 'id' );
 

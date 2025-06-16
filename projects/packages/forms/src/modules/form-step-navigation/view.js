@@ -1,4 +1,4 @@
-import { getContext, store } from '@wordpress/interactivity';
+import { getContext, store, withSyncEvent } from '@wordpress/interactivity';
 
 const NAMESPACE = 'jetpack/form';
 const { state } = store( NAMESPACE, {
@@ -32,7 +32,7 @@ const { state } = store( NAMESPACE, {
 		},
 	},
 	actions: {
-		nextStep( event ) {
+		nextStep: withSyncEvent( event => {
 			event.preventDefault();
 			const context = getContext();
 
@@ -49,9 +49,9 @@ const { state } = store( NAMESPACE, {
 
 			// Update step after a small delay to allow animation to complete
 			context.currentStep = context.currentStep + 1;
-		},
+		} ),
 
-		previousStep( event ) {
+		previousStep: withSyncEvent( event => {
 			event.preventDefault();
 			const context = getContext();
 			if ( context.currentStep <= 1 ) {
@@ -65,7 +65,7 @@ const { state } = store( NAMESPACE, {
 
 			// Update step
 			context.currentStep = context.currentStep - 1;
-		},
+		} ),
 	},
 	callbacks: {
 		updateUrl: () => {
