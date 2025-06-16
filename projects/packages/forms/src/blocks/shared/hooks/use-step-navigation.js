@@ -20,14 +20,8 @@ const useStepNavigation = ( formClientId, updateStepSelected ) => {
 	const { selectBlock } = useDispatch( blockEditorStore );
 	const steps = useFormSteps( formClientId );
 
-	const { currentStepInfo } = useSelect(
-		select => {
-			const { getCurrentStepInfo } = select( singleStepStore );
-
-			return {
-				currentStepInfo: getCurrentStepInfo( formClientId, steps ),
-			};
-		},
+	const currentStepInfo = useSelect(
+		select => select( singleStepStore ).getCurrentStepInfo( formClientId, steps ),
 		[ formClientId, steps ]
 	);
 
