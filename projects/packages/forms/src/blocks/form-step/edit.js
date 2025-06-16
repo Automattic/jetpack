@@ -64,6 +64,8 @@ const StepEdit = ( { attributes, setAttributes, clientId } ) => {
 						value={ stepLabel }
 						onChange={ value => setAttributes( { stepLabel: value } ) }
 						help={ __( 'Label for this step, shown in the editor.', 'jetpack-forms' ) }
+						__next40pxDefaultSize={ true }
+						__nextHasNoMarginBottom={ true }
 					/>
 					<TextControl
 						label={ __( 'Unique ID', 'jetpack-forms' ) }
@@ -73,6 +75,8 @@ const StepEdit = ( { attributes, setAttributes, clientId } ) => {
 							'A unique ID for this step, used for analytics and targeting.',
 							'jetpack-forms'
 						) }
+						__next40pxDefaultSize={ true }
+						__nextHasNoMarginBottom={ true }
 					/>
 				</PanelBody>
 			</InspectorControls>
