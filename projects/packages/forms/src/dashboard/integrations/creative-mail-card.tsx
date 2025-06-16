@@ -1,8 +1,17 @@
+/**
+ * External dependencies
+ */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import CreativeMailIcon from '../../icons/creative-mail';
-import { IntegrationCardProps } from '../../types';
+/**
+ * Types
+ */
+import type { IntegrationCardProps, IntegrationCardData } from '../../types';
 
 const CreativeMailDashboardCard = ( {
 	isExpanded,
@@ -13,7 +22,7 @@ const CreativeMailDashboardCard = ( {
 }: IntegrationCardProps & { borderBottom?: boolean } ) => {
 	const { settingsUrl = '' } = data || {};
 
-	const cardData = {
+	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: false, // Always off for dashboard
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
