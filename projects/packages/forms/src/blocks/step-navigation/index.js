@@ -38,6 +38,7 @@ export const settings = {
 			allowInheriting: false,
 			default: {
 				type: 'flex',
+				justifyContent: 'space-between',
 			},
 		},
 	},
