@@ -184,7 +184,7 @@ const HighlightTooltip: React.FC< { series: SeriesData[]; selectedIndex: number 
 	useEffect( () => {
 		if ( ! series ) return;
 
-		if ( selectedIndex === 0 ) {
+		if ( selectedIndex === undefined ) {
 			tooltipContext?.hideTooltip();
 			return;
 		}
@@ -290,7 +290,7 @@ const LineChart: FC< LineChartProps > = ( {
 	}, [ dataSorted, providerTheme.glyphs, renderGlyph ] );
 
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
-	const [ selectedIndex, setSelectedIndex ] = useState( 0 );
+	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 
 	// Create legend items from group labels, this iterates over groups rather than data points
 	const legendItems = dataSorted.map( ( group, index ) => ( {
@@ -313,12 +313,13 @@ const LineChart: FC< LineChartProps > = ( {
 			const size = dataSorted[ 0 ]?.data.length || 0;
 			if ( size === 0 ) return;
 
-			// Keep the selected index within the bounds of the data until end of the chart data.
-			if ( selectedIndex + 1 !== size ) {
-				event.preventDefault();
-			} else {
-				setSelectedIndex( 0 );
+			// If the selected index is equal to or more than the size of the data, allow navigating out of the chart on keyboard.
+			if ( selectedIndex + 1 >= size && [ 'ArrowRight', 'Tab' ].includes( event.key ) ) {
+				setSelectedIndex( undefined );
+				return;
 			}
+
+			event.preventDefault();
 
 			if ( [ 'ArrowRight', 'Tab' ].includes( event.key ) ) {
 				setSelectedIndex( ( selectedIndex + 1 ) % size );
