@@ -126,29 +126,6 @@ CustomDimensions.args = {
 	data: sampleData,
 };
 
-// Story with horizontal legend
-export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegend.args = {
-	...Default.args,
-	showLegend: true,
-	height: 400,
-};
-
-export const WithLegendShapeRectangle: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegendShapeRectangle.args = {
-	...Default.args,
-	showLegend: true,
-	legendShape: 'rect',
-};
-
-// Story with vertical legend
-export const WithVerticalLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithVerticalLegend.args = {
-	...Default.args,
-	showLegend: true,
-	legendOrientation: 'vertical',
-};
-
 // Add after existing stories
 export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 FixedDimensions.args = {
@@ -492,56 +469,4 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 			},
 		},
 	},
-};
-
-const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
-	const providerTheme = useChartTheme();
-
-	return (
-		<div>
-			<div style={ { marginBottom: '0.5rem' } }>
-				{ tooltipData?.nearestDatum?.datum?.date?.toLocaleDateString() }
-			</div>
-			<div>
-				{ Object.entries( tooltipData?.datumByKey || {} ).map( ( [ key, value ], index ) => {
-					const { datum } = value as { datum: { value: number } };
-					return (
-						<div key={ key }>
-							<div
-								style={ {
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.5rem',
-									marginBottom: '0.2rem',
-								} }
-							>
-								<svg width={ 20 } height={ 20 }>
-									<GlyphStar
-										size={ 10 * 10 }
-										top={ 10 }
-										left={ 10 }
-										fill={ '#fff' }
-										stroke={ providerTheme.colors[ index % providerTheme.colors.length ] }
-									/>
-								</svg>
-								{ key }: { datum.value }
-							</div>
-						</div>
-					);
-				} ) }
-			</div>
-		</div>
-	);
-};
-
-export const WithTooltipGlyphs: StoryObj< typeof LineChart > = Template.bind( {} );
-WithTooltipGlyphs.args = {
-	...Default.args,
-	renderGlyph: ( { color, size, x, y } ) => {
-		return <GlyphStar top={ y } left={ x } size={ size * size } fill={ '#fff' } stroke={ color } />;
-	},
-	glyphStyle: {
-		radius: 10,
-	},
-	renderTooltip: ToolTipWithGlyph,
 };
