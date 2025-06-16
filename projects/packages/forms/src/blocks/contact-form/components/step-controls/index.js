@@ -54,6 +54,10 @@ export default function StepControls( { formClientId } ) {
 	}
 
 	const { index: currentStepIndex, isFirstStep, isLastStep } = currentStepInfo;
+	const stepNavigationInfo = __(
+		'Step navigation is only available in single step mode',
+		'jetpack-forms'
+	);
 
 	// Format the display label
 	let displayLabel;
@@ -125,11 +129,7 @@ export default function StepControls( { formClientId } ) {
 				</ToolbarDropdownMenu>
 				<ToolbarButton
 					showTooltip={ true }
-					label={
-						! isSingleStep
-							? __( 'Step navigation is only available in single step mode', 'jetpack-forms' )
-							: __( 'Previous step', 'jetpack-forms' )
-					}
+					label={ ! isSingleStep ? stepNavigationInfo : __( 'Previous step', 'jetpack-forms' ) }
 					disabled={ ! isSingleStep || isFirstStep }
 					onClick={ navigateToPreviousStep }
 				>
@@ -137,11 +137,7 @@ export default function StepControls( { formClientId } ) {
 				</ToolbarButton>
 				<ToolbarButton
 					showTooltip={ true }
-					label={
-						! isSingleStep
-							? __( 'Step navigation is only available in single step mode', 'jetpack-forms' )
-							: __( 'Next step', 'jetpack-forms' )
-					}
+					label={ ! isSingleStep ? stepNavigationInfo : __( 'Next step', 'jetpack-forms' ) }
 					disabled={ ! isSingleStep || isLastStep }
 					onClick={ navigateToNextStep }
 				>

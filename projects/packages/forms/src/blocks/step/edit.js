@@ -62,11 +62,10 @@ const getStepTemplate = ( previousStepBlocks = [] ) => {
 };
 
 function StepBreak( { stepLabel, currentIndex } ) {
-	let stepName;
-	if ( stepLabel === '' || stepLabel === 'Step' ) {
-		// Translators: %d is the step number (1, 2, 3, etc.)
-		stepName = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
-	} else {
+	// Translators: %d is the step number (1, 2, 3, etc.)
+	let stepName = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
+
+	if ( stepLabel !== '' || stepLabel !== 'Step' ) {
 		// Translators: %1$d is the step number (1, 2, 3, etc.), %2$s is the step label
 		stepName = sprintf( __( 'Step %1$d - %2$s', 'jetpack-forms' ), currentIndex + 1, stepLabel );
 	}
