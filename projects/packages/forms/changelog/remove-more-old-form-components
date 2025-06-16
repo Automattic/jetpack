@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Forms: Remove old duplicated components, and move components that are shared across blocks from the contact-form block folder to the shared folder.

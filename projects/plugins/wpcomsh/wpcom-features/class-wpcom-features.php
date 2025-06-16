@@ -1441,7 +1441,15 @@ class WPCOM_Features {
 		163161552, // brwpgo.wordpress.com
 		53424024, // discover.wordpress.com
 		489937, // dailypost.wordpress.com
-		33534099, // developer.wordpress.com
+		33534099,  // developer.wordpress.com
+		233643880, // eswpcomdeveloper.wordpress.com
+		244311505, // jawpcomdeveloper.wordpress.com
+		244447807, // frwpcomdeveloper.wordpress.com
+		244448116, // dewpcomdeveloper.wordpress.com
+		244448279, // ptbrwpcomdeveloper.wordpress.com
+		244517526, // idwpcomdeveloper.wordpress.com
+		244516213, // itwpcomdeveloper.wordpress.com
+		244518337, // nlwpcomdeveloper.wordpress.com
 		22994, // theme.wordpress.com
 		16390, // learn.wordpress.com
 		54117, // automattic.wordpress.com

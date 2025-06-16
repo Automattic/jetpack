@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import AkismetIcon from '../../icons/akismet';
 import type { IntegrationCardProps } from '../../types';

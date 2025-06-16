@@ -1,6 +1,6 @@
 import { TabPanel } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import useAnalytics from '../../hooks/use-analytics';
 import useFilteredProducts from '../../hooks/use-filtered-products';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';

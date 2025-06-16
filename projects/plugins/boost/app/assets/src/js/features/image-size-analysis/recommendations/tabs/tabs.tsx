@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import type { IsaCounts } from '$features/image-size-analysis';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router';
 import { getGroupLabel, isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 import styles from './tabs.module.scss';
 import clsx from 'clsx';
