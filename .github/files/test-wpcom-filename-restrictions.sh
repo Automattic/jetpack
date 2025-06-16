@@ -36,7 +36,7 @@ function check_invalid_chars {
 	fi
 }
 
-# Based on Automattic/pre-receive-hooks/blob/221f27e6/common/130-stop-executables.sh
+# Based on Automattic/pre-receive-hooks/blob/376c99d3/common/130-stop-executables.sh
 function check_executable {
 	local FILE="$1"
 	if [[ "$( git ls-files -s "${FILE}" | awk '{ print $1 }' )" == "100755" ]]; then
@@ -159,7 +159,7 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 		echo "- $FILE"
 		check_underscores "$FILE"
 		check_invalid_chars "$FILE"
-		# check_executable "$FILE" # Not enabled for wpcom?
+		check_executable "$FILE"
 		check_symlink "$FILE"
 	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=A )
 
@@ -167,7 +167,6 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 	echo 'Modified files:'
 	while IFS= read -r FILE; do
 		echo "- $FILE"
-		# check_executable "$FILE" # Not enabled for wpcom?
 		check_symlink "$FILE"
 	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=M )
 
