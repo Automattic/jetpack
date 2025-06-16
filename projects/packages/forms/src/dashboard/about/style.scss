@@ -175,7 +175,10 @@
 				overflow: hidden;
 				padding: 24px 32px;
 				position: relative;
-				height: 183px;
+
+				.feature-header {
+					margin-bottom: 24px;
+				}
 			}
 
 			.feature-connect {
@@ -220,6 +223,10 @@
 
 			.feature-akismet {
 				grid-area: ak;
+
+				svg {
+					flex-shrink: 0;
+				}
 			}
 
 			.feature-export {

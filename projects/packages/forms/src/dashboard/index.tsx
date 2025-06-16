@@ -4,7 +4,8 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { createRoot } from '@wordpress/element';
 import { get } from 'lodash';
-import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
+import { createHashRouter, Navigate } from 'react-router';
+import { RouterProvider } from 'react-router/dom';
 /**
  * Internal dependencies
  */

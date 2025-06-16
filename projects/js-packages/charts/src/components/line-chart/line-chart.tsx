@@ -104,6 +104,10 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 	glyphStyle?: React.SVGProps< SVGCircleElement >;
 	withLegendGlyph: boolean;
+	withTooltipCrosshairs?: {
+		showVertical?: boolean;
+		showHorizontal?: boolean;
+	};
 }
 
 type TooltipDatum = {
@@ -170,6 +174,7 @@ const LineChart: FC< LineChartProps > = ( {
 	className,
 	margin,
 	withTooltips = true,
+	withTooltipCrosshairs,
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	renderGlyph = defaultRenderGlyph,
@@ -354,6 +359,8 @@ const LineChart: FC< LineChartProps > = ( {
 						renderTooltip={ renderTooltip }
 						renderGlyph={ tooltipRenderGlyph }
 						glyphStyle={ glyphStyle }
+						showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
+						showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
 					/>
 				) }
 			</XYChart>

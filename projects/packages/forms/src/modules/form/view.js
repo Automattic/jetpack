@@ -17,9 +17,15 @@ const config = getConfig( NAMESPACE );
 
 const updateField = ( fieldId, value, showFieldError = false ) => {
 	const context = getContext();
-	const field = context.fields[ fieldId ];
-	const { type, isRequired, extra } = field;
+	let field = context.fields[ fieldId ];
+
+	if ( ! field ) {
+		const { fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
+		registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
+		field = context.fields[ fieldId ];
+	}
 	if ( field ) {
+		const { type, isRequired, extra } = field;
 		field.value = value;
 		field.error = validateField( type, value, isRequired, extra );
 		field.showFieldError = showFieldError;
@@ -79,9 +85,23 @@ const { state } = store( NAMESPACE, {
 			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
 		},
 
-		get isEmptyForm() {
+		get isFormEmpty() {
 			const context = getContext();
 			return ! Object.values( context.fields ).some( field => field.value !== '' );
+		},
+
+		get isFieldEmpty() {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ] || {};
+			return !! (
+				field.value === '' ||
+				( Array.isArray( field.value ) && field.value.length === 0 )
+			);
+		},
+
+		get hasFieldValue() {
+			return ! state.isFieldEmpty;
 		},
 
 		get isSubmitting() {
@@ -107,7 +127,7 @@ const { state } = store( NAMESPACE, {
 		},
 
 		get isFormValid() {
-			if ( state.isEmptyForm ) {
+			if ( state.isFormEmpty ) {
 				return false;
 			}
 			const context = getContext();
@@ -121,7 +141,7 @@ const { state } = store( NAMESPACE, {
 		},
 
 		get getFormErrorMessage() {
-			if ( state.isEmptyForm ) {
+			if ( state.isFormEmpty ) {
 				return config.error_types.invalid_form_empty;
 			}
 			return config.error_types.invalid_form;
@@ -129,7 +149,7 @@ const { state } = store( NAMESPACE, {
 
 		get getErrorList() {
 			const errors = [];
-			if ( state.isEmptyForm ) {
+			if ( state.isFormEmpty ) {
 				return errors;
 			}
 			const context = getContext();

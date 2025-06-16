@@ -5,7 +5,7 @@ import TimeAgo from '../time-ago/time-ago';
 import InfoIcon from '$svg/info';
 import RefreshIcon from '$svg/refresh';
 import { createInterpolateElement } from '@wordpress/element';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
 import { getProvidersWithErrors } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';

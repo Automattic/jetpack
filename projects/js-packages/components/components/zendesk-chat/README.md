@@ -2,7 +2,7 @@
 
 This component adds a Zendesk chat widget via <script> tag to any page the componet is added to 
 
-WARNING: If you add this to a specific site, it will stay on the page until the browser reloads onto a page that does not load this widget. For example, if a section of the plugin is using `react-router-dom`, and the widget is loaded onto one specific route, it will not go away when a new route is taken since the page is not reloaded
+WARNING: If you add this to a specific site, it will stay on the page until the browser reloads onto a page that does not load this widget. For example, if a section of the plugin is using `react-router`, and the widget is loaded onto one specific route, it will not go away when a new route is taken since the page is not reloaded
 
 ## Usage
 

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: LCP: Fix for unreleased feature. Fix not using original image for optimized version.
+
+

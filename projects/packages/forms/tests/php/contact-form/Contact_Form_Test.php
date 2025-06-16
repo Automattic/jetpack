@@ -818,6 +818,43 @@ class Contact_Form_Test extends BaseTestCase {
 		wp_delete_post( $post_id, true );
 	}
 
+	/**
+	 * We test that if the all fields keys do have HTML content, they are escaped correctly.
+	 */
+	public function test_parse_fields_from_content_all_field_has_html_content() {
+
+		$comment_content      = 'This is a test comment content.';
+		$comment_author       = 'Test User';
+		$comment_author_email = 'test@email.com';
+		$comment_author_url   = 'http://example.com';
+		$comment_ip_text      = 'https://127.0.0.1';
+		$subject              = 'Test Subject';
+		$all_values           = array(
+			'<strong>field2</strong>' => 'value2',
+		);
+
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		// Create a mock post with JSON_DATA format
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => 'feedback',
+				'post_status'  => 'publish',
+				'post_content' => $content,
+			)
+		);
+
+		// Parse fields from the post
+		$fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+
+		// Assert that JSON data fields were parsed correctly
+		$this->assertIsArray( $fields['_feedback_all_fields'] );
+		$this->assertArrayHasKey( 'field2', $fields['_feedback_all_fields'] ); // note that we should escape HTML tags here.
+		$this->assertEquals( $all_values['<strong>field2</strong>'], $fields['_feedback_all_fields']['field2'] );
+
+		// Clean up
+		wp_delete_post( $post_id, true );
+	}
+
 	public function test_parse_fields_from_content_form_submission() {
 		// Fill field values.
 		$this->add_field_values(
@@ -866,6 +903,30 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * This tests make sure that we don't store HTML when labels do have HTML tags.
+	 */
+	public function test_parse_fields_from_content_form_submission_do_not_store_label_html() {
+		// Fill field values.
+		$this->add_field_values(
+			array(
+				'name' => 'John Doe',
+			)
+		);
+
+		// Initialize a form with name, dropdown and radiobutton (first, second
+		// and third option), text field.
+		$form = new Contact_Form( array(), "[contact-field label='<strong>Name</strong>' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
+		$form->process_submission();
+
+		$post    = end( Posts::init()->posts );
+		$post_id = $post->ID;
+
+		$this->assertStringContainsString( '1_Name', $post->post_content, 'Post content should contain the field name without HTML tags' );
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
 	 * Tests that token is left intact when there is not matching field.
 	 *
 	 * @author tonykova
@@ -908,6 +969,45 @@ class Contact_Form_Test extends BaseTestCase {
 		);
 
 		$this->assertEquals( 'Chicago', $plugin->replace_tokens_with_input( $subject, $field_values ) );
+	}
+
+	/**
+	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
+	 */
+	public function test_token_can_replace_entire_subject_with_token_field_has_japanese() {
+		$plugin       = Contact_Form_Plugin::init();
+		$subject      = '{名前}';
+		$field_values = array(
+			'名前' => 'Hello',
+		);
+
+		$this->assertEquals( 'Hello', $plugin->replace_tokens_with_input( $subject, $field_values ) );
+	}
+
+	/**
+	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
+	 */
+	public function test_token_can_replace_entire_subject_with_token_field_has_emoji() {
+		$plugin       = Contact_Form_Plugin::init();
+		$subject      = '{🙈}';
+		$field_values = array(
+			'🙈' => 'Chicago',
+		);
+
+		$this->assertEquals( 'Chicago', $plugin->replace_tokens_with_input( $subject, $field_values ) );
+	}
+
+	/**
+	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
+	 */
+	public function test_token_can_replace_entire_subject_with_token_field_has_html() {
+		$plugin       = Contact_Form_Plugin::init();
+		$subject      = '{email}';
+		$field_values = array(
+			'2_<strong>Email</strong>' => 'note',
+		);
+
+		$this->assertEquals( 'note', $plugin->replace_tokens_with_input( $subject, $field_values ) );
 	}
 
 	/**

@@ -1,8 +1,12 @@
 import { GlyphDiamond, GlyphStar } from '@visx/glyph';
+import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import React from 'react';
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
+import { useChartTheme } from '../../../providers/theme/theme-provider';
+import { DataPointDate } from '../../../types';
 import { DefaultGlyph } from '../../shared/default-glyph';
 import LineChart from '../line-chart';
+import { lineChartStoryArgs, lineChartMetaArgs } from './config';
 import largeValuesData from './large-values-sample';
 import sampleData from './sample-data';
 import webTrafficData from './site-traffic-sample';
@@ -39,6 +43,7 @@ const THEME_MAP = {
 };
 
 const meta: Meta< typeof LineChart > = {
+	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart',
 	component: LineChart,
 	parameters: {
@@ -104,37 +109,13 @@ const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
 // Default story with multiple series
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
 Default.args = {
-	data: sampleData,
-	showLegend: false,
-	legendOrientation: 'horizontal',
-	withGradientFill: false,
-	smoothing: true,
-	maxWidth: 1200,
-	aspectRatio: 0.5,
-	resizeDebounceTime: 300,
-	options: {
-		axis: {
-			x: {
-				orientation: 'bottom',
-			},
-			y: {
-				orientation: 'left',
-			},
-		},
-	},
+	...lineChartStoryArgs,
 };
 
 // Story with single data series
 export const SingleSeries: StoryObj< typeof LineChart > = Template.bind( {} );
 SingleSeries.args = {
 	data: [ sampleData[ 0 ] ], // Only London temperature data
-};
-
-// Story without tooltip
-export const WithoutTooltip: StoryObj< typeof LineChart > = Template.bind( {} );
-WithoutTooltip.args = {
-	...Default.args,
-	withTooltips: false,
 };
 
 // Story with custom dimensions
@@ -267,37 +248,6 @@ export const WithoutSmoothing: StoryObj< typeof LineChart > = Template.bind( {} 
 WithoutSmoothing.args = {
 	...Default.args,
 	smoothing: false,
-};
-
-export const CustomTooltips: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomTooltips.args = {
-	...Default.args,
-	renderTooltip: ( { tooltipData } ) => {
-		const nearestDatum = tooltipData?.nearestDatum?.datum;
-		if ( ! nearestDatum ) return null;
-
-		const tooltipPoints = Object.entries( tooltipData?.datumByKey || {} )
-			.map( ( [ key, { datum } ] ) => ( {
-				key,
-				value: datum.value as number,
-			} ) )
-			.sort( ( a, b ) => b.value - a.value );
-
-		return (
-			<div>
-				<h3>{ nearestDatum?.date?.toLocaleDateString() } 💯 </h3>
-
-				<table style={ { border: '1px solid black', borderCollapse: 'collapse' } }>
-					{ tooltipPoints.map( point => (
-						<tr style={ { border: '1px solid black' } } key={ point.key }>
-							<td style={ { border: '1px solid black' } }>{ point.key }</td>
-							<td>{ point.value }</td>
-						</tr>
-					) ) }
-				</table>
-			</div>
-		);
-	},
 };
 
 export const WithPointerEvents: StoryObj< typeof LineChart > = Template.bind( {} );
@@ -542,4 +492,56 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 			},
 		},
 	},
+};
+
+const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
+	const providerTheme = useChartTheme();
+
+	return (
+		<div>
+			<div style={ { marginBottom: '0.5rem' } }>
+				{ tooltipData?.nearestDatum?.datum?.date?.toLocaleDateString() }
+			</div>
+			<div>
+				{ Object.entries( tooltipData?.datumByKey || {} ).map( ( [ key, value ], index ) => {
+					const { datum } = value as { datum: { value: number } };
+					return (
+						<div key={ key }>
+							<div
+								style={ {
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									marginBottom: '0.2rem',
+								} }
+							>
+								<svg width={ 20 } height={ 20 }>
+									<GlyphStar
+										size={ 10 * 10 }
+										top={ 10 }
+										left={ 10 }
+										fill={ '#fff' }
+										stroke={ providerTheme.colors[ index % providerTheme.colors.length ] }
+									/>
+								</svg>
+								{ key }: { datum.value }
+							</div>
+						</div>
+					);
+				} ) }
+			</div>
+		</div>
+	);
+};
+
+export const WithTooltipGlyphs: StoryObj< typeof LineChart > = Template.bind( {} );
+WithTooltipGlyphs.args = {
+	...Default.args,
+	renderGlyph: ( { color, size, x, y } ) => {
+		return <GlyphStar top={ y } left={ x } size={ size * size } fill={ '#fff' } stroke={ color } />;
+	},
+	glyphStyle: {
+		radius: 10,
+	},
+	renderTooltip: ToolTipWithGlyph,
 };

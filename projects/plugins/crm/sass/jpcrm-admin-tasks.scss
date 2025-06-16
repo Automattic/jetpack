@@ -27,19 +27,37 @@
     margin: 0 auto;
 }
 
-// 3.0
-#jpcrm-task-edit #zerobscrm-owner {
-    //display:none !important;
-    margin-top: 4px;
-    z-index: 4;
-    position: absolute;
-    right: 30px;
-    width: 85%;
-    top: 4px;
-    display: inline-block;
-    color: #000;
-    border: 0;
-    box-shadow: none;
+.jpcrm-task-owner {
+
+	@extend %zbs-tasks-field;
+
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	padding: 5px 10px;
+
+	i, img {
+		width: 30px;
+		flex: 0 0 0;
+		border-radius: 50%;
+	}
+
+	#zerobscrm-owner {
+		color: #000;
+		border: 0;
+		box-shadow: none;
+	}
+}
+
+.jpcrm-task-time td {
+	padding: 6px 10px;
+	color: #000;
+
+	label {
+		font-size: 14px;
+		color: #000;
+		font-weight: 400;
+	}
 }
 
 .fc-header-toolbar h2{
@@ -118,19 +136,35 @@ background: #fff;
     clear:both;
 }
 
-#zbs-task-title{
+#zbs-task-title-row {
+	display: flex;
+	gap: 8px;
 
-    // take general rounding etc. from this
-    @extend %zbs-tasks-field;
+	#zbs-task-title {
+		// take general rounding etc. from this
+		@extend %zbs-tasks-field;
 
-    width:80%;
-    float:left;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    min-height: 0;
-    padding: 0.2em 0.5em;
-    line-height: 1.4;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+		font-size: 14px;
+		font-weight: 400;
+		min-height: 0;
+		padding: 0.2em 0.5em;
+		line-height: 1.4;
+		flex: 1 1 auto;
+	}
+
+	#mark-complete-task {
+		min-width: 200px;
+		flex: 0 1 auto;
+
+		button {
+			width:100%;
+
+			&.hidden {
+				display: none;
+			}
+		}
+	}
 }
 
 .fc-event{
@@ -228,9 +262,6 @@ background: #fff;
     color: #ccc;
 }
 
-
-
-
 #titlewrap, #post-body-content{
     display:none;
 }
@@ -254,11 +285,6 @@ background: #fff;
     float: left;
 }
 
-.no-task-date #daterange{
-    border: 0;
-    box-shadow: none;
-}
-
 .zbs-unassigned{
     font-size: 25px !important;
     margin-top: 9px !important;
@@ -278,48 +304,12 @@ background: #fff;
     font-size:20px;
 }
 
-.task-comp{
-    width: 19%;
-    float: right;
-    // wasn't needed v3.0 + ? margin-top: 3px;
-}
+.zbs-cal-complete {
+	box-sizing: border-box;
 
-.task-comp button{
-    width:100%;
-}
-
-#task-mark-complete {
-    margin-top:0;
-}
-
-#task-mark-complete .button:focus {
-    border-color:none !important;
-    box-shadow: none !important;
-}
-
-.zbs-cal-complete{
-    font-size: 6px !important;
-    position: absolute;
-    right: 5px;
-    top: 5px;
-    z-index: 2;
-    font-weight: 900;
-    line-height: 11px !important;
-    margin-right: 0 !important;
-    padding: 3px !important;
-}
-
-.zbs-cal-complete-list{
-    width: 13px;
-    height: 13px;
-    margin-left: 0;
-    margin-top: 0;
-    min-width: 13px !important;
-    min-height: 13px !important;
-}
-
-.zbs-cal-complete .icon{
-    margin:0 !important;
+	.icon {
+		margin:0 !important;
+	}
 }
 
 .zbs-comp-1{
