@@ -47,19 +47,17 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
-// Replace the constant with a function
-const getStepTemplate = ( previousStepBlocks = [] ) => {
-	// Check if previous step has navigation
-	const hasNavigation = previousStepBlocks.some(
-		block => block.name === 'jetpack/form-step-navigation'
-	);
-
-	if ( hasNavigation ) {
+// Template helper: returns a default template when the previous step already
+// contains a navigation block. We pass a simple boolean flag instead of the
+// entire blocks array to keep the value stable between identical renders.
+const getStepTemplate = hasPrevNavigation => {
+	if ( hasPrevNavigation ) {
 		return [
 			[ 'core/paragraph', {} ],
 			[ 'jetpack/form-step-navigation', {} ],
 		];
 	}
+	return undefined;
 };
 
 function StepBreak( { stepLabel, currentIndex } ) {
@@ -91,7 +89,7 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 		currentIndex,
 		selectedStepClientId,
 		isSingleStep,
-		previousStepBlocks,
+		hasPrevNavigation,
 		hasInnerBlocks,
 		isInnerBlockSelected,
 	} = useSelect(
@@ -101,11 +99,12 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 
 			const currentStepIndex = steps.findIndex( block => block.clientId === clientId );
 
-			// Get previous step blocks if this isn't the first step
-			let prevBlocks = [];
-			if ( currentStepIndex > 0 && steps[ currentStepIndex - 1 ] ) {
-				prevBlocks = getBlocks( steps[ currentStepIndex - 1 ].clientId );
-			}
+			const prevStepId =
+				currentStepIndex > 0 && steps[ currentStepIndex - 1 ]
+					? steps[ currentStepIndex - 1 ].clientId
+					: null;
+
+			const prevBlocks = prevStepId ? getBlocks( prevStepId ) : [];
 
 			const block = getBlock( clientId );
 
@@ -113,7 +112,7 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 				currentIndex: currentStepIndex,
 				selectedStepClientId: getActiveStepId( ancestorFormClientId ),
 				isSingleStep: isSingleStepMode( ancestorFormClientId ),
-				previousStepBlocks: prevBlocks,
+				hasPrevNavigation: prevBlocks.some( b => b.name === 'jetpack/form-step-navigation' ),
 				hasInnerBlocks: !! ( block && block.innerBlocks.length ),
 				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
 			};
@@ -128,7 +127,7 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 	}
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		template: getStepTemplate( previousStepBlocks ),
+		template: getStepTemplate( hasPrevNavigation ),
 		allowedBlocks: ALLOWED_BLOCKS,
 		renderAppender,
 	} );
