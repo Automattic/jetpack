@@ -1,35 +1,80 @@
-import { GlyphStar } from '@visx/glyph';
+import { GlyphDiamond, GlyphStar } from '@visx/glyph';
 import React from 'react';
+import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
+import { DefaultGlyph } from '../../shared/default-glyph';
 import LineChart from '../line-chart';
+import { lineChartStoryArgs, lineChartMetaArgs } from './config';
 import largeValuesData from './large-values-sample';
 import sampleData from './sample-data';
 import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
+const customStorybookTheme = {
+	...jetpackTheme,
+	glyphs: [
+		props => React.createElement( DefaultGlyph, { ...props, key: props.key } ),
+		props =>
+			React.createElement( GlyphStar, {
+				key: props.key,
+				top: props.y,
+				left: props.x,
+				size: props.size * props.size,
+				fill: props.color,
+			} ),
+		props =>
+			React.createElement( GlyphDiamond, {
+				key: props.key,
+				top: props.y,
+				left: props.x,
+				size: props.size * props.size,
+				fill: props.color,
+			} ),
+	],
+};
+
+const THEME_MAP = {
+	default: undefined,
+	jetpack: jetpackTheme,
+	woo: wooTheme,
+	customStorybook: customStorybookTheme,
+};
+
 const meta: Meta< typeof LineChart > = {
+	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart',
 	component: LineChart,
 	parameters: {
 		layout: 'centered',
 	},
 	decorators: [
-		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-					display: 'inline-block',
-				} }
-			>
-				<Story />
-			</div>
-		),
+		( Story, { args } ) => {
+			const theme = THEME_MAP[ args.themeName ];
+
+			return (
+				<ThemeProvider theme={ theme }>
+					<div
+						style={ {
+							resize: 'both',
+							overflow: 'auto',
+							padding: '2rem',
+							width: '800px',
+							maxWidth: '1200px',
+							border: '1px dashed #ccc',
+							display: 'inline-block',
+						} }
+					>
+						<Story />
+					</div>
+				</ThemeProvider>
+			);
+		},
 	],
 	argTypes: {
+		themeName: {
+			control: 'select',
+			options: [ 'default', 'jetpack', 'woo', 'customStorybook' ],
+			defaultValue: 'default',
+		},
 		maxWidth: {
 			control: {
 				type: 'number',
@@ -61,24 +106,7 @@ const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
 // Default story with multiple series
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
 Default.args = {
-	data: sampleData,
-	showLegend: false,
-	legendOrientation: 'horizontal',
-	withGradientFill: false,
-	smoothing: true,
-	maxWidth: 1200,
-	aspectRatio: 0.5,
-	resizeDebounceTime: 300,
-	options: {
-		axis: {
-			x: {
-				orientation: 'bottom',
-			},
-			y: {
-				orientation: 'left',
-			},
-		},
-	},
+	...lineChartStoryArgs,
 };
 
 // Story with single data series
@@ -87,42 +115,12 @@ SingleSeries.args = {
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
-// Story without tooltip
-export const WithoutTooltip: StoryObj< typeof LineChart > = Template.bind( {} );
-WithoutTooltip.args = {
-	...Default.args,
-	withTooltips: false,
-};
-
 // Story with custom dimensions
 export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomDimensions.args = {
 	width: 800,
 	height: 400,
 	data: sampleData,
-};
-
-// Story with horizontal legend
-export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegend.args = {
-	...Default.args,
-	showLegend: true,
-	height: 400,
-};
-
-export const WithLegendShapeRectangle: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegendShapeRectangle.args = {
-	...Default.args,
-	showLegend: true,
-	legendShape: 'rect',
-};
-
-// Story with vertical legend
-export const WithVerticalLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithVerticalLegend.args = {
-	...Default.args,
-	showLegend: true,
-	legendOrientation: 'vertical',
 };
 
 // Add after existing stories
@@ -224,37 +222,6 @@ export const WithoutSmoothing: StoryObj< typeof LineChart > = Template.bind( {} 
 WithoutSmoothing.args = {
 	...Default.args,
 	smoothing: false,
-};
-
-export const CustomTooltips: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomTooltips.args = {
-	...Default.args,
-	renderTooltip: ( { tooltipData } ) => {
-		const nearestDatum = tooltipData?.nearestDatum?.datum;
-		if ( ! nearestDatum ) return null;
-
-		const tooltipPoints = Object.entries( tooltipData?.datumByKey || {} )
-			.map( ( [ key, { datum } ] ) => ( {
-				key,
-				value: datum.value as number,
-			} ) )
-			.sort( ( a, b ) => b.value - a.value );
-
-		return (
-			<div>
-				<h3>{ nearestDatum?.date?.toLocaleDateString() } 💯 </h3>
-
-				<table style={ { border: '1px solid black', borderCollapse: 'collapse' } }>
-					{ tooltipPoints.map( point => (
-						<tr style={ { border: '1px solid black' } } key={ point.key }>
-							<td style={ { border: '1px solid black' } }>{ point.key }</td>
-							<td>{ point.value }</td>
-						</tr>
-					) ) }
-				</table>
-			</div>
-		);
-	},
 };
 
 export const WithPointerEvents: StoryObj< typeof LineChart > = Template.bind( {} );
@@ -447,6 +414,18 @@ WithCustomSvgGlyph.args = {
 	renderGlyph: ( { color, size, x, y } ) => (
 		<CustomStarGlyph color={ color } size={ size } x={ x } y={ y } />
 	),
+	glyphStyle: {
+		radius: 8,
+	},
+};
+
+export const WithCustomGlyphsPerDataPoint: StoryObj< typeof LineChart > = Template.bind( {} );
+WithCustomGlyphsPerDataPoint.args = {
+	...Default.args,
+	showLegend: true,
+	withStartGlyphs: true,
+	withLegendGlyph: true,
+	themeName: 'customStorybook', // Mock prop used to switch the rendered theme in the storybook.
 	glyphStyle: {
 		radius: 8,
 	},

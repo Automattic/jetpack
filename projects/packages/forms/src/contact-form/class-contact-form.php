@@ -1305,7 +1305,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				continue;
 			}
 
-			$label = $i . '_' . $field->get_attribute( 'label' );
+			$label = $i . '_' . wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			if ( $field->get_attribute( 'type' ) === 'file' ) {
 				$field->value = $this->process_file_upload_field( $field_id, $field );
 			}
@@ -1326,7 +1326,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				continue;
 			}
 
-			$label = $i . '_' . $field->get_attribute( 'label' );
+			$label = $i . '_' . wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$value = $field->value;
 			if ( ! ( $field->get_attribute( 'type' ) === 'file' ) ) {
 				if ( is_array( $value ) ) {

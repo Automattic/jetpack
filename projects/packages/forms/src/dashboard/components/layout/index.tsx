@@ -8,7 +8,7 @@ import { TabPanel } from '@wordpress/components';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */

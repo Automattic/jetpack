@@ -5807,41 +5807,28 @@ function zeroBSCRM_ajax_mark_task_complete() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_perms_tasks() ) {
-
-		zeroBSCRM_sendJSONError( array( 'permission_error' => 1 ) );
-		exit( 0 );
-
+		wp_send_json_error( array( 'permission_error' => 1 ), 403 );
 	}
 
 	global $zbs;
 
-	if ( isset( $_POST['way'] ) && isset( $_POST['taskID'] ) ) {
+	if ( isset( $_POST['status'] ) && isset( $_POST['taskID'] ) ) {
 
-		$way    = sanitize_text_field( $_POST['way'] );
-		$taskID = (int) sanitize_text_field( $_POST['taskID'] );
+		$status  = (int) $_POST['status'];
+		$task_id = (int) $_POST['taskID'];
 
-		if ( $way === 'complete' ) {
-			$new_status = 1;
+		if ( $zbs->DAL->events->setEventCompleteness( $task_id, $status ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+			wp_send_json_success(
+				array(
+					'task_id' => $task_id,
+					'status'  => $status,
+				)
+			);
 		}
-		if ( $way === 'incomplete' ) {
-			$new_status = -1;
-		}
-
-		if ( isset( $new_status ) ) {
-			$zbs->DAL->events->setEventCompleteness( $taskID, $new_status ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		} else {
-			zeroBSCRM_sendJSONError( array( 'nostatus' => 1 ) );
-			exit( 0 );
-		}
-
-		$m['message'] = 'Marked ' . $way;
-		echo json_encode( $m, true );
-		die( 0 );
-
 	}
 
-	zeroBSCRM_sendJSONError( array( 'noparams' => 1 ) );
-	exit( 0 );
+	wp_send_json_error( array( 'params_error' => 1 ), 400 );
 }
 
 /*

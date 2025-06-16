@@ -162,8 +162,8 @@ function zeroBSCRM_render_tasks_calendar_page() {
 							events: <?php echo $task_json; ?>,
 							firstDay: <?php echo (int) get_option( 'start_of_week', 0 ); ?>,
 							eventRender: function( eventObj, el, view ) {
-								const avatarHtml = eventObj.avatar ? '<div class="avatar zbs-avatar"><img src="'+ jpcrm.esc_attr(eventObj.avatar) +'"/></div>' : '';
 								// Add avatar to events.
+								const avatarHtml = eventObj.avatar ? '<div class="avatar zbs-avatar"><img src="'+ jpcrm.esc_attr(eventObj.avatar) +'"/></div>' : '';
 								if ( view.name === 'listMonth' ) {
 									el.children().last().children().first().prepend( avatarHtml );
 								} else {
@@ -172,12 +172,13 @@ function zeroBSCRM_render_tasks_calendar_page() {
 								}
 
 								// Add completion checkmark next to event.
+								const completeHtml = '<span class="ui green circular label zbs-cal-complete zbs-comp'+eventObj.complete+'"><i class="ui icon check"></i></span>';
 								if ( view.name === 'month' ) {
-									const completeHtml = '<div class="ui green circular label zbs-cal-complete zbs-comp'+eventObj.complete+'"><i class="ui icon check"></i></div>';
-									el.append( completeHtml );
+									el.children().first().append( completeHtml );
 								} else if ( view.name === 'listMonth' ) {
-									const completeHtml = '<span class="ui green circular label zbs-cal-complete-list zbs-comp'+eventObj.complete+'"><i class="ui icon check"></i></span>';
 									el.children().eq(1).children().first().html( completeHtml );
+								} else {
+									el.children().first().children().last().append( ' ' + completeHtml );
 								}
 							},
 						});
