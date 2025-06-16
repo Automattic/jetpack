@@ -207,14 +207,20 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		}
 	}, [ formVariation, currentInnerBlocks, setAttributes ] );
 
-	// Detect a conversion to a multistep form and update the inner blocks to use step containers.
+	// Detect a conversion to a multistep form and structure inner blocks only once.
+	const hasStructuredRef = useRef( false );
+
 	useEffect( () => {
-		if ( variationName !== 'multistep' || formVariation.current === 'multistep' ) {
+		// Run only when the form first switches to the multistep variation and hasn't been
+		// structured yet. This avoids rewriting innerBlocks every time they change (which
+		// created extra history snapshots and broke Undo).
+		if ( variationName !== 'multistep' || hasStructuredRef.current ) {
 			return;
 		}
 
-		// Mark that we've processed this conversion
+		// Mark that we've processed this conversion so we don't repeat it.
 		formVariation.current = 'multistep';
+		hasStructuredRef.current = true;
 
 		// Helper functions
 		const findButtonBlock = () => {
@@ -349,6 +355,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		setAttributes,
 		name,
 		initialStepContainer,
+		hasStructuredRef,
 	] );
 
 	const { setActiveStep } = useDispatch( singleStepStore );
