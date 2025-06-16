@@ -1,5 +1,6 @@
 import { useBlockProps, useInnerBlocksProps, InnerBlocks } from '@wordpress/block-editor';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { store as singleStepStore } from '../../store/preview-store';
 import AddStepControls from '../contact-form/components/add-step-controls';
@@ -77,40 +78,48 @@ function StepBreak( { stepLabel, currentIndex } ) {
 	);
 }
 
-export default function Edit( { attributes, setAttributes, clientId } ) {
+export default function Edit( { attributes, setAttributes, clientId, isSelected } ) {
 	const blockProps = useBlockProps();
 	blockProps.className += ' jetpack-form-step__container';
 
 	const ancestorFormClientId = useParentFormClientId( clientId );
 	const steps = useFormSteps( ancestorFormClientId );
+	const { setActiveStep } = useDispatch( singleStepStore );
 
 	// Get information about the previous step and its blocks
-	const { currentIndex, selectedStepClientId, isSingleStep, previousStepBlocks, hasInnerBlocks } =
-		useSelect(
-			select => {
-				const { isSingleStepMode, getActiveStepId } = select( singleStepStore );
-				const { getBlocks, getBlock } = select( 'core/block-editor' );
+	const {
+		currentIndex,
+		selectedStepClientId,
+		isSingleStep,
+		previousStepBlocks,
+		hasInnerBlocks,
+		isInnerBlockSelected,
+	} = useSelect(
+		select => {
+			const { isSingleStepMode, getActiveStepId } = select( singleStepStore );
+			const { getBlocks, getBlock, hasSelectedInnerBlock } = select( 'core/block-editor' );
 
-				const currentStepIndex = steps.findIndex( block => block.clientId === clientId );
+			const currentStepIndex = steps.findIndex( block => block.clientId === clientId );
 
-				// Get previous step blocks if this isn't the first step
-				let prevBlocks = [];
-				if ( currentStepIndex > 0 && steps[ currentStepIndex - 1 ] ) {
-					prevBlocks = getBlocks( steps[ currentStepIndex - 1 ].clientId );
-				}
+			// Get previous step blocks if this isn't the first step
+			let prevBlocks = [];
+			if ( currentStepIndex > 0 && steps[ currentStepIndex - 1 ] ) {
+				prevBlocks = getBlocks( steps[ currentStepIndex - 1 ].clientId );
+			}
 
-				const block = getBlock( clientId );
+			const block = getBlock( clientId );
 
-				return {
-					currentIndex: currentStepIndex,
-					selectedStepClientId: getActiveStepId( ancestorFormClientId ),
-					isSingleStep: isSingleStepMode( ancestorFormClientId ),
-					previousStepBlocks: prevBlocks,
-					hasInnerBlocks: !! ( block && block.innerBlocks.length ),
-				};
-			},
-			[ clientId, steps, ancestorFormClientId ]
-		);
+			return {
+				currentIndex: currentStepIndex,
+				selectedStepClientId: getActiveStepId( ancestorFormClientId ),
+				isSingleStep: isSingleStepMode( ancestorFormClientId ),
+				previousStepBlocks: prevBlocks,
+				hasInnerBlocks: !! ( block && block.innerBlocks.length ),
+				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
+			};
+		},
+		[ clientId, steps, ancestorFormClientId ]
+	);
 
 	// Determine template based on whether this is a new block or not
 	let renderAppender;
@@ -123,6 +132,26 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		allowedBlocks: ALLOWED_BLOCKS,
 		renderAppender,
 	} );
+
+	useEffect( () => {
+		if (
+			isSingleStep &&
+			( isSelected || isInnerBlockSelected ) &&
+			selectedStepClientId !== clientId
+		) {
+			// When in single-step mode and a different step gains focus (e.g., via Document overview),
+			// update the active step so the preview switches to the focused step.
+			setActiveStep( ancestorFormClientId, clientId );
+		}
+	}, [
+		isSingleStep,
+		isSelected,
+		isInnerBlockSelected,
+		selectedStepClientId,
+		clientId,
+		ancestorFormClientId,
+		setActiveStep,
+	] );
 
 	// Only render the step content if it's the selected one or if "All Steps" is selected.
 	if ( isSingleStep && selectedStepClientId !== clientId ) {
