@@ -1120,6 +1120,8 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__error.show-errors {
 	display: inline;
+	min-width: 100%;
+	box-sizing: inherit;
 }
 
 .contact-form__error ul {
