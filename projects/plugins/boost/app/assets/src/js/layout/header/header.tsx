@@ -4,7 +4,7 @@ import styles from './header.module.scss';
 import { BackButton } from '$features/ui';
 import ChevronRight from '$svg/chevron-right';
 import Logo from '$svg/logo';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 type HeaderProps = {
 	subPageTitle?: string;

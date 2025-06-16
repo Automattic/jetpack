@@ -17,8 +17,33 @@
 		border: solid 1px currentColor;
 		color: currentColor;
 	}
-	
+
 	:where(&:not(.is-style-outline) button) {
  		border: none;
  	}
+
+	.spinner {
+		display: none;
+		fill: currentColor;
+
+		svg {
+
+			/* Ensure container is of the exact same dimension */
+			display: block;
+		}
+	}
+
+	.is-submitting .spinner {
+		display: inline;
+	}
+
+	.is-visually-hidden {
+		clip: rect(0 0 0 0);
+		clip-path: inset(50%);
+		height: 1px;
+		overflow: hidden;
+		position: absolute;
+		white-space: nowrap;
+		width: 1px;
+	}
 }

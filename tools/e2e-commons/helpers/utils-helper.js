@@ -212,10 +212,14 @@ export function getSiteCredentials() {
  */
 export function setWpEnvVars() {
 	const site = getConfigTestSite();
+	const storage = config.get( 'temp.storage' );
 
 	process.env.WP_BASE_URL = resolveSiteUrl();
 	process.env.WP_USERNAME = site.username;
 	process.env.WP_PASSWORD = site.password;
+	if ( storage ) {
+		process.env.STORAGE_STATE_PATH = storage;
+	}
 }
 
 /**
