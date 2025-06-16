@@ -122,6 +122,7 @@ class WooCommerce extends Module {
 		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_woocommerce_options_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_woocommerce_constants_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_dynamic_attribute_meta_whitelist' ), 11 );
 		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
@@ -377,6 +378,40 @@ class WooCommerce extends Module {
 	 */
 	public function add_woocommerce_post_meta_whitelist( $list ) {
 		return array_merge( $list, self::$wc_post_meta_whitelist );
+	}
+
+	/**
+	 * Add dynamic WooCommerce product attribute meta keys to the post meta whitelist.
+	 *
+	 * This method queries the database for all meta keys that follow the pattern 'attribute_*'
+	 * which are used by WooCommerce for product variations. These keys are dynamically created
+	 * based on the attribute names, so we need to discover them at runtime.
+	 *
+	 * @access public
+	 *
+	 * @param array $list Existing post meta whitelist.
+	 * @return array Updated post meta whitelist with dynamic attribute keys.
+	 */
+	public function add_woocommerce_dynamic_attribute_meta_whitelist( $list ) {
+		global $wpdb;
+
+		$cache_key = 'jp_sync_wc_attribute_meta_keys';
+		$keys      = wp_cache_get( $cache_key, 'jetpack' );
+
+		if ( false === $keys ) {
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$keys = $wpdb->get_col(
+				"SELECT DISTINCT meta_key
+					FROM $wpdb->postmeta
+					WHERE meta_key LIKE 'attribute_%'
+					LIMIT 1000"
+			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
+
+			wp_cache_set( $cache_key, $keys, 'jetpack', 3 * HOUR_IN_SECONDS );
+		}
+
+		return array_merge( $list, $keys );
 	}
 
 	/**
