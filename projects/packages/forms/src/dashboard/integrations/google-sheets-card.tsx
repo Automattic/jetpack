@@ -1,7 +1,7 @@
-import { Button } from '@wordpress/components';
+import { Button, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import GoogleSheetsIcon from '../../icons/google-sheets';
 import type { IntegrationCardProps } from '../../types';
@@ -53,7 +53,7 @@ const GoogleSheetsDashboardCard = ( {
 							'jetpack-forms'
 						) }
 					</p>
-					<div style={ { display: 'flex', gap: '8px', alignItems: 'center' } }>
+					<HStack spacing="3" justify="start">
 						<Button
 							variant="secondary"
 							onClick={ handleConnectClick }
@@ -65,9 +65,9 @@ const GoogleSheetsDashboardCard = ( {
 							{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
 						</Button>
 						<Button variant="tertiary" onClick={ refreshStatus } __next40pxDefaultSize={ true }>
-							{ __( 'Refresh Status', 'jetpack-forms' ) }
+							{ __( 'Refresh status', 'jetpack-forms' ) }
 						</Button>
-					</div>
+					</HStack>
 				</div>
 			) : (
 				<div>

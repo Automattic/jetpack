@@ -144,15 +144,8 @@ function zeroBSCRM_render_tasks_calendar_page() {
 
 
 				<script>
-				<?php
-				/*
-				debug
-				var task_debug = <?php echo $task_json; ?>;
-				console.log('tasks:',task_debug); */
-				?>
 
 					jQuery(function() {
-						
 						jQuery('#calendar').fullCalendar({
 							header: {
 								left: 'prev,next today',
@@ -167,7 +160,27 @@ function zeroBSCRM_render_tasks_calendar_page() {
 							weekends: true,
 							disableDragging: true,
 							events: <?php echo $task_json; ?>,
-							firstDay: <?php echo (int) get_option( 'start_of_week', 0 ); ?>
+							firstDay: <?php echo (int) get_option( 'start_of_week', 0 ); ?>,
+							eventRender: function( eventObj, el, view ) {
+								// Add avatar to events.
+								const avatarHtml = eventObj.avatar ? '<div class="avatar zbs-avatar"><img src="'+ jpcrm.esc_attr(eventObj.avatar) +'"/></div>' : '';
+								if ( view.name === 'listMonth' ) {
+									el.children().last().children().first().prepend( avatarHtml );
+								} else {
+									el.children().first().addClass( 'zbs-' + eventObj.showonCal );
+									el.children().first().prepend( avatarHtml );
+								}
+
+								// Add completion checkmark next to event.
+								const completeHtml = '<span class="ui green circular label zbs-cal-complete zbs-comp'+eventObj.complete+'"><i class="ui icon check"></i></span>';
+								if ( view.name === 'month' ) {
+									el.children().first().append( completeHtml );
+								} else if ( view.name === 'listMonth' ) {
+									el.children().eq(1).children().first().html( completeHtml );
+								} else {
+									el.children().first().children().last().append( ' ' + completeHtml );
+								}
+							},
 						});
 						
 					});

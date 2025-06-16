@@ -2,7 +2,7 @@ import * as WPElement from '@wordpress/element';
 import { _x } from '@wordpress/i18n';
 import { assign } from 'lodash';
 import { Provider } from 'react-redux';
-import { HashRouter, Route, Routes } from 'react-router-dom';
+import { HashRouter, Route, Routes } from 'react-router';
 import accessibleFocus from 'lib/accessible-focus';
 import Main from 'main';
 import * as actionTypes from 'state/action-types';

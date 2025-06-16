@@ -10,7 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
 import React from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import AtAGlance from 'at-a-glance/index.jsx';
 import AdminNotices from 'components/admin-notices';
 import AppsCard from 'components/apps-card';
@@ -854,15 +854,6 @@ class Main extends React.Component {
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
-					{ /*
-					This component was removed as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
-					It could probably be brought back with `unstable_usePrompt`, but that is broken with the hash router and normal links,
-					and is already not reliable cross-browser anyway.
-					<Prompt
-						when={ this.props.areThereUnsavedSettings }
-						message={ this.handleRouterWillLeave }
-					/>
-					*/ }
 
 					{ this.renderMainContent( this.props.location.pathname ) }
 					{ this.shouldShowJetpackManageBanner() && (

@@ -33,7 +33,7 @@
 		"prop-types": "15.8.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"react-router-dom": "6.30.0"
+		"react-router": "7.6.2"
 	},
 	"devDependencies": {
 		"@automattic/color-studio": "4.1.0",
@@ -52,6 +52,7 @@
 		"css-loader": "6.11.0",
 		"daterangepicker": "2.1.25",
 		"font-awesome": "4.7.0",
+		"fullcalendar": "3.10.5",
 		"glob": "11.0.2",
 		"hopscotch": "0.3.1",
 		"jest": "30.0.0",

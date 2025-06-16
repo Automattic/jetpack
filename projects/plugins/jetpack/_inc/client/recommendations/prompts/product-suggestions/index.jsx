@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { connect } from 'react-redux';
-import { Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import {
