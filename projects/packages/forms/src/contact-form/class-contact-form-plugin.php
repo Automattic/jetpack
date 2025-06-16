@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
@@ -582,7 +583,10 @@ class Contact_Form_Plugin {
 		static $step = 0;
 		++$step;
 
-		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+		$version = Constants::get_constant( 'JETPACK__VERSION' );
+		if ( empty( $version ) ) {
+			$version = '0.1';
+		}
 
 		\wp_enqueue_script_module(
 			'jetpack-form-step',
@@ -632,7 +636,10 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_form_step_navigation( $atts, $content ) {
 
-		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+		$version = Constants::get_constant( 'JETPACK__VERSION' );
+		if ( empty( $version ) ) {
+			$version = '0.1';
+		}
 		\wp_enqueue_script_module(
 			'jetpack-form-step-navigation',
 			plugins_url( '../../dist/modules/form-step-navigation/view.js', __FILE__ ),
@@ -701,7 +708,10 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the progress indicator.
 	 */
 	public static function gutenblock_render_form_progress_indicator( $attributes, $content ) {
-		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+		$version = Constants::get_constant( 'JETPACK__VERSION' );
+		if ( empty( $version ) ) {
+			$version = '0.1';
+		}
 
 		// Enqueue the frontend style for the progress indicator.
 		$style_handle = 'jetpack-form-progress-indicator-style';
