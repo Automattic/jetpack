@@ -18,7 +18,6 @@ class Block_Delimiter_Performance_Test extends TestCase {
 	public function test_performance_comparison(): void {
 		if ( ! function_exists( 'parse_blocks' ) ) {
 			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
-			return;
 		}
 
 		// Create a post with multiple blocks

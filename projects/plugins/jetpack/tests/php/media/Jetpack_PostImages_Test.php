@@ -1065,7 +1065,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	public function test_from_blocks_with_block_delimiter() {
 		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
 			$this->markTestSkipped( 'Block_Delimiter not available' );
-			return;
 		}
 
 		$post_info = $this->get_post_with_image_block();
@@ -1087,7 +1086,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	public function test_from_blocks_with_gallery_block_delimiter() {
 		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
 			$this->markTestSkipped( 'Block_Delimiter not available' );
-			return;
 		}
 
 		$post_info = $this->get_post_with_gallery_block();
@@ -1109,7 +1107,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	public function test_from_blocks_with_columns_block_delimiter() {
 		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
 			$this->markTestSkipped( 'Block_Delimiter not available' );
-			return;
 		}
 
 		$post_info = $this->get_post_with_columns_block();
@@ -1131,7 +1128,6 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 	public function test_from_blocks_with_story_block_delimiter() {
 		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
 			$this->markTestSkipped( 'Block_Delimiter not available' );
-			return;
 		}
 
 		$media_types = array( 'image', 'videopress' );
