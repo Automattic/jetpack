@@ -23,7 +23,7 @@ import type { IntegrationCardData } from '../../../../../types';
 type IntegrationCardHeaderProps = {
 	title: string;
 	description: string;
-	icon: React.ReactNode;
+	icon: string | React.ReactNode;
 	isExpanded: boolean;
 	onToggle: ( e: React.MouseEvent< HTMLDivElement > ) => void;
 	cardData: IntegrationCardData;

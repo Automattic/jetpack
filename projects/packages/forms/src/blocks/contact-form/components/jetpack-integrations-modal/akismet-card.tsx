@@ -1,16 +1,26 @@
+/**
+ * External dependencies
+ */
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import AkismetIcon from '../../../../icons/akismet';
 import IntegrationCard from './integration-card';
+/**
+ * Types
+ */
+import type { IntegrationCardProps, IntegrationCardData } from '../../../../types';
 
-const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
+const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus }: IntegrationCardProps ) => {
 	const formSubmissionsUrl = data?.details?.formSubmissionsSpamUrl || '';
 
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 
-	const cardData = {
+	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: true,
 		headerToggleValue: akismetActiveWithKey,

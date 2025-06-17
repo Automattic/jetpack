@@ -1,12 +1,28 @@
+/**
+ * External dependencies
+ */
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { ToggleControl, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import CreativeMailIcon from '../../../../icons/creative-mail';
 import IntegrationCard from './integration-card';
+/**
+ * Types
+ */
+import type { IntegrationCardProps, IntegrationCardData } from '../../../../types';
 
-const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus, borderBottom = true } ) => {
+const CreativeMailCard = ( {
+	isExpanded,
+	onToggle,
+	data,
+	refreshStatus,
+	borderBottom = true,
+}: IntegrationCardProps & { borderBottom?: boolean } ) => {
 	const { settingsUrl = '' } = data || {};
 
 	const selectedBlock = useSelect( select => select( blockEditorStore ).getSelectedBlock(), [] );
@@ -14,14 +30,14 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus, borderBo
 	const { insertBlock, removeBlock } = useDispatch( blockEditorStore );
 
 	const hasEmailBlock = selectedBlock?.innerBlocks?.some(
-		( { name } ) => name === 'jetpack/field-email'
+		( { name }: { name: string } ) => name === 'jetpack/field-email'
 	);
 
 	const consentBlock = selectedBlock?.innerBlocks?.find(
-		( { name } ) => name === 'jetpack/field-consent'
+		( { name }: { name: string } ) => name === 'jetpack/field-consent'
 	);
 
-	const cardData = {
+	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: false,
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
@@ -42,7 +58,7 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus, borderBo
 			await removeBlock( consentBlock.clientId, false );
 		} else {
 			const buttonBlockIndex = selectedBlock.innerBlocks.findIndex(
-				( { name } ) => name === 'jetpack/button'
+				( { name }: { name: string } ) => name === 'jetpack/button'
 			);
 			const newConsentBlock = await createBlock( 'jetpack/field-consent' );
 			await insertBlock( newConsentBlock, buttonBlockIndex, selectedBlock.clientId, false );
