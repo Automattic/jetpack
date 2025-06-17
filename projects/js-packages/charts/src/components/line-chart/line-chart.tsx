@@ -237,16 +237,15 @@ const LineChart: FC< LineChartProps > = ( {
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 
-	const [ keyboardNavigationActive, setKeyboardNavigationActive ] = useState( false );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 
 	const tooltipRef = useCallback(
 		( element: HTMLDivElement | null ) => {
-			if ( element && keyboardNavigationActive && selectedIndex !== undefined ) {
+			if ( element && selectedIndex !== undefined ) {
 				element.focus();
 			}
 		},
-		[ keyboardNavigationActive, selectedIndex ]
+		[ selectedIndex ]
 	);
 
 	const dataSorted = useMemo(
@@ -325,7 +324,7 @@ const LineChart: FC< LineChartProps > = ( {
 		return ( params: RenderTooltipParams< DataPointDate > ) => {
 			const tooltipContent = renderTooltip( params );
 
-			if ( keyboardNavigationActive && selectedIndex !== undefined ) {
+			if ( selectedIndex !== undefined ) {
 				return (
 					<div
 						ref={ tooltipRef }
@@ -345,7 +344,7 @@ const LineChart: FC< LineChartProps > = ( {
 				</div>
 			);
 		};
-	}, [ renderTooltip, keyboardNavigationActive, selectedIndex, tooltipRef ] );
+	}, [ renderTooltip, selectedIndex, tooltipRef ] );
 
 	const onKeyDown = useMemo(
 		() => ( event: React.KeyboardEvent< HTMLDivElement > ) => {
@@ -354,14 +353,9 @@ const LineChart: FC< LineChartProps > = ( {
 
 			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
 
-			if ( ! keyboardNavigationActive ) {
-				setKeyboardNavigationActive( true );
-			}
-
 			if ( currentSelectedIndex + 1 >= size && [ 'ArrowRight', 'Tab' ].includes( event.key ) ) {
 				chartRef.current?.focus();
 
-				setKeyboardNavigationActive( false );
 				setSelectedIndex( undefined );
 				return;
 			}
@@ -374,11 +368,10 @@ const LineChart: FC< LineChartProps > = ( {
 				setSelectedIndex( ( currentSelectedIndex - 1 + size ) % size );
 			} else if ( event.key === 'Escape' ) {
 				setSelectedIndex( undefined );
-				setKeyboardNavigationActive( false );
 				chartRef.current?.focus();
 			}
 		},
-		[ dataSorted, selectedIndex, keyboardNavigationActive ]
+		[ dataSorted, selectedIndex ]
 	);
 
 	const error = validateData( dataSorted );
@@ -471,7 +464,7 @@ const LineChart: FC< LineChartProps > = ( {
 						{ dataSorted && (
 							<HighlightTooltip
 								series={ dataSorted }
-								selectedIndex={ keyboardNavigationActive ? selectedIndex : undefined }
+								selectedIndex={ selectedIndex !== undefined ? selectedIndex : undefined }
 							/>
 						) }
 						<Tooltip
