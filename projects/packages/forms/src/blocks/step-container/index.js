@@ -51,6 +51,7 @@ export const settings = {
 			type: 'object',
 		},
 	},
+	template: [ [ 'jetpack/form-step', {} ] ],
 	edit: edit,
 	save: save,
 	example: {},

@@ -11,7 +11,7 @@ export const settings = {
 	title: __( 'Step Divider', 'jetpack-forms' ),
 	description: __( 'Split the current step into two steps.', 'jetpack-forms' ),
 	category: 'contact-form',
-	parent: [ 'jetpack/form-step' ],
+	parent: [ 'jetpack/contact-form', 'jetpack/form-step' ],
 	icon: {
 		foreground: getIconColor(),
 		src: renderMaterialIcon( <Path d="M19 13H5v-2h14v2z" /> ),
