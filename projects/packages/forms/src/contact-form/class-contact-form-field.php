@@ -842,7 +842,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "<textarea
 		                style='" . $this->field_styles . "'
 		                name='" . esc_attr( $id ) . "'
-		                id='contact-form-comment-" . esc_attr( $id ) . "'
+		                id='" . esc_attr( $id ) . "'
 		                rows='20'
 						data-wp-text='state.getFieldValue'
 						data-wp-on--input='actions.onFieldChange'
