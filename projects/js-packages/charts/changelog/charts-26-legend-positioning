@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+Comment: Add support for custom legend positioning with align and verticalAlign props
+
