@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { SVG, Path } from '@wordpress/primitives';
 
 const JetpackFormsLogo = () => (
