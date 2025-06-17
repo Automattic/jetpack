@@ -21,7 +21,7 @@ import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect } from '@wordpress/element';
+import { useRef, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
@@ -67,12 +67,21 @@ const ALLOWED_CORE_BLOCKS = [
 	'core/video',
 ];
 
+// At the top level of a multistep form we allow navigation, progress indicator
+// and the step-container itself (users may add it manually before steps are
+// auto-structured). The core block list remains unchanged.
 const ALLOWED_MULTI_STEP_BLOCKS = [
 	'jetpack/form-step-navigation',
 	'jetpack/form-progress-indicator',
+	'jetpack/step-container',
+	'jetpack/step-divider',
 ].concat( ALLOWED_CORE_BLOCKS );
 
-const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( ALLOWED_CORE_BLOCKS );
+const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( [
+	'jetpack/step-divider',
+	'jetpack/step-container',
+] ).concat( ALLOWED_CORE_BLOCKS );
+
 const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
 
 function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
@@ -89,12 +98,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
 	const steps = useFormSteps( clientId );
-
-	const formVariation = useRef( variationName );
-	const initialStepContainer = useFindBlockRecursively(
-		clientId,
-		block => block.name === 'jetpack/step-container'
-	);
 
 	const submitButton = useFindBlockRecursively(
 		clientId,
@@ -197,52 +200,89 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		[ clientId ]
 	);
 
-	// If a user manually inserts Multistep building blocks (without using the variation
-	// picker) automatically switch the form to the multistep mode. This watcher must **not**
-	// run when the variation is already multistep (e.g. after picking the template), or it
-	// would create an extra undo level.
-	useEffect( () => {
-		if ( variationName === 'multistep' ) {
-			return;
-		}
-
-		if (
-			currentInnerBlocks.some(
-				block => block.name === 'jetpack/form-step' || block.name === 'jetpack/step-container'
-			)
-		) {
-			setAttributes( { variationName: 'multistep' } );
-		}
-	}, [ variationName, currentInnerBlocks, setAttributes ] );
+	// Deep-scan helper – user might drop a Step block inside nested structures.
+	const containsMultistepBlock = useCallback( function hasMultistep( blocks ) {
+		return blocks.some(
+			b =>
+				b.name === 'jetpack/form-step' ||
+				b.name === 'jetpack/step-container' ||
+				b.name === 'jetpack/step-divider' ||
+				( b.innerBlocks?.length && hasMultistep( b.innerBlocks ) )
+		);
+	}, [] );
 
 	// Detect a conversion to a multistep form and structure inner blocks only once.
 	const hasStructuredRef = useRef( false );
 
 	useEffect( () => {
-		// Only proceed when switching to the multistep variation for the first time.
-		if ( variationName !== 'multistep' || hasStructuredRef.current ) {
+		/*───────────────────────────────────────────────────────────────────────────
+		 * 1. Early-exit guards
+		 *───────────────────────────────────────────────────────────────────────────
+		 * – The `variationName` gate ensures we only run this effect when the form
+		 *   actually *is* (or has just become) a multistep form. If the user is
+		 *   working with a regular single-step form we leave everything untouched.
+		 * – `hasStructuredRef` prevents the body from executing more than once per
+		 *   block instance (avoids extra undo levels and wasted processing).
+		 *
+		 *───────────────────────────────────────────────────────────────────────────
+		 * 2. Detect whether the form is *already* correctly structured
+		 *───────────────────────────────────────────────────────────────────────────
+		 * Strategy:
+		 *   • If there is exactly ONE `step-container` anywhere in the tree **and**
+		 *   • There are NO `form-step` blocks that live outside that container,
+		 *     we assume the layout came from the Variation Picker (or has already
+		 *     been normalised) and we skip the heavy restructuring.
+		 */
+		const needsMultistep =
+			variationName === 'multistep' || containsMultistepBlock( currentInnerBlocks );
+
+		if ( ! needsMultistep || hasStructuredRef.current ) {
 			return;
 		}
 
-		// Helper: deep-scan blocks for a step-container.
-		const containsStepContainer = blocks =>
-			blocks.some(
-				b =>
-					b.name === 'jetpack/step-container' ||
-					( b.innerBlocks?.length && containsStepContainer( b.innerBlocks ) )
+		/*
+		 * Only skip the expensive restructuring logic when the form is **already in a
+		 * fully-structured multistep shape**:
+		 *   – exactly one `jetpack/step-container` anywhere in the block tree, and
+		 *   – there are **no** `form-step` blocks that live outside that container.
+		 * In all other cases we still need to normalise the tree (e.g. when the user
+		 * inserts a Step Container while other fields remain outside of it).
+		 */
+		const countBlocks = ( blocks, predicate ) =>
+			blocks.reduce(
+				( acc, b ) =>
+					acc + ( predicate( b ) ? 1 : 0 ) + countBlocks( b.innerBlocks || [], predicate ),
+				0
 			);
 
-		// If a Step Container block already exists we assume the template is already
-		// in its correct multistep structure (e.g. inserted via the variation picker)
-		// and skip any further normalisation to keep a single undo snapshot.
-		const alreadyStructured = containsStepContainer( currentInnerBlocks );
-		if ( alreadyStructured ) {
+		const stepContainerCount = countBlocks(
+			currentInnerBlocks,
+			b => b.name === 'jetpack/step-container'
+		);
+
+		// Helper: detect any form-step that is NOT inside a step-container.
+		const hasStrayFormStep = ( blocks, insideContainer = false ) => {
+			for ( const b of blocks ) {
+				const newInside = insideContainer || b.name === 'jetpack/step-container';
+				if ( b.name === 'jetpack/form-step' && ! newInside ) {
+					return true;
+				}
+				if ( b.innerBlocks?.length && hasStrayFormStep( b.innerBlocks, newInside ) ) {
+					return true;
+				}
+			}
+			return false;
+		};
+
+		const formIsFullyStructured =
+			stepContainerCount === 1 && ! hasStrayFormStep( currentInnerBlocks );
+
+		if ( formIsFullyStructured ) {
 			hasStructuredRef.current = true;
 			return;
 		}
 
-		// Mark that we've processed this conversion so we don't repeat it.
-		formVariation.current = 'multistep';
+		// Mark that we'll process the conversion now so we don't repeat it.
 		hasStructuredRef.current = true;
 
 		// Helper functions
@@ -349,11 +389,40 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					stepBlocks.push( createBlock( 'jetpack/form-step', {}, afterBlocks ) );
 				}
 			}
-			// Case C: No step blocks or containers
+			// Case C: No step blocks or containers — build steps based on divider markers.
 			else if ( blocksWithoutButton.length > 0 ) {
-				stepBlocks = blocksWithoutButton.map( block =>
-					createBlock( 'jetpack/form-step', {}, [ block ] )
-				);
+				const hasDivider = blocksWithoutButton.some( b => b.name === 'jetpack/step-divider' );
+
+				if ( hasDivider ) {
+					// Split by divider markers into groups
+					const groups = [];
+					let currentGroup = [];
+
+					blocksWithoutButton.forEach( block => {
+						if ( block.name === 'jetpack/step-divider' ) {
+							// Commit current group (even empty to respect explicit divider)
+							groups.push( currentGroup );
+							currentGroup = [];
+						} else {
+							currentGroup.push( block );
+						}
+					} );
+
+					// Add the trailing group
+					groups.push( currentGroup );
+
+					stepBlocks = groups.map( inner => createBlock( 'jetpack/form-step', {}, inner ) );
+				} else {
+					// Fallback: one step per top-level block
+					stepBlocks = blocksWithoutButton.map( block =>
+						createBlock( 'jetpack/form-step', {}, [ block ] )
+					);
+				}
+
+				// Ensure at least one step exists
+				if ( stepBlocks.length === 0 ) {
+					stepBlocks = [ createBlock( 'jetpack/form-step', {}, [] ) ];
+				}
 			} else {
 				stepBlocks = [ createBlock( 'jetpack/form-step', {}, [] ) ];
 			}
@@ -367,19 +436,33 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		const stepNavigation = createStepNavigation( preparedButton );
 		const progressIndicator = getProgressIndicator();
 
-		// 5. Replace all inner blocks with our structured form
-		replaceInnerBlocks( clientId, [ progressIndicator, stepContainer, stepNavigation ] );
+		// 5. Replace all inner blocks with our structured form (no extra undo level),
+		//    then flip the variation which *does* create the single desired snapshot.
+
+		replaceInnerBlocks( clientId, [ progressIndicator, stepContainer, stepNavigation ], false );
+
+		// Ensure we are marked as multistep – this records the undo level.
+		if ( variationName !== 'multistep' ) {
+			setAttributes( { variationName: 'multistep' } );
+		}
 	}, [
 		variationName,
-		formVariation,
 		currentInnerBlocks,
 		clientId,
 		replaceInnerBlocks,
 		setAttributes,
-		name,
-		initialStepContainer,
-		hasStructuredRef,
+		containsMultistepBlock,
 	] );
+
+	// --- Reset logic -----------------------------------------------------------
+	// When all multistep-specific blocks are removed, clear the structured flag so
+	// that the auto-structuring effect can run again if the user later re-adds
+	// multistep blocks.
+	useEffect( () => {
+		if ( hasStructuredRef.current && ! containsMultistepBlock( currentInnerBlocks ) ) {
+			hasStructuredRef.current = false;
+		}
+	}, [ currentInnerBlocks, containsMultistepBlock ] );
 
 	const { setActiveStep } = useDispatch( singleStepStore );
 
