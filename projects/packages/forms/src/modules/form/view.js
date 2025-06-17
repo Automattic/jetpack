@@ -204,6 +204,20 @@ const { state, actions } = store( NAMESPACE, {
 		get submitButton() {
 			return state.form.querySelector( 'button[data-id-attr="submit-step"]' );
 		},
+
+		get isMultistep() {
+			const context = getContext();
+			return context.isMultistep;
+		},
+
+		get isLastInputInStep() {
+			const context = getContext();
+			return context.fieldId === state.stepInputs[ state.stepInputs.length - 1 ].id;
+		},
+
+		get shouldAutoAdvance() {
+			return state.isMultiStep && state.isLastInputInStep;
+		},
 	},
 
 	actions: {
