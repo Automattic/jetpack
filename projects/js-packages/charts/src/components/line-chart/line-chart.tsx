@@ -290,11 +290,13 @@ const LineChart: FC< LineChartProps > = ( {
 			<XYChart
 				theme={ theme }
 				width={ width }
-				height={ height - (showLegend ? legendHeight : 0) }
-				margin={ { 
-					...defaultMargin, 
+				height={ height - ( showLegend ? legendHeight : 0 ) }
+				margin={ {
+					...defaultMargin,
 					...margin,
-					...(showLegend && legendVerticalAlign === 'top' ? { top: (defaultMargin.top || 0) + legendHeight } : {})
+					...( showLegend && legendVerticalAlign === 'top'
+						? { top: ( defaultMargin.top || 0 ) + legendHeight }
+						: {} ),
 				} }
 				// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 				xScale={ chartOptions.xScale }

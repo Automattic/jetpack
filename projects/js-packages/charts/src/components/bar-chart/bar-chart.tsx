@@ -182,11 +182,13 @@ const BarChart: FC< BarChartProps > = ( {
 			<XYChart
 				theme={ theme }
 				width={ width }
-				height={ height - (showLegend ? legendHeight : 0) }
-				margin={ { 
-					...defaultMargin, 
+				height={ height - ( showLegend ? legendHeight : 0 ) }
+				margin={ {
+					...defaultMargin,
 					...margin,
-					...(showLegend && legendVerticalAlign === 'top' ? { top: (defaultMargin.top || 0) + legendHeight } : {})
+					...( showLegend && legendVerticalAlign === 'top'
+						? { top: ( defaultMargin.top || 0 ) + legendHeight }
+						: {} ),
 				} }
 				xScale={ chartOptions.xScale }
 				yScale={ chartOptions.yScale }

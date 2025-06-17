@@ -5,9 +5,9 @@ import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { useElementHeight } from '../shared/use-element-height';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
@@ -172,7 +172,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
 			data-testid="pie-chart-container"
-			style={{ position: 'relative' }}
+			style={ { position: 'relative' } }
 		>
 			<svg
 				width={ width }

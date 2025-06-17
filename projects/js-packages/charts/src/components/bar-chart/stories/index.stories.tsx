@@ -123,7 +123,6 @@ export const ManyDataSeries: Story = {
 	},
 };
 
-
 export const FixedDimensions: Story = {
 	args: {
 		...Default.args,

@@ -68,12 +68,12 @@ export const BaseLegend = forwardRef< HTMLDivElement, LegendProps >(
 						ref={ ref }
 						role="list"
 						data-testid={ `legend-${ orientation }` }
-						className={ clsx( 
-							styles.legend, 
+						className={ clsx(
+							styles.legend,
 							styles[ `legend--${ orientation }` ],
 							styles[ `legend--align-${ align }` ],
 							styles[ `legend--vertical-align-${ verticalAlign }` ],
-							className 
+							className
 						) }
 						style={ {
 							flexDirection: orientationToFlexDirection[ orientation ],

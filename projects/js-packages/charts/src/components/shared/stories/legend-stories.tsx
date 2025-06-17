@@ -1,10 +1,16 @@
-import type { Meta, StoryFn, StoryObj } from '@storybook/react';
+import type { StoryFn, StoryObj } from '@storybook/react';
 import type { ComponentType } from 'react';
 
 /**
  * Creates reusable legend positioning stories for any chart component
+ * @param ChartComponent         - The chart component to create stories for
+ * @param baseStoryArgs          - Base arguments for the chart component
+ * @param options                - Configuration options for story generation
+ * @param options.customStories  - Additional story variants specific to the chart type
+ * @param options.customArgTypes - Override default legend positioning argTypes if needed
+ * @return Object containing story meta and story objects for legend positioning
  */
-export function createLegendStories< T extends Record< string, any > >(
+export function createLegendStories< T extends Record< string, unknown > >(
 	ChartComponent: ComponentType< T >,
 	baseStoryArgs: T,
 	options: {
@@ -15,7 +21,7 @@ export function createLegendStories< T extends Record< string, any > >(
 		/**
 		 * Override default legend positioning argTypes if needed
 		 */
-		customArgTypes?: Record< string, any >;
+		customArgTypes?: Record< string, unknown >;
 	} = {}
 ) {
 	const Template: StoryFn< T > = args => ChartComponent( args );

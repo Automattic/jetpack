@@ -2,3 +2,4 @@ Significance: minor
 Type: added
 Comment: Add support for custom legend positioning with align and verticalAlign props
 
+Adds new `align` and `verticalAlign` props to chart legend components, allowing flexible positioning of legends (left, center, right alignment and top, bottom vertical positioning). All chart types now support these positioning options while maintaining full backwards compatibility.

@@ -1,6 +1,6 @@
-import React from 'react';
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
+import React from 'react';
 import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import { PieChart } from '../../pie-chart';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
@@ -59,11 +59,11 @@ const meta: Meta< typeof PieChart > = {
 		},
 		legendAlign: {
 			control: 'select',
-			options: ['left', 'center', 'right'],
+			options: [ 'left', 'center', 'right' ],
 		},
 		legendVerticalAlign: {
 			control: 'select',
-			options: ['top', 'bottom'],
+			options: [ 'top', 'bottom' ],
 		},
 	},
 } satisfies Meta< typeof PieChart >;

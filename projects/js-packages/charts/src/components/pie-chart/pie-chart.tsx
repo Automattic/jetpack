@@ -2,9 +2,9 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
-import { useElementHeight } from '../shared/use-element-height';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Legend } from '../legend';
+import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
@@ -155,9 +155,9 @@ const PieChart = ( {
 	} ) );
 
 	return (
-		<div 
+		<div
 			className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
-			style={{ position: 'relative' }}
+			style={ { position: 'relative' } }
 		>
 			<svg
 				viewBox={ `0 0 ${ size } ${ size }` }

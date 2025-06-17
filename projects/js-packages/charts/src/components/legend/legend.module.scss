@@ -18,29 +18,7 @@
 		position: absolute;
 		top: 0;
 		z-index: 10;
-	}
 
-	&--vertical-align-bottom {
-		position: relative;
-	}
-
-	// Horizontal alignment positioning for bottom positioned legends
-	&--vertical-align-bottom {
-		&.legend--align-left {
-			justify-content: flex-start;
-		}
-
-		&.legend--align-center {
-			justify-content: center;
-		}
-
-		&.legend--align-right {
-			justify-content: flex-end;
-		}
-	}
-
-	// Combined positioning for absolute positioned legends
-	&--vertical-align-top {
 		&.legend--align-left {
 			left: 0;
 		}
@@ -52,6 +30,22 @@
 
 		&.legend--align-right {
 			right: 0;
+		}
+	}
+
+	&--vertical-align-bottom {
+		position: relative;
+
+		&.legend--align-left {
+			justify-content: flex-start;
+		}
+
+		&.legend--align-center {
+			justify-content: center;
+		}
+
+		&.legend--align-right {
+			justify-content: flex-end;
 		}
 	}
 }

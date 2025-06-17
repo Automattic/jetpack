@@ -68,11 +68,11 @@ const meta: Meta< typeof BarChart > = {
 		},
 		legendAlign: {
 			control: 'select',
-			options: ['left', 'center', 'right'],
+			options: [ 'left', 'center', 'right' ],
 		},
 		legendVerticalAlign: {
 			control: 'select',
-			options: ['top', 'bottom'],
+			options: [ 'top', 'bottom' ],
 		},
 	},
 } satisfies Meta< typeof BarChart >;
