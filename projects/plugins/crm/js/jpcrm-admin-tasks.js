@@ -87,11 +87,20 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				? '<img class="jpcrm-avatar" src="' + jpcrm.esc_attr( eventProps.avatar ) + '"/>'
 				: '';
 			const completeHTML = eventProps.complete === 1 ? '<i class="fa fa-check"></i></span>' : '';
-			const eventText = args.timeText + ' ' + args.event.title;
-			const html = avatarHTML + completeHTML + eventText;
+			let eventText = args.event.title;
+			if ( args.view.type !== 'listMonth' ) {
+				// listMonth has the timeText displayed already.
+				eventText = args.timeText + ' ' + eventText;
+			}
+			let html = avatarHTML + completeHTML + eventText;
+			html =
+				'<div class="event_html" title="' + jpcrm.esc_attr( eventText ) + '">' + html + '</div>';
+			if ( args.view.type === 'listMonth' ) {
+				// All the other views add the link automatically, but not this one.
+				html = '<a href="' + jpcrm.esc_attr( args.event._def.url ) + '">' + html + '</a>';
+			}
 			return {
-				html:
-					'<div class="event_html" title="' + jpcrm.esc_attr( eventText ) + '">' + html + '</div>',
+				html: html,
 			};
 		},
 	} );
