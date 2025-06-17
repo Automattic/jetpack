@@ -1,4 +1,5 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
+import { Annotation, CircleSubject, Connector, Label } from '@visx/annotation';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import { XYChart, AreaSeries, Tooltip, Grid, Axis, DataContext } from '@visx/xychart';
@@ -113,6 +114,7 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 		showVertical?: boolean;
 		showHorizontal?: boolean;
 	};
+	annotations?: LineChartAnnotation[];
 }
 
 type TooltipDatum = {
@@ -147,6 +149,31 @@ const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) =>
 	);
 };
 
+type LineChartAnnotation = {
+	datum: DataPointDate;
+	title: string;
+	subtitle: string;
+};
+
+const PositionedAnnotation = ( { datum, title, subtitle }: LineChartAnnotation ) => {
+	const { xScale, yScale } = useContext( DataContext ) || {};
+	if ( ! xScale || ! yScale ) return null;
+
+	// Convert datum values to chart coordinates using the scales
+	const x = xScale( datum.date );
+	const y = yScale( datum.value );
+
+	if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
+
+	return (
+		<Annotation x={ x } y={ y } dx={ 60 } dy={ 30 }>
+			<Connector type="elbow" />
+			<CircleSubject />
+			<Label title={ title } subtitle={ subtitle } />
+		</Annotation>
+	);
+};
+
 const formatDateTick = ( timestamp: number ) => {
 	const date = new Date( timestamp );
 	return date.toLocaleDateString( undefined, {
@@ -173,6 +200,7 @@ const validateData = ( data: SeriesData[] ) => {
 };
 
 const LineChart: FC< LineChartProps > = ( {
+	annotations,
 	data,
 	width,
 	height,
@@ -377,6 +405,16 @@ const LineChart: FC< LineChartProps > = ( {
 						showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
 					/>
 				) }
+
+				{ annotations?.length &&
+					annotations.map( ( { datum, title, subtitle } ) => (
+						<PositionedAnnotation
+							key={ `annotation-${ datum.date.getTime() }` }
+							datum={ datum }
+							title={ title }
+							subtitle={ subtitle }
+						/>
+					) ) }
 			</XYChart>
 
 			{ showLegend && (
