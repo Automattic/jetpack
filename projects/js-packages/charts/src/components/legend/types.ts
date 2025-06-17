@@ -27,5 +27,6 @@ export type LegendItemWithoutGlyph = BaseLegendItem & {
 export type LegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	items: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
 	orientation?: 'horizontal' | 'vertical';
-	ref?: RefObject< HTMLDivElement >;
+	align?: 'left' | 'center' | 'right';
+	verticalAlign?: 'top' | 'bottom';
 };
