@@ -1,11 +1,20 @@
+/**
+ * External dependencies
+ */
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from 'react-router';
+/**
+ * Internal dependencies
+ */
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import AkismetIcon from '../../icons/akismet';
-import type { IntegrationCardProps } from '../../types';
+/**
+ * Types
+ */
+import type { IntegrationCardProps, IntegrationCardData } from '../../types';
 
 const AkismetDashboardCard = ( {
 	isExpanded,
@@ -16,7 +25,7 @@ const AkismetDashboardCard = ( {
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 	const navigate = useNavigate();
 
-	const cardData = {
+	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: false, // Always off for dashboard
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
@@ -65,15 +74,20 @@ const AkismetDashboardCard = ( {
 							}
 						) }
 					</p>
-					<Button
-						variant="secondary"
-						href={ settingsUrl }
-						target="_blank"
-						rel="noopener noreferrer"
-						__next40pxDefaultSize={ true }
-					>
-						{ __( 'Add Akismet key', 'jetpack-forms' ) }
-					</Button>
+					<HStack spacing="3" justify="start">
+						<Button
+							variant="secondary"
+							href={ settingsUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+							__next40pxDefaultSize={ true }
+						>
+							{ __( 'Add Akismet key', 'jetpack-forms' ) }
+						</Button>
+						<Button variant="tertiary" onClick={ refreshStatus } __next40pxDefaultSize={ true }>
+							{ __( 'Refresh status', 'jetpack-forms' ) }
+						</Button>
+					</HStack>
 				</div>
 			) : (
 				<div>

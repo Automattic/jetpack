@@ -21,11 +21,11 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
-		"jest": "*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.27.4",
 		"@babel/preset-react": "7.27.1",
-		"@types/jest": "29.5.14",
+		"@types/jest": "30.0.0",
+		"jest": "30.0.0",
 		"tslib": "2.5.0",
 		"typescript": "5.8.3",
 		"webpack": "5.94.0",

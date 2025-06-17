@@ -63,12 +63,14 @@ function getImageRatio( img ) {
 }
 
 function applyRowRatio( row, [ ratio, weightedRatio ], width ) {
-	const rawHeight =
-		( 1 / ratio ) * ( width - GUTTER_WIDTH * ( row.childElementCount - 1 ) - weightedRatio );
+	// Account for both JS and CSS gutters (they're the same value)
+	const totalGutterSpace = GUTTER_WIDTH * 2 * ( row.childElementCount - 1 );
+	const availableWidth = width - totalGutterSpace;
+	const rawHeight = ( 1 / ratio ) * ( availableWidth - weightedRatio );
 
 	return applyColRatio( row, {
 		rawHeight,
-		rowWidth: width - GUTTER_WIDTH * ( row.childElementCount - 1 ),
+		rowWidth: availableWidth,
 	} );
 }
 

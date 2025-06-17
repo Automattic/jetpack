@@ -1,4 +1,4 @@
-import { formatNumber } from '@automattic/number-formatters';
+import { formatNumberCompact } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import useProduct from '../../../data/products/use-product';
@@ -58,7 +58,7 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 					{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
 				</div>
 				<div className="value-section__data">
-					<div className="logins_blocked__count">{ formatNumber( blockedLoginsCount ) }</div>
+					<div className="logins_blocked__count">{ formatNumberCompact( blockedLoginsCount ) }</div>
 				</div>
 			</>
 		) : (
@@ -123,7 +123,9 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 									) }
 								/>
 							</div>
-							<div className="logins_blocked__count">{ formatNumber( blockedLoginsCount ) }</div>
+							<div className="logins_blocked__count">
+								{ formatNumberCompact( blockedLoginsCount ) }
+							</div>
 						</>
 					) : (
 						<div>
