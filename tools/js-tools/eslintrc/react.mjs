@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fixupConfigRules } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
+import { defineConfig } from 'eslint/config';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
 /**
@@ -20,8 +21,8 @@ export default function makeReactConfig( configurl ) {
 		resolvePluginsRelativeTo: fileURLToPath( import.meta.url ),
 	} );
 
-	return [
-		...fixupConfigRules( compat.extends( 'plugin:@wordpress/react' ) ),
+	return defineConfig(
+		fixupConfigRules( compat.extends( 'plugin:@wordpress/react' ) ),
 		{
 			name: 'Prettier react rule disables',
 			rules: Object.fromEntries(
@@ -44,6 +45,6 @@ export default function makeReactConfig( configurl ) {
 				'react/no-did-update-set-state': 'error',
 				'react/prefer-es6-class': 'warn',
 			},
-		},
-	];
+		}
+	);
 }

@@ -1,9 +1,10 @@
+import { defineConfig } from 'eslint/config';
 import eslintPluginSvelte from 'eslint-plugin-svelte';
 import svelteEslintParser from 'svelte-eslint-parser';
 import typescriptEslint from 'typescript-eslint';
 
-export default [
-	...eslintPluginSvelte.configs[ 'flat/recommended' ],
+export default defineConfig(
+	eslintPluginSvelte.configs[ 'flat/recommended' ],
 	{
 		languageOptions: {
 			parserOptions: {
@@ -18,10 +19,10 @@ export default [
 			'@wordpress/no-global-event-listener': 'off',
 		},
 	},
-	...typescriptEslint.config( {
+	{
 		files: [ '**/*.svelte' ],
 		extends: [ typescriptEslint.configs.recommended ],
-	} ),
+	},
 	{
 		files: [ '**/*.svelte' ],
 		languageOptions: {
@@ -30,5 +31,5 @@ export default [
 				parser: typescriptEslint.parser,
 			},
 		},
-	},
-];
+	}
+);
