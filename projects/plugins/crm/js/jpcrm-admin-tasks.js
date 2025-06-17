@@ -66,6 +66,9 @@ buttons.forEach( el =>
 
 document.addEventListener( 'DOMContentLoaded', function () {
 	const calendarEl = document.getElementById( 'calendar' );
+	if ( ! calendarEl ) {
+		return;
+	}
 	const calendar = new FullCalendar.Calendar( calendarEl, {
 		locale: jpcrm_fullcalendar_data.locale,
 		headerToolbar: {
