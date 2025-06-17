@@ -48,6 +48,8 @@ const BarChart: FC< BarChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	legendAlign = 'center',
+	legendVerticalAlign = 'bottom',
 	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
@@ -174,13 +176,18 @@ const BarChart: FC< BarChartProps > = ( {
 			style={ {
 				width,
 				height,
+				position: 'relative',
 			} }
 		>
 			<XYChart
 				theme={ theme }
 				width={ width }
-				height={ height - legendHeight }
-				margin={ { ...defaultMargin, ...margin } }
+				height={ height - (showLegend ? legendHeight : 0) }
+				margin={ { 
+					...defaultMargin, 
+					...margin,
+					...(showLegend && legendVerticalAlign === 'top' ? { top: (defaultMargin.top || 0) + legendHeight } : {})
+				} }
 				xScale={ chartOptions.xScale }
 				yScale={ chartOptions.yScale }
 				horizontal={ horizontal }
@@ -237,6 +244,8 @@ const BarChart: FC< BarChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
+					align={ legendAlign }
+					verticalAlign={ legendVerticalAlign }
 					className={ styles[ 'bar-chart__legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }

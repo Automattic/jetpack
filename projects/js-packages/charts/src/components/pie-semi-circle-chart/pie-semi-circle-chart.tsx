@@ -5,6 +5,7 @@ import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback } from 'react';
+import { useElementHeight } from '../shared/use-element-height';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { withResponsive } from '../shared/with-responsive';
@@ -77,12 +78,15 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	legendAlign = 'center',
+	legendVerticalAlign = 'bottom',
 	legendShape = 'circle',
 	label,
 	note,
 	className,
 } ) => {
 	const providerTheme = useChartTheme();
+	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
@@ -168,15 +172,21 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
 			data-testid="pie-chart-container"
+			style={{ position: 'relative' }}
 		>
 			<svg
 				width={ width }
-				height={ height }
-				viewBox={ `0 0 ${ width } ${ height }` }
+				height={ height + ( showLegend && legendVerticalAlign === 'top' ? legendHeight + 20 : 0 ) }
+				viewBox={ `0 0 ${ width } ${
+					height + ( showLegend && legendVerticalAlign === 'top' ? legendHeight + 20 : 0 )
+				}` }
 				data-testid="pie-chart-svg"
 			>
 				{ /* Main chart group that contains both the pie and text elements */ }
-				<Group top={ radius } left={ radius }>
+				<Group
+					top={ radius + ( showLegend && legendVerticalAlign === 'top' ? legendHeight + 20 : 0 ) }
+					left={ radius }
+				>
 					{ /* Pie chart */ }
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
@@ -243,8 +253,11 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
+					align={ legendAlign }
+					verticalAlign={ legendVerticalAlign }
 					className={ styles[ 'pie-semi-circle-chart-legend' ] }
 					shape={ legendShape }
+					ref={ legendRef }
 				/>
 			) }
 		</div>
