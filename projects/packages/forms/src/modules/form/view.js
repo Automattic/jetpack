@@ -14,6 +14,9 @@ const withSyncEvent =
 
 const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
+// Enter auto advance fields
+const enterAdvanceFields = [ 'name', 'text', 'email', 'tel', 'url', 'number' ];
+const cmdAdvanceFields = [ 'textarea' ];
 
 const updateField = ( fieldId, value, showFieldError = false ) => {
 	const context = getContext();
@@ -70,7 +73,7 @@ const getError = field => {
 	return config.error_types && config.error_types[ field.error ];
 };
 
-const { state } = store( NAMESPACE, {
+const { state, actions } = store( NAMESPACE, {
 	state: {
 		get fieldHasErrors() {
 			const context = getContext();
@@ -192,6 +195,15 @@ const { state } = store( NAMESPACE, {
 			const field = context.fields[ fieldId ];
 			return field.value;
 		},
+
+		get form() {
+			const context = getContext();
+			return document.getElementById( 'jp-form-' + context.formHash );
+		},
+
+		get submitButton() {
+			return state.form.querySelector( 'button[data-id-attr="submit-step"]' );
+		},
 	},
 
 	actions: {
@@ -251,9 +263,17 @@ const { state } = store( NAMESPACE, {
 				context.showErrors = true;
 				event.preventDefault();
 				event.stopPropagation();
-			} else {
-				context.isSubmitting = true;
+				return false;
 			}
+			context.isSubmitting = true;
+			return true;
+		} ),
+
+		triggerSubmit: withSyncEvent( event => {
+			if ( actions.onFormSubmit( event ) ) {
+				state.form.requestSubmit( state.submitButton );
+			}
+			state.form.requestSubmit( state.submitButton );
 		} ),
 
 		scrollIntoView: withSyncEvent( event => {
@@ -283,6 +303,34 @@ const { state } = store( NAMESPACE, {
 				fieldset.querySelector( 'input' ).focus( { preventScroll: true } );
 				fieldset.scrollIntoView( { behavior: 'smooth' } );
 				event.preventDefault();
+			}
+		} ),
+
+		onInputKeyDown: withSyncEvent( event => {
+			const context = getContext();
+
+			if ( enterAdvanceFields.includes( context.fieldType ) && event.key === 'Enter' ) {
+				event.preventDefault();
+				if ( state.isLastStep ) {
+					actions.triggerSubmit( event );
+				} else {
+					actions.nextStep( event );
+				}
+				return;
+			}
+
+			if (
+				cmdAdvanceFields.includes( context.fieldType ) &&
+				event.key === 'Enter' &&
+				// cmd/meta for Mac, ctrl for Windows
+				( event.metaKey || event.ctrlKey )
+			) {
+				event.preventDefault();
+				if ( state.isLastStep ) {
+					actions.triggerSubmit( event );
+				} else {
+					actions.nextStep( event );
+				}
 			}
 		} ),
 	},
