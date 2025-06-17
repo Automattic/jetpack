@@ -199,6 +199,7 @@ const HighlightTooltip: React.FC< {
 			} );
 		} );
 
+		// Don't include tooltipContext in the dependency array to avoid loop.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ selectedIndex, series ] );
 
