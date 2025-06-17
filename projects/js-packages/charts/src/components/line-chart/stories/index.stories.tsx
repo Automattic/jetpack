@@ -235,39 +235,18 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 	render: () => {
 		// Create sample data that highlights the difference between curve types
 		// Monotone X will prevent overshooting on steep changes followed by gradual changes
-		const baseData = [
-			{ date: new Date( '2024-01-01' ), value: 10 },
-			{ date: new Date( '2024-01-02' ), value: 90 }, // Sharp rise
-			{ date: new Date( '2024-01-03' ), value: 85 }, // Slight decline
-			{ date: new Date( '2024-01-04' ), value: 82 }, // Gradual decline
-			{ date: new Date( '2024-01-05' ), value: 5 }, // Sharp drop
-			{ date: new Date( '2024-01-06' ), value: 8 }, // Slight rise
-			{ date: new Date( '2024-01-07' ), value: 10 }, // Gradual rise
-		];
-
-		const linearData = [
-			{
-				label: 'Linear',
-				data: baseData,
-				options: {},
-			},
-		];
-
-		const smoothData = [
-			{
-				label: 'Smooth Curve',
-				data: baseData,
-				options: {},
-			},
-		];
-
-		const monotoneData = [
-			{
-				label: 'Monotone X Curve',
-				data: baseData,
-				options: {},
-			},
-		];
+		const curveData = {
+			label: 'Sample Series',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 10 },
+				{ date: new Date( '2024-01-02' ), value: 90 }, // Sharp rise
+				{ date: new Date( '2024-01-03' ), value: 85 }, // Slight decline
+				{ date: new Date( '2024-01-04' ), value: 82 }, // Gradual decline
+				{ date: new Date( '2024-01-05' ), value: 5 }, // Sharp drop
+				{ date: new Date( '2024-01-06' ), value: 8 }, // Slight rise
+				{ date: new Date( '2024-01-07' ), value: 10 }, // Gradual rise
+			],
+		};
 
 		return (
 			<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(3, 1fr)' } }>
@@ -276,7 +255,7 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 					<LineChart
 						width={ 300 }
 						height={ 200 }
-						data={ linearData }
+						data={ curveData }
 						curveType="linear"
 						showLegend={ false }
 						withGradientFill={ false }
@@ -287,7 +266,7 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 					<LineChart
 						width={ 300 }
 						height={ 200 }
-						data={ smoothData }
+						data={ curveData }
 						curveType="smooth"
 						showLegend={ false }
 						withGradientFill={ false }
@@ -298,7 +277,7 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 					<LineChart
 						width={ 300 }
 						height={ 200 }
-						data={ monotoneData }
+						data={ curveData }
 						curveType="monotone"
 						showLegend={ false }
 						withGradientFill={ false }
