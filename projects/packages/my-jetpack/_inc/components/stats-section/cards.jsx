@@ -1,7 +1,7 @@
 import { BarChart } from '@automattic/charts';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty } from '@wordpress/icons';
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import formatNumber from '../../utils/format-number';
 import CountComparisonCard from './count-comparison-card';
 import createStatDiffText from './create-stat-diff-text';
@@ -33,74 +33,73 @@ const createStatSRText = ( countStat, count, previousCount ) => {
 };
 
 /**
- * Transforms WordPress.com API stats data to BarChart SeriesData format
+ * Get the display label for a metric
  *
- * @param {object} apiData - Data from WordPress.com stats API with fields and data arrays
+ * @param {string} metric - The metric name (views, visitors, likes, comments)
+ * @return {string} The translated display label
+ */
+const getMetricLabel = metric => {
+	const labels = {
+		views: __( 'Views', 'jetpack-my-jetpack' ),
+		visitors: __( 'Visitors', 'jetpack-my-jetpack' ),
+		likes: __( 'Likes', 'jetpack-my-jetpack' ),
+		comments: __( 'Comments', 'jetpack-my-jetpack' ),
+	};
+	return labels[ metric ] || metric;
+};
+
+/**
+ * Transforms WordPress.com API stats data to BarChart SeriesData format for a single metric
+ *
+ * @param {object} apiData        - Data from WordPress.com stats API with fields and data arrays
+ * @param {string} selectedMetric - The metric to display (views, visitors, likes, comments)
  * @return {Array} SeriesData array formatted for BarChart component
  */
-const transformStatsDataForChart = apiData => {
+const transformStatsDataForChart = ( apiData, selectedMetric = 'views' ) => {
 	if ( ! apiData || ! apiData.fields || ! apiData.data || ! Array.isArray( apiData.data ) ) {
 		return [];
 	}
 
 	const { fields, data } = apiData;
 
-	// Find the index of each field we want to chart
+	// Find the index of the period and selected metric
 	const periodIndex = fields.indexOf( 'period' );
+	const metricIndex = fields.indexOf( selectedMetric );
 
-	// If period index is not found, we can't process the data
-	if ( periodIndex === -1 ) {
+	// If either index is not found, we can't process the data
+	if ( periodIndex === -1 || metricIndex === -1 ) {
 		return [];
 	}
 
-	const viewsIndex = fields.indexOf( 'views' );
-	const visitorsIndex = fields.indexOf( 'visitors' );
-	const likesIndex = fields.indexOf( 'likes' );
-	const commentsIndex = fields.indexOf( 'comments' );
-
-	// Create series data for each metric
-	const series = [];
-
-	// Helper function to create series data for a specific metric
-	const createSeries = ( label, fieldIndex, color ) => {
-		if ( fieldIndex === -1 ) {
-			return null;
-		}
-
-		return {
-			label,
+	// Return single series data for the selected metric
+	return [
+		{
+			label: getMetricLabel( selectedMetric ),
 			data: data.map( dataPoint => ( {
 				date: new Date( dataPoint[ periodIndex ] ),
-				value: dataPoint[ fieldIndex ] || 0,
+				value: dataPoint[ metricIndex ] || 0,
 			} ) ),
 			options: {
-				stroke: color,
+				stroke: '#00A32A', // Consistent green color for all metrics
 			},
-		};
+		},
+	];
+};
+
+/**
+ * Get the dynamic title based on selected metric
+ *
+ * @param {string} metric - The selected metric
+ * @return {string} The translated title
+ */
+const getDynamicTitle = metric => {
+	const titles = {
+		views: __( 'Views in the last 7 days', 'jetpack-my-jetpack' ),
+		visitors: __( 'Visitors in the last 7 days', 'jetpack-my-jetpack' ),
+		likes: __( 'Likes in the last 7 days', 'jetpack-my-jetpack' ),
+		comments: __( 'Comments in the last 7 days', 'jetpack-my-jetpack' ),
 	};
-
-	// Add series for each available metric with Jetpack brand colors
-	const viewsSeries = createSeries( __( 'Views', 'jetpack-my-jetpack' ), viewsIndex, '#00A32A' );
-	const visitorsSeries = createSeries(
-		__( 'Visitors', 'jetpack-my-jetpack' ),
-		visitorsIndex,
-		'#0073AA'
-	);
-	const likesSeries = createSeries( __( 'Likes', 'jetpack-my-jetpack' ), likesIndex, '#D63638' );
-	const commentsSeries = createSeries(
-		__( 'Comments', 'jetpack-my-jetpack' ),
-		commentsIndex,
-		'#D54E21'
-	);
-
-	// Filter out null series and add to the series array
-	[ viewsSeries, visitorsSeries, likesSeries, commentsSeries ].forEach( seriesData => {
-		if ( seriesData ) {
-			series.push( seriesData );
-		}
-	} );
-
-	return series;
+	return titles[ metric ] || titles.views;
 };
 
 /**
@@ -117,30 +116,57 @@ const transformStatsDataForChart = apiData => {
 const StatsCards = ( { counts, previousCounts, headingLevel, chartData } ) => {
 	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
 
-	// Transform the API data to BarChart format
-	const transformedChartData = transformStatsDataForChart( chartData );
+	// State for selected metric (default to 'views')
+	const [ selectedMetric, setSelectedMetric ] = useState( 'views' );
+
+	// Transform the API data to BarChart format for selected metric
+	const transformedChartData = transformStatsDataForChart( chartData, selectedMetric );
+
+	// Handle metric selection
+	const handleMetricSelect = useCallback( metric => {
+		setSelectedMetric( metric );
+	}, [] );
+
+	// Individual handlers for each metric to avoid arrow functions in JSX
+	const handleViewsClick = useCallback(
+		() => handleMetricSelect( 'views' ),
+		[ handleMetricSelect ]
+	);
+	const handleVisitorsClick = useCallback(
+		() => handleMetricSelect( 'visitors' ),
+		[ handleMetricSelect ]
+	);
+	const handleLikesClick = useCallback(
+		() => handleMetricSelect( 'likes' ),
+		[ handleMetricSelect ]
+	);
+	const handleCommentsClick = useCallback(
+		() => handleMetricSelect( 'comments' ),
+		[ handleMetricSelect ]
+	);
 
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
 			<Heading className={ styles[ 'section-title' ] }>
-				<span>{ __( '7-day highlights', 'jetpack-my-jetpack' ) }</span>
-				<small className={ styles[ 'section-description' ] }>
-					{ __( 'Compared to previous period', 'jetpack-my-jetpack' ) }
-				</small>
+				<span>{ getDynamicTitle( selectedMetric ) }</span>
 			</Heading>
 
-			{
-				<div className={ styles[ 'chart-container' ] } style={ { marginBottom: '20px' } }>
-					<BarChart
-						data={ transformedChartData }
-						width={ 400 }
-						height={ 200 }
-						withTooltips={ true }
-						showLegend={ true }
-						legendOrientation="horizontal"
-					/>
-				</div>
-			}
+			<div className={ styles[ 'chart-container' ] }>
+				<BarChart
+					data={ transformedChartData }
+					height={ 200 }
+					withTooltips={ true }
+					showLegend={ false }
+					gridVisibility="x"
+					options={ {
+						axis: {
+							y: {
+								orientation: 'right',
+							},
+						},
+					} }
+				/>
+			</div>
 
 			<ul className={ styles[ 'cards-list' ] }>
 				<CountComparisonCard
@@ -155,6 +181,8 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData } ) => {
 					count={ counts?.views }
 					previousCount={ previousCounts?.views }
 					as="li"
+					isSelected={ selectedMetric === 'views' }
+					onClick={ handleViewsClick }
 				/>
 				<CountComparisonCard
 					heading={ __( 'Visitors', 'jetpack-my-jetpack' ) }
@@ -168,6 +196,8 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData } ) => {
 					count={ counts?.visitors }
 					previousCount={ previousCounts?.visitors }
 					as="li"
+					isSelected={ selectedMetric === 'visitors' }
+					onClick={ handleVisitorsClick }
 				/>
 				<CountComparisonCard
 					heading={ __( 'Likes', 'jetpack-my-jetpack' ) }
@@ -181,6 +211,8 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData } ) => {
 					count={ counts?.likes }
 					previousCount={ previousCounts?.likes }
 					as="li"
+					isSelected={ selectedMetric === 'likes' }
+					onClick={ handleLikesClick }
 				/>
 				<CountComparisonCard
 					heading={ __( 'Comments', 'jetpack-my-jetpack' ) }
@@ -194,6 +226,8 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData } ) => {
 					count={ counts?.comments }
 					previousCount={ previousCounts?.comments }
 					as="li"
+					isSelected={ selectedMetric === 'comments' }
+					onClick={ handleCommentsClick }
 				/>
 			</ul>
 		</div>

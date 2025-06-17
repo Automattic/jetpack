@@ -13,6 +13,7 @@ interface StatsVisitsOptions {
 	period?: 'day' | 'week' | 'month' | 'year';
 	quantity?: number;
 	enabled?: boolean;
+	date?: Date;
 }
 
 /**
@@ -25,7 +26,7 @@ interface StatsVisitsOptions {
  * @return {object} Query result containing stats visits data and loading state
  */
 const useStatsVisits = ( blogID: string, isEnabled: boolean, options: StatsVisitsOptions = {} ) => {
-	const { period = 'day', quantity = 7 } = options;
+	const { period = 'day', quantity = 7, date } = options;
 
 	// Build query parameters like Odyssey Stats does
 	const queryParams = useMemo( () => {
@@ -35,8 +36,26 @@ const useStatsVisits = ( blogID: string, isEnabled: boolean, options: StatsVisit
 		params.set( 'quantity', quantity.toString() );
 		params.set( 'stat_fields', [ 'visitors', 'views', 'likes', 'comments' ].join( ',' ) );
 
+		// Add date parameter if provided
+		if ( date ) {
+			const endDate = new Date( date );
+			const startDate = new Date( date );
+			startDate.setDate( startDate.getDate() - quantity + 1 ); // +1 because we want to exclude the present day
+
+			// Format dates as YYYY-MM-DD
+			const formatDate = ( dateToFormat: Date ) => {
+				const year = dateToFormat.getFullYear();
+				const month = String( dateToFormat.getMonth() + 1 ).padStart( 2, '0' );
+				const day = String( dateToFormat.getDate() ).padStart( 2, '0' );
+				return `${ year }-${ month }-${ day }`;
+			};
+
+			params.set( 'date', formatDate( endDate ) );
+			params.set( 'start_date', formatDate( startDate ) );
+		}
+
 		return params.toString();
-	}, [ period, quantity ] );
+	}, [ period, quantity, date ] );
 
 	// Construct the full endpoint with query parameters
 	const endpoint = useCallback( () => {

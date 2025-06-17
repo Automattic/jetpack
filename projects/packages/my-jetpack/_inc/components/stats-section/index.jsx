@@ -11,6 +11,12 @@ import useStatsVisits from '../../hooks/use-stats-visits';
 import ProductCard from '../connected-product-card';
 import StatsCards from './cards';
 
+const VISITS_OPTIONS = {
+	period: 'day',
+	quantity: 7,
+	date: new Date(),
+};
+
 const StatsSection = () => {
 	const slug = 'stats';
 	const { blogID, isSiteConnected } = useMyJetpackConnection();
@@ -27,15 +33,7 @@ const StatsSection = () => {
 	} );
 
 	// New stats visits hook for time series data
-	const { data: visitsData } = useStatsVisits(
-		// TODO: add loading or move
-		blogID,
-		isSiteConnected,
-		{
-			period: 'day',
-			quantity: 7,
-		}
-	);
+	const { data: visitsData } = useStatsVisits( blogID, isSiteConnected, VISITS_OPTIONS );
 
 	// console.log( 'visitsData', visitsData );
 
