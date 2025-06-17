@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { ProductSection } from './product-section';
 import { useFilteredPlans } from './use-filtered-plans';
 
@@ -16,11 +17,11 @@ export function FilteredPlans( { search }: FilteredPlansProps ) {
 	const { plans, isLoadingPlans, errorPlans } = useFilteredPlans( { search } );
 
 	if ( isLoadingPlans ) {
-		return <div>Loading...</div>;
+		return <div>{ __( 'Loading…', 'jetpack-my-jetpack' ) }</div>;
 	}
 
 	if ( errorPlans ) {
-		return <div>Error loading plans.</div>;
+		return <div>{ __( 'Error loading plans.', 'jetpack-my-jetpack' ) }</div>;
 	}
 
 	return (
