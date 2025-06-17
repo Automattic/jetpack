@@ -20,7 +20,7 @@ echo "::group::Setup WordPress"
 mkdir -p /var/log/php/ /var/scripts/
 cd /var/www/html
 sed -i 's/apachectl -D FOREGROUND/apachectl start/' /usr/local/bin/run
-echo '#!/bin/bash' > /var/scripts/run-extras.sh
+echo '#!/user/bin/env bash' > /var/scripts/run-extras.sh
 /usr/local/bin/run
 echo "::endgroup::"
 
