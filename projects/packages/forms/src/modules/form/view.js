@@ -216,7 +216,7 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		get shouldAutoAdvance() {
-			return state.isMultiStep && state.isLastInputInStep;
+			return state.isMultistep && state.isLastInputInStep;
 		},
 	},
 
@@ -321,14 +321,17 @@ const { state, actions } = store( NAMESPACE, {
 		} ),
 
 		onInputKeyDown: withSyncEvent( event => {
+			if ( ! state.shouldAutoAdvance ) {
+				return;
+			}
 			const context = getContext();
 
 			if ( enterAdvanceFields.includes( context.fieldType ) && event.key === 'Enter' ) {
 				event.preventDefault();
-				if ( state.isLastStep ) {
-					actions.triggerSubmit( event );
-				} else {
+				if ( ! state.isLastStep ) {
 					actions.nextStep( event );
+				} else {
+					actions.triggerSubmit( event );
 				}
 				return;
 			}
@@ -340,10 +343,10 @@ const { state, actions } = store( NAMESPACE, {
 				( event.metaKey || event.ctrlKey )
 			) {
 				event.preventDefault();
-				if ( state.isLastStep ) {
-					actions.triggerSubmit( event );
-				} else {
+				if ( ! state.isLastStep ) {
 					actions.nextStep( event );
+				} else {
+					actions.triggerSubmit( event );
 				}
 			}
 		} ),
