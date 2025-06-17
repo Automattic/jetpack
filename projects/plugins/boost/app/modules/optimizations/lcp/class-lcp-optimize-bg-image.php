@@ -146,11 +146,21 @@ class LCP_Optimize_Bg_Image {
 			}
 
 			// The Cloud should always return a fixed pixel width for background images, so catering for that is easy peasy.
-			if ( ! isset( $breakpoint['imageWidths'][0] ) ) {
+			if ( empty( $breakpoint['imageDimensions'] ) || ! is_array( $breakpoint['imageDimensions'] ) ) {
 				continue;
 			}
 
-			$image_width = $breakpoint['imageWidths'][0];
+			if ( ! isset( $breakpoint['imageDimensions'][0]['width'] ) || ! is_numeric( $breakpoint['imageDimensions'][0]['width'] ) ) {
+				continue;
+			}
+
+			if ( ! isset( $breakpoint['imageDimensions'][0]['height'] ) || ! is_numeric( $breakpoint['imageDimensions'][0]['height'] ) ) {
+				continue;
+			}
+
+			// The width and height should already be an integer, but just in case.
+			$image_width  = (int) $breakpoint['imageDimensions'][0]['width'];
+			$image_height = (int) $breakpoint['imageDimensions'][0]['height'];
 
 			$media_query = array();
 			if ( isset( $breakpoint['minWidth'] ) ) {
@@ -162,30 +172,40 @@ class LCP_Optimize_Bg_Image {
 
 			$styles[] = array(
 				'media_query' => empty( $media_query ) ? 'all' : implode( ' and ', $media_query ),
-				'image_set'   => $this->get_image_set( $image_url, $image_width ),
-				'base_image'  => Image_CDN_Core::cdn_url( $image_url, array( 'w' => $image_width ) ),
+				'image_set'   => $this->get_image_set( $image_url, $image_width, $image_height ),
+				'base_image'  => Image_CDN_Core::cdn_url(
+					$image_url,
+					array(
+						'resize' => array( $image_width, $image_height ),
+					)
+				),
 			);
 		}
 		return $styles;
 	}
 
-	private function get_image_set( $image_url, $image_width ) {
+	private function get_image_set( $url, $width, $height ) {
 		$dprs = array( 1, 2 );
 
 		// Mobile devices usually have a DPR of 3 which is not common for desktop.
-		if ( $image_width <= 480 ) {
+		if ( $width <= 480 ) {
 			$dprs[] = 3;
 		}
 
 		// Accurately reflect the performance improvement in lighthouse by including a 1.75x DPR image for the Moto G Power.
-		if ( $image_width === 412 ) {
+		if ( $width === 412 ) {
 			$dprs[] = 1.75;
 		}
 
 		$image_set = array();
 		foreach ( $dprs as $dpr ) {
 			$image_set[] = array(
-				'url' => Image_CDN_Core::cdn_url( $image_url, array( 'w' => $image_width * $dpr ) ),
+				'url' => Image_CDN_Core::cdn_url(
+					$url,
+					array(
+						'resize' => array( $width * $dpr, $height * $dpr ),
+					)
+				),
 				'dpr' => $dpr,
 			);
 		}
