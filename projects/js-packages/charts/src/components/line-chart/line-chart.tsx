@@ -330,7 +330,7 @@ const LineChart: FC< LineChartProps > = ( {
 						ref={ tooltipRef }
 						tabIndex={ -1 }
 						role="tooltip"
-						aria-live="polite"
+						aria-atomic="true"
 						className={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
 					>
 						{ tooltipContent }
