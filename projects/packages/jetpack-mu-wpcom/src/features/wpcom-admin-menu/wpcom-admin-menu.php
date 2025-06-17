@@ -35,6 +35,16 @@ function current_user_has_wpcom_account() {
 }
 
 /**
+ * Adds a My Home menu.
+ */
+function wpcom_add_my_home_menu() {
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	add_menu_page( __( 'My Home', 'jetpack-mu-wpcom' ), __( 'My Home', 'jetpack-mu-wpcom' ), 'read', 'https://wordpress.com/home/' . $domain, null, 'dashicons-admin-home', 3 );
+}
+add_action( 'admin_menu', 'wpcom_add_my_home_menu' );
+
+/**
  * Adds a Hosting menu.
  */
 function wpcom_add_hosting_menu() {
