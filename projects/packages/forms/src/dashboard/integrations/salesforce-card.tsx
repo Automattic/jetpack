@@ -49,7 +49,6 @@ const SalesforceDashboardCard = ( {
 		<IntegrationCard
 			title={ __( 'Salesforce', 'jetpack-forms' ) }
 			description={ __( 'Send form contacts to Salesforce', 'jetpack-forms' ) }
-			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <SalesforceIcon width={ 32 } height={ 32 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

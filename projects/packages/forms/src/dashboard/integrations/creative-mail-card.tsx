@@ -42,7 +42,6 @@ const CreativeMailDashboardCard = ( {
 		<IntegrationCard
 			title={ __( 'Creative Mail', 'jetpack-forms' ) }
 			description={ __( 'Manage email contacts and campaigns', 'jetpack-forms' ) }
-			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <CreativeMailIcon /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
