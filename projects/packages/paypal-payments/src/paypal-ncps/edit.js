@@ -102,7 +102,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 				>
 					<ToggleGroupControlOption
 						value="stacked"
-						label={ __( 'Stacked Buttons', 'jetpack-paypal-payments' ) }
+						label={ __( 'Stacked Buttons (Recommended)', 'jetpack-paypal-payments' ) }
 						aria-label={ __(
 							'Stacked Buttons are the recommended option for better conversion rates.',
 							'jetpack-paypal-payments'
