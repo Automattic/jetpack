@@ -436,6 +436,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			if ( $max_steps > 0 ) {
 				$multistep_context = array(
+					'isMultistep' => true,
 					'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1,
 					'maxSteps'    => $max_steps,
 					'direction'   => 'forward', // Default direction for animations
