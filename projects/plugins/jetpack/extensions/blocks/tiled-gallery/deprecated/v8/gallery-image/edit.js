@@ -5,7 +5,7 @@ import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { BACKSPACE, DELETE } from '@wordpress/keycodes';
 import clsx from 'clsx';
-import { close, downChevron, leftChevron, rightChevron, upChevron } from '../icons';
+import { close, downChevron, leftChevron, rightChevron, upChevron } from '../../../icons';
 
 class GalleryImageEdit extends Component {
 	img = createRef();
@@ -104,6 +104,7 @@ class GalleryImageEdit extends Component {
 					data-id={ id }
 					data-link={ link }
 					data-url={ origUrl }
+					data-custom-link={ customLink }
 					data-width={ width }
 					ref={ this.img }
 					src={ isTransient ? undefined : url }
@@ -115,7 +116,6 @@ class GalleryImageEdit extends Component {
 		);
 
 		return (
-			// The image itself is not meant to be interactive, but the enclosing element should be.
 			<div
 				className={ clsx( 'tiled-gallery__item', {
 					'is-selected': isSelected,
@@ -157,7 +157,6 @@ class GalleryImageEdit extends Component {
 						disabled={ ! isSelected }
 					/>
 				</div>
-				{ /* Keep the <a> HTML structure, but ensure there is no navigation from edit */ }
 				{ href ? <a aria-hidden="true">{ img }</a> : img }
 			</div>
 		);
