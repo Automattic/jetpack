@@ -127,7 +127,7 @@ class Paypal_NCPS {
 
 		Assets::register_script(
 			$handle,
-			'../../dist/paypal-ncps-block/editor.js',
+			'../../dist/paypal-ncps/editor.js',
 			__FILE__,
 			array(
 				'css_path'   => '../../dist/paypal-ncps/editor.css',
