@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.29.6] - 2025-06-16
+### Changed
+- Update package dependencies. [#43892] [#43951]
+
+### Fixed
+- Prevent PHP warning when rendering blocks. [#43890]
+
 ## [0.29.5] - 2025-06-10
 ### Changed
 - Update dependencies. [#43878]
@@ -1655,6 +1662,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.29.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.5...v0.29.6
 [0.29.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.4...v0.29.5
 [0.29.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.3...v0.29.4
 [0.29.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.2...v0.29.3

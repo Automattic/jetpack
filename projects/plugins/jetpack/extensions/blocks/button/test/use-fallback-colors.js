@@ -15,7 +15,7 @@ describe( 'useFallbackColors', () => {
 	it( 'detects initial styles', async () => {
 		render( <TestComponent style={ { backgroundColor: 'red', color: 'white' } } /> );
 		const fallbacks = await screen.findByTestId( 'fallbacks' );
-		expect( fallbacks ).toHaveTextContent( 'red,white' );
+		expect( fallbacks ).toHaveTextContent( 'rgb(255, 0, 0),rgb(255, 255, 255)' );
 	} );
 
 	it( 'updates when styles change', async () => {
@@ -25,7 +25,7 @@ describe( 'useFallbackColors', () => {
 		let fallbacks = await screen.findByTestId( 'fallbacks' );
 
 		// Initial state check
-		expect( fallbacks ).toHaveTextContent( 'red,white' );
+		expect( fallbacks ).toHaveTextContent( 'rgb(255, 0, 0),rgb(255, 255, 255)' );
 
 		// Re-render with new colors
 		rerender( <TestComponent style={ { backgroundColor: 'blue', color: 'yellow' } } /> );
@@ -33,7 +33,7 @@ describe( 'useFallbackColors', () => {
 		fallbacks = await screen.findByTestId( 'fallbacks' );
 
 		// Wait for and verify the update
-		expect( fallbacks ).toHaveTextContent( 'blue,yellow' );
+		expect( fallbacks ).toHaveTextContent( 'rgb(0, 0, 255),rgb(255, 255, 0)' );
 	} );
 
 	it( 'cleans up the MutationObserver on unmount', () => {
