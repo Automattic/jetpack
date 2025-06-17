@@ -67,15 +67,6 @@ function wpcom_add_hosting_menu() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'My Home', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'My Home', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/home/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-	);
-
-	add_submenu_page(
-		$parent_slug,
 		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
 		'manage_options',
