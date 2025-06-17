@@ -117,9 +117,11 @@ describe( 'SubscriptionEdit', () => {
 	} );
 
 	test( 'displays subscriber total', async () => {
+		setAttributes.mockClear();
 		const user = userEvent.setup();
 		render( <SubscriptionEdit { ...defaultProps } /> );
-		await user.type( screen.getByText( defaultAttributes.submitButtonText ), '-right-now!' );
+		// Apparently we need to use the End key to get the text in the right place now.
+		await user.type( screen.getByText( defaultAttributes.submitButtonText ), '{End}-right-now!' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			submitButtonText: `${ defaultAttributes.submitButtonText }-right-now!`,

@@ -1754,7 +1754,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				class="' . $classes . '"
 				style="' . $this->label_styles . '"
 			>
-				<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
+				<span class="grunion-label-text">' . wp_kses_post( $label ) . '</span>'
 				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>';
 	}

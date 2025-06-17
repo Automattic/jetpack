@@ -3,6 +3,10 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useState, useEffect, useCallback } from '@wordpress/element';
+/**
+ * Types
+ */
+import type { Integration } from '../../../../../types';
 
 /**
  * Custom hook to fetch and manage a single integration's status.
@@ -10,8 +14,12 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
  * @param {string} slug - The integration slug (e.g., 'google-drive')
  * @return {object} Object containing integration data and loading state
  */
-export const useIntegrationStatus = slug => {
-	const [ status, setStatus ] = useState( {
+export const useIntegrationStatus = ( slug: string ) => {
+	const [ status, setStatus ] = useState< {
+		isLoading: boolean;
+		integration: Integration | null;
+		error: Error | null;
+	} >( {
 		isLoading: true,
 		integration: null,
 		error: null,
@@ -28,7 +36,7 @@ export const useIntegrationStatus = slug => {
 		}
 
 		try {
-			const response = await apiFetch( {
+			const response: Integration = await apiFetch( {
 				path: `/wp/v2/feedback/integrations/${ slug }`,
 			} );
 

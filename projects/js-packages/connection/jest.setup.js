@@ -5,28 +5,3 @@ window.JP_CONNECTION_INITIAL_STATE = {
 		},
 	},
 };
-
-// Overwrite window.location so assign can be stubbed.
-const oldLocation = window.location;
-delete window.location;
-window.location = Object.defineProperties(
-	{},
-	{
-		...Object.getOwnPropertyDescriptors( oldLocation ),
-		assign: {
-			configurable: true,
-			writable: true,
-			value: oldLocation.assign,
-		},
-		replace: {
-			configurable: true,
-			writable: true,
-			value: oldLocation.replace,
-		},
-		reload: {
-			configurable: true,
-			writable: true,
-			value: oldLocation.reload,
-		},
-	}
-);
