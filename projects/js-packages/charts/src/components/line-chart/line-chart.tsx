@@ -190,13 +190,15 @@ const HighlightTooltip: React.FC< {
 		}
 
 		series.forEach( ( s, index ) => {
-			const datum = s.data[ selectedIndex ];
+			if ( selectedIndex <= s.data.length ) {
+				const datum = s.data[ selectedIndex ];
 
-			tooltipContext?.showTooltip( {
-				datum,
-				key: s.label,
-				index,
-			} );
+				tooltipContext?.showTooltip( {
+					datum,
+					key: s.label,
+					index,
+				} );
+			}
 		} );
 
 		// Don't include tooltipContext in the dependency array to avoid loop.
