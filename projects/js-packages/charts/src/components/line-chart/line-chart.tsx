@@ -332,6 +332,8 @@ const LineChart: FC< LineChartProps > = ( {
 						role="tooltip"
 						aria-atomic="true"
 						className={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
+						data-testid={ `line-chart-tooltip-${ selectedIndex }` }
+						key={ `line-chart-tooltip-${ selectedIndex }` }
 					>
 						{ tooltipContent }
 					</div>
