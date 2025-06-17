@@ -1,13 +1,19 @@
-import { Button } from '@wordpress/components';
+/**
+ * External dependencies
+ */
+import { Button, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useNavigate } from 'react-router';
+/**
+ * Internal dependencies
+ */
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import GoogleSheetsIcon from '../../icons/google-sheets';
-import type { IntegrationCardProps, JPFormsBlocksWindow } from './types';
-
-const FORM_RESPONSES_URL =
-	( window as JPFormsBlocksWindow ).jpFormsBlocks?.defaults?.formsResponsesUrl ||
-	'/wp-admin/admin.php?page=jetpack-forms';
+/**
+ * Types
+ */
+import type { IntegrationCardProps, IntegrationCardData } from '../../types';
 
 const GoogleSheetsDashboardCard = ( {
 	isExpanded,
@@ -17,8 +23,9 @@ const GoogleSheetsDashboardCard = ( {
 }: IntegrationCardProps ) => {
 	const isConnected = !! data?.isConnected;
 	const settingsUrl = data?.settingsUrl;
+	const navigate = useNavigate();
 
-	const cardData = {
+	const cardData: IntegrationCardData = {
 		...data,
 		slug: 'google-sheets',
 		showHeaderToggle: false, // Always off for dashboard
@@ -32,6 +39,10 @@ const GoogleSheetsDashboardCard = ( {
 		if ( ! settingsUrl ) return;
 		window.open( settingsUrl, '_blank', 'noopener,noreferrer' );
 	}, [ settingsUrl ] );
+
+	const handleViewResponsesClick = useCallback( () => {
+		navigate( '/responses' );
+	}, [ navigate ] );
 
 	return (
 		<IntegrationCard
@@ -51,7 +62,7 @@ const GoogleSheetsDashboardCard = ( {
 							'jetpack-forms'
 						) }
 					</p>
-					<div style={ { display: 'flex', gap: '8px', alignItems: 'center' } }>
+					<HStack spacing="3" justify="start">
 						<Button
 							variant="secondary"
 							onClick={ handleConnectClick }
@@ -63,9 +74,9 @@ const GoogleSheetsDashboardCard = ( {
 							{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
 						</Button>
 						<Button variant="tertiary" onClick={ refreshStatus } __next40pxDefaultSize={ true }>
-							{ __( 'Refresh Status', 'jetpack-forms' ) }
+							{ __( 'Refresh status', 'jetpack-forms' ) }
 						</Button>
-					</div>
+					</HStack>
 				</div>
 			) : (
 				<div>
@@ -76,12 +87,7 @@ const GoogleSheetsDashboardCard = ( {
 						) }
 					</p>
 					<div className="integration-card__links">
-						<Button
-							variant="link"
-							href={ FORM_RESPONSES_URL }
-							target="_blank"
-							rel="noopener noreferrer"
-						>
+						<Button variant="link" onClick={ handleViewResponsesClick }>
 							{ __( 'View Form Responses', 'jetpack-forms' ) }
 						</Button>
 					</div>

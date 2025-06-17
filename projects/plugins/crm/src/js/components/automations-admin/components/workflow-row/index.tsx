@@ -2,7 +2,7 @@ import { Button, IconTooltip, ToggleControl } from '@automattic/jetpack-componen
 import { dispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useMutateAutomationWorkflows } from 'crm/data/hooks/mutations';
 import { Trigger, Workflow } from 'crm/state/automations-admin/types';
 import { store } from 'crm/state/store';

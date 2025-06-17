@@ -9,104 +9,57 @@
  * Date: 15th August 2018
  */
 
-/* global ajaxurl, moment */
+/* global ajaxurl */
+window.jpcrm_task_ajax_blocker = false;
 
-jQuery( function ( $ ) {
-	$( '.mark-complete-task button' ).on( 'click', function ( e ) {
-		e.preventDefault();
+function jpcrm_update_task_status( task_id, new_status ) {
+	if ( task_id === 0 || window.jpcrm_task_ajax_blocker ) {
+		return;
+	}
 
-		$( '.mark-complete-task button' ).addClass( 'disabled' );
+	window.jpcrm_task_ajax_blocker = true;
+	buttons.forEach( b => b.classList.add( 'disabled', 'loading' ) );
 
-		const ourButton = $( this );
-		let completeBlocker = true;
+	const data = {
+		action: 'mark_task_complete',
+		taskID: task_id,
+		status: new_status,
+		sec: window.zbs_root.zbsnonce,
+	};
 
-		if ( completeBlocker ) {
-			completeBlocker = false;
-			if ( $( this ).hasClass( 'green' ) ) {
-				ourButton.removeClass( 'green' ).addClass( 'loading' );
-
-				// postbag!
-				const data = {
-					action: 'mark_task_complete',
-					taskID: $( this ).data( 'taskid' ),
-					way: 'incomplete',
-					sec: window.zbs_root.zbsnonce,
-				};
-
-				// Send it Pat :D
-				jQuery.ajax( {
-					type: 'POST',
-					url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-					data: data,
-					dataType: 'json',
-					timeout: 20000,
-					success: function () {
-						ourButton.removeClass( 'loading' );
-						ourButton.html( '<i class="ui icon check"></i> Mark Complete' );
-						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						$( '#zbs-task-complete' ).val( -1 );
-						completeBlocker = true;
-					},
-					error: function () {
-						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						completeBlocker = true;
-					},
-				} );
-			} else {
-				ourButton.addClass( 'green' ).addClass( 'loading' );
-				// postbag!
-				const data = {
-					action: 'mark_task_complete',
-					taskID: $( this ).data( 'taskid' ),
-					way: 'complete',
-					sec: window.zbs_root.zbsnonce,
-				};
-
-				// Send it Pat :D
-				jQuery.ajax( {
-					type: 'POST',
-					url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-					data: data,
-					dataType: 'json',
-					timeout: 20000,
-					success: function () {
-						ourButton.removeClass( 'loading' );
-						ourButton.html( '<i class="ui icon check"></i> Completed' );
-						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						$( '#zbs-task-complete' ).val( 1 );
-						completeBlocker = true;
-					},
-					error: function () {
-						$( '.mark-complete-task button' ).removeClass( 'disabled' );
-						completeBlocker = true;
-					},
-				} );
+	fetch( ajaxurl, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		body: new URLSearchParams( data ).toString(),
+	} )
+		.then( r => {
+			if ( r.status !== 200 ) {
+				throw Error( 'Error updating task status!' );
 			}
-		}
-	} );
-
-	jQuery( function () {
-		// temp pre v3.0 fix, forcing english en for this datepicker only.
-		// requires php mod: search #forcedlocaletasks
-		// (Month names are localised, causing a mismatch here (Italian etc.))
-		moment.locale( 'en' );
-
-		jQuery( 'input[name="daterange"]' ).daterangepicker( {
-			timePicker: true,
-			timePickerIncrement: 15,
-			timePicker24Hour: true,
-			locale: {
-				format: 'DD MMMM YYYY h:mm A',
-				firstDay:
-					window.zbs_root.localeOptions && window.zbs_root.localeOptions.firstDay
-						? window.zbs_root.localeOptions.firstDay
-						: 0,
-			},
+			return r.json();
+		} )
+		.then( response => {
+			document.getElementById( 'zbs-task-complete' ).value = response.data.status;
+			buttons.forEach( b =>
+				b.classList.toggle( 'hidden', +b.dataset.status !== response.data.status )
+			);
+		} )
+		.catch( err => {
+			// eslint-disable-next-line no-console -- Debug if there's an error.
+			console.log( err );
+		} )
+		.finally( () => {
+			buttons.forEach( b => b.classList.remove( 'disabled', 'loading' ) );
+			window.jpcrm_task_ajax_blocker = false;
 		} );
-	} );
+}
 
-	jQuery( '#daterange' ).on( 'apply.daterangepicker', function ( ev, picker ) {
-		jQuery( '#zbs_from' ).val( picker.startDate.format( 'YYYY-MM-DD HH:mm:ss' ) );
-		jQuery( '#zbs_to' ).val( picker.endDate.format( 'YYYY-MM-DD HH:mm:ss' ) );
-	} );
-} );
+const buttons = document.querySelectorAll( '#mark-complete-task button' );
+buttons.forEach( el =>
+	el.addEventListener( 'click', function ( e ) {
+		e.preventDefault();
+		const task_id = el.closest( '[id^="task-"]' ).id.slice( 5 );
+		const new_status = -document.getElementById( 'zbs-task-complete' ).value;
+		jpcrm_update_task_status( task_id, new_status );
+	} )
+);

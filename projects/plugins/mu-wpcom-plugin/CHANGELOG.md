@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.9.0 - 2025-06-06
+### Added
+- Featured Content: Add messaging to clarify that the tag name is case-sensitive. [#43165]
+
+### Changed
+- Admin Menu: Update WooCommerce icon. [#43029]
+- Site Visibility: Disable search engine indexing for `*.wpcomstaging.com` sites. [#42853]
+- Update package dependencies. [#43085] [#43425]
+
+### Deprecated
+- Remove `default_rendering_mode` hotfix. [#42984]
+
+### Removed
+- Color Scheme: Clean up *-rgb css variables. [#42960]
+- Remove links to deprecated Calypso views on the launchpad tasks. [#42923]
+
+### Fixed
+- Block editor: fix layout issues with the Media Library modal buttons.. [#43035]
+- Forms: Change submenu registration. [#43627]
+- Forms: Check for classes and methods before call. [#43606]
+- Fix wrapping on the stats column heading in non-English languages. [#43630]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+
 ## 2.8.0 - 2025-04-04
 ### Added
 - Add newsletter widget to the dashboard. [#41807]

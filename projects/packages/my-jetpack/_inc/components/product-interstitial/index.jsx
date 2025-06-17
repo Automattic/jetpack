@@ -17,7 +17,7 @@ import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';

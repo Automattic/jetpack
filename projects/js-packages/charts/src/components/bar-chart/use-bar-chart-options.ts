@@ -12,13 +12,13 @@ const formatDateTick = ( timestamp: number ) => {
 };
 
 /**
- * Get the inner padding of a scale.
+ * Get the group padding of a scale.
  *
- * @param scale - The scale to get the inner padding of.
- * @return The inner padding of the scale.
+ * @param scale - The scale to get the group padding of.
+ * @return The group padding of the scale.
  */
-const getInnerPadding = ( scale: Record< string, unknown > ): number => {
-	return typeof scale.innerPadding === 'number' ? ( scale.innerPadding as number ) : 0;
+const getGroupPadding = ( scale: Record< string, unknown > ): number => {
+	return typeof scale.paddingInner === 'number' ? ( scale.paddingInner as number ) : 0;
 };
 
 /**
@@ -38,7 +38,7 @@ export function useBarChartOptions(
 		const bandScale = {
 			type: 'band' as const,
 			padding: 0.2,
-			innerPadding: 0.1,
+			paddingInner: 0.1,
 		};
 		const linearScale = {
 			type: 'linear' as const,
@@ -61,7 +61,7 @@ export function useBarChartOptions(
 				tooltipLabelFormatter: labelFormatter,
 				xAccessor: labelAccessor,
 				yAccessor: valueAccessor,
-				gridVisibility: 'y',
+				gridVisibility: 'x',
 				xScale: bandScale,
 				yScale: linearScale,
 			},
@@ -71,7 +71,7 @@ export function useBarChartOptions(
 				tooltipLabelFormatter: labelFormatter,
 				xAccessor: valueAccessor,
 				yAccessor: labelAccessor,
-				gridVisibility: 'x',
+				gridVisibility: 'y',
 				xScale: linearScale,
 				yScale: bandScale,
 			},
@@ -120,7 +120,7 @@ export function useBarChartOptions(
 				},
 			},
 			barGroup: {
-				padding: getInnerPadding( horizontal ? yScale : xScale ),
+				padding: getGroupPadding( horizontal ? yScale : xScale ),
 			},
 			tooltip: {
 				labelFormatter: providedToolTipLabelFormatter || defaultTooltipLabelFormatter,

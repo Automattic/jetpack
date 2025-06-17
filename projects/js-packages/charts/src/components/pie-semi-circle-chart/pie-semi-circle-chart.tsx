@@ -77,6 +77,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	legendShape = 'circle',
 	label,
 	note,
 	className,
@@ -243,6 +244,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 					items={ legendItems }
 					orientation={ legendOrientation }
 					className={ styles[ 'pie-semi-circle-chart-legend' ] }
+					shape={ legendShape }
 				/>
 			) }
 		</div>

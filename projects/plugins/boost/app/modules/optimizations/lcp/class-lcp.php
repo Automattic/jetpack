@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
-use Automattic\Jetpack\Boost\App\Contracts\Is_Dev_Feature;
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
@@ -15,7 +14,7 @@ use Automattic\Jetpack_Boost\Lib\Output_Filter;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_LCP;
 
-class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync, Has_Always_Available_Endpoints, Is_Dev_Feature {
+class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync, Has_Always_Available_Endpoints {
 	/** LCP type for background images. */
 	const TYPE_BACKGROUND_IMAGE = 'background-image';
 
@@ -35,9 +34,6 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 
 		add_action( 'jetpack_boost_lcp_invalidated', array( $this, 'handle_lcp_invalidated' ) );
 
-		// Skip images optimized LCP images from being processed by image-cdn.
-		add_filter( 'jetpack_photon_skip_image', array( $this, 'skip_cdn_image' ), 10, 2 );
-
 		LCP_Invalidator::init();
 	}
 
@@ -54,30 +50,6 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 
 		$output_filter = new Output_Filter();
 		$output_filter->add_callback( array( $this, 'optimize_lcp_img_tag' ) );
-	}
-
-	/**
-	 * Filter to skip images optimized LCP images from being processed by image-cdn.
-	 *
-	 * If image-cdn is processing the image, it will change the markup of the tag and we will not be able to find the tag while trying to apply LCP optimization.
-	 *
-	 * @param bool   $skip Whether to skip the image.
-	 * @param string $image_url The image URL.
-	 *
-	 * @return bool Whether to skip the image.
-	 */
-	public function skip_cdn_image( $skip, $image_url ) {
-		if ( empty( $this->lcp_data ) ) {
-			return $skip;
-		}
-
-		foreach ( $this->lcp_data as $lcp_element ) {
-			if ( $lcp_element['type'] === self::TYPE_IMAGE && $lcp_element['url'] === $image_url ) {
-				return true;
-			}
-		}
-
-		return $skip;
 	}
 
 	/**
@@ -182,7 +154,13 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 								'errors' => Schema::as_array(
 									Schema::as_assoc_array(
 										array(
-											'message' => Schema::as_string(),
+											'type' => Schema::as_string(),
+											'meta' => Schema::as_assoc_array(
+												array(
+													'code' => Schema::as_number()->nullable(),
+													'selector' => Schema::as_string()->nullable(),
+												)
+											)->nullable(),
 										)
 									)
 								)->nullable(),

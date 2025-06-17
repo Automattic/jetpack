@@ -89,6 +89,27 @@ const meta = {
 			},
 			defaultValue: undefined,
 		},
+		maxWidth: {
+			control: {
+				type: 'number',
+				min: 100,
+				max: 1200,
+			},
+		},
+		aspectRatio: {
+			control: {
+				type: 'number',
+				min: 0,
+				max: 1,
+			},
+		},
+		resizeDebounceTime: {
+			control: {
+				type: 'number',
+				min: 0,
+				max: 10000,
+			},
+		},
 	},
 } satisfies Meta< typeof PieChart >;
 

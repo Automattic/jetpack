@@ -1,5 +1,4 @@
 /* global window */
-
 if ( ! window.matchMedia ) {
 	window.matchMedia = query => ( {
 		matches: false,
@@ -20,4 +19,12 @@ if ( ! global.ResizeObserver ) {
 		unobserve() {}
 		disconnect() {}
 	};
+}
+
+// jsdom doesn't support TextEncoder, so polyfill
+// https://github.com/remix-run/react-router/issues/12363
+if ( ! global.TextEncoder ) {
+	const { TextEncoder, TextDecoder } = require( 'node:util' );
+	global.TextEncoder = TextEncoder;
+	global.TextDecoder = TextDecoder;
 }

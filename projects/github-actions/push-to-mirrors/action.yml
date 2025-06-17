@@ -12,6 +12,7 @@ inputs:
   no-upstream-refs:
     description: >
       Set to `true` to suppress the "Upstream-Ref" footers in mirrored commits.
+      Not recommended.
     required: false
   source-directory:
     description: >

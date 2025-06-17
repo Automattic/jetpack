@@ -172,6 +172,13 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency.
+	// https://github.com/istanbuljs/babel-plugin-istanbul/issues/300
+	// https://github.com/jestjs/jest/issues/15236
+	if ( pkg.name === 'babel-plugin-istanbul' && pkg.dependencies[ 'test-exclude' ] === '^6.0.0' ) {
+		pkg.dependencies[ 'test-exclude' ] = '^7.0.0';
+	}
+
+	// Outdated dependency.
 	// No upstream bug link yet, upstream seems unmaintained anyway.
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
@@ -273,6 +280,12 @@ function fixPeerDeps( pkg ) {
 				pkg.peerDependencies[ p ] += ' || ^18';
 			}
 		}
+	}
+
+	// Remove jQuery peer dependency, given it's already bundled in WordPress.
+	// The next version of FullCalendar (v4) removes the dependency altogether.
+	if ( pkg.name === 'fullcalendar' && pkg.peerDependencies?.jquery ) {
+		delete pkg.peerDependencies.jquery;
 	}
 
 	// It assumes hoisting to find its plugins. Sigh. Add peer deps for the plugins we use.

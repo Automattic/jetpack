@@ -1,4 +1,5 @@
 import restApi from '@automattic/jetpack-api';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -17,7 +18,7 @@ import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getAkismetData } from 'state/at-a-glance';
 import { isOfflineMode, connectUser } from 'state/connection';
-import { getApiNonce, isWoASite } from 'state/initial-state';
+import { getApiNonce } from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
 
 class DashAkismet extends Component {
@@ -94,7 +95,7 @@ class DashAkismet extends Component {
 				'jetpack'
 			),
 			// Hide the action link from WoA sites because it promotes purchase of Jetpack product
-			link: this.props.isWoASite ? null : 'https://akismet.com/features',
+			link: isWoASite() ? null : 'https://akismet.com/features',
 			privacyLink: 'https://automattic.com/privacy/',
 		};
 
@@ -248,7 +249,6 @@ export default connect(
 	state => {
 		return {
 			akismetData: getAkismetData( state ),
-			isWoASite: isWoASite( state ),
 			isOfflineMode: isOfflineMode( state ),
 			upgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			nonce: getApiNonce( state ),

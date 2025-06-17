@@ -193,7 +193,7 @@ class Jetpack_Admin_Menu_Test extends TestCase {
 
 		static::$admin_menu->add_feedback_menu();
 
-		$this->assertSame( 'edit.php?post_type=feedback', array_shift( $menu )[2] );
+		$this->assertSame( 'admin.php?page=jetpack-forms', array_shift( $menu )[2] );
 	}
 
 	/**

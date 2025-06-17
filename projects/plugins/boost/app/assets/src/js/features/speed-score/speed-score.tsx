@@ -83,8 +83,8 @@ const SpeedScore = () => {
 			moduleStates,
 			pendingStates: {
 				criticalCss: {
-					isPending: criticalCssIsGenerating,
-					timestamp: cssState.created || 0,
+					isPending: cssState.status === 'pending' || criticalCssIsGenerating,
+					timestamp: cssState.updated || 0,
 				},
 				lcp: {
 					isPending: lcpState?.status === 'pending',

@@ -74,12 +74,10 @@ if [[ -z "$COMMIT_MESSAGE" ]]; then
 fi
 COMMIT_ORIGINAL_AUTHOR="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>"
 
+SHA=${GITHUB_SHA:-$(git rev-parse HEAD)}
 UPSTREAM_REF=
 if [[ "$NO_UPSTREAM_REFS" != 'true' ]]; then
-	if [[ -z "$GITHUB_SHA" ]]; then
-		SHA=$(git rev-parse HEAD)
-	fi
-	UPSTREAM_REF="Upstream-Ref: $GITHUB_REPOSITORY@${GITHUB_SHA:-$SHA}"
+	UPSTREAM_REF="Upstream-Ref: $GITHUB_REPOSITORY@$SHA"
 
 	if [[ -f .git/shallow ]]; then
 		echo "::group::Fetching treeless commits for source repo"
@@ -186,6 +184,45 @@ while read -r GIT_SLUG; do
 	fi
 	git add -Af
 	echo "::endgroup::"
+
+	# If we're updating and existing branch (i.e. FORCE_COMMIT is empty) and we have an Upstream-Ref, check that the commit we're about to mirror isn't an ancestor of the Upstream-Ref commit.
+	# If it is, that probably means the Actions runs for multiple source commits happened in the wrong order and we'd be reverting later commits that were already mirrored.
+	if [[ -z "$FORCE_COMMIT" ]]; then
+		LAST_COMMIT=$( git log -1 | sed -n -E -e 's!^[ \t]*Upstream-Ref: '"$GITHUB_REPOSITORY"'@([0-9a-f]{40})[ \t]*$!\1!p' || true )
+		if [[ -n "$LAST_COMMIT" ]]; then
+			echo "Commit we're mirroring is $SHA"
+			echo "Last Upstream-Ref commit was $LAST_COMMIT"
+			if [[ "$LAST_COMMIT" == "$SHA" ]]; then
+				echo "That's the same as what we're trying to commit now! Skipping $GIT_SLUG."
+				continue
+			fi
+			cd "$SOURCE_DIR"
+
+			if [[ -f .git/shallow ]]; then
+				echo "::group::Fetching treeless commits for source repo"
+				git -c protocol.version=2 fetch --unshallow --filter=tree:0 --no-tags --progress --no-recurse-submodules origin HEAD
+				echo "::endgroup::"
+			fi
+			echo "::group::Fetching treeless commits for source repo $LAST_COMMIT and $SHA"
+			git -c protocol.version=2 fetch --filter=tree:0 --no-tags --progress --no-recurse-submodules origin "$LAST_COMMIT" "$SHA"
+			echo "::endgroup::"
+			MB=$( git merge-base "$LAST_COMMIT" "$SHA" || true )
+			if [[ -z "$MB" ]]; then
+				echo "No merge base for ${LAST_COMMIT:0:8} and ${SHA:0:8}, which is unexpected. Going to proceed with mirroring."
+			elif [[ "$MB" == "$LAST_COMMIT" ]]; then
+				echo "${LAST_COMMIT:0:8} is an ancestor of ${SHA:0:8}, good."
+			elif [[ "$MB" == "$SHA" ]]; then
+				echo "${LAST_COMMIT:0:8} is a descendent of ${SHA:0:8}, not good. Apparently some other run already updated the mirror. Skipping $GIT_SLUG."
+				continue
+			else
+				echo "::info::Merge-base of ${LAST_COMMIT:0:8} and ${SHA:0:8} is ${MB:0:8}, which is unexpected. Going to proceed with mirroring."
+			fi
+
+			cd "$CLONE_DIR"
+		else
+			echo "No Upstream-Ref found in latest commit, can't check for misordered mirroring runs."
+		fi
+	fi
 
 	if [[ -n "$FORCE_COMMIT" || -n "$(git status --porcelain)" ]]; then
 		echo "Committing to $GIT_SLUG"

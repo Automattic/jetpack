@@ -18,8 +18,8 @@
 		"@wordpress/url": "4.24.0"
 	},
 	"devDependencies": {
-		"jest": "29.7.0",
-		"jest-environment-jsdom": "29.7.0"
+		"jest": "30.0.0",
+		"jest-environment-jsdom": "30.0.0"
 	},
 	"type": "module",
 	"exports": {

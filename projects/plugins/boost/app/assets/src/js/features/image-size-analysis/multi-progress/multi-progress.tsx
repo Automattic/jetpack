@@ -7,7 +7,7 @@ import ProgressBar from '$features/image-size-analysis/progress-bar/progress-bar
 import { Spinner } from '$features/ui';
 import WarningIcon from '$svg/warning-outline';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import styles from './multi-progress.module.scss';
 
 interface ReportProgress {

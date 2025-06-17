@@ -2,12 +2,16 @@
  * WordPress dependencies
  */
 import { store, getContext, withScope, getElement, getConfig } from '@wordpress/interactivity';
-import { clearInputError } from '../../contact-form/js/form-errors.js';
 
 const NAMESPACE = 'jetpack/field-file';
 
+const ENTER = 13;
+const SPACE = 32;
+
 let uploadToken = null;
 let tokenExpiry = null;
+
+const jetpackFormStore = store( 'jetpack/form' );
 
 /**
  * Retuns the upload token. Sometimes it has to fetch a new one if it expired. Or we haven't needed one just yet.
@@ -86,15 +90,43 @@ const formatBytes = ( size, decimals = 2 ) => {
 	return `${ numberFormat.format( formattedSize ) } ${ sizes[ i ] }`;
 };
 
+const getFileIcon = file => {
+	const config = getConfig( NAMESPACE );
+	const fileType = file.type.split( '/' )[ 0 ];
+	const fileExtension = file.name.split( '.' ).pop().toLowerCase();
+
+	const iconMap = {
+		image: 'png',
+		video: 'mp4',
+		audio: 'mp3',
+		document: 'pdf',
+		application: 'txt',
+	};
+
+	const extensionMap = {
+		pdf: 'pdf',
+		doc: 'doc',
+		docx: 'doc',
+		txt: 'txt',
+		ppt: 'ppt',
+		pptx: 'ppt',
+		xls: 'xls',
+		xlsx: 'xls',
+		csv: 'xls',
+		zip: 'zip',
+		sql: 'sql',
+		cal: 'cal',
+	};
+	const iconName = extensionMap[ fileExtension ] || iconMap[ fileType ] || 'txt';
+	return 'url(' + config.iconsPath + iconName + '.svg)';
+};
+
 /**
  * Add the file to the context.
  *
  * @param {File} file - The file to add.
  */
 const addFileToContext = file => {
-	const { ref } = getElement();
-	clearInputError( ref, { hasInsetLabel: state.isInlineForm } );
-
 	const config = getConfig( NAMESPACE );
 	const context = getContext();
 
@@ -119,22 +151,23 @@ const addFileToContext = file => {
 	}
 
 	const clientFileId = performance.now() + '-' + Math.random();
-
-	const fileUrl =
+	const hasImage =
 		[ 'image/gif', 'image/jpg', 'image/png', 'image/jpeg' ].includes( file.type ) &&
-		URL.createObjectURL
-			? 'url(' + URL.createObjectURL( file ) + ')'
-			: null;
-
+		URL.createObjectURL;
+	const fileUrl = hasImage ? 'url(' + URL.createObjectURL( file ) + ')' : getFileIcon( file );
 	context.files.push( {
 		name: file.name,
 		formattedSize: formatBytes( file.size, 2 ),
+		hasIcon: ! hasImage,
 		isUploaded: false,
 		hasError: !! error,
 		id: clientFileId,
-		url: fileUrl,
+		url: hasImage ? fileUrl : null,
+		mask: ! hasImage ? fileUrl : null,
 		error,
 	} );
+
+	jetpackFormStore.actions.updateFieldValue( context.fieldId, context.files );
 
 	// Start the upload if we don't have any errors.
 	! error && actions.uploadFile( file, clientFileId );
@@ -210,6 +243,8 @@ const updateFileContext = ( updatedFile, clientFileId ) => {
 	const context = getContext();
 	const index = context.files.findIndex( file => file.id === clientFileId );
 	context.files[ index ] = Object.assign( context.files[ index ], updatedFile );
+
+	jetpackFormStore.actions.updateFieldValue( context.fieldId, context.files );
 };
 
 const { state, actions } = store( NAMESPACE, {
@@ -233,6 +268,12 @@ const { state, actions } = store( NAMESPACE, {
 	},
 
 	actions: {
+		handleKeyDown: event => {
+			if ( event.keyCode === ENTER || event.keyCode === SPACE ) {
+				event.preventDefault();
+				actions.openFilePicker( event );
+			}
+		},
 		/**
 		 * Open the file picker dialog.
 		 */
@@ -346,10 +387,6 @@ const { state, actions } = store( NAMESPACE, {
 		removeFile: function* ( event ) {
 			event.preventDefault();
 
-			const { ref } = getElement();
-			const field = ref.closest( '.jetpack-form-file-field__container' ); // Needed to select the top most field.
-			clearInputError( field, { hasInsetLabel: state.isInlineForm } );
-
 			const context = getContext();
 			const clientFileId = event.target.dataset.id;
 
@@ -382,8 +419,35 @@ const { state, actions } = store( NAMESPACE, {
 			}
 			// Remove the file from the context
 			context.files = context.files.filter( fileObject => fileObject.id !== clientFileId );
+			jetpackFormStore.actions.updateFieldValue(
+				context.fieldId,
+				state.hasFiles ? context.files : ''
+			);
+		},
+
+		removeFileKeydown: event => {
+			if ( event.keyCode === ENTER || event.keyCode === SPACE ) {
+				event.preventDefault();
+				actions.removeFile( event );
+			}
 		},
 	},
 
-	callbacks: {},
+	callbacks: {
+		focusElement: function () {
+			const { ref } = getElement();
+			setTimeout( () => {
+				ref.focus( { focusVisible: true } );
+			}, 100 );
+
+			return withScope( function () {
+				const dropzone = ref
+					.closest( '.jetpack-form-file-field__container' )
+					.querySelector( '.jetpack-form-file-field__dropzone-inner' );
+				setTimeout( () => {
+					dropzone.focus( { focusVisible: true } );
+				}, 100 );
+			} );
+		},
+	},
 } );

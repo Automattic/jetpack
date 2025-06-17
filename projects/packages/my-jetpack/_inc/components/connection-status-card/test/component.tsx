@@ -62,6 +62,7 @@ const adminUserConnectionData = {
 			display_name: 'test',
 			email: 'email@example.com',
 		},
+		isMaster: false,
 	},
 };
 
@@ -100,6 +101,9 @@ beforeAll( () => {
 			current_user: {
 				capabilities: {},
 			},
+		},
+		site: {
+			host: 'standard',
 		},
 	};
 } );
@@ -233,6 +237,48 @@ describe( 'ConnectionStatusCard', () => {
 		} );
 	} );
 
+	describe( 'When on WoA site and user is connection owner', () => {
+		const setup = () => {
+			global.JetpackScriptData.site.host = 'woa';
+
+			const woaOwnerConnectionData = {
+				currentUser: {
+					permissions: {
+						manage_options: true,
+					},
+					wpcomUser: {
+						display_name: 'test',
+						email: 'email@example.com',
+					},
+					isMaster: true,
+				},
+			};
+
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: true,
+				hasConnectedOwner: true,
+				userConnectionData: woaOwnerConnectionData,
+			} );
+
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		afterEach( () => {
+			global.JetpackScriptData.site.host = 'standard';
+		} );
+
+		it( 'disables the manage connection button for WoA connection owners', () => {
+			setup();
+			const button = screen.getByRole( 'button', { name: /Site and account connected/ } );
+			expect( button ).toBeDisabled();
+		} );
+	} );
+
 	describe( 'When a user has account errors', () => {
 		const setup = () => {
 			const userDataWithErrors = {
@@ -244,6 +290,7 @@ describe( 'ConnectionStatusCard', () => {
 						display_name: 'test',
 						email: 'email@example.com',
 					},
+					isMaster: false,
 					possibleAccountErrors: {
 						mismatch: {
 							type: 'mismatch',

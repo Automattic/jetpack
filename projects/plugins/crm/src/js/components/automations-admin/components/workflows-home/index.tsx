@@ -1,6 +1,6 @@
 import { dispatch, useSelect } from '@wordpress/data';
 import { useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import { useGetAutomationWorkflows } from 'crm/data/hooks/queries';
 import { store } from 'crm/state/store';
 import { BulkWorkflowActions } from '../bulk-workflow-actions';

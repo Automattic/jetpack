@@ -5,7 +5,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router';
 /**
  * Internal dependencies
  */

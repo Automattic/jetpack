@@ -1,6 +1,15 @@
 import restApi from '@automattic/jetpack-api';
 import { jest } from '@jest/globals';
-import controls from '../controls';
+
+jest.unstable_mockModule( '../assignLocation', () => {
+	return {
+		__esModule: true,
+		assignLocation: jest.fn(),
+	};
+} );
+
+const { default: controls } = await import( '../controls' );
+const { assignLocation: stubAssign } = await import( '../assignLocation' );
 
 const {
 	REGISTER_SITE: registerSite,
@@ -10,7 +19,6 @@ const {
 
 const stubRegisterSite = jest.spyOn( restApi, 'registerSite' ).mockReturnValue();
 const stubFetchAuthorizationUrl = jest.spyOn( restApi, 'fetchAuthorizationUrl' ).mockReturnValue();
-const stubAssign = jest.spyOn( window.location, 'assign' ).mockReturnValue();
 
 const getAuthorizationUrl = jest.fn();
 const resolveSelect = () => ( { getAuthorizationUrl } );
