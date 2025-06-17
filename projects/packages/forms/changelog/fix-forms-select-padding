@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: ensure that the select control uses the correct padding for top, left, bottom, right
