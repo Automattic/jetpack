@@ -499,13 +499,11 @@ function jpcrm_admin_scripts_systems_page(){
 
 function zeroBSCRM_admin_styles_homedash(){
 	global $zbs;
-	//home dashboard styles and script
+	// home dashboard styles and script
 	wp_enqueue_style( 'zerobscrmhomedash' );
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
-	wp_register_script( 'zerobscrmjs-dash', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.dash' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
-	wp_enqueue_script( 'zerobscrmjs-dash' );
-
-	wp_enqueue_script( 'jpcrm-funnel-js', ZEROBSCRM_URL . 'js/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.js', array(), $zbs::VERSION, false );
+	wp_enqueue_script( 'zerobscrmjs-dash', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.dash' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION, true );
+	wp_enqueue_script( 'jpcrm-funnel-js', ZEROBSCRM_URL . 'js/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.js', array(), $zbs::VERSION, true );
 	wp_enqueue_style( 'jpcrm-funnel-css', ZEROBSCRM_URL . 'css/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 }
 
