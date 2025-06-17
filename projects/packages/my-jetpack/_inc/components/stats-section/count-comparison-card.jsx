@@ -90,8 +90,10 @@ const CountComparisonCard = ( {
 		>
 			<span className="screen-reader-text">{ srText }</span>
 			<div aria-hidden="true">
-				{ icon && <div className={ styles[ 'stats-card-icon' ] }>{ icon }</div> }
-				{ heading && <div className={ styles[ 'stats-card-heading' ] }>{ heading }</div> }
+				<div className={ styles[ 'stats-card-header' ] }>
+					{ icon && <div className={ styles[ 'stats-card-icon' ] }>{ icon }</div> }
+					{ heading && <div className={ styles[ 'stats-card-heading' ] }>{ heading }</div> }
+				</div>
 				<div className={ styles[ 'stats-card-count' ] }>
 					<span
 						className={ styles[ 'stats-card-count-value' ] }

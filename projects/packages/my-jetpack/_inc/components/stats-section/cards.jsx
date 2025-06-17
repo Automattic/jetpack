@@ -160,9 +160,17 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData } ) => {
 					showLegend={ false }
 					gridVisibility="x"
 					options={ {
+						yScale: {
+							type: 'linear',
+							zero: true, // Start from zero
+						},
 						axis: {
 							y: {
 								orientation: 'right',
+								tickFormat: value => {
+									// Only show labels for integer values to avoid duplicates
+									return Number.isInteger( value ) ? value.toString() : '';
+								},
 							},
 						},
 					} }

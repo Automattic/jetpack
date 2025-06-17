@@ -91,14 +91,21 @@ $actions-size: 28px;
 	}
 }
 
+.stats-card-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
 .stats-card-icon {
-	margin-bottom: 1.5rem;
+	width: 24px;
+	height: 24px;
 }
 
 .stats-card-heading {
 	font-weight: 500;
 	line-height: 20px;
-	margin-bottom: 0.25rem;
 }
 
 .stats-card-count {
