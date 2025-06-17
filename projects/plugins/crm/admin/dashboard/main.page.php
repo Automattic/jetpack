@@ -406,17 +406,15 @@ function jpcrm_render_dashboard_page() {
 			$tracking->track_specific_pageview( 'first-use-dashboard' );
 		}
 	}
+
+	$jpcrm_funnel_data = 'const jpcrm_funnel_data = ' . wp_json_encode( $funnel_data );
+	wp_add_inline_script( 'jpcrm-dash', $jpcrm_funnel_data, 'before' )
 	?>
 
 	<script>
 
 	// set default color for charts
 	Chart.defaults.defaultColor = zbs_root['jp_green']['40'];
-	// build sales funnel
-	let funnel_element = document.getElementById('jpcrm_sales_funnel');
-	let funnel_data = <?php echo wp_json_encode( $funnel_data ); ?>;
-	jpcrm_build_funnel(funnel_data,funnel_element);
-
 
 	// draw revenue chart
 	if (document.getElementById('bar-chart')) {

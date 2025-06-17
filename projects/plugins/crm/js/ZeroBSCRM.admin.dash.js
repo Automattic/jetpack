@@ -9,7 +9,7 @@
  * Date: 15th August 2018
  */
 
-/* global Chart, ajaxurl, zbsJS_admcolours, zeroBSCRMJS_globViewLang, moment, jpcrm_js_bind_daterangepicker */
+/* global Chart, zbs_root, ajaxurl, zbsJS_admcolours, zeroBSCRMJS_globViewLang, moment, jpcrm_js_bind_daterangepicker, jpcrm_funnel_data, jpcrm_build_funnel */
 
 jQuery( function () {
 	window.dash_security = jQuery( '#zbs_dash_count_security' ).val();
@@ -195,6 +195,9 @@ function jetpackcrm_draw_contact_chart( data ) {
 	window.contactChart.data.datasets[ 0 ].data = data.data;
 	window.contactChart.update();
 }
+
+const funnel_element = document.getElementById( 'jpcrm_sales_funnel' );
+jpcrm_build_funnel( jpcrm_funnel_data, funnel_element );
 
 if ( typeof module !== 'undefined' ) {
 	module.exports = { jetpackcrm_draw_contact_chart };
