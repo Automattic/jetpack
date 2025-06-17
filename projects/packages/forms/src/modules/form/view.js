@@ -15,7 +15,7 @@ const withSyncEvent =
 const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
 // Enter auto advance fields
-const enterAdvanceFields = [ 'name', 'text', 'email', 'tel', 'url', 'number' ];
+const enterAdvanceFields = [ 'name', 'text', 'email', 'telephone', 'url', 'number' ];
 const cmdAdvanceFields = [ 'textarea' ];
 
 const updateField = ( fieldId, value, showFieldError = false ) => {
