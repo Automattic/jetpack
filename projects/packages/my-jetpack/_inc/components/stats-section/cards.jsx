@@ -1,6 +1,7 @@
 import { BarChart } from '@automattic/charts';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty } from '@wordpress/icons';
+import clsx from 'clsx';
 import React, { useState, useCallback } from 'react';
 import formatNumber from '../../utils/format-number';
 import CountComparisonCard from './count-comparison-card';
@@ -80,7 +81,7 @@ const transformStatsDataForChart = ( apiData, selectedMetric = 'views' ) => {
 				value: dataPoint[ metricIndex ] || 0,
 			} ) ),
 			options: {
-				stroke: '#00A32A', // Consistent green color for all metrics
+				stroke: '#069e08', // Jetpack green primary color (--jp-green-primary)
 			},
 		},
 	];
@@ -168,7 +169,7 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData } ) => {
 				/>
 			</div>
 
-			<ul className={ styles[ 'cards-list' ] }>
+			<ul className={ clsx( styles[ 'cards-list' ], styles[ 'my-jetpack-stats-cards' ] ) }>
 				<CountComparisonCard
 					heading={ __( 'Views', 'jetpack-my-jetpack' ) }
 					srText={ createStatSRText(

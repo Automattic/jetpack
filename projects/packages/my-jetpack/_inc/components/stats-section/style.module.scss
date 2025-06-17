@@ -2,6 +2,12 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 
 $actions-size: 28px;
 
+// create a partial for green border for focus, hover and selected
+@mixin active-card {
+	border: 1px solid var(--card-active-border-color);
+	background-color: var(--card-active-bg-color);
+}
+
 .section-stats-highlights {
 	margin-top: 1rem;
 }
@@ -26,12 +32,12 @@ $actions-size: 28px;
 	letter-spacing: -0.15px;
 }
 
-.chart-container {
-	// width: 100%;
-	// margin-bottom: 20px;
-}
+.my-jetpack-stats-cards.cards-list {
+	--card-bg-color: var(--jp-gray-0);
+	--card-border-color: var(--jp-gray-0);
+	--card-active-border-color: var(--jp-green-primary);
+	--card-active-bg-color: var(--jp-white);
 
-.cards-list {
 	display: flex;
 	flex-flow: row nowrap;
 	max-width: 100%;
@@ -47,8 +53,10 @@ $actions-size: 28px;
 	padding: 1px; // Ensures scrollable content box doesn't cover the card.
 
 	.stats-card {
-		border-color: var(--jp-gray-5);
-		border-radius: 5px;
+		border: 1px solid var(--card-border-color);
+		background-color: var(--card-bg-color);
+		box-shadow: none;
+		border-radius: 4px;
 		width: 100%;
 		min-width: 180px; // Minimum mobile width
 		padding: 1rem 1.5rem;
@@ -68,27 +76,17 @@ $actions-size: 28px;
 		&.stats-card--clickable {
 			cursor: pointer;
 
-			&:hover {
-				border-color: var(--jp-gray-20);
-				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-			}
-
+			&:hover,
 			&:focus {
-				outline: 2px solid var(--wp-admin-theme-color);
-				outline-offset: 2px;
+
+				@include active-card;
 			}
 		}
 
-		// Selected state styling
+		// Selected state styling - simple green border to match design
 		&.stats-card--selected {
-			border-color: var(--wp-admin-theme-color);
-			border-width: 2px;
-			box-shadow: 0 0 0 1px var(--wp-admin-theme-color);
 
-			&:hover {
-				border-color: var(--wp-admin-theme-color);
-				box-shadow: 0 0 0 1px var(--wp-admin-theme-color), 0 2px 8px rgba(0, 0, 0, 0.1);
-			}
+			@include active-card;
 		}
 	}
 }
