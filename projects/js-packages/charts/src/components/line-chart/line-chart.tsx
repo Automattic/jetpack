@@ -11,7 +11,7 @@ import {
 	TooltipContext,
 } from '@visx/xychart';
 import clsx from 'clsx';
-import { useId, useMemo, useContext, useEffect, useState } from 'react';
+import { useId, useMemo, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { parseAsLocalDate } from '../shared/date-parsing';
@@ -175,10 +175,10 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
-const HighlightTooltip: React.FC< { series: SeriesData[]; selectedIndex: number } > = ( {
-	series,
-	selectedIndex,
-} ) => {
+const HighlightTooltip: React.FC< {
+	series: SeriesData[];
+	selectedIndex: number | undefined;
+} > = ( { series, selectedIndex } ) => {
 	const tooltipContext = useContext( TooltipContext );
 
 	useEffect( () => {
@@ -234,6 +234,19 @@ const LineChart: FC< LineChartProps > = ( {
 	const theme = useXYChartTheme( data );
 	const chartId = useId(); // Ensure unique ids for gradient fill.
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+	const chartRef = useRef< HTMLDivElement >( null );
+
+	const [ keyboardNavigationActive, setKeyboardNavigationActive ] = useState( false );
+	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
+
+	const tooltipRef = useCallback(
+		( element: HTMLDivElement | null ) => {
+			if ( element && keyboardNavigationActive && selectedIndex !== undefined ) {
+				element.focus();
+			}
+		},
+		[ keyboardNavigationActive, selectedIndex ]
+	);
 
 	const dataSorted = useMemo(
 		() =>
@@ -290,7 +303,6 @@ const LineChart: FC< LineChartProps > = ( {
 	}, [ dataSorted, providerTheme.glyphs, renderGlyph ] );
 
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
-	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 
 	// Create legend items from group labels, this iterates over groups rather than data points
 	const legendItems = dataSorted.map( ( group, index ) => ( {
@@ -307,14 +319,48 @@ const LineChart: FC< LineChartProps > = ( {
 		yAccessor: ( d: DataPointDate ) => d?.value,
 	};
 
-	const handleFocus = useMemo( () => () => setSelectedIndex( 0 ), [] );
+	// Create a custom renderTooltip that includes focus capability
+	const focusableRenderTooltip = useMemo( () => {
+		return ( params: RenderTooltipParams< DataPointDate > ) => {
+			const tooltipContent = renderTooltip( params );
+
+			if ( keyboardNavigationActive && selectedIndex !== undefined ) {
+				return (
+					<div
+						ref={ tooltipRef }
+						tabIndex={ -1 }
+						role="tooltip"
+						aria-live="polite"
+						className={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
+					>
+						{ tooltipContent }
+					</div>
+				);
+			}
+
+			return (
+				<div role="tooltip" aria-live="polite">
+					{ tooltipContent }
+				</div>
+			);
+		};
+	}, [ renderTooltip, keyboardNavigationActive, selectedIndex, tooltipRef ] );
+
 	const onKeyDown = useMemo(
 		() => ( event: React.KeyboardEvent< HTMLDivElement > ) => {
 			const size = dataSorted[ 0 ]?.data.length || 0;
 			if ( size === 0 ) return;
 
-			// If the selected index is equal to or more than the size of the data, allow navigating out of the chart on keyboard.
-			if ( selectedIndex + 1 >= size && [ 'ArrowRight', 'Tab' ].includes( event.key ) ) {
+			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
+
+			if ( ! keyboardNavigationActive ) {
+				setKeyboardNavigationActive( true );
+			}
+
+			if ( currentSelectedIndex + 1 >= size && [ 'ArrowRight', 'Tab' ].includes( event.key ) ) {
+				chartRef.current?.focus();
+
+				setKeyboardNavigationActive( false );
 				setSelectedIndex( undefined );
 				return;
 			}
@@ -322,12 +368,16 @@ const LineChart: FC< LineChartProps > = ( {
 			event.preventDefault();
 
 			if ( [ 'ArrowRight', 'Tab' ].includes( event.key ) ) {
-				setSelectedIndex( ( selectedIndex + 1 ) % size );
+				setSelectedIndex( ( currentSelectedIndex + 1 ) % size );
 			} else if ( [ 'ArrowLeft' ].includes( event.key ) ) {
-				setSelectedIndex( ( selectedIndex - 1 + size ) % size );
+				setSelectedIndex( ( currentSelectedIndex - 1 + size ) % size );
+			} else if ( event.key === 'Escape' ) {
+				setSelectedIndex( undefined );
+				setKeyboardNavigationActive( false );
+				chartRef.current?.focus();
 			}
 		},
-		[ dataSorted, selectedIndex ]
+		[ dataSorted, selectedIndex, keyboardNavigationActive ]
 	);
 
 	const error = validateData( dataSorted );
@@ -347,7 +397,7 @@ const LineChart: FC< LineChartProps > = ( {
 			} }
 			tabIndex={ 0 }
 			onKeyDown={ onKeyDown }
-			onFocus={ handleFocus }
+			ref={ chartRef }
 		>
 			<XYChart
 				theme={ theme }
@@ -418,14 +468,17 @@ const LineChart: FC< LineChartProps > = ( {
 				{ withTooltips && (
 					<>
 						{ dataSorted && (
-							<HighlightTooltip series={ dataSorted } selectedIndex={ selectedIndex } />
+							<HighlightTooltip
+								series={ dataSorted }
+								selectedIndex={ keyboardNavigationActive ? selectedIndex : undefined }
+							/>
 						) }
 						<Tooltip
 							detectBounds
 							snapTooltipToDatumX
 							snapTooltipToDatumY
 							showSeriesGlyphs
-							renderTooltip={ renderTooltip }
+							renderTooltip={ focusableRenderTooltip }
 							renderGlyph={ tooltipRenderGlyph }
 							glyphStyle={ glyphStyle }
 							showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
