@@ -150,17 +150,19 @@ class LCP_Optimize_Bg_Image {
 				continue;
 			}
 
-			if ( ! isset( $breakpoint['imageDimensions'][0]['width'] ) || ! is_numeric( $breakpoint['imageDimensions'][0]['width'] ) ) {
+			$image_dimensions = $breakpoint['imageDimensions'][0];
+
+			if ( ! isset( $image_dimensions['width'] ) || ! is_numeric( $image_dimensions['width'] ) ) {
 				continue;
 			}
 
-			if ( ! isset( $breakpoint['imageDimensions'][0]['height'] ) || ! is_numeric( $breakpoint['imageDimensions'][0]['height'] ) ) {
+			if ( ! isset( $image_dimensions['height'] ) || ! is_numeric( $image_dimensions['height'] ) ) {
 				continue;
 			}
 
 			// The width and height should already be an integer, but just in case.
-			$image_width  = (int) $breakpoint['imageDimensions'][0]['width'];
-			$image_height = (int) $breakpoint['imageDimensions'][0]['height'];
+			$image_width  = (int) $image_dimensions['width'];
+			$image_height = (int) $image_dimensions['height'];
 
 			$media_query = array();
 			if ( isset( $breakpoint['minWidth'] ) ) {
