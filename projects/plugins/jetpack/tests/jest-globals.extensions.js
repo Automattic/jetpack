@@ -42,14 +42,3 @@ jest.mock( '@wordpress/data', () => {
 	}
 	return ret;
 } );
-
-// Mock @automattic/jetpack-script-data functions to prevent errors in extension tests.
-// These functions try to access script data that isn't available in test environments.
-// They can be overridden in individual tests if needed, see extensions/blocks/google-calendar/test/edit.js for an example.
-jest.mock( '@automattic/jetpack-script-data', () => {
-	return {
-		isSimpleSite: jest.fn().mockReturnValue( false ),
-		isWpcomPlatformSite: jest.fn().mockReturnValue( false ),
-		isWoASite: jest.fn().mockReturnValue( false ),
-	};
-} );

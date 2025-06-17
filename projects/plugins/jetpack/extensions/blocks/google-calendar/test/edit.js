@@ -1,4 +1,3 @@
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GoogleCalendarEdit } from '../edit';
@@ -7,6 +6,16 @@ jest.mock( '@wordpress/components/build/sandbox', () => ( {
 	__esModule: true,
 	default: props => <iframe title="Some title" { ...props } />,
 } ) );
+
+// Mock @automattic/jetpack-script-data functions to allow isWpcomPlatformSite to be correctly used.
+jest.mock( '@automattic/jetpack-script-data', () => {
+	return {
+		isWpcomPlatformSite: jest.fn().mockReturnValue( false ),
+	};
+} );
+
+// Get access to the mock function for testing
+const { isWpcomPlatformSite } = jest.requireMock( '@automattic/jetpack-script-data' );
 
 describe( 'GoogleCalendarEdit', () => {
 	const defaultClassName = 'wp-block-jetpack-google-calendar';
