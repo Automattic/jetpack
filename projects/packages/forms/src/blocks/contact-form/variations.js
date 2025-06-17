@@ -970,6 +970,15 @@ const variations = compact( [
 							text: __( 'Next →', 'jetpack-forms' ),
 						},
 					],
+					[
+						'jetpack/button',
+						{
+							element: 'button',
+							uniqueId: 'submit-step',
+							customVariant: 'submit',
+							text: __( 'Submit', 'jetpack-forms' ),
+						},
+					],
 				],
 			],
 		],
