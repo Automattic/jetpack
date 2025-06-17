@@ -198,27 +198,47 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		[ clientId ]
 	);
 
-	// Detect if a user just added a step block to a non-multistep form and convert it to multistep.
+	// If a user manually inserts Multistep building blocks (without using the variation
+	// picker) automatically switch the form to the multistep mode. This watcher must **not**
+	// run when the variation is already multistep (e.g. after picking the template), or it
+	// would create an extra undo level.
 	useEffect( () => {
-		if ( formVariation.current !== 'multistep' ) {
-			if (
-				currentInnerBlocks.some(
-					block => block.name === 'jetpack/form-step' || block.name === 'jetpack/step-container'
-				)
-			) {
-				setAttributes( { variationName: 'multistep' } );
-			}
+		if ( variationName === 'multistep' ) {
+			return;
 		}
-	}, [ formVariation, currentInnerBlocks, setAttributes ] );
+
+		if (
+			currentInnerBlocks.some(
+				block => block.name === 'jetpack/form-step' || block.name === 'jetpack/step-container'
+			)
+		) {
+			setAttributes( { variationName: 'multistep' } );
+		}
+	}, [ variationName, currentInnerBlocks, setAttributes ] );
 
 	// Detect a conversion to a multistep form and structure inner blocks only once.
 	const hasStructuredRef = useRef( false );
 
 	useEffect( () => {
-		// Run only when the form first switches to the multistep variation and hasn't been
-		// structured yet. This avoids rewriting innerBlocks every time they change (which
-		// created extra history snapshots and broke Undo).
+		// Only proceed when switching to the multistep variation for the first time.
 		if ( variationName !== 'multistep' || hasStructuredRef.current ) {
+			return;
+		}
+
+		// Helper: deep-scan blocks for a step-container.
+		const containsStepContainer = blocks =>
+			blocks.some(
+				b =>
+					b.name === 'jetpack/step-container' ||
+					( b.innerBlocks?.length && containsStepContainer( b.innerBlocks ) )
+			);
+
+		// If a Step Container block already exists we assume the template is already
+		// in its correct multistep structure (e.g. inserted via the variation picker)
+		// and skip any further normalisation to keep a single undo snapshot.
+		const alreadyStructured = containsStepContainer( currentInnerBlocks );
+		if ( alreadyStructured ) {
+			hasStructuredRef.current = true;
 			return;
 		}
 
