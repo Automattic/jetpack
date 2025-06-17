@@ -1,13 +1,13 @@
 // Base eslint config generator for normal projects. If for some reason you need to override the config, use this something like
 //
 // ```
-// import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
+// import { makeBaseConfig, defineConfig } from 'jetpack-js-tools/eslintrc/base.mjs';
 //
-// export default [
-//     ...makeBaseConfig( import.meta.url ),
+// export default defineConfig(
+//     makeBaseConfig( import.meta.url ),
 //
 //     // Add any overrides after.
-// ];
+// );
 // ```
 
 import fs from 'node:fs';
@@ -18,6 +18,7 @@ import { FlatCompat } from '@eslint/eslintrc';
 import eslintJs from '@eslint/js';
 import tanstackEslintPluginQuery from '@tanstack/eslint-plugin-query';
 import makeDebug from 'debug';
+import { defineConfig, globalIgnores } from 'eslint/config';
 import { defaultConditionNames } from 'eslint-import-resolver-typescript';
 import eslintPluginImport from 'eslint-plugin-import';
 import eslintPluginLodash from 'eslint-plugin-lodash';
@@ -29,6 +30,8 @@ import typescriptEslint from 'typescript-eslint';
 import loadIgnorePatterns from '../load-eslint-ignore.js';
 import jestConfig from './jest.mjs';
 import makeReactConfig from './react.mjs';
+
+export { defineConfig, globalIgnores } from 'eslint/config';
 
 const debug = makeDebug( 'eslintrc/base' );
 
@@ -73,7 +76,7 @@ export const jestFiles = [
  * @param {string}   opts.textdomain - Text domain for `@wordpress/i18n-text-domain` rule. Default is read from `project/.../.../composer.json` if possible.
  * @return {object[]} Eslint config.
  */
-export default function makeBaseConfig( configurl, opts = {} ) {
+export function makeBaseConfig( configurl, opts = {} ) {
 	const basedir = path.dirname( fileURLToPath( configurl ) );
 
 	const compat = new FlatCompat( {
@@ -134,7 +137,7 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 		}
 	}
 
-	return [
+	return defineConfig(
 		{
 			name: 'Global files',
 			files: [
@@ -147,15 +150,12 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 				'**/*.svelte',
 			],
 		},
-		{
-			name: 'Global ignores',
-			ignores: loadIgnorePatterns( basedir ),
-		},
+		globalIgnores( loadIgnorePatterns( basedir ) ),
 
 		// Extended configs.
 		eslintJs.configs.recommended,
 		// Can't just `@wordpress/recommended-with-formatting` because that includes React too and we only want that with opts.react.
-		...fixupConfigRules(
+		fixupConfigRules(
 			compat.extends(
 				'plugin:@wordpress/jsx-a11y',
 				'plugin:@wordpress/custom',
@@ -164,7 +164,7 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 			)
 		),
 		eslintPluginPrettierRecommended,
-		...tanstackEslintPluginQuery.configs[ 'flat/recommended' ],
+		tanstackEslintPluginQuery.configs[ 'flat/recommended' ],
 
 		// Base config.
 		{
@@ -328,10 +328,10 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 		},
 
 		// React config.
-		...( opts.react ? makeReactConfig( configurl ) : [] ),
+		opts.react ? makeReactConfig( configurl ) : [],
 
 		// Typescript.
-		...typescriptEslint.config( {
+		{
 			files: typescriptFiles,
 			extends: [ typescriptEslint.configs.recommended ],
 			rules: {
@@ -347,13 +347,14 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 				// Let us use TS return type for better inference
 				'jsdoc/require-returns-type': 'off',
 			},
-		} ),
+		},
+
 		// Jest.
-		...typescriptEslint.config( {
+		{
 			files: jestFiles,
 			extends: [ jestConfig ],
-		} ),
-	];
+		}
+	);
 }
 
 /**
@@ -364,7 +365,7 @@ export default function makeBaseConfig( configurl, opts = {} ) {
  * @return {object} Eslint config.
  */
 export function makeEnvConfig( envs, files ) {
-	return {
+	return defineConfig( {
 		files: files,
 		languageOptions: {
 			globals: ( Array.isArray( envs ) ? envs : [ envs ] ).reduce(
@@ -372,7 +373,5 @@ export function makeEnvConfig( envs, files ) {
 				{}
 			),
 		},
-	};
+	} );
 }
-
-export const config = typescriptEslint.config;

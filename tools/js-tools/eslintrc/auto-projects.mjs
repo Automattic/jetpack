@@ -5,8 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import util from 'node:util';
 import makeDebug from 'debug';
+import { defineConfig } from 'eslint/config';
 import { glob } from 'glob';
-import { config } from 'typescript-eslint';
 import makeReactConfig from './react.mjs';
 
 const cwd = fileURLToPath( new URL( '../../..', import.meta.url ) );
@@ -105,12 +105,10 @@ if ( reactProjects.length ) {
 	debug(
 		`React projects: ${ reactProjects.map( v => v.substring( 9, v.length - 3 ) ).join( ' ' ) }`
 	);
-	autoProjects.push(
-		...config( {
-			files: reactProjects,
-			extends: [ makeReactConfig( new URL( '../../../eslint.config.mjs', import.meta.url ) ) ],
-		} )
-	);
+	autoProjects.push( {
+		files: reactProjects,
+		extends: [ makeReactConfig( new URL( '../../../eslint.config.mjs', import.meta.url ) ) ],
+	} );
 }
 
-export default autoProjects;
+export default defineConfig( autoProjects );
