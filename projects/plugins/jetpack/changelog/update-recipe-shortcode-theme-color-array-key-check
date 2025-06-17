@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Recipe shortcode: Prevent errors in logs due to checking for theme color properties that may not exist.

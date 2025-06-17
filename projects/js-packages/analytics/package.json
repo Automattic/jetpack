@@ -13,11 +13,10 @@
 	},
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
-	"dependencies": {},
 	"devDependencies": {
 		"debug": "4.4.1",
-		"jest": "29.7.0",
-		"jest-environment-jsdom": "29.7.0"
+		"jest": "30.0.0",
+		"jest-environment-jsdom": "30.0.0"
 	},
 	"type": "module",
 	"exports": {
