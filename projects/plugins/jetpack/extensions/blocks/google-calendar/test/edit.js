@@ -1,4 +1,4 @@
-import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GoogleCalendarEdit } from '../edit';
@@ -6,12 +6,6 @@ import { GoogleCalendarEdit } from '../edit';
 jest.mock( '@wordpress/components/build/sandbox', () => ( {
 	__esModule: true,
 	default: props => <iframe title="Some title" { ...props } />,
-} ) );
-
-// isSimpleSite is mocked simply to check appropriate support link is displayed.
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	...jest.requireActual( '@automattic/jetpack-script-data' ),
-	isSimpleSite: jest.fn(),
 } ) );
 
 describe( 'GoogleCalendarEdit', () => {
@@ -99,7 +93,7 @@ describe( 'GoogleCalendarEdit', () => {
 	} );
 
 	test( 'renders wpcom support link if simple or atomic site', () => {
-		isSimpleSite.mockImplementationOnce( () => true );
+		isWpcomPlatformSite.mockImplementationOnce( () => true );
 
 		const emptyProps = { ...defaultProps, attributes: emptyAttributes };
 		render( <GoogleCalendarEdit { ...emptyProps } /> );
