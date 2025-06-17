@@ -129,7 +129,7 @@ const PieChart = ( {
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
 
 	const outerRadius = radius - padding;
-	const innerRadius = outerRadius * ( 1 - thickness );
+	const innerRadius = thickness === 0 ? 0 : outerRadius * ( 1 - thickness );
 
 	const maxCornerRadius = ( outerRadius - innerRadius ) / 2;
 	const cornerRadius = cornerScale ? Math.min( cornerScale * outerRadius, maxCornerRadius ) : 0;
