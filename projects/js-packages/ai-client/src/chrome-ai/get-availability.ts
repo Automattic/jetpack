@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
+import { initializeExPlat, loadExperimentAssignment } from '@automattic/jetpack-explat';
 import { select } from '@wordpress/data';
-
 /**
  * Types
  */
@@ -33,12 +32,25 @@ function getAiAssistantFeature() {
  *
  * @return {boolean} Whether Chrome AI can be enabled.
  */
-export function isChromeAIAvailable() {
+export async function isChromeAIAvailable() {
 	const { featuresControl } = getAiAssistantFeature();
-	return (
-		featuresControl?.[ 'chrome-ai' ]?.enabled !== false &&
-		getJetpackExtensionAvailability( 'ai-use-chrome-ai-sometimes' ).available !== false
+
+	// Extra check if we want to control this via the feature flag for now
+	if ( featuresControl?.[ 'chrome-ai' ]?.enabled !== false ) {
+		return false;
+	}
+
+	initializeExPlat();
+
+	const { variationName } = await loadExperimentAssignment(
+		'calypso_jetpack_ai_gemini_api_202503_v1'
 	);
+
+	if ( variationName === 'control' ) {
+		return false;
+	}
+
+	return true;
 }
 
 export default isChromeAIAvailable;
