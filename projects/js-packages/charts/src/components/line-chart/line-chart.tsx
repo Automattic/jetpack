@@ -236,9 +236,9 @@ const LineChart: FC< LineChartProps > = ( {
 	const chartId = useId(); // Ensure unique ids for gradient fill.
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
-
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 
+	// Focus the tooltip as soon as it is rendered.
 	const tooltipRef = useCallback(
 		( element: HTMLDivElement | null ) => {
 			if ( element && selectedIndex !== undefined ) {
