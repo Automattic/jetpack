@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import useAnalytics from '../../../hooks/use-analytics';
 import { MY_JETPACK_SECTION_OVERVIEW } from '../constants';
 

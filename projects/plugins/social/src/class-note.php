@@ -31,7 +31,7 @@ class Note {
 		if ( ! self::enabled() ) {
 			return;
 		}
-		add_filter( 'allowed_block_types', array( $this, 'restrict_blocks_for_social_note' ), 10, 2 );
+		add_filter( 'allowed_block_types_all', array( $this, 'restrict_blocks_for_social_note' ), 10, 2 );
 
 		/*
 		 * The ActivityPub plugin has a block to set a Fediverse post that a new post is in reply to. This is perfect for Social Notes.
@@ -150,12 +150,16 @@ class Note {
 	/**
 	 * Restrict the blocks for the Social Note CPT.
 	 *
-	 * @param array    $allowed_blocks The allowed blocks.
-	 * @param \WP_Post $post The post.
+	 * @param array                    $allowed_blocks The allowed blocks.
+	 * @param \WP_Block_Editor_Context $block_editor_context The current block editor context.
 	 * @return array The allowed blocks.
 	 */
-	public function restrict_blocks_for_social_note( $allowed_blocks, $post ) {
-		if ( 'jetpack-social-note' !== $post->post_type ) { // Let 'em pass.
+	public function restrict_blocks_for_social_note( $allowed_blocks, $block_editor_context ) {
+		if (
+			! isset( $block_editor_context->post )
+			|| ! $block_editor_context->post instanceof \WP_Post
+			|| 'jetpack-social-note' !== $block_editor_context->post->post_type
+		) {
 			return $allowed_blocks;
 		}
 

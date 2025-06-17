@@ -17,7 +17,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { isArray, isEmpty, join } from 'lodash';
 import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -82,6 +82,7 @@ export default function InboxView() {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const [ containerWidth, setContainerWidth ] = useState( 0 );
 	const [ queryArgs, setQueryArgs ] = useState( EMPTY_OBJECT );
+
 	const dateSettings = getDateSettings();
 	const containerRef = useResizeObserver(
 		resizeObserverEntries => {
@@ -325,13 +326,31 @@ export default function InboxView() {
 }
 
 const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMobile } ) => {
+	const [ isChildModalOpen, setIsChildModalOpen ] = useState( false );
+
 	const onRequestClose = useCallback( () => {
-		setSidePanelItem();
-	}, [ setSidePanelItem ] );
+		if ( ! isChildModalOpen ) {
+			setSidePanelItem();
+		}
+	}, [ setSidePanelItem, isChildModalOpen ] );
+
+	const handleModalStateChange = useCallback(
+		isOpen => {
+			setIsChildModalOpen( isOpen );
+		},
+		[ setIsChildModalOpen ]
+	);
+
 	if ( ! sidePanelItem ) {
 		return null;
 	}
-	const contents = <InboxResponse response={ sidePanelItem } isLoading={ isLoadingData } />;
+	const contents = (
+		<InboxResponse
+			response={ sidePanelItem }
+			isLoading={ isLoadingData }
+			onModalStateChange={ handleModalStateChange }
+		/>
+	);
 	if ( ! isMobile ) {
 		return <div className="jp-forms__inbox__dataviews-response">{ contents }</div>;
 	}

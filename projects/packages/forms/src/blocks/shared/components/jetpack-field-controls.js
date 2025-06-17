@@ -6,9 +6,9 @@ import {
 import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { isValidElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import ToolbarRequiredGroup from '../../contact-form/components/block-controls/toolbar-required-group';
-import JetpackFieldWidth from '../../contact-form/components/jetpack-field-width';
-import JetpackManageResponsesSettings from '../../contact-form/components/jetpack-manage-responses-settings';
+import JetpackFieldWidth from './jetpack-field-width';
+import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
+import ToolbarRequiredGroup from './toolbar-required-group';
 
 const JetpackFieldControls = ( {
 	attributes,
@@ -69,10 +69,10 @@ const JetpackFieldControls = ( {
 			</BlockControls>
 
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Manage responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
-				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
 					<>{ fieldSettings }</>
 				</PanelBody>
 			</InspectorControls>

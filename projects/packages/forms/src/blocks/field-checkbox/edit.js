@@ -7,9 +7,9 @@ import {
 import { PanelBody, ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import ToolbarRequiredGroup from '../contact-form/components/block-controls/toolbar-required-group';
-import JetpackFieldWidth from '../contact-form/components/jetpack-field-width';
-import JetpackManageResponsesSettings from '../contact-form/components/jetpack-manage-responses-settings';
+import JetpackFieldWidth from '../shared/components/jetpack-field-width';
+import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-responses-settings';
+import ToolbarRequiredGroup from '../shared/components/toolbar-required-group';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
@@ -66,7 +66,7 @@ export default function CheckboxFieldEdit( props ) {
 				<ToolbarRequiredGroup required={ required } onClick={ onRequiredToggle } />
 			</BlockControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Checkbox Settings', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Checkbox settings', 'jetpack-forms' ) }>
 					<ToggleControl
 						label={ __( 'Checked by default', 'jetpack-forms' ) }
 						checked={ !! defaultValue }
@@ -76,10 +76,10 @@ export default function CheckboxFieldEdit( props ) {
 				</PanelBody>
 			</InspectorControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Manage responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
-				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
+				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
 					<ToggleControl
 						label={ __( 'Field is required', 'jetpack-forms' ) }
 						checked={ required }

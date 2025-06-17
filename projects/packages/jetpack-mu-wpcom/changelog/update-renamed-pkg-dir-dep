@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Replace deprecated `pkg-dir` dep with `package-directory`, and jump through a hoop to make the ESM-only package work.
+
+

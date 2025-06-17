@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu as Jetpack_Admin_UI_Admin;
 use Automattic\Jetpack\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -364,6 +365,8 @@ class Admin_Menu_Test extends TestCase {
 	public function test_add_jetpack_menu() {
 		global $submenu;
 
+		static::$admin_menu->register_nav_unification_jetpack_menus();
+		Jetpack_Admin_UI_Admin::admin_menu_hook_callback();
 		static::$admin_menu->add_jetpack_menu();
 
 		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][3][2] );

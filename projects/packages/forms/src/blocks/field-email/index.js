@@ -1,8 +1,8 @@
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { envelope } from '@wordpress/icons';
-import { getIconColor } from '../contact-form/util/block-icons';
 import defaultSettings from '../shared/settings';
+import { getIconColor } from '../shared/util/block-icons';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-email';
 const settings = {
 	...defaultSettings,
-	title: __( 'Email Field', 'jetpack-forms' ),
+	title: __( 'Email field', 'jetpack-forms' ),
 	keywords: [ __( 'e-mail', 'jetpack-forms' ), __( 'mail', 'jetpack-forms' ), 'email' ],
 	description: __( 'Collect email addresses from your visitors.', 'jetpack-forms' ),
 	icon: {

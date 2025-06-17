@@ -1,8 +1,8 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { getIconColor } from '../contact-form/util/block-icons';
-import renderMaterialIcon from '../contact-form/util/render-material-icon';
+import renderMaterialIcon from '../shared/components/render-material-icon';
 import defaultSettings from '../shared/settings';
+import { getIconColor } from '../shared/util/block-icons';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
@@ -10,8 +10,8 @@ import save from './save';
 const name = 'field-checkbox-multiple';
 const settings = {
 	...defaultSettings,
-	title: __( 'Multiple Choice (Checkbox)', 'jetpack-forms' ),
-	keywords: [ __( 'Choose Multiple', 'jetpack-forms' ), __( 'Option', 'jetpack-forms' ) ],
+	title: __( 'Multiple choice (checkbox)', 'jetpack-forms' ),
+	keywords: [ __( 'Choose multiple', 'jetpack-forms' ), __( 'Option', 'jetpack-forms' ) ],
 	description: __(
 		'Offer users a list of choices, and allow them to select multiple options.',
 		'jetpack-forms'

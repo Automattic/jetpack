@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.5.9';
+	const PACKAGE_VERSION = '0.5.10';
 
 	/**
 	 * Whether this class has been initialized
@@ -149,15 +149,15 @@ class Admin_Menu {
 	 * aggreagate all menu items registered by stand-alone plugins and make sure they all go under the same
 	 * Jetpack top level menu. It will also handle the top level menu registration in case the Jetpack plugin is not present.
 	 *
-	 * @param string   $page_title  The text to be displayed in the title tags of the page when the menu
-	 *                              is selected.
-	 * @param string   $menu_title  The text to be used for the menu.
-	 * @param string   $capability  The capability required for this menu to be displayed to the user.
-	 * @param string   $menu_slug   The slug name to refer to this menu by. Should be unique for this menu
-	 *                              and only include lowercase alphanumeric, dashes, and underscores characters
-	 *                              to be compatible with sanitize_key().
-	 * @param callable $function    The function to be called to output the content for this page.
-	 * @param int      $position    The position in the menu order this item should appear. Leave empty typically.
+	 * @param string        $page_title  The text to be displayed in the title tags of the page when the menu
+	 *                                   is selected.
+	 * @param string        $menu_title  The text to be used for the menu.
+	 * @param string        $capability  The capability required for this menu to be displayed to the user.
+	 * @param string        $menu_slug   The slug name to refer to this menu by. Should be unique for this menu
+	 *                                   and only include lowercase alphanumeric, dashes, and underscores characters
+	 *                                   to be compatible with sanitize_key().
+	 * @param callable|null $function    The function to be called to output the content for this page.
+	 * @param int           $position    The position in the menu order this item should appear. Leave empty typically.
 	 *
 	 * @return string The resulting page's hook_suffix
 	 */

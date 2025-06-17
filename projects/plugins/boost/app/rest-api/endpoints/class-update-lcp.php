@@ -63,18 +63,14 @@ class Update_LCP implements Endpoint {
 			return $api_successful;
 		}
 
-		// Update each page.
 		foreach ( $pages as $entry ) {
 			if ( $entry['success'] ) {
 				$state->set_page_success( $entry['key'] );
 			} else {
 				$errors = array();
 				foreach ( $entry['reports'] as $report ) {
-					if ( false === $report['success'] && ! empty( $report['message'] ) ) {
-						$errors[] = array(
-							// @TODO: Add a type and meta here (and the Cloud) after Beta release to further explain the error.
-							'message' => $report['message'] ?? __( 'An unknown error occurred', 'jetpack-boost' ),
-						);
+					if ( isset( $report['success'] ) && false === $report['success'] && ! empty( $report['data'] ) ) {
+						$errors[] = $report['data'];
 					}
 				}
 

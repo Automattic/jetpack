@@ -12,6 +12,7 @@ use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
@@ -173,7 +174,7 @@ function register_block() {
 	);
 
 	// If called via REST API, we need to register later in the lifecycle
-	if ( ( new Host() )->is_wpcom_platform() && ! jetpack_is_frontend() ) {
+	if ( ( new Host() )->is_wpcom_platform() && ! Request::is_frontend() ) {
 		add_action(
 			'restapi_theme_init',
 			function () {
@@ -279,9 +280,9 @@ function newsletter_access_column_styles() {
 }
 
 /**
- * Determine the amount of folks currently subscribed to the blog, splitted out in email_subscribers & social_followers & paid_subscribers
+ * Determine the amount of folks currently subscribed to the blog, splitted out in total_subscribers, email_subscribers, social_followers & paid_subscribers.
  *
- * @return array containing ['value' => ['email_subscribers' => 0, 'paid_subscribers' => 0, 'social_followers' => 0]]
+ * @return array containing ['value' => ['total_subscribers' => 0, 'email_subscribers' => 0, 'paid_subscribers' => 0, 'social_followers' => 0]]
  */
 function fetch_subscriber_counts() {
 	$subs_count = 0;
@@ -302,6 +303,7 @@ function fetch_subscriber_counts() {
 					'code'    => $xml->getErrorCode(),
 					'message' => $xml->getErrorMessage(),
 					'value'   => ( isset( $subs_count['value'] ) ) ? $subs_count['value'] : array(
+						'total_subscribers' => 0,
 						'email_subscribers' => 0,
 						'social_followers'  => 0,
 						'paid_subscribers'  => 0,
@@ -329,9 +331,9 @@ function get_subscriber_count( $include_social_followers ) {
 	$counts = fetch_subscriber_counts();
 
 	if ( $include_social_followers ) {
-		$subscriber_count = $counts['value']['email_subscribers'] + $counts['value']['social_followers'];
+		$subscriber_count = $counts['value']['total_subscribers'] + $counts['value']['social_followers'];
 	} else {
-		$subscriber_count = $counts['value']['email_subscribers'];
+		$subscriber_count = $counts['value']['total_subscribers'];
 	}
 	return $subscriber_count;
 }
@@ -531,7 +533,7 @@ function get_element_styles_from_attributes( $attributes ) {
 		$email_field_styles   .= $style;
 	}
 
-	if ( ! jetpack_is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		$background_color_style = get_attribute_color( 'buttonBackgroundColor', $attributes, '#113AF5' /* default lettre theme color */ );
 		$text_color_style       = get_attribute_color( 'textColor', $attributes, '#FFFFFF' );
 		$submit_button_styles  .= sprintf( ' background-color: %s; color: %s;', $background_color_style, $text_color_style );
@@ -1150,7 +1152,7 @@ function get_paywall_blocks() {
 		return $custom_paywall;
 	}
 
-	if ( ! jetpack_is_frontend() ) { // emails
+	if ( ! Request::is_frontend() ) { // emails
 		return get_paywall_simple();
 	}
 

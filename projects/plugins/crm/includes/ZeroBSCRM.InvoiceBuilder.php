@@ -1096,59 +1096,64 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	// == Partials (Transactions against Invs)
 	$partials_table = '';
 
-	if ( $invoice['total'] == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-		$partials_table .= '<table id="partials" class="hide table-totals striped">';
-	} else {
-		$partials_table .= '<table id="partials" class="table-totals striped">';
-	}
+	// Check if partial payments are disabled
+	if ( ! isset( $invsettings['invoicing_disable_partial_payments'] ) || $invsettings['invoicing_disable_partial_payments'] !== 1 ) {
 
-	$balance = $invoice['total'];
+		if ( $invoice['total'] == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			$partials_table .= '<table id="partials" class="hide table-totals striped">';
+		} else {
+			$partials_table .= '<table id="partials" class="table-totals striped">';
+		}
 
-	if ( is_array( $partials ) && count( $partials ) > 0 ) {
+		$balance = $invoice['total'];
 
-		// header
-		$partials_table .= '<tr><td colspan="2" style="text-align:center;font-weight:bold;  border-radius: 0;"><span class="zbs-total">' . esc_html__( 'Payments', 'zero-bs-crm' ) . '</span></td></tr>';
+		if ( is_array( $partials ) && count( $partials ) > 0 ) {
 
-		foreach ( $partials as $partial ) {
+			// header
+			$partials_table .= '<tr><td colspan="2" style="text-align:center;font-weight:bold;  border-radius: 0;"><span class="zbs-total">' . esc_html__( 'Payments', 'zero-bs-crm' ) . '</span></td></tr>';
 
-			// ignore if status_bool (non-completed status)
-			$partial['status_bool'] = (int) $partial['status_bool'];
-			if ( isset( $partial ) && $partial['status_bool'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			foreach ( $partials as $partial ) {
 
-				// v3.0+ has + or - partials. Account for that:
-				if ( $partial['type_accounting'] === 'credit' ) {
-					// credit note, or refund
-					$balance = $balance + $partial['total'];
-				} else {
-					// assume debit
-					$balance = $balance - $partial['total'];
+				// ignore if status_bool (non-completed status)
+				$partial['status_bool'] = (int) $partial['status_bool'];
+				if ( isset( $partial ) && $partial['status_bool'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+
+					// v3.0+ has + or - partials. Account for that:
+					if ( $partial['type_accounting'] === 'credit' ) {
+						// credit note, or refund
+						$balance = $balance + $partial['total'];
+					} else {
+						// assume debit
+						$balance = $balance - $partial['total'];
+					}
+
+					$partials_table .= '<tr id="invoice-payments" class="total-top">';
+					$partials_table .= '<td class="bord bord-l" style="text-align:right">' . esc_html( $partial['ref'] ) . '</td>';
+					$partials_table .= '<td class="bord row-amount"><span class="zbs-partial-value">';
+					if ( ! empty( $partial['total'] ) ) {
+						$partials_table .= esc_html( zeroBSCRM_formatCurrency( $partial['total'] ) );
+					} else {
+						$partials_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
+					}
+					$partials_table .= '</span></td>';
+					$partials_table .= '</tr>';
 				}
-
-				$partials_table .= '<tr id="invoice-payments" class="total-top">';
-				$partials_table .= '<td class="bord bord-l" style="text-align:right">' . esc_html( $partial['ref'] ) . '</td>';
-				$partials_table .= '<td class="bord row-amount"><span class="zbs-partial-value">';
-				if ( ! empty( $partial['total'] ) ) {
-					$partials_table .= esc_html( zeroBSCRM_formatCurrency( $partial['total'] ) );
-				} else {
-					$partials_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
-				}
-				$partials_table .= '</span></td>';
-				$partials_table .= '</tr>';
 			}
 		}
-	}
 
-	if ( $balance == $invoice['total'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-		$balance_hide = 'hide';
-	} else {
-		$balance_hide = '';
-	}
+		if ( $balance == $invoice['total'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			$balance_hide = 'hide';
+		} else {
+			$balance_hide = '';
+		}
 
-	$partials_table .= '<tr class="zbs_grand_total' . $balance_hide . '">';
-	$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</span></td>';
-	$partials_table .= '<td class="bord row-amount"  style="text-align:right;font-weight:bold;"><span class="zbs-subtotal-value">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</span></td>';
-	$partials_table .= '</tr>';
-	$partials_table .= '</table>';
+		$partials_table .= '<tr class="zbs_grand_total' . $balance_hide . '">';
+		$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</span></td>';
+		$partials_table .= '<td class="bord row-amount"  style="text-align:right;font-weight:bold;"><span class="zbs-subtotal-value">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</span></td>';
+		$partials_table .= '</tr>';
+		$partials_table .= '</table>';
+
+	} // / end if partials enabled
 
 	// generate a templated paybutton (depends on template :))
 	$potential_pay_button = zeroBSCRM_invoicing_generateInvPart_payButton( $invoice_id, $invoice['status'], $template );

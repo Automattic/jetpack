@@ -1,8 +1,8 @@
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { mobile } from '@wordpress/icons';
-import { getIconColor } from '../contact-form/util/block-icons';
 import defaultSettings from '../shared/settings';
+import { getIconColor } from '../shared/util/block-icons';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-telephone';
 const settings = {
 	...defaultSettings,
-	title: __( 'Phone Number Field', 'jetpack-forms' ),
+	title: __( 'Phone number field', 'jetpack-forms' ),
 	keywords: [
 		__( 'Phone', 'jetpack-forms' ),
 		__( 'Cellular phone', 'jetpack-forms' ),

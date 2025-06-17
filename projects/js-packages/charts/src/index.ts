@@ -29,4 +29,7 @@ export type {
 	Optional,
 	OrientationType,
 } from './types';
+
 export type { LineStyles, GridStyles } from '@visx/xychart';
+
+export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';

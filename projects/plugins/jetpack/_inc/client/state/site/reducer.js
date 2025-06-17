@@ -419,10 +419,7 @@ export function getActiveSecurityPurchase( state ) {
  * @return {boolean}      True if the site has an active security or complete plan, false otherwise.
  */
 export function hasActiveSecurityPurchase( state ) {
-	return (
-		!! getActiveSecurityPurchase( state ) ||
-		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
-	);
+	return !! getActiveSecurityPurchase( state ) || hasActiveCompletePurchase( state );
 }
 
 /**
@@ -454,10 +451,7 @@ export function getActiveSearchPurchase( state ) {
  * @return {boolean}      True if the site has an active Search product purchase, false otherwise.
  */
 export function hasActiveSearchPurchase( state ) {
-	return (
-		!! getActiveSearchPurchase( state ) ||
-		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
-	);
+	return !! getActiveSearchPurchase( state ) || hasActiveCompletePurchase( state );
 }
 
 /**
@@ -491,10 +485,7 @@ export function getActiveGrowthPurchase( state ) {
  * @return {boolean}      True if the site has an active Creator product purchase, false otherwise.
  */
 export function hasActiveCreatorPurchase( state ) {
-	return (
-		!! getActiveCreatorPurchase( state ) ||
-		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
-	);
+	return !! getActiveCreatorPurchase( state ) || hasActiveCompletePurchase( state );
 }
 
 /**
@@ -504,10 +495,7 @@ export function hasActiveCreatorPurchase( state ) {
  * @return {boolean}      True if the site has an active Growth product purchase, false otherwise.
  */
 export function hasActiveGrowthPurchase( state ) {
-	return (
-		!! getActiveGrowthPurchase( state ) ||
-		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
-	);
+	return !! getActiveGrowthPurchase( state ) || hasActiveCompletePurchase( state );
 }
 
 /**
@@ -551,7 +539,7 @@ export function getActiveBoostPurchase( state ) {
  * @return {boolean}      True if the site has an active Boost product purchase, false otherwise.
  */
 export function hasActiveBoostPurchase( state ) {
-	return !! getActiveBoostPurchase( state );
+	return !! getActiveBoostPurchase( state ) || hasActiveCompletePurchase( state );
 }
 
 /**

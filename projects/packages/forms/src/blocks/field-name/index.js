@@ -1,8 +1,8 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { getIconColor } from '../contact-form/util/block-icons';
-import renderMaterialIcon from '../contact-form/util/render-material-icon';
+import renderMaterialIcon from '../shared/components/render-material-icon';
 import defaultSettings from '../shared/settings';
+import { getIconColor } from '../shared/util/block-icons';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
@@ -10,7 +10,7 @@ import save from './save';
 const name = 'field-name';
 const settings = {
 	...defaultSettings,
-	title: __( 'Name Field', 'jetpack-forms' ),
+	title: __( 'Name field', 'jetpack-forms' ),
 	description: __( 'Collect the site visitor’s name.', 'jetpack-forms' ),
 	icon: {
 		foreground: getIconColor(),

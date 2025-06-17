@@ -10,8 +10,6 @@ import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
 import type { SVGProps, MouseEvent } from 'react';
 
-// TODO: add animation
-
 type OmitBaseChartProps = Omit< BaseChartProps< DataPointPercentage[] >, 'width' | 'height' >;
 
 interface PieChartProps extends OmitBaseChartProps {
