@@ -97,8 +97,6 @@ export const lineChartMetaArgs = {
 
 export const lineChartStoryArgs = {
 	data: sampleData,
-	showLegend: false,
-	legendOrientation: 'horizontal',
 	withGradientFill: false,
 	smoothing: true,
 	maxWidth: 1200,

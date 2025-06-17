@@ -1,0 +1,1 @@
+- Always use the PR template in the directory /Users/annamcphee/Library/Application Support/Claude/templates/jetpack-charts-pr-template.md when creating PRs for the Chart Library
