@@ -18,23 +18,7 @@ import PluginActionButton from './plugin-action-button';
 /**
  * Types
  */
-import type { Integration } from '../../../../../types';
-
-type IntegrationCardData = {
-	isInstalled?: boolean;
-	isActive?: boolean;
-	isConnected?: boolean;
-	needsConnection?: boolean;
-	type?: string;
-	showHeaderToggle?: boolean;
-	headerToggleValue?: boolean;
-	isHeaderToggleEnabled?: boolean;
-	onHeaderToggleChange?: ( value: boolean ) => void;
-	toggleDisabledTooltip?: string;
-	setupBadge?: React.ReactNode;
-	refreshStatus?: () => void;
-	trackEventName?: string;
-} & Partial< Pick< Integration, 'id' | 'slug' | 'version' | 'details' | 'pluginFile' > >;
+import type { IntegrationCardData } from '../../../../../types';
 
 type IntegrationCardHeaderProps = {
 	title: string;
