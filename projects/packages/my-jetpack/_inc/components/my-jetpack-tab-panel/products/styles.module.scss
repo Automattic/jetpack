@@ -24,6 +24,10 @@
 	@include gb.break-medium {
 		gap: 4.5rem;
 	}
+
+	:global(.components-toggle-control .components-h-stack) {
+		flex-direction: row-reverse;
+	}
 }
 
 .filters-wrapper {

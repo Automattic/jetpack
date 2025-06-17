@@ -1,7 +1,7 @@
-export type FilteredProductsProps = {
-	selectedFilter?: string;
-	search?: string;
-};
+import { ProductSection } from './product-section';
+import { useFilteredProducts, UseFilteredProductsOptions } from './use-filtered-products';
+
+export type FilteredProductsProps = UseFilteredProductsOptions;
 
 /**
  * Render the filtered products component.
@@ -11,10 +11,13 @@ export type FilteredProductsProps = {
  * @return The rendered component.
  */
 export function FilteredProducts( { search, selectedFilter }: FilteredProductsProps ) {
+	const filteredProducts = useFilteredProducts( { search, selectedFilter } );
+
 	return (
 		<div>
-			<p>Selected filter: { selectedFilter }</p>
-			<p>Search term: &quot;{ search }&quot;</p>
+			{ filteredProducts.map( section => (
+				<ProductSection key={ section.id } section={ section } />
+			) ) }
 		</div>
 	);
 }
