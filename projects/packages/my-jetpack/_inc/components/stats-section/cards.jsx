@@ -1,3 +1,4 @@
+import { BarChart } from '@automattic/charts';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty } from '@wordpress/icons';
 import React from 'react';
@@ -32,17 +33,92 @@ const createStatSRText = ( countStat, count, previousCount ) => {
 };
 
 /**
+ * Transforms WordPress.com API stats data to BarChart SeriesData format
+ *
+ * @param {object} apiData - Data from WordPress.com stats API with fields and data arrays
+ * @return {Array} SeriesData array formatted for BarChart component
+ */
+const transformStatsDataForChart = apiData => {
+	if ( ! apiData || ! apiData.fields || ! apiData.data || ! Array.isArray( apiData.data ) ) {
+		return [];
+	}
+
+	const { fields, data } = apiData;
+
+	// Find the index of each field we want to chart
+	const periodIndex = fields.indexOf( 'period' );
+
+	// If period index is not found, we can't process the data
+	if ( periodIndex === -1 ) {
+		return [];
+	}
+
+	const viewsIndex = fields.indexOf( 'views' );
+	const visitorsIndex = fields.indexOf( 'visitors' );
+	const likesIndex = fields.indexOf( 'likes' );
+	const commentsIndex = fields.indexOf( 'comments' );
+
+	// Create series data for each metric
+	const series = [];
+
+	// Helper function to create series data for a specific metric
+	const createSeries = ( label, fieldIndex, color ) => {
+		if ( fieldIndex === -1 ) {
+			return null;
+		}
+
+		return {
+			label,
+			data: data.map( dataPoint => ( {
+				date: new Date( dataPoint[ periodIndex ] ),
+				value: dataPoint[ fieldIndex ] || 0,
+			} ) ),
+			options: {
+				stroke: color,
+			},
+		};
+	};
+
+	// Add series for each available metric with Jetpack brand colors
+	const viewsSeries = createSeries( __( 'Views', 'jetpack-my-jetpack' ), viewsIndex, '#00A32A' );
+	const visitorsSeries = createSeries(
+		__( 'Visitors', 'jetpack-my-jetpack' ),
+		visitorsIndex,
+		'#0073AA'
+	);
+	const likesSeries = createSeries( __( 'Likes', 'jetpack-my-jetpack' ), likesIndex, '#D63638' );
+	const commentsSeries = createSeries(
+		__( 'Comments', 'jetpack-my-jetpack' ),
+		commentsIndex,
+		'#D54E21'
+	);
+
+	// Filter out null series and add to the series array
+	[ viewsSeries, visitorsSeries, likesSeries, commentsSeries ].forEach( seriesData => {
+		if ( seriesData ) {
+			series.push( seriesData );
+		}
+	} );
+
+	return series;
+};
+
+/**
  * Stats cards component.
  *
  * @param {object} props                - Component props.
  * @param {object} props.counts         - Counts object for the current period.
  * @param {object} props.previousCounts - Counts object for the previous period.
  * @param {number} props.headingLevel   - Heading level between 1 and 6.
+ * @param {Array}  props.chartData      - Chart data for the bar chart visualization.
  *
  * @return {object} StatsCards React component.
  */
-const StatsCards = ( { counts, previousCounts, headingLevel } ) => {
+const StatsCards = ( { counts, previousCounts, headingLevel, chartData } ) => {
 	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
+
+	// Transform the API data to BarChart format
+	const transformedChartData = transformStatsDataForChart( chartData );
 
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
@@ -53,7 +129,18 @@ const StatsCards = ( { counts, previousCounts, headingLevel } ) => {
 				</small>
 			</Heading>
 
-			{ /* // chart goes here */ }
+			{
+				<div className={ styles[ 'chart-container' ] } style={ { marginBottom: '20px' } }>
+					<BarChart
+						data={ transformedChartData }
+						width={ 400 }
+						height={ 200 }
+						withTooltips={ true }
+						showLegend={ true }
+						legendOrientation="horizontal"
+					/>
+				</div>
+			}
 
 			<ul className={ styles[ 'cards-list' ] }>
 				<CountComparisonCard
