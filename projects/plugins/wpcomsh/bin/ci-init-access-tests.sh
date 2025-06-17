@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 if [ "$1" = "private" ]; then
   echo Running Private Site Tests!

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This script is ran as part of the `UpdateJetpackStaging` TeamCity build.
 # It triggers an E2E test run against pre-defined atomic sites that have been updated with the newest Jetpack build.
 
