@@ -58,6 +58,8 @@ export function MyJetpackTabPanel() {
 		tabStartTimeRef.current = Date.now();
 	}, [ initialTab ] );
 
+	const tabs = useMemo( () => getMyJetpackSections(), [] );
+
 	return (
 		<TabPanel
 			key={ initialTab }
@@ -65,7 +67,7 @@ export function MyJetpackTabPanel() {
 			initialTabName={ initialTab }
 			onSelect={ onTabSelect }
 			children={ tabRenderer }
-			tabs={ getMyJetpackSections() }
+			tabs={ tabs }
 		/>
 	);
 }
