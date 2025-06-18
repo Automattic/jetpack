@@ -13,7 +13,7 @@ import { useFindBlockRecursively } from './use-find-block-recursively';
 export default function useFormSteps( formClientId ) {
 	const stepContainer = useFindBlockRecursively(
 		formClientId,
-		block => block.name === 'jetpack/step-container'
+		block => block.name === 'jetpack/form-step-container'
 	);
 	return useSelect( () => {
 		if ( stepContainer && stepContainer.innerBlocks && stepContainer.innerBlocks.length > 0 ) {

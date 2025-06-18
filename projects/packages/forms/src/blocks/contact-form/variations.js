@@ -808,7 +808,7 @@ const variations = compact( [
 		innerBlocks: [
 			[ 'jetpack/form-progress-indicator', {} ],
 			[
-				'jetpack/step-container',
+				'jetpack/form-step-container',
 				{},
 				[
 					[
