@@ -14,7 +14,7 @@ import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 
 import './editor.scss';
 
-const PREVIOUS_BUTTON_TEMPLATE = [
+export const PREVIOUS_BUTTON_TEMPLATE = [
 	'jetpack/button',
 	{
 		element: 'button',
@@ -25,7 +25,7 @@ const PREVIOUS_BUTTON_TEMPLATE = [
 		metaName: __( 'Previous button', 'jetpack-forms' ),
 	},
 ];
-const NEXT_BUTTON_TEMPLATE = [
+export const NEXT_BUTTON_TEMPLATE = [
 	'jetpack/button',
 	{
 		element: 'button',
@@ -47,7 +47,7 @@ const SUBMIT_BUTTON_TEMPLATE = [
 	},
 ];
 
-const NAVIGATION_TEMPLATE = [
+export const NAVIGATION_TEMPLATE = [
 	PREVIOUS_BUTTON_TEMPLATE,
 	NEXT_BUTTON_TEMPLATE,
 	SUBMIT_BUTTON_TEMPLATE,

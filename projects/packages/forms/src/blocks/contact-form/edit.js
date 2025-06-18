@@ -32,6 +32,11 @@ import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively';
 import useFormSteps from '../shared/hooks/use-form-steps';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
+import {
+	PREVIOUS_BUTTON_TEMPLATE,
+	NEXT_BUTTON_TEMPLATE,
+	NAVIGATION_TEMPLATE,
+} from '../step-navigation/edit';
 import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
@@ -323,8 +328,15 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			} else if ( existingNavigation ) {
 				return existingNavigation;
 			}
+
 			// Create new navigation with or without button
-			return createBlock( 'jetpack/form-step-navigation', {}, button ? [ button ] : [] );
+			return createBlock(
+				'jetpack/form-step-navigation',
+				{},
+				button
+					? [ createBlock( PREVIOUS_BUTTON_TEMPLATE ), createBlock( NEXT_BUTTON_TEMPLATE ), button ]
+					: NAVIGATION_TEMPLATE.map( createBlock )
+			);
 		};
 
 		const getProgressIndicator = () => {
