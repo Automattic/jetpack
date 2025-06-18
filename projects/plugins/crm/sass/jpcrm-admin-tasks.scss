@@ -331,10 +331,25 @@ img.jpcrm-avatar {
 
 	// Handle toolbar wrapping on small screens
 	.fc-toolbar-chunk {
-		text-align: center;
+		display: flex;
+		gap: 8px;
+		flex-wrap: wrap;
+
+		&:nth-child(1) {
+			justify-content: flex-start;
+		}
+
+		&:nth-child(2) {
+			justify-content: space-around;
+			text-align: center;
+		}
+
+		&:nth-child(3) {
+			justify-content: flex-end;
+		}
 
 		> * {
-			margin-bottom: 8px;
+			margin: 0;
 		}
 	}
 
