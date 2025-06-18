@@ -55,7 +55,6 @@ export const settings = {
 		},
 		stepLabel: {
 			type: 'string',
-			default: __( 'Step', 'jetpack-forms' ),
 		},
 	},
 	edit: edit,
