@@ -1,7 +1,18 @@
-import './style.scss';
+/*
+	External dependencies
+*/
 import { Icon, chevronRight } from '@wordpress/icons';
+/*
+	Internal dependencies
+*/
+import './style.scss';
 
-const Details = ( { children, summary } ) => {
+type DetailsProps = {
+	children: React.ReactNode;
+	summary: string;
+};
+
+const Details = ( { children, summary }: DetailsProps ) => {
 	return (
 		<details className="jp-forms__details">
 			<summary className="jp-forms__details-summary">

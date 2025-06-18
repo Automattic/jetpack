@@ -3,16 +3,22 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import GoogleSheetsIcon from '../../../../icons/google-sheets';
 import IntegrationCard from './integration-card';
+import type { SingleIntegrationCardProps } from '../../../../types';
 
 const FORM_RESPONSES_URL =
 	window?.jpFormsBlocks?.defaults?.formsResponsesUrl ||
 	'/wp-admin/admin.php?page=jetpack-forms-admin';
 
-const GoogleSheetsCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
+const GoogleSheetsCard = ( {
+	isExpanded,
+	onToggle,
+	data,
+	refreshStatus,
+}: SingleIntegrationCardProps ) => {
 	const [ isPolling, setIsPolling ] = useState( false );
-	const pollInterval = useRef( null );
+	const pollInterval = useRef< ReturnType< typeof setInterval > | null >( null );
 	const isConnected = !! data?.isConnected;
-	const settingsUrl = data?.settingsUrl;
+	const settingsUrl = data?.settingsUrl as string | undefined;
 
 	const cardData = {
 		...data,
@@ -37,7 +43,9 @@ const GoogleSheetsCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 				refreshStatus && refreshStatus();
 			}, 5000 );
 			return () => {
-				clearInterval( pollInterval.current );
+				if ( pollInterval.current ) {
+					clearInterval( pollInterval.current );
+				}
 			};
 		}
 		if ( isConnected && pollInterval.current ) {

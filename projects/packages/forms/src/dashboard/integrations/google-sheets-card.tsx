@@ -13,14 +13,14 @@ import GoogleSheetsIcon from '../../icons/google-sheets';
 /**
  * Types
  */
-import type { IntegrationCardProps, IntegrationCardData } from '../../types';
+import type { SingleIntegrationCardProps, IntegrationCardData } from '../../types';
 
 const GoogleSheetsDashboardCard = ( {
 	isExpanded,
 	onToggle,
 	data,
 	refreshStatus,
-}: IntegrationCardProps ) => {
+}: SingleIntegrationCardProps ) => {
 	const isConnected = !! data?.isConnected;
 	const settingsUrl = data?.settingsUrl;
 	const navigate = useNavigate();
