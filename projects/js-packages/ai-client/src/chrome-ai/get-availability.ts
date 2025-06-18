@@ -36,7 +36,7 @@ export async function isChromeAIAvailable() {
 	const { featuresControl } = getAiAssistantFeature();
 
 	// Extra check if we want to control this via the feature flag for now
-	if ( featuresControl?.[ 'chrome-ai' ]?.enabled !== false ) {
+	if ( featuresControl?.[ 'chrome-ai' ]?.enabled !== true ) {
 		return false;
 	}
 
