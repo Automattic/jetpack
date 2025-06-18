@@ -53,15 +53,23 @@ class Dashboard {
 	private $switch;
 
 	/**
+	 * Whether this is a WordPress.com Simple site.
+	 *
+	 * @var bool
+	 */
+	private $is_wpcom_simple;
+
+	/**
 	 * Creates a new Dashboard instance.
 	 *
 	 * @param Dashboard_View_Switch|null $switch Dashboard_View_Switch instance to use.
 	 */
 	public function __construct( ?Dashboard_View_Switch $switch = null ) {
-		$this->switch = $switch ?? new Dashboard_View_Switch();
+		$this->switch          = $switch ?? new Dashboard_View_Switch();
+		$this->is_wpcom_simple = ( new Host() )->is_wpcom_simple();
 
-		// Set the integrations tab feature flag
-		self::$show_integrations = apply_filters( 'jetpack_forms_enable_integrations_tab', true );
+		// Set the integrations tab feature flag - off by default on WP.com Simple sites.
+		self::$show_integrations = apply_filters( 'jetpack_forms_enable_integrations_tab', ! $this->is_wpcom_simple );
 	}
 
 	/**
@@ -143,11 +151,9 @@ class Dashboard {
 			return;
 		}
 
-		$is_wpcom = ( new Host() )->is_wpcom_simple();
-
 		// MODERN VIEW -- remove the old submenu and add the new one.
 		// Check if Polldaddy/Crowdsignal plugin is active
-		if ( ! $is_wpcom && ! is_plugin_active( 'polldaddy/polldaddy.php' ) ) {
+		if ( ! $this->is_wpcom_simple && ! is_plugin_active( 'polldaddy/polldaddy.php' ) ) {
 			remove_menu_page( 'feedback' );
 
 			add_menu_page(
