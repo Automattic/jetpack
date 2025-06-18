@@ -57,7 +57,7 @@ else
 	# Brew can be finicky on MacOS
 	if [[ $? -ne 0 ]]; then
 		 echo "Reinstalling Homebrew"
-		 /usr/bin/env bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+		 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	fi
 fi
 
