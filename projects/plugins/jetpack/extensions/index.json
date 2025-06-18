@@ -73,7 +73,8 @@
 		"ai-title-optimization-keywords-support",
 		"ai-response-feedback",
 		"ai-assistant-image-extension",
-		"ai-seo-enhancer"
+		"ai-seo-enhancer",
+		"ai-use-chrome-ai-sometimes"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -81,8 +82,7 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-list-to-table-transform",
-		"ai-use-chrome-ai-sometimes"
+		"ai-list-to-table-transform"
 	],
 	"experimental": [],
 	"no-post-editor": [
