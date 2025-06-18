@@ -20,7 +20,6 @@
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-account-protection": "@dev",
 		"automattic/jetpack-waf": "@dev",
-		"automattic/jetpack-wordads": "@dev",
 		"automattic/jetpack-yoast-promo": "@dev"
 	},
 	"suggest": {
