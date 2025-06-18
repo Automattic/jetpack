@@ -1,14 +1,8 @@
 import { getContext, store, withSyncEvent } from '@wordpress/interactivity';
+import { focusNextInput } from '../form/shared';
 
 const NAMESPACE = 'jetpack/form';
-const focusNextInput = formHash => {
-	const form = document.getElementById( 'jp-form-' + formHash );
-	const currentStep = form.querySelector( '.is-current-step' );
-	const focusableElements = currentStep.querySelectorAll(
-		'input, select, textarea, .jetpack-form-file-field__dropzone-inner, [tabindex]:not([disabled])'
-	);
-	focusableElements[ 0 ]?.focus();
-};
+
 const { state } = store( NAMESPACE, {
 	state: {
 		get isFirstStep() {

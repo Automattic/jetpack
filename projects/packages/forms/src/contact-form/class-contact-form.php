@@ -425,6 +425,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				}
 			}
 
+			$is_multistep = boolval( $max_steps > 0 );
+
 			$default_context = array(
 				'formId'      => $id,
 				'formHash'    => $form->hash,
@@ -436,7 +438,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			if ( $max_steps > 0 ) {
 				$multistep_context = array(
-					'isMultistep' => true,
 					'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1,
 					'maxSteps'    => $max_steps,
 					'direction'   => 'forward', // Default direction for animations
@@ -460,6 +461,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				data-wp-class--is-first-step=\"state.isFirstStep\"
 				data-wp-class--is-last-step=\"state.isLastStep\"
 				novalidate >\n";
+
+			if ( $is_multistep ) { // This makes the "enter" key work in multi-step forms as expected.
+				$r .= '<input type="submit" style="display: none;" />';
+			}
 
 			$r .= $form->body;
 

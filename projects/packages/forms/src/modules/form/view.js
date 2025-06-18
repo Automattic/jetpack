@@ -5,6 +5,7 @@ import {
 	withSyncEvent as originalWithSyncEvent,
 } from '@wordpress/interactivity';
 import { validateField } from '../../contact-form/js/validate-helper';
+import { focusNextInput, submitForm } from './shared';
 
 const withSyncEvent =
 	originalWithSyncEvent ||
@@ -14,9 +15,6 @@ const withSyncEvent =
 
 const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
-// Enter auto advance fields
-const enterAdvanceFields = [ 'name', 'text', 'email', 'telephone', 'url', 'number' ];
-const cmdAdvanceFields = [ 'textarea' ];
 
 const updateField = ( fieldId, value, showFieldError = false ) => {
 	const context = getContext();
@@ -73,7 +71,7 @@ const getError = field => {
 	return config.error_types && config.error_types[ field.error ];
 };
 
-const { state, actions } = store( NAMESPACE, {
+const { state } = store( NAMESPACE, {
 	state: {
 		get fieldHasErrors() {
 			const context = getContext();
@@ -119,8 +117,7 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		get isAriaDisabled() {
-			const context = getContext();
-			return context.isSubmitting;
+			return state.isSubmitting;
 		},
 
 		get errorMessage() {
@@ -177,6 +174,7 @@ const { state, actions } = store( NAMESPACE, {
 					if ( context.isMultiStep && field.step !== context.currentStep ) {
 						return;
 					}
+
 					if ( field.error && field.error !== 'yes' ) {
 						errors.push( {
 							anchor: '#' + field.id,
@@ -194,29 +192,6 @@ const { state, actions } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
 			return field.value;
-		},
-
-		get form() {
-			const context = getContext();
-			return document.getElementById( 'jp-form-' + context.formHash );
-		},
-
-		get submitButton() {
-			return state.form.querySelector( 'button[data-id-attr="submit-step"]' );
-		},
-
-		get isMultistep() {
-			const context = getContext();
-			return context.isMultistep;
-		},
-
-		get isLastInputInStep() {
-			const context = getContext();
-			return context.fieldId === state.stepInputs[ state.stepInputs.length - 1 ].id;
-		},
-
-		get shouldAutoAdvance() {
-			return state.isMultistep && state.isLastInputInStep;
 		},
 	},
 
@@ -277,17 +252,37 @@ const { state, actions } = store( NAMESPACE, {
 				context.showErrors = true;
 				event.preventDefault();
 				event.stopPropagation();
-				return false;
+				return;
+			}
+
+			if ( context.isMultiStep && context.currentStep < context.maxSteps ) {
+				// If this is a multistep form and the current input is not the last in the step,
+				// we don't want to submit the form, but rather advance to the next step.
+				context.currentStep += 1;
+				context.showErrors = false;
+
+				event.preventDefault();
+				event.stopPropagation();
+				const formHash = context.formHash;
+				setTimeout( () => {
+					focusNextInput( formHash );
+				}, 100 );
+				return;
 			}
 			context.isSubmitting = true;
-			return true;
 		} ),
 
-		triggerSubmit: withSyncEvent( event => {
-			if ( actions.onFormSubmit( event ) ) {
-				state.form.requestSubmit( state.submitButton );
+		onKeyDownTextarea: withSyncEvent( event => {
+			if ( ! ( event.key === 'Enter' && ! event.shiftKey ) ) {
+				return;
 			}
-			state.form.requestSubmit( state.submitButton );
+			// Prevent the default behavior of adding a new line.
+			event.preventDefault();
+			event.stopPropagation();
+
+			const context = getContext();
+
+			submitForm( context.formHash );
 		} ),
 
 		scrollIntoView: withSyncEvent( event => {
@@ -317,37 +312,6 @@ const { state, actions } = store( NAMESPACE, {
 				fieldset.querySelector( 'input' ).focus( { preventScroll: true } );
 				fieldset.scrollIntoView( { behavior: 'smooth' } );
 				event.preventDefault();
-			}
-		} ),
-
-		onInputKeyDown: withSyncEvent( event => {
-			if ( ! state.shouldAutoAdvance ) {
-				return;
-			}
-			const context = getContext();
-
-			if ( enterAdvanceFields.includes( context.fieldType ) && event.key === 'Enter' ) {
-				event.preventDefault();
-				if ( ! state.isLastStep ) {
-					actions.nextStep( event );
-				} else {
-					actions.triggerSubmit( event );
-				}
-				return;
-			}
-
-			if (
-				cmdAdvanceFields.includes( context.fieldType ) &&
-				event.key === 'Enter' &&
-				// cmd/meta for Mac, ctrl for Windows
-				( event.metaKey || event.ctrlKey )
-			) {
-				event.preventDefault();
-				if ( ! state.isLastStep ) {
-					actions.nextStep( event );
-				} else {
-					actions.triggerSubmit( event );
-				}
 			}
 		} ),
 	},
