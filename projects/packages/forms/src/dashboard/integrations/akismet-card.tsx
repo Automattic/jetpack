@@ -1,22 +1,31 @@
+/**
+ * External dependencies
+ */
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from 'react-router';
+/**
+ * Internal dependencies
+ */
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import AkismetIcon from '../../icons/akismet';
-import type { IntegrationCardProps } from '../../types';
+/**
+ * Types
+ */
+import type { SingleIntegrationCardProps, IntegrationCardData } from '../../types';
 
 const AkismetDashboardCard = ( {
 	isExpanded,
 	onToggle,
 	data,
 	refreshStatus,
-}: IntegrationCardProps ) => {
+}: SingleIntegrationCardProps ) => {
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 	const navigate = useNavigate();
 
-	const cardData = {
+	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: false, // Always off for dashboard
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
@@ -45,7 +54,6 @@ const AkismetDashboardCard = ( {
 		<IntegrationCard
 			title={ __( 'Akismet Spam Protection', 'jetpack-forms' ) }
 			description={ __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ) }
-			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <AkismetIcon width={ 28 } height={ 28 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

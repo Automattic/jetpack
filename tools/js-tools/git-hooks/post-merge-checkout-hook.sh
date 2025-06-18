@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 changedFiles="$(git -c core.quotepath=off diff-tree -r --name-only --no-commit-id "$1" HEAD)"
 SEP=$'---\n'

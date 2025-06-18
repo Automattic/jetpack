@@ -6,7 +6,16 @@ import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
 import * as React from 'react';
-import RedeemPartnerCouponPreConnection from '../';
+
+jest.unstable_mockModule( '../../../utils/assignLocation', () => {
+	return {
+		__esModule: true,
+		assignLocation: jest.fn(),
+	};
+} );
+
+const { default: RedeemPartnerCouponPreConnection } = await import( '../' );
+const { assignLocation: locationAssignSpy } = await import( '../../../utils/assignLocation' );
 
 const partnerCoupon = {
 	coupon_code: 'TEST_TST_1234',
@@ -33,7 +42,6 @@ const requiredProps = {
 	analytics: analytics,
 };
 
-const locationAssignSpy = jest.spyOn( window.location, 'assign' );
 const recordEventStub = jest.spyOn( analytics.tracks, 'recordEvent' );
 let stubGetConnectionStatus;
 

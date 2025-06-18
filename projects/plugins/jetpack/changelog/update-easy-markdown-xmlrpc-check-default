@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Markdown: Ensure xmlrpc message responses are in the crrect format before trying to parse information.

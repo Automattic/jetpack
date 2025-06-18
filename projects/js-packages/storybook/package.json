@@ -52,7 +52,7 @@
 		"babel-plugin-inline-json-import": "0.3.2",
 		"css-loader": "6.11.0",
 		"esbuild-loader": "4.3.0",
-		"jest": "29.7.0",
+		"jest": "30.0.0",
 		"mime-types": "2.1.35",
 		"postcss": "8.4.47",
 		"postcss-loader": "8.1.1",
