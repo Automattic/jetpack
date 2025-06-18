@@ -1,5 +1,6 @@
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
+import { legendArgTypes } from '../../../stories/legend-config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LineChart > = {
@@ -7,18 +8,7 @@ const meta: Meta< typeof LineChart > = {
 	title: 'JS Packages/Charts/Types/Line Chart/Legend',
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
-		legendAlign: {
-			control: 'select',
-			options: [ 'left', 'center', 'right' ],
-		},
-		legendVerticalAlign: {
-			control: 'select',
-			options: [ 'top', 'bottom' ],
-		},
-		legendOrientation: {
-			control: 'select',
-			options: [ 'horizontal', 'vertical' ],
-		},
+		...legendArgTypes,
 		legendShape: {
 			control: 'select',
 			options: [ 'circle', 'rect' ],

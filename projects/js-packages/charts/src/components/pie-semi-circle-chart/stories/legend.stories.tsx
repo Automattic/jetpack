@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
+import { legendArgTypes, legendDecorator } from '../../../stories/legend-config';
 import { PieSemiCircleChart } from '../../pie-semi-circle-chart';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
@@ -30,45 +30,8 @@ const meta: Meta< typeof PieSemiCircleChart > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		( Story, { args } ) => (
-			<ThemeProvider theme={ args.theme }>
-				<div
-					style={ {
-						resize: 'both',
-						overflow: 'auto',
-						padding: '2rem',
-						width: '800px',
-						height: '600px',
-						minWidth: '400px',
-						maxWidth: '1200px',
-						border: '1px dashed #ccc',
-					} }
-				>
-					<Story />
-				</div>
-			</ThemeProvider>
-		),
-	],
-	argTypes: {
-		theme: {
-			control: 'select',
-			options: {
-				default: undefined,
-				jetpack: jetpackTheme,
-				woo: wooTheme,
-			},
-			defaultValue: undefined,
-		},
-		legendAlign: {
-			control: 'select',
-			options: [ 'left', 'center', 'right' ],
-		},
-		legendVerticalAlign: {
-			control: 'select',
-			options: [ 'top', 'bottom' ],
-		},
-	},
+	decorators: legendDecorator,
+	argTypes: legendArgTypes,
 } satisfies Meta< typeof PieSemiCircleChart >;
 
 export default meta;
