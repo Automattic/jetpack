@@ -111,13 +111,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Adds My Home menu.
-	 */
-	public function add_my_home_menu() {
-		// TODO: Kept to avoid mid-deploy fatals. Remove this in a follow-up.
-	}
-
-	/**
 	 * Adds My Mailboxes menu.
 	 */
 	public function add_my_mailboxes_menu() {
