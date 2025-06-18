@@ -2,11 +2,12 @@ import eslintConfigTargetEs from '@automattic/eslint-config-target-es/flat/langu
 import { defineConfig } from 'eslint/config';
 import globals from 'globals';
 import typescriptEslint from 'typescript-eslint';
+import { javascriptFiles } from './eslintrc/files.mjs';
 
 export default defineConfig(
 	{
 		name: 'Global files',
-		files: [ '**/*.js', '**/*.jsx', '**/*.cjs', '**/*.mjs', '**/*.ts', '**/*.tsx', '**/*.svelte' ],
+		files: javascriptFiles,
 	},
 	eslintConfigTargetEs,
 	{

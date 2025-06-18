@@ -11,7 +11,7 @@ import CreativeMailIcon from '../../icons/creative-mail';
 /**
  * Types
  */
-import type { IntegrationCardProps, IntegrationCardData } from '../../types';
+import type { SingleIntegrationCardProps, IntegrationCardData } from '../../types';
 
 const CreativeMailDashboardCard = ( {
 	isExpanded,
@@ -19,7 +19,7 @@ const CreativeMailDashboardCard = ( {
 	data,
 	refreshStatus,
 	borderBottom = true,
-}: IntegrationCardProps & { borderBottom?: boolean } ) => {
+}: SingleIntegrationCardProps ) => {
 	const { settingsUrl = '' } = data || {};
 
 	const cardData: IntegrationCardData = {
@@ -42,7 +42,6 @@ const CreativeMailDashboardCard = ( {
 		<IntegrationCard
 			title={ __( 'Creative Mail', 'jetpack-forms' ) }
 			description={ __( 'Manage email contacts and campaigns', 'jetpack-forms' ) }
-			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <CreativeMailIcon /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

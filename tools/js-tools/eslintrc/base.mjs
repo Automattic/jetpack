@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { fixupConfigRules } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
 import eslintJs from '@eslint/js';
+import eslintJson from '@eslint/json';
 import tanstackEslintPluginQuery from '@tanstack/eslint-plugin-query';
 import makeDebug from 'debug';
 import { defineConfig, globalIgnores } from 'eslint/config';
@@ -28,9 +29,11 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 import globals from 'globals';
 import typescriptEslint from 'typescript-eslint';
 import loadIgnorePatterns from '../load-eslint-ignore.js';
+import { javascriptFiles, jsonFiles, typescriptFiles, jestFiles } from './files.mjs';
 import jestConfig from './jest.mjs';
 import makeReactConfig from './react.mjs';
 
+export * from './files.mjs';
 export { defineConfig, globalIgnores } from 'eslint/config';
 
 const debug = makeDebug( 'eslintrc/base' );
@@ -45,25 +48,6 @@ const restrictedPaths = [
 		message:
 			"Please use `clsx` instead. It's a lighter and faster drop-in replacement for `classnames`.",
 	},
-];
-
-/**
- * File patterns for files treated as TypeScript.
- */
-export const typescriptFiles = [ '**/*.ts', '**/*.tsx' ];
-
-/**
- * File patterns for files treated as Jest.
- */
-export const jestFiles = [
-	'**/jest-globals.?([mc])js',
-	'**/jest.setup.?([mc])js',
-	// Note: Keep the patterns here in sync with tools/js-tools/jest/config.base.js.
-	'**/__tests__/**/*.[jt]s?(x)',
-	'**/?(*.)+(spec|test).[jt]s?(x)',
-	'**/test/*.[jt]s?(x)',
-	// Other files under /test/ probably need jest rules too.
-	'**/test?(s)/**/*.[jt]s?(x)',
 ];
 
 /**
@@ -138,40 +122,41 @@ export function makeBaseConfig( configurl, opts = {} ) {
 	}
 
 	return defineConfig(
-		{
-			name: 'Global files',
-			files: [
-				'**/*.js',
-				'**/*.jsx',
-				'**/*.cjs',
-				'**/*.mjs',
-				'**/*.ts',
-				'**/*.tsx',
-				'**/*.svelte',
-			],
-		},
 		globalIgnores( loadIgnorePatterns( basedir ) ),
 
 		// Extended configs.
-		eslintJs.configs.recommended,
-		// Can't just `@wordpress/recommended-with-formatting` because that includes React too and we only want that with opts.react.
-		fixupConfigRules(
-			compat.extends(
-				'plugin:@wordpress/jsx-a11y',
-				'plugin:@wordpress/custom',
-				'plugin:@wordpress/esnext',
-				'plugin:@wordpress/i18n'
-			)
-		),
-		eslintPluginPrettierRecommended,
-		tanstackEslintPluginQuery.configs[ 'flat/recommended' ],
+		{
+			files: javascriptFiles,
+			extends: [
+				eslintJs.configs.recommended,
+				// Can't just `@wordpress/recommended-with-formatting` because that includes React too and we only want that with opts.react.
+				fixupConfigRules(
+					compat.extends(
+						'plugin:@wordpress/jsx-a11y',
+						'plugin:@wordpress/custom',
+						'plugin:@wordpress/esnext',
+						'plugin:@wordpress/i18n'
+					)
+				),
+				tanstackEslintPluginQuery.configs[ 'flat/recommended' ],
+			],
+		},
+
+		// Prettier
+		{
+			files: [ ...javascriptFiles, ...jsonFiles ],
+			plugins: {
+				prettier: eslintPluginPrettier,
+			},
+			extends: [ eslintPluginPrettierRecommended ],
+		},
 
 		// Base config.
 		{
 			name: 'Monorepo base config',
+			files: javascriptFiles,
 			plugins: {
 				import: eslintPluginImport,
-				prettier: eslintPluginPrettier,
 				lodash: eslintPluginLodash,
 				n: eslintPluginN,
 				'@typescript-eslint': typescriptEslint.plugin,
@@ -347,6 +332,36 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				// Let us use TS return type for better inference
 				'jsdoc/require-returns-type': 'off',
 			},
+		},
+
+		// JSON files.
+		{
+			files: [ '**/*.json' ],
+			plugins: { json: eslintJson },
+			language: 'json/json',
+			extends: [ 'json/recommended' ],
+		},
+
+		// JSONC files, which includes vscode and tsconfig.
+		{
+			files: [
+				'**/*.jsonc',
+				'.vscode/*.json',
+				'**/tsconfig.json',
+				'**/tsconfig.*.json',
+				'**/jsconfig.json',
+			],
+			plugins: { json: eslintJson },
+			language: 'json/jsonc',
+			extends: [ 'json/recommended' ],
+		},
+
+		// lint JSON5 files
+		{
+			files: [ '**/*.json5' ],
+			plugins: { json: eslintJson },
+			language: 'json/json5',
+			extends: [ 'json/recommended' ],
 		},
 
 		// Jest.
