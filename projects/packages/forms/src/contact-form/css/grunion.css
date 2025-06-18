@@ -285,6 +285,7 @@
 	display: flex;
 	box-sizing: border-box;
 	gap: var(--wp--style--block-gap, 1.5rem);
+	flex-wrap: inherit;
 }
 
 
