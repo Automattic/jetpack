@@ -441,7 +441,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		// 5. Replace all inner blocks with our structured form (no extra undo level),
 		//    then flip the variation which *does* create the single desired snapshot.
 		__unstableMarkNextChangeAsNotPersistent();
-		replaceInnerBlocks( clientId, [ progressIndicator, stepContainer ], false );
+		replaceInnerBlocks( clientId, [ progressIndicator, stepContainer, stepNavigation ], false );
 
 		// Ensure we are marked as multistep – this records the undo level.
 		if ( variationName !== 'multistep' ) {

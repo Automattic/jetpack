@@ -35,7 +35,8 @@ export function ButtonEdit( props ) {
 		[ clientId ]
 	);
 
-	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
+	const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } =
+		useDispatch( 'core/block-editor' );
 
 	/* eslint-disable react-hooks/rules-of-hooks */
 	const {
@@ -81,13 +82,20 @@ export function ButtonEdit( props ) {
 		if ( metadata?.name === metaName ) {
 			return;
 		}
+		__unstableMarkNextChangeAsNotPersistent();
 		updateBlockAttributes( clientId, {
 			metadata: {
 				...metadata,
 				name: metaName,
 			},
 		} );
-	}, [ metaName, metadata, updateBlockAttributes, clientId ] );
+	}, [
+		metaName,
+		metadata,
+		updateBlockAttributes,
+		clientId,
+		__unstableMarkNextChangeAsNotPersistent,
+	] );
 
 	const buttonStyles = {
 		...( ! backgroundColor.color && gradientValue
