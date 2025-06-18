@@ -64,9 +64,9 @@ function StepBreak( { stepLabel, currentIndex } ) {
 	// Translators: %d is the step number (1, 2, 3, etc.)
 	let stepName = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
 
-	if ( stepLabel !== '' || stepLabel !== __( 'Step', 'jetpack-forms' ) ) {
+	if ( stepLabel && stepLabel !== '' ) {
 		// Translators: %1$d is the step number (1, 2, 3, etc.), %2$s is the step label
-		stepName = sprintf( __( 'Step %1$d–%2$s', 'jetpack-forms' ), currentIndex + 1, stepLabel );
+		stepName = sprintf( __( 'Step %1$d – %2$s', 'jetpack-forms' ), currentIndex + 1, stepLabel );
 	}
 
 	return (
