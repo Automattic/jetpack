@@ -89,6 +89,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_deleted'                  => '(bool) If the site flagged as deleted.',
 		'is_a4a_client'               => '(bool) If the site is an A4A client site.',
 		'is_a4a_dev_site'             => '(bool) If the site is an A4A dev site.',
+		'uptime'                      => '(array) An array keyed by unit of time that contains the site uptime for each day.',
 	);
 
 	/**
@@ -625,6 +626,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'is_a4a_dev_site':
 				$response[ $key ] = $this->site->is_a4a_dev_site();
+				break;
+			case 'uptime':
+				$response[ $key ] = $this->site->get_uptime();
 				break;
 		}
 

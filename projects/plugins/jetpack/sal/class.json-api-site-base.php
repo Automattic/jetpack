@@ -445,6 +445,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Returns the site update status for a given timeframe.
+	 *
+	 * @return array
+	 */
+	public function get_uptime() {
+		return array();
+	}
+
+	/**
 	 * Return the user interactions with a site. Not used in Jetpack.
 	 *
 	 * @param string $role The capability to check.
