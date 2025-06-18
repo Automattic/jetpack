@@ -87,7 +87,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 RUN \
 	: "${PNPM_VERSION:?Build argument PNPM_VERSION needs to be set and non-empty.}" \
 	&& npm install --global pnpm@$PNPM_VERSION \
-	&& SHELL=/bin/bash pnpm setup \
+	&& SHELL=bash pnpm setup \
 	&& rm -rf ~/.npm
 
 # Install wp-cli.

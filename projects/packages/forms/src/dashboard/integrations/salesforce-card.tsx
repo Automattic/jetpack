@@ -13,14 +13,14 @@ import useCreateForm from '../hooks/use-create-form';
 /**
  * Types
  */
-import type { IntegrationCardProps, IntegrationCardData } from '../../types';
+import type { SingleIntegrationCardProps, IntegrationCardData } from '../../types';
 
 const SalesforceDashboardCard = ( {
 	isExpanded,
 	onToggle,
 	data,
 	refreshStatus,
-}: IntegrationCardProps ) => {
+}: SingleIntegrationCardProps ) => {
 	const { openNewForm } = useCreateForm();
 	const handleCreateSalesforceForm = useCallback( () => {
 		openNewForm( {
@@ -49,7 +49,6 @@ const SalesforceDashboardCard = ( {
 		<IntegrationCard
 			title={ __( 'Salesforce', 'jetpack-forms' ) }
 			description={ __( 'Send form contacts to Salesforce', 'jetpack-forms' ) }
-			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <SalesforceIcon width={ 32 } height={ 32 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

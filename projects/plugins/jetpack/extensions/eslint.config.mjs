@@ -1,9 +1,15 @@
-import makeBaseConfig, { makeEnvConfig } from 'jetpack-js-tools/eslintrc/base.mjs';
+import {
+	makeBaseConfig,
+	makeEnvConfig,
+	defineConfig,
+	javascriptFiles,
+} from 'jetpack-js-tools/eslintrc/base.mjs';
 
-export default [
-	...makeBaseConfig( import.meta.url ),
+export default defineConfig(
+	makeBaseConfig( import.meta.url ),
 	makeEnvConfig( 'node', [ 'blocks/like/tools/**' ] ),
 	{
+		files: javascriptFiles,
 		rules: {
 			'react/forbid-elements': [
 				'error',
@@ -30,5 +36,5 @@ export default [
 			'jsdoc/require-property-description': 'off',
 			'jsdoc/require-param-description': 'off',
 		},
-	},
-];
+	}
+);
