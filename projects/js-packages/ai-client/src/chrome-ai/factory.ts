@@ -1,7 +1,10 @@
+import debugFactory from 'debug';
 import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.ts';
 import { PromptProp, PromptItemProps } from '../types.ts';
 import { isChromeAIAvailable } from './get-availability.ts';
 import ChromeAISuggestionsEventSource from './suggestions.ts';
+
+const debug = debugFactory( 'ai-client:chrome-ai-factory' );
 
 interface PromptContext {
 	type?: string;
@@ -19,6 +22,7 @@ interface PromptContext {
  */
 export default async function ChromeAIFactory( promptArg: PromptProp ) {
 	if ( ! isChromeAIAvailable() ) {
+		debug( 'Chrome AI is not available' );
 		return false;
 	}
 
@@ -71,6 +75,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		! promptType.startsWith( 'ai-assistant-change-language' ) &&
 		! promptType.startsWith( 'ai-content-lens' )
 	) {
+		debug( 'promptType is not supported' );
 		return false;
 	}
 
@@ -81,11 +86,13 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		! self.LanguageDetector.create ||
 		! self.LanguageDetector.availability
 	) {
+		debug( 'LanguageDetector is not available' );
 		return false;
 	}
 
 	const languageDetectorAvailability = await self.LanguageDetector.availability();
 	if ( languageDetectorAvailability === 'unavailable' ) {
+		debug( 'LanguageDetector is unavailable' );
 		return false;
 	}
 
@@ -102,6 +109,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 			! self.Translator.create ||
 			! self.Translator.availability
 		) {
+			debug( 'Translator is not available' );
 			return false;
 		}
 
@@ -126,6 +134,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		const translationAvailability = await self.Translator.availability( languageOpts );
 
 		if ( translationAvailability === 'unavailable' ) {
+			debug( 'Translator is unavailable' );
 			return false;
 		}
 
@@ -140,10 +149,12 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 
 	if ( promptType.startsWith( 'ai-content-lens' ) ) {
 		if ( ! ( 'Summarizer' in self ) ) {
+			debug( 'Summarizer is not available' );
 			return false;
 		}
 
 		if ( context.language && context.language !== 'en (English)' ) {
+			debug( 'Summary is not English' );
 			return false;
 		}
 
@@ -156,6 +167,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 			// required for the translator to work at all, which is also
 			// why en is the default language.
 			if ( confidence.confidence > 0.75 && confidence.detectedLanguage !== 'en' ) {
+				debug( 'Confidence for non-English content' );
 				return false;
 			}
 		}
