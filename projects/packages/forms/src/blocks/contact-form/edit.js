@@ -97,18 +97,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	} = attributes;
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
-	/**
-	 * Track the latest value of `variationName` without having it as an explicit
-	 * dependency of effects that should not re-run when it toggles during Undo /
-	 * Redo actions. This helps to prevent the so-called "undo-trap" by ensuring
-	 * the auto-structuring effect is driven by actual block-tree changes rather
-	 * than a single attribute flip.
-	 */
-	const variationNameRef = useRef( variationName );
-	useEffect( () => {
-		variationNameRef.current = variationName;
-	}, [ variationName ] );
-
 	const steps = useFormSteps( clientId );
 
 	const submitButton = useFindBlockRecursively(
@@ -246,7 +234,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		 *     been normalised) and we skip the heavy restructuring.
 		 */
 		const needsMultistep =
-			variationNameRef.current === 'multistep' || containsMultistepBlock( currentInnerBlocks );
+			variationName === 'multistep' || containsMultistepBlock( currentInnerBlocks );
 
 		if ( ! needsMultistep || hasStructuredRef.current ) {
 			return;
@@ -454,10 +442,17 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		replaceInnerBlocks( clientId, [ progressIndicator, stepContainer, stepNavigation ], false );
 
 		// Ensure we are marked as multistep – this records the undo level.
-		if ( variationNameRef.current !== 'multistep' ) {
+		if ( variationName !== 'multistep' ) {
 			setAttributes( { variationName: 'multistep' } );
 		}
-	}, [ currentInnerBlocks, clientId, replaceInnerBlocks, setAttributes, containsMultistepBlock ] );
+	}, [
+		variationName,
+		currentInnerBlocks,
+		clientId,
+		replaceInnerBlocks,
+		setAttributes,
+		containsMultistepBlock,
+	] );
 
 	// --- Reset logic -----------------------------------------------------------
 	// When all multistep-specific blocks are removed, clear the structured flag so
