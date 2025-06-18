@@ -74,6 +74,7 @@ export const PRODUCT_MODULES: {
 	[ Key in JetpackProductWithCard ]?: JetpackModuleSlug;
 } = {
 	// TODO Verify these mappings
+	backup: 'vaultpress',
 	scan: 'protect',
 	social: 'publicize',
 };

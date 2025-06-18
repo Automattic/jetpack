@@ -20,7 +20,6 @@ export type ProductCardProps = {
 	product: ProductCamelCase;
 	module?: MyJetpackModule;
 	headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
-
 	onToggle?: ( module: MyJetpackModule ) => void;
 };
 
@@ -60,7 +59,7 @@ export function ProductCard( {
 						</Flex>
 					</FlexBlock>
 					<FlexItem>
-						{ $module ? (
+						{ $module?.available ? (
 							<Flex>
 								<ModuleStatus module={ $module } />
 								<FormToggle

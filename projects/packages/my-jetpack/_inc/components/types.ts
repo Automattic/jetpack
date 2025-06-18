@@ -1,4 +1,5 @@
 export type MyJetpackModule = {
+	available: boolean;
 	module: string;
 	name: string;
 	activated: boolean;
