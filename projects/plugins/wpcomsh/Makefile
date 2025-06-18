@@ -102,8 +102,8 @@ build: check clean $(BUILD_DST)/$(BUILD_FILE)
 
 ## i18n
 i18n:
-	@ /usr/bin/env bash $(BUILD_SRC)/bin/i18n/generate-pot.sh
-	@ /usr/bin/env bash $(BUILD_SRC)/bin/i18n/update-translations.sh
+	@ bash $(BUILD_SRC)/bin/i18n/generate-pot.sh
+	@ bash $(BUILD_SRC)/bin/i18n/update-translations.sh
 	@ git add $(BUILD_SRC)/languages
 	@ git commit $(BUILD_SRC)/languages -m "Update language files"
 
