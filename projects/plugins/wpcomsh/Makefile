@@ -116,7 +116,7 @@ test-public-access: build
 	sh ./bin/ci-init-access-tests.sh
 
 test-private-access: build
-	/usr/bin/env sh ./bin/ci-init-access-tests.sh private
+	sh ./bin/ci-init-access-tests.sh private
 
 ## clean
 clean: $(BUILD_DST)
