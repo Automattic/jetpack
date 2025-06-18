@@ -54,11 +54,7 @@ export async function isChromeAIAvailable() {
 
 	debug( 'variationName', variationName );
 
-	if ( variationName === 'control' ) {
-		return false;
-	}
-
-	return true;
+	return variationName === 'treatment';
 }
 
 export default isChromeAIAvailable;

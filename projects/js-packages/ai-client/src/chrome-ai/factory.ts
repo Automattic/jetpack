@@ -35,6 +35,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 	let tone = null;
 	let wordCount = null;
 
+	debug( 'promptArg', promptArg );
 	if ( Array.isArray( promptArg ) ) {
 		for ( let i = 0; i < promptArg.length; i++ ) {
 			const prompt: PromptItemProps = promptArg[ i ];
@@ -70,6 +71,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		}
 	}
 
+	debug( 'promptType', promptType );
 	// Early return if the prompt type is not supported.
 	if (
 		! promptType.startsWith( 'ai-assistant-change-language' ) &&
@@ -98,6 +100,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 
 	const detector = await self.LanguageDetector.create();
 	if ( languageDetectorAvailability !== 'available' ) {
+		debug( 'awaiting detector ready' );
 		await detector.ready;
 	}
 
@@ -131,8 +134,10 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 			}
 		}
 
+		debug( 'languageOpts', languageOpts );
 		const translationAvailability = await self.Translator.availability( languageOpts );
 
+		debug( 'translationAvailability', translationAvailability );
 		if ( translationAvailability === 'unavailable' ) {
 			debug( 'Translator is unavailable' );
 			return false;
@@ -158,6 +163,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 			return false;
 		}
 
+		debug( 'awaiting detector detect' );
 		const confidences = await detector.detect( context.content );
 
 		// if it doesn't look like the content is in English, we can't use the summary feature
@@ -177,6 +183,7 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 			wordCount: wordCount,
 		};
 
+		debug( 'summaryOpts', summaryOpts );
 		return new ChromeAISuggestionsEventSource( {
 			content: context.content,
 			promptType: PROMPT_TYPE_SUMMARIZE,
