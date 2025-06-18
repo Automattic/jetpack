@@ -8,7 +8,7 @@ import {
 	ToolbarDropdownMenu,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { next, previous, check } from '@wordpress/icons';
 import { store as singleStepStore } from '../../../../store/preview-store';
 import StepIcon from '../../../form-step/icon';
@@ -121,7 +121,24 @@ export default function StepControls( { formClientId } ) {
 										) : null
 									}
 								>
-									{ `${ index + 1 }. ${ step?.attributes?.stepLabel }` }
+									{ ( () => {
+										const stepLabel = step?.attributes?.stepLabel;
+
+										if ( stepLabel && stepLabel !== '' ) {
+											return sprintf(
+												/* translators: %1$d is the step number (1, 2, 3, etc.), %2$s is the step label. */
+												__( 'Step %1$d – %2$s', 'jetpack-forms' ),
+												index + 1,
+												stepLabel
+											);
+										}
+
+										return sprintf(
+											/* translators: %d is the step number (1, 2, 3, etc.). */
+											__( 'Step %d', 'jetpack-forms' ),
+											index + 1
+										);
+									} )() }
 								</MenuItem>
 							) ) }
 						</MenuGroup>
