@@ -1,5 +1,5 @@
 import { useSelect } from '@wordpress/data';
-import { store as singleStepStore } from '../../../store/preview-store';
+import { store as singleStepStore } from '../../../store/form-step-preview';
 import useParentFormClientId from './use-parent-form-client-id';
 
 /**

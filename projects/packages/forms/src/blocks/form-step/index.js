@@ -1,11 +1,10 @@
 import { createBlock } from '@wordpress/blocks';
-import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { getIconColor } from '../contact-form/util/colors';
+import { getIconColor } from '../shared/util/block-icons';
 import { isWithinContactForm } from '../shared/util/block-utils';
-import Edit from './edit';
+import edit from './edit';
 import StepIcon from './icon';
-import Save from './save';
+import save from './save';
 
 export const name = 'form-step';
 
@@ -18,7 +17,7 @@ export const settings = {
 		foreground: getIconColor(),
 		src: StepIcon,
 	},
-	parent: [ 'jetpack/step-container' ],
+	parent: [ 'jetpack/form-step-container' ],
 	supports: {
 		html: false,
 		reusable: false,
@@ -51,11 +50,10 @@ export const settings = {
 		},
 		stepLabel: {
 			type: 'string',
-			default: __( 'Step', 'jetpack-forms' ),
 		},
 	},
-	edit: Edit,
-	save: Save,
+	edit: edit,
+	save: save,
 	transforms: {
 		from: [
 			{
@@ -68,35 +66,11 @@ export const settings = {
 			},
 			{
 				type: 'block',
-				isMultiBlock: true,
-				blocks: [ '*' ],
+				blocks: [ 'core/columns' ],
 				isMatch: isWithinContactForm,
-				transform: () => {
-					try {
-						const blockEditor = select( 'core/block-editor' );
-						if ( ! blockEditor ) {
-							return [ createBlock( 'jetpack/form-step', {} ) ];
-						}
-
-						const selectedIds = blockEditor.getSelectedBlockClientIds();
-						if ( ! selectedIds?.length ) {
-							return [ createBlock( 'jetpack/form-step', {} ) ];
-						}
-
-						const newBlocks = [];
-						for ( const id of selectedIds ) {
-							const block = blockEditor.getBlock( id );
-							if ( block && block.name ) {
-								newBlocks.push( createBlock( block.name, { ...block.attributes } ) );
-							}
-						}
-
-						const formStep = createBlock( 'jetpack/form-step', {}, newBlocks );
-
-						return [ formStep ];
-					} catch {
-						return [ createBlock( 'jetpack/form-step', {} ) ];
-					}
+				transform: ( attributes, innerBlocks ) => {
+					const newInnerBlocks = innerBlocks.flatMap( column => column.innerBlocks );
+					return createBlock( 'jetpack/form-step', {}, newInnerBlocks );
 				},
 			},
 		],

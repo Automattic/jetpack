@@ -4,7 +4,7 @@ import renderMaterialIcon from '../shared/components/render-material-icon';
 import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
 
-export const name = 'step-divider';
+export const name = 'form-step-divider';
 
 export const settings = {
 	apiVersion: 3,

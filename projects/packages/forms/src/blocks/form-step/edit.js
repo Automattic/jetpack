@@ -1,12 +1,36 @@
-import { InnerBlocks, useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
-import AddStepControls from '../contact-form/components/add-step-controls';
+import { useBlockProps, useInnerBlocksProps, InnerBlocks } from '@wordpress/block-editor';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { store as singleStepStore } from '../../store/form-step-preview';
+import AddStepControls from '../contact-form/components/form-add-step-controls';
+import StepControls from '../contact-form/components/form-step-controls';
+import useFormSteps from '../shared/hooks/use-form-steps';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
-import useStep from '../shared/hooks/use-step';
+import AttributesControls from './attributes-controls';
 
-const ALLOWED_CORE_BLOCKS = [
+import './editor.scss';
+
+// Define allowed blocks directly in this file to break circular dependency
+const ALLOWED_BLOCKS = [
+	'jetpack/field-text',
+	'jetpack/field-name',
+	'jetpack/field-email',
+	'jetpack/field-url',
+	'jetpack/field-date',
+	'jetpack/field-telephone',
+	'jetpack/field-number',
+	'jetpack/field-textarea',
+	'jetpack/field-checkbox',
+	'jetpack/field-checkbox-multiple',
+	'jetpack/field-option-checkbox',
+	'jetpack/field-radio',
+	'jetpack/field-option-radio',
+	'jetpack/field-select',
+	'jetpack/field-file',
+	'jetpack/field-consent',
+	'jetpack/form-step-navigation',
+	'jetpack/form-step-divider',
 	'core/audio',
 	'core/columns',
 	'core/group',
@@ -23,69 +47,131 @@ const ALLOWED_CORE_BLOCKS = [
 	'core/video',
 ];
 
-const ALLOWED_FORM_BLOCKS = [
-	'jetpack/field-name',
-	'jetpack/field-email',
-	'jetpack/field-url',
-	'jetpack/field-textarea',
-	'jetpack/field-checkbox',
-	'jetpack/field-checkbox-multiple',
-	'jetpack/field-radio',
-	'jetpack/field-select',
-	'jetpack/field-date',
-	'jetpack/field-telephone',
-	'jetpack/field-consent',
-	'jetpack/field-rating',
-	'jetpack/field-multiple-choice',
-	'jetpack/field-file',
-	'jetpack/field-hidden',
-	'jetpack/field-text',
-	'jetpack/form-step-navigation',
-	...ALLOWED_CORE_BLOCKS,
-];
+// Template helper: returns a default template when the previous step already
+// contains a navigation block. We pass a simple boolean flag instead of the
+// entire blocks array to keep the value stable between identical renders.
+const getStepTemplate = hasPrevNavigation => {
+	if ( hasPrevNavigation ) {
+		return [
+			[ 'core/paragraph', {} ],
+			[ 'jetpack/form-step-navigation', {} ],
+		];
+	}
+	return undefined;
+};
 
-const StepEdit = ( { attributes, setAttributes, clientId } ) => {
-	const { stepLabel, className, uniqueId } = attributes;
-	const { isActive } = useStep( clientId );
-	const formClientId = useParentFormClientId( clientId );
+function StepBreak( { stepLabel, currentIndex } ) {
+	// Translators: %d is the step number (1, 2, 3, etc.)
+	let stepName = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
 
-	// Prepare props for the block
-	const blockProps = useBlockProps( {
-		className: clsx( className, { 'is-active': isActive } ),
-		'data-is-active-step': isActive,
+	if ( stepLabel && stepLabel !== '' ) {
+		// Translators: %1$d is the step number (1, 2, 3, etc.), %2$s is the step label
+		stepName = sprintf( __( 'Step %1$d – %2$s', 'jetpack-forms' ), currentIndex + 1, stepLabel );
+	}
+
+	return (
+		<div className="jetpack-form-step__break">
+			<span className="jetpack-form-step__label">{ stepName }</span>
+		</div>
+	);
+}
+
+export default function Edit( { attributes, setAttributes, clientId, isSelected } ) {
+	const blockProps = useBlockProps();
+	blockProps.className += ' jetpack-form-step__container';
+
+	const ancestorFormClientId = useParentFormClientId( clientId );
+	const steps = useFormSteps( ancestorFormClientId );
+	const { setActiveStep } = useDispatch( singleStepStore );
+
+	// Get information about the previous step and its blocks
+	const {
+		currentIndex,
+		selectedStepClientId,
+		isSingleStep,
+		hasPrevNavigation,
+		hasInnerBlocks,
+		isInnerBlockSelected,
+	} = useSelect(
+		select => {
+			const { isSingleStepMode, getActiveStepId } = select( singleStepStore );
+			const { getBlocks, getBlock, hasSelectedInnerBlock } = select( 'core/block-editor' );
+
+			const currentStepIndex = steps.findIndex( block => block.clientId === clientId );
+
+			const prevStepId =
+				currentStepIndex > 0 && steps[ currentStepIndex - 1 ]
+					? steps[ currentStepIndex - 1 ].clientId
+					: null;
+
+			const prevBlocks = prevStepId ? getBlocks( prevStepId ) : [];
+
+			const block = getBlock( clientId );
+
+			return {
+				currentIndex: currentStepIndex,
+				selectedStepClientId: getActiveStepId( ancestorFormClientId ),
+				isSingleStep: isSingleStepMode( ancestorFormClientId ),
+				hasPrevNavigation: prevBlocks.some( b => b.name === 'jetpack/form-step-navigation' ),
+				hasInnerBlocks: !! ( block && block.innerBlocks.length ),
+				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
+			};
+		},
+		[ clientId, steps, ancestorFormClientId ]
+	);
+
+	// Determine template based on whether this is a new block or not
+	let renderAppender;
+	if ( ! hasInnerBlocks && ! isSingleStep ) {
+		renderAppender = InnerBlocks.ButtonBlockAppender;
+	}
+
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		template: getStepTemplate( hasPrevNavigation ),
+		allowedBlocks: ALLOWED_BLOCKS,
+		renderAppender,
 	} );
+
+	useEffect( () => {
+		if (
+			isSingleStep &&
+			( isSelected || isInnerBlockSelected ) &&
+			selectedStepClientId !== clientId
+		) {
+			// When in single-step mode and a different step gains focus (e.g., via Document overview),
+			// update the active step so the preview switches to the focused step.
+			setActiveStep( ancestorFormClientId, clientId );
+		}
+	}, [
+		isSingleStep,
+		isSelected,
+		isInnerBlockSelected,
+		selectedStepClientId,
+		clientId,
+		ancestorFormClientId,
+		setActiveStep,
+	] );
+
+	// Only render the step content if it's the selected one or if "All Steps" is selected.
+	if ( isSingleStep && selectedStepClientId !== clientId ) {
+		return null;
+	}
 
 	return (
 		<>
-			<InspectorControls>
-				<PanelBody title={ __( 'Step settings', 'jetpack-forms' ) }>
-					<TextControl
-						label={ __( 'Step label', 'jetpack-forms' ) }
-						value={ stepLabel }
-						onChange={ value => setAttributes( { stepLabel: value } ) }
-						help={ __( 'Label for this step, shown in the editor.', 'jetpack-forms' ) }
-						__next40pxDefaultSize={ true }
-						__nextHasNoMarginBottom={ true }
-					/>
-					<TextControl
-						label={ __( 'Unique ID', 'jetpack-forms' ) }
-						value={ uniqueId }
-						onChange={ value => setAttributes( { uniqueId: value } ) }
-						help={ __(
-							'A unique ID for this step, used for analytics and targeting.',
-							'jetpack-forms'
-						) }
-						__next40pxDefaultSize={ true }
-						__nextHasNoMarginBottom={ true }
-					/>
-				</PanelBody>
-			</InspectorControls>
 			<div { ...blockProps }>
-				<InnerBlocks allowedBlocks={ ALLOWED_FORM_BLOCKS } />
+				{ ! isSingleStep && (
+					<StepBreak stepLabel={ attributes.stepLabel } currentIndex={ currentIndex } />
+				) }
+				<div { ...innerBlocksProps } />
+				<AttributesControls
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					clientId={ clientId }
+				/>
 			</div>
-			<AddStepControls clientId={ clientId } formClientId={ formClientId } />
+			<StepControls formClientId={ ancestorFormClientId } updateStepSelected={ true } />
+			<AddStepControls clientId={ clientId } formClientId={ ancestorFormClientId } />
 		</>
 	);
-};
-
-export default StepEdit;
+}

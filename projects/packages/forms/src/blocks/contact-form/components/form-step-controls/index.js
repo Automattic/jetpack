@@ -10,10 +10,10 @@ import {
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { next, previous, check } from '@wordpress/icons';
-import { store as singleStepStore } from '../../../../store/preview-store';
+import { store as singleStepStore } from '../../../../store/form-step-preview';
 import StepIcon from '../../../form-step/icon';
+import StepContainerIcon from '../../../form-step-container/icon';
 import useStepNavigation from '../../../shared/hooks/use-step-navigation';
-import StepContainerIcon from '../../../step-container/icon';
 
 /**
  * Toolbar controls for managing steps within a multi-step form.

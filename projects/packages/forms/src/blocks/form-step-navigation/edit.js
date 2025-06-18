@@ -7,8 +7,8 @@ import { createBlock } from '@wordpress/blocks';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { store as singleStepStore } from '../../store/preview-store';
-import StepControls from '../contact-form/components/step-controls';
+import { store as singleStepStore } from '../../store/form-step-preview';
+import StepControls from '../contact-form/components/form-step-controls';
 import useFormSteps from '../shared/hooks/use-form-steps';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 

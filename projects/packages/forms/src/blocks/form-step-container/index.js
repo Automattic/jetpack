@@ -4,7 +4,7 @@ import edit from './edit';
 import StepContainerIcon from './icon';
 import save from './save';
 
-export const name = 'step-container';
+export const name = 'form-step-container';
 
 export const settings = {
 	apiVersion: 3,
