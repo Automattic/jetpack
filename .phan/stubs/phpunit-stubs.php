@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.2.1
+ * Stubs automatically generated from PHPUnit 12.2.2
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -30361,6 +30361,15 @@ class ArrayComparator extends \SebastianBergmann\Comparator\Comparator
      * @throws ComparisonFailure
      */
     public function assertEquals(mixed $expected, mixed $actual, float $delta = 0.0, bool $canonicalize = false, bool $ignoreCase = false, array &$processed = []): void
+    {
+    }
+}
+final class ClosureComparator extends \SebastianBergmann\Comparator\Comparator
+{
+    public function accepts(mixed $expected, mixed $actual): bool
+    {
+    }
+    public function assertEquals(mixed $expected, mixed $actual, float $delta = 0.0, bool $canonicalize = false, bool $ignoreCase = false): void
     {
     }
 }
