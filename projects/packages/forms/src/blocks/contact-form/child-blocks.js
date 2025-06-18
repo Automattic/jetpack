@@ -16,14 +16,14 @@ import JetpackTextField from '../field-text';
 import JetpackTextareaField from '../field-textarea';
 import JetpackUrlField from '../field-url';
 import FormProgressIndicator from '../form-progress-indicator';
+import Step from '../form-step';
+import StepContainer from '../form-step-container';
+import StepDivider from '../form-step-divider';
+import StepNavigation from '../form-step-navigation';
 import JetpackInput from '../input';
 import JetpackLabel from '../label';
 import JetpackOption from '../option';
 import JetpackOptions from '../options';
-import Step from '../step';
-import StepContainer from '../step-container';
-import StepDivider from '../step-divider';
-import StepNavigation from '../step-navigation';
 
 export const childBlocks = [
 	JetpackLabel,

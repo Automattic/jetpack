@@ -20,7 +20,7 @@ export default function useContainerId( formClientId ) {
 			const { getBlocksByName, getBlockParentsByBlockName } = select( blockEditorStore );
 
 			// since you can have multiple forms on a page, we need to check if the formClientId is in the parent form
-			const stepContainers = getBlocksByName( 'jetpack/step-container' );
+			const stepContainers = getBlocksByName( 'jetpack/form-step-container' );
 
 			if ( ! stepContainers || stepContainers.length === 0 ) {
 				return null;

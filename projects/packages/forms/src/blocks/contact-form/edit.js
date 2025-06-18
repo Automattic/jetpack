@@ -25,23 +25,23 @@ import { useRef, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
-import { store as singleStepStore } from '../../store/preview-store';
+import { store as singleStepStore } from '../../store/form-step-preview';
+import {
+	PREVIOUS_BUTTON_TEMPLATE,
+	NEXT_BUTTON_TEMPLATE,
+	NAVIGATION_TEMPLATE,
+} from '../form-step-navigation/edit';
 import InspectorHint from '../shared/components/inspector-hint';
 import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-responses-settings';
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively';
 import useFormSteps from '../shared/hooks/use-form-steps';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
-import {
-	PREVIOUS_BUTTON_TEMPLATE,
-	NEXT_BUTTON_TEMPLATE,
-	NAVIGATION_TEMPLATE,
-} from '../step-navigation/edit';
 import { childBlocks } from './child-blocks';
+import StepControls from './components/form-step-controls';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import IntegrationControls from './components/jetpack-integration-controls';
-import StepControls from './components/step-controls';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
 
@@ -78,13 +78,13 @@ const ALLOWED_CORE_BLOCKS = [
 const ALLOWED_MULTI_STEP_BLOCKS = [
 	'jetpack/form-step-navigation',
 	'jetpack/form-progress-indicator',
-	'jetpack/step-container',
-	'jetpack/step-divider',
+	'jetpack/form-step-container',
+	'jetpack/form-step-divider',
 ].concat( ALLOWED_CORE_BLOCKS );
 
 const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( [
-	'jetpack/step-divider',
-	'jetpack/step-container',
+	'jetpack/form-step-divider',
+	'jetpack/form-step-container',
 ] ).concat( ALLOWED_CORE_BLOCKS );
 
 const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
@@ -211,8 +211,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		return blocks.some(
 			b =>
 				b.name === 'jetpack/form-step' ||
-				b.name === 'jetpack/step-container' ||
-				b.name === 'jetpack/step-divider' ||
+				b.name === 'jetpack/form-step-container' ||
+				b.name === 'jetpack/form-step-divider' ||
 				( b.innerBlocks?.length && hasMultistep( b.innerBlocks ) )
 		);
 	}, [] );
@@ -263,13 +263,13 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 		const stepContainerCount = countBlocks(
 			currentInnerBlocks,
-			b => b.name === 'jetpack/step-container'
+			b => b.name === 'jetpack/form-step-container'
 		);
 
 		// Helper: detect any form-step that is NOT inside a step-container.
 		const hasStrayFormStep = ( blocks, insideContainer = false ) => {
 			for ( const b of blocks ) {
-				const newInside = insideContainer || b.name === 'jetpack/step-container';
+				const newInside = insideContainer || b.name === 'jetpack/form-step-container';
 				if ( b.name === 'jetpack/form-step' && ! newInside ) {
 					return true;
 				}
@@ -358,7 +358,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		let stepBlocks = [];
 
 		const containerIndex = blocksWithoutButton.findIndex(
-			block => block.name === 'jetpack/step-container'
+			block => block.name === 'jetpack/form-step-container'
 		);
 
 		if ( containerIndex !== -1 ) {
@@ -404,7 +404,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			}
 			// Case C: No step blocks or containers — build steps based on divider markers.
 			else if ( blocksWithoutButton.length > 0 ) {
-				const hasDivider = blocksWithoutButton.some( b => b.name === 'jetpack/step-divider' );
+				const hasDivider = blocksWithoutButton.some( b => b.name === 'jetpack/form-step-divider' );
 
 				if ( hasDivider ) {
 					// Split by divider markers into groups
@@ -412,7 +412,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					let currentGroup = [];
 
 					blocksWithoutButton.forEach( block => {
-						if ( block.name === 'jetpack/step-divider' ) {
+						if ( block.name === 'jetpack/form-step-divider' ) {
 							// Commit current group (even empty to respect explicit divider)
 							groups.push( currentGroup );
 							currentGroup = [];
@@ -442,7 +442,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		}
 
 		// Create the step container with the step blocks
-		const stepContainer = createBlock( 'jetpack/step-container', {}, stepBlocks );
+		const stepContainer = createBlock( 'jetpack/form-step-container', {}, stepBlocks );
 
 		// 4. Prepare all components for the final form
 		const preparedButton = prepareSubmitButton( buttonBlock );
