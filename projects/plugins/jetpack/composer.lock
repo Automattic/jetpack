@@ -12,15 +12,15 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/block-delimiter",
-				"reference": "2784eaffd1c8d72d27feb1de5592d777a2cd388f"
+				"reference": "bdd9e130163756cc3fe6255e6758754bd067fe7f"
 			},
 			"require": {
 				"php": ">=7.2"
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
-				"automattic/jetpack-test-environment": "@dev",
-				"automattic/phpunit-select-config": "@dev"
+				"automattic/phpunit-select-config": "@dev",
+				"yoast/phpunit-polyfills": "^4.0.0"
 			},
 			"suggest": {
 				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
