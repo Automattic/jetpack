@@ -448,7 +448,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/config",
-				"reference": "5adcff7189224c26955a294fd3ee8765409e8f9e"
+				"reference": "e29d7636760a80608d7856f2e3b28b54539923e5"
 			},
 			"require": {
 				"php": ">=7.2"
@@ -485,19 +485,18 @@
 				},
 				"dependencies": {
 					"test-only": [
+						"packages/account-protection",
 						"packages/connection",
 						"packages/import",
 						"packages/jitm",
 						"packages/post-list",
 						"packages/publicize",
 						"packages/search",
-						"packages/stats",
 						"packages/stats-admin",
+						"packages/stats",
 						"packages/sync",
 						"packages/videopress",
-						"packages/account-protection",
 						"packages/waf",
-						"packages/wordads",
 						"packages/yoast-promo"
 					]
 				}
