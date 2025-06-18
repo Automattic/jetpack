@@ -4,29 +4,30 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .jetpack-form-step__break {
-	text-transform: uppercase;
-	margin-top: var(--wp--style--block-gap, 1.5rem);
-	margin-bottom: calc(var(--wp--style--block-gap, 1.5rem) * 2.5);
-	text-align: center;
+	display: flex;
+	align-items: center;
+	color: currentColor;
+	margin: var(--wp--style--block-gap, 1.5rem) 0;
 
+	// Horizontal lines on both sides, similar to paywall block.
+	&::before,
 	&::after {
 		content: '';
-		display: block;
-		width: 100%;
+		flex: 1;
 		height: 1px;
-		background-color: var(--wp-components-color-gray-300, #ddd);
-		margin-top: -12px;
+		background: currentColor;
+		opacity: 0.5;
 	}
 
 	.jetpack-form-step__label {
 		background-color: var(--wp-components-color-background, #FFF);
 		color: var(--wp-components-color-foreground, #1e1e1e);
 		font-size: var(--wp--preset--font-size--normal, 16px);
-		text-transform: uppercase;
-		margin-top: calc(var(--wp--style--block-gap, 1.5rem) * 0.625);
-		padding: calc(var(--wp--style--block-gap, 1.5rem) * 0.75) var(--wp--style--block-gap, 1.5rem);
+		padding: 0 calc(var(--wp--style--block-gap, 1.5rem) * 0.5);
 		border-radius: var(--wp--preset--spacing--20, 4px);
 		font-weight: 600;
+		white-space: nowrap;
+		margin: 0 8px;
 	}
 }
 
