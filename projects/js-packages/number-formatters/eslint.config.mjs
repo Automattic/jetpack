@@ -1,3 +1,3 @@
-import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
+import { makeBaseConfig, defineConfig } from 'jetpack-js-tools/eslintrc/base.mjs';
 
-export default [ ...makeBaseConfig( import.meta.url ) ];
+export default defineConfig( makeBaseConfig( import.meta.url ) );
