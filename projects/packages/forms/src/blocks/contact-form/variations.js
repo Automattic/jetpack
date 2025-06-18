@@ -949,7 +949,7 @@ const variations = compact( [
 			],
 			[
 				'jetpack/form-step-navigation',
-				{ layout: { type: 'flex', justifyContent: 'space-between' } },
+				{ layout: { type: 'flex', justifyContent: 'right' } },
 				[
 					[
 						'jetpack/button',
