@@ -142,7 +142,8 @@ jobs:
               # Make sure monorepo repositories entry is present.
               JSON=$( jq --tab '.repositories //= [] | if any( .repositories[]; .type == "path" and ( .url | startswith( "../" ) ) and .options?.monorepo? ) then . else .repositories += [ { type: "path", url: "../../packages/*", options: { monorepo: true } } ] end' "projects/$SLUG/composer.json" )
               echo "$JSON" > "projects/$SLUG/composer.json"
-              composer require --working-dir="projects/$SLUG/" --dev --no-install "${PKGS[@]}"
+              # Use --no-install and --ignore-platform-reqs here. Code below (either in .github/files/setup-wordpress-env.sh or the "Run project tests" step) will do a `composer install` or `composer update` as necessary.
+              composer require --working-dir="projects/$SLUG/" --dev --no-install --ignore-platform-reqs "${PKGS[@]}"
             fi
           done
 
