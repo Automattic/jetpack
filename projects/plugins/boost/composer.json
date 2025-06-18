@@ -3,7 +3,7 @@
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"version": "4.1.0-beta",
+	"version": "4.1.0",
 	"authors": [
 		{
 			"name": "Automattic, Inc.",
