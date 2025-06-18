@@ -450,7 +450,7 @@ abstract class SAL_Site {
 	 * @return array
 	 */
 	public function get_uptime() {
-		return array();
+		return null;
 	}
 
 	/**
