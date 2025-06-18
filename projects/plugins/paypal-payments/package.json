@@ -1,0 +1,25 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-paypal-payments",
+	"version": "0.1.0-alpha",
+	"description": "PayPal No-Code Payment Solution block lets users embed a PayPal button to sell products on their site.",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Paypal Payments"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/paypal-payments"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'",
+		"clean": "true"
+	},
+	"devDependencies": {}
+}

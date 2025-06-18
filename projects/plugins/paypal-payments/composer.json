@@ -1,0 +1,53 @@
+{
+	"name": "automattic/paypal-payments",
+	"description": "PayPal No-Code Payment Solution block lets users embed a PayPal button to sell products on their site.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-paypal-payments": "^0.1.0@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/phpunit-select-config": "@dev",
+		"automattic/jetpack-test-environment": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-development": "echo 'Add your build step to composer.json, please!'",
+		"build-production": "echo 'Add your build step to composer.json, please!'",
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/paypal-payments-plugin/compare/v${old}...v${new}",
+			"versioning": "wordpress"
+		},
+		"mirror-repo": "Automattic/paypal-payments-plugin",
+		"release-branch-prefix": "paypal-payments"
+	}
+}
