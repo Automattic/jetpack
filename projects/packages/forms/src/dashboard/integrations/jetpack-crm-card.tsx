@@ -130,7 +130,6 @@ const JetpackCRMDashboardCard = ( {
 		<IntegrationCard
 			title={ __( 'Jetpack CRM', 'jetpack-forms' ) }
 			description={ __( 'Store contact form submissions in your CRM', 'jetpack-forms' ) }
-			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <JetpackIcon color={ COLOR_JETPACK } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

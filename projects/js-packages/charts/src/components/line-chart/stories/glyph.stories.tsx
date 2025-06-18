@@ -129,3 +129,15 @@ InTooltip.args = {
 	},
 	renderTooltip: ToolTipWithGlyph,
 };
+
+export const CustomPerDataPoint: StoryObj< typeof LineChart > = Template.bind( {} );
+CustomPerDataPoint.args = {
+	...glyphStoryArgs,
+	showLegend: true,
+	withStartGlyphs: true,
+	withLegendGlyph: true,
+	themeName: 'customStorybook', // Mock prop used to switch the rendered theme in the storybook.
+	glyphStyle: {
+		radius: 8,
+	},
+};

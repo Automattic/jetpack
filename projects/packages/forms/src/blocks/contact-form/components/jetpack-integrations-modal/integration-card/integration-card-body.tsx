@@ -1,6 +1,22 @@
+/**
+ * External dependencies
+ */
 import { CardBody, Spinner } from '@wordpress/components';
+/**
+ * Types
+ */
+import type { IntegrationCardProps } from './index';
 
-const IntegrationCardBody = ( { isExpanded, children, cardData = {} } ) => {
+type IntegrationCardBodyProps = Pick<
+	IntegrationCardProps,
+	'isExpanded' | 'children' | 'cardData'
+>;
+
+const IntegrationCardBody = ( {
+	isExpanded,
+	children,
+	cardData = {},
+}: IntegrationCardBodyProps ) => {
 	if ( ! isExpanded ) {
 		return null;
 	}

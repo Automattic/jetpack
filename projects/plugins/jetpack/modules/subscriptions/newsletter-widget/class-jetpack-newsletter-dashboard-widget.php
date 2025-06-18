@@ -210,7 +210,5 @@ class Jetpack_Newsletter_Dashboard_Widget {
 
 add_action(
 	'wp_dashboard_setup',
-	function () {
-		Jetpack_Newsletter_Dashboard_Widget::init();
-	}
+	array( 'Jetpack_Newsletter_Dashboard_Widget', 'init' )
 );

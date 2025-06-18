@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a link to the "Known problematic code patterns" documentation in relevant error messages.
