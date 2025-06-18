@@ -1,4 +1,4 @@
-import { useBlockProps, useInnerBlocksProps, InnerBlocks } from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps, InnerBlocks, RichText } from '@wordpress/block-editor';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -60,7 +60,7 @@ const getStepTemplate = hasPrevNavigation => {
 	return undefined;
 };
 
-function StepBreak( { stepLabel, currentIndex } ) {
+function StepBreak( { stepLabel, currentIndex, setAttributes } ) {
 	// Translators: %d is the step number (1, 2, 3, etc.)
 	let stepName = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
 
@@ -69,9 +69,24 @@ function StepBreak( { stepLabel, currentIndex } ) {
 		stepName = sprintf( __( 'Step %1$d – %2$s', 'jetpack-forms' ), currentIndex + 1, stepLabel );
 	}
 
+	// translators: %d: Step number
+	const ariaLabel = sprintf( __( 'Step %d label', 'jetpack-forms' ), currentIndex + 1 );
+
+	const handleChange = value => {
+		setAttributes( { stepLabel: value } );
+	};
+
 	return (
 		<div className="jetpack-form-step__break">
-			<span className="jetpack-form-step__label">{ stepName }</span>
+			{ /* Allow inline editing of step label */ }
+			<RichText
+				tagName="span"
+				className="jetpack-form-step__label"
+				value={ stepLabel }
+				placeholder={ stepName }
+				onChange={ handleChange }
+				aria-label={ ariaLabel }
+			/>
 		</div>
 	);
 }
@@ -161,7 +176,11 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 		<>
 			<div { ...blockProps }>
 				{ ! isSingleStep && (
-					<StepBreak stepLabel={ attributes.stepLabel } currentIndex={ currentIndex } />
+					<StepBreak
+						stepLabel={ attributes.stepLabel }
+						currentIndex={ currentIndex }
+						setAttributes={ setAttributes }
+					/>
 				) }
 				<div { ...innerBlocksProps } />
 				<AttributesControls
