@@ -56,7 +56,8 @@ const NAVIGATION_TEMPLATE = [
 export default function Edit( { clientId } ) {
 	const blockProps = useBlockProps();
 
-	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
+	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent } =
+		useDispatch( blockEditorStore );
 
 	const { ancestorStepClientId } = useSelect(
 		select => {
@@ -170,6 +171,7 @@ export default function Edit( { clientId } ) {
 		} );
 
 		if ( shouldReplaceInnerBlocks ) {
+			__unstableMarkNextChangeAsNotPersistent();
 			replaceInnerBlocks( clientId, replacementInnerBlocks, false );
 			return undefined;
 		}
@@ -183,10 +185,17 @@ export default function Edit( { clientId } ) {
 
 		// Only update blocks if needed
 		if ( shouldReplaceInnerBlocks ) {
+			__unstableMarkNextChangeAsNotPersistent();
 			replaceInnerBlocks( clientId, replacementInnerBlocks, false );
 			return undefined;
 		}
-	}, [ navigationBlocks, replaceInnerBlocks, clientId, currentIndex ] );
+	}, [
+		navigationBlocks,
+		replaceInnerBlocks,
+		clientId,
+		currentIndex,
+		__unstableMarkNextChangeAsNotPersistent,
+	] );
 
 	return (
 		<>
