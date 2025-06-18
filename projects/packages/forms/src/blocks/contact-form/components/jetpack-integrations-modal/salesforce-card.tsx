@@ -4,22 +4,33 @@ import { __ } from '@wordpress/i18n';
 import SalesforceIcon from '../../../../icons/salesforce';
 import HelpMessage from '../help-message';
 import IntegrationCard from './integration-card';
+import type { SingleIntegrationCardProps } from '../../../../types';
 
-export function isValidSalesforceOrgId( id ) {
+export function isValidSalesforceOrgId( id: string | undefined ): boolean {
 	return typeof id === 'string' && /^[a-zA-Z0-9]{15,18}$/.test( id.trim() );
 }
+
+type SalesforceData = {
+	organizationId?: string;
+	sendToSalesforce?: boolean;
+};
+
+type SalesforceCardProps = SingleIntegrationCardProps & {
+	salesforceData: SalesforceData;
+	setAttributes: ( attrs: { salesforceData: SalesforceData } ) => void;
+};
 
 const SalesforceCard = ( {
 	isExpanded,
 	onToggle,
-	data = {},
+	data,
 	refreshStatus,
 	salesforceData = {},
 	setAttributes,
-} ) => {
+}: SalesforceCardProps ) => {
 	const [ organizationIdError, setOrganizationIdError ] = useState( false );
 
-	const onHeaderToggleChange = value => {
+	const onHeaderToggleChange = ( value: boolean ) => {
 		setAttributes( {
 			salesforceData: {
 				...salesforceData,
@@ -28,7 +39,7 @@ const SalesforceCard = ( {
 		} );
 	};
 
-	const setOrganizationId = value => {
+	const setOrganizationId = ( value: string ) => {
 		setOrganizationIdError( false );
 		setAttributes( {
 			salesforceData: {
@@ -38,7 +49,7 @@ const SalesforceCard = ( {
 		} );
 	};
 
-	const onBlurOrgIdField = e => {
+	const onBlurOrgIdField = ( e: React.FocusEvent< HTMLInputElement > ) => {
 		setOrganizationIdError( ! isValidSalesforceOrgId( e.target.value ) );
 	};
 
@@ -49,7 +60,7 @@ const SalesforceCard = ( {
 		isHeaderToggleEnabled: isValidSalesforceOrgId( salesforceData.organizationId ),
 		onHeaderToggleChange,
 		isConnected: isValidSalesforceOrgId( salesforceData.organizationId ),
-		isLoading: typeof data.isInstalled === 'undefined',
+		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		toggleDisabledTooltip: ! isValidSalesforceOrgId( salesforceData.organizationId )
 			? __( 'Enter a Salesforce Organization ID to enable.', 'jetpack-forms' )

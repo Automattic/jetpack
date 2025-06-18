@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { Path, SVG } from '@wordpress/primitives';
 
 const notSpam = (

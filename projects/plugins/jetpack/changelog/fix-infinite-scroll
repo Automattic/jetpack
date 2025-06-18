@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixed issue where non-string currentday parameters could cause errors in infinite scroll AJAX requests
