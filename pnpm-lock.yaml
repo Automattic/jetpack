@@ -5008,6 +5008,8 @@ importers:
 
   projects/plugins/mu-wpcom-plugin: {}
 
+  projects/plugins/paypal-payments: {}
+
   projects/plugins/protect:
     dependencies:
       '@automattic/jetpack-analytics':
