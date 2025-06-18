@@ -5,8 +5,15 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import CreativeMailIcon from '../../../../icons/creative-mail';
 import IntegrationCard from './integration-card';
+import type { SingleIntegrationCardProps } from '../../../../types';
 
-const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus, borderBottom = true } ) => {
+const CreativeMailCard = ( {
+	isExpanded,
+	onToggle,
+	data,
+	refreshStatus,
+	borderBottom = true,
+}: SingleIntegrationCardProps ) => {
 	const { settingsUrl = '' } = data || {};
 
 	const selectedBlock = useSelect( select => select( blockEditorStore ).getSelectedBlock(), [] );
@@ -14,11 +21,11 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus, borderBo
 	const { insertBlock, removeBlock } = useDispatch( blockEditorStore );
 
 	const hasEmailBlock = selectedBlock?.innerBlocks?.some(
-		( { name } ) => name === 'jetpack/field-email'
+		( { name }: { name: string } ) => name === 'jetpack/field-email'
 	);
 
 	const consentBlock = selectedBlock?.innerBlocks?.find(
-		( { name } ) => name === 'jetpack/field-consent'
+		( { name }: { name: string } ) => name === 'jetpack/field-consent'
 	);
 
 	const cardData = {
@@ -42,7 +49,7 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus, borderBo
 			await removeBlock( consentBlock.clientId, false );
 		} else {
 			const buttonBlockIndex = selectedBlock.innerBlocks.findIndex(
-				( { name } ) => name === 'jetpack/button'
+				( { name }: { name: string } ) => name === 'jetpack/button'
 			);
 			const newConsentBlock = await createBlock( 'jetpack/field-consent' );
 			await insertBlock( newConsentBlock, buttonBlockIndex, selectedBlock.clientId, false );
@@ -53,7 +60,7 @@ const CreativeMailCard = ( { isExpanded, onToggle, data, refreshStatus, borderBo
 		<IntegrationCard
 			title={ __( 'Creative Mail', 'jetpack-forms' ) }
 			description={ __( 'Manage email contacts and campaigns', 'jetpack-forms' ) }
-			icon={ CreativeMailIcon }
+			icon={ <CreativeMailIcon /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
 			cardData={ cardData }

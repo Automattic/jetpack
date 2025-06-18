@@ -4,8 +4,14 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import AkismetIcon from '../../../../icons/akismet';
 import IntegrationCard from './integration-card';
+import type { SingleIntegrationCardProps } from '../../../../types';
 
-const AkismetCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
+const AkismetCard = ( {
+	isExpanded,
+	onToggle,
+	data,
+	refreshStatus,
+}: SingleIntegrationCardProps ) => {
 	const formSubmissionsUrl = data?.details?.formSubmissionsSpamUrl || '';
 
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
