@@ -121,7 +121,7 @@ if [ "$1" = "private" ]; then
   docker exec $WPCLI sh /usr/local/bin/ci-init-cli.sh private
 else
   echo Setting the site to Public
-  docker exec $WPCLI /usr/bin/env sh /usr/local/bin/ci-init-cli.sh
+  docker exec $WPCLI sh /usr/local/bin/ci-init-cli.sh
 fi
 
 echo starting NGINX
