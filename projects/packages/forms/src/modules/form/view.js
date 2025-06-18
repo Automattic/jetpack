@@ -174,7 +174,6 @@ const { state } = store( NAMESPACE, {
 					if ( context.isMultiStep && field.step !== context.currentStep ) {
 						return;
 					}
-
 					if ( field.error && field.error !== 'yes' ) {
 						errors.push( {
 							anchor: '#' + field.id,
