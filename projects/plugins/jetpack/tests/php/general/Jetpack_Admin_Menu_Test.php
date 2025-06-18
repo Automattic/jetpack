@@ -6,7 +6,6 @@
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\Stats_Admin\Dashboard;
 use Automattic\Jetpack\VideoPress\Admin_UI;
-use Automattic\Jetpack\WordAds\Dashboard as WordAdsDashboard;
 /**
  * Class Jetpack_Admin_Menu_Test
  */
@@ -62,9 +61,6 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 		$jetpack_video = new Admin_UI();
 		$jetpack_video->init();
-
-		$jetpack_wordads = new WordAdsDashboard();
-		$jetpack_wordads->init_hooks();
 
 		$jetpack_backup = new Jetpack_Backup();
 		$jetpack_backup->initialize();
