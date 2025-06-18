@@ -576,18 +576,6 @@ final class ZeroBSCRM {
 			// } Initialisation
 			$this->init_hooks();
 
-			/**
-			 * Feature flag to hide the new onboarding wizard page.
-			 *
-			 * @ignore
-			 * @since TBD
-			 *
-			 * @param bool Determine if we should initialize the new OBW logic.
-			 */
-			if ( apply_filters( 'jetpack_crm_feature_flag_onboarding_wizard_v2', false ) ) {
-				Automattic\Jetpack_CRM\Onboarding_Wizard\Bootstrap::get_instance();
-			}
-
 			// } Post Init hook
 			do_action( 'zerobscrm_loaded' );
 
