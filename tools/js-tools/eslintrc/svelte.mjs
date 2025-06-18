@@ -1,11 +1,15 @@
-import { defineConfig } from 'eslint/config';
 import eslintPluginSvelte from 'eslint-plugin-svelte';
 import svelteEslintParser from 'svelte-eslint-parser';
 import typescriptEslint from 'typescript-eslint';
+import { defineConfig, javascriptFiles } from './base.mjs';
 
 export default defineConfig(
-	eslintPluginSvelte.configs[ 'flat/recommended' ],
 	{
+		files: javascriptFiles,
+		extends: [ eslintPluginSvelte.configs[ 'flat/recommended' ] ],
+	},
+	{
+		files: javascriptFiles,
 		languageOptions: {
 			parserOptions: {
 				extraFileExtensions: [ '.svelte' ],
