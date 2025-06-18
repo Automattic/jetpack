@@ -474,6 +474,20 @@ jobs:
         uses: ./.github/actions/tool-setup
       - name: Pnpm install
         run: pnpm install
+      - name: Add back removed packages in case of a release branch.
+        run: |
+          echo "Checking for non-mirrored require-dev packages, in case this is testing a release branch"
+          for FILE in projects/*/*/composer.json; do
+            PKGS=()
+            readarray -t PKGS < <( jq -r '.extra["non-mirrored-require-dev"] // empty | .[] | . += "=@dev"' "$FILE" )
+            if [[ ${#PKGS[@]} -gt 0 ]]; then
+              echo "Adding packages for $FILE: ${PKGS[*]}"
+              # Make sure monorepo repositories entry is present.
+              JSON=$( jq --tab '.repositories //= [] | if any( .repositories[]; .type == "path" and ( .url | startswith( "../" ) ) and .options?.monorepo? ) then . else .repositories += [ { type: "path", url: "../../packages/*", options: { monorepo: true } } ] end' "$FILE" )
+              echo "$JSON" > "$FILE"
+              composer require --working-dir="${FILE%/composer.json}" --dev "${PKGS[@]}"
+            fi
+          done
       - name: Run phan
         run: pnpm jetpack phan --all -v --update-baseline --format github
       - name: Run phan for previous WP version too
