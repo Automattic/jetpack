@@ -4,7 +4,7 @@ import {
 	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import StepControls from '../contact-form/components/form-step-controls';
+import StepControls from '../shared/components/form-step-controls';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 import useStepNavigation from '../shared/hooks/use-step-navigation';
 

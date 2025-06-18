@@ -31,13 +31,13 @@ import {
 	NEXT_BUTTON_TEMPLATE,
 	NAVIGATION_TEMPLATE,
 } from '../form-step-navigation/edit';
+import StepControls from '../shared/components/form-step-controls';
 import InspectorHint from '../shared/components/inspector-hint';
 import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-responses-settings';
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively';
 import useFormSteps from '../shared/hooks/use-form-steps';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
 import { childBlocks } from './child-blocks';
-import StepControls from './components/form-step-controls';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
