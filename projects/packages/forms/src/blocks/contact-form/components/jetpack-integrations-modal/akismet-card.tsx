@@ -17,7 +17,7 @@ const AkismetCard = ( {
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 
 	const cardData = {
-		...( data || {} ),
+		...data,
 		showHeaderToggle: true,
 		headerToggleValue: akismetActiveWithKey,
 		isHeaderToggleEnabled: false,

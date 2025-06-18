@@ -54,7 +54,7 @@ const SalesforceCard = ( {
 	};
 
 	const cardData = {
-		...( data || {} ),
+		...data,
 		showHeaderToggle: true,
 		headerToggleValue: salesforceData?.sendToSalesforce || false,
 		isHeaderToggleEnabled: isValidSalesforceOrgId( salesforceData.organizationId ),

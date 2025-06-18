@@ -29,7 +29,7 @@ const CreativeMailCard = ( {
 	);
 
 	const cardData = {
-		...( data || {} ),
+		...data,
 		showHeaderToggle: false,
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,

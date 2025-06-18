@@ -35,7 +35,7 @@ const JetpackCRMCard = ( {
 	);
 
 	const cardData = {
-		...( data || {} ),
+		...data,
 		showHeaderToggle: true,
 		headerToggleValue: jetpackCRM,
 		isHeaderToggleEnabled: true,

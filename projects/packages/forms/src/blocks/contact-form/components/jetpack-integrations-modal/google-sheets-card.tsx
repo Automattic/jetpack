@@ -21,7 +21,7 @@ const GoogleSheetsCard = ( {
 	const settingsUrl = data?.settingsUrl as string | undefined;
 
 	const cardData = {
-		...( data || {} ),
+		...data,
 		slug: 'google-sheets',
 		showHeaderToggle: false,
 		isLoading: ! data,
