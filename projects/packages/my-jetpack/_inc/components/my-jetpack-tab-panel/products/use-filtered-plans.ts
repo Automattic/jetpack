@@ -37,7 +37,7 @@ export function useFilteredPlans( { search }: UseFilteredPlansOptions ): {
 
 	const allModules = useAllJetpackModules();
 
-	const list = purchases.map< ProductSection >( purchase => {
+	const list = purchases?.map< ProductSection >( purchase => {
 		const $products = Object.entries( products || {} ).filter(
 			( [ slug, item ] ) =>
 				JETPACK_PRODUCTS_WITH_CARD.includes( slug as JetpackProductWithCard ) &&
@@ -61,7 +61,7 @@ export function useFilteredPlans( { search }: UseFilteredPlansOptions ): {
 	} );
 
 	return {
-		plans: filterSections( list, { search } ),
+		plans: filterSections( list || [], { search } ),
 		isLoadingPlans,
 		errorPlans,
 	};

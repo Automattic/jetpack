@@ -72,3 +72,41 @@
 		}
 	}
 }
+
+.product-section {
+
+	.product-cards {
+
+		div[data-wp-component="Card"] {
+			height: 100%;
+		}
+	}
+}
+
+.product-card {
+
+	div[data-wp-component="CardHeader"]{
+		border-bottom: 0;
+		padding-bottom: 0;
+		padding-top: 1.5rem;
+	}
+
+	div[data-wp-component="CardBody"] {
+		padding-bottom: 1.5rem;
+	}
+
+	.icon-wrapper{
+		width: 3rem;
+		height: 3rem;
+	}
+
+	.card-title {
+
+		@include gb.heading-large;
+	}
+
+	.card-description {
+
+		@include gb.body-medium;
+	}
+}

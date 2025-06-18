@@ -1,4 +1,5 @@
 import { ProductCamelCase } from '../../../data/types';
+import { MyJetpackModule } from '../../types';
 import {
 	JETPACK_MODULES,
 	JETPACK_PRODUCTS_WITH_CARD,
@@ -21,21 +22,12 @@ export type JetpackProductSlug = JetpackProductWithCard | JetpackProductWithoutC
 
 export type JetpackModuleSlug = ( typeof JETPACK_MODULES )[ number ];
 
-export type JetpackModule = {
-	module: string;
-	name: string;
-	activated: boolean;
-	description: string;
-	long_description: string;
-	search_terms: string;
-};
-
 export type ProductSection = {
 	id: string;
 	title: string;
 	cards?: Array< {
 		product: ProductCamelCase;
-		module?: JetpackModule;
+		module?: MyJetpackModule;
 	} >;
-	modules?: Array< JetpackModule >;
+	modules?: Array< MyJetpackModule >;
 };
