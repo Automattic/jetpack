@@ -201,5 +201,5 @@ rm -rf $TEMPDIR
 
 echo starting JEST
 docker start $JEST
-docker exec $JEST /usr/bin/env sh /usr/local/bin/ci-init-e2e.sh
+docker exec $JEST sh /usr/local/bin/ci-init-e2e.sh
 finish
