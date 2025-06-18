@@ -241,6 +241,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_hosting_trial',
 		'was_upgraded_from_trial',
 		'is_a4a_dev_site',
+		'uptime',
 	);
 
 	/**
