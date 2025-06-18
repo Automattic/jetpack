@@ -8,7 +8,7 @@
  * Date: 17/06/2016
  */
 /* eslint-disable jsdoc/require-description, jsdoc/require-param-description, jsdoc/require-param-type, jsdoc/require-returns */
-/* global moment, ajaxurl, swal, Bloodhound, hopscotch, zbsTour */
+/* global zbs_root, moment, ajaxurl, swal, Bloodhound, hopscotch, zbsTour */
 jQuery( function () {
 	// THIS IS FOR POTENTIALLY GLOBAL STUFF ONLY! NO SPECIFICS (E>G> INVOICING)
 
@@ -538,12 +538,15 @@ function jpcrm_js_bind_daterangepicker( options, callback ) {
 			showDropdowns: true,
 			timePicker: false,
 			ranges: {
-				Today: [ moment(), moment() ],
-				Yesterday: [ moment().subtract( 1, 'days' ), moment().subtract( 1, 'days' ) ],
-				'Last 7 Days': [ moment().subtract( 6, 'days' ), moment() ],
-				'Last 30 Days': [ moment().subtract( 29, 'days' ), moment() ],
-				'This Month': [ moment().startOf( 'month' ), moment().endOf( 'month' ) ],
-				'Last Month': [
+				[ zbs_root.lang.today ]: [ moment(), moment() ],
+				[ zbs_root.lang.yesterday ]: [
+					moment().subtract( 1, 'days' ),
+					moment().subtract( 1, 'days' ),
+				],
+				[ zbs_root.lang.last_7_days ]: [ moment().subtract( 6, 'days' ), moment() ],
+				[ zbs_root.lang.last_30_days ]: [ moment().subtract( 29, 'days' ), moment() ],
+				[ zbs_root.lang.this_month ]: [ moment().startOf( 'month' ), moment().endOf( 'month' ) ],
+				[ zbs_root.lang.last_month ]: [
 					moment().subtract( 1, 'month' ).startOf( 'month' ),
 					moment().subtract( 1, 'month' ).endOf( 'month' ),
 				],
@@ -595,12 +598,15 @@ function jpcrm_js_bind_datetimerangepicker( options, callback ) {
 			showDropdowns: true,
 			opens: 'left',
 			ranges: {
-				Today: [ moment(), moment() ],
-				Yesterday: [ moment().subtract( 1, 'days' ), moment().subtract( 1, 'days' ) ],
-				'Last 7 Days': [ moment().subtract( 6, 'days' ), moment() ],
-				'Last 30 Days': [ moment().subtract( 29, 'days' ), moment() ],
-				'This Month': [ moment().startOf( 'month' ), moment().endOf( 'month' ) ],
-				'Last Month': [
+				[ zbs_root.lang.today ]: [ moment(), moment() ],
+				[ zbs_root.lang.yesterday ]: [
+					moment().subtract( 1, 'days' ),
+					moment().subtract( 1, 'days' ),
+				],
+				[ zbs_root.lang.last_7_days ]: [ moment().subtract( 6, 'days' ), moment() ],
+				[ zbs_root.lang.last_30_days ]: [ moment().subtract( 29, 'days' ), moment() ],
+				[ zbs_root.lang.this_month ]: [ moment().startOf( 'month' ), moment().endOf( 'month' ) ],
+				[ zbs_root.lang.last_month ]: [
 					moment().subtract( 1, 'month' ).startOf( 'month' ),
 					moment().subtract( 1, 'month' ).endOf( 'month' ),
 				],
