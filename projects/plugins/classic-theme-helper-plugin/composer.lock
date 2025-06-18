@@ -332,7 +332,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "c95592f750b19132b8ce363dc7503e1c8318314c"
+                "reference": "5adcff7189224c26955a294fd3ee8765409e8f9e"
             },
             "require": {
                 "php": ">=7.2"
@@ -351,7 +351,6 @@
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-videopress": "@dev",
                 "automattic/jetpack-waf": "@dev",
-                "automattic/jetpack-wordads": "@dev",
                 "automattic/jetpack-yoast-promo": "@dev"
             },
             "suggest": {
