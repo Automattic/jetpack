@@ -71,25 +71,20 @@ if ( ctx ) {
 		options: chartOptions,
 	} );
 
-	jQuery( '.day-or-month .button' ).on( 'click', function () {
-		jQuery( '.day-or-month .button' ).removeClass( 'selected' );
-		jQuery( this ).addClass( 'selected' );
+	const dayOrMonthButtons = document.querySelectorAll( '.day-or-month .button' );
+	dayOrMonthButtons.forEach( button =>
+		button.addEventListener( 'click', event => {
+			const range = event.target.dataset.range;
+			dayOrMonthButtons.forEach( btn => {
+				btn.classList.toggle( 'black', btn.dataset.range === range );
+				btn.classList.toggle( 'white', btn.dataset.range !== range );
+			} );
 
-		const range = jQuery( this ).attr( 'data-range' );
-
-		if ( range === 'yearly' ) {
-			jetpackcrm_draw_contact_chart( window.yearly );
-		}
-		if ( range === 'monthly' ) {
-			jetpackcrm_draw_contact_chart( window.monthly );
-		}
-		if ( range === 'weekly' ) {
-			jetpackcrm_draw_contact_chart( window.weekly );
-		}
-		if ( range === 'daily' ) {
-			jetpackcrm_draw_contact_chart( window.daily );
-		}
-	} );
+			if ( window[ range ] ) {
+				jetpackcrm_draw_contact_chart( window[ range ] );
+			}
+		} )
+	);
 }
 
 jQuery( '#jpcrm_dash_page_options' ).on( 'click', function () {
