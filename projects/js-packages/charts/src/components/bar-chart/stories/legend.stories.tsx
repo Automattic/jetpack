@@ -94,46 +94,11 @@ Default.args = {
 	...legendStoryArgs,
 };
 
-export const TopRight: StoryObj< typeof BarChart > = Template.bind( {} );
-TopRight.args = {
+export const AlignmentPositioning: StoryObj< typeof BarChart > = Template.bind( {} );
+AlignmentPositioning.args = {
 	...legendStoryArgs,
 	legendAlign: 'right',
 	legendVerticalAlign: 'top',
-};
-
-export const TopLeft: StoryObj< typeof BarChart > = Template.bind( {} );
-TopLeft.args = {
-	...legendStoryArgs,
-	legendAlign: 'left',
-	legendVerticalAlign: 'top',
-};
-
-export const TopCenter: StoryObj< typeof BarChart > = Template.bind( {} );
-TopCenter.args = {
-	...legendStoryArgs,
-	legendAlign: 'center',
-	legendVerticalAlign: 'top',
-};
-
-export const BottomLeft: StoryObj< typeof BarChart > = Template.bind( {} );
-BottomLeft.args = {
-	...legendStoryArgs,
-	legendAlign: 'left',
-	legendVerticalAlign: 'bottom',
-};
-
-export const BottomCenter: StoryObj< typeof BarChart > = Template.bind( {} );
-BottomCenter.args = {
-	...legendStoryArgs,
-	legendAlign: 'center',
-	legendVerticalAlign: 'bottom',
-};
-
-export const BottomRight: StoryObj< typeof BarChart > = Template.bind( {} );
-BottomRight.args = {
-	...legendStoryArgs,
-	legendAlign: 'right',
-	legendVerticalAlign: 'bottom',
 };
 
 export const VerticalOrientation: StoryObj< typeof BarChart > = Template.bind( {} );

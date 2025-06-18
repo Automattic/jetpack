@@ -91,46 +91,11 @@ Default.args = {
 	...legendStoryArgs,
 };
 
-export const TopRight: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
-TopRight.args = {
+export const AlignmentPositioning: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
+AlignmentPositioning.args = {
 	...legendStoryArgs,
 	legendAlign: 'right',
 	legendVerticalAlign: 'top',
-};
-
-export const TopLeft: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
-TopLeft.args = {
-	...legendStoryArgs,
-	legendAlign: 'left',
-	legendVerticalAlign: 'top',
-};
-
-export const TopCenter: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
-TopCenter.args = {
-	...legendStoryArgs,
-	legendAlign: 'center',
-	legendVerticalAlign: 'top',
-};
-
-export const BottomLeft: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
-BottomLeft.args = {
-	...legendStoryArgs,
-	legendAlign: 'left',
-	legendVerticalAlign: 'bottom',
-};
-
-export const BottomCenter: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
-BottomCenter.args = {
-	...legendStoryArgs,
-	legendAlign: 'center',
-	legendVerticalAlign: 'bottom',
-};
-
-export const BottomRight: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
-BottomRight.args = {
-	...legendStoryArgs,
-	legendAlign: 'right',
-	legendVerticalAlign: 'bottom',
 };
 
 export const VerticalOrientation: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
