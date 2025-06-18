@@ -137,6 +137,12 @@ const { state } = store( NAMESPACE, {
 				return false;
 			}
 			const context = getContext();
+			if ( context.isMultiStep ) {
+				// For multistep forms, we only validate fields that are part of the current step.
+				return ! Object.values( context.fields ).some(
+					field => field.error !== 'yes' && field.step === context.currentStep
+				);
+			}
 			return ! Object.values( context.fields ).some( field => field.error !== 'yes' );
 		},
 
@@ -150,7 +156,7 @@ const { state } = store( NAMESPACE, {
 			if ( state.isFormEmpty ) {
 				const context = getContext();
 				// Never show the "form empty" error for multistep forms.
-				if ( ! context?.maxSteps || context.maxSteps === 0 ) {
+				if ( context.isMultiStep ) {
 					return config.error_types.invalid_form_empty;
 				}
 			}
@@ -165,6 +171,9 @@ const { state } = store( NAMESPACE, {
 			const context = getContext();
 			if ( context.showErrors ) {
 				Object.values( context.fields ).forEach( field => {
+					if ( context.isMultiStep && field.step !== context.currentStep ) {
+						return;
+					}
 					if ( field.error && field.error !== 'yes' ) {
 						errors.push( {
 							anchor: '#' + field.id,

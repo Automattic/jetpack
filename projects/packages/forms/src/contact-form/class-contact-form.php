@@ -426,11 +426,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			$default_context = array(
-				'formId'     => $id,
-				'formHash'   => $form->hash,
-				'showErrors' => false, // We toggle this to true when we want to show the user errors right away.
-				'errors'     => array(), // This should be a associative array.
-				'fields'     => array(),
+				'formId'      => $id,
+				'formHash'    => $form->hash,
+				'showErrors'  => false, // We toggle this to true when we want to show the user errors right away.
+				'errors'      => array(), // This should be a associative array.
+				'fields'      => array(),
+				'isMultiStep' => boolval( $max_steps > 0 ), // Whether the form is a multistep form.
 			);
 
 			if ( $max_steps > 0 ) {
