@@ -1,34 +1,8 @@
 import React from 'react';
-import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
+import { legendArgTypes, legendDecorator } from '../../../stories/legend-config';
 import { BarChart } from '../../bar-chart';
+import sampleData from './sample-data';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
-
-const data = [
-	{
-		label: 'Q1 2023',
-		data: [
-			{ date: new Date( '2023-01-01' ), value: 100 },
-			{ date: new Date( '2023-02-01' ), value: 120 },
-			{ date: new Date( '2023-03-01' ), value: 110 },
-		],
-	},
-	{
-		label: 'Q2 2023',
-		data: [
-			{ date: new Date( '2023-01-01' ), value: 90 },
-			{ date: new Date( '2023-02-01' ), value: 105 },
-			{ date: new Date( '2023-03-01' ), value: 125 },
-		],
-	},
-	{
-		label: 'Q3 2023',
-		data: [
-			{ date: new Date( '2023-01-01' ), value: 85 },
-			{ date: new Date( '2023-02-01' ), value: 95 },
-			{ date: new Date( '2023-03-01' ), value: 115 },
-		],
-	},
-];
 
 const meta: Meta< typeof BarChart > = {
 	title: 'JS Packages/Charts/Types/Bar Chart/Legend',
@@ -36,45 +10,8 @@ const meta: Meta< typeof BarChart > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		( Story, { args } ) => (
-			<ThemeProvider theme={ args.theme }>
-				<div
-					style={ {
-						resize: 'both',
-						overflow: 'auto',
-						padding: '2rem',
-						width: '800px',
-						height: '600px',
-						minWidth: '400px',
-						maxWidth: '1200px',
-						border: '1px dashed #ccc',
-					} }
-				>
-					<Story />
-				</div>
-			</ThemeProvider>
-		),
-	],
-	argTypes: {
-		theme: {
-			control: 'select',
-			options: {
-				default: undefined,
-				jetpack: jetpackTheme,
-				woo: wooTheme,
-			},
-			defaultValue: undefined,
-		},
-		legendAlign: {
-			control: 'select',
-			options: [ 'left', 'center', 'right' ],
-		},
-		legendVerticalAlign: {
-			control: 'select',
-			options: [ 'top', 'bottom' ],
-		},
-	},
+	decorators: legendDecorator,
+	argTypes: legendArgTypes,
 } satisfies Meta< typeof BarChart >;
 
 export default meta;
@@ -82,7 +19,7 @@ export default meta;
 const Template: StoryFn< typeof BarChart > = args => <BarChart { ...args } />;
 
 const legendStoryArgs = {
-	data,
+	data: sampleData.slice( 0, 3 ), // Use first 3 countries for cleaner legend
 	height: 400,
 	showLegend: true,
 	legendOrientation: 'horizontal' as const,
