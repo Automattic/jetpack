@@ -13,7 +13,7 @@ import { next, previous, check } from '@wordpress/icons';
 import { store as singleStepStore } from '../../../../store/form-step-preview';
 import StepIcon from '../../../form-step/icon';
 import StepContainerIcon from '../../../form-step-container/icon';
-import useStepNavigation from '../../../shared/hooks/use-step-navigation';
+import useStepNavigation from '../../hooks/use-step-navigation';
 
 /**
  * Toolbar controls for managing steps within a multi-step form.
