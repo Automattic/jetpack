@@ -63,15 +63,22 @@ class Update_LCP implements Endpoint {
 			return $api_successful;
 		}
 
-		// @TODO: handle bad payload coming from the Cloud.
-
-		// Update each page.
 		foreach ( $pages as $entry ) {
-			// Mark the page as successfully analyzed as we don't know what to do if mobile fails but desktop succeeds.
-			$state->set_page_success( $entry['key'] );
+			if ( $entry['success'] ) {
+				$state->set_page_success( $entry['key'] );
+			} else {
+				$errors = array();
+				foreach ( $entry['reports'] as $report ) {
+					if ( isset( $report['success'] ) && false === $report['success'] && ! empty( $report['data'] ) ) {
+						$errors[] = $report['data'];
+					}
+				}
+
+				$state->set_page_errors( $entry['key'], $errors );
+			}
 
 			// Store the LCP data for this page.
-			$storage->store_lcp( $entry['key'], $entry['devices'] );
+			$storage->store_lcp( $entry['key'], $entry['reports'] );
 
 			// Failures must have an array of urls.
 			// @TODO: figure out what to do with failures.

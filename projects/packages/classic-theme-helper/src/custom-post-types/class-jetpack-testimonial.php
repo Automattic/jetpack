@@ -220,7 +220,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 				<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
 					<input name="<?php echo esc_attr( self::OPTION_NAME ); ?>" id="<?php echo esc_attr( self::OPTION_NAME ); ?>" <?php echo checked( get_option( self::OPTION_NAME, '0' ), true, false ); ?> type="checkbox" value="1" />
 					<?php esc_html_e( 'Enable Testimonials for this site.', 'jetpack-classic-theme-helper' ); ?>
-					<a target="_blank" href="https://en.support.wordpress.com/testimonials/"><?php esc_html_e( 'Learn More', 'jetpack-classic-theme-helper' ); ?></a>
+					<a target="_blank" href="https://en.support.wordpress.com/testimonials/" data-target="wpcom-help-center"><?php esc_html_e( 'Learn More', 'jetpack-classic-theme-helper' ); ?></a>
 				</label>
 				<?php
 			endif;

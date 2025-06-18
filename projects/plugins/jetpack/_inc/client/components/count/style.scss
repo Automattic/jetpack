@@ -1,14 +1,14 @@
 @use '../../scss/functions/rem';
-@import '../../scss/calypso-colors';
+@use '../../scss/calypso-colors';
 
 .dops-count {
 	display: inline-block;
 	padding: rem.convert( 1px ) rem.convert( 6px );
-	border: solid 1px $gray;
+	border: solid 1px calypso-colors.$gray;
 	border-radius: rem.convert( 12px );
 	font-size: rem.convert( 11px );
 	font-weight: 600;
 	line-height: rem.convert( 14px );
-	color: $gray;
+	color: calypso-colors.$gray;
 	text-align: center;
 }

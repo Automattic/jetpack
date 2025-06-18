@@ -1,11 +1,11 @@
-@import '../../shared/styles/align';
+@use '../../shared/styles/align';
 
 .wp-block-jetpack-eventbrite {
 	position: relative;
 
 	.wp-block-jetpack-button {
 
-		@include align-block;
+		@include align.align-block;
 	}
 
 	.components-placeholder__learn-more {

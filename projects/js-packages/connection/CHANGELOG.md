@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [1.2.2] - 2025-06-16
+### Changed
+- Update dependencies.
+
+## [1.2.1] - 2025-06-10
+### Changed
+- Update dependencies.
+
+## [1.2.0] - 2025-06-05
+### Changed
+- Connection: Display connection info on WoA sites. [#43777]
+
+## [1.1.0] - 2025-06-04
+### Added
+- Improve error handling for protected owner on WordPress.com. [#43593]
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## [0.39.18] - 2025-06-02
+### Changed
+- sass: `@use` rather than `@import` for `@wordpress/base-styles`. [#43607]
+- Update package dependencies. [#43711]
+
+## [0.39.17] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
 ## [0.39.16] - 2025-05-22
 ### Changed
 - Update dependencies.
@@ -1031,6 +1060,13 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[1.2.2]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.18...v1.0.0
+[0.39.18]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.17...v0.39.18
+[0.39.17]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.16...v0.39.17
 [0.39.16]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.15...v0.39.16
 [0.39.15]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.14...v0.39.15
 [0.39.14]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.13...v0.39.14

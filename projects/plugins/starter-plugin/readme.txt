@@ -33,17 +33,28 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 0.6.0 - 2025-04-04
+### 0.7.0 - 2025-06-06
+#### Added
+- Add more error logging.
+- Add My Jetpack tour.
 
 #### Changed
-- Code: Use function-style `exit()` and `die()` with a default status code of 0.
-- General: Indicate compatibility with WordPress 6.8.
-- Update composer.lock
+- Code: First pass of style coding standards.
+- E2E Tests: Update config file encryption algorithm.
+- My Jetpack: Hide backup failure notice when backups are deactivated.
+- My Jetpack: Optimize the images for onboarding slider for faster page load.
+- My Jetpack: Update the onboarding UI, changing it to a single button.
 - Update package dependencies.
 
+#### Removed
+- General: Update minimum WordPress version to 6.7.
+
 #### Fixed
-- Code: Prevent dynamic class properties.
-- E2E Tests: Only install single browser used by Playwright.
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
+- Linting: Address final rules in WordPress Stylelint config.
+- My Jetpack: Fixed Onboarding UI responsiveness at 600px.
+- My Jetpack: Fix readability of license activation button on hover.
+- My Jetpack: Ensure social login does not get stuck when email input is not empty.
 
 == Arbitrary section ==
 

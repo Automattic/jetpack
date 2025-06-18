@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Playwright interface: Fix page redirects from breaking the generation process.

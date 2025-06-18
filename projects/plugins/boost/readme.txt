@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 3.13.1
+Stable tag: 4.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,28 +183,25 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.0.0-beta - 2025-05-15
+### 4.1.0-beta - 2025-06-11
+#### Added
+- LCP Optimization: New Largest Contentful Paint (LCP) optimization feature to improve loading performance of Cornerstone pages.
+
 #### Changed
-- Dashboard: Indicate all external links with External icon.
-- General: Run feature activation routines for active features when the plugin is deactivated, then reactivated.
-- My Jetpack: Updated the onboarding UI, changing it to a single button.
-- UI: Updated currency formatting.
-- Page Cache: Improve compatibility with sites using Endurance Page Cache.
+- Auto-Resize Lazy Images: Remove beta tag.
+- E2E Tests: Update config file encryption algorithm.
+- My Jetpack: Hide backup failure notice when backups are deactivated.
+- My Jetpack: Optimize the images for onboarding slider for faster page load.
 - Update package dependencies.
 
 #### Removed
-- General: Update minimum WordPress version to 6.7.
+- Cornerstone Pages: Remove "Experimental" tag from UI.
 
 #### Fixed
-- Concatenate JS/CSS: Gracefully handle if there are too many files to concat.
-- Concatenate JS: Ensure compatibility with the WooCommerce Bookings plugin.
-- Cornerstone pages: Avoid fatal errors when no pages are set.
-- Dashboard: Properly display notice to purchase a plan in Critical CSS modal.
-- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
-- Concatenate JS/CSS: Avoid fatal errors on feature activation.
-- My Jetpack: Fix social login getting stuck when email input is not empty.
-- Page Cache: Handle garbage collection through cron-job on front-end update.
-- Use transients instead of cache to ensure persistence for sites without object caching.
+- General: Fix storage data persisting after clear.
+- My Jetpack: Fix Onboarding UI responsiveness at 600px.
+- My Jetpack: Fix readability of license activation button on hover.
+- Speed Scores: Fix not waiting for Cloud CSS to finish generating before refreshing the scores.
 
 --------
 

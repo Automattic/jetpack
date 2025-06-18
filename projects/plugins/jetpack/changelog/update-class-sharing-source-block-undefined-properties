@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Sharing buttons: Prevent PHP warnings in some scenarios, ensuring we only check the post tle and id if posts exist.

@@ -36,7 +36,7 @@ class Block_Replacement {
 	 * @return string
 	 */
 	public static function replace_media_text_with_videopress( $block_content, $block ) {
-		if ( $block['blockName'] === 'core/media-text' ) {
+		if ( isset( $block['blockName'] ) && $block['blockName'] === 'core/media-text' ) {
 
 			// Make sure we have a $post_id that could be valid; if we don't, then video_get_info_by_blogpostid()
 			// will fail, so there's no point in calling it.

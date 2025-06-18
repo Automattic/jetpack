@@ -1,11 +1,20 @@
+/**
+ * External dependencies
+ */
 import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
+/**
+ * Internal dependencies
+ */
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
-import type { IntegrationCardProps } from './types';
+/**
+ * Types
+ */
+import type { IntegrationCardProps, IntegrationCardData } from '../../types';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
@@ -21,7 +30,7 @@ const JetpackCRMDashboardCard = ( {
 	const crmVersion = semver.coerce( version );
 	const isRecentVersion = crmVersion && semver.gte( crmVersion, '4.9.1' );
 
-	const cardData = {
+	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: false, // Always off for dashboard
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
@@ -42,7 +51,7 @@ const JetpackCRMDashboardCard = ( {
 		if ( ! isRecentVersion ) {
 			return (
 				<div>
-					<p>
+					<p className="integration-card__description">
 						{ __(
 							'Please update to the latest version of the Jetpack CRM plugin to integrate your contact form with your CRM.',
 							'jetpack-forms'
@@ -65,7 +74,7 @@ const JetpackCRMDashboardCard = ( {
 		if ( ! hasExtension ) {
 			return (
 				<div>
-					<p>
+					<p className="integration-card__description">
 						{ createInterpolateElement(
 							__(
 								"You can integrate Jetpack CRM by enabling Jetpack CRM's <a>Jetpack Forms extension</a>.",
@@ -121,7 +130,6 @@ const JetpackCRMDashboardCard = ( {
 		<IntegrationCard
 			title={ __( 'Jetpack CRM', 'jetpack-forms' ) }
 			description={ __( 'Store contact form submissions in your CRM', 'jetpack-forms' ) }
-			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <JetpackIcon color={ COLOR_JETPACK } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

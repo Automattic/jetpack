@@ -9,7 +9,9 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Sync\Settings;
+use Jetpack_Tracks_Event;
 use PHPMailer\PHPMailer\PHPMailer;
+use WP_Block;
 use WP_Error;
 
 /**
@@ -413,8 +415,27 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "' $form_aria_label novalidate>\n";
+			$context = array(
+				'formId'     => $id,
+				'formHash'   => $form->hash,
+				'showErrors' => false, // We toggle this to true when we want to show the user errors right away.
+				'errors'     => array(), // This should be a associative array.
+				'fields'     => array(),
+			);
+
+			$r .= "<form action='" . esc_url( $url ) . "'
+				method='post'
+				class='" . esc_attr( $form_classes ) . "' $form_aria_label
+				data-wp-interactive=\"jetpack/form\"  " . wp_interactivity_data_wp_context( $context ) . "
+				data-wp-on--submit=\"actions.onFormSubmit\"
+				novalidate >\n";
+
 			$r .= $form->body;
+
+			if ( $has_submit_button_block ) {
+				// Place the error wrapper before the button block
+				$r = str_replace( '<div class="wp-block-jetpack-button', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r );
+			}
 
 			// In new versions of the contact form block the button is an inner block
 			// so the button does not need to be constructed server-side.
@@ -450,6 +471,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$submit_button_text = $form->get_attribute( 'submit_button_text' );
 				}
 
+				$r .= self::render_error_wrapper();
 				$r .= "\t\t<button type='submit' class='" . esc_attr( $submit_button_class ) . "'";
 				if ( ! empty( $submit_button_styles ) ) {
 					$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
@@ -495,6 +517,24 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string $r The contact form HTML.
 		 */
 		return apply_filters( 'jetpack_contact_form_html', $r );
+	}
+
+	/**
+	 * Helper function that display the error wrapper.
+	 *
+	 * @return string HTML string for the error wrapper.
+	 */
+	private static function render_error_wrapper() {
+		$html  = '<div class="contact-form__error" data-wp-class--show-errors="state.showFromErrors">';
+		$html .= '<span class="contact-form__warning-icon"><span class="visually-hidden">' . __( 'Warning.', 'jetpack-forms' ) . '</span><i aria-hidden="true"></i></span>
+				<span data-wp-text="state.getFormErrorMessage"></span>
+				<ul>
+				<template data-wp-each="state.getErrorList" data-wp-key="context.item.id">
+					<li><a data-wp-bind--href="context.item.anchor" data-wp-on--click="actions.scrollIntoView" data-wp-text="context.item.label"></a></li>
+				</template>
+				</ul>';
+		$html .= '</div>';
+		return $html;
 	}
 
 	/**
@@ -836,11 +876,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * The contact-field shortcode processor.
 	 * We use an object method here instead of a static Contact_Form_Field class method to parse contact-field shortcodes so that we can tie them to the contact-form object.
 	 *
-	 * @param array       $attributes Key => Value pairs as parsed by shortcode_parse_atts().
-	 * @param string|null $content The shortcode's inner content: [contact-field]$content[/contact-field].
+	 * @param array         $attributes Key => Value pairs as parsed by shortcode_parse_atts().
+	 * @param string|null   $content The shortcode's inner content: [contact-field]$content[/contact-field].
+	 * @param WP_Block|null $block The field block object.
 	 * @return string HTML for the contact form field
 	 */
-	public static function parse_contact_field( $attributes, $content ) {
+	public static function parse_contact_field( $attributes, $content, $block = null ) {
+		if ( $block ) {
+			$type = null;
+		}
+
 		// Don't try to parse contact form fields if not inside a contact form
 		if ( ! Contact_Form_Plugin::$using_contact_form_field ) {
 			$type = isset( $attributes['type'] ) ? $attributes['type'] : null;
@@ -889,10 +934,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$shortcode_type = 'contact-field-option';
 			}
 
-			$html = '[' . $shortcode_type . ' ' . implode( ' ', $att_strs );
+			$html            = '[' . $shortcode_type . ' ' . implode( ' ', $att_strs );
+			$trimmed_content = isset( $content ) ? trim( $content ) : '';
 
-			if ( isset( $content ) && ! empty( $content ) ) { // If there is content, let's add a closing tag
-				$html .= ']' . esc_html( $content ) . '[/contact-field]';
+			if ( ! empty( $trimmed_content ) ) { // If there is content, let's add a closing tag
+				$html .= ']' . esc_html( $trimmed_content ) . '[/contact-field]';
 			} else { // Otherwise let's add a closing slash in the first tag
 				$html .= '/]';
 			}
@@ -1259,7 +1305,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				continue;
 			}
 
-			$label = $i . '_' . $field->get_attribute( 'label' );
+			$label = $i . '_' . wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			if ( $field->get_attribute( 'type' ) === 'file' ) {
 				$field->value = $this->process_file_upload_field( $field_id, $field );
 			}
@@ -1280,7 +1326,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				continue;
 			}
 
-			$label = $i . '_' . $field->get_attribute( 'label' );
+			$label = $i . '_' . wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$value = $field->value;
 			if ( ! ( $field->get_attribute( 'type' ) === 'file' ) ) {
 				if ( is_array( $value ) ) {
@@ -1864,6 +1910,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$template = '';
 		$style    = '';
 
+		// The hash is just used to anonymize the admin email and have a unique identifier for the event.
+		// The secret key used could have been a random string, but it's better to use the version number to make it easier to track.
+		$event = new Jetpack_Tracks_Event(
+			(object) array(
+				'_en' => 'jetpack_forms_email_open',
+				'_ui' => hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION ),
+				'_ut' => 'anon',
+			)
+		);
+
+		$tracking_pixel = '<img src="' . $event->build_pixel_url() . '" alt="" width="1" height="1" />';
+
 		/**
 		 * Filter the filename of the template HTML surrounding the response email. The PHP file will return the template in a variable called $template.
 		 *
@@ -1887,7 +1945,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'',
 			'',
 			$footer,
-			$style
+			$style,
+			$tracking_pixel
 		);
 
 		return $html_message;
@@ -2034,5 +2093,82 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return ''; // kses the empty string
 		}
 		return wp_kses( (string) $raw_label, array() );
+	}
+
+	/**
+	 * Enforce required block supports UIs for Classic themes.
+	 *
+	 * @param \WP_Theme_JSON_Data $theme_json_data Theme JSON data object.
+	 *
+	 * @return \WP_Theme_JSON_Data Updated theme JSON settings.
+	 */
+	public static function add_theme_json_data_for_classic_themes( $theme_json_data ) {
+		if ( wp_is_block_theme() ) {
+			return $theme_json_data;
+		}
+
+		$data = $theme_json_data->get_data();
+
+		if ( ! isset( $data['settings']['blocks'] ) ) {
+			$data['settings']['blocks'] = array();
+		}
+
+		$data['settings']['blocks']['jetpack/input'] = array(
+			'color'      => array(
+				'text'       => true,
+				'background' => false,
+			),
+			'border'     => array(
+				'color'  => true,
+				'radius' => true,
+				'style'  => true,
+				'width'  => true,
+			),
+			'typography' => array(
+				'fontFamily'     => true,
+				'fontSize'       => true,
+				'fontStyle'      => true,
+				'fontWeight'     => true,
+				'letterSpacing'  => true,
+				'lineHeight'     => true,
+				'textDecoration' => true,
+				'textTransform'  => true,
+			),
+		);
+
+		$data['settings']['blocks']['jetpack/options'] = array(
+			'color'  => array(
+				'text'       => true,
+				'background' => true,
+			),
+			'border' => array(
+				'color'  => true,
+				'radius' => true,
+				'style'  => true,
+				'width'  => true,
+			),
+		);
+
+		$shared_settings                              = array(
+			'color'      => array(
+				'text'       => true,
+				'background' => false,
+			),
+			'typography' => array(
+				'fontFamily'     => true,
+				'fontSize'       => true,
+				'fontStyle'      => true,
+				'fontWeight'     => true,
+				'letterSpacing'  => true,
+				'lineHeight'     => true,
+				'textDecoration' => true,
+				'textTransform'  => true,
+			),
+		);
+		$data['settings']['blocks']['jetpack/label']  = $shared_settings;
+		$data['settings']['blocks']['jetpack/option'] = $shared_settings;
+
+		$theme_json_class = get_class( $theme_json_data );
+		return new $theme_json_class( $data, 'default' );
 	}
 }

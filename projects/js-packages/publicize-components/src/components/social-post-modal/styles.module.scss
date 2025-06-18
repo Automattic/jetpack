@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .panel {
 	margin-block: 1rem;
@@ -10,12 +10,12 @@
 
 .modal {
 
-	@include break-small {
+	@include gb.break-small {
 		width: calc(100vw - 40px);
 	}
 
-	@include break-large {
-		width: calc(#{$break-large} - 40px);
+	@include gb.break-large {
+		width: calc(#{gb.$break-large} - 40px);
 		max-height: calc(100% - 120px);
 	}
 
@@ -27,7 +27,7 @@
 .modal-content {
 	display: flex;
 
-	@media (max-width: $break-medium ) {
+	@media (max-width: gb.$break-medium ) {
 		flex-direction: column;
 	}
 }
@@ -47,7 +47,7 @@
 	border-bottom: 1px solid var(--studio-gray-5);
 
 
-	@include break-medium {
+	@include gb.break-medium {
 		border-inline-end: 1px solid var(--studio-gray-5);
 	}
 
@@ -61,7 +61,7 @@
 
 .settings-section {
 
-	@include break-medium {
+	@include gb.break-medium {
 		flex: 1
 	}
 }
@@ -71,7 +71,7 @@
 	flex-direction: column;
 	padding: 1rem 2rem;
 
-	@include break-medium {
+	@include gb.break-medium {
 		border-inline-end: 1px solid var(--studio-gray-5);
 	}
 }
@@ -80,7 +80,7 @@
 	flex: 1;
 	background: var(--jp-gray-0); // closest to #F0F2F5;
 
-	@include break-medium {
+	@include gb.break-medium {
 		flex: 2;
 	}
 

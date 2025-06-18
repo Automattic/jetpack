@@ -37,7 +37,11 @@ const wpPkgFetches = {};
 async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` and hope any breaking changes will not really break.
-	if ( pkg.name === '@automattic/social-previews' ) {
+	if (
+		pkg.name === '@automattic/social-previews' ||
+		pkg.name === '@automattic/components' ||
+		pkg.name === '@automattic/launchpad'
+	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
 				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
@@ -71,12 +75,6 @@ async function fixDeps( pkg ) {
 		! pkg.peerDependencies?.react
 	) {
 		pkg.peerDependencies.react = '^18';
-	}
-
-	// Unused deprecated dependency.
-	// https://github.com/WordPress/gutenberg/issues/69254
-	if ( pkg.name === '@wordpress/upload-media' ) {
-		delete pkg.dependencies?.[ '@shopify/web-worker' ];
 	}
 
 	// We need to add the missing deps for `@wordpress/dataviews` because
@@ -174,15 +172,16 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency.
-	// No upstream bug link yet.
-	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
-		pkg.dependencies.cssnano = '^5.0.1 || ^6';
+	// https://github.com/istanbuljs/babel-plugin-istanbul/issues/300
+	// https://github.com/jestjs/jest/issues/15236
+	if ( pkg.name === 'babel-plugin-istanbul' && pkg.dependencies[ 'test-exclude' ] === '^6.0.0' ) {
+		pkg.dependencies[ 'test-exclude' ] = '^7.0.0';
 	}
 
-	// Outdated dependency. And it doesn't really use it in our configuration anyway.
-	// Looks like it's updated in master but has had no release since.
-	if ( pkg.name === 'rollup-plugin-svelte-svg' && pkg.dependencies.svgo === '^2.3.1' ) {
-		pkg.dependencies.svgo = '*';
+	// Outdated dependency.
+	// No upstream bug link yet, upstream seems unmaintained anyway.
+	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
+		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
 	}
 
 	// Missing dep or peer dep on @babel/runtime
@@ -196,7 +195,6 @@ async function fixDeps( pkg ) {
 	}
 
 	// Apparently this package tried to switch from a dep to a peer dep, but screwed it up.
-	// The screwed-up-ness makes pnpm 8.15.2 behave differently from earlier versions.
 	// https://github.com/ajv-validator/ajv-formats/issues/80
 	if ( pkg.name === 'ajv-formats' && pkg.dependencies?.ajv && pkg.peerDependencies?.ajv ) {
 		delete pkg.dependencies.ajv;
@@ -212,6 +210,7 @@ async function fixDeps( pkg ) {
 	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,
 	// which pnpm should 🤞 dedupe to match whatever is in use elsewhere in the monorepo.
 	// https://github.com/Automattic/jetpack/pull/35904#discussion_r1508681777
+	// Currently @types/wordpress__block-editor is the only one still in use; see also https://github.com/WordPress/gutenberg/issues/67691
 	if ( pkg.name.startsWith( '@types/wordpress__' ) && pkg.dependencies ) {
 		for ( const k of Object.keys( pkg.dependencies ) ) {
 			if ( k.startsWith( '@wordpress/' ) ) {
@@ -237,11 +236,35 @@ async function fixDeps( pkg ) {
 
 	// Dependency on "latest" makes for many spurious updates. Leave it for the lockfile maintenance PRs.
 	// No upstream evident to report bugs to.
+	if ( pkg.name === '@paulirish/trace_engine' ) {
+		for ( const k of Object.keys( pkg.dependencies ) ) {
+			if ( pkg.dependencies[ k ] === 'latest' ) {
+				pkg.dependencies[ k ] = '*';
+			}
+		}
+	}
+
+	// Hack-update Jest to v30 for ts-jest and @storybook/test-runner. Not sure if they'd 100% work, but they seem to work for us in CI.
+	// https://github.com/storybookjs/test-runner/issues/567
+	if ( pkg.name === '@storybook/test-runner' && pkg.dependencies.jest === '^29.6.4' ) {
+		pkg.dependencies.jest = '^30.0.0';
+		pkg.dependencies[ 'jest-circus' ] = '^30.0.0';
+		pkg.dependencies[ 'jest-environment-node' ] = '^30.0.0';
+		pkg.dependencies[ 'jest-runner' ] = '^30.0.0';
+	}
 	if (
-		pkg.name === '@paulirish/trace_engine' &&
-		pkg.dependencies?.[ 'third-party-web' ] === 'latest'
+		pkg.name === 'jest-watch-typeahead' &&
+		pkg.peerDependencies.jest === '^27.0.0 || ^28.0.0 || ^29.0.0'
 	) {
-		pkg.dependencies[ 'third-party-web' ] = '*';
+		pkg.peerDependencies.jest += ' || ^30.0.0';
+		pkg.dependencies[ 'jest-regex-util' ] = '^30.0.0';
+		pkg.dependencies[ 'jest-watcher' ] = '^30.0.0';
+	}
+	if ( pkg.name === 'jest-playwright-preset' && pkg.peerDependencies.jest === '^29.3.1' ) {
+		pkg.peerDependencies.jest += ' || ^30.0.0';
+		pkg.peerDependencies[ 'jest-circus' ] += ' || ^30.0.0';
+		pkg.peerDependencies[ 'jest-environment-node' ] += ' || ^30.0.0';
+		pkg.peerDependencies[ 'jest-runner' ] += ' || ^30.0.0';
 	}
 
 	return pkg;
@@ -280,6 +303,12 @@ function fixPeerDeps( pkg ) {
 				pkg.peerDependencies[ p ] += ' || ^18';
 			}
 		}
+	}
+
+	// Remove jQuery peer dependency, given it's already bundled in WordPress.
+	// The next version of FullCalendar (v4) removes the dependency altogether.
+	if ( pkg.name === 'fullcalendar' && pkg.peerDependencies?.jquery ) {
+		delete pkg.peerDependencies.jquery;
 	}
 
 	// It assumes hoisting to find its plugins. Sigh. Add peer deps for the plugins we use.
@@ -328,6 +357,14 @@ function afterAllResolved( lockfile ) {
 		if ( k.startsWith( '@wordpress/scripts@' ) ) {
 			throw new Error(
 				"Please don't bring in `@wordpress/scripts`. It brings in different versions of a lot of dependencies, and we generally have our own way to do the things that it tries to do.\nFor example, instead of `wp-scripts build`, run `webpack` directly with a config based on our monorepo-internal `@automattic/jetpack-webpack-config` package."
+			);
+		}
+
+		// Encourage `sass-embedded` over `sass`. Supposed to be faster, and it would be easy for `sass` to leak in.
+		if ( k.startsWith( 'sass@' ) || k.startsWith( 'node-sass@' ) ) {
+			throw new Error(
+				// prettier-ignore
+				`Please use \`sass-embedded\` rather than \`${ k.replace( /@.*/, '' ) }\`. We've standardized on the former.`
 			);
 		}
 

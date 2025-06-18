@@ -1,7 +1,7 @@
+import { wpcomTrackEvent } from 'wpcom-tracks-module';
+
 /**
- * JavaScript for the Pages-Homepage connection banner.
- * Creates and inserts a banner in the Pages admin screen to connect users
- * to homepage editing options when the homepage is controlled by theme settings.
+ * JavaScript for the Pages-Homepage connection banner event tracking.
  *
  * @param {object} $ - The jQuery object
  */
@@ -9,64 +9,20 @@
 /* global jQuery */
 ( function ( $ ) {
 	/**
-	 * Create the connection banner element programmatically.
-	 *
-	 * @return {HTMLElement} The created banner element.
-	 */
-	function createBannerElement() {
-		// Get localized data
-		const data = window.wpcomPagesHomepageConnectionBanner || {};
-
-		// Create main container with card class
-		const container = document.createElement( 'div' );
-		container.className = 'wpcom-homepage-notice card';
-
-		// Create content wrapper
-		const content = document.createElement( 'div' );
-		content.className = 'wpcom-homepage-notice-content';
-
-		// Create info section
-		const info = document.createElement( 'div' );
-		info.className = 'wpcom-homepage-notice-info';
-
-		// Create text paragraph
-		const text = document.createElement( 'p' );
-		text.className = 'wpcom-homepage-notice-text';
-		text.textContent = data.text;
-		info.appendChild( text );
-
-		// Add the info section to content
-		content.appendChild( info );
-
-		// Add edit link if user has permission
-		if ( data.canEdit ) {
-			const actions = document.createElement( 'div' );
-			actions.className = 'wpcom-homepage-notice-actions';
-
-			const link = document.createElement( 'a' );
-			link.className = 'wpcom-homepage-notice-edit-link';
-			link.href = data.editLink;
-			link.textContent = data.editText;
-
-			actions.appendChild( link );
-			content.appendChild( actions );
-		}
-
-		// Add the content to the container
-		container.appendChild( content );
-
-		return container;
-	}
-
-	/**
-	 * Insert the banner at the correct position in the page.
+	 * Track whether the "Edit Homepage" button in the banner is shown/clicked.
 	 */
 	$( document ).ready( function () {
-		const banner = createBannerElement();
-		const $tablenav = $( '.tablenav.top' );
+		const banner = document.getElementById( 'edit-homepage-banner' );
 
-		if ( $tablenav.length ) {
-			$tablenav.before( banner );
+		if ( ! banner ) {
+			return;
 		}
+
+		wpcomTrackEvent( 'wpcom_pages_edit_homepage_banner_shown' );
+
+		const bannerBtn = banner.querySelector( 'a.button-primary' );
+		bannerBtn?.addEventListener( 'click', function () {
+			wpcomTrackEvent( 'wpcom_pages_edit_homepage_banner_clicked' );
+		} );
 	} );
 } )( jQuery );

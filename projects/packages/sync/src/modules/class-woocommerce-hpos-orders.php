@@ -189,7 +189,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	}
 
 	/**
-	 * Retrieves multiple orders data by their ID.
+	 * Retrieves multiple orders data by their ID. Sorted by ID in descending order.
 	 *
 	 * @access public
 	 *
@@ -209,6 +209,8 @@ class WooCommerce_HPOS_Orders extends Module {
 				'type'        => self::get_order_types_to_sync( true ),
 				'post_status' => self::get_all_possible_order_status_keys(),
 				'limit'       => -1,
+				'orderby'     => 'ID',
+				'order'       => 'DESC',
 			)
 		);
 

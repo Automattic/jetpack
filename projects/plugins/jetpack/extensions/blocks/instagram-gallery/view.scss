@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .wp-block-jetpack-instagram-gallery__grid {
 	align-content: stretch;
@@ -27,7 +27,7 @@
 	}
 }
 
-@media ( max-width: $break-small ) {
+@media ( max-width: gb.$break-small ) {
 
 	.wp-block-jetpack-instagram-gallery__grid.is-stacked-on-mobile
 		.wp-block-jetpack-instagram-gallery__grid-post {
@@ -42,7 +42,7 @@
 		grid-gap: 10px;
 		grid-auto-columns: 1fr;
 
-		@media ( max-width: $break-small ) {
+		@media ( max-width: gb.$break-small ) {
 
 			&.is-stacked-on-mobile {
 				display: block;

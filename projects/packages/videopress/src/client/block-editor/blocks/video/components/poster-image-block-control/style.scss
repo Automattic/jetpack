@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 // Hack to hide when the media modal is open
 // Otherwise in Firefox the popover remains visible on top of the modal
@@ -8,11 +8,11 @@
 }
 
 .current-media {
-	border-top: $border-width solid $gray-900;
-	margin-top: $grid-unit-10;
-	margin-right: -$grid-unit-10;
-	margin-left: -$grid-unit-10;
-	padding: $grid-unit-20 $grid-unit-20 0;
+	border-top: gb.$border-width solid gb.$gray-900;
+	margin-top: gb.$grid-unit-10;
+	margin-right: -( gb.$grid-unit-10 );
+	margin-left: -( gb.$grid-unit-10 );
+	padding: gb.$grid-unit-20 gb.$grid-unit-20 0;
 }
 
 .poster-image-block-control__wrapper .poster-panel-control__help{
@@ -20,7 +20,7 @@
 }
 
 .poster-image-block-control__remove-button.poster-image-block-control__remove-button {
-	padding-left: $grid-unit-15;
-	padding-right: $grid-unit-15;
+	padding-left: gb.$grid-unit-15;
+	padding-right: gb.$grid-unit-15;
 }
 

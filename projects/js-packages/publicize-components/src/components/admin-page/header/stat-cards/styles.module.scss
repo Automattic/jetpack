@@ -1,11 +1,10 @@
 .cards {
 	display: flex;
+	justify-content: space-evenly;
 
 	> * + * {
 		margin-left: calc( var( --spacing-base ) * 3 );
 	}
-
-	justify-content: space-evenly;
 
 	@media ( min-width: 600px ) {
 		justify-content: flex-end;

@@ -5,7 +5,8 @@ import GoogleSheetsIcon from '../../../../icons/google-sheets';
 import IntegrationCard from './integration-card';
 
 const FORM_RESPONSES_URL =
-	window?.jpFormsBlocks?.defaults?.formsResponsesUrl || '/wp-admin/admin.php?page=jetpack-forms';
+	window?.jpFormsBlocks?.defaults?.formsResponsesUrl ||
+	'/wp-admin/admin.php?page=jetpack-forms-admin';
 
 const GoogleSheetsCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 	const [ isPolling, setIsPolling ] = useState( false );
@@ -81,7 +82,7 @@ const GoogleSheetsCard = ( { isExpanded, onToggle, data, refreshStatus } ) => {
 				</div>
 			) : (
 				<div>
-					<p>
+					<p className="integration-card__description">
 						{ __(
 							'Google Sheets is connected. You can export your form responses from the form responses page.',
 							'jetpack-forms'

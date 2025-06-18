@@ -1,4 +1,4 @@
-@import '../../../scss/mixin_breakpoint';
+@use '../../../scss/mixin_breakpoint';
 
 .jp-recommendations-one-click-restores {
 
@@ -22,7 +22,7 @@
 	grid-template-columns: minmax(0, 130px) minmax(0, 150px);
 	grid-gap: 1rem;
 
-	@include breakpoint( '660px-1040px' ) {
+	@include mixin_breakpoint.breakpoint( '660px-1040px' ) {
 		grid-template-columns: 1fr;
 	}
 

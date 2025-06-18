@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 /**
  * Editor styles for OpenTable
@@ -109,6 +109,7 @@
 		}
 
 		a {
+			padding: 0.25em 1em 0.25em 0;
 
 			@media screen and ( min-width: 480px ) {
 
@@ -116,7 +117,6 @@
 					height: 50px;
 				}
 			}
-			padding: 0.25em 1em 0.25em 0;
 
 			&:last-child {
 				padding-right: 0;
@@ -136,7 +136,7 @@
 	}
 
 	.editor-styles-wrapper & .components-form-token-field__suggestions-list {
-		font-family: $default-font;
+		font-family: gb.$default-font;
 		text-align: left;
 		padding: 0;
 		margin: 0;

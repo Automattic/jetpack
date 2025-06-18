@@ -14,7 +14,7 @@ import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-uti
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React, { useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 /**
  * Internal dependencies
  */

@@ -1,7 +1,7 @@
-@import '../../scss/calypso-colors';
+@use '../../scss/calypso-colors';
 
 .jp-my-plan-banner__card {
-	background-color: $white;
+	background-color: calypso-colors.$white;
 	background-position: 100%;
 	background-size: 50% 100%;
 	background-repeat: no-repeat;

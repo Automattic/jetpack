@@ -1,14 +1,31 @@
-import { scaleOrdinal } from '@visx/scale';
+import { LegendOrdinal } from '@visx/legend';
+import type { GlyphProps } from '@visx/xychart';
+import type { ComponentProps, CSSProperties, ReactNode, RefObject } from 'react';
 
-export type LegendItem = {
+// See https://airbnb.io/visx/docs/legend#Ordinal for more details.
+type LegendOrdinalProps = Omit< ComponentProps< typeof LegendOrdinal >, 'scale' | 'direction' >;
+
+export type BaseLegendItem = {
 	label: string;
 	value: number | string;
 	color: string;
+	glyphSize?: number;
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
+	shapeStyle?: CSSProperties;
 };
 
-export type LegendProps = {
-	items: LegendItem[];
-	className?: string;
+export type LegendItemWithGlyph = BaseLegendItem & {
+	renderGlyph: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
+	glyphSize: number;
+};
+
+export type LegendItemWithoutGlyph = BaseLegendItem & {
+	renderGlyph?: never;
+	glyphSize?: number;
+};
+
+export type LegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
+	items: LegendItemWithGlyph[] | LegendItemWithoutGlyph[];
 	orientation?: 'horizontal' | 'vertical';
-	scale?: ReturnType< typeof scaleOrdinal >;
+	ref?: RefObject< HTMLDivElement >;
 };

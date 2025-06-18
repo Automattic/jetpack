@@ -8,7 +8,7 @@ Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Free daily malware scanning and WordPress site security. Jetpack Protect leverages the extensive database of WPScan, an Automattic brand, that has over 25,000 registered malware and vulnerabilities. No configuration required!
+Free daily vulnerability scans & WordPress security, powered by WPScan (an Automattic brand) and its 60,000+ vulnerability database. No setup needed!
 
 == Description ==
 
@@ -53,9 +53,9 @@ To clean up your site, we suggest using a malware removal tool, or if possible r
 Jetpack Protect blocks unwanted login attempts from malicious botnets and distributed attacks.
 
 = Is my site under attack? =
-Brute force attacks are the most common form of hacking — and hackers don’t discriminate. As the most commonly used Content Management System on the web, WordPress sites make an attractive target for hackers looking to exploit code vulnerabilities unique to WordPress. 
+Brute force attacks are the most common form of hacking — and hackers don’t discriminate. As the most commonly used Content Management System on the web, WordPress sites make an attractive target for hackers looking to exploit code vulnerabilities unique to WordPress.
 
-Using large networks of computers known as botnets, hackers can try to gain access to your site by using thousands of different combinations of usernames and passwords until they find the right one. 
+Using large networks of computers known as botnets, hackers can try to gain access to your site by using thousands of different combinations of usernames and passwords until they find the right one.
 
 Recently, attackers have found a way to “amplify” these attacks against the WordPress XML-RPC file – making it easier for attackers to try and break into your site.
 
@@ -118,7 +118,7 @@ We are working hard to bring more features and improvements to Jetpack Protect. 
 
 = How does Jetpack Protect help your WordPress Site security? =
 
-Protect is a free WordPress security and malware scanner plugin that scans your site and lets you know possible malware and security threats on your installed plugins, themes, and core files.
+Protect is a free WordPress security scanner plugin that scans your site and lets you know possible vulnerability and other security threats on your installed plugins, themes, and core files.
 
 The free plan scans your site for WordPress version, plugin, and theme vulnerabilities from our extensive vulnerability database (53,500) that is powered by WPScan.
 
@@ -178,16 +178,27 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 4. The Jetpack Firewall is a web application firewall (known as WAF) designed to protect your WordPress site from malicious requests.
 
 == Changelog ==
-### 4.0.0 - 2025-03-24
+### 4.1.0 - 2025-06-05
+#### Added
+- Scanner: Add functionality to correctly display database threats in the Protect UI.
+- Account Protection: Add the Account Protection module toggle.
+- My Jetpack: Add user tour.
+- My Jetpack: Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
 
 #### Changed
-- Scanner: Add threat count to tab.
-- Scanner: Animated the "scan in progress" placeholder image.
-- General: Indicate compatibility with WordPress 6.7.
+- Connection: Allow pre-selected login providers.
+- General: Indicate compatibility with WordPress 6.8.
+- My Jetpack: Optimize the images for onboarding slider for faster page load.
+- My Jetpack: Updated the onboarding UI, changing it to a single button.
 - General: Update package dependencies.
 
 #### Removed
-- Firewall: Remove "new" badge from tab.
-- General: Update minimum PHP version to 7.2.
-- General: Update minimum WordPress version to 6.6.
+- General: Update minimum WordPress version to 6.7.
+
+#### Fixed
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
+- My Jetpack: Fix Onboarding UI responsiveness at 600px.
+- My Jetpack: Fix readability of license activation button on hover.
+- My Jetpack: Prevent social login from getting stuck when email input is not empty.
+- Readme: Clarify language in the plugin readme regarding malware and vulnerability scanning.
 

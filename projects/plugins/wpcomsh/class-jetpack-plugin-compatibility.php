@@ -204,7 +204,13 @@ class Jetpack_Plugin_Compatibility {
 		add_filter(
 			'jetpack_my_jetpack_should_initialize',
 			function () {
+				$has_override = has_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+				remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
 				$should_init = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+				if ( $has_override ) {
+					add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+				}
+
 				if ( ! $should_init && class_exists( '\Automattic\Jetpack\My_Jetpack\Initializer' ) ) {
 					// My Jetpack REST API endpoints are used for more than just My Jetpack UI.
 					add_action( 'rest_api_init', array( '\Automattic\Jetpack\My_Jetpack\Initializer', 'register_rest_endpoints' ) ); // @phan-suppress-current-line PhanUndeclaredClassInCallable

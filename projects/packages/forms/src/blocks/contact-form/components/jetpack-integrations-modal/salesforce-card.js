@@ -1,4 +1,4 @@
-import { TextControl, BaseControl, ExternalLink } from '@wordpress/components';
+import { TextControl, BaseControl, ExternalLink, Icon } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import SalesforceIcon from '../../../../icons/salesforce';
@@ -54,6 +54,12 @@ const SalesforceCard = ( {
 		toggleDisabledTooltip: ! isValidSalesforceOrgId( salesforceData.organizationId )
 			? __( 'Enter a Salesforce Organization ID to enable.', 'jetpack-forms' )
 			: undefined,
+		setupBadge: (
+			<span className="integration-card__setup-badge">
+				<Icon icon="info-outline" size={ 12 } />
+				{ __( 'Enter organization ID', 'jetpack-forms' ) }
+			</span>
+		),
 	};
 
 	return (
@@ -67,7 +73,7 @@ const SalesforceCard = ( {
 		>
 			<BaseControl __nextHasNoMarginBottom={ true }>
 				{ ! isValidSalesforceOrgId( salesforceData.organizationId ) && (
-					<p style={ { marginBottom: '20px' } }>
+					<p className="integration-card__description" style={ { marginBottom: '20px' } }>
 						{ __(
 							'Enter the Salesforce organization ID where you want to send leads.',
 							'jetpack-forms'
@@ -101,6 +107,48 @@ const SalesforceCard = ( {
 						{ __( 'Where to find your Salesforce Organization ID', 'jetpack-forms' ) }
 					</ExternalLink>
 				</p>
+
+				{ /* Salesforce integration documentation section */ }
+				<div style={ { marginTop: '20px', marginBottom: '20px' } }>
+					<strong>
+						{ __(
+							'For integration with Salesforce to work, you must add specific fields with specific field IDs that match Salesforce.',
+							'jetpack-forms'
+						) }
+					</strong>
+					<p>
+						{ __(
+							"Note: to add an ID to any field, select the field block, click Advanced on the block sidebar settings, and add the ID to the 'Name/ID' field. If you do not see Name/ID, be sure you've selected the whole field block, not just the label or input.",
+							'jetpack-forms'
+						) }
+					</p>
+					<p>
+						{ __(
+							'Here are suggested and supported fields. You can see a complete list in your Salesforce account by creating a Marketing > Web-to-Lead form.',
+							'jetpack-forms'
+						) }
+					</p>
+					<ul>
+						<li>
+							{ __( 'First Name (ID must be', 'jetpack-forms' ) } <code>first_name</code>)
+						</li>
+						<li>
+							{ __( 'Last Name (ID must be', 'jetpack-forms' ) } <code>last_name</code>)
+						</li>
+						<li>
+							{ __( 'Email (ID must be', 'jetpack-forms' ) } <code>email</code>)
+						</li>
+						<li>
+							{ __( 'Phone (ID must be', 'jetpack-forms' ) } <code>phone</code>)
+						</li>
+						<li>
+							{ __( 'Company (ID must be', 'jetpack-forms' ) } <code>company</code>)
+						</li>
+						<li>
+							{ __( 'Job Title (ID must be', 'jetpack-forms' ) } <code>title</code>)
+						</li>
+					</ul>
+				</div>
 			</BaseControl>
 		</IntegrationCard>
 	);

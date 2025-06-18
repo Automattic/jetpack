@@ -1,11 +1,10 @@
 .dropdown {
+	margin-bottom: 32px;
 
 	/* Hide on wide screens */
 	@media ( min-width: 783px ) {
 		display: none;
 	}
-
-	margin-bottom: 32px;
 
 	:global(.dashicons) {
 		float: right;

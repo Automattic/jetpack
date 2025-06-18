@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Block_Delimiter;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
 /**
@@ -421,6 +422,7 @@ class Jetpack_PostImages {
 	 * Get images from Gutenberg Image blocks.
 	 *
 	 * @since 6.9.0
+	 * @since 14.8 Updated to use Block_Delimiter for improved performance.
 	 *
 	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
 	 * @param int   $width      Minimum Image width.
@@ -435,32 +437,36 @@ class Jetpack_PostImages {
 			return $images;
 		}
 
-		// Look for block information in the HTML.
-		$blocks = parse_blocks( $html_info['html'] );
-		if ( empty( $blocks ) ) {
-			return $images;
-		}
-
 		/*
-		 * Let's loop through our blocks.
-		 * Some blocks may include some other blocks. Let's go 2 levels deep to look for blocks
-		 * that we support and that may include images (see get_images_from_block)
-		 *
-		 * @to-do: instead of looping manually (that's a lot of if and loops), search recursively instead.
+		 * Use Block_Delimiter to parse our post content HTML,
+		 * and find all the block delimiters for supported blocks,
+		 * whether they're parent or nested blocks.
 		 */
-		foreach ( $blocks as $block ) {
-			if ( ! self::is_nested_block( $block ) || 'core/media-text' === $block['blockName'] ) {
-				$images = self::get_images_from_block( $images, $block, $html_info, $width, $height );
-			} else {
-				foreach ( $block['innerBlocks'] as $inner_block ) {
-					if ( ! self::is_nested_block( $inner_block ) ) {
-						$images = self::get_images_from_block( $images, $inner_block, $html_info, $width, $height );
-					} else {
-						foreach ( $inner_block['innerBlocks'] as $inner_inner_block ) {
-							$images = self::get_images_from_block( $images, $inner_inner_block, $html_info, $width, $height );
-						}
-					}
-				}
+		$supported_blocks = array(
+			'core/image',
+			'core/media-text',
+			'core/gallery',
+			'jetpack/tiled-gallery',
+			'jetpack/slideshow',
+			'jetpack/story',
+		);
+
+		foreach ( Block_Delimiter::scan_delimiters( $html_info['html'] ) as $where => $delimiter ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			// Only process opening delimiters for supported block types.
+			if ( Block_Delimiter::OPENER !== $delimiter->get_delimiter_type() ) {
+				continue;
+			}
+
+			$block_type = $delimiter->allocate_and_return_block_type();
+			if ( ! in_array( $block_type, $supported_blocks, true ) ) {
+				continue;
+			}
+
+			$attributes   = $delimiter->allocate_and_return_parsed_attributes() ?? array();
+			$block_images = self::get_images_from_block_attributes( $block_type, $attributes, $html_info, $width, $height );
+
+			if ( ! empty( $block_images ) ) {
+				$images = array_merge( $images, $block_images );
 			}
 		}
 
@@ -469,6 +475,64 @@ class Jetpack_PostImages {
 		 * for unsuccessful attempts.
 		 */
 		return array_filter( $images );
+	}
+
+	/**
+	 * Extract images from block attributes based on block type.
+	 *
+	 * @since 14.8
+	 *
+	 * @param string $block_type Block type name.
+	 * @param array  $attributes Block attributes.
+	 * @param array  $html_info  Info about the post where the block is found.
+	 * @param int    $width      Desired image width.
+	 * @param int    $height     Desired image height.
+	 *
+	 * @return array Array of images found.
+	 */
+	private static function get_images_from_block_attributes( $block_type, $attributes, $html_info, $width, $height ) {
+		$images = array();
+
+		switch ( $block_type ) {
+			case 'core/image':
+			case 'core/media-text':
+				$id_key = 'core/image' === $block_type ? 'id' : 'mediaId';
+				if ( ! empty( $attributes[ $id_key ] ) ) {
+					$image = self::get_attachment_data( $attributes[ $id_key ], $html_info['post_url'], $width, $height );
+					if ( false !== $image ) {
+						$images[] = $image;
+					}
+				}
+				break;
+
+			case 'core/gallery':
+			case 'jetpack/tiled-gallery':
+			case 'jetpack/slideshow':
+				if ( ! empty( $attributes['ids'] ) && is_array( $attributes['ids'] ) ) {
+					foreach ( $attributes['ids'] as $img_id ) {
+						$image = self::get_attachment_data( $img_id, $html_info['post_url'], $width, $height );
+						if ( false !== $image ) {
+							$images[] = $image;
+						}
+					}
+				}
+				break;
+
+			case 'jetpack/story':
+				if ( ! empty( $attributes['mediaFiles'] ) && is_array( $attributes['mediaFiles'] ) ) {
+					foreach ( $attributes['mediaFiles'] as $media_file ) {
+						if ( ! empty( $media_file['id'] ) ) {
+							$image = self::get_attachment_data( $media_file['id'], $html_info['post_url'], $width, $height );
+							if ( false !== $image ) {
+								$images[] = $image;
+							}
+						}
+					}
+				}
+				break;
+		}
+
+		return $images;
 	}
 
 	/**
@@ -1026,81 +1090,6 @@ class Jetpack_PostImages {
 	 */
 	public static function get_alt_text( $attachment_id ) {
 		return (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
-	}
-
-	/**
-	 * Get an image from a block.
-	 *
-	 * @since 7.8.0
-	 *
-	 * @param array $images    Images found.
-	 * @param array $block     Block and its attributes.
-	 * @param array $html_info Info about the post where the block is found.
-	 * @param int   $width     Desired image width.
-	 * @param int   $height    Desired image height.
-	 *
-	 * @return array Array of images found.
-	 */
-	private static function get_images_from_block( $images, $block, $html_info, $width, $height ) {
-		/**
-		 * Parse content from Core Image blocks.
-		 * If it is an image block for an image hosted on our site, it will have an ID.
-		 * If it does not have an ID, let `from_html` parse that content later,
-		 * and extract an image if it has size parameters.
-		 */
-		if (
-			'core/image' === $block['blockName']
-			&& ! empty( $block['attrs']['id'] )
-		) {
-			$images[] = self::get_attachment_data( $block['attrs']['id'], $html_info['post_url'], $width, $height );
-		} elseif (
-			'core/media-text' === $block['blockName']
-			&& ! empty( $block['attrs']['mediaId'] )
-		) {
-			$images[] = self::get_attachment_data( $block['attrs']['mediaId'], $html_info['post_url'], $width, $height );
-		} elseif (
-			/**
-			 * Parse content from Core Gallery blocks as well from Jetpack's Tiled Gallery and Slideshow blocks.
-			 * Gallery blocks include the ID of each one of the images in the gallery.
-			 */
-			in_array( $block['blockName'], array( 'core/gallery', 'jetpack/tiled-gallery', 'jetpack/slideshow' ), true )
-			&& ! empty( $block['attrs']['ids'] )
-		) {
-			foreach ( $block['attrs']['ids'] as $img_id ) {
-				$images[] = self::get_attachment_data( $img_id, $html_info['post_url'], $width, $height );
-			}
-		} elseif (
-			/**
-			 * Parse content from Jetpack's Story block.
-			 */
-			'jetpack/story' === $block['blockName']
-			&& ! empty( $block['attrs']['mediaFiles'] )
-		) {
-			foreach ( $block['attrs']['mediaFiles'] as $media_file ) {
-				if ( ! empty( $media_file['id'] ) ) {
-					$images[] = self::get_attachment_data( $media_file['id'], $html_info['post_url'], $width, $height );
-				}
-			}
-		}
-
-		return $images;
-	}
-
-	/**
-	 * Check if a block has inner blocks.
-	 *
-	 * @since 7.8.0
-	 *
-	 * @param array $block Block and its attributes.
-	 *
-	 * @return bool
-	 */
-	private static function is_nested_block( $block ) {
-		if ( ! empty( $block['innerBlocks'] ) ) {
-			return true;
-		}
-
-		return false;
 	}
 
 	/**

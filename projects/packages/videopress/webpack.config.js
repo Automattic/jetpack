@@ -74,7 +74,7 @@ module.exports = [
 								postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
 							},
 						},
-						'sass-loader',
+						{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
 					],
 				} ),
 

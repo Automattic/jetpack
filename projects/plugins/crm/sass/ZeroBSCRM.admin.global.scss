@@ -10,62 +10,61 @@
 // Mike's also made a clone of the following in \master\sass\ZeroBSCRM.admin.invoicepreview.scss
 // ... which could be updated if / when needs to be, (to largely match this... won't need all)
 
-// Import Color Studio
-@use '@automattic/color-studio/dist/color-variables' as *;
+@use 'sass:meta';
 
 // block wp notifications:]
-@import 'wp-hide-admin-notices';
+@include meta.load-css( 'wp-hide-admin-notices' );
 
 // Import generic edit page styles (old legacy of wh from taxibooker! :o to rewrite)
-@import 'ZeroBSCRM.genericeditpages';
+@include meta.load-css( 'ZeroBSCRM.genericeditpages' );
 
 // Import "core" styles
-@import 'ZeroBSCRM.prevadmincore';
+@include meta.load-css( 'ZeroBSCRM.prevadmincore' );
 
 // Daterangepicker styles
-@import 'daterangepicker/daterangepicker';
+@include meta.load-css( 'daterangepicker/daterangepicker' );
 
 // Daterangepicker fix
-@import 'daterangepicker.fix';
+@include meta.load-css( 'daterangepicker.fix' );
 
 // menu mods
-@import 'ZeroBSCRM.adminmenu';
+@include meta.load-css( 'ZeroBSCRM.adminmenu' );
 
 // customer filters gui
-@import 'ZeroBSCRM.customerfilters';
+@include meta.load-css( 'ZeroBSCRM.customerfilters' );
 
 // Import form styles - DO THESE need to be global?
-@import 'ZeroBSCRM.forms';
+@include meta.load-css( 'ZeroBSCRM.forms' );
 
 // Import "Log" styles
-@import 'ZeroBSCRM.logs';
+@include meta.load-css( 'ZeroBSCRM.logs' );
 
 // Import "Typeahead" styles
-@import 'ZeroBSCRM.typeahead';
+@include meta.load-css( 'ZeroBSCRM.typeahead' );
 
 // Import "Spinner" styles
-@import 'ZeroBSCRM.spinners';
+@include meta.load-css( 'ZeroBSCRM.spinners' );
 
 // Import ZBSmetabox styles
-@import 'ZeroBSCRM.metaboxes';
+@include meta.load-css( 'ZeroBSCRM.metaboxes' );
 
 // Import "Admin Pages" styles
-@import 'ZeroBSCRM.adminpages';
+@include meta.load-css( 'ZeroBSCRM.adminpages' );
 
 // Import "Hide WP Features" styles
-@import 'ZeroBSCRM.hidewpfeatures';
+@include meta.load-css( 'ZeroBSCRM.hidewpfeatures' );
 
 // Import "animation" styles
-@import 'ZeroBSCRM.animations';
+@include meta.load-css( 'ZeroBSCRM.animations' );
 
 // Import "mobile" styles
-@import 'ZeroBSCRM.mobile';
+@include meta.load-css( 'ZeroBSCRM.mobile' );
 
 // Import "nag" module
-@import 'ZeroBSCRM.nag';
+@include meta.load-css( 'ZeroBSCRM.nag' );
 
 // Import "learn menu" styles
-@import 'JetpackCRM.admin.learnmenu';
+@include meta.load-css( 'JetpackCRM.admin.learnmenu' );
 
 // Import Jetpack Style overrides
-@import 'JetpackCRM.admin.overrides';
+@include meta.load-css( 'JetpackCRM.admin.overrides' );

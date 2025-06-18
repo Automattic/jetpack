@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: remove the ability to upload multiple file at using the same file upload field. This field is not yet released. 

@@ -1,5 +1,5 @@
 // Variables
-@import '@automattic/color-studio/dist/color-variables';
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 .jp-search-bar-chart__container {
 	max-height: 40px;
@@ -45,7 +45,7 @@ ul.jp-search-chart-legend {
 }
 
 .jp-search-record-meter {
-	border-bottom: $studio-gray-5 1px solid;
+	border-bottom: studio.$studio-gray-5 1px solid;
 	padding: 64px 0;
 }
 

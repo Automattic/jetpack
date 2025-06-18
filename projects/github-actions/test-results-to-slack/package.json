@@ -16,12 +16,12 @@
 		"@actions/core": "1.11.1",
 		"@actions/github": "6.0.1",
 		"@slack/web-api": "7.9.1",
-		"glob": "11.0.0",
+		"glob": "11.0.2",
 		"minimatch": "5.1.0"
 	},
 	"devDependencies": {
 		"@vercel/ncc": "0.36.1",
-		"jest": "29.7.0",
+		"jest": "30.0.0",
 		"undici": "5.29.0"
 	},
 	"scripts": {

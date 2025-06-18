@@ -1,3 +1,5 @@
+@use "../../scss/mixins/breakpoints";
+@use "../../scss/variables/colors";
 @use '../../scss/functions/rem';
 
 .jp-dialogue-modern-full__container {
@@ -8,12 +10,12 @@
 	bottom: 0;
 	left: 0;
 	z-index: 1000; // to sit over other elements
-	background: rgba($gray-light, .95);
+	background: rgba(colors.$gray-light, .95);
 	padding: 1rem 0 0 0;
 	height: 100%;
 	overflow: auto;
 
-	@include breakpoint( ">960px" ) {
+	@include breakpoints.breakpoint( ">960px" ) {
 		padding: 2rem;
 		left: 160px;
 	}

@@ -24,7 +24,7 @@ module.exports = ( path, options ) => {
 	const opts = {
 		...options,
 		basedir,
-		conditions,
+		conditions: conditions ? [ ...conditions ] : conditions,
 	};
 
 	return resolver( path, opts );

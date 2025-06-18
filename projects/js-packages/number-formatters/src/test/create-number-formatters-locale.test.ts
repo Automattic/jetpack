@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const mockDateSettings = {
 	l10n: {
@@ -36,19 +36,10 @@ const { default: createNumberFormatters } = await import( '../create-number-form
 
 describe( 'createNumberFormatters() - locale resolution/fallback', () => {
 	const numberFormatters = createNumberFormatters();
-	const originalNavigator = global.window?.navigator;
 
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockGetSettings.mockReturnValue( mockDateSettings );
-	} );
-
-	afterEach( () => {
-		// Restore original window.navigator
-		Object.defineProperty( global, 'window', {
-			value: originalNavigator,
-			writable: true,
-		} );
 	} );
 
 	it( 'should use locale from WordPress user settings when available', () => {
@@ -66,19 +57,22 @@ describe( 'createNumberFormatters() - locale resolution/fallback', () => {
 			l10n: { ...mockDateSettings.l10n, locale: '' },
 		} );
 
-		// Mock window.navigator.language to return de-DE
-		Object.defineProperty( global, 'window', {
-			value: {
-				navigator: {
-					language: 'de-DE',
-				},
-			},
-			writable: true,
-		} );
+		// In jsdom v26, the property for 'language' exists on the prototype of `global.window.navigator`.
+		const nav = Object.getPrototypeOf( global.window.navigator );
+		const originalLanguageDescriptor = Object.getOwnPropertyDescriptor( nav, 'language' );
+		try {
+			Object.defineProperty( nav, 'language', {
+				...originalLanguageDescriptor,
+				get: () => 'de-DE',
+			} );
+			expect( global.window.navigator.language ).toBe( 'de-DE' ); // Check that it worked.
 
-		const result = numberFormatters.formatNumber( 1234567 );
+			const result = numberFormatters.formatNumber( 1234567 );
 
-		expect( result ).toBe( '1.234.567' );
+			expect( result ).toBe( '1.234.567' );
+		} finally {
+			Object.defineProperty( nav, 'language', originalLanguageDescriptor );
+		}
 	} );
 
 	it( 'should fall back to `FALLBACK_LOCALE` ("en") when no locale is available', () => {
@@ -88,14 +82,17 @@ describe( 'createNumberFormatters() - locale resolution/fallback', () => {
 			l10n: { ...mockDateSettings.l10n, locale: '' },
 		} );
 
-		// Remove window.navigator to test fallback to 'en'
-		Object.defineProperty( global, 'window', {
-			value: undefined,
-			writable: true,
-		} );
+		const originalNavigator = global.window.navigator;
+		try {
+			// Remove window.navigator to test fallback to 'en'
+			delete global.window.navigator;
+			expect( global.window.navigator ).toBeUndefined(); // Check that it worked.
 
-		const result = numberFormatters.formatNumber( 1234567 );
+			const result = numberFormatters.formatNumber( 1234567 );
 
-		expect( result ).toBe( '1,234,567' );
+			expect( result ).toBe( '1,234,567' );
+		} finally {
+			global.window.navigator = originalNavigator;
+		}
 	} );
 } );

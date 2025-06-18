@@ -23,9 +23,10 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 		// ===========================================
 		// ================  Global  =================
 
-			//registers the styles on admin init
-			wp_register_style( 'zbs-wp-semanticui', plugins_url( '/css/ZeroBSCRM.admin.semantic-ui' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
-			wp_register_script( 'semanticuijs', plugins_url( '/js/lib/semantic.min.js', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			// registers the styles on admin init
+			wp_register_style( 'jpcrm-semanticui-lib', plugins_url( '/build/lib/semantic-ui-css/semantic.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_register_style( 'zbs-wp-semanticui', plugins_url( '/css/ZeroBSCRM.admin.semantic-ui' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array( 'jpcrm-semanticui-lib' ), $zbs::VERSION );
+			wp_register_script( 'semanticuijs', plugins_url( '/build/lib/semantic-ui-css/semantic.min.js', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 			// global
 			wp_register_style( 'zerobscrmadmcss', plugins_url( '/css/ZeroBSCRM.admin.global' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array( 'zbs-wp-semanticui' ), $zbs::VERSION );
@@ -98,7 +99,7 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 			wp_register_script( 'jpcrm-jquery-modal', plugins_url( '/build/lib/jquery-modal/jquery.modal.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
 
 			// font awesome
-			wp_register_style( 'jpcrm-fontawesome', plugins_url( '/vendor/fortawesome/font-awesome/css/font-awesome' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+			wp_register_style( 'jpcrm-fontawesome', plugins_url( '/build/lib/font-awesome/css/font-awesome.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 			// chart.js
 			wp_register_script( 'zerobscrmchartjs', plugins_url( '/build/lib/chart.js/chart.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
@@ -391,7 +392,6 @@ function zeroBSCRM_email_styles() {
 }
 function zeroBSCRM_admin_styles_ui2_listview(){
 
-	// semantic 2.2.11 (EVENTUALLY these PROBS shouldn't be global)
 	wp_enqueue_style( 'zerobscrmlistview' );
 	wp_enqueue_script( 'semanticuijs' );
 	// Removed at request of plugin reviewers. (used wp core ver) wp_enqueue_script( 'zerobscrmadmjqui');
@@ -411,7 +411,6 @@ function zeroBSCRM_admin_styles_ui2_editview(){
 
 			// Removed at request of plugin reviewers. (used wp core ver) wp_enqueue_script( 'zerobscrmadmjqui');
 			wp_enqueue_script( 'jquery-ui-sortable' );
-			// semantic 2.2.11 (EVENTUALLY these PROBS shouldn't be global)
 			wp_enqueue_style( 'zerobscrmeditview' );
 			wp_enqueue_script( 'semanticuijs' );
 			wp_enqueue_script( 'zerobscrmeditviewjs' );
@@ -473,13 +472,11 @@ function zeroBSCRM_settingspage_admin_styles(){
 	}
 }
 
-/* WH adding in for old ext compatibility e.g. inv pro was still producing error for lack of func */
+/* Placeholder function for Invoicing Pro <= 2.8.3. */
 function zeroBSCRM_admin_styles_ui2_semantic(){}
 
 function zeroBSCRM_admin_styles_ui2_semantic_settingspage(){
-			// These now get rolled into zeroBSCRM_global_admin_styles wp_enqueue_style( 'zbs-wp-semanticui' );
 			wp_enqueue_style( 'zerobscrmmaildeliverywizard' );
-			// These now get rolled into zeroBSCRM_global_admin_styles wp_enqueue_script( 'semanticuijs');
 			wp_enqueue_style( 'zerobscrmsettings' );
 }
 
@@ -529,27 +526,27 @@ function zeroBSCRM_calendar_admin_styles(){
 
 	wp_register_style( 'jpcrm-tasks-css', ZEROBSCRM_URL . 'css/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 
-	wp_register_script( 'zerobscrm-calendar-js', ZEROBSCRM_URL . 'js/lib/fullcalendar.mod' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment' ), $zbs::VERSION, false );
-	wp_register_style( 'zerobscrm-calendar', ZEROBSCRM_URL . 'css/lib/fullcalendar.min.css', array(), $zbs::VERSION );
-	wp_register_script( 'jpcrm-tasks-js', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment', 'zerobscrm-calendar-js' ), $zbs::VERSION, false );
+	wp_register_script( 'jpcrm-calendar-js', ZEROBSCRM_URL . 'build/lib/fullcalendar/fullcalendar.js', array( 'jquery', 'jpcrm-moment' ), $zbs::VERSION, false );
+	wp_register_style( 'jpcrm-calendar', ZEROBSCRM_URL . 'build/lib/fullcalendar/fullcalendar.min.css', array(), $zbs::VERSION );
+	wp_register_script( 'jpcrm-tasks-js', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment', 'jpcrm-calendar-js' ), $zbs::VERSION, true );
 
 	// LOCALE Specific
 	$language_tag       = zeroBSCRM_getLocale();
 	$language_tag_short = zeroBSCRM_getLocale( false );
 	if ( file_exists( ZEROBSCRM_PATH . '/js/lib/calendar-locale/' . $language_tag . '.js' ) ) {
 		// e.g. en-gb
-		wp_enqueue_script( 'zerobscrm-calendar-js-locale', ZEROBSCRM_URL . 'js/lib/calendar-locale/' . $language_tag . '.js', array( 'zerobscrm-calendar-js' ), $zbs::VERSION );
+		wp_enqueue_script( 'jpcrm-calendar-js-locale', ZEROBSCRM_URL . 'build/lib/fullcalendar/locale/' . $language_tag . '.js', array( 'jpcrm-calendar-js' ), $zbs::VERSION );
 	} elseif ( file_exists( ZEROBSCRM_PATH . '/js/lib/calendar-locale/' . $language_tag_short . '.js' ) ) {
 
 			// e.g. en
-			wp_enqueue_script( 'zerobscrm-calendar-js-locale', ZEROBSCRM_URL . 'js/lib/calendar-locale/' . $language_tag_short . '.js', array( 'zerobscrm-calendar-js' ), $zbs::VERSION );
+			wp_enqueue_script( 'jpcrm-calendar-js-locale', ZEROBSCRM_URL . 'build/lib/fullcalendar/locale/' . $language_tag_short . '.js', array( 'zerobscrm-calendar-js' ), $zbs::VERSION );
 	}
 
-	wp_enqueue_style( 'zerobscrm-calendar' );
+	wp_enqueue_style( 'jpcrm-calendar' );
 	wp_enqueue_style( 'jpcrm-tasks-css' );
 
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
-	wp_enqueue_script( 'zerobscrm-calendar-js' );
+	wp_enqueue_script( 'jpcrm-calendar-js' );
 	wp_enqueue_script( 'jpcrm-tasks-js' );
 }
 

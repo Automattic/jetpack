@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .media-player-control__current-time {
 	display: flex;
@@ -8,7 +8,7 @@
 	font-size: 14px;
 
 	&.is-disabled {
-		color: $gray-700;
+		color: gb.$gray-700;
 		cursor: default;
     }
 }

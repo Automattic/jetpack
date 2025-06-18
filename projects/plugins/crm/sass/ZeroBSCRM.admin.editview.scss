@@ -7,7 +7,7 @@
 	@charset "UTF-8";
 	
 	// main
-	@import 'ZeroBSCRM.editview';
+	@use 'ZeroBSCRM.editview';
 
 	// sub: Contact
-	@import 'ZeroBSCRM.editcontact';
+	@use 'ZeroBSCRM.editcontact' as ZeroBSCRM2;

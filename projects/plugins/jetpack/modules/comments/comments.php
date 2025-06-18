@@ -637,7 +637,7 @@ HTML;
 		$post_array = stripslashes_deep( $_POST );
 
 		// Bail if missing the Jetpack token.
-		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) ) {
+		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) || ! is_string( $post_array['sig'] ) ) {
 			unset( $_POST['hc_post_as'] );
 			return;
 		}
@@ -649,7 +649,7 @@ HTML;
 			wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
 
-		if ( str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
+		if ( is_string( $post_array['hc_avatar'] ) && str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
 			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'], ENT_COMPAT );
 		}
 

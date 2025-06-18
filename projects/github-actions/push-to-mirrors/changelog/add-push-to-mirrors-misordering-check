@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+When updating an existing mirror branch, check that the commit we're mirroring is not an ancestor of the commit already there. This avoids accidental reverts if Actions runs are misordered.

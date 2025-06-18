@@ -1,3 +1,5 @@
+@use "../../scss/mixins/breakpoints";
+
 .jp-footer {
 	--jp-white: #fff;
 
@@ -29,7 +31,7 @@
 		line-height: 1.333;
 		width: 100%;
 
-		@include breakpoint( '<960px' ) {
+		@include breakpoints.breakpoint( '<960px' ) {
 			flex-direction: column;
 			align-items: flex-start;
 		}
@@ -50,12 +52,12 @@
 	.jp-footer__logo {
 		margin-right: 32px;
 
-		@include breakpoint( '<960px' ) {
+		@include breakpoints.breakpoint( '<960px' ) {
 			margin-right: 0;
 			margin-bottom: 24px;
 		}
 
-		@include breakpoint( '<660px' ) {
+		@include breakpoints.breakpoint( '<660px' ) {
 			margin-bottom: 48px;
 		}
 	}
@@ -74,11 +76,11 @@
 	.jp-footer__menu {
 		display: flex;
 
-		@include breakpoint( '<960px' ) {
+		@include breakpoints.breakpoint( '<960px' ) {
 			margin-bottom: 24px;
 		}
 
-		@include breakpoint( '<660px' ) {
+		@include breakpoints.breakpoint( '<660px' ) {
 			flex-direction: column;
 			align-items: flex-start;
 			margin-bottom: 48px;
@@ -137,7 +139,7 @@
 .jp-footer__a8c-logo {
 	margin-left: auto;
 
-	@include breakpoint( '<960px' ) {
+	@include breakpoints.breakpoint( '<960px' ) {
 		margin-left: 0;
 	}
 }

@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 $grid-size: 8px;
 
@@ -60,7 +60,7 @@ $grid-size: 8px;
 	justify-content: flex-start;
 
 	@media only screen and ( min-width: 600px ) {
-		border-left: 1px solid $gray-400;
+		border-left: 1px solid gb.$gray-400;
 		margin-left: $grid-size * 2;
 		padding-left: $grid-size * 2;
 	}
@@ -86,7 +86,7 @@ $grid-size: 8px;
 			}
 
 			.components-input-control__backdrop {
-				border-color: $gray-200;
+				border-color: gb.$gray-200;
 				border-radius: 3px;
 			}
 

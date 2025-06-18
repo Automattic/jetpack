@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
 .star-icon {
 	fill: #000;
@@ -10,7 +10,7 @@
 }
 
 .socialIcon {
-	fill: $gray-700;
+	fill: gb.$gray-700;
 
 	&.bluesky {
 		fill: var( --color-bluesky );

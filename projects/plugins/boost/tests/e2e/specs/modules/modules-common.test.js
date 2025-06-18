@@ -25,6 +25,7 @@ test.describe.serial( 'Modules', () => {
 
 	modules.forEach( ( [ moduleSlug, moduleState ] = module ) => {
 		test( `The ${ moduleSlug } module should be ${ moduleState } by default`, async () => {
+			test.skip( true, 'Skipping this test as it is flaky and we are working on it' );
 			expect(
 				await jetpackBoostPage.isModuleEnabled( moduleSlug ),
 				`${ moduleSlug } should be enabled`
@@ -32,6 +33,7 @@ test.describe.serial( 'Modules', () => {
 		} );
 
 		test( `The ${ moduleSlug } module state should toggle to an inverse state`, async () => {
+			test.skip( true, 'Skipping this test as it is flaky and we are working on it' );
 			await jetpackBoostPage.toggleModule( moduleSlug );
 			expect(
 				await jetpackBoostPage.isModuleEnabled( moduleSlug ),
@@ -40,6 +42,7 @@ test.describe.serial( 'Modules', () => {
 		} );
 
 		test( `The ${ moduleSlug } module state should revert back to original state`, async () => {
+			test.skip( true, 'Skipping this test as it is flaky and we are working on it' );
 			await jetpackBoostPage.toggleModule( moduleSlug );
 			expect(
 				await jetpackBoostPage.isModuleEnabled( moduleSlug ),

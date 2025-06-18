@@ -9,7 +9,7 @@
  */
 
 // Import generic edit page styles (old legacy of wh from taxibooker! :o to rewrite)
-@import 'ZeroBSCRM.timelines';
+@use 'ZeroBSCRM.timelines';
 
 // hide these, they look bad/inaccessible on this page:
 #wpwrap .update-nag {display:none !important;}

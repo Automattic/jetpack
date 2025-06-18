@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.52.2] - 2025-06-16
+### Changed
+- Update dependencies. [#42919]
+
+## [0.52.1] - 2025-06-10
+### Changed
+- Update dependencies. [#42919]
+
+## [0.52.0] - 2025-06-09
+### Fixed
+- Address `body_class` filter fatal in older versions of the Blaskan theme. [#43797]
+- Tests: Ensure method param count matches PHPUnit data providers. [#43815] [#43828]
+
+## [0.51.0] - 2025-06-05
+### Changed
+- Update package dependencies. [#43734] [#43747]
+
+### Removed
+- Classic Themes: Replace the Core Search widget instead of adding a new widget to the main sidebar. [#43450]
+
+## [0.50.2] - 2025-06-02
+### Changed
+- Update package dependencies. [#43710]
+
+### Fixed
+- Protect against improper calls to `the_title()` filter. [#43511]
+
+## [0.50.1] - 2025-05-26
+### Changed
+- Update package dependencies. [#43516] [#43578]
+
 ## [0.50.0] - 2025-05-19
 ### Added
 - Add highlighting of search term in returned search results. [#43110]
@@ -1229,6 +1260,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.52.2]: https://github.com/Automattic/jetpack-search/compare/v0.52.1...v0.52.2
+[0.52.1]: https://github.com/Automattic/jetpack-search/compare/v0.52.0...v0.52.1
+[0.52.0]: https://github.com/Automattic/jetpack-search/compare/v0.51.0...v0.52.0
+[0.51.0]: https://github.com/Automattic/jetpack-search/compare/v0.50.2...v0.51.0
+[0.50.2]: https://github.com/Automattic/jetpack-search/compare/v0.50.1...v0.50.2
+[0.50.1]: https://github.com/Automattic/jetpack-search/compare/v0.50.0...v0.50.1
 [0.50.0]: https://github.com/Automattic/jetpack-search/compare/v0.49.0...v0.50.0
 [0.49.0]: https://github.com/Automattic/jetpack-search/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/Automattic/jetpack-search/compare/v0.47.24...v0.48.0

@@ -153,9 +153,9 @@ class Scan_Status extends Status {
 		$installed_plugins = Plugins_Installer::get_plugins();
 		$installed_themes  = Sync_Functions::get_themes();
 
-		$plugins = array();
-		$themes  = array();
-		$core    = new Extension_Model(
+		$plugins  = array();
+		$themes   = array();
+		$core     = new Extension_Model(
 			array(
 				'name'    => 'WordPress',
 				'slug'    => 'wordpress',
@@ -164,7 +164,8 @@ class Scan_Status extends Status {
 				'checked' => true, // to do: default to false once Scan API has manifest
 			)
 		);
-		$files   = array();
+		$files    = array();
+		$database = array();
 
 		$status = new Status_Model(
 			array(
@@ -180,10 +181,8 @@ class Scan_Status extends Status {
 
 		// Format the "last checked" timestamp.
 		if ( ! empty( $scan_data->most_recent->timestamp ) ) {
-			$date = new \DateTime( $scan_data->most_recent->timestamp );
-			if ( $date ) {
-				$status->last_checked = $date->format( 'Y-m-d H:i:s' );
-			}
+			$date                 = new \DateTime( $scan_data->most_recent->timestamp );
+			$status->last_checked = $date->format( 'Y-m-d H:i:s' );
 		}
 
 		// Ensure all installed plugins and themes are represented in the status.
@@ -223,24 +222,38 @@ class Scan_Status extends Status {
 					$status->fixable_threat_ids[] = $scan_threat->id;
 				}
 
+				$db_details = null;
+				if ( ! empty( $scan_threat->table ) ) {
+					$db_details = (object) array_merge(
+						array(
+							'table'     => $scan_threat->table,
+							'pk_column' => $scan_threat->pk_column ?? null,
+							'pk_value'  => $scan_threat->value ?? null,
+						),
+						! empty( $scan_threat->details ) ? array( 'details' => $scan_threat->details ) : array()
+					);
+				}
+
 				$threat = new Threat_Model(
 					array(
-						'id'                        => isset( $scan_threat->id ) ? $scan_threat->id : null,
-						'signature'                 => isset( $scan_threat->signature ) ? $scan_threat->signature : null,
-						'title'                     => isset( $scan_threat->title ) ? $scan_threat->title : null,
-						'description'               => isset( $scan_threat->description ) ? $scan_threat->description : null,
-						'vulnerability_description' => isset( $scan_threat->vulnerability_description ) ? $scan_threat->vulnerability_description : null,
-						'fix_description'           => isset( $scan_threat->fix_description ) ? $scan_threat->fix_description : null,
-						'payload_subtitle'          => isset( $scan_threat->payload_subtitle ) ? $scan_threat->payload_subtitle : null,
-						'payload_description'       => isset( $scan_threat->payload_description ) ? $scan_threat->payload_description : null,
-						'first_detected'            => isset( $scan_threat->first_detected ) ? $scan_threat->first_detected : null,
+						'id'                        => $scan_threat->id ?? null,
+						'signature'                 => $scan_threat->signature ?? null,
+						'title'                     => $scan_threat->title ?? null,
+						'description'               => $scan_threat->description ?? null,
+						'vulnerability_description' => $scan_threat->vulnerability_description ?? null,
+						'fix_description'           => $scan_threat->fix_description ?? null,
+						'payload_subtitle'          => $scan_threat->payload_subtitle ?? null,
+						'payload_description'       => $scan_threat->payload_description ?? null,
+						'first_detected'            => $scan_threat->first_detected ?? null,
 						'fixed_in'                  => isset( $scan_threat->fixer->fixer ) && 'update' === $scan_threat->fixer->fixer ? $scan_threat->fixer->target : null,
-						'severity'                  => isset( $scan_threat->severity ) ? $scan_threat->severity : null,
-						'fixable'                   => isset( $scan_threat->fixer ) ? $scan_threat->fixer : null,
-						'status'                    => isset( $scan_threat->status ) ? $scan_threat->status : null,
-						'filename'                  => isset( $scan_threat->filename ) ? $scan_threat->filename : null,
-						'context'                   => isset( $scan_threat->context ) ? $scan_threat->context : null,
-						'source'                    => isset( $scan_threat->source ) ? $scan_threat->source : null,
+						'severity'                  => $scan_threat->severity ?? null,
+						'fixable'                   => $scan_threat->fixer ?? null,
+						'status'                    => $scan_threat->status ?? null,
+						'filename'                  => $scan_threat->filename ?? null,
+						'context'                   => $scan_threat->context ?? null,
+						'source'                    => $scan_threat->source ?? null,
+						'table'                     => $scan_threat->table ?? null,
+						'details'                   => $db_details,
 					)
 				);
 
@@ -290,6 +303,9 @@ class Scan_Status extends Status {
 				} elseif ( ! empty( $threat->filename ) ) {
 					// File Threats
 					$files[] = $threat;
+				} elseif ( ! empty( $scan_threat->table ) ) {
+					// Database Threats
+					$database[] = $threat;
 				}
 
 				$status->threats[] = $threat;
@@ -300,10 +316,11 @@ class Scan_Status extends Status {
 		$status->threats = static::sort_threats( $status->threats );
 
 		// maintain deprecated properties for backwards compatibility
-		$status->plugins = array_values( $plugins );
-		$status->themes  = array_values( $themes );
-		$status->core    = $core;
-		$status->files   = $files;
+		$status->plugins  = array_values( $plugins );
+		$status->themes   = array_values( $themes );
+		$status->core     = $core;
+		$status->files    = $files;
+		$status->database = $database;
 
 		return $status;
 	}

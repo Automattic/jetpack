@@ -14,7 +14,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '0.54.0';
+	const PACKAGE_VERSION = '1.3.0';
 
 	/**
 	 * Load the contact form module.
@@ -22,7 +22,7 @@ class Jetpack_Forms {
 	public static function load_contact_form() {
 		Util::init();
 
-		if ( is_admin() && self::is_feedback_dashboard_enabled() ) {
+		if ( self::is_feedback_dashboard_enabled() ) {
 			$dashboard = new Dashboard();
 			$dashboard->init();
 		}
@@ -35,6 +35,9 @@ class Jetpack_Forms {
 
 		// Add hook to delete file attachments when a feedback post is deleted
 		add_action( 'before_delete_post', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'delete_feedback_files' ) );
+
+		// Enforces the availability of block support controls in the UI for classic themes.
+		add_filter( 'wp_theme_json_data_default', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_theme_json_data_for_classic_themes' ) );
 	}
 
 	/**

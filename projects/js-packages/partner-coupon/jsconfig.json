@@ -3,5 +3,5 @@
 		"jsx": "react"
 	},
 	// List all sources and source-containing subdirs.
-	"include": [ "./hooks.js", "./index.jsx", "./components" ]
+	"include": [ "./hooks.js", "./index.jsx", "./components", "./utils" ]
 }
