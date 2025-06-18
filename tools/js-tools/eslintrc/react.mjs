@@ -4,8 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fixupConfigRules } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
-import { defineConfig } from 'eslint/config';
 import eslintConfigPrettier from 'eslint-config-prettier';
+import { defineConfig, javascriptFiles } from './base.mjs';
 
 /**
  * Generate the base eslint config.
@@ -22,9 +22,13 @@ export default function makeReactConfig( configurl ) {
 	} );
 
 	return defineConfig(
-		fixupConfigRules( compat.extends( 'plugin:@wordpress/react' ) ),
+		{
+			files: javascriptFiles,
+			extends: [ fixupConfigRules( compat.extends( 'plugin:@wordpress/react' ) ) ],
+		},
 		{
 			name: 'Prettier react rule disables',
+			files: javascriptFiles,
 			rules: Object.fromEntries(
 				Object.entries( eslintConfigPrettier.rules ).filter(
 					( [ k, v ] ) => k.startsWith( 'react' ) && ( v === 0 || v === 'off' )
@@ -33,6 +37,7 @@ export default function makeReactConfig( configurl ) {
 		},
 		{
 			name: 'Monorepo react config',
+			files: javascriptFiles,
 			settings: {
 				react: {
 					version: 'detect', // React version. "detect" automatically picks the version you have installed.

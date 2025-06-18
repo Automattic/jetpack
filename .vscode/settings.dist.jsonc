@@ -56,8 +56,5 @@
 		"editor.formatOnSave": false,
 		"editor.defaultFormatter": "stylelint.vscode-stylelint"
 	},
-	"stylelint.validate": [
-		"css",
-		"scss"
-	]
+	"stylelint.validate": [ "css", "scss" ]
 }
