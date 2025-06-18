@@ -244,6 +244,29 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Hack-update Jest to v30 for ts-jest and @storybook/test-runner. Not sure if they'd 100% work, but they seem to work for us in CI.
+	// https://github.com/storybookjs/test-runner/issues/567
+	if ( pkg.name === '@storybook/test-runner' && pkg.dependencies.jest === '^29.6.4' ) {
+		pkg.dependencies.jest = '^30.0.0';
+		pkg.dependencies[ 'jest-circus' ] = '^30.0.0';
+		pkg.dependencies[ 'jest-environment-node' ] = '^30.0.0';
+		pkg.dependencies[ 'jest-runner' ] = '^30.0.0';
+	}
+	if (
+		pkg.name === 'jest-watch-typeahead' &&
+		pkg.peerDependencies.jest === '^27.0.0 || ^28.0.0 || ^29.0.0'
+	) {
+		pkg.peerDependencies.jest += ' || ^30.0.0';
+		pkg.dependencies[ 'jest-regex-util' ] = '^30.0.0';
+		pkg.dependencies[ 'jest-watcher' ] = '^30.0.0';
+	}
+	if ( pkg.name === 'jest-playwright-preset' && pkg.peerDependencies.jest === '^29.3.1' ) {
+		pkg.peerDependencies.jest += ' || ^30.0.0';
+		pkg.peerDependencies[ 'jest-circus' ] += ' || ^30.0.0';
+		pkg.peerDependencies[ 'jest-environment-node' ] += ' || ^30.0.0';
+		pkg.peerDependencies[ 'jest-runner' ] += ' || ^30.0.0';
+	}
+
 	return pkg;
 }
 

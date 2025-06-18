@@ -1,7 +1,30 @@
+/**
+ * External dependencies
+ */
 import { Card } from '@wordpress/components';
+/**
+ * Internal dependencies
+ */
 import IntegrationCardBody from './integration-card-body';
 import IntegrationCardHeader from './integration-card-header';
 import './style.scss';
+/**
+ * Types
+ */
+import type { IntegrationCardData } from '../../../../../types';
+import type { ReactNode } from 'react';
+
+export type IntegrationCardProps = {
+	title: string;
+	description: string;
+	icon?: string | ReactNode;
+	isExpanded: boolean;
+	onToggle: () => void;
+	children?: ReactNode;
+	cardData?: IntegrationCardData;
+	toggleTooltip?: string;
+	borderBottom?: boolean;
+};
 
 const IntegrationCard = ( {
 	title,
@@ -13,7 +36,7 @@ const IntegrationCard = ( {
 	cardData = {},
 	toggleTooltip,
 	borderBottom = true,
-} ) => {
+}: IntegrationCardProps ) => {
 	return (
 		<Card
 			className="integration-card"

@@ -1,10 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import makeBaseConfig, { typescriptFiles } from 'jetpack-js-tools/eslintrc/base.mjs';
+import { makeBaseConfig, defineConfig, typescriptFiles } from 'jetpack-js-tools/eslintrc/base.mjs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-export default [
-	...makeBaseConfig( import.meta.url ),
+export default defineConfig(
+	makeBaseConfig( import.meta.url ),
 	{
 		files: typescriptFiles,
 		languageOptions: {
@@ -43,5 +43,5 @@ export default [
 				{ argsIgnorePattern: '^_', caughtErrors: 'none' },
 			],
 		},
-	},
-];
+	}
+);

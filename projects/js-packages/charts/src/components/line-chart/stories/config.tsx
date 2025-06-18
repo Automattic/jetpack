@@ -1,7 +1,40 @@
+import { GlyphDiamond, GlyphStar } from '@visx/glyph';
 import React from 'react';
+import { jetpackTheme, wooTheme, ThemeProvider } from '../../../providers/theme';
+import { DefaultGlyph } from '../../shared/default-glyph';
 import LineChart from '../line-chart';
 import sampleData from './sample-data';
 import type { Meta } from '@storybook/react';
+
+const customStorybookTheme = {
+	...jetpackTheme,
+	glyphs: [
+		props => React.createElement( DefaultGlyph, { ...props, key: props.key } ),
+		props =>
+			React.createElement( GlyphStar, {
+				key: props.key,
+				top: props.y,
+				left: props.x,
+				size: props.size * props.size,
+				fill: props.color,
+			} ),
+		props =>
+			React.createElement( GlyphDiamond, {
+				key: props.key,
+				top: props.y,
+				left: props.x,
+				size: props.size * props.size,
+				fill: props.color,
+			} ),
+	],
+};
+
+const THEME_MAP = {
+	default: undefined,
+	jetpack: jetpackTheme,
+	woo: wooTheme,
+	customStorybook: customStorybookTheme,
+};
 
 export const lineChartMetaArgs = {
 	title: 'JS Packages/Charts/Types/Line Chart',
@@ -10,23 +43,34 @@ export const lineChartMetaArgs = {
 		layout: 'centered',
 	},
 	decorators: [
-		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-					display: 'inline-block',
-				} }
-			>
-				<Story />
-			</div>
-		),
+		( Story, { args } ) => {
+			const theme = THEME_MAP[ args.themeName ];
+
+			return (
+				<ThemeProvider theme={ theme }>
+					<div
+						style={ {
+							resize: 'both',
+							overflow: 'auto',
+							padding: '2rem',
+							width: '800px',
+							maxWidth: '1200px',
+							border: '1px dashed #ccc',
+							display: 'inline-block',
+						} }
+					>
+						<Story />
+					</div>
+				</ThemeProvider>
+			);
+		},
 	],
 	argTypes: {
+		themeName: {
+			control: 'select',
+			options: [ 'default', 'jetpack', 'woo', 'customStorybook' ],
+			defaultValue: 'default',
+		},
 		maxWidth: {
 			control: {
 				type: 'number',

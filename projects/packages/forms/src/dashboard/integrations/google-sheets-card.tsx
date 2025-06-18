@@ -48,7 +48,6 @@ const GoogleSheetsDashboardCard = ( {
 		<IntegrationCard
 			title={ __( 'Google Sheets', 'jetpack-forms' ) }
 			description={ __( 'Export form responses to Google Sheets.', 'jetpack-forms' ) }
-			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <GoogleSheetsIcon className="google-sheets-icon" /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

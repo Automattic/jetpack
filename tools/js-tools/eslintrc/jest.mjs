@@ -1,9 +1,10 @@
+import { defineConfig } from 'eslint/config';
 import eslintPluginJest from 'eslint-plugin-jest';
 import eslintPluginJestDom from 'eslint-plugin-jest-dom';
 import eslintPluginTestingLibrary from 'eslint-plugin-testing-library';
 import globals from 'globals';
 
-export default [
+export default defineConfig(
 	eslintPluginJest.configs[ 'flat/recommended' ],
 	eslintPluginJest.configs[ 'flat/style' ],
 	eslintPluginJestDom.configs[ 'flat/recommended' ],
@@ -28,5 +29,5 @@ export default [
 			'testing-library/prefer-explicit-assert': 'error',
 			'testing-library/prefer-user-event': 'warn',
 		},
-	},
-];
+	}
+);

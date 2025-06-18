@@ -1,5 +1,6 @@
 import { RichText, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
@@ -104,6 +105,17 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 		style: variationProps?.cssVars,
 	} );
 
+	// Do not allow enter key to create a new line in the label if the form style is not default.
+	// Animated and Outlined styles have a notched label, so we don't want to allow new lines in the label.
+	const onKeyDown = useCallback(
+		event => {
+			if ( event.key === 'Enter' && FORM_STYLE.DEFAULT !== formStyle ) {
+				event.preventDefault();
+			}
+		},
+		[ formStyle ]
+	);
+
 	// The label value to use for the RichText field must manually fall back to the
 	// placeholder to be rendered in previews.
 	const isPreviewMode = useSelect( select => {
@@ -125,6 +137,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 					className="jetpack-field-label__input"
 					onChange={ value => setAttributes( { label: value } ) }
 					placeholder={ placeholderValue }
+					onKeyDown={ onKeyDown }
 					tagName="label"
 					value={ labelValue }
 					withoutInteractiveFormatting
