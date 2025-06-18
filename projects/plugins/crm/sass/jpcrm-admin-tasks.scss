@@ -169,7 +169,6 @@ img.jpcrm-avatar {
 
 #zbse_desc {
     font-size:14px;
-    padding:5px;
     padding: 0.5em;
 }
 
@@ -328,6 +327,15 @@ img.jpcrm-avatar {
 	.fc-button-primary:disabled {
 		background-color: var(--jp-gray);
 		border-color: var(--jp-gray);
+	}
+
+	// Handle toolbar wrapping on small screens
+	.fc-toolbar-chunk {
+		text-align: center;
+
+		> * {
+			margin-bottom: 8px;
+		}
 	}
 
 	.fc-daygrid-event-harness, .fc-timegrid-event-harness {
