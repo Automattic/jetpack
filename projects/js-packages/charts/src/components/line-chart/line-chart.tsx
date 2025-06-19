@@ -239,6 +239,7 @@ const LineChart: FC< LineChartProps > = ( {
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
+	const [ isNavigating, setIsNavigating ] = useState( false );
 
 	// Focus the tooltip as soon as it is rendered.
 	const tooltipRef = useCallback(
@@ -350,6 +351,22 @@ const LineChart: FC< LineChartProps > = ( {
 		};
 	}, [ renderTooltip, selectedIndex, tooltipRef ] );
 
+	const onChartFocus = useMemo(
+		() => () => {
+			if ( ! isNavigating && selectedIndex !== undefined ) {
+				setSelectedIndex( 0 );
+			}
+		},
+		[ isNavigating, selectedIndex ]
+	);
+
+	const onChartBlur = useMemo(
+		() => () => {
+			setIsNavigating( false );
+		},
+		[]
+	);
+
 	const onChartKeyDown = useMemo(
 		() => ( event: React.KeyboardEvent< HTMLDivElement > ) => {
 			const size = dataSorted[ 0 ]?.data.length || 0;
@@ -367,17 +384,21 @@ const LineChart: FC< LineChartProps > = ( {
 				chartRef.current?.focus();
 
 				setSelectedIndex( undefined );
+				setIsNavigating( false );
 				return;
 			}
 
 			event.preventDefault();
 
 			if ( [ 'ArrowRight' ].includes( event.key ) ) {
+				setIsNavigating( true );
 				setSelectedIndex( ( currentSelectedIndex + 1 ) % size );
 			} else if ( [ 'ArrowLeft' ].includes( event.key ) ) {
+				setIsNavigating( true );
 				setSelectedIndex( ( currentSelectedIndex - 1 + size ) % size );
 			} else if ( event.key === 'Escape' ) {
 				setSelectedIndex( undefined );
+				setIsNavigating( false );
 				chartRef.current?.focus();
 			}
 		},
@@ -401,6 +422,8 @@ const LineChart: FC< LineChartProps > = ( {
 			} }
 			tabIndex={ 0 }
 			onKeyDown={ onChartKeyDown }
+			onFocus={ onChartFocus }
+			onBlur={ onChartBlur }
 			ref={ chartRef }
 		>
 			<XYChart
