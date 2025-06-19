@@ -27,6 +27,7 @@ class Main {
 			return;
 		}
 
+		// @phan-suppress-next-line PhanNoopNew -- This adds actions/filters.
 		new Admin_Color_Schemes();
 
 		remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
@@ -42,6 +43,7 @@ class Main {
 		$host = new Host();
 
 		if ( $host->is_wpcom_platform() ) {
+			// @phan-suppress-next-line PhanNoopNew -- This adds actions/filters.
 			new Inline_Help();
 			require_once __DIR__ . '/wp-posts-list/bootstrap.php';
 			require_once __DIR__ . '/nudges/bootstrap.php';

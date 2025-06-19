@@ -54,6 +54,7 @@ class Admin_Color_Schemes_Test extends BaseTestCase {
 			)
 		);
 
+		// @phan-suppress-next-line PhanNoopNew -- This adds actions/filters.
 		new Admin_Color_Schemes();
 
 		do_action( 'rest_api_init' );
