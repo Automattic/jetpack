@@ -29,7 +29,7 @@ export interface Integration {
 /**
  * Props for integration cards in the Jetpack Forms dashboard and integrations modal.
  */
-export interface IntegrationCardProps {
+export interface SingleIntegrationCardProps {
 	/** Whether the card is expanded. */
 	isExpanded: boolean;
 	/** Function to toggle the card's expanded state. */
@@ -38,6 +38,7 @@ export interface IntegrationCardProps {
 	data?: Integration;
 	/** Function to refresh the integration status. */
 	refreshStatus: () => void;
+	borderBottom?: boolean;
 }
 
 /**

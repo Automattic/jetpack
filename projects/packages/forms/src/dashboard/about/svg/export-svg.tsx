@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { Defs, LinearGradient, Rect, SVG, SVGProps, Stop } from '@wordpress/primitives';
 
 const ExportSVG = ( props: SVGProps ) => {
