@@ -63,16 +63,8 @@ function wpcom_display_dashboard_updates_page() {
 	<div class="wrap">
 		<h1><?php esc_html_e( 'WordPress Updates', 'jetpack-mu-wpcom' ); ?></h1>
 		<p><?php esc_html_e( "WordPress.com automatically keeps your site's plugins, themes, and WordPress version up to date.", 'jetpack-mu-wpcom' ); ?></p>
-		<h2>
-			<?php
-				printf(
-					/* translators: Link to Jetpack installation instructions. */
-					esc_html__( 'WordPress version: %s', 'jetpack-mu-wpcom' ),
-					esc_html( wp_get_wp_version() )
-				);
-			?>
-		</h2>
-		<p><?php esc_html_e( 'Your WordPress version is up to date.', 'jetpack-mu-wpcom' ); ?></p>
+		<h2><?php esc_html_e( 'WordPress', 'jetpack-mu-wpcom' ); ?></h2>
+		<p><?php esc_html_e( 'Your version of WordPress is up to date.', 'jetpack-mu-wpcom' ); ?></p>
 		<h2><?php esc_html_e( 'Plugins', 'jetpack-mu-wpcom' ); ?></h2>
 		<p><?php esc_html_e( 'Your plugins are all up to date.', 'jetpack-mu-wpcom' ); ?>
 		<h2><?php esc_html_e( 'Themes', 'jetpack-mu-wpcom' ); ?></h2>
