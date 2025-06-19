@@ -3,7 +3,7 @@
  * https://jetpackcrm.com
  */
 
-// this is extended throughout 
+// this is extended throughout
 %zbs-tasks-field {
 
     line-height: 1;
@@ -60,58 +60,8 @@
 	}
 }
 
-.fc-header-toolbar h2{
-    font-size: 19px;
-    margin-top: 8px;
-    font-weight: 900;
-    text-transform: uppercase;
-    font-family: sans-serif;        
-}
-
-.fc-day-grid-event .fc-content {
-    height: 24px;
-    white-space: nowrap;
-    overflow: hidden;
-    background: #fff;
-    color: rgba(0,0,0,0.95);
-    padding: 2px;
-}
-
-.fc-title{
-    line-height:24px;
-}
-
-.fc-today{
-    background: #edf8ff !important;
-}
-
-.fc-content{
-    color: #000;
-}
-
-.fc-button{
-    background: #fff;
-}
-
-.zbs-avatar{
-    float:left;
-    margin-right:3px;
-}
-
-.zbs-avatar img{
-    border-radius:50%;
-}
-
-.fc-toolbar button:focus{
-    outline:none;
-}
-
-.fc-unthemed .fc-divider, .fc-unthemed .fc-list-heading td, .fc-unthemed .fc-popover .fc-header {
-background: #fff;
-}
-
-.fc-toolbar .fc-state-active, .fc-toolbar .ui-state-active{
-    z-index: 0 !important;
+img.jpcrm-avatar {
+	border-radius:50%;
 }
 
 #zbs-add-task-ui{
@@ -167,11 +117,6 @@ background: #fff;
 	}
 }
 
-.fc-event{
-    border: 0 solid;
-    background:transparent;
-}
-
 .zbs-show{
     border: 1px solid #ddd;
     background: #fff;
@@ -224,7 +169,6 @@ background: #fff;
 
 #zbse_desc {
     font-size:14px;
-    padding:5px;
     padding: 0.5em;
 }
 
@@ -290,20 +234,6 @@ background: #fff;
     margin-top: 9px !important;
 }
 
-// 3.0
-#jpcrm-task-edit .select2-container {
-    width: 211px;
-    position: absolute !important;
-    top: 11px;
-    left: 44px;
-    border: 0;
-}
-
-.select2-container--default .select2-selection--single{
-    border: 0 solid !important;
-    font-size:20px;
-}
-
 .zbs-cal-complete {
 	box-sizing: border-box;
 
@@ -314,18 +244,6 @@ background: #fff;
 
 .zbs-comp-1{
     display:none !important;
-}
-
-.fc-list-item, .fc-list-item-title{
-    position:relative;
-}
-
-.fc-event-dot {
-    display: inline-block;
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    background:none;
 }
 
 .zbs-task-for-help{
@@ -375,25 +293,74 @@ background: #fff;
     color: #000;
 }
 
-
-.fc-day-grid-event .fc-time{
-    float: left;
-    width: 19px;
-    line-height: 23px;
-    display:none;
-}
-
-.fc-day-grid-event .fc-title{
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    float: left;
-    overflow: hidden;
-    width: 66%;
-}
-
 .outlook-event{
     border: 1px solid #ccc;
     width: 100%;
     padding: 10px;
     border-radius: 4px;
+}
+
+// FullCalendar style overrides
+#calendar.fc {
+	--fc-event-bg-color: var(--jp-green);
+	--fc-event-border-color: var(--jp-green);
+	--fc-button-text-color: var(--jp-black);
+	--fc-button-bg-color: var(--jp-white);
+	--fc-button-hover-bg-color: var(--jp-gray-0);
+	--fc-button-active-bg-color: var(--jp-black);
+
+	a {
+		color: #000;
+		text-decoration: none;
+	}
+
+	.fc-button-primary:not(:disabled):active {
+		color: inherit;
+		background-color: inherit;
+	}
+
+	.fc-button-primary:not(:disabled).fc-button-active, .fc-button-primary:not(:disabled).fc-button-active:active {
+		color: var(--jp-white);
+		background-color: var(--jp-black);
+	}
+
+	.fc-button-primary:disabled {
+		background-color: var(--jp-gray);
+		border-color: var(--jp-gray);
+	}
+
+	// Handle toolbar wrapping on small screens
+	.fc-toolbar-chunk {
+		display: flex;
+		gap: 8px;
+		flex-wrap: wrap;
+
+		&:nth-child(1) {
+			justify-content: flex-start;
+		}
+
+		&:nth-child(2) {
+			justify-content: space-around;
+			text-align: center;
+		}
+
+		&:nth-child(3) {
+			justify-content: flex-end;
+		}
+
+		> * {
+			margin: 0;
+		}
+	}
+
+	.fc-daygrid-event-harness, .fc-timegrid-event-harness {
+		overflow: hidden;
+		white-space: nowrap;
+	}
+
+	.event_html {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
 }

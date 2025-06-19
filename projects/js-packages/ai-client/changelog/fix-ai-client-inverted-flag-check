@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+The feature flag check was inverted

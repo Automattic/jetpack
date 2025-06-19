@@ -406,57 +406,15 @@ function jpcrm_render_dashboard_page() {
 			$tracking->track_specific_pageview( 'first-use-dashboard' );
 		}
 	}
-	?>
 
-	<script>
-
-	// set default color for charts
-	Chart.defaults.defaultColor = zbs_root['jp_green']['40'];
-	// build sales funnel
-	let funnel_element = document.getElementById('jpcrm_sales_funnel');
-	let funnel_data = <?php echo wp_json_encode( $funnel_data ); ?>;
-	jpcrm_build_funnel(funnel_data,funnel_element);
-
-
-	// draw revenue chart
-	if (document.getElementById('bar-chart')) {
-
-		new Chart(
-			document.getElementById("bar-chart"),
-			{
-				type: 'bar',
-				data: {
-					labels: <?php echo wp_json_encode( $labels ); ?>,
-					datasets: [
-						{
-							label: '',
-							backgroundColor: Chart.defaults.defaultColor,
-							data: <?php echo wp_json_encode( $chartdata ); ?>
-						}
-					]
-				},
-				options: {
-					responsive: true,
-					maintainAspectRatio: false,
-					plugins: {
-						legend: { display: false },
-						title: {
-							display: false,
-							text: '',
-						},
-					},
-					scales: {
-						y: {
-							display: true,
-							beginAtZero: true // minimum value will be 0.
-						}
-					}
-				}
-			}
-		);
-	}
-	</script>
-	<?php
+	$jpcrm_dash_data  = 'const jpcrm_funnel_data = ' . wp_json_encode( $funnel_data ) . ';';
+	$jpcrm_dash_data .= 'const jpcrm_revenue_chart_data = ' . wp_json_encode(
+		array(
+			'labels' => $labels,
+			'data'   => $chartdata,
+		)
+	);
+	wp_add_inline_script( 'jpcrm-dash', $jpcrm_dash_data, 'before' );
 }
 
 /**
