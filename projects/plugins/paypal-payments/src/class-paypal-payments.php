@@ -5,7 +5,7 @@
  * @package automattic/paypal-payments
  */
 
-use Automattic\Jetpack\PaypalPayments\Paypal_Payment_Buttons;
+use Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons;
 
 /**
  * Class PayPal_Payments
@@ -17,10 +17,10 @@ class PayPal_Payments {
 	 * Constructor.
 	 */
 	public function __construct() {
-		Paypal_Payment_Buttons::register_hooks();
-		Paypal_Payment_Buttons::register_block();
-		Paypal_Payment_Buttons::load_editor_styles();
-		Paypal_Payment_Buttons::load_editor_scripts();
+		PayPal_Payment_Buttons::register_hooks();
+		PayPal_Payment_Buttons::register_block();
+		PayPal_Payment_Buttons::load_editor_styles();
+		PayPal_Payment_Buttons::load_editor_scripts();
 	}
 
 	/**
