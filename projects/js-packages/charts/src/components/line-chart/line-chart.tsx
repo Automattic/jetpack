@@ -190,7 +190,7 @@ const HighlightTooltip: React.FC< {
 		}
 
 		series.forEach( ( s, index ) => {
-			if ( selectedIndex <= s.data.length ) {
+			if ( selectedIndex < s.data.length ) {
 				const datum = s.data[ selectedIndex ];
 
 				tooltipContext?.showTooltip( {
