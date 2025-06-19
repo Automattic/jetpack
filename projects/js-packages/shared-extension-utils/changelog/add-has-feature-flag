@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add hasFeatureFlag js function that can be added via the `jetpack_block_editor_feature_flags` filter
