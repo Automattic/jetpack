@@ -123,7 +123,7 @@ export default function Edit( { clientId } ) {
 	} );
 
 	useEffect( () => {
-		// This happends when the step block is duplilcated
+		// This happens when the step block is duplicated
 		if ( typeof currentIndex === 'undefined' ) {
 			return undefined;
 		}
