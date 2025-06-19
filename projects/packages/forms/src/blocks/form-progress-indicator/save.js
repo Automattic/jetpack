@@ -5,9 +5,7 @@ const FormProgressIndicatorSave = () => {
 
 	return (
 		<div { ...blockProps }>
-			<div className="jetpack-form-progress-indicator">
-				<div className="jetpack-form-progress-indicator-bar"></div>
-			</div>
+			<div className="jetpack-form-progress-indicator-bar"></div>
 		</div>
 	);
 };

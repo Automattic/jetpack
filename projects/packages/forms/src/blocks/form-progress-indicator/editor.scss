@@ -1,17 +1,16 @@
-.jetpack-form-progress-indicator {
+.wp-block-jetpack-form-progress-indicator {
 	--jp-form-progress-height: 0.75rem;
 	
 	// Use theme colors with fallbacks
 	--jp-form-progress-bg-color: #e0e0e0;
-	--jp-form-progress-color: #1e1e1e;
 
 	// Essential structure
 	width: 100%;
 	height: var( --jp-form-progress-height );
 	position: relative;
 	overflow: hidden;
-	background-color: inherit;
 	border-radius: calc( var( --jp-form-progress-height ) / 2 );
+	background-color: var( --wp--style--color--background, var( --wp--preset--color--secondary, var( --jp-form-progress-bg-color ) ) );
 
 	// Progress bar element - rendered as a child element to match the frontend
 	.jetpack-form-progress-indicator-bar  {
@@ -28,8 +27,4 @@
 		background-color: currentColor;
 		border-radius: calc( var( --jp-form-progress-height ) / 2 );
 	}
-}
-
-.wp-block-jetpack-form-progress-indicator {
-	border-radius: calc( var( --jp-form-progress-height, 0.75rem ) / 2 );
 } 

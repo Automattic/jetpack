@@ -1,5 +1,4 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import { __ } from '@wordpress/i18n';
 import StepControls from '../shared/components/form-step-controls';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 import useStepNavigation from '../shared/hooks/use-step-navigation';
@@ -25,17 +24,7 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 	return (
 		<>
 			<div { ...blockProps }>
-				<div className="jetpack-form-progress-indicator-editor">
-					{ steps.length > 0 ? (
-						<div className="jetpack-form-progress-indicator">
-							<div className="jetpack-form-progress-indicator-bar" style={ progressBarStyle }></div>
-						</div>
-					) : (
-						<p className="no-steps-message">
-							{ __( 'Add steps to your form to see the progress indicator', 'jetpack-forms' ) }
-						</p>
-					) }
-				</div>
+				<div className="jetpack-form-progress-indicator-bar" style={ progressBarStyle }></div>
 			</div>
 			<StepControls formClientId={ parentFormId } showToggle={ false } showNavigation={ true } />
 		</>
