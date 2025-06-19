@@ -1,8 +1,9 @@
-import { Flex, FormToggle } from '@wordpress/components';
+import { Flex } from '@wordpress/components';
 import { DataViews, Field } from '@wordpress/dataviews';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { ModuleStatus } from '../module-status';
+import { ModuleToggle } from '../module-toggle';
 import { MyJetpackModule } from '../types';
 import styles from './styles.module.scss';
 
@@ -40,15 +41,7 @@ export function ModulesList( { modules }: ModulesListProps ) {
 					return (
 						<Flex className={ styles[ 'toggle-wrap' ] }>
 							<ModuleStatus module={ item } />
-							<FormToggle
-								checked={ item.activated }
-								onChange={ noop }
-								aria-label={ sprintf(
-									/* translators: %s is the module name */
-									__( 'Toggle %s module', 'jetpack-my-jetpack' ),
-									item.name
-								) }
-							/>
+							<ModuleToggle module={ item } />
 						</Flex>
 					);
 				},
