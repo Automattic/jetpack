@@ -23,6 +23,7 @@
 		"dev-validate-ts": "tsc --watch --pretty --strict false # Note: Disable Strict mode to avoid noisy development, while keeping strict errors visible in IDEs.",
 		"dev-compile": "pnpm run clear-dist && rollup -c -w",
 		"dev": "concurrently 'pnpm:dev-validate-ts' 'pnpm:dev-compile'",
+		"watch": "pnpm run dev",
 		"clear-dist": "rm -rf app/assets/dist/*",
 		"test-coverage": "pnpm run test --coverage",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs"
@@ -42,6 +43,7 @@
 		"@rollup/plugin-replace": "5.0.2",
 		"@rollup/plugin-terser": "0.4.3",
 		"@rollup/plugin-typescript": "12.1.0",
+		"concurrently": "7.6.0",
 		"jest": "30.0.0",
 		"postcss": "8.4.47",
 		"rollup": "3.29.5",

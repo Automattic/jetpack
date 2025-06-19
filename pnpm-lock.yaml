@@ -1015,6 +1015,9 @@ importers:
       '@rollup/plugin-typescript':
         specifier: 12.1.0
         version: 12.1.0(rollup@3.29.5)(tslib@2.5.0)(typescript@5.8.3)
+      concurrently:
+        specifier: 7.6.0
+        version: 7.6.0
       jest:
         specifier: 30.0.0
         version: 30.0.0
@@ -23144,7 +23147,7 @@ snapshots:
       spawn-command: 0.0.2
       supports-color: 8.1.1
       tree-kill: 1.2.2
-      yargs: 17.6.2
+      yargs: 17.7.2
 
   config@3.3.12:
     dependencies:
