@@ -385,6 +385,29 @@ class Contact_Form_Block {
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_progress_indicator' ),
 			)
 		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step-container',
+			array(
+				'supports' => array(
+					'html'       => false,
+					'reusable'   => false,
+					'align'      => true,
+					'color'      => array(
+						'gradients'  => true,
+						'link'       => true,
+						'background' => true,
+					),
+					'spacing'    => array(
+						'padding' => true,
+						'margin'  => true,
+					),
+					'dimensions' => array(
+						'minHeight' => true,
+					),
+				),
+			)
+		);
 	}
 
 	/**
