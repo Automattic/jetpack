@@ -1,5 +1,5 @@
 import { ExternalLink } from '@wordpress/components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 import { InterpolateVars } from '$lib/utils/interplate-vars-types';
 import supportLinkInterpolateVar from '$lib/utils/support-link-interpolate-var';

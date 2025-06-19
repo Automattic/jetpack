@@ -69,6 +69,9 @@
 		<testsuite name="widget-visibility">
 			<directory suffix="Test.php">tests/php/modules/widget-visibility</directory>
 		</testsuite>
+		<testsuite name="wordads">
+			<directory suffix="Test.php">tests/php/modules/wordads</directory>
+		</testsuite>
 		<testsuite name="sitemaps">
 			<directory suffix="Test.php">tests/php/modules/sitemaps</directory>
 		</testsuite>

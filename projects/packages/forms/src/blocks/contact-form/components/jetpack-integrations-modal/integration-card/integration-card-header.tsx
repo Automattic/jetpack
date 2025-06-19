@@ -18,33 +18,7 @@ import PluginActionButton from './plugin-action-button';
 /**
  * Types
  */
-import type { Integration } from '../../../../../types';
-
-type IntegrationCardData = {
-	isInstalled?: boolean;
-	isActive?: boolean;
-	isConnected?: boolean;
-	needsConnection?: boolean;
-	type?: string;
-	showHeaderToggle?: boolean;
-	headerToggleValue?: boolean;
-	isHeaderToggleEnabled?: boolean;
-	onHeaderToggleChange?: ( value: boolean ) => void;
-	toggleDisabledTooltip?: string;
-	setupBadge?: React.ReactNode;
-	refreshStatus?: () => void;
-	trackEventName?: string;
-} & Partial< Pick< Integration, 'id' | 'slug' | 'version' | 'details' | 'pluginFile' > >;
-
-type IntegrationCardHeaderProps = {
-	title: string;
-	description: string;
-	icon: React.ReactNode;
-	isExpanded: boolean;
-	onToggle: ( e: React.MouseEvent< HTMLDivElement > ) => void;
-	cardData: IntegrationCardData;
-	toggleTooltip: string;
-};
+import type { IntegrationCardProps } from './index';
 
 const IntegrationCardHeader = ( {
 	title,
@@ -54,7 +28,7 @@ const IntegrationCardHeader = ( {
 	onToggle,
 	cardData = {},
 	toggleTooltip,
-}: IntegrationCardHeaderProps ) => {
+}: IntegrationCardProps ) => {
 	const {
 		isInstalled,
 		isActive,
@@ -112,7 +86,7 @@ const IntegrationCardHeader = ( {
 			return;
 		}
 
-		onToggle( e );
+		onToggle();
 	};
 
 	return (

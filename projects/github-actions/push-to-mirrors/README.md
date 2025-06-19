@@ -42,7 +42,7 @@ This action is intended to be triggered by a `push` event.
     commit-message:
 
     # Set to `true` to suppress the addition of "Upstream-Ref" footers in the
-    # mirrored commits.
+    # mirrored commits. Not recommended.
     no-upstream-refs:
 
     # Directory containing a checkout of the monorepo revision being mirrored.

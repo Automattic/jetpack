@@ -2,7 +2,7 @@ import { GlobalNotices, ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import Discussion from 'discussion';
 import Earn from 'earn';
 import Subscriptions from 'newsletter';

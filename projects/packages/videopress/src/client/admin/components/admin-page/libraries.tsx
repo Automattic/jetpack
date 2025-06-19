@@ -7,7 +7,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */

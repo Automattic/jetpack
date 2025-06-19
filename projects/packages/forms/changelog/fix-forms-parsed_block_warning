@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Catch PHP warning when parsed block data is malformed.

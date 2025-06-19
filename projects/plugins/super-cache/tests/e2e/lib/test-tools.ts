@@ -9,7 +9,9 @@ import { getSiteUrl } from './plugin-tools';
  * @param {object} params GET parameters to add to the URL.
  */
 export async function loadPage( path = '/', params = {} ): Promise< string > {
-	const response = await axios.get( getSiteUrl( path, params ) );
+	const response = await axios.get( getSiteUrl( path, params ), {
+		headers: { Accept: 'text/html' },
+	} );
 	expect( response.status ).toBe( 200 );
 
 	return response.data;

@@ -141,6 +141,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			adjustPosition,
 			startOpen,
 			hideOnBlockFocus,
+			supports,
 		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
 
 		const customPlaceholder = getExtensionInputPlaceholder();
@@ -177,11 +178,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 							tone: options?.tone,
 							language: options?.language,
 							is_follow_up: chatHistory.current.length > 0,
+							supports,
 						},
 					},
 				];
 			},
-			[ blockName, getContent ]
+			[ blockName, getContent, supports ]
 		);
 
 		const adjustBlockPadding = useCallback(
