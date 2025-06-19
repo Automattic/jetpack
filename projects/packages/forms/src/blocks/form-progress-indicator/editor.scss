@@ -10,8 +10,7 @@
 	height: var( --jp-form-progress-height );
 	position: relative;
 	overflow: hidden;
-	background-color: var( --wp--style--color--background, var( --wp--preset--color--secondary, var( --jp-form-progress-bg-color ) ) );
-	color: var( --wp--style--color--text, var( --wp--preset--color--primary, var( --wp--preset--color--accent, var( --jp-form-progress-color ) ) ) );
+	background-color: inherit;
 	border-radius: calc( var( --jp-form-progress-height ) / 2 );
 
 	// Progress bar element - rendered as a child element to match the frontend
@@ -26,7 +25,7 @@
 		min-width: var( --jp-form-progress-height );
 		transition: width 0.3s ease-in-out;
 		z-index: 1;
-		background-color: var( --wp--style--color--text, currentColor );
+		background-color: currentColor;
 		border-radius: calc( var( --jp-form-progress-height ) / 2 );
 	}
 }

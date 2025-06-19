@@ -12,12 +12,9 @@
 	height: var( --jp-form-progress-height );
 	position: relative;
 	overflow: hidden;
-	// Use the user-selected background colour when present (set via core Style Engine)
-	background-color: var( --wp--style--color--background, var( --wp--preset--color--secondary, var( --jp-form-progress-bg-color ) ) );
+	background-color: inherit;
 	border-radius: calc( var( --jp-form-progress-height ) / 2 );
 
-	// Expose the text colour variable so the bar can inherit it via currentColor
-	color: var( --wp--style--color--text, var( --wp--preset--color--primary, var( --wp--preset--color--accent, var( --jp-form-progress-color ) ) ) );
 
 	// Progress bar element
 	.jetpack-form-progress-indicator-bar  {
@@ -31,7 +28,12 @@
 		min-width: var( --jp-form-progress-height );
 		transition: width 0.3s ease-in-out;
 		z-index: 1;
-		background-color: var( --wp--style--color--text, currentColor );
+		background-color: currentColor;
 		border-radius: calc( var( --jp-form-progress-height ) / 2 );
 	}
+}
+
+// Ensure the wrapper block matches the rounded corners on the indicator background (frontend).
+.wp-block-jetpack-form-progress-indicator {
+	border-radius: calc( var( --jp-form-progress-height, 0.75rem ) / 2 );
 }
