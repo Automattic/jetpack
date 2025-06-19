@@ -12,7 +12,6 @@
 				"blockName": "jetpack/button",
 				"attrs": {
 					"element": "a",
-					"uniqueId": "recurring-payments-id",
 					"text": "Payment",
 					"borderRadius": 0,
 					"uniqueId": "recurring-payments-12",

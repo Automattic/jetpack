@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [[ -t 1 ]]; then
 	SPIN=( '-' '\' '|' '/' )

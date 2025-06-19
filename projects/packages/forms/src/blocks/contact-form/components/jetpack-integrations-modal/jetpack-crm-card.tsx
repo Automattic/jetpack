@@ -5,8 +5,14 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
 import IntegrationCard from './integration-card';
+import type { SingleIntegrationCardProps } from '../../../../types';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
+
+type JetpackCRMCardProps = SingleIntegrationCardProps & {
+	jetpackCRM: boolean;
+	setAttributes: ( attrs: { jetpackCRM: boolean } ) => void;
+};
 
 const JetpackCRMCard = ( {
 	isExpanded,
@@ -15,7 +21,7 @@ const JetpackCRMCard = ( {
 	setAttributes,
 	data,
 	refreshStatus,
-} ) => {
+}: JetpackCRMCardProps ) => {
 	const { settingsUrl = '', version = '', details = {} } = data || {};
 	const { hasExtension = false, canActivateExtension = false } = details;
 
@@ -33,7 +39,7 @@ const JetpackCRMCard = ( {
 		showHeaderToggle: true,
 		headerToggleValue: jetpackCRM,
 		isHeaderToggleEnabled: true,
-		onHeaderToggleChange: value => setAttributes( { jetpackCRM: value } ),
+		onHeaderToggleChange: ( value: boolean ) => setAttributes( { jetpackCRM: value } ),
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
 		refreshStatus,
 		trackEventName: 'jetpack_forms_upsell_crm_click',

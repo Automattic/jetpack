@@ -5,8 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import util from 'node:util';
 import makeDebug from 'debug';
-import { defineConfig } from 'eslint/config';
 import { glob } from 'glob';
+import { defineConfig, javascriptFiles } from './base.mjs';
 import makeReactConfig from './react.mjs';
 
 const cwd = fileURLToPath( new URL( '../../..', import.meta.url ) );
@@ -39,7 +39,6 @@ for ( const dir of ( await glob( 'projects/*/*/composer.json', { cwd } ) )
 
 	let any = false;
 	const cfg = {
-		files: [ dir + '/**' ],
 		rules: {},
 	};
 	const composerJson = JSON.parse( await fs.readFile( path.join( cwd, dir, 'composer.json' ) ) );
@@ -89,12 +88,13 @@ for ( const dir of ( await glob( 'projects/*/*/composer.json', { cwd } ) )
 			packageJson.optionalDependencies?.react ??
 			packageJson.peerDependencies?.react
 		) {
-			reactProjects.push( dir + '/**' );
+			reactProjects.push( ...javascriptFiles.map( v => [ dir + '/**', v ] ) );
 		}
 	}
 
 	if ( any ) {
 		debug( `Config for ${ dir }: ${ util.inspect( cfg, { depth: Infinity } ) }` );
+		cfg.files = javascriptFiles.map( v => [ dir + '/**', v ] );
 		autoProjects.push( cfg );
 	} else {
 		debug( `No special config for ${ dir }` );
@@ -103,7 +103,9 @@ for ( const dir of ( await glob( 'projects/*/*/composer.json', { cwd } ) )
 
 if ( reactProjects.length ) {
 	debug(
-		`React projects: ${ reactProjects.map( v => v.substring( 9, v.length - 3 ) ).join( ' ' ) }`
+		`React projects: ${ reactProjects
+			.map( v => v[ 0 ].substring( 9, v[ 0 ].length - 3 ) )
+			.join( ' ' ) }`
 	);
 	autoProjects.push( {
 		files: reactProjects,
