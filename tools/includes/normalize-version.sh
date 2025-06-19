@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Normalizes a version string to desired length.
 # First arg is input string, second is minimum number of points.

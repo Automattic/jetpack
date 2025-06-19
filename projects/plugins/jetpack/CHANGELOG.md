@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.8-a.5 - 2025-06-16
+### Enhancements
+- AI Assistant: Add support for file upload field on Forms extension. [#43916]
+- Forms: Add Akismet refresh status button. [#43937]
+- Forms: Stop translate product name in the sidebar. [#43925]
+- Forms: Show central integrations dashboard. [#43936]
+- Forms: Use interactivity API for form validation. [#43893]
+- Forms: Make it possible to preview file by visiting the URL. [#43730]
+
+### Bug fixes
+- Endpoints: Prevent warnings in logs when attempting to add external media from some sources. [#43907]
+- Recipe shortcode: Prevent errors in logs due to checking for theme color properties that may not exist. [#43904]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Dashboard: Added connection info on WoA sites. [#43876]
+- Dashboard: Update host function checks. [#43824]
+- Markdown: Ensure XML-RPC message responses are in the correct format before trying to parse information. [#43899]
+- Post Editor: Open WP.com support articles in Help Center. [#43883]
+- Prevent PHP warning in Gallery block. [#43890]
+- Prevent PHP warning when block content is malformed. [#43889]
+- Switch to `Request::is_frontend()` method from Jetpack Status package. [#43873]
+- Update package dependencies. [#43892] [#43914] [#43951]
+
 ## 14.8-a.3 - 2025-06-09
 ### Enhancements
 - Forms: Release new file uploads field. [#43846]

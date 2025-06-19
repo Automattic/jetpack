@@ -103,6 +103,7 @@ mapfile -t TO_UPDATE < <(jq -r --argjson packages "$RMPACKAGES" '.["require-dev"
 if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
 	info "Remove no-mirror dev packages: ${TO_UPDATE[*]}..."
 	composer remove "${COMPOSER_ARGS[@]}" --no-update --working-dir="$DIR" --dev -- "${TO_UPDATE[@]}"
+	composer config --working-dir="$DIR" 'extra.non-mirrored-require-dev' --json "$( jq -nc '$ARGS.positional' --args "${TO_UPDATE[@]}" )"
 fi
 TO_UPDATE=()
 mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.["require-dev"] // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and $packages[.key] ) | "\(.key)=^\($packages[.key])"' "$DIR/composer.json")

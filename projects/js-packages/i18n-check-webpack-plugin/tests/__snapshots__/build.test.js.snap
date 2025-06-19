@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Webpack \`I18nSafeMangleExportsPlugin\`: Webpack build error 1`] = `null`;
 
@@ -79,11 +79,13 @@ exports[`Webpack \`concatenated-modules\`: Webpack build stats 1`] = `
   "errors": [
     {
       "message": "main.js: Translator comments have gone missing for "A"
- - Translators: A",
+ - Translators: A
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
     },
     {
       "message": "main.js: Translator comments have gone missing for "B"
- - Translators: B",
+ - Translators: B
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
     },
   ],
   "warnings": [],
@@ -107,16 +109,19 @@ exports[`Webpack \`known-problems\`: Webpack build stats 1`] = `
     },
     {
       "message": "main.js: Translator comments have gone missing for "The comment will be lost when the assignment is merged into the above const" (context "context")
- - Translators: This comment will be lost",
+ - Translators: This comment will be lost
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
     },
     {
       "message": "main.js: Translator comments have gone missing for "This is another workaround" (context "context")
- - Translators: This comment will be in the source but not detected for the right message.",
+ - Translators: This comment will be in the source but not detected for the right message.
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
     },
     {
       "message": "main.js: Optimization seems to have broken the following translation strings:
  - "Foo is not set"
- - "Foo is set"",
+ - "Foo is set"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
     },
   ],
   "warnings": [],
@@ -181,7 +186,8 @@ exports[`Webpack \`options-filter\`: Webpack build stats 1`] = `
         {
           "message": "string/main.js: Optimization seems to have broken the following translation strings:
  - "string is not set"
- - "string is set"",
+ - "string is set"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
         },
       ],
       "name": "string",
@@ -204,7 +210,8 @@ exports[`Webpack \`options-filter\`: Webpack build stats 1`] = `
         {
           "message": "regex/main.js: Optimization seems to have broken the following translation strings:
  - "regex is not set"
- - "regex is set"",
+ - "regex is set"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
         },
       ],
       "name": "regex",
@@ -227,7 +234,8 @@ exports[`Webpack \`options-filter\`: Webpack build stats 1`] = `
         {
           "message": "function/main.js: Optimization seems to have broken the following translation strings:
  - "func is not set"
- - "func is set"",
+ - "func is set"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
         },
       ],
       "name": "function",
@@ -250,7 +258,8 @@ exports[`Webpack \`options-filter\`: Webpack build stats 1`] = `
         {
           "message": "array/main.js: Optimization seems to have broken the following translation strings:
  - "arr is not set"
- - "arr is set"",
+ - "arr is set"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
         },
       ],
       "name": "array",
@@ -279,7 +288,8 @@ exports[`Webpack \`options-filter\`: Webpack build stats 1`] = `
  - "regex is not set"
  - "regex is set"
  - "string is not set"
- - "string is set"",
+ - "string is set"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
         },
       ],
       "name": "undefined",
@@ -307,7 +317,8 @@ exports[`Webpack \`options-filter\`: Webpack build stats 1`] = `
       "compilerPath": "string",
       "message": "string/main.js: Optimization seems to have broken the following translation strings:
  - "string is not set"
- - "string is set"",
+ - "string is set"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
     },
     {
       "compilerPath": "regex",
@@ -329,7 +340,8 @@ exports[`Webpack \`options-filter\`: Webpack build stats 1`] = `
       "compilerPath": "regex",
       "message": "regex/main.js: Optimization seems to have broken the following translation strings:
  - "regex is not set"
- - "regex is set"",
+ - "regex is set"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
     },
     {
       "compilerPath": "function",
@@ -351,7 +363,8 @@ exports[`Webpack \`options-filter\`: Webpack build stats 1`] = `
       "compilerPath": "function",
       "message": "function/main.js: Optimization seems to have broken the following translation strings:
  - "func is not set"
- - "func is set"",
+ - "func is set"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
     },
     {
       "compilerPath": "array",
@@ -373,7 +386,8 @@ exports[`Webpack \`options-filter\`: Webpack build stats 1`] = `
       "compilerPath": "array",
       "message": "array/main.js: Optimization seems to have broken the following translation strings:
  - "arr is not set"
- - "arr is set"",
+ - "arr is set"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
     },
     {
       "compilerPath": "undefined",
@@ -401,7 +415,8 @@ exports[`Webpack \`options-filter\`: Webpack build stats 1`] = `
  - "regex is not set"
  - "regex is set"
  - "string is not set"
- - "string is set"",
+ - "string is set"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
     },
   ],
   "warnings": [],
@@ -427,7 +442,8 @@ exports[`Webpack \`options-warnOnly\`: Webpack build stats 1`] = `
     {
       "message": "main.js: Optimization seems to have broken the following translation strings:
  - "X is not set"
- - "X is set"",
+ - "X is set"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
     },
   ],
 }
@@ -447,7 +463,8 @@ exports[`Webpack \`pruned-branches\`: Webpack build stats 1`] = `
   "errors": [
     {
       "message": "main.js: Optimization seems to have broken the following translation strings:
- - "another thing"",
+ - "another thing"
+See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.",
     },
   ],
   "warnings": [],

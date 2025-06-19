@@ -280,7 +280,8 @@ class I18nCheckPlugin {
 					compilation[ this.#reportkey ].push(
 						new Error(
 							// prettier-ignore
-							`${ filename }: Translator comments have gone missing for ${ str }\n - ` + missingComments.join( '\n - ' )
+							`${ filename }: Translator comments have gone missing for ${ str }\n - ` + missingComments.join( '\n - ' ) +
+							'\nSee https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.'
 						)
 					);
 				}
@@ -329,7 +330,8 @@ class I18nCheckPlugin {
 				compilation[ this.#reportkey ].push(
 					new Error(
 						`${ filename }: Optimization seems to have broken the following translation strings:\n - ` +
-							Array.from( foundEntries.values(), this.#strentry ).sort().join( '\n - ' )
+							Array.from( foundEntries.values(), this.#strentry ).sort().join( '\n - ' ) +
+							'\nSee https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#known-problematic-code-patterns for common causes and fixes.'
 					)
 				);
 			}

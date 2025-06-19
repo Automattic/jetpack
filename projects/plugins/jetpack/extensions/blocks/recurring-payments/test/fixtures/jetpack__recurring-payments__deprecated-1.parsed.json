@@ -1,9 +1,9 @@
 [
-    {
-        "blockName": "jetpack/recurring-payments",
-        "attrs": null,
-        "innerBlocks": [],
-        "innerHTML": "",
-        "innerContent": []
-    }
+	{
+		"blockName": "jetpack/recurring-payments",
+		"attrs": null,
+		"innerBlocks": [],
+		"innerHTML": "",
+		"innerContent": []
+	}
 ]

@@ -1,17 +1,26 @@
+/**
+ * External dependencies
+ */
 import { Icon, Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import SalesforceIcon from '../../icons/salesforce';
-import { IntegrationCardProps } from '../../types';
 import useCreateForm from '../hooks/use-create-form';
+/**
+ * Types
+ */
+import type { SingleIntegrationCardProps, IntegrationCardData } from '../../types';
 
 const SalesforceDashboardCard = ( {
 	isExpanded,
 	onToggle,
 	data,
 	refreshStatus,
-}: IntegrationCardProps ) => {
+}: SingleIntegrationCardProps ) => {
 	const { openNewForm } = useCreateForm();
 	const handleCreateSalesforceForm = useCallback( () => {
 		openNewForm( {
@@ -23,7 +32,7 @@ const SalesforceDashboardCard = ( {
 			},
 		} );
 	}, [ openNewForm ] );
-	const cardData = {
+	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: false, // Always off for dashboard
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
@@ -40,7 +49,6 @@ const SalesforceDashboardCard = ( {
 		<IntegrationCard
 			title={ __( 'Salesforce', 'jetpack-forms' ) }
 			description={ __( 'Send form contacts to Salesforce', 'jetpack-forms' ) }
-			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <SalesforceIcon width={ 32 } height={ 32 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
