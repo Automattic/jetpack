@@ -8,6 +8,27 @@ import { getIconColor } from '../shared/util/block-icons';
 
 const variations = compact( [
 	{
+		name: 'regular-form',
+		title: __( 'Regular Form', 'jetpack-forms' ),
+		icon: {
+			foreground: getIconColor(),
+			src: renderMaterialIcon(
+				<>
+					<Path d="m13 7.5 h 5 v 1.5 h -5 v -1.5z" />
+					<Path d="m13 15 h 5 v 1.5 h -5 v -1.5z" />
+					<Path d="m19.01,3H4.99c-1.1,0-1.99.89-1.99,1.99v14.02c0,1.1.89,1.99,1.99,1.99h14.02c1.1,0,1.99-.89,1.99-1.99V4.99c0-1.1-.89-1.99-1.99-1.99Zm.49,15.99c0,.28-.23.51-.51.51H5.01c-.28,0-.51-.23-.51-.51V5.01c0-.28.23-.51.51-.51h13.98c.28,0,.51.23.51.51v13.98Z" />
+					<Path d="m9.46,13h-1.92c-.85,0-1.54.69-1.54,1.54v1.92c0,.85.69,1.54,1.54,1.54h1.92c.85,0,1.54-.69,1.54-1.54v-1.92c0-.85-.69-1.54-1.54-1.54Zm.04,3.5h-2v-2h2v2Z" />
+					<Path d="m9.46,6h-1.92c-.85,0-1.54.69-1.54,1.54v1.92c0,.85.69,1.54,1.54,1.54h1.92c.85,0,1.54-.69,1.54-1.54v-1.92c0-.85-.69-1.54-1.54-1.54Zm.04,3.5h-2v-2h2v2Z" />
+				</>
+			),
+		},
+		attributes: {
+			variationName: 'default-empty',
+		},
+		scope: [ 'transform' ],
+		isActive: [ 'variationName' ],
+	},
+	{
 		name: 'contact-form',
 		title: __( 'Contact Form', 'jetpack-forms' ),
 		description: __( 'Add a contact form to your page.', 'jetpack-forms' ),

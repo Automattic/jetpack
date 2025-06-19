@@ -479,6 +479,94 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		}
 	}, [ currentInnerBlocks, containsMultistepBlock ] );
 
+	/*───────────────────────────────────────────────────────────────────────────
+	 * Flatten multistep structure → standard form
+	 *───────────────────────────────────────────────────────────────────────*/
+	useEffect( () => {
+		// Early exit if we are still on the multistep variation or if there are
+		// no multistep-specific blocks to clean up.
+		if ( variationName === 'multistep' || ! containsMultistepBlock( currentInnerBlocks ) ) {
+			return;
+		}
+
+		// Will hold a reference to the submit button that should remain after cleanup.
+		let finalSubmitButton = null;
+
+		// Flatten helper – collects blocks that should remain in the standard form.
+		const flattenBlocks = blocks => {
+			let flat = [];
+
+			blocks.forEach( block => {
+				if ( block.name === 'jetpack/form-step-container' ) {
+					// Extract inner content of each step.
+					block.innerBlocks.forEach( step => {
+						if ( step.name === 'jetpack/form-step' ) {
+							flat = flat.concat( step.innerBlocks );
+						}
+					} );
+					return;
+				}
+
+				if ( block.name === 'jetpack/form-step' ) {
+					flat = flat.concat( block.innerBlocks );
+					return;
+				}
+
+				if (
+					block.name === 'jetpack/form-step-navigation' ||
+					block.name === 'jetpack/form-progress-indicator' ||
+					block.name === 'jetpack/form-step-divider'
+				) {
+					// Capture submit button (if any) inside navigation but skip the wrapper.
+					if ( ! finalSubmitButton ) {
+						finalSubmitButton = block.innerBlocks?.find(
+							inner =>
+								inner.name === 'jetpack/button' && inner.attributes?.customVariant === 'submit'
+						);
+					}
+					return; // Omit multistep-specific blocks.
+				}
+
+				// For any other block, keep as-is.
+				flat.push( block );
+			} );
+
+			return flat;
+		};
+
+		const flattenedInnerBlocks = flattenBlocks( currentInnerBlocks );
+
+		// Ensure we have a submit button at the end of the form.
+		if ( ! finalSubmitButton ) {
+			// Create a fresh submit button if none was found.
+			finalSubmitButton = createBlock( 'jetpack/button', {
+				element: 'button',
+				text: __( 'Submit', 'jetpack-forms' ),
+			} );
+		}
+
+		const finalBlocks = [ ...flattenedInnerBlocks, finalSubmitButton ];
+
+		__unstableMarkNextChangeAsNotPersistent();
+		replaceInnerBlocks( clientId, finalBlocks, false );
+
+		// Reset the variation attribute if still set to something else.
+		if ( variationName !== 'default-empty' ) {
+			setAttributes( { variationName: 'default-empty' } );
+		}
+
+		// Allow the structuring effect to run again later if needed.
+		hasStructuredRef.current = false;
+	}, [
+		variationName,
+		currentInnerBlocks,
+		containsMultistepBlock,
+		clientId,
+		replaceInnerBlocks,
+		__unstableMarkNextChangeAsNotPersistent,
+		setAttributes,
+	] );
+
 	const { setActiveStep } = useDispatch( singleStepStore );
 
 	// Find the selected block and its parent step block
