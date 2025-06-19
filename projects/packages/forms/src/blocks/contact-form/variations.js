@@ -1,4 +1,5 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
@@ -778,7 +779,7 @@ const variations = compact( [
 			],
 		},
 	},
-	{
+	hasFeatureFlag( 'multistep-form' ) && {
 		name: 'multistep-form',
 		title: __( 'Multistep Form', 'jetpack-forms' ),
 		description: __( 'Create a form that spans multiple steps.', 'jetpack-forms' ),

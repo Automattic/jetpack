@@ -1,3 +1,4 @@
+import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import DeprecatedOptionCheckbox from '../deprecated/field-option-checkbox';
 import DeprecatedOptionRadio from '../deprecated/field-option-radio';
 import JetpackDropzone from '../dropzone';
@@ -45,11 +46,11 @@ export const childBlocks = [
 	JetpackTelephoneField,
 	JetpackTextareaField,
 	JetpackFieldFile,
-	JetpackStep,
-	JetpackStepContainer,
-	JetpackStepDivider,
-	JetpackStepNavigation,
-	JetpackProgressIndicator,
+	hasFeatureFlag( 'multistep-form' ) && JetpackStep,
+	hasFeatureFlag( 'multistep-form' ) && JetpackStepContainer,
+	hasFeatureFlag( 'multistep-form' ) && JetpackStepDivider,
+	hasFeatureFlag( 'multistep-form' ) && JetpackStepNavigation,
+	hasFeatureFlag( 'multistep-form' ) && JetpackProgressIndicator,
 	// The following are required for these blocks to be parsed correctly in block
 	// deprecations. They have been flagged with `supports.inserter: false` to
 	// prevent further use.
