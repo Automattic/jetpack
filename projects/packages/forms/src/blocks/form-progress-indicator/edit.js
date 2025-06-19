@@ -23,8 +23,10 @@ const FormProgressIndicatorEdit = ( { clientId } ) => {
 
 	return (
 		<>
-			<div { ...blockProps }>
-				<div className="jetpack-form-progress-indicator-bar" style={ progressBarStyle }></div>
+			<div className="jetpack-form-progress-indicator--wrapper">
+				<div { ...blockProps }>
+					<div className="jetpack-form-progress-indicator-bar" style={ progressBarStyle }></div>
+				</div>
 			</div>
 			<StepControls formClientId={ parentFormId } showToggle={ false } showNavigation={ true } />
 		</>

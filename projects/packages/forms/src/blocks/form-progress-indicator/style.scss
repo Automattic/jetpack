@@ -1,6 +1,6 @@
 .wp-block-jetpack-form-progress-indicator {
 	--jp-form-progress-height: 0.75rem;
-	
+
 	// Use theme colors with fallbacks
 	--jp-form-progress-bg-color: #e0e0e0;
 
@@ -27,4 +27,4 @@
 		background-color: currentColor;
 		border-radius: calc( var( --jp-form-progress-height ) / 2 );
 	}
-} 
+}
