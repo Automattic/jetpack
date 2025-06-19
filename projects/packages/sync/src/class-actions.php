@@ -667,10 +667,8 @@ class Actions {
 	public static function jetpack_cron_schedule( $schedules ) {
 		if ( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
 			$minutes = ( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
-			$display = ( 1 === $minutes ) ?
-				__( 'Every minute', 'jetpack-sync' ) :
-				/* translators: %d is an integer indicating the number of minutes. */
-				sprintf( __( 'Every %d minutes', 'jetpack-sync' ), $minutes );
+			/* translators: %d is an integer indicating the number of minutes. */
+			$display = sprintf( __( 'Every %d minutes', 'jetpack-sync' ), $minutes );
 			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
 				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
 				'display'  => $display,
