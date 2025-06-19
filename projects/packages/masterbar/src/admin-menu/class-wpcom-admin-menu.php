@@ -44,7 +44,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		parent::reregister_menu_items();
 
-		$this->add_my_home_menu();
 		$this->remove_gutenberg_menu();
 
 		// Not needed outside of wp-admin.
@@ -291,13 +290,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Features', 'jetpack-masterbar' ), __( 'Hosting Features', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/hosting-features/' . $this->domain, null, 10 );
-	}
-
-	/**
-	 * Adds My Home menu.
-	 */
-	public function add_my_home_menu() {
-		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack-masterbar' ), 'read', 'dashicons-admin-home' );
 	}
 
 	/**
