@@ -1,5 +1,4 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
-import { Annotation, CircleSubject, Connector, Label } from '@visx/annotation';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import { XYChart, AreaSeries, Tooltip, Grid, Axis, DataContext } from '@visx/xychart';
@@ -12,7 +11,9 @@ import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
+import PositionedAnnotation from './annotation';
 import styles from './line-chart.module.scss';
+import type { LineChartAnnotation } from './annotation';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
@@ -149,31 +150,6 @@ const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) =>
 	);
 };
 
-type LineChartAnnotation = {
-	datum: DataPointDate;
-	title: string;
-	subtitle: string;
-};
-
-const PositionedAnnotation = ( { datum, title, subtitle }: LineChartAnnotation ) => {
-	const { xScale, yScale } = useContext( DataContext ) || {};
-	if ( ! xScale || ! yScale ) return null;
-
-	// Convert datum values to chart coordinates using the scales
-	const x = xScale( datum.date );
-	const y = yScale( datum.value );
-
-	if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
-
-	return (
-		<Annotation x={ x } y={ y } dx={ 60 } dy={ 30 }>
-			<Connector type="elbow" />
-			<CircleSubject />
-			<Label title={ title } subtitle={ subtitle } />
-		</Annotation>
-	);
-};
-
 const formatDateTick = ( timestamp: number ) => {
 	const date = new Date( timestamp );
 	return date.toLocaleDateString( undefined, {
@@ -200,7 +176,6 @@ const validateData = ( data: SeriesData[] ) => {
 };
 
 const LineChart: FC< LineChartProps > = ( {
-	annotations,
 	data,
 	width,
 	height,
@@ -222,6 +197,7 @@ const LineChart: FC< LineChartProps > = ( {
 	renderTooltip = renderDefaultTooltip,
 	withStartGlyphs = false,
 	options = {},
+	annotations,
 	onPointerDown = undefined,
 	onPointerUp = undefined,
 	onPointerMove = undefined,
@@ -407,12 +383,14 @@ const LineChart: FC< LineChartProps > = ( {
 				) }
 
 				{ annotations?.length &&
-					annotations.map( ( { datum, title, subtitle } ) => (
+					annotations.map( ( { datum, title, subtitle, subjectType, styles: datumStyles } ) => (
 						<PositionedAnnotation
 							key={ `annotation-${ datum.date.getTime() }` }
 							datum={ datum }
 							title={ title }
 							subtitle={ subtitle }
+							subjectType={ subjectType }
+							styles={ datumStyles }
 						/>
 					) ) }
 			</XYChart>
