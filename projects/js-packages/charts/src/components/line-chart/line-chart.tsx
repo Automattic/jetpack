@@ -265,7 +265,7 @@ const LineChart: FC< LineChartProps > = ( {
 		color: group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
 		shapeStyle: group?.options?.legendShapeStyle,
 		renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
-		glyphSize: Number( glyphStyle?.radius ),
+		glyphSize: Number( glyphStyle?.radius ) || 4,
 	} ) );
 
 	const accessors = {
