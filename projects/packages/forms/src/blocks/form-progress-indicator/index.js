@@ -15,8 +15,10 @@ export const settings = {
 	supports: {
 		html: false,
 		reusable: false,
+		dimensions: {
+			minHeight: true,
+		},
 		spacing: {
-			padding: true,
 			margin: true,
 		},
 		color: {
