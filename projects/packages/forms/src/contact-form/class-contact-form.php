@@ -425,6 +425,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				}
 			}
 
+			$is_multistep = boolval( $max_steps > 0 );
+
 			$default_context = array(
 				'formId'      => $id,
 				'formHash'    => $form->hash,
@@ -459,6 +461,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				data-wp-class--is-first-step=\"state.isFirstStep\"
 				data-wp-class--is-last-step=\"state.isLastStep\"
 				novalidate >\n";
+
+			if ( $is_multistep ) { // This makes the "enter" key work in multi-step forms as expected.
+				$r .= '<input type="submit" style="display: none;" />';
+			}
 
 			$r .= $form->body;
 

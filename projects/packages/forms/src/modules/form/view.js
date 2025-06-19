@@ -5,6 +5,7 @@ import {
 	withSyncEvent as originalWithSyncEvent,
 } from '@wordpress/interactivity';
 import { validateField } from '../../contact-form/js/validate-helper';
+import { focusNextInput, submitForm } from './shared';
 
 const withSyncEvent =
 	originalWithSyncEvent ||
@@ -116,8 +117,7 @@ const { state } = store( NAMESPACE, {
 		},
 
 		get isAriaDisabled() {
-			const context = getContext();
-			return context.isSubmitting;
+			return state.isSubmitting;
 		},
 
 		get errorMessage() {
@@ -251,9 +251,37 @@ const { state } = store( NAMESPACE, {
 				context.showErrors = true;
 				event.preventDefault();
 				event.stopPropagation();
-			} else {
-				context.isSubmitting = true;
+				return;
 			}
+
+			if ( context.isMultiStep && context.currentStep < context.maxSteps ) {
+				// If this is a multistep form and the current input is not the last in the step,
+				// we don't want to submit the form, but rather advance to the next step.
+				context.currentStep += 1;
+				context.showErrors = false;
+
+				event.preventDefault();
+				event.stopPropagation();
+				const formHash = context.formHash;
+				setTimeout( () => {
+					focusNextInput( formHash );
+				}, 100 );
+				return;
+			}
+			context.isSubmitting = true;
+		} ),
+
+		onKeyDownTextarea: withSyncEvent( event => {
+			if ( ! ( event.key === 'Enter' && ! event.shiftKey ) ) {
+				return;
+			}
+			// Prevent the default behavior of adding a new line.
+			event.preventDefault();
+			event.stopPropagation();
+
+			const context = getContext();
+
+			submitForm( context.formHash );
 		} ),
 
 		scrollIntoView: withSyncEvent( event => {
