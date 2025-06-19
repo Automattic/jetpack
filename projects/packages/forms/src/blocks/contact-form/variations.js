@@ -896,9 +896,10 @@ const variations = compact( [
 								'jetpack/field-select',
 								{
 									options: [
-										__( 'ASAP', 'jetpack-forms' ),
-										__( 'This week', 'jetpack-forms' ),
-										__( 'No rush', 'jetpack-forms' ),
+										__( 'Urgent (within 1 business day)', 'jetpack-forms' ),
+										__( 'High priority (1–2 business days)', 'jetpack-forms' ),
+										__( 'Normal (3–5 business days)', 'jetpack-forms' ),
+										__( 'Flexible / No specific deadline', 'jetpack-forms' ),
 									],
 								},
 								[
