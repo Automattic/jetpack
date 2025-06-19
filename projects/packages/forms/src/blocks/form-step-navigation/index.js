@@ -9,7 +9,7 @@ export const name = 'form-step-navigation';
 export const settings = {
 	apiVersion: 3,
 	category: 'contact-form',
-	parent: [ 'jetpack/contact-form' ],
+	parent: [ 'jetpack/contact-form', 'jetpack/form-step' ],
 	ancestor: [ 'jetpack/contact-form', 'jetpack/form-step' ],
 	supports: {
 		html: false,
