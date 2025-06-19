@@ -33,4 +33,4 @@ export const isWithinContactForm = () => {
  *
  * Usage:
  */
-export const useIsWithinContactForm = () => useSelect( () => isWithinContactForm(), [] );
+export const useIsWithinContactForm = () => useSelect( ( select ) => isWithinContactForm( select ), [] );
