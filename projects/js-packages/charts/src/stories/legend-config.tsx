@@ -6,7 +6,7 @@ import { ThemeProvider, jetpackTheme, wooTheme } from '../providers/theme';
  * Provides consistent argTypes and decorators across all chart legend stories
  */
 export const legendArgTypes = {
-	legendAlign: {
+	legendHorizontalAlign: {
 		control: 'select',
 		options: [ 'left', 'center', 'right' ],
 	},

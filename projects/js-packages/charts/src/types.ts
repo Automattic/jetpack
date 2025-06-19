@@ -215,7 +215,7 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	/**
 	 * Legend horizontal alignment
 	 */
-	legendAlign?: 'left' | 'center' | 'right';
+	legendHorizontalAlign?: 'left' | 'center' | 'right';
 	/**
 	 * Legend vertical alignment
 	 */

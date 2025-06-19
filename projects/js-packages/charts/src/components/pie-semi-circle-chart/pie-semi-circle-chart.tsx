@@ -78,7 +78,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	legendAlign = 'center',
+	legendHorizontalAlign = 'center',
 	legendVerticalAlign = 'bottom',
 	legendShape = 'circle',
 	label,
@@ -253,7 +253,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					align={ legendAlign }
+					horizontalAlign={ legendHorizontalAlign }
 					verticalAlign={ legendVerticalAlign }
 					className={ styles[ 'pie-semi-circle-chart-legend' ] }
 					shape={ legendShape }

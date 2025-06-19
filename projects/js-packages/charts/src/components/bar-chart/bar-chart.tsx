@@ -48,7 +48,7 @@ const BarChart: FC< BarChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	legendAlign = 'center',
+	legendHorizontalAlign = 'center',
 	legendVerticalAlign = 'bottom',
 	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
@@ -246,7 +246,7 @@ const BarChart: FC< BarChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					align={ legendAlign }
+					horizontalAlign={ legendHorizontalAlign }
 					verticalAlign={ legendVerticalAlign }
 					className={ styles[ 'bar-chart__legend' ] }
 					shape={ legendShape }

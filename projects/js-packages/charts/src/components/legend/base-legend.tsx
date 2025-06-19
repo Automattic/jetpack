@@ -23,7 +23,7 @@ export const BaseLegend = forwardRef< HTMLDivElement, LegendProps >(
 			items,
 			className,
 			orientation = 'horizontal',
-			align = 'center',
+			horizontalAlign = 'center',
 			verticalAlign = 'bottom',
 			shape = 'rect',
 			fill = valueOrIdentityString,
@@ -71,7 +71,7 @@ export const BaseLegend = forwardRef< HTMLDivElement, LegendProps >(
 						className={ clsx(
 							styles.legend,
 							styles[ `legend--${ orientation }` ],
-							styles[ `legend--align-${ align }` ],
+							styles[ `legend--horizontal-align-${ horizontalAlign }` ],
 							styles[ `legend--vertical-align-${ verticalAlign }` ],
 							className
 						) }

@@ -177,7 +177,7 @@ const LineChart: FC< LineChartProps > = ( {
 	withTooltipCrosshairs,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	legendAlign = 'center',
+	legendHorizontalAlign = 'center',
 	legendVerticalAlign = 'bottom',
 	renderGlyph = defaultRenderGlyph,
 	glyphStyle = {},
@@ -378,7 +378,7 @@ const LineChart: FC< LineChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					align={ legendAlign }
+					horizontalAlign={ legendHorizontalAlign }
 					verticalAlign={ legendVerticalAlign }
 					className={ styles[ 'line-chart-legend' ] }
 					shape={ legendShape }
