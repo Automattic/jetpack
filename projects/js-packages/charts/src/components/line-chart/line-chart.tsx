@@ -355,9 +355,15 @@ const LineChart: FC< LineChartProps > = ( {
 			const size = dataSorted[ 0 ]?.data.length || 0;
 			if ( size === 0 ) return;
 
+			// Keep focus on the chart if tab is pressed.
+			if ( event.key === 'Tab' ) {
+				chartRef.current?.focus();
+				return;
+			}
+
 			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
 
-			if ( currentSelectedIndex + 1 >= size && [ 'ArrowRight', 'Tab' ].includes( event.key ) ) {
+			if ( currentSelectedIndex + 1 >= size && [ 'ArrowRight' ].includes( event.key ) ) {
 				chartRef.current?.focus();
 
 				setSelectedIndex( undefined );
@@ -366,7 +372,7 @@ const LineChart: FC< LineChartProps > = ( {
 
 			event.preventDefault();
 
-			if ( [ 'ArrowRight', 'Tab' ].includes( event.key ) ) {
+			if ( [ 'ArrowRight' ].includes( event.key ) ) {
 				setSelectedIndex( ( currentSelectedIndex + 1 ) % size );
 			} else if ( [ 'ArrowLeft' ].includes( event.key ) ) {
 				setSelectedIndex( ( currentSelectedIndex - 1 + size ) % size );
