@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Security: Fixed issue where array-type email parameters could cause errors in carousel comment submissions
