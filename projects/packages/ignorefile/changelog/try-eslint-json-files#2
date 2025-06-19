@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Reformat JSON test file for new eslint config.
+
+

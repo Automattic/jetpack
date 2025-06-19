@@ -13,14 +13,14 @@ import useCreateForm from '../hooks/use-create-form';
 /**
  * Types
  */
-import type { IntegrationCardProps, IntegrationCardData } from '../../types';
+import type { SingleIntegrationCardProps, IntegrationCardData } from '../../types';
 
 const SalesforceDashboardCard = ( {
 	isExpanded,
 	onToggle,
 	data,
 	refreshStatus,
-}: IntegrationCardProps ) => {
+}: SingleIntegrationCardProps ) => {
 	const { openNewForm } = useCreateForm();
 	const handleCreateSalesforceForm = useCallback( () => {
 		openNewForm( {

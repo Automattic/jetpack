@@ -14,14 +14,14 @@ import AkismetIcon from '../../icons/akismet';
 /**
  * Types
  */
-import type { IntegrationCardProps, IntegrationCardData } from '../../types';
+import type { SingleIntegrationCardProps, IntegrationCardData } from '../../types';
 
 const AkismetDashboardCard = ( {
 	isExpanded,
 	onToggle,
 	data,
 	refreshStatus,
-}: IntegrationCardProps ) => {
+}: SingleIntegrationCardProps ) => {
 	const { isConnected: akismetActiveWithKey = false, settingsUrl = '' } = data || {};
 	const navigate = useNavigate();
 

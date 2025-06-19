@@ -14,7 +14,7 @@ import IntegrationCard from '../../blocks/contact-form/components/jetpack-integr
 /**
  * Types
  */
-import type { IntegrationCardProps, IntegrationCardData } from '../../types';
+import type { SingleIntegrationCardProps, IntegrationCardData } from '../../types';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
@@ -23,7 +23,7 @@ const JetpackCRMDashboardCard = ( {
 	onToggle,
 	data,
 	refreshStatus,
-}: IntegrationCardProps ) => {
+}: SingleIntegrationCardProps ) => {
 	const { settingsUrl = '', version = '', details = {} } = data || {};
 	const { hasExtension = false, canActivateExtension = false } = details;
 
