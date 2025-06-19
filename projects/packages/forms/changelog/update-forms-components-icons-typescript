@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Convert components and icons from dashboard to Typescript

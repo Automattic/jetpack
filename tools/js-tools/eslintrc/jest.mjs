@@ -1,16 +1,22 @@
-import { defineConfig } from 'eslint/config';
 import eslintPluginJest from 'eslint-plugin-jest';
 import eslintPluginJestDom from 'eslint-plugin-jest-dom';
 import eslintPluginTestingLibrary from 'eslint-plugin-testing-library';
 import globals from 'globals';
+import { defineConfig, javascriptFiles } from './base.mjs';
 
 export default defineConfig(
-	eslintPluginJest.configs[ 'flat/recommended' ],
-	eslintPluginJest.configs[ 'flat/style' ],
-	eslintPluginJestDom.configs[ 'flat/recommended' ],
-	eslintPluginTestingLibrary.configs[ 'flat/react' ],
+	{
+		files: javascriptFiles,
+		extends: [
+			eslintPluginJest.configs[ 'flat/recommended' ],
+			eslintPluginJest.configs[ 'flat/style' ],
+			eslintPluginJestDom.configs[ 'flat/recommended' ],
+			eslintPluginTestingLibrary.configs[ 'flat/react' ],
+		],
+	},
 	{
 		name: 'Monorepo jest config',
+		files: javascriptFiles,
 		languageOptions: {
 			globals: {
 				...globals.jest,

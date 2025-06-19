@@ -102,8 +102,8 @@ build: check clean $(BUILD_DST)/$(BUILD_FILE)
 
 ## i18n
 i18n:
-	@ /bin/bash $(BUILD_SRC)/bin/i18n/generate-pot.sh
-	@ /bin/bash $(BUILD_SRC)/bin/i18n/update-translations.sh
+	@ bash $(BUILD_SRC)/bin/i18n/generate-pot.sh
+	@ bash $(BUILD_SRC)/bin/i18n/update-translations.sh
 	@ git add $(BUILD_SRC)/languages
 	@ git commit $(BUILD_SRC)/languages -m "Update language files"
 
@@ -113,10 +113,10 @@ tag:
 
 ## CI & other testing
 test-public-access: build
-	/bin/sh ./bin/ci-init-access-tests.sh
+	sh ./bin/ci-init-access-tests.sh
 
 test-private-access: build
-	/bin/sh ./bin/ci-init-access-tests.sh private
+	sh ./bin/ci-init-access-tests.sh private
 
 ## clean
 clean: $(BUILD_DST)
