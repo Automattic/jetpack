@@ -1,4 +1,5 @@
 import { EventSourceMessage } from '@microsoft/fetch-event-source';
+import debugFactory from 'debug';
 import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.ts';
 import { getErrorData } from '../hooks/use-ai-suggestions/index.ts';
 import { renderHTMLFromMarkdown, renderMarkdownFromHTML } from '../libs/markdown/index.ts';
@@ -35,6 +36,8 @@ type FunctionCallProps = {
 	name?: string;
 	arguments?: string;
 };
+
+const debug = debugFactory( 'ai-client:chrome-ai-suggestions' );
 
 export default class ChromeAISuggestionsEventSource extends EventTarget {
 	fullMessage: string;
@@ -80,6 +83,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	processEvent( e: EventSourceMessage ) {
 		let data: ChromeAIEvent;
+		debug( 'processEvent', e );
 		try {
 			data = JSON.parse( e.data );
 		} catch ( err ) {
@@ -99,6 +103,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 	}
 
 	processErrorEvent( e ) {
+		debug( 'processErrorEvent', e );
 		// Dispatch a generic network error event
 		this.dispatchEvent( new CustomEvent( ERROR_NETWORK, { detail: e } ) );
 		this.dispatchEvent(
