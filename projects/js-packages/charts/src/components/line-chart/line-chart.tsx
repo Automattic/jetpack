@@ -371,6 +371,9 @@ const LineChart: FC< LineChartProps > = ( {
 			// Keep focus on the chart if tab is pressed.
 			if ( event.key === 'Tab' ) {
 				chartRef.current?.focus();
+				setSelectedIndex( undefined );
+				setIsNavigating( false );
+
 				return;
 			}
 
