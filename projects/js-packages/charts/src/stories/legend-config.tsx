@@ -31,6 +31,10 @@ export const legendArgTypes = {
 
 /**
  * Shared decorator for legend stories with theme support and resizable container
+ * @param Story      - The story component to render
+ * @param root0      - The story context object
+ * @param root0.args - The story arguments
+ * @return The decorated story component
  */
 export const legendDecorator = [
 	( Story, { args } ) => (

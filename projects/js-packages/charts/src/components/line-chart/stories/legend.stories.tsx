@@ -1,6 +1,6 @@
+import { legendArgTypes } from '../../../stories/legend-config';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
-import { legendArgTypes } from '../../../stories/legend-config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LineChart > = {
