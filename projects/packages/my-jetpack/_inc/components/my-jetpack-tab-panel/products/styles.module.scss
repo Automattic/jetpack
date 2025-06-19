@@ -81,6 +81,12 @@
 			height: 100%;
 		}
 	}
+
+	.section-heading {
+
+		@include gb.heading-x-large;
+		margin-bottom: 1.5rem;
+	}
 }
 
 .product-card {

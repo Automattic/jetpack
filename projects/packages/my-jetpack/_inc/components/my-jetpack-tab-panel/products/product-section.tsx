@@ -23,7 +23,7 @@ export function ProductSection( { section }: ProductSectionProps ) {
 
 	return (
 		<section key={ section.id } className={ styles[ 'product-section' ] }>
-			<h2>{ section.title }</h2>
+			<h2 className={ styles[ 'section-heading' ] }>{ section.title }</h2>
 			{ section.cards?.length ? (
 				<Grid as="ul" gap={ 6 } columns={ [ 1, 1, 1, 2 ] } className={ styles[ 'product-cards' ] }>
 					{ section.cards.map( card => (
