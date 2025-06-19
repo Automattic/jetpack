@@ -1170,7 +1170,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$valid_emails = array();
 
-		foreach ( (array) $emails as $email ) {
+		foreach ( $emails as $email ) {
 			if ( ! is_email( $email ) ) {
 				continue;
 			}
@@ -1530,11 +1530,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$akismet_values[ $av_key ] = Contact_Form_Plugin::strip_tags( $av_value );
 		}
 
-		foreach ( (array) $all_values as $all_key => $all_value ) {
+		foreach ( $all_values as $all_key => $all_value ) {
 			$all_values[ $all_key ] = Contact_Form_Plugin::strip_tags( $all_value );
 		}
 
-		foreach ( (array) $extra_values as $ev_key => $ev_value ) {
+		foreach ( $extra_values as $ev_key => $ev_value ) {
 			$extra_values[ $ev_key ] = Contact_Form_Plugin::strip_tags( $ev_value );
 		}
 
