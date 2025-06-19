@@ -1,4 +1,4 @@
-@import './features/features.colors';
+@use 'features/features.colors';
 
 .jetpack-ai-proofread {
 
@@ -6,11 +6,11 @@
 
 		&__input:not( :disabled ) {
 
-			@include features-colors( ( 'border-color' ) );
+			@include features.features-colors( ( 'border-color' ) );
 
 			&:checked {
 
-				@include features-colors( ( 'background-color' ) );
+				@include features.features-colors( ( 'background-color' ) );
 			}
 		}
 

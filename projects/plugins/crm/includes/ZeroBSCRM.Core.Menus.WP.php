@@ -104,7 +104,7 @@ function zeroBSCRM_menu_buildMenu() {
 			'wpposition' => $menu_position,
 			'subitems'   => array(),
 			'callback'   => 'zeroBSCRM_pages_dash',
-			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_chartjs', 'zeroBSCRM_admin_styles_homedash' ),
+			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_homedash' ),
 		);
 
 		/**
@@ -118,7 +118,7 @@ function zeroBSCRM_menu_buildMenu() {
 			'order'      => 1,
 			'wpposition' => 1,
 			'callback'   => 'zeroBSCRM_pages_dash',
-			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_chartjs', 'zeroBSCRM_admin_styles_homedash' ),
+			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_homedash' ),
 		);
 
 		if ( apply_filters( 'jetpack_crm_automations_load_ui', false ) ) {
@@ -341,7 +341,7 @@ function zeroBSCRM_menu_buildMenu() {
 			'wpposition' => 2,
 			'subitems'   => array(),
 			'callback'   => 'zeroBSCRM_pages_dash',
-			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_chartjs', 'zeroBSCRM_admin_styles_homedash' ),
+			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_homedash' ),
 		);
 
 		/**
@@ -355,7 +355,7 @@ function zeroBSCRM_menu_buildMenu() {
 			'order'      => 1,
 			'wpposition' => 1,
 			'callback'   => 'zeroBSCRM_pages_dash',
-			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_chartjs', 'zeroBSCRM_admin_styles_homedash' ),
+			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_homedash' ),
 		);
 
 		if ( apply_filters( 'jetpack_crm_automations_load_ui', false ) ) {

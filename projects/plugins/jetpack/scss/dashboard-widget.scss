@@ -1,11 +1,11 @@
 // Variables
-@import '../_inc/client/scss/variables/colors';
-@import '../_inc/client/scss/variables/layout';
+@use '../_inc/client/scss/variables/colors';
+@use '../_inc/client/scss/variables/layout';
 
 // Mixins
-@import '../_inc/client/scss/mixins/breakpoints';
-@import '../_inc/client/scss/mixins/clear-fix';
-@import '../_inc/client/scss/mixins/long-content-fade';
+@use '../_inc/client/scss/mixins/breakpoints';
+@use '../_inc/client/scss/mixins/clear-fix';
+@use '../_inc/client/scss/mixins/long-content-fade';
 
 // Styles
-@import "../_inc/client/dashboard-widget/style";
+@use "../_inc/client/dashboard-widget/style";

@@ -23,7 +23,7 @@ import {
 } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -233,8 +233,11 @@ const EditVideoDetails = () => {
 		'jetpack-videopress-pkg'
 	);
 
+	const hasUnsavedChanges = hasChanges && ! updated && ! deleted && canPerformAction;
+	const videoThumbnailUpdateInProgress = processing || isUpdatingPoster;
+
 	useUnloadPrevent( {
-		shouldPrevent: hasChanges && ! updated && ! deleted && canPerformAction,
+		shouldPrevent: hasUnsavedChanges || videoThumbnailUpdateInProgress,
 		message: unsavedChangesMessage,
 	} );
 
@@ -269,10 +272,6 @@ const EditVideoDetails = () => {
 
 	return (
 		<>
-			{ /* This is no longer supported as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
-				<Prompt when={ hasChanges && ! updated && ! deleted } message={ unsavedChangesMessage } />
-			*/ }
-
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
 					handleCloseSelectFrame={ handleCloseSelectFrame }

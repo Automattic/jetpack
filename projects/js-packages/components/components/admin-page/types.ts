@@ -65,4 +65,9 @@ export type AdminPageProps = {
 	 * Optional menu items to be displayed
 	 */
 	optionalMenuItems?: JetpackFooterMenuItem[];
+
+	/**
+	 * Class name to be applied to the root element of the component.
+	 */
+	className?: string;
 };

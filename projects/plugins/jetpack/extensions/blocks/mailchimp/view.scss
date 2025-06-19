@@ -1,6 +1,6 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@import '../../shared/styles/jetpack-variables';
-@import "../../shared/styles/align";
+@use '../../shared/styles/jetpack-variables';
+@use "../../shared/styles/align";
 
 .wp-block-jetpack-mailchimp {
 
@@ -13,7 +13,7 @@
 
 	.wp-block-jetpack-button, p {
 
-		@include align-block;
+		@include align.align-block;
 
 		margin-bottom: 1em;
 	}
@@ -33,7 +33,7 @@
 
 	.wp-block-jetpack-mailchimp_notification {
 		display: none;
-		margin-bottom: $jetpack-block-margin-bottom;
+		margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 		padding: 0.75em;
 
 		&.is-visible {

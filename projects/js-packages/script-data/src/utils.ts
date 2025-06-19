@@ -97,7 +97,7 @@ export function isAtomicSite() {
  * @return Whether the site is woa.
  */
 export function isWoASite() {
-	return getScriptData().site?.host === 'woa';
+	return getScriptData()?.site?.host === 'woa' || false;
 }
 
 /**

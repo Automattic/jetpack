@@ -11,7 +11,7 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import { config } from '../..';
-import { useIntegrationStatus } from '../../../blocks/contact-form/components/jetpack-integrations-modal/hooks/useIntegrationStatus';
+import { useIntegrationStatus } from '../../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-integration-status';
 import { PARTIAL_RESPONSES_PATH, PREFERRED_VIEW } from '../../../util/get-preferred-responses-view';
 
 const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
@@ -47,7 +47,7 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 		} );
 
 		onExport( 'grunion_export_to_gdrive', 'feedback_export_nonce_gdrive' )
-			.then( response => response.json() )
+			.then( ( response: Response ) => response.json() )
 			.then( ( { data } ) => {
 				window.open( data.sheet_link, '_blank' );
 			} );

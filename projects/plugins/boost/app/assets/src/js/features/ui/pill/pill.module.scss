@@ -11,7 +11,13 @@
 	border: 1px solid;
 }
 
-.pill-alt {
+.pill-red {
+	background: var( --jp-red-50 );
+	border-color: var( --jp-red-80 );
+	color: var( --jp-white );
+}
+
+.pill-gray {
 	background: transparent;
 	color: var( --gray-40 );
 }

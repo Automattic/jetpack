@@ -87,7 +87,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	/**
 	 * Retrieves splitted subscriber counts
 	 *
-	 * @return array data object containing subscriber counts ['email_subscribers' => 0, 'social_followers' => 0]
+	 * @return array data object containing subscriber counts.
 	 */
 	public function get_subscriber_counts() {
 		if ( ! Constants::is_defined( 'TESTING_IN_JETPACK' ) ) {

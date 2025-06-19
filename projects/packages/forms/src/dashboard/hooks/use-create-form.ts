@@ -35,21 +35,49 @@ export default function useCreateForm(): CreateFormReturn {
 		}
 
 		const response = await fetch( window.ajaxurl, { method: 'POST', body: data } );
-		const { post_url: postUrl }: { post_url: string } = await response.json();
+
+		const {
+			success,
+			post_url: postUrl,
+			data: message,
+		}: { success?: boolean; data?: string; post_url?: string } = await response.json();
+
+		if ( success === false ) {
+			throw new Error( message );
+		}
 
 		return postUrl;
 	}, [] );
 
 	const openNewForm = useCallback(
 		async ( { formPattern, showPatterns, analyticsEvent }: ClickHandlerProps ) => {
-			const postUrl = await createForm( formPattern );
+			try {
+				const postUrl = await createForm( formPattern );
 
-			if ( postUrl ) {
-				analyticsEvent?.( { formPattern } );
+				if ( postUrl ) {
+					analyticsEvent?.( { formPattern } );
 
-				window.open(
-					`${ postUrl }${ showPatterns && ! formPattern ? '&showJetpackFormsPatterns' : '' }`
-				);
+					/*
+					 * We are using a temporary link click to open the new form page, as it is created in the backend and we need
+					 * to wait for it before we have the post URL. Using window.open() does not work due to Safari's popup blocker.
+					 */
+					const url = `${ postUrl }${
+						showPatterns && ! formPattern ? '&showJetpackFormsPatterns' : ''
+					}`;
+
+					const link = document.createElement( 'a' );
+
+					link.setAttribute( 'href', url );
+					link.setAttribute( 'target', '_blank' );
+					link.setAttribute( 'rel', 'noopener noreferrer' );
+					link.style.display = 'none';
+
+					document.body.appendChild( link );
+					link.click();
+					document.body.removeChild( link );
+				}
+			} catch ( error ) {
+				console.error( error.message ); // eslint-disable-line no-console
 			}
 		},
 		[ createForm ]

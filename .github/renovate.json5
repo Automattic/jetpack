@@ -93,7 +93,6 @@
 			groupName: '@wordpress/dataviews',
 			matchPackageNames: [ '@wordpress/dataviews' ],
 			separateMajorMinor: false,
-			prPriority: 1,
 			// Teams using DataViews in their projects
 			additionalReviewers: [
 				'team:triforce', // Publicize, My Jetpack

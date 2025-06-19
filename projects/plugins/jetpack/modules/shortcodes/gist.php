@@ -84,12 +84,19 @@ function jetpack_gist_get_shortcode_id( $gist = '' ) {
 			$gist_info['file'] = preg_replace( '/(?:file-)(.+)/', '$1', $parsed_url['fragment'] );
 		}
 
-		// Keep the unique identifier without any leading or trailing slashes.
-		if ( ! empty( $parsed_url['path'] ) ) {
-			$gist_info['id'] = trim( $parsed_url['path'], '/' );
-			// Overwrite $gist with our identifier to clean it up below.
-			$gist = $gist_info['id'];
+		// Validate the path structure - should be either username/gistid or just gistid
+		$path = trim( $parsed_url['path'], '/' );
+		if ( ! preg_match( '#^([a-zA-Z0-9_-]+/)?([a-f0-9]+)$#', $path ) ) {
+			return array(
+				'id'   => '',
+				'file' => '',
+				'ts'   => 8,
+			);
 		}
+
+		$gist_info['id'] = $path;
+		// Reassign $gist with the identifier to clean it up below.
+		$gist = $path;
 
 		// Parse the query args to obtain the tab spacing.
 		if ( ! empty( $parsed_url['query'] ) ) {

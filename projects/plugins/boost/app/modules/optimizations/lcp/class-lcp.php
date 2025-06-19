@@ -22,30 +22,25 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	const TYPE_IMAGE = 'img';
 
 	/**
-	 * LCP storage class instance.
+	 * The LCP data of the current request.
 	 *
-	 * @var LCP_Storage
+	 * @var array|false
 	 */
-	private $storage;
-
-	/**
-	 * Output filter instance.
-	 *
-	 * @var Output_Filter
-	 */
-	private $output_filter;
+	private $lcp_data;
 
 	public function setup() {
-		$this->output_filter = new Output_Filter();
-		$this->storage       = new LCP_Storage();
-
+		add_action( 'wp', array( $this, 'on_wp_load' ), 1 );
 		add_action( 'template_redirect', array( $this, 'add_output_filter' ), -999999 );
+
 		add_action( 'jetpack_boost_lcp_invalidated', array( $this, 'handle_lcp_invalidated' ) );
 
-		// Initialize the optimizer for background images. Doing it late enough so wp can load, but before any output is sent.
-		add_action( 'wp', array( LCP_Optimize_Bg_Image::class, 'init' ) );
-
 		LCP_Invalidator::init();
+	}
+
+	public function on_wp_load() {
+		$this->lcp_data = ( new LCP_Storage() )->get_current_request_lcp();
+
+		LCP_Optimize_Bg_Image::init( $this->lcp_data );
 	}
 
 	public function add_output_filter() {
@@ -53,7 +48,8 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 			return;
 		}
 
-		$this->output_filter->add_callback( array( $this, 'optimize' ) );
+		$output_filter = new Output_Filter();
+		$output_filter->add_callback( array( $this, 'optimize_lcp_img_tag' ) );
 	}
 
 	/**
@@ -66,18 +62,16 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 *
 	 * @since 3.13.1
 	 */
-	public function optimize( $buffer_start, $buffer_end ) {
-		$lcp_storage = $this->storage->get_current_request_lcp();
-
-		if ( empty( $lcp_storage ) ) {
+	public function optimize_lcp_img_tag( $buffer_start, $buffer_end ) {
+		if ( empty( $this->lcp_data ) ) {
 			return array( $buffer_start, $buffer_end );
 		}
 
 		// Combine the buffers for processing
 		$combined_buffer = $buffer_start . $buffer_end;
 
-		foreach ( $lcp_storage as $lcp_data ) {
-			$optimizer = new LCP_Optimize_Img_Tag( $lcp_data );
+		foreach ( $this->lcp_data as $lcp_element ) {
+			$optimizer = new LCP_Optimize_Img_Tag( $lcp_element );
 
 			$combined_buffer = $optimizer->optimize_buffer( $combined_buffer );
 		}
@@ -120,11 +114,7 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 * @since 3.13.1
 	 */
 	public static function is_available() {
-		if ( defined( 'JETPACK_BOOST_ALPHA_FEATURES' ) && JETPACK_BOOST_ALPHA_FEATURES ) {
-			return true;
-		}
-
-		return false;
+		return true;
 	}
 
 	/**
@@ -161,6 +151,19 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 								'key'    => Schema::as_string(),
 								'url'    => Schema::as_string(),
 								'status' => Schema::as_string(),
+								'errors' => Schema::as_array(
+									Schema::as_assoc_array(
+										array(
+											'type' => Schema::as_string(),
+											'meta' => Schema::as_assoc_array(
+												array(
+													'code' => Schema::as_number()->nullable(),
+													'selector' => Schema::as_string()->nullable(),
+												)
+											)->nullable(),
+										)
+									)
+								)->nullable(),
 							)
 						)
 					),

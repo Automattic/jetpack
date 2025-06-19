@@ -1,6 +1,6 @@
-@import '../../scss/mixin_breakpoint';
-@import '../../scss/typography';
-@import '../../scss/variables/colors';
+@use '../../scss/mixin_breakpoint';
+@use '../../scss/typography';
+@use '../../scss/variables/colors';
 
 .jp-product-description > * {
 	margin-bottom: 26px;
@@ -8,20 +8,20 @@
 
 .jp-product-description--split {
 
-	@include breakpoint( '>960px' ) {
+	@include mixin_breakpoint.breakpoint( '>960px' ) {
 		display: grid;
 		grid-template-columns: 50% 50%;
 		column-gap: 26px;
 	}
 
-	@include breakpoint( '>1040px' ) {
+	@include mixin_breakpoint.breakpoint( '>1040px' ) {
 		grid-template-columns: auto 410px;
 	}
 }
 
 .jp-product-description__introductory-pricing {
-	color: $black;
-	font-size: $font-body-small;
+	color: colors.$black;
+	font-size: typography.$font-body-small;
 	line-height: 1.5;
 	letter-spacing: 0.1px;
 	text-align: center;

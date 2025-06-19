@@ -8,10 +8,10 @@
  */
   
 // theme compatibility fixes
-@import '../../../sass/ZeroBSCRM.ThemeCompat';
+@use '../../../sass/ZeroBSCRM.ThemeCompat';
 
 // Import JS CSS vars
-@import '../../../sass/emerald/jp_vars';
+@use '../../../sass/emerald/jp_vars';
  
 .zbs-client-portal-wrap {
    position: relative;

@@ -12,13 +12,10 @@ class LCP_Optimize_Bg_Image {
 	 */
 	private $lcp_data;
 
-	public static function init() {
+	public static function init( $lcp_data ) {
 		if ( LCP_Optimization_Util::should_skip_optimization() ) {
 			return;
 		}
-
-		$storage  = new LCP_Storage();
-		$lcp_data = $storage->get_current_request_lcp();
 
 		if ( empty( $lcp_data ) ) {
 			return;
@@ -41,11 +38,16 @@ class LCP_Optimize_Bg_Image {
 		$selectors = array();
 
 		foreach ( $this->lcp_data as $lcp_data ) {
-			if ( in_array( $lcp_data['element'], $selectors, true ) ) {
+			$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
+			if ( ! $lcp_optimizer->can_optimize() ) {
+				continue;
+			}
+
+			if ( in_array( $lcp_data['selector'], $selectors, true ) ) {
 				// If we already printed the styling for this element, skip it.
 				continue;
 			}
-			$selectors[] = $lcp_data['element'];
+			$selectors[] = $lcp_data['selector'];
 
 			$responsive_image_rules = $this->get_responsive_image_rules( $lcp_data );
 			$this->print_preload_links( $responsive_image_rules );
@@ -74,14 +76,18 @@ class LCP_Optimize_Bg_Image {
 		$selectors = array();
 
 		foreach ( $this->lcp_data as $lcp_data ) {
-			if ( in_array( $lcp_data['element'], $selectors, true ) ) {
+			$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
+			if ( ! $lcp_optimizer->can_optimize() ) {
+				continue;
+			}
+
+			if ( in_array( $lcp_data['selector'], $selectors, true ) ) {
 				// If we already printed the styling for this element, skip it.
 				continue;
 			}
-			$selectors[] = $lcp_data['element'];
+			$selectors[] = $lcp_data['selector'];
 
-			$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
-			$image_url     = $lcp_optimizer->get_image_to_preload();
+			$image_url = $lcp_optimizer->get_lcp_image_url();
 			if ( empty( $image_url ) ) {
 				continue;
 			}
@@ -101,7 +107,7 @@ class LCP_Optimize_Bg_Image {
 				$styles[] = sprintf(
 					'@media %1$s { %2$s { background-image: url(%3$s) !important; background-image: -webkit-image-set(%4$s) !important; background-image: image-set(%4$s) !important; } }',
 					$breakpoint['media_query'],
-					$lcp_data['element'],
+					$lcp_data['selector'],
 					$breakpoint['base_image'],
 					$image_set_string
 				);
@@ -118,12 +124,12 @@ class LCP_Optimize_Bg_Image {
 	}
 
 	private function get_responsive_image_rules( $lcp_data ) {
-		if ( empty( $lcp_data['breakpoints'] ) ) {
+		if ( $lcp_data['type'] !== LCP::TYPE_BACKGROUND_IMAGE || empty( $lcp_data['breakpoints'] ) ) {
 			return array();
 		}
 
 		$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
-		$image_url     = $lcp_optimizer->get_image_to_preload();
+		$image_url     = $lcp_optimizer->get_lcp_image_url();
 
 		if ( empty( $image_url ) ) {
 			return array();
@@ -140,11 +146,23 @@ class LCP_Optimize_Bg_Image {
 			}
 
 			// The Cloud should always return a fixed pixel width for background images, so catering for that is easy peasy.
-			if ( ! isset( $breakpoint['imageWidths'][0] ) ) {
+			if ( empty( $breakpoint['imageDimensions'] ) || ! is_array( $breakpoint['imageDimensions'] ) ) {
 				continue;
 			}
 
-			$image_width = $breakpoint['imageWidths'][0];
+			$image_dimensions = $breakpoint['imageDimensions'][0];
+
+			if ( ! isset( $image_dimensions['width'] ) || ! is_numeric( $image_dimensions['width'] ) ) {
+				continue;
+			}
+
+			if ( ! isset( $image_dimensions['height'] ) || ! is_numeric( $image_dimensions['height'] ) ) {
+				continue;
+			}
+
+			// The width and height should already be an integer, but just in case.
+			$image_width  = (int) $image_dimensions['width'];
+			$image_height = (int) $image_dimensions['height'];
 
 			$media_query = array();
 			if ( isset( $breakpoint['minWidth'] ) ) {
@@ -156,30 +174,40 @@ class LCP_Optimize_Bg_Image {
 
 			$styles[] = array(
 				'media_query' => empty( $media_query ) ? 'all' : implode( ' and ', $media_query ),
-				'image_set'   => $this->get_image_set( $image_url, $image_width ),
-				'base_image'  => Image_CDN_Core::cdn_url( $image_url, array( 'w' => $image_width ) ),
+				'image_set'   => $this->get_image_set( $image_url, $image_width, $image_height ),
+				'base_image'  => Image_CDN_Core::cdn_url(
+					$image_url,
+					array(
+						'resize' => array( $image_width, $image_height ),
+					)
+				),
 			);
 		}
 		return $styles;
 	}
 
-	private function get_image_set( $image_url, $image_width ) {
+	private function get_image_set( $url, $width, $height ) {
 		$dprs = array( 1, 2 );
 
 		// Mobile devices usually have a DPR of 3 which is not common for desktop.
-		if ( $image_width <= 480 ) {
+		if ( $width <= 480 ) {
 			$dprs[] = 3;
 		}
 
 		// Accurately reflect the performance improvement in lighthouse by including a 1.75x DPR image for the Moto G Power.
-		if ( $image_width === 412 ) {
+		if ( $width === 412 ) {
 			$dprs[] = 1.75;
 		}
 
 		$image_set = array();
 		foreach ( $dprs as $dpr ) {
 			$image_set[] = array(
-				'url' => Image_CDN_Core::cdn_url( $image_url, array( 'w' => $image_width * $dpr ) ),
+				'url' => Image_CDN_Core::cdn_url(
+					$url,
+					array(
+						'resize' => array( $width * $dpr, $height * $dpr ),
+					)
+				),
 				'dpr' => $dpr,
 			);
 		}

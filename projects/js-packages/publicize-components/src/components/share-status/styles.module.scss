@@ -1,3 +1,5 @@
+@use 'sass:meta';
+
 .trigger-wrapper {
 	padding-block: 1rem;
 
@@ -76,9 +78,8 @@
 	 */
 	// Use :global scope to avoid CSS encapsulation
 	:global {
-		// Use import without ".css" extension to avoid it being rendered as URL
-		/* stylelint-disable-next-line no-invalid-position-at-import-rule -- this import is intentionally scoped */
-		@import '@wordpress/dataviews/build-style/style';
+
+		@include meta.load-css( '@wordpress/dataviews/build-style/style' );
 	}
 
 	// Hide the table actions

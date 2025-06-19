@@ -12,7 +12,7 @@ import {
 import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useEffect } from 'react';
 import styles from './image-size-analysis.module.scss';
 import clsx from 'clsx';

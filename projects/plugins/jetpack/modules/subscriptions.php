@@ -861,7 +861,7 @@ class Jetpack_Subscriptions {
 		$post_id = (int) $post_id;
 
 		/** This filter is already documented in core/wp-includes/comment-functions.php */
-		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
+		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime', YEAR_IN_SECONDS );
 
 		/**
 		 * Filter the Jetpack Comment cookie path.

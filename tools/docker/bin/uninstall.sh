@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo "Uninstalling WordPress..."
 echo "Emptying the WordPress DB..."

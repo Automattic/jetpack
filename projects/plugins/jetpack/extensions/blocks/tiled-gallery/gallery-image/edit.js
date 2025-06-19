@@ -104,7 +104,6 @@ class GalleryImageEdit extends Component {
 					data-id={ id }
 					data-link={ link }
 					data-url={ origUrl }
-					data-custom-link={ customLink }
 					data-width={ width }
 					ref={ this.img }
 					src={ isTransient ? undefined : url }

@@ -1,4 +1,4 @@
-@import './common';
+@use 'common';
 
 .wp-block-jetpack-blogroll {
 
@@ -81,7 +81,7 @@
 		.jetpack-blogroll-item-subscribe-button {
 			white-space: nowrap;
 
-			@include break-bloroll-container-mobile() {
+			@include common.break-bloroll-container-mobile() {
 				margin-left: auto;
 				align-self: center;
 			}
@@ -115,7 +115,7 @@
 			align-items: center;
 			justify-content: center;
 
-			@include break-bloroll-container-mobile() {
+			@include common.break-bloroll-container-mobile() {
 				flex-direction: row;
 
 				.jetpack-blogroll-item-email-input {

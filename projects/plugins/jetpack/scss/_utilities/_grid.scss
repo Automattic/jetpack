@@ -1,3 +1,5 @@
+@use "mixins/breakpoint";
+
 // ==========================================================================
 // Grid styles
 // 12 column grid
@@ -43,7 +45,7 @@
 
 // Medium grid
 // 530px and up
-@include minbreakpoint(large-phone) {
+@include breakpoint.minbreakpoint(large-phone) {
 	// .j-md-1		{width: 8.33333%;}
 	// .j-md-2		{width: 16.66667%;}
 	// .j-md-3		{width: 25%;}
@@ -60,7 +62,7 @@
 
 // Large grid
 // 782px and up
-@include minbreakpoint(tablet) {
+@include breakpoint.minbreakpoint(tablet) {
 	// .j-lrg-1	{width: 8.33333%;}
 	// .j-lrg-2	{width: 16.66667%;}
 	// .j-lrg-3	{width: 25%;}

@@ -1,10 +1,10 @@
 // Variables
-@import '@automattic/color-studio/dist/color-variables';
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 .jp-search-notice-box {
 	background-color: #fff;
 	color: #000;
-	border: $studio-gray-5 0.5px solid;
+	border: studio.$studio-gray-5 0.5px solid;
 	border-radius: 5px;
 	padding: 24px;
 }
@@ -33,7 +33,7 @@
 }
 
 .jp-search-notice-box__important {
-	border: $studio-red-50 0.5px solid;
+	border: studio.$studio-red-50 0.5px solid;
 }
 
 .jp-search-notice-box__important .dops-notice__content .dops-notice__header {
@@ -71,7 +71,7 @@
 .jp-search-notice-box__important .dops-notice__icon-wrapper,
 .jp-search-notice-box__important,
 .jp-search-notice-box__important .dops-notice__header {
-	color: $studio-red-50;
+	color: studio.$studio-red-50;
 }
 
 .jp-search-notice-box > .dops-notice__icon-wrapper > svg {

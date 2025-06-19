@@ -1,3 +1,5 @@
+@use "../../scss/typography";
+@use "../../scss/variables/colors";
 @use '../../scss/functions/rem';
 
 .jp-form-settings-group {
@@ -5,7 +7,7 @@
 	margin-bottom: 0;
 
 	p {
-		font-size: $font-body-small;
+		font-size: typography.$font-body-small;
 		margin-top: 0;
 		margin-bottom: rem.convert( 24px );
 
@@ -28,10 +30,10 @@
 	}
 
 	.jp-form-setting-explanation {
-		color: $gray-text-min;
+		color: colors.$gray-text-min;
 		display: block;
 		margin: rem.convert( 5px ) rem.convert( 14px ) rem.convert( 5px ) 0;
-		font-size: $font-body-small;
+		font-size: typography.$font-body-small;
 		font-style: italic;
 		font-weight: 400;
 		word-break: break-word;
@@ -41,7 +43,7 @@
 		}
 
 		&.is-warning {
-			color: $alert-red;
+			color: colors.$alert-red;
 		}
 
 		a {

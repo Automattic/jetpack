@@ -326,22 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.7-a.7 - 2025-05-26
+### 14.8-a.5 - 2025-06-16
 #### Enhancements
-- Social: Add option to add default image to Social Image Generator.
-- Forms: Add Integration screen content.
-
-#### Improved compatibility
-- Endpoints: Add checks within the v1.1 post update endpoint to ensure values are defined.
-- Sharing buttons: Prevent PHP warnings in some scenarios, ensuring we only check the post title and ID if posts exist.
+- AI Assistant: Add support for file upload field on Forms extension.
+- Forms: Add Akismet refresh status button.
+- Forms: Stop translate product name in the sidebar.
+- Forms: Show central integrations dashboard.
+- Forms: Use interactivity API for form validation.
+- Forms: Make it possible to preview file by visiting the URL.
 
 #### Bug fixes
-- AI Chat & Donations blocks: Ensure that all metadata is properly attached to the blocks in the block editor.
-- Forms: Fix Akismet spam URL.
-- Jetpack: Fix redirect URL on frontend for upgrade nudge.
-- My Jetpack: Fix Onboarding UI responsiveness at 600px.
-- My Jetpack: Fix readability of license activation button on hover.
-- My Jetpack: Hide backup failure notice when backups are deactivated.
+- Endpoints: Prevent warnings in logs when attempting to add external media from some sources.
+- Recipe shortcode: Prevent errors in logs due to checking for theme color properties that may not exist.
 
 --------
 

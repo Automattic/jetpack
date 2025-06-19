@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -27,7 +28,7 @@ import {
 	getVaultPressData,
 } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { isWoASite, getPartnerCoupon, showBackups } from 'state/initial-state';
+import { getPartnerCoupon, showBackups } from 'state/initial-state';
 import { siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import BackupGettingStarted from './backup-getting-started';
@@ -73,7 +74,6 @@ class DashBackups extends Component {
 		hasRealTimeBackups: PropTypes.bool.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
-		isWoA: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
 		backupUndoEvent: PropTypes.any.isRequired,
@@ -85,7 +85,6 @@ class DashBackups extends Component {
 		vaultPressData: '',
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
-		isWoA: false,
 		rewindStatus: '',
 		trackUpgradeButtonView: noop,
 		backupUndoEvent: {},
@@ -252,13 +251,13 @@ class DashBackups extends Component {
 	}
 
 	renderManageBackupsLinks() {
-		const { isWoA, siteRawUrl } = this.props;
+		const { siteRawUrl } = this.props;
 		return (
 			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom">
 				<div className="jp-dash-item__action-links">
 					<ExternalLink
 						href={
-							isWoA
+							isWoASite()
 								? getRedirectUrl( 'calypso-backups', {
 										site: siteRawUrl,
 								  } )
@@ -528,7 +527,6 @@ export default connect(
 			hasBackups: siteHasFeature( state, 'backups' ),
 			hasRealTimeBackups: siteHasFeature( state, 'real-time-backups' ),
 			partnerCoupon: getPartnerCoupon( state ),
-			isWoA: isWoASite( state ),
 			backupUndoEvent: getBackupUndoEvent( state ),
 			backupUndoEventLoaded: hasLoadedBackupUndoEvent( state ),
 			backupUndoEventIsFetching: isFetchingBackupUndoEvent( state ),

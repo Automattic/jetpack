@@ -2,10 +2,10 @@
  * Styles for Top Posts
  */
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@import '../../shared/styles/jetpack-variables';
+@use '../../shared/styles/jetpack-variables';
 
 .wp-block-jetpack-top-posts {
-	margin-bottom: $jetpack-block-margin-bottom;
+	margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 
 	img {
 		width: 100%;
@@ -17,7 +17,7 @@
 	}
 
 	&.is-list-layout .jetpack-top-posts-item {
-		margin-bottom: $jetpack-block-margin-bottom;
+		margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 	}
 
 	&.is-grid-layout {
@@ -36,7 +36,7 @@
 				}
 
 				.jetpack-top-posts-item {
-					margin-bottom: $jetpack-block-margin-bottom;
+					margin-bottom: jetpack-variables.$jetpack-block-margin-bottom;
 				}
 			}
 		}

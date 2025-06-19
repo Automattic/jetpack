@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import Gridicon from 'components/gridicon';
 
 import './style.scss';
 
@@ -19,6 +20,7 @@ export default class Button extends React.Component {
 		borderless: PropTypes.bool,
 		rna: PropTypes.bool,
 		className: PropTypes.string,
+		isExternalLink: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -26,13 +28,16 @@ export default class Button extends React.Component {
 		type: 'button',
 		onClick: noop,
 		borderless: false,
+		isExternalLink: false,
 	};
 
 	domNode = null;
 
 	render() {
 		const element = this.props.href ? 'a' : 'button';
-		const { primary, compact, scary, borderless, rna, className, ...props } = this.props;
+		const isLink = element === 'a';
+		const { primary, compact, scary, borderless, rna, className, isExternalLink, ...props } =
+			this.props;
 
 		const buttonClasses = clsx( {
 			'dops-button': true,
@@ -48,6 +53,20 @@ export default class Button extends React.Component {
 			this.domNode = node;
 		};
 
-		return React.createElement( element, props, this.props.children );
+		// Open external links in new window.
+		if ( isLink && isExternalLink ) {
+			props.target = '_blank';
+		}
+
+		return React.createElement(
+			element,
+			props,
+			<>
+				{ this.props.children }
+				{ isLink && isExternalLink && (
+					<Gridicon className="dops-card__link-indicator" icon="external" />
+				) }
+			</>
+		);
 	}
 }

@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/style';
+@use '@automattic/jetpack-base-styles/style';
 
 .jetpack-ai-status-indicator__icon-wrapper {
 	transition: opacity 0.25s ease-in-out, width 0.25s;

@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 6.1.0
+ * Version: 7.0.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '6.1.0' );
+define( 'WPCOMSH_VERSION', '7.0.0' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -25,6 +25,9 @@ require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-m
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
+
+// Protected Owner functionality for Jetpack Connection
+require_once __DIR__ . '/connection/protected-owner-handlers.php';
 
 require_once __DIR__ . '/plugin-hotfixes.php';
 

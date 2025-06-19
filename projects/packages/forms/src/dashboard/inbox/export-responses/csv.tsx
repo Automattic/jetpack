@@ -1,13 +1,21 @@
 /**
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Path, SVG } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 
 const CSVExport = ( { onExport } ) => {
+	const { tracks } = useAnalytics();
+
 	const downloadCSV = useCallback( () => {
+		tracks.recordEvent( 'jetpack_forms_export_click', {
+			destination: 'csv',
+			screen: 'form-responses-inbox',
+		} );
+
 		onExport( 'feedback_export', 'feedback_export_nonce_csv' ).then( async response => {
 			const blob = await response.blob();
 
@@ -23,7 +31,7 @@ const CSVExport = ( { onExport } ) => {
 			document.body.removeChild( a );
 			window.URL.revokeObjectURL( a.href );
 		} );
-	}, [ onExport ] );
+	}, [ onExport, tracks ] );
 
 	const buttonClasses = clsx( 'button', 'export-button', 'export-csv' );
 

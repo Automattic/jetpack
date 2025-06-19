@@ -6,6 +6,8 @@
  */
 @use 'sass:color';
 
+$highlight-color: $--a-value-must-be-set-via-with-- !default;
+
 body {
 	--wp-admin-theme-color: #{$highlight-color};
 

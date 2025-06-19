@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu as Jetpack_Admin_UI_Admin;
 use Automattic\Jetpack\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -117,32 +118,6 @@ class Admin_Menu_Test extends TestCase {
 		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'users.php' ) );
 		static::$admin_menu->set_preferred_view( 'options-general.php', 'unknown' );
 		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'options-general.php' ) );
-	}
-
-	/**
-	 * Tests add_my_home_menu
-	 */
-	public function test_add_my_home_menu() {
-		global $menu, $submenu;
-
-		static::$admin_menu->add_my_home_menu();
-
-		// Has My Home submenu item when there are other submenu items.
-		$this->assertSame( 'https://wordpress.com/home/' . static::$domain, array_shift( $submenu['index.php'] )[2] );
-
-		// Reset data.
-		$menu    = static::$menu_data;
-		$submenu = static::$submenu_data;
-
-		// Has no ny Home submenu when there are no other submenus.
-		$submenu['index.php'] = array(
-			0 => array( 'Home', 'read', 'index.php' ),
-		);
-
-		static::$admin_menu->add_my_home_menu();
-		$this->assertSame( 'https://wordpress.com/home/' . static::$domain, $menu[2][2] );
-		'@phan-var non-empty-array $submenu';
-		$this->assertSame( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['index.php'][0][4] );
 	}
 
 	/**
@@ -364,6 +339,8 @@ class Admin_Menu_Test extends TestCase {
 	public function test_add_jetpack_menu() {
 		global $submenu;
 
+		static::$admin_menu->register_nav_unification_jetpack_menus();
+		Jetpack_Admin_UI_Admin::admin_menu_hook_callback();
 		static::$admin_menu->add_jetpack_menu();
 
 		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][3][2] );

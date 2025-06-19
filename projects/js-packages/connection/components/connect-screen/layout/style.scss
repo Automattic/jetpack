@@ -1,5 +1,5 @@
 @use '@wordpress/base-styles/mixins';
-@import '@automattic/jetpack-base-styles/style';
+@use '@automattic/jetpack-base-styles/style';
 
 .jp-connection__connect-screen-layout {
 	background: var( --jp-white );

@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import SectionNav from 'components/section-nav';
 import NavItem from 'components/section-nav/item';
 import NavTabs from 'components/section-nav/tabs';

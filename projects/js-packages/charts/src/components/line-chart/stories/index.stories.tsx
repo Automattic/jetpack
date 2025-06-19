@@ -1,33 +1,15 @@
 import React from 'react';
 import LineChart from '../line-chart';
+import { lineChartStoryArgs, lineChartMetaArgs } from './config';
+import largeValuesData from './large-values-sample';
 import sampleData from './sample-data';
 import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LineChart > = {
+	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart',
-	component: LineChart,
-	parameters: {
-		layout: 'centered',
-	},
-	decorators: [
-		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-					display: 'inline-block',
-				} }
-			>
-				<Story />
-			</div>
-		),
-	],
-};
+} satisfies Meta< typeof LineChart >;
 
 export default meta;
 
@@ -36,21 +18,7 @@ const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
 // Default story with multiple series
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
 Default.args = {
-	data: sampleData,
-	showLegend: false,
-	legendOrientation: 'horizontal',
-	withGradientFill: false,
-	smoothing: true,
-	options: {
-		axis: {
-			x: {
-				orientation: 'bottom',
-			},
-			y: {
-				orientation: 'left',
-			},
-		},
-	},
+	...lineChartStoryArgs,
 };
 
 // Story with single data series
@@ -59,34 +27,12 @@ SingleSeries.args = {
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
-// Story without tooltip
-export const WithoutTooltip: StoryObj< typeof LineChart > = Template.bind( {} );
-WithoutTooltip.args = {
-	...Default.args,
-	withTooltips: false,
-};
-
 // Story with custom dimensions
 export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomDimensions.args = {
 	width: 800,
 	height: 400,
 	data: sampleData,
-};
-
-// Story with horizontal legend
-export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegend.args = {
-	...Default.args,
-	showLegend: true,
-};
-
-// Story with vertical legend
-export const WithVerticalLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithVerticalLegend.args = {
-	...Default.args,
-	showLegend: true,
-	legendOrientation: 'vertical',
 };
 
 // Add after existing stories
@@ -190,37 +136,6 @@ WithoutSmoothing.args = {
 	smoothing: false,
 };
 
-export const CustomTooltips: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomTooltips.args = {
-	...Default.args,
-	renderTooltip: ( { tooltipData } ) => {
-		const nearestDatum = tooltipData?.nearestDatum?.datum;
-		if ( ! nearestDatum ) return null;
-
-		const tooltipPoints = Object.entries( tooltipData?.datumByKey || {} )
-			.map( ( [ key, { datum } ] ) => ( {
-				key,
-				value: datum.value as number,
-			} ) )
-			.sort( ( a, b ) => b.value - a.value );
-
-		return (
-			<div>
-				<h3>{ nearestDatum?.date?.toLocaleDateString() } 💯 </h3>
-
-				<table style={ { border: '1px solid black', borderCollapse: 'collapse' } }>
-					{ tooltipPoints.map( point => (
-						<tr style={ { border: '1px solid black' } } key={ point.key }>
-							<td style={ { border: '1px solid black' } }>{ point.key }</td>
-							<td>{ point.value }</td>
-						</tr>
-					) ) }
-				</table>
-			</div>
-		);
-	},
-};
-
 export const WithPointerEvents: StoryObj< typeof LineChart > = Template.bind( {} );
 WithPointerEvents.args = {
 	...Default.args,
@@ -291,6 +206,103 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 			description: {
 				story:
 					'Examples of the three different curve types available. The data points are designed to highlight how Monotone X prevents overshooting (going above/below data points) compared to Catmull-Rom smoothing, while still maintaining a smooth curve. Linear shows the raw connections between points.',
+			},
+		},
+	},
+};
+
+// Story demonstrating Smart Formatting (formatYTick) with large values
+export const SmartFormatting: StoryObj< typeof LineChart > = Template.bind( {} );
+SmartFormatting.args = {
+	data: largeValuesData,
+	showLegend: true,
+	legendOrientation: 'horizontal',
+	withGradientFill: false,
+	smoothing: true,
+	options: {
+		axis: {
+			x: {
+				orientation: 'bottom',
+			},
+			y: {
+				orientation: 'left',
+			},
+		},
+	},
+};
+
+SmartFormatting.parameters = {
+	docs: {
+		description: {
+			story:
+				'Demonstrates the Smart Formatting feature (formatYTick) that automatically formats Y-axis tick labels based on the data range. Values ≥1B are formatted as "1.23B", ≥1M as "1.2M", ≥1K as "1k", and smaller values as "1,234". This example shows revenue in billions and users in millions.',
+		},
+	},
+};
+
+export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
+BrokenLine.args = {
+	...Default.args,
+	margin: {
+		bottom: 40,
+	},
+	showLegend: true,
+	data: [
+		{
+			...webTrafficData[ 0 ],
+			label: 'Vistors to compare',
+			options: {
+				...webTrafficData[ 0 ].options,
+				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
+				legendShapeStyle: {
+					strokeDasharray: '5 5 1',
+				},
+			},
+		},
+		webTrafficData[ 1 ],
+	],
+};
+
+BrokenLine.parameters = {
+	docs: {
+		description: {
+			story: 'Demonstrates the option of setting a seriesLineStyle to a dash array.',
+		},
+	},
+};
+
+export const DateStringFormats: StoryObj< typeof LineChart > = {
+	render: () => {
+		return (
+			<LineChart
+				data={ [
+					{
+						label: 'String Dates',
+						data: [
+							{ dateString: '2024-01-01', value: 10 },
+							{ dateString: '2024-01-02', value: 20 },
+							{ dateString: '2024-01-03 00:00:00', value: 15 },
+							{ dateString: '2024-01-04', value: 25 },
+							{ dateString: '2024-01-05 00:00', value: 30 },
+						],
+						options: {},
+					},
+				] }
+				withGradientFill={ false }
+			/>
+		);
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Demonstrates the line chart's ability to handle various date string formats and mixed date types. All dates are converted to local timezone. The chart can process:\n" +
+					'- Simple date strings (YYYY-MM-DD)\n' +
+					'- Date with time (YYYY-MM-DD 00:00:00)\n' +
+					'- Date with time (YYYY-MM-DD 00:00)\n' +
+					'- ISO format (YYYY-MM-DDT00:00:00)\n' +
+					'- UTC format (YYYY-MM-DDT00:00:00Z)\n' +
+					'- Timezone offset (YYYY-MM-DDT00:00:00±HH:mm)\n',
 			},
 		},
 	},

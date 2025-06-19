@@ -7,6 +7,7 @@ export const DEFAULT_STATE = {
 	siteSlug: '',
 	connectedAccountDefaultCurrency: '',
 	subscriberCounts: {
+		totalSubscribers: null,
 		socialFollowers: null,
 		emailSubscribers: null,
 		paidSubscribers: null,
@@ -36,6 +37,11 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 			return {
 				...state,
 				subscriberCounts: action.subscriberCounts,
+			};
+		case 'SET_TOTAL_EMAILS_SENT_COUNT':
+			return {
+				...state,
+				totalEmailsSentCount: action.totalEmailsSentCount,
 			};
 		case 'SET_NEWSLETTER_CATEGORIES':
 			return {
