@@ -1,9 +1,8 @@
 import { BarChart } from '@automattic/charts';
-import { Card } from '@wordpress/components';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty, chevronRight, info } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import formatNumber from '../../utils/format-number';
 import CountComparisonCard from './count-comparison-card';
 import createStatDiffText from './create-stat-diff-text';
@@ -148,7 +147,10 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData, isLoadin
 		[ handleMetricSelect ]
 	);
 
-	const isEmpty = ( transformedChartData?.[ 0 ]?.data || [] ).length === 0 && ! isLoading;
+	// Check if there's data for the selected metric specifically - recalculates when selectedMetric changes
+	const isEmpty = useMemo( () => {
+		return ! isLoading && transformedChartData?.[ 0 ]?.data?.every( item => item.value === 0 );
+	}, [ transformedChartData, isLoading ] );
 
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
@@ -162,24 +164,29 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData, isLoadin
 			</div>
 
 			<div className={ styles[ 'chart-container' ] }>
-				{ isEmpty ? (
+				{ isEmpty && (
 					<div className={ styles[ 'chart-empty' ] }>
-						<Card className="empty-state-card">
-							<Icon className="empty-state-card__icon" icon={ info } size={ 32 } />
-							<div className="empty-state-card__content">
-								<div className="empty-state-card-heading">
+						<div
+							className={ styles[ 'empty-state-card' ] }
+							title={ __( 'No data in this period', 'jetpack-my-jetpack' ) }
+						>
+							<Icon className={ styles[ 'empty-state-card__icon' ] } icon={ info } size={ 32 } />
+							<div className={ styles[ 'empty-state-card__content' ] }>
+								<div className={ styles[ 'empty-state-card-heading' ] }>
 									{ __( 'No data in this period', 'jetpack-my-jetpack' ) }
 								</div>
-								<div className="empty-state-card-info">
+								<div className={ styles[ 'empty-state-card-info' ] }>
 									{ __(
 										'There was no data recorded during the selected time period. Try selecting a different time range.',
 										'jetpack-my-jetpack'
 									) }
 								</div>
 							</div>
-						</Card>
+						</div>
 					</div>
-				) : (
+				) }
+
+				{ ! isLoading && (
 					<BarChart
 						data={ transformedChartData }
 						height={ 200 }

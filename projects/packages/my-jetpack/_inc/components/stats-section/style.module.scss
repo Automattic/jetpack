@@ -1,3 +1,5 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+
 $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
 
 $actions-size: 28px;
@@ -48,13 +50,52 @@ $padding-horizontal: calc( var(--spacing-base) * 3 );
 	box-sizing: border-box;
 
 	.chart-empty {
+		align-items: center;
+		bottom: 0;
+		display: flex;
+		justify-content: center;
+		left: 0;
+		padding: 0 50px;
 		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		max-width: 75%;
-		z-index: 1;
+		right: 0;
+		top: 0;
+		z-index: 2;
+	}
+
+	.empty-state-card {
+		border: 1px solid var(--jp-gray-5);
+		background-color: #ffffffd9;
+		border-radius: 4px;
+		display: flex;
 		margin: 0;
+		min-width: 320px;
+		padding: 24px;
+	}
+
+	.empty-state-card__icon {
+		align-self: center;
+		color: var(--color-neutral-80);
+		flex-shrink: 0;
+		margin-right: 20px;
+	}
+
+	.empty-state-card__content {
+		flex-grow: 1;
+	}
+
+	.empty-state-card-heading {
+		color: var(--color-neutral-80);
+		// font-family: $sans-font;
+		// font-weight: 600;
+		@include gb.heading-large;
+		margin-bottom: 8px;
+	}
+
+	.empty-state-card-info {
+		color: var(--color-neutral-40);
+		// font-family: $sans-font;
+		// font-size: .875rem;
+		@include gb.body-medium;
 	}
 }
 

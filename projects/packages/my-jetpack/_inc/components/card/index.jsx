@@ -48,7 +48,7 @@ const Card = props => {
 
 Card.propTypes = {
 	children: PropTypes.node,
-	title: PropTypes.string.isRequired,
+	title: PropTypes.string,
 	className: PropTypes.string,
 	headerRightContent: PropTypes.node,
 	onMouseEnter: PropTypes.func,
