@@ -44,6 +44,18 @@ $padding-horizontal: calc( var(--spacing-base) * 3 );
 
 .chart-container {
 	padding: $padding-vertical $padding-horizontal 0;
+	position: relative;
+	box-sizing: border-box;
+
+	.chart-empty {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		max-width: 75%;
+		z-index: 1;
+		margin: 0;
+	}
 }
 
 .my-jetpack-stats-cards.cards-list {

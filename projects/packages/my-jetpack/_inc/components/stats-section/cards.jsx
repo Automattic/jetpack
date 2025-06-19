@@ -1,6 +1,7 @@
 import { BarChart } from '@automattic/charts';
+import { Card } from '@wordpress/components';
 import { sprintf, __, _n } from '@wordpress/i18n';
-import { Icon, commentContent, people, starEmpty, chevronRight } from '@wordpress/icons';
+import { Icon, commentContent, people, starEmpty, chevronRight, info } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { useState, useCallback } from 'react';
 import formatNumber from '../../utils/format-number';
@@ -106,15 +107,16 @@ const getDynamicTitle = metric => {
 /**
  * Stats cards component.
  *
- * @param {object} props                - Component props.
- * @param {object} props.counts         - Counts object for the current period.
- * @param {object} props.previousCounts - Counts object for the previous period.
- * @param {number} props.headingLevel   - Heading level between 1 and 6.
- * @param {Array}  props.chartData      - Chart data for the bar chart visualization.
+ * @param {object}  props                - Component props.
+ * @param {object}  props.counts         - Counts object for the current period.
+ * @param {object}  props.previousCounts - Counts object for the previous period.
+ * @param {number}  props.headingLevel   - Heading level between 1 and 6.
+ * @param {Array}   props.chartData      - Chart data for the bar chart visualization.
+ * @param {boolean} props.isLoading      - Whether the data is loading.
  *
  * @return {object} StatsCards React component.
  */
-const StatsCards = ( { counts, previousCounts, headingLevel, chartData } ) => {
+const StatsCards = ( { counts, previousCounts, headingLevel, chartData, isLoading } ) => {
 	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
 
 	// State for selected metric (default to 'views')
@@ -146,7 +148,7 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData } ) => {
 		[ handleMetricSelect ]
 	);
 
-	const isEmpty = ( chartData?.[ 0 ]?.data || [] ).length === 0;
+	const isEmpty = ( transformedChartData?.[ 0 ]?.data || [] ).length === 0 && ! isLoading;
 
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
@@ -162,7 +164,20 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData } ) => {
 			<div className={ styles[ 'chart-container' ] }>
 				{ isEmpty ? (
 					<div className={ styles[ 'chart-empty' ] }>
-						<p>{ __( 'No data available', 'jetpack-my-jetpack' ) }</p>
+						<Card className="empty-state-card">
+							<Icon className="empty-state-card__icon" icon={ info } size={ 32 } />
+							<div className="empty-state-card__content">
+								<div className="empty-state-card-heading">
+									{ __( 'No data in this period', 'jetpack-my-jetpack' ) }
+								</div>
+								<div className="empty-state-card-info">
+									{ __(
+										'There was no data recorded during the selected time period. Try selecting a different time range.',
+										'jetpack-my-jetpack'
+									) }
+								</div>
+							</div>
+						</Card>
 					</div>
 				) : (
 					<BarChart

@@ -26,7 +26,7 @@ const StatsSection = () => {
 	const { recordEvent } = useAnalytics();
 
 	// Existing stats counts query
-	const { data: statsCounts } = useSimpleQuery( {
+	const { data: statsCounts, isLoading: isStatsCountsLoading } = useSimpleQuery( {
 		name: QUERY_STATS_COUNTS_KEY,
 		query: { path: getStatsHighlightsEndpoint( blogID ) },
 		options: { enabled: isSiteConnected },
@@ -87,6 +87,7 @@ const StatsSection = () => {
 				previousCounts={ previousCounts }
 				headingLevel={ 3 }
 				chartData={ visitsData }
+				isLoading={ isStatsCountsLoading }
 			/>
 		</ProductCard>
 	);
