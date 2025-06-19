@@ -57,7 +57,7 @@ class Contact_Form_Block {
 	 */
 	public static function register_feature( $features ) {
 		// Register the contact form block feature flag.
-		$features['multistep-form'] = true;
+		$features['multistep-form'] = Blocks::get_variation() === 'beta';
 		return $features;
 	}
 

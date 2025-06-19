@@ -46,14 +46,19 @@ export const childBlocks = [
 	JetpackTelephoneField,
 	JetpackTextareaField,
 	JetpackFieldFile,
-	hasFeatureFlag( 'multistep-form' ) && JetpackStep,
-	hasFeatureFlag( 'multistep-form' ) && JetpackStepContainer,
-	hasFeatureFlag( 'multistep-form' ) && JetpackStepDivider,
-	hasFeatureFlag( 'multistep-form' ) && JetpackStepNavigation,
-	hasFeatureFlag( 'multistep-form' ) && JetpackProgressIndicator,
+
 	// The following are required for these blocks to be parsed correctly in block
 	// deprecations. They have been flagged with `supports.inserter: false` to
 	// prevent further use.
 	DeprecatedOptionCheckbox,
 	DeprecatedOptionRadio,
+	...( hasFeatureFlag( 'multistep-form' )
+		? [
+				JetpackStep,
+				JetpackStepContainer,
+				JetpackStepDivider,
+				JetpackStepNavigation,
+				JetpackProgressIndicator,
+		  ]
+		: [] ),
 ];
