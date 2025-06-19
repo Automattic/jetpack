@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import Edit from '../../../src/paypal-ncps/edit';
+import Edit from '../../../src/paypal-payment-buttons/edit';
 
 // Mock WordPress dependencies
 jest.mock( '@wordpress/block-editor', () => ( {
-	useBlockProps: () => ( { className: 'wp-block-pncps-paypal-ncps' } ),
+	useBlockProps: () => ( { className: 'wp-block-paypal-payment-buttons' } ),
 	PlainText: ( { value, onChange, placeholder, 'aria-label': ariaLabel } ) => (
 		<input
 			data-testid="plain-text"
@@ -61,6 +61,9 @@ jest.mock( '@wordpress/components', () => ( {
 		);
 	},
 	__experimentalToggleGroupControlOption: () => null, // We're not using the actual implementation
+	__experimentalText: ( { children } ) => <span data-testid="experimental-text">{ children }</span>,
+	__experimentalItemGroup: ( { children } ) => <div data-testid="item-group">{ children }</div>,
+	__experimentalItem: ( { children } ) => <div data-testid="item">{ children }</div>,
 	SVG: props => <svg { ...props } />,
 	Path: props => <path { ...props } />,
 } ) );
@@ -304,6 +307,54 @@ describe( 'Edit', () => {
 		const link = screen.getByTestId( 'external-link' );
 		expect( link ).toBeInTheDocument();
 		expect( link ).toHaveAttribute( 'href', 'https://www.paypal.com/buttons/' );
-		expect( link ).toHaveTextContent( 'Go to PayPal NCPS to get your button code' );
+		expect( link ).toHaveTextContent( 'Go to PayPal to get your button code' );
+	} );
+
+	describe( 'Instruction Elements', () => {
+		it( 'renders instruction text with strong tag', () => {
+			render( <Edit { ...defaultProps } /> );
+			const instructionText = screen.getByTestId( 'experimental-text' );
+			expect( instructionText ).toBeInTheDocument();
+			expect( instructionText ).toHaveTextContent( 'Instructions:' );
+		} );
+
+		it( 'renders item group with three instruction items', () => {
+			render( <Edit { ...defaultProps } /> );
+			const itemGroup = screen.getByTestId( 'item-group' );
+			expect( itemGroup ).toBeInTheDocument();
+
+			const items = screen.getAllByTestId( 'item' );
+			expect( items ).toHaveLength( 3 );
+		} );
+
+		it( 'renders correct instruction items for stacked buttons', () => {
+			render( <Edit { ...defaultProps } /> );
+			const items = screen.getAllByTestId( 'item' );
+
+			expect( items[ 0 ] ).toHaveTextContent( '1. Go to PayPal to get your Payment Button code.' );
+			expect( items[ 1 ] ).toHaveTextContent(
+				'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.'
+			);
+			expect( items[ 2 ] ).toHaveTextContent( '3. Paste the code below.' );
+		} );
+
+		it( 'renders correct instruction items for single button type', () => {
+			render(
+				<Edit
+					attributes={ {
+						...defaultProps.attributes,
+						buttonType: 'single',
+					} }
+					setAttributes={ defaultProps.setAttributes }
+				/>
+			);
+			const items = screen.getAllByTestId( 'item' );
+
+			expect( items[ 0 ] ).toHaveTextContent( '1. Go to PayPal to get your Payment Button code.' );
+			expect( items[ 1 ] ).toHaveTextContent(
+				'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code) or Single Button.'
+			);
+			expect( items[ 2 ] ).toHaveTextContent( '3. Paste the code below.' );
+		} );
 	} );
 } );

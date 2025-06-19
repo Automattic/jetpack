@@ -7,6 +7,12 @@ import {
 	__experimentalToggleGroupControl as ToggleGroupControl,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalText as Text,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalItemGroup as ItemGroup,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalItem as Item,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -61,7 +67,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 			return setNotice(
 				<Notice status="warning" isDismissible={ false }>
 					{ __(
-						'Missing PayPal head script. If you’ve already added it to your header, you can safely ignore this.',
+						"Missing PayPal head script. If you've already added it to your header, you can safely ignore this.",
 						'jetpack-paypal-payments'
 					) }
 				</Notice>
@@ -75,22 +81,34 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 		<div { ...useBlockProps() }>
 			<Placeholder
 				icon={ PayPalIcon }
-				label={ __( 'PayPal NCPS Code', 'jetpack-paypal-payments' ) }
+				label={ __( 'PayPal Payment Buttons', 'jetpack-paypal-payments' ) }
 				isColumnLayout
 				instructions={
 					buttonType === 'stacked'
 						? __(
-								'Paste both the head and body HTML code from PayPal below.',
+								'Stacked Buttons (Recommended): This option lets you present all of your product information and PayPal payment method upfront on your website.',
 								'jetpack-paypal-payments'
 						  )
 						: _x(
-								'Paste the button code from PayPal below.',
+								'Single Button: This option lets you quickly paste a single button on your site, with no product information.',
 								'jetpack-paypal-payments',
 								'jetpack-paypal-payments'
 						  )
 				}
 				notices={ notice }
 			>
+				<Text>
+					<strong>Instructions:</strong>
+				</Text>
+				<ItemGroup>
+					<Item>1. Go to PayPal to get your Payment Button code.</Item>
+					<Item>
+						2. After login, choose <em>Payment Buttons</em>. Enter your product or service details,
+						and build the buttons. Copy the button code for Stacked Buttons (copy html code) or
+						Single Button.{ ' ' }
+					</Item>
+					<Item>3. Paste the code below.</Item>
+				</ItemGroup>
 				<ToggleGroupControl
 					label={ __( 'Button type', 'jetpack-paypal-payments' ) }
 					value={ buttonType }
@@ -120,7 +138,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 						onChange={ code => setAttributes( { codeHead: code } ) }
 						placeholder={ __( 'Paste the head code here…', 'jetpack-paypal-payments' ) }
 						aria-label={ __( 'PayPal button head code', 'jetpack-paypal-payments' ) }
-						name="paypal-ncps-code-head"
+						name="paypal-payment-buttons-code-head"
 					/>
 				) }
 				<PlainText
@@ -128,10 +146,10 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 					onChange={ codeBody => setAttributes( { codeBody } ) } // eslint-disable-line no-shadow
 					placeholder={ __( 'Paste the code here…', 'jetpack-paypal-payments' ) }
 					aria-label={ __( 'PayPal button code', 'jetpack-paypal-payments' ) }
-					name="paypal-ncps-code-body"
+					name="paypal-payment-buttons-code-body"
 				/>
 				<ExternalLink href={ __( 'https://www.paypal.com/buttons/', 'jetpack-paypal-payments' ) }>
-					{ __( 'Go to PayPal NCPS to get your button code', 'jetpack-paypal-payments' ) }
+					{ __( 'Go to PayPal to get your button code', 'jetpack-paypal-payments' ) }
 				</ExternalLink>
 			</Placeholder>
 		</div>
