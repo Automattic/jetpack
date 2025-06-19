@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 echo "Setting up test dir";
 chown -R node:node /e2e;

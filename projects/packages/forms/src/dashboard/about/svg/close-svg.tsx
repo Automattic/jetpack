@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { Path, SVG, SVGProps } from '@wordpress/primitives';
 
 const CloseSVG = ( props: SVGProps ) => {

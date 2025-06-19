@@ -20,13 +20,12 @@ import JetpackFormsLogo from '../logo';
 
 import './style.scss';
 
-const Layout = ( {
-	className = '',
-	showFooter = false,
-}: {
+type LayoutProps = {
 	className?: string;
 	showFooter?: boolean;
-} ) => {
+};
+
+const Layout = ( { className = '', showFooter = false }: LayoutProps ) => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
