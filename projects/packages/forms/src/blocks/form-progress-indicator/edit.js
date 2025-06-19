@@ -1,8 +1,4 @@
-import {
-	useBlockProps,
-	InspectorControls,
-	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/block-editor';
+import { useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import StepControls from '../shared/components/form-step-controls';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
@@ -10,8 +6,7 @@ import useStepNavigation from '../shared/hooks/use-step-navigation';
 
 import './editor.scss';
 
-const FormProgressIndicatorEdit = ( { attributes, setAttributes, clientId } ) => {
-	const { backgroundColor, progressColor, gradient } = attributes;
+const FormProgressIndicatorEdit = ( { clientId } ) => {
 	const parentFormId = useParentFormClientId( clientId );
 	const { currentStepInfo, steps } = useStepNavigation( parentFormId );
 
@@ -22,45 +17,17 @@ const FormProgressIndicatorEdit = ( { attributes, setAttributes, clientId } ) =>
 
 	const blockProps = useBlockProps();
 
-	// Container style with background color or gradient
-	const containerStyle = {
-		backgroundColor: backgroundColor || undefined,
-		backgroundImage: gradient || undefined,
-	};
-
-	// Progress bar style
+	// Only need to set width – colours come from core style engine variables.
 	const progressBarStyle = {
 		width: `${ progress }%`,
-		backgroundColor: progressColor || undefined,
 	};
 
 	return (
 		<>
-			<InspectorControls group="styles">
-				<PanelColorGradientSettings
-					title={ __( 'Color', 'jetpack-forms' ) }
-					initialOpen={ true }
-					settings={ [
-						{
-							colorValue: backgroundColor,
-							onColorChange: value => setAttributes( { backgroundColor: value } ),
-							gradientValue: gradient,
-							onGradientChange: value => setAttributes( { gradient: value } ),
-							label: __( 'Background', 'jetpack-forms' ),
-						},
-						{
-							colorValue: progressColor,
-							onColorChange: value => setAttributes( { progressColor: value } ),
-							label: __( 'Progress bar', 'jetpack-forms' ),
-						},
-					] }
-				/>
-			</InspectorControls>
-
 			<div { ...blockProps }>
 				<div className="jetpack-form-progress-indicator-editor">
 					{ steps.length > 0 ? (
-						<div className="jetpack-form-progress-indicator" style={ containerStyle }>
+						<div className="jetpack-form-progress-indicator">
 							<div className="jetpack-form-progress-indicator-bar" style={ progressBarStyle }></div>
 						</div>
 					) : (

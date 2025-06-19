@@ -19,6 +19,16 @@ export const settings = {
 			padding: true,
 			margin: true,
 		},
+		color: {
+			background: true,
+			text: true,
+			gradients: true,
+			__experimentalDefaultControls: {
+				background: true,
+				text: true,
+				gradient: true,
+			},
+		},
 	},
 	title: __( 'Progress indicator', 'jetpack-forms' ),
 	description: __(
@@ -45,20 +55,7 @@ export const settings = {
 	},
 	edit: edit,
 	save: save,
-	attributes: {
-		backgroundColor: {
-			type: 'string',
-		},
-		progressColor: {
-			type: 'string',
-		},
-		gradient: {
-			type: 'string',
-		},
-		style: {
-			type: 'object',
-		},
-	},
+	attributes: {},
 	transforms: {},
 	example: {},
 };
