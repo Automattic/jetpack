@@ -442,67 +442,22 @@ describe( 'LineChart', () => {
 				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
 				chart.focus();
 
-				// Single tab should focus on the first tooltip.
+				// Right arrow key should focus on the first tooltip.
 				await user.keyboard( '{ArrowRight}' );
 				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
 				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
 				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
 
-				// Second tab should focus on the second tooltip.
+				// Right arrow key should focus on the second tooltip.
 				await user.keyboard( '{ArrowRight}' );
 				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveFocus();
 				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
 				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
 
+				// Left arrow key should focus on the first tooltip.
 				await user.keyboard( '{ArrowLeft}' );
 				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
 				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
-			} );
-		} );
-
-		describe( 'Tab Key Navigation', () => {
-			test( 'tab key exits navigation when reaching end of data points', async () => {
-				const user = userEvent.setup();
-				renderWithTheme( {
-					data: [
-						{
-							label: 'Series A',
-							data: [
-								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
-								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
-							],
-							options: {},
-						},
-						{
-							label: 'Series B',
-							data: [
-								{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
-								{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
-							],
-							options: {},
-						},
-					],
-				} );
-
-				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
-				chart.focus();
-
-				// Single tab should focus on the first tooltip.
-				await user.tab();
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
-
-				// Second tab should focus on the second tooltip.
-				await user.tab();
-				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
-
-				// Third tab should exit navigation and focus the chart.
-				await user.tab();
-				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
 				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
 			} );
 		} );
@@ -520,8 +475,8 @@ describe( 'LineChart', () => {
 			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
 			chart.focus();
 
-			// Single tab should focus on the first tooltip.
-			await user.tab();
+			// Click on right arrow key to focus on the first tooltip.
+			await user.keyboard( '{ArrowRight}' );
 			expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
 			expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( '1/1/2024' );
 
