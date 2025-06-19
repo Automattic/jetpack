@@ -55,7 +55,7 @@ const StartGlyph: FC< {
 
 	if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
 
-	const size = Number( glyphStyle?.radius ) || 4;
+	const size = Math.max( 0, Number( glyphStyle?.radius ?? 4 ) );
 
 	return renderGlyph( {
 		key: `start-glyph-${ data.label }`,
@@ -265,7 +265,7 @@ const LineChart: FC< LineChartProps > = ( {
 		color: group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
 		shapeStyle: group?.options?.legendShapeStyle,
 		renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
-		glyphSize: Number( glyphStyle?.radius ) || 4,
+		glyphSize: Math.max( 0, Number( glyphStyle?.radius ?? 4 ) ),
 	} ) );
 
 	const accessors = {
