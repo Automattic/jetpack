@@ -1,5 +1,5 @@
 import { useBlockProps, useInnerBlocksProps, InnerBlocks, RichText } from '@wordpress/block-editor';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { store as singleStepStore } from '../../store/form-step-preview';
@@ -60,20 +60,59 @@ const getStepTemplate = hasPrevNavigation => {
 	return undefined;
 };
 
-function StepBreak( { stepLabel, currentIndex, setAttributes } ) {
-	// Translators: %d is the step number (1, 2, 3, etc.)
-	let stepName = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
+function StepBreak( { stepLabel, currentIndex, setAttributes, clientId } ) {
+	const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } =
+		useDispatch( 'core/block-editor' );
+	const { metadata } = useSelect(
+		select => {
+			const { getBlockAttributes } = select( 'core/block-editor' );
+			return { metadata: getBlockAttributes( clientId )?.metadata };
+		},
+		[ clientId ]
+	);
 
-	if ( stepLabel && stepLabel !== '' ) {
-		// Translators: %1$d is the step number (1, 2, 3, etc.), %2$s is the step label
-		stepName = sprintf( __( 'Step %1$d – %2$s', 'jetpack-forms' ), currentIndex + 1, stepLabel );
-	}
+	// translators: %d is the step number (1, 2, 3, etc.)
+	const stepNumberString = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
+
+	// Build the full label string that should appear in List View.
+	const listViewLabel =
+		stepLabel && stepLabel !== ''
+			? sprintf(
+					/* translators: %1$d is the step number, %2$s is the custom label */ __(
+						'Step %1$d – %2$s',
+						'jetpack-forms'
+					),
+					currentIndex + 1,
+					stepLabel
+			  )
+			: stepNumberString;
+
+	// Keep List View label in sync whenever the label or step order changes.
+	useEffect( () => {
+		if ( metadata?.name === listViewLabel ) {
+			return;
+		}
+		__unstableMarkNextChangeAsNotPersistent();
+		updateBlockAttributes( clientId, {
+			metadata: {
+				...metadata,
+				name: listViewLabel,
+			},
+		} );
+	}, [
+		listViewLabel,
+		metadata,
+		clientId,
+		updateBlockAttributes,
+		__unstableMarkNextChangeAsNotPersistent,
+	] );
 
 	// translators: %d: Step number
 	const ariaLabel = sprintf( __( 'Step %d label', 'jetpack-forms' ), currentIndex + 1 );
 
 	const handleChange = value => {
 		setAttributes( { stepLabel: value } );
+		// The effect above will run after this state update and handle metadata.
 	};
 
 	return (
@@ -83,7 +122,7 @@ function StepBreak( { stepLabel, currentIndex, setAttributes } ) {
 				tagName="span"
 				className="jetpack-form-step__label"
 				value={ stepLabel }
-				placeholder={ stepName }
+				placeholder={ stepNumberString }
 				onChange={ handleChange }
 				aria-label={ ariaLabel }
 			/>
@@ -180,6 +219,7 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 						stepLabel={ attributes.stepLabel }
 						currentIndex={ currentIndex }
 						setAttributes={ setAttributes }
+						clientId={ clientId }
 					/>
 				) }
 				<div { ...innerBlocksProps } />

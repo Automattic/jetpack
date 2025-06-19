@@ -121,24 +121,12 @@ export default function StepControls( { formClientId } ) {
 										) : null
 									}
 								>
-									{ ( () => {
-										const stepLabel = step?.attributes?.stepLabel;
-
-										if ( stepLabel && stepLabel !== '' ) {
-											return sprintf(
-												/* translators: %1$d is the step number (1, 2, 3, etc.), %2$s is the step label. */
-												__( 'Step %1$d – %2$s', 'jetpack-forms' ),
-												index + 1,
-												stepLabel
-											);
-										}
-
-										return sprintf(
-											/* translators: %d is the step number (1, 2, 3, etc.). */
-											__( 'Step %d', 'jetpack-forms' ),
-											index + 1
-										);
-									} )() }
+									{ sprintf(
+										/* translators: %1$d is the step number (1, 2, 3, etc.), %2$s is the step label. */
+										__( '%1$d – %2$s', 'jetpack-forms' ),
+										index + 1,
+										step?.attributes?.stepLabel || __( 'Unlabeled', 'jetpack-forms' )
+									) }
 								</MenuItem>
 							) ) }
 						</MenuGroup>

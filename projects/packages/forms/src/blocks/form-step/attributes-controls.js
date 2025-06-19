@@ -1,38 +1,15 @@
-import { InspectorControls, store as blockEditorStore } from '@wordpress/block-editor';
+import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, TextControl } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
-const AttributesControls = ( { attributes, setAttributes, clientId } ) => {
+const AttributesControls = ( { attributes, setAttributes } ) => {
 	const { stepLabel = '' } = attributes;
-	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
-	const { metadata } = useSelect(
-		select => {
-			const { getBlockAttributes } = select( blockEditorStore );
-
-			return {
-				metadata: getBlockAttributes( clientId )?.metadata,
-			};
-		},
-		[ clientId ]
-	);
+	// No need to fetch or update metadata here; StepBreak handles that centrally.
 
 	// Handle updating the block's metadata when stepLabel changes
 	const handleStepLabelChange = value => {
+		// Centralised logic in StepBreak will handle metadata and List View updates.
 		setAttributes( { stepLabel: value } );
-		updateBlockAttributes( [ clientId ], {
-			metadata: {
-				...metadata,
-				name:
-					value === ''
-						? __( 'Step', 'jetpack-forms' )
-						: sprintf(
-								/* translators: %s: Step label */
-								__( 'Step: %s', 'jetpack-forms' ),
-								value
-						  ),
-			},
-		} );
 	};
 
 	return (
