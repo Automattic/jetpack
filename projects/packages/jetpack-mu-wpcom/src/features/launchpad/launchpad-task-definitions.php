@@ -1516,7 +1516,7 @@ function wpcom_launchpad_request_user_attributes( $attributes, $client_wrapper =
 	}
 
 	$user_attributes = get_object_vars( $decoded_body->user_attributes );
-	if ( ! is_array( $user_attributes ) ) {
+	if ( ! $user_attributes ) {
 		return new \WP_Error(
 			'failed_to_fetch_data',
 			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
