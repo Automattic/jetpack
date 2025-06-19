@@ -352,25 +352,19 @@ const LineChart: FC< LineChartProps > = ( {
 	}, [ renderTooltip, selectedIndex, tooltipRef ] );
 
 	// On each focus of chart, reset the selectedIndex to 0, if keyboard navigation is not already active.
-	const onChartFocus = useMemo(
-		() => () => {
-			if ( ! isNavigating && selectedIndex !== undefined ) {
-				setSelectedIndex( 0 );
-			}
-		},
-		[ isNavigating, selectedIndex ]
-	);
+	const onChartFocus = useCallback( () => {
+		if ( ! isNavigating && selectedIndex !== undefined ) {
+			setSelectedIndex( 0 );
+		}
+	}, [ isNavigating, selectedIndex ] );
 
 	// On each blur of chart, Keyboard navigation should restart from first tooltip.
-	const onChartBlur = useMemo(
-		() => () => {
-			setIsNavigating( false );
-		},
-		[]
-	);
+	const onChartBlur = useCallback( () => {
+		setIsNavigating( false );
+	}, [] );
 
-	const onChartKeyDown = useMemo(
-		() => ( event: React.KeyboardEvent< HTMLDivElement > ) => {
+	const onChartKeyDown = useCallback(
+		( event: React.KeyboardEvent< HTMLDivElement > ) => {
 			const size = dataSorted[ 0 ]?.data.length || 0;
 			if ( size === 0 ) return;
 
