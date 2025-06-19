@@ -749,7 +749,18 @@ class Contact_Form_Plugin {
 			$version
 		);
 
-		return $content;
+		$processor = new \WP_HTML_Tag_Processor( $content );
+		$processor->next_tag();
+		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+
+		while ( $processor->next_tag() ) {
+			$class = $processor->get_attribute( 'class' );
+			if ( 'jetpack-form-progress-indicator-bar' === $class ) {
+				$processor->set_attribute( 'data-wp-style--width', 'state.getStepProgress' );
+			}
+		}
+
+		return $processor->get_updated_html();
 	}
 
 	/**

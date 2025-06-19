@@ -11,12 +11,11 @@ const FormProgressIndicatorSave = ( { attributes } ) => {
 	};
 
 	return (
-		<div data-wp-interactive="jetpack/form" { ...blockProps }>
+		<div { ...blockProps }>
 			<div className="jetpack-form-progress-indicator" style={ containerStyle }>
 				<div
 					className="jetpack-form-progress-indicator-bar"
 					style={ { backgroundColor: progressColor || undefined } }
-					data-wp-style--width="state.getStepProgress"
 				></div>
 			</div>
 		</div>
