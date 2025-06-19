@@ -1,6 +1,8 @@
 $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
 
 $actions-size: 28px;
+$padding-vertical: calc( var(--spacing-base) * 3 );
+$padding-horizontal: calc( var(--spacing-base) * 3 );
 
 // create a partial for green border for focus, hover and selected
 @mixin active-card {
@@ -8,15 +10,23 @@ $actions-size: 28px;
 	background-color: var(--card-active-bg-color);
 }
 
-.section-stats-highlights {
-	margin-top: 1rem;
+// .section-stats-highlights {
+// 	margin-top: 1rem;
+// }
+
+.section-title-container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: $padding-vertical $padding-horizontal;
+	border-bottom: 1px solid var(--jp-gray-5);
 }
 
 .section-title {
 	display: flex;
 	align-items: center;
 	font-weight: 500;
-	margin-bottom: 0.5rem;
+	margin-bottom: 0;
 	margin-top: 0;
 	font-size: var(--font-title-small);
 	line-height: 1.5;
@@ -30,6 +40,10 @@ $actions-size: 28px;
 	color: var(--jp-gray-60);
 	line-height: 20px;
 	letter-spacing: -0.15px;
+}
+
+.chart-container {
+	padding: $padding-vertical $padding-horizontal 0;
 }
 
 .my-jetpack-stats-cards.cards-list {
@@ -51,6 +65,8 @@ $actions-size: 28px;
 	}
 
 	padding: 1px; // Ensures scrollable content box doesn't cover the card.
+	padding-left: $padding-horizontal;
+	padding-right: $padding-horizontal;
 
 	.stats-card {
 		border: 1px solid var(--card-border-color);

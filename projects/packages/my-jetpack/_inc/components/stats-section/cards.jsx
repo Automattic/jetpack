@@ -1,6 +1,6 @@
 import { BarChart } from '@automattic/charts';
 import { sprintf, __, _n } from '@wordpress/i18n';
-import { Icon, commentContent, people, starEmpty } from '@wordpress/icons';
+import { Icon, commentContent, people, starEmpty, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { useState, useCallback } from 'react';
 import formatNumber from '../../utils/format-number';
@@ -146,35 +146,48 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData } ) => {
 		[ handleMetricSelect ]
 	);
 
+	const isEmpty = ( chartData?.[ 0 ]?.data || [] ).length === 0;
+
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
-			<Heading className={ styles[ 'section-title' ] }>
-				<span>{ getDynamicTitle( selectedMetric ) }</span>
-			</Heading>
+			<div className={ styles[ 'section-title-container' ] }>
+				<Heading className={ styles[ 'section-title' ] }>
+					<span>{ getDynamicTitle( selectedMetric ) }</span>
+				</Heading>
+				<div>
+					<Icon icon={ chevronRight } />
+				</div>
+			</div>
 
 			<div className={ styles[ 'chart-container' ] }>
-				<BarChart
-					data={ transformedChartData }
-					height={ 200 }
-					withTooltips={ true }
-					showLegend={ false }
-					gridVisibility="x"
-					options={ {
-						yScale: {
-							type: 'linear',
-							zero: true, // Start from zero
-						},
-						axis: {
-							y: {
-								orientation: 'right',
-								tickFormat: value => {
-									// Only show labels for integer values to avoid duplicates
-									return Number.isInteger( value ) ? value.toString() : '';
+				{ isEmpty ? (
+					<div className={ styles[ 'chart-empty' ] }>
+						<p>{ __( 'No data available', 'jetpack-my-jetpack' ) }</p>
+					</div>
+				) : (
+					<BarChart
+						data={ transformedChartData }
+						height={ 200 }
+						withTooltips={ true }
+						showLegend={ false }
+						gridVisibility="x"
+						options={ {
+							yScale: {
+								type: 'linear',
+								zero: true, // Start from zero
+							},
+							axis: {
+								y: {
+									orientation: 'right',
+									tickFormat: value => {
+										// Only show labels for integer values to avoid duplicates
+										return Number.isInteger( value ) ? value.toString() : '';
+									},
 								},
 							},
-						},
-					} }
-				/>
+						} }
+					/>
+				) }
 			</div>
 
 			<ul className={ clsx( styles[ 'cards-list' ], styles[ 'my-jetpack-stats-cards' ] ) }>

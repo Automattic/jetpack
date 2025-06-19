@@ -35,8 +35,6 @@ const StatsSection = () => {
 	// New stats visits hook for time series data
 	const { data: visitsData } = useStatsVisits( blogID, isSiteConnected, VISITS_OPTIONS );
 
-	// console.log( 'visitsData', visitsData );
-
 	const counts = statsCounts?.past_seven_days || {};
 	const previousCounts = statsCounts?.between_past_eight_and_fifteen_days || {};
 
@@ -82,11 +80,12 @@ const StatsSection = () => {
 			primaryActionOverride={ primaryActionOverride }
 			secondaryAction={ viewStatsButton }
 			showMenu
+			variant="slim"
 		>
 			<StatsCards
 				counts={ counts }
 				previousCounts={ previousCounts }
-				headingLevel={ 4 }
+				headingLevel={ 3 }
 				chartData={ visitsData }
 			/>
 		</ProductCard>

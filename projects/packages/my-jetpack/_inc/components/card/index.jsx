@@ -31,14 +31,16 @@ const Card = props => {
 			onMouseEnter={ onMouseEnter }
 			onMouseLeave={ onMouseLeave }
 		>
-			<div className={ styles.title }>
-				<div className={ styles.name }>
-					<Text variant="title-medium" id={ titleId || null }>
-						{ title }
-					</Text>
+			{ title && (
+				<div className={ styles.title }>
+					<div className={ styles.name }>
+						<Text variant="title-medium" id={ titleId || null }>
+							{ title }
+						</Text>
+					</div>
+					{ headerRightContent }
 				</div>
-				{ headerRightContent }
-			</div>
+			) }
 			{ children }
 		</CardWrapper>
 	);
