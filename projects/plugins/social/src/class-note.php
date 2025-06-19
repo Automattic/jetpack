@@ -220,11 +220,18 @@ class Note {
 				wp_timezone()
 			);
 
+			$datetime_format = sprintf(
+				/* Translators: %1$s is a formatted date, e.g. June 18, 2025. %2$s is a formatted time, e.g. 8:24 am. All other words/letters need to be escaped. */
+				__( '%1$s \a\t %2$s', 'jetpack-social' ),
+				get_option( 'date_format' ),
+				get_option( 'time_format' )
+			);
+
 			$title = sprintf(
 				/* Translators: placeholder is a fully-formatted date. */
 				__( 'Social note, %1$s', 'jetpack-social' ),
 				wp_date(
-					get_option( 'date_format' ) . ' \a\t ' . get_option( 'time_format' ),
+					$datetime_format,
 					$publishing_date->getTimestamp()
 				)
 			);
