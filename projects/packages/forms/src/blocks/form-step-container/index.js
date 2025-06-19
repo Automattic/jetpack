@@ -20,7 +20,6 @@ export const settings = {
 	supports: {
 		html: false,
 		reusable: false,
-		align: true,
 		color: {
 			gradients: true,
 			link: true,
