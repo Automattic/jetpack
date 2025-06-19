@@ -22,7 +22,7 @@ export function ProductCardAction( { product }: ProductCardActionProps ) {
 					variant="secondary"
 					// TODO replace with the correct URL
 					href="#"
-					size="small"
+					size="compact"
 				>
 					{ __( 'Learn more', 'jetpack-my-jetpack' ) }
 				</Button>
@@ -33,7 +33,7 @@ export function ProductCardAction( { product }: ProductCardActionProps ) {
 				<Button
 					variant="secondary"
 					href={ getRedirectUrl( 'my-jetpack-manage-backup' ) }
-					size="small"
+					size="compact"
 				>
 					{ __( 'Learn more', 'jetpack-my-jetpack' ) }
 				</Button>
