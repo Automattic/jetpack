@@ -332,7 +332,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "c95592f750b19132b8ce363dc7503e1c8318314c"
+                "reference": "e29d7636760a80608d7856f2e3b28b54539923e5"
             },
             "require": {
                 "php": ">=7.2"
@@ -351,7 +351,6 @@
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-videopress": "@dev",
                 "automattic/jetpack-waf": "@dev",
-                "automattic/jetpack-wordads": "@dev",
                 "automattic/jetpack-yoast-promo": "@dev"
             },
             "suggest": {
@@ -370,19 +369,18 @@
                 },
                 "dependencies": {
                     "test-only": [
+                        "packages/account-protection",
                         "packages/connection",
                         "packages/import",
                         "packages/jitm",
                         "packages/post-list",
                         "packages/publicize",
                         "packages/search",
-                        "packages/stats",
                         "packages/stats-admin",
+                        "packages/stats",
                         "packages/sync",
                         "packages/videopress",
-                        "packages/account-protection",
                         "packages/waf",
-                        "packages/wordads",
                         "packages/yoast-promo"
                     ]
                 }

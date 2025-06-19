@@ -25,7 +25,6 @@ use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 use Automattic\Jetpack\Waf\Waf_Initializer as Jetpack_Waf_Main;
-use Automattic\Jetpack\WordAds\Initializer as Jetpack_WordAds_Main;
 
 /**
  * The configuration class.
@@ -49,7 +48,6 @@ class Config {
 		'identity_crisis'    => false,
 		'search'             => false,
 		'publicize'          => false,
-		'wordads'            => false,
 		'account_protection' => false,
 		'waf'                => false,
 		'videopress'         => false,
@@ -139,11 +137,6 @@ class Config {
 		if ( $this->config['publicize'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Publicize\Publicize_UI' ) && $this->ensure_class( 'Automattic\Jetpack\Publicize\Publicize' )
 				&& $this->ensure_feature( 'publicize' );
-		}
-
-		if ( $this->config['wordads'] ) {
-			$this->ensure_class( 'Automattic\Jetpack\WordAds\Initializer' )
-				&& $this->ensure_feature( 'wordads' );
 		}
 
 		if ( $this->config['account_protection'] ) {
@@ -307,13 +300,6 @@ class Config {
 		if ( ! empty( $options['force_refresh'] ) ) {
 			Publicize_Setup::$refresh_plan_info = true;
 		}
-	}
-
-	/**
-	 * Enables WordAds.
-	 */
-	protected function enable_wordads() {
-		Jetpack_WordAds_Main::init();
 	}
 
 	/**

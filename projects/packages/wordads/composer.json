@@ -3,6 +3,7 @@
 	"description": "Earn income by allowing Jetpack to display high quality ads.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
+	"abandoned": true,
 	"require": {
 		"php": ">=7.2",
 		"automattic/jetpack-connection": "@dev",
