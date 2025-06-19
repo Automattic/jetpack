@@ -102,7 +102,7 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 			wp_register_style( 'jpcrm-fontawesome', plugins_url( '/build/lib/font-awesome/css/font-awesome.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 			// chart.js
-			wp_register_script( 'zerobscrmchartjs', plugins_url( '/build/lib/chart.js/chart.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+			wp_register_script( 'jpcrm-chartjs', plugins_url( '/build/lib/chart.js/chart.umd.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION, true );
 
 			// SweetAlert2
 			wp_register_style( 'zerobscrmswa', plugins_url( '/build/lib/sweetalert2/sweetalert2.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
@@ -480,9 +480,6 @@ function zeroBSCRM_admin_styles_ui2_semantic_settingspage(){
 			wp_enqueue_style( 'zerobscrmsettings' );
 }
 
-function zeroBSCRM_admin_styles_chartjs(){
-	wp_enqueue_script( 'zerobscrmchartjs' );
-}
 function zeroBSCRM_admin_styles_singleview(){
 
 	// single item view
@@ -499,14 +496,13 @@ function jpcrm_admin_scripts_systems_page(){
 
 function zeroBSCRM_admin_styles_homedash(){
 	global $zbs;
-	//home dashboard styles and script
+	// home dashboard styles and script
 	wp_enqueue_style( 'zerobscrmhomedash' );
+	wp_enqueue_style( 'jpcrm-funnel', ZEROBSCRM_URL . 'css/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
+	wp_enqueue_script( 'jpcrm-funnel', ZEROBSCRM_URL . 'js/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.js', array(), $zbs::VERSION, true );
+	wp_enqueue_script( 'jpcrm-chartjs' );
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
-	wp_register_script( 'zerobscrmjs-dash', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.dash' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
-	wp_enqueue_script( 'zerobscrmjs-dash' );
-
-	wp_enqueue_script( 'jpcrm-funnel-js', ZEROBSCRM_URL . 'js/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.js', array(), $zbs::VERSION, false );
-	wp_enqueue_style( 'jpcrm-funnel-css', ZEROBSCRM_URL . 'css/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
+	wp_enqueue_script( 'jpcrm-dash', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.dash' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION, true );
 }
 
 function zeroBSCRM_admin_scripts_editcust(){

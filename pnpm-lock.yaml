@@ -4365,8 +4365,8 @@ importers:
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.23)
       chart.js:
-        specifier: 3.7.1
-        version: 3.7.1
+        specifier: 4.5.0
+        version: 4.5.0
       copy-webpack-plugin:
         specifier: 11.0.0
         version: 11.0.0(webpack@5.94.0)
@@ -6995,6 +6995,9 @@ packages:
     engines: {node: '>=20'}
     peerDependencies:
       oxc-parser: '>=0.61.2'
+
+  '@kurkle/color@0.3.4':
+    resolution: {integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==}
 
   '@mapbox/geojson-rewind@0.5.2':
     resolution: {integrity: sha512-tJaT+RbYGJYStt7wI3cq4Nl4SXxG8W7JDG5DMJu97V25RnbNg3QtQtf+KD+VLjNpWKYsRvXDNmNrBgEETr1ifA==}
@@ -10017,6 +10020,10 @@ packages:
 
   chart.js@3.7.1:
     resolution: {integrity: sha512-8knRegQLFnPQAheZV8MjxIXc5gQEfDFD897BJgv/klO/vtIyFFmgMXrNfgrXpbTr/XbTturxRgxIXx/Y+ASJBA==}
+
+  chart.js@4.5.0:
+    resolution: {integrity: sha512-aYeC/jDgSEx8SHWZvANYMioYMZ2KX02W6f6uVfyteuCGcadDLcYVHdfdygsTQkQ4TKn5lghoojAsPj5pu0SnvQ==}
+    engines: {pnpm: '>=8'}
 
   check-error@2.1.1:
     resolution: {integrity: sha512-OAlb+T7V4Op9OwdkjmguYRqncdlx5JiofwOAUkmTF+jNdHwzTaTs4sRAGpzLF3oOz5xAyDGrPgeIDFQmDOTiJw==}
@@ -17994,6 +18001,8 @@ snapshots:
       estree-walker: 3.0.3
       oxc-parser: 0.71.0
 
+  '@kurkle/color@0.3.4': {}
+
   '@mapbox/geojson-rewind@0.5.2':
     dependencies:
       get-stream: 6.0.1
@@ -23603,6 +23612,10 @@ snapshots:
   character-entities@2.0.2: {}
 
   chart.js@3.7.1: {}
+
+  chart.js@4.5.0:
+    dependencies:
+      '@kurkle/color': 0.3.4
 
   check-error@2.1.1: {}
 
