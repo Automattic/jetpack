@@ -32,20 +32,8 @@ const defaultRenderGlyph = < Datum extends object >(
 	return <DefaultGlyph { ...props } key={ props.key } />;
 };
 
-const toNumber = ( val: unknown ): number | undefined => {
-	if ( val === null || val === undefined ) {
-		return undefined;
-	}
-
-	if ( typeof val === 'number' ) {
-		return isNaN( val ) ? undefined : val;
-	}
-
-	if ( typeof val !== 'string' || val.trim() === '' ) {
-		return undefined;
-	}
-
-	const num = Number( val );
+const toNumber = ( val?: number | string | null ): number | undefined => {
+	const num = typeof val === 'number' ? val : parseFloat( val );
 	return isNaN( num ) ? undefined : num;
 };
 
