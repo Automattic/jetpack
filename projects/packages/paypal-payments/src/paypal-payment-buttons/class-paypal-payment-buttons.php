@@ -1,6 +1,6 @@
 <?php
 /**
- * PayPal No-Code Payment Solution (NCPS) block lets users embed a PayPal button to sell products on their site.
+ * PayPal Payment Buttons block lets users embed a PayPal button to sell products on their site.
  *
  * @package automattic/jetpack-paypal-payments
  */
@@ -11,17 +11,17 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 
 /**
- * Class Paypal_NCPS
+ * Class PayPal_Payment_Buttons
  *
  * @package Automattic\Jetpack\PaypalPayments
  */
-class Paypal_NCPS {
+class PayPal_Payment_Buttons {
 	/**
 	 * The block full slugname.
 	 *
 	 * @var string
 	 */
-	public const BLOCK_NAME = 'jetpack/paypal-ncps';
+	public const BLOCK_NAME = 'jetpack/paypal-payment-buttons';
 
 	/**
 	 * Registers the block for use in Gutenberg
@@ -56,11 +56,11 @@ class Paypal_NCPS {
 				$script_url = esc_url( $matches[1] );
 				if ( ! empty( $script_url ) ) {
 					// We can't include the version number here. If we do, it is appended to the URL and causes a 400 response.
-					wp_enqueue_script( 'paypal-ncps-block-head', $script_url, array(), null, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+					wp_enqueue_script( 'paypal-payment-buttons-block-head', $script_url, array(), null, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 					add_filter(
 						'script_loader_tag',
 						function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-							if ( 'paypal-ncps-block-head' === $handle ) {
+							if ( 'paypal-payment-buttons-block-head' === $handle ) {
 								if ( false === strpos( $tag, 'data-paypal-partner-attribution-id' ) ) {
 									$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="WooNCPS_Ecom_Wordpress" src=$2', $tag );
 								}
@@ -127,10 +127,10 @@ class Paypal_NCPS {
 
 		Assets::register_script(
 			$handle,
-			'../../dist/paypal-ncps/editor.js',
+			'../../dist/paypal-payment-buttons/editor.js',
 			__FILE__,
 			array(
-				'css_path'   => '../../dist/paypal-ncps/editor.css',
+				'css_path'   => '../../dist/paypal-payment-buttons/editor.css',
 				'textdomain' => 'jetpack-paypal-payments',
 			)
 		);
@@ -143,7 +143,7 @@ class Paypal_NCPS {
 	public static function load_editor_scripts() {
 		Assets::register_script(
 			'jp-paypal-payments-ncps-blocks',
-			'../../dist/paypal-ncps/editor.js',
+			'../../dist/paypal-payment-buttons/editor.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,

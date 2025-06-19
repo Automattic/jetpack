@@ -120,7 +120,7 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 						onChange={ code => setAttributes( { codeHead: code } ) }
 						placeholder={ __( 'Paste the head code here…', 'jetpack-paypal-payments' ) }
 						aria-label={ __( 'PayPal button head code', 'jetpack-paypal-payments' ) }
-						name="paypal-ncps-code-head"
+						name="paypal-payment-buttons-code-head"
 					/>
 				) }
 				<PlainText
@@ -128,10 +128,10 @@ export default function Edit( { attributes, setAttributes, isSelected } ) {
 					onChange={ codeBody => setAttributes( { codeBody } ) } // eslint-disable-line no-shadow
 					placeholder={ __( 'Paste the code here…', 'jetpack-paypal-payments' ) }
 					aria-label={ __( 'PayPal button code', 'jetpack-paypal-payments' ) }
-					name="paypal-ncps-code-body"
+					name="paypal-payment-buttons-code-body"
 				/>
 				<ExternalLink href={ __( 'https://www.paypal.com/buttons/', 'jetpack-paypal-payments' ) }>
-					{ __( 'Go to PayPal NCPS to get your button code', 'jetpack-paypal-payments' ) }
+					{ __( 'Go to PayPal to get your button code', 'jetpack-paypal-payments' ) }
 				</ExternalLink>
 			</Placeholder>
 		</div>

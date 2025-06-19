@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import Edit from '../../../src/paypal-ncps/edit';
+import Edit from '../../../src/paypal-payment-buttons/edit';
 
 // Mock WordPress dependencies
 jest.mock( '@wordpress/block-editor', () => ( {
-	useBlockProps: () => ( { className: 'wp-block-pncps-paypal-ncps' } ),
+	useBlockProps: () => ( { className: 'wp-block-paypal-payment-buttons' } ),
 	PlainText: ( { value, onChange, placeholder, 'aria-label': ariaLabel } ) => (
 		<input
 			data-testid="plain-text"
@@ -304,6 +304,6 @@ describe( 'Edit', () => {
 		const link = screen.getByTestId( 'external-link' );
 		expect( link ).toBeInTheDocument();
 		expect( link ).toHaveAttribute( 'href', 'https://www.paypal.com/buttons/' );
-		expect( link ).toHaveTextContent( 'Go to PayPal NCPS to get your button code' );
+		expect( link ).toHaveTextContent( 'Go to PayPal to get your button code' );
 	} );
 } );
