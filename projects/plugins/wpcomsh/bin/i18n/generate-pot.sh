@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 cd $(dirname "$(dirname "$(dirname "$0")")")
 
 rm -f languages/wpcomsh.pot
