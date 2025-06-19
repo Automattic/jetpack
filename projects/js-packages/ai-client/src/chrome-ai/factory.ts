@@ -21,7 +21,7 @@ interface PromptContext {
  * @return ChromeAISuggestionsEventSource | bool
  */
 export default async function ChromeAIFactory( promptArg: PromptProp ) {
-	if ( ! isChromeAIAvailable() ) {
+	if ( ! ( await isChromeAIAvailable() ) ) {
 		debug( 'Chrome AI is not available' );
 		return false;
 	}
