@@ -350,7 +350,7 @@ const LineChart: FC< LineChartProps > = ( {
 		};
 	}, [ renderTooltip, selectedIndex, tooltipRef ] );
 
-	const onKeyDown = useMemo(
+	const onChartKeyDown = useMemo(
 		() => ( event: React.KeyboardEvent< HTMLDivElement > ) => {
 			const size = dataSorted[ 0 ]?.data.length || 0;
 			if ( size === 0 ) return;
@@ -400,7 +400,7 @@ const LineChart: FC< LineChartProps > = ( {
 				height,
 			} }
 			tabIndex={ 0 }
-			onKeyDown={ onKeyDown }
+			onKeyDown={ onChartKeyDown }
 			ref={ chartRef }
 		>
 			<XYChart
