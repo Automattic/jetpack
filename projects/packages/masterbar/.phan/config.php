@@ -26,7 +26,6 @@ return make_phan_config(
 			 * other in 'require-dev' and `extra.dependencies.test-only' instead. See packages/config for an example.
 			 */
 			__DIR__ . '/../../../plugins/jetpack/3rd-party/class.jetpack-amp-support.php',
-			__DIR__ . '/../../../plugins/jetpack/modules/custom-css/custom-css.php',
 			__DIR__ . '/../../../plugins/jetpack/modules/notes.php',
 			__DIR__ . '/../../../plugins/jetpack/modules/scan/class-admin-bar-notice.php',
 			__DIR__ . '/../../../plugins/jetpack/modules/stats.php',
