@@ -1199,6 +1199,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	justify-content: center;
 	align-items: center;
 	gap: 0.5em;
+	width: 100%;
 }
 
 .contact-form .contact-form__spinner {
