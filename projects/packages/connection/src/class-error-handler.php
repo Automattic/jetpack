@@ -77,14 +77,6 @@ class Error_Handler {
 	const ERROR_LIFE_TIME = DAY_IN_SECONDS;
 
 	/**
-	 * The error code for event tracking purposes.
-	 * If there are many, only the first error code will be tracked.
-	 *
-	 * @var string
-	 */
-	private $error_code;
-
-	/**
 	 * List of known errors. Only error codes in this list will be handled
 	 *
 	 * @since 1.14.2
@@ -150,39 +142,122 @@ class Error_Handler {
 	}
 
 	/**
-	 * Gets the list of verified errors and act upon them
+	 * Gets the list of displayable errors for the React dashboard
 	 *
 	 * @since 1.14.2
 	 *
 	 * @return void
 	 */
 	public function handle_verified_errors() {
-		$verified_errors = $this->get_verified_errors();
-		foreach ( array_keys( $verified_errors ) as $error_code ) {
-			switch ( $error_code ) {
-				case 'malformed_token':
-				case 'token_malformed':
-				case 'no_possible_tokens':
-				case 'no_valid_user_token':
-				case 'no_valid_blog_token':
-				case 'unknown_token':
-				case 'could_not_sign':
-				case 'invalid_token':
-				case 'token_mismatch':
-				case 'invalid_signature':
-				case 'signature_mismatch':
-				case 'no_user_tokens':
-				case 'no_token_for_user':
-				case 'invalid_connection_owner':
-				case 'protected_owner_missing':
-					add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
-					add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
-					$this->error_code = $error_code;
+		$displayable_errors = $this->displayable_errors();
 
-					// Since we are only generically handling errors, we don't need to trigger error messages for each one of them.
-					break 2;
-			}
+		// If there are any displayable errors, set up the hooks for displaying them
+		if ( ! empty( $displayable_errors ) ) {
+			add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
+			add_action( 'react_connection_errors_initial_state', array( $this, 'displayable_errors' ) );
 		}
+	}
+
+	/**
+	 * Gets displayable errors with predefined structure and optional filtering.
+	 *
+	 * This method returns a standardized array of errors that can be safely displayed
+	 * in the React dashboard, My Jetpack, and other UI components. It includes
+	 * predefined error messages and actions, with optional filtering for specific sites.
+	 * Only processes a limited set of error codes that are meant to be displayed to users.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Array of displayable errors with standardized structure.
+	 */
+	public function displayable_errors() {
+		$verified_errors    = $this->get_verified_errors();
+		$displayable_errors = array();
+
+		// Only process error codes that are meant to be displayed to users
+		$displayable_error_codes = array(
+			'malformed_token',
+			'token_malformed',
+			'no_possible_tokens',
+			'no_valid_user_token',
+			'no_valid_blog_token',
+			'unknown_token',
+			'could_not_sign',
+			'invalid_token',
+			'token_mismatch',
+			'invalid_signature',
+			'signature_mismatch',
+			'no_user_tokens',
+			'no_token_for_user',
+			'invalid_connection_owner',
+			'protected_owner_missing',
+		);
+
+		foreach ( $verified_errors as $error_code => $users ) {
+			// Skip error codes that are not meant to be displayed
+			if ( ! in_array( $error_code, $displayable_error_codes, true ) ) {
+				continue;
+			}
+
+			$first_error = reset( $users );
+
+			// Default values for all errors
+			$error_data = array(
+				'code'    => 'connection_error',
+				'message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' ),
+				'action'  => 'reconnect',
+				'data'    => array( 'api_error_code' => $error_code ),
+			);
+
+			// Special handling for protected_owner type errors
+			if ( ! empty( $first_error['error_type'] ) && 'protected_owner' === $first_error['error_type'] ) {
+				if ( ! empty( $first_error['error_message'] ) ) {
+					$error_data['message'] = $first_error['error_message'];
+				}
+
+				if ( ! empty( $first_error['error_data'] ) ) {
+					$error_data['data'] = array_merge( $error_data['data'], $first_error['error_data'] );
+
+					if ( ! empty( $first_error['error_data']['action'] ) ) {
+						$error_data['action'] = $first_error['error_data']['action'];
+					}
+				}
+			}
+
+			$displayable_errors[] = $error_data;
+		}
+
+		/**
+		 * Filter displayable connection errors to allow customization of error messages and actions.
+		 *
+		 * This filter allows sites to customize how connection errors are displayed,
+		 * including modifying error messages, actions, and data. Access to this filter
+		 * is controlled by should_allow_error_filtering().
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $displayable_errors Array of displayable errors with standardized structure.
+		 * @param array $verified_errors    Array of raw verified errors from the database.
+		 */
+		if ( $this->should_allow_error_filtering() ) {
+			$displayable_errors = apply_filters( 'jetpack_connection_displayable_errors', $displayable_errors, $verified_errors );
+		}
+
+		return $displayable_errors;
+	}
+
+	/**
+	 * Determines whether error filtering should be allowed.
+	 *
+	 * This method controls access to the jetpack_connection_displayable_errors filter.
+	 * Currently, only WoA sites are allowed to use this filter.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool True if error filtering should be allowed, false otherwise.
+	 */
+	protected function should_allow_error_filtering() {
+		return $this->is_woa_site();
 	}
 
 	/**
@@ -210,7 +285,7 @@ class Error_Handler {
 	 * @since 1.14.2
 	 */
 	public function report_error( \WP_Error $error, $force = false, $skip_wpcom_verification = false ) {
-		if ( in_array( $error->get_error_code(), $this->known_errors, true ) && $this->should_report_error( $error ) || $force ) {
+		if ( in_array( $error->get_error_code(), $this->known_errors, true ) && ( $this->should_report_error( $error ) || $force ) ) {
 			$stored_error = $this->store_error( $error );
 			if ( $stored_error ) {
 				$skip_wpcom_verification ? $this->verify_error( $stored_error ) : $this->send_error_to_wpcom( $stored_error );
@@ -229,7 +304,7 @@ class Error_Handler {
 	 * @return boolean $should_report True if gate is open and the error should be reported.
 	 */
 	public function should_report_error( \WP_Error $error ) {
-		if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
+		if ( defined( '\\JETPACK_DEV_DEBUG' ) && constant( '\\JETPACK_DEV_DEBUG' ) ) {
 			return true;
 		}
 
@@ -747,48 +822,15 @@ class Error_Handler {
 	}
 
 	/**
-	 * Adds the error message to the Jetpack React Dashboard
+	 * Checks if the current site is a WoA site.
 	 *
-	 * @since 8.9.0
+	 * @since $$next-version$$
 	 *
-	 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
-	 * @return array
+	 * @return bool True if the site is a WoA site, false otherwise.
 	 */
-	public function jetpack_react_dashboard_error( $errors ) {
-		// Default values for all errors
-		$error_message = __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' );
-		$action        = 'reconnect';
-		$error_data    = array( 'api_error_code' => $this->error_code );
-
-		// Special handling for protected_owner type errors
-		$verified_errors = $this->get_verified_errors();
-		if ( isset( $verified_errors[ $this->error_code ] ) ) {
-			$first_error = reset( $verified_errors[ $this->error_code ] );
-
-			// Check if this is a protected_owner type error
-			if ( ! empty( $first_error['error_type'] ) && 'protected_owner' === $first_error['error_type'] ) {
-				if ( ! empty( $first_error['error_message'] ) ) {
-					$error_message = $first_error['error_message'];
-				}
-
-				if ( ! empty( $first_error['error_data'] ) ) {
-					$error_data = array_merge( $error_data, $first_error['error_data'] );
-
-					if ( ! empty( $first_error['error_data']['action'] ) ) {
-						$action = $first_error['error_data']['action'];
-					}
-				}
-			}
-		}
-
-		$errors[] = array(
-			'code'    => 'connection_error',
-			'message' => $error_message,
-			'action'  => $action,
-			'data'    => $error_data,
-		);
-
-		return $errors;
+	protected function is_woa_site() {
+		$host = new \Automattic\Jetpack\Status\Host();
+		return $host->is_woa_site();
 	}
 
 	/**
@@ -835,5 +877,19 @@ class Error_Handler {
 		);
 
 		$this->report_error( $error, false, true );
+	}
+
+	/**
+	 * Adds the error message to the Jetpack React Dashboard
+	 *
+	 * @deprecated $$next-version$$ Use displayable_errors() instead.
+	 * @since 8.9.0
+	 *
+	 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
+	 * @return array
+	 */
+	public function jetpack_react_dashboard_error( $errors ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '$$next-version$$', 'displayable_errors' );
+		return $this->displayable_errors();
 	}
 }
