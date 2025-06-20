@@ -3,6 +3,7 @@
  */
 
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '../../../providers/theme';
 import BarChart from '../bar-chart';
 
@@ -212,6 +213,181 @@ describe( 'BarChart', () => {
 
 			// Check that no pattern definitions container is present
 			expect( screen.queryByTestId( 'bar-chart-patterns' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Keyboard Navigation Accessibility', () => {
+		describe( 'Chart Focus and Accessibility Attributes', () => {
+			test( 'chart container has proper accessibility attributes', () => {
+				renderWithTheme();
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+
+				expect( chart ).toHaveAttribute( 'tabIndex', '0' );
+				expect( chart ).toHaveAttribute( 'role', 'grid' );
+				expect( chart ).toHaveAttribute( 'aria-label', 'bar chart' );
+			} );
+
+			test( 'chart container can receive focus', async () => {
+				const user = userEvent.setup();
+				renderWithTheme();
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+
+				await user.tab();
+				expect( chart ).toHaveFocus();
+			} );
+		} );
+
+		describe( 'Arrow Key Navigation', () => {
+			test( 'right arrow key navigates to next data point', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					withTooltips: true,
+					data: [
+						{
+							label: 'Series A',
+							group: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+							options: {},
+						},
+						{
+							label: 'Series B',
+							group: 'Series B',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+							],
+							options: {},
+						},
+					],
+				} );
+
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				chart.focus();
+
+				// Single tab should focus on the first tooltip.
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+
+				// Second tab should focus on the second tooltip.
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+			} );
+
+			test( 'left arrow key navigates to previous data point', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					withTooltips: true,
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+							options: {},
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+							],
+							options: {},
+						},
+					],
+				} );
+
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				chart.focus();
+
+				// Right arrow key should focus on the first tooltip.
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+
+				// Right arrow key should focus on the second tooltip.
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+
+				// Left arrow key should focus on the first tooltip.
+				await user.keyboard( '{ArrowLeft}' );
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+			} );
+		} );
+
+		describe( 'Tab Key Navigation', () => {
+			test( 'tab key exits navigation when reaching end of data points', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+							options: {},
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+							],
+							options: {},
+						},
+					],
+				} );
+
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				chart.focus();
+
+				// Chart should be in focus.
+				expect( chart ).toHaveFocus();
+
+				// Clicking tab should not open any tooltips.
+				await user.tab();
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+				// Chart should no longer be in focus.
+				expect( chart ).not.toHaveFocus();
+			} );
+		} );
+
+		test( 'keyboard navigation works with custom tooltip renderer', async () => {
+			const user = userEvent.setup();
+			const customTooltipRenderer = jest.fn( ( { tooltipData } ) => (
+				<div role="tooltip" data-testid="custom-tooltip">
+					Custom: { tooltipData?.nearestDatum?.datum?.date?.toLocaleDateString() }
+				</div>
+			) );
+
+			renderWithTheme( { withTooltips: true, renderTooltip: customTooltipRenderer } );
+
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			chart.focus();
+
+			// Click on right arrow key to focus on the first tooltip.
+			await user.keyboard( '{ArrowRight}' );
+
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '1/1/2024' );
+
+			const customTooltip = screen.getByTestId( 'custom-tooltip' );
+			expect( customTooltip ).toBeInTheDocument();
+			expect( customTooltipRenderer ).toHaveBeenCalled();
 		} );
 	} );
 } );
