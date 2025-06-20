@@ -443,13 +443,31 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 						'type' => 'string',
 					),
 				),
-				'scripts'             => array(
+				'hash'                => array(
+					'description' => esc_html__( 'Hash of the block editor assets.', 'jetpack' ),
+					'type'        => 'string',
+				),
+				'styles_html'         => array(
+					'description' => esc_html__( 'Style link tags for the block editor.', 'jetpack' ),
+					'type'        => 'string',
+				),
+				'scripts_html'        => array(
 					'description' => esc_html__( 'Script tags for the block editor.', 'jetpack' ),
 					'type'        => 'string',
 				),
+				'scripts'             => array(
+					'description' => esc_html__( 'Script URLs for the block editor.', 'jetpack' ),
+					'type'        => 'array',
+					'items'       => array(
+						'type' => 'string',
+					),
+				),
 				'styles'              => array(
-					'description' => esc_html__( 'Style link tags for the block editor.', 'jetpack' ),
-					'type'        => 'string',
+					'description' => esc_html__( 'Style URLs for the block editor.', 'jetpack' ),
+					'type'        => 'array',
+					'items'       => array(
+						'type' => 'string',
+					),
 				),
 			),
 		);
