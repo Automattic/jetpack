@@ -21,7 +21,7 @@ interface PromptContext {
  * @return ChromeAISuggestionsEventSource | bool
  */
 export default async function ChromeAIFactory( promptArg: PromptProp ) {
-	if ( ! isChromeAIAvailable() ) {
+	if ( ! ( await isChromeAIAvailable() ) ) {
 		debug( 'Chrome AI is not available' );
 		return false;
 	}
@@ -184,11 +184,15 @@ export default async function ChromeAIFactory( promptArg: PromptProp ) {
 		};
 
 		debug( 'summaryOpts', summaryOpts );
-		return new ChromeAISuggestionsEventSource( {
+
+		const chromeAiEventSourceOpts = {
 			content: context.content,
 			promptType: PROMPT_TYPE_SUMMARIZE,
 			options: summaryOpts,
-		} );
+		};
+
+		debug( 'chromeAiEventSourceOpts', chromeAiEventSourceOpts );
+		return new ChromeAISuggestionsEventSource( chromeAiEventSourceOpts );
 	}
 
 	return false;

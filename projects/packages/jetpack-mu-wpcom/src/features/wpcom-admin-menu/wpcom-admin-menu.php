@@ -35,6 +35,30 @@ function current_user_has_wpcom_account() {
 }
 
 /**
+ * Checks if menu items can link to Calypso.
+ *
+ * This way we can avoid a broken nav experience for super admins who are not members of the current site,
+ * since Calypso doesn't support this flow.
+ */
+function wpcom_can_link_to_calypso() {
+	return is_user_member_of_blog();
+}
+
+/**
+ * Adds a My Home menu.
+ */
+function wpcom_add_my_home_menu() {
+	if ( ! wpcom_can_link_to_calypso() ) {
+		return;
+	}
+
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	add_menu_page( __( 'My Home', 'jetpack-mu-wpcom' ), __( 'My Home', 'jetpack-mu-wpcom' ), 'read', 'https://wordpress.com/home/' . $domain, null, 'dashicons-admin-home', 2.01 ); // The 2.01 position is to ensure it's above the VIP menu on P2 sites.'
+}
+add_action( 'admin_menu', 'wpcom_add_my_home_menu' );
+
+/**
  * Adds a Hosting menu.
  */
 function wpcom_add_hosting_menu() {
@@ -53,15 +77,6 @@ function wpcom_add_hosting_menu() {
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 		'dashicons-cloud',
 		3
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'My Home', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'My Home', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/home/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 	);
 
 	add_submenu_page(
