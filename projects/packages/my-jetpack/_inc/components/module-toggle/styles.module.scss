@@ -1,0 +1,7 @@
+.toggle {
+
+	&:global(.components-form-toggle.is-checked) :global(.components-form-toggle__track) {
+		background-color: var(--jp-green-50);
+		border-color: var(--jp-green-50);
+	}
+}

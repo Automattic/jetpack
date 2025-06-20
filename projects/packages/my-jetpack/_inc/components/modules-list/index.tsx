@@ -39,7 +39,7 @@ export function ModulesList( { modules }: ModulesListProps ) {
 				label: __( 'Toggle', 'jetpack-my-jetpack' ),
 				render: ( { item } ) => {
 					return (
-						<Flex className={ styles[ 'toggle-wrap' ] }>
+						<Flex gap={ 4 } className={ styles[ 'toggle-wrap' ] }>
 							<ModuleStatus module={ item } />
 							<ModuleToggle module={ item } />
 						</Flex>
