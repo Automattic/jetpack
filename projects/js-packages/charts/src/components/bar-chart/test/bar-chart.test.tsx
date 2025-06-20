@@ -47,7 +47,7 @@ describe( 'BarChart', () => {
 					},
 				],
 			} );
-			expect( screen.getByRole( 'img', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'handles negative values', () => {
@@ -63,7 +63,7 @@ describe( 'BarChart', () => {
 					},
 				],
 			} );
-			expect( screen.getByRole( 'img', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'handles null or undefined values', () => {
@@ -158,21 +158,21 @@ describe( 'BarChart', () => {
 	describe( 'Grid Visibility', () => {
 		test( 'renders with different grid visibility options', () => {
 			const { rerender } = renderWithTheme( { gridVisibility: 'x' } );
-			expect( screen.getByRole( 'img', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			rerender(
 				<ThemeProvider>
 					<BarChart { ...defaultProps } gridVisibility="y" />
 				</ThemeProvider>
 			);
-			expect( screen.getByRole( 'img', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			rerender(
 				<ThemeProvider>
 					<BarChart { ...defaultProps } gridVisibility="xy" />
 				</ThemeProvider>
 			);
-			expect( screen.getByRole( 'img', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -200,7 +200,7 @@ describe( 'BarChart', () => {
 	describe( 'Pattern', () => {
 		test( 'renders with patterns', () => {
 			renderWithTheme( { withPatterns: true } );
-			expect( screen.getByRole( 'img', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			// Check that pattern definitions container is present
 			expect( screen.getByTestId( 'bar-chart-patterns' ) ).toBeInTheDocument();
@@ -208,7 +208,7 @@ describe( 'BarChart', () => {
 
 		test( 'renders without patterns by default', () => {
 			renderWithTheme( { withPatterns: false } );
-			expect( screen.getByRole( 'img', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			// Check that no pattern definitions container is present
 			expect( screen.queryByTestId( 'bar-chart-patterns' ) ).not.toBeInTheDocument();
