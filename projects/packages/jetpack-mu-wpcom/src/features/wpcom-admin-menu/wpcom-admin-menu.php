@@ -39,7 +39,7 @@ function current_user_has_wpcom_account() {
  */
 function wpcom_add_dashboard_updates_menu() {
 	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-	if ( ! $is_simple_site ) {
+	if ( ! $is_simple_site || wpcom_is_vip() ) {
 		return;
 	}
 
