@@ -1,7 +1,9 @@
+@use 'mixins';
+@use 'variables';
 
 .jb-section {
-	padding-top: $padding;
-	padding-bottom: $padding;
+	padding-top: variables.$padding;
+	padding-bottom: variables.$padding;
 	isolation: isolate;
 	z-index: 10;
 
@@ -12,7 +14,7 @@
 }
 
 .jb-section--alt {
-	background-color: $alt_white;
+	background-color: variables.$alt_white;
 }
 
 .jb-section--scores {
@@ -47,10 +49,10 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-top: $padding;
-	margin-bottom: $padding;
+	margin-top: variables.$padding;
+	margin-bottom: variables.$padding;
 
-	@include breakpoint( xs ) {
+	@include mixins.breakpoint( xs ) {
 		flex-direction: column;
 		justify-content: flex-start;
 	}

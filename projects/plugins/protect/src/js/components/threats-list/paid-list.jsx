@@ -3,6 +3,7 @@ import {
 	Button,
 	DiffViewer,
 	MarkedLines,
+	DetailsViewer,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
@@ -29,6 +30,7 @@ const ThreatAccordionItem = ( {
 	name,
 	source,
 	title,
+	details,
 	type,
 	severity,
 	status,
@@ -111,7 +113,7 @@ const ThreatAccordionItem = ( {
 					{ learnMoreButton }
 				</div>
 			) }
-			{ ( filename || context || diff ) && (
+			{ ( filename || context || diff || details ) && (
 				<Text variant="title-small" mb={ 2 }>
 					{ __( 'The technical details', 'jetpack-protect' ) }
 				</Text>
@@ -128,6 +130,7 @@ const ThreatAccordionItem = ( {
 				</>
 			) }
 			{ context && <MarkedLines context={ context } /> }
+			{ details && <DetailsViewer details={ details } /> }
 			{ diff && <DiffViewer diff={ diff } /> }
 			{ fixedIn && status !== 'fixed' && (
 				<div className={ styles[ 'threat-section' ] }>
@@ -212,7 +215,7 @@ const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 								name,
 								severity,
 								source,
-								table,
+								details,
 								title,
 								type,
 								version,
@@ -234,7 +237,7 @@ const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 									name={ name }
 									severity={ severity }
 									source={ source }
-									table={ table }
+									details={ details }
 									title={ title }
 									type={ type }
 									version={ version }

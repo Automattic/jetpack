@@ -6,7 +6,7 @@
 // Front end forms, for front-end (public)
 
 // import actual form styles (shared from front end + backend)
-@import 'ZeroBSCRM.frontendforms';
+@use 'ZeroBSCRM.frontendforms';
 
 .widget, .mh-sidebar{
 

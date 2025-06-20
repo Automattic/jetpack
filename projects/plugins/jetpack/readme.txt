@@ -326,14 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.7-a.5 - 2025-05-19
+### 14.8-a.5 - 2025-06-16
 #### Enhancements
-- Forms: Add Google Drive to integrations modal.
-- My Jetpack: Optimize the images for onboarding slider for faster page load.
-- Search: Highlight search term in returned search results.
+- AI Assistant: Add support for file upload field on Forms extension.
+- Forms: Add Akismet refresh status button.
+- Forms: Stop translate product name in the sidebar.
+- Forms: Show central integrations dashboard.
+- Forms: Use interactivity API for form validation.
+- Forms: Make it possible to preview file by visiting the URL.
 
 #### Bug fixes
-- Open Graph: Prevent PHP warnings when embedding some Vimeo videos.
+- Endpoints: Prevent warnings in logs when attempting to add external media from some sources.
+- Recipe shortcode: Prevent errors in logs due to checking for theme color properties that may not exist.
 
 --------
 

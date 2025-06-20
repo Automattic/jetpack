@@ -23,16 +23,16 @@ import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, isArray, map } from 'lodash';
+import InspectorHint from '../shared/components/inspector-hint';
+import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-responses-settings';
+import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
 import { childBlocks } from './child-blocks';
-import InspectorHint from './components/inspector-hint';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import IntegrationControls from './components/jetpack-integration-controls';
-import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
-
 const validFields = filter( childBlocks, ( { settings } ) => {
 	return (
 		! settings.parent ||
@@ -155,7 +155,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							{ __( 'Customize the view after form submission:', 'jetpack-forms' ) }
 						</InspectorHint>
 						<SelectControl
-							label={ __( 'On Submission', 'jetpack-forms' ) }
+							label={ __( 'On submission', 'jetpack-forms' ) }
 							value={ customThankyou }
 							options={ [
 								{ label: __( 'Show a summary of submitted fields', 'jetpack-forms' ), value: '' },
@@ -172,7 +172,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 						{ 'redirect' !== customThankyou && (
 							<TextControl
-								label={ __( 'Message Heading', 'jetpack-forms' ) }
+								label={ __( 'Message heading', 'jetpack-forms' ) }
 								value={ customThankyouHeading }
 								placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
 								onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
@@ -183,7 +183,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 						{ 'message' === customThankyou && (
 							<TextareaControl
-								label={ __( 'Message Text', 'jetpack-forms' ) }
+								label={ __( 'Message text', 'jetpack-forms' ) }
 								value={ customThankyouMessage }
 								placeholder={ __( 'Thank you for your submission!', 'jetpack-forms' ) }
 								onChange={ newMessage => setAttributes( { customThankyouMessage: newMessage } ) }
@@ -194,7 +194,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						{ 'redirect' === customThankyou && (
 							<div>
 								<URLInput
-									label={ __( 'Redirect Address', 'jetpack-forms' ) }
+									label={ __( 'Redirect address', 'jetpack-forms' ) }
 									value={ customThankyouRedirect }
 									className="jetpack-contact-form__thankyou-redirect-url"
 									onChange={ newURL => setAttributes( { customThankyouRedirect: newURL } ) }
@@ -239,9 +239,11 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	}
 
 	return (
-		<ThemeProvider targetDom={ wrapperRef.current }>
-			<div { ...blockProps }>{ elt }</div>
-		</ThemeProvider>
+		<SyncedAttributeProvider>
+			<ThemeProvider targetDom={ wrapperRef.current }>
+				<div { ...blockProps }>{ elt }</div>
+			</ThemeProvider>
+		</SyncedAttributeProvider>
 	);
 }
 

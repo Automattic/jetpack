@@ -71,7 +71,18 @@ export const markAsSpamAction = {
 							),
 							items.length
 					  );
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'mark-as-spam-action' } );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'mark-as-spam-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							markAsNotSpamAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 		} else {
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
@@ -118,7 +129,18 @@ export const markAsNotSpamAction = {
 							),
 							items.length
 					  );
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'mark-as-not-spam-action' } );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'mark-as-not-spam-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							markAsSpamAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 		} else {
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
@@ -163,7 +185,18 @@ export const restoreAction = {
 							),
 							items.length
 					  );
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'restore-action' } );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'restore-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							moveToTrashAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 			return;
 		}
 		// There is at least one failure.
@@ -201,7 +234,18 @@ export const moveToTrashAction = {
 							),
 							items.length
 					  );
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'move-to-trash-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							restoreAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 			return;
 		}
 		// There is at least one failure.

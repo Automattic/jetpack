@@ -1,4 +1,4 @@
-@import '../lib/styles/helper';
+@use '../lib/styles/helper';
 
 /**
  * Only add styles here that should be shared across different result types (minimal, expanded, product).
@@ -28,7 +28,7 @@
 
 	.jetpack-instant-search__search-result-title-checkmark {
 		position: relative;
-		background-color: $color-checkmark-background;
+		background-color: helper.$color-checkmark-background;
 		border-radius: 50%;
 		width: 30px;
 		height: 30px;
@@ -43,7 +43,7 @@
 			width: 8px;
 			border-bottom: 3px solid;
 			border-right: 3px solid;
-			border-color: $color-checkmark;
+			border-color: helper.$color-checkmark;
 			transform: rotate(40deg);
 		}
 	}

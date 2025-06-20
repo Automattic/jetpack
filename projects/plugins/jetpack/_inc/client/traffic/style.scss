@@ -1,13 +1,14 @@
 @use '../scss/functions/rem';
-@import "../scss/variables/colors";
-@import "../scss/mixin_breakpoint";
+@use "../scss/variables/colors";
+@use "../scss/mixin_breakpoint";
+@use "../scss/typography";
 
 .jp-form-google-label-unverified {
 
 	.dops-button {
 		margin: 0 15px;
 
-		@include breakpoint( '<660px' ) {
+		@include mixin_breakpoint.breakpoint( '<660px' ) {
 			margin-top: 10px;
 			width: 40%;
 		}
@@ -16,7 +17,7 @@
 	.jp-form-google-separator {
 		padding: .5rem 0;
 
-		@include breakpoint( '<660px' ) {
+		@include mixin_breakpoint.breakpoint( '<660px' ) {
 			margin: 25px 0 0;
 			display: inline-block;
 		}
@@ -50,8 +51,8 @@
 }
 
 .jp-form-site-verification-verified {
-	background-color: $white;
-	color: $green-primary;
+	background-color: colors.$white;
+	color: colors.$green-primary;
 	box-sizing: border-box;
 	margin: 0;
 	padding: 7px 14px;
@@ -68,11 +69,11 @@
 		margin-right: 5px;
 	}
 
-	@include breakpoint( '>660px' ) {
+	@include mixin_breakpoint.breakpoint( '>660px' ) {
 		border-left: 0;
 	}
 
-	@include breakpoint( '<660px' ) {
+	@include mixin_breakpoint.breakpoint( '<660px' ) {
 		border-top: 0;
 	}
 }
@@ -81,7 +82,7 @@
 	margin-left: 10px;
 	overflow: visible;
 
-	@include breakpoint( '<660px' ) {
+	@include mixin_breakpoint.breakpoint( '<660px' ) {
 		margin-left: 0;
 		margin-right: 5px;
 		margin-top: 5px;
@@ -126,7 +127,7 @@
 	}
 
 	&-container {
-		background: $gray-light;
+		background: colors.$gray-light;
 		border-radius: 4px;
 	}
 
@@ -135,14 +136,14 @@
 	}
 
 	&-count-warn {
-		background-color: $alert-yellow;
-		font-weight: $bold;
+		background-color: colors.$alert-yellow;
+		font-weight: typography.$bold;
 		border-radius: 4px;
 	}
 
 	&-count-max {
-		background-color: $alert-red;
-		font-weight: $bold;
+		background-color: colors.$alert-red;
+		font-weight: typography.$bold;
 		border-radius: 4px;
 		color: #fff;
 	}
@@ -257,7 +258,7 @@ $twitter-pofile-image-padding: 17px;
 
 .jp-stats-odyssey-disabled-notice {
 
-	@include breakpoint('<480px') {
+	@include mixin_breakpoint.breakpoint('<480px') {
 
 		a.dops-notice__action {
 			white-space: initial;
@@ -268,7 +269,7 @@ $twitter-pofile-image-padding: 17px;
 		}
 	}
 
-	@include breakpoint('>480px') {
+	@include mixin_breakpoint.breakpoint('>480px') {
 		width: calc(100% - 26px);
 	}
 }

@@ -33,17 +33,9 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 0.6.0 - 2025-04-04
-
+### 0.7.1 - 2025-06-18
 #### Changed
-- Code: Use function-style `exit()` and `die()` with a default status code of 0.
-- General: Indicate compatibility with WordPress 6.8.
-- Update composer.lock
 - Update package dependencies.
-
-#### Fixed
-- Code: Prevent dynamic class properties.
-- E2E Tests: Only install single browser used by Playwright.
 
 == Arbitrary section ==
 

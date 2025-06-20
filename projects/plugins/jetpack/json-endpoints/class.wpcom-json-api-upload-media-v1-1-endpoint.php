@@ -165,7 +165,6 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		foreach ( $media_items as $media_item ) {
 			if ( is_wp_error( $media_item ) ) {
 				$errors[] = array(
-					'file'    => $media_item['ID'],
 					'error'   => $media_item->get_error_code(),
 					'message' => $media_item->get_error_message(),
 				);

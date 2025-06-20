@@ -7,9 +7,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Forms\Dashboard;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
@@ -37,6 +35,70 @@ function current_user_has_wpcom_account() {
 }
 
 /**
+ * Adds the Dashboard > Updates menu on Simple sites
+ */
+function wpcom_add_dashboard_updates_menu() {
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	if ( ! $is_simple_site || ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) ) {
+		return;
+	}
+
+	add_submenu_page(
+		'index.php',
+		__( 'WordPress Updates', 'jetpack-mu-wpcom' ),
+		__( 'Updates', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'wpcom-dashboard-updates',
+		'wpcom_display_dashboard_updates_page'
+	);
+}
+add_action( 'admin_menu', 'wpcom_add_dashboard_updates_menu' );
+
+/**
+ * Displays a WordPress Updates page for Simple sites.
+ */
+function wpcom_display_dashboard_updates_page() {
+	require_once ABSPATH . 'wp-admin/admin-header.php';
+	?>
+	<div class="wrap">
+		<h1><?php esc_html_e( 'WordPress Updates', 'jetpack-mu-wpcom' ); ?></h1>
+		<p><?php esc_html_e( "WordPress.com automatically keeps your site's plugins, themes, and WordPress version up to date.", 'jetpack-mu-wpcom' ); ?></p>
+		<h2><?php esc_html_e( 'WordPress', 'jetpack-mu-wpcom' ); ?></h2>
+		<p><?php esc_html_e( 'Your version of WordPress is up to date.', 'jetpack-mu-wpcom' ); ?></p>
+		<h2><?php esc_html_e( 'Plugins', 'jetpack-mu-wpcom' ); ?></h2>
+		<p><?php esc_html_e( 'Your plugins are all up to date.', 'jetpack-mu-wpcom' ); ?>
+		<h2><?php esc_html_e( 'Themes', 'jetpack-mu-wpcom' ); ?></h2>
+		<p><?php esc_html_e( 'Your themes are all up to date.', 'jetpack-mu-wpcom' ); ?>
+	</div>
+	<?php
+	require_once ABSPATH . 'wp-admin/admin-footer.php';
+}
+
+/**
+ * Checks if menu items can link to Calypso.
+ *
+ * This way we can avoid a broken nav experience for super admins who are not members of the current site,
+ * since Calypso doesn't support this flow.
+ */
+function wpcom_can_link_to_calypso() {
+	return is_user_member_of_blog();
+}
+
+/**
+ * Adds a My Home menu.
+ */
+function wpcom_add_my_home_menu() {
+	if ( ! wpcom_can_link_to_calypso() ) {
+		return;
+	}
+
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	add_menu_page( __( 'My Home', 'jetpack-mu-wpcom' ), __( 'My Home', 'jetpack-mu-wpcom' ), 'read', 'https://wordpress.com/home/' . $domain, null, 'dashicons-admin-home', 2.01 ); // The 2.01 position is to ensure it's above the VIP menu on P2 sites.'
+}
+add_action( 'admin_menu', 'wpcom_add_my_home_menu' );
+
+/**
  * Adds a Hosting menu.
  */
 function wpcom_add_hosting_menu() {
@@ -55,15 +117,6 @@ function wpcom_add_hosting_menu() {
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 		'dashicons-cloud',
 		3
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'My Home', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'My Home', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/home/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 	);
 
 	add_submenu_page(
@@ -474,32 +527,3 @@ function wpcom_add_plugins_menu() {
 	}
 }
 add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
-
-/**
- * Adds a submenu item for Jetpack Forms.
- */
-function add_submenu_jetpack_forms() {
-	$has_switch_class    = class_exists( 'Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch' );
-	$has_dashboard_class = class_exists( 'Automattic\Jetpack\Forms\Dashboard\Dashboard' );
-	if ( ! $has_switch_class || ! $has_dashboard_class ) {
-		return;
-	}
-
-	$has_switch_method = method_exists( Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch::class, 'is_jetpack_forms_admin_page_available' );
-	$has_render_method = method_exists( Automattic\Jetpack\Forms\Dashboard\Dashboard::class, 'render_new_dashboard' );
-
-	if ( ! $has_switch_method || ! $has_render_method || ! Dashboard\Dashboard_View_Switch::is_jetpack_forms_admin_page_available() ) {
-		return;
-	}
-
-	$forms_dashboard = new Dashboard\Dashboard();
-
-	Admin_Menu::add_menu(
-		__( 'Jetpack Forms', 'jetpack-mu-wpcom' ),
-		__( 'Forms', 'jetpack-mu-wpcom' ),
-		'edit_pages',
-		'jetpack-forms-admin',
-		array( $forms_dashboard, 'render_new_dashboard' )
-	);
-}
-add_action( 'admin_menu', 'add_submenu_jetpack_forms' );

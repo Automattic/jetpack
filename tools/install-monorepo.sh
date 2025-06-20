@@ -45,7 +45,7 @@ fi
 info "Checking if Homebrew is installed..."
 if ! command -v brew &>/dev/null; then
 	info "Installing Homebrew"
-	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	if [[ -n "$ON_LINUX" ]]; then # Add homebrew to PATH
 		echo 'eval "$("/home/linuxbrew/.linuxbrew/bin/brew" shellenv)"' >> "$HOME/.profile"
 		eval "$("/home/linuxbrew/.linuxbrew/bin/brew" shellenv)"
@@ -57,7 +57,7 @@ else
 	# Brew can be finicky on MacOS
 	if [[ $? -ne 0 ]]; then
 		 echo "Reinstalling Homebrew"
-		 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+		 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	fi
 fi
 

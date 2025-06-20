@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 
 type SearchParamNameProp = 'page' | 'q';
 

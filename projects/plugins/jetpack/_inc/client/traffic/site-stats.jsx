@@ -15,7 +15,6 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
-import { isWoASite } from 'state/initial-state';
 
 class SiteStatsComponent extends React.Component {
 	constructor( props ) {
@@ -306,6 +305,4 @@ class SiteStatsComponent extends React.Component {
 	}
 }
 
-export const SiteStats = connect( state => ( {
-	isWoASite: isWoASite( state ),
-} ) )( withModuleSettingsFormHelpers( SiteStatsComponent ) );
+export const SiteStats = connect()( withModuleSettingsFormHelpers( SiteStatsComponent ) );

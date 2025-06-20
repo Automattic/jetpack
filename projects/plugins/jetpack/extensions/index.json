@@ -13,6 +13,7 @@
 		"contact-info",
 		"donations",
 		"eventbrite",
+		"field-file",
 		"gif",
 		"google-calendar",
 		"image-compare",
@@ -80,9 +81,7 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-list-to-table-transform",
-		"ai-use-chrome-ai-sometimes",
-		"field-file"
+		"ai-list-to-table-transform"
 	],
 	"experimental": [],
 	"no-post-editor": [

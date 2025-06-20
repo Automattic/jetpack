@@ -240,22 +240,29 @@ if (
 			 * Rating embed.
 			 */
 			if ( (int) $attributes['rating'] > 0 && ! $no_script ) {
+				$post_id = $post instanceof WP_Post ? $post->ID : get_the_ID();
+				$post_id = $post_id ?? '';
 
 				if ( empty( $attributes['unique_id'] ) ) {
-					$attributes['unique_id'] = is_page() ? 'wp-page-' . $post->ID : 'wp-post-' . $post->ID;
+					$attributes['unique_id'] = is_page() ? 'wp-page-' . $post_id : 'wp-post-' . $post_id;
 				}
 
 				if ( empty( $attributes['item_id'] ) ) {
-					$attributes['item_id'] = is_page() ? '_page_' . $post->ID : '_post_' . $post->ID;
+					$attributes['item_id'] = is_page() ? '_page_' . $post_id : '_post_' . $post_id;
 				}
 
 				if ( empty( $attributes['title'] ) ) {
+					$title = $post instanceof WP_Post ? $post->post_title : get_the_title();
 					/** This filter is documented in core/src/wp-includes/general-template.php */
-					$attributes['title'] = apply_filters( 'wp_title', $post->post_title, '', '' );
+					$attributes['title'] = apply_filters( 'wp_title', $title, '', '' );
 				}
 
 				if ( empty( $attributes['permalink'] ) ) {
-					$attributes['permalink'] = get_permalink( $post->ID );
+					if ( $post_id ) {
+						$attributes['permalink'] = get_permalink( $post_id );
+					} else {
+						$attributes['permalink'] = home_url( add_query_arg( array() ) );
+					}
 				}
 
 				$rating    = (int) $attributes['rating'];

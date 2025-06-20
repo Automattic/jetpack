@@ -1008,7 +1008,7 @@ class Oauth_Handler {
 
 			?><html>
 			<head>
-				<link rel="stylesheet" type="text/css" href="<?php echo esc_url( plugins_url('/css/ZeroBSCRM.admin.semantic-ui'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE) ); ?>">
+				<link rel="stylesheet" type="text/css" href="<?php echo esc_url( plugins_url( '/build/lib/semantic-ui-css/semantic.min.css', ZBS_ROOTFILE ) ); /* phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet */ ?>">
 				<style>
 					body {
 						vertical-align: middle;

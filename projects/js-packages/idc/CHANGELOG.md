@@ -2,6 +2,38 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 1.0.5 - 2025-06-19
+### Changed
+- Update dependencies.
+
+## 1.0.4 - 2025-06-18
+### Changed
+- Update dependencies.
+
+## 1.0.3 - 2025-06-16
+### Changed
+- Update dependencies.
+
+## 1.0.2 - 2025-06-10
+### Changed
+- Update dependencies.
+
+## 1.0.1 - 2025-06-04
+### Changed
+- Update dependencies.
+
+## 1.0.0 - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
+## 0.12.29 - 2025-06-02
+### Changed
+- sass: `@use` rather than `@import` for `@wordpress/base-styles`. [#43607]
+
+## 0.12.28 - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
 ## 0.12.27 - 2025-05-22
 ### Changed
 - Update dependencies.

@@ -1,5 +1,5 @@
-@import '../../scss/variables/colors';
-@import '../../scss/typography';
+@use '../../scss/variables/colors';
+@use '../../scss/typography';
 
 .jp-recommendations-back-btn {
 	display: flex;
@@ -12,7 +12,7 @@
 	color: var( --jp-gray-70 );
 	fill: currentColor;
 
-	font-size: $font-body;
+	font-size: typography.$font-body;
 
 	cursor: pointer;
 

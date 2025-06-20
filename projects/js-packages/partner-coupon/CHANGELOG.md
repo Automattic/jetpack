@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.2 - 2025-06-16
+### Changed
+- Update dependencies. [#43878]
+
+## 1.0.1 - 2025-06-05
+### Changed
+- Update dependencies. [#43785]
+
+## 1.0.0 - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
+## 0.3.22 - 2025-06-02
+### Changed
+- sass: `@use` rather than `@import` for `@wordpress/base-styles`. [#43607]
+
+## 0.3.21 - 2025-05-26
+### Changed
+- Update dependencies. [#43569] [#43578]
+
 ## 0.3.20 - 2025-05-19
 ### Changed
 - Update dependencies. [#42943]

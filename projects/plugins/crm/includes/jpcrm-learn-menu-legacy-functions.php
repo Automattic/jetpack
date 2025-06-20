@@ -367,7 +367,7 @@ function jpcrm_taskcalendar_learn_menu( $learn_menu ) {
 	$selected_user_id = ( empty( $_GET['zbsowner'] ) ? -1 : (int) $_GET['zbsowner'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$task_users       = zeroBS_getPossibleCustomerOwners();
 	$task_users_html  = '';
-	if ( count( $task_users ) > 0 && zeroBSCRM_isZBSAdminOrAdmin() ) {
+	if ( count( $task_users ) > 0 && zeroBSCRM_perms_tasks() ) {
 		$task_users_html .= '<select id="zerobscrm-owner">';
 		$task_users_html .= '<option value="-1">' . __( 'All Users', 'zero-bs-crm' ) . '</option>';
 		foreach ( $task_users as $user ) {

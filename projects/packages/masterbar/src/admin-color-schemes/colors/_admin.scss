@@ -7,8 +7,93 @@
 
 @use 'sass:color';
 @use 'sass:string';
-@import 'variables';
-@import 'mixins';
+@use "sass:meta";
+@use 'mixins';
+
+// external variables
+$color-primary: $--a-value-must-be-set-via-with-- !default;
+$color-primary-dark: $--a-value-must-be-set-via-with-- !default;
+$color-primary-light: $--a-value-must-be-set-via-with-- !default;
+$color-surface: $--a-value-must-be-set-via-with-- !default;
+$masterbar-background: $--a-value-must-be-set-via-with-- !default;
+$masterbar-active-background: $--a-value-must-be-set-via-with-- !default;
+$masterbar-highlight-background: $--a-value-must-be-set-via-with-- !default;
+$nav-unification-sidebar-border: $--a-value-must-be-set-via-with-- !default;
+
+// core variables
+
+$text-color: #fff !default;
+$base-color: #23282d !default;
+$icon-color: hsl( color.channel( $base-color, "hue", $space: oklch ), 7%, 95% ) !default;
+$highlight-color: #0073aa !default;
+$notification-color: #d54e21 !default;
+
+
+// global
+
+$body-background: #f1f1f1 !default;
+
+$link: #0073aa !default;
+$link-focus: color.adjust( $link, $lightness: 10% ) !default;
+
+$button-color: $highlight-color !default;
+$button-text-color: $text-color !default;
+
+$form-checked: #7e8993 !default;
+
+// admin menu & admin-bar
+
+$menu-text: $text-color !default;
+$menu-icon: $icon-color !default;
+$menu-background: $base-color !default;
+
+$menu-highlight-text: $text-color !default;
+$menu-highlight-icon: $text-color !default;
+$menu-highlight-background: $highlight-color !default;
+
+$menu-current-text: $menu-highlight-text !default;
+$menu-current-icon: $menu-highlight-icon !default;
+$menu-current-background: $menu-highlight-background !default;
+
+$menu-submenu-text: color.mix( $base-color, $text-color, 30% ) !default;
+$menu-submenu-background: color.adjust( $base-color, $lightness: -7% ) !default;
+$menu-submenu-background-alt: color.adjust( $menu-background, $lightness: 7%, $saturation: -7% ) !default;
+
+$menu-submenu-focus-text: $highlight-color !default;
+$menu-submenu-current-text: $text-color !default;
+
+$menu-bubble-text: $text-color !default;
+$menu-bubble-background: $notification-color !default;
+$menu-bubble-current-text: $text-color !default;
+$menu-bubble-current-background: $menu-submenu-background !default;
+
+$menu-collapse-text: $menu-icon !default;
+$menu-collapse-icon: $menu-icon !default;
+$menu-collapse-focus-text: $text-color !default;
+$menu-collapse-focus-icon: $menu-highlight-icon !default;
+
+$adminbar-avatar-frame: color.adjust( $menu-background, $lightness: 7% ) !default;
+$adminbar-input-background: color.adjust( $menu-background, $lightness: 7% ) !default;
+
+$adminbar-recovery-exit-text: $menu-bubble-text !default;
+$adminbar-recovery-exit-background: $menu-bubble-background !default;
+$adminbar-recovery-exit-background-alt: color.mix(#000, $adminbar-recovery-exit-background, 10%) !default;
+
+$menu-customizer-text: color.mix( $base-color, $text-color, 40% ) !default;
+
+$low-contrast-theme: "false" !default;
+
+// Add defaults for the admin bar submenus. In most cases these can match the
+// admin menu submenus, but some schemes may be different.
+$masterbar-submenu-background: $menu-submenu-background !default;
+$masterbar-submenu-background-alt: color.adjust( $menu-submenu-background, $lightness: 5% ) !default;
+
+// Unused here, used in _upsell-banner.scss.
+$menu-nudge-text-color: null !default;
+$menu-nudge-background: null !default;
+$menu-nudge-cta-color: null !default;
+$menu-nudge-cta-background: null !default;
+$menu-nudge-cta-background-hover: null !default;
 
 @function url-friendly-colour( $color ) {
 
@@ -181,7 +266,7 @@ textarea:focus {
 
 	.button-primary {
 
-		@include button( $button-color );
+		@include mixins.button( $button-color );
 	}
 
 	.button-group > .button.active {
@@ -779,13 +864,30 @@ div#wp-responsive-toggle a::before {
 	color: $highlight-color;
 }
 
-/* stylelint-disable no-invalid-position-at-import-rule -- these imports are intentional overrides */
-
 /* Overrides */
-@import 'overrides';
+@include meta.load-css('overrides', $with: (
+  masterbar-active-background: $masterbar-active-background,
+  masterbar-background: $masterbar-background,
+  masterbar-highlight-background: $masterbar-highlight-background,
+  masterbar-submenu-background: $masterbar-submenu-background,
+  masterbar-submenu-background-alt: $masterbar-submenu-background-alt,
+  menu-current-text: $menu-current-text,
+  menu-highlight-text: $menu-highlight-text,
+  menu-submenu-current-text: $menu-submenu-current-text,
+  menu-submenu-focus-text: $menu-submenu-focus-text,
+  menu-submenu-text: $menu-submenu-text,
+  nav-unification-sidebar-border: $nav-unification-sidebar-border
+));
 
 /* Gutenberg Support */
-@import 'gutenberg';
+@include meta.load-css('gutenberg', $with: (
+  highlight-color: $highlight-color
+));
 
 /* Inline Help Support */
-@import 'inline-help';
+@include meta.load-css('inline-help', $with: (
+  color-primary: $color-primary,
+  color-primary-dark: $color-primary-dark,
+  color-primary-light: $color-primary-light,
+  color-surface: $color-surface
+));

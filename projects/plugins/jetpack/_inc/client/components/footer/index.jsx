@@ -1,4 +1,5 @@
 import { getRedirectUrl, JetpackFooter, ThemeProvider } from '@automattic/jetpack-components';
+import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import React from 'react';
@@ -11,7 +12,6 @@ import {
 	isDevVersion as _isDevVersion,
 	getCurrentVersion,
 	userCanManageOptions,
-	isAtomicPlatform,
 } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
@@ -82,7 +82,7 @@ export class Footer extends React.Component {
 		const menu = [];
 
 		// Maybe add the version link.
-		if ( ! this.props.isAtomicPlatform ) {
+		if ( isJetpackSelfHostedSite() ) {
 			menu.push( {
 				label: sprintf(
 					/* Translators: placeholder is a version number. */
@@ -164,7 +164,6 @@ export default connect(
 		return {
 			currentVersion: getCurrentVersion( state ),
 			displayDevCard: canDisplayDevCard( state ),
-			isAtomicPlatform: isAtomicPlatform( state ),
 			isDevVersion: _isDevVersion( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),

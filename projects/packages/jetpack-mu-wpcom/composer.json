@@ -10,7 +10,6 @@
 		"automattic/jetpack-calypsoify": "@dev",
 		"automattic/jetpack-classic-theme-helper": "@dev",
 		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
@@ -71,7 +70,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "6.3.x-dev"
+			"dev-trunk": "6.6.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

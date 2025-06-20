@@ -333,12 +333,27 @@ module.exports = [
 					// Used by ZeroBSCRM.OnboardMe.php for the onboarding tour
 					{
 						from: path.resolve( __dirname, 'node_modules/hopscotch/dist/js/hopscotch.min.js' ),
-						to: `${ buildLibPath }/hopscotch/`,
+						to: `${ buildLibPath }/hopscotch/js`,
 					},
 					// Used by ZeroBSCRM.OnboardMe.php for the onboarding tour
 					{
 						from: path.resolve( __dirname, 'node_modules/hopscotch/dist/css/hopscotch.min.css' ),
-						to: `${ buildLibPath }/hopscotch/`,
+						to: `${ buildLibPath }/hopscotch/css`,
+					},
+					// Sprites used by hopscotch tour
+					{
+						from: path.resolve( __dirname, 'node_modules/hopscotch/dist/img' ),
+						to: `${ buildLibPath }/hopscotch/img`,
+					},
+					// Used by extensively as a font icon
+					{
+						from: path.resolve( __dirname, 'node_modules/font-awesome/css/font-awesome.min.css' ),
+						to: `${ buildLibPath }/font-awesome/css`,
+					},
+					// Used by extensively as a font icon
+					{
+						from: path.resolve( __dirname, 'node_modules/font-awesome/fonts' ),
+						to: `${ buildLibPath }/font-awesome/fonts`,
 					},
 					// Used extensively for alerts
 					{
@@ -352,7 +367,7 @@ module.exports = [
 					},
 					// Used for dashboard charts
 					{
-						from: path.resolve( __dirname, 'node_modules/chart.js/dist/chart.min.js' ),
+						from: path.resolve( __dirname, 'node_modules/chart.js/dist/chart.umd.min.js' ),
 						to: `${ buildLibPath }/chart.js/`,
 					},
 					// Used in a variety of areas
@@ -365,12 +380,24 @@ module.exports = [
 						from: path.resolve( __dirname, 'node_modules/daterangepicker/daterangepicker.js' ),
 						to: `${ buildLibPath }/daterangepicker/`,
 					},
+					// Used by events pages
+					{
+						from: path.resolve( __dirname, 'node_modules/fullcalendar/index.global.min.js' ),
+						to: `${ buildLibPath }/fullcalendar/`,
+					},
+					// Used by events pages
+					{
+						from: path.resolve( __dirname, 'node_modules/@fullcalendar/core/locales' ),
+						to: `${ buildLibPath }/fullcalendar/locales`,
+						globOptions: { matchBase: true },
+						filter: resourcePath => resourcePath.endsWith( '.min.js' ),
+					},
 					// Used for first-use dashboard modals
 					{
 						from: path.resolve( __dirname, 'node_modules/jquery-modal/jquery.modal.min.js' ),
 						to: `${ buildLibPath }/jquery-modal/`,
 					},
-					// Used for first-use dashboard modals
+					// Used by first-use dashboard modals
 					{
 						from: path.resolve( __dirname, 'node_modules/jquery-modal/jquery.modal.min.css' ),
 						to: `${ buildLibPath }/jquery-modal/`,
@@ -383,15 +410,20 @@ module.exports = [
 						),
 						to: `${ buildLibPath }/typeahead.js/`,
 					},
-					// Used for welcome wizard
+					// Used extensively as a general UI base
 					{
-						from: path.resolve( __dirname, 'node_modules/bootstrap/dist/js/bootstrap.min.js' ),
-						to: `${ buildLibPath }/bootstrap/`,
+						from: path.resolve( __dirname, 'node_modules/semantic-ui-css/semantic.min.css' ),
+						to: `${ buildLibPath }/semantic-ui-css/`,
 					},
-					// Used for welcome wizard
+					// Used extensively as a general UI base
 					{
-						from: path.resolve( __dirname, 'node_modules/bootstrap/dist/css/bootstrap.min.css' ),
-						to: `${ buildLibPath }/bootstrap/`,
+						from: path.resolve( __dirname, 'node_modules/semantic-ui-css/semantic.min.js' ),
+						to: `${ buildLibPath }/semantic-ui-css/`,
+					},
+					// Used extensively as a general UI base
+					{
+						from: path.resolve( __dirname, 'node_modules/semantic-ui-css/themes' ),
+						to: `${ buildLibPath }/semantic-ui-css/themes`,
 					},
 				],
 			} ),

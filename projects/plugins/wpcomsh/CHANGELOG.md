@@ -1,5 +1,57 @@
 # Changelog
 
+## 7.0.0 - 2025-06-09
+### Added
+- Add ability to test with other Jetpack monorepo plugins active. [#43259]
+- Add hook to signal a migration has ended using AIOWP. [#42992]
+- Add support for protected connection owner. [#43601]
+- Add jetpack-forms package dependency. [#43527]
+- Featured Content: Add messaging to clarify that the tag name is case sensitive. [#43165]
+- Forms: Add field-file feature/block support on WordPress.com plans. [#43177]
+- Managed Plugin: Populate managed plugin list option on plugin install or update. [#43007]
+- Social: Enable share status for all sites. [#43056]
+
+### Changed
+- Admin Menu: Update the icon of WooCommerce for the Woo installation. [#43029]
+- bilmur: Include theme name. [#43452]
+- Bump wc-calypso-bridge version. [#43038] [#43393]
+- Compatibility: Use new `set_transient` hook in place of `setted_transient` hook deprecated in WordPress 6.8. [#43090]
+- Consolidate widget-related code from wpcom and wpcomsh into jetpack-mu-wpcom. [#42974]
+- Plugin management: Enable bulk plugin deactivation. [#42965]
+- Site Visibility: Disable search engines indexing for sites with wpcomstaging.com domain. [#42853]
+- Update package dependencies. [#43085] [#43425] [#43839]
+- Use Jetpack Autoloader. [#43618]
+
+### Deprecated
+- Remove `default_rendering_mode` hotfix. [#42984]
+
+### Removed
+- Color Scheme: Clean up *-rgb css variables. [#42960]
+- General: Update minimum WordPress version to 6.7. [#43192]
+- Move "I voted" widget from wpcomsh to jetpack-mu-wpcom. [#42924]
+- Remove legacy CI files. [#43434]
+- Remove links to deprecated Calypso views on the launchpad tasks. [#42923]
+- Remove wp-staging from incompatible plugins list. [#43170]
+- Social: Remove unused feature flags. [#43037]
+
+### Fixed
+- Block editor: Fix layout issues with the Media Library modal buttons. [#43035]
+- Check for classes and methods before call. [#43606]
+- Code: Update stylesheets to use hex instead of named colors. [#42920]
+- Code: Update stylesheets to use WordPress font styles. [#42928]
+- Ensure Jetpack modules are enabled after transferring to WP Cloud. [#42971]
+- Ensure wpcomsh users are able to purchase the Boost paid offering. [#43262]
+- Fix wrapping on the stats column heading in non-English languages. [#43630]
+- Fix Jetpack menu on untangled screens. [#43727]
+- Linting: Clean up various Stylelint violations. [#43166]
+- Linting: Do additional stylesheet cleanup. [#43247]
+- Linting: Fix more Stylelint violations. [#43213]
+- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- Podcasts: Make episode images comply with Apple requirements. [#43769]
+- Tests: Add script that runs PHPUnit tests. [#43500]
+
 ## 6.1.0 - 2025-04-07
 ### Added
 - Add `AI_SEO_ENHANCER` feature for Business plans and above and JP Complete plans. [#42731]

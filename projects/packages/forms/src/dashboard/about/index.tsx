@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { getRedirectUrl, JetpackIcon } from '@automattic/jetpack-components';
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { Card, CardBody, CardFooter, Dashicon, ExternalLink } from '@wordpress/components';
+import { isSimpleSite, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -16,6 +16,7 @@ import SalesforceIcon from '../../icons/salesforce';
 import CreateFormButton from '../components/create-form-button';
 import Details from '../components/details';
 import { config } from '../index';
+import PatternCard from './pattern-card';
 import CheckSVG from './svg/check-svg';
 import CloseSVG from './svg/close-svg';
 import ExportSVG from './svg/export-svg';
@@ -25,16 +26,21 @@ import WordpressSVG from './svg/wordpress-svg';
  * Style dependencies
  */
 import './style.scss';
+/**
+ * Types
+ */
+import type { Pattern } from '../../types';
 
 const About = () => {
 	const ASSETS_URL = useMemo( () => config( 'pluginAssetsURL' ), [] );
 
-	const patterns = useMemo(
+	const patterns: Pattern[] = useMemo(
 		() => [
 			{
 				image: `${ ASSETS_URL }/images/contact-form.png`,
 				title: __( 'Contact form', 'jetpack-forms' ),
 				recommended: true,
+				code: 'contact-form',
 				description: __(
 					'Simple form for general inquiries or support requests.',
 					'jetpack-forms'
@@ -44,6 +50,7 @@ const About = () => {
 				image: `${ ASSETS_URL }/images/rsvp-form.png`,
 				title: __( 'RSVP form', 'jetpack-forms' ),
 				recommended: true,
+				code: 'rsvp-form',
 				description: __(
 					'Collect attendance confirmations for your event, conference or online event.',
 					'jetpack-forms'
@@ -52,6 +59,7 @@ const About = () => {
 			{
 				image: `${ ASSETS_URL }/images/registration-form.png`,
 				title: __( 'Registration form', 'jetpack-forms' ),
+				code: 'registration-form',
 				description: __(
 					'Capture user sign-ups with customizable fields and open field input.',
 					'jetpack-forms'
@@ -60,6 +68,7 @@ const About = () => {
 			{
 				image: `${ ASSETS_URL }/images/feedback-form.png`,
 				title: __( 'Feedback form', 'jetpack-forms' ),
+				code: 'feedback-form',
 				description: __(
 					'Get user insights and ratings to improve your service.',
 					'jetpack-forms'
@@ -68,21 +77,27 @@ const About = () => {
 			{
 				image: `${ ASSETS_URL }/images/appointment-form.png`,
 				title: __( 'Appointment form', 'jetpack-forms' ),
+				code: 'appointment-form',
 				description: __(
 					'Let users schedule calls, consultations or meetings with ease.',
 					'jetpack-forms'
 				),
 			},
 			{
-				image: `${ ASSETS_URL }/images/salesforce-form.png`,
-				title: __( 'Salesforce lead form', 'jetpack-forms' ),
-				description: __( 'Generate and sync leads directly to Salesforce CRM.', 'jetpack-forms' ),
+				image: `${ ASSETS_URL }/images/lead-capture-form.png`,
+				title: __( 'Lead capture form', 'jetpack-forms' ),
+				code: 'newsletter-form',
+				description: __(
+					'Use this form to collect contact information from potential leads.',
+					'jetpack-forms'
+				),
 			},
 		],
 		[ ASSETS_URL ]
 	);
 
 	const isWpcomSite = isWpcomPlatformSite();
+	const isSimple = isSimpleSite();
 
 	return (
 		<div className="jp-forms__about">
@@ -96,29 +111,7 @@ const About = () => {
 				</div>
 				<div className="section-patterns__grid">
 					{ patterns.map( pattern => (
-						<Card key={ pattern.title } className="section-patterns__grid-card">
-							<CardBody>
-								<div className="section-patterns__grid-card-body-wrapper">
-									<img src={ pattern.image } alt={ pattern.title } />
-								</div>
-							</CardBody>
-							<CardFooter>
-								<div className="section-patterns__grid-card-footer">
-									<div className="section-patterns__grid-card-title">
-										<h4>{ pattern.title }</h4>
-										{ pattern.recommended && (
-											<div>
-												<span className="section-patterns__grid-card-recommended-badge">
-													<Dashicon icon="yes-alt" size={ 16 } />
-													{ __( 'Recommended', 'jetpack-forms' ) }
-												</span>
-											</div>
-										) }
-									</div>
-									<p>{ pattern.description }</p>
-								</div>
-							</CardFooter>
-						</Card>
+						<PatternCard key={ pattern.code } pattern={ pattern } />
 					) ) }
 				</div>
 			</div>
@@ -128,7 +121,7 @@ const About = () => {
 					<h1>{ __( 'Empower your workflow.', 'jetpack-forms' ) }</h1>
 					<div className="section-data__features">
 						<div className="section-data__features-feature feature-connect">
-							<div className="app-icons-wrapper">
+							<div className="app-icons-wrapper feature-header">
 								<AkismetIcon width={ 32 } height={ 32 } className="icon-round" />
 								<JetpackIcon size={ 32 } className="jetpack-icon" />
 								<CreativeMailIcon width={ 32 } height={ 32 } className="icon-round" />
@@ -146,23 +139,23 @@ const About = () => {
 							<WordpressSVG />
 						</div>
 						<div className="section-data__features-feature feature-akismet">
-							<AkismetIcon />
+							<AkismetIcon className="feature-header" />
 							<h2>{ __( 'No spam with Akismet', 'jetpack-forms' ) }</h2>
 						</div>
 						<div className="section-data__features-feature feature-export">
-							<ExportSVG />
+							<ExportSVG className="feature-header" />
 							<h2>{ __( 'Export your data anytime', 'jetpack-forms' ) }</h2>
 						</div>
 						<div className="section-data__features-feature feature-notifications">
-							<NotificationsSVG />
+							<NotificationsSVG className="feature-header" />
 							<h2>{ __( 'Real-time notifications via email', 'jetpack-forms' ) }</h2>
 						</div>
 						<div className="section-data__features-feature feature-dependencies">
-							<h1 className="zero-plugins"> { __( 'Zero', 'jetpack-forms' ) }</h1>
+							<h1 className="zero-plugins feature-header"> { __( 'Zero', 'jetpack-forms' ) }</h1>
 							<h2>{ __( 'No additional plugins required', 'jetpack-forms' ) }</h2>
 						</div>
 						<div className="section-data__features-feature feature-validation">
-							<div className="validation-icons-wrapper">
+							<div className="validation-icons-wrapper feature-header">
 								<CheckSVG />
 								<CloseSVG />
 							</div>
@@ -207,6 +200,26 @@ const About = () => {
 					<Details summary={ __( 'Is there a form responses limit?', 'jetpack-forms' ) }>
 						{ __( 'No.', 'jetpack-forms' ) }
 					</Details>
+					{ ! isSimple && (
+						<Details
+							summary={ __( 'Can I change Forms functionality via code?', 'jetpack-forms' ) }
+						>
+							{ createInterpolateElement(
+								__(
+									'Yes! You can change several aspects of Forms by using <filtersDocs>WordPress filters</filtersDocs>. Please see our <devDocs>developer documentation</devDocs> for full list of available filters and details.',
+									'jetpack-forms'
+								),
+								{
+									filtersDocs: (
+										<ExternalLink href="https://developer.wordpress.org/plugins/hooks/filters/" />
+									),
+									devDocs: (
+										<ExternalLink href={ getRedirectUrl( 'jetpack-developer-docs-forms' ) } />
+									),
+								}
+							) }
+						</Details>
+					) }
 					<Details summary={ __( 'What if I would need some help?', 'jetpack-forms' ) }>
 						{ createInterpolateElement(
 							__(
@@ -215,7 +228,7 @@ const About = () => {
 							),
 							{
 								a: isWpcomSite ? (
-									<a href={ getRedirectUrl( 'wpcom-contact-support' ) } />
+									<a href={ getRedirectUrl( 'jetpack-contact-support' ) } />
 								) : (
 									<ExternalLink href={ getRedirectUrl( 'jetpack-contact-support' ) } />
 								),

@@ -524,9 +524,11 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 */
 	public function send_full_sync_end() {
-		$range = $this->get_content_range( $this->get_status()['config'] );
+		$status  = $this->get_status();
+		$range   = $this->get_content_range( $status['config'] );
+		$context = $status['context'];
 
-		$result = $this->send_action( 'jetpack_full_sync_end', array( '', $range ) );
+		$result = $this->send_action( 'jetpack_full_sync_end', array( '', $range, $context ) );
 
 		if ( is_wp_error( $result ) ) { // Do not set finished status if we get an error.
 			return;

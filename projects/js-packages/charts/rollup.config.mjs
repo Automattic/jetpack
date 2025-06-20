@@ -37,7 +37,7 @@ const mainConfig = {
 		commonjs(),
 		json(),
 		postcss( {
-			extract: true, // Generate individual CSS files
+			extract: 'style.css', // Generate individual CSS files
 			autoModules: true, // Automatically handle .module.scss as CSS modules
 			modules: true, // Enable CSS modules
 			use: [ 'sass' ], // Enable SCSS support
@@ -50,6 +50,7 @@ const mainConfig = {
 			compilerOptions: {
 				verbatimModuleSyntax: true,
 			},
+			exclude: [ 'node_modules', 'dist', '**/stories/**', '**/*.test.{ts,tsx}' ],
 		} ),
 		terser(),
 	],

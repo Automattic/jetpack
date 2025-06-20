@@ -1,18 +1,18 @@
 @use '../../scss/functions/rem';
-@import "../../scss/variables/colors";
+@use "../../scss/variables/colors";
 
 .reconnect__modal__body {
 	margin: 0;
 	padding: rem.convert( 24px ) rem.convert( 32px );
 	font-size: rem.convert( 14px );
-	color: $blue-dark-text;
+	color: colors.$blue-dark-text;
 	text-align: center;
 
 	h2 {
 		margin: rem.convert( 32px ) 0 rem.convert( 24px );
 		font-size: rem.convert( 32px );
 		font-weight: 300;
-		color: $blue-dark-text;
+		color: colors.$blue-dark-text;
 	}
 
 	h4 {
@@ -21,7 +21,7 @@
 		font-weight: 400;
 		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 		line-height: 1.5em;
-		color: $blue-heading;
+		color: colors.$blue-heading;
 	}
 }
 

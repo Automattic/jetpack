@@ -96,19 +96,8 @@ class Storage_Post_Type {
 		} else {
 			wp_insert_post( $data_post_data );
 		}
-		global $wpdb;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->delete(
-			$wpdb->options,
-			array( 'option_name' => '_transient_' . $this->post_type_slug() . '_' . $key ),
-			array( '%s' )
-		);
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->delete(
-			$wpdb->options,
-			array( 'option_name' => '_transient_timeout_' . $this->post_type_slug() . '_' . $key ),
-			array( '%s' )
-		);
+
+		delete_transient( $this->post_type_slug() . '_' . $key );
 	}
 
 	/**
@@ -266,8 +255,6 @@ class Storage_Post_Type {
 	 * but works on all systems.
 	 */
 	private function clear_manually() {
-		global $wpdb;
-
 		$posts = get_posts(
 			array(
 				'post_type'      => $this->post_type_slug(),
@@ -286,13 +273,10 @@ class Storage_Post_Type {
 		if ( empty( $keys ) ) {
 			return;
 		}
-		$placeholders = implode( ',', array_fill( 0, count( $keys ), '%s' ) );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name IN (%s)",
-				$placeholders
-			)
-		);
+
+		foreach ( $posts as $post ) {
+			$key = $this->post_type_slug() . '_' . $post->post_name;
+			delete_transient( $key );
+		}
 	}
 }

@@ -1,5 +1,5 @@
-@import '../../scss/variables/colors';
-@import '../../scss/typography';
+@use '../../scss/variables/colors';
+@use '../../scss/typography';
 
 .jp-recommendations-feature-summary {
 	display: flex;
@@ -8,7 +8,7 @@
 	border-bottom: 1px solid #e1e1e1;
 
 	.gridicons-checkmark-circle {
-		fill: $green-primary;
+		fill: colors.$green-primary;
 	}
 
 	&:last-child {
@@ -60,7 +60,7 @@
 	justify-content: flex-start;
 	flex-grow: 1;
 	background: none;
-	font-size: $font-body;
+	font-size: typography.$font-body;
 
 	// These names are managed as borderless buttons that link back to the respective steps
 	&.is-borderless {

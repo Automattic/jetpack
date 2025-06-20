@@ -1,5 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Remove unnecessary `@jest/globals` dep.
-
-

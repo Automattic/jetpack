@@ -4,7 +4,7 @@ import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { FC, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { withResponsive } from '../shared/with-responsive';
@@ -12,6 +12,7 @@ import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
+import type { FC } from 'react';
 
 interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -76,6 +77,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	legendShape = 'circle',
 	label,
 	note,
 	className,
@@ -242,6 +244,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 					items={ legendItems }
 					orientation={ legendOrientation }
 					className={ styles[ 'pie-semi-circle-chart-legend' ] }
+					shape={ legendShape }
 				/>
 			) }
 		</div>

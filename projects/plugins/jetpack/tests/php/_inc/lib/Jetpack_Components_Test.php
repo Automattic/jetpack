@@ -22,7 +22,7 @@ class Jetpack_Components_Test extends WP_UnitTestCase {
 	/**
 	 * Test that the upgrade URL in render_upgrade_nudge is properly encoded
 	 *
-	 * @since $$next-version$$
+	 * @since 14.7
 	 */
 	public function test_render_upgrade_nudge_url_encoding() {
 		$edit_url = 'https://example.com/wp-admin/post.php?post=1&action=edit';
