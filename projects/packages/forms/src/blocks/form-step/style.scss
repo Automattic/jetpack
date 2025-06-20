@@ -1,9 +1,0 @@
-@use "@wordpress/base-styles/colors" as *;
-@use "@wordpress/base-styles/variables" as *;
-
-// Frontend styles for the form-step block 
-.wp-block-jetpack-form-step {
-	border: 1px solid var(--wp-components-color-gray-300);
-	padding: $grid-unit-20;
-	border-radius: $radius-block-ui;
-}
