@@ -255,14 +255,23 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$wp_styles  = $current_wp_styles;
 		$wp_scripts = $current_wp_scripts;
 
+		$script_urls = $this->parse_scripts( $scripts );
+		$style_urls  = $this->parse_styles( $styles );
+
+		sort( $script_urls );
+		sort( $style_urls );
+
 		return rest_ensure_response(
 			array(
 				'allowed_block_types' => array_merge(
 					$this->get_core_block_types(),
 					self::ALLOWED_PLUGIN_BLOCKS
 				),
-				'scripts'             => $scripts,
-				'styles'              => $styles,
+				'hash'                => hash( 'sha256', implode( $script_urls ) . implode( $style_urls ) ),
+				'styles_html'         => $styles,
+				'scripts_html'        => $scripts,
+				'scripts'             => $script_urls,
+				'styles'              => $style_urls,
 			)
 		);
 	}
@@ -343,6 +352,50 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		}
 
 		return false;
+	}
+
+	/**
+	 * Parse the scripts from the HTML.
+	 *
+	 * @param string $scripts The HTML to parse.
+	 *
+	 * @return array The parsed scripts.
+	 */
+	private function parse_scripts( $scripts ) {
+			$dom = new DOMDocument();
+			$dom->loadHTML( $scripts );
+
+			$scripts = $dom->getElementsByTagName( 'script' );
+
+			$urls = array();
+
+		foreach ( $scripts as $script ) {
+			$urls[] = $script->getAttribute( 'src' );
+		}
+
+			return array_values( array_filter( $urls ) );
+	}
+
+	/**
+	 * Parse the styles from the HTML.
+	 *
+	 * @param string $styles The HTML to parse.
+	 *
+	 * @return array The parsed styles.
+	 */
+	private function parse_styles( $styles ) {
+		$dom = new DOMDocument();
+		$dom->loadHTML( $styles );
+
+		$styles = $dom->getElementsByTagName( 'link' );
+
+		$urls = array();
+
+		foreach ( $styles as $style ) {
+			$urls[] = $style->getAttribute( 'href' );
+		}
+
+		return array_values( array_filter( $urls ) );
 	}
 
 	/**

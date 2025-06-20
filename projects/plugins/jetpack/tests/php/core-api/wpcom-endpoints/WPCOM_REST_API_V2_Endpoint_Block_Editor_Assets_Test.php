@@ -124,11 +124,22 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		$this->assertInstanceOf( WP_REST_Response::class, $response );
 		$data = $response->get_data();
+
 		$this->assertIsArray( $data );
+
+		$this->assertArrayHasKey( 'allowed_block_types', $data );
+		$this->assertArrayHasKey( 'hash', $data );
 		$this->assertArrayHasKey( 'styles', $data );
 		$this->assertArrayHasKey( 'scripts', $data );
-		$this->assertIsString( $data['styles'] );
-		$this->assertIsString( $data['scripts'] );
+		$this->assertArrayHasKey( 'styles_html', $data );
+		$this->assertArrayHasKey( 'scripts_html', $data );
+
+		$this->assertIsArray( $data['allowed_block_types'] );
+		$this->assertIsString( $data['hash'] );
+		$this->assertIsArray( $data['styles'] );
+		$this->assertIsArray( $data['scripts'] );
+		$this->assertIsString( $data['styles_html'] );
+		$this->assertIsString( $data['scripts_html'] );
 	}
 
 	/**
@@ -183,7 +194,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$data     = $response->get_data();
 
 		// Verify the disallowed plugin script is not in the output
-		$this->assertStringNotContainsString( 'disallowed-plugin/script.js', $data['scripts'] );
+		$this->assertStringNotContainsString( 'disallowed-plugin/script.js', $data['scripts_html'] );
 	}
 
 	/**
@@ -200,7 +211,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$data     = $response->get_data();
 
 		// Verify jQuery is in the output
-		$this->assertStringContainsString( 'jquery', $data['scripts'] );
+		$this->assertStringContainsString( 'jquery', $data['scripts_html'] );
 	}
 
 	/**
