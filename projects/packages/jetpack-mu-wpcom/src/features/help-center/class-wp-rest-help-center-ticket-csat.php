@@ -18,7 +18,7 @@ class WP_REST_Help_Center_Ticket_CSAT extends \WP_REST_Controller {
 	 */
 	public function __construct() {
 		$this->namespace = 'help-center';
-		$this->rest_base = '/help/csat';
+		$this->rest_base = '/csat';
 	}
 
 	/**
@@ -65,13 +65,21 @@ class WP_REST_Help_Center_Ticket_CSAT extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 */
 	public function submit_rating( \WP_REST_Request $request ) {
+		$payload = array(
+			'ticket_id' => $request['ticket_id'],
+			'score'     => $request['score'],
+			'comment'   => $request['comment'],
+			'reason_id' => $request['reason_id'],
+			'test_mode' => $request['test_mode'],
+		);
+
 		$body = Client::wpcom_json_api_request_as_user(
 			'/help/csat',
 			'2',
 			array(
 				'method' => 'POST',
 			),
-			$request
+			$payload
 		);
 
 		if ( is_wp_error( $body ) ) {
