@@ -3715,157 +3715,6 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.94.0)
 
-  projects/packages/wordads:
-    dependencies:
-      '@automattic/calypso-color-schemes':
-        specifier: 4.0.0
-        version: 4.0.0
-      '@automattic/color-studio':
-        specifier: 4.1.0
-        version: 4.1.0
-      '@automattic/jetpack-analytics':
-        specifier: workspace:*
-        version: link:../../js-packages/analytics
-      '@automattic/jetpack-api':
-        specifier: workspace:*
-        version: link:../../js-packages/api
-      '@automattic/jetpack-components':
-        specifier: workspace:*
-        version: link:../../js-packages/components
-      '@automattic/jetpack-shared-extension-utils':
-        specifier: workspace:*
-        version: link:../../js-packages/shared-extension-utils
-      '@wordpress/base-styles':
-        specifier: 6.1.0
-        version: 6.1.0
-      '@wordpress/block-editor':
-        specifier: 14.20.0
-        version: 14.20.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/data':
-        specifier: 10.25.0
-        version: 10.25.0(react@18.3.1)
-      '@wordpress/element':
-        specifier: 6.25.0
-        version: 6.25.0
-      '@wordpress/i18n':
-        specifier: 5.25.0
-        version: 5.25.0
-      '@wordpress/icons':
-        specifier: 10.25.0
-        version: 10.25.0(react@18.3.1)
-      chart.js:
-        specifier: 3.7.1
-        version: 3.7.1
-      clsx:
-        specifier: 2.1.1
-        version: 2.1.1
-      fast-json-stable-stringify:
-        specifier: 2.1.0
-        version: 2.1.0
-      lodash:
-        specifier: 4.17.21
-        version: 4.17.21
-      photon:
-        specifier: 4.1.1
-        version: 4.1.1
-      preact:
-        specifier: 10.22.1
-        version: 10.22.1
-      prop-types:
-        specifier: 15.8.1
-        version: 15.8.1
-      q-flat:
-        specifier: 1.0.7
-        version: 1.0.7
-      qss:
-        specifier: 3.0.0
-        version: 3.0.0
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      react-redux:
-        specifier: 7.2.8
-        version: 7.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      redux:
-        specifier: 4.2.1
-        version: 4.2.1
-      refx:
-        specifier: 3.1.1
-        version: 3.1.1
-      strip:
-        specifier: 3.0.0
-        version: 3.0.0
-      tiny-lru:
-        specifier: 7.0.6
-        version: 7.0.6
-    devDependencies:
-      '@automattic/jetpack-webpack-config':
-        specifier: workspace:*
-        version: link:../../js-packages/webpack-config
-      '@babel/core':
-        specifier: 7.27.4
-        version: 7.27.4
-      '@babel/plugin-transform-react-jsx':
-        specifier: 7.27.1
-        version: 7.27.1(@babel/core@7.27.4)
-      '@babel/preset-env':
-        specifier: 7.27.2
-        version: 7.27.2(@babel/core@7.27.4)
-      '@babel/preset-react':
-        specifier: 7.27.1
-        version: 7.27.1(@babel/core@7.27.4)
-      '@babel/preset-typescript':
-        specifier: 7.27.1
-        version: 7.27.1(@babel/core@7.27.4)
-      '@babel/runtime':
-        specifier: 7.27.4
-        version: 7.27.4
-      '@testing-library/dom':
-        specifier: 10.4.0
-        version: 10.4.0
-      '@testing-library/preact':
-        specifier: 3.2.4
-        version: 3.2.4(preact@10.22.1)
-      '@testing-library/react':
-        specifier: 16.2.0
-        version: 16.2.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/babel-plugin-import-jsx-pragma':
-        specifier: 5.25.0
-        version: 5.25.0(@babel/core@7.27.4)
-      '@wordpress/browserslist-config':
-        specifier: 6.25.0
-        version: 6.25.0
-      babel-jest:
-        specifier: 30.0.0
-        version: 30.0.0(@babel/core@7.27.4)
-      concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
-      core-js:
-        specifier: 3.38.1
-        version: 3.38.1
-      jest:
-        specifier: 30.0.0
-        version: 30.0.0
-      jest-environment-jsdom:
-        specifier: 30.0.0
-        version: 30.0.0
-      sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
-      sass-loader:
-        specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.94.0)
-      webpack:
-        specifier: 5.94.0
-        version: 5.94.0(webpack-cli@6.0.1)
-      webpack-cli:
-        specifier: 6.0.1
-        version: 6.0.1(webpack@5.94.0)
-
   projects/packages/wp-js-data-sync: {}
 
   projects/packages/yoast-promo:
@@ -9885,9 +9734,6 @@ packages:
 
   character-entities@2.0.2:
     resolution: {integrity: sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ==}
-
-  chart.js@3.7.1:
-    resolution: {integrity: sha512-8knRegQLFnPQAheZV8MjxIXc5gQEfDFD897BJgv/klO/vtIyFFmgMXrNfgrXpbTr/XbTturxRgxIXx/Y+ASJBA==}
 
   chart.js@4.5.0:
     resolution: {integrity: sha512-aYeC/jDgSEx8SHWZvANYMioYMZ2KX02W6f6uVfyteuCGcadDLcYVHdfdygsTQkQ4TKn5lghoojAsPj5pu0SnvQ==}
@@ -22864,8 +22710,6 @@ snapshots:
   char-regex@2.0.2: {}
 
   character-entities@2.0.2: {}
-
-  chart.js@3.7.1: {}
 
   chart.js@4.5.0:
     dependencies:
