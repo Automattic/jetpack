@@ -59,7 +59,7 @@
 		"@automattic/number-formatters": "workspace:*",
 		"@automattic/popup-monitor": "1.0.2",
 		"@automattic/request-external-access": "1.0.1",
-		"@automattic/social-previews": "2.1.0-beta.10",
+		"@automattic/social-previews": "2.1.0-beta.12",
 		"@automattic/viewport": "1.0.0",
 		"@microsoft/fetch-event-source": "2.0.1",
 		"@react-spring/web": "9.7.5",

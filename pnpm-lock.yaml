@@ -1253,8 +1253,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2
       '@automattic/social-previews':
-        specifier: 2.1.0-beta.10
-        version: 2.1.0-beta.10(@babel/runtime@7.27.4)(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.1.0-beta.12
+        version: 2.1.0-beta.12(@babel/runtime@7.27.4)(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/annotations':
         specifier: 3.25.0
         version: 3.25.0(react@18.3.1)
@@ -4549,8 +4549,8 @@ importers:
         specifier: 1.0.1
         version: 1.0.1
       '@automattic/social-previews':
-        specifier: 2.1.0-beta.10
-        version: 2.1.0-beta.10(@babel/runtime@7.27.4)(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.1.0-beta.12
+        version: 2.1.0-beta.12(@babel/runtime@7.27.4)(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
@@ -5719,10 +5719,10 @@ packages:
       react: ^18.3.1
       react-dom: ^18.3.1
 
-  '@automattic/social-previews@2.1.0-beta.10':
-    resolution: {integrity: sha512-+Xizj9lzZzr5XS2f06b7KATvLX9yoizeFWfigkI3SfLDto1JnyLf9ByeYUHYuu08hw3tFZB81D0U5Xgx1/OFcg==}
+  '@automattic/social-previews@2.1.0-beta.12':
+    resolution: {integrity: sha512-jLNdhPGZsOPYEybCmPA05Rb+9CYQSGEI8xgMx6sPEMAKjJi7OdLrDQ15NAvdJLNylnSQZPXOmEsRj15tbJYiMw==}
     peerDependencies:
-      '@babel/runtime': ^7.26.0
+      '@babel/runtime': ^7.27.1
       react: ^18.3.1
       react-dom: ^18.3.1
     peerDependenciesMeta:
@@ -16300,7 +16300,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@automattic/social-previews@2.1.0-beta.10(@babel/runtime@7.27.4)(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/social-previews@2.1.0-beta.12(@babel/runtime@7.27.4)(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@emotion/react': 11.14.0(@types/react@18.3.23)(react@18.3.1)
       '@wordpress/components': 29.11.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -16310,7 +16310,7 @@ snapshots:
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      tslib: 2.5.0
+      tslib: 2.8.1
     optionalDependencies:
       '@babel/runtime': 7.27.4
     transitivePeerDependencies:
