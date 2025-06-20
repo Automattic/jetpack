@@ -60,7 +60,9 @@ export const getSubscriberStatsUrl = (
 		return `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`;
 	}
 
-	return getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }`, isWpcomSite ) );
+	// If the stats module is not active,
+	// we can always redirect the old Calypso blue stats sub-page for subscribers stats.
+	return getRedirectUrl( `https://wordpress.com/stats/subscribers/${ site }` );
 };
 
 /**

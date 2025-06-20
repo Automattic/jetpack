@@ -259,7 +259,7 @@ describe( 'NewsletterWidget', () => {
 	} );
 
 	describe( 'Stats module inactive behavior', () => {
-		it( 'uses cloud.jetpack.com for stats URL when stats module is inactive on self-hosted site', () => {
+		it( 'uses WordPress.com URL for stats URL when stats module is inactive, even if we are on a self-hosted site', () => {
 			render(
 				<NewsletterWidget { ...defaultProps } isWpcomSite={ false } isStatsModuleActive={ false } />
 			);
@@ -267,7 +267,7 @@ describe( 'NewsletterWidget', () => {
 			const statsLink = screen.getByText( 'View subscriber stats' );
 			expect( statsLink ).toHaveAttribute(
 				'href',
-				getRedirectUrl( 'https://cloud.jetpack.com/stats/subscribers/example.com' )
+				getRedirectUrl( 'https://wordpress.com/stats/subscribers/example.com' )
 			);
 		} );
 

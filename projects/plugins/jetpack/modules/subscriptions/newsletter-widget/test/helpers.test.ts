@@ -168,11 +168,9 @@ describe( 'helpers', () => {
 			);
 		} );
 
-		it( 'returns Jetpack cloud URL for self-hosted sites when stats module is not active', () => {
+		it( 'returns WordPress.com URL for self-hosted sites when stats module is not active', () => {
 			const url = getSubscriberStatsUrl( testSite, false, testAdminUrl, false );
-			expect( url ).toBe(
-				getRedirectUrl( 'https://cloud.jetpack.com/stats/subscribers/' + testSite )
-			);
+			expect( url ).toBe( getRedirectUrl( 'https://wordpress.com/stats/subscribers/' + testSite ) );
 		} );
 	} );
 
