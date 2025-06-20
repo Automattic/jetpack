@@ -11,12 +11,12 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 15+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 9 occurrences
     // PhanNoopNew : 6 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
-    // PhanTypeMismatchArgumentInternal : 4 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
+    // PhanTypeMismatchArgumentInternal : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
     // PhanTypeArraySuspicious : 2 occurrences
@@ -29,7 +29,6 @@ return [
     // PhanNoopArrayAccess : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
-    // PhanRedundantCondition : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeMismatchDimFetch : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
@@ -46,7 +45,7 @@ return [
         'src/features/coming-soon/fallback-coming-soon-page.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument'],
         'src/features/error-reporting/error-reporting.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/features/launchpad/class-launchpad-task-lists.php' => ['PhanNoopArrayAccess', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
-        'src/features/launchpad/launchpad-task-definitions.php' => ['PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset'],
+        'src/features/launchpad/launchpad-task-definitions.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'src/features/launchpad/launchpad.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/features/marketplace-products-updater/class-marketplace-products-updater.php' => ['PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn'],
         'src/features/media/heif-support.php' => ['PhanPluginSimplifyExpressionBool'],
