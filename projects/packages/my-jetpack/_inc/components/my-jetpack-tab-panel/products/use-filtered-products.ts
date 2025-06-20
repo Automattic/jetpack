@@ -1,5 +1,5 @@
 import useProducts from '../../../data/products/use-products';
-import { CATEGORY_CARDS_AND_MODULES } from './mappings';
+import { CATEGORY_CARDS_AND_MODULES, PRODUCT_MODULES } from './mappings';
 import { JetpackProductWithCard, ProductSection } from './types';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { filterSections, getSectionTitle } from './utils';
@@ -60,9 +60,11 @@ export function useFilteredProducts( {
 					if ( ! product ) {
 						return null;
 					}
+					const moduleSlug = PRODUCT_MODULES[ slug ] || slug;
+
 					return {
 						product,
-						module: allModules[ slug ],
+						module: allModules[ moduleSlug ],
 					};
 				} )
 				.filter( Boolean ),

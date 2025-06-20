@@ -1,20 +1,13 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
-import {
-	Card,
-	CardBody,
-	CardHeader,
-	Flex,
-	ToggleControl,
-	__experimentalVStack as VStack,
-	__experimentalView as View,
-} from '@wordpress/components';
+import { __experimentalGrid as Grid } from '@wordpress/components';
+import { ModulesList } from '../../modules-list';
+import { ProductCard } from './product-card';
+import styles from './styles.module.scss';
 import { ProductSection as TProductSection } from './types';
 
 export type ProductSectionProps = {
 	section: TProductSection;
 };
-
-const noop = () => {};
 
 /**
  * Renders a section of products with cards and modules.
@@ -29,36 +22,18 @@ export function ProductSection( { section }: ProductSectionProps ) {
 	}
 
 	return (
-		<section key={ section.id }>
-			<h2>{ section.title }</h2>
+		<section key={ section.id } className={ styles[ 'product-section' ] }>
+			<h2 className={ styles[ 'section-heading' ] }>{ section.title }</h2>
 			{ section.cards?.length ? (
-				<Flex as="ul" wrap>
+				<Grid as="ul" gap={ 6 } columns={ [ 1, 1, 1, 2 ] } className={ styles[ 'product-cards' ] }>
 					{ section.cards.map( card => (
 						<li key={ card.product.slug }>
-							<Card>
-								<CardHeader>
-									<h3>{ card.product.name }</h3>
-								</CardHeader>
-								<CardBody>{ card.product.description }</CardBody>
-							</Card>
+							<ProductCard product={ card.product } module={ card.module } />
 						</li>
 					) ) }
-				</Flex>
+				</Grid>
 			) : null }
-			{ section.modules?.length ? (
-				<VStack as="ul">
-					{ section.modules.map( m => (
-						<View as="li" key={ m.module }>
-							<ToggleControl
-								__nextHasNoMarginBottom
-								checked={ m.activated }
-								label={ m.name }
-								onChange={ noop }
-							/>
-						</View>
-					) ) }
-				</VStack>
-			) : null }
+			{ section.modules?.length ? <ModulesList modules={ section.modules } /> : null }
 		</section>
 	);
 }

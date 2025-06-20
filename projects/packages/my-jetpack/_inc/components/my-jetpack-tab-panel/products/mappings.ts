@@ -1,3 +1,13 @@
+import AntiSpamIcon from '../../products-table-view/icons/anti-spam';
+import BackupIcon from '../../products-table-view/icons/backup';
+import BoostIcon from '../../products-table-view/icons/boost';
+import CrmIcon from '../../products-table-view/icons/crm';
+import JetpackAiIcon from '../../products-table-view/icons/jetpack-ai';
+import ProtectIcon from '../../products-table-view/icons/protect';
+import SearchIcon from '../../products-table-view/icons/search';
+import SocialIcon from '../../products-table-view/icons/social';
+import StatsIcon from '../../products-table-view/icons/stats';
+import VideopressIcon from '../../products-table-view/icons/videopress';
 import { JetpackModuleSlug, JetpackProductWithCard, ProductCategory } from './types';
 
 export const CATEGORY_CARDS_AND_MODULES: {
@@ -39,4 +49,32 @@ export const CATEGORY_CARDS_AND_MODULES: {
 			'wordads',
 		],
 	},
+};
+
+export const PRODUCT_ICONS: {
+	[ Key in JetpackProductWithCard ]: React.ComponentType;
+} = {
+	ai: JetpackAiIcon,
+	'anti-spam': AntiSpamIcon,
+	backup: BackupIcon,
+	boost: BoostIcon,
+	'jetpack-ai': JetpackAiIcon,
+	crm: CrmIcon,
+	scan: ProtectIcon,
+	search: SearchIcon,
+	social: SocialIcon,
+	stats: StatsIcon,
+	videopress: VideopressIcon,
+};
+
+/**
+ * Maps Jetpack products with cards to their corresponding modules
+ */
+export const PRODUCT_MODULES: {
+	[ Key in JetpackProductWithCard ]?: JetpackModuleSlug;
+} = {
+	// TODO Verify these mappings
+	backup: 'vaultpress',
+	scan: 'protect',
+	social: 'publicize',
 };
