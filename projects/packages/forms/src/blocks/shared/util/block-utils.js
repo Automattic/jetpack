@@ -1,11 +1,13 @@
-import { select, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 
 /**
  * Determines if the current block selection is within a contact form.
  *
+ * @param {Function} select - The data store select function to access the block editor state.
+ *
  * @return {boolean} Whether the selection is within a contact form
  */
-export const isWithinContactForm = () => {
+export const isWithinContactForm = select => {
 	const blockEditor = select( 'core/block-editor' );
 	if ( ! blockEditor ) {
 		return false;
@@ -33,4 +35,5 @@ export const isWithinContactForm = () => {
  *
  * Usage:
  */
-export const useIsWithinContactForm = () => useSelect( ( select ) => isWithinContactForm( select ), [] );
+export const useIsWithinContactForm = () =>
+	useSelect( select => isWithinContactForm( select ), [] );

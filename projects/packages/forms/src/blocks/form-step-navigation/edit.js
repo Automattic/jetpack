@@ -173,7 +173,7 @@ export default function Edit( { clientId } ) {
 		if ( shouldReplaceInnerBlocks ) {
 			__unstableMarkNextChangeAsNotPersistent();
 			replaceInnerBlocks( clientId, replacementInnerBlocks, false );
-			return undefined;
+			return;
 		}
 
 		navigationBlocks.forEach( block => {
@@ -187,7 +187,6 @@ export default function Edit( { clientId } ) {
 		if ( shouldReplaceInnerBlocks ) {
 			__unstableMarkNextChangeAsNotPersistent();
 			replaceInnerBlocks( clientId, replacementInnerBlocks, false );
-			return;
 		}
 	}, [
 		navigationBlocks,
