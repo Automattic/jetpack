@@ -101,9 +101,11 @@ describe( 'NewsletterWidget', () => {
 		} );
 	} );
 
-	it( 'renders correct quick links when self-hosted', () => {
+	it( 'renders correct quick links when self-hosted (and stats module is active)', () => {
 		const redirectDomain = 'cloud.jetpack.com';
-		render( <NewsletterWidget { ...defaultProps } isWpcomSite={ false } /> );
+		render(
+			<NewsletterWidget { ...defaultProps } isWpcomSite={ false } isStatsModuleActive={ true } />
+		);
 
 		const expectedLinks = [
 			{
