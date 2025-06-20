@@ -3,6 +3,7 @@ import { ExternalLink } from '@wordpress/components';
 import { createElement, useEffect } from '@wordpress/element';
 import { TRACKS_EVENT_NAME_PREFIX } from '../constants';
 import { createTracksEventHandler } from '../helpers';
+
 /**
  * Generates a Link component, that will be displayed differently
  * whether the link is external or stays within the platform.
