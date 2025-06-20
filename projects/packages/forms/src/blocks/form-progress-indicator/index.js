@@ -46,7 +46,7 @@ export const settings = {
 					width="16.5"
 					height="4.5"
 					rx="2.25"
-					stroke={ getIconColor() }
+					stroke="currentColor"
 					fill="none"
 					strokeWidth="1.5"
 				/>
