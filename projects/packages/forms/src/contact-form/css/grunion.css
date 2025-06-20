@@ -1101,20 +1101,24 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__input-error {
 	margin: 0.25rem 0;
+	position: relative;
 	gap: 0.33em;
 	font-size: 1rem;
 	color: var(--jetpack--contact-form--error-color);
 	opacity: 0;
 	max-height: 0;
 	overflow: hidden;
-	transition: max-height 0.2s ease-in,opacity 0.2s ease;
+	transform: translateY( -5px);
+	padding-left: 20px;
+	transition: max-height 100ms ease-out, opacity 100ms ease-out, transform 100ms ease-out;
 }
 
 .contact-form__input-error.has-errors {
 	display: flex;
 	opacity: 1;
 	max-height: 2em;
-	transition: max-height 0.3s ease-in,opacity 0.3s ease;
+	transform: translateY(0);
+	transition: opacity 200ms ease-out, transform 200ms ease-in;
 }
 
 .contact-form [aria-invalid="true"]:not(fieldset),
@@ -1129,8 +1133,10 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form__warning-icon {
-	display: flex;
-	margin: .3em 0 0;
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
 }
 
 .contact-form__warning-icon svg {
