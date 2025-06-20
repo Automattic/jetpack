@@ -671,6 +671,8 @@ class Contact_Form_Plugin {
 		$processor = new \WP_HTML_Tag_Processor( $button_blocks_html );
 
 		$processor->next_tag();
+		$processor->next_tag();
+
 		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
 
 		$class_names = array();

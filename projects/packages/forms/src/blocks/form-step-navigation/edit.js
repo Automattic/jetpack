@@ -190,7 +190,9 @@ export default function Edit( { clientId } ) {
 
 	return (
 		<>
-			<div { ...innerBlocksProps } />
+			<div className="wp-block-jetpack-form-step-navigation__wrapper">
+				<div { ...innerBlocksProps } />
+			</div>
 			<StepControls formClientId={ formClientId } showToggle={ false } showNavigation={ true } />
 		</>
 	);

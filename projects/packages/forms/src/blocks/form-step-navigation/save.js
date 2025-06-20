@@ -4,5 +4,9 @@ export default function save() {
 	const blockProps = useBlockProps.save();
 	const innerBlocksProps = useInnerBlocksProps.save( blockProps );
 
-	return <div { ...innerBlocksProps } />;
+	return (
+		<div className="wp-block-jetpack-form-step-navigation__wrapper">
+			<div { ...innerBlocksProps } />
+		</div>
+	);
 }

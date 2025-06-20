@@ -13,6 +13,9 @@ export const settings = {
 	supports: {
 		html: false,
 		reusable: false,
+		spacing: {
+			margin: true,
+		},
 		layout: {
 			allowSwitching: false,
 			allowInheriting: false,
