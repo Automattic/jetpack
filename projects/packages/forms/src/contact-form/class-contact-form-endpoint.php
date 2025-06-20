@@ -686,6 +686,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_Error|boolean
 	 */
 	public function get_items_permissions_check( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( is_super_admin() ) {
+			return true;
+		}
+
 		if ( ! current_user_can( 'edit_pages' ) ) {
 			return false;
 		}

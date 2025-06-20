@@ -52,7 +52,6 @@
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
-		"automattic/jetpack-wordads": "@dev",
 		"automattic/woocommerce-analytics": "@dev",
 		"scssphp/scssphp": "1.12.0"
 	},
