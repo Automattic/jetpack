@@ -27,7 +27,7 @@ const variations = compact( [
 			variationName: 'default-empty',
 		},
 		scope: [ 'transform' ],
-		isActive: [ 'variationName' ],
+		isActive: ( { variationName } ) => variationName !== 'multistep',
 	},
 	{
 		name: 'contact-form',
