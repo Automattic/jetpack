@@ -674,8 +674,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$stored_errors = $this->error_handler->get_stored_errors();
 		$this->error_handler->verify_error( $stored_errors['invalid_token']['1'] );
 
-		$errors = array();
-		$result = $this->error_handler->displayable_errors( $errors );
+		$result = $this->error_handler->displayable_errors();
 
 		$this->assertCount( 1, $result );
 		$this->assertEquals( 'connection_error', $result[0]['code'] );
@@ -710,8 +709,7 @@ class Error_Handler_Test extends BaseTestCase {
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
 
-		$errors = array();
-		$result = $this->error_handler->displayable_errors( $errors );
+		$result = $this->error_handler->displayable_errors();
 
 		$this->assertCount( 1, $result );
 		$this->assertEquals( 'connection_error', $result[0]['code'] );
