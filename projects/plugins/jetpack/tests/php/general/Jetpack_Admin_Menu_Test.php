@@ -6,7 +6,6 @@
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\Stats_Admin\Dashboard;
 use Automattic\Jetpack\VideoPress\Admin_UI;
-use Automattic\Jetpack\WordAds\Dashboard as WordAdsDashboard;
 /**
  * Class Jetpack_Admin_Menu_Test
  */
@@ -63,9 +62,6 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$jetpack_video = new Admin_UI();
 		$jetpack_video->init();
 
-		$jetpack_wordads = new WordAdsDashboard();
-		$jetpack_wordads->init_hooks();
-
 		$jetpack_backup = new Jetpack_Backup();
 		$jetpack_backup->initialize();
 
@@ -81,7 +77,6 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$videopress_submenu_position = array_search( 'Jetpack VideoPress', $submenu_names, true );
 		$backup_submenu_position     = array_search( 'Jetpack VaultPress Backup', $submenu_names, true );
 		$search_submenu_position     = array_search( 'Jetpack Search', $submenu_names, true );
-		$wordads_submenu_position    = array_search( 'WordAds Settings', $submenu_names, true );
 		$settings_submenu_position   = array_search( 'Settings', $submenu_names, true );
 		$dashboard_submenu_position  = array_search( 'Dashboard', $submenu_names, true );
 
@@ -99,8 +94,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$this->assertLessThan( $videopress_submenu_position, $stats_submenu_position, 'Stats should be above VideoPress in the submenu order.' );
 		$this->assertLessThan( $backup_submenu_position, $videopress_submenu_position, 'Jetpack VideoPress should be above Jetpack VaultPress Backup in the submenu order.' );
 		$this->assertLessThan( $search_submenu_position, $backup_submenu_position, 'Jetpack VaultPress Backup should be above Search in the submenu order.' );
-		$this->assertLessThan( $wordads_submenu_position, $search_submenu_position, 'Search should be above WordAds in the submenu order.' );
-		$this->assertLessThan( $settings_submenu_position, $wordads_submenu_position, 'WordAds should be above Settings in the submenu order.' );
+		$this->assertLessThan( $settings_submenu_position, $search_submenu_position, 'WordAds should be above Settings in the submenu order.' );
 		$this->assertLessThan( $dashboard_submenu_position, $settings_submenu_position, 'Settings should be above Dashboard in the submenu order.' );
 	}
 }
