@@ -18,14 +18,9 @@ export type ProductCardActionProps = {
 export function ProductCardAction( { product }: ProductCardActionProps ) {
 	const navigate = useNavigate();
 
-	const onClick = useCallback(
-		( event: React.MouseEvent< HTMLButtonElement, MouseEvent > ) => {
-			event.preventDefault();
-			event.stopPropagation();
-			navigate( `/add-${ product.slug }` );
-		},
-		[ navigate, product.slug ]
-	);
+	const onClick = useCallback( () => {
+		navigate( `/add-${ product.slug }` );
+	}, [ navigate, product.slug ] );
 
 	return (
 		<Button variant="secondary" size="compact" onClick={ onClick }>
