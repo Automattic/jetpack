@@ -250,7 +250,6 @@ const BarChart: FC< BarChartProps > = ( {
 						renderTooltip={ renderTooltip || renderDefaultTooltip }
 						selectedIndex={ selectedIndex }
 						tooltipRef={ tooltipRef }
-						testId="bar-chart-tooltip"
 						keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
 						series={ data }
 						mode="individual"

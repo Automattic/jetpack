@@ -382,7 +382,6 @@ const LineChart: FC< LineChartProps > = ( {
 						showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
 						selectedIndex={ selectedIndex }
 						tooltipRef={ tooltipRef }
-						testId="line-chart-tooltip"
 						keyboardFocusedClassName={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
 						series={ dataSorted }
 					/>

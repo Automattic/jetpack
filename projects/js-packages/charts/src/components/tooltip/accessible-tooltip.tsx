@@ -21,7 +21,6 @@ interface AccessibleTooltipProps
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	selectedIndex?: number | undefined;
 	tooltipRef?: ( element: HTMLDivElement | null ) => void;
-	testId?: string;
 	keyboardFocusedClassName?: string;
 	/**
 	 * Flattened tooltip data prepared by parent component
@@ -44,7 +43,6 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	renderTooltip,
 	selectedIndex,
 	tooltipRef,
-	testId,
 	keyboardFocusedClassName,
 	series,
 	mode = 'group',
@@ -134,8 +132,8 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 						role="tooltip"
 						aria-atomic="true"
 						className={ keyboardFocusedClassName }
-						data-testid={ testId ? `${ testId }-${ selectedIndex }` : undefined }
-						key={ testId ? `${ testId }-${ selectedIndex }` : `tooltip-${ selectedIndex }` }
+						data-testid={ `chart-tooltip-${ selectedIndex }` }
+						key={ `chart-tooltip-${ selectedIndex }` }
 					>
 						{ tooltipContent }
 					</div>
@@ -148,7 +146,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 				</div>
 			);
 		};
-	}, [ renderTooltip, selectedIndex, tooltipRef, testId, keyboardFocusedClassName ] );
+	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName ] );
 
 	return <Tooltip { ...props } renderTooltip={ focusableRenderTooltip } />;
 };

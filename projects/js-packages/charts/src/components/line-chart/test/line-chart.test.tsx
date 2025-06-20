@@ -405,15 +405,15 @@ describe( 'LineChart', () => {
 
 				// Single tab should focus on the first tooltip.
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
 
 				// Second tab should focus on the second tooltip.
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
 			} );
 
 			test( 'left arrow key navigates to previous data point', async () => {
@@ -444,21 +444,21 @@ describe( 'LineChart', () => {
 
 				// Right arrow key should focus on the first tooltip.
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
 
 				// Right arrow key should focus on the second tooltip.
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'line-chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
 
 				// Left arrow key should focus on the first tooltip.
 				await user.keyboard( '{ArrowLeft}' );
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
-				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
 			} );
 		} );
 
@@ -477,8 +477,8 @@ describe( 'LineChart', () => {
 
 			// Click on right arrow key to focus on the first tooltip.
 			await user.keyboard( '{ArrowRight}' );
-			expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveFocus();
-			expect( screen.getByTestId( 'line-chart-tooltip-0' ) ).toHaveTextContent( '1/1/2024' );
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '1/1/2024' );
 
 			const customTooltip = screen.getByTestId( 'custom-tooltip' );
 			expect( customTooltip ).toBeInTheDocument();
