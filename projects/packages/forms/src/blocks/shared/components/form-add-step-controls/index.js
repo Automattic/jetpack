@@ -5,8 +5,8 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as singleStepStore } from '../../../../store/form-step-preview';
-import useStepContainerClientId from '../../hooks/use-container-id';
 import useFormSteps from '../../hooks/use-form-steps';
+import useStepContainerClientId from '../../hooks/use-step-container-client-id';
 
 /**
  * Toolbar controls for managing steps within a multi-step form.
