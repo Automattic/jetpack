@@ -257,7 +257,8 @@ class Error_Handler {
 	 * @return bool True if error filtering should be allowed, false otherwise.
 	 */
 	protected function should_allow_error_filtering() {
-		return $this->is_woa_site();
+		$host = new \Automattic\Jetpack\Status\Host();
+		return $host->is_woa_site();
 	}
 
 	/**
@@ -819,18 +820,6 @@ class Error_Handler {
 				'attributes'         => array( 'style' => 'display:block !important;' ),
 			)
 		);
-	}
-
-	/**
-	 * Checks if the current site is a WoA site.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool True if the site is a WoA site, false otherwise.
-	 */
-	protected function is_woa_site() {
-		$host = new \Automattic\Jetpack\Status\Host();
-		return $host->is_woa_site();
 	}
 
 	/**

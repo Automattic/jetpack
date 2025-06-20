@@ -837,20 +837,6 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test is_woa_site method
-	 */
-	public function test_is_woa_site() {
-		$reflection = new \ReflectionClass( $this->error_handler );
-		$method     = $reflection->getMethod( 'is_woa_site' );
-		$method->setAccessible( true );
-
-		// This test will depend on the actual Host class implementation
-		// We'll just verify the method exists and returns a boolean
-		$result = $method->invoke( $this->error_handler );
-		$this->assertIsBool( $result );
-	}
-
-	/**
 	 * Test handle_verified_errors method with displayable errors
 	 */
 	public function test_handle_verified_errors_with_displayable_errors() {
