@@ -49,7 +49,7 @@
 	"dependencies": {
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "7.27.4",
-		"@react-spring/web": "9.7.5",
+		"@react-spring/web": "10.0.1",
 		"@visx/axis": "^3.12.0",
 		"@visx/curve": "^3.12.0",
 		"@visx/event": "^3.12.0",
