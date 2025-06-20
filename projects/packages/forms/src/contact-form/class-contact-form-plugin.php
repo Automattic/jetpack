@@ -701,18 +701,19 @@ class Contact_Form_Plugin {
 			$id = $processor->get_attribute( 'data-id-attr' );
 			if ( 'previous-step' === $id ) {
 				$processor->remove_attribute( 'id' );
-				$processor->add_class( 'disable-spinner' );
+				$processor->add_class( 'disable-spinner is-previous' );
 				$processor->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isFirstStep' );
 			}
 			if ( 'next-step' === $id ) {
 				$processor->remove_attribute( 'id' );
-				$processor->add_class( 'disable-spinner' );
+				$processor->add_class( 'disable-spinner is-next' );
 				$processor->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isLastStep' );
 			}
 			if ( 'submit-step' === $id ) {
 				$processor->remove_attribute( 'id' );
+				$processor->add_class( 'is-submit' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
 			}
 		}

@@ -284,10 +284,29 @@
 	flex: 0 0 100%;
 	display: flex;
 	box-sizing: border-box;
-	gap: var(--wp--style--block-gap, 1.5rem);
 	flex-wrap: inherit;
 }
 
+.wp-block-jetpack-form-step-navigation:has(.wp-block-jetpack-button[style*="width:"]) {
+	gap: 0;
+}
+
+.wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .wp-block-button__link {
+	width: calc( 100% - var(--wp--style--block-gap, 1.5rem) / 2 );
+}
+
+.wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-next,
+.wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-submit {
+	float: right;
+}
+
+.contact-form .wp-block-jetpack-form-step-navigation .wp-block-button__link {
+	width: 100%;
+}
+
+.is-content-justification-space-between .wp-block-jetpack-button:has( .is-next, .is-submit ) {
+	margin-left: auto;
+}
 
 .wp-block-jetpack-form-step-navigation.is-vertical {
 	flex-direction: column;
