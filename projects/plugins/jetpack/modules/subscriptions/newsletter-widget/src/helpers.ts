@@ -53,11 +53,14 @@ export const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true 
 export const getSubscriberStatsUrl = (
 	site: string,
 	isWpcomSite: boolean,
-	adminUrl: string
+	adminUrl: string,
+	isStatsModuleActive: boolean
 ): string => {
-	return isWpcomSite
-		? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
-		: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`;
+	if ( isStatsModuleActive && ! isWpcomSite ) {
+		return `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`;
+	}
+
+	return getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }`, isWpcomSite ) );
 };
 
 /**
