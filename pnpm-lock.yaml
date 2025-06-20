@@ -2524,8 +2524,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       copy-webpack-plugin:
-        specifier: 11.0.0
-        version: 11.0.0(webpack@5.94.0)
+        specifier: 13.0.0
+        version: 13.0.0(webpack@5.94.0)
       email-validator:
         specifier: 2.0.4
         version: 2.0.4
@@ -3676,8 +3676,8 @@ importers:
         specifier: 7.6.0
         version: 7.6.0
       copy-webpack-plugin:
-        specifier: 11.0.0
-        version: 11.0.0(webpack@5.94.0)
+        specifier: 13.0.0
+        version: 13.0.0(webpack@5.94.0)
       jest:
         specifier: 30.0.0
         version: 30.0.0
@@ -3914,8 +3914,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       copy-webpack-plugin:
-        specifier: 11.0.0
-        version: 11.0.0(webpack@5.94.0)
+        specifier: 13.0.0
+        version: 13.0.0(webpack@5.94.0)
       history:
         specifier: 5.3.0
         version: 5.3.0
@@ -4220,8 +4220,8 @@ importers:
         specifier: 4.5.0
         version: 4.5.0
       copy-webpack-plugin:
-        specifier: 11.0.0
-        version: 11.0.0(webpack@5.94.0)
+        specifier: 13.0.0
+        version: 13.0.0(webpack@5.94.0)
       css-loader:
         specifier: 6.11.0
         version: 6.11.0(webpack@5.94.0)
@@ -4494,8 +4494,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2
       copy-webpack-plugin:
-        specifier: 11.0.0
-        version: 11.0.0(webpack@5.94.0)
+        specifier: 13.0.0
+        version: 13.0.0(webpack@5.94.0)
       crypto-js:
         specifier: 4.2.0
         version: 4.2.0
@@ -10001,9 +10001,9 @@ packages:
     resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
     engines: {node: '>=18'}
 
-  copy-webpack-plugin@11.0.0:
-    resolution: {integrity: sha512-fX2MWpamkW0hZxMEg0+mYnA40LTosOSa5TqZ9GYIBzyJa9C3QUaMPSE2xAi/buNr8u89SfD9wHSQVBzrRa/SOQ==}
-    engines: {node: '>= 14.15.0'}
+  copy-webpack-plugin@13.0.0:
+    resolution: {integrity: sha512-FgR/h5a6hzJqATDGd9YG41SeDViH+0bkHn6WNXCi5zKAZkeESeSxLySSsFLHqLEVCh0E+rITmCf0dusXWYukeQ==}
+    engines: {node: '>= 18.12.0'}
     peerDependencies:
       webpack: ^5.1.0
 
@@ -11404,10 +11404,6 @@ packages:
   globby@11.1.0:
     resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
     engines: {node: '>=10'}
-
-  globby@13.2.2:
-    resolution: {integrity: sha512-Y1zNGV+pzQdh7H39l9zgB4PJqjRNqydvdYCDG4HFXM4XuvSaQQlEc91IU1yALL8gUTDomgBAfz3XJdmUS+oo0w==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   globjoin@0.1.4:
     resolution: {integrity: sha512-xYfnw62CKG8nLkZBfWbhWwDw02CHty86jfPcc2cr3ZfeuK9ysoVPPEUxf21bAD/rWAgk52SuBrLJlefNy8mvFg==}
@@ -14520,10 +14516,6 @@ packages:
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
-
-  slash@4.0.0:
-    resolution: {integrity: sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==}
-    engines: {node: '>=12'}
 
   slash@5.1.0:
     resolution: {integrity: sha512-ZA6oR3T/pEyuqwMgAKT0/hAv8oAXckzbkmR0UkUosQ+Mc4RxGoJkRmwHgHufaenlyAgE1Mxgpdcrf75y6XcnDg==}
@@ -22991,7 +22983,7 @@ snapshots:
       spawn-command: 0.0.2
       supports-color: 8.1.1
       tree-kill: 1.2.2
-      yargs: 17.7.2
+      yargs: 17.6.2
 
   config@3.3.12:
     dependencies:
@@ -23039,14 +23031,13 @@ snapshots:
 
   cookie@1.0.2: {}
 
-  copy-webpack-plugin@11.0.0(webpack@5.94.0):
+  copy-webpack-plugin@13.0.0(webpack@5.94.0):
     dependencies:
-      fast-glob: 3.3.3
       glob-parent: 6.0.2
-      globby: 13.2.2
       normalize-path: 3.0.0
       schema-utils: 4.3.2
       serialize-javascript: 6.0.2
+      tinyglobby: 0.2.14
       webpack: 5.94.0(webpack-cli@6.0.1)
 
   core-js-compat@3.43.0:
@@ -24698,14 +24689,6 @@ snapshots:
       ignore: 5.3.2
       merge2: 1.4.1
       slash: 3.0.0
-
-  globby@13.2.2:
-    dependencies:
-      dir-glob: 3.0.1
-      fast-glob: 3.3.3
-      ignore: 5.3.2
-      merge2: 1.4.1
-      slash: 4.0.0
 
   globjoin@0.1.4: {}
 
@@ -28430,8 +28413,6 @@ snapshots:
       '@size-limit/preset-app': 11.2.0(size-limit@11.2.0)
 
   slash@3.0.0: {}
-
-  slash@4.0.0: {}
 
   slash@5.1.0: {}
 
