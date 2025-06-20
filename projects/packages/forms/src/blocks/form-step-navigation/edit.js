@@ -61,12 +61,13 @@ export default function Edit( { clientId } ) {
 	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent } =
 		useDispatch( blockEditorStore );
 
-	const { ancestorStepClientId } = useSelect(
+	const { ancestorStepClientId, navigationBlocks } = useSelect(
 		select => {
-			const { getBlockParentsByBlockName } = select( blockEditorStore );
+			const { getBlockParentsByBlockName, getBlocks } = select( blockEditorStore );
 			const stepParentArray = getBlockParentsByBlockName( clientId, [ 'jetpack/form-step' ] );
 			return {
 				ancestorStepClientId: stepParentArray.length > 0 ? stepParentArray[ 0 ] : null,
+				navigationBlocks: getBlocks( clientId ),
 			};
 		},
 		[ clientId ]
@@ -105,17 +106,6 @@ export default function Edit( { clientId } ) {
 		const stepIndex = steps.findIndex( block => block.clientId === ancestorStepClientId );
 		currentIndex = stepIndex;
 	}
-
-	const { navigationBlocks } = useSelect(
-		select => {
-			const { getBlocks } = select( blockEditorStore );
-			const currentNavigationBlocks = getBlocks( clientId );
-			return {
-				navigationBlocks: currentNavigationBlocks,
-			};
-		},
-		[ clientId ]
-	);
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: NAVIGATION_TEMPLATE,
