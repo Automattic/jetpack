@@ -35,6 +35,46 @@ function current_user_has_wpcom_account() {
 }
 
 /**
+ * Adds the Dashboard > Updates menu on Simple sites
+ */
+function wpcom_add_dashboard_updates_menu() {
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	if ( ! $is_simple_site || ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) ) {
+		return;
+	}
+
+	add_submenu_page(
+		'index.php',
+		__( 'WordPress Updates', 'jetpack-mu-wpcom' ),
+		__( 'Updates', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'wpcom-dashboard-updates',
+		'wpcom_display_dashboard_updates_page'
+	);
+}
+add_action( 'admin_menu', 'wpcom_add_dashboard_updates_menu' );
+
+/**
+ * Displays a WordPress Updates page for Simple sites.
+ */
+function wpcom_display_dashboard_updates_page() {
+	require_once ABSPATH . 'wp-admin/admin-header.php';
+	?>
+	<div class="wrap">
+		<h1><?php esc_html_e( 'WordPress Updates', 'jetpack-mu-wpcom' ); ?></h1>
+		<p><?php esc_html_e( "WordPress.com automatically keeps your site's plugins, themes, and WordPress version up to date.", 'jetpack-mu-wpcom' ); ?></p>
+		<h2><?php esc_html_e( 'WordPress', 'jetpack-mu-wpcom' ); ?></h2>
+		<p><?php esc_html_e( 'Your version of WordPress is up to date.', 'jetpack-mu-wpcom' ); ?></p>
+		<h2><?php esc_html_e( 'Plugins', 'jetpack-mu-wpcom' ); ?></h2>
+		<p><?php esc_html_e( 'Your plugins are all up to date.', 'jetpack-mu-wpcom' ); ?>
+		<h2><?php esc_html_e( 'Themes', 'jetpack-mu-wpcom' ); ?></h2>
+		<p><?php esc_html_e( 'Your themes are all up to date.', 'jetpack-mu-wpcom' ); ?>
+	</div>
+	<?php
+	require_once ABSPATH . 'wp-admin/admin-footer.php';
+}
+
+/**
  * Checks if menu items can link to Calypso.
  *
  * This way we can avoid a broken nav experience for super admins who are not members of the current site,
