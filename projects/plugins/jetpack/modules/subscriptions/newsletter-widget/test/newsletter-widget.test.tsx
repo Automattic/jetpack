@@ -24,6 +24,7 @@ describe( 'NewsletterWidget', () => {
 		site: 'example.com',
 		adminUrl: 'https://example.com/wp-admin/',
 		isWpcomSite: true,
+		isStatsModuleActive: true,
 		emailSubscribers: 100,
 		allSubscribers: 150,
 		paidSubscribers: 50,
@@ -254,6 +255,32 @@ describe( 'NewsletterWidget', () => {
 
 			render( <NewsletterWidget { ...props } /> );
 			expect( screen.queryByText( 'Total Subscribers' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Stats module inactive behavior', () => {
+		it( 'uses cloud.jetpack.com for stats URL when stats module is inactive on self-hosted site', () => {
+			render(
+				<NewsletterWidget { ...defaultProps } isWpcomSite={ false } isStatsModuleActive={ false } />
+			);
+
+			const statsLink = screen.getByText( 'View subscriber stats' );
+			expect( statsLink ).toHaveAttribute(
+				'href',
+				getRedirectUrl( 'https://cloud.jetpack.com/stats/subscribers/example.com' )
+			);
+		} );
+
+		it( 'uses WordPress.com for stats URL on WordPress.com site, regardless of stats module status', () => {
+			render(
+				<NewsletterWidget { ...defaultProps } isWpcomSite={ true } isStatsModuleActive={ false } />
+			);
+
+			const statsLink = screen.getByText( 'View subscriber stats' );
+			expect( statsLink ).toHaveAttribute(
+				'href',
+				getRedirectUrl( 'https://wordpress.com/stats/subscribers/example.com' )
+			);
 		} );
 	} );
 } );
