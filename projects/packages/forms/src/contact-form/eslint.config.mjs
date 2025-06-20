@@ -1,7 +1,7 @@
-import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
+import { makeBaseConfig, defineConfig } from 'jetpack-js-tools/eslintrc/base.mjs';
 
-export default [
-	...makeBaseConfig( import.meta.url, {
+export default defineConfig(
+	makeBaseConfig( import.meta.url, {
 		envs: [ 'browser', 'jquery' ],
 	} ),
 	{
@@ -38,5 +38,5 @@ export default [
 			'jsdoc/no-undefined-types': 'off',
 			'jsdoc/check-param-names': 'off',
 		},
-	},
-];
+	}
+);

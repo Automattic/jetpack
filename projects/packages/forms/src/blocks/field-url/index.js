@@ -1,8 +1,8 @@
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
-import { getIconColor } from '../contact-form/util/block-icons';
 import defaultSettings from '../shared/settings';
+import { getIconColor } from '../shared/util/block-icons';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';

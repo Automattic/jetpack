@@ -3,7 +3,7 @@
  */
 import { useEvent } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 const LAYOUT_TABLE = 'table';
 

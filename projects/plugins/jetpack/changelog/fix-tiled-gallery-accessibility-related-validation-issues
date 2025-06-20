@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Tiled Gallery: Ensure accessibility properties are added only when needed, as well as preventing block validation errors.

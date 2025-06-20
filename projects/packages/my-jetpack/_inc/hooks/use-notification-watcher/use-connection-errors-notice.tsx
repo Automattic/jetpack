@@ -9,6 +9,7 @@ import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useAnalytics from '../use-analytics';
+import { assignLocation } from './assignLocation';
 import type { NoticeOptions } from '../../context/notices/types';
 
 // Define NoticeAction type since it's not exported
@@ -38,7 +39,7 @@ const useConnectionErrorsNotice = () => {
 		const adminUrl = initialState?.adminUrl || '/wp-admin/';
 		const redirectUrl = getProtectedOwnerCreateAccountUrl( connectionError, adminUrl );
 
-		window.location.href = redirectUrl;
+		assignLocation( redirectUrl );
 	}, [ recordEvent, connectionError ] );
 
 	useEffect( () => {

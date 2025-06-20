@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix async function call on chrome experiment availability

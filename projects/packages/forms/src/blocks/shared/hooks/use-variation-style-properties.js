@@ -6,7 +6,8 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { isNumber, merge } from 'lodash';
-import { useFormStyle, FORM_STYLE } from '../../contact-form/util/form';
+import { FORM_STYLE } from '../util/constants';
+import useFormStyle from './use-form-style';
 
 /**
  * Returns the value of the CSS var if it is a number, otherwise null.

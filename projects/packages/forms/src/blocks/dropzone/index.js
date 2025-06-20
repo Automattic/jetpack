@@ -1,7 +1,7 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { getIconColor } from '../contact-form/util/block-icons';
 import renderMaterialIcon from '../shared/components/render-material-icon';
+import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
 import save from './save';
 

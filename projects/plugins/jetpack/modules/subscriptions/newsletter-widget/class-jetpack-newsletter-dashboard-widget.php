@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Modules;
 
 /**
  * Class that adds the Jetpack Newsletter Dashboard Widget to the WordPress admin dashboard.
@@ -75,6 +76,8 @@ class Jetpack_Newsletter_Dashboard_Widget {
 					$config_data['subscriberTotalsByDate'] = $subscriber_counts['aggregate'];
 				}
 			}
+
+			$config_data['isStatsModuleActive'] = ( new Modules() )->is_active( 'stats' );
 		}
 
 		return $config_data;
@@ -210,7 +213,5 @@ class Jetpack_Newsletter_Dashboard_Widget {
 
 add_action(
 	'wp_dashboard_setup',
-	function () {
-		Jetpack_Newsletter_Dashboard_Widget::init();
-	}
+	array( 'Jetpack_Newsletter_Dashboard_Widget', 'init' )
 );

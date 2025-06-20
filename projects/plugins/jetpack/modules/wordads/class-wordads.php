@@ -20,6 +20,7 @@ require_once WORDADS_ROOT . '/php/class-wordads-cron.php';
 require_once WORDADS_ROOT . '/php/class-wordads-california-privacy.php';
 require_once WORDADS_ROOT . '/php/class-wordads-ccpa-do-not-sell-link-widget.php';
 require_once WORDADS_ROOT . '/php/class-wordads-consent-management-provider.php';
+require_once WORDADS_ROOT . '/php/class-wordads-formats.php';
 require_once WORDADS_ROOT . '/php/class-wordads-smart.php';
 require_once WORDADS_ROOT . '/php/class-wordads-shortcode.php';
 
@@ -31,7 +32,7 @@ class WordAds {
 	/**
 	 * Ads parameters.
 	 *
-	 * @var null
+	 * @var WordAds_Params
 	 */
 	public $params = null;
 
@@ -269,8 +270,14 @@ class WordAds {
 	 */
 	private function insert_adcode() {
 		add_filter( 'wp_resource_hints', array( $this, 'resource_hints' ), 10, 2 );
+
+		// These 'wp_head' actions add the IPONWEB JavaScript snippets to the page.
+		// We need to remove these calls whenever migration to Aditude is complete.
 		add_action( 'wp_head', array( $this, 'insert_head_meta' ), 20 );
+
+		// TODO: Remove this function after June 30th, 2025.
 		add_action( 'wp_head', array( $this, 'insert_head_iponweb' ), 30 );
+
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'wordads_ads_txt', array( $this, 'insert_custom_adstxt' ) );
 
@@ -441,14 +448,14 @@ class WordAds {
 
 		// phpcs:disable WordPress.Security.EscapeOutput.HeredocOutputNotEscaped
 		echo <<<HTML
-				<script type="text/javascript">
-					var sas_fallback = sas_fallback || [];
-					sas_fallback.push(
-						{ tag: "$tag_inline", type: 'inline' },
-						{ tag: "$tag_belowpost", type: 'belowpost' },
-						{ tag: "$tag_top", type: 'top' }
-					);
-				</script>
+			<script type="text/javascript">
+				window.sas_fallback = window.sas_fallback || [];
+				window.sas_fallback.push(
+					{ tag: "$tag_inline", type: 'inline' },
+					{ tag: "$tag_belowpost", type: 'belowpost' },
+					{ tag: "$tag_top", type: 'top' }
+				);
+			</script>
 HTML;
 	}
 
@@ -465,10 +472,12 @@ HTML;
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		?>
 		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
+		function loadIPONWEB() { // TODO: Remove this after June 30th, 2025
 		(function(){var g=Date.now||function(){return+new Date};function h(a,b){a:{for(var c=a.length,d="string"==typeof a?a.split(""):a,e=0;e<c;e++)if(e in d&&b.call(void 0,d[e],e,a)){b=e;break a}b=-1}return 0>b?null:"string"==typeof a?a.charAt(b):a[b]};function k(a,b,c){c=null!=c?"="+encodeURIComponent(String(c)):"";if(b+=c){c=a.indexOf("#");0>c&&(c=a.length);var d=a.indexOf("?");if(0>d||d>c){d=c;var e=""}else e=a.substring(d+1,c);a=[a.substr(0,d),e,a.substr(c)];c=a[1];a[1]=b?c?c+"&"+b:b:c;a=a[0]+(a[1]?"?"+a[1]:"")+a[2]}return a};var l=0;function m(a,b){var c=document.createElement("script");c.src=a;c.onload=function(){b&&b(void 0)};c.onerror=function(){b&&b("error")};a=document.getElementsByTagName("head");var d;a&&0!==a.length?d=a[0]:d=document.documentElement;d.appendChild(c)}function n(a){var b=void 0===b?document.cookie:b;return(b=h(b.split("; "),function(c){return-1!=c.indexOf(a+"=")}))?b.split("=")[1]:""}function p(a){return"string"==typeof a&&0<a.length}
 		function r(a,b,c){b=void 0===b?"":b;c=void 0===c?".":c;var d=[];Object.keys(a).forEach(function(e){var f=a[e],q=typeof f;"object"==q&&null!=f||"function"==q?d.push(r(f,b+e+c)):null!==f&&void 0!==f&&(e=encodeURIComponent(b+e),d.push(e+"="+encodeURIComponent(f)))});return d.filter(p).join("&")}function t(a,b){a||((window.__ATA||{}).config=b.c,m(b.url))}var u=Math.floor(1E13*Math.random()),v=window.__ATA||{};window.__ATA=v;window.__ATA.cmd=v.cmd||[];v.rid=u;v.createdAt=g();var w=window.__ATA||{},x="s.pubmine.com";
 		w&&w.serverDomain&&(x=w.serverDomain);var y="//"+x+"/conf",z=window.top===window,A=window.__ATA_PP&&window.__ATA_PP.gdpr_applies,B="boolean"===typeof A?Number(A):null,C=window.__ATA_PP||null,D=z?document.referrer?document.referrer:null:null,E=z?window.location.href:document.referrer?document.referrer:null,F,G=n("__ATA_tuuid");F=G?G:null;var H=window.innerWidth+"x"+window.innerHeight,I=n("usprivacy"),J=r({gdpr:B,pp:C,rid:u,src:D,ref:E,tuuid:F,vp:H,us_privacy:I?I:null},"",".");
 		(function(a){var b=void 0===b?"cb":b;l++;var c="callback__"+g().toString(36)+"_"+l.toString(36);a=k(a,b,c);window[c]=function(d){t(void 0,d)};m(a,function(d){d&&t(d)})})(y+"?"+J);}).call(this);
+		}
 		</script>
 		<?php
 	}
@@ -738,19 +747,50 @@ HTML;
 			}
 
 			$loc_id = esc_js( $loc_id );
+
+			// Determine supported Gutenberg format by width and height.
+			$format = WordAds_Formats::get_format_slug( (int) $width, (int) $height );
+			if ( $format === '' ) {
+				return ''; // When format is not supported, ignore placement.
+			}
+
+			// For a while return elements for both IPONWEB (__ATA) and Aditude (tudeMappings).
+			// We will remove using IPONWEB after partnership termination on June 30, 2025.
 			return <<<HTML
 			<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
 				<div id="atatags-{$ad_number}">
 					<script$data_tags type="text/javascript">
-					__ATA.cmd.push(function() {
-						__ATA.initSlot('atatags-{$ad_number}',  {
-							collapseEmpty: 'before',
-							sectionId: '{$section_id}',
-							location: {$loc_id},
-							width: {$width},
-							height: {$height}
-						});
-					});
+						window.getAdSnippetCallback = function () {
+							if ( true === ( window.isWatlV1 ?? false ) ) {
+								// Use IPONWEB scripts.
+								window.__ATA = window.__ATA || {};
+								window.__ATA.cmd = __ATA.cmd || [];
+								window.__ATA.cmd.push(function() {
+									window.__ATA.initSlot('atatags-{$ad_number}', {
+										collapseEmpty: 'before',
+										sectionId: '{$section_id}',
+										location: {$loc_id},
+										width: {$width},
+										height: {$height}
+									});
+								});
+							} else {
+								// Use Aditude scripts.
+								window.tudeMappings = window.tudeMappings || [];
+								window.tudeMappings.push( {
+									divId: 'atatags-{$ad_number}',
+									format: '{$format}',
+									width: {$width},
+									height: {$height},
+								} );
+							}
+						}
+
+						if ( document.readyState === 'loading' ) {
+							document.addEventListener( 'DOMContentLoaded', window.getAdSnippetCallback );
+						} else {
+							window.getAdSnippetCallback();
+						}
 					</script>
 				</div>
 			</div>
@@ -781,12 +821,9 @@ HTML;
 	 * @since 8.7
 	 */
 	public function get_dynamic_ad_snippet( $section_id, $form_factor = 'square', $location = '', $relocate = '', $id = null ) {
+		$is_location_enabled = in_array( $location, array( 'top', 'belowpost', 'inline' ), true );
 
-		// Allow overriding and printing of the tag parsed by the WATL.
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$is_location_enabled = isset( $_GET['wordads-logging'] ) && isset( $_GET[ $location ] ) && 'true' === $_GET[ $location ];
-
-		if ( ( 'top' === $location || 'belowpost' === $location ) && $is_location_enabled ) {
+		if ( $is_location_enabled ) {
 			return self::get_watl_ad_html_tag( $location );
 		}
 
@@ -965,7 +1002,32 @@ HTML;
 	 * @since 8.7
 	 */
 	public static function get_watl_ad_html_tag( string $slot_type ): string {
-		return "<div class=\"wordads-tag\" data-slot-type=\"$slot_type\" style=\"display: none;\"></div>";
+		$uid = uniqid( 'atatags-dynamic-' . $slot_type . '-' );
+
+		return <<<HTML
+			<div style="padding-bottom:15px;" class="wordads-tag" data-slot-type="{$slot_type}">
+				<div id="{$uid}">
+					<script type="text/javascript">
+						window.getAdSnippetCallback = function () {
+							if ( false === ( window.isWatlV1 ?? false ) ) {
+								// Use Aditude scripts.
+								window.tudeMappings = window.tudeMappings || [];
+								window.tudeMappings.push( {
+									divId: '{$uid}',
+									format: '{$slot_type}',
+								} );
+							}
+						}
+
+						if ( document.readyState === 'loading' ) {
+							document.addEventListener( 'DOMContentLoaded', window.getAdSnippetCallback );
+						} else {
+							window.getAdSnippetCallback();
+						}
+					</script>
+				</div>
+			</div>
+HTML;
 	}
 
 	/**

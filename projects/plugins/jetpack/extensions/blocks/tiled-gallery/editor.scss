@@ -1,6 +1,6 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@use 'view';
-@use 'variables';
+@use './variables' as vars;
+@use './view';
 
 // inspired by from assets/shared/_animations loading-fade
 @keyframes tiled-gallery-img-placeholder {
@@ -35,6 +35,23 @@
 		// Ensure that selected image outlines are visibile
 		padding-left: 4px;
 		padding-right: 4px;
+
+		.tiled-gallery__gallery {
+			gap: vars.$tiled-gallery-gutter;
+		}
+
+		.tiled-gallery__row {
+			margin: 0;
+
+			.tiled-gallery__col {
+				margin: 0;
+				margin-right: vars.$tiled-gallery-gutter;
+
+				&:last-child {
+					margin-right: 0;
+				}
+			}
+		}
 	}
 
 	.tiled-gallery__item {
@@ -49,7 +66,7 @@
 		}
 
 		&.is-selected {
-			outline: 4px solid variables.$tiled-gallery-selection;
+			outline: 4px solid vars.$tiled-gallery-selection;
 
 			// Disable filters when selected
 			filter: none;
@@ -114,7 +131,7 @@
 	}
 
 	.tiled-gallery__add-item {
-		margin-top: variables.$tiled-gallery-gutter;
+		margin-top: vars.$tiled-gallery-gutter;
 		width: 100%;
 
 		.components-form-file-upload,
@@ -210,3 +227,6 @@
 		box-shadow: 0 0 0 $active-item-outline-width gb.$gray-600 !important;
 	}
 }
+
+
+

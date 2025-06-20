@@ -12,7 +12,7 @@ import {
 import { useEntityRecords } from '@wordpress/core-data';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 /**
  * Returns a formatted tab label with count.

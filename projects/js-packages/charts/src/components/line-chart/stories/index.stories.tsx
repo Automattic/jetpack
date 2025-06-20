@@ -1,57 +1,14 @@
-import { GlyphStar } from '@visx/glyph';
 import React from 'react';
 import LineChart from '../line-chart';
+import { lineChartStoryArgs, lineChartMetaArgs } from './config';
 import largeValuesData from './large-values-sample';
 import sampleData from './sample-data';
 import webTrafficData from './site-traffic-sample';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LineChart > = {
+	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart',
-	component: LineChart,
-	parameters: {
-		layout: 'centered',
-	},
-	decorators: [
-		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-					display: 'inline-block',
-				} }
-			>
-				<Story />
-			</div>
-		),
-	],
-	argTypes: {
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
-	},
 } satisfies Meta< typeof LineChart >;
 
 export default meta;
@@ -61,24 +18,7 @@ const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
 // Default story with multiple series
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
 Default.args = {
-	data: sampleData,
-	showLegend: false,
-	legendOrientation: 'horizontal',
-	withGradientFill: false,
-	smoothing: true,
-	maxWidth: 1200,
-	aspectRatio: 0.5,
-	resizeDebounceTime: 300,
-	options: {
-		axis: {
-			x: {
-				orientation: 'bottom',
-			},
-			y: {
-				orientation: 'left',
-			},
-		},
-	},
+	...lineChartStoryArgs,
 };
 
 // Story with single data series
@@ -87,42 +27,12 @@ SingleSeries.args = {
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
-// Story without tooltip
-export const WithoutTooltip: StoryObj< typeof LineChart > = Template.bind( {} );
-WithoutTooltip.args = {
-	...Default.args,
-	withTooltips: false,
-};
-
 // Story with custom dimensions
 export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomDimensions.args = {
 	width: 800,
 	height: 400,
 	data: sampleData,
-};
-
-// Story with horizontal legend
-export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegend.args = {
-	...Default.args,
-	showLegend: true,
-	height: 400,
-};
-
-export const WithLegendShapeRectangle: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegendShapeRectangle.args = {
-	...Default.args,
-	showLegend: true,
-	legendShape: 'rect',
-};
-
-// Story with vertical legend
-export const WithVerticalLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithVerticalLegend.args = {
-	...Default.args,
-	showLegend: true,
-	legendOrientation: 'vertical',
 };
 
 // Add after existing stories
@@ -224,37 +134,6 @@ export const WithoutSmoothing: StoryObj< typeof LineChart > = Template.bind( {} 
 WithoutSmoothing.args = {
 	...Default.args,
 	smoothing: false,
-};
-
-export const CustomTooltips: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomTooltips.args = {
-	...Default.args,
-	renderTooltip: ( { tooltipData } ) => {
-		const nearestDatum = tooltipData?.nearestDatum?.datum;
-		if ( ! nearestDatum ) return null;
-
-		const tooltipPoints = Object.entries( tooltipData?.datumByKey || {} )
-			.map( ( [ key, { datum } ] ) => ( {
-				key,
-				value: datum.value as number,
-			} ) )
-			.sort( ( a, b ) => b.value - a.value );
-
-		return (
-			<div>
-				<h3>{ nearestDatum?.date?.toLocaleDateString() } 💯 </h3>
-
-				<table style={ { border: '1px solid black', borderCollapse: 'collapse' } }>
-					{ tooltipPoints.map( point => (
-						<tr style={ { border: '1px solid black' } } key={ point.key }>
-							<td style={ { border: '1px solid black' } }>{ point.key }</td>
-							<td>{ point.value }</td>
-						</tr>
-					) ) }
-				</table>
-			</div>
-		);
-	},
 };
 
 export const WithPointerEvents: StoryObj< typeof LineChart > = Template.bind( {} );
@@ -389,66 +268,6 @@ BrokenLine.parameters = {
 		description: {
 			story: 'Demonstrates the option of setting a seriesLineStyle to a dash array.',
 		},
-	},
-};
-
-export const WithStartGlyphs: StoryObj< typeof LineChart > = Template.bind( {} );
-WithStartGlyphs.args = {
-	...Default.args,
-	withStartGlyphs: true,
-};
-
-export const WithCustomGlyph: StoryObj< typeof LineChart > = Template.bind( {} );
-WithCustomGlyph.args = {
-	...Default.args,
-	showLegend: true,
-	withStartGlyphs: true,
-	withLegendGlyph: true,
-	renderGlyph: ( { color, size, x, y } ) => {
-		return <GlyphStar top={ y } left={ x } size={ size * size } fill={ color } />;
-	},
-	glyphStyle: {
-		radius: 10,
-	},
-};
-
-const CustomStarGlyph = ( { color, size, x, y } ) => {
-	const hasXY = typeof x === 'number' && typeof y === 'number' && ( x !== 0 || y !== 0 );
-	const groupProps = hasXY ? { transform: `translate(${ x }, ${ y })` } : {};
-	return (
-		<g { ...groupProps }>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width={ size * 2 }
-				height={ size * 2 }
-				viewBox="0 0 24 24"
-				style={ { overflow: 'visible', pointerEvents: 'none' } }
-			>
-				<path
-					d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-					fill={ color }
-					stroke={ color }
-					strokeWidth="2"
-					strokeLinecap="round"
-					strokeLinejoin="round"
-					transform="translate(-12, -12)"
-				/>
-			</svg>
-		</g>
-	);
-};
-
-export const WithCustomSvgGlyph: StoryObj< typeof LineChart > = Template.bind( {} );
-WithCustomSvgGlyph.args = {
-	...Default.args,
-	showLegend: true,
-	withStartGlyphs: true,
-	withLegendGlyph: true,
-	renderGlyph: ( { color, size, x, y } ) => (
-		<CustomStarGlyph color={ color } size={ size } x={ x } y={ y } />
-	),
-	glyphStyle: {
-		radius: 8,
 	},
 };
 
