@@ -71,8 +71,11 @@ function StepBreak( { stepLabel, currentIndex, setAttributes, clientId } ) {
 		[ clientId ]
 	);
 
-	// translators: %d is the step number (1, 2, 3, etc.)
-	const stepNumberString = sprintf( __( 'Step %d', 'jetpack-forms' ), currentIndex + 1 );
+	const stepNumberString = sprintf(
+		// translators: %d is the step number (1, 2, 3, etc.)
+		__( 'Step %d', 'jetpack-forms' ),
+		currentIndex + 1
+	);
 
 	// Build the full label string that should appear in List View.
 	const listViewLabel =
