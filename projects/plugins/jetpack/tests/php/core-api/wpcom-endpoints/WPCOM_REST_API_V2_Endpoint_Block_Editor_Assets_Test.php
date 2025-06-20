@@ -286,4 +286,62 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		unregister_post_type( 'custom_type' );
 		remove_role( 'custom_editor' );
 	}
+
+	/**
+	 * Test that the hash is correctly generated from scripts and styles.
+	 */
+	public function test_hash_is_correctly_generated() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify hash is present and is a valid SHA256 hash
+		$this->assertArrayHasKey( 'hash', $data );
+		$this->assertIsString( $data['hash'] );
+		$this->assertEquals( 64, strlen( $data['hash'] ) );
+		$this->assertMatchesRegularExpression( '/^[a-f0-9]{64}$/', $data['hash'] );
+
+		// Verify hash is generated from scripts and styles arrays
+		$expected_hash = hash( 'sha256', implode( $data['scripts'] ) . implode( $data['styles'] ) );
+		$this->assertEquals( $expected_hash, $data['hash'] );
+	}
+
+	/**
+	 * Test that allowed block types contain both core and plugin blocks.
+	 */
+	public function test_allowed_block_types_contain_core_and_plugin_blocks() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$allowed_blocks = $data['allowed_block_types'];
+
+		// Verify we have both core and plugin blocks
+		$core_blocks   = array_filter(
+			$allowed_blocks,
+			function ( $block ) {
+				return strpos( $block, 'core/' ) === 0;
+			}
+		);
+		$plugin_blocks = array_filter(
+			$allowed_blocks,
+			function ( $block ) {
+				return strpos( $block, 'core/' ) !== 0;
+			}
+		);
+
+		$this->assertNotEmpty( $core_blocks, 'Core blocks should be present' );
+		$this->assertNotEmpty( $plugin_blocks, 'Plugin blocks should be present' );
+
+		// Verify all blocks are unique
+		$this->assertSameSize( $allowed_blocks, array_unique( $allowed_blocks ) );
+
+		// Verify specific expected blocks are present
+		$this->assertContains( 'core/paragraph', $allowed_blocks );
+		$this->assertContains( 'jetpack/contact-form', $allowed_blocks );
+	}
 }
