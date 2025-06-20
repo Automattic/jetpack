@@ -1,6 +1,7 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router';
 import { ProductCamelCase } from '../../../data/types';
 
 export type ProductCardActionProps = {
@@ -15,31 +16,20 @@ export type ProductCardActionProps = {
  * @return The rendered component
  */
 export function ProductCardAction( { product }: ProductCardActionProps ) {
-	switch ( product.slug ) {
-		case 'anti-spam':
-			return (
-				<Button
-					variant="secondary"
-					// TODO replace with the correct URL
-					href="#"
-					size="compact"
-				>
-					{ __( 'Learn more', 'jetpack-my-jetpack' ) }
-				</Button>
-			);
+	const navigate = useNavigate();
 
-		case 'backup':
-			return (
-				<Button
-					variant="secondary"
-					href={ getRedirectUrl( 'my-jetpack-manage-backup' ) }
-					size="compact"
-				>
-					{ __( 'Learn more', 'jetpack-my-jetpack' ) }
-				</Button>
-			);
+	const onClick = useCallback(
+		( event: React.MouseEvent< HTMLButtonElement, MouseEvent > ) => {
+			event.preventDefault();
+			event.stopPropagation();
+			navigate( `/add-${ product.slug }` );
+		},
+		[ navigate, product.slug ]
+	);
 
-		default:
-			return null;
-	}
+	return (
+		<Button variant="secondary" size="compact" onClick={ onClick }>
+			{ __( 'Learn more', 'jetpack-my-jetpack' ) }
+		</Button>
+	);
 }
