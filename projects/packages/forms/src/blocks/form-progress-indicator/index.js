@@ -10,7 +10,6 @@ export const name = 'form-progress-indicator';
 export const settings = {
 	apiVersion: 3,
 	category: 'contact-form',
-	parent: [ 'jetpack/contact-form' ],
 	ancestor: [ 'jetpack/contact-form' ],
 	supports: {
 		html: false,
