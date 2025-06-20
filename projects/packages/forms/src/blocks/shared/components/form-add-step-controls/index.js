@@ -5,7 +5,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as singleStepStore } from '../../../../store/form-step-preview';
-import useContainerId from '../../hooks/use-container-id';
+import useStepContainerClientId from '../../hooks/use-container-id';
 import useFormSteps from '../../hooks/use-form-steps';
 
 /**
@@ -21,7 +21,7 @@ export default function AddStepControls( { clientId, formClientId } ) {
 
 	const { insertBlock } = useDispatch( blockEditorStore );
 
-	const containerId = useContainerId( formClientId );
+	const containerId = useStepContainerClientId( formClientId );
 	const steps = useFormSteps( formClientId );
 	const { isSingleStep } = useSelect(
 		select => {

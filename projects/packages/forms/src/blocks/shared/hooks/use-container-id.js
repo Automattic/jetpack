@@ -10,7 +10,7 @@ import { useSelect } from '@wordpress/data';
  * @param {string} formClientId - The client ID of the parent 'jetpack/contact-form' block.
  * @return {string|null} The client ID of the 'jetpack/step-container' block, or null if not found.
  */
-export default function useContainerId( formClientId ) {
+export default function useStepContainerClientId( formClientId ) {
 	return useSelect(
 		select => {
 			if ( ! formClientId ) {
