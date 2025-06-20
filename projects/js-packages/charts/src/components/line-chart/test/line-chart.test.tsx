@@ -494,8 +494,8 @@ describe( 'LineChart', () => {
 
 				// Clicking tab should not open any tooltips.
 				await user.tab();
-				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
-				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
 				// Chart should no longer be in focus.
 				expect( chart ).not.toHaveFocus();
 			} );
