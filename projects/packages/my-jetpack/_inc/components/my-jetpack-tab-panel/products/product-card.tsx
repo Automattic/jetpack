@@ -41,7 +41,7 @@ export function ProductCard( { product, headingLevel = 3, module: $module }: Pro
 					</FlexBlock>
 					<FlexItem>
 						{ $module?.available ? (
-							<Flex>
+							<Flex gap={ 4 }>
 								<ModuleStatus module={ $module } />
 								<ModuleToggle module={ $module } />
 							</Flex>
