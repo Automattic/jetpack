@@ -462,6 +462,45 @@ describe( 'LineChart', () => {
 			} );
 		} );
 
+		describe( 'Tab Key Navigation', () => {
+			test( 'tab key exits navigation when reaching end of data points', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+							options: {},
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+							],
+							options: {},
+						},
+					],
+				} );
+
+				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+				chart.focus();
+
+				// Chart should be in focus.
+				expect( chart ).toHaveFocus();
+
+				// Clicking tab should not open any tooltips.
+				await user.tab();
+				expect( screen.queryByTestId( 'line-chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'line-chart-tooltip-0' ) ).not.toBeInTheDocument();
+				// Chart should no longer be in focus.
+				expect( chart ).not.toHaveFocus();
+			} );
+		} );
+
 		test( 'keyboard navigation works with custom tooltip renderer', async () => {
 			const user = userEvent.setup();
 			const customTooltipRenderer = jest.fn( ( { tooltipData } ) => (
