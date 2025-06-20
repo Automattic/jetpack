@@ -67,6 +67,9 @@ const BarChart: FC< BarChartProps > = ( {
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
 
+	const totalPoints =
+		Math.max( 0, ...data.map( series => series.data?.length || 0 ) ) * data.length;
+
 	// Use the keyboard navigation hook
 	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 		selectedIndex,
@@ -74,7 +77,7 @@ const BarChart: FC< BarChartProps > = ( {
 		isNavigating,
 		setIsNavigating,
 		chartRef,
-		totalPoints: Math.max( 0, ...data.map( series => series.data?.length || 0 ) ),
+		totalPoints,
 	} );
 
 	const getColor = useCallback(
