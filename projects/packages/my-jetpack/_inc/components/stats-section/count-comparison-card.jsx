@@ -122,7 +122,7 @@ const CountComparisonCard = ( {
 										: formatNumber( differenceMagnitude, {} ) // passing empty object removes the compact number formatting options, i.e.- 10,100
 								}
 							</span>
-							{ percentage !== null && (
+							{ percentage !== null && percentage !== 0 && (
 								<span className={ styles[ 'stats-card-difference-absolute-percentage' ] }>
 									({ percentage }%)
 								</span>

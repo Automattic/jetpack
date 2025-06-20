@@ -81,7 +81,7 @@ const transformStatsDataForChart = ( apiData, selectedMetric = 'views' ) => {
 				value: dataPoint[ metricIndex ] || 0,
 			} ) ),
 			options: {
-				stroke: '#069e08', // Jetpack green primary color (--jp-green-primary)
+				stroke: '#479C2E', // Jetpack green (--jp-green-50)
 			},
 		},
 	];
@@ -106,16 +106,24 @@ const getDynamicTitle = metric => {
 /**
  * Stats cards component.
  *
- * @param {object}  props                - Component props.
- * @param {object}  props.counts         - Counts object for the current period.
- * @param {object}  props.previousCounts - Counts object for the previous period.
- * @param {number}  props.headingLevel   - Heading level between 1 and 6.
- * @param {Array}   props.chartData      - Chart data for the bar chart visualization.
- * @param {boolean} props.isLoading      - Whether the data is loading.
+ * @param {object}   props                      - Component props.
+ * @param {object}   props.counts               - Counts object for the current period.
+ * @param {object}   props.previousCounts       - Counts object for the previous period.
+ * @param {number}   props.headingLevel         - Heading level between 1 and 6.
+ * @param {Array}    props.chartData            - Chart data for the bar chart visualization.
+ * @param {boolean}  props.isLoading            - Whether the data is loading.
+ * @param {Function} props.onDetailedStatsClick - Function to handle detailed stats click.
  *
  * @return {object} StatsCards React component.
  */
-const StatsCards = ( { counts, previousCounts, headingLevel, chartData, isLoading } ) => {
+const StatsCards = ( {
+	counts,
+	previousCounts,
+	headingLevel,
+	chartData,
+	isLoading,
+	onDetailedStatsClick,
+} ) => {
 	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
 
 	// State for selected metric (default to 'views')
@@ -152,9 +160,24 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData, isLoadin
 		return ! isLoading && transformedChartData?.[ 0 ]?.data?.every( item => item.value === 0 );
 	}, [ transformedChartData, isLoading ] );
 
+	const handleKeyDown = useCallback(
+		e => {
+			if ( e.key === 'Enter' || e.key === ' ' ) {
+				onDetailedStatsClick();
+			}
+		},
+		[ onDetailedStatsClick ]
+	);
+
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
-			<div className={ styles[ 'section-title-container' ] }>
+			<div
+				className={ styles[ 'section-title-container' ] }
+				onClick={ onDetailedStatsClick }
+				role="button"
+				tabIndex={ 0 }
+				onKeyDown={ handleKeyDown }
+			>
 				<Heading className={ styles[ 'section-title' ] }>
 					<span>{ getDynamicTitle( selectedMetric ) }</span>
 				</Heading>
@@ -163,7 +186,13 @@ const StatsCards = ( { counts, previousCounts, headingLevel, chartData, isLoadin
 				</div>
 			</div>
 
-			<div className={ styles[ 'chart-container' ] }>
+			<div
+				className={ styles[ 'chart-container' ] }
+				onClick={ onDetailedStatsClick }
+				role="button"
+				tabIndex={ 0 }
+				onKeyDown={ handleKeyDown }
+			>
 				{ isEmpty && (
 					<div className={ styles[ 'chart-empty' ] }>
 						<div
