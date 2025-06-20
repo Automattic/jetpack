@@ -46,6 +46,7 @@
 		"@wordpress/api-fetch": "7.25.0",
 		"@wordpress/url": "4.25.0",
 		"cookie": "1.0.2",
+		"debug": "4.4.1",
 		"qs": "6.12.1"
 	}
 }
