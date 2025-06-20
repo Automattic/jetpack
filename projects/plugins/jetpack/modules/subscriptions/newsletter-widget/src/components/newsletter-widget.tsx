@@ -67,6 +67,9 @@ export const NewsletterWidget = ( {
 		formatNumber( paidSubscribers )
 	);
 
+	// For WordPress.com sites, links should always be considered internal.
+	const isInternalLink = isStatsModuleActive || isWpcomSite;
+
 	return (
 		<div className="newsletter-widget">
 			{ showHeader && (
@@ -79,7 +82,7 @@ export const NewsletterWidget = ( {
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
 									{ DashboardLink(
-										! isStatsModuleActive ? false : true,
+										isInternalLink,
 										getSubscriberStatsUrl( site, isWpcomSite, adminUrl, isStatsModuleActive ),
 										'all_subscribers_click',
 										subscribersText
@@ -94,7 +97,7 @@ export const NewsletterWidget = ( {
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
 									{ DashboardLink(
-										! isStatsModuleActive ? false : true,
+										isInternalLink,
 										getSubscriberStatsUrl( site, isWpcomSite, adminUrl, isStatsModuleActive ),
 										'paid_subscribers_click',
 										paidSubscribersText
@@ -142,7 +145,7 @@ export const NewsletterWidget = ( {
 						</li>
 						<li>
 							{ DashboardLink(
-								! isStatsModuleActive ? false : true,
+								isInternalLink,
 								getSubscriberStatsUrl( site, isWpcomSite, adminUrl, isStatsModuleActive ),
 								'view_stats_click',
 								__( 'View subscriber stats', 'jetpack' )
