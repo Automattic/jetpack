@@ -982,6 +982,7 @@ const variations = compact( [
 							customVariant: 'previous',
 							text: __( '← Back', 'jetpack-forms' ),
 							className: 'is-style-outline',
+							metaName: __( 'Previous button', 'jetpack-forms' ),
 						},
 					],
 					[
@@ -991,6 +992,7 @@ const variations = compact( [
 							uniqueId: 'next-step',
 							customVariant: 'next',
 							text: __( 'Next →', 'jetpack-forms' ),
+							metaName: __( 'Next button', 'jetpack-forms' ),
 						},
 					],
 					[
@@ -1000,6 +1002,7 @@ const variations = compact( [
 							uniqueId: 'submit-step',
 							customVariant: 'submit',
 							text: __( 'Submit', 'jetpack-forms' ),
+							metaName: __( 'Submit button', 'jetpack-forms' ),
 						},
 					],
 				],
