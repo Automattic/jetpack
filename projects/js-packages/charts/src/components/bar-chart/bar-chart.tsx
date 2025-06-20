@@ -74,7 +74,7 @@ const BarChart: FC< BarChartProps > = ( {
 		isNavigating,
 		setIsNavigating,
 		chartRef,
-		totalPoints: Math.max(0, ...data.map(series => series.data?.length || 0)),
+		totalPoints: Math.max( 0, ...data.map( series => series.data?.length || 0 ) ),
 	} );
 
 	const getColor = useCallback(
