@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bar chart: Add support for pattern fill for accessibility [#43812]
 - Charts: Show glyph in legends [#43851]
 - Line chart: Add support for Tooltip crosshairs [#43921]
-- Adds new `legendAlign` and `legendVerticalAlign` props to chart legend components, allowing flexible positioning of legends [#43979]
 
 ### Changed
 - Line chart: Organise stories for easier browsing [#43922]
