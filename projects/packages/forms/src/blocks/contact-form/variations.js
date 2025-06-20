@@ -10,7 +10,7 @@ import { getIconColor } from '../shared/util/block-icons';
 const variations = compact( [
 	{
 		name: 'regular-form',
-		title: __( 'Regular Form', 'jetpack-forms' ),
+		title: __( 'Form', 'jetpack-forms' ),
 		icon: {
 			foreground: getIconColor(),
 			src: renderMaterialIcon(
