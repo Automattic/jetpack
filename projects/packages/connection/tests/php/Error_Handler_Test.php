@@ -659,7 +659,7 @@ class Error_Handler_Test extends BaseTestCase {
 		// Verify that admin_notices and react_connection_errors_initial_state actions were added
 		// has_action returns the priority (not boolean true) when the action exists, false when it doesn't
 		$this->assertNotFalse( has_action( 'admin_notices', array( $this->error_handler, 'generic_admin_notice_error' ) ) );
-		$this->assertNotFalse( has_action( 'react_connection_errors_initial_state', array( $this->error_handler, 'jetpack_react_dashboard_error' ) ) );
+		$this->assertNotFalse( has_action( 'react_connection_errors_initial_state', array( $this->error_handler, 'displayable_errors' ) ) );
 	}
 
 	/**
@@ -674,14 +674,8 @@ class Error_Handler_Test extends BaseTestCase {
 		$stored_errors = $this->error_handler->get_stored_errors();
 		$this->error_handler->verify_error( $stored_errors['invalid_token']['1'] );
 
-		// Set the error_code property
-		$reflection = new \ReflectionClass( $this->error_handler );
-		$property   = $reflection->getProperty( 'error_code' );
-		$property->setAccessible( true );
-		$property->setValue( $this->error_handler, 'invalid_token' );
-
 		$errors = array();
-		$result = $this->error_handler->jetpack_react_dashboard_error( $errors );
+		$result = $this->error_handler->displayable_errors( $errors );
 
 		$this->assertCount( 1, $result );
 		$this->assertEquals( 'connection_error', $result[0]['code'] );
@@ -689,50 +683,6 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'broken', $result[0]['message'] );
 		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
 		$this->assertEquals( 'invalid_token', $result[0]['data']['api_error_code'] );
-	}
-
-	/**
-	 * Test jetpack_react_dashboard_error method with protected_owner error
-	 */
-	public function test_jetpack_react_dashboard_error_protected_owner() {
-		// Create a protected_owner error manually
-		$protected_owner_error = array(
-			'error_code'    => 'protected_owner_missing',
-			'user_id'       => '1',
-			'error_message' => 'Custom protected owner message',
-			'error_data'    => array(
-				'action' => 'custom_action',
-				'custom' => 'data',
-			),
-			'timestamp'     => time(),
-			'nonce'         => 'test_nonce',
-			'error_type'    => 'protected_owner',
-		);
-
-		// Manually add to verified errors
-		$verified_errors = array(
-			'protected_owner_missing' => array(
-				'1' => $protected_owner_error,
-			),
-		);
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
-
-		// Set the error_code property
-		$reflection = new \ReflectionClass( $this->error_handler );
-		$property   = $reflection->getProperty( 'error_code' );
-		$property->setAccessible( true );
-		$property->setValue( $this->error_handler, 'protected_owner_missing' );
-
-		$errors = array();
-		$result = $this->error_handler->jetpack_react_dashboard_error( $errors );
-
-		$this->assertCount( 1, $result );
-		$this->assertEquals( 'connection_error', $result[0]['code'] );
-		$this->assertEquals( 'custom_action', $result[0]['action'] );
-		$this->assertEquals( 'Custom protected owner message', $result[0]['message'] );
-		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
-		$this->assertArrayHasKey( 'custom', $result[0]['data'] );
-		$this->assertEquals( 'data', $result[0]['data']['custom'] );
 	}
 
 	/**
@@ -760,14 +710,8 @@ class Error_Handler_Test extends BaseTestCase {
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
 
-		// Set the error_code property
-		$reflection = new \ReflectionClass( $this->error_handler );
-		$property   = $reflection->getProperty( 'error_code' );
-		$property->setAccessible( true );
-		$property->setValue( $this->error_handler, 'invalid_token' );
-
 		$errors = array();
-		$result = $this->error_handler->jetpack_react_dashboard_error( $errors );
+		$result = $this->error_handler->displayable_errors( $errors );
 
 		$this->assertCount( 1, $result );
 		$this->assertEquals( 'connection_error', $result[0]['code'] );
@@ -918,5 +862,360 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertCount( 2, $result );
 		$this->assertArrayHasKey( 'test_error', $result );
 		$this->assertArrayHasKey( 'injected_error', $result );
+	}
+
+	/**
+	 * Test displayable_errors method with no errors
+	 */
+	public function test_displayable_errors_no_errors() {
+		$result = $this->error_handler->displayable_errors();
+		$this->assertIsArray( $result );
+		$this->assertEmpty( $result );
+	}
+
+	/**
+	 * Test displayable_errors method with non-displayable error
+	 */
+	public function test_displayable_errors_non_displayable_error() {
+		// Add a non-displayable error
+		$error = array(
+			'error_code'    => 'unknown_user',
+			'user_id'       => '1',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+
+		$verified_errors = array(
+			'unknown_user' => array(
+				'1' => $error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		$result = $this->error_handler->displayable_errors();
+		$this->assertIsArray( $result );
+		$this->assertEmpty( $result );
+	}
+
+	/**
+	 * Test displayable_errors method with displayable error
+	 */
+	public function test_displayable_errors_displayable_error() {
+		// Add a displayable error
+		$error = array(
+			'error_code'    => 'invalid_token',
+			'user_id'       => '1',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+
+		$verified_errors = array(
+			'invalid_token' => array(
+				'1' => $error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		$result = $this->error_handler->displayable_errors();
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+		$this->assertEquals( 'connection_error', $result[0]['code'] );
+		$this->assertEquals( 'reconnect', $result[0]['action'] );
+		$this->assertStringContainsString( 'broken', $result[0]['message'] );
+		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
+		$this->assertEquals( 'invalid_token', $result[0]['data']['api_error_code'] );
+	}
+
+	/**
+	 * Test displayable_errors method with protected_owner error type
+	 */
+	public function test_displayable_errors_protected_owner_type() {
+		// Add a protected_owner error type
+		$error = array(
+			'error_code'    => 'protected_owner_missing',
+			'user_id'       => '1',
+			'error_message' => 'Custom protected owner message',
+			'error_data'    => array(
+				'action' => 'custom_action',
+				'custom' => 'data',
+			),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'protected_owner',
+		);
+
+		$verified_errors = array(
+			'protected_owner_missing' => array(
+				'1' => $error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		$result = $this->error_handler->displayable_errors();
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+		$this->assertEquals( 'connection_error', $result[0]['code'] );
+		$this->assertEquals( 'custom_action', $result[0]['action'] );
+		$this->assertEquals( 'Custom protected owner message', $result[0]['message'] );
+		$this->assertArrayHasKey( 'api_error_code', $result[0]['data'] );
+		$this->assertArrayHasKey( 'custom', $result[0]['data'] );
+		$this->assertEquals( 'data', $result[0]['data']['custom'] );
+	}
+
+	/**
+	 * Test displayable_errors method with multiple errors
+	 */
+	public function test_displayable_errors_multiple_errors() {
+		// Add multiple displayable errors
+		$error1 = array(
+			'error_code'    => 'invalid_token',
+			'user_id'       => '1',
+			'error_message' => 'Test message 1',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce1',
+			'error_type'    => 'xmlrpc',
+		);
+
+		$error2 = array(
+			'error_code'    => 'no_valid_user_token',
+			'user_id'       => '2',
+			'error_message' => 'Test message 2',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce2',
+			'error_type'    => 'xmlrpc',
+		);
+
+		$verified_errors = array(
+			'invalid_token'       => array(
+				'1' => $error1,
+			),
+			'no_valid_user_token' => array(
+				'2' => $error2,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		$result = $this->error_handler->displayable_errors();
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 2, $result );
+
+		// Check first error
+		$this->assertEquals( 'connection_error', $result[0]['code'] );
+		$this->assertEquals( 'reconnect', $result[0]['action'] );
+		$this->assertEquals( 'invalid_token', $result[0]['data']['api_error_code'] );
+
+		// Check second error
+		$this->assertEquals( 'connection_error', $result[1]['code'] );
+		$this->assertEquals( 'reconnect', $result[1]['action'] );
+		$this->assertEquals( 'no_valid_user_token', $result[1]['data']['api_error_code'] );
+	}
+
+	/**
+	 * Test displayable_errors method with filter (non-WoA site)
+	 */
+	public function test_displayable_errors_filter_non_woa_site() {
+		// Mock is_woa_site to return false
+		$mock_error_handler = $this->getMockBuilder( Error_Handler::class )
+			->onlyMethods( array( 'is_woa_site' ) )
+			->getMock();
+		$mock_error_handler->method( 'is_woa_site' )->willReturn( false );
+
+		// Add a displayable error
+		$error = array(
+			'error_code'    => 'invalid_token',
+			'user_id'       => '1',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+
+		$verified_errors = array(
+			'invalid_token' => array(
+				'1' => $error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		// Add filter that should not be applied
+		add_filter(
+			'jetpack_connection_displayable_errors',
+			function ( $errors ) {
+				$errors[0]['message'] = 'Filtered message';
+				return $errors;
+			}
+		);
+
+		$result = $mock_error_handler->displayable_errors();
+
+		// Filter should not be applied, so message should be original
+		$this->assertStringContainsString( 'broken', $result[0]['message'] );
+		$this->assertStringNotContainsString( 'Filtered message', $result[0]['message'] );
+	}
+
+	/**
+	 * Test displayable_errors method with filter (WoA site)
+	 */
+	public function test_displayable_errors_filter_woa_site() {
+		// Mock is_woa_site to return true
+		$mock_error_handler = $this->getMockBuilder( Error_Handler::class )
+			->onlyMethods( array( 'is_woa_site' ) )
+			->getMock();
+		$mock_error_handler->method( 'is_woa_site' )->willReturn( true );
+
+		// Add a displayable error
+		$error = array(
+			'error_code'    => 'invalid_token',
+			'user_id'       => '1',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+
+		$verified_errors = array(
+			'invalid_token' => array(
+				'1' => $error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		// Add filter that should be applied
+		add_filter(
+			'jetpack_connection_displayable_errors',
+			function ( $errors ) {
+				$errors[0]['message'] = 'Filtered message for WoA';
+				$errors[0]['action']  = 'custom_action';
+				return $errors;
+			}
+		);
+
+		$result = $mock_error_handler->displayable_errors();
+
+		// Filter should be applied
+		$this->assertEquals( 'Filtered message for WoA', $result[0]['message'] );
+		$this->assertEquals( 'custom_action', $result[0]['action'] );
+	}
+
+	/**
+	 * Test should_allow_error_filtering method
+	 */
+	public function test_should_allow_error_filtering() {
+		// Test with non-WoA site
+		$mock_error_handler = $this->getMockBuilder( Error_Handler::class )
+			->onlyMethods( array( 'is_woa_site' ) )
+			->getMock();
+		$mock_error_handler->method( 'is_woa_site' )->willReturn( false );
+
+		$reflection = new \ReflectionClass( $mock_error_handler );
+		$method     = $reflection->getMethod( 'should_allow_error_filtering' );
+		$method->setAccessible( true );
+
+		$this->assertFalse( $method->invoke( $mock_error_handler ) );
+
+		// Test with WoA site
+		$mock_error_handler = $this->getMockBuilder( Error_Handler::class )
+			->onlyMethods( array( 'is_woa_site' ) )
+			->getMock();
+		$mock_error_handler->method( 'is_woa_site' )->willReturn( true );
+
+		$reflection = new \ReflectionClass( $mock_error_handler );
+		$method     = $reflection->getMethod( 'should_allow_error_filtering' );
+		$method->setAccessible( true );
+
+		$this->assertTrue( $method->invoke( $mock_error_handler ) );
+	}
+
+	/**
+	 * Test is_woa_site method
+	 */
+	public function test_is_woa_site() {
+		$reflection = new \ReflectionClass( $this->error_handler );
+		$method     = $reflection->getMethod( 'is_woa_site' );
+		$method->setAccessible( true );
+
+		// This test will depend on the actual Host class implementation
+		// We'll just verify the method exists and returns a boolean
+		$result = $method->invoke( $this->error_handler );
+		$this->assertIsBool( $result );
+	}
+
+	/**
+	 * Test handle_verified_errors method with displayable errors
+	 */
+	public function test_handle_verified_errors_with_displayable_errors() {
+		// Add a displayable error
+		$error = array(
+			'error_code'    => 'invalid_token',
+			'user_id'       => '1',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+
+		$verified_errors = array(
+			'invalid_token' => array(
+				'1' => $error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		// Mock the action hooks
+		global $wp_filter;
+		$wp_filter = array();
+
+		$this->error_handler->handle_verified_errors();
+
+		// Check that the hooks were added
+		$this->assertArrayHasKey( 'admin_notices', $wp_filter );
+		$this->assertArrayHasKey( 'react_connection_errors_initial_state', $wp_filter );
+	}
+
+	/**
+	 * Test handle_verified_errors method with no displayable errors
+	 */
+	public function test_handle_verified_errors_with_no_displayable_errors() {
+		// Add a non-displayable error
+		$error = array(
+			'error_code'    => 'unknown_user',
+			'user_id'       => '1',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+
+		$verified_errors = array(
+			'unknown_user' => array(
+				'1' => $error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		// Mock the action hooks
+		global $wp_filter;
+		$wp_filter = array();
+
+		$this->error_handler->handle_verified_errors();
+
+		// Check that no hooks were added
+		$this->assertArrayNotHasKey( 'admin_notices', $wp_filter );
+		$this->assertArrayNotHasKey( 'react_connection_errors_initial_state', $wp_filter );
 	}
 }
