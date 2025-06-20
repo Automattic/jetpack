@@ -107,10 +107,6 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 
 	return (
 		<div className="jetpack-ai-proofread">
-			<p className="jetpack-ai-assistant__help-text">
-				{ __( 'Visualize issues and apply AI suggestions.', 'jetpack' ) }
-			</p>
-
 			<PanelRow>
 				<BaseControl __nextHasNoMarginBottom={ true }>
 					<ToggleControl

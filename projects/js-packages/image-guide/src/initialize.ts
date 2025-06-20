@@ -40,7 +40,7 @@ function onWindowLoad() {
 		const measurableImages = await getMeasurableImages(
 			Array.from(
 				document.querySelectorAll(
-					'body *:not(.jetpack-boost-guide > *):not(.jetpack-boost-guide)'
+					'body *:not(.jetpack-boost-guide > *):not(.jetpack-boost-guide):not(#wpadminbar *)'
 				)
 			),
 			fetchFunction
