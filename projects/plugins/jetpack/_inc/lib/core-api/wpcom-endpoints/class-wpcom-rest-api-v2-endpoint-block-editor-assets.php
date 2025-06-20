@@ -261,13 +261,15 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		sort( $script_urls );
 		sort( $style_urls );
 
+		$allowed_block_types = array_merge(
+			$this->get_core_block_types(),
+			self::ALLOWED_PLUGIN_BLOCKS
+		);
+
 		return rest_ensure_response(
 			array(
-				'allowed_block_types' => array_merge(
-					$this->get_core_block_types(),
-					self::ALLOWED_PLUGIN_BLOCKS
-				),
-				'hash'                => hash( 'sha256', implode( $script_urls ) . implode( $style_urls ) ),
+				'allowed_block_types' => $allowed_block_types,
+				'hash'                => hash( 'sha256', implode( $allowed_block_types ) . implode( $script_urls ) . implode( $style_urls ) ),
 				'styles_html'         => $styles,
 				'scripts_html'        => $scripts,
 				'scripts'             => $script_urls,

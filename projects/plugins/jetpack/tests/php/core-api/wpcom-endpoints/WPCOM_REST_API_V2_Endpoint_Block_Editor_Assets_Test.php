@@ -303,8 +303,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$this->assertEquals( 64, strlen( $data['hash'] ) );
 		$this->assertMatchesRegularExpression( '/^[a-f0-9]{64}$/', $data['hash'] );
 
-		// Verify hash is generated from scripts and styles arrays
-		$expected_hash = hash( 'sha256', implode( $data['scripts'] ) . implode( $data['styles'] ) );
+		// Verify hash is generated from scripts, styles, and allowed_block_types arrays
+		$expected_hash = hash( 'sha256', implode( $data['allowed_block_types'] ) . implode( $data['scripts'] ) . implode( $data['styles'] ) );
 		$this->assertEquals( $expected_hash, $data['hash'] );
 	}
 
