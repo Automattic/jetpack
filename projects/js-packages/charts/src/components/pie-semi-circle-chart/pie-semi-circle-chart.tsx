@@ -78,8 +78,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	legendHorizontalAlign = 'center',
-	legendVerticalAlign = 'bottom',
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
 	legendShape = 'circle',
 	label,
 	note,
@@ -176,15 +176,19 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		>
 			<svg
 				width={ width }
-				height={ height + ( showLegend && legendVerticalAlign === 'top' ? legendHeight + 20 : 0 ) }
+				height={
+					height + ( showLegend && legendAlignmentVertical === 'top' ? legendHeight + 20 : 0 )
+				}
 				viewBox={ `0 0 ${ width } ${
-					height + ( showLegend && legendVerticalAlign === 'top' ? legendHeight + 20 : 0 )
+					height + ( showLegend && legendAlignmentVertical === 'top' ? legendHeight + 20 : 0 )
 				}` }
 				data-testid="pie-chart-svg"
 			>
 				{ /* Main chart group that contains both the pie and text elements */ }
 				<Group
-					top={ radius + ( showLegend && legendVerticalAlign === 'top' ? legendHeight + 20 : 0 ) }
+					top={
+						radius + ( showLegend && legendAlignmentVertical === 'top' ? legendHeight + 20 : 0 )
+					}
 					left={ radius }
 				>
 					{ /* Pie chart */ }
@@ -253,8 +257,8 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					horizontalAlign={ legendHorizontalAlign }
-					verticalAlign={ legendVerticalAlign }
+					alignmentHorizontal={ legendAlignmentHorizontal }
+					alignmentVertical={ legendAlignmentVertical }
 					className={ styles[ 'pie-semi-circle-chart-legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }

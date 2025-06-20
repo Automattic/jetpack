@@ -48,8 +48,8 @@ const BarChart: FC< BarChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	legendHorizontalAlign = 'center',
-	legendVerticalAlign = 'bottom',
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
 	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
@@ -186,7 +186,7 @@ const BarChart: FC< BarChartProps > = ( {
 				margin={ {
 					...defaultMargin,
 					...margin,
-					...( showLegend && legendVerticalAlign === 'top'
+					...( showLegend && legendAlignmentVertical === 'top'
 						? { top: ( defaultMargin.top || 0 ) + legendHeight }
 						: {} ),
 				} }
@@ -246,8 +246,8 @@ const BarChart: FC< BarChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					horizontalAlign={ legendHorizontalAlign }
-					verticalAlign={ legendVerticalAlign }
+					alignmentHorizontal={ legendAlignmentHorizontal }
+					alignmentVertical={ legendAlignmentVertical }
 					className={ styles[ 'bar-chart__legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }

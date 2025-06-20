@@ -177,8 +177,8 @@ const LineChart: FC< LineChartProps > = ( {
 	withTooltipCrosshairs,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	legendHorizontalAlign = 'center',
-	legendVerticalAlign = 'bottom',
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
 	renderGlyph = defaultRenderGlyph,
 	glyphStyle = {},
 	legendShape = 'line',
@@ -294,7 +294,7 @@ const LineChart: FC< LineChartProps > = ( {
 				margin={ {
 					...defaultMargin,
 					...margin,
-					...( showLegend && legendVerticalAlign === 'top'
+					...( showLegend && legendAlignmentVertical === 'top'
 						? { top: ( defaultMargin.top || 0 ) + legendHeight }
 						: {} ),
 				} }
@@ -378,8 +378,8 @@ const LineChart: FC< LineChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					horizontalAlign={ legendHorizontalAlign }
-					verticalAlign={ legendVerticalAlign }
+					alignmentHorizontal={ legendAlignmentHorizontal }
+					alignmentVertical={ legendAlignmentVertical }
 					className={ styles[ 'line-chart-legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }

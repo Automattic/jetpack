@@ -45,7 +45,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			args: {
 				...legendStoryArgs,
 				legendAlign: 'right',
-				legendVerticalAlign: 'top',
+				legendAlignmentVertical: 'top',
 			},
 		},
 
@@ -54,7 +54,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			args: {
 				...legendStoryArgs,
 				legendAlign: 'left',
-				legendVerticalAlign: 'top',
+				legendAlignmentVertical: 'top',
 			},
 		},
 
@@ -63,7 +63,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			args: {
 				...legendStoryArgs,
 				legendAlign: 'center',
-				legendVerticalAlign: 'top',
+				legendAlignmentVertical: 'top',
 			},
 		},
 
@@ -72,7 +72,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			args: {
 				...legendStoryArgs,
 				legendAlign: 'left',
-				legendVerticalAlign: 'bottom',
+				legendAlignmentVertical: 'bottom',
 			},
 		},
 
@@ -81,7 +81,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			args: {
 				...legendStoryArgs,
 				legendAlign: 'right',
-				legendVerticalAlign: 'bottom',
+				legendAlignmentVertical: 'bottom',
 			},
 		},
 
@@ -91,7 +91,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 				...legendStoryArgs,
 				legendOrientation: 'vertical',
 				legendAlign: 'right',
-				legendVerticalAlign: 'top',
+				legendAlignmentVertical: 'top',
 			},
 		},
 	};
@@ -120,7 +120,7 @@ export const legendArgTypes = {
 		control: 'select',
 		options: [ 'left', 'center', 'right' ],
 	},
-	legendVerticalAlign: {
+	legendAlignmentVertical: {
 		control: 'select',
 		options: [ 'top', 'bottom' ],
 	},

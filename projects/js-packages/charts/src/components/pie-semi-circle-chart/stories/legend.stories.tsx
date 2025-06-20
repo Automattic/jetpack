@@ -58,7 +58,7 @@ export const AlignmentPositioning: StoryObj< typeof PieSemiCircleChart > = Templ
 AlignmentPositioning.args = {
 	...legendStoryArgs,
 	legendAlign: 'right',
-	legendVerticalAlign: 'top',
+	legendAlignmentVertical: 'top',
 };
 
 export const VerticalOrientation: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
@@ -66,5 +66,5 @@ VerticalOrientation.args = {
 	...legendStoryArgs,
 	legendOrientation: 'vertical',
 	legendAlign: 'right',
-	legendVerticalAlign: 'top',
+	legendAlignmentVertical: 'top',
 };

@@ -87,8 +87,8 @@ const PieChart = ( {
 	className,
 	showLegend,
 	legendOrientation,
-	legendHorizontalAlign = 'center',
-	legendVerticalAlign = 'bottom',
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
 	legendShape = 'circle',
 	size,
 	thickness = 1,
@@ -122,7 +122,7 @@ const PieChart = ( {
 
 	// Center the chart in the available space, adjusting for legend position
 	const centerX = width / 2;
-	const legendOffset = showLegend && legendVerticalAlign === 'top' ? legendHeight / 2 : 0;
+	const legendOffset = showLegend && legendAlignmentVertical === 'top' ? legendHeight / 2 : 0;
 	const centerY = height / 2 + legendOffset;
 
 	// Calculate the angle between each
@@ -223,8 +223,8 @@ const PieChart = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
-					horizontalAlign={ legendHorizontalAlign }
-					verticalAlign={ legendVerticalAlign }
+					alignmentHorizontal={ legendAlignmentHorizontal }
+					alignmentVertical={ legendAlignmentVertical }
 					className={ styles[ 'pie-chart-legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }

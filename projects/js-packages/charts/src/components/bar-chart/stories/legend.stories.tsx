@@ -35,7 +35,7 @@ export const AlignmentPositioning: StoryObj< typeof BarChart > = Template.bind( 
 AlignmentPositioning.args = {
 	...legendStoryArgs,
 	legendAlign: 'right',
-	legendVerticalAlign: 'top',
+	legendAlignmentVertical: 'top',
 };
 
 export const VerticalOrientation: StoryObj< typeof BarChart > = Template.bind( {} );
@@ -43,7 +43,7 @@ VerticalOrientation.args = {
 	...legendStoryArgs,
 	legendOrientation: 'vertical',
 	legendAlign: 'right',
-	legendVerticalAlign: 'top',
+	legendAlignmentVertical: 'top',
 };
 
 export const HorizontalBars: StoryObj< typeof BarChart > = Template.bind( {} );
@@ -51,5 +51,5 @@ HorizontalBars.args = {
 	...legendStoryArgs,
 	orientation: 'horizontal',
 	legendAlign: 'right',
-	legendVerticalAlign: 'top',
+	legendAlignmentVertical: 'top',
 };
