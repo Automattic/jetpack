@@ -44,7 +44,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	selectedIndex,
 	tooltipRef,
 	keyboardFocusedClassName,
-	series,
+	series = [],
 	mode = 'group',
 	...props
 } ) => {
