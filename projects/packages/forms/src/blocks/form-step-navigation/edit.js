@@ -53,6 +53,8 @@ export const NAVIGATION_TEMPLATE = [
 	SUBMIT_BUTTON_TEMPLATE,
 ];
 
+const ALLOWED_BLOCKS = [ 'jetpack/button' ];
+
 export default function Edit( { clientId } ) {
 	const blockProps = useBlockProps();
 
@@ -118,7 +120,7 @@ export default function Edit( { clientId } ) {
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: NAVIGATION_TEMPLATE,
 		templateLock: 'all',
-		allowedBlocks: [ 'jetpack/button' ],
+		allowedBlocks: ALLOWED_BLOCKS,
 		renderAppender: false,
 	} );
 
