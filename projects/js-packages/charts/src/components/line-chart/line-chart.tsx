@@ -32,6 +32,11 @@ const defaultRenderGlyph = < Datum extends object >(
 	return <DefaultGlyph { ...props } key={ props.key } />;
 };
 
+const toNumber = ( val?: number | string | null ): number | undefined => {
+	const num = typeof val === 'number' ? val : parseFloat( val );
+	return isNaN( num ) ? undefined : num;
+};
+
 const StartGlyph: FC< {
 	data: SeriesData;
 	index: number;
@@ -55,7 +60,7 @@ const StartGlyph: FC< {
 
 	if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
 
-	const size = Number( glyphStyle?.radius ) || 4;
+	const size = Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 );
 
 	return renderGlyph( {
 		key: `start-glyph-${ data.label }`,
@@ -265,7 +270,7 @@ const LineChart: FC< LineChartProps > = ( {
 		color: group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
 		shapeStyle: group?.options?.legendShapeStyle,
 		renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
-		glyphSize: Number( glyphStyle?.radius ),
+		glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
 	} ) );
 
 	const accessors = {

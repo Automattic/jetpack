@@ -121,32 +121,6 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_my_home_menu
-	 */
-	public function test_add_my_home_menu() {
-		global $menu, $submenu;
-
-		static::$admin_menu->add_my_home_menu();
-
-		// Has My Home submenu item when there are other submenu items.
-		$this->assertSame( 'https://wordpress.com/home/' . static::$domain, array_shift( $submenu['index.php'] )[2] );
-
-		// Reset data.
-		$menu    = static::$menu_data;
-		$submenu = static::$submenu_data;
-
-		// Has no ny Home submenu when there are no other submenus.
-		$submenu['index.php'] = array(
-			0 => array( 'Home', 'read', 'index.php' ),
-		);
-
-		static::$admin_menu->add_my_home_menu();
-		$this->assertSame( 'https://wordpress.com/home/' . static::$domain, $menu[2][2] );
-		'@phan-var non-empty-array $submenu';
-		$this->assertSame( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['index.php'][0][4] );
-	}
-
-	/**
 	 * Tests add_stats_menu
 	 */
 	public function test_add_stats_menu() {

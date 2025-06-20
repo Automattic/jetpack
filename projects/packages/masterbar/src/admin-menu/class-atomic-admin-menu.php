@@ -70,7 +70,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		parent::reregister_menu_items();
 
-		$this->add_my_home_menu();
 		$this->remove_gutenberg_menu();
 
 		// Not needed outside of wp-admin.

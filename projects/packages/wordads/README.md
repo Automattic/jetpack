@@ -1,4 +1,6 @@
-# WordAds
+> [!WARNING]
+> The package is deprecated. Do not use it!
+# [Deprecated] WordAds
 
 Earn income by allowing Jetpack to display high quality ads.
 
