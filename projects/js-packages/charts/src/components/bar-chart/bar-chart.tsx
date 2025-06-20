@@ -1,12 +1,13 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
-import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
+import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback, useId } from 'react';
+import { useCallback, useId, useState, useRef } from 'react';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './use-bar-chart-options';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../../types';
@@ -62,6 +63,19 @@ const BarChart: FC< BarChartProps > = ( {
 	const chartOptions = useBarChartOptions( data, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+	const chartRef = useRef< HTMLDivElement >( null );
+	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
+	const [ isNavigating, setIsNavigating ] = useState( false );
+
+	// Use the keyboard navigation hook
+	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
+		selectedIndex,
+		setSelectedIndex,
+		isNavigating,
+		setIsNavigating,
+		chartRef,
+		totalPoints: data[ 0 ]?.data?.length * data.length,
+	} );
 
 	const getColor = useCallback(
 		( seriesData: SeriesData, index: number ) =>
@@ -169,12 +183,17 @@ const BarChart: FC< BarChartProps > = ( {
 		<div
 			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
 			data-testid="bar-chart"
-			role="img"
+			role="grid"
 			aria-label="bar chart"
 			style={ {
 				width,
 				height,
 			} }
+			tabIndex={ 0 }
+			onKeyDown={ onChartKeyDown }
+			onFocus={ onChartFocus }
+			onBlur={ onChartBlur }
+			ref={ chartRef }
 		>
 			<XYChart
 				theme={ theme }
@@ -224,11 +243,17 @@ const BarChart: FC< BarChartProps > = ( {
 				<Axis { ...chartOptions.axis.y } />
 
 				{ withTooltips && (
-					<Tooltip
+					<AccessibleTooltip
 						detectBounds
 						snapTooltipToDatumX
 						snapTooltipToDatumY
 						renderTooltip={ renderTooltip || renderDefaultTooltip }
+						selectedIndex={ selectedIndex }
+						tooltipRef={ tooltipRef }
+						testId="bar-chart-tooltip"
+						keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
+						series={ data }
+						mode="individual"
 					/>
 				) }
 			</XYChart>
