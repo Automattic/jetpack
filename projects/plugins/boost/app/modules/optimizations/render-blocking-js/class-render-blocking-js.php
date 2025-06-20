@@ -298,7 +298,7 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 		if ( str_contains( $buffer, '</body>' ) ) {
 			$buffer = str_replace( '</body>', $script_tags . '</body>', $buffer );
 		} else {
-			$buffer = $buffer . $script_tags;
+			$buffer .= $script_tags;
 		}
 
 		return $buffer;
