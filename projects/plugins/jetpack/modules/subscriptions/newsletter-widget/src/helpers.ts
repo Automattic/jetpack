@@ -45,9 +45,10 @@ export const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true 
 /**
  * Generates the URL for subscriber statistics based on site context.
  *
- * @param {string}  site        - The site identifier
- * @param {boolean} isWpcomSite - Whether the site is on WordPress.com
- * @param {string}  adminUrl    - The admin URL for self-hosted sites
+ * @param {string}  site                - The site identifier
+ * @param {boolean} isWpcomSite         - Whether the site is on WordPress.com
+ * @param {string}  adminUrl            - The admin URL for self-hosted sites
+ * @param {boolean} isStatsModuleActive - Whether or not the Stats module is enabled
  * @returns {string} The appropriate subscriber stats URL
  */
 export const getSubscriberStatsUrl = (
