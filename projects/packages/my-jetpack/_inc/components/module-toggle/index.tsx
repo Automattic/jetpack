@@ -4,6 +4,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { MyJetpackModule } from '../types';
+import styles from './styles.module.scss';
 
 export type ModuleToggleProps = {
 	module: MyJetpackModule;
@@ -39,6 +40,7 @@ export function ModuleToggle( { module: $module }: ModuleToggleProps ) {
 			disabled={ isUpdating }
 			checked={ $module.activated }
 			onChange={ onChange }
+			className={ styles.toggle }
 			aria-label={ sprintf(
 				/* translators: %s is the module name */
 				__( 'Toggle %s module', 'jetpack-my-jetpack' ),
