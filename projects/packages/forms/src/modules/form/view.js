@@ -272,7 +272,7 @@ const { state } = store( NAMESPACE, {
 		} ),
 
 		onKeyDownTextarea: withSyncEvent( event => {
-			if ( ! ( event.key === 'Enter' && ! event.shiftKey ) ) {
+			if ( ! ( event.key === 'Enter' && event.shiftKey ) ) {
 				return;
 			}
 			// Prevent the default behavior of adding a new line.

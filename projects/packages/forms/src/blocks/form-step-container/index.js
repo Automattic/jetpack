@@ -32,6 +32,13 @@ export const settings = {
 		dimensions: {
 			minHeight: true,
 		},
+		shadow: true,
+		__experimentalBorder: {
+			color: true,
+			radius: true,
+			style: true,
+			width: true,
+		},
 	},
 	attributes: {
 		align: {
