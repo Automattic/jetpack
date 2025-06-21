@@ -19,19 +19,6 @@
 	width: 100%;
 }
 
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation:has(.wp-block-jetpack-button[style*="width:"]) {
-	gap:var(--wp--style--block-gap, 1.5rem) 0;
-}
-
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .wp-block-button__link {
-	width: calc( 100% - var(--wp--style--block-gap, 1.5rem) / 2 );
-}
-
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-next,
-.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-submit {
-	float: right;
-}
-
 // Support align feature for older themes
 .wp-block[data-align]:has(> .wp-block-jetpack-button) {
 	margin-left: 0;
