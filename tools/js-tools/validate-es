@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
 DIR="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
+export NODE_OPTIONS="$NODE_OPTIONS --disable-warning=ESLintIgnoreWarning"
 exec pnpm eslint --no-inline-config --config "$DIR"/validate-es.config.mjs --no-ignore "$@"

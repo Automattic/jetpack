@@ -785,10 +785,6 @@ class Jetpack {
 
 		$config->ensure( 'search' );
 
-		if ( defined( 'ENABLE_WORDADS_SHARED_UI' ) && ENABLE_WORDADS_SHARED_UI ) {
-			$config->ensure( 'wordads' );
-		}
-
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
 		}

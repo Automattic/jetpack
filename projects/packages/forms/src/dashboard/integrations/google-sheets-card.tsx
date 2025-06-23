@@ -13,14 +13,14 @@ import GoogleSheetsIcon from '../../icons/google-sheets';
 /**
  * Types
  */
-import type { IntegrationCardProps, IntegrationCardData } from '../../types';
+import type { SingleIntegrationCardProps, IntegrationCardData } from '../../types';
 
 const GoogleSheetsDashboardCard = ( {
 	isExpanded,
 	onToggle,
 	data,
 	refreshStatus,
-}: IntegrationCardProps ) => {
+}: SingleIntegrationCardProps ) => {
 	const isConnected = !! data?.isConnected;
 	const settingsUrl = data?.settingsUrl;
 	const navigate = useNavigate();
@@ -48,7 +48,6 @@ const GoogleSheetsDashboardCard = ( {
 		<IntegrationCard
 			title={ __( 'Google Sheets', 'jetpack-forms' ) }
 			description={ __( 'Export form responses to Google Sheets.', 'jetpack-forms' ) }
-			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <GoogleSheetsIcon className="google-sheets-icon" /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

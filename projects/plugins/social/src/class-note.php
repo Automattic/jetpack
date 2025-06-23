@@ -49,6 +49,19 @@ class Note {
 		self::register_cpt();
 		add_action( 'wp_insert_post_data', array( $this, 'set_empty_title' ), 10, 2 );
 		add_action( 'admin_init', array( $this, 'admin_init_actions' ) );
+
+		if (
+			/**
+			 * Filters whether to override the empty title for Social Notes on the frontend.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $override_empty_title Whether to override the empty title for Social Notes on the frontend.
+			 */
+			apply_filters( 'jetpack_social_notes_override_empty_title', false )
+		) {
+			add_filter( 'the_title', array( $this, 'override_empty_title' ), 10, 2 );
+		}
 	}
 
 	/**
@@ -200,11 +213,44 @@ class Note {
 	 * @param array $post_id The Post ID.
 	 */
 	public function override_empty_title( $title, $post_id ) {
-		if ( get_post_type( $post_id ) === self::JETPACK_SOCIAL_NOTE_CPT ) {
-			return wp_trim_words( get_the_excerpt(), 10 );
+		$post = get_post( $post_id );
+
+		if (
+			$post instanceof \WP_Post &&
+			self::JETPACK_SOCIAL_NOTE_CPT === $post->post_type
+		) {
+			$publishing_date = new \DateTimeImmutable(
+				$post->post_date,
+				wp_timezone()
+			);
+
+			$datetime_format = sprintf(
+				/* Translators: %1$s is a formatted date, e.g. June 18, 2025. %2$s is a formatted time, e.g. 8:24 am. All other words/letters need to be escaped. */
+				__( '%1$s \a\t %2$s', 'jetpack-social' ),
+				get_option( 'date_format' ),
+				get_option( 'time_format' )
+			);
+
+			$title = sprintf(
+				/* Translators: placeholder is a fully-formatted date. */
+				__( 'Social note, %1$s', 'jetpack-social' ),
+				wp_date(
+					$datetime_format,
+					$publishing_date->getTimestamp()
+				)
+			);
+
+			/**
+			 * Filters the default title for a Social Note.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param string $title The default title.
+			 * @param \WP_Post $post The post.
+			 */
+			$title = apply_filters( 'jetpack_social_notes_default_title', $title, $post );
 		}
 
-		// Return the original title for other cases.
 		return $title;
 	}
 }
