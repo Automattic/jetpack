@@ -38,9 +38,10 @@ describe( 'actions', () => {
 	} );
 
 	it( 'setCurrentQuery', () => {
-		const args = { page: 1, search: 'r' };
+		const args = { page: 1, search: 'r', status: 'spam' };
 		registry.dispatch( store ).setCurrentQuery( args );
 
 		expect( registry.select( store ).getCurrentQuery() ).toMatchObject( args );
+		expect( registry.select( store ).getCurrentStatus() ).toEqual( args.status );
 	} );
 } );
