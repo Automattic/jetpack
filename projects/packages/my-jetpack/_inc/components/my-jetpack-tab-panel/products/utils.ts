@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { ProductCategory, ProductSection } from './types';
+import { ProductFilter, ProductSection } from './types';
 
 /**
  * Get the choices for the products filter.
@@ -9,7 +9,7 @@ import { ProductCategory, ProductSection } from './types';
 export function getProductsFilterChoices() {
 	const choices: Array< {
 		label: string;
-		value: ProductCategory | 'all' | 'included';
+		value: ProductFilter;
 	} > = [
 		{
 			label: __( 'All categories', 'jetpack-my-jetpack' ),

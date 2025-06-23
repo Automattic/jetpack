@@ -8,6 +8,8 @@ import {
 
 export type ProductCategory = 'recommended' | 'security' | 'growth' | 'performance' | 'other';
 
+export type ProductFilter = ProductCategory | 'all' | 'included';
+
 export type JetpackProductWithCard = ( typeof JETPACK_PRODUCTS_WITH_CARD )[ number ];
 
 export type JetpackProductWithoutCard = ( typeof JETPACK_PRODUCTS_WITHOUT_CARD )[ number ];
