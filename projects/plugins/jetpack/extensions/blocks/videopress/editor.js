@@ -2,9 +2,8 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
-	isAtomicSite,
-	isSimpleSite,
 	getJetpackExtensionAvailability,
 	withHasWarningIsInteractiveClassNames,
 } from '@automattic/jetpack-shared-extension-utils';
@@ -178,8 +177,7 @@ const addVideoPressSupport = ( settings, name ) => {
 	const { deprecated, edit, save, supports, transforms } = settings;
 	const { available, unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
 	const isNotAvailable =
-		( isSimpleSite() || isAtomicSite() ) &&
-		[ 'missing_plan', 'unknown' ].includes( unavailableReason );
+		isWpcomPlatformSite() && [ 'missing_plan', 'unknown' ].includes( unavailableReason );
 
 	const resumableUploadEnabled = !! window.videoPressResumableEnabled;
 

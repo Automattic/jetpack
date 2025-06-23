@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Speed Scores: ensure the correct home page is checked when sites are using WP in a subfolder.

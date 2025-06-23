@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { isSimpleSite, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InspectorAdvancedControls,
 	InspectorControls,

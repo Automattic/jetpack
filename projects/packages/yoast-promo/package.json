@@ -24,6 +24,7 @@
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@wordpress/components": "29.11.0",
 		"@wordpress/data": "10.25.0",
 		"@wordpress/edit-post": "8.25.0",
