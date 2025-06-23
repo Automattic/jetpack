@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { MyJetpackModule } from '../../types';
 import { ProductFilter, ProductSection } from './types';
 
 /**
@@ -94,4 +95,20 @@ export function filterSections(
 		.filter( section => {
 			return section.cards?.length || section.modules?.length;
 		} );
+}
+
+/**
+ * Filter and sort modules based on their name.
+ *
+ * @param {Array<MyJetpackModule>} modules - The modules to filter and sort.
+ * @return The filtered and sorted modules.
+ */
+export function filterAndSortModules(
+	modules: Array< MyJetpackModule >
+): Array< MyJetpackModule > {
+	const $modules = [ ...modules ].filter( Boolean );
+
+	$modules.sort( ( a, b ) => a.name.localeCompare( b.name ) );
+
+	return $modules;
 }

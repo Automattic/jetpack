@@ -2,7 +2,7 @@ import useProducts from '../../../data/products/use-products';
 import { CATEGORY_CARDS_AND_MODULES, PRODUCT_MODULES } from './mappings';
 import { JetpackProductWithCard, ProductSection } from './types';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
-import { filterSections, getSectionTitle } from './utils';
+import { filterAndSortModules, filterSections, getSectionTitle } from './utils';
 
 export type UseFilteredProductsOptions = {
 	selectedFilter: string | undefined;
@@ -68,7 +68,7 @@ export function useFilteredProducts( {
 					};
 				} )
 				.filter( Boolean ),
-			modules: modules.map( slug => allModules[ slug ] ).filter( Boolean ),
+			modules: filterAndSortModules( modules.map( slug => allModules[ slug ] ) ),
 		} ) ),
 		{ search }
 	);

@@ -6,7 +6,7 @@ import useSimpleQuery from '../../../data/use-simple-query';
 import { JETPACK_NON_PAID_MODULES, JETPACK_PRODUCTS_WITH_CARD } from './constants';
 import { JetpackProductWithCard, ProductSection } from './types';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
-import { filterSections } from './utils';
+import { filterAndSortModules, filterSections } from './utils';
 
 export type UseFilteredPlansOptions = {
 	search: string | undefined;
@@ -57,7 +57,7 @@ export function useFilteredPlans( { search }: UseFilteredPlansOptions ): {
 	list.push( {
 		id: 'free',
 		title: __( 'Free', 'jetpack-my-jetpack' ),
-		modules: JETPACK_NON_PAID_MODULES.map( slug => allModules[ slug ] ).filter( Boolean ),
+		modules: filterAndSortModules( JETPACK_NON_PAID_MODULES.map( slug => allModules[ slug ] ) ),
 	} );
 
 	return {
