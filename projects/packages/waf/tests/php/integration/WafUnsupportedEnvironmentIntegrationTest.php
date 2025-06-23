@@ -102,7 +102,6 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	 * Test WAF init in a VIP environment.
 	 */
 	public function testWafInitVipEnvironment() {
-		// Mock the Host class to return true for is_vip_site()
 		$host_mock = $this->getMockBuilder( \Automattic\Jetpack\Status\Host::class )
 		->disableOriginalConstructor()
 		->onlyMethods( array( 'is_vip_site' ) )
@@ -110,9 +109,6 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 
 		$host_mock->method( 'is_vip_site' )
 		->willReturn( true );
-
-		// Inject the mock into the WAF runner or wherever it's used
-		// You might need to use dependency injection or a filter to replace the Host instance
 
 		$available_modules = ( new Modules() )->get_available();
 
