@@ -103,13 +103,11 @@ export const PRODUCT_ICONS: {
 };
 
 /**
- * Maps Jetpack products with cards to their corresponding modules
+ * Maps Jetpack products with cards that have different slugs to their corresponding modules
  */
 export const PRODUCT_MODULES: {
 	[ Key in JetpackProductWithCard ]?: JetpackModuleSlug;
 } = {
-	// TODO Verify these mappings
 	backup: 'vaultpress',
-	scan: 'protect',
 	social: 'publicize',
 };
