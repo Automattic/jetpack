@@ -666,6 +666,13 @@ class Contact_Form_Plugin {
 			$version
 		);
 
+		// Enqueue the frontend style for the step navigation.
+		$style_handle = 'jetpack-form-step-navigation-style';
+		$style_path   = '../../dist/blocks/form-step-navigation/style.css';
+		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
+			wp_enqueue_style( $style_handle, plugins_url( $style_path, __FILE__ ), array(), $version );
+		}
+
 		$button_blocks_html = do_blocks( $content );
 
 		$processor = new \WP_HTML_Tag_Processor( $button_blocks_html );
