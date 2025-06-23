@@ -638,7 +638,7 @@ class Initializer {
 	}
 
 	/**
-	 * Returns true if the site has file write access to the plugins folder, false otherwise.
+	 * Returns "yes" if the site has file write access to the plugins folder, "no" otherwise.
 	 *
 	 * @return string
 	 **/
