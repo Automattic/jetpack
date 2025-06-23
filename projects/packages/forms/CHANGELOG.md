@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-06-23
+### Added
+- File Uploads block: Add Tracks event to upsell nudge. [#43860]
+- Introduce multi-step forms. [#43918]
+
+### Changed
+- Allow super admins see form submissions. [#43998]
+- Convert various cards and components to TypeScript. [#43986] [#43992] [#43993]
+- Hide legacy Feedback menu on new sites. [#44060]
+- Scripts: Change imports for hosting checks. [#43972]
+- Update type handling for integrations. [#43969]
+- Update package dependencies. [#44020] [#44040]
+
+### Fixed
+- Fix HTML support to labels in animated style. [#43966]
+- Fix the overlay z-index for date picker. [#43967]
+- Make outline style notched labels more selectable. [#43956]
+
 ## [1.3.0] - 2025-06-16
 ### Added
 - Add a preview link to the response view for files. [#43730]
@@ -1217,6 +1235,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[2.0.0]: https://github.com/automattic/jetpack-forms/compare/v1.3.0...v2.0.0
 [1.3.0]: https://github.com/automattic/jetpack-forms/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/automattic/jetpack-forms/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/automattic/jetpack-forms/compare/v1.0.0...v1.1.0

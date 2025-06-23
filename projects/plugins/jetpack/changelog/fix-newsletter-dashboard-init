@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Update Jetpack_Newsletter_Dashboard_Widget to not be added with an anonymous function

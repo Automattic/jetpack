@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Security: Fixed issue where array-type url parameters could cause errors in carousel comment submissions

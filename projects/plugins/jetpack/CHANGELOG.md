@@ -2,6 +2,37 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.8-a.7 - 2025-06-23
+### Major Enhancements
+- Add archives endpoint support. [#44028]
+
+### Enhancements
+- Sharing: Add ability to count sharing events on sharing buttons blocks. [#44039]
+- Write Brief: Enhance local custom dictionary with more known terms. [#44017]
+- Write Brief: Enhance typo detection dictionary. [#44034]
+
+### Improved compatibility
+- Tiled Gallery: Ensure accessibility properties are added only when needed, as well as preventing block validation errors. [#43345]
+
+### Bug fixes
+- Prevent non-string currentday parameters from causing errors in infinite scroll AJAX requests. [#44008]
+- Flickr shortcode: Prevent errors in logs when requested data does not exist. [#43927]
+- Forms: Hide legacy Feedback menu from newly-connected sites. [#44060]
+- Newsletter: Ensure subscriber stats links are correct in the dashboard widget, even when you do not use Stats feature. [#44037]
+- Security: Prevent errors with array-type parameters in carousel comment submissions. [#43991] [#44015]
+- Social Previews: Prevent text overflow issues with Mastodon. [#44019]
+- Update `Jetpack_Newsletter_Dashboard_Widget` to not be added with an anonymous function. [#43973]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Change sidebar title and remove helper text. [#44035]
+- Fix Chrome ai experiment async call. [#44026]
+- Fix Chrome experiment assignment group. [#44018]
+- Invert flag check on Chrome experiment. [#44011]
+- Move Chrome Gemini tests flag to production. [#44006]
+- Scripts: Change imports for hosting checks. [#43972]
+- Update package dependencies. [#44020] [#44040]
+- WordAds: Support Gutenberg Ad block for Aditude. [#43476]
+
 ## 14.8-a.5 - 2025-06-16
 ### Enhancements
 - AI Assistant: Add support for file upload field on Forms extension. [#43916]
