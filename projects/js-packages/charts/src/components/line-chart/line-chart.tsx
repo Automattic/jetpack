@@ -383,16 +383,20 @@ const LineChart: FC< LineChartProps > = ( {
 				) }
 
 				{ annotations?.length &&
-					annotations.map( ( { datum, title, subtitle, subjectType, styles: datumStyles } ) => (
-						<LineChartAnnotation
-							key={ `annotation-${ datum.date.getTime() }` }
-							datum={ datum }
-							title={ title }
-							subtitle={ subtitle }
-							subjectType={ subjectType }
-							styles={ datumStyles }
-						/>
-					) ) }
+					annotations.map(
+						( { datum, title, subtitle, subjectType, styles: datumStyles }, index ) =>
+							datum ? (
+								<LineChartAnnotation
+									key={ `annotation-${ datum.date?.getTime() }-${ datum.value }` }
+									data-testid={ `annotation-${ index }` }
+									datum={ datum }
+									title={ title }
+									subtitle={ subtitle }
+									subjectType={ subjectType }
+									styles={ datumStyles }
+								/>
+							) : null
+					) }
 			</XYChart>
 
 			{ showLegend && (

@@ -26,9 +26,10 @@ const ANNOTATION_INIT_HEIGHT = 100;
 export type LineChartAnnotationProps = {
 	datum: DataPointDate;
 	title: string;
-	subtitle: string;
+	subtitle?: string;
 	subjectType?: SubjectType;
 	styles?: AnnotationStyles;
+	'data-testid'?: string;
 };
 
 const getLabelPosition = ( {
@@ -139,6 +140,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	subtitle,
 	subjectType = 'circle',
 	styles: datumStyles,
+	'data-testid': testId,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { xScale, yScale } = useContext( DataContext ) || {};
@@ -157,7 +159,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	}, [] );
 
 	const positionData = useMemo( () => {
-		if ( ! datum.date || ! datum.value || ! xScale || ! yScale ) return null;
+		if ( ! datum || ! datum.date || ! datum.value || ! xScale || ! yScale ) return null;
 
 		const x = xScale( datum.date );
 		const y = yScale( datum.value );
@@ -187,33 +189,35 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 		positionData;
 
 	return (
-		<Annotation x={ x } y={ y } dx={ dx } dy={ dy }>
-			<Connector { ...styles?.connector } />
-			{ subjectType === 'circle' && <CircleSubject { ...styles?.circleSubject } /> }
-			{ subjectType === 'line-vertical' && (
-				<LineSubject
-					min={ yMax }
-					max={ yMin }
-					{ ...{ ...styles?.lineSubject, orientation: 'vertical' } }
-				/>
-			) }
-			{ subjectType === 'line-horizontal' && (
-				<LineSubject
-					min={ xMin }
-					max={ xMax }
-					{ ...{ ...styles?.lineSubject, orientation: 'horizontal' } }
-				/>
-			) }
-			<g ref={ labelRef }>
-				<Label
-					title={ title }
-					subtitle={ subtitle }
-					{ ...styles?.label }
-					horizontalAnchor={ getHorizontalAnchor( subjectType, isFlippedHorizontally ) }
-					verticalAnchor={ getVerticalAnchor( subjectType, isFlippedVertically, y, yMax ) }
-				/>
-			</g>
-		</Annotation>
+		<g data-testid={ testId }>
+			<Annotation x={ x } y={ y } dx={ dx } dy={ dy }>
+				<Connector { ...styles?.connector } />
+				{ subjectType === 'circle' && <CircleSubject { ...styles?.circleSubject } /> }
+				{ subjectType === 'line-vertical' && (
+					<LineSubject
+						min={ yMax }
+						max={ yMin }
+						{ ...{ ...styles?.lineSubject, orientation: 'vertical' } }
+					/>
+				) }
+				{ subjectType === 'line-horizontal' && (
+					<LineSubject
+						min={ xMin }
+						max={ xMax }
+						{ ...{ ...styles?.lineSubject, orientation: 'horizontal' } }
+					/>
+				) }
+				<g ref={ labelRef }>
+					<Label
+						title={ title }
+						subtitle={ subtitle }
+						{ ...styles?.label }
+						horizontalAnchor={ getHorizontalAnchor( subjectType, isFlippedHorizontally ) }
+						verticalAnchor={ getVerticalAnchor( subjectType, isFlippedVertically, y, yMax ) }
+					/>
+				</g>
+			</Annotation>
+		</g>
 	);
 };
 
