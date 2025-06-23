@@ -77,6 +77,16 @@ class Jetpack_Forms {
 	 * @return boolean
 	 */
 	public static function is_legacy_menu_item_retired() {
-		return apply_filters( 'jetpack_forms_retire_legacy_menu_item', false );
+
+		$default                      = false; // don't retire the legacy menu item by default
+		$largest_legacy_connection_id = 245807300; // the connection ID after which the legacy menu item is retired
+
+		$connection_id = defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
+
+		if ( $connection_id > $largest_legacy_connection_id ) {
+			$default = true;
+		}
+
+		return apply_filters( 'jetpack_forms_retire_legacy_menu_item', $default );
 	}
 }
