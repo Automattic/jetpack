@@ -1497,7 +1497,7 @@ function wpsc_update_direct_pages() {
 	$out = '';
 	if ( $valid_nonce && array_key_exists('direct_pages', $_POST) && is_array( $_POST[ 'direct_pages' ] ) && !empty( $_POST[ 'direct_pages' ] ) ) {
 		$expiredfiles = array_diff( $cached_direct_pages, $_POST[ 'direct_pages' ] );
-		unset( $cached_direct_pages );
+		$cached_direct_pages = array();
 		foreach( $_POST[ 'direct_pages' ] as $page ) {
 			$page = str_replace( '..', '', preg_replace( '/[ <>\'\"\r\n\t\(\)\$\[\];#]/', '', $page ) );
 			if ( $page != '' ) {
@@ -1505,9 +1505,6 @@ function wpsc_update_direct_pages() {
 				$out .= "'$page', ";
 			}
 		}
-		// @phan-suppress-next-line PhanRedundantCondition -- $cached_direct_pages can be false if unset and the above loop never runs
-		if ( false == isset( $cached_direct_pages ) )
-			$cached_direct_pages = array();
 	}
 	if ( $valid_nonce && array_key_exists('new_direct_page', $_POST) && $_POST[ 'new_direct_page' ] && '' != $_POST[ 'new_direct_page' ] ) {
 		$page = str_replace( get_option( 'siteurl' ), '', $_POST[ 'new_direct_page' ] );
