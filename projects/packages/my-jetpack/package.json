@@ -25,6 +25,7 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",

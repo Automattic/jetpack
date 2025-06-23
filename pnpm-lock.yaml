@@ -2904,6 +2904,9 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@automattic/charts':
+        specifier: workspace:*
+        version: link:../../js-packages/charts
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
