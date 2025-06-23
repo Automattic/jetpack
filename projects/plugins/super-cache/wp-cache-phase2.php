@@ -2450,7 +2450,7 @@ function wp_cache_get_ob( &$buffer ) {
 			wp_cache_debug( 'Writing dynamic buffer to wpcache file.' );
 			wp_cache_add_to_buffer( $buffer, 'Dynamic WPCache Super Cache' );
 			fwrite( $fr, '<?php die(); ?>' . $buffer );
-		} else { // supercache active
+		} elseif ( $fr2 ) { // supercache active
 			wp_cache_debug( 'Writing dynamic buffer to supercache file.' );
 			wp_cache_add_to_buffer( $buffer, 'Dynamic Super Cache' );
 			fwrite( $fr2, $buffer );
