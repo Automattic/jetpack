@@ -5,7 +5,7 @@ import { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
 import { TextProps } from '@visx/text';
 import { DataContext } from '@visx/xychart';
 import { merge } from 'lodash';
-import { useContext } from 'react';
+import { useContext, useRef, useEffect, useState, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import type { DataPointDate } from '../../types';
 import type { LabelProps } from '@visx/annotation/lib/components/label';
@@ -21,7 +21,7 @@ export type AnnotationStyles = {
 type SubjectType = 'circle' | 'line-vertical' | 'line-horizontal';
 
 const ANNOTATION_MAX_WIDTH = 125; // visx default
-const ANNOTATION_MAX_HEIGHT = 100;
+const ANNOTATION_INIT_HEIGHT = 100;
 
 export type LineChartAnnotationProps = {
 	datum: DataPointDate;
@@ -39,6 +39,7 @@ const getLabelPosition = ( {
 	yMin,
 	yMax,
 	maxWidth,
+	height,
 }: {
 	subjectType: SubjectType;
 	x: number;
@@ -47,6 +48,7 @@ const getLabelPosition = ( {
 	yMin: number;
 	yMax: number;
 	maxWidth?: number;
+	height?: number | null;
 } ): {
 	dx: number;
 	dy: number;
@@ -54,7 +56,7 @@ const getLabelPosition = ( {
 	isFlippedVertically: boolean;
 } => {
 	const annotationMaxWidth = maxWidth ?? ANNOTATION_MAX_WIDTH;
-	const annotationMaxHeight = ANNOTATION_MAX_HEIGHT;
+	const annotationHeight = height ?? ANNOTATION_INIT_HEIGHT;
 	let dx = 15;
 	let dy = 15;
 	let isFlippedHorizontally = false;
@@ -81,7 +83,7 @@ const getLabelPosition = ( {
 	}
 
 	// Smart vertical positioning: check both top and bottom edges
-	if ( y - annotationMaxHeight < yMax ) {
+	if ( y - annotationHeight < yMax ) {
 		// Too close to top edge, position below
 		if ( subjectType === 'circle' || subjectType === 'line-horizontal' ) {
 			isFlippedVertically = true;
@@ -89,7 +91,7 @@ const getLabelPosition = ( {
 		} else if ( subjectType === 'line-vertical' ) {
 			isFlippedVertically = true; // For anchor adjustment only
 		}
-	} else if ( y + annotationMaxHeight > yMin ) {
+	} else if ( y + annotationHeight > yMin ) {
 		// Too close to bottom edge, position above
 		if ( subjectType === 'circle' || subjectType === 'line-horizontal' ) {
 			isFlippedVertically = true;
@@ -102,6 +104,35 @@ const getLabelPosition = ( {
 	return { dx, dy, isFlippedHorizontally, isFlippedVertically };
 };
 
+const getHorizontalAnchor = (
+	subjectType: SubjectType,
+	isFlippedHorizontally: boolean
+): LabelProps[ 'horizontalAnchor' ] => {
+	if ( subjectType === 'line-horizontal' ) {
+		return isFlippedHorizontally ? 'end' : 'start';
+	}
+
+	return undefined;
+};
+
+const getVerticalAnchor = (
+	subjectType: SubjectType,
+	isFlippedVertically: boolean,
+	y: number,
+	yMax: number
+): TextProps[ 'verticalAnchor' ] => {
+	if ( subjectType === 'line-vertical' ) {
+		if ( isFlippedVertically ) {
+			// If flipped due to top edge, anchor to top; if flipped due to bottom edge, anchor to bottom
+			return y - ANNOTATION_INIT_HEIGHT < yMax ? 'start' : 'end';
+		}
+
+		return 'middle';
+	}
+
+	return undefined;
+};
+
 const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	datum,
 	title,
@@ -111,50 +142,49 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 } ) => {
 	const providerTheme = useChartTheme();
 	const { xScale, yScale } = useContext( DataContext ) || {};
-
-	if ( ! datum || ! xScale || ! yScale ) return null;
-
-	const x = xScale( datum.date );
-	const y = yScale( datum.value );
-
-	if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
-
-	const [ yMin, yMax ] = yScale.range().map( Number );
-	const [ xMin, xMax ] = xScale.range().map( Number );
+	const labelRef = useRef< SVGGElement >( null );
+	const [ height, setHeight ] = useState< number | null >( null );
 
 	// Deep merge styles to preserve nested object properties
 	const styles = merge( {}, providerTheme.annotationStyles, datumStyles );
 
-	const { dx, dy, isFlippedHorizontally, isFlippedVertically } = getLabelPosition( {
-		subjectType,
-		x,
-		xMax,
-		y,
-		yMin,
-		yMax,
-		maxWidth: styles?.label?.maxWidth,
-	} );
-
-	const getHorizontalAnchor = (): LabelProps[ 'horizontalAnchor' ] => {
-		if ( subjectType === 'line-horizontal' ) {
-			return isFlippedHorizontally ? 'end' : 'start';
+	// Measure the label height once after initial render
+	useEffect( () => {
+		if ( labelRef.current ) {
+			const bbox = labelRef.current.getBBox();
+			setHeight( bbox.height );
 		}
+	}, [] );
 
-		return undefined;
-	};
+	const positionData = useMemo( () => {
+		if ( ! datum.date || ! datum.value || ! xScale || ! yScale ) return null;
 
-	const getVerticalAnchor = (): TextProps[ 'verticalAnchor' ] => {
-		if ( subjectType === 'line-vertical' ) {
-			if ( isFlippedVertically ) {
-				// If flipped due to top edge, anchor to top; if flipped due to bottom edge, anchor to bottom
-				return y - ANNOTATION_MAX_HEIGHT < yMax ? 'start' : 'end';
-			}
+		const x = xScale( datum.date );
+		const y = yScale( datum.value );
 
-			return 'middle';
-		}
+		if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
 
-		return undefined;
-	};
+		const [ yMin, yMax ] = yScale.range().map( Number );
+		const [ xMin, xMax ] = xScale.range().map( Number );
+
+		const position = getLabelPosition( {
+			subjectType,
+			x,
+			xMax,
+			y,
+			yMin,
+			yMax,
+			maxWidth: styles?.label?.maxWidth,
+			height,
+		} );
+
+		return { x, y, yMin, yMax, xMin, xMax, ...position };
+	}, [ datum, xScale, yScale, subjectType, styles?.label?.maxWidth, height ] );
+
+	if ( ! positionData ) return null;
+
+	const { x, y, yMin, yMax, xMin, xMax, dx, dy, isFlippedHorizontally, isFlippedVertically } =
+		positionData;
 
 	return (
 		<Annotation x={ x } y={ y } dx={ dx } dy={ dy }>
@@ -174,13 +204,15 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 					{ ...{ ...styles?.lineSubject, orientation: 'horizontal' } }
 				/>
 			) }
-			<Label
-				title={ title }
-				subtitle={ subtitle }
-				{ ...styles?.label }
-				horizontalAnchor={ getHorizontalAnchor() }
-				verticalAnchor={ getVerticalAnchor() }
-			/>
+			<g ref={ labelRef }>
+				<Label
+					title={ title }
+					subtitle={ subtitle }
+					{ ...styles?.label }
+					horizontalAnchor={ getHorizontalAnchor( subjectType, isFlippedHorizontally ) }
+					verticalAnchor={ getVerticalAnchor( subjectType, isFlippedVertically, y, yMax ) }
+				/>
+			</g>
 		</Annotation>
 	);
 };
