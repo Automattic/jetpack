@@ -318,6 +318,8 @@ if ( jpcrm_do_critical_prerun_checks() ) {
 		zeroBSCRM_performanceTest_startTimer( 'plugin-load' );
 	}
 
+	// activation hook
+
 	add_action(
 		'init',
 		function () {
