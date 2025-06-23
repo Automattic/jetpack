@@ -10,6 +10,7 @@ declare global {
 			paidSubscribers?: number;
 			allSubscribers?: number;
 			subscriberTotalsByDate?: SubscriberTotalsByDate;
+			isStatsModuleActive?: boolean;
 		};
 	}
 }
@@ -21,8 +22,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
-	const { emailSubscribers, paidSubscribers, allSubscribers, subscriberTotalsByDate } =
-		window.jetpackNewsletterWidgetConfigData || {};
+	const {
+		emailSubscribers,
+		paidSubscribers,
+		allSubscribers,
+		subscriberTotalsByDate,
+		isStatsModuleActive,
+	} = window.jetpackNewsletterWidgetConfigData || {};
 	const { suffix: site } = jpDataUtils.getSiteData();
 	const adminUrl = jpDataUtils.getAdminUrl();
 	const isWpcomSite = jpDataUtils.isWpcomPlatformSite();
@@ -37,6 +43,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			site={ site }
 			adminUrl={ adminUrl }
 			isWpcomSite={ isWpcomSite }
+			isStatsModuleActive={ isStatsModuleActive }
 			emailSubscribers={ emailSubscribers }
 			paidSubscribers={ paidSubscribers }
 			allSubscribers={ allSubscribers }
