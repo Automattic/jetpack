@@ -82,7 +82,7 @@ $padding-horizontal: calc( var(--spacing-base) * 3 );
 		align-self: center;
 		color: var(--color-neutral-80);
 		flex-shrink: 0;
-		margin-right: 20px;
+		margin-inline-end: 20px;
 	}
 
 	.empty-state-card__content {
