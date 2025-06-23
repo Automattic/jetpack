@@ -36,7 +36,7 @@ export function ModulesList( { modules }: ModulesListProps ) {
 				render( { item } ) {
 					return (
 						<Tooltip text={ item.description } className={ styles[ 'module-tooltip' ] }>
-							<div>{ item.name }</div>
+							<span>{ item.name }</span>
 						</Tooltip>
 					);
 				},
