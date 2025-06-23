@@ -877,7 +877,7 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test report_error method with valid error
+	 * Test report_error method
 	 */
 	public function test_report_error() {
 		$error = new \WP_Error(
@@ -885,31 +885,28 @@ class Error_Handler_Test extends BaseTestCase {
 			'Invalid token',
 			array(
 				'signature_details' => array(
-					'token' => '1.2.3',
+					'token' => 'dhj938djh938d:1:3',
 				),
 			)
 		);
 
-		// Mock should_report_error to return true
-		$this->error_handler = $this->getMockBuilder( Error_Handler::class )
-			->onlyMethods( array( 'should_report_error', 'store_error', 'send_error_to_wpcom' ) )
-			->getMock();
+		// Bypass the gate for testing
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		$this->error_handler->expects( $this->once() )
-			->method( 'should_report_error' )
-			->with( $error )
-			->willReturn( true );
+		// Clear any existing errors
+		$this->error_handler->delete_all_errors();
 
-		$this->error_handler->expects( $this->once() )
-			->method( 'store_error' )
-			->with( $error )
-			->willReturn( array( 'test' => 'data' ) );
-
-		$this->error_handler->expects( $this->once() )
-			->method( 'send_error_to_wpcom' )
-			->with( array( 'test' => 'data' ) );
-
+		// Report the error
 		$this->error_handler->report_error( $error );
+
+		// Verify the error was stored
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
+		$this->assertArrayHasKey( '3', $stored_errors['invalid_token'] );
+
+		// Clean up
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		$this->error_handler->delete_all_errors();
 	}
 
 	/**
@@ -921,31 +918,28 @@ class Error_Handler_Test extends BaseTestCase {
 			'Invalid token',
 			array(
 				'signature_details' => array(
-					'token' => '1.2.3',
+					'token' => 'dhj938djh938d:1:3',
 				),
 			)
 		);
 
-		// Mock should_report_error to return false, but force should bypass it
-		$this->error_handler = $this->getMockBuilder( Error_Handler::class )
-			->onlyMethods( array( 'should_report_error', 'store_error', 'send_error_to_wpcom' ) )
-			->getMock();
+		// Set a transient to close the gate
+		set_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token', true, HOUR_IN_SECONDS );
 
-		$this->error_handler->expects( $this->once() )
-			->method( 'should_report_error' )
-			->with( $error )
-			->willReturn( false );
+		// Clear any existing errors
+		$this->error_handler->delete_all_errors();
 
-		$this->error_handler->expects( $this->once() )
-			->method( 'store_error' )
-			->with( $error )
-			->willReturn( array( 'test' => 'data' ) );
-
-		$this->error_handler->expects( $this->once() )
-			->method( 'send_error_to_wpcom' )
-			->with( array( 'test' => 'data' ) );
-
+		// Report the error with force=true (should bypass the gate)
 		$this->error_handler->report_error( $error, true );
+
+		// Verify the error was stored despite the gate being closed
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
+		$this->assertArrayHasKey( '3', $stored_errors['invalid_token'] );
+
+		// Clean up
+		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token' );
+		$this->error_handler->delete_all_errors();
 	}
 
 	/**
@@ -957,33 +951,33 @@ class Error_Handler_Test extends BaseTestCase {
 			'Invalid token',
 			array(
 				'signature_details' => array(
-					'token' => '1.2.3',
+					'token' => 'dhj938djh938d:1:3',
 				),
 			)
 		);
 
-		$this->error_handler = $this->getMockBuilder( Error_Handler::class )
-			->onlyMethods( array( 'should_report_error', 'store_error', 'verify_error', 'send_error_to_wpcom' ) )
-			->getMock();
+		// Bypass the gate for testing
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		$this->error_handler->expects( $this->once() )
-			->method( 'should_report_error' )
-			->with( $error )
-			->willReturn( true );
+		// Clear any existing errors
+		$this->error_handler->delete_all_errors();
 
-		$this->error_handler->expects( $this->once() )
-			->method( 'store_error' )
-			->with( $error )
-			->willReturn( array( 'test' => 'data' ) );
-
-		$this->error_handler->expects( $this->once() )
-			->method( 'verify_error' )
-			->with( array( 'test' => 'data' ) );
-
-		$this->error_handler->expects( $this->never() )
-			->method( 'send_error_to_wpcom' );
-
+		// Report the error with skip_wpcom_verification=true
 		$this->error_handler->report_error( $error, false, true );
+
+		// Verify the error was stored
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
+		$this->assertArrayHasKey( '3', $stored_errors['invalid_token'] );
+
+		// Verify the error was also verified (since skip_wpcom_verification=true)
+		$verified_errors = $this->error_handler->get_verified_errors();
+		$this->assertArrayHasKey( 'invalid_token', $verified_errors );
+		$this->assertArrayHasKey( '3', $verified_errors['invalid_token'] );
+
+		// Clean up
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		$this->error_handler->delete_all_errors();
 	}
 
 	/**
@@ -995,25 +989,27 @@ class Error_Handler_Test extends BaseTestCase {
 			'Unknown error',
 			array(
 				'signature_details' => array(
-					'token' => '1.2.3',
+					'token' => 'dhj938djh938d:1:3',
 				),
 			)
 		);
 
-		$this->error_handler = $this->getMockBuilder( Error_Handler::class )
-			->onlyMethods( array( 'should_report_error', 'store_error', 'send_error_to_wpcom' ) )
-			->getMock();
+		// Bypass the gate for testing
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		$this->error_handler->expects( $this->never() )
-			->method( 'should_report_error' );
+		// Clear any existing errors
+		$this->error_handler->delete_all_errors();
 
-		$this->error_handler->expects( $this->never() )
-			->method( 'store_error' );
-
-		$this->error_handler->expects( $this->never() )
-			->method( 'send_error_to_wpcom' );
-
+		// Report the error with unknown error code
 		$this->error_handler->report_error( $error );
+
+		// Verify the error was NOT stored (unknown error codes are ignored)
+		$stored_errors = $this->error_handler->get_stored_errors();
+		$this->assertArrayNotHasKey( 'unknown_error_code', $stored_errors );
+
+		// Clean up
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		$this->error_handler->delete_all_errors();
 	}
 
 	/**
