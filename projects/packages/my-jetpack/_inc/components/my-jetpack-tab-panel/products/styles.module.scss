@@ -80,6 +80,11 @@
 		div[data-wp-component="Card"] {
 			height: 100%;
 		}
+
+		// Make last card full width when there's an odd number of cards
+		li:last-child:nth-child(odd) {
+			grid-column: 1 / -1;
+		}
 	}
 
 	.section-heading {
