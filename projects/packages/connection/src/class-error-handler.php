@@ -154,21 +154,21 @@ class Error_Handler {
 		// If there are any displayable errors, set up the hooks for displaying them
 		if ( ! empty( $displayable_errors ) ) {
 			add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
-			add_action( 'react_connection_errors_initial_state', array( $this, 'displayable_errors' ) );
+			add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
 		}
 	}
 
 	/**
 	 * Gets displayable errors with predefined structure and optional filtering.
 	 *
-	 * This method returns a standardized array of errors that can be safely displayed
-	 * in the React dashboard, My Jetpack, and other UI components. It includes
+	 * This method returns a hierarchical array of errors (error_code => user_id => error_details)
+	 * that can be safely displayed in My Jetpack and other UI components. It includes
 	 * predefined error messages and actions, with optional filtering for specific sites.
 	 * Only processes a limited set of error codes that are meant to be displayed to users.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array Array of displayable errors with standardized structure.
+	 * @return array Array of displayable errors with hierarchical structure.
 	 */
 	public function displayable_errors() {
 		$verified_errors    = $this->get_verified_errors();
@@ -199,32 +199,23 @@ class Error_Handler {
 				continue;
 			}
 
-			$first_error = reset( $users );
+			$displayable_errors[ $error_code ] = array();
 
-			// Default values for all errors
-			$error_data = array(
-				'code'    => 'connection_error',
-				'message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' ),
-				'action'  => 'reconnect',
-				'data'    => array( 'api_error_code' => $error_code ),
-			);
-
-			// Special handling for protected_owner type errors
-			if ( ! empty( $first_error['error_type'] ) && 'protected_owner' === $first_error['error_type'] ) {
-				if ( ! empty( $first_error['error_message'] ) ) {
-					$error_data['message'] = $first_error['error_message'];
+			foreach ( $users as $user_id => $error ) {
+				// Skip protected_owner errors - they already have the correct message from Protected_Owner_Error_Handler
+				if ( ! empty( $error['error_type'] ) && 'protected_owner' === $error['error_type'] ) {
+					$displayable_errors[ $error_code ][ $user_id ] = $error;
+					continue;
 				}
 
-				if ( ! empty( $first_error['error_data'] ) ) {
-					$error_data['data'] = array_merge( $error_data['data'], $first_error['error_data'] );
-
-					if ( ! empty( $first_error['error_data']['action'] ) ) {
-						$error_data['action'] = $first_error['error_data']['action'];
-					}
-				}
+				// Override other error messages with default display message
+				$displayable_errors[ $error_code ][ $user_id ] = array_merge(
+					$error,
+					array(
+						'error_message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' ),
+					)
+				);
 			}
-
-			$displayable_errors[] = $error_data;
 		}
 
 		/**
@@ -236,7 +227,7 @@ class Error_Handler {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param array $displayable_errors Array of displayable errors with standardized structure.
+		 * @param array $displayable_errors Array of displayable errors with hierarchical structure.
 		 * @param array $verified_errors    Array of raw verified errors from the database.
 		 */
 		if ( $this->should_allow_error_filtering() ) {
@@ -259,6 +250,41 @@ class Error_Handler {
 	protected function should_allow_error_filtering() {
 		$host = new \Automattic\Jetpack\Status\Host();
 		return $host->is_woa_site();
+	}
+
+	/**
+	 * Provides displayable connection errors for the React dashboard in a flat array format.
+	 *
+	 * This method transforms the hierarchical displayable_errors structure into the flat format
+	 * expected by the React dashboard.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @return array Array of displayable errors for the React dashboard.
+	 */
+	public function jetpack_react_dashboard_error() {
+		$displayable_errors = $this->displayable_errors();
+		$flat_errors        = array();
+
+		foreach ( $displayable_errors as $error_code => $users ) {
+			$first_error = reset( $users );
+
+			$error_data = array(
+				'code'    => 'connection_error',
+				'message' => $first_error['error_message'],
+				'action'  => $first_error['error_data']['action'] ?? null,
+				'data'    => array( 'api_error_code' => $error_code ),
+			);
+
+			// Include any additional error data
+			if ( ! empty( $first_error['error_data'] ) ) {
+				$error_data['data'] = array_merge( $error_data['data'], $first_error['error_data'] );
+			}
+
+			$flat_errors[] = $error_data;
+		}
+
+		return $flat_errors;
 	}
 
 	/**
@@ -373,6 +399,38 @@ class Error_Handler {
 	}
 
 	/**
+	 * Builds a standardized error array for the connection error system.
+	 *
+	 * This method creates a consistent error array structure that can be used
+	 * by both internal error handling and external plugins/customizations.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $error_code    The error code identifier.
+	 * @param string $error_message The human-readable error message.
+	 * @param array  $error_data    Additional error data (optional).
+	 * @param string $user_id       The user ID associated with the error (optional).
+	 * @param string $error_type    The type of error (optional).
+	 * @return array|false The standardized error array or false on failure.
+	 */
+	public function build_error_array( $error_code, $error_message, $error_data = array(), $user_id = '0', $error_type = '' ) {
+		// Validate required parameters
+		if ( empty( $error_code ) || empty( $error_message ) ) {
+			return false;
+		}
+
+		return array(
+			'error_code'    => $error_code,
+			'user_id'       => $user_id,
+			'error_message' => $error_message,
+			'error_data'    => $error_data,
+			'timestamp'     => time(),
+			'nonce'         => wp_generate_password( 10, false ),
+			'error_type'    => $error_type,
+		);
+	}
+
+	/**
 	 * Converts a WP_Error object in the array representation we store in the database
 	 *
 	 * @since 1.14.2
@@ -396,17 +454,13 @@ class Error_Handler {
 
 		$user_id = $this->get_user_id_from_token( $signature_details['token'] );
 
-		$error_array = array(
-			'error_code'    => $error->get_error_code(),
-			'user_id'       => $user_id,
-			'error_message' => $error->get_error_message(),
-			'error_data'    => $signature_details,
-			'timestamp'     => time(),
-			'nonce'         => wp_generate_password( 10, false ),
-			'error_type'    => empty( $data['error_type'] ) ? '' : $data['error_type'],
+		return $this->build_error_array(
+			$error->get_error_code(),
+			$error->get_error_message(),
+			$signature_details,
+			$user_id,
+			empty( $data['error_type'] ) ? '' : $data['error_type']
 		);
-
-		return $error_array;
 	}
 
 	/**
@@ -794,7 +848,7 @@ class Error_Handler {
 		 * @param string $message The error message.
 		 * @param array  $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
 		 */
-		$message = apply_filters( 'jetpack_connection_error_notice_message', '', $this->get_verified_errors() );
+		$message = apply_filters( 'jetpack_connection_error_notice_message', '', $this->displayable_errors() );
 
 		/**
 		 * Fires inside the admin_notices hook just before displaying the error message for a broken connection.
@@ -805,7 +859,7 @@ class Error_Handler {
 		 *
 		 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
 		 */
-		do_action( 'jetpack_connection_error_notice', $this->get_verified_errors() );
+		do_action( 'jetpack_connection_error_notice', $this->displayable_errors() );
 
 		if ( empty( $message ) ) {
 			return;
@@ -866,19 +920,5 @@ class Error_Handler {
 		);
 
 		$this->report_error( $error, false, true );
-	}
-
-	/**
-	 * Adds the error message to the Jetpack React Dashboard
-	 *
-	 * @deprecated $$next-version$$ Use displayable_errors() instead.
-	 * @since 8.9.0
-	 *
-	 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
-	 * @return array
-	 */
-	public function jetpack_react_dashboard_error( $errors ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$', 'displayable_errors' );
-		return $this->displayable_errors();
 	}
 }
