@@ -1,4 +1,5 @@
-import { isAtomicSite, getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
+import { isWoASite } from '@automattic/jetpack-script-data';
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import metadata from './block.json';
@@ -9,7 +10,7 @@ export const InactiveStatsPlaceholder = ( { className, isLoading, changeStatus }
 	};
 
 	// Stats cannot be disabled on Simple sites, but they can on Atomic.
-	const supportLink = isAtomicSite()
+	const supportLink = isWoASite()
 		? 'https://wordpress.com/support/stats/'
 		: 'https://jetpack.com/support/jetpack-stats/';
 

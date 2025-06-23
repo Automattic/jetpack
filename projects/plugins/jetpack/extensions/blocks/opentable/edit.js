@@ -1,8 +1,5 @@
-import {
-	isAtomicSite,
-	isSimpleSite,
-	getBlockIconComponent,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InspectorControls,
 	InspectorAdvancedControls,
@@ -226,10 +223,9 @@ function OpenTableEdit( {
 		</>
 	);
 
-	const supportLink =
-		isSimpleSite() || isAtomicSite()
-			? 'https://en.support.wordpress.com/wordpress-editor/blocks/opentable-block/'
-			: 'https://jetpack.com/support/jetpack-blocks/opentable-block/';
+	const supportLink = isWpcomPlatformSite()
+		? 'https://en.support.wordpress.com/wordpress-editor/blocks/opentable-block/'
+		: 'https://jetpack.com/support/jetpack-blocks/opentable-block/';
 
 	const blockPlaceholder = (
 		<Placeholder
