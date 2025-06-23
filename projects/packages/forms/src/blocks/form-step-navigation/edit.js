@@ -117,7 +117,7 @@ export default function Edit( { clientId } ) {
 	useEffect( () => {
 		// This happens when the step block is duplicated
 		if ( typeof currentIndex === 'undefined' ) {
-			return undefined;
+			return;
 		}
 		let shouldReplaceInnerBlocks = false;
 
