@@ -7,8 +7,7 @@ import LineChart from '../line-chart';
 import sampleData from './sample-data';
 import type { Meta } from '@storybook/react';
 
-const customStorybookTheme = merge( jetpackTheme, {
-	...jetpackTheme,
+const customStorybookTheme = merge( {}, jetpackTheme, {
 	glyphs: [
 		props => React.createElement( DefaultGlyph, { ...props, key: props.key } ),
 		props =>
