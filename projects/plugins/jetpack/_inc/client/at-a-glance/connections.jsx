@@ -1,3 +1,4 @@
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf, _x } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -113,7 +114,9 @@ export class DashConnections extends Component {
 	 * @returns {string}
 	 */
 	userConnection() {
-		const maybeShowLinkUnlinkBtn = (
+		// Hide disconnect button for connection owners on WoA sites
+		const shouldShowDisconnectButton = ! ( isWoASite() && this.props.isConnectionOwner );
+		const LinkUnlinkBtn = (
 			<ConnectButton asBanner connectUser={ true } from="connection-settings" />
 		);
 
@@ -145,7 +148,7 @@ export class DashConnections extends Component {
 		}
 
 		if ( ! this.props.isLinked ) {
-			cardContent = <div className="jp-connection-settings__info">{ maybeShowLinkUnlinkBtn }</div>;
+			cardContent = <div className="jp-connection-settings__info">{ LinkUnlinkBtn }</div>;
 		} else if ( this.props.isFetchingUserData ) {
 			cardContent = __( 'Loading…', 'jetpack' );
 		} else if ( ! this.props.wpComConnectedUser?.email ) {
@@ -187,7 +190,9 @@ export class DashConnections extends Component {
 							</div>
 						</div>
 					</div>
-					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
+					{ shouldShowDisconnectButton && (
+						<div className="jp-connection-settings__actions">{ LinkUnlinkBtn }</div>
+					) }
 				</div>
 			);
 		}

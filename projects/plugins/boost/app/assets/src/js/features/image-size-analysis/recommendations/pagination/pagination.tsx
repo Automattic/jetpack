@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { useState, useEffect, useMemo } from 'react';
 import ChevronLeft from '$svg/chevron-left';
 import ChevronRight from '$svg/chevron-right';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import styles from './pagination.module.scss';
 
 interface PaginationProps {

@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Addresses body_class filter fatal in older versions of the Blaskan theme.

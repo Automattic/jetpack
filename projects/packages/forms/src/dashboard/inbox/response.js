@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink, Modal, Tooltip, Spinner, Icon } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
+import { download } from '@wordpress/icons';
 import clsx from 'clsx';
 import { map } from 'lodash';
 import { getPath } from './utils';
@@ -19,38 +20,165 @@ const isFileUploadField = value => {
 	return value && typeof value === 'object' && 'files' in value && 'field_id' in value;
 };
 
-const renderFieldValue = value => {
-	if ( isFileUploadField( value ) ) {
-		return (
-			<div className="file-field">
-				{ value.files?.length
-					? value.files.map( ( file, index ) => {
-							return (
-								<div key={ index } className="file-field__item">
-									<Button variant="link" href={ file.url } target="_blank">
-										{ decodeEntities( file.name ) } | { file.size }
-									</Button>
-								</div>
-							);
-					  } )
-					: '-' }
+const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
+	const imageClass = clsx( 'jp-forms__inbox-file-preview-container', {
+		'is-loading': isLoading,
+	} );
+
+	return (
+		<div className="jp-forms__inbox-file-preview-shell">
+			{ isLoading && (
+				<div className="jp-forms__inbox-file-loading">
+					<Spinner className="jp-forms__inbox-spinner" />
+					<div className="jp-forms__inbox-file-loading-message ">
+						{ __( 'Loading preview…', 'jetpack-forms' ) }
+					</div>
+				</div>
+			) }
+
+			<div className={ imageClass }>
+				<img
+					src={ file.url }
+					alt={ decodeEntities( file.name ) }
+					onLoad={ onImageLoaded }
+					className="jp-forms__inbox-file-preview-image"
+				/>
 			</div>
-		);
-	}
-
-	// Emails
-	const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-	if ( emailRegex.test( value ) ) {
-		return <a href={ `mailto:${ value }` }>{ value }</a>;
-	}
-
-	return value;
+		</div>
+	);
 };
 
-const InboxResponse = ( { loading, response } ) => {
+const FileField = ( { file, onClick, key } ) => {
+	const fileExtension = file.name.split( '.' ).pop().toLowerCase();
+	const fileType = file.type.split( '/' )[ 0 ];
+
+	const iconMap = {
+		image: 'png',
+		video: 'mp4',
+		audio: 'mp3',
+		document: 'pdf',
+		application: 'txt',
+	};
+
+	const extensionMap = {
+		pdf: 'pdf',
+		png: 'png',
+		jpg: 'png',
+		jpeg: 'png',
+		gif: 'png',
+		mp4: 'mp4',
+		mp3: 'mp3',
+		webm: 'webm',
+		doc: 'doc',
+		docx: 'doc',
+		txt: 'txt',
+		ppt: 'ppt',
+		pptx: 'ppt',
+		xls: 'xls',
+		xlsx: 'xls',
+		csv: 'xls',
+		zip: 'zip',
+		sql: 'sql',
+		cal: 'cal',
+	};
+	const iconType = extensionMap[ fileExtension ] || iconMap[ fileType ] || 'txt';
+	const iconClass = clsx( 'file-field__icon', 'icon-' + iconType );
+	return (
+		<div key={ key } className="file-field__item">
+			<div className="file-field__info">
+				<div className={ iconClass }></div>
+				<div className="file-field__name">
+					{ file.is_previewable && (
+						<Button target="_blank" variant="link" onClick={ onClick }>
+							{ decodeEntities( file.name ) }
+						</Button>
+					) }
+					{ ! file.is_previewable && (
+						<ExternalLink href={ file.url + '&preview=true' }>
+							{ decodeEntities( file.name ) }
+						</ExternalLink>
+					) }
+					<div className="file-field__meta-info">
+						{ sprintf(
+							/* translators: %1$s size of the file and %2$s is the file extension */
+							__( '%1$s, %2$s', 'jetpack-forms' ),
+							file.size,
+							fileExtension.toUpperCase()
+						) }
+					</div>
+				</div>
+			</div>
+			<span className="file-field__item-actions">
+				<Tooltip text={ __( 'Download', 'jetpack-forms' ) }>
+					<Button variant="secondary" href={ file.url } target="_blank">
+						<Icon icon={ download } />
+					</Button>
+				</Tooltip>
+			</span>
+		</div>
+	);
+};
+
+const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 	const [ emailCopied, setEmailCopied ] = useState( false );
+	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
+	const [ previewFile, setPreviewFile ] = useState( null );
+	const [ isImageLoading, setIsImageLoading ] = useState( true );
 
 	const ref = useRef( undefined );
+
+	const openFilePreview = useCallback(
+		file => {
+			setIsImageLoading( true );
+			setPreviewFile( file );
+			setIsPreviewModalOpen( true );
+			if ( onModalStateChange ) {
+				onModalStateChange( true );
+			}
+		},
+		[ onModalStateChange, setPreviewFile, setIsPreviewModalOpen ]
+	);
+
+	const handleFilePreview = useCallback(
+		file => openFilePreview.bind( null, file ),
+		[ openFilePreview ]
+	);
+
+	const closePreviewModal = useCallback( () => {
+		setIsPreviewModalOpen( false );
+		setIsImageLoading( true );
+		// Notify parent component that this modal is closed
+		if ( onModalStateChange ) {
+			onModalStateChange( false );
+		}
+	}, [ onModalStateChange, setIsPreviewModalOpen, setIsImageLoading ] );
+
+	const renderFieldValue = value => {
+		if ( isFileUploadField( value ) ) {
+			return (
+				<div className="file-field">
+					{ value.files?.length
+						? value.files.map( ( file, index ) => {
+								if ( ! file || ! file.name ) {
+									return null;
+								}
+								return (
+									<FileField file={ file } onClick={ handleFilePreview( file ) } key={ index } />
+								);
+						  } )
+						: '-' }
+				</div>
+			);
+		}
+
+		// Emails
+		const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+		if ( emailRegex.test( value ) ) {
+			return <a href={ `mailto:${ value }` }>{ value }</a>;
+		}
+
+		return value;
+	};
 
 	useEffect( () => {
 		if ( ! ref.current ) {
@@ -66,6 +194,10 @@ const InboxResponse = ( { loading, response } ) => {
 		setTimeout( () => setEmailCopied( false ), 3000 );
 	}, [ response, setEmailCopied ] );
 
+	const handelImageLoaded = useCallback( () => {
+		return setIsImageLoading( false );
+	}, [ setIsImageLoading ] );
+
 	if ( ! loading && ! response ) {
 		return null;
 	}
@@ -76,6 +208,15 @@ const InboxResponse = ( { loading, response } ) => {
 		'is-name': response && response.author_name,
 	} );
 
+	if ( isPreviewModalOpen && ! onModalStateChange ) {
+		return (
+			<PreviewFile
+				file={ previewFile }
+				isLoading={ isImageLoading }
+				onImageLoaded={ handelImageLoaded }
+			/>
+		);
+	}
 	return (
 		<div ref={ ref } className="jp-forms__inbox-response">
 			<div className="jp-forms__inbox-response-avatar">
@@ -140,6 +281,20 @@ const InboxResponse = ( { loading, response } ) => {
 					</div>
 				) ) }
 			</div>
+
+			{ isPreviewModalOpen && previewFile && onModalStateChange && (
+				<Modal
+					title={ decodeEntities( previewFile.name ) }
+					onRequestClose={ closePreviewModal }
+					className="jp-forms__inbox-file-preview-modal"
+				>
+					<PreviewFile
+						file={ previewFile }
+						isLoading={ isImageLoading }
+						onImageLoaded={ handelImageLoaded }
+					/>
+				</Modal>
+			) }
 		</div>
 	);
 };

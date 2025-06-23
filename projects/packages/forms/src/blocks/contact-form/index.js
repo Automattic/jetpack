@@ -3,11 +3,11 @@ import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
 import renderMaterialIcon from '../shared/components/render-material-icon';
+import { getIconColor } from '../shared/util/block-icons';
 import defaultAttributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
 import transforms from './transforms';
-import { getIconColor } from './util/block-icons';
 import variations from './variations';
 
 export const name = 'contact-form';

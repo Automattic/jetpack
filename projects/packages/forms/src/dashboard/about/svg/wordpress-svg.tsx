@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { Path, Rect, SVG, SVGProps } from '@wordpress/primitives';
 
 const WordpressSVG = ( props: SVGProps ) => {

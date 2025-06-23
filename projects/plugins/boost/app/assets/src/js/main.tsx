@@ -1,10 +1,5 @@
-import {
-	createHashRouter,
-	redirect,
-	RouterProvider,
-	useLocation,
-	useParams,
-} from 'react-router-dom';
+import { createHashRouter, redirect, useLocation, useParams } from 'react-router';
+import { RouterProvider } from 'react-router/dom';
 import Index from './pages/index';
 import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 import GettingStarted from './pages/getting-started/getting-started';

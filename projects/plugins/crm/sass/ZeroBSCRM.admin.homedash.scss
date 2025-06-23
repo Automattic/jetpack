@@ -42,10 +42,23 @@ body ::-webkit-scrollbar-track{
 background: #fff;
 }
 
-.day-or-month div.button {
-	color: var(--jp-black);
-  border-color: var(--jp-black);
-  background: var(--jp-white);
+.jpcrm-dashcard-header {
+
+	> :nth-child(1) {
+		text-align: left;
+	}
+
+	> :nth-child(2) {
+		text-align: center;
+	}
+
+	> :nth-child(3) {
+		text-align: right;
+	}
+
+	.day-or-month div.button {
+		margin-bottom: 5px;
+	}
 }
 
 #settings_dashboard_sales_funnel_display, #settings_dashboard_recent_activity_display {

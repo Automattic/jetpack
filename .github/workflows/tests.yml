@@ -106,6 +106,8 @@ jobs:
         run: .github/files/select-wordpress-tag.sh
 
       - name: Composer Install
+        env:
+          CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
           # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
           if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
@@ -130,6 +132,21 @@ jobs:
             fi
           fi
           echo "::endgroup::"
+
+          echo "Checking for non-mirrored require-dev packages, in case this is testing a release branch"
+          for SLUG in $( jq -r 'keys[]' <<<"$CHANGED" ); do
+            PKGS=()
+            readarray -t PKGS < <( jq -r '.extra["non-mirrored-require-dev"] // empty | .[] | . += "=@dev"' "projects/$SLUG/composer.json" )
+            if [[ ${#PKGS[@]} -gt 0 ]]; then
+              echo "::group::Adding packages for $SLUG: ${PKGS[*]}"
+              # Make sure monorepo repositories entry is present.
+              JSON=$( jq --tab '.repositories //= [] | if any( .repositories[]; .type == "path" and ( .url | startswith( "../" ) ) and .options?.monorepo? ) then . else .repositories += [ { type: "path", url: "../../packages/*", options: { monorepo: true } } ] end' "projects/$SLUG/composer.json" )
+              echo "$JSON" > "projects/$SLUG/composer.json"
+              # Use --no-install and --ignore-platform-reqs here. Code below (either in .github/files/setup-wordpress-env.sh or the "Run project tests" step) will do a `composer install` or `composer update` as necessary.
+              composer require --working-dir="projects/$SLUG/" --dev --no-install --ignore-platform-reqs "${PKGS[@]}"
+              echo "::endgroup::"
+            fi
+          done
 
       - name: Setup WordPress environment for plugin tests
         env:
@@ -299,7 +316,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10 # 2025-01-10 Wild guess
     needs: run-tests
-    if: always() && needs.run-tests.outputs.did-coverage == 'true' && github.repository == 'Automattic/jetpack' && ( github.event_name == 'pull_request' || github.ref == 'refs/heads/trunk' )
+    if: always() && needs.run-tests.outputs.did-coverage == 'true' && github.repository == 'Automattic/jetpack' && ( github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name || github.event_name == 'push' && github.ref == 'refs/heads/trunk' )
     steps:
       - uses: actions/checkout@v4
 
@@ -458,6 +475,21 @@ jobs:
         uses: ./.github/actions/tool-setup
       - name: Pnpm install
         run: pnpm install
+      - name: Add back removed packages in case of a release branch.
+        run: |
+          echo "Checking for non-mirrored require-dev packages, in case this is testing a release branch"
+          for FILE in projects/*/*/composer.json; do
+            PKGS=()
+            readarray -t PKGS < <( jq -r '.extra["non-mirrored-require-dev"] // empty | .[] | . += "=@dev"' "$FILE" )
+            if [[ ${#PKGS[@]} -gt 0 ]]; then
+              echo "::group::Adding packages for $FILE: ${PKGS[*]}"
+              # Make sure monorepo repositories entry is present.
+              JSON=$( jq --tab '.repositories //= [] | if any( .repositories[]; .type == "path" and ( .url | startswith( "../" ) ) and .options?.monorepo? ) then . else .repositories += [ { type: "path", url: "../../packages/*", options: { monorepo: true } } ] end' "$FILE" )
+              echo "$JSON" > "$FILE"
+              composer require --working-dir="${FILE%/composer.json}" --dev "${PKGS[@]}"
+              echo "::endgroup::"
+            fi
+          done
       - name: Run phan
         run: pnpm jetpack phan --all -v --update-baseline --format github
       - name: Run phan for previous WP version too

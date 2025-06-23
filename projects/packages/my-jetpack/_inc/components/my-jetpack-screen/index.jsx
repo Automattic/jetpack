@@ -14,7 +14,7 @@ import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-uti
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 /*
  * Internal dependencies
  */

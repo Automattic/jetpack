@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import AppsBadge from 'components/apps-badge';
 import Card from 'components/card';
 import { imagePath } from 'constants/urls';

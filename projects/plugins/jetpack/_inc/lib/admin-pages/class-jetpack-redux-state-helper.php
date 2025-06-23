@@ -185,9 +185,9 @@ class Jetpack_Redux_State_Helper {
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
 				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
-				'isAtomicSite'               => $host->is_woa_site(), // do not use - to be removed.
-				'isWoASite'                  => $host->is_woa_site(),
-				'isAtomicPlatform'           => $host->is_atomic_platform(),
+				'isAtomicSite'               => $host->is_woa_site(), // do not use - to be removed. Use JetpackScriptData (site.host = 'woa')
+				'isWoASite'                  => $host->is_woa_site(), // do not use - to be removed. Use JetpackScriptData (site.host = 'woa')
+				'isAtomicPlatform'           => $host->is_atomic_platform(), // do not use - to be removed. Use JetpackScriptData (site.host = 'atomic')
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),

@@ -27,6 +27,14 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
+		project: 'Jetpack forms',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/forms' ],
+		targets: [ 'plugins/jetpack', 'packages/forms' ],
+		suite: '',
+		buildGroup: 'jetpack-core',
+	},
+	{
 		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync' ],

@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router';
 import ConnectedProductCard from '../';
 import { PRODUCT_STATUSES } from '../../../../constants';
 import { getAllMockData, getProductSlugs } from '../../product-detail-card/stories/utils.js';

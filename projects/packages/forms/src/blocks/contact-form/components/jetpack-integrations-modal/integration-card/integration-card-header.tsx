@@ -18,32 +18,7 @@ import PluginActionButton from './plugin-action-button';
 /**
  * Types
  */
-import type { Integration } from '../../../../../dashboard/integrations/types';
-
-type IntegrationCardData = {
-	isInstalled?: boolean;
-	isActive?: boolean;
-	isConnected?: boolean;
-	type?: string;
-	showHeaderToggle?: boolean;
-	headerToggleValue?: boolean;
-	isHeaderToggleEnabled?: boolean;
-	onHeaderToggleChange?: ( value: boolean ) => void;
-	toggleDisabledTooltip?: string;
-	setupBadge?: React.ReactNode;
-	refreshStatus?: () => void;
-	trackEventName?: string;
-} & Partial< Pick< Integration, 'id' | 'slug' | 'version' | 'details' | 'pluginFile' > >;
-
-type IntegrationCardHeaderProps = {
-	title: string;
-	description: string;
-	icon: React.ReactNode;
-	isExpanded: boolean;
-	onToggle: ( e: React.MouseEvent< HTMLDivElement > ) => void;
-	cardData: IntegrationCardData;
-	toggleTooltip: string;
-};
+import type { IntegrationCardProps } from './index';
 
 const IntegrationCardHeader = ( {
 	title,
@@ -53,11 +28,12 @@ const IntegrationCardHeader = ( {
 	onToggle,
 	cardData = {},
 	toggleTooltip,
-}: IntegrationCardHeaderProps ) => {
+}: IntegrationCardProps ) => {
 	const {
 		isInstalled,
 		isActive,
 		isConnected,
+		needsConnection,
 		type,
 		showHeaderToggle,
 		headerToggleValue,
@@ -67,11 +43,11 @@ const IntegrationCardHeader = ( {
 		setupBadge,
 	} = cardData;
 	const showPluginAction = type === 'plugin' && ( ! isInstalled || ! isActive );
-	const showConnectedBadge = isActive && isConnected;
+	const showConnectedBadge = isConnected || ( isActive && ! needsConnection );
 	const disableFormText = __( 'Disable for this form', 'jetpack-forms' );
 	const enableFormText = __( 'Enable for this form', 'jetpack-forms' );
 
-	const showPendingBadge = ! showPluginAction && ! isConnected;
+	const showPendingBadge = ! showPluginAction && ! isConnected && needsConnection;
 	const pendingBadge = setupBadge || (
 		<span className="integration-card__plugin-badge">
 			{ __( 'Needs connection', 'jetpack-forms' ) }
@@ -110,7 +86,7 @@ const IntegrationCardHeader = ( {
 			return;
 		}
 
-		onToggle( e );
+		onToggle();
 	};
 
 	return (

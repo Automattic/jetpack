@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tasks: Allow translation of task status after status change.

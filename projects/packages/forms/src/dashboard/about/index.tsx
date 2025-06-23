@@ -29,7 +29,7 @@ import './style.scss';
 /**
  * Types
  */
-import type { Pattern } from '../types';
+import type { Pattern } from '../../types';
 
 const About = () => {
 	const ASSETS_URL = useMemo( () => config( 'pluginAssetsURL' ), [] );
@@ -121,7 +121,7 @@ const About = () => {
 					<h1>{ __( 'Empower your workflow.', 'jetpack-forms' ) }</h1>
 					<div className="section-data__features">
 						<div className="section-data__features-feature feature-connect">
-							<div className="app-icons-wrapper">
+							<div className="app-icons-wrapper feature-header">
 								<AkismetIcon width={ 32 } height={ 32 } className="icon-round" />
 								<JetpackIcon size={ 32 } className="jetpack-icon" />
 								<CreativeMailIcon width={ 32 } height={ 32 } className="icon-round" />
@@ -139,23 +139,23 @@ const About = () => {
 							<WordpressSVG />
 						</div>
 						<div className="section-data__features-feature feature-akismet">
-							<AkismetIcon />
+							<AkismetIcon className="feature-header" />
 							<h2>{ __( 'No spam with Akismet', 'jetpack-forms' ) }</h2>
 						</div>
 						<div className="section-data__features-feature feature-export">
-							<ExportSVG />
+							<ExportSVG className="feature-header" />
 							<h2>{ __( 'Export your data anytime', 'jetpack-forms' ) }</h2>
 						</div>
 						<div className="section-data__features-feature feature-notifications">
-							<NotificationsSVG />
+							<NotificationsSVG className="feature-header" />
 							<h2>{ __( 'Real-time notifications via email', 'jetpack-forms' ) }</h2>
 						</div>
 						<div className="section-data__features-feature feature-dependencies">
-							<h1 className="zero-plugins"> { __( 'Zero', 'jetpack-forms' ) }</h1>
+							<h1 className="zero-plugins feature-header"> { __( 'Zero', 'jetpack-forms' ) }</h1>
 							<h2>{ __( 'No additional plugins required', 'jetpack-forms' ) }</h2>
 						</div>
 						<div className="section-data__features-feature feature-validation">
-							<div className="validation-icons-wrapper">
+							<div className="validation-icons-wrapper feature-header">
 								<CheckSVG />
 								<CloseSVG />
 							</div>

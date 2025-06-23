@@ -1,6 +1,10 @@
 .line-chart {
 	position: relative;
 
+	svg {
+		overflow: visible;
+	}
+
 	&__tooltip {
 		background: #fff;
 		padding: 0.5rem;
