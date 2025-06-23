@@ -2,7 +2,7 @@ import React from 'react';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import sampleData from './sample-data';
-import type { LineChartAnnotation } from '../annotation';
+import type { LineChartAnnotationProps } from '../line-chart-annotation';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof LineChart > = {
@@ -14,7 +14,7 @@ export default meta;
 
 const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
 
-const annotations: LineChartAnnotation[] = [
+const annotations: LineChartAnnotationProps[] = [
 	{
 		datum: sampleData[ 0 ].data[ 10 ],
 		title: 'Notable event',

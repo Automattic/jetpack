@@ -23,7 +23,7 @@ type SubjectType = 'circle' | 'line-vertical' | 'line-horizontal';
 const ANNOTATION_MAX_WIDTH = 125; // visx default
 const ANNOTATION_MAX_HEIGHT = 100;
 
-export type LineChartAnnotation = {
+export type LineChartAnnotationProps = {
 	datum: DataPointDate;
 	title: string;
 	subtitle: string;
@@ -102,7 +102,7 @@ const getLabelPosition = ( {
 	return { dx, dy, isFlippedHorizontally, isFlippedVertically };
 };
 
-const PositionedAnnotation: FC< LineChartAnnotation > = ( {
+const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	datum,
 	title,
 	subtitle,
@@ -185,4 +185,4 @@ const PositionedAnnotation: FC< LineChartAnnotation > = ( {
 	);
 };
 
-export default PositionedAnnotation;
+export default LineChartAnnotation;

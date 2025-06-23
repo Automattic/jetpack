@@ -11,9 +11,9 @@ import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
-import PositionedAnnotation from './annotation';
+import LineChartAnnotation from './line-chart-annotation';
 import styles from './line-chart.module.scss';
-import type { LineChartAnnotation } from './annotation';
+import type { LineChartAnnotationProps } from './line-chart-annotation';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
@@ -115,7 +115,7 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 		showVertical?: boolean;
 		showHorizontal?: boolean;
 	};
-	annotations?: LineChartAnnotation[];
+	annotations?: LineChartAnnotationProps[];
 }
 
 type TooltipDatum = {
@@ -384,7 +384,7 @@ const LineChart: FC< LineChartProps > = ( {
 
 				{ annotations?.length &&
 					annotations.map( ( { datum, title, subtitle, subjectType, styles: datumStyles } ) => (
-						<PositionedAnnotation
+						<LineChartAnnotation
 							key={ `annotation-${ datum.date.getTime() }` }
 							datum={ datum }
 							title={ title }

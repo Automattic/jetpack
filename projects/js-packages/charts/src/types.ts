@@ -1,4 +1,4 @@
-import { AnnotationStyles } from './components/line-chart/annotation';
+import { AnnotationStyles } from './components/line-chart/line-chart-annotation';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
