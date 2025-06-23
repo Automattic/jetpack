@@ -78,13 +78,13 @@ class Jetpack_Forms {
 	 */
 	public static function is_legacy_menu_item_retired() {
 
-		$default                      = false; // don't retire the legacy menu item by default
-		$largest_legacy_connection_id = 245807300; // the connection ID after which the legacy menu item is retired
+		$default                      = false; // Don't retire the legacy menu item by default.
+		$largest_legacy_connection_id = 245807300; // The connection ID after which the legacy menu item is retired.
 
-		$connection_id = defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
+		$connection_id = defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : intval( \Jetpack_Options::get_option( 'id' ) );
 
 		if ( $connection_id > $largest_legacy_connection_id ) {
-			$default = true;
+			$default = true; // Retire the legacy menu item for connections after the specified ID.
 		}
 
 		return apply_filters( 'jetpack_forms_retire_legacy_menu_item', $default );
