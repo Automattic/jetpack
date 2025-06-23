@@ -332,7 +332,12 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			// Create new navigation with or without button
 			return createBlock(
 				'jetpack/form-step-navigation',
-				{},
+				{
+					layout: {
+						type: 'flex',
+						justifyContent: 'right',
+					},
+				},
 				button
 					? [ createBlock( PREVIOUS_BUTTON_TEMPLATE ), createBlock( NEXT_BUTTON_TEMPLATE ), button ]
 					: NAVIGATION_TEMPLATE.map( createBlock )
