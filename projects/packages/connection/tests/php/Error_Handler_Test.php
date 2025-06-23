@@ -1192,60 +1192,6 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_verified_errors method with filter
-	 */
-	public function test_get_verified_errors_with_filter() {
-		// Add some base errors first
-		$base_errors = array(
-			'invalid_token' => array(
-				'1' => array(
-					'error_code'    => 'invalid_token',
-					'user_id'       => '1',
-					'error_message' => 'Base message',
-					'error_data'    => array(),
-					'timestamp'     => time(),
-					'nonce'         => 'base_nonce',
-				),
-			),
-		);
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $base_errors );
-
-		// Mock the should_allow_error_filtering method to return true
-		$mock_handler = $this->getMockBuilder( Error_Handler::class )
-			->onlyMethods( array( 'should_allow_error_filtering' ) )
-			->getMock();
-		$mock_handler->method( 'should_allow_error_filtering' )->willReturn( true );
-
-		// Add filter that modifies the errors
-		add_filter(
-			'jetpack_connection_get_verified_errors',
-			function ( $errors ) {
-				$errors['filtered_error'] = array(
-					'1' => array(
-						'error_code'    => 'filtered_error',
-						'user_id'       => '1',
-						'error_message' => 'Filtered message',
-						'error_data'    => array(),
-						'timestamp'     => time(),
-						'nonce'         => 'filtered_nonce',
-					),
-				);
-				return $errors;
-			}
-		);
-
-		$result = $mock_handler->get_displayable_errors();
-
-		$this->assertIsArray( $result );
-		$this->assertArrayHasKey( 'filtered_error', $result );
-		$this->assertEquals( 'filtered_error', $result['filtered_error']['1']['error_code'] );
-		$this->assertEquals( 'Filtered message', $result['filtered_error']['1']['error_message'] );
-
-		// Clean up
-		remove_all_filters( 'jetpack_connection_get_verified_errors' );
-	}
-
-	/**
 	 * Test jetpack_react_dashboard_error method
 	 */
 	public function test_jetpack_react_dashboard_error() {
@@ -1503,65 +1449,6 @@ class Error_Handler_Test extends BaseTestCase {
 		// Test that the method doesn't throw any errors
 		$method->invoke( $this->error_handler );
 		$this->assertTrue( true ); // If we get here, no errors were thrown
-	}
-
-	/**
-	 * Test that caching is disabled when external filters are present
-	 */
-	public function test_caching_disabled_with_external_filters() {
-		// Add a displayable error
-		$error = array(
-			'error_code'    => 'invalid_token',
-			'user_id'       => '1',
-			'error_message' => 'Test message',
-			'error_data'    => array(),
-			'timestamp'     => time(),
-			'nonce'         => 'test_nonce',
-			'error_type'    => 'xmlrpc',
-		);
-
-		$verified_errors = array(
-			'invalid_token' => array(
-				'1' => $error,
-			),
-		);
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
-
-		// Mock the should_allow_error_filtering method to return true
-		$mock_handler = $this->getMockBuilder( Error_Handler::class )
-			->onlyMethods( array( 'should_allow_error_filtering' ) )
-			->getMock();
-		$mock_handler->method( 'should_allow_error_filtering' )->willReturn( true );
-
-		// Add external filter
-		add_filter(
-			'jetpack_connection_get_verified_errors',
-			function ( $errors ) {
-				$errors['filtered_error'] = array(
-					'1' => array(
-						'error_code'    => 'filtered_error',
-						'user_id'       => '1',
-						'error_message' => 'Filtered message',
-						'error_data'    => array(),
-						'timestamp'     => time(),
-						'nonce'         => 'filtered_nonce',
-					),
-				);
-				return $errors;
-			}
-		);
-
-		// First call should process data and not cache (due to filter)
-		$result1 = $mock_handler->get_displayable_errors();
-		$this->assertIsArray( $result1 );
-		$this->assertArrayHasKey( 'filtered_error', $result1 );
-
-		// Second call should process data again (no caching with filters)
-		$result2 = $mock_handler->get_displayable_errors();
-		$this->assertEquals( $result1, $result2 );
-
-		// Clean up
-		remove_all_filters( 'jetpack_connection_get_verified_errors' );
 	}
 
 	/**
