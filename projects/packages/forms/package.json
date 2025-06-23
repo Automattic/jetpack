@@ -22,7 +22,7 @@
 		"build:dashboard": "webpack --config ./tools/webpack.config.dashboard.js",
 		"clean": "rm -rf dist/ .cache/",
 		"test": "jest --config=tests/jest.config.js",
-		"test:contact-form": "jest --testPathPatterns=tests/js/contact-form",
+		"test:contact-form": "jest --testPathPatterns=tests/js",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
