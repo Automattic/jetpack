@@ -102,13 +102,17 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	 * Test WAF init in a VIP environment.
 	 */
 	public function testWafInitVipEnvironment() {
-		$host_mock = $this->getMockBuilder( \Automattic\Jetpack\Status\Host::class )
-		->disableOriginalConstructor()
-		->onlyMethods( array( 'is_vip_site' ) )
-		->getMock();
-
-		$host_mock->method( 'is_vip_site' )
-		->willReturn( true );
+		if ( ! function_exists( 'wpcom_is_vip' ) ) {
+			/**
+			 * Mock function for wpcom_is_vip that returns true for testing VIP sites.
+			 *
+			 * @param int|null $blog_id Blog ID.
+			 * @return bool
+			 */
+			function wpcom_is_vip( $blog_id = null ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction,VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return true;
+			}
+		}
 
 		$available_modules = ( new Modules() )->get_available();
 
