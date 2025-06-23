@@ -1,14 +1,14 @@
 import { Annotation, CircleSubject, Connector, Label, LineSubject } from '@visx/annotation';
-import { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
-import { ConnectorProps } from '@visx/annotation/lib/components/Connector';
-import { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
-import { TextProps } from '@visx/text';
 import { DataContext } from '@visx/xychart';
 import { merge } from 'lodash';
 import { useContext, useRef, useEffect, useState, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import type { DataPointDate } from '../../types';
-import type { LabelProps } from '@visx/annotation/lib/components/label';
+import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
+import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
+import type { LabelProps } from '@visx/annotation/lib/components/Label';
+import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
+import type { TextProps } from '@visx/text';
 import type { FC } from 'react';
 
 export type AnnotationStyles = {
