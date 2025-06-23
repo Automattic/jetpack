@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Defer JS: Fix duplicating deferred scripts on the page.

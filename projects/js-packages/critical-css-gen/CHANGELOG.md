@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.14] - 2025-06-23
+### Fixed
+- Playwright interface: Fix page redirects from breaking the generation process. [#43929]
+
 ## [1.0.13] - 2025-06-11
 ### Changed
 - Update dependencies. [#43569]
@@ -92,6 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version. [#38429]
 
+[1.0.14]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.13...v1.0.14
 [1.0.13]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.12...v1.0.13
 [1.0.12]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.11...v1.0.12
 [1.0.11]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.10...v1.0.11
