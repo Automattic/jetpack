@@ -66,7 +66,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 					width: '100%',
 				} }
 			>
-				{ containerWidth && containerHeight && (
+				{ containerWidth > 0 && containerHeight > 0 && (
 					<WrappedComponent
 						width={ containerWidth }
 						height={ containerHeight }
