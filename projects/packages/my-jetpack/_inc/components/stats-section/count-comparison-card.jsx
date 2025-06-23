@@ -101,7 +101,7 @@ const CountComparisonCard = ( {
 					>
 						{ formatNumber( count ) }
 					</span>
-					{ difference !== null ? (
+					{ difference !== null && difference !== 0 ? (
 						<span
 							className={ clsx( styles[ 'stats-card-difference' ], {
 								[ styles[ 'stats-card-difference--positive' ] ]: difference < 0,

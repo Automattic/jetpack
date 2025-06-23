@@ -15,7 +15,7 @@ import StatsCards from './cards';
 const VISITS_OPTIONS = {
 	period: 'day',
 	quantity: 14,
-	date: new Date(),
+	date: new Date( Date.now() + new Date().getTimezoneOffset() * 60000 ), // now in UTC to match Stats
 };
 
 /**
