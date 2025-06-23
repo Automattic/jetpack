@@ -2902,8 +2902,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
       '@automattic/charts':
-        specifier: '*'
-        version: 0.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: workspace:*
+        version: link:../../js-packages/charts
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -5637,12 +5637,6 @@ packages:
   '@automattic/calypso-url@1.1.0':
     resolution: {integrity: sha512-oA6pzfrp538gq5JEjE0ARDjvR8Efhw+jrK15TJPjAq5Q+vhPSJhH8sYKEsMAoYZV3d5nnyUcmI5Evge+yq4zeg==}
 
-  '@automattic/charts@0.14.0':
-    resolution: {integrity: sha512-RKbhaAetxv3T0oFIf4S3eZ/MxI8WA/+tliyiOpzQmt0vLO6Mw1KbACIKMwLGU5ZKC+EelzErDj/h9sclDRrkhg==}
-    peerDependencies:
-      react: ^17.0.0 || ^18.0.0
-      react-dom: ^17.0.0 || ^18.0.0
-
   '@automattic/color-studio@3.0.3':
     resolution: {integrity: sha512-2GXkwfu4ndGEWWSlQQamCdXIQ9qJ1zbqbGROxJzE6F4kS2EXGgXvkMolpaa6X7ZjosqlGhtTTvYOwgIw/2qD7A==}
 
@@ -5712,9 +5706,6 @@ packages:
 
   '@automattic/material-design-icons@1.0.0':
     resolution: {integrity: sha512-8baJ1l8ftLq/UdLeucOeGXo4/wpaB/pSOBO587/pKC/xv2Oo8Ok21g1WKwp0Y8hEq4+3JNtCzOGVxmIgDBTYvA==}
-
-  '@automattic/number-formatters@1.0.6':
-    resolution: {integrity: sha512-dtoHXjfZITjVyK3d7WVttMPW23KX/sFSc9513sVSzXOmQsM7SHpRZUQXqyZ40G/FVdFLUc6LsGvAPIMPK5d5GA==}
 
   '@automattic/oauth-token@1.0.1':
     resolution: {integrity: sha512-do7/iKRiciU8ybEoqsrS3kcPux8Bs7+xslYJ/EhBVzdIPLP3Cn2BysEMhYkKDOSnoUhvRJi7Y9cCaoRuUIgYJw==}
@@ -16118,33 +16109,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@automattic/charts@0.14.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@automattic/number-formatters': 1.0.6
-      '@babel/runtime': 7.27.4
-      '@react-spring/web': 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@visx/axis': 3.12.0(react@18.3.1)
-      '@visx/curve': 3.12.0
-      '@visx/event': 3.12.0
-      '@visx/gradient': 3.12.0(react@18.3.1)
-      '@visx/grid': 3.12.0(react@18.3.1)
-      '@visx/group': 3.12.0(react@18.3.1)
-      '@visx/legend': 3.12.0(react@18.3.1)
-      '@visx/pattern': 3.12.0(react@18.3.1)
-      '@visx/responsive': 3.12.0(react@18.3.1)
-      '@visx/scale': 3.12.0
-      '@visx/shape': 3.12.0(react@18.3.1)
-      '@visx/text': 3.12.0(react@18.3.1)
-      '@visx/tooltip': 3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@visx/xychart': 3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      clsx: 2.1.1
-      date-fns: 4.1.0
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      tslib: 2.5.0
-    transitivePeerDependencies:
-      - supports-color
-
   '@automattic/color-studio@3.0.3': {}
 
   '@automattic/color-studio@4.1.0': {}
@@ -16315,14 +16279,6 @@ snapshots:
       - supports-color
 
   '@automattic/material-design-icons@1.0.0': {}
-
-  '@automattic/number-formatters@1.0.6':
-    dependencies:
-      '@wordpress/date': 5.25.0
-      debug: 4.4.1
-      tslib: 2.8.1
-    transitivePeerDependencies:
-      - supports-color
 
   '@automattic/oauth-token@1.0.1':
     dependencies:
