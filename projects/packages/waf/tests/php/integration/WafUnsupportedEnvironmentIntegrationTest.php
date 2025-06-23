@@ -47,6 +47,8 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	 * Test teardown.
 	 */
 	protected function tear_down() {
+		global $wpcom_is_vip;
+		$wpcom_is_vip = false;
 		Constants::clear_constants();
 		Cache::clear();
 	}
@@ -102,17 +104,8 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	 * Test WAF init in a VIP environment.
 	 */
 	public function testWafInitVipEnvironment() {
-		if ( ! function_exists( 'wpcom_is_vip' ) ) {
-			/**
-			 * Mock function for wpcom_is_vip that returns true for testing VIP sites.
-			 *
-			 * @param int|null $blog_id Blog ID.
-			 * @return bool
-			 */
-			function wpcom_is_vip( $blog_id = null ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction,VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-				return true;
-			}
-		}
+		global $wpcom_is_vip;
+		$wpcom_is_vip = true;
 
 		$available_modules = ( new Modules() )->get_available();
 
