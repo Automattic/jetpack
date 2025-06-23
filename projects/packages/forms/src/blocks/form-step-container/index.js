@@ -40,23 +40,7 @@ export const settings = {
 			width: true,
 		},
 	},
-	attributes: {
-		align: {
-			type: 'string',
-		},
-		backgroundColor: {
-			type: 'string',
-		},
-		gradient: {
-			type: 'string',
-		},
-		textColor: {
-			type: 'string',
-		},
-		style: {
-			type: 'object',
-		},
-	},
+	attributes: {},
 	template: [ [ 'jetpack/form-step', {} ] ],
 	edit: edit,
 	save: save,

@@ -10,17 +10,14 @@ export default function StepContainerEdit( { clientId } ) {
 
 	const formClientId = useParentFormClientId( clientId );
 
-	// Ensure we have at least one step if empty
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: [ 'jetpack/form-step' ],
-		orientation: 'vertical',
 		defaultBlock: {
 			name: 'jetpack/form-step',
 		},
 		directInsert: true,
 	} );
 
-	// Add a wrapper div to provide better structure for the steps container
 	return (
 		<>
 			<div className="jetpack-form-steps-wrapper">
