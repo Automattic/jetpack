@@ -573,6 +573,9 @@ final class ZeroBSCRM {
 			// urls, slugs, (post inc.)
 			$this->setupUrlsSlugsEtc();
 
+			// Install stuff
+			$this->install();
+
 			// } Initialisation
 			$this->init_hooks();
 
@@ -1353,11 +1356,6 @@ final class ZeroBSCRM {
 	 */
 	private function init_hooks() {
 
-		// General activation hook: DB check, role creation
-		register_activation_hook( ZBS_ROOTFILE, array( $this, 'install' ) );
-
-		add_action( 'activated_plugin', array( $this, 'activated_plugin' ) );
-
 		// Pre-init Hook
 		do_action( 'before_zerobscrm_init' );
 
@@ -2076,27 +2074,6 @@ final class ZeroBSCRM {
 
 		// roles +
 		zeroBSCRM_addUserRoles();
-	}
-
-	/**
-	 * Handle the redirection on JPCRM plugin activation
-	 *
-	 * @param $filename
-	 */
-	public function activated_plugin( $filename ) {
-
-		// Skip the re-direction if it's a JSON/AJAX request or via WP-CLI
-		if ( wp_is_json_request() || wp_doing_ajax() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_is_xml_request() ) {
-			return;
-		}
-
-		if ( $filename == ZBS_ROOTPLUGIN ) {
-			// Send the user to the Dash board
-			global $zbs;
-			if ( wp_redirect( zeroBSCRM_getAdminURL( $zbs->slugs['dash'] ) ) ) {
-				exit( 0 );
-			}
-		}
 	}
 
 	// this func runs on admin_init and xxxx
