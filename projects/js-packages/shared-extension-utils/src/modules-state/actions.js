@@ -1,5 +1,5 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { select } from '@wordpress/data';
-import { isSimpleSite } from '../site-type-utils';
 import {
 	fetchJetpackModules,
 	updateJetpackModuleStatus as updateJetpackModuleStatusControl,

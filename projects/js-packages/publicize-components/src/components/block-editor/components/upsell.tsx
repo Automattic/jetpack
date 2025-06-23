@@ -1,9 +1,5 @@
-import {
-	isAtomicSite,
-	isSimpleSite,
-	getRequiredPlan,
-	useUpgradeFlow,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getRequiredPlan, useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -92,7 +88,7 @@ export function UpsellNotice() {
 	// Define plan name, with a fallback value.
 	const planName = planData?.product_name || __( 'paid', 'jetpack-publicize-components' );
 
-	const isPureJetpackSite = ! isAtomicSite() && ! isSimpleSite();
+	const isPureJetpackSite = ! isWpcomPlatformSite();
 	const upgradeFeatureTitle = isPureJetpackSite
 		? __( 'Re-sharing your content', 'jetpack-publicize-components' )
 		: _x( 'Share Your Content Again', '', 'jetpack-publicize-components' );
