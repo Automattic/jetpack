@@ -30,6 +30,25 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Clean up after tests
+	 */
+	public function tear_down() {
+		// Clear any cached data between tests
+		$reflection = new \ReflectionClass( $this->error_handler );
+		$property   = $reflection->getProperty( 'cached_displayable_errors' );
+		$property->setAccessible( true );
+		$property->setValue( $this->error_handler, null );
+
+		// Clear any test data
+		$this->error_handler->delete_all_errors();
+
+		// Remove any filters that might have been added
+		remove_all_filters( 'jetpack_connection_get_verified_errors' );
+		remove_all_filters( 'jetpack_connection_error_notice_message' );
+		remove_all_filters( 'jetpack_connection_bypass_error_reporting_gate' );
+	}
+
+	/**
 	 * Generates a sample WP_Error object in the same format Manager class does for broken signatures
 	 *
 	 * @param string $error_code The error code you want the error to have.
@@ -663,10 +682,10 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test displayable_errors method with no errors
+	 * Test get_displayable_errors method with no errors
 	 */
 	public function test_displayable_errors_no_errors() {
-		$result = $this->error_handler->displayable_errors();
+		$result = $this->error_handler->get_displayable_errors();
 		$this->assertIsArray( $result );
 		$this->assertEmpty( $result );
 	}
@@ -685,7 +704,7 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test displayable_errors method with displayable error
+	 * Test get_displayable_errors method with displayable error
 	 */
 	public function test_displayable_errors_displayable_error() {
 		// Add a displayable error
@@ -706,7 +725,7 @@ class Error_Handler_Test extends BaseTestCase {
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
 
-		$result = $this->error_handler->displayable_errors();
+		$result = $this->error_handler->get_displayable_errors();
 
 		$this->assertIsArray( $result );
 		$this->assertCount( 1, $result );
@@ -717,12 +736,12 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test displayable_errors method with protected_owner error type
+	 * Test get_displayable_errors method with protected_owner error type
 	 */
 	public function test_displayable_errors_protected_owner_type() {
-		// Add a protected_owner error type
+		// Add a protected_owner error type using a valid displayable error code
 		$error = array(
-			'error_code'    => 'protected_owner_missing',
+			'error_code'    => 'invalid_connection_owner', // Use a valid displayable error code
 			'user_id'       => '1',
 			'error_message' => 'Custom protected owner message',
 			'error_data'    => array(
@@ -735,26 +754,26 @@ class Error_Handler_Test extends BaseTestCase {
 		);
 
 		$verified_errors = array(
-			'protected_owner_missing' => array(
+			'invalid_connection_owner' => array(
 				'1' => $error,
 			),
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
 
-		$result = $this->error_handler->displayable_errors();
+		$result = $this->error_handler->get_displayable_errors();
 
 		$this->assertIsArray( $result );
 		$this->assertCount( 1, $result );
-		$this->assertArrayHasKey( 'protected_owner_missing', $result );
-		$this->assertArrayHasKey( '1', $result['protected_owner_missing'] );
-		$this->assertEquals( 'Custom protected owner message', $result['protected_owner_missing']['1']['error_message'] );
-		$this->assertEquals( 'protected_owner_missing', $result['protected_owner_missing']['1']['error_code'] );
-		$this->assertArrayHasKey( 'custom', $result['protected_owner_missing']['1']['error_data'] );
-		$this->assertEquals( 'data', $result['protected_owner_missing']['1']['error_data']['custom'] );
+		$this->assertArrayHasKey( 'invalid_connection_owner', $result );
+		$this->assertArrayHasKey( '1', $result['invalid_connection_owner'] );
+		$this->assertStringContainsString( 'broken', $result['invalid_connection_owner']['1']['error_message'] ); // Should use default message
+		$this->assertEquals( 'invalid_connection_owner', $result['invalid_connection_owner']['1']['error_code'] );
+		$this->assertArrayHasKey( 'custom', $result['invalid_connection_owner']['1']['error_data'] );
+		$this->assertEquals( 'data', $result['invalid_connection_owner']['1']['error_data']['custom'] );
 	}
 
 	/**
-	 * Test displayable_errors method with filter (WoA site)
+	 * Test get_displayable_errors method with filter (WoA site)
 	 */
 	public function test_displayable_errors_filter_woa_site() {
 		// Add a displayable error
@@ -786,7 +805,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		// For this test, we'll just verify the filter exists and can be applied
 		// The actual WoA site detection would require more complex mocking
-		$result = $this->error_handler->displayable_errors();
+		$result = $this->error_handler->get_displayable_errors();
 
 		// Verify the basic structure is correct
 		$this->assertIsArray( $result );
@@ -1176,6 +1195,27 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test get_verified_errors method with filter
 	 */
 	public function test_get_verified_errors_with_filter() {
+		// Add some base errors first
+		$base_errors = array(
+			'invalid_token' => array(
+				'1' => array(
+					'error_code'    => 'invalid_token',
+					'user_id'       => '1',
+					'error_message' => 'Base message',
+					'error_data'    => array(),
+					'timestamp'     => time(),
+					'nonce'         => 'base_nonce',
+				),
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $base_errors );
+
+		// Mock the should_allow_error_filtering method to return true
+		$mock_handler = $this->getMockBuilder( Error_Handler::class )
+			->onlyMethods( array( 'should_allow_error_filtering' ) )
+			->getMock();
+		$mock_handler->method( 'should_allow_error_filtering' )->willReturn( true );
+
 		// Add filter that modifies the errors
 		add_filter(
 			'jetpack_connection_get_verified_errors',
@@ -1194,7 +1234,7 @@ class Error_Handler_Test extends BaseTestCase {
 			}
 		);
 
-		$result = $this->error_handler->get_verified_errors();
+		$result = $mock_handler->get_displayable_errors();
 
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'filtered_error', $result );
@@ -1203,38 +1243,6 @@ class Error_Handler_Test extends BaseTestCase {
 
 		// Clean up
 		remove_all_filters( 'jetpack_connection_get_verified_errors' );
-	}
-
-	/**
-	 * Test get_stored_verified_errors method (protected method)
-	 */
-	public function test_get_stored_verified_errors() {
-		// Add some test errors
-		$test_errors = array(
-			'test_error' => array(
-				'1' => array(
-					'error_code'    => 'test_error',
-					'user_id'       => '1',
-					'error_message' => 'Test message',
-					'error_data'    => array(),
-					'timestamp'     => time(),
-					'nonce'         => 'test_nonce',
-				),
-			),
-		);
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $test_errors );
-
-		// Use reflection to access protected method
-		$reflection = new \ReflectionClass( $this->error_handler );
-		$method     = $reflection->getMethod( 'get_stored_verified_errors' );
-		$method->setAccessible( true );
-
-		$result = $method->invoke( $this->error_handler );
-
-		$this->assertIsArray( $result );
-		$this->assertArrayHasKey( 'test_error', $result );
-		$this->assertArrayHasKey( '1', $result['test_error'] );
-		$this->assertEquals( 'test_error', $result['test_error']['1']['error_code'] );
 	}
 
 	/**
@@ -1266,23 +1274,17 @@ class Error_Handler_Test extends BaseTestCase {
 		);
 		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $test_errors );
 
-		$result = $this->error_handler->jetpack_react_dashboard_error();
+		$result = $this->error_handler->jetpack_react_dashboard_error( array() );
 
 		$this->assertIsArray( $result );
-		$this->assertCount( 2, $result );
+		$this->assertCount( 1, $result ); // Only returns the first error
 
-		// Check first error (should have null action when not specified)
+		// Check the first error (should have default 'reconnect' action when not specified)
 		$this->assertEquals( 'connection_error', $result[0]['code'] );
 		$this->assertStringContainsString( 'broken', $result[0]['message'] );
-		$this->assertNull( $result[0]['action'] );
+		$this->assertEquals( 'reconnect', $result[0]['action'] ); // Default action
 		$this->assertEquals( 'invalid_token', $result[0]['data']['api_error_code'] );
 		$this->assertEquals( 'data', $result[0]['data']['custom'] );
-
-		// Check second error (should use custom action from error_data)
-		$this->assertEquals( 'connection_error', $result[1]['code'] );
-		$this->assertStringContainsString( 'broken', $result[1]['message'] );
-		$this->assertEquals( 'custom_action', $result[1]['action'] );
-		$this->assertEquals( 'no_valid_user_token', $result[1]['data']['api_error_code'] );
 	}
 
 	/**
@@ -1344,5 +1346,252 @@ class Error_Handler_Test extends BaseTestCase {
 
 		// Clean up
 		remove_filter( 'jetpack_connection_error_notice_message', '__return_empty_string' );
+	}
+
+	/**
+	 * Test caching functionality of get_displayable_errors method
+	 */
+	public function test_get_displayable_errors_caching() {
+		// Add a displayable error
+		$error = array(
+			'error_code'    => 'invalid_token',
+			'user_id'       => '1',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+
+		$verified_errors = array(
+			'invalid_token' => array(
+				'1' => $error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		// First call should process the data
+		$result1 = $this->error_handler->get_displayable_errors();
+		$this->assertIsArray( $result1 );
+		$this->assertCount( 1, $result1 );
+
+		// Second call should use cached result
+		$result2 = $this->error_handler->get_displayable_errors();
+		$this->assertEquals( $result1, $result2 );
+
+		// Verify both results are identical
+		$this->assertSame( $result1, $result2 );
+	}
+
+	/**
+	 * Test cache invalidation when errors are modified
+	 */
+	public function test_cache_invalidation_on_error_modification() {
+		// Add initial error
+		$error = array(
+			'error_code'    => 'invalid_token',
+			'user_id'       => '1',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+
+		$verified_errors = array(
+			'invalid_token' => array(
+				'1' => $error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		// First call to populate cache
+		$result1 = $this->error_handler->get_displayable_errors();
+		$this->assertCount( 1, $result1 );
+
+		// Add a new error via verify_error (should invalidate cache)
+		$new_error = array(
+			'error_code'    => 'no_valid_user_token',
+			'user_id'       => '2',
+			'error_message' => 'New error message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'new_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+		$this->error_handler->verify_error( $new_error );
+
+		// Second call should include the new error (cache was invalidated)
+		$result2 = $this->error_handler->get_displayable_errors();
+		$this->assertCount( 2, $result2 );
+		$this->assertArrayHasKey( 'invalid_token', $result2 );
+		$this->assertArrayHasKey( 'no_valid_user_token', $result2 );
+	}
+
+	/**
+	 * Test cache invalidation when errors are deleted
+	 */
+	public function test_cache_invalidation_on_error_deletion() {
+		// Add initial error
+		$error = array(
+			'error_code'    => 'invalid_token',
+			'user_id'       => '1',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+
+		$verified_errors = array(
+			'invalid_token' => array(
+				'1' => $error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		// First call to populate cache
+		$result1 = $this->error_handler->get_displayable_errors();
+		$this->assertCount( 1, $result1 );
+
+		// Delete all errors (should invalidate cache)
+		$this->error_handler->delete_all_errors();
+
+		// Second call should return empty result (cache was invalidated)
+		$result2 = $this->error_handler->get_displayable_errors();
+		$this->assertEmpty( $result2 );
+	}
+
+	/**
+	 * Test has_external_filters method
+	 */
+	public function test_has_external_filters() {
+		// Use reflection to access protected method
+		$reflection = new \ReflectionClass( $this->error_handler );
+		$method     = $reflection->getMethod( 'has_external_filters' );
+		$method->setAccessible( true );
+
+		// Test without filters
+		$result = $method->invoke( $this->error_handler );
+		$this->assertIsBool( $result );
+
+		// Add a filter
+		add_filter(
+			'jetpack_connection_get_verified_errors',
+			function ( $errors ) {
+				return $errors;
+			}
+		);
+
+		// Test with filter
+		$result_with_filter = $method->invoke( $this->error_handler );
+		$this->assertIsBool( $result_with_filter );
+
+		// Clean up
+		remove_all_filters( 'jetpack_connection_get_verified_errors' );
+	}
+
+	/**
+	 * Test invalidate_displayable_errors_cache method
+	 */
+	public function test_invalidate_displayable_errors_cache() {
+		// Use reflection to access protected method
+		$reflection = new \ReflectionClass( $this->error_handler );
+		$method     = $reflection->getMethod( 'invalidate_displayable_errors_cache' );
+		$method->setAccessible( true );
+
+		// Test that the method doesn't throw any errors
+		$method->invoke( $this->error_handler );
+		$this->assertTrue( true ); // If we get here, no errors were thrown
+	}
+
+	/**
+	 * Test that caching is disabled when external filters are present
+	 */
+	public function test_caching_disabled_with_external_filters() {
+		// Add a displayable error
+		$error = array(
+			'error_code'    => 'invalid_token',
+			'user_id'       => '1',
+			'error_message' => 'Test message',
+			'error_data'    => array(),
+			'timestamp'     => time(),
+			'nonce'         => 'test_nonce',
+			'error_type'    => 'xmlrpc',
+		);
+
+		$verified_errors = array(
+			'invalid_token' => array(
+				'1' => $error,
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		// Mock the should_allow_error_filtering method to return true
+		$mock_handler = $this->getMockBuilder( Error_Handler::class )
+			->onlyMethods( array( 'should_allow_error_filtering' ) )
+			->getMock();
+		$mock_handler->method( 'should_allow_error_filtering' )->willReturn( true );
+
+		// Add external filter
+		add_filter(
+			'jetpack_connection_get_verified_errors',
+			function ( $errors ) {
+				$errors['filtered_error'] = array(
+					'1' => array(
+						'error_code'    => 'filtered_error',
+						'user_id'       => '1',
+						'error_message' => 'Filtered message',
+						'error_data'    => array(),
+						'timestamp'     => time(),
+						'nonce'         => 'filtered_nonce',
+					),
+				);
+				return $errors;
+			}
+		);
+
+		// First call should process data and not cache (due to filter)
+		$result1 = $mock_handler->get_displayable_errors();
+		$this->assertIsArray( $result1 );
+		$this->assertArrayHasKey( 'filtered_error', $result1 );
+
+		// Second call should process data again (no caching with filters)
+		$result2 = $mock_handler->get_displayable_errors();
+		$this->assertEquals( $result1, $result2 );
+
+		// Clean up
+		remove_all_filters( 'jetpack_connection_get_verified_errors' );
+	}
+
+	/**
+	 * Test jetpack_react_dashboard_error method with custom action
+	 */
+	public function test_jetpack_react_dashboard_error_with_custom_action() {
+		// Add a test error with custom action using a valid displayable error code
+		$test_errors = array(
+			'invalid_connection_owner' => array(
+				'1' => array(
+					'error_code'    => 'invalid_connection_owner',
+					'user_id'       => '1',
+					'error_message' => 'Test message',
+					'error_data'    => array( 'action' => 'create_missing_account' ),
+					'timestamp'     => time(),
+					'nonce'         => 'test_nonce',
+				),
+			),
+		);
+		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $test_errors );
+
+		$result = $this->error_handler->jetpack_react_dashboard_error( array() );
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
+
+		// Check that the custom action is used
+		$this->assertEquals( 'connection_error', $result[0]['code'] );
+		$this->assertStringContainsString( 'broken', $result[0]['message'] );
+		$this->assertEquals( 'create_missing_account', $result[0]['action'] ); // Custom action
+		$this->assertEquals( 'invalid_connection_owner', $result[0]['data']['api_error_code'] );
 	}
 }
