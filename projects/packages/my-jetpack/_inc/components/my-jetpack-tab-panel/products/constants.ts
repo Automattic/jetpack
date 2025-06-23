@@ -23,53 +23,54 @@ export const JETPACK_PRODUCTS_WITHOUT_CARD = [
 	'site-accelerator',
 ] as const;
 
-// TODO Update this list
+/**
+ * Non-paid here means that the module is available for free users,
+ * i.e. it does not have a paid plan associated with it.
+ */
 export const JETPACK_NON_PAID_MODULES = [
 	'account-protection',
-	'carousel',
-	'comment-likes',
-	'likes',
-	'monitor',
-	'sharedaddy',
-	'shortlinks',
-	'sso',
-	'waf',
-] as const;
-
-// TODO Update this list
-export const JETPACK_PAID_MODULES = [
 	'blaze',
 	'blocks',
+	'carousel',
+	'comment-likes',
 	'comments',
-	'contact-form',
 	'copy-post',
-	'custom-content-types',
 	'google-fonts',
 	'gravatar-hovercards',
 	'infinite-scroll',
 	'json-api',
-	'latex',
+	'likes',
 	'markdown',
+	'monitor',
 	'notes',
 	'photon',
 	'photon-cdn',
 	'post-by-email',
 	'post-list',
 	'protect',
-	'publicize',
 	'related-posts',
-	'search',
 	'seo-tools',
+	'sharedaddy',
 	'shortcodes',
+	'shortlinks',
 	'sitemaps',
-	'stats',
+	'sso',
 	'subscriptions',
 	'tiled-gallery',
-	'vaultpress',
 	'verification-tools',
-	'videopress',
+	'waf',
 	'widget-visibility',
 	'widgets',
+] as const;
+
+export const JETPACK_PAID_MODULES = [
+	'contact-form',
+	'latex',
+	'publicize',
+	'search',
+	'stats',
+	'vaultpress',
+	'videopress',
 	'woocommerce-analytics',
 	'wordads',
 ] as const;

@@ -1,13 +1,16 @@
 import { __ } from '@wordpress/i18n';
-import { ProductSection } from './types';
+import { ProductCategory, ProductSection } from './types';
 
 /**
  * Get the choices for the products filter.
  *
  * @return The choices for the products filter.
  */
-export function getProductsFilterChoices(): Array< { label: string; value: string } > {
-	const choices = [
+export function getProductsFilterChoices() {
+	const choices: Array< {
+		label: string;
+		value: ProductCategory | 'all' | 'included';
+	} > = [
 		{
 			label: __( 'All categories', 'jetpack-my-jetpack' ),
 			value: 'all',
@@ -33,12 +36,8 @@ export function getProductsFilterChoices(): Array< { label: string; value: strin
 			value: 'performance',
 		},
 		{
-			label: __( 'Management', 'jetpack-my-jetpack' ),
-			value: 'management',
-		},
-		{
-			label: __( 'Create', 'jetpack-my-jetpack' ),
-			value: 'create',
+			label: __( 'Other', 'jetpack-my-jetpack' ),
+			value: 'other',
 		},
 	];
 
