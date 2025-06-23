@@ -23,7 +23,6 @@ const defaultTheme: ChartTheme = {
 		label: {
 			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
 			backgroundFill: '#fff',
-			maxWidth: 10000,
 		},
 		connector: {
 			stroke: 'var(--jp-gray-80, #2c3338)',
@@ -59,7 +58,6 @@ const jetpackTheme: ChartTheme = {
 		label: {
 			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
 			backgroundFill: '#fff',
-			maxWidth: 10000,
 		},
 		connector: {
 			stroke: 'var(--jp-gray-80, #2c3338)',
@@ -100,7 +98,6 @@ const wooTheme: ChartTheme = {
 		label: {
 			anchorLineStroke: '#757575',
 			backgroundFill: '#fff',
-			maxWidth: 10000,
 		},
 		connector: {
 			stroke: '#757575',
