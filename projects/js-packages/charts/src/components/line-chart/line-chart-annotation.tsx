@@ -29,7 +29,7 @@ export type LineChartAnnotationProps = {
 	subtitle?: string;
 	subjectType?: SubjectType;
 	styles?: AnnotationStyles;
-	'data-testid'?: string;
+	testId?: string;
 };
 
 const getLabelPosition = ( {
@@ -140,7 +140,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	subtitle,
 	subjectType = 'circle',
 	styles: datumStyles,
-	'data-testid': testId,
+	testId,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { xScale, yScale } = useContext( DataContext ) || {};

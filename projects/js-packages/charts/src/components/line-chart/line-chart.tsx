@@ -388,7 +388,7 @@ const LineChart: FC< LineChartProps > = ( {
 							datum ? (
 								<LineChartAnnotation
 									key={ `annotation-${ datum.date?.getTime() }-${ datum.value }` }
-									data-testid={ `annotation-${ index }` }
+									testId={ `annotation-${ index }` }
 									datum={ datum }
 									title={ title }
 									subtitle={ subtitle }
