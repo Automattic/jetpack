@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { PanelRow, ExternalLink, Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -58,13 +59,8 @@ export const YoastPromo = () => {
 
 	const Content = getContent();
 
-	const isSimpleSite =
-		'object' === typeof window && window?._currentSiteType === 'simple'
-			? window?._currentSiteType
-			: false;
-
 	// We don't want to show the promo to simple sites, if the user has already dismissed it, or if Yoast Premium is active.
-	if ( isDismissed || isSimpleSite || ! Content ) {
+	if ( isDismissed || isSimpleSite() || ! Content ) {
 		return null;
 	}
 
