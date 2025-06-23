@@ -71,7 +71,6 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 						width={ containerWidth }
 						height={ containerHeight }
 						size={ containerWidth }
-						key={ chartProps.key }
 						{ ...( chartProps as T ) }
 					/>
 				) }
