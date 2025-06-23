@@ -58,7 +58,7 @@
 		"@wordpress/primitives": "4.25.0",
 		"@wordpress/url": "4.25.0",
 		"clsx": "2.1.1",
-		"copy-webpack-plugin": "11.0.0",
+		"copy-webpack-plugin": "13.0.0",
 		"email-validator": "2.0.4",
 		"gridicons": "3.4.2",
 		"lodash": "4.17.21",
