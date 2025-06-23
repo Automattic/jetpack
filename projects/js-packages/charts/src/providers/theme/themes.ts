@@ -96,15 +96,15 @@ const wooTheme: ChartTheme = {
 	},
 	annotationStyles: {
 		label: {
-			anchorLineStroke: '#757575',
+			anchorLineStroke: 'black',
 			backgroundFill: '#fff',
 		},
 		connector: {
-			stroke: '#757575',
+			stroke: 'black',
 		},
 		circleSubject: {
 			stroke: 'transparent',
-			fill: '#757575',
+			fill: 'black',
 			radius: 5,
 		},
 	},
