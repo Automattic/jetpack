@@ -835,6 +835,9 @@ class Jetpack {
 		// Initialize remote file upload request handlers.
 		$this->add_remote_request_handlers();
 
+		// Add JetpackScriptData to frontend pages
+		add_filter( 'jetpack_public_js_script_data', array( $this, 'add_frontend_script_data' ), 10, 1 );
+
 		/*
 		 * Enable enhanced handling of previewing sites in Calypso
 		 */
@@ -3191,7 +3194,7 @@ p {
 
 			if ( $throw ) {
 				/* translators: Plugin name to deactivate. */
-				throw new RuntimeException( sprintf( __( 'Jetpack contains the most recent version of the old “%1$s” plugin.', 'jetpack' ), 'WordPress.com Stats' ) );
+				throw new RuntimeException( sprintf( __( 'Jetpack contains the most recent version of the old "%1$s" plugin.', 'jetpack' ), 'WordPress.com Stats' ) );
 			}
 		}
 	}
@@ -6147,6 +6150,20 @@ endif;
 			}
 
 			wp_safe_redirect( $redirect_url );
+		}
+	}
+
+	/**
+	 * Add JetpackScriptData with host related information to frontend pages.
+	 *
+	 * @param array $data The script data.
+	 */
+	public function add_frontend_script_data( $data ) {
+		if ( ! isset( $data['site']['host'] ) ) {
+			$data['site']['host'] = ( new Status\Host() )->get_known_host_guess();
+		}
+		if ( ! isset( $data['site']['is_wpcom_platform'] ) ) {
+			$data['site']['is_wpcom_platform'] = ( new Status\Host() )->is_wpcom_platform();
 		}
 	}
 }
