@@ -2610,7 +2610,7 @@ function wp_cache_files() {
 	} else {
 		echo "<p>" . __( 'Cache stats are not automatically generated. You must click the link below to regenerate the stats on this page.', 'wp-super-cache' ) . "</p>";
 		echo "<a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'tab' => 'contents', 'action' => 'regenerate_cache_stats' ) ), 'wp-cache' ) . "'>" . __( 'Regenerate cache stats', 'wp-super-cache' ) . "</a>";
-		if ( $cache_stats ) {
+		if ( ! empty( $cache_stats['generated'] ) ) {
 			echo "<p>" . sprintf( __( 'Cache stats last generated: %s minutes ago.', 'wp-super-cache' ), number_format( ( time() - $cache_stats[ 'generated' ] ) / 60 ) ) . "</p>";
 		}
 		$cache_stats = get_option( 'supercache_stats' );
@@ -2628,7 +2628,7 @@ function wp_cache_files() {
 		$fsize = wp_cache_format_fsize( $fsize );
 		echo "<p><strong>" . __( 'WP-Super-Cache', 'wp-super-cache' ) . " ({$fsize})</strong></p>";
 		echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), $cache_stats[ 'supercache' ][ 'cached' ] ) . "</li>";
-		if ( isset( $now ) && $cache_stats ) {
+		if ( isset( $now ) && ! empty( $cache_stats['generated'] ) ) {
 			$age = intval( ( $now - $cache_stats['generated'] ) / 60 );
 		} else {
 			$age = 0;
