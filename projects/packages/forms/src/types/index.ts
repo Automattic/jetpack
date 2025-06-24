@@ -58,6 +58,38 @@ export type Pattern = {
 };
 
 /**
+ * Represents a form response.
+ */
+export interface FormResponse {
+	/** The unique identifier for the response. */
+	id: number;
+	/** The status of the response. */
+	status: 'publish' | 'spam' | 'trash';
+	/** The date and time the response was created. */
+	date: string;
+	/** The date and time the response was created in GMT. */
+	date_gmt: string;
+	/** The name of the response author. */
+	author_name: string;
+	/** The email of the response author. */
+	author_email: string;
+	/** The URL of the response author. */
+	author_url: string;
+	/** The avatar of the response author. */
+	author_avatar: string;
+	/** The IP address of the response author. */
+	ip: string;
+	/** The title of the form that the response was submitted to. */
+	entry_title: string;
+	/** The permalink of the form that the response was submitted to. */
+	entry_permalink: string;
+	/** Whether the response has a file attached. */
+	has_file: boolean;
+	/** The fields of the response. */
+	fields: Record< string, unknown >;
+}
+
+/**
  * Default URLs for Jetpack Forms blocks, such as responses and spam responses.
  */
 export interface JPFormsBlocksDefaults {

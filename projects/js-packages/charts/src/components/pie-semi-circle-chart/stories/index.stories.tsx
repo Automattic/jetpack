@@ -108,8 +108,6 @@ export const Default: Story = {
 		label: 'OS',
 		note: 'Windows +10%',
 		clockwise: true,
-		showLegend: false,
-		legendOrientation: 'horizontal',
 	},
 };
 
@@ -124,23 +122,6 @@ export const WithTooltips: Story = {
 				story: 'Semi-circle pie chart with interactive tooltips that appear on hover.',
 			},
 		},
-	},
-};
-
-export const WithHorizontalLegend: Story = {
-	args: {
-		...Default.args,
-		width: 600,
-		showLegend: true,
-		legendOrientation: 'horizontal',
-	},
-};
-
-export const WithVerticalLegend: Story = {
-	args: {
-		...Default.args,
-		showLegend: true,
-		legendOrientation: 'vertical',
 	},
 };
 

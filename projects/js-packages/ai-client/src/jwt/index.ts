@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import debugFactory from 'debug';
 /**
  * Internal dependencies

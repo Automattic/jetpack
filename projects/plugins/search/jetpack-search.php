@@ -42,7 +42,7 @@ defined( 'JETPACK__SANDBOX_DOMAIN' ) || define( 'JETPACK__SANDBOX_DOMAIN', '' );
 defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) || define( 'JETPACK_SIGNATURE__HTTP_PORT', 80 );
 defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) || define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
 
-$autoload_packages_path = JETPACK_SEARCH_PLUGIN__DIR . '/vendor/autoload_packages.php';
+$autoload_packages_path = JETPACK_SEARCH_PLUGIN__DIR . 'vendor/autoload_packages.php';
 if ( ! is_readable( $autoload_packages_path ) ) {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log

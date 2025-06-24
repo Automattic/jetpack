@@ -26,6 +26,7 @@ import { mapInternalPromptTypeToBackendPromptType } from '../../lib/prompt/backe
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
 import { getBlockHandler, InlineExtensionsContext } from './get-block-handler';
+import { isBlockVariationSupported } from './lib/is-block-variation-supported';
 import { isPossibleToExtendTextBlock } from './lib/is-possible-to-extend-text-block';
 /*
  * Types
@@ -41,6 +42,7 @@ import type {
 	PromptItemProps,
 	RequestingStateProp,
 	AiModelTypeProp,
+	Block,
 } from '@automattic/jetpack-ai-client';
 
 const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' );
@@ -572,11 +574,20 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		);
 	}
 
-	return props => {
+	return ( props: Block ) => {
 		const isRequiredModulePresent = useBlockModuleStatus( props.name );
+
+		if ( ! props.clientId || ! props.attributes ) {
+			return <BlockEdit { ...props } />;
+		}
 
 		// If the required module is not enabled, return the original block edit component early.
 		if ( ! isRequiredModulePresent ) {
+			return <BlockEdit { ...props } />;
+		}
+
+		// If the block variation is not supported, also return early.
+		if ( ! isBlockVariationSupported( props ) ) {
 			return <BlockEdit { ...props } />;
 		}
 
