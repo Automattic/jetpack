@@ -1,4 +1,5 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
@@ -7,6 +8,27 @@ import renderMaterialIcon from '../shared/components/render-material-icon';
 import { getIconColor } from '../shared/util/block-icons';
 
 const variations = compact( [
+	{
+		name: 'regular-form',
+		title: __( 'Form', 'jetpack-forms' ),
+		icon: {
+			foreground: getIconColor(),
+			src: renderMaterialIcon(
+				<>
+					<Path d="m13 7.5 h 5 v 1.5 h -5 v -1.5z" />
+					<Path d="m13 15 h 5 v 1.5 h -5 v -1.5z" />
+					<Path d="m19.01,3H4.99c-1.1,0-1.99.89-1.99,1.99v14.02c0,1.1.89,1.99,1.99,1.99h14.02c1.1,0,1.99-.89,1.99-1.99V4.99c0-1.1-.89-1.99-1.99-1.99Zm.49,15.99c0,.28-.23.51-.51.51H5.01c-.28,0-.51-.23-.51-.51V5.01c0-.28.23-.51.51-.51h13.98c.28,0,.51.23.51.51v13.98Z" />
+					<Path d="m9.46,13h-1.92c-.85,0-1.54.69-1.54,1.54v1.92c0,.85.69,1.54,1.54,1.54h1.92c.85,0,1.54-.69,1.54-1.54v-1.92c0-.85-.69-1.54-1.54-1.54Zm.04,3.5h-2v-2h2v2Z" />
+					<Path d="m9.46,6h-1.92c-.85,0-1.54.69-1.54,1.54v1.92c0,.85.69,1.54,1.54,1.54h1.92c.85,0,1.54-.69,1.54-1.54v-1.92c0-.85-.69-1.54-1.54-1.54Zm.04,3.5h-2v-2h2v2Z" />
+				</>
+			),
+		},
+		attributes: {
+			variationName: 'default-empty',
+		},
+		scope: [ 'transform' ],
+		isActive: ( { variationName } ) => variationName !== 'multistep',
+	},
 	{
 		name: 'contact-form',
 		title: __( 'Contact Form', 'jetpack-forms' ),
@@ -56,7 +78,9 @@ const variations = compact( [
 				},
 			],
 		],
-		attributes: {},
+		attributes: {
+			variationName: 'default',
+		},
 	},
 	{
 		name: 'rsvp-form',
@@ -754,6 +778,241 @@ const variations = compact( [
 				},
 			],
 		},
+	},
+	hasFeatureFlag( 'multistep-form' ) && {
+		name: 'multistep-form',
+		title: __( 'Multistep Form', 'jetpack-forms' ),
+		description: __( 'Create a form that spans multiple steps.', 'jetpack-forms' ),
+		icon: {
+			foreground: getIconColor(),
+			src: renderMaterialIcon(
+				<>
+					<Path
+						d="M7.3501 12C7.3501 10.7574 6.34274 9.75 5.1001 9.75C3.85746 9.75 2.8501 10.7574 2.8501 12C2.8501 13.2426 3.85746 14.25 5.1001 14.25C6.34274 14.25 7.3501 13.2426 7.3501 12Z"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						fill="none"
+						className="icon-filler"
+					/>
+					<Path
+						d="M14.3501 12C14.3501 10.7574 13.3427 9.75 12.1001 9.75C10.8575 9.75 9.8501 10.7574 9.8501 12C9.8501 13.2426 10.8575 14.25 12.1001 14.25C13.3427 14.25 14.3501 13.2426 14.3501 12Z"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						fill="none"
+						className="icon-filler"
+					/>
+					<Path
+						d="M21.3501 12C21.3501 10.7574 20.3427 9.75 19.1001 9.75C17.8575 9.75 16.8501 10.7574 16.8501 12C16.8501 13.2426 17.8575 14.25 19.1001 14.25C20.3427 14.25 21.3501 13.2426 21.3501 12Z"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						fill="none"
+						className="icon-filler"
+					/>
+					<Path
+						d="M19.1001 18.8636C19.1001 21.1364 17.4668 22.5 15.6001 22.5C13.7334 22.5 12.1001 21.5 12.1001 18.8636V16.5"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						fill="none"
+						className="icon-filler"
+					/>
+					<Path d="M21.6001 19H20.1001H18.6001H16.6001L19.1001 16L21.6001 19Z" />
+					<Path
+						d="M12.1001 5.1364C12.1001 2.8636 10.4668 1.5 8.6001 1.5C6.73343 1.5 5.1001 2.5 5.1001 5.1364V7.5"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						fill="none"
+						className="icon-filler"
+					/>
+					<Path d="M14.6001 5H13.1001H11.6001H9.6001L12.1001 8L14.6001 5Z" />
+				</>
+			),
+		},
+		innerBlocks: [
+			[ 'jetpack/form-progress-indicator', {} ],
+			[
+				'jetpack/form-step-container',
+				{},
+				[
+					[
+						'jetpack/form-step',
+						{ stepLabel: __( "Let's get acquainted", 'jetpack-forms' ) },
+						[
+							[
+								'jetpack/field-name',
+								{ placeholder: __( 'Jamie Smith', 'jetpack-forms' ) },
+								[
+									[ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ],
+									[ 'jetpack/input' ],
+								],
+							],
+							[
+								'jetpack/field-email',
+								{
+									required: true,
+									placeholder: __( 'jamie.smith@example.com', 'jetpack-forms' ),
+								},
+								[
+									[ 'jetpack/label', { label: __( 'Email Address', 'jetpack-forms' ) } ],
+									[ 'jetpack/input' ],
+								],
+							],
+							[
+								'jetpack/field-select',
+								{
+									options: [
+										__( 'I need help', 'jetpack-forms' ),
+										__( "I'm interested in your services", 'jetpack-forms' ),
+										__( 'Just exploring', 'jetpack-forms' ),
+									],
+								},
+								[
+									[
+										'jetpack/label',
+										{ label: __( 'What brings you here today?', 'jetpack-forms' ) },
+									],
+									[
+										'jetpack/input',
+										{ type: 'dropdown', placeholder: __( 'Select one option', 'jetpack-forms' ) },
+									],
+								],
+							],
+						],
+					],
+					[
+						'jetpack/form-step',
+						{ stepLabel: __( 'How can we help?', 'jetpack-forms' ) },
+						[
+							[
+								'jetpack/field-textarea',
+								{},
+								[
+									[
+										'jetpack/label',
+										{ label: __( 'What do you need help with?', 'jetpack-forms' ) },
+									],
+									[ 'jetpack/input', { type: 'textarea' } ],
+								],
+							],
+							[
+								'jetpack/field-select',
+								{
+									options: [
+										__( 'Urgent (within 1 business day)', 'jetpack-forms' ),
+										__( 'High priority (1–2 business days)', 'jetpack-forms' ),
+										__( 'Normal (3–5 business days)', 'jetpack-forms' ),
+										__( 'Flexible / No specific deadline', 'jetpack-forms' ),
+									],
+								},
+								[
+									[
+										'jetpack/label',
+										{ label: __( 'How soon do you need a response?', 'jetpack-forms' ) },
+									],
+									[
+										'jetpack/input',
+										{ type: 'dropdown', placeholder: __( 'Select one option', 'jetpack-forms' ) },
+									],
+								],
+							],
+						],
+					],
+					[
+						'jetpack/form-step',
+						{ stepLabel: __( 'Preferences', 'jetpack-forms' ) },
+						[
+							[
+								'jetpack/field-select',
+								{
+									options: [
+										__( 'Email', 'jetpack-forms' ),
+										__( 'Phone call', 'jetpack-forms' ),
+										__( 'Text message', 'jetpack-forms' ),
+										__( 'WhatsApp', 'jetpack-forms' ),
+									],
+								},
+								[
+									[
+										'jetpack/label',
+										{ label: __( 'Preferred way to hear from us', 'jetpack-forms' ) },
+									],
+									[
+										'jetpack/input',
+										{ type: 'dropdown', placeholder: __( 'Select one option', 'jetpack-forms' ) },
+									],
+								],
+							],
+							[
+								'jetpack/field-telephone',
+								{},
+								[
+									[ 'jetpack/label', { label: __( 'Phone Number', 'jetpack-forms' ) } ],
+									[
+										'jetpack/input',
+										{
+											placeholder: __(
+												"If you'd rather chat by phone, just leave your number here.",
+												'jetpack-forms'
+											),
+										},
+									],
+								],
+							],
+							[
+								'core/paragraph',
+								{
+									content: __(
+										"✨ That's it! Send it over and we'll take care of the rest.",
+										'jetpack-forms'
+									),
+								},
+							],
+						],
+					],
+				],
+			],
+			[
+				'jetpack/form-step-navigation',
+				{ layout: { type: 'flex', justifyContent: 'right' } },
+				[
+					[
+						'jetpack/button',
+						{
+							element: 'button',
+							uniqueId: 'previous-step',
+							customVariant: 'previous',
+							text: __( '← Back', 'jetpack-forms' ),
+							className: 'is-style-outline',
+							metaName: __( 'Previous button', 'jetpack-forms' ),
+						},
+					],
+					[
+						'jetpack/button',
+						{
+							element: 'button',
+							uniqueId: 'next-step',
+							customVariant: 'next',
+							text: __( 'Next →', 'jetpack-forms' ),
+							metaName: __( 'Next button', 'jetpack-forms' ),
+						},
+					],
+					[
+						'jetpack/button',
+						{
+							element: 'button',
+							uniqueId: 'submit-step',
+							customVariant: 'submit',
+							text: __( 'Submit', 'jetpack-forms' ),
+							metaName: __( 'Submit button', 'jetpack-forms' ),
+						},
+					],
+				],
+			],
+		],
+		attributes: {
+			variationName: 'multistep',
+		},
+		scope: [ 'block', 'inserter', 'transform' ],
+		isActive: [ 'variationName' ],
 	},
 	! isWpcomPlatformSite() && {
 		name: 'lead-capture-form',

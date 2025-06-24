@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
@@ -57,6 +58,16 @@ class Contact_Form_Plugin {
 	 * @var string
 	 */
 	private $pde_email_address = '';
+
+	/**
+	 * The number of steps in the form.
+	 *
+	 * This is used to determine how many steps are in the form when using the multi-step feature.
+	 * It is incremented each time a new step is added.
+	 *
+	 * @var int
+	 */
+	public static $step_count = 0;
 
 	/*
 	 * Field keys that might be present in the entry json but we don't want to show to the admin
@@ -568,6 +579,198 @@ class Contact_Form_Plugin {
 		}
 
 		return $atts;
+	}
+
+	/**
+	 * Resets the step counter back to 0.
+	 */
+	public static function reset_step() {
+		self::$step_count = 0;
+	}
+
+	/**
+	 * Render the number field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the number field.
+	 */
+	public static function gutenblock_render_form_step( $atts, $content ) {
+		self::$step_count = 1 + self::$step_count;
+
+		$version = Constants::get_constant( 'JETPACK__VERSION' );
+		if ( empty( $version ) ) {
+			$version = '0.1';
+		}
+
+		\wp_enqueue_script_module(
+			'jetpack-form-step',
+			plugins_url( '../../dist/modules/form-step/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			$version
+		);
+
+		// Process content for marker classes and add interactivity
+		$processed_content = $content;
+
+		// Only process if we have the WP_HTML_Tag_Processor
+		if ( class_exists( 'WP_HTML_Tag_Processor' ) ) {
+			$blocks_content = do_blocks( $content );
+			$tags           = new \WP_HTML_Tag_Processor( $blocks_content );
+
+			// Move to the first token so the bookmark has a valid span, then set the bookmark.
+			$tags->next_tag();
+			$tags->set_bookmark( 'start' );
+
+			// Process blocks with the "next step" trigger
+			while ( $tags->next_tag( array( 'class_name' => 'trigger-next-step' ) ) ) {
+				// No need to set data-wp-interactive since the parent div already has it
+				$tags->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
+			}
+
+			// Reset and process blocks with the "previous step" trigger
+			$tags->seek( 'start' );
+			while ( $tags->next_tag( array( 'class_name' => 'trigger-previous-step' ) ) ) {
+				$tags->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
+			}
+
+			$processed_content = $tags->get_updated_html();
+		} else {
+			$processed_content = do_blocks( $content );
+		}
+		$is_current_step_class = ( self::$step_count === 1 ? 'is-current-step' : '' );
+		return '<div data-wp-interactive="jetpack/form" class="jetpack-form-step ' . $is_current_step_class . ' " data-wp-class--is-before-current="state.isBeforeCurrent" data-wp-class--is-after-current="state.isAfterCurrent" data-wp-class--is-current-step="state.isCurrentStep" ' . wp_interactivity_data_wp_context( array( 'step' => self::$step_count ) ) . ' >'
+				. $processed_content
+			. '</div>';
+	}
+
+	/**
+	 * Render the number field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the number field.
+	 */
+	public static function gutenblock_render_form_step_navigation( $atts, $content ) {
+
+		$version = Constants::get_constant( 'JETPACK__VERSION' );
+		if ( empty( $version ) ) {
+			$version = '0.1';
+		}
+		\wp_enqueue_script_module(
+			'jetpack-form-step-navigation',
+			plugins_url( '../../dist/modules/form-step-navigation/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			$version
+		);
+
+		// Enqueue the frontend style for the step navigation.
+		$style_handle = 'jetpack-form-step-navigation-style';
+		$style_path   = '../../dist/blocks/form-step-navigation/style.css';
+		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
+			wp_enqueue_style( $style_handle, plugins_url( $style_path, __FILE__ ), array(), $version );
+		}
+
+		$button_blocks_html = do_blocks( $content );
+
+		$processor = new \WP_HTML_Tag_Processor( $button_blocks_html );
+
+		$processor->next_tag();
+		$processor->next_tag();
+
+		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+
+		$class_names = array();
+
+		if ( ! empty( $atts['layout']['type'] ) ) {
+			$class_names[] = 'is-layout-' . sanitize_title( $atts['layout']['type'] );
+		}
+
+		if ( ! empty( $atts['layout']['orientation'] ) ) {
+			$class_names[] = 'is-' . sanitize_title( $atts['layout']['orientation'] );
+		}
+
+		if ( ! empty( $atts['layout']['justifyContent'] ) ) {
+			$class_names[] = 'is-content-justification-' . sanitize_title( $atts['layout']['justifyContent'] );
+		}
+
+		if ( ! empty( $atts['layout']['flexWrap'] ) && 'nowrap' === $atts['layout']['flexWrap'] ) {
+			$class_names[] = 'is-nowrap';
+		}
+
+		foreach ( $class_names as $class_name ) {
+			$processor->add_class( $class_name );
+		}
+
+		while ( $processor->next_tag() ) {
+			$id = $processor->get_attribute( 'data-id-attr' );
+			if ( 'previous-step' === $id ) {
+				$processor->remove_attribute( 'id' );
+				$processor->add_class( 'disable-spinner is-previous' );
+				$processor->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
+				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isFirstStep' );
+			}
+			if ( 'next-step' === $id ) {
+				$processor->remove_attribute( 'id' );
+				$processor->add_class( 'disable-spinner is-next' );
+				$processor->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
+				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isLastStep' );
+			}
+			if ( 'submit-step' === $id ) {
+				$processor->remove_attribute( 'id' );
+				$processor->add_class( 'is-submit' );
+				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
+			}
+		}
+
+		return $processor->get_updated_html();
+	}
+
+	/**
+	 * Render the progress indicator.
+	 *
+	 * @param array  $attributes - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the progress indicator.
+	 */
+	public static function gutenblock_render_form_progress_indicator( $attributes, $content ) {
+		$version = Constants::get_constant( 'JETPACK__VERSION' );
+		if ( empty( $version ) ) {
+			$version = '0.1';
+		}
+
+		// Enqueue the frontend style for the progress indicator.
+		$style_handle = 'jetpack-form-progress-indicator-style';
+		$style_path   = '../../dist/blocks/form-progress-indicator/style.css'; // Path from the 404 error
+		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
+			wp_enqueue_style( $style_handle, plugins_url( $style_path, __FILE__ ), array(), $version );
+		}
+
+		// Enqueue the interactivity script module (matching form-step pattern).
+		$script_handle = 'jetpack-form-progress-indicator';
+		$script_path   = '../../dist/modules/form-progress-indicator/view.js'; // Path from previous 404 error
+		\wp_enqueue_script_module(
+			$script_handle,
+			plugins_url( $script_path, __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			$version
+		);
+
+		$processor = new \WP_HTML_Tag_Processor( $content );
+		$processor->next_tag();
+		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+
+		while ( $processor->next_tag() ) {
+			$class = $processor->get_attribute( 'class' );
+			if ( 'jetpack-form-progress-indicator-bar' === $class ) {
+				$processor->set_attribute( 'data-wp-style--width', 'state.getStepProgress' );
+			}
+		}
+
+		return $processor->get_updated_html();
 	}
 
 	/**

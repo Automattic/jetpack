@@ -61,8 +61,6 @@ export const Default: Story = {
 	args: {
 		withTooltips: true,
 		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ], // limit to 3 series for better readability
-		showLegend: false,
-		legendOrientation: 'horizontal',
 		gridVisibility: 'x',
 		maxWidth: 1200,
 		aspectRatio: 0.5,
@@ -122,25 +120,6 @@ export const ManyDataSeries: Story = {
 				story: 'Bar chart with many data series.',
 			},
 		},
-	},
-};
-
-export const WithLegend = {
-	args: {
-		...Default.args,
-		data,
-		showTooltips: true,
-		showLegend: true,
-		legendOrientation: 'horizontal',
-	},
-};
-
-export const WithVerticalLegend = {
-	args: {
-		...WithLegend.args,
-		showLegend: true,
-		legendOrientation: 'vertical',
-		height: 600,
 	},
 };
 
@@ -218,8 +197,6 @@ export const SmartFormatting: Story = {
 	args: {
 		withTooltips: true,
 		data: largeValuesData,
-		showLegend: false,
-		legendOrientation: 'horizontal',
 		gridVisibility: 'x',
 	},
 };
