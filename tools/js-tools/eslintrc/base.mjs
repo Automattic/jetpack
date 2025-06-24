@@ -20,7 +20,11 @@ import eslintJson from '@eslint/json';
 import tanstackEslintPluginQuery from '@tanstack/eslint-plugin-query';
 import makeDebug from 'debug';
 import { defineConfig, globalIgnores } from 'eslint/config';
-import { defaultConditionNames } from 'eslint-import-resolver-typescript';
+import {
+	defaultConditionNames,
+	defaultExtensions,
+	defaultExtensionAlias,
+} from 'eslint-import-resolver-typescript';
 import eslintPluginImport from 'eslint-plugin-import';
 import eslintPluginLodash from 'eslint-plugin-lodash';
 import eslintPluginN from 'eslint-plugin-n';
@@ -176,6 +180,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				},
 			},
 			settings: {
+				'import/internal-regex': '^jetpack-js-tools/',
 				'import/resolver': {
 					typescript: {
 						project: tsconfigPath,
@@ -220,6 +225,23 @@ export function makeBaseConfig( configurl, opts = {} ) {
 					},
 				],
 
+				'import/no-extraneous-dependencies': [
+					'error',
+					{
+						peerDependencies: true,
+					},
+				],
+				'import/no-unresolved': [
+					'error',
+					{
+						ignore: [
+							// Jest dummy package.
+							'^@jest/globals$',
+						],
+					},
+				],
+				'import/default': 'warn',
+				'import/named': 'warn',
 				'import/order': [
 					'error',
 					{
@@ -287,6 +309,39 @@ export function makeBaseConfig( configurl, opts = {} ) {
 						// `cond && func()` and `cond ? func1() : func2()` are too useful to forbid.
 						allowShortCircuit: true,
 						allowTernary: true,
+					},
+				],
+			},
+		},
+
+		// React Native files need adjustments to the import plugin configuration.
+		{
+			name: 'React native overrides',
+			files: [ '**/*.native.[jt]s' ],
+			settings: {
+				'import/resolver': {
+					typescript: {
+						extensions: [ '.native.ts', '.native.js', ...defaultExtensions ],
+						extensionAlias: {
+							'.scss': [ '.native.scss', '.scss' ],
+							...Object.fromEntries(
+								Object.entries( defaultExtensionAlias ).map( ( [ k, v ] ) => [
+									k,
+									[ ...v, ...v.map( vv => '.native' + vv ) ],
+								] )
+							),
+						},
+					},
+				},
+			},
+			rules: {
+				'import/no-unresolved': [
+					'error',
+					{
+						ignore: [
+							// Since we don't build React Native, we don't include these deps.
+							'^(react-native|@react-navigation/native|@wordpress/react-native-bridge)$',
+						],
 					},
 				],
 			},

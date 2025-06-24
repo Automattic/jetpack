@@ -1,8 +1,8 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
+import React from 'react';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action';
-import React from 'react';
 
 import './notice-box.scss';
 

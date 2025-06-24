@@ -3,8 +3,8 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import { NoticeBox } from 'components/record-meter/notice-box';
 import React from 'react';
+import { NoticeBox } from 'components/record-meter/notice-box';
 
 describe( 'with notices to display', () => {
 	test( 'unable to locate content notice is displayed when not yet indexed', () => {

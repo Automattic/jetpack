@@ -29,6 +29,8 @@
 		"@wordpress/components": "29.11.0",
 		"@wordpress/compose": "7.25.0",
 		"@wordpress/data": "10.25.0",
+		"@wordpress/edit-post": "8.25.0",
+		"@wordpress/editor": "14.25.0",
 		"@wordpress/element": "6.25.0",
 		"@wordpress/i18n": "5.25.0",
 		"@wordpress/icons": "10.25.0",

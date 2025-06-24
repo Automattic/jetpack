@@ -3,8 +3,8 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import Button from 'components/button';
 import React from 'react';
+import Button from 'components/button';
 
 describe( 'Button', function () {
 	const testProps = {

@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import {
 	makeBaseConfig,
 	defineConfig,
@@ -22,8 +21,6 @@ export default defineConfig(
 	{
 		files: javascriptFiles, // @todo Which of the rule changes here should only really apply to typescriptFiles?
 		rules: {
-			'import/no-extraneous-dependencies': 'error',
-
 			'jsx-a11y/anchor-has-content': 'error',
 			'jsx-a11y/anchor-is-valid': 'error',
 

@@ -34,6 +34,7 @@
 		"@wordpress/hooks": "4.25.0",
 		"@wordpress/i18n": "5.25.0",
 		"@wordpress/plugins": "7.25.0",
+		"@wordpress/primitives": "4.25.0",
 		"@wordpress/url": "4.25.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.1",
