@@ -222,12 +222,25 @@ const StatsCards = ( {
 						withTooltips={ true }
 						showLegend={ false }
 						gridVisibility="x"
+						margin={ { top: 10, right: 20, bottom: 20, left: 0 } }
 						options={ {
 							yScale: {
 								type: 'linear',
 								zero: true, // Start from zero
 							},
 							axis: {
+								x: {
+									hideZero: false,
+									numTicks: 7,
+									tickFormat: timestamp => {
+										const date = new Date( timestamp );
+
+										return date.toLocaleDateString( undefined, {
+											month: 'short',
+											day: 'numeric',
+										} );
+									},
+								},
 								y: {
 									orientation: 'right',
 									tickFormat: value => {

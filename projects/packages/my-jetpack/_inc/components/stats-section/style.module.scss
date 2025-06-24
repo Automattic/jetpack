@@ -50,7 +50,6 @@ $padding-horizontal: calc( var(--spacing-base) * 3 );
 }
 
 .chart-container {
-	padding: $padding-vertical $padding-horizontal 0;
 	position: relative;
 	box-sizing: border-box;
 	cursor: pointer;

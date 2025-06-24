@@ -154,7 +154,7 @@ const StatsSection = () => {
 			product: slug,
 		} );
 
-		window.location.href = 'admin.php?page=stats';
+		window.location.href = 'admin.php?page=stats&force_refresh=1';
 	}, [ recordEvent ] );
 
 	const shouldShowSecondaryButton = useCallback(
