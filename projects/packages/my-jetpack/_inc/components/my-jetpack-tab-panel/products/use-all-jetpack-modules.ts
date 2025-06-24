@@ -8,9 +8,15 @@ import { JetpackModuleSlug } from './types';
  *
  * @return  An object containing all Jetpack modules.
  */
-export function useAllJetpackModules(): Record< JetpackModuleSlug, MyJetpackModule > {
+export function useAllJetpackModules(): {
+	modules: Record< JetpackModuleSlug, MyJetpackModule >;
+	isLoading: boolean;
+} {
 	return useSelect( select => {
 		// TODO Check if the `jetpack/v4/module/all` endpoint is available before calling this
-		return select( modulesStore ).getJetpackModules();
+		return {
+			modules: select( modulesStore ).getJetpackModules(),
+			isLoading: select( modulesStore ).areModulesLoading(),
+		};
 	}, [] );
 }
