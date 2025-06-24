@@ -91,10 +91,15 @@ const ALLOWED_MULTI_STEP_BLOCKS = [
 	'jetpack/form-step-divider',
 ].concat( ALLOWED_CORE_BLOCKS );
 
-const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( [
-	'jetpack/form-step-divider',
+const REMOVE_FIELDS_FROM_FORM = [
+	'jetpack/form-step-navigation',
+	'jetpack/form-progress-indicator',
 	'jetpack/form-step-container',
-] ).concat( ALLOWED_CORE_BLOCKS );
+];
+
+const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( ALLOWED_CORE_BLOCKS ).filter(
+	block => ! REMOVE_FIELDS_FROM_FORM.includes( block )
+);
 
 const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
 
