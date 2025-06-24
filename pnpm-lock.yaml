@@ -132,6 +132,9 @@ importers:
       '@automattic/jetpack-explat':
         specifier: workspace:*
         version: link:../../packages/explat
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../script-data
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../shared-extension-utils
@@ -2901,6 +2904,9 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@automattic/charts':
+        specifier: workspace:*
+        version: link:../../js-packages/charts
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3725,6 +3731,9 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils

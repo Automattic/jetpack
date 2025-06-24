@@ -38,3 +38,11 @@
 		width: auto;
 	}
 }
+
+.module-tooltip {
+
+	&:global(.components-tooltip) {
+		max-width: 90vw;
+		text-align: start;
+	}
+}

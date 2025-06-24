@@ -1142,3 +1142,18 @@
 .jetpack-field-dropdown__option:hover .jetpack-field-dropdown__option-remove {
 	visibility: visible;
 }
+
+/* Hide form step placeholder when has content. */
+.block-editor-block-list__block.wp-block-jetpack-form-step {
+
+	&.has-child-blocks {
+
+		> .block-editor-block-list__block-edit > div:not( .block-editor-inner-blocks ) {
+
+			> .block-editor-inserter,
+			> .block-editor-block-list__block-edit > div:not( .block-editor-inner-blocks ) {
+				display: none;
+			}
+		}
+	}
+}

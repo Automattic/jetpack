@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
+import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	useModuleStatus,
-	isSimpleSite,
-	isAtomicSite,
 	getJetpackExtensionAvailability,
 	getRequiredPlan,
 } from '@automattic/jetpack-shared-extension-utils';
@@ -103,7 +102,7 @@ const Seo = () => {
 	}
 
 	const requiredPlan = getRequiredPlan( 'advanced-seo' );
-	const canShowUpsell = isAtomicSite() || isSimpleSite();
+	const canShowUpsell = isWpcomPlatformSite();
 	const hasRequiredPlanForEnhancer = ! getRequiredPlan( 'ai-seo-enhancer' );
 
 	const jetpackSeoPanelProps = {

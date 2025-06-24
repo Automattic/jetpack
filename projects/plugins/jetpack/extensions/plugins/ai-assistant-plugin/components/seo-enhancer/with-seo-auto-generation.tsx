@@ -1,9 +1,9 @@
 /*
  * External dependencies
  */
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	getJetpackExtensionAvailability,
-	isSimpleSite,
 	useModuleStatus,
 } from '@automattic/jetpack-shared-extension-utils';
 import { createHigherOrderComponent } from '@wordpress/compose';

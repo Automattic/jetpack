@@ -1,4 +1,4 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
@@ -35,10 +35,9 @@ export const CalendlyInspectorControls = props => {
 	let externalDocLink = null;
 
 	if ( url ) {
-		externalDocLink =
-			isAtomicSite() || isSimpleSite()
-				? 'https://wordpress.com/support/wordpress-editor/blocks/calendly-block/#customize-the-calendly-block'
-				: 'https://jetpack.com/support/jetpack-blocks/calendly-block/#customizing-a-calendly-block';
+		externalDocLink = isWpcomPlatformSite()
+			? 'https://wordpress.com/support/wordpress-editor/blocks/calendly-block/#customize-the-calendly-block'
+			: 'https://jetpack.com/support/jetpack-blocks/calendly-block/#customizing-a-calendly-block';
 	}
 
 	return (

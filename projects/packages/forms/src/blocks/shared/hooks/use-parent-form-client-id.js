@@ -1,5 +1,6 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
+
 /**
  * Custom hook to find the parent 'jetpack/contact-form' block's clientId
  * for a given child block.
@@ -7,7 +8,7 @@ import { useSelect } from '@wordpress/data';
  * @param {string} clientId - The client ID of the child block.
  * @return {string|null} The client ID of the parent form, or null if not found.
  */
-export default function useParentFormClientId( clientId ) {
+const useParentFormClientId = clientId => {
 	return useSelect(
 		select => {
 			if ( ! clientId ) {
@@ -23,4 +24,6 @@ export default function useParentFormClientId( clientId ) {
 		},
 		[ clientId ]
 	);
-}
+};
+
+export default useParentFormClientId;

@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
 import useProducts from '../../../data/products/use-products';
 import { CATEGORY_CARDS_AND_MODULES, PRODUCT_MODULES } from './mappings';
-import { JetpackProductWithCard, ProductSection } from './types';
+import { JetpackProductWithCard } from './types';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { filterAndSortModules, filterSections, getSectionTitle } from './utils';
 
@@ -16,10 +17,7 @@ export type UseFilteredProductsOptions = {
  *
  * @return An array of sections and the corresponding cards and modules
  */
-export function useFilteredProducts( {
-	search,
-	selectedFilter,
-}: UseFilteredProductsOptions ): Array< ProductSection > {
+export function useFilteredProducts( { search, selectedFilter }: UseFilteredProductsOptions ) {
 	// Let us default to all the sections by default.
 	let sections = Object.entries( CATEGORY_CARDS_AND_MODULES );
 
@@ -37,7 +35,7 @@ export function useFilteredProducts( {
 	);
 
 	const { products } = useProducts( productSlugs );
-	const allModules = useAllJetpackModules();
+	const { modules: allModules, isLoading: isLoadingModules } = useAllJetpackModules();
 
 	// Let us create a mapping of products by their slug for easy access.
 	const productsBySlug = products.reduce(
@@ -50,7 +48,7 @@ export function useFilteredProducts( {
 		{} as Record< JetpackProductWithCard, ( typeof products )[ number ] >
 	);
 
-	return filterSections(
+	const $sections = filterSections(
 		sections.map( ( [ category, { cards, modules } ] ) => ( {
 			id: category,
 			title: getSectionTitle( category ),
@@ -71,5 +69,13 @@ export function useFilteredProducts( {
 			modules: filterAndSortModules( modules.map( slug => allModules[ slug ] ) ),
 		} ) ),
 		{ search }
+	);
+
+	return useMemo(
+		() => ( {
+			sections: $sections,
+			isLoading: isLoadingModules,
+		} ),
+		[ $sections, isLoadingModules ]
 	);
 }

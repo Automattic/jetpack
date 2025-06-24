@@ -9,6 +9,14 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: jest.fn(),
 } ) );
 
+// Mock @automattic/jetpack-script-data functions to allow isWpcomPlatformSite to be correctly used.
+jest.mock( '@automattic/jetpack-script-data', () => {
+	const isWpcomPlatformSite = jest.fn().mockReturnValue( false );
+	return {
+		isWpcomPlatformSite,
+	};
+} );
+
 // Mock the @wordpress/edit-post, used internally to resolve the fallback URL.
 jest.mock( '@wordpress/edit-post', () => jest.fn() );
 

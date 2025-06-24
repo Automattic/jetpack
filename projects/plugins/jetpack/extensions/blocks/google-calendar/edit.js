@@ -1,8 +1,5 @@
-import {
-	isAtomicSite,
-	isSimpleSite,
-	getBlockIconComponent,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { Placeholder, SandBox, Button, ExternalLink, withNotices } from '@wordpress/components';
@@ -119,10 +116,9 @@ export function GoogleCalendarEdit( props ) {
 	let content;
 
 	if ( editingUrl || ! url ) {
-		const supportLink =
-			isSimpleSite() || isAtomicSite()
-				? 'https://en.support.wordpress.com/wordpress-editor/blocks/google-calendar/'
-				: 'https://jetpack.com/support/jetpack-blocks/google-calendar/';
+		const supportLink = isWpcomPlatformSite()
+			? 'https://en.support.wordpress.com/wordpress-editor/blocks/google-calendar/'
+			: 'https://jetpack.com/support/jetpack-blocks/google-calendar/';
 
 		content = (
 			<>
