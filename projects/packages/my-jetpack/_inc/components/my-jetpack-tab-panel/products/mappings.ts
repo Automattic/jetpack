@@ -53,15 +53,13 @@ export const CATEGORY_CARDS_AND_MODULES: {
 		modules: [ 'photon', 'photon-cdn' ],
 	},
 	recommended: {
-		cards: [ 'stats', 'social' ],
+		cards: [ 'stats', 'boost', 'backup', 'anti-spam' ],
 		modules: [
 			// No prettier please
-			'blaze',
-			'related-posts',
-			'subscriptions',
-			'sharedaddy',
-			'seo-tools',
-			'wordads',
+			'videopress',
+			'contact-form',
+			'publicize',
+			'search',
 		],
 	},
 	other: {
