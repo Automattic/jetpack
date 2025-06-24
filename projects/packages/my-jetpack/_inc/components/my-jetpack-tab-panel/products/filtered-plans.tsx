@@ -1,5 +1,8 @@
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
+import { __experimentalText as Text } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ProductSection } from './product-section';
+import { Skeleton } from './skeleton';
 import { useFilteredPlans } from './use-filtered-plans';
 
 export type FilteredPlansProps = {
@@ -17,11 +20,19 @@ export function FilteredPlans( { search }: FilteredPlansProps ) {
 	const { plans, isLoadingPlans, errorPlans } = useFilteredPlans( { search } );
 
 	if ( isLoadingPlans ) {
-		return <div>{ __( 'Loading…', 'jetpack-my-jetpack' ) }</div>;
+		return <Skeleton />;
 	}
 
+	let message = '';
+
 	if ( errorPlans ) {
-		return <div>{ __( 'Error loading plans.', 'jetpack-my-jetpack' ) }</div>;
+		message = __( 'Error getting plan information.', 'jetpack-my-jetpack' );
+	} else if ( ! plans.length ) {
+		message = __( 'No results found.', 'jetpack-my-jetpack' );
+	}
+
+	if ( message ) {
+		return <Text size={ 20 }>{ message }</Text>;
 	}
 
 	return (
