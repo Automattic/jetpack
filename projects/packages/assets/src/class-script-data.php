@@ -50,6 +50,7 @@ class Script_Data {
 		$hook = is_admin() ? 'admin_print_scripts' : 'wp_print_scripts';
 		add_action( $hook, array( self::class, 'render_script_data' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( self::class, 'render_script_data' ), 1 );
+		add_action( 'wp_enqueue_scripts', array( self::class, 'render_script_data' ), 1 );
 	}
 
 	/**
@@ -85,17 +86,19 @@ class Script_Data {
 
 		self::$did_render_script_data = true;
 
-		$script_data         = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
-				$script_data = wp_json_encode(
-					$script_data,
-					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
-				);
-
-		wp_add_inline_script(
-			self::SCRIPT_HANDLE,
-			sprintf( 'window.JetpackScriptData = %s;', $script_data ),
-			'before'
+		$script_data = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
+		$script_json = wp_json_encode(
+			$script_data,
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
 		);
+
+		if ( is_admin() || did_action( 'enqueue_block_editor_assets' ) ) {
+			wp_enqueue_script( self::SCRIPT_HANDLE );
+			wp_add_inline_script( self::SCRIPT_HANDLE, "window.JetpackScriptData = {$script_json};", 'before' );
+		} else {
+			// For public pages, we directly print the script tag.
+			printf( '<script>window.JetpackScriptData = %s;</script>', $script_json ); //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- data encoded earlier.
+		}
 	}
 
 	/**
