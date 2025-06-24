@@ -326,26 +326,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.8-a.7 - 2025-06-23
-#### Major Enhancements
-- Add archives endpoint support.
-
+### 14.8-a.9 - 2025-06-24
 #### Enhancements
-- Sharing: Add ability to count sharing events on sharing buttons blocks.
-- Write Brief: Enhance local custom dictionary with more known terms.
-- Write Brief: Enhance typo detection dictionary.
-
-#### Improved compatibility
-- Tiled Gallery: Ensure accessibility properties are added only when needed, as well as preventing block validation errors.
+- Form: Improve the error validation animation.
 
 #### Bug fixes
-- Prevent non-string currentday parameters from causing errors in infinite scroll AJAX requests.
-- Flickr shortcode: Prevent errors in logs when requested data does not exist.
-- Forms: Hide legacy Feedback menu from newly-connected sites.
-- Newsletter: Ensure subscriber stats links are correct in the dashboard widget, even when you do not use Stats feature.
-- Security: Prevent errors with array-type parameters in carousel comment submissions.
-- Social Previews: Prevent text overflow issues with Mastodon.
-- Update `Jetpack_Newsletter_Dashboard_Widget` to not be added with an anonymous function.
+- Prevent JavaScript errors when using the editor.
 
 --------
 
