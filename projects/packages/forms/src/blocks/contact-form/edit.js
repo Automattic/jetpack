@@ -230,20 +230,27 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	useEffect( () => {
 		const hasMultistepBlock = containsMultistepBlock( currentInnerBlocks );
 
+		// Transition to single-step form state if no multistep blocks are present
+		// and the variation is not set to 'multistep'.
 		if ( ! hasMultistepBlock && variationName !== 'multistep' ) {
 			hasTranformRef.current = IS_FORM;
 			return;
 		}
 
+		// Transition to multistep form state if multistep blocks are present
+		// and the variation is set to 'multistep'.
 		if ( variationName === 'multistep' && hasMultistepBlock ) {
 			hasTranformRef.current = IS_MULTISTEP;
 			return;
 		}
 
+		// Transition from multistep form state to single-step form state.
 		if ( hasTranformRef.current === IS_MULTISTEP ) {
 			hasTranformRef.current = TO_FORM;
 			return;
 		}
+
+		// Transition from single-step form state to multistep form state.
 		hasTranformRef.current = TO_MULTISTEP;
 
 		// If the form is not multistep, we don't need to do anything.
