@@ -120,12 +120,13 @@ const getVerticalAnchor = (
 	subjectType: SubjectType,
 	isFlippedVertically: boolean,
 	y: number,
-	yMax: number
+	yMax: number,
+	height: number
 ): TextProps[ 'verticalAnchor' ] => {
 	if ( subjectType === 'line-vertical' ) {
 		if ( isFlippedVertically ) {
 			// If flipped due to top edge, anchor to top; if flipped due to bottom edge, anchor to bottom
-			return y - ANNOTATION_INIT_HEIGHT < yMax ? 'start' : 'end';
+			return y - height < yMax ? 'start' : 'end';
 		}
 
 		return 'middle';
@@ -213,7 +214,13 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 						subtitle={ subtitle }
 						{ ...styles?.label }
 						horizontalAnchor={ getHorizontalAnchor( subjectType, isFlippedHorizontally ) }
-						verticalAnchor={ getVerticalAnchor( subjectType, isFlippedVertically, y, yMax ) }
+						verticalAnchor={ getVerticalAnchor(
+							subjectType,
+							isFlippedVertically,
+							y,
+							yMax,
+							height ?? ANNOTATION_INIT_HEIGHT
+						) }
 					/>
 				</g>
 			</Annotation>
