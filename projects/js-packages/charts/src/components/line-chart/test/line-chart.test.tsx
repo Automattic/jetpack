@@ -407,5 +407,20 @@ describe( 'LineChart', () => {
 
 			expect( screen.queryByTestId( 'annotation-0' ) ).not.toBeInTheDocument();
 		} );
+
+		test( 'renders annotations with zero values', () => {
+			renderWithTheme( {
+				annotations: [
+					{
+						datum: { date: new Date( '2024-01-01' ), value: 0, label: 'Jan 1' },
+						title: 'Zero Value Annotation',
+						subtitle: 'This point has a value of 0',
+					},
+				],
+			} );
+
+			expect( screen.getByText( 'Zero Value Annotation' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'This point has a value of 0' ) ).toBeInTheDocument();
+		} );
 	} );
 } );

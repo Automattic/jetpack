@@ -159,7 +159,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	}, [] );
 
 	const positionData = useMemo( () => {
-		if ( ! datum || ! datum.date || ! datum.value || ! xScale || ! yScale ) return null;
+		if ( ! datum || ! datum.date || datum.value == null || ! xScale || ! yScale ) return null;
 
 		const x = xScale( datum.date );
 		const y = yScale( datum.value );
