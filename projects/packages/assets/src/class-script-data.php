@@ -85,12 +85,11 @@ class Script_Data {
 
 		self::$did_render_script_data = true;
 
-		$script_data = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
-
-		$script_data = wp_json_encode(
-			$script_data,
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
-		);
+		$script_data         = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
+				$script_data = wp_json_encode(
+					$script_data,
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
+				);
 
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
@@ -159,8 +158,10 @@ class Script_Data {
 
 		$data = array(
 			'site' => array(
-				'icon'  => self::get_site_icon(),
-				'title' => self::get_site_title(),
+				'icon'              => self::get_site_icon(),
+				'title'             => self::get_site_title(),
+				'host'              => ( new Host() )->get_known_host_guess(),
+				'is_wpcom_platform' => ( new Host() )->is_wpcom_platform(),
 			),
 		);
 
