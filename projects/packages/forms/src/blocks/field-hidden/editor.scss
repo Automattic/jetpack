@@ -1,0 +1,31 @@
+
+.jetpack-form-hidden-field {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    position: relative;
+
+    label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .jetpack-form-hidden-field__input {
+        padding:0;
+        border: none;
+        background-color: transparent;
+    }
+
+    .jetpack-form-hidden-field__hint {
+        position: absolute;
+        top: 8px;
+        right: 16px;
+        font-size: 12px;
+        color: #666;
+    }
+}

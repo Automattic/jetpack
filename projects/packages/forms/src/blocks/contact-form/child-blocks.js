@@ -10,7 +10,7 @@ import JetpackConsentField from '../field-consent/';
 import JetpackDateField from '../field-date';
 import JetpackEmailField from '../field-email';
 import JetpackFieldFile from '../field-file';
-import JetpackImageSelectField from '../field-image-select';
+import JetpackHiddenField from '../field-hidden';
 import JetpackMultipleChoiceField from '../field-multiple-choice';
 import JetpackNameField from '../field-name';
 import JetpackNumberField from '../field-number';
@@ -54,6 +54,7 @@ export const childBlocks = [
 	JetpackNumberField,
 	JetpackPhoneInput,
 	JetpackSingleChoiceField,
+	JetpackHiddenField,
 	JetpackTextField,
 	JetpackUrlField,
 	JetpackTelephoneField,
