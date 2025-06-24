@@ -21,9 +21,12 @@ export function useFilteredProducts( { search, selectedFilter }: UseFilteredProd
 	// Let us default to all the sections by default.
 	let sections = Object.entries( CATEGORY_CARDS_AND_MODULES );
 
-	// If a known filter is selected, we filter the sections accordingly, which menas that we show the section/products based on the selected filter/category.
+	// If a known filter is selected, we filter the sections accordingly, which means that we show the section/products based on the selected filter/category.
 	if ( CATEGORY_CARDS_AND_MODULES[ selectedFilter ] ) {
 		sections = sections.filter( ( [ category ] ) => category === selectedFilter );
+	} else {
+		// Since were defaulting to all categories, we can filter out the 'recommended' category.
+		sections = sections.filter( ( [ category ] ) => category !== 'recommended' );
 	}
 
 	// Let us extract the product slugs from the sections, based on the cards in the section, because we want to display product cards accordingly.
