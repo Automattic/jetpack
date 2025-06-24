@@ -47,10 +47,12 @@ import VariationPicker from './variation-picker';
 import './util/form-styles.js';
 
 // Transforms
-const TO_MULTISTEP = 'to-multistep';
-const TO_FORM = 'to-form';
-const IS_MULTISTEP = 'is-multistep';
-const IS_FORM = 'is-form';
+const FormTransitionState = {
+	TO_MULTISTEP: 'to-multistep',
+	TO_FORM: 'to-form',
+	IS_MULTISTEP: 'is-multistep',
+	IS_FORM: 'is-form',
+};
 
 const validFields = filter( childBlocks, ( { settings } ) => {
 	return (
@@ -225,7 +227,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	}, [] );
 
 	// Detect a conversion to a multistep form and structure inner blocks only once.
-	const hasTranformRef = useRef( false );
+	const formTransitionStateRef = useRef( false );
 
 	useEffect( () => {
 		const hasMultistepBlock = containsMultistepBlock( currentInnerBlocks );
@@ -233,25 +235,25 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		// Transition to single-step form state if no multistep blocks are present
 		// and the variation is not set to 'multistep'.
 		if ( ! hasMultistepBlock && variationName !== 'multistep' ) {
-			hasTranformRef.current = IS_FORM;
+			formTransitionStateRef.current = FormTransitionState.IS_FORM;
 			return;
 		}
 
 		// Transition to multistep form state if multistep blocks are present
 		// and the variation is set to 'multistep'.
 		if ( variationName === 'multistep' && hasMultistepBlock ) {
-			hasTranformRef.current = IS_MULTISTEP;
+			formTransitionStateRef.current = FormTransitionState.IS_MULTISTEP;
 			return;
 		}
 
 		// Transition from multistep form state to single-step form state.
-		if ( hasTranformRef.current === IS_MULTISTEP ) {
-			hasTranformRef.current = TO_FORM;
+		if ( formTransitionStateRef.current === FormTransitionState.IS_MULTISTEP ) {
+			formTransitionStateRef.current = FormTransitionState.TO_FORM;
 			return;
 		}
 
 		// Transition from single-step form state to multistep form state.
-		hasTranformRef.current = TO_MULTISTEP;
+		formTransitionStateRef.current = FormTransitionState.TO_MULTISTEP;
 
 		// If the form is not multistep, we don't need to do anything.
 	}, [ variationName, currentInnerBlocks, containsMultistepBlock ] );
@@ -259,7 +261,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	useEffect( () => {
 		// Early exit if we are still on the multistep variation or if there are
 		// no multistep-specific blocks to clean up.
-		if ( hasTranformRef.current !== TO_MULTISTEP ) {
+		if ( formTransitionStateRef.current !== FormTransitionState.TO_MULTISTEP ) {
 			return;
 		}
 
@@ -476,7 +478,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		if ( variationName !== 'multistep' ) {
 			setAttributes( { variationName: 'multistep' } );
 		}
-		hasTranformRef.current = IS_MULTISTEP;
+		formTransitionStateRef.current = FormTransitionState.IS_MULTISTEP;
 	}, [
 		variationName,
 		currentInnerBlocks,
@@ -493,7 +495,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	useEffect( () => {
 		// Early exit if we are still on the multistep variation or if there are
 		// no multistep-specific blocks to clean up.
-		if ( TO_FORM !== hasTranformRef.current ) {
+		if ( FormTransitionState.TO_FORM !== formTransitionStateRef.current ) {
 			return;
 		}
 
@@ -563,7 +565,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			setAttributes( { variationName: 'default-empty' } );
 		}
 
-		hasTranformRef.current = IS_FORM;
+		formTransitionStateRef.current = FormTransitionState.IS_FORM;
 	}, [
 		variationName,
 		currentInnerBlocks,
