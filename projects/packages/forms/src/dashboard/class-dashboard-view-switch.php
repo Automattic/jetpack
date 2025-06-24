@@ -50,7 +50,7 @@ class Dashboard_View_Switch {
 		_deprecated_function( __METHOD__, 'jetpack-6.6.0', 'Dashboard::get_forms_admin_url' );
 		$base_url = get_admin_url() . 'admin.php?page=jetpack-forms-admin';
 
-		return self::append_tab_to_url( $base_url, $tab, false );
+		return self::append_tab_to_url( $base_url, $tab );
 	}
 
 	/**
