@@ -87,17 +87,17 @@ class Script_Data {
 		self::$did_render_script_data = true;
 
 		$script_data = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
-		$script_json = wp_json_encode(
+		$script_data = wp_json_encode(
 			$script_data,
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
 		);
 
 		if ( is_admin() || did_action( 'enqueue_block_editor_assets' ) ) {
 			wp_enqueue_script( self::SCRIPT_HANDLE );
-			wp_add_inline_script( self::SCRIPT_HANDLE, "window.JetpackScriptData = {$script_json};", 'before' );
+			wp_add_inline_script( self::SCRIPT_HANDLE, sprintf( 'window.JetpackScriptData = %s;', $script_data ), 'before' );
 		} else {
 			// For public pages, we directly print the script tag.
-			printf( '<script>window.JetpackScriptData = %s;</script>', $script_json ); //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- data encoded earlier.
+			printf( '<script>window.JetpackScriptData = %s;</script>', $script_data ); //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- data encoded earlier.
 		}
 	}
 
