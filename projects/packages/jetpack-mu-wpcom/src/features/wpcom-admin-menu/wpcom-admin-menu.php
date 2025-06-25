@@ -104,17 +104,8 @@ add_action( 'admin_menu', 'wpcom_add_my_home_menu' );
  * @return bool
  */
 function wpcom_should_show_jetpack_stats_submenu() {
-	// Users with the classic admin interface already have the Jetpack > Stats menu.
-	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-		return true;
-	}
-
-	// Force the Jetpack > Stats menu to 10% of sites.
-	if ( get_current_blog_id() % 10 === 0 ) {
-		return true;
-	}
-
-	return false;
+	// Force the Jetpack > Stats menu to 10% of users.
+	return get_current_user_id() % 10 === 0;
 }
 
 /**
@@ -264,6 +255,10 @@ function wpcom_add_jetpack_submenu() {
 	$newsletter_url   = 'https://wordpress.com/settings/newsletter/' . $domain;
 	$scan_url         = 'https://wordpress.com/scan/' . $domain;
 	$podcasting_url   = 'https://wordpress.com/settings/podcasting/' . $domain;
+
+	if ( ! wpcom_should_show_jetpack_stats_submenu() ) {
+		wpcom_hide_submenu_page( 'jetpack', 'stats' );
+	}
 
 	// Add submenu items that link to WordPress.com.
 	add_submenu_page(
