@@ -1,4 +1,4 @@
 Significance: minor
 Type: fixed
 
-Forms: Load the inital steps as if the form has more then on step in it.
+Forms: Load the initial steps as if the form has more than one step in it.
