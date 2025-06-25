@@ -3,9 +3,8 @@
  */
 import { useAICheckout, useAiFeature } from '@automattic/jetpack-ai-client';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
-	isAtomicSite,
-	isSimpleSite,
 	useAutosaveAndRedirect,
 	PLAN_TYPE_FREE,
 	PLAN_TYPE_TIERED,
@@ -182,7 +181,7 @@ export default function ConnectedUsagePanel( { placement = null }: UsagePanelPro
 
 	// Handle upgrade for simple and atomic sites on the last plan
 	const showContactUsCallToAction =
-		( isSimpleSite() || isAtomicSite() ) && planType === PLAN_TYPE_TIERED && ! nextTier;
+		isWpcomPlatformSite() && planType === PLAN_TYPE_TIERED && ! nextTier;
 
 	return (
 		<UsagePanel

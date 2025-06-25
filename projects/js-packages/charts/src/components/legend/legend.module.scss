@@ -12,6 +12,42 @@
 		flex-direction: column;
 		gap: 8px;
 	}
+
+	// Vertical alignment positioning
+	&--vertical-align-top {
+		position: absolute;
+		top: 0;
+		z-index: 10;
+
+		&.legend--horizontal-align-left {
+			left: 0;
+		}
+
+		&.legend--horizontal-align-center {
+			left: 50%;
+			transform: translateX(-50%);
+		}
+
+		&.legend--horizontal-align-right {
+			right: 0;
+		}
+	}
+
+	&--vertical-align-bottom {
+		position: relative;
+
+		&.legend--horizontal-align-left {
+			justify-content: flex-start;
+		}
+
+		&.legend--horizontal-align-center {
+			justify-content: center;
+		}
+
+		&.legend--horizontal-align-right {
+			justify-content: flex-end;
+		}
+	}
 }
 
 .legend-item {

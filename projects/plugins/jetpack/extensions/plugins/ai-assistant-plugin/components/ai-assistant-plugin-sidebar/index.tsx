@@ -206,7 +206,7 @@ export default function AiAssistantPluginSidebar() {
 		return null;
 	}
 
-	const title = __( 'AI Assistant', 'jetpack' );
+	const title = __( 'Writing Assistance', 'jetpack' );
 
 	const panelToggleTracker = placement => {
 		debug( placement );

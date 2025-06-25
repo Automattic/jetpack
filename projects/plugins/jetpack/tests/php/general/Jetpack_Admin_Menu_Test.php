@@ -94,7 +94,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$this->assertLessThan( $videopress_submenu_position, $stats_submenu_position, 'Stats should be above VideoPress in the submenu order.' );
 		$this->assertLessThan( $backup_submenu_position, $videopress_submenu_position, 'Jetpack VideoPress should be above Jetpack VaultPress Backup in the submenu order.' );
 		$this->assertLessThan( $search_submenu_position, $backup_submenu_position, 'Jetpack VaultPress Backup should be above Search in the submenu order.' );
-		$this->assertLessThan( $settings_submenu_position, $search_submenu_position, 'WordAds should be above Settings in the submenu order.' );
+		$this->assertLessThan( $settings_submenu_position, $search_submenu_position, 'Search should be above Settings in the submenu order.' );
 		$this->assertLessThan( $dashboard_submenu_position, $settings_submenu_position, 'Settings should be above Dashboard in the submenu order.' );
 	}
 }

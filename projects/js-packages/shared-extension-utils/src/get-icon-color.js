@@ -1,4 +1,4 @@
-import { isAtomicSite, isSimpleSite } from './site-type-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 
 /**
  * Constants
@@ -13,7 +13,7 @@ const JETPACK_GREEN_40 = '#069e08';
  * @return {string} HEX color for block editor icons
  */
 export default function getIconColor() {
-	if ( isAtomicSite() || isSimpleSite() ) {
+	if ( isWpcomPlatformSite() ) {
 		// Return null to match core block styling
 		return null;
 	}

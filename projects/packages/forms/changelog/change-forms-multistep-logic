@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Contact Form: simplify multistep form detection and improve error wrapper placement for multistep navigation blocks. 

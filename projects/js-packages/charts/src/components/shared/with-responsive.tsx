@@ -17,8 +17,6 @@ type ResponsiveConfig = {
 	resizeDebounceTime?: number;
 };
 
-const DEFAULT_INITIAL_SIZE = { width: 600, height: 400 };
-
 const useResponsiveDimensions = ( {
 	resizeDebounceTime = 300,
 	maxWidth = 1200,
@@ -27,13 +25,9 @@ const useResponsiveDimensions = ( {
 	const { parentRef, width: parentWidth } = useParentSize( {
 		debounceTime: resizeDebounceTime,
 		enableDebounceLeadingCall: true,
-		initialSize: DEFAULT_INITIAL_SIZE,
 	} );
 
-	// Container width is the parent width or the max width, whichever is smaller or DEFAULT_INITIAL_SIZE.width if no parent width is available
-	const containerWidth = parentWidth
-		? Math.min( parentWidth, maxWidth )
-		: DEFAULT_INITIAL_SIZE.width;
+	const containerWidth = parentWidth > 0 ? Math.min( parentWidth, maxWidth ) : 0;
 	const containerHeight = containerWidth * aspectRatio;
 
 	return { parentRef, width: containerWidth, height: containerHeight };
@@ -70,6 +64,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 				ref={ parentRef }
 				style={ {
 					width: '100%',
+					height: chartProps.height ?? 'auto',
 				} }
 			>
 				<WrappedComponent

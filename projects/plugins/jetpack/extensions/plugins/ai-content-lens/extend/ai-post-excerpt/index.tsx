@@ -6,11 +6,8 @@ import {
 	useAiFeature,
 	QuotaExceededMessage,
 } from '@automattic/jetpack-ai-client';
-import {
-	isAtomicSite,
-	isSimpleSite,
-	useAnalytics,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -230,7 +227,7 @@ ${ postContent }
 				disabled={ isTextAreaDisabled }
 			/>
 
-			{ isAtomicSite() || isSimpleSite() ? (
+			{ isWpcomPlatformSite() ? (
 				<WpcomSupportLink
 					supportLink={ __( 'https://wordpress.com/support/excerpts/', 'jetpack' ) }
 					supportPostId={ 1569 }
