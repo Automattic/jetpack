@@ -1,4 +1,5 @@
-import { isSimpleSite, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import {
 	ContrastChecker,

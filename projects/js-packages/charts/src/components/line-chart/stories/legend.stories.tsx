@@ -1,4 +1,4 @@
-import React from 'react';
+import { legendArgTypes } from '../../../stories/legend-config';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
@@ -6,6 +6,14 @@ import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 const meta: Meta< typeof LineChart > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart/Legend',
+	argTypes: {
+		...lineChartMetaArgs.argTypes,
+		...legendArgTypes,
+		legendShape: {
+			control: 'select',
+			options: [ 'circle', 'rect' ],
+		},
+	},
 } satisfies Meta< typeof LineChart >;
 
 export default meta;
@@ -23,16 +31,9 @@ Default.args = {
 	...legendStoryArgs,
 };
 
-export const Rectangle: StoryObj< typeof LineChart > = Template.bind( {} );
-Rectangle.args = {
+export const AlignmentPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
+AlignmentPositioning.args = {
 	...legendStoryArgs,
-	showLegend: true,
-	legendShape: 'rect',
-};
-
-export const Vertical: StoryObj< typeof LineChart > = Template.bind( {} );
-Vertical.args = {
-	...legendStoryArgs,
-	showLegend: true,
-	legendOrientation: 'vertical',
+	legendAlign: 'right',
+	legendAlignmentVertical: 'top',
 };

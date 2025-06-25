@@ -1,4 +1,5 @@
-import { isSimpleSite, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { InspectorAdvancedControls } from '@wordpress/block-editor';
 import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';

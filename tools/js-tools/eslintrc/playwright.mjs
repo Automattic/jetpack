@@ -1,4 +1,7 @@
-import { defineConfig } from 'eslint/config';
 import eslintPluginPlaywright from 'eslint-plugin-playwright';
+import { defineConfig, javascriptFiles } from './base.mjs';
 
-export default defineConfig( eslintPluginPlaywright.configs[ 'flat/recommended' ] );
+export default defineConfig( {
+	files: javascriptFiles,
+	extends: [ eslintPluginPlaywright.configs[ 'flat/recommended' ] ],
+} );

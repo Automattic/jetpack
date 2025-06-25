@@ -2,6 +2,15 @@ import { render, screen } from '@testing-library/react';
 import { withResponsive } from '../with-responsive';
 import type { BaseChartProps } from '../../../types';
 
+// Mock the useParentSize hook
+jest.mock( '@visx/responsive', () => ( {
+	useParentSize: jest.fn( () => ( {
+		parentRef: { current: null },
+		width: 600, // Default width for tests
+		height: 300, // Default height for tests
+	} ) ),
+} ) );
+
 describe( 'withResponsive', () => {
 	const MockComponent = ( { width = 0, height = 0 }: BaseChartProps ) => (
 		<div data-testid="responsive-container">

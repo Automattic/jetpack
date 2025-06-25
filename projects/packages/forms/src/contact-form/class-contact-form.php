@@ -162,6 +162,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'postToUrl'              => null,
 			'salesforceData'         => null,
 			'hiddenFields'           => null,
+			'stepTransition'         => 'fade-slide', // The transition style for multi-step forms. Options: none, fade, slide, fade-slide
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -279,10 +280,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * @param array       $attributes Key => Value pairs as parsed by shortcode_parse_atts().
 	 * @param string|null $content The shortcode's inner content: [contact-form]$content[/contact-form].
+	 * @param array       $context An array of context data for the form.
 	 *
 	 * @return string HTML for the concat form.
 	 */
-	public static function parse( $attributes, $content ) {
+	public static function parse( $attributes, $content, $context = array() ) {
 		global $post, $page, $multipage; // $page is used in the contact-form submission redirect
 		if ( Settings::is_syncing() ) {
 			return '';
@@ -299,6 +301,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 		// Create a new Contact_Form object (this class)
 		$form = new Contact_Form( $attributes, $content );
+		Contact_Form_Plugin::reset_step();
 
 		$id = $form->get_attribute( 'id' );
 
@@ -415,26 +418,62 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$context = array(
-				'formId'     => $id,
-				'formHash'   => $form->hash,
-				'showErrors' => false, // We toggle this to true when we want to show the user errors right away.
-				'errors'     => array(), // This should be a associative array.
-				'fields'     => array(),
+			$max_steps = 0;
+			if ( preg_match_all( '/data-wp-context=[\'"]?{"step":(\d+)}[\'"]?/', $content, $matches ) ) {
+				if ( ! empty( $matches[1] ) ) {
+					$max_steps = max( array_map( 'intval', $matches[1] ) );
+				}
+			}
+
+			$is_multistep = $max_steps > 0;
+
+			$default_context = array(
+				'formId'      => $id,
+				'formHash'    => $form->hash,
+				'showErrors'  => false, // We toggle this to true when we want to show the user errors right away.
+				'errors'      => array(), // This should be a associative array.
+				'fields'      => array(),
+				'isMultiStep' => boolval( $is_multistep ), // Whether the form is a multistep form.
 			);
 
+			if ( $is_multistep ) {
+				$multistep_context = array(
+					'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1,
+					'maxSteps'    => $max_steps,
+					'direction'   => 'forward', // Default direction for animations
+					'transition'  => $form->get_attribute( 'stepTransition' ) ? $form->get_attribute( 'stepTransition' ) : 'fade-slide', // Transition style for step animations
+				);
+
+				if ( ! is_array( $context ) ) {
+					$context = array();
+				}
+				$context = array_merge( $context, $multistep_context );
+			}
+
+			$context = is_array( $context ) ? array_merge( $default_context, $context ) : $default_context;
+
 			$r .= "<form action='" . esc_url( $url ) . "'
+				id='jp-form-" . esc_attr( $form->hash ) . "'
 				method='post'
 				class='" . esc_attr( $form_classes ) . "' $form_aria_label
 				data-wp-interactive=\"jetpack/form\"  " . wp_interactivity_data_wp_context( $context ) . "
 				data-wp-on--submit=\"actions.onFormSubmit\"
+				data-wp-class--is-first-step=\"state.isFirstStep\"
+				data-wp-class--is-last-step=\"state.isLastStep\"
 				novalidate >\n";
+
+			if ( $is_multistep ) { // This makes the "enter" key work in multi-step forms as expected.
+				$r .= '<input type="submit" style="display: none;" />';
+			}
 
 			$r .= $form->body;
 
-			if ( $has_submit_button_block ) {
-				// Place the error wrapper before the button block
-				$r = str_replace( '<div class="wp-block-jetpack-button', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r );
+			if ( $is_multistep ) {
+				$r = preg_replace( '/<div class="wp-block-jetpack-form-step-navigation__wrapper/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-form-step-navigation__wrapper', $r, 1 );
+			} elseif ( $has_submit_button_block ) {
+				// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
+				// Replace only the first occurrence.
+				$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
 			}
 
 			// In new versions of the contact form block the button is an inner block
@@ -1653,6 +1692,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 			esc_url( $url )
 		);
 
+		// Get the status of the feedback
+		$status = $is_spam ? 'spam' : 'inbox';
+
+		// Build the dashboard URL with the status and the feedback's post id
+		$dashboard_url = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
+
+		$mark_as_spam_url = $dashboard_url . '&mark_as_spam';
+
+		$footer_mark_as_spam_url = sprintf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url( $mark_as_spam_url ),
+			__( 'Mark as spam', 'jetpack-forms' )
+		);
+
 		$footer = implode(
 			'',
 			/**
@@ -1670,12 +1723,39 @@ class Contact_Form extends Contact_Form_Shortcode {
 					'<span style="font-size: 12px">',
 					$footer_time . '<br />',
 					$footer_ip ? $footer_ip . '<br />' : null,
-					$footer_url . '<br />',
+					$footer_url . '<br /><br />',
+					$footer_mark_as_spam_url . '<br />',
 					$sent_by_text,
 					'</span>',
 				)
 			)
 		);
+
+		$actions = '';
+		// TODO: Update this once we have a way to enable/disable email actions.
+		$are_email_actions_enabled = true;
+
+		if ( $are_email_actions_enabled ) {
+			$actions = sprintf(
+				'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
+					<tr>
+						<td class="pad" align="center">
+							<a rel="noopener" target="_blank" href="%1$s" data-tracks-link-desc="">
+								<!--[if mso]>
+								<i style="mso-text-raise: 30pt;">&nbsp;</i>
+								<![endif]-->
+								<span>%2$s</span>
+								<!--[if mso]>
+								<i>&nbsp;</i>
+								<![endif]-->
+							</a>
+						</td>
+					</tr>
+				</table>',
+				esc_url( $dashboard_url ),
+				__( 'View in dashboard', 'jetpack-forms' )
+			);
+		}
 
 		/**
 		 * Filters the message sent via email after a successful form submission.
@@ -1690,7 +1770,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
 
 		// This is called after `contact_form_message`, in order to preserve back-compat
-		$message = self::wrap_message_in_html_tags( $title, $message, $footer );
+		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions );
 
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
@@ -1897,10 +1977,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string $title - title of the email.
 	 * @param string $body - the message body.
 	 * @param string $footer - the footer containing meta information.
+	 * @param string $actions - HTML for actions displayed in the email.
 	 *
 	 * @return string
 	 */
-	public static function wrap_message_in_html_tags( $title, $body, $footer ) {
+	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '' ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters
 		if ( str_contains( $body, '<html' ) ) {
@@ -1946,7 +2027,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'',
 			$footer,
 			$style,
-			$tracking_pixel
+			$tracking_pixel,
+			$actions
 		);
 
 		return $html_message;

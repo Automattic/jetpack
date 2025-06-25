@@ -1270,7 +1270,7 @@ class Jetpack_Carousel {
 			if ( isset( $_POST['email'] ) && is_string( $_POST['email'] ) ) {
 				$email = wp_unslash( $_POST['email'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Checked or sanitized below.
 			}
-			$url = isset( $_POST['url'] ) ? esc_url_raw( wp_unslash( $_POST['url'] ) ) : null;
+			$url = isset( $_POST['url'] ) && is_string( $_POST['url'] ) ? esc_url_raw( wp_unslash( $_POST['url'] ) ) : null;
 
 			if ( get_option( 'require_name_email' ) ) {
 				if ( empty( $display_name ) ) {

@@ -1,5 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { makeBaseConfig, defineConfig, typescriptFiles } from 'jetpack-js-tools/eslintrc/base.mjs';
+import {
+	makeBaseConfig,
+	defineConfig,
+	javascriptFiles,
+	typescriptFiles,
+} from 'jetpack-js-tools/eslintrc/base.mjs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -15,6 +20,7 @@ export default defineConfig(
 		},
 	},
 	{
+		files: javascriptFiles, // @todo Which of the rule changes here should only really apply to typescriptFiles?
 		rules: {
 			'import/no-extraneous-dependencies': 'error',
 

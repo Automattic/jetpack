@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.3.0] - 2025-06-23
+### Changed
+- VIP: Change hosting check method. [#44059]
+
+## [5.2.1] - 2025-06-19
+### Changed
+- Internal updates.
+
 ## [5.2.0] - 2025-06-10
 ### Added
 - Request: Add new class used to classify requests on a site. [#43843]
@@ -473,6 +481,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[5.3.0]: https://github.com/Automattic/jetpack-status/compare/v5.2.1...v5.3.0
+[5.2.1]: https://github.com/Automattic/jetpack-status/compare/v5.2.0...v5.2.1
 [5.2.0]: https://github.com/Automattic/jetpack-status/compare/v5.1.4...v5.2.0
 [5.1.4]: https://github.com/Automattic/jetpack-status/compare/v5.1.3...v5.1.4
 [5.1.3]: https://github.com/Automattic/jetpack-status/compare/v5.1.2...v5.1.3

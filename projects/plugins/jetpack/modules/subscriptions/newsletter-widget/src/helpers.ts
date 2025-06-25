@@ -45,19 +45,25 @@ export const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true 
 /**
  * Generates the URL for subscriber statistics based on site context.
  *
- * @param {string}  site        - The site identifier
- * @param {boolean} isWpcomSite - Whether the site is on WordPress.com
- * @param {string}  adminUrl    - The admin URL for self-hosted sites
+ * @param {string}  site                - The site identifier
+ * @param {boolean} isWpcomSite         - Whether the site is on WordPress.com
+ * @param {string}  adminUrl            - The admin URL for self-hosted sites
+ * @param {boolean} isStatsModuleActive - Whether or not the Stats module is enabled
  * @returns {string} The appropriate subscriber stats URL
  */
 export const getSubscriberStatsUrl = (
 	site: string,
 	isWpcomSite: boolean,
-	adminUrl: string
+	adminUrl: string,
+	isStatsModuleActive: boolean
 ): string => {
-	return isWpcomSite
-		? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
-		: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`;
+	if ( isStatsModuleActive && ! isWpcomSite ) {
+		return `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`;
+	}
+
+	// If the stats module is not active,
+	// we can always redirect the old Calypso blue stats sub-page for subscribers stats.
+	return getRedirectUrl( `https://wordpress.com/stats/subscribers/${ site }` );
 };
 
 /**

@@ -5,7 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.1.0-beta] - 2025-06-11
+## [4.1.1] - 2025-06-23
+### Changed
+- Update package dependencies. [#43892] [#43951] [#44020] [#44040]
+
+### Fixed
+- Defer JS: Fix duplicating deferred scripts on the page when "Optimize LCP Images" is enabled. [#44041]
+- Image Guide: Fix reporting images in WordPress' admin bar. [#43964]
+
+## [4.1.0] - 2025-06-18
 ### Added
 - LCP Optimization: New Largest Contentful Paint (LCP) optimization feature to improve loading performance of Cornerstone pages. [#43684]
 
@@ -724,7 +732,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[4.1.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.0.0...4.1.0-beta
+[4.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.0...4.1.1
+[4.1.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.1...4.0.0
 [3.13.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.0...3.13.1
 [3.13.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.12.1...3.13.0
