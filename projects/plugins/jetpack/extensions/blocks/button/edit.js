@@ -5,8 +5,11 @@ import {
 	__experimentalUseBorderProps as useBorderProps, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	withColors,
 	useBlockProps,
+	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { IS_GRADIENT_AVAILABLE } from './constants';
@@ -17,8 +20,23 @@ import './editor.scss';
 
 export function ButtonEdit( props ) {
 	const { attributes, backgroundColor, className, clientId, setAttributes, textColor } = props;
-	const { borderRadius, element, placeholder, text, width, fontSize } = attributes;
+	const { borderRadius, element, placeholder, text, width, fontSize, customVariant, metaName } =
+		attributes;
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
+
+	const { metadata } = useSelect(
+		select => {
+			const { getBlockAttributes } = select( blockEditorStore );
+
+			return {
+				metadata: getBlockAttributes( clientId )?.metadata,
+			};
+		},
+		[ clientId ]
+	);
+
+	const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } =
+		useDispatch( 'core/block-editor' );
 
 	/* eslint-disable react-hooks/rules-of-hooks */
 	const {
@@ -51,7 +69,33 @@ export function ButtonEdit( props ) {
 		'no-border-radius': 0 === borderRadius,
 		[ `has-${ fontSize }-font-size` ]: !! fontSize,
 		'has-custom-font-size': !! fontSize,
+		[ `is-${ customVariant }` ]: !! customVariant,
 	} );
+
+	useEffect( () => {
+		if ( ! clientId ) {
+			return;
+		}
+		if ( ! metaName ) {
+			return;
+		}
+		if ( metadata?.name === metaName ) {
+			return;
+		}
+		__unstableMarkNextChangeAsNotPersistent();
+		updateBlockAttributes( clientId, {
+			metadata: {
+				...metadata,
+				name: metaName,
+			},
+		} );
+	}, [
+		metaName,
+		metadata,
+		updateBlockAttributes,
+		clientId,
+		__unstableMarkNextChangeAsNotPersistent,
+	] );
 
 	const buttonStyles = {
 		...( ! backgroundColor.color && gradientValue

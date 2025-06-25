@@ -119,13 +119,13 @@ describe( 'PieSemiCircleChart', () => {
 	} );
 
 	it( 'renders with different thickness values', () => {
-		const { rerender } = renderPieChart( { data: mockData, thickness: 0.2 } );
+		const { rerender } = renderPieChart( { data: mockData, thickness: 0.2, width: 400 } );
 		const thinSegment = screen.getAllByTestId( 'pie-segment' )[ 0 ];
 		const thinPathD = thinSegment.getAttribute( 'd' );
 
 		rerender(
 			<ThemeProvider>
-				<PieSemiCircleChart data={ mockData } thickness={ 0.8 } />
+				<PieSemiCircleChart data={ mockData } thickness={ 0.8 } width={ 400 } />
 			</ThemeProvider>
 		);
 		const thickSegment = screen.getAllByTestId( 'pie-segment' )[ 0 ];

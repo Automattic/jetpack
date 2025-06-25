@@ -1,3 +1,4 @@
+import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import DeprecatedOptionCheckbox from '../deprecated/field-option-checkbox';
 import DeprecatedOptionRadio from '../deprecated/field-option-radio';
 import JetpackDropzone from '../dropzone';
@@ -15,6 +16,11 @@ import JetpackTelephoneField from '../field-telephone';
 import JetpackTextField from '../field-text';
 import JetpackTextareaField from '../field-textarea';
 import JetpackUrlField from '../field-url';
+import JetpackProgressIndicator from '../form-progress-indicator';
+import JetpackStep from '../form-step';
+import JetpackStepContainer from '../form-step-container';
+import JetpackStepDivider from '../form-step-divider';
+import JetpackStepNavigation from '../form-step-navigation';
 import JetpackInput from '../input';
 import JetpackLabel from '../label';
 import JetpackOption from '../option';
@@ -40,9 +46,19 @@ export const childBlocks = [
 	JetpackTelephoneField,
 	JetpackTextareaField,
 	JetpackFieldFile,
+
 	// The following are required for these blocks to be parsed correctly in block
 	// deprecations. They have been flagged with `supports.inserter: false` to
 	// prevent further use.
 	DeprecatedOptionCheckbox,
 	DeprecatedOptionRadio,
+	...( hasFeatureFlag( 'multistep-form' )
+		? [
+				JetpackStep,
+				JetpackStepContainer,
+				JetpackStepDivider,
+				JetpackStepNavigation,
+				JetpackProgressIndicator,
+		  ]
+		: [] ),
 ];

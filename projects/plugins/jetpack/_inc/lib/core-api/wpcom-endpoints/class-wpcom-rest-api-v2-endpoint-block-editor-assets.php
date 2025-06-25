@@ -24,6 +24,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		'/plugins/gutenberg-core/', // WPCOM Simple site
 		'/plugins/jetpack/',
 		'/mu-plugins/jetpack-mu-wpcom-plugin/', // WPCOM Simple site
+		'/mu-plugins/wpcomsh/', // WoW helpers
 	);
 
 	/**

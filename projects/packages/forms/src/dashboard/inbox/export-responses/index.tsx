@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -13,8 +12,15 @@ import useExportResponses from '../../hooks/use-export-responses';
 import './style.scss';
 
 const ExportResponsesButton = () => {
-	const { showExportModal, openModal, closeModal, userCanExport, onExport, autoConnectGdrive } =
-		useExportResponses();
+	const {
+		showExportModal,
+		openModal,
+		closeModal,
+		userCanExport,
+		onExport,
+		autoConnectGdrive,
+		exportLabel,
+	} = useExportResponses();
 
 	if ( ! userCanExport ) {
 		return null;
@@ -29,7 +35,7 @@ const ExportResponsesButton = () => {
 				icon={ download }
 				onClick={ openModal }
 			>
-				{ __( 'Export', 'jetpack-forms' ) }
+				{ exportLabel }
 			</Button>
 
 			{ showExportModal && (

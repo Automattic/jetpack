@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { initializeExPlat, loadExperimentAssignment } from '@automattic/jetpack-explat';
+import { initializeExPlat, loadExperimentAssignmentWithAuth } from '@automattic/jetpack-explat';
 import { select } from '@wordpress/data';
 import debugFactory from 'debug';
 
@@ -48,7 +48,7 @@ export async function isChromeAIAvailable() {
 	initializeExPlat();
 	debug( 'initialized explat' );
 
-	const { variationName } = await loadExperimentAssignment(
+	const { variationName } = await loadExperimentAssignmentWithAuth(
 		'calypso_jetpack_ai_gemini_api_202503_v1'
 	);
 

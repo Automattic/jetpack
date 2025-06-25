@@ -322,29 +322,48 @@ CSS
 	 * Returns url of forms admin page.
 	 *
 	 * @param string|null $tab Tab to open in the forms admin page.
+	 * @param boolean     $force_inbox Whether to force the inbox view URL.
 	 *
 	 * @return string
 	 */
-	public function get_forms_admin_url( $tab = null ) {
+	public function get_forms_admin_url( $tab = null, $force_inbox = false ) {
 		$is_classic          = $this->get_preferred_view() === self::CLASSIC_VIEW;
 		$switch_is_available = $this->is_jetpack_forms_view_switch_available();
 
-		$admin_dashboard_url = $this->is_jetpack_forms_admin_page_available()
-			? 'admin.php?page=jetpack-forms-admin'
-			: 'admin.php?page=jetpack-forms';
-
-		$url = $is_classic && $switch_is_available
+		$base_url = $is_classic && $switch_is_available && ! $force_inbox
 			? get_admin_url() . 'edit.php?post_type=feedback'
-			: get_admin_url() . $admin_dashboard_url;
+			: get_admin_url() . ( $this->is_jetpack_forms_admin_page_available() ? 'admin.php?page=jetpack-forms-admin' : 'admin.php?page=jetpack-forms' );
 
-		// Return url directly to spam tab.
-		if ( $tab === 'spam' ) {
-			$url = $is_classic && $switch_is_available
-				? add_query_arg( 'post_status', 'spam', $url )
-				: $url . '#/responses?status=spam';
+		return $this->append_tab_to_url( $base_url, $tab, $is_classic && $switch_is_available && ! $force_inbox );
+	}
+
+	/**
+	 * Appends the appropriate tab parameter to the URL based on the view type.
+	 *
+	 * @param string  $url              Base URL to append to.
+	 * @param string  $tab              Tab to open.
+	 * @param boolean $is_classic_view  Whether we're using the classic view.
+	 *
+	 * @return string
+	 */
+	private function append_tab_to_url( $url, $tab, $is_classic_view ) {
+		if ( ! $tab ) {
+			return $url;
 		}
 
-		return $url;
+		$status_map = array(
+			'spam'  => 'spam',
+			'inbox' => 'inbox',
+			'trash' => 'trash',
+		);
+
+		if ( ! isset( $status_map[ $tab ] ) ) {
+			return $url;
+		}
+
+		return $is_classic_view
+			? add_query_arg( 'post_status', $status_map[ $tab ], $url )
+			: $url . '#/responses?status=' . $status_map[ $tab ];
 	}
 
 	/**

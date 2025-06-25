@@ -326,18 +326,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.8-a.5 - 2025-06-16
+### 14.8-a.9 - 2025-06-24
 #### Enhancements
-- AI Assistant: Add support for file upload field on Forms extension.
-- Forms: Add Akismet refresh status button.
-- Forms: Stop translate product name in the sidebar.
-- Forms: Show central integrations dashboard.
-- Forms: Use interactivity API for form validation.
-- Forms: Make it possible to preview file by visiting the URL.
+- Form: Improve the error validation animation.
 
 #### Bug fixes
-- Endpoints: Prevent warnings in logs when attempting to add external media from some sources.
-- Recipe shortcode: Prevent errors in logs due to checking for theme color properties that may not exist.
+- Prevent JavaScript errors when using the editor.
 
 --------
 

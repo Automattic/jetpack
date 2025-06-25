@@ -182,6 +182,8 @@ const LineChart: FC< LineChartProps > = ( {
 	withTooltipCrosshairs,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
 	renderGlyph = defaultRenderGlyph,
 	glyphStyle = {},
 	legendShape = 'line',
@@ -287,13 +289,20 @@ const LineChart: FC< LineChartProps > = ( {
 			style={ {
 				width,
 				height,
+				position: 'relative',
 			} }
 		>
 			<XYChart
 				theme={ theme }
 				width={ width }
-				height={ height - legendHeight }
-				margin={ { ...defaultMargin, ...margin } }
+				height={ height - ( showLegend ? legendHeight : 0 ) }
+				margin={ {
+					...defaultMargin,
+					...margin,
+					...( showLegend && legendAlignmentVertical === 'top'
+						? { top: ( defaultMargin.top || 0 ) + legendHeight }
+						: {} ),
+				} }
 				// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 				xScale={ chartOptions.xScale }
 				yScale={ chartOptions.yScale }
@@ -374,6 +383,8 @@ const LineChart: FC< LineChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
+					alignmentHorizontal={ legendAlignmentHorizontal }
+					alignmentVertical={ legendAlignmentVertical }
 					className={ styles[ 'line-chart-legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }
