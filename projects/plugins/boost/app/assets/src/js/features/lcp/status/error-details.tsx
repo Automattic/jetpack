@@ -66,7 +66,7 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 		return sprintf(
 			/* translators: %s is the error type */
 			__(
-				'An unknown error occurred: %s. Please try again later, or contact support if the issue persists.',
+				"An unknown error occurred: %s. Make sure you're using the latest version of Jetpack Boost. If you are, please try again later, or contact support if the issue persists.",
 				'jetpack-boost'
 			),
 			type
