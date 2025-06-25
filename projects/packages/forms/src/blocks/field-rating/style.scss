@@ -1,0 +1,16 @@
+/* Rating field block – front-end styles */
+
+.jetpack-field-rating__wrapper {
+  white-space: nowrap;
+  font-size: 1.5em;
+}
+
+.jetpack-field-rating__wrapper > span {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Stars that aren't selected */
+.jetpack-field-rating__wrapper .is-rating-unfilled {
+  opacity: 0.3;
+} 
