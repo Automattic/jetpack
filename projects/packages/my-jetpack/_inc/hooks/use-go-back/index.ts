@@ -13,7 +13,7 @@ export function useGoBack( { slug }: { slug: string } ) {
 	const navigate = useNavigate();
 
 	const onClickGoBack = useCallback(
-		( event: MouseEvent ) => {
+		( event: React.MouseEvent ) => {
 			if ( slug ) {
 				recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
 			}
