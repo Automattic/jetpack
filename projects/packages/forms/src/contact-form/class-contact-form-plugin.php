@@ -708,7 +708,7 @@ class Contact_Form_Plugin {
 			$id = $processor->get_attribute( 'data-id-attr' );
 			if ( 'previous-step' === $id ) {
 				$processor->remove_attribute( 'id' );
-				$processor->add_class( 'disable-spinner is-previous' );
+				$processor->add_class( 'disable-spinner is-previous is-hidden' );
 				$processor->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isFirstStep' );
 			}
@@ -720,7 +720,7 @@ class Contact_Form_Plugin {
 			}
 			if ( 'submit-step' === $id ) {
 				$processor->remove_attribute( 'id' );
-				$processor->add_class( 'is-submit' );
+				$processor->add_class( 'is-submit is-hidden' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
 			}
 		}
