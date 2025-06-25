@@ -32,7 +32,7 @@ export type LineChartAnnotationProps = {
 	testId?: string;
 };
 
-const getLabelPosition = ( {
+export const getLabelPosition = ( {
 	subjectType,
 	x,
 	xMax,
@@ -74,7 +74,10 @@ const getLabelPosition = ( {
 	}
 
 	// Smart horizontal positioning: if annotation would extend beyond right edge, position it to the left
-	if ( x + annotationMaxWidth > xMax ) {
+	// Account for the connector offset (dx) in boundary calculations
+	const effectiveX = x + dx;
+
+	if ( effectiveX + annotationMaxWidth > xMax ) {
 		isFlippedHorizontally = true;
 		if ( subjectType === 'circle' ) {
 			dx = -dx; // Just flip to the left side with same offset
@@ -84,9 +87,19 @@ const getLabelPosition = ( {
 	}
 
 	// Smart vertical positioning: check both top and bottom edges
-	if ( y - annotationHeight < yMax ) {
+	// For circle annotations, they are positioned below by default (dy > 0)
+	// Only flip when close to bottom edge to position above
+	if ( subjectType === 'circle' ) {
+		// Check if positioning below would extend beyond bottom edge
+		if ( y + dy + annotationHeight > yMin ) {
+			// Too close to bottom edge, position above
+			isFlippedVertically = true;
+			dy = -Math.abs( dy ); // Ensure negative value to position above the point
+		}
+		// When close to top edge, keep default below positioning (no flip needed)
+	} else if ( y - annotationHeight < yMax ) {
 		// Too close to top edge, position below
-		if ( subjectType === 'circle' || subjectType === 'line-horizontal' ) {
+		if ( subjectType === 'line-horizontal' ) {
 			isFlippedVertically = true;
 			dy = Math.abs( dy ); // Ensure positive value to position below the point
 		} else if ( subjectType === 'line-vertical' ) {
@@ -94,7 +107,7 @@ const getLabelPosition = ( {
 		}
 	} else if ( y + annotationHeight > yMin ) {
 		// Too close to bottom edge, position above
-		if ( subjectType === 'circle' || subjectType === 'line-horizontal' ) {
+		if ( subjectType === 'line-horizontal' ) {
 			isFlippedVertically = true;
 			dy = -Math.abs( dy ); // Ensure negative value to position above the point
 		} else if ( subjectType === 'line-vertical' ) {
