@@ -66,6 +66,7 @@ const fetchExperimentAssignmentWithConnectedUser = async ( {
 		url: assignmentsRequestUrl,
 		credentials: 'include',
 		mode: 'cors',
+		global: true,
 	} );
 };
 
