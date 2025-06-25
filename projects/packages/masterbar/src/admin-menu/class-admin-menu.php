@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu as Jetpack_Admin_UI_Admin;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Redirect;
@@ -18,14 +17,6 @@ require_once __DIR__ . '/class-base-admin-menu.php';
  * Class Admin_Menu.
  */
 class Admin_Menu extends Base_Admin_Menu {
-
-	/**
-	 * Register the hooks.
-	 */
-	public function __construct() {
-		parent::__construct();
-		add_action( 'admin_menu', array( $this, 'register_nav_unification_jetpack_menus' ), 999 );
-	}
 
 	/**
 	 * Create the desired menu output.
@@ -389,41 +380,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 7 );
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'options-general.php', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, 8 );
-	}
-
-	/**
-	 * Register the nav unification submenu items using the Jetpack APIs.
-	 *
-	 * This is needed because there's a bug in WP Core that ignores the position argument.
-	 *
-	 * @see https://core.trac.wordpress.org/ticket/52035
-	 *
-	 * @return void
-	 */
-	public function register_nav_unification_jetpack_menus() {
-		Jetpack_Admin_UI_Admin::add_menu(
-			esc_attr__( 'Activity Log', 'jetpack-masterbar' ),
-			__( 'Activity Log', 'jetpack-masterbar' ),
-			'manage_options',
-			'https://wordpress.com/activity-log/' . $this->domain,
-			/**
-			 * Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			 */
-			null,
-			2
-		);
-
-		Jetpack_Admin_UI_Admin::add_menu(
-			esc_attr__( 'Backup', 'jetpack-masterbar' ),
-			__( 'Backup', 'jetpack-masterbar' ),
-			'manage_options',
-			'https://wordpress.com/backup/' . $this->domain,
-			/**
-			 * Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			 */
-			null,
-			3
-		);
 	}
 
 	/**
