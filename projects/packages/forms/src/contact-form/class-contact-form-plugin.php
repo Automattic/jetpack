@@ -3060,4 +3060,18 @@ class Contact_Form_Plugin {
 
 		return $item;
 	}
+
+	/**
+	 * Render the rating field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_rating( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'rating', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
+	}
 }

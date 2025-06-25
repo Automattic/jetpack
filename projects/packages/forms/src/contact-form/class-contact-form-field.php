@@ -151,6 +151,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'stylevariationstyles'     => null,
 				'optionsclasses'           => null,
 				'optionsstyles'            => null,
+				'maxRating'                => null,
+				'align'                    => null,
+				'maxrating'                => null,
 			),
 			$attributes,
 			'contact-field'
@@ -614,8 +617,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				. $extra_attrs_string
 				. '>'
 				. wp_kses_post( $label )
-				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' )
-				. "</label>\n";
+				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+			"</label>\n";
 	}
 
 	/**
@@ -1925,6 +1928,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			case 'file':
 				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
 				break;
+			case 'rating':
+				$field .= $this->render_rating_field(
+					$id,
+					$label,
+					$value,
+					$field_class,
+					$required,
+					$required_field_text
+				);
+				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
 				break;
@@ -2043,5 +2056,95 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style = $this->get_form_style();
 
 		return in_array( $form_style, array( 'outlined', 'animated' ), true );
+	}
+
+	/**
+	 * Return the HTML for the rating (stars/hearts/etc.) field.
+	 *
+	 * This field is purely decorative (spans acting as buttons) and stores the
+	 * selected rating in a hidden input so it is handled by existing form
+	 * validation/submission logic.
+	 *
+	 * @since 0.46.0
+	 *
+	 * @param string $id                 Field ID.
+	 * @param string $label              Field label.
+	 * @param string $value              Current value.
+	 * @param string $class              Additional CSS classes.
+	 * @param bool   $required           Whether field is required.
+	 * @param string $required_field_text Required label text.
+	 * @return string HTML markup.
+	 */
+	private function render_rating_field( $id, $label, $value, $class, $required, $required_field_text ) {
+
+		// Read block attributes needed for rendering.
+		$max_attr = $this->get_attribute( 'maxrating' );
+		if ( null === $max_attr ) {
+			$max_attr = $this->get_attribute( 'maxRating' );
+		}
+		$max_rating = is_numeric( $max_attr ) && (int) $max_attr > 0 ? (int) $max_attr : 5;
+
+		// Ensure assets are enqueued once per request.
+		$this->enqueue_rating_field_assets();
+
+		$initial_rating = (int) $value ? (int) $value : 0;
+		$context        = array(
+			'fieldId'      => $id,
+			'fieldType'    => 'rating',
+			'rating'       => $initial_rating,
+			'maxRating'    => $max_rating,
+			'ratingString' => $initial_rating . '/' . (int) $max_rating,
+		);
+
+		$interactive_attrs = ' data-wp-interactive="jetpack/field-rating" ' . wp_interactivity_data_wp_context( $context );
+
+		$label_html = $this->render_label( 'rating', $id, $label, $required, $required_field_text );
+
+		// Font size can be controlled via block styles (typography support).
+		/* No inline wrapper style – typography support handles font size. */
+
+		$spans = '';
+		for ( $i = 1; $i <= $max_rating; $i++ ) {
+			$spans .= sprintf(
+				'<span role="presentation"><span role="button" tabindex="0" data-wp-context="{&quot;position&quot;:%1$d}" data-value="%1$d" data-wp-on--click="actions.setRating" class="%3$s" data-wp-class--is-rating-unfilled="state.isUnfilled">%2$s</span></span>',
+				$i,
+				html_entity_decode( '&#9733;' ),
+				( $i > $initial_rating ) ? 'is-rating-unfilled' : ''
+			);
+		}
+
+		return sprintf(
+			'<div class="jetpack-field jetpack-field-rating %1$s"%2$s>%3$s<div class="jetpack-field-rating__wrapper">%4$s</div><input type="hidden" name="%5$s" value="%6$s" data-wp-bind--value="context.ratingString" /></div>',
+			esc_attr( $class ),
+			$interactive_attrs,
+			$label_html,
+			$spans,
+			esc_attr( $id ),
+			esc_attr( $value )
+		);
+	}
+
+	/**
+	 * Enqueue front-end JS module for rating field.
+	 */
+	private function enqueue_rating_field_assets() {
+		static $enqueued = false;
+		if ( $enqueued ) {
+			return;
+		}
+		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+		\wp_enqueue_script_module(
+			'jetpack-form-rating-field',
+			plugins_url( '../../dist/modules/field-rating/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			$version
+		);
+		// Enqueue stylesheet for rating field.
+		$style_handle = 'jetpack-form-field-rating-style';
+		$style_path   = '../../dist/blocks/field-rating/style.css';
+		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
+			wp_enqueue_style( $style_handle, plugins_url( $style_path, __FILE__ ), array(), $version );
+		}
+		$enqueued = true;
 	}
 }

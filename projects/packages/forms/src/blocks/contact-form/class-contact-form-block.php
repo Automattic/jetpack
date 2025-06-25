@@ -348,6 +348,26 @@ class Contact_Form_Block {
 			)
 		);
 
+		Blocks::jetpack_register_block(
+			'jetpack/field-rating',
+			array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_rating' ),
+				'attributes'       => array(
+					'maxRating' => array(
+						'type'    => 'number',
+						'default' => 5,
+					),
+					'maxrating' => array(
+						'type'    => 'number',
+						'default' => 5,
+					),
+				),
+				'provides_context' => array(
+					'jetpack/field-required' => 'required',
+				),
+			)
+		);
+
 		// Paid file field block
 		add_action(
 			'jetpack_register_gutenberg_extensions',
