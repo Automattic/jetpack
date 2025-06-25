@@ -1500,6 +1500,21 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Render a hidden field.
+	 *
+	 * @param string $id - the field ID.
+	 * @param string $label - the field label.
+	 * @param string $value - the value of the field.
+	 * @param string $interactivity_attrs - additional attributes for interactivity.
+	 *
+	 * @return string HTML for the hidden field.
+	 */
+	private function render_hidden_field( $id, $label, $value, $interactivity_attrs ) {
+		// Render a hidden field.
+		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' value='" . esc_attr( $value ) . "' $interactivity_attrs />\n";
+	}
+
+	/**
 	 * Enqueues scripts and styles needed for the file field.
 	 *
 	 * @since 0.45.0
@@ -2256,6 +2271,25 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return '';
 		}
 
+		$context = array(
+			'fieldId'           => $id,
+			'fieldType'         => $type,
+			'fieldLabel'        => $label,
+			'fieldValue'        => $value,
+			'fieldPlaceholder'  => $placeholder,
+			'fieldIsRequired'   => $required,
+			'fieldErrorMessage' => '',
+			'fieldExtra'        => $this->get_field_extra( $type, $extra_attrs ),
+			'formHash'          => $this->form->hash,
+		);
+
+		$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
+
+		if ( $type === 'hidden' ) {
+			// For hidden fields, we don't need to render the label or any other HTML.
+			return $this->render_hidden_field( $id, $label, $value, $interactivity_attrs );
+		}
+
 		$trimmed_type = trim( esc_attr( $type ) );
 		$class       .= ' grunion-field';
 
@@ -2295,19 +2329,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field             = '';
 		$field_placeholder = ! empty( $placeholder ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 
-		$context = array(
-			'fieldId'           => $id,
-			'fieldType'         => $type,
-			'fieldLabel'        => $label,
-			'fieldValue'        => $value,
-			'fieldPlaceholder'  => $placeholder,
-			'fieldIsRequired'   => $required,
-			'fieldErrorMessage' => '',
-			'fieldExtra'        => $this->get_field_extra( $type, $extra_attrs ),
-			'formHash'          => $this->form->hash,
-		);
-
-		$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
 		// Fields with an inset label need an extra wrapper to show the error message below the input.
 		if ( $has_inset_label ) {
 			$field_width       = $this->get_attribute( 'width' );

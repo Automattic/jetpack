@@ -18,13 +18,13 @@ const settings = {
 	edit,
 	save,
 	attributes: {
-		name: { type: 'string', default: '' },
-		value: { type: 'string', default: '' },
+		label: { type: 'string', default: '' },
+		default: { type: 'string', default: '' },
 	},
 	example: {
 		attributes: {
-			name: __( 'Company_ID', 'jetpack-forms' ),
-			value: __( 'ACME Inc.', 'jetpack-forms' ),
+			label: __( 'ACME Inc.', 'jetpack-forms' ),
+			default: __( 'Company_ID', 'jetpack-forms' ),
 		},
 	},
 };

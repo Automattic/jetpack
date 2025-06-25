@@ -1,3 +1,3 @@
 export default ( { attributes } ) => {
-	return <input type="hidden" name={ attributes.name } value={ attributes.value } />;
+	return <input type="hidden" name={ attributes.label } value={ attributes.default } />;
 };

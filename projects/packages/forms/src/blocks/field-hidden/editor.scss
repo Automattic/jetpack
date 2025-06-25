@@ -4,28 +4,45 @@
     border-radius: 4px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 4px;
     padding: 16px;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
     position: relative;
+    outline: 1px solid #FFF;
 
-    label {
-        font-weight: 600;
-        color: #333;
+    .jetpack-form-hidden-field__name-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .jetpack-form-hidden-field__input {
         padding:0;
         border: none;
         background-color: transparent;
+        width: 100%;
+        color: #111;
+        font-size: 14px;
+        font-family: 'Courier New', Courier, monospace;
+        box-shadow: 0;
     }
 
-    .jetpack-form-hidden-field__hint {
-        position: absolute;
-        top: 8px;
-        right: 16px;
-        font-size: 12px;
-        color: #666;
+    .jetpack-form-hidden-field__input:focus {
+        outline: none;
+        box-shadow: none;
     }
+
+    .jetpack-form-hidden-field__value {
+        padding: 4px 8px;
+        border: 1px solid #BBB;
+        background-color: #FFF;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .jetpack-form-hidden-field__value:focus {
+        outline: none;
+        box-shadow: inherit
+    }
+
 }
