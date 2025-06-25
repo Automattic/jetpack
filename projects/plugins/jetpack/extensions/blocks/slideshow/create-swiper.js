@@ -36,8 +36,8 @@ export default async function createSwiper(
 		),
 	};
 	const [ { default: Swiper } ] = await Promise.all( [
-		import( /* webpackChunkName: "swiper" */ 'swiper/swiper-bundle.js' ),
-		import( /* webpackChunkName: "swiper" */ 'swiper/swiper-bundle.css' ),
+		import( /* webpackChunkName: "swiper" */ 'swiper/bundle' ),
+		import( /* webpackChunkName: "swiper" */ 'swiper/css/bundle' ),
 	] );
 	return new Swiper( container, { ...defaultParams, ...params } );
 }

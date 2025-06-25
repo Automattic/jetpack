@@ -4575,8 +4575,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/social-logos
       swiper:
-        specifier: 6.7.0
-        version: 6.7.0
+        specifier: 11.2.8
+        version: 11.2.8
       tinycolor2:
         specifier: 1.4.2
         version: 1.4.2
@@ -10457,9 +10457,6 @@ packages:
   dom-serializer@2.0.0:
     resolution: {integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==}
 
-  dom7@3.0.0:
-    resolution: {integrity: sha512-oNlcUdHsC4zb7Msx7JN3K0Nro1dzJ48knvBOnDPKJ2GV9wl1i5vydJZUSyOfrkKFDZEud/jBsTk92S/VGSAe/g==}
-
   dom7@4.0.6:
     resolution: {integrity: sha512-emjdpPLhpNubapLFdjNL9tP06Sr+GZkrIHEXLWvOGsytACUrkbeIdjO5g77m00BrHTznnlcNqgmn7pCN192TBA==}
 
@@ -14627,9 +14624,6 @@ packages:
   sprintf-js@1.1.3:
     resolution: {integrity: sha512-Oo+0REFV59/rz3gfJNKQiBlwfHaSESl1pcGyABQsnnIfWOFt6JNj5gCog2U6MLZ//IGYD+nA8nI+mTShREReaA==}
 
-  ssr-window@3.0.0:
-    resolution: {integrity: sha512-q+8UfWDg9Itrg0yWK7oe5p/XRCJpJF9OBtXfOPgSJl+u3Xd5KI328RUEvUqSMVM9CiQUEf1QdBzJMkYGErj9QA==}
-
   ssr-window@4.0.2:
     resolution: {integrity: sha512-ISv/Ch+ig7SOtw7G2+qkwfVASzazUnvlDTwypdLoPoySv+6MqlOV10VwPSE6EWkGjhW50lUmghPmpYZXMu/+AQ==}
 
@@ -14954,8 +14948,8 @@ packages:
     resolution: {integrity: sha512-69KYtyhtxejFG0HDb8aVhAwbpAWPSTZwaL5vxDHgojErD2KeFxTmRgmkbiLtMC8UdTFXRmvTPtZTF4459MUb7w==}
     engines: {node: '>=0.10.0'}
 
-  swiper@6.7.0:
-    resolution: {integrity: sha512-zCfvWn7H7mCq7jgVurckhAwkjPUeMCkdC4rA7lagvaD3mIrNhKiaYYo2+nkxMVpiaWuCQ38e44Mya/dKb7HpyQ==}
+  swiper@11.2.8:
+    resolution: {integrity: sha512-S5FVf6zWynPWooi7pJ7lZhSUe2snTzqLuUzbd5h5PHUOhzgvW0bLKBd2wv0ixn6/5o9vwc/IkQT74CRcLJQzeg==}
     engines: {node: '>= 4.7.0'}
 
   swiper@8.4.7:
@@ -23499,10 +23493,6 @@ snapshots:
       domhandler: 5.0.3
       entities: 4.5.0
 
-  dom7@3.0.0:
-    dependencies:
-      ssr-window: 3.0.0
-
   dom7@4.0.6:
     dependencies:
       ssr-window: 4.0.2
@@ -28537,8 +28527,6 @@ snapshots:
 
   sprintf-js@1.1.3: {}
 
-  ssr-window@3.0.0: {}
-
   ssr-window@4.0.2: {}
 
   stable-hash@0.0.5: {}
@@ -28977,10 +28965,7 @@ snapshots:
 
   sweetalert2@7.33.1: {}
 
-  swiper@6.7.0:
-    dependencies:
-      dom7: 3.0.0
-      ssr-window: 3.0.0
+  swiper@11.2.8: {}
 
   swiper@8.4.7:
     dependencies:
