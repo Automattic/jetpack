@@ -97,7 +97,7 @@ class Script_Data {
 			wp_add_inline_script( self::SCRIPT_HANDLE, sprintf( 'window.JetpackScriptData = %s;', $script_data ), 'before' );
 		} else {
 			// For public pages, we directly print the script tag.
-			wp_print_inline_script_tag( 'window.JetpackScriptData = ' . $script_data . ';' );
+			wp_print_inline_script_tag( sprintf( 'window.JetpackScriptData = %s;', $script_data ) );
 		}
 	}
 
