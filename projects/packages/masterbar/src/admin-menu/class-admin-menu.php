@@ -46,7 +46,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_users_menu();
 		$this->add_tools_menu();
 		$this->add_options_menu();
-		$this->add_jetpack_menu();
 
 		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
@@ -457,13 +456,6 @@ class Admin_Menu extends Base_Admin_Menu {
 			// Remove the submenu auto-created by Core just to be sure that there no issues on non-admin roles.
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
-	}
-
-	/**
-	 * Adds Jetpack menu.
-	 */
-	public function add_jetpack_menu() {
-		$this->create_jetpack_menu();
 	}
 
 	/**

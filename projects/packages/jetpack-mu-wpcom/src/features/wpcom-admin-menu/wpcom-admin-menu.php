@@ -99,6 +99,25 @@ function wpcom_add_my_home_menu() {
 add_action( 'admin_menu', 'wpcom_add_my_home_menu' );
 
 /**
+ * Determines if the Jetpack > Stats menu should be visible.
+ *
+ * @return bool
+ */
+function wpcom_should_show_jetpack_stats_submenu() {
+	// Users with the classic admin interface already have the Jetpack > Stats menu.
+	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		return true;
+	}
+
+	// Force the Jetpack > Stats menu to 10% of sites.
+	if ( get_current_blog_id() % 10 === 0 ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
  * Adds a Hosting menu.
  */
 function wpcom_add_hosting_menu() {
@@ -203,12 +222,23 @@ add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
  * Adds WordPress.com submenu items related to Jetpack under the Jetpack admin menu.
  */
 function wpcom_add_jetpack_submenu() {
+	global $menu;
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	$is_atomic_site          = ! $is_simple_site;
 	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 
 	if ( ! $uses_wp_admin_interface ) {
-		return;
+		// Move the Jetpack menu before Appearance.
+		foreach ( $menu as $i => $item ) {
+			if ( 'jetpack' === $item[2] ) {
+				unset( $menu[ $i ] ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[51] = $item; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+				// Add a menu separator before Jetpack.
+				$menu[50] = array( '', 'manage_options', wp_unique_id( 'separator-custom-' ), '', 'wp-menu-separator' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				break;
+			}
+		}
 	}
 
 	if ( $is_atomic_site && ( ( new Status() )->is_offline_mode() || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) ) {

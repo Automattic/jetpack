@@ -41,6 +41,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 
 		parent::reregister_menu_items();
 
+		$this->add_jetpack_menu();
 		$this->add_feedback_menu();
 		$this->add_cpt_menus();
 		$this->add_wp_admin_menu();
@@ -187,7 +188,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 * Adds Jetpack menu.
 	 */
 	public function add_jetpack_menu() {
-		parent::add_jetpack_menu();
+		parent::create_jetpack_menu();
 
 		/* translators: Jetpack sidebar menu item. */
 		add_submenu_page( 'jetpack', esc_attr_x( 'Search', 'Jetpack product name', 'jetpack-masterbar' ), _x( 'Search', 'Jetpack product name', 'jetpack-masterbar' ), 'manage_options', 'jetpack-search', admin_url( 'admin.php?page=jetpack-search' ), 4 );
