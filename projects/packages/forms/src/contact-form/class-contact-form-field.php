@@ -1510,7 +1510,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML for the hidden field.
 	 */
 	private function render_hidden_field( $id, $label, $value, $interactivity_attrs ) {
-		// Render a hidden field.
+
+		/**
+		 *
+		 * Filter the value of the hidden field.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $value The value of the hidden field.
+		 * @param string $id The ID of the hidden field.
+		 * @param string $label The label of the hidden field.
+		 *
+		 * @return string The modified value of the hidden field.
+		 */
+		$value = apply_filters( 'jetpack_forms_hidden_field_value', $value, $label, $id );
 		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' value='" . esc_attr( $value ) . "' $interactivity_attrs />\n";
 	}
 
