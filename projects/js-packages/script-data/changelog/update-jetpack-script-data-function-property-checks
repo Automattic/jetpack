@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Script Data: Ensure functions in utils.js allow for getScriptData being undefined.

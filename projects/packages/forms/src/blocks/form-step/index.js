@@ -1,7 +1,5 @@
-import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../shared/util/block-icons';
-import { isWithinContactForm } from '../shared/util/block-utils';
 import edit from './edit';
 import StepIcon from './icon';
 import save from './save';
@@ -54,27 +52,6 @@ export const settings = {
 	},
 	edit: edit,
 	save: save,
-	transforms: {
-		from: [
-			{
-				type: 'block',
-				blocks: [ 'core/group' ],
-				isMatch: isWithinContactForm,
-				transform: ( attributes, innerBlocks ) => {
-					return createBlock( 'jetpack/form-step', {}, innerBlocks || [] );
-				},
-			},
-			{
-				type: 'block',
-				blocks: [ 'core/columns' ],
-				isMatch: isWithinContactForm,
-				transform: ( attributes, innerBlocks ) => {
-					const newInnerBlocks = innerBlocks.flatMap( column => column.innerBlocks );
-					return createBlock( 'jetpack/form-step', {}, newInnerBlocks );
-				},
-			},
-		],
-	},
 	example: {},
 };
 

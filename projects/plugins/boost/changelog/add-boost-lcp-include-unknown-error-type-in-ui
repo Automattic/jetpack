@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+LCP Optimization: Show errors not in the list of known errors, in the UI.
