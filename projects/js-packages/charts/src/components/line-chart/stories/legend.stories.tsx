@@ -34,6 +34,6 @@ Default.args = {
 export const AlignmentPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
 AlignmentPositioning.args = {
 	...legendStoryArgs,
-	legendAlign: 'right',
+	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
 };
