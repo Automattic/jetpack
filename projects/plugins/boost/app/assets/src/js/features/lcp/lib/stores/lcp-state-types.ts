@@ -23,7 +23,8 @@ export const LcpErrorMetaSchema = z.object( {
 } );
 
 export const LcpErrorDetailsSchema = z.object( {
-	type: LcpErrorTypeSchema,
+	// Adding a generic string type to handle the case where the error type is not in the enum, so the schema is still valid.
+	type: z.union( [ LcpErrorTypeSchema, z.string() ] ),
 	meta: LcpErrorMetaSchema.optional(),
 } );
 
