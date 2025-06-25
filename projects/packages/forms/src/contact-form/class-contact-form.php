@@ -425,7 +425,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				}
 			}
 
-			$is_multistep = boolval( $max_steps > 0 );
+			$is_multistep = $max_steps > 0;
 
 			$default_context = array(
 				'formId'      => $id,
@@ -433,10 +433,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'showErrors'  => false, // We toggle this to true when we want to show the user errors right away.
 				'errors'      => array(), // This should be a associative array.
 				'fields'      => array(),
-				'isMultiStep' => boolval( $max_steps > 0 ), // Whether the form is a multistep form.
+				'isMultiStep' => boolval( $is_multistep ), // Whether the form is a multistep form.
 			);
 
-			if ( $max_steps > 0 ) {
+			if ( $is_multistep ) {
 				$multistep_context = array(
 					'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1,
 					'maxSteps'    => $max_steps,
@@ -468,7 +468,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$r .= $form->body;
 
-			if ( $has_submit_button_block ) {
+			if ( $is_multistep ) {
+				$r = preg_replace( '/<div class="wp-block-jetpack-form-step-navigation__wrapper/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-form-step-navigation__wrapper', $r, 1 );
+			} elseif ( $has_submit_button_block ) {
 				// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
 				// Replace only the first occurrence.
 				$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );

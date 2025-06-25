@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Flickr shortcode: Prevent errors in logs when requested data does not exist.

@@ -3,6 +3,7 @@
  */
 import { createExPlatClient } from '@automattic/explat-client';
 import createExPlatClientReactHelpers from '@automattic/explat-client-react-helpers';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -14,7 +15,10 @@ import {
 import { logError } from './error';
 import { isDevelopmentMode } from './utils';
 
+const debug = debugFactory( 'jetpack-explat:client' );
+
 export const initializeExPlat = (): void => {
+	debug( 'initializing explat' );
 	initializeAnonId().catch( e => logError( { message: e.message } ) );
 };
 

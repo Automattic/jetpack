@@ -783,7 +783,7 @@ class Jetpack_Gutenberg {
 			 *
 			 * You can access the feature flags in the block editor via hasFeatureFlag( 'your-feature-flag' ) function.
 			 *
-			 * @since $$next-version$$
+			 * @since 14.8
 			 *
 			 * @param array true Enable the RePublicize UI in the block editor context. Defaults to true.
 			 */
