@@ -18,35 +18,68 @@ export const CATEGORY_CARDS_AND_MODULES: {
 } = {
 	security: {
 		cards: [ 'backup', 'scan', 'anti-spam' ],
-		modules: [ 'waf', 'protect', 'account-protection', 'monitor' ],
+		modules: [
+			'account-protection',
+			'monitor',
+			'notes',
+			'protect',
+			'sso',
+			'verification-tools',
+			'waf',
+		],
 	},
 	growth: {
-		cards: [ 'stats', 'social' ],
-		modules: [ 'blaze', 'related-posts', 'subscriptions', 'sharedaddy', 'seo-tools', 'wordads' ],
+		cards: [ 'stats', 'social', 'jetpack-ai', 'crm' ],
+		modules: [
+			'blaze',
+			'comment-likes',
+			'comments',
+			'contact-form',
+			'copy-post',
+			'likes',
+			'publicize',
+			'related-posts',
+			'seo-tools',
+			'sharedaddy',
+			'sitemaps',
+			'stats',
+			'subscriptions',
+			'woocommerce-analytics',
+			'wordads',
+		],
 	},
 	performance: {
-		cards: [ 'boost' ],
-		modules: [ 'search', 'photon', 'videopress' ],
-	},
-	management: {
-		cards: [ 'crm' ],
-		modules: [],
-	},
-	create: {
-		cards: [ 'ai' ],
-		modules: [ 'carousel', 'post-by-email' ],
+		cards: [ 'boost', 'search', 'videopress' ],
+		modules: [ 'photon', 'photon-cdn' ],
 	},
 	recommended: {
-		cards: [ 'stats', 'social' ],
+		cards: [ 'stats', 'boost', 'backup', 'anti-spam' ],
 		modules: [
-			'stats',
+			// No prettier please
+			'videopress',
+			'contact-form',
 			'publicize',
-			'blaze',
-			'related-posts',
-			'subscriptions',
-			'sharedaddy',
-			'seo-tools',
-			'wordads',
+			'search',
+		],
+	},
+	other: {
+		cards: [],
+		modules: [
+			'blocks',
+			'carousel',
+			'google-fonts',
+			'gravatar-hovercards',
+			'infinite-scroll',
+			'json-api',
+			'latex',
+			'markdown',
+			'post-by-email',
+			'post-list',
+			'shortcodes',
+			'shortlinks',
+			'tiled-gallery',
+			'widget-visibility',
+			'widgets',
 		],
 	},
 };
@@ -68,13 +101,11 @@ export const PRODUCT_ICONS: {
 };
 
 /**
- * Maps Jetpack products with cards to their corresponding modules
+ * Maps Jetpack products with cards that have different slugs to their corresponding modules
  */
 export const PRODUCT_MODULES: {
 	[ Key in JetpackProductWithCard ]?: JetpackModuleSlug;
 } = {
-	// TODO Verify these mappings
 	backup: 'vaultpress',
-	scan: 'protect',
 	social: 'publicize',
 };

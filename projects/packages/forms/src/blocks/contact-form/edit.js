@@ -46,6 +46,14 @@ import IntegrationControls from './components/jetpack-integration-controls';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
 
+// Transforms
+const FormTransitionState = {
+	TO_MULTISTEP: 'to-multistep',
+	TO_FORM: 'to-form',
+	IS_MULTISTEP: 'is-multistep',
+	IS_FORM: 'is-form',
+};
+
 const validFields = filter( childBlocks, ( { settings } ) => {
 	return (
 		! settings.parent ||
@@ -83,10 +91,15 @@ const ALLOWED_MULTI_STEP_BLOCKS = [
 	'jetpack/form-step-divider',
 ].concat( ALLOWED_CORE_BLOCKS );
 
-const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( [
-	'jetpack/form-step-divider',
+const REMOVE_FIELDS_FROM_FORM = [
+	'jetpack/form-step-navigation',
+	'jetpack/form-progress-indicator',
 	'jetpack/form-step-container',
-] ).concat( ALLOWED_CORE_BLOCKS );
+];
+
+const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( ALLOWED_CORE_BLOCKS ).filter(
+	block => ! REMOVE_FIELDS_FROM_FORM.includes( block )
+);
 
 const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
 
@@ -219,31 +232,41 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	}, [] );
 
 	// Detect a conversion to a multistep form and structure inner blocks only once.
-	const hasStructuredRef = useRef( false );
+	const formTransitionStateRef = useRef( false );
 
 	useEffect( () => {
-		/*───────────────────────────────────────────────────────────────────────────
-		 * 1. Early-exit guards
-		 *───────────────────────────────────────────────────────────────────────────
-		 * – The `variationName` gate ensures we only run this effect when the form
-		 *   actually *is* (or has just become) a multistep form. If the user is
-		 *   working with a regular single-step form we leave everything untouched.
-		 * – `hasStructuredRef` prevents the body from executing more than once per
-		 *   block instance (avoids extra undo levels and wasted processing).
-		 *
-		 *───────────────────────────────────────────────────────────────────────────
-		 * 2. Detect whether the form is *already* correctly structured
-		 *───────────────────────────────────────────────────────────────────────────
-		 * Strategy:
-		 *   • If there is exactly ONE `step-container` anywhere in the tree **and**
-		 *   • There are NO `form-step` blocks that live outside that container,
-		 *     we assume the layout came from the Variation Picker (or has already
-		 *     been normalised) and we skip the heavy restructuring.
-		 */
-		const needsMultistep =
-			variationName === 'multistep' || containsMultistepBlock( currentInnerBlocks );
+		const hasMultistepBlock = containsMultistepBlock( currentInnerBlocks );
 
-		if ( ! needsMultistep || hasStructuredRef.current ) {
+		// Transition to single-step form state if no multistep blocks are present
+		// and the variation is not set to 'multistep'.
+		if ( ! hasMultistepBlock && variationName !== 'multistep' ) {
+			formTransitionStateRef.current = FormTransitionState.IS_FORM;
+			return;
+		}
+
+		// Transition to multistep form state if multistep blocks are present
+		// and the variation is set to 'multistep'.
+		if ( variationName === 'multistep' && hasMultistepBlock ) {
+			formTransitionStateRef.current = FormTransitionState.IS_MULTISTEP;
+			return;
+		}
+
+		// Transition from multistep form state to single-step form state.
+		if ( formTransitionStateRef.current === FormTransitionState.IS_MULTISTEP ) {
+			formTransitionStateRef.current = FormTransitionState.TO_FORM;
+			return;
+		}
+
+		// Transition from single-step form state to multistep form state.
+		formTransitionStateRef.current = FormTransitionState.TO_MULTISTEP;
+
+		// If the form is not multistep, we don't need to do anything.
+	}, [ variationName, currentInnerBlocks, containsMultistepBlock ] );
+
+	useEffect( () => {
+		// Early exit if we are still on the multistep variation or if there are
+		// no multistep-specific blocks to clean up.
+		if ( formTransitionStateRef.current !== FormTransitionState.TO_MULTISTEP ) {
 			return;
 		}
 
@@ -285,12 +308,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			stepContainerCount === 1 && ! hasStrayFormStep( currentInnerBlocks );
 
 		if ( formIsFullyStructured ) {
-			hasStructuredRef.current = true;
 			return;
 		}
-
-		// Mark that we'll process the conversion now so we don't repeat it.
-		hasStructuredRef.current = true;
 
 		// Helper functions
 		const findButtonBlock = () => {
@@ -464,6 +483,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		if ( variationName !== 'multistep' ) {
 			setAttributes( { variationName: 'multistep' } );
 		}
+		formTransitionStateRef.current = FormTransitionState.IS_MULTISTEP;
 	}, [
 		variationName,
 		currentInnerBlocks,
@@ -474,23 +494,13 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		__unstableMarkNextChangeAsNotPersistent,
 	] );
 
-	// --- Reset logic -----------------------------------------------------------
-	// When all multistep-specific blocks are removed, clear the structured flag so
-	// that the auto-structuring effect can run again if the user later re-adds
-	// multistep blocks.
-	useEffect( () => {
-		if ( hasStructuredRef.current && ! containsMultistepBlock( currentInnerBlocks ) ) {
-			hasStructuredRef.current = false;
-		}
-	}, [ currentInnerBlocks, containsMultistepBlock ] );
-
 	/*───────────────────────────────────────────────────────────────────────────
 	 * Flatten multistep structure → standard form
 	 *───────────────────────────────────────────────────────────────────────*/
 	useEffect( () => {
 		// Early exit if we are still on the multistep variation or if there are
 		// no multistep-specific blocks to clean up.
-		if ( variationName === 'multistep' || ! containsMultistepBlock( currentInnerBlocks ) ) {
+		if ( FormTransitionState.TO_FORM !== formTransitionStateRef.current ) {
 			return;
 		}
 
@@ -554,14 +564,13 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 		__unstableMarkNextChangeAsNotPersistent();
 		replaceInnerBlocks( clientId, finalBlocks, false );
-
 		// Reset the variation attribute if still set to something else.
 		if ( variationName !== 'default-empty' ) {
+			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( { variationName: 'default-empty' } );
 		}
 
-		// Allow the structuring effect to run again later if needed.
-		hasStructuredRef.current = false;
+		formTransitionStateRef.current = FormTransitionState.IS_FORM;
 	}, [
 		variationName,
 		currentInnerBlocks,

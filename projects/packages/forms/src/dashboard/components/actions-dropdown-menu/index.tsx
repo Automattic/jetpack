@@ -40,10 +40,12 @@ const CreateFormDropdownItem = () => {
 };
 
 const ExportDropdownItem = ( { onClick }: { onClick: () => void } ) => {
+	const { exportLabel } = useExportResponses();
+
 	return {
 		icon: download,
 		onClick,
-		title: __( 'Export', 'jetpack-forms' ),
+		title: exportLabel,
 	};
 };
 
