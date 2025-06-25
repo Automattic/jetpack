@@ -37,9 +37,8 @@ export function isBlockVariationSupported( props: Block ): boolean {
 		return true;
 	}
 
-	// If the block is a Jetpack Form, do not support the multistep variation.
 	if ( name === 'jetpack/contact-form' ) {
-		return attributes.variationName !== 'multistep';
+		return true;
 	}
 
 	// If the block is a Jetpack Form child, check its parent Form block.
