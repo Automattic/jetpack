@@ -181,9 +181,6 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		// Trigger an action frequently used by plugins to enqueue assets.
 		do_action( 'wp_loaded' );
 
-		// Unregister disallowed plugin assets before proceeding with asset collection
-		$this->unregister_disallowed_plugin_assets();
-
 		// We generally do not need reset styles for the block editor. However, if
 		// it's a classic theme, margins will be added to every block, which is
 		// reset specifically for list items, so classic themes rely on these
@@ -238,6 +235,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		if ( $has_emoji_styles ) {
 			remove_action( 'wp_print_styles', 'print_emoji_styles' );
 		}
+
+		// Unregister disallowed plugin assets before proceeding with asset collection
+		$this->unregister_disallowed_plugin_assets();
 
 		ob_start();
 		wp_print_styles();
