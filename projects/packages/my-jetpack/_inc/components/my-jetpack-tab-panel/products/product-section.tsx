@@ -1,5 +1,5 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { __experimentalGrid as Grid } from '@wordpress/components';
+import { Flex, __experimentalGrid as Grid } from '@wordpress/components';
 import { ModulesList } from '../../modules-list';
 import { ProductCard } from './product-card';
 import styles from './styles.module.scss';
@@ -22,7 +22,14 @@ export function ProductSection( { section }: ProductSectionProps ) {
 	}
 
 	return (
-		<section key={ section.id } className={ styles[ 'product-section' ] }>
+		<Flex
+			as="section"
+			direction="column"
+			justify="start"
+			gap={ 6 }
+			expanded={ false }
+			className={ styles[ 'product-section' ] }
+		>
 			<h2 className={ styles[ 'section-heading' ] }>{ section.title }</h2>
 			{ section.cards?.length ? (
 				<Grid as="ul" gap={ 6 } columns={ [ 1, 1, 1, 2 ] } className={ styles[ 'product-cards' ] }>
@@ -34,6 +41,6 @@ export function ProductSection( { section }: ProductSectionProps ) {
 				</Grid>
 			) : null }
 			{ section.modules?.length ? <ModulesList modules={ section.modules } /> : null }
-		</section>
+		</Flex>
 	);
 }

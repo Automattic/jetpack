@@ -250,6 +250,7 @@ abstract class Product {
 			'class'                           => static::class,
 			'post_checkout_url'               => static::get_post_checkout_url(),
 			'post_checkout_urls_by_feature'   => static::get_post_checkout_urls_by_feature(),
+			'related_plan_slugs'              => static::get_related_plan_slugs(),
 		);
 	}
 
@@ -287,7 +288,6 @@ abstract class Product {
 		$product_data = array(
 			'status'                        => static::get_status(),
 			'pricing_for_ui'                => static::get_pricing_for_ui(),
-			'related_plan_slugs'            => static::get_related_plan_slugs(),
 			'is_upgradable'                 => static::is_upgradable(),
 			'description'                   => static::get_description(),
 			'tiers'                         => static::get_tiers(),
