@@ -15,9 +15,9 @@ return [
     // PhanTypeMismatchArgumentNullableInternal : 25+ occurrences
     // PhanPossiblyUndeclaredVariable : 20+ occurrences
     // PhanUndeclaredVariable : 20+ occurrences
-    // PhanTypePossiblyInvalidDimOffset : 15+ occurrences
     // PhanTypeMismatchArgument : 10+ occurrences
     // PhanTypeNonVarPassByRef : 10+ occurrences
+    // PhanTypePossiblyInvalidDimOffset : 10+ occurrences
     // PhanTypeSuspiciousStringExpression : 10+ occurrences
     // PhanUndeclaredFunctionInCallable : 10+ occurrences
     // PhanTypeInvalidDimOffset : 8 occurrences
@@ -41,11 +41,11 @@ return [
     // PhanPluginNeverReturnFunction : 2 occurrences
     // PhanPluginUnreachableCode : 2 occurrences
     // PhanPossiblyUndeclaredGlobalVariable : 2 occurrences
-    // PhanRedundantConditionInGlobalScope : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
     // PhanCommentParamWithoutRealParam : 1 occurrence
     // PhanPluginDuplicateIfCondition : 1 occurrence
     // PhanRedundantCondition : 1 occurrence
+    // PhanRedundantConditionInGlobalScope : 1 occurrence
     // PhanRedundantConditionInLoop : 1 occurrence
     // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeConversionFromArray : 1 occurrence
@@ -77,7 +77,7 @@ return [
         'rest/class.wp-super-cache-rest-update-settings.php' => ['PhanCommentParamWithoutRealParam', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMissingReturn'],
         'tests/e2e/tools/mu-test-helpers.php' => ['PhanTypeMismatchArgument'],
         'wp-cache-base.php' => ['PhanTypeMismatchArgumentNullableInternal'],
-        'wp-cache-phase1.php' => ['PhanRedundantConditionInGlobalScope', 'PhanTypeNonVarPassByRef'],
+        'wp-cache-phase1.php' => ['PhanTypeNonVarPassByRef'],
         'wp-cache-phase2.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateIfCondition', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNull', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredVariableDim'],
         'wp-cache.php' => ['PhanImpossibleCondition', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginNeverReturnFunction', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanRedundantConditionInLoop', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeInvalidLeftOperandOfBitwiseOp', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeInvalidRightOperandOfAdd', 'PhanTypeInvalidRightOperandOfBitwiseOp', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredVariable', 'PhanUndeclaredVariableDim'],
     ],
