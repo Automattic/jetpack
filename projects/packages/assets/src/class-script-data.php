@@ -93,11 +93,11 @@ class Script_Data {
 		);
 
 		if ( is_admin() || did_action( 'enqueue_block_editor_assets' ) ) {
-			wp_enqueue_script( self::SCRIPT_HANDLE );
+			// For admin/editor contexts (including P2 frontend editing), use wp_add_inline_script with the existing script
 			wp_add_inline_script( self::SCRIPT_HANDLE, sprintf( 'window.JetpackScriptData = %s;', $script_data ), 'before' );
 		} else {
 			// For public pages, we directly print the script tag.
-			printf( '<script>window.JetpackScriptData = %s;</script>', $script_data ); //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- data encoded earlier.
+			wp_print_inline_script_tag( 'window.JetpackScriptData = ' . $script_data . ';' );
 		}
 	}
 
