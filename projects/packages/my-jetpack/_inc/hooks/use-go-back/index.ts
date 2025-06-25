@@ -1,23 +1,16 @@
-/**
- * External dependencies
- */
 import { useCallback } from 'react';
-/**
- * Internal dependencies
- */
-import { MyJetpackRoutes } from '../../constants';
+import { useNavigate } from 'react-router';
 import useAnalytics from '../use-analytics';
-import useMyJetpackNavigate from '../use-my-jetpack-navigate';
 
 /**
  * Custom React hook to handle back link click with analytics.
  *
- * @param {string} slug - My Jetpack product slug.
- * @return {object}      Object with back link click handler with analytics.
+ * @param {{ slug: string }} options - Options.
+ * @return Object with back link click handler with analytics.
  */
 export function useGoBack( { slug }: { slug: string } ) {
 	const { recordEvent } = useAnalytics();
-	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
+	const navigate = useNavigate();
 
 	const onClickGoBack = useCallback(
 		( event: MouseEvent ) => {
@@ -28,10 +21,11 @@ export function useGoBack( { slug }: { slug: string } ) {
 			if ( document.referrer.includes( window.location.host ) ) {
 				// Prevent default here to minimize page change within the My Jetpack app.
 				event.preventDefault();
-				navigateToMyJetpackOverviewPage();
+				// Navigate back in history.
+				navigate( -1 );
 			}
 		},
-		[ recordEvent, slug, navigateToMyJetpackOverviewPage ]
+		[ recordEvent, slug, navigate ]
 	);
 
 	return { onClickGoBack };
