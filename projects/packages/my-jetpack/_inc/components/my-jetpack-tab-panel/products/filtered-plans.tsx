@@ -1,5 +1,5 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { __experimentalText as Text } from '@wordpress/components';
+import { Flex, __experimentalText as Text } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ProductSection } from './product-section';
 import { Skeleton } from './skeleton';
@@ -17,9 +17,9 @@ export type FilteredPlansProps = {
  * @return The rendered component.
  */
 export function FilteredPlans( { search }: FilteredPlansProps ) {
-	const { plans, isLoadingPlans, errorPlans } = useFilteredPlans( { search } );
+	const { plans, isLoading, errorPlans } = useFilteredPlans( { search } );
 
-	if ( isLoadingPlans ) {
+	if ( isLoading ) {
 		return <Skeleton />;
 	}
 
@@ -36,10 +36,10 @@ export function FilteredPlans( { search }: FilteredPlansProps ) {
 	}
 
 	return (
-		<div>
+		<Flex gap={ 12 } direction="column">
 			{ plans.map( section => {
 				return <ProductSection key={ section.id } section={ section } />;
 			} ) }
-		</div>
+		</Flex>
 	);
 }
