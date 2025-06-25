@@ -21,7 +21,7 @@ export type UseFilteredPlansOptions = {
  */
 export function useFilteredPlans( { search }: UseFilteredPlansOptions ): {
 	plans: Array< ProductSection >;
-	isLoadingPlans: boolean;
+	isLoading: boolean;
 	errorPlans: WP_Error;
 } {
 	const {
@@ -35,7 +35,7 @@ export function useFilteredPlans( { search }: UseFilteredPlansOptions ): {
 
 	const { data: products } = useAllProducts();
 
-	const allModules = useAllJetpackModules();
+	const { modules: allModules, isLoading: isLoadingModules } = useAllJetpackModules();
 
 	const list = ( purchases || [] ).map< ProductSection >( purchase => {
 		const $products = Object.entries( products || {} ).filter(
@@ -62,7 +62,7 @@ export function useFilteredPlans( { search }: UseFilteredPlansOptions ): {
 
 	return {
 		plans: filterSections( list, { search } ),
-		isLoadingPlans,
+		isLoading: isLoadingPlans || isLoadingModules,
 		errorPlans,
 	};
 }
