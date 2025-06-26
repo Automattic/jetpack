@@ -1,5 +1,4 @@
 import { DataPointDate } from '@automattic/charts';
-import { TooltipData } from '@visx/xychart/lib/types';
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
 import formatNumber from '../../utils/format-number';
@@ -11,7 +10,13 @@ interface TooltipPoint {
 }
 
 interface StatsChartTooltipProps {
-	tooltipData?: TooltipData< DataPointDate >;
+	tooltipData?: {
+		nearestDatum?: {
+			datum: DataPointDate;
+			key: string;
+		};
+		datumByKey?: { [ key: string ]: { datum: DataPointDate } };
+	};
 	metricIcon: ReactElement;
 }
 
