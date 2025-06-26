@@ -1428,7 +1428,7 @@
 		}
 
 		function loadSwiper( gallery, options ) {
-			if ( ! window.Swiper670 ) {
+			if ( ! window.JetpackSwiper ) {
 				var loader = document.querySelector( '#jp-carousel-loading-overlay' );
 				domUtil.show( loader );
 				var jsScript = document.createElement( 'script' );
@@ -1505,7 +1505,7 @@
 
 			initCarouselSlides( images, settings.startIndex );
 
-			swiper = new window.Swiper670( '.jp-carousel-swiper-container', {
+			swiper = new window.JetpackSwiper( '.jp-carousel-swiper-container', {
 				centeredSlides: true,
 				zoom: true,
 				loop: carousel.slides.length > 1,
