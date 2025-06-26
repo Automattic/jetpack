@@ -77,7 +77,7 @@ const transformStatsDataForChart = ( apiData, selectedMetric = 'views' ) => {
 		{
 			label: getMetricLabel( selectedMetric ),
 			data: data.map( dataPoint => ( {
-				date: new Date( dataPoint[ periodIndex ] ),
+				date: new Date( dataPoint[ periodIndex ] + 'T00:00:00' ), // This ensures the date represents midnight in the local timezone rather than UTC midnight converted to local time.
 				value: dataPoint[ metricIndex ] || 0,
 			} ) ),
 			options: {
