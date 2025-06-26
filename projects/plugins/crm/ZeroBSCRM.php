@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack CRM
  * Plugin URI: https://jetpackcrm.com
  * Description: Jetpack CRM is the simplest CRM for WordPress. Self host your own Customer Relationship Manager using WP.
- * Version: 6.5.2
+ * Version: 6.5.1
  * Author: Automattic - Jetpack CRM team
  * Author URI: https://jetpackcrm.com
  * Text Domain: zero-bs-crm
@@ -32,6 +32,7 @@ if ( ! defined( 'ZBS_ROOTFILE' ) ) {
 	define( 'ZBS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 	define( 'ZBS_ROOTDIR', basename( __DIR__ ) );
 	define( 'ZBS_ROOTPLUGIN', ZBS_ROOTDIR . '/' . basename( ZBS_ROOTFILE ) );
+	define( 'ZBS_LANG_DIR', basename( __DIR__ ) . '/languages' );
 }
 
 /**
@@ -44,57 +45,57 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		\Automattic\Jetpack\Assets::alias_textdomains_from_file( ZBS_PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
 	}
 } else {
-	// Defer all user-facing error messages to after init.
-	add_action(
-		'admin_init',
-		function () {
-			add_filter(
-				'my_jetpack_red_bubble_notification_slugs',
-				function ( $slugs ) {
-					$slugs['jetpack-crm-plugin-bad-installation'] = array(
-						'data' => array(
-							'plugin' => 'Jetpack CRM',
-						),
-					);
-					return $slugs;
-				}
-			);
-			add_action(
-				'admin_notices',
-				function () {
-					if ( function_exists( 'get_current_screen' ) && get_current_screen()->id !== 'plugins' ) {
-						return;
-					}
+	// Something very unexpected. Error out gently with an admin_notice and exit loading.
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			__( 'Error loading autoloader file for Jetpack CRM plugin', 'zero-bs-crm' )
+		);
+	}
 
-					$message = sprintf(
-						wp_kses(
-							// translators: %1$s is the URL to the development environment setup guide on GitHub.
-							__( 'Your installation of Jetpack CRM is incomplete. If you installed Jetpack CRM from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack CRM must have Composer dependencies installed and built via the build command.', 'zero-bs-crm' ),
-							array(
-								'a' => array(
-									'href'   => array(),
-									'target' => array(),
-									'rel'    => array(),
-								),
-							)
+	// Add a red bubble notification to My Jetpack if the installation is bad.
+	add_filter(
+		'my_jetpack_red_bubble_notification_slugs',
+		function ( $slugs ) {
+			$slugs['jetpack-crm-plugin-bad-installation'] = array(
+				'data' => array(
+					'plugin' => 'Jetpack CRM',
+				),
+			);
+
+			return $slugs;
+		}
+	);
+
+	add_action(
+		'admin_notices',
+		function () {
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
+			$message = sprintf(
+				wp_kses(
+					/* translators: Placeholder is a link to a support document. */
+					__( 'Your installation of Jetpack CRM is incomplete. If you installed Jetpack CRM from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack CRM must have Composer dependencies installed and built via the build command.', 'zero-bs-crm' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
 						),
-						'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
-					);
-					if ( function_exists( 'wp_admin_notice' ) ) {
-						wp_admin_notice(
-							$message,
-							array(
-								'type'        => 'error',
-								'dismissible' => true,
-							)
-						);
-					} else {
-						echo '<div class="notice notice-error"><p>' . esc_html( $message ) . '</p></div>';
-					}
-				}
+					)
+				),
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+			);
+			wp_admin_notice(
+				$message,
+				array(
+					'type'        => 'error',
+					'dismissible' => true,
+				)
 			);
 		}
 	);
+
 	return;
 }
 
@@ -117,19 +118,10 @@ function jpcrm_check_min_php_version() {
 	$min_php_version = '7.4';
 
 	if ( version_compare( PHP_VERSION, $min_php_version, '<' ) ) {
-		add_action(
-			'admin_notices',
-			function () use ( $min_php_version ) {
-				$error_message = sprintf(
-					// translators: %1$s is the minimum required PHP version; %2$s is the user's current PHP version.
-					__( 'Jetpack CRM requires PHP version %1$s or greater. Older versions of PHP are no longer supported. Your current version of PHP is %2$s.', 'zero-bs-crm' ),
-					$min_php_version,
-					PHP_VERSION
-				);
-				$error_message .= '<br><a href="https://kb.jetpackcrm.com/knowledge-base/php-version-jetpack-crm/" target="_blank">' . __( 'Click here for more information', 'zero-bs-crm' ) . '</a>';
-				jpcrm_register_admin_notice( 'error', $error_message );
-			}
-		);
+		/* translators: %1$s: Minimum PHP version, %2$s: Current PHP version */
+		$error_message  = sprintf( __( 'Jetpack CRM requires PHP version %1$s or greater. Older versions of PHP are no longer supported. Your current version of PHP is %2$s.', 'zero-bs-crm' ), $min_php_version, PHP_VERSION );
+		$error_message .= '<br><a href="https://kb.jetpackcrm.com/knowledge-base/php-version-jetpack-crm/" target="_blank">' . __( 'Click here for more information', 'zero-bs-crm' ) . '</a>';
+		jpcrm_register_admin_notice( 'error', $error_message );
 		return false;
 	}
 
@@ -224,44 +216,7 @@ function jpcrm_show_admin_notice( $notice_class, $message ) {
 }
 
 // ====================================================================
-// ==================== Welcome Wizard Simple Redirect ================
-// ====================================================================
-
-/**
- * Runs on plugin activation.
- *
- * @return void
- */
-function jpcrm_plugin_activate() {
-	add_option( 'jpcrm_do_redirect', true );
-}
-register_activation_hook( __FILE__, 'jpcrm_plugin_activate' );
-
-/**
- * Redirects user after plugin activation.
- *
- * @return void
- */
-function jpcrm_plugin_redirect() {
-	if ( get_option( 'jpcrm_do_redirect' ) ) {
-		delete_option( 'jpcrm_do_redirect' );
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe: only checking 'activate-multi' to avoid redirect on bulk activation.
-		if ( ! isset( $_GET['activate-multi'] ) ) { // avoid redirect on bulk activation
-			$redirect_url = admin_url( 'admin.php?page=zerobscrm-dash' );
-			// Only force wizard if it hasn't been run before
-			if ( ! get_option( '    jpcrm_wizard_completed', false ) ) {
-				$redirect_url = add_query_arg( 'jpcrm_force_wizard', '1', $redirect_url );
-			}
-			wp_safe_redirect( $redirect_url );
-			exit;
-		}
-	}
-}
-add_action( 'admin_init', 'jpcrm_plugin_redirect' );
-
-// ====================================================================
 // =================  Legacy (pre v2.53) Support ======================
-// ====================================================================
 
 	// LEGACY SUPPORT - all ext settings
 	global $zbsLegacySupport;
@@ -312,7 +267,6 @@ if ( ! function_exists( '_we' ) ) {
 
 // ====================================================================
 // ==================== General Perf Testing ==========================
-// ====================================================================
 
 function zeroBSCRM_init_perfTest() {
 	if ( defined( 'ZBSPERFTEST' ) && zeroBSCRM_isWPAdmin() ) {
@@ -337,6 +291,42 @@ function zeroBSCRM_init_perfTest() {
 		}
 	}
 }
+
+// ====================================================================
+// ==================== Welcome Wizard Simple Redirect ================
+// ====================================================================
+
+/**
+ * Runs on plugin activation.
+ *
+ * @return void
+ */
+function jpcrm_plugin_activate() {
+	add_option( 'jpcrm_do_redirect', true );
+}
+register_activation_hook( __FILE__, 'jpcrm_plugin_activate' );
+
+/**
+ * Redirects user after plugin activation.
+ *
+ * @return void
+ */
+function jpcrm_plugin_redirect() {
+	if ( get_option( 'jpcrm_do_redirect' ) ) {
+		delete_option( 'jpcrm_do_redirect' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe: only checking 'activate-multi' to avoid redirect on bulk activation.
+		if ( ! isset( $_GET['activate-multi'] ) ) { // avoid redirect on bulk activation
+			$redirect_url = admin_url( 'admin.php?page=zerobscrm-dash' );
+			// Only force wizard if it hasn't been run before
+			if ( ! get_option( '    jpcrm_wizard_completed', false ) ) {
+				$redirect_url = add_query_arg( 'jpcrm_force_wizard', '1', $redirect_url );
+			}
+			wp_safe_redirect( $redirect_url );
+			exit;
+		}
+	}
+}
+add_action( 'admin_init', 'jpcrm_plugin_redirect' );
 
 // =================== / General Perf Testing =========================
 // ====================================================================
@@ -363,6 +353,11 @@ if ( jpcrm_do_critical_prerun_checks() ) {
 
 		// start timer
 		zeroBSCRM_performanceTest_startTimer( 'plugin-load' );
+	}
+
+	// Include the main Jetpack CRM class.
+	if ( ! class_exists( 'ZeroBSCRM' ) ) {
+		include_once __DIR__ . '/includes/ZeroBSCRM.Core.php';
 	}
 
 	// init hook
@@ -406,4 +401,3 @@ if ( jpcrm_do_critical_prerun_checks() ) {
 
 // ================ / Main Include ====================================
 // ====================================================================
-
