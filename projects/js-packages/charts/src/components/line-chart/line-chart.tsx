@@ -6,8 +6,8 @@ import clsx from 'clsx';
 import { useId, useMemo, useContext } from 'react';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
-import { parseAsLocalDate } from '../shared/date-parsing';
 import { DefaultGlyph } from '../shared/default-glyph';
+import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
@@ -208,32 +208,7 @@ const LineChart: FC< LineChartProps > = ( {
 	const chartId = useId(); // Ensure unique ids for gradient fill.
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 
-	const dataSorted = useMemo(
-		() =>
-			data.map( series => ( {
-				...series,
-				data: series.data
-					.map( point => {
-						let date: Date | undefined;
-
-						if ( 'date' in point && point.date ) {
-							date = point.date;
-						} else if ( 'dateString' in point && point.dateString ) {
-							date = parseAsLocalDate( point.dateString );
-						}
-
-						return {
-							...point,
-							date,
-						};
-					} )
-					.sort( ( a, b ) => {
-						if ( ! a.date || ! b.date ) return 0;
-						return a.date.getTime() - b.date.getTime();
-					} ),
-			} ) ),
-		[ data ]
-	);
+	const dataSorted = useChartDataTransform( data );
 
 	const chartOptions = useMemo( () => {
 		const xNumTicks = Math.min( dataSorted[ 0 ]?.data.length, Math.ceil( width / X_TICK_WIDTH ) );

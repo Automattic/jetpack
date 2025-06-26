@@ -1,10 +1,10 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback, useId, useMemo } from 'react';
+import { useCallback, useId } from 'react';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
-import { parseAsLocalDate } from '../shared/date-parsing';
+import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
@@ -64,39 +64,7 @@ const BarChart: FC< BarChartProps > = ( {
 	const chartId = useId();
 	const theme = useXYChartTheme( data );
 
-	// Sort data if it contains date or dateString for time series.
-	// If it doesn't contain date or dateString, return the data as is.
-	const dataSorted = useMemo( () => {
-		// Check if the first data point has date or dateString properties
-		const firstPoint = data?.[ 0 ]?.data?.[ 0 ];
-		const hasDateProperties = firstPoint && ( 'date' in firstPoint || 'dateString' in firstPoint );
-
-		return ! hasDateProperties
-			? data
-			: data.map( series => ( {
-					...series,
-					data: series.data
-						.map( point => {
-							let date: Date | undefined;
-							// Type guard to check if point has date properties
-							if ( 'date' in point && point.date ) {
-								date = point.date;
-							} else if ( 'dateString' in point && point.dateString ) {
-								date = parseAsLocalDate( point.dateString );
-							} else {
-								date = undefined;
-							}
-							return {
-								...point,
-								date,
-							};
-						} )
-						.sort( ( a, b ) => {
-							if ( ! a.date || ! b.date ) return 0;
-							return a.date.getTime() - b.date.getTime();
-						} ),
-			  } ) );
-	}, [ data ] );
+	const dataSorted = useChartDataTransform( data );
 
 	const chartOptions = useBarChartOptions( dataSorted, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
