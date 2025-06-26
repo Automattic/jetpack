@@ -36,6 +36,7 @@
 	],
 	"exports": {
 		".": {
+			"jetpack:src": "./src/index.ts",
 			"import": "./dist/mjs/index.js",
 			"require": "./dist/cjs/index.js",
 			"types": "./dist/index.d.ts"
