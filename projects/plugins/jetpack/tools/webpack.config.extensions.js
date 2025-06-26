@@ -161,7 +161,6 @@ const sharedWebpackConfig = {
 					'query-string/',
 					'split-on-first/',
 					'strict-uri-encode/',
-					'swiper/',
 				],
 			} ),
 
