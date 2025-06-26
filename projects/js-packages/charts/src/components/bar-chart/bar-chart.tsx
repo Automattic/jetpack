@@ -1,9 +1,10 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback, useId } from 'react';
+import { useCallback, useId, useMemo } from 'react';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
+import { parseAsLocalDate } from '../shared/date-parsing';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
@@ -25,11 +26,11 @@ const validateData = ( data: SeriesData[] ) => {
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
-			d =>
-				d.value === null ||
-				d.value === undefined ||
-				isNaN( d.value ) ||
-				( ! d.label && ( ! d.date || isNaN( d.date.getTime() ) ) )
+			point =>
+				isNaN( point.value as number ) ||
+				point.value === null ||
+				point.value === undefined ||
+				( ! point.label && ( ! point.date || isNaN( point.date.getTime() ) ) )
 		)
 	);
 
@@ -61,8 +62,36 @@ const BarChart: FC< BarChartProps > = ( {
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
 	const chartId = useId();
 	const theme = useXYChartTheme( data );
-	const chartOptions = useBarChartOptions( data, horizontal, options );
-	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
+
+	const dataSorted = useMemo(
+		() =>
+			data.map( series => ( {
+				...series,
+				data: series.data
+					.map( point => {
+						let date: Date | undefined;
+						if ( point.date ) {
+							date = point.date;
+						} else if ( point.dateString ) {
+							date = parseAsLocalDate( point.dateString );
+						} else {
+							date = undefined;
+						}
+						return {
+							...point,
+							date,
+						};
+					} )
+					.sort( ( a, b ) => {
+						if ( ! a.date || ! b.date ) return 0;
+						return a.date.getTime() - b.date.getTime();
+					} ),
+			} ) ),
+		[ data ]
+	);
+
+	const chartOptions = useBarChartOptions( dataSorted, horizontal, options );
+	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 
 	const getColor = useCallback(
@@ -73,8 +102,10 @@ const BarChart: FC< BarChartProps > = ( {
 
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
-			withPatterns ? `url(#${ getPatternId( chartId, index ) })` : getColor( data[ index ], index ),
-		[ withPatterns, getColor, data, chartId ]
+			withPatterns
+				? `url(#${ getPatternId( chartId, index ) })`
+				: getColor( dataSorted[ index ], index ),
+		[ withPatterns, getColor, dataSorted, chartId ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -152,13 +183,13 @@ const BarChart: FC< BarChartProps > = ( {
 	);
 
 	// Validate data using the same pattern as LineChart
-	const error = validateData( data );
+	const error = validateData( dataSorted );
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}
 
 	// Create legend items from group labels, this iterates over groups rather than data points
-	const legendItems = data.map( ( group, index ) => ( {
+	const legendItems = dataSorted.map( ( group, index ) => ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
 		color: getColor( group, index ),
@@ -204,12 +235,12 @@ const BarChart: FC< BarChartProps > = ( {
 				{ withPatterns && (
 					<>
 						<defs data-testid="bar-chart-patterns">
-							{ data.map( ( seriesData, index ) =>
+							{ dataSorted.map( ( seriesData, index ) =>
 								renderPattern( index, getColor( seriesData, index ) )
 							) }
 						</defs>
 						<style>
-							{ data.map( ( seriesData, index ) =>
+							{ dataSorted.map( ( seriesData, index ) =>
 								createPatternBorderStyle( index, getColor( seriesData, index ) )
 							) }
 						</style>
@@ -217,7 +248,7 @@ const BarChart: FC< BarChartProps > = ( {
 				) }
 
 				<BarGroup padding={ chartOptions.barGroup.padding }>
-					{ data.map( ( seriesData, index ) => (
+					{ dataSorted.map( ( seriesData, index ) => (
 						<BarSeries
 							key={ seriesData?.label }
 							dataKey={ seriesData?.label }
