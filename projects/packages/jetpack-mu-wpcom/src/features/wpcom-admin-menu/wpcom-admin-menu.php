@@ -265,17 +265,17 @@ function wpcom_add_jetpack_submenu() {
 			$vaultpress_url,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
-	}
 
-	if ( $is_atomic_site ) {
-		add_submenu_page(
-			'jetpack',
-			__( 'Scan', 'jetpack-mu-wpcom' ),
-			__( 'Scan', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			$scan_url,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
+		if ( $is_atomic_site ) {
+			add_submenu_page(
+				'jetpack',
+				__( 'Scan', 'jetpack-mu-wpcom' ),
+				__( 'Scan', 'jetpack-mu-wpcom' ),
+				'manage_options',
+				$scan_url,
+				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+			);
+		}
 	}
 
 	if ( $uses_wp_admin_interface ) {
