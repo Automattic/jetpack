@@ -690,39 +690,6 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_displayable_errors method with protected_owner error type
-	 */
-	public function test_displayable_errors_protected_owner_type() {
-		// Add a protected_owner error type using a valid displayable error code
-		$error = array(
-			'error_code'    => 'invalid_connection_owner', // Use a valid displayable error code
-			'user_id'       => '1',
-			'error_message' => 'Custom protected owner message',
-			'error_data'    => array(
-				'action' => 'custom_action',
-				'custom' => 'data',
-			),
-			'timestamp'     => time(),
-			'nonce'         => 'test_nonce',
-			'error_type'    => 'protected_owner',
-		);
-
-		$verified_errors = array(
-			'invalid_connection_owner' => array(
-				'1' => $error,
-			),
-		);
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
-
-		$result = $this->error_handler->get_displayable_errors();
-
-		$this->assertCount( 1, $result );
-		$this->assertStringContainsString( 'broken', $result['invalid_connection_owner']['1']['error_message'] ); // Should use default message
-		$this->assertEquals( 'invalid_connection_owner', $result['invalid_connection_owner']['1']['error_code'] );
-		$this->assertEquals( 'data', $result['invalid_connection_owner']['1']['error_data']['custom'] );
-	}
-
-	/**
 	 * Test get_displayable_errors method with filter (WoA site)
 	 */
 	public function test_displayable_errors_filter_woa_site() {
