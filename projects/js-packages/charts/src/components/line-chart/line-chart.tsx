@@ -167,7 +167,7 @@ const validateData = ( data: SeriesData[] ) => {
 				isNaN( point.value as number ) ||
 				point.value === null ||
 				point.value === undefined ||
-				isNaN( point.date.getTime() )
+				( 'date' in point && point.date && isNaN( point.date.getTime() ) )
 		)
 	);
 
@@ -213,11 +213,24 @@ const LineChart: FC< LineChartProps > = ( {
 			data.map( series => ( {
 				...series,
 				data: series.data
-					.map( point => ( {
-						...point,
-						date: point.date ? point.date : parseAsLocalDate( point.dateString ),
-					} ) )
-					.sort( ( a, b ) => a.date.getTime() - b.date.getTime() ),
+					.map( point => {
+						let date: Date | undefined;
+
+						if ( 'date' in point && point.date ) {
+							date = point.date;
+						} else if ( 'dateString' in point && point.dateString ) {
+							date = parseAsLocalDate( point.dateString );
+						}
+
+						return {
+							...point,
+							date,
+						};
+					} )
+					.sort( ( a, b ) => {
+						if ( ! a.date || ! b.date ) return 0;
+						return a.date.getTime() - b.date.getTime();
+					} ),
 			} ) ),
 		[ data ]
 	);

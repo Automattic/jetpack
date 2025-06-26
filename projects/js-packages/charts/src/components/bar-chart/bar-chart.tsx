@@ -30,7 +30,8 @@ const validateData = ( data: SeriesData[] ) => {
 				isNaN( point.value as number ) ||
 				point.value === null ||
 				point.value === undefined ||
-				( ! point.label && ( ! point.date || isNaN( point.date.getTime() ) ) )
+				( ! point.label &&
+					( ! ( 'date' in point && point.date ) || isNaN( point.date.getTime() ) ) )
 		)
 	);
 
@@ -66,16 +67,21 @@ const BarChart: FC< BarChartProps > = ( {
 	// Sort data if it contains date or dateString for time series.
 	// If it doesn't contain date or dateString, return the data as is.
 	const dataSorted = useMemo( () => {
-		return ! data?.[ 0 ]?.data?.[ 0 ]?.date && ! data?.[ 0 ]?.data?.[ 0 ]?.dateString
+		// Check if the first data point has date or dateString properties
+		const firstPoint = data?.[ 0 ]?.data?.[ 0 ];
+		const hasDateProperties = firstPoint && ( 'date' in firstPoint || 'dateString' in firstPoint );
+
+		return ! hasDateProperties
 			? data
 			: data.map( series => ( {
 					...series,
 					data: series.data
 						.map( point => {
 							let date: Date | undefined;
-							if ( point.date ) {
+							// Type guard to check if point has date properties
+							if ( 'date' in point && point.date ) {
 								date = point.date;
-							} else if ( point.dateString ) {
+							} else if ( 'dateString' in point && point.dateString ) {
 								date = parseAsLocalDate( point.dateString );
 							} else {
 								date = undefined;
@@ -123,7 +129,7 @@ const BarChart: FC< BarChartProps > = ( {
 					<div className={ styles[ 'bar-chart__tooltip-row' ] }>
 						<span className={ styles[ 'bar-chart__tooltip-label' ] }>
 							{ chartOptions.tooltip.labelFormatter(
-								nearestDatum.label || nearestDatum.date.getTime(),
+								nearestDatum.label || ( nearestDatum.date ? nearestDatum.date.getTime() : 0 ),
 								0,
 								[]
 							) }
