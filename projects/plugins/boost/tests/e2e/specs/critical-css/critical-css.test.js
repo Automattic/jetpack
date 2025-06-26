@@ -99,7 +99,6 @@ test.describe( 'Critical CSS module', () => {
 	} );
 
 	test( 'User can access the Critical advanced recommendations and go back to settings page', async () => {
-		test.skip( true, 'Skipping this test as it is flaky and we are working on it' );
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
