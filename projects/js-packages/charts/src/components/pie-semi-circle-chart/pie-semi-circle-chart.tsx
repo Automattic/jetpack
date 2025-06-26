@@ -172,7 +172,11 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
 			data-testid="pie-chart-container"
-			style={ { position: 'relative' } }
+			style={ {
+				display: 'flex',
+				flexDirection:
+					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+			} }
 		>
 			<svg
 				width={ width }
