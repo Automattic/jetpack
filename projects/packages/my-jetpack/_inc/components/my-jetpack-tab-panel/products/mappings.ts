@@ -85,7 +85,6 @@ export const CATEGORY_CARDS_AND_MODULES: {
 export const PRODUCT_ICONS: {
 	[ Key in JetpackProductWithCard ]: React.ComponentType;
 } = {
-	ai: JetpackAiIcon,
 	'anti-spam': AntiSpamIcon,
 	backup: BackupIcon,
 	boost: BoostIcon,

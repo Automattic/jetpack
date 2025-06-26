@@ -1,10 +1,9 @@
 export const JETPACK_PRODUCTS_WITH_CARD = [
-	'ai',
-	'jetpack-ai',
 	'anti-spam',
 	'backup',
 	'boost',
 	'crm',
+	'jetpack-ai',
 	'scan',
 	'search',
 	'social',
