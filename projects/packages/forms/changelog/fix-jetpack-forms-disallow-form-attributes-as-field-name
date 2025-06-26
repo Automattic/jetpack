@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Forms: don't allow form element attribute names to be set as field names
