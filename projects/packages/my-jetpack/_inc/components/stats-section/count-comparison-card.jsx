@@ -89,7 +89,7 @@ const CountComparisonCard = ( {
 			aria-pressed={ onClick ? isSelected : undefined }
 		>
 			<span className="screen-reader-text">{ srText }</span>
-			<div aria-hidden="true">
+			<div className={ styles[ 'stats-card-content' ] }>
 				<div className={ styles[ 'stats-card-header' ] }>
 					{ icon && <div className={ styles[ 'stats-card-icon' ] }>{ icon }</div> }
 					{ heading && <div className={ styles[ 'stats-card-heading' ] }>{ heading }</div> }
