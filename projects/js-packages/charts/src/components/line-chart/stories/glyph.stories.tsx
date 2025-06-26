@@ -1,5 +1,4 @@
 import { GlyphStar } from '@visx/glyph';
-import React from 'react';
 import { useChartTheme } from '../../../providers/theme';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';

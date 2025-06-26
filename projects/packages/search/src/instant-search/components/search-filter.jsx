@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
-import React, { createRef, Component } from 'react';
+import { createRef, Component } from 'react';
 import { connect } from 'react-redux';
 import strip from 'strip';
 import { getCheckedInputNames } from '../lib/dom';

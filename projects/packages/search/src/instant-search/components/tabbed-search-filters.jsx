@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { mapFilterToFilterKey, mapFilterToType, getAvailableStaticFilters } from '../lib/filters';
 import { setStaticFilter } from '../store/actions';

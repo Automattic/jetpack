@@ -24,7 +24,7 @@ import Loading from 'components/loading';
 import Price from 'components/price';
 import SearchPromotionBlock from 'components/search-promotion';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { STORE_ID } from 'store';
 import Header from './header';
 
@@ -37,7 +37,7 @@ const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
  *
  * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
- * @return {React.Component} UpsellPage component.
+ * @return {import('react').Component} UpsellPage component.
  */
 export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`

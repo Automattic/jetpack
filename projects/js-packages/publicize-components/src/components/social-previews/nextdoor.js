@@ -1,12 +1,11 @@
 import { NextdoorPreviews } from '@automattic/social-previews';
-import React from 'react';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
 /**
  * The linkedin tab component.
  *
  * @param {object} props - The props.
- * @return {React.ReactNode} The linkedin tab component.
+ * @return {import('react').ReactNode} The linkedin tab component.
  */
 export function Nextdoor( props ) {
 	const { title, url, image, media, description: postDescription } = props;

@@ -1,5 +1,5 @@
 import { cleanForSlug } from '@wordpress/url';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import Gridicon from './gridicon';
 import PathBreadcrumbs from './path-breadcrumbs';
 import PostTypeIcon from './post-type-icon';

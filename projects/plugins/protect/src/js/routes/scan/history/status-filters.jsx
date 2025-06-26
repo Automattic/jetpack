@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import ButtonGroup from '../../../components/button-group';
 
@@ -10,7 +10,7 @@ import ButtonGroup from '../../../components/button-group';
  * @param {number} props.numFixed   - Number of fixed threats.
  * @param {number} props.numIgnored - Number of ignored threats.
  *
- * @return {React.ReactNode} StatusFilters component.
+ * @return {import('react').ReactNode} StatusFilters component.
  */
 export default function StatusFilters( { numFixed, numIgnored } ) {
 	const navigate = useNavigate();

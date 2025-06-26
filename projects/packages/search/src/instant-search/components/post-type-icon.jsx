@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import arrayOverlap from '../lib/array-overlap';
 import Gridicon from './gridicon';
 

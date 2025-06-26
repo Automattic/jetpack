@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import SearchBox from './search-box';
 
 const noop = event => event.preventDefault();

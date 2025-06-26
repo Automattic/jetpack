@@ -2,9 +2,9 @@
 import clsx from 'clsx';
 import Card from 'components/card';
 import assign from 'lodash/assign';
-import React from 'react';
+import { Component } from 'react';
 
-export default class CompactCard extends React.Component {
+export default class CompactCard extends Component {
 	static displayName = 'CompactCard';
 
 	render() {

@@ -4,7 +4,7 @@ import uid from 'component-uid';
 import debugFactory from 'debug';
 import { assign } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import RootChild from 'components/root-child';
 import {
 	bindWindowListeners,

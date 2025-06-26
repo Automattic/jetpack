@@ -3,7 +3,6 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 import PhotonImage from '../photon-image';
 
 test( 'returns a Photon URL for a site with Photon enabled', () => {

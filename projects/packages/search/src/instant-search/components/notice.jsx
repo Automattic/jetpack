@@ -1,4 +1,3 @@
-import React from 'react';
 import Gridicon from './gridicon';
 import './notice.scss';
 

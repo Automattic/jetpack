@@ -4,7 +4,7 @@ import { jetpackConfigHas, jetpackConfigGet } from '@automattic/jetpack-config';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useMemo, useEffect, useCallback, useState } from 'react';
+import { useMemo, useEffect, useCallback, useState } from 'react';
 import './style.scss';
 import StepDisconnect from './steps/step-disconnect';
 import StepDisconnectConfirm from './steps/step-disconnect-confirm';
@@ -15,7 +15,7 @@ import StepThankYou from './steps/step-thank-you';
  * The RNA Disconnect Dialog component.
  *
  * @param {object} props -- The properties.
- * @return {React.Component} The `DisconnectDialog` component.
+ * @return {import('react').Component} The `DisconnectDialog` component.
  */
 const DisconnectDialog = props => {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
@@ -302,7 +302,7 @@ const DisconnectDialog = props => {
 	/**
 	 * Determine what step to show based on the current state
 	 *
-	 * @return { React.Component|undefined } - component for current step
+	 * @return { import('react').Component|undefined } - component for current step
 	 */
 	const getCurrentStep = () => {
 		if ( ! isDisconnected ) {

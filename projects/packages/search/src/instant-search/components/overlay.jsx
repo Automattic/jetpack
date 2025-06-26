@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import {
 	OVERLAY_CLASS_NAME,
 	OVERLAY_SEARCH_BOX_INPUT_CLASS_NAME,

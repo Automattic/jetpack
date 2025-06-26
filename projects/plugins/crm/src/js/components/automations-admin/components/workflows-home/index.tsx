@@ -8,8 +8,9 @@ import { EditModal } from '../edit-modal';
 import { WorkflowTable } from '../workflow-table';
 import styles from './styles.module.scss';
 import type { Workflow } from 'crm/state/automations-admin/types';
+import type { FC } from 'react';
 
-export const WorkflowsHome: React.FC = () => {
+export const WorkflowsHome: FC = () => {
 	const { id } = useParams< { id: string } >();
 
 	const hydrateWorkflows = ( workflows: Workflow[] ) => {

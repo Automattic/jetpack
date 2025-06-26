@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import QuerySite from 'components/data/query-site';

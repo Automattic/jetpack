@@ -1,4 +1,3 @@
-import React from 'react';
 import SearchSort from './search-sort';
 import './search-controls.scss';
 

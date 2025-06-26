@@ -40,7 +40,7 @@ The component implements the connection screen page, and loads the `ConnectButto
 
 ### Usage
 ```jsx
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { ConnectScreen } from '@automattic/jetpack-connection';
 
 const [ connectionStatus, setConnectionStatus ] = useState( {} );
@@ -81,7 +81,7 @@ The component displays the connection button and handles the connection process,
 
 ### Basic Usage
 ```jsx
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { ConnectButton } from '@automattic/jetpack-connection';
 
 const onUserConnected = useCallback( () => alert( 'User Connected' ) );
@@ -184,7 +184,7 @@ This way we ensure that `onDisconnected` will always be called via clicking the 
 
 ### Basic Usage
 ```jsx
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { DisconnectDialog } from '@automattic/jetpack-connection';
 
 const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnected' ) );
@@ -230,7 +230,7 @@ The `Disconnect` functionality is **temporary**. In the future, it will be repla
 
 ### Basic Usage
 ```jsx
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { ConnectionStatusCard } from '@automattic/jetpack-connection';
 
 const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnected' ) );

@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { getSortOptions } from '../lib/sort';
 
 import './search-sort.scss';

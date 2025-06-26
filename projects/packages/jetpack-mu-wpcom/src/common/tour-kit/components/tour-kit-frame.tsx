@@ -1,13 +1,7 @@
-/**
- * External Dependencies
- */
 import { useViewportMatch } from '@wordpress/compose';
 import { useEffect, useState, useCallback, useMemo, useRef } from '@wordpress/element';
 import clsx from 'clsx';
 import { usePopper } from 'react-popper';
-/**
- * Internal Dependencies
- */
 import useStepTracking from '../hooks/use-step-tracking';
 import { classParser } from '../utils';
 import { liveResizeModifier } from '../utils/live-resize-modifier';
@@ -17,6 +11,7 @@ import Overlay from './tour-kit-overlay';
 import Spotlight from './tour-kit-spotlight';
 import TourKitStep from './tour-kit-step';
 import type { Callback, Config } from '../types';
+import type { FunctionComponent, HTMLAttributes } from 'react';
 
 const handleCallback = ( currentStepIndex: number, callback?: Callback ) => {
 	typeof callback === 'function' && callback( currentStepIndex );
@@ -26,7 +21,7 @@ interface Props {
 	config: Config;
 }
 
-const TourKitFrame: React.FunctionComponent< Props > = ( { config } ) => {
+const TourKitFrame: FunctionComponent< Props > = ( { config } ) => {
 	const [ currentStepIndex, setCurrentStepIndex ] = useState( 0 );
 	const [ initialFocusedElement, setInitialFocusedElement ] = useState< HTMLElement | null >(
 		null
@@ -248,13 +243,13 @@ const TourKitFrame: React.FunctionComponent< Props > = ( { config } ) => {
 					className="tour-kit-frame__container"
 					ref={ setPopperElement }
 					tabIndex={ -1 }
-					{ ...( stepRepositionProps as React.HTMLAttributes< HTMLDivElement > ) }
+					{ ...( stepRepositionProps as HTMLAttributes< HTMLDivElement > ) }
 				>
 					{ showArrowIndicator() && (
 						<div
 							className="tour-kit-frame__arrow"
 							data-popper-arrow
-							{ ...( arrowPositionProps as React.HTMLAttributes< HTMLDivElement > ) }
+							{ ...( arrowPositionProps as HTMLAttributes< HTMLDivElement > ) }
 						/>
 					) }
 					{ ! isMinimized ? (

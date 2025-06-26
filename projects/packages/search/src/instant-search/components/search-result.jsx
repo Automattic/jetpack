@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { RESULT_FORMAT_EXPANDED, RESULT_FORMAT_PRODUCT } from '../lib/constants';
 import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
 import SearchResultExpanded from './search-result-expanded';

@@ -6,7 +6,7 @@ import {
 } from '@automattic/social-previews';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { SocialLogo } from 'social-logos';
 import Button from 'components/button';

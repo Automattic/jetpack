@@ -4,7 +4,7 @@
 
 import { render, screen } from '@testing-library/react';
 import { GlyphDiamond } from '@visx/glyph';
-import React from 'react';
+import { createElement } from 'react';
 import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
 import LineChart from '../line-chart';
 
@@ -12,10 +12,10 @@ const customTheme = {
 	...jetpackTheme,
 	glyphs: [
 		props =>
-			React.createElement(
+			createElement(
 				'g',
 				{ 'data-testid': 'custom-glyph-diamond' },
-				React.createElement( GlyphDiamond, {
+				createElement( GlyphDiamond, {
 					key: props.key,
 					top: props.y,
 					left: props.x,

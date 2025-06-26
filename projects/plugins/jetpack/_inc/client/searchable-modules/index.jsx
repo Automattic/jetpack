@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { includes, forEach } from 'lodash';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Banner from 'components/banner';
 import ConnectUserBar from 'components/connect-user-bar';

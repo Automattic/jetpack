@@ -1,6 +1,5 @@
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty } from '@wordpress/icons';
-import React from 'react';
 import formatNumber from '../../utils/format-number';
 import CountComparisonCard from './count-comparison-card';
 import createStatDiffText from './create-stat-diff-text';

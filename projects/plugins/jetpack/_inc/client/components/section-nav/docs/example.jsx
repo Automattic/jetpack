@@ -1,5 +1,5 @@
 import { forEach } from 'lodash';
-import React from 'react';
+import { PureComponent } from 'react';
 import Search from 'components/search';
 import SectionNav from 'components/section-nav';
 import NavItem from 'components/section-nav/item';
@@ -8,7 +8,7 @@ import NavTabs from 'components/section-nav/tabs';
 /**
  * Main
  */
-class SectionNavigation extends React.PureComponent {
+class SectionNavigation extends PureComponent {
 	static displayName = 'SectionNav';
 
 	state = {

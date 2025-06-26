@@ -1,5 +1,4 @@
 import { cleanForSlug } from '@wordpress/url';
-import React from 'react';
 import PathBreadcrumbs from './path-breadcrumbs';
 import PhotonImage from './photon-image';
 import { fixDateFormat } from './search-filter';

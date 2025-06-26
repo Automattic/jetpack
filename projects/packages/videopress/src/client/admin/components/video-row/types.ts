@@ -1,6 +1,6 @@
-import React from 'react';
 import { VideoPressVideo } from '../../types';
 import { VideoThumbnailProps } from '../video-thumbnail/types';
+import type { ReactNode } from 'react';
 
 type VideoRowBaseProps = {
 	/**
@@ -54,7 +54,7 @@ type VideoRowBaseProps = {
 	/**
 	 * Adornment to be showed after title.
 	 */
-	titleAdornment?: React.ReactNode;
+	titleAdornment?: ReactNode;
 	/**
 	 * Adornment to be showed after title.
 	 */

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { createContext, useState } from 'react';
 
-export const NavigationContext = React.createContext();
+export const NavigationContext = createContext();
 
 const useMenuNavigation = ( { selected, onSelect } ) => {
 	const [ items, setItems ] = useState( [] );
