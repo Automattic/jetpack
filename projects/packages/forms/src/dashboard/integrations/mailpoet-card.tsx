@@ -84,7 +84,6 @@ const MailPoetDashboardCard = ( {
 						<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
 							{ __( 'View MailPoet dashboard', 'jetpack-forms' ) }
 						</Button>
-						<span>|</span>
 					</div>
 				</div>
 			) }
