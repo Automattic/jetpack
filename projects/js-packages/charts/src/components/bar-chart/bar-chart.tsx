@@ -63,32 +63,34 @@ const BarChart: FC< BarChartProps > = ( {
 	const chartId = useId();
 	const theme = useXYChartTheme( data );
 
-	const dataSorted = useMemo(
-		() =>
-			data.map( series => ( {
-				...series,
-				data: series.data
-					.map( point => {
-						let date: Date | undefined;
-						if ( point.date ) {
-							date = point.date;
-						} else if ( point.dateString ) {
-							date = parseAsLocalDate( point.dateString );
-						} else {
-							date = undefined;
-						}
-						return {
-							...point,
-							date,
-						};
-					} )
-					.sort( ( a, b ) => {
-						if ( ! a.date || ! b.date ) return 0;
-						return a.date.getTime() - b.date.getTime();
-					} ),
-			} ) ),
-		[ data ]
-	);
+	// Sort data if it contains date or dateString for time series.
+	// If it doesn't contain date or dateString, return the data as is.
+	const dataSorted = useMemo( () => {
+		return ! data?.[ 0 ]?.data?.[ 0 ]?.date && ! data?.[ 0 ]?.data?.[ 0 ]?.dateString
+			? data
+			: data.map( series => ( {
+					...series,
+					data: series.data
+						.map( point => {
+							let date: Date | undefined;
+							if ( point.date ) {
+								date = point.date;
+							} else if ( point.dateString ) {
+								date = parseAsLocalDate( point.dateString );
+							} else {
+								date = undefined;
+							}
+							return {
+								...point,
+								date,
+							};
+						} )
+						.sort( ( a, b ) => {
+							if ( ! a.date || ! b.date ) return 0;
+							return a.date.getTime() - b.date.getTime();
+						} ),
+			  } ) );
+	}, [ data ] );
 
 	const chartOptions = useBarChartOptions( dataSorted, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );

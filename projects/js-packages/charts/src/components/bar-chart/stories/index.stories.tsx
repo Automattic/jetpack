@@ -1,4 +1,5 @@
 import largeValuesData from '../../line-chart/stories/large-values-sample';
+import trafficData from '../../line-chart/stories/site-traffic-sample';
 import BarChart from '../bar-chart';
 import data from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -88,16 +89,17 @@ export const TimeSeries: Story = {
 		...Default.args,
 		data: [
 			{
-				label: 'String Dates',
+				...trafficData[ 0 ],
+				label: 'Data with dateString and date',
 				data: [
-					{ dateString: '2024-01-01', value: 10 },
-					{ dateString: '2024-01-02', value: 20 },
-					{ dateString: '2024-01-03 00:00:00', value: 15 },
-					{ dateString: '2024-01-04', value: 25 },
-					{ dateString: '2024-01-05 00:00', value: 30 },
-					{ date: new Date( '2024-01-06 00:00:00' ), value: 35 },
+					...trafficData[ 0 ].data,
+					{ dateString: '2024-01-31', value: 2230 },
+					{ dateString: '2024-02-01', value: 2580 },
+					{ date: new Date( '2024-02-02 00:00:00' ), value: 3500 },
+					{ dateString: '2024-02-03 00:00:00', value: 1500 },
+					{ dateString: '2024-02-04', value: 2500 },
+					{ dateString: '2024-02-05 00:00', value: 3000 },
 				],
-				options: {},
 			},
 		],
 		options: {
