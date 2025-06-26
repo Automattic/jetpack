@@ -119,12 +119,12 @@ export const legendArgTypes = {
 	legendAlignmentHorizontal: {
 		control: 'select',
 		options: [ 'left', 'center', 'right' ],
-		table: { category: 'Legend Alignment' },
+		table: { category: 'Legend' },
 	},
 	legendAlignmentVertical: {
 		control: 'select',
 		options: [ 'top', 'bottom' ],
-		table: { category: 'Legend Alignment' },
+		table: { category: 'Legend' },
 	},
 	legendOrientation: {
 		control: 'select',
