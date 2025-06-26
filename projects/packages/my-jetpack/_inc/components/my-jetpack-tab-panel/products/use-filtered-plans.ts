@@ -4,6 +4,7 @@ import { useAllProducts } from '../../../data/products/use-all-products';
 import { WP_Error } from '../../../data/types';
 import useSimpleQuery from '../../../data/use-simple-query';
 import { JETPACK_NON_PAID_MODULES, JETPACK_PRODUCTS_WITH_CARD } from './constants';
+import { PRODUCT_MODULES } from './mappings';
 import { JetpackProductWithCard, ProductSection } from './types';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { filterAndSortModules, filterSections } from './utils';
@@ -47,10 +48,14 @@ export function useFilteredPlans( { search }: UseFilteredPlansOptions ): {
 		return {
 			id: purchase.ID,
 			title: purchase.product_name,
-			cards: $products.map( ( [ slug, product ] ) => ( {
-				product,
-				module: allModules[ slug ],
-			} ) ),
+			cards: $products.map( ( [ slug, product ] ) => {
+				const moduleSlug = PRODUCT_MODULES[ slug ] || slug;
+
+				return {
+					product,
+					module: allModules[ moduleSlug ],
+				};
+			} ),
 		};
 	} );
 

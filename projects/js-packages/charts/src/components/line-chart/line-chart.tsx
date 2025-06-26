@@ -11,7 +11,9 @@ import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
+import LineChartAnnotation from './line-chart-annotation';
 import styles from './line-chart.module.scss';
+import type { LineChartAnnotationProps } from './line-chart-annotation';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
@@ -113,6 +115,7 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 		showVertical?: boolean;
 		showHorizontal?: boolean;
 	};
+	annotations?: LineChartAnnotationProps[];
 }
 
 type TooltipDatum = {
@@ -194,6 +197,7 @@ const LineChart: FC< LineChartProps > = ( {
 	renderTooltip = renderDefaultTooltip,
 	withStartGlyphs = false,
 	options = {},
+	annotations,
 	onPointerDown = undefined,
 	onPointerUp = undefined,
 	onPointerMove = undefined,
@@ -289,7 +293,9 @@ const LineChart: FC< LineChartProps > = ( {
 			style={ {
 				width,
 				height,
-				position: 'relative',
+				display: 'flex',
+				flexDirection:
+					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
 			} }
 		>
 			<XYChart
@@ -377,6 +383,22 @@ const LineChart: FC< LineChartProps > = ( {
 						showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
 					/>
 				) }
+
+				{ annotations?.length &&
+					annotations.map(
+						( { datum, title, subtitle, subjectType, styles: datumStyles }, index ) =>
+							datum ? (
+								<LineChartAnnotation
+									key={ `annotation-${ datum.date?.getTime() }-${ datum.value }` }
+									testId={ `annotation-${ index }` }
+									datum={ datum }
+									title={ title }
+									subtitle={ subtitle }
+									subjectType={ subjectType }
+									styles={ datumStyles }
+								/>
+							) : null
+					) }
 			</XYChart>
 
 			{ showLegend && (

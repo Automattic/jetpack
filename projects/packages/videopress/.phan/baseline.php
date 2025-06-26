@@ -29,7 +29,6 @@ return [
     // PhanAccessMethodInternal : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanPluginUnreachableCode : 1 occurrence
-    // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanUndeclaredClass : 1 occurrence
@@ -39,7 +38,7 @@ return [
         'src/class-access-control.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-attachment-handler.php' => ['PhanNonClassMethodCall', 'PhanTypeArraySuspicious'],
         'src/class-block-editor-content.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'src/class-block-editor-extensions.php' => ['PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-block-editor-extensions.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-data.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn'],
         'src/class-initializer.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-jwt-token-bridge.php' => ['PhanTypeMismatchReturn'],

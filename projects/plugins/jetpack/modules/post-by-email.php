@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Post by email
- * Module Description: Publish posts by sending an email
+ * Module Description: Publish blog posts simply by sending an email to a custom address.
  * First Introduced: 2.0
  * Sort Order: 14
  * Requires Connection: Yes
