@@ -102,6 +102,12 @@ test.describe( 'Critical CSS module', () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+
+		expect(
+			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
+			'Critical CSS meta information should be visible'
+		).toBeTruthy();
+
 		await jetpackBoostPage.navigateToCriticalCSSAdvancedRecommendations();
 		expect(
 			await jetpackBoostPage.isCriticalCSSAdvancedRecommendationsVisible(),
