@@ -503,11 +503,7 @@ class Jetpack_Backup {
 			'wpcom'
 		);
 
-		if ( is_wp_error( $response ) ) {
-			return null;
-		}
-
-		if ( 200 !== $response['response']['code'] ) {
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return null;
 		}
 
