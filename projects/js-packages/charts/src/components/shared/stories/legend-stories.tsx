@@ -1,4 +1,6 @@
-import type { StoryFn, StoryObj } from '@storybook/react';
+import React from 'react';
+import { legendArgTypes } from '../../../stories/legend-config';
+import type { StoryFn } from '@storybook/react';
 import type { ComponentType } from 'react';
 
 /**
@@ -24,7 +26,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 		customArgTypes?: Record< string, unknown >;
 	} = {}
 ) {
-	const Template: StoryFn< T > = args => ChartComponent( args );
+	const Template: StoryFn< T > = ( args: T ) => React.createElement( ChartComponent, args );
 
 	const legendStoryArgs = {
 		...baseStoryArgs,
@@ -32,7 +34,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 		legendOrientation: 'horizontal' as const,
 	};
 
-	const stories: Record< string, StoryObj< T > > = {
+	const stories = {
 		Default: {
 			render: Template,
 			args: {
@@ -112,27 +114,5 @@ export function createLegendStories< T extends Record< string, unknown > >(
 	return stories;
 }
 
-/**
- * Standard legend argTypes for Storybook controls
- */
-export const legendArgTypes = {
-	legendAlignmentHorizontal: {
-		control: 'select',
-		options: [ 'left', 'center', 'right' ],
-		table: { category: 'Legend' },
-	},
-	legendAlignmentVertical: {
-		control: 'select',
-		options: [ 'top', 'bottom' ],
-		table: { category: 'Legend' },
-	},
-	legendOrientation: {
-		control: 'select',
-		options: [ 'horizontal', 'vertical' ],
-		table: { category: 'Legend' },
-	},
-	showLegend: {
-		control: 'boolean',
-		table: { category: 'Legend' },
-	},
-};
+// Re-export legendArgTypes for convenience
+export { legendArgTypes };
