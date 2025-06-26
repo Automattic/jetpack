@@ -12,7 +12,6 @@ React component used to display a particular section's navigation bar. Or more t
 ```js
 var SectionNav = require( 'components/section-nav' ),
 	NavTabs = require( 'components/section-nav/tabs' ),
-	NavSegmented = require( 'components/section-nav/segmented' ),
 	NavItem = require( 'components/section-nav/item' ),
 	Search = require( 'components/search' );
 
@@ -94,27 +93,6 @@ Text displayed in the header when rendered as dropdown.
 `selectedCount` - **optional** (Number)
 
 Count displayed in the header when rendered as dropdown.
-
-`label` - *optional* (string)
-
-Text displayed above tabs group when:
-
-* Mobile (`<660px`)
-* `SectionNav` contains sibling level controls groups (more than one `NavTabs` or `NavSegmented`)
-
-![label example](https://cldup.com/OeWSPtifYY.png)
-
----
-
-## Nav Segmented
-
-The segmented sub component utilizes [`SegmentedControl`](/client/components/segmented-control) to display `NavItems` inline.
-
-![Nav Segmented Example](https://cldup.com/tPEfoQ78pR.png)
-
-> Note: `SectionNav` relies on flex box techniques for sizing and that `NavSegmented` will not be allowed to overflow available horizontal space.
-
-#### Props
 
 `label` - *optional* (string)
 

@@ -157,7 +157,11 @@ const PieChart = ( {
 	return (
 		<div
 			className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
-			style={ { position: 'relative' } }
+			style={ {
+				display: 'flex',
+				flexDirection:
+					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+			} }
 		>
 			<svg
 				viewBox={ `0 0 ${ size } ${ size }` }

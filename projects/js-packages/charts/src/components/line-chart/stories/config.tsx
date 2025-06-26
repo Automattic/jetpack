@@ -1,4 +1,5 @@
 import { GlyphDiamond, GlyphStar } from '@visx/glyph';
+import { merge } from 'lodash';
 import React from 'react';
 import { jetpackTheme, wooTheme, ThemeProvider } from '../../../providers/theme';
 import { DefaultGlyph } from '../../shared/default-glyph';
@@ -6,8 +7,7 @@ import LineChart from '../line-chart';
 import sampleData from './sample-data';
 import type { Meta } from '@storybook/react';
 
-const customStorybookTheme = {
-	...jetpackTheme,
+const customStorybookTheme = merge( {}, jetpackTheme, {
 	glyphs: [
 		props => React.createElement( DefaultGlyph, { ...props, key: props.key } ),
 		props =>
@@ -27,7 +27,12 @@ const customStorybookTheme = {
 				fill: props.color,
 			} ),
 	],
-};
+	annotationStyles: {
+		label: {
+			maxWidth: 250,
+		},
+	},
+} );
 
 const THEME_MAP = {
 	default: undefined,

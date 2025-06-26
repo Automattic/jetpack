@@ -638,7 +638,7 @@ class Initializer {
 	}
 
 	/**
-	 * Returns true if the site has file write access to the plugins folder, false otherwise.
+	 * Returns "yes" if the site has file write access to the plugins folder, "no" otherwise.
 	 *
 	 * @return string
 	 **/
@@ -663,7 +663,7 @@ class Initializer {
 			$write_access = 'yes';
 		}
 
-		if ( ! $write_access ) {
+		if ( 'no' === $write_access ) {
 			ob_start();
 			$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
 			ob_end_clean();
@@ -715,7 +715,6 @@ class Initializer {
 		// The Jetpack menu item should be on index 3
 		if (
 			! empty( $red_bubble_alerts ) &&
-			is_countable( $red_bubble_alerts ) &&
 			isset( $menu[3] ) &&
 			$menu[3][0] === 'Jetpack'
 		) {

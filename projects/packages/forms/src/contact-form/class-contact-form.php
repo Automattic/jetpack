@@ -433,7 +433,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'showErrors'  => false, // We toggle this to true when we want to show the user errors right away.
 				'errors'      => array(), // This should be a associative array.
 				'fields'      => array(),
-				'isMultiStep' => boolval( $is_multistep ), // Whether the form is a multistep form.
+				'isMultiStep' => $is_multistep, // Whether the form is a multistep form.
 			);
 
 			if ( $is_multistep ) {
@@ -1209,7 +1209,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$valid_emails = array();
 
-		foreach ( (array) $emails as $email ) {
+		foreach ( $emails as $email ) {
 			if ( ! is_email( $email ) ) {
 				continue;
 			}
@@ -1569,11 +1569,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$akismet_values[ $av_key ] = Contact_Form_Plugin::strip_tags( $av_value );
 		}
 
-		foreach ( (array) $all_values as $all_key => $all_value ) {
+		foreach ( $all_values as $all_key => $all_value ) {
 			$all_values[ $all_key ] = Contact_Form_Plugin::strip_tags( $all_value );
 		}
 
-		foreach ( (array) $extra_values as $ev_key => $ev_value ) {
+		foreach ( $extra_values as $ev_key => $ev_value ) {
 			$extra_values[ $ev_key ] = Contact_Form_Plugin::strip_tags( $ev_value );
 		}
 
@@ -1731,31 +1731,25 @@ class Contact_Form extends Contact_Form_Shortcode {
 			)
 		);
 
-		$actions = '';
-		// TODO: Update this once we have a way to enable/disable email actions.
-		$are_email_actions_enabled = true;
-
-		if ( $are_email_actions_enabled ) {
-			$actions = sprintf(
-				'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
-					<tr>
-						<td class="pad" align="center">
-							<a rel="noopener" target="_blank" href="%1$s" data-tracks-link-desc="">
-								<!--[if mso]>
-								<i style="mso-text-raise: 30pt;">&nbsp;</i>
-								<![endif]-->
-								<span>%2$s</span>
-								<!--[if mso]>
-								<i>&nbsp;</i>
-								<![endif]-->
-							</a>
-						</td>
-					</tr>
-				</table>',
-				esc_url( $dashboard_url ),
-				__( 'View in dashboard', 'jetpack-forms' )
-			);
-		}
+		$actions = sprintf(
+			'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
+				<tr>
+					<td class="pad" align="center">
+						<a rel="noopener" target="_blank" href="%1$s" data-tracks-link-desc="">
+							<!--[if mso]>
+							<i style="mso-text-raise: 30pt;">&nbsp;</i>
+							<![endif]-->
+							<span>%2$s</span>
+							<!--[if mso]>
+							<i>&nbsp;</i>
+							<![endif]-->
+						</a>
+					</td>
+				</tr>
+			</table>',
+			esc_url( $dashboard_url ),
+			__( 'View in dashboard', 'jetpack-forms' )
+		);
 
 		/**
 		 * Filters the message sent via email after a successful form submission.
