@@ -12,6 +12,7 @@ const meta: Meta< typeof LineChart > = {
 		legendShape: {
 			control: 'select',
 			options: [ 'circle', 'rect' ],
+			table: { category: 'Legend' },
 		},
 	},
 } satisfies Meta< typeof LineChart >;
