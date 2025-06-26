@@ -110,7 +110,7 @@ class Boost extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Speed up your site and improve SEO in seconds', 'jetpack-my-jetpack' );
+		return __( 'Improves your site speed and performance.', 'jetpack-my-jetpack' );
 	}
 
 	/**

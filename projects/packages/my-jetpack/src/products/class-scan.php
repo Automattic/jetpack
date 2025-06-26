@@ -69,7 +69,7 @@ class Scan extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Powerful, automated site security', 'jetpack-my-jetpack' );
+		return __( 'Around‑the‑clock web application firewall, and automated malware scanning.', 'jetpack-my-jetpack' );
 	}
 
 	/**

@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Markdown
- * Module Description: Write posts or pages in plain-text Markdown syntax
+ * Module Description: Write and format posts using clean, readable Markdown syntax.
  * Sort Order: 31
  * First Introduced: 2.8
  * Requires Connection: No

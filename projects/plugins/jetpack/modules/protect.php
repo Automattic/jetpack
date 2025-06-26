@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Brute force protection
- * Module Description: Prevent bots and hackers from attempting to log in to your website with common username and password combinations.
+ * Module Description: Block malicious login attempts automatically and keep hackers out.
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4
