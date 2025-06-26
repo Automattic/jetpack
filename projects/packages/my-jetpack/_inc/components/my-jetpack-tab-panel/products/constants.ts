@@ -33,11 +33,13 @@ export const JETPACK_NON_PAID_MODULES = [
 	'carousel',
 	'comment-likes',
 	'comments',
+	'contact-form',
 	'copy-post',
 	'google-fonts',
 	'gravatar-hovercards',
 	'infinite-scroll',
 	'json-api',
+	'latex',
 	'likes',
 	'markdown',
 	'monitor',
@@ -63,8 +65,6 @@ export const JETPACK_NON_PAID_MODULES = [
 ] as const;
 
 export const JETPACK_PAID_MODULES = [
-	'contact-form',
-	'latex',
 	'publicize',
 	'search',
 	'stats',
