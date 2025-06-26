@@ -49,7 +49,7 @@ define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.jso
  *   (We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.)
  * - If it succeeds, we continue.
  */
-$jetpack_beta_autoloader = plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
+$jetpack_beta_autoloader = plugin_dir_path( __FILE__ ) . 'vendor/autoload_packages.php';
 if ( is_readable( $jetpack_beta_autoloader ) ) {
 	require $jetpack_beta_autoloader;
 } else {

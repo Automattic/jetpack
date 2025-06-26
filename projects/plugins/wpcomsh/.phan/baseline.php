@@ -12,8 +12,8 @@ return [
     // PhanPluginMixedKeyNoKey : 20+ occurrences
     // PhanUndeclaredStaticMethod : 15+ occurrences
     // PhanTypeVoidAssignment : 7 occurrences
-    // PhanRedundantCondition : 6 occurrences
     // PhanTypeMismatchArgument : 6 occurrences
+    // PhanRedundantCondition : 5 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
     // PhanTypeVoidArgument : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
@@ -45,7 +45,7 @@ return [
         'endpoints/class-marketplace-webhook-response.php' => ['PhanPluginMixedKeyNoKey'],
         'feature-plugins/autosave-revision.php' => ['PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentNullable'],
         'feature-plugins/coblocks-mods.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
-        'feature-plugins/managed-plugins.php' => ['PhanRedundantCondition', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
+        'feature-plugins/managed-plugins.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
         'feature-plugins/sensei-pro-mods.php' => ['PhanUndeclaredClassMethod'],
         'footer-credit/theme-optimizations.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredStaticMethod'],
         'functions.php' => ['PhanImpossibleCondition', 'PhanUndeclaredClassStaticProperty'],

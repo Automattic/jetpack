@@ -41,6 +41,7 @@ import type {
 	PromptItemProps,
 	RequestingStateProp,
 	AiModelTypeProp,
+	Block,
 } from '@automattic/jetpack-ai-client';
 
 const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' );
@@ -572,8 +573,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		);
 	}
 
-	return props => {
+	return ( props: Block ) => {
 		const isRequiredModulePresent = useBlockModuleStatus( props.name );
+
+		if ( ! props.clientId || ! props.attributes ) {
+			return <BlockEdit { ...props } />;
+		}
 
 		// If the required module is not enabled, return the original block edit component early.
 		if ( ! isRequiredModulePresent ) {

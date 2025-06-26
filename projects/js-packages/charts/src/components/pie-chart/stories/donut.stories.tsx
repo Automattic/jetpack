@@ -125,8 +125,6 @@ export const Default: Story = {
 		withTooltips: true,
 		data,
 		theme: 'default',
-		showLegend: true,
-		legendOrientation: 'horizontal',
 		children: (
 			<Group>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
@@ -137,13 +135,6 @@ export const Default: Story = {
 				</Text>
 			</Group>
 		),
-	},
-};
-
-export const WithVerticalLegend: Story = {
-	args: {
-		...Default.args,
-		legendOrientation: 'vertical',
 	},
 };
 

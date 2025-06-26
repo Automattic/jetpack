@@ -55,7 +55,11 @@ class Host {
 	 * @return bool
 	 */
 	public function is_vip_site() {
-		return Constants::is_defined( 'WPCOM_IS_VIP_ENV' ) && true === Constants::get_constant( 'WPCOM_IS_VIP_ENV' );
+		$_blog_id = get_current_blog_id();
+		if ( function_exists( 'wpcom_is_vip' ) ) {
+			return wpcom_is_vip( $_blog_id );
+		}
+		return false;
 	}
 
 	/**

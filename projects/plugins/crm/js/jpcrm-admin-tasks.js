@@ -9,7 +9,7 @@
  * Date: 15th August 2018
  */
 
-/* global ajaxurl */
+/* global FullCalendar, ajaxurl, jpcrm_fullcalendar_data, jpcrm */
 window.jpcrm_task_ajax_blocker = false;
 
 function jpcrm_update_task_status( task_id, new_status ) {
@@ -63,3 +63,46 @@ buttons.forEach( el =>
 		jpcrm_update_task_status( task_id, new_status );
 	} )
 );
+
+document.addEventListener( 'DOMContentLoaded', function () {
+	const calendarEl = document.getElementById( 'calendar' );
+	if ( ! calendarEl ) {
+		return;
+	}
+	const calendar = new FullCalendar.Calendar( calendarEl, {
+		locale: jpcrm_fullcalendar_data.locale,
+		headerToolbar: {
+			left: 'prev,next today',
+			center: 'title',
+			right: 'dayGridMonth,timeGridWeek timeGridDay,listMonth',
+		},
+		initialView: 'dayGridMonth',
+		navLinks: true,
+		weekends: true,
+		firstDay: jpcrm_fullcalendar_data.firstDay,
+		events: jpcrm_fullcalendar_data.events,
+		eventContent: args => {
+			const eventProps = args.event._def.extendedProps;
+			const avatarHTML = eventProps.avatar
+				? '<img class="jpcrm-avatar" src="' + jpcrm.esc_attr( eventProps.avatar ) + '"/>'
+				: '';
+			const completeHTML = eventProps.complete === 1 ? '<i class="fa fa-check"></i></span>' : '';
+			let eventText = args.event.title;
+			if ( args.view.type !== 'listMonth' ) {
+				// listMonth has the timeText displayed already.
+				eventText = args.timeText + ' ' + eventText;
+			}
+			let html = avatarHTML + completeHTML + eventText;
+			html =
+				'<div class="event_html" title="' + jpcrm.esc_attr( eventText ) + '">' + html + '</div>';
+			if ( args.view.type === 'listMonth' ) {
+				// All the other views add the link automatically, but not this one.
+				html = '<a href="' + jpcrm.esc_attr( args.event._def.url ) + '">' + html + '</a>';
+			}
+			return {
+				html: html,
+			};
+		},
+	} );
+	calendar.render();
+} );

@@ -56,9 +56,20 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 			);
 		}
 
-		return __(
-			'Something went wrong while optimizing this page. Please try again later, or contact support if the issue persists.',
-			'jetpack-boost'
+		if ( type === 'unknown' ) {
+			return __(
+				'Something went wrong while optimizing this page. Please try again later, or contact support if the issue persists.',
+				'jetpack-boost'
+			);
+		}
+
+		return sprintf(
+			/* translators: %s is the error type */
+			__(
+				"An unknown error occurred: %s. Make sure you're using the latest version of Jetpack Boost. If you are, please try again later, or contact support if the issue persists.",
+				'jetpack-boost'
+			),
+			type
 		);
 	};
 

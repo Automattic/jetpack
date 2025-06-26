@@ -26,6 +26,24 @@
 	opacity: 0.3;
 }
 
+.jetpack-form-step {
+	display: none;
+}
+
+.jetpack-form-step.is-current-step {
+	position: relative;
+	visibility: visible;
+	opacity: 1;
+	height: auto;
+	overflow: visible;
+	z-index: 2;
+	display: block;
+}
+
+.contact-form .wp-block-jetpack-button:has( button.is-hidden ) {
+	display: none;
+}
+
 /*
 	Using :where we will keep a lower CSS specificity,
 	allowing themes to easily override these styles
@@ -248,6 +266,20 @@
 	margin-top: 7px;
 }
 
+.wp-block-jetpack-form-step {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	flex-direction: row;
+	flex-grow: 1;
+	gap: var(--wp--style--block-gap, 1.5rem);
+}
+
+.wp-block-jetpack-form-step > * {
+	flex: 0 0 100%;
+	box-sizing: border-box;
+}
+
 .wp-block-jetpack-contact-form {
 	display: flex;
 	flex-wrap: wrap;
@@ -281,7 +313,6 @@
 
 .wp-block-jetpack-contact-form .wp-block-jetpack-button {
 	width: fit-content;
-	align-self: flex-end;
 }
 
 .wp-block-jetpack-contact-form .wp-block-jetpack-button.aligncenter {
@@ -1043,6 +1074,8 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__error.show-errors {
 	display: inline;
+	min-width: 100%;
+	box-sizing: inherit;
 }
 
 .contact-form__error ul {
@@ -1071,18 +1104,18 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 1rem;
 	color: var(--jetpack--contact-form--error-color);
 	opacity: 0;
-	height: 0;
-	display: none;
+	max-height: 0;
 	overflow: hidden;
-	transition: opacity 0.3s ease-out, height 0.3s ease-out;
+	transform: translateY( -0.33em );
+	transition: max-height 200ms cubic-bezier(0.34, 0.8, 0.34, 1), opacity 200ms cubic-bezier(0.34, 0.8, 0.34, 1), transform 100ms cubic-bezier(0.34, 0.8, 0.34, 1);
 }
 
 .contact-form__input-error.has-errors {
-
 	display: flex;
-	gap: 0.33em;
 	opacity: 1;
-	height: auto;
+	max-height: 2em;
+	transform: translateY(0);
+	transition: opacity 200ms cubic-bezier(0.34, 0.8, 0.34, 1), transform 200ms cubic-bezier(0.34, 0.8, 0.34, 1);
 }
 
 .contact-form [aria-invalid="true"]:not(fieldset),
@@ -1105,8 +1138,8 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__warning-icon svg {
 	fill: currentColor;
-  	display: block; /* Prevents extra space */
-  	margin: 0 auto; /* Centers horizontally */
+	display: block;
+	margin: 0 auto;
 }
 
 .contact-form__checkbox-wrap {
@@ -1119,6 +1152,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	justify-content: center;
 	align-items: center;
 	gap: 0.5em;
+	width: 100%;
 }
 
 .contact-form .contact-form__spinner {

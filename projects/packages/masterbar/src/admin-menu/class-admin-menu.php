@@ -111,20 +111,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Adds My Home menu.
-	 */
-	public function add_my_home_menu() {
-
-		if ( self::DEFAULT_VIEW !== $this->get_preferred_view( 'index.php' ) ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_menu_page( __( 'My Home', 'jetpack-masterbar' ), __( 'My Home', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/home/' . $this->domain, null, 'dashicons-admin-home', 1.5 );
-			return;
-		}
-
-		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack-masterbar' ), 'read', 'dashicons-admin-home' );
-	}
-
-	/**
 	 * Adds My Mailboxes menu.
 	 */
 	public function add_my_mailboxes_menu() {

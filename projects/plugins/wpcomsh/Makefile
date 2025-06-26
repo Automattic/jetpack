@@ -102,10 +102,8 @@ build: check clean $(BUILD_DST)/$(BUILD_FILE)
 
 ## i18n
 i18n:
-	@ bash $(BUILD_SRC)/bin/i18n/generate-pot.sh
-	@ bash $(BUILD_SRC)/bin/i18n/update-translations.sh
-	@ git add $(BUILD_SRC)/languages
-	@ git commit $(BUILD_SRC)/languages -m "Update language files"
+	@ echo "Languages are now downloaded from translate.wordpress.com"
+	@ exit 1
 
 ## tag
 tag:

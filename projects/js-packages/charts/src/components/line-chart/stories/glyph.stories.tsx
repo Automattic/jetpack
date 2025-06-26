@@ -29,7 +29,6 @@ Start.args = {
 export const Custom: StoryObj< typeof LineChart > = Template.bind( {} );
 Custom.args = {
 	...glyphStoryArgs,
-	showLegend: true,
 	withLegendGlyph: true,
 	renderGlyph: ( { color, size, x, y } ) => {
 		return <GlyphStar top={ y } left={ x } size={ size * size } fill={ color } />;
@@ -68,7 +67,6 @@ const CustomStarGlyph = ( { color, size, x, y } ) => {
 export const CustomSvg: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomSvg.args = {
 	...glyphStoryArgs,
-	showLegend: true,
 	withLegendGlyph: true,
 	renderGlyph: ( { color, size, x, y } ) => (
 		<CustomStarGlyph color={ color } size={ size } x={ x } y={ y } />

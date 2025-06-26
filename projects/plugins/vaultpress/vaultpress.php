@@ -2320,8 +2320,11 @@ JS;
 			if ( ! $this->check_firewall() )
 				return false;
 		}
+		if ( ! is_string( $sig ) ) {
+			return false;
+		}
 		$sig = explode( ':', $sig );
-		if ( !is_array( $sig ) || count( $sig ) != 2 || !isset( $sig[0] ) || !isset( $sig[1] ) ) {
+		if ( count( $sig ) !== 2 || ! isset( $sig[0] ) || ! isset( $sig[1] ) ) {
 			$__vp_validate_error = array( 'error' => 'invalid_signature_format' );
 			return false;
 		}

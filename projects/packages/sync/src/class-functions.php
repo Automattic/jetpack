@@ -146,7 +146,7 @@ class Functions {
 		$post_type_object->add_rewrite_rules();
 		$post_type_object->add_hooks();
 		$post_type_object->register_taxonomies();
-		return (object) $post_type_object;
+		return $post_type_object;
 	}
 
 	/**
@@ -534,7 +534,7 @@ class Functions {
 		$formatted_gmt_offset = str_replace(
 			array( '.25', '.5', '.75' ),
 			array( ':15', ':30', ':45' ),
-			(string) $formatted_gmt_offset
+			$formatted_gmt_offset
 		);
 
 		/* translators: %s is UTC offset, e.g. "+1" */
