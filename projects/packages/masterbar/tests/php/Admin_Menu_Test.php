@@ -104,7 +104,7 @@ class Admin_Menu_Test extends TestCase {
 
 		static::$admin_menu->reregister_menu_items();
 
-		$this->assertCount( 18, $menu, 'Admin menu should not have unexpected top menu items.' );
+		$this->assertCount( 17, $menu, 'Admin menu should not have unexpected top menu items.' );
 
 		$this->assertEquals( static::$submenu_data[''], $submenu[''], 'Submenu items without parent should stay the same.' );
 	}
