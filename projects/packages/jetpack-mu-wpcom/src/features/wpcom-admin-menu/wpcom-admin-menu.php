@@ -99,16 +99,6 @@ function wpcom_add_my_home_menu() {
 add_action( 'admin_menu', 'wpcom_add_my_home_menu' );
 
 /**
- * Determines if the Jetpack > Stats menu should be visible.
- *
- * @return bool
- */
-function wpcom_should_show_jetpack_stats_submenu() {
-	// Force the Jetpack > Stats menu to 10% of users.
-	return get_current_user_id() % 10 === 0;
-}
-
-/**
  * Adds a Hosting menu.
  */
 function wpcom_add_hosting_menu() {
@@ -255,10 +245,6 @@ function wpcom_add_jetpack_submenu() {
 	$newsletter_url   = 'https://wordpress.com/settings/newsletter/' . $domain;
 	$scan_url         = 'https://wordpress.com/scan/' . $domain;
 	$podcasting_url   = 'https://wordpress.com/settings/podcasting/' . $domain;
-
-	if ( ! wpcom_should_show_jetpack_stats_submenu() ) {
-		wpcom_hide_submenu_page( 'jetpack', 'stats' );
-	}
 
 	// Add submenu items that link to WordPress.com.
 	add_submenu_page(
