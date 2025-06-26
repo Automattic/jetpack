@@ -40,9 +40,9 @@ export const legendArgTypes = {
  * @param root0.args - The story arguments
  * @return The decorated story component
  */
-export const legendDecorator = [
+export const legendDecorator: Decorator[] = [
 	( Story, { args } ) => (
-		<ThemeProvider theme={ args.theme }>
+		<ThemeProvider theme={ args.theme as ChartTheme | undefined }>
 			<div
 				style={ {
 					resize: 'both',
