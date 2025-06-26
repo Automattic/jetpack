@@ -90,22 +90,17 @@ class Error_Handler_Test extends BaseTestCase {
 		$stored_errors = $this->error_handler->get_stored_errors();
 
 		$this->assertCount( 1, $stored_errors );
-
-		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
-
 		$this->assertCount( 1, $stored_errors['invalid_token'] );
 
-		$this->assertArrayHasKey( '1', $stored_errors['invalid_token'] );
-
-		$this->assertArrayHasKey( 'nonce', $stored_errors['invalid_token']['1'] );
-		$this->assertArrayHasKey( 'error_code', $stored_errors['invalid_token']['1'] );
-		$this->assertArrayHasKey( 'user_id', $stored_errors['invalid_token']['1'] );
-		$this->assertArrayHasKey( 'error_message', $stored_errors['invalid_token']['1'] );
-		$this->assertArrayHasKey( 'error_data', $stored_errors['invalid_token']['1'] );
-		$this->assertArrayHasKey( 'timestamp', $stored_errors['invalid_token']['1'] );
-		$this->assertArrayHasKey( 'nonce', $stored_errors['invalid_token']['1'] );
-		$this->assertArrayHasKey( 'error_type', $stored_errors['invalid_token']['1'] );
-		$this->assertEquals( 'xmlrpc', $stored_errors['invalid_token']['1']['error_type'] );
+		// Verify key fields by accessing them directly - if they don't exist, test will fail with clear message
+		$error_data = $stored_errors['invalid_token']['1'];
+		$this->assertEquals( 'xmlrpc', $error_data['error_type'] );
+		$this->assertEquals( 'invalid_token', $error_data['error_code'] );
+		$this->assertSame( '1', $error_data['user_id'] );
+		$this->assertEquals( 'An error was triggered', $error_data['error_message'] );
+		$this->assertNotEmpty( $error_data['nonce'] );
+		$this->assertNotEmpty( $error_data['timestamp'] );
+		$this->assertIsArray( $error_data['error_data'] );
 	}
 
 	/**
@@ -126,31 +121,15 @@ class Error_Handler_Test extends BaseTestCase {
 		$stored_errors = $this->error_handler->get_stored_errors();
 
 		$this->assertCount( 3, $stored_errors );
-
-		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
-
 		$this->assertCount( 1, $stored_errors['invalid_token'] );
 		$this->assertCount( 1, $stored_errors['unknown_user'] );
 		$this->assertCount( 1, $stored_errors['invalid_connection_owner'] );
 
-		$this->assertArrayHasKey( '1', $stored_errors['unknown_user'] );
-
-		$this->assertArrayHasKey( 'error_type', $stored_errors['invalid_token']['1'] );
+		// Verify error types and codes directly
 		$this->assertEquals( 'xmlrpc', $stored_errors['invalid_token']['1']['error_type'] );
-
-		$this->assertArrayHasKey( 'nonce', $stored_errors['unknown_user']['1'] );
-		$this->assertArrayHasKey( 'error_code', $stored_errors['unknown_user']['1'] );
-		$this->assertArrayHasKey( 'user_id', $stored_errors['unknown_user']['1'] );
-		$this->assertArrayHasKey( 'error_message', $stored_errors['unknown_user']['1'] );
-		$this->assertArrayHasKey( 'error_data', $stored_errors['unknown_user']['1'] );
-		$this->assertArrayHasKey( 'timestamp', $stored_errors['unknown_user']['1'] );
-		$this->assertArrayHasKey( 'nonce', $stored_errors['unknown_user']['1'] );
-		$this->assertArrayHasKey( 'error_type', $stored_errors['unknown_user']['1'] );
 		$this->assertEquals( 'rest', $stored_errors['unknown_user']['1']['error_type'] );
-
-		$this->assertArrayHasKey( 'invalid', $stored_errors['invalid_connection_owner'] );
-		$this->assertArrayHasKey( 'error_type', $stored_errors['invalid_connection_owner']['invalid'] );
 		$this->assertEquals( 'connection', $stored_errors['invalid_connection_owner']['invalid']['error_type'] );
+		$this->assertEquals( 'unknown_user', $stored_errors['unknown_user']['1']['error_code'] );
 	}
 
 	/**
@@ -171,22 +150,14 @@ class Error_Handler_Test extends BaseTestCase {
 		$stored_errors = $this->error_handler->get_stored_errors();
 
 		$this->assertCount( 2, $stored_errors );
-
-		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
-
 		$this->assertCount( 1, $stored_errors['invalid_token'] );
 		$this->assertCount( 2, $stored_errors['unknown_user'] );
 
-		$this->assertArrayHasKey( '2', $stored_errors['unknown_user'] );
-
-		$this->assertArrayHasKey( 'nonce', $stored_errors['unknown_user']['2'] );
-		$this->assertArrayHasKey( 'error_code', $stored_errors['unknown_user']['2'] );
-		$this->assertArrayHasKey( 'user_id', $stored_errors['unknown_user']['2'] );
-		$this->assertArrayHasKey( 'error_message', $stored_errors['unknown_user']['2'] );
-		$this->assertArrayHasKey( 'error_data', $stored_errors['unknown_user']['2'] );
-		$this->assertArrayHasKey( 'timestamp', $stored_errors['unknown_user']['2'] );
-		$this->assertArrayHasKey( 'nonce', $stored_errors['unknown_user']['2'] );
-		$this->assertArrayHasKey( 'error_type', $stored_errors['unknown_user']['2'] );
+		// Verify user 2 error exists and has correct data
+		$this->assertEquals( 'unknown_user', $stored_errors['unknown_user']['2']['error_code'] );
+		$this->assertSame( '2', $stored_errors['unknown_user']['2']['user_id'] );
+		$this->assertNotEmpty( $stored_errors['unknown_user']['2']['nonce'] );
+		$this->assertNotEmpty( $stored_errors['unknown_user']['2']['timestamp'] );
 	}
 
 	/**
@@ -227,9 +198,8 @@ class Error_Handler_Test extends BaseTestCase {
 		$stored_errors = $this->error_handler->get_stored_errors();
 
 		$this->assertCount( 5, $stored_errors['unknown_user'] );
-
 		$this->assertArrayNotHasKey( '3', $stored_errors['unknown_user'], 'first inserted error must have been excluded' );
-		$this->assertArrayHasKey( '8', $stored_errors['unknown_user'], 'sixth inserted error must be present' );
+		$this->assertSame( '8', $stored_errors['unknown_user']['8']['user_id'], 'sixth inserted error must be present' );
 	}
 
 	/**
@@ -691,19 +661,6 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Helper to flatten hierarchical error arrays for assertions.
-	 */
-	private function flatten_displayable_errors( $errors ) {
-		$flat = array();
-		foreach ( $errors as $user_errors ) {
-			foreach ( $user_errors as $error ) {
-				$flat[] = $error;
-			}
-		}
-		return $flat;
-	}
-
-	/**
 	 * Test get_displayable_errors method with displayable error
 	 */
 	public function test_displayable_errors_displayable_error() {
@@ -727,10 +684,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$result = $this->error_handler->get_displayable_errors();
 
-		$this->assertIsArray( $result );
 		$this->assertCount( 1, $result );
-		$this->assertArrayHasKey( 'invalid_token', $result );
-		$this->assertArrayHasKey( '1', $result['invalid_token'] );
 		$this->assertStringContainsString( 'broken', $result['invalid_token']['1']['error_message'] );
 		$this->assertEquals( 'invalid_token', $result['invalid_token']['1']['error_code'] );
 	}
@@ -762,13 +716,9 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$result = $this->error_handler->get_displayable_errors();
 
-		$this->assertIsArray( $result );
 		$this->assertCount( 1, $result );
-		$this->assertArrayHasKey( 'invalid_connection_owner', $result );
-		$this->assertArrayHasKey( '1', $result['invalid_connection_owner'] );
 		$this->assertStringContainsString( 'broken', $result['invalid_connection_owner']['1']['error_message'] ); // Should use default message
 		$this->assertEquals( 'invalid_connection_owner', $result['invalid_connection_owner']['1']['error_code'] );
-		$this->assertArrayHasKey( 'custom', $result['invalid_connection_owner']['1']['error_data'] );
 		$this->assertEquals( 'data', $result['invalid_connection_owner']['1']['error_data']['custom'] );
 	}
 
@@ -808,10 +758,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$result = $this->error_handler->get_displayable_errors();
 
 		// Verify the basic structure is correct
-		$this->assertIsArray( $result );
 		$this->assertCount( 1, $result );
-		$this->assertArrayHasKey( 'invalid_token', $result );
-		$this->assertArrayHasKey( '1', $result['invalid_token'] );
 		$this->assertEquals( 'invalid_token', $result['invalid_token']['1']['error_code'] );
 	}
 
@@ -857,9 +804,9 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->error_handler->handle_verified_errors();
 
-		// Check that the hooks were added
-		$this->assertArrayHasKey( 'admin_notices', $wp_filter );
-		$this->assertArrayHasKey( 'react_connection_errors_initial_state', $wp_filter );
+		// Check that the hooks were added - accessing directly will fail with clear error if key doesn't exist
+		$this->assertNotEmpty( $wp_filter['admin_notices'] );
+		$this->assertNotEmpty( $wp_filter['react_connection_errors_initial_state'] );
 	}
 
 	/**
@@ -912,9 +859,6 @@ class Error_Handler_Test extends BaseTestCase {
 		// Bypass the gate for testing
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		// Clear any existing errors
-		$this->error_handler->delete_all_errors();
-
 		// Report the error
 		$this->error_handler->report_error( $error );
 
@@ -922,10 +866,6 @@ class Error_Handler_Test extends BaseTestCase {
 		$stored_errors = $this->error_handler->get_stored_errors();
 		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
 		$this->assertArrayHasKey( '3', $stored_errors['invalid_token'] );
-
-		// Clean up
-		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
-		$this->error_handler->delete_all_errors();
 	}
 
 	/**
@@ -945,9 +885,6 @@ class Error_Handler_Test extends BaseTestCase {
 		// Set a transient to close the gate
 		set_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token', true, HOUR_IN_SECONDS );
 
-		// Clear any existing errors
-		$this->error_handler->delete_all_errors();
-
 		// Report the error with force=true (should bypass the gate)
 		$this->error_handler->report_error( $error, true );
 
@@ -956,9 +893,8 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'invalid_token', $stored_errors );
 		$this->assertArrayHasKey( '3', $stored_errors['invalid_token'] );
 
-		// Clean up
+		// Clean up transient only (tear_down will handle the rest)
 		delete_transient( Error_Handler::ERROR_REPORTING_GATE . 'invalid_token' );
-		$this->error_handler->delete_all_errors();
 	}
 
 	/**
@@ -978,9 +914,6 @@ class Error_Handler_Test extends BaseTestCase {
 		// Bypass the gate for testing
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		// Clear any existing errors
-		$this->error_handler->delete_all_errors();
-
 		// Report the error with skip_wpcom_verification=true
 		$this->error_handler->report_error( $error, false, true );
 
@@ -993,10 +926,6 @@ class Error_Handler_Test extends BaseTestCase {
 		$verified_errors = $this->error_handler->get_verified_errors();
 		$this->assertArrayHasKey( 'invalid_token', $verified_errors );
 		$this->assertArrayHasKey( '3', $verified_errors['invalid_token'] );
-
-		// Clean up
-		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
-		$this->error_handler->delete_all_errors();
 	}
 
 	/**
@@ -1016,19 +945,12 @@ class Error_Handler_Test extends BaseTestCase {
 		// Bypass the gate for testing
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		// Clear any existing errors
-		$this->error_handler->delete_all_errors();
-
 		// Report the error with unknown error code
 		$this->error_handler->report_error( $error );
 
 		// Verify the error was NOT stored (unknown error codes are ignored)
 		$stored_errors = $this->error_handler->get_stored_errors();
 		$this->assertArrayNotHasKey( 'unknown_error_code', $stored_errors );
-
-		// Clean up
-		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
-		$this->error_handler->delete_all_errors();
 	}
 
 	/**
@@ -1432,9 +1354,6 @@ class Error_Handler_Test extends BaseTestCase {
 		// Test with filter
 		$result_with_filter = $method->invoke( $this->error_handler );
 		$this->assertIsBool( $result_with_filter );
-
-		// Clean up
-		remove_all_filters( 'jetpack_connection_get_verified_errors' );
 	}
 
 	/**

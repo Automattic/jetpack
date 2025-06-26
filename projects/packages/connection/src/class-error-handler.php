@@ -233,7 +233,7 @@ class Error_Handler {
 				$displayable_errors[ $error_code ][ $user_id ] = array_merge(
 					$error,
 					array(
-						'error_message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' ),
+						'error_message' => __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' ),
 					)
 				);
 			}
@@ -321,7 +321,7 @@ class Error_Handler {
 	 *                 ]
 	 *               ]
 	 */
-	public function jetpack_react_dashboard_error( $errors ) {// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function jetpack_react_dashboard_error( $errors ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$displayable_errors = $this->get_displayable_errors();
 
 		// Get the first error only
@@ -490,9 +490,14 @@ class Error_Handler {
 	 *                       'error_type' => 'xmlrpc'
 	 *                     ]
 	 */
-	public function build_error_array( $error_code, $error_message, $error_data = array(), $user_id = '0', $error_type = '' ) {
+	public function build_error_array( string $error_code, string $error_message, array $error_data = array(), $user_id = '0', string $error_type = '' ) {
 		// Validate required parameters
 		if ( empty( $error_code ) || empty( $error_message ) ) {
+			return false;
+		}
+
+		// Validate user_id is a string or integer
+		if ( ! is_string( $user_id ) && ! is_int( $user_id ) ) {
 			return false;
 		}
 
