@@ -118,7 +118,7 @@ function jpcrm_check_min_php_version() {
 
 	if ( version_compare( PHP_VERSION, $min_php_version, '<' ) ) {
 		add_action(
-			'admin_init',
+			'admin_notices',
 			function () use ( $min_php_version ) {
 				$error_message = sprintf(
 					// translators: %1$s is the minimum required PHP version; %2$s is the user's current PHP version.
