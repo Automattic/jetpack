@@ -267,6 +267,17 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
+	if ( $is_atomic_site ) {
+		add_submenu_page(
+			'jetpack',
+			__( 'Scan', 'jetpack-mu-wpcom' ),
+			__( 'Scan', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			$scan_url,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
+
 	if ( $uses_wp_admin_interface ) {
 		if ( wpcom_can_link_to_calypso() ) {
 			add_submenu_page(
@@ -277,17 +288,6 @@ function wpcom_add_jetpack_submenu() {
 				$monetize_url,
 				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			);
-
-			if ( $is_atomic_site ) {
-				add_submenu_page(
-					'jetpack',
-					__( 'Scan', 'jetpack-mu-wpcom' ),
-					__( 'Scan', 'jetpack-mu-wpcom' ),
-					'manage_options',
-					$scan_url,
-					null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-				);
-			}
 		}
 
 		if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
@@ -336,28 +336,17 @@ function wpcom_add_jetpack_submenu() {
 		return;
 	}
 
-	if ( $uses_wp_admin_interface ) {
-		$desired_order = array(
-			'my-jetpack',
-			'stats',
-			$activity_log_url,
-			$vaultpress_url,
-			'akismet-key-config',
-			'jetpack-search',
-			$scan_url,
-			$monetize_url,
-			$subscribers_url,
-		);
-	} else {
-		$desired_order = array(
-			'stats',
-			$activity_log_url,
-			$vaultpress_url,
-			'jetpack-forms-admin',
-			'jetpack-search',
-			'akismet-key-config',
-		);
-	}
+	$desired_order   = array(
+		'my-jetpack',
+		'stats',
+		$activity_log_url,
+		$vaultpress_url,
+		'akismet-key-config',
+		'jetpack-search',
+		$scan_url,
+		$monetize_url,
+		$subscribers_url,
+	);
 	$ordered_submenu = array();
 
 	// Re-add submenu items in the desired order.
