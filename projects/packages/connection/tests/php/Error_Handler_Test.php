@@ -771,8 +771,10 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->error_handler->handle_verified_errors();
 
-		// Check that the hooks were added - accessing directly will fail with clear error if key doesn't exist
+		// Check that the hooks were added
+		// @phan-suppress-next-line PhanTypeInvalidDimOffset
 		$this->assertNotEmpty( $wp_filter['admin_notices'] );
+		// @phan-suppress-next-line PhanTypeInvalidDimOffset
 		$this->assertNotEmpty( $wp_filter['react_connection_errors_initial_state'] );
 	}
 
