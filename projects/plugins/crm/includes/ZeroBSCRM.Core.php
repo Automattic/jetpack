@@ -1359,12 +1359,6 @@ final class ZeroBSCRM {
 		// Pre-init Hook
 		do_action( 'before_zerobscrm_init' );
 
-		// After all the plugins have loaded (THESE FIRE BEFORE INIT)
-		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) ); // } Translations
-		// this moved to post_init_plugins_loaded below, needs to be post init: add_action('plugins_loaded', array($this, 'after_active_plugins_loaded') );
-
-		// Initialise
-
 		// our 'pre-init', this is the last step before init
 		// ... and loads settings :)
 		// add_action('admin_init', array($this, 'preInit'), 1);
