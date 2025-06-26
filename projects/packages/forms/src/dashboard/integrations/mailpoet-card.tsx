@@ -1,4 +1,3 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -86,9 +85,6 @@ const MailPoetDashboardCard = ( {
 							{ __( 'View MailPoet dashboard', 'jetpack-forms' ) }
 						</Button>
 						<span>|</span>
-						<ExternalLink href={ getRedirectUrl( 'mailpoet-jetpack-forms-docs' ) }>
-							{ __( 'Learn about MailPoet', 'jetpack-forms' ) }
-						</ExternalLink>
 					</div>
 				</div>
 			) }
