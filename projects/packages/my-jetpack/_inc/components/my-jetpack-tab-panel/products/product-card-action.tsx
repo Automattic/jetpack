@@ -137,7 +137,6 @@ export function ProductCardAction( { product }: ProductCardActionProps ) {
 		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
 		case PRODUCT_STATUSES.ABSENT:
 		case PRODUCT_STATUSES.NEEDS_PLAN:
-		case PRODUCT_STATUSES.CAN_UPGRADE:
 			return <UpgradeAction product={ product } />;
 
 		default:
