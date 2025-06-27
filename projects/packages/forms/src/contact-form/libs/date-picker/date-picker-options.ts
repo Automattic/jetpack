@@ -138,9 +138,7 @@ function defaults(): IDatePickerOptions {
 
 		dateClass: () => '',
 
-		inRange: function () {
-			return true;
-		},
+		inRange: () => true,
 
 		appendTo: document.body,
 		alignment: 'left',

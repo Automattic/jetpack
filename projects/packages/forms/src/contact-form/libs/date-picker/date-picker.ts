@@ -32,7 +32,7 @@ export function DatePicker(
 	const emitter = Emitter();
 	const options = DatePickerOptions( opts );
 	const mode = Mode( input, emit, options );
-	var me = {
+	const me = {
 		get state() {
 			return mode.state;
 		},
