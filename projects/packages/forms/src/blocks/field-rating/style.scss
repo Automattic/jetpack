@@ -1,16 +1,70 @@
 /* Rating field block – front-end styles */
 
-.jetpack-field-rating__wrapper {
-  white-space: nowrap;
-  font-size: 1.5em;
+.jetpack-field-rating {
+  display: inline-block;
+  position: relative;
+  height: 50px;
+  line-height: 50px;
+  font-size: 50px;
 }
 
-.jetpack-field-rating__wrapper > span {
+.jetpack-field-rating__label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
   cursor: pointer;
-  user-select: none;
 }
 
-/* Stars that aren't selected */
-.jetpack-field-rating__wrapper .is-rating-unfilled {
-  opacity: 0.3;
-} 
+.jetpack-field-rating__label:last-child {
+  position: static;
+}
+
+.jetpack-field-rating__label:nth-child(1) {
+  z-index: 5;
+}
+
+.jetpack-field-rating__label:nth-child(2) {
+  z-index: 4;
+}
+
+.jetpack-field-rating__label:nth-child(3) {
+  z-index: 3;
+}
+
+.jetpack-field-rating__label:nth-child(4) {
+  z-index: 2;
+}
+
+.jetpack-field-rating__label:nth-child(5) {
+  z-index: 1;
+}
+
+.jetpack-field-rating__label input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+}
+
+.jetpack-field-rating__label .icon {
+  float: left;
+  color: transparent;
+}
+
+.jetpack-field-rating__label:last-child .icon {
+  color: #000;
+}
+
+
+.jetpack-field-rating:not(:hover) .jetpack-field-rating__label input:checked ~ .icon,
+
+.jetpack-field-rating:hover .jetpack-field-rating__label:hover input ~ .icon {
+  color: #09f;
+}
+
+
+.jetpack-field-rating .jetpack-field-rating__label input:focus:not(:checked) ~ .icon:last-child {
+  color: #000;
+  text-shadow: 0 0 5px #09f;
+}
