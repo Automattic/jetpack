@@ -36,8 +36,8 @@
 	--dp-date-background: transparent;
 	--dp-date-color: #2c3338;
 
-	--dp-date-background-selected: #2a46ce;
-	--dp-date-color-selected: #FFF;
+	--dp-date-background-selected: var( --jetpack--contact-form--button-primary--background-color, var( --wp--preset--color--primary, #2a46ce ) );
+	--dp-date-color-selected: var( --jetpack--contact-form--button-primary--color, var( --wp--preset--color--base, #FFF ) );
 
 	--dp-date-background-focus: #c3c4c7;
 	--dp-date-color-focus: #1d2327;
@@ -48,7 +48,7 @@
 	--dp-date-background-disabled: transparent;
 	--dp-date-color-disabled: #8c8f94;
 
-	--dp-today-color: #2a46ce;
+	--dp-today-color: var( --jetpack--contact-form--primary-color, var( --wp--preset--color--primary, #2a46ce ) );
 	--dp-date-edge-color: #787c82;
 
 	--dp-text-color: #3c434a;
