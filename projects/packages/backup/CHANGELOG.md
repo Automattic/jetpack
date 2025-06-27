@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.2.8] - 2025-06-27
 ### Fixed
-- Fix for PHP Fatals on WP_Error in Backup package [#43388]
+- Fix PHP fatals on WP_Error. [#43388]
 
 ## [4.2.7] - 2025-06-24
 ### Changed
