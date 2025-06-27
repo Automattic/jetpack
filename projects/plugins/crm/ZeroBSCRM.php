@@ -312,16 +312,23 @@ register_activation_hook( __FILE__, 'jpcrm_plugin_activate' );
  * @return void
  */
 function jpcrm_plugin_redirect() {
+	// Skip the re-direction if it's a JSON/AJAX request or via WP-CLI
+	if ( wp_is_json_request() || wp_doing_ajax() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_is_xml_request() ) {
+		return;
+	}
+
 	if ( get_option( 'jpcrm_do_redirect' ) ) {
 		delete_option( 'jpcrm_do_redirect' );
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe: only checking 'activate-multi' to avoid redirect on bulk activation.
-		$redirect_url = admin_url( 'admin.php?page=zerobscrm-dash' );
-		// Only force wizard if it hasn't been run before
-		if ( ! get_option( '    jpcrm_wizard_completed', false ) ) {
-			$redirect_url = add_query_arg( 'jpcrm_force_wizard', '1', $redirect_url );
+		if ( ! isset( $_GET['activate-multi'] ) ) { // avoid redirect on bulk activation
+			$redirect_url = admin_url( 'admin.php?page=zerobscrm-dash' );
+			// Only force wizard if it hasn't been run before
+			if ( ! get_option( '    jpcrm_wizard_completed', false ) ) {
+				$redirect_url = add_query_arg( 'jpcrm_force_wizard', '1', $redirect_url );
+			}
+			wp_safe_redirect( $redirect_url );
+			exit;
 		}
-		wp_safe_redirect( $redirect_url );
-		exit;
 	}
 }
 add_action( 'admin_init', 'jpcrm_plugin_redirect' );

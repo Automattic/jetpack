@@ -36,12 +36,13 @@ class JPCRM_Activation_Cest {
 
 		// check no activation errors
 		$I->dontSeeElement( '#message.error' );
-
-		// The plugin is activated, now we can see the JPCRM set up page
-		$I->see( 'Essential Details' );
-		$I->see( 'Essentials' );
-		$I->see( 'Your Contacts' );
-		$I->see( 'Which Extensions?' );
-		$I->see( 'Finish' );
+		if ( ! isset( $_GET['activate-multi'] ) ) {
+			// The plugin is activated, now we can see the JPCRM set up page
+			$I->see( 'Essential Details' );
+			$I->see( 'Essentials' );
+			$I->see( 'Your Contacts' );
+			$I->see( 'Which Extensions?' );
+			$I->see( 'Finish' );
+		}
 	}
 }
