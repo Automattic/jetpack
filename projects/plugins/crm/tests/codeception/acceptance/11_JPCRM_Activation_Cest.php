@@ -26,23 +26,57 @@ class JPCRM_Activation_Cest {
 		}
 	}
 
-	public function jpcrm_activation( AcceptanceTester $I ) {
-		// If it's installed, activate the plugin
+	public function test_single_plugin_activation_shows_wizard( AcceptanceTester $I ) {
 		$I->amOnPluginsPage();
 		$I->seePluginInstalled( 'jetpack-crm' );
+
+		// Activate just this plugin
 		$I->activatePlugin( 'jetpack-crm' );
 
-		// Activating the plugin directly loads the welcome wizard, so no need to move pages here.
+		// Verify we were redirected to the wizard with force_wizard parameter
+		$I->seeInCurrentUrl( 'page=zerobscrm-dash' );
+		$I->seeInCurrentUrl( 'jpcrm_force_wizard=1' );
 
-		// check no activation errors
+		// Check no activation errors and wizard is shown
 		$I->dontSeeElement( '#message.error' );
-		if ( ! isset( $_GET['activate-multi'] ) ) {
-			// The plugin is activated, now we can see the JPCRM set up page
-			$I->see( 'Essential Details' );
-			$I->see( 'Essentials' );
-			$I->see( 'Your Contacts' );
-			$I->see( 'Which Extensions?' );
-			$I->see( 'Finish' );
-		}
+		$this->assertWizardIsShown( $I );
+	}
+
+	public function test_bulk_plugin_activation_skips_wizard( AcceptanceTester $I ) {
+		$I->amOnPluginsPage();
+
+		// Activate multiple plugins (even if it's just this one)
+		$I->checkOption( '#the-list input[type="checkbox"]' );
+		$I->selectOption( 'action', 'activate-selected' );
+		$I->click( 'Apply' );
+
+		// Should stay on plugins page, no wizard redirect
+		$I->seeInCurrentUrl( 'plugins.php' );
+		$I->see( 'Plugin activated.' );
+
+		// Verify no wizard is shown
+		$this->assertWizardIsNotShown( $I );
+	}
+
+	/**
+	 * Assert that the wizard UI is currently shown
+	 */
+	private function assertWizardIsShown( AcceptanceTester $I ) {
+		$I->see( 'Essential Details' );
+		$I->see( 'Essentials' );
+		$I->see( 'Your Contacts' );
+		$I->see( 'Which Extensions?' );
+		$I->see( 'Finish' );
+	}
+
+	/**
+	 * Assert that the wizard UI is not shown
+	 */
+	private function assertWizardIsNotShown( AcceptanceTester $I ) {
+		$I->dontSee( 'Essential Details' );
+		$I->dontSee( 'Essentials' );
+		$I->dontSee( 'Your Contacts' );
+		$I->dontSee( 'Which Extensions?' );
+		$I->dontSee( 'Finish' );
 	}
 }
