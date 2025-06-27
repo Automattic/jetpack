@@ -312,8 +312,10 @@ register_activation_hook( __FILE__, 'jpcrm_plugin_activate' );
  * @return void
  */
 function jpcrm_plugin_redirect() {
-	// Don't run on plugin upgrade.
-	if ( defined( 'WP_UPGRADING' ) && WP_UPGRADING ) {
+	// Check if it's a plugin upgrade process.
+	// This is more reliable than WP_UPGRADING for direct update.php calls.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe: only checking 'action' and 'plugin' to avoid redirect on bulk activation.
+	if ( isset( $_GET['action'] ) && $_GET['action'] === 'upgrade-plugin' && isset( $_GET['plugin'] ) ) {
 		return;
 	}
 	// Skip the re-direction if it's a JSON/AJAX request or via WP-CLI
