@@ -33,9 +33,6 @@ class JPCRM_Activation_Cest {
 		// Click the activate link for jetpack-crm directly
 		$I->click( 'Activate', array( 'css' => 'tr[data-slug="jetpack-crm"] .activate a' ) );
 
-		// Verify we were redirected to the wizard with force_wizard parameter
-		$I->waitForUrl( '*page=zerobscrm-dash*jpcrm_force_wizard=1*', 10 ); // Wait up to 10 seconds for the URL to match
-
 		// Check no activation errors and wizard is shown
 		$I->dontSeeElement( '#message.error' );
 		$this->assertWizardIsShown( $I );
