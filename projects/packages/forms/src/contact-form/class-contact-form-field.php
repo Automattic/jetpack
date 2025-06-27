@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
 /**
@@ -1234,7 +1235,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	private function enqueue_file_field_assets() {
-		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+		$version = Constants::get_constant( 'JETPACK__VERSION' );
 
 		\wp_enqueue_script_module(
 			'jetpack-form-file-field',
@@ -1537,7 +1538,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			array(
 				'enqueue'      => true,
 				'dependencies' => array( 'jquery', 'jquery-ui-datepicker' ),
-				'version'      => \JETPACK__VERSION,
+				'version'      => Constants::get_constant( 'JETPACK__VERSION' ),
 			)
 		);
 
@@ -2056,6 +2057,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML markup.
 	 */
 	private function render_rating_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		// Enqueue stylesheet for rating field.
+		wp_enqueue_style( 'jetpack-form-field-rating-style', plugins_url( '../../dist/blocks/field-rating/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 
 		// Read block attributes needed for rendering.
 		$max_attr = $this->get_attribute( 'maxrating' );
@@ -2064,45 +2067,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 		$max_rating = is_numeric( $max_attr ) && (int) $max_attr > 0 ? (int) $max_attr : 5;
 
-		// Ensure assets are enqueued once per request.
-		$this->enqueue_rating_field_assets();
-
 		$initial_rating = (int) $value ? (int) $value : 0;
 
 		$label_html = $this->render_label( 'rating', $id, $label, $required, $required_field_text );
 
 		$spans = '';
 		for ( $i = 1; $i <= $max_rating; $i++ ) {
-			$spans .= '<label class="jetpack-field-rating__label"><input type="radio" data-wp-on--change="actions.onFieldChange" ' . checked( $i, $initial_rating, false ) . ( $required ? ' required aria-required="true" ' : '' ) . ' name="' . esc_attr( $id ) . '" value="' . esc_attr( $i ) . '" />' . str_repeat( '<span class="rating-icon">★</span>', $i ) . '</label>';
+			$spans .= '<label class="jetpack-field-rating__label"><input type="radio" data-wp-on--change="actions.onFieldChange" ' . checked( $i, $initial_rating, false ) . ( $required ? ' required aria-required="true" ' : '' ) . ' name="' . esc_attr( $id ) . '" value="' . esc_attr( $i ) . '/ ' . esc_attr( $max_rating ) . '" />' . str_repeat( '<span class="rating-icon">★</span>', $i ) . '</label>';
 		}
 
 		return $label_html . sprintf(
 			'<div class="jetpack-field-rating">%1$s</div>',
 			$spans
 		) . $this->get_error_div( $id, 'rating' );
-	}
-
-	/**
-	 * Enqueue front-end JS module for rating field.
-	 */
-	private function enqueue_rating_field_assets() {
-		static $enqueued = false;
-		if ( $enqueued ) {
-			return;
-		}
-		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
-		\wp_enqueue_script_module(
-			'jetpack-form-rating-field',
-			plugins_url( '../../dist/modules/field-rating/view.js', __FILE__ ),
-			array( '@wordpress/interactivity' ),
-			$version
-		);
-		// Enqueue stylesheet for rating field.
-		$style_handle = 'jetpack-form-field-rating-style';
-		$style_path   = '../../dist/blocks/field-rating/style.css';
-		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
-			wp_enqueue_style( $style_handle, plugins_url( $style_path, __FILE__ ), array(), $version );
-		}
-		$enqueued = true;
 	}
 }
