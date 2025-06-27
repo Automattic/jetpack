@@ -138,20 +138,6 @@ function wpcomsh_activate_nav_unification() {
 }
 add_filter( 'jetpack_load_admin_menu_class', 'wpcomsh_activate_nav_unification' );
 
-/**
- * Adds WooCommerce menu item if WooCommerce plugin is not installed and activated.
- * The intention here is to redirect to Store installation UI in calypso.
- */
-function wpcom_woop_show_woo_installer() {
-	// If WooCommerce plugin is already active, return false. Don't add another WooCommerce menu item.
-	if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
-		return false;
-	}
-
-	return true;
-}
-add_filter( 'jetpack_show_wpcom_woocommerce_installation_menu', 'wpcom_woop_show_woo_installer' );
-
 // Enables the Upgrades -> Emails menu item in the sidebar for all users (temporary hotfix due to Jetpack monthly release cycle)
 add_filter( 'jetpack_show_wpcom_upgrades_email_menu', '__return_true' );
 
