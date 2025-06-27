@@ -4,8 +4,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import useActivatePlugins from '../../../data/products/use-activate-plugins';
-import { useAllProducts } from '../../../data/products/use-all-products';
 import { useDeactivatePlugins } from '../../../data/products/use-deactivate-plugins';
+import useProduct from '../../../data/products/use-product';
 import { ProductCamelCase } from '../../../data/types';
 import { PRODUCT_STATUSES } from '../../product-card';
 
@@ -49,7 +49,7 @@ function ActivationToggle( {
 	const { deactivate, isPending: isDeactivating } = useDeactivatePlugins( product.slug );
 	const { activate, isPending: isActivating } = useActivatePlugins( product.slug );
 
-	const { isLoading, isRefetching } = useAllProducts();
+	const { isLoading, isRefetching } = useProduct( product.slug );
 
 	const onChange = useCallback( () => {
 		active ? deactivate() : activate();

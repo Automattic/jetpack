@@ -44,19 +44,15 @@ const refetchProducts = async (
 const useProducts = ( productSlugs: string | string[] ) => {
 	const productIds = Array.isArray( productSlugs ) ? productSlugs : [ productSlugs ];
 
-	const {
-		data: allProducts,
-		isLoading: isAllProductsLoading,
-		isRefetching: isRefetchingAll,
-	} = useAllProducts();
+	const { data: allProducts, isLoading: isLoadingAllProducts } = useAllProducts();
 	const products = productIds?.map( productId => allProducts?.[ productId ] );
 	const { refetch, isLoading, isRefetching } = useFetchProducts( productIds );
 
 	return {
 		products,
 		refetch: useCallback( () => refetchProducts( refetch ), [ refetch ] ),
-		isLoading: isLoading || isAllProductsLoading,
-		isRefetching: isRefetching || isRefetchingAll,
+		isLoading: isLoading || isLoadingAllProducts,
+		isRefetching,
 	};
 };
 

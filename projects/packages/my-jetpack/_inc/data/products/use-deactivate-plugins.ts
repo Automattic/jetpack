@@ -4,7 +4,6 @@ import useAnalytics from '../../hooks/use-analytics';
 import { QUERY_ACTIVATE_PRODUCT_KEY, REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
-import { useAllProducts } from './use-all-products';
 import useProducts from './use-products';
 import type { ProductCamelCase, ProductSnakeCase } from '../types';
 
@@ -33,12 +32,10 @@ const isPluginActive = ( detail: ProductCamelCase ) => {
 export const useDeactivatePlugins = ( productSlugs: string | string[] ) => {
 	const productIds = Array.isArray( productSlugs ) ? productSlugs : [ productSlugs ];
 
-	const { products } = useProducts( productIds );
+	const { products, refetch } = useProducts( productIds );
 	const { recordEvent } = useAnalytics();
 
 	const { createSuccessNotice } = useGlobalNotices();
-
-	const { refetch: refetchAllProducts } = useAllProducts();
 
 	const {
 		mutate: deactivate,
@@ -65,7 +62,7 @@ export const useDeactivatePlugins = ( productSlugs: string | string[] ) => {
 						setPluginActiveState( product.slug );
 					}
 				} );
-				refetchAllProducts().then( () => {
+				refetch().then( () => {
 					createSuccessNotice(
 						sprintf(
 							/* translators: %s is either the product name, i.e.- "Jetpack Backup" or the word "Plugins". */
