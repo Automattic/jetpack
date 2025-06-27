@@ -868,7 +868,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				break;
 			case 'zero-bs-crm':
 				if ( $is_active ) {
-					$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' );
+					$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
 					$response['details'] = array(
 						'hasExtension'         => $has_extension,
 						'canActivateExtension' => current_user_can( 'manage_options' ),
@@ -878,8 +878,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			case 'mailpoet':
 				$response['needsConnection'] = true;
 				if ( class_exists( '\MailPoet\Config\ServicesChecker' ) ) {
-					$checker                 = new \MailPoet\Config\ServicesChecker();
-					$response['isConnected'] = (bool) $checker->isMailPoetAPIKeyValid( false );
+					$checker = new \MailPoet\Config\ServicesChecker(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the class exists first
+					if ( method_exists( $checker, 'isMailPoetAPIKeyValid' ) ) {
+						$response['isConnected'] = (bool) $checker->isMailPoetAPIKeyValid( false ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the method exists first
+					}
 				}
 				break;
 		}
