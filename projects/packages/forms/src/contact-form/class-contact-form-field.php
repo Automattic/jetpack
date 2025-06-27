@@ -1528,7 +1528,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		Assets::register_script(
-			'jp-date-picker',
+			'jp-forms-date-picker',
 			'../../dist/contact-form/js/date-picker.js',
 			__FILE__,
 			array(
