@@ -3,9 +3,7 @@
 .jetpack-field-rating {
   display: inline-block;
   position: relative;
-  height: 50px;
-  line-height: 50px;
-  font-size: 50px;
+  font-size: 2em;
 }
 
 .jetpack-field-rating__label {
@@ -21,23 +19,39 @@
 }
 
 .jetpack-field-rating__label:nth-child(1) {
-  z-index: 5;
+  z-index: 10;
 }
 
 .jetpack-field-rating__label:nth-child(2) {
-  z-index: 4;
+  z-index: 9;
 }
 
 .jetpack-field-rating__label:nth-child(3) {
-  z-index: 3;
+  z-index: 8;
 }
 
 .jetpack-field-rating__label:nth-child(4) {
-  z-index: 2;
+  z-index: 7;
 }
 
 .jetpack-field-rating__label:nth-child(5) {
-  z-index: 1;
+  z-index: 6;
+}
+
+.jetpack-field-rating__label:nth-child(6) {
+  z-index: 5;
+}
+
+.jetpack-field-rating__label:nth-child(7) {
+  z-index: 4;
+}
+
+.jetpack-field-rating__label:nth-child(8) {
+  z-index: 3;
+}
+
+.jetpack-field-rating__label:nth-child(9) {
+  z-index: 2;
 }
 
 .jetpack-field-rating__label input {
@@ -47,24 +61,25 @@
   opacity: 0;
 }
 
-.jetpack-field-rating__label .icon {
+.jetpack-field-rating__label .rating-icon {
   float: left;
   color: transparent;
 }
 
-.jetpack-field-rating__label:last-child .icon {
-  color: #000;
+.jetpack-field-rating__label:last-child .rating-icon {
+  color: var( --jetpack--contact-form--background-color, #FFF );
+  -webkit-text-stroke: 2px var( --jetpack--contact-form--primary-color, #333 );
 }
 
 
-.jetpack-field-rating:not(:hover) .jetpack-field-rating__label input:checked ~ .icon,
+.jetpack-field-rating:not(:hover) .jetpack-field-rating__label input:checked ~ .rating-icon,
 
-.jetpack-field-rating:hover .jetpack-field-rating__label:hover input ~ .icon {
-  color: #09f;
+.jetpack-field-rating:hover .jetpack-field-rating__label:hover input ~ .rating-icon {
+  color: #333;
+  opacity: 1;
 }
 
-
-.jetpack-field-rating .jetpack-field-rating__label input:focus:not(:checked) ~ .icon:last-child {
-  color: #000;
-  text-shadow: 0 0 5px #09f;
+.jetpack-field-rating .jetpack-field-rating__label input:focus-visible ~ .rating-icon:last-child {
+  color: currentColor;
+  -webkit-text-stroke: 4px currentColor;
 }

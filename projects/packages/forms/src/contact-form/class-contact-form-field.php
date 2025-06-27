@@ -2073,13 +2073,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$spans = '';
 		for ( $i = 1; $i <= $max_rating; $i++ ) {
-			$spans .= '<label class="jetpack-field-rating__label"><input type="radio" data-wp-on--change="actions.onFieldChange" ' . checked( $i, $initial_rating, false ) . ( $required ? ' required aria-required="true" ' : '' ) . ' name="' . esc_attr( $id ) . '" value="' . esc_attr( $i ) . '" />' . str_repeat( '<span class="icon">★</span>', $i ) . '</label>';
+			$spans .= '<label class="jetpack-field-rating__label"><input type="radio" data-wp-on--change="actions.onFieldChange" ' . checked( $i, $initial_rating, false ) . ( $required ? ' required aria-required="true" ' : '' ) . ' name="' . esc_attr( $id ) . '" value="' . esc_attr( $i ) . '" />' . str_repeat( '<span class="rating-icon">★</span>', $i ) . '</label>';
 		}
 
 		return $label_html . sprintf(
 			'<div class="jetpack-field-rating">%1$s</div>',
 			$spans
-		);
+		) . $this->get_error_div( $id, 'rating' );
 	}
 
 	/**
