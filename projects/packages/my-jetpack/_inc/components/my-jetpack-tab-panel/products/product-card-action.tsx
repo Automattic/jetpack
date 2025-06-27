@@ -80,6 +80,33 @@ function ActivationToggle( {
 	);
 }
 
+const noop = () => {};
+
+/**
+ * Renders a disabled toggle for a product card when the standalone plugin is missing
+ *
+ * @param {ProductCardActionProps} props - Component props
+ *
+ * @return The rendered component
+ */
+function DisabledToggleWithPluginMissing( { product }: ProductCardActionProps ) {
+	return (
+		<Flex gap={ 4 }>
+			<Badge intent="error">{ __( 'Missing plugin', 'jetpack-my-jetpack' ) }</Badge>
+			<FormToggle
+				disabled
+				checked={ false }
+				onChange={ noop }
+				aria-label={ sprintf(
+					/* translators: %s is the product name */
+					__( 'Activate %s', 'jetpack-my-jetpack' ),
+					product.name
+				) }
+			/>
+		</Flex>
+	);
+}
+
 /**
  * Renders the action for a product card
  *
@@ -90,6 +117,11 @@ function ActivationToggle( {
 export function ProductCardAction( { product }: ProductCardActionProps ) {
 	// If we already have a standalone plugin installed, we render the activation toggle
 	if ( product.standalonePluginInfo?.isStandaloneInstalled ) {
+		// Backup standalone plugin cannot be activated via the API call at the time of writing.
+		if ( product.slug === 'backup' && ! product.standalonePluginInfo.isStandaloneActive ) {
+			return <DisabledToggleWithPluginMissing product={ product } />;
+		}
+
 		return (
 			<ActivationToggle
 				product={ product }
