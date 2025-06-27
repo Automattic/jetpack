@@ -115,13 +115,13 @@ function DisabledToggleWithPluginMissing( { product }: ProductCardActionProps ) 
  * @return The rendered component
  */
 export function ProductCardAction( { product }: ProductCardActionProps ) {
+	// Backup standalone plugin cannot be activated via the API call at the time of writing.
+	if ( product.slug === 'backup' && ! product.standalonePluginInfo.isStandaloneActive ) {
+		return <DisabledToggleWithPluginMissing product={ product } />;
+	}
+
 	// If we already have a standalone plugin installed, we render the activation toggle
 	if ( product.standalonePluginInfo?.isStandaloneInstalled ) {
-		// Backup standalone plugin cannot be activated via the API call at the time of writing.
-		if ( product.slug === 'backup' && ! product.standalonePluginInfo.isStandaloneActive ) {
-			return <DisabledToggleWithPluginMissing product={ product } />;
-		}
-
 		return (
 			<ActivationToggle
 				product={ product }
