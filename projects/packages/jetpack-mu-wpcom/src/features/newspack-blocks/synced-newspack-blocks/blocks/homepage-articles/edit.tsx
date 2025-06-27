@@ -6,8 +6,7 @@
 import QueryControls from '../../components/query-controls';
 import { postsBlockSelector, postsBlockDispatch, isBlogPrivate, shouldReflow } from './utils';
 import {
-	formatAvatars,
-	formatByline,
+	getBylineHTML,
 	formatSponsorLogos,
 	formatSponsorByline,
 	getPostStatusLabel,
@@ -236,14 +235,9 @@ class Edit extends Component< HomepageArticlesProps > {
 
 						{ showAuthor &&
 							! post.newspack_listings_hide_author &&
-							showAvatar &&
 							( ! post.newspack_post_sponsors || post.newspack_sponsors_show_author ) &&
-							formatAvatars( post.newspack_author_info ) }
-
-						{ showAuthor &&
-							! post.newspack_listings_hide_author &&
-							( ! post.newspack_post_sponsors || post.newspack_sponsors_show_author ) &&
-							formatByline( post.newspack_author_info ) }
+							<RawHTML className="byline-container">{ getBylineHTML( post, showAvatar ) }</RawHTML>
+						}
 
 						{ showDate && ! post.newspack_listings_hide_publish_date && (
 							<time className="entry-date published" key="pub-date">
@@ -275,6 +269,7 @@ class Edit extends Component< HomepageArticlesProps > {
 			postsToShow,
 			categories,
 			includeSubcategories,
+			categoryJoinType,
 			customTaxonomies,
 			columns,
 			postType,
@@ -369,6 +364,8 @@ class Edit extends Component< HomepageArticlesProps > {
 						onCategoriesChange={ handleAttributeChange( 'categories' ) }
 						includeSubcategories={ includeSubcategories }
 						onIncludeSubcategoriesChange={ handleAttributeChange( 'includeSubcategories' ) }
+						categoryJoinType={ categoryJoinType }
+						onCategoryJoinTypeChange={ handleAttributeChange( 'categoryJoinType' ) }
 						tags={ tags }
 						onTagsChange={ handleAttributeChange( 'tags' ) }
 						onCustomTaxonomiesChange={ handleAttributeChange( 'customTaxonomies' ) }
@@ -827,7 +824,7 @@ class Edit extends Component< HomepageArticlesProps > {
 					 * The "More" button option is hidden for private sites, so we should
 					 * also hide the button in case it was previously enabled.
 					 */
-					<div className="editor-styles-wrapper wpnbha__wp-block-button__wrapper">
+					<div className="wpnbha__wp-block-button__wrapper">
 						<div className="wp-block-button">
 							<RichText
 								placeholder={ __( 'Load more posts', 'jetpack-mu-wpcom' ) }

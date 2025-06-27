@@ -30,7 +30,7 @@ Other than the `synced-newspack-blocks` directory, the above are files written i
 
 The `synced-newspack-blocks` is synced with the Newspack Blocks repository. *Please make all improvements and additions upstream in the Newspack Blocks repo. Do not make any direct changes to files in this directory, as the next synchronization will overwrite them.*
 
-Once your changes land in the Newspack Blocks repo, coordinate with the team (over issues/PRs) to [make a new release](https://github.com/Automattic/newspack-blocks/releases). Once you have the release ID (e.g. `v4.0.0`, you start a sync.
+Once your changes land in the Newspack Blocks repo, coordinate with the team (over issues/PRs) to [make a new release](https://github.com/Automattic/newspack-blocks/releases). Once you have the release ID (e.g. `v4.0.0`), you start a sync.
 
 While in the `projects/packages/jetpack-mu-wpcom` directory, run the following:
 

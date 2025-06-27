@@ -87,7 +87,21 @@ export const SingleSeries: Story = {
 export const TimeSeries: Story = {
 	args: {
 		...Default.args,
-		data: [ trafficData[ 0 ] ],
+		data: [
+			{
+				...trafficData[ 0 ],
+				label: 'Data with dateString and date',
+				data: [
+					...trafficData[ 0 ].data,
+					{ dateString: '2024-01-31', value: 2230 },
+					{ dateString: '2024-02-01', value: 2580 },
+					{ date: new Date( '2024-02-02 00:00:00' ), value: 3500 },
+					{ dateString: '2024-02-03 00:00:00', value: 1500 },
+					{ dateString: '2024-02-04', value: 2500 },
+					{ dateString: '2024-02-05 00:00', value: 3000 },
+				],
+			},
+		],
 		options: {
 			axis: {
 				x: {
