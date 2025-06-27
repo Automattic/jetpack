@@ -101,6 +101,8 @@ test.describe( 'Critical CSS module', () => {
 	test( 'User can access the Critical advanced recommendations and go back to settings page', async () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
 
+		await execWpCommand( 'plugin activate e2e-critical-css-force-errors' );
+
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
 		expect(
