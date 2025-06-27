@@ -17,12 +17,12 @@ export const CATEGORY_CARDS_AND_MODULES: {
 	};
 } = {
 	security: {
-		cards: [ 'backup', 'scan', 'anti-spam' ],
+		cards: [ 'backup', 'protect', 'anti-spam' ],
 		modules: [
+			// No prettier please
 			'account-protection',
 			'monitor',
 			'notes',
-			'protect',
 			'sso',
 			'verification-tools',
 			'waf',
@@ -90,7 +90,7 @@ export const PRODUCT_ICONS: {
 	boost: BoostIcon,
 	'jetpack-ai': JetpackAiIcon,
 	crm: CrmIcon,
-	scan: ProtectIcon,
+	protect: ProtectIcon,
 	search: SearchIcon,
 	social: SocialIcon,
 	stats: StatsIcon,

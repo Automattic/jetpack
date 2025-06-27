@@ -4,7 +4,7 @@ export const JETPACK_PRODUCTS_WITH_CARD = [
 	'boost',
 	'crm',
 	'jetpack-ai',
-	'scan',
+	'protect',
 	'search',
 	'social',
 	'stats',
