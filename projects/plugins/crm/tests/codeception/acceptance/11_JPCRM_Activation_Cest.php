@@ -30,6 +30,9 @@ class JPCRM_Activation_Cest {
 		$I->amOnPluginsPage();
 		$I->seePluginInstalled( 'jetpack-crm' );
 
+		// Ensure no other plugins are selected for bulk actions
+		$I->uncheckOption( '#the-list input[type="checkbox"]' );
+
 		// Activate just this plugin
 		$I->activatePlugin( 'jetpack-crm' );
 
