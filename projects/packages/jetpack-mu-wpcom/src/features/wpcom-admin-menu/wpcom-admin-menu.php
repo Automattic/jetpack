@@ -500,9 +500,9 @@ function wpcom_add_plugins_menu() {
 		add_submenu_page(
 			'plugins.php',
 			/* translators: Name of the Plugins submenu that links to the Plugins Marketplace */
-			__( 'Marketplace', 'jetpack-mu-wpcom' ),
+				__( 'Marketplace', 'jetpack-mu-wpcom' ),
 			/* translators: Name of the Plugins submenu that links to the Plugins Marketplace */
-			__( 'Marketplace', 'jetpack-mu-wpcom' ),
+				__( 'Marketplace', 'jetpack-mu-wpcom' ),
 			'manage_options', // Roughly means "is a site admin"
 			'https://wordpress.com/plugins/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
