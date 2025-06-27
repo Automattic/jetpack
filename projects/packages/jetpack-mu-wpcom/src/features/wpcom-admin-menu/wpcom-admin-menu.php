@@ -203,23 +203,12 @@ add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
  * Adds WordPress.com submenu items related to Jetpack under the Jetpack admin menu.
  */
 function wpcom_add_jetpack_submenu() {
-	global $menu;
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	$is_atomic_site          = ! $is_simple_site;
 	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 
 	if ( ! $uses_wp_admin_interface ) {
-		// Move the Jetpack menu after the CPTs menus.
-		foreach ( $menu as $i => $item ) {
-			if ( 'jetpack' === $item[2] ) {
-				unset( $menu[ $i ] ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$menu[51] = $item; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-
-				// Add a menu separator before Jetpack.
-				$menu[50] = array( '', 'manage_options', wp_unique_id( 'separator-custom-' ), '', 'wp-menu-separator' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				break;
-			}
-		}
+		return;
 	}
 
 	if ( $is_atomic_site && ( ( new Status() )->is_offline_mode() || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) ) {
@@ -247,88 +236,78 @@ function wpcom_add_jetpack_submenu() {
 	$podcasting_url   = 'https://wordpress.com/settings/podcasting/' . $domain;
 
 	// Add submenu items that link to WordPress.com.
-	if ( wpcom_can_link_to_calypso() ) {
+	add_submenu_page(
+		'jetpack',
+		__( 'Activity Log', 'jetpack-mu-wpcom' ),
+		__( 'Activity Log', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		$activity_log_url,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
+
+	add_submenu_page(
+		'jetpack',
+		__( 'VaultPress', 'jetpack-mu-wpcom' ),
+		__( 'VaultPress', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		$vaultpress_url,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
+
+	add_submenu_page(
+		'jetpack',
+		__( 'Monetize', 'jetpack-mu-wpcom' ),
+		__( 'Monetize', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		$monetize_url,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
+
+	if ( $is_atomic_site ) {
 		add_submenu_page(
 			'jetpack',
-			__( 'Activity Log', 'jetpack-mu-wpcom' ),
-			__( 'Activity Log', 'jetpack-mu-wpcom' ),
+			__( 'Scan', 'jetpack-mu-wpcom' ),
+			__( 'Scan', 'jetpack-mu-wpcom' ),
 			'manage_options',
-			$activity_log_url,
+			$scan_url,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
+	}
 
+	if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
 		add_submenu_page(
 			'jetpack',
-			$uses_wp_admin_interface ? __( 'VaultPress', 'jetpack-mu-wpcom' ) : __( 'Backup', 'jetpack-mu-wpcom' ),
-			$uses_wp_admin_interface ? __( 'VaultPress', 'jetpack-mu-wpcom' ) : __( 'Backup', 'jetpack-mu-wpcom' ),
+			__( 'Subscribers', 'jetpack-mu-wpcom' ),
+			__( 'Subscribers', 'jetpack-mu-wpcom' ),
 			'manage_options',
-			$vaultpress_url,
+			$subscribers_url,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
-
-		if ( $is_atomic_site ) {
-			add_submenu_page(
-				'jetpack',
-				__( 'Scan', 'jetpack-mu-wpcom' ),
-				__( 'Scan', 'jetpack-mu-wpcom' ),
-				'manage_options',
-				$scan_url,
-				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			);
-		}
+	} else {
+		$subscribers_dashboard = new Subscribers_Dashboard();
+		$subscribers_dashboard->add_wp_admin_submenu();
 	}
 
-	if ( $uses_wp_admin_interface ) {
-		if ( wpcom_can_link_to_calypso() ) {
-			add_submenu_page(
-				'jetpack',
-				__( 'Monetize', 'jetpack-mu-wpcom' ),
-				__( 'Monetize', 'jetpack-mu-wpcom' ),
-				'manage_options',
-				$monetize_url,
-				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			);
-		}
-
-		if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
-			if ( wpcom_can_link_to_calypso() ) {
-				add_submenu_page(
-					'jetpack',
-					__( 'Subscribers', 'jetpack-mu-wpcom' ),
-					__( 'Subscribers', 'jetpack-mu-wpcom' ),
-					'manage_options',
-					$subscribers_url,
-					null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-				);
-			}
-		} else {
-			$subscribers_dashboard = new Subscribers_Dashboard();
-			$subscribers_dashboard->add_wp_admin_submenu();
-		}
-
-		if ( wpcom_can_link_to_calypso() ) {
-			if ( $is_simple_site ) {
-				add_submenu_page(
-					'jetpack',
-					__( 'Newsletter', 'jetpack-mu-wpcom' ),
-					__( 'Newsletter', 'jetpack-mu-wpcom' ),
-					'manage_options',
-					$newsletter_url,
-					null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-				);
-			}
-
-			// Jetpack > Podcasting
-			add_submenu_page(
-				'jetpack',
-				__( 'Podcasting', 'jetpack-mu-wpcom' ),
-				__( 'Podcasting', 'jetpack-mu-wpcom' ),
-				'manage_options',
-				$podcasting_url,
-				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			);
-		}
+	if ( $is_simple_site ) {
+		add_submenu_page(
+			'jetpack',
+			__( 'Newsletter', 'jetpack-mu-wpcom' ),
+			__( 'Newsletter', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			$newsletter_url,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
 	}
+
+	// Jetpack > Podcasting
+	add_submenu_page(
+		'jetpack',
+		__( 'Podcasting', 'jetpack-mu-wpcom' ),
+		__( 'Podcasting', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		$podcasting_url,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
 
 	// Re-order menu.
 	global $submenu;
@@ -521,9 +500,9 @@ function wpcom_add_plugins_menu() {
 		add_submenu_page(
 			'plugins.php',
 			/* translators: Name of the Plugins submenu that links to the Plugins Marketplace */
-				__( 'Marketplace', 'jetpack-mu-wpcom' ),
+			__( 'Marketplace', 'jetpack-mu-wpcom' ),
 			/* translators: Name of the Plugins submenu that links to the Plugins Marketplace */
-				__( 'Marketplace', 'jetpack-mu-wpcom' ),
+			__( 'Marketplace', 'jetpack-mu-wpcom' ),
 			'manage_options', // Roughly means "is a site admin"
 			'https://wordpress.com/plugins/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal

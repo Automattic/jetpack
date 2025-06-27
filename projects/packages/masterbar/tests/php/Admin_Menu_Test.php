@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu as Jetpack_Admin_UI_Admin;
 use Automattic\Jetpack\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -104,7 +105,7 @@ class Admin_Menu_Test extends TestCase {
 
 		static::$admin_menu->reregister_menu_items();
 
-		$this->assertCount( 17, $menu, 'Admin menu should not have unexpected top menu items.' );
+		$this->assertCount( 18, $menu, 'Admin menu should not have unexpected top menu items.' );
 
 		$this->assertEquals( static::$submenu_data[''], $submenu[''], 'Submenu items without parent should stay the same.' );
 	}
@@ -329,6 +330,21 @@ class Admin_Menu_Test extends TestCase {
 		static::$admin_menu->add_options_menu();
 
 		$this->assertSame( 'https://wordpress.com/settings/general/' . static::$domain, $submenu['options-general.php'][0][2] );
+	}
+
+	/**
+	 * Tests add_jetpack_menu
+	 * §
+	 */
+	public function test_add_jetpack_menu() {
+		global $submenu;
+
+		static::$admin_menu->register_nav_unification_jetpack_menus();
+		Jetpack_Admin_UI_Admin::admin_menu_hook_callback();
+		static::$admin_menu->add_jetpack_menu();
+
+		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][3][2] );
+		$this->assertSame( 'https://wordpress.com/backup/' . static::$domain, $submenu['jetpack'][4][2] );
 	}
 
 	/**
