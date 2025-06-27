@@ -2496,6 +2496,9 @@ importers:
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.26.0
         version: 6.26.0(webpack@5.94.0)
+      '@wordpress/dom-ready':
+        specifier: 4.25.0
+        version: 4.25.0
       '@wordpress/element':
         specifier: 6.26.0
         version: 6.26.0
@@ -8873,6 +8876,10 @@ packages:
 
   '@wordpress/deprecated@4.26.0':
     resolution: {integrity: sha512-frBJqCKlMrKeUcVgbp2hq7MKeCg7hQCCMCTTqDXaRMa0+oYDPFKx3gPx529uSMOWxkzJHz+mdr5lHrFzElM6eQ==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
+  '@wordpress/dom-ready@4.25.0':
+    resolution: {integrity: sha512-HvGxncRhskqrkwyIPVsfznToFtSr6X0zBrIMHK7bgwGGiMr+yz5jYX3wnY1AsUDSr95ezhbCTdE2rNmvFkCD0g==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/dom-ready@4.26.0':
@@ -21005,6 +21012,10 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.27.6
       '@wordpress/hooks': 4.26.0
+
+  '@wordpress/dom-ready@4.25.0':
+    dependencies:
+      '@babel/runtime': 7.27.6
 
   '@wordpress/dom-ready@4.26.0':
     dependencies:
