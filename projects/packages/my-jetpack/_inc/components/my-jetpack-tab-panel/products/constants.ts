@@ -1,11 +1,10 @@
 export const JETPACK_PRODUCTS_WITH_CARD = [
-	'ai',
-	'jetpack-ai',
 	'anti-spam',
 	'backup',
 	'boost',
 	'crm',
-	'scan',
+	'jetpack-ai',
+	'protect',
 	'search',
 	'social',
 	'stats',
@@ -23,6 +22,8 @@ export const JETPACK_PRODUCTS_WITHOUT_CARD = [
 	'site-accelerator',
 ] as const;
 
+export const PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN = [ 'anti-spam', 'boost', 'crm' ];
+
 /**
  * Non-paid here means that the module is available for free users,
  * i.e. it does not have a paid plan associated with it.
@@ -34,11 +35,13 @@ export const JETPACK_NON_PAID_MODULES = [
 	'carousel',
 	'comment-likes',
 	'comments',
+	'contact-form',
 	'copy-post',
 	'google-fonts',
 	'gravatar-hovercards',
 	'infinite-scroll',
 	'json-api',
+	'latex',
 	'likes',
 	'markdown',
 	'monitor',
@@ -64,8 +67,6 @@ export const JETPACK_NON_PAID_MODULES = [
 ] as const;
 
 export const JETPACK_PAID_MODULES = [
-	'contact-form',
-	'latex',
 	'publicize',
 	'search',
 	'stats',
