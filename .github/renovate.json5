@@ -1,5 +1,5 @@
 {
-	extends: [ 'config:recommended', 'group:definitelyTyped' ],
+	extends: [ 'config:recommended', 'abandonments:recommended', 'group:definitelyTyped' ],
 	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
 	reviewers: [ 'team:jetpack-monorepo' ],
 	prHourlyLimit: 1,
