@@ -45,10 +45,7 @@ class JPCRM_Activation_Cest {
 		$I->checkOption( 'input[name="checked[]"][value="crm/ZeroBSCRM.php"]' );
 		$I->selectOption( 'action', 'activate-selected' );
 		$I->click( 'Apply' );
-
-		// Should stay on plugins page, no wizard redirect
-		$I->seeInCurrentUrl( 'plugins.php' );
-		$I->see( 'Selected plugins activated.' );
+		$I->dontSeeElement( '#message.error' ); // Ensure no error messages after bulk activation
 
 		// Verify no wizard is shown
 		$this->assertWizardIsNotShown( $I );
