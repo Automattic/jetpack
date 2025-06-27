@@ -79,21 +79,22 @@ require $test_root . '/includes/functions.php';
  * Load Jetpack CRM.
  */
 function _jpcrm_manually_load_plugin() {
+	// Load the main plugin file
 	require_once JETPACK_CRM_TESTS_ROOT . '/../../ZeroBSCRM.php';
 
-	// Queue the installation to run after init
-	add_action(
-		'init',
-		function () {
-			global $zbs;
-			// Check if $zbs is initialized
-			if ( isset( $zbs ) && is_object( $zbs ) && method_exists( $zbs, 'install' ) ) {
-				$zbs->install();
-				zeroBSCRM_notifyme_createDBtable();
-			}
-		},
-		0
-	); // Priority 0 to run as early as possible in init
+	// For tests, we need to manually initialize the plugin
+	global $zbs;
+	if ( class_exists( 'zeroBSCRM' ) && ! isset( $zbs ) ) {
+		$zbs = zeroBSCRM::instance();
+	}
+
+	// Run installation if needed
+	if ( isset( $zbs ) && is_object( $zbs ) && method_exists( $zbs, 'install' ) ) {
+		$zbs->install();
+		if ( function_exists( 'zeroBSCRM_notifyme_createDBtable' ) ) {
+			zeroBSCRM_notifyme_createDBtable();
+		}
+	}
 }
 
 tests_add_filter( 'muplugins_loaded', '_jpcrm_manually_load_plugin' );
