@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.13.10] - 2025-06-27
 ### Changed
-- Refactored connection error handling so all prompts have same messages. [#44042]
+- Refactor connection error handling so all prompts have the same messages. [#44042]
 
 ## [6.13.9] - 2025-06-24
 ### Changed
