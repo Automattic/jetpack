@@ -1549,7 +1549,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					'offset' => intval( get_option( 'start_of_week', 1 ) ),
 					'lang'   => array(
 						// translators: These are the two letter abbreviated name of the week.
-						'days'      => array( __( 'Su', 'jetpack-forms' ), __( 'Mo', 'jetpack-forms' ), __( 'Tu', 'jetpack-forms' ), __( 'We', 'jetpack-forms' ), __( 'Th', 'jetpack-forms' ), __( 'Fr', 'jetpack-forms' ), __( 'Sa', 'jetpack-forms' ) ),
+						'days'      => array(
+							_x( 'Su', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
+							_x( 'Mo', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
+							_x( 'Tu', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
+							_x( 'We', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
+							_x( 'Th', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
+							_x( 'Fr', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
+							_x( 'Sa', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
+						),
 						'months'    => array(
 							__( 'January', 'jetpack-forms' ),
 							__( 'February', 'jetpack-forms' ),
