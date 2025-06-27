@@ -8,6 +8,7 @@ import { useDeactivatePlugins } from '../../../data/products/use-deactivate-plug
 import useProduct from '../../../data/products/use-product';
 import { ProductCamelCase } from '../../../data/types';
 import { PRODUCT_STATUSES } from '../../product-card';
+import { PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN } from './constants';
 
 export type ProductCardActionProps = {
 	product: ProductCamelCase;
@@ -80,33 +81,6 @@ function ActivationToggle( {
 	);
 }
 
-const noop = () => {};
-
-/**
- * Renders a disabled toggle for a product card when the standalone plugin is missing
- *
- * @param {ProductCardActionProps} props - Component props
- *
- * @return The rendered component
- */
-function DisabledToggleWithPluginMissing( { product }: ProductCardActionProps ) {
-	return (
-		<Flex gap={ 4 }>
-			<Badge intent="error">{ __( 'Missing plugin', 'jetpack-my-jetpack' ) }</Badge>
-			<FormToggle
-				disabled
-				checked={ false }
-				onChange={ noop }
-				aria-label={ sprintf(
-					/* translators: %s is the product name */
-					__( 'Activate %s', 'jetpack-my-jetpack' ),
-					product.name
-				) }
-			/>
-		</Flex>
-	);
-}
-
 /**
  * Renders the action for a product card
  *
@@ -115,13 +89,11 @@ function DisabledToggleWithPluginMissing( { product }: ProductCardActionProps ) 
  * @return The rendered component
  */
 export function ProductCardAction( { product }: ProductCardActionProps ) {
-	// Backup standalone plugin cannot be activated via the API call at the time of writing.
-	if ( product.slug === 'backup' && ! product.standalonePluginInfo.isStandaloneActive ) {
-		return <DisabledToggleWithPluginMissing product={ product } />;
-	}
-
 	// If we already have a standalone plugin installed, we render the activation toggle
-	if ( product.standalonePluginInfo?.isStandaloneInstalled ) {
+	if (
+		PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN.includes( product.slug ) &&
+		product.standalonePluginInfo?.isStandaloneInstalled
+	) {
 		return (
 			<ActivationToggle
 				product={ product }

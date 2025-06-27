@@ -22,6 +22,8 @@ export const JETPACK_PRODUCTS_WITHOUT_CARD = [
 	'site-accelerator',
 ] as const;
 
+export const PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN = [ 'anti-spam', 'boost', 'crm' ];
+
 /**
  * Non-paid here means that the module is available for free users,
  * i.e. it does not have a paid plan associated with it.
