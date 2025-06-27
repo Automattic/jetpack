@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.0] - 2025-06-27
 ### Changed
-- Create custom explat client with public-api fetch for assignments [#44081]
+- Create custom explat client with public-api fetch for assignments. [#44081]
 
 ## [0.2.26] - 2025-06-24
 ### Added
