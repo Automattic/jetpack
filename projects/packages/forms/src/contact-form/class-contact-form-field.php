@@ -2100,15 +2100,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$label_html = $this->render_label( 'rating', $id, $label, $required, $required_field_text );
 
-		// Font size can be controlled via block styles (typography support).
-		/* No inline wrapper style – typography support handles font size. */
-
 		$spans = '';
 		for ( $i = 1; $i <= $max_rating; $i++ ) {
 			$spans .= sprintf(
 				'<span role="presentation"><span role="button" tabindex="0" data-wp-context="{&quot;position&quot;:%1$d}" data-value="%1$d" data-wp-on--click="actions.setRating" class="%3$s" data-wp-class--is-rating-unfilled="state.isUnfilled">%2$s</span></span>',
 				$i,
-				html_entity_decode( '&#9733;' ),
+				html_entity_decode( '&#9733;', ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 				( $i > $initial_rating ) ? 'is-rating-unfilled' : ''
 			);
 		}
