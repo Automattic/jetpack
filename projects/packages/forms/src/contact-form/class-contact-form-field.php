@@ -2073,7 +2073,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'fieldType'    => 'rating',
 			'rating'       => $initial_rating,
 			'maxRating'    => $max_rating,
-			'ratingString' => $initial_rating . '/' . (int) $max_rating,
+			'ratingString' => $initial_rating . '/' . $max_rating,
 		);
 
 		$interactive_attrs = ' data-wp-interactive="jetpack/field-rating" ' . wp_interactivity_data_wp_context( $context );
