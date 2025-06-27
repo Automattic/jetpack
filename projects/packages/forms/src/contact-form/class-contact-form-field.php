@@ -1458,6 +1458,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		static $is_loaded = false;
 		$this->set_invalid_message( 'date', __( 'Please enter a valid date.', 'jetpack-forms' ) );
 		// WARNING: sync data with DATE_FORMATS in jetpack-field-datepicker.js
 		$formats = array(
@@ -1541,7 +1542,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		/**
 		 * Filter the localized date picker script.
 		 */
-		if ( ! apply_filters( 'jetpack_has_localized_date_picker', false ) ) {
+		if ( ! $is_loaded ) {
 			\wp_localize_script(
 				'jp-forms-date-picker',
 				'jpDatePicker',
@@ -1590,8 +1591,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					),
 				)
 			);
-			// Only include the localized script once.
-			add_filter( 'jetpack_has_localized_date_picker', '__return_true' );
+			$is_loaded = true;
 		}
 
 		return $field;
