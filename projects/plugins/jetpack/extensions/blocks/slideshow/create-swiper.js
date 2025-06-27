@@ -41,7 +41,16 @@ export default async function createSwiper(
 		// Load Swiper from window scope.
 		Swiper = window.JetpackSwiper;
 	} else {
-		// Load the file.
+		const cssURL = window.Jetpack_Block_Assets_Base_Url + 'swiper.css';
+		// Load the CSS file first
+		if ( ! document.querySelector( `link[href="${ cssURL }"]` ) ) {
+			const link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.href = cssURL;
+			document.head.appendChild( link );
+		}
+
+		// Load the JS file.
 		await import( /* webpackIgnore: true */ window.Jetpack_Block_Assets_Base_Url + 'swiper.js' );
 
 		if ( ! window.JetpackSwiper ) {
