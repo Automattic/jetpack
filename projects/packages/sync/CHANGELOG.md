@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.14.2] - 2025-06-27
 ### Changed
-- Sync: Added taxonomies as empty array whne using get_terms for better support of plugins/themes [#44104]
-- Updates: Prevent fatals when data is not in expected array format [#44005]
+- Sync: Add taxonomies as empty array when using `get_terms` for better support of plugins/themes. [#44104]
+- Updates: Prevent fatals when data is not in expected array format. [#44005]
 
 ## [4.14.1] - 2025-06-03
 ### Fixed
