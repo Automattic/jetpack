@@ -136,9 +136,7 @@ function defaults(): IDatePickerOptions {
 			return isNaN( date.valueOf() ) ? now() : date;
 		},
 
-		dateClass: function () {
-			return '';
-		},
+		dateClass: () => '',
 
 		inRange: function () {
 			return true;
