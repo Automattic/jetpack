@@ -110,7 +110,7 @@ export function ProductCardAction( { product }: ProductCardActionProps ) {
 
 		default:
 			// We assume that the product is active but can't be deactivated
-			// For example Scan
+			// For example AI Assistant.
 			return <ActivationToggle product={ product } disabled />;
 	}
 }
