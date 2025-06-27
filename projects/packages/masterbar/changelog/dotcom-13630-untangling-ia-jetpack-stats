@@ -1,4 +1,4 @@
 Significance: minor
 Type: removed
 
-Admin Menu: Removed registration of Jetpack menu (moved to jetpack-mu-wpcom)
+Admin Menu: Show "Jetpack > Stats" to Calypso users
