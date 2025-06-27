@@ -24,7 +24,7 @@ export default async function wpcomLimitedRequest< T >( params: object ): Promis
 		throw new Error( 'Too many requests' );
 	}
 
-	return apiFetch< T >( params ).finally( () => {
+	return apiFetch( params ).finally( () => {
 		concurrentCounter -= 1;
-	} );
+	} ) as Promise< T >;
 }

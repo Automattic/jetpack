@@ -1,4 +1,6 @@
-import type { StoryFn, StoryObj } from '@storybook/react';
+import React from 'react';
+import { legendArgTypes } from '../../../stories/legend-config';
+import type { StoryFn } from '@storybook/react';
 import type { ComponentType } from 'react';
 
 /**
@@ -24,7 +26,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 		customArgTypes?: Record< string, unknown >;
 	} = {}
 ) {
-	const Template: StoryFn< T > = args => ChartComponent( args );
+	const Template: StoryFn< T > = ( args: T ) => React.createElement( ChartComponent, args );
 
 	const legendStoryArgs = {
 		...baseStoryArgs,
@@ -32,7 +34,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 		legendOrientation: 'horizontal' as const,
 	};
 
-	const stories: Record< string, StoryObj< T > > = {
+	const stories = {
 		Default: {
 			render: Template,
 			args: {
@@ -44,7 +46,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			render: Template,
 			args: {
 				...legendStoryArgs,
-				legendAlign: 'right',
+				legendAlignmentHorizontal: 'right',
 				legendAlignmentVertical: 'top',
 			},
 		},
@@ -53,7 +55,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			render: Template,
 			args: {
 				...legendStoryArgs,
-				legendAlign: 'left',
+				legendAlignmentHorizontal: 'left',
 				legendAlignmentVertical: 'top',
 			},
 		},
@@ -62,7 +64,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			render: Template,
 			args: {
 				...legendStoryArgs,
-				legendAlign: 'center',
+				legendAlignmentHorizontal: 'center',
 				legendAlignmentVertical: 'top',
 			},
 		},
@@ -71,7 +73,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			render: Template,
 			args: {
 				...legendStoryArgs,
-				legendAlign: 'left',
+				legendAlignmentHorizontal: 'left',
 				legendAlignmentVertical: 'bottom',
 			},
 		},
@@ -80,7 +82,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			render: Template,
 			args: {
 				...legendStoryArgs,
-				legendAlign: 'right',
+				legendAlignmentHorizontal: 'right',
 				legendAlignmentVertical: 'bottom',
 			},
 		},
@@ -90,7 +92,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 			args: {
 				...legendStoryArgs,
 				legendOrientation: 'vertical',
-				legendAlign: 'right',
+				legendAlignmentHorizontal: 'right',
 				legendAlignmentVertical: 'top',
 			},
 		},
@@ -112,23 +114,5 @@ export function createLegendStories< T extends Record< string, unknown > >(
 	return stories;
 }
 
-/**
- * Standard legend argTypes for Storybook controls
- */
-export const legendArgTypes = {
-	legendAlign: {
-		control: 'select',
-		options: [ 'left', 'center', 'right' ],
-	},
-	legendAlignmentVertical: {
-		control: 'select',
-		options: [ 'top', 'bottom' ],
-	},
-	legendOrientation: {
-		control: 'select',
-		options: [ 'horizontal', 'vertical' ],
-	},
-	showLegend: {
-		control: 'boolean',
-	},
-};
+// Re-export legendArgTypes for convenience
+export { legendArgTypes };
