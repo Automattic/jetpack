@@ -88,14 +88,22 @@ function ActivationToggle( {
  * @return The rendered component
  */
 export function ProductCardAction( { product }: ProductCardActionProps ) {
-	if ( product.standalonePluginInfo?.isStandaloneActive ) {
-		return <ActivationToggle product={ product } />;
+	// If we already have a standalone plugin installed, we render the activation toggle
+	if ( product.standalonePluginInfo?.isStandaloneInstalled ) {
+		return (
+			<ActivationToggle
+				product={ product }
+				active={ product.standalonePluginInfo.isStandaloneActive }
+			/>
+		);
 	}
 
 	switch ( product.status ) {
 		case PRODUCT_STATUSES.INACTIVE:
 		case PRODUCT_STATUSES.MODULE_DISABLED:
 		case PRODUCT_STATUSES.NEEDS_ACTIVATION:
+		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
+		case PRODUCT_STATUSES.ABSENT:
 		case PRODUCT_STATUSES.NEEDS_PLAN:
 		case PRODUCT_STATUSES.CAN_UPGRADE:
 			return <UpgradeAction product={ product } />;
