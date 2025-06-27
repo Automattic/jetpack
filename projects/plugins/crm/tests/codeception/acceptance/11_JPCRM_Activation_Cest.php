@@ -42,13 +42,13 @@ class JPCRM_Activation_Cest {
 		$I->amOnPluginsPage();
 
 		// Activate multiple plugins (even if it's just this one)
-		$I->checkOption( '#the-list input[type="checkbox"]' );
+		$I->checkOption( 'input[name="checked[]"][value="jetpack-crm/jetpack-crm.php"]' );
 		$I->selectOption( 'action', 'activate-selected' );
 		$I->click( 'Apply' );
 
 		// Should stay on plugins page, no wizard redirect
 		$I->seeInCurrentUrl( 'plugins.php' );
-		$I->see( 'Plugin activated.' );
+		$I->see( 'Selected plugins activated.' );
 
 		// Verify no wizard is shown
 		$this->assertWizardIsNotShown( $I );
