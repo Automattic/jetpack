@@ -1672,220 +1672,35 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 
-		if ( 'publish' === $feedback_status ) {
-			// Increase count of unread feedback.
-			$unread = (int) get_option( 'feedback_unread_count', 0 ) + 1;
-			update_option( 'feedback_unread_count', $unread );
-		}
-
 		if ( defined( 'AKISMET_VERSION' ) ) {
 			update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
 		}
 
-		/**
-		 * Fires after the feedback post for the contact form submission has been inserted.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 8.6.0
-		 *
-		 * @param integer $post_id The post id that contains the contact form data.
-		 * @param array   $this->fields An array containg the form's Contact_Form_Field objects.
-		 * @param boolean $is_spam Whether the form submission has been identified as spam.
-		 * @param array   $entry_values The feedback entry values.
-		 */
-		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this->fields, $is_spam, $entry_values );
-
-		/**
-		 * Filter the title used in the response email.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 0.18.0
-		 *
-		 * @param string the title of the email
-		 */
-		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
-		$message = self::get_compiled_form_for_email( $post_id, $this );
-
-		if ( is_user_logged_in() ) {
-			$sent_by_text = sprintf(
-				// translators: the name of the site.
-				'<br />' . esc_html__( 'Sent by a verified %s user.', 'jetpack-forms' ) . '<br />',
-				isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ? $GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
-			);
-		} else {
-			$sent_by_text = '<br />' . esc_html__( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '<br />';
-		}
-
-		$footer_time = sprintf(
-			/* translators: Placeholder is the date and time when a form was submitted. */
-			esc_html__( 'Time: %1$s', 'jetpack-forms' ),
-			$time
+		$form_data = array(
+			'form'              => $this,
+			'post_id'           => $post_id,
+			'all_values'        => $all_values,
+			'comment_author_ip' => $comment_author_ip,
+			'entry_values'      => $entry_values,
+			'extra_values'      => $extra_values,
+			'feedback_status'   => $feedback_status,
+			'headers'           => $headers,
+			'is_spam'           => $is_spam,
+			'subject'           => $subject,
+			'time'              => $time,
+			'to'                => $to,
+			'url'               => $url,
+			'spam'              => $spam,
 		);
-		$footer_ip = null;
-		if ( $comment_author_ip ) {
-			$footer_ip = sprintf(
-			/* translators: Placeholder is the IP address of the person who submitted a form. */
-				esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),
-				$comment_author_ip
-			) . '<br />';
-		}
-
-		$footer_url = sprintf(
-			/* translators: Placeholder is the URL of the page where a form was submitted. */
-			__( 'Source URL: %1$s', 'jetpack-forms' ),
-			esc_url( $url )
-		);
-
-		// Get the status of the feedback
-		$status = $is_spam ? 'spam' : 'inbox';
-
-		// Build the dashboard URL with the status and the feedback's post id
-		$dashboard_url = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
-
-		$mark_as_spam_url = $dashboard_url . '&mark_as_spam';
-
-		$footer_mark_as_spam_url = sprintf(
-			'<a href="%1$s">%2$s</a>',
-			esc_url( $mark_as_spam_url ),
-			__( 'Mark as spam', 'jetpack-forms' )
-		);
-
-		$footer = implode(
-			'',
-			/**
-			 * Filter the footer used in the response email.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 0.18.0
-			 *
-			 * @param array the lines of the footer, one line per array element.
-			 */
-			apply_filters(
-				'jetpack_forms_response_email_footer',
-				array(
-					'<span style="font-size: 12px">',
-					$footer_time . '<br />',
-					$footer_ip ? $footer_ip . '<br />' : null,
-					$footer_url . '<br /><br />',
-					$footer_mark_as_spam_url . '<br />',
-					$sent_by_text,
-					'</span>',
-				)
-			)
-		);
-
-		$actions = sprintf(
-			'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
-				<tr>
-					<td class="pad" align="center">
-						<a rel="noopener" target="_blank" href="%1$s" data-tracks-link-desc="">
-							<!--[if mso]>
-							<i style="mso-text-raise: 30pt;">&nbsp;</i>
-							<![endif]-->
-							<span>%2$s</span>
-							<!--[if mso]>
-							<i>&nbsp;</i>
-							<![endif]-->
-						</a>
-					</td>
-				</tr>
-			</table>',
-			esc_url( $dashboard_url ),
-			__( 'View in dashboard', 'jetpack-forms' )
-		);
-
-		/**
-		 * Filters the message sent via email after a successful form submission.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 1.3.1
-		 *
-		 * @param string $message Feedback email message.
-		 * @param string $message Feedback email message as an array
-		 */
-		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
-
-		// This is called after `contact_form_message`, in order to preserve back-compat
-		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions );
-
-		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
-
-		/**
-		 * Fires right before the contact form message is sent via email to
-		 * the recipient specified in the contact form.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 1.3.1
-		 *
-		 * @param integer $post_id Post contact form lives on
-		 * @param array $all_values Contact form fields
-		 * @param array $extra_values Contact form fields not included in $all_values
-		 */
-		do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values );
-
-		// schedule deletes of old spam feedbacks
-		if ( ! wp_next_scheduled( 'grunion_scheduled_delete' ) ) {
-			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete' );
-		}
-
-		if (
-			$is_spam !== true &&
-			/**
-			 * Filter to choose whether an email should be sent after each successful contact form submission.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 2.6.0
-			 *
-			 * @param bool true Should an email be sent after a form submission. Default to true.
-			 * @param int $post_id Post ID.
-			 */
-			true === apply_filters( 'grunion_should_send_email', true, $post_id )
-		) {
-			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
-		} elseif (
-			true === $is_spam &&
-			/**
-			 * Choose whether an email should be sent for each spam contact form submission.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 1.3.1
-			 *
-			 * @param bool false Should an email be sent after a spam form submission. Default to false.
-			 */
-			apply_filters( 'grunion_still_email_spam', false )
-		) { // don't send spam by default.  Filterable.
-			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
-		}
-
-		/**
-		 * Fires an action hook right after the email(s) have been sent.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 7.3.0
-		 *
-		 * @param int $post_id Post contact form lives on.
-		 * @param string|array $to Array of valid email addresses, or single email address.
-		 * @param string $subject Feedback email subject.
-		 * @param string $message Feedback email message.
-		 * @param string|array $headers Optional. Additional headers.
-		 * @param array $all_values Contact form fields.
-		 * @param array $extra_values Contact form fields not included in $all_values
-		 */
-		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
 
 		// If the request accepts JSON, return a JSON response instead of redirecting
 		$is_ajax_submission_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', false );
 		$accepts_json               = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
 
 		if ( $is_ajax_submission_enabled && $accepts_json ) {
+			// Schedule the email sending and other processing for after the response is sent
+			wp_schedule_single_event( time(), 'jetpack_forms_continue_submission_processing_after_save', array( $form_data ) );
+
 			header( 'Content-Type: application/json' );
 
 			echo wp_json_encode(
@@ -1898,6 +1713,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			exit( 0 );
 		}
+
+		// Otherwise, we continue as normal
+		self::continue_submission_processing_after_save( $form_data );
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return self::success_message( $post_id, $this );
@@ -2310,5 +2128,232 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$theme_json_class = get_class( $theme_json_data );
 		return new $theme_json_class( $data, 'default' );
+	}
+
+	/**
+	 * Continue processing the form submission after saving the post.
+	 *
+	 * @param array $form_data The form data to process.
+	 */
+	public static function continue_submission_processing_after_save( $form_data ) {
+		$all_values        = $form_data['all_values'];
+		$comment_author_ip = $form_data['comment_author_ip'];
+		$entry_values      = $form_data['entry_values'];
+		$extra_values      = $form_data['extra_values'];
+		$feedback_status   = $form_data['feedback_status'];
+		$form              = $form_data['form'];
+		$headers           = $form_data['headers'];
+		$is_spam           = $form_data['is_spam'];
+		$post_id           = $form_data['post_id'];
+		$spam              = $form_data['spam'];
+		$subject           = $form_data['subject'];
+		$time              = $form_data['time'];
+		$to                = $form_data['to'];
+		$url               = $form_data['url'];
+
+		if ( 'publish' === $feedback_status ) {
+			// Increase count of unread feedback.
+			$unread = (int) get_option( 'feedback_unread_count', 0 ) + 1;
+			update_option( 'feedback_unread_count', $unread );
+		}
+
+		/**
+		 * Fires after the feedback post for the contact form submission has been inserted.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 8.6.0
+		 *
+		 * @param integer $post_id The post id that contains the contact form data.
+		 * @param array   $form->fields An array containg the form's Contact_Form_Field objects.
+		 * @param boolean $is_spam Whether the form submission has been identified as spam.
+		 * @param array   $entry_values The feedback entry values.
+		 */
+		do_action( 'grunion_after_feedback_post_inserted', $post_id, $form->fields, $is_spam, $entry_values );
+
+		/**
+		 * Filter the title used in the response email.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 0.18.0
+		 *
+		 * @param string the title of the email
+		 */
+		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
+		$message = self::get_compiled_form_for_email( $post_id, $form );
+
+		if ( is_user_logged_in() ) {
+			$sent_by_text = sprintf(
+				// translators: the name of the site.
+				'<br />' . esc_html__( 'Sent by a verified %s user.', 'jetpack-forms' ) . '<br />',
+				isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ? $GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
+			);
+		} else {
+			$sent_by_text = '<br />' . esc_html__( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '<br />';
+		}
+
+		$footer_time = sprintf(
+			/* translators: Placeholder is the date and time when a form was submitted. */
+			esc_html__( 'Time: %1$s', 'jetpack-forms' ),
+			$time
+		);
+		$footer_ip = null;
+		if ( $comment_author_ip ) {
+			$footer_ip = sprintf(
+			/* translators: Placeholder is the IP address of the person who submitted a form. */
+				esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),
+				$comment_author_ip
+			) . '<br />';
+		}
+
+		$footer_url = sprintf(
+			/* translators: Placeholder is the URL of the page where a form was submitted. */
+			__( 'Source URL: %1$s', 'jetpack-forms' ),
+			esc_url( $url )
+		);
+
+		// Get the status of the feedback
+		$status = $is_spam ? 'spam' : 'inbox';
+
+		// Build the dashboard URL with the status and the feedback's post id
+		$dashboard_url = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
+
+		$mark_as_spam_url = $dashboard_url . '&mark_as_spam';
+
+		$footer_mark_as_spam_url = sprintf(
+			'<a href="%1$s">%2$s</a>',
+			esc_url( $mark_as_spam_url ),
+			__( 'Mark as spam', 'jetpack-forms' )
+		);
+
+		$footer = implode(
+			'',
+			/**
+			 * Filter the footer used in the response email.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 0.18.0
+			 *
+			 * @param array the lines of the footer, one line per array element.
+			 */
+			apply_filters(
+				'jetpack_forms_response_email_footer',
+				array(
+					'<span style="font-size: 12px">',
+					$footer_time . '<br />',
+					$footer_ip ? $footer_ip . '<br />' : null,
+					$footer_url . '<br /><br />',
+					$footer_mark_as_spam_url . '<br />',
+					$sent_by_text,
+					'</span>',
+				)
+			)
+		);
+
+		$actions = sprintf(
+			'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
+				<tr>
+					<td class="pad" align="center">
+						<a rel="noopener" target="_blank" href="%1$s" data-tracks-link-desc="">
+							<!--[if mso]>
+							<i style="mso-text-raise: 30pt;">&nbsp;</i>
+							<![endif]-->
+							<span>%2$s</span>
+							<!--[if mso]>
+							<i>&nbsp;</i>
+							<![endif]-->
+						</a>
+					</td>
+				</tr>
+			</table>',
+			esc_url( $dashboard_url ),
+			__( 'View in dashboard', 'jetpack-forms' )
+		);
+
+		/**
+		 * Filters the message sent via email after a successful form submission.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 1.3.1
+		 *
+		 * @param string $message Feedback email message.
+		 * @param string $message Feedback email message as an array
+		 */
+		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
+
+		// This is called after `contact_form_message`, in order to preserve back-compat
+		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions );
+
+		update_post_meta( $post_id, '_feedback_email', $form->addslashes_deep( compact( 'to', 'message' ) ) );
+
+		/**
+		 * Fires right before the contact form message is sent via email to
+		 * the recipient specified in the contact form.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 1.3.1
+		 *
+		 * @param integer $post_id Post contact form lives on
+		 * @param array $all_values Contact form fields
+		 * @param array $extra_values Contact form fields not included in $all_values
+		 */
+		do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values );
+
+		// schedule deletes of old spam feedbacks
+		if ( ! wp_next_scheduled( 'grunion_scheduled_delete' ) ) {
+			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete' );
+		}
+
+		if (
+			$is_spam !== true &&
+			/**
+			 * Filter to choose whether an email should be sent after each successful contact form submission.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 2.6.0
+			 *
+			 * @param bool true Should an email be sent after a form submission. Default to true.
+			 * @param int $post_id Post ID.
+			 */
+			true === apply_filters( 'grunion_should_send_email', true, $post_id )
+		) {
+			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
+		} elseif (
+			true === $is_spam &&
+			/**
+			 * Choose whether an email should be sent for each spam contact form submission.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 1.3.1
+			 *
+			 * @param bool false Should an email be sent after a spam form submission. Default to false.
+			 */
+			apply_filters( 'grunion_still_email_spam', false )
+		) { // don't send spam by default.  Filterable.
+			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
+		}
+
+		/**
+		 * Fires an action hook right after the email(s) have been sent.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 7.3.0
+		 *
+		 * @param int $post_id Post contact form lives on.
+		 * @param string|array $to Array of valid email addresses, or single email address.
+		 * @param string $subject Feedback email subject.
+		 * @param string $message Feedback email message.
+		 * @param string|array $headers Optional. Additional headers.
+		 * @param array $all_values Contact form fields.
+		 * @param array $extra_values Contact form fields not included in $all_values
+		 */
+		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
 	}
 }

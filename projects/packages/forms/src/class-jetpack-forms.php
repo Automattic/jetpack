@@ -36,6 +36,9 @@ class Jetpack_Forms {
 		// Add hook to delete file attachments when a feedback post is deleted
 		add_action( 'before_delete_post', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'delete_feedback_files' ) );
 
+		// Add hook for async form processing after JSON response
+		add_action( 'jetpack_forms_continue_submission_processing_after_save', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'continue_submission_processing_after_save' ), 10, 2 );
+
 		// Enforces the availability of block support controls in the UI for classic themes.
 		add_filter( 'wp_theme_json_data_default', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_theme_json_data_for_classic_themes' ) );
 	}
