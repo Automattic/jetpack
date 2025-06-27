@@ -209,7 +209,7 @@ function wpcom_add_jetpack_submenu() {
 	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 
 	if ( ! $uses_wp_admin_interface ) {
-		// Move the Jetpack menu before Appearance.
+		// Move the Jetpack menu after the CPTs menus.
 		foreach ( $menu as $i => $item ) {
 			if ( 'jetpack' === $item[2] ) {
 				unset( $menu[ $i ] ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
