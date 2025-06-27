@@ -5,7 +5,7 @@ import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
 export default function RatingFieldEdit( props ) {
 	const { attributes, setAttributes, clientId } = props;
-	const { maxRating, defaultValue, required, id, width } = attributes;
+	const { max, default: defaultValue, required, id, width } = attributes;
 
 	useFormWrapper( props );
 
@@ -25,7 +25,7 @@ export default function RatingFieldEdit( props ) {
 					placeholder: __( 'Add label…', 'jetpack-forms' ),
 				},
 			],
-			[ 'jetpack/rating-input', { maxRating, value: defaultValue } ],
+			[ 'jetpack/rating-input', { max, default: defaultValue } ],
 		],
 		templateLock: 'all',
 	} );

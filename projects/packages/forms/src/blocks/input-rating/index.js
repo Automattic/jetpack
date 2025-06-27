@@ -8,8 +8,8 @@ const settings = {
 	parent: [ 'jetpack/field-rating' ],
 	icon: 'star-filled',
 	attributes: {
-		maxRating: { type: 'number', default: 5 },
-		value: { type: 'number', default: 0 },
+		max: { type: 'number', default: 5 },
+		default: { type: 'number', default: 0 },
 	},
 	supports: { reusable: false, html: false },
 	edit,
