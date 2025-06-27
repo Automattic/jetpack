@@ -90,7 +90,7 @@
 	max-width: 600px;
 	width: calc(100% - 4em);
 	transform: translate(-50%, -50%);
-	animation: slide-up 0.3s forwards;
+	animation: dp-slide-up 0.3s forwards;
 }
 
 .dp-months {
@@ -418,7 +418,7 @@
 	}
 }
 
-@keyframes slide-up {
+@keyframes dp-slide-up {
 
 	0% {
 		transform: translate(-50%, 100%);
