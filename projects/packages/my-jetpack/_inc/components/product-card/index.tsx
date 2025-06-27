@@ -130,7 +130,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 	 * Calls the passed function onFixSiteConnection after firing Tracks event
 	 */
 	const fixSiteConnectionHandler = useCallback(
-		( e: MouseEvent< HTMLButtonElement > ) => {
+		( { e }: { e: MouseEvent< HTMLButtonElement > } ) => {
 			connectSite( e );
 		},
 		[ connectSite ]

@@ -23,7 +23,7 @@ type ActionButtonProps = {
 	slug: JetpackModule;
 	additionalActions?: AdditionalAction[];
 	primaryActionOverride?: Record< string, AdditionalAction >;
-	fixSiteConnectionHandler?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	fixSiteConnectionHandler?: ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => void;
 	setIsActionLoading?: ( value: SetStateAction< boolean > ) => void;
 	className?: string;
 	tracksIdentifier?: `${ string }_${ string }`;
