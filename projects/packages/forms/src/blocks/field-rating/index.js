@@ -19,22 +19,16 @@ const settings = {
 	},
 	attributes: {
 		...defaultSettings.attributes,
-		maxRating: {
+		max: {
 			type: 'number',
 			default: 5,
 			role: 'content',
 		},
-		maxrating: {
-			type: 'number',
-			default: 5,
-			role: 'content',
-		},
-		defaultValue: {
+		default: {
 			type: 'number',
 			default: 0,
 			role: 'content',
 		},
-		textAlign: { type: 'string', default: 'left' },
 	},
 	allowedBlocks: [ 'jetpack/label', 'jetpack/rating-input' ],
 	supports: {
@@ -50,8 +44,8 @@ const settings = {
 	save,
 	example: {
 		attributes: {
-			maxRating: 5,
-			defaultValue: 3,
+			max: 5,
+			default: 3,
 		},
 		innerBlocks: [
 			{

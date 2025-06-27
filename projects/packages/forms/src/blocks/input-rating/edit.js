@@ -8,7 +8,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import Stars from '../field-rating/stars';
 
 export default function RatingInputEdit( { clientId, attributes, setAttributes } ) {
-	const { maxRating, value } = attributes;
+	const { max, default: defaultValue } = attributes;
 
 	const { parentClientId } = useSelect(
 		select => {
@@ -22,18 +22,18 @@ export default function RatingInputEdit( { clientId, attributes, setAttributes }
 
 	const updateMax = newMax => {
 		// update local attribute so the control reflects immediately
-		setAttributes( { maxRating: newMax, maxrating: newMax } );
+		setAttributes( { max: newMax } );
 
 		// propagate to parent field-rating so it is saved and rendered on front-end
 		if ( parentClientId ) {
-			updateBlockAttributes( parentClientId, { maxRating: newMax, maxrating: newMax } );
+			updateBlockAttributes( parentClientId, { max: newMax } );
 		}
 	};
 
 	const updateValue = newVal => {
 		setAttributes( { value: newVal } );
 		if ( parentClientId ) {
-			updateBlockAttributes( parentClientId, { defaultValue: newVal } );
+			updateBlockAttributes( parentClientId, { default: newVal } );
 		}
 	};
 
@@ -47,14 +47,14 @@ export default function RatingInputEdit( { clientId, attributes, setAttributes }
 						label="Highest rating"
 						min={ 2 }
 						max={ 10 }
-						value={ maxRating }
+						value={ max }
 						onChange={ updateMax }
 					/>
 				</PanelBody>
 			</InspectorControls>
 
 			<div { ...blockProps }>
-				<Stars maxRating={ maxRating } value={ value } onChange={ updateValue } />
+				<Stars max={ max } value={ defaultValue } onChange={ updateValue } />
 			</div>
 		</>
 	);

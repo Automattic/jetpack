@@ -152,9 +152,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'stylevariationstyles'     => null,
 				'optionsclasses'           => null,
 				'optionsstyles'            => null,
-				'maxRating'                => null,
 				'align'                    => null,
-				'maxrating'                => null,
 			),
 			$attributes,
 			'contact-field'
@@ -2061,10 +2059,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		wp_enqueue_style( 'jetpack-form-field-rating-style', plugins_url( '../../dist/blocks/field-rating/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 
 		// Read block attributes needed for rendering.
-		$max_attr = $this->get_attribute( 'maxrating' );
-		if ( null === $max_attr ) {
-			$max_attr = $this->get_attribute( 'maxRating' );
-		}
+
+		$max_attr = $this->get_attribute( 'max' );
+
 		$max_rating = is_numeric( $max_attr ) && (int) $max_attr > 0 ? (int) $max_attr : 5;
 
 		$initial_rating = (int) $value ? (int) $value : 0;
