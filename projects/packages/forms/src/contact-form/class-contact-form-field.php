@@ -2088,36 +2088,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$this->enqueue_rating_field_assets();
 
 		$initial_rating = (int) $value ? (int) $value : 0;
-		$context        = array(
-			'fieldId'      => $id,
-			'fieldType'    => 'rating',
-			'rating'       => $initial_rating,
-			'maxRating'    => $max_rating,
-			'ratingString' => $initial_rating . '/' . $max_rating,
-		);
-
-		$interactive_attrs = ' data-wp-interactive="jetpack/field-rating" ' . wp_interactivity_data_wp_context( $context );
 
 		$label_html = $this->render_label( 'rating', $id, $label, $required, $required_field_text );
 
 		$spans = '';
 		for ( $i = 1; $i <= $max_rating; $i++ ) {
-			$spans .= sprintf(
-				'<span role="presentation"><span role="button" tabindex="0" data-wp-context="{&quot;position&quot;:%1$d}" data-value="%1$d" data-wp-on--click="actions.setRating" class="%3$s" data-wp-class--is-rating-unfilled="state.isUnfilled">%2$s</span></span>',
-				$i,
-				html_entity_decode( '&#9733;', ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
-				( $i > $initial_rating ) ? 'is-rating-unfilled' : ''
-			);
+			$spans .= '<label class="jetpack-field-rating__label"><input type="radio" data-wp-on--change="actions.onFieldChange" ' . checked( $i, $initial_rating, false ) . ( $required ? ' required aria-required="true" ' : '' ) . ' name="' . esc_attr( $id ) . '" value="' . esc_attr( $i ) . '" />' . str_repeat( '<span class="icon">★</span>', $i ) . '</label>';
 		}
 
-		return sprintf(
-			'<div class="jetpack-field jetpack-field-rating %1$s"%2$s>%3$s<div class="jetpack-field-rating__wrapper">%4$s</div><input type="hidden" name="%5$s" value="%6$s" data-wp-bind--value="context.ratingString" /></div>',
-			esc_attr( $class ),
-			$interactive_attrs,
-			$label_html,
-			$spans,
-			esc_attr( $id ),
-			esc_attr( $value )
+		return $label_html . sprintf(
+			'<div class="jetpack-field-rating">%1$s</div>',
+			$spans
 		);
 	}
 
