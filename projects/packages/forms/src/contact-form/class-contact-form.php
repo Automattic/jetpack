@@ -428,12 +428,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$is_multistep = $max_steps > 0;
 
 			$default_context = array(
-				'formId'      => $id,
-				'formHash'    => $form->hash,
-				'showErrors'  => false, // We toggle this to true when we want to show the user errors right away.
-				'errors'      => array(), // This should be a associative array.
-				'fields'      => array(),
-				'isMultiStep' => $is_multistep, // Whether the form is a multistep form.
+				'formId'                  => $id,
+				'formHash'                => $form->hash,
+				'showErrors'              => false, // We toggle this to true when we want to show the user errors right away.
+				'errors'                  => array(), // This should be a associative array.
+				'fields'                  => array(),
+				'isMultiStep'             => $is_multistep, // Whether the form is a multistep form.
+				'isAjaxSubmissionEnabled' => apply_filters( 'jetpack_forms_enable_ajax_submission', false ),
 			);
 
 			if ( $is_multistep ) {
@@ -650,6 +651,51 @@ class Contact_Form extends Contact_Form_Shortcode {
 		ksort( $compiled_form );
 
 		return $compiled_form;
+	}
+
+	/**
+	 * Returns the JSON data for the form submission.
+	 *
+	 * @param int          $feedback_id - the feedback ID.
+	 * @param Contact_Form $form - the form.
+	 *
+	 * @return array $json_data
+	 */
+	public static function get_json_data( $feedback_id, $form ) {
+		$raw_data  = self::get_raw_compiled_form_data( $feedback_id, $form );
+		$json_data = array();
+
+		// Handle file upload field (new structure with field_id and files array)
+		foreach ( $raw_data as $field_index => $field_data ) {
+			$value = $field_data['value'];
+			$label = $field_data['label'];
+
+			if ( self::is_file_upload_field( $value ) ) {
+				$files = $value['files'];
+
+				if ( empty( $files ) ) {
+					continue;
+				}
+
+				foreach ( $files as $file ) {
+					if ( ! empty( $file['file_id'] ) ) {
+						$file_name = isset( $file['name'] ) ? $file['name'] : __( 'Attached file', 'jetpack-forms' );
+						$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
+
+						$json_data[ $field_index ]['label'] = $label;
+						$json_data[ $field_index ]['value'] = array(
+							'name' => $file_name,
+							'size' => $file_size,
+						);
+					}
+				}
+			} else {
+				$json_data[ $field_index ]['label'] = $label;
+				$json_data[ $field_index ]['value'] = $value;
+			}
+		}
+
+		return $json_data;
 	}
 
 	/**
@@ -1834,6 +1880,24 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param array $extra_values Contact form fields not included in $all_values
 		 */
 		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
+
+		// If the request accepts JSON, return a JSON response instead of redirecting
+		$is_ajax_submission_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', false );
+		$accepts_json               = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
+
+		if ( $is_ajax_submission_enabled && $accepts_json ) {
+			header( 'Content-Type: application/json' );
+
+			echo wp_json_encode(
+				array(
+					'success' => true,
+					'message' => __( 'Your message has been sent', 'jetpack-forms' ),
+					'data'    => self::get_json_data( $post_id, $this ),
+				)
+			);
+
+			exit( 0 );
+		}
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return self::success_message( $post_id, $this );

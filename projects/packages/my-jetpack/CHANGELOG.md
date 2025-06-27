@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.16.8] - 2025-06-27
+### Changed
+- Internal updates.
+
 ## [5.16.7] - 2025-06-24
 ### Changed
 - Update dependencies. [#38910]
@@ -2206,6 +2210,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.16.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.7...5.16.8
 [5.16.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.6...5.16.7
 [5.16.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.5...5.16.6
 [5.16.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.4...5.16.5

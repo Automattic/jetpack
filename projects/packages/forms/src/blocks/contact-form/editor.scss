@@ -1078,6 +1078,16 @@
 	margin-bottom: 0;
 }
 
+.block-editor-block-inspector .components-base-control.jetpack-forms-field-controls__input-error {
+
+	.components-text-control__input,
+	.components-text-control__input[type="text"],
+	.components-text-control__input[type="text"]:focus,
+	.components-text-control__input:focus {
+		border-color: var( --wp--preset--color--vivid-red, #f00 );
+	}
+}
+
 .is-style-outlined .jetpack-field.is-selected .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
 .is-style-outlined .jetpack-field.has-placeholder .notched-label__label[style*="--jetpack--contact-form--label--font-size"] {
     font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.8);

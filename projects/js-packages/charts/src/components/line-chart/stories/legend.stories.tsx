@@ -12,6 +12,7 @@ const meta: Meta< typeof LineChart > = {
 		legendShape: {
 			control: 'select',
 			options: [ 'circle', 'rect' ],
+			table: { category: 'Legend' },
 		},
 	},
 } satisfies Meta< typeof LineChart >;
@@ -34,6 +35,6 @@ Default.args = {
 export const AlignmentPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
 AlignmentPositioning.args = {
 	...legendStoryArgs,
-	legendAlign: 'right',
+	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
 };

@@ -1,22 +1,40 @@
-import React from 'react';
 import { ThemeProvider, jetpackTheme, wooTheme } from '../providers/theme';
+import type { ChartTheme } from '../types';
+import type { Decorator } from '@storybook/react';
 
 /**
  * Shared legend configuration for chart stories
  * Provides consistent argTypes and decorators across all chart legend stories
  */
 export const legendArgTypes = {
+	showLegend: {
+		control: 'boolean',
+		table: { category: 'Legend' },
+	},
 	legendAlignmentHorizontal: {
 		control: 'select',
 		options: [ 'left', 'center', 'right' ],
+		table: { category: 'Legend' },
 	},
 	legendAlignmentVertical: {
 		control: 'select',
 		options: [ 'top', 'bottom' ],
+		table: { category: 'Legend' },
 	},
 	legendOrientation: {
 		control: 'select',
 		options: [ 'horizontal', 'vertical' ],
+		table: { category: 'Legend' },
+	},
+	legendShape: {
+		control: 'select',
+		options: [ 'circle', 'rect' ],
+		table: { category: 'Legend' },
+	},
+	withLegendGlyph: {
+		control: 'boolean',
+		table: { category: 'Legend' },
+		description: 'Show glyphs in legend (Line charts only)',
 	},
 	theme: {
 		control: 'select',
@@ -26,6 +44,7 @@ export const legendArgTypes = {
 			woo: wooTheme,
 		},
 		defaultValue: undefined,
+		table: { category: 'Theme' },
 	},
 };
 
@@ -36,9 +55,9 @@ export const legendArgTypes = {
  * @param root0.args - The story arguments
  * @return The decorated story component
  */
-export const legendDecorator = [
+export const legendDecorator: Decorator[] = [
 	( Story, { args } ) => (
-		<ThemeProvider theme={ args.theme }>
+		<ThemeProvider theme={ args.theme as ChartTheme | undefined }>
 			<div
 				style={ {
 					resize: 'both',
