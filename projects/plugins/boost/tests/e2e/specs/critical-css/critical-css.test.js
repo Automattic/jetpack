@@ -101,10 +101,11 @@ test.describe( 'Critical CSS module', () => {
 	test( 'User can access the Critical advanced recommendations and go back to settings page', async () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
 
-		const result = await execWpCommand( 'plugin activate e2e-critical-css-force-errors' );
-		console.log( 'testls', result );
+		await execWpCommand( 'plugin activate e2e-critical-css-force-errors' );
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+
+		await page.getByRole( 'button', { name: 'Regenerate' } ).click();
 
 		expect(
 			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
