@@ -30,15 +30,11 @@ class JPCRM_Activation_Cest {
 		$I->amOnPluginsPage();
 		$I->seePluginInstalled( 'jetpack-crm' );
 
-		// Ensure no other plugins are selected for bulk actions
-		$I->uncheckOption( '#the-list input[type="checkbox"]' );
-
-		// Activate just this plugin
-		$I->activatePlugin( 'jetpack-crm' );
+		// Click the activate link for jetpack-crm directly
+		$I->click( 'Activate', array( 'css' => 'tr[data-slug="jetpack-crm"] .activate a' ) );
 
 		// Verify we were redirected to the wizard with force_wizard parameter
-		$I->seeInCurrentUrl( 'page=zerobscrm-dash' );
-		$I->seeInCurrentUrl( 'jpcrm_force_wizard=1' );
+		$I->waitForUrl( '*page=zerobscrm-dash*jpcrm_force_wizard=1*', 10 ); // Wait up to 10 seconds for the URL to match
 
 		// Check no activation errors and wizard is shown
 		$I->dontSeeElement( '#message.error' );
