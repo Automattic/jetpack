@@ -47,6 +47,11 @@ class JPCRM_Activation_Cest {
 		$I->click( 'Apply' );
 		$I->dontSeeElement( '#message.error' ); // Ensure no error messages after bulk activation
 
+		// Should stay on plugins page, no wizard redirect
+		$I->seeInCurrentUrl( 'plugins.php' );
+		$I->wait( 1 ); // Wait for 1 second to allow message to appear
+		$I->see( 'Selected plugins activated.' );
+
 		// Verify no wizard is shown
 		$this->assertWizardIsNotShown( $I );
 	}

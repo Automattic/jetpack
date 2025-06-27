@@ -951,10 +951,23 @@ function zeroBSCRM_DB_canInnoDB(){
  */
 function jpcrm_database_engine( $pretty = false ) {
 	global $zbs;
-	if ( $pretty ) {
-		return $zbs->database_server_info['db_engine_label'];
+
+	// If $zbs is an object but database_server_info is not set, try to populate it.
+	if ( is_object( $zbs ) && ! isset( $zbs->database_server_info ) ) {
+		$zbs->get_database_server_info();
 	}
-	return $zbs->database_server_info['db_engine'];
+
+	// Now, if $zbs is an object and database_server_info is set, use it.
+	if ( is_object( $zbs ) && isset( $zbs->database_server_info ) ) {
+		if ( $pretty ) {
+			return $zbs->database_server_info['db_engine_label'];
+		}
+		return $zbs->database_server_info['db_engine'];
+	}
+
+	// Fallback for cases where $zbs is not an object (e.g., very early calls).
+	// This indicates a deeper issue with the call timing.
+	return '';
 }
 
 /**
