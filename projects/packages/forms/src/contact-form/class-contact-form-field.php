@@ -1543,7 +1543,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 */
 		if ( ! apply_filters( 'jetpack_has_localized_date_picker', false ) ) {
 			\wp_localize_script(
-				'jp-date-picker',
+				'jp-forms-date-picker',
 				'jpDatePicker',
 				array(
 					'offset' => intval( get_option( 'start_of_week', 1 ) ),
