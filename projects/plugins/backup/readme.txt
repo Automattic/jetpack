@@ -177,7 +177,7 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 == Changelog ==
 ### 3.4 - 2025-06-27
 #### Changed
-- Internal updates.
+- Backup: Catch PHP errors on WP_Error. [#43388]
 
 --------
 
