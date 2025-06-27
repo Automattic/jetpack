@@ -1,5 +1,5 @@
 import { TabPanel } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
@@ -20,15 +20,20 @@ export function MyJetpackTabPanel() {
 	const { recordEvent } = useAnalytics();
 	const isNewUser = useIsJetpackUserNew();
 	const tabStartTimeRef = useRef< number >( Date.now() );
+	const [ tabKey, setTabKey ] = useState( 0 );
+	const lastNavigationSourceRef = useRef< 'internal' | 'external' >( 'external' );
 
 	// If the tab is not valid, use the default one.
-	const initialTab = useMemo( () => {
+	const currentTab = useMemo( () => {
 		const validTab = isValidMyJetpackSection( params.section );
 		return validTab ? params.section : MY_JETPACK_SECTION_OVERVIEW;
 	}, [ params.section ] );
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
 			if ( tabName !== params.section ) {
+				// Mark this as an internal navigation (user clicked a tab)
+				lastNavigationSourceRef.current = 'internal';
+
 				// Calculate session duration on previous tab
 				const sessionDuration = Math.floor( ( Date.now() - tabStartTimeRef.current ) / 1000 );
 
@@ -53,18 +58,27 @@ export function MyJetpackTabPanel() {
 		return <TabContent name={ tab.name as MyJetpackSection } />;
 	}, [] );
 
-	// Reset timer when component mounts or tab changes from external navigation
+	// Handle external navigation (URL changes not from tab clicks)
 	useEffect( () => {
+		// If this was an external navigation (browser back/forward, direct URL access)
+		if ( lastNavigationSourceRef.current === 'external' ) {
+			// Force remount to sync with URL
+			setTabKey( prev => prev + 1 );
+		}
+		// Reset navigation source for next change
+		lastNavigationSourceRef.current = 'external';
+
+		// Reset timer when tab changes
 		tabStartTimeRef.current = Date.now();
-	}, [ initialTab ] );
+	}, [ currentTab ] );
 
 	const tabs = useMemo( () => getMyJetpackSections(), [] );
 
 	return (
 		<TabPanel
-			key={ initialTab }
+			key={ tabKey }
 			className={ styles[ 'tab-panel' ] }
-			initialTabName={ initialTab }
+			initialTabName={ currentTab }
 			onSelect={ onTabSelect }
 			children={ tabRenderer }
 			tabs={ tabs }

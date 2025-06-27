@@ -1269,7 +1269,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/explat",
-				"reference": "05a6b81d43a57e333f62154fbef5e1aa9f0dfae5"
+				"reference": "7e7f3929e7b3cb75923ae73176ec3ccde520faed"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1287,7 +1287,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.2.x-dev"
+					"dev-trunk": "0.3.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-explat/compare/v${old}...v${new}"
