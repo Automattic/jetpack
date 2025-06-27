@@ -312,6 +312,10 @@ register_activation_hook( __FILE__, 'jpcrm_plugin_activate' );
  * @return void
  */
 function jpcrm_plugin_redirect() {
+	// Don't run on plugin upgrade.
+	if ( defined( 'WP_UPGRADING' ) && WP_UPGRADING ) {
+		return;
+	}
 	// Skip the re-direction if it's a JSON/AJAX request or via WP-CLI
 	if ( wp_is_json_request() || wp_doing_ajax() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_is_xml_request() ) {
 		return;
