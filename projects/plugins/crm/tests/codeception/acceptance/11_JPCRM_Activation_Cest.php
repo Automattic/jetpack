@@ -42,7 +42,7 @@ class JPCRM_Activation_Cest {
 		$I->amOnPluginsPage();
 
 		// Activate multiple plugins (even if it's just this one)
-		$I->checkOption( 'input[name="checked[]"][value="jetpack-crm/jetpack-crm.php"]' );
+		$I->checkOption( 'input[name="checked[]"][value="crm/ZeroBSCRM.php"]' );
 		$I->selectOption( 'action', 'activate-selected' );
 		$I->click( 'Apply' );
 
