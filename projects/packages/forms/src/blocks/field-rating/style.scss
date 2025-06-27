@@ -12,6 +12,7 @@
   left: 0;
   height: 100%;
   cursor: pointer;
+  overflow: hidden;
 }
 
 .jetpack-field-rating__label:last-child {
@@ -54,11 +55,15 @@
   z-index: 2;
 }
 
-.jetpack-field-rating__label input {
+.jetpack-field-rating__label input[type="radio"] {
   position: absolute;
   top: 0;
   left: 0;
   opacity: 0;
+  height: 0;
+  width: 0;
+  z-index: -1;
+  ;
 }
 
 .jetpack-field-rating__label .rating-icon {
