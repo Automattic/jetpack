@@ -1517,13 +1517,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					'lang'   => array(
 						// translators: These are the two letter abbreviated name of the week.
 						'days'      => array(
-							_x( 'Su', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
-							_x( 'Mo', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
-							_x( 'Tu', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
-							_x( 'We', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
-							_x( 'Th', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
-							_x( 'Fr', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
-							_x( 'Sa', 'Two letter abbreviated name of the week.', 'jetpack-forms' ),
+							__( 'Su', 'jetpack-forms' ),
+							__( 'Mo', 'jetpack-forms' ),
+							__( 'Tu', 'jetpack-forms' ),
+							__( 'We', 'jetpack-forms' ),
+							__( 'Th', 'jetpack-forms' ),
+							__( 'Fr', 'jetpack-forms' ),
+							__( 'Sa', 'jetpack-forms' ),
 						),
 						'months'    => array(
 							__( 'January', 'jetpack-forms' ),
