@@ -15,7 +15,7 @@ export function getScriptData() {
  * @return {import('./types').SiteData} The site data.
  */
 export function getSiteData() {
-	return getScriptData().site;
+	return getScriptData()?.site;
 }
 
 /**
@@ -26,7 +26,7 @@ export function getSiteData() {
  * @return {string} The admin URL.
  */
 export function getAdminUrl( path = '' ) {
-	return `${ getScriptData().site.admin_url }${ path }`;
+	return `${ getScriptData()?.site.admin_url }${ path }`;
 }
 
 /**
@@ -57,7 +57,7 @@ export function getMyJetpackUrl( section = '' ) {
  * @return {import('./types').SitePlan['features']['active']} The active features.
  */
 export function getActiveFeatures() {
-	return getScriptData().site.plan?.features?.active ?? [];
+	return getScriptData()?.site.plan?.features?.active ?? [];
 }
 
 /**
@@ -77,7 +77,7 @@ export function siteHasFeature( feature: string ) {
  * @return {boolean} Whether the site host is wpcom.
  */
 export function isSimpleSite() {
-	return getScriptData().site?.host === 'wpcom';
+	return getScriptData()?.site?.host === 'wpcom';
 }
 
 /**
@@ -87,7 +87,7 @@ export function isSimpleSite() {
  * @return {boolean} Whether the site is an Atomic site.
  */
 export function isAtomicSite() {
-	return getScriptData().site?.host === 'atomic';
+	return getScriptData()?.site?.host === 'atomic';
 }
 
 /**
@@ -97,7 +97,7 @@ export function isAtomicSite() {
  * @return Whether the site is woa.
  */
 export function isWoASite() {
-	return getScriptData()?.site?.host === 'woa' || false;
+	return getScriptData()?.site?.host === 'woa';
 }
 
 /**
@@ -108,7 +108,7 @@ export function isWoASite() {
  * @return Whether the site is a WordPress.com site.
  */
 export function isWpcomPlatformSite() {
-	return getScriptData().site?.is_wpcom_platform;
+	return getScriptData()?.site?.is_wpcom_platform;
 }
 
 /**
@@ -128,5 +128,5 @@ export function isJetpackSelfHostedSite() {
  * @return Whether the current user has that capability.
  */
 export function currentUserCan( capability: keyof CurrentUserData[ 'capabilities' ] ): boolean {
-	return getScriptData().user.current_user.capabilities[ capability ];
+	return getScriptData()?.user.current_user.capabilities[ capability ];
 }

@@ -5,6 +5,14 @@ import edit from '../../src/block/edit';
 import save from '../../src/block/save';
 import runBlockFixtureTests from './block-fixtures';
 
+// Mock @automattic/jetpack-script-data functions to allow isWpcomPlatformSite to be correctly used.
+jest.mock( '@automattic/jetpack-script-data', () => {
+	const isWpcomPlatformSite = jest.fn().mockReturnValue( false );
+	return {
+		isWpcomPlatformSite,
+	};
+} );
+
 const intlNumberFormatSpy = jest.spyOn( Intl, 'NumberFormat' );
 beforeEach( () => {
 	intlNumberFormatSpy

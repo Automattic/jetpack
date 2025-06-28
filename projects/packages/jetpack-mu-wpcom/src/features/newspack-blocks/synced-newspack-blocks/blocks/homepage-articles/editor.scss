@@ -30,18 +30,22 @@
 		flex-wrap: wrap;
 		align-items: center;
 		margin-top: 0.5em;
+		// Work around RawHTML `<div />` encapsulation.
+		div.byline-container {
+			display: inline;
+			display: flex;
+			align-items: center;
+			margin-right: 1.5em;
+		}
 	}
 
 	.cat-links {
 		font-size: variables.$font__size-xs;
 	}
 
-	span.avatar {
+	.entry-meta .avatar {
 		display: inline-block;
 		margin-right: 0.5em;
-		div {
-			display: inline;
-		}
 	}
 
 	/* Article excerpt */
@@ -144,8 +148,10 @@
 	}
 }
 
-.editor-styles-wrapper.wpnbha__wp-block-button__wrapper {
-	background-color: transparent;
+/* Load More button */
+[data-type="newspack-blocks/homepage-articles"] .wp-block-button__link {
+	height: auto;
+	width: auto;
 }
 
 .newspack-block {
@@ -215,5 +221,23 @@
 
 	+ .components-base-control__help {
 		margin: 0;
+	}
+}
+
+.components-base-control__label-dropdown {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 4px;
+
+	.components-base-control__label {
+		margin: 0 !important;
+	}
+
+	.components-select-control__input {
+		font-size: 11px !important;
+		font-weight: 500;
+		line-height: 1.4;
+		text-transform: uppercase;
 	}
 }

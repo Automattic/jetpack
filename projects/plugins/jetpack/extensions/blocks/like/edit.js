@@ -1,4 +1,4 @@
-import { isSimpleSite, isAtomicSite } from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { ExternalLink, ToggleControl, PanelBody } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -14,7 +14,7 @@ function LikeEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
 	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 	const { showReblogButton, showAvatars } = validatedAttributes;
-	const isJetpackSite = ! isAtomicSite() && ! isSimpleSite();
+	const isJetpackSite = ! isWpcomPlatformSite();
 	const avatars = [ avatar1, avatar2, avatar3 ];
 	const preventDefault = event => event.preventDefault();
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Filter may now be loaded by using `--filter=Automattic\JetpackPhpcsFilter` instead of requiring a vendor path.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Loading via `--filter=vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php` is deprecated. If you need to use a path rather than a classname, use `vendor/automattic/jetpack-phpcs-filter/src/JetpackPhpcsFilter.php`.

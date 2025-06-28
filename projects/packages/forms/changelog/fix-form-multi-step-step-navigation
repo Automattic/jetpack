@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Forms: Load the initial steps as if the form has more than one step in it.

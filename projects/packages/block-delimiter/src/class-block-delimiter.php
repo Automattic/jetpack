@@ -477,7 +477,7 @@ class Block_Delimiter {
 	 * Returns the byte-offset after the ending character of an HTML comment,
 	 * assuming the proper starting byte offset.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.2.1
 	 *
 	 * @param string $text                Document in which to search for HTML comment end.
 	 * @param int    $comment_starting_at Where the HTML comment started, the leading `<`.

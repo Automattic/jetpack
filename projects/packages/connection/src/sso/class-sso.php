@@ -823,7 +823,7 @@ class SSO {
 		}
 
 		$user_found_with = '';
-		if ( empty( $user ) && isset( $user_data->external_user_id ) ) {
+		if ( isset( $user_data->external_user_id ) ) {
 			$user_found_with = 'external_user_id';
 			$user            = get_user_by( 'id', (int) $user_data->external_user_id );
 			if ( $user ) {

@@ -47,7 +47,6 @@ export const MultiSeries: Story = {
 	args: {
 		...Default.args,
 		data: salesByChannel,
-		showLegend: true,
 	},
 };
 
@@ -81,7 +80,6 @@ export const CustomValueComponent: Story = {
 	args: {
 		...Default.args,
 		data: salesByChannel,
-		showLegend: true,
 		width: 450,
 		margin: {
 			top: 0,
