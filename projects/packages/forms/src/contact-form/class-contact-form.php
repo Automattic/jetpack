@@ -1699,7 +1699,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( $is_ajax_submission_enabled && $accepts_json ) {
 			// Schedule the email sending and other processing for after the response is sent
-			wp_schedule_single_event( time(), 'jetpack_forms_continue_submission_processing_after_save', array( $form_data ) );
+			wp_schedule_single_event( time(), 'jetpack_forms_continue_submission_processing_after_save', array( $form_data, is_user_logged_in() ) );
 
 			header( 'Content-Type: application/json' );
 
@@ -1715,7 +1715,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		// Otherwise, we continue as normal
-		self::continue_submission_processing_after_save( $form_data );
+		self::continue_submission_processing_after_save( $form_data, is_user_logged_in() );
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return self::success_message( $post_id, $this );
@@ -2133,9 +2133,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Continue processing the form submission after saving the post.
 	 *
-	 * @param array $form_data The form data to process.
+	 * @param array   $form_data The form data to process.
+	 * @param boolean $is_user_logged_in Whether the user that submitted the form was logged in.
 	 */
-	public static function continue_submission_processing_after_save( $form_data ) {
+	public static function continue_submission_processing_after_save( $form_data, $is_user_logged_in ) {
 		$all_values        = $form_data['all_values'];
 		$comment_author_ip = $form_data['comment_author_ip'];
 		$entry_values      = $form_data['entry_values'];
@@ -2183,7 +2184,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
 		$message = self::get_compiled_form_for_email( $post_id, $form );
 
-		if ( is_user_logged_in() ) {
+		if ( $is_user_logged_in ) {
 			$sent_by_text = sprintf(
 				// translators: the name of the site.
 				'<br />' . esc_html__( 'Sent by a verified %s user.', 'jetpack-forms' ) . '<br />',
