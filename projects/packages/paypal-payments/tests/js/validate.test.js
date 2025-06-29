@@ -8,8 +8,10 @@ import runBlockFixtureTests from './block-fixtures';
 // Mock @automattic/jetpack-script-data functions to allow isWpcomPlatformSite to be correctly used.
 jest.mock( '@automattic/jetpack-script-data', () => {
 	const isWpcomPlatformSite = jest.fn().mockReturnValue( false );
+	const getScriptData = jest.fn().mockReturnValue( { connection: null } );
 	return {
 		isWpcomPlatformSite,
+		getScriptData,
 	};
 } );
 
