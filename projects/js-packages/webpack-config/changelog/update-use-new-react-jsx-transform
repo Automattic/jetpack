@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Default for babel preset `presetReact` option is now `{ runtime: 'automatic' }`.

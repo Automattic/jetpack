@@ -246,7 +246,7 @@ for SLUG in "${SLUGS[@]}"; do
 			{
 				debug "Updating $SLUG composer.lock (async)"
 				OLD="$(<composer.lock)"
-				"$BASE/tools/composer-update-monorepo.sh" --quiet --no-install --no-scripts --no-audit "$PROJECTFOLDER"
+				"$BASE/tools/composer-update-monorepo.sh" --quiet --no-install --no-scripts --no-audit "$PROJECTFOLDER" || die "Failed to update $SLUG composer.lock"
 				if [[ "$OLD" != "$(<composer.lock)" ]] && $DOCL; then
 					info "Creating changelog entry for $SLUG composer.lock update"
 					do_changelogger "$SLUG" '' 'Update composer.lock.'

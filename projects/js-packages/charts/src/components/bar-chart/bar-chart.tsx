@@ -117,7 +117,6 @@ const BarChart: FC< BarChartProps > = ( {
 			const id = getPatternId( chartId, index );
 			const commonProps = {
 				id,
-				key: id,
 				stroke: 'white',
 				strokeWidth: 1,
 				background: color,
@@ -128,6 +127,7 @@ const BarChart: FC< BarChartProps > = ( {
 				default:
 					return (
 						<PatternLines
+							key={ id }
 							{ ...commonProps }
 							width={ 5 }
 							height={ 5 }
@@ -135,11 +135,13 @@ const BarChart: FC< BarChartProps > = ( {
 						/>
 					);
 				case 1:
-					return <PatternCircles { ...commonProps } width={ 6 } height={ 6 } fill="white" />;
+					return (
+						<PatternCircles key={ id } { ...commonProps } width={ 6 } height={ 6 } fill="white" />
+					);
 				case 2:
-					return <PatternWaves { ...commonProps } width={ 4 } height={ 4 } />;
+					return <PatternWaves key={ id } { ...commonProps } width={ 4 } height={ 4 } />;
 				case 3:
-					return <PatternHexagons { ...commonProps } size={ 8 } height={ 3 } />;
+					return <PatternHexagons key={ id } { ...commonProps } size={ 8 } height={ 3 } />;
 			}
 		},
 		[ chartId ]
