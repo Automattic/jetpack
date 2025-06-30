@@ -353,4 +353,74 @@ describe( 'LineChart', () => {
 			expect( screen.queryByTestId( /legend-glyph/i ) ).not.toBeInTheDocument();
 		} );
 	} );
+
+	describe( 'Annotations', () => {
+		test( 'renders annotations when an annotations list is provided', () => {
+			renderWithTheme( {
+				annotations: [
+					{
+						datum: { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+						title: 'Annotation 1',
+						subtitle: 'Annotation 1 subtitle',
+					},
+					{
+						datum: { date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						title: 'Annotation 2',
+					},
+				],
+			} );
+
+			expect( screen.getByText( 'Annotation 1' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Annotation 1 subtitle' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
+		} );
+
+		test( 'skips rendering an annotation when it is malformed', () => {
+			renderWithTheme( {
+				annotations: [
+					{
+						title: 'Annotation 1',
+						subtitle: 'Annotation 1 subtitle',
+					},
+					{
+						datum: { date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						title: 'Annotation 2',
+					},
+				],
+			} );
+
+			expect( screen.queryByText( 'Annotation 1' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Annotation 1 subtitle' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
+		} );
+
+		test( 'does not render annotations when no annotations list is provided', () => {
+			renderWithTheme( {} );
+
+			expect( screen.queryByTestId( 'annotation-0' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'does not render annotations when an empty annotations list is provided', () => {
+			renderWithTheme( {
+				annotations: [],
+			} );
+
+			expect( screen.queryByTestId( 'annotation-0' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'renders annotations with zero values', () => {
+			renderWithTheme( {
+				annotations: [
+					{
+						datum: { date: new Date( '2024-01-01' ), value: 0, label: 'Jan 1' },
+						title: 'Zero Value Annotation',
+						subtitle: 'This point has a value of 0',
+					},
+				],
+			} );
+
+			expect( screen.getByText( 'Zero Value Annotation' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'This point has a value of 0' ) ).toBeInTheDocument();
+		} );
+	} );
 } );

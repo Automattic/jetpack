@@ -28,6 +28,7 @@ const POST_QUERY_ATTRIBUTES = [
 	'authors',
 	'categories',
 	'includeSubcategories',
+	'categoryJoinType',
 	'excerptLength',
 	'tags',
 	'customTaxonomies',
@@ -69,6 +70,7 @@ export const queryCriteriaFromAttributes = ( attributes: Block[ 'attributes' ] )
 		authors,
 		categories,
 		includeSubcategories,
+		categoryJoinType,
 		excerptLength,
 		postType,
 		showExcerpt,
@@ -96,6 +98,7 @@ export const queryCriteriaFromAttributes = ( attributes: Block[ 'attributes' ] )
 				postsToShow,
 				categories: validateAttributeCollection( categories ),
 				includeSubcategories,
+				categoryJoinType,
 				authors: validateAttributeCollection( authors ),
 				tags: validateAttributeCollection( tags ),
 				tagExclusions: validateAttributeCollection( tagExclusions ),
@@ -173,14 +176,13 @@ const generatePreviewPost = ( id: PostId ) => {
 			rendered: __( 'Post Title', 'jetpack-mu-wpcom' ),
 		},
 		newspack_article_classes: 'type-post',
-		newspack_author_info: [
-			{
-				display_name: __( 'Author Name', 'jetpack-mu-wpcom' ),
-				avatar: `<div style="background: #e8e8e8;width: 40px;height: 40px;display: block;overflow: hidden;border-radius: 50%; max-width: 100%; max-height: 100%;"></div>`,
-				id: 1,
-				author_link: '/',
-			},
-		],
+		newspack_post_avatars: `<div style="background: #e8e8e8;width: 40px;height: 40px;display: block;overflow: hidden;border-radius: 50%; max-width: 100%; max-height: 100%;" class="avatar"></div>`,
+		newspack_post_byline: `<span class="byline">
+			<span class="author-prefix">${ __( 'by', 'jetpack-mu-wpcom' ) }</span>
+			<span class="author vcard">
+				<a class="url fn n" href="/">Author Name</a>
+			</span>
+		</span>`,
 		newspack_category_info: __( 'Category', 'jetpack-mu-wpcom' ),
 		newspack_featured_image_caption: __( 'Featured image caption', 'jetpack-mu-wpcom' ),
 		newspack_featured_image_src: {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Newsletter: ensure the subscriber stats links are correct in the dashboard widget, even when you do not use Stats feature.

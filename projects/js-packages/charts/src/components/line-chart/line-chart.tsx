@@ -6,12 +6,14 @@ import clsx from 'clsx';
 import { useId, useMemo, useContext } from 'react';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
-import { parseAsLocalDate } from '../shared/date-parsing';
 import { DefaultGlyph } from '../shared/default-glyph';
+import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
+import LineChartAnnotation from './line-chart-annotation';
 import styles from './line-chart.module.scss';
+import type { LineChartAnnotationProps } from './line-chart-annotation';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
@@ -113,6 +115,7 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 		showVertical?: boolean;
 		showHorizontal?: boolean;
 	};
+	annotations?: LineChartAnnotationProps[];
 }
 
 type TooltipDatum = {
@@ -164,7 +167,7 @@ const validateData = ( data: SeriesData[] ) => {
 				isNaN( point.value as number ) ||
 				point.value === null ||
 				point.value === undefined ||
-				isNaN( point.date.getTime() )
+				( 'date' in point && point.date && isNaN( point.date.getTime() ) )
 		)
 	);
 
@@ -194,6 +197,7 @@ const LineChart: FC< LineChartProps > = ( {
 	renderTooltip = renderDefaultTooltip,
 	withStartGlyphs = false,
 	options = {},
+	annotations,
 	onPointerDown = undefined,
 	onPointerUp = undefined,
 	onPointerMove = undefined,
@@ -204,19 +208,7 @@ const LineChart: FC< LineChartProps > = ( {
 	const chartId = useId(); // Ensure unique ids for gradient fill.
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 
-	const dataSorted = useMemo(
-		() =>
-			data.map( series => ( {
-				...series,
-				data: series.data
-					.map( point => ( {
-						...point,
-						date: point.date ? point.date : parseAsLocalDate( point.dateString ),
-					} ) )
-					.sort( ( a, b ) => a.date.getTime() - b.date.getTime() ),
-			} ) ),
-		[ data ]
-	);
+	const dataSorted = useChartDataTransform( data );
 
 	const chartOptions = useMemo( () => {
 		const xNumTicks = Math.min( dataSorted[ 0 ]?.data.length, Math.ceil( width / X_TICK_WIDTH ) );
@@ -289,7 +281,9 @@ const LineChart: FC< LineChartProps > = ( {
 			style={ {
 				width,
 				height,
-				position: 'relative',
+				display: 'flex',
+				flexDirection:
+					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
 			} }
 		>
 			<XYChart
@@ -377,6 +371,22 @@ const LineChart: FC< LineChartProps > = ( {
 						showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
 					/>
 				) }
+
+				{ annotations?.length &&
+					annotations.map(
+						( { datum, title, subtitle, subjectType, styles: datumStyles }, index ) =>
+							datum ? (
+								<LineChartAnnotation
+									key={ `annotation-${ datum.date?.getTime() }-${ datum.value }` }
+									testId={ `annotation-${ index }` }
+									datum={ datum }
+									title={ title }
+									subtitle={ subtitle }
+									subjectType={ subjectType }
+									styles={ datumStyles }
+								/>
+							) : null
+					) }
 			</XYChart>
 
 			{ showLegend && (

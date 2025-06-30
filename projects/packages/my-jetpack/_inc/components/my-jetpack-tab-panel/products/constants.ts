@@ -1,11 +1,10 @@
 export const JETPACK_PRODUCTS_WITH_CARD = [
-	'ai',
-	'jetpack-ai',
 	'anti-spam',
 	'backup',
 	'boost',
 	'crm',
-	'scan',
+	'jetpack-ai',
+	'protect',
 	'search',
 	'social',
 	'stats',
@@ -23,53 +22,56 @@ export const JETPACK_PRODUCTS_WITHOUT_CARD = [
 	'site-accelerator',
 ] as const;
 
-// TODO Update this list
+export const PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN = [ 'anti-spam', 'boost', 'crm' ];
+
+/**
+ * Non-paid here means that the module is available for free users,
+ * i.e. it does not have a paid plan associated with it.
+ */
 export const JETPACK_NON_PAID_MODULES = [
 	'account-protection',
-	'carousel',
-	'comment-likes',
-	'likes',
-	'monitor',
-	'sharedaddy',
-	'shortlinks',
-	'sso',
-	'waf',
-] as const;
-
-// TODO Update this list
-export const JETPACK_PAID_MODULES = [
 	'blaze',
 	'blocks',
+	'carousel',
+	'comment-likes',
 	'comments',
 	'contact-form',
 	'copy-post',
-	'custom-content-types',
 	'google-fonts',
 	'gravatar-hovercards',
 	'infinite-scroll',
 	'json-api',
 	'latex',
+	'likes',
 	'markdown',
+	'monitor',
 	'notes',
 	'photon',
 	'photon-cdn',
 	'post-by-email',
 	'post-list',
 	'protect',
-	'publicize',
 	'related-posts',
-	'search',
 	'seo-tools',
+	'sharedaddy',
 	'shortcodes',
+	'shortlinks',
 	'sitemaps',
-	'stats',
+	'sso',
 	'subscriptions',
 	'tiled-gallery',
-	'vaultpress',
 	'verification-tools',
-	'videopress',
+	'waf',
 	'widget-visibility',
 	'widgets',
+] as const;
+
+export const JETPACK_PAID_MODULES = [
+	'publicize',
+	'search',
+	'stats',
+	'vaultpress',
+	'videopress',
 	'woocommerce-analytics',
 	'wordads',
 ] as const;

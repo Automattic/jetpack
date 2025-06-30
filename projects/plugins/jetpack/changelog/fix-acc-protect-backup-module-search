@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Settings: avoid showing Backup and Account Protection modules with any search terms

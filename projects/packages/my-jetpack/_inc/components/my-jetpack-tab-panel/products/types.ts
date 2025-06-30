@@ -6,13 +6,9 @@ import {
 	JETPACK_PRODUCTS_WITHOUT_CARD,
 } from './constants';
 
-export type ProductCategory =
-	| 'recommended'
-	| 'security'
-	| 'growth'
-	| 'performance'
-	| 'management'
-	| 'create';
+export type ProductCategory = 'recommended' | 'security' | 'growth' | 'performance' | 'other';
+
+export type ProductFilter = ProductCategory | 'all' | 'included';
 
 export type JetpackProductWithCard = ( typeof JETPACK_PRODUCTS_WITH_CARD )[ number ];
 

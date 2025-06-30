@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Forms: Add JSON response to form submission and ajax request under feature flag

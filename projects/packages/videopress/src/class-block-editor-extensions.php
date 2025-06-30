@@ -110,7 +110,7 @@ class Block_Editor_Extensions {
 
 		$extensions_list = array_map(
 			function ( $extension ) {
-				return (array) array(
+				return array(
 					'name'      => $extension,
 					'isBeta'    => true,
 					'isEnabled' => 'beta' === self::$blocks_variation,

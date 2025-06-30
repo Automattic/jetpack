@@ -10,16 +10,19 @@ namespace Automattic\Jetpack\Connection;
 /**
  * The Jetpack Connection Errors that handles errors
  *
- * This class handles the following workflow:
+ * This class handles the following workflow for incoming XML-RPC and REST API requests:
  *
- * 1. A XML-RCP request with an invalid signature triggers a error
+ * 1. An incoming XML-RPC or REST API request with an invalid signature triggers an error
  * 2. Applies a gate to only process each error code once an hour to avoid overflow
  * 3. It stores the error on the database, but we don't know yet if this is a valid error, because
  *    we can't confirm it came from WP.com.
- * 4. It encrypts the error details and send it to thw wp.com server
+ * 4. It encrypts the error details and sends it to the wp.com server
  * 5. wp.com checks it and, if valid, sends a new request back to this site using the verify_xml_rpc_error REST endpoint
- * 6. This endpoint add this error to the Verified errors in the database
+ * 6. This endpoint adds this error to the Verified errors in the database
  * 7. Triggers a workflow depending on the error (display user an error message, do some self healing, etc.)
+ *
+ * Note: This class only handles authentication/signature errors from incoming requests to this site.
+ * Outgoing request signing issues (when this site makes requests to WP.com) are not handled here.
  *
  * Errors are stored in the database as options in the following format:
  *
@@ -33,10 +36,25 @@ namespace Automattic\Jetpack\Connection;
  *
  * For each error code we store a maximum of 5 errors for 5 different user ids.
  *
- * An user ID can be
+ * A user ID can be:
  * * 0 for blog tokens
  * * positive integer for user tokens
  * * 'invalid' for malformed tokens
+ *
+ * Example error structure:
+ * [
+ *   'invalid_token' => [
+ *     '123' => [
+ *       'error_code' => 'invalid_token',
+ *       'user_id' => '123',
+ *       'error_message' => 'The token is invalid',
+ *       'error_data' => ['action' => 'reconnect'],
+ *       'timestamp' => 1234567890,
+ *       'nonce' => 'abc123def',
+ *       'error_type' => 'xmlrpc'
+ *     ]
+ *   ]
+ * ]
  *
  * @since 1.14.2
  */
@@ -77,14 +95,6 @@ class Error_Handler {
 	const ERROR_LIFE_TIME = DAY_IN_SECONDS;
 
 	/**
-	 * The error code for event tracking purposes.
-	 * If there are many, only the first error code will be tracked.
-	 *
-	 * @var string
-	 */
-	private $error_code;
-
-	/**
 	 * List of known errors. Only error codes in this list will be handled
 	 *
 	 * @since 1.14.2
@@ -115,7 +125,6 @@ class Error_Handler {
 		'invalid_nonce',
 		'signature_mismatch',
 		'invalid_connection_owner',
-		'protected_owner_missing',
 	);
 
 	/**
@@ -128,7 +137,16 @@ class Error_Handler {
 	public static $instance = null;
 
 	/**
-	 * Initialize instance, hookds and load verified errors handlers
+	 * Cached displayable errors to avoid duplicate processing
+	 *
+	 * @since 6.13.10
+	 *
+	 * @var array|null
+	 */
+	private $cached_displayable_errors = null;
+
+	/**
+	 * Initialize instance, hooks and load verified errors handlers
 	 *
 	 * @since 1.14.2
 	 */
@@ -150,39 +168,190 @@ class Error_Handler {
 	}
 
 	/**
-	 * Gets the list of verified errors and act upon them
+	 * Gets displayable errors with predefined structure and optional filtering.
 	 *
-	 * @since 1.14.2
+	 * This method returns a hierarchical array of errors (error_code => user_id => error_details)
+	 * that can be safely displayed in My Jetpack and other UI components. It includes
+	 * predefined error messages and actions, with optional filtering for specific sites.
+	 * Only processes a limited set of error codes that are meant to be displayed to users.
 	 *
-	 * @return void
+	 * @since 6.13.10
+	 *
+	 * @return array Array of displayable errors with hierarchical structure.
+	 *               Example:
+	 *               [
+	 *                 'invalid_token' => [
+	 *                   '123' => [
+	 *                     'error_code' => 'invalid_token',
+	 *                     'user_id' => '123',
+	 *                     'error_message' => 'Your connection with WordPress.com seems to be broken...',
+	 *                     'error_data' => ['action' => 'reconnect'],
+	 *                     'timestamp' => 1234567890,
+	 *                     'nonce' => 'abc123def',
+	 *                     'error_type' => 'xmlrpc'
+	 *                   ]
+	 *                 ]
+	 *               ]
 	 */
-	public function handle_verified_errors() {
-		$verified_errors = $this->get_verified_errors();
-		foreach ( array_keys( $verified_errors ) as $error_code ) {
-			switch ( $error_code ) {
-				case 'malformed_token':
-				case 'token_malformed':
-				case 'no_possible_tokens':
-				case 'no_valid_user_token':
-				case 'no_valid_blog_token':
-				case 'unknown_token':
-				case 'could_not_sign':
-				case 'invalid_token':
-				case 'token_mismatch':
-				case 'invalid_signature':
-				case 'signature_mismatch':
-				case 'no_user_tokens':
-				case 'no_token_for_user':
-				case 'invalid_connection_owner':
-				case 'protected_owner_missing':
-					add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
-					add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
-					$this->error_code = $error_code;
+	public function get_displayable_errors() {
+		// Check if we have cached result AND no filters are applied
+		if ( $this->cached_displayable_errors !== null && ! $this->has_external_filters() ) {
+			return $this->cached_displayable_errors;
+		}
 
-					// Since we are only generically handling errors, we don't need to trigger error messages for each one of them.
-					break 2;
+		$verified_errors    = $this->get_verified_errors();
+		$displayable_errors = array();
+
+		// Only process error codes that are meant to be displayed to users
+		$displayable_error_codes = array(
+			'malformed_token',
+			'token_malformed',
+			'no_possible_tokens',
+			'no_valid_user_token',
+			'no_valid_blog_token',
+			'unknown_token',
+			'could_not_sign',
+			'invalid_token',
+			'token_mismatch',
+			'invalid_signature',
+			'signature_mismatch',
+			'no_user_tokens',
+			'no_token_for_user',
+			'invalid_connection_owner',
+		);
+
+		foreach ( $verified_errors as $error_code => $users ) {
+			// Skip error codes that are not meant to be displayed
+			if ( ! in_array( $error_code, $displayable_error_codes, true ) ) {
+				continue;
+			}
+
+			$displayable_errors[ $error_code ] = array();
+
+			foreach ( $users as $user_id => $error ) {
+				// Override other error messages with default display message
+				$displayable_errors[ $error_code ][ $user_id ] = array_merge(
+					$error,
+					array(
+						'error_message' => __( "Your connection with WordPress.com seems to be broken. If you're experiencing issues, please try reconnecting.", 'jetpack-connection' ),
+					)
+				);
 			}
 		}
+
+		/**
+		 * Filter displayable connection errors to allow customization of error messages and actions.
+		 *
+		 * This filter allows sites to customize how connection errors are displayed,
+		 * including modifying error messages, actions, and data. Access to this filter
+		 * is controlled by should_allow_error_filtering().
+		 *
+		 * @since 6.12.0
+		 *
+		 * @param array $displayable_errors Array of displayable errors with hierarchical structure.
+		 * @param array $verified_errors    Array of raw verified errors from the database.
+		 */
+		if ( $this->should_allow_error_filtering() ) {
+			$displayable_errors = apply_filters( 'jetpack_connection_get_verified_errors', $displayable_errors, $verified_errors );
+		}
+
+		// Only cache if no external filters are applied
+		if ( ! $this->has_external_filters() ) {
+			$this->cached_displayable_errors = $displayable_errors;
+		}
+
+		return $displayable_errors;
+	}
+
+	/**
+	 * Sets up hooks for displaying verified errors on admin pages.
+	 *
+	 * This method is hooked into 'admin_init'. It retrieves displayable errors
+	 * and, if any exist, sets up the necessary action and filter hooks to display
+	 * them in admin notices and the React dashboard.
+	 *
+	 * @since 1.14.2
+	 */
+	public function handle_verified_errors() {
+		$displayable_errors = $this->get_displayable_errors();
+
+		// If there are any displayable errors, set up the hooks for displaying them in React dashboard and admin notices.
+		if ( ! empty( $displayable_errors ) ) {
+			add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
+			add_filter( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ), 10, 1 );
+		}
+	}
+
+	/**
+	 * Determines whether error filtering should be allowed.
+	 *
+	 * This method controls access to the jetpack_connection_displayable_errors filter.
+	 * Currently, only WoA sites are allowed to use this filter.
+	 *
+	 * @since 6.13.10
+	 *
+	 * @return bool True if error filtering should be allowed, false otherwise.
+	 */
+	protected function should_allow_error_filtering() {
+		$host = new \Automattic\Jetpack\Status\Host();
+		return $host->is_woa_site();
+	}
+
+	/**
+	 * Provides displayable connection errors for the React dashboard in a flat array format.
+	 *
+	 * This method transforms the hierarchical displayable_errors structure into the flat format
+	 * expected by the React dashboard. It's used as a filter for 'react_connection_errors_initial_state'.
+	 * Returns only the first error to avoid overwhelming the user with multiple error messages.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param array $errors Existing errors from other filters (unused but required for filter signature).
+	 * @return array Array containing only the first displayable error for the React dashboard.
+	 *               Example:
+	 *               [
+	 *                 [
+	 *                   'code' => 'connection_error',
+	 *                   'message' => 'Your connection with WordPress.com seems to be broken...',
+	 *                   'action' => 'reconnect',
+	 *                   'data' => [
+	 *                     'api_error_code' => 'invalid_token',
+	 *                     'action' => 'reconnect'
+	 *                   ]
+	 *                 ]
+	 *               ]
+	 */
+	public function jetpack_react_dashboard_error( $errors ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$displayable_errors = $this->get_displayable_errors();
+
+		// Get the first error only
+		$first_error_code = array_key_first( $displayable_errors );
+		if ( ! $first_error_code ) {
+			return array(); // No errors
+		}
+
+		$first_user_errors = $displayable_errors[ $first_error_code ];
+		$first_error       = reset( $first_user_errors );
+
+		// Determine the action - use the one from error_data if available, otherwise default to 'reconnect'
+		$action = 'reconnect'; // Default action for connection errors
+		if ( isset( $first_error['error_data']['action'] ) ) {
+			$action = $first_error['error_data']['action'];
+		}
+
+		$dashboard_error = array(
+			array(
+				'code'    => 'connection_error',
+				'message' => $first_error['error_message'],
+				'action'  => $action,
+				'data'    => array_merge(
+					array( 'api_error_code' => $first_error_code ),
+					$first_error['error_data'] ?? array()
+				),
+			),
+		);
+
+		return $dashboard_error;
 	}
 
 	/**
@@ -210,7 +379,7 @@ class Error_Handler {
 	 * @since 1.14.2
 	 */
 	public function report_error( \WP_Error $error, $force = false, $skip_wpcom_verification = false ) {
-		if ( in_array( $error->get_error_code(), $this->known_errors, true ) && $this->should_report_error( $error ) || $force ) {
+		if ( in_array( $error->get_error_code(), $this->known_errors, true ) && ( $this->should_report_error( $error ) || $force ) ) {
 			$stored_error = $this->store_error( $error );
 			if ( $stored_error ) {
 				$skip_wpcom_verification ? $this->verify_error( $stored_error ) : $this->send_error_to_wpcom( $stored_error );
@@ -229,7 +398,7 @@ class Error_Handler {
 	 * @return boolean $should_report True if gate is open and the error should be reported.
 	 */
 	public function should_report_error( \WP_Error $error ) {
-		if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
+		if ( defined( '\\JETPACK_DEV_DEBUG' ) && constant( '\\JETPACK_DEV_DEBUG' ) ) {
 			return true;
 		}
 
@@ -297,6 +466,53 @@ class Error_Handler {
 	}
 
 	/**
+	 * Builds a standardized error array for the connection error system.
+	 *
+	 * This method creates a consistent error array structure that can be used
+	 * by both internal error handling and external plugins/customizations.
+	 *
+	 * @since 6.13.10
+	 *
+	 * @param string $error_code    The error code identifier.
+	 * @param string $error_message The human-readable error message.
+	 * @param array  $error_data    Additional error data (optional).
+	 * @param string $user_id       The user ID associated with the error (optional).
+	 * @param string $error_type    The type of error (optional).
+	 * @return array|false The standardized error array or false on failure.
+	 *                     Example successful return:
+	 *                     [
+	 *                       'error_code' => 'invalid_token',
+	 *                       'user_id' => '123',
+	 *                       'error_message' => 'The token is invalid',
+	 *                       'error_data' => ['action' => 'reconnect'],
+	 *                       'timestamp' => 1234567890,
+	 *                       'nonce' => 'abc123def',
+	 *                       'error_type' => 'xmlrpc'
+	 *                     ]
+	 */
+	public function build_error_array( string $error_code, string $error_message, array $error_data = array(), $user_id = '0', string $error_type = '' ) {
+		// Validate required parameters
+		if ( empty( $error_code ) || empty( $error_message ) ) {
+			return false;
+		}
+
+		// Validate user_id is a string or integer
+		if ( ! is_string( $user_id ) && ! is_int( $user_id ) ) {
+			return false;
+		}
+
+		return array(
+			'error_code'    => $error_code,
+			'user_id'       => $user_id,
+			'error_message' => $error_message,
+			'error_data'    => $error_data,
+			'timestamp'     => time(),
+			'nonce'         => wp_generate_password( 10, false ),
+			'error_type'    => $error_type,
+		);
+	}
+
+	/**
 	 * Converts a WP_Error object in the array representation we store in the database
 	 *
 	 * @since 1.14.2
@@ -320,17 +536,13 @@ class Error_Handler {
 
 		$user_id = $this->get_user_id_from_token( $signature_details['token'] );
 
-		$error_array = array(
-			'error_code'    => $error->get_error_code(),
-			'user_id'       => $user_id,
-			'error_message' => $error->get_error_message(),
-			'error_data'    => $signature_details,
-			'timestamp'     => time(),
-			'nonce'         => wp_generate_password( 10, false ),
-			'error_type'    => empty( $data['error_type'] ) ? '' : $data['error_type'],
+		return $this->build_error_array(
+			$error->get_error_code(),
+			$error->get_error_message(),
+			$signature_details,
+			$user_id,
+			empty( $data['error_type'] ) ? '' : $data['error_type']
 		);
-
-		return $error_array;
 	}
 
 	/**
@@ -429,44 +641,18 @@ class Error_Handler {
 	}
 
 	/**
-	 * Gets the verified errors stored in the database and applies filters.
-	 *
-	 * @since 1.14.2
-	 *
-	 * @return array $errors
-	 */
-	public function get_verified_errors() {
-		$verified_errors = $this->get_stored_verified_errors();
-
-		/**
-		 * Filter verified connection errors to allow external plugins to inject their own error types
-		 *
-		 * This filter allows external plugins (like wpcomsh with Protected Owner errors)
-		 * to inject their own error types into the standard connection error flow.
-		 * External errors should follow the same structure as regular connection errors.
-		 *
-		 * @since 6.12.0
-		 *
-		 * @param array $verified_errors Array of verified connection errors
-		 */
-		$verified_errors = apply_filters( 'jetpack_connection_get_verified_errors', $verified_errors );
-
-		return $verified_errors;
-	}
-
-	/**
-	 * Gets the verified errors stored in the database without applying filters
+	 * Gets the verified errors stored in the database.
 	 *
 	 * This method retrieves only the errors that are actually stored in the database,
 	 * without applying any filters that might inject additional errors. This is used
 	 * internally by methods that need to modify and store the verified errors back
 	 * to the database to prevent accidentally persisting filtered/injected errors.
 	 *
-	 * @since 6.12.0
+	 * @since 1.14.2
 	 *
 	 * @return array $errors
 	 */
-	protected function get_stored_verified_errors() {
+	public function get_verified_errors() {
 		$verified_errors = get_option( self::STORED_VERIFIED_ERRORS_OPTION );
 
 		if ( ! is_array( $verified_errors ) ) {
@@ -483,7 +669,7 @@ class Error_Handler {
 	 *
 	 * This method is called by get_stored_errors and get_verified errors and filters their result
 	 * Whenever a new error is stored to the database or verified, this will be triggered and the
-	 * expired error will be permantently removed from the database
+	 * expired error will be permanently removed from the database
 	 *
 	 * @since 1.14.2
 	 *
@@ -518,6 +704,9 @@ class Error_Handler {
 	public function delete_all_errors() {
 		$this->delete_stored_errors();
 		$this->delete_verified_errors();
+
+		// Invalidate cache since we deleted all errors
+		$this->invalidate_displayable_errors_cache();
 	}
 
 	/**
@@ -550,7 +739,7 @@ class Error_Handler {
 			}
 		}
 
-		$verified_errors = $this->get_stored_verified_errors();
+		$verified_errors = $this->get_verified_errors();
 		if ( is_array( $verified_errors ) && count( $verified_errors ) ) {
 			$verified_errors = array_filter( array_map( $type_filter, $verified_errors ) );
 			if ( count( $verified_errors ) ) {
@@ -559,6 +748,9 @@ class Error_Handler {
 				delete_option( static::STORED_VERIFIED_ERRORS_OPTION );
 			}
 		}
+
+		// Invalidate cache since we may have deleted verified errors
+		$this->invalidate_displayable_errors_cache();
 	}
 
 	/**
@@ -630,7 +822,7 @@ class Error_Handler {
 	 */
 	public function verify_error( $error ) {
 
-		$verified_errors = $this->get_stored_verified_errors();
+		$verified_errors = $this->get_verified_errors();
 		$error_code      = $error['error_code'];
 		$user_id         = $error['user_id'];
 
@@ -641,10 +833,13 @@ class Error_Handler {
 		$verified_errors[ $error_code ][ $user_id ] = $error;
 
 		update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+
+		// Invalidate cache since we added a new verified error
+		$this->invalidate_displayable_errors_cache();
 	}
 
 	/**
-	 * Register REST API end point for error hanlding.
+	 * Register REST API end point for error handling.
 	 *
 	 * @since 1.14.2
 	 *
@@ -718,7 +913,7 @@ class Error_Handler {
 		 * @param string $message The error message.
 		 * @param array  $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
 		 */
-		$message = apply_filters( 'jetpack_connection_error_notice_message', '', $this->get_verified_errors() );
+		$message = apply_filters( 'jetpack_connection_error_notice_message', '', $this->get_displayable_errors() );
 
 		/**
 		 * Fires inside the admin_notices hook just before displaying the error message for a broken connection.
@@ -729,7 +924,7 @@ class Error_Handler {
 		 *
 		 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
 		 */
-		do_action( 'jetpack_connection_error_notice', $this->get_verified_errors() );
+		do_action( 'jetpack_connection_error_notice', $this->get_displayable_errors() );
 
 		if ( empty( $message ) ) {
 			return;
@@ -744,51 +939,6 @@ class Error_Handler {
 				'attributes'         => array( 'style' => 'display:block !important;' ),
 			)
 		);
-	}
-
-	/**
-	 * Adds the error message to the Jetpack React Dashboard
-	 *
-	 * @since 8.9.0
-	 *
-	 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
-	 * @return array
-	 */
-	public function jetpack_react_dashboard_error( $errors ) {
-		// Default values for all errors
-		$error_message = __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' );
-		$action        = 'reconnect';
-		$error_data    = array( 'api_error_code' => $this->error_code );
-
-		// Special handling for protected_owner type errors
-		$verified_errors = $this->get_verified_errors();
-		if ( isset( $verified_errors[ $this->error_code ] ) ) {
-			$first_error = reset( $verified_errors[ $this->error_code ] );
-
-			// Check if this is a protected_owner type error
-			if ( ! empty( $first_error['error_type'] ) && 'protected_owner' === $first_error['error_type'] ) {
-				if ( ! empty( $first_error['error_message'] ) ) {
-					$error_message = $first_error['error_message'];
-				}
-
-				if ( ! empty( $first_error['error_data'] ) ) {
-					$error_data = array_merge( $error_data, $first_error['error_data'] );
-
-					if ( ! empty( $first_error['error_data']['action'] ) ) {
-						$action = $first_error['error_data']['action'];
-					}
-				}
-			}
-		}
-
-		$errors[] = array(
-			'code'    => 'connection_error',
-			'message' => $error_message,
-			'action'  => $action,
-			'data'    => $error_data,
-		);
-
-		return $errors;
 	}
 
 	/**
@@ -835,5 +985,27 @@ class Error_Handler {
 		);
 
 		$this->report_error( $error, false, true );
+	}
+
+	/**
+	 * Determines whether external filters are applied to the get_displayable_errors method.
+	 *
+	 * @since 6.13.10
+	 *
+	 * @return bool True if external filters are applied, false otherwise.
+	 */
+	private function has_external_filters() {
+		return has_filter( 'jetpack_connection_get_verified_errors' ) && $this->should_allow_error_filtering();
+	}
+
+	/**
+	 * Invalidates the cached displayable errors
+	 *
+	 * @since 6.13.10
+	 *
+	 * @return void
+	 */
+	private function invalidate_displayable_errors_cache() {
+		$this->cached_displayable_errors = null;
 	}
 }

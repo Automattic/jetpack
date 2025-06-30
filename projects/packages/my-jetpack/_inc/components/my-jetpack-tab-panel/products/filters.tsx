@@ -3,11 +3,12 @@ import { MenuItem, NavigableMenu, SearchControl, SelectControl } from '@wordpres
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
+import { ProductFilter } from './types';
 import { getProductsFilterChoices } from './utils';
 
 type FiltersProps = {
-	onChangeFilter: ( filter: string ) => void;
-	selectedFilter?: string;
+	onChangeFilter: ( filter: ProductFilter ) => void;
+	selectedFilter?: ProductFilter;
 	search?: string;
 	onSearch: ( search: string ) => void;
 };
@@ -21,7 +22,7 @@ type FiltersProps = {
  */
 export function Filters( { onChangeFilter, onSearch, search, selectedFilter }: FiltersProps ) {
 	const onSelectFilter = useCallback(
-		( filter: string ) => () => {
+		( filter: ProductFilter ) => () => {
 			if ( selectedFilter !== filter ) {
 				onChangeFilter( filter );
 			}

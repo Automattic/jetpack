@@ -101,6 +101,11 @@
 
 .product-card {
 
+	&:global(.components-card) {
+		box-shadow: none;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
 	div[data-wp-component="CardHeader"]{
 		border-bottom: 0;
 		padding-bottom: 0;

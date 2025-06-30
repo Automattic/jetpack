@@ -20,16 +20,19 @@ use Jetpack_Gutenberg;
  * registration if we need to.
  */
 function register_block() {
-	$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$is_wpcom     = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$is_connected = \Jetpack::is_connection_ready();
 
-	Blocks::jetpack_register_block(
-		__DIR__,
-		array(
-			'api_version'     => 3,
-			'render_callback' => __NAMESPACE__ . '\render_block',
-			'description'     => $is_wpcom ? __( 'Give your readers the ability to show appreciation for your posts and easily share them with others.', 'jetpack' ) : __( 'Give your readers the ability to show appreciation for your posts.', 'jetpack' ),
-		)
-	);
+	if ( $is_wpcom || $is_connected ) {
+		Blocks::jetpack_register_block(
+			__DIR__,
+			array(
+				'api_version'     => 3,
+				'render_callback' => __NAMESPACE__ . '\render_block',
+				'description'     => $is_wpcom ? __( 'Give your readers the ability to show appreciation for your posts and easily share them with others.', 'jetpack' ) : __( 'Give your readers the ability to show appreciation for your posts.', 'jetpack' ),
+			)
+		);
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 

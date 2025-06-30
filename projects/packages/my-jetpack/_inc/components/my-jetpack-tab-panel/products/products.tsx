@@ -3,6 +3,7 @@ import { FilteredPlans } from './filtered-plans';
 import { FilteredProducts } from './filtered-products';
 import { Filters } from './filters';
 import styles from './styles.module.scss';
+import { ProductFilter } from './types';
 
 /**
  * Render the products.
@@ -10,7 +11,7 @@ import styles from './styles.module.scss';
  * @return The rendered component.
  */
 export function Products() {
-	const [ selectedFilter, setSelectedFilter ] = useState( 'all' );
+	const [ selectedFilter, setSelectedFilter ] = useState< ProductFilter >( 'all' );
 	const [ search, setSearch ] = useState( '' );
 
 	return (

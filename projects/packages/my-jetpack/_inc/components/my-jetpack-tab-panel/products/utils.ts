@@ -1,13 +1,17 @@
 import { __ } from '@wordpress/i18n';
-import { ProductSection } from './types';
+import { MyJetpackModule } from '../../types';
+import { ProductFilter, ProductSection } from './types';
 
 /**
  * Get the choices for the products filter.
  *
  * @return The choices for the products filter.
  */
-export function getProductsFilterChoices(): Array< { label: string; value: string } > {
-	const choices = [
+export function getProductsFilterChoices() {
+	const choices: Array< {
+		label: string;
+		value: ProductFilter;
+	} > = [
 		{
 			label: __( 'All categories', 'jetpack-my-jetpack' ),
 			value: 'all',
@@ -33,12 +37,8 @@ export function getProductsFilterChoices(): Array< { label: string; value: strin
 			value: 'performance',
 		},
 		{
-			label: __( 'Management', 'jetpack-my-jetpack' ),
-			value: 'management',
-		},
-		{
-			label: __( 'Create', 'jetpack-my-jetpack' ),
-			value: 'create',
+			label: __( 'Other', 'jetpack-my-jetpack' ),
+			value: 'other',
 		},
 	];
 
@@ -95,4 +95,20 @@ export function filterSections(
 		.filter( section => {
 			return section.cards?.length || section.modules?.length;
 		} );
+}
+
+/**
+ * Filter and sort modules based on their name.
+ *
+ * @param {Array<MyJetpackModule>} modules - The modules to filter and sort.
+ * @return The filtered and sorted modules.
+ */
+export function filterAndSortModules(
+	modules: Array< MyJetpackModule >
+): Array< MyJetpackModule > {
+	const $modules = [ ...modules ].filter( Boolean );
+
+	$modules.sort( ( a, b ) => a.name.localeCompare( b.name ) );
+
+	return $modules;
 }

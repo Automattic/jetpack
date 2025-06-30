@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix chart flickering on initial load
