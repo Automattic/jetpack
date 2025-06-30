@@ -81,7 +81,7 @@ class Cleanup_Stored_Paths {
 			return false;
 		}
 
-		$expire_timestamp = time() + WEEK_IN_SECONDS;
+		$expire_timestamp = time() + MONTH_IN_SECONDS;
 		// Used to tell the cleanup to skip the entries that were checked in the previous run.
 		// Avoids processing the same entries over and over again.
 		$last_processed_option_id = false;
