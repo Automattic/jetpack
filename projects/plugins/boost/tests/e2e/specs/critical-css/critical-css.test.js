@@ -13,9 +13,11 @@ test.describe( 'Critical CSS module', () => {
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( true ).build();
+		await execWpCommand( 'plugin activate e2e-critical-css-force-errors' );
 	} );
 
 	test.afterAll( async () => {
+		await execWpCommand( 'plugin deactivate e2e-critical-css-force-errors' );
 		if ( previousTheme !== null ) {
 			await execWpCommand( `theme activate ${ previousTheme }` );
 		}
@@ -100,8 +102,6 @@ test.describe( 'Critical CSS module', () => {
 
 	test( 'User can access the Critical advanced recommendations and go back to settings page', async () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
-
-		await execWpCommand( 'plugin activate e2e-critical-css-force-errors' );
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
