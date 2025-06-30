@@ -179,17 +179,22 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
-		// If the user is not connected, redirect to the onboarding page
-		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
-			$admin_page = add_query_arg(
-				array(
-					'page' => 'my-jetpack',
-					'step' => 'onboarding',
-				),
-				admin_url( 'admin.php' )
-			);
+		// Handle onboarding redirects based on connection status
+		$should_redirect = false;
+		$redirect_args   = array( 'page' => 'my-jetpack' );
 
-			$location = wp_sanitize_redirect( $admin_page );
+		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
+			// Redirect to onboarding if not connected
+			$redirect_args['step'] = 'onboarding';
+			$should_redirect       = true;
+		} elseif ( $connection->is_connected() && $step === 'onboarding' ) {
+			// Redirect away from onboarding if already connected
+			$should_redirect = true;
+		}
+
+		if ( $should_redirect ) {
+			$admin_page = add_query_arg( $redirect_args, admin_url( 'admin.php' ) );
+			$location   = wp_sanitize_redirect( $admin_page );
 
 			// Remove wp_get_referer filter applied in `fix_redirect` method of `Jetpack_Admin` class
 			remove_filter( 'wp_redirect', 'wp_get_referer' );

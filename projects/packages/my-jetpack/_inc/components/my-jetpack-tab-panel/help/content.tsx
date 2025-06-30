@@ -21,7 +21,7 @@ export function HelpContent() {
 	}, [ trackHelpRequest ] );
 
 	return (
-		<div className={ styles.content }>
+		<section>
 			<h2>{ __( 'Need assistance?', 'jetpack-my-jetpack' ) }</h2>
 			<p className={ styles.description }>
 				{ __(
@@ -48,6 +48,6 @@ export function HelpContent() {
 			<HelpCards />
 			<FullWidthSeparator />
 			<HelpFooter />
-		</div>
+		</section>
 	);
 }
