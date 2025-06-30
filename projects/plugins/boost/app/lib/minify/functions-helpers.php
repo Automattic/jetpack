@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack_Boost\Lib\Minify\Cleanup_Stored_Paths;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use Automattic\Jetpack_Boost\Lib\Minify\File_Paths;
@@ -135,6 +136,7 @@ function jetpack_boost_delete_expired_files( $files, $file_age ) {
 function jetpack_boost_minify_clear_scheduled_events() {
 	wp_unschedule_hook( 'jetpack_boost_minify_cron_cache_cleanup' );
 	wp_unschedule_hook( 'jetpack_boost_404_tester_cron' );
+	Cleanup_Stored_Paths::clear_schedules();
 }
 
 /**
@@ -403,6 +405,8 @@ function jetpack_boost_minify_activation() {
 	// Schedule a cronjob for cache cleanup, if one isn't already scheduled.
 	jetpack_boost_page_optimize_schedule_cache_cleanup();
 
+	Cleanup_Stored_Paths::setup_schedule();
+
 	// Setup the cronjob to periodically test for the 404 handler.
 	jetpack_boost_404_setup();
 }
@@ -421,6 +425,7 @@ function jetpack_boost_minify_is_enabled() {
  */
 function jetpack_boost_minify_init() {
 	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_minify_cron_cache_cleanup' );
+	Cleanup_Stored_Paths::add_cleanup_actions();
 
 	if ( jetpack_boost_page_optimize_bail() ) {
 		return;
