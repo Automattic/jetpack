@@ -30,15 +30,15 @@ export const percentCalculator = ( part, whole ) => {
 /**
  * CountComparisonCard component.
  *
- * @param {object}          props               - Component props.
- * @param {number}          props.count         - Current count.
- * @param {number}          props.previousCount - Previous count.
+ * @param {object}                    props               - Component props.
+ * @param {number}                    props.count         - Current count.
+ * @param {number}                    props.previousCount - Previous count.
  * @param {import('react').ReactNode} props.icon          - Icon to display.
  * @param {import('react').ReactNode} props.heading       - Card heading.
- * @param {string}          props.as            - Card root element type.
- * @param {string}          props.srText        - Text for screen readers.
- * @param {boolean}         props.isSelected    - Whether this card is currently selected.
- * @param {Function}        props.onClick       - Click handler for card selection.
+ * @param {string}                    props.as            - Card root element type.
+ * @param {string}                    props.srText        - Text for screen readers.
+ * @param {boolean}                   props.isSelected    - Whether this card is currently selected.
+ * @param {Function}                  props.onClick       - Click handler for card selection.
  * @return {object} CountComparisonCard React component.
  */
 const CountComparisonCard = ( {
