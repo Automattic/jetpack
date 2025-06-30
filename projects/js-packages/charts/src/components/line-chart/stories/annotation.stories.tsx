@@ -259,21 +259,43 @@ const CustomLabel = ( { title, subtitle }: { title: string; subtitle: string } )
 	);
 };
 
-const customAnnotationArgs = {
+const renderTopLabel = ( { title, subtitle }: { title: string; subtitle: string } ) => (
+	<CustomLabel title={ title } subtitle={ subtitle } />
+);
+
+const customTopAnnotationArgs = {
 	subjectType: 'line-vertical',
 	styles: {
 		label: { showAnchorLine: false, y: 'start' },
 	},
-	renderLabel: ( { title, subtitle }: { title: string; subtitle: string } ) => (
-		<CustomLabel title={ title } subtitle={ subtitle } />
-	),
+	renderLabel: renderTopLabel,
 };
 
 export const CustomVertical: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomVertical.args = {
 	...annotationStoryArgs,
-	annotations: annotations.map( annotation => ( {
-		...annotation,
-		...customAnnotationArgs,
-	} ) ),
+	annotations: [
+		{
+			...annotations[ 0 ],
+			...customTopAnnotationArgs,
+		},
+		{
+			...annotations[ 1 ],
+			...customTopAnnotationArgs,
+		},
+		{
+			...annotations[ 2 ],
+			subjectType: 'circle',
+			dx: 0,
+			styles: {
+				circleSubject: {
+					radius: 0,
+				},
+				label: {
+					showAnchorLine: false,
+				},
+			},
+			renderLabel: renderTopLabel,
+		},
+	],
 };
