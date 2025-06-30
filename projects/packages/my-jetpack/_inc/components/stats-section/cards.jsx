@@ -1,12 +1,12 @@
-import { BarChart } from '@automattic/charts';
 import { sprintf, __, _n } from '@wordpress/i18n';
-import { Icon, commentContent, people, starEmpty, chevronRight, info } from '@wordpress/icons';
+import { Icon, commentContent, people, starEmpty, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import formatNumber from '../../utils/format-number';
 import CountComparisonCard from './count-comparison-card';
 import createStatDiffText from './create-stat-diff-text';
 import eye from './eye';
+import StatsChart from './stats-chart';
 import styles from './style.module.scss';
 
 /**
@@ -77,11 +77,11 @@ const transformStatsDataForChart = ( apiData, selectedMetric = 'views' ) => {
 		{
 			label: getMetricLabel( selectedMetric ),
 			data: data.map( dataPoint => ( {
-				date: new Date( dataPoint[ periodIndex ] ),
+				date: new Date( dataPoint[ periodIndex ] + 'T00:00:00' ), // This ensures the date represents midnight in the local timezone rather than UTC midnight converted to local time.
 				value: dataPoint[ metricIndex ] || 0,
 			} ) ),
 			options: {
-				stroke: '#479C2E', // Jetpack green (--jp-green-50)
+				stroke: '#008710', // Jetpack green (--jp-green-50) #008710
 			},
 		},
 	];
@@ -155,11 +155,6 @@ const StatsCards = ( {
 		[ handleMetricSelect ]
 	);
 
-	// Check if there's data for the selected metric specifically - recalculates when selectedMetric changes
-	const isEmpty = useMemo( () => {
-		return ! isLoading && transformedChartData?.[ 0 ]?.data?.every( item => item.value === 0 );
-	}, [ transformedChartData, isLoading ] );
-
 	const handleKeyDown = useCallback(
 		e => {
 			if ( e.key === 'Enter' || e.key === ' ' ) {
@@ -168,6 +163,17 @@ const StatsCards = ( {
 		},
 		[ onDetailedStatsClick ]
 	);
+
+	// Get icon for selected metric
+	const getMetricIcon = useCallback( metric => {
+		const icons = {
+			views: <Icon icon={ eye } />,
+			visitors: <Icon icon={ people } />,
+			likes: <Icon icon={ starEmpty } />,
+			comments: <Icon icon={ commentContent } />,
+		};
+		return icons[ metric ] || icons.views;
+	}, [] );
 
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
@@ -186,60 +192,14 @@ const StatsCards = ( {
 				</div>
 			</div>
 
-			<div
-				className={ styles[ 'chart-container' ] }
+			<StatsChart
+				data={ transformedChartData }
+				isLoading={ isLoading }
 				onClick={ onDetailedStatsClick }
-				role="button"
-				tabIndex={ 0 }
 				onKeyDown={ handleKeyDown }
-			>
-				{ isEmpty && (
-					<div className={ styles[ 'chart-empty' ] }>
-						<div
-							className={ styles[ 'empty-state-card' ] }
-							title={ __( 'No data in this period', 'jetpack-my-jetpack' ) }
-						>
-							<Icon className={ styles[ 'empty-state-card__icon' ] } icon={ info } size={ 32 } />
-							<div className={ styles[ 'empty-state-card__content' ] }>
-								<div className={ styles[ 'empty-state-card-heading' ] }>
-									{ __( 'No data in this period', 'jetpack-my-jetpack' ) }
-								</div>
-								<div className={ styles[ 'empty-state-card-info' ] }>
-									{ __(
-										'There was no data recorded during the selected time period. Try selecting a different time range.',
-										'jetpack-my-jetpack'
-									) }
-								</div>
-							</div>
-						</div>
-					</div>
-				) }
-
-				{ ! isLoading && (
-					<BarChart
-						data={ transformedChartData }
-						height={ 200 }
-						withTooltips={ true }
-						showLegend={ false }
-						gridVisibility="x"
-						options={ {
-							yScale: {
-								type: 'linear',
-								zero: true, // Start from zero
-							},
-							axis: {
-								y: {
-									orientation: 'right',
-									tickFormat: value => {
-										// Only show labels for integer values to avoid duplicates
-										return Number.isInteger( value ) ? value.toString() : '';
-									},
-								},
-							},
-						} }
-					/>
-				) }
-			</div>
+				selectedMetric={ selectedMetric }
+				metricIcon={ getMetricIcon( selectedMetric ) }
+			/>
 
 			<ul className={ clsx( styles[ 'cards-list' ], styles[ 'my-jetpack-stats-cards' ] ) }>
 				<CountComparisonCard
