@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Component } from 'react';
 import SearchBox from './search-box';
 

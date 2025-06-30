@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { createPortal } from 'react-dom';
 import SearchFilters from './search-filters';
 import WidgetAreaContainer from './widget-area-container';

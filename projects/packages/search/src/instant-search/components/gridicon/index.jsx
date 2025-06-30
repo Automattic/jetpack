@@ -6,6 +6,7 @@ It has been modified to work with Preact, and only includes the icons that we ne
 !!! */
 
 import { __ } from '@wordpress/i18n';
+import * as React from 'react';
 import { Component } from 'react';
 
 import './style.scss';

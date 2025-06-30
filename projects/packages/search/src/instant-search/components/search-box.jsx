@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
+import * as React from 'react';
 import { Fragment, useState, useEffect, useRef } from 'react';
 import { OVERLAY_SEARCH_BOX_INPUT_CLASS_NAME } from '../lib/constants';
 import Gridicon from './gridicon';
