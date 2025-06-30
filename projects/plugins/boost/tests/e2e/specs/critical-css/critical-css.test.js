@@ -99,7 +99,12 @@ test.describe( 'Critical CSS module', () => {
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 
-		await page.getByRole( 'button', { name: 'Regenerate' } ).click();
+		page.getByRole( 'button', { name: 'Regenerate' } ).click();
+
+		expect(
+			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
+			'Critical CSS generation progress indicator should be visible'
+		).toBeTruthy();
 
 		expect(
 			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
