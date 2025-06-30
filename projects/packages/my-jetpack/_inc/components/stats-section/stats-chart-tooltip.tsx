@@ -1,8 +1,8 @@
 import { DataPointDate } from '@automattic/charts';
 import clsx from 'clsx';
-import React, { ReactElement } from 'react';
 import formatNumber from '../../utils/format-number';
 import styles from './stats-chart-tooltip.module.scss';
+import type { ReactElement, FC } from 'react';
 
 interface TooltipPoint {
 	key: string;
@@ -27,7 +27,7 @@ interface StatsChartTooltipProps {
  * @param {object} props.metricIcon  - The icon JSX element for the selected metric.
  * @return {object} StatsChartTooltip React component.
  */
-const StatsChartTooltip: React.FC< StatsChartTooltipProps > = ( { tooltipData, metricIcon } ) => {
+const StatsChartTooltip: FC< StatsChartTooltipProps > = ( { tooltipData, metricIcon } ) => {
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
 	if ( ! nearestDatum || ! tooltipData ) {
 		return null;
