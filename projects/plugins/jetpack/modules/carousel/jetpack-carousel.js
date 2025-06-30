@@ -1532,19 +1532,7 @@
 			} );
 
 			swiper.on( 'slideChange', function ( swiper ) {
-				var index;
-				// Swiper indexes slides from 1, plus when looping to left last slide ends up
-				// as 0 and looping to right first slide as total slides + 1. These are adjusted
-				// here to match index of carousel.slides.
-				if ( swiper.activeIndex === 0 ) {
-					index = carousel.slides.length - 1;
-				} else if ( swiper.activeIndex === carousel.slides.length + 1 ) {
-					index = 0;
-				} else {
-					index = swiper.activeIndex - 1;
-				}
-				selectSlideAtIndex( index );
-
+				selectSlideAtIndex( swiper.realIndex );
 				carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
 			} );
 
