@@ -50,6 +50,18 @@ const StatsChart: React.FC< StatsChartProps > = ( {
 		return ! isLoading && data?.[ 0 ]?.data?.every( item => item.value === 0 );
 	}, [ data, isLoading ] );
 
+	// Calculate Y-domain to ensure 0-value guideline appears at bottom
+	const yDomain = useMemo( (): [ number, number ] => {
+		if ( isEmpty || ! data?.[ 0 ]?.data?.length ) {
+			// For empty data, set domain [0, 1] to ensure 0 appears at bottom
+			return [ 0, 1 ];
+		}
+
+		const maxValue = Math.max( ...data[ 0 ].data.map( item => item.value ) );
+		// Add 10% padding for better visualization when there's data
+		return [ 0, Math.max( 1, maxValue * 1.1 ) ];
+	}, [ data, isEmpty ] );
+
 	const renderTooltip = useCallback(
 		( {
 			tooltipData,
@@ -123,6 +135,7 @@ const StatsChart: React.FC< StatsChartProps > = ( {
 							yScale: {
 								type: 'linear',
 								zero: true, // Start from zero
+								domain: yDomain, // Explicit domain to fix 0-guideline position
 							},
 							axis: {
 								x: {
