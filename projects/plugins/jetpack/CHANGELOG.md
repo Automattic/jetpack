@@ -2,6 +2,23 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 14.8-beta - 2025-06-30
+### Enhancements
+- Forms: Add MailPoet integrations nudge. [#44115]
+- My Jetpack: Updating Stats card to include a chart for better analytics. [#43870]
+
+### Bug fixes
+- Forms: Remove the broken step transformation. [#44083]
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+- Likes: Do not register the Like block when a site is not connected to WordPress.com. [#44124]
+- Settings: Show Backup and Account Protection modules only with relevant search terms. [#44097]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Block editor: Refactor editor assets endpoint for readability. [#44047]
+- Block editor: Repair editor assets endpoint for Atomic sites. [#44032]
+- Compatibility: Use modern JSX transform when building React interfaces. [#44128]
+- Scripts: Add host information to front-end `JetpackScriptData` script. [#44072]
+
 ## 14.8-a.9 - 2025-06-24
 ### Enhancements
 - Form: Improve the error validation animation. [#43968]

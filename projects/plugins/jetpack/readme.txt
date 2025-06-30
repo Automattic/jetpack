@@ -326,12 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.8-a.9 - 2025-06-24
+### 14.8-beta - 2025-06-30
 #### Enhancements
-- Form: Improve the error validation animation.
+- Forms: Add MailPoet integrations nudge.
+- My Jetpack: Updating Stats card to include a chart for better analytics.
 
 #### Bug fixes
-- Prevent JavaScript errors when using the editor.
+- Forms: Remove the broken step transformation.
+- JITM: Fix ineffective caching due to expired plugin sync transient.
+- Likes: Do not register the Like block when a site is not connected to WordPress.com.
+- Settings: Show Backup and Account Protection modules only with relevant search terms.
 
 --------
 
