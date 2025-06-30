@@ -84,7 +84,6 @@
 		"@types/react": "18.3.23",
 		"@types/react-dom": "18.3.7",
 		"@wordpress/api-fetch": "7.25.0",
-		"@wordpress/babel-plugin-import-jsx-pragma": "5.25.0",
 		"@wordpress/browserslist-config": "6.25.0",
 		"@wordpress/date": "5.25.0",
 		"autoprefixer": "10.4.20",
