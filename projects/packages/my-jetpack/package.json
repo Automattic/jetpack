@@ -25,6 +25,7 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
@@ -36,6 +37,7 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
+		"@automattic/ui": "1.0.1",
 		"@tanstack/react-query": "5.75.1",
 		"@wordpress/api-fetch": "7.25.0",
 		"@wordpress/components": "29.11.0",

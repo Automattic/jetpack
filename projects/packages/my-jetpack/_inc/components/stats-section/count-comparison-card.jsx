@@ -2,7 +2,7 @@ import { Card } from '@wordpress/components';
 import { arrowDown, arrowUp, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useCallback } from 'react';
 import formatNumber from '../../utils/format-number';
 import styles from './style.module.scss';
 
@@ -37,6 +37,8 @@ export const percentCalculator = ( part, whole ) => {
  * @param {React.ReactNode} props.heading       - Card heading.
  * @param {string}          props.as            - Card root element type.
  * @param {string}          props.srText        - Text for screen readers.
+ * @param {boolean}         props.isSelected    - Whether this card is currently selected.
+ * @param {Function}        props.onClick       - Click handler for card selection.
  * @return {object} CountComparisonCard React component.
  */
 const CountComparisonCard = ( {
@@ -46,6 +48,8 @@ const CountComparisonCard = ( {
 	icon,
 	heading,
 	srText,
+	isSelected = false,
+	onClick,
 } ) => {
 	const difference = subtract( count, previousCount );
 	const differenceMagnitude = Math.abs( difference );
@@ -53,12 +57,43 @@ const CountComparisonCard = ( {
 		? percentCalculator( differenceMagnitude, previousCount )
 		: null;
 
+	const cardClassName = clsx( styles[ 'stats-card' ], {
+		[ styles[ 'stats-card--selected' ] ]: isSelected,
+		[ styles[ 'stats-card--clickable' ] ]: onClick,
+	} );
+
+	const handleClick = useCallback( () => {
+		if ( onClick ) {
+			onClick();
+		}
+	}, [ onClick ] );
+
+	const handleKeyDown = useCallback(
+		event => {
+			if ( onClick && ( event.key === 'Enter' || event.key === ' ' ) ) {
+				event.preventDefault();
+				onClick();
+			}
+		},
+		[ onClick ]
+	);
+
 	return (
-		<Card className={ styles[ 'stats-card' ] } as={ as }>
+		<Card
+			className={ cardClassName }
+			as={ as }
+			onClick={ handleClick }
+			onKeyDown={ handleKeyDown }
+			tabIndex={ onClick ? 0 : undefined }
+			role={ onClick ? 'button' : undefined }
+			aria-pressed={ onClick ? isSelected : undefined }
+		>
 			<span className="screen-reader-text">{ srText }</span>
-			<div aria-hidden="true">
-				{ icon && <div className={ styles[ 'stats-card-icon' ] }>{ icon }</div> }
-				{ heading && <div className={ styles[ 'stats-card-heading' ] }>{ heading }</div> }
+			<div className={ styles[ 'stats-card-content' ] }>
+				<div className={ styles[ 'stats-card-header' ] }>
+					{ icon && <div className={ styles[ 'stats-card-icon' ] }>{ icon }</div> }
+					{ heading && <div className={ styles[ 'stats-card-heading' ] }>{ heading }</div> }
+				</div>
 				<div className={ styles[ 'stats-card-count' ] }>
 					<span
 						className={ styles[ 'stats-card-count-value' ] }
@@ -66,7 +101,7 @@ const CountComparisonCard = ( {
 					>
 						{ formatNumber( count ) }
 					</span>
-					{ difference !== null ? (
+					{ difference !== null && difference !== 0 ? (
 						<span
 							className={ clsx( styles[ 'stats-card-difference' ], {
 								[ styles[ 'stats-card-difference--positive' ] ]: difference < 0,
@@ -87,7 +122,7 @@ const CountComparisonCard = ( {
 										: formatNumber( differenceMagnitude, {} ) // passing empty object removes the compact number formatting options, i.e.- 10,100
 								}
 							</span>
-							{ percentage !== null && (
+							{ percentage !== null && percentage !== 0 && (
 								<span className={ styles[ 'stats-card-difference-absolute-percentage' ] }>
 									({ percentage }%)
 								</span>
@@ -106,6 +141,8 @@ CountComparisonCard.propTypes = {
 	icon: PropTypes.node,
 	previousCount: PropTypes.number,
 	srText: PropTypes.string,
+	isSelected: PropTypes.bool,
+	onClick: PropTypes.func,
 };
 
 export default CountComparisonCard;

@@ -64,7 +64,7 @@ export function* fetchModules() {
  * @param {boolean} isLoading - If the modules are loading or not.
  * @return {object} - an action object.
  */
-function setIsLoading( isLoading ) {
+export function setIsLoading( isLoading ) {
 	return setJetpackModules( { isLoading } );
 }
 

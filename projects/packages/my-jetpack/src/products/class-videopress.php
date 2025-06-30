@@ -137,7 +137,7 @@ class Videopress extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Stunning-quality, ad-free video in the WordPress Editor', 'jetpack-my-jetpack' );
+		return __( 'Powerful and flexible video hosting.', 'jetpack-my-jetpack' );
 	}
 
 	/**
