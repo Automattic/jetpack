@@ -5,7 +5,7 @@ import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import TermsOfService from '../terms-of-service/index.tsx';
 import type { PricingCardProps } from './types.ts';
 import type { CurrencyObject } from '@automattic/number-formatters';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 import './style.scss';
 
@@ -25,9 +25,9 @@ const showPriceDecimals = ( currencyObject: CurrencyObject ): boolean => {
  * The Pricing card component.
  *
  * @param {PricingCardProps} props -- The component props.
- * @return {React.ReactNode} The rendered component.
+ * @return {ReactNode} The rendered component.
  */
-const PricingCard: React.FC< PricingCardProps > = ( {
+const PricingCard: FC< PricingCardProps > = ( {
 	currencyCode = 'USD',
 	priceDetails = __( '/month, paid yearly', 'jetpack-components' ),
 	...props

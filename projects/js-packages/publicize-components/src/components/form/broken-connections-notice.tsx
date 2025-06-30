@@ -8,8 +8,9 @@ import { store as socialStore } from '../../social-store';
 import { getSocialScriptData } from '../../utils/script-data';
 import Notice from '../notice';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
-export const BrokenConnectionsNotice: React.FC = () => {
+export const BrokenConnectionsNotice: FC = () => {
 	const { brokenConnections, reauthConnections } = useSelect( select => {
 		const store = select( socialStore );
 		return {

@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { FormLabel, FormLegend } from 'components/forms';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
@@ -12,7 +12,7 @@ import { currentThemeSupports } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
 
-class ThemeEnhancements extends React.Component {
+class ThemeEnhancements extends Component {
 	/**
 	 * Translate Infinite Scroll module and option status into our three values for the options.
 	 *

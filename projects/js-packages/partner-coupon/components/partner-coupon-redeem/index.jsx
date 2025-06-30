@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import React from 'react';
 import RedeemPartnerCouponPostConnection from '../redeem-partner-coupon-post-connection';
 import RedeemPartnerCouponPreConnection from '../redeem-partner-coupon-pre-connection';
 

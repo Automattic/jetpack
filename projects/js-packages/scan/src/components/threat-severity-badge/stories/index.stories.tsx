@@ -1,4 +1,3 @@
-import React from 'react';
 import ThreatSeverityBadge from '../index.tsx';
 
 export default {

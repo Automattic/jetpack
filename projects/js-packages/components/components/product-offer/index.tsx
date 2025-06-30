@@ -10,15 +10,15 @@ import { IconsCard } from './icons-card.tsx';
 import { ProductOfferHeader } from './product-offer-header.tsx';
 import styles from './style.module.scss';
 import { ProductOfferProps } from './types.ts';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * Product Detail component.
  *
  * @param {ProductOfferProps} props - Component props.
- * @return {React.ReactNode} - ProductOffer react component.
+ * @return {ReactNode} - ProductOffer react component.
  */
-const ProductOffer: React.FC< ProductOfferProps > = ( {
+const ProductOffer: FC< ProductOfferProps > = ( {
 	addProductUrl,
 	buttonDisclaimer,
 	buttonText = '',

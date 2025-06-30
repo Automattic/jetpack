@@ -2,7 +2,7 @@ import { Card } from '@wordpress/components';
 import { arrowDown, arrowUp, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import formatNumber from '../../utils/format-number';
 import styles from './style.module.scss';
 
@@ -30,15 +30,15 @@ export const percentCalculator = ( part, whole ) => {
 /**
  * CountComparisonCard component.
  *
- * @param {object}          props               - Component props.
- * @param {number}          props.count         - Current count.
- * @param {number}          props.previousCount - Previous count.
- * @param {React.ReactNode} props.icon          - Icon to display.
- * @param {React.ReactNode} props.heading       - Card heading.
- * @param {string}          props.as            - Card root element type.
- * @param {string}          props.srText        - Text for screen readers.
- * @param {boolean}         props.isSelected    - Whether this card is currently selected.
- * @param {Function}        props.onClick       - Click handler for card selection.
+ * @param {object}                    props               - Component props.
+ * @param {number}                    props.count         - Current count.
+ * @param {number}                    props.previousCount - Previous count.
+ * @param {import('react').ReactNode} props.icon          - Icon to display.
+ * @param {import('react').ReactNode} props.heading       - Card heading.
+ * @param {string}                    props.as            - Card root element type.
+ * @param {string}                    props.srText        - Text for screen readers.
+ * @param {boolean}                   props.isSelected    - Whether this card is currently selected.
+ * @param {Function}                  props.onClick       - Click handler for card selection.
  * @return {object} CountComparisonCard React component.
  */
 const CountComparisonCard = ( {

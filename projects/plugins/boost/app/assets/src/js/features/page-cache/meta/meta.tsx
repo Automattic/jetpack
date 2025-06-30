@@ -14,6 +14,7 @@ import ErrorNotice from '$features/error-notice/error-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 import { ExternalLink } from '@wordpress/components';
+import type { ChangeEvent, ReactNode } from 'react';
 
 const Meta = () => {
 	const pageCache = usePageCache();
@@ -76,7 +77,7 @@ const Meta = () => {
 		mutateBypassPatterns.mutate( newPatterns );
 	};
 
-	const toggleLogging = ( event: React.ChangeEvent< HTMLInputElement > ) => {
+	const toggleLogging = ( event: ChangeEvent< HTMLInputElement > ) => {
 		recordBoostEvent( 'page_cache_toggle_logging', {} );
 		mutateLogging.mutate( event.target.checked );
 	};
@@ -261,7 +262,7 @@ const BypassPatterns = ( {
 };
 
 type BypassPatternsExampleProps = {
-	children?: React.ReactNode;
+	children?: ReactNode;
 };
 
 const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {

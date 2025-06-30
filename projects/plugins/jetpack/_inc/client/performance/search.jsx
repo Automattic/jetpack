@@ -1,6 +1,6 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React, { Fragment, useCallback, useEffect } from 'react';
+import { Fragment, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import { FormFieldset } from 'components/forms';
@@ -25,7 +25,7 @@ const SEARCH_SUPPORT = __( 'Search supports many customizations.', 'jetpack' );
  * Search settings component to be used within the Performance section.
  *
  * @param {object} props - Component properties.
- * @return {React.Component} Search settings component.
+ * @return {import('react').Component} Search settings component.
  */
 function Search( props ) {
 	const { failedToEnableSearch, hasInstantSearch, updateOptions } = props;

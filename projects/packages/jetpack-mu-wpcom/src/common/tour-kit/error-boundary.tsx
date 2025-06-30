@@ -1,10 +1,11 @@
-import React, { ErrorInfo } from 'react';
+import { ErrorInfo } from 'react';
+import type { Component, ReactNode } from 'react';
 
 type State = {
 	hasError: boolean;
 };
 
-class ErrorBoundary extends React.Component< { children: React.ReactNode }, State > {
+class ErrorBoundary extends Component< { children: ReactNode }, State > {
 	state = {
 		hasError: false,
 	};

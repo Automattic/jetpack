@@ -1,5 +1,6 @@
 import { createContext, useContext } from '@wordpress/element';
 import type { Config } from '../types';
+import type { FunctionComponent, ReactNode } from 'react';
 
 interface TourKitContext {
 	config: Config;
@@ -7,8 +8,8 @@ interface TourKitContext {
 
 const TourKitContext = createContext< TourKitContext >( {} as TourKitContext );
 
-export const TourKitContextProvider: React.FunctionComponent<
-	TourKitContext & { children?: React.ReactNode }
+export const TourKitContextProvider: FunctionComponent<
+	TourKitContext & { children?: ReactNode }
 > = ( { config, children } ) => {
 	return <TourKitContext.Provider value={ { config } }>{ children }</TourKitContext.Provider>;
 };

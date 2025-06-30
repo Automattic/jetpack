@@ -9,6 +9,7 @@ import SocialIcon from '../../products-table-view/icons/social';
 import StatsIcon from '../../products-table-view/icons/stats';
 import VideopressIcon from '../../products-table-view/icons/videopress';
 import { JetpackModuleSlug, JetpackProductWithCard, ProductCategory } from './types';
+import type { ComponentType } from 'react';
 
 export const CATEGORY_CARDS_AND_MODULES: {
 	[ key in ProductCategory ]: {
@@ -83,7 +84,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 };
 
 export const PRODUCT_ICONS: {
-	[ Key in JetpackProductWithCard ]: React.ComponentType;
+	[ Key in JetpackProductWithCard ]: ComponentType;
 } = {
 	'anti-spam': AntiSpamIcon,
 	backup: BackupIcon,

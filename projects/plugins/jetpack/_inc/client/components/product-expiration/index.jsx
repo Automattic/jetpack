@@ -4,9 +4,9 @@ import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { PureComponent } from 'react';
 
-class ProductExpiration extends React.PureComponent {
+class ProductExpiration extends PureComponent {
 	static propTypes = {
 		expiryDate: PropTypes.string,
 		purchaseDate: PropTypes.string,

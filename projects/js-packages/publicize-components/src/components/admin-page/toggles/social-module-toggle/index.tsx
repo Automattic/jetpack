@@ -10,15 +10,16 @@ import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { store as socialStore } from '../../../../social-store';
 import { getSocialScriptData, hasSocialPaidFeatures } from '../../../../utils';
 import { canToggleSocialModule } from '../../../../utils/misc';
 import ConnectionManagement from '../../../connection-management';
 import ToggleSection from '../toggle-section';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
-const SocialModuleToggle: React.FC = () => {
+const SocialModuleToggle: FC = () => {
 	const { isModuleEnabled, isUpdating } = useSelect( select => {
 		const store = select( socialStore );
 

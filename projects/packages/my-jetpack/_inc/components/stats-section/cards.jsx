@@ -1,7 +1,7 @@
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import formatNumber from '../../utils/format-number';
 import CountComparisonCard from './count-comparison-card';
 import createStatDiffText from './create-stat-diff-text';

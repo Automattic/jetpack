@@ -2,8 +2,9 @@ import TimeAgo from '$features/critical-css/time-ago/time-ago';
 import { __ } from '@wordpress/i18n';
 import { useLcpState } from '../lib/stores/lcp-state';
 import styles from './status.module.scss';
+import type { FC } from 'react';
 
-const Status: React.FC = () => {
+const Status: FC = () => {
 	const [ query ] = useLcpState();
 	const lcpState = query?.data;
 

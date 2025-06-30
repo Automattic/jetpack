@@ -2,7 +2,7 @@ import restApi from '@automattic/jetpack-api';
 import { Button, Spinner } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styles from './styles.module.scss';
 
 /**
@@ -10,7 +10,7 @@ import styles from './styles.module.scss';
  *
  * @param {object}   props              - Component props.
  * @param {Function} props.onDisconnect - Callback to run when the site is disconnected.
- * @return {React.Component} The `DisconnectSiteLink` component.
+ * @return {import('react').Component} The `DisconnectSiteLink` component.
  */
 export default function DisconnectSiteLink( { onDisconnect } ) {
 	const { apiNonce, apiRoot } = window.automatticForAgenciesClientInitialState;

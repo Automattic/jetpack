@@ -2,7 +2,7 @@ import { ToggleControl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { FormLegend, FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -28,7 +28,7 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
  * Subscription settings component.
  *
  * @param {object} props - Component props.
- * @return {React.Component} Subscription settings component.
+ * @return {import('react').Component} Subscription settings component.
  */
 function SubscriptionsSettings( props ) {
 	const {

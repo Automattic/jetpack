@@ -8,6 +8,7 @@ import { external } from '@wordpress/icons';
 import clsx from 'clsx';
 import usePublicizeConfig from '../../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
+import type { ReactElement } from 'react';
 
 const getDescriptions = () => ( {
 	start: __(
@@ -55,7 +56,7 @@ function getPanelDescription( isPostPublished, isPublicizeEnabled, hasConnection
 /**
  * Upsell notice for the Publicize feature.
  *
- * @return {React.ReactElement} The upsell notice.
+ * @return {ReactElement} The upsell notice.
  */
 export function UpsellNotice() {
 	const {

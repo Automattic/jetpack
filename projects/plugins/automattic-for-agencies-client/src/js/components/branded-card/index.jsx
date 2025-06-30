@@ -1,13 +1,12 @@
 import { AutomatticForAgenciesLogo, AutomatticIconLogo } from '@automattic/jetpack-components';
-import React from 'react';
 import styles from './styles.module.scss';
 
 /**
  * Branded Card component.
  *
- * @param {object}        props          - The component props.
- * @param {React.Element} props.children - The component children.
- * @return {React.Component} The `ConnectionCard` component.
+ * @param {object}                  props          - The component props.
+ * @param {import('react').Element} props.children - The component children.
+ * @return {import('react').Component} The `ConnectionCard` component.
  */
 export default function BrandedCard( { children } ) {
 	return (

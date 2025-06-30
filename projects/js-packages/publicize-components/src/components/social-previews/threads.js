@@ -1,6 +1,6 @@
 import { ThreadsPreviews } from '@automattic/social-previews';
 import { decodeEntities } from '@wordpress/html-entities';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { usePostMeta } from '../../hooks/use-post-meta';
 
 /**
@@ -13,7 +13,7 @@ import { usePostMeta } from '../../hooks/use-post-meta';
  * @param {object}   props.image       - The post featured image
  * @param {string}   props.url         - The URL of the post
  * @param {object[]} props.media       - Array of attached media
- * @return {React.ReactNode} The threads tab component.
+ * @return {import('react').ReactNode} The threads tab component.
  */
 export function Threads( { excerpt, title, description, image, url, media } ) {
 	const { shareMessage } = usePostMeta();
