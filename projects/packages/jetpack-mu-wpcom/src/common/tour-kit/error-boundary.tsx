@@ -1,5 +1,5 @@
-import { ErrorInfo } from 'react';
-import type { Component, ReactNode } from 'react';
+import { Component, ErrorInfo } from 'react';
+import type { ReactNode } from 'react';
 
 type State = {
 	hasError: boolean;
