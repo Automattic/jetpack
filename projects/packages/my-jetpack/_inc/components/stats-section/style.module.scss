@@ -3,8 +3,8 @@
 $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
 
 $actions-size: 28px;
-$padding-vertical: calc( var(--spacing-base) * 3 );
-$padding-horizontal: calc( var(--spacing-base) * 3 );
+$spacing-vertical: calc( var(--spacing-base) * 3 );
+$spacing-horizontal: calc( var(--spacing-base) * 3 );
 $break-medium: 782px;
 $min-card-width: 155px;
 
@@ -18,9 +18,10 @@ $min-card-width: 155px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: $padding-vertical $padding-horizontal;
+	padding: $spacing-vertical $spacing-horizontal;
 	border-bottom: 1px solid var(--jp-gray-5);
 	cursor: pointer;
+	margin-bottom: $spacing-vertical;
 
 	// &:hover,
 	// &:focus {
@@ -58,8 +59,10 @@ $min-card-width: 155px;
 	gap: 1.5rem;
 	max-width: 100%;
 	padding: 1px; // Ensures scrollable content box doesn't cover the card.
-	padding-left: $padding-horizontal;
-	padding-right: $padding-horizontal;
+	padding-left: $spacing-horizontal;
+	padding-right: $spacing-horizontal;
+	margin-top: $spacing-vertical;
+	margin-bottom: $spacing-vertical;
 
 	// Add horizontal scrolling, but without the scrollbar.
 	overflow-x: scroll;
