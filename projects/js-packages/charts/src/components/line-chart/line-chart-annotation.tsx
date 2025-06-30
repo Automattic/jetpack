@@ -1,7 +1,14 @@
-import { Annotation, CircleSubject, Connector, Label, LineSubject } from '@visx/annotation';
+import {
+	Annotation,
+	CircleSubject,
+	Connector,
+	HtmlLabel,
+	Label,
+	LineSubject,
+} from '@visx/annotation';
 import { DataContext } from '@visx/xychart';
 import { merge } from 'lodash';
-import { useContext, useRef, useEffect, useState, useMemo } from 'react';
+import React, { useContext, useRef, useEffect, useState, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import type { DataPointDate } from '../../types';
 import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
@@ -15,7 +22,10 @@ export type AnnotationStyles = {
 	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' > & { fill?: string };
 	lineSubject?: Omit< LineSubjectProps, 'x' | 'y' >;
 	connector?: Omit< ConnectorProps, 'x' | 'y' | 'dx' | 'dy' >;
-	label?: Omit< LabelProps, 'title' | 'subtitle' >;
+	label?: Omit< LabelProps, 'title' | 'subtitle' | 'x' | 'y' > & {
+		x?: number | 'start' | 'end';
+		y?: number | 'start' | 'end';
+	};
 };
 
 type SubjectType = 'circle' | 'line-vertical' | 'line-horizontal';
@@ -25,18 +35,23 @@ const ANNOTATION_INIT_HEIGHT = 100;
 
 export type LineChartAnnotationProps = {
 	datum: DataPointDate;
+	dx?: number;
+	dy?: number;
 	title: string;
 	subtitle?: string;
 	subjectType?: SubjectType;
 	styles?: AnnotationStyles;
 	testId?: string;
+	renderLabel?: React.FC< { title: string; subtitle: string } >;
 };
 
 export const getLabelPosition = ( {
 	subjectType,
 	x,
+	dx: customDx,
 	xMax,
 	y,
+	dy: customDy,
 	yMin,
 	yMax,
 	maxWidth,
@@ -44,8 +59,10 @@ export const getLabelPosition = ( {
 }: {
 	subjectType: SubjectType;
 	x: number;
+	dx?: number;
 	xMax: number;
 	y: number;
+	dy?: number;
 	yMin: number;
 	yMax: number;
 	maxWidth?: number;
@@ -71,6 +88,14 @@ export const getLabelPosition = ( {
 	if ( subjectType === 'line-vertical' ) {
 		dx = 20;
 		dy = 0;
+	}
+
+	if ( ! isNaN( customDx ) ) {
+		dx = customDx;
+	}
+
+	if ( ! isNaN( customDy ) ) {
+		dy = customDy;
 	}
 
 	// Smart horizontal positioning: if annotation would extend beyond right edge, position it to the left
@@ -150,11 +175,14 @@ const getVerticalAnchor = (
 
 const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	datum,
+	dx: customDx = 0,
+	dy: customDy = 0,
 	title,
 	subtitle,
 	subjectType = 'circle',
 	styles: datumStyles,
 	testId,
+	renderLabel,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { xScale, yScale } = useContext( DataContext ) || {};
@@ -183,11 +211,29 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 		const [ yMin, yMax ] = yScale.range().map( Number );
 		const [ xMin, xMax ] = xScale.range().map( Number );
 
+		// If a custom label is provided, use the provided position
+		if ( renderLabel ) {
+			return {
+				x,
+				y,
+				yMin,
+				yMax,
+				xMin,
+				xMax,
+				dx: customDx,
+				dy: customDy,
+				isFlippedHorizontally: false,
+				isFlippedVertically: false,
+			};
+		}
+
 		const position = getLabelPosition( {
 			subjectType,
 			x,
+			dx: customDx,
 			xMax,
 			y,
+			dy: customDy,
 			yMin,
 			yMax,
 			maxWidth: styles?.label?.maxWidth,
@@ -195,12 +241,40 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 		} );
 
 		return { x, y, yMin, yMax, xMin, xMax, ...position };
-	}, [ datum, xScale, yScale, subjectType, styles?.label?.maxWidth, height ] );
+	}, [
+		datum,
+		xScale,
+		yScale,
+		subjectType,
+		styles?.label?.maxWidth,
+		height,
+		customDx,
+		customDy,
+		renderLabel,
+	] );
 
 	if ( ! positionData ) return null;
 
 	const { x, y, yMin, yMax, xMin, xMax, dx, dy, isFlippedHorizontally, isFlippedVertically } =
 		positionData;
+
+	const getLabelY = () => {
+		const labelY = styles?.label?.y;
+
+		if ( labelY === 'start' ) return yMax;
+		if ( labelY === 'end' ) return yMin;
+
+		return labelY;
+	};
+
+	const getLabelX = () => {
+		const labelX = styles?.label?.x;
+
+		if ( labelX === 'start' ) return xMin;
+		if ( labelX === 'end' ) return xMax;
+
+		return labelX;
+	};
 
 	return (
 		<g data-testid={ testId }>
@@ -221,21 +295,29 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 						{ ...{ ...styles?.lineSubject, orientation: 'horizontal' } }
 					/>
 				) }
-				<g ref={ labelRef }>
-					<Label
-						title={ title }
-						subtitle={ subtitle }
-						{ ...styles?.label }
-						horizontalAnchor={ getHorizontalAnchor( subjectType, isFlippedHorizontally ) }
-						verticalAnchor={ getVerticalAnchor(
-							subjectType,
-							isFlippedVertically,
-							y,
-							yMax,
-							height ?? ANNOTATION_INIT_HEIGHT
-						) }
-					/>
-				</g>
+				{ renderLabel ? (
+					<HtmlLabel { ...styles?.label } y={ getLabelY() } x={ getLabelX() }>
+						{ renderLabel( { title, subtitle } ) }
+					</HtmlLabel>
+				) : (
+					<g ref={ labelRef }>
+						<Label
+							title={ title }
+							subtitle={ subtitle }
+							{ ...styles?.label }
+							horizontalAnchor={ getHorizontalAnchor( subjectType, isFlippedHorizontally ) }
+							verticalAnchor={ getVerticalAnchor(
+								subjectType,
+								isFlippedVertically,
+								y,
+								yMax,
+								height ?? ANNOTATION_INIT_HEIGHT
+							) }
+							y={ getLabelY() }
+							x={ getLabelX() }
+						/>
+					</g>
+				) }
 			</Annotation>
 		</g>
 	);
