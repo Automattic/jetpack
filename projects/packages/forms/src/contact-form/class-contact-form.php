@@ -177,7 +177,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Get the JWT for this contact form instance.
 	 *
-	 * @return Contact_Form|null
+	 * @return string
 	 */
 	public function get_jwt() {
 		return JWT::encode(
@@ -1701,7 +1701,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$status = $is_spam ? 'spam' : 'inbox';
 
 		// Build the dashboard URL with the status and the feedback's post id
-		$dashboard_url = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
+		$dashboard_url = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $feedback_post_id;
 
 		$mark_as_spam_url = $dashboard_url . '&mark_as_spam';
 
@@ -1851,7 +1851,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				array(
 					'success' => true,
 					'message' => __( 'Your message has been sent', 'jetpack-forms' ),
-					'data'    => self::get_json_data( $post_id, $this ),
+					'data'    => self::get_json_data( $feedback_post_id, $this ),
 				)
 			);
 
