@@ -175,8 +175,8 @@ const getVerticalAnchor = (
 
 const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	datum,
-	dx: customDx = 0,
-	dy: customDy = 0,
+	dx: customDx,
+	dy: customDy,
 	title,
 	subtitle,
 	subjectType = 'circle',
