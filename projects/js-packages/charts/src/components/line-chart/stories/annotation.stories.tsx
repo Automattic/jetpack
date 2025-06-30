@@ -188,7 +188,7 @@ const CustomLabel = ( { title, subtitle }: { title: string; subtitle: string } )
 			<button
 				ref={ buttonRef }
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				{ ...( { popoverTarget: popoverId } as any ) }
+				{ ...( { popovertarget: popoverId } as any ) }
 				style={ {
 					pointerEvents: 'auto',
 					cursor: 'pointer',
@@ -237,7 +237,7 @@ const CustomLabel = ( { title, subtitle }: { title: string; subtitle: string } )
 					<h4 style={ { margin: 0 } }>{ title }</h4>
 					<button
 						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						{ ...( { popoverTarget: popoverId, popoverTargetAction: 'hide' } as any ) }
+						{ ...( { popovertarget: popoverId, popovertargetaction: 'hide' } as any ) }
 						style={ {
 							background: 'none',
 							border: 'none',
