@@ -5566,6 +5566,9 @@ importers:
       eslint-plugin-testing-library:
         specifier: 7.1.1
         version: 7.1.1(eslint@9.30.1)(typescript@5.8.3)
+      eslint-plugin-you-dont-need-lodash-underscore:
+        specifier: 6.14.0
+        version: 6.14.0
       glob:
         specifier: 11.0.2
         version: 11.0.2
@@ -11150,6 +11153,10 @@ packages:
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
 
+  eslint-plugin-you-dont-need-lodash-underscore@6.14.0:
+    resolution: {integrity: sha512-3zkkU/O1agczP7szJGHmisZJS/AknfVl6mb0Zqoc95dvFsdmfK+cbhrn+Ffy0UWB1pgDJwQr7kIO3rPstWs3Dw==}
+    engines: {node: '>=4.0'}
+
   eslint-scope@5.1.1:
     resolution: {integrity: sha512-2NxwbF/hZ0KpepYN0cNbo+FN6XoK7GaHlQhgx/hIZl6Va0bF45RQOOwhLIy8lQDbuCiadSLCBnH2CFYquit5bw==}
     engines: {node: '>=8.0.0'}
@@ -12696,6 +12703,9 @@ packages:
 
   kdbush@3.0.0:
     resolution: {integrity: sha512-hRkd6/XW4HTsA9vjVpY9tuXJYLSlelnkTmVFu4M9/7MIYQtFcHpbugAU7UbOfjOiVSVYl2fqgBuJ32JUmRo5Ew==}
+
+  kebab-case@1.0.2:
+    resolution: {integrity: sha512-7n6wXq4gNgBELfDCpzKc+mRrZFs7D+wgfF5WRFLNAr4DA/qtr9Js8uOAVAfHhuLMfAcQ0pRKqbpjx+TcJVdE1Q==}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -25045,6 +25055,10 @@ snapshots:
       - supports-color
       - typescript
 
+  eslint-plugin-you-dont-need-lodash-underscore@6.14.0:
+    dependencies:
+      kebab-case: 1.0.2
+
   eslint-scope@5.1.1:
     dependencies:
       esrecurse: 4.3.0
@@ -27222,6 +27236,8 @@ snapshots:
       object.values: 1.2.1
 
   kdbush@3.0.0: {}
+
+  kebab-case@1.0.2: {}
 
   keyv@4.5.4:
     dependencies:
