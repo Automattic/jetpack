@@ -18,11 +18,21 @@ export function useGoBack( { slug }: { slug: string } ) {
 				recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
 			}
 
-			if ( document.referrer.includes( window.location.host ) ) {
-				// Prevent default here to minimize page change within the My Jetpack app.
-				event.preventDefault();
-				// Navigate back in history.
+			event.preventDefault();
+
+			// Check if referrer is from allowed sites (current site, wordpress.com, jetpack.com)
+			const allowedReferrers = [
+				window.location.host, // Current site (internal navigation)
+				'wordpress.com', // WordPress.com auth/management
+				'jetpack.com', // Jetpack.com documentation/links
+			];
+
+			const isFromAllowedSite = allowedReferrers.some( host => document.referrer.includes( host ) );
+
+			if ( isFromAllowedSite && window.history.length > 1 ) {
 				navigate( -1 );
+			} else {
+				navigate( '/' );
 			}
 		},
 		[ recordEvent, slug, navigate ]
