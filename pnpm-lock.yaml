@@ -2898,6 +2898,9 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@automattic/charts':
+        specifier: workspace:*
+        version: link:../../js-packages/charts
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -2931,6 +2934,9 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
+      '@automattic/ui':
+        specifier: 1.0.1
+        version: 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
         specifier: 5.75.1
         version: 5.75.1(react@18.3.1)
@@ -5575,6 +5581,12 @@ packages:
   '@automattic/typography@1.0.0':
     resolution: {integrity: sha512-TnT+vPaNUXQYwDsPCPxhNY0d4LnOKvrb0SizUCC5iybo5sfOlX/rYalGDyz6nPQDF0EBaQwMf7qhVsflFR0cBg==}
 
+  '@automattic/ui@1.0.1':
+    resolution: {integrity: sha512-SPjnWrn9ouhjBMUZXR7s+E+y7+neKpM/YARYnH2TwbiKoetAg8+Qjp+LOZbMsMGfiKNRpB9i+cOvW9Is7zUUGw==}
+    peerDependencies:
+      react: ^18.3.1
+      react-dom: ^18.3.1
+
   '@automattic/urls@1.0.0':
     resolution: {integrity: sha512-dTunk7PqvF/w0b7DFb8aUW85XbkqEwChTllManUq1uMDdeA6S6YWeCs7t5bBei0D1RFUs9FDdyspeLisNxfbAg==}
 
@@ -6298,6 +6310,9 @@ packages:
 
   '@dabh/diagnostics@2.0.3':
     resolution: {integrity: sha512-hrlQOIi7hAfzsMqlGSFyVucrx38O+j6wiGOf//H2ecvIEqYN4ADBSS2iLMh5UFyDunCNniUIPk/q3riFv45xRA==}
+
+  '@date-fns/tz@1.2.0':
+    resolution: {integrity: sha512-LBrd7MiJZ9McsOgxqWX7AaxrDjcFVjWH/tIKJd7pnR7McaslGYOP1QmmiBXdJH/H/yLCT+rcQ7FaPBUxRGUtrg==}
 
   '@discoveryjs/json-ext@0.6.3':
     resolution: {integrity: sha512-4B4OijXeVNOPZlYA2oEwWOTkzyltLao+xbotHQeqN++Rv27Y6s818+n2Qkp8q+Fxhn0t/5lA5X1Mxktud8eayQ==}
@@ -8747,6 +8762,10 @@ packages:
     resolution: {integrity: sha512-8Sf4pkH7/4pcKt/jOkVNLOoScypMOM2xEHtyiTE5tHgX4z7UZRNbXFKqJ9fxDDb/cniDdNyeG5QhOLIZbO7hlg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
+  '@wordpress/base-styles@5.23.0':
+    resolution: {integrity: sha512-1mtX3jA9el2ZDkAJp7YEN1bX+DzfX0h496uxpRk+evmQJLZxBMPeu5datJFtwkWbVitOsR88WCDvUoNoKJMSuw==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
   '@wordpress/base-styles@6.1.0':
     resolution: {integrity: sha512-5AC4M7jXQaSknrSiuBbUWJa00jYr6i3yABf93VFuVzy9QGZQTvupQo2/bi6uAZ98pDruniScrnJJq8UG6JsoJQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -8796,6 +8815,12 @@ packages:
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0
+
+  '@wordpress/compose@7.23.0':
+    resolution: {integrity: sha512-lEYneHPPrbQ9ki1yzq/8RsCEKcT3c0+iYi59c+RyPdnXNKWUTg/4QPklgut6Yp/85ZyWr0LMGy0/WoMqGypEAw==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    peerDependencies:
+      react: ^18.0.0
 
   '@wordpress/compose@7.25.0':
     resolution: {integrity: sha512-nfjtMZgrhdHU8/zOLUyA5o8ShLot1vbHZ0I2+IxLyNskRMVyR9pm4BAJSYKJ9XqBUom2/N51gfeKg5uhd9Y0TQ==}
@@ -10240,6 +10265,9 @@ packages:
   data-view-byte-offset@1.0.1:
     resolution: {integrity: sha512-BS8PfmtDGnrgYdOonGZQdLZslWIeCGFP9tpan0hi1Co2Zr2NKADsvGYA8XxuG/4UWgJ6Cjtv+YJnB6MM69QGlQ==}
     engines: {node: '>= 0.4'}
+
+  date-fns-jalali@4.1.0-0:
+    resolution: {integrity: sha512-hTIP/z+t+qKwBDcmmsnmjWTduxCg+5KfdqWQvb2X/8C9+knYY6epN/pfxdDuyVlSVeFz0sM5eEfwIUQ70U4ckg==}
 
   date-fns@1.30.1:
     resolution: {integrity: sha512-hBSVCvSmWC+QypYObzwGOd9wqdDpOt+0wl0KbU+R+uuZBS1jN8VsD1ss3irQDknRj5NvxiTF6oj/nDRnN/UQNw==}
@@ -13768,6 +13796,12 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
+  react-day-picker@9.7.0:
+    resolution: {integrity: sha512-urlK4C9XJZVpQ81tmVgd2O7lZ0VQldZeHzNejbwLWZSkzHH498KnArT0EHNfKBOWwKc935iMLGZdxXPRISzUxQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      react: '>=16.8.0'
+
   react-docgen-typescript@2.2.2:
     resolution: {integrity: sha512-tvg2ZtOpOi6QDwsb3GZhOjDkkX0h8Z2gipvTg6OVMUyoYoURhEiRNePT8NZItTVCDh39JJHnLdfCOkzoLbFnTg==}
     peerDependencies:
@@ -16140,6 +16174,20 @@ snapshots:
 
   '@automattic/typography@1.0.0': {}
 
+  '@automattic/ui@1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@wordpress/base-styles': 5.23.0
+      '@wordpress/compose': 7.23.0(react@18.3.1)
+      '@wordpress/element': 6.25.0
+      '@wordpress/i18n': 5.25.0
+      '@wordpress/icons': 10.25.0(react@18.3.1)
+      '@wordpress/primitives': 4.25.0(react@18.3.1)
+      clsx: 2.1.1
+      date-fns: 4.1.0
+      react: 18.3.1
+      react-day-picker: 9.7.0(react@18.3.1)
+      react-dom: 18.3.1(react@18.3.1)
+
   '@automattic/urls@1.0.0': {}
 
   '@automattic/viewport-react@1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
@@ -17020,6 +17068,8 @@ snapshots:
       colorspace: 1.1.4
       enabled: 2.0.0
       kuler: 2.0.0
+
+  '@date-fns/tz@1.2.0': {}
 
   '@discoveryjs/json-ext@0.6.3': {}
 
@@ -20100,6 +20150,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@wordpress/base-styles@5.23.0': {}
+
   '@wordpress/base-styles@6.1.0': {}
 
   '@wordpress/blob@4.25.0':
@@ -20600,6 +20652,23 @@ snapshots:
       - '@emotion/is-prop-valid'
       - '@types/react'
       - supports-color
+
+  '@wordpress/compose@7.23.0(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.27.4
+      '@types/mousetrap': 1.6.15
+      '@wordpress/deprecated': 4.25.0
+      '@wordpress/dom': 4.25.0
+      '@wordpress/element': 6.25.0
+      '@wordpress/is-shallow-equal': 5.25.0
+      '@wordpress/keycodes': 4.25.0
+      '@wordpress/priority-queue': 3.25.0
+      '@wordpress/undo-manager': 1.25.0
+      change-case: 4.1.2
+      clipboard: 2.0.11
+      mousetrap: 1.6.5
+      react: 18.3.1
+      use-memo-one: 1.1.3(react@18.3.1)
 
   '@wordpress/compose@7.25.0(react@18.3.1)':
     dependencies:
@@ -23283,6 +23352,8 @@ snapshots:
       call-bound: 1.0.4
       es-errors: 1.3.0
       is-data-view: 1.0.2
+
+  date-fns-jalali@4.1.0-0: {}
 
   date-fns@1.30.1: {}
 
@@ -27584,6 +27655,13 @@ snapshots:
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  react-day-picker@9.7.0(react@18.3.1):
+    dependencies:
+      '@date-fns/tz': 1.2.0
+      date-fns: 4.1.0
+      date-fns-jalali: 4.1.0-0
+      react: 18.3.1
 
   react-docgen-typescript@2.2.2(typescript@5.8.3):
     dependencies:

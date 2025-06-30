@@ -1,37 +1,48 @@
-/**
- * External dependencies
- */
 import { useCallback } from 'react';
-/**
- * Internal dependencies
- */
+import { useNavigate } from 'react-router';
 import { MyJetpackRoutes } from '../../constants';
 import useAnalytics from '../use-analytics';
-import useMyJetpackNavigate from '../use-my-jetpack-navigate';
 
 /**
  * Custom React hook to handle back link click with analytics.
  *
- * @param {string} slug - My Jetpack product slug.
- * @return {object}      Object with back link click handler with analytics.
+ * @param {{ slug: string }} options - Options.
+ * @return Object with back link click handler with analytics.
  */
 export function useGoBack( { slug }: { slug: string } ) {
 	const { recordEvent } = useAnalytics();
-	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
+	const navigate = useNavigate();
 
 	const onClickGoBack = useCallback(
-		( event: MouseEvent ) => {
+		( event: React.MouseEvent ) => {
 			if ( slug ) {
 				recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
 			}
 
-			if ( document.referrer.includes( window.location.host ) ) {
-				// Prevent default here to minimize page change within the My Jetpack app.
-				event.preventDefault();
-				navigateToMyJetpackOverviewPage();
+			event.preventDefault();
+
+			// Check if referrer is from allowed sites (current site, wordpress.com, jetpack.com)
+			const allowedReferrers = [
+				window.location.host, // Current site (internal navigation)
+				'wordpress.com', // WordPress.com auth/management
+				'jetpack.com', // Jetpack.com documentation/links
+			];
+
+			let referrerHostname = '';
+			try {
+				referrerHostname = new URL( document.referrer ).hostname;
+			} catch {
+				// If referrer is not a valid URL, leave referrerHostname as an empty string
+			}
+
+			const isFromAllowedSite = allowedReferrers.includes( referrerHostname );
+			if ( isFromAllowedSite && window.history.length > 1 ) {
+				navigate( -1 );
+			} else {
+				navigate( MyJetpackRoutes.Home );
 			}
 		},
-		[ recordEvent, slug, navigateToMyJetpackOverviewPage ]
+		[ slug, recordEvent, navigate ]
 	);
 
 	return { onClickGoBack };

@@ -43,7 +43,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 		boost: BoostCard,
 		search: SearchCard,
 		videopress: VideopressCard,
-		stats: StatsCard,
+		stats: StatsCard, // This is probably not used anymore because filteredSlugs filters this out.
 		crm: CrmCard,
 		social: SocialCard,
 		'jetpack-ai': AiCard,

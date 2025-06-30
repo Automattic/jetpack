@@ -1,0 +1,134 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+
+.content {
+
+	.description {
+
+		@include gb.body-medium;
+		margin: 0;
+		color: #{gb.$gray-700};
+	}
+}
+
+.products-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	margin-top: 2rem;
+
+	@include gb.break-small {
+		flex-direction: row;
+		gap: 3rem;
+	}
+
+	@include gb.break-medium {
+		gap: 4.5rem;
+	}
+
+	:global(.components-toggle-control .components-h-stack) {
+		flex-direction: row-reverse;
+	}
+}
+
+.filters-wrapper {
+
+	@include gb.break-small{
+		max-width: 12rem;
+	}
+
+	@include gb.break-medium {
+		max-width: 15rem;
+	}
+}
+
+.filtered-products-wrapper {
+	flex-grow: 1;
+}
+
+.filters {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+
+	div[role="menu"] {
+		margin-inline-start: -12px; // Adjustment for the padding for buttons
+	}
+
+	button[role="menuitemradio"] {
+		font-weight: 400;
+		color: #{gb.$gray-700};
+	}
+
+	button[aria-checked="true"] {
+		font-weight: 600;
+		color: #{gb.$gray-900};
+	}
+
+	.search-control {
+
+		:global(.components-input-control__container) {
+			background-color: transparent;
+			border: 1px solid #{gb.$gray-600};
+		}
+	}
+}
+
+.product-section {
+
+	.product-cards {
+		margin-block: 0;
+
+		div[data-wp-component="Card"] {
+			height: 100%;
+		}
+
+		li {
+			margin-bottom: 0;
+		}
+
+		// Make last card full width when there's an odd number of cards
+		li:last-child:nth-child(odd) {
+			grid-column: 1 / -1;
+		}
+	}
+
+	.section-heading {
+
+		@include gb.heading-x-large;
+		margin-bottom: 0;
+	}
+}
+
+.product-card {
+
+	&:global(.components-card) {
+		box-shadow: none;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
+	div[data-wp-component="CardHeader"]{
+		border-bottom: 0;
+		padding-bottom: 0;
+		padding-top: 1.5rem;
+	}
+
+	div[data-wp-component="CardBody"] {
+		padding-bottom: 1.5rem;
+	}
+
+	.icon-wrapper{
+		width: 3rem;
+		height: 3rem;
+		flex-shrink: 0
+	}
+
+	.card-title {
+
+		@include gb.heading-large;
+	}
+
+	.card-description {
+
+		@include gb.body-medium;
+	}
+}
