@@ -9,7 +9,7 @@ Stable tag: 4.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Speed up your WordPress site by optimizing page performance with Jetpack Boost. Easily activate one-click optimizations to boost your Core Web Vitals.
+One-click WordPress performance optimization: Critical CSS, Page Cache, Deferred JS, Image CDN, and minification. Boost Core Web Vitals.
 
 == Description ==
 
