@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { MyJetpackRoutes } from '../../constants';
 import useAnalytics from '../use-analytics';
+import type { MouseEvent } from 'react';
 
 /**
  * Custom React hook to handle back link click with analytics.
@@ -14,7 +15,7 @@ export function useGoBack( { slug }: { slug: string } ) {
 	const navigate = useNavigate();
 
 	const onClickGoBack = useCallback(
-		( event: React.MouseEvent ) => {
+		( event: MouseEvent ) => {
 			if ( slug ) {
 				recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
 			}

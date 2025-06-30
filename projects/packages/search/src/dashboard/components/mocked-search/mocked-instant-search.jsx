@@ -1,13 +1,13 @@
 import { Gridicon } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useId } from 'react';
+import { useId } from 'react';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-instant-search.scss';
 
 /**
  * Generate mocked instant search dialog
  *
- * @return {React.Component} Mocked Search instant dialog component.
+ * @return {import('react').Component} Mocked Search instant dialog component.
  */
 export default function MockedInstantSearch() {
 	return (

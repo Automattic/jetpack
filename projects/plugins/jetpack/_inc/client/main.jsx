@@ -8,7 +8,7 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router';
 import AtAGlance from 'at-a-glance/index.jsx';
@@ -147,7 +147,7 @@ const settingsRoutes = [
 	'/privacy',
 ];
 
-class Main extends React.Component {
+class Main extends Component {
 	constructor( props ) {
 		super( props );
 		this.closeReconnectModal = this.closeReconnectModal.bind( this );
@@ -276,7 +276,7 @@ class Main extends React.Component {
 	 * Render the main navigation bar.
 	 *
 	 * @param {string} route - The current page route.
-	 * @return {React.ReactElement|null} - The navigation component or `null` if not available.
+	 * @return {import('react').ReactElement|null} - The navigation component or `null` if not available.
 	 */
 	renderMainNav = route => {
 		if ( this.shouldShowWooConnectionScreen() ) {

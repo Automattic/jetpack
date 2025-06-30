@@ -7,12 +7,14 @@ import RowTitle from '$features/image-size-analysis/recommendations/ui/row-title
 import { removeGetParams } from '$lib/utils/remove-get-params';
 import TableRowHover from '../table-row-hover/table-row-hover';
 import rowStyles from '../../row.module.scss';
+import type { FC } from 'react';
+
 interface ImageMissingRowProps {
 	enableTransition: boolean;
 	details: IsaImage;
 }
 
-const ImageMissingRow: React.FC< ImageMissingRowProps > = ( { details } ) => {
+const ImageMissingRow: FC< ImageMissingRowProps > = ( { details } ) => {
 	const title = details.image.url.split( '/' ).pop() || '';
 
 	return (

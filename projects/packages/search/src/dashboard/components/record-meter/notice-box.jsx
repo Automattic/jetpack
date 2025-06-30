@@ -2,7 +2,6 @@ import { formatNumber } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action';
-import React from 'react';
 
 import './notice-box.scss';
 
@@ -65,7 +64,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
  * @param {boolean} props.hasBeenIndexed - True if site has a last indexed date
  * @param {boolean} props.hasValidData   - True if data is present and in valid form
  * @param {boolean} props.hasItems       - True if there is at least one indexed record
- * @return {React.Component} notice box component.
+ * @return {import('react').Component} notice box component.
  */
 export function NoticeBox( props ) {
 	const activeNoticeIds = [];

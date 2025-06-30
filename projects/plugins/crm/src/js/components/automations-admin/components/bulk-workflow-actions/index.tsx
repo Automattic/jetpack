@@ -6,14 +6,13 @@ import { useCallback } from 'react';
 import { useMutateAutomationWorkflows } from 'crm/data/hooks/mutations';
 import { store } from 'crm/state/store';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
 type BulkWorkflowActionsProps = {
 	refetchWorkflows: () => void;
 };
 
-export const BulkWorkflowActions: React.FC< BulkWorkflowActionsProps > = ( {
-	refetchWorkflows,
-} ) => {
+export const BulkWorkflowActions: FC< BulkWorkflowActionsProps > = ( { refetchWorkflows } ) => {
 	const dropdownMenuIcon = (
 		<div className={ styles.icon }>
 			<div className={ styles.text }>{ __( 'Bulk action', 'zero-bs-crm' ) }</div>

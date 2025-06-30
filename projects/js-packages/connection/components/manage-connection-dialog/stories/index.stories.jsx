@@ -1,4 +1,3 @@
-import React from 'react';
 import ManageConnectionDialog from '..';
 
 export default {

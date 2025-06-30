@@ -2,7 +2,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
 
 import './style.scss';
 
@@ -12,7 +11,7 @@ import './style.scss';
  * @param {object}  props                 -- The properties.
  * @param {string}  props.imageUrl        -- The assets base URL.
  * @param {boolean} props.showSupportLink -- The assets base URL.
- * @return {React.Component} The `ActivationScreenIllustration` component.
+ * @return {import('react').Component} The `ActivationScreenIllustration` component.
  */
 const ActivationScreenIllustration = props => {
 	const { imageUrl, showSupportLink = false } = props;

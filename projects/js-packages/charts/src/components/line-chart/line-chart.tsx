@@ -18,14 +18,14 @@ import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../..
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
-import type { FC, ReactNode } from 'react';
+import type { FC, ReactNode, SVGProps } from 'react';
 
 type CurveType = 'smooth' | 'linear' | 'monotone';
 
 const X_TICK_WIDTH = 100;
 
 export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datum > & {
-	glyphStyle?: React.SVGProps< SVGCircleElement >;
+	glyphStyle?: SVGProps< SVGCircleElement >;
 };
 
 const defaultRenderGlyph = < Datum extends object >(
@@ -48,7 +48,7 @@ const StartGlyph: FC< {
 		xAccessor: ( d: DataPointDate | DataPoint ) => Date;
 		yAccessor: ( d: DataPointDate | DataPoint ) => number | null;
 	};
-	glyphStyle?: React.SVGProps< SVGCircleElement >;
+	glyphStyle?: SVGProps< SVGCircleElement >;
 } > = ( { data, index, color, glyphStyle, renderGlyph, accessors } ) => {
 	const { xScale, yScale } = useContext( DataContext ) || {};
 	if ( ! xScale || ! yScale ) return null;
@@ -109,7 +109,7 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	withStartGlyphs?: boolean;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	glyphStyle?: React.SVGProps< SVGCircleElement >;
+	glyphStyle?: SVGProps< SVGCircleElement >;
 	withLegendGlyph: boolean;
 	withTooltipCrosshairs?: {
 		showVertical?: boolean;

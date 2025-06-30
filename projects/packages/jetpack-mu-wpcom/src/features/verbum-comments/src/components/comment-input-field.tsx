@@ -6,6 +6,7 @@ import { translate } from '../i18n';
 import { VerbumSignals } from '../state';
 import { isFastConnection } from '../utils';
 import { EditorPlaceholder } from './editor-placeholder';
+import type { MutableRefObject } from 'react';
 
 type CommentInputFieldProps = {
 	handleOnKeyUp: () => void;
@@ -34,7 +35,7 @@ const embedContentCallback = ( embedUrl: string ) => {
 export const CommentInputField = forwardRef(
 	(
 		{ handleOnKeyUp }: CommentInputFieldProps,
-		ref: React.MutableRefObject< HTMLTextAreaElement | null >
+		ref: MutableRefObject< HTMLTextAreaElement | null >
 	) => {
 		const { commentParent, commentValue } = useContext( VerbumSignals );
 		const [ editorState, setEditorState ] = useState< 'LOADING' | 'LOADED' | 'ERROR' >( null );

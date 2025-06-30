@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import React, { Children, useState, useLayoutEffect, useRef, useCallback, useEffect } from 'react';
+import { Children, useState, useLayoutEffect, useRef, useCallback, useEffect } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 
 import './style.scss';
 
@@ -17,10 +18,10 @@ const TRANSITION_DURATION = '300ms';
 /**
  * Custom hook to observe and handle resize events on a DOM element.
  *
- * @return {[React.Dispatch<React.SetStateAction<HTMLElement | null>>, ResizeObserverEntry | null]} Tuple containing setter and entry
+ * @return {[Dispatch<SetStateAction<HTMLElement | null>>, ResizeObserverEntry | null]} Tuple containing setter and entry
  */
 function useResizeObserver(): [
-	React.Dispatch< React.SetStateAction< HTMLElement | null > >,
+	Dispatch< SetStateAction< HTMLElement | null > >,
 	ResizeObserverEntry | null,
 ] {
 	const [ observerEntry, setObserverEntry ] = useState< ResizeObserverEntry | null >( null );

@@ -2,12 +2,11 @@ import { usePrevious } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { createContext, useContext, useEffect, useMemo, useReducer } from '@wordpress/element';
 import { isEqual } from 'lodash';
-/** @typedef {import('react')} React */
 
 /**
  * Context for managing synced attributes across blocks.
  *
- * @type {React.Context<[syncedAttributes: object, setSyncedAttributes: Function]>}
+ * @type {import('react').Context<[syncedAttributes: object, setSyncedAttributes: Function]>}
  */
 const SyncedAttributeContext = createContext( [ {}, () => {} ] );
 

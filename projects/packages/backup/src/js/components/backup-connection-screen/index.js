@@ -4,7 +4,6 @@ import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { useBackupProductInfo } from '../../hooks/use-backup-product-info';
 import { STORE_ID } from '../../store';
 import BackupPromotionBlock from '../backup-promotion';

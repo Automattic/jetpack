@@ -4,12 +4,13 @@ import { OverviewContent } from './overview/content';
 import { ProductsContent } from './products/content';
 import styles from './styles.module.scss';
 import { MyJetpackSection } from './types';
+import type { ComponentType } from 'react';
 
 export type TabContentProps = {
 	name: MyJetpackSection;
 };
 
-const componentMap: Record< MyJetpackSection, React.ComponentType > = {
+const componentMap: Record< MyJetpackSection, ComponentType > = {
 	overview: OverviewContent,
 	products: ProductsContent,
 	help: HelpContent,

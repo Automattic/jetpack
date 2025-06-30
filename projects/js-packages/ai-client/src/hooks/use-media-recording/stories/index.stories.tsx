@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { Button } from '@wordpress/components';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -12,6 +11,7 @@ import useMediaRecording from '../index.ts';
  * Types
  */
 import type { Meta } from '@storybook/react';
+import type { ComponentType } from 'react';
 
 const RecorderComponent = ( { timeslice } ) => {
 	const { controls, state, blob, duration } = useMediaRecording();
@@ -72,7 +72,7 @@ const RecorderComponent = ( { timeslice } ) => {
 
 interface AIControlStoryMeta extends Meta< typeof RecorderComponent > {
 	title?: string;
-	component?: React.ComponentType;
+	component?: ComponentType;
 }
 
 const meta: AIControlStoryMeta = {

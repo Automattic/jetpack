@@ -1,10 +1,11 @@
 import { BarChart, DataPointDate } from '@automattic/charts';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
-import React, { Suspense, useCallback, useMemo, ReactElement, KeyboardEvent } from 'react';
+import { Suspense, useCallback, useMemo } from 'react';
 import LoadingBlock from '../loading-block';
 import StatsChartTooltip from './stats-chart-tooltip';
 import styles from './stats-chart.module.scss';
+import type { ReactElement, KeyboardEvent, FC } from 'react';
 
 interface ChartDataPoint {
 	date: Date;
@@ -38,7 +39,7 @@ interface StatsChartProps {
  * @param {object}   props.metricIcon - The icon JSX element for the selected metric.
  * @return {object} StatsChart React component.
  */
-const StatsChart: React.FC< StatsChartProps > = ( {
+const StatsChart: FC< StatsChartProps > = ( {
 	data,
 	isLoading,
 	onClick,

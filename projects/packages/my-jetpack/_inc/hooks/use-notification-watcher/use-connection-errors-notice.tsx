@@ -11,6 +11,7 @@ import { NoticeContext } from '../../context/notices/noticeContext';
 import useAnalytics from '../use-analytics';
 import { assignLocation } from './assignLocation';
 import type { NoticeOptions } from '../../context/notices/types';
+import type { ReactElement } from 'react';
 
 // Define NoticeAction type since it's not exported
 interface NoticeAction {
@@ -52,7 +53,7 @@ const useConnectionErrorsNotice = () => {
 		const isProtectedOwnerError = connectionError.error_type === 'protected_owner';
 
 		// Use the error message provided by the backend
-		let errorMessage: string | React.ReactElement = connectionError.error_message;
+		let errorMessage: string | ReactElement = connectionError.error_message;
 
 		if ( restoreConnectionError ) {
 			errorMessage = (

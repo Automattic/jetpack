@@ -5,6 +5,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { MyJetpackModule } from '../types';
+import type { ChangeEvent } from 'react';
 
 export type ModuleToggleProps = {
 	module: MyJetpackModule;
@@ -69,7 +70,7 @@ export function ModuleToggle( { module: $module }: ModuleToggleProps ) {
 	);
 
 	const onChange = useCallback(
-		async ( event: React.ChangeEvent< HTMLInputElement > ) => {
+		async ( event: ChangeEvent< HTMLInputElement > ) => {
 			const active = event.target.checked;
 
 			const success = await toggleModule( {

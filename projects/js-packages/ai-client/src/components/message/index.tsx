@@ -17,7 +17,7 @@ import AiFeedbackThumbs from '../ai-feedback/index.tsx';
  * Types
  */
 import type { SuggestionErrorCode } from '../../types.ts';
-import type React from 'react';
+import type { MouseEvent, ReactElement, ReactNode } from 'react';
 
 export const MESSAGE_SEVERITY_WARNING = 'warning';
 export const MESSAGE_SEVERITY_ERROR = 'error';
@@ -40,17 +40,17 @@ type AiFeedbackThumbsOptions = {
 };
 
 export type MessageProps = {
-	icon?: React.ReactNode;
+	icon?: ReactNode;
 	severity?: MessageSeverityProp;
 	aiFeedbackThumbsOptions?: AiFeedbackThumbsOptions;
-	children: React.ReactNode;
+	children: ReactNode;
 };
 
 export type GuidelineMessageProps = {
 	aiFeedbackThumbsOptions?: AiFeedbackThumbsOptions;
 };
 
-export type OnUpgradeClick = ( event?: React.MouseEvent< HTMLButtonElement > ) => void;
+export type OnUpgradeClick = ( event?: MouseEvent< HTMLButtonElement > ) => void;
 
 export type UpgradeMessageProps = {
 	requestsRemaining: number;
@@ -78,7 +78,7 @@ const messageIconsMap = {
  * React component to render a block message.
  *
  * @param {MessageProps} props - Component props.
- * @return {React.ReactElement}    Banner component.
+ * @return {ReactElement}    Banner component.
  */
 export default function Message( {
 	severity = MESSAGE_SEVERITY_INFO,
@@ -91,7 +91,7 @@ export default function Message( {
 		onRate: () => {},
 	},
 	children,
-}: MessageProps ): React.ReactElement {
+}: MessageProps ): ReactElement {
 	return (
 		<div
 			className={ clsx(
@@ -122,9 +122,9 @@ export default function Message( {
 /**
  * React component to render a learn more link.
  *
- * @return {React.ReactElement} - Learn more link component.
+ * @return {ReactElement} - Learn more link component.
  */
-function LearnMoreLink(): React.ReactElement {
+function LearnMoreLink(): ReactElement {
 	return (
 		<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
 			{ __( 'Learn more', 'jetpack-ai-client' ) }
@@ -136,7 +136,7 @@ function LearnMoreLink(): React.ReactElement {
  * React component to render a guideline message.
  *
  * @param {GuidelineMessageProps} props - Component props.
- * @return {React.ReactElement} - Message component.
+ * @return {ReactElement} - Message component.
  */
 export function GuidelineMessage( {
 	aiFeedbackThumbsOptions = {
@@ -146,7 +146,7 @@ export function GuidelineMessage( {
 		block: null,
 		onRate: () => {},
 	},
-}: GuidelineMessageProps ): React.ReactElement {
+}: GuidelineMessageProps ): ReactElement {
 	return (
 		<Message aiFeedbackThumbsOptions={ aiFeedbackThumbsOptions }>
 			<span>
@@ -160,9 +160,9 @@ export function GuidelineMessage( {
 /**
  * React component to render a fair usage limit message.
  *
- * @return {React.ReactElement} - Message component.
+ * @return {ReactElement} - Message component.
  */
-export function FairUsageLimitMessage(): React.ReactElement {
+export function FairUsageLimitMessage(): ReactElement {
 	const message = __(
 		"You've reached this month's request limit, per our <link>fair usage policy</link>",
 		'jetpack-ai-client'
@@ -180,14 +180,14 @@ export function FairUsageLimitMessage(): React.ReactElement {
  * React component to render an upgrade message for free tier users
  *
  * @param {number} requestsRemaining - Number of requests remaining.
- * @return {React.ReactElement} - Message component.
+ * @return {ReactElement} - Message component.
  */
 export function UpgradeMessage( {
 	requestsRemaining,
 	severity,
 	onUpgradeClick,
 	upgradeUrl,
-}: UpgradeMessageProps ): React.ReactElement {
+}: UpgradeMessageProps ): ReactElement {
 	let messageSeverity = severity;
 
 	if ( messageSeverity == null ) {
@@ -219,7 +219,7 @@ export function UpgradeMessage( {
  * React component to render an error message
  *
  * @param {number} requestsRemaining - Number of requests remaining.
- * @return {React.ReactElement} - Message component.
+ * @return {ReactElement} - Message component.
  */
 export function ErrorMessage( {
 	error,
@@ -227,7 +227,7 @@ export function ErrorMessage( {
 	onTryAgainClick,
 	onUpgradeClick,
 	upgradeUrl,
-}: ErrorMessageProps ): React.ReactElement {
+}: ErrorMessageProps ): ReactElement {
 	const errorMessage = error || __( 'Something went wrong', 'jetpack-ai-client' );
 
 	return (

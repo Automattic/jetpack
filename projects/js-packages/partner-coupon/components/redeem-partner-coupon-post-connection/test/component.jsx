@@ -3,7 +3,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 
 jest.unstable_mockModule( '../../../utils/assignLocation', () => {
 	return {

@@ -1,4 +1,4 @@
-import React from 'react';
+import { createElement } from 'react';
 import { legendArgTypes } from '../../../stories/legend-config';
 import type { StoryFn } from '@storybook/react';
 import type { ComponentType } from 'react';
@@ -26,7 +26,7 @@ export function createLegendStories< T extends Record< string, unknown > >(
 		customArgTypes?: Record< string, unknown >;
 	} = {}
 ) {
-	const Template: StoryFn< T > = ( args: T ) => React.createElement( ChartComponent, args );
+	const Template: StoryFn< T > = ( args: T ) => createElement( ChartComponent, args );
 
 	const legendStoryArgs = {
 		...baseStoryArgs,

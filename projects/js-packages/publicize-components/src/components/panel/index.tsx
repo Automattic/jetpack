@@ -19,10 +19,11 @@ import { ManualSharing } from '../manual-sharing';
 import { ReSharingPanel } from '../resharing-panel';
 import styles from './styles.module.scss';
 import './global.scss';
+import type { ReactNode } from 'react';
 
 type PublicizePanelProps = {
 	prePublish?: boolean;
-	children: React.ReactNode;
+	children: ReactNode;
 };
 
 const PublicizePanel = ( { prePublish, children }: PublicizePanelProps ) => {

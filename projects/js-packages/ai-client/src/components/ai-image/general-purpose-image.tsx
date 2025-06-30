@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import {
 	useAnalytics,
 	PLAN_TYPE_UNLIMITED,
@@ -10,9 +7,6 @@ import { Button } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
-/**
- * Internal dependencies
- */
 import './style.scss';
 import useAiFeature from '../../hooks/use-ai-feature/index.ts';
 import usePostContent from '../../hooks/use-post-content.ts';
@@ -25,6 +19,7 @@ import {
 	IMAGE_GENERATION_MODEL_DALL_E_3,
 	GENERAL_IMAGE_FEATURE_NAME,
 } from './types.ts';
+import type { ReactElement } from 'react';
 
 /**
  * The type for the callback function that is called when the user selects an image.
@@ -45,7 +40,7 @@ const debug = debugFactory( 'jetpack-ai:general-purpose-image' );
 /**
  * GeneralPurposeImage component
  * @param {GeneralPurposeImageProps} props - The component properties.
- * @return {React.ReactElement} - rendered component.
+ * @return {ReactElement} - rendered component.
  */
 export default function GeneralPurposeImage( {
 	placement,
