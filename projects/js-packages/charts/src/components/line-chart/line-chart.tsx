@@ -422,17 +422,20 @@ const LineChartInternal: FC< LineChartProps > = ( {
 					/>
 				) }
 
-				{ annotations?.length &&
-					annotations.map( ( { datum, ...rest }, index ) =>
-						datum ? (
-							<LineChartAnnotation
-								key={ `annotation-${ datum.date?.getTime() }-${ datum.value }` }
-								testId={ `annotation-${ index }` }
-								datum={ datum }
-								{ ...rest }
-							/>
-						) : null
-					) }
+				{ annotations?.length && (
+					<g className="line-chart__annotations">
+						{ annotations.map( ( { datum, ...rest }, index ) =>
+							datum ? (
+								<LineChartAnnotation
+									key={ `annotation-${ datum.date?.getTime() }-${ datum.value }` }
+									testId={ `annotation-${ index }` }
+									datum={ datum }
+									{ ...rest }
+								/>
+							) : null
+						) }
+					</g>
+				) }
 			</XYChart>
 
 			{ showLegend && (
