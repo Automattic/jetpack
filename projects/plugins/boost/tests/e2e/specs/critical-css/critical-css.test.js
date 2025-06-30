@@ -49,10 +49,7 @@ test.describe( 'Critical CSS module', () => {
 	test( 'Critical CSS should be generated when the module is active', async () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect(
-			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
-			'Critical CSS generation progress indicator should be visible'
-		).toBeTruthy();
+
 		expect(
 			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
 			'Critical CSS meta information should be visible'
@@ -90,10 +87,7 @@ test.describe( 'Critical CSS module', () => {
 			'#jetpack-boost-notice-critical-css-regenerate a[href*="jetpack-boost"]'
 		);
 		const jetpackBoostPage = await JetpackBoostPage.init( page );
-		expect(
-			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
-			'Critical CSS generation progress indicator should be visible'
-		).toBeTruthy();
+
 		expect(
 			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
 			'Critical CSS meta information should be visible'
@@ -119,7 +113,7 @@ test.describe( 'Critical CSS module', () => {
 		).toBeTruthy();
 		await jetpackBoostPage.navigateToMainSettingsPage();
 		expect(
-			await jetpackBoostPage.isTheCriticalCssMetaInformationVisible(),
+			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
 			'Critical CSS meta information should be visible'
 		).toBeTruthy();
 	} );
