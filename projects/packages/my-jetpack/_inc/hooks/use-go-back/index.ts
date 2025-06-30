@@ -24,8 +24,8 @@ export function useGoBack( { slug }: { slug: string } ) {
 			// Check if referrer is from allowed sites (current site, wordpress.com, jetpack.com)
 			const allowedReferrers = [
 				window.location.host, // Current site (internal navigation)
-				'wordpress.com', // WordPress.com auth/management
-				'jetpack.com', // Jetpack.com documentation/links
+				'//wordpress.com', // WordPress.com auth/management
+				'//jetpack.com', // Jetpack.com documentation/links
 			];
 
 			const isFromAllowedSite = allowedReferrers.some( host => document.referrer.includes( host ) );
