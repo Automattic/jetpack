@@ -12,6 +12,7 @@ import AkismetDashboardCard from './akismet-card';
 import CreativeMailDashboardCard from './creative-mail-card';
 import GoogleSheetsDashboardCard from './google-sheets-card';
 import JetpackCRMDashboardCard from './jetpack-crm-card';
+import MailPoetDashboardCard from './mailpoet-card';
 import SalesforceDashboardCard from './salesforce-card';
 import './style.scss';
 /**
@@ -27,6 +28,7 @@ const Integrations = () => {
 		crm: false,
 		creativemail: false,
 		salesforce: false,
+		mailpoet: false,
 	} );
 
 	const toggleCard = useCallback( ( cardId: keyof typeof expandedCards ) => {
@@ -58,6 +60,7 @@ const Integrations = () => {
 		() => toggleCard( 'creativemail' ),
 		[ toggleCard ]
 	);
+	const handleToggleMailPoet = useCallback( () => toggleCard( 'mailpoet' ), [ toggleCard ] );
 
 	const findIntegrationById = ( id: string ) =>
 		integrations?.find( ( integration: Integration ) => integration.id === id );
@@ -93,6 +96,12 @@ const Integrations = () => {
 						isExpanded={ expandedCards.crm }
 						onToggle={ handleToggleCRM }
 						data={ findIntegrationById( 'zero-bs-crm' ) }
+						refreshStatus={ refreshIntegrations }
+					/>
+					<MailPoetDashboardCard
+						isExpanded={ expandedCards.mailpoet }
+						onToggle={ handleToggleMailPoet }
+						data={ findIntegrationById( 'mailpoet' ) }
 						refreshStatus={ refreshIntegrations }
 					/>
 					<SalesforceDashboardCard
