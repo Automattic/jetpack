@@ -30,12 +30,12 @@ export function useGoBack( { slug }: { slug: string } ) {
 
 			let referrerHostname = '';
 			try {
-				referrerHostname = new URL(document.referrer).hostname;
-			} catch (error) {
+				referrerHostname = new URL( document.referrer ).hostname;
+			} catch {
 				// If referrer is not a valid URL, leave referrerHostname as an empty string
 			}
 
-			const isFromAllowedSite = allowedReferrers.includes(referrerHostname);
+			const isFromAllowedSite = allowedReferrers.includes( referrerHostname );
 			if ( isFromAllowedSite && window.history.length > 1 ) {
 				navigate( -1 );
 			} else {
