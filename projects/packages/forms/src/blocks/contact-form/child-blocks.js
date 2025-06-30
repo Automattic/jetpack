@@ -16,6 +16,7 @@ import JetpackNumberField from '../field-number';
 import JetpackRatingField from '../field-rating';
 import JetpackDropdownField from '../field-select';
 import JetpackSingleChoiceField from '../field-single-choice';
+import JetpackFieldSlider from '../field-slider';
 import JetpackTelephoneField from '../field-telephone';
 import JetpackTextField from '../field-text';
 import JetpackTextareaField from '../field-textarea';
@@ -30,6 +31,7 @@ import JetpackRatingInput from '../input-rating';
 import JetpackLabel from '../label';
 import JetpackOption from '../option';
 import JetpackOptions from '../options';
+import JetpackSliderInput from '../slider-input';
 
 export const childBlocks = [
 	JetpackLabel,
@@ -45,6 +47,8 @@ export const childBlocks = [
 	JetpackMultipleChoiceField,
 	JetpackNameField,
 	JetpackNumberField,
+	JetpackFieldSlider,
+	JetpackSliderInput,
 	JetpackSingleChoiceField,
 	JetpackTextField,
 	JetpackUrlField,

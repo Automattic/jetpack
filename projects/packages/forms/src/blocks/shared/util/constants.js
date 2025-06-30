@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
 export const ALLOWED_FORMATS = [ 'core/bold', 'core/italic' ];
-export const ALLOWED_INNER_BLOCKS = [ 'jetpack/label', 'jetpack/input' ];
+export const ALLOWED_INNER_BLOCKS = [ 'jetpack/label', 'jetpack/input', 'jetpack/slider-input' ];
 
 const currentYear = new Date().getFullYear();
 

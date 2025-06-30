@@ -1926,6 +1926,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			case 'number':
 				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
 				break;
+			case 'slider':
+				$field .= $this->render_slider_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
+				break;
 			case 'file':
 				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
 				break;
@@ -2183,5 +2186,36 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$spans,
 			$this->field_classes
 		) . $this->get_error_div( $id, 'rating' );
+	}
+
+	/**
+	 * Return the HTML for the slider field.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 * @param array  $extra_attrs - Extra attributes used in slider field, namely `min` and `max`.
+	 *
+	 * @return string HTML
+	 */
+	public function render_slider_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+		$this->set_invalid_message( 'slider', __( 'Please select a valid value', 'jetpack-forms' ) );
+		if ( isset( $extra_attrs['min'] ) ) {
+			// translators: %d is the minimum value.
+			$this->set_invalid_message( 'min_slider', __( 'Please select a value that is no less than %d.', 'jetpack-forms' ) );
+		}
+		if ( isset( $extra_attrs['max'] ) ) {
+			// translators: %d is the maximum value.
+			$this->set_invalid_message( 'max_slider', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
+		}
+		$field  = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'range', $id, $value, $class, $placeholder, $required, $extra_attrs );
+		return $field;
 	}
 }
