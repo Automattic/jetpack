@@ -411,6 +411,15 @@ class Jetpack_Gutenberg {
 			 * @param array
 			 */
 			self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
+
+			if ( ! is_array( self::$extensions ) ) {
+				_doing_it_wrong(
+					__METHOD__,
+					esc_html__( 'The jetpack_set_available_extensions filter must return an array.', 'jetpack' ),
+					'$$next-version$$'
+				);
+				self::$extensions = array();
+			}
 		}
 
 		return self::$extensions;
