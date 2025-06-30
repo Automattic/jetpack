@@ -3,7 +3,15 @@ import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import clsx from 'clsx';
-import { useId, useMemo, useContext, useState, useRef } from 'react';
+import {
+	useId,
+	useMemo,
+	useContext,
+	forwardRef,
+	useImperativeHandle,
+	useState,
+	useRef,
+} from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
@@ -104,6 +112,15 @@ const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 	}
 };
 
+export interface LineChartRef {
+	getScales: () => { xScale: unknown; yScale: unknown } | null;
+	getChartDimensions: () => {
+		width: number;
+		height: number;
+		margin: { top?: number; right?: number; bottom?: number; left?: number };
+	};
+}
+
 interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill: boolean;
 	smoothing?: boolean;
@@ -177,281 +194,350 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
-const LineChartInternal: FC< LineChartProps > = ( {
-	data,
-	chartId: providedChartId,
-	width,
-	height,
-	className,
-	margin,
-	withTooltips = true,
-	withTooltipCrosshairs,
-	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendAlignmentHorizontal = 'center',
-	legendAlignmentVertical = 'bottom',
-	renderGlyph = defaultRenderGlyph,
-	glyphStyle = {},
-	legendShape = 'line',
-	withLegendGlyph = false,
-	withGradientFill = false,
-	smoothing = true,
-	curveType,
-	renderTooltip = renderDefaultTooltip,
-	withStartGlyphs = false,
-	options = {},
-	annotations,
-	onPointerDown = undefined,
-	onPointerUp = undefined,
-	onPointerMove = undefined,
-	onPointerOut = undefined,
+// Inner component to access DataContext and provide scale data to ref
+const LineChartScalesRef: FC< LineChartProps & { chartRef?: React.Ref< LineChartRef > } > = ( {
+	chartRef,
+	...props
 } ) => {
-	const providerTheme = useChartTheme();
-	const theme = useXYChartTheme( data );
-	const internalChartId = useId(); // Ensure unique ids for gradient fill.
-	const chartId = useChartId( providedChartId );
-	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
-	const chartRef = useRef< HTMLDivElement >( null );
-	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
-	const [ isNavigating, setIsNavigating ] = useState( false );
+	const context = useContext( DataContext );
 
-	const dataSorted = useChartDataTransform( data );
-
-	// Use the keyboard navigation hook
-	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
-		selectedIndex,
-		setSelectedIndex,
-		isNavigating,
-		setIsNavigating,
+	useImperativeHandle(
 		chartRef,
-		totalPoints: dataSorted[ 0 ]?.data.length || 0,
-	} );
-
-	const chartOptions = useMemo( () => {
-		const xNumTicks = Math.min( dataSorted[ 0 ]?.data.length, Math.ceil( width / X_TICK_WIDTH ) );
-		return {
-			axis: {
-				x: {
-					orientation: 'bottom' as const,
-					numTicks: xNumTicks,
-					tickFormat: formatDateTick,
-					...options?.axis?.x,
-				},
-				y: {
-					orientation: 'left' as const,
-					numTicks: 4,
-					tickFormat: formatNumberCompact as TickFormatter< number >,
-					...options?.axis?.y,
-				},
+		() => ( {
+			getScales: () => {
+				if ( ! context?.xScale || ! context?.yScale ) {
+					return null;
+				}
+				return {
+					xScale: context.xScale,
+					yScale: context.yScale,
+				};
 			},
-			xScale: {
-				type: 'time' as const,
-				...options?.xScale,
-			},
-			yScale: {
-				type: 'linear' as const,
-				nice: true,
-				zero: false,
-				...options?.yScale,
-			},
-		};
-	}, [ options, dataSorted, width ] );
-
-	const tooltipRenderGlyph = useMemo( () => {
-		return ( props: GlyphProps< DataPointDate > ) => {
-			const seriesIndex = dataSorted.findIndex(
-				series => series.label === props.key || series.data.includes( props.datum as DataPointDate )
-			);
-			const themeGlyph = providerTheme.glyphs?.[ seriesIndex ];
-			return themeGlyph ? themeGlyph( props ) : renderGlyph( props );
-		};
-	}, [ dataSorted, providerTheme.glyphs, renderGlyph ] );
-
-	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
-
-	const error = validateData( dataSorted );
-	const isDataValid = ! error;
-
-	// Create legend items (hooks must be called in same order every render)
-	const legendItems = useMemo(
-		() =>
-			dataSorted.map( ( group, index ) => ( {
-				label: group.label, // Label for each unique group
-				value: '', // Empty string since we don't want to show a specific value
-				color:
-					group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
-				shapeStyle: group?.options?.legendShapeStyle,
-				renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
-				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
-			} ) ),
-		[
-			dataSorted,
-			providerTheme.colors,
-			providerTheme.glyphs,
-			withLegendGlyph,
-			renderGlyph,
-			glyphStyle?.radius,
-		]
+			getChartDimensions: () => ( {
+				width: props.width,
+				height: props.height,
+				margin: props.margin || {},
+			} ),
+		} ),
+		[ context, props.width, props.height, props.margin ]
 	);
 
-	// Register chart with context only if data is valid
-	useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, {
-		withGradientFill,
-		smoothing,
-		curveType,
-		withStartGlyphs,
-		withLegendGlyph,
-	} );
+	return null; // This component only provides the ref interface
+};
 
-	const accessors = {
-		xAccessor: ( d: DataPointDate ) => d?.date,
-		yAccessor: ( d: DataPointDate ) => d?.value,
-	};
+const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
+	(
+		{
+			data,
+			chartId: providedChartId,
+			width,
+			height,
+			className,
+			margin,
+			withTooltips = true,
+			withTooltipCrosshairs,
+			showLegend = false,
+			legendOrientation = 'horizontal',
+			legendAlignmentHorizontal = 'center',
+			legendAlignmentVertical = 'bottom',
+			renderGlyph = defaultRenderGlyph,
+			glyphStyle = {},
+			legendShape = 'line',
+			withLegendGlyph = false,
+			withGradientFill = false,
+			smoothing = true,
+			curveType,
+			renderTooltip = renderDefaultTooltip,
+			withStartGlyphs = false,
+			options = {},
+			annotations,
+			onPointerDown = undefined,
+			onPointerUp = undefined,
+			onPointerMove = undefined,
+			onPointerOut = undefined,
+		},
+		ref
+	) => {
+		const providerTheme = useChartTheme();
+		const theme = useXYChartTheme( data );
+		const internalChartId = useId(); // Ensure unique ids for gradient fill.
+		const chartId = useChartId( providedChartId );
+		const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+		const chartRef = useRef< HTMLDivElement >( null );
+		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
+		const [ isNavigating, setIsNavigating ] = useState( false );
 
-	// Create a custom renderTooltip that includes focus capability
-	if ( error ) {
-		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
-	}
+		const dataSorted = useChartDataTransform( data );
 
-	return (
-		<div
-			className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }
-			data-testid="line-chart"
-			role="grid"
-			aria-label="line chart"
-			style={ {
-				width,
-				height,
-				display: 'flex',
-				flexDirection:
-					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
-			} }
-			tabIndex={ 0 }
-			onKeyDown={ onChartKeyDown }
-			onFocus={ onChartFocus }
-			onBlur={ onChartBlur }
-			ref={ chartRef }
-		>
-			<XYChart
-				theme={ theme }
-				width={ width }
-				height={ height - ( showLegend ? legendHeight : 0 ) }
-				margin={ {
-					...defaultMargin,
-					...margin,
-					...( showLegend && legendAlignmentVertical === 'top'
-						? { top: ( defaultMargin.top || 0 ) + legendHeight }
-						: {} ),
+		// Use the keyboard navigation hook
+		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
+			selectedIndex,
+			setSelectedIndex,
+			isNavigating,
+			setIsNavigating,
+			chartRef,
+			totalPoints: dataSorted[ 0 ]?.data.length || 0,
+		} );
+
+		const chartOptions = useMemo( () => {
+			const xNumTicks = Math.min( dataSorted[ 0 ]?.data.length, Math.ceil( width / X_TICK_WIDTH ) );
+			return {
+				axis: {
+					x: {
+						orientation: 'bottom' as const,
+						numTicks: xNumTicks,
+						tickFormat: formatDateTick,
+						...options?.axis?.x,
+					},
+					y: {
+						orientation: 'left' as const,
+						numTicks: 4,
+						tickFormat: formatNumberCompact as TickFormatter< number >,
+						...options?.axis?.y,
+					},
+				},
+				xScale: {
+					type: 'time' as const,
+					...options?.xScale,
+				},
+				yScale: {
+					type: 'linear' as const,
+					nice: true,
+					zero: false,
+					...options?.yScale,
+				},
+			};
+		}, [ options, dataSorted, width ] );
+
+		const tooltipRenderGlyph = useMemo( () => {
+			return ( props: GlyphProps< DataPointDate > ) => {
+				const seriesIndex = dataSorted.findIndex(
+					series =>
+						series.label === props.key || series.data.includes( props.datum as DataPointDate )
+				);
+				const themeGlyph = providerTheme.glyphs?.[ seriesIndex ];
+				return themeGlyph ? themeGlyph( props ) : renderGlyph( props );
+			};
+		}, [ dataSorted, providerTheme.glyphs, renderGlyph ] );
+
+		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
+
+		const error = validateData( dataSorted );
+		const isDataValid = ! error;
+
+		// Create legend items (hooks must be called in same order every render)
+		const legendItems = useMemo(
+			() =>
+				dataSorted.map( ( group, index ) => ( {
+					label: group.label, // Label for each unique group
+					value: '', // Empty string since we don't want to show a specific value
+					color:
+						group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
+					shapeStyle: group?.options?.legendShapeStyle,
+					renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
+					glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
+				} ) ),
+			[
+				dataSorted,
+				providerTheme.colors,
+				providerTheme.glyphs,
+				withLegendGlyph,
+				renderGlyph,
+				glyphStyle?.radius,
+			]
+		);
+
+		// Register chart with context only if data is valid
+		useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, {
+			withGradientFill,
+			smoothing,
+			curveType,
+			withStartGlyphs,
+			withLegendGlyph,
+		} );
+
+		const accessors = {
+			xAccessor: ( d: DataPointDate ) => d?.date,
+			yAccessor: ( d: DataPointDate ) => d?.value,
+		};
+
+		// Create a custom renderTooltip that includes focus capability
+		if ( error ) {
+			return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
+		}
+
+		return (
+			<div
+				className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }
+				data-testid="line-chart"
+				role="grid"
+				aria-label="line chart"
+				style={ {
+					width,
+					height,
+					display: 'flex',
+					flexDirection:
+						showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
 				} }
-				// xScale and yScale could be set in Axis as well, but they are `scale` props there.
-				xScale={ chartOptions.xScale }
-				yScale={ chartOptions.yScale }
-				onPointerDown={ onPointerDown }
-				onPointerUp={ onPointerUp }
-				onPointerMove={ onPointerMove }
-				onPointerOut={ onPointerOut }
-				pointerEventsDataKey="nearest"
+				tabIndex={ 0 }
+				onKeyDown={ onChartKeyDown }
+				onFocus={ onChartFocus }
+				onBlur={ onChartBlur }
+				ref={ chartRef }
 			>
-				<Grid columns={ false } numTicks={ 4 } />
-				<Axis { ...chartOptions.axis.x } />
-				<Axis { ...chartOptions.axis.y } />
+				<XYChart
+					theme={ theme }
+					width={ width }
+					height={ height - ( showLegend ? legendHeight : 0 ) }
+					margin={ {
+						...defaultMargin,
+						...margin,
+						...( showLegend && legendAlignmentVertical === 'top'
+							? { top: ( defaultMargin.top || 0 ) + legendHeight }
+							: {} ),
+					} }
+					// xScale and yScale could be set in Axis as well, but they are `scale` props there.
+					xScale={ chartOptions.xScale }
+					yScale={ chartOptions.yScale }
+					onPointerDown={ onPointerDown }
+					onPointerUp={ onPointerUp }
+					onPointerMove={ onPointerMove }
+					onPointerOut={ onPointerOut }
+					pointerEventsDataKey="nearest"
+				>
+					<Grid columns={ false } numTicks={ 4 } />
+					<Axis { ...chartOptions.axis.x } />
+					<Axis { ...chartOptions.axis.y } />
 
-				{ dataSorted.map( ( seriesData, index ) => {
-					const stroke = seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
-					const lineProps =
-						seriesData.options?.seriesLineStyle ??
-						providerTheme?.seriesLineStyles?.[ index % providerTheme.seriesLineStyles.length ] ??
-						{};
-					return (
-						<g key={ seriesData?.label || index }>
-							{ withStartGlyphs && (
-								<StartGlyph
-									index={ index }
-									data={ seriesData }
-									color={ stroke }
-									renderGlyph={ providerTheme.glyphs?.[ index ] ?? renderGlyph }
-									accessors={ accessors }
-									glyphStyle={ glyphStyle }
+					{ dataSorted.map( ( seriesData, index ) => {
+						const stroke =
+							seriesData.options?.stroke ?? theme.colors[ index % theme.colors.length ];
+						const lineProps =
+							seriesData.options?.seriesLineStyle ??
+							providerTheme?.seriesLineStyles?.[ index % providerTheme.seriesLineStyles.length ] ??
+							{};
+						return (
+							<g key={ seriesData?.label || index }>
+								{ withStartGlyphs && (
+									<StartGlyph
+										index={ index }
+										data={ seriesData }
+										color={ stroke }
+										renderGlyph={ providerTheme.glyphs?.[ index ] ?? renderGlyph }
+										accessors={ accessors }
+										glyphStyle={ glyphStyle }
+									/>
+								) }
+
+								{ withGradientFill && (
+									<LinearGradient
+										id={ `area-gradient-${ internalChartId }-${ index + 1 }` }
+										from={ stroke }
+										fromOpacity={ 0.4 }
+										toOpacity={ 0.1 }
+										to={ theme.backgroundColor }
+										{ ...seriesData.options?.gradient }
+										data-testid="line-gradient"
+									/>
+								) }
+								<AreaSeries
+									key={ seriesData?.label }
+									dataKey={ seriesData?.label }
+									data={ seriesData.data as DataPointDate[] }
+									{ ...accessors }
+									fill={
+										withGradientFill
+											? `url(#area-gradient-${ internalChartId }-${ index + 1 })`
+											: 'transparent'
+									}
+									renderLine={ true }
+									curve={ getCurveType( curveType, smoothing ) }
+									lineProps={ lineProps }
 								/>
-							) }
+							</g>
+						);
+					} ) }
 
-							{ withGradientFill && (
-								<LinearGradient
-									id={ `area-gradient-${ internalChartId }-${ index + 1 }` }
-									from={ stroke }
-									fromOpacity={ 0.4 }
-									toOpacity={ 0.1 }
-									to={ theme.backgroundColor }
-									{ ...seriesData.options?.gradient }
-									data-testid="line-gradient"
-								/>
-							) }
-							<AreaSeries
-								key={ seriesData?.label }
-								dataKey={ seriesData?.label }
-								data={ seriesData.data as DataPointDate[] }
-								{ ...accessors }
-								fill={
-									withGradientFill
-										? `url(#area-gradient-${ internalChartId }-${ index + 1 })`
-										: 'transparent'
-								}
-								renderLine={ true }
-								curve={ getCurveType( curveType, smoothing ) }
-								lineProps={ lineProps }
-							/>
-						</g>
-					);
-				} ) }
+					{ withTooltips && (
+						<AccessibleTooltip
+							detectBounds
+							snapTooltipToDatumX
+							snapTooltipToDatumY
+							showSeriesGlyphs
+							renderTooltip={ renderTooltip }
+							renderGlyph={ tooltipRenderGlyph }
+							glyphStyle={ glyphStyle }
+							showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
+							showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
+							selectedIndex={ selectedIndex }
+							tooltipRef={ tooltipRef }
+							keyboardFocusedClassName={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
+							series={ dataSorted }
+						/>
+					) }
 
-				{ withTooltips && (
-					<AccessibleTooltip
-						detectBounds
-						snapTooltipToDatumX
-						snapTooltipToDatumY
-						showSeriesGlyphs
-						renderTooltip={ renderTooltip }
-						renderGlyph={ tooltipRenderGlyph }
+					{ /* Component to expose scale data via ref */ }
+					<LineChartScalesRef
+						chartRef={ ref }
+						data={ data }
+						width={ width }
+						height={ height }
+						className={ className }
+						margin={ margin }
+						withTooltips={ withTooltips }
+						withTooltipCrosshairs={ withTooltipCrosshairs }
+						showLegend={ showLegend }
+						legendOrientation={ legendOrientation }
+						legendAlignmentHorizontal={ legendAlignmentHorizontal }
+						legendAlignmentVertical={ legendAlignmentVertical }
+						renderGlyph={ renderGlyph }
 						glyphStyle={ glyphStyle }
-						showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
-						showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
-						selectedIndex={ selectedIndex }
-						tooltipRef={ tooltipRef }
-						keyboardFocusedClassName={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
-						series={ dataSorted }
+						legendShape={ legendShape }
+						withLegendGlyph={ withLegendGlyph }
+						withGradientFill={ withGradientFill }
+						smoothing={ smoothing }
+						curveType={ curveType }
+						renderTooltip={ renderTooltip }
+						withStartGlyphs={ withStartGlyphs }
+						options={ options }
+						annotations={ annotations }
+						onPointerDown={ onPointerDown }
+						onPointerUp={ onPointerUp }
+						onPointerMove={ onPointerMove }
+						onPointerOut={ onPointerOut }
+					/>
+
+					{ annotations?.length && (
+						<g className="line-chart__annotations">
+							{ annotations.map( ( { datum, ...rest }, index ) =>
+								datum ? (
+									<LineChartAnnotation
+										key={ `annotation-${ datum.date?.getTime() }-${ datum.value }` }
+										testId={ `annotation-${ index }` }
+										datum={ datum }
+										{ ...rest }
+									/>
+								) : null
+							) }
+						</g>
+					) }
+				</XYChart>
+
+				{ showLegend && (
+					<Legend
+						items={ legendItems }
+						orientation={ legendOrientation }
+						alignmentHorizontal={ legendAlignmentHorizontal }
+						alignmentVertical={ legendAlignmentVertical }
+						className={ styles[ 'line-chart-legend' ] }
+						shape={ legendShape }
+						ref={ legendRef }
 					/>
 				) }
-
-				{ annotations?.length && (
-					<g className="line-chart__annotations">
-						{ annotations.map( ( { datum, ...rest }, index ) =>
-							datum ? (
-								<LineChartAnnotation
-									key={ `annotation-${ datum.date?.getTime() }-${ datum.value }` }
-									testId={ `annotation-${ index }` }
-									datum={ datum }
-									{ ...rest }
-								/>
-							) : null
-						) }
-					</g>
-				) }
-			</XYChart>
-
-			{ showLegend && (
-				<Legend
-					items={ legendItems }
-					orientation={ legendOrientation }
-					alignmentHorizontal={ legendAlignmentHorizontal }
-					alignmentVertical={ legendAlignmentVertical }
-					className={ styles[ 'line-chart-legend' ] }
-					shape={ legendShape }
-					ref={ legendRef }
-				/>
-			) }
-		</div>
-	);
-};
+			</div>
+		);
+	}
+);
 
 const LineChart: FC< LineChartProps > = props => (
 	<ChartProvider>
