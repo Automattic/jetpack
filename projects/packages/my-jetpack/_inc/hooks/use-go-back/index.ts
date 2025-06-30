@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import { MyJetpackRoutes } from '../../constants';
 import useAnalytics from '../use-analytics';
 
 /**
@@ -32,10 +33,10 @@ export function useGoBack( { slug }: { slug: string } ) {
 			if ( isFromAllowedSite && window.history.length > 1 ) {
 				navigate( -1 );
 			} else {
-				navigate( '/' );
+				navigate( MyJetpackRoutes.Home );
 			}
 		},
-		[ recordEvent, slug, navigate ]
+		[ slug, recordEvent, navigate ]
 	);
 
 	return { onClickGoBack };
