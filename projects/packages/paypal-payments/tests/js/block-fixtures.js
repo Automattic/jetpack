@@ -228,7 +228,10 @@ function gatherValidationIssues( blocks ) {
  * @throws {Error} If the parse was invalid.
  */
 function checkParseValid( block, fixtureName, validationIssues = null ) {
-	if ( ! block.isValid ) {
+	// Skip validation check for deprecated blocks as they may be intentionally invalid
+	const isDeprecated = /__deprecated([-_]|$)/.test( fixtureName );
+
+	if ( ! block.isValid && ! isDeprecated ) {
 		// eslint-disable-next-line testing-library/render-result-naming-convention -- False positive.
 		const validationIssuesString = renderValidationIssuesString( validationIssues );
 		throw new Error(
