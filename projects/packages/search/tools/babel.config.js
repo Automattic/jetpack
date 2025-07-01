@@ -22,7 +22,7 @@ module.exports = api => {
 		overrides: [
 			// instant-search uses preact instead of react. That still uses the old runtime.
 			{
-				test: /instant-search/,
+				test: /\/instant-search\//,
 				presets: [
 					[
 						'@automattic/jetpack-webpack-config/babel/preset',

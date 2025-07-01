@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.26] - 2025-06-30
+### Fixed
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+
 ## [4.2.25] - 2025-06-23
 ### Changed
 - Update package dependencies. [#44020]
@@ -945,6 +949,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[4.2.26]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.25...v4.2.26
 [4.2.25]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.24...v4.2.25
 [4.2.24]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.23...v4.2.24
 [4.2.23]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.22...v4.2.23

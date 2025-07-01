@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Compatibility: Use modern JSX transform when building React interfaces.

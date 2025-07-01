@@ -3,7 +3,6 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
 import disconnectImage from '../images/disconnect-confirm.jpg';
 
 /**
@@ -11,7 +10,7 @@ import disconnectImage from '../images/disconnect-confirm.jpg';
  * Will only show option to provide feedback if the canProvideFeedback prop is true.
  *
  * @param {object} props - The properties.
- * @return {React.Component} - StepDisconnectConfirm Component
+ * @return {import('react').Component} - StepDisconnectConfirm Component
  */
 const StepDisconnectConfirm = props => {
 	const { onExit, canProvideFeedback, onProvideFeedback } = props;

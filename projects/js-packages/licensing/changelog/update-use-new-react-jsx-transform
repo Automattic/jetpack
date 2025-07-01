@@ -1,5 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Remove no-longer-needed `@wordpress/babel-plugin-import-jsx-pragma` dep, after switching jest to use the modern JSX transform.
-
-

@@ -1,14 +1,14 @@
-import React from 'react';
 import styles from './style.module.scss';
 import type { AdminSectionBaseProps } from '../types.ts';
+import type { ReactNode, FC } from 'react';
 
 /**
  * This is the wrapper component to build sections within your admin page.
  *
  * @param {AdminSectionBaseProps} props - Component properties.
- * @return {React.ReactNode} AdminSection component.
+ * @return {ReactNode} AdminSection component.
  */
-const AdminSection: React.FC< AdminSectionBaseProps > = ( { children } ) => {
+const AdminSection: FC< AdminSectionBaseProps > = ( { children } ) => {
 	return <div className={ styles.section }>{ children }</div>;
 };
 

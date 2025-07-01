@@ -1,12 +1,13 @@
 import { ExternalLink } from '@wordpress/components';
 import clsx from 'clsx';
 import styles from './styles.module.scss';
+import type { ReactNode } from 'react';
 
 export type HelpCardProps = {
 	title: string;
-	icon: React.ReactNode;
+	icon: ReactNode;
 	headingTag?: `h${ 1 | 2 | 3 | 4 | 5 | 6 }`;
-	description?: React.ReactNode;
+	description?: ReactNode;
 	link?: string;
 	className?: string;
 	onClick?: () => void;

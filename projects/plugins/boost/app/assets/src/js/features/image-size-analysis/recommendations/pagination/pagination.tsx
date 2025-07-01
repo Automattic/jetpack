@@ -4,6 +4,7 @@ import ChevronLeft from '$svg/chevron-left';
 import ChevronRight from '$svg/chevron-right';
 import { Link } from 'react-router';
 import styles from './pagination.module.scss';
+import type { FC, ReactNode } from 'react';
 
 interface PaginationProps {
 	group: string;
@@ -16,10 +17,10 @@ interface PaginationLinkProps {
 	direction: 'left' | 'right';
 	current: number;
 	total: number;
-	children: React.ReactNode;
+	children: ReactNode;
 }
 
-const PaginationArrow: React.FC< PaginationLinkProps > = ( {
+const PaginationArrow: FC< PaginationLinkProps > = ( {
 	group,
 	direction,
 	current,
@@ -47,7 +48,7 @@ const PaginationArrow: React.FC< PaginationLinkProps > = ( {
 	);
 };
 
-const Pagination: React.FC< PaginationProps > = ( { group, current, total } ) => {
+const Pagination: FC< PaginationProps > = ( { group, current, total } ) => {
 	const MORE_ICON = -1;
 	const [ pages, setPages ] = useState< number[] >( [] );
 

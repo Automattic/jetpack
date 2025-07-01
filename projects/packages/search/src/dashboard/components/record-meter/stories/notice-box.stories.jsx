@@ -1,4 +1,3 @@
-import React from 'react';
 import { NoticeBox } from '../notice-box';
 
 export default {

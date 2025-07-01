@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	BaseControl,
@@ -16,21 +13,12 @@ import { compose, useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, help } from '@wordpress/icons';
-/**
- * External dependencies
- */
-import React, { useState, useEffect, useCallback } from 'react';
-/**
- * Internal dependencies
- */
+import { useState, useEffect, useCallback } from 'react';
 import features from './features';
 import calculateFleschKincaid from './utils/flesch-kincaid-utils';
 import { canWriteBriefFeatureBeEnabled } from './utils/get-availability';
 import { getPostText } from './utils/get-post-text';
 import './breve.scss';
-/**
- * Types
- */
 import type { BreveSelect } from './types';
 
 export const useInit = init => {

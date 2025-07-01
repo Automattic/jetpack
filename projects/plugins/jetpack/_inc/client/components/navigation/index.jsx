@@ -3,7 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
 import SectionNav from 'components/section-nav';
@@ -22,7 +22,7 @@ import {
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import { getNonViewedRecommendationsCount } from 'state/recommendations';
 
-export class Navigation extends React.Component {
+export class Navigation extends Component {
 	trackNavClick = target => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'nav_item',

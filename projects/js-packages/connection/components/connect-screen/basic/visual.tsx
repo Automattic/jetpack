@@ -1,10 +1,10 @@
 import { ActionButton, TermsOfService, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import ConnectScreenLayout from '../layout';
 import type { Props as ConnectScreenProps } from '../basic';
 import type { WithRequired } from '../types';
+import type { FC } from 'react';
 import './style.scss';
 
 type SharedProps = Pick<
@@ -70,7 +70,7 @@ const getErrorMessage = ( errorCode, isOfflineMode ) => {
 /*
  * The Connection Screen Visual component.
  */
-const ConnectScreenVisual: React.FC< Props > = ( {
+const ConnectScreenVisual: FC< Props > = ( {
 	title,
 	images,
 	children,

@@ -1,4 +1,4 @@
-import { setJetpackModules } from './actions';
+import { setIsLoading, setJetpackModules } from './actions';
 import { fetchJetpackModules } from './controls';
 
 /**
@@ -9,12 +9,15 @@ import { fetchJetpackModules } from './controls';
  */
 export function* getJetpackModules() {
 	try {
+		yield setIsLoading( true );
 		const data = yield fetchJetpackModules();
 		if ( data ) {
 			return setJetpackModules( { data } );
 		}
 	} catch ( e ) {
 		console.error( e ); // eslint-disable-line no-console
+	} finally {
+		yield setIsLoading( false );
 	}
 }
 

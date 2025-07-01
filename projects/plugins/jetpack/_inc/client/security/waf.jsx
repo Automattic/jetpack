@@ -2,7 +2,7 @@ import { getRedirectUrl, ToggleControl, Status } from '@automattic/jetpack-compo
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';

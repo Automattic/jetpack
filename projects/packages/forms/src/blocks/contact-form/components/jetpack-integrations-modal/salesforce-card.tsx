@@ -5,6 +5,7 @@ import SalesforceIcon from '../../../../icons/salesforce';
 import HelpMessage from '../help-message';
 import IntegrationCard from './integration-card';
 import type { SingleIntegrationCardProps } from '../../../../types';
+import type { FocusEvent } from 'react';
 
 export function isValidSalesforceOrgId( id: string | undefined ): boolean {
 	return typeof id === 'string' && /^[a-zA-Z0-9]{15,18}$/.test( id.trim() );
@@ -49,7 +50,7 @@ const SalesforceCard = ( {
 		} );
 	};
 
-	const onBlurOrgIdField = ( e: React.FocusEvent< HTMLInputElement > ) => {
+	const onBlurOrgIdField = ( e: FocusEvent< HTMLInputElement > ) => {
 		setOrganizationIdError( ! isValidSalesforceOrgId( e.target.value ) );
 	};
 

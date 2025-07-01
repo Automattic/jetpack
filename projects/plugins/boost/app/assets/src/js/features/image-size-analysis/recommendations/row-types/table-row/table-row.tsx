@@ -1,19 +1,20 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import type { FC, MouseEvent, ReactNode } from 'react';
 import clsx from 'clsx';
 import styles from './table-row.module.scss';
 import rowStyles from '../../row.module.scss';
 
 interface TableRowProps {
-	children: React.ReactNode;
-	expandedContent?: React.ReactNode;
+	children: ReactNode;
+	expandedContent?: ReactNode;
 }
 
-const TableRow: React.FC< TableRowProps > = ( { children, expandedContent } ) => {
+const TableRow: FC< TableRowProps > = ( { children, expandedContent } ) => {
 	const canExpand = !! expandedContent;
 	const [ expanded, setExpanded ] = useState( false );
 
 	const toggleExpand = useCallback(
-		( e: React.MouseEvent< HTMLDivElement > ) => {
+		( e: MouseEvent< HTMLDivElement > ) => {
 			if ( ! canExpand ) {
 				return;
 			}

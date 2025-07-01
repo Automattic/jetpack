@@ -3,6 +3,7 @@ import { standardizeError } from '$lib/utils/standardize-error';
 import NoticeOutline from '$svg/notice-outline';
 import styles from './error-notice.module.scss';
 import clsx from 'clsx';
+import type { ReactElement, ReactNode } from 'react';
 
 type ErrorNoticeProps = {
 	title: string;
@@ -10,9 +11,9 @@ type ErrorNoticeProps = {
 	variant?: 'normal' | 'module';
 	data?: string;
 	suggestion?: string;
-	vars?: Record< string, React.ReactElement >;
-	children?: React.ReactNode;
-	actionButton?: React.ReactNode;
+	vars?: Record< string, ReactElement >;
+	children?: ReactNode;
+	actionButton?: ReactNode;
 };
 
 const ErrorNotice = ( {

@@ -1,5 +1,4 @@
 import { action } from '@storybook/addon-actions';
-import React from 'react';
 import ActionButton from '../index.jsx';
 
 export default {

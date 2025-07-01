@@ -7,6 +7,7 @@ import { getRedirectUrl, IconTooltip } from '@automattic/jetpack-components';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNotices } from '$features/notice/context';
 const unsafeSpeculationRulesLink = getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
+import type { ReactNode } from 'react';
 
 const Prerender = () => {
 	const { setNotice } = useNotices();
@@ -55,7 +56,7 @@ const Prerender = () => {
 };
 
 type BypassPatternsExampleProps = {
-	children?: React.ReactNode;
+	children?: ReactNode;
 };
 
 const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => {

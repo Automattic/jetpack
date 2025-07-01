@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Site verification
- * Module Description: Establish your site's authenticity with external services.
+ * Module Description: Verify your site with search engines and social platforms in a couple of clicks.
  * First Introduced: 3.0
  * Sort Order: 33
  * Requires Connection: No

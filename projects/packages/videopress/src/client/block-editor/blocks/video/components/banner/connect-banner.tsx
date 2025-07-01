@@ -10,7 +10,7 @@ import Banner from './';
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 type ConnectBannerProps = {
 	isConnected: boolean;
@@ -23,14 +23,14 @@ type ConnectBannerProps = {
  * Connect Banner component
  *
  * @param {ConnectBannerProps} props - component props
- * @return {React.ReactElement}       Connect banner component.
+ * @return {ReactElement}       Connect banner component.
  */
 export default function ConnectBanner( {
 	onConnect,
 	isModuleActive,
 	isConnected,
 	isConnecting,
-}: ConnectBannerProps ): React.ReactElement {
+}: ConnectBannerProps ): ReactElement {
 	if ( isConnected && isModuleActive ) {
 		return null;
 	}

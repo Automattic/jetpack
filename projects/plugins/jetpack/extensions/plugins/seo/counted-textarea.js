@@ -1,6 +1,5 @@
 import { TextareaControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import React from 'react';
 
 export const CountedTextArea = ( { suggestedLimit, value, label, ...inputProps } ) => {
 	const help =

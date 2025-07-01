@@ -3,14 +3,13 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
 import disconnectImage from '../images/disconnect-thanks.jpg';
 
 /**
  * Show the "thank you" step following survey submission
  *
  * @param {object} props - The properties.
- * @return {React.Component} - The StepThankYou Component
+ * @return {import('react').Component} - The StepThankYou Component
  */
 const StepThankYou = props => {
 	const { onExit } = props;

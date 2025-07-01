@@ -7,7 +7,7 @@ import {
 	Text,
 } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';

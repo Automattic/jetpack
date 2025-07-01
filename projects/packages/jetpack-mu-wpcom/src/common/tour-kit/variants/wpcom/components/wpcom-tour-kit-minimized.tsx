@@ -4,8 +4,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, close } from '@wordpress/icons';
 import maximize from '../icons/maximize';
 import type { MinimizedTourRendererProps } from '../../../types';
+import type { FunctionComponent } from 'react';
 
-const WpcomTourKitMinimized: React.FunctionComponent< MinimizedTourRendererProps > = ( {
+const WpcomTourKitMinimized: FunctionComponent< MinimizedTourRendererProps > = ( {
 	steps,
 	onMaximize,
 	onDismiss,

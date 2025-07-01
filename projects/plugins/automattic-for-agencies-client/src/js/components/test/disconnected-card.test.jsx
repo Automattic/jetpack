@@ -4,7 +4,6 @@
 
 import { render, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
-import React from 'react';
 import DisconnectedCard from '../disconnected-card';
 
 // Mock the WordPress data store
