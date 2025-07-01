@@ -553,7 +553,7 @@ function jetpack_og_get_description( $description = '', $data = null ) {
  */
 function jetpack_og_remove_query_blocks( $description ) {
 	$output         = '';
-	$at             = 0;
+	$offset         = 0;
 	$depth          = 0;
 	$in_query_block = false;
 
@@ -566,7 +566,7 @@ function jetpack_og_remove_query_blocks( $description ) {
 				case Block_Delimiter::OPENER:
 					if ( ! $in_query_block ) {
 						// Copy content before the query block.
-						$output        .= substr( $description, $at, $match_at - $at );
+						$output        .= substr( $description, $offset, $match_at - $offset );
 						$in_query_block = true;
 					}
 					++$depth;
@@ -577,14 +577,14 @@ function jetpack_og_remove_query_blocks( $description ) {
 					if ( $in_query_block && $depth === 0 ) {
 						// We've exited the query block, continue from after it.
 						$in_query_block = false;
-						$at             = $match_at + $length;
+						$offset         = $match_at + $length;
 
 						// Remove extra newline if present
 						if (
-							str_starts_with( substr( $description, $at ), "\n" )
+							str_starts_with( substr( $description, $offset ), "\n" )
 							&& str_ends_with( $output, "\n" )
 						) {
-							++$at;
+							++$offset;
 						}
 					}
 					break;
@@ -592,28 +592,28 @@ function jetpack_og_remove_query_blocks( $description ) {
 				case Block_Delimiter::VOID:
 					// Void query blocks should be removed entirely.
 					if ( ! $in_query_block ) {
-						$output .= substr( $description, $at, $match_at - $at );
-						$at      = $match_at + $length;
+						$output .= substr( $description, $offset, $match_at - $offset );
+						$offset  = $match_at + $length;
 						// Remove extra newline if present
 						if (
-							str_starts_with( substr( $description, $at ), "\n" )
+							str_starts_with( substr( $description, $offset ), "\n" )
 							&& str_ends_with( $output, "\n" )
 						) {
-							++$at;
+							++$offset;
 						}
 					}
 					break;
 			}
 		} elseif ( ! $in_query_block ) {
 			// Not a query block, copy content including the delimiter if we're not inside a query block.
-			$output .= substr( $description, $at, $match_at - $at + $length );
-			$at      = $match_at + $length;
+			$output .= substr( $description, $offset, $match_at - $offset + $length );
+			$offset  = $match_at + $length;
 		}
 	}
 
 	// Add any remaining content after the last delimiter.
 	if ( ! $in_query_block ) {
-		$output .= substr( $description, $at );
+		$output .= substr( $description, $offset );
 	}
 
 	return $output;
