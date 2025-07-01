@@ -8,9 +8,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
  *
  * @since 3.9.2
  * @covers ::jetpack_og_get_image
+ * @covers ::jetpack_og_get_description
  * @covers ::jetpack_og_remove_query_blocks
  */
 #[CoversFunction( 'jetpack_og_get_image' )]
+#[CoversFunction( 'jetpack_og_get_description' )]
 #[CoversFunction( 'jetpack_og_remove_query_blocks' )]
 class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
