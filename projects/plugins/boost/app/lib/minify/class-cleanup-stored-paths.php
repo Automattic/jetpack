@@ -22,6 +22,14 @@ class Cleanup_Stored_Paths {
 	 * @var string
 	 */
 	private $last_processed_option_key = 'jetpack_boost_cleanup_concat_paths_last_processed_option_id';
+
+	/**
+	 * Whether to schedule a followup cleanup.
+	 *
+	 * @var bool
+	 */
+	private $should_schedule_followup = false;
+
 	/**
 	 * Schedules the start of the cleanup.
 	 */
@@ -56,6 +64,10 @@ class Cleanup_Stored_Paths {
 		$cleanup      = new Cleanup_Stored_Paths();
 		$can_continue = $cleanup->cleanup_stored_paths_batch();
 		if ( ! $can_continue ) {
+			return;
+		}
+
+		if ( ! $cleanup->should_schedule_followup ) {
 			return;
 		}
 
@@ -103,8 +115,8 @@ class Cleanup_Stored_Paths {
 	}
 
 	/**
-	 * Gets the stored paths to process,
-	 * and skips the ones that were checked in the previous run.
+	 * Gets the stored paths to process, and skips the ones that were checked in the previous run.
+	 * Also sets a flag that determines if there should be a followup cleanup or not.
 	 *
 	 * @return array The stored paths.
 	 */
@@ -116,9 +128,21 @@ class Cleanup_Stored_Paths {
 		if ( $last_processed_option_id ) {
 			$query .= $wpdb->prepare( ' AND option_id > %d', $last_processed_option_id );
 		}
-		$query .= $wpdb->prepare( ' ORDER BY option_id ASC LIMIT %d', $this->max_options_to_process );
+
+		// Add 1 to use it as a flag to know if there are more entries to process.
+		$max_options_to_process_offset = $this->max_options_to_process + 1;
+		$query                        .= $wpdb->prepare( ' ORDER BY option_id ASC LIMIT %d', $max_options_to_process_offset );
 
 		$stored_paths = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+
+		// If the number of stored paths is equal to the offset of max options to process,
+		// it means that there are more entries to process, so a followup cleanup is needed.
+		if ( count( $stored_paths ) === $max_options_to_process_offset ) {
+			$this->should_schedule_followup = true;
+
+			// Since 1 was added to the limit, it needs to be removed from the list.
+			array_pop( $stored_paths );
+		}
 
 		return $stored_paths;
 	}
