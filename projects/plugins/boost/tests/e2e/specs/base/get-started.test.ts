@@ -51,6 +51,7 @@ test.describe( 'Getting started page', () => {
 		await jetpackBoostPage.click( 'text="Start for free"' );
 		await navigation;
 
+		await jetpackBoostPage.waitForScoreLoadingToFinish();
 		expect( await jetpackBoostPage.isScoreVisible(), 'Score should be visible' ).toBeTruthy();
 	} );
 } );
