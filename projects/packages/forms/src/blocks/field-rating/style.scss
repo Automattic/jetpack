@@ -5,6 +5,7 @@
   display: inline-block;
   position: relative;
   font-size: 2em;
+  user-select: none;
 }
 
 // override the default specificity from .contact-form :where( label );
