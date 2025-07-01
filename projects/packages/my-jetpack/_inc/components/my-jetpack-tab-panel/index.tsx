@@ -28,6 +28,7 @@ export function MyJetpackTabPanel() {
 		const validTab = isValidMyJetpackSection( params.section );
 		return validTab ? params.section : MY_JETPACK_SECTION_OVERVIEW;
 	}, [ params.section ] );
+
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
 			if ( tabName !== params.section ) {

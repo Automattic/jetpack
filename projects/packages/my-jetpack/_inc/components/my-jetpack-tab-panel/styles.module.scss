@@ -1,5 +1,7 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
 
+$my-jetpack-background-color: #fcfcfc;
+
 .tab-panel {
 
     max-width: var(--max-container-width);
@@ -33,6 +35,7 @@
 .tab-content-wrapper {
 	padding-block-start: 2.5rem;
 	padding-inline: 3rem;
+	background-color: $my-jetpack-background-color;
 
 	@media (max-width: gb.$break-medium ) {
 		padding-inline: 1.5rem;
