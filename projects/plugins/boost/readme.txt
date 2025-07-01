@@ -9,7 +9,7 @@ Stable tag: 4.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-One-click WordPress performance optimization: Critical CSS, Page Cache, Deferred JS, Image CDN, and minification. Boost Core Web Vitals.
+Speed up your WordPress site with one-click optimizations like Page Cache, Critical CSS, and Image CDN to improve Core Web Vitals.
 
 == Description ==
 
