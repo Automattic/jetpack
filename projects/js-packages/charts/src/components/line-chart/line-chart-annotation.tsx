@@ -43,15 +43,6 @@ export type LineChartAnnotationProps = {
 	styles?: AnnotationStyles;
 	testId?: string;
 	renderLabel?: React.FC< { title: string; subtitle: string } >;
-	// External positioning for when rendering outside DataContext
-	x?: number;
-	y?: number;
-	chartBounds?: {
-		xMin: number;
-		xMax: number;
-		yMin: number;
-		yMax: number;
-	};
 };
 
 export const getLabelPosition = ( {
@@ -193,9 +184,6 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	styles: datumStyles,
 	testId,
 	renderLabel,
-	x: externalX,
-	y: externalY,
-	chartBounds,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { xScale, yScale } = useContext( DataContext ) || {};
@@ -214,47 +202,6 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	}, [] );
 
 	const positionData = useMemo( () => {
-		// Use external coordinates if provided
-		if ( typeof externalX === 'number' && typeof externalY === 'number' ) {
-			// Use provided chart bounds - these should be calculated from scale ranges by the caller
-			const yMin = chartBounds?.yMin ?? 0;
-			const yMax = chartBounds?.yMax ?? 400;
-			const xMin = chartBounds?.xMin ?? 0;
-			const xMax = chartBounds?.xMax ?? 800;
-
-			// If a custom label is provided, use the provided position
-			if ( renderLabel ) {
-				return {
-					x: externalX,
-					y: externalY,
-					yMin,
-					yMax,
-					xMin,
-					xMax,
-					dx: customDx,
-					dy: customDy,
-					isFlippedHorizontally: false,
-					isFlippedVertically: false,
-				};
-			}
-
-			const position = getLabelPosition( {
-				subjectType,
-				x: externalX,
-				dx: customDx,
-				xMax,
-				y: externalY,
-				dy: customDy,
-				yMin,
-				yMax,
-				maxWidth: styles?.label?.maxWidth,
-				height,
-			} );
-
-			return { x: externalX, y: externalY, yMin, yMax, xMin, xMax, ...position };
-		}
-
-		// Fall back to DataContext coordinates
 		if ( ! datum || ! datum.date || datum.value == null || ! xScale || ! yScale ) return null;
 
 		const x = xScale( datum.date );
@@ -305,9 +252,6 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 		customDx,
 		customDy,
 		renderLabel,
-		externalX,
-		externalY,
-		chartBounds,
 	] );
 
 	if ( ! positionData ) return null;

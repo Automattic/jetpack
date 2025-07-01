@@ -1,3 +1,4 @@
+import { DataContext } from '@visx/xychart';
 import { useEffect, useState, useCallback } from 'react';
 import LineChartAnnotation from './line-chart-annotation';
 import styles from './line-chart.module.scss';
@@ -46,84 +47,46 @@ const LineChartAnnotations: React.FC< LineChartAnnotationsProps > = ( {
 		return null;
 	}
 
-	const { xScale, yScale } = scales;
-
-	// Type guard functions for scales
-	const hasRangeMethod = (
-		scale: unknown
-	): scale is {
-		( input: Date | number ): number;
-		range: () => number[];
-	} => {
-		return typeof scale === 'function' && 'range' in scale && typeof scale.range === 'function';
-	};
-
-	if ( ! hasRangeMethod( xScale ) || ! hasRangeMethod( yScale ) ) {
-		return null;
-	}
-
-	// Get chart bounds from scale ranges - these are the bounds for the positioning logic
-	const xRange = xScale.range();
-	const yRange = yScale.range();
-
-	// Match internal annotation logic exactly - preserve range order
-	const chartBounds = {
-		xMin: xRange[ 0 ],
-		xMax: xRange[ 1 ],
-		yMin: yRange[ 0 ],
-		yMax: yRange[ 1 ],
-	};
-
-	// Calculate positions for each annotation
-	const positionedAnnotations = annotations
-		.filter( annotation => annotation.datum )
-		.map( ( annotation, index ) => {
-			const { datum, ...rest } = annotation;
-			if ( ! datum ) return null;
-
-			// Get scale coordinates - these are already positioned correctly for the chart
-			const chartX = xScale( datum.date );
-			const chartY = yScale( datum.value );
-
-			return {
-				...rest,
-				datum,
-				index,
-				chartX,
-				chartY,
-			};
-		} )
-		.filter( Boolean );
+	// Create a DataContext value that mimics what visx provides
+	// We're intentionally providing minimal context for annotations to work
+	const dataContextValue = {
+		xScale: scales.xScale,
+		yScale: scales.yScale,
+		// Add minimal required properties for DataContext
+		theme: {},
+		margin: { top: 0, right: 0, bottom: 0, left: 0 },
+		width: chartWidth,
+		height: chartHeight,
+		// Additional visx DataContext properties that may be needed
+		colorScale: undefined,
+		dataRegistry: new Map(),
+		registerData: () => {},
+		unregisterData: () => {},
+	} as unknown as Parameters< typeof DataContext.Provider >[ 0 ][ 'value' ];
 
 	return (
-		<svg
-			width={ chartWidth }
-			height={ chartHeight }
-			className={ styles[ 'line-chart__annotations-overlay' ] }
-		>
-			{ positionedAnnotations.map( annotation => {
-				if ( ! annotation ) return null;
-
-				return (
-					<g
-						key={ `overlay-annotation-${ annotation.datum.date?.getTime() }-${
-							annotation.datum.value
-						}` }
-						style={ { pointerEvents: 'auto' } }
-					>
-						<LineChartAnnotation
-							testId={ `overlay-annotation-${ annotation.index }` }
-							datum={ annotation.datum }
-							x={ annotation.chartX }
-							y={ annotation.chartY }
-							// Pass the scale ranges as chart bounds for boundary detection
-							chartBounds={ chartBounds }
-							{ ...annotation }
-						/>
-					</g>
-				);
-			} ) }
-		</svg>
+		<DataContext.Provider value={ dataContextValue }>
+			<svg
+				width={ chartWidth }
+				height={ chartHeight }
+				className={ styles[ 'line-chart__annotations-overlay' ] }
+			>
+				{ annotations.map( ( annotation, index ) => (
+					<LineChartAnnotation
+						key={ `overlay-annotation-${ index }` }
+						testId={ `overlay-annotation-${ index }` }
+						datum={ annotation.datum }
+						title={ annotation.title }
+						subtitle={ annotation.subtitle }
+						subjectType={ annotation.subjectType }
+						styles={ annotation.styles }
+						dx={ annotation.dx }
+						dy={ annotation.dy }
+						renderLabel={ annotation.renderLabel }
+					/>
+				) ) }
+			</svg>
+		</DataContext.Provider>
 	);
 };
 
