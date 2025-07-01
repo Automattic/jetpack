@@ -2,125 +2,85 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.8-beta - 2025-06-30
+## 14.8 - 2025-07-01
+
 ### Enhancements
-- Forms: Add MailPoet integrations nudge. [#44115]
-- My Jetpack: Updating Stats card to include a chart for better analytics. [#43870]
-
-### Bug fixes
-- Forms: Remove the broken step transformation. [#44083]
-- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
-- Likes: Do not register the Like block when a site is not connected to WordPress.com. [#44124]
-- Settings: Show Backup and Account Protection modules only with relevant search terms. [#44097]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Block editor: Refactor editor assets endpoint for readability. [#44047]
-- Block editor: Repair editor assets endpoint for Atomic sites. [#44032]
-- Compatibility: Use modern JSX transform when building React interfaces. [#44128]
-- Scripts: Add host information to front-end `JetpackScriptData` script. [#44072]
-
-## 14.8-a.9 - 2025-06-24
-### Enhancements
-- Form: Improve the error validation animation. [#43968]
-
-### Bug fixes
-- Prevent JavaScript errors when using the editor. [#44070]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Tests: Add instructions for Jetpack 14.8. [#44058]
-
-## 14.8-a.7 - 2025-06-23
-### Major Enhancements
 - Add archives endpoint support. [#44028]
-
-### Enhancements
+- AI Assistant: Add support for file upload field on Forms extension. [#43916]
+- Forms: Improve the error validation animation. [#43968]
+- Forms: Add "undo" to all post-action alerts in Inbox. [#43787]
+- Forms: Add Akismet refresh status button. [#43937]
+- Forms: Add MailPoet integrations nudge. [#44115]
+- Forms: Make emails clickable in Inbox. [#43771]
+- Forms: Make it possible to preview file by visiting the URL. [#43730]
+- Forms: Release new file uploads field. [#43846]
+- Forms: Show central integrations dashboard. [#43936]
+- Forms: Stop translate product name in the sidebar. [#43925]
+- Forms: Use interactivity API for form validation. [#43893]
+- My Jetpack: Update Stats card to include a chart for better analytics. [#43870]
 - Sharing: Add ability to count sharing events on sharing buttons blocks. [#44039]
+- Sharing: Improve the performance of Open Graph Meta Image tags. [#43662]
 - Write Brief: Enhance local custom dictionary with more known terms. [#44017]
 - Write Brief: Enhance typo detection dictionary. [#44034]
 
 ### Improved compatibility
+- Search: Replace the Core Search widget instead of adding a new widget to the main sidebar in classic themes. [#43450]
 - Tiled Gallery: Ensure accessibility properties are added only when needed, as well as preventing block validation errors. [#43345]
 
 ### Bug fixes
-- Prevent non-string currentday parameters from causing errors in infinite scroll AJAX requests. [#44008]
+- Connection: Redirect to the proper place when clicking the block "Connect" banner on Multisites. [#43594]
+- Display Critical CSS status correctly on the WordPress.com Complete plan. [#43803]
+- Endpoints: Prevent warnings in logs when attempting to add external media from some sources. [#43907]
 - Flickr shortcode: Prevent errors in logs when requested data does not exist. [#43927]
+- Forms: Fix an error with poorly-formatted POST data. [#43835]
+- Forms: Fix dropdown field background color on Windows. [#43848]
 - Forms: Hide legacy Feedback menu from newly-connected sites. [#44060]
+- Forms: Remove the broken step transformation. [#44083]
+- Jetpack Media Library: Prevent PHP warnings related to unexpected array offsets and undefined array keys in some cases. [#43641]
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+- Likes: Do not register the Like block when a site is not connected to WordPress.com. [#44124]
 - Newsletter: Ensure subscriber stats links are correct in the dashboard widget, even when you do not use Stats feature. [#44037]
+- Prevent JavaScript errors when using the editor. [#44070]
+- Prevent non-string currentday parameters from causing errors in infinite scroll AJAX requests. [#44008]
+- Recipe shortcode: Prevent errors in logs due to checking for theme color properties that may not exist. [#43904]
 - Security: Prevent errors with array-type parameters in carousel comment submissions. [#43991] [#44015]
+- Settings: Show Backup and Account Protection modules only with relevant search terms. [#44097]
+- Slideshow block: Reduce layout shifts during page load. [#43689]
 - Social Previews: Prevent text overflow issues with Mastodon. [#44019]
 - Update `Jetpack_Newsletter_Dashboard_Widget` to not be added with an anonymous function. [#43973]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add label, input, option, and options blocks for improving form fields. [#43765]
+- Address `body_class` filter fatal in older versions of the Blaskan theme. [#43797]
 - AI Assistant: Change sidebar title and remove helper text. [#44035]
-- Fix Chrome ai experiment async call. [#44026]
-- Fix Chrome experiment assignment group. [#44018]
-- Invert flag check on Chrome experiment. [#44011]
-- Move Chrome Gemini tests flag to production. [#44006]
-- Scripts: Change imports for hosting checks. [#43972]
-- Update package dependencies. [#44020] [#44040]
-- WordAds: Support Gutenberg Ad block for Aditude. [#43476]
-
-## 14.8-a.5 - 2025-06-16
-### Enhancements
-- AI Assistant: Add support for file upload field on Forms extension. [#43916]
-- Forms: Add Akismet refresh status button. [#43937]
-- Forms: Stop translate product name in the sidebar. [#43925]
-- Forms: Show central integrations dashboard. [#43936]
-- Forms: Use interactivity API for form validation. [#43893]
-- Forms: Make it possible to preview file by visiting the URL. [#43730]
-
-### Bug fixes
-- Endpoints: Prevent warnings in logs when attempting to add external media from some sources. [#43907]
-- Recipe shortcode: Prevent errors in logs due to checking for theme color properties that may not exist. [#43904]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Block editor: Refactor editor assets endpoint for readability. [#44047]
+- Block editor: Repair editor assets endpoint for Atomic sites. [#44032]
+- Clear out to-test.md in preparation for Jetpack 14.8 release cycle. [#43786]
+- Comments: Prevent PHP error on malformed submissions. [#43832]
+- Compatibility: Use modern JSX transform when building React interfaces. [#44128]
+- Connection: Improve error handling for protected owner on WordPress.com. [#43593]
 - Dashboard: Added connection info on WoA sites. [#43876]
 - Dashboard: Update host function checks. [#43824]
+- Fix Chrome ai experiment async call. [#44026]
+- Fix Chrome experiment assignment group. [#44018]
+- Forms: Update redirect URL when Creative Mail installation fails. [#43779]
+- Invert flag check on Chrome experiment. [#44011]
 - Markdown: Ensure XML-RPC message responses are in the correct format before trying to parse information. [#43899]
+- Move Chrome Gemini tests flag to production. [#44006]
+- Newsletters:  Use `total_subscribers` field while displaying all subscribers. [#43801]
+- PHPUnit: Resolve tests warnings. [#43815]
 - Post Editor: Open WP.com support articles in Help Center. [#43883]
 - Prevent PHP warning in Gallery block. [#43890]
 - Prevent PHP warning when block content is malformed. [#43889]
-- Switch to `Request::is_frontend()` method from Jetpack Status package. [#43873]
-- Update package dependencies. [#43892] [#43914] [#43951]
-
-## 14.8-a.3 - 2025-06-09
-### Enhancements
-- Forms: Release new file uploads field. [#43846]
-- Sharing: Improve the performance of Open Graph Meta Image tags. [#43662]
-
-### Bug fixes
-- Display Critical CSS status correctly on the WordPress.com Complete plan. [#43803]
-- Connection: Redirect to the proper place when clicking the block "Connect" banner on Multisites. [#43594]
-- Forms: Fix dropdown field background color on Windows. [#43848]
-- Forms: Fix an error with poorly-formatted POST data. [#43835]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Address `body_class` filter fatal in older versions of the Blaskan theme. [#43797]
-- Comments: Prevent PHP error on malformed submissions. [#43832]
-- Forms: Update redirect URL when Creative Mail installation fails. [#43779]
-- Newsletters:  Use `total_subscribers` field while displaying all subscribers. [#43801]
-- PHPUnit: Resolve tests warnings. [#43815]
+- Scripts: Add host information to front-end `JetpackScriptData` script. [#44072]
+- Scripts: Change imports for hosting checks. [#43972]
 - Subscriptions: Adjust display of the number of subscribers in the Newsletter panels of the block editor. [#43193]
+- Switch to `Request::is_frontend()` method from Jetpack Status package. [#43873]
+- Tests: Add instructions for Jetpack 14.8. [#44058]
 - Tests: Ensure method param count matches PHPUnit data providers. [#43828]
-- Update package dependencies. [#43839]
-
-## 14.8-a.1 - 2025-06-05
-### Enhancements
-- Forms: Add "undo" to all post-action alerts in Inbox. [#43787]
-- Forms: Make emails clickable in Inbox. [#43771]
-
-### Improved compatibility
-- Search: Replace the Core Search widget instead of adding a new widget to the main sidebar in classic themes. [#43450]
-
-### Bug fixes
-- Jetpack Media Library: Prevent PHP warnings related to unexpected array offsets and undefined array keys in some cases. [#43641]
-- Slideshow block: Reduce layout shifts during page load. [#43689]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Add label, input, option, and options blocks for improving form fields. [#43765]
-- Clear out to-test.md in preparation for Jetpack 14.8 release cycle. [#43786]
-- Connection: Improve error handling for protected owner on WordPress.com. [#43593]
-- Update package dependencies. [#43718] [#43734] [#43766]
+- Update package dependencies. [#43718] [#43734] [#43766] [#43839] [#43892] [#43914] [#43951] [#44020] [#44040]
+- Update the name for Downtime Monitor module. [#44156]
+- WordAds: Support Gutenberg Ad block for Aditude. [#43476]
 
 ## 14.7 - 2025-06-03
 ### Enhancements
@@ -332,9 +292,7 @@
 - Testing: Add testing instructions prior to 14.6 release. [#43249]
 - Tests: Prevent warning when asset file doesn't exist. [#42875]
 - Theme compat: Remove duplicated code that is now served by the Classic Theme Helper package. [#43062]
-- Update package dependencies. [#42762] [#42809] [#42815]
-- Update package dependencies. [#43071]
-- Update package dependencies. [#43314] [#43320] [#43326] [#43347] [#43350] [#43355]
+- Update package dependencies. [#42762] [#42809] [#42815] [#43071] [#43314] [#43320] [#43326] [#43347] [#43350] [#43355]
 - Widgets: Deprecate the Flickr widget, as Flickr no longer supports fetching recent images from an RSS feed. [#43138]
 - Widgets: Fix warning in Upcoming Events wiget when `$event['SUMMARY']` does not exist. [#43111]
 - WPCOM_JSON_API_Update_Post_v1_1_Endpoint: Fix warning when `$input['type']` does not exist. [#43180]
@@ -474,8 +432,7 @@
 - Tiled Gallery: Ensure custom links aren't restricted to just URLs - allows anchor links as well. [#42363]
 - Tweak subscribers counts endpoint to return aggregated data based on a query param. [#42103]
 - Update dependencies. [#42564]
-- Update package dependencies. [#42384]
-- Update package dependencies. [#42511]
+- Update package dependencies. [#42384] [#42511]
 - Use jetpack-config package for Account Protection initialization. [#40925]
 - Use jetpack-logo package for Account Protection logos. [#40925]
 - Use `wpcom/v2/jitm` endpoint as a consistent way to fetch JITMs from the WordPress.com public API. [#41993]
@@ -609,9 +566,7 @@
 - Theme tools: Load theme compat functionality relevant to features in Classic Theme Helper package from this package. [#41598]
 - The page-optimize plugin link shown to Atomic sites only is no longer required and has been removed. [#42091]
 - Update composer.lock. [#40863]
-- Updated package dependencies. [#41491] [#41577]
-- Updated package dependencies. [#41659]
-- Update package dependencies. [#42163] [#42180]
+- Updated package dependencies. [#41491] [#41577] [#41659] [#42163] [#42180]
 
 ## 14.3 - 2025-02-04
 ### Enhancements
