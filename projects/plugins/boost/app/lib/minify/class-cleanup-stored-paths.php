@@ -21,7 +21,6 @@ class Cleanup_Stored_Paths {
 	 *
 	 * @var string
 	 */
-	private $last_processed_option_key = 'jb_transient_cleanup_concat_paths_last_processed_option_id';
 	private $last_processed_option_key = 'jetpack_boost_cleanup_concat_paths_last_processed_option_id';
 	/**
 	 * Schedules the start of the cleanup.
