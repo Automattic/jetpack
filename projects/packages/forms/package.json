@@ -47,7 +47,7 @@
 		"@wordpress/compose": "7.25.0",
 		"@wordpress/core-data": "7.25.0",
 		"@wordpress/data": "10.25.0",
-		"@wordpress/dataviews": "4.17.0",
+		"@wordpress/dataviews": "4.22.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.25.0",
 		"@wordpress/element": "6.25.0",
 		"@wordpress/hooks": "4.25.0",
