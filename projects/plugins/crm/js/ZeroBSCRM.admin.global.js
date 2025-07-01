@@ -2738,6 +2738,12 @@ const jpcrm = {
 	esc_html: str => {
 		return jpcrm.esc_attr( str );
 	},
+	// Decode HTML entities to prevent double-encoding issues
+	decodeHTMLEntities: text => {
+		const textarea = document.createElement( 'textarea' );
+		textarea.innerHTML = text;
+		return textarea.value;
+	},
 };
 
 if ( typeof module !== 'undefined' ) {

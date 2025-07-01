@@ -4881,7 +4881,7 @@ function zeroBSCRMJS_listView_event_id( dataLine ) {
  */
 function zeroBSCRMJS_listView_event_title( dataLine ) {
 	// Decode all HTML entities before escaping to prevent double-encoding
-	const decodedTitle = dataLine.title ? decodeHTMLEntities( dataLine.title ) : '';
+	const decodedTitle = dataLine.title ? jpcrm.decodeHTMLEntities( dataLine.title ) : '';
 	const td =
 		'<td><strong><a href="' +
 		zeroBSCRMJS_listView_viewURL( dataLine.id ) +
@@ -4898,17 +4898,10 @@ function zeroBSCRMJS_listView_event_title( dataLine ) {
  */
 function zeroBSCRMJS_listView_event_desc( dataLine ) {
 	// Decode all HTML entities before escaping to prevent double-encoding
-	const decodedDesc = dataLine.desc ? decodeHTMLEntities( dataLine.desc ) : '';
+	const decodedDesc = dataLine.desc ? jpcrm.decodeHTMLEntities( dataLine.desc ) : '';
 	const td = '<td>' + jpcrm.esc_html( decodedDesc ) + '</td>';
 
 	return td;
-}
-
-// Helper function to decode all HTML entities
-function decodeHTMLEntities( text ) {
-	const textarea = document.createElement( 'textarea' );
-	textarea.innerHTML = text;
-	return textarea.value;
 }
 
 // Draw <td> for starts

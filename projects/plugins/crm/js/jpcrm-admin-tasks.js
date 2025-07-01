@@ -88,7 +88,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				: '';
 			const completeHTML = eventProps.complete === 1 ? '<i class="fa fa-check"></i></span>' : '';
 			// Decode all HTML entities before displaying to prevent double-encoding
-			let eventText = args.event.title ? decodeHTMLEntities( args.event.title ) : '';
+			let eventText = args.event.title ? jpcrm.decodeHTMLEntities( args.event.title ) : '';
 			if ( args.view.type !== 'listMonth' ) {
 				// listMonth has the timeText displayed already.
 				eventText = args.timeText + ' ' + eventText;
@@ -107,10 +107,3 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	} );
 	calendar.render();
 } );
-
-// Helper function to decode all HTML entities
-function decodeHTMLEntities( text ) {
-	const textarea = document.createElement( 'textarea' );
-	textarea.innerHTML = text;
-	return textarea.value;
-}
