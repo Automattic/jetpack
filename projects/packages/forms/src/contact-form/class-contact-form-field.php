@@ -2193,18 +2193,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param int    $id - the ID.
-	 * @param string $label - the label.
-	 * @param string $value - the value of the field.
-	 * @param string $class - the field class.
-	 * @param bool   $required - if the field is marked as required.
-	 * @param string $required_field_text - the text in the required text field.
-	 * @param string $placeholder - the field placeholder content.
-	 * @param array  $extra_attrs - Extra attributes used in slider field, namely `min` and `max`.
+	 * @param int    $id The field ID.
+	 * @param string $label The field label.
+	 * @param string $value The field value.
+	 * @param string $class The field class.
+	 * @param bool   $required Whether the field is required.
+	 * @param string $required_field_text The required field text.
+	 * @param string $placeholder The field placeholder.
+	 * @param array  $extra_attrs Extra attributes (e.g., min, max).
 	 *
-	 * @return string HTML
+	 * @return string HTML for the slider field.
 	 */
 	public function render_slider_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+		$this->enqueue_slider_field_assets();
 		$this->set_invalid_message( 'slider', __( 'Please select a valid value', 'jetpack-forms' ) );
 		if ( isset( $extra_attrs['min'] ) ) {
 			// translators: %d is the minimum value.
@@ -2214,8 +2215,39 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// translators: %d is the maximum value.
 			$this->set_invalid_message( 'max_slider', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
 		}
+		$min    = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : '';
+		$max    = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : '';
 		$field  = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
+		$field .= '<div class="jetpack-slider-input-row">';
+		$field .= '<span class="jetpack-slider-input__min-label">' . esc_html( $min ) . '</span>';
 		$field .= $this->render_input_field( 'range', $id, $value, $class, $placeholder, $required, $extra_attrs );
+		$field .= '<span class="jetpack-slider-input__max-label">' . esc_html( $max ) . '</span>';
+		$field .= '</div>';
 		return $field;
+	}
+
+	/**
+	 * Enqueues scripts and styles needed for the slider field.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	private function enqueue_slider_field_assets() {
+		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+
+		\wp_enqueue_style(
+			'jetpack-form-slider-field',
+			plugins_url( '../../dist/contact-form/css/slider-field.css', __FILE__ ),
+			array(),
+			$version
+		);
+
+		\wp_enqueue_script_module(
+			'jetpack-form-slider-field',
+			plugins_url( '../../dist/modules/slider-field/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			$version
+		);
 	}
 }

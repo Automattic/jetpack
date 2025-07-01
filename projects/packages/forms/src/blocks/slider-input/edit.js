@@ -1,3 +1,4 @@
+import './editor.scss';
 import { useBlockProps } from '@wordpress/block-editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
