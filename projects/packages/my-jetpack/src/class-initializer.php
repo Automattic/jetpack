@@ -39,7 +39,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.16.4';
+	const PACKAGE_VERSION = '5.16.8';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -179,17 +179,22 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
-		// If the user is not connected, redirect to the onboarding page
-		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
-			$admin_page = add_query_arg(
-				array(
-					'page' => 'my-jetpack',
-					'step' => 'onboarding',
-				),
-				admin_url( 'admin.php' )
-			);
+		// Handle onboarding redirects based on connection status
+		$should_redirect = false;
+		$redirect_args   = array( 'page' => 'my-jetpack' );
 
-			$location = wp_sanitize_redirect( $admin_page );
+		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
+			// Redirect to onboarding if not connected
+			$redirect_args['step'] = 'onboarding';
+			$should_redirect       = true;
+		} elseif ( $connection->is_connected() && $step === 'onboarding' ) {
+			// Redirect away from onboarding if already connected
+			$should_redirect = true;
+		}
+
+		if ( $should_redirect ) {
+			$admin_page = add_query_arg( $redirect_args, admin_url( 'admin.php' ) );
+			$location   = wp_sanitize_redirect( $admin_page );
 
 			// Remove wp_get_referer filter applied in `fix_redirect` method of `Jetpack_Admin` class
 			remove_filter( 'wp_redirect', 'wp_get_referer' );
@@ -638,7 +643,7 @@ class Initializer {
 	}
 
 	/**
-	 * Returns true if the site has file write access to the plugins folder, false otherwise.
+	 * Returns "yes" if the site has file write access to the plugins folder, "no" otherwise.
 	 *
 	 * @return string
 	 **/
@@ -663,7 +668,7 @@ class Initializer {
 			$write_access = 'yes';
 		}
 
-		if ( ! $write_access ) {
+		if ( 'no' === $write_access ) {
 			ob_start();
 			$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
 			ob_end_clean();
@@ -715,7 +720,6 @@ class Initializer {
 		// The Jetpack menu item should be on index 3
 		if (
 			! empty( $red_bubble_alerts ) &&
-			is_countable( $red_bubble_alerts ) &&
 			isset( $menu[3] ) &&
 			$menu[3][0] === 'Jetpack'
 		) {

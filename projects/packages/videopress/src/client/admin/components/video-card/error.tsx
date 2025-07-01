@@ -24,13 +24,13 @@ import { VideoCardProps } from './types';
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * Video Card Error component
  *
  * @param {VideoCardProps} props - Component props.
- * @return {React.ReactNode} - VideoCardError react component.
+ * @return {ReactNode} - VideoCardError react component.
  */
 export const VideoCardError = ( { title, id }: VideoCardProps ) => {
 	const { dismissErroredVideo } = useDispatch( STORE_ID );

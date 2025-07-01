@@ -3,7 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { useLocation } from 'react-router';
 import AppsBadge from 'components/apps-badge';
 import Card from 'components/card';
@@ -11,7 +11,7 @@ import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import detectMobileDevice from 'lib/device-detector';
 
-class AppsCard extends React.Component {
+class AppsCard extends Component {
 	static displayName = 'AppsCard';
 
 	trackDownloadClick = storeName => {

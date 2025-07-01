@@ -77,7 +77,6 @@
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/preact": "3.2.4",
 		"@testing-library/react": "16.2.0",
-		"@wordpress/babel-plugin-import-jsx-pragma": "5.25.0",
 		"@wordpress/browserslist-config": "6.25.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.25.0",
 		"autoprefixer": "10.4.20",

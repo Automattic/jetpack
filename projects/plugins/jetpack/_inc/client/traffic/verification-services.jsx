@@ -3,7 +3,7 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { get, includes } from 'lodash';
-import React from 'react';
+import { Component } from 'react';
 import { FormFieldset, FormLabel } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -13,7 +13,7 @@ import SettingsGroup from 'components/settings-group';
 import TextInput from 'components/text-input';
 import GoogleVerificationService from './verification-services/google';
 
-class VerificationServicesComponent extends React.Component {
+class VerificationServicesComponent extends Component {
 	static serviceIds = {
 		google: 'google-site-verification',
 		bing: 'msvalidate.01',

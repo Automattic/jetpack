@@ -15,7 +15,6 @@ return [
     // PhanPluginSimplifyExpressionBool : 2 occurrences
     // PhanRedefineFunction : 2 occurrences
     // PhanPluginRedundantAssignment : 1 occurrence
-    // PhanRedundantCondition : 1 occurrence
     // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeMismatchArgument : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
@@ -29,7 +28,7 @@ return [
         'src/class-errors.php' => ['PhanTypeMismatchArgumentInternal'],
         'src/class-host.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/class-modules.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
-        'src/class-status.php' => ['PhanRedundantCondition', 'PhanUndeclaredFunction'],
+        'src/class-status.php' => ['PhanUndeclaredFunction'],
         'tests/php/Status_Test.php' => ['PhanTypeMismatchArgumentInternal'],
         'tests/php/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
     ],

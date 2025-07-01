@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.0] - 2025-06-23
+### Changed
+- Tests: Modify environment check in tests to match new requirements. [#44059]
+
 ## [0.24.4] - 2025-06-09
 ### Fixed
 - Tests: Ensure method param count matches PHPUnit data providers. [#43815] [#43828]
@@ -458,6 +462,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.25.0]: https://github.com/Automattic/jetpack-waf/compare/v0.24.4...v0.25.0
 [0.24.4]: https://github.com/Automattic/jetpack-waf/compare/v0.24.3...v0.24.4
 [0.24.3]: https://github.com/Automattic/jetpack-waf/compare/v0.24.2...v0.24.3
 [0.24.2]: https://github.com/Automattic/jetpack-waf/compare/v0.24.1...v0.24.2

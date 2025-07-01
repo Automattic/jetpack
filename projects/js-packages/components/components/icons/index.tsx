@@ -3,15 +3,15 @@ import clsx from 'clsx';
 import { SocialLogo } from 'social-logos';
 import styles from './style.module.scss';
 import { BaseIconProps } from './types.ts';
-import type React from 'react';
+import type { ComponentProps, ComponentType, FC, ReactNode } from 'react';
 
 /**
  * Icon Wrapper component.
  *
  * @param {BaseIconProps} props - Component props.
- * @return {React.ReactNode} Icon Wrapper component.
+ * @return {ReactNode} Icon Wrapper component.
  */
-const IconWrapper: React.FC< BaseIconProps > = ( {
+const IconWrapper: FC< BaseIconProps > = ( {
 	className,
 	size = 24,
 	viewBox = '0 0 24 24',
@@ -38,7 +38,7 @@ const IconWrapper: React.FC< BaseIconProps > = ( {
 	);
 };
 
-export const AntiSpamIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
+export const AntiSpamIcon: FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
 	<IconWrapper size={ size } opacity={ opacity } color={ color }>
 		<Path
 			d="M13.2,4.7l4.7,12.8c0.4,1.1,1,1.5,2.1,1.6c0.1,0,0.1,0,0.1,0l0.1,0.1l0.1,0.1c0,0.1,0,0.1,0,0.2c0,0.1,0,0.1,0,0.1
@@ -67,7 +67,7 @@ export const AntiSpamIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, co
 	</IconWrapper>
 );
 
-export const BackupIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
+export const BackupIcon: FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
 	<IconWrapper size={ size } opacity={ opacity } color={ color }>
 		<Path
 			d="M2.1,5.8c0-0.1,0-0.1,0-0.2c0-0.2,0.1-0.5,0.1-0.7c0.1-0.4,0.4-0.6,0.7-0.8l8.3-2.9c0.1-0.1,0.3-0.1,0.4-0.1l0.5,0.1
@@ -88,7 +88,7 @@ export const BackupIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, colo
 	</IconWrapper>
 );
 
-export const BoostIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
+export const BoostIcon: FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
 	<IconWrapper size={ size } opacity={ opacity } color={ color }>
 		<Path
 			fillRule="evenodd"
@@ -98,49 +98,44 @@ export const BoostIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color
 	</IconWrapper>
 );
 
-export const CrmIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
+export const CrmIcon: FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
 	<IconWrapper size={ size } opacity={ opacity } color={ color }>
 		<Path d="M15.5 9.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm0 1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm-2.25 6v-2a2.75 2.75 0 0 0-2.75-2.75h-4A2.75 2.75 0 0 0 3.75 15v2h1.5v-2c0-.69.56-1.25 1.25-1.25h4c.69 0 1.25.56 1.25 1.25v2h1.5Zm7-2v2h-1.5v-2c0-.69-.56-1.25-1.25-1.25H15v-1.5h2.5A2.75 2.75 0 0 1 20.25 15ZM9.5 8.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm1.5 0a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z" />
 	</IconWrapper>
 );
 
-export const ExtrasIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
+export const ExtrasIcon: FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
 	<IconWrapper size={ size } opacity={ opacity } color={ color }>
 		<Path d="M18.5 5.5V8H20V5.5h2.5V4H20V1.5h-1.5V4H16v1.5h2.5ZM12 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6h-1.5v6a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5V6a.5.5 0 0 1 .5-.5h6V4Z" />
 	</IconWrapper>
 );
 
-export const ProtectIcon: React.FC< BaseIconProps > = ( {
-	opacity = 1,
-	size,
-	className,
-	color,
-} ) => (
+export const ProtectIcon: FC< BaseIconProps > = ( { opacity = 1, size, className, color } ) => (
 	<IconWrapper className={ className } size={ size } opacity={ opacity } color={ color }>
 		<Path d="M12 3.17627L18.75 6.24445V10.8183C18.75 14.7173 16.2458 18.4089 12.7147 19.5735C12.2507 19.7265 11.7493 19.7265 11.2853 19.5735C7.75416 18.4089 5.25 14.7173 5.25 10.8183V6.24445L12 3.17627ZM6.75 7.21032V10.8183C6.75 14.1312 8.89514 17.2057 11.7551 18.149C11.914 18.2014 12.086 18.2014 12.2449 18.149C15.1049 17.2057 17.25 14.1312 17.25 10.8183V7.21032L12 4.82396L6.75 7.21032Z" />
 		<Path d="M15.5291 10.0315L11.1818 14.358L8.47095 11.66L9.52907 10.5968L11.1818 12.2417L14.4709 8.96826L15.5291 10.0315Z" />
 	</IconWrapper>
 );
 
-export const ScanIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
+export const ScanIcon: FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
 	<IconWrapper size={ size } opacity={ opacity } color={ color }>
 		<Path d="m12 3.176 6.75 3.068v4.574c0 3.9-2.504 7.59-6.035 8.755a2.283 2.283 0 0 1-1.43 0c-3.53-1.164-6.035-4.856-6.035-8.755V6.244L12 3.176ZM6.75 7.21v3.608c0 3.313 2.145 6.388 5.005 7.33.159.053.331.053.49 0 2.86-.942 5.005-4.017 5.005-7.33V7.21L12 4.824 6.75 7.21Z" />
 	</IconWrapper>
 );
 
-export const SearchIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
+export const SearchIcon: FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
 	<IconWrapper size={ size } opacity={ opacity } color={ color }>
 		<Path d="M17.5 11.5a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm1.5 0a5.5 5.5 0 0 1-9.142 4.121l-3.364 2.943-.988-1.128 3.373-2.952A5.5 5.5 0 1 1 19 11.5Z" />
 	</IconWrapper>
 );
 
-export const SocialIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
+export const SocialIcon: FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
 	<IconWrapper size={ size } opacity={ opacity } color={ color }>
 		<Path d="M15.5 3.97809V18.0219L7.5 15.5977V20H6V15.1431L3.27498 14.3173C2.22086 13.9979 1.5 13.0262 1.5 11.9248V10.0752C1.5 8.97375 2.22087 8.00207 3.27498 7.68264L15.5 3.97809ZM14 16L7.5 14.0303L7.5 7.96969L14 5.99999V16ZM6 8.42423L6 13.5757L3.70999 12.8818C3.28835 12.754 3 12.3654 3 11.9248V10.0752C3 9.63462 3.28835 9.24595 3.70999 9.11818L6 8.42423ZM17.5 11.75H21.5V10.25H17.5V11.75ZM21.5 16L17.5 15V13.5L21.5 14.5V16ZM17.5 8.5L21.5 7.5V6L17.5 7V8.5Z" />
 	</IconWrapper>
 );
 
-export const VideopressIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
+export const VideopressIcon: FC< BaseIconProps > = ( { opacity = 1, size, color } ) => (
 	<IconWrapper size={ size } opacity={ opacity } color={ color }>
 		<Path
 			fillRule="evenodd"
@@ -152,7 +147,7 @@ export const VideopressIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, 
 	</IconWrapper>
 );
 
-export const StarIcon: React.FC< BaseIconProps > = ( {
+export const StarIcon: FC< BaseIconProps > = ( {
 	size,
 	className = styles[ 'star-icon' ],
 	color,
@@ -162,7 +157,7 @@ export const StarIcon: React.FC< BaseIconProps > = ( {
 	</IconWrapper>
 );
 
-export const CheckmarkIcon: React.FC< BaseIconProps > = ( {
+export const CheckmarkIcon: FC< BaseIconProps > = ( {
 	size,
 	className = styles[ 'checkmark-icon' ],
 	color,
@@ -172,7 +167,7 @@ export const CheckmarkIcon: React.FC< BaseIconProps > = ( {
 	</IconWrapper>
 );
 
-export const ClipboardIcon: React.FC< BaseIconProps > = ( {
+export const ClipboardIcon: FC< BaseIconProps > = ( {
 	size,
 	className = styles[ 'clipboard-icon' ],
 	color,
@@ -182,11 +177,7 @@ export const ClipboardIcon: React.FC< BaseIconProps > = ( {
 	</IconWrapper>
 );
 
-export const JetpackIcon: React.FC< BaseIconProps > = ( {
-	size,
-	className = styles.jetpack,
-	color,
-} ) => {
+export const JetpackIcon: FC< BaseIconProps > = ( { size, className = styles.jetpack, color } ) => {
 	return (
 		<IconWrapper className={ className } size={ size } color={ color } viewBox="0 0 32 32">
 			<Path
@@ -199,7 +190,7 @@ export const JetpackIcon: React.FC< BaseIconProps > = ( {
 	);
 };
 
-export const ShareIcon: React.FC< BaseIconProps > = ( { size = 16, className, color } ) => {
+export const ShareIcon: FC< BaseIconProps > = ( { size = 16, className, color } ) => {
 	return (
 		<IconWrapper className={ className } size={ size } color={ color } viewBox="0 0 16 16">
 			<Path
@@ -212,7 +203,7 @@ export const ShareIcon: React.FC< BaseIconProps > = ( { size = 16, className, co
 	);
 };
 
-export const AiIcon: React.FC< BaseIconProps > = ( {
+export const AiIcon: FC< BaseIconProps > = ( {
 	size = 24,
 	color = '#069e08', // JP green
 } ) => {
@@ -234,7 +225,7 @@ export const AiIcon: React.FC< BaseIconProps > = ( {
 	);
 };
 
-export const StatsIcon: React.FC< BaseIconProps > = ( { opacity = 1, size, color } ) => {
+export const StatsIcon: FC< BaseIconProps > = ( { opacity = 1, size, color } ) => {
 	return (
 		<IconWrapper size={ size } opacity={ opacity } color={ color }>
 			<Path
@@ -278,7 +269,7 @@ export type IconSlug = keyof IconsMap;
  * Return icon component by slug.
  *
  * @param {string} slug - Icon slug.
- * @return {React.ComponentType<BaseIconProps>}   Icon component.
+ * @return {ComponentType<BaseIconProps>}   Icon component.
  */
 export function getIconBySlug< Slug extends IconSlug >( slug: Slug ): IconsMap[ Slug ] {
 	if ( ! iconsMap[ slug ] ) {
@@ -288,8 +279,8 @@ export function getIconBySlug< Slug extends IconSlug >( slug: Slug ): IconsMap[ 
 	return iconsMap[ slug ];
 }
 
-export const SocialServiceIcon: React.FC< {
-	serviceName: React.ComponentProps< typeof SocialLogo >[ 'icon' ];
+export const SocialServiceIcon: FC< {
+	serviceName: ComponentProps< typeof SocialLogo >[ 'icon' ];
 	className?: string;
 	iconSize?: number;
 } > = ( { serviceName, className, iconSize } ) => {

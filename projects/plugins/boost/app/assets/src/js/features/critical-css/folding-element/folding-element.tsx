@@ -6,16 +6,17 @@ import clsx from 'clsx';
 import { useState } from 'react';
 import useMeasure from 'react-use-measure';
 import styles from './folding-element.module.scss';
+import type { FC, ReactNode } from 'react';
 
 type PropTypes = {
 	labelExpandedText: string;
 	labelCollapsedText: string;
 	isExpanded?: boolean;
-	children?: React.ReactNode;
+	children?: ReactNode;
 	onExpand?: ( isExpanded: boolean ) => void;
 };
 
-const FoldingElement: React.FC< PropTypes > = ( {
+const FoldingElement: FC< PropTypes > = ( {
 	labelExpandedText,
 	labelCollapsedText,
 	isExpanded = false,

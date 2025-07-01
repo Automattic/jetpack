@@ -1,7 +1,7 @@
 import { _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { isEmpty, forOwn, omit } from 'lodash';
-import React from 'react';
+import { Component, createRef } from 'react';
 import Button from 'components/button';
 import SelectDropdown from 'components/select-dropdown';
 
@@ -16,7 +16,7 @@ export const FormFieldset = props => {
 	);
 };
 
-export class FormLabel extends React.Component {
+export class FormLabel extends Component {
 	static displayName = 'FormLabel';
 
 	render() {
@@ -29,7 +29,7 @@ export class FormLabel extends React.Component {
 	}
 }
 
-export class FormLegend extends React.Component {
+export class FormLegend extends Component {
 	static displayName = 'FormLegend';
 
 	render() {
@@ -44,7 +44,7 @@ export class FormLegend extends React.Component {
 	}
 }
 
-export class FormCheckbox extends React.Component {
+export class FormCheckbox extends Component {
 	static displayName = 'FormInputCheckbox';
 
 	render() {
@@ -60,7 +60,7 @@ export class FormCheckbox extends React.Component {
 	}
 }
 
-export class FormTextInput extends React.Component {
+export class FormTextInput extends Component {
 	static displayName = 'FormTextInput';
 
 	static defaultProps = {
@@ -70,7 +70,7 @@ export class FormTextInput extends React.Component {
 		type: 'text',
 	};
 
-	textFieldRef = React.createRef();
+	textFieldRef = createRef();
 
 	focus = () => {
 		this.textFieldRef.current.focus();
@@ -107,7 +107,7 @@ export class FormTextInput extends React.Component {
 	};
 }
 
-export class FormTextarea extends React.Component {
+export class FormTextarea extends Component {
 	static displayName = 'FormTextarea';
 
 	render() {
@@ -122,7 +122,7 @@ export class FormTextarea extends React.Component {
 	}
 }
 
-export class FormRadio extends React.Component {
+export class FormRadio extends Component {
 	static displayName = 'FormRadio';
 
 	render() {
@@ -138,7 +138,7 @@ export class FormRadio extends React.Component {
 	}
 }
 
-export class FormButton extends React.Component {
+export class FormButton extends Component {
 	static displayName = 'FormsButton';
 
 	static defaultProps = {
@@ -175,7 +175,7 @@ export class FormButton extends React.Component {
 	}
 }
 
-export class FormSelect extends React.Component {
+export class FormSelect extends Component {
 	handleOnSelect = option => {
 		this.props.onOptionChange( {
 			target: {

@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName)
 /**
  * Module Name: Newsletter
- * Module Description: Let visitors subscribe to new posts and comments via email
+ * Module Description: Grow your subscriber list and deliver your content directly to their email inbox.
  * Sort Order: 9
  * Recommendation Order: 8
  * First Introduced: 1.2

@@ -183,41 +183,6 @@ class Block_Delimiter {
 		$delimiter          = null;
 		static::$last_error = null;
 
-		$close_html_comment = function ( $comment_starting_at ) use ( $text, &$at, $end ) {
-			// Find span-of-dashes comments which look like `<!----->`.
-			$span_of_dashes = strspn( $text, '-', $comment_starting_at + 2 );
-			if (
-				$comment_starting_at + 2 + $span_of_dashes < $end &&
-				'>' === $text[ $comment_starting_at + 2 + $span_of_dashes ]
-			) {
-				$at = $comment_starting_at + $span_of_dashes + 1;
-				return;
-			}
-
-			// Otherwise, there are other characters inside the comment, find the first `-->` or `--!>`.
-			$now_at = $comment_starting_at + 4;
-			while ( $now_at < $end ) {
-				$dashes_at = strpos( $text, '--', $now_at );
-				if ( false === $dashes_at ) {
-					static::$last_error = self::INCOMPLETE_INPUT;
-					$at                 = $end;
-					return;
-				}
-
-				$closer_must_be_at = $dashes_at + 2 + strspn( $text, '-', $dashes_at + 2 );
-				if ( $closer_must_be_at < $end && '!' === $text[ $closer_must_be_at ] ) {
-					$closer_must_be_at++;
-				}
-
-				if ( $closer_must_be_at < $end && '>' === $text[ $closer_must_be_at ] ) {
-					$at = $closer_must_be_at + 1;
-					return;
-				}
-
-				$now_at++;
-			}
-		};
-
 		while ( $at < $end ) {
 			/*
 			 * Find the next possible opening.
@@ -238,7 +203,7 @@ class Block_Delimiter {
 			$opening_whitespace_at     = $comment_opening_at + 4;
 			$opening_whitespace_length = strspn( $text, " \t\f\r\n", $opening_whitespace_at );
 			if ( 0 === $opening_whitespace_length ) {
-				$close_html_comment( $comment_opening_at );
+				$at = self::find_html_comment_end( $text, $comment_opening_at, $end );
 				continue;
 			}
 
@@ -255,7 +220,7 @@ class Block_Delimiter {
 			}
 
 			if ( 0 !== substr_compare( $text, 'wp:', $wp_prefix_at, 3 ) ) {
-				$close_html_comment( $comment_opening_at );
+				$at = self::find_html_comment_end( $text, $comment_opening_at, $end );
 				continue;
 			}
 
@@ -269,7 +234,7 @@ class Block_Delimiter {
 
 			// The namespace must start with a-z.
 			if ( 'a' > $start_of_namespace || 'z' < $start_of_namespace ) {
-				$close_html_comment( $comment_opening_at );
+				$at = self::find_html_comment_end( $text, $comment_opening_at, $end );
 				continue;
 			}
 
@@ -285,7 +250,7 @@ class Block_Delimiter {
 				$name_at       = $separator_at + 1;
 				$start_of_name = $text[ $name_at ];
 				if ( 'a' > $start_of_name || 'z' < $start_of_name ) {
-					$close_html_comment( $comment_opening_at );
+					$at = self::find_html_comment_end( $text, $comment_opening_at, $end );
 					continue;
 				}
 
@@ -299,7 +264,7 @@ class Block_Delimiter {
 			$after_name_whitespace_at     = $name_at + $name_length;
 			$after_name_whitespace_length = strspn( $text, " \t\f\r\n", $after_name_whitespace_at );
 			if ( 0 === $after_name_whitespace_length ) {
-				$close_html_comment( $comment_opening_at );
+				$at = self::find_html_comment_end( $text, $comment_opening_at, $end );
 				continue;
 			}
 
@@ -349,13 +314,13 @@ class Block_Delimiter {
 
 				// This shouldn't be possible, but it can't be allowed regardless.
 				if ( $max_whitespace_length < 0 ) {
-					$close_html_comment( $comment_opening_at );
+					$at = self::find_html_comment_end( $text, $comment_opening_at, $end );
 					continue;
 				}
 
 				$closing_whitespace_length = strspn( $text, " \t\f\r\n", $json_at, $comment_closing_at - $json_at - $void_flag_length );
 				if ( 0 === $after_name_whitespace_length + $closing_whitespace_length ) {
-					$close_html_comment( $comment_opening_at );
+					$at = self::find_html_comment_end( $text, $comment_opening_at, $end );
 					continue;
 				}
 
@@ -389,7 +354,7 @@ class Block_Delimiter {
 			}
 
 			if ( 0 === $json_length || 0 === $after_json_whitespace_length ) {
-				$close_html_comment( $comment_opening_at );
+				$at = self::find_html_comment_end( $text, $comment_opening_at, $end );
 				continue;
 			}
 
@@ -506,6 +471,51 @@ class Block_Delimiter {
 	 */
 	private function __construct() {
 		// This is not to be called from the outside.
+	}
+
+	/**
+	 * Returns the byte-offset after the ending character of an HTML comment,
+	 * assuming the proper starting byte offset.
+	 *
+	 * @since 0.2.1
+	 *
+	 * @param string $text                Document in which to search for HTML comment end.
+	 * @param int    $comment_starting_at Where the HTML comment started, the leading `<`.
+	 * @param int    $search_end          Last offset in which to search, for limiting search span.
+	 * @return int Offset after the current HTML comment ends, or `$end` if no end was found.
+	 */
+	private static function find_html_comment_end( string $text, int $comment_starting_at, int $search_end ): int {
+		// Find span-of-dashes comments which look like `<!----->`.
+		$span_of_dashes = strspn( $text, '-', $comment_starting_at + 2 );
+		if (
+			$comment_starting_at + 2 + $span_of_dashes < $search_end &&
+			'>' === $text[ $comment_starting_at + 2 + $span_of_dashes ]
+		) {
+			return $comment_starting_at + $span_of_dashes + 1;
+		}
+
+		// Otherwise, there are other characters inside the comment, find the first `-->` or `--!>`.
+		$now_at = $comment_starting_at + 4;
+		while ( $now_at < $search_end ) {
+			$dashes_at = strpos( $text, '--', $now_at );
+			if ( false === $dashes_at ) {
+				static::$last_error = self::INCOMPLETE_INPUT;
+				return $search_end;
+			}
+
+			$closer_must_be_at = $dashes_at + 2 + strspn( $text, '-', $dashes_at + 2 );
+			if ( $closer_must_be_at < $search_end && '!' === $text[ $closer_must_be_at ] ) {
+				$closer_must_be_at++;
+			}
+
+			if ( $closer_must_be_at < $search_end && '>' === $text[ $closer_must_be_at ] ) {
+				return $closer_must_be_at + 1;
+			}
+
+			$now_at++;
+		}
+
+		return $search_end;
 	}
 
 	/**

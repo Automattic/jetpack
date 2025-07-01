@@ -1,5 +1,6 @@
 .pie-semi-circle-chart {
-	position: relative;
+	display: flex;
+	flex-direction: column;
 	text-align: center;
 
 	&-legend {

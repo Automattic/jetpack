@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isWoASite, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useState } from '@wordpress/element';
 
 /**
@@ -11,7 +11,7 @@ import { useState } from '@wordpress/element';
  */
 export default function useSiteType() {
 	const getSiteType = () => {
-		if ( isAtomicSite() ) {
+		if ( isWoASite() ) {
 			return 'atomic';
 		}
 		if ( isSimpleSite() ) {

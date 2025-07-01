@@ -1,3 +1,4 @@
+import { AnnotationStyles } from './components/line-chart/line-chart-annotation';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
@@ -105,6 +106,7 @@ export type ChartTheme = {
 	legendLabelStyles?: CSSProperties;
 	/** Styles for legend container */
 	legendContainerStyles?: CSSProperties;
+	annotationStyles?: AnnotationStyles;
 };
 
 declare type AxisOptions = {
@@ -212,6 +214,14 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * Legend shape
 	 */
 	legendShape?: LegendShape< T, number >;
+	/**
+	 * Legend horizontal alignment
+	 */
+	legendAlignmentHorizontal?: 'left' | 'center' | 'right';
+	/**
+	 * Legend vertical alignment
+	 */
+	legendAlignmentVertical?: 'top' | 'bottom';
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */

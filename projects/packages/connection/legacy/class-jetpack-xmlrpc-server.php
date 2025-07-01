@@ -715,9 +715,9 @@ class Jetpack_XMLRPC_Server {
 			'md5',
 			json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 				(object) array(
-					'client_id' => (int) $client_id,
-					'user_id'   => (int) $user_id,
-					'nonce'     => (string) $nonce,
+					'client_id' => $client_id,
+					'user_id'   => $user_id,
+					'nonce'     => $nonce,
 					'code'      => (string) $api_user_code,
 				)
 			),

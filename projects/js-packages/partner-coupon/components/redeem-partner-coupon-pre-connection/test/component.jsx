@@ -5,7 +5,6 @@ import { jest } from '@jest/globals';
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
-import * as React from 'react';
 
 jest.unstable_mockModule( '../../../utils/assignLocation', () => {
 	return {

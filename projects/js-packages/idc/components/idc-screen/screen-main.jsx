@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Fragment } from 'react';
 import customContentShape from '../../tools/custom-content-shape';
 import extractHostname from '../../tools/extract-hostname';
 import CardFresh from '../card-fresh';
@@ -13,7 +13,7 @@ import SafeMode from '../safe-mode';
  * Retrieve the main screen body.
  *
  * @param {object} props - The properties.
- * @return {React.Component} The ScreenMain component.
+ * @return {import('react').Component} The ScreenMain component.
  */
 const ScreenMain = props => {
 	const {
@@ -34,7 +34,7 @@ const ScreenMain = props => {
 	const currentHostName = extractHostname( props.currentUrl );
 
 	return (
-		<React.Fragment>
+		<Fragment>
 			<h2>
 				{ customContent.mainTitle
 					? createInterpolateElement( customContent.mainTitle, { em: <em /> } )
@@ -131,7 +131,7 @@ const ScreenMain = props => {
 				}
 			>
 				{ ! isDevelopmentSite ? (
-					<React.Fragment>
+					<Fragment>
 						<CardMigrate
 							wpcomHomeUrl={ wpcomHomeUrl }
 							currentUrl={ currentUrl }
@@ -150,9 +150,9 @@ const ScreenMain = props => {
 							hasError={ hasFreshError }
 							isDevelopmentSite={ isDevelopmentSite }
 						/>
-					</React.Fragment>
+					</Fragment>
 				) : (
-					<React.Fragment>
+					<Fragment>
 						<CardFresh
 							wpcomHomeUrl={ wpcomHomeUrl }
 							currentUrl={ currentUrl }
@@ -168,13 +168,13 @@ const ScreenMain = props => {
 							customContent={ customContent }
 							isDevelopmentSite={ isDevelopmentSite }
 						/>
-					</React.Fragment>
+					</Fragment>
 				) }
 			</div>
 			{ ! isDevelopmentSite ? (
 				<SafeMode hasError={ hasStaySafeError } customContent={ customContent } />
 			) : null }
-		</React.Fragment>
+		</Fragment>
 	);
 };
 

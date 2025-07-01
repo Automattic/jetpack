@@ -36,6 +36,7 @@
 	],
 	"exports": {
 		".": {
+			"jetpack:src": "./src/index.ts",
 			"import": "./dist/mjs/index.js",
 			"require": "./dist/cjs/index.js",
 			"types": "./dist/index.d.ts"
@@ -50,6 +51,7 @@
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "7.27.4",
 		"@react-spring/web": "9.7.5",
+		"@visx/annotation": "^3.12.0",
 		"@visx/axis": "^3.12.0",
 		"@visx/curve": "^3.12.0",
 		"@visx/event": "^3.12.0",
@@ -66,6 +68,7 @@
 		"@visx/xychart": "^3.12.0",
 		"clsx": "2.1.1",
 		"date-fns": "^4.1.0",
+		"lodash": "^4.17.21",
 		"tslib": "2.5.0"
 	},
 	"devDependencies": {
@@ -91,7 +94,6 @@
 		"@types/react": "18.3.23",
 		"@types/react-dom": "18.3.7",
 		"@visx/glyph": "3.12.0",
-		"@wordpress/babel-plugin-import-jsx-pragma": "5.25.0",
 		"@wordpress/element": "6.25.0",
 		"babel-jest": "30.0.0",
 		"babel-loader": "9.1.2",

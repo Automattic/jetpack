@@ -1,6 +1,7 @@
 import { Text, useBreakpointMatch, LoadingPlaceholder } from '@automattic/jetpack-components';
 import clsx from 'clsx';
 import styles from './style.module.scss';
+import type { ReactNode } from 'react';
 
 const Stats = ( {
 	privacy,
@@ -10,10 +11,10 @@ const Stats = ( {
 	loading = false,
 	className,
 }: {
-	privacy: React.ReactNode;
-	duration: React.ReactNode;
-	plays?: React.ReactNode;
-	upload?: React.ReactNode;
+	privacy: ReactNode;
+	duration: ReactNode;
+	plays?: ReactNode;
+	upload?: ReactNode;
 	loading?: boolean;
 	className?: string;
 } ) => {

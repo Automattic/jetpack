@@ -4,11 +4,12 @@
  * The template contains several placeholders:
  * %1$s is the hero text to display above the response
  * %2$s is the response itself.
- * %3$s is a link to the response page in wp-admin
- * %4$s is a link to the embedded form to allow the site owner to edit it to change their email address.
+ * %3$s was a link to the response page in wp-admin (left empty for backwards compatibility)
+ * %4$s was a link to the embedded form to allow the site owner to edit it to change their email address (left empty for backwards compatibility)
  * %5$s is the footer HTML.
  * %6$s style HTML tag.
- * %7$s tracking pixel.
+ * %7$s tracking pixel
+ * %8$s is the actions HTML.
  *
  * @package automattic/jetpack
  */
@@ -36,6 +37,9 @@ $template = '
 							<p>%2$s</p>
 							%3$s
 							%4$s
+							<div class="actions">
+								%8$s
+							</div>
 						</td>
 						</tr>
 					</table>
@@ -131,9 +135,46 @@ $style = '<style media="all" type="text/css">
 		box-sizing: border-box;
 		padding: 24px;
 	}
+
 	.content-block {
 		box-sizing: border-box;
 		padding: 0 24px 24px;
+	}
+
+	.actions .button_block {
+		mso-table-lspace: 0pt;
+		mso-table-rspace: 0pt;
+		width: unset;
+		margin-top: 24px;
+	}
+
+	.actions .button_block .pad,
+	.actions .button_block .pad a {
+		border-radius: 4px;
+		background-image: url(\'https://s0.wordpress.com/i/emails/marketing/wpcom/2024/blueberry-px.png\');
+		background-size: cover;
+		background-color: #3858E9;
+	}
+
+	.actions .button_block .pad a {
+		font-size: 16px;
+		font-family: Inter, Helvetica, Arial, sans-serif;
+		font-weight: 500;
+		text-decoration: none;
+		padding: 13px 24px;
+		color: #ffffff;
+		border-radius: 4px;
+		display: inline-block;
+		mso-padding-alt: 0;
+	}
+
+	.actions .button_block .pad a span {
+		mso-text-raise: 15pt;
+	}
+	
+	.actions .button_block .pad i {
+		letter-spacing: 25px;
+		mso-font-width: -100%;
 	}
 
 	.footer {
@@ -141,6 +182,7 @@ $style = '<style media="all" type="text/css">
 		padding: 24px 0;
 		width: 100%;
 	}
+
 	.footer td,
 	.footer p,
 	.footer span,
@@ -148,9 +190,11 @@ $style = '<style media="all" type="text/css">
 		color: #101517;
 		font-size: 12px;
 	}
+
 	h1 {
 		font-size: 20px;
 	}
+
 	p {
 		font-family: sans-serif;
 		font-size: 16px;
@@ -162,32 +206,40 @@ $style = '<style media="all" type="text/css">
 	.powered-by a {
 		text-decoration: none;
 	}
+
 	@media only screen and (max-width: 640px) {
 		.main p,
 		.main td,
 		.main span {
 			font-size: 16px !important;
 		}
+
 		.wrapper {
 			padding: 8px 16px !important;
 		}
+
 		.powered-by {
 			padding: 0 16px 16px!important;
 		}
+
 		.content {
 			padding: 0 !important;
 		}
+
 		.container {
 			padding: 0 !important;
 			padding-top: 8px !important;
 			width: 100% !important;
 		}
+
 		.main {
 			border-left-width: 0 !important;
 			border-radius: 0 !important;
 			border-right-width: 0 !important;
 		}
+
 		.collapse { display: none; }
+
 		h1 { padding:0 16px; }
 	}
 
@@ -195,6 +247,7 @@ $style = '<style media="all" type="text/css">
 		.ExternalClass {
 			width: 100%;
 		}
+
 		.ExternalClass,
 		.ExternalClass p,
 		.ExternalClass span,
@@ -203,6 +256,7 @@ $style = '<style media="all" type="text/css">
 		.ExternalClass div {
 			line-height: 100%;
 		}
+
 		.apple-link a {
 			color: inherit !important;
 			font-family: inherit !important;
@@ -211,6 +265,7 @@ $style = '<style media="all" type="text/css">
 			line-height: inherit !important;
 			text-decoration: none !important;
 		}
+
 		#MessageViewBody a {
 			color: inherit;
 			text-decoration: none;

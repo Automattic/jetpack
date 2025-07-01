@@ -23,7 +23,7 @@ class StdinBootstrapTest extends TestCase {
 			array(
 				'--report=json',
 				'--bootstrap=' . __DIR__ . '/../../stdin-bootstrap.php',
-				'--filter=' . __DIR__ . '/../../src/PhpcsFilter.php',
+				'--filter=Automattic\\JetpackPhpcsFilter',
 			),
 			$args
 		);

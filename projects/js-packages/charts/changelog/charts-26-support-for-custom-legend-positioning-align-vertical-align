@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: Adds new `legendHorizontalAlign` and `legendVerticalAlign` props to chart legend components, allowing flexible positioning of legends

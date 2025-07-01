@@ -67,7 +67,10 @@ module.exports = ( api, opts = {} ) => {
 		] );
 	}
 	if ( opts.presetReact !== false ) {
-		ret.presets.push( [ require.resolve( '@babel/preset-react' ), opts.presetReact ] );
+		ret.presets.push( [
+			require.resolve( '@babel/preset-react' ),
+			opts.presetReact ?? { runtime: 'automatic' },
+		] );
 	}
 	if ( opts.presetTypescript !== false ) {
 		ret.presets.push( [ require.resolve( '@babel/preset-typescript' ), opts.presetTypescript ] );

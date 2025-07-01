@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Autoloader: Prevent double slash in autoloader path.

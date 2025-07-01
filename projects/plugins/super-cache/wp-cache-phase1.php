@@ -190,6 +190,6 @@ if ( defined( 'DOING_CRON' ) ) {
 
 // late init delays serving a cache file until after the WordPress init actin has fired and (most of?) WordPress has loaded.
 // If it's not enabled then serve a cache file now if possible.
-if ( ! isset( $wp_super_cache_late_init ) || ( isset( $wp_super_cache_late_init ) && false == $wp_super_cache_late_init ) ) {
+if ( ! isset( $wp_super_cache_late_init ) || 0 === $wp_super_cache_late_init ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- the wp-cache-config.php include attempt may define this var
 	wp_cache_serve_cache_file();
 }

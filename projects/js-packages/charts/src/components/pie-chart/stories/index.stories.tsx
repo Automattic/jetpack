@@ -94,10 +94,6 @@ const meta = {
 				step: 0.01,
 			},
 		},
-		legendOrientation: {
-			control: 'radio',
-			options: [ 'horizontal', 'vertical' ],
-		},
 		theme: {
 			control: 'select',
 			options: {
@@ -143,26 +139,6 @@ export const Default: Story = {
 		withTooltips: false,
 		data,
 		theme: 'default',
-		showLegend: false,
-		legendOrientation: 'horizontal',
-	},
-};
-
-export const WithHorizontalLegend: Story = {
-	args: {
-		...Default.args,
-		showLegend: true,
-		size: 600,
-		legendOrientation: 'horizontal',
-	},
-};
-
-export const WithVerticalLegend: Story = {
-	args: {
-		...Default.args,
-		showLegend: true,
-		size: 600,
-		legendOrientation: 'vertical',
 	},
 };
 

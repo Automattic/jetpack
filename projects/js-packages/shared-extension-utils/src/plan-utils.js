@@ -1,10 +1,10 @@
+import { isWoASite, isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { compact, get, startsWith, map, filter, head } from 'lodash';
 import getJetpackData from './get-jetpack-data';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import getSiteFragment from './get-site-fragment';
-import { isAtomicSite, isSimpleSite } from './site-type-utils';
 
 /**
  * Return the checkout URL to upgrade the site plan,
@@ -68,7 +68,7 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	)();
 
 	// Redirect to calypso plans page for WoC sites.
-	if ( isAtomicSite() ) {
+	if ( isWoASite() ) {
 		return addQueryArgs( `https://wordpress.com/plans/${ getSiteFragment() }`, {
 			redirect_to,
 			customerType: 'business',

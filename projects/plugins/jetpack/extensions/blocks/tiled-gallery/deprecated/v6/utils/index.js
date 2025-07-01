@@ -1,4 +1,5 @@
-import { isAtomicSite, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import { isWoASite } from '@automattic/jetpack-script-data';
+import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
 import { range } from 'lodash';
 import photon from 'photon';
@@ -36,7 +37,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 		isBlobURL( img.url ) ||
 		/^https?:\/\/localhost/.test( img.url ) ||
 		/^https?:\/\/.*\.local\//.test( img.url ) ||
-		( isAtomicSite() && isPrivateSite() )
+		( isWoASite() && isPrivateSite() )
 	) {
 		return { src: img.url };
 	}

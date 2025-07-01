@@ -6,13 +6,13 @@ import SearchConnectionPage from 'components/pages/connection-page';
 import SearchDashboardPage from 'components/pages/dashboard-page';
 import UpsellPage from 'components/pages/upsell-page';
 import useConnection from 'hooks/use-connection';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { STORE_ID } from 'store';
 
 /**
  * Return appropriate components.
  *
- * @return {React.Component} WrappedDashboard component.
+ * @return {import('react').Component} WrappedDashboard component.
  */
 export default function WrappedDashboard() {
 	const { isFullyConnected } = useConnection();
@@ -54,7 +54,7 @@ export default function WrappedDashboard() {
 /**
  * Returns AfterConnectionPage component if site is fully connected otherwise UpsellPage component.
  *
- * @return {React.Component} NewWrappedDashboard component.
+ * @return {import('react').Component} NewWrappedDashboard component.
  */
 function WrappedDashboard202208() {
 	const { isFullyConnected } = useConnection();
@@ -70,7 +70,7 @@ function WrappedDashboard202208() {
 /**
  * Returns SearchDashboardPage component if supports search otherwise UpsellPage component
  *
- * @return {React.Component} AfterConnectionPage component.
+ * @return {import('react').Component} AfterConnectionPage component.
  */
 function AfterConnectionPage() {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );

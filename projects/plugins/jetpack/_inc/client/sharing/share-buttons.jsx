@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -45,7 +45,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			 * - Is the site in offline mode?
 			 * - Is the site using the classic admin interface?
 			 *
-			 * @return {React.ReactNode} A card with the sharing configuration link.
+			 * @return {import('react').ReactNode} A card with the sharing configuration link.
 			 */
 			const configCard = () => {
 				const cardProps = {
@@ -74,7 +74,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			 * If the sharing block is available,
 			 * we suggest to use it instead of the legacy module.
 			 *
-			 * @return {React.ReactNode} A module toggle.
+			 * @return {import('react').ReactNode} A module toggle.
 			 */
 			const moduleToggle = () => {
 				const toggle = (

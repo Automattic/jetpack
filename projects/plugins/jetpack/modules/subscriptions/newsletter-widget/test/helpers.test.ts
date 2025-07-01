@@ -157,15 +157,20 @@ describe( 'helpers', () => {
 		const testAdminUrl = 'https://example.com/wp-admin/';
 
 		it( 'returns WordPress.com URL for WordPress.com sites', () => {
-			const url = getSubscriberStatsUrl( testSite, true, testAdminUrl );
+			const url = getSubscriberStatsUrl( testSite, true, testAdminUrl, true );
 			expect( url ).toBe( getRedirectUrl( 'https://wordpress.com/stats/subscribers/' + testSite ) );
 		} );
 
-		it( 'returns WP-admin URL for self-hosted sites', () => {
-			const url = getSubscriberStatsUrl( testSite, false, testAdminUrl );
+		it( 'returns WP-admin URL for self-hosted sites when stats module is active', () => {
+			const url = getSubscriberStatsUrl( testSite, false, testAdminUrl, true );
 			expect( url ).toBe(
 				`${ testAdminUrl }admin.php?page=stats#!/stats/subscribers/${ testSite }`
 			);
+		} );
+
+		it( 'returns WordPress.com URL for self-hosted sites when stats module is not active', () => {
+			const url = getSubscriberStatsUrl( testSite, false, testAdminUrl, false );
+			expect( url ).toBe( getRedirectUrl( 'https://wordpress.com/stats/subscribers/' + testSite ) );
 		} );
 	} );
 

@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import QuerySite from 'components/data/query-site';
@@ -74,13 +74,22 @@ export class Security extends Component {
 		}
 
 		const foundProtect = this.props.isModuleFound( 'protect' ),
+			foundAccountProtection = this.props.isModuleFound( 'account-protection' ),
 			foundSso = this.props.isModuleFound( 'sso' ),
 			foundAkismet = this.isAkismetFound(),
-			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+			rewindActive =
+				! isSearchTerm && 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
 			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
 			foundMonitor = this.props.isModuleFound( 'monitor' );
 
-		if ( ! foundSso && ! foundProtect && ! foundAkismet && ! foundBackups && ! foundMonitor ) {
+		if (
+			! foundSso &&
+			! foundProtect &&
+			! foundAccountProtection &&
+			! foundAkismet &&
+			! foundBackups &&
+			! foundMonitor
+		) {
 			return null;
 		}
 
@@ -113,7 +122,9 @@ export class Security extends Component {
 						<QueryAkismetKeyCheck />
 					</>
 				) }
-				<AccountProtection isModuleFound={ this.props.isModuleFound } { ...commonProps } />
+				{ foundAccountProtection && (
+					<AccountProtection isModuleFound={ this.props.isModuleFound } { ...commonProps } />
+				) }
 				{ foundWaf && <Waf { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ ( foundWaf || foundProtect ) && <AllowList { ...commonProps } /> }

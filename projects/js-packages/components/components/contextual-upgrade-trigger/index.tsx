@@ -4,9 +4,9 @@ import IconTooltip from '../icon-tooltip/index.tsx';
 import Text from '../text/index.tsx';
 import styles from './style.module.scss';
 import { CutBaseProps } from './types.ts';
-import type React from 'react';
+import type { FC } from 'react';
 
-const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( {
+const ContextualUpgradeTrigger: FC< CutBaseProps > = ( {
 	description,
 	cta,
 	onClick,
