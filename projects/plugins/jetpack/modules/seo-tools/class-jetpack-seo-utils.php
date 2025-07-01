@@ -126,4 +126,19 @@ class Jetpack_SEO_Utils {
 
 		return '';
 	}
+
+	/**
+	 * Remove content within wp:query blocks.
+	 *
+	 * @uses jetpack_og_remove_query_blocks
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $content Post content.
+	 *
+	 * @return string Post content stripped from wp:query blocks.
+	 */
+	public static function remove_query_blocks( $content ) {
+		return jetpack_og_remove_query_blocks( $content );
+	}
 }
