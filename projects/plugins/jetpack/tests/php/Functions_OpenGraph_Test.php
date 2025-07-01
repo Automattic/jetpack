@@ -314,24 +314,51 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	public static function jetpack_og_remove_query_blocks_data_provider() {
 		return array(
 			'basic_query_block_removal' => array(
-				'Some text before. <!-- wp:query {"queryId":49} --><div class="wp-block-query"><!-- wp:post-template --><!-- wp:post-title /--><!-- /wp:post-template --></div><!-- /wp:query --> Some text after.',
+				'Some text before. <!-- wp:query {"queryId":49} -->
+<div class="wp-block-query"><!-- wp:post-template -->
+<!-- wp:post-title /-->
+<!-- /wp:post-template --></div>
+<!-- /wp:query --> Some text after.',
 				'Some text before.  Some text after.',
 			),
 			'nested_query_blocks'       => array(
-				'Before. <!-- wp:query {"queryId":1} --><div class="wp-block-query"><!-- wp:query {"queryId":2} --><div class="wp-block-query">Nested content</div><!-- /wp:query --></div><!-- /wp:query --> After.',
+				'Before. <!-- wp:query {"queryId":1} -->
+<div class="wp-block-query">
+<!-- wp:query {"queryId":2} -->
+<div class="wp-block-query">Nested content</div>
+<!-- /wp:query -->
+</div>
+<!-- /wp:query --> After.',
 				'Before.  After.',
 			),
 			'preserves_other_blocks'    => array(
-				'<!-- wp:paragraph --><p>This paragraph should be preserved.</p><!-- /wp:paragraph --><!-- wp:query {"queryId":1} --><div class="wp-block-query">This should be removed.</div><!-- /wp:query --><!-- wp:heading --><h2>This heading should be preserved.</h2><!-- /wp:heading -->',
-				'<!-- wp:paragraph --><p>This paragraph should be preserved.</p><!-- /wp:paragraph --><!-- wp:heading --><h2>This heading should be preserved.</h2><!-- /wp:heading -->',
+				'<!-- wp:paragraph -->
+<p>This paragraph should be preserved.</p>
+<!-- /wp:paragraph -->
+<!-- wp:query {"queryId":1} -->
+<div class="wp-block-query">This should be removed.</div>
+<!-- /wp:query -->
+<!-- wp:heading -->
+<h2>This heading should be preserved.</h2>
+<!-- /wp:heading -->',
+				'<!-- wp:paragraph -->
+<p>This paragraph should be preserved.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading -->
+<h2>This heading should be preserved.</h2>
+<!-- /wp:heading -->',
 			),
 			'void_query_blocks'         => array(
 				'Before. <!-- wp:query {"queryId":1} /--> After.',
 				'Before.  After.',
 			),
 			'no_query_blocks'           => array(
-				'<!-- wp:paragraph --><p>This content has no query blocks.</p><!-- /wp:paragraph -->',
-				'<!-- wp:paragraph --><p>This content has no query blocks.</p><!-- /wp:paragraph -->',
+				'<!-- wp:paragraph -->
+<p>This content has no query blocks.</p>
+<!-- /wp:paragraph -->',
+				'<!-- wp:paragraph -->
+<p>This content has no query blocks.</p>
+<!-- /wp:paragraph -->',
 			),
 			'empty_string'              => array(
 				'',
