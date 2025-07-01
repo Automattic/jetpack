@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import TableRow from '../table-row/table-row';
 import { type IsaImage } from '$features/image-size-analysis';
 import Button from '../../../button/button';
@@ -20,7 +20,7 @@ interface ImageSizeRowProps {
 	toggleImageFix: ( imageId: IsaImage[ 'id' ] ) => void;
 }
 
-const ImageSizeRow: React.FC< ImageSizeRowProps > = ( { details, toggleImageFix } ) => {
+const ImageSizeRow: FC< ImageSizeRowProps > = ( { details, toggleImageFix } ) => {
 	const title = details.image.url.split( '/' ).pop();
 
 	return (
@@ -55,7 +55,7 @@ function getPotentialSize( details: IsaImage ) {
 	return potentialSavings > 0 ? Math.round( details.image.weight.current - potentialSavings ) : '?';
 }
 
-const TableRowContent: React.FC< ContentProps > = ( { title, details, toggleImageFix } ) => {
+const TableRowContent: FC< ContentProps > = ( { title, details, toggleImageFix } ) => {
 	const pillColor = getPillColor( details );
 	const potentialSize = getPotentialSize( details );
 	return (
@@ -103,7 +103,7 @@ const TableRowContent: React.FC< ContentProps > = ( { title, details, toggleImag
 	);
 };
 
-const Expanded: React.FC< { details: IsaImage } > = ( { details } ) => {
+const Expanded: FC< { details: IsaImage } > = ( { details } ) => {
 	const pillColor = getPillColor( details );
 	const potentialSize = getPotentialSize( details );
 	return (

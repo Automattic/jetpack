@@ -6,11 +6,8 @@ import {
 	useAiFeature,
 	QuotaExceededMessage,
 } from '@automattic/jetpack-ai-client';
-import {
-	isAtomicSite,
-	isSimpleSite,
-	useAnalytics,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -33,7 +30,7 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
 import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
 import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
 import type { PromptProp } from '@automattic/jetpack-ai-client';
-import type { ReactElement } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 
 import './style.scss';
 
@@ -230,7 +227,7 @@ ${ postContent }
 				disabled={ isTextAreaDisabled }
 			/>
 
-			{ isAtomicSite() || isSimpleSite() ? (
+			{ isWpcomPlatformSite() ? (
 				<WpcomSupportLink
 					supportLink={ __( 'https://wordpress.com/support/excerpts/', 'jetpack' ) }
 					supportPostId={ 1569 }
@@ -330,7 +327,7 @@ export const PluginDocumentSettingPanelAiExcerpt = () => {
 	}
 
 	const SettingPanel = props => {
-		const Panel = PluginDocumentSettingPanel as unknown as React.ComponentType< {
+		const Panel = PluginDocumentSettingPanel as unknown as ComponentType< {
 			className?: string;
 			name?: string;
 			title?: string;

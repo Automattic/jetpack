@@ -6,11 +6,12 @@ import { store as socialStore } from '../../social-store';
 import { Connection, KeyringResult } from '../../social-store/types';
 import { useRequestAccess } from '../services/use-request-access';
 import { SupportedService } from '../services/use-supported-services';
+import type { ComponentProps } from 'react';
 
 export type ReconnectProps = {
 	service: SupportedService;
 	connection: Connection;
-	variant?: React.ComponentProps< typeof Button >[ 'variant' ];
+	variant?: ComponentProps< typeof Button >[ 'variant' ];
 };
 
 /**

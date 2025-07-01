@@ -1,7 +1,7 @@
 import { Icon, warning, info, check } from '@wordpress/icons';
 import clsx from 'clsx';
-import React from 'react';
 import styles from './style.module.scss';
+import type { ReactNode, Component, ReactElement, FC } from 'react';
 
 type AlertProps = {
 	/** The severity of the alert. */
@@ -11,7 +11,7 @@ type AlertProps = {
 	showIcon?: boolean;
 
 	/** Children to be rendered inside the alert. */
-	children: React.ReactNode;
+	children: ReactNode;
 
 	/** Wrapper class name */
 	className?: string;
@@ -35,19 +35,14 @@ const getIconByLevel = ( level: AlertProps[ 'level' ] ) => {
 /**
  * Alert component
  *
- * @param {object}          props           - The component properties.
- * @param {string}          props.level     - The alert level: error, warning, info, success.
- * @param {boolean}         props.showIcon  - Whether to show the alert icon.
- * @param {string}          props.className - The wrapper class name.
- * @param {React.Component} props.children  - The alert content.
- * @return {React.ReactElement}             The `Alert` component.
+ * @param {object}    props           - The component properties.
+ * @param {string}    props.level     - The alert level: error, warning, info, success.
+ * @param {boolean}   props.showIcon  - Whether to show the alert icon.
+ * @param {string}    props.className - The wrapper class name.
+ * @param {Component} props.children  - The alert content.
+ * @return {ReactElement}             The `Alert` component.
  */
-const Alert: React.FC< AlertProps > = ( {
-	level = 'warning',
-	children,
-	showIcon = true,
-	className,
-} ) => {
+const Alert: FC< AlertProps > = ( { level = 'warning', children, showIcon = true, className } ) => {
 	const classes = clsx( styles.container, styles[ `is-${ level }` ], className );
 
 	return (

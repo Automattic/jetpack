@@ -1,5 +1,6 @@
 .line-chart {
-	position: relative;
+	display: flex;
+	flex-direction: column;
 
 	svg {
 		overflow: visible;

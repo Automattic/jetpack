@@ -5,8 +5,9 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { SettingsButton } from './settings-button';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
-export const ConnectionNotice: React.FC = () => {
+export const ConnectionNotice: FC = () => {
 	const { hasConnections } = useSocialMediaConnections();
 	const { needsUserConnection } = usePublicizeConfig();
 

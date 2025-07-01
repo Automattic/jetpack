@@ -1,10 +1,10 @@
 import clsx from 'clsx';
 import { omit } from 'lodash';
-import React from 'react';
+import { Component } from 'react';
 
 import './style.scss';
 
-export default class Textarea extends React.Component {
+export default class Textarea extends Component {
 	static displayName = 'Textarea';
 
 	render() {

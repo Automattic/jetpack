@@ -13,13 +13,12 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanImpossibleCondition : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
-    // PhanRedundantCondition : 1 occurrence
     // PhanUnreferencedUseNormal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-data-sync-entry-adapter.php' => ['PhanParamTooFew'],
-        'src/class-ds-utils.php' => ['PhanImpossibleCondition', 'PhanRedundantCondition'],
+        'src/class-ds-utils.php' => ['PhanImpossibleCondition'],
         'src/contracts/interface-lazy-entry.php' => ['PhanUnreferencedUseNormal'],
         'src/endpoints/class-action-endpoint.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/endpoints/class-endpoint.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool'],

@@ -1,9 +1,9 @@
 import { throttle } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { createRef, Component } from 'react';
 import Label from './label';
 
-export default class ModuleChartXAxis extends React.Component {
+export default class ModuleChartXAxis extends Component {
 	static displayName = 'ModuleChartXAxis';
 
 	static propTypes = {
@@ -11,7 +11,7 @@ export default class ModuleChartXAxis extends React.Component {
 		data: PropTypes.array.isRequired,
 	};
 
-	axisRef = React.createRef();
+	axisRef = createRef();
 
 	state = {
 		divisor: 1,

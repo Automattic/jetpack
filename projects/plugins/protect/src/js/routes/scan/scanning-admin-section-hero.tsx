@@ -8,8 +8,9 @@ import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
-const ScanningAdminSectionHero: React.FC = () => {
+const ScanningAdminSectionHero: FC = () => {
 	const { hasPlan } = usePlan();
 	const { globalStats } = useWafData();
 	const { data: status } = useScanStatusQuery( { usePolling: true } );

@@ -6,7 +6,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x } from '@wordpress/i18n';
 import { get, isArray, noop } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -58,7 +58,7 @@ const renderCard = props => (
 		overrideContent={ props.overrideContent }
 	>
 		{ isArray( props.content ) ? (
-			props.content.map( ( el, i ) => <React.Fragment key={ i }>{ el }</React.Fragment> )
+			props.content.map( ( el, i ) => <Fragment key={ i }>{ el }</Fragment> )
 		) : (
 			<p className="jp-dash-item__description">{ props.content }</p>
 		) }

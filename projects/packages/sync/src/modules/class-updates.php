@@ -513,8 +513,12 @@ class Updates extends Module {
 			return $args;
 		}
 		foreach ( $args[0]->response as $stylesheet => &$theme_data ) {
-			$theme              = wp_get_theme( $stylesheet );
-			$theme_data['name'] = $theme->name;
+			$theme_data = (array) $theme_data;
+			// Make sure the theme data array is not empty and has data that would indicate it is in the correct format.
+			if ( isset( $theme_data['theme'] ) ) {
+				$theme              = wp_get_theme( $stylesheet );
+				$theme_data['name'] = $theme->name;
+			}
 		}
 		return $args;
 	}

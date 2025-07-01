@@ -1,4 +1,6 @@
-export type BreveControls = () => React.JSX.Element;
+import type { JSX } from 'react';
+
+export type BreveControls = () => JSX.Element;
 
 export type Anchor = {
 	target: HTMLElement;

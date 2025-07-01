@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import { useState, useCallback } from '@wordpress/element';
 import debugFactory from 'debug';
-import React from 'react';
+import { createRef } from 'react';
 import { render, screen, waitFor } from 'test/test-utils';
 import Popover from '../index';
 
@@ -90,7 +90,7 @@ describe( 'TestComponent', () => {
 		} );
 	} );
 	it( 'should handle ignoreContext correctly', async () => {
-		const ignoreContextRef = React.createRef();
+		const ignoreContextRef = createRef();
 
 		render( <TestComponent ignoreContext={ ignoreContextRef } /> );
 

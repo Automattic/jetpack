@@ -1,10 +1,10 @@
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { createRef, Component } from 'react';
 import Gridicon from 'components/gridicon';
 import Tooltip from 'components/tooltip';
 
-export default class ModuleChartBar extends React.Component {
+export default class ModuleChartBar extends Component {
 	static displayName = 'ModuleChartBar';
 
 	static propTypes = {
@@ -17,7 +17,7 @@ export default class ModuleChartBar extends React.Component {
 		count: PropTypes.number,
 	};
 
-	valueBarRef = React.createRef();
+	valueBarRef = createRef();
 
 	state = { showPopover: false };
 

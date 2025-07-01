@@ -364,7 +364,7 @@ class Helper {
 		} elseif ( is_array( $_GET['post_type'] ) ) {
 			$post_types_from_query = $_GET['post_type'];
 		} else {
-			$post_types_from_query = (array) explode( ',', $_GET['post_type'] );
+			$post_types_from_query = explode( ',', $_GET['post_type'] );
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 

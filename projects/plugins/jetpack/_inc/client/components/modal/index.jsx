@@ -7,7 +7,7 @@ import { createFocusTrap } from 'focus-trap';
 import jQuery from 'jquery';
 import { assign, omit } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 
 // this flag will prevent ANY modals from closing.
 // use with caution!
@@ -26,7 +26,7 @@ function allowClose() {
 	preventCloseFlag = false;
 }
 
-class Modal extends React.Component {
+class Modal extends Component {
 	static propTypes = {
 		style: PropTypes.object,
 		width: PropTypes.oneOf( [ 'wide', 'medium', 'narrow' ] ),

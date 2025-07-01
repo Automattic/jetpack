@@ -1,0 +1,48 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+
+.wrapper {
+
+	:global(.dataviews-wrapper) {
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: 8px;
+	}
+
+	:global(thead tr.dataviews-view-table__row) {
+		display: none;
+	}
+
+	:global(.dataviews__view-actions) {
+		display: none;
+	}
+
+	:global(.dataviews-view-table tr):first-child {
+		border-top: none;
+	}
+
+	:global(.dataviews-view-table__row td):not(:first-child) {
+
+		:global(.dataviews-view-table__cell-content-wrapper) {
+			justify-content: end;
+		}
+	}
+
+	:global(.dataviews-view-table td:last-child) {
+		padding-inline-end: 1.5rem;
+	}
+
+	:global(.dataviews-view-table td:first-child) {
+		padding-inline-start: 1.5rem;
+	}
+
+	.toggle-wrap {
+		width: auto;
+	}
+}
+
+.module-tooltip {
+
+	&:global(.components-tooltip) {
+		max-width: 90vw;
+		text-align: start;
+	}
+}

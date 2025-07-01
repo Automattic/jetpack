@@ -3,7 +3,7 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -23,7 +23,7 @@ import {
 import { isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
 import { siteHasFeature, hasActiveProductPurchase, isFetchingSiteData } from 'state/site';
 
-class SupportCard extends React.Component {
+class SupportCard extends Component {
 	static displayName = 'SupportCard';
 
 	static defaultProps = {

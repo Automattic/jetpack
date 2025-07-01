@@ -1,12 +1,12 @@
 import { _x } from '@wordpress/i18n';
 import { noop, throttle } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { createRef, Component } from 'react';
 import { hasTouch } from 'lib/touch-detect';
 import BarContainer from './bar-container';
 import './style.scss';
 
-export default class ModuleChart extends React.Component {
+export default class ModuleChart extends Component {
 	static displayName = 'ModuleChart';
 
 	static propTypes = {
@@ -23,7 +23,7 @@ export default class ModuleChart extends React.Component {
 		barClick: noop,
 	};
 
-	chartRef = React.createRef();
+	chartRef = createRef();
 
 	state = {
 		maxBars: 100, // arbitrarily high number. This will be calculated by resize method

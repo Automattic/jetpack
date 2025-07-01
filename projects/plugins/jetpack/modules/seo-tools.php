@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: SEO Tools
- * Module Description: Better results on search engines and social media.
+ * Module Description: Optimize titles, meta descriptions, and social previews for better search results.
  * Sort Order: 35
  * Recommendation Order: 15
  * First Introduced: 4.4

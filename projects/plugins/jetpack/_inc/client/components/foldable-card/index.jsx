@@ -1,14 +1,14 @@
 import clsx from 'clsx';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import Card from 'components/card';
 import CompactCard from 'components/card/compact';
 import Gridicon from 'components/gridicon';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import './style.scss';
 
-class FoldableCard extends React.Component {
+class FoldableCard extends Component {
 	static propTypes = {
 		actionButton: PropTypes.element,
 		actionButtonExpanded: PropTypes.element,

@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import './style.scss';
 
 const WpcomSiteManagementWidget = ( { siteName, siteUrl, siteIconUrl, isBlockTheme } ) => {

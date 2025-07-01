@@ -277,7 +277,7 @@ function get_button_wrapper_styles( $attributes ) {
 	$styles    = array();
 	$has_width = array_key_exists( 'width', $attributes );
 
-	if ( $has_width ) {
+	if ( $has_width && ! empty( $attributes['width'] ) ) {
 		$styles[] = sprintf( 'width: %s;', $attributes['width'] );
 	}
 

@@ -21,7 +21,7 @@ import TrackForm from './track-form';
  */
 import type { TrackItemProps, TrackListProps } from './types';
 import type { TrackProps, VideoControlProps } from '../../types';
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 const debug = debugFactory( 'videopress:tracks:tracks-control' );
 
@@ -29,9 +29,9 @@ const debug = debugFactory( 'videopress:tracks:tracks-control' );
  * Track Item component.
  *
  * @param {TrackItemProps} props - Component props.
- * @return {React.ReactElement}   TrackItem react component
+ * @return {ReactElement}   TrackItem react component
  */
-function TrackItem( { track, guid, onDelete }: TrackItemProps ): React.ReactElement {
+function TrackItem( { track, guid, onDelete }: TrackItemProps ): ReactElement {
 	const [ isDeleting, setIsDeleting ] = useState( false );
 	const { kind, label, srcLang } = track;
 
@@ -64,9 +64,9 @@ function TrackItem( { track, guid, onDelete }: TrackItemProps ): React.ReactElem
  * Track List React component.
  *
  * @param {TrackListProps} props - Component props.
- * @return {React.ReactElement}   TracksControl block control
+ * @return {ReactElement}   TracksControl block control
  */
-function TrackList( { tracks, guid, onTrackListUpdate }: TrackListProps ): React.ReactElement {
+function TrackList( { tracks, guid, onTrackListUpdate }: TrackListProps ): ReactElement {
 	if ( ! tracks?.length ) {
 		return (
 			<MenuGroup>
@@ -111,12 +111,12 @@ function TrackList( { tracks, guid, onTrackListUpdate }: TrackListProps ): React
  * Tracks control react component.
  *
  * @param {VideoControlProps} props - Component props.
- * @return {React.ReactElement}      TracksControl block control
+ * @return {ReactElement}      TracksControl block control
  */
 export default function TracksControl( {
 	attributes,
 	setAttributes,
-}: VideoControlProps ): React.ReactElement {
+}: VideoControlProps ): ReactElement {
 	const { tracks, guid } = attributes;
 
 	const [ isUploadingNewTrack, setIsUploadingNewTrack ] = useState( false );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove unused language files after #42172, #42494, #42521, and #42550.

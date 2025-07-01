@@ -1,4 +1,3 @@
-import React from 'react';
 import JetpackLogo from '../../jetpack-logo/index.tsx';
 import Text from '../../text/index.tsx';
 import AdminPage from '../index.tsx';

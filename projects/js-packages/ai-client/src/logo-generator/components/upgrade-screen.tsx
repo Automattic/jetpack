@@ -13,9 +13,9 @@ import useLogoGenerator from '../hooks/use-logo-generator.ts';
 /**
  * Types
  */
-import type React from 'react';
+import type { FC } from 'react';
 
-export const UpgradeScreen: React.FC< {
+export const UpgradeScreen: FC< {
 	onCancel: () => void;
 	upgradeURL: string;
 	reason: 'feature' | 'requests';

@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import styles from './device.module.scss';
 
 type DeviceType = 'desktop' | 'phone';
@@ -7,7 +7,7 @@ interface DeviceIconProps {
 	device: DeviceType;
 }
 
-const DeviceIcon: React.FC< DeviceIconProps > = ( { device } ) => {
+const DeviceIcon: FC< DeviceIconProps > = ( { device } ) => {
 	return (
 		<div className={ styles.icon }>
 			{ device === 'desktop' && (

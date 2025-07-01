@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
@@ -57,6 +58,16 @@ class Contact_Form_Plugin {
 	 * @var string
 	 */
 	private $pde_email_address = '';
+
+	/**
+	 * The number of steps in the form.
+	 *
+	 * This is used to determine how many steps are in the form when using the multi-step feature.
+	 * It is incremented each time a new step is added.
+	 *
+	 * @var int
+	 */
+	public static $step_count = 0;
 
 	/*
 	 * Field keys that might be present in the entry json but we don't want to show to the admin
@@ -571,6 +582,198 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Resets the step counter back to 0.
+	 */
+	public static function reset_step() {
+		self::$step_count = 0;
+	}
+
+	/**
+	 * Render the number field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the number field.
+	 */
+	public static function gutenblock_render_form_step( $atts, $content ) {
+		self::$step_count = 1 + self::$step_count;
+
+		$version = Constants::get_constant( 'JETPACK__VERSION' );
+		if ( empty( $version ) ) {
+			$version = '0.1';
+		}
+
+		\wp_enqueue_script_module(
+			'jetpack-form-step',
+			plugins_url( '../../dist/modules/form-step/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			$version
+		);
+
+		// Process content for marker classes and add interactivity
+		$processed_content = $content;
+
+		// Only process if we have the WP_HTML_Tag_Processor
+		if ( class_exists( 'WP_HTML_Tag_Processor' ) ) {
+			$blocks_content = do_blocks( $content );
+			$tags           = new \WP_HTML_Tag_Processor( $blocks_content );
+
+			// Move to the first token so the bookmark has a valid span, then set the bookmark.
+			$tags->next_tag();
+			$tags->set_bookmark( 'start' );
+
+			// Process blocks with the "next step" trigger
+			while ( $tags->next_tag( array( 'class_name' => 'trigger-next-step' ) ) ) {
+				// No need to set data-wp-interactive since the parent div already has it
+				$tags->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
+			}
+
+			// Reset and process blocks with the "previous step" trigger
+			$tags->seek( 'start' );
+			while ( $tags->next_tag( array( 'class_name' => 'trigger-previous-step' ) ) ) {
+				$tags->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
+			}
+
+			$processed_content = $tags->get_updated_html();
+		} else {
+			$processed_content = do_blocks( $content );
+		}
+		$is_current_step_class = ( self::$step_count === 1 ? 'is-current-step' : '' );
+		return '<div data-wp-interactive="jetpack/form" class="jetpack-form-step ' . $is_current_step_class . ' " data-wp-class--is-before-current="state.isBeforeCurrent" data-wp-class--is-after-current="state.isAfterCurrent" data-wp-class--is-current-step="state.isCurrentStep" ' . wp_interactivity_data_wp_context( array( 'step' => self::$step_count ) ) . ' >'
+				. $processed_content
+			. '</div>';
+	}
+
+	/**
+	 * Render the number field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the number field.
+	 */
+	public static function gutenblock_render_form_step_navigation( $atts, $content ) {
+
+		$version = Constants::get_constant( 'JETPACK__VERSION' );
+		if ( empty( $version ) ) {
+			$version = '0.1';
+		}
+		\wp_enqueue_script_module(
+			'jetpack-form-step-navigation',
+			plugins_url( '../../dist/modules/form-step-navigation/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			$version
+		);
+
+		// Enqueue the frontend style for the step navigation.
+		$style_handle = 'jetpack-form-step-navigation-style';
+		$style_path   = '../../dist/blocks/form-step-navigation/style.css';
+		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
+			wp_enqueue_style( $style_handle, plugins_url( $style_path, __FILE__ ), array(), $version );
+		}
+
+		$button_blocks_html = do_blocks( $content );
+
+		$processor = new \WP_HTML_Tag_Processor( $button_blocks_html );
+
+		$processor->next_tag();
+		$processor->next_tag();
+
+		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+
+		$class_names = array();
+
+		if ( ! empty( $atts['layout']['type'] ) ) {
+			$class_names[] = 'is-layout-' . sanitize_title( $atts['layout']['type'] );
+		}
+
+		if ( ! empty( $atts['layout']['orientation'] ) ) {
+			$class_names[] = 'is-' . sanitize_title( $atts['layout']['orientation'] );
+		}
+
+		if ( ! empty( $atts['layout']['justifyContent'] ) ) {
+			$class_names[] = 'is-content-justification-' . sanitize_title( $atts['layout']['justifyContent'] );
+		}
+
+		if ( ! empty( $atts['layout']['flexWrap'] ) && 'nowrap' === $atts['layout']['flexWrap'] ) {
+			$class_names[] = 'is-nowrap';
+		}
+
+		foreach ( $class_names as $class_name ) {
+			$processor->add_class( $class_name );
+		}
+
+		while ( $processor->next_tag() ) {
+			$id = $processor->get_attribute( 'data-id-attr' );
+			if ( 'previous-step' === $id ) {
+				$processor->remove_attribute( 'id' );
+				$processor->add_class( 'disable-spinner is-previous is-hidden' );
+				$processor->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
+				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isFirstStep' );
+			}
+			if ( 'next-step' === $id ) {
+				$processor->remove_attribute( 'id' );
+				$processor->add_class( 'disable-spinner is-next' );
+				$processor->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
+				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isLastStep' );
+			}
+			if ( 'submit-step' === $id ) {
+				$processor->remove_attribute( 'id' );
+				$processor->add_class( 'is-submit is-hidden' );
+				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
+			}
+		}
+
+		return $processor->get_updated_html();
+	}
+
+	/**
+	 * Render the progress indicator.
+	 *
+	 * @param array  $attributes - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the progress indicator.
+	 */
+	public static function gutenblock_render_form_progress_indicator( $attributes, $content ) {
+		$version = Constants::get_constant( 'JETPACK__VERSION' );
+		if ( empty( $version ) ) {
+			$version = '0.1';
+		}
+
+		// Enqueue the frontend style for the progress indicator.
+		$style_handle = 'jetpack-form-progress-indicator-style';
+		$style_path   = '../../dist/blocks/form-progress-indicator/style.css'; // Path from the 404 error
+		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
+			wp_enqueue_style( $style_handle, plugins_url( $style_path, __FILE__ ), array(), $version );
+		}
+
+		// Enqueue the interactivity script module (matching form-step pattern).
+		$script_handle = 'jetpack-form-progress-indicator';
+		$script_path   = '../../dist/modules/form-progress-indicator/view.js'; // Path from previous 404 error
+		\wp_enqueue_script_module(
+			$script_handle,
+			plugins_url( $script_path, __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			$version
+		);
+
+		$processor = new \WP_HTML_Tag_Processor( $content );
+		$processor->next_tag();
+		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
+
+		while ( $processor->next_tag() ) {
+			$class = $processor->get_attribute( 'class' );
+			if ( 'jetpack-form-progress-indicator-bar' === $class ) {
+				$processor->set_attribute( 'data-wp-style--width', 'state.getStepProgress' );
+			}
+		}
+
+		return $processor->get_updated_html();
+	}
+
+	/**
 	 * Returns the form "Outlined" style classes and styles.
 	 * Important: The "Outlined" style is somewhat different as it uses custom HTML to create a border around the field's label.
 	 * When applying styles to the control, background and border styles are applied to the custom HTML, not the input itself.
@@ -929,15 +1132,30 @@ class Contact_Form_Plugin {
 			global $submenu, $menu;
 			if ( apply_filters( 'jetpack_forms_use_new_menu_parent', true ) && current_user_can( 'edit_pages' ) ) {
 				// show the count on Jetpack and Jetpack → Forms
-				$unread           = get_option( 'feedback_unread_count', 0 );
-				$unread_count_tag = " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>';
+				$unread = get_option( 'feedback_unread_count', 0 );
 
 				if ( $unread > 0 && isset( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) && ! empty( $submenu['jetpack'] ) ) {
+					$forms_unread_count_tag = " <span class='count-{$unread} awaiting-mod'><span>" . number_format_i18n( $unread ) . '</span></span>';
+					$jetpack_badge_count    = $unread;
+
 					// Main menu entries
 					foreach ( $menu as $index => $main_menu_item ) {
 						if ( isset( $main_menu_item[1] ) && 'jetpack_admin_page' === $main_menu_item[1] ) {
+							// Parse the menu item
+							$jetpack_menu_item = $this->parse_menu_item( $menu[ $index ][0] );
+
+							if ( isset( $jetpack_menu_item['badge'] ) && is_numeric( $jetpack_menu_item['badge'] ) && intval( $jetpack_menu_item['badge'] ) ) {
+								$jetpack_badge_count += intval( $jetpack_menu_item['badge'] );
+							}
+
+							if ( isset( $jetpack_menu_item['count'] ) && is_numeric( $jetpack_menu_item['count'] ) && intval( $jetpack_menu_item['count'] ) ) {
+								$jetpack_badge_count += intval( $jetpack_menu_item['count'] );
+							}
+
+							$jetpack_unread_tag = " <span class='count-{$jetpack_badge_count} awaiting-mod'><span>" . number_format_i18n( $jetpack_badge_count ) . '</span></span>';
+
 							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-							$menu[ $index ][0] .= $unread_count_tag;
+							$menu[ $index ][0] = $jetpack_menu_item['title'] . ' ' . $jetpack_unread_tag;
 						}
 					}
 
@@ -945,7 +1163,7 @@ class Contact_Form_Plugin {
 					foreach ( $submenu['jetpack'] as $index => $menu_item ) {
 						if ( 'jetpack-forms-admin' === $menu_item[2] ) {
 							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-							$submenu['jetpack'][ $index ][0] .= $unread_count_tag;
+							$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
 						}
 					}
 				}
@@ -2776,5 +2994,70 @@ class Contact_Form_Plugin {
 		$should_enable_tracking = $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 
 		return $is_wpcom || $should_enable_tracking;
+	}
+
+	/**
+	 * Jetpack menu item might have a count badge when there are updates available.
+	 * This method parses that information, removes the associated markup and adds it to the response.
+	 * Copied verbatim from WPCOM_REST_API_V2_Endpoint_Admin_Menu::prepare_menu_item.
+	 *
+	 * Also sanitizes the titles from remaining unexpected markup.
+	 *
+	 * @param string $title Title to parse.
+	 * @return array
+	 */
+	private function parse_menu_item( $title ) {
+		$item = array();
+
+		if (
+			str_contains( $title, 'count-' )
+			&& preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches )
+		) {
+
+			$count = (int) ( $matches[1] );
+			if ( $count > 0 ) {
+				// Keep the counter in the item array.
+				$item['count'] = $count;
+			}
+
+			// Finally remove the markup.
+			$title = trim( str_replace( $matches[0], '', $title ) );
+		}
+
+		if (
+			str_contains( $title, 'inline-text' )
+			&& preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches )
+		) {
+
+			$text = $matches[1];
+			if ( $text ) {
+				// Keep the text in the item array.
+				$item['inlineText'] = $text;
+			}
+
+			// Finally remove the markup.
+			$title = trim( str_replace( $matches[0], '', $title ) );
+		}
+
+		if (
+			str_contains( $title, 'awaiting-mod' )
+			&& preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches )
+		) {
+
+			$text = $matches[1];
+			if ( $text ) {
+				// Keep the text in the item array.
+				$item['badge'] = $text;
+			}
+
+			// Finally remove the markup.
+			$title = trim( str_replace( $matches[0], '', $title ) );
+		}
+
+		// It's important we sanitize the title after parsing data to remove any unexpected markup but keep the content.
+		// We are also capitalizing the first letter in case there was a counter (now parsed) in front of the title.
+		$item['title'] = ucfirst( wp_strip_all_tags( $title ) );
+
+		return $item;
 	}
 }

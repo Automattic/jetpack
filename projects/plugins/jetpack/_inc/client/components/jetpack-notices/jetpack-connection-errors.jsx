@@ -1,13 +1,13 @@
 import { getProtectedOwnerCreateAccountUrl } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component, Fragment } from 'react';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import ErrorNoticeCycleConnection from './error-notice-cycle-connection';
 
-export default class JetpackConnectionErrors extends React.Component {
+export default class JetpackConnectionErrors extends Component {
 	static propTypes = {
 		errors: PropTypes.array.isRequired,
 		display: PropTypes.bool,
@@ -95,9 +95,7 @@ export default class JetpackConnectionErrors extends React.Component {
 			supportURl
 		);
 
-		return null === action ? null : (
-			<React.Fragment key={ error.action }>{ action }</React.Fragment>
-		);
+		return null === action ? null : <Fragment key={ error.action }>{ action }</Fragment>;
 	}
 
 	render() {

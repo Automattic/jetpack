@@ -2,17 +2,18 @@
  * Types
  */
 import type { Popover } from '@wordpress/components';
+import type { ComponentProps, ReactNode } from 'react';
 
-export type ActionPopoverProps = React.ComponentProps< typeof Popover > & {
+export type ActionPopoverProps = ComponentProps< typeof Popover > & {
 	anchor?: Element;
 	offset?: number;
 } & {
 	hideCloseButton?: boolean;
 	title: string;
-	children: React.ReactNode;
+	children: ReactNode;
 	step?: number;
 	totalSteps?: number;
-	buttonContent?: React.ReactNode;
+	buttonContent?: ReactNode;
 	buttonDisabled?: boolean;
 	buttonHref?: string;
 	buttonExternalLink?: boolean;

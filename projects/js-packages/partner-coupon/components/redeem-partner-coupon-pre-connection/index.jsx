@@ -3,7 +3,6 @@ import { ConnectScreen } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { usePartnerCouponRedemption } from '../../hooks.js';
 
 /**

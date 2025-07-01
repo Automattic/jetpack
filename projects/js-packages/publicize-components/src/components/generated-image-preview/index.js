@@ -5,7 +5,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import styles from './styles.module.scss';
 import { getSigImageUrl } from './utils';
@@ -60,7 +60,7 @@ export const calculateImageUrl = (
  *
  * @param {{shouldDebounce:boolean, customText: string, imageType: string, imageId: number, template: string}} props -
  *                                                                                                                   The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
- * @return {React.ReactNode} The generated image preview.
+ * @return {import('react').ReactNode} The generated image preview.
  */
 export default function GeneratedImagePreview( {
 	shouldDebounce = true,

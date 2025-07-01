@@ -4,10 +4,11 @@ import { ExternalLink, SelectControl, ToggleControl } from '@wordpress/component
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { store as socialStore } from '../../../../social-store';
 import ToggleSection from '../toggle-section';
 import styles from './styles.module.scss';
+import type { Dispatch, FC, SetStateAction } from 'react';
 
 type SocialNotesToggleProps = {
 	/**
@@ -18,7 +19,7 @@ type SocialNotesToggleProps = {
 
 const handleStateUpdating = async (
 	updateFunction: () => Promise< void >,
-	updatingStateSetter?: React.Dispatch< React.SetStateAction< boolean > >
+	updatingStateSetter?: Dispatch< SetStateAction< boolean > >
 ) => {
 	// Set the updating state to true
 	updatingStateSetter?.( true );
@@ -30,7 +31,7 @@ const handleStateUpdating = async (
 	document.body.style.cursor = 'auto';
 };
 
-const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) => {
+const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 	const { isEnabled, notesConfig, isUpdating } = useSelect( select => {
 		const store = select( socialStore );
 

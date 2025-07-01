@@ -1,13 +1,14 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { type InterpolateVars } from '$lib/utils/interplate-vars-types';
 import styles from './numbered-list.module.scss';
+import type { FC } from 'react';
 
 type NumberedListTypes = {
 	items: string[];
 	interpolateVars: InterpolateVars;
 };
 
-const NumberedList: React.FC< NumberedListTypes > = ( { items, interpolateVars } ) => {
+const NumberedList: FC< NumberedListTypes > = ( { items, interpolateVars } ) => {
 	return (
 		<ol className={ styles[ 'numbered-list' ] }>
 			{ items.map( ( item, index ) => (

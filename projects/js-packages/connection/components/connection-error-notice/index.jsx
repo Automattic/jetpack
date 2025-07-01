@@ -2,14 +2,13 @@ import { Spinner, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Icon, Notice, Path, SVG } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
 import styles from './styles.module.scss';
 
 /**
  * The RNA Connection Error Notice component.
  *
  * @param {object} props -- The properties.
- * @return {React.Component} The `ConnectionErrorNotice` component.
+ * @return {import('react').Component} The `ConnectionErrorNotice` component.
  */
 const ConnectionErrorNotice = props => {
 	const {
