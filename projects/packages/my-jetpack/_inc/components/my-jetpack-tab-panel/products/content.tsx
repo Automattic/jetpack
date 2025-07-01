@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { Products } from './products';
 import styles from './styles.module.scss';
 
@@ -9,7 +10,7 @@ import styles from './styles.module.scss';
  */
 const ProductsContent = () => {
 	return (
-		<section className={ styles.content }>
+		<section className={ clsx( styles.content, 'my-jetpack-products-tab__content' ) }>
 			<h2>{ __( 'Products', 'jetpack-my-jetpack' ) }</h2>
 			<p className={ styles.description }>
 				{ __(

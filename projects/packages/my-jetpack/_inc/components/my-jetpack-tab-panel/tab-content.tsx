@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { FullWidthSeparator } from './full-width-separator';
 import { HelpContent } from './help/content';
 import { OverviewContent } from './overview/content';
@@ -30,10 +31,12 @@ export function TabContent( { name }: TabContentProps ) {
 		return null;
 	}
 
+	const tabClassName = `my-jetpack-tab-panel__${ name }`; // some tabs need other styling than others
+
 	return (
 		<>
 			<FullWidthSeparator />
-			<div className={ styles[ 'tab-content-wrapper' ] }>
+			<div className={ clsx( styles[ 'tab-content-wrapper' ], styles[ tabClassName ] ) }>
 				<ContentComponent />
 			</div>
 		</>
