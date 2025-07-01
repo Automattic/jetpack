@@ -297,12 +297,11 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	 *
 	 * @param string $description Input description with potential query blocks.
 	 * @param string $expected_result Expected cleaned description.
-	 * @param string $test_case Description of the test case.
 	 */
 	#[DataProvider( 'jetpack_og_remove_query_blocks_data_provider' )]
-	public function test_jetpack_og_remove_query_blocks( $description, $expected_result, $test_case ) {
+	public function test_jetpack_og_remove_query_blocks( $description, $expected_result ) {
 		$result = jetpack_og_remove_query_blocks( $description );
-		$this->assertEquals( $expected_result, $result, "Failed test case: {$test_case}" );
+		$this->assertEquals( $expected_result, $result );
 	}
 
 	/**
@@ -317,7 +316,6 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 <!-- /wp:post-template --></div>
 <!-- /wp:query --> Some text after.',
 				'Some text before.  Some text after.',
-				'Basic query block removal',
 			),
 			'nested_query_blocks'       => array(
 				'Before. <!-- wp:query {"queryId":1} -->
@@ -328,7 +326,6 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 </div>
 <!-- /wp:query --> After.',
 				'Before.  After.',
-				'Nested query blocks',
 			),
 			'preserves_other_blocks'    => array(
 				'<!-- wp:paragraph -->
@@ -346,12 +343,10 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 <!-- wp:heading -->
 <h2>This heading should be preserved.</h2>
 <!-- /wp:heading -->',
-				'Preserves non-query blocks',
 			),
 			'void_query_blocks'         => array(
 				'Before. <!-- wp:query {"queryId":1} /--> After.',
 				'Before.  After.',
-				'Void query blocks',
 			),
 			'no_query_blocks'           => array(
 				'<!-- wp:paragraph -->
@@ -360,17 +355,14 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 				'<!-- wp:paragraph -->
 <p>This content has no query blocks.</p>
 <!-- /wp:paragraph -->',
-				'Content without query blocks',
 			),
 			'empty_string'              => array(
 				'',
 				'',
-				'Empty string',
 			),
 			'plain_text_no_blocks'      => array(
 				'This is just plain text with no blocks at all.',
 				'This is just plain text with no blocks at all.',
-				'Plain text without blocks',
 			),
 		);
 	}
