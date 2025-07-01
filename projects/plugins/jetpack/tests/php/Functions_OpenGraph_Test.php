@@ -2,6 +2,7 @@
 
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Class with PHPUnit tests for Open Graph functions.
@@ -10,10 +11,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * @covers ::jetpack_og_get_image
  * @covers ::jetpack_og_get_description
  * @covers ::jetpack_og_remove_query_blocks
+ * @group jetpack-opengraph
  */
 #[CoversFunction( 'jetpack_og_get_image' )]
 #[CoversFunction( 'jetpack_og_get_description' )]
 #[CoversFunction( 'jetpack_og_remove_query_blocks' )]
+#[Group( 'jetpack-opengraph' )]
 class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
 	private $icon_id;
@@ -301,6 +304,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	#[DataProvider( 'jetpack_og_remove_query_blocks_data_provider' )]
 	public function test_jetpack_og_remove_query_blocks( $description, $expected_result ) {
 		$result = jetpack_og_remove_query_blocks( $description );
+		var_dump( $result );
 		$this->assertEquals( $expected_result, $result );
 	}
 
