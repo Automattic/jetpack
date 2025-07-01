@@ -302,6 +302,17 @@ function zeroBSCRM_init_perfTest() {
  * @return void
  */
 function jpcrm_plugin_activate() {
+	// Skip redirect if it's a bulk activation with more than one plugin.
+	if (
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.NonceVerification.Missing -- This is safe.
+		isset( $_POST['action'] )
+		&& $_POST['action'] === 'activate-selected'
+		&& isset( $_POST['checked'] )
+		&& count( $_POST['checked'] ) > 1
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended,WordPress.Security.NonceVerification.Missing -- This is safe.
+	) {
+		return;
+	}
 	add_option( 'jpcrm_do_redirect', true );
 }
 register_activation_hook( __FILE__, 'jpcrm_plugin_activate' );
@@ -312,30 +323,31 @@ register_activation_hook( __FILE__, 'jpcrm_plugin_activate' );
  * @return void
  */
 function jpcrm_plugin_redirect() {
-	// Check if it's a plugin upgrade process.
-	// This is more reliable than WP_UPGRADING for direct update.php calls.
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe: only checking 'action' and 'plugin' to avoid redirect on bulk activation.
-	if ( isset( $_GET['action'] ) && $_GET['action'] === 'upgrade-plugin' && isset( $_GET['plugin'] ) ) {
-		return;
-	}
-	// Skip the re-direction if it's a JSON/AJAX request or via WP-CLI
-	if ( wp_is_json_request() || wp_doing_ajax() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_is_xml_request() ) {
+	if ( ! get_option( 'jpcrm_do_redirect' ) ) {
 		return;
 	}
 
-	if ( get_option( 'jpcrm_do_redirect' ) ) {
-		delete_option( 'jpcrm_do_redirect' );
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe: only checking 'activate-multi' to avoid redirect on bulk activation.
-		if ( ! isset( $_GET['activate-multi'] ) ) { // avoid redirect on bulk activation
-			$redirect_url = admin_url( 'admin.php?page=zerobscrm-dash' );
-			// Only force wizard if it hasn't been run before
-			if ( ! get_option( '    jpcrm_wizard_completed', false ) ) {
-				$redirect_url = add_query_arg( 'jpcrm_force_wizard', '1', $redirect_url );
-			}
-			wp_safe_redirect( $redirect_url );
-			exit;
-		}
+	// Skip redirect if it's a JSON/AJAX request or via WP-CLI
+	if ( wp_doing_ajax() || wp_is_json_request() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_is_xml_request() ) {
+		return;
 	}
+
+	// Clean up option on the first normal request.
+	delete_option( 'jpcrm_do_redirect' );
+
+	// Skip redirect if it's a plugin upgrade process.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.NonceVerification.Missing -- This is safe.
+	if ( isset( $_GET['action'] ) && $_GET['action'] === 'upgrade-plugin' ) {
+		return;
+	}
+
+	$redirect_url = admin_url( 'admin.php?page=zerobscrm-dash' );
+	// Only force wizard if it hasn't been run before
+	if ( ! get_option( 'jpcrm_wizard_completed', false ) ) {
+		$redirect_url = add_query_arg( 'jpcrm_force_wizard', '1', $redirect_url );
+	}
+	wp_safe_redirect( $redirect_url );
+	exit;
 }
 add_action( 'admin_init', 'jpcrm_plugin_redirect' );
 
