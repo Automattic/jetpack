@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Module Name: Monitor
+ * Module Name: Downtime Monitor
  * Module Description: Get instant alerts if your site goes down and know when it’s back online.
  * Sort Order: 28
  * Recommendation Order: 10
