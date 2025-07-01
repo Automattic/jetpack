@@ -21,7 +21,6 @@ import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
-import LineChartAnnotation from './line-chart-annotation';
 import LineChartAnnotations from './line-chart-annotations-overlay';
 import styles from './line-chart.module.scss';
 import type { LineChartAnnotationProps } from './line-chart-annotation';
@@ -489,25 +488,6 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 							keyboardFocusedClassName={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
 							series={ dataSorted }
 						/>
-					) }
-
-					{ annotations?.length && (
-						<g className="line-chart__annotations">
-							{ annotations.map( ( { datum, styles: datumStyles, ...rest }, index ) =>
-								datum ? (
-									<LineChartAnnotation
-										key={ `annotation-${ datum.date?.getTime() }-${ datum.value }` }
-										testId={ `annotation-${ index }` }
-										datum={ datum }
-										styles={ {
-											...datumStyles,
-											label: { ...datumStyles?.label, backgroundFill: 'gray' },
-										} }
-										{ ...rest }
-									/>
-								) : null
-							) }
-						</g>
 					) }
 
 					{ /* Component to expose scale data via ref */ }
