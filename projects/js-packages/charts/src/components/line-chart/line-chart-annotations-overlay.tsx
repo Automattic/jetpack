@@ -4,6 +4,7 @@ import LineChartAnnotation from './line-chart-annotation';
 import styles from './line-chart.module.scss';
 import type { LineChartRef } from './line-chart';
 import type { LineChartAnnotationProps } from './line-chart-annotation';
+import type { AxisScale } from '@visx/axis';
 
 interface LineChartAnnotationsProps {
 	chartRef: React.RefObject< LineChartRef >;
@@ -12,13 +13,18 @@ interface LineChartAnnotationsProps {
 	chartHeight: number;
 }
 
+interface ScaleData {
+	xScale: AxisScale< Date >;
+	yScale: AxisScale< number >;
+}
+
 const LineChartAnnotations: React.FC< LineChartAnnotationsProps > = ( {
 	chartRef,
 	annotations,
 	chartWidth,
 	chartHeight,
 } ) => {
-	const [ scales, setScales ] = useState< { xScale: unknown; yScale: unknown } | null >( null );
+	const [ scales, setScales ] = useState< ScaleData | null >( null );
 	const [ isReady, setIsReady ] = useState( false );
 
 	// Get scales from chart ref
@@ -26,7 +32,10 @@ const LineChartAnnotations: React.FC< LineChartAnnotationsProps > = ( {
 		if ( chartRef.current ) {
 			const scaleData = chartRef.current.getScales();
 			if ( scaleData ) {
-				setScales( scaleData );
+				setScales( {
+					xScale: scaleData.xScale as AxisScale< Date >,
+					yScale: scaleData.yScale as AxisScale< number >,
+				} );
 				setIsReady( true );
 			}
 		}
