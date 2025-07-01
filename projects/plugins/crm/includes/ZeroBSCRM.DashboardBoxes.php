@@ -41,7 +41,7 @@ function zeroBS_dashboard_crm_list_growth(){
 				?>
 				<div id="zbs-date-picker-background">
 					<div class='month-selector'>
-						<div id="reportrange" class="pull-right jpcrm-date-range" style="cursor: pointer; width:240px;">
+						<div id="reportrange" class="jpcrm-date-range" style="cursor: pointer; width:240px; text-align: right;">
 							<i class="fa fa-calendar"></i>&nbsp;
 							<span></span> <b class="caret"></b>
 						</div>
