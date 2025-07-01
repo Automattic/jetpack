@@ -11,9 +11,6 @@
 .footer {
 	padding-top: 2.5rem;
 	padding-bottom: 1.5rem;
-	background-color: var(--jp-white, #fff);
-	margin-inline: -3rem; // due to how tab content is styled I need to counter parent padding to apply colour to this section
-	padding-inline: 3rem; // and I need to reset the padding
 }
 
 .footer-container {
