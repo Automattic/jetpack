@@ -72,6 +72,16 @@ export function MyJetpackTabPanel() {
 		tabStartTimeRef.current = Date.now();
 	}, [ currentTab ] );
 
+	useEffect( () => {
+		// Track tab view event
+		recordEvent( 'jetpack_myjetpack_tab_view', {
+			tab_name: currentTab,
+			user_type: isNewUser ? 'new' : 'returning',
+			navigation_source: lastNavigationSourceRef.current,
+		} );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] ); // track this only on page load
+
 	const tabs = useMemo( () => getMyJetpackSections(), [] );
 
 	return (
