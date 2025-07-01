@@ -87,7 +87,8 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				? '<img class="jpcrm-avatar" src="' + jpcrm.esc_attr( eventProps.avatar ) + '"/>'
 				: '';
 			const completeHTML = eventProps.complete === 1 ? '<i class="fa fa-check"></i></span>' : '';
-			let eventText = args.event.title;
+			// Decode all HTML entities before displaying to prevent double-encoding
+			let eventText = args.event.title ? decodeHTMLEntities( args.event.title ) : '';
 			if ( args.view.type !== 'listMonth' ) {
 				// listMonth has the timeText displayed already.
 				eventText = args.timeText + ' ' + eventText;
@@ -106,3 +107,10 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	} );
 	calendar.render();
 } );
+
+// Helper function to decode all HTML entities
+function decodeHTMLEntities( text ) {
+	const textarea = document.createElement( 'textarea' );
+	textarea.innerHTML = text;
+	return textarea.value;
+}

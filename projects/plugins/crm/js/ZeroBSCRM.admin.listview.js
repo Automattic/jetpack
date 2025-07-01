@@ -4880,11 +4880,13 @@ function zeroBSCRMJS_listView_event_id( dataLine ) {
  * @param dataLine
  */
 function zeroBSCRMJS_listView_event_title( dataLine ) {
+	// Decode all HTML entities before escaping to prevent double-encoding
+	const decodedTitle = dataLine.title ? decodeHTMLEntities( dataLine.title ) : '';
 	const td =
 		'<td><strong><a href="' +
 		zeroBSCRMJS_listView_viewURL( dataLine.id ) +
 		'">' +
-		jpcrm.esc_html( dataLine.title ) +
+		jpcrm.esc_html( decodedTitle ) +
 		'</a></strong></td>';
 
 	return td;
@@ -4895,9 +4897,18 @@ function zeroBSCRMJS_listView_event_title( dataLine ) {
  * @param dataLine
  */
 function zeroBSCRMJS_listView_event_desc( dataLine ) {
-	const td = '<td>' + jpcrm.esc_html( dataLine.desc ) + '</td>';
+	// Decode all HTML entities before escaping to prevent double-encoding
+	const decodedDesc = dataLine.desc ? decodeHTMLEntities( dataLine.desc ) : '';
+	const td = '<td>' + jpcrm.esc_html( decodedDesc ) + '</td>';
 
 	return td;
+}
+
+// Helper function to decode all HTML entities
+function decodeHTMLEntities( text ) {
+	const textarea = document.createElement( 'textarea' );
+	textarea.innerHTML = text;
+	return textarea.value;
 }
 
 // Draw <td> for starts
