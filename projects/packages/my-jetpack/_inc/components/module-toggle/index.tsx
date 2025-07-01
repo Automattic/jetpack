@@ -4,7 +4,7 @@ import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { useOptionalProductsTrackingContext } from '../my-jetpack-tab-panel/products/products-tracking-context';
+import { useProductFilteringContext } from '../my-jetpack-tab-panel/products/products-tracking-context';
 import { MyJetpackModule } from '../types';
 import type { ChangeEvent } from 'react';
 
@@ -22,7 +22,7 @@ export type ModuleToggleProps = {
 export function ModuleToggle( { module: $module }: ModuleToggleProps ) {
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
-	const productsTracking = useOptionalProductsTrackingContext();
+	const productFiltering = useProductFilteringContext();
 
 	const isUpdating = useSelect(
 		select => select( modulesStore ).isModuleUpdating( $module.module ),
@@ -76,8 +76,8 @@ export function ModuleToggle( { module: $module }: ModuleToggleProps ) {
 			const active = event.target.checked;
 
 			// Track module activation/deactivation if we're in the Products tab context
-			if ( productsTracking ) {
-				productsTracking.trackProductAction( {
+			if ( productFiltering ) {
+				productFiltering.trackProductAction( {
 					action: active ? 'activate' : 'deactivate',
 					productSlug: $module.module,
 					productType: 'module',
@@ -96,7 +96,7 @@ export function ModuleToggle( { module: $module }: ModuleToggleProps ) {
 				action: active ? 'activation' : 'deactivation',
 			} );
 		},
-		[ toggleModule, $module, showToggleNotice, productsTracking ]
+		[ toggleModule, $module, showToggleNotice, productFiltering ]
 	);
 
 	return (

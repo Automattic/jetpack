@@ -9,7 +9,7 @@ import useProduct from '../../../data/products/use-product';
 import { ProductCamelCase } from '../../../data/types';
 import { PRODUCT_STATUSES } from '../../product-card';
 import { PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN } from './constants';
-import { useProductsTrackingContext } from './products-tracking-context';
+import { useProductFilteringContext } from './products-tracking-context';
 
 export type ProductCardActionProps = {
 	product: ProductCamelCase;
@@ -24,7 +24,7 @@ export type ProductCardActionProps = {
  */
 function UpgradeAction( { product }: ProductCardActionProps ) {
 	const navigate = useNavigate();
-	const { trackProductAction } = useProductsTrackingContext();
+	const { trackProductAction } = useProductFilteringContext();
 
 	const onClick = useCallback( () => {
 		trackProductAction( {
@@ -58,7 +58,7 @@ function ActivationToggle( {
 }: ProductCardActionProps & { active?: boolean; disabled?: boolean } ) {
 	const { deactivate, isPending: isDeactivating } = useDeactivatePlugins( product.slug );
 	const { activate, isPending: isActivating } = useActivatePlugins( product.slug );
-	const { trackProductAction } = useProductsTrackingContext();
+	const { trackProductAction } = useProductFilteringContext();
 
 	const { isLoading, isRefetching } = useProduct( product.slug );
 

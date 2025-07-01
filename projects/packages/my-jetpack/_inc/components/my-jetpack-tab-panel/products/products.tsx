@@ -2,26 +2,35 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FilteredPlans } from './filtered-plans';
 import { FilteredProducts } from './filtered-products';
 import { Filters } from './filters';
-import { ProductsTrackingProvider } from './products-tracking-context';
+import { ProductFilteringProvider, useProductFilteringContext } from './products-tracking-context';
 import styles from './styles.module.scss';
 import { ProductFilter } from './types';
-import { useProductsTracking } from './use-products-tracking';
 
 /**
- * Render the products.
+ * Inner component that consumes the ProductFiltering context.
  *
+ * @param {object}   root0                   - Properties of the component.
+ * @param {object}   root0.selectedFilter    - The selected filter.
+ * @param {Function} root0.setSelectedFilter - The function to set the selected filter.
+ * @param {string}   root0.search            - The search term.
+ * @param {Function} root0.setSearch         - The function to set the search term.
  * @return The rendered component.
  */
-export function Products() {
-	const [ selectedFilter, setSelectedFilter ] = useState< ProductFilter >( 'all' );
-	const [ search, setSearch ] = useState( '' );
+const ProductsContent = ( {
+	selectedFilter,
+	setSelectedFilter,
+	search,
+	setSearch,
+}: {
+	selectedFilter: ProductFilter;
+	setSelectedFilter: ( filter: ProductFilter ) => void;
+	search: string;
+	setSearch: ( searchTerm: string ) => void;
+} ) => {
 	const searchTimeoutRef = useRef< NodeJS.Timeout | null >( null );
 	const lastTrackedSearchRef = useRef( '' );
 
-	const { trackFilterChange } = useProductsTracking( {
-		currentFilter: selectedFilter,
-		searchTerm: search,
-	} );
+	const { trackFilterChange } = useProductFilteringContext();
 
 	const handleFilterChange = useCallback(
 		( newFilter: ProductFilter ) => {
@@ -32,7 +41,7 @@ export function Products() {
 			} );
 			setSelectedFilter( newFilter );
 		},
-		[ selectedFilter, trackFilterChange ]
+		[ selectedFilter, trackFilterChange, setSelectedFilter ]
 	);
 
 	const handleSearchChange = useCallback(
@@ -57,7 +66,7 @@ export function Products() {
 				}
 			}, 500 );
 		},
-		[ selectedFilter, trackFilterChange ]
+		[ selectedFilter, trackFilterChange, setSearch ]
 	);
 
 	// Cleanup timeout on unmount
@@ -70,24 +79,43 @@ export function Products() {
 	}, [] );
 
 	return (
-		<ProductsTrackingProvider currentFilter={ selectedFilter } searchTerm={ search }>
-			<div className={ styles[ 'products-wrapper' ] }>
-				<div className={ styles[ 'filters-wrapper' ] }>
-					<Filters
-						onChangeFilter={ handleFilterChange }
-						onSearch={ handleSearchChange }
-						search={ search }
-						selectedFilter={ selectedFilter }
-					/>
-				</div>
-				<div className={ styles[ 'filtered-products-wrapper' ] }>
-					{ selectedFilter === 'included' ? (
-						<FilteredPlans search={ search } />
-					) : (
-						<FilteredProducts search={ search } selectedFilter={ selectedFilter } />
-					) }
-				</div>
+		<div className={ styles[ 'products-wrapper' ] }>
+			<div className={ styles[ 'filters-wrapper' ] }>
+				<Filters
+					onChangeFilter={ handleFilterChange }
+					onSearch={ handleSearchChange }
+					search={ search }
+					selectedFilter={ selectedFilter }
+				/>
 			</div>
-		</ProductsTrackingProvider>
+			<div className={ styles[ 'filtered-products-wrapper' ] }>
+				{ selectedFilter === 'included' ? (
+					<FilteredPlans search={ search } />
+				) : (
+					<FilteredProducts search={ search } selectedFilter={ selectedFilter } />
+				) }
+			</div>
+		</div>
 	);
-}
+};
+
+/**
+ * Render the products with context provider.
+ *
+ * @return The rendered component.
+ */
+export const Products = () => {
+	const [ selectedFilter, setSelectedFilter ] = useState< ProductFilter >( 'all' );
+	const [ search, setSearch ] = useState< string >( '' );
+
+	return (
+		<ProductFilteringProvider currentFilter={ selectedFilter } searchTerm={ search }>
+			<ProductsContent
+				selectedFilter={ selectedFilter }
+				setSelectedFilter={ setSelectedFilter }
+				search={ search }
+				setSearch={ setSearch }
+			/>
+		</ProductFilteringProvider>
+	);
+};
