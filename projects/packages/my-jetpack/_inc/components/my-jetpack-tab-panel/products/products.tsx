@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FilteredPlans } from './filtered-plans';
 import { FilteredProducts } from './filtered-products';
 import { Filters } from './filters';
-import { ProductFilteringProvider, useProductFilteringContext } from './products-tracking-context';
+import { ProductFiltersProvider, useProductFiltersContext } from './products-tracking-context';
 import styles from './styles.module.scss';
 import { ProductFilter } from './types';
 
@@ -30,7 +30,7 @@ const ProductsContent = ( {
 	const searchTimeoutRef = useRef< NodeJS.Timeout | null >( null );
 	const lastTrackedSearchRef = useRef( '' );
 
-	const { trackFilterChange } = useProductFilteringContext();
+	const { trackFilterChange } = useProductFiltersContext();
 
 	const handleFilterChange = useCallback(
 		( newFilter: ProductFilter ) => {
@@ -109,13 +109,13 @@ export const Products = () => {
 	const [ search, setSearch ] = useState< string >( '' );
 
 	return (
-		<ProductFilteringProvider currentFilter={ selectedFilter } searchTerm={ search }>
+		<ProductFiltersProvider currentFilter={ selectedFilter } searchTerm={ search }>
 			<ProductsContent
 				selectedFilter={ selectedFilter }
 				setSelectedFilter={ setSelectedFilter }
 				search={ search }
 				setSearch={ setSearch }
 			/>
-		</ProductFilteringProvider>
+		</ProductFiltersProvider>
 	);
 };

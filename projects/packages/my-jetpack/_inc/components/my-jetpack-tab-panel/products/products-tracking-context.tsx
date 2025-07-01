@@ -7,7 +7,7 @@ import { ProductFilter } from './types';
 export type ProductActionType = 'activate' | 'deactivate' | 'learn_more';
 export type ProductType = 'product' | 'module';
 
-type ProductFilteringContextType = {
+type ProductFiltersContextType = {
 	trackFilterChange: ( params: {
 		filterType: 'category' | 'search';
 		previousFilter: ProductFilter;
@@ -23,26 +23,26 @@ type ProductFilteringContextType = {
 	} ) => void;
 } | null;
 
-const ProductFilteringContext = createContext< ProductFilteringContextType >( null );
+const ProductFiltersContext = createContext< ProductFiltersContextType >( null );
 
-export type ProductFilteringProviderProps = {
+export type ProductFiltersProviderProps = {
 	children: React.ReactNode;
 	currentFilter: ProductFilter;
 	searchTerm?: string;
 };
 
 /**
- * Provider component that makes Products filtering and tracking context available to child components.
+ * Provider component that makes Products filters and tracking context available to child components.
  *
- * @param {ProductFilteringProviderProps} props - The provider props
+ * @param {ProductFiltersProviderProps} props - The provider props
  *
  * @return The provider component
  */
-export const ProductFilteringProvider = ( {
+export const ProductFiltersProvider = ( {
 	children,
 	currentFilter,
 	searchTerm,
-}: ProductFilteringProviderProps ) => {
+}: ProductFiltersProviderProps ) => {
 	const { recordEvent } = useAnalytics();
 
 	const trackFilterChange = useCallback(
@@ -91,18 +91,18 @@ export const ProductFilteringProvider = ( {
 	};
 
 	return (
-		<ProductFilteringContext.Provider value={ contextValue }>
+		<ProductFiltersContext.Provider value={ contextValue }>
 			{ children }
-		</ProductFilteringContext.Provider>
+		</ProductFiltersContext.Provider>
 	);
 };
 
 /**
- * Hook to access the Product filtering context.
- * Returns null if used outside a ProductFilteringProvider.
+ * Hook to access the Product filters context.
+ * Returns null if used outside a ProductFiltersProvider.
  *
- * @return The filtering context or null if not available
+ * @return The filters context or null if not available
  */
-export const useProductFilteringContext = () => {
-	return useContext( ProductFilteringContext );
+export const useProductFiltersContext = () => {
+	return useContext( ProductFiltersContext );
 };
