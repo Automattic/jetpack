@@ -63,7 +63,10 @@ const Module = ( {
 	const offlineMessage = (
 		<Notice level="warning" hideCloseButton={ true }>
 			<div className={ styles.offlineMessage }>
-				{ __( 'This module is not available while your website is offline.', 'jetpack-boost' ) }
+				{ __(
+					'This module will not work while your website is not publicly available.',
+					'jetpack-boost'
+				) }
 			</div>
 		</Notice>
 	);
