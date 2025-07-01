@@ -35,8 +35,8 @@ class Cleanup_Stored_Paths {
 	 * Hooks the callbacks for the cleanup.
 	 */
 	public static function add_cleanup_actions() {
-		add_action( 'jetpack_boost_minify_cron_cleanup_concat_paths', array( new Cleanup_Stored_Paths(), 'run_cleanup' ) );
-		add_action( 'jetpack_boost_minify_cron_cleanup_concat_paths_followup', array( new Cleanup_Stored_Paths(), 'run_cleanup' ) );
+		add_action( 'jetpack_boost_minify_cron_cleanup_concat_paths', array( __CLASS__, 'run_cleanup' ) );
+		add_action( 'jetpack_boost_minify_cron_cleanup_concat_paths_followup', array( __CLASS__, 'run_cleanup' ) );
 	}
 
 	/**
