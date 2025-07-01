@@ -11,6 +11,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Block_Delimiter;
 use Automattic\Jetpack\Status\Host;
 
 add_action( 'wp_head', 'jetpack_og_tags' );
@@ -552,52 +553,67 @@ function jetpack_og_get_description( $description = '', $data = null ) {
  */
 function jetpack_og_remove_query_blocks( $description ) {
 	$output         = '';
-	$was_at         = 0;
+	$at             = 0;
 	$depth          = 0;
 	$in_query_block = false;
 
-	foreach ( \Automattic\Block_Delimiter::scan_delimiters( $description ) as $where => $delimiter ) {
-		list( $at, $length ) = $where;
+	foreach ( Block_Delimiter::scan_delimiters( $description ) as $where => $delimiter ) {
+		list( $match_at, $length ) = $where;
 
 		// Check if this is a query block.
 		if ( $delimiter->is_block_type( 'query' ) ) {
 			switch ( $delimiter->get_delimiter_type() ) {
-				case \Automattic\Block_Delimiter::OPENER:
+				case Block_Delimiter::OPENER:
 					if ( ! $in_query_block ) {
 						// Copy content before the query block.
-						$output        .= substr( $description, $was_at, $at - $was_at );
+						$output        .= substr( $description, $at, $match_at - $at );
 						$in_query_block = true;
 					}
 					++$depth;
 					break;
 
-				case \Automattic\Block_Delimiter::CLOSER:
+				case Block_Delimiter::CLOSER:
 					--$depth;
 					if ( $in_query_block && $depth === 0 ) {
 						// We've exited the query block, continue from after it.
 						$in_query_block = false;
-						$was_at         = $at + $length;
+						$at             = $match_at + $length;
+
+						// Remove extra newline if present
+						if (
+							str_starts_with( substr( $description, $at ), "\n" )
+							&& str_ends_with( $output, "\n" )
+						) {
+							++$at;
+						}
 					}
 					break;
 
-				case \Automattic\Block_Delimiter::VOID:
-					// Void query blocks are rare but possible.
+				case Block_Delimiter::VOID:
+					// Void query blocks should be removed entirely.
 					if ( ! $in_query_block ) {
-						$output .= substr( $description, $was_at, $at - $was_at );
-						$was_at  = $at + $length;
+						$output .= substr( $description, $at, $match_at - $at );
+						$at      = $match_at + $length;
+						// Remove extra newline if present
+						if (
+							str_starts_with( substr( $description, $at ), "\n" )
+							&& str_ends_with( $output, "\n" )
+						) {
+							++$at;
+						}
 					}
 					break;
 			}
 		} elseif ( ! $in_query_block ) {
-			// Not a query block, copy content if we're not inside a query block.
-			$output .= substr( $description, $was_at, $at - $was_at );
-			$was_at  = $at + $length;
+			// Not a query block, copy content including the delimiter if we're not inside a query block.
+			$output .= substr( $description, $at, $match_at - $at + $length );
+			$at      = $match_at + $length;
 		}
 	}
 
 	// Add any remaining content after the last delimiter.
 	if ( ! $in_query_block ) {
-		$output .= substr( $description, $was_at );
+		$output .= substr( $description, $at );
 	}
 
 	return $output;
