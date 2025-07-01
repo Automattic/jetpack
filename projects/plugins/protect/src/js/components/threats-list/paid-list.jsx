@@ -7,7 +7,7 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';

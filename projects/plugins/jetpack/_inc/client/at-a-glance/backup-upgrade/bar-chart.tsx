@@ -1,24 +1,20 @@
 import { RecordMeterBar } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
 import { Popup } from './popup';
 import { BarChartProps } from './types';
+import type { FC, ReactElement } from 'react';
 
 /**
  * This function returns a React component that displays a bar chart with the number of posts, plugins,
  * and comments
  *
  * @param {BarChartProps} props - Props
- * @return {React.ReactElement} - JSX Element
+ * @return {ReactElement} - JSX Element
  */
-export const BarChart: React.FC< BarChartProps > = ( {
-	comments,
-	plugins,
-	posts,
-	onClosePopup,
-} ) => {
+export const BarChart: FC< BarChartProps > = ( { comments, plugins, posts, onClosePopup } ) => {
 	const barChartViews = useRef( false );
 
 	useEffect( () => {

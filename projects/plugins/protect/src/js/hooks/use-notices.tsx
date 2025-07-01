@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { createContext, useCallback, useContext, useState } from 'react';
 import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../constants';
 import usePlan from './use-plan';
+import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 
 interface NoticeState {
 	message?: string | JSX.Element;
@@ -14,12 +15,12 @@ interface NoticeState {
 
 interface NoticeContextValue {
 	notice: NoticeState;
-	setNotice: React.Dispatch< React.SetStateAction< NoticeState > >;
+	setNotice: Dispatch< SetStateAction< NoticeState > >;
 }
 
 const NoticeContext = createContext< NoticeContextValue | undefined >( undefined );
 
-export const NoticeProvider: React.FC< { children: React.ReactNode } > = ( { children } ) => {
+export const NoticeProvider: FC< { children: ReactNode } > = ( { children } ) => {
 	const [ notice, setNotice ] = useState< NoticeState >( null );
 
 	return (

@@ -2,6 +2,7 @@ import { Modal, TabPanel } from '@wordpress/components';
 import clsx from 'clsx';
 import { ReactNode } from 'react';
 import styles from './style.module.scss';
+import type { ReactElement } from 'react';
 
 export type ModalTab = {
 	/** Unique name identifier for the tab */
@@ -38,7 +39,7 @@ export type TabbedModalProps = {
  * TabbedModal component provides a modal dialog with tabs
  *
  * @param {TabbedModalProps} props - The props for the TabbedModal component
- * @return {React.ReactElement|null} The TabbedModal component or null if not open
+ * @return {ReactElement|null} The TabbedModal component or null if not open
  */
 export default function TabbedModal( {
 	isOpen,

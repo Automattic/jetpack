@@ -1,14 +1,14 @@
 import { ToggleControl } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import React from 'react';
 import { store as socialStore } from '../../social-store';
+import type { FC, ReactElement, ReactNode } from 'react';
 
 type ToggleProps = {
 	/**
 	 * The label or content after the toggle.
 	 */
-	children: React.ReactNode;
+	children: ReactNode;
 
 	/**
 	 * The class name to add to the toggle.
@@ -20,9 +20,9 @@ type ToggleProps = {
  * A button toggle wrapper for enabling/disabling the UTM parameters feature.
  *
  * @param {ToggleProps} props - Component props.
- * @return {React.ReactElement} - JSX.Element
+ * @return {ReactElement} - JSX.Element
  */
-const UtmToggle: React.FC< ToggleProps > = ( { toggleClass, children } ) => {
+const UtmToggle: FC< ToggleProps > = ( { toggleClass, children } ) => {
 	const { isEnabled, isUpdating } = useSelect( select => {
 		return {
 			isEnabled: select( socialStore ).getSocialSettings().utmSettings.enabled,

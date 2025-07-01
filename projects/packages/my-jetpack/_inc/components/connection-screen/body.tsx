@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import connectImage from './connect.png';
 import styles from './styles.module.scss';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 
 // This is copied from the connection package.
 // The connection package main file is not TypeScript currently and therefore cannot export types.
@@ -20,7 +20,7 @@ interface ConnectScreenProps {
 	// The redirect admin UR
 	redirectUri: string;
 	// Additional page elements to show before the call to action
-	children?: React.ReactNode;
+	children?: ReactNode;
 	// The Title
 	title?: string;
 	// The Connect Button label
@@ -40,9 +40,9 @@ interface ConnectScreenProps {
 	// Whether to skip the pricing page after the connection screen
 	skipPricingPage?: boolean;
 	// Additional page elements to show after the call to action
-	footer?: React.ReactNode;
+	footer?: ReactNode;
 	// The logo to display at the top of the component
-	logo?: React.ReactNode;
+	logo?: ReactNode;
 }
 
 const ConnectionScreenBody: FC< ConnectScreenProps > = props => {

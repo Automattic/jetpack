@@ -8,15 +8,15 @@ import clsx from 'clsx';
  */
 import styles from './style.module.scss';
 import { IndeterminateProgressBarProps } from './types.ts';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * Indeterminate Progress Bar component
  *
  * @param {IndeterminateProgressBarProps} props - Component props.
- * @return {React.ReactNode} - IndeterminateProgressBar react component.
+ * @return {ReactNode} - IndeterminateProgressBar react component.
  */
-const IndeterminateProgressBar: React.FC< IndeterminateProgressBarProps > = ( { className } ) => {
+const IndeterminateProgressBar: FC< IndeterminateProgressBarProps > = ( { className } ) => {
 	return (
 		<div
 			className={ clsx( className, styles[ 'indeterminate-progress-bar' ] ) }

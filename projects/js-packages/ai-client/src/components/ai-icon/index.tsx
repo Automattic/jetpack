@@ -1,9 +1,7 @@
-/**
- * External dependencies
- */
 import { G, Path, SVG, Rect } from '@wordpress/components';
 import { Icon } from '@wordpress/icons';
 import { Defs } from '@wordpress/primitives';
+import type { ReactElement } from 'react';
 
 export const AiSVG = (
 	<SVG width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -32,7 +30,7 @@ export const AiSVG = (
 /**
  * AiIcon component
  * @param {string} className - The wrapper class name.
- * @return {React.ReactElement} The `AiIcon` component.
+ * @return {ReactElement} The `AiIcon` component.
  */
 export default function AiIcon( { className, size = 42 }: { className?: string; size?: number } ) {
 	return <Icon icon={ AiSVG } width={ size } height={ size } className={ className } />;

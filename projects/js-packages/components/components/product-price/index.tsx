@@ -10,15 +10,15 @@ import Text from '../text/index.tsx';
 import { Price } from './price.tsx';
 import styles from './style.module.scss';
 import type { ProductPriceProps } from './types.ts';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * React component to render the price.
  *
  * @param {ProductPriceProps} props - Component props.
- * @return {React.ReactNode} Price react component.
+ * @return {ReactNode} Price react component.
  */
-const ProductPrice: React.FC< ProductPriceProps > = ( {
+const ProductPrice: FC< ProductPriceProps > = ( {
 	price,
 	offPrice,
 	currency = '',

@@ -16,7 +16,6 @@ import { Button } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
 /**
  * Internal dependencies
  */

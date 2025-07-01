@@ -2,7 +2,6 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createReduxStore, register } from '@wordpress/data';
 import * as WPElement from '@wordpress/element';
-import React from 'react';
 import Admin from './components/Admin';
 import { STORE_ID, storeConfig } from './store';
 

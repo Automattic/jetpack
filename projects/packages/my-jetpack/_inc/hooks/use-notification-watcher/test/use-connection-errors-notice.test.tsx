@@ -1,11 +1,11 @@
 import '@testing-library/jest-dom';
 import { useConnectionErrorNotice, useRestoreConnection } from '@automattic/jetpack-connection';
 import { renderHook, waitFor } from '@testing-library/react';
-import React from 'react';
 import { NoticeContext } from '../../../context/notices/noticeContext';
 import useAnalytics from '../../use-analytics';
 import useConnectionErrorsNotice from '../use-connection-errors-notice';
 import type { NoticeContextType } from '../../../context/notices/types';
+import type { ReactNode } from 'react';
 
 // Mock the dependencies
 jest.mock( '@automattic/jetpack-connection' );
@@ -13,8 +13,8 @@ jest.mock( '../../use-analytics' );
 jest.mock( '../assignLocation' );
 
 jest.mock( '@automattic/jetpack-components', () => ( {
-	Col: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
-	Text: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
+	Col: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	Text: ( { children }: { children: ReactNode } ) => <span>{ children }</span>,
 } ) );
 jest.mock( '@wordpress/i18n', () => ( {
 	__: ( text: string ) => text,
@@ -76,7 +76,7 @@ describe( 'useConnectionErrorsNotice', () => {
 	} );
 
 	const renderWithNoticeContext = ( contextValue = mockNoticeContext ) => {
-		const wrapper = ( { children }: { children: React.ReactNode } ) => (
+		const wrapper = ( { children }: { children: ReactNode } ) => (
 			<NoticeContext.Provider value={ contextValue }>{ children }</NoticeContext.Provider>
 		);
 

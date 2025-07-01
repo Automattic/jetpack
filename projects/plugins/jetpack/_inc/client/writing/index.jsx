@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
@@ -21,7 +21,7 @@ import ThemeEnhancements from './theme-enhancements';
 import Widgets from './widgets';
 import WritingMedia from './writing-media';
 
-export class Writing extends React.Component {
+export class Writing extends Component {
 	static displayName = 'WritingSettings';
 
 	constructor( props ) {

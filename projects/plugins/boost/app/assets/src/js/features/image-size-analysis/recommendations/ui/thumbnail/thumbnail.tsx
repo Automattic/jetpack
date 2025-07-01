@@ -1,4 +1,4 @@
-import React from 'react';
+import type { CSSProperties, FC } from 'react';
 import styles from './thumbnail.module.scss';
 
 interface ThumbnailProps {
@@ -8,10 +8,10 @@ interface ThumbnailProps {
 	height: number;
 }
 
-const Thumbnail: React.FC< ThumbnailProps > = ( { url, title, width, height } ) => {
+const Thumbnail: FC< ThumbnailProps > = ( { url, title, width, height } ) => {
 	const thumbnailStyle = {
 		'--thumbnail-size': `${ width }px`,
-	} as React.CSSProperties;
+	} as CSSProperties;
 
 	return url && title ? (
 		<img src={ url } alt={ title } width={ width } height={ height } className={ styles.image } />

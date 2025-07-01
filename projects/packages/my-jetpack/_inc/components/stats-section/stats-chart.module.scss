@@ -1,0 +1,58 @@
+@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+
+.chart-loader {
+	padding: 10px calc( var(--spacing-base) * 3 ) 0;
+}
+
+.chart-container {
+	position: relative;
+	box-sizing: border-box;
+	cursor: pointer;
+
+	.chart-empty {
+		align-items: center;
+		bottom: 0;
+		display: flex;
+		justify-content: center;
+		left: 0;
+		padding: 0 50px;
+		position: absolute;
+		right: 0;
+		top: 0;
+		z-index: 2;
+	}
+
+	.empty-state-card {
+		border: 1px solid var(--jp-gray-5);
+		background-color: #ffffffd9;
+		border-radius: 4px;
+		display: flex;
+		margin: 0;
+		min-width: 320px;
+		padding: 24px;
+	}
+
+	.empty-state-card__icon {
+		align-self: center;
+		color: var(--color-neutral-80);
+		flex-shrink: 0;
+		margin-inline-end: 20px;
+	}
+
+	.empty-state-card__content {
+		flex-grow: 1;
+	}
+
+	.empty-state-card-heading {
+		color: var(--color-neutral-80);
+
+		@include gb.heading-large;
+		margin-bottom: 8px;
+	}
+
+	.empty-state-card-info {
+		color: var(--color-neutral-40);
+
+		@include gb.body-medium;
+	}
+}

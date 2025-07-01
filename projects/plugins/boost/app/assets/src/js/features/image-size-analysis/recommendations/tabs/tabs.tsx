@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router';
 import { getGroupLabel, isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 import styles from './tabs.module.scss';
 import clsx from 'clsx';
+import type { FC } from 'react';
 
 interface TabsProps {
 	currentTab?: IsaCounts;
@@ -13,7 +14,7 @@ interface TabsProps {
 	setActiveTab: ( tab: isaGroupKeys ) => void;
 }
 
-const Tabs: React.FC< TabsProps > = ( {
+const Tabs: FC< TabsProps > = ( {
 	currentTab,
 	activeGroupKey,
 	imageDataGroupTabs,

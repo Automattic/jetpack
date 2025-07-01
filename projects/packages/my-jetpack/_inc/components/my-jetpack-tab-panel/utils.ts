@@ -10,11 +10,10 @@ import {
 /**
  * Get the My Jetpack sections.
  *
- * @param showProductsTab - Whether to show the products tab.
  * @return The sections for the My Jetpack tab panel.
  */
-export function getMyJetpackSections( showProductsTab: boolean ): TabPanelProps[ 'tabs' ] {
-	const showAdminTab = currentUserCan( 'manage_options' );
+export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
+	const isAdmin = currentUserCan( 'manage_options' );
 
 	const tabs = [
 		{
@@ -31,16 +30,20 @@ export function getMyJetpackSections( showProductsTab: boolean ): TabPanelProps[
 		},
 	];
 
-	return [ tabs[ 0 ], ...( showProductsTab && showAdminTab ? [ tabs[ 1 ] ] : [] ), tabs[ 2 ] ];
+	if ( isAdmin ) {
+		return tabs;
+	}
+
+	// If the user is not an admin, remove the Products tab.
+	return tabs.filter( tab => tab.name !== MY_JETPACK_SECTION_PRODUCTS );
 }
 
 /**
  * Check if the given section is a valid My Jetpack section.
  *
- * @param section         - The section to check.
- * @param showProductsTab - Whether to show the products tab.
+ * @param section - The section to check.
  * @return True if the section is valid, false otherwise.
  */
-export function isValidMyJetpackSection( section: string, showProductsTab: boolean ) {
-	return getMyJetpackSections( showProductsTab ).some( item => item.name === section );
+export function isValidMyJetpackSection( section: string ) {
+	return getMyJetpackSections().some( item => item.name === section );
 }

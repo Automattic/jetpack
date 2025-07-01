@@ -1,6 +1,5 @@
 import { jest } from '@jest/globals';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { render, screen } from 'test/test-utils';
 import { ReconnectModal } from '../index';
 

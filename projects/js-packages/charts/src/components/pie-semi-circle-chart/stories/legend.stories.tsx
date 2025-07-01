@@ -1,4 +1,3 @@
-import React from 'react';
 import { legendArgTypes, legendDecorator } from '../../../stories/legend-config';
 import { PieSemiCircleChart } from '../../pie-semi-circle-chart';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';

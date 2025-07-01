@@ -1,7 +1,7 @@
 import { ToggleControl } from '@automattic/jetpack-components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { includes } from 'lodash';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { FormFieldset } from 'components/forms';
