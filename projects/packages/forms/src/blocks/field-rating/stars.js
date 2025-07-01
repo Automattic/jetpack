@@ -30,7 +30,9 @@ export default function Stars( { max, value = 0, onChange = () => {} } ) {
 					onClick={ handleSelect( position ) }
 					onKeyDown={ e => ( e.code === 'Enter' ? handleSelect( position )() : null ) }
 				>
-					<span className={ value >= position ? '' : 'is-rating-unfilled' }>{ '★' }</span>
+					<span className={ value >= position ? 'is-rating-filled' : 'is-rating-unfilled' }>
+						{ '★' }
+					</span>
 				</span>
 			) ) }
 		</div>

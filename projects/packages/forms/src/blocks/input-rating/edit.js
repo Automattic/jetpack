@@ -22,18 +22,25 @@ export default function RatingInputEdit( { clientId, attributes, setAttributes }
 
 	const updateMax = newMax => {
 		// update local attribute so the control reflects immediately
-		setAttributes( { max: newMax } );
+		const newProps = {
+			max: newMax,
+			default: newMax < defaultValue ? newMax : defaultValue,
+		};
+		setAttributes( newProps );
 
 		// propagate to parent field-rating so it is saved and rendered on front-end
 		if ( parentClientId ) {
-			updateBlockAttributes( parentClientId, { max: newMax } );
+			updateBlockAttributes( parentClientId, newProps );
 		}
 	};
 
-	const updateValue = newVal => {
-		setAttributes( { value: newVal } );
+	const updateDefault = newVal => {
+		setAttributes( { default: newVal } );
+
 		if ( parentClientId ) {
-			updateBlockAttributes( parentClientId, { default: newVal } );
+			updateBlockAttributes( parentClientId, {
+				default: newVal,
+			} );
 		}
 	};
 
@@ -50,11 +57,18 @@ export default function RatingInputEdit( { clientId, attributes, setAttributes }
 						value={ max }
 						onChange={ updateMax }
 					/>
+					<RangeControl
+						label="Default value"
+						min={ 0 }
+						max={ max }
+						value={ defaultValue }
+						onChange={ updateDefault }
+					/>
 				</PanelBody>
 			</InspectorControls>
 
 			<div { ...blockProps }>
-				<Stars max={ max } value={ defaultValue } onChange={ updateValue } />
+				<Stars max={ max } value={ defaultValue } onChange={ updateDefault } />
 			</div>
 		</>
 	);

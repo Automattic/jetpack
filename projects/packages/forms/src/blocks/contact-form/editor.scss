@@ -1172,4 +1172,19 @@
 .jetpack-field-rating__wrapper {
 	font-family: "IBM Plex Sans JP", sans-serif;
 	font-size: 2em;
+	cursor: pointer;
+	
+	&:not(:first-of-type) {
+		margin-left: 8px;
+	}
+
+	.is-rating-filled,
+	.is-rating-unfilled {
+		-webkit-text-stroke: 2px #8c8f94;
+
+	}
+
+	.is-rating-unfilled {
+		color: transparent;
+	}
 }
