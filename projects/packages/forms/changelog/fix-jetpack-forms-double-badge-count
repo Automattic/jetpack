@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: dedupe unread count when there's another badge number on Jetpack menu item

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Build with new React JSX transform.

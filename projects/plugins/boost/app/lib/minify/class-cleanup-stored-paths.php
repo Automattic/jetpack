@@ -21,8 +21,7 @@ class Cleanup_Stored_Paths {
 	 *
 	 * @var string
 	 */
-	private $last_processed_option_key = 'jb_transient_cleanup_concat_paths_last_processed_option_id';
-
+	private $last_processed_option_key = 'jetpack_boost_cleanup_concat_paths_last_processed_option_id';
 	/**
 	 * Schedules the start of the cleanup.
 	 */
@@ -81,7 +80,6 @@ class Cleanup_Stored_Paths {
 			return false;
 		}
 
-		$expire_timestamp = time() + MONTH_IN_SECONDS;
 		// Used to tell the cleanup to skip the entries that were checked in the previous run.
 		// Avoids processing the same entries over and over again.
 		$last_processed_option_id = false;
@@ -92,7 +90,7 @@ class Cleanup_Stored_Paths {
 				continue;
 			}
 
-			if ( $value['expire'] <= $expire_timestamp ) {
+			if ( $value['expire'] <= time() ) {
 				$this->delete_static_file_by_hash( str_replace( 'jb_transient_concat_paths_', '', $option['option_name'] ) );
 				delete_option( $option['option_name'] );
 			}
