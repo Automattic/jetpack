@@ -8,8 +8,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
  *
  * @since 3.9.2
  * @covers ::jetpack_og_get_image
+ * @covers ::jetpack_og_remove_query_blocks
  */
 #[CoversFunction( 'jetpack_og_get_image' )]
+#[CoversFunction( 'jetpack_og_remove_query_blocks' )]
 class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
 	private $icon_id;
@@ -284,5 +286,108 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 		$image = jetpack_og_get_image();
 
 		$this->assertEquals( $image['alt_text'], $alt_text );
+	}
+
+	/**
+	 * Test jetpack_og_remove_query_blocks with various scenarios.
+	 *
+	 * @dataProvider jetpack_og_remove_query_blocks_data_provider
+	 *
+	 * @param string $description Input description with potential query blocks.
+	 * @param string $expected_result Expected cleaned description.
+	 * @param string $test_case Description of the test case.
+	 */
+	#[DataProvider( 'jetpack_og_remove_query_blocks_data_provider' )]
+	public function test_jetpack_og_remove_query_blocks( $description, $expected_result, $test_case ) {
+		$result = jetpack_og_remove_query_blocks( $description );
+		$this->assertEquals( $expected_result, $result, "Failed test case: {$test_case}" );
+	}
+
+	/**
+	 * Data provider for jetpack_og_remove_query_blocks tests.
+	 */
+	public static function jetpack_og_remove_query_blocks_data_provider() {
+		return array(
+			'basic_query_block_removal' => array(
+				'Some text before. <!-- wp:query {"queryId":49} -->
+<div class="wp-block-query"><!-- wp:post-template -->
+<!-- wp:post-title /-->
+<!-- /wp:post-template --></div>
+<!-- /wp:query --> Some text after.',
+				'Some text before.  Some text after.',
+				'Basic query block removal',
+			),
+			'nested_query_blocks'       => array(
+				'Before. <!-- wp:query {"queryId":1} -->
+<div class="wp-block-query">
+<!-- wp:query {"queryId":2} -->
+<div class="wp-block-query">Nested content</div>
+<!-- /wp:query -->
+</div>
+<!-- /wp:query --> After.',
+				'Before.  After.',
+				'Nested query blocks',
+			),
+			'preserves_other_blocks'    => array(
+				'<!-- wp:paragraph -->
+<p>This paragraph should be preserved.</p>
+<!-- /wp:paragraph -->
+<!-- wp:query {"queryId":1} -->
+<div class="wp-block-query">This should be removed.</div>
+<!-- /wp:query -->
+<!-- wp:heading -->
+<h2>This heading should be preserved.</h2>
+<!-- /wp:heading -->',
+				'<!-- wp:paragraph -->
+<p>This paragraph should be preserved.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading -->
+<h2>This heading should be preserved.</h2>
+<!-- /wp:heading -->',
+				'Preserves non-query blocks',
+			),
+			'void_query_blocks'         => array(
+				'Before. <!-- wp:query {"queryId":1} /--> After.',
+				'Before.  After.',
+				'Void query blocks',
+			),
+			'no_query_blocks'           => array(
+				'<!-- wp:paragraph -->
+<p>This content has no query blocks.</p>
+<!-- /wp:paragraph -->',
+				'<!-- wp:paragraph -->
+<p>This content has no query blocks.</p>
+<!-- /wp:paragraph -->',
+				'Content without query blocks',
+			),
+			'empty_string'              => array(
+				'',
+				'',
+				'Empty string',
+			),
+			'plain_text_no_blocks'      => array(
+				'This is just plain text with no blocks at all.',
+				'This is just plain text with no blocks at all.',
+				'Plain text without blocks',
+			),
+		);
+	}
+
+	/**
+	 * Test if jetpack_og_get_description handles query blocks correctly.
+	 *
+	 * @author automattic
+	 * @since $$next-version$$
+	 */
+	public function test_jetpack_og_get_description_with_query_blocks() {
+		$description_with_query = 'Some text before. <!-- wp:query {"queryId":1} --><div>Query content</div><!-- /wp:query --> Some text after.';
+
+		// The function should remove the query block and then process the remaining text.
+		$result = jetpack_og_get_description( $description_with_query );
+
+		// Should contain the text before and after, but not the query block content.
+		$this->assertStringContainsString( 'Some text before', $result );
+		$this->assertStringContainsString( 'Some text after', $result );
+		$this->assertStringNotContainsString( 'Query content', $result );
 	}
 }
