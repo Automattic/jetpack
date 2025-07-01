@@ -132,7 +132,7 @@ const SpeedScore = () => {
 							<h2>{ __( 'Website Offline', 'jetpack-boost' ) }</h2>
 							<p>
 								{ __(
-									'All Jetpack Boost features are still available, but to get a performance score you would first have to make your website available online.',
+									'Some of the features are not available. To get a performance score you would first have to make your website available online.',
 									'jetpack-boost'
 								) }
 							</p>
