@@ -29,7 +29,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
-		"@babel/core": "7.27.4",
+		"@babel/core": "7.27.7",
 		"@babel/preset-react": "7.27.1",
 		"@csstools/postcss-global-data": "2.1.1",
 		"@jest/globals": "30.0.0",

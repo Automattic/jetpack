@@ -24,7 +24,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.27.4",
+		"@babel/core": "7.27.7",
 		"@babel/plugin-transform-react-jsx": "7.27.1",
 		"@babel/preset-react": "7.27.1",
 		"jetpack-js-tools": "workspace:*",

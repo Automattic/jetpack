@@ -70,9 +70,9 @@
 	],
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.27.4",
+		"@babel/core": "7.27.7",
 		"@babel/preset-env": "7.27.2",
-		"@babel/runtime": "7.27.4",
+		"@babel/runtime": "7.27.6",
 		"@storybook/react": "8.6.7",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/jest-dom": "6.6.3",

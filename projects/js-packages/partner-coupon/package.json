@@ -22,7 +22,7 @@
 	"devDependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.27.4",
+		"@babel/core": "7.27.7",
 		"@babel/preset-react": "7.27.1",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.2.0",

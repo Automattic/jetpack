@@ -21,10 +21,10 @@
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.27.4",
+		"@babel/core": "7.27.7",
 		"@babel/plugin-syntax-jsx": "7.27.1",
 		"@babel/preset-react": "7.27.1",
-		"@babel/runtime": "7.27.4",
+		"@babel/runtime": "7.27.6",
 		"@playwright/test": "1.51.1",
 		"@storybook/addon-a11y": "8.6.7",
 		"@storybook/addon-docs": "8.6.7",
