@@ -2003,19 +2003,30 @@ final class ZeroBSCRM {
 	}
 
 	public function uninstall() {
-
 		// Deactivate all the extensions
 		zeroBSCRM_extensions_deactivateAll();
 
 		// Skip the deactivation feedback if it's a JSON/AJAX request or via WP-CLI
-		if ( wp_is_json_request() || wp_doing_ajax() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_is_xml_request() ) {
+		if ( wp_doing_ajax() || wp_is_json_request() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_is_xml_request() ) {
 			return;
 		}
 
-			##WLREMOVE
+		##WLREMOVE
 
-			// Remove roles :)
-			zeroBSCRM_clearUserRoles();
+		// Remove roles :)
+		zeroBSCRM_clearUserRoles();
+
+		// Skip redirect if it's a bulk deactivation with more than one plugin.
+		if (
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.NonceVerification.Missing -- This is safe.
+			isset( $_POST['action'] )
+			&& $_POST['action'] === 'deactivate-selected'
+			&& isset( $_POST['checked'] )
+			&& count( $_POST['checked'] ) > 1
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended,WordPress.Security.NonceVerification.Missing -- This is safe.
+		) {
+			return;
+		}
 
 			$feedbackAlready = get_option( 'zbsfeedback' );
 
