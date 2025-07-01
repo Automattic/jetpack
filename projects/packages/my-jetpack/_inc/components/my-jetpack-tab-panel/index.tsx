@@ -28,6 +28,7 @@ export function MyJetpackTabPanel() {
 		const validTab = isValidMyJetpackSection( params.section );
 		return validTab ? params.section : MY_JETPACK_SECTION_OVERVIEW;
 	}, [ params.section ] );
+
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
 			if ( tabName !== params.section ) {
@@ -71,6 +72,16 @@ export function MyJetpackTabPanel() {
 		// Reset timer when tab changes
 		tabStartTimeRef.current = Date.now();
 	}, [ currentTab ] );
+
+	useEffect( () => {
+		// Track tab view event
+		recordEvent( 'jetpack_myjetpack_tab_view', {
+			tab_name: currentTab,
+			user_type: isNewUser ? 'new' : 'returning',
+			navigation_source: lastNavigationSourceRef.current,
+		} );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] ); // track this only on page load
 
 	const tabs = useMemo( () => getMyJetpackSections(), [] );
 

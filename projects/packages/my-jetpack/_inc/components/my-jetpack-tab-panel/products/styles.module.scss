@@ -32,7 +32,7 @@
 
 .filters-wrapper {
 
-	@include gb.break-small{
+	@include gb.break-small {
 		max-width: 12rem;
 	}
 
@@ -77,6 +77,13 @@
 
 	.product-cards {
 		margin-block: 0;
+		grid-template-columns: repeat(1, 1fr);
+
+		@include gb.break-wide {
+			// Use 2 columns for large screens
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
 
 		div[data-wp-component="Card"] {
 			height: 100%;
@@ -106,7 +113,7 @@
 		border: 1px solid rgba(0, 0, 0, 0.1);
 	}
 
-	div[data-wp-component="CardHeader"]{
+	div[data-wp-component="CardHeader"] {
 		border-bottom: 0;
 		padding-bottom: 0;
 		padding-top: 1.5rem;
@@ -116,15 +123,16 @@
 		padding-bottom: 1.5rem;
 	}
 
-	.icon-wrapper{
+	.icon-wrapper {
 		width: 3rem;
 		height: 3rem;
-		flex-shrink: 0
+		flex-shrink: 0;
 	}
 
 	.card-title {
 
 		@include gb.heading-large;
+		margin-block: 0;
 	}
 
 	.card-description {
