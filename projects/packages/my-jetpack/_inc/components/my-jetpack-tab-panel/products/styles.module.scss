@@ -125,6 +125,7 @@
 	.card-title {
 
 		@include gb.heading-large;
+		margin-block: 0;
 	}
 
 	.card-description {
