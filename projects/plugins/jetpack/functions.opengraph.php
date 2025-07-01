@@ -482,8 +482,6 @@ function jetpack_og_get_image_gravatar( $email, $width ) {
  * @return string $description Cleaned up description string.
  */
 function jetpack_og_get_description( $description = '', $data = null ) {
-	l( $description );
-
 	// Remove content within wp:query blocks.
 	$description = jetpack_og_remove_query_blocks( $description );
 
