@@ -1,4 +1,5 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@import url(https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP&display=swap&text=♥★);
 
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
@@ -1165,4 +1166,10 @@
 			}
 		}
 	}
+}
+
+// Rating field
+.jetpack-field-rating__wrapper {
+	font-family: "IBM Plex Sans JP", sans-serif;
+	font-size: 2em;
 }
