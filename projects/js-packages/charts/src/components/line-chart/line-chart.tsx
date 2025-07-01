@@ -22,6 +22,7 @@ import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
 import LineChartAnnotation from './line-chart-annotation';
+import LineChartAnnotations from './line-chart-annotations-overlay';
 import styles from './line-chart.module.scss';
 import type { LineChartAnnotationProps } from './line-chart-annotation';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
@@ -195,10 +196,12 @@ const validateData = ( data: SeriesData[] ) => {
 };
 
 // Inner component to access DataContext and provide scale data to ref
-const LineChartScalesRef: FC< LineChartProps & { chartRef?: React.Ref< LineChartRef > } > = ( {
-	chartRef,
-	...props
-} ) => {
+const LineChartScalesRef: FC< {
+	chartRef?: React.Ref< LineChartRef >;
+	width: number;
+	height: number;
+	margin?: { top?: number; right?: number; bottom?: number; left?: number };
+} > = ( { chartRef, width, height, margin } ) => {
 	const context = useContext( DataContext );
 
 	useImperativeHandle(
@@ -214,12 +217,12 @@ const LineChartScalesRef: FC< LineChartProps & { chartRef?: React.Ref< LineChart
 				};
 			},
 			getChartDimensions: () => ( {
-				width: props.width,
-				height: props.height,
-				margin: props.margin || {},
+				width,
+				height,
+				margin: margin || {},
 			} ),
 		} ),
-		[ context, props.width, props.height, props.margin ]
+		[ context, width, height, margin ]
 	);
 
 	return null; // This component only provides the ref interface
@@ -266,6 +269,18 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
+		const internalChartRef = useRef< LineChartRef >( null );
+
+		// Forward the external ref to the internal ref
+		useImperativeHandle(
+			ref,
+			() => ( {
+				getScales: () => internalChartRef.current?.getScales() || null,
+				getChartDimensions: () =>
+					internalChartRef.current?.getChartDimensions() || { width: 0, height: 0, margin: {} },
+			} ),
+			[ internalChartRef ]
+		);
 
 		const dataSorted = useChartDataTransform( data );
 
@@ -476,52 +491,43 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 						/>
 					) }
 
-					{ /* Component to expose scale data via ref */ }
-					<LineChartScalesRef
-						chartRef={ ref }
-						data={ data }
-						width={ width }
-						height={ height }
-						className={ className }
-						margin={ margin }
-						withTooltips={ withTooltips }
-						withTooltipCrosshairs={ withTooltipCrosshairs }
-						showLegend={ showLegend }
-						legendOrientation={ legendOrientation }
-						legendAlignmentHorizontal={ legendAlignmentHorizontal }
-						legendAlignmentVertical={ legendAlignmentVertical }
-						renderGlyph={ renderGlyph }
-						glyphStyle={ glyphStyle }
-						legendShape={ legendShape }
-						withLegendGlyph={ withLegendGlyph }
-						withGradientFill={ withGradientFill }
-						smoothing={ smoothing }
-						curveType={ curveType }
-						renderTooltip={ renderTooltip }
-						withStartGlyphs={ withStartGlyphs }
-						options={ options }
-						annotations={ annotations }
-						onPointerDown={ onPointerDown }
-						onPointerUp={ onPointerUp }
-						onPointerMove={ onPointerMove }
-						onPointerOut={ onPointerOut }
-					/>
-
 					{ annotations?.length && (
 						<g className="line-chart__annotations">
-							{ annotations.map( ( { datum, ...rest }, index ) =>
+							{ annotations.map( ( { datum, styles: datumStyles, ...rest }, index ) =>
 								datum ? (
 									<LineChartAnnotation
 										key={ `annotation-${ datum.date?.getTime() }-${ datum.value }` }
 										testId={ `annotation-${ index }` }
 										datum={ datum }
+										styles={ {
+											...datumStyles,
+											label: { ...datumStyles?.label, backgroundFill: 'gray' },
+										} }
 										{ ...rest }
 									/>
 								) : null
 							) }
 						</g>
 					) }
+
+					{ /* Component to expose scale data via ref */ }
+					<LineChartScalesRef
+						chartRef={ internalChartRef }
+						width={ width }
+						height={ height }
+						margin={ margin }
+					/>
 				</XYChart>
+
+				{ /* Render annotations as external overlay to avoid interaction blocking */ }
+				{ annotations?.length && (
+					<LineChartAnnotations
+						chartRef={ internalChartRef }
+						annotations={ annotations }
+						chartWidth={ width }
+						chartHeight={ height - ( showLegend ? legendHeight : 0 ) }
+					/>
+				) }
 
 				{ showLegend && (
 					<Legend
