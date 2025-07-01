@@ -352,16 +352,6 @@ class Contact_Form_Block {
 			'jetpack/field-rating',
 			array(
 				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_rating' ),
-				'attributes'       => array(
-					'maxRating' => array(
-						'type'    => 'number',
-						'default' => 5,
-					),
-					'maxrating' => array(
-						'type'    => 'number',
-						'default' => 5,
-					),
-				),
 				'provides_context' => array(
 					'jetpack/field-required' => 'required',
 				),

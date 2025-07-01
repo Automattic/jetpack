@@ -11,7 +11,18 @@ const settings = {
 		max: { type: 'number', default: 5 },
 		default: { type: 'number', default: 0 },
 	},
-	supports: { reusable: false, html: false },
+	supports: {
+		reusable: false,
+		html: false,
+		color: {
+			text: true,
+			background: false,
+		},
+		typography: {
+			fontSize: true,
+		},
+	},
+
 	edit,
 	save: () => null,
 };

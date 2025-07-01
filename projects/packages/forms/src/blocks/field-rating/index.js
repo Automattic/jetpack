@@ -31,15 +31,6 @@ const settings = {
 		},
 	},
 	allowedBlocks: [ 'jetpack/label', 'jetpack/rating-input' ],
-	supports: {
-		...defaultSettings.supports,
-		color: {
-			text: true,
-		},
-		typography: {
-			fontSize: true,
-		},
-	},
 	edit,
 	save,
 	example: {
