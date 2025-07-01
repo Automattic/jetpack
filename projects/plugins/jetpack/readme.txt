@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.8-beta - 2025-06-30
+### 14.8 - 2025-07-01
 #### Major Enhancements
 - Add archives endpoint support.
 
