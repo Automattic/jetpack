@@ -14,15 +14,17 @@ import styles from './styles.module.scss';
  */
 export function OverviewContent() {
 	return (
-		<div className="my-jetpack-overview-tab__content">
+		<div>
 			<div className={ styles.products }>
 				<ProductCardsSection />
 			</div>
+
 			{ currentUserCan( 'manage_options' ) ? (
 				<div className={ styles[ 'jetpack-manage-upsell' ] }>
 					<A4AUpsell />
 				</div>
 			) : null }
+
 			<FullWidthSeparator />
 			<div className={ styles.footer }>
 				<Container horizontalSpacing={ 0 } className={ styles[ 'footer-container' ] }>

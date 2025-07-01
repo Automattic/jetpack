@@ -733,14 +733,14 @@ input[type="submit"].button-primary:disabled {
 	display: block;
 }
 
-.screen-reader-text {
+.grunion-fields .screen-reader-text {
 	position: absolute;
 	margin: -1px;
 	padding: 0;
 	height: 1px;
 	width: 1px;
+	clip-path: inset(50%);
 	overflow: hidden;
-	clip: rect(0 0 0 0);
 	border: 0;
 	word-wrap: normal !important; /* many screen reader and browser combinations announce broken words as they would appear visually */
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Accessibility: Remove deprecated clip property from screen reader text, updating with clip-path.
