@@ -114,6 +114,9 @@
 		<testsuite name="compatfunctions">
 			<file>tests/php/Jetpack_Compat_Functions_Test.php</file>
 		</testsuite>
+		<testsuite name="opengraph">
+			<file>tests/php/Functions_OpenGraph_Test.php</file>
+		</testsuite>
 		<testsuite name="autoloaded">
 			<directory suffix="Test.php">tests/php/src</directory>
 		</testsuite>
