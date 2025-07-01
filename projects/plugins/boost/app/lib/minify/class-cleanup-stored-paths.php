@@ -116,11 +116,11 @@ class Cleanup_Stored_Paths {
 		$js_file_path = jetpack_boost_get_minify_file_path( $hash . '.min.js' );
 		if ( file_exists( $js_file_path ) ) {
 			wp_delete_file( $js_file_path );
-		} else {
-			$css_file_path = jetpack_boost_get_minify_file_path( $hash . '.min.css' );
-			if ( file_exists( $css_file_path ) ) {
-				wp_delete_file( $css_file_path );
-			}
+		}
+
+		$css_file_path = jetpack_boost_get_minify_file_path( $hash . '.min.css' );
+		if ( file_exists( $css_file_path ) ) {
+			wp_delete_file( $css_file_path );
 		}
 	}
 
