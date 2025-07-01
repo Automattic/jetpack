@@ -176,7 +176,8 @@ const getVerticalAnchor = (
 			return y - height < yMax ? 'start' : 'end';
 		}
 
-		return 'middle';
+		// Default to top anchor for vertical line subjects
+		return 'start';
 	}
 
 	return undefined;
@@ -215,7 +216,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	const positionData = useMemo( () => {
 		// Use external coordinates if provided
 		if ( typeof externalX === 'number' && typeof externalY === 'number' ) {
-			// Use provided chart bounds or defaults
+			// Use provided chart bounds - these should be calculated from scale ranges by the caller
 			const yMin = chartBounds?.yMin ?? 0;
 			const yMax = chartBounds?.yMax ?? 400;
 			const xMin = chartBounds?.xMin ?? 0;

@@ -6,6 +6,14 @@
 		overflow: visible;
 	}
 
+	&__annotations-overlay {
+		position: absolute;
+		left: 0;
+		top: 0;
+		overflow: visible;
+		pointer-events: none;
+	}
+
 	&__tooltip {
 		background: #fff;
 		padding: 0.5rem;

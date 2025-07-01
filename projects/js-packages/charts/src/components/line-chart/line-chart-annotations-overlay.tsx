@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import LineChartAnnotation from './line-chart-annotation';
+import styles from './line-chart.module.scss';
 import type { LineChartRef } from './line-chart';
 import type { LineChartAnnotationProps } from './line-chart-annotation';
 
@@ -62,11 +63,15 @@ const LineChartAnnotations: React.FC< LineChartAnnotationsProps > = ( {
 	}
 
 	// Get chart bounds from scale ranges - these are the bounds for the positioning logic
+	const xRange = xScale.range();
+	const yRange = yScale.range();
+
+	// Match internal annotation logic exactly - preserve range order
 	const chartBounds = {
-		xMin: Math.min( ...xScale.range() ),
-		xMax: Math.max( ...xScale.range() ),
-		yMin: Math.min( ...yScale.range() ),
-		yMax: Math.max( ...yScale.range() ),
+		xMin: xRange[ 0 ],
+		xMax: xRange[ 1 ],
+		yMin: yRange[ 0 ],
+		yMax: yRange[ 1 ],
 	};
 
 	// Calculate positions for each annotation
@@ -94,13 +99,7 @@ const LineChartAnnotations: React.FC< LineChartAnnotationsProps > = ( {
 		<svg
 			width={ chartWidth }
 			height={ chartHeight }
-			style={ {
-				position: 'absolute',
-				left: 0,
-				top: 0,
-				overflow: 'visible',
-				pointerEvents: 'none',
-			} }
+			className={ styles[ 'line-chart__annotations-overlay' ] }
 		>
 			{ positionedAnnotations.map( annotation => {
 				if ( ! annotation ) return null;
@@ -115,7 +114,6 @@ const LineChartAnnotations: React.FC< LineChartAnnotationsProps > = ( {
 						<LineChartAnnotation
 							testId={ `overlay-annotation-${ annotation.index }` }
 							datum={ annotation.datum }
-							// Use the full chart coordinates
 							x={ annotation.chartX }
 							y={ annotation.chartY }
 							// Pass the scale ranges as chart bounds for boundary detection
