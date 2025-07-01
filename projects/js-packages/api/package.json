@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Jetpack Api Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/api/#readme",
 	"bugs": {
