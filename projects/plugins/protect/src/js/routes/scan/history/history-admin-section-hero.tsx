@@ -9,8 +9,9 @@ import ScanNavigation from '../../../components/scan-navigation';
 import useThreatsList from '../../../components/threats-list/use-threats-list';
 import useProtectData from '../../../hooks/use-protect-data';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
-const HistoryAdminSectionHero: React.FC = () => {
+const HistoryAdminSectionHero: FC = () => {
 	const { filter = 'all' } = useParams();
 	const { list } = useThreatsList( {
 		source: 'history',

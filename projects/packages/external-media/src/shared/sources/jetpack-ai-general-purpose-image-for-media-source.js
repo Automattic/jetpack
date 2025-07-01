@@ -2,7 +2,6 @@ import {
 	GeneralPurposeImage,
 	PLACEMENT_MEDIA_SOURCE_DROPDOWN,
 } from '@automattic/jetpack-ai-client';
-import React from 'react';
 
 /**
  * JetpackAIGeneralPurposeImageForMediaSource component
@@ -10,7 +9,7 @@ import React from 'react';
  * @param {Function} props.onClose  - To handle the close.
  * @param {Function} props.onSelect - To handle the selection of the media.
  * @param {boolean}  props.multiple - Whether to allow multiple selection.
- * @return {React.ReactElement} The `JetpackAIGeneralPurposeImageForMediaSource` component.
+ * @return {import('react').ReactElement} The `JetpackAIGeneralPurposeImageForMediaSource` component.
  */
 function JetpackAIGeneralPurposeImageForMediaSource( {
 	onClose = () => {},

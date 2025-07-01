@@ -6,10 +6,11 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import styles from './style.module.scss';
+import type { ComponentProps } from 'react';
 
 export type DisconnectProps = {
 	connection: Connection;
-	variant?: React.ComponentProps< typeof Button >[ 'variant' ];
+	variant?: ComponentProps< typeof Button >[ 'variant' ];
 	isDestructive?: boolean;
 	buttonClassName?: string;
 };

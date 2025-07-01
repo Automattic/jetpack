@@ -3,15 +3,15 @@ import clsx from 'clsx';
 import Text from '../text/index.tsx';
 import styles from './style.module.scss';
 import type { PriceProps } from './types.ts';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * React component to render a Price composition.
  *
  * @param {PriceProps} props - Component props.
- * @return {React.ReactNode} -Price react component.
+ * @return {ReactNode} -Price react component.
  */
-export const Price: React.FC< PriceProps > = ( { value, currency, isOff, hidePriceFraction } ) => {
+export const Price: FC< PriceProps > = ( { value, currency, isOff, hidePriceFraction } ) => {
 	const classNames = clsx( styles.price, 'product-price_price', {
 		[ styles[ 'is-not-off-price' ] ]: ! isOff,
 	} );

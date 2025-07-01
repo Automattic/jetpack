@@ -1,6 +1,6 @@
 import FormCheckbox from 'components/forms/form-checkbox';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { createNotice } from 'state/notices/actions';
 import Button from 'components/button';

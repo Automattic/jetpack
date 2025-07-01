@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Search
- * Module Description: Help visitors quickly find answers with highly relevant instant search results and powerful filtering.
+ * Module Description: Instantly deliver the most relevant results to your visitors.
  * First Introduced: 5.0
  * Sort Order: 34
  * Free: false

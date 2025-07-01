@@ -5,6 +5,7 @@ import Container from '../../layout/container/index.tsx';
 import ThemeProvider, { typography, colors, borders, spacing } from '../index.tsx';
 import styles from './style.module.scss';
 import type { StoryFn, Meta } from '@storybook/react';
+import type { ComponentProps, FC } from 'react';
 
 /**
  * Get the contrasting color for any hex color
@@ -51,10 +52,7 @@ const noop = () => {
 	//
 };
 
-const ClipboardButton: React.FC< React.ComponentProps< typeof Button > > = ( {
-	text,
-	...buttonProps
-} ) => {
+const ClipboardButton: FC< ComponentProps< typeof Button > > = ( { text, ...buttonProps } ) => {
 	const ref = useCopyToClipboard( text, noop );
 	return <Button { ...buttonProps } ref={ ref } />;
 };

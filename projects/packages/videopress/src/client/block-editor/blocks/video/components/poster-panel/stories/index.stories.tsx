@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PosterPanel, { VideoHoverPreviewControl } from '..';
 
 export default {
@@ -8,7 +8,7 @@ export default {
 };
 
 const DefaultTemplate = args => {
-	const [ attributes, setAttributes ] = React.useState( {
+	const [ attributes, setAttributes ] = useState( {
 		poster: args.poster,
 		videoRatio: args.videoRatio,
 		guid: args.guid,

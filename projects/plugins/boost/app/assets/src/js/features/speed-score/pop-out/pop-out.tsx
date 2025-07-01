@@ -64,7 +64,7 @@ type VanillaPopOutProps = {
  * The basic pop out excluding all external dependencies.
  *
  * @param {VanillaPopOutProps} props
- * @return {React.ReactNode} Vanilla PopOut component.
+ * @return {ReactNode} Vanilla PopOut component.
  */
 export const VanillaPopOut = ( { message, onClose, onDismiss, isVisible }: VanillaPopOutProps ) => {
 	const animationStyles = useSpring( {

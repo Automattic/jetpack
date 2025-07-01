@@ -1,5 +1,4 @@
 import '../../common/public-path';
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import CelebrateLaunchModal from './celebrate-launch/celebrate-launch-modal';
 import WpcomDailyWritingPrompt from './wpcom-daily-writing-prompt';

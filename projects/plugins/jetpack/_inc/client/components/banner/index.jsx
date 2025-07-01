@@ -2,7 +2,7 @@ import { Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import { noop, size } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect as reduxConnect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';

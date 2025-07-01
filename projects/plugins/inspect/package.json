@@ -26,13 +26,13 @@
 		"tslib": "2.5.0"
 	},
 	"devDependencies": {
-		"@babel/core": "7.27.4",
+		"@babel/core": "7.27.7",
 		"@babel/preset-env": "7.27.2",
 		"@rollup/plugin-commonjs": "26.0.1",
 		"@rollup/plugin-node-resolve": "15.3.0",
 		"@rollup/plugin-terser": "0.4.3",
 		"@rollup/plugin-typescript": "12.1.0",
-		"@wordpress/i18n": "5.25.0",
+		"@wordpress/i18n": "5.26.0",
 		"postcss": "8.4.47",
 		"rollup": "3.29.5",
 		"rollup-plugin-livereload": "2.0.5",

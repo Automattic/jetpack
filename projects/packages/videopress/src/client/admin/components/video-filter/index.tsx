@@ -31,12 +31,13 @@ import useVideos from '../../hooks/use-videos';
 import Checkbox from '../checkbox';
 import styles from './style.module.scss';
 import { FilterObject } from './types';
+import type { JSX } from 'react';
 
 export const FilterButton = ( props: {
 	isActive: boolean;
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	disabled?: boolean;
-} ): React.JSX.Element => {
+} ): JSX.Element => {
 	const { isActive, ...componentProps } = props;
 	return (
 		<Button
@@ -53,7 +54,7 @@ export const FilterButton = ( props: {
 	);
 };
 
-const DisabledReasonTooltip = ( props: { message: string } ): React.JSX.Element => {
+const DisabledReasonTooltip = ( props: { message: string } ): JSX.Element => {
 	return (
 		<Tooltip position="middle center" text={ props.message }>
 			<span className={ styles[ 'title-adornment' ] }>
@@ -70,7 +71,7 @@ export const CheckboxCheckmark = ( props: {
 	disabled?: boolean;
 	disabledReason?: string;
 	onChange?: ( checked: boolean ) => void;
-} ): React.JSX.Element => {
+} ): JSX.Element => {
 	return (
 		<Checkbox
 			id={ props.for }
@@ -95,7 +96,7 @@ export const FilterSection = ( props: {
 	) => void;
 	className?: string;
 	filter?: FilterObject;
-} ): React.JSX.Element => {
+} ): JSX.Element => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	const filterIsChecked = (

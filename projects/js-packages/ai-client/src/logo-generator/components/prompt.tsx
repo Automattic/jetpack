@@ -30,6 +30,7 @@ import './prompt.scss';
  * Types
  */
 import type { ImageStyle, ImageStyleObject } from '../../hooks/use-image-generator/constants.ts';
+import type { ChangeEvent, ClipboardEvent, KeyboardEvent } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-calypso:prompt-box' );
 
@@ -56,11 +57,11 @@ export const AiModalPromptInput = ( {
 } ) => {
 	const inputRef = useRef< HTMLDivElement | null >( null );
 
-	const onPromptInput = ( event: React.ChangeEvent< HTMLInputElement > ) => {
+	const onPromptInput = ( event: ChangeEvent< HTMLInputElement > ) => {
 		setPrompt( event.target.textContent || '' );
 	};
 
-	const onPromptPaste = ( event: React.ClipboardEvent< HTMLInputElement > ) => {
+	const onPromptPaste = ( event: ClipboardEvent< HTMLInputElement > ) => {
 		event.preventDefault();
 
 		const selection = event.currentTarget.ownerDocument.getSelection();
@@ -79,7 +80,7 @@ export const AiModalPromptInput = ( {
 		setPrompt( inputRef.current?.textContent || '' );
 	};
 
-	const onKeyDown = ( event: React.KeyboardEvent ) => {
+	const onKeyDown = ( event: KeyboardEvent ) => {
 		if ( event.key === 'Enter' ) {
 			event.preventDefault();
 			generateHandler();

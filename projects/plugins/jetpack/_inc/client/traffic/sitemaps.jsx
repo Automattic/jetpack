@@ -4,7 +4,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { get } from 'lodash';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import ClipboardButtonInput from 'components/clipboard-button-input';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -14,7 +14,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { getSiteAdminUrl, isSiteVisibleToSearchEngines } from 'state/initial-state';
 
-export class Sitemaps extends React.Component {
+export class Sitemaps extends Component {
 	renderSitemapRow = ( sitemap, sitemapTrack ) => {
 		const trackSitemapUrl = () => analytics.tracks.recordJetpackClick( sitemapTrack );
 		return (

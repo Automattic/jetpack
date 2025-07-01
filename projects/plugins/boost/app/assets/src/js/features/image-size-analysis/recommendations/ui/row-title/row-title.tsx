@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import styles from './row-title.module.scss';
 
 interface RowTitleProps {
@@ -6,7 +6,7 @@ interface RowTitleProps {
 	url: string;
 }
 
-const RowTitle: React.FC< RowTitleProps > = ( { title, url } ) => {
+const RowTitle: FC< RowTitleProps > = ( { title, url } ) => {
 	const urlWithoutProtocol = url.replace( /^https?:\/\/(www\.)?/, '' );
 
 	return (

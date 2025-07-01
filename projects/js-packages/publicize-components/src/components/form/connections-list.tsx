@@ -10,8 +10,9 @@ import { SettingsButton } from './settings-button';
 import styles from './styles.module.scss';
 import { UnsupportedConnectionsNotice } from './unsupported-connections-notice';
 import { useConnectionState } from './use-connection-state';
+import type { FC } from 'react';
 
-export const ConnectionsList: React.FC = () => {
+export const ConnectionsList: FC = () => {
 	const { recordEvent } = useAnalytics();
 
 	const { connections, toggleById } = useSocialMediaConnections();

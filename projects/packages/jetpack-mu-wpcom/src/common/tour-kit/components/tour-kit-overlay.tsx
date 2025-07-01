@@ -1,13 +1,11 @@
-/**
- * External Dependencies
- */
 import clsx from 'clsx';
+import type { FunctionComponent } from 'react';
 
 interface Props {
 	visible: boolean;
 }
 
-const TourKitOverlay: React.FunctionComponent< Props > = ( { visible } ) => {
+const TourKitOverlay: FunctionComponent< Props > = ( { visible } ) => {
 	return (
 		<div
 			className={ clsx( 'tour-kit-overlay', {

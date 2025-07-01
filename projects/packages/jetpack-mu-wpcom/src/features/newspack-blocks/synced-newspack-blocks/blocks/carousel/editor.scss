@@ -33,6 +33,14 @@
 			visibility: hidden;
 		}
 	}
+
+	// Work around RawHTML `<div />` encapsulation.
+	.entry-meta div.byline-container {
+		display: inline;
+		display: flex;
+		align-items: center;
+		margin-right: 1.5em;
+	}
 }
 .editor-block-list__layout .editor-block-list__block .wpnbpc .entry-title a,
 .editor-block-list__layout .editor-block-list__block .wpnbpc .entry-meta .byline a {

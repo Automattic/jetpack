@@ -5,7 +5,7 @@ import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { find, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -35,7 +35,7 @@ const TIER_0_BACKUP_STORAGE_GB = 1;
 const TIER_1_BACKUP_STORAGE_GB = 10;
 const TIER_2_BACKUP_STORAGE_TB = 1;
 
-class MyPlanHeader extends React.Component {
+class MyPlanHeader extends Component {
 	getProductProps( productSlug, activeProducts = [] ) {
 		const { displayBackups, dateFormat, purchases } = this.props;
 
@@ -539,7 +539,7 @@ class MyPlanHeader extends React.Component {
 	 * Renders license related actions
 	 *
 	 * @param {'header'|'footer'} position - Whether the actions are for header or footer
-	 * @return {React.ReactElement} The licence actions
+	 * @return {import('react').ReactElement} The licence actions
 	 */
 	renderLicensingActions = ( position = 'header' ) => {
 		const {

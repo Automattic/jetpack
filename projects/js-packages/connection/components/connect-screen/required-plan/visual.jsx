@@ -9,7 +9,6 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 import PropTypes from 'prop-types';
-import React from 'react';
 import ConnectScreenLayout from '../layout';
 import './style.scss';
 
@@ -19,7 +18,7 @@ const debug = debugFactory( 'jetpack:connection:ConnectScreenRequiredPlanVisual'
  * The Connection Screen Visual component for consumers that require a Plan.
  *
  * @param {object} props -- The properties.
- * @return {React.Component} The `ConnectScreenRequiredPlanVisual` component.
+ * @return {import('react').Component} The `ConnectScreenRequiredPlanVisual` component.
  */
 const ConnectScreenRequiredPlanVisual = props => {
 	const {

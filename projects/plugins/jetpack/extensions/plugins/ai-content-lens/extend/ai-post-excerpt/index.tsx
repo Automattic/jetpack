@@ -30,7 +30,7 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
 import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
 import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
 import type { PromptProp } from '@automattic/jetpack-ai-client';
-import type { ReactElement } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 
 import './style.scss';
 
@@ -327,7 +327,7 @@ export const PluginDocumentSettingPanelAiExcerpt = () => {
 	}
 
 	const SettingPanel = props => {
-		const Panel = PluginDocumentSettingPanel as unknown as React.ComponentType< {
+		const Panel = PluginDocumentSettingPanel as unknown as ComponentType< {
 			className?: string;
 			name?: string;
 			title?: string;

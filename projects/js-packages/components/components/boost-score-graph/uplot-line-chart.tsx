@@ -1,6 +1,6 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
-import React, { useMemo, useRef, useCallback } from 'react';
+import { useMemo, useRef, useCallback } from 'react';
 import uPlot from 'uplot';
 import UplotReact from 'uplot-react';
 import { getUserLocale } from '../../lib/locale/index.ts';
@@ -12,6 +12,7 @@ import { tooltipsPlugin } from './tooltips-plugin.ts';
 import { useBoostScoreTransform } from './use-boost-score-transform.ts';
 import useResize from './use-resize.ts';
 import './style-uplot.scss';
+import type { ReactElement, RefObject, ComponentType } from 'react';
 
 const DEFAULT_DIMENSIONS = {
 	height: 300,
@@ -22,7 +23,7 @@ interface UplotChartProps {
 	periods: Period[];
 	annotations?: Annotation[];
 	options?: Partial< uPlot.Options >;
-	legendContainer?: React.RefObject< HTMLDivElement >;
+	legendContainer?: RefObject< HTMLDivElement >;
 	solidFill?: boolean;
 	period?: string;
 	range?: { startDate: number; endDate: number };
@@ -99,7 +100,7 @@ function getColor( score: number, opacity = 'FF' ) {
  * @param {{ startDate: number, endDate: number }} props.range       - The date range of the chart.
  * @param {Period[]}                               props.periods     - The periods to display in the chart.
  * @param {Annotation[]}                           props.annotations - The annotations to display in the chart.
- * @return {React.Element} The JSX element representing the UplotLineChart component.
+ * @return {ReactElement} The JSX element representing the UplotLineChart component.
  */
 export default function UplotLineChart( { range, periods, annotations = [] }: UplotChartProps ) {
 	const uplot = useRef< uPlot | null >( null );
@@ -215,7 +216,7 @@ export default function UplotLineChart( { range, periods, annotations = [] }: Up
 	 * Type casting to prevent TypeScript error:
 	 * TS2604: JSX element type 'UplotReact' does not have any construct or call signatures.
 	 */
-	const TypedUplotReact = UplotReact as unknown as React.ComponentType< UplotReactProps >;
+	const TypedUplotReact = UplotReact as unknown as ComponentType< UplotReactProps >;
 
 	return (
 		<div ref={ uplotContainer } className="boost-uplot-container">

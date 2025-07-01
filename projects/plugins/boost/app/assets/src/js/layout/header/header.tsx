@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React from 'react';
+import type { ReactNode } from 'react';
 import styles from './header.module.scss';
 import { BackButton } from '$features/ui';
 import ChevronRight from '$svg/chevron-right';
@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router';
 
 type HeaderProps = {
 	subPageTitle?: string;
-	children?: React.ReactNode;
+	children?: ReactNode;
 };
 
 const Header = ( { subPageTitle = '', children }: HeaderProps ) => {

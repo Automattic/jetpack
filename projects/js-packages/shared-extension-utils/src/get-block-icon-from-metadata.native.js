@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/no-undefined-types */
 import { SvgXml } from '@wordpress/primitives';
 import getIconColor from './get-icon-color';
 
@@ -10,7 +9,7 @@ import getIconColor from './get-icon-color';
  * dynamically set the icon color later on.
  *
  * @param {object} metadata - Block.json content
- * @return {React.JSX.Element|string} Icon component
+ * @return {import('react').JSX.Element|string} Icon component
  */
 export function getBlockIconComponent( metadata ) {
 	// If the SVG has been passed as a string, use SvgXml to correctly parse it.

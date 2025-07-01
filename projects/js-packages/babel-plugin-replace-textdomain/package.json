@@ -30,7 +30,7 @@
 		"debug": "^4.3.2"
 	},
 	"devDependencies": {
-		"@babel/core": "7.27.4",
+		"@babel/core": "7.27.7",
 		"babel-plugin-tester": "^12.0.0",
 		"jest": "30.0.0"
 	},

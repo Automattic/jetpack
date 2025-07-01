@@ -11,7 +11,6 @@ Render the component, passing in the properties below. It does not accept any ch
  * External dependencies
  */
 import { connect } from 'react-redux';
-import React from 'react';
 
 /**
  * Internal dependencies
