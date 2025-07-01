@@ -79,7 +79,7 @@
 		margin-block: 0;
 		grid-template-columns: repeat(1, 1fr);
 
-		@include gb.break-xlarge {
+		@include gb.break-wide {
 			// Use 2 columns for large screens
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
