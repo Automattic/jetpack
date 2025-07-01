@@ -77,6 +77,13 @@
 
 	.product-cards {
 		margin-block: 0;
+		grid-template-columns: repeat(1, 1fr);
+
+		@include gb.break-xlarge {
+			// Use 2 columns for large screens
+			grid-template-columns: repeat(2, 1fr);
+		}
+
 
 		div[data-wp-component="Card"] {
 			height: 100%;
@@ -119,7 +126,7 @@
 	.icon-wrapper{
 		width: 3rem;
 		height: 3rem;
-		flex-shrink: 0
+		flex-shrink: 0;
 	}
 
 	.card-title {
