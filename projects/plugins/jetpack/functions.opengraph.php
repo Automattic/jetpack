@@ -591,7 +591,7 @@ function jetpack_og_remove_query_blocks( $description ) {
 		} elseif ( ! $in_query_block ) {
 			// Not a query block, copy content if we're not inside a query block.
 			$output .= substr( $description, $was_at, $at - $was_at );
-			$was_at  = $at;
+			$was_at  = $at + $length;
 		}
 	}
 
