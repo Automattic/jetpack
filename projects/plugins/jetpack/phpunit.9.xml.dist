@@ -24,6 +24,9 @@
 		<testsuite name="media">
 			<directory suffix="Test.php">tests/php/media</directory>
 		</testsuite>
+		<testsuite name="photon">
+			<directory suffix="Test.php">tests/php/modules/photon</directory>
+		</testsuite>
 		<testsuite name="json-api">
 			<directory suffix="Test.php">tests/php/json-api</directory>
 		</testsuite>
