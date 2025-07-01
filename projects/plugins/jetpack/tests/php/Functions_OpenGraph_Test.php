@@ -304,7 +304,6 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	#[DataProvider( 'jetpack_og_remove_query_blocks_data_provider' )]
 	public function test_jetpack_og_remove_query_blocks( $description, $expected_result ) {
 		$result = jetpack_og_remove_query_blocks( $description );
-		var_dump( $result );
 		$this->assertEquals( $expected_result, $result );
 	}
 
