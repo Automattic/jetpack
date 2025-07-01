@@ -375,7 +375,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$newsletter_categories   = maybe_unserialize( get_option( 'wpcom_newsletter_categories', array() ) );
 					$newsletter_category_ids = array_map(
 						function ( $newsletter_category ) {
-							return $newsletter_category['term_id'];
+							return $newsletter_category['term_id'] ?? $newsletter_category;
 						},
 						$newsletter_categories
 					);
