@@ -24,6 +24,7 @@ import {
 	defaultConditionNames,
 	defaultExtensions,
 	defaultExtensionAlias,
+	defaultMainFields,
 } from 'eslint-import-resolver-typescript';
 import eslintPluginImport from 'eslint-plugin-import';
 import eslintPluginLodash from 'eslint-plugin-lodash';
@@ -125,6 +126,9 @@ export function makeBaseConfig( configurl, opts = {} ) {
 		}
 	}
 
+	const envConditionNames =
+		process.env.npm_config_jetpack_webpack_config_resolve_conditions?.split( ',' ) ?? [];
+
 	return defineConfig(
 		globalIgnores( loadIgnorePatterns( basedir ) ),
 
@@ -180,15 +184,19 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				},
 			},
 			settings: {
+				'import/extensions': javascriptFiles
+					.map( v => v.replace( '**/*', '' ) )
+					.filter( v => v !== '.svelte' ),
 				'import/internal-regex': '^jetpack-js-tools/',
 				'import/resolver': {
 					typescript: {
 						project: tsconfigPath,
-						conditionNames: process.env.npm_config_jetpack_webpack_config_resolve_conditions
-							? process.env.npm_config_jetpack_webpack_config_resolve_conditions
-									.split( ',' )
-									.concat( defaultConditionNames )
-							: defaultConditionNames,
+						conditionNames: [ ...envConditionNames, ...defaultConditionNames ],
+						alias: {
+							// These somehow confuse import/named (maybe they're outdated or incomplete?), alias them to nothing.
+							'@types/lodash': [ null ],
+							'@types/wordpress__block-editor': [ null ],
+						},
 					},
 				},
 				jsdoc: {
@@ -331,6 +339,8 @@ export function makeBaseConfig( configurl, opts = {} ) {
 								] )
 							),
 						},
+						conditionNames: [ ...envConditionNames, 'react-native', ...defaultConditionNames ],
+						mainFields: [ 'react-native', ...defaultMainFields ],
 					},
 				},
 			},
@@ -386,6 +396,8 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				'jsdoc/require-property-type': 'off',
 				// Let us use TS return type for better inference
 				'jsdoc/require-returns-type': 'off',
+				// TS should handle this too.
+				'import/named': 'off',
 			},
 		},
 
