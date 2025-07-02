@@ -51,11 +51,24 @@ function maybe_add_origin_site_id_to_url( $url ) {
  * Enqueue assets needed by the WordPress.com admin bar.
  */
 function wpcom_enqueue_admin_bar_assets() {
+	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-admin-bar/wpcom-admin-bar.asset.php';
+
+	wp_enqueue_script(
+		'wpcom-admin-bar',
+		plugins_url( 'build/wpcom-admin-bar/wpcom-admin-bar.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+		$asset_file['dependencies'] ?? array(),
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-admin-bar/wpcom-admin-bar.js' ),
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
+	);
+
 	wp_enqueue_style(
 		'wpcom-admin-bar',
 		plugins_url( 'build/wpcom-admin-bar/wpcom-admin-bar.css', Jetpack_Mu_Wpcom::BASE_FILE ),
 		array(),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-admin-bar/wpcom-admin-bar.css' )
 	);
 
 	/**
