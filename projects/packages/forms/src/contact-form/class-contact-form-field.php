@@ -2098,37 +2098,60 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$style_attr = '';
 
-		// The color is set in the field_styles attribute
-		$has_star_color = preg_match( '/color:\s*([^;]+)/', $this->field_styles, $matches );
+		$css_styles = array_filter( array_map( 'trim', explode( ';', $this->field_styles ) ) );
+
+		$css_key_value_pairs = array_reduce(
+			$css_styles,
+			function ( $pairs, $style ) {
+				list( $key, $value )   = explode( ':', $style );
+				$pairs[ trim( $key ) ] = trim( $value );
+				return $pairs;
+			},
+			array()
+		);
+
+		$has_star_color = isset( $css_key_value_pairs['color'] );
+
 		if ( $has_star_color ) {
-				$color_value = $matches[1];
-				$style_attr  = 'style="--star-color: ' . esc_attr( $color_value ) . ';"';
+			$color_value = $css_key_value_pairs['color'];
+			$style_attr  = 'style="--star-color: ' . esc_attr( $color_value ) . ';';
+			unset( $css_key_value_pairs['color'] );
+			$remaining_styles = array_map(
+				function ( $key, $value ) {
+					return $key . ': ' . $value;
+				},
+				array_keys( $css_key_value_pairs ),
+				array_values( $css_key_value_pairs )
+			);
+
+			$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
 		} else {
-				// Theme colors are set in the field_classes attribute
-				$preset_colors = array(
-					'has-base-color'     => '--wp--preset--color--base',
-					'has-contrast-color' => '--wp--preset--color--contrast',
-					'has-accent-1-color' => '--wp--preset--color--accent-1',
-					'has-accent-2-color' => '--wp--preset--color--accent-2',
-					'has-accent-3-color' => '--wp--preset--color--accent-3',
-					'has-accent-4-color' => '--wp--preset--color--accent-4',
-					'has-accent-5-color' => '--wp--preset--color--accent-5',
-					'has-accent-6-color' => '--wp--preset--color--accent-6',
-				);
+			// Theme colors are set in the field_classes attribute
+			$preset_colors = array(
+				'has-base-color'     => '--wp--preset--color--base',
+				'has-contrast-color' => '--wp--preset--color--contrast',
+				'has-accent-1-color' => '--wp--preset--color--accent-1',
+				'has-accent-2-color' => '--wp--preset--color--accent-2',
+				'has-accent-3-color' => '--wp--preset--color--accent-3',
+				'has-accent-4-color' => '--wp--preset--color--accent-4',
+				'has-accent-5-color' => '--wp--preset--color--accent-5',
+				'has-accent-6-color' => '--wp--preset--color--accent-6',
+			);
 
-				foreach ( $preset_colors as $class => $css_var ) {
-					if ( strpos( $this->field_classes, $class ) !== false ) {
-							$style_attr = 'style="--star-color: var(' . esc_attr( $css_var ) . ');"';
+			foreach ( $preset_colors as $class => $css_var ) {
+				if ( strpos( $this->field_classes, $class ) !== false ) {
+					$style_attr = 'style="--star-color: var(' . esc_attr( $css_var ) . ');"';
 
-							break;
-					}
+					break;
 				}
+			}
 		}
 
 		return $label_html . sprintf(
-			'<div class="jetpack-field-rating" %1$s>%2$s</div>',
+			'<div class="jetpack-field-rating %3$s" %1$s>%2$s</div>',
 			$style_attr,
-			$spans
+			$spans,
+			$class
 		) . $this->get_error_div( $id, 'rating' );
 	}
 }
