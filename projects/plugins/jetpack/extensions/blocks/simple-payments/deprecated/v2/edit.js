@@ -13,7 +13,7 @@ import { dispatch, withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import emailValidator from 'email-validator';
+import * as emailValidator from 'email-validator';
 import { get, isEmpty, isEqual, pick, trimEnd } from 'lodash';
 import { getCurrencyDefaults } from '../../../../shared/currencies';
 import HelpMessage from '../../../../shared/help-message';

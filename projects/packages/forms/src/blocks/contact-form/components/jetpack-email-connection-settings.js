@@ -1,7 +1,7 @@
 import { TextControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import emailValidator from 'email-validator';
+import * as emailValidator from 'email-validator';
 import InspectorHint from '../../shared/components/inspector-hint';
 import HelpMessage from '../components/help-message';
 

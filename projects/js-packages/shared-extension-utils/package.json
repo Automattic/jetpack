@@ -57,7 +57,10 @@
 		"react-dom": "18.3.1"
 	},
 	"exports": {
-		".": "./index.js",
+		".": {
+			"react-native": "./index.native.js",
+			"default": "./index.js"
+		},
 		"./components": "./src/components/index.js",
 		"./icons": "./src/icons.js",
 		"./store/wordpress-com": "./src/store/wordpress-com/index.ts",

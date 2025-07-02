@@ -1,5 +1,5 @@
 import domReady from '@wordpress/dom-ready';
-import emailValidator from 'email-validator';
+import * as emailValidator from 'email-validator';
 // NOTE: We only import the debounce package here for to reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope

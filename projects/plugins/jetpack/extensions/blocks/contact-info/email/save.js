@@ -1,6 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { Fragment } from '@wordpress/element';
-import emailValidator from 'email-validator';
+import * as emailValidator from 'email-validator';
 
 const renderEmail = inputText => {
 	const explodedInput = inputText.split( /(\s+)/ ).map( ( email, i ) => {
