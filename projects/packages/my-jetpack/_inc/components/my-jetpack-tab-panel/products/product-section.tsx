@@ -32,7 +32,7 @@ export function ProductSection( { section }: ProductSectionProps ) {
 		>
 			<h2 className={ styles[ 'section-heading' ] }>{ section.title }</h2>
 			{ section.cards?.length ? (
-				<Grid as="ul" gap={ 6 } columns={ [ 1, 1, 1, 2 ] } className={ styles[ 'product-cards' ] }>
+				<Grid as="ul" gap={ 6 } className={ styles[ 'product-cards' ] }>
 					{ section.cards.map( card => (
 						<li key={ card.product.slug }>
 							<ProductCard product={ card.product } module={ card.module } />
