@@ -115,6 +115,7 @@ declare global {
 				recordEvent: ( event: string, props?: Record< string, unknown > ) => void;
 			};
 		};
+		MSStream?: unknown;
 	}
 }
 

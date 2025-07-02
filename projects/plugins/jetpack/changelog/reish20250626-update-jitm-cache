@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-JITM: Fix ineffective caching due to expired plugin sync transient

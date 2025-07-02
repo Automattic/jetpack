@@ -9,6 +9,7 @@ import useProduct from '../../../data/products/use-product';
 import { ProductCamelCase } from '../../../data/types';
 import { PRODUCT_STATUSES } from '../../product-card';
 import { PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN } from './constants';
+import { useProductFiltersContext } from './products-tracking-context';
 
 export type ProductCardActionProps = {
 	product: ProductCamelCase;
@@ -23,10 +24,18 @@ export type ProductCardActionProps = {
  */
 function UpgradeAction( { product }: ProductCardActionProps ) {
 	const navigate = useNavigate();
+	const { trackProductAction } = useProductFiltersContext();
 
 	const onClick = useCallback( () => {
+		trackProductAction( {
+			action: 'learn_more',
+			productSlug: product.slug,
+			productType: 'product',
+			productStatus: product.status,
+			productData: product,
+		} );
 		navigate( `/add-${ product.slug }` );
-	}, [ navigate, product.slug ] );
+	}, [ navigate, product, trackProductAction ] );
 
 	return (
 		<Button variant="secondary" size="compact" onClick={ onClick }>
@@ -49,12 +58,21 @@ function ActivationToggle( {
 }: ProductCardActionProps & { active?: boolean; disabled?: boolean } ) {
 	const { deactivate, isPending: isDeactivating } = useDeactivatePlugins( product.slug );
 	const { activate, isPending: isActivating } = useActivatePlugins( product.slug );
+	const { trackProductAction } = useProductFiltersContext();
 
 	const { isLoading, isRefetching } = useProduct( product.slug );
 
 	const onChange = useCallback( () => {
+		const action = active ? 'deactivate' : 'activate';
+		trackProductAction( {
+			action,
+			productSlug: product.slug,
+			productType: 'product',
+			productStatus: product.status,
+			productData: product,
+		} );
 		active ? deactivate() : activate();
-	}, [ deactivate, activate, active ] );
+	}, [ deactivate, activate, active, product, trackProductAction ] );
 
 	return (
 		<Flex gap={ 4 }>

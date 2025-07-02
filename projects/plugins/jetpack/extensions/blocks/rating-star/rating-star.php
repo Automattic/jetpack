@@ -50,7 +50,7 @@ function render_block( $attributes ) {
  */
 function amp_add_inline_css() {
 	if ( defined( 'AMP__VERSION' ) && version_compare( AMP__VERSION, '1.4.1', '>=' ) ) {
-		echo '.wp-block-jetpack-rating-star span.screen-reader-text { border: 0; clip: rect(1px, 1px, 1px, 1px); clip-path: inset(50%); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; word-wrap: normal; }';
+		echo '.wp-block-jetpack-rating-star span.screen-reader-text { border: 0; clip-path: inset(50%); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; word-wrap: normal; }';
 	} else {
 		echo '.wp-block-jetpack-rating-star span:not([aria-hidden="true"]) { display: none; }';
 	}

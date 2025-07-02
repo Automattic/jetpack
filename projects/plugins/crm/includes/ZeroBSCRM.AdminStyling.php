@@ -245,18 +245,8 @@ function zbs_color_grabber() {
 	$zbsadmincolors = $_wp_admin_css_colors[ $current_color ]->colors;
 	?>
 	<style>
-		.ranges li{
-			color: <?php echo esc_html( $zbsadmincolors[0] ); ?>;
-		}
 		.max_this{
 			color: <?php echo esc_html( $zbsadmincolors[0] ); ?> !important;
-		}
-		.ranges li:hover, .ranges li.active {
-			background: <?php echo esc_html( $zbsadmincolors[0] ); ?> !important;
-			border: 1px solid <?php echo esc_html( $zbsadmincolors[0] ); ?> !important;
-		}
-		.daterangepicker td.active{
-			background-color: <?php echo esc_html( $zbsadmincolors[0] ); ?> !important;
 		}
 		.zerobs_customer{
 			background-color: <?php echo esc_html( $zbsadmincolors[0] ); ?> !important;
