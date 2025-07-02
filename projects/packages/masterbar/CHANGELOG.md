@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2025-06-30
+### Changed
+- Admin Menu: Show Jetpack > Stats to Calypso users. [#44090]
+
+### Fixed
+- Admin Menu: Add JITM upsells back to default admin interface. [#44125]
+- Phan: Clean up error due to errant file reference. [#44031]
+
+## [0.17.11] - 2025-06-23
+### Changed
+- Admin Menu: Consolidate "Dashboard" and "My Home" menus. [#43983]
+- Update dependencies. [#44002]
+- Update package dependencies. [#44020]
+
+## [0.17.10] - 2025-06-16
+### Changed
+- Update package dependencies. [#43914]
+
 ## [0.17.9] - 2025-06-09
 ### Changed
 - Forms: Update Feedback menu slug to point to forms inbox. [#43780]
@@ -355,6 +373,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.18.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.11...v0.18.0
+[0.17.11]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.10...v0.17.11
+[0.17.10]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.9...v0.17.10
 [0.17.9]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.8...v0.17.9
 [0.17.8]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.7...v0.17.8
 [0.17.7]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.6...v0.17.7

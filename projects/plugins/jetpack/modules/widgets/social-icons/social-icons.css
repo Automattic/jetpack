@@ -63,7 +63,6 @@ Provides support for themes that do not bundle this CSS yet.
 ***********************************/
 .screen-reader-text {
 	border: 0;
-	clip: rect(1px, 1px, 1px, 1px);
 	clip-path: inset(50%);
 	height: 1px;
 	margin: -1px;

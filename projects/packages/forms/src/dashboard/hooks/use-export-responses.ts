@@ -6,6 +6,7 @@ import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -19,6 +20,9 @@ type ExportHookReturn = {
 	autoConnectGdrive: boolean;
 	userCanExport: boolean;
 	onExport: ( action: string, nonceName: string ) => Promise< Response >;
+	selectedResponsesCount: number;
+	currentStatus: string;
+	exportLabel: string;
 };
 
 /**
@@ -31,6 +35,26 @@ export default function useExportResponses(): ExportHookReturn {
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const closeModal = useCallback( () => setShowExportModal( false ), [ setShowExportModal ] );
 	const [ autoConnectGdrive, setAutoConnectGdrive ] = useState( false );
+	const { selectedResponsesCount, currentStatus } = useSelect(
+		select => ( {
+			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
+			currentStatus: select( dashboardStore ).getCurrentStatus(),
+		} ),
+		[]
+	);
+	const isSpam = currentStatus.includes( 'spam' );
+	const isTrash = currentStatus.includes( 'trash' );
+
+	let statusLabel = __( 'Export', 'jetpack-forms' );
+
+	if ( isSpam ) {
+		statusLabel = __( 'Export spam', 'jetpack-forms' );
+	} else if ( isTrash ) {
+		statusLabel = __( 'Export trash', 'jetpack-forms' );
+	}
+
+	const exportLabel =
+		selectedResponsesCount > 0 ? `${ statusLabel } (${ selectedResponsesCount })` : statusLabel;
 
 	const openModal = useCallback( () => {
 		setShowExportModal( true );
@@ -91,5 +115,8 @@ export default function useExportResponses(): ExportHookReturn {
 		autoConnectGdrive,
 		userCanExport,
 		onExport,
+		selectedResponsesCount,
+		currentStatus,
+		exportLabel,
 	};
 }

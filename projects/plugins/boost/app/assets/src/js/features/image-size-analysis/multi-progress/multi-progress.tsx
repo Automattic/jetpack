@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import React, { MouseEventHandler } from 'react';
+import { MouseEventHandler } from 'react';
+import type { FC } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
 import OtherGroupContext from '$features/image-size-analysis/other-group-context/other-group-context';
 import { type isaGroupKeys, getGroupLabel } from '../lib/isa-groups';
@@ -7,7 +8,7 @@ import ProgressBar from '$features/image-size-analysis/progress-bar/progress-bar
 import { Spinner } from '$features/ui';
 import WarningIcon from '$svg/warning-outline';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import styles from './multi-progress.module.scss';
 
 interface ReportProgress {
@@ -29,7 +30,7 @@ type MaybeLinkProps = typeof Link & {
 	trackEventProps?: string;
 };
 
-const MaybeLink: React.FC< MaybeLinkProps > = ( {
+const MaybeLink: FC< MaybeLinkProps > = ( {
 	isLink = true,
 	trackEvent = '',
 	trackEventProps = '',
@@ -52,7 +53,7 @@ const MaybeLink: React.FC< MaybeLinkProps > = ( {
 	return <>{ children }</>;
 };
 
-const MultiProgress: React.FC< MultiProgressProps > = ( { reportProgress } ) => {
+const MultiProgress: FC< MultiProgressProps > = ( { reportProgress } ) => {
 	return (
 		<div className={ styles[ 'multi-progress' ] }>
 			{ reportProgress.map( ( report, index ) => (

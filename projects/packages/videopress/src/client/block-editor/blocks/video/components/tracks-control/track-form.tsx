@@ -20,7 +20,7 @@ import debugFactory from 'debug';
  */
 import type { TrackFormProps } from './types';
 import type { UploadTrackDataProps } from '../../../../../lib/video-tracks/types';
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 const DEFAULT_KIND = 'subtitles';
 
@@ -40,14 +40,14 @@ const debug = debugFactory( 'videopress:tracks:track-form' );
  * Track From component
  *
  * @param {TrackFormProps} props - Component props.
- * @return {React.ReactElement}   Track form react component.
+ * @return {ReactElement}   Track form react component.
  */
 export default function TrackForm( {
 	onCancel,
 	onSave,
 	tracks,
 	errorMessage,
-}: TrackFormProps ): React.ReactElement {
+}: TrackFormProps ): ReactElement {
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const [ isSavingTrack, setIsSavingTrack ] = useState( false );
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.

@@ -2,6 +2,14 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CalendlyBlockControls, CalendlyInspectorControls } from '../controls';
 
+// Mock @automattic/jetpack-script-data functions to allow isWpcomPlatformSite to be correctly used.
+jest.mock( '@automattic/jetpack-script-data', () => {
+	const isWpcomPlatformSite = jest.fn().mockReturnValue( false );
+	return {
+		isWpcomPlatformSite,
+	};
+} );
+
 describe( 'CalendlyBlockControls', () => {
 	const onEditClick = jest.fn();
 	const defaultProps = { onEditClick };

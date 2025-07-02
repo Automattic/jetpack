@@ -1,9 +1,9 @@
 import clsx from 'clsx';
-import React from 'react';
 import styles from './style.module.scss';
+import type { ReactNode, ReactElement, FC } from 'react';
 
 type BadgeProps = {
-	children?: React.ReactNode;
+	children?: ReactNode;
 	className?: string;
 	variant?: 'success' | 'warning' | 'danger';
 	[ key: string ]: unknown;
@@ -17,9 +17,9 @@ type BadgeProps = {
  * @param {JSX.Element} props.children  - Badge text or content.
  * @param {string}      props.className - Additional class name to pass to the Badge component.
  *
- * @return {React.ReactElement} The `Badge` component.
+ * @return {ReactElement} The `Badge` component.
  */
-const Badge: React.FC< BadgeProps > = ( { children, className, variant, ...props } ) => {
+const Badge: FC< BadgeProps > = ( { children, className, variant, ...props } ) => {
 	const classes = clsx(
 		styles.badge,
 		{

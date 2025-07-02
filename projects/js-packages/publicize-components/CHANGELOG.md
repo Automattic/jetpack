@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2025-06-30
+### Changed
+- Internal updates.
+
+## [1.1.1] - 2025-06-24
+### Changed
+- Update dependencies. [#43971]
+
+## [1.1.0] - 2025-06-23
+### Changed
+- Scripts: Change imports for hosting checks. [#43972]
+- Update package dependencies. [#44020]
+
+### Fixed
+- Social Previews: Prevent text overflow with Mastodon. [#44019]
+
+## [1.0.2] - 2025-06-16
+### Changed
+- Update dependencies. [#43878]
+
 ## [1.0.1] - 2025-06-05
 ### Changed
 - Update package dependencies. [#43766]
@@ -1273,6 +1293,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[1.1.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.0.2...v1.1.0
+[1.0.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.86.2...v1.0.0
 [0.86.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.86.1...v0.86.2

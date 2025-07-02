@@ -1,18 +1,16 @@
 [
-    {
-        "blockName": "jetpack/mailchimp",
-        "attrs": {
-            "submitButtonText": "Subscribe",
-            "backgroundButtonColor": "white",
-            "textButtonColor": "black",
-            "submitButtonClasses": "rounded",
-            "customBackgroundButtonColor": "#CCCCCC",
-            "customTextButtonColor": "#000000"
-        },
-        "innerBlocks": [],
-        "innerHTML": "\n",
-        "innerContent": [
-            "\n"
-        ]
-    }
+	{
+		"blockName": "jetpack/mailchimp",
+		"attrs": {
+			"submitButtonText": "Subscribe",
+			"backgroundButtonColor": "white",
+			"textButtonColor": "black",
+			"submitButtonClasses": "rounded",
+			"customBackgroundButtonColor": "#CCCCCC",
+			"customTextButtonColor": "#000000"
+		},
+		"innerBlocks": [],
+		"innerHTML": "\n",
+		"innerContent": [ "\n" ]
+	}
 ]

@@ -2,9 +2,9 @@ import { __, _x } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import SectionNav from 'components/section-nav';
@@ -29,7 +29,7 @@ import { isPluginActive } from 'state/site/plugins';
 
 const debug = debugFactory( 'calypso:url-search' );
 
-export class NavigationSettings extends React.Component {
+export class NavigationSettings extends Component {
 	static displayName = 'NavigationSettings';
 
 	state = {

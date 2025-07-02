@@ -110,6 +110,19 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get site's archive pages by views.
+	 *
+	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/archives/
+	 * @param array $args Optional query parameters.
+	 * @return array|WP_Error
+	 */
+	public function get_archives( $args = array() ) {
+		$this->resource = 'archives';
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
 	 * Get the details of a single video.
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/video/%24post_id/

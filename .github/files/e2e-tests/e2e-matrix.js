@@ -43,6 +43,22 @@ const projects = [
 		buildGroup: 'jetpack-sync',
 	},
 	{
+		project: 'Jetpack Boost - Critical CSS',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/critical-css' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Concatenate JS and CSS',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/concatenate' ],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+		buildGroup: 'jetpack-boost',
+	},
+	{
 		project: 'Search',
 		path: 'projects/plugins/search/tests/e2e',
 		testArgs: [],

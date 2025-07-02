@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import {
 	Text,
 	Button,
@@ -23,10 +20,7 @@ import {
 } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-/**
- * Internal dependencies
- */
+import { useNavigate, Link } from 'react-router';
 import ChaptersLearnMoreHelper from '../../../components/chapters-learn-more-helper';
 import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
 import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
@@ -51,6 +45,7 @@ import VideoThumbnail from '../video-thumbnail';
 import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
 import styles from './style.module.scss';
 import useEditDetails from './use-edit-details';
+import type { JSX } from 'react';
 
 const noop = () => {
 	// noop
@@ -255,7 +250,7 @@ const EditVideoDetails = () => {
 		navigate( '/' );
 	}
 
-	let thumbnail: string | React.JSX.Element = posterImage;
+	let thumbnail: string | JSX.Element = posterImage;
 
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
 		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
@@ -272,10 +267,6 @@ const EditVideoDetails = () => {
 
 	return (
 		<>
-			{ /* This is no longer supported as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
-				<Prompt when={ hasChanges && ! updated && ! deleted } message={ unsavedChangesMessage } />
-			*/ }
-
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
 					handleCloseSelectFrame={ handleCloseSelectFrame }

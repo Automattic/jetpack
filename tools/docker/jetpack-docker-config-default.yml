@@ -68,6 +68,7 @@ e2e:
     projects/plugins/boost/tests/e2e/plugins/e2e-concatenate-enqueue/: /var/www/html/wp-content/plugins/e2e-concatenate-enqueue/
     projects/plugins/boost/tests/e2e/plugins/e2e-appended-image/: /var/www/html/wp-content/plugins/e2e-appended-image/
     projects/plugins/boost/tests/e2e/plugins/e2e-mock-speed-score-api.php: /var/www/html/wp-content/plugins/e2e-mock-speed-score-api.php
+    projects/plugins/boost/tests/e2e/plugins/e2e-critical-css-force-errors.php: /var/www/html/wp-content/plugins/e2e-critical-css-force-errors.php
     tools/e2e-commons/plugins/e2e-search-test-helper.php: /var/www/html/wp-content/plugins/e2e-search-test-helper.php
     tools/e2e-commons/plugins/e2e-wpcom-request-interceptor.php: /var/www/html/wp-content/plugins/e2e-wpcom-request-interceptor.php
     tools/e2e-commons/plugins/e2e-social-config.php: /var/www/html/wp-content/plugins/e2e-social-config.php

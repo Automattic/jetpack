@@ -2,15 +2,16 @@ import { Status, Text } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import AdminSectionHero from '../../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../../components/error-admin-section-hero';
 import ScanNavigation from '../../../components/scan-navigation';
 import useThreatsList from '../../../components/threats-list/use-threats-list';
 import useProtectData from '../../../hooks/use-protect-data';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
-const HistoryAdminSectionHero: React.FC = () => {
+const HistoryAdminSectionHero: FC = () => {
 	const { filter = 'all' } = useParams();
 	const { list } = useThreatsList( {
 		source: 'history',

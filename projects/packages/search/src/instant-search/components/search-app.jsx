@@ -3,7 +3,8 @@ import stringify from 'fast-json-stable-stringify';
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
+import { Component, Fragment } from 'react';
 import { createPortal } from 'react-dom';
 import { connect } from 'react-redux';
 import {

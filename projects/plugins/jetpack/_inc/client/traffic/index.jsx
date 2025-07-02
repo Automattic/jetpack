@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
 import {
@@ -24,7 +24,7 @@ import { SiteStats } from './site-stats';
 import Sitemaps from './sitemaps';
 import { VerificationServices } from './verification-services';
 
-export class Traffic extends React.Component {
+export class Traffic extends Component {
 	static displayName = 'TrafficSettings';
 
 	render() {

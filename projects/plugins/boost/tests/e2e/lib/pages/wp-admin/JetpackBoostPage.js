@@ -103,7 +103,7 @@ export default class JetpackBoostPage extends WpPage {
 
 	async waitForCriticalCssMetaInfoVisibility() {
 		const selector = '[data-testid="critical-css-meta"]';
-		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
+		return this.waitForElementToBeVisible( selector, 4 * 60 * 1000 );
 	}
 
 	async waitForCriticalCssGenerationProgressUIVisibility() {

@@ -4,12 +4,13 @@ import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useImageAnalysisRequest } from '$features/image-size-analysis';
 import { useSingleModuleState } from '$features/module/lib/stores';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import CardPage from '$layout/card-page/card-page';
 import styles from './purchase-success.module.scss';
 import { isWoaHosting } from '$lib/utils/hosting';
+import type { FC } from 'react';
 
-const PurchaseSuccess: React.FC = () => {
+const PurchaseSuccess: FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
 	const [ imageGuideState ] = useSingleModuleState( 'image_guide' );
 	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );

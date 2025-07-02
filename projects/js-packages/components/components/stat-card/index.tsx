@@ -10,13 +10,13 @@ import clsx from 'clsx';
 import Text from '../text/index.tsx';
 import styles from './style.module.scss';
 import { StatCardProps } from './types.ts';
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * StatCard component
  *
  * @param {StatCardProps} props - Component props.
- * @return {React.ReactNode} - StatCard react component.
+ * @return {ReactNode} - StatCard react component.
  */
 const StatCard = ( {
 	className,

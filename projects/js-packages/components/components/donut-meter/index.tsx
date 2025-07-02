@@ -1,5 +1,5 @@
-import React from 'react';
 import './style.scss';
+import type { ReactElement, FC } from 'react';
 
 export type DonutMeterProps = {
 	/**
@@ -72,9 +72,9 @@ const getAdaptiveType = ( percentage: number ) => {
  * Generate record meter donut bar
  *
  * @param {DonutMeterProps} props - Props
- * @return {React.ReactElement} - JSX element
+ * @return {ReactElement} - JSX element
  */
-const DonutMeter: React.FC< DonutMeterProps > = ( {
+const DonutMeter: FC< DonutMeterProps > = ( {
 	className = '',
 	description = '',
 	donutWidth = '64px',

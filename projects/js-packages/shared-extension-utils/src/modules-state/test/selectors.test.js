@@ -1,5 +1,10 @@
 import jetpackModulesSelectors from '../selectors';
 
+// Mock isSimpleSite to return false for all tests
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isSimpleSite: jest.fn().mockReturnValue( false ),
+} ) );
+
 describe( 'jetpackModulesSelectors', () => {
 	const state = {
 		data: {

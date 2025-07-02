@@ -11,6 +11,8 @@ use Automattic\Jetpack\Status\Host;
 
 /**
  * Unifies admin color scheme selection across WP.com sites.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Admin_Color_Schemes {
 

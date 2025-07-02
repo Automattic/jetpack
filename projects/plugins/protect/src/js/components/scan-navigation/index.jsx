@@ -1,13 +1,13 @@
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 import usePlan from '../../hooks/use-plan';
 import ButtonGroup from '../button-group';
 
 /**
  * Navigation for scan sections.
  *
- * @return {React.Element} The React Component.
+ * @return {import('react').Element} The React Component.
  */
 export default function ScanNavigation() {
 	const navigate = useNavigate();

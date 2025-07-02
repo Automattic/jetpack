@@ -61,7 +61,6 @@
 
 			&.wp-block-jetpack-button {
 				flex-basis: auto;
-				align-self: flex-end; // Ensure button is aligned with the bottom of the previous field when on a same row
 			}
 
 			&.jetpack-field__width-25,
@@ -817,6 +816,7 @@
 				transform: translateY(-50%);
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				margin: 0;
+				z-index: 1;
 
 				.jetpack-field-label__suffix {
 					font-weight: 300;
@@ -941,7 +941,7 @@
 
 			.animated-label__label {
 				position: absolute;
-				z-index: 1;
+				z-index: 2;
 				top: calc(50% + (var(--jetpack--contact-form--border-top-size, 0px) * 0.5) - (var(--jetpack--contact-form--border-bottom-size, 0px) * 0.5));
 				left: calc(var(--jetpack--contact-form--border-left-size, 1px) + var(--jetpack--contact-form--animated-left-offset));
 				width: auto;
@@ -1078,6 +1078,16 @@
 	margin-bottom: 0;
 }
 
+.block-editor-block-inspector .components-base-control.jetpack-forms-field-controls__input-error {
+
+	.components-text-control__input,
+	.components-text-control__input[type="text"],
+	.components-text-control__input[type="text"]:focus,
+	.components-text-control__input:focus {
+		border-color: var( --wp--preset--color--vivid-red, #f00 );
+	}
+}
+
 .is-style-outlined .jetpack-field.is-selected .notched-label__label[style*="--jetpack--contact-form--label--font-size"],
 .is-style-outlined .jetpack-field.has-placeholder .notched-label__label[style*="--jetpack--contact-form--label--font-size"] {
     font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.8);
@@ -1140,4 +1150,19 @@
 
 .jetpack-field-dropdown__option:hover .jetpack-field-dropdown__option-remove {
 	visibility: visible;
+}
+
+/* Hide form step placeholder when has content. */
+.block-editor-block-list__block.wp-block-jetpack-form-step {
+
+	&.has-child-blocks {
+
+		> .block-editor-block-list__block-edit > div:not( .block-editor-inner-blocks ) {
+
+			> .block-editor-inserter,
+			> .block-editor-block-list__block-edit > div:not( .block-editor-inner-blocks ) {
+				display: none;
+			}
+		}
+	}
 }

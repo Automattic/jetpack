@@ -16,7 +16,6 @@ import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/el
 import { addFilter } from '@wordpress/hooks';
 import clsx from 'clsx';
 import debugFactory from 'debug';
-import React from 'react';
 /*
  * Internal dependencies
  */
@@ -41,7 +40,9 @@ import type {
 	PromptItemProps,
 	RequestingStateProp,
 	AiModelTypeProp,
+	Block,
 } from '@automattic/jetpack-ai-client';
+import type { MutableRefObject } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' );
 
@@ -76,14 +77,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Block props. isSelectionEnabled is used to determine if the block is in the editor or in the preview.
 		const { clientId, isSelected, name: blockName, isSelectionEnabled } = props;
 		// Ref to the control wrapper, its height and its ResizeObserver, for positioning adjustments.
-		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
+		const controlRef: MutableRefObject< HTMLDivElement | null > = useRef( null );
 		const controlHeight = useRef< number >( 0 );
 		const controlObserver = useRef< ResizeObserver | null >( null );
 		// Ref to the original block padding to reset it when the AI Control is closed.
 		const blockOriginalPaddingBottom = useRef< string >( '' );
 		// Ref to the input element to focus on it when the AI Control is displayed or when a request is done.
 		// Also used to determine the ownerDocument, as the editor can be in an iframe.
-		const inputRef: React.MutableRefObject< HTMLInputElement | null > = useRef( null );
+		const inputRef: MutableRefObject< HTMLInputElement | null > = useRef( null );
 		const ownerDocument = useRef< Document >( document );
 		// Ref to the chat history to keep track of the messages that were sent and the assistant responses.
 		const chatHistory = useRef< PromptMessagesProp >( [] );
@@ -141,6 +142,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			adjustPosition,
 			startOpen,
 			hideOnBlockFocus,
+			supports,
 		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
 
 		const customPlaceholder = getExtensionInputPlaceholder();
@@ -177,11 +179,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 							tone: options?.tone,
 							language: options?.language,
 							is_follow_up: chatHistory.current.length > 0,
+							supports,
 						},
 					},
 				];
 			},
-			[ blockName, getContent ]
+			[ blockName, getContent, supports ]
 		);
 
 		const adjustBlockPadding = useCallback(
@@ -570,8 +573,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		);
 	}
 
-	return props => {
+	return ( props: Block ) => {
 		const isRequiredModulePresent = useBlockModuleStatus( props.name );
+
+		if ( ! props.clientId || ! props.attributes ) {
+			return <BlockEdit { ...props } />;
+		}
 
 		// If the required module is not enabled, return the original block edit component early.
 		if ( ! isRequiredModulePresent ) {

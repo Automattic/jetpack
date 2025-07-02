@@ -1,8 +1,17 @@
+/**
+ * External dependencies
+ */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import IntegrationCard from '../../blocks/contact-form/components/jetpack-integrations-modal/integration-card';
 import CreativeMailIcon from '../../icons/creative-mail';
-import { IntegrationCardProps } from '../../types';
+/**
+ * Types
+ */
+import type { SingleIntegrationCardProps, IntegrationCardData } from '../../types';
 
 const CreativeMailDashboardCard = ( {
 	isExpanded,
@@ -10,10 +19,10 @@ const CreativeMailDashboardCard = ( {
 	data,
 	refreshStatus,
 	borderBottom = true,
-}: IntegrationCardProps & { borderBottom?: boolean } ) => {
+}: SingleIntegrationCardProps ) => {
 	const { settingsUrl = '' } = data || {};
 
-	const cardData = {
+	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: false, // Always off for dashboard
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
@@ -33,7 +42,6 @@ const CreativeMailDashboardCard = ( {
 		<IntegrationCard
 			title={ __( 'Creative Mail', 'jetpack-forms' ) }
 			description={ __( 'Manage email contacts and campaigns', 'jetpack-forms' ) }
-			// @ts-expect-error: IntegrationCard icon prop accepts JSX.Element
 			icon={ <CreativeMailIcon /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

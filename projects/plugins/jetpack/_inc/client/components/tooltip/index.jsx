@@ -1,7 +1,7 @@
 import { isMobile } from '@automattic/viewport';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import Popover from 'components/popover';
 
 import './style.scss';

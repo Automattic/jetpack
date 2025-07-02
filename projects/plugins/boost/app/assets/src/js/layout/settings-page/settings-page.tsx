@@ -9,9 +9,10 @@ import { usePremiumFeatures } from '$lib/stores/premium-features';
 import CriticalCssProvider from '$features/critical-css/critical-css-context/critical-css-context-provider';
 import NoticeManager from '$features/notice/manager';
 import { NoticeProvider } from '$features/notice/context';
+import type { ReactNode } from 'react';
 
 type SettingsPageProps = {
-	children: React.ReactNode;
+	children: ReactNode;
 };
 
 const SettingsPage = ( { children }: SettingsPageProps ) => {

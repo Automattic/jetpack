@@ -1,6 +1,5 @@
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { connect as reduxConnect } from 'react-redux';
 import { Banner, connect as bannerConnect } from 'components/banner';
 import { arePromotionsActive, userCanManageModules } from 'state/initial-state';

@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { useCallback, useId } from 'react';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
+import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
@@ -25,11 +26,12 @@ const validateData = ( data: SeriesData[] ) => {
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
-			d =>
-				d.value === null ||
-				d.value === undefined ||
-				isNaN( d.value ) ||
-				( ! d.label && ( ! d.date || isNaN( d.date.getTime() ) ) )
+			point =>
+				isNaN( point.value as number ) ||
+				point.value === null ||
+				point.value === undefined ||
+				( ! point.label &&
+					( ! ( 'date' in point && point.date ) || isNaN( point.date.getTime() ) ) )
 		)
 	);
 
@@ -48,6 +50,8 @@ const BarChart: FC< BarChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
 	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
@@ -59,8 +63,11 @@ const BarChart: FC< BarChartProps > = ( {
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
 	const chartId = useId();
 	const theme = useXYChartTheme( data );
-	const chartOptions = useBarChartOptions( data, horizontal, options );
-	const defaultMargin = useChartMargin( height, chartOptions, data, theme, horizontal );
+
+	const dataSorted = useChartDataTransform( data );
+
+	const chartOptions = useBarChartOptions( dataSorted, horizontal, options );
+	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 
 	const getColor = useCallback(
@@ -71,8 +78,10 @@ const BarChart: FC< BarChartProps > = ( {
 
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
-			withPatterns ? `url(#${ getPatternId( chartId, index ) })` : getColor( data[ index ], index ),
-		[ withPatterns, getColor, data, chartId ]
+			withPatterns
+				? `url(#${ getPatternId( chartId, index ) })`
+				: getColor( dataSorted[ index ], index ),
+		[ withPatterns, getColor, dataSorted, chartId ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -88,7 +97,7 @@ const BarChart: FC< BarChartProps > = ( {
 					<div className={ styles[ 'bar-chart__tooltip-row' ] }>
 						<span className={ styles[ 'bar-chart__tooltip-label' ] }>
 							{ chartOptions.tooltip.labelFormatter(
-								nearestDatum.label || nearestDatum.date.getTime(),
+								nearestDatum.label || ( nearestDatum.date ? nearestDatum.date.getTime() : 0 ),
 								0,
 								[]
 							) }
@@ -108,7 +117,6 @@ const BarChart: FC< BarChartProps > = ( {
 			const id = getPatternId( chartId, index );
 			const commonProps = {
 				id,
-				key: id,
 				stroke: 'white',
 				strokeWidth: 1,
 				background: color,
@@ -119,6 +127,7 @@ const BarChart: FC< BarChartProps > = ( {
 				default:
 					return (
 						<PatternLines
+							key={ id }
 							{ ...commonProps }
 							width={ 5 }
 							height={ 5 }
@@ -126,11 +135,13 @@ const BarChart: FC< BarChartProps > = ( {
 						/>
 					);
 				case 1:
-					return <PatternCircles { ...commonProps } width={ 6 } height={ 6 } fill="white" />;
+					return (
+						<PatternCircles key={ id } { ...commonProps } width={ 6 } height={ 6 } fill="white" />
+					);
 				case 2:
-					return <PatternWaves { ...commonProps } width={ 4 } height={ 4 } />;
+					return <PatternWaves key={ id } { ...commonProps } width={ 4 } height={ 4 } />;
 				case 3:
-					return <PatternHexagons { ...commonProps } size={ 8 } height={ 3 } />;
+					return <PatternHexagons key={ id } { ...commonProps } size={ 8 } height={ 3 } />;
 			}
 		},
 		[ chartId ]
@@ -150,13 +161,13 @@ const BarChart: FC< BarChartProps > = ( {
 	);
 
 	// Validate data using the same pattern as LineChart
-	const error = validateData( data );
+	const error = validateData( dataSorted );
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}
 
 	// Create legend items from group labels, this iterates over groups rather than data points
-	const legendItems = data.map( ( group, index ) => ( {
+	const legendItems = dataSorted.map( ( group, index ) => ( {
 		label: group.label, // Label for each unique group
 		value: '', // Empty string since we don't want to show a specific value
 		color: getColor( group, index ),
@@ -174,13 +185,22 @@ const BarChart: FC< BarChartProps > = ( {
 			style={ {
 				width,
 				height,
+				display: 'flex',
+				flexDirection:
+					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
 			} }
 		>
 			<XYChart
 				theme={ theme }
 				width={ width }
-				height={ height - legendHeight }
-				margin={ { ...defaultMargin, ...margin } }
+				height={ height - ( showLegend ? legendHeight : 0 ) }
+				margin={ {
+					...defaultMargin,
+					...margin,
+					...( showLegend && legendAlignmentVertical === 'top'
+						? { top: ( defaultMargin.top || 0 ) + legendHeight }
+						: {} ),
+				} }
 				xScale={ chartOptions.xScale }
 				yScale={ chartOptions.yScale }
 				horizontal={ horizontal }
@@ -195,12 +215,12 @@ const BarChart: FC< BarChartProps > = ( {
 				{ withPatterns && (
 					<>
 						<defs data-testid="bar-chart-patterns">
-							{ data.map( ( seriesData, index ) =>
+							{ dataSorted.map( ( seriesData, index ) =>
 								renderPattern( index, getColor( seriesData, index ) )
 							) }
 						</defs>
 						<style>
-							{ data.map( ( seriesData, index ) =>
+							{ dataSorted.map( ( seriesData, index ) =>
 								createPatternBorderStyle( index, getColor( seriesData, index ) )
 							) }
 						</style>
@@ -208,7 +228,7 @@ const BarChart: FC< BarChartProps > = ( {
 				) }
 
 				<BarGroup padding={ chartOptions.barGroup.padding }>
-					{ data.map( ( seriesData, index ) => (
+					{ dataSorted.map( ( seriesData, index ) => (
 						<BarSeries
 							key={ seriesData?.label }
 							dataKey={ seriesData?.label }
@@ -237,6 +257,8 @@ const BarChart: FC< BarChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
+					alignmentHorizontal={ legendAlignmentHorizontal }
+					alignmentVertical={ legendAlignmentVertical }
 					className={ styles[ 'bar-chart__legend' ] }
 					shape={ legendShape }
 					ref={ legendRef }

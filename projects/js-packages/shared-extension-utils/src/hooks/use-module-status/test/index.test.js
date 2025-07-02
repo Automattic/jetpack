@@ -1,9 +1,10 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { renderHook, act } from '@testing-library/react';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { isSimpleSite } from '../../../site-type-utils';
 import useModuleStatus from '../index';
 
-jest.mock( '../../../site-type-utils', () => ( {
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	...jest.requireActual( '@automattic/jetpack-script-data' ),
 	isSimpleSite: jest.fn(),
 } ) );
 

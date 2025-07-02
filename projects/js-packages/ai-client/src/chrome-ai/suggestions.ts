@@ -1,4 +1,5 @@
 import { EventSourceMessage } from '@microsoft/fetch-event-source';
+import debugFactory from 'debug';
 import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_SUMMARIZE } from '../constants.ts';
 import { getErrorData } from '../hooks/use-ai-suggestions/index.ts';
 import { renderHTMLFromMarkdown, renderMarkdownFromHTML } from '../libs/markdown/index.ts';
@@ -36,6 +37,8 @@ type FunctionCallProps = {
 	arguments?: string;
 };
 
+const debug = debugFactory( 'ai-client:chrome-ai-suggestions' );
+
 export default class ChromeAISuggestionsEventSource extends EventTarget {
 	fullMessage: string;
 	fullFunctionCall: FunctionCallProps;
@@ -63,6 +66,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 		promptType,
 		options = {},
 	}: ChromeAISuggestionsEventSourceConstructorArgs ) {
+		debug( 'initSource', content, promptType, options );
 		if ( promptType === PROMPT_TYPE_CHANGE_LANGUAGE ) {
 			this.translate( content, options.targetLanguage, options.sourceLanguage );
 		}
@@ -80,6 +84,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	processEvent( e: EventSourceMessage ) {
 		let data: ChromeAIEvent;
+		debug( 'processEvent', e );
 		try {
 			data = JSON.parse( e.data );
 		} catch ( err ) {
@@ -99,6 +104,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 	}
 
 	processErrorEvent( e ) {
+		debug( 'processErrorEvent', e );
 		// Dispatch a generic network error event
 		this.dispatchEvent( new CustomEvent( ERROR_NETWORK, { detail: e } ) );
 		this.dispatchEvent(
@@ -114,12 +120,28 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 			return;
 		}
 
+		const translatorAvailability = await self.Translator.availability( {
+			sourceLanguage: source,
+			targetLanguage: target,
+		} );
+
+		if ( translatorAvailability === 'unavailable' ) {
+			debug( 'awaiting translator ready' );
+			this.processErrorEvent( {
+				message: 'Translator is unavailable',
+			} );
+			return;
+		}
+
 		const translator = await self.Translator.create( {
 			sourceLanguage: source,
 			targetLanguage: target,
 		} );
 
 		if ( ! translator ) {
+			this.processErrorEvent( {
+				message: 'Translator failed to initialize',
+			} );
 			return;
 		}
 
@@ -161,6 +183,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 
 	// use the Chrome AI summarizer
 	async summarize( text: string, tone?: string, wordCount?: number ) {
+		debug( 'summarize', text, tone, wordCount );
 		if ( ! ( 'Summarizer' in self ) ) {
 			return;
 		}
@@ -168,6 +191,9 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 		const availability = await self.Summarizer.availability();
 
 		if ( availability === 'unavailable' ) {
+			this.processErrorEvent( {
+				data: { message: 'Summarizer is unavailable' },
+			} );
 			return;
 		}
 
@@ -176,17 +202,20 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 		const summarizer = await self.Summarizer.create( summarizerOptions );
 
 		if ( availability !== 'available' ) {
+			debug( 'awaiting summarizer ready' );
 			await summarizer.ready;
 		}
 
 		try {
 			const context = `Write with a ${ tone } tone.`;
+			debug( 'context', context );
 			let summary = await summarizer.summarize( text, { context: context } );
-
+			debug( 'summary', summary );
 			wordCount = wordCount ?? 50;
 
 			// gemini-nano has a tendency to exceed the word count, so we need to check and summarize again if necessary
 			if ( summary.split( ' ' ).length > wordCount ) {
+				debug( 'summary exceeds word count' );
 				summary = await summarizer.summarize( summary, { context: context } );
 			}
 
@@ -199,6 +228,7 @@ export default class ChromeAISuggestionsEventSource extends EventTarget {
 				} ),
 			} );
 		} catch ( error ) {
+			debug( 'error', error );
 			this.processErrorEvent( error );
 		}
 	}

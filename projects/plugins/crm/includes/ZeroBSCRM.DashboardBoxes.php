@@ -41,17 +41,17 @@ function zeroBS_dashboard_crm_list_growth(){
 				?>
 				<div id="zbs-date-picker-background">
 					<div class='month-selector'>
-						<div id="reportrange" class="pull-right jpcrm-date-range" style="cursor: pointer; width:240px;">
+						<div id="reportrange" class="jpcrm-date-range" style="cursor: pointer; width:240px; text-align: right;">
 							<i class="fa fa-calendar"></i>&nbsp;
 							<span></span> <b class="caret"></b>
 						</div>
 					</div>
 				</div>
 				<div class="day-or-month">
-					<div class="button" data-range="daily"><?php esc_html_e( 'Day', 'zero-bs-crm' ); ?></div>
-					<div class="button" data-range="weekly"><?php esc_html_e( 'Week', 'zero-bs-crm' ); ?></div>
-					<div class="button selected" data-range="monthly"><?php esc_html_e( 'Month', 'zero-bs-crm' ); ?></div>
-					<div class="button" data-range="yearly"><?php esc_html_e( 'Year', 'zero-bs-crm' ); ?></div>
+					<div class="ui button small white" data-range="daily"><?php esc_html_e( 'Day', 'zero-bs-crm' ); ?></div>
+					<div class="ui button small white" data-range="weekly"><?php esc_html_e( 'Week', 'zero-bs-crm' ); ?></div>
+					<div class="ui button small black" data-range="monthly"><?php esc_html_e( 'Month', 'zero-bs-crm' ); ?></div>
+					<div class="ui button small white" data-range="yearly"><?php esc_html_e( 'Year', 'zero-bs-crm' ); ?></div>
 				</div>
 				<?php
 			}

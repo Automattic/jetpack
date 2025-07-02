@@ -33,7 +33,7 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 				);
 			}
 
-			if ( 'http://flickr.com/photo.gne?id=49931239842' === $url ) {
+			if ( 'https://flickr.com/photo.gne?id=49931239842' === $url ) {
 				return array(
 					'body' => '<meta property="og:url" content="https://www.flickr.com/photos/kalakeli/49931239842/"  data-dynamic="true">',
 				);
@@ -153,7 +153,6 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 		);
 
 		$shortcode_output = flickr_shortcode_video_markup( $atts, '49931239842', 'https://www.flickr.com/photos/kalakeli/49931239842' );
-
 		$this->assertEquals( $output, $shortcode_output );
 	}
 
@@ -204,11 +203,11 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			self::markTestSkipped( 'This test only runs on WPCOM' );
 		}
-		$content = '<iframe src="http://www.flickr.com/photos/batmoo/5265478228/player/" height="500" width="375" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>';
+		$content = '<iframe src="https://www.flickr.com/photos/batmoo/5265478228/player/" height="500" width="375" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>';
 
 		$shortcode_content = wp_kses_post( $content );
 
-		$this->assertEquals( '[flickr photo="http://www.flickr.com/photos/batmoo/5265478228/" w=375 h=500]', $shortcode_content );
+		$this->assertEquals( '[flickr photo="https://www.flickr.com/photos/batmoo/5265478228/" w=375 h=500]', $shortcode_content );
 	}
 
 	/**

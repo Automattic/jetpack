@@ -1,7 +1,8 @@
+import { AnnotationStyles } from './components/line-chart/line-chart-annotation';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
-import type { EventHandlerParams, GridStyles, LineStyles } from '@visx/xychart';
+import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
 import type { CSSProperties, PointerEvent, ReactNode } from 'react';
 
 type ValueOf< T > = T[ keyof T ];
@@ -99,10 +100,13 @@ export type ChartTheme = {
 	seriesLineStyles?: LineStyles[];
 	/** Styles for legend shapes */
 	legendShapeStyles?: CSSProperties[];
+	/** Array of render functions for glyphs */
+	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
 	/** Styles for legend labels */
 	legendLabelStyles?: CSSProperties;
 	/** Styles for legend container */
 	legendContainerStyles?: CSSProperties;
+	annotationStyles?: AnnotationStyles;
 };
 
 declare type AxisOptions = {
@@ -210,6 +214,14 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * Legend shape
 	 */
 	legendShape?: LegendShape< T, number >;
+	/**
+	 * Legend horizontal alignment
+	 */
+	legendAlignmentHorizontal?: 'left' | 'center' | 'right';
+	/**
+	 * Legend vertical alignment
+	 */
+	legendAlignmentVertical?: 'top' | 'bottom';
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */

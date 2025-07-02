@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -Eeo pipefail
 
 # The container will only create the keys if they don't exist, while in our setup

@@ -1,4 +1,4 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	BlockControls,
 	InspectorControls,
@@ -46,10 +46,9 @@ const DEFAULT_MIN_ITEMS = 1;
 const debug = debugFactory( 'jetpack:podcast-player:edit' );
 
 // Support page link.
-const supportUrl =
-	isSimpleSite() || isAtomicSite()
-		? 'http://en.support.wordpress.com/wordpress-editor/blocks/podcast-player-block/'
-		: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
+const supportUrl = isWpcomPlatformSite()
+	? 'http://en.support.wordpress.com/wordpress-editor/blocks/podcast-player-block/'
+	: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
 
 const PodcastPlayerEdit = ( {
 	instanceId,

@@ -1,8 +1,5 @@
-import {
-	isAtomicSite,
-	isSimpleSite,
-	getIconColor,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -17,10 +14,9 @@ export const icon = (
 	</SVG>
 );
 
-const supportLink =
-	isSimpleSite() || isAtomicSite()
-		? 'https://wordpress.com/support/pay-with-paypal/'
-		: 'https://jetpack.com/support/jetpack-blocks/pay-with-paypal/';
+const supportLink = isWpcomPlatformSite()
+	? 'https://wordpress.com/support/pay-with-paypal/'
+	: 'https://jetpack.com/support/jetpack-blocks/pay-with-paypal/';
 
 const settings = {
 	title: __( 'Pay with PayPal', 'jetpack' ),

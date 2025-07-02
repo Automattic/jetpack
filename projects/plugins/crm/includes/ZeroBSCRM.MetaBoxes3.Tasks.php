@@ -500,9 +500,10 @@ function zeroBSCRM_task_addEdit( $taskID = -1 ) {
 	}
 	// WH: Not sure placeholder is really req 3.0? What was that even? (It's not a field we've added to the data model)
 
+	$html .= '<div id="zbs-task-title-row">';
 	$html .= "<input id='zbs-task-title' name='zbse_title' type='text' value='" . esc_attr( $title ) . "' placeholder='" . $placeholder . "' />";
-
-	$html .= zeroBSCRM_task_ui_mark_complete( $taskObject, $taskID );
+	$html .= jpcrm_task_ui_mark_complete( $taskObject ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$html .= '</div>';
 
 	$html .= zeroBSCRM_task_ui_clear();
 
@@ -560,7 +561,7 @@ function zeroBSCRM_task_ui_assignment( $taskObject = array(), $taskID = -1 ) {
 	$html = '';
 	if ( $current_task_user_id === '' || $current_task_user_id <= 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-		$html .= "<div class='no-owner'><i class='ui icon user circle zbs-unassigned'></i>";
+		$html .= "<div class='jpcrm-task-owner'><i class='ui icon user circle zbs-unassigned'></i>";
 
 	} else {
 
@@ -570,7 +571,7 @@ function zeroBSCRM_task_ui_assignment( $taskObject = array(), $taskID = -1 ) {
 			'class' => 'rounded-circle',
 		);
 		$avatar       = jpcrm_get_avatar( $current_task_user_id, 30, '', $display_name, $ava_args );
-		$html        .= "<div class='no-owner'>" . $avatar . "<div class='dn'></div>";
+		$html        .= '<div class="jpcrm-task-owner">' . $avatar;
 
 	}
 
@@ -584,7 +585,7 @@ function zeroBSCRM_task_ui_assignment( $taskObject = array(), $taskID = -1 ) {
 	// get potential owners
 	$jpcrm_tasks_users = zeroBS_getPossibleTaskOwners();
 
-	$html .= '<div class="owner-select" style="margin-left:30px;"><select class="form-controlx" id="zerobscrm-owner" name="zbse_owner" style="width:80%">';
+	$html .= '<select id="zerobscrm-owner" name="zbse_owner">';
 	$html .= '<option value="-1">' . __( 'None', 'zero-bs-crm' ) . '</option>';
 
 	if ( count( $jpcrm_tasks_users ) > 0 ) {
@@ -596,34 +597,35 @@ function zeroBSCRM_task_ui_assignment( $taskObject = array(), $taskID = -1 ) {
 			$html .= '>' . esc_html( $possOwner->display_name ) . '</option>';
 		}
 	}
-	$html .= '</select></div></div>';
+	$html .= '</select></div>';
 
 	return $html;
 }
 
-function zeroBSCRM_task_ui_mark_complete( $taskObject = array(), $taskID = -1 ) {
+/**
+ * Generates HTML for the task status buttons.
+ *
+ * @param array $task_object Task object.
+ */
+function jpcrm_task_ui_mark_complete( $task_object = array() ) {
+	$html = '<div id="mark-complete-task">';
 
-	$html = "<div class='mark-complete-task'>";
-
-	if ( ! array_key_exists( 'complete', $taskObject ) ) {
-		$taskObject['complete'] = 0;
+	if ( ! array_key_exists( 'complete', $task_object ) ) {
+		$task_object['complete'] = -1;
 	}
-
-	if ( $taskObject['complete'] == 1 ) {
-
-			$html .= "<div id='task-mark-incomplete' class='task-comp incomplete'><button class='ui button black' data-taskid='" . $taskID . "'><i class='ui icon check white'></i>" . __( 'Completed', 'zero-bs-crm' ) . '</button></div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$complete  = "<input type='hidden' id='zbs-task-complete' value = '1' name = 'zbs-task-complete'/>";
-	} else {
-			$html .= sprintf(
-				'<div id="task-mark-complete" class="task-comp complete"><button class="ui button black button-primary button-large" data-taskid="%s"><i class="ui icon check"></i>%s</button></div>',
-				$taskID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				__( 'Mark Complete', 'zero-bs-crm' )
-			);
-		$complete  = "<input type='hidden' id='zbs-task-complete' value = '-1' name = 'zbs-task-complete'/>";
-	}
+	$html .= sprintf(
+		'<button type="button" class="ui button black%s" data-status="1"><i class="ui icon check green"></i>%s</button>',
+		$task_object['complete'] !== 1 ? ' hidden' : '',
+		__( 'Completed', 'zero-bs-crm' )
+	);
+	$html .= sprintf(
+		'<button type="button" class="ui button white%s" data-status="-1">%s</button>',
+		$task_object['complete'] === 1 ? ' hidden' : '',
+		__( 'Mark Complete', 'zero-bs-crm' )
+	);
+	$html .= '<input type="hidden" id="zbs-task-complete" value="' . $task_object['complete'] . '" name="zbs-task-complete" />';
 
 	$html .= '</div>';
-	$html .= $complete;
 
 	return $html;
 }
@@ -741,7 +743,7 @@ function jpcrm_task_ui_daterange( $task_object = array() ) {
 	// For now, hack together a table so the date and time inputs line up nicely. Eventually we'll want to rework the entire UI of this page.
 	$html = '
 <table style="margin-left:20px;">
-	<tr class="wh-large">
+	<tr class="jpcrm-task-time">
 		<td><label>' . esc_html__( 'Start time', 'zero-bs-crm' ) . ':</label>&nbsp;</td>
 		<td>
 			<input type="date" name="jpcrm_start_datepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_start, 'Y-m-d' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
@@ -749,7 +751,7 @@ function jpcrm_task_ui_daterange( $task_object = array() ) {
 			<input type="time" name="jpcrm_start_timepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_start, 'H:i' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
 		</td>
 	</tr>
-	<tr class="wh-large">
+	<tr class="jpcrm-task-time">
 		<td><label>' . esc_html__( 'End time', 'zero-bs-crm' ) . ':</label>&nbsp;</td>
 		<td>
 			<input type="date" name="jpcrm_end_datepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_end, 'Y-m-d' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />

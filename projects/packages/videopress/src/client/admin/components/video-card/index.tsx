@@ -26,7 +26,7 @@ import { VideoCardProps } from './types';
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 const QuickActions = ( {
 	id,
@@ -60,7 +60,7 @@ const QuickActions = ( {
  * Video Card component
  *
  * @param {VideoCardProps} props - Component props.
- * @return {React.ReactNode} - VideoCard react component.
+ * @return {ReactNode} - VideoCard react component.
  */
 export const VideoCard = ( {
 	title,

@@ -1,5 +1,4 @@
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { updateSettings } from 'state/settings';
 import { render, screen } from 'test/test-utils';
 import { GoogleAnalytics } from '../../google-analytics';
