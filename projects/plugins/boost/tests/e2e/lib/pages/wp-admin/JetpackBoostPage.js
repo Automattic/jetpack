@@ -86,7 +86,7 @@ export default class JetpackBoostPage extends WpPage {
 		const score = this.page.locator( parent + ' .jb-score-bar__score' );
 		await score.waitFor( {
 			state: 'visible',
-			timeout: 40 * 1000,
+			timeout: 80 * 1000,
 		} );
 
 		return Number( await score.textContent() );
@@ -177,6 +177,8 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async waitForScoreLoadingToFinish() {
+		await this.isOverallScoreHeaderShown();
+
 		const selector = '[data-testid="speed-scores-top"] h2:text("Loading…")';
 		/* It needs a large timeout because speed score updates take time */
 		return this.waitForElementToBeDetached( selector, 180000 ); // 3 minutes
