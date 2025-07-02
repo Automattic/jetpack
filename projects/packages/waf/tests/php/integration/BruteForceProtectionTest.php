@@ -85,4 +85,23 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 
 		$this->instance->log_failed_attempt( 'username', $error );
 	}
+
+	/**
+	 * Test that get_local_host handles wp_parse_url returning false.
+	 */
+	public function test_get_local_host_handles_wp_parse_url_false() {
+		$original_http_host   = $_SERVER['HTTP_HOST'] ?? null;
+		$_SERVER['HTTP_HOST'] = '';
+
+		$result = $this->instance->get_local_host();
+
+		if ( null !== $original_http_host ) {
+			$_SERVER['HTTP_HOST'] = $original_http_host;
+		} else {
+			unset( $_SERVER['HTTP_HOST'] );
+		}
+
+		$this->assertIsString( $result );
+		$this->assertNotEmpty( $result );
+	}
 }
