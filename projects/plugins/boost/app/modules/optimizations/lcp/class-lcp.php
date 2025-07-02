@@ -9,12 +9,13 @@ use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
+use Automattic\Jetpack_Boost\Contracts\Needs_Website_To_Be_Public;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_LCP;
 
-class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync, Has_Always_Available_Endpoints {
+class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync, Has_Always_Available_Endpoints, Needs_Website_To_Be_Public {
 	/** LCP type for background images. */
 	const TYPE_BACKGROUND_IMAGE = 'background-image';
 
