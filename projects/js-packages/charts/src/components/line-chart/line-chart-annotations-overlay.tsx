@@ -25,7 +25,6 @@ const LineChartAnnotations: React.FC< LineChartAnnotationsProps > = ( {
 	chartHeight,
 } ) => {
 	const [ scales, setScales ] = useState< ScaleData | null >( null );
-	const [ isReady, setIsReady ] = useState( false );
 
 	// Get scales from chart ref
 	const updateScales = useCallback( () => {
@@ -36,7 +35,6 @@ const LineChartAnnotations: React.FC< LineChartAnnotationsProps > = ( {
 					xScale: scaleData.xScale as AxisScale< Date >,
 					yScale: scaleData.yScale as AxisScale< number >,
 				} );
-				setIsReady( true );
 			}
 		}
 	}, [ chartRef ] );
@@ -52,7 +50,7 @@ const LineChartAnnotations: React.FC< LineChartAnnotationsProps > = ( {
 	}, [ updateScales ] );
 
 	// Don't render anything if scales aren't ready
-	if ( ! isReady || ! scales ) {
+	if ( ! scales ) {
 		return null;
 	}
 
