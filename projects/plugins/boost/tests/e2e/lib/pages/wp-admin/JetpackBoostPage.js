@@ -18,7 +18,8 @@ export default class JetpackBoostPage extends WpPage {
 	async chooseFreePlan() {
 		const button = this.page.locator( 'text=Start for free' );
 		await button.click();
-		await this.waitForElementToBeVisible( '[data-testid="speed-scores"]' );
+		// We should wait a longer time to ensure the connection/plan is complete/established.
+		await this.waitForElementToBeVisible( '[data-testid="speed-scores"]', 30 * 1000 );
 	}
 
 	/**
