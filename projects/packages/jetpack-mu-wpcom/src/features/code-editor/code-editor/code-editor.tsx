@@ -2,20 +2,24 @@
  * Load a featureful editor in the "code editor" view of the Block and Site Editors.
  */
 
+// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+import { __unstableSerializeAndClean } from '@wordpress/blocks';
+import { Button, VisuallyHidden } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
+import { store as coreStore } from '@wordpress/core-data';
+import { useDispatch, useSelect } from '@wordpress/data';
+import {
+	store as editorStore,
+	PostTitleRaw,
+	privateApis as editorPrivateApis,
+} from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
+import { store as keyboardShortcutsStore } from '@wordpress/keyboard-shortcuts';
+import { registerPlugin } from '@wordpress/plugins';
+import { __dangerousOptInToUnstableAPIsOnlyForCoreModules } from '@wordpress/private-apis';
+import * as React from 'react';
 import type { EditorView } from '@codemirror/view';
 import type { JSX } from 'react';
-
-const React = window.React;
-const { __unstableSerializeAndClean } = window.wp.blocks;
-const { Button, VisuallyHidden } = window.wp.components;
-const { useInstanceId } = window.wp.compose;
-const { store: coreStore } = window.wp.coreData;
-const { useDispatch, useSelect } = window.wp.data;
-const { store: editorStore, PostTitleRaw } = window.wp.editor;
-const { __ } = window.wp.i18n;
-const { store: keyboardShortcutsStore } = window.wp.keyboardShortcuts;
-const { registerPlugin } = window.wp.plugins;
-const { __dangerousOptInToUnstableAPIsOnlyForCoreModules } = window.wp.privateApis;
 
 const isSiteEditor = !! document.querySelector( '#site-editor.edit-site' );
 
@@ -23,12 +27,12 @@ let EditorContentSlotFill:
 	| {
 			name: string | symbol;
 			Fill: {
-				// biome-ignore lint/suspicious/noExplicitAny: Allow it.
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				( props: any ): JSX.Element;
 				displayName: string;
 			};
 			Slot: {
-				// biome-ignore lint/suspicious/noExplicitAny: Allow it.
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				( props: any ): JSX.Element;
 				displayName: string;
 			};
@@ -96,18 +100,18 @@ let EditorContentSlotFill:
 				unlockModule
 			);
 
-			const unlocked = unlock( window.wp.editor.privateApis );
+			const unlocked = unlock( editorPrivateApis );
 			EditorContentSlotFill = unlocked.EditorContentSlotFill;
 			break;
 		} catch {
-			console.error( 'Failed with %o', unlockModule );
+			// Silence is golden.
 		}
 	}
 }
 
 if ( EditorContentSlotFill !== undefined ) {
 	registerPlugin( 'a8c-code-editor--replace-editor', {
-		render: () => {
+		render: function CodeEditorFill() {
 			const mode = useSelect( select => {
 				return select( editorStore ).getEditorMode();
 			}, [] );
@@ -126,11 +130,11 @@ if ( EditorContentSlotFill !== undefined ) {
 }
 
 /**
+ * Render the Editor
  *
- * @param root0
- * @param root0.autoFocus
+ * @return The editor element.
  */
-function TextEditor( { autoFocus = false } ) {
+function TextEditor(): JSX.Element {
 	const { switchEditorMode } = useDispatch( editorStore );
 	const { shortcut, isRichEditingEnabled } = useSelect( select => {
 		const { getEditorSettings } = select( editorStore );
@@ -141,14 +145,6 @@ function TextEditor( { autoFocus = false } ) {
 			isRichEditingEnabled: getEditorSettings().richEditingEnabled,
 		};
 	}, [] );
-
-	const titleRef: React.RefObject< HTMLElement | null > = React.useRef( null );
-	React.useEffect( () => {
-		if ( autoFocus ) {
-			return;
-		}
-		titleRef?.current?.focus();
-	}, [ autoFocus ] );
 
 	return (
 		<div className="editor-text-editor">
@@ -166,9 +162,9 @@ function TextEditor( { autoFocus = false } ) {
 				</div>
 			) }
 			<div className="editor-text-editor__body">
-				<PostTitleRaw ref={ titleRef } />
+				<PostTitleRaw />
 				<React.Suspense fallback={ <div /> }>
-					<PostTextEditor />
+					<CodeEditor />
 				</React.Suspense>
 			</div>
 		</div>
@@ -176,10 +172,12 @@ function TextEditor( { autoFocus = false } ) {
 }
 
 /**
+ * Render the code editor
  *
+ * @return The code editor element.
  */
-function PostTextEditor() {
-	const instanceId = useInstanceId( PostTextEditor );
+function CodeEditor(): JSX.Element {
+	const instanceId = useInstanceId( CodeEditor );
 	const { content, blocks, type, id } = useSelect( select => {
 		const { getEditedEntityRecord } = select( coreStore );
 		const { getCurrentPostType, getCurrentPostId } = select( editorStore );
@@ -199,9 +197,7 @@ function PostTextEditor() {
 	const value = React.useMemo( () => {
 		if ( content instanceof Function ) {
 			return content( { blocks } );
-		}
-		// biome-ignore lint/style/noUselessElse: This is copied from Core implementation.
-		else if ( blocks ) {
+		} else if ( blocks ) {
 			// If we have parsed blocks already, they should be our source of truth.
 			// Parsing applies block deprecations and legacy block conversions that
 			// unparsed content will not have.
@@ -237,7 +233,6 @@ const cm_lazy = ( cm_module: typeof import('@a8cCodeEditor/codemirror-bundle') )
 
 		const { initialValue, type, id } = props;
 
-		// @ts-expect-error
 		const ref: React.RefObject< HTMLDivElement > = React.useRef( null );
 
 		const viewRef: React.RefObject< EditorView | undefined > = React.useRef( undefined );
@@ -251,7 +246,7 @@ const cm_lazy = ( cm_module: typeof import('@a8cCodeEditor/codemirror-bundle') )
 					selection: undefined,
 				} );
 			},
-			[ type, id ]
+			[ type, id, editEntityRecord ]
 		);
 
 		const updateListener = React.useRef(
@@ -334,7 +329,19 @@ const cm_lazy = ( cm_module: typeof import('@a8cCodeEditor/codemirror-bundle') )
 				viewRef.current?.destroy();
 				viewRef.current = undefined;
 			};
-		}, [] );
+		}, [
+			Autocomplete,
+			Commands,
+			HtmlLanguage,
+			Language,
+			Lint.lintKeymap,
+			Search,
+			State.EditorState.allowMultipleSelections,
+			View,
+			initialValue,
+			syntaxHighlightingStyle,
+			theme,
+		] );
 
 		return <div ref={ ref } />;
 	};
