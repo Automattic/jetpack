@@ -107,7 +107,6 @@ class SupportCard extends Component {
 										? getRedirectUrl( 'calypso-help' )
 										: getRedirectUrl( 'jetpack-support' )
 								}
-								isExternalLink={ true }
 							>
 								{ __( 'Search our support site', 'jetpack' ) }
 							</Button>
