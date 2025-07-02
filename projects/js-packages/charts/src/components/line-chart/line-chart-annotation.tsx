@@ -195,7 +195,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 
 	// Measure the label height once after initial render
 	useEffect( () => {
-		if ( labelRef.current ) {
+		if ( labelRef.current?.getBBox ) {
 			const bbox = labelRef.current.getBBox();
 			setHeight( bbox.height );
 		}
