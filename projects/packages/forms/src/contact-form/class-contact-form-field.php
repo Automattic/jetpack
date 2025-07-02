@@ -2090,11 +2090,44 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$spans = '';
 		for ( $i = 1; $i <= $max_rating; $i++ ) {
-			$spans .= '<label class="jetpack-field-rating__label"><input type="radio" data-wp-on--change="actions.onFieldChange" ' . checked( $i, $initial_rating, false ) . ( $required ? ' required aria-required="true" ' : '' ) . ' name="' . esc_attr( $id ) . '" value="' . esc_attr( $i ) . '/ ' . esc_attr( $max_rating ) . '" />' . str_repeat( '<span class="rating-icon">★</span>', $i ) . '</label>';
+			$spans .= '<label class="jetpack-field-rating__label">
+				<input type="radio" data-wp-on--change="actions.onFieldChange" ' . checked( $i, $initial_rating, false ) . ( $required ? ' required aria-required="true" ' : '' ) . ' name="' . esc_attr( $id ) . '" value="' . esc_attr( $i ) . '/ ' . esc_attr( $max_rating ) . '" />'
+				. str_repeat( '<span class="rating-icon">★</span>', $i ) .
+			'</label>';
+		}
+
+		$style_attr = '';
+
+		// The color is set in the field_styles attribute
+		$has_star_color = preg_match( '/color:\s*([^;]+)/', $this->field_styles, $matches );
+		if ( $has_star_color ) {
+				$color_value = $matches[1];
+				$style_attr  = 'style="--star-color: ' . esc_attr( $color_value ) . ';"';
+		} else {
+				// Theme colors are set in the field_classes attribute
+				$preset_colors = array(
+					'has-base-color'     => '--wp--preset--color--base',
+					'has-contrast-color' => '--wp--preset--color--contrast',
+					'has-accent-1-color' => '--wp--preset--color--accent-1',
+					'has-accent-2-color' => '--wp--preset--color--accent-2',
+					'has-accent-3-color' => '--wp--preset--color--accent-3',
+					'has-accent-4-color' => '--wp--preset--color--accent-4',
+					'has-accent-5-color' => '--wp--preset--color--accent-5',
+					'has-accent-6-color' => '--wp--preset--color--accent-6',
+				);
+
+				foreach ( $preset_colors as $class => $css_var ) {
+					if ( strpos( $this->field_classes, $class ) !== false ) {
+							$style_attr = 'style="--star-color: var(' . esc_attr( $css_var ) . ');"';
+
+							break;
+					}
+				}
 		}
 
 		return $label_html . sprintf(
-			'<div class="jetpack-field-rating">%1$s</div>',
+			'<div class="jetpack-field-rating" %1$s>%2$s</div>',
+			$style_attr,
 			$spans
 		) . $this->get_error_div( $id, 'rating' );
 	}
