@@ -795,10 +795,8 @@ function jpcrm_listview_language_labels( $language_array ) { // phpcs:ignore Uni
 		'rows_selected_1'    => esc_html__( 'Bulk actions (1 row)', 'zero-bs-crm' ),
 		'rows_selected_0'    => esc_html__( 'Bulk actions (no rows)', 'zero-bs-crm' ),
 		'zbs_edit'           => esc_html__( 'Edit', 'zero-bs-crm' ),
-		'today'              => esc_html__( 'Today', 'zero-bs-crm' ),
 		'daysago'            => esc_html__( 'days ago', 'zero-bs-crm' ),
 		'notcontacted'       => esc_html__( 'Not Contacted', 'zero-bs-crm' ),
-		'yesterday'          => esc_html__( 'Yesterday', 'zero-bs-crm' ),
 		'couldntupdate'      => esc_html__( 'Could not update', 'zero-bs-crm' ),
 		'couldntupdatedeets' => esc_html__( 'This record could not be updated. Please try again, if this persists please let admin know.', 'zero-bs-crm' ),
 		/* translators: Placeholders are the range of the current record result and the total object count. */

@@ -2496,6 +2496,9 @@ importers:
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.26.0
         version: 6.26.0(webpack@5.94.0)
+      '@wordpress/dom-ready':
+        specifier: 4.25.0
+        version: 4.25.0
       '@wordpress/element':
         specifier: 6.26.0
         version: 6.26.0
@@ -4229,8 +4232,8 @@ importers:
         specifier: 6.11.0
         version: 6.11.0(webpack@5.94.0)
       daterangepicker:
-        specifier: 2.1.25
-        version: 2.1.25
+        specifier: 3.1.0
+        version: 3.1.0
       font-awesome:
         specifier: 4.7.0
         version: 4.7.0
@@ -8875,6 +8878,10 @@ packages:
     resolution: {integrity: sha512-frBJqCKlMrKeUcVgbp2hq7MKeCg7hQCCMCTTqDXaRMa0+oYDPFKx3gPx529uSMOWxkzJHz+mdr5lHrFzElM6eQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
+  '@wordpress/dom-ready@4.25.0':
+    resolution: {integrity: sha512-HvGxncRhskqrkwyIPVsfznToFtSr6X0zBrIMHK7bgwGGiMr+yz5jYX3wnY1AsUDSr95ezhbCTdE2rNmvFkCD0g==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
   '@wordpress/dom-ready@4.26.0':
     resolution: {integrity: sha512-VfKcvB2XtXZHluits/RY9O4VhpZ+YG5SQVN07SwbtSg1vaFJSkUnp31qOsLuVrFyhiUUYkZ/liCpO/vbalZqxQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -10277,8 +10284,8 @@ packages:
   date-fns@4.1.0:
     resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
-  daterangepicker@2.1.25:
-    resolution: {integrity: sha512-8qSYdsolahhBpfoGFcVOmKXnpy0MpbgT3J4YeWG/oPgyApnEIUbIugtS6ryJdQFF+rZ+tUYbRXBnOe4QK8jGnA==}
+  daterangepicker@3.1.0:
+    resolution: {integrity: sha512-DxWXvvPq4srWLCqFugqSV+6CBt/CvQ0dnpXhQ3gl0autcIDAruG1PuGG3gC7yPRNytAD1oU1AcUOzaYhOawhTw==}
 
   debounce@1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
@@ -21006,6 +21013,10 @@ snapshots:
       '@babel/runtime': 7.27.6
       '@wordpress/hooks': 4.26.0
 
+  '@wordpress/dom-ready@4.25.0':
+    dependencies:
+      '@babel/runtime': 7.27.6
+
   '@wordpress/dom-ready@4.26.0':
     dependencies:
       '@babel/runtime': 7.27.6
@@ -23358,7 +23369,7 @@ snapshots:
 
   date-fns@4.1.0: {}
 
-  daterangepicker@2.1.25:
+  daterangepicker@3.1.0:
     dependencies:
       jquery: 3.6.0
       moment: 2.30.1
