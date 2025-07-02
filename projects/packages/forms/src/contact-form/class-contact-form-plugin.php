@@ -3103,6 +3103,16 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_slider( $atts, $content, $block ) {
+		// Extract min and max from the jetpack/slider-input child block, similar to number field logic.
+		if ( $block && ! empty( $block->parsed_block['innerBlocks'] ) ) {
+			foreach ( $block->parsed_block['innerBlocks'] as $inner_block ) {
+				if ( 'jetpack/slider-input' === ( $inner_block['blockName'] ?? '' ) ) {
+					$atts['min'] = $inner_block['attrs']['min'] ?? '';
+					$atts['max'] = $inner_block['attrs']['max'] ?? '';
+				}
+			}
+		}
+
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'slider', $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}

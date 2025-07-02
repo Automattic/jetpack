@@ -19,6 +19,10 @@ const settings = {
 	),
 	edit,
 	save,
+	supports: {
+		...defaultSettings.supports,
+		interactivity: true,
+	},
 	example: {
 		innerBlocks: [
 			{

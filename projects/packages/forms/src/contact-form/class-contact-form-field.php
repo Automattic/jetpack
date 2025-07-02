@@ -477,7 +477,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$extra_attrs = array();
 
-		if ( $field_type === 'number' ) {
+		if ( $field_type === 'number' || $field_type === 'slider' ) {
 			if ( is_numeric( $this->get_attribute( 'min' ) ) ) {
 				$extra_attrs['min'] = $this->get_attribute( 'min' );
 			}
@@ -2215,14 +2215,58 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// translators: %d is the maximum value.
 			$this->set_invalid_message( 'max_slider', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
 		}
-		$min    = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : '';
-		$max    = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : '';
-		$field  = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
-		$field .= '<div class="jetpack-slider-input-row">';
-		$field .= '<span class="jetpack-slider-input__min-label">' . esc_html( $min ) . '</span>';
-		$field .= $this->render_input_field( 'range', $id, $value, $class, $placeholder, $required, $extra_attrs );
-		$field .= '<span class="jetpack-slider-input__max-label">' . esc_html( $max ) . '</span>';
-		$field .= '</div>';
+		$min   = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : '';
+		$max   = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : '';
+		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
+
+		ob_start();
+		?>
+		<div
+			class="jetpack-slider-input-row"
+			data-wp-interactive="jetpack/field-slider"
+			<?php
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is pre-escaped by method
+			echo wp_interactivity_data_wp_context(
+				array(
+					'fieldId'    => $id,
+					'fieldValue' => $value,
+					'fieldExtra' => array(
+						'min' => $min,
+						'max' => $max,
+					),
+				)
+			);
+			?>
+		>
+			<span class="jetpack-slider-input__min-label"><?php echo esc_html( $min ); ?></span>
+			<div class="jetpack-slider-input__input-container">
+				<input
+					type="range"
+					name="<?php echo esc_attr( $id ); ?>"
+					id="<?php echo esc_attr( $id ); ?>"
+					value="<?php echo esc_attr( $value ); ?>"
+					min="<?php echo esc_attr( $min ); ?>"
+					max="<?php echo esc_attr( $max ); ?>"
+					class="<?php echo esc_attr( $class ); ?>"
+					placeholder="<?php echo esc_attr( $placeholder ); ?>"
+					<?php
+					if ( $required ) :
+						?>
+						required<?php endif; ?>
+					data-wp-bind--value="state.getFieldValue"
+					data-wp-on--input="actions.onFieldChange"
+					data-wp-bind--aria-invalid="state.fieldHasErrors"
+				/>
+				<div
+					class="jetpack-slider-input__value-indicator"
+					data-wp-text="state.getFieldValue"
+					data-wp-style--left="state.getIndicatorPosition"
+				><?php echo esc_html( $value ); ?></div>
+			</div>
+			<span class="jetpack-slider-input__max-label"><?php echo esc_html( $max ); ?></span>
+		</div>
+		<?php
+		$field .= ob_get_clean();
 		return $field;
 	}
 

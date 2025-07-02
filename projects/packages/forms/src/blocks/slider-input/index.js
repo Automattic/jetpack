@@ -17,6 +17,18 @@ const settings = {
 			d="M4 12h16M4 12a2 2 0 1 0 0-4M20 12a2 2 0 1 0 0-4M12 12a2 2 0 1 0 0-4"
 		/>
 	),
+	parent: [ 'jetpack/field-slider' ],
+	attributes: {
+		...defaultSettings.attributes,
+		min: {
+			type: 'number',
+			default: 0,
+		},
+		max: {
+			type: 'number',
+			default: 100,
+		},
+	},
 	edit,
 	save,
 	example: {
