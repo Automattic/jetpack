@@ -220,6 +220,20 @@ class Contact_Form_Block {
 				),
 			)
 		);
+		Blocks::jetpack_register_block(
+			'jetpack/rating-input',
+			array(
+				'supports' => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
+					),
+					'typography' => array(
+						'fontSize' => true,
+					),
+				),
+			)
+		);
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
