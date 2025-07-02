@@ -45,7 +45,7 @@ class Image_Analysis_Action_Fix implements Data_Sync_Action {
 			$changed                    = 'fix';
 		}
 
-		if ( $changed ) {
+		if ( 'fix' === $changed || 'removed' === $changed ) {
 			$status = update_post_meta( $data['post_id'], '_jb_image_fixes', $fixes );
 		}
 

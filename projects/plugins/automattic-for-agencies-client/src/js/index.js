@@ -1,6 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
-import React from 'react';
 import AdminPage from './components/admin-page';
 
 /**

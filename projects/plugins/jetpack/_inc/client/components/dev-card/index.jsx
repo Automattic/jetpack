@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { get } from 'lodash';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import { getPlanClass } from 'lib/plans/constants';
@@ -26,7 +26,7 @@ import { getScanStatus } from 'state/scan';
 import { getSitePlan } from 'state/site';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
-export class DevCard extends React.Component {
+export class DevCard extends Component {
 	static displayName = 'DevCard';
 
 	onPlanChange = event => {

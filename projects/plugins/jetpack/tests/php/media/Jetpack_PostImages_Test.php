@@ -1056,4 +1056,148 @@ class Jetpack_PostImages_Test extends WP_UnitTestCase {
 
 		return $id;
 	}
+
+	/**
+	 * Test if an array of images can be extracted from Image blocks using Block_Delimiter.
+	 *
+	 * @since 14.8
+	 */
+	public function test_from_blocks_with_block_delimiter() {
+		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
+			$this->markTestSkipped( 'Block_Delimiter not available' );
+		}
+
+		$post_info = $this->get_post_with_image_block();
+
+		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( $post_info['img_url'], $images[0]['src'] );
+		$this->assertEquals( $post_info['alt_text'], $images[0]['alt_text'] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
+	}
+
+	/**
+	 * Test if an array of images can be extracted from Gallery blocks using Block_Delimiter.
+	 *
+	 * @since 14.8
+	 */
+	public function test_from_blocks_with_gallery_block_delimiter() {
+		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
+			$this->markTestSkipped( 'Block_Delimiter not available' );
+		}
+
+		$post_info = $this->get_post_with_gallery_block();
+
+		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
+
+		$this->assertCount( 2, $images );
+		$this->assertEquals( $post_info['img_urls'][0], $images[0]['src'] );
+		$this->assertEquals( $post_info['img_urls'][1], $images[1]['src'] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
+	}
+
+	/**
+	 * Test if an array of images can be extracted from Columns blocks using Block_Delimiter.
+	 *
+	 * @since 14.8
+	 */
+	public function test_from_blocks_with_columns_block_delimiter() {
+		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
+			$this->markTestSkipped( 'Block_Delimiter not available' );
+		}
+
+		$post_info = $this->get_post_with_columns_block();
+
+		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( $post_info['img_url'], $images[0]['src'] );
+		$this->assertEquals( $post_info['alt_text'], $images[0]['alt_text'] );
+		$this->assertEquals( 300, $images[0]['src_width'] );
+		$this->assertEquals( 250, $images[0]['src_height'] );
+	}
+
+	/**
+	 * Test if an array of images can be extracted from Story blocks using Block_Delimiter.
+	 *
+	 * @since 14.8
+	 */
+	public function test_from_blocks_with_story_block_delimiter() {
+		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
+			$this->markTestSkipped( 'Block_Delimiter not available' );
+		}
+
+		$media_types = array( 'image', 'videopress' );
+		$post_info   = $this->get_post_with_story_block( $media_types );
+
+		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
+
+		$this->assertCount( 2, $images );
+		$this->assertEquals( $post_info['img_urls'][0], $images[0]['src'] );
+
+		// The second media is a VideoPress video, so expect a poster URL.
+		$expected_poster_url = str_replace( 'mp4', 'jpg', $post_info['img_urls'][1] );
+		$this->assertEquals( $expected_poster_url, $images[1]['src'] );
+	}
+
+	/**
+	 * Test if an array of images can be extracted from mixed blocks using Block_Delimiter.
+	 *
+	 * @since 14.8
+	 */
+	public function test_from_blocks_with_mixed_blocks_delimiter() {
+		if ( ! class_exists( 'Automattic\Block_Delimiter' ) ) {
+			$this->markTestSkipped( 'Block_Delimiter not available' );
+		}
+
+		$img_name       = 'image.jpg';
+		$alt_text       = 'Alt Text.';
+		$img_dimensions = array(
+			'width'  => 300,
+			'height' => 250,
+		);
+
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
+			$img_name,
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
+		wp_update_attachment_metadata( $attachment_id, $img_dimensions );
+		update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
+
+		$img_url = wp_get_attachment_url( $attachment_id );
+
+		// Create a post with mixed blocks (image, gallery, columns)
+		$post_html = sprintf(
+			'<!-- wp:image {"id":%2$d} --><div class="wp-block-image"><figure class="wp-block-image"><img src="%1$s" alt="" class="wp-image-%2$d"/></figure></div><!-- /wp:image -->' .
+			'<!-- wp:gallery {"ids":[%2$d]} --><figure class="wp-block-gallery has-nested-images columns-default is-cropped"><figure class="wp-block-image"><img src="%1$s" alt="" class="wp-image-%2$d"/></figure></figure><!-- /wp:gallery -->' .
+			'<!-- wp:columns --><div class="wp-block-columns has-2-columns"><!-- wp:column --><div class="wp-block-column"><!-- wp:image {"id":%2$d} --><figure class="wp-block-image"><img src="%1$s" alt="" class="wp-image-%2$d"/></figure><!-- /wp:image --></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><!-- wp:paragraph --><p>Some text</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns -->',
+			$img_url,
+			$attachment_id
+		);
+
+		$second_post_id = self::factory()->post->create(
+			array(
+				'post_content' => $post_html,
+			)
+		);
+
+		$images = Jetpack_PostImages::from_blocks( $second_post_id );
+
+		// Should find 3 images (1 from image block, 1 from gallery, 1 from columns)
+		$this->assertCount( 3, $images );
+		foreach ( $images as $image ) {
+			$this->assertEquals( $img_url, $image['src'] );
+			$this->assertEquals( $alt_text, $image['alt_text'] );
+			$this->assertEquals( 300, $image['src_width'] );
+			$this->assertEquals( 250, $image['src_height'] );
+		}
+	}
 } // end class

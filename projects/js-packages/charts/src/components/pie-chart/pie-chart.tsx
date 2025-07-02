@@ -4,11 +4,12 @@ import clsx from 'clsx';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Legend } from '../legend';
+import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
-import type { SVGProps, MouseEvent } from 'react';
+import type { SVGProps, MouseEvent, ReactNode } from 'react';
 
 type OmitBaseChartProps = Omit< BaseChartProps< DataPointPercentage[] >, 'width' | 'height' >;
 
@@ -45,7 +46,7 @@ interface PieChartProps extends OmitBaseChartProps {
 	/**
 	 * Use the children prop to render additional elements on the chart.
 	 */
-	children?: React.ReactNode;
+	children?: ReactNode;
 }
 
 /**
@@ -86,6 +87,8 @@ const PieChart = ( {
 	className,
 	showLegend,
 	legendOrientation,
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
 	legendShape = 'circle',
 	size,
 	thickness = 1,
@@ -95,6 +98,7 @@ const PieChart = ( {
 	children = null,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
+	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
 		useChartMouseHandler( {
 			withTooltips,
@@ -116,15 +120,16 @@ const PieChart = ( {
 	// Calculate radius based on width/height
 	const radius = Math.min( width, height ) / 2;
 
-	// Center the chart in the available space
+	// Center the chart in the available space, adjusting for legend position
 	const centerX = width / 2;
-	const centerY = height / 2;
+	const legendOffset = showLegend && legendAlignmentVertical === 'top' ? legendHeight / 2 : 0;
+	const centerY = height / 2 + legendOffset;
 
 	// Calculate the angle between each
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
 
 	const outerRadius = radius - padding;
-	const innerRadius = outerRadius * ( 1 - thickness );
+	const innerRadius = thickness === 0 ? 0 : outerRadius * ( 1 - thickness );
 
 	const maxCornerRadius = ( outerRadius - innerRadius ) / 2;
 	const cornerRadius = cornerScale ? Math.min( cornerScale * outerRadius, maxCornerRadius ) : 0;
@@ -150,7 +155,14 @@ const PieChart = ( {
 	} ) );
 
 	return (
-		<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
+		<div
+			className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
+			style={ {
+				display: 'flex',
+				flexDirection:
+					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+			} }
+		>
 			<svg
 				viewBox={ `0 0 ${ size } ${ size }` }
 				preserveAspectRatio="xMidYMid meet"
@@ -215,8 +227,11 @@ const PieChart = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
+					alignmentHorizontal={ legendAlignmentHorizontal }
+					alignmentVertical={ legendAlignmentVertical }
 					className={ styles[ 'pie-chart-legend' ] }
 					shape={ legendShape }
+					ref={ legendRef }
 				/>
 			) }
 

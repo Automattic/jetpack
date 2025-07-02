@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Sitemaps
- * Module Description: Make it easy for search engines to find your site.
+ * Module Description: Generate XML sitemaps so search engines can index your site efficiently.
  * Sort Order: 13
  * First Introduced: 3.9
  * Requires Connection: No

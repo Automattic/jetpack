@@ -46,7 +46,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );
-	const { detail, isLoading: isProductDataLoading } = useProduct( slug );
+	const { detail, isLoading: isProductDataLoading, isRefetching } = useProduct( slug );
 
 	const {
 		manageUrl,
@@ -68,6 +68,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const isBusy =
 		isActivating ||
 		isProductDataLoading ||
+		isRefetching ||
 		isInstalling ||
 		( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
 	const hasAdditionalActions = additionalActions?.length > 0;

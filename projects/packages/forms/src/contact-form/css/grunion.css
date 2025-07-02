@@ -26,6 +26,24 @@
 	opacity: 0.3;
 }
 
+.jetpack-form-step {
+	display: none;
+}
+
+.jetpack-form-step.is-current-step {
+	position: relative;
+	visibility: visible;
+	opacity: 1;
+	height: auto;
+	overflow: visible;
+	z-index: 2;
+	display: block;
+}
+
+.contact-form .wp-block-jetpack-button:has( button.is-hidden ) {
+	display: none;
+}
+
 /*
 	Using :where we will keep a lower CSS specificity,
 	allowing themes to easily override these styles
@@ -248,6 +266,20 @@
 	margin-top: 7px;
 }
 
+.wp-block-jetpack-form-step {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	flex-direction: row;
+	flex-grow: 1;
+	gap: var(--wp--style--block-gap, 1.5rem);
+}
+
+.wp-block-jetpack-form-step > * {
+	flex: 0 0 100%;
+	box-sizing: border-box;
+}
+
 .wp-block-jetpack-contact-form {
 	display: flex;
 	flex-wrap: wrap;
@@ -281,7 +313,6 @@
 
 .wp-block-jetpack-contact-form .wp-block-jetpack-button {
 	width: fit-content;
-	align-self: flex-end;
 }
 
 .wp-block-jetpack-contact-form .wp-block-jetpack-button.aligncenter {
@@ -662,16 +693,16 @@ on production builds, the attributes are being reordered, causing side-effects
 	max-width: 100px;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-value) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__notch,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__notch
 {
 	border-top-color: transparent !important;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-value) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
 .contact-form .is-style-outlined .grunion-field-wrap.grunion-field-select-wrap .notched-label .notched-label__label
 {
@@ -680,15 +711,15 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 /* Form that upgrade to use inner blocks look to the global styles border size accessible via the CSS vars. See Contact_Form_Field::get_form_variation_style_properties() .*/
-.contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .notched-label__label,
 .contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field:focus) .notched-label__label,
+.contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field.has-value) .notched-label__label,
 .contact-form .is-style-outlined .wp-block-jetpack-input-wrap .notched-label:has(~ .grunion-field.has-placeholder) .notched-label__label,
 .contact-form .is-style-outlined .wp-block-jetpack-field-select.wp-block-jetpack-input-wrap .notched-label .notched-label__label {
 	top: calc( var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size)) * -1 );
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-text,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-value) .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options .grunion-label-text,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options .grunion-label-text,
@@ -696,8 +727,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 0.8em;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-required,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field:focus) .grunion-label-required,
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-value) .grunion-label-required,
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label:has(~ .grunion-field.has-placeholder) .grunion-label-required,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options .grunion-label-required,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options .grunion-label-required,
@@ -789,8 +820,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
 }
 
-.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:not(:placeholder-shown)),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus),
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-value),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder),
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label
 {
@@ -798,16 +829,16 @@ on production builds, the attributes are being reordered, causing side-effects
 	top: calc(2px + var(--jetpack--contact-form--border-top-size, var( --jetpack--contact-form--border-size, 1px )));
 }
 
-.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-text,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-text,
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-value) .grunion-label-text,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder) .grunion-label-text,
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-text
 {
 	font-size: 0.75em;
 }
 
-.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:not(:placeholder-shown)) .grunion-label-required,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field:focus) .grunion-label-required,
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-value) .grunion-label-required,
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label:has(~ .grunion-field.has-placeholder) .grunion-label-required,
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label .grunion-label-required
 {
@@ -821,8 +852,8 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 /* The following is scoped by the presence of the custom font size CSS var to avoid needing conditional fallback within the var() */
-.contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field:not(:placeholder-shown)),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field:focus),
+.contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field.has-value),
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"]:has(~ .grunion-field.has-placeholder),
 .contact-form .is-style-animated .grunion-field-wrap.grunion-field-select-wrap .animated-label__label[style*="--jetpack--contact-form--label--font-size"] {
 	font-size: calc(var(--jetpack--contact-form--label--font-size) * 0.75);
@@ -1043,6 +1074,8 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__error.show-errors {
 	display: inline;
+	min-width: 100%;
+	box-sizing: inherit;
 }
 
 .contact-form__error ul {
@@ -1071,18 +1104,18 @@ on production builds, the attributes are being reordered, causing side-effects
 	font-size: 1rem;
 	color: var(--jetpack--contact-form--error-color);
 	opacity: 0;
-	height: 0;
-	display: none;
+	max-height: 0;
 	overflow: hidden;
-	transition: opacity 0.3s ease-out, height 0.3s ease-out;
+	transform: translateY( -0.33em );
+	transition: max-height 200ms cubic-bezier(0.34, 0.8, 0.34, 1), opacity 200ms cubic-bezier(0.34, 0.8, 0.34, 1), transform 100ms cubic-bezier(0.34, 0.8, 0.34, 1);
 }
 
 .contact-form__input-error.has-errors {
-
 	display: flex;
-	gap: 0.33em;
 	opacity: 1;
-	height: auto;
+	max-height: 2em;
+	transform: translateY(0);
+	transition: opacity 200ms cubic-bezier(0.34, 0.8, 0.34, 1), transform 200ms cubic-bezier(0.34, 0.8, 0.34, 1);
 }
 
 .contact-form [aria-invalid="true"]:not(fieldset),
@@ -1105,8 +1138,8 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__warning-icon svg {
 	fill: currentColor;
-  	display: block; /* Prevents extra space */
-  	margin: 0 auto; /* Centers horizontally */
+	display: block;
+	margin: 0 auto;
 }
 
 .contact-form__checkbox-wrap {
@@ -1119,6 +1152,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	justify-content: center;
 	align-items: center;
 	gap: 0.5em;
+	width: 100%;
 }
 
 .contact-form .contact-form__spinner {

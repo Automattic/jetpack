@@ -102,7 +102,7 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 			wp_register_style( 'jpcrm-fontawesome', plugins_url( '/build/lib/font-awesome/css/font-awesome.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 
 			// chart.js
-			wp_register_script( 'zerobscrmchartjs', plugins_url( '/build/lib/chart.js/chart.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION );
+			wp_register_script( 'jpcrm-chartjs', plugins_url( '/build/lib/chart.js/chart.umd.min.js', ZBS_ROOTFILE ), array( 'jquery' ), $zbs::VERSION, true );
 
 			// SweetAlert2
 			wp_register_style( 'zerobscrmswa', plugins_url( '/build/lib/sweetalert2/sweetalert2.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
@@ -174,35 +174,42 @@ function zeroBSCRM_scriptStyles_enqueueJSRoot(){
 	// this is for wl peeps, if set it'll override WYSIWYG logo + settings logo
 	$jpcrm_root['crmlogo'] = 'i/icon-32.png';
 
-	// this is for GLOBAL js (language strings pass through)
-	$lang_array = array();
+	// Language strings for global JavaScript usage
+	$lang_array = array(
+		// General action strings
+		'send'              => __( 'Send', 'zero-bs-crm' ),
+		'sent'              => __( 'Sent', 'zero-bs-crm' ),
+		'notsent'           => __( 'Not Sent', 'zero-bs-crm' ),
+		'cancel'            => __( 'Cancel', 'zero-bs-crm' ),
+		'contact'           => __( 'Contact', 'zero-bs-crm' ),
+		'company'           => __( 'Company', 'zero-bs-crm' ),
+		'viewall'           => __( 'View all', 'zero-bs-crm' ),
 
-	// WH: not 100% sure where to put this, for now, temporarily, here,
-	// WH: to decide common sense location (have made filter:)
-	$lang_array['send']    = __( 'Send', 'zero-bs-crm' );
-	$lang_array['sent']    = __( 'Sent', 'zero-bs-crm' );
-	$lang_array['notsent'] = __( 'Not Sent', 'zero-bs-crm' );
-	$lang_array['cancel']  = __( 'Cancel', 'zero-bs-crm' );
-	$lang_array['contact'] = __( 'Contact', 'zero-bs-crm' );
-	$lang_array['company'] = __( 'Company', 'zero-bs-crm' );
-	$lang_array['viewall'] = __( 'View all', 'zero-bs-crm' );
+		// Statement functionality
+		'sendstatement'     => __( 'Send Statement', 'zero-bs-crm' ),
+		'sendstatementaddr' => __( 'Send Statement to Email:', 'zero-bs-crm' ),
+		'enteremail'        => __( 'Enter an Email Address..', 'zero-bs-crm' ),
+		'statementsent'     => __( 'Statement was successfully sent', 'zero-bs-crm' ),
+		'statementnotsent'  => __( 'Statement could not be sent at this time', 'zero-bs-crm' ),
 
-	// statement send
-	$lang_array['sendstatement']     = __( 'Send Statement', 'zero-bs-crm' );
-	$lang_array['sendstatementaddr'] = __( 'Send Statement to Email:', 'zero-bs-crm' );
-	$lang_array['enteremail']        = __( 'Enter an Email Address..', 'zero-bs-crm' );
-	$lang_array['statementsent']     = __( 'Statement was successfully sent', 'zero-bs-crm' );
-	$lang_array['statementnotsent']  = __( 'Statement could not be sent at this time', 'zero-bs-crm' );
+		// Entity types and totals
+		'total'             => __( 'Total', 'zero-bs-crm' ),
+		'totals'            => __( 'Totals', 'zero-bs-crm' ),
+		'quote'             => __( 'Quote', 'zero-bs-crm' ),
+		'quotes'            => __( 'Quotes', 'zero-bs-crm' ),
+		'invoice'           => __( 'Invoice', 'zero-bs-crm' ),
+		'invoices'          => __( 'Invoices', 'zero-bs-crm' ),
+		'transaction'       => __( 'Transaction', 'zero-bs-crm' ),
+		'transactions'      => __( 'Transactions', 'zero-bs-crm' ),
 
-	// totals table list view, (but generically useful)
-	$lang_array['total']        = __( 'Total', 'zero-bs-crm' );
-	$lang_array['totals']       = __( 'Totals', 'zero-bs-crm' );
-	$lang_array['quote']        = __( 'Quote', 'zero-bs-crm' );
-	$lang_array['quotes']       = __( 'Quotes', 'zero-bs-crm' );
-	$lang_array['invoice']      = __( 'Invoice', 'zero-bs-crm' );
-	$lang_array['invoices']     = __( 'Invoices', 'zero-bs-crm' );
-	$lang_array['transaction']  = __( 'Transaction', 'zero-bs-crm' );
-	$lang_array['transactions'] = __( 'Transactions', 'zero-bs-crm' );
+		// daterangepicker ranges
+		'today'             => __( 'Today', 'zero-bs-crm' ),
+		'yesterday'         => __( 'Yesterday', 'zero-bs-crm' ),
+		'last_7_days'       => __( 'Last 7 days', 'zero-bs-crm' ),
+		'last_30_days'      => __( 'Last 30 days', 'zero-bs-crm' ),
+		'this_month'        => __( 'This month', 'zero-bs-crm' ),
+		'last_month'        => __( 'Last month', 'zero-bs-crm' ),
+	);
 
 	$lang_array = apply_filters( 'zbs_globaljs_lang', $lang_array );
 
@@ -480,9 +487,6 @@ function zeroBSCRM_admin_styles_ui2_semantic_settingspage(){
 			wp_enqueue_style( 'zerobscrmsettings' );
 }
 
-function zeroBSCRM_admin_styles_chartjs(){
-	wp_enqueue_script( 'zerobscrmchartjs' );
-}
 function zeroBSCRM_admin_styles_singleview(){
 
 	// single item view
@@ -499,14 +503,13 @@ function jpcrm_admin_scripts_systems_page(){
 
 function zeroBSCRM_admin_styles_homedash(){
 	global $zbs;
-	//home dashboard styles and script
+	// home dashboard styles and script
 	wp_enqueue_style( 'zerobscrmhomedash' );
+	wp_enqueue_style( 'jpcrm-funnel', ZEROBSCRM_URL . 'css/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
+	wp_enqueue_script( 'jpcrm-funnel', ZEROBSCRM_URL . 'js/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.js', array(), $zbs::VERSION, true );
+	wp_enqueue_script( 'jpcrm-chartjs' );
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
-	wp_register_script( 'zerobscrmjs-dash', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.dash' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION );
-	wp_enqueue_script( 'zerobscrmjs-dash' );
-
-	wp_enqueue_script( 'jpcrm-funnel-js', ZEROBSCRM_URL . 'js/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.js', array(), $zbs::VERSION, false );
-	wp_enqueue_style( 'jpcrm-funnel-css', ZEROBSCRM_URL . 'css/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
+	wp_enqueue_script( 'jpcrm-dash', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.dash' . wp_scripts_get_suffix() . '.js', array( 'jquery' ), $zbs::VERSION, true );
 }
 
 function zeroBSCRM_admin_scripts_editcust(){
@@ -519,35 +522,11 @@ function zeroBSCRM_admin_scripts_editcust(){
 
 
 function zeroBSCRM_calendar_admin_styles(){
-
 	global $zbs;
-
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
-
-	wp_register_style( 'jpcrm-tasks-css', ZEROBSCRM_URL . 'css/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
-
-	wp_register_script( 'jpcrm-calendar-js', ZEROBSCRM_URL . 'build/lib/fullcalendar/fullcalendar.js', array( 'jquery', 'jpcrm-moment' ), $zbs::VERSION, false );
-	wp_register_style( 'jpcrm-calendar', ZEROBSCRM_URL . 'build/lib/fullcalendar/fullcalendar.min.css', array(), $zbs::VERSION );
-	wp_register_script( 'jpcrm-tasks-js', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment', 'jpcrm-calendar-js' ), $zbs::VERSION, true );
-
-	// LOCALE Specific
-	$language_tag       = zeroBSCRM_getLocale();
-	$language_tag_short = zeroBSCRM_getLocale( false );
-	if ( file_exists( ZEROBSCRM_PATH . '/js/lib/calendar-locale/' . $language_tag . '.js' ) ) {
-		// e.g. en-gb
-		wp_enqueue_script( 'jpcrm-calendar-js-locale', ZEROBSCRM_URL . 'build/lib/fullcalendar/locale/' . $language_tag . '.js', array( 'jpcrm-calendar-js' ), $zbs::VERSION );
-	} elseif ( file_exists( ZEROBSCRM_PATH . '/js/lib/calendar-locale/' . $language_tag_short . '.js' ) ) {
-
-			// e.g. en
-			wp_enqueue_script( 'jpcrm-calendar-js-locale', ZEROBSCRM_URL . 'build/lib/fullcalendar/locale/' . $language_tag_short . '.js', array( 'zerobscrm-calendar-js' ), $zbs::VERSION );
-	}
-
-	wp_enqueue_style( 'jpcrm-calendar' );
-	wp_enqueue_style( 'jpcrm-tasks-css' );
-
-	zeroBSCRM_enqueue_libs_js_momentdatepicker();
-	wp_enqueue_script( 'jpcrm-calendar-js' );
-	wp_enqueue_script( 'jpcrm-tasks-js' );
+	wp_enqueue_script( 'jpcrm-fullcalendar', ZEROBSCRM_URL . 'build/lib/fullcalendar/index.global.min.js', array(), $zbs::VERSION, true );
+	wp_enqueue_script( 'jpcrm-tasks', ZEROBSCRM_URL . 'js/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.js', array( 'jpcrm-fullcalendar' ), $zbs::VERSION, true );
+	wp_enqueue_style( 'jpcrm-tasks', ZEROBSCRM_URL . 'css/jpcrm-admin-tasks' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 }
 
 function zeroBSCRM_dequeueJSModal(){

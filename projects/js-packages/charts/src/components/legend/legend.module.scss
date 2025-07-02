@@ -12,6 +12,39 @@
 		flex-direction: column;
 		gap: 8px;
 	}
+
+	// Vertical alignment positioning
+	&--vertical-align-top {
+		position: relative;
+
+		&.legend--horizontal-align-left {
+			justify-content: flex-start;
+		}
+
+		&.legend--horizontal-align-center {
+			justify-content: center;
+		}
+
+		&.legend--horizontal-align-right {
+			justify-content: flex-end;
+		}
+	}
+
+	&--vertical-align-bottom {
+		position: relative;
+
+		&.legend--horizontal-align-left {
+			justify-content: flex-start;
+		}
+
+		&.legend--horizontal-align-center {
+			justify-content: center;
+		}
+
+		&.legend--horizontal-align-right {
+			justify-content: flex-end;
+		}
+	}
 }
 
 .legend-item {

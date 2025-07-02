@@ -16,7 +16,7 @@ services:
     env_file:
       - default.env
       - .env
-    entrypoint: [ '/bin/bash', '/var/scripts/docker-db-start-and-autoupgrade.sh' ]
+    entrypoint: [ 'bash', '/var/scripts/docker-db-start-and-autoupgrade.sh' ]
     command: [ 'mariadbd' ]
 
   ## - The container wordpress is a very basic but custom container with WordPress and all of the tools we need

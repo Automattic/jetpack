@@ -686,25 +686,22 @@ class Admin {
 			return;
 		}
 
-		if ( empty( $response_fields ) ) {
-			$chunks = explode( "\nArray", $content );
-			if ( ! empty( $chunks[1] ) ) {
-				// re-construct the array string
-				$array = 'Array' . $chunks[1];
-				// re-construct the array
-				$rearray         = Contact_Form_Plugin::reverse_that_print( $array, true );
-				$response_fields = is_array( $rearray ) ? $rearray : array();
-			} else {
-				// couldn't reconstruct array, use the old method
-				$content_fields  = Contact_Form_Plugin::parse_fields_from_content( $post->ID );
-				$response_fields = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
-			}
+		$chunks = explode( "\nArray", $content );
+		if ( ! empty( $chunks[1] ) ) {
+			// re-construct the array string
+			$array = 'Array' . $chunks[1];
+			// re-construct the array
+			$rearray         = Contact_Form_Plugin::reverse_that_print( $array, true );
+			$response_fields = is_array( $rearray ) ? $rearray : array();
+		} else {
+			// couldn't reconstruct array, use the old method
+			$content_fields  = Contact_Form_Plugin::parse_fields_from_content( $post->ID );
+			$response_fields = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
 		}
 
 		// Extract IP address if we still do not have it at this point.
 		if (
 			! isset( $content_fields['_feedback_ip'] )
-			&& is_array( $chunks )
 			&& ! empty( $chunks[0] )
 		) {
 			preg_match( '/^IP: (.+)$/m', $chunks[0], $matches );

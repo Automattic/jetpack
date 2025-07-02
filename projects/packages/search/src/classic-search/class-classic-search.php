@@ -1375,7 +1375,7 @@ class Classic_Search {
 	 * @return array The resulting merged filters.
 	 */
 	public static function and_es_filters( array $curr_filter, array $filters ) {
-		if ( ! is_array( $curr_filter ) || isset( $curr_filter['match_all'] ) ) {
+		if ( isset( $curr_filter['match_all'] ) ) {
 			if ( 1 === count( $filters ) ) {
 				return $filters[0];
 			}
@@ -1407,7 +1407,7 @@ class Classic_Search {
 	 * @param array $aggregations Array of filters (aggregations) to apply to the search.
 	 */
 	public function set_filters( array $aggregations ) {
-		foreach ( (array) $aggregations as $key => $agg ) {
+		foreach ( $aggregations as $key => $agg ) {
 			if ( empty( $agg['name'] ) ) {
 				$aggregations[ $key ]['name'] = $key;
 			}

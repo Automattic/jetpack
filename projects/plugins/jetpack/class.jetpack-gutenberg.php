@@ -277,7 +277,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_preset( $deprecated = null ) {
 		if ( $deprecated ) {
-			_deprecated_argument( __METHOD__, '$$next-version', 'The $preset argument is no longer needed or used.' );
+			_deprecated_argument( __METHOD__, '14.3', 'The $preset argument is no longer needed or used.' );
 		}
 
 		if ( self::$preset_cache ) {
@@ -411,6 +411,11 @@ class Jetpack_Gutenberg {
 			 * @param array
 			 */
 			self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
+
+			if ( ! is_array( self::$extensions ) ) {
+				_doing_it_wrong( __METHOD__, esc_html__( 'The jetpack_set_available_extensions filter must return an array.', 'jetpack' ), '$$next-version$$' );
+				self::$extensions = array();
+			}
 		}
 
 		return self::$extensions;
@@ -778,6 +783,16 @@ class Jetpack_Gutenberg {
 			'siteLocale'       => str_replace( '_', '-', get_locale() ),
 			'ai-assistant'     => $ai_assistant_state,
 			'screenBase'       => $screen_base,
+			/**
+			 * Add your own feature flags to the block editor.
+			 *
+			 * You can access the feature flags in the block editor via hasFeatureFlag( 'your-feature-flag' ) function.
+			 *
+			 * @since 14.8
+			 *
+			 * @param array true Enable the RePublicize UI in the block editor context. Defaults to true.
+			 */
+			'feature_flags'    => apply_filters( 'jetpack_block_editor_feature_flags', array() ),
 			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
 		);
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Blocks: defensive coding to prevent errors from plugins malforming extensions.

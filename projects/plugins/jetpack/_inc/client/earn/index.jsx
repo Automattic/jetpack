@@ -1,7 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
@@ -23,7 +22,7 @@ import { Ads } from './ads';
  * Earn Feature description card.
  *
  * @param {object} props - Component props.
- * @return {React.Component} Feature description and CTA.
+ * @return {import('react').Component} Feature description and CTA.
  */
 function EarnFeatureButton( props ) {
 	const {
@@ -77,7 +76,7 @@ function EarnFeatureButton( props ) {
  * Earn Section.
  *
  * @param {object} props - Component props.
- * @return {React.Component} Earn settings component.
+ * @return {import('react').Component} Earn settings component.
  */
 function Earn( props ) {
 	const {

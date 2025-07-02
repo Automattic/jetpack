@@ -1,8 +1,8 @@
 import jQuery from 'jquery';
-import React from 'react';
+import { createRef, Component } from 'react';
 
-class AdminNotices extends React.Component {
-	adminNoticesRef = React.createRef();
+class AdminNotices extends Component {
+	adminNoticesRef = createRef();
 
 	componentDidMount() {
 		const $adminNotices = jQuery( this.adminNoticesRef.current );

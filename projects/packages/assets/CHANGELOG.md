@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.31] - 2025-06-30
+### Changed
+- Update dependencies. [#42554]
+
+## [4.0.30] - 2025-06-27
+### Added
+- Script Data: Add host information available on front-end. [#44072]
+
+## [4.0.29] - 2025-06-24
+### Changed
+- Update dependencies. [#42554]
+
+## [4.0.28] - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## [4.0.27] - 2025-06-18
+### Changed
+- Internal updates.
+
 ## [4.0.26] - 2025-06-10
 ### Changed
 - Update dependencies. [#42554]
@@ -640,6 +660,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[4.0.31]: https://github.com/Automattic/jetpack-assets/compare/v4.0.30...v4.0.31
+[4.0.30]: https://github.com/Automattic/jetpack-assets/compare/v4.0.29...v4.0.30
+[4.0.29]: https://github.com/Automattic/jetpack-assets/compare/v4.0.28...v4.0.29
+[4.0.28]: https://github.com/Automattic/jetpack-assets/compare/v4.0.27...v4.0.28
+[4.0.27]: https://github.com/Automattic/jetpack-assets/compare/v4.0.26...v4.0.27
 [4.0.26]: https://github.com/Automattic/jetpack-assets/compare/v4.0.25...v4.0.26
 [4.0.25]: https://github.com/Automattic/jetpack-assets/compare/v4.0.24...v4.0.25
 [4.0.24]: https://github.com/Automattic/jetpack-assets/compare/v4.0.23...v4.0.24

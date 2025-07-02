@@ -14,9 +14,10 @@ import SiteAcceleratorCard from './site-accelerator-card';
 import SocialCard from './social-card';
 import StatsCard from './stats-card';
 import VideopressCard from './videopress-card';
+import type { FC } from 'react';
 
 export const JetpackModuleToProductCard: {
-	[ key in JetpackModule ]: React.FC< { recommendation?: boolean; admin?: boolean } > | null;
+	[ key in JetpackModule ]: FC< { recommendation?: boolean; admin?: boolean } > | null;
 } = {
 	backup: BackupCard,
 	protect: ProtectCard,

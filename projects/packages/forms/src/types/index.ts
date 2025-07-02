@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 /**
  * Describes an integration (plugin or service) available for Jetpack Forms.
  */
@@ -16,6 +18,8 @@ export interface Integration {
 	isActive: boolean;
 	/** Whether the integration is connected. */
 	isConnected: boolean;
+	/** Whether the integration needs connection. */
+	needsConnection: boolean;
 	/** The version of the integration, if available. */
 	version?: string | null;
 	/** The URL to the integration's settings page, if available. */
@@ -27,7 +31,7 @@ export interface Integration {
 /**
  * Props for integration cards in the Jetpack Forms dashboard and integrations modal.
  */
-export interface IntegrationCardProps {
+export interface SingleIntegrationCardProps {
 	/** Whether the card is expanded. */
 	isExpanded: boolean;
 	/** Function to toggle the card's expanded state. */
@@ -36,6 +40,7 @@ export interface IntegrationCardProps {
 	data?: Integration;
 	/** Function to refresh the integration status. */
 	refreshStatus: () => void;
+	borderBottom?: boolean;
 }
 
 /**
@@ -53,6 +58,38 @@ export type Pattern = {
 	/** A short description of the pattern's purpose. */
 	description: string;
 };
+
+/**
+ * Represents a form response.
+ */
+export interface FormResponse {
+	/** The unique identifier for the response. */
+	id: number;
+	/** The status of the response. */
+	status: 'publish' | 'spam' | 'trash';
+	/** The date and time the response was created. */
+	date: string;
+	/** The date and time the response was created in GMT. */
+	date_gmt: string;
+	/** The name of the response author. */
+	author_name: string;
+	/** The email of the response author. */
+	author_email: string;
+	/** The URL of the response author. */
+	author_url: string;
+	/** The avatar of the response author. */
+	author_avatar: string;
+	/** The IP address of the response author. */
+	ip: string;
+	/** The title of the form that the response was submitted to. */
+	entry_title: string;
+	/** The permalink of the form that the response was submitted to. */
+	entry_permalink: string;
+	/** Whether the response has a file attached. */
+	has_file: boolean;
+	/** The fields of the response. */
+	fields: Record< string, unknown >;
+}
 
 /**
  * Default URLs for Jetpack Forms blocks, such as responses and spam responses.
@@ -78,5 +115,35 @@ declare global {
 				recordEvent: ( event: string, props?: Record< string, unknown > ) => void;
 			};
 		};
+		MSStream?: unknown;
 	}
 }
+
+/**
+ * Represents the data passed to IntegrationCard and IntegrationCardHeader components.
+ * This type extends Integration and includes additional UI and state fields used by cards.
+ */
+export type IntegrationCardData = Partial< Integration > & {
+	/** Whether to show the header toggle. */
+	showHeaderToggle?: boolean;
+	/** The value of the header toggle (on/off). */
+	headerToggleValue?: boolean;
+	/** Whether the header toggle is enabled. */
+	isHeaderToggleEnabled?: boolean;
+	/** Handler for header toggle changes. */
+	onHeaderToggleChange?: ( value: boolean ) => void;
+	/** Tooltip to show when the toggle is disabled. */
+	toggleDisabledTooltip?: string;
+	/** Badge or element to show in the header for setup state. */
+	setupBadge?: ReactNode;
+	/** Function to refresh the integration status. */
+	refreshStatus?: () => void;
+	/** Event name for tracking analytics. */
+	trackEventName?: string;
+	/** Message to show when the integration is not installed. */
+	notInstalledMessage?: ReactNode;
+	/** Message to show when the integration is not activated. */
+	notActivatedMessage?: ReactNode;
+	/** Whether the card is in a loading state. */
+	isLoading?: boolean;
+};

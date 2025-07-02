@@ -1,6 +1,6 @@
 import { Popover } from '@wordpress/components';
 import clsx from 'clsx';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState, ReactElement, FC } from 'react';
 import Button from '../button/index.tsx';
 import Gridicon from '../gridicon/index.tsx';
 import { IconTooltipProps, Placement, Position } from './types.ts';
@@ -24,9 +24,9 @@ const placementsToPositions = ( placement: Placement ): Position => {
  * Generate Icon Tooltip
  *
  * @param {IconTooltipProps} props - Props
- * @return {React.ReactElement} - JSX element
+ * @return {ReactElement} - JSX element
  */
-const IconTooltip: React.FC< IconTooltipProps > = ( {
+const IconTooltip: FC< IconTooltipProps > = ( {
 	className = '',
 	iconClassName = '',
 	placement = 'bottom-end',

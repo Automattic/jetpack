@@ -7,12 +7,13 @@ import clsx from 'clsx';
 import { useCallback } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
+import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
-import type { FC } from 'react';
+import type { FC, MouseEvent } from 'react';
 
 interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -77,17 +78,20 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
+	legendAlignmentHorizontal = 'center',
+	legendAlignmentVertical = 'bottom',
 	legendShape = 'circle',
 	label,
 	note,
 	className,
 } ) => {
 	const providerTheme = useChartTheme();
+	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
 	const handleMouseMove = useCallback(
-		( event: React.MouseEvent, arc: ArcData ) => {
+		( event: MouseEvent, arc: ArcData ) => {
 			const coords = localPoint( event );
 			if ( ! coords ) return;
 
@@ -105,7 +109,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	}, [ hideTooltip ] );
 
 	const handleArcMouseMove = useCallback(
-		( arc: ArcData ) => ( event: React.MouseEvent ) => {
+		( arc: ArcData ) => ( event: MouseEvent ) => {
 			handleMouseMove( event, arc );
 		},
 		[ handleMouseMove ]
@@ -168,15 +172,29 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
 			data-testid="pie-chart-container"
+			style={ {
+				display: 'flex',
+				flexDirection:
+					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+			} }
 		>
 			<svg
 				width={ width }
-				height={ height }
-				viewBox={ `0 0 ${ width } ${ height }` }
+				height={
+					height + ( showLegend && legendAlignmentVertical === 'top' ? legendHeight + 20 : 0 )
+				}
+				viewBox={ `0 0 ${ width } ${
+					height + ( showLegend && legendAlignmentVertical === 'top' ? legendHeight + 20 : 0 )
+				}` }
 				data-testid="pie-chart-svg"
 			>
 				{ /* Main chart group that contains both the pie and text elements */ }
-				<Group top={ radius } left={ radius }>
+				<Group
+					top={
+						radius + ( showLegend && legendAlignmentVertical === 'top' ? legendHeight + 20 : 0 )
+					}
+					left={ radius }
+				>
 					{ /* Pie chart */ }
 					<Pie< DataPointPercentage & { index: number } >
 						data={ dataWithIndex }
@@ -243,8 +261,11 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 				<Legend
 					items={ legendItems }
 					orientation={ legendOrientation }
+					alignmentHorizontal={ legendAlignmentHorizontal }
+					alignmentVertical={ legendAlignmentVertical }
 					className={ styles[ 'pie-semi-circle-chart-legend' ] }
 					shape={ legendShape }
+					ref={ legendRef }
 				/>
 			) }
 		</div>

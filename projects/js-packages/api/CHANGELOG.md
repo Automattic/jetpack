@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.0.3] - 2025-07-01
+### Changed
+- Internal updates.
+
+## [1.0.2] - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## [1.0.1] - 2025-06-18
+### Changed
+- Internal updates.
+
 ## [1.0.0] - 2025-06-03
 ### Changed
 - Internal updates.
@@ -422,6 +434,9 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[1.0.3]: https://github.com/Automattic/jetpack-api/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/Automattic/jetpack-api/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/Automattic/jetpack-api/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Automattic/jetpack-api/compare/v0.20.3...v1.0.0
 [0.20.3]: https://github.com/Automattic/jetpack-api/compare/v0.20.2...v0.20.3
 [0.20.2]: https://github.com/Automattic/jetpack-api/compare/v0.20.1...v0.20.2

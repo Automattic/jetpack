@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Shortcode Embeds
- * Module Description: Shortcodes are WordPress-specific markup that let you add media from popular sites. This feature is no longer necessary as the editor now handles media embeds rather gracefully.
+ * Module Description: Easily embed rich media like YouTube videos and tweets using simple shortcodes.
  * Sort Order: 3
  * First Introduced: 1.1
  * Major Changes In: 1.2

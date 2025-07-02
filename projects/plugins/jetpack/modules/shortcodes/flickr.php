@@ -188,8 +188,7 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 			$video_url = $video_param;
 		} else {
 			// Get the URL of the video from the page of the video.
-			$video_page_content = wp_remote_get( "http://flickr.com/photo.gne?id=$video_param" );
-
+			$video_page_content = wp_remote_get( "https://flickr.com/photo.gne?id=$video_param" );
 			// Bail if we do not get any info from Flickr.
 			if ( is_wp_error( $video_page_content ) ) {
 				return '';
@@ -213,6 +212,9 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 		// Get the embed url.
 		preg_match( '/src=\"([^\"]+)\"/', $data['html'], $matches );
 
+		if ( empty( $matches[1] ) ) {
+			return '';
+		}
 		$embed_url = $matches[1];
 
 		$embed_page = wp_remote_get( $embed_url );
@@ -225,10 +227,10 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 		// Get the video url from embed html markup.
 
 		preg_match( '/video.+src=\"([^\"]+)\"/', $embed_page['body'], $matches );
-
-		$video_src = $matches[1];
-
-		set_transient( $transient_name, $video_src, 2592000 ); // 30 days transient.
+		if ( ! empty( $matches[1] ) ) {
+			$video_src = $matches[1];
+			set_transient( $transient_name, $video_src, 2592000 ); // 30 days transient.
+		}
 	}
 
 	$style = 'max-width: 100%;';
@@ -298,7 +300,7 @@ wp_embed_register_handler( 'flickr', '#https?://(www\.)?flickr\.com/.*#i', 'jetp
 function jetpack_flickr_oembed_handler( $matches, $attr, $url ) {
 	/*
 	 * Legacy slideshow embeds end with /show/
-	 * e.g. http://www.flickr.com/photos/yarnaholic/sets/72157615194738969/show/
+	 * e.g. https://www.flickr.com/photos/yarnaholic/sets/72157615194738969/show/
 	 */
 	if ( '/show/' !== substr( $url, -strlen( '/show/' ) ) ) {
 		// These lookups need cached, as they don't use WP_Embed (which caches).

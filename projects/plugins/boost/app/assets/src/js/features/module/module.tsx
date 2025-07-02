@@ -9,11 +9,12 @@ import { useNotices } from '$features/notice/context';
 import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
 import Pill from '$features/ui/pill/pill';
+import type { ReactNode } from 'react';
 
 type ModuleProps = {
-	title: React.ReactNode;
-	description: React.ReactNode;
-	children?: React.ReactNode;
+	title: ReactNode;
+	description: ReactNode;
+	children?: ReactNode;
 	slug: string;
 	toggle?: boolean;
 	onEnable?: () => void;

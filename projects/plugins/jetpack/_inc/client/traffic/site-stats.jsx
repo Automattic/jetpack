@@ -3,7 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { filter, includes } from 'lodash';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -16,7 +16,7 @@ import SettingsGroup from 'components/settings-group';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 
-class SiteStatsComponent extends React.Component {
+class SiteStatsComponent extends Component {
 	constructor( props ) {
 		super( props );
 		const countRoles = props.getOptionValue( 'count_roles', 'stats' ),

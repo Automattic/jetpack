@@ -1,5 +1,5 @@
 import { each, get, omit } from 'lodash';
-import React from 'react';
+import { Component } from 'react';
 import { connectModuleOptions } from 'components/module-settings/connect-module-options';
 import analytics from 'lib/analytics';
 
@@ -7,11 +7,11 @@ import analytics from 'lib/analytics';
  * High order component that provides a <form> with functionality
  * to handle input values on the forms' own React component state.
  *
- * @param {React.Component} InnerComponent - The component with a top level form element
- * @return {[React.Component]} The component with new functionality
+ * @param {import('react').Component} InnerComponent - The component with a top level form element
+ * @return {[import('react').Component]} The component with new functionality
  */
 export function withModuleSettingsFormHelpers( InnerComponent ) {
-	class SettingsForm extends React.Component {
+	class SettingsForm extends Component {
 		state = {
 			options: {},
 		};

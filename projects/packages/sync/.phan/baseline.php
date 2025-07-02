@@ -9,17 +9,16 @@
  */
 return [
     // # Issue statistics:
+    // PhanTypeMismatchArgument : 40+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 40+ occurrences
-    // PhanTypeMismatchArgument : 35+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
     // PhanTypeMismatchReturn : 20+ occurrences
     // PhanParamSignatureMismatch : 15+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
-    // PhanPluginSimplifyExpressionBool : 8 occurrences
+    // PhanPluginSimplifyExpressionBool : 9 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 6 occurrences
     // PhanNonClassMethodCall : 5 occurrences
     // PhanPossiblyUndeclaredVariable : 5 occurrences
-    // PhanRedundantCondition : 4 occurrences
     // PhanTypeExpectedObjectPropAccess : 4 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
@@ -44,10 +43,10 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-actions.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeMismatchArgumentInternal'],
+        'src/class-actions.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgumentInternal'],
         'src/class-data-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-dedicated-sender.php' => ['PhanTypeInvalidLeftOperandOfNumericOp'],
-        'src/class-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
+        'src/class-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
         'src/class-listener.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-lock.php' => ['PhanTypeMismatchReturn'],
         'src/class-queue.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal'],

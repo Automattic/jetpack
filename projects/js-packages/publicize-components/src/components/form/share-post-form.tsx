@@ -6,6 +6,7 @@ import { useIsSocialNote } from '../../utils/use-is-social-note';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
 type SharePostFormProps = {
 	/** Data for tracking analytics */
@@ -21,7 +22,7 @@ type SharePostFormProps = {
  * @param {object} [props.analyticsData] - Data for tracking analytics.
  * @return {object} The SharePostForm component.
  */
-export const SharePostForm: React.FC< SharePostFormProps > = ( { analyticsData = null } ) => {
+export const SharePostForm: FC< SharePostFormProps > = ( { analyticsData = null } ) => {
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const isSocialNote = useIsSocialNote();
 

@@ -1,10 +1,17 @@
+/*
+ * External dependencies
+ */
 import {
 	getContext,
 	store,
 	getConfig,
 	withSyncEvent as originalWithSyncEvent,
 } from '@wordpress/interactivity';
+/*
+ * Internal dependencies
+ */
 import { validateField } from '../../contact-form/js/validate-helper';
+import { focusNextInput, dispatchSubmitEvent, submitForm } from './shared';
 
 const withSyncEvent =
 	originalWithSyncEvent ||
@@ -17,9 +24,15 @@ const config = getConfig( NAMESPACE );
 
 const updateField = ( fieldId, value, showFieldError = false ) => {
 	const context = getContext();
-	const field = context.fields[ fieldId ];
-	const { type, isRequired, extra } = field;
+	let field = context.fields[ fieldId ];
+
+	if ( ! field ) {
+		const { fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
+		registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
+		field = context.fields[ fieldId ];
+	}
 	if ( field ) {
+		const { type, isRequired, extra } = field;
 		field.value = value;
 		field.error = validateField( type, value, isRequired, extra );
 		field.showFieldError = showFieldError;
@@ -79,9 +92,29 @@ const { state } = store( NAMESPACE, {
 			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
 		},
 
-		get isEmptyForm() {
+		get isFormEmpty() {
 			const context = getContext();
+			// If this is a multistep form (identified by the presence of `maxSteps` in context),
+			// we never want to treat the form as completely empty. Treat it as not empty so that
+			// the `invalid_form_empty` message is never shown for multistep forms.
+			if ( context?.maxSteps && context.maxSteps > 0 ) {
+				return false;
+			}
 			return ! Object.values( context.fields ).some( field => field.value !== '' );
+		},
+
+		get isFieldEmpty() {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ] || {};
+			return !! (
+				field.value === '' ||
+				( Array.isArray( field.value ) && field.value.length === 0 )
+			);
+		},
+
+		get hasFieldValue() {
+			return ! state.isFieldEmpty;
 		},
 
 		get isSubmitting() {
@@ -90,8 +123,7 @@ const { state } = store( NAMESPACE, {
 		},
 
 		get isAriaDisabled() {
-			const context = getContext();
-			return context.isSubmitting;
+			return state.isSubmitting;
 		},
 
 		get errorMessage() {
@@ -107,10 +139,16 @@ const { state } = store( NAMESPACE, {
 		},
 
 		get isFormValid() {
-			if ( state.isEmptyForm ) {
+			if ( state.isFormEmpty ) {
 				return false;
 			}
 			const context = getContext();
+			if ( context.isMultiStep ) {
+				// For multistep forms, we only validate fields that are part of the current step.
+				return ! Object.values( context.fields ).some(
+					field => field.error !== 'yes' && field.step === context.currentStep
+				);
+			}
 			return ! Object.values( context.fields ).some( field => field.error !== 'yes' );
 		},
 
@@ -121,20 +159,27 @@ const { state } = store( NAMESPACE, {
 		},
 
 		get getFormErrorMessage() {
-			if ( state.isEmptyForm ) {
-				return config.error_types.invalid_form_empty;
+			if ( state.isFormEmpty ) {
+				const context = getContext();
+				// Never show the "form empty" error for multistep forms.
+				if ( context.isMultiStep ) {
+					return config.error_types.invalid_form_empty;
+				}
 			}
 			return config.error_types.invalid_form;
 		},
 
 		get getErrorList() {
 			const errors = [];
-			if ( state.isEmptyForm ) {
+			if ( state.isFormEmpty ) {
 				return errors;
 			}
 			const context = getContext();
 			if ( context.showErrors ) {
 				Object.values( context.fields ).forEach( field => {
+					if ( context.isMultiStep && field.step !== context.currentStep ) {
+						return;
+					}
 					if ( field.error && field.error !== 'yes' ) {
 						errors.push( {
 							anchor: '#' + field.id,
@@ -152,6 +197,11 @@ const { state } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
 			return field.value;
+		},
+
+		get submissionError() {
+			const context = getContext();
+			return context.submissionError || '';
 		},
 	},
 
@@ -205,16 +255,59 @@ const { state } = store( NAMESPACE, {
 			updateField( context.fieldId, event.target.value, true );
 		},
 
-		onFormSubmit: withSyncEvent( event => {
+		onFormSubmit: withSyncEvent( function* ( event ) {
 			const context = getContext();
 
 			if ( ! state.isFormValid ) {
 				context.showErrors = true;
 				event.preventDefault();
 				event.stopPropagation();
-			} else {
-				context.isSubmitting = true;
+
+				return;
 			}
+
+			if ( context.isMultiStep && context.currentStep < context.maxSteps ) {
+				// If this is a multistep form and the current input is not the last in the step,
+				// we don't want to submit the form, but rather advance to the next step.
+				context.currentStep += 1;
+				context.showErrors = false;
+
+				event.preventDefault();
+				event.stopPropagation();
+				const formHash = context.formHash;
+
+				setTimeout( () => {
+					focusNextInput( formHash );
+				}, 100 );
+
+				return;
+			}
+
+			// Set submitting state
+			context.isSubmitting = true;
+
+			if ( context.isAjaxSubmissionEnabled ) {
+				event.preventDefault();
+				event.stopPropagation();
+
+				// TODO: Get the data and update the page
+				yield submitForm( context.formHash );
+
+				context.isSubmitting = false;
+			}
+		} ),
+
+		onKeyDownTextarea: withSyncEvent( event => {
+			if ( ! ( event.key === 'Enter' && event.shiftKey ) ) {
+				return;
+			}
+			// Prevent the default behavior of adding a new line.
+			event.preventDefault();
+			event.stopPropagation();
+
+			const context = getContext();
+
+			dispatchSubmitEvent( context.formHash );
 		} ),
 
 		scrollIntoView: withSyncEvent( event => {
