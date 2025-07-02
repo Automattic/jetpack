@@ -163,6 +163,7 @@ const Index = () => {
 						{ hasPremiumCdnFeatures && <Upgraded /> }
 					</>
 				}
+				worksOffline={ false }
 				description={
 					<p>
 						{ __(
