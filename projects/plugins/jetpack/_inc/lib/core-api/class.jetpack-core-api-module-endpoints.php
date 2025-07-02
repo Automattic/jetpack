@@ -1083,8 +1083,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$sanitized_category_ids
 					);
 
-					if ( update_option( $key, $new_value ) ) {
-						$updated[ $key ] = $new_value;
+					if ( update_option( $option, $new_value ) ) {
+						$updated[ $option ] = $new_value;
 					}
 					break;
 
