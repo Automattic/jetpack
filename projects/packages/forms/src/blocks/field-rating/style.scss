@@ -86,11 +86,11 @@
 
 .jetpack-field-rating:not(:hover) .jetpack-field-rating__label input:checked ~ .rating-icon,
 .jetpack-field-rating:hover       .jetpack-field-rating__label:hover input ~ .rating-icon {
-  color: var( --star-color, var( --jetpack--contact-form--primary-color, #333 ) );
+  color: var( --jetpack--contact-form--rating-star-color, var( --jetpack--contact-form--primary-color, #333 ) );
   opacity: 1;
 }
 
 .jetpack-field-rating .jetpack-field-rating__label input:focus-visible ~ .rating-icon:last-child {
-  color: var( --star-color, var( --jetpack--contact-form--primary-color, #333 ) );
+  color: var( --jetpack--contact-form--rating-star-color, var( --jetpack--contact-form--primary-color, #333 ) );
   -webkit-text-stroke: 7px currentColor;
 }

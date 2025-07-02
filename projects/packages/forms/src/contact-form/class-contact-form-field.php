@@ -2110,11 +2110,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			array()
 		);
 
+		// The rating input overwrites the text color, so we are using a custom logic to set the star color as a CSS variable.
 		$has_star_color = isset( $css_key_value_pairs['color'] );
 
 		if ( $has_star_color ) {
 			$color_value = $css_key_value_pairs['color'];
-			$style_attr  = 'style="--star-color: ' . esc_attr( $color_value ) . ';';
+			$style_attr  = 'style="--jetpack--contact-form--rating-star-color: ' . esc_attr( $color_value ) . ';';
 			unset( $css_key_value_pairs['color'] );
 			$remaining_styles = array_map(
 				function ( $key, $value ) {
@@ -2130,17 +2131,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$preset_colors = array(
 				'has-base-color'     => '--wp--preset--color--base',
 				'has-contrast-color' => '--wp--preset--color--contrast',
-				'has-accent-1-color' => '--wp--preset--color--accent-1',
-				'has-accent-2-color' => '--wp--preset--color--accent-2',
-				'has-accent-3-color' => '--wp--preset--color--accent-3',
-				'has-accent-4-color' => '--wp--preset--color--accent-4',
-				'has-accent-5-color' => '--wp--preset--color--accent-5',
-				'has-accent-6-color' => '--wp--preset--color--accent-6',
 			);
+
+			if ( preg_match( '/has-accent-(\d+)-color/', $this->field_classes, $matches ) ) {
+				$accent_number = $matches[1];
+				$preset_colors[ 'has-accent-' . $accent_number . '-color' ] = '--wp--preset--color--accent-' . $accent_number;
+			}
 
 			foreach ( $preset_colors as $class => $css_var ) {
 				if ( strpos( $this->field_classes, $class ) !== false ) {
-					$style_attr = 'style="--star-color: var(' . esc_attr( $css_var ) . ');"';
+					$style_attr = 'style="--jetpack--contact-form--rating-star-color: var(' . esc_attr( $css_var ) . ');"';
 
 					break;
 				}
