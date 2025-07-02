@@ -1171,10 +1171,9 @@
 // Rating field
 .jetpack-field-rating__wrapper {
 	font-family: "IBM Plex Sans JP", sans-serif;
-	font-size: 2em;
 	cursor: pointer;
 	
-	&:not(:first-of-type) {
+	.jetpack-field-rating__button:not(:first-of-type) {
 		margin-left: 8px;
 	}
 
