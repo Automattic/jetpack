@@ -49,11 +49,6 @@ class Initial_State {
 
 		$data['connection'] = self::get_data();
 
-		// Ensure site.host is set for WoA detection
-		if ( ! isset( $data['site']['host'] ) ) {
-			$data['site']['host'] = ( new Status\Host() )->get_known_host_guess();
-		}
-
 		return $data;
 	}
 
