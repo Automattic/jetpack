@@ -39,7 +39,14 @@
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config tests/php/unit/phpunit.#.xml.dist --coverage-html ./coverage"
 		],
 		"test-php": [
-			"@composer phpunit"
+			"@test-php-integration",
+			"@test-php-unit"
+		],
+		"test-php-unit": [
+			"phpunit-select-config tests/php/unit/phpunit.#.xml.dist --colors=always"
+		],
+		"test-php-integration": [
+			"phpunit-select-config tests/php/integration/phpunit.#.xml.dist --colors=always"
 		]
 	},
 	"repositories": [

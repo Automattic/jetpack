@@ -7,7 +7,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { removeQueryArgs } from '@wordpress/url';
 import PropTypes from 'prop-types';
-import React, { useCallback, useState } from 'react';
+import { Fragment, useCallback, useState } from 'react';
 import { STORE_ID } from '../../state/store';
 import customContentShape from '../../tools/custom-content-shape';
 import trackAndBumpMCStats from '../../tools/tracking';
@@ -19,7 +19,7 @@ import './style.scss';
  *
  * @param {Function} callback   - Button click callback.
  * @param {boolean}  isDisabled - Whether the button should be disabled.
- * @return {React.Component} - The rendered output.
+ * @return {import('react').Component} - The rendered output.
  */
 
 const renderStaySafeButton = ( callback, isDisabled ) => {
@@ -41,7 +41,7 @@ const renderStaySafeButton = ( callback, isDisabled ) => {
 /**
  * Render the "staying safe" line.
  *
- * @return {React.Component} - The rendered output.
+ * @return {import('react').Component} - The rendered output.
  */
 const renderStayingSafe = () => {
 	return (
@@ -56,7 +56,7 @@ const renderStayingSafe = () => {
  * Render the error message.
  *
  * @param {string} supportURL - The support page URL.
- * @return {React.Component} The error message.
+ * @return {import('react').Component} The error message.
  */
 const renderError = supportURL => {
 	return (
@@ -119,7 +119,7 @@ const SafeMode = props => {
 	}, [ isActionInProgress, setIsActionInProgress, setErrorType, clearErrorType ] );
 
 	return (
-		<React.Fragment>
+		<Fragment>
 			{ ! isDevelopmentSite ? (
 				<div className="jp-idc__safe-mode">
 					{ isStayingSafe
@@ -188,7 +188,7 @@ const SafeMode = props => {
 					</div>
 				</div>
 			) }
-		</React.Fragment>
+		</Fragment>
 	);
 };
 

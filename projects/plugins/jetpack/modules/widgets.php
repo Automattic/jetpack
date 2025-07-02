@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Extra Sidebar Widgets
- * Module Description: Provides additional widgets for use on your site.
+ * Module Description: Add more widget options to your site, like social feeds, subscriptions, and more.
  * Sort Order: 4
  * First Introduced: 1.2
  * Requires Connection: No

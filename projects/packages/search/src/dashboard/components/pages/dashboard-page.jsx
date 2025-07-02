@@ -10,7 +10,6 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
@@ -27,7 +26,7 @@ import './dashboard-page.scss';
  * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
  *
- * @return {React.Component} Search dashboard component.
+ * @return {import('react').Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );

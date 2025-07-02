@@ -12,9 +12,9 @@ return [
     // PhanTypeMismatchArgument : 15+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 9 occurrences
-    // PhanNoopNew : 6 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
+    // PhanNoopNew : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
     // PhanTypeMismatchArgumentInternal : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
@@ -39,7 +39,6 @@ return [
         'src/class-jetpack-mu-wpcom.php' => ['PhanNoopNew'],
         'src/features/100-year-plan/enhanced-ownership.php' => ['PhanEmptyFQSENInCallable'],
         'src/features/100-year-plan/locked-mode.php' => ['PhanEmptyFQSENInCallable'],
-        'src/features/admin-color-schemes/admin-color-schemes.php' => ['PhanNoopNew'],
         'src/features/block-patterns/class-wpcom-block-patterns-utils.php' => ['PhanTypeMismatchReturnNullable'],
         'src/features/coming-soon/coming-soon.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgumentInternal'],
         'src/features/coming-soon/fallback-coming-soon-page.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument'],

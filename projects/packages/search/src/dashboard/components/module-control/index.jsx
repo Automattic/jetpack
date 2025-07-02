@@ -5,7 +5,7 @@ import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { Fragment, useCallback } from 'react';
+import { Fragment, useCallback } from 'react';
 import Button from 'components/button';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form-toggle/compact';
@@ -44,7 +44,7 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
  * @param {boolean}  props.supportsInstantSearch          - true if site has plan that supports Instant Search.
  * @param {boolean}  props.isTogglingModule               - true if toggling Search module.
  * @param {boolean}  props.isTogglingInstantSearch        - true if toggling Instant Search option.
- * @return {React.Component} Search settings component.
+ * @return {import('react').Component} Search settings component.
  */
 export default function SearchModuleControl( {
 	siteAdminUrl,

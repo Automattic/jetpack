@@ -13,7 +13,7 @@ import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-uti
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -42,22 +42,22 @@ import videoPressImage from './videopress.png';
 /**
  * Product Interstitial component.
  *
- * @param {object}          props                         - Component props.
- * @param {string}          props.slug                    - Product slug
- * @param {string}          props.bundle                  - Bundle including this product
- * @param {object}          props.children                - Product additional content
- * @param {string}          props.existingLicenseKeyUrl   - URL to enter an existing license key (e.g. Akismet)
- * @param {boolean}         props.installsPlugin          - Whether the interstitial button installs a plugin*
- * @param {React.ReactNode} props.supportingInfo          - Complementary links or support/legal text
- * @param {boolean}         props.preferProductName       - Use product name instead of title
- * @param {string}          props.imageContainerClassName - Append a class to the image container
- * @param {string}          [props.ctaButtonLabel]        - The label for the Call To Action button
- * @param {boolean}         [props.hideTOS]               - Whether to hide the Terms of Service text
- * @param {number}          [props.quantity]              - The quantity of the product to purchase
- * @param {number}          [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
- * @param {boolean}         [props.highlightLastFeature]  - Whether to highlight the last feature in the list of features
- * @param {object}          [props.ctaCallback]           - Callback when the product CTA is clicked. Triggered before any activation/checkout process occurs
- * @param {string}          [props.feature]               - The feature to highlight in the product detail card
+ * @param {object}                    props                         - Component props.
+ * @param {string}                    props.slug                    - Product slug
+ * @param {string}                    props.bundle                  - Bundle including this product
+ * @param {object}                    props.children                - Product additional content
+ * @param {string}                    props.existingLicenseKeyUrl   - URL to enter an existing license key (e.g. Akismet)
+ * @param {boolean}                   props.installsPlugin          - Whether the interstitial button installs a plugin*
+ * @param {import('react').ReactNode} props.supportingInfo          - Complementary links or support/legal text
+ * @param {boolean}                   props.preferProductName       - Use product name instead of title
+ * @param {string}                    props.imageContainerClassName - Append a class to the image container
+ * @param {string}                    [props.ctaButtonLabel]        - The label for the Call To Action button
+ * @param {boolean}                   [props.hideTOS]               - Whether to hide the Terms of Service text
+ * @param {number}                    [props.quantity]              - The quantity of the product to purchase
+ * @param {number}                    [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
+ * @param {boolean}                   [props.highlightLastFeature]  - Whether to highlight the last feature in the list of features
+ * @param {object}                    [props.ctaCallback]           - Callback when the product CTA is clicked. Triggered before any activation/checkout process occurs
+ * @param {string}                    [props.feature]               - The feature to highlight in the product detail card
  * @return {object} ProductInterstitial react component.
  */
 export default function ProductInterstitial( {

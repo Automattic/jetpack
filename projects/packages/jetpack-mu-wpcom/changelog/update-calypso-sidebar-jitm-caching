@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Improves JITM caching and minimizes multiple wpcom sidebar jitm requests.

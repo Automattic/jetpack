@@ -1,11 +1,17 @@
+/*
+ * External dependencies
+ */
 import {
 	getContext,
 	store,
 	getConfig,
 	withSyncEvent as originalWithSyncEvent,
 } from '@wordpress/interactivity';
+/*
+ * Internal dependencies
+ */
 import { validateField } from '../../contact-form/js/validate-helper';
-import { focusNextInput, submitForm } from './shared';
+import { focusNextInput, dispatchSubmitEvent, submitForm } from './shared';
 
 const withSyncEvent =
 	originalWithSyncEvent ||
@@ -192,6 +198,11 @@ const { state } = store( NAMESPACE, {
 			const field = context.fields[ fieldId ];
 			return field.value;
 		},
+
+		get submissionError() {
+			const context = getContext();
+			return context.submissionError || '';
+		},
 	},
 
 	actions: {
@@ -244,13 +255,14 @@ const { state } = store( NAMESPACE, {
 			updateField( context.fieldId, event.target.value, true );
 		},
 
-		onFormSubmit: withSyncEvent( event => {
+		onFormSubmit: withSyncEvent( function* ( event ) {
 			const context = getContext();
 
 			if ( ! state.isFormValid ) {
 				context.showErrors = true;
 				event.preventDefault();
 				event.stopPropagation();
+
 				return;
 			}
 
@@ -263,12 +275,26 @@ const { state } = store( NAMESPACE, {
 				event.preventDefault();
 				event.stopPropagation();
 				const formHash = context.formHash;
+
 				setTimeout( () => {
 					focusNextInput( formHash );
 				}, 100 );
+
 				return;
 			}
+
+			// Set submitting state
 			context.isSubmitting = true;
+
+			if ( context.isAjaxSubmissionEnabled ) {
+				event.preventDefault();
+				event.stopPropagation();
+
+				// TODO: Get the data and update the page
+				yield submitForm( context.formHash );
+
+				context.isSubmitting = false;
+			}
 		} ),
 
 		onKeyDownTextarea: withSyncEvent( event => {
@@ -281,7 +307,7 @@ const { state } = store( NAMESPACE, {
 
 			const context = getContext();
 
-			submitForm( context.formHash );
+			dispatchSubmitEvent( context.formHash );
 		} ),
 
 		scrollIntoView: withSyncEvent( event => {

@@ -3,7 +3,6 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 import { RecordCount } from 'components/record-meter/record-count';
 
 describe( 'record count', () => {

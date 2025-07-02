@@ -1,6 +1,5 @@
 import type { Meta } from '@storybook/react';
 import CollapsibleMeta from '../collapsible-meta';
-import React from 'react';
 
 const meta: Meta< typeof CollapsibleMeta > = {
 	title: 'Plugins/Boost/Features/UI/CollapsibleMeta',

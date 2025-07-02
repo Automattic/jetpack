@@ -3,7 +3,6 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 import RecordMeter from 'components/record-meter';
 
 describe( 'load the app', () => {

@@ -1,5 +1,4 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import React from 'react';
 import { render, screen } from 'test/test-utils';
 import { DashItem } from '../index';
 import { buildInitialState } from './fixtures';

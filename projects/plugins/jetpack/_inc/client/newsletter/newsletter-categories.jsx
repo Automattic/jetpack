@@ -3,7 +3,7 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { createNotice } from 'components/global-notices/state/notices/actions';
 import SettingsCard from 'components/settings-card';
@@ -38,7 +38,7 @@ const mapCategoriesIds = category => {
  * NewsletterCategories settings component.
  *
  * @param {object} props - Component props.
- * @return {React.Component} Subscription settings component.
+ * @return {import('react').Component} Subscription settings component.
  */
 function NewsletterCategories( props ) {
 	const {

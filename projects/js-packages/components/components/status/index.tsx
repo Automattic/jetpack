@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import Text from '../text/index.tsx';
 import styles from './style.module.scss';
+import type { JSX } from 'react';
 
 interface StatusProps {
 	status?: 'active' | 'error' | 'inactive' | 'action' | 'initializing';
@@ -9,7 +10,7 @@ interface StatusProps {
 	className?: string;
 }
 
-const Status = ( { className, label, status = 'inactive' }: StatusProps ): React.JSX.Element => {
+const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.Element => {
 	const defaultLabels: Record< string, string > = {
 		active: __( 'Active', 'jetpack-components' ),
 		error: __( 'Error', 'jetpack-components' ),

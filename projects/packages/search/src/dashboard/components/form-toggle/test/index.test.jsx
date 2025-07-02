@@ -3,7 +3,6 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 import CompactFormToggle from 'components/form-toggle/compact';
 
 describe( 'CompactFormToggle', function () {

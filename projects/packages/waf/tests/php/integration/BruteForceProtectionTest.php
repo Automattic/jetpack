@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
+use PHPUnit\Framework\Attributes\BackupGlobals;
 
 /**
  * Brute Force Protection test case.
@@ -84,5 +85,20 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 			->with( 'failed_attempt' );
 
 		$this->instance->log_failed_attempt( 'username', $error );
+	}
+
+	/**
+	 * Test that get_local_host handles wp_parse_url returning false.
+	 *
+	 * @backupGlobals enabled
+	 */
+	#[BackupGlobals( true )]
+	public function test_get_local_host_handles_wp_parse_url_false() {
+		$_SERVER['HTTP_HOST'] = '';
+
+		$result = $this->instance->get_local_host();
+
+		$this->assertIsString( $result );
+		$this->assertNotEmpty( $result );
 	}
 }

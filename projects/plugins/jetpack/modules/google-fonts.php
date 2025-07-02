@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Google Fonts (Beta)
- * Module Description: A selection of Google fonts for block enabled themes. This feature is still being developed.
+ * Module Description: Customize your site's typography with a selection of Google Fonts.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 10.8.0

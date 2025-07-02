@@ -20,7 +20,7 @@ import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-uti
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import Loading from 'components/loading';
 import Price from 'components/price';
 import SearchPromotionBlock from 'components/search-promotion';
@@ -37,7 +37,7 @@ const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
  *
  * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
- * @return {React.Component} UpsellPage component.
+ * @return {import('react').Component} UpsellPage component.
  */
 export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`

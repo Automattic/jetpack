@@ -36,11 +36,11 @@ import './generator-modal.scss';
  * Types
  */
 import type { GeneratorModalProps } from '../types.ts';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-calypso:generator-modal' );
 
-export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
+export const GeneratorModal: FC< GeneratorModalProps > = ( {
 	isOpen,
 	onClose,
 	onApplyLogo,
@@ -259,7 +259,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		}
 	}, [ isOpen, handleModalOpen ] );
 
-	let body: React.ReactNode;
+	let body: ReactNode;
 
 	if ( loadingState ) {
 		body = <FirstLoadScreen state={ loadingState } />;

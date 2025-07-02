@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
 import {
@@ -14,7 +14,7 @@ import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import { Comments } from './comments';
 
-export class Discussion extends React.Component {
+export class Discussion extends Component {
 	static displayName = 'DiscussionSettings';
 
 	render() {

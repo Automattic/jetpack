@@ -17,9 +17,11 @@ import { isDevelopmentMode } from './utils';
 
 const debug = debugFactory( 'jetpack-explat:client' );
 
-export const initializeExPlat = (): void => {
+export { createExPlatClient };
+
+export const initializeExPlat = async (): Promise< string | null | void > => {
 	debug( 'initializing explat' );
-	initializeAnonId().catch( e => logError( { message: e.message } ) );
+	return initializeAnonId().catch( e => logError( { message: e.message } ) );
 };
 
 initializeExPlat();

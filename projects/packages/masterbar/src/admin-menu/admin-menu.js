@@ -146,9 +146,7 @@ import './admin-menu.css';
 					try {
 						if ( xhr.readyState === XMLHttpRequest.DONE ) {
 							if ( xhr.status === 200 && xhr.responseText ) {
-								adminMenu
-									.querySelector( '#toplevel_page_site_card' )
-									.insertAdjacentHTML( 'afterend', xhr.responseText );
+								adminMenu.insertAdjacentHTML( 'afterbegin', xhr.responseText );
 							}
 						}
 					} catch {

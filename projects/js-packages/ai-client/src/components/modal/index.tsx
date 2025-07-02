@@ -1,15 +1,10 @@
-/**
- * External dependencies
- */
 import { Modal, Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-/**
- * Internal dependencies
- */
 import AiStatusIndicator from '../ai-status-indicator/index.tsx';
 import type { RequestingStateProp } from '../../types.ts';
 import './style.scss';
+import type { ReactElement, ReactNode } from 'react';
 
 const ModalHeader = ( {
 	requestingState,
@@ -32,7 +27,7 @@ const ModalHeader = ( {
 };
 
 type AiAssistantModalProps = {
-	children: React.ReactNode;
+	children: ReactNode;
 	handleClose: () => void;
 	hideHeader?: boolean;
 	requestingState?: RequestingStateProp;
@@ -43,7 +38,7 @@ type AiAssistantModalProps = {
 /**
  * AiAssistantModal component
  * @param {AiAssistantModalProps} props - The component properties.
- * @return {React.ReactElement} - rendered component.
+ * @return {ReactElement} - rendered component.
  */
 export default function AiAssistantModal( {
 	children,

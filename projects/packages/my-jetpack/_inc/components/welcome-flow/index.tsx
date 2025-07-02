@@ -13,7 +13,7 @@ import ConnectionStep from './ConnectionStep';
 import EvaluationStep, { EvaluationAreas } from './EvaluationStep';
 import LoadingStep from './LoadingStep';
 import styles from './style.module.scss';
-import type { FC, PropsWithChildren } from 'react';
+import type { FC, PropsWithChildren, Dispatch, SetStateAction } from 'react';
 
 export type WelcomeFlowExperiment = {
 	isLoading: boolean;
@@ -22,7 +22,7 @@ export type WelcomeFlowExperiment = {
 
 interface Props extends PropsWithChildren {
 	welcomeFlowExperiment: WelcomeFlowExperiment;
-	setWelcomeFlowExperiment: React.Dispatch< React.SetStateAction< WelcomeFlowExperiment > >;
+	setWelcomeFlowExperiment: Dispatch< SetStateAction< WelcomeFlowExperiment > >;
 }
 
 const WelcomeFlow: FC< Props > = ( {

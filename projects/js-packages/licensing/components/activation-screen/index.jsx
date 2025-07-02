@@ -3,7 +3,7 @@ import restApi from '@automattic/jetpack-api';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
 import ActivationScreenSuccessInfo from '../activation-screen-success-info';
@@ -55,7 +55,7 @@ const parseAttachLicensesResult = result => {
  * @param {string}    props.siteAdminUrl               -- URL of the Jetpack Site Admin
  * @param {string}    props.currentRecommendationsStep -- The current recommendation step.
  * @param {string}    props.currentUser                -- Current wpcom user info.
- * @return {React.Component} The `ActivationScreen` component.
+ * @return {import('react').Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
 	const {

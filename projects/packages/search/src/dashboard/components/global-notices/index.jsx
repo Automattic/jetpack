@@ -1,4 +1,3 @@
-import React from 'react';
 import SimpleNotice from 'components/notice/index.jsx';
 import NoticeAction from 'components/notice/notice-action';
 
@@ -8,7 +7,7 @@ import './style.scss';
  * NoticesList component
  *
  * @param {*} props - Props
- * @return {React.Component} - NoticesList component
+ * @return {import('react').Component} - NoticesList component
  */
 export default function NoticesList(
 	props = { handleLocalNoticeDismissClick: null, notices: Object.freeze( [] ) }

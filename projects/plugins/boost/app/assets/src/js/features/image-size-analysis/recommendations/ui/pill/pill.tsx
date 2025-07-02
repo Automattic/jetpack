@@ -1,4 +1,5 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
+import type { CSSProperties, FC } from 'react';
 import styles from './pill.module.scss';
 
 interface PillProps {
@@ -6,10 +7,10 @@ interface PillProps {
 	children: ReactNode;
 }
 
-const Pill: React.FC< PillProps > = ( { color, children } ) => {
+const Pill: FC< PillProps > = ( { color, children } ) => {
 	const pillStyle = {
 		'--jb-pill-color': color,
-	} as React.CSSProperties;
+	} as CSSProperties;
 
 	return (
 		<div className={ styles.pill } style={ pillStyle }>

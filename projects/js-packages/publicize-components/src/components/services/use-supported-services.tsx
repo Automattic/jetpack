@@ -11,15 +11,16 @@ import connectionsThreads from '../../assets/connections-threads.png';
 import connectionsTumblr from '../../assets/connections-tumblr.png';
 import { store as socialStore } from '../../social-store';
 import { ConnectionService } from '../../types';
+import type { CSSProperties, ComponentType } from 'react';
 
 export type Badge = {
 	text: string;
-	style?: React.CSSProperties;
+	style?: CSSProperties;
 };
 
 export interface SupportedService extends ConnectionService {
-	icon: React.ComponentType< { iconSize: number } >;
-	examples?: Array< React.ComponentType >;
+	icon: ComponentType< { iconSize: number } >;
+	examples?: Array< ComponentType >;
 	needsCustomInputs?: boolean;
 	badges?: Array< Badge >;
 }

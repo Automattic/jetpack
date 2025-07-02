@@ -3,7 +3,6 @@
  */
 
 import { render } from '@testing-library/react';
-import React from 'react';
 import GlobalNotices from 'components/global-notices';
 
 describe( 'GlobalNotices', function () {

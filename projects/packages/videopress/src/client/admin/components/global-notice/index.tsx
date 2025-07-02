@@ -1,16 +1,10 @@
-/**
- * External dependencies
- */
 import { useConnection } from '@automattic/jetpack-connection';
 import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, warning, info, check } from '@wordpress/icons';
 import clsx from 'clsx';
-import React from 'react';
-/**
- * Internal dependencies
- */
 import styles from './styles.module.scss';
+import type { ReactElement, ReactNode } from 'react';
 
 type NoticeStatusProp = 'success' | 'info' | 'warning' | 'error';
 
@@ -18,7 +12,7 @@ type GlobalNoticeProps = {
 	status?: NoticeStatusProp;
 	isDismissible?: boolean;
 	className?: string;
-	children: React.ReactNode;
+	children: ReactNode;
 	actions: Array< {
 		label: string;
 		onClick: () => void;
@@ -52,9 +46,9 @@ const getIconByLevel = ( level: NoticeStatusProp ) => {
  * @param {boolean}          props.isDismissible - Whether the notice is dismissible
  * @param {string}           props.className     - Additional class name
  * @param {Function}         props.onRemove      - Callback when the notice is removed
- * @param {React.ReactNode}  props.children      - Notice content
+ * @param {ReactNode}        props.children      - Notice content
  * @param {Array}            props.actions       - Notice actions
- * @return {React.ReactElement}                Component template
+ * @return {ReactElement}                Component template
  */
 export default function GlobalNotice( {
 	status = 'error',
@@ -63,7 +57,7 @@ export default function GlobalNotice( {
 	children,
 	actions,
 	onRemove,
-}: GlobalNoticeProps ): React.ReactElement {
+}: GlobalNoticeProps ): ReactElement {
 	const classes = clsx( className, styles.notice, styles[ `is-${ status }` ] );
 
 	return (

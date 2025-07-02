@@ -13,9 +13,9 @@ import './visit-site-banner.scss';
 /**
  * Types
  */
-import type React from 'react';
+import type { FC } from 'react';
 
-export const VisitSiteBanner: React.FC< {
+export const VisitSiteBanner: FC< {
 	className?: string;
 	onVisitBlankTarget?: () => void;
 } > = ( { className = null, onVisitBlankTarget } ) => {
