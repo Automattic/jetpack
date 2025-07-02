@@ -1,4 +1,3 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/prerequisites.js';
 import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
 import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import { DashboardPage, PluginsPage, Sidebar } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
@@ -11,13 +10,10 @@ test.describe( 'Common tests', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( true ).build();
+		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( true ).build();
 	} );
 
 	test.afterAll( async () => {
-		await prerequisitesBuilder( page ).withActivePlugins( [ 'boost' ] ).build();
-		await boostPrerequisitesBuilder( page ).withConnection( true ).build();
-
 		await page.close();
 	} );
 
@@ -76,5 +72,8 @@ test.describe( 'Common tests', () => {
 			'db query \'SELECT option_id FROM wp_options WHERE option_name = "jb-critical-css-dismissed-recommendations"\' --skip-column-names'
 		);
 		expect( result.length, 'No DB records are found' ).toBe( 0 );
+
+		// Ensure the plugin is activated again so future tests can run reset commands via withCleanEnv.
+		await execWpCommand( 'plugin activate boost' );
 	} );
 } );
