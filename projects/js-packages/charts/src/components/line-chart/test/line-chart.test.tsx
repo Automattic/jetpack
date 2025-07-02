@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
 import { createElement } from 'react';
@@ -356,7 +356,7 @@ describe( 'LineChart', () => {
 	} );
 
 	describe( 'Annotations', () => {
-		test( 'renders annotations when an annotations list is provided', () => {
+		test( 'renders annotations when an annotations list is provided', async () => {
 			renderWithTheme( {
 				annotations: [
 					{
@@ -371,12 +371,18 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			expect( screen.getByText( 'Annotation 1' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Annotation 1 subtitle' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
+			await waitFor( () => {
+				expect( screen.getByText( 'Annotation 1' ) ).toBeInTheDocument();
+			} );
+			await waitFor( () => {
+				expect( screen.getByText( 'Annotation 1 subtitle' ) ).toBeInTheDocument();
+			} );
+			await waitFor( () => {
+				expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
+			} );
 		} );
 
-		test( 'skips rendering an annotation when it is malformed', () => {
+		test( 'skips rendering an annotation when it is malformed', async () => {
 			renderWithTheme( {
 				annotations: [
 					{
@@ -390,9 +396,11 @@ describe( 'LineChart', () => {
 				],
 			} );
 
+			await waitFor( () => {
+				expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
+			} );
 			expect( screen.queryByText( 'Annotation 1' ) ).not.toBeInTheDocument();
 			expect( screen.queryByText( 'Annotation 1 subtitle' ) ).not.toBeInTheDocument();
-			expect( screen.getByText( 'Annotation 2' ) ).toBeInTheDocument();
 		} );
 
 		test( 'does not render annotations when no annotations list is provided', () => {
@@ -409,7 +417,7 @@ describe( 'LineChart', () => {
 			expect( screen.queryByTestId( 'annotation-0' ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'renders annotations with zero values', () => {
+		test( 'renders annotations with zero values', async () => {
 			renderWithTheme( {
 				annotations: [
 					{
@@ -420,8 +428,12 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			expect( screen.getByText( 'Zero Value Annotation' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'This point has a value of 0' ) ).toBeInTheDocument();
+			await waitFor( () => {
+				expect( screen.getByText( 'Zero Value Annotation' ) ).toBeInTheDocument();
+			} );
+			await waitFor( () => {
+				expect( screen.getByText( 'This point has a value of 0' ) ).toBeInTheDocument();
+			} );
 		} );
 	} );
 
