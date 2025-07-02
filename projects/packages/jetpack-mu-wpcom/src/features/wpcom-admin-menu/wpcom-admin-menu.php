@@ -208,13 +208,13 @@ add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
  * @return void
  */
 function wpcom_add_untangled_jetpack_menu() {
-	$domain                  = wp_parse_url( home_url(), PHP_URL_HOST );
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 
 	Jetpack_Admin_UI_Admin::add_menu(
-		esc_attr__( 'Scan', 'jetpack-masterbar' ),
-		__( 'Scan', 'jetpack-masterbar' ),
+		esc_attr__( 'Scan', 'jetpack-mu-wpcom' ),
+		__( 'Scan', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		'https://wordpress.com/scan/' . $domain,
 		/**
