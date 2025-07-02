@@ -83,7 +83,9 @@ class Initializer {
 			require_once __DIR__ . '/utility-functions.php';
 		}
 
-		require_once __DIR__ . '/class-block-replacement.php';
+		if ( ! is_admin() ) {
+			require_once __DIR__ . '/class-block-replacement.php';
+		}
 
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
