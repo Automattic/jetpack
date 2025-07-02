@@ -23,7 +23,6 @@ class Initial_State {
 		global $wp_version;
 
 		$status = new Status();
-		$host   = new Status\Host();
 
 		return array(
 			'apiRoot'            => esc_url_raw( rest_url() ),
@@ -36,7 +35,7 @@ class Initial_State {
 			'siteSuffix'         => $status->get_site_suffix(),
 			'connectionErrors'   => Error_Handler::get_instance()->get_displayable_errors(),
 			'isOfflineMode'      => $status->is_offline_mode(),
-			'calypsoEnv'         => $host->get_calypso_env(),
+			'calypsoEnv'         => ( new Status\Host() )->get_calypso_env(),
 		);
 	}
 
