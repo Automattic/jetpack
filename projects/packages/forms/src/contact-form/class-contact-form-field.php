@@ -2117,15 +2117,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$color_value = $css_key_value_pairs['color'];
 			$style_attr  = 'style="--jetpack--contact-form--rating-star-color: ' . esc_attr( $color_value ) . ';';
 			unset( $css_key_value_pairs['color'] );
-			$remaining_styles = array_map(
-				function ( $key, $value ) {
-					return $key . ': ' . $value;
-				},
-				array_keys( $css_key_value_pairs ),
-				array_values( $css_key_value_pairs )
-			);
-
-			$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
 		} else {
 			// Theme colors are set in the field_classes attribute
 			$preset_colors = array(
@@ -2140,18 +2131,28 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 			foreach ( $preset_colors as $class => $css_var ) {
 				if ( strpos( $this->field_classes, $class ) !== false ) {
-					$style_attr = 'style="--jetpack--contact-form--rating-star-color: var(' . esc_attr( $css_var ) . ');"';
+					$style_attr = 'style="--jetpack--contact-form--rating-star-color: var(' . esc_attr( $css_var ) . ');';
 
 					break;
 				}
 			}
 		}
 
+		$remaining_styles = array_map(
+			function ( $key, $value ) {
+				return $key . ': ' . $value;
+			},
+			array_keys( $css_key_value_pairs ),
+			array_values( $css_key_value_pairs )
+		);
+
+		$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
+
 		return $label_html . sprintf(
 			'<div class="jetpack-field-rating %3$s" %1$s>%2$s</div>',
 			$style_attr,
 			$spans,
-			$class
+			$this->field_classes
 		) . $this->get_error_div( $id, 'rating' );
 	}
 }
