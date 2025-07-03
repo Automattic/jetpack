@@ -48,6 +48,8 @@
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-publicize-components": "workspace:*",
-		"@wordpress/i18n": "5.26.0"
+		"@wordpress/api-fetch": "7.26.0",
+		"@wordpress/i18n": "5.26.0",
+		"jquery": "3.6.0"
 	}
 }
