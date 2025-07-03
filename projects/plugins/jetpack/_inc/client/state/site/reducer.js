@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { assign, find, get, merge } from 'lodash';
+import { find, get, merge } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	getPlanClass,
@@ -41,7 +41,7 @@ import {
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
-			return assign( {}, state, action.siteData );
+			return Object.assign( {}, state, action.siteData );
 		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
 			return merge( {}, state, { site: { benefits: action.siteBenefits } } );
 		case JETPACK_SITE_DISCOUNT_FETCH_RECEIVE:
@@ -69,67 +69,67 @@ export const initialRequestsState = {
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteData: true,
 			} );
 		case JETPACK_SITE_BENEFITS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteBenefits: true,
 			} );
 		case JETPACK_SITE_DISCOUNT_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteDiscount: true,
 			} );
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingConnectedPlugins: true,
 			} );
 		case JETPACK_SITE_FEATURES_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteFeatures: true,
 			} );
 		case JETPACK_SITE_PLANS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSitePlans: true,
 			} );
 		case JETPACK_SITE_PURCHASES_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSitePurchases: true,
 			} );
 		case JETPACK_SITE_DATA_FETCH_FAIL:
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteData: false,
 			} );
 		case JETPACK_SITE_BENEFITS_FETCH_FAIL:
 		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteBenefits: false,
 			} );
 		case JETPACK_SITE_DISCOUNT_FETCH_FAIL:
 		case JETPACK_SITE_DISCOUNT_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteDiscount: false,
 			} );
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL:
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingConnectedPlugins: false,
 				isDoneFetchingConnectedPlugins: true,
 			} );
 		case JETPACK_SITE_FEATURES_FETCH_FAIL:
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteFeatures: false,
 			} );
 		case JETPACK_SITE_PLANS_FETCH_FAIL:
 		case JETPACK_SITE_PLANS_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSitePlans: false,
 			} );
 		case JETPACK_SITE_PURCHASES_FETCH_FAIL:
 		case JETPACK_SITE_PURCHASES_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSitePurchases: false,
 			} );
 
@@ -167,7 +167,7 @@ export const errors = ( state = {}, action ) => {
 					break;
 			}
 
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				message: Object.hasOwn( action.error, 'response' )
 					? action.error.response.message
 					: defaultErrorMessage,

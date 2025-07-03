@@ -1,6 +1,5 @@
 import { Gridicon } from '@automattic/jetpack-components';
 import clsx from 'clsx';
-import assign from 'lodash/assign';
 import omit from 'lodash/omit';
 import PropTypes from 'prop-types';
 import { Component, createElement } from 'react';
@@ -106,7 +105,7 @@ class Card extends Component {
 
 		return createElement(
 			this.props.href ? 'a' : this.props.tagName,
-			assign( omit( this.props, omitProps ), { className } ),
+			Object.assign( omit( this.props, omitProps ), { className } ),
 			linkIndicator,
 			fancyTitle,
 			this.props.children

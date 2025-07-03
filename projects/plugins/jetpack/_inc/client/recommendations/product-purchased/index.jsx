@@ -1,6 +1,5 @@
 import { ProgressBar } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import { isArray } from 'lodash';
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -32,7 +31,7 @@ const getPurchasedSuggestion = ( {
 		return false;
 	}
 
-	if ( ! suggestions || ! isArray( suggestions ) ) {
+	if ( ! suggestions || ! Array.isArray( suggestions ) ) {
 		return false;
 	}
 
@@ -42,7 +41,7 @@ const getPurchasedSuggestion = ( {
 		return matchingPlan;
 	}
 
-	if ( isArray( activePurchases ) ) {
+	if ( Array.isArray( activePurchases ) ) {
 		const matchingProduct = suggestions.find( suggestion => {
 			return activePurchases.find(
 				activePurchase => suggestion.slug === activePurchase.product_slug

@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import Card from 'components/card';
@@ -7,6 +6,8 @@ import CompactCard from 'components/card/compact';
 import Gridicon from 'components/gridicon';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import './style.scss';
+
+const noop = () => {};
 
 class FoldableCard extends Component {
 	static propTypes = {

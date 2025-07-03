@@ -1,4 +1,3 @@
-import { assign } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_PLUGINS_DATA_FETCH,
@@ -9,7 +8,7 @@ import {
 const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_PLUGINS_DATA_FETCH_RECEIVE:
-			return assign( {}, action.pluginsData );
+			return Object.assign( {}, action.pluginsData );
 		default:
 			return state;
 	}
@@ -22,12 +21,12 @@ const initialRequestsState = {
 const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_PLUGINS_DATA_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingPluginsData: true,
 			} );
 		case JETPACK_PLUGINS_DATA_FETCH_FAIL:
 		case JETPACK_PLUGINS_DATA_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingPluginsData: false,
 			} );
 

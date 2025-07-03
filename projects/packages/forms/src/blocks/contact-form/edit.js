@@ -25,7 +25,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { filter, isArray, map } from 'lodash';
+import { filter, map } from 'lodash';
 import { store as singleStepStore } from '../../store/form-step-preview';
 import {
 	PREVIOUS_BUTTON_TEMPLATE,
@@ -58,7 +58,7 @@ const validFields = filter( childBlocks, ( { settings } ) => {
 	return (
 		! settings.parent ||
 		settings.parent === 'jetpack/contact-form' ||
-		( isArray( settings.parent ) && settings.parent.includes( 'jetpack/contact-form' ) )
+		( Array.isArray( settings.parent ) && settings.parent.includes( 'jetpack/contact-form' ) )
 	);
 } );
 
