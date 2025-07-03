@@ -125,19 +125,21 @@
 /**
  * Site badge and plan info in the dropdown
  */
-#wp-admin-bar-site-badge {
+#wp-admin-bar-site-plan,
+#wp-admin-bar-site-status {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 	min-width: 260px;
 }
 
-#wp-admin-bar-site-badge-status .ab-item,
-#wp-admin-bar-site-badge-plan .ab-item {
+#wp-admin-bar-site-plan-badge .ab-item,
+#wp-admin-bar-site-status-badge .ab-item {
 	height: auto !important;
 }
 
-#wpadminbar .wp-admin-bar__site-info {
+#wpadminbar .wp-admin-bar__site-info,
+#wpadminbar a.wp-admin-bar__site-info {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
@@ -161,6 +163,15 @@
 	line-height: 20px;
 	display: flex;
 	align-items: center;
+}
+
+#wpadminbar a.wp-admin-bar__site-info {
+	display: flex;
+	padding: 0;
+
+	.wp-admin-bar__info-badges {
+		color: rgba(240, 246, 252, .7);
+	}
 }
 
 /**

@@ -20,11 +20,11 @@ import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-uti
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import Loading from 'components/loading';
 import Price from 'components/price';
 import SearchPromotionBlock from 'components/search-promotion';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
-import { useCallback } from 'react';
 import { STORE_ID } from 'store';
 import Header from './header';
 

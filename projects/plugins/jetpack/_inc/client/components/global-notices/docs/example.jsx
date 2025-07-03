@@ -1,10 +1,10 @@
-import FormCheckbox from 'components/forms/form-checkbox';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { createNotice } from 'state/notices/actions';
 import Button from 'components/button';
 import ButtonGroup from 'components/button-group';
+import { FormCheckbox } from 'components/forms';
+import { createNotice } from 'components/global-notices/state/notices/actions';
 import notices from 'notices';
 
 class GlobalNotices extends Component {
