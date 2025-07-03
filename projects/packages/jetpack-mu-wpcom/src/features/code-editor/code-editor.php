@@ -99,43 +99,6 @@ function enqueue_editor_assets() {
 	}
 }
 
-/**
- * Hook to allow the dummy script module to inject its dependencies into the importmap.
- *
- * Create an opportunity between printing the importmap and printing modules
- * in order to prevent printing the dummy module.
- *
- * This is not essential, but does save some HTML on the page and a network request.
- * The dummy module is only used to signal that some additional modules
- * should be included in the importmap.
- *
- * @TODO: Be safer. Check the return (bool: was removed) and behave accordingly.
- */
-function after_setup_theme() {
-	foreach ( array( 'wp_head', 'wp_footer', 'admin_print_footer_scripts' ) as $hook ) {
-		remove_action( $hook, array( wp_script_modules(), 'print_enqueued_script_modules' ) );
-		remove_action( $hook, array( wp_script_modules(), 'print_script_module_preloads' ) );
-
-		add_action(
-			$hook,
-			function () {
-				wp_script_modules()->dequeue( MODULE_PREFIX . 'dummy' );
-			},
-			15
-		);
-		add_action( $hook, array( wp_script_modules(), 'print_enqueued_script_modules' ), 20 );
-		add_action( $hook, array( wp_script_modules(), 'print_script_module_preloads' ), 20 );
-		add_action(
-			$hook,
-			function () {
-				wp_script_modules()->enqueue( MODULE_PREFIX . 'dummy' );
-			},
-			25
-		);
-
-	}
-}
-
 function get_version( string $path ): string {
 	if ( ! WP_DEBUG ) {
 		return VERSION;
@@ -155,4 +118,3 @@ add_action(
 	}
 );
 add_action( 'init', __NAMESPACE__ . '\\init' );
-add_action( 'after_setup_theme', __NAMESPACE__ . '\\after_setup_theme', 100 );
