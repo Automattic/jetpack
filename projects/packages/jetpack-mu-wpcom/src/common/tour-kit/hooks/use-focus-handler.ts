@@ -1,14 +1,12 @@
-/**
- * External Dependencies
- */
 import { useEffect, useCallback, useState } from '@wordpress/element';
+import type { MutableRefObject } from 'react';
 
 /**
  * A hook that returns true/false if ref node receives focus by either tabbing or clicking into any of its children.
- * @param  ref - React.MutableRefObject< null | HTMLElement >
+ * @param  ref - MutableRefObject< null | HTMLElement >
  * @return {boolean} - True if the ref node has focus, false otherwise.
  */
-const useFocusHandler = ( ref: React.MutableRefObject< null | HTMLElement > ): boolean => {
+const useFocusHandler = ( ref: MutableRefObject< null | HTMLElement > ): boolean => {
 	const [ hasFocus, setHasFocus ] = useState( false );
 
 	const handleFocus = useCallback( () => {

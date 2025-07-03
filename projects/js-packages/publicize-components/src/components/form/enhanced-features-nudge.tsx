@@ -6,8 +6,9 @@ import { _x } from '@wordpress/i18n';
 import { hasSocialPaidFeatures } from '../../utils';
 import styles from './styles.module.scss';
 import { useAutoSaveAndRedirect } from './use-auto-save-and-redirect';
+import type { FC } from 'react';
 
-export const EnhancedFeaturesNudge: React.FC = () => {
+export const EnhancedFeaturesNudge: FC = () => {
 	const autosaveAndRedirect = useAutoSaveAndRedirect();
 
 	const isSimple = isSimpleSite();

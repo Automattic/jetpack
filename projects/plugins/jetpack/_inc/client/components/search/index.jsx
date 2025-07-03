@@ -2,7 +2,7 @@ import { isMobile } from '@automattic/viewport';
 import clsx from 'clsx';
 import { debounce, noop } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { createRef, Component } from 'react';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
 import SearchClearButton from './clear-btn';
@@ -30,7 +30,7 @@ function keyListener( methodToCall, event ) {
 	}
 }
 
-class Search extends React.Component {
+class Search extends Component {
 	static displayName = 'Search';
 	static instances = 0;
 
@@ -81,9 +81,9 @@ class Search extends React.Component {
 		hideClose: false,
 	};
 
-	overlayRef = React.createRef();
-	searchInputRef = React.createRef();
-	openIconRef = React.createRef();
+	overlayRef = createRef();
+	searchInputRef = createRef();
+	openIconRef = createRef();
 
 	state = {
 		keyword: this.props.initialValue || '',

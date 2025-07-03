@@ -3,12 +3,13 @@
  */
 import { useCallback, useRef, useEffect } from '@wordpress/element';
 import debugFactory from 'debug';
+import type { MutableRefObject } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-assistant:use-auto-scroll' );
 
 const useAutoScroll = (
-	blockRef: React.MutableRefObject< HTMLElement | null >,
-	contentRef?: React.MutableRefObject< HTMLElement >,
+	blockRef: MutableRefObject< HTMLElement | null >,
+	contentRef?: MutableRefObject< HTMLElement >,
 	useBlockAsTarget: boolean = false
 ) => {
 	const scrollElementRef = useRef< HTMLElement | Document | null >( null );

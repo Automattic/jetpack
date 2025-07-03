@@ -1,4 +1,3 @@
-import React from 'react';
 import { legendArgTypes, legendDecorator } from '../../../stories/legend-config';
 import { PieChart } from '../../pie-chart';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
@@ -60,7 +59,7 @@ Default.args = {
 export const AlignmentPositioning: StoryObj< typeof PieChart > = Template.bind( {} );
 AlignmentPositioning.args = {
 	...legendStoryArgs,
-	legendAlign: 'right',
+	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
 };
 
@@ -68,6 +67,6 @@ export const VerticalOrientation: StoryObj< typeof PieChart > = Template.bind( {
 VerticalOrientation.args = {
 	...legendStoryArgs,
 	legendOrientation: 'vertical',
-	legendAlign: 'right',
+	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
 };

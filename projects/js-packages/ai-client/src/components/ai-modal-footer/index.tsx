@@ -12,7 +12,7 @@ import './style.scss';
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 type AiModalFooterProps = {
 	onGuidelinesClick?: () => void;
@@ -23,12 +23,12 @@ type AiModalFooterProps = {
  * AiModalFooter component.
  *
  * @param {AiModalFooterProps} props - component props.
- * @return {React.ReactElement} - rendered component.
+ * @return {ReactElement} - rendered component.
  */
 export default function AiModalFooter( {
 	onGuidelinesClick,
 	onFeedbackClick,
-}: AiModalFooterProps ): React.ReactElement {
+}: AiModalFooterProps ): ReactElement {
 	const handleGuidelinesClick = useCallback( () => {
 		onGuidelinesClick?.();
 	}, [ onGuidelinesClick ] );

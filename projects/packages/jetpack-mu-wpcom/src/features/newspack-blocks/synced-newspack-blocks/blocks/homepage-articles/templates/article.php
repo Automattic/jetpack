@@ -238,7 +238,7 @@ call_user_func(
 									),
 								)
 							),
-							esc_attr( Newspack_Blocks::get_displayed_post_date() ),
+							esc_attr( Newspack_Blocks::get_datetime_post_date() ),
 							esc_html( Newspack_Blocks::get_formatted_displayed_post_date() ),
 							esc_attr( get_the_modified_date( DATE_W3C ) ),
 							esc_html( get_the_modified_date() )

@@ -2,7 +2,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { getProductGroup } from '../../activation-screen/utils.js';
 
 import './style.scss';
@@ -13,7 +12,7 @@ import './style.scss';
  * @param {object} props            -- The properties.
  * @param {number} props.productId  -- The id of the product
  * @param {string} props.siteRawUrl -- The url of the site
- * @return {React.Component} The `JetpackProductDetails` component.
+ * @return {import('react').Component} The `JetpackProductDetails` component.
  */
 const JetpackProductDetails = props => {
 	const { productId, siteRawUrl } = props;

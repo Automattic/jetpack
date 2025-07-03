@@ -8,7 +8,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
  * Types
  */
 import type { PlayerStateProp, UseVideoPlayerOptions, UseVideoPlayer } from './types';
-import type React from 'react';
+import type { MutableRefObject } from 'react';
 
 const debug = debugFactory( 'videopress:use-video-player' );
 
@@ -16,11 +16,11 @@ const debug = debugFactory( 'videopress:use-video-player' );
  * Return the (content) Window object of the iframe,
  * given the iframe's ref.
  *
- * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
+ * @param {MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
  * @return {Window | null} Window object of the iframe
  */
 export const getIframeWindowFromRef = (
-	iFrameRef: React.MutableRefObject< HTMLDivElement >
+	iFrameRef: MutableRefObject< HTMLDivElement >
 ): Window | null => {
 	const iFrame: HTMLIFrameElement = iFrameRef?.current?.querySelector(
 		'iframe.components-sandbox'
@@ -31,13 +31,13 @@ export const getIframeWindowFromRef = (
 /**
  * Custom hook to set the player ready to use:
  *
- * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef           - useRef of the sandbox wrapper.
- * @param {boolean}                                  isRequestingPreview - Whether the preview is being requested.
- * @param {UseVideoPlayerOptions}                    options             - Options object.
+ * @param {MutableRefObject< HTMLDivElement >} iFrameRef           - useRef of the sandbox wrapper.
+ * @param {boolean}                            isRequestingPreview - Whether the preview is being requested.
+ * @param {UseVideoPlayerOptions}              options             - Options object.
  * @return {UseVideoPlayer}                                     playerIsReady and playerState
  */
 const useVideoPlayer = (
-	iFrameRef: React.MutableRefObject< HTMLDivElement >,
+	iFrameRef: MutableRefObject< HTMLDivElement >,
 	isRequestingPreview: boolean,
 	{ initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
 ): UseVideoPlayer => {

@@ -28,7 +28,7 @@ const MyComponent = () => {
 		return event => {
 			event.preventDefault();
 			setModal( {
-				type: 'CREDENTIALS_NEEDED',
+				type: 'FIX_THREAT',
 			} );
 		};
 	};

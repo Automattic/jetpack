@@ -140,6 +140,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'creative-mail-by-constant-contact', $data );
 		$this->assertArrayHasKey( 'zero-bs-crm', $data );
 		$this->assertArrayHasKey( 'google-drive', $data );
+		$this->assertArrayHasKey( 'mailpoet', $data );
 
 		// Verify structure of one integration
 		$this->assertArrayHasKey( 'type', $data['akismet'] );
@@ -179,6 +180,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertContains( 'creative-mail-by-constant-contact', $integration_ids );
 		$this->assertContains( 'zero-bs-crm', $integration_ids );
 		$this->assertContains( 'google-drive', $integration_ids );
+		$this->assertContains( 'mailpoet', $integration_ids );
 
 		// Verify structure of each integration
 		foreach ( $data as $integration ) {

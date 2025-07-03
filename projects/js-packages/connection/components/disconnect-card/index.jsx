@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import React from 'react';
 
 import './style.scss';
 
@@ -8,7 +7,7 @@ import './style.scss';
  * Used in the disconnection flow.
  *
  * @param {object} props - The Properties.
- * @return {React.Component} DisconnectCard - The disconnect card component.
+ * @return {import('react').Component} DisconnectCard - The disconnect card component.
  */
 const DisconnectCard = props => {
 	const { title, value, description } = props;

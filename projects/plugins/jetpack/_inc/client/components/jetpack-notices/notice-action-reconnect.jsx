@@ -1,7 +1,7 @@
 import { useRestoreConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import NoticeAction from 'components/notice/notice-action';

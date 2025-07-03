@@ -39,7 +39,7 @@ import './style.scss';
  */
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 import type { PosterDataProps, PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
-import type React from 'react';
+import type { MutableRefObject, ReactElement } from 'react';
 
 const MIN_LOOP_DURATION = 3 * 1000;
 const MAX_LOOP_DURATION = 10 * 1000;
@@ -92,13 +92,13 @@ if ( window?.videoPressEditorState?.playerBridgeUrl ) {
  * Sidebar Control component.
  *
  * @param {VideoControlProps} props - Component props.
- * @return {React.ReactElement}    Component template
+ * @return {ReactElement}    Component template
  */
 export function PosterDropdown( {
 	clientId,
 	attributes,
 	setAttributes,
-}: VideoControlProps ): React.ReactElement {
+}: VideoControlProps ): ReactElement {
 	const videoPosterDescription = `video-block__poster-image-description-${ clientId }`;
 
 	const { poster } = attributes;
@@ -206,11 +206,11 @@ export function PosterDropdown( {
  * Return the (content) Window object of the iframe,
  * given the iframe's ref.
  *
- * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
+ * @param {MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
  * @return {Window | null} Window object of the iframe
  */
 export const getIframeWindowFromRef = (
-	iFrameRef: React.MutableRefObject< HTMLDivElement >
+	iFrameRef: MutableRefObject< HTMLDivElement >
 ): Window | null => {
 	const iFrame: HTMLIFrameElement = iFrameRef?.current?.querySelector(
 		'iframe.components-sandbox'
@@ -230,7 +230,7 @@ type PosterFramePickerProps = {
  * React component to pick a frame from the VideoPress video
  *
  * @param {PosterFramePickerProps} props - Component properties
- * @return { React.ReactElement}          React component
+ * @return { ReactElement}          React component
  */
 function VideoFramePicker( {
 	guid,
@@ -238,7 +238,7 @@ function VideoFramePicker( {
 	atTime = 0.1,
 	onVideoFrameSelect,
 	duration,
-}: PosterFramePickerProps ): React.ReactElement {
+}: PosterFramePickerProps ): ReactElement {
 	const [ timestamp, setTimestamp ] = useState( atTime );
 	const playerWrapperRef = useRef< HTMLDivElement >( null );
 
@@ -326,7 +326,7 @@ type VideoHoverPreviewControlProps = {
  * React component to select the video preview options when the user hovers the video
  *
  * @param {VideoHoverPreviewControlProps} props - Component properties
- * @return { React.ReactElement}                 React component
+ * @return { ReactElement}                 React component
  */
 export function VideoHoverPreviewControl( {
 	previewOnHover = false,
@@ -336,7 +336,7 @@ export function VideoHoverPreviewControl( {
 	onPreviewOnHoverChange,
 	onPreviewAtTimeChange,
 	onLoopDurationChange,
-}: VideoHoverPreviewControlProps ): React.ReactElement {
+}: VideoHoverPreviewControlProps ): ReactElement {
 	const disabled = ! videoDuration;
 	const maxStartingPoint = Math.max( videoDuration - MIN_LOOP_DURATION, 0 );
 
@@ -433,14 +433,14 @@ export function VideoHoverPreviewControl( {
  * Sidebar Control component.
  *
  * @param {VideoControlProps} props - Component props.
- * @return {React.ReactElement}    Component template
+ * @return {ReactElement}    Component template
  */
 export default function PosterPanel( {
 	attributes,
 	setAttributes,
 	isGeneratingPoster,
 	videoBelongToSite,
-}: PosterPanelProps ): React.ReactElement {
+}: PosterPanelProps ): ReactElement {
 	const { poster, posterData } = attributes;
 
 	const videoDuration = attributes?.duration;

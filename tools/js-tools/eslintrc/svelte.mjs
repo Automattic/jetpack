@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import eslintPluginSvelte from 'eslint-plugin-svelte';
 import svelteEslintParser from 'svelte-eslint-parser';
 import typescriptEslint from 'typescript-eslint';
@@ -33,6 +34,15 @@ export default defineConfig(
 			parser: svelteEslintParser,
 			parserOptions: {
 				parser: typescriptEslint.parser,
+			},
+		},
+		settings: {
+			'import/parsers': {
+				// Hack for the import of ts files from svelte.
+				// Otherwise it tries to use the svelteEslintParser defined just above, which chokes on the TS code.
+				[ fileURLToPath( new URL( './get-ts-parser.cjs', import.meta.url ) ) ]: javascriptFiles
+					.map( v => v.replace( '**/*', '' ) )
+					.filter( v => v !== '.svelte' ),
 			},
 		},
 	}

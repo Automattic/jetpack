@@ -3,7 +3,6 @@ import { SelectControl, Button } from '@wordpress/components';
 import { useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { omit } from 'lodash';
-import React from 'react';
 import {
 	GOOGLE_PHOTOS_CATEGORIES,
 	GOOGLE_PHOTOS_DATE_PRESETS,
@@ -19,7 +18,7 @@ import {
  * @param {object}   props              - The component props
  * @param {string}   props.value        - The category
  * @param {Function} props.updateFilter - The function to update the filter
- * @return {React.ReactElement}         - JSX Element
+ * @return {import('react').ReactElement}         - JSX Element
  */
 function CategoryOption( { value, updateFilter } ) {
 	return (
@@ -40,7 +39,7 @@ function CategoryOption( { value, updateFilter } ) {
  * @param {object}   props              - The component props
  * @param {object}   props.value        - The date
  * @param {Function} props.updateFilter - The function to update the filter
- * @return {React.ReactElement}         - JSX Element
+ * @return {import('react').ReactElement}         - JSX Element
  */
 function DateOption( { value, updateFilter } ) {
 	const selectedRange = value?.range || DATE_RANGE_ANY;
@@ -91,7 +90,7 @@ function DateOption( { value, updateFilter } ) {
 /**
  * FavoriteOption component
  *
- * @return {React.ReactElement} - JSX Element
+ * @return {import('react').ReactElement} - JSX Element
  */
 function FavoriteOption() {
 	return <span>{ __( 'Favorites', 'jetpack-external-media' ) }</span>;
@@ -103,7 +102,7 @@ function FavoriteOption() {
  * @param {object}   props              - The component props
  * @param {object}   props.value        - The media type
  * @param {Function} props.updateFilter - The function to update the filter
- * @return {React.ReactElement}         - JSX Element
+ * @return {import('react').ReactElement}         - JSX Element
  */
 function MediaTypeOption( { value, updateFilter } ) {
 	const options = [
@@ -129,7 +128,7 @@ function MediaTypeOption( { value, updateFilter } ) {
  * @param {string}   optionName   - The option name
  * @param {string}   optionValue  - The option value
  * @param {Function} updateFilter - The function to update the filter
- * @return {React.ReactElement}   - JSX Element
+ * @return {import('react').ReactElement}   - JSX Element
  */
 function getFilterOption( optionName, optionValue, updateFilter ) {
 	if ( optionName === 'category' ) {
@@ -154,11 +153,11 @@ function getFilterOption( optionName, optionValue, updateFilter ) {
 /**
  * FilterOption component
  *
- * @param {object}          props              - The component props
- * @param {React.ReactNode} props.children     - The children
- * @param {boolean}         props.isRemovable  - Whether the filter is removable
- * @param {Function}        props.removeFilter - The function to remove the filter
- * @return {React.ReactElement}                - JSX Element
+ * @param {object}                    props              - The component props
+ * @param {import('react').ReactNode} props.children     - The children
+ * @param {boolean}                   props.isRemovable  - Whether the filter is removable
+ * @param {Function}                  props.removeFilter - The function to remove the filter
+ * @return {import('react').ReactElement}                - JSX Element
  */
 function FilterOption( { children, removeFilter, isRemovable = false } ) {
 	return (
@@ -205,7 +204,7 @@ function getUpdatedFilters( existing, key, value ) {
  * @param {object}   props.filters        - The filters
  * @param {boolean}  props.canChangeMedia - Whether the media is changeable
  * @param {Function} props.setFilters     - The function to set the filters
- * @return {React.ReactElement}           - JSX Element
+ * @return {import('react').ReactElement}           - JSX Element
  */
 function GoogleFilterOption( { filters, setFilters, canChangeMedia } ) {
 	const options = Object.keys( filters )

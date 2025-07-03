@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -24,7 +24,7 @@ import './style.scss';
  * The RNA Manage Connection Dialog component.
  *
  * @param {object} props -- The properties.
- * @return {React.JSX} The `ManageConnectionDialog` component.
+ * @return {import('react').JSX} The `ManageConnectionDialog` component.
  */
 const ManageConnectionDialog = props => {
 	const {

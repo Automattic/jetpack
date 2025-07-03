@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 const Timer = ( { label, timeClassName, expiryDate } ) => {
 	const date = useMemo( () => new Date( expiryDate ), [ expiryDate ] );

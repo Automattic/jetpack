@@ -191,11 +191,4 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		// Hide performance settings.
 		remove_submenu_page( 'options-general.php', 'https://wordpress.com/settings/performance/' . $this->domain );
 	}
-
-	/**
-	 * Override, don't add the woocommerce installation menu on any p2s.
-	 *
-	 * @param array|null $current_plan The site's plan.
-	 */
-	public function add_woocommerce_installation_menu( $current_plan = null ) {} // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 }

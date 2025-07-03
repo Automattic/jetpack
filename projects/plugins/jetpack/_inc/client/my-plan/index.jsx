@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { Fragment } from 'react';
 import { connect } from 'react-redux';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import QuerySite from 'components/data/query-site';
@@ -26,7 +26,7 @@ export function MyPlan( props ) {
 	}
 
 	return (
-		<React.Fragment>
+		<Fragment>
 			<h1 className="screen-reader-text">{ __( 'Jetpack My Plan Details', 'jetpack' ) }</h1>
 			<QuerySite />
 			<QueryRecommendationsData />
@@ -46,7 +46,7 @@ export function MyPlan( props ) {
 				siteRawUrl={ props.siteRawUrl }
 				blogID={ props.blogID }
 			/>
-		</React.Fragment>
+		</Fragment>
 	);
 }
 

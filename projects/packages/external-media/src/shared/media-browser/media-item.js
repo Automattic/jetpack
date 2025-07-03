@@ -3,7 +3,6 @@ import { CheckboxControl, Composite } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React from 'react';
 
 /**
  * MediaItem component
@@ -15,7 +14,7 @@ import React from 'react';
  * @param {boolean}  props.isCopying      - Whether the media browser is copying the media
  * @param {boolean}  props.shouldProxyImg - Whether to use the proxy for the media URL
  * @param {Function} props.onClick        - To handle the selection
- * @return {React.ReactElement} - JSX element
+ * @return {import('react').ReactElement} - JSX element
  */
 function MediaItem( { item, imageOnly, isSelected, isCopying = false, shouldProxyImg, onClick } ) {
 	const { thumbnails, caption, name, title, type, children = 0 } = item;

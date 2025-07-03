@@ -3,11 +3,12 @@ import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/com
 import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/boost.png';
 import { __ } from '@wordpress/i18n';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
+import type { ReactNode } from 'react';
 
 type InterstitialModalCTAProps = {
 	description?: string;
 	identifier: string;
-	customModalTrigger?: React.ReactNode;
+	customModalTrigger?: ReactNode;
 };
 
 const InterstitialModalCTA = ( {

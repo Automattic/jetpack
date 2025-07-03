@@ -1,17 +1,17 @@
 import { ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 
 /**
  * Renders a link that opens a WP.com support article in the Help Center.
  *
- * @param {object}          props               - The component props.
- * @param {string}          props.supportLink   - Support link URL.
- * @param {number}          props.supportPostId - Support post ID.
- * @param {React.Component} props.children      - Support link content.
- * @param {Function}        [props.onClick]     - Callback function to be called when the link is clicked.
- * @param {object}          [props.style]       - CSS properties to be applied to the link.
- * @return {React.JSX.Element} The component to render.
+ * @param {object}                    props               - The component props.
+ * @param {string}                    props.supportLink   - Support link URL.
+ * @param {number}                    props.supportPostId - Support post ID.
+ * @param {import('react').Component} props.children      - Support link content.
+ * @param {Function}                  [props.onClick]     - Callback function to be called when the link is clicked.
+ * @param {object}                    [props.style]       - CSS properties to be applied to the link.
+ * @return {import('react').JSX.Element} The component to render.
  */
 export const WpcomSupportLink = forwardRef(
 	( { supportLink, supportPostId, children, onClick, style }, ref ) => {

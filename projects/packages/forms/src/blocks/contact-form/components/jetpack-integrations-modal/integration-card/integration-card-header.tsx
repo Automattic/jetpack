@@ -19,6 +19,7 @@ import PluginActionButton from './plugin-action-button';
  * Types
  */
 import type { IntegrationCardProps } from './index';
+import type { MouseEvent } from 'react';
 
 const IntegrationCardHeader = ( {
 	title,
@@ -80,7 +81,7 @@ const IntegrationCardHeader = ( {
 		}
 	};
 
-	const handleHeaderClick = ( e: React.MouseEvent< HTMLDivElement > ) => {
+	const handleHeaderClick = ( e: MouseEvent< HTMLDivElement > ) => {
 		// Without this, toggle click bubbles and opens/closes the card.
 		if ( ( e.target as HTMLElement ).closest( '.components-form-toggle' ) ) {
 			return;

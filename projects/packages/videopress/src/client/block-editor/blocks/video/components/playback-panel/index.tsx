@@ -12,13 +12,13 @@ import styles from './style.module.scss';
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 /**
  * Sidebar Control component.
  *
  * @param {VideoControlProps} props - Component props.
- * @return {React.ReactElement}      Playback block sidebar panel
+ * @return {ReactElement}      Playback block sidebar panel
  */
 export default function PlaybackPanel( { attributes, setAttributes }: VideoControlProps ) {
 	const { autoplay, loop, muted, controls, playsinline, preload, posterData } = attributes;

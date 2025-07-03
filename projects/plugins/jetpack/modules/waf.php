@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Firewall
- * Module Description: Protect your site with Jetpack's Web Application Firewall.
+ * Module Description: Filter malicious traffic in real time with Jetpack’s site firewall.
  * Sort Order: 5
  * First Introduced: 10.9
  * Requires Connection: Yes

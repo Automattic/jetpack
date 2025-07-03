@@ -1,6 +1,5 @@
 import { MenuItem } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import React from 'react';
 import {
 	internalMediaSources,
 	externalMediaSources,
@@ -17,7 +16,7 @@ import { isGeneralPurposeImageGeneratorBetaEnabled } from '../utils/is-general-p
  * @param {Function} props.open           - To handle the open.
  * @param {Function} props.setSource      - To set the source.
  * @param {boolean}  props.isFeatured     - Whether it's featured.
- * @return {React.ReactElement} The `MediaSources` component.
+ * @return {import('react').ReactElement} The `MediaSources` component.
  */
 function MediaSources( {
 	originalButton = null,

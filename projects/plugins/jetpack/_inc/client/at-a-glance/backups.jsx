@@ -7,7 +7,7 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, backup } from '@wordpress/icons';
 import { get, noop } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -313,13 +313,13 @@ class DashBackups extends Component {
 		switch ( rewindStatus ) {
 			case 'provisioning':
 				return (
-					<React.Fragment>
+					<Fragment>
 						{ buildCard( __( "We are configuring your site's backups.", 'jetpack' ) ) }
-					</React.Fragment>
+					</Fragment>
 				);
 			case 'awaiting_credentials':
 				return (
-					<React.Fragment>
+					<Fragment>
 						{ buildCard(
 							__(
 								'Enter your SSH, SFTP or FTP credentials to enable one-click site restores and faster backups',
@@ -331,7 +331,7 @@ class DashBackups extends Component {
 							__( 'Enter credentials', 'jetpack' ),
 							'enter-credentials-link'
 						) }
-					</React.Fragment>
+					</Fragment>
 				);
 			case 'active': {
 				if ( backupUndoEventLoaded ) {
@@ -360,10 +360,10 @@ class DashBackups extends Component {
 				}
 
 				return (
-					<React.Fragment>
+					<Fragment>
 						{ buildCard( message ) }
 						{ this.renderManageBackupsLinks() }
-					</React.Fragment>
+					</Fragment>
 				);
 			}
 		}

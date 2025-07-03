@@ -1,6 +1,5 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { PrimaryLink } from './primary-link';
 import JetpackProductDetails from './product-details';
 import { ProductLink } from './product-link';
@@ -15,7 +14,7 @@ import './style.scss';
  * @param {string} props.siteRawUrl                 -- The url of the site
  * @param {string} props.siteAdminUrl               -- URL of the Jetpack Site Admin
  * @param {string} props.currentRecommendationsStep -- The current recommendation step
- * @return {React.Component} The `ActivationSuccessInfo` component.
+ * @return {import('react').Component} The `ActivationSuccessInfo` component.
  */
 const ActivationSuccessInfo = props => {
 	const { productId, siteRawUrl, siteAdminUrl, currentRecommendationsStep } = props;

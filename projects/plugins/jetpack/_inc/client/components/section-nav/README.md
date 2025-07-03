@@ -15,7 +15,7 @@ var SectionNav = require( 'components/section-nav' ),
 	NavItem = require( 'components/section-nav/item' ),
 	Search = require( 'components/search' );
 
-module.exports = React.createClass( {
+module.exports = createClass( {
 
 	// ...
 

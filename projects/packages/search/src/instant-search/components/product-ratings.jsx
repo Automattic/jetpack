@@ -1,5 +1,5 @@
 import { _n, sprintf } from '@wordpress/i18n';
-import React from 'react';
+import * as React from 'react';
 import Gridicon from './gridicon';
 
 import './product-ratings.scss';

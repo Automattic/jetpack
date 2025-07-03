@@ -2,7 +2,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import * as WPElement from '@wordpress/element';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router';
 import Modal from './components/modal';
 import PaidPlanGate from './components/paid-plan-gate';

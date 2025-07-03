@@ -3,14 +3,14 @@ import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect } from 'react';
+import { Fragment, useCallback, useEffect } from 'react';
 import ConnectedPlugins from '../../connected-plugins';
 
 /**
  * Disconnect step in disconnection flow.
  *
  * @param {object} props - The properties.
- * @return {React.Component} - The StepDisconnect component
+ * @return {import('react').Component} - The StepDisconnect component
  */
 const StepDisconnect = props => {
 	const {
@@ -66,7 +66,7 @@ const StepDisconnect = props => {
 	/**
 	 * Render the disconnect button, allows for some variance based on context.
 	 *
-	 * @return {React.Component} - Button used for disconnect.
+	 * @return {import('react').Component} - Button used for disconnect.
 	 */
 	const renderDisconnectButton = () => {
 		let buttonText = __( 'Disconnect', 'jetpack-connection-js' );
@@ -93,7 +93,7 @@ const StepDisconnect = props => {
 	 * Show some fallback output if there are no connected plugins to show and no passed disconnect component.
 	 * This is a more generic message about disconnecting Jetpack.
 	 *
-	 * @return {React.ElementType|undefined} - Fallback message for when there are no connected plugins or passed components to show.
+	 * @return {import('react').ElementType|undefined} - Fallback message for when there are no connected plugins or passed components to show.
 	 */
 	const renderFallbackOutput = () => {
 		const hasOtherConnectedPlugins =
@@ -122,7 +122,7 @@ const StepDisconnect = props => {
 	};
 
 	return (
-		<React.Fragment>
+		<Fragment>
 			<div className="jp-connection__disconnect-dialog__content">
 				<h1 id="jp-connection__disconnect-dialog__heading">{ title }</h1>
 				<ConnectedPlugins
@@ -186,7 +186,7 @@ const StepDisconnect = props => {
 					<p className="jp-connection__disconnect-dialog__error">{ disconnectError }</p>
 				) }
 			</div>
-		</React.Fragment>
+		</Fragment>
 	);
 };
 

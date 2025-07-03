@@ -1,5 +1,4 @@
 import { Button } from '@wordpress/components';
-import React from 'react';
 
 /**
  * MediaBrowserSelectButton component
@@ -9,7 +8,7 @@ import React from 'react';
  * @param {boolean}  props.isLoading - Whether the button is loading
  * @param {boolean}  props.disabled  - Whether the button is disabled
  * @param {Function} props.onClick   - To handle the click
- * @return {React.ReactElement} - JSX element
+ * @return {import('react').ReactElement} - JSX element
  */
 const MediaBrowserSelectButton = ( { label, isLoading, disabled, onClick } ) => {
 	return (

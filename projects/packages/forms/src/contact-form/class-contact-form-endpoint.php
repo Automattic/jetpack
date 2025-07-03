@@ -54,6 +54,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'file'         => null,
 			'settings_url' => null,
 		),
+		'mailpoet'                          => array(
+			'type'         => 'plugin',
+			'file'         => 'mailpoet/mailpoet.php',
+			'settings_url' => 'admin.php?page=mailpoet-homepage',
+		),
 	);
 
 	/**
@@ -853,18 +858,32 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'details'         => array(),
 		);
 
-		// Plugin-specific customizations
-		if ( 'akismet' === $plugin_slug ) {
-			$dashboard_view_switch                         = new Dashboard_View_Switch();
-			$response['isConnected']                       = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
-			$response['details']['formSubmissionsSpamUrl'] = $dashboard_view_switch->get_forms_admin_url( 'spam' );
-			$response['needsConnection']                   = true;
-		} elseif ( 'zero-bs-crm' === $plugin_slug && $is_active ) {
-			$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
-			$response['details'] = array(
-				'hasExtension'         => $has_extension,
-				'canActivateExtension' => current_user_can( 'manage_options' ),
-			);
+		// Refactored to use a switch statement for plugin-specific logic.
+		switch ( $plugin_slug ) {
+			case 'akismet':
+				$dashboard_view_switch                         = new Dashboard_View_Switch();
+				$response['isConnected']                       = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
+				$response['details']['formSubmissionsSpamUrl'] = $dashboard_view_switch->get_forms_admin_url( 'spam' );
+				$response['needsConnection']                   = true;
+				break;
+			case 'zero-bs-crm':
+				if ( $is_active ) {
+					$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
+					$response['details'] = array(
+						'hasExtension'         => $has_extension,
+						'canActivateExtension' => current_user_can( 'manage_options' ),
+					);
+				}
+				break;
+			case 'mailpoet':
+				$response['needsConnection'] = true;
+				if ( class_exists( '\MailPoet\Config\ServicesChecker' ) ) {
+					$checker = new \MailPoet\Config\ServicesChecker(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the class exists first
+					if ( method_exists( $checker, 'isMailPoetAPIKeyValid' ) ) {
+						$response['isConnected'] = (bool) $checker->isMailPoetAPIKeyValid( false ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the method exists first
+					}
+				}
+				break;
 		}
 
 		return $response;

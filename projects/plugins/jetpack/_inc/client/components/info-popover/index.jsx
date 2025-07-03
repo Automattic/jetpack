@@ -1,14 +1,14 @@
 import clsx from 'clsx';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { createRef, Component } from 'react';
 import Gridicon from 'components/gridicon';
 import Popover from 'components/popover';
 import analytics from 'lib/analytics';
 
 import './style.scss';
 
-export default class extends React.Component {
+export default class extends Component {
 	static displayName = 'InfoPopover';
 
 	static propTypes = {
@@ -29,7 +29,7 @@ export default class extends React.Component {
 		onClick: noop,
 	};
 
-	infoPopoverRef = React.createRef();
+	infoPopoverRef = createRef();
 
 	state = {
 		showPopover: false,

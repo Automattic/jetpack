@@ -180,6 +180,15 @@ abstract class Product {
 	}
 
 	/**
+	 * Get the WPCOM free product slug
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_free_product_slug() {
+		return null;
+	}
+
+	/**
 	 * Get the installed plugin filename, considering all possible filenames a plugin might have
 	 *
 	 * @param string $plugin Which plugin to check. jetpack for the jetpack plugin or product for the product specific plugin.
@@ -241,7 +250,28 @@ abstract class Product {
 			'class'                           => static::class,
 			'post_checkout_url'               => static::get_post_checkout_url(),
 			'post_checkout_urls_by_feature'   => static::get_post_checkout_urls_by_feature(),
+			'related_plan_slugs'              => static::get_related_plan_slugs(),
 		);
+	}
+
+	/**
+	 * Get the related plan slugs including Free and Paid ones.
+	 *
+	 * @return array
+	 */
+	public static function get_related_plan_slugs() {
+		$slugs = array_merge(
+			static::get_paid_bundles_that_include_product(),
+			static::get_paid_plan_product_slugs()
+		);
+
+		$free_product_slug = static::get_wpcom_free_product_slug();
+
+		if ( $free_product_slug ) {
+			$slugs[] = $free_product_slug;
+		}
+
+		return $slugs;
 	}
 
 	/**

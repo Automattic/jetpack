@@ -17,6 +17,7 @@ import {
 import clsx from 'clsx';
 import styles from './recommendations-meta.module.scss';
 import { useEffect, useState } from 'react';
+import type { FC } from 'react';
 
 const getWaitNotice = ( isRequesting: boolean, currentStatus: string | undefined ) => {
 	if ( isRequesting ) {
@@ -35,7 +36,7 @@ interface Props {
 	isCdnActive: boolean;
 }
 
-const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
+const RecommendationsMeta: FC< Props > = ( { isCdnActive } ) => {
 	const [ uiState, setUiState ] = useState< 'loading' | 'polling' | 'idle' >( 'loading' );
 	const [ isaReportQuery ] = useIsaReport();
 	const isaRequest = useImageAnalysisRequest();
