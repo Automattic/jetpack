@@ -2,95 +2,52 @@
 @import url(https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP&display=swap&text=♥★);
 
 .jetpack-field-rating {
-  display: inline-block;
   position: relative;
-  user-select: none;
-}
+  display: inline-flex;
 
-// override the default specificity from .contact-form :where( label );
-.contact-form .jetpack-field-rating :where(label), 
-.jetpack-field-rating__label {
-  margin-bottom: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  cursor: pointer;
-  overflow: hidden;
-  font-family: "IBM Plex Sans JP", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
+  &:not(:hover) .jetpack-field-rating__label input[type="radio"].jetpack-field-rating__input:checked,
+  .jetpack-field-rating__label:hover,
+  .jetpack-field-rating__label:has( ~ .jetpack-field-rating__label:hover ),
+  &:not(:hover) .jetpack-field-rating__label:has( ~ .jetpack-field-rating__label .jetpack-field-rating__input:checked ) {
+    color: var( --jetpack--contact-form--rating-star-color, var( --jetpack--contact-form--primary-color, #333 ) );
+  }
 
-.jetpack-field-rating__label:last-child {
-  position: static;
-}
+  .jetpack-field-rating__label {
+    display: inline-block;
+    margin-bottom: 0;
+    cursor: pointer;
+    overflow: hidden;
+    font-family: "IBM Plex Sans JP", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    color: var( --jetpack--contact-form--background-color, #FFF );
 
-.jetpack-field-rating__label:nth-child(1) {
-  z-index: 10;
-}
+    // kludge to fix spacing between stars
+    .contact-form &:not(:first-of-type) input[type="radio"].jetpack-field-rating__input::before {
+      margin-left: 8px;
+    }
+  }
 
-.jetpack-field-rating__label:nth-child(2) {
-  z-index: 9;
-}
+  .contact-form & input[type="radio"].jetpack-field-rating__input {
+    margin:0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    font-family: inherit;
+    width: auto;
+    height: auto;
+    font-size: inherit;
+    color: inherit;
+    cursor: pointer;
 
-.jetpack-field-rating__label:nth-child(3) {
-  z-index: 8;
-}
-
-.jetpack-field-rating__label:nth-child(4) {
-  z-index: 7;
-}
-
-.jetpack-field-rating__label:nth-child(5) {
-  z-index: 6;
-}
-
-.jetpack-field-rating__label:nth-child(6) {
-  z-index: 5;
-}
-
-.jetpack-field-rating__label:nth-child(7) {
-  z-index: 4;
-}
-
-.jetpack-field-rating__label:nth-child(8) {
-  z-index: 3;
-}
-
-.jetpack-field-rating__label:nth-child(9) {
-  z-index: 2;
-}
-
-.jetpack-field-rating__label input[type="radio"] {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  height: 0;
-  width: 0;
-  z-index: -1;
-}
-
-.jetpack-field-rating__label .rating-icon {
-  color: transparent;
-  -webkit-text-stroke: 2px var( --jetpack--contact-form--border-color, #8c8f94 );
-}
-
-.jetpack-field-rating__label .rating-icon:not(:first-of-type) {
-  margin-left: 8px;
-}
-
-.jetpack-field-rating__label:last-child .rating-icon {
-  color: var( --jetpack--contact-form--background-color, #FFF );
-}
-
-.jetpack-field-rating:not(:hover) .jetpack-field-rating__label input:checked ~ .rating-icon,
-.jetpack-field-rating:hover       .jetpack-field-rating__label:hover input ~ .rating-icon {
-  color: var( --jetpack--contact-form--rating-star-color, var( --jetpack--contact-form--primary-color, #333 ) );
-  opacity: 1;
-}
-
-.jetpack-field-rating .jetpack-field-rating__label input:focus-visible ~ .rating-icon:last-child {
-  color: var( --jetpack--contact-form--rating-star-color, var( --jetpack--contact-form--primary-color, #333 ) );
-  -webkit-text-stroke: 7px currentColor;
+    &::before {
+      font-family: inherit;
+      font-size: 1em;
+      content: "★";
+      display: block;
+      width: 1em;
+      color: inherit;
+      -webkit-text-stroke: 2px var( --jetpack--contact-form--border-color, #8c8f94 );
+    }
+  }
 }

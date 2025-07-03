@@ -2090,10 +2090,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$spans = '';
 		for ( $i = 1; $i <= $max_rating; $i++ ) {
-			$spans .= '<label class="jetpack-field-rating__label">
-				<input type="radio" data-wp-on--change="actions.onFieldChange" ' . checked( $i, $initial_rating, false ) . ( $required ? ' required aria-required="true" ' : '' ) . ' name="' . esc_attr( $id ) . '" value="' . esc_attr( $i ) . '/ ' . esc_attr( $max_rating ) . '" />'
-				. str_repeat( '<span class="rating-icon">★</span>', $i ) .
-			'</label>';
+			$spans .= sprintf(
+				'<label class="jetpack-field-rating__label">
+					<input
+						class="jetpack-field-rating__input"
+						type="radio"
+						data-wp-on--change="actions.onFieldChange"
+						%1$s
+						%2$s
+						name="%3$s"
+						value="%4$s/%5$s" />
+				</label>',
+				checked( $i, $initial_rating, false ),
+				$required ? 'required aria-required="true"' : '',
+				esc_attr( $id ),
+				esc_attr( $i ),
+				esc_attr( $max_rating )
+			);
 		}
 
 		$style_attr = '';
