@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import styles from './styles.module.scss';
 import type { FC, ReactNode } from 'react';
 
-interface RadioControlProps {
+export interface RadioControlProps {
 	/** The current value. */
 	selected: string;
 
