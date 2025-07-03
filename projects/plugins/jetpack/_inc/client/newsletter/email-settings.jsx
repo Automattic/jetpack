@@ -183,7 +183,8 @@ const EmailSettings = props => {
 		? __( 'Enable featured image on your new post emails', 'jetpack' )
 		: __(
 				'Featured images cannot be shown in emails when your site is private, because access to your images is restricted to your site only.',
-				'jetpack'
+				'jetpack',
+				/* dummy arg to avoid bad minification */ 0
 		  );
 
 	return (
