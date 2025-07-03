@@ -654,6 +654,8 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 	}
 
 		global $wpdb, $ZBSCRM_t;
+		// Ensure DB meta is initialized
+		$zbs->get_database_server_info();
 		// add indexes for performance
 		if ( jpcrm_database_server_has_ability('fulltext_index') && !jpcrm_migration_table_has_index( $ZBSCRM_t['customfields'], 'search' ) ) {
 			$sql = 'ALTER TABLE ' . $ZBSCRM_t['customfields'] . ' ADD FULLTEXT INDEX `search` (`zbscf_objval`);';
