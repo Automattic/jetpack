@@ -220,20 +220,23 @@ class Contact_Form_Block {
 				),
 			)
 		);
-		Blocks::jetpack_register_block(
-			'jetpack/rating-input',
-			array(
-				'supports' => array(
-					'color'      => array(
-						'text'       => true,
-						'background' => false,
+
+		if ( Blocks::get_variation() === 'beta' ) {
+			Blocks::jetpack_register_block(
+				'jetpack/rating-input',
+				array(
+					'supports' => array(
+						'color'      => array(
+							'text'       => true,
+							'background' => false,
+						),
+						'typography' => array(
+							'fontSize' => true,
+						),
 					),
-					'typography' => array(
-						'fontSize' => true,
-					),
-				),
-			)
-		);
+				)
+			);
+		}
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
@@ -362,15 +365,17 @@ class Contact_Form_Block {
 			)
 		);
 
-		Blocks::jetpack_register_block(
-			'jetpack/field-rating',
-			array(
-				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_rating' ),
-				'provides_context' => array(
-					'jetpack/field-required' => 'required',
-				),
-			)
-		);
+		if ( Blocks::get_variation() === 'beta' ) {
+			Blocks::jetpack_register_block(
+				'jetpack/field-rating',
+				array(
+					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_rating' ),
+					'provides_context' => array(
+						'jetpack/field-required' => 'required',
+					),
+				)
+			);
+		}
 
 		// Paid file field block
 		add_action(

@@ -1,4 +1,7 @@
-import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
+import {
+	hasFeatureFlag,
+	getJetpackBlocksVariation,
+} from '@automattic/jetpack-shared-extension-utils';
 import DeprecatedOptionCheckbox from '../deprecated/field-option-checkbox';
 import DeprecatedOptionRadio from '../deprecated/field-option-radio';
 import JetpackDropzone from '../dropzone';
@@ -48,8 +51,7 @@ export const childBlocks = [
 	JetpackTelephoneField,
 	JetpackTextareaField,
 	JetpackFieldFile,
-	JetpackRatingField,
-	JetpackRatingInput,
+	...( getJetpackBlocksVariation() === 'beta' ? [ JetpackRatingField, JetpackRatingInput ] : [] ),
 
 	// The following are required for these blocks to be parsed correctly in block
 	// deprecations. They have been flagged with `supports.inserter: false` to
