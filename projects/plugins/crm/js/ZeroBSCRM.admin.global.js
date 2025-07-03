@@ -2744,6 +2744,19 @@ const jpcrm = {
 	esc_html: str => {
 		return jpcrm.esc_attr( str );
 	},
+	// Decode HTML entities to prevent double-encoding issues
+	decodeHTMLEntities: ( () => {
+		const textarea = document.createElement( 'textarea' );
+		return text => {
+			textarea.innerHTML = text;
+			return textarea.value;
+		};
+	} )(),
+	// Combined helper: decode HTML entities then escape for safe display
+	escTextWithDecode: text => {
+		const decoded = jpcrm.decodeHTMLEntities( text );
+		return jpcrm.esc_html( decoded );
+	},
 };
 
 if ( typeof module !== 'undefined' ) {
