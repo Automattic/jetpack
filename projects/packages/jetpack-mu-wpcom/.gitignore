@@ -1,5 +1,6 @@
 .cache/
 src/build/
+src/build-module/
 vendor/
 node_modules/
 wordpress/
