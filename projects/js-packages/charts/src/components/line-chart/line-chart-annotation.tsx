@@ -18,6 +18,8 @@ import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubje
 import type { TextProps } from '@visx/text';
 import type { FC } from 'react';
 
+const isSafari = /^((?!chrome|android).)*safari/i.test( navigator.userAgent );
+
 export type AnnotationStyles = {
 	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' > & { fill?: string };
 	lineSubject?: Omit< LineSubjectProps, 'x' | 'y' >;
@@ -277,6 +279,34 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 		return labelX;
 	};
 
+	const labelWidth = 30;
+	const labelHeight = 30;
+
+	const labelPosition = {
+		x: getLabelX(),
+		y: getLabelY(),
+	};
+
+	// Safari has a bug where children of an SVG foreignObject are not positioned correctly
+	// This is a workaround to position the label correctly
+	const htmlLabelSafariPositionAdjustment = isSafari
+		? {
+				transform: `translate(${
+					x +
+					( dx || 0 ) +
+					( typeof labelPosition.x === 'number' ? labelPosition.x - x : 0 ) -
+					labelWidth
+				}px, ${
+					y +
+					( dy || 0 ) +
+					( typeof labelPosition.y === 'number' ? labelPosition.y - y : 0 ) -
+					labelHeight
+				}px)`,
+				width: labelWidth,
+				height: labelHeight,
+		  }
+		: undefined;
+
 	return (
 		<g data-testid={ testId }>
 			<Annotation x={ x } y={ y } dx={ dx } dy={ dy }>
@@ -297,14 +327,17 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 					/>
 				) }
 				{ renderLabel ? (
-					<HtmlLabel { ...styles?.label } y={ getLabelY() } x={ getLabelX() }>
-						{ renderLabel( { title, subtitle } ) }
+					<HtmlLabel { ...styles?.label } { ...labelPosition }>
+						<div style={ htmlLabelSafariPositionAdjustment }>
+							{ renderLabel( { title, subtitle } ) }
+						</div>
 					</HtmlLabel>
 				) : (
 					<g ref={ labelRef }>
 						<Label
 							title={ title }
 							subtitle={ subtitle }
+							{ ...labelPosition }
 							{ ...styles?.label }
 							horizontalAnchor={ getHorizontalAnchor( subjectType, isFlippedHorizontally ) }
 							verticalAnchor={ getVerticalAnchor(
@@ -314,8 +347,6 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 								yMax,
 								height ?? ANNOTATION_INIT_HEIGHT
 							) }
-							y={ getLabelY() }
-							x={ getLabelX() }
 						/>
 					</g>
 				) }
