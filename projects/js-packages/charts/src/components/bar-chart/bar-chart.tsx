@@ -1,7 +1,8 @@
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart';
 import clsx from 'clsx';
-import { useCallback, useId } from 'react';
+import { useCallback, useId, useMemo } from 'react';
+import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
@@ -41,8 +42,9 @@ const validateData = ( data: SeriesData[] ) => {
 
 const getPatternId = ( chartId: string, index: number ) => `bar-pattern-${ chartId }-${ index }`;
 
-const BarChart: FC< BarChartProps > = ( {
+const BarChartInternal: FC< BarChartProps > = ( {
 	data,
+	chartId: providedChartId,
 	width,
 	height = 400,
 	className,
@@ -61,7 +63,8 @@ const BarChart: FC< BarChartProps > = ( {
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	// Generate a unique chart ID to avoid pattern conflicts with multiple charts
-	const chartId = useId();
+	const internalChartId = useId();
+	const chartId = useChartId( providedChartId );
 	const theme = useXYChartTheme( data );
 
 	const dataSorted = useChartDataTransform( data );
@@ -79,9 +82,9 @@ const BarChart: FC< BarChartProps > = ( {
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
 			withPatterns
-				? `url(#${ getPatternId( chartId, index ) })`
+				? `url(#${ getPatternId( internalChartId, index ) })`
 				: getColor( dataSorted[ index ], index ),
-		[ withPatterns, getColor, dataSorted, chartId ]
+		[ withPatterns, getColor, dataSorted, internalChartId ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -114,7 +117,7 @@ const BarChart: FC< BarChartProps > = ( {
 	const renderPattern = useCallback(
 		( index: number, color: string ) => {
 			const patternType = index % 4;
-			const id = getPatternId( chartId, index );
+			const id = getPatternId( internalChartId, index );
 			const commonProps = {
 				id,
 				stroke: 'white',
@@ -144,12 +147,12 @@ const BarChart: FC< BarChartProps > = ( {
 					return <PatternHexagons key={ id } { ...commonProps } size={ 8 } height={ 3 } />;
 			}
 		},
-		[ chartId ]
+		[ internalChartId ]
 	);
 
 	const createPatternBorderStyle = useCallback(
 		( index: number, color: string ) => {
-			const patternId = getPatternId( chartId, index );
+			const patternId = getPatternId( internalChartId, index );
 			return `
 			.visx-bar[fill="url(#${ patternId })"] {
 				stroke: ${ color };
@@ -157,22 +160,29 @@ const BarChart: FC< BarChartProps > = ( {
 				}
 			`;
 		},
-		[ chartId ]
+		[ internalChartId ]
 	);
+
+	// Create legend items from group labels, this iterates over groups rather than data points
+	const legendItems = useMemo(
+		() =>
+			dataSorted.map( ( group, index ) => ( {
+				label: group.label, // Label for each unique group
+				value: '', // Empty string since we don't want to show a specific value
+				color: getColor( group, index ),
+				shapeStyle: group?.options?.legendShapeStyle,
+			} ) ),
+		[ dataSorted, getColor ]
+	);
+
+	// Register chart with context
+	useChartRegistration( chartId, legendItems, theme, 'bar', { orientation, withPatterns } );
 
 	// Validate data using the same pattern as LineChart
 	const error = validateData( dataSorted );
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}
-
-	// Create legend items from group labels, this iterates over groups rather than data points
-	const legendItems = dataSorted.map( ( group, index ) => ( {
-		label: group.label, // Label for each unique group
-		value: '', // Empty string since we don't want to show a specific value
-		color: getColor( group, index ),
-		shapeStyle: group?.options?.legendShapeStyle,
-	} ) );
 
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
 
@@ -267,5 +277,11 @@ const BarChart: FC< BarChartProps > = ( {
 		</div>
 	);
 };
+
+const BarChart: FC< BarChartProps > = props => (
+	<ChartProvider>
+		<BarChartInternal { ...props } />
+	</ChartProvider>
+);
 
 export default withResponsive< BarChartProps >( BarChart );
