@@ -353,4 +353,59 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test that newsletter categories are properly handled for both legacy and new formats.
+	 */
+	public function test_get_settings_handles_newsletter_categories_formats() {
+		// Test 1: Standard format - array of objects with term_id
+		update_option(
+			'wpcom_newsletter_categories',
+			array(
+				array( 'term_id' => 123 ),
+				array( 'term_id' => 456 ),
+				array( 'term_id' => 789 ),
+			)
+		);
+
+		$response = $this->make_get_request();
+		$this->assertArrayHasKey( 'wpcom_newsletter_categories', $response['settings'] );
+		$this->assertEquals( array( 123, 456, 789 ), $response['settings']['wpcom_newsletter_categories'] );
+
+		// Test 2: Legacy format - flat array of integers
+		update_option( 'wpcom_newsletter_categories', array( 111, 222, 333 ) );
+
+		$response = $this->make_get_request();
+		$this->assertEquals( array( 111, 222, 333 ), $response['settings']['wpcom_newsletter_categories'] );
+
+		// Test 3: Mixed format with invalid values
+		update_option(
+			'wpcom_newsletter_categories',
+			array(
+				array( 'term_id' => 100 ),
+				200,  // Legacy format integer
+				array( 'term_id' => 'not-a-number' ),  // Invalid term_id
+				'string-value',  // Invalid string
+				null,  // Null value
+				array( 'no_term_id' => 300 ),  // Missing term_id key
+				array( 'term_id' => 400 ),
+			)
+		);
+
+		$response = $this->make_get_request();
+		// Should only return valid numeric IDs: 100, 200, 400
+		$this->assertEquals( array( 100, 200, 400 ), $response['settings']['wpcom_newsletter_categories'] );
+
+		// Test 4: Empty array
+		update_option( 'wpcom_newsletter_categories', array() );
+
+		$response = $this->make_get_request();
+		$this->assertEquals( array(), $response['settings']['wpcom_newsletter_categories'] );
+
+		// Test 5: Non-array value (edge case)
+		update_option( 'wpcom_newsletter_categories', 'not-an-array' );
+
+		$response = $this->make_get_request();
+		$this->assertEquals( array(), $response['settings']['wpcom_newsletter_categories'] );
+	}
 }
