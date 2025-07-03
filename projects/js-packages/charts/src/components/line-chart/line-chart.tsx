@@ -332,7 +332,7 @@ const LineChartInternal: FC< LineChartProps > = ( {
 	);
 
 	// Register chart with context
-	useChartRegistration( chartId, legendItems, theme, 'line', {
+	useChartRegistration( chartId, legendItems, providerTheme, 'line', {
 		withGradientFill,
 		smoothing,
 		curveType,

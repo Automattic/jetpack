@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 import { ChartProvider, useChartContext } from './chart-context';
 import { useChartId, useChartRegistration } from './utils';
+import type { ChartContextValue } from './types';
 import type { BaseLegendItem } from '../../components/legend/types';
 import type { ChartTheme } from '../../types';
 
@@ -20,7 +21,7 @@ describe( 'ChartContext', () => {
 
 	describe( 'ChartProvider', () => {
 		it( 'provides context to child components', () => {
-			let contextValue: unknown;
+			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
 				contextValue = useChartContext();
@@ -96,7 +97,7 @@ describe( 'ChartContext', () => {
 
 	describe( 'Chart registration', () => {
 		it( 'registers and retrieves chart data correctly', () => {
-			let contextValue: unknown;
+			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
 				const chartId = useChartId( 'test-chart' );
@@ -123,7 +124,7 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'supports multiple independent charts', () => {
-			let contextValue: unknown;
+			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
 				const chartId1 = useChartId( 'chart-1' );
@@ -148,7 +149,7 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'returns undefined for non-existent charts', () => {
-			let contextValue: unknown;
+			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
 				contextValue = useChartContext();
@@ -165,7 +166,7 @@ describe( 'ChartContext', () => {
 		} );
 
 		it( 'handles chart ID collisions by overwriting', () => {
-			let contextValue: unknown;
+			let contextValue: ChartContextValue;
 
 			const TestComponent = () => {
 				const chartId = useChartId( 'same-id' );
@@ -192,7 +193,11 @@ describe( 'ChartContext', () => {
 
 	describe( 'Context stability', () => {
 		it( 'maintains stable function references', () => {
-			const functionRefs: unknown[] = [];
+			const functionRefs: Array< {
+				registerChart: ChartContextValue[ 'registerChart' ];
+				unregisterChart: ChartContextValue[ 'unregisterChart' ];
+				getChartData: ChartContextValue[ 'getChartData' ];
+			} > = [];
 
 			const TestComponent = () => {
 				const context = useChartContext();

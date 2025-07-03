@@ -3,7 +3,7 @@ import { Axis, BarSeries, BarGroup, Grid, Tooltip, XYChart } from '@visx/xychart
 import clsx from 'clsx';
 import { useCallback, useId, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
-import { useXYChartTheme } from '../../providers/theme';
+import { useChartTheme, useXYChartTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
 import { useChartMargin } from '../shared/use-chart-margin';
@@ -176,7 +176,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	// Register chart with context
-	useChartRegistration( chartId, legendItems, theme, 'bar', { orientation, withPatterns } );
+	const providerTheme = useChartTheme();
+	useChartRegistration( chartId, legendItems, providerTheme, 'bar', { orientation, withPatterns } );
 
 	// Validate data using the same pattern as LineChart
 	const error = validateData( dataSorted );
