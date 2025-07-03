@@ -759,6 +759,9 @@ class Posts extends Module {
 		 */
 		if ( 'customize_changeset' === $post->post_type ) {
 			$post_content = json_decode( $post->post_content, true );
+			if ( ! is_iterable( $post_content ) ) {
+				return;
+			}
 			foreach ( $post_content as $key => $value ) {
 				// Skip if it isn't a widget.
 				if ( 'widget_' !== substr( $key, 0, strlen( 'widget_' ) ) ) {
