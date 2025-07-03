@@ -3,12 +3,12 @@ import clsx from 'clsx';
 import assign from 'lodash/assign';
 import omit from 'lodash/omit';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component, createElement } from 'react';
 /*eslint lodash/import-scope: [2, "method"]*/
 
 import './style.scss';
 
-class CardSection extends React.Component {
+class CardSection extends Component {
 	static propTypes = {
 		title: PropTypes.any,
 		vertical: PropTypes.any,
@@ -43,13 +43,13 @@ class CardSection extends React.Component {
 	};
 }
 
-class CardFooter extends React.Component {
+class CardFooter extends Component {
 	render() {
 		return <div className="dops-card-footer">{ this.props.children }</div>;
 	}
 }
 
-class Card extends React.Component {
+class Card extends Component {
 	static propTypes = {
 		meta: PropTypes.any,
 		icon: PropTypes.string,
@@ -104,7 +104,7 @@ class Card extends React.Component {
 			);
 		}
 
-		return React.createElement(
+		return createElement(
 			this.props.href ? 'a' : this.props.tagName,
 			assign( omit( this.props, omitProps ), { className } ),
 			linkIndicator,

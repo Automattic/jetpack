@@ -1,9 +1,9 @@
 import { GridRows, GridColumns } from '@visx/grid';
-import React from 'react';
 import styles from './grid-control.module.scss';
 import type { GridProps } from '../../types';
+import type { FC } from 'react';
 
-const GridControl: React.FC< GridProps > = ( {
+const GridControl: FC< GridProps > = ( {
 	width,
 	height,
 	xScale,

@@ -3,7 +3,7 @@
 import clsx from 'clsx';
 import { filter, find, findIndex, map, result } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component, Children, cloneElement, createRef } from 'react';
 import Count from 'components/count';
 import DropdownItem from 'components/select-dropdown/item';
 import DropdownLabel from 'components/select-dropdown/label';
@@ -14,7 +14,6 @@ import './style.scss';
 /**
  * Module variables
  */
-const { Component } = React;
 const noop = () => {};
 
 /**
@@ -23,7 +22,7 @@ const noop = () => {};
 
 class SelectDropdown extends Component {
 	itemRefs = {};
-	dropdownContainerRef = React.createRef();
+	dropdownContainerRef = createRef();
 
 	constructor( props ) {
 		super( props );
@@ -103,7 +102,7 @@ class SelectDropdown extends Component {
 
 		if ( this.props.children ) {
 			// add keys and refs to children
-			return React.Children.map(
+			return Children.map(
 				this.props.children,
 				function ( child, index ) {
 					if ( ! child ) {
@@ -111,8 +110,8 @@ class SelectDropdown extends Component {
 					}
 
 					self.itemRefs[ 'item-' + refIndex ] =
-						child.type === DropdownItem ? React.createRef() : undefined;
-					const newChild = React.cloneElement( child, {
+						child.type === DropdownItem ? createRef() : undefined;
+					const newChild = cloneElement( child, {
 						ref: self.itemRefs[ 'item-' + refIndex ],
 						key: 'item-' + index,
 						onClick: function ( event ) {
@@ -148,7 +147,7 @@ class SelectDropdown extends Component {
 				);
 			}
 
-			self.itemRefs[ 'item-' + refIndex ] = React.createRef();
+			self.itemRefs[ 'item-' + refIndex ] = createRef();
 			const dropdownItem = (
 				<DropdownItem
 					key={ 'dropdown-item-' + this.state.instanceId + '-' + item.value }

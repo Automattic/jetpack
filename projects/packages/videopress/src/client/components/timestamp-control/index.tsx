@@ -20,7 +20,7 @@ import styles from './style.module.scss';
  * Types
  */
 import { TimestampInputProps, TimestampControlProps, DecimalPlacesProp } from './types';
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 /**
  * Fallback implementation of useBaseControlProps.
@@ -76,7 +76,7 @@ const NumberControl = props => {
 	return <TextControl { ...textControlProps } />;
 };
 
-const TimeDivider = ( { char = ':' } ): React.ReactElement => {
+const TimeDivider = ( { char = ':' } ): ReactElement => {
 	return <span className={ styles[ 'timestamp-control-divider' ] }>{ char }</span>;
 };
 
@@ -149,7 +149,7 @@ export const TimestampInput = ( {
 	max,
 	autoHideTimeInput = true,
 	decimalPlaces,
-}: TimestampInputProps ): React.ReactElement => {
+}: TimestampInputProps ): ReactElement => {
 	const time = {
 		value: getTimeDataByValue( value, decimalPlaces, max ),
 	};
@@ -291,9 +291,9 @@ export const TimestampInput = ( {
  * TimestampControl component
  *
  * @param {TimestampControlProps} props - Component props.
- * @return {React.ReactElement}          TimestampControl react component.
+ * @return {ReactElement}          TimestampControl react component.
  */
-export const TimestampControl = ( props: TimestampControlProps ): React.ReactElement => {
+export const TimestampControl = ( props: TimestampControlProps ): ReactElement => {
 	const {
 		disabled = false,
 		min = 0,

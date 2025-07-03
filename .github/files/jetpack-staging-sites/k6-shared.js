@@ -1,3 +1,4 @@
+/* eslint import/no-unresolved: [ 'error', { ignore: [ '^k6' ] } ] */ // Provided by the Action that runs this file.
 import encoding from 'k6/encoding';
 
 export const encodedCredentials = encoding.b64encode(

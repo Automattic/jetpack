@@ -21,7 +21,7 @@ import './styles.scss';
  * Types
  */
 import type { DetailsPanelProps } from '../../types';
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 const CHARACTERS_PER_LINE = 31;
 
@@ -29,7 +29,7 @@ const CHARACTERS_PER_LINE = 31;
  * React component that renders a Video details control
  *
  * @param {DetailsPanelProps} props - Component properties.
- * @return {React.ReactElement}      Details panel component.
+ * @return {ReactElement}      Details panel component.
  */
 export default function DetailsPanel( {
 	filename,

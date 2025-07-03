@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React, { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import './style.scss';
 
 /**
@@ -23,7 +23,7 @@ import './style.scss';
  * @param {string}   props.apiNonce       - API nonce.
  * @param {Function} props.onDisconnected - Callback after successful disconnection.
  * @param {Function} props.onUnlinked     - Callback after user is unlinked.
- * @return {React.Component} The OwnerDisconnectDialog component.
+ * @return {import('react').Component} The OwnerDisconnectDialog component.
  */
 const OwnerDisconnectDialog = ( {
 	isOpen,

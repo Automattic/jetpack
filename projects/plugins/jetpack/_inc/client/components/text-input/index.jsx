@@ -1,10 +1,10 @@
 import clsx from 'clsx';
 import { omit } from 'lodash';
-import React from 'react';
+import { createRef, Component } from 'react';
 
 import './style.scss';
 
-export default class TextInput extends React.Component {
+export default class TextInput extends Component {
 	static displayName = 'TextInput';
 
 	static defaultProps = {
@@ -14,7 +14,7 @@ export default class TextInput extends React.Component {
 		type: 'text',
 	};
 
-	textFieldRef = React.createRef();
+	textFieldRef = createRef();
 
 	focus = () => {
 		this.textFieldRef.current.focus();

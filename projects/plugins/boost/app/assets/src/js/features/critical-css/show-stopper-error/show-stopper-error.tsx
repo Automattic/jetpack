@@ -14,13 +14,14 @@ import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useRetryRegenerate } from '../lib/use-retry-regenerate';
 import RawError from '../raw-error/raw-error';
+import type { FC } from 'react';
 
 type ShowStopperErrorTypes = {
 	supportLink?: string;
 	cssState: CriticalCssState;
 };
 
-const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
+const ShowStopperError: FC< ShowStopperErrorTypes > = ( {
 	supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/',
 	cssState,
 } ) => {

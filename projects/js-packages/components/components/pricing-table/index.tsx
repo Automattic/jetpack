@@ -1,7 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, closeSmall } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, {
+import {
 	createContext,
 	useContext,
 	Children,
@@ -21,6 +21,7 @@ import {
 	PricingTableHeaderProps,
 	PricingTableItemProps,
 } from './types.ts';
+import type { FC } from 'react';
 
 const INCLUDED_TEXT = __( 'Included', 'jetpack-components' );
 const NOT_INCLUDED_TEXT = __( 'Not included', 'jetpack-components' );
@@ -49,7 +50,7 @@ const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
 	};
 };
 
-export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
+export const PricingTableItem: FC< PricingTableItemProps > = ( {
 	isIncluded = false,
 	isComingSoon = false,
 	index = 0,
@@ -102,11 +103,11 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	);
 };
 
-export const PricingTableHeader: React.FC< PricingTableHeaderProps > = ( { children } ) => (
+export const PricingTableHeader: FC< PricingTableHeaderProps > = ( { children } ) => (
 	<div className={ styles.header }>{ children }</div>
 );
 
-export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( {
+export const PricingTableColumn: FC< PricingTableColumnProps > = ( {
 	primary = false,
 	children,
 } ) => {
@@ -130,7 +131,7 @@ export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( {
 	);
 };
 
-const PricingTable: React.FC< PricingTableProps > = ( {
+const PricingTable: FC< PricingTableProps > = ( {
 	title,
 	items,
 	children,

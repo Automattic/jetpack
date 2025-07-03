@@ -8,7 +8,7 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useNotices from '../../hooks/use-notices';
 import usePlan from '../../hooks/use-plan';

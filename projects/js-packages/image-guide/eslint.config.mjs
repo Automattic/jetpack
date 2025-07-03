@@ -1,12 +1,9 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { makeBaseConfig, defineConfig, javascriptFiles } from 'jetpack-js-tools/eslintrc/base.mjs';
 import svelteConfig from 'jetpack-js-tools/eslintrc/svelte.mjs';
 
 export default defineConfig( makeBaseConfig( import.meta.url ), svelteConfig, {
 	files: javascriptFiles,
 	rules: {
-		'import/no-extraneous-dependencies': 'error',
-
 		'space-in-parens': 'off',
 		'computed-property-spacing': 'off',
 

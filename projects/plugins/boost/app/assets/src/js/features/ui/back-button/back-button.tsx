@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { Button } from '@automattic/jetpack-components';
 import styles from './back-button.module.scss';
+import type { FC } from 'react';
+
 type BackButtonProps = {
 	route?: string;
 };
 
-const BackButton: React.FC< BackButtonProps > = ( { route = '/' } ) => {
+const BackButton: FC< BackButtonProps > = ( { route = '/' } ) => {
 	const navigate = useNavigate();
 	const handleBack = () => {
 		recordBoostEvent( 'back_button_clicked', {

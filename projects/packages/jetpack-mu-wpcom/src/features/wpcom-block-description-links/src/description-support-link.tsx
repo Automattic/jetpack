@@ -2,7 +2,8 @@ import { localizeUrl } from '@automattic/i18n-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { __ } from '@wordpress/i18n';
-import React, { useState, JSXElementConstructor, ReactElement } from 'react';
+import { useState, JSXElementConstructor, ReactElement } from 'react';
+import type { JSX } from 'react';
 
 interface Props {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,21 +21,21 @@ interface Props {
  * @param {string}                                                     props.title    - Block title.
  * @param {string}                                                     props.url      - Support link URL.
  * @param {number}                                                     props.postId   - Post ID.
- * @return {React.JSX.Element} The component to render.
+ * @return {JSX.Element} The component to render.
  */
 export default function DescriptionSupportLink( {
 	children,
 	title,
 	url,
 	postId,
-}: Props ): React.JSX.Element {
+}: Props ): JSX.Element {
 	// This was cooked up to only apply the link in the BlockEditor sidebar.
 	// Since there was no identifier in the environment to differentiate.
 	const [ ref, setRef ] = useState< Element | null >();
 	const { tracks } = useAnalytics();
 
 	if ( ref && ! ref?.closest( '.block-editor-block-inspector' ) ) {
-		return children as React.JSX.Element;
+		return children as JSX.Element;
 	}
 
 	return (

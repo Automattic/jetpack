@@ -1,5 +1,4 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import React from 'react';
 
 // import '@wordpress/components/build-style/style.css';
 

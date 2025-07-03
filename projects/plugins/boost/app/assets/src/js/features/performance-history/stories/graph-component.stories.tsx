@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { Meta } from '@storybook/react';
 import GraphComponent from '../graph-component/graph-component';
 
@@ -200,8 +200,8 @@ const defaultValues = {
 export default meta;
 
 const Template = args => {
-	const [isFreshStart, setIsFreshStart] = React.useState( args.isFreshStart );
-	const [needsUpgrade, setNeedsUpgrade] = React.useState( args.needsUpgrade );
+	const [isFreshStart, setIsFreshStart] = useState( args.isFreshStart );
+	const [needsUpgrade, setNeedsUpgrade] = useState( args.needsUpgrade );
 
 	// Update the state when the args change
 	useEffect( () => {

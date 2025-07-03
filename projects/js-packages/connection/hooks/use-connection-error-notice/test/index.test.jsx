@@ -1,6 +1,5 @@
 import { jest } from '@jest/globals';
 import { render, renderHook } from '@testing-library/react';
-import React from 'react';
 import { getProtectedOwnerCreateAccountUrl } from '../index.jsx';
 
 // Create manual mocks

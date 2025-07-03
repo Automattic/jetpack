@@ -2,7 +2,7 @@ import { getRedirectUrl, JetpackFooter, ThemeProvider } from '@automattic/jetpac
 import { isJetpackSelfHostedSite } from '@automattic/jetpack-script-data';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import DevCard from 'components/dev-card';
 import analytics from 'lib/analytics';
@@ -23,7 +23,7 @@ const smoothScroll = () => {
 	}
 };
 
-export class Footer extends React.Component {
+export class Footer extends Component {
 	static displayName = 'Footer';
 
 	resetOnClick = () => {

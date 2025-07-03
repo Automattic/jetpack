@@ -1,5 +1,4 @@
 import { action } from '@storybook/addon-actions';
-import React from 'react';
 import ConnectScreenVisual from '../visual';
 
 export default {

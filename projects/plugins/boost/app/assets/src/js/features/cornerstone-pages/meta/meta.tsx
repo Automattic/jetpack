@@ -1,6 +1,6 @@
 import { Button, getRedirectUrl, Notice } from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import styles from './meta.module.scss';
 import {
@@ -18,6 +18,7 @@ import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { useNotices } from '$features/notice/context';
 import { useLcpState } from '$features/lcp/lib/stores/lcp-state';
 import { ExternalLink } from '@wordpress/components';
+import type { FC, ReactNode } from 'react';
 
 const Meta = () => {
 	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
@@ -139,7 +140,7 @@ type ListProps = {
 	items: string;
 	setItems: ( newValue: string ) => void;
 	maxItems: number;
-	description: React.ReactNode | null;
+	description: ReactNode | null;
 	defaultValue: string;
 	inputRows?: number;
 };
@@ -167,7 +168,7 @@ export const CornerstonePagesUpgradeCTA = () => {
 	);
 };
 
-const List: React.FC< ListProps > = ( {
+const List: FC< ListProps > = ( {
 	items,
 	setItems,
 	maxItems,

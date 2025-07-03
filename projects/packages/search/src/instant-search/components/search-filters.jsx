@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import React, { Component } from 'react';
+import * as React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { mapFilterToFilterKey, mapFilterToType, getAvailableStaticFilters } from '../lib/filters';
 import { recordStaticFilterSelect } from '../lib/tracks';

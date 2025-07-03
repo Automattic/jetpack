@@ -6,14 +6,14 @@ import { Icon, warning } from '@wordpress/icons';
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 import './style.scss';
 
 export type BlockBannerProps = {
-	icon?: React.ReactNode;
-	action?: React.ReactNode;
-	children: React.ReactNode;
+	icon?: ReactNode;
+	action?: ReactNode;
+	children: ReactNode;
 	isLoading?: boolean;
 };
 
@@ -21,17 +21,17 @@ export type BlockBannerProps = {
  * React component to render a banner above a block.
  *
  * @param {BlockBannerProps} props          - Component props.
- * @param {React.ReactNode}  props.action   - Banner action button.
- * @param {React.ReactNode}  props.children - Banner content.
- * @param {React.ReactNode}  props.icon     - Banner icon.
- * @return {React.ReactElement }            Banner component.
+ * @param {ReactNode}        props.action   - Banner action button.
+ * @param {ReactNode}        props.children - Banner content.
+ * @param {ReactNode}        props.icon     - Banner icon.
+ * @return {ReactElement }            Banner component.
  */
 export default function BlockBanner( {
 	icon = warning,
 	action,
 	children,
 	isLoading,
-}: BlockBannerProps ): React.ReactElement {
+}: BlockBannerProps ): ReactElement {
 	return (
 		<div className="block-banner">
 			{ icon && <Icon icon={ icon } /> }

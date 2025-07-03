@@ -1,7 +1,6 @@
 import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -21,7 +20,7 @@ const trackDashboardClick = () => {
  * Blaze settings component.
  *
  * @param {object} props - Component props.
- * @return {React.Component} Blaze settings component.
+ * @return {import('react').Component} Blaze settings component.
  */
 function Blaze( props ) {
 	const {

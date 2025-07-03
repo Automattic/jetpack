@@ -2,7 +2,7 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { FormLabel } from 'components/forms';
@@ -26,7 +26,7 @@ import {
 	getGoogleSearchConsoleUrl,
 } from 'state/site-verify';
 
-class GoogleVerificationServiceComponent extends React.Component {
+class GoogleVerificationServiceComponent extends Component {
 	static propTypes = {
 		disabled: PropTypes.bool,
 	};

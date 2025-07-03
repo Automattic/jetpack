@@ -1,13 +1,13 @@
 import clsx from 'clsx';
 import { omit } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import ClipboardButton from 'components/form/clipboard-button';
 import TextInput from 'components/text-input';
 
 import './style.scss';
 
-export default class ClipboardButtonInput extends React.Component {
+export default class ClipboardButtonInput extends Component {
 	static displayName = 'ClipboardButtonInput';
 
 	static propTypes = {

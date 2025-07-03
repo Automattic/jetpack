@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import {
 	makeBaseConfig,
 	defineConfig,
@@ -20,10 +19,24 @@ export default defineConfig(
 		},
 	},
 	{
+		files: javascriptFiles,
+		rules: {
+			'import/no-unresolved': [
+				'error',
+				{
+					ignore: [
+						// Image guide doesn't have a `jetpack:src` entry, so it needs to be built to work and may not be when linting.
+						// And since it uses svelte, if we did want to add a `jetpack:src` entry then we'd also need to teach Boost's webpack config how to build svelte files. Sigh.
+						// Easier to just ignore it for this rule.
+						'^@automattic/jetpack-image-guide$',
+					],
+				},
+			],
+		},
+	},
+	{
 		files: javascriptFiles, // @todo Which of the rule changes here should only really apply to typescriptFiles?
 		rules: {
-			'import/no-extraneous-dependencies': 'error',
-
 			'jsx-a11y/anchor-has-content': 'error',
 			'jsx-a11y/anchor-is-valid': 'error',
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import { __ } from '@wordpress/i18n';
 import Button from '$features/image-size-analysis/button/button';
 import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
@@ -17,7 +17,7 @@ interface TableRowHoverProps {
 	toggleImageFix?: ( imageId: IsaImage[ 'id' ] ) => void;
 }
 
-const TableRowHover: React.FC< TableRowHoverProps > = ( {
+const TableRowHover: FC< TableRowHoverProps > = ( {
 	imageId,
 	edit_url,
 	instructions,

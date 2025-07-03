@@ -1,7 +1,7 @@
 import { localizeUrl } from '@automattic/i18n-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
-import React, { JSXElementConstructor, ReactElement } from 'react';
+import { JSXElementConstructor, ReactElement } from 'react';
 import blockInfoMapping, {
 	blockInfoWithVariations,
 	childrenBlockInfoWithDifferentUrl,

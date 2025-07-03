@@ -1,5 +1,5 @@
 import { TwitterPreviews } from '@automattic/social-previews';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { usePostMeta } from '../../hooks/use-post-meta';
 
 /**
@@ -11,7 +11,7 @@ import { usePostMeta } from '../../hooks/use-post-meta';
  * @param {object}   props.image       - The post featured image
  * @param {string}   props.url         - The URL of the post
  * @param {object[]} props.media       - Array of attached media
- * @return {React.ReactNode} The twitter tab component.
+ * @return {import('react').ReactNode} The twitter tab component.
  */
 function Twitter( { title, description, image, url, media } ) {
 	const { shareMessage } = usePostMeta();

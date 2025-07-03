@@ -17,15 +17,15 @@ import './style.scss';
 import type { VideoPosterCardProps } from './types';
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 import type { VideoControlProps } from '../../types';
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 /**
  * Simple component that renders info about video poster.
  *
  * @param {VideoPosterCardProps} props - Component props.
- * @return {React.ReactElement}         VideoPosterCard component
+ * @return {ReactElement}         VideoPosterCard component
  */
-export function VideoPosterCard( { poster, className }: VideoPosterCardProps ): React.ReactElement {
+export function VideoPosterCard( { poster, className }: VideoPosterCardProps ): ReactElement {
 	const notes = createInterpolateElement(
 		__(
 			'No custom Poster image selected.<help>You can upload or select an image from your media library to override the default video image.</help>',
@@ -53,13 +53,13 @@ export function VideoPosterCard( { poster, className }: VideoPosterCardProps ): 
  * Poster image control react component.
  *
  * @param {VideoControlProps} props - Component props.
- * @return {React.ReactElement}      PosterImageBlockControl block control
+ * @return {ReactElement}      PosterImageBlockControl block control
  */
 export default function PosterImageBlockControl( {
 	attributes,
 	setAttributes,
 	clientId,
-}: VideoControlProps ): React.ReactElement {
+}: VideoControlProps ): ReactElement {
 	const { poster } = attributes;
 	const onSelectPoster = ( image: AdminAjaxQueryAttachmentsResponseItemProps ) => {
 		setAttributes( { poster: image.url } );

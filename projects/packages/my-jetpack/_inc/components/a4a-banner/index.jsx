@@ -1,6 +1,6 @@
 import { UpsellBanner, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import icon from './icon.svg';
 

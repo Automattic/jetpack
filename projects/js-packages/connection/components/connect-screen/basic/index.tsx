@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import useConnection from '../../use-connection';
 import ConnectScreenVisual from './visual';
+import type { FC, ReactNode } from 'react';
 
 export type Props = {
 	// API root
@@ -13,7 +13,7 @@ export type Props = {
 	// The redirect admin UR
 	redirectUri: string;
 	// Additional page elements to show before the call to action
-	children: React.ReactNode;
+	children: ReactNode;
 	// The Title
 	title?: string;
 	// The Connect Button label
@@ -33,15 +33,15 @@ export type Props = {
 	// Whether to skip the pricing page after the connection screen
 	skipPricingPage?: boolean;
 	// Additional page elements to show after the call to action
-	footer?: React.ReactNode;
+	footer?: ReactNode;
 	// The logo to display at the top of the component
-	logo?: React.ReactNode;
+	logo?: ReactNode;
 };
 
 /*
  * The Connection Screen component.
  */
-const ConnectScreen: React.FC< Props > = ( {
+const ConnectScreen: FC< Props > = ( {
 	title,
 	buttonLabel,
 	loadingLabel,
