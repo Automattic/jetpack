@@ -268,14 +268,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		} else {
 			parent::add_jetpack_menu();
 		}
-
-		/**
-		 * Prevent duplicate menu items that link to Jetpack Backup.
-		 * Hide the one that's shown when the standalone backup plugin is not installed, since Jetpack Backup is already included in Atomic sites.
-		 *
-		 * @see https://github.com/Automattic/jetpack/pull/33955
-		 */
-		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 	}
 
 	/**
