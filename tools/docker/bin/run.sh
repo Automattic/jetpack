@@ -111,7 +111,13 @@ fi
 
 for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do
 	[ -d "$DIR" ] || continue # We are only interested in directories, e.g. different plugins.
-	PLUGIN="$(basename $DIR)"
+	PLUGIN="$(basename "$DIR")"
+
+	# Handle special case: symlink crm as zero-bs-crm
+	if [[ "$PLUGIN" = 'crm' ]]; then
+		PLUGIN='zero-bs-crm'
+	fi
+
 	# Symlink plugins into the wp-content dir.
 	if [ ! -e /var/www/html/wp-content/plugins/"$PLUGIN" ]; then
 		echo "Linking the $PLUGIN plugin."
