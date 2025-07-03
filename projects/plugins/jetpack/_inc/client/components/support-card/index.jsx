@@ -45,6 +45,7 @@ const HelpCenterButton = ( { onClick } ) => {
 		<Button
 			onClick={ onClick }
 			href={ isWoASite() ? getRedirectUrl( 'calypso-help' ) : getRedirectUrl( 'jetpack-support' ) }
+			isExternalLink={ true }
 		>
 			{ text }
 		</Button>
