@@ -277,7 +277,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_preset( $deprecated = null ) {
 		if ( $deprecated ) {
-			_deprecated_argument( __METHOD__, '1.2.3', 'The $preset argument is no longer needed or used.' );
+			_deprecated_argument( __METHOD__, '14.3', 'The $preset argument is no longer needed or used.' );
 		}
 
 		if ( self::$preset_cache ) {

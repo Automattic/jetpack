@@ -1,12 +1,12 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { Fragment } from '@wordpress/element';
-import emailValidator from 'email-validator';
+import { validate as emailValidatorValidate } from 'email-validator';
 
 const renderEmail = inputText => {
 	const explodedInput = inputText.split( /(\s+)/ ).map( ( email, i ) => {
 		// Remove and punctuation from the end of the email address.
 		const emailToValidate = email.replace( /([.,/#!$%^&*;:{}=\-_`~()\][])+$/g, '' );
-		if ( email.indexOf( '@' ) && emailValidator.validate( emailToValidate ) ) {
+		if ( email.indexOf( '@' ) && emailValidatorValidate( emailToValidate ) ) {
 			return email === emailToValidate ? (
 				// Email.
 				<a href={ `mailto:${ email }` } key={ i }>

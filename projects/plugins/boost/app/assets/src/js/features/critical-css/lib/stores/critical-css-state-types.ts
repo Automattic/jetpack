@@ -1,5 +1,5 @@
 import { JSONSchema } from '$lib/utils/json-types';
-import z from 'zod';
+import { z } from 'zod';
 
 const HttpErrorPattern = z.custom< `HttpError-${ number }` >( val => {
 	if ( typeof val !== 'string' ) return false;

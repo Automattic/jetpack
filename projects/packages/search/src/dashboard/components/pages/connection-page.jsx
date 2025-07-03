@@ -2,9 +2,9 @@ import { Container, Col, AdminSectionHero, getRedirectUrl } from '@automattic/je
 import { ConnectScreenRequiredPlan } from '@automattic/jetpack-connection';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import Loading from 'components/loading';
 import SearchPromotionBlock from 'components/search-promotion';
-import { useCallback } from 'react';
 import { STORE_ID } from 'store';
 
 import './connection-page.scss';

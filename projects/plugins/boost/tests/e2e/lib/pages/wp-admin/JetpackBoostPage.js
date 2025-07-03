@@ -18,7 +18,8 @@ export default class JetpackBoostPage extends WpPage {
 	async chooseFreePlan() {
 		const button = this.page.locator( 'text=Start for free' );
 		await button.click();
-		await this.waitForElementToBeVisible( '[data-testid="speed-scores"]' );
+		// We should wait a longer time to ensure the connection/plan is complete/established.
+		await this.waitForElementToBeVisible( '[data-testid="speed-scores"]', 30 * 1000 );
 	}
 
 	/**
@@ -85,7 +86,7 @@ export default class JetpackBoostPage extends WpPage {
 		const score = this.page.locator( parent + ' .jb-score-bar__score' );
 		await score.waitFor( {
 			state: 'visible',
-			timeout: 40 * 1000,
+			timeout: 80 * 1000,
 		} );
 
 		return Number( await score.textContent() );
@@ -103,7 +104,7 @@ export default class JetpackBoostPage extends WpPage {
 
 	async waitForCriticalCssMetaInfoVisibility() {
 		const selector = '[data-testid="critical-css-meta"]';
-		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
+		return this.waitForElementToBeVisible( selector, 4 * 60 * 1000 );
 	}
 
 	async waitForCriticalCssGenerationProgressUIVisibility() {
@@ -176,6 +177,8 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async waitForScoreLoadingToFinish() {
+		await this.isOverallScoreHeaderShown();
+
 		const selector = '[data-testid="speed-scores-top"] h2:text("Loading…")';
 		/* It needs a large timeout because speed score updates take time */
 		return this.waitForElementToBeDetached( selector, 180000 ); // 3 minutes

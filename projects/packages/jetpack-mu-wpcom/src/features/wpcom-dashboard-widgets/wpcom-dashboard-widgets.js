@@ -1,5 +1,5 @@
 import '../../common/public-path';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import CelebrateLaunchModal from './celebrate-launch/celebrate-launch-modal';
 import WpcomDailyWritingPrompt from './wpcom-daily-writing-prompt';
 import WpcomGeneralTasksWidget from './wpcom-general-tasks-widget';
@@ -29,7 +29,7 @@ const widgets = [
 widgets.forEach( ( { id, Widget } ) => {
 	const container = document.getElementById( id );
 	if ( container ) {
-		const root = ReactDOM.createRoot( container );
+		const root = createRoot( container );
 		root.render( <Widget { ...data } /> );
 	}
 } );
@@ -40,7 +40,7 @@ if ( url.searchParams.has( 'celebrate-launch' ) ) {
 	window.history.replaceState( null, '', url.toString() );
 	const rootElement = document.createElement( 'div' );
 	document.body.appendChild( rootElement );
-	const root = ReactDOM.createRoot( rootElement );
+	const root = createRoot( rootElement );
 	root.render(
 		<CelebrateLaunchModal
 			{ ...data }

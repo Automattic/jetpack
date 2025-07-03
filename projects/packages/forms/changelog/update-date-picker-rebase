@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Forms: update the date picker to remove the jquery depenency. We now use a new more modern date picker that allows for keyboard navigation

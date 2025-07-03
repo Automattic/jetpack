@@ -13,7 +13,7 @@ add_filter(
 	'jetpack_set_available_extensions',
 	function ( $extensions ) {
 		return array_merge(
-			$extensions,
+			(array) $extensions,
 			array(
 				FEATURE_NAME,
 			)
