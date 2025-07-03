@@ -952,10 +952,6 @@ function zeroBSCRM_DB_canInnoDB(){
 function jpcrm_database_engine( $pretty = false ) {
 	global $zbs;
 
-	if ( ! is_object( $zbs ) ) {
-		return 'sqlite';
-	}
-
 	if ( $pretty ) {
 		return $zbs->database_server_info['db_engine_label'];
 	}
