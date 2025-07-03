@@ -26,30 +26,80 @@ const LineChartAnnotations: React.FC< LineChartAnnotationsProps > = ( {
 } ) => {
 	const [ scales, setScales ] = useState< ScaleData | null >( null );
 
-	// Get scales from chart ref
-	const updateScales = useCallback( () => {
+	// Create a signature for scale data to enable easy comparison
+	const createScaleSignature = useCallback( ( scaleData: ScaleData ) => {
+		const xDomain = scaleData.xScale.domain();
+		const yDomain = scaleData.yScale.domain();
+		const xRange = scaleData.xScale.range();
+		const yRange = scaleData.yScale.range();
+
+		return `${ xDomain.join( ',' ) }-${ yDomain.join( ',' ) }-${ xRange.join(
+			','
+		) }-${ yRange.join( ',' ) }`;
+	}, [] );
+
+	// Get scales from chart ref and return them with signature for comparison
+	const getScalesData = useCallback( () => {
 		if ( chartRef.current ) {
 			const scaleData = chartRef.current.getScales();
+
 			if ( scaleData ) {
-				setScales( {
+				const scaleInfo = {
 					xScale: scaleData.xScale as AxisScale< Date >,
 					yScale: scaleData.yScale as AxisScale< number >,
-				} );
+				};
+
+				return {
+					scales: scaleInfo,
+					signature: createScaleSignature( scaleInfo ),
+				};
 			}
 		}
-	}, [ chartRef ] );
 
-	// Update scales when component mounts and when chart updates
+		return null;
+	}, [ chartRef, createScaleSignature ] );
+
+	// The chart resizes on render so we need to monitor the scales until they stabilize
 	useEffect( () => {
-		updateScales();
+		let timeoutId: number | null = null;
+		let lastSignature: string | null = null;
+		let retryCount = 0;
+		const maxRetries = 20; // 20 * 50ms = 1 second max
+		const checkInterval = 50; // Check every 50ms
 
-		// Set up a timer to retry getting scales if not immediately available
-		const timer = setTimeout( updateScales, 100 );
+		const monitorScales = () => {
+			const currentScaleData = getScalesData();
 
-		return () => clearTimeout( timer );
-	}, [ updateScales ] );
+			// If we got scales, compare signatures
+			if ( currentScaleData ) {
+				// Check if scales have settled by comparing signatures
+				const scalesSettled = lastSignature && currentScaleData.signature === lastSignature;
 
-	// Don't render anything if scales aren't ready
+				if ( scalesSettled ) {
+					return;
+				}
+
+				// Update scales and remember signature for next comparison
+				setScales( currentScaleData.scales );
+				lastSignature = currentScaleData.signature;
+			}
+
+			// Continue monitoring if we haven't exceeded max retries
+			if ( retryCount < maxRetries ) {
+				retryCount++;
+				timeoutId = setTimeout( monitorScales, checkInterval ) as unknown as number;
+			}
+		};
+
+		monitorScales();
+
+		return () => {
+			if ( timeoutId ) {
+				clearTimeout( timeoutId );
+			}
+		};
+	}, [ getScalesData, chartWidth, chartHeight ] );
+
 	if ( ! scales ) {
 		return null;
 	}
