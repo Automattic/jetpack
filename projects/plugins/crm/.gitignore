@@ -3,8 +3,6 @@
 /build/
 /.cache/
 **/css/**/*.css
-**/css/**/*.css.map
-**/js/*.min.js.map
 **/js/*.min.js
 **/js/*.min.js.LICENSE.txt
 /templates/**/.htaccess
