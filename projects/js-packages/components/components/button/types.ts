@@ -14,6 +14,7 @@ type JetpackButtonBaseProps = {
 	weight?: 'bold' | 'regular';
 	fullWidth?: boolean;
 	ref?: ForwardedRef< unknown >;
+	href?: string;
 };
 
 type WPButtonProps = Omit< ComponentProps< typeof Button >, 'size' | 'variant' >;

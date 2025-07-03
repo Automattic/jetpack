@@ -1,7 +1,8 @@
+import { Meta } from '@storybook/react';
 import { useCallback, useState } from 'react';
-import RadioControl from '../index.tsx';
+import { RadioControl } from '../index.tsx';
 
-export default {
+const meta = {
 	title: 'JS Packages/Components/Radio Control',
 	component: RadioControl,
 	parameters: {
@@ -14,7 +15,7 @@ export default {
 			description: 'Whether or not the radio control is currently disabled.',
 			table: {
 				type: { summary: 'boolean' },
-				defaultValue: { summary: false },
+				defaultValue: { summary: '' },
 			},
 		},
 		help: {
@@ -31,11 +32,13 @@ export default {
 			description: 'If true, the label will only be visible to screen readers.',
 			table: {
 				type: { summary: 'boolean' },
-				defaultValue: { summary: false },
+				defaultValue: { summary: '' },
 			},
 		},
 	},
-};
+} satisfies Meta< typeof RadioControl >;
+
+export default meta;
 
 const options = [
 	{ label: 'One', value: 'one' },

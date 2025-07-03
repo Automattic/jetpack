@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import Button from '../button/index.tsx';
 import { ClipboardIcon, CheckmarkIcon } from '../icons/index.tsx';
 import { CopyToClipboardProps } from './types.ts';
-import type { FC, ReactNode } from 'react';
+import type { ComponentType, FC, ReactNode } from 'react';
 
 export const CopyToClipboard: FC< CopyToClipboardProps > = ( {
 	buttonStyle = 'icon',
@@ -16,7 +16,7 @@ export const CopyToClipboard: FC< CopyToClipboardProps > = ( {
 
 	const copyTimer = useRef< ReturnType< typeof setTimeout > | undefined >();
 
-	const copyRef = useCopyToClipboard( textToCopy, () => {
+	const copyRef = useCopyToClipboard< HTMLButtonElement >( textToCopy, () => {
 		if ( copyTimer.current ) {
 			clearTimeout( copyTimer.current );
 		}
@@ -40,11 +40,11 @@ export const CopyToClipboard: FC< CopyToClipboardProps > = ( {
 		};
 	}, [] );
 
-	let icon: ReactNode = null;
+	let icon: ComponentType = null;
 	let label: ReactNode = null;
 
 	if ( 'text' !== buttonStyle ) {
-		icon = hasCopied ? <CheckmarkIcon /> : <ClipboardIcon />;
+		icon = hasCopied ? CheckmarkIcon : ClipboardIcon;
 	}
 
 	const defaultLabel = __( 'Copy to clipboard', 'jetpack-components' );
@@ -58,6 +58,7 @@ export const CopyToClipboard: FC< CopyToClipboardProps > = ( {
 			aria-label={ defaultLabel }
 			icon={ icon }
 			children={ label }
+			// @ts-expect-error The ref type here is messed up
 			ref={ copyRef }
 			{ ...buttonProps }
 		/>

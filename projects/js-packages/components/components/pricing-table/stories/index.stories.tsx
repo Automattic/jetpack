@@ -25,7 +25,6 @@ const Template: StoryFn< typeof PricingTable > = args => {
 						offPrice={ 4.98 }
 						legend="/month, billed yearly"
 						currency="USD"
-						hideDiscountLabel={ args?.hideDiscountLabel }
 					/>
 					<Button fullWidth>Get Premium</Button>
 				</PricingTableHeader>

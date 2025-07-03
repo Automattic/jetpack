@@ -5,15 +5,14 @@ import clsx from 'clsx';
 import { forwardRef } from 'react';
 import styles from './style.module.scss';
 import type { ButtonProps } from './types.ts';
-import type { ReactNode } from 'react';
 
 /**
  * Button component
  *
  * @param {ButtonProps} props - Component Props
- * @return {ReactNode} Rendered button
+ * @return Rendered button
  */
-const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
+const Button = forwardRef< typeof WPButton, ButtonProps >( ( props, ref ) => {
 	const {
 		children,
 		variant = 'primary',
@@ -41,8 +40,6 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 		[ styles[ 'is-icon-button' ] ]: Boolean( icon ) && ! children,
 	} );
 
-	componentProps.ref = ref;
-
 	const externalIconSize = size === 'normal' ? 20 : 16;
 	const externalIcon = isExternalLink && (
 		<>
@@ -65,6 +62,7 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 		children?.[ 0 ]?.props?.className !== 'components-tooltip';
 
 	return (
+		// @ts-expect-error WPButton types are a mess.
 		<WPButton
 			target={ externalTarget }
 			variant={ variant }
@@ -75,6 +73,7 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 			aria-disabled={ disabled }
 			isDestructive={ isDestructive }
 			text={ text }
+			ref={ ref }
 			{ ...componentProps }
 		>
 			{ isLoading && <Spinner /> }

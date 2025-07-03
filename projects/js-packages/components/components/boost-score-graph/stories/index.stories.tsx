@@ -161,7 +161,7 @@ const meta: Meta< typeof BoostScoreGraph > = {
 	argTypes: {
 		startDate: { control: 'date' },
 		endDate: { control: 'date' },
-		title: { control: 'string', defaultValue: 'Title' },
+		title: { control: 'text', defaultValue: 'Title' },
 		isPlaceholder: { control: 'boolean', defaultValue: false },
 	},
 	decorators: [

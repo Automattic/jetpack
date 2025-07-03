@@ -1,6 +1,6 @@
 import { Popover } from '@wordpress/components';
 import clsx from 'clsx';
-import { useCallback, useState, ReactElement, FC } from 'react';
+import { useCallback, useState, ReactElement, FC, ComponentProps } from 'react';
 import Button from '../button/index.tsx';
 import Gridicon from '../gridicon/index.tsx';
 import { IconTooltipProps, Placement, Position } from './types.ts';
@@ -19,6 +19,8 @@ const placementsToPositions = ( placement: Placement ): Position => {
 
 	return mapping[ placement ] as Position;
 };
+
+type PopoverProps = ComponentProps< typeof Popover >;
 
 /**
  * Generate Icon Tooltip
@@ -55,7 +57,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		[ isVisible, setIsVisible ]
 	);
 
-	const args = {
+	const args: PopoverProps = {
 		// To be compatible with deprecating prop `position`.
 		position: placementsToPositions( placement ),
 		placement,
@@ -64,6 +66,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		resize: false,
 		flip: false,
 		offset, // The distance (in px) between the anchor and the popover.
+		// @ts-expect-error TODO investigate whether this is a valid value for `focusOnMount`.
 		focusOnMount: 'container' as const,
 		onClose: hideTooltip,
 		className: 'icon-tooltip-container',
