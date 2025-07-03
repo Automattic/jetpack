@@ -1,4 +1,5 @@
-import { getHostAppNamespace, JetpackLogo } from '@automattic/jetpack-shared-extension-utils';
+import { getHostAppNamespace } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 

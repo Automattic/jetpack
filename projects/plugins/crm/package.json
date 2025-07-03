@@ -51,7 +51,7 @@
 		"chart.js": "4.5.0",
 		"copy-webpack-plugin": "13.0.0",
 		"css-loader": "6.11.0",
-		"daterangepicker": "2.1.25",
+		"daterangepicker": "3.1.0",
 		"font-awesome": "4.7.0",
 		"fullcalendar": "6.1.17",
 		"glob": "11.0.2",
