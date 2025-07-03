@@ -4,6 +4,7 @@ import edit from './edit';
 const name = 'rating-input';
 
 const settings = {
+	apiVersion: 3,
 	title: __( 'Rating input', 'jetpack-forms' ),
 	description: __( 'Interactive star rating row.', 'jetpack-forms' ),
 	parent: [ 'jetpack/field-rating' ],
