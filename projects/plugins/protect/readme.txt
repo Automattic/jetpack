@@ -178,27 +178,19 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 4. The Jetpack Firewall is a web application firewall (known as WAF) designed to protect your WordPress site from malicious requests.
 
 == Changelog ==
-### 4.1.0 - 2025-06-05
+### 4.2.0 - 2025-07-03
 #### Added
-- Scanner: Add functionality to correctly display database threats in the Protect UI.
-- Account Protection: Add the Account Protection module toggle.
-- My Jetpack: Add user tour.
-- My Jetpack: Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
+- WAF: Add account recovery flow for blocklisted IP addresses.
 
 #### Changed
-- Connection: Allow pre-selected login providers.
-- General: Indicate compatibility with WordPress 6.8.
-- My Jetpack: Optimize the images for onboarding slider for faster page load.
-- My Jetpack: Updated the onboarding UI, changing it to a single button.
-- General: Update package dependencies.
+- My Jetpack: Update Stats card to include a chart for better analytics.
+- Update package dependencies.
 
 #### Removed
-- General: Update minimum WordPress version to 6.7.
+- Remove the need to add FTP/SSH credentials to run auto threat fixers.
 
 #### Fixed
-- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
-- My Jetpack: Fix Onboarding UI responsiveness at 600px.
-- My Jetpack: Fix readability of license activation button on hover.
-- My Jetpack: Prevent social login from getting stuck when email input is not empty.
-- Readme: Clarify language in the plugin readme regarding malware and vulnerability scanning.
+- JITM: Fix ineffective caching due to expired plugin sync transient.
+- My Jetpack: Use compact number notation in the Protect card.
+- WAF: Fix PHP warnings for Brute_Force_Protection->get_local_host().
 

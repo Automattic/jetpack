@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
+import { useDispatch } from '@wordpress/data';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
@@ -22,6 +23,34 @@ import {
 } from 'state/connection';
 import { isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
 import { siteHasFeature, hasActiveProductPurchase, isFetchingSiteData } from 'state/site';
+
+const HelpCenterButton = ( { onClick } ) => {
+	const helpCenterDispatch = useDispatch( 'automattic/help-center' );
+	const setShowHelpCenter = helpCenterDispatch?.setShowHelpCenter;
+
+	const text = __( 'Search our support site', 'jetpack' );
+
+	return setShowHelpCenter ? (
+		<Button
+			// eslint-disable-next-line react/jsx-no-bind
+			onClick={ () => {
+				onClick?.();
+
+				helpCenterDispatch?.setShowHelpCenter( true );
+			} }
+		>
+			{ text }
+		</Button>
+	) : (
+		<Button
+			onClick={ onClick }
+			href={ isWoASite() ? getRedirectUrl( 'calypso-help' ) : getRedirectUrl( 'jetpack-support' ) }
+			isExternalLink={ true }
+		>
+			{ text }
+		</Button>
+	);
+};
 
 class SupportCard extends Component {
 	static displayName = 'SupportCard';
@@ -100,17 +129,7 @@ class SupportCard extends Component {
 									{ __( 'Getting started with Jetpack', 'jetpack' ) }
 								</Button>
 							) }
-							<Button
-								onClick={ this.trackSearchClick }
-								href={
-									isWoASite()
-										? getRedirectUrl( 'calypso-help' )
-										: getRedirectUrl( 'jetpack-support' )
-								}
-								isExternalLink={ true }
-							>
-								{ __( 'Search our support site', 'jetpack' ) }
-							</Button>
+							<HelpCenterButton onClick={ this.trackSearchClick } />
 						</p>
 					</div>
 				</Card>

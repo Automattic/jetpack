@@ -5,11 +5,11 @@ import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { Fragment, useCallback } from 'react';
 import Button from 'components/button';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form-toggle/compact';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
-import { Fragment, useCallback } from 'react';
 import { STORE_ID } from 'store';
 
 import 'scss/rna-styles.scss';

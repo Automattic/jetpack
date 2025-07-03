@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix PHP warnings for Brute_Force_Protection->get_local_host()
