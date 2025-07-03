@@ -234,7 +234,7 @@ function wpcom_add_untangled_jetpack_menu() {
 		 * Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		 */
 		null,
-		3
+		4
 	);
 }
 
