@@ -169,6 +169,7 @@ export function FairUsageLimitMessage(): ReactElement {
 	);
 	const element = createInterpolateElement( message, {
 		link: (
+			// @ts-expect-error TS says the `children` is missing but it's passed dynamically by createInterpolateElement
 			<ExternalLink href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy" />
 		),
 	} );
