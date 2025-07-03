@@ -4,7 +4,8 @@ import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { useElementHeight } from '../shared/use-element-height';
@@ -70,8 +71,9 @@ const validateData = ( data: DataPointPercentage[] ) => {
 	return { isValid: true, message: '' };
 };
 
-const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
+const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	data,
+	chartId: providedChartId,
 	width = 400,
 	thickness = 0.4,
 	clockwise = true,
@@ -86,6 +88,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	className,
 } ) => {
 	const providerTheme = useChartTheme();
+	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
@@ -114,6 +117,38 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		},
 		[ handleMouseMove ]
 	);
+
+	// Define accessors with useMemo to avoid changing dependencies
+	const accessors = useMemo(
+		() => ( {
+			value: ( d: DataPointPercentage ) => d.value,
+			sort: (
+				a: DataPointPercentage & { index: number },
+				b: DataPointPercentage & { index: number }
+			) => b.value - a.value,
+			// Use the color property from the data object as a last resort. The theme provides colours by default.
+			fill: ( d: DataPointPercentage & { index: number } ) =>
+				d.color || providerTheme.colors[ d.index % providerTheme.colors.length ],
+		} ),
+		[ providerTheme.colors ]
+	);
+
+	// Create legend items
+	const legendItems = useMemo(
+		() =>
+			data.map( ( item, index ) => ( {
+				label: item.label,
+				value: item.valueDisplay || item.value.toString(),
+				color: accessors.fill( { ...item, index } ),
+			} ) ),
+		[ data, accessors ]
+	);
+
+	// Register chart with context
+	useChartRegistration( chartId, legendItems, providerTheme, 'pie-semi-circle', {
+		thickness,
+		clockwise,
+	} );
 
 	// Add validation check
 	const { isValid, message } = validateData( data );
@@ -149,24 +184,6 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	// Set the clockwise direction based on the prop
 	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
 	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
-
-	const accessors = {
-		value: ( d: DataPointPercentage & { index: number } ) => d.value,
-		sort: (
-			a: DataPointPercentage & { index: number },
-			b: DataPointPercentage & { index: number }
-		) => b.value - a.value,
-		// Use the color property from the data object as a last resort. The theme provides colours by default.
-		fill: ( d: DataPointPercentage & { index: number } ) =>
-			d.color || providerTheme.colors[ d.index % providerTheme.colors.length ],
-	};
-
-	// Create legend items
-	const legendItems = data.map( ( item, index ) => ( {
-		label: item.label,
-		value: item.valueDisplay || item.value.toString(),
-		color: accessors.fill( { ...item, index } ),
-	} ) );
 
 	return (
 		<div
@@ -271,6 +288,12 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		</div>
 	);
 };
+
+const PieSemiCircleChart: FC< PieSemiCircleChartProps > = props => (
+	<ChartProvider>
+		<PieSemiCircleChartInternal { ...props } />
+	</ChartProvider>
+);
 
 PieSemiCircleChart.displayName = 'PieSemiCircleChart';
 export default withResponsive< PieSemiCircleChartProps >( PieSemiCircleChart );
