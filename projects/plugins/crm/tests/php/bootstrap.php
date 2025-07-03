@@ -84,16 +84,11 @@ function _jpcrm_manually_load_plugin() {
 
 	// For tests, we need to manually initialize the plugin
 	global $zbs;
-	if ( class_exists( 'zeroBSCRM' ) && ! isset( $zbs ) ) {
-		$zbs = zeroBSCRM::instance();
-	}
+	$zbs = zeroBSCRM::instance();
 
-	// Run installation if needed
-	if ( isset( $zbs ) && is_object( $zbs ) && method_exists( $zbs, 'install' ) ) {
-		$zbs->install();
-		if ( function_exists( 'zeroBSCRM_notifyme_createDBtable' ) ) {
-			zeroBSCRM_notifyme_createDBtable();
-		}
+	$zbs->install();
+	if ( function_exists( 'zeroBSCRM_notifyme_createDBtable' ) ) {
+		zeroBSCRM_notifyme_createDBtable();
 	}
 }
 
