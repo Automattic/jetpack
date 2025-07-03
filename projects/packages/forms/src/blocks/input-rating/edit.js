@@ -5,7 +5,7 @@ import {
 } from '@wordpress/block-editor';
 import { PanelBody, RangeControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import Stars from '../field-rating/stars';
+import Stars from './stars';
 
 export default function RatingInputEdit( { clientId, attributes, setAttributes } ) {
 	const { max, default: defaultValue } = attributes;
