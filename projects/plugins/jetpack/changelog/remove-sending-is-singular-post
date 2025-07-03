@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Previously we added sending is_singular_post to adflow/conf to highlight it's the page for inline ads. Since it was solved via JavaScript, we don't have to send that query param any more.
