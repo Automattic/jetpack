@@ -1,27 +1,26 @@
 <?php // phpcs:ignore - WordPress.Files.FileName.InvalidClassFileName
 
-namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
+namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
 use WP_User;
 
 /**
- * Class Brute_Force_Protection_Blocked_Login_Page
+ * Class Blocked_Login_Page
  *
- * Instanciated on the wp-login page when Jetpack modules are loaded and $pagenow
+ * Instantiated on the wp-login page when Jetpack modules are loaded and $pagenow
  * is available, or during the login_head hook.
  *
- * Class will only be instanciated if Brute Force Protection has detected a hard blocked IP address.
+ * Class will only be instantiated if a hard blocked IP address is detected.
  */
-class Brute_Force_Protection_Blocked_Login_Page {
+abstract class Blocked_Login_Page {
 
 	/**
 	 * Instance of the class.
 	 *
-	 * @var Brute_Force_Protection_Blocked_Login_Page
+	 * @var Blocked_Login_Page
 	 */
 	private static $instance = null;
 
@@ -68,8 +67,9 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	 * @return object
 	 */
 	public static function instance( $ip_address ) {
-		if ( ! is_a( self::$instance, 'Brute_Force_Protection_Blocked_Login_Page' ) ) {
-			self::$instance = new Brute_Force_Protection_Blocked_Login_Page( $ip_address );
+		if ( ! self::$instance ) {
+			// @phan-suppress-next-line PhanTypeInstantiateAbstractStatic -- This is only instantiated in non-abstract classes (i.e. Waf_Blocked_Login_Page).
+			self::$instance = new static( $ip_address );
 		}
 
 		return self::$instance;
@@ -81,7 +81,6 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	 * @param string $ip_address - the IP address.
 	 */
 	public function __construct( $ip_address ) {
-
 		/**
 		 * Filter controls if an email recovery form is shown to blocked IPs.
 		 *
@@ -112,9 +111,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	 *
 	 * @return string
 	 */
-	public static function get_help_url() {
-		return Redirect::get_url( 'jetpack-support-protect', array( 'anchor' => 'troubleshooting' ) );
-	}
+	abstract public function get_help_url();
 
 	/**
 	 * Add arguments to lost password redirect url.
@@ -254,7 +251,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	 * Checks if recovery key is valid.
 	 *
 	 * @param string $key - they recovery key.
-	 * @param string $user_id - the User ID.
+	 * @param int    $user_id - the User ID.
 	 */
 	public function is_valid_protect_recovery_key( $key, $user_id ) {
 
@@ -384,10 +381,10 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	/**
 	 * Prevent login by locking the login page.
 	 *
-	 * @param string $content - the content of the page.
-	 * @param string $title - the page title.
-	 * @param string $back_link - the back link.
-	 * @param string $recovery_form - the recovery form.
+	 * @param string|WP_Error $content       - the content of the page.
+	 * @param string|null     $title         - the page title.
+	 * @param bool            $back_link     - the back link.
+	 * @param bool            $recovery_form - the recovery form.
 	 */
 	public function protect_die( $content, $title = null, $back_link = false, $recovery_form = false ) {
 		if ( empty( $title ) ) {
@@ -411,7 +408,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	 */
 	public function render_recovery_form() {
 		$content = $this->get_html_blocked_login_message();
-		$this->protect_die( $content, null, null, true );
+		$this->protect_die( $content, null, false, true );
 	}
 
 	/**
@@ -433,7 +430,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 			__( '<p>Your IP address <code>%2$s</code> has been flagged for potential security violations. You can unlock your login by sending yourself a special link via email. <a href="%3$s">Learn More</a></p>', 'jetpack-waf' ), // phpcs:ignore WordPress.WP.I18n.NoHtmlWrappedStrings
 			$icon,
 			$ip,
-			esc_url( self::get_help_url() )
+			esc_url( $this->get_help_url() )
 		);
 	}
 
@@ -463,10 +460,10 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	/**
 	 * Display the page.
 	 *
-	 * @param string $title - the page title.
-	 * @param string $message - the message we're sending.
-	 * @param string $back_button - the back button.
-	 * @param string $recovery_form - the recovery form.
+	 * @param string $title         - the page title.
+	 * @param string $message       - the message we're sending.
+	 * @param bool   $back_button   - the back button.
+	 * @param bool   $recovery_form - the recovery form.
 	 * @return never
 	 */
 	public function display_page( $title, $message, $back_button = false, $recovery_form = false ) {
@@ -762,7 +759,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 			} else {
 				$help_icon = '<svg class="gridicon gridicons-help" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 16h-2v-2h2v2zm0-4.14V15h-2v-2c0-.552.448-1 1-1 1.103 0 2-.897 2-2s-.897-2-2-2-2 .897-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.862-1.278 3.413-3 3.86z"/></g></svg>';
 				?>
-					<a href="<?php echo esc_url( self::get_help_url() ); ?>" rel="noopener noreferrer" target="_blank">
+					<a href="<?php echo esc_url( $this->get_help_url() ); ?>" rel="noopener noreferrer" target="_blank">
 						<?php
 						printf(
 							/* translators: %s is HTML markup, for a help icon. */

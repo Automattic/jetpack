@@ -94,9 +94,8 @@ class Initializer {
 
 		if ( is_admin() ) {
 			AJAX::init();
-		}
-
-		if ( ! is_admin() ) {
+		} else {
+			require_once __DIR__ . '/class-block-replacement.php';
 			Block_Replacement::init();
 		}
 	}
@@ -168,7 +167,7 @@ class Initializer {
 	 *
 	 * @return string|false
 	 */
-	public static function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( Utils::is_videopress_url( $url ) ) {
 			Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 		}

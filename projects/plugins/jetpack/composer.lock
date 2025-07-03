@@ -3125,7 +3125,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/waf",
-				"reference": "c09184172f454b654a2ae4f7056b95c7c388dad0"
+				"reference": "6c1f8b69d0e51a1ba39f1f5c0008f00e5f432a3c"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -3177,7 +3177,14 @@
 					"php -dpcov.directory=. ./vendor/bin/phpunit-select-config tests/php/unit/phpunit.#.xml.dist --coverage-html ./coverage"
 				],
 				"test-php": [
-					"@composer phpunit"
+					"@test-php-integration",
+					"@test-php-unit"
+				],
+				"test-php-unit": [
+					"phpunit-select-config tests/php/unit/phpunit.#.xml.dist --colors=always"
+				],
+				"test-php-integration": [
+					"phpunit-select-config tests/php/integration/phpunit.#.xml.dist --colors=always"
 				]
 			},
 			"license": [
