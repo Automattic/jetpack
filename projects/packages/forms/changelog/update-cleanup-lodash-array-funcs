@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Replace some uses of lodash array functions with native JS equivalents. Should be no change in functionality.
+
+

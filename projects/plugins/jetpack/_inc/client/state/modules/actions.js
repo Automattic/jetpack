@@ -1,6 +1,5 @@
 import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
-import { some } from 'lodash';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_MODULES_LIST_FETCH,
@@ -348,7 +347,7 @@ export const regeneratePostByEmailAddress = () => {
 export function maybeReloadAfterAction( newOptionValue ) {
 	const reloadForOptionValues = [ 'jetpack_testimonial', 'jetpack_portfolio' ];
 
-	if ( some( reloadForOptionValues, optionValue => optionValue in newOptionValue ) ) {
+	if ( reloadForOptionValues.some( optionValue => optionValue in newOptionValue ) ) {
 		window.location.reload();
 	}
 }

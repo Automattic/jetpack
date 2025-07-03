@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { includes, forEach } from 'lodash';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import Banner from 'components/banner';
@@ -55,8 +54,8 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 
 			const allModules = this.props.modules,
 				results = [];
-			forEach( allModules, ( moduleData, slug ) => {
-				if ( this.props.isModuleFound( slug ) && includes( safelist, slug ) ) {
+			for ( const [ slug, moduleData ] of Object.entries( allModules ) ) {
+				if ( this.props.isModuleFound( slug ) && safelist.includes( slug ) ) {
 					const isModuleUnavailableInOfflineMode =
 						this.props.isOfflineMode && this.props.isUnavailableInOfflineMode( moduleData.module );
 					const isModuleUnavailableInSiteConnectionMode =
@@ -65,7 +64,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 
 					// Not available in offline or SiteConnection mode.
 					if ( isModuleUnavailableInOfflineMode || isModuleUnavailableInSiteConnectionMode ) {
-						return results.push(
+						results.push(
 							<ActiveCard
 								key={ slug }
 								moduleData={ moduleData }
@@ -73,6 +72,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 								siteConnectionMode={ isModuleUnavailableInSiteConnectionMode }
 							/>
 						);
+						continue;
 					}
 
 					if ( this.props.getOptionValue( moduleData.module ) ) {
@@ -92,7 +92,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 						);
 					}
 				}
-			} );
+			}
 
 			return <div>{ results }</div>;
 		}
