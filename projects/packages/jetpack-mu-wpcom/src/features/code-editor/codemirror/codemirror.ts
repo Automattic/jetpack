@@ -9,5 +9,3 @@ export * as State from '@codemirror/state';
 export * as View from '@codemirror/view';
 export { syntaxHighlightingStyle } from './syntax-highlighting-style.ts';
 export { theme } from './improved-code-editor-theme.ts';
-
-// import './block-html-parser.ts';

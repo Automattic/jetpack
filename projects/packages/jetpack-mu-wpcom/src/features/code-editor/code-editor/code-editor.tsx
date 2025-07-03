@@ -1,25 +1,24 @@
+// eslint-disable-next-line jsdoc/check-tag-names
+/** @jsxRuntime classic */
 /**
  * Load a featureful editor in the "code editor" view of the Block and Site Editors.
+ *
+ * The dependcency extraction webpack plugin with modules does not like the jsx-runtime import.
  */
-
-// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-import { __unstableSerializeAndClean } from '@wordpress/blocks';
-import { Button, VisuallyHidden } from '@wordpress/components';
-import { useInstanceId } from '@wordpress/compose';
-import { store as coreStore } from '@wordpress/core-data';
-import { useDispatch, useSelect } from '@wordpress/data';
-import {
-	store as editorStore,
-	PostTitleRaw,
-	privateApis as editorPrivateApis,
-} from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
-import { store as keyboardShortcutsStore } from '@wordpress/keyboard-shortcuts';
-import { registerPlugin } from '@wordpress/plugins';
-import { __dangerousOptInToUnstableAPIsOnlyForCoreModules } from '@wordpress/private-apis';
-import * as React from 'react';
 import type { EditorView } from '@codemirror/view';
 import type { JSX } from 'react';
+
+const React = window.React;
+const { __unstableSerializeAndClean } = window.wp.blocks;
+const { Button, VisuallyHidden } = window.wp.components;
+const { useInstanceId } = window.wp.compose;
+const { store: coreStore } = window.wp.coreData;
+const { useDispatch, useSelect } = window.wp.data;
+const { store: editorStore, PostTitleRaw, privateApis: editorPrivateApis } = window.wp.editor;
+const { __ } = window.wp.i18n;
+const { store: keyboardShortcutsStore } = window.wp.keyboardShortcuts;
+const { registerPlugin } = window.wp.plugins;
+const { __dangerousOptInToUnstableAPIsOnlyForCoreModules } = window.wp.privateApis;
 
 const isSiteEditor = !! document.querySelector( '#site-editor.edit-site' );
 
