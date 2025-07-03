@@ -28,7 +28,7 @@ import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../..
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
-import type { FC, ReactNode, SVGProps } from 'react';
+import type { FC, ReactNode, Ref, SVGProps } from 'react';
 
 type CurveType = 'smooth' | 'linear' | 'monotone';
 
@@ -196,7 +196,7 @@ const validateData = ( data: SeriesData[] ) => {
 
 // Inner component to access DataContext and provide scale data to ref
 const LineChartScalesRef: FC< {
-	chartRef?: React.Ref< LineChartRef >;
+	chartRef?: Ref< LineChartRef >;
 	width: number;
 	height: number;
 	margin?: { top?: number; right?: number; bottom?: number; left?: number };

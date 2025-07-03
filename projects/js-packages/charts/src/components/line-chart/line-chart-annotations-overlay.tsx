@@ -5,9 +5,10 @@ import styles from './line-chart.module.scss';
 import type { LineChartRef } from './line-chart';
 import type { LineChartAnnotationProps } from './line-chart-annotation';
 import type { AxisScale } from '@visx/axis';
+import type { FC, RefObject } from 'react';
 
 interface LineChartAnnotationsProps {
-	chartRef: React.RefObject< LineChartRef >;
+	chartRef: RefObject< LineChartRef >;
 	annotations: LineChartAnnotationProps[];
 	chartWidth: number;
 	chartHeight: number;
@@ -18,7 +19,7 @@ interface ScaleData {
 	yScale: AxisScale< number >;
 }
 
-const LineChartAnnotations: React.FC< LineChartAnnotationsProps > = ( {
+const LineChartAnnotations: FC< LineChartAnnotationsProps > = ( {
 	chartRef,
 	annotations,
 	chartWidth,

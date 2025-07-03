@@ -8,7 +8,7 @@ import {
 } from '@visx/annotation';
 import { DataContext } from '@visx/xychart';
 import { merge } from 'lodash';
-import React, { useContext, useRef, useEffect, useState, useMemo } from 'react';
+import { useContext, useRef, useEffect, useState, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import type { DataPointDate } from '../../types';
 import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
@@ -42,7 +42,7 @@ export type LineChartAnnotationProps = {
 	subjectType?: SubjectType;
 	styles?: AnnotationStyles;
 	testId?: string;
-	renderLabel?: React.FC< { title: string; subtitle: string } >;
+	renderLabel?: FC< { title: string; subtitle: string } >;
 };
 
 export const getLabelPosition = ( {
