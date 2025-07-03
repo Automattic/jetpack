@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Masterbar;
 use Automattic\Jetpack\Admin_UI\Admin_Menu as Jetpack_Admin_UI_Admin;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
-use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/class-base-admin-menu.php';
 
