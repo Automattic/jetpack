@@ -3125,7 +3125,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/waf",
-				"reference": "6c1f8b69d0e51a1ba39f1f5c0008f00e5f432a3c"
+				"reference": "a115c798add296ed390ca32b215b7ad179fb5fb6"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -3153,7 +3153,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.25.x-dev"
+					"dev-trunk": "0.26.x-dev"
 				}
 			},
 			"autoload": {
