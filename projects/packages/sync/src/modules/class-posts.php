@@ -777,7 +777,7 @@ class Posts extends Module {
 					$widget_data = array(
 						'name'  => $wp_registered_widgets[ $key ]['name'],
 						'id'    => $key,
-						'title' => $value['value']['title'],
+						'title' => isset( $value['value']['title'] ) ? $value['value']['title'] : '',
 					);
 					do_action( 'jetpack_widget_edited', $widget_data );
 				}
