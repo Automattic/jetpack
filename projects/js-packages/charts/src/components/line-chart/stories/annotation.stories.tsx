@@ -1,4 +1,4 @@
-import React, { useId, useRef, useEffect, useState } from 'react';
+import React from 'react';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import sampleData from './sample-data';
@@ -145,130 +145,94 @@ Colored.args = {
 	],
 };
 
-const CustomLabel = ( { title, subtitle }: { title: string; subtitle: string } ) => {
-	const popoverId = useId();
-	const buttonRef = useRef< HTMLButtonElement >( null );
-	const popoverRef = useRef< HTMLDivElement >( null );
-	const [ isPositioned, setIsPositioned ] = useState( false );
-
-	useEffect( () => {
-		const button = buttonRef.current;
-		const popover = popoverRef.current;
-
-		if ( ! button || ! popover ) return;
-
-		const positionPopover = () => {
-			const buttonRect = button.getBoundingClientRect();
-			popover.style.left = `${ buttonRect.right + 10 }px`;
-			popover.style.top = `${ buttonRect.top }px`;
-			setIsPositioned( true );
-		};
-
-		// Position when popover shows
-		popover.addEventListener( 'toggle', e => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			if ( ( e as any ).newState === 'open' ) {
-				positionPopover();
-			}
-		} );
-
-		// Initial positioning if already open
-		if ( popover.matches( ':popover-open' ) ) {
-			positionPopover();
-		}
-	}, [] );
-
-	return (
-		<div
-			style={ {
-				pointerEvents: 'auto',
-				transform: 'translate(15px, 0)',
-			} }
-		>
-			<button
-				ref={ buttonRef }
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				{ ...( { popovertarget: popoverId } as any ) }
-				style={ {
-					pointerEvents: 'auto',
-					cursor: 'pointer',
-					background: 'black',
-					border: 'none',
-					borderRadius: '50%',
-					color: 'white',
-					width: '30px',
-					height: '30px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-				} }
-			>
-				D
-			</button>
-			<div
-				ref={ popoverRef }
-				id={ popoverId }
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				{ ...( { popover: 'auto' } as any ) }
-				style={
-					{
-						width: '125px',
-						borderRadius: '2px',
-						padding: '10px',
-						background: 'white',
-						boxShadow: '0 2px 5px 0 rgba(0, 0, 0, 0.1)',
-						border: 'none',
-						position: 'fixed',
-						visibility: isPositioned ? 'visible' : 'hidden',
-						margin: 0,
-					} as React.CSSProperties
-				}
-			>
-				<div
-					style={ {
-						display: 'flex',
-						flexDirection: 'row',
-						justifyContent: 'space-between',
-						alignItems: 'start',
-						gap: '10px',
-						marginBottom: '8px',
-					} }
-				>
-					<h4 style={ { margin: 0 } }>{ title }</h4>
-					<button
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						{ ...( { popovertarget: popoverId, popovertargetaction: 'hide' } as any ) }
-						style={ {
-							background: 'none',
-							border: 'none',
-							cursor: 'pointer',
-							fontSize: '16px',
-							width: '24px',
-							height: '24px',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-						} }
-					>
-						×
-					</button>
-				</div>
-				<p style={ { margin: 0 } }>{ subtitle }</p>
-			</div>
-		</div>
-	);
-};
-
-const renderTopLabel = ( { title, subtitle }: { title: string; subtitle: string } ) => (
-	<CustomLabel title={ title } subtitle={ subtitle } />
-);
-
-const customTopAnnotationArgs = {
+const customTopAnnotationArgs: Partial< LineChartAnnotationProps > = {
 	subjectType: 'line-vertical',
 	styles: {
 		label: { showAnchorLine: false, y: 'start' },
 	},
-	renderLabel: renderTopLabel,
+	title: 'Deployed',
+	renderLabel: () => (
+		<div
+			style={ {
+				background: 'black',
+				color: 'white',
+				width: '24px',
+				height: '24px',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				borderRadius: '50%',
+				transform: 'translate(0, 6px)',
+			} }
+		>
+			D
+		</div>
+	),
+	renderLabelPopover: ( { title } ) => <h4>{ title }</h4>,
+};
+
+const customBottomAnnotationArgs: Partial< LineChartAnnotationProps > = {
+	subjectType: 'circle',
+	styles: {
+		circleSubject: {
+			radius: 0,
+		},
+		label: {
+			showAnchorLine: false,
+		},
+		connector: {
+			stroke: 'transparent',
+		},
+	},
+	title: 'Alert',
+	renderLabel: () => (
+		<div
+			style={ {
+				background: 'var(--jp-red)',
+				color: 'white',
+				width: '20px',
+				height: '20px',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				borderRadius: '50%',
+			} }
+		>
+			<strong>!</strong>
+		</div>
+	),
+	renderLabelPopover: () => (
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '10px' } }>
+			<h4
+				style={ {
+					margin: 0,
+					display: 'flex',
+					alignItems: 'center',
+					gap: '6px',
+					lineHeight: '22px',
+				} }
+			>
+				<span
+					style={ {
+						background: 'var(--jp-red)',
+						color: 'white',
+						width: '20px',
+						height: '20px',
+						display: 'inline-flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						borderRadius: '50%',
+					} }
+				>
+					<strong>!</strong>
+				</span>
+				Origin HTTP 5xx Response Codes Rate Anomaly [Beta]
+			</h4>
+			<p style={ { margin: 0 } }>
+				Unusually high number of HTTP 5xx response codes detected on Origin
+			</p>
+		</div>
+	),
 };
 
 export const CustomVertical: StoryObj< typeof LineChart > = Template.bind( {} );
@@ -285,17 +249,7 @@ CustomVertical.args = {
 		},
 		{
 			...annotations[ 2 ],
-			subjectType: 'circle',
-			dx: 0,
-			styles: {
-				circleSubject: {
-					radius: 0,
-				},
-				label: {
-					showAnchorLine: false,
-				},
-			},
-			renderLabel: renderTopLabel,
+			...customBottomAnnotationArgs,
 		},
 	],
 };

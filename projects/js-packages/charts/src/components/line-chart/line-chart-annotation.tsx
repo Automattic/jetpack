@@ -10,6 +10,7 @@ import { DataContext } from '@visx/xychart';
 import { merge } from 'lodash';
 import { useContext, useRef, useEffect, useState, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
+import LineChartAnnotationLabelWithPopover from './line-chart-annotation-label-popover';
 import type { DataPointDate } from '../../types';
 import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
 import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
@@ -44,7 +45,8 @@ export type LineChartAnnotationProps = {
 	subjectType?: SubjectType;
 	styles?: AnnotationStyles;
 	testId?: string;
-	renderLabel?: FC< { title: string; subtitle: string } >;
+	renderLabel?: FC< { title: string; subtitle?: string } >;
+	renderLabelPopover?: FC< { title: string; subtitle?: string } >;
 };
 
 export const getLabelPosition = ( {
@@ -186,6 +188,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	styles: datumStyles,
 	testId,
 	renderLabel,
+	renderLabelPopover,
 } ) => {
 	const providerTheme = useChartTheme();
 	const { xScale, yScale } = useContext( DataContext ) || {};
@@ -329,7 +332,16 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 				{ renderLabel ? (
 					<HtmlLabel { ...styles?.label } { ...labelPosition }>
 						<div style={ htmlLabelSafariPositionAdjustment }>
-							{ renderLabel( { title, subtitle } ) }
+							{ renderLabelPopover ? (
+								<LineChartAnnotationLabelWithPopover
+									title={ title }
+									subtitle={ subtitle }
+									renderLabel={ renderLabel }
+									renderLabelPopover={ renderLabelPopover }
+								/>
+							) : (
+								renderLabel( { title, subtitle } )
+							) }
 						</div>
 					</HtmlLabel>
 				) : (

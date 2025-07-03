@@ -133,14 +133,7 @@ const LineChartAnnotations: FC< LineChartAnnotationsProps > = ( {
 					<LineChartAnnotation
 						key={ `overlay-annotation-${ index }` }
 						testId={ `overlay-annotation-${ index }` }
-						datum={ annotation.datum }
-						title={ annotation.title }
-						subtitle={ annotation.subtitle }
-						subjectType={ annotation.subjectType }
-						styles={ annotation.styles }
-						dx={ annotation.dx }
-						dy={ annotation.dy }
-						renderLabel={ annotation.renderLabel }
+						{ ...annotation }
 					/>
 				) ) }
 			</svg>
