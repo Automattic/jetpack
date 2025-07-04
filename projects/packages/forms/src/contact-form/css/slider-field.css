@@ -2,17 +2,18 @@
 	display: flex;
 	align-items: center;
 	width: 100%;
-	gap: .5em;
+	gap: 12px;
+	margin-top: 30px;
 }
 
 .jetpack-slider-input__min-label,
 .jetpack-slider-input__max-label {
-	font-size: 0.85em;
-	color: #444;
+	font-size: .9em;
 	text-align: center;
 }
 
 .jetpack-slider-input__input-container {
+	display: flex;
 	flex: 1 1 auto;
 	min-width: 0;
 	position: relative;
@@ -28,7 +29,7 @@
 	-webkit-appearance: none;
 	appearance: none;
 	height: 2px;
-	background: #e0e0e0;
+	background: var(--jetpack--contact-form--button-primary--background-color);
 	outline: none;
 	border-radius: 2px;
 	transition: background 0.3s;
@@ -45,7 +46,7 @@
 	appearance: none;
 	width: 12px;
 	height: 12px;
-	background: #000;
+	background: var(--jetpack--contact-form--button-primary--background-color);
 	border-radius: 50%;
 	cursor: pointer;
 	transition: background 0.3s;
@@ -53,51 +54,55 @@
 }
 
 .grunion-field-slider-wrap input[type="range"]:focus::-webkit-slider-thumb {
-	background: #000;
+	background: var(--jetpack--contact-form--button-primary--background-color);
 }
 
 .grunion-field-slider-wrap input[type="range"]::-moz-range-thumb {
 	width: 12px;
 	height: 12px;
-	background: #000;
+	background: var(--jetpack--contact-form--button-primary--background-color);;
 	border-radius: 50%;
 	cursor: pointer;
 	transition: background 0.3s;
-	box-shadow: 0 0 2px rgba(0,0,0,0.2);
+
+	/* box-shadow: 0 0 2px rgba(0,0,0,0.2); */
 }
 
 .grunion-field-slider-wrap input[type="range"]:focus::-moz-range-thumb {
-	background: #000;
+	background: var(--jetpack--contact-form--button-primary--background-color);
 }
 
 .grunion-field-slider-wrap input[type="range"]::-ms-thumb {
 	width: 12px;
 	height: 12px;
-	background: #000;
+	background: var(--jetpack--contact-form--button-primary--background-color);
 	border-radius: 50%;
 	cursor: pointer;
 	transition: background 0.3s;
-	box-shadow: 0 0 2px rgba(0,0,0,0.2);
 }
 
 .grunion-field-slider-wrap input[type="range"]::-ms-fill-lower,
 .grunion-field-slider-wrap input[type="range"]::-ms-fill-upper,
 .grunion-field-slider-wrap input[type="range"]:focus::-ms-fill-lower,
 .grunion-field-slider-wrap input[type="range"]:focus::-ms-fill-upper {
-	background: #000;
+	background: var(--jetpack--contact-form--button-primary--background-color);
 }
 
 .jetpack-slider-input__value-indicator {
 	position: absolute;
-	top: -2.2em; /* Adjust as needed to sit above the slider */
+	top: -32px; /* Adjust as needed to sit above the slider */
 	left: 0;
 	transform: translateX(-50%);
-	pointer-events: none;
-	background: #fff;
+
+	/* pointer-events: none; */
+	background: var(--jetpack--contact-form--button-primary--background-color);
+	color: var(--jetpack--contact-form--button-primary--color);
+	border-radius: 8px;
 	padding: 2px 8px;
-	border-radius: 4px;
-	font-size: 0.95em;
-	box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-	white-space: nowrap;
+	font-size: 0.7em;
+
+	/* box-shadow: 0 2px 6px rgba(0,0,0,0.08); */
+
+	/* white-space: nowrap; */
 	z-index: 2;
 }
