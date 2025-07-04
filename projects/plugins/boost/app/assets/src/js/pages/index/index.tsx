@@ -98,6 +98,7 @@ const Index = () => {
 						<Upgraded />
 					</>
 				}
+				worksOffline={ false }
 				onEnable={ requestRegenerateCriticalCss }
 				description={
 					<>
@@ -162,6 +163,7 @@ const Index = () => {
 						{ hasPremiumCdnFeatures && <Upgraded /> }
 					</>
 				}
+				worksOffline={ false }
 				description={
 					<p>
 						{ __(
@@ -190,6 +192,7 @@ const Index = () => {
 				<Module
 					slug="image_size_analysis"
 					toggle={ false }
+					worksOffline={ false }
 					title={
 						<>
 							{ __( 'Image Size Analysis', 'jetpack-boost' ) }

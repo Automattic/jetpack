@@ -277,8 +277,10 @@ class Post_Connection_JITM extends JITM {
 			sprintf( '/sites/%d/jitm/%s', $site_id, $message_path )
 		);
 
+		$cache_key = 'jetpack_jitm_' . substr( md5( $path ), 0, 31 );
+
 		// Attempt to get from cache.
-		$envelopes = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
+		$envelopes = get_transient( $cache_key );
 
 		// If something is in the cache and it was put in the cache after the last sync we care about, use it.
 		$use_cache = false;
@@ -339,8 +341,7 @@ class Post_Connection_JITM extends JITM {
 			// Do not cache if expiration is 0 or we're not using the cache.
 			if ( 0 !== $expiration && $use_cache ) {
 				$envelopes['last_response_time'] = time();
-
-				set_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ), $envelopes, $expiration );
+				set_transient( $cache_key, $envelopes, $expiration );
 			}
 		}
 

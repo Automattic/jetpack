@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+General: Update UI to show some features are unavailable if the website is offline.

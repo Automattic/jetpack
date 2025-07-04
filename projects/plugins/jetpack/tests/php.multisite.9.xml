@@ -26,7 +26,6 @@
 		</testsuite>
 		<testsuite name="photon">
 			<directory suffix="Test.php">php/modules/photon</directory>
-			<file>php/Functions_OpenGraph_Test.php</file>
 		</testsuite>
 		<testsuite name="json-api">
 			<file>php/json-api/Jetpack_Json_Api_Endpoints_Test.php</file>
@@ -62,6 +61,9 @@
 		</testsuite>
 		<testsuite name="restapi">
 			<directory prefix="Jetpack_REST_API" suffix=".php">php/_inc/lib</directory>
+		</testsuite>
+		<testsuite name="opengraph">
+			<file>php/Functions_OpenGraph_Test.php</file>
 		</testsuite>
 		<testsuite name="autoloaded">
 			<directory suffix="Test.php">php/src</directory>

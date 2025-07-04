@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Concatenate JS/CSS: Add cleanup for expired options in the database.

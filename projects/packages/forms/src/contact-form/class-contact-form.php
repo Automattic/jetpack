@@ -1009,7 +1009,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 					} elseif ( is_bool( $val ) ) {
 						$att_strs[] = esc_html( $att ) . '="' . ( $val ? '1' : '' ) . '"';
 					} else {
-						$att_strs[] = esc_html( $att ) . '="' . self::esc_shortcode_val( $val ) . '"';
+						// NOTE: we need to avoid messing with styles as CSS can have complex syntax.
+						$att_strs[] = esc_html( $att ) . '="' .
+							( str_ends_with( $att, 'styles' ) ? $val : self::esc_shortcode_val( $val ) ) . '"';
 					}
 				}
 			}

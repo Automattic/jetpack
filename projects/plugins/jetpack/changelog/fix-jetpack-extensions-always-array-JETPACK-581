@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Blocks: return an error when a filter returns a non-array

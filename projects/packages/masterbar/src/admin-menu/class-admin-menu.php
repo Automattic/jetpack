@@ -449,7 +449,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'jetpack' ) ) {
 			$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
 			$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-			$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 		}
 
 		if ( ! $is_menu_updated ) {

@@ -7,10 +7,10 @@
 // Import jest-fetch-mock to mock fetch API calls.
 import apiFetch from '@wordpress/api-fetch';
 import { select, dispatch } from '@wordpress/data';
-import { waitFor } from '../../wait-for';
 import { addPexelsToMediaInserter, addGooglePhotosToMediaInserter } from '../media-service/index';
+import { waitFor } from '../utils/wait-for';
 
-jest.mock( '../../wait-for' );
+jest.mock( '../utils/wait-for' );
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '@wordpress/data/build/select' );
 jest.mock( '@wordpress/data/build/dispatch' );

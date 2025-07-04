@@ -1,4 +1,3 @@
-import SearchCard from 'components/search-card';
 import { PureComponent } from 'react';
 import Search from 'components/search';
 
@@ -17,8 +16,6 @@ class SearchDemo extends PureComponent {
 					<a href="/devdocs/design/search">Search</a>
 				</h2>
 				<Search onSearch={ noop } placeholder="Placeholder text..." />
-				<h2>Search Card</h2>
-				<SearchCard onSearch={ noop } placeholder="Placeholder text..." />
 			</div>
 		);
 	}

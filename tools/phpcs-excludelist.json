@@ -57,7 +57,6 @@
 	"projects/plugins/crm/admin/user-profile/main.page.php",
 	"projects/plugins/crm/admin/user-profile/reminders.page.php",
 	"projects/plugins/crm/admin/user-profile/user-profile.page.php",
-	"projects/plugins/crm/api/companies.php",
 	"projects/plugins/crm/api/create_company.php",
 	"projects/plugins/crm/api/create_customer.php",
 	"projects/plugins/crm/api/create_event.php",
