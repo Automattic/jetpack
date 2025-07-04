@@ -236,16 +236,4 @@ class Atomic_Admin_Menu_Test extends TestCase {
 
 		$this->assertContains( 'https://wordpress.com/github-deployments/' . static::$domain, $links );
 	}
-
-	/**
-	 * Tests add_jetpack_scan_menu
-	 */
-	public function test_add_jetpack_scan_submenu() {
-		global $submenu;
-
-		static::$admin_menu->add_jetpack_menu();
-		$links = wp_list_pluck( array_values( $submenu['jetpack'] ), 2 );
-
-		$this->assertContains( 'https://wordpress.com/scan/' . static::$domain, $links );
-	}
 }

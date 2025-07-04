@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Add missing JS deps (that were dependency-extracted) for eslint, and fix a broken import. No change to functionality.
+
+

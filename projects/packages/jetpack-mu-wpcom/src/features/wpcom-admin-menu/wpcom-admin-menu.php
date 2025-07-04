@@ -7,6 +7,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu as Jetpack_Admin_UI_Admin;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -200,6 +201,33 @@ function wpcom_add_hosting_menu() {
 add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
 
 /**
+ * Register the submenu items for Jetpack menu.
+ *
+ * We require a separate function for this because the priority needs to be 999.
+ *
+ * @return void
+ */
+function wpcom_add_untangled_jetpack_menu() {
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+
+	Jetpack_Admin_UI_Admin::add_menu(
+		esc_attr__( 'Scan', 'jetpack-mu-wpcom' ),
+		__( 'Scan', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'https://wordpress.com/scan/' . $domain,
+		/**
+		 * Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		 */
+		null,
+		5
+	);
+}
+
+add_action( 'admin_menu', 'wpcom_add_untangled_jetpack_menu', 999 );
+
+/**
  * Adds WordPress.com submenu items related to Jetpack under the Jetpack admin menu.
  */
 function wpcom_add_jetpack_submenu() {
@@ -232,7 +260,6 @@ function wpcom_add_jetpack_submenu() {
 	$monetize_url     = 'https://wordpress.com/earn/' . $domain;
 	$subscribers_url  = 'https://wordpress.com/subscribers/' . $domain;
 	$newsletter_url   = 'https://wordpress.com/settings/newsletter/' . $domain;
-	$scan_url         = 'https://wordpress.com/scan/' . $domain;
 	$podcasting_url   = 'https://wordpress.com/settings/podcasting/' . $domain;
 
 	// Add submenu items that link to WordPress.com.
@@ -262,17 +289,6 @@ function wpcom_add_jetpack_submenu() {
 		$monetize_url,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
-
-	if ( $is_atomic_site ) {
-		add_submenu_page(
-			'jetpack',
-			__( 'Scan', 'jetpack-mu-wpcom' ),
-			__( 'Scan', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			$scan_url,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
-	}
 
 	if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
 		add_submenu_page(
@@ -322,7 +338,6 @@ function wpcom_add_jetpack_submenu() {
 		$vaultpress_url,
 		'akismet-key-config',
 		'jetpack-search',
-		$scan_url,
 		$monetize_url,
 		$subscribers_url,
 	);

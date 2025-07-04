@@ -1,13 +1,13 @@
 /*eslint lodash/import-scope: [2, "method"]*/
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import pick from 'lodash/pick';
 import {
 	removeUpdatingNotice,
 	updatingNotice,
 	errorNotice,
 	successNotice,
 } from 'components/global-notices/store/actions';
-import pick from 'lodash/pick';
 import { STORE_ID } from '../../store';
 import {
 	fetchJetpackSettings,

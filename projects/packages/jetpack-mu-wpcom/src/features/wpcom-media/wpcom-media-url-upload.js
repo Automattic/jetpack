@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import WpcomMediaUrlUploadForm from './wpcom-media-url-upload-form';
 
 const props = typeof window === 'object' ? window.JETPACK_MU_WPCOM_MEDIA_URL_UPLOAD : {};
@@ -12,7 +12,7 @@ const selectors = {
 const insertWpcomMediaUrlUploadForm = () => {
 	const container = document.getElementById( selectors.WPCOM_MEDIA_URL_UPLOAD_CONTAINER );
 	if ( container ) {
-		const root = ReactDOM.createRoot( container );
+		const root = createRoot( container );
 		root.render( <WpcomMediaUrlUploadForm { ...props } /> );
 	}
 };
