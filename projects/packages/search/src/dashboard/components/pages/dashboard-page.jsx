@@ -15,7 +15,6 @@ import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
-import React from 'react';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
 import PlanUsageSection from './sections/plan-usage-section';
@@ -27,7 +26,7 @@ import './dashboard-page.scss';
  * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
  *
- * @return {React.Component} Search dashboard component.
+ * @return {import('react').Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );

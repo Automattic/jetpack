@@ -31,14 +31,16 @@ const Card = props => {
 			onMouseEnter={ onMouseEnter }
 			onMouseLeave={ onMouseLeave }
 		>
-			<div className={ styles.title }>
-				<div className={ styles.name }>
-					<Text variant="title-medium" id={ titleId || null }>
-						{ title }
-					</Text>
+			{ title && (
+				<div className={ styles.title }>
+					<div className={ styles.name }>
+						<Text variant="title-medium" id={ titleId || null }>
+							{ title }
+						</Text>
+					</div>
+					{ headerRightContent }
 				</div>
-				{ headerRightContent }
-			</div>
+			) }
 			{ children }
 		</CardWrapper>
 	);
@@ -46,7 +48,7 @@ const Card = props => {
 
 Card.propTypes = {
 	children: PropTypes.node,
-	title: PropTypes.string.isRequired,
+	title: PropTypes.string,
 	className: PropTypes.string,
 	headerRightContent: PropTypes.node,
 	onMouseEnter: PropTypes.func,

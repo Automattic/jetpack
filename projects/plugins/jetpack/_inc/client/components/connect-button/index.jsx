@@ -6,7 +6,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getFragment } from '@wordpress/url';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
@@ -44,7 +44,7 @@ import JetpackBenefits from '../jetpack-benefits';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
 import './style.scss';
 
-export class ConnectButton extends React.Component {
+export class ConnectButton extends Component {
 	static displayName = 'ConnectButton';
 
 	static propTypes = {

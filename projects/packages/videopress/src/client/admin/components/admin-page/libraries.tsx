@@ -6,7 +6,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
@@ -23,6 +23,7 @@ import styles from './styles.module.scss';
  * Types
  */
 import { LocalLibraryProps, VideoLibraryProps } from './types';
+import type { ReactNode } from 'react';
 
 const LIBRARY_TYPE_LOCALSORAGE_KEY = 'videopress-library-type';
 
@@ -42,7 +43,7 @@ export const VideoLibraryWrapper = ( {
 	title,
 	disabled,
 }: {
-	children: React.ReactNode;
+	children: ReactNode;
 	libraryType?: LibraryType;
 	totalVideos?: number;
 	onChangeType?: () => void;

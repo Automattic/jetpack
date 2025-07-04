@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
 import useProductCheckoutWorkflow from '../../../hooks/use-product-checkout-workflow';
 import useConnection from '../../use-connection';
 import ConnectScreenRequiredPlanVisual from './visual';
@@ -9,7 +8,7 @@ import ConnectScreenRequiredPlanVisual from './visual';
  * The Connection Screen Visual component for consumers that require a Plan.
  *
  * @param {object} props -- The properties.
- * @return {React.Component} The `ConnectScreenForRequiredPlan` component.
+ * @return {import('react').Component} The `ConnectScreenForRequiredPlan` component.
  */
 const ConnectScreenRequiredPlan = props => {
 	const {

@@ -5,12 +5,6 @@
 // Daterangepicker styles
 @use 'daterangepicker/daterangepicker';
 
-// Daterangepicker fix
-@use '../../../sass/daterangepicker.fix' as daterangepicker2;
-
-// Daterangepicker dirty fix
-@use '../../../sass/daterangepicker.dirty.fix' as daterangepicker3;
-
  .zbs-invoice-list{
 
     .paid {

@@ -6,11 +6,11 @@ import clsx from 'clsx';
 import { availableNetworks } from './available-networks';
 import styles from './styles.module.scss';
 import { useShareButtonText } from './useShareButtonText';
-import type React from 'react';
+import type { ComponentProps, JSX, MouseEvent } from 'react';
 
 export type ShareButtonsProps = {
 	buttonStyle?: 'icon' | 'text' | 'icon-text';
-	buttonVariant?: React.ComponentProps< typeof Button >[ 'variant' ];
+	buttonVariant?: ComponentProps< typeof Button >[ 'variant' ];
 };
 
 /**
@@ -18,7 +18,7 @@ export type ShareButtonsProps = {
  *
  * @param {ShareButtonsProps} props - Component props
  *
- * @return {React.JSX.Element} - Rendered component
+ * @return {JSX.Element} - Rendered component
  */
 export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButtonsProps ) {
 	const prepareText = useShareButtonText();
@@ -36,7 +36,7 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 
 	const getOnClick = useCallback(
 		function ( url: string, data?: unknown ) {
-			return function onClick( event: React.MouseEvent< HTMLAnchorElement > ) {
+			return function onClick( event: MouseEvent< HTMLAnchorElement > ) {
 				event.preventDefault();
 
 				recordEvent( 'jetpack_social_share_button_clicked', data );

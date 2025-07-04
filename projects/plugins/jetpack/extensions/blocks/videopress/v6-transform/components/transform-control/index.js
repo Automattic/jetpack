@@ -7,7 +7,6 @@ import { createBlock } from '@wordpress/blocks';
 import { Button, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { ReactElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -61,7 +60,7 @@ const getAllCoreVideoVideoPressVideoBlocks = ( blocks = [], root = false, level 
  * @param {object} props            - Component props
  * @param {string} props.clientId   - Block client ID
  * @param {object} props.attributes - Block attributes
- * @return {ReactElement} Transform panel component.
+ * @return {import('react').ReactElement} Transform panel component.
  */
 export default function TransformControl( {
 	clientId: currentBlockClientId,

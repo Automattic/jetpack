@@ -4,7 +4,7 @@
 import { aiAssistantIcon, LANGUAGE_MAP, PROMPT_TONES_MAP } from '@automattic/jetpack-ai-client';
 import { RangeControl, Button, BaseControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -65,7 +65,7 @@ export function AiExcerptControl( {
 	tone,
 	onToneChange,
 }: AiExcerptControlProps ) {
-	const [ isSettingActive, setIsSettingActive ] = React.useState( false );
+	const [ isSettingActive, setIsSettingActive ] = useState( false );
 
 	function toggleSetting() {
 		setIsSettingActive( prev => ! prev );

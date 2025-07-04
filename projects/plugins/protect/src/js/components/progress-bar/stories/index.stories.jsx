@@ -1,4 +1,3 @@
-import React from 'react';
 import ProgressBar from '../index.jsx';
 
 export default {

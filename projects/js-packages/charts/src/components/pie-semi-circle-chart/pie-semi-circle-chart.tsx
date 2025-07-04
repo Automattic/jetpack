@@ -13,7 +13,7 @@ import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
-import type { FC } from 'react';
+import type { FC, MouseEvent } from 'react';
 
 interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -91,7 +91,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 		useTooltip< DataPointPercentage >();
 
 	const handleMouseMove = useCallback(
-		( event: React.MouseEvent, arc: ArcData ) => {
+		( event: MouseEvent, arc: ArcData ) => {
 			const coords = localPoint( event );
 			if ( ! coords ) return;
 
@@ -109,7 +109,7 @@ const PieSemiCircleChart: FC< PieSemiCircleChartProps > = ( {
 	}, [ hideTooltip ] );
 
 	const handleArcMouseMove = useCallback(
-		( arc: ArcData ) => ( event: React.MouseEvent ) => {
+		( arc: ArcData ) => ( event: MouseEvent ) => {
 			handleMouseMove( event, arc );
 		},
 		[ handleMouseMove ]

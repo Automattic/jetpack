@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Ads
- * Module Description: Earn income by allowing Jetpack to display high quality ads.
+ * Module Description: Earn revenue by displaying high‑quality ads on your site.
  * Sort Order: 1
  * First Introduced: 4.5.0
  * Requires Connection: Yes

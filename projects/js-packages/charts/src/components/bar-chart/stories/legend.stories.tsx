@@ -1,4 +1,3 @@
-import React from 'react';
 import { legendArgTypes, legendDecorator } from '../../../stories/legend-config';
 import { BarChart } from '../../bar-chart';
 import sampleData from './sample-data';

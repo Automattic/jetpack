@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component, Children } from 'react';
 
-class Hider extends React.Component {
+class Hider extends Component {
 	static displayName = 'Hider';
 
 	static propTypes = {
@@ -20,7 +20,7 @@ class Hider extends React.Component {
 	}
 }
 
-class FilterSummary extends React.Component {
+class FilterSummary extends Component {
 	static defaultProps = {
 		noResultsText: 'No Results Found',
 	};
@@ -37,7 +37,7 @@ class FilterSummary extends React.Component {
 	}
 }
 
-export default class Collection extends React.Component {
+export default class Collection extends Component {
 	static displayName = 'Collection';
 
 	shouldWeHide = example => {
@@ -64,7 +64,7 @@ export default class Collection extends React.Component {
 	};
 
 	render() {
-		const examples = React.Children.map( this.props.children, example => {
+		const examples = Children.map( this.props.children, example => {
 			return (
 				<Hider hide={ this.shouldWeHide( example ) } key={ 'example-' + example.type.displayName }>
 					{ example }

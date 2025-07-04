@@ -1,14 +1,9 @@
-/*
-	External dependencies
-*/
 import { Icon, chevronRight } from '@wordpress/icons';
-/*
-	Internal dependencies
-*/
 import './style.scss';
+import type { ReactNode } from 'react';
 
 type DetailsProps = {
-	children: React.ReactNode;
+	children: ReactNode;
 	summary: string;
 };
 
