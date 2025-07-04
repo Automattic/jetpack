@@ -10,6 +10,8 @@ export const javascriptFiles = [
 	'**/*.mjs',
 	'**/*.ts',
 	'**/*.tsx',
+	'**/*.cts',
+	'**/*.mts',
 	'**/*.svelte',
 ];
 
@@ -21,7 +23,7 @@ export const jsonFiles = [ '**/*.json', '**/*.jsonc', '**/*.json5' ];
 /**
  * File patterns for files treated as TypeScript.
  */
-export const typescriptFiles = [ '**/*.ts', '**/*.tsx' ];
+export const typescriptFiles = [ '**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts' ];
 
 /**
  * File patterns for files treated as Jest.

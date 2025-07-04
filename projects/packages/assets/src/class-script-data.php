@@ -116,6 +116,7 @@ class Script_Data {
 				'date_format'       => get_option( 'date_format' ),
 				'icon'              => self::get_site_icon(),
 				'is_multisite'      => is_multisite(),
+				'host'              => ( new Host() )->get_known_host_guess(),
 				'is_wpcom_platform' => ( new Host() )->is_wpcom_platform(),
 				'plan'              => array(
 					// The properties here should be updated by the consumer package/plugin.

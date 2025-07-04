@@ -33,7 +33,7 @@ jobs:
           path: monorepo
       - run: |
           mv monorepo /tmp/monorepo
-          sudo chown -R runneradmin:root /tmp/monorepo/
+          sudo chown -R 1000:root /tmp/monorepo/
       - name: Check rate limit pre-run
         env:
           TOKEN: ${{ secrets.RENOVATE_TOKEN }}

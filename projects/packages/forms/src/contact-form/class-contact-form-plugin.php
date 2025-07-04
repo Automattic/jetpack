@@ -470,6 +470,8 @@ class Contact_Form_Plugin {
 					$atts['labelclasses']                    .= isset( $label_attrs['class'] ) ? ' ' . $label_attrs['class'] : '';
 					$atts['labelstyles']                      = $label_attrs['style'] ?? null;
 					$add_block_style_classes_to_field_wrapper = true;
+
+					continue;
 				}
 
 				if ( 'jetpack/input' === $block_name ) {
@@ -491,6 +493,8 @@ class Contact_Form_Plugin {
 					$style_variation_data                     = self::get_style_variation_shortcode_attributes( $block_name, $inner_block['attrs'] );
 					$atts                                     = array_merge( $atts, $style_variation_data );
 					$add_block_style_classes_to_field_wrapper = true;
+
+					continue;
 				}
 
 				// The following handles when option blocks are a direct inner block for a field e.g. singular checkbox field.
@@ -501,6 +505,8 @@ class Contact_Form_Plugin {
 					$atts['optionclasses']                   .= isset( $option_attrs['class'] ) ? ' ' . $option_attrs['class'] : '';
 					$atts['optionstyles']                     = $option_attrs['style'] ?? null;
 					$add_block_style_classes_to_field_wrapper = true;
+
+					continue;
 				}
 
 				// The following handles choice fields such as; Single Choice Field (radio) or Multiple Choice Field (checkbox).
@@ -558,6 +564,16 @@ class Contact_Form_Plugin {
 					$style_variation_atts                     = self::get_style_variation_shortcode_attributes( $block_name, $inner_block['attrs'] );
 					$atts                                     = array_merge( $atts, $style_variation_atts );
 					$add_block_style_classes_to_field_wrapper = true;
+
+					continue;
+				}
+
+				if ( 'jetpack/rating-input' === $block_name ) {
+					$input_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
+					$atts['inputclasses'] = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
+					$atts['inputstyles']  = $input_attrs['style'] ?? null;
+
+					continue;
 				}
 			}
 
@@ -3059,5 +3075,19 @@ class Contact_Form_Plugin {
 		$item['title'] = ucfirst( wp_strip_all_tags( $title ) );
 
 		return $item;
+	}
+
+	/**
+	 * Render the rating field.
+	 *
+	 * @param array    $atts - the block attributes.
+	 * @param string   $content - html content.
+	 * @param WP_Block $block - the block instance object.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_rating( $atts, $content, $block ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'rating', $block );
+		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 }

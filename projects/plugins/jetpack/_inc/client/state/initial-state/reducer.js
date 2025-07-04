@@ -496,39 +496,6 @@ export function arePromotionsActive( state ) {
 }
 
 /**
- * Check if the site is an Automated Transfer site.
- *
- * @todo Deprecated soon for isWoASite();
- * @param {object} state - Global state tree.
- *
- * @return {boolean} True if this is an WoA site, false otherwise.
- */
-export function isAtomicSite( state ) {
-	return get( state.jetpack.initialState.siteData, 'isAtomicSite', false );
-}
-
-/**
- * Check if the site is a WordPress.com-on-Atomic site.
- *
- * @param {object} state - Global state tree.
- * @return {boolean} True if this is an WoA site, false otherwise.
- */
-export function isWoASite( state ) {
-	return get( state.jetpack.initialState.siteData, 'isWoASite', false );
-}
-
-/**
- * Check if the site is an Atomic-hosted site.
- * Examples include Jurassic Ninja, BlueHost on Atomic, etc.
- *
- * @param {object} state - Global state tree.
- * @return {boolean} True if this is an Atomic-hosted site, false otherwise.
- */
-export function isAtomicPlatform( state ) {
-	return get( state.jetpack.initialState.siteData, 'isAtomicPlatform', false );
-}
-
-/**
  * Get the current theme's stylesheet (slug).
  *
  * @param {object} state - Global state tree.
