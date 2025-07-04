@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import {
 	Text,
 	Button,
@@ -24,9 +21,6 @@ import {
 import clsx from 'clsx';
 import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router';
-/**
- * Internal dependencies
- */
 import ChaptersLearnMoreHelper from '../../../components/chapters-learn-more-helper';
 import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
 import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
@@ -51,6 +45,7 @@ import VideoThumbnail from '../video-thumbnail';
 import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
 import styles from './style.module.scss';
 import useEditDetails from './use-edit-details';
+import type { JSX } from 'react';
 
 const noop = () => {
 	// noop
@@ -255,7 +250,7 @@ const EditVideoDetails = () => {
 		navigate( '/' );
 	}
 
-	let thumbnail: string | React.JSX.Element = posterImage;
+	let thumbnail: string | JSX.Element = posterImage;
 
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
 		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;

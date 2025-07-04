@@ -16,7 +16,7 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { isArray, isEmpty, join } from 'lodash';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
@@ -75,7 +75,7 @@ function getStatusFilter( urlStatus ) {
 /**
  * The DataViews implementation.
  *
- * @return {React.JSX.Element} The DataViews component.
+ * @return {import('react').JSX.Element} The DataViews component.
  */
 export default function InboxView() {
 	const [ view, setView ] = useView();

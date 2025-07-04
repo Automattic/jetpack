@@ -4,7 +4,7 @@ import { Button, TextControl, SelectControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import ActivationScreenError from '../activation-screen-error';
 import { LICENSE_ERRORS } from '../activation-screen-error/constants';
 import './style.scss';
@@ -17,7 +17,7 @@ import './style.scss';
  * @param {boolean}  props.disabled  -- determines if input control is disabled.
  * @param {string}   props.value     -- the license code to edit or submit
  * @param {Function} props.onChange  -- function to handle changes to the value.
- * @return {React.Component} The `ManualLicenseKeyInput` component.
+ * @return {import('react').Component} The `ManualLicenseKeyInput` component.
  */
 const ManualLicenseKeyInput = props => {
 	const { className, disabled, onChange, value } = props;
@@ -44,7 +44,7 @@ const ManualLicenseKeyInput = props => {
  * @param {boolean}  props.disabled          -- determines if input control is disabled.
  * @param {string}   props.value             -- the license code to edit or submit
  * @param {Function} props.onChange          -- function to handle changes to the value.
- * @return {React.Component} The `SelectableLicenseKeyInput` component.
+ * @return {import('react').Component} The `SelectableLicenseKeyInput` component.
  */
 const SelectableLicenseKeyInput = props => {
 	const { className, availableLicenses, disabled, onChange, value } = props;
@@ -136,7 +136,7 @@ const SelectableLicenseKeyInput = props => {
  * @param {?string}  props.licenseError              -- any error that occurred while activating a license
  * @param {Function} props.onLicenseChange           -- function to handle changes to license
  * @param {string}   props.siteUrl                   -- the url of the site
- * @return {React.Component} The `ActivationScreenControls` component.
+ * @return {import('react').Component} The `ActivationScreenControls` component.
  */
 const ActivationScreenControls = props => {
 	const {

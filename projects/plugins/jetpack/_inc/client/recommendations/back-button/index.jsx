@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import Gridicon from 'components/gridicon';
 
 import './style.scss';

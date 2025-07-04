@@ -3,7 +3,7 @@
 
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React, { Component, Fragment } from 'react';
+import { Component, Fragment } from 'react';
 
 import './style.scss';
 

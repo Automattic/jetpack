@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Accessibility: Update screen reader 'clip' property usage to 'clip-path'.

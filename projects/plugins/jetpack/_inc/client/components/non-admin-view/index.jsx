@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import AtAGlance from 'at-a-glance/index.jsx';
 import SearchableSettings from 'settings/index.jsx';
@@ -11,7 +11,7 @@ import {
 } from 'state/initial-state';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 
-class NonAdminView extends React.Component {
+class NonAdminView extends Component {
 	shouldComponentUpdate( nextProps ) {
 		return (
 			nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||

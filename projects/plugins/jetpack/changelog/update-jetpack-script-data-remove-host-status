@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Dashboard: Remove hosting information from initial state, now retrieved via site utils

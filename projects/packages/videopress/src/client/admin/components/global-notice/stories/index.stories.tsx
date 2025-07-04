@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { action } from '@storybook/addon-actions';
-import React from 'react';
 import GlobalNotice from '..';
 
 export default {

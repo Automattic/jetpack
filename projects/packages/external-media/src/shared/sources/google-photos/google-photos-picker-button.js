@@ -3,14 +3,14 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import GooglePhotosAccount from './google-photos-account';
 
 /**
  * GooglePhotosPickerButton component
  *
  * @param {object} props - The component props
- * @return {React.ReactElement} - JSX Element
+ * @return {import('react').ReactElement} - JSX Element
  */
 export default function GooglePhotosPickerButton( props ) {
 	const { className, pickerSession, fetchPickerSession, setAuthenticated, account } = props;

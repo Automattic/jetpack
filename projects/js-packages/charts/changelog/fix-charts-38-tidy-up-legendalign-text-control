@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Charts: removed unused legendAlign references, consolidated legend storybook item grouping 

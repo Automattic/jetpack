@@ -14,7 +14,7 @@ type UseChartMouseHandlerReturn = {
 	/**
 	 * Handler for mouse move events
 	 */
-	onMouseMove: ( event: React.MouseEvent< SVGElement >, data: DataPoint ) => void;
+	onMouseMove: ( event: MouseEvent< SVGElement >, data: DataPoint ) => void;
 	/**
 	 * Handler for mouse leave events
 	 */

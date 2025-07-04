@@ -1,7 +1,7 @@
 import { ProgressBar, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { FormLegend, FormFieldset } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
@@ -25,7 +25,7 @@ import {
 	isFetchingSitePurchases,
 } from 'state/site';
 
-class Media extends React.Component {
+class Media extends Component {
 	togglePrivacySetting = () => {
 		this.props.updateOptions( {
 			videopress_private_enabled_for_site: ! this.props.getOptionValue(

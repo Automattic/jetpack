@@ -1,9 +1,9 @@
 import { _n } from '@wordpress/i18n';
 import { map } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 
-export default class ValidationErrorList extends React.Component {
+export default class ValidationErrorList extends Component {
 	static displayName = 'ValidationErrorList';
 
 	static propTypes = {

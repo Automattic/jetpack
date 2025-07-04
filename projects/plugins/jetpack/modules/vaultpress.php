@@ -1,7 +1,7 @@
 <?php // phpcs:disable WordPress.WP.CapitalPDangit.MisspelledInComment
 /**
- * Module Name: Backups and Scanning
- * Module Description: Protect your site with daily or real-time backups and automated virus scanning and threat detection.
+ * Module Name: VaultPress Backup
+ * Module Description: Real-time backups save every change, and one-click restores get you back online quickly.
  * First Introduced: 0:1.2
  * Sort Order: 32
  * Deactivate: false

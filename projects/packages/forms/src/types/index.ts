@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 /**
  * Describes an integration (plugin or service) available for Jetpack Forms.
  */
@@ -113,6 +115,7 @@ declare global {
 				recordEvent: ( event: string, props?: Record< string, unknown > ) => void;
 			};
 		};
+		MSStream?: unknown;
 	}
 }
 
@@ -132,15 +135,15 @@ export type IntegrationCardData = Partial< Integration > & {
 	/** Tooltip to show when the toggle is disabled. */
 	toggleDisabledTooltip?: string;
 	/** Badge or element to show in the header for setup state. */
-	setupBadge?: React.ReactNode;
+	setupBadge?: ReactNode;
 	/** Function to refresh the integration status. */
 	refreshStatus?: () => void;
 	/** Event name for tracking analytics. */
 	trackEventName?: string;
 	/** Message to show when the integration is not installed. */
-	notInstalledMessage?: React.ReactNode;
+	notInstalledMessage?: ReactNode;
 	/** Message to show when the integration is not activated. */
-	notActivatedMessage?: React.ReactNode;
+	notActivatedMessage?: ReactNode;
 	/** Whether the card is in a loading state. */
 	isLoading?: boolean;
 };

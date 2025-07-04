@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import * as React from 'react';
 import * as recommendationsActions from 'state/recommendations/actions';
 import { render, screen, within } from 'test/test-utils';
 import {

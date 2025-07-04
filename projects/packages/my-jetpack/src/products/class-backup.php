@@ -122,11 +122,7 @@ class Backup extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		if ( static::is_active() ) {
-			return __( 'Save every change', 'jetpack-my-jetpack' );
-		}
-
-		return __( 'Secure your site with automatic backups and one-click restores', 'jetpack-my-jetpack' );
+		return __( 'Real-time backups save every change, and one-click restores get you back online quickly.', 'jetpack-my-jetpack' );
 	}
 
 	/**

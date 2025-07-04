@@ -2,7 +2,6 @@ import { IconTooltip, Text } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import clsx from 'clsx';
-import React from 'react';
 import styles from './styles.module.scss';
 
 /**

@@ -7,7 +7,6 @@ WARNING: If you add this to a specific site, it will stay on the page until the 
 ## Usage
 
 ```tsx
-import React from 'react';
 import { ZendeskChat } from '@automattic/jetpack-components';
 
 const ExampleComponent = () => (
