@@ -8,6 +8,7 @@
 namespace A8C\FSE;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
@@ -212,6 +213,11 @@ class Help_Center {
 				$version
 			);
 		}
+
+		wp_enqueue_script(
+			'wpcom-support-link-handler',
+			plugins_url( 'build/wpcom-support-link-handler/wpcom-support-link-handler.js', Jetpack_Mu_Wpcom::BASE_FILE )
+		);
 	}
 
 	/**
