@@ -212,7 +212,9 @@ const EmailSettings = props => {
 			>
 				<ToggleControl
 					disabled={ featuredImageInputDisabled }
-					checked={ isFeaturedImageInEmailEnabled && isSubscriptionsActive }
+					checked={
+						isFeaturedImageInEmailEnabled && isSubscriptionsActive && ! featuredImageInputDisabled
+					}
 					toogling={ isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] ) }
 					label={ <span className="jp-form-toggle-explanation">{ featuredImageInfo }</span> }
 					onChange={ handleEnableFeaturedImageInEmailToggleChange }
