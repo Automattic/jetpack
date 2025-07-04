@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Add missing JS dep (but it's only used in a `.native.js` file, so it doesn't really matter for the monorepo). No change to functionality.
+
+

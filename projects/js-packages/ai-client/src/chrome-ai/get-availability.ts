@@ -94,7 +94,7 @@ export async function isChromeAIAvailable() {
 	} );
 
 	const { variationName } = await loadExperimentAssignmentWithAuth(
-		'calypso_jetpack_ai_gemini_api_202503_v1'
+		'calypso_jetpack_ai_gemini_api_202503_v2'
 	);
 
 	debug( 'variationName', variationName );

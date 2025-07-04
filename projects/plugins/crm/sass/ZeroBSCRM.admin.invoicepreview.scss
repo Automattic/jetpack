@@ -595,9 +595,6 @@
 // Daterangepicker styles
 @include meta.load-css('daterangepicker/daterangepicker');
 
-// Daterangepicker fix
-@include meta.load-css('daterangepicker.fix');
-
 // menu mods
 @include meta.load-css('ZeroBSCRM.adminmenu');
 

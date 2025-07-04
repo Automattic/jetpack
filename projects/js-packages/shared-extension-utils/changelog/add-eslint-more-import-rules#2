@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Handle 'react-native' as an export condition.

@@ -1,0 +1,4 @@
+Significance: major
+Type: enhancement
+
+Forms: update the date picker to remove jquery and add keyboard navigation. We now use a more performant date picker.

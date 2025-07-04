@@ -111,11 +111,15 @@ fi
 
 for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do
 	[ -d "$DIR" ] || continue # We are only interested in directories, e.g. different plugins.
-	PLUGIN="$(basename $DIR)"
+	PLUGIN="$(basename "$DIR")"
+
+	# Read plugin slug from composer.json, with fallback to beta-plugin-slug
+	PLUGIN_SLUG=$(jq -r '.extra["wp-plugin-slug"] // .extra["beta-plugin-slug"]' "$DIR/composer.json")
+
 	# Symlink plugins into the wp-content dir.
-	if [ ! -e /var/www/html/wp-content/plugins/"$PLUGIN" ]; then
-		echo "Linking the $PLUGIN plugin."
-		ln -s "$DIR" /var/www/html/wp-content/plugins/"$PLUGIN"
+	if [ ! -e /var/www/html/wp-content/plugins/"$PLUGIN_SLUG" ]; then
+		echo "Linking the $PLUGIN plugin as $PLUGIN_SLUG."
+		ln -s "$DIR" /var/www/html/wp-content/plugins/"$PLUGIN_SLUG"
 	fi
 done
 

@@ -4884,7 +4884,7 @@ function zeroBSCRMJS_listView_event_title( dataLine ) {
 		'<td><strong><a href="' +
 		zeroBSCRMJS_listView_viewURL( dataLine.id ) +
 		'">' +
-		jpcrm.esc_html( dataLine.title ) +
+		jpcrm.escTextWithDecode( dataLine.title ) +
 		'</a></strong></td>';
 
 	return td;
@@ -4895,7 +4895,7 @@ function zeroBSCRMJS_listView_event_title( dataLine ) {
  * @param dataLine
  */
 function zeroBSCRMJS_listView_event_desc( dataLine ) {
-	const td = '<td>' + jpcrm.esc_html( dataLine.desc ) + '</td>';
+	const td = '<td>' + jpcrm.escTextWithDecode( dataLine.desc ) + '</td>';
 
 	return td;
 }

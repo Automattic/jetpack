@@ -118,7 +118,7 @@ function jpcrm_check_min_php_version() {
 	$min_php_version = '7.4';
 
 	if ( version_compare( PHP_VERSION, $min_php_version, '<' ) ) {
-
+		/* translators: %1$s: Minimum PHP version, %2$s: Current PHP version */
 		$error_message  = sprintf( __( 'Jetpack CRM requires PHP version %1$s or greater. Older versions of PHP are no longer supported. Your current version of PHP is %2$s.', 'zero-bs-crm' ), $min_php_version, PHP_VERSION );
 		$error_message .= '<br><a href="https://kb.jetpackcrm.com/knowledge-base/php-version-jetpack-crm/" target="_blank">' . __( 'Click here for more information', 'zero-bs-crm' ) . '</a>';
 		jpcrm_register_admin_notice( 'error', $error_message );
@@ -292,6 +292,65 @@ function zeroBSCRM_init_perfTest() {
 	}
 }
 
+// ====================================================================
+// ==================== Welcome Wizard Simple Redirect ================
+// ====================================================================
+
+/**
+ * Runs on plugin activation.
+ *
+ * @return void
+ */
+function jpcrm_plugin_activate() {
+	// Skip redirect if it's a bulk activation with more than one plugin.
+	if (
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.NonceVerification.Missing -- This is safe.
+		isset( $_POST['action'] )
+		&& $_POST['action'] === 'activate-selected'
+		&& isset( $_POST['checked'] )
+		&& count( $_POST['checked'] ) > 1
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended,WordPress.Security.NonceVerification.Missing -- This is safe.
+	) {
+		return;
+	}
+	add_option( 'jpcrm_do_redirect', true );
+}
+register_activation_hook( __FILE__, 'jpcrm_plugin_activate' );
+
+/**
+ * Redirects user after plugin activation.
+ *
+ * @return void
+ */
+function jpcrm_plugin_redirect() {
+	if ( ! get_option( 'jpcrm_do_redirect' ) ) {
+		return;
+	}
+
+	// Skip redirect if it's a JSON/AJAX request or via WP-CLI
+	if ( wp_doing_ajax() || wp_is_json_request() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_is_xml_request() ) {
+		return;
+	}
+
+	// Clean up option on the first normal request.
+	delete_option( 'jpcrm_do_redirect' );
+
+	// Skip redirect if it's a plugin upgrade process.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.NonceVerification.Missing -- This is safe.
+	if ( isset( $_GET['action'] ) && $_GET['action'] === 'upgrade-plugin' ) {
+		return;
+	}
+
+	$redirect_url = admin_url( 'admin.php?page=zerobscrm-dash' );
+	// Only force wizard if it hasn't been run before
+	if ( ! get_option( 'jpcrm_wizard_completed', false ) ) {
+		$redirect_url = add_query_arg( 'jpcrm_force_wizard', '1', $redirect_url );
+	}
+	wp_safe_redirect( $redirect_url );
+	exit;
+}
+add_action( 'admin_init', 'jpcrm_plugin_redirect' );
+
 // =================== / General Perf Testing =========================
 // ====================================================================
 
@@ -324,9 +383,26 @@ if ( jpcrm_do_critical_prerun_checks() ) {
 		include_once __DIR__ . '/includes/ZeroBSCRM.Core.php';
 	}
 
-	// Initiate ZBS Main Core
-	global $zbs;
-	$zbs = ZeroBSCRM::instance();
+	// init hook
+	add_action(
+		'init',
+		function () {
+			if ( ! class_exists( 'ZeroBSCRM' ) ) {
+				include_once __DIR__ . '/includes/ZeroBSCRM.Core.php';
+			}
+			global $zbs;
+			$zbs = ZeroBSCRM::instance();
+		},
+		0
+	);
+
+	add_action(
+		'plugins_loaded',
+		function () {
+			load_plugin_textdomain( 'zero-bs-crm', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		},
+		0
+	);
 
 	// close timer (at this point we'll have perf library)
 	if ( defined( 'ZBSPERFTEST' ) ) {

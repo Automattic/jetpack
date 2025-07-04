@@ -4,10 +4,12 @@ namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Contracts\Needs_Website_To_Be_Public;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -168,6 +170,10 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 				continue;
 			}
 
+			if ( ! $this->can_module_run( $module ) ) {
+				continue;
+			}
+
 			Setup::add( $module->feature );
 
 			$submodules = $module->get_available_submodules();
@@ -240,6 +246,10 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 		$status = new Status( $module_slug );
 		$status->on_update( $is_activated );
 
+		if ( ! $this->can_module_run( $module ) ) {
+			return;
+		}
+
 		if ( $is_activated ) {
 			$module->on_activate();
 		} else {
@@ -270,5 +280,22 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Determines whether the functionality of a module should run.
+	 * If the website is not public but the module requires it,
+	 * the module's functionality should not run.
+	 *
+	 * @param Module $module The module to check.
+	 * @return bool True if the module can run, false otherwise.
+	 */
+	public function can_module_run( $module ) {
+		$website_public = Config::is_website_public();
+		if ( $module->feature instanceof Needs_Website_To_Be_Public && ! $website_public ) {
+			return false;
+		}
+
+		return true;
 	}
 }
