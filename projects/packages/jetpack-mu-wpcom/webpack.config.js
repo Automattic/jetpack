@@ -62,7 +62,8 @@ module.exports = async () => {
 				'wpcom-replace-site-visibility':
 					'./src/features/replace-site-visibility/replace-site-visibility.tsx',
 				'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
-				'wpcom-support-link-handler': './src/features/help-center/js/open-help-center.js',
+				'wpcom-upsell-support-link-handler':
+					'./src/features/help-center/js/upsell-support-link-handler.js',
 				'adminbar-launch-button': './src/features/launch-button/index.js',
 			},
 			mode: jetpackWebpackConfig.mode,
