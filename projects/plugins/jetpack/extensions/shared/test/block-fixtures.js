@@ -361,12 +361,12 @@ function getAvailableBlockFixturesBasenames() {
 	//  - fixture.serialized.html : re-serialized content
 	// Get the "base" name for each fixture first.
 	return [
-		...new Set( [
+		...new Set(
 			fs
 				.readdirSync( FIXTURES_DIR )
 				.filter( f => /(\.html|\.json)$/.test( f ) )
-				.map( f => f.replace( /\..+$/, '' ) ),
-		] ),
+				.map( f => f.replace( /\..+$/, '' ) )
+		),
 	];
 }
 
