@@ -392,6 +392,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 					display: 'flex',
 					flexDirection:
 						showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+					position: 'relative',
 				} }
 				tabIndex={ 0 }
 				onKeyDown={ onChartKeyDown }
