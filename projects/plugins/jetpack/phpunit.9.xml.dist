@@ -24,6 +24,9 @@
 		<testsuite name="media">
 			<directory suffix="Test.php">tests/php/media</directory>
 		</testsuite>
+		<testsuite name="photon">
+			<directory suffix="Test.php">tests/php/modules/photon</directory>
+		</testsuite>
 		<testsuite name="json-api">
 			<directory suffix="Test.php">tests/php/json-api</directory>
 		</testsuite>
@@ -113,6 +116,9 @@
 		</testsuite>
 		<testsuite name="compatfunctions">
 			<file>tests/php/Jetpack_Compat_Functions_Test.php</file>
+		</testsuite>
+		<testsuite name="opengraph">
+			<file>tests/php/Functions_OpenGraph_Test.php</file>
 		</testsuite>
 		<testsuite name="autoloaded">
 			<directory suffix="Test.php">tests/php/src</directory>

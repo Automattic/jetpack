@@ -22,7 +22,7 @@ export default class Sidebar extends WpPage {
 		const jetpackMenuSelector = '#toplevel_page_jetpack';
 		const menuItemSelector = '#toplevel_page_jetpack a[href$="jetpack-boost"]';
 
-		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
+		return await this._selectJetpackMenuItem( jetpackMenuSelector, menuItemSelector );
 	}
 
 	async selectNewPost() {

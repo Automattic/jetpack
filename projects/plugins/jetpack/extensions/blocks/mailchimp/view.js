@@ -1,5 +1,5 @@
 import domReady from '@wordpress/dom-ready';
-import emailValidator from 'email-validator';
+import { validate as emailValidatorValidate } from 'email-validator';
 // NOTE: We only import the debounce package here for to reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
@@ -38,7 +38,7 @@ function validateEmail( form, emailField ) {
 	const email = emailField.value;
 	const errorClass = 'error';
 	emailField.classList.remove( errorClass );
-	if ( ! emailValidator.validate( email ) ) {
+	if ( ! emailValidatorValidate( email ) ) {
 		emailField.classList.add( errorClass );
 		if ( typeof document.createElement( 'input' ).reportValidity === 'function' ) {
 			// In case that browser supports it, trigger HTML5 validation

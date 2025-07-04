@@ -51,11 +51,24 @@ function maybe_add_origin_site_id_to_url( $url ) {
  * Enqueue assets needed by the WordPress.com admin bar.
  */
 function wpcom_enqueue_admin_bar_assets() {
+	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-admin-bar/wpcom-admin-bar.asset.php';
+
+	wp_enqueue_script(
+		'wpcom-admin-bar',
+		plugins_url( 'build/wpcom-admin-bar/wpcom-admin-bar.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+		$asset_file['dependencies'] ?? array(),
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-admin-bar/wpcom-admin-bar.js' ),
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
+	);
+
 	wp_enqueue_style(
 		'wpcom-admin-bar',
 		plugins_url( 'build/wpcom-admin-bar/wpcom-admin-bar.css', Jetpack_Mu_Wpcom::BASE_FILE ),
 		array(),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-admin-bar/wpcom-admin-bar.css' )
 	);
 
 	/**
@@ -416,7 +429,7 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 	if ( $badge_text ) {
 		$status_text = '<div class="wp-admin-bar__site-info">
 							<span class="wp-admin-bar__site-info-label">' . __( 'Status', 'jetpack-mu-wpcom' ) . '</span>
-							<div class="wp-admin-bar__info-badges">' . esc_html( $badge_text ) . '</div>
+							<span class="wp-admin-bar__info-badges">' . esc_html( $badge_text ) . '</span>
 						</div>';
 	}
 
@@ -430,42 +443,59 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 			$current_plan = Current_Plan::get();
 		}
 		$plan_name = $current_plan['product_name_short'] ?? '';
+
 		if ( $plan_name ) {
-			$plan_text = '<div class="wp-admin-bar__site-info">
-							<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
-							<div class="wp-admin-bar__info-badges">' . esc_html( $plan_name ) . '</div>
-						</div>';
+			$site_slug = method_exists( '\WPCOM_Masterbar', 'get_calypso_site_slug' )
+				? WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() )
+				: '';
+
+			if ( $site_slug ) {
+				$plan_text = '<a class="wp-admin-bar__site-info" href="https://wordpress.com/plans/' . esc_attr( $site_slug ) . '">
+								<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
+								<span class="wp-admin-bar__info-badges">' . esc_html( $plan_name ) . '</span>
+							</a>';
+			} else {
+				$plan_text = '<div class="wp-admin-bar__site-info">
+								<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
+								<span class="wp-admin-bar__info-badges">' . esc_html( $plan_name ) . '</span>
+							</div>';
+			}
 		}
 	}
 
-	if ( $status_text || $plan_text ) {
+	if ( $plan_text ) {
 		$wp_admin_bar->add_group(
 			array(
 				'parent' => 'site-name',
-				'id'     => 'site-badge',
+				'id'     => 'site-plan',
+			)
+		);
+		$wp_admin_bar->add_node(
+			array(
+				'parent' => 'site-plan',
+				'id'     => 'site-plan-badge',
+				'title'  => $plan_text,
+			)
+		);
+	}
+
+	if ( $status_text ) {
+		$wp_admin_bar->add_group(
+			array(
+				'parent' => 'site-name',
+				'id'     => 'site-status',
 				'meta'   => array(
 					'class' => 'ab-sub-secondary',
 				),
 			)
 		);
-		if ( $status_text ) {
-			$wp_admin_bar->add_node(
-				array(
-					'parent' => 'site-badge',
-					'id'     => 'site-badge-status',
-					'title'  => $status_text,
-				)
-			);
-		}
-		if ( $plan_text ) {
-			$wp_admin_bar->add_node(
-				array(
-					'parent' => 'site-badge',
-					'id'     => 'site-badge-plan',
-					'title'  => $plan_text,
-				)
-			);
-		}
+		$wp_admin_bar->add_node(
+			array(
+				'parent' => 'site-status',
+				'id'     => 'site-status-badge',
+				'title'  => $status_text,
+			)
+		);
 	}
 }
 add_action( 'admin_bar_menu', 'wpcom_add_site_badges_and_plan', 35 );

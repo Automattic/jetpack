@@ -3,19 +3,18 @@ import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
 
-let jetpackBoostPage;
-
 test.describe( 'Getting started page', () => {
+	let page;
+	let jetpackBoostPage;
+
 	test.beforeEach( async ( { browser } ) => {
-		const page = await browser.newPage( playwrightConfig.use );
+		page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( false ).build();
 
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
-	test.afterAll( async ( { browser } ) => {
-		const page = await browser.newPage();
-		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( true ).build();
+	test.afterEach( async () => {
 		await page.close();
 	} );
 
@@ -51,6 +50,7 @@ test.describe( 'Getting started page', () => {
 		await jetpackBoostPage.click( 'text="Start for free"' );
 		await navigation;
 
+		await jetpackBoostPage.waitForScoreLoadingToFinish();
 		expect( await jetpackBoostPage.isScoreVisible(), 'Score should be visible' ).toBeTruthy();
 	} );
 } );

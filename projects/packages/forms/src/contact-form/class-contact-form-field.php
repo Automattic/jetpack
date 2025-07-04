@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
 /**
@@ -151,6 +152,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'stylevariationstyles'     => null,
 				'optionsclasses'           => null,
 				'optionsstyles'            => null,
+				'align'                    => null,
 			),
 			$attributes,
 			'contact-field'
@@ -614,8 +616,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				. $extra_attrs_string
 				. '>'
 				. wp_kses_post( $label )
-				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' )
-				. "</label>\n";
+				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+			"</label>\n";
 	}
 
 	/**
@@ -1231,7 +1233,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	private function enqueue_file_field_assets() {
-		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+		$version = Constants::get_constant( 'JETPACK__VERSION' );
 
 		\wp_enqueue_script_module(
 			'jetpack-form-file-field',
@@ -1501,7 +1503,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			array(
 				'enqueue'      => true,
 				'dependencies' => array(),
-				'version'      => \JETPACK__VERSION,
+				'version'      => Constants::get_constant( 'JETPACK__VERSION' ),
 			)
 		);
 
@@ -1925,6 +1927,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			case 'file':
 				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
 				break;
+			case 'rating':
+				$field .= $this->render_rating_field(
+					$id,
+					$label,
+					$value,
+					$field_class,
+					$required,
+					$required_field_text
+				);
+				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
 				break;
@@ -2043,5 +2055,117 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style = $this->get_form_style();
 
 		return in_array( $form_style, array( 'outlined', 'animated' ), true );
+	}
+
+	/**
+	 * Return the HTML for the rating (stars/hearts/etc.) field.
+	 *
+	 * This field is purely decorative (spans acting as buttons) and stores the
+	 * selected rating in a hidden input so it is handled by existing form
+	 * validation/submission logic.
+	 *
+	 * @since 0.46.0
+	 *
+	 * @param string $id                 Field ID.
+	 * @param string $label              Field label.
+	 * @param string $value              Current value.
+	 * @param string $class              Additional CSS classes.
+	 * @param bool   $required           Whether field is required.
+	 * @param string $required_field_text Required label text.
+	 * @return string HTML markup.
+	 */
+	private function render_rating_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		// Enqueue stylesheet for rating field.
+		wp_enqueue_style( 'jetpack-form-field-rating-style', plugins_url( '../../dist/blocks/field-rating/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
+
+		// Read block attributes needed for rendering.
+
+		$max_attr = $this->get_attribute( 'max' );
+
+		$max_rating = is_numeric( $max_attr ) && (int) $max_attr > 0 ? (int) $max_attr : 5;
+
+		$initial_rating = (int) $value ? (int) $value : 0;
+
+		$label_html = $this->render_label( 'rating', $id, $label, $required, $required_field_text );
+
+		$spans = '';
+		for ( $i = 1; $i <= $max_rating; $i++ ) {
+			$spans .= sprintf(
+				'<label class="jetpack-field-rating__label">
+					<input
+						class="jetpack-field-rating__input"
+						type="radio"
+						data-wp-on--change="actions.onFieldChange"
+						%1$s
+						%2$s
+						name="%3$s"
+						value="%4$s/%5$s" />
+				</label>',
+				checked( $i, $initial_rating, false ),
+				$required ? 'required aria-required="true"' : '',
+				esc_attr( $id ),
+				esc_attr( $i ),
+				esc_attr( $max_rating )
+			);
+		}
+
+		$style_attr = '';
+
+		$css_styles = array_filter( array_map( 'trim', explode( ';', $this->field_styles ) ) );
+
+		$css_key_value_pairs = array_reduce(
+			$css_styles,
+			function ( $pairs, $style ) {
+				list( $key, $value )   = explode( ':', $style );
+				$pairs[ trim( $key ) ] = trim( $value );
+				return $pairs;
+			},
+			array()
+		);
+
+		// The rating input overwrites the text color, so we are using a custom logic to set the star color as a CSS variable.
+		$has_star_color = isset( $css_key_value_pairs['color'] );
+
+		if ( $has_star_color ) {
+			$color_value = $css_key_value_pairs['color'];
+			$style_attr  = 'style="--jetpack--contact-form--rating-star-color: ' . esc_attr( $color_value ) . ';';
+			unset( $css_key_value_pairs['color'] );
+		} else {
+			// Theme colors are set in the field_classes attribute
+			$preset_colors = array(
+				'has-base-color'     => '--wp--preset--color--base',
+				'has-contrast-color' => '--wp--preset--color--contrast',
+			);
+
+			if ( preg_match( '/has-accent-(\d+)-color/', $this->field_classes, $matches ) ) {
+				$accent_number = $matches[1];
+				$preset_colors[ 'has-accent-' . $accent_number . '-color' ] = '--wp--preset--color--accent-' . $accent_number;
+			}
+
+			foreach ( $preset_colors as $class => $css_var ) {
+				if ( strpos( $this->field_classes, $class ) !== false ) {
+					$style_attr = 'style="--jetpack--contact-form--rating-star-color: var(' . esc_attr( $css_var ) . ');';
+
+					break;
+				}
+			}
+		}
+
+		$remaining_styles = array_map(
+			function ( $key, $value ) {
+				return $key . ': ' . $value;
+			},
+			array_keys( $css_key_value_pairs ),
+			array_values( $css_key_value_pairs )
+		);
+
+		$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
+
+		return $label_html . sprintf(
+			'<div class="jetpack-field-rating %3$s" %1$s>%2$s</div>',
+			$style_attr,
+			$spans,
+			$this->field_classes
+		) . $this->get_error_div( $id, 'rating' );
 	}
 }
