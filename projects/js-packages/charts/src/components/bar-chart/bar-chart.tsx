@@ -285,4 +285,6 @@ const BarChart: FC< BarChartProps > = props => (
 	</ChartProvider>
 );
 
+BarChart.displayName = 'BarChart';
+
 export default withResponsive< BarChartProps >( BarChart );

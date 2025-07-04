@@ -1,4 +1,4 @@
-import { useEffect, useId } from 'react';
+import { useEffect, useId, useMemo } from 'react';
 import { useChartContext } from './chart-context';
 import type { BaseLegendItem } from '../../components/legend/types';
 import type { ChartTheme } from '../../types';
@@ -17,16 +17,19 @@ export const useChartRegistration = (
 ): void => {
 	const { registerChart, unregisterChart } = useChartContext();
 
+	// Memoize metadata to prevent unnecessary re-renders
+	const memoizedMetadata = useMemo( () => metadata, [ metadata ] );
+
 	useEffect( () => {
 		registerChart( chartId, {
 			legendItems,
 			theme,
 			chartType,
-			metadata,
+			metadata: memoizedMetadata,
 		} );
 
 		return () => {
 			unregisterChart( chartId );
 		};
-	}, [ chartId, legendItems, theme, chartType, metadata, registerChart, unregisterChart ] );
+	}, [ chartId, legendItems, theme, chartType, memoizedMetadata, registerChart, unregisterChart ] );
 };
