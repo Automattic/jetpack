@@ -13,6 +13,7 @@ jobs:
   build:
     name: Install the Monorepo and build wpcomsh
     runs-on: ubuntu-latest
+    if: github.repository == 'Automattic/jetpack'
     outputs:
       wpcomsh: ${{ steps.changed.outputs.wpcomsh }}
     steps:
