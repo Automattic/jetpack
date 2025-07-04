@@ -1,4 +1,3 @@
-import React from 'react';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import sampleData from './sample-data';
@@ -145,6 +144,23 @@ Colored.args = {
 	],
 };
 
+const DeployedIcon = () => (
+	<span
+		style={ {
+			background: 'black',
+			color: 'white',
+			width: '24px',
+			height: '24px',
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			borderRadius: '50%',
+		} }
+	>
+		D
+	</span>
+);
+
 const customTopAnnotationArgs: Partial< LineChartAnnotationProps > = {
 	subjectType: 'line-vertical',
 	styles: {
@@ -152,24 +168,45 @@ const customTopAnnotationArgs: Partial< LineChartAnnotationProps > = {
 	},
 	title: 'Deployed',
 	renderLabel: () => (
-		<div
-			style={ {
-				background: 'black',
-				color: 'white',
-				width: '24px',
-				height: '24px',
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				borderRadius: '50%',
-				transform: 'translate(0, 6px)',
-			} }
-		>
-			D
+		<span style={ { transform: 'translate(0, 6px)' } }>
+			<DeployedIcon />
+		</span>
+	),
+	renderLabelPopover: () => (
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '10px' } }>
+			<h4
+				style={ {
+					margin: 0,
+					display: 'flex',
+					alignItems: 'center',
+					gap: '6px',
+					lineHeight: '22px',
+				} }
+			>
+				<DeployedIcon />
+				<span>Deploy finished</span>
+			</h4>
+			<p style={ { margin: 0 } }>Thu. Apr 24, 2025. 09:57:23 UTC</p>
 		</div>
 	),
-	renderLabelPopover: ( { title } ) => <h4>{ title }</h4>,
 };
+
+const AlertIcon = () => (
+	<span
+		style={ {
+			background: 'var(--jp-red)',
+			color: 'white',
+			width: '20px',
+			height: '20px',
+			display: 'inline-flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			borderRadius: '50%',
+		} }
+	>
+		!
+	</span>
+);
 
 const customBottomAnnotationArgs: Partial< LineChartAnnotationProps > = {
 	subjectType: 'circle',
@@ -185,22 +222,7 @@ const customBottomAnnotationArgs: Partial< LineChartAnnotationProps > = {
 		},
 	},
 	title: 'Alert',
-	renderLabel: () => (
-		<div
-			style={ {
-				background: 'var(--jp-red)',
-				color: 'white',
-				width: '20px',
-				height: '20px',
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				borderRadius: '50%',
-			} }
-		>
-			<strong>!</strong>
-		</div>
-	),
+	renderLabel: () => <AlertIcon />,
 	renderLabelPopover: () => (
 		<div style={ { display: 'flex', flexDirection: 'column', gap: '10px' } }>
 			<h4
@@ -212,20 +234,7 @@ const customBottomAnnotationArgs: Partial< LineChartAnnotationProps > = {
 					lineHeight: '22px',
 				} }
 			>
-				<span
-					style={ {
-						background: 'var(--jp-red)',
-						color: 'white',
-						width: '20px',
-						height: '20px',
-						display: 'inline-flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						borderRadius: '50%',
-					} }
-				>
-					<strong>!</strong>
-				</span>
+				<AlertIcon />
 				Origin HTTP 5xx Response Codes Rate Anomaly [Beta]
 			</h4>
 			<p style={ { margin: 0 } }>
