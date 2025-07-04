@@ -435,6 +435,28 @@ describe( 'LineChart', () => {
 				expect( screen.getByText( 'This point has a value of 0' ) ).toBeInTheDocument();
 			} );
 		} );
+
+		test( 'renders annotations with custom label renderer', async () => {
+			renderWithTheme( {
+				annotations: [
+					{
+						datum: { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+						title: 'Annotation 1',
+						subtitle: 'Annotation 1 subtitle',
+						renderLabel: ( { title, subtitle } ) => (
+							<div data-testid="custom-label">
+								{ title }
+								{ subtitle && <span>{ subtitle }</span> }
+							</div>
+						),
+					},
+				],
+			} );
+
+			await waitFor( () => {
+				expect( screen.getByTestId( 'custom-label' ) ).toBeInTheDocument();
+			} );
+		} );
 	} );
 
 	describe( 'Keyboard Navigation Accessibility', () => {
