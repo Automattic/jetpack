@@ -277,8 +277,10 @@ class Post_Connection_JITM extends JITM {
 			sprintf( '/sites/%d/jitm/%s', $site_id, $message_path )
 		);
 
+		$cache_key = 'jetpack_jitm_' . substr( md5( $path ), 0, 31 );
+
 		// Attempt to get from cache.
-		$envelopes = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
+		$envelopes = get_transient( $cache_key );
 
 		// If something is in the cache and it was put in the cache after the last sync we care about, use it.
 		$use_cache = false;
@@ -296,8 +298,16 @@ class Post_Connection_JITM extends JITM {
 		}
 
 		if ( $use_cache ) {
-			$last_sync  = (int) get_transient( 'jetpack_last_plugin_sync' );
-			$from_cache = $envelopes && $last_sync > 0 && $last_sync < $envelopes['last_response_time'];
+			$last_sync = (int) get_transient( 'jetpack_last_plugin_sync' );
+			// The sync timestamp indicates when a plugin change was last sent to Jetpack, however,
+			// it's stored in a transient and doesn't stay forever. Therefore, an admin who last changed
+			// a plugin a month ago is likely to have $last_sync=0.
+			//
+			// If the sync timestamp is missing (value 0): use the cache.
+			// If the timestamp exists and is older than the cached envelope: use the cache.
+			// If the timestamp exists and is newer: bypass and refresh.
+			// (This case means the JITM was created before the last plugin activate/deactivate and is invalid).
+			$from_cache = $envelopes && ( 0 === $last_sync || $last_sync < $envelopes['last_response_time'] );
 		} else {
 			$from_cache = false;
 		}
@@ -331,8 +341,7 @@ class Post_Connection_JITM extends JITM {
 			// Do not cache if expiration is 0 or we're not using the cache.
 			if ( 0 !== $expiration && $use_cache ) {
 				$envelopes['last_response_time'] = time();
-
-				set_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ), $envelopes, $expiration );
+				set_transient( $cache_key, $envelopes, $expiration );
 			}
 		}
 

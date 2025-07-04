@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { imagePath } from 'constants/urls';
 
 import './style.scss';

@@ -1,4 +1,5 @@
 /* eslint-disable eqeqeq */
+/* eslint import/no-unresolved: [ 'error', { ignore: [ '^k6' ] } ] */ // Provided by the Action that runs this file.
 import { check, group } from 'k6';
 import http from 'k6/http';
 import { encodedCredentials, sites } from './k6-shared.js';

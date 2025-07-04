@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 import useVideoPlayer, { getIframeWindowFromRef } from '../../../../hooks/use-video-player';
 import type { PlayerProps } from './types';
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 // Global scripts array to be run in the Sandbox context.
 const sandboxScripts = [];
@@ -43,7 +43,7 @@ if ( window?.videoPressEditorState?.playerBridgeUrl ) {
  * VideoPlayer react component
  *
  * @param {PlayerProps} props - Component props.
- * @return {React.ReactElement} Playback block sidebar panel
+ * @return {ReactElement} Playback block sidebar panel
  */
 export default function Player( {
 	showCaption,
@@ -53,7 +53,7 @@ export default function Player( {
 	setAttributes,
 	preview,
 	isRequestingEmbedPreview,
-}: PlayerProps ): React.ReactElement {
+}: PlayerProps ): ReactElement {
 	const mainWrapperRef = useRef< HTMLDivElement >();
 	const videoWrapperRef = useRef< HTMLDivElement >();
 

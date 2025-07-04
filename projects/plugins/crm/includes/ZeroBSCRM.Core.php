@@ -573,6 +573,9 @@ final class ZeroBSCRM {
 			// urls, slugs, (post inc.)
 			$this->setupUrlsSlugsEtc();
 
+			// Install stuff
+			$this->install();
+
 			// } Initialisation
 			$this->init_hooks();
 
@@ -1353,19 +1356,8 @@ final class ZeroBSCRM {
 	 */
 	private function init_hooks() {
 
-		// General activation hook: DB check, role creation
-		register_activation_hook( ZBS_ROOTFILE, array( $this, 'install' ) );
-
-		add_action( 'activated_plugin', array( $this, 'activated_plugin' ) );
-
 		// Pre-init Hook
 		do_action( 'before_zerobscrm_init' );
-
-		// After all the plugins have loaded (THESE FIRE BEFORE INIT)
-		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) ); // } Translations
-		// this moved to post_init_plugins_loaded below, needs to be post init: add_action('plugins_loaded', array($this, 'after_active_plugins_loaded') );
-
-		// Initialise
 
 		// our 'pre-init', this is the last step before init
 		// ... and loads settings :)
@@ -2011,19 +2003,30 @@ final class ZeroBSCRM {
 	}
 
 	public function uninstall() {
-
 		// Deactivate all the extensions
 		zeroBSCRM_extensions_deactivateAll();
 
 		// Skip the deactivation feedback if it's a JSON/AJAX request or via WP-CLI
-		if ( wp_is_json_request() || wp_doing_ajax() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_is_xml_request() ) {
+		if ( wp_doing_ajax() || wp_is_json_request() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_is_xml_request() ) {
 			return;
 		}
 
-			##WLREMOVE
+		##WLREMOVE
 
-			// Remove roles :)
-			zeroBSCRM_clearUserRoles();
+		// Remove roles :)
+		zeroBSCRM_clearUserRoles();
+
+		// Skip redirect if it's a bulk deactivation with more than one plugin.
+		if (
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.NonceVerification.Missing -- This is safe.
+			isset( $_POST['action'] )
+			&& $_POST['action'] === 'deactivate-selected'
+			&& isset( $_POST['checked'] )
+			&& count( $_POST['checked'] ) > 1
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended,WordPress.Security.NonceVerification.Missing -- This is safe.
+		) {
+			return;
+		}
 
 			$feedbackAlready = get_option( 'zbsfeedback' );
 
@@ -2076,27 +2079,6 @@ final class ZeroBSCRM {
 
 		// roles +
 		zeroBSCRM_addUserRoles();
-	}
-
-	/**
-	 * Handle the redirection on JPCRM plugin activation
-	 *
-	 * @param $filename
-	 */
-	public function activated_plugin( $filename ) {
-
-		// Skip the re-direction if it's a JSON/AJAX request or via WP-CLI
-		if ( wp_is_json_request() || wp_doing_ajax() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_is_xml_request() ) {
-			return;
-		}
-
-		if ( $filename == ZBS_ROOTPLUGIN ) {
-			// Send the user to the Dash board
-			global $zbs;
-			if ( wp_redirect( zeroBSCRM_getAdminURL( $zbs->slugs['dash'] ) ) ) {
-				exit( 0 );
-			}
-		}
 	}
 
 	// this func runs on admin_init and xxxx
@@ -2278,37 +2260,6 @@ final class ZeroBSCRM {
 	 * Include required frontend files.
 	 */
 	public function frontend_includes() {
-	}
-
-	/**
-	 * Load Localisation files.
-	 *
-	 * Note: the first-loaded translation file overrides any following ones if the same translation is present.
-	 *
-	 * Locales found in:
-	 *      - WP_LANG_DIR/woocommerce/woocommerce-LOCALE.mo
-	 *      - WP_LANG_DIR/plugins/woocommerce-LOCALE.mo
-	 */
-
-	public function load_textdomain() {
-
-		// ====================================================================
-		// ==================== General Perf Testing ==========================
-		if ( defined( 'ZBSPERFTEST' ) ) {
-			zeroBSCRM_performanceTest_startTimer( 'loadtextdomain' );
-		}
-		// =================== / General Perf Testing =========================
-		// ====================================================================
-
-		load_plugin_textdomain( 'zero-bs-crm', false, ZBS_LANG_DIR ); // basename( dirname( ZBS_ROOTFILE ) ) . '/languages' ); //plugin_dir_path( ZBS_ROOTFILE ) .'/languages'
-
-		// ====================================================================
-		// ==================== General Perf Testing ==========================
-		if ( defined( 'ZBSPERFTEST' ) ) {
-			zeroBSCRM_performanceTest_closeGlobalTest( 'loadtextdomain' );
-		}
-		// =================== / General Perf Testing =========================
-		// ====================================================================
 	}
 
 	/**

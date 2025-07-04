@@ -1,6 +1,6 @@
 import { Text, Button, ContextualUpgradeTrigger } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import FreeAccordion, { FreeAccordionItem } from '../free-accordion';

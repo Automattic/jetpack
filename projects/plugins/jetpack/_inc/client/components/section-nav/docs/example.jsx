@@ -1,22 +1,20 @@
 import { forEach } from 'lodash';
-import React from 'react';
+import { PureComponent } from 'react';
 import Search from 'components/search';
 import SectionNav from 'components/section-nav';
 import NavItem from 'components/section-nav/item';
-import NavSegmented from 'components/section-nav/segmented';
 import NavTabs from 'components/section-nav/tabs';
 
 /**
  * Main
  */
-class SectionNavigation extends React.PureComponent {
+class SectionNavigation extends PureComponent {
 	static displayName = 'SectionNav';
 
 	state = {
 		basicTabsSelectedIndex: 0,
 		manyTabsSelectedIndex: 0,
 		siblingTabsSelectedIndex: 0,
-		siblingSegmentedSelectedIndex: 0,
 	};
 
 	static defaultProps = {
@@ -60,7 +58,6 @@ class SectionNavigation extends React.PureComponent {
 			'Drafts',
 			'Trashed',
 		],
-		siblingSegmented: [ 'Only Me', 'Everyone' ],
 	};
 
 	render() {
@@ -115,8 +112,6 @@ class SectionNavigation extends React.PureComponent {
 						{ demoSections.siblingTabs }
 					</NavTabs>
 
-					<NavSegmented label="author">{ demoSections.siblingSegmented }</NavSegmented>
-
 					<Search
 						pinned={ true }
 						onSearch={ this.demoSearch }
@@ -145,7 +140,6 @@ class SectionNavigation extends React.PureComponent {
 		return (
 			<span>
 				<span>{ this.getSelectedText( 'siblingTabs' ) }</span>
-				<small>{ this.getSelectedText( 'siblingSegmented' ) }</small>
 			</span>
 		);
 	}

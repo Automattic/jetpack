@@ -1,6 +1,6 @@
 import { GlobalNotices, ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
 import Discussion from 'discussion';
@@ -16,7 +16,7 @@ import Traffic from 'traffic';
 import Writing from 'writing';
 import { FEATURE_JETPACK_EARN } from '../lib/plans/constants';
 
-class Settings extends React.Component {
+class Settings extends Component {
 	static displayName = 'SearchableSettings';
 
 	render() {

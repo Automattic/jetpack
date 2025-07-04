@@ -1,6 +1,5 @@
 import { Text } from '@automattic/jetpack-components';
 import { getCurrencyObject } from '@automattic/number-formatters';
-import React from 'react';
 
 /**
  * React component to render a Price composition.
@@ -10,7 +9,7 @@ import React from 'react';
  * @param {string}  props.currency          - Currency code (e.g. 'USD').
  * @param {boolean} props.hidePriceFraction - Whether or not to hide the fraction.
  * @param {string}  props.tag               - Topmost element tag.
- * @return {React.ReactNode} - Price react component.
+ * @return {import('react').ReactNode} - Price react component.
  */
 const Price = ( { amount, currency, hidePriceFraction, tag = 'span' } ) => {
 	const { symbol, integer, fraction } = getCurrencyObject( amount, currency );

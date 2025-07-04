@@ -4,7 +4,6 @@
 import { action } from '@storybook/addon-actions';
 import { useArgs } from '@storybook/preview-api';
 import { Notice } from '@wordpress/components';
-import React from 'react';
 /**
  * Internal dependencies
  */

@@ -12,7 +12,7 @@ import { PanelBody, PanelRow } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, select as globalSelect, useDispatch } from '@wordpress/data';
 import {
-	PluginPrePublishPane as DeprecatedPluginPrePublishPanel,
+	PluginPrePublishPanel as DeprecatedPluginPrePublishPanel,
 	PluginPostPublishPanel as DeprecatedPluginPostPublishPanel,
 } from '@wordpress/edit-post';
 import {

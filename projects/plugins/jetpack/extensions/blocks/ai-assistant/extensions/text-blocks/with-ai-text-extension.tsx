@@ -16,7 +16,6 @@ import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/el
 import { addFilter } from '@wordpress/hooks';
 import clsx from 'clsx';
 import debugFactory from 'debug';
-import React from 'react';
 /*
  * Internal dependencies
  */
@@ -26,7 +25,6 @@ import { mapInternalPromptTypeToBackendPromptType } from '../../lib/prompt/backe
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
 import { getBlockHandler, InlineExtensionsContext } from './get-block-handler';
-import { isBlockVariationSupported } from './lib/is-block-variation-supported';
 import { isPossibleToExtendTextBlock } from './lib/is-possible-to-extend-text-block';
 /*
  * Types
@@ -44,6 +42,7 @@ import type {
 	AiModelTypeProp,
 	Block,
 } from '@automattic/jetpack-ai-client';
+import type { MutableRefObject } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' );
 
@@ -78,14 +77,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Block props. isSelectionEnabled is used to determine if the block is in the editor or in the preview.
 		const { clientId, isSelected, name: blockName, isSelectionEnabled } = props;
 		// Ref to the control wrapper, its height and its ResizeObserver, for positioning adjustments.
-		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
+		const controlRef: MutableRefObject< HTMLDivElement | null > = useRef( null );
 		const controlHeight = useRef< number >( 0 );
 		const controlObserver = useRef< ResizeObserver | null >( null );
 		// Ref to the original block padding to reset it when the AI Control is closed.
 		const blockOriginalPaddingBottom = useRef< string >( '' );
 		// Ref to the input element to focus on it when the AI Control is displayed or when a request is done.
 		// Also used to determine the ownerDocument, as the editor can be in an iframe.
-		const inputRef: React.MutableRefObject< HTMLInputElement | null > = useRef( null );
+		const inputRef: MutableRefObject< HTMLInputElement | null > = useRef( null );
 		const ownerDocument = useRef< Document >( document );
 		// Ref to the chat history to keep track of the messages that were sent and the assistant responses.
 		const chatHistory = useRef< PromptMessagesProp >( [] );
@@ -583,11 +582,6 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// If the required module is not enabled, return the original block edit component early.
 		if ( ! isRequiredModulePresent ) {
-			return <BlockEdit { ...props } />;
-		}
-
-		// If the block variation is not supported, also return early.
-		if ( ! isBlockVariationSupported( props ) ) {
 			return <BlockEdit { ...props } />;
 		}
 

@@ -1,5 +1,4 @@
 import { Path, SVG, Rect, G } from '@wordpress/components';
-import React from 'react';
 import styles from './styles.module.scss';
 
 /**
@@ -8,7 +7,7 @@ import styles from './styles.module.scss';
  * @param {object} props           - Props.
  * @param {string} props.className - Optional component class name.
  * @param {string} props.color     - Optional icon color. Defaults to '#D63638'.
- * @return { React.ReactNode }      The Alert Icon component.
+ * @return { import('react').ReactNode }      The Alert Icon component.
  */
 export default function AlertSVGIcon( { className, color = '#D63638' } ) {
 	return (

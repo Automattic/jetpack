@@ -1,10 +1,10 @@
 import clsx from 'clsx';
 /*eslint lodash/import-scope: [2, "method"]*/
-import Toggle from 'components/form-toggle';
 import omit from 'lodash/omit';
-import React from 'react';
+import { Component } from 'react';
+import Toggle from 'components/form-toggle';
 
-export default class CompactFormToggle extends React.Component {
+export default class CompactFormToggle extends Component {
 	static displayName = 'CompactFormToggle';
 
 	render() {

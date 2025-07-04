@@ -5,12 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.1] - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## [0.16.0] - 2025-07-01
+### Added
+- Line chart: Add keyboard navigation support. [#43962]
+
+## [0.15.0] - 2025-06-30
+### Added
+- Add new `legendHorizontalAlign` and `legendVerticalAlign` props to chart legend components, allowing flexible positioning of legends. [#43979]
+- Bar chart: Support date literal parsing. [#44101]
+- Line chart: Add annotation support. [#43978]
+- Update exports config to work with Jetpack. [#43870]
+
+### Changed
+- Replace absolute positioning with flexbox. [#44085]
+- Update package dependencies. [#44020]
+
+### Removed
+- Remove unused `legendAlign` references and consolidate legend storybook item grouping. [#44100]
+- Remove unused `legend-stories.tsx` file. [#44120]
+
+### Fixed
+- Fix chart flickering on initial load. [#44062]
+- Fix internal resolution in Jetpack monorepo. [#44102]
+- Line chart: Remove duplicate stories and centralize story config. [#43994]
+- Properly pass `key` to JSX. [#44128]
+
 ## [0.14.0] - 2025-06-16
 ### Added
 - Allow setting the glyphs array in the theme to have these rendered in the line chart [#43875]
 - Bar chart: Add support for pattern fill for accessibility [#43812]
-- Charts: Show glyph in legends [#43851]
 - Line chart: Add support for Tooltip crosshairs [#43921]
+- Show glyph in legends [#43851]
 
 ### Changed
 - Line chart: Organise stories for easier browsing [#43922]
@@ -245,6 +274,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.16.1]: https://github.com/Automattic/charts/compare/v0.16.0...v0.16.1
+[0.16.0]: https://github.com/Automattic/charts/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/Automattic/charts/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/Automattic/charts/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/Automattic/charts/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/Automattic/charts/compare/v0.12.0...v0.12.1

@@ -514,7 +514,7 @@ function generateJsPackage( answers, pkgDir ) {
 	} else {
 		filename = 'jsconfig.json';
 		opts = {
-			jsx: 'react',
+			jsx: 'react-jsx',
 		};
 		xtends = '';
 	}

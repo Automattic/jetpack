@@ -1,12 +1,11 @@
 import { Path, SVG } from '@wordpress/components';
-import React from 'react';
 
 /**
  * Checkmark icon component
  *
  * @param {object} props       - Component props
  * @param {string} props.color - Color code for the checkmark
- * @return {React.ReactElement} Component template
+ * @return {import('react').ReactElement} Component template
  */
 export default function CheckIcon( { color = '#029CD7' } ) {
 	return (

@@ -1,5 +1,4 @@
 import apiFetch from '@wordpress/api-fetch';
-import { WPDataRegistry } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as socialStore } from '../../';
 import { connections, createRegistryWithStores as createRegistry } from '../../../utils/test-utils';
@@ -14,7 +13,7 @@ const post = {
  *
  * @param {boolean} initConnections - Whether to set initial connections.
  *
- * @return {WPDataRegistry} Registry.
+ * @return {import('@wordpress/data').WPDataRegistry} Registry.
  */
 function createRegistryWithStores( initConnections = true ) {
 	// Create a registry.

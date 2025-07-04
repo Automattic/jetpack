@@ -1,12 +1,12 @@
 import clsx from 'clsx';
 import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { createElement, Component } from 'react';
 /*eslint lodash/import-scope: [2, "method"]*/
 
 import './style.scss';
 
-export default class Button extends React.Component {
+export default class Button extends Component {
 	static displayName = 'Button';
 
 	static propTypes = {
@@ -42,6 +42,6 @@ export default class Button extends React.Component {
 
 		props.className = clsx( className, buttonClasses );
 
-		return React.createElement( element, props, this.props.children );
+		return createElement( element, props, this.props.children );
 	}
 }

@@ -9,7 +9,7 @@ import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
-import type { SVGProps, MouseEvent } from 'react';
+import type { SVGProps, MouseEvent, ReactNode } from 'react';
 
 type OmitBaseChartProps = Omit< BaseChartProps< DataPointPercentage[] >, 'width' | 'height' >;
 
@@ -46,7 +46,7 @@ interface PieChartProps extends OmitBaseChartProps {
 	/**
 	 * Use the children prop to render additional elements on the chart.
 	 */
-	children?: React.ReactNode;
+	children?: ReactNode;
 }
 
 /**
@@ -157,7 +157,11 @@ const PieChart = ( {
 	return (
 		<div
 			className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
-			style={ { position: 'relative' } }
+			style={ {
+				display: 'flex',
+				flexDirection:
+					showLegend && legendAlignmentVertical === 'top' ? 'column-reverse' : 'column',
+			} }
 		>
 			<svg
 				viewBox={ `0 0 ${ size } ${ size }` }

@@ -1,8 +1,8 @@
 import { Card, CardBody } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import React from 'react';
 import { Button } from '@automattic/jetpack-components';
 import { UpsellBannerProps } from './types.ts';
+import type { FC, ReactNode } from 'react';
 
 import './style.scss';
 
@@ -13,9 +13,9 @@ import './style.scss';
  * - The secondary CTA is the first button, at the left position.
  *
  * @param {UpsellBannerProps} props - Component props.
- * @return {React.ReactNode} - UpsellBanner component.
+ * @return {ReactNode} - UpsellBanner component.
  */
-const UpsellBanner: React.FC< UpsellBannerProps > = props => {
+const UpsellBanner: FC< UpsellBannerProps > = props => {
 	const {
 		icon,
 		title,

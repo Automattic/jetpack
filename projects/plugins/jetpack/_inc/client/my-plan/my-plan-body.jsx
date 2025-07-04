@@ -4,7 +4,7 @@ import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import QuerySitePlugins from 'components/data/query-site-plugins';
@@ -28,7 +28,7 @@ import {
 	isPluginInstalled,
 } from 'state/site/plugins';
 
-class MyPlanBody extends React.Component {
+class MyPlanBody extends Component {
 	static propTypes = {
 		plan: PropTypes.string,
 	};

@@ -1,6 +1,4 @@
-/**
- * Internal dependencies
- */
+import type { ChangeEvent } from 'react';
 import './title-optimization-options.scss';
 
 type TitleOptimizationOptions = {
@@ -18,7 +16,7 @@ export default function TitleOptimizationOptions( {
 }: {
 	options: TitleOptimizationOptions;
 	selected: string;
-	onChangeValue: ( event: React.ChangeEvent< HTMLInputElement > ) => void;
+	onChangeValue: ( event: ChangeEvent< HTMLInputElement > ) => void;
 } ) {
 	return (
 		<div className="jetpack-ai-title-optimization__options">

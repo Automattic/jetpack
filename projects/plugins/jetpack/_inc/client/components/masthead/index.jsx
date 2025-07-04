@@ -1,6 +1,6 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import analytics from 'lib/analytics';
 import {
@@ -10,7 +10,7 @@ import {
 } from 'state/connection';
 import { HeaderNav } from './header-nav';
 
-export class Masthead extends React.Component {
+export class Masthead extends Component {
 	trackLogoClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'masthead',

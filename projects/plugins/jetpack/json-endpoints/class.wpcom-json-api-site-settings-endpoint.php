@@ -373,11 +373,20 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					);
 
 					$newsletter_categories   = maybe_unserialize( get_option( 'wpcom_newsletter_categories', array() ) );
-					$newsletter_category_ids = array_map(
-						function ( $newsletter_category ) {
-							return $newsletter_category['term_id'];
-						},
-						$newsletter_categories
+					$newsletter_category_ids = array_filter(
+						array_map(
+							function ( $newsletter_category ) {
+								if ( is_array( $newsletter_category ) && isset( $newsletter_category['term_id'] ) ) {
+									// This is the expected format.
+									return (int) $newsletter_category['term_id'];
+								} elseif ( is_numeric( $newsletter_category ) ) {
+									// This is a previous format caused by a bug.
+									return (int) $newsletter_category;
+								}
+								return null;
+							},
+							$newsletter_categories
+						)
 					);
 
 					$api_cache = $site->is_jetpack() ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;

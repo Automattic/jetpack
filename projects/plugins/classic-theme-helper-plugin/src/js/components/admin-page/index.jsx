@@ -8,7 +8,6 @@ import {
 import { ConnectScreenRequiredPlan } from '@automattic/jetpack-connection';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import shouldUseInternalLinks from '../../../../../../js-packages/shared-extension-utils/src/should-use-internal-links';
 import styles from './styles.module.scss';
 

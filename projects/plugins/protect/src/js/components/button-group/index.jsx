@@ -1,15 +1,14 @@
 import { Button } from '@automattic/jetpack-components';
 import { Flex } from '@wordpress/components';
-import React from 'react';
 import styles from './styles.module.scss';
 
 /**
  * Button Group
  *
- * @param {object}            props          - Component props.
- * @param { React.ReactNode } props.children - Component children.
+ * @param {object}                      props          - Component props.
+ * @param { import('react').ReactNode } props.children - Component children.
  *
- * @return { React.ReactNode } The Button Group component.
+ * @return { import('react').ReactNode } The Button Group component.
  */
 function ButtonGroup( { children, ...props } ) {
 	return (

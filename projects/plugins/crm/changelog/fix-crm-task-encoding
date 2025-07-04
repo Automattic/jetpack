@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+special characters were not displayed correctly

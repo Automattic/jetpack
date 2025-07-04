@@ -666,11 +666,9 @@ class Actions {
 	 */
 	public static function jetpack_cron_schedule( $schedules ) {
 		if ( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
-			$minutes = (int) ( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
-			$display = ( 1 === $minutes ) ?
-				__( 'Every minute', 'jetpack-sync' ) :
-				/* translators: %d is an integer indicating the number of minutes. */
-				sprintf( __( 'Every %d minutes', 'jetpack-sync' ), $minutes );
+			$minutes = ( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
+			/* translators: %d is an integer indicating the number of minutes. */
+			$display = sprintf( __( 'Every %d minutes', 'jetpack-sync' ), $minutes );
 			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
 				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
 				'display'  => $display,
@@ -1184,7 +1182,7 @@ class Actions {
 		}
 
 		if ( $response_code !== 200 || false === isset( $decoded_response['processed_items'] ) ) {
-			if ( is_array( $decoded_response ) && isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
+			if ( isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
 				return new WP_Error(
 					'jetpack_sync_send_error_' . $decoded_response['code'],
 					$decoded_response['message'],

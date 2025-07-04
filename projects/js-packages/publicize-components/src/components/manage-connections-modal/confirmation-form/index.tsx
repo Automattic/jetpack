@@ -13,6 +13,7 @@ import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
 import { useSupportedServices } from '../../services/use-supported-services';
 import styles from './style.module.scss';
+import type { FormEvent } from 'react';
 
 type ConfirmationFormProps = {
 	keyringResult: KeyringResult;
@@ -127,7 +128,7 @@ export function ConfirmationForm( {
 	const { createConnection, setReconnectingAccount } = useDispatch( socialStore );
 
 	const onConfirm = useCallback(
-		async ( event: React.FormEvent ) => {
+		async ( event: FormEvent ) => {
 			event.preventDefault();
 			// Prevent Jetpack settings from being submitted
 			event.stopPropagation();

@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
 import { SocialLogo } from 'social-logos';
@@ -36,7 +36,7 @@ import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
 import JetpackStateNotices from './state-notices';
 
-export class DevVersionNotice extends React.Component {
+export class DevVersionNotice extends Component {
 	static displayName = 'DevVersionNotice';
 
 	render() {
@@ -62,7 +62,7 @@ DevVersionNotice.propTypes = {
 	userIsSubscriber: PropTypes.bool.isRequired,
 };
 
-export class OfflineModeNotice extends React.Component {
+export class OfflineModeNotice extends Component {
 	static displayName = 'OfflineModeNotice';
 
 	render() {
@@ -142,7 +142,7 @@ OfflineModeNotice.propTypes = {
 	siteOfflineMode: PropTypes.oneOfType( [ PropTypes.bool, PropTypes.object ] ).isRequired,
 };
 
-export class UserUnlinked extends React.Component {
+export class UserUnlinked extends Component {
 	static displayName = 'UserUnlinked';
 
 	render() {
@@ -175,7 +175,7 @@ UserUnlinked.propTypes = {
 	siteConnected: PropTypes.bool.isRequired,
 };
 
-class JetpackNotices extends React.Component {
+class JetpackNotices extends Component {
 	static displayName = 'JetpackNotices';
 
 	dismissNotice = noticeKey => {

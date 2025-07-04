@@ -1,4 +1,3 @@
-import React from 'react';
 import { legendArgTypes, legendDecorator } from '../../../stories/legend-config';
 import { BarChart } from '../../bar-chart';
 import sampleData from './sample-data';
@@ -34,7 +33,7 @@ Default.args = {
 export const AlignmentPositioning: StoryObj< typeof BarChart > = Template.bind( {} );
 AlignmentPositioning.args = {
 	...legendStoryArgs,
-	legendAlign: 'right',
+	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
 };
 
@@ -42,7 +41,7 @@ export const VerticalOrientation: StoryObj< typeof BarChart > = Template.bind( {
 VerticalOrientation.args = {
 	...legendStoryArgs,
 	legendOrientation: 'vertical',
-	legendAlign: 'right',
+	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
 };
 
@@ -50,6 +49,6 @@ export const HorizontalBars: StoryObj< typeof BarChart > = Template.bind( {} );
 HorizontalBars.args = {
 	...legendStoryArgs,
 	orientation: 'horizontal',
-	legendAlign: 'right',
+	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
 };

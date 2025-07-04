@@ -3,7 +3,6 @@
  */
 import { action } from '@storybook/addon-actions';
 import { useArgs } from '@storybook/preview-api';
-import React from 'react';
 /**
  * Internal dependencies
  */

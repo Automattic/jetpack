@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 export type ProductPriceProps = {
 	/**
 	 * Product price.
@@ -47,7 +49,7 @@ export type ProductPriceProps = {
 	/**
 	 * Alternative legend with HTML syntax
 	 */
-	children?: React.ReactNode;
+	children?: ReactNode;
 };
 
 export type PriceProps = {
