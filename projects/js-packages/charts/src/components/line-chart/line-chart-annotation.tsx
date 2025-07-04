@@ -96,11 +96,11 @@ export const getLabelPosition = ( {
 		dy = 0;
 	}
 
-	if ( ! isNaN( customDx ) ) {
+	if ( typeof customDx === 'number' ) {
 		dx = customDx;
 	}
 
-	if ( ! isNaN( customDy ) ) {
+	if ( typeof customDy === 'number' ) {
 		dy = customDy;
 	}
 
@@ -110,6 +110,7 @@ export const getLabelPosition = ( {
 
 	if ( effectiveX + annotationMaxWidth > xMax ) {
 		isFlippedHorizontally = true;
+
 		if ( subjectType === 'circle' ) {
 			dx = -dx; // Just flip to the left side with same offset
 		} else if ( subjectType === 'line-vertical' ) {
@@ -173,7 +174,6 @@ const getVerticalAnchor = (
 			return y - height < yMax ? 'start' : 'end';
 		}
 
-		// Default to top anchor for vertical line subjects
 		return 'start';
 	}
 
@@ -353,8 +353,8 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 						<Label
 							title={ title }
 							subtitle={ subtitle }
-							{ ...labelPosition }
 							{ ...styles?.label }
+							{ ...labelPosition }
 							horizontalAnchor={ getHorizontalAnchor( subjectType, isFlippedHorizontally ) }
 							verticalAnchor={ getVerticalAnchor(
 								subjectType,
