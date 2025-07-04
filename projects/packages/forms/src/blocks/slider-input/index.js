@@ -28,6 +28,14 @@ const settings = {
 			type: 'number',
 			default: 100,
 		},
+		value: {
+			type: 'number',
+			default: 50,
+		},
+		startingValue: {
+			type: 'number',
+			default: 50,
+		},
 	},
 	edit,
 	save,

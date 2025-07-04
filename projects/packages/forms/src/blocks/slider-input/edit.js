@@ -1,23 +1,39 @@
 import './editor.scss';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
-import { useState } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 export default function SliderInputEdit( props ) {
 	const { attributes, setAttributes } = props;
-	const { min = 0, max = 100, value = 50 } = attributes;
-	const [ internalValue, setInternalValue ] = useState( value );
+	const { min, max, value, startingValue } = attributes;
+
+	// Ensure min, max, value, and defaultValue are always set and saved
+	useEffect( () => {
+		if ( min === undefined ) setAttributes( { min: 0 } );
+		if ( max === undefined ) setAttributes( { max: 100 } );
+		if ( value === undefined ) setAttributes( { value: 50 } );
+		if ( startingValue === undefined ) setAttributes( { startingValue: 50 } );
+	}, [ min, max, value, startingValue, setAttributes ] );
 
 	const onChange = event => {
-		const newValue = Number( event.target.value );
-		setInternalValue( newValue );
-		setAttributes( { value: newValue } );
+		setAttributes( { value: Number( event.target.value ) } );
 	};
 
 	const blockProps = useBlockProps( {
 		className: 'jetpack-slider-input',
 	} );
+
+	// Mimic the Interactivity API's getIndicatorPosition logic
+	const getIndicatorPosition = () => {
+		const minNum = Number( min );
+		const maxNum = Number( max );
+		let valueNum = Number( value );
+		valueNum = valueNum < minNum ? minNum : valueNum;
+		valueNum = valueNum > maxNum ? maxNum : valueNum;
+		const percent = ( ( valueNum - minNum ) * 100 ) / ( maxNum - minNum );
+		return `calc(${ percent }% + (${ 8 - percent * 0.15 }px))`;
+	};
 
 	return (
 		<>
@@ -46,22 +62,38 @@ export default function SliderInputEdit( props ) {
 						__next40pxDefaultSize={ true }
 						help={ __( 'The maximum value to accept in the slider.', 'jetpack-forms' ) }
 					/>
+					<NumberControl
+						key="startingValue"
+						label={ __( 'Starting value', 'jetpack-forms' ) }
+						value={ startingValue }
+						onChange={ newStartValue => setAttributes( { startingValue: newStartValue } ) }
+						min={ min }
+						max={ max }
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
+						help={ __( 'The value the slider will start at.', 'jetpack-forms' ) }
+					/>
 				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
-				<div className="jetpack-slider-input__current-value">
-					{ __( 'Selected:', 'jetpack-forms' ) } { internalValue }
-				</div>
-				<div className="jetpack-slider-input__slider-row">
+				<div className="jetpack-slider-input-row">
 					<span className="jetpack-slider-input__min-label">{ min }</span>
-					<input
-						type="range"
-						min={ min }
-						max={ max }
-						value={ internalValue }
-						onChange={ onChange }
-						className="jetpack-slider-input__range"
-					/>
+					<div className="jetpack-slider-input__input-container">
+						<input
+							type="range"
+							min={ min }
+							max={ max }
+							value={ value }
+							onChange={ onChange }
+							className="jetpack-slider-input__range"
+						/>
+						<div
+							className="jetpack-slider-input__value-indicator"
+							style={ { left: getIndicatorPosition() } }
+						>
+							{ value }
+						</div>
+					</div>
 					<span className="jetpack-slider-input__max-label">{ max }</span>
 				</div>
 			</div>

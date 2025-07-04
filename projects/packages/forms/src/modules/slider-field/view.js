@@ -12,6 +12,9 @@ store( 'jetpack/field-slider', {
 			const context = getContext();
 			const min = Number( context.fieldExtra?.min ?? 0 );
 			const max = Number( context.fieldExtra?.max ?? 100 );
+			// console.log( 'context.fieldExtra?.min', context.fieldExtra?.min );
+			// console.log( 'context.fieldExtra?.max', context.fieldExtra?.max );
+			// console.log( 'context.fieldValue', context.fieldValue );
 			let value = Number( context.fieldValue ?? min );
 			value = value < min ? min : value;
 			value = value > max ? max : value;
