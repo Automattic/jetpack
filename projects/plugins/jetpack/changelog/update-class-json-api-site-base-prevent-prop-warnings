@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+SAL: Ensurethat we don't check for properties on null.
