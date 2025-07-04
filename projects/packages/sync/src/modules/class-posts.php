@@ -597,7 +597,7 @@ class Posts extends Module {
 	 * @param \WP_Post $post       Post object.
 	 */
 	public function save_published( $new_status, $old_status, $post ) {
-		if ( ! $post instanceof \WP_Post || ! isset( $post->ID ) ) {
+		if ( ! $post instanceof \WP_Post ) {
 			return;
 		}
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
