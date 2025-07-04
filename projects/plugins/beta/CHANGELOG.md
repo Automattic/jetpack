@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.1.4 - 2025-07-04
+### Changed
+- Update package dependencies. [#43425] [#43839]
+
+### Fixed
+- Autoloader: Prevent double slash in autoloader path. [#44030]
+- Linting: Fix more Stylelint violations. [#43213]
+- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
+
 ## 4.1.3 - 2025-04-17
 ### Changed
 - Code: First pass of style coding standards. [#42734]
