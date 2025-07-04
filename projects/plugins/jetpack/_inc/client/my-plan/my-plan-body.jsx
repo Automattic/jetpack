@@ -2,7 +2,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -84,10 +83,10 @@ class MyPlanBody extends Component {
 			'is-daily-security-plan',
 			'is-realtime-security-plan',
 		].includes( planClass );
-		const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+		const rewindActive = 'active' === this.props.rewindStatus?.state,
 			hideVaultPressCard =
 				! this.props.showBackups ||
-				( ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false ) );
+				( ! rewindActive && 'unavailable' !== this.props.rewindStatus?.state );
 
 		const getJetpackBackupCard = args => {
 			const { title, description } = args;

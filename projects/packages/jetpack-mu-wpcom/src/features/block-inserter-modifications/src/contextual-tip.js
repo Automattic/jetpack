@@ -1,7 +1,7 @@
 import { Tip } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
-import { get, deburr, lowerCase } from 'lodash';
+import { deburr, lowerCase } from 'lodash';
 import tipsList from './list';
 
 /**
@@ -38,7 +38,7 @@ function ContextualTip( { searchTerm, random = false, canUserCreate } ) {
 
 	return (
 		<div className="contextual-tip">
-			<Tip>{ get( foundTips, [ index, 'description' ] ) }</Tip>
+			<Tip>{ foundTips[ index ]?.description }</Tip>
 		</div>
 	);
 }

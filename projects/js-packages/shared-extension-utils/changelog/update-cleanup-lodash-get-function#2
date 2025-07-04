@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove no-longer-needed dependency on `lodash`.

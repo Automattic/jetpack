@@ -2,7 +2,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { get } from 'lodash';
 import { Component } from 'react';
 import { FormFieldset, FormLabel } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
@@ -37,11 +36,9 @@ class VerificationServicesComponent extends Component {
 			return content;
 		}
 
-		return `<meta name="${ get(
-			VerificationServicesComponent.serviceIds,
-			serviceName,
-			''
-		) }" content="${ content }" />`;
+		return `<meta name="${
+			VerificationServicesComponent.serviceIds?.[ serviceName ] ?? ''
+		}" content="${ content }" />`;
 	}
 
 	getSiteVerificationValue( service ) {

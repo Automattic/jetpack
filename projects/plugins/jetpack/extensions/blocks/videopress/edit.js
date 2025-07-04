@@ -41,7 +41,6 @@ import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import clsx from 'clsx';
-import { get } from 'lodash';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';
@@ -126,15 +125,12 @@ const VideoPressEdit = CoreVideoEdit =>
 		}
 
 		setRatingAndAllowDownload = async () => {
-			const id = get( this.props, 'attributes.id' );
+			const id = this.props?.attributes?.id;
 			const media = await this.requestMedia( id );
-			let rating = get( media, 'jetpack_videopress.rating' );
-			const allowDownload = get( media, 'jetpack_videopress.allow_download' );
-			const privacySetting = get(
-				media,
-				'jetpack_videopress.privacy_setting',
-				VIDEO_PRIVACY.SITE_DEFAULT
-			);
+			let rating = media?.jetpack_videopress?.rating;
+			const allowDownload = media?.jetpack_videopress?.allow_download;
+			const privacySetting =
+				media?.jetpack_videopress?.privacy_setting ?? VIDEO_PRIVACY.SITE_DEFAULT;
 
 			if ( rating ) {
 				// X-18 was previously supported but is now removed to better comply with our TOS.
@@ -228,7 +224,7 @@ const VideoPressEdit = CoreVideoEdit =>
 					return;
 				}
 
-				const guid = get( media, 'jetpack_videopress.guid' );
+				const guid = media?.jetpack_videopress?.guid;
 				if ( guid ) {
 					setAttributes( { guid } );
 					this.setTracks( guid );

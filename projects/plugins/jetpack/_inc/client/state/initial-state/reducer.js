@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { get, merge } from 'lodash';
+import { merge } from 'lodash';
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { isCurrentUserLinked } from 'state/connection';
 import { getPlanDuration } from 'state/plans/reducer';
@@ -37,7 +37,7 @@ export function isDevVersion( state ) {
  * @return {string}         Version number. Empty string if the data is not yet available.
  */
 export function getCurrentVersion( state ) {
-	return get( state.jetpack.initialState, 'currentVersion', '' );
+	return state.jetpack.initialState?.currentVersion ?? '';
 }
 
 /**
@@ -47,7 +47,7 @@ export function getCurrentVersion( state ) {
  * @return {object} Site roles
  */
 export function getSiteRoles( state ) {
-	return get( state.jetpack.initialState.stats, 'roles', {} );
+	return state.jetpack.initialState.stats?.roles ?? {};
 }
 
 /**
@@ -57,7 +57,7 @@ export function getSiteRoles( state ) {
  * @return {object} The initial state of the stats data.
  */
 export function getInitialStateStatsData( state ) {
-	return get( state.jetpack.initialState.stats, 'data' );
+	return state.jetpack.initialState.stats?.data;
 }
 
 /**
@@ -67,7 +67,7 @@ export function getInitialStateStatsData( state ) {
  * @return {object}         Plugins that are using the Jetpack connection.
  */
 export function getInitialStateConnectedPlugins( state ) {
-	return get( state.jetpack.initialState, 'connectedPlugins', {} );
+	return state.jetpack.initialState?.connectedPlugins ?? {};
 }
 
 /**
@@ -77,7 +77,7 @@ export function getInitialStateConnectedPlugins( state ) {
  * @return {string}  The email address of the current user.       .
  */
 export function getAdminEmailAddress( state ) {
-	return get( state.jetpack.initialState, [ 'userData', 'currentUser', 'wpcomUser', 'email' ] );
+	return state.jetpack.initialState?.userData?.currentUser?.wpcomUser?.email;
 }
 
 /**
@@ -87,7 +87,7 @@ export function getAdminEmailAddress( state ) {
  * @return {string}  The email address of the current user.       .
  */
 export function getCurrenUserEmailAddress( state ) {
-	return get( state.jetpack.initialState, [ 'userData', 'currentUser', 'email' ] );
+	return state.jetpack.initialState?.userData?.currentUser?.email;
 }
 
 /**
@@ -97,7 +97,7 @@ export function getCurrenUserEmailAddress( state ) {
  * @return {object} The site's raw url.
  */
 export function getSiteRawUrl( state ) {
-	return get( state.jetpack.initialState, 'rawUrl', {} );
+	return state.jetpack.initialState?.rawUrl ?? {};
 }
 
 /**
@@ -107,7 +107,7 @@ export function getSiteRawUrl( state ) {
  * @return {object} The site's admin url.
  */
 export function getSiteAdminUrl( state ) {
-	return get( state.jetpack.initialState, 'adminUrl', {} );
+	return state.jetpack.initialState?.adminUrl ?? {};
 }
 
 /**
@@ -117,7 +117,7 @@ export function getSiteAdminUrl( state ) {
  * @return {string} The site's title.
  */
 export function getSiteTitle( state ) {
-	return get( state.jetpack.initialState, 'siteTitle', '' );
+	return state.jetpack.initialState?.siteTitle ?? '';
 }
 
 /**
@@ -127,7 +127,7 @@ export function getSiteTitle( state ) {
  * @return {boolean} Whether the site is public.
  */
 export function isSitePublic( state ) {
-	return get( state.jetpack.initialState, [ 'connectionStatus', 'isPublic' ] );
+	return state.jetpack.initialState?.connectionStatus?.isPublic;
 }
 
 /**
@@ -137,7 +137,7 @@ export function isSitePublic( state ) {
  * @return {boolean} Whether Gutenberg is available.
  */
 export function isGutenbergAvailable( state ) {
-	return get( state.jetpack.initialState, 'is_gutenberg_available', false );
+	return state.jetpack.initialState?.is_gutenberg_available ?? false;
 }
 
 /**
@@ -147,7 +147,7 @@ export function isGutenbergAvailable( state ) {
  * @return {boolean} Whether the current user is a subscriber.
  */
 export function userIsSubscriber( state ) {
-	return ! get( state.jetpack.initialState.userData.currentUser.permissions, 'edit_posts', false );
+	return ! state.jetpack.initialState.userData.currentUser.permissions?.edit_posts;
 }
 
 /**
@@ -157,7 +157,7 @@ export function userIsSubscriber( state ) {
  * @return {boolean} Whether the user can publish posts.
  */
 export function userCanPublish( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'publish_posts', false );
+	return state.jetpack.initialState.userData.currentUser.permissions?.publish_posts ?? false;
 }
 
 /**
@@ -167,11 +167,7 @@ export function userCanPublish( state ) {
  * @return {boolean} Whether the user can manage modules.
  */
 export function userCanManageModules( state ) {
-	return get(
-		state.jetpack.initialState.userData.currentUser.permissions,
-		'manage_modules',
-		false
-	);
+	return state.jetpack.initialState.userData.currentUser.permissions?.manage_modules ?? false;
 }
 
 /**
@@ -181,11 +177,7 @@ export function userCanManageModules( state ) {
  * @return {boolean} Whether the user can manage options.
  */
 export function userCanManageOptions( state ) {
-	return get(
-		state.jetpack.initialState.userData.currentUser.permissions,
-		'manage_options',
-		false
-	);
+	return state.jetpack.initialState.userData.currentUser.permissions?.manage_options ?? false;
 }
 
 /**
@@ -196,7 +188,7 @@ export function userCanManageOptions( state ) {
  * @return {boolean} Whether user can edit posts.
  */
 export function userCanEditPosts( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'edit_posts', false );
+	return state.jetpack.initialState.userData.currentUser.permissions?.edit_posts ?? false;
 }
 
 /**
@@ -207,11 +199,7 @@ export function userCanEditPosts( state ) {
  * @return {boolean} Whether user can manage plugins.
  */
 export function userCanManagePlugins( state ) {
-	return get(
-		state.jetpack.initialState.userData.currentUser.permissions,
-		'manage_plugins',
-		false
-	);
+	return state.jetpack.initialState.userData.currentUser.permissions?.manage_plugins ?? false;
 }
 
 /**
@@ -221,7 +209,7 @@ export function userCanManagePlugins( state ) {
  * @return {boolean} Whether the user can disconnect the site.
  */
 export function userCanDisconnectSite( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'disconnect', false );
+	return state.jetpack.initialState.userData.currentUser.permissions?.disconnect ?? false;
 }
 
 /**
@@ -231,7 +219,7 @@ export function userCanDisconnectSite( state ) {
  * @return {boolean} Whether the user can connect the site.
  */
 export function userCanConnectSite( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect', false );
+	return state.jetpack.initialState.userData.currentUser.permissions?.connect ?? false;
 }
 
 /**
@@ -242,7 +230,7 @@ export function userCanConnectSite( state ) {
  * @return {boolean} Whether current user can connect their WordPress.com account.
  */
 export function userCanConnectAccount( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect_user', false );
+	return state.jetpack.initialState.userData.currentUser.permissions?.connect_user ?? false;
 }
 
 /**
@@ -254,7 +242,7 @@ export function userCanConnectAccount( state ) {
  * @deprecated 9.3.0
  */
 export function userIsMaster( state ) {
-	return get( state.jetpack.initialState.userData.currentUser, 'isMaster', false );
+	return state.jetpack.initialState.userData.currentUser?.isMaster ?? false;
 }
 
 /**
@@ -264,7 +252,7 @@ export function userIsMaster( state ) {
  * @return {string} The WordPress.com login of the current user.
  */
 export function getUserWpComLogin( state ) {
-	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'login' ], '' );
+	return state.jetpack.initialState.userData.currentUser?.wpcomUser?.login ?? '';
 }
 
 /**
@@ -274,7 +262,7 @@ export function getUserWpComLogin( state ) {
  * @return {number}        the ID of the user
  */
 export function getUserWpComId( state ) {
-	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'ID' ], '' );
+	return state.jetpack.initialState.userData.currentUser?.wpcomUser?.ID ?? '';
 }
 
 /**
@@ -284,7 +272,7 @@ export function getUserWpComId( state ) {
  * @return {string} The WordPress.com email of the current user.
  */
 export function getUserWpComEmail( state ) {
-	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'email' ], '' );
+	return state.jetpack.initialState.userData.currentUser?.wpcomUser?.email ?? '';
 }
 
 /**
@@ -294,7 +282,7 @@ export function getUserWpComEmail( state ) {
  * @return {string} The WordPress.com avatar URL of the current user.
  */
 export function getUserWpComAvatar( state ) {
-	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'avatar' ] );
+	return state.jetpack.initialState.userData.currentUser?.wpcomUser?.avatar;
 }
 
 /**
@@ -304,7 +292,7 @@ export function getUserWpComAvatar( state ) {
  * @return {string} The WordPress.com Gravatar of the current user.
  */
 export function getUserGravatar( state ) {
-	return get( state.jetpack.initialState.userData.currentUser, [ 'gravatar' ] );
+	return state.jetpack.initialState.userData.currentUser?.gravatar;
 }
 
 /**
@@ -314,7 +302,7 @@ export function getUserGravatar( state ) {
  * @return {string} The username of the current user.
  */
 export function getUsername( state ) {
-	return get( state.jetpack.initialState.userData.currentUser, [ 'username' ] );
+	return state.jetpack.initialState.userData.currentUser?.username;
 }
 /**
  * Gets the current user display name.
@@ -322,7 +310,7 @@ export function getUsername( state ) {
  * @return {string} The user display name.
  */
 export function getDisplayName( state ) {
-	const displayName = get( state.jetpack.initialState.userData.currentUser, [ 'displayName' ] );
+	const displayName = state.jetpack.initialState.userData.currentUser?.displayName;
 	if ( displayName === null ) {
 		return getUsername( state );
 	}
@@ -335,7 +323,7 @@ export function getDisplayName( state ) {
  * @return {number} The user id in wp-admin
  */
 export function getUserId( state ) {
-	return get( state.jetpack.initialState.userData.currentUser, 'id', '' );
+	return state.jetpack.initialState.userData.currentUser?.id ?? '';
 }
 
 /**
@@ -345,7 +333,7 @@ export function getUserId( state ) {
  * @return {boolean} Whether the current user can view stats.
  */
 export function userCanViewStats( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'view_stats', false );
+	return state.jetpack.initialState.userData.currentUser.permissions?.view_stats ?? false;
 }
 
 /**
@@ -355,7 +343,7 @@ export function userCanViewStats( state ) {
  * @return {number}        the ID of the site
  */
 export function getSiteId( state ) {
-	return get( state.jetpack.initialState.siteData, [ 'blog_id' ] );
+	return state.jetpack.initialState.siteData?.blog_id;
 }
 
 /**
@@ -366,7 +354,7 @@ export function getSiteId( state ) {
  * @return {string}        the URL of the icon
  */
 export function getSiteIcon( state ) {
-	return get( state.jetpack.initialState.siteData, [ 'icon' ] );
+	return state.jetpack.initialState.siteData?.icon;
 }
 
 /**
@@ -377,7 +365,7 @@ export function getSiteIcon( state ) {
  * @return {boolean} False if site is set to discourage search engines from indexing it. True otherwise.
  */
 export function isSiteVisibleToSearchEngines( state ) {
-	return get( state.jetpack.initialState.siteData, [ 'siteVisibleToSearchEngines' ], true );
+	return state.jetpack.initialState.siteData?.siteVisibleToSearchEngines ?? true;
 }
 
 /**
@@ -387,7 +375,7 @@ export function isSiteVisibleToSearchEngines( state ) {
  * @return {object}        the boost speed scores and timestamp
  */
 export function getLatestBoostSpeedScores( state ) {
-	return get( state.jetpack.initialState.siteData, [ 'latestBoostSpeedScores' ] );
+	return state.jetpack.initialState.siteData?.latestBoostSpeedScores;
 }
 
 /**
@@ -397,7 +385,7 @@ export function getLatestBoostSpeedScores( state ) {
  * @return {string} The WP API nonce.
  */
 export function getApiNonce( state ) {
-	return get( state.jetpack.initialState, 'WP_API_nonce' );
+	return state.jetpack.initialState?.WP_API_nonce;
 }
 
 /**
@@ -407,7 +395,7 @@ export function getApiNonce( state ) {
  * @return {string} The WP API root URL.
  */
 export function getApiRootUrl( state ) {
-	return get( state.jetpack.initialState, 'WP_API_root' );
+	return state.jetpack.initialState?.WP_API_root;
 }
 
 /**
@@ -428,7 +416,7 @@ export function getRegistrationNonce() {
  * @return {string} The registration nonce
  */
 export function getPluginBaseUrl( state ) {
-	return get( state.jetpack.initialState, 'pluginBaseUrl' );
+	return state.jetpack.initialState?.pluginBaseUrl;
 }
 
 /**
@@ -439,7 +427,7 @@ export function getPluginBaseUrl( state ) {
  * @return {string|boolean} purchase token or false if not the connection owner.
  */
 export function getPurchaseToken( state ) {
-	return get( state.jetpack.initialState, 'purchaseToken' );
+	return state.jetpack.initialState?.purchaseToken;
 }
 
 /**
@@ -450,7 +438,7 @@ export function getPurchaseToken( state ) {
  * @return {string} Calypso environment name.
  */
 export function getCalypsoEnv( state ) {
-	return get( state.jetpack.initialState, 'calypsoEnv' );
+	return state.jetpack.initialState?.calypsoEnv;
 }
 
 /**
@@ -460,7 +448,7 @@ export function getCalypsoEnv( state ) {
  * @return { object } The current user tracks data.
  */
 export function getTracksUserData( state ) {
-	return get( state.jetpack.initialState, 'tracksUserData' );
+	return state.jetpack.initialState?.tracksUserData;
 }
 
 /**
@@ -470,7 +458,7 @@ export function getTracksUserData( state ) {
  * @return {string} The current IP address of the site.
  */
 export function getCurrentIp( state ) {
-	return get( state.jetpack.initialState, 'currentIp' );
+	return state.jetpack.initialState?.currentIp;
 }
 
 /**
@@ -481,7 +469,7 @@ export function getCurrentIp( state ) {
  * @return {string} URL to last published post.
  */
 export function getLastPostUrl( state ) {
-	return get( state.jetpack.initialState, 'lastPostUrl' );
+	return state.jetpack.initialState?.lastPostUrl;
 }
 
 /**
@@ -492,7 +480,7 @@ export function getLastPostUrl( state ) {
  * @return {boolean} True if promotions are active, false otherwise.
  */
 export function arePromotionsActive( state ) {
-	return get( state.jetpack.initialState.siteData, 'showPromotions', true );
+	return state.jetpack.initialState.siteData?.showPromotions ?? true;
 }
 
 /**
@@ -502,7 +490,7 @@ export function arePromotionsActive( state ) {
  * @return {string} theme stylesheet, e.g. twentytwentythree.
  */
 export function currentThemeStylesheet( state ) {
-	return get( state.jetpack.initialState.themeData, 'stylesheet' );
+	return state.jetpack.initialState.themeData?.stylesheet;
 }
 
 /**
@@ -514,7 +502,7 @@ export function currentThemeStylesheet( state ) {
  * @return {boolean} URL to last published post.
  */
 export function currentThemeSupports( state, feature ) {
-	return get( state.jetpack.initialState.themeData, [ 'support', feature ], false );
+	return state.jetpack.initialState.themeData?.support?.[ feature ] ?? false;
 }
 
 /**
@@ -524,7 +512,7 @@ export function currentThemeSupports( state, feature ) {
  * @return {boolean} True if the current theme is a block theme, false otherwise.
  */
 export function currentThemeIsBlockTheme( state ) {
-	return get( state.jetpack.initialState.themeData, [ 'isBlockTheme' ], false );
+	return state.jetpack.initialState.themeData?.isBlockTheme ?? false;
 }
 
 /**
@@ -535,7 +523,7 @@ export function currentThemeIsBlockTheme( state ) {
  * @return {boolean} True if backups UI should be displayed.
  */
 export function showBackups( state ) {
-	return get( state.jetpack.initialState.siteData, 'showBackups', true );
+	return state.jetpack.initialState.siteData?.showBackups ?? true;
 }
 
 /**
@@ -546,7 +534,7 @@ export function showBackups( state ) {
  * @return {boolean} True if the Jetpack Recommendations should be displayed, false otherwise.
  */
 export function showRecommendations( state ) {
-	return get( state.jetpack.initialState.siteData, 'showRecommendations', false );
+	return state.jetpack.initialState.siteData?.showRecommendations ?? false;
 }
 
 /**
@@ -556,7 +544,7 @@ export function showRecommendations( state ) {
  * @return {boolean} True if the My Jetpack should be referenced, false otherwise.
  */
 export function showMyJetpack( state ) {
-	return get( state.jetpack.initialState.siteData, 'showMyJetpack', true );
+	return state.jetpack.initialState.siteData?.showMyJetpack ?? true;
 }
 
 /**
@@ -566,7 +554,7 @@ export function showMyJetpack( state ) {
  * @return {Array} - Array of recommendation slugs
  */
 export function getNewRecommendations( state ) {
-	return get( state.jetpack.initialState, 'newRecommendations', [] );
+	return state.jetpack.initialState?.newRecommendations ?? [];
 }
 
 /**
@@ -587,7 +575,7 @@ export function getNewRecommendationsCount( state ) {
  * @return {boolean} True if the Jetpack Licensing UI should be displayed, false otherwise.
  */
 export function showLicensingUi( state ) {
-	return get( state.jetpack.initialState.licensing, 'showLicensingUi', false );
+	return state.jetpack.initialState.licensing?.showLicensingUi ?? false;
 }
 
 /**
@@ -598,7 +586,7 @@ export function showLicensingUi( state ) {
  * @return {boolean} True if the site is part of a Multisite network.
  */
 export function isMultisite( state ) {
-	return get( state.jetpack.initialState.siteData, 'isMultisite', false );
+	return state.jetpack.initialState.siteData?.isMultisite ?? false;
 }
 
 /**
@@ -609,7 +597,7 @@ export function isMultisite( state ) {
  * @return {string} Date format of the site.
  */
 export function getDateFormat( state ) {
-	return get( state.jetpack.initialState.siteData, 'dateFormat', false );
+	return state.jetpack.initialState.siteData?.dateFormat ?? false;
 }
 
 /**
@@ -620,7 +608,7 @@ export function getDateFormat( state ) {
  * @return {string} The affiliate code.
  */
 export function getAffiliateCode( state ) {
-	return get( state.jetpack.initialState, 'aff', '' );
+	return state.jetpack.initialState?.aff ?? '';
 }
 
 /**
@@ -631,7 +619,7 @@ export function getAffiliateCode( state ) {
  * @return {string} The partner subsidiary id.
  */
 export function getPartnerSubsidiaryId( state ) {
-	return get( state.jetpack.initialState, 'partnerSubsidiaryId', '' );
+	return state.jetpack.initialState?.partnerSubsidiaryId ?? '';
 }
 
 /**
@@ -641,7 +629,7 @@ export function getPartnerSubsidiaryId( state ) {
  * @return {object|boolean} partner coupon if exists or false.
  */
 export function getPartnerCoupon( state ) {
-	return get( state.jetpack.initialState, 'partnerCoupon' );
+	return state.jetpack.initialState?.partnerCoupon;
 }
 
 /**
@@ -702,7 +690,7 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
  * @return {Array} - Array of Products that you can purchase.
  */
 export function getStaticProductsForPurchase( state ) {
-	return get( state.jetpack.initialState, 'products', {} );
+	return state.jetpack.initialState?.products ?? {};
 }
 
 /**
@@ -712,8 +700,8 @@ export function getStaticProductsForPurchase( state ) {
  * @return {Array} of Products that you can purchase.
  */
 export function getProductsForPurchase( state ) {
-	const staticProducts = get( state.jetpack.initialState, 'products', {} );
-	const wpcomUser = get( state.jetpack.initialState?.userData?.currentUser, 'wpcomUser', {} );
+	const staticProducts = state.jetpack.initialState?.products ?? {};
+	const wpcomUser = state.jetpack.initialState?.userData?.currentUser?.wpcomUser ?? {};
 	const currencyCode = wpcomUser?.user_currency || null;
 	const jetpackProducts = getSiteProducts( state );
 	const products = {};
@@ -726,13 +714,13 @@ export function getProductsForPurchase( state ) {
 			description: product.description,
 			features: product.features,
 			disclaimer: product.disclaimer,
-			available: get( jetpackProducts, [ product.slug, 'available' ], false ),
-			currencyCode: currencyCode ?? get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
+			available: jetpackProducts?.[ product.slug ]?.available ?? false,
+			currencyCode: currencyCode ?? jetpackProducts?.[ product.slug ]?.currency_code ?? '',
 			showPromotion: product.show_promotion,
 			promotionPercentage: product.discount_percent,
 			includedInPlans: product.included_in_plans,
-			fullPrice: get( jetpackProducts, [ product.slug, 'cost' ], '' ),
-			saleCoupon: get( jetpackProducts, [ product.slug, 'sale_coupon' ], undefined ),
+			fullPrice: jetpackProducts?.[ product.slug ]?.cost ?? '',
+			saleCoupon: jetpackProducts?.[ product.slug ]?.sale_coupon,
 			upgradeUrl: getRedirectUrl( 'jetpack-product-description-checkout', {
 				path: product.slug,
 			} ),
@@ -750,7 +738,7 @@ export function getProductsForPurchase( state ) {
  * @return {string} The current Recommendations step.
  */
 export function getInitialRecommendationsStep( state ) {
-	return get( state.jetpack.initialState, 'recommendationsStep', '' );
+	return state.jetpack.initialState?.recommendationsStep ?? '';
 }
 
 /**
@@ -760,7 +748,7 @@ export function getInitialRecommendationsStep( state ) {
  * @return {Array} Connection errors.
  */
 export function getConnectionErrors( state ) {
-	return get( state.jetpack.initialState, [ 'connectionStatus', 'errors' ], [] ).filter( error =>
+	return ( state.jetpack.initialState?.connectionStatus?.errors ?? [] ).filter( error =>
 		Object.hasOwn( error, 'action' )
 	);
 }
