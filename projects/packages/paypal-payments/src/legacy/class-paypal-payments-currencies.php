@@ -158,7 +158,7 @@ class PayPal_Payments_Currencies {
 		// Try to parse using NumberFormatter if available
 		if ( class_exists( 'NumberFormatter' ) ) {
 			$formatter = new NumberFormatter( get_locale(), NumberFormatter::DECIMAL );
-			$parsed    = $formatter->parse( $price );
+			$parsed    = $formatter->parse( (string) $price );
 			if ( false !== $parsed ) {
 				$price = (float) $parsed;
 			}
