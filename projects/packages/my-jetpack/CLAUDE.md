@@ -336,17 +336,7 @@ const ProductCard = ({ slug }) => {
 - **Feature endpoints**: Various feature-specific endpoints
 
 ### Standard REST Controller Pattern
-```php
-class REST_My_Endpoint extends WP_REST_Controller {
-    protected $namespace = 'jetpack/v4/my-jetpack';
-    protected $rest_base = 'my-endpoint';
-    
-    // Standard WordPress REST API patterns
-    // - register_routes()
-    // - get_items_permissions_check()
-    // - get_items() / get_item() / create_item() etc.
-}
-```
+See the complete REST API endpoint example in the PHP Patterns section above for full implementation details.
 
 ### Data Flow
 1. React components call API via `apiFetch`
