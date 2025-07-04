@@ -1,5 +1,7 @@
 import { Gridicon } from '@automattic/jetpack-components';
+import clsx from 'clsx';
 import { useEffect, useId, useRef, useState } from 'react';
+import styles from './line-chart.module.scss';
 import type { FC } from 'react';
 
 export const POPOVER_BUTTON_SIZE = 44;
@@ -50,26 +52,15 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 	}, [] );
 
 	return (
-		<div
-			style={ {
-				pointerEvents: 'auto',
-			} }
-		>
+		<div className={ styles[ 'line-chart__annotation-label' ] }>
 			<button
 				ref={ buttonRef }
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				{ ...( { popovertarget: popoverId } as any ) }
+				className={ styles[ 'line-chart__annotation-label-trigger-button' ] }
 				style={ {
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					pointerEvents: 'auto',
-					cursor: 'pointer',
-					border: 'none',
 					width: `${ POPOVER_BUTTON_SIZE }px`,
 					height: `${ POPOVER_BUTTON_SIZE }px`,
-					background: 'none',
-					padding: 0,
 					transform: `translate(${ POPOVER_BUTTON_SIZE / 2 }px, 0)`,
 				} }
 				aria-label="See details"
@@ -81,45 +72,19 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 				id={ popoverId }
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				{ ...( { popover: 'auto' } as any ) }
-				style={
-					{
-						minWidth: '125px',
-						borderRadius: '2px',
-						padding: '4px',
-						background: 'white',
-						boxShadow: '0 2px 5px 0 rgba(0, 0, 0, 0.1)',
-						border: 'none',
-						position: 'fixed',
-						visibility: isPositioned ? 'visible' : 'hidden',
-						margin: 0,
-					} as React.CSSProperties
-				}
+				className={ clsx(
+					styles[ 'line-chart__annotation-label-popover' ],
+					! isPositioned && styles[ 'line-chart__annotation-label-popover--hidden' ]
+				) }
 			>
-				<div
-					style={ {
-						display: 'flex',
-						flexDirection: 'row',
-						justifyContent: 'space-between',
-						alignItems: 'start',
-						marginBottom: '8px',
-					} }
-				>
-					<div style={ { padding: '10px' } }>{ renderLabelPopover( { title, subtitle } ) }</div>
+				<div className={ styles[ 'line-chart__annotation-label-popover-header' ] }>
+					<div className={ styles[ 'line-chart__annotation-label-popover-content' ] }>
+						{ renderLabelPopover( { title, subtitle } ) }
+					</div>
 					<button
 						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						{ ...( { popovertarget: popoverId, popovertargetaction: 'hide' } as any ) }
-						style={ {
-							background: 'none',
-							border: 'none',
-							cursor: 'pointer',
-							fontSize: '16px',
-							width: '44px',
-							height: '44px',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							padding: '0',
-						} }
+						className={ styles[ 'line-chart__annotation-label-popover-close-button' ] }
 						aria-label="Close"
 					>
 						<Gridicon icon="cross" size={ 16 } />

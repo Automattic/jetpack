@@ -6,14 +6,6 @@
 		overflow: visible;
 	}
 
-	&__annotations-overlay {
-		position: absolute;
-		left: 0;
-		top: 0;
-		overflow: visible;
-		pointer-events: none;
-	}
-
 	&__tooltip {
 		background: #fff;
 		padding: 0.5rem;
@@ -34,6 +26,70 @@
 	&__tooltip-label {
 		font-weight: 500;
 		padding-right: 1rem;
+	}
+
+	&__annotations-overlay {
+		position: absolute;
+		left: 0;
+		top: 0;
+		overflow: visible;
+		pointer-events: none;
+	}
+
+	&__annotation-label {
+		pointer-events: auto;
+	}
+
+	&__annotation-label-trigger-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		pointer-events: auto;
+		cursor: pointer;
+		border: none;
+		background: none;
+		padding: 0;
+	}
+
+	&__annotation-label-popover {
+		min-width: 125px;
+		border-radius: 2px;
+		padding: 4px;
+		background: #fff;
+		box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+		border: none;
+		position: fixed;
+		margin: 0;
+		visibility: visible;
+
+		&--hidden {
+			visibility: hidden;
+		}
+	}
+
+	&__annotation-label-popover-header {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: start;
+		margin-bottom: 8px;
+	}
+
+	&__annotation-label-popover-content {
+		padding: 10px;
+	}
+
+	&__annotation-label-popover-close-button {
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-size: 16px;
+		width: 44px;
+		height: 44px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0;
 	}
 }
 
