@@ -283,10 +283,9 @@ const { state } = store( NAMESPACE, {
 				return;
 			}
 
-			// Set submitting state
 			context.isSubmitting = true;
 
-			if ( context.isAjaxSubmissionEnabled ) {
+			if ( context.isResponseWithoutReloadEnabled ) {
 				event.preventDefault();
 				event.stopPropagation();
 

@@ -79,6 +79,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $allowed_html_tags_for_submit_button = array( 'br' => array() );
 
 	/**
+	 * Whether to enable response without reloading the page.
+	 *
+	 * @var bool
+	 */
+	public $is_response_without_reload_enabled = false;
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -86,6 +93,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public function __construct( $attributes, $content = null ) {
 		global $post, $page;
+
+		$this->is_response_without_reload_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', false );
 
 		// Set up the default subject and recipient for this form.
 		$default_to      = '';
@@ -428,13 +437,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$is_multistep = $max_steps > 0;
 
 			$default_context = array(
-				'formId'                  => $id,
-				'formHash'                => $form->hash,
-				'showErrors'              => false, // We toggle this to true when we want to show the user errors right away.
-				'errors'                  => array(), // This should be a associative array.
-				'fields'                  => array(),
-				'isMultiStep'             => $is_multistep, // Whether the form is a multistep form.
-				'isAjaxSubmissionEnabled' => apply_filters( 'jetpack_forms_enable_ajax_submission', false ),
+				'formId'                         => $id,
+				'formHash'                       => $form->hash,
+				'showErrors'                     => false, // We toggle this to true when we want to show the user errors right away.
+				'errors'                         => array(), // This should be a associative array.
+				'fields'                         => array(),
+				'isMultiStep'                    => $is_multistep, // Whether the form is a multistep form.
+				'isResponseWithoutReloadEnabled' => $form->is_response_without_reload_enabled,
 			);
 
 			if ( $is_multistep ) {
@@ -1884,10 +1893,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
 
 		// If the request accepts JSON, return a JSON response instead of redirecting
-		$is_ajax_submission_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', false );
-		$accepts_json               = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
+		$accepts_json = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
 
-		if ( $is_ajax_submission_enabled && $accepts_json ) {
+		if ( $this->is_response_without_reload_enabled && $accepts_json ) {
 			header( 'Content-Type: application/json' );
 
 			echo wp_json_encode(
