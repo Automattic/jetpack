@@ -10,7 +10,9 @@ import { DataContext } from '@visx/xychart';
 import { merge } from 'lodash';
 import { useContext, useRef, useEffect, useState, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
-import LineChartAnnotationLabelWithPopover from './line-chart-annotation-label-popover';
+import LineChartAnnotationLabelWithPopover, {
+	POPOVER_BUTTON_SIZE,
+} from './line-chart-annotation-label-popover';
 import type { DataPointDate } from '../../types';
 import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
 import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
@@ -282,9 +284,6 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 		return labelX;
 	};
 
-	const labelWidth = 30;
-	const labelHeight = 30;
-
 	const labelPosition = {
 		x: getLabelX(),
 		y: getLabelY(),
@@ -292,23 +291,28 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 
 	// Safari has a bug where children of an SVG foreignObject are not positioned correctly
 	// This is a workaround to position the label correctly
-	const htmlLabelSafariPositionAdjustment = isSafari
-		? {
-				transform: `translate(${
-					x +
-					( dx || 0 ) +
-					( typeof labelPosition.x === 'number' ? labelPosition.x - x : 0 ) -
-					labelWidth
-				}px, ${
-					y +
-					( dy || 0 ) +
-					( typeof labelPosition.y === 'number' ? labelPosition.y - y : 0 ) -
-					labelHeight
-				}px)`,
-				width: labelWidth,
-				height: labelHeight,
-		  }
-		: undefined;
+	const getSafariHTMLLabelPosition = () => {
+		const labelWidth = POPOVER_BUTTON_SIZE;
+		const labelHeight = POPOVER_BUTTON_SIZE;
+
+		return isSafari
+			? {
+					transform: `translate(${
+						x +
+						( dx || 0 ) +
+						( typeof labelPosition.x === 'number' ? labelPosition.x - x : 0 ) -
+						labelWidth
+					}px, ${
+						y +
+						( dy || 0 ) +
+						( typeof labelPosition.y === 'number' ? labelPosition.y - y : 0 ) -
+						labelHeight
+					}px)`,
+					width: labelWidth,
+					height: labelHeight,
+			  }
+			: undefined;
+	};
 
 	return (
 		<g data-testid={ testId }>
@@ -331,7 +335,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 				) }
 				{ renderLabel ? (
 					<HtmlLabel { ...styles?.label } { ...labelPosition }>
-						<div style={ htmlLabelSafariPositionAdjustment }>
+						<div style={ getSafariHTMLLabelPosition() }>
 							{ renderLabelPopover ? (
 								<LineChartAnnotationLabelWithPopover
 									title={ title }

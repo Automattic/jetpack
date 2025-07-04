@@ -2,6 +2,8 @@ import { Gridicon } from '@automattic/jetpack-components';
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FC } from 'react';
 
+export const POPOVER_BUTTON_SIZE = 44;
+
 interface LineChartAnnotationLabelWithPopoverProps {
 	title: string;
 	subtitle?: string;
@@ -64,11 +66,11 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 					pointerEvents: 'auto',
 					cursor: 'pointer',
 					border: 'none',
-					width: '44px',
-					height: '44px',
+					width: `${ POPOVER_BUTTON_SIZE }px`,
+					height: `${ POPOVER_BUTTON_SIZE }px`,
 					background: 'none',
 					padding: 0,
-					transform: 'translate(22px, 0)',
+					transform: `translate(${ POPOVER_BUTTON_SIZE / 2 }px, 0)`,
 				} }
 				aria-label="See details"
 			>
