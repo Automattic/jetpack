@@ -26,7 +26,7 @@ function wpcom_map_jetpack_stats_caps( $caps, $cap, $user_id ) {
 		$stats_roles = array( 'administrator', 'editor', 'author', 'contributor' );
 
 		// Is the users role in the available stats roles?
-		if ( is_array( $stats_roles ) && in_array( $user_role, $stats_roles, true ) ) {
+		if ( in_array( $user_role, $stats_roles, true ) ) {
 			$caps = array( 'read' );
 		}
 	}
