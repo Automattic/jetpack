@@ -1,4 +1,5 @@
 <?php
+// plugins/jetpack/jetpack_vendor/automattic/jetpack-publicize/src/class-publicize-utils.php
 /**
  * Publicize_Utils.
  *
@@ -20,7 +21,7 @@ class Publicize_Utils {
 	 * Whether the current page is the social settings page.
 	 */
 	public static function is_social_settings_page() {
-		$screen = get_current_screen();
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
 		return ! empty( $screen ) && 'jetpack_page_jetpack-social' === $screen->base;
 	}
@@ -29,7 +30,7 @@ class Publicize_Utils {
 	 * Whether the current page is the Jetpack settings page.
 	 */
 	public static function is_jetpack_settings_page() {
-		$screen = get_current_screen();
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
 		return ! empty( $screen ) && 'toplevel_page_jetpack' === $screen->base;
 	}
@@ -44,7 +45,7 @@ class Publicize_Utils {
 			return false;
 		}
 
-		$screen = get_current_screen();
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
 		if ( empty( $screen ) || ! $screen->is_block_editor() ) {
 			return false;
