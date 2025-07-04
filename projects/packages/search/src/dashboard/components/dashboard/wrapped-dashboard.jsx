@@ -2,11 +2,11 @@ import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, select as syncSelect } from '@wordpress/data';
+import { useMemo } from 'react';
 import SearchConnectionPage from 'components/pages/connection-page';
 import SearchDashboardPage from 'components/pages/dashboard-page';
 import UpsellPage from 'components/pages/upsell-page';
 import useConnection from 'hooks/use-connection';
-import { useMemo } from 'react';
 import { STORE_ID } from 'store';
 
 /**

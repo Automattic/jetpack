@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: display correct Open Graph Meta tags when a page uses a Query Loop block.

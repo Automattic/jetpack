@@ -51,6 +51,7 @@
 		"@babel/core": "7.27.7",
 		"@babel/preset-env": "7.27.2",
 		"@babel/runtime": "7.27.6",
+		"@storybook/addon-actions": "8.6.7",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.2.0",
 		"@testing-library/user-event": "14.6.1",
@@ -61,6 +62,7 @@
 		"jest-environment-jsdom": "30.0.0",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",
+		"storybook": "8.6.7",
 		"typescript": "5.8.3",
 		"webpack": "5.94.0",
 		"webpack-cli": "6.0.1"

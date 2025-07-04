@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+fixes warning for php notices on translation 

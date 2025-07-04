@@ -1,0 +1,53 @@
+/* Rating field block – front-end styles */
+@import url(https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP&display=swap&text=♥★);
+
+.jetpack-field-rating {
+  position: relative;
+  display: inline-flex;
+
+  &:not(:hover) .jetpack-field-rating__label input[type="radio"].jetpack-field-rating__input:checked,
+  .jetpack-field-rating__label:hover,
+  .jetpack-field-rating__label:has( ~ .jetpack-field-rating__label:hover ),
+  &:not(:hover) .jetpack-field-rating__label:has( ~ .jetpack-field-rating__label .jetpack-field-rating__input:checked ) {
+    color: var( --jetpack--contact-form--rating-star-color, var( --jetpack--contact-form--primary-color, #333 ) );
+  }
+
+  .jetpack-field-rating__label {
+    display: inline-block;
+    margin-bottom: 0;
+    cursor: pointer;
+    overflow: hidden;
+    font-family: "IBM Plex Sans JP", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    color: var( --jetpack--contact-form--background-color, #FFF );
+
+    // kludge to fix spacing between stars
+    .contact-form &:not(:first-of-type) input[type="radio"].jetpack-field-rating__input::before {
+      margin-left: 8px;
+    }
+  }
+
+  .contact-form & input[type="radio"].jetpack-field-rating__input {
+    margin:0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    font-family: inherit;
+    width: auto;
+    height: auto;
+    font-size: inherit;
+    color: inherit;
+    cursor: pointer;
+
+    &::before {
+      font-family: inherit;
+      font-size: 1em;
+      content: "★";
+      display: block;
+      width: 1em;
+      color: inherit;
+      -webkit-text-stroke: 2px var( --jetpack--contact-form--border-color, #8c8f94 );
+    }
+  }
+}

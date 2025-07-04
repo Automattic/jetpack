@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fixupConfigRules } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
-import eslintConfigPrettier from 'eslint-config-prettier';
+import { rules as eslintConfigPrettierRules } from 'eslint-config-prettier';
 import { defineConfig, javascriptFiles } from './base.mjs';
 
 /**
@@ -30,7 +30,7 @@ export default function makeReactConfig( configurl ) {
 			name: 'Prettier react rule disables',
 			files: javascriptFiles,
 			rules: Object.fromEntries(
-				Object.entries( eslintConfigPrettier.rules ).filter(
+				Object.entries( eslintConfigPrettierRules ).filter(
 					( [ k, v ] ) => k.startsWith( 'react' ) && ( v === 0 || v === 'off' )
 				)
 			),

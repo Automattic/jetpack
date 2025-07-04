@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.2.0 - 2025-07-03
+### Added
+- WAF: Add account recovery flow for blocklisted IP addresses. [#43051]
+
+### Changed
+- My Jetpack: Update Stats card to include a chart for better analytics. [#43870]
+- Update package dependencies. [#44151]
+
+### Removed
+- Remove the need to add FTP/SSH credentials to run auto threat fixers. [#43935]
+
+### Fixed
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+- My Jetpack: Use compact number notation in the Protect card. [#43977]
+- WAF: Fix PHP warnings for Brute_Force_Protection->get_local_host(). [#44170]
+
 ## 4.1.0 - 2025-06-05
 ### Added
 - Scanner: Add functionality to correctly display database threats in the Protect UI. [#43663]

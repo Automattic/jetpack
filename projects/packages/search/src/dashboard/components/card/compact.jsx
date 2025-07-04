@@ -1,8 +1,8 @@
 /*eslint lodash/import-scope: [2, "method"]*/
 import clsx from 'clsx';
-import Card from 'components/card';
 import assign from 'lodash/assign';
 import { Component } from 'react';
+import Card from 'components/card';
 
 export default class CompactCard extends Component {
 	static displayName = 'CompactCard';
