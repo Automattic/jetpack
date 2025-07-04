@@ -337,8 +337,43 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$container_classes[]      = self::get_block_alignment_class( $attributes );
 		$container_classes_string = implode( ' ', $container_classes );
 
+		$max_steps = 0;
+		if ( preg_match_all( '/data-wp-context=[\'"]?{"step":(\d+)}[\'"]?/', $content, $matches ) ) {
+			if ( ! empty( $matches[1] ) ) {
+				$max_steps = max( array_map( 'intval', $matches[1] ) );
+			}
+		}
+
+		$is_multistep = $max_steps > 0;
+
+		$default_context = array(
+			'formId'                         => $id,
+			'formHash'                       => $form->hash,
+			'showErrors'                     => false, // We toggle this to true when we want to show the user errors right away.
+			'errors'                         => array(), // This should be a associative array.
+			'fields'                         => array(),
+			'isMultiStep'                    => $is_multistep, // Whether the form is a multistep form.
+			'isResponseWithoutReloadEnabled' => $form->is_response_without_reload_enabled,
+		);
+
+		if ( $is_multistep ) {
+			$multistep_context = array(
+				'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				'maxSteps'    => $max_steps,
+				'direction'   => 'forward', // Default direction for animations
+				'transition'  => $form->get_attribute( 'stepTransition' ) ? $form->get_attribute( 'stepTransition' ) : 'fade-slide', // Transition style for step animations
+			);
+
+			if ( ! is_array( $context ) ) {
+				$context = array();
+			}
+			$context = array_merge( $context, $multistep_context );
+		}
+
+		$context = is_array( $context ) ? array_merge( $default_context, $context ) : $default_context;
+
 		$r  = '';
-		$r .= "<div data-test='contact-form' id='contact-form-$id' class='{$container_classes_string}'>\n";
+		$r .= "<div data-test='contact-form' id='contact-form-$id' class='{$container_classes_string}' data-wp-interactive='jetpack/form' " . wp_interactivity_data_wp_context( $context ) . ">\n";
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
 			// There are errors.  Display them
@@ -427,46 +462,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
-			$max_steps = 0;
-			if ( preg_match_all( '/data-wp-context=[\'"]?{"step":(\d+)}[\'"]?/', $content, $matches ) ) {
-				if ( ! empty( $matches[1] ) ) {
-					$max_steps = max( array_map( 'intval', $matches[1] ) );
-				}
-			}
-
-			$is_multistep = $max_steps > 0;
-
-			$default_context = array(
-				'formId'                         => $id,
-				'formHash'                       => $form->hash,
-				'showErrors'                     => false, // We toggle this to true when we want to show the user errors right away.
-				'errors'                         => array(), // This should be a associative array.
-				'fields'                         => array(),
-				'isMultiStep'                    => $is_multistep, // Whether the form is a multistep form.
-				'isResponseWithoutReloadEnabled' => $form->is_response_without_reload_enabled,
-			);
-
-			if ( $is_multistep ) {
-				$multistep_context = array(
-					'currentStep' => isset( $_GET[ $id . '-step' ] ) ? absint( $_GET[ $id . '-step' ] ) : 1,
-					'maxSteps'    => $max_steps,
-					'direction'   => 'forward', // Default direction for animations
-					'transition'  => $form->get_attribute( 'stepTransition' ) ? $form->get_attribute( 'stepTransition' ) : 'fade-slide', // Transition style for step animations
-				);
-
-				if ( ! is_array( $context ) ) {
-					$context = array();
-				}
-				$context = array_merge( $context, $multistep_context );
-			}
-
-			$context = is_array( $context ) ? array_merge( $default_context, $context ) : $default_context;
-
 			$r .= "<form action='" . esc_url( $url ) . "'
 				id='jp-form-" . esc_attr( $form->hash ) . "'
 				method='post'
 				class='" . esc_attr( $form_classes ) . "' $form_aria_label
-				data-wp-interactive=\"jetpack/form\"  " . wp_interactivity_data_wp_context( $context ) . "
 				data-wp-on--submit=\"actions.onFormSubmit\"
 				data-wp-class--is-first-step=\"state.isFirstStep\"
 				data-wp-class--is-last-step=\"state.isLastStep\"
@@ -1901,7 +1900,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			echo wp_json_encode(
 				array(
 					'success' => true,
-					'message' => __( 'Your message has been sent', 'jetpack-forms' ),
 					'data'    => self::get_json_data( $post_id, $this ),
 				)
 			);
