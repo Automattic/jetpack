@@ -34,4 +34,7 @@ function wpcom_map_jetpack_stats_caps( $caps, $cap, $user_id ) {
 	return $caps;
 }
 
-add_filter( 'map_meta_cap', 'wpcom_map_jetpack_stats_caps', 10, 3 );
+// Let Atomic sites handle this through the Jetpack settings.
+if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) ) {
+	add_filter( 'map_meta_cap', 'wpcom_map_jetpack_stats_caps', 10, 3 );
+}
