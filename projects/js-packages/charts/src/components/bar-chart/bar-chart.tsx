@@ -163,7 +163,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ internalChartId ]
 	);
 
-	// Create legend items from group labels, this iterates over groups rather than data points
+	// Validate data first
+	const error = validateData( dataSorted );
+	const isDataValid = ! error;
+
+	// Create legend items (hooks must be called in same order every render)
 	const legendItems = useMemo(
 		() =>
 			dataSorted.map( ( group, index ) => ( {
@@ -175,12 +179,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ dataSorted, getColor ]
 	);
 
-	// Register chart with context
+	// Register chart with context only if data is valid
 	const providerTheme = useChartTheme();
-	useChartRegistration( chartId, legendItems, providerTheme, 'bar', { orientation, withPatterns } );
+	useChartRegistration(
+		chartId,
+		legendItems,
+		providerTheme,
+		'bar',
+		{ orientation, withPatterns },
+		isDataValid
+	);
 
-	// Validate data using the same pattern as LineChart
-	const error = validateData( dataSorted );
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}

@@ -108,7 +108,9 @@ const PieChartInternal = ( {
 			withTooltips,
 		} );
 
-	// Create legend items from data
+	const { isValid, message } = validateData( data );
+
+	// Create legend items (hooks must be called in same order every render)
 	const legendItems = useMemo(
 		() =>
 			data.map( ( item, index ) => ( {
@@ -119,14 +121,19 @@ const PieChartInternal = ( {
 		[ data, providerTheme.colors ]
 	);
 
-	// Register chart with context
-	useChartRegistration( chartId, legendItems, providerTheme, 'pie', {
-		thickness,
-		gapScale,
-		cornerScale,
-	} );
-
-	const { isValid, message } = validateData( data );
+	// Register chart with context only if data is valid
+	useChartRegistration(
+		chartId,
+		legendItems,
+		providerTheme,
+		'pie',
+		{
+			thickness,
+			gapScale,
+			cornerScale,
+		},
+		isValid
+	);
 
 	if ( ! isValid ) {
 		return (

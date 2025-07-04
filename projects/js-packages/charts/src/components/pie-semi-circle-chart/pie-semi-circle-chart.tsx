@@ -118,6 +118,9 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		[ handleMouseMove ]
 	);
 
+	// Validate data first to get validation result
+	const { isValid, message } = validateData( data );
+
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
 		() => ( {
@@ -133,7 +136,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		[ providerTheme.colors ]
 	);
 
-	// Create legend items
+	// Create legend items (hooks must be called in same order every render)
 	const legendItems = useMemo(
 		() =>
 			data.map( ( item, index ) => ( {
@@ -144,14 +147,18 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		[ data, accessors ]
 	);
 
-	// Register chart with context
-	useChartRegistration( chartId, legendItems, providerTheme, 'pie-semi-circle', {
-		thickness,
-		clockwise,
-	} );
-
-	// Add validation check
-	const { isValid, message } = validateData( data );
+	// Register chart with context only if data is valid
+	useChartRegistration(
+		chartId,
+		legendItems,
+		providerTheme,
+		'pie-semi-circle',
+		{
+			thickness,
+			clockwise,
+		},
+		isValid
+	);
 
 	if ( ! isValid ) {
 		return (

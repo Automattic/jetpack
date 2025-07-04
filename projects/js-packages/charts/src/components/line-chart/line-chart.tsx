@@ -309,7 +309,10 @@ const LineChartInternal: FC< LineChartProps > = ( {
 
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
-	// Create legend items from group labels, this iterates over groups rather than data points
+	const error = validateData( dataSorted );
+	const isDataValid = ! error;
+
+	// Create legend items (hooks must be called in same order every render)
 	const legendItems = useMemo(
 		() =>
 			dataSorted.map( ( group, index ) => ( {
@@ -331,14 +334,21 @@ const LineChartInternal: FC< LineChartProps > = ( {
 		]
 	);
 
-	// Register chart with context
-	useChartRegistration( chartId, legendItems, providerTheme, 'line', {
-		withGradientFill,
-		smoothing,
-		curveType,
-		withStartGlyphs,
-		withLegendGlyph,
-	} );
+	// Register chart with context only if data is valid
+	useChartRegistration(
+		chartId,
+		legendItems,
+		providerTheme,
+		'line',
+		{
+			withGradientFill,
+			smoothing,
+			curveType,
+			withStartGlyphs,
+			withLegendGlyph,
+		},
+		isDataValid
+	);
 
 	const accessors = {
 		xAccessor: ( d: DataPointDate ) => d?.date,
@@ -427,7 +437,6 @@ const LineChartInternal: FC< LineChartProps > = ( {
 		[ dataSorted, selectedIndex ]
 	);
 
-	const error = validateData( dataSorted );
 	if ( error ) {
 		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 	}

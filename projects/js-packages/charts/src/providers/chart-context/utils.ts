@@ -13,7 +13,8 @@ export const useChartRegistration = (
 	legendItems: BaseLegendItem[],
 	theme: ChartTheme,
 	chartType: string,
-	metadata?: Record< string, unknown >
+	metadata?: Record< string, unknown >,
+	isDataValid: boolean = true
 ): void => {
 	const { registerChart, unregisterChart } = useChartContext();
 
@@ -21,15 +22,27 @@ export const useChartRegistration = (
 	const memoizedMetadata = useMemo( () => metadata, [ metadata ] );
 
 	useEffect( () => {
-		registerChart( chartId, {
-			legendItems,
-			theme,
-			chartType,
-			metadata: memoizedMetadata,
-		} );
+		// Only register if data is valid
+		if ( isDataValid ) {
+			registerChart( chartId, {
+				legendItems,
+				theme,
+				chartType,
+				metadata: memoizedMetadata,
+			} );
+		}
 
 		return () => {
 			unregisterChart( chartId );
 		};
-	}, [ chartId, legendItems, theme, chartType, memoizedMetadata, registerChart, unregisterChart ] );
+	}, [
+		chartId,
+		legendItems,
+		theme,
+		chartType,
+		memoizedMetadata,
+		isDataValid,
+		registerChart,
+		unregisterChart,
+	] );
 };
