@@ -35,7 +35,7 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"pluginSlug": "videopress",
+		"pluginSlug": "jetpack-videopress",
 		"mirrorName": "jetpack-videopress-plugin"
 	}
 }

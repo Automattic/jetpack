@@ -37,7 +37,7 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"pluginSlug": "social",
+		"pluginSlug": "jetpack-social",
 		"mirrorName": "jetpack-social-plugin"
 	}
 }

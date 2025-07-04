@@ -39,7 +39,7 @@
 			"plugins/starter-plugin",
 			"tools/e2e-commons"
 		],
-		"pluginSlug": "starter-plugin",
+		"pluginSlug": "jetpack-starter-plugin",
 		"mirrorName": "jetpack-starter-plugin"
 	}
 }

@@ -39,7 +39,7 @@
 			"plugins/protect",
 			"tools/e2e-commons"
 		],
-		"pluginSlug": "protect",
+		"pluginSlug": "jetpack-protect",
 		"mirrorName": "jetpack-protect-plugin"
 	}
 }

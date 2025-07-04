@@ -35,7 +35,7 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"pluginSlug": "boost",
+		"pluginSlug": "jetpack-boost",
 		"mirrorName": "jetpack-boost-production"
 	}
 }
