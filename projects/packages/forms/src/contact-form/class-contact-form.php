@@ -345,6 +345,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$is_multistep = $max_steps > 0;
+		$element_id   = 'jp-form-' . esc_attr( $form->hash );
 
 		$default_context = array(
 			'formId'                         => $id,
@@ -354,6 +355,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'fields'                         => array(),
 			'isMultiStep'                    => $is_multistep, // Whether the form is a multistep form.
 			'isResponseWithoutReloadEnabled' => $form->is_response_without_reload_enabled,
+			'submissionData'                 => null,
+			'submissionError'                => null,
+			'elementId'                      => $element_id,
 		);
 
 		if ( $is_multistep ) {
@@ -374,6 +378,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$r  = '';
 		$r .= "<div data-test='contact-form' id='contact-form-$id' class='{$container_classes_string}' data-wp-interactive='jetpack/form' " . wp_interactivity_data_wp_context( $context ) . ">\n";
+
+		if ( $form->is_response_without_reload_enabled ) {
+			$r .= self::render_ajax_success_wrapper( $form );
+		}
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
 			// There are errors.  Display them
@@ -463,10 +471,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			$r .= "<form action='" . esc_url( $url ) . "'
-				id='jp-form-" . esc_attr( $form->hash ) . "'
+				id='" . $element_id . "'
 				method='post'
 				class='" . esc_attr( $form_classes ) . "' $form_aria_label
 				data-wp-on--submit=\"actions.onFormSubmit\"
+				data-wp-class--is-submitted=\"state.hasSubmitted\"
 				data-wp-class--is-first-step=\"state.isFirstStep\"
 				data-wp-class--is-last-step=\"state.isLastStep\"
 				novalidate >\n";
@@ -581,6 +590,49 @@ class Contact_Form extends Contact_Form_Shortcode {
 					<li><a data-wp-bind--href="context.item.anchor" data-wp-on--click="actions.scrollIntoView" data-wp-text="context.item.label"></a></li>
 				</template>
 				</ul>';
+		$html .= '</div>';
+		return $html;
+	}
+
+	/**
+	 * Renders the success wrapper after a form is submitted without reloading the page.
+	 *
+	 * @param Contact_Form $form - the contact form.
+	 *
+	 * @return string HTML string for the success wrapper.
+	 */
+	private static function render_ajax_success_wrapper( $form ) {
+		$html  = '<div class="contact-form-submission" data-wp-class--is-submitted="state.hasSubmitted"';
+		$html .= '<p class="go-back-message"> <a class="link" href="#" data-wp-on--click="actions.goBack">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+		$html .=
+			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
+			"</h4>\n\n";
+
+		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
+			$raw_message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
+			// Add more allowed HTML elements for file download links
+			$allowed_html = array(
+				'br'         => array(),
+				'blockquote' => array( 'class' => array() ),
+				'p'          => array(),
+				'div'        => array(
+					'class' => array(),
+					'style' => array(),
+				),
+				'span'       => array(
+					'class' => array(),
+					'style' => array(),
+				),
+			);
+
+			$html .= wp_kses( $raw_message, $allowed_html );
+		} else {
+			$html .= '<template data-wp-each--submission="state.getSubmissionData">
+				<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
+				<div class="field-value" data-wp-text="context.submission.value"></div>
+			</template>';
+		}
+
 		$html .= '</div>';
 		return $html;
 	}

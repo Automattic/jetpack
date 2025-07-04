@@ -77,6 +77,16 @@ const getError = field => {
 	return config.error_types && config.error_types[ field.error ];
 };
 
+const maybeAddColonToLabel = label => {
+	const formattedLabel = label ? label : null;
+
+	if ( ! formattedLabel ) {
+		return null;
+	}
+
+	return formattedLabel.endsWith( '?' ) ? formattedLabel : formattedLabel.replace( /:$/, '' ) + ':';
+};
+
 const { state } = store( NAMESPACE, {
 	state: {
 		get fieldHasErrors() {
@@ -199,9 +209,25 @@ const { state } = store( NAMESPACE, {
 			return field.value;
 		},
 
-		get submissionError() {
+		get getSubmissionError() {
 			const context = getContext();
 			return context.submissionError || '';
+		},
+
+		get getSubmissionData() {
+			const context = getContext();
+
+			const data = context.submissionData ? Object.values( context.submissionData ) : [];
+
+			return data.map( item => ( {
+				label: maybeAddColonToLabel( item.label ),
+				value: item.value,
+			} ) );
+		},
+
+		get hasSubmitted() {
+			const context = getContext();
+			return !! context.submissionData && context.isResponseWithoutReloadEnabled;
 		},
 	},
 
@@ -289,8 +315,15 @@ const { state } = store( NAMESPACE, {
 				event.preventDefault();
 				event.stopPropagation();
 
-				// TODO: Get the data and update the page
-				yield submitForm( context.formHash );
+				const { success, error, data } = yield submitForm( context.formHash );
+
+				if ( success ) {
+					context.submissionData = data;
+					context.submissionError = null;
+				} else {
+					context.submissionError = error;
+					context.submissionData = null;
+				}
 
 				context.isSubmitting = false;
 			}
@@ -338,6 +371,14 @@ const { state } = store( NAMESPACE, {
 				event.preventDefault();
 			}
 		} ),
+
+		goBack: () => {
+			const context = getContext();
+			const form = document.getElementById( context.elementId );
+			form?.reset?.();
+			context.submissionData = null;
+			context.submissionError = null;
+		},
 	},
 
 	callbacks: {

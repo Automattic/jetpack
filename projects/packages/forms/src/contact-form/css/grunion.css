@@ -1174,3 +1174,11 @@ on production builds, the attributes are being reordered, causing side-effects
   white-space: nowrap;
   width: 1px;
 }
+
+.wp-block-jetpack-contact-form.is-submitted {
+	display: none;
+}
+
+.contact-form-submission:not(.is-submitted) {
+	display: none;
+}
