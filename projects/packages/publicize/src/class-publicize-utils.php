@@ -1,5 +1,4 @@
 <?php
-// plugins/jetpack/jetpack_vendor/automattic/jetpack-publicize/src/class-publicize-utils.php
 /**
  * Publicize_Utils.
  *
