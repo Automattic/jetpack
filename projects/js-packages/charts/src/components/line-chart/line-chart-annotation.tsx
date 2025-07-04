@@ -40,8 +40,6 @@ const ANNOTATION_INIT_HEIGHT = 100;
 
 export type LineChartAnnotationProps = {
 	datum: DataPointDate;
-	dx?: number;
-	dy?: number;
 	title: string;
 	subtitle?: string;
 	subjectType?: SubjectType;
@@ -54,10 +52,8 @@ export type LineChartAnnotationProps = {
 export const getLabelPosition = ( {
 	subjectType,
 	x,
-	dx: customDx,
 	xMax,
 	y,
-	dy: customDy,
 	yMin,
 	yMax,
 	maxWidth,
@@ -65,10 +61,8 @@ export const getLabelPosition = ( {
 }: {
 	subjectType: SubjectType;
 	x: number;
-	dx?: number;
 	xMax: number;
 	y: number;
-	dy?: number;
 	yMin: number;
 	yMax: number;
 	maxWidth?: number;
@@ -94,14 +88,6 @@ export const getLabelPosition = ( {
 	if ( subjectType === 'line-vertical' ) {
 		dx = 20;
 		dy = 0;
-	}
-
-	if ( typeof customDx === 'number' ) {
-		dx = customDx;
-	}
-
-	if ( typeof customDy === 'number' ) {
-		dy = customDy;
 	}
 
 	// Smart horizontal positioning: if annotation would extend beyond right edge, position it to the left
@@ -182,8 +168,6 @@ const getVerticalAnchor = (
 
 const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	datum,
-	dx: customDx,
-	dy: customDy,
 	title,
 	subtitle,
 	subjectType = 'circle',
@@ -223,13 +207,13 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 		if ( renderLabel ) {
 			return {
 				x,
+				dx: 0,
 				y,
+				dy: 0,
 				yMin,
 				yMax,
 				xMin,
 				xMax,
-				dx: customDx,
-				dy: customDy,
 				isFlippedHorizontally: false,
 				isFlippedVertically: false,
 			};
@@ -238,10 +222,8 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 		const position = getLabelPosition( {
 			subjectType,
 			x,
-			dx: customDx,
 			xMax,
 			y,
-			dy: customDy,
 			yMin,
 			yMax,
 			maxWidth: styles?.label?.maxWidth,
@@ -249,17 +231,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 		} );
 
 		return { x, y, yMin, yMax, xMin, xMax, ...position };
-	}, [
-		datum,
-		xScale,
-		yScale,
-		subjectType,
-		styles?.label?.maxWidth,
-		height,
-		customDx,
-		customDy,
-		renderLabel,
-	] );
+	}, [ datum, xScale, yScale, subjectType, styles?.label?.maxWidth, height, renderLabel ] );
 
 	if ( ! positionData ) return null;
 
