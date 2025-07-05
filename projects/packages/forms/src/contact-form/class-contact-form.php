@@ -478,6 +478,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				data-wp-class--is-submitted=\"state.hasSubmitted\"
 				data-wp-class--is-first-step=\"state.isFirstStep\"
 				data-wp-class--is-last-step=\"state.isLastStep\"
+				data-wp-class--is-ajax-form=\"context.isResponseWithoutReloadEnabled\"
 				novalidate >\n";
 
 			if ( $is_multistep ) { // This makes the "enter" key work in multi-step forms as expected.
@@ -602,7 +603,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string HTML string for the success wrapper.
 	 */
 	private static function render_ajax_success_wrapper( $form ) {
-		$html  = '<div class="contact-form-submission" data-wp-class--is-submitted="state.hasSubmitted"';
+		$html  = '<div class="contact-form-submission contact-form-ajax-submission" data-wp-class--is-submitted="state.hasSubmitted"';
 		$html .= '<p class="go-back-message"> <a class="link" href="#" data-wp-on--click="actions.goBack">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
 		$html .=
 			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
