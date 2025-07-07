@@ -75,7 +75,6 @@ require_once __DIR__ . '/widgets/class-jetpack-widget-twitter.php';
 require_once __DIR__ . '/vendor/autoload_packages.php';
 require_once __DIR__ . '/vendor/automattic/at-pressable-podcasting/podcasting.php';
 require_once __DIR__ . '/vendor/automattic/custom-fonts/custom-fonts.php';
-require_once __DIR__ . '/vendor/automattic/custom-fonts-typekit/custom-fonts-typekit.php';
 require_once __DIR__ . '/vendor/automattic/text-media-widget-styles/text-media-widget-styles.php';
 
 // REST API

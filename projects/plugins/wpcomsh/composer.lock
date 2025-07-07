@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a1b1c521eb5b2a265b632f721bea75ae",
+    "content-hash": "57de562590693a13d6adeadd7b887677",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -50,29 +50,6 @@
             ],
             "description": "A provider-agnostic WordPress plugin for changing theme fonts.",
             "time": "2024-11-19T20:05:23+00:00"
-        },
-        {
-            "name": "automattic/custom-fonts-typekit",
-            "version": "v2.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/custom-fonts-typekit.git",
-                "reference": "d576a78495b78d0d6acc465beecaf4079463d24c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/d576a78495b78d0d6acc465beecaf4079463d24c",
-                "reference": "d576a78495b78d0d6acc465beecaf4079463d24c",
-                "shasum": ""
-            },
-            "require-dev": {
-                "10up/wp_mock": "dev-master"
-            },
-            "type": "wordpress-plugin",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "time": "2025-04-02T12:48:49+00:00"
         },
         {
             "name": "automattic/jetpack-a8c-mc-stats",
