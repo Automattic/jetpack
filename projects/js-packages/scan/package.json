@@ -24,8 +24,7 @@
 	},
 	"type": "module",
 	"devDependencies": {
-		"@storybook/addon-actions": "9.0.8",
-		"@storybook/blocks": "8.6.7",
+		"@storybook/addon-docs": "9.0.15",
 		"@storybook/react": "9.0.15",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.3.0",

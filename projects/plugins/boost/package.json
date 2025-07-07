@@ -33,6 +33,7 @@
 		"@babel/preset-env": "7.27.2",
 		"@babel/preset-react": "7.27.1",
 		"@storybook/react": "9.0.15",
+		"@testing-library/dom": "10.4.0",
 		"@types/jest": "30.0.0",
 		"@types/jquery": "3.5.32",
 		"@wordpress/browserslist-config": "6.26.0",

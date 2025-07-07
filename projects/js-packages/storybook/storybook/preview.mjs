@@ -27,6 +27,9 @@ const preview = {
 				},
 			],
 		},
+		docs: {
+			codePanel: true,
+		},
 	},
 	decorators: [
 		Story => (

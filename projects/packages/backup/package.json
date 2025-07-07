@@ -51,7 +51,6 @@
 		"@babel/core": "7.27.7",
 		"@babel/preset-env": "7.27.2",
 		"@babel/runtime": "7.27.6",
-		"@storybook/addon-actions": "9.0.8",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.3.0",
 		"@testing-library/user-event": "14.6.1",
