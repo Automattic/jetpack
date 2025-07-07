@@ -39,7 +39,7 @@ class WPCom_Comments_Likes {
 			add_action( 'rest_api_init', array( $this, 'register_like_api' ) );
 		}
 
-		add_action( 'admin_init', array( $this, 'init' ) );
+		add_action( 'current_screen', array( $this, 'init' ) );
 	}
 
 	/**
@@ -63,11 +63,18 @@ class WPCom_Comments_Likes {
 			return;
 		}
 
-		if ( is_admin() ) {
-			add_filter( 'comment_class', array( $this, 'add_like_class' ), 10, 3 );
-			add_filter( 'comment_row_actions', array( $this, 'enable_likes' ), 10, 2 );
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10, 2 );
+		if ( ! is_admin() ) {
+			return;
 		}
+
+		$screen = get_current_screen();
+		if ( ! $screen || 'edit-comments' !== $screen->id ) {
+			return;
+		}
+
+		add_filter( 'comment_class', array( $this, 'add_like_class' ), 10, 3 );
+		add_filter( 'comment_row_actions', array( $this, 'enable_likes' ), 10, 2 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10, 2 );
 	}
 
 	/**
