@@ -8,10 +8,16 @@ test.describe( 'Image CDN', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( true ).build();
+		await boostPrerequisitesBuilder( page )
+			.withCleanEnv()
+			.withMockConnection( true )
+			.withSpeedScoreMocked( true )
+			.build();
 	} );
 
-	test.afterAll( async () => {} );
+	test.afterAll( async () => {
+		await page.close();
+	} );
 
 	test( 'Image Guide functionality shouldn`t be active when the module is inactive', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'image_guide' ] ).build();

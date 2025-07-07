@@ -16,7 +16,8 @@ test.describe( 'Cache module', () => {
 				'page_cache', // Make sure it's inactive.
 			] )
 			.withCleanEnv()
-			.withConnection( true )
+			.withMockConnection( true )
+			.withSpeedScoreMocked( true )
 			.build();
 
 		// Page Cache needs a pretty permalink structure to work properly.
@@ -31,8 +32,6 @@ test.describe( 'Cache module', () => {
 	} );
 
 	test.afterAll( async () => {
-		// Reset the environment for any other tests.
-		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( true ).build();
 		await page.close();
 	} );
 
