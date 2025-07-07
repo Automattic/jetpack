@@ -10,7 +10,7 @@ export default class CompactCard extends Component {
 		const props = {
 			...this.props,
 			className: clsx( this.props.className, 'is-compact' ),
-		} );
+		};
 
 		return <Card { ...props }>{ this.props.children }</Card>;
 	}
