@@ -10,7 +10,11 @@ test.describe( 'Common tests', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( true ).build();
+		await boostPrerequisitesBuilder( page )
+			.withCleanEnv()
+			.withMockConnection( true )
+			.withSpeedScoreMocked( true )
+			.build();
 	} );
 
 	test.afterAll( async () => {
