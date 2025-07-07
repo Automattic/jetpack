@@ -785,15 +785,10 @@ abstract class SAL_Site {
 				) );
 		}
 
-		if (
-		! $authorized &&
-		(
-		( 'trash' === $post->post_status && current_user_can( 'edit_post', $post->ID ) )
-		|| 'auto-draft' === $post->post_status
-		)
-		) {
-			$authorized = true;
-		}
+		$authorized = $authorized || (
+			( 'trash' === $post->post_status && current_user_can( 'edit_post', $post->ID ) )
+			|| 'auto-draft' === $post->post_status
+		);
 
 		if ( ! $authorized ) {
 			return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
