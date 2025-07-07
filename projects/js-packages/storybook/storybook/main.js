@@ -121,9 +121,6 @@ const sbconfig = {
 		name: path.dirname( require.resolve( '@storybook/react-webpack5/package.json' ) ),
 		options: {},
 	},
-	docs: {
-		autodocs: true,
-	},
 	staticDirs: [ '../public' ],
 	typescript: {
 		reactDocgen: 'react-docgen-typescript',
