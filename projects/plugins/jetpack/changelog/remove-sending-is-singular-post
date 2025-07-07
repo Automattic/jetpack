@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Previously we started using is_singular_post to highlight that current page is available for inline ads. Since we have solved the issue with JavaScript, we don't need this query param any more.

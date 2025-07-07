@@ -374,7 +374,7 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	 * Test if jetpack_og_get_description handles query blocks correctly.
 	 *
 	 * @author automattic
-	 * @since $$next-version$$
+	 * @since 14.9
 	 */
 	public function test_jetpack_og_get_description_with_query_blocks() {
 		$description_with_query = 'Some text before. <!-- wp:query {"queryId":1} --><div>Query content</div><!-- /wp:query --> Some text after.';
