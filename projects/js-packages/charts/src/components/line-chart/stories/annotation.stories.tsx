@@ -173,8 +173,8 @@ const customTopAnnotationArgs: Partial< LineChartAnnotationProps > = {
 		</span>
 	),
 	renderLabelPopover: () => (
-		<div style={ { display: 'flex', flexDirection: 'column', gap: '10px' } }>
-			<h4
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '0.5rem' } }>
+			<div
 				style={ {
 					margin: 0,
 					display: 'flex',
@@ -184,8 +184,8 @@ const customTopAnnotationArgs: Partial< LineChartAnnotationProps > = {
 				} }
 			>
 				<DeployedIcon />
-				<span>Deploy finished</span>
-			</h4>
+				<strong>Deploy finished</strong>
+			</div>
 			<p style={ { margin: 0 } }>Thu. Apr 24, 2025. 09:57:23 UTC</p>
 		</div>
 	),
@@ -224,8 +224,8 @@ const customBottomAnnotationArgs: Partial< LineChartAnnotationProps > = {
 	title: 'Alert',
 	renderLabel: () => <AlertIcon />,
 	renderLabelPopover: () => (
-		<div style={ { display: 'flex', flexDirection: 'column', gap: '10px' } }>
-			<h4
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '0.5rem' } }>
+			<div
 				style={ {
 					margin: 0,
 					display: 'flex',
@@ -235,8 +235,8 @@ const customBottomAnnotationArgs: Partial< LineChartAnnotationProps > = {
 				} }
 			>
 				<AlertIcon />
-				Origin HTTP 5xx Response Codes Rate Anomaly [Beta]
-			</h4>
+				<strong>Origin HTTP 5xx Response Codes Rate Anomaly [Beta]</strong>
+			</div>
 			<p style={ { margin: 0 } }>
 				Unusually high number of HTTP 5xx response codes detected on Origin
 			</p>

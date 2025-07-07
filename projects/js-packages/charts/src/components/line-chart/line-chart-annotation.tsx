@@ -10,6 +10,7 @@ import { DataContext } from '@visx/xychart';
 import { merge } from 'lodash';
 import { useContext, useRef, useEffect, useState, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
+import { isSafari } from '../shared/utils';
 import LineChartAnnotationLabelWithPopover, {
 	POPOVER_BUTTON_SIZE,
 } from './line-chart-annotation-label-popover';
@@ -20,8 +21,6 @@ import type { LabelProps } from '@visx/annotation/lib/components/Label';
 import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
 import type { TextProps } from '@visx/text';
 import type { FC } from 'react';
-
-const isSafari = /^((?!chrome|android).)*safari/i.test( navigator.userAgent );
 
 export type AnnotationStyles = {
 	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' > & { fill?: string };

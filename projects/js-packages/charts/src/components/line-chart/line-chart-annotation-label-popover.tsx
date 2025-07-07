@@ -1,6 +1,7 @@
 import { Gridicon } from '@automattic/jetpack-components';
 import clsx from 'clsx';
 import { useEffect, useId, useRef, useState } from 'react';
+import { isSafari } from '../shared/utils';
 import styles from './line-chart.module.scss';
 import type { FC } from 'react';
 
@@ -31,9 +32,13 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 		if ( ! button || ! popover ) return;
 
 		const positionPopover = () => {
-			const buttonRect = button.getBoundingClientRect();
-			popover.style.left = `${ buttonRect.right + 10 }px`;
-			popover.style.top = `${ buttonRect.top }px`;
+			// Popover positioning in Safari is complicated due to issues with SVG foreign objects, so let it be positioned in the centre of the viewport.
+			if ( ! isSafari ) {
+				const buttonRect = button.getBoundingClientRect();
+				popover.style.left = `${ buttonRect.right }px`;
+				popover.style.top = `${ buttonRect.top }px`;
+			}
+
 			setIsPositioned( true );
 		};
 
@@ -74,7 +79,8 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 				{ ...( { popover: 'auto' } as any ) }
 				className={ clsx(
 					styles[ 'line-chart__annotation-label-popover' ],
-					! isPositioned && styles[ 'line-chart__annotation-label-popover--hidden' ]
+					! isPositioned && styles[ 'line-chart__annotation-label-popover--hidden' ],
+					isSafari && styles[ 'line-chart__annotation-label-popover--safari' ]
 				) }
 			>
 				<div className={ styles[ 'line-chart__annotation-label-popover-header' ] }>

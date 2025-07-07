@@ -56,15 +56,19 @@
 		min-width: 125px;
 		background: #fff;
 		border: none;
-		position: fixed;
-		margin: 0;
-		visibility: visible;
 		border-radius: 4px;
 		font-size: 14px;
 		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+		position: fixed;
+		margin: 0.5rem;
 
 		&--hidden {
 			visibility: hidden;
+		}
+
+		&--safari {
+			position: initial;
+			margin: auto;
 		}
 	}
 
