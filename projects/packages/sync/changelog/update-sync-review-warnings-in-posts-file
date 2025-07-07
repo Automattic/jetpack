@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Sync: Validate objects in sync hooks to avoid Warnings

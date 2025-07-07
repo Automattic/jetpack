@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-get_current_screen(): Check for the existence before trying to call it

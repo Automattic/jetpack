@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Compatibility: Removing utility and selector import fallbacks as we no longer need to ensure compatibiilty in those cases.
