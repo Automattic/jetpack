@@ -94,7 +94,7 @@ class WPCom_Comments_Likes {
 	 * @param int $user_id    The user ID.
 	 * @return string The cache key.
 	 */
-	private function get_cache_key( $comment_id, $user_id ) {
+	public static function get_cache_key( $comment_id, $user_id ) {
 		return "comment_like_{$comment_id}_{$user_id}";
 	}
 
@@ -107,7 +107,7 @@ class WPCom_Comments_Likes {
 	 * @return bool|WP_Error True if the comment is liked, false otherwise, or a WP_Error if the request fails.
 	 */
 	private function do_comment_like_api_request( $blog_id, $user_id, $comment_id ) {
-		$cache_key = $this->get_cache_key( $comment_id, $user_id );
+		$cache_key = self::get_cache_key( $comment_id, $user_id );
 
 		$cached_result = get_transient( $cache_key );
 
