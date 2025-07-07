@@ -1,0 +1,226 @@
+diff --git a/dist/cjs/Panel.js b/dist/cjs/Panel.js
+index be58d7756530981d2951dbade46cff721c7783e5..bad65674273f0897d5d7ebc0de43498ececbaa7d 100644
+--- a/dist/cjs/Panel.js
++++ b/dist/cjs/Panel.js
+@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", {
+ });
+ exports.Panel = void 0;
+ var _react = _interopRequireDefault(require("react"));
+-var _managerApi = require("@storybook/manager-api");
+-var _components = require("@storybook/components");
++var _managerApi = require("storybook/manager-api");
++var _components = require("storybook/internal/components");
+ var _constants = require("./utils/constants");
+ var _MockItem = require("./components/MockItem");
+ var _ErrorItem = require("./components/ErrorItem");
+diff --git a/dist/cjs/components/ButtonToggle/index.js b/dist/cjs/components/ButtonToggle/index.js
+index 43515705fdfb5b5c5e7ed1a89d35c677e56103c1..4dd0d7d4c1ea47fbc0d8b112c94ba2cf2dcf4ef3 100644
+--- a/dist/cjs/components/ButtonToggle/index.js
++++ b/dist/cjs/components/ButtonToggle/index.js
+@@ -7,7 +7,7 @@ exports.ButtonToggle = void 0;
+ var _react = _interopRequireDefault(require("react"));
+ var _propTypes = _interopRequireDefault(require("prop-types"));
+ var _polished = require("polished");
+-var _theming = require("@storybook/theming");
++var _theming = require("storybook/theming");
+ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+ var Label = _theming.styled.label(function (_ref) {
+   var theme = _ref.theme;
+diff --git a/dist/cjs/components/Card/index.js b/dist/cjs/components/Card/index.js
+index e581c07173eccbe21a61cbe71c03d77b0be1ae90..c661e07c02d04f940122371bce22ce323bb2a360 100644
+--- a/dist/cjs/components/Card/index.js
++++ b/dist/cjs/components/Card/index.js
+@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
+ exports.Card = void 0;
+ var _react = _interopRequireDefault(require("react"));
+ var _propTypes = _interopRequireDefault(require("prop-types"));
+-var _theming = require("@storybook/theming");
++var _theming = require("storybook/theming");
+ var _ButtonToggle = require("../ButtonToggle");
+ var _templateObject, _templateObject2, _templateObject3;
+ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+diff --git a/dist/cjs/components/ErrorItem/index.js b/dist/cjs/components/ErrorItem/index.js
+index 91bfc7d798976e24658bff587b0df91ea1cdb587..42ab4f249954e8d54a460d4f775870916de72086 100644
+--- a/dist/cjs/components/ErrorItem/index.js
++++ b/dist/cjs/components/ErrorItem/index.js
+@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
+ });
+ exports.ErrorItem = void 0;
+ var _react = _interopRequireDefault(require("react"));
+-var _theming = require("@storybook/theming");
++var _theming = require("storybook/theming");
+ var _propTypes = _interopRequireDefault(require("prop-types"));
+ var _Card = require("../Card");
+ var _templateObject, _templateObject2, _templateObject3;
+diff --git a/dist/cjs/components/MockItem/index.js b/dist/cjs/components/MockItem/index.js
+index 56e90897d21d0809ada17fb783b86eff62e32345..6c68c8daf35293cc92635abbc3d38a710caf3ee1 100644
+--- a/dist/cjs/components/MockItem/index.js
++++ b/dist/cjs/components/MockItem/index.js
+@@ -6,9 +6,9 @@ Object.defineProperty(exports, "__esModule", {
+ exports.MockItem = void 0;
+ var _react = _interopRequireDefault(require("react"));
+ var _propTypes = _interopRequireDefault(require("prop-types"));
+-var _theming = require("@storybook/theming");
+-var _blocks = require("@storybook/blocks");
+-var _components = require("@storybook/components");
++var _theming = require("storybook/theming");
++var _blocks = require("@storybook/addon-docs/blocks");
++var _components = require("storybook/internal/components");
+ var _Card = require("../Card");
+ var _statusMap = _interopRequireDefault(require("../../utils/statusMap"));
+ var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
+diff --git a/dist/cjs/preset/manager.js b/dist/cjs/preset/manager.js
+index 59c1e973e998c089c12e76ba0cdd01065178986d..ae2fe626224b1cb5d0311dafad96e215386a625d 100644
+--- a/dist/cjs/preset/manager.js
++++ b/dist/cjs/preset/manager.js
+@@ -2,7 +2,7 @@
+ 
+ var _constants = require("../utils/constants");
+ var _Panel = require("../Panel");
+-var _managerApi = require("@storybook/manager-api");
++var _managerApi = require("storybook/manager-api");
+ _managerApi.addons.register(_constants.ADDON_ID, function () {
+   // Register the panel
+   _managerApi.addons.add(_constants.PANEL_ID, {
+diff --git a/dist/cjs/withRoundTrip.js b/dist/cjs/withRoundTrip.js
+index 7e862353af19e7ba82a977d91625bd16c29672d3..d68083cf7c5a22fdd3a029028627fe6b461e44af 100644
+--- a/dist/cjs/withRoundTrip.js
++++ b/dist/cjs/withRoundTrip.js
+@@ -4,10 +4,10 @@ Object.defineProperty(exports, "__esModule", {
+   value: true
+ });
+ exports.withRoundTrip = void 0;
+-var _coreEvents = require("@storybook/core-events");
++var _coreEvents = require("storybook/internal/core-events");
+ var _constants = require("./utils/constants");
+ var _faker = _interopRequireDefault(require("./utils/faker"));
+-var _previewApi = require("@storybook/preview-api");
++var _previewApi = require("storybook/preview-api");
+ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+ function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+ function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+diff --git a/dist/esm/Panel.js b/dist/esm/Panel.js
+index 83805a9d83fe14f29faaec32b6ea6e9802faa94f..14b64c96213eac354003a3b6c76a0589b1b0737b 100644
+--- a/dist/esm/Panel.js
++++ b/dist/esm/Panel.js
+@@ -13,8 +13,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len
+ function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+ import React from 'react';
+-import { useAddonState, useChannel } from '@storybook/manager-api';
+-import { AddonPanel, Placeholder, ScrollArea } from '@storybook/components';
++import { useAddonState, useChannel } from 'storybook/manager-api';
++import { AddonPanel, Placeholder, ScrollArea } from 'storybook/internal/components';
+ import { ADDON_ID, EVENTS } from './utils/constants';
+ import { MockItem } from './components/MockItem';
+ import { ErrorItem } from './components/ErrorItem';
+diff --git a/dist/esm/components/ButtonToggle/index.js b/dist/esm/components/ButtonToggle/index.js
+index 8b6012da3a8bf3cec6201b7d0597b8ed02983da8..77a0c25a9ee3210c1e952b6fec28aff4ea126f4d 100644
+--- a/dist/esm/components/ButtonToggle/index.js
++++ b/dist/esm/components/ButtonToggle/index.js
+@@ -1,7 +1,7 @@
+ import React from 'react';
+ import PropTypes from 'prop-types';
+ import { opacify, transparentize } from 'polished';
+-import { styled } from '@storybook/theming';
++import { styled } from 'storybook/theming';
+ var Label = styled.label(function (_ref) {
+   var theme = _ref.theme;
+   return {
+diff --git a/dist/esm/components/Card/index.js b/dist/esm/components/Card/index.js
+index 44c92134fed39c1d3fe424d0f3f8270aec59ee1c..2ece043e374b5d374f7d64da10511b79d6b0bb12 100644
+--- a/dist/esm/components/Card/index.js
++++ b/dist/esm/components/Card/index.js
+@@ -2,7 +2,7 @@ var _templateObject, _templateObject2, _templateObject3;
+ function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+ import React from 'react';
+ import PropTypes from 'prop-types';
+-import { styled } from '@storybook/theming';
++import { styled } from 'storybook/theming';
+ import { ButtonToggle } from '../ButtonToggle';
+ var Container = styled.div(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n    margin: 1rem;\n    border: 1px solid ", ";\n    border-radius: 5px;\n    box-shadow: rgb(0 0 0 / 10%) 0px 1px 3px 0px;\n"])), function (_ref) {
+   var theme = _ref.theme;
+diff --git a/dist/esm/components/ErrorItem/index.js b/dist/esm/components/ErrorItem/index.js
+index 183f4a76cb4faab51a3306c3ee71e18d5ad83b4d..60d6eb0c96c7c2d1978845d64b45285fdc714dec 100644
+--- a/dist/esm/components/ErrorItem/index.js
++++ b/dist/esm/components/ErrorItem/index.js
+@@ -1,7 +1,7 @@
+ var _templateObject, _templateObject2, _templateObject3;
+ function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+ import React from 'react';
+-import { styled } from '@storybook/theming';
++import { styled } from 'storybook/theming';
+ import PropTypes from 'prop-types';
+ import { Card } from '../Card';
+ var Container = styled.div(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n    padding: 1rem;\n"])));
+diff --git a/dist/esm/components/MockItem/index.js b/dist/esm/components/MockItem/index.js
+index aa852e535264497caa2374f66020e1039d238bc7..7182db934a3654c4f91815591185b47187db6c6c 100644
+--- a/dist/esm/components/MockItem/index.js
++++ b/dist/esm/components/MockItem/index.js
+@@ -2,9 +2,9 @@ var _templateObject, _templateObject2, _templateObject3, _templateObject4, _temp
+ function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+ import React from 'react';
+ import PropTypes from 'prop-types';
+-import { styled } from '@storybook/theming';
+-import { ObjectControl, RangeControl } from '@storybook/blocks';
+-import { Form, Placeholder, TabsState } from '@storybook/components';
++import { styled } from 'storybook/theming';
++import { ObjectControl, RangeControl } from '@storybook/addon-docs/blocks';
++import { Form, Placeholder, TabsState } from 'storybook/internal/components';
+ import { Card } from '../Card';
+ import statusTextMap from '../../utils/statusMap';
+ var statusCodes = Object.keys(statusTextMap);
+diff --git a/dist/esm/preset/manager.js b/dist/esm/preset/manager.js
+index a4eea5d7e0f36c8934f7c9400cc5872c7c98584f..203fdda818dd3a6dea6832eb9a0f6024f8434c3b 100644
+--- a/dist/esm/preset/manager.js
++++ b/dist/esm/preset/manager.js
+@@ -1,6 +1,6 @@
+ import { ADDON_ID, PANEL_ID } from '../utils/constants';
+ import { Panel } from '../Panel';
+-import { addons, types } from '@storybook/manager-api';
++import { addons, types } from 'storybook/manager-api';
+ addons.register(ADDON_ID, function () {
+   // Register the panel
+   addons.add(PANEL_ID, {
+diff --git a/dist/esm/withRoundTrip.js b/dist/esm/withRoundTrip.js
+index 95b5165e0c2830b9e3b753ad2717e5b8b8bef737..84d2a0aaab8e0ef7e3d678dca4d256b131ba2c82 100644
+--- a/dist/esm/withRoundTrip.js
++++ b/dist/esm/withRoundTrip.js
+@@ -4,10 +4,10 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
+ function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+-import { FORCE_RE_RENDER, STORY_CHANGED } from '@storybook/core-events';
++import { FORCE_RE_RENDER, STORY_CHANGED } from 'storybook/internal/core-events';
+ import { EVENTS, PARAM_KEY, GLOBAL_PARAM_KEY } from './utils/constants';
+ import faker from './utils/faker';
+-import { addons } from '@storybook/preview-api';
++import { addons } from 'storybook/preview-api';
+ var getParameter = function getParameter(parameters, key, defaultValue) {
+   return parameters[key] || defaultValue;
+ };
+diff --git a/package.json b/package.json
+index caa566b02ca71594d6c34c9010bada57ad5c738d..d8e3fe222be08a85140494c6d3abf06708170b49 100644
+--- a/package.json
++++ b/package.json
+@@ -44,18 +44,12 @@
+     "release": "yarn build && auto shipit"
+   },
+   "dependencies": {
+-    "@storybook/blocks": "^8.0.8",
+-    "@storybook/channels": "^8.0.8",
+-    "@storybook/components": "^8.0.8",
+-    "@storybook/core-events": "^8.0.8",
+-    "@storybook/manager-api": "^8.0.8",
+-    "@storybook/preview-api": "^8.0.8",
+-    "@storybook/theming": "^8.0.8",
++    "@storybook/addon-docs": "^9.0.0",
+     "mock-xmlhttprequest": "^8.1.0",
+     "path-to-regexp": "^6.2.1",
+     "polished": "^4.2.2",
+     "prop-types": "^15.8.1",
+-    "storybook": "^8.0.8",
++    "storybook": "^9.0.0",
+     "whatwg-fetch": "^3.6.19"
+   },
+   "devDependencies": {

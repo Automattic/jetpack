@@ -261,6 +261,20 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies[ 'jest-runner' ] += ' || ^30.0.0';
 	}
 
+	// Match the patch.
+	// https://github.com/linearlabs-workspace/storybook-addon-mock/issues/228
+	if ( pkg.name === 'storybook-addon-mock' && pkg.dependencies.storybook === '^8.0.8' ) {
+		pkg.dependencies.storybook = '^9.0.0';
+		pkg.dependencies[ '@storybook/addon-docs' ] = '^9.0.0';
+		delete pkg.dependencies[ '@storybook/blocks' ];
+		delete pkg.dependencies[ '@storybook/channels' ];
+		delete pkg.dependencies[ '@storybook/components' ];
+		delete pkg.dependencies[ '@storybook/core-events' ];
+		delete pkg.dependencies[ '@storybook/manager-api' ];
+		delete pkg.dependencies[ '@storybook/preview-api' ];
+		delete pkg.dependencies[ '@storybook/theming' ];
+	}
+
 	return pkg;
 }
 
