@@ -31,8 +31,8 @@
 		"@storybook/react": "8.6.7",
 		"@types/markdown-it": "14.1.2",
 		"@types/turndown": "5.0.5",
-		"jest": "30.0.0",
-		"jest-environment-jsdom": "30.0.0",
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4",
 		"storybook": "8.6.7",
 		"typescript": "5.8.3"
 	},
