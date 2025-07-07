@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Sync: do not sync the ActivityPub outbox CPT
