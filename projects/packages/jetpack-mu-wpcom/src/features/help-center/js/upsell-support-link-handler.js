@@ -17,7 +17,16 @@ const UpsellSupportLinkHandler = () => {
 
 		const links = Array.from(
 			document.querySelectorAll( `${ UPSELL_WRAPPER_SELECTOR } a` )
-		).filter( link => link.attributes?.href?.value?.includes( 'https://wordpress.com/support/' ) );
+		).filter( link => {
+			try {
+				const url = new URL( link.attributes?.href?.value );
+				const allowedHosts = [ 'wordpress.com' ];
+				return allowedHosts.includes( url.host ) && url.pathname.startsWith( '/support/' );
+				// eslint-disable-next-line no-unused-vars
+			} catch ( e ) {
+				return false;
+			}
+		} );
 
 		const handleClick = event => {
 			event.preventDefault();
