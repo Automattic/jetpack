@@ -177,4 +177,4 @@ export const isStillUsableWithFreePlan = name =>
 	map( usableBlockWithFreePlan, 'name' ).includes( name );
 
 export const getUsableBlockProps = blockName =>
-	filter( usableBlockWithFreePlan, ( { name } ) => name === blockName ).at( 0 );
+	filter( usableBlockWithFreePlan, ( { name } ) => name === blockName )[ 0 ];
