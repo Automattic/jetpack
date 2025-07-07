@@ -11,7 +11,6 @@ import useMediaRecording from '../index.ts';
  * Types
  */
 import type { Meta } from '@storybook/react';
-import type { ComponentType } from 'react';
 
 const RecorderComponent = ( { timeslice } ) => {
 	const { controls, state, blob, duration } = useMediaRecording();
@@ -70,12 +69,7 @@ const RecorderComponent = ( { timeslice } ) => {
 	);
 };
 
-interface AIControlStoryMeta extends Meta< typeof RecorderComponent > {
-	title?: string;
-	component?: ComponentType;
-}
-
-const meta: AIControlStoryMeta = {
+const meta = {
 	title: 'JS Packages/AI Client/useMediaRecording',
 	component: RecorderComponent,
 	argTypes: {
