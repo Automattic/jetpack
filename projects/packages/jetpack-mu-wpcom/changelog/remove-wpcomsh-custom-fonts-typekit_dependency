@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Add Jetpack_Fonts_Typekit class check.
