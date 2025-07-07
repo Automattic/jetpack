@@ -105,7 +105,7 @@ class Card extends Component {
 
 		return createElement(
 			this.props.href ? 'a' : this.props.tagName,
-			Object.assign( omit( this.props, omitProps ), { className } ),
+			{ ...omit( this.props, omitProps ), className },
 			linkIndicator,
 			fancyTitle,
 			this.props.children

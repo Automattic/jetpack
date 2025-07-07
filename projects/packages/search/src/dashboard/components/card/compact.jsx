@@ -7,7 +7,8 @@ export default class CompactCard extends Component {
 	static displayName = 'CompactCard';
 
 	render() {
-		const props = Object.assign( {}, this.props, {
+		const props = {
+			...this.props,
 			className: clsx( this.props.className, 'is-compact' ),
 		} );
 
