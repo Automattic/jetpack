@@ -4313,8 +4313,8 @@ importers:
         specifier: 7.27.6
         version: 7.27.6
       '@fullcalendar/core':
-        specifier: 6.1.17
-        version: 6.1.17
+        specifier: 6.1.18
+        version: 6.1.18
       '@testing-library/dom':
         specifier: 10.4.0
         version: 10.4.0
@@ -4346,8 +4346,8 @@ importers:
         specifier: 4.7.0
         version: 4.7.0
       fullcalendar:
-        specifier: 6.1.17
-        version: 6.1.17
+        specifier: 6.1.18
+        version: 6.1.18
       glob:
         specifier: 11.0.2
         version: 11.0.2
@@ -6750,33 +6750,33 @@ packages:
   '@formatjs/intl-localematcher@0.6.1':
     resolution: {integrity: sha512-ePEgLgVCqi2BBFnTMWPfIghu6FkbZnnBVhO2sSxvLfrdFw7wCHAHiDoM2h4NRgjbaY7+B7HgOLZGkK187pZTZg==}
 
-  '@fullcalendar/core@6.1.17':
-    resolution: {integrity: sha512-0W7lnIrv18ruJ5zeWBeNZXO8qCWlzxDdp9COFEsZnyNjiEhUVnrW/dPbjRKYpL0edGG0/Lhs0ghp1z/5ekt8ZA==}
+  '@fullcalendar/core@6.1.18':
+    resolution: {integrity: sha512-cD7XtZIZZ87Cg2+itnpsONCsZ89VIfLLDZ22pQX4IQVWlpYUB3bcCf878DhWkqyEen6dhi5ePtBoqYgm5K+0fQ==}
 
-  '@fullcalendar/daygrid@6.1.17':
-    resolution: {integrity: sha512-K7m+pd7oVJ9fW4h7CLDdDGJbc9szJ1xDU1DZ2ag+7oOo1aCNLv44CehzkkknM6r8EYlOOhgaelxQpKAI4glj7A==}
+  '@fullcalendar/daygrid@6.1.18':
+    resolution: {integrity: sha512-s452Zle1SdMEzZDw+pDczm8m3JLIZzS9ANMThXTnqeqJewW1gqNFYas18aHypJSgF9Fh9rDJjTSUw04BpXB/Mg==}
     peerDependencies:
-      '@fullcalendar/core': ~6.1.17
+      '@fullcalendar/core': ~6.1.18
 
-  '@fullcalendar/interaction@6.1.17':
-    resolution: {integrity: sha512-AudvQvgmJP2FU89wpSulUUjeWv24SuyCx8FzH2WIPVaYg+vDGGYarI7K6PcM3TH7B/CyaBjm5Rqw9lXgnwt5YA==}
+  '@fullcalendar/interaction@6.1.18':
+    resolution: {integrity: sha512-f/mD5RTjzw+Q6MGTMZrLCgIrQLIUUO9NV/58aM2J6ZBQZeRlNizDqmqldqyG+j49zj2vFhUfZibPrVKWm5yA4Q==}
     peerDependencies:
-      '@fullcalendar/core': ~6.1.17
+      '@fullcalendar/core': ~6.1.18
 
-  '@fullcalendar/list@6.1.17':
-    resolution: {integrity: sha512-fkyK49F9IxwlGUBVhJGsFpd/LTi/vRVERLIAe1HmBaGkjwpxnynm8TMLb9mZip97wvDk3CmZWduMe6PxscAlow==}
+  '@fullcalendar/list@6.1.18':
+    resolution: {integrity: sha512-XPZI50mq3HXyDQ5sT3jmqQUuwG8zQb5H14dQIUAmOHAIFRA3WpkxlzrXO0U1SrosvGySMPyyNNxvMKI1Q/jL7A==}
     peerDependencies:
-      '@fullcalendar/core': ~6.1.17
+      '@fullcalendar/core': ~6.1.18
 
-  '@fullcalendar/multimonth@6.1.17':
-    resolution: {integrity: sha512-ZxA9mkTzKayCdxR5je9P9++qqhSeSbuvXmvZ6doZw6omv8K52cD7XJii+P7gvxATXxtI6hg4i+DuMyOHxP1E2g==}
+  '@fullcalendar/multimonth@6.1.18':
+    resolution: {integrity: sha512-4WSqtheJgWQMcJZjDDwTCYHe1JWTGZyJdCbIs84DuKbwZWH96g07Kr/3xDwsxiHgVX0iFlwljtkp2OmtMxQoDA==}
     peerDependencies:
-      '@fullcalendar/core': ~6.1.17
+      '@fullcalendar/core': ~6.1.18
 
-  '@fullcalendar/timegrid@6.1.17':
-    resolution: {integrity: sha512-K4PlA3L3lclLOs3IX8cvddeiJI9ZVMD7RA9IqaWwbvac771971foc9tFze9YY+Pqesf6S+vhS2dWtEVlERaGlQ==}
+  '@fullcalendar/timegrid@6.1.18':
+    resolution: {integrity: sha512-T/ouhs+T1tM8JcW7Cjx+KiohL/qQWKqvRITwjol8ktJ1e1N/6noC40/obR1tyolqOxMRWHjJkYoj9fUqfoez9A==}
     peerDependencies:
-      '@fullcalendar/core': ~6.1.17
+      '@fullcalendar/core': ~6.1.18
 
   '@gravatar-com/hovercards@0.10.8':
     resolution: {integrity: sha512-P/PYqIF8SDlPiG3TgFKsTFJDwqahx8ojX+d4Cb9ThA3+0Nw5olNtKexklRafJBKDSySMEOttu+EGgigtxiE8dw==}
@@ -11393,8 +11393,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  fullcalendar@6.1.17:
-    resolution: {integrity: sha512-5pq3jYo9cJnVn8TrnukJdP3uNZWk2V1uiTqVXIaSbO5qIXeF3H1jE11PAB5fBOacnZ9HLI/98IT82Y1rz/2VIw==}
+  fullcalendar@6.1.18:
+    resolution: {integrity: sha512-jwZrCleBhY78j+uBf97FW2rgzjH6nmCpfx0p0m+XSNPZrKWbsk759ri1QWXS3PoISrHjcU5wFM4dRPP9inp5Pg==}
 
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
@@ -17528,31 +17528,31 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@fullcalendar/core@6.1.17':
+  '@fullcalendar/core@6.1.18':
     dependencies:
       preact: 10.12.1
 
-  '@fullcalendar/daygrid@6.1.17(@fullcalendar/core@6.1.17)':
+  '@fullcalendar/daygrid@6.1.18(@fullcalendar/core@6.1.18)':
     dependencies:
-      '@fullcalendar/core': 6.1.17
+      '@fullcalendar/core': 6.1.18
 
-  '@fullcalendar/interaction@6.1.17(@fullcalendar/core@6.1.17)':
+  '@fullcalendar/interaction@6.1.18(@fullcalendar/core@6.1.18)':
     dependencies:
-      '@fullcalendar/core': 6.1.17
+      '@fullcalendar/core': 6.1.18
 
-  '@fullcalendar/list@6.1.17(@fullcalendar/core@6.1.17)':
+  '@fullcalendar/list@6.1.18(@fullcalendar/core@6.1.18)':
     dependencies:
-      '@fullcalendar/core': 6.1.17
+      '@fullcalendar/core': 6.1.18
 
-  '@fullcalendar/multimonth@6.1.17(@fullcalendar/core@6.1.17)':
+  '@fullcalendar/multimonth@6.1.18(@fullcalendar/core@6.1.18)':
     dependencies:
-      '@fullcalendar/core': 6.1.17
-      '@fullcalendar/daygrid': 6.1.17(@fullcalendar/core@6.1.17)
+      '@fullcalendar/core': 6.1.18
+      '@fullcalendar/daygrid': 6.1.18(@fullcalendar/core@6.1.18)
 
-  '@fullcalendar/timegrid@6.1.17(@fullcalendar/core@6.1.17)':
+  '@fullcalendar/timegrid@6.1.18(@fullcalendar/core@6.1.18)':
     dependencies:
-      '@fullcalendar/core': 6.1.17
-      '@fullcalendar/daygrid': 6.1.17(@fullcalendar/core@6.1.17)
+      '@fullcalendar/core': 6.1.18
+      '@fullcalendar/daygrid': 6.1.18(@fullcalendar/core@6.1.18)
 
   '@gravatar-com/hovercards@0.10.8': {}
 
@@ -24838,14 +24838,14 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  fullcalendar@6.1.17:
+  fullcalendar@6.1.18:
     dependencies:
-      '@fullcalendar/core': 6.1.17
-      '@fullcalendar/daygrid': 6.1.17(@fullcalendar/core@6.1.17)
-      '@fullcalendar/interaction': 6.1.17(@fullcalendar/core@6.1.17)
-      '@fullcalendar/list': 6.1.17(@fullcalendar/core@6.1.17)
-      '@fullcalendar/multimonth': 6.1.17(@fullcalendar/core@6.1.17)
-      '@fullcalendar/timegrid': 6.1.17(@fullcalendar/core@6.1.17)
+      '@fullcalendar/core': 6.1.18
+      '@fullcalendar/daygrid': 6.1.18(@fullcalendar/core@6.1.18)
+      '@fullcalendar/interaction': 6.1.18(@fullcalendar/core@6.1.18)
+      '@fullcalendar/list': 6.1.18(@fullcalendar/core@6.1.18)
+      '@fullcalendar/multimonth': 6.1.18(@fullcalendar/core@6.1.18)
+      '@fullcalendar/timegrid': 6.1.18(@fullcalendar/core@6.1.18)
 
   function-bind@1.1.2: {}
 
