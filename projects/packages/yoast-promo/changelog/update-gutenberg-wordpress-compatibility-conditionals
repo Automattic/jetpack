@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Utilities: Remove post editor fallback as we no longer need to ensure compatibility.
