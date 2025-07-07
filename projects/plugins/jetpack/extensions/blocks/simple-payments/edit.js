@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getWidgetIdFromBlock } from '@wordpress/widgets';
 import clsx from 'clsx';
-import emailValidator from 'email-validator';
+import { validate as emailValidatorValidate } from 'email-validator';
 import { get, isEmpty, pick, trimEnd } from 'lodash';
 import { getCurrencyDefaults } from '../../shared/currencies';
 import HelpMessage from '../../shared/help-message';
@@ -255,7 +255,7 @@ export const SimplePaymentsEdit = ( {
 			return false;
 		}
 
-		if ( ! emailValidator.validate( email ) ) {
+		if ( ! emailValidatorValidate( email ) ) {
 			setFieldEmailError(
 				sprintf(
 					/* translators: Placeholder is an email address. */

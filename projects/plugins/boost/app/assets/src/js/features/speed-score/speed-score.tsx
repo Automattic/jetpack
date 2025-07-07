@@ -129,10 +129,10 @@ const SpeedScore = () => {
 						</div>
 					) : (
 						<div className={ styles.offline } data-testid="speed-scores-offline">
-							<h2>{ __( 'Website Offline', 'jetpack-boost' ) }</h2>
+							<h2>{ __( 'Website is not publicly available', 'jetpack-boost' ) }</h2>
 							<p>
 								{ __(
-									'All Jetpack Boost features are still available, but to get a performance score you would first have to make your website available online.',
+									'Performance score and some other Boost features cannot work because the Boost Cloud cannot reach your website. To fix this, you need to make your website publicly available.',
 									'jetpack-boost'
 								) }
 							</p>

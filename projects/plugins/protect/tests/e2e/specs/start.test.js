@@ -11,7 +11,7 @@ test.describe( 'Jetpack Protect Plugin', () => {
 	test.beforeEach( async ( { page, admin } ) => {
 		await prerequisitesBuilder( page )
 			.withCleanEnv()
-			.withActivePlugins( [ 'protect' ] )
+			.withActivePlugins( [ 'jetpack-protect' ] )
 			.withInactivePlugins( [ 'e2e-waf-data-interceptor' ] )
 			.withLoggedIn( true )
 			.build();

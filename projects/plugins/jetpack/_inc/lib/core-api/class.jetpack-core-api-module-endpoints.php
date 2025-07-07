@@ -1050,6 +1050,45 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 					break;
 
+				case 'wpcom_newsletter_categories':
+					$sanitized_category_ids = (array) $value;
+
+					array_walk_recursive(
+						$sanitized_category_ids,
+						function ( &$value ) {
+							if ( is_int( $value ) && $value > 0 ) {
+								return;
+							}
+
+							$value = (int) $value;
+							if ( $value <= 0 ) {
+								$value = null;
+							}
+						}
+					);
+
+					$sanitized_category_ids = array_unique(
+						array_filter(
+							$sanitized_category_ids,
+							function ( $category_id ) {
+								return $category_id !== null;
+							}
+						)
+					);
+
+					$new_value = array_map(
+						function ( $category_id ) {
+							return array( 'term_id' => $category_id );
+						},
+						$sanitized_category_ids
+					);
+
+					if ( ! update_option( $option, $new_value ) ) {
+						$updated = false;
+						$error   = esc_html__( 'WPCOM Newsletter Categories failed to process.', 'jetpack' );
+					}
+					break;
+
 				default:
 					// Boolean values are stored as 1 or 0.
 					if ( isset( $options[ $option ]['type'] ) && 'boolean' === $options[ $option ]['type'] ) {

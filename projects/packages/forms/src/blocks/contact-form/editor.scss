@@ -1,4 +1,5 @@
 @use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@import url(https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP&display=swap&text=♥★);
 
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
@@ -1164,5 +1165,25 @@
 				display: none;
 			}
 		}
+	}
+}
+
+// Rating field
+.jetpack-field-rating__wrapper {
+	font-family: "IBM Plex Sans JP", sans-serif;
+	cursor: pointer;
+	
+	.jetpack-field-rating__button:not(:first-of-type) {
+		margin-left: 8px;
+	}
+
+	.is-rating-filled,
+	.is-rating-unfilled {
+		-webkit-text-stroke: 2px #8c8f94;
+
+	}
+
+	.is-rating-unfilled {
+		color: transparent;
 	}
 }

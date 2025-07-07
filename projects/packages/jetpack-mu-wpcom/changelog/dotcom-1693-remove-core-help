@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+WPCOM only: remove Core's help tab in wp-admin in favor of the Help Center
