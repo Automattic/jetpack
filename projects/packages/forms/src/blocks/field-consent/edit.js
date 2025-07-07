@@ -11,7 +11,6 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import JetpackFieldWidth from '../shared/components/jetpack-field-width';
-import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-responses-settings';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
 export default function ConsentFieldEdit( props ) {
@@ -149,9 +148,6 @@ export default function ConsentFieldEdit( props ) {
 		<>
 			<div { ...innerBlocksProps } />
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage responses', 'jetpack-forms' ) }>
-					<JetpackManageResponsesSettings isChildBlock />
-				</PanelBody>
 				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<ToggleControl
