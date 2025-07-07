@@ -217,14 +217,19 @@ function wpcom_add_untangled_jetpack_menu() {
 		__( 'Scan', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		'https://wordpress.com/scan/' . $domain,
-		/**
-		 * Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		 */
 		null,
 		5
 	);
-}
 
+	Jetpack_Admin_UI_Admin::add_menu(
+		esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
+		__( 'Monetize', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'https://wordpress.com/earn/' . $domain,
+		null,
+		7
+	);
+}
 add_action( 'admin_menu', 'wpcom_add_untangled_jetpack_menu', 999 );
 
 /**
@@ -257,7 +262,6 @@ function wpcom_add_jetpack_submenu() {
 	$domain           = wp_parse_url( home_url(), PHP_URL_HOST );
 	$activity_log_url = 'https://wordpress.com/activity-log/' . $domain;
 	$vaultpress_url   = 'https://wordpress.com/backup/' . $domain;
-	$monetize_url     = 'https://wordpress.com/earn/' . $domain;
 	$subscribers_url  = 'https://wordpress.com/subscribers/' . $domain;
 	$newsletter_url   = 'https://wordpress.com/settings/newsletter/' . $domain;
 	$podcasting_url   = 'https://wordpress.com/settings/podcasting/' . $domain;
@@ -278,15 +282,6 @@ function wpcom_add_jetpack_submenu() {
 		__( 'VaultPress', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		$vaultpress_url,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
-
-	add_submenu_page(
-		'jetpack',
-		__( 'Monetize', 'jetpack-mu-wpcom' ),
-		__( 'Monetize', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		$monetize_url,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
@@ -338,7 +333,6 @@ function wpcom_add_jetpack_submenu() {
 		$vaultpress_url,
 		'akismet-key-config',
 		'jetpack-search',
-		$monetize_url,
 		$subscribers_url,
 	);
 	$ordered_submenu = array();
