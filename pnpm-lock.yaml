@@ -1747,8 +1747,8 @@ importers:
         specifier: 8.6.7
         version: 8.6.7(storybook@8.6.7)
       '@storybook/test-runner':
-        specifier: 0.19.1
-        version: 0.19.1(storybook@8.6.7)
+        specifier: 0.23.0
+        version: 0.23.0(storybook@8.6.7)
       '@storybook/theming':
         specifier: 8.6.7
         version: 8.6.7(storybook@8.6.7)
@@ -8067,11 +8067,6 @@ packages:
     peerDependencies:
       storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
 
-  '@storybook/core-common@8.6.14':
-    resolution: {integrity: sha512-Q1rSAFnuZcisoWqE1tmLSsXtPUIC0BC00VPCdpvoeNBOyBbye4JCeARbqr3utQSMrXJJ25D8Qt9rc0f2gwbg2w==}
-    peerDependencies:
-      storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
-
   '@storybook/core-events@8.6.14':
     resolution: {integrity: sha512-RrJ95u3HuIE4Nk8VmZP0tc/u0vYoE2v9fYlMw6K2GUSExzKDITs3voy6WMIY7Q3qbQun8XUXVlmqkuFzTEy/pA==}
     peerDependencies:
@@ -8094,14 +8089,6 @@ packages:
     resolution: {integrity: sha512-HK7yQD4kFu04JOKnUwoFeR58r5WY6ucF0D8zfW4Gx+r8hBJ5K4t3z6k2dlIlRQF1X5+2vNkQOwD8liHjckuZ8Q==}
     peerDependencies:
       storybook: ^8.6.7
-
-  '@storybook/csf-tools@8.6.14':
-    resolution: {integrity: sha512-Eymed7SmNimrj3azp1DGMEp9f3UdhvmCLqGsuzeKIQoPawwW0135ybls1aG4XfkhcAx51y1jTZG31aipFPRrfg==}
-    peerDependencies:
-      storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
-
-  '@storybook/csf@0.1.13':
-    resolution: {integrity: sha512-7xOOwCLGB3ebM87eemep89MYRFTko+D8qE7EdAAq74lgdqRR5cOUtYWJLjO2dLtP94nqoOdHJo6MdLLKzg412Q==}
 
   '@storybook/global@5.0.0':
     resolution: {integrity: sha512-FcOqPAXACP0I3oJ/ws6/rrPT9WGhu915Cg8D02a9YxLo0DE9zI+a9A5gRGvmQ09fiWPukqI8ZAEoQEdWUKMQdQ==}
@@ -8185,10 +8172,12 @@ packages:
     peerDependencies:
       storybook: ^8.6.7
 
-  '@storybook/test-runner@0.19.1':
-    resolution: {integrity: sha512-Nc4djXw3Lv3AAXg6TJ7yVTeuMryjMsTDd8GCbE/PStU602rpe8syEqElz78GPoJqB1VYWQ3T9pcu93MKyHT+xQ==}
-    engines: {node: ^16.10.0 || ^18.0.0 || >=20.0.0}
+  '@storybook/test-runner@0.23.0':
+    resolution: {integrity: sha512-AVA6mSotfHAqsKjvWMNR7wcXIoCNQidU9P5GIGEdn+gArzkzTsLXZr6qNjH4XQRg8pSR+IUOuB1MMWZIHxhgoQ==}
+    engines: {node: '>=20.0.0'}
     hasBin: true
+    peerDependencies:
+      storybook: ^0.0.0-0 || ^8.2.0 || ^9.0.0 || ^9.1.0-0
 
   '@storybook/test@8.6.7':
     resolution: {integrity: sha512-uF1JbBtdT7tuiXfEtHsUShBHIhm2vc0C39nKVJaTWyK9CybajXaj2Ny3IRa3oY9NKnklwGgN+kZ/Z9YiIOc4MQ==}
@@ -15654,10 +15643,6 @@ packages:
     resolution: {integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==}
     engines: {node: '>=8'}
 
-  type-fest@2.19.0:
-    resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
-    engines: {node: '>=12.20'}
-
   type-fest@4.41.0:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
@@ -19556,10 +19541,6 @@ snapshots:
     dependencies:
       storybook: 8.6.7
 
-  '@storybook/core-common@8.6.14(storybook@8.6.7)':
-    dependencies:
-      storybook: 8.6.7
-
   '@storybook/core-events@8.6.14(storybook@8.6.7)':
     dependencies:
       storybook: 8.6.7
@@ -19592,14 +19573,6 @@ snapshots:
     dependencies:
       storybook: 8.6.7
       unplugin: 1.16.1
-
-  '@storybook/csf-tools@8.6.14(storybook@8.6.7)':
-    dependencies:
-      storybook: 8.6.7
-
-  '@storybook/csf@0.1.13':
-    dependencies:
-      type-fest: 2.19.0
 
   '@storybook/global@5.0.0': {}
 
@@ -19708,17 +19681,13 @@ snapshots:
       prettier: 3.6.2
       storybook: 8.6.7
 
-  '@storybook/test-runner@0.19.1(storybook@8.6.7)':
+  '@storybook/test-runner@0.23.0(storybook@8.6.7)':
     dependencies:
       '@babel/core': 7.27.7
       '@babel/generator': 7.28.0
       '@babel/template': 7.27.2
       '@babel/types': 7.28.0
       '@jest/types': 29.6.3
-      '@storybook/core-common': 8.6.14(storybook@8.6.7)
-      '@storybook/csf': 0.1.13
-      '@storybook/csf-tools': 8.6.14(storybook@8.6.7)
-      '@storybook/preview-api': 8.6.7(storybook@8.6.7)
       '@swc/core': 1.12.9
       '@swc/jest': 0.2.38(@swc/core@1.12.9)
       expect-playwright: 0.8.0
@@ -19732,6 +19701,7 @@ snapshots:
       jest-watch-typeahead: 2.2.2(jest@30.0.4)
       nyc: 15.1.0
       playwright: 1.51.1
+      storybook: 8.6.7
     transitivePeerDependencies:
       - '@swc/helpers'
       - '@types/node'
@@ -19739,7 +19709,6 @@ snapshots:
       - debug
       - esbuild-register
       - node-notifier
-      - storybook
       - supports-color
       - ts-node
 
@@ -30263,8 +30232,6 @@ snapshots:
   type-fest@0.21.3: {}
 
   type-fest@0.8.1: {}
-
-  type-fest@2.19.0: {}
 
   type-fest@4.41.0: {}
 
