@@ -188,17 +188,20 @@ class Concatenate_JS extends WP_Scripts {
 				}
 			}
 
-			// This is a workaround to get the type of the script without outputting it.
-			// Build the final version of the script tag (by running it through apply_filters)
-			// and then checking the type. If it's a module script,
-			// skip it, as modules can't be concatenated with other scripts.
-			$script_tag  = '<script type="text/javascript" src="' . esc_url( $js_url ) . '"></script>';
-			$script_tag  = apply_filters( 'script_loader_tag', $script_tag, $handle, $js_url );
-			$script_type = preg_match( '/<script type=(["\'])([^"\']+)\1/', $script_tag, $matches ) ? $matches[2] : 'text/javascript';
-			if ( 'module' === $script_type ) {
+			/** This filter is documented in wp-includes/class-wp-scripts.php */
+			$js_url = esc_url_raw( apply_filters( 'script_loader_src', $js_url, $handle ) );
+			if ( ! $js_url ) {
 				$do_concat = false;
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					printf( "\n<!-- No Concat JS %s => Module Script -->\n", esc_html( $handle ) );
+					printf( "\n<!-- No Concat JS %s => No URL -->\n", esc_html( $handle ) );
+				}
+			} else {
+				$script_type = $this->get_script_type( $handle, $js_url );
+				if ( 'module' === $script_type ) {
+					$do_concat = false;
+					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+						printf( "\n<!-- No Concat JS %s => Module Script -->\n", esc_html( $handle ) );
+					}
 				}
 			}
 
@@ -338,6 +341,33 @@ class Concatenate_JS extends WP_Scripts {
 		do_action( 'js_concat_did_items', $javascripts );
 
 		return $this->done;
+	}
+
+	/**
+	 * Returns the type of the script.
+	 * module, text/javascript, etc.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $handle The script's registered handle.
+	 * @param string $src The script's source URL.
+	 *
+	 * @return string The type of the script.
+	 */
+	private function get_script_type( $handle, $src ) {
+		$script_tag_attr = array(
+			'src' => $src,
+			'id'  => "$handle-js",
+		);
+
+		// Get the script tag and allow plugins to filter it.
+		$script_tag = wp_get_script_tag( $script_tag_attr );
+
+		// This is a workaround to get the type of the script without outputting it.
+		$script_tag  = apply_filters( 'script_loader_tag', $script_tag, $handle, $src );
+		$script_type = preg_match( '/type=(["\'])([^"\']+)\1/', $script_tag, $matches ) ? $matches[2] : 'text/javascript';
+
+		return $script_type;
 	}
 
 	public function __isset( $key ) {
