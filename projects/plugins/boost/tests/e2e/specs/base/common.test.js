@@ -74,6 +74,6 @@ test.describe( 'Common tests', () => {
 		expect( result.length, 'No DB records are found' ).toBe( 0 );
 
 		// Ensure the plugin is activated again so future tests can run reset commands via withCleanEnv.
-		await execWpCommand( 'plugin activate boost' );
+		await execWpCommand( 'plugin activate jetpack-boost' );
 	} );
 } );
