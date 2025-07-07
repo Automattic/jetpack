@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: don't allow rich text formats in multi step form divider label
