@@ -26,6 +26,7 @@ const LineChartAnnotations: FC< LineChartAnnotationsProps > = ( {
 	chartHeight,
 } ) => {
 	const [ scales, setScales ] = useState< ScaleData | null >( null );
+	const [ scalesStable, setScalesStable ] = useState< boolean >( false );
 
 	// Create a signature for scale data to enable easy comparison
 	const createScaleSignature = useCallback( ( scaleData: ScaleData ) => {
@@ -68,6 +69,9 @@ const LineChartAnnotations: FC< LineChartAnnotationsProps > = ( {
 		const maxRetries = 20; // 20 * 50ms = 1 second max
 		const checkInterval = 50; // Check every 50ms
 
+		// Reset stability state when monitoring starts
+		setScalesStable( false );
+
 		const monitorScales = () => {
 			const currentScaleData = getScalesData();
 
@@ -77,6 +81,8 @@ const LineChartAnnotations: FC< LineChartAnnotationsProps > = ( {
 				const scalesSettled = lastSignature && currentScaleData.signature === lastSignature;
 
 				if ( scalesSettled ) {
+					// Scales have stabilized, mark as stable
+					setScalesStable( true );
 					return;
 				}
 
@@ -101,7 +107,7 @@ const LineChartAnnotations: FC< LineChartAnnotationsProps > = ( {
 		};
 	}, [ getScalesData, chartWidth, chartHeight ] );
 
-	if ( ! scales ) {
+	if ( ! scales || ! scalesStable ) {
 		return null;
 	}
 
