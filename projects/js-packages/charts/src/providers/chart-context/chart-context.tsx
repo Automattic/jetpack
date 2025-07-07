@@ -23,12 +23,12 @@ export const ChartProvider: FC< ChartProviderProps > = ( { children } ) => {
 		return chartsRef.current.get( id );
 	}, [] );
 
-	const value: ChartContextValue = {
+	const value: ChartContextValue = useMemo(() => ({
 		charts: chartsRef.current,
 		registerChart,
 		unregisterChart,
 		getChartData,
-	};
+	}), []);
 
 	return <ChartContext.Provider value={ value }>{ children }</ChartContext.Provider>;
 };
