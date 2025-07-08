@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "43e1c39978d0cae15b97c7160dd1d153",
+	"content-hash": "87076376043c36648016e871f01ec2c1",
 	"packages": [
 		{
 			"name": "automattic/block-delimiter",
@@ -2521,16 +2521,16 @@
 		},
 		{
 			"name": "automattic/jetpack-status",
-			"version": "v5.3.1",
+			"version": "v5.4.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/Automattic/jetpack-status.git",
-				"reference": "a1b08970ead0cd4983464a5bd55ffdefeb4c6513"
+				"reference": "0309fd5622bfa6a8ff8f8331b9b53f4087ab4f5e"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/a1b08970ead0cd4983464a5bd55ffdefeb4c6513",
-				"reference": "a1b08970ead0cd4983464a5bd55ffdefeb4c6513",
+				"url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/0309fd5622bfa6a8ff8f8331b9b53f4087ab4f5e",
+				"reference": "0309fd5622bfa6a8ff8f8331b9b53f4087ab4f5e",
 				"shasum": ""
 			},
 			"require": {
@@ -2554,7 +2554,7 @@
 				"autotagger": true,
 				"mirror-repo": "Automattic/jetpack-status",
 				"branch-alias": {
-					"dev-trunk": "5.3.x-dev"
+					"dev-trunk": "5.4.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
@@ -2577,9 +2577,9 @@
 			],
 			"description": "Used to retrieve information about the current status of Jetpack and the site overall.",
 			"support": {
-				"source": "https://github.com/Automattic/jetpack-status/tree/v5.3.1"
+				"source": "https://github.com/Automattic/jetpack-status/tree/v5.4.0"
 			},
-			"time": "2025-06-27T17:11:22+00:00"
+			"time": "2025-07-08T14:47:31+00:00"
 		},
 		{
 			"name": "automattic/jetpack-subscribers-dashboard",
