@@ -4,6 +4,7 @@
 /* eslint-disable testing-library/no-manual-cleanup */
 
 import { jest } from '@jest/globals';
+// @ts-expect-error /pure subpath apparently exists
 import { render, screen, cleanup } from '@testing-library/react/pure';
 import PricingCard from '../index.tsx';
 

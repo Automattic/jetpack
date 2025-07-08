@@ -4,7 +4,7 @@ import Text from '../text/index.tsx';
 import styles from './style.module.scss';
 import type { JSX } from 'react';
 
-interface StatusProps {
+export interface StatusProps {
 	status?: 'active' | 'error' | 'inactive' | 'action' | 'initializing';
 	label?: string;
 	className?: string;

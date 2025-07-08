@@ -90,7 +90,7 @@
 	"scripts": {
 		"build": "pnpm run clean && pnpm run compile-ts",
 		"clean": "rm -rf build/",
-		"compile-ts": "tsc --pretty",
+		"compile-ts": "tsc --pretty --project tsconfig.build.json",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit"
