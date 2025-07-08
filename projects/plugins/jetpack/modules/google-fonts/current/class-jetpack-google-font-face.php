@@ -186,7 +186,12 @@ class Jetpack_Google_Font_Face {
 	 * @param array $font The font definition object.
 	 */
 	public static function get_font_family_name( $font ) {
-		$font_family = $font['fontFamily'];
+		$font_family = $font['fontFamily'] ?? $font['name'] ?? '';
+
+		if ( empty( $font_family ) ) {
+			return '';
+		}
+
 		if ( str_contains( $font_family, ',' ) ) {
 			$font_family = explode( ',', $font_family )[0];
 		}
