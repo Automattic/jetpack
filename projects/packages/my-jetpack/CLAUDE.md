@@ -8,17 +8,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Additional Resources**:
 
+- [Data Layer Documentation](./_inc/data/README.md) - API hooks and data management
 - [Automated Testing Overview](../../../docs/automated-testing.md) - Testing patterns and strategies
 - [Coding Standards & Guidelines](../../../docs/coding-guidelines.md) - Development best practices  
 - [Jetpack HTTP API Documentation](../../../docs/rest-api.md) - REST API patterns
-- [Data Layer Documentation](./_inc/data/README.md) - API hooks and data management
+- [Jetpack CLI Documentation](../../../tools/cli/README.md) - CLI commands and workflows
 
 ## Project Overview
 
 My Jetpack is a centralized WordPress admin page providing a unified interface for managing Jetpack products and services. Key architectural components:
 
 - **PHP Backend**: Product management system, REST API endpoints (`jetpack/v4/my-jetpack` namespace)
-- **React Frontend**: TypeScript application with React Router and React Query for data management
+- **React Frontend**: TypeScript application with React Router and TanStack React Query for data management
 - **Product System**: Standardized `Product` class interface with status constants for lifecycle management
 
 ## Code Patterns & Examples
@@ -80,6 +81,7 @@ My Jetpack endpoints follow the standard pattern:
 - **Registration**: Via `Initializer::register_rest_endpoints()`
 
 #### Product Status Constants
+
 ```php
 // Status constants are defined in class-products.php
 // Use Products::STATUS_* constants instead of magic strings
@@ -154,7 +156,31 @@ const ProductCard = ({ slug }) => {
 
 ## Development Quick Reference
 
-**Commands**: All build, test, and CLI commands are in [README.md](./README.md#development)
-**Workflows**: See [README.md](./README.md) for adding products, API development, and feature implementation
-**Testing**: PHPUnit for PHP, Jest + React Testing Library for JavaScript (details in [testing docs](../../../docs/automated-testing.md))
+### Key Technologies
+
+- **React**: 18.3.1 with TypeScript
+- **Data Management**: TanStack React Query 5.75.1 for server state
+- **Routing**: React Router DOM 6.30.0
+- **Charts**: `@automattic/charts` for data visualization
+- **Styling**: Sass modules with CSS Modules
+
+### TanStack Query Integration
+
+**Base Hook**: `useSimpleQuery` - Wrapper around TanStack Query for common patterns
+
+### Styling Architecture
+
+**Sass Modules**: `.module.scss` files with CSS Modules
+**Base Styles**: `@automattic/jetpack-base-styles` for common patterns
+**Naming Convention**: BEM methodology in SCSS modules
+
+**Key Style Files**:
+
+- `_inc/style.module.scss`: Main application styles
+- Component-specific: `component-name/style.module.scss`
+
+### Testing & Integration
+
+**Testing**: PHPUnit for PHP, Jest + React Testing Library for JavaScript
 **Integration**: WordPress.com connection via `@automattic/jetpack-connection`, licensing via `@automattic/jetpack-licensing`
+**Workflows**: See [README.md](./README.md) for adding products, API development, and feature implementation
