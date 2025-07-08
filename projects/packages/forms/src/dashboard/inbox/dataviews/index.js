@@ -15,7 +15,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { isArray, isEmpty, join } from 'lodash';
+import { isEmpty } from 'lodash';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
@@ -52,8 +52,8 @@ const formatFieldName = fieldName => {
 const formatFieldValue = fieldValue => {
 	if ( isEmpty( fieldValue ) ) {
 		return '-';
-	} else if ( isArray( fieldValue ) ) {
-		return join( fieldValue, ', ' );
+	} else if ( Array.isArray( fieldValue ) ) {
+		return fieldValue.join( ', ' );
 	}
 	return fieldValue;
 };

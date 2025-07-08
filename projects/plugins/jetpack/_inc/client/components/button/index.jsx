@@ -1,10 +1,11 @@
 import clsx from 'clsx';
-import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import { createElement, Component } from 'react';
 import Gridicon from 'components/gridicon';
 
 import './style.scss';
+
+const noop = () => {};
 
 export default class Button extends Component {
 	static displayName = 'Button';

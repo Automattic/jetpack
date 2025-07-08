@@ -1,10 +1,11 @@
 import clsx from 'clsx';
-import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
 import { createElement, Component } from 'react';
 /*eslint lodash/import-scope: [2, "method"]*/
 
 import './style.scss';
+
+const noop = () => {};
 
 export default class Button extends Component {
 	static displayName = 'Button';

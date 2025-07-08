@@ -5,7 +5,7 @@ import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, backup } from '@wordpress/icons';
-import { get, noop } from 'lodash';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
@@ -33,6 +33,8 @@ import { siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import BackupGettingStarted from './backup-getting-started';
 import BackupUpgrade from './backup-upgrade';
+
+const noop = () => {};
 
 /**
  * Displays a card for Backups based on the props given.

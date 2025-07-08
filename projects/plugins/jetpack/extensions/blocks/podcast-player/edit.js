@@ -28,7 +28,7 @@ import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from '@
 import { __ } from '@wordpress/i18n';
 import { isURL, prependHTTP } from '@wordpress/url';
 import debugFactory from 'debug';
-import { debounce, noop } from 'lodash';
+import { debounce } from 'lodash';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 import { maybeCopyElementsToSiteEditorContext } from '../../shared/block-editor-asset-loader';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
@@ -44,6 +44,7 @@ import './editor.scss';
 
 const DEFAULT_MIN_ITEMS = 1;
 const debug = debugFactory( 'jetpack:podcast-player:edit' );
+const noop = () => {};
 
 // Support page link.
 const supportUrl = isWpcomPlatformSite()

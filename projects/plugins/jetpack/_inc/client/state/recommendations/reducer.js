@@ -1,4 +1,4 @@
-import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
+import { difference, get, isEmpty, mergeWith, union } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	isJetpackPlanWithAntiSpam,
@@ -105,7 +105,7 @@ const data = ( state = {}, action ) => {
 				}
 			}
 
-			return assign( {}, state, action.data );
+			return Object.assign( {}, state, action.data );
 		case JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION: {
 			const selectedState = mergeWith(
 				{},
@@ -169,38 +169,38 @@ const data = ( state = {}, action ) => {
 const requests = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH:
-			return assign( {}, state, { isFetchingRecommendationsData: true } );
+			return Object.assign( {}, state, { isFetchingRecommendationsData: true } );
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isRecommendationsDataLoaded: true,
 				isFetchingRecommendationsData: false,
 			} );
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL:
-			return assign( {}, state, { isFetchingRecommendationsData: false } );
+			return Object.assign( {}, state, { isFetchingRecommendationsData: false } );
 		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH:
-			return assign( {}, state, { isFetchingRecommendationsProductSuggestions: true } );
+			return Object.assign( {}, state, { isFetchingRecommendationsProductSuggestions: true } );
 		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_FAIL:
-			return assign( {}, state, { isFetchingRecommendationsProductSuggestions: false } );
+			return Object.assign( {}, state, { isFetchingRecommendationsProductSuggestions: false } );
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH:
-			return assign( {}, state, { isFetchingRecommendationsUpsell: true } );
+			return Object.assign( {}, state, { isFetchingRecommendationsUpsell: true } );
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL:
-			return assign( {}, state, { isFetchingRecommendationsUpsell: false } );
+			return Object.assign( {}, state, { isFetchingRecommendationsUpsell: false } );
 		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH:
-			return assign( {}, state, { isFetchingRecommendationsConditional: true } );
+			return Object.assign( {}, state, { isFetchingRecommendationsConditional: true } );
 		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isRecommendationsConditionalLoaded: true,
 				isFetchingRecommendationsConditional: false,
 			} );
 		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL:
-			return assign( {}, state, { isFetchingRecommendationsConditional: false } );
+			return Object.assign( {}, state, { isFetchingRecommendationsConditional: false } );
 		case JETPACK_RECOMMENDATIONS_STEP_UPDATE:
-			return assign( {}, state, { isUpdatingRecommendationsStep: true } );
+			return Object.assign( {}, state, { isUpdatingRecommendationsStep: true } );
 		case JETPACK_RECOMMENDATIONS_STEP_UPDATE_SUCCESS:
 		case JETPACK_RECOMMENDATIONS_STEP_UPDATE_FAIL:
-			return assign( {}, state, { isUpdatingRecommendationsStep: false } );
+			return Object.assign( {}, state, { isUpdatingRecommendationsStep: false } );
 		default:
 			return state;
 	}
@@ -542,7 +542,7 @@ export const isProductSuggestionsAvailable = state => {
 
 	const suggestionsResult = getProductSuggestions( state );
 
-	return isArray( suggestionsResult ) && ! isEmpty( suggestionsResult );
+	return Array.isArray( suggestionsResult ) && ! isEmpty( suggestionsResult );
 };
 
 export const getNonViewedRecommendationsCount = state => {
