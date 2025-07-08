@@ -57,7 +57,7 @@ function enqueue_editor_assets() {
 	 *
 	 * This feature enhances the "code editor" views in the Post and Site Editors.
 	 */
-	$should_load_code_editor = apply_filters( 'a8c_code_editor_should_load_code_editor', $user_prefers_syntax_highlight );
+	$should_load_code_editor = apply_filters( 'jetpack_mu_wpcom_should_load_code_editor', $user_prefers_syntax_highlight );
 	if ( $should_load_code_editor ) {
 		wp_enqueue_script_module( MODULE_PREFIX . 'code-editor' );
 
@@ -76,11 +76,11 @@ function enqueue_editor_assets() {
 	}
 
 	/**
-	 * Filter to enable or disable the improved code editor.
+	 * Filter to enable or disable the improved CSS editor.
 	 *
 	 * This feature enhances the "Additional CSS" panel in the Site Editor.
 	 */
-	$should_load_css_editor = apply_filters( 'a8c_code_editor_should_load_css_editor', $user_prefers_syntax_highlight );
+	$should_load_css_editor = apply_filters( 'jetpack_mu_wpcom_should_load_css_editor', $user_prefers_syntax_highlight );
 	if ( $should_load_css_editor ) {
 		wp_enqueue_script_module( MODULE_PREFIX . 'site-additional-css' );
 		// The additional CSS panel has no script dependencies.
