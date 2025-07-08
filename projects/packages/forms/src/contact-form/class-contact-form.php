@@ -328,6 +328,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		return $default_subject;
 	}
+	/**
+	 * Get the forms processed count.
+	 *
+	 * @return int
+	 */
+	public static function get_forms_count() {
+		return count( self::$forms );
+	}
 
 	/**
 	 * Store shortcode content for recall later
@@ -1413,7 +1421,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		);
 
 		// Initialize marketing consent
-		$field_ids['email_marketing_consent'] = null;
+		$field_ids['email_marketing_consent']       = null;
+		$field_ids['email_marketing_consent_field'] = null;
 
 		foreach ( $this->fields as $id => $field ) {
 			$type = $field->get_attribute( 'type' );
@@ -1446,6 +1455,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				case 'consent':
 					// Set email marketing consent for the first Consent type field
 					if ( null === $field_ids['email_marketing_consent'] ) {
+						$field_ids['email_marketing_consent_field'] = $id;
 						if ( $field->value ) {
 							$field_ids['email_marketing_consent'] = true;
 						} else {
