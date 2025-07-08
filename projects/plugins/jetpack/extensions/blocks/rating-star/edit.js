@@ -59,7 +59,7 @@ export default Symbol =>
 					/>
 				</BlockControls>
 				<div style={ { textAlign: align } }>
-					{ Array.from( Array( maxRating ), ( _, i ) => i + 1 ).map( position => (
+					{ Array.from( Array( Math.ceil( maxRating ) ), ( _, i ) => i + 1 ).map( position => (
 						<Rating key={ position } id={ position } setRating={ setNewRating }>
 							<span>
 								<Symbol

@@ -15,7 +15,7 @@ export default fallbackSymbol =>
 
 		return (
 			<figure { ...blockProps } style={ { textAlign: align } }>
-				{ Array.from( Array( rating ), ( _, i ) => i + 1 ).map( position => (
+				{ Array.from( Array( Math.ceil( rating ) ), ( _, i ) => i + 1 ).map( position => (
 					<span key={ position } style={ { color } }>
 						{ fallbackSymbol }
 					</span>
