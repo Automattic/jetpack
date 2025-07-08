@@ -131,15 +131,11 @@ class Contact_Form_Test extends BaseTestCase {
 	 * @param string $form_id Optional form ID. If not provided, will use $this->post->ID.
 	 */
 	private function add_field_values( $values, $form_id = null ) {
-		$prefix = $form_id ? $form_id : 'g' . $this->post->ID;
-		$_POST  = array();
-		foreach ( $values as $key => $val ) {
-			if ( strpos( $key, 'contact-form' ) === 0 || strpos( $key, 'action' ) === 0 ) {
-				$_POST[ $key ] = $val;
-			} else {
-				$_POST[ $prefix . '-' . $key ] = $val;
-			}
-		}
+		Utility::add_post_request(
+			$values,
+			$form_id,
+			$this->post->ID
+		);
 	}
 
 	/**
