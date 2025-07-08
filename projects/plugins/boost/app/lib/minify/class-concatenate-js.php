@@ -345,7 +345,7 @@ class Concatenate_JS extends WP_Scripts {
 	 * module, text/javascript, etc. False if the script tag is invalid,
 	 * or the type is not set.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.2
 	 *
 	 * @param string $handle The script's registered handle.
 	 * @param string $src The script's source URL.
