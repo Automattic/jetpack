@@ -4,7 +4,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { Button } from '@wordpress/components';
-import { useEntityRecords } from '@wordpress/core-data';
+import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
 import { dispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -18,7 +18,7 @@ import { store as dashboardStore } from '../../store';
 const EmptyTrashButton = () => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const { createSuccessNotice, createErrorNotice } = dispatch( noticesStore );
-	const { invalidateFilters } = dispatch( dashboardStore );
+	const { invalidateResolutionForStore } = dispatch( coreStore );
 
 	const { totalItems } = useEntityRecords( 'postType', 'feedback', {
 		status: 'trash',
@@ -40,8 +40,6 @@ const EmptyTrashButton = () => {
 			path: `/wp/v2/feedback/trash`,
 		} )
 			.then( response => {
-				invalidateFilters(); // Reload the view
-
 				const deleted = response?.deleted ?? 0;
 				const successMessage =
 					deleted === 1
@@ -65,8 +63,11 @@ const EmptyTrashButton = () => {
 					id: 'empty-trash-error',
 				} );
 				setIsLoading( false );
+			} )
+			.finally( () => {
+				invalidateResolutionForStore( dashboardStore );
 			} );
-	}, [ createSuccessNotice, createErrorNotice, isLoading, isEmpty, invalidateFilters ] );
+	}, [ isLoading, isEmpty, invalidateResolutionForStore, createSuccessNotice, createErrorNotice ] );
 
 	return (
 		<Button
