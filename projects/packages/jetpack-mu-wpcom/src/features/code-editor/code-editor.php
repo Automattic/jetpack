@@ -26,36 +26,33 @@ const JS_EXTENSION = SCRIPT_DEBUG ? '.js' : '.min.js';
 
 /** Set up the plugin. */
 function init() {
-	wp_register_script_module(
-		MODULE_PREFIX . 'codemirror-bundle',
-		plugins_url( '../../build-module/codemirror/codemirror' . JS_EXTENSION, __FILE__ ),
-		array(),
-		get_version( '../../build-module/codemirror/codemirror' . JS_EXTENSION )
-	);
+	$asset_manifest = include plugin_dir_path( __FILE__ ) . '../../build-module/assets.php';
 
-	wp_register_script_module(
-		MODULE_PREFIX . 'code-editor',
-		plugins_url( '../../build-module/code-editor/code-editor' . JS_EXTENSION, __FILE__ ),
-		array(
-			array(
-				'import' => 'dynamic',
-				'id'     => MODULE_PREFIX . 'codemirror-bundle',
-			),
-		),
-		get_version( '../../build-module/code-editor/code-editor' . JS_EXTENSION )
+	$modules = array(
+		'code-editor/code-editor.js'                 => MODULE_PREFIX . 'code-editor',
+		'codemirror/codemirror.js'                   => MODULE_PREFIX . 'codemirror-bundle',
+		'site-additional-css/site-additional-css.js' => MODULE_PREFIX . 'site-additional-css',
 	);
+	/** @var array<string, array{dependencies: array, version: string, type: string, src: string}> $asset_manifest */
+	$module_assets = array();
+	foreach ( $modules as $path => $module_id ) {
+		if ( ! isset( $asset_manifest[ $path ] ) ) {
+			return;
+		}
 
-	wp_register_script_module(
-		MODULE_PREFIX . 'site-additional-css',
-		plugins_url( '../../build-module/site-additional-css/site-additional-css' . JS_EXTENSION, __FILE__ ),
-		array(
-			array(
-				'import' => 'dynamic',
-				'id'     => MODULE_PREFIX . 'codemirror-bundle',
-			),
-		),
-		get_version( '../../build-module/site-additional-css/site-additional-css' . JS_EXTENSION )
-	);
+		$module_assets[ $module_id ]              = $asset_manifest[ $path ];
+		$module_assets[ $module_id ]['module_id'] = $module_id;
+		$module_assets[ $module_id ]['src']       = plugins_url( '../../build-module/' . $path, __FILE__ );
+	}
+
+	foreach ( $module_assets as $module_id => $asset_manifest ) {
+		wp_register_script_module(
+			$module_id,
+			$asset_manifest['src'],
+			$asset_manifest['dependencies'],
+			$asset_manifest['version']
+		);
+	}
 }
 
 /**
@@ -99,15 +96,6 @@ function enqueue_editor_assets() {
 	}
 }
 
-function get_version( string $path ): string {
-	if ( ! WP_DEBUG ) {
-		return VERSION;
-	}
-	return (string) filemtime( plugin_dir_path( __FILE__ ) . $path );
-}
-
-add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\\enqueue_editor_assets' );
-
 // Core should handle this, but Script Module assets are not currently handled.
 add_action(
 	'wp_enqueue_scripts',
@@ -118,3 +106,4 @@ add_action(
 	}
 );
 add_action( 'init', __NAMESPACE__ . '\\init' );
+add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\\enqueue_editor_assets' );
