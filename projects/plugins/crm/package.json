@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-crm",
-	"version": "6.5.1",
+	"version": "6.6.0",
 	"description": "The CRM for WordPress",
 	"author": "Automattic",
 	"license": "GPL-2.0",
