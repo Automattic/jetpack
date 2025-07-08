@@ -30,7 +30,7 @@ const UpsellSupportLinkHandler = () => {
 
 		const handleClick = event => {
 			event.preventDefault();
-			setShowSupportDoc( event.target.href );
+			setShowSupportDoc( event.currentTarget.href );
 		};
 
 		links.forEach( link => {
