@@ -1,20 +1,4 @@
-<?php
-/**
- * Plugin Name:       A8C Code Editor
- * Description:       Modernize the WordPress code-editing experience.
- * Version:           2.2
- * Requires at least: 6.7
- * Tested up to:      6.8
- * License:           GPLv2 or later
- * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Author:            Automattic, Inc.
- * Author URI:        https://automattic.com
- * Text Domain:       a8c-code-editor
- *
- * @package A8C\CodeEditor
- */
-
-declare( strict_types = 1 );
+<?php declare( strict_types = 1 );
 
 // phpcs:ignore
 namespace A8C\CodeEditor;
