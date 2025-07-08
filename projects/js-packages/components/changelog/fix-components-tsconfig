@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-TypeScript: Fix config to include all the TS files for type checking.
