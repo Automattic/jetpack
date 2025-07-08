@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Instagram Gallery Block: fixed fatal error when Instagram sends an unexpected "null" response.
