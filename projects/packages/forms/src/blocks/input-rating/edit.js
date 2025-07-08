@@ -5,7 +5,8 @@ import {
 } from '@wordpress/block-editor';
 import { PanelBody, RangeControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-// no effects needed for style sync
+import { __ } from '@wordpress/i18n';
+import { DEFAULT_GLYPHS } from './constants';
 import Symbols from './symbols';
 
 export default function RatingInputEdit( { clientId, attributes, setAttributes } ) {
@@ -45,10 +46,14 @@ export default function RatingInputEdit( { clientId, attributes, setAttributes }
 		}
 	};
 
-	const blockProps = useBlockProps();
+	const glyphs = DEFAULT_GLYPHS;
+	const glyphKeys = Object.keys( glyphs );
+	const matchedKey =
+		glyphKeys.find( key => className.includes( `is-style-${ key }` ) ) || glyphKeys[ 0 ];
 
-	const isHearts = className.includes( 'is-style-hearts' );
-	const iconChar = isHearts ? '♥' : '★';
+	const iconChar = glyphs[ matchedKey ].char;
+
+	const blockProps = useBlockProps( { 'aria-label': __( 'Select rating', 'jetpack-forms' ) } );
 
 	return (
 		<>

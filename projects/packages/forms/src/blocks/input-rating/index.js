@@ -1,7 +1,17 @@
 import { __ } from '@wordpress/i18n';
+import { DEFAULT_GLYPHS } from './constants';
 import edit from './edit';
+import './style.scss';
 
 const name = 'rating-input';
+
+const glyphs = DEFAULT_GLYPHS;
+
+const stylesArray = Object.entries( glyphs ).map( ( [ key, { label } ] ) => ( {
+	name: key,
+	label,
+	isDefault: key === 'stars',
+} ) );
 
 const settings = {
 	apiVersion: 3,
@@ -28,17 +38,7 @@ const settings = {
 			},
 		},
 	},
-	styles: [
-		{
-			name: 'stars',
-			label: __( 'Stars', 'jetpack-forms' ),
-			isDefault: true,
-		},
-		{
-			name: 'hearts',
-			label: __( 'Hearts', 'jetpack-forms' ),
-		},
-	],
+	styles: stylesArray,
 
 	edit,
 	save: () => null,

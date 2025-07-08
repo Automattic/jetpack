@@ -20,8 +20,8 @@ export default function Symbols( { max, value = 0, onChange = () => {}, char = '
 	const handleSelect = useCallback( position => () => onChange( position ), [ onChange ] );
 
 	return (
-		<div className="jetpack-field-rating__wrapper">
-			{ Array.from( Array( max ), ( _, i ) => i + 1 ).map( position => (
+		<div className="jetpack-field-rating__wrapper" aria-label="Rating control">
+			{ Array.from( { length: max }, ( _, i ) => i + 1 ).map( position => (
 				<span
 					key={ position }
 					className="jetpack-field-rating__button"
