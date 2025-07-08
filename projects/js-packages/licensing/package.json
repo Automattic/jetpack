@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-licensing",
-	"version": "1.0.9",
+	"version": "1.0.10",
 	"description": "Jetpack licensing flow",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/licensing/#readme",
 	"bugs": {
@@ -38,12 +38,12 @@
 		"@babel/plugin-transform-react-jsx": "7.27.1",
 		"@babel/preset-react": "7.27.1",
 		"@testing-library/dom": "10.4.0",
-		"@testing-library/react": "16.2.0",
+		"@testing-library/react": "16.3.0",
 		"@testing-library/user-event": "14.6.1",
 		"@types/react": "18.3.23",
 		"babel-jest": "30.0.0",
-		"jest": "30.0.0",
-		"jest-environment-jsdom": "30.0.0",
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-SEO tags: do not use Open Graph util function to strip query blocks when Open Graph functions are not availabe

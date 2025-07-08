@@ -18,12 +18,8 @@ import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpre
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import {
-	PluginPrePublishPanel as DeprecatedPluginPrePublishPanel,
-	PluginDocumentSettingPanel as DeprecatedPluginDocumentSettingPanel,
-} from '@wordpress/edit-post';
-import {
-	PluginPrePublishPanel as EditorPluginPrePublishPanel,
-	PluginDocumentSettingPanel as EditorPluginDocumentSettingPanel,
+	PluginPrePublishPanel,
+	PluginDocumentSettingPanel,
 	store as editorStore,
 } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -52,11 +48,8 @@ import './style.scss';
  */
 import type { CoreSelect, JetpackSettingsContentProps, PanelProps } from './types';
 
-const BasePrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
-const BaseDocumentPanel = EditorPluginDocumentSettingPanel || DeprecatedPluginDocumentSettingPanel;
-
-const PrePublishPanel = BasePrePublishPanel as ComponentType< PanelProps >;
-const DocumentPanel = BaseDocumentPanel as ComponentType< PanelProps >;
+const PrePublishPanel = PluginPrePublishPanel as ComponentType< PanelProps >;
+const DocumentPanel = PluginDocumentSettingPanel as ComponentType< PanelProps >;
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
 /**

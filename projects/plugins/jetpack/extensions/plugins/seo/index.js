@@ -12,12 +12,8 @@ import { PanelBody, PanelRow } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, select as globalSelect, useDispatch } from '@wordpress/data';
 import {
-	PluginPrePublishPanel as DeprecatedPluginPrePublishPanel,
-	PluginPostPublishPanel as DeprecatedPluginPostPublishPanel,
-} from '@wordpress/edit-post';
-import {
-	PluginPrePublishPanel as EditorPluginPrePublishPanel,
-	PluginPostPublishPanel as EditorPluginPostPublishPanel,
+	PluginPrePublishPanel,
+	PluginPostPublishPanel,
 	store as editorStore,
 } from '@wordpress/editor';
 import { useEffect, useRef } from '@wordpress/element';
@@ -41,9 +37,6 @@ import SeoTitlePanel from './title-panel';
 import './editor.scss';
 
 export const name = 'seo';
-
-const PluginPrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
-const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
 
 // On P2 this function is not available, causing an error
 const supportsPublishSidebar =

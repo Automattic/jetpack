@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import styles from './styles.module.scss';
 import type { FC, ReactNode } from 'react';
 
-interface ToggleControlProps {
+export interface ToggleControlProps {
 	/** Whether or not the toggle is currently enabled. */
 	checked?: boolean;
 

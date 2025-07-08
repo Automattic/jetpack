@@ -15,8 +15,8 @@
 	"license": "GPL-2.0-or-later",
 	"devDependencies": {
 		"debug": "4.4.1",
-		"jest": "30.0.0",
-		"jest-environment-jsdom": "30.0.0"
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4"
 	},
 	"type": "module",
 	"exports": {

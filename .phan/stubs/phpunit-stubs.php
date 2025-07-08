@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.2.5
+ * Stubs automatically generated from PHPUnit 12.2.6
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -14097,24 +14097,27 @@ final class TestDoubleState
     {
     }
 }
-/**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
 interface InvocationStubber
 {
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @param \PHPUnit\Framework\Constraint\Constraint|non-empty-string|Runtime\PropertyHook $constraint
      *
      * @return $this
      */
     public function method(\PHPUnit\Framework\Constraint\Constraint|\PHPUnit\Framework\MockObject\Runtime\PropertyHook|string $constraint): self;
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @param non-empty-string $id
      *
      * @return $this
      */
     public function id(string $id): self;
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @param non-empty-string $id
      *
      * @return $this
@@ -14125,44 +14128,64 @@ interface InvocationStubber
      */
     public function with(mixed ...$arguments): self;
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @return $this
      */
     public function withAnyParameters(): self;
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @return $this
      */
     public function will(\PHPUnit\Framework\MockObject\Stub\Stub $stub): self;
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @return $this
      */
     public function willReturn(mixed $value, mixed ...$nextValues): self;
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @return $this
      */
     public function willReturnReference(mixed &$reference): self;
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @param array<int, array<int, mixed>> $valueMap
      *
      * @return $this
      */
     public function willReturnMap(array $valueMap): self;
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @return $this
      */
     public function willReturnArgument(int $argumentIndex): self;
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @return $this
      */
     public function willReturnCallback(callable $callback): self;
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @return $this
      */
     public function willReturnSelf(): self;
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @return $this
      */
     public function willReturnOnConsecutiveCalls(mixed ...$values): self;
     /**
+     * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+     *
      * @return $this
      */
     public function willThrowException(\Throwable $exception): self;
@@ -20769,6 +20792,9 @@ final class PassedTests
     {
     }
     public function isGreaterThan(string $method, \PHPUnit\Framework\TestSize\TestSize $other): bool
+    {
+    }
+    public function hasReturnValue(string $method): bool
     {
     }
     public function returnValue(string $method): mixed
