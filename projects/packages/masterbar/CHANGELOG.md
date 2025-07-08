@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.1] - 2025-07-07
+### Changed
+- Update package dependencies. [#44148] [#44151]
+
 ## [0.18.0] - 2025-06-30
 ### Changed
 - Admin Menu: Show Jetpack > Stats to Calypso users. [#44090]
@@ -373,6 +377,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.18.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.11...v0.18.0
 [0.17.11]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.10...v0.17.11
 [0.17.10]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.9...v0.17.10

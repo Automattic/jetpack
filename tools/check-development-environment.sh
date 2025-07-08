@@ -229,7 +229,7 @@ BIN="$(command -v php)"
 if [[ -z "$BIN" ]]; then
 	failure "no php found, skipping check" 'php'
 else
-	for extension in mbstring xml libxml; do
+	for extension in mbstring xml libxml zip; do
 		if php -r "exit( in_array( '$extension', get_loaded_extensions() ) ? 1 : 0 );"; then
 			MISSING_EXTENSIONS+=( "$extension" )
 		fi

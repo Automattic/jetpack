@@ -17,6 +17,7 @@ type ModuleProps = {
 	children?: ReactNode;
 	slug: string;
 	toggle?: boolean;
+	worksOffline?: boolean;
 	onEnable?: () => void;
 	onBeforeToggle?: ( newStatus: boolean ) => void;
 	onDisable?: () => void;
@@ -29,11 +30,13 @@ const Module = ( {
 	children,
 	slug,
 	toggle = true,
+	worksOffline = true,
 	onEnable,
 	onBeforeToggle,
 	onDisable,
 	onMountEnable,
 }: ModuleProps ) => {
+	const { site } = Jetpack_Boost;
 	const { setNotice } = useNotices();
 	const [ status, setStatus ] = useSingleModuleState( slug, active => {
 		const activatedMessage = __( 'Module activated', 'jetpack-boost' );
@@ -55,6 +58,18 @@ const Module = ( {
 	// Page Cache is not available for WoA sites, but since WoA sites
 	// have their own caching, we want to show that Page Cache is active.
 	const isFakeActive = ! isModuleAvailable && isWoaHosting() && slug === 'page_cache';
+
+	const showOfflineMessage = ! site.online && ! worksOffline;
+	const offlineMessage = (
+		<Notice level="warning" hideCloseButton={ true }>
+			<div className={ styles.offlineMessage }>
+				{ __(
+					'This module will not work while your website is not publicly available.',
+					'jetpack-boost'
+				) }
+			</div>
+		</Notice>
+	);
 
 	const handleToggle = () => {
 		const newState = ! isModuleActive;
@@ -109,7 +124,7 @@ const Module = ( {
 
 				<div className={ styles.description }>{ description }</div>
 
-				{ isModuleActive && children }
+				{ showOfflineMessage ? offlineMessage : isModuleActive && children }
 			</div>
 		</div>
 	);

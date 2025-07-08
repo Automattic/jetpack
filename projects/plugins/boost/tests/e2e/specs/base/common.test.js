@@ -10,7 +10,11 @@ test.describe( 'Common tests', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( true ).build();
+		await boostPrerequisitesBuilder( page )
+			.withCleanEnv()
+			.withMockConnection( true )
+			.withSpeedScoreMocked( true )
+			.build();
 	} );
 
 	test.afterAll( async () => {
@@ -74,6 +78,6 @@ test.describe( 'Common tests', () => {
 		expect( result.length, 'No DB records are found' ).toBe( 0 );
 
 		// Ensure the plugin is activated again so future tests can run reset commands via withCleanEnv.
-		await execWpCommand( 'plugin activate boost' );
+		await execWpCommand( 'plugin activate jetpack-boost' );
 	} );
 } );

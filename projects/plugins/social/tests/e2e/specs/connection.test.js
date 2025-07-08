@@ -6,7 +6,7 @@ import { JetpackSocialPage } from '../pages/index.js';
 test.beforeEach( async ( { page } ) => {
 	await prerequisitesBuilder( page )
 		.withCleanEnv()
-		.withActivePlugins( [ 'social' ] )
+		.withActivePlugins( [ 'jetpack-social' ] )
 		.withLoggedIn( true )
 		.withWpComLoggedIn( true )
 		.build();

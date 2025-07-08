@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.66.0] - 2025-07-07
+### Changed
+- Scripts: Ensure host-related checks and functionality are only added via Assets. [#44133]
+- Social: Hide admin page in Jetpack plugin if site not connected. [#44168]
+- Update dependencies. [#44161]
+- Update package dependencies. [#44148] [#44151]
+
+### Fixed
+- get_current_screen(): Check for the existence before trying to call it [#44192]
+
 ## [0.65.7] - 2025-06-30
 ### Changed
 - Update dependencies. [#44061]
@@ -1037,6 +1047,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.66.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.7...v0.66.0
 [0.65.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.6...v0.65.7
 [0.65.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.5...v0.65.6
 [0.65.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.4...v0.65.5

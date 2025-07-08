@@ -18,9 +18,9 @@
 		"clean": "rm -rf output",
 		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -d -pass env:CONFIG_KEY -in ./node_modules/_jetpack-e2e-commons/config/encrypted.enc -out ./config/local.cjs",
 		"distclean": "rm -rf node_modules",
-		"env:up": "e2e-env start --activate-plugins social",
+		"env:up": "e2e-env start --activate-plugins jetpack-social",
 		"env:down": "e2e-env stop",
-		"env:reset": "e2e-env reset --activate-plugins social",
+		"env:reset": "e2e-env reset --activate-plugins jetpack-social",
 		"env:clean": "e2e-env clean",
 		"env:new": "e2e-env new",
 		"tunnel:up": "tunnel up",
@@ -37,7 +37,7 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"pluginSlug": "social",
+		"pluginSlug": "jetpack-social",
 		"mirrorName": "jetpack-social-plugin"
 	}
 }

@@ -374,6 +374,10 @@ function jetpack_boost_get_minify_url( $file_name = '' ) {
 	return content_url( '/boost-cache/static/' . $file_name );
 }
 
+function jetpack_boost_get_minify_file_path( $file_name = '' ) {
+	return WP_CONTENT_DIR . '/boost-cache/static/' . $file_name;
+}
+
 /**
  * Detects requests within the `/_jb_static/` directory, and serves minified content.
  *

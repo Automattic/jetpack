@@ -103,6 +103,7 @@ class Cleanup_Stored_Paths {
 			}
 
 			if ( $value['expire'] <= time() ) {
+				$this->delete_static_file_by_hash( str_replace( 'jb_transient_concat_paths_', '', $option['option_name'] ) );
 				delete_option( $option['option_name'] );
 			}
 
@@ -112,6 +113,27 @@ class Cleanup_Stored_Paths {
 		update_option( $this->last_processed_option_key, $last_processed_option_id, false );
 
 		return true;
+	}
+
+	/**
+	 * Deletes the static files by hash.
+	 *
+	 * @param string $hash The hash of the file.
+	 * @return void
+	 */
+	private function delete_static_file_by_hash( $hash ) {
+		// Since we don't have a way to know if this file is JS or CSS,
+		// we delete both.
+
+		$js_file_path = jetpack_boost_get_minify_file_path( $hash . '.min.js' );
+		if ( file_exists( $js_file_path ) ) {
+			wp_delete_file( $js_file_path );
+		}
+
+		$css_file_path = jetpack_boost_get_minify_file_path( $hash . '.min.css' );
+		if ( file_exists( $css_file_path ) ) {
+			wp_delete_file( $css_file_path );
+		}
 	}
 
 	/**

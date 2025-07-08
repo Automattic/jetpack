@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VideoPress: Fix PHP fatals in class-initializer.php

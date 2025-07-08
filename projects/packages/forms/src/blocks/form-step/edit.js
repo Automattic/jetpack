@@ -122,6 +122,7 @@ function StepBreak( { stepLabel, currentIndex, setAttributes, clientId } ) {
 		<div className="jetpack-form-step__break">
 			{ /* Allow inline editing of step label */ }
 			<RichText
+				allowedFormats={ [] }
 				tagName="span"
 				className="jetpack-form-step__label"
 				value={ stepLabel }
