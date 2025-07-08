@@ -77,17 +77,26 @@ const SpeedScore = () => {
 		}
 	}, [ loadScore, site.online ] );
 
+	const isCriticalCssEnabled = () => {
+		if ( ! data?.cloud_css?.available ) {
+			return data?.cloud_css?.active ?? false;
+		}
+
+		return data?.critical_css?.active ?? false;
+	};
+
 	// Refresh the score when something that can affect the score changes.
 	useDebouncedRefreshScore(
 		{
 			moduleStates,
 			pendingStates: {
 				criticalCss: {
-					isPending: cssState.status === 'pending' || criticalCssIsGenerating,
+					isPending:
+						isCriticalCssEnabled() && ( cssState.status === 'pending' || criticalCssIsGenerating ),
 					timestamp: cssState.updated || 0,
 				},
 				lcp: {
-					isPending: lcpState?.status === 'pending',
+					isPending: data?.lcp?.active === true && lcpState?.status === 'pending',
 					timestamp: lcpState?.updated || 0,
 				},
 			},

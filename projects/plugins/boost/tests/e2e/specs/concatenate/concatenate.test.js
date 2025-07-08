@@ -9,10 +9,16 @@ test.describe( 'Concatenate JS and CSS', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( true ).build();
+		await boostPrerequisitesBuilder( page )
+			.withCleanEnv()
+			.withMockConnection( true )
+			.withSpeedScoreMocked( true )
+			.build();
 	} );
 
-	test.afterAll( async () => {} );
+	test.afterAll( async () => {
+		await page.close();
+	} );
 
 	test( 'No Concatenate meta information should show on the admin when the modules are inactive', async () => {
 		await boostPrerequisitesBuilder( page )

@@ -16,6 +16,7 @@ export function boostPrerequisitesBuilder( page ) {
 		loggedIn: undefined,
 		modules: { active: undefined, inactive: undefined },
 		connected: undefined,
+		mockConnection: undefined,
 		jetpackDeactivated: undefined,
 		mockSpeedScore: undefined,
 		enqueuedAssets: undefined,
@@ -37,6 +38,10 @@ export function boostPrerequisitesBuilder( page ) {
 		},
 		withConnection( shouldBeConnected ) {
 			state.connected = shouldBeConnected;
+			return this;
+		},
+		withMockConnection( shouldBeMocked ) {
+			state.mockConnection = shouldBeMocked;
 			return this;
 		},
 		withTestContent( testPostTitles = [] ) {
@@ -84,6 +89,7 @@ async function buildPrerequisites( state, page ) {
 		modules: () => ensureModulesState( state.modules ),
 		loggedIn: () => ensureUserIsLoggedIn( page ),
 		connected: () => ensureConnectedState( state.connected, page ),
+		mockConnection: () => ensureMockConnectionState( state.mockConnection ),
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
 		mockSpeedScore: () => ensureMockSpeedScoreState( state.mockSpeedScore ),
@@ -198,6 +204,9 @@ export async function deactivateModules( modules ) {
  * @param {page}    page              - Playwright page instance.
  */
 export async function ensureConnectedState( requiredConnected, page ) {
+	// Ensure the mock connection plugin is deactivated.
+	await execWpCommand( 'plugin deactivate e2e-mock-boost-connection' );
+
 	const isConnected = await checkIfConnected();
 
 	if ( requiredConnected && isConnected ) {
@@ -210,6 +219,24 @@ export async function ensureConnectedState( requiredConnected, page ) {
 		await disconnect();
 	} else {
 		logger.prerequisites( 'Jetpack Boost is already disconnected, moving on' );
+	}
+}
+
+/**
+ * Ensure mock connection state.
+ * @param {boolean} mockConnection - Whether the site should be connected.
+ */
+export async function ensureMockConnectionState( mockConnection ) {
+	if ( mockConnection ) {
+		logger.prerequisites( 'Mocking connection' );
+		await execWpCommand( 'plugin activate e2e-mock-boost-connection' );
+		// Update the WP option jb_get_started to false.
+		await execWpCommand( 'option update jb_get_started 0' );
+	} else {
+		logger.prerequisites( 'Unmocking connection' );
+		await execWpCommand( 'plugin deactivate e2e-mock-boost-connection' );
+		// Update the WP option jb_get_started to true.
+		await execWpCommand( 'option update jb_get_started 1' );
 	}
 }
 

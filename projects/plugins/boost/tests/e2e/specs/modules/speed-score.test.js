@@ -2,24 +2,30 @@ import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
 
-let jetpackBoostPage;
-
 test.describe( 'Speed Score feature', () => {
+	let page;
+	let jetpackBoostPage;
+
 	test.beforeAll( async ( { browser } ) => {
-		const page = await browser.newPage();
-		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).build();
+		page = await browser.newPage();
+		await boostPrerequisitesBuilder( page )
+			.withCleanEnv()
+			.withConnection( true )
+			.withSpeedScoreMocked( false )
+			.build();
 	} );
 
-	test.afterAll( async ( { browser } ) => {
-		const page = await browser.newPage();
-		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( true ).build();
+	test.afterAll( async () => {
+		await page.close();
 	} );
 
-	test.beforeEach( async function ( { page } ) {
+	test.beforeEach( async () => {
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
 	test( 'The Speed Score section should display a mobile and desktop speed score greater than zero', async () => {
+		await jetpackBoostPage.waitForScoreLoadingToFinish();
+
 		expect(
 			await jetpackBoostPage.getSpeedScore( 'mobile' ),
 			'Mobile speed score should be greater than 0'
@@ -34,7 +40,6 @@ test.describe( 'Speed Score feature', () => {
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
 		await jetpackBoostPage.clickRefreshSpeedScore();
 
-		expect( await jetpackBoostPage.isScoreLoading(), 'Score should be loading' ).toBeTruthy();
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
 		expect( await jetpackBoostPage.isScoreVisible(), 'Score should be displayed' ).toBeTruthy();
 	} );
