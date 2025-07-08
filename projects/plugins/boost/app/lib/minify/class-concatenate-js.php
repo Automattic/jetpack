@@ -342,14 +342,16 @@ class Concatenate_JS extends WP_Scripts {
 
 	/**
 	 * Returns the type of the script.
-	 * module, text/javascript, etc.
+	 * module, text/javascript, etc. False if the script tag is invalid,
+	 * or the type is not set.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param string $handle The script's registered handle.
 	 * @param string $src The script's source URL.
 	 *
-	 * @return string The type of the script.
+	 * @return string|false The type of the script. False if the script tag is invalid,
+	 * or the type is not set.
 	 */
 	private function get_script_type( $handle, $src ) {
 		$script_tag_attr = array(
@@ -363,13 +365,13 @@ class Concatenate_JS extends WP_Scripts {
 		// This is a workaround to get the type of the script without outputting it.
 		$script_tag = apply_filters( 'script_loader_tag', $script_tag, $handle, $src );
 		$processor  = new \WP_HTML_Tag_Processor( $script_tag );
-		$processor->next_tag();
-		$script_type = $processor->get_attribute( 'type' );
-		if ( ! $script_type ) {
-			$script_type = 'text/javascript';
+
+		// If for some reason the script tag isn't valid, bail.
+		if ( false === $processor->next_tag() ) {
+			return false;
 		}
 
-		return $script_type;
+		return $processor->get_attribute( 'type' );
 	}
 
 	public function __isset( $key ) {
