@@ -158,11 +158,14 @@ const ProductCard = ({ slug }) => {
 
 ### Key Technologies
 
-- **React**: 18.3.1 with TypeScript
-- **Data Management**: TanStack React Query 5.75.1 for server state
-- **Routing**: React Router DOM 6.30.0
-- **Charts**: `@automattic/charts` for data visualization
+Check [package.json](./package.json) for current versions:
+
+- **React** with TypeScript
+- **Data Management**: @tanstack/react-query for server state
+- **Routing**: react-router
+- **Charts**: @automattic/charts (workspace package) for data visualization
 - **Styling**: Sass modules with CSS Modules
+- **Testing**: Jest with React Testing Library
 
 ### TanStack Query Integration
 
@@ -178,6 +181,16 @@ const ProductCard = ({ slug }) => {
 
 - `_inc/style.module.scss`: Main application styles
 - Component-specific: `component-name/style.module.scss`
+
+### GitHub CLI for PR Management
+
+When working with pull requests (e.g., #44191), use the GitHub CLI for efficient review and management:
+
+```bash
+gh pr view 44191                    # View PR details and description
+gh pr view 44191 --comments         # View PR with all comments
+gh pr diff 44191                    # View the diff/changes
+```
 
 ### Testing & Integration
 
