@@ -5,10 +5,11 @@ import {
 } from '@wordpress/block-editor';
 import { PanelBody, RangeControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import Stars from './stars';
+// no effects needed for style sync
+import Symbols from './symbols';
 
 export default function RatingInputEdit( { clientId, attributes, setAttributes } ) {
-	const { max, default: defaultValue } = attributes;
+	const { max, default: defaultValue, className = '' } = attributes;
 
 	const { parentClientId } = useSelect(
 		select => {
@@ -46,6 +47,9 @@ export default function RatingInputEdit( { clientId, attributes, setAttributes }
 
 	const blockProps = useBlockProps();
 
+	const isHearts = className.includes( 'is-style-hearts' );
+	const iconChar = isHearts ? '♥' : '★';
+
 	return (
 		<>
 			<InspectorControls>
@@ -68,7 +72,7 @@ export default function RatingInputEdit( { clientId, attributes, setAttributes }
 			</InspectorControls>
 
 			<div { ...blockProps }>
-				<Stars max={ max } value={ defaultValue } onChange={ updateDefault } />
+				<Symbols max={ max } value={ defaultValue } onChange={ updateDefault } char={ iconChar } />
 			</div>
 		</>
 	);

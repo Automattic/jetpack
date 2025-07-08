@@ -28,6 +28,17 @@ const settings = {
 			},
 		},
 	},
+	styles: [
+		{
+			name: 'stars',
+			label: __( 'Stars', 'jetpack-forms' ),
+			isDefault: true,
+		},
+		{
+			name: 'hearts',
+			label: __( 'Hearts', 'jetpack-forms' ),
+		},
+	],
 
 	edit,
 	save: () => null,

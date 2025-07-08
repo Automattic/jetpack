@@ -1,4 +1,4 @@
-/* Rating field block – front-end styles */
+/* Rating input block – front-end styles (migrated from field-rating) */
 @import url(https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP&display=swap&text=♥★);
 
 .jetpack-field-rating {
@@ -51,3 +51,12 @@
 		}
 	}
 }
+
+/* Hearts variation – override the default star glyph */
+:where(.wp-block-jetpack-rating-input.is-style-hearts),
+:where(.jetpack-field-rating.is-style-hearts) {
+
+  input[type="radio"].jetpack-field-rating__input::before {
+    content: "♥";
+  }
+} 
