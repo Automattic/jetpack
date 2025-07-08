@@ -98,6 +98,28 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * Test DELETE feedback/trash
+	 */
+	public function test_empty_trash_returns_200() {
+		$request  = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'deleted', $data );
+	}
+
+	/**
+	 * Test DELETE feedback/trash unautorized.
+	 */
+	public function test_empty_trash_returns_401() {
+		wp_set_current_user( 0 );
+		$request  = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
 	 * Test item schema.
 	 */
 	public function test_item_schema() {

@@ -5,6 +5,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackFooter, useBreakpointMatch } from '@automattic/jetpack-components';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { TabPanel } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -12,8 +13,10 @@ import { Outlet, useLocation, useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
+import EmptyTrashButton from '../../components/empty-trash-button';
 import ExportResponsesButton from '../../inbox/export-responses';
 import { config } from '../../index';
+import { store as dashboardStore } from '../../store';
 import ActionsDropdownMenu from '../actions-dropdown-menu';
 import CreateFormButton from '../create-form-button';
 import JetpackFormsLogo from '../logo';
@@ -31,6 +34,15 @@ const Layout = ( { className = '', showFooter = false }: LayoutProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	const enableIntegrationsTab = config( 'enableIntegrationsTab' );
+
+	const { currentStatus } = useSelect(
+		select => ( {
+			currentStatus: select( dashboardStore ).getCurrentStatus(),
+		} ),
+		[]
+	);
+
+	const isResponsesTrashView = currentStatus.includes( 'trash' );
 
 	useEffect( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_dashboard_page_view', {
@@ -103,7 +115,10 @@ const Layout = ( { className = '', showFooter = false }: LayoutProps ) => {
 				) : (
 					<div className="jp-forms__layout-header-actions">
 						{ isResponsesTab && <ExportResponsesButton /> }
-						<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
+						{ isResponsesTab && isResponsesTrashView && <EmptyTrashButton /> }
+						{ ! isResponsesTrashView && (
+							<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
+						) }
 					</div>
 				) }
 			</div>
