@@ -279,7 +279,7 @@ jetpack docker up -d
 chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh
 ```
 
-Once you have successful installed Jurassic Tube, you can use these commands during development:
+Once you have successfull installed Jurassic Tube, you can use these commands during development:
 
 * Start the tunnel: `jetpack docker jt-up your-username your-subdomain`
 * Break the connection: `jetpack docker jt-down`
