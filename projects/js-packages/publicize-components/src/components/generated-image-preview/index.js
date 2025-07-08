@@ -15,7 +15,7 @@ const getMediaSourceUrl = media => {
 	return media?.media_details?.sizes?.large?.source_url || media?.source_url;
 };
 
-const getImageId = ( imageType, customImageId, featuredImageId, defaultImageId ) => {
+export const getImageId = ( imageType, customImageId, featuredImageId, defaultImageId ) => {
 	if ( imageType === 'custom' && customImageId ) {
 		return customImageId;
 	}
@@ -31,6 +31,30 @@ const getImageId = ( imageType, customImageId, featuredImageId, defaultImageId )
 	return featuredImageId || defaultImageId;
 };
 
+const hasNoValidImage = ( imageType, customImageId, featuredImageId, defaultImageId ) => {
+	// No image type selected
+	if ( imageType === 'none' ) {
+		return true;
+	}
+
+	// Custom image selected but no image provided
+	if ( imageType === 'custom' && ! customImageId ) {
+		return true;
+	}
+
+	// Default image selected but no valid default image
+	if ( imageType === 'default' && ! defaultImageId ) {
+		return true;
+	}
+
+	// Featured image type (or null/undefined) but no featured image and no valid default fallback
+	if ( ( imageType ?? 'featured' ) === 'featured' && ! featuredImageId && ! defaultImageId ) {
+		return true;
+	}
+
+	return false;
+};
+
 export const calculateImageUrl = (
 	imageType,
 	customImageId,
@@ -38,11 +62,7 @@ export const calculateImageUrl = (
 	defaultImageId,
 	getMedia
 ) => {
-	if (
-		imageType === 'none' ||
-		( imageType === 'custom' && ! customImageId ) ||
-		( ( imageType ?? 'featured' ) === 'featured' && ! featuredImageId && ! defaultImageId )
-	) {
+	if ( hasNoValidImage( imageType, customImageId, featuredImageId, defaultImageId ) ) {
 		return null;
 	}
 
