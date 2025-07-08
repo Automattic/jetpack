@@ -5,7 +5,7 @@ namespace Automattic\Jetpack_Boost\Lib\Minify;
 /**
  * Takes care of cleaning up options created during concatenation.
  *
- * @since $$next-version$$
+ * @since 4.1.2
  */
 class Cleanup_Stored_Paths {
 

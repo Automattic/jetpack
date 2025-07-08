@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.2] - 2025-07-08
+### Changed
+- Update dependencies. [#42554]
+
+## [4.1.1] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
 ## [4.1.0] - 2025-07-07
 ### Changed
 - Scripts: Ensure host-related checks and functionality are only added via Assets. [#44133]
@@ -668,6 +676,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[4.1.2]: https://github.com/Automattic/jetpack-assets/compare/v4.1.1...v4.1.2
+[4.1.1]: https://github.com/Automattic/jetpack-assets/compare/v4.1.0...v4.1.1
 [4.1.0]: https://github.com/Automattic/jetpack-assets/compare/v4.0.32...v4.1.0
 [4.0.32]: https://github.com/Automattic/jetpack-assets/compare/v4.0.31...v4.0.32
 [4.0.31]: https://github.com/Automattic/jetpack-assets/compare/v4.0.30...v4.0.31

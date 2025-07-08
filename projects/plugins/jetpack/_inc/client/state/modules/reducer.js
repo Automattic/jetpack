@@ -1,4 +1,4 @@
-import { assign, get, includes, intersection } from 'lodash';
+import { get, includes, intersection } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_SET_INITIAL_STATE,
@@ -20,23 +20,23 @@ import { isPluginActive } from 'state/site/plugins';
 export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
-			return assign( {}, action.initialState.getModules );
+			return Object.assign( {}, action.initialState.getModules );
 		case JETPACK_MODULES_LIST_RECEIVE:
-			return assign( {}, state, action.modules );
+			return Object.assign( {}, state, action.modules );
 		case JETPACK_MODULE_ACTIVATE_SUCCESS:
-			return assign( {}, state, {
-				[ action.module ]: assign( {}, state[ action.module ], { activated: true } ),
+			return Object.assign( {}, state, {
+				[ action.module ]: Object.assign( {}, state[ action.module ], { activated: true } ),
 			} );
 		case JETPACK_MODULE_DEACTIVATE_SUCCESS:
-			return assign( {}, state, {
-				[ action.module ]: assign( {}, state[ action.module ], { activated: false } ),
+			return Object.assign( {}, state, {
+				[ action.module ]: Object.assign( {}, state[ action.module ], { activated: false } ),
 			} );
 		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS: {
-			const updatedModule = assign( {}, state[ action.module ] );
+			const updatedModule = Object.assign( {}, state[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( key => {
 				updatedModule.options[ key ].current_value = action.newOptionValues[ key ];
 			} );
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				[ action.module ]: updatedModule,
 			} );
 		}
@@ -55,55 +55,55 @@ export const initialRequestsState = {
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_MODULES_LIST_FETCH:
-			return assign( {}, state, { fetchingModulesList: true } );
+			return Object.assign( {}, state, { fetchingModulesList: true } );
 		case JETPACK_MODULES_LIST_FETCH_FAIL:
 		case JETPACK_MODULES_LIST_RECEIVE:
-			return assign( {}, state, { fetchingModulesList: false } );
+			return Object.assign( {}, state, { fetchingModulesList: false } );
 		case JETPACK_MODULE_ACTIVATE:
-			return assign( {}, state, {
-				activating: assign( {}, state.activating, {
+			return Object.assign( {}, state, {
+				activating: Object.assign( {}, state.activating, {
 					[ action.module ]: true,
 				} ),
 			} );
 		case JETPACK_MODULE_ACTIVATE_FAIL:
 		case JETPACK_MODULE_ACTIVATE_SUCCESS:
-			return assign( {}, state, {
-				activating: assign( {}, state.activating, {
+			return Object.assign( {}, state, {
+				activating: Object.assign( {}, state.activating, {
 					[ action.module ]: false,
 				} ),
 			} );
 		case JETPACK_MODULE_DEACTIVATE:
-			return assign( {}, state, {
-				deactivating: assign( {}, state.deactivating, {
+			return Object.assign( {}, state, {
+				deactivating: Object.assign( {}, state.deactivating, {
 					[ action.module ]: true,
 				} ),
 			} );
 		case JETPACK_MODULE_DEACTIVATE_FAIL:
 		case JETPACK_MODULE_DEACTIVATE_SUCCESS:
-			return assign( {}, state, {
-				deactivating: assign( {}, state.deactivating, {
+			return Object.assign( {}, state, {
+				deactivating: Object.assign( {}, state.deactivating, {
 					[ action.module ]: false,
 				} ),
 			} );
 		case JETPACK_MODULE_UPDATE_OPTIONS: {
-			const updatingOption = assign( {}, state.updatingOption );
-			updatingOption[ action.module ] = assign( {}, updatingOption[ action.module ] );
+			const updatingOption = Object.assign( {}, state.updatingOption );
+			updatingOption[ action.module ] = Object.assign( {}, updatingOption[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( key => {
 				updatingOption[ action.module ][ key ] = true;
 			} );
-			return assign( {}, state, {
-				updatingOption: assign( {}, state.updatingOption, updatingOption ),
+			return Object.assign( {}, state, {
+				updatingOption: Object.assign( {}, state.updatingOption, updatingOption ),
 			} );
 		}
 		case JETPACK_MODULE_UPDATE_OPTIONS_FAIL:
 		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS: {
-			const _updatingOption = assign( {}, state.updatingOption );
-			_updatingOption[ action.module ] = assign( {}, _updatingOption[ action.module ] );
+			const _updatingOption = Object.assign( {}, state.updatingOption );
+			_updatingOption[ action.module ] = Object.assign( {}, _updatingOption[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( key => {
 				_updatingOption[ action.module ][ key ] = false;
 			} );
-			return assign( {}, state, {
-				updatingOption: assign( {}, state.updatingOption, _updatingOption ),
+			return Object.assign( {}, state, {
+				updatingOption: Object.assign( {}, state.updatingOption, _updatingOption ),
 			} );
 		}
 		default:

@@ -1,4 +1,4 @@
-import { assign, get } from 'lodash';
+import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	SCAN_STATUS_FETCH,
@@ -10,7 +10,7 @@ import {
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SCAN_STATUS_FETCH_RECEIVE:
-			return assign( {}, state, { status: action.status } );
+			return Object.assign( {}, state, { status: action.status } );
 		case MOCK_SWITCH_SCAN_STATE:
 			return {
 				status: {
@@ -30,12 +30,12 @@ export const initialRequestsState = {
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case SCAN_STATUS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingScanStatus: true,
 			} );
 		case SCAN_STATUS_FETCH_RECEIVE:
 		case SCAN_STATUS_FETCH_FAIL:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingScanStatus: false,
 			} );
 		default:

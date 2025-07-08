@@ -1,9 +1,11 @@
 import Clipboard from 'clipboard';
 import clsx from 'clsx';
-import { omit, noop } from 'lodash';
+import { omit } from 'lodash';
 import PropTypes from 'prop-types';
 import { createRef, Component } from 'react';
 import Button from 'components/button';
+
+const noop = () => {};
 
 export default class ClipboardButton extends Component {
 	static displayName = 'ClipboardButton';

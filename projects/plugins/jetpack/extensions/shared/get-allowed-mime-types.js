@@ -1,5 +1,5 @@
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
-import { get, pickBy, startsWith, flatten, map, keys, values } from 'lodash';
+import { get, pickBy } from 'lodash';
 
 /**
  * Return an object with the allowed mime types for the site,
@@ -13,7 +13,7 @@ export function getAllowedVideoTypesByType( mimeType ) {
 	if ( ! mimeType ) {
 		return {};
 	}
-	return pickBy( getAllowedMimeTypesBySite(), type => startsWith( type, `${ mimeType }/` ) );
+	return pickBy( getAllowedMimeTypesBySite(), type => type.startsWith( `${ mimeType }/` ) );
 }
 
 /**
@@ -30,7 +30,9 @@ export function pickFileExtensionsFromMimeTypes( mimeTypesObject ) {
 	if ( ! mimeTypesObject ) {
 		return [];
 	}
-	return flatten( map( keys( mimeTypesObject ), ext => ext.split( '|' ) ) );
+	return Object.keys( mimeTypesObject )
+		.map( ext => ext.split( '|' ) )
+		.flat();
 }
 
 /**
@@ -68,7 +70,7 @@ export function isFileOfType( file, type ) {
 	}
 
 	if ( typeof file === 'object' ) {
-		return file.type && values( allowedVideoMimeTypes ).includes( file.type );
+		return file.type && Object.values( allowedVideoMimeTypes ).includes( file.type );
 	}
 
 	return false;

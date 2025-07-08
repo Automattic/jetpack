@@ -1,7 +1,7 @@
 import { isWoASite, isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { compact, get, startsWith, map, filter, head } from 'lodash';
+import { compact, get, map, filter } from 'lodash';
 import getJetpackData from './get-jetpack-data';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import getSiteFragment from './get-site-fragment';
@@ -19,7 +19,7 @@ import getSiteFragment from './get-site-fragment';
  */
 export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't.
-	const planPathSlug = startsWith( planSlug, 'jetpack_' ) ? planSlug : get( plan, [ 'path_slug' ] );
+	const planPathSlug = planSlug.startsWith( 'jetpack_' ) ? planSlug : get( plan, [ 'path_slug' ] );
 
 	// The full site editor has no set post type.
 	const redirect_to = (
@@ -177,4 +177,4 @@ export const isStillUsableWithFreePlan = name =>
 	map( usableBlockWithFreePlan, 'name' ).includes( name );
 
 export const getUsableBlockProps = blockName =>
-	head( filter( usableBlockWithFreePlan, ( { name } ) => name === blockName ) );
+	filter( usableBlockWithFreePlan, ( { name } ) => name === blockName )[ 0 ];

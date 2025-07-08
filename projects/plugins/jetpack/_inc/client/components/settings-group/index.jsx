@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { includes, noop } from 'lodash';
+import { includes } from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Card from 'components/card';
@@ -12,6 +12,8 @@ import {
 } from 'state/connection';
 import { userCanManageModules, isSitePublic, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
+
+const noop = () => {};
 
 export const SettingsGroup = inprops => {
 	const props = {

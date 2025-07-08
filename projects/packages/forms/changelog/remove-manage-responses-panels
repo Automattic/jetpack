@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: remove the redundant "Manage responses" inspector panel from individual field blocks so it now only appears on the main Contact Form block. 

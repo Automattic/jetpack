@@ -1,4 +1,4 @@
-import { assign, filter, get, includes, mapValues, merge, some } from 'lodash';
+import { filter, get, includes, mapValues, merge, some } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_SET_INITIAL_STATE,
@@ -18,17 +18,17 @@ import {
 export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
-			return assign( {}, state, action.initialState.settings );
+			return Object.assign( {}, state, action.initialState.settings );
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
-			return assign( {}, action.settings );
+			return Object.assign( {}, action.settings );
 		case JETPACK_SETTING_UPDATE_SUCCESS: {
 			const key = Object.keys( action.updatedOption )[ 0 ];
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				[ key ]: action.updatedOption[ key ],
 			} );
 		}
 		case JETPACK_SETTINGS_UPDATE_SUCCESS:
-			return assign( {}, state, action.updatedOptions );
+			return Object.assign( {}, state, action.updatedOptions );
 		default:
 			return state;
 	}
@@ -43,12 +43,12 @@ export const initialRequestsState = {
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SETTINGS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetchingSettingsList: true,
 			} );
 		case JETPACK_SETTINGS_FETCH_FAIL:
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetchingSettingsList: false,
 			} );
 

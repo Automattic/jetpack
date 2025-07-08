@@ -10,7 +10,7 @@
  * Requires PHP: 7.0
  *
  * @package automattic/jetpack
- * @since $$next-version$$
+ * @since 4.1.2
  */
 
 // Prevent direct access.

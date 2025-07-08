@@ -7,7 +7,6 @@ import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { isValidElement, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import JetpackFieldWidth from './jetpack-field-width';
-import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 import ToolbarRequiredGroup from './toolbar-required-group';
 
 // List of reserved HTML form element attribute names
@@ -113,9 +112,6 @@ const JetpackFieldControls = ( {
 			</BlockControls>
 
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage responses', 'jetpack-forms' ) }>
-					<JetpackManageResponsesSettings isChildBlock />
-				</PanelBody>
 				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
 					<>{ fieldSettings }</>
 				</PanelBody>

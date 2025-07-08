@@ -5,6 +5,54 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.6.0] - 2025-07-08
+### Added
+- Tasks: Show completion checkmark in week and day views. [#43940]
+
+### Changed
+- Code: First pass of style coding standards. [#42734]
+- Code: Introduce version constant in main plugin class. [#41408]
+- Code: Load third-party dependencies from build folder. [#43563] [#43778]
+- General: Indicate compatibility with WordPress 6.8. [#42701]
+- General: Update minimum WordPress version to 6.7. [#43192]
+- Improve settings so partial payments can be disabled. [#43316]
+- Tasks: Update FullCalendar to latest version. [#43970]
+- Update daterangepicker to 3.1.0. [#44016]
+- Update package dependencies. [#41286] [#41491] [#41577] [#41659] [#42163] [#42180] [#42384] [#42511] [#42762] [#42809] [#42815] [#43320] [#43326] [#43349] [#43355] [#43356] [#43398] [#43400] [#43425] [#43578] [#43718] [#43734] [#43766] [#43839] [#43892] [#43914] [#43951] [#43990] [#44020] [#44040] [#44148] [#44151] [#44206] [#44215] [#44217]
+
+### Removed
+- Code: Remove unused function and images. [#42116]
+- Remove Bootstrap dependency. [#43584]
+- Remove Onboarding React prototype. [#43577]
+- Remove unused legacy code. [#43116]
+
+### Fixed
+- API: Fix `companies` endpoint param mapping. [#41508]
+- Client Portal: Remove top margin from quotes to ensure the top of the quote is visible. [#41974]
+- Client Portal: Show success message when quote is accepted. [#43074]
+- Code: Prevent dynamic class properties. [#41857]
+- Code: Remove extra params on function calls. [#41263]
+- Code: Remove unneeded `data:` URI components. [#43227]
+- Code: Update package annotations. [#43322]
+- Code: Update stylesheets to use hex instead of named colors. [#42920]
+- Code: Update stylesheets to use WordPress font styles. [#42928]
+- Contacts: Prevent a PHP warning when adding a new contact when a custom file field exists. [#43234]
+- Fix a bug where tax names appended from WooCommerce. [#43306]
+- Fix warning for PHP notices on translation. [#44109]
+- Invoice line items now import the product short description if set. [#43328]
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
+- Linting: Clean up Stylelint violations. [#43296] [#43322] [#43166] [#43247] [#43213] [#43018] [#43219] [#43019]
+- Phan: Exclude generated file from analysis. [#43383]
+- Ensure special characters in tasks are displayed correctly. [#44157]
+- Tasks: Allow translation of task status after status change. [#43940]
+- Tasks: Ensure task status is consistently toggled. [#43940]
+- Tasks: Make it more clear what the current status of a task is. [#43940]
+- Tasks: Adjust styles on mobile. [#43940]
+- Tasks: Prevent status toggle when pressing enter. [#43940]
+- Welcome Tour: Hide upsell prompts when one has a valid license. [#43285]
+- Welcome Tour: Restore missing images. [#43804]
+- Welcome Wizard: Fix regression in JS. [#41437]
+
 ## [6.5.1] - 2025-01-22
 ### Changed
 - Code: Use function-style exit() and die() with a default status code of 0. [#41167]
@@ -3626,6 +3674,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tested across 4 common web hosts
 - Tested with extensions: WooCommerce CRM Sync, PayPal CRM Sync, CSV Importer, ZBS CRM Mail Campaigns, and CRM Sales Dashboard
 
+[6.6.0]: https://github.com/Automattic/jetpack-crm/compare/6.5.1...6.6.0
 [6.5.1]: https://github.com/Automattic/jetpack-crm/compare/6.5.0...6.5.1
 [6.5.0]: https://github.com/Automattic/jetpack-crm/compare/6.4.4...6.5.0
 [6.4.4]: https://github.com/Automattic/jetpack-crm/compare/6.4.3...6.4.4
