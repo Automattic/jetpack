@@ -7,7 +7,7 @@
 /* eslint-disable jsdoc/require-param-type */
 /* eslint-disable jsdoc/require-param-description */
 /* eslint-disable eqeqeq */
-/* global jpcrm, swal, ajaxurl, zbscrm_JS_bindDateRangePicker, zbscrm_JS_bindFieldValidators */
+/* global jpcrm, swal, ajaxurl, zbscrm_JS_bindDateRangePicker, jpcrm_js_bind_daterangepicker, zbscrm_JS_bindFieldValidators */
 
 jQuery( function () {
 	// build out initial
@@ -750,6 +750,8 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 			setTimeout( function () {
 				// bind datetime ranges
 				zbscrm_JS_bindDateRangePicker();
+
+				jpcrm_js_bind_daterangepicker();
 
 				// this makes sure we're rebuilding post operator change
 				zeroBSCRMJS_segment_bindPostRender();
