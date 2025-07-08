@@ -487,6 +487,39 @@ describe( 'LineChart', () => {
 		} );
 	} );
 
+	describe( 'Annotation Overlay', () => {
+		test( 'renders annotation overlay when annotations are provided', async () => {
+			renderWithTheme( {
+				annotations: [ { datum: { date: new Date( '2024-01-01' ), value: 10 }, title: 'Test' } ],
+			} );
+
+			await waitFor( () => {
+				expect( screen.getByTestId( 'line-chart-annotations-overlay' ) ).toBeInTheDocument();
+			} );
+		} );
+
+		test( 'does not render overlay when no annotations provided', async () => {
+			renderWithTheme( { annotations: [] } );
+			await waitFor( () => {
+				expect( screen.queryByTestId( 'line-chart-annotations-overlay' ) ).not.toBeInTheDocument();
+			} );
+		} );
+
+		test( 'overlay has correct dimensions', async () => {
+			const width = 500,
+				height = 300;
+			renderWithTheme( {
+				width,
+				height,
+				annotations: [ { datum: { date: new Date( '2024-01-01' ), value: 10 }, title: 'Test' } ],
+			} );
+
+			const overlay = await screen.findByTestId( 'line-chart-annotations-overlay' );
+			expect( overlay ).toHaveAttribute( 'width', width.toString() );
+			expect( overlay ).toHaveAttribute( 'height', height.toString() );
+		} );
+	} );
+
 	describe( 'Keyboard Navigation Accessibility', () => {
 		describe( 'Chart Focus and Accessibility Attributes', () => {
 			test( 'chart container has proper accessibility attributes', () => {

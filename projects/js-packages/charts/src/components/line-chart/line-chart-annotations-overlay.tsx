@@ -134,6 +134,7 @@ const LineChartAnnotations: FC< LineChartAnnotationsProps > = ( {
 				width={ chartWidth }
 				height={ chartHeight }
 				className={ styles[ 'line-chart__annotations-overlay' ] }
+				data-testid="line-chart-annotations-overlay"
 			>
 				{ annotations.map( ( annotation, index ) => (
 					<LineChartAnnotation
