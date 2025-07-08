@@ -43,9 +43,8 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 		};
 
 		// Position when popover shows
-		popover.addEventListener( 'toggle', e => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			if ( ( e as any ).newState === 'open' ) {
+		popover.addEventListener( 'toggle', ( e: ToggleEvent ) => {
+			if ( e.newState === 'open' ) {
 				positionPopover();
 			}
 		} );
@@ -60,8 +59,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 		<div className={ styles[ 'line-chart__annotation-label' ] }>
 			<button
 				ref={ buttonRef }
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				{ ...( { popovertarget: popoverId } as any ) }
+				popovertarget={ popoverId }
 				className={ styles[ 'line-chart__annotation-label-trigger-button' ] }
 				style={ {
 					width: `${ POPOVER_BUTTON_SIZE }px`,
@@ -75,8 +73,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 			<div
 				ref={ popoverRef }
 				id={ popoverId }
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				{ ...( { popover: 'auto' } as any ) }
+				popover="auto"
 				className={ clsx(
 					styles[ 'line-chart__annotation-label-popover' ],
 					! isPositioned && styles[ 'line-chart__annotation-label-popover--hidden' ],
@@ -88,8 +85,8 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 						{ renderLabelPopover( { title, subtitle } ) }
 					</div>
 					<button
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						{ ...( { popovertarget: popoverId, popovertargetaction: 'hide' } as any ) }
+						popovertarget={ popoverId }
+						popovertargetaction="hide"
 						className={ styles[ 'line-chart__annotation-label-popover-close-button' ] }
 						aria-label="Close"
 					>
