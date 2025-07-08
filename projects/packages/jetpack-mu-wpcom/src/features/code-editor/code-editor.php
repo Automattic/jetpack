@@ -28,33 +28,33 @@ const JS_EXTENSION = SCRIPT_DEBUG ? '.js' : '.min.js';
 function init() {
 	wp_register_script_module(
 		MODULE_PREFIX . 'codemirror-bundle',
-		plugins_url( 'build-modules/codemirror/codemirror' . JS_EXTENSION, __FILE__ ),
+		plugins_url( '../../build-module/codemirror/codemirror' . JS_EXTENSION, __FILE__ ),
 		array(),
-		get_version( 'build-modules/codemirror/codemirror' . JS_EXTENSION )
+		get_version( '../../build-module/codemirror/codemirror' . JS_EXTENSION )
 	);
 
 	wp_register_script_module(
 		MODULE_PREFIX . 'code-editor',
-		plugins_url( 'build-modules/code-editor/code-editor' . JS_EXTENSION, __FILE__ ),
+		plugins_url( '../../build-module/code-editor/code-editor' . JS_EXTENSION, __FILE__ ),
 		array(
 			array(
 				'import' => 'dynamic',
-				'id' => MODULE_PREFIX . 'codemirror-bundle',
+				'id'     => MODULE_PREFIX . 'codemirror-bundle',
 			),
 		),
-		get_version( 'build-modules/code-editor/code-editor' . JS_EXTENSION )
+		get_version( '../../build-module/code-editor/code-editor' . JS_EXTENSION )
 	);
 
 	wp_register_script_module(
 		MODULE_PREFIX . 'site-additional-css',
-		plugins_url( 'build-modules/site-additional-css/site-additional-css' . JS_EXTENSION, __FILE__ ),
+		plugins_url( '../../build-module/site-additional-css/site-additional-css' . JS_EXTENSION, __FILE__ ),
 		array(
 			array(
 				'import' => 'dynamic',
-				'id' => MODULE_PREFIX . 'codemirror-bundle',
+				'id'     => MODULE_PREFIX . 'codemirror-bundle',
 			),
 		),
-		get_version( 'build-modules/site-additional-css/site-additional-css' . JS_EXTENSION )
+		get_version( '../../build-module/site-additional-css/site-additional-css' . JS_EXTENSION )
 	);
 }
 
