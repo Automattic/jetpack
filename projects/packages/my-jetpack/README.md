@@ -76,11 +76,16 @@ To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license
 
 ### Commands
 
-For comprehensive CLI documentation, see [Jetpack CLI Documentation](../../../tools/cli/README.md).
+**Build Commands:**
+
+- `jetpack build packages/my-jetpack` - Build from monorepo root
+- `jetpack watch packages/my-jetpack` - Watch mode from monorepo root
+- `pnpm run build` - Build from package directory
+- `pnpm run test` - Run tests from package directory
 
 ### Testing Strategy
 
-For comprehensive testing documentation, see [Automated Testing Overview](../../../docs/automated-testing.md).
+**Testing:**
 
 - **PHP**: PHPUnit with WordPress test environment and polyfills
 - **JavaScript**: Jest with React Testing Library
@@ -88,7 +93,7 @@ For comprehensive testing documentation, see [Automated Testing Overview](../../
 
 ### Development Notes
 
-For comprehensive coding guidelines, see [Coding Standards & Guidelines](../../../docs/coding-guidelines.md).
+**Code Standards:**
 
 - Uses WordPress coding standards and Jetpack extensions
 - Requires WordPress.com connection for full functionality
@@ -130,7 +135,7 @@ For comprehensive coding guidelines, see [Coding Standards & Guidelines](../../.
 - `_inc/constants.ts` - Route definitions and constants
 - `_inc/components/my-jetpack-screen/` - Main dashboard screen
 - `_inc/components/product-interstitial/` - Product setup flows
-- `_inc/data/` - API hooks and data management (see [Data Layer Documentation](./_inc/data/README.md))
+- `_inc/data/` - API hooks and data management using React Query
 
 ### Configuration Files
 
