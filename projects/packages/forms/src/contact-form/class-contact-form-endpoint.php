@@ -153,6 +153,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/trash',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'empty_trash' ),
+				'permission_callback' => array( $this, 'delete_items_permissions_check' ),
+			)
+		);
 	}
 
 	/**
@@ -649,6 +659,35 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Handles emptying Jetpack Forms responses trash folder.
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_REST_Response A response object..
+	 */
+	public function empty_trash( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		global $wpdb;
+
+		$posts = $wpdb->get_results(  //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			"SELECT ID
+			FROM $wpdb->posts
+			WHERE post_type = 'feedback'
+			AND post_status = 'trash'"
+		);
+
+		$deleted = 0;
+		foreach ( (array) $posts as $post ) {
+			$post_deleted = wp_delete_post( $post->ID, true );
+			if ( ! $post_deleted ) {
+				return new WP_REST_Response( array( 'error' => __( 'Failed to empty trash.', 'jetpack-forms' ) ), 400 );
+			}
+			++$deleted;
+		}
+
+		return new WP_REST_Response( array( 'deleted' => $deleted ), 200 );
+	}
+
+	/**
 	 * Performs the Akismet action to mark all feedback posts matching the given IDs as spam.
 	 *
 	 * @param  array $post_ids Array of post IDs.
@@ -685,7 +724,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Check whether a given request has proper authorization to view feedback items.
+	 * Check whether a given request has proper authorization to view and edit feedback items.
 	 *
 	 * @param  WP_REST_Request $request Full details about the request.
 	 * @return WP_Error|boolean
@@ -698,10 +737,37 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( ! current_user_can( 'edit_pages' ) ) {
 			return false;
 		}
+
 		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
 			return new WP_Error(
 				'rest_cannot_view',
 				esc_html__( 'Sorry, you cannot view this resource.', 'jetpack-forms' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check whether a given request has proper authorization to delete feedback items.
+	 *
+	 * @param  WP_REST_Request $request Full details about the request.
+	 * @return WP_Error|boolean
+	 */
+	public function delete_items_permissions_check( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( is_super_admin() ) {
+			return true;
+		}
+
+		if ( ! current_user_can( 'delete_posts' ) ) {
+			return false;
+		}
+
+		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
+			return new WP_Error(
+				'rest_user_cannot_delete_post',
+				esc_html__( 'Sorry, you cannot delete this resource.', 'jetpack-forms' ),
 				array( 'status' => 401 )
 			);
 		}
