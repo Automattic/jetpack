@@ -1,7 +1,13 @@
-<?php declare( strict_types = 1 );
+<?php
+/**
+ * Code Editors
+ *
+ * @package automattic/jetpack-mu-wpcom
+ */
 
-// phpcs:ignore
-namespace A8C\CodeEditor;
+declare( strict_types = 1 );
+
+namespace Automattic\Jetpack\CodeEditor;
 
 const VERSION       = '2.2';
 const MODULE_PREFIX = '@a8cCodeEditor/';
@@ -17,7 +23,11 @@ function init() {
 		'codemirror/codemirror.js'                   => MODULE_PREFIX . 'codemirror-bundle',
 		'site-additional-css/site-additional-css.js' => MODULE_PREFIX . 'site-additional-css',
 	);
-	/** @var array<string, array{dependencies: array, version: string, type: string, src: string}> $asset_manifest */
+	/**
+	 * Module data keyed by module ID.
+	 *
+	 * @var array<string, array{dependencies: array, version: string, type: string, src: string}> $asset_manifest
+	 */
 	$module_assets = array();
 	foreach ( $modules as $path => $module_id ) {
 		if ( ! isset( $asset_manifest[ $path ] ) ) {
