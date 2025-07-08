@@ -467,6 +467,7 @@ class Defaults {
 		'secupress_log_err404', // SecuPress Plugin - Log 404 pages
 		'iw_omnibus_price_log', // Omnibus Plugin - Log price changes.
 		'od_url_metrics', // Optimization Detective - Log URL metrics.
+		'ap_outbox', // ActivityPub Outbox; only used for broadcasting ActivityPub activity to followers.
 	);
 
 	/**

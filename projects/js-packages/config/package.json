@@ -18,8 +18,8 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
-		"jest": "30.0.0",
-		"jest-environment-jsdom": "30.0.0"
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4"
 	},
 	"exports": {
 		".": "./src/index.js"

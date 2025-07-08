@@ -2,8 +2,33 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 14.8 - 2025-07-01
+## 14.9-a.1 - 2025-07-07
+### Enhancements
+- Forms: Update the date picker to remove jQuery and add a more performant version with keyboard navigation. [#43939]
 
+### Improved compatibility
+- Blocks: Prevent PHP errors when `jetpack_set_available_extensions` filter returns an unexpected data type. [#44166]
+
+### Bug fixes
+- Accessibility: Remove deprecated `clip` property from screen reader text with `clip-path`. [#44027]
+- Blocks: Return an error when a filter returns a non-array. [#44144]
+- Sharing: Display correct Open Graph meta tags when a page uses a Query Loop block. [#44155]
+- VideoPress: Fix video row action button clickability by properly hiding stats on hover. [#44167]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Compatibility: Remove utility and selector import fallbacks as we no longer need to ensure compatibility in those cases. [#44164]
+- Dashboard: Remove hosting information from initial state, as it is now retrieved via site utility functions. [#44133]
+- Newsletter: Fix bug in settings. [#44152]
+- SAL: Ensure that we don't check for properties on null. [#44195]
+- SEO tags: Do not use Open Graph utility function to strip query blocks when Open Graph functions are not availabe. [#44178]
+- Social: Hide Social admin page if the site is not connected. [#44168]
+- Subscriptions: Disable option to add featured image to emails on private sites. [#44182]
+- Support: Open the Jetpack Dashboard support link in the Help Center instead of redirecting to a new page. [#44172]
+- Update composer.lock [#44170]
+- Update package dependencies. [#44148] [#44151]
+- WordAds: Remove usage of `is_singular_post` to highlight that current page is available for inline ads. [#44186]
+
+## 14.8 - 2025-07-01
 ### Enhancements
 - Add archives endpoint support. [#44028]
 - AI Assistant: Add support for file upload field on Forms extension. [#43916]
