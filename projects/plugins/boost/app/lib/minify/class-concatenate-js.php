@@ -361,8 +361,13 @@ class Concatenate_JS extends WP_Scripts {
 		$script_tag = wp_get_script_tag( $script_tag_attr );
 
 		// This is a workaround to get the type of the script without outputting it.
-		$script_tag  = apply_filters( 'script_loader_tag', $script_tag, $handle, $src );
-		$script_type = preg_match( '/type=(["\'])([^"\']+)\1/', $script_tag, $matches ) ? $matches[2] : 'text/javascript';
+		$script_tag = apply_filters( 'script_loader_tag', $script_tag, $handle, $src );
+		$processor  = new \WP_HTML_Tag_Processor( $script_tag );
+		$processor->next_tag();
+		$script_type = $processor->get_attribute( 'type' );
+		if ( ! $script_type ) {
+			$script_type = 'text/javascript';
+		}
 
 		return $script_type;
 	}
