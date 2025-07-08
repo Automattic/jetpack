@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Concatenate JS: Exclude scripts of type module from concatenation.
