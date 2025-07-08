@@ -367,7 +367,7 @@ class Concatenate_JS extends WP_Scripts {
 		$processor  = new \WP_HTML_Tag_Processor( $script_tag );
 
 		// If for some reason the script tag isn't valid, bail.
-		if ( false === $processor->next_tag() ) {
+		if ( ! $processor->next_tag() ) {
 			return false;
 		}
 
