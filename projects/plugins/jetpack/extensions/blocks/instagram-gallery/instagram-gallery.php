@@ -68,7 +68,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 	}
 	$gallery = Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $access_token, $count );
 
-	if ( is_wp_error( $gallery ) || ! property_exists( $gallery, 'images' ) || 'ERROR' === $gallery->images ) {
+	if ( ! is_object( $gallery ) || is_wp_error( $gallery ) || ! property_exists( $gallery, 'images' ) || 'ERROR' === $gallery->images ) {
 		if ( ! current_user_can( 'edit_post', get_the_ID() ) ) {
 			return '';
 		}
