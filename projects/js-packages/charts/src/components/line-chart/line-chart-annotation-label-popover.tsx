@@ -50,8 +50,12 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 		} );
 
 		// Initial positioning if already open
-		if ( popover.matches( ':popover-open' ) ) {
-			positionPopover();
+		try {
+			if ( popover.matches( ':popover-open' ) ) {
+				positionPopover();
+			}
+		} catch {
+			// Ignore errors in test environments (e.g., JSDOM does not support :popover-open)
 		}
 	}, [] );
 

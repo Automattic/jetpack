@@ -457,6 +457,34 @@ describe( 'LineChart', () => {
 				expect( screen.getByTestId( 'custom-label' ) ).toBeInTheDocument();
 			} );
 		} );
+
+		test( 'renders annotations with custom label popover renderer', async () => {
+			renderWithTheme( {
+				annotations: [
+					{
+						datum: { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+						title: 'Annotation 1',
+						subtitle: 'Annotation 1 subtitle',
+						renderLabel: ( { title, subtitle } ) => (
+							<div data-testid="custom-label">
+								{ title }
+								{ subtitle && <span>{ subtitle }</span> }
+							</div>
+						),
+						renderLabelPopover: ( { title, subtitle } ) => (
+							<div data-testid="custom-label-popover">
+								{ title }
+								{ subtitle && <span>{ subtitle }</span> }
+							</div>
+						),
+					},
+				],
+			} );
+
+			await waitFor( () => {
+				expect( screen.getByTestId( 'custom-label-popover' ) ).toBeInTheDocument();
+			} );
+		} );
 	} );
 
 	describe( 'Keyboard Navigation Accessibility', () => {
