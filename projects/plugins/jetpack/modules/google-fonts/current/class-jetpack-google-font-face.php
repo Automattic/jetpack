@@ -169,6 +169,9 @@ class Jetpack_Google_Font_Face {
 		$raw_data   = $theme_json->get_data();
 		if ( ! empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
 			foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font ) {
+				if ( ! isset( $font['fontFamily'] ) ) {
+					continue;
+				}
 				$font_family_name = $this->format_font( $this->get_font_family_name( $font ) );
 				$font_slug        = $font['slug'] ?? '';
 				if ( $font_slug && $font_slug !== $font_family_name && ! array_key_exists( $font_slug, $font_slug_aliases ) ) {
@@ -186,12 +189,7 @@ class Jetpack_Google_Font_Face {
 	 * @param array $font The font definition object.
 	 */
 	public static function get_font_family_name( $font ) {
-		$font_family = $font['fontFamily'] ?? $font['name'] ?? '';
-
-		if ( empty( $font_family ) ) {
-			return '';
-		}
-
+		$font_family = $font['fontFamily'];
 		if ( str_contains( $font_family, ',' ) ) {
 			$font_family = explode( ',', $font_family )[0];
 		}
