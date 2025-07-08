@@ -9,10 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\CodeEditor;
 
-const VERSION       = '2.2';
 const MODULE_PREFIX = '@a8cCodeEditor/';
-
-const JS_EXTENSION = SCRIPT_DEBUG ? '.js' : '.min.js';
 
 /** Set up the plugin. */
 function init() {
