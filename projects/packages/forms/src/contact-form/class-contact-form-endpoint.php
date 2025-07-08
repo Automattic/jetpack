@@ -666,19 +666,19 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response A response object..
 	 */
 	public function empty_trash( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		global $wpdb;
-
-		$posts = $wpdb->get_results(  //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			"SELECT ID
-			FROM $wpdb->posts
-			WHERE post_type = 'feedback'
-			AND post_status = 'trash'"
+		$query_args = array(
+			'post_type'      => 'feedback',
+			'post_status'    => 'trash',
+			'posts_per_page' => 1000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
 		);
 
+		$query           = new \WP_Query( $query_args );
+		$trash_feedbacks = $query->get_posts();
+
 		$deleted = 0;
-		foreach ( (array) $posts as $post ) {
-			$post_deleted = wp_delete_post( $post->ID, true );
-			if ( ! $post_deleted ) {
+		foreach ( (array) $trash_feedbacks as $feedback ) {
+			$feedback_deleted = wp_delete_post( $feedback->ID, true );
+			if ( ! $feedback_deleted ) {
 				return new WP_REST_Response( array( 'error' => __( 'Failed to empty trash.', 'jetpack-forms' ) ), 400 );
 			}
 			++$deleted;
