@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { useEffect, useId, useRef, useState } from 'react';
 import { isSafari } from '../shared/utils';
 import styles from './line-chart.module.scss';
+import type { ButtonWithPopover, PopoverElement, ToggleEvent } from '../../types';
 import type { FC } from 'react';
 
 export const POPOVER_BUTTON_SIZE = 44;
@@ -63,7 +64,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 		<div className={ styles[ 'line-chart__annotation-label' ] }>
 			<button
 				ref={ buttonRef }
-				popovertarget={ popoverId }
+				{ ...( { popovertarget: popoverId } as ButtonWithPopover ) }
 				className={ styles[ 'line-chart__annotation-label-trigger-button' ] }
 				style={ {
 					width: `${ POPOVER_BUTTON_SIZE }px`,
@@ -77,7 +78,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 			<div
 				ref={ popoverRef }
 				id={ popoverId }
-				popover="auto"
+				{ ...( { popover: 'auto' } as PopoverElement ) }
 				className={ clsx(
 					styles[ 'line-chart__annotation-label-popover' ],
 					! isPositioned && styles[ 'line-chart__annotation-label-popover--hidden' ],
@@ -89,8 +90,10 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 						{ renderLabelPopover( { title, subtitle } ) }
 					</div>
 					<button
-						popovertarget={ popoverId }
-						popovertargetaction="hide"
+						{ ...( {
+							popovertarget: popoverId,
+							popovertargetaction: 'hide',
+						} as ButtonWithPopover ) }
 						className={ styles[ 'line-chart__annotation-label-popover-close-button' ] }
 						aria-label="Close"
 					>
