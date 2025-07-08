@@ -195,13 +195,10 @@ class Concatenate_JS extends WP_Scripts {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					printf( "\n<!-- No Concat JS %s => No URL -->\n", esc_html( $handle ) );
 				}
-			} else {
-				$script_type = $this->get_script_type( $handle, $js_url );
-				if ( 'module' === $script_type ) {
-					$do_concat = false;
-					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						printf( "\n<!-- No Concat JS %s => Module Script -->\n", esc_html( $handle ) );
-					}
+			} elseif ( 'module' === $this->get_script_type( $handle, $js_url ) ) {
+				$do_concat = false;
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					printf( "\n<!-- No Concat JS %s => Module Script -->\n", esc_html( $handle ) );
 				}
 			}
 
