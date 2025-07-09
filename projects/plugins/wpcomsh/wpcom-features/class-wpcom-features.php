@@ -1545,8 +1545,6 @@ class WPCOM_Features {
 			self::INSTALL_PURCHASED_PLUGINS,
 			self::INSTALL_THEMES,
 			self::EDIT_THEMES,
-			// self::SFTP, // Useful for debugging
-			// self::SSH, // Useful for debugging
 		);
 
 		// Add Quake team and other users who will test the feature.
