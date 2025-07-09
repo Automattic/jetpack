@@ -41,7 +41,7 @@ import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import clsx from 'clsx';
-import { get, indexOf } from 'lodash';
+import { get } from 'lodash';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';
@@ -377,7 +377,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				rating = 'R-17';
 			}
 
-			if ( -1 === indexOf( [ 'G', 'PG-13', 'R-17' ], rating ) ) {
+			if ( -1 === [ 'G', 'PG-13', 'R-17' ].indexOf( rating ) ) {
 				return;
 			}
 

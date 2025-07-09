@@ -27,6 +27,7 @@ test.describe( 'Critical CSS module', () => {
 		if ( previousTheme !== null ) {
 			await execWpCommand( `theme activate ${ previousTheme }` );
 		}
+		await page.close();
 	} );
 
 	// NOTE: The order of the following tests is important as we are making reuse of the generated Critical CSS

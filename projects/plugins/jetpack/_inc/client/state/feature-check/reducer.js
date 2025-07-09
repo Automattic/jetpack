@@ -1,4 +1,3 @@
-import { assign } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	CUSTOM_FEATURE_ACTIVE_FETCH_FAIL,
@@ -9,7 +8,7 @@ import {
 export const items = ( state = { fetchingCustomContentTypeStatus: false }, action ) => {
 	switch ( action.type ) {
 		case CUSTOM_FEATURE_ACTIVE_FETCH:
-			return assign( {}, state, { fetchingCustomContentTypeStatus: true } );
+			return Object.assign( {}, state, { fetchingCustomContentTypeStatus: true } );
 		case CUSTOM_FEATURE_ACTIVE_FETCH_SUCCESS:
 			return {
 				...state,

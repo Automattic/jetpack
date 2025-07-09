@@ -1,4 +1,4 @@
-import { chunk, drop, take } from 'lodash';
+import { chunk, take } from 'lodash';
 import { MAX_COLUMNS } from '../constants';
 import Column from './column';
 import Gallery from './gallery';
@@ -13,7 +13,7 @@ export default function Square( { columns, renderedImages } ) {
 		<Gallery>
 			{ [
 				...( remainder ? [ take( renderedImages, remainder ) ] : [] ),
-				...chunk( drop( renderedImages, remainder ), columnCount ),
+				...chunk( renderedImages.slice( remainder ), columnCount ),
 			].map( ( imagesInRow, rowIndex ) => (
 				<Row key={ rowIndex } className={ `columns-${ imagesInRow.length }` }>
 					{ imagesInRow.map( ( image, colIndex ) => (

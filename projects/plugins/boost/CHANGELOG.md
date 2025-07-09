@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.2] - 2025-07-08
+### Added
+- Concatenate JS/CSS: Add cleanup for expired options in the database. [#44134]
+
+### Changed
+- General: Update UI to show some features are unavailable if the website is offline. [#44171]
+- LCP Optimization: Show errors not in the list of known errors, in the UI. [#44091]
+- Concatenate JS/CSS: Cleanup static files when running garbage collection. [#44137]
+- My Jetpack: Updating Stats card to include a chart for better analytics. [#43870]
+- Update package dependencies. [#44148] [#44151] [#44206] [#44217]
+
+### Fixed
+- LCP Optimization: Ensure new error types unsupported by the plugin version show as Unknown [#44087]
+- Concatenate JS: Exclude scripts of type module from concatenation. [#44193]
+- JITM: Fix ineffective caching due to expired plugin sync transient [#44117]
+
 ## [4.1.1] - 2025-06-23
 ### Changed
 - Update package dependencies. [#43892] [#43951] [#44020] [#44040]
@@ -732,6 +748,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.1.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.1...4.1.2
 [4.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.0...4.1.1
 [4.1.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.1...4.0.0

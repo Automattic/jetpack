@@ -74,7 +74,7 @@ test.describe( 'Cache module', () => {
 		await permalinksPage.usePlainStructure();
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		await jetpackBoostPage.toggleModule( 'page_cache' );
+		await jetpackBoostPage.toggleModule( 'page_cache', true );
 		expect(
 			await jetpackBoostPage.waitForPageCachePermalinksErrorVisibility(),
 			'Page Cache should show permalink error message when using plain permalink structure'
@@ -88,7 +88,7 @@ test.describe( 'Cache module', () => {
 
 		// Activate the module.
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		await jetpackBoostPage.toggleModule( 'page_cache' );
+		await jetpackBoostPage.toggleModule( 'page_cache', true );
 
 		expect(
 			await jetpackBoostPage.waitForPageCacheMetaInfoVisibility(),

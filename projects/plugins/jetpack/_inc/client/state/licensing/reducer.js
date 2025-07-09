@@ -1,4 +1,4 @@
-import { assign, get } from 'lodash';
+import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_LICENSING_ERROR_UPDATE,
@@ -36,7 +36,7 @@ export const error = ( state = window.Initial_State.licensing.error, action ) =>
 export const userCounts = ( state = window.Initial_State.licensing.userCounts ?? {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_LICENSING_USER_LICENSE_COUNTS_UPDATE:
-			return assign( {}, state, action.counts );
+			return Object.assign( {}, state, action.counts );
 
 		default:
 			return state;
@@ -59,7 +59,7 @@ export const activationNoticeDismiss = (
 ) => {
 	switch ( action.type ) {
 		case JETPACK_LICENSING_ACTIVATION_NOTICE_DISMISS_UPDATE:
-			return assign( {}, state, action.dismissData );
+			return Object.assign( {}, state, action.dismissData );
 
 		default:
 			return state;

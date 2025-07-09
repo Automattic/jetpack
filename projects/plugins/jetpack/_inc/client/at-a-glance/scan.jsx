@@ -4,7 +4,7 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x } from '@wordpress/i18n';
-import { get, isArray, noop } from 'lodash';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
@@ -35,6 +35,8 @@ import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 
+const noop = () => {};
+
 /**
  * Displays a card for Security Scan based on the props given.
  *
@@ -57,7 +59,7 @@ const renderCard = props => (
 		pro={ true }
 		overrideContent={ props.overrideContent }
 	>
-		{ isArray( props.content ) ? (
+		{ Array.isArray( props.content ) ? (
 			props.content.map( ( el, i ) => <Fragment key={ i }>{ el }</Fragment> )
 		) : (
 			<p className="jp-dash-item__description">{ props.content }</p>

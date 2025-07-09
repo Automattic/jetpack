@@ -1,4 +1,4 @@
-import { assign, get } from 'lodash';
+import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	WAF_SETTINGS_FETCH,
@@ -13,7 +13,7 @@ export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case WAF_SETTINGS_FETCH_RECEIVE:
 		case WAF_SETTINGS_UPDATE_SUCCESS:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				bootstrapPath: action.settings?.bootstrap_path,
 				automaticRulesAvailable: Boolean( action.settings?.automatic_rules_available ),
 				automaticRulesEnabled: Boolean( action.settings?.jetpack_waf_automatic_rules ),
@@ -38,21 +38,21 @@ export const initialRequestsState = {
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case WAF_SETTINGS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingWafSettings: true,
 			} );
 		case WAF_SETTINGS_FETCH_RECEIVE:
 		case WAF_SETTINGS_FETCH_FAIL:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingWafSettings: false,
 			} );
 		case WAF_SETTINGS_UPDATE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isUpdatingWafSettings: true,
 			} );
 		case WAF_SETTINGS_UPDATE_SUCCESS:
 		case WAF_SETTINGS_UPDATE_FAIL:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isUpdatingWafSettings: false,
 			} );
 		default:
