@@ -168,7 +168,7 @@ class Script_Data {
 		);
 
 		// if site site is a P2 site, then add the host information
-		$is_p2_site = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
+		$is_p2_site = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );  // @phan-suppress-current-line PhanUndeclaredFunction -- We only call the function if it exists.
 		if ( $is_p2_site ) {
 			$data['site']['host']              = ( new Host() )->get_known_host_guess();
 			$data['site']['is_wpcom_platform'] = ( new Host() )->is_wpcom_platform();
