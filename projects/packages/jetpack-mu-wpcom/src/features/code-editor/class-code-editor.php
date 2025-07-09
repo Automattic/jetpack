@@ -81,7 +81,7 @@ abstract class Code_Editor {
 		if ( $should_load_code_editor ) {
 			wp_enqueue_script_module( self::MODULE_PREFIX . 'code-editor' );
 
-			// Enqeue code editor script dependencies.
+			// Enqueue code editor script dependencies.
 			wp_enqueue_script( 'react' );
 			wp_enqueue_script( 'wp-blocks' );
 			wp_enqueue_script( 'wp-components' );

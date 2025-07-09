@@ -3,7 +3,7 @@
 /**
  * Load a featureful editor in the "code editor" view of the Block and Site Editors.
  *
- * The dependcency extraction webpack plugin with modules does not like the jsx-runtime import.
+ * The dependency extraction webpack plugin with modules does not like the jsx-runtime import.
  */
 import type { EditorView } from '@codemirror/view';
 import type { JSXElementConstructor, JSX } from 'react';
