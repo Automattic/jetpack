@@ -357,7 +357,12 @@ describe( 'LineChart', () => {
 
 	describe( 'Annotations', () => {
 		test( 'renders annotations when an annotations list is provided', async () => {
+			const width = 500;
+			const height = 300;
+
 			renderWithTheme( {
+				width,
+				height,
 				annotations: [
 					{
 						datum: { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
@@ -370,6 +375,11 @@ describe( 'LineChart', () => {
 					},
 				],
 			} );
+
+			const overlay = await screen.findByTestId( 'line-chart-annotations-overlay' );
+			expect( overlay ).toBeInTheDocument();
+			expect( overlay ).toHaveAttribute( 'width', width.toString() );
+			expect( overlay ).toHaveAttribute( 'height', height.toString() );
 
 			await waitFor( () => {
 				expect( screen.getByText( 'Annotation 1' ) ).toBeInTheDocument();
@@ -403,10 +413,15 @@ describe( 'LineChart', () => {
 			expect( screen.queryByText( 'Annotation 1 subtitle' ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'does not render annotations when no annotations list is provided', () => {
+		test( 'does not render annotations when no annotations list is provided', async () => {
 			renderWithTheme( {} );
 
-			expect( screen.queryByTestId( 'annotation-0' ) ).not.toBeInTheDocument();
+			await waitFor( () => {
+				expect( screen.queryByTestId( 'line-chart-annotations-overlay' ) ).not.toBeInTheDocument();
+			} );
+			await waitFor( () => {
+				expect( screen.queryByTestId( 'annotation-0' ) ).not.toBeInTheDocument();
+			} );
 		} );
 
 		test( 'does not render annotations when an empty annotations list is provided', () => {
@@ -484,39 +499,6 @@ describe( 'LineChart', () => {
 			await waitFor( () => {
 				expect( screen.getByTestId( 'custom-label-popover' ) ).toBeInTheDocument();
 			} );
-		} );
-	} );
-
-	describe( 'Annotation Overlay', () => {
-		test( 'renders annotation overlay when annotations are provided', async () => {
-			renderWithTheme( {
-				annotations: [ { datum: { date: new Date( '2024-01-01' ), value: 10 }, title: 'Test' } ],
-			} );
-
-			await waitFor( () => {
-				expect( screen.getByTestId( 'line-chart-annotations-overlay' ) ).toBeInTheDocument();
-			} );
-		} );
-
-		test( 'does not render overlay when no annotations provided', async () => {
-			renderWithTheme( { annotations: [] } );
-			await waitFor( () => {
-				expect( screen.queryByTestId( 'line-chart-annotations-overlay' ) ).not.toBeInTheDocument();
-			} );
-		} );
-
-		test( 'overlay has correct dimensions', async () => {
-			const width = 500,
-				height = 300;
-			renderWithTheme( {
-				width,
-				height,
-				annotations: [ { datum: { date: new Date( '2024-01-01' ), value: 10 }, title: 'Test' } ],
-			} );
-
-			const overlay = await screen.findByTestId( 'line-chart-annotations-overlay' );
-			expect( overlay ).toHaveAttribute( 'width', width.toString() );
-			expect( overlay ).toHaveAttribute( 'height', height.toString() );
 		} );
 	} );
 
