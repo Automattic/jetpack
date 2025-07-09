@@ -699,7 +699,7 @@ class Form_Response {
 			$fields = array();
 			foreach ( $decoded_content['fields'] as $field ) {
 				$fields[ $field['key'] ] = Response_Field::from_serialized( $field );
-				if ( ! $this->has_file && $fields[ $field['key'] ]->is_non_empty_file_field() ) {
+				if ( ! $this->has_file && $fields[ $field['key'] ]->has_file() ) {
 					$this->has_file = true;
 				}
 			}
@@ -789,7 +789,7 @@ class Form_Response {
 			}
 			$decoded_fields['fields'][ $key ] = new Response_Field( $key, $label, $value );
 
-			if ( ! $this->has_file && $decoded_fields['fields'][ $key ]->is_non_empty_file_field() ) {
+			if ( ! $this->has_file && $decoded_fields['fields'][ $key ]->has_file() ) {
 				$this->has_file = true;
 			}
 		}
@@ -868,10 +868,10 @@ class Form_Response {
 			$key   = $i . '_' . $label;
 
 			$fields[ $key ] = new Response_Field( $key, $label, $value, $type );
-			if ( ! $this->has_file && $fields[ $key ]->is_non_empty_file_field() ) {
+			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;
 			}
-			++$i; // Increment prefix counter for the next field
+			++$i; // Increment prefix counter for the next field.
 		}
 
 		return $fields;

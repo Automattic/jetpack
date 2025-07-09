@@ -186,13 +186,12 @@ class Response_Field {
 	}
 
 	/**
-	 * Check if the field is a non-empty file field.
+	 * Check if the field has a file.
 	 *
 	 * @return bool
 	 */
-	public function is_non_empty_file_field() {
+	public function has_file() {
 		if ( $this->is_file_field() ) {
-			l( (int) count( $this->value['files'] ) > 0 );
 			return count( $this->value['files'] ) > 0;
 		}
 
