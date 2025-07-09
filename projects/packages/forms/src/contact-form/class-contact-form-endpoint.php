@@ -804,8 +804,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return array Service status data.
 	 */
 	private function get_service_status( $slug ) {
-		$config        = $this->get_supported_integrations()[ $slug ];
-		$redirect_slug = $config['marketing_redirect_slug'] ?? null;
+		$config                  = $this->get_supported_integrations()[ $slug ];
+		$marketing_redirect_slug = $config['marketing_redirect_slug'] ?? null;
 
 		// Default response for all integrations
 		$response = array(
@@ -814,7 +814,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'needsConnection' => true,
 			'isConnected'     => false,
 			'settingsUrl'     => $config['settings_url'] ?? null,
-			'marketingUrl'    => $redirect_slug ? Redirect::get_url( $redirect_slug ) : null,
+			'marketingUrl'    => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
 			'pluginFile'      => null,
 			'isInstalled'     => false,
 			'isActive'        => false,
