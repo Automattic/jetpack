@@ -3,7 +3,13 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
-import { TabPanel } from '@wordpress/components';
+import {
+	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	FlexItem,
+	TabPanel,
+} from '@wordpress/components';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Outlet, useLocation, useNavigate } from 'react-router';
@@ -14,7 +20,6 @@ import ExportResponsesButton from '../../inbox/export-responses';
 import { config } from '../../index';
 import ActionsDropdownMenu from '../actions-dropdown-menu';
 import CreateFormButton from '../create-form-button';
-import JetpackFormsLogo from '../logo';
 
 import './style.scss';
 
@@ -87,19 +92,23 @@ const Layout = () => {
 
 	return (
 		<div className="jp-forms__layout">
-			<div className="jp-forms__layout-header">
-				<div className="jp-forms__logo-wrapper">
-					<JetpackFormsLogo />
-				</div>
-				{ isSm ? (
-					<ActionsDropdownMenu exportData={ { show: isResponsesTab } } />
-				) : (
-					<div className="jp-forms__layout-header-actions">
-						{ isResponsesTab && <ExportResponsesButton /> }
-						<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
-					</div>
-				) }
-			</div>
+			<VStack className="jp-forms__layout-header" as="header" spacing={ 0 }>
+				<HStack className="jp-forms__layout-header__page-title">
+					<Heading as="h2" level={ 3 } weight={ 500 }>
+						Forms
+					</Heading>
+					<FlexItem>
+						{ isSm ? (
+							<ActionsDropdownMenu exportData={ { show: isResponsesTab } } />
+						) : (
+							<HStack>
+								{ isResponsesTab && <ExportResponsesButton /> }
+								<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
+							</HStack>
+						) }
+					</FlexItem>
+				</HStack>
+			</VStack>
 			<TabPanel
 				className="jp-forms__dashboard-tabs"
 				tabs={ tabs }

@@ -1,13 +1,9 @@
-@mixin mobile {
 
-	@media (max-width: 599px) {
-		@content;
-	}
-}
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
-	background-color: #fff;
+	background-color: $white;
 
 	#wpcontent {
 		padding-left: 0;
@@ -22,94 +18,29 @@ body.jetpack_page_jetpack-forms-admin {
 	padding: 0;
 	width: 100%;
 	height: 100%;
-
-	.jp-forms__logo-wrapper,
-	.jp-forms__layout-header {
-		flex: 0 1 auto; /* Flex, but don't grow */
-	}
-
-	.jp-forms__logo-wrapper {
-
-		@include mobile {
-			width: 180px;
-		}
-	}
-
-	.jp-forms__layout-header-actions {
-		display: flex;
-		gap: 8px;
-	}
-
-	.jp-forms__logo {
-		margin: 20px 48px;
-		width: 200px;
-
-		@media (max-width: 660px) {
-			margin: 20px 24px;
-		}
-	}
-}
-
-#jp-forms-dashboard .jp-forms__layout {
-
-	.jp-forms__layout-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 30px 30px 0 0;
-
-		@media (max-width: 782px) {
-			padding: 40px 20px 0 0;
-		}
-	}
-
-	.jp-forms__dashboard-tabs {
-		display: flex;
-		flex-direction: column;
-		flex-grow: 1;
-
-		> .components-tab-panel__tabs {
-			margin: 0;
-			padding: 0 48px;
-			border-bottom: 1px solid var(--jp-gray-5);
-
-			.components-tab-panel__tabs-item {
-				border-bottom: 2px solid transparent;
-				font-size: var(--jp-forms-font-size-regular);
-				font-weight: 400;
-				height: 40px;
-				padding: 8px 16px;
-
-				&.is-active {
-					border-color: var(--jp-green-50);
-					font-weight: 500;
-
-					&::after {
-						display: none;
-					}
-				}
-			}
-
-			@media (max-width: 600px) {
-				top: 0;
-			}
-
-			@media (max-width: 660px) {
-				padding: 0 24px;
-			}
-		}
-
-		.components-tab-panel__tab-content {
-			height: 100%;
-		}
-	}
 }
 
 .jp-forms__layout-header {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 16px 48px 0;
-	width: 100%;
+	padding: $grid-unit-20 $grid-unit-60;
+	top: 0;
+
+	@media not (prefers-reduced-motion) {
+		transition: padding ease-out 0.1s;
+	}
+
+	.components-heading {
+		color: $gray-900;
+	}
+
+	.jp-forms__layout__page-title {
+		min-height: $grid-unit-50;
+
+		.components-heading {
+			flex-grow: 1;
+			flex-basis: 0;
+			white-space: nowrap;
+		}
+	}
 }
 
 .jp-forms__layout-title {
@@ -119,4 +50,56 @@ body.jetpack_page_jetpack-forms-admin {
 	height: 40px;
 	line-height: 40px;
 	margin: 0;
+}
+
+@media (max-width: 430px) {
+
+	.jp-forms__layout-header {
+		padding: $grid-unit-20 $grid-unit-30;
+	}
+}
+
+.jp-forms__dashboard-tabs {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+
+	> .components-tab-panel__tabs {
+		margin: 0;
+		padding: 0 48px;
+		border-bottom: 1px solid $gray-100;
+
+		.components-tab-panel__tabs-item {
+			border-bottom: 2px solid transparent;
+			font-size: var(--jp-forms-font-size-regular);
+			font-weight: 400;
+			height: 40px;
+			padding: 8px 16px;
+
+			&.is-active {
+				border-color: var(--jp-green-50);
+				font-weight: 500;
+
+				&::after {
+					display: none;
+				}
+			}
+		}
+
+		@media not (prefers-reduced-motion) {
+			transition: padding ease-out 0.1s;
+		}
+
+		@media (max-width: 600px) {
+			top: 0;
+		}
+
+		@media (max-width: 430px) {
+			padding: 0 24px;
+		}
+	}
+
+	.components-tab-panel__tab-content {
+		height: 100%;
+	}
 }
