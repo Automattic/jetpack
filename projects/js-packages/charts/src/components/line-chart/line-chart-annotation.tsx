@@ -1,6 +1,6 @@
 import { Annotation, CircleSubject, Connector, Label, LineSubject } from '@visx/annotation';
 import { DataContext } from '@visx/xychart';
-import { merge } from 'lodash';
+import merge from 'deepmerge';
 import { useContext, useRef, useEffect, useState, useMemo } from 'react';
 import { useChartTheme } from '../../providers/theme/theme-provider';
 import type { DataPointDate } from '../../types';
@@ -162,7 +162,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 	const [ height, setHeight ] = useState< number | null >( null );
 
 	// Deep merge styles to preserve nested object properties
-	const styles = merge( {}, providerTheme.annotationStyles, datumStyles );
+	const styles = merge( providerTheme.annotationStyles ?? {}, datumStyles ?? {} );
 
 	// Measure the label height once after initial render
 	useEffect( () => {
