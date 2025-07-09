@@ -129,7 +129,9 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 				// template placeholder helper
 				echo '<div class="jpcrm-form-group jpcrm-form-group-span-2" style="text-align:end;"><span class="ui basic black label">' . esc_html__( 'Did you know: You can now use Quote Placeholders?', 'zero-bs-crm' ) . ' <a href="' . esc_url( $zbs->urls['kbquoteplaceholders'] ) . '" target="_blank">' . esc_html__( 'Read More', 'zero-bs-crm' ) . '</a></span></div>';
 				##/WLREMOVE
-
+				?>
+			</div>
+			<?php
 				$content = wp_kses( $quote_template_content, $zbs->acceptable_html );
 
 				echo '<div class="jpcrm-form-group jpcrm-form-group-span-2">';
@@ -141,8 +143,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 					array( 'editor_height' => 580 )
 				);
 				echo '</div>';
-				?>
-			</div>
+			?>
 		</div>
 		<?php
 	}
