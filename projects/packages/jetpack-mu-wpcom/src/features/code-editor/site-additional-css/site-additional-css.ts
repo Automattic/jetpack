@@ -85,7 +85,10 @@ const setupEditor = async (
 		View,
 		syntaxHighlightingStyle,
 		theme,
-	} = await import( '@a8cCodeEditor/codemirror-bundle' );
+	} =
+		// The feature registers this module for import.
+		// eslint-disable-next-line import/no-unresolved
+		await import( '@a8cCodeEditor/codemirror-bundle' );
 
 	target._valueTracker?.stopTracking();
 

@@ -347,6 +347,8 @@ const cm_lazy = ( cm_module: typeof import('@a8cCodeEditor/codemirror-bundle') )
 };
 
 const CM = React.lazy( async () => {
+	// The feature registers this module for import.
+	// eslint-disable-next-line import/no-unresolved
 	const cm = await import( '@a8cCodeEditor/codemirror-bundle' );
 
 	return { default: cm_lazy( cm ) };
