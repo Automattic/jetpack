@@ -33,7 +33,14 @@ abstract class Code_Editor {
 	 * Init hook.
 	 */
 	public static function init() {
-		$asset_manifest = include plugin_dir_path( __FILE__ ) . '../../build-module/assets.php';
+		// The asset file should always be present, however on CI it is not built.
+		// If it were ever absent in a production build, that's unexpected and the
+		// feature would be unavailable.
+		$asset_path = plugin_dir_path( __FILE__ ) . '../../build-module/assets.php';
+		if ( ! file_exists( $asset_path ) ) {
+			return;
+		}
+		$asset_manifest = include $asset_path;
 
 		$modules = array(
 			'code-editor/code-editor.js'                 => self::MODULE_PREFIX . 'code-editor',
