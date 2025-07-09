@@ -8,6 +8,7 @@ export { BarListChart } from './components/bar-list-chart';
 // Chart components
 export { BaseTooltip } from './components/tooltip';
 export { Legend } from './components/legend';
+export { ChartLegend, useChartLegendData } from './components/chart-legend';
 
 // Themes
 export { ThemeProvider } from './providers/theme';
@@ -33,3 +34,4 @@ export type {
 export type { LineStyles, GridStyles } from '@visx/xychart';
 
 export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
+export type { ChartLegendProps, ChartLegendOptions } from './components/chart-legend';
