@@ -1,6 +1,8 @@
 .cache/
 src/build/
 src/build-module/
+src/**/*.d.ts
+src/**/*.tsbuildinfo
 vendor/
 node_modules/
 wordpress/
