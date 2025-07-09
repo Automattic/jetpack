@@ -1508,6 +1508,8 @@ class WPCOM_Features {
 
 		$products_map = self::FEATURES_MAP[ $feature ];
 
+		self::add_conditional_personal_and_higher_plans_to_products_map( $products_map, $feature );
+
 		// Automatically grant features that don't require any purchase.
 		if (
 			( 'wpcom' === $site_type && in_array( self::WPCOM_ALL_SITES, $products_map, true ) ) ||
@@ -1522,6 +1524,52 @@ class WPCOM_Features {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * This is a temporary code to grant the "The Summer Special" feature to a particular set of users.
+	 * We could use A8C_PROXIED_REQUEST but it would release it to all a8c users and we don't want that now.
+	 * This will be removed soon and replaced with the A8C_PROXIED_REQUEST solution used here: https://code.a8c.com/D83198 for CfT.
+	 *
+	 * @param array  $products_map Reference to an array of products.
+	 * @param string $feature The feature to check.
+	 *
+	 * @return void
+	 */
+	public static function add_conditional_personal_and_higher_plans_to_products_map( &$products_map, $feature ) {
+		// Adds the WPCOM_PERSONAL_AND_HIGHER_PLANS to the products_map for some features and users.
+		$features_to_add_personal_and_higher_plans = array(
+			self::ATOMIC,
+			self::EDIT_PLUGINS,
+			self::INSTALL_PLUGINS,
+			self::INSTALL_PURCHASED_PLUGINS,
+			self::INSTALL_THEMES,
+			self::EDIT_THEMES,
+			// self::SFTP, // Useful for debugging
+			// self::SSH, // Useful for debugging
+		);
+
+		// Add Quake team and other users who will test the feature.
+		$users_to_add_personal_and_higher_plans = array(
+			19261507, // paulopmt1 (a8c test user)
+			234854924, // paulopmt120 (non-a8c test user)
+			29815763, // Bogdan
+			2540684, // Igor
+			10202727, // Kamen
+			196161102, // Leo
+			208647015, // Luis
+			8895355, // Miro
+			12082291, // Konstantin
+			29999338, // Miguel
+			8735, // Dean
+			97869786, // Claudiu
+			143738775, // Joshua
+			217470, // Veselin
+		);
+
+		if ( in_array( $feature, $features_to_add_personal_and_higher_plans, true ) && in_array( get_current_user_id(), $users_to_add_personal_and_higher_plans, true ) ) {
+			$products_map = array_merge( $products_map, array( self::WPCOM_PERSONAL_AND_HIGHER_PLANS ) );
+		}
 	}
 
 	/**
