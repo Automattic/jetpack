@@ -903,8 +903,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 					}
 				}
 				break;
-			case 'creative-mail-by-constant-contact':
-				break;
 		}
 
 		return $response;
