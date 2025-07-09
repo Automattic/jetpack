@@ -38,7 +38,7 @@ const JetpackCRMDashboardCard = ( {
 		trackEventName: 'jetpack_forms_upsell_crm_click',
 		notInstalledMessage: createInterpolateElement(
 			__(
-				'You can save your form contacts in Jetpack CRM. <a>Learn more</a> or to get started, please install the plugin.',
+				'You can save your form contacts in <a>Jetpack CRM</a>. To get started, please install the plugin.',
 				'jetpack-forms'
 			),
 			{
