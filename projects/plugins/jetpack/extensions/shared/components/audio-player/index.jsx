@@ -3,7 +3,7 @@
 import { speak } from '@wordpress/a11y';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { debounce, throttle } from 'lodash';
+import debounce from 'debounce';
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from '../../../store/media-source/constants';
 
 import './style.scss';
@@ -143,7 +143,7 @@ function AudioPlayer( {
 			debouncedAction();
 		}
 		return () => {
-			debouncedAction.cancel();
+			debouncedAction.clear();
 		};
 	}, [ audioRef, playStatus, trackSource ] );
 
@@ -153,15 +153,23 @@ function AudioPlayer( {
 		}
 		//Add time change event listener
 		const audio = audioRef.current;
-		const throttledTimeChange = throttle( time => onTimeChange( time ), 1000, {
-			leading: true,
-			trailing: false,
-		} );
+
+		// Equivalent to lodash `throttle( time => onTimeChange( time ), 1000, { leading: true, trailing: false } );`
+		// (doing `trailing: true` would be more complex)
+		let lastTimeChange = 0;
+		const throttledTimeChange = time => {
+			const now = new Date();
+			if ( now - lastTimeChange >= 1000 ) {
+				onTimeChange( time );
+				lastTimeChange = now;
+			}
+		};
+
 		const onTimeUpdate = e => throttledTimeChange( e.target.currentTime );
 		onTimeChange && audio?.addEventListener( 'timeupdate', onTimeUpdate );
 
 		return () => {
-			throttledTimeChange.cancel();
+			// throttledTimeChange.cancel(); -- Nothing to cancel when trailing is false.
 			audio?.removeEventListener( 'timeupdate', onTimeUpdate );
 		};
 	}, [ audioRef, onTimeChange ] );
