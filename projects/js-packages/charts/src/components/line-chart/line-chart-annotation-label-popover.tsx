@@ -81,9 +81,10 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 				{ ...( { popover: 'auto' } as PopoverElement ) }
 				className={ clsx(
 					styles[ 'line-chart__annotation-label-popover' ],
-					! isPositioned && styles[ 'line-chart__annotation-label-popover--hidden' ],
+					isPositioned && styles[ 'line-chart__annotation-label-popover--visible' ],
 					isSafari && styles[ 'line-chart__annotation-label-popover--safari' ]
 				) }
+				data-testid="line-chart-annotation-label-popover"
 			>
 				<div className={ styles[ 'line-chart__annotation-label-popover-header' ] }>
 					<div className={ styles[ 'line-chart__annotation-label-popover-content' ] }>
