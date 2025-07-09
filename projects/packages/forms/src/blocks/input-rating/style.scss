@@ -54,7 +54,8 @@
 
 /* Hearts variation – override the default star glyph */
 :where(.wp-block-jetpack-rating-input.is-style-hearts),
-:where(.jetpack-field-rating.is-style-hearts) {
+:where(.jetpack-field-rating.is-style-hearts),
+.contact-form .jetpack-field-rating.is-style-hearts {
 
   input[type="radio"].jetpack-field-rating__input::before {
     content: "♥";
