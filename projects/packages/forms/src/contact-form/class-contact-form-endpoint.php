@@ -530,99 +530,47 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$data     = $response->get_data();
 		$fields   = $this->get_fields_for_response( $request );
 
-		$has_file    = false;
-		$base_fields = array(
-			'email_marketing_consent' => '',
-			'entry_title'             => '',
-			'entry_permalink'         => '',
-			'feedback_id'             => '',
-		);
-
-		$data_defaults = array(
-			'_feedback_author'       => '',
-			'_feedback_author_email' => '',
-			'_feedback_author_url'   => '',
-			'_feedback_all_fields'   => array(),
-			'_feedback_ip'           => '',
-			'_feedback_subject'      => '',
-		);
-
-		$feedback_data = array_merge(
-			$data_defaults,
-			\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::parse_fields_from_content( $item->ID )
-		);
-
-		$all_fields = array_merge( $base_fields, $feedback_data['_feedback_all_fields'] );
+		$response = Form_Response::get( $item->ID );
 
 		$data['date'] = get_the_date( 'c', $data['id'] );
 		if ( rest_is_field_included( 'uid', $fields ) ) {
-			$data['uid'] = $all_fields['feedback_id'];
+			$data['uid'] = $response->get_feedback_id();
 		}
 		if ( rest_is_field_included( 'author_name', $fields ) ) {
-			$data['author_name'] = $feedback_data['_feedback_author'];
+			$data['author_name'] = $response->get_author();
 		}
 		if ( rest_is_field_included( 'author_email', $fields ) ) {
-			$data['author_email'] = $feedback_data['_feedback_author_email'];
+			$data['author_email'] = $response->get_author_email();
 		}
 		if ( rest_is_field_included( 'author_url', $fields ) ) {
-			$data['author_url'] = $feedback_data['_feedback_author_url'];
+			$data['author_url'] = $response->get_author_url();
 		}
 		if ( rest_is_field_included( 'author_avatar', $fields ) ) {
-			$data['author_avatar'] = empty( $feedback_data['_feedback_author_email'] ) ? '' : get_avatar_url( $feedback_data['_feedback_author_email'] );
+			$data['author_avatar'] = $response->get_author_avatar();
 		}
 		if ( rest_is_field_included( 'email_marketing_consent', $fields ) ) {
-			$data['email_marketing_consent'] = $all_fields['email_marketing_consent'];
+			$data['email_marketing_consent'] = $response->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
 		}
 		if ( rest_is_field_included( 'ip', $fields ) ) {
-			$data['ip'] = $feedback_data['_feedback_ip'];
+			$data['ip'] = $response->get_ip_address();
 		}
 		if ( rest_is_field_included( 'entry_title', $fields ) ) {
-			$data['entry_title'] = $all_fields['entry_title'];
+			$data['entry_title'] = $response->get_entry_title();
 		}
 		if ( rest_is_field_included( 'entry_permalink', $fields ) ) {
-			$data['entry_permalink'] = $all_fields['entry_permalink'];
+			$data['entry_permalink'] = $response->get_entry_permalink();
 		}
 		if ( rest_is_field_included( 'subject', $fields ) ) {
-			$data['subject'] = $feedback_data['_feedback_subject'];
+			$data['subject'] = $response->get_subject();
 		}
 		if ( rest_is_field_included( 'fields', $fields ) ) {
-			$fields_data = array_diff_key( $all_fields, $base_fields );
+			$data['fields'] = $response->get_api_fields_values();
+		}
 
-			foreach ( $fields_data as &$field ) {
-				if ( Contact_Form::is_file_upload_field( $field ) ) {
-
-					foreach ( $field['files'] as &$file ) {
-						if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
-							// this shouldn't happen, todo: log this
-							continue;
-						}
-						$file_id                = absint( $file['file_id'] );
-						$file['file_id']        = $file_id;
-						$file['size']           = size_format( $file['size'] );
-						$file['url']            = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
-						$file['is_previewable'] = self::is_previewable_file( $file );
-						$has_file               = true;
-					}
-				}
-			}
-
-			$data['fields']   = $fields_data;
-			$data['has_file'] = $has_file;
+		if ( rest_is_field_included( 'has_file', $fields ) ) {
+			$data['has_file'] = $response->has_file();
 		}
 		return rest_ensure_response( $data );
-	}
-	/**
-	 * Checks if the file is previewable based on its type or extension.
-	 *
-	 * @param array $file File data.
-	 * @return bool True if the file is previewable, false otherwise.
-	 */
-	private static function is_previewable_file( $file ) {
-		$file_type = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
-		// Check if the file is previewable based on its type or extension.
-		// Note: This is a simplified check and does not match if the file is allowed to be uploaded by the server.
-		$previewable_types = array( 'jpg', 'jpeg', 'png', 'gif', 'webp' );
-		return in_array( $file_type, $previewable_types, true );
 	}
 
 	/**

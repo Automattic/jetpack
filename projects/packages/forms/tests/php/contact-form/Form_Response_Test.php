@@ -554,11 +554,13 @@ class Form_Response_Test extends BaseTestCase {
 
 		$post_response = Form_Response::get( $post_id );
 		$this->assertEquals( $email, $post_response->get_author_email(), 'Author email should match the legacy feedback post author email' );
+		$this->assertEquals( get_avatar_url( $email ), $post_response->get_author_avatar(), 'Author email should match the legacy feedback post author email' );
 	}
 
 	public function test_computed_email() {
 
 		$email   = 'email@email.com';
+		$avatar  = get_avatar_url( $email );
 		$form_id = Utility::get_form_id();
 		// Create a form submission
 		$post_data = Utility::get_post_request(
@@ -584,7 +586,9 @@ class Form_Response_Test extends BaseTestCase {
 		$post_response = Form_Response::get( $post_id );
 
 		$this->assertEquals( $email, $response->get_author_email(), 'Author email should match the form submission' );
+		$this->assertEquals( $avatar, $post_response->get_author_avatar(), 'Author avatar should match the legacy feedback post author email' );
 		$this->assertEquals( $email, $post_response->get_author_email(), 'Author email should match the saved form submission' );
+		$this->assertEquals( $avatar, $post_response->get_author_avatar(), 'Author email should match the legacy feedback post author email' );
 	}
 
 	public function test_computed_email_filter() {
@@ -1127,7 +1131,72 @@ class Form_Response_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'page=999', $response->get_entry_permalink(), 'Post permalink should match the form submission' );
 		$this->assertStringContainsString( 'page=999', $post_response->get_entry_permalink(), 'Post permalink should match the saved form submission' );
 	}
+
+	public function test_feedback_title() {
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$post_data = Utility::get_post_request(
+			array(
+				'name'  => 'Test User',
+				'email' => 'email@email.com',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$response = Form_Response::from_submission( $post_data, $form );
+		$post_id  = $response->save();
+
+		$post          = get_post( $post_id );
+		$post_response = Form_Response::get( $post_id );
+
+		$this->assertStringContainsString( $post->post_title, $response->get_title(), 'Feedback title should match the form submission' );
+		$this->assertStringContainsString( $post->post_title, $post_response->get_title(), 'Feedback title should match the saved form submission' );
+	}
+
+	public function test_feedback_title_time() {
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$post_data = Utility::get_post_request(
+			array(
+				'name'  => 'Test User',
+				'email' => 'email@email.com',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$response = Form_Response::from_submission( $post_data, $form );
+		$post_id  = $response->save();
+
+		$post          = get_post( $post_id );
+		$post_response = Form_Response::get( $post_id );
+
+		$this->assertStringContainsString( $post->post_date, $response->get_time(), 'Feedback submitted time should match the form submission' );
+		$this->assertStringContainsString( $post->post_date, $post_response->get_time(), 'Feedback submitted time should match the saved form submission' );
+	}
+
 	/**
+	 * ======================================================
+	 * Tests for the strip_tags method in Form_Response class.
+	 * ======================================================
+	 *
 	 * Test that strip_tags handles simple string without HTML tags.
 	 */
 	public function test_strip_tags_with_plain_string() {

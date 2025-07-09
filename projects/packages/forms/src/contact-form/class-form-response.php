@@ -32,6 +32,13 @@ class Form_Response {
 	protected $fields = array();
 
 	/**
+	 * Does the response have files attached to it?
+	 *
+	 * @var bool
+	 */
+	protected $has_file = false;
+
+	/**
 	 * The original Contact_Form object, if available.
 	 *
 	 * @var Contact_Form|null
@@ -89,6 +96,24 @@ class Form_Response {
 	 * @var string
 	 */
 	protected $feedback_id = '';
+
+	/**
+	 * The title of the feedback entry.
+	 *
+	 * This is used to store the title of the feedback entry.
+	 *
+	 * @var string
+	 */
+	protected $feedback_title = '';
+
+	/**
+	 * The time of the feedback entry.
+	 *
+	 * This is used to store the title of the feedback entry.
+	 *
+	 * @var string
+	 */
+	protected $feedback_time = '';
 
 	/**
 	 * The author of the feedback entry.
@@ -170,12 +195,13 @@ class Form_Response {
 
 		if ( $this->feedback_post instanceof WP_Post ) {
 
-			$parsed_content = static::parse_content( $this->feedback_post->post_content, $this->feedback_post->post_mime_type );
+			$parsed_content = $this->parse_content( $this->feedback_post->post_content, $this->feedback_post->post_mime_type );
 
-			$this->status      = $this->feedback_post->post_status;
-			$this->feedback_id = $this->feedback_post->post_name;
-			$this->entry_id    = $this->feedback_post->post_parent ? (int) $this->feedback_post->post_parent : 0;
-			$current_post      = $this->entry_id ? get_post( $this->entry_id ) : null;
+			$this->status        = $this->feedback_post->post_status;
+			$this->feedback_id   = $this->feedback_post->post_name;
+			$this->entry_id      = $this->feedback_post->post_parent ? (int) $this->feedback_post->post_parent : 0;
+			$this->feedback_time = $this->feedback_post->post_date;
+			$current_post        = $this->entry_id ? get_post( $this->entry_id ) : null;
 
 			$this->fields          = isset( $parsed_content['fields'] ) ? $parsed_content['fields'] : array();
 			$this->ip_address      = isset( $parsed_content['ip'] ) ? $parsed_content['ip'] : null;
@@ -187,12 +213,12 @@ class Form_Response {
 			$this->has_consent     = isset( $parsed_content['has_consent'] ) ? $parsed_content['has_consent'] : false;
 			$this->entry_title     = isset( $parsed_content['entry_title'] ) ? $parsed_content['entry_title'] : '';
 			$this->entry_page      = isset( $parsed_content['entry_page'] ) ? (int) $parsed_content['entry_page'] : 1;
+			$this->feedback_title  = $this->feedback_post->post_title ? $this->feedback_post->post_title : $this->get_author() . ' - ' . $this->feedback_post->post_date;
 
 		} elseif ( is_array( $post_data ) && ! empty( $post_data ) ) {
 
 			// If post_data is provided, use it to populate fields.
 			$this->status          = $this->status;
-			$this->feedback_id     = $this->get_computed_feedback_id();
 			$this->fields          = $this->get_computed_fields( $post_data );
 			$this->ip_address      = Contact_Form_Plugin::get_ip_address();
 			$this->subject         = $this->get_computed_subject( $post_data );
@@ -204,29 +230,13 @@ class Form_Response {
 			$this->entry_id        = ! empty( $current_post ) ? (int) $current_post->ID : 0;
 			$this->entry_title     = ! empty( $current_post ) ? get_the_title( $current_post ) : '';
 			$this->entry_page      = $current_page_number;
+			$this->feedback_time   = current_time( 'mysql' );
+			$this->feedback_title  = "{$this->get_author()} - {$this->feedback_time}";
+			$this->feedback_id     = md5( $this->feedback_title );
 		}
 
 		$this->entry_title     = ! empty( $current_post ) ? get_the_title( $current_post ) : $this->entry_title;
 		$this->entry_permalink = ! empty( $current_post ) ? $this->get_computed_entry_permalink( $current_post, $this->entry_page ) : '';
-	}
-
-	/**
-	 * Get a sanitized value from the post data.
-	 *
-	 * @param string $key The key to look for in the post data.
-	 * @param array  $post_data The post data array, typically $_POST.
-	 *
-	 * @return string|array The sanitized value, or an empty string if the key is not found.
-	 */
-	private function get_field_value( $key, $post_data ) {
-		if ( isset( $post_data[ $key ] ) ) {
-			if ( is_array( $post_data[ $key ] ) ) {
-				return array_map( 'sanitize_text_field', wp_unslash( $post_data[ $key ] ) );
-			} else {
-				return sanitize_text_field( wp_unslash( $post_data[ $key ] ) );
-			}
-		}
-		return '';
 	}
 
 	/**
@@ -260,6 +270,25 @@ class Form_Response {
 	}
 
 	/**
+	 * Get a sanitized value from the post data.
+	 *
+	 * @param string $key The key to look for in the post data.
+	 * @param array  $post_data The post data array, typically $_POST.
+	 *
+	 * @return string|array The sanitized value, or an empty string if the key is not found.
+	 */
+	private function get_field_value( $key, $post_data ) {
+		if ( isset( $post_data[ $key ] ) ) {
+			if ( is_array( $post_data[ $key ] ) ) {
+				return array_map( 'sanitize_text_field', wp_unslash( $post_data[ $key ] ) );
+			} else {
+				return sanitize_text_field( wp_unslash( $post_data[ $key ] ) );
+			}
+		}
+		return '';
+	}
+
+	/**
 	 * Get all the fields of the response.
 	 */
 	public function get_fields() {
@@ -281,7 +310,63 @@ class Form_Response {
 			if ( ! $field instanceof Response_Field ) {
 				continue;
 			}
-			$values[ $field->get_key() ] = $field->get_value();
+			$values[ $field->get_key() ] = $field->get_render_value();
+		}
+		return $values;
+	}
+
+	/**
+	 * Get the values related to where the form was submitted from.
+	 *
+	 * @return $array
+	 */
+	private function get_entry_values() {
+		// This is a convenience method to get the entry values in a simple array format.
+		$entry_values = array(
+			'email_marketing_consent' => (string) $this->has_consent,
+			'entry_title'             => $this->entry_title,
+			'entry_permalink'         => $this->entry_permalink,
+			'feedback_id'             => $this->feedback_id,
+		);
+
+		if ( $this->entry_page > 1 ) {
+			$entry_values['entry_page'] = $this->entry_page;
+		}
+		return $entry_values;
+	}
+
+	/**
+	 * Get all values of the response.
+	 *
+	 * @return array
+	 */
+	public function get_old_all_values() {
+		// This is a legacy method to maintain compatibility with older code.
+		// It returns the same values as get_all_values() but is kept for backward compatibility.
+		return array_merge( $this->get_all_values(), $this->get_entry_values() );
+	}
+
+	/**
+	 * Get the field values for the API Response.
+	 *
+	 * @return array
+	 */
+	public function get_api_fields_values() {
+		// This is a legacy method to maintain compatibility with older code.
+		// It returns the same values as get_all_values() but is kept for backward compatibility.
+		return array_merge( $this->get_api_all_values() );
+	}
+
+	/**
+	 * Get all the values of the response for API.
+	 */
+	private function get_api_all_values() {
+		$values = array();
+		foreach ( $this->fields as $field ) {
+			if ( ! $field instanceof Response_Field ) {
+				continue;
+			}
+			$values[ $field->get_key() ] = $field->get_render_api_value();
 		}
 		return $values;
 	}
@@ -298,6 +383,77 @@ class Form_Response {
 	}
 
 	/**
+	 * Get the feedback title of the response.
+	 *
+	 * This is mostly used for legacy reasons.
+	 *
+	 * @return string
+	 */
+	public function get_title() {
+		return $this->feedback_title;
+	}
+
+	/**
+	 * Get the time of the feedback entry.
+	 *
+	 * @return string
+	 */
+	public function get_time() {
+		return $this->feedback_time;
+	}
+
+	/**
+	 * Get the askimet vars that are used to check for spam.
+	 *
+	 * These are the variables that are sent to Akismet to check if the feedback is spam or not.
+	 *
+	 * @return array
+	 */
+	public function get_akismet_vars() {
+		$akismet_vars = array(
+			'comment_author'       => $this->author,
+			'comment_author_email' => $this->get_author_email(),
+			'comment_author_url'   => $this->get_author_url(),
+			'contact_form_subject' => $this->get_subject(),
+			'comment_author_ip'    => $this->get_ip_address(),
+			'comment_content'      => empty( $this->get_comment_content() ) ? null : $this->get_comment_content(),
+		);
+
+		$field_ids = $this->form->get_field_ids();
+
+		foreach ( array_merge( $field_ids['all'], $field_ids['extra'] ) as $field_id ) {
+			$field = $this->form->fields[ $field_id ];
+
+			// Skip any fields that are just a choice from a pre-defined list. They wouldn't have any value
+			// from a spam-filtering point of view.
+			if ( in_array( $field->get_attribute( 'type' ), array( 'select', 'checkbox', 'checkbox-multiple', 'radio', 'file' ), true ) ) {
+				continue;
+			}
+
+			// Normalize the label into a slug.
+			$field_slug = trim( // Strip all leading/trailing dashes.
+				preg_replace(   // Normalize everything to a-z0-9_-
+					'/[^a-z0-9_]+/',
+					'-',
+					strtolower( $field->get_attribute( 'label' ) ) // Lowercase
+				),
+				'-'
+			);
+
+			$field_value = ( is_array( $field->value ) ) ? trim( implode( ', ', $field->value ) ) : trim( $field->value );
+
+			// Skip any values that are already in the array we're sending.
+			if ( $field_value && in_array( $field_value, $akismet_vars, true ) ) {
+				continue;
+			}
+
+			$akismet_vars[ 'contact_form_field_' . $field_slug ] = $field_value;
+		}
+
+		return $akismet_vars;
+	}
+
+	/**
 	 * Get the author name of the feedback entry.
 	 * If the author is not provided we will use the email instead.
 	 *
@@ -310,7 +466,7 @@ class Form_Response {
 		if ( ! empty( $this->author_email ) ) {
 			return $this->author_email;
 		}
-		return $this->author;
+		return '';
 	}
 
 	/**
@@ -320,6 +476,21 @@ class Form_Response {
 	 */
 	public function get_author_email() {
 		return $this->author_email;
+	}
+
+	/**
+	 * Get the author's gravatar URL.
+	 *
+	 * This is a convenience method to get the author's gravatar URL.
+	 *
+	 * @return string
+	 */
+	public function get_author_avatar() {
+		// This is a convenience method to get the author's gravatar URL.
+		if ( ! empty( $this->author_email ) ) {
+			return get_avatar_url( $this->author_email );
+		}
+		return '';
 	}
 
 	/**
@@ -365,6 +536,15 @@ class Form_Response {
 	 */
 	public function has_consent() {
 		return $this->has_consent;
+	}
+
+	/**
+	 * Gets the value of the consent field.
+	 *
+	 * @return bool
+	 */
+	public function has_file() {
+		return $this->has_file;
 	}
 
 	/**
@@ -427,6 +607,8 @@ class Form_Response {
 			array(
 				'post_type'      => self::POST_TYPE,
 				'post_status'    => $this->status,
+				'post_title'     => $this->feedback_title,
+				'post_date'      => $this->feedback_time,
 				'post_name'      => $this->feedback_id,
 				'post_content'   => $this->serialize(),
 				'post_mime_type' => 'v2', // a way to help us identify what version of the data this is.
@@ -480,7 +662,7 @@ class Form_Response {
 	 * @param string|null $version The version of the content format.
 	 * @return array Parsed fields.
 	 */
-	public static function parse_content( $post_content = '', $version = null ) {
+	private function parse_content( $post_content = '', $version = null ) {
 		if ( $version === 'v2' ) {
 			$decoded_content = json_decode( $post_content, true );
 			if ( $decoded_content === null ) {
@@ -495,6 +677,9 @@ class Form_Response {
 			$fields = array();
 			foreach ( $decoded_content['fields'] as $field ) {
 				$fields[ $field['key'] ] = Response_Field::from_serialized( $field );
+				if ( ! $this->has_file && $fields[ $field['key'] ]->is_non_empty_file_field() ) {
+					$this->has_file = true;
+				}
 			}
 			$decoded_content['fields'] = $fields;
 			return $decoded_content;
@@ -581,6 +766,10 @@ class Form_Response {
 				continue;
 			}
 			$decoded_fields['fields'][ $key ] = new Response_Field( $key, $label, $value );
+
+			if ( ! $this->has_file && $decoded_fields['fields'][ $key ]->is_non_empty_file_field() ) {
+				$this->has_file = true;
+			}
 		}
 
 		$decoded_fields['comment_content'] = trim( self::strip_tags( $comment_content ) );
@@ -618,19 +807,6 @@ class Form_Response {
 	}
 
 	/**
-	 * Get the computed feedback id.
-	 *
-	 * @return string
-	 */
-	private function get_computed_feedback_id() {
-		$comment_author = $this->get_author();
-
-		// Build feedback reference
-		$feedback_time = \current_time( 'mysql' );
-		return md5( "{$comment_author} - {$feedback_time}" );
-	}
-
-	/**
 	 * Get all the fields of the response, computed from the post data.
 	 *
 	 * @param array $post_data The post data from the form submission.
@@ -655,6 +831,9 @@ class Form_Response {
 			$key   = $i . '_' . $label;
 
 			$fields[ $key ] = new Response_Field( $key, $label, $value, $type );
+			if ( ! $this->has_file && $fields[ $key ]->is_non_empty_file_field() ) {
+				$this->has_file = true;
+			}
 			++$i; // Increment prefix counter for the next field
 		}
 
