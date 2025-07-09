@@ -118,4 +118,35 @@ class Response_Field_Test extends BaseTestCase {
 		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg', 'file2.jpg' ) ) );
 		$this->assertSame( '', $field->get_render_value() );
 	}
+
+	public function test_is_file_field() {
+		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ) );
+		$this->assertTrue( $field->is_file_field() );
+
+		$field = new Response_Field( 'test_key', 'test_label', 'test_value' );
+		$this->assertFalse( $field->is_file_field() );
+
+		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array() ) );
+		$this->assertTrue( $field->is_file_field() );
+
+		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg', 'file2.jpg' ) ), 'file' );
+		$this->assertTrue( $field->is_file_field() );
+	}
+
+	public function test_has_file() {
+		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ) );
+		$this->assertTrue( $field->has_file() );
+
+		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ), 'file' );
+		$this->assertTrue( $field->has_file() );
+
+		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array() ) );
+		$this->assertFalse( $field->has_file() );
+
+		$field = new Response_Field( 'test_key', 'test_label', 'test_value' );
+		$this->assertFalse( $field->has_file(), 'basic field should not be a file field' );
+
+		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array() ), 'file' );
+		$this->assertFalse( $field->has_file(), 'empty file field should not be non-empty' );
+	}
 }
