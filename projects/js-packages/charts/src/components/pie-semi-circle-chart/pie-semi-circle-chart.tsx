@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme } from '../../providers/theme/theme-provider';
+import { useChartLegendData } from '../chart-legend/use-chart-legend-data';
 import { Legend } from '../legend';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
@@ -92,6 +93,11 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
+
+	// Create legend items using the reusable hook
+	const legendItems = useChartLegendData( data, providerTheme, {
+		showValues: true,
+	} );
 
 	const handleMouseMove = useCallback(
 		( event: MouseEvent, arc: ArcData ) => {
@@ -184,7 +190,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Set the clockwise direction based on the prop
 	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
 	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
-
 	return (
 		<div
 			className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }

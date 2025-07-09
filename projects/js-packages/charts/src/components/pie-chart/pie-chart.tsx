@@ -1,10 +1,10 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
-import { useMemo } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
+import { useChartLegendData } from '../chart-legend/use-chart-legend-data';
 import { Legend } from '../legend';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
@@ -108,18 +108,12 @@ const PieChartInternal = ( {
 			withTooltips,
 		} );
 
-	const { isValid, message } = validateData( data );
+	// Create legend items using the reusable hook
+	const legendItems = useChartLegendData( data, providerTheme, {
+		showValues: true,
+	} );
 
-	// Create legend items (hooks must be called in same order every render)
-	const legendItems = useMemo(
-		() =>
-			data.map( ( item, index ) => ( {
-				label: item.label,
-				value: item.value.toString(),
-				color: providerTheme.colors[ index % providerTheme.colors.length ],
-			} ) ),
-		[ data, providerTheme.colors ]
-	);
+	const { isValid, message } = validateData( data );
 
 	// Register chart with context only if data is valid
 	useChartRegistration( chartId, legendItems, providerTheme, 'pie', isValid, {
