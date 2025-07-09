@@ -1175,7 +1175,7 @@ on production builds, the attributes are being reordered, causing side-effects
   width: 1px;
 }
 
-.wp-block-jetpack-contact-form.is-ajax-form.is-submitted {
+.contact-form.is-ajax-form.is-submitted {
 	display: none;
 }
 
