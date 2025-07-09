@@ -147,7 +147,7 @@ class Form_Response_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( Response_Field::class, $field );
 		$this->assertEquals( '1_field', $field->get_key() );
-		$this->assertEquals( 'value1', $field->render_value() );
+		$this->assertEquals( 'field', $field->get_label() );
 		$this->assertEquals( 'value1', $field->render_value() );
 		$this->assertEquals( 'basic', $field->get_type() ); // Assuming 'basic' is the default type for a simple text field.
 	}

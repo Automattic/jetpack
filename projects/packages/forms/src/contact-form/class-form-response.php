@@ -358,6 +358,28 @@ class Form_Response {
 	}
 
 	/**
+	 * Get the computed fields
+	 *
+	 * Computed fields is an array of fields that have a label and a value.
+	 *
+	 * @return array
+	 */
+	public function get_compiled_fields() {
+		// This is a convenience method to get the compiled fields in a simple array format.
+		$compiled_fields = array();
+		foreach ( $this->fields as $field ) {
+			if ( ! $field instanceof Response_Field ) {
+				continue;
+			}
+			$compiled_fields[] = array(
+				'label' => $field->get_label(),
+				'value' => $field->get_render_value(),
+			);
+		}
+		return $compiled_fields;
+	}
+
+	/**
 	 * Get all the values of the response for API.
 	 */
 	private function get_api_all_values() {
@@ -759,7 +781,7 @@ class Form_Response {
 
 		foreach ( $all_values as $key => $value ) {
 			$key   = wp_strip_all_tags( $key );
-			$label = '';
+			$label = self::extract_label_from_key( $key );
 			if ( in_array( $key, $non_user_fields, true ) ) {
 				$decoded_fields[ $key ] = $value;
 				// Skip fields that are not user-submitted.
@@ -775,6 +797,21 @@ class Form_Response {
 		$decoded_fields['comment_content'] = trim( self::strip_tags( $comment_content ) );
 
 		return $decoded_fields;
+	}
+
+	/**
+	 * Extract the label from a key that might be in the format "1_label".
+	 *
+	 * @param string $key The key to extract the label from.
+	 * @return string The extracted label.
+	 */
+	private static function extract_label_from_key( $key ) {
+		// Check if the key starts with a number followed by underscore
+		if ( preg_match( '/^\d+_(.+)$/', $key, $matches ) ) {
+			return $matches[1];
+		}
+		// If no number prefix, return the key as is
+		return $key;
 	}
 
 	/**
