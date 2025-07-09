@@ -103,6 +103,89 @@ class Response_Field {
 	}
 
 	/**
+	 * Get the value of the field for rendering.
+	 *
+	 * @return string
+	 */
+	public function get_render_value() {
+		if ( is_array( $this->value ) ) {
+			// If the value is an array, we can return it as a JSON string.
+			return implode( ', ', $this->value );
+		}
+		// This method is deprecated, use render_value instead.
+		return $this->value;
+	}
+
+	/**
+	 * Get the value of the field for the API.
+	 *
+	 * @deprecated Use render_value instead.
+	 *
+	 * @return string
+	 */
+	public function get_render_api_value() {
+
+		if ( $this->is_file_field() ) {
+			$files = array();
+			foreach ( $this->value['files'] as &$file ) {
+				if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
+					// this shouldn't happen, todo: log this
+					continue;
+				}
+				$file_id                = absint( $file['file_id'] );
+				$file['file_id']        = $file_id;
+				$file['size']           = size_format( $file['size'] );
+				$file['url']            = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
+				$file['is_previewable'] = $this->is_previewable_file( $file );
+				$files[]                = $file;
+			}
+			$this->value['files'] = $files;
+			return $this->value;
+
+		}
+
+		if ( is_array( $this->value ) ) {
+			// If the value is an array, we can return it as a JSON string.
+			return implode( ', ', $this->value );
+		}
+		// This method is deprecated, use render_value instead.
+		return $this->value;
+	}
+
+	/**
+	 * Check if the field is a file field.
+	 *
+	 * @return bool
+	 */
+	public function is_file_field() {
+		if ( 'file' === $this->type ) {
+			return true;
+		}
+		if ( 'basic' === $this->type ) {
+			// If the type is basic, we can check if the value is an array and contains files.
+			if ( is_array( $this->value ) && isset( $this->value['files'] ) && is_array( $this->value['files'] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if the field is a non-empty file field.
+	 *
+	 * @return bool
+	 */
+	public function is_non_empty_file_field() {
+		if ( $this->is_file_field() ) {
+			l( (int) count( $this->value['files'] ) > 0 );
+			return count( $this->value['files'] ) > 0;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Get the type of the field.
 	 *
 	 * @return string
@@ -153,5 +236,19 @@ class Response_Field {
 			isset( $data['type'] ) ? $data['type'] : 'basic',
 			isset( $data['meta'] ) ? $data['meta'] : array()
 		);
+	}
+
+	/**
+	 * Checks if the file is previewable based on its type or extension.
+	 *
+	 * @param array $file File data.
+	 * @return bool True if the file is previewable, false otherwise.
+	 */
+	private function is_previewable_file( $file ) {
+		$file_type = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
+		// Check if the file is previewable based on its type or extension.
+		// Note: This is a simplified check and does not match if the file is allowed to be uploaded by the server.
+		$previewable_types = array( 'jpg', 'jpeg', 'png', 'gif', 'webp' );
+		return in_array( $file_type, $previewable_types, true );
 	}
 }
