@@ -14,7 +14,7 @@ if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && ( ! defined( 'IS_ATOMIC' ) || 
  * WPCom Comments Likes functionality in a singleton pattern.
  */
 class WPCom_Comments_Likes {
-	const CACHE_EXPIRATION = HOUR_IN_SECONDS;
+	const CACHE_EXPIRATION = 900; // 15 minutes in seconds.
 
 	/**
 	 * Singleton instance.
