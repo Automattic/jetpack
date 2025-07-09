@@ -1,4 +1,3 @@
-import { omit } from 'lodash';
 import { Component } from 'react';
 import { connectModuleOptions } from 'components/module-settings/connect-module-options';
 import analytics from 'lib/analytics';
@@ -51,7 +50,8 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		};
 
 		resetFormStateOption = optionToReset => {
-			this.setState( { options: omit( this.state.options, [ optionToReset ] ) } );
+			const { [ optionToReset ]: _, ...optionsToKeep } = this.state.options;
+			this.setState( { options: optionsToKeep } );
 			return true;
 		};
 

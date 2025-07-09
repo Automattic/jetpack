@@ -1,6 +1,5 @@
 import { Gridicon } from '@automattic/jetpack-components';
 import clsx from 'clsx';
-import omit from 'lodash/omit';
 import PropTypes from 'prop-types';
 import { Component, createElement } from 'react';
 /*eslint lodash/import-scope: [2, "method"]*/
@@ -105,7 +104,12 @@ class Card extends Component {
 
 		return createElement(
 			this.props.href ? 'a' : this.props.tagName,
-			{ ...omit( this.props, omitProps ), className },
+			{
+				...Object.fromEntries(
+					Object.entries( this.props ).filter( ( [ k ] ) => ! omitProps.includes( k ) )
+				),
+				className,
+			},
 			linkIndicator,
 			fancyTitle,
 			this.props.children
