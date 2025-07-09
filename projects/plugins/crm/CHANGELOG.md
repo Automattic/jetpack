@@ -5,7 +5,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.6.0] - 2025-07-08
+## [6.6.0] - 2025-07-09
 ### Added
 - Tasks: Show completion checkmark in week and day views. [#43940]
 
@@ -43,8 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
 - Linting: Clean up Stylelint violations. [#43296] [#43322] [#43166] [#43247] [#43213] [#43018] [#43219] [#43019]
 - Phan: Exclude generated file from analysis. [#43383]
-- Ensure special characters in tasks are displayed correctly. [#44157]
+- Quote Templates: Fix code editor display.
 - Tasks: Allow translation of task status after status change. [#43940]
+- Tasks: Ensure special characters in tasks are displayed correctly. [#44157]
 - Tasks: Ensure task status is consistently toggled. [#43940]
 - Tasks: Make it more clear what the current status of a task is. [#43940]
 - Tasks: Adjust styles on mobile. [#43940]
