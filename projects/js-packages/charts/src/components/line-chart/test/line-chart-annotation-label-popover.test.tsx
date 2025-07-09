@@ -59,7 +59,7 @@ describe( 'LineChartAnnotationLabelWithPopover', () => {
 		);
 
 		const popover = screen.getByTestId( 'line-chart-annotation-label-popover' );
-		const button = screen.getByRole( 'button', { name: /see details/i } );
+		const button = screen.getByRole( 'button', { name: 'Title' } );
 
 		// Popover should have correct attributes
 		expect( popover ).toHaveAttribute( 'popover', 'auto' );
@@ -74,7 +74,7 @@ describe( 'LineChartAnnotationLabelWithPopover', () => {
 		expect( screen.getByText( 'Subtitle' ) ).toBeInTheDocument();
 
 		// Close button should exist and target the same popover
-		const closeButton = screen.getByRole( 'button', { name: /close/i } );
+		const closeButton = screen.getByRole( 'button', { name: 'Close' } );
 		expect( closeButton ).toHaveAttribute( 'popovertarget', popoverId );
 		expect( closeButton ).toHaveAttribute( 'popovertargetaction', 'hide' );
 	} );

@@ -71,7 +71,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 					height: `${ POPOVER_BUTTON_SIZE }px`,
 					transform: `translate(${ POPOVER_BUTTON_SIZE / 2 }px, 0)`,
 				} }
-				aria-label="See details"
+				aria-label={ title || 'View details' }
 			>
 				{ renderLabel( { title, subtitle } ) }
 			</button>
