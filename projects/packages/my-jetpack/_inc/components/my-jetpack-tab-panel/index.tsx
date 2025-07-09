@@ -79,8 +79,7 @@ export function MyJetpackTabPanel() {
 			user_type: isNewUser ? 'new' : 'returning',
 			navigation_source: lastNavigationSourceRef.current,
 		} );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] ); // track this only on page load
+	}, [ currentTab, isNewUser, recordEvent ] ); // track this whenever tab changes
 
 	const tabs = useMemo( () => getMyJetpackSections(), [] );
 
