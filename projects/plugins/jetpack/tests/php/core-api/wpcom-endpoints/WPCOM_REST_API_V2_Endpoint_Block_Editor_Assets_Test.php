@@ -49,12 +49,16 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 */
 	public function mock_block_editor_assets() {
 		// Register minimal mock assets that don't require actual files
-		wp_register_script( 'mock-editor-script', 'http://example.org/mock-editor.js', array(), '1.0', true );
-		wp_register_style( 'mock-editor-style', 'http://example.org/mock-editor.css', array(), '1.0' );
+		wp_register_script( 'mock-editor-script', 'http://example.org/plugins/jetpack/mock-editor.js', array(), '1.0', true );
+		wp_register_style( 'mock-editor-style', 'http://example.org/plugins/jetpack/mock-editor.css', array(), '1.0' );
+		wp_register_script( 'disallowed-plugin-script', 'http://example.org/plugins/disallowed-plugin/script.js', array(), '1.0', true );
+		wp_register_script( 'disallowed-plugin-style', 'http://example.org/plugins/disallowed-plugin/style.css', array(), '1.0', true );
 
 		// Enqueue our mock assets
 		wp_enqueue_script( 'mock-editor-script' );
 		wp_enqueue_style( 'mock-editor-style' );
+		wp_enqueue_script( 'disallowed-plugin-script' );
+		wp_enqueue_style( 'disallowed-plugin-style' );
 	}
 
 	/**
@@ -169,21 +173,33 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
-	 * Test that disallowed plugin assets are filtered out.
+	 * Test that allowed plugins assets are included.
 	 */
-	public function test_disallowed_plugin_assets_are_filtered() {
+	public function test_get_items_returns_allowed_plugin_assets() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
-
-		// Register a disallowed plugin asset
-		wp_register_script( 'disallowed-plugin', 'http://example.org/disallowed-plugin/script.js', array(), '1.0', true );
-		wp_enqueue_script( 'disallowed-plugin' );
 
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		// Verify the disallowed plugin script is not in the output
-		$this->assertStringNotContainsString( 'disallowed-plugin/script.js', $data['scripts'] );
+		// Verify the allowed plugin script and style are in the output
+		$this->assertStringContainsString( 'mock-editor-script', $data['scripts'] );
+		$this->assertStringContainsString( 'mock-editor-style', $data['styles'] );
+	}
+
+	/**
+	 * Test that disallowed plugin assets are filtered out.
+	 */
+	public function test_disallowed_plugin_assets_are_filtered() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify the disallowed plugin script and style are not in the output
+		$this->assertStringNotContainsString( 'disallowed-plugin-script', $data['scripts'] );
+		$this->assertStringNotContainsString( 'disallowed-plugin-style', $data['styles'] );
 	}
 
 	/**
@@ -191,9 +207,6 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 */
 	public function test_protected_handles_are_preserved() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
-
-		// Ensure jQuery (a protected handle) is enqueued
-		wp_enqueue_script( 'jquery' );
 
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$response = $this->server->dispatch( $request );
