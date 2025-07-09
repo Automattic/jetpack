@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { useId, useMemo, useContext, useState, useRef } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
+import { useChartLegendData } from '../chart-legend/use-chart-legend-data';
 import { Legend } from '../legend';
 import { DefaultGlyph } from '../shared/default-glyph';
 import { useChartDataTransform } from '../shared/use-chart-data-transform';
@@ -272,27 +273,12 @@ const LineChartInternal: FC< LineChartProps > = ( {
 	const error = validateData( dataSorted );
 	const isDataValid = ! error;
 
-	// Create legend items (hooks must be called in same order every render)
-	const legendItems = useMemo(
-		() =>
-			dataSorted.map( ( group, index ) => ( {
-				label: group.label, // Label for each unique group
-				value: '', // Empty string since we don't want to show a specific value
-				color:
-					group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
-				shapeStyle: group?.options?.legendShapeStyle,
-				renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
-				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
-			} ) ),
-		[
-			dataSorted,
-			providerTheme.colors,
-			providerTheme.glyphs,
-			withLegendGlyph,
-			renderGlyph,
-			glyphStyle?.radius,
-		]
-	);
+	// Create legend items using the reusable hook
+	const legendItems = useChartLegendData( dataSorted, providerTheme, {
+		withGlyph: withLegendGlyph,
+		glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
+		renderGlyph,
+	} );
 
 	// Register chart with context only if data is valid
 	useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, {
