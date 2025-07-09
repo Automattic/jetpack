@@ -21,7 +21,7 @@ import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
-import LineChartAnnotations from './line-chart-annotations-overlay';
+import LineChartAnnotationsOverlay from './line-chart-annotations-overlay';
 import styles from './line-chart.module.scss';
 import type { LineChartAnnotationProps } from './line-chart-annotation';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
@@ -502,7 +502,7 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 
 				{ /* Render annotations as external overlay to avoid interaction blocking */ }
 				{ annotations?.length && (
-					<LineChartAnnotations
+					<LineChartAnnotationsOverlay
 						chartRef={ internalChartRef }
 						annotations={ annotations }
 						chartWidth={ width }

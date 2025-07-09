@@ -19,7 +19,7 @@ interface ScaleData {
 	yScale: AxisScale< number >;
 }
 
-const LineChartAnnotations: FC< LineChartAnnotationsProps > = ( {
+const LineChartAnnotationsOverlay: FC< LineChartAnnotationsProps > = ( {
 	chartRef,
 	annotations,
 	chartWidth,
@@ -148,4 +148,4 @@ const LineChartAnnotations: FC< LineChartAnnotationsProps > = ( {
 	);
 };
 
-export default LineChartAnnotations;
+export default LineChartAnnotationsOverlay;
