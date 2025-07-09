@@ -21,11 +21,6 @@ const meta: Meta< typeof SplitButton > = {
 			},
 		],
 	},
-	parameters: {
-		backgrounds: {
-			default: 'dark',
-		},
-	},
 };
 
 export default meta;
