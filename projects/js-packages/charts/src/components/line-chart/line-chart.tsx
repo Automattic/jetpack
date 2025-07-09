@@ -534,4 +534,7 @@ const LineChart: FC< LineChartProps > = props => (
 
 LineChart.displayName = 'LineChart';
 
+// Export unwrapped component for testing
+export { LineChart as LineChartUnwrapped };
+
 export default withResponsive< LineChartProps >( LineChart );

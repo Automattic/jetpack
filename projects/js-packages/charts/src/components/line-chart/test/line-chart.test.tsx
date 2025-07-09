@@ -5,9 +5,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
-import { createElement } from 'react';
+import { createElement, createRef } from 'react';
 import { jetpackTheme, ThemeProvider, wooTheme } from '../../../providers/theme';
-import LineChart from '../line-chart';
+import LineChart, { LineChartRef, LineChartUnwrapped } from '../line-chart';
 
 const customTheme = {
 	...jetpackTheme,
@@ -57,6 +57,17 @@ describe( 'LineChart', () => {
 			<ThemeProvider theme={ theme }>
 				{ /* @ts-expect-error TODO Fix the missing props */ }
 				<LineChart { ...defaultProps } { ...props } />
+			</ThemeProvider>
+		);
+	};
+
+	const renderUnwrappedWithTheme = ( props = {}, themeName = 'jetpack', ref = undefined ) => {
+		const theme = THEME_MAP[ themeName ];
+
+		return render(
+			<ThemeProvider theme={ theme }>
+				{ /* @ts-expect-error TODO Fix the missing props */ }
+				<LineChartUnwrapped { ...defaultProps } { ...props } ref={ ref } />
 			</ThemeProvider>
 		);
 	};
@@ -352,6 +363,26 @@ describe( 'LineChart', () => {
 			expect( legendItems ).toHaveLength( 2 );
 
 			expect( screen.queryByTestId( /legend-glyph/i ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Chart Ref Interface', () => {
+		test( 'exposes getScales method via ref', () => {
+			const ref = createRef< LineChartRef >();
+			renderUnwrappedWithTheme( {}, 'jetpack', ref );
+
+			expect( ref.current?.getScales() ).toBeDefined();
+			expect( ref.current?.getScales()?.xScale ).toBeDefined();
+			expect( ref.current?.getScales()?.yScale ).toBeDefined();
+		} );
+
+		test( 'exposes getChartDimensions method via ref', () => {
+			const ref = createRef< LineChartRef >();
+			renderUnwrappedWithTheme( { width: 800, height: 400 }, 'jetpack', ref );
+
+			const dimensions = ref.current?.getChartDimensions();
+			expect( dimensions?.width ).toBe( 800 );
+			expect( dimensions?.height ).toBe( 400 );
 		} );
 	} );
 
