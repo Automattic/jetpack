@@ -30,34 +30,40 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	private $supported_integrations = array(
 		'akismet'                           => array(
-			'type'         => 'plugin',
-			'file'         => 'akismet/akismet.php',
-			'settings_url' => 'admin.php?page=akismet-key-config',
+			'type'          => 'plugin',
+			'file'          => 'akismet/akismet.php',
+			'settings_url'  => 'admin.php?page=akismet-key-config',
+			'marketing_url' => null,
 		),
 		'creative-mail-by-constant-contact' => array(
-			'type'         => 'plugin',
-			'file'         => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
-			'settings_url' => 'admin.php?page=creativemail',
+			'type'          => 'plugin',
+			'file'          => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
+			'settings_url'  => 'admin.php?page=creativemail',
+			'marketing_url' => null,
 		),
 		'zero-bs-crm'                       => array(
-			'type'         => 'plugin',
-			'file'         => 'zero-bs-crm/ZeroBSCRM.php',
-			'settings_url' => 'admin.php?page=zerobscrm-plugin-settings',
+			'type'          => 'plugin',
+			'file'          => 'zero-bs-crm/ZeroBSCRM.php',
+			'settings_url'  => 'admin.php?page=zerobscrm-plugin-settings',
+			'marketing_url' => null,
 		),
 		'salesforce'                        => array(
-			'type'         => 'service',
-			'file'         => null,
-			'settings_url' => null,
+			'type'          => 'service',
+			'file'          => null,
+			'settings_url'  => null,
+			'marketing_url' => null,
 		),
 		'google-drive'                      => array(
-			'type'         => 'service',
-			'file'         => null,
-			'settings_url' => null,
+			'type'          => 'service',
+			'file'          => null,
+			'settings_url'  => null,
+			'marketing_url' => null,
 		),
 		'mailpoet'                          => array(
-			'type'         => 'plugin',
-			'file'         => 'mailpoet/mailpoet.php',
-			'settings_url' => 'admin.php?page=mailpoet-homepage',
+			'type'          => 'plugin',
+			'file'          => 'mailpoet/mailpoet.php',
+			'settings_url'  => 'admin.php?page=mailpoet-homepage',
+			'marketing_url' => null,
 		),
 	);
 
@@ -798,6 +804,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'needsConnection' => true,
 			'isConnected'     => false,
 			'settingsUrl'     => $config['settings_url'] ?? null,
+			'marketingUrl'    => $config['marketing_url'] ?? null,
 			'pluginFile'      => null,
 			'isInstalled'     => false,
 			'isActive'        => false,
@@ -855,6 +862,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'isConnected'     => false,
 			'version'         => $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null,
 			'settingsUrl'     => $is_active ? admin_url( $plugin_config['settings_url'] ) : null,
+			'marketingUrl'    => $plugin_config['marketing_url'] ?? null,
 			'details'         => array(),
 		);
 
@@ -865,8 +873,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				$response['isConnected']                       = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
 				$response['details']['formSubmissionsSpamUrl'] = $dashboard_view_switch->get_forms_admin_url( 'spam' );
 				$response['needsConnection']                   = true;
+				$response['marketingUrl']                      = Redirect::get_url( 'org-spam' );
 				break;
 			case 'zero-bs-crm':
+				$response['marketingUrl'] = Redirect::get_url( 'org-crm' );
 				if ( $is_active ) {
 					$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
 					$response['details'] = array(
@@ -877,12 +887,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				break;
 			case 'mailpoet':
 				$response['needsConnection'] = true;
+				$response['marketingUrl']    = Redirect::get_url( 'org-mailpoet' );
 				if ( class_exists( '\MailPoet\Config\ServicesChecker' ) ) {
 					$checker = new \MailPoet\Config\ServicesChecker(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the class exists first
 					if ( method_exists( $checker, 'isMailPoetAPIKeyValid' ) ) {
 						$response['isConnected'] = (bool) $checker->isMailPoetAPIKeyValid( false ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the method exists first
 					}
 				}
+				break;
+			case 'creative-mail-by-constant-contact':
+				$response['marketingUrl'] = Redirect::get_url( 'creative-mail' );
 				break;
 		}
 
