@@ -4,15 +4,12 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-W7bUX7rIwKRs9z9a9qge8gb/1VnmD20KsGBpZ3gEDGs=
+pnpmfileChecksum: sha256-OlA7ZBIsRwcw87lyLLIUiIXYjHnudySVsC24kjwLo30=
 
 patchedDependencies:
   '@wordpress/dataviews':
     hash: 9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1
     path: .pnpm-patches/@wordpress__dataviews@4.12.0.patch
-  storybook-addon-mock:
-    hash: 455c21ee375589200a7aba70d4a3e74b3f2a76b86aa283c21b039ced8d37d769
-    path: .pnpm-patches/storybook-addon-mock.patch
 
 importers:
 
@@ -1798,8 +1795,8 @@ importers:
         specifier: 9.0.15
         version: 9.0.15(@testing-library/dom@10.4.0)
       storybook-addon-mock:
-        specifier: 5.0.0
-        version: 5.0.0(patch_hash=455c21ee375589200a7aba70d4a3e74b3f2a76b86aa283c21b039ced8d37d769)(@testing-library/dom@10.4.0)(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 6.0.1
+        version: 6.0.1(@storybook/addon-docs@9.0.15(@types/react@18.3.23)(storybook@9.0.15(@testing-library/dom@10.4.0)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.0.15(@testing-library/dom@10.4.0))
       style-loader:
         specifier: 2.0.0
         version: 2.0.0(webpack@5.94.0)
@@ -14891,11 +14888,13 @@ packages:
   store@2.0.12:
     resolution: {integrity: sha512-eO9xlzDpXLiMr9W1nQ3Nfp9EzZieIQc10zPPMP5jsVV7bLOziSFFBP0XoDXACEIFtdI+rIz0NwWVA/QVJ8zJtw==}
 
-  storybook-addon-mock@5.0.0:
-    resolution: {integrity: sha512-AGhfdAsksusJgh/VNcaGbXe1gJIVx8RKuPYMCkmCRyeMAEZggrWcU7nIADZWUJuD477mKUkaBP7I54p+3527Xg==}
+  storybook-addon-mock@6.0.1:
+    resolution: {integrity: sha512-e9FbHLCGBbz0aXuq3lHIe8Fx4jsowdrT9NAWlYfmteE0Rj9rz32Nvi8GXrtXdBPQyeSP/ew8IUVlyu8WV3OUmQ==}
     peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      '@storybook/addon-docs': ^9.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      storybook: ^9.0.12
     peerDependenciesMeta:
       react:
         optional: true
@@ -29192,7 +29191,7 @@ snapshots:
 
   store@2.0.12: {}
 
-  storybook-addon-mock@5.0.0(patch_hash=455c21ee375589200a7aba70d4a3e74b3f2a76b86aa283c21b039ced8d37d769)(@testing-library/dom@10.4.0)(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  storybook-addon-mock@6.0.1(@storybook/addon-docs@9.0.15(@types/react@18.3.23)(storybook@9.0.15(@testing-library/dom@10.4.0)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.0.15(@testing-library/dom@10.4.0)):
     dependencies:
       '@storybook/addon-docs': 9.0.15(@types/react@18.3.23)(storybook@9.0.15(@testing-library/dom@10.4.0))
       mock-xmlhttprequest: 8.4.1
@@ -29204,13 +29203,6 @@ snapshots:
     optionalDependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-    transitivePeerDependencies:
-      - '@testing-library/dom'
-      - '@types/react'
-      - bufferutil
-      - prettier
-      - supports-color
-      - utf-8-validate
 
   storybook@9.0.15(@testing-library/dom@10.4.0):
     dependencies:

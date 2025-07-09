@@ -43,8 +43,7 @@
 	"packageManager": "pnpm@10.4.0",
 	"pnpm": {
 		"patchedDependencies": {
-			"@wordpress/dataviews": ".pnpm-patches/@wordpress__dataviews@4.12.0.patch",
-			"storybook-addon-mock": ".pnpm-patches/storybook-addon-mock.patch"
+			"@wordpress/dataviews": ".pnpm-patches/@wordpress__dataviews@4.12.0.patch"
 		},
 		"ignoredBuiltDependencies": [
 			"@swc/core",
