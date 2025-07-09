@@ -162,12 +162,18 @@ class Script_Data {
 
 		$data = array(
 			'site' => array(
-				'icon'              => self::get_site_icon(),
-				'title'             => self::get_site_title(),
-				'host'              => ( new Host() )->get_known_host_guess(),
-				'is_wpcom_platform' => ( new Host() )->is_wpcom_platform(),
+				'icon'  => self::get_site_icon(),
+				'title' => self::get_site_title(),
 			),
 		);
+
+		// if site site is a P2 site, then add the host information
+		$site_id    = \Jetpack_Options::get_option( 'id' );
+		$is_p2_site = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $site_id );
+		if ( $is_p2_site ) {
+			$data['site']['host']              = ( new Host() )->get_known_host_guess();
+			$data['site']['is_wpcom_platform'] = ( new Host() )->is_wpcom_platform();
+		}
 
 		/**
 		 * Filter the public script data.

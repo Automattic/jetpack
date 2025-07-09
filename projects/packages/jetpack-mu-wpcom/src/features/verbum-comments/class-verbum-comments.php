@@ -308,6 +308,20 @@ class Verbum_Comments {
 				'enqueue'   => true,
 			)
 		);
+
+		// Filter to ensure JetpackScriptData.site.host is set, to ensure Jetpack blocks work as expected via Verbum Comments.
+		add_filter(
+			'jetpack_public_js_script_data',
+			function ( $data ) {
+				if ( ! isset( $data['site']['host'] ) ) {
+					$data['site']['host']              = ( new \Automattic\Jetpack\Status\Host() )->get_known_host_guess();
+					$data['site']['is_wpcom_platform'] = ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform();
+				}
+				return $data;
+			},
+			10,
+			1
+		);
 	}
 
 	/**
