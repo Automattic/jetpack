@@ -89,6 +89,16 @@ const GoogleSheetsDashboardCard = ( {
 						<Button variant="link" onClick={ handleViewResponsesClick }>
 							{ __( 'View Form Responses', 'jetpack-forms' ) }
 						</Button>
+						<span>|</span>
+						<Button
+							variant="link"
+							onClick={ handleConnectClick }
+							target="_blank"
+							rel="noopener noreferrer"
+							disabled={ ! settingsUrl }
+						>
+							{ __( 'Disconnect Google Drive', 'jetpack-forms' ) }
+						</Button>
 					</div>
 				</div>
 			) }
