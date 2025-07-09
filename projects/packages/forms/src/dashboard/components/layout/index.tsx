@@ -104,7 +104,10 @@ const Layout = () => {
 					<JetpackFormsLogo />
 				</div>
 				{ isSm ? (
-					<ActionsDropdownMenu exportData={ { show: isResponsesTab } } />
+					<>
+						{ isResponsesTab && isResponsesTrashView && <EmptyTrashButton /> }
+						<ActionsDropdownMenu exportData={ { show: isResponsesTab } } />
+					</>
 				) : (
 					<div className="jp-forms__layout-header-actions">
 						{ isResponsesTab && <ExportResponsesButton /> }
