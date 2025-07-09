@@ -93,7 +93,7 @@ const AkismetDashboardCard = ( {
 					<p className="integration-card__description">
 						{ __( 'Your forms are automatically protected with Akismet.', 'jetpack-forms' ) }
 					</p>
-					<div className="integration-card__links">
+					<HStack spacing="2" justify="start">
 						<Button variant="link" onClick={ handleViewSpamClick }>
 							{ __( 'View spam', 'jetpack-forms' ) }
 						</Button>
@@ -105,7 +105,7 @@ const AkismetDashboardCard = ( {
 						<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
 							{ __( 'Learn about Akismet', 'jetpack-forms' ) }
 						</ExternalLink>
-					</div>
+					</HStack>
 				</div>
 			) }
 		</IntegrationCard>
