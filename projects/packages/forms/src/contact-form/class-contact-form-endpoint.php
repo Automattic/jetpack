@@ -24,46 +24,66 @@ use WP_REST_Response;
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 	/**
-	 * Supported integrations configuration
+	 * Supported integrations configuration.
+	 *
+	 * Each integration array supports the following keys:
+	 * - type (string)                  : 'plugin' or 'service'
+	 * - file (string|null)             : Plugin file path (for plugins), or null for services
+	 * - settings_url (string|null)     : Relative admin URL for settings, or null if none
+	 * - jetpack_redirect_slug (string|null) : Slug for Redirect::get_url(), or null if none
+	 *
+	 * For jetpack_redirect_slug, you'll need to add those here first:
+	 * https://mc.a8c.com/jetpack-crew/redirects/
+	 *
+	 * Example:
+	 * [
+	 *   'akismet' => [
+	 *     'type' => 'plugin',
+	 *     'file' => 'akismet/akismet.php',
+	 *     'settings_url' => 'admin.php?page=akismet-key-config',
+	 *     'jetpack_redirect_slug' => 'org-spam',
+	 *   ],
+	 *   ...
+	 * ]
 	 *
 	 * @var array
 	 */
 	private $supported_integrations = array(
 		'akismet'                           => array(
-			'type'          => 'plugin',
-			'file'          => 'akismet/akismet.php',
-			'settings_url'  => 'admin.php?page=akismet-key-config',
-			'marketing_url' => null,
+			'type'                  => 'plugin',
+			'file'                  => 'akismet/akismet.php',
+			'settings_url'          => 'admin.php?page=akismet-key-config',
+			'jetpack_redirect_slug' => 'org-spam',
 		),
 		'creative-mail-by-constant-contact' => array(
-			'type'          => 'plugin',
-			'file'          => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
-			'settings_url'  => 'admin.php?page=creativemail',
-			'marketing_url' => null,
+			'type'                  => 'plugin',
+			'file'                  => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
+			'settings_url'          => 'admin.php?page=creativemail',
+			'jetpack_redirect_slug' => 'creative-mail',
 		),
 		'zero-bs-crm'                       => array(
-			'type'          => 'plugin',
-			'file'          => 'zero-bs-crm/ZeroBSCRM.php',
-			'settings_url'  => 'admin.php?page=zerobscrm-plugin-settings',
-			'marketing_url' => null,
+			'type'                  => 'plugin',
+			'file'                  => 'zero-bs-crm/ZeroBSCRM.php',
+			'settings_url'          => 'admin.php?page=zerobscrm-plugin-settings',
+			'jetpack_redirect_slug' => 'org-crm',
 		),
 		'salesforce'                        => array(
-			'type'          => 'service',
-			'file'          => null,
-			'settings_url'  => null,
-			'marketing_url' => null,
+			'type'                  => 'service',
+			'file'                  => null,
+			'settings_url'          => null,
+			'jetpack_redirect_slug' => null,
 		),
 		'google-drive'                      => array(
-			'type'          => 'service',
-			'file'          => null,
-			'settings_url'  => null,
-			'marketing_url' => null,
+			'type'                  => 'service',
+			'file'                  => null,
+			'settings_url'          => null,
+			'jetpack_redirect_slug' => null,
 		),
 		'mailpoet'                          => array(
-			'type'          => 'plugin',
-			'file'          => 'mailpoet/mailpoet.php',
-			'settings_url'  => 'admin.php?page=mailpoet-homepage',
-			'marketing_url' => null,
+			'type'                  => 'plugin',
+			'file'                  => 'mailpoet/mailpoet.php',
+			'settings_url'          => 'admin.php?page=mailpoet-homepage',
+			'jetpack_redirect_slug' => 'org-mailpoet',
 		),
 	);
 
@@ -795,7 +815,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return array Service status data.
 	 */
 	private function get_service_status( $slug ) {
-		$config = $this->get_supported_integrations()[ $slug ];
+		$config        = $this->get_supported_integrations()[ $slug ];
+		$redirect_slug = $config['jetpack_redirect_slug'] ?? null;
 
 		// Default response for all integrations
 		$response = array(
@@ -804,7 +825,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'needsConnection' => true,
 			'isConnected'     => false,
 			'settingsUrl'     => $config['settings_url'] ?? null,
-			'marketingUrl'    => $config['marketing_url'] ?? null,
+			'marketingUrl'    => $redirect_slug ? Redirect::get_url( $redirect_slug ) : null,
 			'pluginFile'      => null,
 			'isInstalled'     => false,
 			'isActive'        => false,
@@ -847,6 +868,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$integrations  = $this->get_supported_integrations();
 		$plugin_config = $integrations[ $plugin_slug ];
+		$redirect_slug = $plugin_config['jetpack_redirect_slug'] ?? null;
 
 		$installed_plugins = get_plugins();
 		$is_installed      = isset( $installed_plugins[ $plugin_config['file'] ] );
@@ -862,7 +884,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'isConnected'     => false,
 			'version'         => $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null,
 			'settingsUrl'     => $is_active ? admin_url( $plugin_config['settings_url'] ) : null,
-			'marketingUrl'    => $plugin_config['marketing_url'] ?? null,
+			'marketingUrl'    => $redirect_slug ? Redirect::get_url( $redirect_slug ) : null,
 			'details'         => array(),
 		);
 
@@ -873,10 +895,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				$response['isConnected']                       = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
 				$response['details']['formSubmissionsSpamUrl'] = $dashboard_view_switch->get_forms_admin_url( 'spam' );
 				$response['needsConnection']                   = true;
-				$response['marketingUrl']                      = Redirect::get_url( 'org-spam' );
 				break;
 			case 'zero-bs-crm':
-				$response['marketingUrl'] = Redirect::get_url( 'org-crm' );
 				if ( $is_active ) {
 					$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
 					$response['details'] = array(
@@ -887,7 +907,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				break;
 			case 'mailpoet':
 				$response['needsConnection'] = true;
-				$response['marketingUrl']    = Redirect::get_url( 'org-mailpoet' );
 				if ( class_exists( '\MailPoet\Config\ServicesChecker' ) ) {
 					$checker = new \MailPoet\Config\ServicesChecker(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- we're checking the class exists first
 					if ( method_exists( $checker, 'isMailPoetAPIKeyValid' ) ) {
@@ -896,7 +915,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				}
 				break;
 			case 'creative-mail-by-constant-contact':
-				$response['marketingUrl'] = Redirect::get_url( 'creative-mail' );
 				break;
 		}
 
