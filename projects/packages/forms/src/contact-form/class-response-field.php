@@ -108,6 +108,20 @@ class Response_Field {
 	 * @return string
 	 */
 	public function get_render_value() {
+		if ( $this->is_file_field() ) {
+			$files = array();
+			foreach ( $this->value['files'] as &$file ) {
+				if ( ! isset( $file['size'] ) || ! isset( $file['file_id'] ) ) {
+					// this shouldn't happen, todo: log this
+					continue;
+				}
+				$file_name = isset( $file['name'] ) ? $file['name'] : __( 'Attached file', 'jetpack-forms' );
+				$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
+				$files[]   = $file_name . ' (' . $file_size . ')';
+			}
+			$this->value = $files;
+			// If the value is a file field, we can return it as a JSON string
+		}
 		if ( is_array( $this->value ) ) {
 			// If the value is an array, we can return it as a JSON string.
 			return implode( ', ', $this->value );

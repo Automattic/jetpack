@@ -848,13 +848,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Returns a compiled form with labels and values in a form of  an array
 	 * of lines.
 	 *
-	 * @param int          $feedback_id - the feedback ID.
-	 * @param Contact_Form $form - the form.
+	 * @param int               $feedback_id - the feedback ID.
+	 * @param Contact_Form|null $form - the contact form object. This parameter is deprecated and no longer used.
 	 *
 	 * @return array $lines
 	 */
-	public static function get_compiled_form( $feedback_id, $form ) {
-		$compiled_form = self::get_raw_compiled_form_data( $feedback_id, $form );
+	public static function get_compiled_form( $feedback_id, $form = null ) {
+		if ( $form ) {
+			// you are doing it wrong, the $form parameter is deprecated and no longer used
+			_deprecated_argument( __METHOD__, '$$next-version$$', 'The $form parameter is deprecated and no longer used.' );
+		}
+		$compiled_form = self::get_raw_compiled_form_data( $feedback_id );
 
 		foreach ( $compiled_form as $field_index => $data ) {
 			$safe_display_value = self::escape_and_sanitize_field_value( $data['value'] );
@@ -888,138 +892,36 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Returns the JSON data for the form submission.
 	 *
-	 * @param int          $feedback_id - the feedback ID.
-	 * @param Contact_Form $form - the form.
+	 * @param int $feedback_id - the feedback ID.
+	 *
 	 *
 	 * @return array $json_data
 	 */
-	public static function get_json_data( $feedback_id, $form ) {
-		$raw_data  = self::get_raw_compiled_form_data( $feedback_id, $form );
-		$json_data = array();
-
-		// Handle file upload field (new structure with field_id and files array)
-		foreach ( $raw_data as $field_data ) {
-			$value = $field_data['value'];
-			$label = $field_data['label'];
-
-			if ( self::is_file_upload_field( $value ) ) {
-				$files = $value['files'];
-
-				if ( empty( $files ) ) {
-					continue;
-				}
-
-				foreach ( $files as $file ) {
-					if ( ! empty( $file['file_id'] ) ) {
-						$file_name = isset( $file['name'] ) ? $file['name'] : __( 'Attached file', 'jetpack-forms' );
-						$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
-
-						$json_data[] = array(
-							'label' => $label,
-							'value' => array(
-								'name' => $file_name,
-								'size' => $file_size,
-							),
-						);
-					}
-				}
-			} else {
-				$json_data[] = array(
-					'label' => $label,
-					'value' => $value,
-				);
-			}
+	public static function get_json_data( $feedback_id, $form = null ) {
+		if ( $form ) {
+			// you are doing it wrong, the $form parameter is deprecated and no longer used
+			_deprecated_argument( __METHOD__, '$$next-version$$', 'The $form parameter is deprecated and no longer used.' );
 		}
 
-		return $json_data;
+		return self::get_raw_compiled_form_data( $feedback_id );
 	}
 
 	/**
 	 * Retrieves raw compiled form data.
 	 *
-	 * @param int          $feedback_id - the feedback ID.
-	 * @param Contact_Form $form - the form.
+	 * @param int               $feedback_id - the feedback ID.
+	 * @param Contact_Form|null $form - the contact form object. This parameter is deprecated and no longer used.
 	 *
 	 * @return array $raw_data Associative array where keys are field_index and values are arrays with 'label' and 'value'.
 	 */
-	private static function get_raw_compiled_form_data( $feedback_id, $form ) {
-		$feedback       = get_post( $feedback_id );
-		$field_ids      = $form->get_field_ids();
-		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $feedback_id );
-
-		// Maps field_ids to post_meta keys
-		$field_value_map = array(
-			'name'     => 'author',
-			'email'    => 'author_email',
-			'url'      => 'author_url',
-			'subject'  => 'subject',
-			'textarea' => false, // not a post_meta key.  This is stored in post_content
-		);
-
-		$raw_data = array();
-
-		// "Standard" field allowed list.
-		foreach ( $field_value_map as $type => $meta_key ) {
-			if ( isset( $field_ids[ $type ] ) ) {
-				$field = $form->fields[ $field_ids[ $type ] ];
-				$value = null;
-
-				if ( $meta_key ) {
-					if ( isset( $content_fields[ "_feedback_{$meta_key}" ] ) ) {
-						if ( 'name' === $type ) {
-							// If a form contains both email and name fields but the user doesn't provide a name, we don't need to show the name field
-							// in the success message after submision. We have this specific check because in the above case the `author` field gets
-							// a fallback value of the provided email and is used in the backend in various places.
-							if ( isset( $content_fields['_feedback_author_email'] ) && $content_fields['_feedback_author'] === $content_fields['_feedback_author_email'] ) {
-								continue;
-							}
-						}
-						$value = $content_fields[ "_feedback_{$meta_key}" ];
-					}
-				} else {
-					// The feedback content is stored as the first "half" of post_content
-					$current_value         = ( is_object( $feedback ) && is_a( $feedback, '\WP_Post' ) ) ?
-									$feedback->post_content : '';
-					list( $current_value ) = explode( '<!--more-->', $current_value );
-					$value                 = trim( $current_value );
-				}
-
-				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
-				$field_label = $field->get_attribute( 'label' );
-
-				$raw_data[ $field_index ] = array(
-					'label' => $field_label,
-					'value' => $value,
-				);
-			}
+	private static function get_raw_compiled_form_data( $feedback_id, $form = null ) {
+		if ( $form ) {
+			// you are doing it wrong, the $form parameter is deprecated and no longer used.
+			_deprecated_argument( __METHOD__, '$$next-version$$', 'The $form parameter is deprecated and no longer used.' );
 		}
 
-		// "Non-standard" fields
-		if ( $field_ids['extra'] ) {
-			// array indexed by field label (not field id)
-			$extra_fields = get_post_meta( $feedback_id, '_feedback_extra_fields', true );
-			/**
-			 * Only get data for the compiled form if `$extra_fields` is a valid and non-empty array.
-			 */
-			if ( is_array( $extra_fields ) && ! empty( $extra_fields ) ) {
-
-				$extra_field_keys = array_keys( $extra_fields );
-
-				$i = 0;
-				foreach ( $field_ids['extra'] as $field_id ) {
-					$field                    = $form->fields[ $field_id ];
-					$field_index              = array_search( $field_id, $field_ids['all'], true );
-					$field_label              = $field->get_attribute( 'label' );
-					$value                    = isset( $extra_field_keys[ $i ] ) && isset( $extra_fields[ $extra_field_keys[ $i ] ] ) ? $extra_fields[ $extra_field_keys[ $i ] ] : '';
-					$raw_data[ $field_index ] = array(
-						'label' => $field_label,
-						'value' => $value,
-					);
-					++$i;
-				}
-			}
-		}
-		return $raw_data;
+		$response = Form_Response::get( $feedback_id );
+		return $response->get_compiled_fields();
 	}
 
 	/**
@@ -1032,7 +934,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array $lines
 	 */
 	public static function get_compiled_form_for_email( $feedback_id, $form ) {
-		$compiled_form = self::get_raw_compiled_form_data( $feedback_id, $form );
+		$compiled_form = self::get_raw_compiled_form_data( $feedback_id );
 
 		/**
 		 * This filter allows a site owner to customize the response to be emailed, by adding their own HTML around it for example.
@@ -2157,7 +2059,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			echo wp_json_encode(
 				array(
 					'success'     => true,
-					'data'        => self::get_json_data( $post_id, $this ),
+					'data'        => self::get_json_data( $post_id ),
 					'refreshArgs' => $refresh_args,
 				)
 			);
