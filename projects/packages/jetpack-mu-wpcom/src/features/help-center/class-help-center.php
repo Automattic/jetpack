@@ -214,13 +214,15 @@ class Help_Center {
 			);
 		}
 
-		wp_enqueue_script(
-			'wpcom-upsell-support-link-handler',
-			plugins_url( 'build/wpcom-upsell-support-link-handler/wpcom-upsell-support-link-handler.js', Jetpack_Mu_Wpcom::BASE_FILE ),
-			array(),
-			filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-upsell-support-link-handler/wpcom-upsell-support-link-handler.js' ),
-			true
-		);
+		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
+			wp_enqueue_script(
+				'wpcom-upsell-support-link-handler',
+				plugins_url( 'build/wpcom-upsell-support-link-handler/wpcom-upsell-support-link-handler.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+				array(),
+				filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-upsell-support-link-handler/wpcom-upsell-support-link-handler.js' ),
+				true
+			);
+		}
 	}
 
 	/**
