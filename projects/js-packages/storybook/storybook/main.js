@@ -32,7 +32,6 @@ const sbconfig = {
 			},
 		},
 		'@storybook/addon-a11y',
-		'storybook-addon-mock',
 		'@storybook/addon-webpack5-compiler-babel',
 	],
 	webpackFinal: async config => {

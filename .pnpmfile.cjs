@@ -261,15 +261,6 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies[ 'jest-runner' ] += ' || ^30.0.0';
 	}
 
-	// Missing (peer) dependency
-	if (
-		pkg.name === 'storybook-addon-mock' &&
-		! pkg.dependencies[ '@storybook/addon-docs' ] &&
-		! pkg.peerDependencies[ '@storybook/addon-docs' ]
-	) {
-		pkg.peerDependencies[ '@storybook/addon-docs' ] = '^9.0.0';
-	}
-
 	return pkg;
 }
 

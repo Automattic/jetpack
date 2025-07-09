@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-OlA7ZBIsRwcw87lyLLIUiIXYjHnudySVsC24kjwLo30=
+pnpmfileChecksum: sha256-2RWt9BReVcA35xVy6JLbjZIgQVQ3dITJDdKImJz5DuE=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -1794,9 +1794,6 @@ importers:
       storybook:
         specifier: 9.0.15
         version: 9.0.15(@testing-library/dom@10.4.0)
-      storybook-addon-mock:
-        specifier: 6.0.1
-        version: 6.0.1(@storybook/addon-docs@9.0.15(@types/react@18.3.23)(storybook@9.0.15(@testing-library/dom@10.4.0)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.0.15(@testing-library/dom@10.4.0))
       style-loader:
         specifier: 2.0.0
         version: 2.0.0(webpack@5.94.0)
@@ -13053,10 +13050,6 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  mock-xmlhttprequest@8.4.1:
-    resolution: {integrity: sha512-2ORxRN+h40+3/Ylw9LKOtYGfQIoX6grGQlmbvMKqaeZ5/l7oeMvqdJxyG/ax3Poy7VbqMTADI6BwTmO7u10Wrw==}
-    engines: {node: '>=16.0.0'}
-
   module-details-from-path@1.0.4:
     resolution: {integrity: sha512-EGWKgxALGMgzvxYF1UyGTy0HXX/2vHLkw6+NvDKW2jypWbHpjQuj4UMcqQWXHERJhVGKikolT06G3bcKe4fi7w==}
 
@@ -13538,10 +13531,6 @@ packages:
   pluralize@8.0.0:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
     engines: {node: '>=4'}
-
-  polished@4.3.1:
-    resolution: {integrity: sha512-OBatVyC/N7SCW/FaDHrSd+vn0o5cS855TOmYi4OkdWUMSJCET/xip//ch8xGUvtr3i44X9LVyWwQlRMTN3pwSA==}
-    engines: {node: '>=10'}
 
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
@@ -14888,19 +14877,6 @@ packages:
   store@2.0.12:
     resolution: {integrity: sha512-eO9xlzDpXLiMr9W1nQ3Nfp9EzZieIQc10zPPMP5jsVV7bLOziSFFBP0XoDXACEIFtdI+rIz0NwWVA/QVJ8zJtw==}
 
-  storybook-addon-mock@6.0.1:
-    resolution: {integrity: sha512-e9FbHLCGBbz0aXuq3lHIe8Fx4jsowdrT9NAWlYfmteE0Rj9rz32Nvi8GXrtXdBPQyeSP/ew8IUVlyu8WV3OUmQ==}
-    peerDependencies:
-      '@storybook/addon-docs': ^9.0.0
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-      storybook: ^9.0.12
-    peerDependenciesMeta:
-      react:
-        optional: true
-      react-dom:
-        optional: true
-
   storybook@9.0.15:
     resolution: {integrity: sha512-r9hwcSMM3dq7dkMveaWFTosrmyHCL2FRrV3JOwVnVWraF6GtCgp2k+r4hsYtyp1bY3zdmK9e4KYzXsGs5q1h/Q==}
     hasBin: true
@@ -15816,9 +15792,6 @@ packages:
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
-
-  whatwg-fetch@3.6.20:
-    resolution: {integrity: sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg==}
 
   whatwg-mimetype@4.0.0:
     resolution: {integrity: sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg==}
@@ -27212,8 +27185,6 @@ snapshots:
 
   mkdirp@1.0.4: {}
 
-  mock-xmlhttprequest@8.4.1: {}
-
   module-details-from-path@1.0.4: {}
 
   moment-timezone@0.5.48:
@@ -27745,10 +27716,6 @@ snapshots:
       fsevents: 2.3.2
 
   pluralize@8.0.0: {}
-
-  polished@4.3.1:
-    dependencies:
-      '@babel/runtime': 7.27.6
 
   possible-typed-array-names@1.1.0: {}
 
@@ -29191,19 +29158,6 @@ snapshots:
 
   store@2.0.12: {}
 
-  storybook-addon-mock@6.0.1(@storybook/addon-docs@9.0.15(@types/react@18.3.23)(storybook@9.0.15(@testing-library/dom@10.4.0)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@9.0.15(@testing-library/dom@10.4.0)):
-    dependencies:
-      '@storybook/addon-docs': 9.0.15(@types/react@18.3.23)(storybook@9.0.15(@testing-library/dom@10.4.0))
-      mock-xmlhttprequest: 8.4.1
-      path-to-regexp: 6.3.0
-      polished: 4.3.1
-      prop-types: 15.8.1
-      storybook: 9.0.15(@testing-library/dom@10.4.0)
-      whatwg-fetch: 3.6.20
-    optionalDependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
   storybook@9.0.15(@testing-library/dom@10.4.0):
     dependencies:
       '@storybook/global': 5.0.0
@@ -30290,8 +30244,6 @@ snapshots:
   whatwg-encoding@3.1.1:
     dependencies:
       iconv-lite: 0.6.3
-
-  whatwg-fetch@3.6.20: {}
 
   whatwg-mimetype@4.0.0: {}
 
