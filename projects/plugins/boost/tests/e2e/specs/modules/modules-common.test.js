@@ -5,7 +5,7 @@ import { JetpackBoostPage } from '../../lib/pages/index.js';
 
 const modules = [
 	// ['MODULE_NAME', 'DEFAULT STATE'],
-	[ 'critical_css', 'disabled' ],
+	[ 'critical_css', 'enabled' ],
 	[ 'render_blocking_js', 'disabled' ],
 ];
 
@@ -17,34 +17,40 @@ test.describe.serial( 'Modules', () => {
 		page = await browser.newPage( playwrightConfig.use );
 
 		await boostPrerequisitesBuilder( page )
+			.withCleanEnv()
 			.withConnection( true )
-			.withInactiveModules( [ 'critical_css', 'render_blocking_js' ] )
+			.withSpeedScoreMocked( true )
 			.build();
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
+	} );
+
+	test.afterAll( async () => {
+		await page.close();
 	} );
 
 	modules.forEach( ( [ moduleSlug, moduleState ] = module ) => {
 		test( `The ${ moduleSlug } module should be ${ moduleState } by default`, async () => {
 			expect(
-				await jetpackBoostPage.isModuleEnabled( moduleSlug ),
+				await jetpackBoostPage.waitForModuleState( moduleSlug, moduleState === 'enabled' ),
 				`${ moduleSlug } should be enabled`
-			).toEqual( moduleState === 'enabled' );
+			).toBeTruthy();
 		} );
 
 		test( `The ${ moduleSlug } module state should toggle to an inverse state`, async () => {
-			await jetpackBoostPage.toggleModule( moduleSlug );
+			await jetpackBoostPage.toggleModule( moduleSlug, moduleState !== 'enabled' );
 			expect(
-				await jetpackBoostPage.isModuleEnabled( moduleSlug ),
-				`${ moduleSlug } should not be enabled`
-			).toEqual( moduleState !== 'enabled' );
+				await jetpackBoostPage.waitForModuleState( moduleSlug, moduleState !== 'enabled' ),
+				`${ moduleSlug } should be enabled`
+			).toBeTruthy();
 		} );
 
 		test( `The ${ moduleSlug } module state should revert back to original state`, async () => {
-			await jetpackBoostPage.toggleModule( moduleSlug );
+			await jetpackBoostPage.toggleModule( moduleSlug, moduleState === 'enabled' );
+
 			expect(
-				await jetpackBoostPage.isModuleEnabled( moduleSlug ),
+				await jetpackBoostPage.waitForModuleState( moduleSlug, moduleState === 'enabled' ),
 				`${ moduleSlug } should be enabled`
-			).toEqual( moduleState === 'enabled' );
+			).toBeTruthy();
 		} );
 	} );
 } );
