@@ -314,7 +314,9 @@ class Verbum_Comments {
 			'jetpack_public_js_script_data',
 			function ( $data ) {
 				if ( ! isset( $data['site']['host'] ) ) {
-					$data['site']['host']              = ( new \Automattic\Jetpack\Status\Host() )->get_known_host_guess();
+					$data['site']['host'] = ( new \Automattic\Jetpack\Status\Host() )->get_known_host_guess();
+				}
+				if ( ! isset( $data['site']['is_wpcom_platform'] ) ) {
 					$data['site']['is_wpcom_platform'] = ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform();
 				}
 				return $data;
