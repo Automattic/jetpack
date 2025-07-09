@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, useRef } from 'react';
+import { createContext, useContext, useCallback, useRef, useMemo } from 'react';
 import type { ChartContextValue, ChartRegistration } from './types';
 import type { FC, ReactNode } from 'react';
 
@@ -23,12 +23,15 @@ export const ChartProvider: FC< ChartProviderProps > = ( { children } ) => {
 		return chartsRef.current.get( id );
 	}, [] );
 
-	const value: ChartContextValue = useMemo(() => ({
-		charts: chartsRef.current,
-		registerChart,
-		unregisterChart,
-		getChartData,
-	}), []);
+	const value: ChartContextValue = useMemo(
+		() => ( {
+			charts: chartsRef.current,
+			registerChart,
+			unregisterChart,
+			getChartData,
+		} ),
+		[ registerChart, unregisterChart, getChartData ]
+	);
 
 	return <ChartContext.Provider value={ value }>{ children }</ChartContext.Provider>;
 };
