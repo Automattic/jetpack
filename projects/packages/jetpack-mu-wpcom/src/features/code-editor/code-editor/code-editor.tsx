@@ -6,7 +6,7 @@
  * The dependcency extraction webpack plugin with modules does not like the jsx-runtime import.
  */
 import type { EditorView } from '@codemirror/view';
-import type { JSX } from 'react';
+import type { JSXElementConstructor, JSX } from 'react';
 
 const React = window.React;
 const { __unstableSerializeAndClean } = window.wp.blocks;
@@ -111,7 +111,8 @@ let EditorContentSlotFill:
 if ( EditorContentSlotFill !== undefined ) {
 	registerPlugin( 'a8c-code-editor--replace-editor', {
 		render: function CodeEditorFill() {
-			const mode = useSelect( select => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const mode = useSelect( ( select: any ) => {
 				return select( editorStore ).getEditorMode();
 			}, [] );
 
@@ -135,7 +136,8 @@ if ( EditorContentSlotFill !== undefined ) {
  */
 function TextEditor(): JSX.Element {
 	const { switchEditorMode } = useDispatch( editorStore );
-	const { shortcut, isRichEditingEnabled } = useSelect( select => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const { shortcut, isRichEditingEnabled } = useSelect( ( select: any ) => {
 		const { getEditorSettings } = select( editorStore );
 		const { getShortcutRepresentation } = select( keyboardShortcutsStore );
 
@@ -177,7 +179,8 @@ function TextEditor(): JSX.Element {
  */
 function CodeEditor(): JSX.Element {
 	const instanceId = useInstanceId( CodeEditor );
-	const { content, blocks, type, id } = useSelect( select => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const { content, blocks, type, id } = useSelect( ( select: any ) => {
 		const { getEditedEntityRecord } = select( coreStore );
 		const { getCurrentPostType, getCurrentPostId } = select( editorStore );
 		const _type = getCurrentPostType();
@@ -234,7 +237,7 @@ const cm_lazy = ( cm_module: typeof import('@a8cCodeEditor/codemirror-bundle') )
 
 		const ref: React.RefObject< HTMLDivElement > = React.useRef( null );
 
-		const viewRef: React.RefObject< EditorView | undefined > = React.useRef( undefined );
+		const viewRef: React.MutableRefObject< EditorView | undefined > = React.useRef( undefined );
 
 		const { editEntityRecord } = useDispatch( coreStore );
 		const updateCode = React.useCallback(
@@ -322,7 +325,7 @@ const cm_lazy = ( cm_module: typeof import('@a8cCodeEditor/codemirror-bundle') )
 						},
 					} ),
 				],
-				parent: ref.current,
+				parent: ref.current!,
 			} );
 			return () => {
 				viewRef.current?.destroy();
@@ -353,3 +356,39 @@ const CM = React.lazy( async () => {
 
 	return { default: cm_lazy( cm ) };
 } );
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+declare global {
+	interface Window {
+		React: typeof import('react');
+
+		wp: {
+			blocks: {
+				__unstableSerializeAndClean: ( blocks: object[] ) => object[];
+			};
+			components: typeof import('@wordpress/components');
+			compose: typeof import('@wordpress/compose');
+			coreData: {
+				store: any;
+			};
+			data: {
+				useDispatch: ( store: any ) => any;
+				useSelect: (
+					selectOrStore: any | ( ( select: ( store: any ) => any ) => any ),
+					dependencies?: unknown[]
+				) => any;
+			};
+			editor: {
+				PostTitleRaw: JSXElementConstructor< any >;
+				privateApis: any;
+				store: any;
+			};
+			i18n: typeof import('@wordpress/i18n');
+			keyboardShortcuts: {
+				store: any;
+			};
+			plugins: typeof import('@wordpress/plugins');
+			privateApis: typeof import('@wordpress/private-apis');
+		};
+	}
+}
