@@ -15,7 +15,12 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { store as dashboardStore } from '../../store';
 
-const EmptyTrashButton = () => {
+/**
+ * Renders a button to empty form responses.
+ *
+ * @return {JSX.Element} The empty trash button.
+ */
+const EmptyTrashButton = (): JSX.Element => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const { createSuccessNotice, createErrorNotice } = dispatch( noticesStore );
 	const { invalidateResolutionForStore } = dispatch( coreStore );
