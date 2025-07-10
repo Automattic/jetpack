@@ -39,6 +39,7 @@
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
+		"automattic/jetpack-paypal-payments": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-post-list": "@dev",
 		"automattic/jetpack-publicize": "@dev",
