@@ -16,6 +16,9 @@ type GravatarProps = {
 /**
  * Renders the status toggle for the inbox view.
  *
+ * If email has no gravatar profile, uses initials to render image instead.
+ * See https://docs.gravatar.com/sdk/images/#default-image
+ *
  * @param {GravatarProps} props - The component props.
  * @return {JSX.Element} The Gravatar component
  */
@@ -26,7 +29,7 @@ export default function Gravatar( { displayName, email }: GravatarProps ): JSX.E
 	useEffect( () => {
 		if ( profileImageRef.current ) {
 			hovercardRef.current = new Hovercards( {
-				// @see https://github.com/Automattic/gravatar/tree/trunk/web/packages/hovercards#translations
+				// Documented at https://github.com/Automattic/gravatar/tree/trunk/web/packages/hovercards#translations
 				i18n: {
 					'Edit your profile →': __( 'Edit your profile →', 'jetpack-forms' ),
 					'View profile →': __( 'View profile →', 'jetpack-forms' ),
@@ -59,15 +62,12 @@ export default function Gravatar( { displayName, email }: GravatarProps ): JSX.E
 
 	const hashedEmail = sha256( email );
 
-	// https://docs.gravatar.com/sdk/images/#default-image
-	const defaultGravatar = displayName ? `initials&name=${ displayName }` : 'mp';
-
 	return (
 		<img
 			alt={ displayName || '' }
 			className="jp-forms__gravatar"
 			ref={ profileImageRef }
-			src={ `https://0.gravatar.com/avatar/${ hashedEmail }?d=${ defaultGravatar }` }
+			src={ `https://0.gravatar.com/avatar/${ hashedEmail }?d=initials&name=${ displayName }` }
 		/>
 	);
 }
