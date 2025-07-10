@@ -353,8 +353,13 @@ add_action( 'admin_init', 'jpcrm_plugin_redirect' );
 
 /**  Uninstall function to clear the roles. **/
 function jpcrm_uninstall() {
-	include_once __DIR__ . '/includes/ZeroBSCRM.Permissions.php';
-	zeroBSCRM_clearUserRoles();
+	remove_role( 'zerobs_admin' );
+	remove_role( 'zerobs_customermgr' );
+	remove_role( 'zerobs_quotemgr' );
+	remove_role( 'zerobs_invoicemgr' );
+	remove_role( 'zerobs_transactionmgr' );
+	remove_role( 'zerobs_customer' );
+	remove_role( 'zerobs_mailmgr' );
 }
 register_uninstall_hook( __FILE__, 'jpcrm_uninstall' );
 
