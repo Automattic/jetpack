@@ -16,9 +16,6 @@
 		"erasableSyntaxOnly": true,
 		"isolatedModules": true,
 		"esModuleInterop": false
-
-		// "typeRoots": ["./node_modules/@types", "./types"],
-		// "types": ["global", "grammars"]
 	},
 	"include": [],
 	"files": []
