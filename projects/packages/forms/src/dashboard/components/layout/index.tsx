@@ -2,12 +2,10 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { JetpackFooter, useBreakpointMatch } from '@automattic/jetpack-components';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { TabPanel } from '@wordpress/components';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import clsx from 'clsx';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 /**
  * Internal dependencies
@@ -20,12 +18,7 @@ import JetpackFormsLogo from '../logo';
 
 import './style.scss';
 
-type LayoutProps = {
-	className?: string;
-	showFooter?: boolean;
-};
-
-const Layout = ( { className = '', showFooter = false }: LayoutProps ) => {
+const Layout = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -93,7 +86,7 @@ const Layout = ( { className = '', showFooter = false }: LayoutProps ) => {
 	);
 
 	return (
-		<div className={ clsx( 'jp-forms__layout', className ) }>
+		<div className="jp-forms__layout">
 			<div className="jp-forms__layout-header">
 				<div className="jp-forms__logo-wrapper">
 					<JetpackFormsLogo />
@@ -116,13 +109,6 @@ const Layout = ( { className = '', showFooter = false }: LayoutProps ) => {
 			>
 				{ () => <Outlet /> }
 			</TabPanel>
-			{ showFooter && (
-				<JetpackFooter
-					className="jp-forms__layout-footer"
-					moduleName={ __( 'Jetpack Forms', 'jetpack-forms' ) }
-					useInternalLinks={ shouldUseInternalLinks() }
-				/>
-			) }
 		</div>
 	);
 };

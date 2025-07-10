@@ -81,18 +81,8 @@ export function isSimpleSite() {
 }
 
 /**
- * Check if the is an Atomic site.
- * This does not include WoA, but does include the likes of Jurassic Ninja, Pressable, Bluehost on Atomic.
- *
- * @return {boolean} Whether the site is an Atomic site.
- */
-export function isAtomicSite() {
-	return getScriptData()?.site?.host === 'atomic';
-}
-
-/**
  * Check if the site is a WoA site.
- * For WoA only - not general Atomic (see isAtomicSite()).
+ * For WoA only - not general Atomic (eg. not Jurassic Ninja, Pressable, Bluehost on Atomic).
  *
  * @return Whether the site is woa.
  */

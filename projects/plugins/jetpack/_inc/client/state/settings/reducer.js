@@ -1,4 +1,4 @@
-import { assign, filter, get, includes, mapValues, merge, some } from 'lodash';
+import { get, mapValues, merge } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_SET_INITIAL_STATE,
@@ -18,17 +18,17 @@ import {
 export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
-			return assign( {}, state, action.initialState.settings );
+			return Object.assign( {}, state, action.initialState.settings );
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
-			return assign( {}, action.settings );
+			return Object.assign( {}, action.settings );
 		case JETPACK_SETTING_UPDATE_SUCCESS: {
 			const key = Object.keys( action.updatedOption )[ 0 ];
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				[ key ]: action.updatedOption[ key ],
 			} );
 		}
 		case JETPACK_SETTINGS_UPDATE_SUCCESS:
-			return assign( {}, state, action.updatedOptions );
+			return Object.assign( {}, state, action.updatedOptions );
 		default:
 			return state;
 	}
@@ -43,12 +43,12 @@ export const initialRequestsState = {
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SETTINGS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetchingSettingsList: true,
 			} );
 		case JETPACK_SETTINGS_FETCH_FAIL:
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetchingSettingsList: false,
 			} );
 
@@ -134,12 +134,9 @@ export function isFetchingSettingsList( state ) {
  * @return {boolean}                Whether option is being updated on the setting
  */
 export function isUpdatingSetting( state, settings = '' ) {
-	if ( 'object' === typeof settings ) {
-		return some(
-			filter( state.jetpack.settings.requests.settingsSent, ( item, key ) =>
-				includes( settings, key )
-			),
-			item => item
+	if ( Array.isArray( settings ) ) {
+		return Object.entries( state.jetpack.settings.requests.settingsSent ).some(
+			( [ key, item ] ) => item && settings.includes( key )
 		);
 	}
 	return state.jetpack.settings.requests.settingsSent[ settings ];

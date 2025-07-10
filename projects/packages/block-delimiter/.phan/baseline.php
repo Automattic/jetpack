@@ -12,13 +12,12 @@ return [
     // PhanPossiblyUndeclaredVariable : 20+ occurrences
     // PhanPossiblyNullTypeMismatchProperty : 10+ occurrences
     // PhanRedefinedClassReference : 9 occurrences
-    // PhanTypeMismatchArgumentInternalProbablyReal : 2 occurrences
     // PhanRedefineClass : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-block-delimiter.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentInternalProbablyReal'],
-        'src/class-block-scanner.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanPossiblyUndeclaredVariable', 'PhanRedefinedClassReference', 'PhanTypeMismatchArgumentInternalProbablyReal'],
+        'src/class-block-delimiter.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanPossiblyUndeclaredVariable'],
+        'src/class-block-scanner.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanPossiblyUndeclaredVariable', 'PhanRedefinedClassReference'],
         'tests/php/Block_Scanner_Test.php' => ['PhanRedefinedClassReference'],
         'tests/stubs/class-wp-html-span.php' => ['PhanRedefineClass'],
     ],

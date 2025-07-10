@@ -2,7 +2,7 @@ import { RichText, getColorClassName } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { isEmpty, omit, pick, some } from 'lodash';
+import { isEmpty, omit, pick } from 'lodash';
 
 /**
  * Deprecation reasons:
@@ -186,7 +186,10 @@ export default {
 		const isModal = 'modal' === attributes.style || attributes.useModal;
 		return (
 			isModal &&
-			( isEmpty( innerBlocks ) || some( pick( attributes, deprecatedButtonAttributes ), Boolean ) )
+			( isEmpty( innerBlocks ) ||
+				Object.entries( attributes ).some(
+					( [ k, v ] ) => v && deprecatedButtonAttributes.includes( k )
+				) )
 		);
 	},
 };

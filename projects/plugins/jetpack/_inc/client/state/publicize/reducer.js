@@ -1,11 +1,11 @@
-import { assign, get } from 'lodash';
+import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import { JETPACK_SET_INITIAL_STATE } from 'state/action-types';
 
 export const connectUrls = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
-			return assign( {}, action.initialState.externalServicesConnectUrls );
+			return Object.assign( {}, action.initialState.externalServicesConnectUrls );
 		default:
 			return state;
 	}

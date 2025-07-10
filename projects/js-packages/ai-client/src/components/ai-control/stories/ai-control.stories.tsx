@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { action } from '@storybook/addon-actions';
 import { Button, Notice } from '@wordpress/components';
 import { useState } from '@wordpress/element';
+import { action } from 'storybook/actions';
 /**
  * Internal dependencies
  */

@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import JetpackFooter from '../index.tsx';
 
 describe( 'JetpackFooter', () => {

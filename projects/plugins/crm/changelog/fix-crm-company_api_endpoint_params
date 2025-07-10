@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-API: Fix `companies` endpoint param mapping.

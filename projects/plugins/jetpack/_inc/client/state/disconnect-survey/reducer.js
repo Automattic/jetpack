@@ -1,4 +1,4 @@
-import { assign, get } from 'lodash';
+import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY,
@@ -12,17 +12,17 @@ export const disconnectSurvey = (
 ) => {
 	switch ( action.type ) {
 		case JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				submitting: true,
 			} );
 		case JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_SUCCESS:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				submitting: false,
 				submitted: true,
 				error: null,
 			} );
 		case JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_FAIL:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				submitting: false,
 				submitted: false,
 				error: action.error,

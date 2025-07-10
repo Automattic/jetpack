@@ -1,11 +1,12 @@
 import clsx from 'clsx';
-import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import Gridicon from 'components/gridicon';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
 import './style.scss';
+
+const noop = () => {};
 
 export default class SimpleNotice extends Component {
 	static displayName = 'SimpleNotice';

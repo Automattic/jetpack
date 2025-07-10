@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-analytics",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Jetpack Analytics Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/analytics/#readme",
 	"bugs": {
@@ -15,8 +15,8 @@
 	"license": "GPL-2.0-or-later",
 	"devDependencies": {
 		"debug": "4.4.1",
-		"jest": "30.0.0",
-		"jest-environment-jsdom": "30.0.0"
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4"
 	},
 	"type": "module",
 	"exports": {

@@ -5,7 +5,7 @@ import {
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
-import { isNumber, merge } from 'lodash';
+import { merge } from 'lodash';
 import { FORM_STYLE } from '../util/constants';
 import useFormStyle from './use-form-style';
 
@@ -17,7 +17,7 @@ import useFormStyle from './use-form-style';
  * @return {string|*} The value of the CSS var if it is a number, otherwise the value itself.
  */
 function getIntAsPxValue( value ) {
-	if ( typeof value !== 'undefined' && isNumber( value ) ) {
+	if ( typeof value === 'number' || value instanceof Number ) {
 		return `${ value }px`;
 	}
 	return value;

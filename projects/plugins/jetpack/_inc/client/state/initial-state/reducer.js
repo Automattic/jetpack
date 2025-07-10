@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { assign, get, merge } from 'lodash';
+import { get, merge } from 'lodash';
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { isCurrentUserLinked } from 'state/connection';
 import { getPlanDuration } from 'state/plans/reducer';
@@ -8,7 +8,7 @@ import { getSiteProducts } from 'state/site-products';
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
-			return assign( {}, state, action.initialState );
+			return Object.assign( {}, state, action.initialState );
 
 		case MOCK_SWITCH_USER_PERMISSIONS:
 			return merge( {}, state, { userData: action.initialState } );

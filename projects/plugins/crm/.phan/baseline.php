@@ -133,7 +133,7 @@ return [
         'admin/dashboard/main.page.php' => ['PhanDeprecatedFunction', 'PhanRedundantCondition', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'admin/email/email.ajax.php' => ['PhanPluginNeverReturnFunction', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault'],
         'admin/email/main.page.php' => ['PhanEmptyForeach', 'PhanPluginDuplicateAdjacentStatement', 'PhanRedundantCondition', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeSuspiciousStringExpression'],
-        'admin/export/main.page.php' => ['PhanTypeMismatchArgument'],
+        'admin/export/main.page.php' => ['PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset'],
         'admin/settings/business-info.page.php' => ['PhanRedundantConditionInGlobalScope'],
         'admin/settings/client-portal.page.php' => ['PhanRedundantConditionInGlobalScope', 'PhanUndeclaredVariableDim'],
         'admin/settings/custom-fields.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanRedundantConditionInGlobalScope', 'PhanTypeMismatchDimFetch'],

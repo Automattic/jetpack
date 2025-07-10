@@ -1,6 +1,5 @@
 import { __, _x } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -28,6 +27,7 @@ import { filterSearch, getSearchTerm } from 'state/search';
 import { isPluginActive } from 'state/site/plugins';
 
 const debug = debugFactory( 'calypso:url-search' );
+const noop = () => {};
 
 export class NavigationSettings extends Component {
 	static displayName = 'NavigationSettings';

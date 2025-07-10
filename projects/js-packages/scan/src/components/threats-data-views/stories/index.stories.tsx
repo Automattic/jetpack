@@ -3,12 +3,6 @@ import ThreatsDataViews from '../index.tsx';
 export default {
 	title: 'JS Packages/Scan/Threats Data Views',
 	component: ThreatsDataViews,
-	parameters: {
-		backgrounds: {
-			default: 'light',
-			values: [ { name: 'light', value: 'white' } ],
-		},
-	},
 	decorators: [
 		Story => (
 			<div style={ { maxWidth: '100%', backgroundColor: 'white' } }>

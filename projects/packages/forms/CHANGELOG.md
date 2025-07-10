@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2025-07-07
+### Added
+- Contact Form: Introduce a new "Rating" field block that allows site owners to collect star/heart/smiley/emoji ratings from visitors. [#44094]
+
+### Changed
+- Disallow rich text formats in multistep form divider label. [#44209]
+- Update date picker to remove the jQuery dependency. We now use a new more modern date picker that allows for keyboard navigation. [#43939]
+- Update package dependencies. [#44148] [#44151]
+
+### Fixed
+- Accessibility: Update screen reader 'clip' property usage to 'clip-path'. [#44027]
+
 ## [2.1.0] - 2025-06-30
 ### Security
 - Prevent form element attribute names from being set as field names. [#44113]
@@ -1260,6 +1272,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[3.0.0]: https://github.com/automattic/jetpack-forms/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/automattic/jetpack-forms/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/automattic/jetpack-forms/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/automattic/jetpack-forms/compare/v1.3.0...v2.0.0

@@ -11,16 +11,9 @@ import styles from './style.module.scss';
  * Types
  */
 import type { Meta } from '@storybook/react';
-import type { ComponentType } from 'react';
 
-interface AIControlStoryMeta extends Meta< typeof allIcons > {
-	title?: string;
-	component?: ComponentType;
-}
-
-const meta: AIControlStoryMeta = {
+const meta = {
 	title: 'JS Packages/AI Client/Icons',
-	component: allIcons as unknown as ComponentType,
 	parameters: {},
 } satisfies Meta< typeof allIcons >;
 

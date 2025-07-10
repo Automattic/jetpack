@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { assign, find, get, merge } from 'lodash';
+import { get, merge } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	getPlanClass,
@@ -41,7 +41,7 @@ import {
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
-			return assign( {}, state, action.siteData );
+			return Object.assign( {}, state, action.siteData );
 		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
 			return merge( {}, state, { site: { benefits: action.siteBenefits } } );
 		case JETPACK_SITE_DISCOUNT_FETCH_RECEIVE:
@@ -69,67 +69,67 @@ export const initialRequestsState = {
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteData: true,
 			} );
 		case JETPACK_SITE_BENEFITS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteBenefits: true,
 			} );
 		case JETPACK_SITE_DISCOUNT_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteDiscount: true,
 			} );
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingConnectedPlugins: true,
 			} );
 		case JETPACK_SITE_FEATURES_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteFeatures: true,
 			} );
 		case JETPACK_SITE_PLANS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSitePlans: true,
 			} );
 		case JETPACK_SITE_PURCHASES_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSitePurchases: true,
 			} );
 		case JETPACK_SITE_DATA_FETCH_FAIL:
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteData: false,
 			} );
 		case JETPACK_SITE_BENEFITS_FETCH_FAIL:
 		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteBenefits: false,
 			} );
 		case JETPACK_SITE_DISCOUNT_FETCH_FAIL:
 		case JETPACK_SITE_DISCOUNT_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteDiscount: false,
 			} );
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL:
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingConnectedPlugins: false,
 				isDoneFetchingConnectedPlugins: true,
 			} );
 		case JETPACK_SITE_FEATURES_FETCH_FAIL:
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSiteFeatures: false,
 			} );
 		case JETPACK_SITE_PLANS_FETCH_FAIL:
 		case JETPACK_SITE_PLANS_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSitePlans: false,
 			} );
 		case JETPACK_SITE_PURCHASES_FETCH_FAIL:
 		case JETPACK_SITE_PURCHASES_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingSitePurchases: false,
 			} );
 
@@ -167,7 +167,7 @@ export const errors = ( state = {}, action ) => {
 					break;
 			}
 
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				message: Object.hasOwn( action.error, 'response' )
 					? action.error.response.message
 					: defaultErrorMessage,
@@ -407,7 +407,7 @@ export function hasActiveProductPurchase( state ) {
  * @return {object}       A active security bundle on the site, undefined otherwise
  */
 export function getActiveSecurityPurchase( state ) {
-	return find( getActiveSitePurchases( state ), purchase =>
+	return getActiveSitePurchases( state ).find( purchase =>
 		isJetpackSecurityBundle( purchase.product_slug )
 	);
 }
@@ -439,7 +439,7 @@ export function hasActiveCompletePurchase( state ) {
  * @return {object}       An active Search product if one was found, undefined otherwise.
  */
 export function getActiveSearchPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackSearch( product.product_slug )
 	);
 }
@@ -461,7 +461,7 @@ export function hasActiveSearchPurchase( state ) {
  * @return {object}       An active Creator product if one was found, undefined otherwise.
  */
 export function getActiveCreatorPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackCreator( product.product_slug )
 	);
 }
@@ -473,7 +473,7 @@ export function getActiveCreatorPurchase( state ) {
  * @return {object}       An active Growth product if one was found, undefined otherwise.
  */
 export function getActiveGrowthPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackGrowth( product.product_slug )
 	);
 }
@@ -505,7 +505,7 @@ export function hasActiveGrowthPurchase( state ) {
  * @return {object}       An active Anti-Spam product if one was found, undefined otherwise.
  */
 export function getActiveAntiSpamPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackAntiSpam( product.product_slug )
 	);
 }
@@ -527,7 +527,7 @@ export function hasActiveAntiSpamPurchase( state ) {
  * @return {object}       An active Boost product if one was found, undefined otherwise.
  */
 export function getActiveBoostPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackBoost( product.product_slug )
 	);
 }
@@ -549,7 +549,7 @@ export function hasActiveBoostPurchase( state ) {
  * @return {object}       An active backup product if one was found, undefined otherwise.
  */
 export function getActiveBackupPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackBackup( product.product_slug )
 	);
 }
@@ -561,7 +561,7 @@ export function getActiveBackupPurchase( state ) {
  * @return {boolean}      True if the site has an active backup product purchase, false otherwise.
  */
 export function getActiveSocialPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isJetpackSocial( product.product_slug )
 	);
 }
@@ -593,7 +593,7 @@ export function hasActiveSocialPurchase( state ) {
  * @return {object}       An active legacy plan with security features if one was found, undefined otherwise.
  */
 export function getSecurityComparableLegacyPlan( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return getActiveProductPurchases( state ).find( product =>
 		isSecurityComparableJetpackLegacyPlan( product.product_slug )
 	);
 }

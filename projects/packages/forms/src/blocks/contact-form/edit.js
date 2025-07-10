@@ -25,7 +25,6 @@ import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { filter, isArray, map } from 'lodash';
 import { store as singleStepStore } from '../../store/form-step-preview';
 import {
 	PREVIOUS_BUTTON_TEMPLATE,
@@ -54,15 +53,15 @@ const FormTransitionState = {
 	IS_FORM: 'is-form',
 };
 
-const validFields = filter( childBlocks, ( { settings } ) => {
+const validFields = childBlocks.filter( ( { settings } ) => {
 	return (
 		! settings.parent ||
 		settings.parent === 'jetpack/contact-form' ||
-		( isArray( settings.parent ) && settings.parent.includes( 'jetpack/contact-form' ) )
+		( Array.isArray( settings.parent ) && settings.parent.includes( 'jetpack/contact-form' ) )
 	);
 } );
 
-const ALLOWED_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
+const ALLOWED_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
 
 const ALLOWED_CORE_BLOCKS = [
 	'core/audio',
@@ -101,7 +100,7 @@ const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( ALLOWED_CORE_BLOCKS ).filter(
 	block => ! REMOVE_FIELDS_FROM_FORM.includes( block )
 );
 
-const PRIORITIZED_INSERTER_BLOCKS = [ ...map( validFields, block => `jetpack/${ block.name }` ) ];
+const PRIORITIZED_INSERTER_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
 
 function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
 	const {

@@ -3,7 +3,7 @@ import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
-import { get, includes } from 'lodash';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -227,7 +227,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 			}
 
 			// Backup & Scan is working in this site.
-			if ( includes( [ 'provisioning', 'awaiting_credentials', 'active' ], rewindState ) ) {
+			if ( [ 'provisioning', 'awaiting_credentials', 'active' ].includes( rewindState ) ) {
 				return <BackupsScanRewind { ...this.props } rewindState={ rewindState } />;
 			}
 

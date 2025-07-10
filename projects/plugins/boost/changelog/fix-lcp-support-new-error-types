@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-LCP Optimization: Ensure new error types unsupported by the plugin version show as Unknown
