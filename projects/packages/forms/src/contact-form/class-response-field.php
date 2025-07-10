@@ -133,8 +133,6 @@ class Response_Field {
 	/**
 	 * Get the value of the field for the API.
 	 *
-	 * @deprecated Use render_value instead.
-	 *
 	 * @return string
 	 */
 	public function get_render_api_value() {
@@ -155,7 +153,6 @@ class Response_Field {
 			}
 			$this->value['files'] = $files;
 			return $this->value;
-
 		}
 
 		if ( is_array( $this->value ) ) {
@@ -186,7 +183,7 @@ class Response_Field {
 	}
 
 	/**
-	 * Check if the field has a file.
+	 * Check if the field has a file
 	 *
 	 * @return bool
 	 */

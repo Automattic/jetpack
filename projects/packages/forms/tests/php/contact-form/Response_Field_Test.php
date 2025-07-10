@@ -134,7 +134,19 @@ class Response_Field_Test extends BaseTestCase {
 	}
 
 	public function test_has_file() {
-		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ) );
+		$field = new Response_Field(
+			'test_key',
+			'test_label',
+			array(
+				'files' => array(
+					array(
+						'name'    => 'file1.jpg',
+						'file_id' => 123,
+						'size'    => 123456789,
+					),
+				),
+			)
+		);
 		$this->assertTrue( $field->has_file() );
 
 		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ), 'file' );
@@ -148,5 +160,50 @@ class Response_Field_Test extends BaseTestCase {
 
 		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array() ), 'file' );
 		$this->assertFalse( $field->has_file(), 'empty file field should not be non-empty' );
+	}
+
+	public function test_get_render_api_value() {
+		$field = new Response_Field( 'test_key', 'test_label', 'test_value' );
+		$this->assertEquals( 'test_value', $field->get_render_api_value() );
+
+		$field = new Response_Field( 'test_key', 'test_label', array( 'value1', 'value2' ) );
+		$this->assertEquals( 'value1, value2', $field->get_render_api_value() );
+
+		$expected = array(
+			'files' => array(
+				array(
+					'name'           => 'file1.jpg',
+					'file_id'        => 123,
+					'size'           => '118 MB',
+					'url'            => 'https://example.com/file1.jpg',
+					'is_previewable' => true,
+				),
+			),
+		);
+		$field    = new Response_Field(
+			'test_key',
+			'test_label',
+			array(
+				'files' => array(
+					array(
+						'name'    => 'file1.jpg',
+						'file_id' => 123,
+						'size'    => 123456789,
+					),
+				),
+			)
+		);
+
+		add_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
+		$this->assertSame( $expected, $field->get_render_api_value() );
+		remove_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
+	}
+	/**
+	 * Helper function to return a URL for the file.
+	 *
+	 * @return string
+	 */
+	public function return_url() {
+		return 'https://example.com/file1.jpg';
 	}
 }
