@@ -20,6 +20,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import CopyClipboardButton from '../components/copy-clipboard-button';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
 import { getPath } from './utils';
 
@@ -132,7 +133,6 @@ const FileField = ( { file, onClick } ) => {
 };
 
 const InboxResponse = ( { response, loading, onModalStateChange } ) => {
-	const [ emailCopied, setEmailCopied ] = useState( false );
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
@@ -194,7 +194,12 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		// Emails
 		const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 		if ( emailRegex.test( value ) ) {
-			return <a href={ `mailto:${ value }` }>{ value }</a>;
+			return (
+				<div className="email-field">
+					<a href={ `mailto:${ value }` }>{ value }</a>
+					<CopyClipboardButton text={ value } />
+				</div>
+			);
 		}
 
 		return value;
@@ -207,12 +212,6 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 
 		ref.current.scrollTop = 0;
 	}, [ response ] );
-
-	const copyEmail = useCallback( async () => {
-		await window.navigator.clipboard.writeText( response.author_email );
-		setEmailCopied( true );
-		setTimeout( () => setEmailCopied( false ), 3000 );
-	}, [ response, setEmailCopied ] );
 
 	const handelImageLoaded = useCallback( () => {
 		return setIsImageLoading( false );
@@ -250,11 +249,8 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 				<h3 className={ titleClasses }>{ getDisplayName( response ) }</h3>
 				{ response.author_email && getDisplayName( response ) !== response.author_email && (
 					<p className="jp-forms__inbox-response-subtitle">
-						{ response.author_email }
-						<Button variant="secondary" onClick={ copyEmail }>
-							{ ! emailCopied && __( 'Copy', 'jetpack-forms' ) }
-							{ emailCopied && __( '✓ Copied', 'jetpack-forms' ) }
-						</Button>
+						<a href={ `mailto:${ response.author_email }` }>{ response.author_email }</a>
+						<CopyClipboardButton text={ response.author_email } />
 					</p>
 				) }
 
