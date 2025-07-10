@@ -54,15 +54,15 @@ class Form_Response_Test extends BaseTestCase {
 	}
 
 	public function test_form_response_is_matches_empty_data() {
-		$form       = new Contact_Form( array() );
-		$_post_data = array();
-		$response   = Form_Response::from_submission( $_post_data, $form );
-		$post_id    = $response->save();
+		$form             = new Contact_Form( array() );
+		$_post_data       = array();
+		$response         = Form_Response::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Form_Response::get( $feedback_post_id );
 
-		$this->assertEquals( $response->serialize(), $saved_response->serialize() );
-		$this->assertEquals( $response->get_fields(), $saved_response->get_fields() );
+		$this->assertEquals( $response->serialize(), $saved_response->serialize(), 'Serialized data does not match' );
+		$this->assertEquals( $response->get_fields(), $saved_response->get_fields(), 'Fields data does not match' );
 	}
 
 	public function test_form_response_is_matches_submission_data() {
@@ -407,10 +407,10 @@ class Form_Response_Test extends BaseTestCase {
 		add_filter( 'contact_form_subject', array( $this, 'subject_from_filter' ), 10, 2 );
 
 		// Create a contact form
-		$response = Form_Response::from_submission( $_post_data, $form );
-		$post_id  = $response->save();
-		remove_filter( 'contact_form_subject', array( $this, 'subject_from_filter' ), 10, 2 );
+		$response       = Form_Response::from_submission( $_post_data, $form );
+		$post_id        = $response->save();
 		$saved_response = Form_Response::get( $post_id );
+		remove_filter( 'contact_form_subject', array( $this, 'subject_from_filter' ), 10, 2 );
 
 		$this->assertEquals( 'Overwritten Subject (from filter)', $response->get_subject(), 'Subject should match the form submission' );
 		$this->assertEquals( 'Overwritten Subject (from filter)', $saved_response->get_subject(), 'Subject should match the saved form submission' );
@@ -526,10 +526,10 @@ class Form_Response_Test extends BaseTestCase {
 
 		add_filter( 'pre_comment_author_name', array( $this, 'set_filter_as_string' ) );
 		$response = Form_Response::from_submission( $_post_data, $form );
-		remove_filter( 'pre_comment_author_name', array( $this, 'set_filter_as_string' ) );
 
 		$feedback_post_id = $response->save();
 		$saved_response   = Form_Response::get( $feedback_post_id );
+		remove_filter( 'pre_comment_author_name', array( $this, 'set_filter_as_string' ) );
 
 		$this->assertEquals( 'STRING', $response->get_author(), 'Author should match the form submission' );
 		$this->assertEquals( 'STRING', $saved_response->get_author(), 'Author should match the saved form submission' );
@@ -615,11 +615,10 @@ class Form_Response_Test extends BaseTestCase {
 
 		add_filter( 'pre_comment_author_email', array( $this, 'set_filter_as_string' ) );
 		$response = Form_Response::from_submission( $_post_data, $form );
-		remove_filter( 'pre_comment_author_email', array( $this, 'set_filter_as_string' ) );
 
 		$feedback_post_id = $response->save();
 		$saved_response   = Form_Response::get( $feedback_post_id );
-
+		remove_filter( 'pre_comment_author_email', array( $this, 'set_filter_as_string' ) );
 		$this->assertEquals( 'STRING', $response->get_author_email(), 'Author email should match the form submission' );
 		$this->assertEquals( 'STRING', $saved_response->get_author_email(), 'Author email should match the saved form submission' );
 	}
@@ -691,11 +690,11 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		add_filter( 'pre_comment_author_url', array( $this, 'set_filter_as_string' ) );
-		$response = Form_Response::from_submission( $_post_data, $form );
-		remove_filter( 'pre_comment_author_url', array( $this, 'set_filter_as_string' ) );
-
+		$response         = Form_Response::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
 		$saved_response   = Form_Response::get( $feedback_post_id );
+
+		remove_filter( 'pre_comment_author_url', array( $this, 'set_filter_as_string' ) );
 
 		$this->assertEquals( 'STRING', $response->get_author_url(), 'Author url should match the form submission' );
 		$this->assertEquals( 'STRING', $saved_response->get_author_url(), 'Author url should match the saved form submission' );
