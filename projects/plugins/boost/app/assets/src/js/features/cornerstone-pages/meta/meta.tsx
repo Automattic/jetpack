@@ -1,7 +1,6 @@
 import { Button, getRedirectUrl, Notice } from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
-import clsx from 'clsx';
 import styles from './meta.module.scss';
 import {
 	useCornerstonePages,
@@ -20,8 +19,35 @@ import { useLcpState } from '$features/lcp/lib/stores/lcp-state';
 import { ExternalLink } from '@wordpress/components';
 import type { FC, ReactNode } from 'react';
 
+export const MetaError = () => (
+	<Notice
+		level="warning"
+		title={ __( 'Failed to load', 'jetpack-boost' ) }
+		hideCloseButton={ true }
+	>
+		<p>
+			{ createInterpolateElement(
+				__(
+					'Refresh the page and try again. If the issue persists, please <link>contact support</link>.',
+					'jetpack-boost'
+				),
+				{
+					link: (
+						<ExternalLink
+							href={ getSupportLink() }
+							onClick={ () => {
+								recordBoostEvent( 'cornerstone_pages_properties_failed', {} );
+							} }
+						/>
+					),
+				}
+			) }
+		</p>
+	</Notice>
+);
+
 const CornerstonePagesContent = () => {
-	const cornerstonePagesProperties = useCornerstonePagesProperties();
+	const cornerstonePagesProperties = useCornerstonePagesProperties()!;
 	const [ cornerstonePages, setCornerstonePages ] = useCornerstonePages();
 	const regenerateAction = useRegenerateCriticalCssAction();
 	const premiumFeatures = usePremiumFeatures();
@@ -50,8 +76,15 @@ const CornerstonePagesContent = () => {
 		} );
 	};
 
-	if ( cornerstonePagesProperties !== undefined ) {
-		return (
+	return (
+		<div className={ styles.section }>
+			<p className={ styles.description } style={ { margin: 0 } }>
+				<strong>{ __( 'Predefined:', 'jetpack-boost' ) }</strong>
+			</p>
+			<PredefinedList items={ cornerstonePagesProperties.predefined_pages } />
+			<p className={ styles.description } style={ { margin: 0 } }>
+				<strong>{ __( 'Custom:', 'jetpack-boost' ) }</strong>
+			</p>
 			<List
 				items={ cornerstonePages.join( '\n' ) }
 				setItems={ updateCornerstonePages }
@@ -76,39 +109,13 @@ const CornerstonePagesContent = () => {
 					</>
 				}
 			/>
-		);
-	}
-
-	return (
-		<Notice
-			level="warning"
-			title={ __( 'Failed to load', 'jetpack-boost' ) }
-			hideCloseButton={ true }
-		>
-			<p>
-				{ createInterpolateElement(
-					__(
-						'Refresh the page and try again. If the issue persists, please <link>contact support</link>.',
-						'jetpack-boost'
-					),
-					{
-						link: (
-							<ExternalLink
-								href={ getSupportLink() }
-								onClick={ () => {
-									recordBoostEvent( 'cornerstone_pages_properties_failed', {} );
-								} }
-							/>
-						),
-					}
-				) }
-			</p>
-		</Notice>
+		</div>
 	);
 };
 
 const Meta = () => {
 	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
+	const cornerstonePagesProperties = useCornerstonePagesProperties();
 
 	return (
 		<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
@@ -132,7 +139,7 @@ const Meta = () => {
 				) }
 			</p>
 			<div className={ styles.body }>
-				<CornerstonePagesContent />
+				{ cornerstonePagesProperties ? <CornerstonePagesContent /> : <MetaError /> }
 			</div>
 		</div>
 	);
@@ -167,6 +174,20 @@ export const CornerstonePagesUpgradeCTA = () => {
 				) }
 			/>
 		</div>
+	);
+};
+
+type PredefinedListProps = {
+	items: string[];
+};
+
+const PredefinedList: FC< PredefinedListProps > = ( { items } ) => {
+	return (
+		<ul style={ { padding: 0, marginTop: 0 } } className={ styles[ 'predefined-pages' ] }>
+			{ items.map( item => (
+				<li key={ item }>{ item }</li>
+			) ) }
+		</ul>
 	);
 };
 
@@ -252,11 +273,7 @@ const List: FC< ListProps > = ( {
 	}
 
 	return (
-		<div
-			className={ clsx( styles.section, {
-				[ styles[ 'has-error' ] ]: inputInvalid,
-			} ) }
-		>
+		<div className={ inputInvalid ? styles[ 'has-error' ] : '' }>
 			<textarea
 				value={ inputValue }
 				rows={ inputRows }

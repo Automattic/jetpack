@@ -44,16 +44,27 @@ class Cornerstone_Pages implements Has_Setup {
 		return $filtered_providers;
 	}
 
+	/**
+	 * Returns a list of Cornerstone Pages that the user cannot remove.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array
+	 */
+	private function predefined_pages() {
+		return array( '' );
+	}
+
 	private function default_pages() {
 		if ( $this->get_max_pages() === static::FREE_MAX_PAGES ) {
-			return array( '' );
+			return array();
 		}
 
 		$max_pages               = $this->get_max_pages();
 		$yoast_cornerstone_pages = $this->get_yoast_cornerstone_pages();
 		$woocommerce_pages       = $this->get_woocommerce_pages();
 
-		$homepage = array( '' );
+		$homepage = array();
 
 		$urls = array_unique( array_merge( $homepage, $woocommerce_pages, $yoast_cornerstone_pages ) );
 		$urls = array_map( 'untrailingslashit', $urls );
@@ -118,6 +129,7 @@ class Cornerstone_Pages implements Has_Setup {
 			'max_pages'         => $this->get_max_pages(),
 			'max_pages_premium' => static::PREMIUM_MAX_PAGES,
 			'default_pages'     => array_map( 'home_url', $this->default_pages() ),
+			'predefined_pages'  => array_map( 'home_url', $this->predefined_pages() ),
 		);
 	}
 

@@ -38,7 +38,7 @@
 				margin-top: 16px;
 			}
 
-			&.has-error {
+			.has-error {
 
 				textarea {
 					border-color: var( --red-40 );
@@ -98,6 +98,11 @@
 		.button {
 			margin-top: 16px;
 		}
+	}
+
+	.predefined-pages {
+		margin-top: 16px;
+		padding-left: 20px;
 	}
 
 	.see-logs-link {
