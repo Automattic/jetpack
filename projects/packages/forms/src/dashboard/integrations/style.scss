@@ -2,18 +2,15 @@
 @use "@wordpress/base-styles/variables";
 
 .jp-forms__integrations {
-	padding: 32px 16.6%;
-
-	@media ( max-width: 782px ) {
-		padding: 32px 8px;
-	}
+	padding: 32px 8px;
+	margin: 0 auto 24px auto;
+	max-width: 680px;
 
 	.jp-forms__integrations-header {
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
-		margin: 0 auto 24px auto;
-		max-width: 620px;
+		margin-bottom: 24px;
 
 		.jp-forms__integrations-header-heading {
 			color: colors.$gray-900;
