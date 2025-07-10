@@ -398,6 +398,9 @@ class Form_Response {
 			if ( ! $field instanceof Response_Field ) {
 				continue;
 			}
+			if ( $field->get_meta( 'render' ) === false ) {
+				continue; // Skip fields that are not meant to be rendered.
+			}
 			$compiled_fields[ $field->get_key() ] = array(
 				'label' => $field->get_label(),
 				'value' => $field->get_render_value(),
