@@ -12,7 +12,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
-		margin-bottom: 24px;
+		margin: 0 auto 24px auto;
+		max-width: 620px;
 
 		.jp-forms__integrations-header-heading {
 			color: colors.$gray-900;
