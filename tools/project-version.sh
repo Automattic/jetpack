@@ -149,6 +149,7 @@ function jsver {
 			# Update atomically (with mv) to avoid partial writes to composer.json or package.json breaking parallel builds.
 			local TMPFILE=$( mktemp "$FILE-XXXXXXXX" )
 			echo "$JSON" > "$TMPFILE"
+			chmod 0664 "$TMPFILE"
 			mv -f "$TMPFILE" "$FILE"
 		fi
 		return
