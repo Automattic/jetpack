@@ -93,7 +93,7 @@ const AkismetDashboardCard = ( {
 					<p className="integration-card__description">
 						{ __( 'Your forms are automatically protected with Akismet.', 'jetpack-forms' ) }
 					</p>
-					<HStack spacing="2" justify="start">
+					<HStack spacing="2" justify="start" className="integration-card__links">
 						<Button variant="link" onClick={ handleViewSpamClick }>
 							{ __( 'View spam', 'jetpack-forms' ) }
 						</Button>
