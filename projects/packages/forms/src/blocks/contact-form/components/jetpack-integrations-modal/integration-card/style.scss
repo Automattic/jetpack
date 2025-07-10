@@ -120,7 +120,7 @@
 		}
 	}
 
-	&__links {
+	&__links.components-h-stack {
 
 		@media (max-width: 480px) {
 			flex-direction: column;
