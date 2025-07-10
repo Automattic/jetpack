@@ -120,6 +120,18 @@
 		}
 	}
 
+	&__links {
+
+		@media (max-width: 480px) {
+			flex-direction: column;
+			align-items: flex-start;
+
+			span {
+				display: none;
+			}
+		}
+	}
+
 	.components-button .components-spinner {
 		margin: 0 8px;
 		width: 16px;
@@ -153,17 +165,5 @@
 
 	&__service-icon--google-sheets {
 		border-radius: 0 !important;
-	}
-
-	.integration-card__links {
-
-		@media (max-width: 480px) {
-			flex-direction: column !important;
-			align-items: flex-start !important;
-
-			span {
-				display: none;
-			}
-		}
 	}
 }
