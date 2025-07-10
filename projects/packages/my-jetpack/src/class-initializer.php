@@ -255,6 +255,17 @@ class Initializer {
 		 */
 		do_action( 'myjetpack_enqueue_scripts' );
 		Assets::register_script(
+			'jp-js-error-tracker',
+			'../src/js-static/jp-js-error-tracker.js',
+			__FILE__,
+			array(
+				'enqueue'    => true,
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-my-jetpack',
+			)
+		);
+
+		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',
 			__FILE__,
