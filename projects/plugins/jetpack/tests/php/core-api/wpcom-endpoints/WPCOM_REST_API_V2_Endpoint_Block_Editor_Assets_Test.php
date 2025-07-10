@@ -49,14 +49,14 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 */
 	public function mock_block_editor_assets() {
 		// Register minimal mock assets that don't require actual files
-		wp_register_script( 'mock-editor-script', 'http://example.org/plugins/jetpack/mock-editor.js', array(), '1.0', true );
-		wp_register_style( 'mock-editor-style', 'http://example.org/plugins/jetpack/mock-editor.css', array(), '1.0' );
-		wp_register_script( 'disallowed-plugin-script', 'http://example.org/plugins/disallowed-plugin/script.js', array(), '1.0', true );
-		wp_register_script( 'disallowed-plugin-style', 'http://example.org/plugins/disallowed-plugin/style.css', array(), '1.0', true );
+		wp_register_script( 'jetpack-mock-script', 'http://example.org/mock-editor.js', array(), '1.0', true );
+		wp_register_style( 'jetpack-mock-style', 'http://example.org/mock-editor.css', array(), '1.0' );
+		wp_register_script( 'disallowed-plugin-script', 'http://example.org/script.js', array(), '1.0', true );
+		wp_register_style( 'disallowed-plugin-style', 'http://example.org/style.css', array(), '1.0' );
 
 		// Enqueue our mock assets
-		wp_enqueue_script( 'mock-editor-script' );
-		wp_enqueue_style( 'mock-editor-style' );
+		wp_enqueue_script( 'jetpack-mock-script' );
+		wp_enqueue_style( 'jetpack-mock-style' );
 		wp_enqueue_script( 'disallowed-plugin-script' );
 		wp_enqueue_style( 'disallowed-plugin-style' );
 	}
@@ -183,8 +183,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$data     = $response->get_data();
 
 		// Verify the allowed plugin script and style are in the output
-		$this->assertStringContainsString( 'mock-editor-script', $data['scripts'] );
-		$this->assertStringContainsString( 'mock-editor-style', $data['styles'] );
+		$this->assertStringContainsString( 'jetpack-mock-script', $data['scripts'] );
+		$this->assertStringContainsString( 'jetpack-mock-style', $data['styles'] );
 	}
 
 	/**
