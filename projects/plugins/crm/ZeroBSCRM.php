@@ -302,6 +302,7 @@ function zeroBSCRM_init_perfTest() {
  * @return void
  */
 function jpcrm_plugin_activate() {
+	add_option( 'jpcrm_do_install', true );
 	// Skip redirect if it's a bulk activation with more than one plugin.
 	if (
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.NonceVerification.Missing -- This is safe.

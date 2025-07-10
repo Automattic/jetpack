@@ -573,8 +573,11 @@ final class ZeroBSCRM {
 			// urls, slugs, (post inc.)
 			$this->setupUrlsSlugsEtc();
 
-			// Install stuff
-			$this->install();
+			// Set up database, perms, etc.
+			if ( get_option( 'jpcrm_do_install' ) ) {
+				$this->install();
+				delete_option( 'jpcrm_do_install' );
+			}
 
 			// } Initialisation
 			$this->init_hooks();
