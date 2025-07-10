@@ -22,6 +22,10 @@ function exclude_elementor_library_custom_post_type( $post_types ) {
 		unset( $post_types[ \Elementor\Modules\LandingPages\Module::CPT ] );
 	}
 
+	if ( defined( '\Elementor\Modules\FloatingButtons\Module::CPT_FLOATING_BUTTONS' ) ) {
+		unset( $post_types[ \Elementor\Modules\FloatingButtons\Module::CPT_FLOATING_BUTTONS ] );
+	}
+
 	if ( isset( $post_types['elementor-hf'] ) ) {
 		unset( $post_types['elementor-hf'] );
 	}
