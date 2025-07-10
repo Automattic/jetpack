@@ -45,6 +45,8 @@ class Response_Field_Test extends BaseTestCase {
 		$this->assertEquals( 'test_value', $field->get_value() );
 		$this->assertEquals( 'text', $field->get_type() );
 		$this->assertEquals( array( 'meta_key' => 'meta_value' ), $field->get_meta() );
+		$this->assertEquals( 'meta_value', $field->get_meta( 'meta_key' ) );
+		$this->assertNull( $field->get_meta( 'non_existant' ) );
 	}
 
 	/**

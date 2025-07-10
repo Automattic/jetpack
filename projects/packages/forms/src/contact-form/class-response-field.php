@@ -207,9 +207,18 @@ class Response_Field {
 	/**
 	 * Get the meta of the field.
 	 *
+	 * @param string|null $meta_key The key of the meta to retrieve. If null, returns all meta.
+	 *
 	 * @return string
 	 */
-	public function get_meta() {
+	public function get_meta( $meta_key = null ) {
+
+		if ( $meta_key ) {
+			if ( isset( $this->meta[ $meta_key ] ) ) {
+				return $this->meta[ $meta_key ];
+			}
+			return null;
+		}
 		return $this->meta;
 	}
 

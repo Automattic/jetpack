@@ -204,13 +204,13 @@ class Form_Response {
 			$current_post        = $this->entry_id ? get_post( $this->entry_id ) : null;
 
 			$this->fields          = isset( $parsed_content['fields'] ) ? $parsed_content['fields'] : array();
-			$this->ip_address      = isset( $parsed_content['ip'] ) ? $parsed_content['ip'] : null;
-			$this->subject         = isset( $parsed_content['subject'] ) ? $parsed_content['subject'] : '';
-			$this->author          = isset( $parsed_content['author'] ) ? $parsed_content['author'] : '';
-			$this->author_email    = isset( $parsed_content['author_email'] ) ? $parsed_content['author_email'] : '';
-			$this->author_url      = isset( $parsed_content['author_url'] ) ? $parsed_content['author_url'] : '';
-			$this->comment_content = isset( $parsed_content['comment_content'] ) ? $parsed_content['comment_content'] : '';
-			$this->has_consent     = isset( $parsed_content['has_consent'] ) ? $parsed_content['has_consent'] : false;
+			$this->ip_address      = isset( $parsed_content['ip'] ) ? $parsed_content['ip'] : $this->get_first_field_of_type( 'ip' );
+			$this->subject         = isset( $parsed_content['subject'] ) ? $parsed_content['subject'] : $this->get_first_field_of_type( 'subject' );
+			$this->author          = $this->get_first_field_of_type( 'name', 'pre_comment_author_name' );
+			$this->author_email    = $this->get_first_field_of_type( 'email', 'pre_comment_author_email' );
+			$this->author_url      = $this->get_first_field_of_type( 'url', 'pre_comment_author_url' );
+			$this->comment_content = $this->get_first_field_of_type( 'textarea' );
+			$this->has_consent     = $this->get_first_field_of_type( 'consent' ) === 'Yes' ? true : false;
 			$this->entry_title     = isset( $parsed_content['entry_title'] ) ? $parsed_content['entry_title'] : '';
 			$this->entry_page      = isset( $parsed_content['entry_page'] ) ? (int) $parsed_content['entry_page'] : 1;
 			$this->feedback_title  = $this->feedback_post->post_title ? $this->feedback_post->post_title : $this->get_author() . ' - ' . $this->feedback_post->post_date;
@@ -222,9 +222,9 @@ class Form_Response {
 			$this->fields          = $this->get_computed_fields( $post_data );
 			$this->ip_address      = Contact_Form_Plugin::get_ip_address();
 			$this->subject         = $this->get_computed_subject( $post_data );
-			$this->author          = $this->get_computed_author( $post_data );
-			$this->author_email    = $this->get_computed_author_email( $post_data );
-			$this->author_url      = $this->get_computed_author_url( $post_data );
+			$this->author          = $this->get_computer_author_info( $post_data, 'name', 'pre_comment_author_name' );
+			$this->author_email    = $this->get_computer_author_info( $post_data, 'email', 'pre_comment_author_email' );
+			$this->author_url      = $this->get_computer_author_info( $post_data, 'url', 'pre_comment_author_url' );
 			$this->comment_content = $this->get_computed_comment_content( $post_data );
 			$this->has_consent     = $this->get_computed_consent( $post_data );
 			$this->entry_id        = ! empty( $current_post ) ? (int) $current_post->ID : 0;
@@ -287,6 +287,31 @@ class Form_Response {
 		}
 		return '';
 	}
+	/**
+	 * Get the value of the field based on the first type found.
+	 *
+	 * @param string      $type The type of the field to look for.
+	 * @param string|null $filter Optional filter to apply to the value.
+	 *
+	 * @return string The value of the first field of the specified type, or an empty string if not found.
+	 */
+	private function get_first_field_of_type( $type, $filter = null ) {
+		// This method is used to get the first field of a specific type.
+		foreach ( $this->fields as $field ) {
+			if ( $field->get_type() === $type ) {
+				if ( $filter ) {
+					return self::strip_tags(
+						stripslashes(
+							/** This filter is already documented in core/wp-includes/comment-functions.php */
+							\apply_filters( $filter, addslashes( $field->get_render_value() ) )
+						)
+					);
+				}
+				return $field->get_render_value();
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * Get all the fields of the response.
@@ -309,6 +334,9 @@ class Form_Response {
 		foreach ( $this->fields as $field ) {
 			if ( ! $field instanceof Response_Field ) {
 				continue;
+			}
+			if ( $field->get_meta( 'render' ) === false ) {
+				continue; // Skip fields that are not meant to be rendered.
 			}
 			$values[ $field->get_key() ] = $field->get_render_value();
 		}
@@ -365,13 +393,12 @@ class Form_Response {
 	 * @return array
 	 */
 	public function get_compiled_fields() {
-		// This is a convenience method to get the compiled fields in a simple array format.
 		$compiled_fields = array();
 		foreach ( $this->fields as $field ) {
 			if ( ! $field instanceof Response_Field ) {
 				continue;
 			}
-			$compiled_fields[] = array(
+			$compiled_fields[ $field->get_key() ] = array(
 				'label' => $field->get_label(),
 				'value' => $field->get_render_value(),
 			);
@@ -387,6 +414,9 @@ class Form_Response {
 		foreach ( $this->fields as $field ) {
 			if ( ! $field instanceof Response_Field ) {
 				continue;
+			}
+			if ( $field->get_meta( 'render' ) === false ) {
+				continue; // Skip fields that are not meant to be rendered.
 			}
 			$values[ $field->get_key() ] = $field->get_render_api_value();
 		}
@@ -650,15 +680,10 @@ class Form_Response {
 	public function serialize() {
 
 		$fields_to_serialize = array(
-			'subject'         => $this->subject,
-			'author'          => $this->author,
-			'author_email'    => $this->author_email,
-			'author_url'      => $this->author_url,
-			'comment_content' => $this->comment_content,
-			'has_consent'     => (bool) $this->has_consent,
-			'entry_title'     => $this->entry_title,
-			'entry_page'      => $this->entry_page,
-			'ip'              => $this->ip_address,
+			'subject'     => $this->subject,
+			'entry_title' => $this->entry_title,
+			'entry_page'  => $this->entry_page,
+			'ip'          => $this->ip_address,
 		);
 
 		$fields_to_serialize['fields'] = array();
@@ -748,21 +773,39 @@ class Form_Response {
 		}
 
 		$var_map = array(
-			'AUTHOR'       => 'author',
-			'AUTHOR EMAIL' => 'author_email',
-			'AUTHOR URL'   => 'author_url',
-			'SUBJECT'      => 'subject',
-			'IP'           => 'ip',
+			'AUTHOR'       => array(
+				'type'  => 'name',
+				'label' => 'Author',
+			),
+			'AUTHOR EMAIL' => array(
+				'type'  => 'email',
+				'label' => 'Email',
+			),
+			'AUTHOR URL'   => array(
+				'type'  => 'url',
+				'label' => 'Url',
+			),
+			'SUBJECT'      => array(
+				'type'  => 'subject',
+				'label' => 'Subject',
+			),
+			'IP'           => array(
+				'type'  => 'ip',
+				'label' => 'IP',
+			),
 		);
 
 		$decoded_fields = array();
 
 		foreach ( $lines as $line ) {
-			$vars = explode( ': ', $line, 2 );
-			if ( ! empty( $vars ) ) {
-				if ( isset( $var_map[ $vars[0] ] ) ) {
-					$type                    = $var_map[ $vars[0] ];
-					$decoded_fields[ $type ] = self::strip_tags( trim( $vars[1] ) );
+
+			list( $key, $value ) = explode( ': ', $line, 2 );
+
+			if ( ! empty( $key ) ) {
+				if ( isset( $var_map[ $key ] ) ) {
+					$map_to_field                     = $var_map[ $key ];
+					$value                            = self::strip_tags( trim( $value ) );
+					$decoded_fields['fields'][ $key ] = new Response_Field( $key, $map_to_field['label'], $value, $map_to_field['type'], array( 'render' => false ) );
 				}
 			}
 		}
@@ -794,7 +837,13 @@ class Form_Response {
 			}
 		}
 
-		$decoded_fields['comment_content'] = trim( self::strip_tags( $comment_content ) );
+		$decoded_fields['fields']['comment_content'] = new Response_Field(
+			'comment_content',
+			'Comment Content',
+			trim( self::strip_tags( $comment_content ) ),
+			'textarea',
+			array( 'render' => false )
+		);
 
 		return $decoded_fields;
 	}
@@ -897,69 +946,28 @@ class Form_Response {
 
 		return apply_filters( 'contact_form_subject', $contact_form_subject, $this->get_all_values() );
 	}
-
 	/**
 	 * Gets the computed author.
 	 *
-	 * @param array $post_data The post data from the form submission.
+	 * @param array       $post_data The post data from the form submission.
+	 * @param string      $type The type of author information to retrieve (e.g., 'name', 'email', 'url').
+	 * @param string|null $filter Optional filter to apply to the value.
 	 * @return string
 	 */
-	private function get_computed_author( $post_data ) {
+	private function get_computer_author_info( $post_data, $type, $filter = null ) {
 		$field_ids = $this->form->get_field_ids();
-		if ( isset( $field_ids['name'] ) ) {
-			$value = $this->get_field_value( $field_ids['name'], $post_data );
+		if ( isset( $field_ids[ $type ] ) ) {
+			$value = $this->get_field_value( $field_ids[ $type ], $post_data );
 			if ( is_string( $value ) ) {
-				return self::strip_tags(
-					stripslashes(
-						/** This filter is already documented in core/wp-includes/comment-functions.php */
-						apply_filters( 'pre_comment_author_name', addslashes( $value ) )
-					)
-				);
-			}
-		}
-
-		return '';
-	}
-
-	/**
-	 * Gets the computed author email.
-	 *
-	 * @param array $post_data The post data from the form submission.
-	 * @return string
-	 */
-	private function get_computed_author_email( $post_data ) {
-		$field_ids = $this->form->get_field_ids();
-		if ( isset( $field_ids['email'] ) ) {
-			$value = $this->get_field_value( $field_ids['email'], $post_data );
-			if ( is_string( $value ) ) {
-				return self::strip_tags(
-					stripslashes(
-						/** This filter is already documented in core/wp-includes/comment-functions.php */
-						apply_filters( 'pre_comment_author_email', addslashes( $value ) )
-					)
-				);
-			}
-		}
-		return '';
-	}
-
-	/**
-	 * Gets the computed author url.
-	 *
-	 * @param array $post_data The post data from the form submission.
-	 * @return string
-	 */
-	private function get_computed_author_url( $post_data ) {
-		$field_ids = $this->form->get_field_ids();
-		if ( isset( $field_ids['url'] ) ) {
-			$value = $this->get_field_value( $field_ids['url'], $post_data );
-			if ( is_string( $value ) ) {
-				return self::strip_tags(
-					stripslashes(
-						/** This filter is already documented in core/wp-includes/comment-functions.php */
-						apply_filters( 'pre_comment_author_url', addslashes( $value ) )
-					)
-				);
+				if ( ! empty( $filter ) ) {
+					return self::strip_tags(
+						stripslashes(
+							/** This filter is already documented in core/wp-includes/comment-functions.php */
+							apply_filters( $filter, addslashes( $value ) )
+						)
+					);
+				}
+				return self::strip_tags( stripslashes( $value ) );
 			}
 		}
 		return '';
