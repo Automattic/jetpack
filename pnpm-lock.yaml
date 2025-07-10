@@ -5564,8 +5564,8 @@ importers:
         specifier: 3.10.1
         version: 3.10.1(eslint@9.30.1)(svelte@4.2.19)
       eslint-plugin-testing-library:
-        specifier: 7.5.4
-        version: 7.5.4(eslint@9.30.1)(typescript@5.8.3)
+        specifier: 7.1.1
+        version: 7.1.1(eslint@9.30.1)(typescript@5.8.3)
       glob:
         specifier: 11.0.2
         version: 11.0.2
@@ -11150,8 +11150,8 @@ packages:
       svelte:
         optional: true
 
-  eslint-plugin-testing-library@7.5.4:
-    resolution: {integrity: sha512-WDID5wR2MDK6u4QvmAZOjBzaMq7MvEQTpeRAyWuI2kmpBnIKS00/EklRv/5096W5AnpF9XrXPY6PtRPflbvrBw==}
+  eslint-plugin-testing-library@7.1.1:
+    resolution: {integrity: sha512-nszC833aZPwB6tik1nMkbFqmtgIXTT0sfJEYs0zMBKMlkQ4to2079yUV96SvmLh00ovSBJI4pgcBC1TiIP8mXg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0, pnpm: ^9.14.0}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
@@ -25041,7 +25041,7 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  eslint-plugin-testing-library@7.5.4(eslint@9.30.1)(typescript@5.8.3):
+  eslint-plugin-testing-library@7.1.1(eslint@9.30.1)(typescript@5.8.3):
     dependencies:
       '@typescript-eslint/scope-manager': 8.36.0
       '@typescript-eslint/utils': 8.36.0(eslint@9.30.1)(typescript@5.8.3)
