@@ -6,9 +6,232 @@ Efficiently work with block structure
 
 To use this package in your WordPress plugin, you can require both this package and the [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) in your project's `composer.json` file.
 
-## Usage
+## Overview
 
 The Block Delimiter package provides an efficient, streaming parser for working with WordPress block structure without the memory overhead of `parse_blocks()`. It's designed for scenarios where you need to inspect, find, or modify specific blocks without parsing the entire block tree.
+
+The package includes two classes:
+
+- **`Block_Scanner`** (recommended): A high-performance, mutable scanner that provides the best CPU performance while maintaining near-zero memory overhead.
+- **`Block_Delimiter`** (legacy): A generator-based approach that returns new instances for each delimiter, suitable for existing code that relies on the `scan_delimiters()` interface.
+
+## Block_Scanner (Recommended)
+
+The `Block_Scanner` class is modeled after the WordPress HTML API and provides the best performance characteristics. It mutates itself during scanning and requires a new instance for each document scan.
+
+### Basic Block Scanning
+
+Find and iterate through all block delimiters in a document:
+
+```php
+use Automattic\Block_Scanner;
+
+$post_content = '<!-- wp:paragraph -->
+<p>Hello world!</p>
+<!-- /wp:paragraph -->
+<!-- wp:image {"id":123} -->
+<figure><img src="example.jpg" /></figure>
+<!-- /wp:image -->';
+
+$scanner = Block_Scanner::create( $post_content );
+
+while ( $scanner->next_delimiter() ) {
+    echo "Found block: " . $scanner->get_block_type() . "\n";
+    echo "Type: " . $scanner->get_delimiter_type() . "\n";
+}
+```
+
+**Output:**
+```
+Found block: core/paragraph
+Type: opener
+Found block: core/paragraph
+Type: closer
+Found block: core/image
+Type: opener
+Found block: core/image
+Type: closer
+```
+
+### Finding Specific Block Types
+
+Efficiently find blocks of a specific type without parsing everything:
+
+```php
+use Automattic\Block_Scanner;
+
+$post_content = '<!-- wp:paragraph -->
+<p>Welcome to my blog!</p>
+<!-- /wp:paragraph -->
+<!-- wp:image {"id":456} -->
+<figure><img src="photo.jpg" /></figure>
+<!-- /wp:image -->
+<!-- wp:gallery {"ids":[789,101]} -->
+<figure class="wp-block-gallery">...</figure>
+<!-- /wp:gallery -->';
+
+$scanner = Block_Scanner::create( $post_content );
+
+// Find the first image block
+while ( $scanner->next_delimiter() ) {
+    if ( ! $scanner->is_block_type( 'image' ) ) {
+        continue;
+    }
+    
+    if ( $scanner->opens_block() ) {
+        $attributes = $scanner->allocate_and_return_parsed_attributes();
+        if ( isset( $attributes['id'] ) ) {
+            echo "Found image with ID: " . $attributes['id'];
+            break;
+        }
+    }
+}
+```
+
+**Output:**
+```
+Found image with ID: 456
+```
+
+### Extracting Block Attributes
+
+Parse JSON attributes only when needed:
+
+```php
+use Automattic\Block_Scanner;
+
+$post_content = '<!-- wp:paragraph {"fontSize":"large"} -->
+<p class="has-large-font-size">This paragraph has a large font size.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>This paragraph has no custom font size.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph {"fontSize":"small","textColor":"primary"} -->
+<p class="has-primary-color has-small-font-size">This paragraph has a small font size and primary color.</p>
+<!-- /wp:paragraph -->';
+
+$scanner = Block_Scanner::create( $post_content );
+
+while ( $scanner->next_delimiter() ) {
+    if ( $scanner->opens_block( 'paragraph' ) ) {
+        $attributes = $scanner->allocate_and_return_parsed_attributes();
+        if ( isset( $attributes['fontSize'] ) ) {
+            echo "Paragraph with font size: " . $attributes['fontSize'] . "\n";
+        }
+    }
+}
+```
+
+**Output:**
+```
+Paragraph with font size: large
+Paragraph with font size: small
+```
+
+### Counting Block Types
+
+Get a summary of all block types in a document:
+
+```php
+use Automattic\Block_Scanner;
+
+$post_content = '<!-- wp:heading {"level":2} -->
+<h2>My Blog Post</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Introduction paragraph.</p>
+<!-- /wp:paragraph -->
+<!-- wp:image {"id":123} -->
+<figure><img src="hero.jpg" /></figure>
+<!-- /wp:image -->
+<!-- wp:paragraph -->
+<p>Another paragraph.</p>
+<!-- /wp:paragraph -->
+<!-- wp:list -->
+<ul><li>Item 1</li><li>Item 2</li></ul>
+<!-- /wp:list -->';
+
+function get_block_types_in( string $html ): array {
+    $block_types = [];
+    $scanner = Block_Scanner::create( $html );
+    
+    while ( $scanner->next_delimiter() ) {
+        if ( $scanner->opens_block() ) {
+            $block_types[ $scanner->get_block_type() ] = true;
+        }
+    }
+    
+    $block_types = array_keys( $block_types );
+    sort( $block_types );
+    return $block_types;
+}
+
+$block_types = get_block_types_in( $post_content );
+print_r( $block_types );
+```
+
+**Output:**
+```
+Array
+(
+    [0] => core/heading
+    [1] => core/image
+    [2] => core/list
+    [3] => core/paragraph
+)
+```
+
+### Error Handling
+
+Check for parsing errors:
+
+```php
+use Automattic\Block_Scanner;
+
+$post_content = '<!-- wp:paragraph {"invalid": json} -->
+<p>This block has invalid JSON attributes.</p>
+<!-- /wp:paragraph -->
+<!-- wp:image -->
+<figure><img src="valid.jpg" /></figure>
+<!-- /wp:image -->';
+
+$scanner = Block_Scanner::create( $post_content );
+
+while ( $scanner->next_delimiter() ) {
+    if ( $scanner->opens_block() ) {
+        $attributes = $scanner->allocate_and_return_parsed_attributes();
+        if ( null === $attributes && $scanner->get_last_json_error() !== JSON_ERROR_NONE ) {
+            echo "Invalid JSON in " . $scanner->get_block_type() . " block\n";
+        } elseif ( is_array( $attributes ) ) {
+            echo "Valid " . $scanner->get_block_type() . " block\n";
+        } else {
+            echo "No attributes in " . $scanner->get_block_type() . " block\n";
+        }
+    }
+}
+
+// Check for incomplete input
+$incomplete_content = '<!-- wp:paragraph';
+$scanner = Block_Scanner::create( $incomplete_content );
+
+if ( ! $scanner->next_delimiter() ) {
+    $error = $scanner->get_last_error();
+    if ( Block_Scanner::INCOMPLETE_INPUT === $error ) {
+        echo "Document appears to be truncated\n";
+    }
+}
+```
+
+**Output:**
+```
+Invalid JSON in core/paragraph block
+No attributes in core/image block
+Document appears to be truncated
+```
+
+## Block_Delimiter (Legacy)
+
+The `Block_Delimiter` class provides a generator-based interface that returns new instances for each delimiter. While it offers the same memory efficiency, it has higher CPU overhead compared to `Block_Scanner`.
 
 ### Basic Block Scanning
 
@@ -350,7 +573,7 @@ Document appears to be truncated
 
 ### Performance Benefits
 
-The Block Delimiter approach offers significant performance advantages:
+Both classes offer significant performance advantages over `parse_blocks()`:
 
 - **Zero memory overhead**: No block tree construction
 - **Streaming processing**: Process only what you need
@@ -358,15 +581,13 @@ The Block Delimiter approach offers significant performance advantages:
 - **String-based operations**: Work directly with the source text
 - **Early termination**: Stop processing when you find what you need
 
-This makes it ideal for operations like finding specific blocks, counting block types, or making targeted modifications without the cost of full block tree parsing.
-
 ## Contribute
 
 You can contribute to this package by submitting a pull request to the [Jetpack repository](https://github.com/Automattic/jetpack/tree/trunk/projects/packages/block-delimiter).
 
 ### Coding standards
 
-This package follows standards set by the [Jetpack Codesniffer package](https://packagist.org/packages/automattic/jetpack-codesniffer), with a few exceptions documented in the package's `.phpcs.dir.xml` file.
+This package follows standards set by the [Jetpack Code Sniffer package](https://packagist.org/packages/automattic/jetpack-codesniffer), with a few exceptions documented in the package's `.phpcs.dir.xml` file.
 
 ### Testing
 
