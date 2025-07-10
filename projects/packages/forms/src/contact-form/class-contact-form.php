@@ -1654,9 +1654,29 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$feedback_title = "{$comment_author} - {$feedback_time}";
 		$feedback_id    = md5( $feedback_title );
 
+		$entry_title     = '';
+		$entry_permalink = '';
+
+		if ( $this->current_post ) {
+			$entry_title     = $this->current_post->post_title;
+			$entry_permalink = esc_url( self::get_permalink( $this->current_post->ID ) );
+		} elseif ( $widget ) {
+			$entry_title     = __( 'Sidebar Widget', 'jetpack-forms' );
+			$entry_permalink = esc_url( home_url( '/' ) );
+		} elseif ( $block_template ) {
+			$entry_title     = __( 'Block Template', 'jetpack-forms' );
+			$entry_permalink = esc_url( home_url( '/' ) );
+		} elseif ( $block_template_part ) {
+			$entry_title     = __( 'Block Template Part', 'jetpack-forms' );
+			$entry_permalink = esc_url( home_url( '/' ) );
+		} else {
+			$entry_title     = the_title_attribute( 'echo=0' );
+			$entry_permalink = esc_url( self::get_permalink( get_the_ID() ) );
+		}
+
 		$entry_values = array(
-			'entry_title'     => $this->current_post ? $this->current_post->post_title : the_title_attribute( 'echo=0' ),
-			'entry_permalink' => esc_url( self::get_permalink( $this->current_post ? $this->current_post->ID : get_the_ID() ) ),
+			'entry_title'     => $entry_title,
+			'entry_permalink' => $entry_permalink,
 			'feedback_id'     => $feedback_id,
 		);
 
