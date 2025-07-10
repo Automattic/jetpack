@@ -180,7 +180,7 @@ const customTopAnnotationArgs: Partial< LineChartAnnotationProps > = {
 					display: 'flex',
 					alignItems: 'center',
 					gap: '6px',
-					lineHeight: '22px',
+					paddingBlock: '0.25rem ',
 				} }
 			>
 				<DeployedIcon />
@@ -231,7 +231,7 @@ const customBottomAnnotationArgs: Partial< LineChartAnnotationProps > = {
 					display: 'flex',
 					alignItems: 'center',
 					gap: '6px',
-					lineHeight: '22px',
+					paddingBlock: '0.25rem ',
 				} }
 			>
 				<AlertIcon />
