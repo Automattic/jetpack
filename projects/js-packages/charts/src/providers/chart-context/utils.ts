@@ -13,8 +13,8 @@ export const useChartRegistration = (
 	legendItems: BaseLegendItem[],
 	theme: ChartTheme,
 	chartType: string,
-	metadata?: Record< string, unknown >,
-	isDataValid: boolean = true
+	isDataValid: boolean,
+	metadata?: Record< string, unknown >
 ): void => {
 	const { registerChart, unregisterChart } = useChartContext();
 
