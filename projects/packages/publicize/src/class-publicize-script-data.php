@@ -67,9 +67,6 @@ class Publicize_Script_Data {
 		}
 
 		$data['site']['wpcom']['blog_id'] = Manager::get_site_id( true );
-		if ( ! isset( $data['site']['host'] ) ) {
-			$data['site']['host'] = ( new Host() )->get_known_host_guess( false );
-		}
 
 		self::set_wpcom_user_data( $data['user']['current_user'] );
 

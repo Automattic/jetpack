@@ -3,7 +3,6 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -20,6 +19,8 @@ import { getAkismetData } from 'state/at-a-glance';
 import { isOfflineMode, connectUser } from 'state/connection';
 import { getApiNonce } from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
+
+const noop = () => {};
 
 class DashAkismet extends Component {
 	static propTypes = {

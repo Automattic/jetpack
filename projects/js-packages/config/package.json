@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-config",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Handles Jetpack global configuration shared across all packages",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/config/#readme",
 	"bugs": {
@@ -18,8 +18,8 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
-		"jest": "30.0.0",
-		"jest-environment-jsdom": "30.0.0"
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4"
 	},
 	"exports": {
 		".": "./src/index.js"

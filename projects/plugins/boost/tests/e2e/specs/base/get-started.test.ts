@@ -9,7 +9,11 @@ test.describe( 'Getting started page', () => {
 
 	test.beforeEach( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( false ).build();
+		await boostPrerequisitesBuilder( page )
+			.withCleanEnv()
+			.withConnection( false )
+			.withSpeedScoreMocked( true )
+			.build();
 
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );

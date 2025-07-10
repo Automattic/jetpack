@@ -47,7 +47,7 @@
 		"yargs": "17.6.2"
 	},
 	"devDependencies": {
-		"jest": "30.0.0",
+		"jest": "30.0.4",
 		"jest-extended": "5.0.3"
 	}
 }

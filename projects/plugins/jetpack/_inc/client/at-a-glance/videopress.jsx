@@ -1,7 +1,6 @@
 import { ProgressBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -22,6 +21,8 @@ import {
 	getVideoPressStorageUsed,
 	siteHasFeature,
 } from 'state/site';
+
+const noop = () => {};
 
 class DashVideoPress extends Component {
 	static propTypes = {

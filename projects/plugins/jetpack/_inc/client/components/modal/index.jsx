@@ -5,7 +5,7 @@
 import clsx from 'clsx';
 import { createFocusTrap } from 'focus-trap';
 import jQuery from 'jquery';
-import { assign, omit } from 'lodash';
+import { omit } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 
@@ -120,7 +120,7 @@ class Modal extends Component {
 				containerStyle = {};
 		}
 
-		const combinedStyle = assign( {}, style, containerStyle );
+		const combinedStyle = Object.assign( {}, style, containerStyle );
 		return (
 			<div
 				ref={ node => ( this.domNode = node ) }

@@ -1,6 +1,6 @@
 === Jetpack CRM - Clients, Leads, Invoices, Billing, Email Marketing, & Automation ===
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
-Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
+Tags: CRM, Woocommerce CRM, Client Portal, Marketing Automation, Lead Generation
 Tested up to: 6.8
 Stable tag: 6.4.2
 Requires at least: 6.0
@@ -362,13 +362,51 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.5.1 - 2025-01-22
+### 6.6.0 - 2025-07-08
+#### Added
+- Tasks: Show completion checkmark in week and day views.
+
 #### Changed
-- Code: Use function-style exit() and die() with a default status code of 0.
+- Code: First pass of style coding standards.
+- Code: Introduce version constant in main plugin class.
+- Code: Load third-party dependencies from build folder.
+- General: Indicate compatibility with WordPress 6.8.
+- General: Update minimum WordPress version to 6.7.
+- Improve settings so partial payments can be disabled.
+- Tasks: Update FullCalendar to latest version.
+- Update daterangepicker to 3.1.0.
+- Update package dependencies.
 
 #### Removed
-- Remove legacy Groove code.
+- Code: Remove unused function and images.
+- Remove Bootstrap dependency.
+- Remove Onboarding React prototype.
+- Remove unused legacy code.
 
 #### Fixed
-- Invoices: Fix bug introduced in 6.5.0 that prevented email invoices from being sent.
+- API: Fix `companies` endpoint param mapping.
+- Client Portal: Remove top margin from quotes to ensure the top of the quote is visible.
+- Client Portal: Show success message when quote is accepted.
+- Code: Prevent dynamic class properties.
+- Code: Remove extra params on function calls.
+- Code: Remove unneeded `data:` URI components.
+- Code: Update package annotations.
+- Code: Update stylesheets to use hex instead of named colors.
+- Code: Update stylesheets to use WordPress font styles.
+- Contacts: Prevent a PHP warning when adding a new contact when a custom file field exists.
+- Fix a bug where tax names appended from WooCommerce.
+- Fix warning for PHP notices on translation.
+- Invoice line items now import the product short description if set.
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor.
+- Linting: Clean up Stylelint violations.
+- Phan: Exclude generated file from analysis.
+- Ensure special characters in tasks are displayed correctly.
+- Tasks: Allow translation of task status after status change.
+- Tasks: Ensure task status is consistently toggled.
+- Tasks: Make it more clear what the current status of a task is.
+- Tasks: Adjust styles on mobile.
+- Tasks: Prevent status toggle when pressing enter.
+- Welcome Tour: Hide upsell prompts when one has a valid license.
+- Welcome Tour: Restore missing images.
+- Welcome Wizard: Fix regression in JS.
 

@@ -1,10 +1,12 @@
 import { _x } from '@wordpress/i18n';
-import { noop, throttle } from 'lodash';
+import { throttle } from 'lodash';
 import PropTypes from 'prop-types';
 import { createRef, Component } from 'react';
 import { hasTouch } from 'lib/touch-detect';
 import BarContainer from './bar-container';
 import './style.scss';
+
+const noop = () => {};
 
 export default class ModuleChart extends Component {
 	static displayName = 'ModuleChart';

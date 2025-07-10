@@ -1,4 +1,3 @@
-import { assign } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_PRODUCTS_FETCH,
@@ -18,12 +17,12 @@ export const items = ( state = {}, action ) => {
 export const requests = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_PRODUCTS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingProducts: true,
 			} );
 		case JETPACK_PRODUCTS_FETCH_RECEIVE:
 		case JETPACK_PRODUCTS_FETCH_FAIL:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingProducts: false,
 			} );
 

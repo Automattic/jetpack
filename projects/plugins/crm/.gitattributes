@@ -14,7 +14,6 @@
 /vendor/sabberworm/php-css-parser/**            production-include
 **/css/**                                       production-include
 **/js/*.min.js                                  production-include
-**/js/welcome-to-zbs/*.min.js                   production-include
 **/js/*.min.js.LICENSE.txt                      production-include
 
 

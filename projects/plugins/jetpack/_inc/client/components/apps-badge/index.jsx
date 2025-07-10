@@ -1,7 +1,6 @@
 import { getUserLocale as getLocaleSlug } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { startsWith } from 'lodash';
 import PropTypes from 'prop-types';
 import { PureComponent } from 'react';
 import { imagePath } from 'constants/urls';
@@ -68,7 +67,7 @@ class AppsBadge extends PureComponent {
 
 		const localeSlug = APP_STORE_BADGE_URLS[ props.storeName ].getLocaleSlug().toLowerCase();
 
-		const shouldLoadExternalImage = ! startsWith( localeSlug, 'en' );
+		const shouldLoadExternalImage = ! localeSlug.startsWith( 'en' );
 
 		this.state = {
 			shouldLoadExternalImage,

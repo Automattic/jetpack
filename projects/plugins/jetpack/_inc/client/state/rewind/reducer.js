@@ -1,4 +1,4 @@
-import { assign, get } from 'lodash';
+import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	REWIND_STATUS_FETCH,
@@ -11,9 +11,9 @@ import preflightReducer from './preflight/reducer';
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case REWIND_STATUS_FETCH_RECEIVE:
-			return assign( {}, state, { status: action.status } );
+			return Object.assign( {}, state, { status: action.status } );
 		case MOCK_SWITCH_REWIND_STATE:
-			return assign( {}, state, { status: action.rewindState } );
+			return Object.assign( {}, state, { status: action.rewindState } );
 		default:
 			return state;
 	}
@@ -26,12 +26,12 @@ export const initialRequestsState = {
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case REWIND_STATUS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingRewindStatus: true,
 			} );
 		case REWIND_STATUS_FETCH_RECEIVE:
 		case REWIND_STATUS_FETCH_FAIL:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isFetchingRewindStatus: false,
 			} );
 		default:

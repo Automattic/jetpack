@@ -34,6 +34,7 @@ const Lcp = () => {
 					<Pill text={ __( 'Beta', 'jetpack-boost' ) } />
 				</>
 			}
+			worksOffline={ false }
 			description={
 				<p>
 					{ __(

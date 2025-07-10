@@ -8,6 +8,7 @@
 namespace A8C\FSE;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
@@ -38,6 +39,16 @@ class Help_Center {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
+		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
+	}
+
+	/**
+	 * We prefer to use the Help Center instead of the Help tab.
+	 */
+	public function jetpack_remove_core_help_tab() {
+		?>
+			<style>#contextual-help-link-wrap { display: none; }</style>
+		<?php
 	}
 
 	/**
@@ -202,6 +213,14 @@ class Help_Center {
 				$version
 			);
 		}
+
+		wp_enqueue_script(
+			'wpcom-upsell-support-link-handler',
+			plugins_url( 'build/wpcom-upsell-support-link-handler/wpcom-upsell-support-link-handler.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+			array(),
+			filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-upsell-support-link-handler/wpcom-upsell-support-link-handler.js' ),
+			true
+		);
 	}
 
 	/**

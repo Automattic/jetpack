@@ -1,5 +1,4 @@
 import {
-	drop,
 	every,
 	isEqual,
 	map,
@@ -50,7 +49,7 @@ export function ratiosToColumns( ratios, columnCount ) {
 			return shouldTake;
 		} ).length;
 		row.push( colSize );
-		toProcess = drop( toProcess, colSize );
+		toProcess = toProcess.slice( colSize );
 	}
 
 	// Don't calculate last column, just add what's left

@@ -251,15 +251,9 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ 'jest-circus' ] = '^30.0.0';
 		pkg.dependencies[ 'jest-environment-node' ] = '^30.0.0';
 		pkg.dependencies[ 'jest-runner' ] = '^30.0.0';
+		pkg.dependencies[ 'jest-watch-typeahead' ] = '^3.0.0';
 	}
-	if (
-		pkg.name === 'jest-watch-typeahead' &&
-		pkg.peerDependencies.jest === '^27.0.0 || ^28.0.0 || ^29.0.0'
-	) {
-		pkg.peerDependencies.jest += ' || ^30.0.0';
-		pkg.dependencies[ 'jest-regex-util' ] = '^30.0.0';
-		pkg.dependencies[ 'jest-watcher' ] = '^30.0.0';
-	}
+	// https://github.com/playwright-community/jest-playwright/issues/824
 	if ( pkg.name === 'jest-playwright-preset' && pkg.peerDependencies.jest === '^29.3.1' ) {
 		pkg.peerDependencies.jest += ' || ^30.0.0';
 		pkg.peerDependencies[ 'jest-circus' ] += ' || ^30.0.0';

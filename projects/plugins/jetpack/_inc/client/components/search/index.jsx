@@ -1,6 +1,6 @@
 import { isMobile } from '@automattic/viewport';
 import clsx from 'clsx';
-import { debounce, noop } from 'lodash';
+import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import { createRef, Component } from 'react';
 import Gridicon from 'components/gridicon';
@@ -9,6 +9,8 @@ import SearchClearButton from './clear-btn';
 import SearchCloseButton from './close-btn';
 
 import './style.scss';
+
+const noop = () => {};
 
 /**
  * Internal variables

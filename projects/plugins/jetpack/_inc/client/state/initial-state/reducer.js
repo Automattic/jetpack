@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { assign, get, merge } from 'lodash';
+import { get, merge } from 'lodash';
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { isCurrentUserLinked } from 'state/connection';
 import { getPlanDuration } from 'state/plans/reducer';
@@ -8,7 +8,7 @@ import { getSiteProducts } from 'state/site-products';
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
-			return assign( {}, state, action.initialState );
+			return Object.assign( {}, state, action.initialState );
 
 		case MOCK_SWITCH_USER_PERMISSIONS:
 			return merge( {}, state, { userData: action.initialState } );
@@ -493,39 +493,6 @@ export function getLastPostUrl( state ) {
  */
 export function arePromotionsActive( state ) {
 	return get( state.jetpack.initialState.siteData, 'showPromotions', true );
-}
-
-/**
- * Check if the site is an Automated Transfer site.
- *
- * @todo Deprecated soon for isWoASite();
- * @param {object} state - Global state tree.
- *
- * @return {boolean} True if this is an WoA site, false otherwise.
- */
-export function isAtomicSite( state ) {
-	return get( state.jetpack.initialState.siteData, 'isAtomicSite', false );
-}
-
-/**
- * Check if the site is a WordPress.com-on-Atomic site.
- *
- * @param {object} state - Global state tree.
- * @return {boolean} True if this is an WoA site, false otherwise.
- */
-export function isWoASite( state ) {
-	return get( state.jetpack.initialState.siteData, 'isWoASite', false );
-}
-
-/**
- * Check if the site is an Atomic-hosted site.
- * Examples include Jurassic Ninja, BlueHost on Atomic, etc.
- *
- * @param {object} state - Global state tree.
- * @return {boolean} True if this is an Atomic-hosted site, false otherwise.
- */
-export function isAtomicPlatform( state ) {
-	return get( state.jetpack.initialState.siteData, 'isAtomicPlatform', false );
 }
 
 /**

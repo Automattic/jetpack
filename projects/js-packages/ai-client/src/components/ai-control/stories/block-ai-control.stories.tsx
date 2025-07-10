@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { action } from '@storybook/addon-actions';
-import { useArgs } from '@storybook/preview-api';
 import { Notice } from '@wordpress/components';
+import { action } from 'storybook/actions';
+import { useArgs } from 'storybook/preview-api';
 /**
  * Internal dependencies
  */

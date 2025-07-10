@@ -435,9 +435,6 @@ function zbscrm_JS_bindDateRangePicker( options ) {
 	// Bind .jpcrm-date.jpcrm-empty-start, .jpcrm-date.jpcrm-custom-field
 	jpcrm_js_bind_datepicker( options );
 
-	// Bind .jpcrm-date-range = date rangepicker
-	jpcrm_js_bind_daterangepicker( options );
-
 	// bind .jpcrm-datetime-range
 	jpcrm_js_bind_datetimerangepicker( options );
 
@@ -568,7 +565,7 @@ function jpcrm_js_bind_daterangepicker( options, callback ) {
 		}
 
 		// Initiate Date Range Picker
-		jQuery( '.jpcrm-date-range, .zbs-date-range' ).each( function ( ind, ele ) {
+		jQuery( '.jpcrm-date-range' ).each( function ( ind, ele ) {
 			const elementOptions = zbscrm_JS_clone( dateRangePickerOpts );
 
 			// and per-date-picker we can also override the format with data-daterangepicker-format attribute:
@@ -2743,6 +2740,19 @@ const jpcrm = {
 	// identical to WP's esc_attr other than a different hook
 	esc_html: str => {
 		return jpcrm.esc_attr( str );
+	},
+	// Decode HTML entities to prevent double-encoding issues
+	decodeHTMLEntities: ( () => {
+		const textarea = document.createElement( 'textarea' );
+		return text => {
+			textarea.innerHTML = text;
+			return textarea.value;
+		};
+	} )(),
+	// Combined helper: decode HTML entities then escape for safe display
+	escTextWithDecode: text => {
+		const decoded = jpcrm.decodeHTMLEntities( text );
+		return jpcrm.esc_html( decoded );
 	},
 };
 
