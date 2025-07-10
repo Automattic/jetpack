@@ -241,6 +241,11 @@ function include_compatibility_files() {
 		require_once __DIR__ . '/compatibility/aioseo.php';
 	}
 
+	// Exclude Beaver Builder custom post types.
+	if ( class_exists( 'FLBuilderLoader' ) ) {
+		require_once __DIR__ . '/compatibility/beaver-builder.php';
+	}
+
 	// Exclude known scripts that causes problem when concatenated.
 	require_once __DIR__ . '/compatibility/js-concatenate.php';
 
