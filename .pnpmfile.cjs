@@ -114,6 +114,15 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies.typescript = '*';
 	}
 
+	// Missing dep. Already fixed upstream, pending release.
+	// https://github.com/typescript-eslint/typescript-eslint/issues/11382
+	if (
+		pkg.name === '@typescript-eslint/type-utils' &&
+		! pkg.dependencies[ '@typescript-eslint/types' ]
+	) {
+		pkg.dependencies[ '@typescript-eslint/types' ] = '8.36.0';
+	}
+
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
