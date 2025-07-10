@@ -515,10 +515,6 @@ class Initializer {
 	public static function should_initialize() {
 		$should = true;
 
-		if ( is_multisite() ) {
-			$should = false;
-		}
-
 		// All options presented in My Jetpack require a connection to WordPress.com.
 		if ( ( new Status() )->is_offline_mode() ) {
 			$should = false;
