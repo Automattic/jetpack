@@ -14,7 +14,7 @@ type GravatarProps = {
 };
 
 /**
- * Renders the status toggle for the inbox view.
+ * Renders Gravatar profile image with profile hover card.
  *
  * If email has no gravatar profile, uses initials to render image instead.
  * See https://docs.gravatar.com/sdk/images/#default-image
