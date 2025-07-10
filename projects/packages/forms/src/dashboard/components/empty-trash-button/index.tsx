@@ -15,6 +15,10 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { store as dashboardStore } from '../../store';
 
+type CoreStore = typeof coreStore & {
+	invalidateResolutionForStore: ( store: typeof dashboardStore ) => void;
+};
+
 /**
  * Renders a button to empty form responses.
  *
@@ -23,7 +27,7 @@ import { store as dashboardStore } from '../../store';
 const EmptyTrashButton = (): JSX.Element => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const { createSuccessNotice, createErrorNotice } = dispatch( noticesStore );
-	const { invalidateResolutionForStore } = dispatch( coreStore );
+	const { invalidateResolutionForStore } = dispatch( coreStore ) as unknown as CoreStore;
 
 	const { totalItems } = useEntityRecords( 'postType', 'feedback', {
 		status: 'trash',
@@ -44,7 +48,7 @@ const EmptyTrashButton = (): JSX.Element => {
 			method: 'DELETE',
 			path: `/wp/v2/feedback/trash`,
 		} )
-			.then( response => {
+			.then( ( response: { deleted?: number } ) => {
 				const deleted = response?.deleted ?? 0;
 				const successMessage =
 					deleted === 1
