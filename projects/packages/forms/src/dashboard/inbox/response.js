@@ -287,8 +287,6 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 					</div>
 				</div>
 
-				<div className="jp-forms__inbox-response-separator" />
-
 				<div className="jp-forms__inbox-response-data">
 					{ map( response.fields, ( value, key ) => (
 						<div key={ key } className="jp-forms__inbox-response-item">

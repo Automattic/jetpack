@@ -82,8 +82,6 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-response {
-	border: 1px solid #dcdcde;
-	border-radius: 8px;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
@@ -91,15 +89,6 @@ $action-bar-height: 88px;
 	overflow: hidden;
 	background-color: #fff;
 	position: relative;
-
-	&::before {
-		background: linear-gradient(30deg, #eaeff5, #f2f3e3);
-		border-bottom: 1px solid #dcdcde;
-		box-sizing: border-box;
-		content: "";
-		display: flex;
-		padding-top: 24px;
-	}
 
 	&.exit-active {
 		display: none;
@@ -132,9 +121,6 @@ $action-bar-height: 88px;
 		}
 	}
 
-	@media (min-width: 816px) {
-		margin: 20px 20px 20px 0;
-	}
 }
 
 .jp-forms__inbox-response-avatar {
@@ -215,7 +201,7 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-response-meta {
-	color: #646970;
+	color: var(--jp-gray-80);
 	display: table;
 	flex-direction: column;
 	font-size: 12px;
@@ -255,12 +241,8 @@ $action-bar-height: 88px;
 	}
 }
 
-.jp-forms__inbox-response-separator {
-	border-bottom: 1px solid var( --jp-forms-border-color );
-	width: 100%;
-}
-
 .jp-forms__inbox-response-data {
+	border-top: 1px solid var( --jp-forms-border-color );
 	display: flex;
 	font-size: var(--jp-forms-font-size-regular);
 	flex-direction: column;
@@ -366,10 +348,10 @@ $action-bar-height: 88px;
 	flex-direction: column;
 	height: 100%;
 	max-height: 100%;
-	flex: 1 1 50%;
+	flex: 1 1 60%;
 
 	.dataviews-wrapper {
-		background: #fff;
+		background: var(--jp-white);
 		height: 300px;
 		flex-grow: 1;
 		overflow-y: visible;
@@ -408,7 +390,7 @@ $action-bar-height: 88px;
 	min-width: 300px !important;
 	height: 100%;
 	overflow: auto;
-	flex: 1 1 50%;
+	flex: 1 1 40%;
 }
 
 

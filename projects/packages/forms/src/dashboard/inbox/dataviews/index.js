@@ -293,7 +293,7 @@ export default function InboxView() {
 
 	return (
 		<HStack
-			spacing={ 5 }
+			spacing={ 0 }
 			alignment="top"
 			justify="flex-start"
 			ref={ containerRef }
