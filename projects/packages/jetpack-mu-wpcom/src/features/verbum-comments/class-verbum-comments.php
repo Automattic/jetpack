@@ -130,11 +130,7 @@ class Verbum_Comments {
 	 * Enqueue Assets
 	 */
 	public function enqueue_assets() {
-		if (
-			! ( is_singular() && comments_open() )
-			&& ! ( is_front_page() && is_page() && comments_open() )
-			&& ! $this->should_enqueue_assets
-		) {
+		if ( ! \Verbum_Block_Utils::should_show_verbum_comments() && ! $this->should_enqueue_assets ) {
 			return;
 		}
 
@@ -694,10 +690,7 @@ HTML;
 	 * @return array - The modified Jetpack script data.
 	 */
 	public function add_jetpack_script_data( $data ) {
-		if (
-		( is_singular() && comments_open() )
-		|| ( is_front_page() && is_page() && comments_open() )
-		) {
+		if ( \Verbum_Block_Utils::should_show_verbum_comments() ) {
 			if ( ! isset( $data['site']['host'] ) ) {
 				$data['site']['host'] = ( new \Automattic\Jetpack\Status\Host() )->get_known_host_guess();
 			}
