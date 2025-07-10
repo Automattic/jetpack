@@ -18,9 +18,20 @@ export const JETPACK_PRODUCTS_WITHOUT_CARD = [
 	'newsletter',
 	'protect',
 	'related-posts',
+	'scan',
 	'security',
 	'site-accelerator',
 ] as const;
+
+export const JETPACK_PRODUCTS = [
+	...JETPACK_PRODUCTS_WITH_CARD,
+	...JETPACK_PRODUCTS_WITHOUT_CARD,
+] as const;
+
+export const JETPACK_PRODUCTS_NOT_4_MULTISITE: Array< ( typeof JETPACK_PRODUCTS )[ number ] > = [
+	'backup',
+	'scan',
+];
 
 export const PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN = [ 'anti-spam', 'boost', 'crm' ];
 
