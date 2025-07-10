@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-2RWt9BReVcA35xVy6JLbjZIgQVQ3dITJDdKImJz5DuE=
+pnpmfileChecksum: sha256-RI8+fWZSb/OKUaO2g4KPZfc+IyrLDOiJjgpMKi7kB5g=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -20141,6 +20141,7 @@ snapshots:
 
   '@typescript-eslint/type-utils@8.36.0(eslint@9.30.1)(typescript@5.8.3)':
     dependencies:
+      '@typescript-eslint/types': 8.36.0
       '@typescript-eslint/typescript-estree': 8.36.0(typescript@5.8.3)
       '@typescript-eslint/utils': 8.36.0(eslint@9.30.1)(typescript@5.8.3)
       debug: 4.4.1
