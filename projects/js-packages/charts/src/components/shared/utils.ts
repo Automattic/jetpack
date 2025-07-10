@@ -24,4 +24,9 @@ export const getLongestTickWidth = < T extends AnyD3Scale >(
 	return getStringWidth( longestTick, labelStyle );
 };
 
-export const isSafari = /^((?!chrome|android).)*safari/i.test( navigator.userAgent );
+export const isSafari = () => {
+	if ( typeof navigator !== 'undefined' && navigator.userAgent ) {
+		return /^((?!chrome|android).)*safari/i.test( navigator.userAgent );
+	}
+	return false;
+};

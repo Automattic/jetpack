@@ -25,6 +25,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 	const buttonRef = useRef< HTMLButtonElement >( null );
 	const popoverRef = useRef< HTMLDivElement >( null );
 	const [ isPositioned, setIsPositioned ] = useState( false );
+	const isBrowserSafari = isSafari();
 
 	useEffect( () => {
 		const button = buttonRef.current;
@@ -33,8 +34,8 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 		if ( ! button || ! popover ) return;
 
 		const positionPopover = () => {
-			// Popover positioning in Safari is complicated due to issues with SVG foreign objects, so let it be positioned in the centre of the viewport.
-			if ( ! isSafari ) {
+			// Popover positioning in Safari is complicated due to issues with SVG foreign objects (https://bugs.webkit.org/show_bug.cgi?id=23113), so let it be positioned in the centre of the viewport.
+			if ( ! isBrowserSafari ) {
 				const buttonRect = button.getBoundingClientRect();
 				popover.style.left = `${ buttonRect.right }px`;
 				popover.style.top = `${ buttonRect.top }px`;
@@ -58,7 +59,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 		} catch {
 			// Ignore errors in test environments (e.g., JSDOM does not support :popover-open)
 		}
-	}, [] );
+	}, [ isBrowserSafari ] );
 
 	return (
 		<div className={ styles[ 'line-chart__annotation-label' ] }>
@@ -82,7 +83,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 				className={ clsx(
 					styles[ 'line-chart__annotation-label-popover' ],
 					isPositioned && styles[ 'line-chart__annotation-label-popover--visible' ],
-					isSafari && styles[ 'line-chart__annotation-label-popover--safari' ]
+					isBrowserSafari && styles[ 'line-chart__annotation-label-popover--safari' ]
 				) }
 				data-testid="line-chart-annotation-label-popover"
 			>

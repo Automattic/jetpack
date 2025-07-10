@@ -260,13 +260,13 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 		y: getLabelY(),
 	};
 
-	// Safari has a bug where children of an SVG foreignObject are not positioned correctly
+	// Safari has a bug where children of an SVG foreignObject are not positioned correctly https://bugs.webkit.org/show_bug.cgi?id=23113
 	// This is a workaround to position the label correctly
 	const getSafariHTMLLabelPosition = () => {
 		const labelWidth = POPOVER_BUTTON_SIZE;
 		const labelHeight = POPOVER_BUTTON_SIZE;
 
-		return isSafari
+		return isSafari()
 			? {
 					transform: `translate(${
 						x +
