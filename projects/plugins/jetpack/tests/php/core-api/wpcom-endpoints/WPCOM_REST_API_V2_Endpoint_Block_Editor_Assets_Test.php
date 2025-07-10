@@ -53,12 +53,16 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		wp_register_style( 'jetpack-mock-style', 'http://example.org/mock-editor.css', array(), '1.0' );
 		wp_register_script( 'disallowed-plugin-script', 'http://example.org/script.js', array(), '1.0', true );
 		wp_register_style( 'disallowed-plugin-style', 'http://example.org/style.css', array(), '1.0' );
+		wp_register_script( 'wpcom-gutenberg-script', 'http://example.org/plugins/gutenberg-core/script.js', array(), '1.0', true );
+		wp_register_style( 'wpcom-gutenberg-style', 'http://example.org/plugins/gutenberg-core/style.css', array(), '1.0' );
 
 		// Enqueue our mock assets
 		wp_enqueue_script( 'jetpack-mock-script' );
 		wp_enqueue_style( 'jetpack-mock-style' );
 		wp_enqueue_script( 'disallowed-plugin-script' );
 		wp_enqueue_style( 'disallowed-plugin-style' );
+		wp_enqueue_script( 'wpcom-gutenberg-script' );
+		wp_enqueue_style( 'wpcom-gutenberg-style' );
 	}
 
 	/**
@@ -287,5 +291,22 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		// Cleanup.
 		unregister_post_type( 'custom_type' );
 		remove_role( 'custom_editor' );
+	}
+
+	/**
+	 * Test that WPCOM-specific Gutenberg assets are preserved.
+	 */
+	public function test_wpcom_gutenberg_assets_are_preserved() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify the WPCOM Gutenberg assets are preserved in the output
+		$this->assertStringContainsString( 'wpcom-gutenberg-script', $data['scripts'] );
+		$this->assertStringContainsString( 'wpcom-gutenberg-style', $data['styles'] );
+		$this->assertStringContainsString( 'plugins/gutenberg-core/script.js', $data['scripts'] );
+		$this->assertStringContainsString( 'plugins/gutenberg-core/style.css', $data['styles'] );
 	}
 }

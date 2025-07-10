@@ -312,7 +312,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			$src[0] === '/' ||
 			strpos( $src, 'wp-includes/' ) !== false ||
 			strpos( $src, 'wp-admin/' ) !== false ||
-			strpos( $src, 'plugins/gutenberg/' ) !== false;
+			strpos( $src, 'plugins/gutenberg/' ) !== false ||
+			strpos( $src, 'plugins/gutenberg-core/' ) !== false; // WPCOM-specific path
 	}
 
 	/**
