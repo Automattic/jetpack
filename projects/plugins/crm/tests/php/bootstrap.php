@@ -81,6 +81,13 @@ require $test_root . '/includes/functions.php';
 function _jpcrm_manually_load_plugin() {
 	// Load the main plugin file
 	require_once JETPACK_CRM_TESTS_ROOT . '/../../ZeroBSCRM.php';
+
+	// For tests, we need to manually initialize the plugin
+	global $zbs;
+	$zbs = zeroBSCRM::instance();
+
+	$zbs->install();
+	zeroBSCRM_notifyme_createDBtable();
 }
 
 tests_add_filter( 'muplugins_loaded', '_jpcrm_manually_load_plugin' );
