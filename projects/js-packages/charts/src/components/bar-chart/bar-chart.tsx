@@ -181,14 +181,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	// Register chart with context only if data is valid
 	const providerTheme = useChartTheme();
-	useChartRegistration(
-		chartId,
-		legendItems,
-		providerTheme,
-		'bar',
-		{ orientation, withPatterns },
-		isDataValid
-	);
+	useChartRegistration( chartId, legendItems, providerTheme, 'bar', isDataValid, {
+		orientation,
+		withPatterns,
+	} );
 
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;

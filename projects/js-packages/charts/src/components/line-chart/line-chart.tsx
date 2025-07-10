@@ -335,20 +335,13 @@ const LineChartInternal: FC< LineChartProps > = ( {
 	);
 
 	// Register chart with context only if data is valid
-	useChartRegistration(
-		chartId,
-		legendItems,
-		providerTheme,
-		'line',
-		{
-			withGradientFill,
-			smoothing,
-			curveType,
-			withStartGlyphs,
-			withLegendGlyph,
-		},
-		isDataValid
-	);
+	useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, {
+		withGradientFill,
+		smoothing,
+		curveType,
+		withStartGlyphs,
+		withLegendGlyph,
+	} );
 
 	const accessors = {
 		xAccessor: ( d: DataPointDate ) => d?.date,

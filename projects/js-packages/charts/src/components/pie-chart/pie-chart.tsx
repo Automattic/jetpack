@@ -122,18 +122,11 @@ const PieChartInternal = ( {
 	);
 
 	// Register chart with context only if data is valid
-	useChartRegistration(
-		chartId,
-		legendItems,
-		providerTheme,
-		'pie',
-		{
-			thickness,
-			gapScale,
-			cornerScale,
-		},
-		isValid
-	);
+	useChartRegistration( chartId, legendItems, providerTheme, 'pie', isValid, {
+		thickness,
+		gapScale,
+		cornerScale,
+	} );
 
 	if ( ! isValid ) {
 		return (

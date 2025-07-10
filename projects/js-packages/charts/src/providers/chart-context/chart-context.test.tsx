@@ -103,7 +103,7 @@ describe( 'ChartContext', () => {
 				const chartId = useChartId( 'test-chart' );
 				contextValue = useChartContext();
 
-				useChartRegistration( chartId, mockLegendItems, mockTheme, 'bar', { test: true } );
+				useChartRegistration( chartId, mockLegendItems, mockTheme, 'bar', true, { test: true } );
 
 				return <div>Test</div>;
 			};
@@ -131,8 +131,8 @@ describe( 'ChartContext', () => {
 				const chartId2 = useChartId( 'chart-2' );
 				contextValue = useChartContext();
 
-				useChartRegistration( chartId1, mockLegendItems, mockTheme, 'bar' );
-				useChartRegistration( chartId2, mockLegendItems, mockTheme, 'line' );
+				useChartRegistration( chartId1, mockLegendItems, mockTheme, 'bar', true );
+				useChartRegistration( chartId2, mockLegendItems, mockTheme, 'line', true );
 
 				return <div>Test</div>;
 			};
@@ -173,9 +173,9 @@ describe( 'ChartContext', () => {
 				contextValue = useChartContext();
 
 				// Register first chart
-				useChartRegistration( chartId, mockLegendItems, mockTheme, 'bar' );
+				useChartRegistration( chartId, mockLegendItems, mockTheme, 'bar', true );
 				// Register second chart with same ID
-				useChartRegistration( chartId, mockLegendItems, mockTheme, 'line' );
+				useChartRegistration( chartId, mockLegendItems, mockTheme, 'line', true );
 
 				return <div>Test</div>;
 			};
