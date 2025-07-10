@@ -86,6 +86,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public $is_response_without_reload_enabled = false;
 
 	/**
+	 * The current post object for this form.
+	 *
+	 * @var WP_Post|null
+	 */
+	public $current_post;
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -93,6 +100,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public function __construct( $attributes, $content = null ) {
 		global $post, $page;
+
+		// AJAX requests don't have a post object, so we need to get the post object from the $_POST['contact-form-id']
+		$this->current_post = $post;
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification happens in process_form_submission() for logged-in users
+		if ( ! $this->current_post && isset( $_POST['contact-form-id'] ) ) {
+			$contact_form_id    = sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) );
+			$this->current_post = get_post( $contact_form_id );
+		}
+		// phpcs:enable
 
 		$this->is_response_without_reload_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', false );
 
@@ -104,12 +121,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$attributes = array();
 		}
 
-		if ( $post ) {
+		if ( $this->current_post ) {
 			$default_subject = sprintf(
 				// translators: the blog name and post title.
 				_x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack-forms' ),
 				$default_subject,
-				Contact_Form_Plugin::strip_tags( $post->post_title )
+				Contact_Form_Plugin::strip_tags( $this->current_post->post_title )
 			);
 		}
 
@@ -124,9 +141,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
 			$default_to      .= get_option( 'admin_email' );
 			$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
-		} elseif ( $post ) {
-			$attributes['id'] = $post->ID;
-			$post_author      = get_userdata( $post->post_author );
+		} elseif ( $this->current_post ) {
+			$attributes['id'] = $this->current_post->ID;
+			$post_author      = get_userdata( $this->current_post->post_author );
 			if ( is_a( $post_author, '\WP_User' ) ) {
 				$default_to .= $post_author->user_email;
 			} else {
@@ -140,10 +157,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$attributes['id'] = '';
 			}
 
-			// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
-			$page_num = max( 1, intval( $page ) );
+			// Widgets do not require a page number, so we don't need to add it to the id
+			if ( empty( $attributes['widget'] ) ) {
+				// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
+				$page_num = max( 1, intval( $page ) );
 
-			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
+				$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
+			}
 		}
 
 		$this->hash                 = sha1( wp_json_encode( $attributes ) );
@@ -1301,8 +1321,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Stores feedback.  Sends email.
 	 */
 	public function process_submission() {
-		global $post;
-
 		$plugin = Contact_Form_Plugin::init();
 
 		$id                  = $this->get_attribute( 'id' );
@@ -1356,7 +1374,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 				return false;
 			}
-		} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $post ) || $post->ID !== (int) $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+		} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $this->current_post ) || $this->current_post->ID !== (int) sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 			return false;
 		}
 
@@ -1637,8 +1655,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$feedback_id    = md5( $feedback_title );
 
 		$entry_values = array(
-			'entry_title'     => the_title_attribute( 'echo=0' ),
-			'entry_permalink' => esc_url( self::get_permalink( get_the_ID() ) ),
+			'entry_title'     => $this->current_post ? $this->current_post->post_title : the_title_attribute( 'echo=0' ),
+			'entry_permalink' => esc_url( self::get_permalink( $this->current_post ? $this->current_post->ID : get_the_ID() ) ),
 			'feedback_id'     => $feedback_id,
 		);
 
@@ -1657,7 +1675,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $block_template || $block_template_part || $widget ) {
 			$url = home_url( '/' );
 		} else {
-			$url = self::get_permalink( $post->ID );
+			$url = self::get_permalink( $this->current_post ? $this->current_post->ID : 0 );
 		}
 
 		// translators: the time of the form submission.
@@ -1722,7 +1740,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'post_date'    => addslashes( $feedback_time ),
 				'post_type'    => 'feedback',
 				'post_status'  => addslashes( $feedback_status ),
-				'post_parent'  => $post ? (int) $post->ID : 0,
+				'post_parent'  => $this->current_post ? (int) $this->current_post->ID : 0,
 				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\n{$comment_ip_text}JSON_DATA\n" . @wp_json_encode( $all_values, true ), array() ) ), // so that search will pick up this data
