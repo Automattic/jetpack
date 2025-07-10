@@ -61,28 +61,19 @@ const CornerstoneTitleSummary = () => {
 		/* translators: %s is the number of pages in the cornerstone pages list apart from the homepage. */
 		__( 'Added: %s', 'jetpack-boost' ),
 		() => {
-			const homepage = Jetpack_Boost.site.url.replace( /\/$/, '' );
-			const hasHomepage = cornerstonePages.includes( homepage );
-
-			if ( hasHomepage ) {
-				if ( cornerstonePages.length > 1 ) {
-					return sprintf(
-						/* translators: %d is the number of pages in the cornerstone pages list apart from the homepage. */
-						_n(
-							'Homepage + %d page',
-							'Homepage + %d pages',
-							cornerstonePages.length - 1,
-							'jetpack-boost'
-						),
-						cornerstonePages.length - 1
-					);
-				}
+			if ( cornerstonePages.length < 2 ) {
 				return __( 'Homepage', 'jetpack-boost' );
 			}
+
 			return sprintf(
-				/* translators: %d is the number of pages added to the cornerstone pages list. */
-				_n( '%d page', '%d pages', cornerstonePages.length, 'jetpack-boost' ),
-				cornerstonePages.length
+				/* translators: %d is the number of pages in the cornerstone pages list apart from the homepage. */
+				_n(
+					'Homepage + %d page',
+					'Homepage + %d pages',
+					cornerstonePages.length - 1,
+					'jetpack-boost'
+				),
+				cornerstonePages.length - 1
 			);
 		}
 	);
