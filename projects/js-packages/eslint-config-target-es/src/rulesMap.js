@@ -1,6 +1,14 @@
 // Map of eslint-plugin-es-x rules to MDN compat-data paths.
 // Values are either a path, an array of paths, true to always enable the rule, or false to always disable it.
 module.exports = {
+	// ES2026
+	'no-array-fromasync': 'javascript.builtins.Array.fromAsync',
+	'no-asyncdisposablestack': 'javascript.builtins.AsyncDisposableStack.AsyncDisposableStack',
+	'no-disposablestack': 'javascript.builtins.DisposableStack.DisposableStack',
+	'no-error-iserror': 'javascript.builtins.Error.isError',
+	'no-suppressederror': 'javascript.builtins.SuppressedError.SuppressedError',
+	'no-using-declarations': 'javascript.statements.using',
+
 	// ES2025
 	'no-dataview-prototype-getfloat16-setfloat16': [
 		'javascript.builtins.DataView.getFloat16',
@@ -395,6 +403,8 @@ module.exports = {
 	'no-nonstandard-array-prototype-properties': false,
 	'no-nonstandard-arraybuffer-properties': false,
 	'no-nonstandard-arraybuffer-prototype-properties': false,
+	'no-nonstandard-asyncdisposablestack-properties': false,
+	'no-nonstandard-asyncdisposablestack-prototype-properties': false,
 	'no-nonstandard-atomics-properties': false,
 	'no-nonstandard-bigint-properties': false,
 	'no-nonstandard-bigint-prototype-properties': false,
@@ -404,6 +414,9 @@ module.exports = {
 	'no-nonstandard-dataview-prototype-properties': false,
 	'no-nonstandard-date-properties': false,
 	'no-nonstandard-date-prototype-properties': false,
+	'no-nonstandard-disposablestack-properties': false,
+	'no-nonstandard-disposablestack-prototype-properties': false,
+	'no-nonstandard-error-properties': false,
 	'no-nonstandard-finalizationregistry-properties': false,
 	'no-nonstandard-finalizationregistry-prototype-properties': false,
 	'no-nonstandard-function-properties': false,
