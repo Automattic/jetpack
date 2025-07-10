@@ -50,6 +50,7 @@ interface ConnectionStatusCardProps {
 	redirectUri?: string;
 	title?: string;
 	onDisconnected?: () => void;
+	onUnlinked?: () => void;
 	connectedPlugins?: {
 		name: string;
 		slug: string;
