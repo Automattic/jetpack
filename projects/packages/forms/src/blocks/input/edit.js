@@ -17,7 +17,7 @@ const SYNCED_ATTRIBUTE_KEYS = [
 	'textColor',
 ];
 
-const TEXT_FIELDS = [ 'number', 'text', 'email', 'url', 'tel' ];
+const TEXT_FIELDS = [ 'number', 'text', 'email', 'url', 'tel', 'time' ];
 
 const getInputClass = type => {
 	if ( type === 'dropdown' ) {
