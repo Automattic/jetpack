@@ -1,4 +1,4 @@
-import { Button } from '@wordpress/components';
+import { Button, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import GoogleSheetsIcon from '../../../../icons/google-sheets';
@@ -96,7 +96,7 @@ const GoogleSheetsCard = ( {
 							'jetpack-forms'
 						) }
 					</p>
-					<div className="integration-card__links">
+					<HStack spacing="2" justify="start" className="integration-card__links">
 						<Button
 							variant="link"
 							href={ FORM_RESPONSES_URL }
@@ -105,7 +105,17 @@ const GoogleSheetsCard = ( {
 						>
 							{ __( 'View Form Responses', 'jetpack-forms' ) }
 						</Button>
-					</div>
+						<span>|</span>
+						<Button
+							variant="link"
+							onClick={ handleConnectClick }
+							target="_blank"
+							rel="noopener noreferrer"
+							disabled={ ! settingsUrl }
+						>
+							{ __( 'Disconnect Google Drive', 'jetpack-forms' ) }
+						</Button>
+					</HStack>
 				</div>
 			) }
 		</IntegrationCard>

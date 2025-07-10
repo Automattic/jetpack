@@ -120,10 +120,16 @@
 		}
 	}
 
-	&__links {
-		display: flex;
-		align-items: center;
-		gap: 8px;
+	&__links.components-h-stack {
+
+		@media (max-width: 480px) {
+			flex-direction: column;
+			align-items: flex-start;
+
+			span {
+				display: none;
+			}
+		}
 	}
 
 	.components-button .components-spinner {
