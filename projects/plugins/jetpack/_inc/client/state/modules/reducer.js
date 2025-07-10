@@ -1,4 +1,4 @@
-import { get, includes, intersection } from 'lodash';
+import { get, intersection } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_SET_INITIAL_STATE,
@@ -324,7 +324,7 @@ export function isModuleActivated( state, name ) {
  * @return {boolean}            Whether a module is available to be displayed in the dashboard.
  */
 export function isModuleAvailable( state, moduleSlug ) {
-	return includes( Object.keys( state.jetpack.modules.items ), moduleSlug );
+	return Object.keys( state.jetpack.modules.items ).includes( moduleSlug );
 }
 
 /**

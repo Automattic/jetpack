@@ -4,7 +4,7 @@ import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
 import { mediaUpload } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { filter, get, pick } from 'lodash';
+import { get, pick } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
 import metadata from './block.json';
 import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES } from './constants';
@@ -72,7 +72,7 @@ const TiledGalleryEdit = ( {
 	};
 
 	const onRemoveImage = index => () => {
-		const filteredImages = filter( images, ( img, i ) => index !== i );
+		const filteredImages = images.filter( ( img, i ) => index !== i );
 
 		setSelectedImage( null );
 		setChanged( true );

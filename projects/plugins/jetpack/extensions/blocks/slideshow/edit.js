@@ -13,7 +13,7 @@ import domReady from '@wordpress/dom-ready';
 import { mediaUpload } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { get, map, pick } from 'lodash';
+import { get, pick } from 'lodash';
 import metadata from './block.json';
 import { PanelControls, ToolbarControls } from './controls';
 import Slideshow from './slideshow';
@@ -96,7 +96,7 @@ export const SlideshowEdit = ( {
 	const uploadFromFiles = event => addFiles( event.target.files );
 
 	const getImageSizeOptions = () =>
-		map( imageSizes, ( { name, slug } ) => ( { value: slug, label: name } ) );
+		imageSizes?.map( ( { name, slug } ) => ( { value: slug, label: name } ) ) ?? [];
 
 	const updateImagesSize = slug => {
 		const updatedImages = images.map( image => {

@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { get, includes } from 'lodash';
+import { get } from 'lodash';
 import { Component } from 'react';
 import { FormFieldset, FormLabel } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
@@ -32,7 +32,7 @@ class VerificationServicesComponent extends Component {
 			return content;
 		}
 
-		if ( includes( content, '<meta' ) ) {
+		if ( content.includes( '<meta' ) ) {
 			// We were passed a meta tag already!
 			return content;
 		}

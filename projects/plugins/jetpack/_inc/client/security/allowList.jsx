@@ -1,6 +1,5 @@
 import { ToggleControl } from '@automattic/jetpack-components';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { includes } from 'lodash';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -99,7 +98,7 @@ const AllowList = class extends Component {
 
 	currentIpIsSafelisted = () => {
 		// get current IP allow list in textarea from this.state.ipAllowList;
-		return !! includes( this.state.ipAllowList, this.props.currentIp );
+		return !! this.state.ipAllowList?.includes( this.props.currentIp );
 	};
 
 	addToSafelist = () => {

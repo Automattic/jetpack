@@ -1,4 +1,4 @@
-import { filter, get, includes, mapValues, merge, some } from 'lodash';
+import { get, mapValues, merge } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_SET_INITIAL_STATE,
@@ -134,12 +134,9 @@ export function isFetchingSettingsList( state ) {
  * @return {boolean}                Whether option is being updated on the setting
  */
 export function isUpdatingSetting( state, settings = '' ) {
-	if ( 'object' === typeof settings ) {
-		return some(
-			filter( state.jetpack.settings.requests.settingsSent, ( item, key ) =>
-				includes( settings, key )
-			),
-			item => item
+	if ( Array.isArray( settings ) ) {
+		return Object.entries( state.jetpack.settings.requests.settingsSent ).some(
+			( [ key, item ] ) => item && settings.includes( key )
 		);
 	}
 	return state.jetpack.settings.requests.settingsSent[ settings ];

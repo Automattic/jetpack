@@ -18,7 +18,6 @@ import { mediaUpload, store as editorStore } from '@wordpress/editor';
 import { useContext, useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
-import { every } from 'lodash';
 /**
  * Internal dependencies
  */
@@ -314,7 +313,7 @@ const addVideoPressSupport = ( settings, name ) => {
 				from: [
 					{
 						type: 'files',
-						isMatch: files => every( files, file => file.type.indexOf( 'video/' ) === 0 ),
+						isMatch: files => files.every( file => file.type.indexOf( 'video/' ) === 0 ),
 						// We define a higher priority (lower number) than the default of 10. This ensures that this
 						// transformation prevails over the core video block default transformations.
 						priority: 9,

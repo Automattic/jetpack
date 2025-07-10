@@ -2,7 +2,6 @@ import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { filter, includes } from 'lodash';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -26,17 +25,17 @@ class SiteStatsComponent extends Component {
 			count_roles: countRoles,
 			roles: roles,
 
-			count_roles_administrator: includes( countRoles, 'administrator', false ),
-			count_roles_editor: includes( countRoles, 'editor', false ),
-			count_roles_author: includes( countRoles, 'author', false ),
-			count_roles_contributor: includes( countRoles, 'contributor', false ),
-			count_roles_subscriber: includes( countRoles, 'subscriber', false ),
+			count_roles_administrator: !! countRoles?.includes( 'administrator' ),
+			count_roles_editor: !! countRoles?.includes( 'editor' ),
+			count_roles_author: !! countRoles?.includes( 'author' ),
+			count_roles_contributor: !! countRoles?.includes( 'contributor' ),
+			count_roles_subscriber: !! countRoles?.includes( 'subscriber' ),
 
 			roles_administrator: true,
-			roles_editor: includes( roles, 'editor', false ),
-			roles_author: includes( roles, 'author', false ),
-			roles_contributor: includes( roles, 'contributor', false ),
-			roles_subscriber: includes( roles, 'subscriber', false ),
+			roles_editor: !! roles?.includes( 'editor' ),
+			roles_author: !! roles?.includes( 'author' ),
+			roles_contributor: !! roles?.includes( 'contributor' ),
+			roles_subscriber: !! roles?.includes( 'subscriber' ),
 
 			wpcom_reader_views_enabled: props.getOptionValue( 'wpcom_reader_views_enabled' ),
 		};
@@ -70,14 +69,12 @@ class SiteStatsComponent extends Component {
 		let value = this.props.getOptionValue( optionSet, 'stats' ),
 			toggled = false;
 		if ( ! this.state[ `${ optionSet }_${ optionName }` ] ) {
-			if ( ! includes( value, optionName ) ) {
+			if ( ! value.includes( optionName ) ) {
 				value.push( optionName );
 				toggled = true;
 			}
-		} else if ( includes( value, optionName ) ) {
-			value = filter( value, item => {
-				return item !== optionName;
-			} );
+		} else if ( value.includes( optionName ) ) {
+			value = value.filter( item => item !== optionName );
 		}
 
 		this.setState(
