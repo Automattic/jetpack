@@ -8,7 +8,7 @@ To use this package in your WordPress plugin, you can require both this package 
 
 ## Overview
 
-The Block Delimiter package provides efficient, streaming parsers for working with WordPress block structure without the memory overhead of `parse_blocks()`. It's designed for scenarios where you need to inspect, find, or modify specific blocks without parsing the entire block tree.
+The Block Delimiter package provides an efficient, streaming parser for working with WordPress block structure without the memory overhead of `parse_blocks()`. It's designed for scenarios where you need to inspect, find, or modify specific blocks without parsing the entire block tree.
 
 The package includes two classes:
 
