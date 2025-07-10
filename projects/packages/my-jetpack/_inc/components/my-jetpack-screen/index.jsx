@@ -18,6 +18,7 @@ import { useParams } from 'react-router';
 /*
  * Internal dependencies
  */
+import ErrorTrackerTest from '../../../components/error-tracker-test';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { NOTICE_SITE_CONNECTION_ERROR } from '../../context/notices/noticeTemplates';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
@@ -236,6 +237,14 @@ export default function MyJetpackScreen() {
 			) }
 
 			{ isRedirectingFromOnboarding && <OnboardingTour /> }
+
+			{ isDevVersion && userIsAdmin && (
+				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+					<Col>
+						<ErrorTrackerTest />
+					</Col>
+				</Container>
+			) }
 
 			<MyJetpackTabPanel />
 		</AdminPage>
