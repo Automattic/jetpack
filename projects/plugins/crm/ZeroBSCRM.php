@@ -351,6 +351,12 @@ function jpcrm_plugin_redirect() {
 }
 add_action( 'admin_init', 'jpcrm_plugin_redirect' );
 
+/**  Uninstall function to clear the roles. **/
+function jpcrm_uninstall() {
+	zeroBSCRM_clearUserRoles();
+}
+register_uninstall_hook( __FILE__, 'jpcrm_uninstall' );
+
 // =================== / General Perf Testing =========================
 // ====================================================================
 

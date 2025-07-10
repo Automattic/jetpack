@@ -2073,10 +2073,6 @@ final class ZeroBSCRM {
 
 		// Additional DB tables hook on activation (such as api keys table) - requires ZeroBSCRM.Database.php
 		zeroBSCRM_database_check();
-
-		// roles
-		zeroBSCRM_clearUserRoles();
-
 		// roles +
 		zeroBSCRM_addUserRoles();
 	}

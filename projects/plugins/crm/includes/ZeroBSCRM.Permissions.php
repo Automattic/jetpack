@@ -29,7 +29,12 @@ function zeroBSCRM_clearUserRoles() { // phpcs:ignore WordPress.NamingConvention
 /**
  * Build User Roles
  */
-function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+function zeroBSCRM_addUserRoles() {
+
+	// return early if a CRM role exists
+	if ( get_role( 'zerobs_admin' ) ) {
+		return;
+	}
 
 	// Jetpack CRM Admin
 	add_role(
