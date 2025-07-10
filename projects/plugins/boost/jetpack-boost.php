@@ -246,6 +246,11 @@ function include_compatibility_files() {
 		require_once __DIR__ . '/compatibility/beaver-builder.php';
 	}
 
+	// Exclude Breakdance custom post types.
+	if ( defined( 'BREAKDANCE_ALL_EDITABLE_POST_TYPES' ) ) {
+		require_once __DIR__ . '/compatibility/breakdance.php';
+	}
+
 	// Exclude known scripts that causes problem when concatenated.
 	require_once __DIR__ . '/compatibility/js-concatenate.php';
 
