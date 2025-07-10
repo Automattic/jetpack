@@ -463,10 +463,26 @@ body.jetpack_page_jetpack-forms-admin {
 	object-fit: contain;
 }
 
-.components-modal__content .jp-forms__inbox-file-preview-modal {
-  max-width: 90vw;
-  width: auto;
-  z-index: 100010; // Higher than parent modal
+// Styling override when loaded in modal on mobile
+.components-modal__content {
+
+	.jp-forms__inbox-response-avatar {
+		left: 0;
+	}
+
+	.jp-forms__inbox-response-title,
+	.jp-forms__inbox-response-subtitle,
+	.jp-forms__inbox-response-meta,
+	.jp-forms__inbox-response-data {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.jp-forms__inbox-file-preview-modal {
+		max-width: 90vw;
+		width: auto;
+		z-index: 100010; // Higher than parent modal
+	}
 }
 
 // Make sure backdrop is below the file preview modal but above the response modal
