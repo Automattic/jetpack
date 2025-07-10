@@ -10,6 +10,8 @@ import {
 	Icon,
 	Tip,
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
@@ -21,6 +23,7 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import CopyClipboardButton from '../components/copy-clipboard-button';
+import Gravatar from '../components/gravatar';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
 import { getPath } from './utils';
 
@@ -221,12 +224,6 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		return null;
 	}
 
-	const titleClasses = clsx( 'jp-forms__inbox-response-title', {
-		'is-email': response && ! response.author_name && response.author_email,
-		'is-ip': response && ! response.author_name && ! response.author_email,
-		'is-name': response && response.author_name,
-	} );
-
 	if ( isPreviewModalOpen && ! onModalStateChange ) {
 		return (
 			<PreviewFile
@@ -236,23 +233,32 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			/>
 		);
 	}
+
+	const displayName = getDisplayName( response );
+
 	return (
 		<>
 			<div ref={ ref } className="jp-forms__inbox-response">
-				<div className="jp-forms__inbox-response-avatar">
-					<img
-						src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
-						alt={ __( "Respondent's gravatar", 'jetpack-forms' ) }
-					/>
+				<div className="jp-forms__inbox-response-header">
+					<HStack alignment="topLeft" spacing="3">
+						{ response.author_email && (
+							<Gravatar
+								email={ response.author_email }
+								displayName={ displayName }
+								key={ response.author_email }
+							/>
+						) }
+						<VStack spacing="0" className="jp-forms__inbox-response-header-title">
+							<h3 className="jp-forms__inbox-response-name">{ displayName }</h3>
+							{ response.author_email && displayName !== response.author_email && (
+								<p className="jp-forms__inbox-response-email">
+									<a href={ `mailto:${ response.author_email }` }>{ response.author_email }</a>
+									<CopyClipboardButton text={ response.author_email } />
+								</p>
+							) }
+						</VStack>
+					</HStack>
 				</div>
-
-				<h3 className={ titleClasses }>{ getDisplayName( response ) }</h3>
-				{ response.author_email && getDisplayName( response ) !== response.author_email && (
-					<p className="jp-forms__inbox-response-subtitle">
-						<a href={ `mailto:${ response.author_email }` }>{ response.author_email }</a>
-						<CopyClipboardButton text={ response.author_email } />
-					</p>
-				) }
 
 				<div className="jp-forms__inbox-response-meta">
 					<div className="jp-forms__inbox-response-meta-label">
