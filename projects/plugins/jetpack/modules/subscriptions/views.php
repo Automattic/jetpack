@@ -669,7 +669,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) {
 		// Merge new values over old, then fill in any missing keys with defaults
-		$instance = wp_parse_args( (array) $new_instance, wp_parse_args( (array) $old_instance, self::defaults() ) );
+		$instance = wp_parse_args( (array) $new_instance, wp_parse_args( (array) $old_instance, static::defaults() ) );
 
 		if ( self::is_jetpack() ) {
 			$instance['title']                 = wp_kses( stripslashes( $instance['title'] ), array() );
@@ -680,8 +680,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		if ( self::is_wpcom() ) {
 			$instance['title']               = wp_strip_all_tags( stripslashes( $instance['title'] ) );
-			$instance['title_following']     = wp_strip_all_tags( stripslashes( $instance['title_following'] ) );
-			$instance['subscribe_logged_in'] = wp_filter_post_kses( stripslashes( $instance['subscribe_logged_in'] ) );
+			$instance['title_following']     = isset( $instance['title_following'] ) ? wp_strip_all_tags( stripslashes( $instance['title_following'] ) ) : '';
+			$instance['subscribe_logged_in'] = isset( $instance['subscribe_logged_in'] ) ? wp_filter_post_kses( stripslashes( $instance['subscribe_logged_in'] ) ) : '';
 			$instance['subscribe_button']    = wp_strip_all_tags( stripslashes( $instance['subscribe_button'] ) );
 		}
 
