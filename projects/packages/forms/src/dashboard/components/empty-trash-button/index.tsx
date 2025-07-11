@@ -25,7 +25,7 @@ type CoreStore = typeof coreStore & {
  * @return {JSX.Element} The empty trash button.
  */
 const EmptyTrashButton = (): JSX.Element => {
-	const [ isOpen, setOpen ] = useState( false );
+	const [ isConfirmDialogOpen, setConfirmDialogOpen ] = useState( false );
 	const [ isEmptying, setIsEmptying ] = useState( false );
 
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
@@ -46,8 +46,8 @@ const EmptyTrashButton = (): JSX.Element => {
 
 	const isEmpty = ! isTotalItemsResolving && totalItems === 0;
 
-	const openModal = useCallback( () => setOpen( true ), [] );
-	const closeModal = useCallback( () => setOpen( false ), [] );
+	const openConfirmDialog = useCallback( () => setConfirmDialogOpen( true ), [] );
+	const closeConfirmDialog = useCallback( () => setConfirmDialogOpen( false ), [] );
 
 	const onConfirmEmptying = useCallback( async () => {
 		if ( isEmptying || isEmpty ) {
@@ -88,10 +88,10 @@ const EmptyTrashButton = (): JSX.Element => {
 			.finally( () => {
 				setIsEmptying( false );
 				invalidateResolutionForStore( dashboardStore );
-				closeModal();
+				closeConfirmDialog();
 			} );
 	}, [
-		closeModal,
+		closeConfirmDialog,
 		createErrorNotice,
 		createSuccessNotice,
 		invalidateResolutionForStore,
@@ -109,16 +109,16 @@ const EmptyTrashButton = (): JSX.Element => {
 				icon={ trash }
 				isBusy={ isEmptying }
 				label={ isEmpty ? __( 'Trash is already empty.', 'jetpack-forms' ) : '' }
-				onClick={ openModal }
+				onClick={ openConfirmDialog }
 				showTooltip={ isEmpty }
 				variant="primary"
 			>
 				{ __( 'Empty trash', 'jetpack-forms' ) }
 			</Button>
 			<ConfirmDialog
-				onCancel={ closeModal }
+				onCancel={ closeConfirmDialog }
 				onConfirm={ onConfirmEmptying }
-				isOpen={ isOpen }
+				isOpen={ isConfirmDialogOpen }
 				confirmButtonText={ __( 'Delete', 'jetpack-forms' ) }
 			>
 				<h3>{ __( 'Delete forever', 'jetpack-forms' ) }</h3>
