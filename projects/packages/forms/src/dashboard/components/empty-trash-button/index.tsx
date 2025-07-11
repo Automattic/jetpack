@@ -111,12 +111,12 @@ const EmptyTrashButton = (): JSX.Element => {
 				onCancel={ closeModal }
 				onConfirm={ onConfirmEmptying }
 				isOpen={ isOpen }
-				confirmButtonText={ __( 'Delete forever', 'jetpack-forms' ) }
+				confirmButtonText={ __( 'Delete', 'jetpack-forms' ) }
 			>
-				<h3>{ __( 'Delete forever?', 'jetpack-forms' ) }</h3>
+				<h3>{ __( 'Delete forever', 'jetpack-forms' ) }</h3>
 				<p>
 					{ __(
-						'All responses in trash will be deleted forever. This cannot be undone.',
+						'All responses in trash will be deleted forever. This action cannot be undone.',
 						'jetpack-forms'
 					) }
 				</p>
