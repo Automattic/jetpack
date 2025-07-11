@@ -87,6 +87,15 @@ const maybeAddColonToLabel = label => {
 	return formattedLabel.endsWith( '?' ) ? formattedLabel : formattedLabel.replace( /:$/, '' ) + ':';
 };
 
+const maybeTransformValue = value => {
+	// For file upload fields, we want to show the file name and size
+	if ( value?.name && value?.size ) {
+		return value.name + ' (' + value.size + ')';
+	}
+
+	return value;
+};
+
 const { state } = store( NAMESPACE, {
 	state: {
 		get fieldHasErrors() {
@@ -221,7 +230,7 @@ const { state } = store( NAMESPACE, {
 
 			return data.map( item => ( {
 				label: maybeAddColonToLabel( item.label ),
-				value: item.value,
+				value: maybeTransformValue( item.value ),
 			} ) );
 		},
 
