@@ -474,4 +474,258 @@ describe( 'useConnectionErrorsNotice', () => {
 			} );
 		} );
 	} );
+
+	describe( 'priority calculation', () => {
+		beforeEach( () => {
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				hasConnectionError: true,
+				connectionErrorMessage: 'Connection failed',
+				connectionError: {
+					error_code: 'invalid_token',
+					error_message: 'Connection failed',
+					error_type: 'connection',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
+				},
+				connectionErrors: {},
+			} );
+		} );
+
+		it( 'should increase priority when connection is restoring', async () => {
+			mockUseRestoreConnection.mockReturnValue( {
+				restoreConnection: mockRestoreConnection,
+				isRestoringConnection: true,
+				restoreConnectionError: null,
+			} );
+
+			renderWithNoticeContext();
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalled();
+			} );
+
+			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
+			expect( setNoticeCall.options.priority ).toBe( 301 ); // NOTICE_PRIORITY_HIGH + 1
+		} );
+
+		it( 'should use normal priority when connection is not restoring', async () => {
+			mockUseRestoreConnection.mockReturnValue( {
+				restoreConnection: mockRestoreConnection,
+				isRestoringConnection: false,
+				restoreConnectionError: null,
+			} );
+
+			renderWithNoticeContext();
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalled();
+			} );
+
+			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
+			expect( setNoticeCall.options.priority ).toBe( 300 ); // NOTICE_PRIORITY_HIGH + 0
+		} );
+	} );
+
+	describe( 'default action label fallback', () => {
+		it( 'should use default label when actionLabel is missing', async () => {
+			const mockActionHandler = jest.fn();
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				hasConnectionError: true,
+				connectionErrorMessage: 'Custom error without label',
+				connectionError: {
+					error_code: 'custom_error',
+					error_message: 'Custom error without label',
+					error_type: 'custom',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
+					error_data: {
+						action: 'custom_action',
+						// action_label is missing
+					},
+				},
+				connectionErrors: {},
+			} );
+
+			const actionHandlers = { custom_action: mockActionHandler };
+			renderHook( () => useConnectionErrorsNotice( actionHandlers ), {
+				wrapper: ( { children }: { children: ReactNode } ) => (
+					<NoticeContext.Provider value={ mockNoticeContext }>{ children }</NoticeContext.Provider>
+				),
+			} );
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalledWith( {
+					message: 'Custom error without label',
+					options: {
+						id: 'connection-error-notice',
+						level: 'error',
+						actions: [
+							{
+								label: 'Take Action', // Default fallback label
+								onClick: expect.any( Function ),
+								noDefaultClasses: true,
+							},
+						],
+						priority: 300,
+					},
+				} );
+			} );
+		} );
+	} );
+
+	describe( 'tracking event validation', () => {
+		it( 'should not record analytics for non-jetpack tracking events', async () => {
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				hasConnectionError: true,
+				connectionErrorMessage: 'Error with invalid tracking',
+				connectionError: {
+					error_code: 'custom_error',
+					error_message: 'Error with invalid tracking',
+					error_type: 'custom',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
+					error_data: {
+						action_url: 'https://example.com/fix',
+						action_label: 'Fix Issue',
+						tracking_event: 'invalid_tracking_event', // Doesn't start with 'jetpack_'
+					},
+				},
+				connectionErrors: {},
+			} );
+
+			renderWithNoticeContext();
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalled();
+			} );
+
+			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
+			const action = setNoticeCall.options.actions[ 0 ];
+
+			// Simulate clicking the action
+			action.onClick();
+
+			// Should not record the invalid tracking event
+			expect( mockRecordEvent ).not.toHaveBeenCalledWith( 'invalid_tracking_event', {} );
+		} );
+
+		it( 'should record analytics for valid jetpack tracking events', async () => {
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				hasConnectionError: true,
+				connectionErrorMessage: 'Error with valid tracking',
+				connectionError: {
+					error_code: 'custom_error',
+					error_message: 'Error with valid tracking',
+					error_type: 'custom',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
+					error_data: {
+						action_url: 'https://example.com/fix',
+						action_label: 'Fix Issue',
+						tracking_event: 'jetpack_valid_tracking_event',
+					},
+				},
+				connectionErrors: {},
+			} );
+
+			renderWithNoticeContext();
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalled();
+			} );
+
+			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
+			const action = setNoticeCall.options.actions[ 0 ];
+
+			// Simulate clicking the action
+			action.onClick();
+
+			// Should record the valid tracking event
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_valid_tracking_event', {} );
+		} );
+	} );
+
+	describe( 'secondary action validation', () => {
+		it( 'should not add secondary action when only URL is provided without label', async () => {
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				hasConnectionError: true,
+				connectionErrorMessage: 'Error with incomplete secondary action',
+				connectionError: {
+					error_code: 'custom_error',
+					error_message: 'Error with incomplete secondary action',
+					error_type: 'custom',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
+					error_data: {
+						action_url: 'https://example.com/primary',
+						action_label: 'Primary Action',
+						secondary_action_url: 'https://example.com/secondary',
+						// secondary_action_label is missing
+					},
+				},
+				connectionErrors: {},
+			} );
+
+			renderWithNoticeContext();
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalled();
+			} );
+
+			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
+			// Should only have primary action, no secondary action
+			expect( setNoticeCall.options.actions ).toHaveLength( 1 );
+			expect( setNoticeCall.options.actions[ 0 ].label ).toBe( 'Primary Action' );
+		} );
+
+		it( 'should not add secondary action when only handler is provided without label', async () => {
+			const mockPrimaryHandler = jest.fn();
+			const mockSecondaryHandler = jest.fn();
+
+			mockUseConnectionErrorNotice.mockReturnValue( {
+				hasConnectionError: true,
+				connectionErrorMessage: 'Error with incomplete secondary handler',
+				connectionError: {
+					error_code: 'custom_error',
+					error_message: 'Error with incomplete secondary handler',
+					error_type: 'custom',
+					user_id: '1',
+					timestamp: Date.now(),
+					nonce: 'test-nonce',
+					error_data: {
+						action: 'primary_action',
+						action_label: 'Primary Action',
+						secondary_action: 'secondary_action',
+						// secondary_action_label is missing
+					},
+				},
+				connectionErrors: {},
+			} );
+
+			const actionHandlers = {
+				primary_action: mockPrimaryHandler,
+				secondary_action: mockSecondaryHandler,
+			};
+
+			renderHook( () => useConnectionErrorsNotice( actionHandlers ), {
+				wrapper: ( { children }: { children: ReactNode } ) => (
+					<NoticeContext.Provider value={ mockNoticeContext }>{ children }</NoticeContext.Provider>
+				),
+			} );
+
+			await waitFor( () => {
+				expect( mockSetNotice ).toHaveBeenCalled();
+			} );
+
+			const setNoticeCall = mockSetNotice.mock.calls[ 0 ][ 0 ];
+			// Should only have primary action, no secondary action
+			expect( setNoticeCall.options.actions ).toHaveLength( 1 );
+			expect( setNoticeCall.options.actions[ 0 ].label ).toBe( 'Primary Action' );
+		} );
+	} );
 } );
