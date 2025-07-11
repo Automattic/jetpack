@@ -5,7 +5,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
-import { useSelect, dispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { trash } from '@wordpress/icons';
@@ -28,8 +28,8 @@ const EmptyTrashButton = (): JSX.Element => {
 	const [ isOpen, setOpen ] = useState( false );
 	const [ isEmptying, setIsEmptying ] = useState( false );
 
-	const { createSuccessNotice, createErrorNotice } = dispatch( noticesStore );
-	const { invalidateResolutionForStore } = dispatch( coreStore ) as unknown as CoreStore;
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { invalidateResolutionForStore } = useDispatch( coreStore ) as unknown as CoreStore;
 
 	const selectedResponsesCount = useSelect(
 		select => select( dashboardStore ).getSelectedResponsesCount(),
