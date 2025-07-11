@@ -397,6 +397,12 @@ const buildExecCmd = argv => {
 				unitTestArgs.plugin = 'jetpack';
 				unitTestArgs.envVars = [ 'JETPACK_TEST_WPCOMSH=1' ];
 				break;
+			case 'boost':
+				unitTestArgs.plugin = 'jetpack-boost';
+
+				// Default to running only unit tests (excluding critical-css tests that require WorDBless)
+				argv._.push( '--testsuite', 'unit' );
+				break;
 			case 'crm':
 				unitTestArgs.plugin = 'zero-bs-crm';
 				break;
