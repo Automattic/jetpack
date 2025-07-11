@@ -13,34 +13,6 @@
  *        // Enhanced features are available
  *    }
  *
- * 3. Customize enhanced error data:
- *    add_filter( 'wpcomsh_protected_owner_error_data_args', function( $args, $raw_error ) {
- *        // Customize the action
- *        $args['action_label'] = __( 'Create User Account', 'my-plugin' );
- *        $args['tracking_event'] = 'my_custom_tracking_event';
- *
- *        // Add custom data
- *        $args['extra_data']['custom_field'] = 'custom_value';
- *
- *        return $args;
- *    }, 10, 2 );
- *
- * 4. Customize legacy error data (for older connection package versions):
- *    add_filter( 'wpcomsh_protected_owner_legacy_error_data', function( $legacy_data, $raw_error ) {
- *        $legacy_data['custom_field'] = 'custom_value';
- *        return $legacy_data;
- *    }, 10, 2 );
- *
- * 5. Handle both old and new versions in your code:
- *    $handler = Protected_Owner_Error_Handler::get_instance();
- *    if ( $handler->has_enhanced_error_handling() ) {
- *        // Use enhanced features
- *        add_filter( 'wpcomsh_protected_owner_error_data_args', 'my_enhanced_customization' );
- *    } else {
- *        // Use legacy approach
- *        add_filter( 'wpcomsh_protected_owner_legacy_error_data', 'my_legacy_customization' );
- *    }
- *
  * @package wpcomsh
  */
 
@@ -60,10 +32,8 @@ namespace Automattic\WPComSH\Connection;
  * default User_Admin class behavior to ensure the WP.com invitation checkbox is not
  * pre-checked when creating protected owner accounts.
  *
- * Enhanced Features:
- * - Enhanced error data structure with action labels and variants
- * - Analytics tracking events for user interactions
- * - Backward compatibility with older connection package versions
+ * Automatically uses enhanced error handling when available in newer connection package versions,
+ * with backward compatibility for older versions.
  *
  * @since 7.0.0
  */
@@ -289,7 +259,7 @@ class Protected_Owner_Error_Handler {
 	private function get_error_message( $email ) {
 		return sprintf(
 			/* translators: %s is the WordPress.com email address */
-			__( 'This site needs to be connected to WordPress.com by the plan owner account with email %s. Please create a local user account with this email address to resolve this issue.', 'wpcomsh' ),
+			__( 'The user account that owns the plan is missing from your site. To fix this, you can create an account using the email address %s.', 'wpcomsh' ),
 			esc_html( $email )
 		);
 	}

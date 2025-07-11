@@ -39,10 +39,6 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		delete_option( Protected_Owner_Error_Handler::STORED_ERRORS_OPTION );
 		delete_option( 'jetpack_connection_xmlrpc_verified_errors' );
 
-		// Clean up any filters that might have been added during tests
-		remove_all_filters( 'wpcomsh_protected_owner_error_data_args' );
-		remove_all_filters( 'wpcomsh_protected_owner_legacy_error_data' );
-
 		parent::tearDown();
 	}
 
