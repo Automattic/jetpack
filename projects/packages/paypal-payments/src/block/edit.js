@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getWidgetIdFromBlock } from '@wordpress/widgets';
 import clsx from 'clsx';
-import { validate as emailValidator } from 'email-validator';
+import { validate as validateEmail } from 'email-validator';
 import { isEmpty, pick, trimEnd } from 'lodash';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, SUPPORTED_CURRENCY_LIST } from './constants';
 import { PanelControls } from './controls';
@@ -159,7 +159,7 @@ export const SimplePaymentsEdit = ( {
 	const validateAttributes = () => {
 		const isPriceValid = validatePrice();
 		const isTitleValid = validateTitle();
-		const isEmailValid = validateEmail();
+		const isEmailValid = validateEmailField();
 		const isCurrencyValid = validateCurrency();
 
 		return isPriceValid && isTitleValid && isEmailValid && isCurrencyValid;
@@ -249,7 +249,7 @@ export const SimplePaymentsEdit = ( {
 	 *
 	 * @return {boolean} True when valid, false when invalid
 	 */
-	const validateEmail = () => {
+	const validateEmailField = () => {
 		if ( ! email ) {
 			setFieldEmailError(
 				__(
@@ -260,7 +260,7 @@ export const SimplePaymentsEdit = ( {
 			return false;
 		}
 
-		if ( ! emailValidator.validate( email ) ) {
+		if ( ! validateEmail( email ) ) {
 			setFieldEmailError(
 				sprintf(
 					/* translators: Placeholder is an email address. */
