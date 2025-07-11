@@ -202,6 +202,16 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			);
 		}
 
+		// Phone numberes
+		const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/i;
+		if ( phoneRegex.test( value ) ) {
+			return (
+				<div className="phone-field">
+					<a href={ `tel:${ value }` }>{ value }</a>
+				</div>
+			);
+		}
+
 		return value;
 	};
 
