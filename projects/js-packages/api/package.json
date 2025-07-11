@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "Jetpack Api Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/api/#readme",
 	"bugs": {
@@ -18,8 +18,8 @@
 		"@wordpress/url": "4.26.0"
 	},
 	"devDependencies": {
-		"jest": "30.0.0",
-		"jest-environment-jsdom": "30.0.0"
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4"
 	},
 	"type": "module",
 	"exports": {

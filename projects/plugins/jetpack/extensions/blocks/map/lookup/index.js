@@ -4,7 +4,7 @@ import { Component } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { ENTER, ESCAPE, UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import clsx from 'clsx';
-import { debounce, map } from 'lodash';
+import { debounce } from 'lodash';
 
 function filterOptions( options = [], maxResults = 10 ) {
 	const filtered = [];
@@ -199,7 +199,7 @@ export class Lookup extends Component {
 						noArrow
 					>
 						<div id={ listBoxId } role="listbox" className="components-autocomplete__results">
-							{ map( filteredOptions, ( option, index ) => (
+							{ filteredOptions.map( ( option, index ) => (
 								<Button
 									key={ option.key }
 									id={ `components-autocomplete-item-${ instanceId }-${ option.key }` }

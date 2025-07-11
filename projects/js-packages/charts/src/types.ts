@@ -158,6 +158,10 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	data: T extends DataPoint | DataPointDate ? T[] : T;
 	/**
+	 * Optional unique identifier for the chart (auto-generated if not provided)
+	 */
+	chartId?: string;
+	/**
 	 * Additional CSS class name for the chart container
 	 */
 	className?: string;

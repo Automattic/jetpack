@@ -28,7 +28,7 @@ class CLI {
 	 */
 	private $jetpack_boost;
 
-	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'render_blocking_js', 'page_cache', 'minify_js', 'minify_css', 'image_cdn', 'image_guide' );
+	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'render_blocking_js', 'page_cache', 'lcp', 'minify_js', 'minify_css', 'image_cdn', 'image_guide' );
 
 	/**
 	 * CLI constructor.

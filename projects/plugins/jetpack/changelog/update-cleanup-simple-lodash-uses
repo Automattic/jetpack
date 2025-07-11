@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove uses of lodash with simple low-risk replacements. Should be no change to functionality.
+
+

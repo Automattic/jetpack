@@ -362,13 +362,8 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.5.1 - 2025-01-22
-#### Changed
-- Code: Use function-style exit() and die() with a default status code of 0.
-
-#### Removed
-- Remove legacy Groove code.
-
+### 6.6.1 - 2025-07-10
 #### Fixed
-- Invoices: Fix bug introduced in 6.5.0 that prevented email invoices from being sent.
+- Address regression that caused excess queries.
+- Quote Templates: Clean up link when creating a new quote template.
 

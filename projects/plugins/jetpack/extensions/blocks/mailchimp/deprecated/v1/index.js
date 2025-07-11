@@ -1,6 +1,6 @@
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import { isEmpty, omit, pick, some } from 'lodash';
+import { isEmpty, omit } from 'lodash';
 
 const deprecatedAttributes = [
 	'submitButtonText',
@@ -95,6 +95,7 @@ export default {
 		return [ newAttributes, newInnerBlocks ];
 	},
 	isEligible: ( attributes, innerBlocks ) =>
-		isEmpty( innerBlocks ) || some( pick( attributes, deprecatedAttributes ), Boolean ),
+		isEmpty( innerBlocks ) ||
+		Object.entries( attributes ).some( ( [ k, v ] ) => v && deprecatedAttributes.includes( k ) ),
 	save: () => null,
 };

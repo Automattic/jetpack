@@ -114,6 +114,15 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies.typescript = '*';
 	}
 
+	// Missing dep. Already fixed upstream, pending release.
+	// https://github.com/typescript-eslint/typescript-eslint/issues/11382
+	if (
+		pkg.name === '@typescript-eslint/type-utils' &&
+		! pkg.dependencies[ '@typescript-eslint/types' ]
+	) {
+		pkg.dependencies[ '@typescript-eslint/types' ] = '8.36.0';
+	}
+
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
@@ -251,15 +260,9 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ 'jest-circus' ] = '^30.0.0';
 		pkg.dependencies[ 'jest-environment-node' ] = '^30.0.0';
 		pkg.dependencies[ 'jest-runner' ] = '^30.0.0';
+		pkg.dependencies[ 'jest-watch-typeahead' ] = '^3.0.0';
 	}
-	if (
-		pkg.name === 'jest-watch-typeahead' &&
-		pkg.peerDependencies.jest === '^27.0.0 || ^28.0.0 || ^29.0.0'
-	) {
-		pkg.peerDependencies.jest += ' || ^30.0.0';
-		pkg.dependencies[ 'jest-regex-util' ] = '^30.0.0';
-		pkg.dependencies[ 'jest-watcher' ] = '^30.0.0';
-	}
+	// https://github.com/playwright-community/jest-playwright/issues/824
 	if ( pkg.name === 'jest-playwright-preset' && pkg.peerDependencies.jest === '^29.3.1' ) {
 		pkg.peerDependencies.jest += ' || ^30.0.0';
 		pkg.peerDependencies[ 'jest-circus' ] += ' || ^30.0.0';

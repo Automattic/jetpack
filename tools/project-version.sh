@@ -146,7 +146,11 @@ function jsver {
 	if [[ "$OP" == "update" ]]; then
 		JSON=$(jq --tab --arg v "$3" "if $2 then $2 |= \$v else . end" "$1")
 		if [[ "$JSON" != "$(<"$FILE")" ]]; then
-			echo "$JSON" > "$FILE"
+			# Update atomically (with mv) to avoid partial writes to composer.json or package.json breaking parallel builds.
+			local TMPFILE=$( mktemp "$FILE-XXXXXXXX" )
+			echo "$JSON" > "$TMPFILE"
+			chmod 0664 "$TMPFILE"
+			mv -f "$TMPFILE" "$FILE"
 		fi
 		return
 	fi

@@ -1,7 +1,7 @@
 {
 	"private": false,
 	"name": "@automattic/jetpack-ai-client",
-	"version": "0.33.0",
+	"version": "0.33.1",
 	"description": "A JS client for consuming Jetpack AI services",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/ai-client/#readme",
 	"bugs": {
@@ -25,15 +25,14 @@
 	},
 	"type": "module",
 	"devDependencies": {
-		"@storybook/addon-actions": "8.6.7",
-		"@storybook/blocks": "8.6.7",
-		"@storybook/preview-api": "8.6.7",
-		"@storybook/react": "8.6.7",
+		"@storybook/addon-docs": "9.0.15",
+		"@storybook/react": "9.0.15",
+		"@testing-library/dom": "10.4.0",
 		"@types/markdown-it": "14.1.2",
 		"@types/turndown": "5.0.5",
-		"jest": "30.0.0",
-		"jest-environment-jsdom": "30.0.0",
-		"storybook": "8.6.7",
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4",
+		"storybook": "9.0.15",
 		"typescript": "5.8.3"
 	},
 	"exports": {
@@ -49,8 +48,8 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-explat": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@microsoft/fetch-event-source": "2.0.1",
 		"@types/jest": "30.0.0",

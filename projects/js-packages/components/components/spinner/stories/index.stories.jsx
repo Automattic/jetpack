@@ -6,9 +6,9 @@ export default {
 	argTypes: {
 		color: { control: 'color' },
 	},
-	parameters: {
+	globals: {
 		backgrounds: {
-			default: 'dark',
+			value: 'dark',
 		},
 	},
 };

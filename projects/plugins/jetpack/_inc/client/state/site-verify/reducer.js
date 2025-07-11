@@ -1,4 +1,4 @@
-import { assign, get } from 'lodash';
+import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH,
@@ -15,16 +15,16 @@ export const google = (
 ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetching: true,
 			} );
 		case JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_FAIL:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetching: false,
 				error: action.error,
 			} );
 		case JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_SUCCESS:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetching: false,
 				verified: action.verified,
 				isOwner: action.isOwner,
@@ -34,11 +34,11 @@ export const google = (
 				error: null,
 			} );
 		case JETPACK_SITE_VERIFY_GOOGLE_REQUEST:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				verifying: true,
 			} );
 		case JETPACK_SITE_VERIFY_GOOGLE_REQUEST_SUCCESS:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				verifying: false,
 				verified: action.verified,
 				isOwner: action.isOwner,
@@ -47,7 +47,7 @@ export const google = (
 				error: null,
 			} );
 		case JETPACK_SITE_VERIFY_GOOGLE_REQUEST_FAIL:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				verifying: false,
 				verified: false,
 				error: action.error,

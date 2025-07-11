@@ -1,4 +1,4 @@
-import { assign, get } from 'lodash';
+import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_ACTION_NOTICES_DISMISS,
@@ -20,10 +20,10 @@ const notice = ( state = false, action ) => {
 const dismissed = ( state = window.Initial_State.dismissedNotices, action ) => {
 	switch ( action.type ) {
 		case JETPACK_ACTION_NOTICES_DISMISS:
-			return assign( {}, state, { [ action.notice ]: true } );
+			return Object.assign( {}, state, { [ action.notice ]: true } );
 
 		case JETPACK_NOTICES_DISMISS_SUCCESS:
-			return assign( {}, state, action.dismissedNotices );
+			return Object.assign( {}, state, action.dismissedNotices );
 
 		case RESET_OPTIONS_SUCCESS:
 			return false;

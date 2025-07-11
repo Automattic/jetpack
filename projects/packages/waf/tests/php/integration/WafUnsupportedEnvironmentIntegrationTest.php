@@ -47,8 +47,6 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	 * Test teardown.
 	 */
 	protected function tear_down() {
-		global $wpcom_is_vip;
-		$wpcom_is_vip = false;
 		Constants::clear_constants();
 		Cache::clear();
 	}
@@ -104,8 +102,7 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	 * Test WAF init in a VIP environment.
 	 */
 	public function testWafInitVipEnvironment() {
-		global $wpcom_is_vip;
-		$wpcom_is_vip = true;
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
 
 		$available_modules = ( new Modules() )->get_available();
 

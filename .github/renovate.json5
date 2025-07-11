@@ -65,7 +65,11 @@
 		},
 		{
 			groupName: 'Size-limit',
-			matchPackageNames: [ 'size-limit', '@size-limit/preset-app' ],
+			matchSourceUrls: [ 'https://github.com/ai/size-limit' ],
+		},
+		{
+			groupName: 'Fullcalendar monorepo',
+			matchSourceUrls: [ 'https://github.com/fullcalendar/fullcalendar' ],
 		},
 		// These aren't a monorepo, but we may as well do them all together anyway.
 		{

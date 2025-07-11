@@ -1,6 +1,7 @@
 import clsx from 'clsx';
-import { noop } from 'lodash';
 import { Component } from 'react';
+
+const noop = () => {};
 
 class MenuItem extends Component {
 	static defaultProps = {

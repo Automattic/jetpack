@@ -31,10 +31,7 @@ const sbconfig = {
 				},
 			},
 		},
-		'@storybook/addon-storysource',
 		'@storybook/addon-a11y',
-		'@storybook/addon-essentials',
-		'storybook-addon-mock',
 		'@storybook/addon-webpack5-compiler-babel',
 	],
 	webpackFinal: async config => {
@@ -122,9 +119,6 @@ const sbconfig = {
 		// from https://storybook.js.org/docs/faq#how-do-i-fix-module-resolution-in-special-environments
 		name: path.dirname( require.resolve( '@storybook/react-webpack5/package.json' ) ),
 		options: {},
-	},
-	docs: {
-		autodocs: true,
 	},
 	staticDirs: [ '../public' ],
 	typescript: {

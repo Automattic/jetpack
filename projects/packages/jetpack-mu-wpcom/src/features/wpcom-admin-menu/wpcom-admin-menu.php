@@ -211,6 +211,7 @@ function wpcom_add_untangled_jetpack_menu() {
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 
 	Jetpack_Admin_UI_Admin::add_menu(
 		esc_attr__( 'Scan', 'jetpack-mu-wpcom' ),
@@ -219,6 +220,15 @@ function wpcom_add_untangled_jetpack_menu() {
 		'https://wordpress.com/scan/' . $domain,
 		null,
 		5
+	);
+
+	Jetpack_Admin_UI_Admin::add_menu(
+		esc_attr__( 'Backup', 'jetpack-mu-wpcom' ),
+		__( 'Backup', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'https://wordpress.com/backup/' . $domain,
+		null,
+		4
 	);
 
 	Jetpack_Admin_UI_Admin::add_menu(
@@ -256,12 +266,10 @@ function wpcom_add_jetpack_submenu() {
 	// Hide submenu items that link to Jetpack Cloud.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 
 	$domain           = wp_parse_url( home_url(), PHP_URL_HOST );
 	$activity_log_url = 'https://wordpress.com/activity-log/' . $domain;
-	$vaultpress_url   = 'https://wordpress.com/backup/' . $domain;
 	$subscribers_url  = 'https://wordpress.com/subscribers/' . $domain;
 	$newsletter_url   = 'https://wordpress.com/settings/newsletter/' . $domain;
 	$podcasting_url   = 'https://wordpress.com/settings/podcasting/' . $domain;
@@ -273,15 +281,6 @@ function wpcom_add_jetpack_submenu() {
 		__( 'Activity Log', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		$activity_log_url,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
-
-	add_submenu_page(
-		'jetpack',
-		__( 'VaultPress', 'jetpack-mu-wpcom' ),
-		__( 'VaultPress', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		$vaultpress_url,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
@@ -330,7 +329,6 @@ function wpcom_add_jetpack_submenu() {
 		'my-jetpack',
 		'stats',
 		$activity_log_url,
-		$vaultpress_url,
 		'akismet-key-config',
 		'jetpack-search',
 		$subscribers_url,

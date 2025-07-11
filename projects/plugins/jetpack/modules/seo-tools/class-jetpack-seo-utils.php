@@ -132,7 +132,7 @@ class Jetpack_SEO_Utils {
 	 *
 	 * @uses jetpack_og_remove_query_blocks
 	 *
-	 * @since $$next-version$$
+	 * @since 14.9
 	 *
 	 * @param string $content Post content.
 	 *

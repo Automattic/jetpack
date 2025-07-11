@@ -54,7 +54,7 @@ export default function DescriptionSupportLink( {
 				style={ { display: 'block', marginTop: 10, maxWidth: 'fit-content' } }
 				ref={ reference => ref !== reference && setRef( reference ) }
 			>
-				{ __( 'Block guide', 'jetpack-mu-wpcom' ) }
+				{ __( 'Learn more', 'jetpack-mu-wpcom' ) }
 			</WpcomSupportLink>
 		</>
 	);

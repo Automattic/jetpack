@@ -262,8 +262,11 @@ class Jetpack_Media {
 	 */
 	public static function delete_file( $pathname ) {
 		if ( ! file_exists( $pathname ) || ! is_file( $pathname ) ) {
-			// let's touch a fake file to try to `really` remove the media file.
-			touch( $pathname ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
+			$dir = dirname( $pathname );
+			if ( is_dir( $dir ) ) {
+				// let's touch a fake file to try to `really` remove the media file.
+				touch( $pathname ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
+			}
 		}
 
 		return wp_delete_file( $pathname );

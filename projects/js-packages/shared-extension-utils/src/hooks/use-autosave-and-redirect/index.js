@@ -1,6 +1,7 @@
 import { useSelect, dispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
-import { noop } from 'lodash';
+
+const noop = () => {};
 
 /**
  * To handle the redirection

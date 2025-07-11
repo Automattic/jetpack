@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "1.2.9",
+	"version": "1.2.13",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -34,16 +34,15 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@babel/core": "7.27.7",
 		"@babel/preset-react": "7.27.1",
-		"@storybook/addon-actions": "8.6.7",
 		"@testing-library/dom": "10.4.0",
-		"@testing-library/react": "16.2.0",
+		"@testing-library/react": "16.3.0",
 		"@testing-library/user-event": "14.6.1",
 		"@types/react": "18.3.23",
-		"jest": "30.0.0",
-		"jest-environment-jsdom": "30.0.0",
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"storybook": "8.6.7"
+		"storybook": "9.0.15"
 	},
 	"peerDependencies": {
 		"react": "^18.0.0",

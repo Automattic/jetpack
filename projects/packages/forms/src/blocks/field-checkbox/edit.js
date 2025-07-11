@@ -8,7 +8,6 @@ import { PanelBody, ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldWidth from '../shared/components/jetpack-field-width';
-import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-responses-settings';
 import ToolbarRequiredGroup from '../shared/components/toolbar-required-group';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
@@ -76,9 +75,6 @@ export default function CheckboxFieldEdit( props ) {
 				</PanelBody>
 			</InspectorControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage responses', 'jetpack-forms' ) }>
-					<JetpackManageResponsesSettings isChildBlock />
-				</PanelBody>
 				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
 					<ToggleControl
 						label={ __( 'Field is required', 'jetpack-forms' ) }

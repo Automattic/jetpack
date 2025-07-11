@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { isArray, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import { MAX_IMAGE_COUNT } from './constants';
 
 export default function useInstagramGallery( {
@@ -35,7 +35,7 @@ export default function useInstagramGallery( {
 				// If the response doesn't have an `images` property,
 				// or `images` is not an array (the API might literally return the string "ERROR"),
 				// the token is likely incorrect, so set it as disconnected.
-				if ( ! imageList || ! isArray( imageList ) ) {
+				if ( ! imageList || ! Array.isArray( imageList ) ) {
 					noticeOperations.createErrorNotice(
 						__( 'An error occurred. Please try again later.', 'jetpack' )
 					);

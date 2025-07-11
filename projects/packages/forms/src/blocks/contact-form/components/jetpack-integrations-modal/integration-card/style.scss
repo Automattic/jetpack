@@ -9,6 +9,7 @@
 		align-items: center;
 		justify-content: space-between;
 		width: 100%;
+		gap: 16px;
 
 		@media (max-width: 782px) {
 			flex-direction: column;
@@ -119,10 +120,16 @@
 		}
 	}
 
-	&__links {
-		display: flex;
-		align-items: center;
-		gap: 8px;
+	&__links.components-h-stack {
+
+		@media (max-width: 480px) {
+			flex-direction: column;
+			align-items: flex-start;
+
+			span {
+				display: none;
+			}
+		}
 	}
 
 	.components-button .components-spinner {

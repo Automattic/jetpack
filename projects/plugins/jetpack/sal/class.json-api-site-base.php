@@ -770,21 +770,24 @@ abstract class SAL_Site {
 		// If the post is of status inherit, check if the parent exists ( different to 0 ) to check for the parent status object.
 		if ( 'inherit' === $post->post_status && 0 !== (int) $post->post_parent ) {
 			$parent_post     = get_post( $post->post_parent );
-			$post_status_obj = get_post_status_object( $parent_post->post_status );
+			$post_status_obj = $parent_post ? get_post_status_object( $parent_post->post_status ) : null;
 		} else {
 			$post_status_obj = get_post_status_object( $post->post_status );
 		}
 
-		$authorized = (
-			$post_status_obj->public ||
-			( is_user_logged_in() &&
-				(
-					( $post_status_obj->protected && current_user_can( 'edit_post', $post->ID ) ) ||
-					( $post_status_obj->private && current_user_can( 'read_post', $post->ID ) ) ||
-					( 'trash' === $post->post_status && current_user_can( 'edit_post', $post->ID ) ) ||
-					'auto-draft' === $post->post_status
-				)
-			)
+		$authorized = false;
+
+		if ( $post_status_obj ) {
+			$authorized = $post_status_obj->public
+				|| ( is_user_logged_in() && (
+				( $post_status_obj->protected && current_user_can( 'edit_post', $post->ID ) )
+				|| ( $post_status_obj->private && current_user_can( 'read_post', $post->ID ) )
+				) );
+		}
+
+		$authorized = $authorized || (
+			( 'trash' === $post->post_status && current_user_can( 'edit_post', $post->ID ) )
+			|| 'auto-draft' === $post->post_status
 		);
 
 		if ( ! $authorized ) {

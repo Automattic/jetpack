@@ -1,6 +1,5 @@
 import { Icon } from '@wordpress/icons';
 import clsx from 'clsx';
-import { noop, size } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect as reduxConnect } from 'react-redux';
@@ -18,6 +17,8 @@ import {
 import { isCurrentUserLinked, isConnectionOwner } from 'state/connection';
 import { getCurrentVersion } from 'state/initial-state';
 import './style.scss';
+
+const noop = () => {};
 
 export class Banner extends Component {
 	static propTypes = {
@@ -141,7 +142,7 @@ export class Banner extends Component {
 				<div className="dops-banner__info">
 					<div className="dops-banner__title">{ title }</div>
 					{ description && <div className="dops-banner__description">{ description }</div> }
-					{ size( list ) > 0 && (
+					{ list?.length > 0 && (
 						<ul className="dops-banner__list">
 							{ list.map( ( item, key ) => (
 								<li key={ key }>

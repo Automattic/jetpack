@@ -326,53 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.8 - 2025-07-01
-#### Major Enhancements
-- Add archives endpoint support.
-
+### 14.9-a.1 - 2025-07-07
 #### Enhancements
-- AI Assistant: Add support for file upload field on Forms extension.
-- Form: Improve the error validation animation.
-- Forms: Add "undo" to all post-action alerts in Inbox.
-- Forms: Add Akismet refresh status button.
-- Forms: Add MailPoet integrations nudge.
-- Forms: Make emails clickable in Inbox.
-- Forms: Make it possible to preview file by visiting the URL.
-- Forms: Release new file uploads field.
-- Forms: Show central integrations dashboard.
-- Forms: Stop translate product name in the sidebar.
-- Forms: Use interactivity API for form validation.
-- My Jetpack: Updating Stats card to include a chart for better analytics.
-- Sharing: Add ability to count sharing events on sharing buttons blocks.
-- Sharing: Improve the performance of Open Graph Meta Image tags.
-- Write Brief: Enhance local custom dictionary with more known terms.
-- Write Brief: Enhance typo detection dictionary.
+- Forms: Update the date picker to remove jQuery and add a more performant version with keyboard navigation.
 
 #### Improved compatibility
-- Search: Replace the Core Search widget instead of adding a new widget to the main sidebar in classic themes.
-- Tiled Gallery: Ensure accessibility properties are added only when needed, as well as preventing block validation errors.
+- Blocks: Prevent PHP errors when `jetpack_set_available_extensions` filter returns an unexpected data type.
 
 #### Bug fixes
-- Connection: Redirect to the proper place when clicking the block "Connect" banner on Multisites.
-- Display Critical CSS status correctly on the WordPress.com Complete plan.
-- Endpoints: Prevent warnings in logs when attempting to add external media from some sources.
-- Flickr shortcode: Prevent errors in logs when requested data does not exist.
-- Forms: Fix an error with poorly-formatted POST data.
-- Forms: Fix dropdown field background color on Windows.
-- Forms: Hide legacy Feedback menu from newly-connected sites.
-- Forms: Remove the broken step transformation.
-- Jetpack Media Library: Prevent PHP warnings related to unexpected array offsets and undefined array keys in some cases.
-- JITM: Fix ineffective caching due to expired plugin sync transient.
-- Likes: Do not register the Like block when a site is not connected to WordPress.com.
-- Newsletter: Ensure subscriber stats links are correct in the dashboard widget, even when you do not use Stats feature.
-- Prevent JavaScript errors when using the editor.
-- Prevent non-string currentday parameters from causing errors in infinite scroll AJAX requests.
-- Recipe shortcode: Prevent errors in logs due to checking for theme color properties that may not exist.
-- Security: Prevent errors with array-type parameters in carousel comment submissions.
-- Settings: Show Backup and Account Protection modules only with relevant search terms.
-- Slideshow block: Reduce layout shifts during page load.
-- Social Previews: Prevent text overflow issues with Mastodon.
-- Update `Jetpack_Newsletter_Dashboard_Widget` to not be added with an anonymous function.
+- Accessibility: Remove deprecated `clip` property from screen reader text with `clip-path`.
+- Blocks: Return an error when a filter returns a non-array.
+- Sharing: Display correct Open Graph meta tags when a page uses a Query Loop block.
+- VideoPress: Fix video row action button clickability by properly hiding stats on hover.
 
 --------
 

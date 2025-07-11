@@ -1,5 +1,3 @@
-import { includes } from 'lodash';
-
 // plans constants
 export const PLAN_BUSINESS = 'business-bundle';
 export const PLAN_BUSINESS_2_YEARS = 'business-bundle-2y';
@@ -450,7 +448,7 @@ export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
  * @return {boolean} True if it's monthly plan
  */
 export function isMonthly( plan ) {
-	return includes( JETPACK_MONTHLY_PLANS, plan );
+	return JETPACK_MONTHLY_PLANS.includes( plan );
 }
 /**
  * Checks if a plan slug is in the group of popular plans.
@@ -459,7 +457,7 @@ export function isMonthly( plan ) {
  * @return {boolean} True if it's popular plan
  */
 export function isPopular( plan ) {
-	return includes( POPULAR_PLANS, plan );
+	return POPULAR_PLANS.includes( plan );
 }
 /**
  * Checks if a plan slug is a new plan.
@@ -468,7 +466,7 @@ export function isPopular( plan ) {
  * @return {boolean} True if it's new plan
  */
 export function isNew( plan ) {
-	return includes( NEW_PLANS, plan );
+	return NEW_PLANS.includes( plan );
 }
 
 /**
@@ -478,7 +476,7 @@ export function isNew( plan ) {
  * @return {boolean} True if the plan includes Jetpack Anti-Spam
  */
 export function isJetpackPlanWithAntiSpam( plan ) {
-	return includes( JETPACK_PLANS_WITH_ANTI_SPAM, plan );
+	return JETPACK_PLANS_WITH_ANTI_SPAM.includes( plan );
 }
 
 /**
@@ -488,7 +486,7 @@ export function isJetpackPlanWithAntiSpam( plan ) {
  * @return {boolean} True if the plan contains backup features
  */
 export function isJetpackPlanWithBackup( plan ) {
-	return includes( JETPACK_PLANS_WITH_BACKUP, plan );
+	return JETPACK_PLANS_WITH_BACKUP.includes( plan );
 }
 
 /**
@@ -498,7 +496,7 @@ export function isJetpackPlanWithBackup( plan ) {
  * @return {boolean} True if the product is Jetpack Backup
  */
 export function isJetpackBackup( product ) {
-	return includes( JETPACK_BACKUP_PRODUCTS, product );
+	return JETPACK_BACKUP_PRODUCTS.includes( product );
 }
 
 /**
@@ -508,7 +506,7 @@ export function isJetpackBackup( product ) {
  * @return {boolean} True if the product is Jetpack Search
  */
 export function isJetpackSearch( product ) {
-	return includes( JETPACK_SEARCH_PRODUCTS, product );
+	return JETPACK_SEARCH_PRODUCTS.includes( product );
 }
 
 /**
