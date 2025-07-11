@@ -109,6 +109,47 @@ export const ConnectionError = ( {
 				},
 			];
 		}
+
+		// Add secondary action if available (only for custom errors, not default restore)
+		if ( actions.length > 0 && ( suggestedAction || errorData.action_url ) ) {
+			const secondaryAction = errorData.secondary_action;
+			const secondaryActionHandler = actionHandlers[ secondaryAction ];
+			const secondaryActionUrl = errorData.secondary_action_url;
+			const secondaryActionLabel = errorData.secondary_action_label;
+
+			// Secondary action with handler
+			if ( secondaryAction && secondaryActionHandler && secondaryActionLabel ) {
+				const secondaryActionVariant = errorData.secondary_action_variant || 'secondary';
+				const secondaryTrackingEvent = errorData.secondary_tracking_event;
+
+				actions.push( {
+					label: secondaryActionLabel,
+					onClick: () => {
+						if ( trackingCallback && secondaryTrackingEvent ) {
+							trackingCallback( secondaryTrackingEvent, {} );
+						}
+						secondaryActionHandler( connectionError );
+					},
+					variant: secondaryActionVariant,
+				} );
+			}
+			// Secondary action with URL (requires both URL and label)
+			else if ( secondaryActionUrl && secondaryActionLabel ) {
+				const secondaryActionVariant = errorData.secondary_action_variant || 'secondary';
+				const secondaryTrackingEvent = errorData.secondary_tracking_event;
+
+				actions.push( {
+					label: secondaryActionLabel,
+					onClick: () => {
+						if ( trackingCallback && secondaryTrackingEvent ) {
+							trackingCallback( secondaryTrackingEvent, {} );
+						}
+						window.location.href = secondaryActionUrl;
+					},
+					variant: secondaryActionVariant,
+				} );
+			}
+		}
 	}
 
 	// If no actions are available and no custom handler provided, don't render

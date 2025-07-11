@@ -105,6 +105,39 @@ const useConnectionErrorsNotice = ( actionHandlers = {} ) => {
 			];
 		}
 
+		// Add secondary action if available (only for custom errors, not default restore)
+		if ( noticeActions.length > 0 && ( suggestedAction || actionUrl ) ) {
+			const secondaryAction = errorData.secondary_action;
+			const secondaryActionHandler = actionHandlers[ secondaryAction ];
+			const secondaryActionUrl = errorData.secondary_action_url;
+			const secondaryActionLabel = errorData.secondary_action_label;
+			const secondaryTrackingEvent = errorData.secondary_tracking_event;
+
+			// Secondary action with handler
+			if ( secondaryAction && secondaryActionHandler && secondaryActionLabel ) {
+				noticeActions.push( {
+					label: secondaryActionLabel,
+					onClick: () => {
+						if ( secondaryTrackingEvent && secondaryTrackingEvent.startsWith( 'jetpack_' ) ) {
+							recordEvent( secondaryTrackingEvent as `jetpack_${ string }`, {} );
+						}
+						secondaryActionHandler( connectionError );
+					},
+					noDefaultClasses: true,
+					variant: 'secondary',
+				} );
+			}
+			// Secondary action with URL (requires both URL and label)
+			else if ( secondaryActionUrl && secondaryActionLabel ) {
+				noticeActions.push( {
+					label: secondaryActionLabel,
+					onClick: () => handleCustomAction( secondaryActionUrl, secondaryTrackingEvent ),
+					noDefaultClasses: true,
+					variant: 'secondary',
+				} );
+			}
+		}
+
 		const noticeOptions: NoticeOptions = {
 			id: 'connection-error-notice',
 			level: 'error',

@@ -45,6 +45,25 @@ export default class JetpackConnectionErrors extends Component {
 			default:
 				// Check for URL action (navigation)
 				if ( errorData.action_url && errorData.action_label ) {
+					const actions = [
+						<NoticeAction key="primary" href={ errorData.action_url }>
+							{ errorData.action_label }
+						</NoticeAction>,
+					];
+
+					// Add secondary action if available
+					if ( errorData.secondary_action_url && errorData.secondary_action_label ) {
+						actions.push(
+							<NoticeAction
+								key="secondary"
+								href={ errorData.secondary_action_url }
+								variant="secondary"
+							>
+								{ errorData.secondary_action_label }
+							</NoticeAction>
+						);
+					}
+
 					return (
 						<SimpleNotice
 							text={ message }
@@ -53,7 +72,7 @@ export default class JetpackConnectionErrors extends Component {
 							showDismiss={ false }
 							display={ this.props.display }
 						>
-							<NoticeAction href={ errorData.action_url }>{ errorData.action_label }</NoticeAction>
+							{ actions }
 						</SimpleNotice>
 					);
 				}
