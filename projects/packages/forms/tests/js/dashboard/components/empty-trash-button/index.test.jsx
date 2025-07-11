@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -18,6 +19,10 @@ jest.mock( '@wordpress/components', () => ( {
 			</button>
 		);
 	},
+} ) );
+
+jest.mock( '@wordpress/icons', () => ( {
+	trash: 'trash-icon-mock',
 } ) );
 
 jest.mock( '@wordpress/core-data', () => ( {
@@ -106,8 +111,7 @@ describe( 'EmptyTrashButton', () => {
 		render( <EmptyTrashButton /> );
 
 		const button = screen.getByText( 'Empty trash' );
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( button );
+		await userEvent.click( button );
 
 		expect( button ).toBeDisabled();
 
