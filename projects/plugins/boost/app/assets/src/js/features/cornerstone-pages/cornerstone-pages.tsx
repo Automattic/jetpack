@@ -59,7 +59,7 @@ const CornerstoneTitleSummary = () => {
 	}
 
 	return sprintf(
-		/* translators: %s is the number of pages in the cornerstone pages list apart from the homepage. */
+		/* translators: %s is the number of pages in the custom cornerstone pages list. */
 		__( 'Added: %s', 'jetpack-boost' ),
 		() => {
 			if ( cornerstonePages.length < 2 ) {
@@ -67,13 +67,8 @@ const CornerstoneTitleSummary = () => {
 			}
 
 			return sprintf(
-				/* translators: %d is the number of pages in the cornerstone pages list apart from the homepage. */
-				_n(
-					'Homepage + %d page',
-					'Homepage + %d pages',
-					cornerstonePages.length - 1,
-					'jetpack-boost'
-				),
+				/* translators: %d is the number of pages in the custom cornerstone pages list. */
+				_n( 'Homepage + %d page', 'Homepage + %d pages', cornerstonePages.length, 'jetpack-boost' ),
 				cornerstonePages.length - 1
 			);
 		}
