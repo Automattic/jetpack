@@ -7,7 +7,6 @@ import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme } from '../../providers/theme/theme-provider';
-import { useChartLegendData } from '../chart-legend/use-chart-legend-data';
 import { Legend } from '../legend';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
@@ -94,11 +93,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
-	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( data, providerTheme, {
-		showValues: true,
-	} );
-
 	const handleMouseMove = useCallback(
 		( event: MouseEvent, arc: ArcData ) => {
 			const coords = localPoint( event );
@@ -142,7 +136,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		[ providerTheme.colors ]
 	);
 
-	// Create legend items (hooks must be called in same order every render)
+	// Create legend items with color from accessors (which respects item.color)
 	const legendItems = useMemo(
 		() =>
 			data.map( ( item, index ) => ( {

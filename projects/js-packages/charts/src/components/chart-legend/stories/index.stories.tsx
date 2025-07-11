@@ -168,7 +168,7 @@ export const WithPieChart: Story = {
 };
 
 // Story showing multiple charts with shared legend
-const MultipleChartsSharedLegend = () => {
+const MultipleChartsSharedLegendComponent = () => {
 	const theme = useChartTheme();
 	const legendItems = useChartLegendData( lineChartData, theme );
 
@@ -184,7 +184,7 @@ const MultipleChartsSharedLegend = () => {
 };
 
 export const MultipleChartsSharedLegend: Story = {
-	render: () => <MultipleChartsSharedLegend />,
+	render: () => <MultipleChartsSharedLegendComponent />,
 	parameters: {
 		docs: {
 			description: {
