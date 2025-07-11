@@ -12,6 +12,7 @@ import {
 } from '@visx/xychart';
 import clsx from 'clsx';
 import { useId, useMemo, useContext, useEffect, useState, useRef, useCallback } from 'react';
+import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
 import { Legend } from '../legend';
 import { DefaultGlyph } from '../shared/default-glyph';
@@ -171,7 +172,7 @@ const validateData = ( data: SeriesData[] ) => {
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
-			point =>
+			( point: DataPointDate | DataPoint ) =>
 				isNaN( point.value as number ) ||
 				point.value === null ||
 				point.value === undefined ||
@@ -216,8 +217,9 @@ const HighlightTooltip: React.FC< {
 	return null;
 };
 
-const LineChart: FC< LineChartProps > = ( {
+const LineChartInternal: FC< LineChartProps > = ( {
 	data,
+	chartId: providedChartId,
 	width,
 	height,
 	className,
@@ -246,7 +248,8 @@ const LineChart: FC< LineChartProps > = ( {
 } ) => {
 	const providerTheme = useChartTheme();
 	const theme = useXYChartTheme( data );
-	const chartId = useId(); // Ensure unique ids for gradient fill.
+	const internalChartId = useId(); // Ensure unique ids for gradient fill.
+	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
@@ -306,15 +309,39 @@ const LineChart: FC< LineChartProps > = ( {
 
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
-	// Create legend items from group labels, this iterates over groups rather than data points
-	const legendItems = dataSorted.map( ( group, index ) => ( {
-		label: group.label, // Label for each unique group
-		value: '', // Empty string since we don't want to show a specific value
-		color: group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
-		shapeStyle: group?.options?.legendShapeStyle,
-		renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
-		glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
-	} ) );
+	const error = validateData( dataSorted );
+	const isDataValid = ! error;
+
+	// Create legend items (hooks must be called in same order every render)
+	const legendItems = useMemo(
+		() =>
+			dataSorted.map( ( group, index ) => ( {
+				label: group.label, // Label for each unique group
+				value: '', // Empty string since we don't want to show a specific value
+				color:
+					group?.options?.stroke ?? providerTheme.colors[ index % providerTheme.colors.length ],
+				shapeStyle: group?.options?.legendShapeStyle,
+				renderGlyph: withLegendGlyph ? providerTheme.glyphs?.[ index ] ?? renderGlyph : undefined,
+				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
+			} ) ),
+		[
+			dataSorted,
+			providerTheme.colors,
+			providerTheme.glyphs,
+			withLegendGlyph,
+			renderGlyph,
+			glyphStyle?.radius,
+		]
+	);
+
+	// Register chart with context only if data is valid
+	useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, {
+		withGradientFill,
+		smoothing,
+		curveType,
+		withStartGlyphs,
+		withLegendGlyph,
+	} );
 
 	const accessors = {
 		xAccessor: ( d: DataPointDate ) => d?.date,
@@ -403,7 +430,6 @@ const LineChart: FC< LineChartProps > = ( {
 		[ dataSorted, selectedIndex ]
 	);
 
-	const error = validateData( dataSorted );
 	if ( error ) {
 		return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 	}
@@ -472,7 +498,7 @@ const LineChart: FC< LineChartProps > = ( {
 
 							{ withGradientFill && (
 								<LinearGradient
-									id={ `area-gradient-${ chartId }-${ index + 1 }` }
+									id={ `area-gradient-${ internalChartId }-${ index + 1 }` }
 									from={ stroke }
 									fromOpacity={ 0.4 }
 									toOpacity={ 0.1 }
@@ -488,7 +514,7 @@ const LineChart: FC< LineChartProps > = ( {
 								{ ...accessors }
 								fill={
 									withGradientFill
-										? `url(#area-gradient-${ chartId }-${ index + 1 })`
+										? `url(#area-gradient-${ internalChartId }-${ index + 1 })`
 										: 'transparent'
 								}
 								renderLine={ true }
@@ -552,5 +578,13 @@ const LineChart: FC< LineChartProps > = ( {
 		</div>
 	);
 };
+
+const LineChart: FC< LineChartProps > = props => (
+	<ChartProvider>
+		<LineChartInternal { ...props } />
+	</ChartProvider>
+);
+
+LineChart.displayName = 'LineChart';
 
 export default withResponsive< LineChartProps >( LineChart );
