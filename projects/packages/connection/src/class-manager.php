@@ -676,8 +676,8 @@ class Manager {
 	 * @since 5.0.0
 	 */
 	public function reset_connection_status() {
-		self::$is_connected          = null;
-		static::$connection_owner_id = null;
+		self::$is_connected        = null;
+		self::$connection_owner_id = null;
 	}
 
 	/**
@@ -822,13 +822,13 @@ class Manager {
 	 */
 	public function get_connection_owner_id() {
 		// Check if the memoized value is available.
-		if ( null === static::$connection_owner_id ) {
-			$owner                       = $this->get_connection_owner();
-			static::$connection_owner_id = $owner instanceof \WP_User ? $owner->ID : 0;
+		if ( null === self::$connection_owner_id ) {
+			$owner                     = $this->get_connection_owner();
+			self::$connection_owner_id = $owner instanceof \WP_User ? $owner->ID : 0;
 		}
 
 		// If the ID is set to 0, there's no valid connection owner.
-		return static::$connection_owner_id > 0 ? static::$connection_owner_id : false;
+		return self::$connection_owner_id > 0 ? self::$connection_owner_id : false;
 	}
 
 	/**
@@ -1069,7 +1069,7 @@ class Manager {
 					Jetpack_Options::delete_option( 'master_user' );
 
 					// Clear the memoized connection owner ID since it changed
-					static::$connection_owner_id = null;
+					self::$connection_owner_id = null;
 				}
 			}
 		}
@@ -1144,7 +1144,7 @@ class Manager {
 			\Jetpack_Options::update_option( 'master_user', $new_owner_id );
 
 			// Clear the memoized connection owner ID since it changed
-			static::$connection_owner_id = null;
+			self::$connection_owner_id = null;
 
 			// Track it.
 			( new Tracking() )->record_user_event( 'set_connection_owner_success' );
@@ -1836,7 +1836,7 @@ class Manager {
 		);
 
 		// Clear the memoized connection owner ID since it changed
-		static::$connection_owner_id = null;
+		self::$connection_owner_id = null;
 
 		( new Secrets() )->delete_all();
 		$this->get_tokens()->delete_all();
