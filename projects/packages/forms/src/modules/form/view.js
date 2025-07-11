@@ -394,6 +394,7 @@ const { state } = store( NAMESPACE, {
 			form?.reset?.();
 			context.submissionData = null;
 			context.submissionError = null;
+			context.hasClickedBack = true;
 		},
 	},
 
@@ -402,6 +403,16 @@ const { state } = store( NAMESPACE, {
 			const context = getContext();
 			const { fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
 			registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
+		},
+
+		scrollToWrapper() {
+			const context = getContext();
+
+			if ( state.hasSubmitted || context.hasClickedBack ) {
+				const wrapperElement = document.getElementById( `contact-form-${ context.formId }` );
+				wrapperElement?.scrollIntoView( { behavior: 'smooth' } );
+				context.hasClickedBack = false;
+			}
 		},
 	},
 } );

@@ -398,7 +398,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$context = is_array( $context ) ? array_merge( $default_context, $context ) : $default_context;
 
 		$r  = '';
-		$r .= "<div data-test='contact-form' id='contact-form-$id' class='{$container_classes_string}' data-wp-interactive='jetpack/form' " . wp_interactivity_data_wp_context( $context ) . ">\n";
+		$r .= "<div data-test='contact-form'
+			id='contact-form-$id'
+			class='{$container_classes_string}'
+			data-wp-interactive='jetpack/form' " . wp_interactivity_data_wp_context( $context ) . "
+			data-wp-watch--scroll-to-wrapper=\"callbacks.scrollToWrapper\"
+		>\n";
 
 		if ( $form->is_response_without_reload_enabled ) {
 			$r .= self::render_ajax_success_wrapper( $form );
@@ -625,7 +630,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string HTML string for the success wrapper.
 	 */
 	private static function render_ajax_success_wrapper( $form ) {
-		$html  = '<div class="contact-form-submission contact-form-ajax-submission" data-wp-class--is-submitted="state.hasSubmitted"';
+		$html  = '<div class="contact-form-submission contact-form-ajax-submission" data-wp-class--is-submitted="state.hasSubmitted">';
 		$html .= '<p class="go-back-message"> <a class="link" href="#" data-wp-on--click="actions.goBack">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
 		$html .=
 			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
