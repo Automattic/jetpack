@@ -10,10 +10,11 @@ import { copySmall, check } from '@wordpress/icons';
 type CopyClipboardButtonProps = {
 	text: string;
 };
+
 /**
- * Renders the status toggle for the inbox view.
+ * Renders the copy clipboard button
  *
- * @param {InboxStatusToggleProps} props - The component props.
+ * @param {CopyClipboardButtonProps} props - The component props.
  * @return {JSX.Element} The copy clipboard button component.
  */
 export default function CopyClipboardButton( { text }: CopyClipboardButtonProps ): JSX.Element {
