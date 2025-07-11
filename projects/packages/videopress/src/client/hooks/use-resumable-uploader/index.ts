@@ -9,7 +9,7 @@ import debugFactory from 'debug';
 import getMediaToken from '../../lib/get-media-token';
 import resumableFileUploader from '../../lib/resumable-file-uploader';
 import { VideoMediaProps } from '../../lib/resumable-file-uploader/types';
-import type React from 'react';
+import type { ChangeEvent } from 'react';
 
 const debug = debugFactory( 'videopress:use-resumable-uploader' );
 
@@ -28,7 +28,7 @@ type ResumaHandlerProps = {
 };
 
 type UseResumableUploader = {
-	onUploadHandler: ( event: React.ChangeEvent< HTMLInputElement > ) => void;
+	onUploadHandler: ( event: ChangeEvent< HTMLInputElement > ) => void;
 	uploadHandler: ( file: File ) => void;
 	resumeHandler: ResumaHandlerProps;
 	uploadingData: UploadingDataProps;
@@ -116,9 +116,9 @@ const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumabl
 	/**
 	 * Handler for the file upload
 	 *
-	 * @param {React.ChangeEvent< HTMLInputElement >} event - the event object
+	 * @param {ChangeEvent< HTMLInputElement >} event - the event object
 	 */
-	function onUploadHandler( event: React.ChangeEvent< HTMLInputElement > ) {
+	function onUploadHandler( event: ChangeEvent< HTMLInputElement > ) {
 		const file = event.target.files[ 0 ];
 		if ( ! file ) {
 			debug( 'No file selected. Bail early' );

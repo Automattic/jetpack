@@ -1,4 +1,4 @@
-import z from 'zod';
+import { z } from 'zod';
 
 // TODO: Reflect this in Boost Cloud after Beta release, each one should be an Error type.
 export const LcpErrorType = z.enum( [

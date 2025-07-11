@@ -5,7 +5,7 @@ import logger from '_jetpack-e2e-commons/logger.js';
 test.beforeEach( async ( { page } ) => {
 	await prerequisitesBuilder( page )
 		.withCleanEnv()
-		.withActivePlugins( [ 'social' ] )
+		.withActivePlugins( [ 'jetpack-social' ] )
 		.withLoggedIn( true )
 		.build();
 } );

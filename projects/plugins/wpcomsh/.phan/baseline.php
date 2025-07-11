@@ -11,11 +11,11 @@ return [
     // # Issue statistics:
     // PhanPluginMixedKeyNoKey : 20+ occurrences
     // PhanUndeclaredStaticMethod : 15+ occurrences
-    // PhanTypeVoidAssignment : 7 occurrences
     // PhanTypeMismatchArgument : 6 occurrences
     // PhanRedundantCondition : 5 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
     // PhanTypeVoidArgument : 5 occurrences
+    // PhanTypeVoidAssignment : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanTypeSuspiciousEcho : 4 occurrences
     // PhanImpossibleCondition : 3 occurrences
@@ -37,7 +37,6 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'class-wpcomsh-cli-commands.php' => ['PhanTypeVoidAssignment'],
         'custom-colors/class-palette.php' => ['PhanTypeArraySuspiciousNullable'],
         'custom-colors/colors-api.php' => ['PhanNoopNewNoSideEffects'],
         'custom-colors/colors.php' => ['PhanTypeMismatchArgumentNullable'],

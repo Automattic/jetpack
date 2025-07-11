@@ -8,6 +8,7 @@ import {
 	Tooltip,
 	Spinner,
 	Icon,
+	Tip,
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
@@ -16,7 +17,6 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 import clsx from 'clsx';
-import { map } from 'lodash';
 /**
  * Internal dependencies
  */
@@ -60,7 +60,7 @@ const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
 	);
 };
 
-const FileField = ( { file, onClick, key } ) => {
+const FileField = ( { file, onClick } ) => {
 	const fileExtension = file.name.split( '.' ).pop().toLowerCase();
 	const fileType = file.type.split( '/' )[ 0 ];
 
@@ -96,7 +96,7 @@ const FileField = ( { file, onClick, key } ) => {
 	const iconType = extensionMap[ fileExtension ] || iconMap[ fileType ] || 'txt';
 	const iconClass = clsx( 'file-field__icon', 'icon-' + iconType );
 	return (
-		<div key={ key } className="file-field__item">
+		<div className="file-field__item">
 			<div className="file-field__info">
 				<div className={ iconClass }></div>
 				<div className="file-field__name">
@@ -174,12 +174,16 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			return (
 				<div className="file-field">
 					{ value.files?.length
-						? value.files.map( ( file, index ) => {
+						? value.files.map( file => {
 								if ( ! file || ! file.name ) {
 									return null;
 								}
 								return (
-									<FileField file={ file } onClick={ handleFilePreview( file ) } key={ index } />
+									<FileField
+										file={ file }
+										onClick={ handleFilePreview( file ) }
+										key={ file.file_id }
+									/>
 								);
 						  } )
 						: '-' }
@@ -234,92 +238,99 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		);
 	}
 	return (
-		<div ref={ ref } className="jp-forms__inbox-response">
-			<div className="jp-forms__inbox-response-avatar">
-				<img
-					src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
-					alt={ __( "Respondent's gravatar", 'jetpack-forms' ) }
-				/>
-			</div>
-
-			<h3 className={ titleClasses }>{ getDisplayName( response ) }</h3>
-			{ response.author_email && getDisplayName( response ) !== response.author_email && (
-				<p className="jp-forms__inbox-response-subtitle">
-					{ response.author_email }
-					<Button variant="secondary" onClick={ copyEmail }>
-						{ ! emailCopied && __( 'Copy', 'jetpack-forms' ) }
-						{ emailCopied && __( '✓ Copied', 'jetpack-forms' ) }
-					</Button>
-				</p>
-			) }
-
-			<div className="jp-forms__inbox-response-meta">
-				<div className="jp-forms__inbox-response-meta-label">
-					<span className="jp-forms__inbox-response-meta-key">
-						{ __( 'Date:', 'jetpack-forms' ) }&nbsp;
-					</span>
-					<span className="jp-forms__inbox-response-meta-value">
-						{ sprintf(
-							/* Translators: %1$s is the date, %2$s is the time. */
-							__( '%1$s at %2$s', 'jetpack-forms' ),
-							dateI18n( getDateSettings().formats.date, response.date ),
-							dateI18n( getDateSettings().formats.time, response.date )
-						) }
-					</span>
-				</div>
-				<div className="jp-forms__inbox-response-meta-label">
-					<span className="jp-forms__inbox-response-meta-key">
-						{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
-					</span>
-					<span className="jp-forms__inbox-response-meta-value">
-						<ExternalLink href={ response.entry_permalink }>
-							{ decodeEntities( response.entry_title ) || getPath( response ) }
-						</ExternalLink>
-					</span>
-				</div>
-				<div className="jp-forms__inbox-response-meta-label">
-					<span className="jp-forms__inbox-response-meta-key	">
-						{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;
-					</span>
-					<span className="jp-forms__inbox-response-meta-value">{ response.ip }</span>
-				</div>
-			</div>
-
-			<div className="jp-forms__inbox-response-separator" />
-
-			<div className="jp-forms__inbox-response-data">
-				{ map( response.fields, ( value, key ) => (
-					<div key={ key } className="jp-forms__inbox-response-item">
-						<div className="jp-forms__inbox-response-data-label">
-							{ key.endsWith( '?' ) ? key : `${ key }:` }
-						</div>
-						<div className="jp-forms__inbox-response-data-value">{ renderFieldValue( value ) }</div>
-					</div>
-				) ) }
-			</div>
-
-			{ isPreviewModalOpen && previewFile && onModalStateChange && (
-				<Modal
-					title={ decodeEntities( previewFile.name ) }
-					onRequestClose={ closePreviewModal }
-					className="jp-forms__inbox-file-preview-modal"
-				>
-					<PreviewFile
-						file={ previewFile }
-						isLoading={ isImageLoading }
-						onImageLoaded={ handelImageLoaded }
+		<>
+			<div ref={ ref } className="jp-forms__inbox-response">
+				<div className="jp-forms__inbox-response-avatar">
+					<img
+						src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
+						alt={ __( "Respondent's gravatar", 'jetpack-forms' ) }
 					/>
-				</Modal>
-			) }
+				</div>
 
-			<ConfirmDialog
-				isOpen={ isConfirmDialogOpen }
-				onConfirm={ onConfirmMarkAsSpam }
-				onCancel={ onCancelMarkAsSpam }
-			>
-				{ __( 'Are you sure you want to mark this response as spam?', 'jetpack-forms' ) }
-			</ConfirmDialog>
-		</div>
+				<h3 className={ titleClasses }>{ getDisplayName( response ) }</h3>
+				{ response.author_email && getDisplayName( response ) !== response.author_email && (
+					<p className="jp-forms__inbox-response-subtitle">
+						{ response.author_email }
+						<Button variant="secondary" onClick={ copyEmail }>
+							{ ! emailCopied && __( 'Copy', 'jetpack-forms' ) }
+							{ emailCopied && __( '✓ Copied', 'jetpack-forms' ) }
+						</Button>
+					</p>
+				) }
+
+				<div className="jp-forms__inbox-response-meta">
+					<div className="jp-forms__inbox-response-meta-label">
+						<span className="jp-forms__inbox-response-meta-key">
+							{ __( 'Date:', 'jetpack-forms' ) }&nbsp;
+						</span>
+						<span className="jp-forms__inbox-response-meta-value">
+							{ sprintf(
+								/* Translators: %1$s is the date, %2$s is the time. */
+								__( '%1$s at %2$s', 'jetpack-forms' ),
+								dateI18n( getDateSettings().formats.date, response.date ),
+								dateI18n( getDateSettings().formats.time, response.date )
+							) }
+						</span>
+					</div>
+					<div className="jp-forms__inbox-response-meta-label">
+						<span className="jp-forms__inbox-response-meta-key">
+							{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
+						</span>
+						<span className="jp-forms__inbox-response-meta-value">
+							<ExternalLink href={ response.entry_permalink }>
+								{ decodeEntities( response.entry_title ) || getPath( response ) }
+							</ExternalLink>
+						</span>
+					</div>
+					<div className="jp-forms__inbox-response-meta-label">
+						<span className="jp-forms__inbox-response-meta-key	">
+							{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;
+						</span>
+						<span className="jp-forms__inbox-response-meta-value">{ response.ip }</span>
+					</div>
+				</div>
+
+				<div className="jp-forms__inbox-response-data">
+					{ Object.entries( response.fields ).map( ( [ key, value ] ) => (
+						<div key={ key } className="jp-forms__inbox-response-item">
+							<div className="jp-forms__inbox-response-data-label">
+								{ key.endsWith( '?' ) ? key : `${ key }:` }
+							</div>
+							<div className="jp-forms__inbox-response-data-value">
+								{ renderFieldValue( value ) }
+							</div>
+						</div>
+					) ) }
+				</div>
+
+				{ isPreviewModalOpen && previewFile && onModalStateChange && (
+					<Modal
+						title={ decodeEntities( previewFile.name ) }
+						onRequestClose={ closePreviewModal }
+						className="jp-forms__inbox-file-preview-modal"
+					>
+						<PreviewFile
+							file={ previewFile }
+							isLoading={ isImageLoading }
+							onImageLoaded={ handelImageLoaded }
+						/>
+					</Modal>
+				) }
+
+				<ConfirmDialog
+					isOpen={ isConfirmDialogOpen }
+					onConfirm={ onConfirmMarkAsSpam }
+					onCancel={ onCancelMarkAsSpam }
+				>
+					{ __( 'Are you sure you want to mark this response as spam?', 'jetpack-forms' ) }
+				</ConfirmDialog>
+			</div>
+			{ response.status === 'spam' && (
+				<Tip className="jp-forms__inbox-spam">
+					{ __( 'Spam responses are automatically trashed after 15 days.', 'jetpack-forms' ) }
+				</Tip>
+			) }
+		</>
 	);
 };
 

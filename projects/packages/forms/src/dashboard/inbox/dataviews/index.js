@@ -15,8 +15,8 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { isArray, isEmpty, join } from 'lodash';
-import React, { useEffect } from 'react';
+import { isEmpty } from 'lodash';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
@@ -52,8 +52,8 @@ const formatFieldName = fieldName => {
 const formatFieldValue = fieldValue => {
 	if ( isEmpty( fieldValue ) ) {
 		return '-';
-	} else if ( isArray( fieldValue ) ) {
-		return join( fieldValue, ', ' );
+	} else if ( Array.isArray( fieldValue ) ) {
+		return fieldValue.join( ', ' );
 	}
 	return fieldValue;
 };
@@ -75,7 +75,7 @@ function getStatusFilter( urlStatus ) {
 /**
  * The DataViews implementation.
  *
- * @return {React.JSX.Element} The DataViews component.
+ * @return {import('react').JSX.Element} The DataViews component.
  */
 export default function InboxView() {
 	const [ view, setView ] = useView();
@@ -293,7 +293,7 @@ export default function InboxView() {
 
 	return (
 		<HStack
-			spacing={ 5 }
+			spacing={ 0 }
 			alignment="top"
 			justify="flex-start"
 			ref={ containerRef }

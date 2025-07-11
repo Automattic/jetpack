@@ -1,6 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Icon, warning, check } from '@wordpress/icons';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { LICENSE_ERRORS } from './constants';
 import { useGetErrorContent } from './use-get-error-content';
 import type { FC } from 'react';

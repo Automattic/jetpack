@@ -1,4 +1,3 @@
-import React from 'react';
 import ErrorGridicon from './error-gridicon';
 import './style.scss';
 

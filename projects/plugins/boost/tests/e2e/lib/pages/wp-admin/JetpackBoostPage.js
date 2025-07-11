@@ -3,7 +3,6 @@ import WpPage from '_jetpack-e2e-commons/pages/wp-page.js';
 
 const apiEndpointsRegex = {
 	'modules-state': /jetpack-boost-ds\/modules-state\/set/,
-	connection: /jetpack-boost\/v1\/connection/,
 };
 
 export default class JetpackBoostPage extends WpPage {
@@ -18,7 +17,9 @@ export default class JetpackBoostPage extends WpPage {
 	async chooseFreePlan() {
 		const button = this.page.locator( 'text=Start for free' );
 		await button.click();
-		await this.waitForElementToBeVisible( '[data-testid="speed-scores"]' );
+
+		// We should wait a longer time to ensure the connection/plan is complete/established.
+		await this.isOverallScoreHeaderShown( 30 * 1000 );
 	}
 
 	/**
@@ -46,8 +47,8 @@ export default class JetpackBoostPage extends WpPage {
 		return showingScoreArea && ! isOffline;
 	}
 
-	async isOverallScoreHeaderShown() {
-		return await this.isElementVisible( '[data-testid="speed-scores"]' );
+	async isOverallScoreHeaderShown( timeout ) {
+		return await this.isElementVisible( '[data-testid="speed-scores"]', timeout );
 	}
 
 	async isSiteScoreLoading() {
@@ -56,27 +57,78 @@ export default class JetpackBoostPage extends WpPage {
 		return classNames.includes( 'loading' );
 	}
 
-	async waitForApiResponse( apiEndpointId ) {
+	async waitForApiResponse( apiEndpointId, moduleName, expectedState ) {
 		await this.page.waitForResponse(
-			response =>
-				response.url().match( apiEndpointsRegex[ apiEndpointId ] ) && response.status() === 200,
+			async response => {
+				const isSuccess = response.status() === 200;
+				if ( ! isSuccess ) {
+					return false;
+				}
+
+				const isMatch = response.url().match( apiEndpointsRegex[ apiEndpointId ] );
+				if ( ! isMatch ) {
+					return false;
+				}
+
+				const body = ( await response.json() )?.JSON;
+				console.log( `body[ ${ moduleName } ]?.active >`, body[ moduleName ]?.active );
+				console.log( 'expectedState >', expectedState );
+				return body[ moduleName ]?.active === expectedState;
+			},
 			{ timeout: 2 * 60 * 1000 }
 		);
 	}
 
-	async toggleModule( moduleName ) {
-		this.page.click( `.jb-feature-toggle-${ moduleName }` );
-		await this.waitForApiResponse( 'modules-state' );
+	/**
+	 * Toggle a module and wait for the success notice to appear.
+	 *
+	 * @param {string}  moduleName    - The name of the module to toggle.
+	 * @param {boolean} expectedState - The expected state of the module.
+	 */
+	async toggleModule( moduleName, expectedState ) {
+		console.log( `toggleModule > ${ moduleName } > ${ expectedState }` );
+
+		const stateSelector = expectedState ? ':not(.is-checked)' : '.is-checked';
+		const locator = `[data-testid="module-${ moduleName }"] .components-form-toggle${ stateSelector } input`;
+
+		const toggle = this.page.locator( locator );
+
+		toggle.click();
+
+		// Wait for the success notice to appear
+		const expectedMessage = expectedState ? 'Module activated' : 'Module deactivated';
+		const notice = this.page.locator( `.components-snackbar:has-text("${ expectedMessage }")` );
+		await notice.waitFor( {
+			timeout: 10000,
+		} );
+
+		// Wait for the notice to disappear
+		await notice.waitFor( {
+			timeout: 10000,
+			state: 'hidden',
+		} );
 	}
 
-	async isModuleEnabled( moduleName ) {
+	async waitForModuleState( moduleName, expectedState = true ) {
+		console.log( 'before >', expectedState );
 		const toggleSwitch = this.page.locator(
 			`.jb-feature-toggle-${ moduleName } .components-form-toggle`
 		);
-		await toggleSwitch.waitFor();
-		const classNames = await toggleSwitch.getAttribute( 'class' );
 
-		return classNames.includes( 'is-checked' );
+		// Wait for the toggle to reach the expected state
+		await toggleSwitch.waitFor();
+
+		// Wait for the element to have the expected class state
+		await toggleSwitch.waitFor( async () => {
+			const classNames = await toggleSwitch.getAttribute( 'class' );
+			const isChecked = classNames.includes( 'is-checked' );
+			return expectedState ? isChecked : ! isChecked;
+		} );
+
+		// Return whether the expected state was achieved
+		const classNames = await toggleSwitch.getAttribute( 'class' );
+		const actualState = classNames.includes( 'is-checked' );
+		return actualState === expectedState;
 	}
 
 	async getSpeedScore( platform ) {
@@ -85,7 +137,7 @@ export default class JetpackBoostPage extends WpPage {
 		const score = this.page.locator( parent + ' .jb-score-bar__score' );
 		await score.waitFor( {
 			state: 'visible',
-			timeout: 40 * 1000,
+			timeout: 80 * 1000,
 		} );
 
 		return Number( await score.textContent() );
@@ -103,7 +155,7 @@ export default class JetpackBoostPage extends WpPage {
 
 	async waitForCriticalCssMetaInfoVisibility() {
 		const selector = '[data-testid="critical-css-meta"]';
-		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
+		return this.waitForElementToBeVisible( selector, 4 * 60 * 1000 );
 	}
 
 	async waitForCriticalCssGenerationProgressUIVisibility() {
@@ -176,6 +228,8 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async waitForScoreLoadingToFinish() {
+		await this.isOverallScoreHeaderShown();
+
 		const selector = '[data-testid="speed-scores-top"] h2:text("Loading…")';
 		/* It needs a large timeout because speed score updates take time */
 		return this.waitForElementToBeDetached( selector, 180000 ); // 3 minutes

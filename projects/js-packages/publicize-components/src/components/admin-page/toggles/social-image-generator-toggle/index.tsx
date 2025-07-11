@@ -2,11 +2,11 @@ import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { store as socialStore } from '../../../../social-store';
 import TemplatePickerModal from '../../../social-image-generator/template-picker/modal';
 import ToggleSection from '../toggle-section';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
 type SocialImageGeneratorToggleProps = {
 	/**
@@ -15,9 +15,7 @@ type SocialImageGeneratorToggleProps = {
 	disabled?: boolean;
 };
 
-const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = ( {
-	disabled,
-} ) => {
+const SocialImageGeneratorToggle: FC< SocialImageGeneratorToggleProps > = ( { disabled } ) => {
 	const { isEnabled, isUpdating, defaultTemplate, defaultImageId } = useSelect( select => {
 		const config = select( socialStore ).getSocialSettings().socialImageGenerator;
 

@@ -77,17 +77,26 @@ const SpeedScore = () => {
 		}
 	}, [ loadScore, site.online ] );
 
+	const isCriticalCssEnabled = () => {
+		if ( ! data?.cloud_css?.available ) {
+			return data?.cloud_css?.active ?? false;
+		}
+
+		return data?.critical_css?.active ?? false;
+	};
+
 	// Refresh the score when something that can affect the score changes.
 	useDebouncedRefreshScore(
 		{
 			moduleStates,
 			pendingStates: {
 				criticalCss: {
-					isPending: cssState.status === 'pending' || criticalCssIsGenerating,
+					isPending:
+						isCriticalCssEnabled() && ( cssState.status === 'pending' || criticalCssIsGenerating ),
 					timestamp: cssState.updated || 0,
 				},
 				lcp: {
-					isPending: lcpState?.status === 'pending',
+					isPending: data?.lcp?.active === true && lcpState?.status === 'pending',
 					timestamp: lcpState?.updated || 0,
 				},
 			},
@@ -129,10 +138,10 @@ const SpeedScore = () => {
 						</div>
 					) : (
 						<div className={ styles.offline } data-testid="speed-scores-offline">
-							<h2>{ __( 'Website Offline', 'jetpack-boost' ) }</h2>
+							<h2>{ __( 'Website is not publicly available', 'jetpack-boost' ) }</h2>
 							<p>
 								{ __(
-									'All Jetpack Boost features are still available, but to get a performance score you would first have to make your website available online.',
+									'Performance score and some other Boost features cannot work because the Boost Cloud cannot reach your website. To fix this, you need to make your website publicly available.',
 									'jetpack-boost'
 								) }
 							</p>

@@ -1,7 +1,7 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.js';
 import { execWpCommand } from '_jetpack-e2e-commons/helpers/utils-helper.js';
 import { PostFrontendPage } from '_jetpack-e2e-commons/pages/index.js';
-import { DashboardPage, ThemesPage, Sidebar } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
+import { DashboardPage, Sidebar, ThemesPage } from '_jetpack-e2e-commons/pages/wp-admin/index.js';
 import playwrightConfig from '_jetpack-e2e-commons/playwright.config.mjs';
 import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../../lib/pages/index.js';
@@ -12,13 +12,22 @@ test.describe( 'Critical CSS module', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( true ).build();
+		await boostPrerequisitesBuilder( page )
+			.withCleanEnv()
+			.withMockConnection( true )
+			.withSpeedScoreMocked( true )
+			.build();
+
+		await execWpCommand( 'plugin activate e2e-critical-css-force-errors' );
 	} );
 
 	test.afterAll( async () => {
+		await execWpCommand( 'plugin deactivate e2e-critical-css-force-errors' );
+
 		if ( previousTheme !== null ) {
 			await execWpCommand( `theme activate ${ previousTheme }` );
 		}
+		await page.close();
 	} );
 
 	// NOTE: The order of the following tests is important as we are making reuse of the generated Critical CSS
@@ -47,10 +56,7 @@ test.describe( 'Critical CSS module', () => {
 	test( 'Critical CSS should be generated when the module is active', async () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect(
-			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
-			'Critical CSS generation progress indicator should be visible'
-		).toBeTruthy();
+
 		expect(
 			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
 			'Critical CSS meta information should be visible'
@@ -88,10 +94,7 @@ test.describe( 'Critical CSS module', () => {
 			'#jetpack-boost-notice-critical-css-regenerate a[href*="jetpack-boost"]'
 		);
 		const jetpackBoostPage = await JetpackBoostPage.init( page );
-		expect(
-			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
-			'Critical CSS generation progress indicator should be visible'
-		).toBeTruthy();
+
 		expect(
 			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
 			'Critical CSS meta information should be visible'
@@ -99,10 +102,22 @@ test.describe( 'Critical CSS module', () => {
 	} );
 
 	test( 'User can access the Critical advanced recommendations and go back to settings page', async () => {
-		test.skip( true, 'Skipping this test as it is flaky and we are working on it' );
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
+
+		page.getByRole( 'button', { name: 'Regenerate' } ).click();
+
+		expect(
+			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
+			'Critical CSS generation progress indicator should be visible'
+		).toBeTruthy();
+
+		expect(
+			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
+			'Critical CSS meta information should be visible'
+		).toBeTruthy();
+
 		await jetpackBoostPage.navigateToCriticalCSSAdvancedRecommendations();
 		expect(
 			await jetpackBoostPage.isCriticalCSSAdvancedRecommendationsVisible(),
@@ -110,7 +125,7 @@ test.describe( 'Critical CSS module', () => {
 		).toBeTruthy();
 		await jetpackBoostPage.navigateToMainSettingsPage();
 		expect(
-			await jetpackBoostPage.isTheCriticalCssMetaInformationVisible(),
+			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
 			'Critical CSS meta information should be visible'
 		).toBeTruthy();
 	} );

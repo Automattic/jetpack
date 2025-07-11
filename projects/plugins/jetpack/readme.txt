@@ -326,12 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.8-a.9 - 2025-06-24
+### 14.9-a.1 - 2025-07-07
 #### Enhancements
-- Form: Improve the error validation animation.
+- Forms: Update the date picker to remove jQuery and add a more performant version with keyboard navigation.
+
+#### Improved compatibility
+- Blocks: Prevent PHP errors when `jetpack_set_available_extensions` filter returns an unexpected data type.
 
 #### Bug fixes
-- Prevent JavaScript errors when using the editor.
+- Accessibility: Remove deprecated `clip` property from screen reader text with `clip-path`.
+- Blocks: Return an error when a filter returns a non-array.
+- Sharing: Display correct Open Graph meta tags when a page uses a Query Loop block.
+- VideoPress: Fix video row action button clickability by properly hiding stats on hover.
 
 --------
 

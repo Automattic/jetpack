@@ -38,6 +38,16 @@ class Help_Center {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
+		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
+	}
+
+	/**
+	 * We prefer to use the Help Center instead of the Help tab.
+	 */
+	public function jetpack_remove_core_help_tab() {
+		?>
+			<style>#contextual-help-link-wrap { display: none; }</style>
+		<?php
 	}
 
 	/**

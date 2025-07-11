@@ -91,7 +91,7 @@ class Crm extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Strengthen customer relationships and grow your business', 'jetpack-my-jetpack' );
+		return __( 'All of the tools you need to grow your business.', 'jetpack-my-jetpack' );
 	}
 
 	/**

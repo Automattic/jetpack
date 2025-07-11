@@ -175,25 +175,9 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 3.3 - 2025-06-09
-#### Added
-- Add more error logging.
-- Add My Jetpack tour.
-
+### 3.4 - 2025-06-27
 #### Changed
-- My Jetpack: Hide backup failure notice when backups are deactivated.
-- My Jetpack: Optimize the images for onboarding slider for faster page load.
-- My Jetpack: Update the onboarding UI, changing it to a single button.
-- Update package dependencies.
-
-#### Removed
-- General: Update minimum WordPress version to 6.7.
-
-#### Fixed
-- Block editor: Fix layout issues with the Media Library modal buttons.
-- My Jetpack: Fix Onboarding UI responsiveness at 600px.
-- My Jetpack: Fix readability of license activation button on hover.
-- My Jetpack: Ensure social login does not get stuck when email input is not empty.
+- Backup: Catch PHP errors on WP_Error. [#43388]
 
 --------
 

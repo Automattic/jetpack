@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import ConnectButton from 'components/connect-button';

@@ -1,17 +1,17 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint jsx-a11y/no-onchange: 0 */
 
-import React from 'react';
+import { createRef, PureComponent } from 'react';
 import Popover from 'components/popover';
 import PopoverMenu from 'components/popover/menu';
 import PopoverMenuItem from 'components/popover/menu-item';
 
-class Popovers extends React.PureComponent {
+class Popovers extends PureComponent {
 	static displayName = 'Popovers';
 
-	popoverButtonRef = React.createRef();
-	popoverMenuButtonRef = React.createRef();
-	popoverRubicRef = React.createRef();
+	popoverButtonRef = createRef();
+	popoverMenuButtonRef = createRef();
+	popoverRubicRef = createRef();
 	targetRefs = {};
 
 	state = {
@@ -239,7 +239,7 @@ class Popovers extends React.PureComponent {
 		const targets = [];
 		const targetsCount = 256;
 		for ( let n = 0; n < targetsCount; n++ ) {
-			this.targetRefs[ `target-${ n }` ] = React.createRef();
+			this.targetRefs[ `target-${ n }` ] = createRef();
 			targets.push(
 				<li
 					ref={ this.targetRefs[ `target-${ n }` ] }

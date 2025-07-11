@@ -2,7 +2,6 @@ import { usePrevious } from '@wordpress/compose';
 import { useCallback, useState, useEffect } from '@wordpress/element';
 import clsx from 'clsx';
 import { sample } from 'lodash';
-import React from 'react';
 import { SOURCE_PEXELS, PEXELS_EXAMPLE_QUERIES } from '../../constants';
 import MediaBrowser from '../../media-browser';
 import MediaSearch from '../../media-search';
@@ -15,7 +14,7 @@ import './style.scss';
  * PexelsMedia component
  *
  * @param {object} props - The component props
- * @return {React.ReactElement} - JSX element
+ * @return {import('react').ReactElement} - JSX element
  */
 function PexelsMedia( props ) {
 	const {

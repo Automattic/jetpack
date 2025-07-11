@@ -1,13 +1,12 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK } from '../constants';
 import { isSupportNext40pxDefaultSize } from '../utils/is-support-next-40px-default-size';
 
 /**
  * MediaAiButton component
  * @param {object} props - The component properties.
- * @return {React.ReactElement} The `MediaAiButton` component.
+ * @return {import('react').ReactElement} The `MediaAiButton` component.
  */
 function MediaAiButton( props ) {
 	const { setSelectedSource } = props;

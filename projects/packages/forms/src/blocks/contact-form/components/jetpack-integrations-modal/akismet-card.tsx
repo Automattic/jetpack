@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button, ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import AkismetIcon from '../../../../icons/akismet';
@@ -77,7 +77,7 @@ const AkismetCard = ( {
 					<p className="integration-card__description">
 						{ __( 'Your forms are automatically protected with Akismet.', 'jetpack-forms' ) }
 					</p>
-					<div className="integration-card__links">
+					<HStack spacing="2" justify="start" className="integration-card__links">
 						<Button
 							variant="link"
 							href={ formSubmissionsUrl }
@@ -94,7 +94,7 @@ const AkismetCard = ( {
 						<ExternalLink href={ getRedirectUrl( 'akismet-jetpack-forms-docs' ) }>
 							{ __( 'Learn about Akismet', 'jetpack-forms' ) }
 						</ExternalLink>
-					</div>
+					</HStack>
 				</div>
 			) }
 		</IntegrationCard>

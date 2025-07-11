@@ -1,6 +1,5 @@
 import clsx from 'clsx';
-import { get } from 'lodash';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import { getPlanClass } from 'lib/plans/constants';
@@ -26,7 +25,7 @@ import { getScanStatus } from 'state/scan';
 import { getSitePlan } from 'state/site';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
-export class DevCard extends React.Component {
+export class DevCard extends Component {
 	static displayName = 'DevCard';
 
 	onPlanChange = event => {
@@ -131,8 +130,8 @@ export class DevCard extends React.Component {
 		const classes = clsx( this.props.className, 'jp-dev-card' );
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
-		const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
-		const scanState = get( this.props.scanStatus, [ 'state' ], false );
+		const rewindState = this.props.rewindStatus?.state ?? false;
+		const scanState = this.props.scanStatus?.state ?? false;
 
 		return (
 			<Card compact className={ classes }>

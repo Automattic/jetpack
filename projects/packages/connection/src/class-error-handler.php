@@ -139,7 +139,7 @@ class Error_Handler {
 	/**
 	 * Cached displayable errors to avoid duplicate processing
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.10
 	 *
 	 * @var array|null
 	 */
@@ -175,7 +175,7 @@ class Error_Handler {
 	 * predefined error messages and actions, with optional filtering for specific sites.
 	 * Only processes a limited set of error codes that are meant to be displayed to users.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.10
 	 *
 	 * @return array Array of displayable errors with hierarchical structure.
 	 *               Example:
@@ -288,7 +288,7 @@ class Error_Handler {
 	 * This method controls access to the jetpack_connection_displayable_errors filter.
 	 * Currently, only WoA sites are allowed to use this filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.10
 	 *
 	 * @return bool True if error filtering should be allowed, false otherwise.
 	 */
@@ -471,7 +471,7 @@ class Error_Handler {
 	 * This method creates a consistent error array structure that can be used
 	 * by both internal error handling and external plugins/customizations.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.10
 	 *
 	 * @param string $error_code    The error code identifier.
 	 * @param string $error_message The human-readable error message.
@@ -990,7 +990,7 @@ class Error_Handler {
 	/**
 	 * Determines whether external filters are applied to the get_displayable_errors method.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.10
 	 *
 	 * @return bool True if external filters are applied, false otherwise.
 	 */
@@ -1001,7 +1001,7 @@ class Error_Handler {
 	/**
 	 * Invalidates the cached displayable errors
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.10
 	 *
 	 * @return void
 	 */

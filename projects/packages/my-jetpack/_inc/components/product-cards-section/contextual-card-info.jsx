@@ -7,7 +7,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { arrowUp, arrowDown, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
 /**
  * Internal dependencies
  */

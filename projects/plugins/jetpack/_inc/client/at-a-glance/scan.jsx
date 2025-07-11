@@ -4,9 +4,8 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x } from '@wordpress/i18n';
-import { get, isArray, noop } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -35,6 +34,8 @@ import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 
+const noop = () => {};
+
 /**
  * Displays a card for Security Scan based on the props given.
  *
@@ -57,8 +58,8 @@ const renderCard = props => (
 		pro={ true }
 		overrideContent={ props.overrideContent }
 	>
-		{ isArray( props.content ) ? (
-			props.content.map( ( el, i ) => <React.Fragment key={ i }>{ el }</React.Fragment> )
+		{ Array.isArray( props.content ) ? (
+			props.content.map( ( el, i ) => <Fragment key={ i }>{ el }</Fragment> )
 		) : (
 			<p className="jp-dash-item__description">{ props.content }</p>
 		) }
@@ -159,7 +160,7 @@ class DashScan extends Component {
 		}
 
 		// The VaultPress plugin is active and we received scanning data
-		const scanEnabled = get( vaultPressData, [ 'data', 'features', 'security' ], false );
+		const scanEnabled = vaultPressData?.data?.features?.security ?? false;
 		if ( scanEnabled ) {
 			const threats = this.props.scanThreats;
 
@@ -447,7 +448,7 @@ export default connect(
 			scanThreats: getVaultPressScanThreatCount( state ),
 			fetchingSiteData: isFetchingSiteData( state ),
 			sitePlan,
-			planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
+			planClass: getPlanClass( sitePlan?.product_slug ?? '' ),
 			showBackups: showBackups( state ),
 			upgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			hasConnectedOwner: hasConnectedOwnerSelector( state ),

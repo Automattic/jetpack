@@ -8,10 +8,16 @@ test.describe( 'Image CDN', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( true ).build();
+		await boostPrerequisitesBuilder( page )
+			.withCleanEnv()
+			.withConnection( true )
+			.withSpeedScoreMocked( true )
+			.build();
 	} );
 
-	test.afterAll( async () => {} );
+	test.afterAll( async () => {
+		await page.close();
+	} );
 
 	test( 'No Image CDN meta information should show on the admin when the module is inactive', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'image_cdn' ] ).build();

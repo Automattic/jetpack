@@ -174,35 +174,42 @@ function zeroBSCRM_scriptStyles_enqueueJSRoot(){
 	// this is for wl peeps, if set it'll override WYSIWYG logo + settings logo
 	$jpcrm_root['crmlogo'] = 'i/icon-32.png';
 
-	// this is for GLOBAL js (language strings pass through)
-	$lang_array = array();
+	// Language strings for global JavaScript usage
+	$lang_array = array(
+		// General action strings
+		'send'              => __( 'Send', 'zero-bs-crm' ),
+		'sent'              => __( 'Sent', 'zero-bs-crm' ),
+		'notsent'           => __( 'Not Sent', 'zero-bs-crm' ),
+		'cancel'            => __( 'Cancel', 'zero-bs-crm' ),
+		'contact'           => __( 'Contact', 'zero-bs-crm' ),
+		'company'           => __( 'Company', 'zero-bs-crm' ),
+		'viewall'           => __( 'View all', 'zero-bs-crm' ),
 
-	// WH: not 100% sure where to put this, for now, temporarily, here,
-	// WH: to decide common sense location (have made filter:)
-	$lang_array['send']    = __( 'Send', 'zero-bs-crm' );
-	$lang_array['sent']    = __( 'Sent', 'zero-bs-crm' );
-	$lang_array['notsent'] = __( 'Not Sent', 'zero-bs-crm' );
-	$lang_array['cancel']  = __( 'Cancel', 'zero-bs-crm' );
-	$lang_array['contact'] = __( 'Contact', 'zero-bs-crm' );
-	$lang_array['company'] = __( 'Company', 'zero-bs-crm' );
-	$lang_array['viewall'] = __( 'View all', 'zero-bs-crm' );
+		// Statement functionality
+		'sendstatement'     => __( 'Send Statement', 'zero-bs-crm' ),
+		'sendstatementaddr' => __( 'Send Statement to Email:', 'zero-bs-crm' ),
+		'enteremail'        => __( 'Enter an Email Address..', 'zero-bs-crm' ),
+		'statementsent'     => __( 'Statement was successfully sent', 'zero-bs-crm' ),
+		'statementnotsent'  => __( 'Statement could not be sent at this time', 'zero-bs-crm' ),
 
-	// statement send
-	$lang_array['sendstatement']     = __( 'Send Statement', 'zero-bs-crm' );
-	$lang_array['sendstatementaddr'] = __( 'Send Statement to Email:', 'zero-bs-crm' );
-	$lang_array['enteremail']        = __( 'Enter an Email Address..', 'zero-bs-crm' );
-	$lang_array['statementsent']     = __( 'Statement was successfully sent', 'zero-bs-crm' );
-	$lang_array['statementnotsent']  = __( 'Statement could not be sent at this time', 'zero-bs-crm' );
+		// Entity types and totals
+		'total'             => __( 'Total', 'zero-bs-crm' ),
+		'totals'            => __( 'Totals', 'zero-bs-crm' ),
+		'quote'             => __( 'Quote', 'zero-bs-crm' ),
+		'quotes'            => __( 'Quotes', 'zero-bs-crm' ),
+		'invoice'           => __( 'Invoice', 'zero-bs-crm' ),
+		'invoices'          => __( 'Invoices', 'zero-bs-crm' ),
+		'transaction'       => __( 'Transaction', 'zero-bs-crm' ),
+		'transactions'      => __( 'Transactions', 'zero-bs-crm' ),
 
-	// totals table list view, (but generically useful)
-	$lang_array['total']        = __( 'Total', 'zero-bs-crm' );
-	$lang_array['totals']       = __( 'Totals', 'zero-bs-crm' );
-	$lang_array['quote']        = __( 'Quote', 'zero-bs-crm' );
-	$lang_array['quotes']       = __( 'Quotes', 'zero-bs-crm' );
-	$lang_array['invoice']      = __( 'Invoice', 'zero-bs-crm' );
-	$lang_array['invoices']     = __( 'Invoices', 'zero-bs-crm' );
-	$lang_array['transaction']  = __( 'Transaction', 'zero-bs-crm' );
-	$lang_array['transactions'] = __( 'Transactions', 'zero-bs-crm' );
+		// daterangepicker ranges
+		'today'             => __( 'Today', 'zero-bs-crm' ),
+		'yesterday'         => __( 'Yesterday', 'zero-bs-crm' ),
+		'last_7_days'       => __( 'Last 7 days', 'zero-bs-crm' ),
+		'last_30_days'      => __( 'Last 30 days', 'zero-bs-crm' ),
+		'this_month'        => __( 'This month', 'zero-bs-crm' ),
+		'last_month'        => __( 'Last month', 'zero-bs-crm' ),
+	);
 
 	$lang_array = apply_filters( 'zbs_globaljs_lang', $lang_array );
 

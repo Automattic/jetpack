@@ -12,8 +12,9 @@ import { useNavigate } from 'react-router';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useSingleModuleState } from '$features/module/lib/stores';
+import type { FC } from 'react';
 
-const GettingStarted: React.FC = () => {
+const GettingStarted: FC = () => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
 	const navigate = useNavigate();

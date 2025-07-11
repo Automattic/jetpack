@@ -3,7 +3,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Disabled, ExternalLink, Notice, BaseControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { Fragment } from 'react';
+import { Fragment } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useMediaDetails from '../../hooks/use-media-details';
 import MediaPicker from '../media-picker';

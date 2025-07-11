@@ -17,15 +17,15 @@ import styles from './style.module.scss';
  * Types
  */
 import type { VideoStorageMeterProps } from './types';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * Video Storage Meter component
  *
  * @param {VideoStorageMeterProps} props - Component props.
- * @return {React.ReactNode} - VideoStorageMeter react component.
+ * @return {ReactNode} - VideoStorageMeter react component.
  */
-const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
+const VideoStorageMeter: FC< VideoStorageMeterProps > = ( {
 	className,
 	progressBarClassName,
 	total,

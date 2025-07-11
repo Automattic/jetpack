@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from WooCommerce 9.9.4
+ * Stubs automatically generated from WooCommerce 9.9.5
  * using the definition file `tools/stubs/woocommerce-internal-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -38,6 +38,15 @@ namespace Automattic\WooCommerce\Internal\DataStores\Orders {
      */
     class CustomOrdersTableController
     {
+        /**
+         * Is the custom orders table usage enabled via settings?
+         * This can be true only if the feature is enabled and a table regeneration has been completed.
+         *
+         * @return bool True if the custom orders table usage is enabled
+         */
+        public function custom_orders_table_usage_is_enabled(): bool
+        {
+        }
     }
     /**
      * This class is the standard data store to be used when the custom orders table is in use.

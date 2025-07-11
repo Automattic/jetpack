@@ -5,7 +5,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { cleanForSlug } from '@wordpress/url';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -25,6 +24,7 @@ import {
 import type { RoleType } from '../../../types.ts';
 import type { CarrouselImageData, CarrouselImages } from '../components/carrousel.tsx';
 import type { FeatureControl } from '@automattic/jetpack-shared-extension-utils/store/wordpress-com/types';
+import type { RefObject } from 'react';
 
 type ImageFeatureControl = FeatureControl & {
 	styles: Array< ImageStyleObject > | [];
@@ -69,7 +69,7 @@ type UseAiImageReturn = {
 	currentImage: CarrouselImageData;
 	currentPointer: CarrouselImageData;
 	images: CarrouselImages;
-	pointer: React.RefObject< number >;
+	pointer: RefObject< number >;
 	imageStyles: Array< ImageStyleObject >;
 	guessStyle: GuessStyleFunction;
 };

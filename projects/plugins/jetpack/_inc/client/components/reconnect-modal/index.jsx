@@ -1,7 +1,7 @@
 import { useRestoreConnection } from '@automattic/jetpack-connection';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -22,7 +22,7 @@ import './style.scss';
  * The "Reconnect" modal component.
  *
  * @param {object} props - The properties.
- * @return {React.ReactElement} The modal.
+ * @return {import('react').ReactElement} The modal.
  */
 export function ReconnectModal( props ) {
 	const {

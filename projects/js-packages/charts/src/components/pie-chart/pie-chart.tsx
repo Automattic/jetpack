@@ -1,7 +1,9 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import clsx from 'clsx';
+import { useMemo } from 'react';
 import useChartMouseHandler from '../../hooks/use-chart-mouse-handler';
+import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useChartTheme, defaultTheme } from '../../providers/theme';
 import { Legend } from '../legend';
 import { useElementHeight } from '../shared/use-element-height';
@@ -9,7 +11,7 @@ import { withResponsive } from '../shared/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage } from '../../types';
-import type { SVGProps, MouseEvent } from 'react';
+import type { SVGProps, MouseEvent, ReactNode } from 'react';
 
 type OmitBaseChartProps = Omit< BaseChartProps< DataPointPercentage[] >, 'width' | 'height' >;
 
@@ -46,7 +48,7 @@ interface PieChartProps extends OmitBaseChartProps {
 	/**
 	 * Use the children prop to render additional elements on the chart.
 	 */
-	children?: React.ReactNode;
+	children?: ReactNode;
 }
 
 /**
@@ -81,8 +83,9 @@ const validateData = ( data: DataPointPercentage[] ) => {
  * @param {PieChartProps} props - Component props
  * @return {JSX.Element} The rendered chart component
  */
-const PieChart = ( {
+const PieChartInternal = ( {
 	data,
+	chartId: providedChartId,
 	withTooltips = false,
 	className,
 	showLegend,
@@ -98,6 +101,7 @@ const PieChart = ( {
 	children = null,
 }: PieChartProps ) => {
 	const providerTheme = useChartTheme();
+	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
 		useChartMouseHandler( {
@@ -105,6 +109,24 @@ const PieChart = ( {
 		} );
 
 	const { isValid, message } = validateData( data );
+
+	// Create legend items (hooks must be called in same order every render)
+	const legendItems = useMemo(
+		() =>
+			data.map( ( item, index ) => ( {
+				label: item.label,
+				value: item.value.toString(),
+				color: providerTheme.colors[ index % providerTheme.colors.length ],
+			} ) ),
+		[ data, providerTheme.colors ]
+	);
+
+	// Register chart with context only if data is valid
+	useChartRegistration( chartId, legendItems, providerTheme, 'pie', isValid, {
+		thickness,
+		gapScale,
+		cornerScale,
+	} );
 
 	if ( ! isValid ) {
 		return (
@@ -146,13 +168,6 @@ const PieChart = ( {
 		fill: ( d: DataPointPercentage & { index: number } ) =>
 			d?.color || providerTheme.colors[ d.index ],
 	};
-
-	// Create legend items from data
-	const legendItems = data.map( ( item, index ) => ( {
-		label: item.label,
-		value: item.value.toString(),
-		color: providerTheme.colors[ index % providerTheme.colors.length ],
-	} ) );
 
 	return (
 		<div
@@ -248,6 +263,12 @@ const PieChart = ( {
 		</div>
 	);
 };
+
+const PieChart = ( props: PieChartProps ) => (
+	<ChartProvider>
+		<PieChartInternal { ...props } />
+	</ChartProvider>
+);
 
 PieChart.displayName = 'PieChart';
 export default withResponsive< PieChartProps >( PieChart );

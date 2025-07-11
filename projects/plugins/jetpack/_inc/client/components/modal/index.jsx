@@ -5,9 +5,9 @@
 import clsx from 'clsx';
 import { createFocusTrap } from 'focus-trap';
 import jQuery from 'jquery';
-import { assign, omit } from 'lodash';
+import { omit } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 
 // this flag will prevent ANY modals from closing.
 // use with caution!
@@ -26,7 +26,7 @@ function allowClose() {
 	preventCloseFlag = false;
 }
 
-class Modal extends React.Component {
+class Modal extends Component {
 	static propTypes = {
 		style: PropTypes.object,
 		width: PropTypes.oneOf( [ 'wide', 'medium', 'narrow' ] ),
@@ -120,7 +120,7 @@ class Modal extends React.Component {
 				containerStyle = {};
 		}
 
-		const combinedStyle = assign( {}, style, containerStyle );
+		const combinedStyle = Object.assign( {}, style, containerStyle );
 		return (
 			<div
 				ref={ node => ( this.domNode = node ) }

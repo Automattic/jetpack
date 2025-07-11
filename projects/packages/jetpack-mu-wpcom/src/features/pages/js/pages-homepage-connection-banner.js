@@ -1,4 +1,4 @@
-import { wpcomTrackEvent } from 'wpcom-tracks-module';
+import { wpcomTrackEvent } from '../../../common/tracks';
 
 /**
  * JavaScript for the Pages-Homepage connection banner event tracking.

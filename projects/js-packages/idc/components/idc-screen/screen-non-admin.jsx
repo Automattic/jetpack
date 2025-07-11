@@ -2,20 +2,20 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Fragment } from 'react';
 import customContentShape from '../../tools/custom-content-shape';
 
 /**
  * Retrieve the main screen body.
  *
  * @param {object} props - The properties.
- * @return {React.Component} The ScreenMain component.
+ * @return {import('react').Component} The ScreenMain component.
  */
 const ScreenNonAdmin = props => {
 	const { customContent = {} } = props;
 
 	return (
-		<React.Fragment>
+		<Fragment>
 			<h2>
 				{ customContent.nonAdminTitle
 					? createInterpolateElement( customContent.nonAdminTitle, { em: <em /> } )
@@ -54,7 +54,7 @@ const ScreenNonAdmin = props => {
 					) }
 				</p>
 			) }
-		</React.Fragment>
+		</Fragment>
 	);
 };
 

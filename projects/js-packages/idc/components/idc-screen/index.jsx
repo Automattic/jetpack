@@ -1,7 +1,7 @@
 import restApi from '@automattic/jetpack-api';
 import { useSelect } from '@wordpress/data';
 import PropTypes from 'prop-types';
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import useMigration from '../../hooks/use-migration';
 import useMigrationFinished from '../../hooks/use-migration-finished';
 import useStartFresh from '../../hooks/use-start-fresh';
@@ -14,7 +14,7 @@ import IDCScreenVisual from './visual';
  * The IDC screen component.
  *
  * @param {object} props - The properties.
- * @return {React.Component} The `ConnectScreen` component.
+ * @return {import('react').Component} The `ConnectScreen` component.
  */
 const IDCScreen = props => {
 	const {

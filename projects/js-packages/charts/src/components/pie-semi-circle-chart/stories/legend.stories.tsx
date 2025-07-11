@@ -1,4 +1,3 @@
-import React from 'react';
 import { legendArgTypes, legendDecorator } from '../../../stories/legend-config';
 import { PieSemiCircleChart } from '../../pie-semi-circle-chart';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
@@ -57,7 +56,7 @@ Default.args = {
 export const AlignmentPositioning: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );
 AlignmentPositioning.args = {
 	...legendStoryArgs,
-	legendAlign: 'right',
+	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
 };
 
@@ -65,6 +64,6 @@ export const VerticalOrientation: StoryObj< typeof PieSemiCircleChart > = Templa
 VerticalOrientation.args = {
 	...legendStoryArgs,
 	legendOrientation: 'vertical',
-	legendAlign: 'right',
+	legendAlignmentHorizontal: 'right',
 	legendAlignmentVertical: 'top',
 };

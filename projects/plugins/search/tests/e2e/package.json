@@ -33,7 +33,7 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"pluginSlug": "search",
+		"pluginSlug": "jetpack-search",
 		"mirrorName": "jetpack-search-plugin"
 	}
 }

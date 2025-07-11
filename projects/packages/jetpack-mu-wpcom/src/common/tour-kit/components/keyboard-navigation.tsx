@@ -1,24 +1,24 @@
 /**
  * External dependencies
  */
-import * as React from 'react';
 /**
  * Internal dependencies
  */
 import useFocusHandler from '../hooks/use-focus-handler';
 import useFocusTrap from '../hooks/use-focus-trap';
 import useKeydownHandler from '../hooks/use-keydown-handler';
+import type { FunctionComponent, MutableRefObject } from 'react';
 
 interface Props {
 	onMinimize: () => void;
 	onDismiss: ( target: string ) => () => void;
 	onNextStepProgression: () => void;
 	onPreviousStepProgression: () => void;
-	tourContainerRef: React.MutableRefObject< null | HTMLElement >;
+	tourContainerRef: MutableRefObject< null | HTMLElement >;
 	isMinimized: boolean;
 }
 
-const KeyboardNavigation: React.FunctionComponent< Props > = ( {
+const KeyboardNavigation: FunctionComponent< Props > = ( {
 	onMinimize,
 	onDismiss,
 	onNextStepProgression,

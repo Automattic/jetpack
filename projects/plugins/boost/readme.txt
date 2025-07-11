@@ -9,7 +9,7 @@ Stable tag: 4.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Speed up your WordPress site by optimizing page performance with Jetpack Boost. Easily activate one-click optimizations to boost your Core Web Vitals.
+Speed up your WordPress site with one-click optimizations like Page Cache, Critical CSS, and Image CDN to improve Core Web Vitals.
 
 == Description ==
 
@@ -183,13 +183,21 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.1.1 - 2025-06-23
+### 4.1.2 - 2025-07-08
+#### Added
+- Concatenate JS/CSS: Add cleanup for expired options in the database.
+
 #### Changed
+- General: Update UI to show some features are unavailable if the website is offline.
+- LCP Optimization: Show errors not in the list of known errors, in the UI.
+- Concatenate JS/CSS: Cleanup static files when running garbage collection.
+- My Jetpack: Updating Stats card to include a chart for better analytics.
 - Update package dependencies.
 
 #### Fixed
-- Defer JS: Fix duplicating deferred scripts on the page when "Optimize LCP Images" is enabled.
-- Image Guide: Fix reporting images in WordPress' admin bar.
+- LCP Optimization: Ensure new error types unsupported by the plugin version show as Unknown
+- Concatenate JS: Exclude scripts of type module from concatenation.
+- JITM: Fix ineffective caching due to expired plugin sync transient
 
 --------
 

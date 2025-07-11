@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "46d89e75c8f8f513f10dc678ca56d24d",
+    "content-hash": "d7a9ca08ce0b1d12066bef8ecad72c4c",
     "packages": [],
     "packages-dev": [
         {
@@ -932,16 +932,16 @@
         },
         {
             "name": "phan/phan",
-            "version": "5.4.6",
+            "version": "5.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phan/phan.git",
-                "reference": "5963ad2e55f7c4b3fd8349d25ddd7b43414d2d79"
+                "reference": "d27e93d3284d7eec9fd9647605d86cb6e6f2ea92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phan/phan/zipball/5963ad2e55f7c4b3fd8349d25ddd7b43414d2d79",
-                "reference": "5963ad2e55f7c4b3fd8349d25ddd7b43414d2d79",
+                "url": "https://api.github.com/repos/phan/phan/zipball/d27e93d3284d7eec9fd9647605d86cb6e6f2ea92",
+                "reference": "d27e93d3284d7eec9fd9647605d86cb6e6f2ea92",
                 "shasum": ""
             },
             "require": {
@@ -1006,9 +1006,9 @@
             ],
             "support": {
                 "issues": "https://github.com/phan/phan/issues",
-                "source": "https://github.com/phan/phan/tree/5.4.6"
+                "source": "https://github.com/phan/phan/tree/5.5.0"
             },
-            "time": "2025-06-09T13:26:52+00:00"
+            "time": "2025-06-30T14:18:36+00:00"
         },
         {
             "name": "php-parallel-lint/php-parallel-lint",
@@ -1073,16 +1073,16 @@
         },
         {
             "name": "php-stubs/woocommerce-stubs",
-            "version": "v9.8.2",
+            "version": "v9.9.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/woocommerce-stubs.git",
-                "reference": "3e8464d5471332cd56d595fde61ce8821236674f"
+                "reference": "2efd06960ebb0ea853c906d979298fc176eec8a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/3e8464d5471332cd56d595fde61ce8821236674f",
-                "reference": "3e8464d5471332cd56d595fde61ce8821236674f",
+                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/2efd06960ebb0ea853c906d979298fc176eec8a9",
+                "reference": "2efd06960ebb0ea853c906d979298fc176eec8a9",
                 "shasum": ""
             },
             "require": {
@@ -1111,9 +1111,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/woocommerce-stubs/issues",
-                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v9.8.2"
+                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v9.9.4"
             },
-            "time": "2025-04-23T03:16:52+00:00"
+            "time": "2025-06-16T19:18:36+00:00"
         },
         {
             "name": "php-stubs/wordpress-stubs",
@@ -1208,16 +1208,16 @@
         },
         {
             "name": "php-stubs/wp-cli-stubs",
-            "version": "v2.11.0",
+            "version": "v2.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wp-cli-stubs.git",
-                "reference": "f27ff9e8e29d7962cb070e58de70dfaf63183007"
+                "reference": "af16401e299a3fd2229bd0fa9a037638a4174a9d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wp-cli-stubs/zipball/f27ff9e8e29d7962cb070e58de70dfaf63183007",
-                "reference": "f27ff9e8e29d7962cb070e58de70dfaf63183007",
+                "url": "https://api.github.com/repos/php-stubs/wp-cli-stubs/zipball/af16401e299a3fd2229bd0fa9a037638a4174a9d",
+                "reference": "af16401e299a3fd2229bd0fa9a037638a4174a9d",
                 "shasum": ""
             },
             "require": {
@@ -1246,9 +1246,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wp-cli-stubs/issues",
-                "source": "https://github.com/php-stubs/wp-cli-stubs/tree/v2.11.0"
+                "source": "https://github.com/php-stubs/wp-cli-stubs/tree/v2.12.0"
             },
-            "time": "2024-11-25T10:09:13+00:00"
+            "time": "2025-06-10T09:58:05+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",
@@ -2222,16 +2222,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v7.3.0",
+            "version": "v7.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "66c1440edf6f339fd82ed6c7caa76cb006211b44"
+                "reference": "9e27aecde8f506ba0fd1d9989620c04a87697101"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/66c1440edf6f339fd82ed6c7caa76cb006211b44",
-                "reference": "66c1440edf6f339fd82ed6c7caa76cb006211b44",
+                "url": "https://api.github.com/repos/symfony/console/zipball/9e27aecde8f506ba0fd1d9989620c04a87697101",
+                "reference": "9e27aecde8f506ba0fd1d9989620c04a87697101",
                 "shasum": ""
             },
             "require": {
@@ -2296,7 +2296,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v7.3.0"
+                "source": "https://github.com/symfony/console/tree/v7.3.1"
             },
             "funding": [
                 {
@@ -2312,7 +2312,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-05-24T10:34:04+00:00"
+            "time": "2025-06-27T19:55:54+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",

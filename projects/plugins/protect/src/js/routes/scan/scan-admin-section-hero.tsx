@@ -11,8 +11,9 @@ import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import ScanningAdminSectionHero from './scanning-admin-section-hero';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
-const ScanAdminSectionHero: React.FC = () => {
+const ScanAdminSectionHero: FC = () => {
 	const { hasPlan } = usePlan();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Block editor: ensure editor assets endpoint excludes disallowed plugin assets

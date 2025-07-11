@@ -7,7 +7,7 @@ import { connect } from '../flows/index.js';
 test.beforeEach( async ( { page } ) => {
 	await prerequisitesBuilder( page )
 		.withCleanEnv()
-		.withActivePlugins( [ 'social' ] )
+		.withActivePlugins( [ 'jetpack-social' ] )
 		.withInactivePlugins( [ 'jetpack' ] )
 		.withLoggedIn( true )
 		.withWpComLoggedIn( true )

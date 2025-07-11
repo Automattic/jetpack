@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
 import { getModule } from 'state/modules';
@@ -17,7 +16,7 @@ import './style.scss';
  * Newsletter Section.
  *
  * @param {object} props - Component props.
- * @return {React.Component} Newsletter settings component.
+ * @return {import('react').Component} Newsletter settings component.
  */
 function Subscriptions( props ) {
 	const { active, isModuleFound, searchTerm, siteRawUrl, blogID } = props;

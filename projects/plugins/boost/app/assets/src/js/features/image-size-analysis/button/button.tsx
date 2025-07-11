@@ -1,6 +1,7 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import clsx from 'clsx';
 import styles from './button.module.scss';
+import type { FC } from 'react';
 
 interface ButtonProps {
 	small?: boolean;
@@ -12,7 +13,7 @@ interface ButtonProps {
 	onClick?: () => void;
 }
 
-const Button: React.FC< ButtonProps > = ( {
+const Button: FC< ButtonProps > = ( {
 	small = false,
 	fill = false,
 	width = null,

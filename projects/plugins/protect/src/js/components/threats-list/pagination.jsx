@@ -1,7 +1,7 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
-import React, { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import styles from './styles.module.scss';
 
 const PaginationButton = ( { pageNumber, currentPage, onPageChange } ) => {

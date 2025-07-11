@@ -277,7 +277,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_preset( $deprecated = null ) {
 		if ( $deprecated ) {
-			_deprecated_argument( __METHOD__, '$$next-version', 'The $preset argument is no longer needed or used.' );
+			_deprecated_argument( __METHOD__, '14.3', 'The $preset argument is no longer needed or used.' );
 		}
 
 		if ( self::$preset_cache ) {
@@ -411,6 +411,11 @@ class Jetpack_Gutenberg {
 			 * @param array
 			 */
 			self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
+
+			if ( ! is_array( self::$extensions ) ) {
+				_doing_it_wrong( __METHOD__, esc_html__( 'The jetpack_set_available_extensions filter must return an array.', 'jetpack' ), '14.9' );
+				self::$extensions = array();
+			}
 		}
 
 		return self::$extensions;

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { useAiSuggestions, usePostContent, AiAssistantModal } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
@@ -8,11 +5,8 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
-/**
- * Internal dependencies
- */
 import './style.scss';
+import type { JSX } from 'react';
 
 export default function Feedback( {
 	disabled = false,
@@ -24,7 +18,7 @@ export default function Feedback( {
 	busy?: boolean;
 } ) {
 	const [ isFeedbackModalVisible, setIsFeedbackModalVisible ] = useState( false );
-	const [ suggestion, setSuggestion ] = useState< Array< React.JSX.Element | null > >( [ null ] );
+	const [ suggestion, setSuggestion ] = useState< Array< JSX.Element | null > >( [ null ] );
 	const { tracks } = useAnalytics();
 
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );

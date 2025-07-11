@@ -4,7 +4,6 @@ import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { STORE_ID } from '../../state/store';
 import customContentShape from '../../tools/custom-content-shape';
 import extractHostname from '../../tools/extract-hostname';
@@ -14,7 +13,7 @@ import ErrorMessage from '../error-message';
  * Render the error message.
  *
  * @param {string} supportURL - The support page URL.
- * @return {React.Component} The error message.
+ * @return {import('react').Component} The error message.
  */
 const renderError = supportURL => {
 	return (
@@ -49,7 +48,7 @@ const renderComparisonUrls = ( wpcomHostName, currentHostName ) => {
  * The "start fresh" card.
  *
  * @param {object} props - The properties.
- * @return {React.Component} The `ConnectScreen` component.
+ * @return {import('react').Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
 	const {

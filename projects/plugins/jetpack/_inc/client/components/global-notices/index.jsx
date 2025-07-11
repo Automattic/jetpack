@@ -1,6 +1,6 @@
 import debugModule from 'debug';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import SimpleNotice from 'components/notice/index.jsx';
@@ -12,7 +12,7 @@ const debug = debugModule( 'calypso:notices' );
 
 import './style.scss';
 
-class NoticesList extends React.Component {
+class NoticesList extends Component {
 	static displayName = 'NoticesList';
 
 	static propTypes = {

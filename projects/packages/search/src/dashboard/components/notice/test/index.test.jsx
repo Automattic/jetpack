@@ -4,7 +4,6 @@
 
 import { render } from '@testing-library/react';
 import SimpleNotice from 'components/notice';
-import React from 'react';
 
 describe( 'SimpleNotice', function () {
 	const testProps = {

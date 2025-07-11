@@ -1,13 +1,12 @@
-/**
- * External Dependencies
- */
 import { focus } from '@wordpress/dom';
 import { useEffect, useCallback, useState } from '@wordpress/element';
+import type { MutableRefObject } from 'react';
+
 /**
  * A hook that constraints tabbing/focus on focuable elements in the given element ref.
- * @param ref - React.MutableRefObject< null | HTMLElement >
+ * @param ref - MutableRefObject< null | HTMLElement >
  */
-const useFocusTrap = ( ref: React.MutableRefObject< null | HTMLElement > ): void => {
+const useFocusTrap = ( ref: MutableRefObject< null | HTMLElement > ): void => {
 	const [ firstFocusableElement, setFirstFocusableElement ] = useState< HTMLElement | undefined >();
 	const [ lastFocusableElement, setLastFocusableElement ] = useState< HTMLElement | undefined >();
 
