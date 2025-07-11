@@ -12,9 +12,8 @@
 		gap: 16px;
 
 		@media (max-width: 782px) {
-			flex-direction: column;
 			gap: 10px;
-			align-items: flex-end;
+			align-items: center;
 		}
 	}
 
