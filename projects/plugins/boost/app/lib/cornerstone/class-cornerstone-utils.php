@@ -9,9 +9,20 @@ class Cornerstone_Utils {
 	/**
 	 * Get the list of cornerstone pages.
 	 *
-	 * @return string[] The relative URLs of the cornerstone pages.
+	 * @return string[] The relative URLs of all the cornerstone pages.
 	 */
 	public static function get_list() {
+		return array_merge( self::get_predefined_list(), self::get_custom_list() );
+	}
+
+	/**
+	 * Gets the list of Cornerstone Pages that the user has added to the custom list.
+	 *
+	 * @return string[] The relative URLs of the cornerstone pages.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function get_custom_list() {
 		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
 
 		// Bail early if no pages are found.
@@ -27,6 +38,17 @@ class Cornerstone_Utils {
 		}
 
 		return $pages;
+	}
+
+	/**
+	 * Gets the list of Cornerstone Pages that the user cannot remove.
+	 *
+	 * @return string[] The relative URLs of the cornerstone pages.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function get_predefined_list() {
+		return array( '' ); // Empty string represents homepage in relative form
 	}
 
 	/**

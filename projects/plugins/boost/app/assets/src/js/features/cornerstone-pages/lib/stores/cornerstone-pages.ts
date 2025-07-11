@@ -29,6 +29,7 @@ const CornerstonePagesProperties = z.object( {
 	default_pages: z.array( z.string() ),
 	predefined_pages: z.array( z.string() ),
 } );
+
 type CornerstonePagesProperties = z.infer< typeof CornerstonePagesProperties >;
 
 export function useCornerstonePagesProperties(): CornerstonePagesProperties | undefined {

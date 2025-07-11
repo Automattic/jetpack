@@ -54,9 +54,10 @@ const CornerstonePages = () => {
 
 const CornerstoneTitleSummary = () => {
 	const [ cornerstonePages ] = useCornerstonePages();
-	if ( ! cornerstonePages.length ) {
+	if ( ! Array.isArray( cornerstonePages ) ) {
 		return null;
 	}
+
 	return sprintf(
 		/* translators: %s is the number of pages in the cornerstone pages list apart from the homepage. */
 		__( 'Added: %s', 'jetpack-boost' ),

@@ -1,6 +1,6 @@
 import { Button, getRedirectUrl, Notice } from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styles from './meta.module.scss';
 import {
 	useCornerstonePages,
@@ -58,7 +58,8 @@ const CornerstonePagesContent = () => {
 	const listInputRows = isPremium ? 10 : 5;
 
 	const updateCornerstonePages = ( newValue: string ) => {
-		const newItems = newValue.split( '\n' ).map( line => line.trim() );
+		// If the user deletes all the URLs, we should set the list to an empty array.
+		const newItems = newValue ? newValue.split( '\n' ).map( line => line.trim() ) : [];
 
 		setCornerstonePages( newItems, () => {
 			setNotice( {
@@ -78,11 +79,12 @@ const CornerstonePagesContent = () => {
 
 	return (
 		<div className={ styles.section }>
-			<p className={ styles.description } style={ { margin: 0 } }>
+			<p className={ styles.description }>
+				{ /* TODO: In a separate PR, we will add a tooltip to the predefined pages, including the support link for further information. */ }
 				<strong>{ __( 'Predefined:', 'jetpack-boost' ) }</strong>
 			</p>
 			<PredefinedList items={ cornerstonePagesProperties.predefined_pages } />
-			<p className={ styles.description } style={ { margin: 0 } }>
+			<p className={ styles.description }>
 				<strong>{ __( 'Custom:', 'jetpack-boost' ) }</strong>
 			</p>
 			<List
@@ -183,7 +185,7 @@ type PredefinedListProps = {
 
 const PredefinedList: FC< PredefinedListProps > = ( { items } ) => {
 	return (
-		<ul style={ { padding: 0, marginTop: 0 } } className={ styles[ 'predefined-pages' ] }>
+		<ul className={ styles[ 'predefined-pages' ] }>
 			{ items.map( item => (
 				<li key={ item }>{ item }</li>
 			) ) }
@@ -200,8 +202,9 @@ const List: FC< ListProps > = ( {
 	inputRows = 10,
 } ) => {
 	const [ inputValue, setInputValue ] = useState( items );
-	const [ inputInvalid, setInputInvalid ] = useState( false );
 	const [ validationError, setValidationError ] = useState< Error | null >( null );
+	const inputInvalid = useMemo( () => validationError, [ validationError ] );
+
 	useEffect( () => {
 		setInputValue( items );
 	}, [ items ] );
@@ -209,11 +212,9 @@ const List: FC< ListProps > = ( {
 	const validateInputValue = ( value: string ) => {
 		setInputValue( value );
 		try {
-			const isValid = validateItems( value );
-			setInputInvalid( ! isValid );
+			validateItems( value );
 			setValidationError( null );
 		} catch ( e ) {
-			setInputInvalid( true );
 			setValidationError( e as Error );
 		}
 	};
@@ -244,15 +245,29 @@ const List: FC< ListProps > = ( {
 
 		for ( const line of lines ) {
 			let url: URL | undefined;
+			let pathname: string | undefined;
+
 			try {
 				url = new URL( line );
+				pathname = url.pathname;
 			} catch {
 				// If the URL is invalid, they have provided a relative URL, which we will allow.
+				pathname = line;
 			}
+
 			if ( url && ! isSameSiteUrl( url, siteUrl ) ) {
 				throw new Error(
 					/* translators: %s is the URL that didn't match the site URL */
 					sprintf( __( 'The URL seems to be a different site: %s', 'jetpack-boost' ), line )
+				);
+			}
+
+			if ( pathname === siteUrl.pathname ) {
+				throw new Error(
+					__(
+						'The homepage does not need to be added to your custom list, as it is automatically included',
+						'jetpack-boost'
+					)
 				);
 			}
 		}
