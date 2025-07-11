@@ -496,6 +496,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				method='post'
 				class='" . esc_attr( $form_classes ) . "' $form_aria_label
 				data-wp-on--submit=\"actions.onFormSubmit\"
+				data-wp-on--reset=\"actions.onFormReset\"
 				data-wp-class--is-submitted=\"state.hasSubmitted\"
 				data-wp-class--is-first-step=\"state.isFirstStep\"
 				data-wp-class--is-last-step=\"state.isLastStep\"

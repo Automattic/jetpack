@@ -206,7 +206,7 @@ const { state } = store( NAMESPACE, {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
-			return field.value;
+			return field?.value || '';
 		},
 
 		get getSubmissionError() {
@@ -279,6 +279,22 @@ const { state } = store( NAMESPACE, {
 		onFieldBlur: event => {
 			const context = getContext();
 			updateField( context.fieldId, event.target.value, true );
+		},
+
+		onFormReset: () => {
+			const context = getContext();
+			context.fields = [];
+
+			// Dispatch custom events to reset all fields
+			const formElement = document.getElementById( context.elementId );
+
+			if ( formElement ) {
+				const fieldWrappers = formElement.querySelectorAll( '[data-wp-on--jetpack-form-reset]' );
+
+				fieldWrappers.forEach( wrapper => {
+					wrapper.dispatchEvent( new CustomEvent( 'jetpack-form-reset', { bubbles: false } ) );
+				} );
+			}
 		},
 
 		onFormSubmit: withSyncEvent( function* ( event ) {
