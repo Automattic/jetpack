@@ -13,7 +13,7 @@
 
 		@media (max-width: 782px) {
 			gap: 10px;
-			align-items: center;
+			align-items: flex-start;
 		}
 	}
 
@@ -24,6 +24,16 @@
 
 		@media (max-width: 782px) {
 			width: 100%;
+			align-items: flex-start;
+			gap: 10px;
+		}
+	}
+
+	&__header-actions button {
+
+		@media (max-width: 782px) {
+			padding: 10px 12px;
+			height: auto;
 		}
 	}
 
@@ -52,6 +62,10 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+
+		@media (max-width: 782px) {
+			padding: 4px;
+		}
 	}
 
 	&__service-icon {
@@ -145,6 +159,10 @@
 
 		:last-child {
 			margin-bottom: 0;
+		}
+
+		@media (max-width: 782px) {
+			padding-left: 46px;
 		}
 	}
 
