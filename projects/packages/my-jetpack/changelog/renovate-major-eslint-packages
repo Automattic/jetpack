@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix eslint `jsdoc/no-undefined-types` complaining about `JSX.Element`
+
+
