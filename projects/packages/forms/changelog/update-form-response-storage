@@ -1,4 +1,5 @@
 Significance: patch
 Type: fixed
 
-Forms: Adds a new Form_Responses class that keeps consistency between DB form response and the one before we submit it
+Forms: Adds a new Feedback and Feedback_Field class that keeps consistency between DB form response and the one before we submit it.
+
