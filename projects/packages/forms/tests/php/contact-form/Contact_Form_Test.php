@@ -1857,7 +1857,7 @@ class Contact_Form_Test extends BaseTestCase {
 		}
 	}
 
-	public function test_export_legacy_data() {
+	public function test_export_csv_legacy_data() {
 		global $post;
 		$post_ids        = array();
 		$post_ids[]      = Utility::create_legacy_feedback(
