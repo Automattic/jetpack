@@ -183,6 +183,11 @@ HTML;
 
 		// Don't show if post is for subscribers only or has paywall block
 		global $post;
+
+		if ( ! $post instanceof WP_Post ) {
+			return false;
+		}
+
 		if ( defined( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS' ) ) {
 			$access_level = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 		} else {
