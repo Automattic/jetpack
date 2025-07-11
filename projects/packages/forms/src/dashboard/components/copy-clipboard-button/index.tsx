@@ -18,7 +18,7 @@ type CopyClipboardButtonProps = {
  */
 export default function CopyClipboardButton( { text }: CopyClipboardButtonProps ): JSX.Element {
 	const [ showCopyConfirmation, setShowCopyConfirmation ] = useState( false );
-	const timeoutIdRef = useRef();
+	const timeoutIdRef = useRef< number | null >( null );
 	const ref = useCopyToClipboard( text, () => {
 		setShowCopyConfirmation( true );
 		if ( timeoutIdRef.current ) {
