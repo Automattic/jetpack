@@ -1413,7 +1413,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "42c4e402a779c05dc0d3208a7f67b1690a93a187"
+				"reference": "d6563f3a55ceffb8c45aba2f752f57eb350c3076"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1467,7 +1467,7 @@
 					"@composer phpunit"
 				],
 				"test-js": [
-					"pnpm run test:contact-form"
+					"pnpm run test"
 				],
 				"build-production": [
 					"pnpm run build-production"
