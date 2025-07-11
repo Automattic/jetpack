@@ -245,7 +245,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	/**
 	 * Enqueue assets using WPCOM's specific Gutenberg paths.
 	 */
-	public static function mock_wpcom_gutenberg_assets() {
+	public function mock_wpcom_gutenberg_assets() {
 		wp_register_script( 'wpcom-gutenberg-script', 'http://example.org/plugins/gutenberg-core/script.js', array(), '1.0', true );
 		wp_register_style( 'wpcom-gutenberg-style', 'http://example.org/plugins/gutenberg-core/style.css', array(), '1.0' );
 
