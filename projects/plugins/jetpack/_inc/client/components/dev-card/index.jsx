@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import { get } from 'lodash';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
@@ -131,8 +130,8 @@ export class DevCard extends Component {
 		const classes = clsx( this.props.className, 'jp-dev-card' );
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
-		const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
-		const scanState = get( this.props.scanStatus, [ 'state' ], false );
+		const rewindState = this.props.rewindStatus?.state ?? false;
+		const scanState = this.props.scanStatus?.state ?? false;
 
 		return (
 			<Card compact className={ classes }>

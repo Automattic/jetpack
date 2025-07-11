@@ -1,4 +1,3 @@
-import { get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	REWIND_STATUS_FETCH,
@@ -62,5 +61,5 @@ export function isFetchingRewindStatus( state ) {
  * @return {object}  Features
  */
 export function getRewindStatus( state ) {
-	return get( state.jetpack.rewind, [ 'data', 'status' ], {} );
+	return state.jetpack.rewind?.data?.status ?? {};
 }

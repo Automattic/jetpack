@@ -198,7 +198,7 @@ class VideoPress_Gutenberg {
 				'_inc/build/videopress/js/gutenberg-video-upload.min.js',
 				'modules/videopress/js/gutenberg-video-upload.js'
 			),
-			array( 'wp-api-fetch', 'wp-polyfill', 'lodash' ),
+			array( 'wp-api-fetch', 'wp-polyfill' ),
 			JETPACK__VERSION,
 			false
 		);

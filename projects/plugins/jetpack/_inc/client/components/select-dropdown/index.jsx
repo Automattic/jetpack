@@ -1,7 +1,6 @@
 /** @ssr-ready **/
 
 import clsx from 'clsx';
-import { result } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component, Children, cloneElement, createRef } from 'react';
 import Count from 'components/count';
@@ -184,10 +183,7 @@ class SelectDropdown extends Component {
 		const dropdownClassName = clsx( dropdownClasses );
 		const selectedText = this.props.selectedText
 			? this.props.selectedText
-			: result(
-					this.props.options.find( v => v.value === this.state.selected ),
-					'label'
-			  );
+			: this.props.options.find( v => v.value === this.state.selected )?.label;
 
 		return (
 			<div style={ this.props.style } className={ dropdownClassName }>

@@ -1,4 +1,4 @@
-import { difference, get, isEmpty, mergeWith, union } from 'lodash';
+import { difference, isEmpty, mergeWith, union } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	isJetpackPlanWithAntiSpam,
@@ -226,7 +226,7 @@ const productSuggestions = ( state = {}, action ) => {
 };
 
 export const getProductSuggestions = state =>
-	get( state.jetpack, [ 'recommendations', 'productSuggestions' ], [] );
+	state.jetpack?.recommendations?.productSuggestions ?? [];
 
 const upsell = ( state = {}, action ) => {
 	switch ( action.type ) {
@@ -282,7 +282,7 @@ const installing = ( state = {}, action ) => {
 };
 
 const getConditionalRecommendations = state => {
-	return get( state.jetpack, [ 'recommendations', 'conditional' ] );
+	return state.jetpack?.recommendations?.conditional;
 };
 
 export const reducer = combineReducers( {
@@ -329,7 +329,7 @@ export const recommendationsSiteDiscountViewedStep = state => {
 };
 
 export const getDataByKey = ( state, key ) => {
-	return get( state.jetpack, [ 'recommendations', 'data', key ], false );
+	return state.jetpack?.recommendations?.data?.[ key ] ?? false;
 };
 
 const stepToNextStepByPath = {
@@ -473,7 +473,7 @@ export const stepToRoute = {
 	'server-credentials': '#/recommendations/server-credentials',
 };
 
-const getRecommendationsData = state => get( state.jetpack, [ 'recommendations', 'data' ] );
+const getRecommendationsData = state => state.jetpack?.recommendations?.data;
 
 export const isStepViewed = ( state, featureSlug ) => {
 	const recommendationsData = getRecommendationsData( state );
@@ -492,7 +492,7 @@ export const isStepSkipped = ( state, featureSlug ) => {
 };
 
 export const isInstallingRecommendedFeature = ( state, featureSlug ) => {
-	const featuresInstalling = get( state.jetpack, [ 'recommendations', 'installing' ] );
+	const featuresInstalling = state.jetpack?.recommendations?.installing;
 	return featuresInstalling[ featureSlug ] ?? false;
 };
 
@@ -680,8 +680,10 @@ const isStepEligibleToShow = ( state, step ) => {
 };
 
 const getNextEligibleStep = ( state, step ) => {
-	const active = get( getOnboardingData( state ), 'active' );
-	const stepToNextStep = get( stepToNextStepByPath, active ? `onboarding.${ active }` : 'default' );
+	const active = getOnboardingData( state )?.active;
+	const stepToNextStep = active
+		? stepToNextStepByPath?.onboarding?.[ active ]
+		: stepToNextStepByPath?.default;
 
 	if ( ! stepToNextStep ) {
 		// If we cannot find next step due to some reason - we just show the summary
@@ -698,7 +700,7 @@ const getNextEligibleStep = ( state, step ) => {
 };
 
 const getStepsForOnboarding = onboarding =>
-	Object.keys( get( stepToNextStepByPath, `onboarding.${ onboarding }`, {} ) );
+	Object.keys( stepToNextStepByPath?.onboarding?.[ onboarding ] ?? {} );
 
 export const getInitialStepForOnboarding = onboarding => getStepsForOnboarding( onboarding )[ 0 ];
 
@@ -779,7 +781,7 @@ export const getIsOnboardingActive = state => {
 };
 
 export const getStep = state => {
-	const savedStep = get( state.jetpack, [ 'recommendations', 'step' ], '' );
+	const savedStep = state.jetpack?.recommendations?.step ?? '';
 	const step = '' !== savedStep ? savedStep : getInitialStep( state );
 
 	// These steps are special cases set on the server. There is technically no
@@ -813,7 +815,7 @@ export const getNextRoute = state => {
 	return stepToRoute[ nextStep ];
 };
 
-export const getUpsell = state => get( state.jetpack, [ 'recommendations', 'upsell' ], {} );
+export const getUpsell = state => state.jetpack?.recommendations?.upsell ?? {};
 
 const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 	switch ( slug ) {

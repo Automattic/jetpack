@@ -1,7 +1,6 @@
 import { isWoASite, isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { get } from 'lodash';
 import getJetpackData from './get-jetpack-data';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import getSiteFragment from './get-site-fragment';
@@ -19,7 +18,7 @@ import getSiteFragment from './get-site-fragment';
  */
 export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't.
-	const planPathSlug = planSlug.startsWith( 'jetpack_' ) ? planSlug : get( plan, [ 'path_slug' ] );
+	const planPathSlug = planSlug.startsWith( 'jetpack_' ) ? planSlug : plan?.path_slug;
 
 	// The full site editor has no set post type.
 	const redirect_to = (
@@ -158,7 +157,7 @@ const usableBlockWithFreePlan = [
  * @return {boolean} True if the Upgrade Nudge is enable. Otherwise, False.
  */
 export function isUpgradeNudgeEnabled() {
-	return get( getJetpackData(), 'jetpack.enable_upgrade_nudge', false );
+	return getJetpackData()?.jetpack?.enable_upgrade_nudge ?? false;
 }
 
 /*

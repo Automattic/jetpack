@@ -37,8 +37,7 @@
 		"@wordpress/primitives": "4.26.0",
 		"@wordpress/url": "4.26.0",
 		"clsx": "2.1.1",
-		"debug": "4.4.1",
-		"lodash": "4.17.21"
+		"debug": "4.4.1"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
