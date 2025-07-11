@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Removed the UI for ISA via a filter, pending future removal.
