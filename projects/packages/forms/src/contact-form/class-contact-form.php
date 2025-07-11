@@ -152,19 +152,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 		}
 
-		if ( ! empty( self::$forms ) ) {
+		// When using admin-ajax.php, we don't need to add a page number to the id
+		if ( ! empty( self::$forms ) && ! $this->is_response_without_reload_enabled ) {
 			// Ensure 'id' exists in $attributes before trying to modify it
 			if ( ! isset( $attributes['id'] ) ) {
 				$attributes['id'] = '';
 			}
 
-			// Widgets do not require a page number, so we don't need to add it to the id
-			if ( empty( $attributes['widget'] ) ) {
-				// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
-				$page_num = max( 1, intval( $page ) );
+			// When submitting the page number is not always set, so we need to handle that: TODO: This is a hack, we need to find a better way to handle form identification
+			$page_num = max( 1, intval( $page ) );
 
-				$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
-			}
+			$attributes['id'] = $attributes['id'] . '-' . ( count( self::$forms ) + 1 ) . '-' . $page_num;
 		}
 
 		$this->hash                 = sha1( wp_json_encode( $attributes ) );
