@@ -332,7 +332,7 @@ class Feedback {
 	private function get_all_values() {
 		$values = array();
 		foreach ( $this->fields as $field ) {
-			if ( ! $field instanceof Response_Field ) {
+			if ( ! $field instanceof Feedback_Field ) {
 				continue;
 			}
 			if ( $field->get_meta( 'render' ) === false ) {
@@ -395,7 +395,7 @@ class Feedback {
 	public function get_compiled_fields() {
 		$compiled_fields = array();
 		foreach ( $this->fields as $field ) {
-			if ( ! $field instanceof Response_Field ) {
+			if ( ! $field instanceof Feedback_Field ) {
 				continue;
 			}
 			if ( $field->get_meta( 'render' ) === false ) {
@@ -415,7 +415,7 @@ class Feedback {
 	private function get_api_all_values() {
 		$values = array();
 		foreach ( $this->fields as $field ) {
-			if ( ! $field instanceof Response_Field ) {
+			if ( ! $field instanceof Feedback_Field ) {
 				continue;
 			}
 			if ( $field->get_meta( 'render' ) === false ) {
@@ -691,7 +691,7 @@ class Feedback {
 
 		$fields_to_serialize['fields'] = array();
 		foreach ( $this->fields as $field ) {
-			if ( ! $field instanceof Response_Field ) {
+			if ( ! $field instanceof Feedback_Field ) {
 				continue;
 			}
 			$fields_to_serialize['fields'][] = $field->serialize();
@@ -726,7 +726,7 @@ class Feedback {
 			}
 			$fields = array();
 			foreach ( $decoded_content['fields'] as $field ) {
-				$fields[ $field['key'] ] = Response_Field::from_serialized( $field );
+				$fields[ $field['key'] ] = Feedback_Field::from_serialized( $field );
 				if ( ! $this->has_file && $fields[ $field['key'] ]->has_file() ) {
 					$this->has_file = true;
 				}
@@ -808,7 +808,7 @@ class Feedback {
 				if ( isset( $var_map[ $key ] ) ) {
 					$map_to_field                     = $var_map[ $key ];
 					$value                            = self::strip_tags( trim( $value ) );
-					$decoded_fields['fields'][ $key ] = new Response_Field( $key, $map_to_field['label'], $value, $map_to_field['type'], array( 'render' => false ) );
+					$decoded_fields['fields'][ $key ] = new Feedback_Field( $key, $map_to_field['label'], $value, $map_to_field['type'], array( 'render' => false ) );
 				}
 			}
 		}
@@ -833,14 +833,14 @@ class Feedback {
 				// Skip fields that are not user-submitted.
 				continue;
 			}
-			$decoded_fields['fields'][ $key ] = new Response_Field( $key, $label, $value );
+			$decoded_fields['fields'][ $key ] = new Feedback_Field( $key, $label, $value );
 
 			if ( ! $this->has_file && $decoded_fields['fields'][ $key ]->has_file() ) {
 				$this->has_file = true;
 			}
 		}
 
-		$decoded_fields['fields']['comment_content'] = new Response_Field(
+		$decoded_fields['fields']['comment_content'] = new Feedback_Field(
 			'comment_content',
 			'Comment Content',
 			trim( self::strip_tags( $comment_content ) ),
@@ -899,7 +899,7 @@ class Feedback {
 	 * Get all the fields of the response, computed from the post data.
 	 *
 	 * @param array $post_data The post data from the form submission.
-	 * @return array An array of Response_Field objects.
+	 * @return array An array of Feedback_Field objects.
 	 */
 	private function get_computed_fields( $post_data ) {
 
@@ -919,7 +919,7 @@ class Feedback {
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
-			$fields[ $key ] = new Response_Field( $key, $label, $value, $type );
+			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;
 			}

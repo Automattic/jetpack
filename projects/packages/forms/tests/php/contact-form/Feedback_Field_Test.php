@@ -13,20 +13,22 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
 /**
- * Test class for Response_Field
+ * Test class for Feedback_Field
  *
- * @covers \Automattic\Jetpack\Forms\ContactForm\Response_Field
+ * @covers \Automattic\Jetpack\Forms\ContactForm\Feedback_Field
+ * @covers \Automattic\Jetpack\Forms\ContactForm\Feedback
  * @covers \Automattic\Jetpack\Forms\ContactForm\Form_Response
  */
-#[CoversClass( Response_Field::class )]
+#[CoversClass( Feedback_Field::class )]
 #[CoversClass( Form_Response::class )]
-class Response_Field_Test extends BaseTestCase {
+#[CoversClass( Feedback::class )]
+class Feedback_Field_Test extends BaseTestCase {
 	/**
-	 * Test that the Response_Field class can be instantiated.
+	 * Test that the Feedback_Field class can be instantiated.
 	 */
-	public function test_response_field_can_be_instantiated() {
-		$field = new Response_Field( 'test_key', 'test_label', 'test_value' );
-		$this->assertInstanceOf( Response_Field::class, $field );
+	public function test_Feedback_Field_can_be_instantiated() {
+		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
+		$this->assertInstanceOf( Feedback_Field::class, $field );
 
 		$this->assertEquals( 'test_key', $field->get_key() );
 		$this->assertEquals( 'test_label', $field->get_label() );
@@ -36,10 +38,10 @@ class Response_Field_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the Response_Field class can be instantiated with additional parameters.
+	 * Test that the Feedback_Field class can be instantiated with additional parameters.
 	 */
-	public function test_response_field_with_additional_parameters() {
-		$field = new Response_Field( 'test_key', 'test_label', 'test_value', 'text', array( 'meta_key' => 'meta_value' ) );
+	public function test_Feedback_Field_with_additional_parameters() {
+		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value', 'text', array( 'meta_key' => 'meta_value' ) );
 		$this->assertEquals( 'test_key', $field->get_key() );
 		$this->assertEquals( 'test_label', $field->get_label() );
 		$this->assertEquals( 'test_value', $field->get_value() );
@@ -50,10 +52,10 @@ class Response_Field_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the Response_Field class can handle empty values.
+	 * Test that the Feedback_Field class can handle empty values.
 	 */
-	public function test_response_field_with_empty_values() {
-		$field = new Response_Field( 'test_key', '', '' );
+	public function test_Feedback_Field_with_empty_values() {
+		$field = new Feedback_Field( 'test_key', '', '' );
 		$this->assertEquals( 'test_key', $field->get_key() );
 		$this->assertSame( '', $field->get_label() );
 		$this->assertSame( '', $field->get_value() );
@@ -62,14 +64,14 @@ class Response_Field_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the Response_Field can serealize and unserialize correctly.
+	 * Test that the Feedback_Field can serealize and unserialize correctly.
 	 */
-	public function test_response_field_serialization() {
-		$field        = new Response_Field( 'test_key', 'test_label', 'test_value', 'text', array( 'meta_key' => 'meta_value' ) );
+	public function test_Feedback_Field_serialization() {
+		$field        = new Feedback_Field( 'test_key', 'test_label', 'test_value', 'text', array( 'meta_key' => 'meta_value' ) );
 		$serialized   = $field->serialize();
-		$unserialized = Response_Field::from_serialized( $serialized );
+		$unserialized = Feedback_Field::from_serialized( $serialized );
 
-		$this->assertInstanceOf( Response_Field::class, $unserialized );
+		$this->assertInstanceOf( Feedback_Field::class, $unserialized );
 
 		$this->assertEquals( $serialized, $unserialized->serialize() );
 		$this->assertEquals( 'test_key', $unserialized->get_key() );
@@ -80,27 +82,27 @@ class Response_Field_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the Response_Field can serealize and unserialize correctly.
+	 * Test that the Feedback_Field can serealize and unserialize correctly.
 	 */
 	public function test_response_from_serialized_is_null() {
 
-		$unserialized = Response_Field::from_serialized( array( 'key' => 'test_key' ) );
+		$unserialized = Feedback_Field::from_serialized( array( 'key' => 'test_key' ) );
 
 		$this->assertNull( $unserialized );
 
-		$unserialized = Response_Field::from_serialized( 'howdy' );
+		$unserialized = Feedback_Field::from_serialized( 'howdy' );
 
 		$this->assertNull( $unserialized );
 
-		$unserialized = Response_Field::from_serialized( array( 'value' => 'test_value' ) );
+		$unserialized = Feedback_Field::from_serialized( array( 'value' => 'test_value' ) );
 
 		$this->assertNull( $unserialized );
 
-		$unserialized = Response_Field::from_serialized( array( 'label' => 'test_value' ) );
+		$unserialized = Feedback_Field::from_serialized( array( 'label' => 'test_value' ) );
 
 		$this->assertNull( $unserialized );
 
-		$unserialized = Response_Field::from_serialized(
+		$unserialized = Feedback_Field::from_serialized(
 			array(
 				'label' => 'test_value',
 				'value' => 'value',
@@ -111,32 +113,32 @@ class Response_Field_Test extends BaseTestCase {
 	}
 
 	public function test_get_render_value() {
-		$field = new Response_Field( 'test_key', 'test_label', 'test_value' );
+		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
 		$this->assertEquals( 'test_value', $field->get_render_value() );
 
-		$field = new Response_Field( 'test_key', 'test_label', array( 'value1', 'value2' ) );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'value1', 'value2' ) );
 		$this->assertEquals( 'value1, value2', $field->get_render_value() );
 
-		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg', 'file2.jpg' ) ) );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg', 'file2.jpg' ) ) );
 		$this->assertSame( '', $field->get_render_value() );
 	}
 
 	public function test_is_file_field() {
-		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ) );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ) );
 		$this->assertTrue( $field->is_file_field() );
 
-		$field = new Response_Field( 'test_key', 'test_label', 'test_value' );
+		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
 		$this->assertFalse( $field->is_file_field() );
 
-		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array() ) );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array() ) );
 		$this->assertTrue( $field->is_file_field() );
 
-		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg', 'file2.jpg' ) ), 'file' );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg', 'file2.jpg' ) ), 'file' );
 		$this->assertTrue( $field->is_file_field() );
 	}
 
 	public function test_has_file() {
-		$field = new Response_Field(
+		$field = new Feedback_Field(
 			'test_key',
 			'test_label',
 			array(
@@ -151,24 +153,24 @@ class Response_Field_Test extends BaseTestCase {
 		);
 		$this->assertTrue( $field->has_file() );
 
-		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ), 'file' );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array( 'file1.jpg' ) ), 'file' );
 		$this->assertTrue( $field->has_file() );
 
-		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array() ) );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array() ) );
 		$this->assertFalse( $field->has_file() );
 
-		$field = new Response_Field( 'test_key', 'test_label', 'test_value' );
+		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
 		$this->assertFalse( $field->has_file(), 'basic field should not be a file field' );
 
-		$field = new Response_Field( 'test_key', 'test_label', array( 'files' => array() ), 'file' );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'files' => array() ), 'file' );
 		$this->assertFalse( $field->has_file(), 'empty file field should not be non-empty' );
 	}
 
 	public function test_get_render_api_value() {
-		$field = new Response_Field( 'test_key', 'test_label', 'test_value' );
+		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
 		$this->assertEquals( 'test_value', $field->get_render_api_value() );
 
-		$field = new Response_Field( 'test_key', 'test_label', array( 'value1', 'value2' ) );
+		$field = new Feedback_Field( 'test_key', 'test_label', array( 'value1', 'value2' ) );
 		$this->assertEquals( 'value1, value2', $field->get_render_api_value() );
 
 		$expected = array(
@@ -182,7 +184,7 @@ class Response_Field_Test extends BaseTestCase {
 				),
 			),
 		);
-		$field    = new Response_Field(
+		$field    = new Feedback_Field(
 			'test_key',
 			'test_label',
 			array(
