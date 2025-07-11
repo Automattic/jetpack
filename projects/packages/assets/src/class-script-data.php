@@ -157,7 +157,7 @@ class Script_Data {
 	}
 
 	/**
-	 * Get the admin script data.
+	 * Get the public script data.
 	 *
 	 * @return array
 	 */
