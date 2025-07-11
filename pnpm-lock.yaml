@@ -15,18 +15,9 @@ importers:
 
   .:
     devDependencies:
-      '@wordpress/eslint-plugin':
-        specifier: 22.12.0
-        version: 22.12.0(eslint-plugin-react-hooks@5.2.0(eslint@9.30.1))(eslint-plugin-react@7.37.5(eslint@9.30.1))(eslint@9.30.1)
       eslint:
         specifier: 9.30.1
         version: 9.30.1
-      eslint-plugin-react:
-        specifier: 7.37.5
-        version: 7.37.5(eslint@9.30.1)
-      eslint-plugin-react-hooks:
-        specifier: 5.2.0
-        version: 5.2.0(eslint@9.30.1)
       husky:
         specifier: 9.1.7
         version: 9.1.7
@@ -3112,6 +3103,9 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
@@ -17051,13 +17045,6 @@ snapshots:
       eslint-visitor-keys: 2.1.0
       semver: 6.3.1
 
-  '@babel/eslint-parser@7.28.0(eslint@9.30.1)':
-    dependencies:
-      '@nicolo-ribaudo/eslint-scope-5-internals': 5.1.1-v1
-      eslint: 9.30.1
-      eslint-visitor-keys: 2.1.0
-      semver: 6.3.1
-
   '@babel/generator@7.28.0':
     dependencies:
       '@babel/parser': 7.28.0
@@ -22916,20 +22903,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@wordpress/eslint-plugin@22.12.0(eslint-plugin-react-hooks@5.2.0(eslint@9.30.1))(eslint-plugin-react@7.37.5(eslint@9.30.1))(eslint@9.30.1)':
-    dependencies:
-      '@babel/eslint-parser': 7.28.0(eslint@9.30.1)
-      '@wordpress/babel-preset-default': 8.26.0
-      '@wordpress/prettier-config': 4.26.0
-      cosmiconfig: 7.1.0
-      eslint: 9.30.1
-      eslint-plugin-react: 7.37.5(eslint@9.30.1)
-      eslint-plugin-react-hooks: 5.2.0(eslint@9.30.1)
-      globals: 13.24.0
-      requireindex: 1.2.0
-    transitivePeerDependencies:
-      - supports-color
-
   '@wordpress/fields@0.18.0(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.27.6
@@ -23366,8 +23339,6 @@ snapshots:
       - '@emotion/is-prop-valid'
       - '@types/react'
       - supports-color
-
-  '@wordpress/prettier-config@4.26.0': {}
 
   '@wordpress/prettier-config@4.26.0(wp-prettier@3.0.3)':
     dependencies:
