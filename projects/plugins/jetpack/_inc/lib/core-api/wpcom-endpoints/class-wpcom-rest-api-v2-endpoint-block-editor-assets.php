@@ -20,10 +20,10 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	 * @var array
 	 */
 	const ALLOWED_PLUGIN_HANDLE_PREFIXES = array(
-		'wp-',
-		'jetpack-',
-		'jp-',
-		'videopress-',
+		'jetpack-', // E.g., jetpack-blocks-editor, jetpack-connection
+		'jp-', // E.g., jp-forms-blocks
+		'videopress-', // E.g., videopress-add-resumable-upload-support
+		'wp-', // E.g., wp-block-styles, wp-jp-i18n-loader
 	);
 
 	/**
