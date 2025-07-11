@@ -349,7 +349,7 @@ class Feedback {
 	private function get_all_values() {
 		$values = array();
 		foreach ( $this->fields as $field ) {
-			if ( $field->get_meta( 'render' ) === false ) {
+			if ( $field->get_meta_key_value( 'render' ) === false ) {
 				continue; // Skip fields that are not meant to be rendered.
 			}
 			$values[ $field->get_key() ] = $field->get_render_value();
@@ -365,7 +365,7 @@ class Feedback {
 	public function get_csv_field_names() {
 		$values = array();
 		foreach ( $this->fields as $field ) {
-			if ( $field->get_meta( 'render' ) === false ) {
+			if ( $field->get_meta_key_value( 'render' ) === false ) {
 				continue; // Skip fields that are not meant to be rendered.
 			}
 			$values[] = $field->get_label();
@@ -425,7 +425,7 @@ class Feedback {
 	public function get_compiled_fields() {
 		$compiled_fields = array();
 		foreach ( $this->fields as $field ) {
-			if ( $field->get_meta( 'render' ) === false ) {
+			if ( $field->get_meta_key_value( 'render' ) === false ) {
 				continue; // Skip fields that are not meant to be rendered.
 			}
 			$compiled_fields[ $field->get_key() ] = array(
@@ -442,7 +442,7 @@ class Feedback {
 	private function get_api_all_values() {
 		$values = array();
 		foreach ( $this->fields as $field ) {
-			if ( $field->get_meta( 'render' ) === false ) {
+			if ( $field->get_meta_key_value( 'render' ) === false ) {
 				continue; // Skip fields that are not meant to be rendered.
 			}
 			$values[ $field->get_key() ] = $field->get_render_api_value();
