@@ -821,7 +821,7 @@ class Manager {
 	 * @return bool|int Returns the ID of the connection owner or False if no connection owner found.
 	 */
 	public function get_connection_owner_id() {
-		// Check if memoized value if available.
+		// Check if the memoized value is available.
 		if ( null === static::$connection_owner_id ) {
 			$owner                       = $this->get_connection_owner();
 			static::$connection_owner_id = $owner instanceof \WP_User ? $owner->ID : 0;
