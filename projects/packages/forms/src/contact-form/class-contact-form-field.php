@@ -1184,6 +1184,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-wp-on--dragleave="actions.dragLeave"
 			data-wp-on--mouseleave="actions.dragLeave"
 			data-wp-on--drop="actions.fileDropped"
+			data-wp-on--jetpack-form-reset="actions.resetFiles"
 			data-is-required="<?php echo esc_attr( $required ); ?>"
 		>
 			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
