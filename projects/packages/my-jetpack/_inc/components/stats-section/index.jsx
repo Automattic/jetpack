@@ -122,7 +122,7 @@ const processStatsData = visitsData => {
 /**
  * Stats section component for My Jetpack Stats product card with a chart and counts.
  *
- * @return {JSX.Element} Stats section component
+ * @return {import('react').JSX.Element} Stats section component
  */
 const StatsSection = () => {
 	const slug = 'stats';
