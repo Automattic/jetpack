@@ -60,7 +60,7 @@ namespace Automattic\WPComSH\Connection;
  * default User_Admin class behavior to ensure the WP.com invitation checkbox is not
  * pre-checked when creating protected owner accounts.
  *
- * Enhanced Features (connection package $$next-version$$+):
+ * Enhanced Features:
  * - Enhanced error data structure with action labels and variants
  * - Analytics tracking events for user interactions
  * - Backward compatibility with older connection package versions
@@ -200,10 +200,8 @@ class Protected_Owner_Error_Handler {
 	 * Build enhanced error data using the new connection package methods
 	 *
 	 * This method leverages the new build_action_error_data method available in
-	 * connection package version $$next-version$$ and later to provide enhanced
+	 * new connection package version to provide enhanced
 	 * error handling with secondary button support.
-	 *
-	 * @since $$next-version$$
 	 *
 	 * @param array $raw_error The raw error data from the stored option.
 	 * @return array|false Enhanced error data array or false if method not available.
@@ -239,19 +237,7 @@ class Protected_Owner_Error_Handler {
 			),
 		);
 
-		/**
-		 * Filter the enhanced error data arguments for protected owner errors.
-		 *
-		 * Allows customization of error actions, labels, tracking events, and other
-		 * error data before it's processed by the connection package.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param array $args      The error data arguments.
-		 * @param array $raw_error The raw error data from storage.
-		 */
-		$args = apply_filters( 'wpcomsh_protected_owner_error_data_args', $args, $raw_error );
-
+		// @phan-suppress-next-line PhanUndeclaredMethod -- Method exists in newer connection package versions
 		return $error_handler->build_action_error_data( $args );
 	}
 
@@ -274,18 +260,7 @@ class Protected_Owner_Error_Handler {
 			'support_url' => admin_url( 'user-new.php' ),
 		);
 
-		/**
-		 * Filter the legacy error data for protected owner errors.
-		 *
-		 * Allows customization of error data when using older connection package versions
-		 * that don't support the enhanced error handling features.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param array $legacy_data The legacy error data array.
-		 * @param array $raw_error   The raw error data from storage.
-		 */
-		return apply_filters( 'wpcomsh_protected_owner_legacy_error_data', $legacy_data, $raw_error );
+		return $legacy_data;
 	}
 
 	/**
@@ -293,8 +268,6 @@ class Protected_Owner_Error_Handler {
 	 *
 	 * This method can be used to determine if the current connection package version
 	 * supports the enhanced error handling features.
-	 *
-	 * @since $$next-version$$
 	 *
 	 * @return bool True if enhanced features are available, false otherwise.
 	 */
