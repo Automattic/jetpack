@@ -685,8 +685,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$instance['subscribe_button']    = wp_strip_all_tags( stripslashes( $instance['subscribe_button'] ) );
 		}
 
-		$instance['show_subscribers_total']     = ! empty( $instance['show_subscribers_total'] );
-		$instance['show_only_email_and_button'] = ! empty( $instance['show_only_email_and_button'] );
+		$instance['show_subscribers_total']     = isset( $new_instance['show_subscribers_total'] ) && $new_instance['show_subscribers_total'];
+		$instance['show_only_email_and_button'] = isset( $new_instance['show_only_email_and_button'] ) && $new_instance['show_only_email_and_button'];
 		$instance['subscribe_text']             = wp_filter_post_kses( stripslashes( $instance['subscribe_text'] ) );
 
 		return $instance;
