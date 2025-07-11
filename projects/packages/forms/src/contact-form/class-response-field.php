@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 /**
  * Handles the
  *
- * Form_Response objects are there to help us interact with the form response data.
+ * Represents the submitted form data of an invividual field.
  */
 class Response_Field {
 

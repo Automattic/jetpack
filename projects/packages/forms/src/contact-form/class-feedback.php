@@ -1,6 +1,6 @@
 <?php
 /**
- * Form_Response class.
+ * Feedback class.
  *
  * @package automattic/jetpack-forms
  */
@@ -11,9 +11,9 @@ use WP_Post;
 /**
  * Handles the response for a contact form submission.
  *
- * Form_Response objects are there to help us interact with the form response data.
+ * Feedback objects are there to help us interact with the form response data.
  */
-class Form_Response {
+class Feedback {
 
 	const POST_TYPE = 'feedback';
 

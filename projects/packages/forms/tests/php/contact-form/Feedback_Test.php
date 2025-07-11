@@ -17,13 +17,13 @@ use WorDBless\BaseTestCase;
 /**
  * Test class for Contact_Form
  *
- * @covers Automattic\Jetpack\Forms\ContactForm\Form_Response
+ * @covers Automattic\Jetpack\Forms\ContactForm\Feedback
  */
-#[CoversClass( Form_Response::class )]
-class Form_Response_Test extends BaseTestCase {
+#[CoversClass( Feedback::class )]
+class Feedback_Test extends BaseTestCase {
 
 	public function test_from_post_id_returns_null_for_invalid_post() {
-		$response = Form_Response::get( 999999 );
+		$response = Feedback::get( 999999 );
 		$this->assertNull( $response );
 	}
 
@@ -37,8 +37,8 @@ class Form_Response_Test extends BaseTestCase {
 				'page_template' => 'v2',
 			)
 		);
-		$response = Form_Response::get( $post_id );
-		$this->assertInstanceOf( Form_Response::class, $response );
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
 	}
 
 	public function test_from_submission_sets_fields_and_post_data() {
@@ -49,23 +49,23 @@ class Form_Response_Test extends BaseTestCase {
 			'message' => 'Hello!',
 			'ignore'  => 'should not be included',
 		);
-		$response   = Form_Response::from_submission( $_post_data, $form );
-		$this->assertInstanceOf( Form_Response::class, $response );
+		$response   = Feedback::from_submission( $_post_data, $form );
+		$this->assertInstanceOf( Feedback::class, $response );
 	}
 
-	public function test_form_response_is_matches_empty_data() {
+	public function test_Feedback_is_matches_empty_data() {
 		$form             = new Contact_Form( array() );
 		$_post_data       = array();
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
 
-		$saved_response = Form_Response::get( $feedback_post_id );
+		$saved_response = Feedback::get( $feedback_post_id );
 
 		$this->assertEquals( $response->serialize(), $saved_response->serialize(), 'Serialized data does not match' );
 		$this->assertEquals( $response->get_fields(), $saved_response->get_fields(), 'Fields data does not match' );
 	}
 
-	public function test_form_response_is_matches_submission_data() {
+	public function test_Feedback_is_matches_submission_data() {
 		$name    = 'John Doe';
 		$email   = 'john@example.com';
 		$message = 'Test message';
@@ -89,10 +89,10 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		// Create a contact form
-		$response = Form_Response::from_submission( $_post_data, $form );
+		$response = Feedback::from_submission( $_post_data, $form );
 		$post_id  = $response->save();
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 
 		$this->assertEquals( $response->serialize(), $saved_response->serialize() );
 		$this->assertEquals( $response->get_fields(), $saved_response->get_fields() );
@@ -127,7 +127,7 @@ class Form_Response_Test extends BaseTestCase {
 	/**
 	 * Test that a previously saved response can be handled correctly.
 	 *
-	 * This test checks if the Form_Response class can retrieve and handle
+	 * This test checks if the Feedback class can retrieve and handle
 	 * a response that was saved in the legacy format.
 	 */
 	public function test_handle_previously_saved_response() {
@@ -139,9 +139,9 @@ class Form_Response_Test extends BaseTestCase {
 			)
 		);
 
-		$response = Form_Response::get( $post_id );
+		$response = Feedback::get( $post_id );
 
-		$this->assertInstanceOf( Form_Response::class, $response );
+		$this->assertInstanceOf( Feedback::class, $response );
 
 		$field = $response->get_fields()['1_field'];
 
@@ -156,7 +156,7 @@ class Form_Response_Test extends BaseTestCase {
 	 *
 	 * It should be non empty and match the post slug.
 	 */
-	public function test_form_response_computed_feedback_id() {
+	public function test_Feedback_computed_feedback_id() {
 		$name    = 'John Doe';
 		$email   = 'john@example.com';
 		$message = 'Test message';
@@ -180,11 +180,11 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		// Create a contact form
-		$response = Form_Response::from_submission( $_post_data, $form );
+		$response = Feedback::from_submission( $_post_data, $form );
 		$post_id  = $response->save();
 		$post     = get_post( $post_id );
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 
 		$this->assertEquals( $response->get_feedback_id(), $saved_response->get_feedback_id(), 'Feedback ID should match' );
 		$this->assertEquals( $post->post_name, $saved_response->get_feedback_id(), 'Feedback ID should match post slug' );
@@ -219,9 +219,9 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		// Create a contact form
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 
 		// The IP address should be present.
 		$this->assertNotEmpty( $response->get_ip_address(), 'IP address should not be empty' );
@@ -233,7 +233,7 @@ class Form_Response_Test extends BaseTestCase {
 		remove_filter( 'jetpack_contact_form_forget_ip_address', '__return_true' );
 
 		// The IP address should NOT be present.
-		$saved_response = Form_Response::get( $new_post_id );
+		$saved_response = Feedback::get( $new_post_id );
 		$this->assertEmpty( $saved_response->get_ip_address(), 'IP address should BE empty' );
 	}
 
@@ -255,7 +255,7 @@ class Form_Response_Test extends BaseTestCase {
 			$ip
 		);
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $ip, $saved_response->get_ip_address(), 'IP should match the legacy feedback  IP' );
 	}
 
@@ -274,7 +274,7 @@ class Form_Response_Test extends BaseTestCase {
 			$subject
 		);
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $subject, $saved_response->get_subject(), 'Subject should match the legacy feedback post subject' );
 	}
 
@@ -304,9 +304,9 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		// Create a contact form
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 
 		$this->assertEquals( $subject, $response->get_subject(), 'Subject should match the form submission' );
 		$this->assertEquals( $subject, $saved_response->get_subject(), 'Subject should match the saved form submission' );
@@ -337,9 +337,9 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		// Create a contact form
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 
 		$this->assertEquals( $subject, $response->get_subject(), 'Subject should match the form submission' );
 		$this->assertEquals( $subject, $saved_response->get_subject(), 'Subject should match the saved form submission' );
@@ -371,9 +371,9 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		// Create a contact form
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 
 		$this->assertEquals( $subject, $response->get_subject(), 'Subject should match the form submission' );
 		$this->assertEquals( $subject, $saved_response->get_subject(), 'Subject should match the saved form submission' );
@@ -407,9 +407,9 @@ class Form_Response_Test extends BaseTestCase {
 		add_filter( 'contact_form_subject', array( $this, 'subject_from_filter' ), 10, 2 );
 
 		// Create a contact form
-		$response       = Form_Response::from_submission( $_post_data, $form );
+		$response       = Feedback::from_submission( $_post_data, $form );
 		$post_id        = $response->save();
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		remove_filter( 'contact_form_subject', array( $this, 'subject_from_filter' ), 10, 2 );
 
 		$this->assertEquals( 'Overwritten Subject (from filter)', $response->get_subject(), 'Subject should match the form submission' );
@@ -435,7 +435,7 @@ class Form_Response_Test extends BaseTestCase {
 			$author
 		);
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $author, $saved_response->get_author(), 'Author should match the legacy feedback post author' );
 	}
 
@@ -462,9 +462,9 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		// Create a contact form
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 
 		$this->assertEquals( $author, $response->get_author(), 'Author should match the form submission' );
 		$this->assertEquals( $author, $saved_response->get_author(), 'Author should match the saved form submission' );
@@ -494,9 +494,9 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		// Create a contact form
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 
 		$this->assertEquals( $email, $response->get_author(), 'Author should match the form submission' );
 		$this->assertEquals( $email, $saved_response->get_author(), 'Author should match the saved form submission' );
@@ -525,10 +525,10 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		add_filter( 'pre_comment_author_name', array( $this, 'set_filter_as_string' ) );
-		$response = Form_Response::from_submission( $_post_data, $form );
+		$response = Feedback::from_submission( $_post_data, $form );
 
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 		remove_filter( 'pre_comment_author_name', array( $this, 'set_filter_as_string' ) );
 
 		$this->assertEquals( 'STRING', $response->get_author(), 'Author should match the form submission' );
@@ -552,7 +552,7 @@ class Form_Response_Test extends BaseTestCase {
 			$email
 		);
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $email, $saved_response->get_author_email(), 'Author email should match the legacy feedback post author email' );
 		$this->assertEquals( get_avatar_url( $email ), $saved_response->get_author_avatar(), 'Author email should match the legacy feedback post author email' );
 	}
@@ -581,9 +581,9 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		// Create a contact form
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 
 		$this->assertEquals( $email, $response->get_author_email(), 'Author email should match the form submission' );
 		$this->assertEquals( $avatar, $saved_response->get_author_avatar(), 'Author avatar should match the legacy feedback post author email' );
@@ -614,10 +614,10 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		add_filter( 'pre_comment_author_email', array( $this, 'set_filter_as_string' ) );
-		$response = Form_Response::from_submission( $_post_data, $form );
+		$response = Feedback::from_submission( $_post_data, $form );
 
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 		remove_filter( 'pre_comment_author_email', array( $this, 'set_filter_as_string' ) );
 		$this->assertEquals( 'STRING', $response->get_author_email(), 'Author email should match the form submission' );
 		$this->assertEquals( 'STRING', $saved_response->get_author_email(), 'Author email should match the saved form submission' );
@@ -633,7 +633,7 @@ class Form_Response_Test extends BaseTestCase {
 			$url
 		);
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $url, $saved_response->get_author_url(), 'Author url should match the legacy feedback post author url' );
 	}
 
@@ -660,9 +660,9 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		// Create a contact form
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 
 		$this->assertEquals( $url, $response->get_author_url(), 'Author url should match the form submission' );
 		$this->assertEquals( $url, $saved_response->get_author_url(), 'Author url should match the saved form submission' );
@@ -690,9 +690,9 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		add_filter( 'pre_comment_author_url', array( $this, 'set_filter_as_string' ) );
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 
 		remove_filter( 'pre_comment_author_url', array( $this, 'set_filter_as_string' ) );
 
@@ -707,7 +707,7 @@ class Form_Response_Test extends BaseTestCase {
 			$content
 		);
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $content, $saved_response->get_comment_content(), 'Comment content should match the legacy feedback post author url' );
 	}
 
@@ -734,9 +734,9 @@ class Form_Response_Test extends BaseTestCase {
 		);
 
 		// Create a contact form
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 
 		$this->assertEquals( $content, $response->get_comment_content(), 'Comment content should match the form submission' );
 		$this->assertEquals( $content, $saved_response->get_comment_content(), 'Comment content should match the saved form submission' );
@@ -755,7 +755,7 @@ class Form_Response_Test extends BaseTestCase {
 			'spam'
 		);
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $status, $saved_response->get_status(), 'Status should match the legacy feedback status' );
 	}
 
@@ -779,9 +779,9 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
 		);
 
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 
 		$this->assertEquals( 'publish', $response->get_status(), 'Status should match the form submission' );
 		$this->assertEquals( 'publish', $saved_response->get_status(), 'Status should match the saved form submission' );
@@ -807,10 +807,10 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
 		);
 
-		$response = Form_Response::from_submission( $_post_data, $form );
+		$response = Feedback::from_submission( $_post_data, $form );
 		$response->set_status( $status );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 
 		$this->assertEquals( $status, $response->get_status(), 'Status should match the form submission' );
 		$this->assertEquals( $status, $saved_response->get_status(), 'Status should match the saved form submission' );
@@ -836,9 +836,9 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/][contact-field label='Consent' type='consent' required='1'/]"
 		);
 
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 		$this->assertTrue( $response->has_consent(), 'Has consent should match the form submission' );
 		$this->assertTrue( $saved_response->has_consent(), 'Has consent should match the saved form submission' );
 	}
@@ -863,9 +863,9 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/][contact-field label='Consent' type='consent' required='1'/]"
 		);
 
-		$response         = Form_Response::from_submission( $_post_data, $form );
+		$response         = Feedback::from_submission( $_post_data, $form );
 		$feedback_post_id = $response->save();
-		$saved_response   = Form_Response::get( $feedback_post_id );
+		$saved_response   = Feedback::get( $feedback_post_id );
 		$this->assertFalse( $response->has_consent(), 'Has consent should match the form submission' );
 		$this->assertFalse( $saved_response->has_consent(), 'Has consent should match the saved form submission' );
 	}
@@ -916,7 +916,7 @@ class Form_Response_Test extends BaseTestCase {
 		$post_id      = Utility::create_legacy_feedback();
 		$this->destroy_post_context();
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $current_post->ID, $saved_response->get_entry_id(), 'Entry_ID should match the saved form submission' );
 	}
 
@@ -940,11 +940,11 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/][contact-field label='Consent' type='consent' required='1'/]"
 		);
 
-		$response = Form_Response::from_submission( $_post_data, $form, $current_post );
+		$response = Feedback::from_submission( $_post_data, $form, $current_post );
 		$post_id  = $response->save();
 		$this->destroy_post_context();
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $current_post->ID, $response->get_entry_id(), 'Entry_ID should match the form submission' );
 		$this->assertEquals( $current_post->ID, $saved_response->get_entry_id(), 'Entry_ID should match the saved form submission' );
 	}
@@ -968,10 +968,10 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/]"
 		);
 
-		$response = Form_Response::from_submission( $_post_data, $form, $current_post );
+		$response = Feedback::from_submission( $_post_data, $form, $current_post );
 		$post_id  = $response->save();
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->destroy_post_context();
 
 		$this->assertEquals( $current_post->post_title, $response->get_entry_title(), 'Post title should match the form submission' );
@@ -997,7 +997,7 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/]"
 		);
 
-		$response = Form_Response::from_submission( $_post_data, $form, $current_post );
+		$response = Feedback::from_submission( $_post_data, $form, $current_post );
 		$post_id  = $response->save();
 
 		// Update the post title to simulate an update.
@@ -1009,7 +1009,7 @@ class Form_Response_Test extends BaseTestCase {
 			)
 		);
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->destroy_post_context();
 
 		$this->assertEquals( $update_title, $saved_response->get_entry_title(), 'Post Title should match the new updated title saved form submission' );
@@ -1034,13 +1034,13 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/]"
 		);
 
-		$response = Form_Response::from_submission( $_post_data, $form, $current_post );
+		$response = Feedback::from_submission( $_post_data, $form, $current_post );
 		$post_id  = $response->save();
 		$this->destroy_post_context();
 
 		$this->assertSame( '', get_the_title( $current_post->ID ), 'Post title should not be available after the post is deleted' );
 		// At this point we should have a deleted post.
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 
 		$this->assertNotEmpty( $saved_response->get_entry_title(), 'Post Title should NOT be empty after the post is deleted' );
 		$this->assertEquals( $current_post->post_title, $saved_response->get_entry_title(), 'Post Title should match the saved form submission Original post title' );
@@ -1065,10 +1065,10 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/]"
 		);
 
-		$response = Form_Response::from_submission( $_post_data, $form, $current_post );
+		$response = Feedback::from_submission( $_post_data, $form, $current_post );
 		$post_id  = $response->save();
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->destroy_post_context();
 		$current_permalink = get_the_permalink( $current_post );
 		$this->assertEquals( $current_permalink, $response->get_entry_permalink(), 'Post permalink should match the form submission' );
@@ -1095,10 +1095,10 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/]"
 		);
 
-		$response = Form_Response::from_submission( $_post_data, $form, $current_post );
+		$response = Feedback::from_submission( $_post_data, $form, $current_post );
 		$post_id  = $response->save();
 		$this->destroy_post_context(); // Destroy the post context to simulate a deleted post.
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->assertEmpty( $saved_response->get_entry_permalink(), 'Post permalink should match the form submission' );
 	}
 
@@ -1121,10 +1121,10 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/]"
 		);
 
-		$response = Form_Response::from_submission( $_post_data, $form, $current_post, 999 );
+		$response = Feedback::from_submission( $_post_data, $form, $current_post, 999 );
 		$post_id  = $response->save();
 
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 		$this->destroy_post_context();
 
 		$this->assertStringContainsString( 'page=999', $response->get_entry_permalink(), 'Post permalink should match the form submission' );
@@ -1151,11 +1151,11 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
 		);
 
-		$response = Form_Response::from_submission( $_post_data, $form );
+		$response = Feedback::from_submission( $_post_data, $form );
 		$post_id  = $response->save();
 
 		$post           = get_post( $post_id );
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 
 		$this->assertStringContainsString( $post->post_title, $response->get_title(), 'Feedback title should match the form submission' );
 		$this->assertStringContainsString( $post->post_title, $saved_response->get_title(), 'Feedback title should match the saved form submission' );
@@ -1181,11 +1181,11 @@ class Form_Response_Test extends BaseTestCase {
 			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
 		);
 
-		$response = Form_Response::from_submission( $_post_data, $form );
+		$response = Feedback::from_submission( $_post_data, $form );
 		$post_id  = $response->save();
 
 		$post           = get_post( $post_id );
-		$saved_response = Form_Response::get( $post_id );
+		$saved_response = Feedback::get( $post_id );
 
 		$this->assertStringContainsString( $post->post_date, $response->get_time(), 'Feedback submitted time should match the form submission' );
 		$this->assertStringContainsString( $post->post_date, $saved_response->get_time(), 'Feedback submitted time should match the saved form submission' );
@@ -1193,7 +1193,7 @@ class Form_Response_Test extends BaseTestCase {
 
 	/**
 	 * ======================================================
-	 * Tests for the strip_tags method in Form_Response class.
+	 * Tests for the strip_tags method in Feedback class.
 	 * ======================================================
 	 *
 	 * Test that strip_tags handles simple string without HTML tags.
@@ -1201,7 +1201,7 @@ class Form_Response_Test extends BaseTestCase {
 	public function test_strip_tags_with_plain_string() {
 		$input    = 'Hello, this is a plain text string.';
 		$expected = 'Hello, this is a plain text string.';
-		$result   = Form_Response::strip_tags( $input );
+		$result   = Feedback::strip_tags( $input );
 		$this->assertEquals( $expected, $result );
 	}
 
@@ -1211,7 +1211,7 @@ class Form_Response_Test extends BaseTestCase {
 	public function test_strip_tags_removes_script_tags() {
 		$input    = '<script>alert("XSS")</script>Hello <b>world</b>!';
 		$expected = 'alert("XSS")Hello <b>world</b>!';
-		$result   = Form_Response::strip_tags( $input );
+		$result   = Feedback::strip_tags( $input );
 		$this->assertEquals( $expected, $result );
 	}
 
@@ -1221,7 +1221,7 @@ class Form_Response_Test extends BaseTestCase {
 	public function test_strip_tags_handles_html_entities() {
 		$input    = 'Hello &amp; goodbye';
 		$expected = 'Hello & goodbye';
-		$result   = Form_Response::strip_tags( $input );
+		$result   = Feedback::strip_tags( $input );
 		$this->assertEquals( $expected, $result );
 	}
 
@@ -1249,7 +1249,7 @@ class Form_Response_Test extends BaseTestCase {
 			),
 		);
 
-		$result = Form_Response::strip_tags( $input );
+		$result = Feedback::strip_tags( $input );
 		$this->assertEquals( $expected, $result );
 	}
 
@@ -1262,7 +1262,7 @@ class Form_Response_Test extends BaseTestCase {
 			'normal_key'           => 'value2',
 		);
 
-		$result = Form_Response::strip_tags( $input );
+		$result = Feedback::strip_tags( $input );
 
 		// Check that the results exist and are correct
 		// We need to check what key actually gets created after sanitization
@@ -1285,18 +1285,18 @@ class Form_Response_Test extends BaseTestCase {
 	 * Test that strip_tags handles empty values.
 	 */
 	public function test_strip_tags_handles_empty_values() {
-		$this->assertSame( '', Form_Response::strip_tags( '' ) );
-		$this->assertEquals( array(), Form_Response::strip_tags( array() ) );
-		$this->assertSame( '0', Form_Response::strip_tags( 0 ) );
-		$this->assertSame( '', Form_Response::strip_tags( null ) );
+		$this->assertSame( '', Feedback::strip_tags( '' ) );
+		$this->assertEquals( array(), Feedback::strip_tags( array() ) );
+		$this->assertSame( '0', Feedback::strip_tags( 0 ) );
+		$this->assertSame( '', Feedback::strip_tags( null ) );
 	}
 
 	/**
 	 * Test that strip_tags handles numeric values.
 	 */
 	public function test_strip_tags_handles_numeric_values() {
-		$this->assertSame( '123', Form_Response::strip_tags( 123 ) );
-		$this->assertSame( '123.45', Form_Response::strip_tags( 123.45 ) );
+		$this->assertSame( '123', Feedback::strip_tags( 123 ) );
+		$this->assertSame( '123.45', Feedback::strip_tags( 123.45 ) );
 	}
 
 	/**
@@ -1304,7 +1304,7 @@ class Form_Response_Test extends BaseTestCase {
 	 */
 	public function test_strip_tags_preserves_allowed_html() {
 		$input  = '<p>This is a <strong>test</strong> with <em>emphasis</em> and <a href="http://example.com">links</a>.</p>';
-		$result = Form_Response::strip_tags( $input );
+		$result = Feedback::strip_tags( $input );
 
 		// wp_kses_post should preserve these tags - let's just verify we get a non-empty string with HTML
 		$this->assertNotEquals( '', $result );
@@ -1317,7 +1317,7 @@ class Form_Response_Test extends BaseTestCase {
 	 */
 	public function test_strip_tags_removes_dangerous_html() {
 		$input  = '<script>alert("XSS")</script><iframe src="evil.com"></iframe>Hello world';
-		$result = Form_Response::strip_tags( $input );
+		$result = Feedback::strip_tags( $input );
 
 		// These dangerous tags should be removed, but content might remain
 		$this->assertStringNotContainsString( '<script>', $result );
@@ -1339,7 +1339,7 @@ class Form_Response_Test extends BaseTestCase {
 			),
 		);
 
-		$result = Form_Response::strip_tags( $input );
+		$result = Feedback::strip_tags( $input );
 
 		$this->assertEquals( 'Hello <b>world</b>', $result['string'] );
 		$this->assertSame( '42', $result['number'] );
