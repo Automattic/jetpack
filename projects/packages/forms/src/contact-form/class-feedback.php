@@ -287,6 +287,23 @@ class Feedback {
 		}
 		return '';
 	}
+
+	/**
+	 * Get the computed fields from the post data.
+	 *
+	 * @param string $label The label of the field to look for.
+	 *
+	 * @return string The Value of the field.
+	 */
+	public function get_field_value_by_label( $label ) {
+		// This method is used to get the value of a field by its label.
+		foreach ( $this->fields as $field ) {
+			if ( $field->get_label() === $label ) {
+				return $field->get_render_value();
+			}
+		}
+		return '';
+	}
 	/**
 	 * Get the value of the field based on the first type found.
 	 *
@@ -332,13 +349,26 @@ class Feedback {
 	private function get_all_values() {
 		$values = array();
 		foreach ( $this->fields as $field ) {
-			if ( ! $field instanceof Feedback_Field ) {
-				continue;
-			}
 			if ( $field->get_meta( 'render' ) === false ) {
 				continue; // Skip fields that are not meant to be rendered.
 			}
 			$values[ $field->get_key() ] = $field->get_render_value();
+		}
+		return $values;
+	}
+
+	/**
+	 * Get the field name for the CSV export.
+	 *
+	 * @return array An array of field names.
+	 */
+	public function get_csv_field_names() {
+		$values = array();
+		foreach ( $this->fields as $field ) {
+			if ( $field->get_meta( 'render' ) === false ) {
+				continue; // Skip fields that are not meant to be rendered.
+			}
+			$values[] = $field->get_label();
 		}
 		return $values;
 	}
@@ -395,9 +425,6 @@ class Feedback {
 	public function get_compiled_fields() {
 		$compiled_fields = array();
 		foreach ( $this->fields as $field ) {
-			if ( ! $field instanceof Feedback_Field ) {
-				continue;
-			}
 			if ( $field->get_meta( 'render' ) === false ) {
 				continue; // Skip fields that are not meant to be rendered.
 			}
@@ -415,9 +442,6 @@ class Feedback {
 	private function get_api_all_values() {
 		$values = array();
 		foreach ( $this->fields as $field ) {
-			if ( ! $field instanceof Feedback_Field ) {
-				continue;
-			}
 			if ( $field->get_meta( 'render' ) === false ) {
 				continue; // Skip fields that are not meant to be rendered.
 			}
@@ -651,6 +675,18 @@ class Feedback {
 	 */
 	public function get_entry_permalink() {
 		return $this->entry_permalink;
+	}
+	/**
+	 * Get the short permalink of a post.
+	 *
+	 * @return string
+	 */
+	public function get_entry_short_permalink() {
+		// This is a convenience method to get the short permalink of the entry.
+		if ( ! empty( $this->entry_permalink ) ) {
+			return wp_make_link_relative( $this->entry_permalink );
+		}
+		return '';
 	}
 	/**
 	 * Save the feedback entry to the database.
