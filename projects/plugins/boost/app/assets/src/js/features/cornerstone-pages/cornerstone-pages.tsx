@@ -69,7 +69,7 @@ const CornerstoneTitleSummary = () => {
 			return sprintf(
 				/* translators: %d is the number of pages in the custom cornerstone pages list. */
 				_n( 'Homepage + %d page', 'Homepage + %d pages', cornerstonePages.length, 'jetpack-boost' ),
-				cornerstonePages.length - 1
+				cornerstonePages.length
 			);
 		}
 	);
