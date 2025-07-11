@@ -38,9 +38,9 @@ export default function CopyClipboardButton( { text }: CopyClipboardButtonProps 
 		};
 	}, [] );
 
-	const emailCopyLabel = showCopyConfirmation
-		? __( 'Copied!', 'jetpack-forms' )
-		: __( 'Copy', 'jetpack-forms' );
+	const copied = __( 'Copied!', 'jetpack-forms' );
+	const copy = __( 'Copy', 'jetpack-forms' );
+	const emailCopyLabel = showCopyConfirmation ? copied : copy;
 
 	return (
 		<Tooltip delay={ 0 } hideOnClick={ false } text={ emailCopyLabel }>
