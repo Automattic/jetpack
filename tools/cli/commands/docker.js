@@ -400,8 +400,12 @@ const buildExecCmd = argv => {
 			case 'boost':
 				unitTestArgs.plugin = 'jetpack-boost';
 
-				// Default to running only unit tests (excluding critical-css tests that require WorDBless)
-				argv._.push( '--testsuite', 'unit' );
+				if ( argv?.testsuite !== 'critical-css' ) {
+					argv._.push( '--testsuite', 'unit' );
+				} else {
+					argv._.push( '--testsuite', 'critical-css' );
+					argv._.push( '--bootstrap', 'tests/bootstrap-wordbless.php' );
+				}
 				break;
 			case 'crm':
 				unitTestArgs.plugin = 'zero-bs-crm';
