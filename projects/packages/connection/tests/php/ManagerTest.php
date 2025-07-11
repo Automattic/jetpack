@@ -52,6 +52,18 @@ class ManagerTest extends TestCase {
 	const DEFAULT_TEST_CAPS = array( 'default_test_caps' );
 
 	/**
+	 * Initialize the hooks to reset memoized connection properties.
+	 */
+	public static function setUpBeforeClass(): void {
+		// Use reflection to call the private method that sets up cache invalidation hooks.
+		$manager    = new Manager();
+		$reflection = new \ReflectionClass( $manager );
+		$method     = $reflection->getMethod( 'add_connection_status_invalidation_hooks' );
+		$method->setAccessible( true );
+		$method->invoke( $manager );
+	}
+
+	/**
 	 * Initialize the object before running the test method.
 	 */
 	public function setUp(): void {
@@ -608,12 +620,6 @@ class ManagerTest extends TestCase {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
 			->onlyMethods( array( 'get_tokens', 'unlink_user_from_wpcom', 'update_connection_owner_wpcom', 'disconnect_site_wpcom' ) )
 			->getMock();
-
-		// Use reflection to call the private method that sets up cache invalidation hooks.
-		$reflection = new \ReflectionClass( $this->manager );
-		$method     = $reflection->getMethod( 'add_connection_status_invalidation_hooks' );
-		$method->setAccessible( true );
-		$method->invoke( $this->manager );
 
 		// Create the first admin user.
 		$admin_id = wp_insert_user(
