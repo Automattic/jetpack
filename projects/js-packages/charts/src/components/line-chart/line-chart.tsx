@@ -11,6 +11,9 @@ import {
 	useImperativeHandle,
 	useState,
 	useRef,
+	Children,
+	cloneElement,
+	isValidElement,
 } from 'react';
 import { ChartProvider, useChartId, useChartRegistration } from '../../providers/chart-context';
 import { useXYChartTheme, useChartTheme } from '../../providers/theme/theme-provider';
@@ -21,9 +24,7 @@ import { useChartMargin } from '../shared/use-chart-margin';
 import { useElementHeight } from '../shared/use-element-height';
 import { withResponsive } from '../shared/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
-import LineChartAnnotationsOverlay from './line-chart-annotations-overlay';
 import styles from './line-chart.module.scss';
-import type { LineChartAnnotationProps } from './line-chart-annotation';
 import type { BaseChartProps, DataPoint, DataPointDate, SeriesData } from '../../types';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
@@ -134,7 +135,7 @@ interface LineChartProps extends BaseChartProps< SeriesData[] > {
 		showVertical?: boolean;
 		showHorizontal?: boolean;
 	};
-	annotations?: LineChartAnnotationProps[];
+	children?: ReactNode;
 }
 
 type TooltipDatum = {
@@ -252,11 +253,11 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 			renderTooltip = renderDefaultTooltip,
 			withStartGlyphs = false,
 			options = {},
-			annotations,
 			onPointerDown = undefined,
 			onPointerUp = undefined,
 			onPointerMove = undefined,
 			onPointerOut = undefined,
+			children,
 		},
 		ref
 	) => {
@@ -362,13 +363,25 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 		);
 
 		// Register chart with context only if data is valid
-		useChartRegistration( chartId, legendItems, providerTheme, 'line', isDataValid, {
-			withGradientFill,
-			smoothing,
-			curveType,
-			withStartGlyphs,
-			withLegendGlyph,
-		} );
+		useChartRegistration(
+			chartId,
+			legendItems,
+			providerTheme,
+			'line',
+			isDataValid,
+			{
+				withGradientFill,
+				smoothing,
+				curveType,
+				withStartGlyphs,
+				withLegendGlyph,
+			},
+			{
+				chartRef: internalChartRef,
+				chartWidth: width,
+				chartHeight: height - ( showLegend ? legendHeight : 0 ),
+			}
+		);
 
 		const accessors = {
 			xAccessor: ( d: DataPointDate ) => d?.date,
@@ -505,16 +518,6 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 					</XYChart>
 				</div>
 
-				{ /* Render annotations as external overlay to avoid interaction blocking */ }
-				{ annotations?.length && (
-					<LineChartAnnotationsOverlay
-						chartRef={ internalChartRef }
-						annotations={ annotations }
-						chartWidth={ width }
-						chartHeight={ height - ( showLegend ? legendHeight : 0 ) }
-					/>
-				) }
-
 				{ showLegend && (
 					<Legend
 						items={ legendItems }
@@ -526,6 +529,15 @@ const LineChartInternal = forwardRef< LineChartRef, LineChartProps >(
 						ref={ legendRef }
 					/>
 				) }
+
+				{ /* Render children here so they have access to the chart ID */ }
+				{ Children.map( children, child => {
+					if ( isValidElement( child ) ) {
+						return cloneElement( child, { chartId } as { chartId: string } );
+					}
+
+					return child;
+				} ) }
 			</div>
 		);
 	}

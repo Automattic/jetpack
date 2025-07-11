@@ -1,17 +1,13 @@
 import { DataContext } from '@visx/xychart';
 import { useEffect, useState, useCallback } from 'react';
-import LineChartAnnotation from './line-chart-annotation';
+import { useChartContext } from '../../providers/chart-context';
 import styles from './line-chart.module.scss';
-import type { LineChartRef } from './line-chart';
-import type { LineChartAnnotationProps } from './line-chart-annotation';
 import type { AxisScale } from '@visx/axis';
-import type { FC, RefObject } from 'react';
+import type { FC, ReactNode } from 'react';
 
 interface LineChartAnnotationsProps {
-	chartRef: RefObject< LineChartRef >;
-	annotations: LineChartAnnotationProps[];
-	chartWidth: number;
-	chartHeight: number;
+	chartId: string;
+	children?: ReactNode;
 }
 
 interface ScaleData {
@@ -19,12 +15,18 @@ interface ScaleData {
 	yScale: AxisScale< number >;
 }
 
-const LineChartAnnotationsOverlay: FC< LineChartAnnotationsProps > = ( {
-	chartRef,
-	annotations,
-	chartWidth,
-	chartHeight,
-} ) => {
+const LineChartAnnotationsOverlay: FC< LineChartAnnotationsProps > = ( { chartId, children } ) => {
+	const { getChartData } = useChartContext();
+
+	let chartData = null;
+	if ( chartId ) {
+		chartData = getChartData( chartId );
+	}
+
+	const chartRef = chartData?.chartRef;
+	const chartWidth = chartData?.chartWidth || 0;
+	const chartHeight = chartData?.chartHeight || 0;
+
 	const [ scales, setScales ] = useState< ScaleData | null >( null );
 	const [ scalesStable, setScalesStable ] = useState< boolean >( false );
 
@@ -42,7 +44,7 @@ const LineChartAnnotationsOverlay: FC< LineChartAnnotationsProps > = ( {
 
 	// Get scales from chart ref and return them with signature for comparison
 	const getScalesData = useCallback( () => {
-		if ( chartRef.current ) {
+		if ( chartRef?.current ) {
 			const scaleData = chartRef.current.getScales();
 
 			if ( scaleData ) {
@@ -107,6 +109,11 @@ const LineChartAnnotationsOverlay: FC< LineChartAnnotationsProps > = ( {
 		};
 	}, [ getScalesData, chartWidth, chartHeight ] );
 
+	// Early return if no chart data available
+	if ( ! chartRef || ! children ) {
+		return null;
+	}
+
 	if ( ! scales || ! scalesStable ) {
 		return null;
 	}
@@ -116,16 +123,9 @@ const LineChartAnnotationsOverlay: FC< LineChartAnnotationsProps > = ( {
 	const dataContextValue = {
 		xScale: scales.xScale,
 		yScale: scales.yScale,
-		// Add minimal required properties for DataContext
-		theme: {},
 		margin: { top: 0, right: 0, bottom: 0, left: 0 },
 		width: chartWidth,
 		height: chartHeight,
-		// Additional visx DataContext properties that may be needed
-		colorScale: undefined,
-		dataRegistry: new Map(),
-		registerData: () => {},
-		unregisterData: () => {},
 	} as unknown as Parameters< typeof DataContext.Provider >[ 0 ][ 'value' ];
 
 	return (
@@ -136,13 +136,7 @@ const LineChartAnnotationsOverlay: FC< LineChartAnnotationsProps > = ( {
 				className={ styles[ 'line-chart__annotations-overlay' ] }
 				data-testid="line-chart-annotations-overlay"
 			>
-				{ annotations.map( ( annotation, index ) => (
-					<LineChartAnnotation
-						key={ `overlay-annotation-${ index }` }
-						testId={ `overlay-annotation-${ index }` }
-						{ ...annotation }
-					/>
-				) ) }
+				{ children }
 			</svg>
 		</DataContext.Provider>
 	);

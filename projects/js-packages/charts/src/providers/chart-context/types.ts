@@ -1,11 +1,15 @@
 import type { BaseLegendItem } from '../../components/legend/types';
 import type { ChartTheme } from '../../types';
+import type { RefObject } from 'react';
 
 export interface ChartRegistration {
 	legendItems: BaseLegendItem[];
 	theme: ChartTheme;
 	chartType: string;
 	metadata?: Record< string, unknown >;
+	chartRef?: RefObject< unknown >;
+	chartWidth?: number;
+	chartHeight?: number;
 }
 
 export interface ChartContextValue {
