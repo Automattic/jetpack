@@ -1144,7 +1144,7 @@ class Manager {
 			\Jetpack_Options::update_option( 'master_user', $new_owner_id );
 
 			// Clear the memoized connection owner ID since it changed
-			self::$connection_owner_id = null;
+			static::$connection_owner_id = null;
 
 			// Track it.
 			( new Tracking() )->record_user_event( 'set_connection_owner_success' );
